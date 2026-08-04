@@ -8,6 +8,10 @@ if (php_sapi_name() !== 'cli') {
     die("This script must be run from the command line.\n");
 }
 
+// Prevent overlapping runs of this script
+$cron_lock_script = __FILE__;
+require_once "includes/cron_lock.php";
+
 require_once "../config.php";
 
 // Set Timezone
@@ -24,7 +28,7 @@ $config_enable_cron = intval($row['config_enable_cron']);
 // Check cron is enabled
 if ($config_enable_cron == 0) {
     logApp("Cron-Domain-Refresher", "error", "Cron Domain Refresh unable to run - cron not enabled in admin settings.");
-    exit("Cron: is not enabled -- Quitting..");
+    cronJobStop("Cron: is not enabled -- Quitting..");
 }
 
 /*
@@ -41,20 +45,20 @@ if ($row) {
 
     // Get current data in database
     $domain_id = intval($row['domain_id']);
-    $domain_name = sanitizeInput($row['domain_name']);
-    $current_expire = sanitizeInput($row['domain_expire']);
+    $domain_name = escapeSql($row['domain_name']);
+    $current_expire = escapeSql($row['domain_expire']);
 
     // Touch the record we're refreshing to ensure we don't loop
     mysqli_query($mysqli, "UPDATE domains SET domain_updated_at = NOW() WHERE domain_id = $domain_id");
 
     // Lookup fresh info
     $expire = getDomainExpirationDate($domain_name);
-    $records = getDomainRecords($domain_name);
-    $a = sanitizeInput($records['a']);
-    $ns = sanitizeInput($records['ns']);
-    $mx = sanitizeInput($records['mx']);
-    $txt = sanitizeInput($records['txt']);
-    $whois = sanitizeInput($records['whois']);
+    $records = getDnsRecords($domain_name);
+    $a = escapeSql($records['a']);
+    $ns = escapeSql($records['ns']);
+    $mx = escapeSql($records['mx']);
+    $txt = escapeSql($records['txt']);
+    $whois = escapeSql($records['whois']);
 
     // Handle expiry date
     if (strtotime($expire)) {
@@ -108,9 +112,9 @@ if ($row) {
     foreach ($original_domain_info as $column => $old_value) {
         $new_value = $new_domain_info[$column];
         if ($old_value != $new_value && !in_array($column, $ignored_columns)) {
-            $column = sanitizeInput($column);
-            $old_value = sanitizeInput($old_value);
-            $new_value = sanitizeInput($new_value);
+            $column = escapeSql($column);
+            $old_value = escapeSql($old_value);
+            $new_value = escapeSql($new_value);
             mysqli_query($mysqli,"INSERT INTO domain_history SET domain_history_column = '$column', domain_history_old_value = '$old_value', domain_history_new_value = '$new_value', domain_history_domain_id = $domain_id");
         }
     }

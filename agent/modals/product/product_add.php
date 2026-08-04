@@ -2,7 +2,7 @@
 
 require_once '../../../includes/modal_header.php';
 
-$type = nullable_htmlentities($_GET['type'] ?? '');
+$type = escapeHtml($_GET['type'] ?? '');
 if ($type == 'product') {
     $type_icon = "fa-box-open";
 } else {
@@ -70,9 +70,9 @@ ob_start();
                     $sql = mysqli_query($mysqli, "SELECT * FROM categories WHERE category_type = 'Income' AND category_archived_at IS NULL");
                     while ($row = mysqli_fetch_assoc($sql)) {
                         $category_id = intval($row['category_id']);
-                        $category_name = nullable_htmlentities($row['category_name']);
+                        $category_name = escapeHtml($row['category_name']);
                         ?>
-                        <option value="<?php echo $category_id; ?>"><?php echo $category_name; ?></option>
+                        <option value="<?= $category_id ?>"><?= $category_name ?></option>
 
                         <?php
                     }
@@ -114,10 +114,10 @@ ob_start();
                             $taxes_sql = mysqli_query($mysqli, "SELECT * FROM taxes WHERE tax_archived_at IS NULL ORDER BY tax_name ASC");
                             while ($row = mysqli_fetch_assoc($taxes_sql)) {
                                 $tax_id = intval($row['tax_id']);
-                                $tax_name = nullable_htmlentities($row['tax_name']);
+                                $tax_name = escapeHtml($row['tax_name']);
                                 $tax_percent = floatval($row['tax_percent']);
                                 ?>
-                                <option value="<?php echo $tax_id; ?>"><?php echo "$tax_name $tax_percent%"; ?></option>
+                                <option value="<?= $tax_id ?>"><?= "$tax_name $tax_percent%" ?></option>
 
                                 <?php
                             }
@@ -135,7 +135,7 @@ ob_start();
                 <div class="input-group-prepend">
                     <span class="input-group-text"><i class="fa fa-fw fa-map-marker-alt"></i></span>
                 </div>
-                <input type="text" class="form-control" name="location" placeholder="Enter a location">
+                <input type="text" class="form-control" name="location" placeholder="Enter a location" maxlength="250">
             </div>
         </div>
         <?php } ?>
@@ -151,7 +151,7 @@ ob_start();
                 <div class="input-group-prepend">
                     <span class="input-group-text"><i class="fa fa-fw fa-barcode"></i></span>
                 </div>
-                <input type="text" class="form-control" name="code" placeholder="Enter product code eg. SKU #">
+                <input type="text" class="form-control" name="code" placeholder="Enter product code eg. SKU #" maxlength="200">
             </div>
         </div>
 

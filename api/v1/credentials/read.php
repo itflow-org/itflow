@@ -8,8 +8,10 @@ require_once '../require_get_method.php';
 $sql = false;
 
 $api_key_decrypt_password = '';
-if (isset($_GET['api_key_decrypt_password'])) {
-    $api_key_decrypt_password = $_GET['api_key_decrypt_password']; // No sanitization
+if (isset($_POST['api_key_decrypt_password'])) {
+    // Read from the request body (parsed by validate_api_key.php), NOT the query string,
+    // so this decryption secret never lands in web-server access logs or browser history.
+    $api_key_decrypt_password = $_POST['api_key_decrypt_password'];
 }
 
 // Specific credential/login via ID (single)
@@ -17,13 +19,13 @@ if (isset($_GET['credential_id']) && !empty($api_key_decrypt_password)) {
 
     $id = intval($_GET['credential_id']);
 
-    $sql = mysqli_query($mysqli, "SELECT * FROM credentials WHERE credential_id = '$id' AND credential_client_id LIKE '$client_id' LIMIT 1");
+    $sql = mysqli_query($mysqli, "SELECT * FROM credentials WHERE credential_id = '$id' AND 1=1 " . apiClientScopeSql('credential_client_id') . " LIMIT 1");
 
 
 } elseif (!empty($api_key_decrypt_password)) {
     // All credentials ("credentials")
 
-    $sql = mysqli_query($mysqli, "SELECT * FROM credentials WHERE credential_client_id LIKE '$client_id' ORDER BY credential_id LIMIT $limit OFFSET $offset");
+    $sql = mysqli_query($mysqli, "SELECT * FROM credentials WHERE 1=1 " . apiClientScopeSql('credential_client_id') . " ORDER BY credential_id LIMIT $limit OFFSET $offset");
 
 }
 

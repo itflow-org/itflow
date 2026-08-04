@@ -19,7 +19,7 @@ if (isset($_POST['ticket_asset_id'])) {
 }
 
 if (isset($_POST['ticket_subject'])) {
-    $subject = sanitizeInput($_POST['ticket_subject']);
+    $subject = escapeSql($_POST['ticket_subject']);
 } elseif ($ticket_row) {
     $subject = mysqli_real_escape_string($mysqli, $ticket_row['ticket_subject']);
 } else {
@@ -28,7 +28,7 @@ if (isset($_POST['ticket_subject'])) {
 
 
 if (isset($_POST['ticket_priority'])) {
-    $priority = sanitizeInput($_POST['ticket_priority']);
+    $priority = escapeSql($_POST['ticket_priority']);
 } elseif ($ticket_row) {
     $priority = mysqli_real_escape_string($mysqli, $ticket_row['ticket_priority']);
 } else {

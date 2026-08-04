@@ -2,6 +2,8 @@
 
 require_once '../../../includes/modal_header.php';
 
+enforceUserPermission('module_support', 2);
+
 $ticket_reply_id = intval($_GET['id']);
 
 $sql = mysqli_query($mysqli, "SELECT * FROM ticket_replies
@@ -11,10 +13,13 @@ $sql = mysqli_query($mysqli, "SELECT * FROM ticket_replies
 );
 
 $row = mysqli_fetch_assoc($sql);
-$ticket_reply = nullable_htmlentities($row['ticket_reply']);
+$ticket_reply = escapeHtml($row['ticket_reply']);
 $client_id = intval($row['ticket_client_id']);
 
-// Generate the HTML form content using output buffering.
+if ($client_id) {
+    enforceClientAccess();
+}
+
 ob_start();
 
 ?>
@@ -27,13 +32,12 @@ ob_start();
 </div>
 <form action="post.php" method="post" autocomplete="off">
     <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
-    <input type="hidden" name="ticket_reply_id" value="<?php echo $ticket_reply_id; ?>">
-    <input type="hidden" name="client_id" value="<?php echo $client_id; ?>">
+    <input type="hidden" name="ticket_reply_id" value="<?= $ticket_reply_id ?>">
 
     <div class="modal-body">
 
         <div class="form-group">
-            <textarea class="form-control tinymceRedact" name="ticket_reply"><?php echo $ticket_reply; ?></textarea>
+            <textarea class="form-control tinymceRedact" name="ticket_reply"><?= $ticket_reply ?></textarea>
         </div>
 
     </div>

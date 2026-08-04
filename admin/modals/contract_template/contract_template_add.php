@@ -1,5 +1,5 @@
 <?php
-require_once '../../../includes/modal_header.php';
+require_once '../../includes/modal_header.php';
 
 
 $contract_types_array = ['Fully Managed', 'Partialy Managed', 'Break/Fix'];
@@ -30,7 +30,7 @@ ob_start();
 </ul>
 
 <form action="post.php" method="post" autocomplete="off">
-    <input type="hidden" name="csrf_token" value="<?php echo $_SESSION['csrf_token'] ?>">
+    <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
 
     <div class="modal-body">
         <div class="tab-content" id="contractTemplateTabContent">
@@ -183,7 +183,7 @@ ob_start();
                         <div class="input-group-prepend">
                             <span class="input-group-text"><i class="fa fa-fw fa-calendar"></i></span>
                         </div>
-                        <input type="text" class="form-control" name="support_hours" placeholder="e.g., Mon-Fri 9am-5pm">
+                        <input type="text" class="form-control" name="support_hours" placeholder="e.g., Mon-Fri 9am-5pm" maxlength="100">
                     </div>
                 </div>
 
@@ -193,7 +193,7 @@ ob_start();
                         <div class="input-group-prepend">
                             <span class="input-group-text"><i class="fa fa-fw fa-file-invoice-dollar"></i></span>
                         </div>
-                        <input type="text" class="form-control" name="net_terms" placeholder="e.g., Net 30">
+                        <input type="text" class="form-control" name="net_terms" placeholder="e.g., Net 30" maxlength="50">
                     </div>
                 </div>
             </div>

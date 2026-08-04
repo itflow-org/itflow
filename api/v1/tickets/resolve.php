@@ -19,28 +19,32 @@ if (!empty($ticket_id)) {
 
     // Grab what we need, not using the model
     $ticket_id = intval($ticket_row['ticket_id']); // Override so things fail if this is bad
-    $ticket_prefix = sanitizeInput($ticket_row['ticket_prefix']);
+    $ticket_prefix = escapeSql($ticket_row['ticket_prefix']);
     $ticket_number = intval($ticket_row['ticket_number']);
-    $ticket_first_response_at = sanitizeInput($ticket_row['ticket_first_response_at']);
+    $ticket_first_response_at = escapeSql($ticket_row['ticket_first_response_at']);
 
     // Mark FR (if not)
     if (empty($ticket_first_response_at)) {
-        mysqli_query($mysqli, "UPDATE tickets SET ticket_first_response_at = NOW() WHERE ticket_id = $ticket_id AND ticket_client_id = $client_id LIMIT 1");
+        setTicketFirstResponse($ticket_id);
     }
 
     // Resolve
     $update_sql = mysqli_query($mysqli, "UPDATE tickets SET ticket_status = 4, ticket_resolved_at = NOW() WHERE ticket_id = $ticket_id AND ticket_client_id = $client_id LIMIT 1");
+    syncTicketSlaClock($ticket_id);
+    setTicketResolutionSlaMet($ticket_id);
 
     // Check insert & get insert ID
     if ($update_sql) {
         $update_count = mysqli_affected_rows($mysqli);
 
         // Logging
-        logAction("Ticket", "Resolved", "$ticket_prefix$ticket_number ticket via API ($api_key_name)", $client_id, $ticket_id);
-        logAction("API", "Success", "Resolved ticket $ticket_prefix$ticket_number via API ($api_key_name)", $client_id);
+        logTicketHistory($ticket_id, "Resolved via the API ($api_key_name)");
+
+        logAudit("Ticket", "Resolved", "$ticket_prefix$ticket_number ticket via API ($api_key_name)", $client_id, $ticket_id);
+        logAudit("API", "Success", "Resolved ticket $ticket_prefix$ticket_number via API ($api_key_name)", $client_id);
     }
 
-    customAction('ticket_resolve', $ticket_id);
+    triggerCustomAction('ticket_resolve', $ticket_id);
 
 }
 

@@ -18,7 +18,7 @@ if (!empty($client_id)) {
 
     if ($row) {
 
-        $client_name = sanitizeInput($row['client_name']);
+        $client_name = escapeSql($row['client_name']);
 
         // Un-archive client
         $update_sql = mysqli_query($mysqli, "UPDATE clients SET client_archived_at = NULL WHERE client_id = $client_id");
@@ -27,7 +27,7 @@ if (!empty($client_id)) {
             $update_count = mysqli_affected_rows($mysqli);
 
             // Logging
-            logAction("Contact", "Unarchive", "$client_name unarchived via API ($api_key_name)", $client_id);
+            logAudit("Contact", "Unarchive", "$client_name unarchived via API ($api_key_name)", $client_id);
         }
     }
 }

@@ -13,6 +13,8 @@ $count_files = count($file_ids);
 $count_docs  = count($document_ids);
 $total       = $count_files + $count_docs;
 
+enforceClientAccess();
+
 ob_start();
 
 ?>
@@ -68,7 +70,7 @@ ob_start();
                     while ($row = mysqli_fetch_assoc($sql_all_folders)) {
                         $folders[$row['folder_id']] = [
                             'folder_id'    => (int)$row['folder_id'],
-                            'folder_name'  => nullable_htmlentities($row['folder_name']),
+                            'folder_name'  => escapeHtml($row['folder_name']),
                             'parent_folder'=> (int)$row['parent_folder'],
                             'children'     => []
                         ];

@@ -1,6 +1,6 @@
 <?php
 
-require_once '../../../includes/modal_header.php';
+require_once '../../includes/modal_header.php';
 
 ob_start();
 
@@ -13,7 +13,7 @@ ob_start();
     </button>
 </div>
 <form action="post.php" method="post" autocomplete="off">
-    <input type="hidden" name="csrf_token" value="<?php echo $_SESSION['csrf_token'] ?>">
+    <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
 
     <div class="modal-body">
 
@@ -29,10 +29,10 @@ ob_start();
                         $sql_ai_providers = mysqli_query($mysqli, "SELECT * FROM ai_providers");
                         while ($row = mysqli_fetch_assoc($sql_ai_providers)) {
                             $ai_provider_id = intval($row['ai_provider_id']);
-                            $ai_provider_name = nullable_htmlentities($row['ai_provider_name']);
+                            $ai_provider_name = escapeHtml($row['ai_provider_name']);
 
                         ?>
-                        <option value="<?php echo $ai_provider_id; ?>"><?php echo $ai_provider_name; ?></option>
+                        <option value="<?= $ai_provider_id ?>"><?= $ai_provider_name ?></option>
                     <?php } ?>
                 </select>
             </div>
@@ -44,7 +44,7 @@ ob_start();
                 <div class="input-group-prepend">
                     <span class="input-group-text"><i class="fa fa-fw fa-robot"></i></span>
                 </div>
-                <input type="text" class="form-control" name="model" placeholder="ex gpt-4">
+                <input type="text" class="form-control" name="model" placeholder="ex gpt-4" maxlength="200">
             </div>
         </div>
 

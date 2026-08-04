@@ -59,12 +59,12 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 
             <form autocomplete="off">
                 <?php if ($client_url) { ?>
-                <input type="hidden" name="client_id" value="<?php echo $client_id; ?>">
+                <input type="hidden" name="client_id" value="<?= $client_id ?>">
                 <?php } ?>
                 <div class="row">
                     <div class="col-md-4">
                         <div class="input-group mb-3 mb-md-0">
-                            <input type="search" class="form-control" name="q" value="<?php if (isset($q)) { echo stripslashes(nullable_htmlentities($q)); } ?>" placeholder="Search Services">
+                            <input type="search" class="form-control" name="q" value="<?php if (isset($q)) { echo stripslashes(escapeHtml($q)); } ?>" placeholder="Search Services">
                             <div class="input-group-append">
                                 <button class="btn btn-dark"><i class="fa fa-search"></i></button>
                             </div>
@@ -90,9 +90,9 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                 ");
                                 while ($row = mysqli_fetch_assoc($sql_clients_filter)) {
                                     $client_id = intval($row['client_id']);
-                                    $client_name = nullable_htmlentities($row['client_name']);
+                                    $client_name = escapeHtml($row['client_name']);
                                 ?>
-                                    <option <?php if ($client == $client_id) { echo "selected"; } ?> value="<?php echo $client_id; ?>"><?php echo $client_name; ?></option>
+                                    <option <?php if ($client == $client_id) { echo "selected"; } ?> value="<?= $client_id ?>"><?= $client_name ?></option>
                                 <?php
                                 }
                                 ?>
@@ -115,28 +115,28 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                     <thead class="<?php if ($num_rows[0] == 0) { echo "d-none"; } ?>">
                     <tr>
                         <th>
-                            <a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=service_name&order=<?php echo $disp; ?>">
+                            <a class="text-dark" href="?<?= $url_query_strings_sort ?>&sort=service_name&order=<?= $disp ?>">
                                 Name <?php if ($sort == 'service_name') { echo $order_icon; } ?>
                             </a>
                         </th>
                         <th>
-                            <a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=service_category&order=<?php echo $disp; ?>">
+                            <a class="text-dark" href="?<?= $url_query_strings_sort ?>&sort=service_category&order=<?= $disp ?>">
                                 Category <?php if ($sort == 'service_category') { echo $order_icon; } ?>
                             </a>
                         </th>
                         <th>
-                            <a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=service_importance&order=<?php echo $disp; ?>">
+                            <a class="text-dark" href="?<?= $url_query_strings_sort ?>&sort=service_importance&order=<?= $disp ?>">
                                 Importance <?php if ($sort == 'service_importance') { echo $order_icon; } ?>
                             </a>
                         </th>
                         <th>
-                            <a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=service_updated_at&order=<?php echo $disp; ?>">
+                            <a class="text-dark" href="?<?= $url_query_strings_sort ?>&sort=service_updated_at&order=<?= $disp ?>">
                                 Updated <?php if ($sort == 'service_updated_at') { echo $order_icon; } ?>
                             </a>
                         </th>
                         <?php if (!$client_url) { ?>
                         <th>
-                            <a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=client_name&order=<?php echo $disp; ?>">
+                            <a class="text-dark" href="?<?= $url_query_strings_sort ?>&sort=client_name&order=<?= $disp ?>">
                                 Client <?php if ($sort == 'client_name') { echo $order_icon; } ?>
                             </a>
                         </th>
@@ -149,17 +149,17 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 
                     while ($row = mysqli_fetch_assoc($sql)) {
                         $client_id = intval($row['client_id']);
-                        $client_name = nullable_htmlentities($row['client_name']);
+                        $client_name = escapeHtml($row['client_name']);
                         $service_id = intval($row['service_id']);
-                        $service_name = nullable_htmlentities($row['service_name']);
-                        $service_description = nullable_htmlentities($row['service_description']);
-                        $service_category = nullable_htmlentities($row['service_category']);
-                        $service_importance = nullable_htmlentities($row['service_importance']);
-                        $service_backup = nullable_htmlentities($row['service_backup']);
-                        $service_notes = nullable_htmlentities($row['service_notes']);
-                        $service_created_at = nullable_htmlentities($row['service_created_at']);
-                        $service_updated_at = nullable_htmlentities($row['service_updated_at']);
-                        $service_review_due = nullable_htmlentities($row['service_review_due']);
+                        $service_name = escapeHtml($row['service_name']);
+                        $service_description = escapeHtml($row['service_description']);
+                        $service_category = escapeHtml($row['service_category']);
+                        $service_importance = escapeHtml($row['service_importance']);
+                        $service_backup = escapeHtml($row['service_backup']);
+                        $service_notes = escapeHtml($row['service_notes']);
+                        $service_created_at = escapeHtml($row['service_created_at']);
+                        $service_updated_at = escapeHtml($row['service_updated_at']);
+                        $service_review_due = escapeHtml($row['service_review_due']);
 
                         ?>
 
@@ -168,22 +168,22 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                             <td>
                                 <a class="text-dark ajax-modal" href="#"
                                     data-modal-size="xl"
-                                    data-modal-url="modals/service/service_details.php?id=<?= $service_id ?>">
+                                    data-modal-url="modals/service/service.php?id=<?= $service_id ?>">
                                     <div class="media">
                                         <i class="fa fa-fw fa-2x fa-stream mr-3"></i>
                                         <div class="media-body">
-                                            <div><?php echo $service_name; ?></div>
-                                            <div><small class="text-secondary"><?php echo $service_description; ?></small></div>
+                                            <div><?= $service_name ?></div>
+                                            <div><small class="text-secondary"><?= $service_description ?></small></div>
                                         </div>
                                     </div>
                                 </a>
 
                             </td>
-                            <td><?php echo $service_category ?></td>
-                            <td><?php echo $service_importance ?></td>
-                            <td><?php echo $service_updated_at ?></td>
+                            <td><?= $service_category ?></td>
+                            <td><?= $service_importance ?></td>
+                            <td><?= $service_updated_at ?></td>
                             <?php if (!$client_url) { ?>
-                            <td><a href="services.php?client_id=<?php echo $client_id; ?>"><?php echo $client_name; ?></a></td>
+                            <td><a href="services.php?client_id=<?= $client_id ?>"><?= $client_name ?></a></td>
                             <?php } ?>
 
                             <!-- Action -->
@@ -199,7 +199,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                         </a>
                                         <?php if (lookupUserPermission("module_support") >= 3) { ?>
                                             <div class="dropdown-divider"></div>
-                                            <a class="dropdown-item text-danger text-bold confirm-link" href="post.php?delete_service=<?php echo $service_id; ?>&csrf_token=<?php echo $_SESSION['csrf_token']; ?>">
+                                            <a class="dropdown-item text-danger text-bold confirm-link" href="post.php?delete_service=<?= $service_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>">
                                                 <i class="fas fa-fw fa-trash mr-2"></i>Delete
                                             </a>
                                         <?php } ?>

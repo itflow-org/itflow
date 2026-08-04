@@ -21,7 +21,7 @@ if (!empty($contact_id)) {
 
     if ($row) {
 
-        $contact_name = sanitizeInput($row['contact_name']);
+        $contact_name = escapeSql($row['contact_name']);
         $contact_user_id = intval($row['contact_user_id']);
 
         // Archive associated user if applicable
@@ -43,7 +43,7 @@ if (!empty($contact_id)) {
             $update_count = mysqli_affected_rows($mysqli);
 
             // Logging
-            logAction("Contact", "Archive", "$contact_name archived via API ($api_key_name)", $client_id, $contact_id);
+            logAudit("Contact", "Archive", "$contact_name archived via API ($api_key_name)", $client_id, $contact_id);
         }
     }
 }

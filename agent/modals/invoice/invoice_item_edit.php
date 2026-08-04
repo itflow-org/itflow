@@ -2,32 +2,37 @@
 
 require_once '../../../includes/modal_header.php';
 
+enforceUserPermission('module_sales', 2);
+
 $item_id = intval($_GET['id']);
 
-$sql = mysqli_query($mysqli, "SELECT * FROM invoice_items WHERE item_id = $item_id LIMIT 1");
+$sql = mysqli_query($mysqli, "SELECT * FROM invoice_items LEFT JOIN invoices ON invoice_id = item_invoice_id WHERE item_id = $item_id LIMIT 1");
 $row = mysqli_fetch_assoc($sql);
-$item_name = nullable_htmlentities($row['item_name']);
-$item_description = nullable_htmlentities($row['item_description']);
+$item_name = escapeHtml($row['item_name']);
+$item_description = escapeHtml($row['item_description']);
 $item_quantity = floatval($row['item_quantity']);
 $item_price = floatval($row['item_price']);
-$item_created_at = nullable_htmlentities($row['item_created_at']);
+$item_created_at = escapeHtml($row['item_created_at']);
 $tax_id = intval($row['item_tax_id']);
 $product_id = intval($row['item_product_id']);
+$client_id = intval($row['invoice_client_id']);
 
-// Generate the HTML form content using output buffering.
+enforceClientAccess();
+
 ob_start();
+
 ?>
 
 <div class="modal-header bg-dark">
-    <h5 class="modal-title"><i class="fas fa-fw fa-edit mr-2"></i>Editing Line Item: <strong><?php echo $item_name; ?></strong></h5>
+    <h5 class="modal-title"><i class="fas fa-fw fa-edit mr-2"></i>Editing Line Item: <strong><?= $item_name ?></strong></h5>
     <button type="button" class="close text-white" data-dismiss="modal">
         <span>&times;</span>
     </button>
 </div>
 <form action="post.php" method="post" autocomplete="off">
     <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
-    <input type="hidden" name="item_id" value="<?php echo $item_id; ?>">
-    <input type="hidden" name="product_id" value="<?php echo $product_id; ?>">
+    <input type="hidden" name="item_id" value="<?= $item_id ?>">
+    <input type="hidden" name="product_id" value="<?= $product_id ?>">
 
     <div class="modal-body">
         <div class="form-group">
@@ -36,7 +41,7 @@ ob_start();
                 <div class="input-group-prepend">
                     <span class="input-group-text"><i class="fa fa-fw fa-box"></i></span>
                 </div>
-                <input type="text" class="form-control" name="name" maxlength="200" value="<?php echo $item_name; ?>" placeholder="Enter item name" required>
+                <input type="text" class="form-control" name="name" maxlength="200" value="<?= $item_name ?>" placeholder="Enter item name" required>
             </div>
         </div>
 
@@ -48,7 +53,7 @@ ob_start();
                         <div class="input-group-prepend">
                             <span class="input-group-text"><i class="fa fa-fw fa-balance-scale"></i></span>
                         </div>
-                        <input type="text" class="form-control" inputmode="decimal" pattern="[0-9]*\.?[0-9]{0,2}" name="qty" value="<?php echo number_format($item_quantity, 2); ?>" placeholder="0.00" required>
+                        <input type="text" class="form-control" inputmode="decimal" pattern="[0-9]*\.?[0-9]{0,2}" name="qty" value="<?= number_format($item_quantity, 2) ?>" placeholder="0.00" required>
                     </div>
                 </div>
             </div>
@@ -60,7 +65,7 @@ ob_start();
                         <div class="input-group-prepend">
                             <span class="input-group-text"><i class="fa fa-fw fa-dollar-sign"></i></span>
                         </div>
-                        <input type="text" class="form-control" inputmode="decimal" pattern="-?[0-9]*\.?[0-9]{0,2}" name="price" value="<?php echo number_format($item_price, 2, '.', ''); ?>" placeholder="0.00" required>
+                        <input type="text" class="form-control" inputmode="decimal" pattern="-?[0-9]*\.?[0-9]{0,2}" name="price" value="<?= number_format($item_price, 2, '.', '') ?>" placeholder="0.00" required>
                     </div>
                 </div>
             </div>
@@ -69,7 +74,7 @@ ob_start();
         <div class="form-group">
             <label>Description</label>
             <div class="input-group">
-                <textarea class="form-control" rows="5" name="description" placeholder="Enter a description"><?php echo $item_description; ?></textarea>
+                <textarea class="form-control" rows="5" name="description" placeholder="Enter a description"><?= $item_description ?></textarea>
             </div>
         </div>
 
@@ -85,10 +90,10 @@ ob_start();
                         $taxes_sql = mysqli_query($mysqli, "SELECT * FROM taxes WHERE (tax_archived_at > '$item_created_at' OR tax_archived_at IS NULL) ORDER BY tax_name ASC");
                         while ($row = mysqli_fetch_assoc($taxes_sql)) {
                             $tax_id_select = intval($row['tax_id']);
-                            $tax_name = nullable_htmlentities($row['tax_name']);
+                            $tax_name = escapeHtml($row['tax_name']);
                             $tax_percent = floatval($row['tax_percent']);
                     ?>
-                        <option <?php if ($tax_id_select == $tax_id) { echo "selected"; } ?> value="<?php echo $tax_id_select; ?>"><?php echo "$tax_name $tax_percent%"; ?></option>
+                        <option <?php if ($tax_id_select == $tax_id) { echo "selected"; } ?> value="<?= $tax_id_select ?>"><?= "$tax_name $tax_percent%" ?></option>
                     <?php
                         }
                     ?>

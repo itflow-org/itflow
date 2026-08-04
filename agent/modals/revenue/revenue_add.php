@@ -23,7 +23,7 @@ ob_start();
                     <div class="input-group-prepend">
                         <span class="input-group-text"><i class="fa fa-fw fa-calendar"></i></span>
                     </div>
-                    <input type="date" class="form-control" name="date" max="2999-12-31" value="<?php echo date("Y-m-d"); ?>" required>
+                    <input type="date" class="form-control" name="date" max="2999-12-31" value="<?= date("Y-m-d") ?>" required>
                 </div>
             </div>
 
@@ -54,8 +54,8 @@ ob_start();
                         $sql = mysqli_query($mysqli, "SELECT * FROM accounts WHERE account_archived_at IS NULL ORDER BY account_name ASC");
                         while ($row = mysqli_fetch_assoc($sql)) {
                             $account_id = intval($row['account_id']);
-                            $account_name = nullable_htmlentities($row['account_name']);
-                            $account_currency_code = nullable_htmlentities($row['account_currency_code']);
+                            $account_name = escapeHtml($row['account_name']);
+                            $account_currency_code = escapeHtml($row['account_currency_code']);
                             $opening_balance = floatval($row['opening_balance']);
 
                             $sql_payments = mysqli_query($mysqli, "SELECT SUM(payment_amount) AS total_payments FROM payments WHERE payment_account_id = $account_id");
@@ -73,7 +73,7 @@ ob_start();
                             $balance = $opening_balance + $total_payments + $total_revenues - $total_expenses;
 
                             ?>
-                            <option <?php if ($config_default_payment_account == $account_id) { echo "selected"; } ?> value="<?php echo $account_id; ?>"><?php echo $account_name; ?> [ <?php echo numfmt_format_currency($currency_format, $balance, $account_currency_code); ?> ]</option>
+                            <option <?php if ($config_default_payment_account == $account_id) { echo "selected"; } ?> value="<?= $account_id ?>"><?= $account_name ?> [ <?= numfmt_format_currency($currency_format, $balance, $account_currency_code) ?> ]</option>
 
                             <?php
                         }
@@ -95,9 +95,9 @@ ob_start();
                         $sql = mysqli_query($mysqli, "SELECT * FROM categories WHERE category_type = 'Income' AND category_archived_at IS NULL ORDER BY category_name ASC");
                         while ($row = mysqli_fetch_assoc($sql)) {
                             $category_id = intval($row['category_id']);
-                            $category_name = nullable_htmlentities($row['category_name']);
+                            $category_name = escapeHtml($row['category_name']);
                             ?>
-                            <option value="<?php echo $category_id; ?>"><?php echo $category_name; ?></option>
+                            <option value="<?= $category_id ?>"><?= $category_name ?></option>
 
                             <?php
                         }
@@ -116,7 +116,7 @@ ob_start();
 
         <div class="form-group">
             <label>Description</label>
-            <textarea class="form-control" rows="5" name="description" placeholder="Enter a description"></textarea>
+            <textarea class="form-control" rows="5" name="description" placeholder="Enter a description" maxlength="200"></textarea>
         </div>
 
         <div class="form-row">
@@ -133,9 +133,9 @@ ob_start();
 
                         $sql = mysqli_query($mysqli, "SELECT * FROM payment_methods ORDER BY payment_method_name ASC");
                         while ($row = mysqli_fetch_assoc($sql)) {
-                            $payment_method_name = nullable_htmlentities($row['payment_method_name']);
+                            $payment_method_name = escapeHtml($row['payment_method_name']);
                             ?>
-                            <option><?php echo $payment_method_name; ?></option>
+                            <option><?= $payment_method_name ?></option>
 
                             <?php
                         }

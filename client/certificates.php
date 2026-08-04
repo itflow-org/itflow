@@ -8,10 +8,7 @@ header("Content-Security-Policy: default-src 'self'");
 
 require_once "includes/inc_all.php";
 
-if ($session_contact_primary == 0 && !$session_contact_is_technical_contact) {
-    header("Location: post.php?logout");
-    exit();
-}
+enforceContactCan('itdoc');
 
 $certificates_sql = mysqli_query($mysqli, "SELECT certificate_id, certificate_name, certificate_domain, certificate_issued_by, certificate_expire FROM certificates WHERE certificate_client_id = $session_client_id AND certificate_archived_at IS NULL ORDER BY certificate_expire ASC");
 ?>
@@ -34,18 +31,18 @@ $certificates_sql = mysqli_query($mysqli, "SELECT certificate_id, certificate_na
 
                 <?php
                 while ($row = mysqli_fetch_assoc($certificates_sql)) {
-                    $certificate_name = nullable_htmlentities($row['certificate_name']);
-                    $certificate_domain = nullable_htmlentities($row['certificate_domain']);
-                    $certificate_issued_by = nullable_htmlentities($row['certificate_issued_by']);
-                    $certificate_expire = nullable_htmlentities($row['certificate_expire']);
+                    $certificate_name = escapeHtml($row['certificate_name']);
+                    $certificate_domain = escapeHtml($row['certificate_domain']);
+                    $certificate_issued_by = escapeHtml($row['certificate_issued_by']);
+                    $certificate_expire = escapeHtml($row['certificate_expire']);
 
                     ?>
 
                     <tr>
-                        <td><?php echo $certificate_name; ?></td>
-                        <td><?php echo $certificate_domain; ?></td>
-                        <td><?php echo $certificate_issued_by; ?></td>
-                        <td><?php echo $certificate_expire; ?></td>
+                        <td><?= $certificate_name ?></td>
+                        <td><?= $certificate_domain ?></td>
+                        <td><?= $certificate_issued_by ?></td>
+                        <td><?= $certificate_expire ?></td>
                     </tr>
 
                 <?php } ?>

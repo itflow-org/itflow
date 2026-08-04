@@ -4,7 +4,7 @@ defined('FROM_POST_HANDLER') || die("Direct file access is not allowed");
 
 if (isset($_GET['delete_saved_payment'])) {
 
-    validateCSRFToken($_GET['csrf_token']);
+    validateCSRFToken();
 
     $saved_payment_id = intval($_GET['delete_saved_payment']);
 
@@ -30,9 +30,9 @@ if (isset($_GET['delete_saved_payment'])) {
     $row = mysqli_fetch_assoc($sql);
     $client_id = intval($row['saved_payment_client_id']);
     $provider_id = intval($row['saved_payment_provider_id']);
-    $payment_provider_name = nullable_htmlentities($row['payment_provider_name']);
-    $saved_payment_description = nullable_htmlentities($row['saved_payment_description']);
-    $provider_client = nullable_htmlentities($row['payment_provider_client']);
+    $payment_provider_name = escapeHtml($row['payment_provider_name']);
+    $saved_payment_description = escapeHtml($row['saved_payment_description']);
+    $provider_client = escapeHtml($row['payment_provider_client']);
     $payment_method = $row['saved_payment_provider_method'];
 
     $private_key = $row['payment_provider_private_key'];
@@ -42,7 +42,7 @@ if (isset($_GET['delete_saved_payment'])) {
 
         try {
             // Initialize stripe
-            require_once '../plugins/stripe-php/init.php';
+            require_once '../includes/stripe_init.php';
             $stripe = new \Stripe\StripeClient($private_key);
 
             // Detach PM
@@ -61,9 +61,9 @@ if (isset($_GET['delete_saved_payment'])) {
 
     // SQL Cascade delete will Remove All Associated Auto Payment Methods on recurring invoices in the recurring payments table.
 
-    logAction("Payment Provider", "Update", "$session_name deleted saved payment method $saved_payment_description (PM: $payment_method)", $client_id);
+    logAudit("Payment Provider", "Update", "$session_name deleted saved payment method $saved_payment_description (PM: $payment_method)", $client_id);
 
-    flash_alert("Payment method <strong>$saved_payment_description</strong> removed", 'error');
+    flashAlert("Payment method <strong>$saved_payment_description</strong> removed", 'error');
 
     redirect();
 

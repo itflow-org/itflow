@@ -1,5 +1,5 @@
 <?php
-require_once '../../../includes/modal_header.php';
+require_once '../../includes/modal_header.php';
 
 $contract_template_id = intval($_GET['id']);
 
@@ -11,10 +11,10 @@ $sql = mysqli_query($mysqli, "SELECT * FROM contract_templates WHERE contract_te
 $row = mysqli_fetch_assoc($sql);
 
 // Assign locals
-$name          = nullable_htmlentities($row['contract_template_name']);
-$description   = nullable_htmlentities($row['contract_template_description']);
-$type          = nullable_htmlentities($row['contract_template_type']);
-$renewal_frequency = nullable_htmlentities($row['contract_template_renewal_frequency']);
+$name          = escapeHtml($row['contract_template_name']);
+$description   = escapeHtml($row['contract_template_description']);
+$type          = escapeHtml($row['contract_template_type']);
+$renewal_frequency = escapeHtml($row['contract_template_renewal_frequency']);
 $sla_low_resp  = intval($row['contract_template_sla_low_response_time']);
 $sla_med_resp  = intval($row['contract_template_sla_medium_response_time']);
 $sla_high_resp = intval($row['contract_template_sla_high_response_time']);
@@ -23,9 +23,9 @@ $sla_med_res   = intval($row['contract_template_sla_medium_resolution_time']);
 $sla_high_res  = intval($row['contract_template_sla_high_resolution_time']);
 $hourly_rate   = intval($row['contract_template_rate_standard']);
 $after_hours   = intval($row['contract_template_rate_after_hours']);
-$support_hours = nullable_htmlentities($row['contract_template_support_hours']);
+$support_hours = escapeHtml($row['contract_template_support_hours']);
 $net_terms     = intval($row['contract_template_net_terms']);
-$details       = nullable_htmlentities($row['contract_template_details']);
+$details       = escapeHtml($row['contract_template_details']);
 
 ob_start();
 ?>
@@ -52,8 +52,8 @@ ob_start();
 </ul>
 
 <form action="post.php" method="post" autocomplete="off">
-    <input type="hidden" name="csrf_token" value="<?php echo $_SESSION['csrf_token'] ?>">
-    <input type="hidden" name="contract_template_id" value="<?php echo $contract_template_id; ?>">
+    <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
+    <input type="hidden" name="contract_template_id" value="<?= $contract_template_id ?>">
 
     <div class="modal-body">
         <div class="tab-content" id="contractTemplateTabContent">
@@ -217,7 +217,7 @@ ob_start();
                         <div class="input-group-prepend">
                             <span class="input-group-text"><i class="fa fa-fw fa-calendar"></i></span>
                         </div>
-                        <input type="text" class="form-control" name="support_hours" placeholder="e.g., Mon-Fri 9am-5pm"
+                        <input type="text" class="form-control" name="support_hours" placeholder="e.g., Mon-Fri 9am-5pm" maxlength="100"
                             value="<?= $support_hours ?>">
                     </div>
                 </div>
@@ -228,7 +228,7 @@ ob_start();
                         <div class="input-group-prepend">
                             <span class="input-group-text"><i class="fa fa-fw fa-file-invoice-dollar"></i></span>
                         </div>
-                        <input type="text" class="form-control" name="net_terms" placeholder="e.g., Net 30"
+                        <input type="text" class="form-control" name="net_terms" placeholder="e.g., Net 30" maxlength="50"
                             value="<?= $net_terms ?>">
                     </div>
                 </div>

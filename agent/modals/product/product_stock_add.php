@@ -5,21 +5,21 @@ require_once '../../../includes/modal_header.php';
 $product_id = intval($_GET['id']);
 
 // Get product name
-$product_name = sanitizeInput(getFieldById('products', $product_id, 'product_name'));
+$product_name = escapeSql(getFieldById('products', $product_id, 'product_name'));
 
 // Generate the HTML form content using output buffering.
 ob_start();
 ?>
 
 <div class="modal-header bg-dark">
-    <h5 class="modal-title"><i class="fas fa-fw fa-box-open mr-2"></i>Stocking: <strong><?php echo $product_name; ?></strong></h5>
+    <h5 class="modal-title"><i class="fas fa-fw fa-box-open mr-2"></i>Stocking: <strong><?= $product_name ?></strong></h5>
     <button type="button" class="close text-white" data-dismiss="modal">
         <span>&times;</span>
     </button>
 </div>
 <form action="post.php" method="post" autocomplete="off">
     <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
-    <input type="hidden" name="product_id" value="<?php echo $product_id; ?>">
+    <input type="hidden" name="product_id" value="<?= $product_id ?>">
     <div class="modal-body">
 
         <div class="form-group">
@@ -49,8 +49,8 @@ ob_start();
 
                     while ($row = mysqli_fetch_assoc($expenses_sql)) {
                         $expense_id = intval($row['expense_id']);
-                        $expense_description = nullable_htmlentities($row['expense_description']);
-                        $expense_date = nullable_htmlentities($row['expense_date']);
+                        $expense_description = escapeHtml($row['expense_description']);
+                        $expense_date = escapeHtml($row['expense_date']);
                         ?>
                         <option value="<?= $expense_id ?>"><?= "($expense_date) $expense_description"; ?></option>
 

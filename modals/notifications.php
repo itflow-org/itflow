@@ -33,9 +33,9 @@ ob_start();
         <?php while ($row = mysqli_fetch_assoc($sql)) {
 
             $notification_id = intval($row["notification_id"]);
-            $notification_type = nullable_htmlentities($row["notification_type"]);
-            $notification_details = nullable_htmlentities($row["notification"]);
-            $notification_action = nullable_htmlentities(
+            $notification_type = escapeHtml($row["notification_type"]);
+            $notification_details = escapeHtml($row["notification"]);
+            $notification_action = escapeHtml(
                 $row["notification_action"]
             );
             $notification_timestamp_formated = date(

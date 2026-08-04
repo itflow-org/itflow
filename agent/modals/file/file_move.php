@@ -2,15 +2,17 @@
 
 require_once '../../../includes/modal_header.php';
 
+enforceUserPermission('module_support', 2);
+
 $file_id = intval($_GET['id']);
 
 $sql = mysqli_query($mysqli, "SELECT * FROM files WHERE file_id = $file_id LIMIT 1");
 
 $row = mysqli_fetch_assoc($sql);
 $client_id = intval($row['file_client_id']);
-$file_folder_id = nullable_htmlentities($row['file_folder_id']);
-$file_name = nullable_htmlentities($row['file_name']);
-$file_ext = nullable_htmlentities($row['file_ext']);
+$file_folder_id = escapeHtml($row['file_folder_id']);
+$file_name = escapeHtml($row['file_name']);
+$file_ext = escapeHtml($row['file_ext']);
 if ($file_ext == 'pdf') {
     $file_icon = "file-pdf";
 } elseif ($file_ext == 'gz' || $file_ext == 'tar' || $file_ext == 'zip' || $file_ext == '7z' || $file_ext == 'rar') {
@@ -35,18 +37,21 @@ if ($file_ext == 'pdf') {
     $file_icon = "file";
 }
 
-// Generate the HTML form content using output buffering.
+enforceClientAccess();
+
 ob_start();
+
 ?>
+
 <div class="modal-header bg-dark">
-    <h5 class="modal-title"><i class="fa fa-fw fa-<?php echo $file_icon; ?> mr-2"></i>Moving File: <strong><?php echo $file_name; ?></strong></h5>
+    <h5 class="modal-title"><i class="fa fa-fw fa-<?= $file_icon ?> mr-2"></i>Moving File: <strong><?= $file_name ?></strong></h5>
     <button type="button" class="close text-white" data-dismiss="modal">
         <span>&times;</span>
     </button>
 </div>
 <form action="post.php" method="post" autocomplete="off">
     <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
-    <input type="hidden" name="file_id" value="<?php echo $file_id; ?>">
+    <input type="hidden" name="file_id" value="<?= $file_id ?>">
     <div class="modal-body">
 
         <div class="form-group">
@@ -66,7 +71,7 @@ ob_start();
                     while ($row = mysqli_fetch_assoc($sql_all_folders)) {
                         $folders[$row['folder_id']] = array(
                             'folder_id' => intval($row['folder_id']),
-                            'folder_name' => nullable_htmlentities($row['folder_name']),
+                            'folder_name' => escapeHtml($row['folder_name']),
                             'parent_folder' => intval($row['parent_folder']),
                             'children' => array()
                         );

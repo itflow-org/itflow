@@ -10,12 +10,15 @@ $sql = mysqli_query($mysqli, "SELECT * FROM documents
 ");
 
 $row = mysqli_fetch_assoc($sql);
-$document_name = nullable_htmlentities($row['document_name']);
+$document_name = escapeHtml($row['document_name']);
 $client_id = intval($row['document_client_id']);
+
+enforceClientAccess();
 
 ob_start();
 
 ?>
+
 <div class="modal-header bg-dark">
     <h5 class="modal-title"><i class="fa fa-fw fa-desktop mr-2"></i>Link Asset to <strong><?= $document_name ?></strong></h5>
     <button type="button" class="close text-white" data-dismiss="modal">
@@ -48,7 +51,7 @@ ob_start();
                     ");
                     while ($row = mysqli_fetch_assoc($sql_assets_select)) {
                         $asset_id = intval($row['asset_id']);
-                        $asset_name = nullable_htmlentities($row['asset_name']);
+                        $asset_name = escapeHtml($row['asset_name']);
 
                         ?>
                         <option value="<?= $asset_id ?>"><?= $asset_name ?></option>

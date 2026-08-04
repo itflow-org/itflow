@@ -8,7 +8,7 @@ defined('FROM_POST_HANDLER') || die("Direct file access is not allowed");
 
 if(isset($_POST['add_location'])){
 
-    validateCSRFToken($_POST['csrf_token']);
+    validateCSRFToken();
 
     enforceUserPermission('module_client', 2);
 
@@ -56,9 +56,9 @@ if(isset($_POST['add_location'])){
         }
     }
 
-    logAction("Location", "Create", "$session_name created location $name", $client_id, $location_id);
+    logAudit("Location", "Create", "$session_name created location $name", $client_id, $location_id);
 
-    flash_alert("Location <strong>$name</strong> created.");
+    flashAlert("Location <strong>$name</strong> created.");
 
     redirect();
 
@@ -66,7 +66,7 @@ if(isset($_POST['add_location'])){
 
 if(isset($_POST['edit_location'])){
 
-    validateCSRFToken($_POST['csrf_token']);
+    validateCSRFToken();
 
     enforceUserPermission('module_client', 2);
 
@@ -77,7 +77,7 @@ if(isset($_POST['edit_location'])){
     // Get old location photo
     $sql = mysqli_query($mysqli,"SELECT location_photo, location_client_id FROM locations WHERE location_id = $location_id");
     $row = mysqli_fetch_assoc($sql);
-    $existing_file_name = sanitizeInput($row['location_photo']);
+    $existing_file_name = escapeSql($row['location_photo']);
     $client_id = intval($row['location_client_id']);
 
     enforceClientAccess();
@@ -123,9 +123,9 @@ if(isset($_POST['edit_location'])){
 
     }
 
-    logAction("Location", "Edit", "$session_name edited location $name", $client_id, $location_id);
+    logAudit("Location", "Edit", "$session_name edited location $name", $client_id, $location_id);
 
-    flash_alert("Location <strong>$name</strong> updated");
+    flashAlert("Location <strong>$name</strong> updated");
 
     redirect();
 
@@ -133,7 +133,7 @@ if(isset($_POST['edit_location'])){
 
 if(isset($_GET['archive_location'])){
 
-    validateCSRFToken($_GET['csrf_token']);
+    validateCSRFToken();
 
     enforceUserPermission('module_client', 2);
 
@@ -142,16 +142,16 @@ if(isset($_GET['archive_location'])){
     // Get Location Name and Client ID for logging and alert message
     $sql = mysqli_query($mysqli,"SELECT location_name, location_client_id FROM locations WHERE location_id = $location_id");
     $row = mysqli_fetch_assoc($sql);
-    $location_name = sanitizeInput($row['location_name']);
+    $location_name = escapeSql($row['location_name']);
     $client_id = intval($row['location_client_id']);
 
     enforceClientAccess();
 
     mysqli_query($mysqli,"UPDATE locations SET location_archived_at = NOW() WHERE location_id = $location_id");
 
-    logAction("Location", "Archive", "$session_name archived location $location_name", $client_id, $location_id);
+    logAudit("Location", "Archive", "$session_name archived location $location_name", $client_id, $location_id);
 
-    flash_alert("Location <strong>$location_name</strong> archived", 'error');
+    flashAlert("Location <strong>$location_name</strong> archived", 'error');
 
     redirect();
 
@@ -159,7 +159,7 @@ if(isset($_GET['archive_location'])){
 
 if(isset($_GET['restore_location'])){
 
-    validateCSRFToken($_GET['csrf_token']);
+    validateCSRFToken();
 
     enforceUserPermission('module_client', 2);
 
@@ -168,16 +168,16 @@ if(isset($_GET['restore_location'])){
     // Get Location Name and Client ID for logging and alert message
     $sql = mysqli_query($mysqli,"SELECT location_name, location_client_id FROM locations WHERE location_id = $location_id");
     $row = mysqli_fetch_assoc($sql);
-    $location_name = sanitizeInput($row['location_name']);
+    $location_name = escapeSql($row['location_name']);
     $client_id = intval($row['location_client_id']);
 
     enforceClientAccess();
 
     mysqli_query($mysqli,"UPDATE locations SET location_archived_at = NULL WHERE location_id = $location_id");
 
-    logAction("Location", "Restore", "$session_name restored location $location_name", $client_id, $location_id);
+    logAudit("Location", "Restore", "$session_name restored location $location_name", $client_id, $location_id);
 
-    flash_alert("Location <strong>$location_name</strong> restored");
+    flashAlert("Location <strong>$location_name</strong> restored");
 
     redirect();
 
@@ -185,7 +185,7 @@ if(isset($_GET['restore_location'])){
 
 if(isset($_GET['delete_location'])){
 
-    validateCSRFToken($_GET['csrf_token']);
+    validateCSRFToken();
 
     enforceUserPermission('module_client', 3);
 
@@ -194,16 +194,16 @@ if(isset($_GET['delete_location'])){
     // Get Location Name and Client ID for logging and alert message
     $sql = mysqli_query($mysqli,"SELECT location_name, location_client_id FROM locations WHERE location_id = $location_id");
     $row = mysqli_fetch_assoc($sql);
-    $location_name = sanitizeInput($row['location_name']);
+    $location_name = escapeSql($row['location_name']);
     $client_id = intval($row['location_client_id']);
 
     enforceClientAccess();
 
     mysqli_query($mysqli,"DELETE FROM locations WHERE location_id = $location_id");
 
-    logAction("Location", "Delete", "$session_name deleted location $location_name", $client_id);
+    logAudit("Location", "Delete", "$session_name deleted location $location_name", $client_id);
 
-    flash_alert("Location <strong>$location_name</strong> deleted", 'error');
+    flashAlert("Location <strong>$location_name</strong> deleted", 'error');
 
     redirect();
 
@@ -211,7 +211,7 @@ if(isset($_GET['delete_location'])){
 
 if (isset($_POST['bulk_assign_location_tags'])) {
 
-    validateCSRFToken($_POST['csrf_token']);
+    validateCSRFToken();
 
     enforceUserPermission('module_client', 2);
 
@@ -227,7 +227,7 @@ if (isset($_POST['bulk_assign_location_tags'])) {
             // Get Contact Details for Logging
             $sql = mysqli_query($mysqli,"SELECT location_name, location_client_id FROM locations WHERE location_id = $location_id");
             $row = mysqli_fetch_assoc($sql);
-            $location_name = sanitizeInput($row['location_name']);
+            $location_name = escapeSql($row['location_name']);
             $client_id = intval($row['location_client_id']);
 
             enforceClientAccess();
@@ -249,13 +249,13 @@ if (isset($_POST['bulk_assign_location_tags'])) {
                 }
             }
 
-            logAction("Location", "Edit", "$session_name assigned tags to location $location_name", $client_id, $location_id);
+            logAudit("Location", "Edit", "$session_name assigned tags to location $location_name", $client_id, $location_id);
 
         } // End Assign Location Loop
 
-        logAction("Location", "Bulk Edit", "$session_name assigned tags to $count location(s)", $client_id);
+        logAudit("Location", "Bulk Edit", "$session_name assigned tags to $count location(s)", $client_id);
 
-        flash_alert("Assigned tags for <strong>$count</strong> locations");
+        flashAlert("Assigned tags for <strong>$count</strong> locations");
 
     }
 
@@ -265,7 +265,7 @@ if (isset($_POST['bulk_assign_location_tags'])) {
 
 if (isset($_POST['bulk_archive_locations'])) {
 
-    validateCSRFToken($_POST['csrf_token']);
+    validateCSRFToken();
 
     enforceUserPermission('module_client', 2);
 
@@ -281,7 +281,7 @@ if (isset($_POST['bulk_archive_locations'])) {
             // Get Name and Client ID for logging and alert message
             $sql = mysqli_query($mysqli,"SELECT location_name, location_client_id, location_primary FROM locations WHERE location_id = $location_id");
             $row = mysqli_fetch_assoc($sql);
-            $location_name = sanitizeInput($row['location_name']);
+            $location_name = escapeSql($row['location_name']);
             $location_primary = intval($row['location_primary']);
             $client_id = intval($row['location_client_id']);
 
@@ -291,16 +291,16 @@ if (isset($_POST['bulk_archive_locations'])) {
                 mysqli_query($mysqli,"UPDATE locations SET location_archived_at = NOW() WHERE location_id = $location_id");
 
                 // Individual Contact logging
-                logAction("Location", "Archive", "$session_name archived location $location_name", $client_id, $location_id);
+                logAudit("Location", "Archive", "$session_name archived location $location_name", $client_id, $location_id);
 
                 $count++;
             }
 
         }
 
-        logAction("Location", "Bulk Archive", "$session_name archived $count location(s)");
+        logAudit("Location", "Bulk Archive", "$session_name archived $count location(s)");
 
-        flash_alert("Archived <strong>$count</strong> location(s)", 'error');
+        flashAlert("Archived <strong>$count</strong> location(s)", 'error');
 
     }
 
@@ -310,7 +310,7 @@ if (isset($_POST['bulk_archive_locations'])) {
 
 if (isset($_POST['bulk_restore_locations'])) {
 
-    validateCSRFToken($_POST['csrf_token']);
+    validateCSRFToken();
 
     enforceUserPermission('module_client', 2);
 
@@ -327,20 +327,20 @@ if (isset($_POST['bulk_restore_locations'])) {
             // Get Name and Client ID for logging and alert message
             $sql = mysqli_query($mysqli,"SELECT location_name, location_client_id FROM locations WHERE location_id = $location_id");
             $row = mysqli_fetch_assoc($sql);
-            $location_name = sanitizeInput($row['location_name']);
+            $location_name = escapeSql($row['location_name']);
             $client_id = intval($row['location_client_id']);
 
             enforceClientAccess();
 
             mysqli_query($mysqli,"UPDATE locations SET location_archived_at = NULL WHERE location_id = $location_id");
 
-            logAction("Location", "Restore", "$session_name restored location $location_name", $client_id, $location_id);
+            logAudit("Location", "Restore", "$session_name restored location $location_name", $client_id, $location_id);
 
         }
 
-        logAction("Location", "Bulk Restore", "$session_name restored $count location(s)", $client_id);
+        logAudit("Location", "Bulk Restore", "$session_name restored $count location(s)", $client_id);
 
-        flash_alert("Restored <strong>$count</strong> location(s)");
+        flashAlert("Restored <strong>$count</strong> location(s)");
 
     }
 
@@ -350,7 +350,7 @@ if (isset($_POST['bulk_restore_locations'])) {
 
 if (isset($_POST['bulk_delete_locations'])) {
 
-    validateCSRFToken($_POST['csrf_token']);
+    validateCSRFToken();
 
     enforceUserPermission('module_client', 3);
 
@@ -367,20 +367,20 @@ if (isset($_POST['bulk_delete_locations'])) {
             // Get Name and Client ID for logging and alert message
             $sql = mysqli_query($mysqli,"SELECT location_name, location_client_id FROM locations WHERE location_id = $location_id");
             $row = mysqli_fetch_assoc($sql);
-            $location_name = sanitizeInput($row['location_name']);
+            $location_name = escapeSql($row['location_name']);
             $client_id = intval($row['location_client_id']);
 
             enforceClientAccess();
 
             mysqli_query($mysqli, "DELETE FROM locations WHERE location_id = $location_id AND location_client_id = $client_id");
 
-            logAction("Location", "Delete", "$session_name deleted location $location_name", $client_id);
+            logAudit("Location", "Delete", "$session_name deleted location $location_name", $client_id);
 
         }
 
-        logAction("Location", "Bulk Delete", "$session_name deleted $count location(s)", $client_id);
+        logAudit("Location", "Bulk Delete", "$session_name deleted $count location(s)", $client_id);
 
-        flash_alert("Deleted <strong>$count</strong> location(s)", 'error');
+        flashAlert("Deleted <strong>$count</strong> location(s)", 'error');
 
     }
 
@@ -388,59 +388,103 @@ if (isset($_POST['bulk_delete_locations'])) {
 
 }
 
-if(isset($_POST['export_locations_csv'])){
+if (isset($_POST['export_locations'])) {
 
-    validateCSRFToken($_POST['csrf_token']);
+    validateCSRFToken();
 
+    // Exports are reads - see CONTRIBUTING.md
     enforceUserPermission('module_client');
 
-    if ($_POST['client_id']) {
+    $format = resolveExportFormat($_POST['export_locations']);
+
+    // Filters inherited from the locations page - mirrors agent/locations.php
+    $filter_summary = [];
+
+    // Archived Filter
+    $archived = (isset($_POST['archived']) && $_POST['archived'] == 1);
+    if ($archived) {
+        $filter_summary['Archived'] = 'Archived only';
+    }
+
+    if (!empty($_POST['client_id'])) {
         $client_id = intval($_POST['client_id']);
         $client_query = "AND location_client_id = $client_id";
         $client_name = getFieldById('clients', $client_id, 'client_name');
         $file_name_prepend = "$client_name-";
+        $filter_summary['Client'] = $client_name;
+
+        enforceClientAccess();
+
+        $archive_query = $archived ? "location_archived_at IS NOT NULL" : "location_archived_at IS NULL";
     } else {
         $client_query = '';
-        $client_id = 0;
+        $client_id = 0; // for Logging
         $file_name_prepend = "$session_company_name-";
+
+        // Client Filter
+        if (!empty($_POST['client'])) {
+            $filter_client_id = intval($_POST['client']);
+            $client_query = "AND (location_client_id = $filter_client_id)";
+            $filter_summary['Client'] = getFieldById('clients', $filter_client_id, 'client_name');
+        }
+
+        $archive_query = $archived ? "(client_archived_at IS NOT NULL OR location_archived_at IS NOT NULL)" : "(client_archived_at IS NULL AND location_archived_at IS NULL)";
     }
 
-    //Locations
-    $sql = mysqli_query($mysqli,"SELECT * FROM locations LEFT JOIN clients ON client_id = location_client_id WHERE location_archived_at IS NULL AND client_archived_at IS NULL $client_query $access_permission_query ORDER BY location_name ASC");
+    // Tags Filter
+    if (isset($_POST['tags']) && is_array($_POST['tags']) && !empty($_POST['tags'])) {
+        $tag_filter = implode(",", array_map('intval', $_POST['tags']));
+        $tag_query = "AND tags.tag_id IN ($tag_filter)";
+
+        $tag_names = [];
+        $sql_tags = mysqli_query($mysqli, "SELECT tag_name FROM tags WHERE tag_id IN ($tag_filter) ORDER BY tag_name ASC");
+        while ($tag_row = mysqli_fetch_assoc($sql_tags)) {
+            $tag_names[] = $tag_row['tag_name'];
+        }
+        $filter_summary['Tags'] = implode(', ', $tag_names);
+    } else {
+        // Default - any
+        $tag_query = '';
+    }
+
+    // Search Filter
+    $q = escapeSql($_POST['q'] ?? '');
+    if (!empty($q)) {
+        $filter_summary['Search'] = $_POST['q'];
+    }
+
+    $sql = mysqli_query(
+        $mysqli,
+        "SELECT locations.*, clients.*
+        FROM locations
+        LEFT JOIN clients ON client_id = location_client_id
+        LEFT JOIN location_tags ON location_tags.location_id = locations.location_id
+        LEFT JOIN tags ON tags.tag_id = location_tags.tag_id
+        WHERE $archive_query
+        $tag_query
+        AND (location_name LIKE '%$q%' OR location_description LIKE '%$q%' OR location_address LIKE '%$q%' OR location_city LIKE '%$q%' OR location_state LIKE '%$q%' OR location_zip LIKE '%$q%' OR location_country LIKE '%$q%' OR location_phone LIKE '%$q%' OR client_name LIKE '%$q%' OR tag_name LIKE '%$q%')
+        $access_permission_query
+        $client_query
+        GROUP BY location_id
+        ORDER BY location_name ASC"
+    );
 
     $num_rows = mysqli_num_rows($sql);
 
-    if($num_rows > 0) {
-        $delimiter = ",";
-        $enclosure = '"';
-        $escape    = '\\';   // backslash
-        $filename = sanitize_filename($file_name_prepend . "Locations-" . date('Y-m-d_H-i-s') . ".csv");
+    if ($num_rows > 0) {
 
-        //create a file pointer
-        $f = fopen('php://memory', 'w');
+        guardExportPdfRowCount($format, $num_rows);
 
-        //set column headers
-        $fields = array('Name', 'Description', 'Address', 'City', 'State', 'Postal Code', 'Phone', 'Hours');
-        fputcsv($f, $fields, $delimiter, $enclosure, $escape);
+        $export = beginExport('locations', $format, $file_name_prepend . 'Locations', 'Locations', summarizeExportFilters($filter_summary));
 
-        //output each row of the data, format line as csv and write to file pointer
-        while($row = $sql->fetch_assoc()){
-            $lineData = array($row['location_name'], $row['location_description'], $row['location_address'], $row['location_city'], $row['location_state'], $row['location_zip'], $row['location_phone'], $row['location_hours']);
-            fputcsv($f, $lineData, $delimiter, $enclosure, $escape);
+        while ($row = mysqli_fetch_assoc($sql)) {
+            addExportRow($export, $row);
         }
 
-        //move back to beginning of file
-        fseek($f, 0);
-
-        //set headers to download file rather than displayed
-        header('Content-Type: text/csv');
-        header('Content-Disposition: attachment; filename="' . $filename . '";');
-
-        //output all remaining data on a file pointer
-        fpassthru($f);
+        finishExport($export);
     }
 
-    logAction("Location", "Export", "$session_name exported $num_rows location(s) to a CSV file", $client_id);
+    logAudit("Location", "Export", "$session_name exported $num_rows location(s) to a " . strtoupper($format) . " file", $client_id);
 
     exit;
 
@@ -448,7 +492,7 @@ if(isset($_POST['export_locations_csv'])){
 
 if (isset($_POST["import_locations_csv"])) {
 
-    validateCSRFToken($_POST['csrf_token']);
+    validateCSRFToken();
 
     enforceUserPermission('module_client', 2);
 
@@ -461,7 +505,7 @@ if (isset($_POST["import_locations_csv"])) {
     if (!empty($_FILES["file"]["tmp_name"])) {
         $file_name = $_FILES["file"]["tmp_name"];
     } else {
-        flash_alert("Please select a file to upload.", 'error');
+        flashAlert("Please select a file to upload.", 'error');
         redirect();
     }
 
@@ -470,13 +514,13 @@ if (isset($_POST["import_locations_csv"])) {
     $allowed_file_extensions = array('csv');
     if(in_array($file_extension,$allowed_file_extensions) === false){
         $error = true;
-        flash_alert("Bad file extension", 'error');
+        flashAlert("Bad file extension", 'error');
     }
 
     //Check file isn't empty
     elseif($_FILES["file"]["size"] < 1){
         $error = true;
-        flash_alert("Bad file size (empty?)", 'error');
+        flashAlert("Bad file size (empty?)", 'error');
     }
 
     //(Else)Check column count
@@ -484,7 +528,7 @@ if (isset($_POST["import_locations_csv"])) {
     $f_columns = fgetcsv($f, 1000, ",");
     if(!$error & count($f_columns) != 8) {
         $error = true;
-        flash_alert("Bad column count.", 'error');
+        flashAlert("Bad column count.", 'error');
     }
 
     //Else, parse the file
@@ -496,31 +540,31 @@ if (isset($_POST["import_locations_csv"])) {
         while(($column = fgetcsv($file, 1000, ",")) !== false){
             $duplicate_detect = 0;
             if(isset($column[0])){
-                $name = sanitizeInput($column[0]);
+                $name = escapeSql($column[0]);
                 if(mysqli_num_rows(mysqli_query($mysqli,"SELECT * FROM locations WHERE location_name = '$name' AND location_client_id = $client_id")) > 0){
                     $duplicate_detect = 1;
                 }
             }
             if(isset($column[1])){
-                $description = sanitizeInput($column[1]);
+                $description = escapeSql($column[1]);
             }
             if(isset($column[2])){
-                $address = sanitizeInput($column[2]);
+                $address = escapeSql($column[2]);
             }
             if(isset($column[3])){
-                $city = sanitizeInput($column[3]);
+                $city = escapeSql($column[3]);
             }
             if(isset($column[4])){
-                $state = sanitizeInput($column[4]);
+                $state = escapeSql($column[4]);
             }
             if(isset($column[5])){
-                $zip = sanitizeInput($column[5]);
+                $zip = escapeSql($column[5]);
             }
             if(isset($column[6])){
                 $phone = preg_replace("/[^0-9]/", '',$column[6]);
             }
             if(isset($column[7])){
-                $hours = sanitizeInput($column[7]);
+                $hours = escapeSql($column[7]);
             }
 
             // Check if duplicate was detected
@@ -534,9 +578,9 @@ if (isset($_POST["import_locations_csv"])) {
         }
         fclose($file);
 
-        logAction("Location", "Import", "$session_name imported $row_count location(s). $duplicate_count duplicate(s) found and not imported", $client_id);
+        logAudit("Location", "Import", "$session_name imported $row_count location(s). $duplicate_count duplicate(s) found and not imported", $client_id);
 
-        flash_alert("$row_count Location(s) imported, $duplicate_count duplicate(s) detected and not imported");
+        flashAlert("$row_count Location(s) imported, $duplicate_count duplicate(s) detected and not imported");
 
         redirect();
     }

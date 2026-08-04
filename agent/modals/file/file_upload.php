@@ -7,9 +7,12 @@ $contact_id = intval($_GET['contact_id'] ?? 0);
 $asset_id = intval($_GET['asset_id'] ?? 0);
 intval($_GET['folder_id'] ?? 0);
 
+enforceClientAccess();
+
 ob_start();
 
 ?>
+
 <div class="modal-header bg-dark">
     <h5 class="modal-title"><i class="fa fa-fw fa-cloud-upload-alt mr-2"></i>Upload File(s)</h5>
     <button type="button" class="close text-white" data-dismiss="modal">
@@ -18,9 +21,9 @@ ob_start();
 </div>
 <form action="post.php" method="post" enctype="multipart/form-data" autocomplete="off">
     <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
-    <input type="hidden" name="client_id" value="<?php echo $client_id; ?>">
-    <input type="hidden" name="contact_id" value="<?php echo $contact_id; ?>">
-    <input type="hidden" name="asset_id" value="<?php echo $asset_id; ?>">
+    <input type="hidden" name="client_id" value="<?= $client_id ?>">
+    <input type="hidden" name="contact_id" value="<?= $contact_id ?>">
+    <input type="hidden" name="asset_id" value="<?= $asset_id ?>">
     <div class="modal-body">
 
         <div class="form-group">
@@ -43,7 +46,7 @@ ob_start();
                     <option value="0">/</option>
                     <?php
                     // Start displaying folder options from the root (parent_folder = 0)
-                    display_folder_options(0, $client_id, 1);
+                    displayFolderOptions(0, $client_id, 1);
                     ?>
                 </select>
             </div>

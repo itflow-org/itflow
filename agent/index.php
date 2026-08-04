@@ -16,7 +16,7 @@ require_once "includes/inc_all.php";
 <h1>Blank Page</h1>
 <hr>
 
-<meta http-equiv="refresh" content="0;url=<?php echo $config_start_page; ?>">
+<meta http-equiv="refresh" content="0;url=<?= $config_start_page ?>">
 
 <?php
 require_once "../includes/footer.php";

@@ -2,32 +2,36 @@
 
 require_once '../../../includes/modal_header.php';
 
+enforceUserPermission('module_sales', 2);
+
 $quote_id = intval($_GET['id']);
 
 $sql = mysqli_query($mysqli, "SELECT * FROM quotes LEFT JOIN clients ON quote_client_id = client_id WHERE quote_id = $quote_id LIMIT 1");
 
 $row = mysqli_fetch_assoc($sql);
-$quote_prefix = nullable_htmlentities($row['quote_prefix']);
+$quote_prefix = escapeHtml($row['quote_prefix']);
 $quote_number = intval($row['quote_number']);
 $client_id = intval($row['client_id']);
-$client_name = nullable_htmlentities($row['client_name']);
+$client_name = escapeHtml($row['client_name']);
 
-// Generate the HTML form content using output buffering.
+enforceClientAccess();
+
 ob_start();
+
 ?>
 
 <div class="modal-header bg-dark">
-    <h5 class="modal-title"><i class="fas fa-fw fa-copy mr-2"></i>Copying quote: <strong><?php echo "$quote_prefix$quote_number"; ?></strong> - <?php echo $client_name; ?></h5>
+    <h5 class="modal-title"><i class="fas fa-fw fa-copy mr-2"></i>Copying quote: <strong><?= "$quote_prefix$quote_number" ?></strong> - <?= $client_name ?></h5>
     <button type="button" class="close text-white" data-dismiss="modal">
         <span>&times;</span>
     </button>
 </div>
 <form action="post.php" method="post" autocomplete="off">
     <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
-    <input type="hidden" name="quote_id" value="<?php echo $quote_id; ?>">
+    <input type="hidden" name="quote_id" value="<?= $quote_id ?>">
     <div class="modal-body">
         <?php if (isset($_GET['client_id'])) { ?>
-        <input type="hidden" name="client_id" value="<?php echo $client_id; ?>">
+        <input type="hidden" name="client_id" value="<?= $client_id ?>">
         <?php } else { ?>
         <div class="form-group">
             <label>Client <strong class="text-danger">*</strong></label>
@@ -40,9 +44,9 @@ ob_start();
                         $sql_client_select = mysqli_query($mysqli, "SELECT * FROM clients WHERE client_archived_at IS NULL ORDER BY client_name ASC");
                         while ($row = mysqli_fetch_assoc($sql_client_select)) {
                             $client_id_select = intval($row['client_id']);
-                            $client_name_select = nullable_htmlentities($row['client_name']);
+                            $client_name_select = escapeHtml($row['client_name']);
                     ?>
-                        <option <?php if ($client_id == $client_id_select) { echo "selected"; } ?> value="<?php echo $client_id_select; ?>"><?php echo $client_name_select; ?></option>
+                        <option <?php if ($client_id == $client_id_select) { echo "selected"; } ?> value="<?= $client_id_select ?>"><?= $client_name_select ?></option>
                     <?php } ?>
                 </select>
             </div>
@@ -55,7 +59,7 @@ ob_start();
                 <div class="input-group-prepend">
                     <span class="input-group-text"><i class="fa fa-fw fa-calendar"></i></span>
                 </div>
-                <input type="date" class="form-control" name="date" max="2999-12-31" value="<?php echo date("Y-m-d"); ?>" required>
+                <input type="date" class="form-control" name="date" max="2999-12-31" value="<?= date("Y-m-d") ?>" required>
             </div>
         </div>
 
@@ -65,7 +69,7 @@ ob_start();
                 <div class="input-group-prepend">
                     <span class="input-group-text"><i class="fa fa-fw fa-calendar"></i></span>
                 </div>
-                <input type="date" class="form-control" name="expire" min="<?php echo date("Y-m-d"); ?>" max="2999-12-31" value="<?php echo date("Y-m-d", strtotime("+30 days")); ?>" required>
+                <input type="date" class="form-control" name="expire" min="<?= date("Y-m-d") ?>" max="2999-12-31" value="<?= date("Y-m-d", strtotime("+30 days")) ?>" required>
             </div>
         </div>
 

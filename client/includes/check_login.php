@@ -5,15 +5,7 @@
  * Checks if the client is logged in or not
  */
 
-if (!isset($_SESSION)) {
-    // HTTP Only cookies
-    ini_set("session.cookie_httponly", true);
-    if ($config_https_only) {
-        // Tell client to only send cookie(s) over HTTPS
-        ini_set("session.cookie_secure", true);
-    }
-    session_start();
-}
+require_once __DIR__ . "/../../includes/session_init.php";
 
 if (!isset($_SESSION['client_logged_in']) || !$_SESSION['client_logged_in']) {
     redirect("/login.php");
@@ -23,8 +15,8 @@ if (!isset($_SESSION['client_logged_in']) || !$_SESSION['client_logged_in']) {
 require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/inc_set_timezone.php';
 
 // User IP & UA
-$session_ip = sanitizeInput(getIP());
-$session_user_agent = sanitizeInput($_SERVER['HTTP_USER_AGENT']);
+$session_ip = escapeSql(getIP());
+$session_user_agent = escapeSql($_SERVER['HTTP_USER_AGENT']);
 
 
 // Get info from session
@@ -78,12 +70,12 @@ $session_company_logo = $row['company_logo'];
 $contact_sql = mysqli_query($mysqli, "SELECT * FROM contacts WHERE contact_id = $session_contact_id AND contact_client_id = $session_client_id");
 $contact = mysqli_fetch_assoc($contact_sql);
 
-$session_contact_name = sanitizeInput($contact['contact_name']);
+$session_contact_name = escapeSql($contact['contact_name']);
 $session_contact_initials = initials($session_contact_name);
-$session_contact_title = sanitizeInput($contact['contact_title']);
-$session_contact_email = sanitizeInput($contact['contact_email']);
-$session_contact_photo = sanitizeInput($contact['contact_photo']);
-$session_contact_pin = sanitizeInput($contact['contact_pin']);
+$session_contact_title = escapeSql($contact['contact_title']);
+$session_contact_email = escapeSql($contact['contact_email']);
+$session_contact_photo = escapeSql($contact['contact_photo']);
+$session_contact_pin = escapeSql($contact['contact_pin']);
 $session_contact_primary = intval($contact['contact_primary']);
 
 $session_contact_is_technical_contact = false;

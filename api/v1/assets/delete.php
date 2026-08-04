@@ -25,7 +25,7 @@ if (!empty($asset_id)) {
         $delete_count = mysqli_affected_rows($mysqli);
 
         // Logging
-        logAction("Asset", "Delete", "$asset_name via API ($api_key_name)", $client_id);
+        logAudit("Asset", "Delete", "$asset_name via API ($api_key_name)", $client_id);
     }
 }
 

@@ -3,7 +3,7 @@
 // Variable assignment from POST (or: blank/from DB is updating)
 
 if (isset($_POST['certificate_name'])) {
-    $name = sanitizeInput($_POST['certificate_name']);
+    $name = escapeSql($_POST['certificate_name']);
 } elseif ($certificate_row) {
     $name = $certificate_row['certificate_name'];
 } else {
@@ -11,7 +11,7 @@ if (isset($_POST['certificate_name'])) {
 }
 
 if (isset($_POST['certificate_description'])) {
-    $description = sanitizeInput($_POST['certificate_description']);
+    $description = escapeSql($_POST['certificate_description']);
 } elseif ($certificate_row) {
     $description = $certificate_row['certificate_description'];
 } else {
@@ -19,7 +19,7 @@ if (isset($_POST['certificate_description'])) {
 }
 
 if (isset($_POST['certificate_domain'])) {
-    $domain = sanitizeInput($_POST['certificate_domain']);
+    $domain = escapeSql($_POST['certificate_domain']);
 } elseif ($certificate_row) {
     $domain = $certificate_row['certificate_domain'];
 } else {
@@ -27,7 +27,7 @@ if (isset($_POST['certificate_domain'])) {
 }
 
 if (isset($_POST['certificate_issued_by'])) {
-    $issued_by = sanitizeInput($_POST['certificate_issued_by']);
+    $issued_by = escapeSql($_POST['certificate_issued_by']);
 } elseif ($certificate_row) {
     $issued_by = $certificate_row['certificate_issued_by'];
 } else {
@@ -35,7 +35,7 @@ if (isset($_POST['certificate_issued_by'])) {
 }
 
 if (isset($_POST['certificate_expire'])) {
-    $expire = sanitizeInput($_POST['certificate_expire']);
+    $expire = escapeSql($_POST['certificate_expire']);
 } elseif ($certificate_row) {
     $expire = $certificate_row['certificate_expire'];
 } else {
@@ -43,7 +43,7 @@ if (isset($_POST['certificate_expire'])) {
 }
 
 if (isset($_POST['certificate_public_key'])) {
-    $public_key = sanitizeInput($_POST['certificate_public_key']);
+    $public_key = escapeSql($_POST['certificate_public_key']);
 } elseif ($certificate_row) {
     $public_key = $certificate_row['certificate_public_key'];
 } else {
@@ -51,7 +51,7 @@ if (isset($_POST['certificate_public_key'])) {
 }
 
 if (isset($_POST['certificate_notes'])) {
-    $notes = sanitizeInput($_POST['certificate_notes']);
+    $notes = escapeSql($_POST['certificate_notes']);
 } elseif ($certificate_row) {
     $notes = $certificate_row['certificate_notes'];
 } else {

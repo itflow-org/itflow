@@ -1,5 +1,5 @@
 <!-- Navbar -->
-<nav class="main-header navbar navbar-expand navbar-<?php echo nullable_htmlentities($config_theme); ?> navbar-dark">
+<nav class="main-header navbar navbar-expand navbar-<?= escapeHtml($config_theme) ?> navbar-dark">
 
     <!-- Left navbar links -->
     <ul class="navbar-nav">
@@ -15,7 +15,7 @@
         <form class="form-inline" action="/agent/global_search.php">
             <div class="input-group input-group-sm">
                 <input class="form-control form-control-navbar" type="search" placeholder="Search everywhere" name="query"
-                    value="<?php if (isset($_GET['query'])) { echo nullable_htmlentities($_GET['query']); } ?>">
+                    value="<?php if (isset($_GET['query'])) { echo escapeHtml($_GET['query']); } ?>">
                 <div class="input-group-append">
                     <button class="btn btn-navbar" type="submit">
                         <i class="fas fa-search"></i>
@@ -35,9 +35,9 @@
         );
 
         while ($row = mysqli_fetch_assoc($sql_custom_links)) {
-            $custom_link_name = nullable_htmlentities($row['custom_link_name']);
-            $custom_link_uri = sanitize_url($row['custom_link_uri']);
-            $custom_link_icon = nullable_htmlentities($row['custom_link_icon']);
+            $custom_link_name = escapeHtml($row['custom_link_name']);
+            $custom_link_uri = escapeUrl($row['custom_link_uri']);
+            $custom_link_icon = escapeHtml($row['custom_link_icon']);
             $custom_link_new_tab = intval($row['custom_link_new_tab']);
             if ($custom_link_new_tab == 1) {
                 $target = "target='_blank' rel='noopener noreferrer'";
@@ -47,9 +47,9 @@
 
             ?>
 
-        <li class="nav-item" title="<?php echo $custom_link_name; ?>">
-            <a href="<?php echo $custom_link_uri; ?>" <?php echo $target; ?> class="nav-link">
-                <i class="fas fa-<?php echo $custom_link_icon; ?> nav-icon"></i>
+        <li class="nav-item" title="<?= $custom_link_name ?>">
+            <a href="<?= $custom_link_uri ?>" <?= $target ?> class="nav-link">
+                <i class="fas fa-<?= $custom_link_icon ?> nav-icon"></i>
             </a>
         </li>
 
@@ -68,7 +68,7 @@
                 <i class="fas fa-bell"></i>
                 <?php if ($num_notifications) { ?>
                 <span class="badge badge-light badge-pill navbar-badge position-absolute" style="top: 1px; right: 3px;">
-                    <?php echo $num_notifications; ?>
+                    <?= $num_notifications ?>
                 </span>
                 <?php } ?>
             </a>
@@ -79,11 +79,11 @@
                 <?php if (empty($session_avatar)) { ?>
                 <i class="fas fa-user-circle mr-1"></i>
                 <?php }else{ ?>
-                <img src="<?php echo "/uploads/users/$session_user_id/$session_avatar"; ?>"
+                <img src="<?= "/uploads/users/$session_user_id/$session_avatar" ?>"
                     class="user-image img-circle">
                 <?php } ?>
                 <span
-                    class="d-none d-md-inline dropdown-toggle"><?php echo stripslashes(nullable_htmlentities($session_name)); ?></span>
+                    class="d-none d-md-inline dropdown-toggle"><?= stripslashes(escapeHtml($session_name)) ?></span>
             </a>
             <ul class="dropdown-menu dropdown-menu-lg dropdown-menu-right">
                 <!-- User image -->
@@ -92,11 +92,11 @@
                     <i class="fas fa-user-circle fa-6x"></i>
                     <?php }else{ ?>
 
-                    <img src="<?php echo "/uploads/users/$session_user_id/$session_avatar"; ?>" class="img-circle">
+                    <img src="<?= "/uploads/users/$session_user_id/$session_avatar" ?>" class="img-circle">
                     <?php } ?>
                     <p>
-                        <?php echo stripslashes(nullable_htmlentities($session_name)); ?>
-                        <small><?php echo nullable_htmlentities($session_user_role_display); ?></small>
+                        <?= stripslashes(escapeHtml($session_name)) ?>
+                        <small><?= escapeHtml($session_user_role_display) ?></small>
                     </p>
                 </li>
                 <!-- Menu Footer-->

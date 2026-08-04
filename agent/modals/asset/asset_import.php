@@ -25,7 +25,7 @@ ob_start();
             <input type="file" class="form-control-file" name="file" accept=".csv" required>
         </div>
         <hr>
-        <div>Download <a href="post.php?download_assets_csv_template=<?php echo $client_id; ?>">sample csv template</a></div>
+        <div>Download <a href="post.php?download_assets_csv_template=<?= $client_id ?>">sample csv template</a></div>
         <small class="text-muted">Note: Purchase date must be in the format YYYY-MM-DD. Spreadsheet tools may automatically reformat dates.</small>
     </div>
     <div class="modal-footer">

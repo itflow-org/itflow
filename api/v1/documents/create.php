@@ -33,8 +33,8 @@ if (!empty($name) && !(empty($content))) {
         mysqli_query($mysqli,"UPDATE documents SET document_content = '$processed_content' WHERE document_id = $insert_id");
 
         // Logging
-        logAction("Document", "Create", "$name via API ($api_key_name)", $client_id, $insert_id);
-        logAction("API", "Success", "Created document $name via API ($api_key_name)", $client_id);
+        logAudit("Document", "Create", "$name via API ($api_key_name)", $client_id, $insert_id);
+        logAudit("API", "Success", "Created document $name via API ($api_key_name)", $client_id);
     }
 
 }

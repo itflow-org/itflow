@@ -4,119 +4,92 @@ require_once '../../../includes/modal_header.php';
 
 $client_id = intval($_GET['client_id'] ?? 0);
 $contact_id = intval($_GET['contact_id'] ?? 0);
-$asset_id = intval($_GET['asset_id'] ?? 0);
 $project_id = intval($_GET['project_id'] ?? 0);
+$asset_id = intval($_GET['asset_id'] ?? 0);
+
+if ($client_id) {
+    enforceClientAccess();
+}
 
 ob_start();
 
 ?>
 <div class="modal-header bg-dark">
-    <h5 class="modal-title"><i class="fas fa-fw fa-life-ring mr-2"></i>New Ticket (v1)</h5>
+    <h5 class="modal-title"><i class="fas fa-fw fa-life-ring mr-2"></i>New Ticket</h5>
     <button type="button" class="close text-white" data-dismiss="modal">
         <span>&times;</span>
     </button>
 </div>
-<form action="post.php" method="post" autocomplete="off">
+<form action="post.php" method="post" enctype="multipart/form-data" autocomplete="off">
     <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
-
-    <?php if (isset($_GET['project_id'])) { ?>
-    <input type="hidden" name="project_id" value="<?php echo intval($_GET['project_id']); ?>">
+    <!-- Hidden/System fields -->
+    <?php if ($client_id) { ?>
+        <input type="hidden" name="client_id" id="clientIdHidden" value="<?= $client_id ?>">
     <?php } ?>
+    <input type="hidden" name="billable" value="0">
 
     <div class="modal-body">
 
-        <?php if (isset($_GET['client_id'])) { ?>
-            <ul class="nav nav-pills nav-justified mb-3">
-                <li class="nav-item">
-                    <a class="nav-link active" data-toggle="pill" href="#pills-ticket-details"><i class="fa fa-fw fa-life-ring mr-2"></i>Details</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" data-toggle="pill" href="#pills-ticket-contacts"><i class="fa fa-fw fa-users mr-2"></i>Contact</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" data-toggle="pill" href="#pills-ticket-assignment"><i class="fa fa-fw fa-desktop mr-2"></i>Assignment</a>
-                </li>
-            </ul>
+        <!-- Nav -->
+        <ul class="nav nav-pills nav-justified mb-3">
+            <li class="nav-item">
+                <a class="nav-link active" data-toggle="pill" href="#pills-add-details"><i class="fa fa-fw fa-life-ring mr-2"></i>Details</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" data-toggle="pill" href="#pills-add-tasks"><i class="fa fa-fw fa-tasks mr-2"></i>Tasks</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" data-toggle="pill" href="#pills-add-relationships"><i class="fa fa-fw fa-desktop mr-2"></i>Assignment</a>
+            </li>
+        </ul>
 
-            <hr>
-
-        <?php } ?>
-
+        <!-- Content -->
         <div class="tab-content">
 
-            <div class="tab-pane fade show active" id="pills-ticket-details">
+            <!-- Ticket details -->
+            <div class="tab-pane fade show active" id="pills-add-details">
 
-                <?php if ($client_id) { ?>
-                    <input type="hidden" name="client_id" value="<?= $client_id ?>">
-                <?php } else { ?>
-
-                    <div class="form-group">
-                        <label>Client <strong class="text-danger">*</strong> / <span class="text-secondary">Use Primary Contact</label>
-                        <div class="input-group">
-                            <div class="input-group-prepend">
-                                <span class="input-group-text"><i class="fa fa-fw fa-user"></i></span>
-                            </div>
-                            <select class="form-control select2" name="client_id" required>
-                                <option value="">- Client -</option>
-                                <?php
-
-                                $sql = mysqli_query($mysqli, "SELECT client_id, client_name FROM clients WHERE client_archived_at IS NULL $access_permission_query ORDER BY client_name ASC");
-                                while ($row = mysqli_fetch_assoc($sql)) {
-                                    $client_id_select = intval($row['client_id']);
-                                    $client_name = nullable_htmlentities($row['client_name']); ?>
-                                    <option value="<?php echo $client_id_select; ?>"><?php echo $client_name; ?></option>
-
-                                <?php } ?>
-                            </select>
-                            <div class="input-group-append">
-                                <div class="input-group-text">
-                                    <input type="checkbox" name="use_primary_contact" value="1">
+                <!-- Ticket client/contact -->
+                <div class="row">
+                    <div class="col">
+                        <div class="form-group">
+                            <label>Client <strong class="text-danger">*</strong></label>
+                            <div class="input-group">
+                                <div class="input-group-prepend">
+                                    <span class="input-group-text"><i class="fa fa-fw fa-user"></i></span>
                                 </div>
+                                <select class="form-control select2" name="client_id" id="changeClientSelect" required <?php if ($client_id) { echo "disabled"; } ?>>
+                                    <option value="">- Select a Client -</option>
+                                    <?php
+
+                                    $sql = mysqli_query($mysqli, "SELECT * FROM clients WHERE client_lead = 0 AND client_archived_at IS NULL $access_permission_query ORDER BY client_name ASC");
+                                    while ($row = mysqli_fetch_assoc($sql)) {
+                                        $client_id_select = intval($row['client_id']);
+                                        $client_name = escapeHtml($row['client_name']); ?>
+
+                                        <option value="<?= $client_id_select ?>" <?php if ($client_id == $client_id_select) {echo "selected"; } ?>><?= $client_name ?></option>
+
+                                    <?php } ?>
+                                </select>
                             </div>
                         </div>
                     </div>
-
-                <?php } ?>
-
-                <div class="form-group">
-                    <label>Template</label>
-                    <div class="input-group">
-                        <div class="input-group-prepend">
-                            <span class="input-group-text"><i class="fa fa-fw fa-cube"></i></span>
+                    <div class="col">
+                        <div class="form-group">
+                            <label>Contact </label>
+                            <div class="input-group">
+                                <div class="input-group-prepend">
+                                    <span class="input-group-text"><i class="fa fa-fw fa-user"></i></span>
+                                </div>
+                                <select class="form-control select2" name="contact_id" id="contactSelect" data-selected="<?= $contact_id ?>">
+                                    <option value="0">- No One -</option>
+                                </select>
+                            </div>
                         </div>
-                        <select class="form-control select2" id="ticket_template_select" name="ticket_template_id" required>
-                            <option value="0">- Choose a Template -</option>
-                            <?php
-                                $sql_ticket_templates = mysqli_query($mysqli, "
-                                    SELECT tt.ticket_template_id,
-                                           tt.ticket_template_name,
-                                           tt.ticket_template_subject,
-                                           tt.ticket_template_details,
-                                           COUNT(ttt.task_template_id) as task_count
-                                    FROM ticket_templates tt
-                                    LEFT JOIN task_templates ttt
-                                        ON tt.ticket_template_id = ttt.task_template_ticket_template_id
-                                    WHERE tt.ticket_template_archived_at IS NULL
-                                    GROUP BY tt.ticket_template_id
-                                    ORDER BY tt.ticket_template_name ASC
-                                ");
-
-                                while ($row = mysqli_fetch_assoc($sql_ticket_templates)) {
-                                    $ticket_template_id_select = intval($row['ticket_template_id']);
-                                    $ticket_template_name_select = nullable_htmlentities($row['ticket_template_name']);
-                                    $ticket_template_subject_select = nullable_htmlentities($row['ticket_template_subject']);
-                                    $ticket_template_details_select = nullable_htmlentities($row['ticket_template_details']);
-                                    $task_count = intval($row['task_count']);
-                                ?>
-                                    <option value="<?php echo $ticket_template_id_select; ?>"
-                                            data-subject="<?php echo $ticket_template_subject_select; ?>"
-                                            data-details="<?php echo $ticket_template_details_select; ?>">
-                                        <?php echo $ticket_template_name_select; ?> (<?php echo $task_count; ?> tasks)
-                                    </option>
-                                <?php } ?>
-                        </select>
                     </div>
                 </div>
+
+                <?php require_once '../../includes/inc_ticket_template_select.php'; ?>
 
                 <div class="form-group">
                     <label>Subject <strong class="text-danger">*</strong></label>
@@ -145,6 +118,7 @@ ob_start();
                                     <option>Low</option>
                                     <option>Medium</option>
                                     <option>High</option>
+                                    <option>Urgent</option>
                                 </select>
                             </div>
                         </div>
@@ -163,16 +137,15 @@ ob_start();
                                     $sql_categories = mysqli_query($mysqli, "SELECT category_id, category_name FROM categories WHERE category_type = 'Ticket' AND category_archived_at IS NULL ORDER BY category_name ASC");
                                     while ($row = mysqli_fetch_assoc($sql_categories)) {
                                         $category_id = intval($row['category_id']);
-                                        $category_name = nullable_htmlentities($row['category_name']);
-
+                                        $category_name = escapeHtml($row['category_name']);
                                         ?>
-                                        <option value="<?php echo $category_id; ?>"><?php echo $category_name; ?></option>
+                                        <option value="<?= $category_id ?>"><?= $category_name ?></option>
                                     <?php } ?>
 
                                 </select>
                                 <div class="input-group-append">
                                     <button class="btn btn-secondary ajax-modal" type="button"
-                                        data-modal-url="../admin/modals/category/category_add.php?category=Ticket">
+                                            data-modal-url="../admin/modals/category/category_add.php?category=Ticket">
                                         <i class="fas fa-fw fa-plus"></i>
                                     </button>
                                 </div>
@@ -191,21 +164,18 @@ ob_start();
                                     <span class="input-group-text"><i class="fa fa-fw fa-user-check"></i></span>
                                 </div>
                                 <select class="form-control select2" name="assigned_to">
-                                    <option value="0">Not Assigned</option>
+                                    <option value="0">- Unassigned -</option>
                                     <?php
 
                                     $sql = mysqli_query(
                                         $mysqli,
                                         "SELECT user_id, user_name FROM users
-                                        WHERE user_type = 1
-                                        AND user_status = 1
-                                        AND user_archived_at IS NULL
-                                        ORDER BY user_name ASC"
+                                        WHERE user_type = 1 AND user_status = 1 AND user_archived_at IS NULL ORDER BY user_name ASC"
                                     );
                                     while ($row = mysqli_fetch_assoc($sql)) {
                                         $user_id = intval($row['user_id']);
-                                        $user_name = nullable_htmlentities($row['user_name']); ?>
-                                        <option <?php if ($session_user_id == $user_id) { echo "selected"; } ?> value="<?php echo $user_id; ?>"><?php echo $user_name; ?></option>
+                                        $user_name = escapeHtml($row['user_name']); ?>
+                                        <option value="<?= $user_id ?>"><?= $user_name ?></option>
                                     <?php } ?>
                                 </select>
                             </div>
@@ -227,264 +197,131 @@ ob_start();
                 <?php if ($config_module_enable_accounting) { ?>
                 <div class="form-group">
                     <div class="custom-control custom-switch">
-                        <input type="checkbox" class="custom-control-input" name="billable" <?php if ($config_ticket_default_billable == 1) { echo "checked"; } ?> value="1" id="billableSwitch">
-                        <label class="custom-control-label" for="billableSwitch">Mark Billable</label>
+                        <input type="checkbox" class="custom-control-input" name="billable" <?php if ($config_ticket_default_billable == 1) { echo "checked"; } ?> value="1" id="billable">
+                        <label class="custom-control-label" for="billable">Mark Billable</label>
                     </div>
                 </div>
                 <?php } ?>
 
             </div>
 
-            <?php if ($client_id) { ?>
+            <div class="tab-pane fade" id="pills-add-tasks">
 
-                <div class="tab-pane fade" id="pills-ticket-contacts">
+                <?php require_once '../../includes/inc_ticket_tasks_section.php'; ?>
 
-                    <input type="hidden" name="client_id" value="<?php echo $client_id; ?>">
+            </div>
 
-                    <div class="form-group">
-                        <label>Contact</label>
-                        <div class="input-group">
-                            <div class="input-group-prepend">
-                                <span class="input-group-text"><i class="fa fa-fw fa-user"></i></span>
+            <div class="tab-pane fade" id="pills-add-relationships">
+
+                <div class="form-group">
+                    <label>Project</label>
+                    <div class="input-group">
+                        <div class="input-group-prepend">
+                            <span class="input-group-text"><i class="fa fa-fw fa-project-diagram"></i></span>
+                        </div>
+                        <select class="form-control select2" name="project_id" id="projectSelect" data-selected="<?= $project_id ?>">
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Asset</label>
+                    <div class="input-group">
+                        <div class="input-group-prepend">
+                            <span class="input-group-text"><i class="fa fa-fw fa-desktop"></i></span>
+                        </div>
+                        <select class="form-control select2" name="asset_id" id="assetSelect" data-selected="<?= $asset_id ?>">
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Additional Assets</label>
+                    <div class="input-group">
+                        <div class="input-group-prepend">
+                            <span class="input-group-text"><i class="fa fa-fw fa-desktop"></i></span>
+                        </div>
+                        <select class="form-control select2" name="additional_assets[]" id="additionalAssetsSelect" data-placeholder="- Select Additional Assets -" multiple>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Location</label>
+                    <div class="input-group">
+                        <div class="input-group-prepend">
+                            <span class="input-group-text"><i class="fa fa-fw fa-map-marker-alt"></i></span>
+                        </div>
+                        <select class="form-control select2" name="location_id" id="locationSelect">
+                        </select>
+                    </div>
+                </div>
+
+                <div class="row">
+
+                    <div class="col">
+                        <div class="form-group">
+                            <label>Vendor</label>
+                            <div class="input-group">
+                                <div class="input-group-prepend">
+                                    <span class="input-group-text"><i class="fa fa-fw fa-building"></i></span>
+                                </div>
+                                <select class="form-control select2" name="vendor_id" id="vendorSelect">
+                                </select>
                             </div>
-                            <select class="form-control select2" name="contact_id">
-                                <option value="0">- No One -</option>
-                                <?php
-                                $sql = mysqli_query($mysqli, "SELECT contact_id, contact_name, contact_title, contact_primary, contact_technical FROM contacts WHERE contact_client_id = $client_id AND contact_archived_at IS NULL ORDER BY contact_primary DESC, contact_technical DESC, contact_name ASC");
-                                while ($row = mysqli_fetch_assoc($sql)) {
-                                    $contact_id_select = intval($row['contact_id']);
-                                    $contact_name_select = nullable_htmlentities($row['contact_name']);
-                                    $contact_primary_select = intval($row['contact_primary']);
-                                    if($contact_primary_select == 1) {
-                                        $contact_primary_display = " (Primary)";
-                                    } else {
-                                        $contact_primary_display = "";
-                                    }
-                                    $contact_technical_select = intval($row['contact_technical']);
-                                    if($contact_technical_select == 1) {
-                                        $contact_technical_display = " (Technical)";
-                                    } else {
-                                        $contact_technical_display = "";
-                                    }
-                                    $contact_title_select = nullable_htmlentities($row['contact_title']);
-                                    if($contact_title_select) {
-                                        $contact_title_display = " - $contact_title_select";
-                                    } else {
-                                        $contact_title_display = "";
-                                    }
-
-                                    ?>
-                                    <option value="<?php echo $contact_id_select; ?>"
-                                        <?php
-                                        if ($contact_id == $contact_id_select) {
-                                            echo "selected";
-                                        } elseif (!$contact_id && $contact_primary_select == 1) {
-                                            echo "selected";
-                                        }
-                                        ?>
-                                        >
-                                        <?php echo "$contact_name_select$contact_title_display$contact_primary_display$contact_technical_display"; ?>
-                                    </option>
-
-                                <?php } ?>
-                            </select>
                         </div>
                     </div>
 
-                    <div class="form-group">
-                        <label>Watchers</label>
-                        <div class="input-group">
-                            <div class="input-group-prepend">
-                                <span class="input-group-text"><i class="fa fa-fw fa-envelope"></i></span>
+                    <div class="col">
+                        <div class="form-group">
+                            <label>Vendor Ticket Number</label>
+                            <div class="input-group">
+                                <div class="input-group-prepend">
+                                    <span class="input-group-text"><i class="fa fa-fw fa-tag"></i></span>
+                                </div>
+                                <input type="text" class="form-control" name="vendor_ticket_number" placeholder="Vendor ticket number" maxlength="255">
                             </div>
-                            <select class="form-control select2" name="watchers[]" data-tags="true" data-placeholder="Enter or select email address" multiple>
-                                <option value=""></option>
-                                <?php
-                                $sql = mysqli_query($mysqli, "SELECT contact_email FROM contacts WHERE contact_client_id = $client_id AND contact_archived_at IS NULL AND contact_email IS NOT NULL ORDER BY contact_email ASC");
-                                while ($row = mysqli_fetch_assoc($sql)) {
-                                    $contact_email = nullable_htmlentities($row['contact_email']);
-                                    ?>
-                                    <option><?php echo $contact_email; ?></option>
-
-                                <?php } ?>
-                            </select>
                         </div>
                     </div>
 
                 </div>
 
-                <div class="tab-pane fade" id="pills-ticket-assignment">
-
-                    <div class="form-group">
-                        <label>Primary Asset</label>
-                        <div class="input-group">
-                            <div class="input-group-prepend">
-                                <span class="input-group-text"><i class="fa fa-fw fa-desktop"></i></span>
-                            </div>
-                            <select class="form-control select2" name="asset_id">
-                                <option value="0">- None -</option>
-                                <?php
-
-                                $sql_assets = mysqli_query($mysqli, "SELECT asset_id, asset_name, contact_name FROM assets LEFT JOIN contacts ON contact_id = asset_contact_id WHERE asset_client_id = $client_id AND asset_archived_at IS NULL ORDER BY asset_name ASC");
-                                while ($row = mysqli_fetch_assoc($sql_assets)) {
-                                    $asset_id_select = intval($row['asset_id']);
-                                    $asset_name_select = nullable_htmlentities($row['asset_name']);
-                                    $asset_contact_name_select = nullable_htmlentities($row['contact_name']);
-                                ?>
-                                    <option value="<?php echo $asset_id_select; ?>"
-                                        <?php if ($asset_id == $asset_id_select) { echo "selected"; }?>
-                                        ><?php echo "$asset_name_select - $asset_contact_name_select"; ?></option>
-
-                                <?php } ?>
-                            </select>
+                <div class="form-group">
+                    <label>Watchers</label>
+                    <div class="input-group">
+                        <div class="input-group-prepend">
+                            <span class="input-group-text"><i class="fa fa-fw fa-envelope"></i></span>
                         </div>
+                        <select class="form-control select2" name="watchers[]" id="watchersSelect" data-tags="true" data-placeholder="Enter or select email address" multiple>
+                        </select>
                     </div>
-
-                    <div class="form-group">
-                        <label>Additional Assets</label>
-                        <div class="input-group">
-                            <div class="input-group-prepend">
-                                <span class="input-group-text"><i class="fa fa-fw fa-desktop"></i></span>
-                            </div>
-                            <select class="form-control select2" name="additional_assets[]" data-tags="true" data-placeholder="- Select Additional Assets -" multiple>
-                                <option value=""></option>
-                                <?php
-
-                                $sql_assets = mysqli_query($mysqli, "SELECT asset_id, asset_name, contact_name FROM assets LEFT JOIN contacts ON contact_id = asset_contact_id WHERE asset_client_id = $client_id AND asset_archived_at IS NULL ORDER BY asset_name ASC");
-                                while ($row = mysqli_fetch_assoc($sql_assets)) {
-                                    $asset_id_select = intval($row['asset_id']);
-                                    $asset_name_select = nullable_htmlentities($row['asset_name']);
-                                    $asset_contact_name_select = nullable_htmlentities($row['contact_name']);
-                                ?>
-                                    <option value="<?php echo $asset_id_select; ?>">
-                                        <?php echo "$asset_name_select - $asset_contact_name_select"; ?>
-                                    </option>
-
-                                <?php } ?>
-                            </select>
-                        </div>
-                    </div>
-
-                    <div class="form-group">
-                        <label>Location</label>
-                        <div class="input-group">
-                            <div class="input-group-prepend">
-                                <span class="input-group-text"><i class="fa fa-fw fa-map-marker-alt"></i></span>
-                            </div>
-                            <select class="form-control select2" name="location_id">
-                                <option value="0">- None -</option>
-                                <?php
-
-                                $sql_locations = mysqli_query($mysqli, "SELECT location_id, location_name FROM locations WHERE location_client_id = $client_id AND location_archived_at IS NULL ORDER BY location_name ASC");
-                                while ($row = mysqli_fetch_assoc($sql_locations)) {
-                                    $location_id_select = intval($row['location_id']);
-                                    $location_name_select = nullable_htmlentities($row['location_name']);
-                                ?>
-                                    <option value="<?php echo $location_id_select; ?>"><?php echo $location_name_select; ?></option>
-
-                                <?php } ?>
-                            </select>
-                        </div>
-                    </div>
-
-                    <div class="row">
-
-                        <div class="col">
-
-                            <div class="form-group">
-                                <label>Vendor</label>
-                                <div class="input-group">
-                                    <div class="input-group-prepend">
-                                        <span class="input-group-text"><i class="fa fa-fw fa-building"></i></span>
-                                    </div>
-                                    <select class="form-control select2" name="vendor_id">
-                                        <option value="0">- None -</option>
-                                        <?php
-
-                                        $sql_vendors = mysqli_query($mysqli, "SELECT vendor_id, vendor_name FROM vendors WHERE vendor_client_id = $client_id AND vendor_archived_at IS NULL ORDER BY vendor_name ASC");
-                                        while ($row = mysqli_fetch_assoc($sql_vendors)) {
-                                            $vendor_id_select = intval($row['vendor_id']);
-                                            $vendor_name_select = nullable_htmlentities($row['vendor_name']); ?>
-                                            <option value="<?php echo $vendor_id_select; ?>"><?php echo $vendor_name_select; ?></option>
-
-                                        <?php } ?>
-                                    </select>
-                                </div>
-                            </div>
-
-                        </div>
-
-                        <div class="col">
-
-                            <div class="form-group">
-                                <label>Vendor Ticket Number</label>
-                                <div class="input-group">
-                                    <div class="input-group-prepend">
-                                        <span class="input-group-text"><i class="fa fa-fw fa-tag"></i></span>
-                                    </div>
-                                    <input type="text" class="form-control" name="vendor_ticket_number" placeholder="Vendor ticket number">
-                                </div>
-                            </div>
-
-                        </div>
-
-                    </div>
-
-                    <div class="form-group">
-                        <label>Project</label>
-                        <div class="input-group">
-                            <div class="input-group-prepend">
-                                <span class="input-group-text"><i class="fa fa-fw fa-project-diagram"></i></span>
-                            </div>
-                            <select class="form-control select2" name="project_id">
-                                <option value="0">- Select Project -</option>
-                                <?php
-
-                                $sql_projects = mysqli_query($mysqli, "SELECT project_id, project_name FROM projects WHERE project_client_id = $client_id AND project_completed_at IS NULL AND project_archived_at IS NULL ORDER BY project_name ASC");
-                                while ($row = mysqli_fetch_assoc($sql_projects)) {
-                                    $project_id_select = intval($row['project_id']);
-                                    $project_name_select = nullable_htmlentities($row['project_name']); ?>
-                                    <option <?php if ($project_id == $project_id_select) { echo "selected"; } ?> value="<?php echo $project_id_select; ?>"><?php echo $project_name_select; ?></option>
-
-                                <?php } ?>
-                            </select>
-                        </div>
-                    </div>
-
                 </div>
 
-            <?php } ?>
+                <div class="form-group">
+                    <label><i class="fa fa-fw fa-paperclip mr-1"></i>Attachments</label>
+                    <input type="file" class="form-control-file" name="attachments[]" multiple accept=".jpg, .jpeg, .gif, .png, .webp, .pdf, .txt, .md, .doc, .docx, .odt, .csv, .xls, .xlsx, .ods, .pptx, .odp, .zip, .tar, .gz, .xml, .msg, .json, .wav, .mp3, .ogg, .mov, .mp4, .av1, .ovpn">
+                </div>
+
+            </div>
 
         </div>
 
     </div>
+
     <div class="modal-footer">
-        <button type="submit" name="add_ticket" class="btn btn-primary text-bold"><i class="fas fa-check mr-2"></i>Create</button>
+        <button type="submit" name="add_ticket" class="btn btn-primary text-bold"><i class="fas fa-check mr-2"></i>Create Ticket</button>
         <button type="button" class="btn btn-light" data-dismiss="modal"><i class="fas fa-times mr-2"></i>Cancel</button>
     </div>
+
 </form>
 
-<!-- Ticket Templates -->
-<script>
-$(document).on('change', '#ticket_template_select', function () {
-    const $opt = $(this).find(':selected');
-    const templateSubject = $opt.data('subject') || '';
-    const templateDetails = $opt.data('details') || '';
 
-    $('#subjectInput').val(templateSubject);
+<!-- Ticket Client/Contact JS -->
+<link rel="stylesheet" href="/libs/jquery-ui/jquery-ui.min.css">
+<script src="/libs/jquery-ui/jquery-ui.min.js"></script>
+<script src="/agent/js/tickets_add_modal.js"></script>
 
-    if (window.tinymce) {
-        const editor = tinymce.get('detailsInput');
-        if (editor) {
-            editor.setContent(templateDetails);
-        } else {
-            $('#detailsInput').val(templateDetails);
-        }
-    } else {
-        $('#detailsInput').val(templateDetails);
-    }
-});
-</script>
+<script src="/agent/js/ticket_tasks_modal.js"></script>
 
 <?php
 

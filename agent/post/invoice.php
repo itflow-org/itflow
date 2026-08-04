@@ -8,7 +8,7 @@ defined('FROM_POST_HANDLER') || die("Direct file access is not allowed");
 
 if (isset($_POST['add_invoice'])) {
 
-    validateCSRFToken($_POST['csrf_token']);
+    validateCSRFToken();
 
     enforceUserPermission('module_sales', 2);
 
@@ -43,11 +43,11 @@ if (isset($_POST['add_invoice'])) {
 
     mysqli_query($mysqli,"INSERT INTO history SET history_status = 'Draft', history_description = 'Invoice created by $session_name', history_invoice_id = $invoice_id");
 
-    logAction("Invoice", "Create", "$session_name created Invoice $config_invoice_prefix$invoice_number - $scope", $client_id, $invoice_id);
+    logAudit("Invoice", "Create", "$session_name created Invoice $config_invoice_prefix$invoice_number - $scope", $client_id, $invoice_id);
 
-    customAction('invoice_create', $invoice_id);
+    triggerCustomAction('invoice_create', $invoice_id);
 
-    flash_alert("Invoice <strong>$config_invoice_prefix$invoice_number</strong> created");
+    flashAlert("Invoice <strong>$config_invoice_prefix$invoice_number</strong> created");
 
     redirect("invoice.php?invoice_id=$invoice_id");
 
@@ -55,19 +55,19 @@ if (isset($_POST['add_invoice'])) {
 
 if (isset($_POST['edit_invoice'])) {
 
-    validateCSRFToken($_POST['csrf_token']);
+    validateCSRFToken();
 
     enforceUserPermission('module_sales', 2);
 
     require_once 'invoice_model.php';
 
     $invoice_id = intval($_POST['invoice_id']);
-    $due = sanitizeInput($_POST['due']);
+    $due = escapeSql($_POST['due']);
 
     // Get Invoice Number and Prefix and Client ID for Logging
     $sql = mysqli_query($mysqli,"SELECT invoice_prefix, invoice_number, invoice_client_id FROM invoices WHERE invoice_id = $invoice_id");
     $row = mysqli_fetch_assoc($sql);
-    $invoice_prefix = sanitizeInput($row['invoice_prefix']);
+    $invoice_prefix = escapeSql($row['invoice_prefix']);
     $invoice_number = intval($row['invoice_number']);
     $client_id = intval($row['invoice_client_id']);
 
@@ -85,9 +85,9 @@ if (isset($_POST['edit_invoice'])) {
 
     mysqli_query($mysqli,"UPDATE invoices SET invoice_scope = '$scope', invoice_date = '$date', invoice_due = '$due', invoice_category_id = $category, invoice_discount_amount = '$invoice_discount', invoice_amount = '$invoice_amount' WHERE invoice_id = $invoice_id");
 
-    logAction("Invoice", "Edit", "$session_name edited Invoice $invoice_prefix$invoice_number - $scope", $client_id, $invoice_id);
+    logAudit("Invoice", "Edit", "$session_name edited Invoice $invoice_prefix$invoice_number - $scope", $client_id, $invoice_id);
 
-    flash_alert("Invoice <strong>$invoice_prefix$invoice_number</strong> edited");
+    flashAlert("Invoice <strong>$invoice_prefix$invoice_number</strong> edited");
 
     redirect();
 
@@ -95,25 +95,25 @@ if (isset($_POST['edit_invoice'])) {
 
 if (isset($_POST['add_invoice_copy'])) {
 
-    validateCSRFToken($_POST['csrf_token']);
+    validateCSRFToken();
 
     enforceUserPermission('module_sales', 2);
 
     $invoice_id = intval($_POST['invoice_id']);
-    $date = sanitizeInput($_POST['date']);
+    $date = escapeSql($_POST['date']);
 
     //Get Net Terms
     $sql = mysqli_query($mysqli,"SELECT * FROM clients, invoices WHERE client_id = invoice_client_id AND invoice_id = $invoice_id");
     $row = mysqli_fetch_assoc($sql);
     $client_net_terms = intval($row['client_net_terms']);
-    $invoice_scope = sanitizeInput($row['invoice_scope']);
+    $invoice_scope = escapeSql($row['invoice_scope']);
     $invoice_discount_amount = floatval($row['invoice_discount_amount']);
     $invoice_amount = floatval($row['invoice_amount']);
-    $invoice_currency_code = sanitizeInput($row['invoice_currency_code']);
-    $invoice_note = sanitizeInput($row['invoice_note']);
+    $invoice_currency_code = escapeSql($row['invoice_currency_code']);
+    $invoice_note = escapeSql($row['invoice_note']);
     $client_id = intval($row['invoice_client_id']);
     $category_id = intval($row['invoice_category_id']);
-    $old_invoice_prefix = sanitizeInput($row['invoice_prefix']);
+    $old_invoice_prefix = escapeSql($row['invoice_prefix']);
     $old_invoice_number = intval($row['invoice_number']);
 
     enforceClientAccess();
@@ -141,8 +141,8 @@ if (isset($_POST['add_invoice_copy'])) {
     $sql_items = mysqli_query($mysqli,"SELECT * FROM invoice_items WHERE item_invoice_id = $invoice_id");
     while($row = mysqli_fetch_assoc($sql_items)) {
         $item_id = intval($row['item_id']);
-        $item_name = sanitizeInput($row['item_name']);
-        $item_description = sanitizeInput($row['item_description']);
+        $item_name = escapeSql($row['item_name']);
+        $item_description = escapeSql($row['item_description']);
         $item_quantity = floatval($row['item_quantity']);
         $item_price = floatval($row['item_price']);
         $item_subtotal = floatval($row['item_subtotal']);
@@ -154,11 +154,11 @@ if (isset($_POST['add_invoice_copy'])) {
         mysqli_query($mysqli,"INSERT INTO invoice_items SET item_name = '$item_name', item_description = '$item_description', item_quantity = $item_quantity, item_price = $item_price, item_subtotal = $item_subtotal, item_tax = $item_tax, item_total = $item_total, item_order = $item_order, item_tax_id = $tax_id, item_invoice_id = $new_invoice_id");
     }
 
-    logAction("Invoice", "Create", "$session_name created new Invoice $config_invoice_prefix$new_invoice_number from $old_invoice_prefix$old_invoice_prefix", $client_id, $new_invoice_id);
+    logAudit("Invoice", "Create", "$session_name created new Invoice $config_invoice_prefix$new_invoice_number from $old_invoice_prefix$old_invoice_prefix", $client_id, $new_invoice_id);
 
-    customAction('invoice_create', $new_invoice_id);
+    triggerCustomAction('invoice_create', $new_invoice_id);
 
-    flash_alert("Created new Invoice <strong>$config_invoice_prefix$new_invoice_number</strong> from <strong>$old_invoice_prefix$old_invoice_prefix</strong>");
+    flashAlert("Created new Invoice <strong>$config_invoice_prefix$new_invoice_number</strong> from <strong>$old_invoice_prefix$old_invoice_prefix</strong>");
 
     redirect("invoice.php?invoice_id=$new_invoice_id");
 
@@ -166,7 +166,7 @@ if (isset($_POST['add_invoice_copy'])) {
 
 if (isset($_GET['mark_invoice_sent'])) {
 
-    validateCSRFToken($_GET['csrf_token']);
+    validateCSRFToken();
 
     enforceUserPermission('module_sales', 2);
 
@@ -175,7 +175,7 @@ if (isset($_GET['mark_invoice_sent'])) {
     // Get Invoice Number and Prefix and Client ID for Logging
     $sql = mysqli_query($mysqli,"SELECT invoice_prefix, invoice_number, invoice_client_id FROM invoices WHERE invoice_id = $invoice_id");
     $row = mysqli_fetch_assoc($sql);
-    $invoice_prefix = sanitizeInput($row['invoice_prefix']);
+    $invoice_prefix = escapeSql($row['invoice_prefix']);
     $invoice_number = intval($row['invoice_number']);
     $client_id = intval($row['invoice_client_id']);
 
@@ -185,9 +185,9 @@ if (isset($_GET['mark_invoice_sent'])) {
 
     mysqli_query($mysqli,"INSERT INTO history SET history_status = 'Sent', history_description = 'Invoice marked sent by $session_name', history_invoice_id = $invoice_id");
 
-    logAction("Invoice", "Edit", "$session_name marked invoice $invoice_prefix$invoice_number sent", $client_id, $invoice_id);
+    logAudit("Invoice", "Edit", "$session_name marked invoice $invoice_prefix$invoice_number sent", $client_id, $invoice_id);
 
-    flash_alert("Invoice marked sent");
+    flashAlert("Invoice marked sent");
 
     redirect();
 
@@ -195,7 +195,7 @@ if (isset($_GET['mark_invoice_sent'])) {
 
 if (isset($_GET['mark_invoice_non-billable'])) {
 
-    validateCSRFToken($_GET['csrf_token']);
+    validateCSRFToken();
 
     enforceUserPermission('module_sales', 2);
 
@@ -204,7 +204,7 @@ if (isset($_GET['mark_invoice_non-billable'])) {
     // Get Invoice Number and Prefix and Client ID for Logging
     $sql = mysqli_query($mysqli,"SELECT invoice_prefix, invoice_number, invoice_client_id FROM invoices WHERE invoice_id = $invoice_id");
     $row = mysqli_fetch_assoc($sql);
-    $invoice_prefix = sanitizeInput($row['invoice_prefix']);
+    $invoice_prefix = escapeSql($row['invoice_prefix']);
     $invoice_number = intval($row['invoice_number']);
     $client_id = intval($row['invoice_client_id']);
 
@@ -214,9 +214,9 @@ if (isset($_GET['mark_invoice_non-billable'])) {
 
     mysqli_query($mysqli,"INSERT INTO history SET history_status = 'Non-Billable', history_description = 'INVOICE marked Non-Billable', history_invoice_id = $invoice_id");
 
-    logAction("Invoice", "Edit", "$session_name marked invoice $invoice_prefix$invoice_number Non-Billable", $client_id, $invoice_id);
+    logAudit("Invoice", "Edit", "$session_name marked invoice $invoice_prefix$invoice_number Non-Billable", $client_id, $invoice_id);
 
-    flash_alert("Invoice marked Non-Billable");
+    flashAlert("Invoice marked Non-Billable");
 
     redirect();
 
@@ -224,7 +224,7 @@ if (isset($_GET['mark_invoice_non-billable'])) {
 
 if (isset($_GET['cancel_invoice'])) {
 
-    validateCSRFToken($_GET['csrf_token']);
+    validateCSRFToken();
 
     enforceUserPermission('module_sales', 2);
 
@@ -233,7 +233,7 @@ if (isset($_GET['cancel_invoice'])) {
     // Get Invoice Number and Prefix and Client ID for Logging
     $sql = mysqli_query($mysqli,"SELECT invoice_prefix, invoice_number, invoice_client_id FROM invoices WHERE invoice_id = $invoice_id");
     $row = mysqli_fetch_assoc($sql);
-    $invoice_prefix = sanitizeInput($row['invoice_prefix']);
+    $invoice_prefix = escapeSql($row['invoice_prefix']);
     $invoice_number = intval($row['invoice_number']);
     $client_id = intval($row['invoice_client_id']);
 
@@ -243,9 +243,9 @@ if (isset($_GET['cancel_invoice'])) {
 
     mysqli_query($mysqli,"INSERT INTO history SET history_status = 'Cancelled', history_description = 'Invoice cancelled by $session_name', history_invoice_id = $invoice_id");
 
-    logAction("Invoice", "Edit", "$session_name cancelled invoice $invoice_prefix$invoice_number", $client_id, $invoice_id);
+    logAudit("Invoice", "Edit", "$session_name cancelled invoice $invoice_prefix$invoice_number", $client_id, $invoice_id);
 
-    flash_alert("Invoice <strong>$invoice_prefix$invoice_number</strong> cancelled", 'error');
+    flashAlert("Invoice <strong>$invoice_prefix$invoice_number</strong> cancelled", 'error');
 
     redirect();
 
@@ -253,7 +253,7 @@ if (isset($_GET['cancel_invoice'])) {
 
 if (isset($_GET['delete_invoice'])) {
 
-    validateCSRFToken($_GET['csrf_token']);
+    validateCSRFToken();
 
     enforceUserPermission('module_sales', 3);
 
@@ -262,7 +262,7 @@ if (isset($_GET['delete_invoice'])) {
     // Get Invoice Number and Prefix and Client ID for Logging
     $sql = mysqli_query($mysqli,"SELECT invoice_prefix, invoice_number, invoice_client_id FROM invoices WHERE invoice_id = $invoice_id");
     $row = mysqli_fetch_assoc($sql);
-    $invoice_prefix = sanitizeInput($row['invoice_prefix']);
+    $invoice_prefix = escapeSql($row['invoice_prefix']);
     $invoice_number = intval($row['invoice_number']);
     $client_id = intval($row['invoice_client_id']);
 
@@ -294,9 +294,9 @@ if (isset($_GET['delete_invoice'])) {
     //unlink tickets from invoice
     mysqli_query($mysqli,"UPDATE tickets SET ticket_invoice_id = 0 WHERE ticket_invoice_id = $invoice_id");
 
-    logAction("Invoice", "Delete", "$session_name deleted invoice $invoice_prefix$invoice_number", $client_id);
+    logAudit("Invoice", "Delete", "$session_name deleted invoice $invoice_prefix$invoice_number", $client_id);
 
-    flash_alert("Invoice <strong>$invoice_prefix$invoice_number</strong> deleted", 'error');
+    flashAlert("Invoice <strong>$invoice_prefix$invoice_number</strong> deleted", 'error');
 
     redirect();
 
@@ -304,13 +304,13 @@ if (isset($_GET['delete_invoice'])) {
 
 if (isset($_POST['add_invoice_item'])) {
 
-    validateCSRFToken($_POST['csrf_token']);
+    validateCSRFToken();
 
     enforceUserPermission('module_sales', 2);
 
     $invoice_id = intval($_POST['invoice_id']);
-    $name = sanitizeInput($_POST['name']);
-    $description = sanitizeInput($_POST['description']);
+    $name = escapeSql($_POST['name']);
+    $description = escapeSql($_POST['description']);
     $qty = floatval($_POST['qty']);
     $price = floatval($_POST['price']);
     $tax_id = intval($_POST['tax_id']);
@@ -326,7 +326,7 @@ if (isset($_POST['add_invoice_item'])) {
     // Update Product Inventory
     if ($product_id) {
          // Only enforce stock for tangible products
-        $product_type = sanitizeInput(getFieldById('products', $product_id, 'product_type'));
+        $product_type = escapeSql(getFieldById('products', $product_id, 'product_type'));
         if ($product_type === 'product') {
 
             // Current available stock
@@ -344,7 +344,7 @@ if (isset($_POST['add_invoice_item'])) {
                 mysqli_query($mysqli,"INSERT INTO product_stock SET stock_qty = -$qty, stock_note = 'QTY $qty - Invoice $invoice_id', stock_product_id = $product_id");
             } else {
                 // Not enough in stock: stop and notify
-                flash_alert("Not Enough <strong>$name</strong> in stock", 'error');
+                flashAlert("Not Enough <strong>$name</strong> in stock", 'error');
                 redirect();
             }
         }
@@ -367,7 +367,7 @@ if (isset($_POST['add_invoice_item'])) {
     // Get Discount and Invoice Details
     $sql = mysqli_query($mysqli,"SELECT * FROM invoices WHERE invoice_id = $invoice_id");
     $row = mysqli_fetch_assoc($sql);
-    $invoice_prefix = sanitizeInput($row['invoice_prefix']);
+    $invoice_prefix = escapeSql($row['invoice_prefix']);
     $invoice_number = intval($row['invoice_number']);
     $invoice_discount = floatval($row['invoice_discount_amount']);
 
@@ -382,9 +382,9 @@ if (isset($_POST['add_invoice_item'])) {
 
     mysqli_query($mysqli,"UPDATE invoices SET invoice_amount = $new_invoice_amount WHERE invoice_id = $invoice_id");
 
-    logAction("Invoice", "Edit", "$session_name added item $name to invoice $invoice_prefix$invoice_number", $client_id, $invoice_id);
+    logAudit("Invoice", "Edit", "$session_name added item $name to invoice $invoice_prefix$invoice_number", $client_id, $invoice_id);
 
-    flash_alert("Item <strong>$name</strong> added to invoice");
+    flashAlert("Item <strong>$name</strong> added to invoice");
 
     redirect();
 
@@ -392,17 +392,17 @@ if (isset($_POST['add_invoice_item'])) {
 
 if (isset($_POST['invoice_note'])) {
 
-    validateCSRFToken($_POST['csrf_token']);
+    validateCSRFToken();
 
     enforceUserPermission('module_sales', 2);
 
     $invoice_id = intval($_POST['invoice_id']);
-    $note = sanitizeInput($_POST['note']);
+    $note = escapeSql($_POST['note']);
 
     // Get Invoice Details for logging
     $sql = mysqli_query($mysqli,"SELECT * FROM invoices WHERE invoice_id = $invoice_id");
     $row = mysqli_fetch_assoc($sql);
-    $invoice_prefix = sanitizeInput($row['invoice_prefix']);
+    $invoice_prefix = escapeSql($row['invoice_prefix']);
     $invoice_number = intval($row['invoice_number']);
     $client_id = intval($row['invoice_client_id']);
 
@@ -410,9 +410,9 @@ if (isset($_POST['invoice_note'])) {
 
     mysqli_query($mysqli,"UPDATE invoices SET invoice_note = '$note' WHERE invoice_id = $invoice_id");
 
-    logAction("Invoice", "Edit", "$session_name added note to invoice $invoice_prefix$invoice_number", $client_id, $invoice_id);
+    logAudit("Invoice", "Edit", "$session_name added note to invoice $invoice_prefix$invoice_number", $client_id, $invoice_id);
 
-    flash_alert("Notes added");
+    flashAlert("Notes added");
 
     redirect();
 
@@ -420,13 +420,13 @@ if (isset($_POST['invoice_note'])) {
 
 if (isset($_POST['edit_invoice_item'])) {
 
-    validateCSRFToken($_POST['csrf_token']);
+    validateCSRFToken();
 
     enforceUserPermission('module_sales', 2);
 
     $item_id = intval($_POST['item_id']);
-    $name = sanitizeInput($_POST['name']);
-    $description = sanitizeInput($_POST['description']);
+    $name = escapeSql($_POST['name']);
+    $description = escapeSql($_POST['description']);
     $qty = floatval($_POST['qty']);
     $price = floatval($_POST['price']);
     $tax_id = intval($_POST['tax_id']);
@@ -453,7 +453,7 @@ if (isset($_POST['edit_invoice_item'])) {
     //Get Discount Amount
     $sql = mysqli_query($mysqli,"SELECT * FROM invoices WHERE invoice_id = $invoice_id");
     $row = mysqli_fetch_assoc($sql);
-    $invoice_prefix = sanitizeInput($row['invoice_prefix']);
+    $invoice_prefix = escapeSql($row['invoice_prefix']);
     $invoice_number = intval($row['invoice_number']);
     $client_id = intval($row['invoice_client_id']);
     $invoice_discount = floatval($row['invoice_discount_amount']);
@@ -469,9 +469,9 @@ if (isset($_POST['edit_invoice_item'])) {
 
     mysqli_query($mysqli,"UPDATE invoices SET invoice_amount = $new_invoice_amount WHERE invoice_id = $invoice_id");
 
-    logAction("Invoice", "Edit", "$session_name edited item $name on invoice $invoice_prefix$invoice_number", $client_id, $invoice_id);
+    logAudit("Invoice", "Edit", "$session_name edited item $name on invoice $invoice_prefix$invoice_number", $client_id, $invoice_id);
 
-    flash_alert("Item <strong>$name</strong> updated");
+    flashAlert("Item <strong>$name</strong> updated");
 
     redirect();
 
@@ -479,7 +479,7 @@ if (isset($_POST['edit_invoice_item'])) {
 
 if (isset($_GET['delete_invoice_item'])) {
 
-    validateCSRFToken($_GET['csrf_token']);
+    validateCSRFToken();
 
     enforceUserPermission('module_sales', 2);
 
@@ -488,7 +488,7 @@ if (isset($_GET['delete_invoice_item'])) {
     $sql = mysqli_query($mysqli,"SELECT * FROM invoice_items WHERE item_id = $item_id");
     $row = mysqli_fetch_assoc($sql);
     $invoice_id = intval($row['item_invoice_id']);
-    $item_name = sanitizeInput($row['item_name']);
+    $item_name = escapeSql($row['item_name']);
     $item_quantity = floatval($row['item_quantity']);
     $item_product_id = intval($row['item_product_id']);
     $item_subtotal = floatval($row['item_subtotal']);
@@ -497,7 +497,7 @@ if (isset($_GET['delete_invoice_item'])) {
 
     $sql = mysqli_query($mysqli,"SELECT * FROM invoices WHERE invoice_id = $invoice_id");
     $row = mysqli_fetch_assoc($sql);
-    $invoice_prefix = sanitizeInput($row['invoice_prefix']);
+    $invoice_prefix = escapeSql($row['invoice_prefix']);
     $invoice_number = intval($row['invoice_number']);
     $client_id = intval($row['invoice_client_id']);
 
@@ -514,9 +514,9 @@ if (isset($_GET['delete_invoice_item'])) {
         mysqli_query($mysqli,"INSERT INTO product_stock SET stock_qty = $item_quantity, stock_note = 'Returned QTY $item_quantity back to stock from Invoice $invoice_id', stock_product_id = $item_product_id");
     }
 
-    logAction("Invoice", "Delete", "$session_name removed item $item_name from invoice $invoice_prefix$invoice_number", $client_id, $invoice_id);
+    logAudit("Invoice", "Delete", "$session_name removed item $item_name from invoice $invoice_prefix$invoice_number", $client_id, $invoice_id);
 
-    flash_alert("Item <strong>$item_name</strong> removed from invoice", 'error');
+    flashAlert("Item <strong>$item_name</strong> removed from invoice", 'error');
 
     redirect();
 
@@ -524,7 +524,7 @@ if (isset($_GET['delete_invoice_item'])) {
 
 if (isset($_GET['email_invoice'])) {
 
-    validateCSRFToken($_GET['csrf_token']);
+    validateCSRFToken();
 
     enforceUserPermission('module_sales', 2);
 
@@ -538,39 +538,39 @@ if (isset($_GET['email_invoice'])) {
     $row = mysqli_fetch_assoc($sql);
 
     $invoice_id = intval($row['invoice_id']);
-    $invoice_prefix = sanitizeInput($row['invoice_prefix']);
+    $invoice_prefix = escapeSql($row['invoice_prefix']);
     $invoice_number = intval($row['invoice_number']);
-    $invoice_scope = sanitizeInput($row['invoice_scope']);
-    $invoice_status = sanitizeInput($row['invoice_status']);
-    $invoice_date = sanitizeInput(validateDate($row['invoice_date']));
-    $invoice_due = sanitizeInput(validateDate($row['invoice_due']));
+    $invoice_scope = escapeSql($row['invoice_scope']);
+    $invoice_status = escapeSql($row['invoice_status']);
+    $invoice_date = escapeSql(validateDate($row['invoice_date']));
+    $invoice_due = escapeSql(validateDate($row['invoice_due']));
     $invoice_amount = floatval($row['invoice_amount']);
-    $invoice_url_key = sanitizeInput($row['invoice_url_key']);
-    $invoice_currency_code = sanitizeInput($row['invoice_currency_code']);
+    $invoice_url_key = escapeSql($row['invoice_url_key']);
+    $invoice_currency_code = escapeSql($row['invoice_currency_code']);
     $client_id = intval($row['client_id']);
-    $client_name = sanitizeInput($row['client_name']);
-    $contact_name = sanitizeInput($row['contact_name']);
-    $contact_email = sanitizeInput($row['contact_email']);
+    $client_name = escapeSql($row['client_name']);
+    $contact_name = escapeSql($row['contact_name']);
+    $contact_email = escapeSql($row['contact_email']);
 
     enforceClientAccess();
 
     $sql = mysqli_query($mysqli,"SELECT * FROM companies WHERE company_id = 1");
     $row = mysqli_fetch_assoc($sql);
 
-    $company_name = sanitizeInput($row['company_name']);
-    $company_country = sanitizeInput($row['company_country']);
-    $company_address = sanitizeInput($row['company_address']);
-    $company_city = sanitizeInput($row['company_city']);
-    $company_state = sanitizeInput($row['company_state']);
-    $company_zip = sanitizeInput($row['company_zip']);
-    $company_phone = sanitizeInput(formatPhoneNumber($row['company_phone'], $row['company_phone_country_code']));
-    $company_email = sanitizeInput($row['company_email']);
-    $company_website = sanitizeInput($row['company_website']);
-    $company_logo = sanitizeInput($row['company_logo']);
+    $company_name = escapeSql($row['company_name']);
+    $company_country = escapeSql($row['company_country']);
+    $company_address = escapeSql($row['company_address']);
+    $company_city = escapeSql($row['company_city']);
+    $company_state = escapeSql($row['company_state']);
+    $company_zip = escapeSql($row['company_zip']);
+    $company_phone = escapeSql(formatPhoneNumber($row['company_phone'], $row['company_phone_country_code']));
+    $company_email = escapeSql($row['company_email']);
+    $company_website = escapeSql($row['company_website']);
+    $company_logo = escapeSql($row['company_logo']);
 
     // Sanitize Config vars from get_settings.php
-    $config_invoice_from_name = sanitizeInput($config_invoice_from_name);
-    $config_invoice_from_email = sanitizeInput($config_invoice_from_email);
+    $config_invoice_from_name = escapeSql($config_invoice_from_name);
+    $config_invoice_from_email = escapeSql($config_invoice_from_email);
 
     $sql_payments = mysqli_query($mysqli,"SELECT * FROM payments, accounts WHERE payment_account_id = account_id AND payment_invoice_id = $invoice_id ORDER BY payment_id DESC");
 
@@ -604,7 +604,7 @@ if (isset($_GET['email_invoice'])) {
     // Get Email ID for reference
     $email_id = mysqli_insert_id($mysqli);
 
-    flash_alert("Invoice sent!");
+    flashAlert("Invoice sent!");
 
     mysqli_query($mysqli,"INSERT INTO history SET history_status = 'Sent', history_description = 'Invoice sent by $session_name (mail queue ID: $email_id)', history_invoice_id = $invoice_id");
 
@@ -613,7 +613,7 @@ if (isset($_GET['email_invoice'])) {
         mysqli_query($mysqli,"UPDATE invoices SET invoice_status = 'Sent' WHERE invoice_id = $invoice_id");
     }
 
-    logAction("Invoice", "Email", "$session_name Emailed $contact_email Invoice $invoice_prefix$invoice_number Email queued to Email ID: $email_id", $client_id, $invoice_id);
+    logAudit("Invoice", "Email", "$session_name Emailed $contact_email Invoice $invoice_prefix$invoice_number Email queued to Email ID: $email_id", $client_id, $invoice_id);
 
     // Send copies of the invoice to any additional billing contacts
     $sql_billing_contacts = mysqli_query(
@@ -628,8 +628,8 @@ if (isset($_GET['email_invoice'])) {
     $data = [];
 
     while ($billing_contact = mysqli_fetch_assoc($sql_billing_contacts)) {
-        $billing_contact_name = sanitizeInput($billing_contact['contact_name']);
-        $billing_contact_email = sanitizeInput($billing_contact['contact_email']);
+        $billing_contact_name = escapeSql($billing_contact['contact_name']);
+        $billing_contact_email = escapeSql($billing_contact['contact_email']);
 
         $data[] = [
                 'from' => $config_invoice_from_email,
@@ -640,7 +640,7 @@ if (isset($_GET['email_invoice'])) {
                 'body' => $body
         ];
 
-        logAction("Invoice", "Email", "$session_name Emailed $billing_contact_email Invoice $invoice_prefix$invoice_number Email queued Email ID: $email_id", $client_id, $invoice_id);
+        logAudit("Invoice", "Email", "$session_name Emailed $billing_contact_email Invoice $invoice_prefix$invoice_number Email queued Email ID: $email_id", $client_id, $invoice_id);
 
     }
 
@@ -650,69 +650,117 @@ if (isset($_GET['email_invoice'])) {
 
 }
 
-if (isset($_POST['export_invoices_csv'])) {
+if (isset($_POST['export_invoices'])) {
 
-    validateCSRFToken($_POST['csrf_token']);
+    validateCSRFToken();
 
     enforceUserPermission('module_sales');
 
-    if ($_POST['client_id']) {
+    $format = resolveExportFormat($_POST['export_invoices']);
+
+    // Filters inherited from the invoices page - mirrors agent/invoices.php
+    $filter_summary = [];
+
+    if (!empty($_POST['client_id'])) {
         $client_id = intval($_POST['client_id']);
-        $client_query = "1=1 AND invoice_client_id = $client_id";
+        $client_query = "AND invoice_client_id = $client_id";
         $client_name = getFieldById('clients', $client_id, 'client_name');
         $file_name_prepend = "$client_name-";
+        $filter_summary['Client'] = $client_name;
+
         enforceClientAccess();
     } else {
-        $client_query = '1=1 ';
-        $client_name = '';
+        $client_query = '';
+        $client_id = 0; // for Logging
         $file_name_prepend = "$session_company_name-";
     }
 
-    $date_from = sanitizeInput($_POST['date_from']);
-    $date_to = sanitizeInput($_POST['date_to']);
-    if (!empty($date_from) && !empty($date_to)) {
-        $date_query = "DATE(invoice_date) BETWEEN '$date_from' AND '$date_to'";
-        $file_name_date = "$date_from-to-$date_to";
-    }else{
-        $date_query = "";
-        $file_name_date = date('Y-m-d_H-i-s');
+    // Status Filter
+    $overdue_query = '';
+    if (!empty($_POST['status']) && $_POST['status'] == 'Draft') {
+        $status_query = "invoice_status = 'Draft'";
+        $filter_summary['Status'] = 'Draft';
+    } elseif (!empty($_POST['status']) && $_POST['status'] == 'Unpaid') {
+        $status_query = "invoice_status = 'Sent' OR invoice_status = 'Viewed' OR invoice_status = 'Partial'";
+        $filter_summary['Status'] = 'Unpaid';
+    } elseif (!empty($_POST['status']) && $_POST['status'] == 'Overdue') {
+        $status_query = "invoice_status = 'Sent' OR invoice_status = 'Viewed' OR invoice_status = 'Partial'";
+        $overdue_query = "AND (invoice_due < CURDATE())";
+        $filter_summary['Status'] = 'Overdue';
+    } else {
+        // Default - any
+        $status_query = "invoice_status LIKE '%'";
     }
 
-    $sql = mysqli_query($mysqli,"SELECT * FROM invoices LEFT JOIN clients ON invoice_client_id = client_id WHERE $date_query AND $client_query $access_permission_query ORDER BY invoice_number ASC");
+    // Category Filter
+    if (!empty($_POST['category'])) {
+        $filter_category_id = intval($_POST['category']);
+        $category_query = "AND (category_id = $filter_category_id)";
+        $filter_summary['Category'] = getFieldById('categories', $filter_category_id, 'category_name');
+    } else {
+        // Default - any
+        $category_query = '';
+    }
+
+    // Date Filter - drives the file name too, when a real range is in play
+    $dtf = escapeSql(!empty($_POST['dtf']) ? $_POST['dtf'] : '1970-01-01');
+    $dtt = escapeSql(!empty($_POST['dtt']) ? $_POST['dtt'] : '2099-12-31');
+    $date_range = formatExportDateRange($dtf, $dtt);
+    if ($date_range) {
+        $filter_summary['Issued'] = $date_range;
+        $file_name_append = "-$dtf-to-$dtt";
+    } else {
+        $file_name_append = '';
+    }
+
+    // Search Filter
+    $q = escapeSql($_POST['q'] ?? '');
+    if (!empty($q)) {
+        $filter_summary['Search'] = $_POST['q'];
+    }
+
+    // Get records from database - same shape as the invoices page list query
+    $sql = mysqli_query(
+        $mysqli,
+        "SELECT * FROM invoices
+        LEFT JOIN clients ON invoice_client_id = client_id
+        LEFT JOIN categories ON invoice_category_id = category_id
+        WHERE ($status_query)
+        $overdue_query
+        $category_query
+        AND DATE(invoice_date) BETWEEN '$dtf' AND '$dtt'
+        AND (CONCAT(invoice_prefix,invoice_number) LIKE '%$q%' OR invoice_scope LIKE '%$q%' OR client_name LIKE '%$q%' OR invoice_status LIKE '%$q%' OR invoice_amount LIKE '%$q%' OR category_name LIKE '%$q%')
+        $access_permission_query
+        $client_query
+        ORDER BY invoice_number ASC"
+    );
 
     $num_rows = mysqli_num_rows($sql);
 
     if ($num_rows > 0) {
-        $delimiter = ",";
-        $enclosure = '"';
-        $escape    = '\\';   // backslash
-        $filename = sanitize_filename($file_name_prepend . "Invoices-$file_name_date.csv");
 
-        //create a file pointer
-        $f = fopen('php://memory', 'w');
+        guardExportPdfRowCount($format, $num_rows);
 
-        //set column headers
-        $fields = array('Invoice Number', 'Scope', 'Amount', 'Issued Date', 'Due Date', 'Status');
-        fputcsv($f, $fields, $delimiter, $enclosure, $escape);
+        $export = beginExport('invoices', $format, $file_name_prepend . 'Invoices' . $file_name_append, 'Invoices', summarizeExportFilters($filter_summary));
 
-        //output each row of the data, format line as csv and write to file pointer
-        while($row = $sql->fetch_assoc()) {
-            $lineData = array($row['invoice_prefix'] . $row['invoice_number'], $row['invoice_scope'], $row['invoice_amount'], $row['invoice_date'], $row['invoice_due'], $row['invoice_status'], $row['client_name']);
-            fputcsv($f, $lineData, $delimiter, $enclosure, $escape);
+        while ($row = mysqli_fetch_assoc($sql)) {
+            $row['invoice_number_display'] = $row['invoice_prefix'] . $row['invoice_number'];
+
+            // Paid / balance are opt-in columns - only pay for the lookup if asked
+            if (isset($export['columns']['amount_paid']) || isset($export['columns']['invoice_balance'])) {
+                $invoice_id = intval($row['invoice_id']);
+                $payment_row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT SUM(payment_amount) AS amount_paid FROM payments WHERE payment_invoice_id = $invoice_id AND payment_archived_at IS NULL"));
+                $row['amount_paid'] = floatval($payment_row['amount_paid']);
+                $row['invoice_balance'] = floatval($row['invoice_amount']) - $row['amount_paid'];
+            }
+
+            addExportRow($export, $row);
         }
 
-        //move back to beginning of file
-        fseek($f, 0);
-
-        //set headers to download file rather than displayed
-        header('Content-Type: text/csv');
-        header('Content-Disposition: attachment; filename="' . $filename . '";');
-
-        //output all remaining data on a file pointer
-        fpassthru($f);
+        finishExport($export);
     }
 
-    logAction("Invoice", "Export", "$session_name exported $num_rows invoices to CSV file");
+    logAudit("Invoice", "Export", "$session_name exported $num_rows invoice(s) to a " . strtoupper($format) . " file", $client_id);
 
     exit;
 
@@ -720,7 +768,7 @@ if (isset($_POST['export_invoices_csv'])) {
 
 if (isset($_POST['link_invoice_to_ticket'])) {
 
-    validateCSRFToken($_POST['csrf_token']);
+    validateCSRFToken();
 
     enforceUserPermission('module_sales', 2);
 
@@ -733,7 +781,7 @@ if (isset($_POST['link_invoice_to_ticket'])) {
 
     mysqli_query($mysqli,"UPDATE invoices SET invoice_ticket_id = $ticket_id WHERE invoice_id = $invoice_id");
 
-    flash_alert("Invoice linked to ticket");
+    flashAlert("Invoice linked to ticket");
 
     redirect();
 
@@ -741,7 +789,7 @@ if (isset($_POST['link_invoice_to_ticket'])) {
 
 if (isset($_POST['add_ticket_to_invoice'])) {
 
-    validateCSRFToken($_POST['csrf_token']);
+    validateCSRFToken();
 
     enforceUserPermission('module_sales', 2);
 
@@ -754,7 +802,7 @@ if (isset($_POST['add_ticket_to_invoice'])) {
 
     mysqli_query($mysqli,"UPDATE tickets SET ticket_invoice_id = $invoice_id WHERE ticket_id = $ticket_id");
 
-    flash_alert("Ticket linked to invoice");
+    flashAlert("Ticket linked to invoice");
 
     redirect("post.php?add_ticket_to_invoice=$invoice_id");
 
@@ -762,7 +810,7 @@ if (isset($_POST['add_ticket_to_invoice'])) {
 
 if (isset($_GET['export_invoice_pdf'])) {
 
-    validateCSRFToken($_GET['csrf_token']);
+    validateCSRFToken();
 
     enforceUserPermission('module_sales');
 
@@ -781,34 +829,34 @@ if (isset($_GET['export_invoice_pdf'])) {
 
     $row = mysqli_fetch_assoc($sql);
     $invoice_id = intval($row['invoice_id']);
-    $invoice_prefix = nullable_htmlentities($row['invoice_prefix']);
+    $invoice_prefix = escapeHtml($row['invoice_prefix']);
     $invoice_number = intval($row['invoice_number']);
-    $invoice_scope = nullable_htmlentities($row['invoice_scope']);
-    $invoice_status = nullable_htmlentities($row['invoice_status']);
-    $invoice_date = nullable_htmlentities($row['invoice_date']);
-    $invoice_due = nullable_htmlentities($row['invoice_due']);
+    $invoice_scope = escapeHtml($row['invoice_scope']);
+    $invoice_status = escapeHtml($row['invoice_status']);
+    $invoice_date = escapeHtml($row['invoice_date']);
+    $invoice_due = escapeHtml($row['invoice_due']);
     $invoice_amount = floatval($row['invoice_amount']);
     $invoice_discount = floatval($row['invoice_discount_amount']);
-    $invoice_currency_code = nullable_htmlentities($row['invoice_currency_code']);
-    $invoice_note = nullable_htmlentities($row['invoice_note']);
-    $invoice_url_key = nullable_htmlentities($row['invoice_url_key']);
-    $invoice_created_at = nullable_htmlentities($row['invoice_created_at']);
+    $invoice_currency_code = escapeHtml($row['invoice_currency_code']);
+    $invoice_note = escapeHtml($row['invoice_note']);
+    $invoice_url_key = escapeHtml($row['invoice_url_key']);
+    $invoice_created_at = escapeHtml($row['invoice_created_at']);
     $category_id = intval($row['invoice_category_id']);
     $client_id = intval($row['client_id']);
-    $client_name = nullable_htmlentities($row['client_name']);
-    $location_address = nullable_htmlentities($row['location_address']);
-    $location_city = nullable_htmlentities($row['location_city']);
-    $location_state = nullable_htmlentities($row['location_state']);
-    $location_zip = nullable_htmlentities($row['location_zip']);
-    $location_country = nullable_htmlentities($row['location_country']);
-    $contact_email = nullable_htmlentities($row['contact_email']);
-    $contact_phone_country_code = nullable_htmlentities($row['contact_phone_country_code']);
-    $contact_phone = nullable_htmlentities(formatPhoneNumber($row['contact_phone'], $contact_phone_country_code));
-    $contact_extension = nullable_htmlentities($row['contact_extension']);
-    $contact_mobile_country_code = nullable_htmlentities($row['contact_mobile_country_code']);
-    $contact_mobile = nullable_htmlentities(formatPhoneNumber($row['contact_mobile'], $contact_mobile_country_code));
-    $client_website = nullable_htmlentities($row['client_website']);
-    $client_currency_code = nullable_htmlentities($row['client_currency_code']);
+    $client_name = escapeHtml($row['client_name']);
+    $location_address = escapeHtml($row['location_address']);
+    $location_city = escapeHtml($row['location_city']);
+    $location_state = escapeHtml($row['location_state']);
+    $location_zip = escapeHtml($row['location_zip']);
+    $location_country = escapeHtml($row['location_country']);
+    $contact_email = escapeHtml($row['contact_email']);
+    $contact_phone_country_code = escapeHtml($row['contact_phone_country_code']);
+    $contact_phone = escapeHtml(formatPhoneNumber($row['contact_phone'], $contact_phone_country_code));
+    $contact_extension = escapeHtml($row['contact_extension']);
+    $contact_mobile_country_code = escapeHtml($row['contact_mobile_country_code']);
+    $contact_mobile = escapeHtml(formatPhoneNumber($row['contact_mobile'], $contact_mobile_country_code));
+    $client_website = escapeHtml($row['client_website']);
+    $client_currency_code = escapeHtml($row['client_currency_code']);
     $client_net_terms = intval($row['client_net_terms']);
     if ($client_net_terms == 0) {
         $client_net_terms = $config_default_net_terms;
@@ -819,23 +867,23 @@ if (isset($_GET['export_invoice_pdf'])) {
     $sql = mysqli_query($mysqli, "SELECT * FROM companies WHERE company_id = 1");
     $row = mysqli_fetch_assoc($sql);
     $company_id = intval($row['company_id']);
-    $company_name = nullable_htmlentities($row['company_name']);
-    $company_country = nullable_htmlentities($row['company_country']);
-    $company_address = nullable_htmlentities($row['company_address']);
-    $company_city = nullable_htmlentities($row['company_city']);
-    $company_state = nullable_htmlentities($row['company_state']);
-    $company_zip = nullable_htmlentities($row['company_zip']);
-    $company_phone_country_code = nullable_htmlentities($row['company_phone_country_code']);
-    $company_phone = nullable_htmlentities(formatPhoneNumber($row['company_phone'], $company_phone_country_code));
-    $company_email = nullable_htmlentities($row['company_email']);
-    $company_website = nullable_htmlentities($row['company_website']);
-    $company_tax_id = nullable_htmlentities($row['company_tax_id']);
+    $company_name = escapeHtml($row['company_name']);
+    $company_country = escapeHtml($row['company_country']);
+    $company_address = escapeHtml($row['company_address']);
+    $company_city = escapeHtml($row['company_city']);
+    $company_state = escapeHtml($row['company_state']);
+    $company_zip = escapeHtml($row['company_zip']);
+    $company_phone_country_code = escapeHtml($row['company_phone_country_code']);
+    $company_phone = escapeHtml(formatPhoneNumber($row['company_phone'], $company_phone_country_code));
+    $company_email = escapeHtml($row['company_email']);
+    $company_website = escapeHtml($row['company_website']);
+    $company_tax_id = escapeHtml($row['company_tax_id']);
     if ($config_invoice_show_tax_id && !empty($company_tax_id)) {
         $company_tax_id_display = "Tax ID: $company_tax_id";
     } else {
         $company_tax_id_display = "";
     }
-    $company_logo = nullable_htmlentities($row['company_logo']);
+    $company_logo = escapeHtml($row['company_logo']);
 
     $sql_payments = mysqli_query($mysqli, "SELECT * FROM payments, accounts WHERE payment_account_id = account_id AND payment_invoice_id = $invoice_id ORDER BY payments.payment_id DESC");
 
@@ -857,7 +905,7 @@ if (isset($_GET['export_invoice_pdf'])) {
     //Set Badge color based off of invoice status
     $invoice_badge_color = getInvoiceBadgeColor($invoice_status);
 
-    require_once("../plugins/TCPDF/tcpdf.php");
+    require_once("../libs/TCPDF/tcpdf.php");
 
     // Start TCPDF
     $pdf = new TCPDF('P', 'mm', 'A4', true, 'UTF-8', false);
@@ -892,8 +940,8 @@ if (isset($_GET['export_invoice_pdf'])) {
         <td width="50%" align="right" style="font-size:14pt; font-weight:bold;">' . $client_name . '</td>
     </tr>
     <tr>
-        <td style="font-size:10pt; line-height:1.4;">' . nl2br("$company_address\n$company_city $company_state $company_zip\n$company_country\n$company_phone\n$company_website\n$company_tax_id_display") . '</td>
-        <td style="font-size:10pt; line-height:1.4;" align="right">' . nl2br("$location_address\n$location_city $location_state $location_zip\n$location_country\n$contact_email\n$contact_phone") . '</td>
+        <td style="font-size:10pt; line-height:1.4;">' . nl2br(formatAddress($company_address, $company_city, $company_state, $company_zip, $company_country) . "\n$company_phone\n$company_website\n$company_tax_id_display") . '</td>
+        <td style="font-size:10pt; line-height:1.4;" align="right">' . nl2br(formatAddress($location_address, $location_city, $location_state, $location_zip, $location_country) . "\n$contact_email\n$contact_phone") . '</td>
     </tr>
     </table><br>';
 
@@ -991,7 +1039,7 @@ if (isset($_GET['export_invoice_pdf'])) {
 
 if (isset($_GET['export_invoice_packing_slip'])) {
 
-    validateCSRFToken($_GET['csrf_token']);
+    validateCSRFToken();
 
     enforceUserPermission('module_sales');
 
@@ -1010,39 +1058,39 @@ if (isset($_GET['export_invoice_packing_slip'])) {
 
     $row = mysqli_fetch_assoc($sql);
     $invoice_id = intval($row['invoice_id']);
-    $invoice_prefix = nullable_htmlentities($row['invoice_prefix']);
+    $invoice_prefix = escapeHtml($row['invoice_prefix']);
     $invoice_number = intval($row['invoice_number']);
-    $invoice_date = nullable_htmlentities($row['invoice_date']);
+    $invoice_date = escapeHtml($row['invoice_date']);
     $client_id = intval($row['client_id']);
-    $client_name = nullable_htmlentities($row['client_name']);
-    $location_address = nullable_htmlentities($row['location_address']);
-    $location_city = nullable_htmlentities($row['location_city']);
-    $location_state = nullable_htmlentities($row['location_state']);
-    $location_zip = nullable_htmlentities($row['location_zip']);
-    $location_country = nullable_htmlentities($row['location_country']);
-    $contact_email = nullable_htmlentities($row['contact_email']);
-    $contact_phone_country_code = nullable_htmlentities($row['contact_phone_country_code']);
-    $contact_phone = nullable_htmlentities(formatPhoneNumber($row['contact_phone'], $contact_phone_country_code));
-    $contact_extension = nullable_htmlentities($row['contact_extension']);
+    $client_name = escapeHtml($row['client_name']);
+    $location_address = escapeHtml($row['location_address']);
+    $location_city = escapeHtml($row['location_city']);
+    $location_state = escapeHtml($row['location_state']);
+    $location_zip = escapeHtml($row['location_zip']);
+    $location_country = escapeHtml($row['location_country']);
+    $contact_email = escapeHtml($row['contact_email']);
+    $contact_phone_country_code = escapeHtml($row['contact_phone_country_code']);
+    $contact_phone = escapeHtml(formatPhoneNumber($row['contact_phone'], $contact_phone_country_code));
+    $contact_extension = escapeHtml($row['contact_extension']);
 
     enforceClientAccess();
 
     $sql = mysqli_query($mysqli, "SELECT * FROM companies WHERE company_id = 1");
     $row = mysqli_fetch_assoc($sql);
     $company_id = intval($row['company_id']);
-    $company_name = nullable_htmlentities($row['company_name']);
-    $company_country = nullable_htmlentities($row['company_country']);
-    $company_address = nullable_htmlentities($row['company_address']);
-    $company_city = nullable_htmlentities($row['company_city']);
-    $company_state = nullable_htmlentities($row['company_state']);
-    $company_zip = nullable_htmlentities($row['company_zip']);
-    $company_phone_country_code = nullable_htmlentities($row['company_phone_country_code']);
-    $company_phone = nullable_htmlentities(formatPhoneNumber($row['company_phone'], $company_phone_country_code));
-    $company_email = nullable_htmlentities($row['company_email']);
-    $company_website = nullable_htmlentities($row['company_website']);
-    $company_logo = nullable_htmlentities($row['company_logo']);
+    $company_name = escapeHtml($row['company_name']);
+    $company_country = escapeHtml($row['company_country']);
+    $company_address = escapeHtml($row['company_address']);
+    $company_city = escapeHtml($row['company_city']);
+    $company_state = escapeHtml($row['company_state']);
+    $company_zip = escapeHtml($row['company_zip']);
+    $company_phone_country_code = escapeHtml($row['company_phone_country_code']);
+    $company_phone = escapeHtml(formatPhoneNumber($row['company_phone'], $company_phone_country_code));
+    $company_email = escapeHtml($row['company_email']);
+    $company_website = escapeHtml($row['company_website']);
+    $company_logo = escapeHtml($row['company_logo']);
 
-    require_once("../plugins/TCPDF/tcpdf.php");
+    require_once("../libs/TCPDF/tcpdf.php");
 
     // Start TCPDF
     $pdf = new TCPDF('P', 'mm', 'A4', true, 'UTF-8', false);
@@ -1074,8 +1122,8 @@ if (isset($_GET['export_invoice_packing_slip'])) {
         <td width="50%" align="right" style="font-size:14pt; font-weight:bold;">' . $client_name . '</td>
     </tr>
     <tr>
-        <td style="font-size:10pt; line-height:1.4;">' . nl2br("$company_address\n$company_city $company_state $company_zip\n$company_country\n$company_phone\n$company_website") . '</td>
-        <td style="font-size:10pt; line-height:1.4;" align="right">' . nl2br("$location_address\n$location_city $location_state $location_zip\n$location_country\n$contact_email\n$contact_phone") . '</td>
+        <td style="font-size:10pt; line-height:1.4;">' . nl2br(formatAddress($company_address, $company_city, $company_state, $company_zip, $company_country) . "\n$company_phone\n$company_website") . '</td>
+        <td style="font-size:10pt; line-height:1.4;" align="right">' . nl2br(formatAddress($location_address, $location_city, $location_state, $location_zip, $location_country) . "\n$contact_email\n$contact_phone") . '</td>
     </tr>
     </table><br>';
 
@@ -1138,14 +1186,14 @@ if (isset($_GET['export_invoice_packing_slip'])) {
 
 if (isset($_POST['bulk_edit_invoice_category'])) {
 
-    validateCSRFToken($_POST['csrf_token']);
+    validateCSRFToken();
 
     enforceUserPermission('module_sales', 2);
 
     $category_id = intval($_POST['bulk_category_id']);
 
     // Get Category name for logging and Notification
-    $category_name = sanitizeInput(getFieldById('categories', $category_id, 'category_name'));
+    $category_name = escapeSql(getFieldById('categories', $category_id, 'category_name'));
 
     // Assign Income category to Selected Invoices
     if (isset($_POST['invoice_ids'])) {
@@ -1159,22 +1207,22 @@ if (isset($_POST['bulk_edit_invoice_category'])) {
             // Get Invoice Details for Logging
             $sql = mysqli_query($mysqli,"SELECT * FROM invoices WHERE invoice_id = $invoice_id");
             $row = mysqli_fetch_assoc($sql);
-            $invoice_prefix = sanitizeInput($row['invoice_prefix']);
+            $invoice_prefix = escapeSql($row['invoice_prefix']);
             $invoice_number = intval($row['invoice_number']);
-            $invoice_scope = sanitizeInput($row['invoice_scope']);
+            $invoice_scope = escapeSql($row['invoice_scope']);
             $client_id = intval($row['invoice_client_id']);
 
             enforceClientAccess();
 
             mysqli_query($mysqli,"UPDATE invoices SET invoice_category_id = $category_id WHERE invoice_id = $invoice_id");
 
-            logAction("Invoice", "Edit", "$session_name assigned Invoice $invoice_prefix$invoice_number to category $category_name", $client_id, $invoice_id);
+            logAudit("Invoice", "Edit", "$session_name assigned Invoice $invoice_prefix$invoice_number to category $category_name", $client_id, $invoice_id);
 
         } // End Assign Loop
 
-        logAction("Invoice", "Bulk Edit", "$session_name assigned $count invoices to category $category_name");
+        logAudit("Invoice", "Bulk Edit", "$session_name assigned $count invoices to category $category_name");
 
-        flash_alert("Assigned income category <strong>$category_name</strong> to <strong>$count</strong> invoice(s)");
+        flashAlert("Assigned income category <strong>$category_name</strong> to <strong>$count</strong> invoice(s)");
     }
 
     redirect();

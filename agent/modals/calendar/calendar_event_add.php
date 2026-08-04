@@ -42,10 +42,10 @@
                                         $sql = mysqli_query($mysqli, "SELECT * FROM calendars ORDER BY calendar_name ASC");
                                         while ($row = mysqli_fetch_assoc($sql)) {
                                             $calendar_id = intval($row['calendar_id']);
-                                            $calendar_name = nullable_htmlentities($row['calendar_name']);
-                                            $calendar_color = nullable_htmlentities($row['calendar_color']);
+                                            $calendar_name = escapeHtml($row['calendar_name']);
+                                            $calendar_color = escapeHtml($row['calendar_color']);
                                             ?>
-                                            <option <?php if ($config_default_calendar == $calendar_id) { echo "selected"; } ?> data-content="<i class='fa fa-circle mr-2' style='color:<?php echo $calendar_color; ?>;'></i> <?php echo $calendar_name; ?>" value="<?php echo $calendar_id; ?>"><?php echo $calendar_name; ?></option>
+                                            <option <?php if ($config_default_calendar == $calendar_id) { echo "selected"; } ?> data-content="<i class='fa fa-circle mr-2' style='color:<?= $calendar_color ?>;'></i> <?= $calendar_name ?>" value="<?= $calendar_id ?>"><?= $calendar_name ?></option>
                                         <?php } ?>
 
                                     </select>
@@ -62,22 +62,56 @@
                                 </div>
                             </div>
 
+
                             <div class="form-group">
-                                <label>Start / End <strong class="text-danger">*</strong></label>
-                                <div class="input-group">
-                                    <div class="input-group-prepend">
-                                        <span class="input-group-text"><i class="fa fa-fw fa-calendar-check"></i></span>
-                                    </div>
-                                    <input type="datetime-local" class="form-control" id="event_add_start" name="start" required onblur="updateIncrementEndTime()">
+                                <div class="custom-control custom-switch">
+                                    <input type="checkbox" class="custom-control-input event-all-day-toggle" id="event_add_all_day" name="all_day" value="1" checked>
+                                    <label class="custom-control-label" for="event_add_all_day">All day</label>
                                 </div>
                             </div>
 
-                            <div class="form-group">
-                                <div class="input-group">
-                                    <div class="input-group-prepend">
-                                        <span class="input-group-text"><i class="fa fa-fw fa-calendar"></i></span>
+                            <div class="form-row">
+                                <div class="form-group col-md-6">
+                                    <label>Date from <strong class="text-danger">*</strong></label>
+                                    <div class="input-group">
+                                        <div class="input-group-prepend">
+                                            <span class="input-group-text"><i class="fa fa-fw fa-calendar-check"></i></span>
+                                        </div>
+                                        <input type="date" class="form-control event-start-date" id="event_add_start_date" name="start_date" required>
                                     </div>
-                                    <input type="datetime-local" class="form-control" id="event_add_end" name="end" required>
+                                </div>
+                                <div class="form-group col-md-6">
+                                    <label>Date to <strong class="text-danger">*</strong></label>
+                                    <div class="input-group">
+                                        <div class="input-group-prepend">
+                                            <span class="input-group-text"><i class="fa fa-fw fa-calendar"></i></span>
+                                        </div>
+                                        <input type="date" class="form-control" id="event_add_end_date" name="end_date" required>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Hidden while All day is on. The toggle handler in app.js also
+                                 adds and removes required, because a hidden required field
+                                 blocks submission with an unfocusable-element error. -->
+                            <div class="form-row d-none" id="event_add_time_fields">
+                                <div class="form-group col-md-6">
+                                    <label>Time from <strong class="text-danger">*</strong></label>
+                                    <div class="input-group">
+                                        <div class="input-group-prepend">
+                                            <span class="input-group-text"><i class="fa fa-fw fa-clock"></i></span>
+                                        </div>
+                                        <input type="time" class="form-control event-start-time" id="event_add_start_time" name="start_time">
+                                    </div>
+                                </div>
+                                <div class="form-group col-md-6">
+                                    <label>Time to <strong class="text-danger">*</strong></label>
+                                    <div class="input-group">
+                                        <div class="input-group-prepend">
+                                            <span class="input-group-text"><i class="fa fa-fw fa-clock"></i></span>
+                                        </div>
+                                        <input type="time" class="form-control" id="event_add_end_time" name="end_time">
+                                    </div>
                                 </div>
                             </div>
 
@@ -87,7 +121,7 @@
                                     <div class="input-group-prepend">
                                         <span class="input-group-text"><i class="fa fa-fw fa-recycle"></i></span>
                                     </div>
-                                    <select class="form-control select2" name="repeat" disabled>
+                                    <select class="form-control select2" name="repeat">
                                         <option value="">Never</option>
                                         <option>Day</option>
                                         <option>Week</option>
@@ -120,7 +154,7 @@
                         <div class="tab-pane fade" id="pills-attendees">
 
                             <?php if (isset($client_id)) { ?>
-                                <input type="hidden" name="client_id" value="<?php echo $client_id; ?>">
+                                <input type="hidden" name="client_id" value="<?= $client_id ?>">
                             <?php } else{ ?>
 
                                 <div class="form-group">
@@ -136,10 +170,10 @@
                                             $sql = mysqli_query($mysqli, "SELECT * FROM clients LEFT JOIN contacts ON clients.client_id = contacts.contact_client_id AND contact_primary = 1 ORDER BY client_name ASC");
                                             while ($row = mysqli_fetch_assoc($sql)) {
                                                 $client_id = intval($row['client_id']);
-                                                $client_name = nullable_htmlentities($row['client_name']);
-                                                $contact_email = nullable_htmlentities($row['contact_email']);
+                                                $client_name = escapeHtml($row['client_name']);
+                                                $contact_email = escapeHtml($row['contact_email']);
                                                 ?>
-                                                <option value="<?php echo $client_id; ?>"><?php echo $client_name; ?></option>
+                                                <option value="<?= $client_id ?>"><?= $client_name ?></option>
 
                                             <?php } ?>
                                         </select>

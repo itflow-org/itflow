@@ -18,6 +18,7 @@ $sql = mysqli_query(
     LEFT JOIN clients ON recurring_expense_client_id = client_id
     WHERE DATE(recurring_expense_created_at) BETWEEN '$dtf' AND '$dtt'
     AND (vendor_name LIKE '%$q%' OR client_name LIKE '%$q%' OR category_name LIKE '%$q%' OR account_name LIKE '%$q%' OR recurring_expense_description LIKE '%$q%' OR recurring_expense_amount LIKE '%$q%')
+    $access_permission_query
     ORDER BY $sort $order LIMIT $record_from, $record_to"
 );
 
@@ -38,7 +39,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                 <div class="row">
                     <div class="col-sm-4">
                         <div class="input-group">
-                            <input type="search" class="form-control" name="q" value="<?php if (isset($q)) { echo stripslashes(nullable_htmlentities($q)); } ?>" placeholder="Search Recurring Expenses">
+                            <input type="search" class="form-control" name="q" value="<?php if (isset($q)) { echo stripslashes(escapeHtml($q)); } ?>" placeholder="Search Recurring Expenses">
                             <div class="input-group-append">
                                 <button class="btn btn-secondary" type="button" data-toggle="collapse" data-target="#advancedFilter"><i class="fas fa-filter"></i></button>
                                 <button class="btn btn-primary"><i class="fa fa-search"></i></button>
@@ -54,9 +55,9 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                             <div class="form-group">
                                 <label>Date range</label>
                                 <input type="text" id="dateFilter" class="form-control" autocomplete="off">
-                                <input type="hidden" name="canned_date" id="canned_date" value="<?php echo nullable_htmlentities($_GET['canned_date']) ?? ''; ?>">
-                                <input type="hidden" name="dtf" id="dtf" value="<?php echo nullable_htmlentities($dtf ?? ''); ?>">
-                                <input type="hidden" name="dtt" id="dtt" value="<?php echo nullable_htmlentities($dtt ?? ''); ?>">
+                                <input type="hidden" name="canned_date" id="canned_date" value="<?= escapeHtml($_GET['canned_date']) ?? '' ?>">
+                                <input type="hidden" name="dtf" id="dtf" value="<?= escapeHtml($dtf ?? '') ?>">
+                                <input type="hidden" name="dtt" id="dtt" value="<?= escapeHtml($dtt ?? '') ?>">
                             </div>
                         </div>
                     </div>
@@ -68,46 +69,46 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                     <thead class="text-dark <?php if ($num_rows[0] == 0) { echo "d-none"; } ?>">
                     <tr>
                         <th>
-                            <a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=recurring_expense_next_date&order=<?php echo $disp; ?>">
+                            <a class="text-dark" href="?<?= $url_query_strings_sort ?>&sort=recurring_expense_next_date&order=<?= $disp ?>">
                                 Next Date <?php if ($sort == 'recurring_expense_next_date') { echo $order_icon; } ?>
                             </a>
                         </th>
                         <th>
-                            <a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=category_name&order=<?php echo $disp; ?>">
+                            <a class="text-dark" href="?<?= $url_query_strings_sort ?>&sort=category_name&order=<?= $disp ?>">
                                 Category <?php if ($sort == 'category_name') { echo $order_icon; } ?>
                             </a>
                             /
-                            <a class="text-secondary" href="?<?php echo $url_query_strings_sort; ?>&sort=recurring_expense_description&order=<?php echo $disp; ?>">
+                            <a class="text-secondary" href="?<?= $url_query_strings_sort ?>&sort=recurring_expense_description&order=<?= $disp ?>">
                                 Description <?php if ($sort == 'recurring_expense_description') { echo $order_icon; } ?>
                             </a>
                         </th>
                         <th>
-                            <a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=vendor_name&order=<?php echo $disp; ?>">
+                            <a class="text-dark" href="?<?= $url_query_strings_sort ?>&sort=vendor_name&order=<?= $disp ?>">
                                 Vendor <?php if ($sort == 'vendor_name') { echo $order_icon; } ?>
                             </a>
                         </th>
                         <th class="text-right">
-                            <a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=recurring_expense_amount&order=<?php echo $disp; ?>">
+                            <a class="text-dark" href="?<?= $url_query_strings_sort ?>&sort=recurring_expense_amount&order=<?= $disp ?>">
                                 Amount <?php if ($sort == 'recurring_expense_amount') { echo $order_icon; } ?>
                             </a>
                         </th>
                         <th>
-                            <a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=recurring_expense_frequency&order=<?php echo $disp; ?>">
+                            <a class="text-dark" href="?<?= $url_query_strings_sort ?>&sort=recurring_expense_frequency&order=<?= $disp ?>">
                                 Frequency <?php if ($sort == 'recurring_expense_frequency') { echo $order_icon; } ?>
                             </a>
                         </th>
                         <th>
-                            <a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=recurring_expense_last_sent&order=<?php echo $disp; ?>">
+                            <a class="text-dark" href="?<?= $url_query_strings_sort ?>&sort=recurring_expense_last_sent&order=<?= $disp ?>">
                                 Last Billed <?php if ($sort == 'recurring_expense_last_sent') { echo $order_icon; } ?>
                             </a>
                         </th>
                         <th>
-                            <a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=account_name&order=<?php echo $disp; ?>">
+                            <a class="text-dark" href="?<?= $url_query_strings_sort ?>&sort=account_name&order=<?= $disp ?>">
                                 Account  <?php if ($sort == 'account_name') { echo $order_icon; } ?>
                             </a>
                         </th>
                         <th>
-                            <a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=client_name&order=<?php echo $disp; ?>">
+                            <a class="text-dark" href="?<?= $url_query_strings_sort ?>&sort=client_name&order=<?= $disp ?>">
                                 Client  <?php if ($sort == 'client_name') { echo $order_icon; } ?>
                             </a>
                         </th>
@@ -127,28 +128,28 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                         }
                         $recurring_expense_day = intval($row['recurring_expense_day']);
                         $recurring_expense_month = intval($row['recurring_expense_month']);
-                        $recurring_expense_last_sent = nullable_htmlentities($row['recurring_expense_last_sent']);
+                        $recurring_expense_last_sent = escapeHtml($row['recurring_expense_last_sent']);
                         if(empty($recurring_expense_last_sent)) {
                             $recurring_expense_last_sent_display = "-";
                         } else {
                             $recurring_expense_last_sent_display = $recurring_expense_last_sent;
                         }
-                        $recurring_expense_next_date = nullable_htmlentities($row['recurring_expense_next_date']);
+                        $recurring_expense_next_date = escapeHtml($row['recurring_expense_next_date']);
                         $recurring_expense_next_month = date('n', strtotime($row['recurring_expense_next_date']));
                         $recurring_expense_status = intval($row['recurring_expense_status']);
-                        $recurring_expense_description = nullable_htmlentities($row['recurring_expense_description']);
+                        $recurring_expense_description = escapeHtml($row['recurring_expense_description']);
                         $recurring_expense_amount = floatval($row['recurring_expense_amount']);
-                        $recurring_expense_payment_method = nullable_htmlentities($row['recurring_expense_payment_method']);
-                        $recurring_expense_reference = nullable_htmlentities($row['recurring_expense_reference']);
-                        $recurring_expense_currency_code = nullable_htmlentities($row['recurring_expense_currency_code']);
-                        $recurring_expense_created_at = nullable_htmlentities($row['recurring_expense_created_at']);
+                        $recurring_expense_payment_method = escapeHtml($row['recurring_expense_payment_method']);
+                        $recurring_expense_reference = escapeHtml($row['recurring_expense_reference']);
+                        $recurring_expense_currency_code = escapeHtml($row['recurring_expense_currency_code']);
+                        $recurring_expense_created_at = escapeHtml($row['recurring_expense_created_at']);
                         $recurring_expense_vendor_id = intval($row['recurring_expense_vendor_id']);
-                        $vendor_name = nullable_htmlentities($row['vendor_name']);
+                        $vendor_name = escapeHtml($row['vendor_name']);
                         $recurring_expense_category_id = intval($row['recurring_expense_category_id']);
-                        $category_name = nullable_htmlentities($row['category_name']);
-                        $account_name = nullable_htmlentities($row['account_name']);
+                        $category_name = escapeHtml($row['category_name']);
+                        $account_name = escapeHtml($row['account_name']);
                         $recurring_expense_account_id = intval($row['recurring_expense_account_id']);
-                        $client_name = nullable_htmlentities($row['client_name']);
+                        $client_name = escapeHtml($row['client_name']);
                         if(empty($client_name)) {
                             $client_name_display = "-";
                         } else {
@@ -163,19 +164,19 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                 <a class="text-dark ajax-modal" href="#"
                                     data-modal-size = "lg"
                                     data-modal-url = "modals/recurring_expense/recurring_expense_edit.php?id=<?= $recurring_expense_id ?>">
-                                    <?php echo $recurring_expense_next_date; ?>
+                                    <?= $recurring_expense_next_date ?>
                                 </a>
                             </td>
                             <td>
-                                <?php echo $category_name; ?>
-                                <div class="text-secondary"><small><?php echo truncate($recurring_expense_description, 60); ?></small></div>
+                                <?= $category_name ?>
+                                <div class="text-secondary"><small><?= truncate($recurring_expense_description, 60) ?></small></div>
                             </td>
-                            <td><?php echo $vendor_name; ?></td>
-                            <td class="text-right text-monospace"><?php echo numfmt_format_currency($currency_format, $recurring_expense_amount, $recurring_expense_currency_code); ?></td>
-                            <td><?php echo $recurring_expense_frequency_display; ?></td>
-                            <td><?php echo $recurring_expense_last_sent_display; ?></td>
-                            <td><?php echo $account_name; ?></td>
-                            <td><?php echo $client_name_display; ?></td>
+                            <td><?= $vendor_name ?></td>
+                            <td class="text-right text-monospace"><?= numfmt_format_currency($currency_format, $recurring_expense_amount, $recurring_expense_currency_code) ?></td>
+                            <td><?= $recurring_expense_frequency_display ?></td>
+                            <td><?= $recurring_expense_last_sent_display ?></td>
+                            <td><?= $account_name ?></td>
+                            <td><?= $client_name_display ?></td>
                             <td>
                                 <div class="dropdown dropleft text-center">
                                     <button class="btn btn-secondary btn-sm" type="button" data-toggle="dropdown">

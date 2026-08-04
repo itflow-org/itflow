@@ -2,25 +2,31 @@
 
 require_once '../../../includes/modal_header.php';
 
+enforceUserPermission('module_financial', 2);
+
 $expense_id = intval($_GET['id']);
 
 $sql = mysqli_query($mysqli, "SELECT * FROM expenses WHERE expense_id = $expense_id LIMIT 1");
 
 $row = mysqli_fetch_assoc($sql);
-$expense_date = nullable_htmlentities($row['expense_date']);
+$expense_date = escapeHtml($row['expense_date']);
 $expense_amount = floatval($row['expense_amount']);
-$expense_currency_code = nullable_htmlentities($row['expense_currency_code']);
-$expense_description = nullable_htmlentities($row['expense_description']);
-$expense_receipt = nullable_htmlentities($row['expense_receipt']);
-$expense_reference = nullable_htmlentities($row['expense_reference']);
-$expense_created_at = nullable_htmlentities($row['expense_created_at']);
+$expense_currency_code = escapeHtml($row['expense_currency_code']);
+$expense_description = escapeHtml($row['expense_description']);
+$expense_receipt = escapeHtml($row['expense_receipt']);
+$expense_reference = escapeHtml($row['expense_reference']);
+$expense_created_at = escapeHtml($row['expense_created_at']);
 $expense_vendor_id = intval($row['expense_vendor_id']);
 $expense_category_id = intval($row['expense_category_id']);
 $expense_account_id = intval($row['expense_account_id']);
-$expense_client_id = intval($row['expense_client_id']);
+$client_id = intval($row['expense_client_id']);
 
-// Generate the HTML form content using output buffering.
+if ($client_id) {
+    enforceClientAccess();
+}
+
 ob_start();
+
 ?>
 
 <div class="modal-header bg-dark">
@@ -32,9 +38,9 @@ ob_start();
 
 <form action="post.php" method="post" autocomplete="off">
     <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
-    <input type="hidden" name="account" value="<?php echo $expense_account_id; ?>">
-    <input type="hidden" name="vendor" value="<?php echo $expense_vendor_id; ?>">
-    <input type="hidden" name="category" value="<?php echo $expense_category_id; ?>">
+    <input type="hidden" name="account" value="<?= $expense_account_id ?>">
+    <input type="hidden" name="vendor" value="<?= $expense_vendor_id ?>">
+    <input type="hidden" name="category" value="<?= $expense_category_id ?>">
 
     <div class="modal-body">
 
@@ -56,14 +62,14 @@ ob_start();
                     <div class="input-group-prepend">
                         <span class="input-group-text"><i class="fa fa-fw fa-dollar-sign"></i></span>
                     </div>
-                    <input type="text" class="form-control" inputmode="decimal" pattern="-?[0-9]*\.?[0-9]{0,2}" name="amount" value="-<?php echo number_format($expense_amount, 2, '.', ''); ?>" placeholder="-0.00" required>
+                    <input type="text" class="form-control" inputmode="decimal" pattern="-?[0-9]*\.?[0-9]{0,2}" name="amount" value="-<?= number_format($expense_amount, 2, '.', '') ?>" placeholder="-0.00" required>
                 </div>
             </div>
         </div>
 
         <div class="form-group">
             <label>Description</label>
-            <textarea class="form-control" rows="6" name="description" placeholder="Enter a description" required>Refund: <?php echo $expense_description; ?></textarea>
+            <textarea class="form-control" rows="6" name="description" placeholder="Enter a description" required>Refund: <?= $expense_description ?></textarea>
         </div>
 
         <div class="form-group">
@@ -72,7 +78,7 @@ ob_start();
                 <div class="input-group-prepend">
                     <span class="input-group-text"><i class="fa fa-fw fa-file-alt"></i></span>
                 </div>
-                <input type="text" class="form-control" name="reference" placeholder="Enter a reference" maxlength="200" value="<?php echo $expense_reference; ?>">
+                <input type="text" class="form-control" name="reference" placeholder="Enter a reference" maxlength="200" value="<?= $expense_reference ?>">
             </div>
         </div>
 

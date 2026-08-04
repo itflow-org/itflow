@@ -2,7 +2,11 @@
 
 require_once '../../../includes/modal_header.php';
 
+enforceUserPermission('module_client', 2);
+
 $client_id = intval($_GET['client_id']);
+
+enforceClientAccess();
 $contact_ids = array_map('intval', $_GET['contact_ids'] ?? []);
 
 $count = count($contact_ids);
@@ -35,9 +39,9 @@ ob_start();
                     $sql = mysqli_query($mysqli, "SELECT location_id, location_name FROM locations WHERE location_archived_at IS NULL AND location_client_id = $client_id ORDER BY location_name ASC");
                     while ($row = mysqli_fetch_assoc($sql)) {
                         $location_id = intval($row['location_id']);
-                        $location_name = nullable_htmlentities($row['location_name']);
+                        $location_name = escapeHtml($row['location_name']);
                     ?>
-                        <option value="<?php echo $location_id; ?>"><?php echo $location_name; ?></option>
+                        <option value="<?= $location_id ?>"><?= $location_name ?></option>
                     <?php } ?>
 
                 </select>

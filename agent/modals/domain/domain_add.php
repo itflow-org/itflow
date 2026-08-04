@@ -35,7 +35,7 @@ ob_start();
             <div class="tab-pane fade show active" id="pills-details">
 
                 <?php if ($client_id) { ?>
-                    <input type="hidden" name="client_id" value="<?php echo $client_id; ?>">
+                    <input type="hidden" name="client_id" value="<?= $client_id ?>">
                 <?php } else { ?>
 
                     <div class="form-group">
@@ -51,8 +51,8 @@ ob_start();
                                 $sql = mysqli_query($mysqli, "SELECT client_id, client_name FROM clients WHERE client_archived_at IS NULL $access_permission_query ORDER BY client_name ASC");
                                 while ($row = mysqli_fetch_assoc($sql)) {
                                     $client_id_select = intval($row['client_id']);
-                                    $client_name = nullable_htmlentities($row['client_name']); ?>
-                                    <option <?php if ($client_id == $client_id_select) { echo "selected"; } ?> value="<?php echo $client_id_select; ?>"><?php echo $client_name; ?></option>
+                                    $client_name = escapeHtml($row['client_name']); ?>
+                                    <option <?php if ($client_id == $client_id_select) { echo "selected"; } ?> value="<?= $client_id_select ?>"><?= $client_name ?></option>
 
                                 <?php } ?>
                             </select>
@@ -67,7 +67,7 @@ ob_start();
                         <div class="input-group-prepend">
                             <span class="input-group-text"><i class="fa fa-fw fa-globe"></i></span>
                         </div>
-                        <input type="text" class="form-control" name="name" id="domain_name" placeholder="example.com" maxlength="200" required autofocus onfocusout="domain_check()">
+                        <input type="text" class="form-control" name="name" id="domain_name" placeholder="example.com" maxlength="200" required autofocus onfocusout="checkApexDomain()">
                     </div>
                     <div class="mt-2">
                         <span class="text-info" id="domain_check_info"></span>
@@ -98,9 +98,9 @@ ob_start();
                             $sql = mysqli_query($mysqli, "SELECT * FROM vendors WHERE vendor_archived_at IS NULL AND vendor_client_id = $client_id ORDER BY vendor_name ASC");
                             while ($row = mysqli_fetch_assoc($sql)) {
                                 $vendor_id = intval($row['vendor_id']);
-                                $vendor_name = nullable_htmlentities($row['vendor_name']);
+                                $vendor_name = escapeHtml($row['vendor_name']);
                                 ?>
-                                <option value="<?php echo $vendor_id; ?>"><?php echo $vendor_name; ?></option>
+                                <option value="<?= $vendor_id ?>"><?= $vendor_name ?></option>
                             <?php } ?>
                         </select>
                     </div>
@@ -119,9 +119,9 @@ ob_start();
                             $sql = mysqli_query($mysqli, "SELECT * FROM vendors WHERE vendor_archived_at IS NULL AND vendor_client_id = $client_id ORDER BY vendor_name ASC");
                             while ($row = mysqli_fetch_assoc($sql)) {
                                 $vendor_id = intval($row['vendor_id']);
-                                $vendor_name = nullable_htmlentities($row['vendor_name']);
+                                $vendor_name = escapeHtml($row['vendor_name']);
                                 ?>
-                                <option value="<?php echo $vendor_id; ?>"><?php echo $vendor_name; ?></option>
+                                <option value="<?= $vendor_id ?>"><?= $vendor_name ?></option>
                             <?php } ?>
                         </select>
                     </div>
@@ -140,9 +140,9 @@ ob_start();
                             $sql = mysqli_query($mysqli, "SELECT * FROM vendors WHERE vendor_archived_at IS NULL AND vendor_client_id = $client_id ORDER BY vendor_name ASC");
                             while ($row = mysqli_fetch_assoc($sql)) {
                                 $vendor_id = intval($row['vendor_id']);
-                                $vendor_name = nullable_htmlentities($row['vendor_name']);
+                                $vendor_name = escapeHtml($row['vendor_name']);
                                 ?>
-                                <option value="<?php echo $vendor_id; ?>"><?php echo $vendor_name; ?></option>
+                                <option value="<?= $vendor_id ?>"><?= $vendor_name ?></option>
                             <?php } ?>
                         </select>
                     </div>
@@ -161,9 +161,9 @@ ob_start();
                             $sql = mysqli_query($mysqli, "SELECT * FROM vendors WHERE vendor_archived_at IS NULL AND vendor_client_id = $client_id ORDER BY vendor_name ASC");
                             while ($row = mysqli_fetch_assoc($sql)) {
                                 $vendor_id = intval($row['vendor_id']);
-                                $vendor_name = nullable_htmlentities($row['vendor_name']);
+                                $vendor_name = escapeHtml($row['vendor_name']);
                                 ?>
-                                <option value="<?php echo $vendor_id; ?>"><?php echo $vendor_name; ?></option>
+                                <option value="<?= $vendor_id ?>"><?= $vendor_name ?></option>
                             <?php } ?>
                         </select>
                     </div>
@@ -200,7 +200,7 @@ ob_start();
 
 <script>
     // Checks domains aren't sub-domains (99%)
-    function domain_check() {
+    function checkApexDomain() {
         var domain = document.getElementById("domain_name").value;
         //Send a GET request to ajax.php as ajax.php?apex_domain_check=true&domain=domain
         jQuery.get(

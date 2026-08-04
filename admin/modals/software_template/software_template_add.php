@@ -1,6 +1,6 @@
 <?php
 
-require_once '../../../includes/modal_header.php';
+require_once '../../includes/modal_header.php';
 
 $license_types_array = array (
     'Device',
@@ -73,7 +73,7 @@ ob_start();
                         ORDER BY category_order ASC, category_name ASC
                     ");
                     while ($row = mysqli_fetch_assoc($sql_software_types_select)) {
-                        $software_type_select = nullable_htmlentities($row['category_name']);
+                        $software_type_select = escapeHtml($row['category_name']);
                         ?>
                         <option><?= $software_type_select ?></option>
                     <?php } ?>
@@ -90,7 +90,7 @@ ob_start();
                 <select class="form-control select2" name="license_type">
                     <option value="">- Select a License Type -</option>
                     <?php foreach($license_types_array as $license_type) { ?>
-                        <option><?php echo $license_type; ?></option>
+                        <option><?= $license_type ?></option>
                     <?php } ?>
                 </select>
             </div>

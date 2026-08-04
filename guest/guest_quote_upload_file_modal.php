@@ -8,8 +8,8 @@
                 </button>
             </div>
             <form action="guest_post.php" method="post" enctype="multipart/form-data" autocomplete="off">
-                <input type="hidden" name="quote_id" value="<?php echo $quote_id; ?>">
-                <input type="hidden" name="url_key" value="<?php echo $url_key; ?>">
+                <input type="hidden" name="quote_id" value="<?= $quote_id ?>">
+                <input type="hidden" name="url_key" value="<?= $url_key ?>">
                 <div class="modal-body bg-white">
 
                     <div class="form-group">

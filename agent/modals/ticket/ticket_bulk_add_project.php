@@ -39,12 +39,12 @@ ob_start();
                     );
                     while ($row = mysqli_fetch_assoc($sql_projects_select)) {
                         $project_id_select = intval($row['project_id']);
-                        $project_prefix_select = nullable_htmlentities($row['project_prefix']);
+                        $project_prefix_select = escapeHtml($row['project_prefix']);
                         $project_number_select = intval($row['project_number']);
-                        $project_name_select = nullable_htmlentities($row['project_name']);
+                        $project_name_select = escapeHtml($row['project_name']);
 
                         ?>
-                        <option value="<?php echo $project_id_select; ?>"><?php echo " $project_prefix_select$project_number_select - $project_name_select"; ?></option>
+                        <option value="<?= $project_id_select ?>"><?= " $project_prefix_select$project_number_select - $project_name_select" ?></option>
                     <?php } ?>
                 </select>
             </div>

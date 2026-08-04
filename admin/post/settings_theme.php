@@ -4,15 +4,15 @@ defined('FROM_POST_HANDLER') || die("Direct file access is not allowed");
 
 if (isset($_POST['edit_theme_settings'])) {
 
-    validateCSRFToken($_POST['csrf_token']);
+    validateCSRFToken();
 
-    $theme = preg_replace("/[^0-9a-zA-Z-]/", "", sanitizeInput($_POST['edit_theme_settings']));
+    $theme = preg_replace("/[^0-9a-zA-Z-]/", "", escapeSql($_POST['edit_theme_settings']));
 
     mysqli_query($mysqli,"UPDATE settings SET config_theme = '$theme' WHERE company_id = 1");
 
-    logAction("Settings", "Edit", "$session_name edited theme settings $dark_mode");
+    logAudit("Settings", "Edit", "$session_name edited theme settings to $theme");
 
-    flash_alert("Changed theme to <strong>$theme</strong>");
+    flashAlert("Changed theme to <strong>$theme</strong>");
 
     redirect();
 
@@ -20,7 +20,7 @@ if (isset($_POST['edit_theme_settings'])) {
 
 if (isset($_POST['edit_favicon_settings'])) {
 
-    validateCSRFToken($_POST['csrf_token']);
+    validateCSRFToken();
 
     // Check to see if a file is attached
     if (isset($_FILES['file']['tmp_name'])) {
@@ -42,9 +42,9 @@ if (isset($_POST['edit_favicon_settings'])) {
         }
     }
 
-    logAction("Settings", "Edit", "$session_name changed the favicon");
+    logAudit("Settings", "Edit", "$session_name changed the favicon");
 
-    flash_alert("Favicon Updated");
+    flashAlert("Favicon Updated");
 
     redirect();
 
@@ -52,15 +52,15 @@ if (isset($_POST['edit_favicon_settings'])) {
 
 if (isset($_GET['reset_favicon'])) {
 
-    validateCSRFToken($_GET['csrf_token']);
+    validateCSRFToken();
 
     if (file_exists("../uploads/favicon.ico")) {
         unlink("../uploads/favicon.ico");
     }
 
-    logAction("Settings", "Edit", "$session_name reset Favicon");
+    logAudit("Settings", "Edit", "$session_name reset Favicon");
 
-    flash_alert("Favicon reset", 'error');
+    flashAlert("Favicon reset", 'error');
 
     redirect();
 

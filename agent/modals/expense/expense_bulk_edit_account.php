@@ -34,7 +34,7 @@ ob_start();
                     $sql = mysqli_query($mysqli, "SELECT account_id, account_name, opening_balance FROM accounts WHERE account_archived_at IS NULL ORDER BY account_name ASC");
                     while ($row = mysqli_fetch_assoc($sql)) {
                         $account_id = intval($row['account_id']);
-                        $account_name = nullable_htmlentities($row['account_name']);
+                        $account_name = escapeHtml($row['account_name']);
                         $opening_balance = floatval($row['opening_balance']);
 
                         $sql_payments = mysqli_query($mysqli, "SELECT SUM(payment_amount) AS total_payments FROM payments WHERE payment_account_id = $account_id");
@@ -52,7 +52,7 @@ ob_start();
                         $balance = $opening_balance + $total_payments + $total_revenues - $total_expenses;
 
                         ?>
-                        <option <?php if ($config_default_expense_account == $account_id) { echo "selected"; } ?> value="<?php echo $account_id; ?>"><div class="float-left"><?php echo $account_name; ?></div><div class="float-right"> [$<?php echo number_format($balance, 2); ?>]</div></option>
+                        <option <?php if ($config_default_expense_account == $account_id) { echo "selected"; } ?> value="<?= $account_id ?>"><div class="float-left"><?= $account_name ?></div><div class="float-right"> [$<?= number_format($balance, 2) ?>]</div></option>
 
                         <?php
                     }

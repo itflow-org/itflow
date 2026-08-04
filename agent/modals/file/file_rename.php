@@ -1,15 +1,17 @@
 <?php
 require_once '../../../includes/modal_header.php';
 
+enforceUserPermission('module_support', 2);
+
 $file_id = intval($_GET['id']);
 
 $sql = mysqli_query($mysqli, "SELECT * FROM files WHERE file_id = $file_id LIMIT 1");
 
 $row = mysqli_fetch_assoc($sql);
 $client_id = intval($row['file_client_id']);
-$file_name = nullable_htmlentities($row['file_name']);
-$file_description = nullable_htmlentities($row['file_description']);
-$file_ext = nullable_htmlentities($row['file_description']);
+$file_name = escapeHtml($row['file_name']);
+$file_description = escapeHtml($row['file_description']);
+$file_ext = escapeHtml($row['file_description']);
 
 if ($file_ext == 'pdf') {
     $file_icon = "file-pdf";
@@ -35,18 +37,20 @@ if ($file_ext == 'pdf') {
     $file_icon = "file";
 }
 
-// Generate the HTML form content using output buffering.
+enforceClientAccess();
+
 ob_start();
+
 ?>
 <div class="modal-header bg-dark">
-    <h5 class="modal-title"><i class="fa fa-fw fa-<?php echo $file_icon; ?> mr-2"></i>Renaming file: <strong><?php echo $file_name; ?></strong></h5>
+    <h5 class="modal-title"><i class="fa fa-fw fa-<?= $file_icon ?> mr-2"></i>Renaming file: <strong><?= $file_name ?></strong></h5>
     <button type="button" class="close text-white" data-dismiss="modal">
         <span>&times;</span>
     </button>
 </div>
 <form action="post.php" method="post" autocomplete="off">
     <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
-    <input type="hidden" name="file_id" value="<?php echo $file_id; ?>">
+    <input type="hidden" name="file_id" value="<?= $file_id ?>">
     <div class="modal-body">
 
         <div class="form-group">
@@ -55,7 +59,7 @@ ob_start();
                 <div class="input-group-prepend">
                     <span class="input-group-text"><i class="fa fa-fw fa-folder"></i></span>
                 </div>
-                <input type="text" class="form-control" name="file_name" placeholder="File Name" maxlength="200" value="<?php echo $file_name; ?>" required>
+                <input type="text" class="form-control" name="file_name" placeholder="File Name" maxlength="200" value="<?= $file_name ?>" required>
             </div>
         </div>
 
@@ -65,7 +69,7 @@ ob_start();
                 <div class="input-group-prepend">
                     <span class="input-group-text"><i class="fa fa-fw fa-folder"></i></span>
                 </div>
-                <input type="text" class="form-control" name="file_description" placeholder="Description" maxlength="250" value="<?php echo $file_description; ?>">
+                <input type="text" class="form-control" name="file_description" placeholder="Description" maxlength="250" value="<?= $file_description ?>">
             </div>
         </div>
 

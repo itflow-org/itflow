@@ -7,22 +7,22 @@ $calendar_id = intval($_GET['id']);
 $sql = mysqli_query($mysqli, "SELECT * FROM calendars WHERE calendar_id = $calendar_id LIMIT 1");
 
 $row = mysqli_fetch_assoc($sql);
-$calendar_name = nullable_htmlentities($row['calendar_name']);
-$calendar_color = nullable_htmlentities($row['calendar_color']);
+$calendar_name = escapeHtml($row['calendar_name']);
+$calendar_color = escapeHtml($row['calendar_color']);
 
 // Generate the HTML form content using output buffering.
 ob_start();
 ?>
 
 <div class="modal-header bg-dark">
-    <h5 class="modal-title"><i class="fas fa-fw fa-circle mr-2" style="color:<?php echo $calendar_color; ?>"></i><?php echo $calendar_name; ?></strong></h5>
+    <h5 class="modal-title"><i class="fas fa-fw fa-circle mr-2" style="color:<?= $calendar_color ?>"></i><?= $calendar_name ?></strong></h5>
     <button type="button" class="close text-white" data-dismiss="modal">
         <span>&times;</span>
     </button>
 </div>
 <form action="post.php" method="post" autocomplete="off">
     <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
-    <input type="hidden" name="calendar_id" value="<?php echo $calendar_id; ?>">
+    <input type="hidden" name="calendar_id" value="<?= $calendar_id ?>">
     <div class="modal-body">
 
         <div class="form-group">
@@ -31,7 +31,7 @@ ob_start();
                 <div class="input-group-prepend">
                     <span class="input-group-text"><i class="fa fa-fw fa-calendar"></i></span>
                 </div>
-                <input type="text" class="form-control" name="name" placeholder="Name your calendar" maxlength="200" value="<?php echo $calendar_name; ?>" required>
+                <input type="text" class="form-control" name="name" placeholder="Name your calendar" maxlength="200" value="<?= $calendar_name ?>" required>
             </div>
         </div>
 
@@ -41,7 +41,7 @@ ob_start();
                 <div class="input-group-prepend">
                     <span class="input-group-text"><i class="fa fa-fw fa-paint-brush"></i></span>
                 </div>
-                <input type="color" class="form-control col-3" name="color" value="<?php echo $calendar_color; ?>" required>
+                <input type="color" class="form-control col-3" name="color" value="<?= $calendar_color ?>" required>
             </div>
         </div>
 

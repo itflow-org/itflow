@@ -1,20 +1,20 @@
-<div class="modal" id="editCustomFieldModal<?php echo $custom_field_id; ?>" tabindex="-1">
+<div class="modal" id="editCustomFieldModal<?= $custom_field_id ?>" tabindex="-1">
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header bg-dark">
-                <h5 class="modal-title"><i class="fa fa-fw fa-th-list mr-2"></i>Editing custom field: <strong><?php echo $custom_field_label; ?></strong></h5>
+                <h5 class="modal-title"><i class="fa fa-fw fa-th-list mr-2"></i>Editing custom field: <strong><?= $custom_field_label ?></strong></h5>
                 <button type="button" class="close text-white" data-dismiss="modal">
                     <span>&times;</span>
                 </button>
             </div>
             <form action="post.php" method="post" autocomplete="off">
-                <input type="hidden" name="csrf_token" value="<?php echo $_SESSION['csrf_token'] ?>">
-                <input type="hidden" name="custom_field_id" value="<?php echo $custom_field_id; ?>">
+                <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
+                <input type="hidden" name="custom_field_id" value="<?= $custom_field_id ?>">
                 <div class="modal-body">
 
                     <div class="form-group">
                         <label>Label <strong class="text-danger">*</strong></label>
-                        <input type="text" class="form-control" name="label" maxlength="255" value="<?php echo $custom_field_label; ?>" required>
+                        <input type="text" class="form-control" name="label" maxlength="255" value="<?= $custom_field_label ?>" required>
                     </div>
 
                     <div class="form-group">

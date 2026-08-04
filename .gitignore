@@ -20,6 +20,10 @@ uploads/users/*
 !uploads/users/index.php
 uploads/tmp/*
 !uploads/tmp/index.php
+!uploads/tmp/.htaccess
+uploads/backups/*
+!uploads/backups/index.php
+!uploads/backups/.htaccess
 uploads/tickets/*
 !uploads/tickets/index.php
 uploads/ticket_templates/*
@@ -49,3 +53,5 @@ setup/custom/*
 api/v1/custom/*
 !api/v1/custom/readme.php
 .zed
+
+*.patch

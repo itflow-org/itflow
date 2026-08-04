@@ -12,12 +12,12 @@ if (isset($_GET['ticket_id'])) {
         $mysqli,
         "SELECT * FROM tickets
         LEFT JOIN ticket_statuses ON ticket_status = ticket_status_id
-        WHERE ticket_id = '$id' AND ticket_client_id LIKE '$client_id'"
+        WHERE ticket_id = '$id' AND 1=1 " . apiClientScopeSql('ticket_client_id') . ""
     );
 
 } else {
     // All tickets (by client ID if given, or all in general if key permits)
-    $sql = mysqli_query($mysqli, "SELECT * FROM tickets WHERE ticket_client_id LIKE '$client_id' ORDER BY ticket_id LIMIT $limit OFFSET $offset");
+    $sql = mysqli_query($mysqli, "SELECT * FROM tickets WHERE 1=1 " . apiClientScopeSql('ticket_client_id') . " ORDER BY ticket_id LIMIT $limit OFFSET $offset");
 }
 
 // Output

@@ -9,7 +9,7 @@ if (!isset($_GET['invoice_id'], $_GET['url_key'])) {
     exit();
 }
 
-$url_key = sanitizeInput($_GET['url_key']);
+$url_key = escapeSql($_GET['url_key']);
 $invoice_id = intval($_GET['invoice_id']);
 
 $sql = mysqli_query(
@@ -33,65 +33,65 @@ if (mysqli_num_rows($sql) !== 1) {
 $row = mysqli_fetch_assoc($sql);
 
 $invoice_id = intval($row['invoice_id']);
-$invoice_prefix = nullable_htmlentities($row['invoice_prefix']);
+$invoice_prefix = escapeHtml($row['invoice_prefix']);
 $invoice_number = intval($row['invoice_number']);
-$invoice_status = nullable_htmlentities($row['invoice_status']);
-$invoice_date = nullable_htmlentities($row['invoice_date']);
-$invoice_due = nullable_htmlentities($row['invoice_due']);
+$invoice_status = escapeHtml($row['invoice_status']);
+$invoice_date = escapeHtml($row['invoice_date']);
+$invoice_due = escapeHtml($row['invoice_due']);
 $invoice_discount = floatval($row['invoice_discount_amount']);
 $invoice_amount = floatval($row['invoice_amount']);
-$invoice_currency_code = nullable_htmlentities($row['invoice_currency_code']);
-$invoice_note = nullable_htmlentities($row['invoice_note']);
+$invoice_currency_code = escapeHtml($row['invoice_currency_code']);
+$invoice_note = escapeHtml($row['invoice_note']);
 $invoice_category_id = intval($row['invoice_category_id']);
 $client_id = intval($row['client_id']);
-$client_name = nullable_htmlentities($row['client_name']);
-$client_name_escaped = sanitizeInput($row['client_name']);
-$location_address = nullable_htmlentities($row['location_address']);
-$location_city = nullable_htmlentities($row['location_city']);
-$location_state = nullable_htmlentities($row['location_state']);
-$location_zip = nullable_htmlentities($row['location_zip']);
-$location_country = nullable_htmlentities($row['location_country']);
-$contact_email = nullable_htmlentities($row['contact_email']);
-$contact_phone_country_code = nullable_htmlentities($row['contact_phone_country_code']);
-$contact_phone = nullable_htmlentities(formatPhoneNumber($row['contact_phone'], $contact_phone_country_code));
-$contact_extension = nullable_htmlentities($row['contact_extension']);
-$contact_mobile_country_code = nullable_htmlentities($row['contact_mobile_country_code']);
-$contact_mobile = nullable_htmlentities(formatPhoneNumber($row['contact_mobile'], $contact_mobile_country_code));
-$client_website = nullable_htmlentities($row['client_website']);
-$client_currency_code = nullable_htmlentities($row['client_currency_code']);
+$client_name = escapeHtml($row['client_name']);
+$client_name_escaped = escapeSql($row['client_name']);
+$location_address = escapeHtml($row['location_address']);
+$location_city = escapeHtml($row['location_city']);
+$location_state = escapeHtml($row['location_state']);
+$location_zip = escapeHtml($row['location_zip']);
+$location_country = escapeHtml($row['location_country']);
+$contact_email = escapeHtml($row['contact_email']);
+$contact_phone_country_code = escapeHtml($row['contact_phone_country_code']);
+$contact_phone = escapeHtml(formatPhoneNumber($row['contact_phone'], $contact_phone_country_code));
+$contact_extension = escapeHtml($row['contact_extension']);
+$contact_mobile_country_code = escapeHtml($row['contact_mobile_country_code']);
+$contact_mobile = escapeHtml(formatPhoneNumber($row['contact_mobile'], $contact_mobile_country_code));
+$client_website = escapeHtml($row['client_website']);
+$client_currency_code = escapeHtml($row['client_currency_code']);
 $client_net_terms = intval($row['client_net_terms']);
 
 $sql = mysqli_query($mysqli, "SELECT * FROM companies, settings WHERE companies.company_id = settings.company_id AND companies.company_id = 1");
 $row = mysqli_fetch_assoc($sql);
 
-$company_name = nullable_htmlentities($row['company_name']);
-$company_address = nullable_htmlentities($row['company_address']);
-$company_city = nullable_htmlentities($row['company_city']);
-$company_state = nullable_htmlentities($row['company_state']);
-$company_zip = nullable_htmlentities($row['company_zip']);
-$company_country = nullable_htmlentities($row['company_country']);
-$company_phone_country_code = nullable_htmlentities($row['company_phone_country_code']);
-$company_phone = nullable_htmlentities(formatPhoneNumber($row['company_phone'], $company_phone_country_code));
-$company_email = nullable_htmlentities($row['company_email']);
-$company_website = nullable_htmlentities($row['company_website']);
-$company_tax_id = nullable_htmlentities($row['company_tax_id']);
+$company_name = escapeHtml($row['company_name']);
+$company_address = escapeHtml($row['company_address']);
+$company_city = escapeHtml($row['company_city']);
+$company_state = escapeHtml($row['company_state']);
+$company_zip = escapeHtml($row['company_zip']);
+$company_country = escapeHtml($row['company_country']);
+$company_phone_country_code = escapeHtml($row['company_phone_country_code']);
+$company_phone = escapeHtml(formatPhoneNumber($row['company_phone'], $company_phone_country_code));
+$company_email = escapeHtml($row['company_email']);
+$company_website = escapeHtml($row['company_website']);
+$company_tax_id = escapeHtml($row['company_tax_id']);
 if ($config_invoice_show_tax_id && !empty($company_tax_id)) {
     $company_tax_id_display = "Tax ID: $company_tax_id";
 } else {
     $company_tax_id_display = "";
 }
-$company_logo = nullable_htmlentities($row['company_logo']);
+$company_logo = escapeHtml($row['company_logo']);
 if (!empty($company_logo)) {
     $company_logo_base64 = base64_encode(file_get_contents("../uploads/settings/$company_logo"));
 }
-$company_locale = nullable_htmlentities($row['company_locale']);
-$config_invoice_footer = nullable_htmlentities($row['config_invoice_footer']);
+$company_locale = escapeHtml($row['company_locale']);
+$config_invoice_footer = escapeHtml($row['config_invoice_footer']);
 
 // Get Payment Provide Details
 $sql = mysqli_query($mysqli, "SELECT * FROM payment_providers WHERE payment_provider_active = 1 LIMIT 1");
 $row = mysqli_fetch_assoc($sql);
 $payment_provider_id = intval($row['payment_provider_id']);
-$payment_provider_name = nullable_htmlentities($row['payment_provider_name']);
+$payment_provider_name = escapeHtml($row['payment_provider_name']);
 $payment_provider_threshold = floatval($row['payment_provider_threshold']);
 
 //Set Currency Format
@@ -164,12 +164,12 @@ if ($balance > 0) {
     <div class="card-header bg-light d-print-none">
         <div class="row">
             <div class="col-6">
-                <h4 class="mt-1">Account Balance: <b><?php echo numfmt_format_currency($currency_format, $account_balance, $invoice_currency_code); ?></b></h4>
+                <h4 class="mt-1">Account Balance: <b><?= numfmt_format_currency($currency_format, $account_balance, $invoice_currency_code) ?></b></h4>
             </div>
             <div class="col-6">
                 <div class="float-right">
                     <a class="btn btn-default" href="#" onclick="window.print();"><i class="fas fa-fw fa-print mr-2"></i>Print</a>
-                    <a class="btn btn-default" href="guest_post.php?export_invoice_pdf=<?php echo $invoice_id; ?>&url_key=<?php echo $url_key; ?>">
+                    <a class="btn btn-default" href="guest_post.php?export_invoice_pdf=<?= $invoice_id ?>&url_key=<?= $url_key ?>">
                         <i class="fa fa-fw fa-download mr-2"></i>Download
                     </a>
                     <?php
@@ -182,7 +182,7 @@ if ($balance > 0) {
                             $payment_provider_threshold > $invoice_amount
                         )
                     ){ ?>
-                        <a class="btn btn-success" href="guest_pay_invoice_stripe.php?invoice_id=<?php echo $invoice_id; ?>&url_key=<?php echo $url_key; ?>"><i class="fa fa-fw fa-credit-card mr-2"></i>Pay Now </a>
+                        <a class="btn btn-success" href="guest_pay_invoice_stripe.php?invoice_id=<?= $invoice_id ?>&url_key=<?= $url_key ?>"><i class="fa fa-fw fa-credit-card mr-2"></i>Pay Now </a>
                     <?php } ?>
                 </div>
             </div>
@@ -193,39 +193,38 @@ if ($balance > 0) {
         <div class="row mb-3">
             <?php if (file_exists("../uploads/settings/$company_logo")) { ?>
             <div class="col-sm-2">
-                <img class="img-fluid" src="<?php echo "../uploads/settings/$company_logo"; ?>" alt="Company logo">
+                <img class="img-fluid" src="<?= "../uploads/settings/$company_logo" ?>" alt="Company logo">
             </div>
             <?php } ?>
             <div class="col-sm-6 <?php if (!file_exists("../uploads/settings/$company_logo")) { echo "col-sm-8"; } ?>">
                 <ul class="list-unstyled">
-                    <li><h4><strong><?php echo $company_name; ?></strong></h4></li>
-                    <li><?php echo $company_address; ?></li>
-                    <li><?php echo "$company_city $company_state $company_zip, $company_country"; ?></li>
-                    <li><?php echo "$company_email | $company_phone"; ?></li>
-                    <li><?php echo $company_website; ?></li>
+                    <li><h4><strong><?= $company_name ?></strong></h4></li>
+                    <li><?= formatAddress($company_address, $company_city, $company_state, $company_zip, $company_country, '<br>') ?></li>
+                    <li><?= "$company_email | $company_phone" ?></li>
+                    <li><?= $company_website ?></li>
                     <?php if ($company_tax_id_display) { ?>
-                    <li><?php echo $company_tax_id_display; ?></li>
+                    <li><?= $company_tax_id_display ?></li>
                     <?php } ?>
                 </ul>
             </div>
 
             <div class="col-sm-4">
                 <h3 class="text-right"><strong>INVOICE</strong></h3>
-                <h5 class="badge badge-<?php echo $invoice_badge_color; ?> p-2 float-right">
-                    <?php echo "$invoice_status"; ?>
+                <h5 class="badge badge-<?= $invoice_badge_color ?> p-2 float-right">
+                    <?= "$invoice_status" ?>
                 </h5>
                 <table class="table table-sm table-borderless">
                     <tr>
                         <th>Invoice #:</th>
-                        <td class="text-right"><?php echo "$invoice_prefix$invoice_number"; ?></td>
+                        <td class="text-right"><?= "$invoice_prefix$invoice_number" ?></td>
                     </tr>
                     <tr>
                         <th>Date:</th>
-                        <td class="text-right"><?php echo $invoice_date; ?></td>
+                        <td class="text-right"><?= $invoice_date ?></td>
                     </tr>
                     <tr>
                         <th>Due:</th>
-                        <td class="text-right"><?php echo $invoice_due; ?></td>
+                        <td class="text-right"><?= $invoice_due ?></td>
                     </tr>
                 </table>
             </div>
@@ -235,10 +234,9 @@ if ($balance > 0) {
             <div class="col">
                 <h6><strong>Bill To:</strong></h6>
                 <ul class="list-unstyled mb-0">
-                    <li><?php echo $client_name; ?></li>
-                    <li><?php echo $location_address; ?></li>
-                    <li><?php echo "$location_city $location_state $location_zip, $location_country"; ?></li>
-                    <li><?php echo "$contact_email | $contact_phone $contact_extension"; ?></li>
+                    <li><?= $client_name ?></li>
+                    <li><?= formatAddress($location_address, $location_city, $location_state, $location_zip, $location_country, '<br>') ?></li>
+                    <li><?= "$contact_email | $contact_phone $contact_extension" ?></li>
                 </ul>
             </div>
         </div>
@@ -266,8 +264,8 @@ if ($balance > 0) {
 
                             while ($row = mysqli_fetch_assoc($sql_invoice_items)) {
                                 $item_id = intval($row['item_id']);
-                                $item_name = nullable_htmlentities($row['item_name']);
-                                $item_description = nullable_htmlentities($row['item_description']);
+                                $item_name = escapeHtml($row['item_name']);
+                                $item_description = escapeHtml($row['item_description']);
                                 $item_quantity = floatval($row['item_quantity']);
                                 $item_price = floatval($row['item_price']);
                                 $item_tax = floatval($row['item_tax']);
@@ -278,12 +276,12 @@ if ($balance > 0) {
                                 ?>
 
                                 <tr>
-                                    <td><?php echo $item_name; ?></td>
-                                    <td><?php echo nl2br($item_description); ?></td>
-                                    <td class="text-center"><?php echo $item_quantity; ?></td>
-                                    <td class="text-right"><?php echo numfmt_format_currency($currency_format, $item_price, $invoice_currency_code); ?></td>
-                                    <td class="text-right"><?php echo numfmt_format_currency($currency_format, $item_tax, $invoice_currency_code); ?></td>
-                                    <td class="text-right"><?php echo numfmt_format_currency($currency_format, $item_total, $invoice_currency_code); ?></td>
+                                    <td><?= $item_name ?></td>
+                                    <td><?= nl2br($item_description) ?></td>
+                                    <td class="text-center"><?= $item_quantity ?></td>
+                                    <td class="text-right"><?= numfmt_format_currency($currency_format, $item_price, $invoice_currency_code) ?></td>
+                                    <td class="text-right"><?= numfmt_format_currency($currency_format, $item_tax, $invoice_currency_code) ?></td>
+                                    <td class="text-right"><?= numfmt_format_currency($currency_format, $item_total, $invoice_currency_code) ?></td>
                                 </tr>
 
                             <?php } ?>
@@ -300,7 +298,7 @@ if ($balance > 0) {
                 <?php if (!empty($invoice_note)) { ?>
                     <div class="card">
                         <div class="card-body">
-                            <?php echo nl2br($invoice_note); ?>
+                            <?= nl2br($invoice_note) ?>
                         </div>
                     </div>
                 <?php } ?>
@@ -310,14 +308,14 @@ if ($balance > 0) {
                     <tbody>
                     <tr>
                         <td>Subtotal:</td>
-                        <td class="text-right"><?php echo numfmt_format_currency($currency_format, $sub_total, $invoice_currency_code); ?></td>
+                        <td class="text-right"><?= numfmt_format_currency($currency_format, $sub_total, $invoice_currency_code) ?></td>
                     </tr>
                     <?php
                     if ($invoice_discount > 0) {
                         ?>
                         <tr>
                             <td>Discount:</td>
-                            <td class="text-right">-<?php echo numfmt_format_currency($currency_format, $invoice_discount, $invoice_currency_code); ?></td>
+                            <td class="text-right">-<?= numfmt_format_currency($currency_format, $invoice_discount, $invoice_currency_code) ?></td>
                         </tr>
                     <?php
                     }
@@ -325,24 +323,24 @@ if ($balance > 0) {
                     <?php if ($total_tax > 0) { ?>
                         <tr>
                             <td>Tax:</td>
-                            <td class="text-right"><?php echo numfmt_format_currency($currency_format, $total_tax, $invoice_currency_code); ?></td>
+                            <td class="text-right"><?= numfmt_format_currency($currency_format, $total_tax, $invoice_currency_code) ?></td>
                         </tr>
                     <?php } ?>
                     <tr>
                         <td>Total:</td>
-                        <td class="text-right"><?php echo numfmt_format_currency($currency_format, $invoice_amount, $invoice_currency_code); ?></td>
+                        <td class="text-right"><?= numfmt_format_currency($currency_format, $invoice_amount, $invoice_currency_code) ?></td>
                     </tr>
                     <?php if ($amount_paid > 0) { ?>
                         <tr>
                             <td><div class="text-success">Paid:</div></td>
-                            <td class="text-right text-success"><?php echo numfmt_format_currency($currency_format, $amount_paid, $invoice_currency_code); ?></td>
+                            <td class="text-right text-success"><?= numfmt_format_currency($currency_format, $amount_paid, $invoice_currency_code) ?></td>
                         </tr>
                     <?php
                     }
                     ?>
                     <tr class="h5 text-bold">
                         <td>Balance:</td>
-                        <td class="text-right"><?php echo numfmt_format_currency($currency_format, $balance, $invoice_currency_code); ?></td>
+                        <td class="text-right"><?= numfmt_format_currency($currency_format, $balance, $invoice_currency_code) ?></td>
                     </tr>
 
                     </tbody>
@@ -352,7 +350,7 @@ if ($balance > 0) {
 
         <hr class="mt-5">
 
-        <div class="text-center text-secondary"><?php echo nl2br($config_invoice_footer); ?></div>
+        <div class="text-center text-secondary"><?= nl2br($config_invoice_footer) ?></div>
     </div>
 </div>
 
@@ -368,7 +366,7 @@ if ($current_invoices_count > 0) { ?>
 
 <div class="card d-print-none card-dark">
     <div class="card-header">
-        <strong><i class="fas fa-fw fa-clock mr-2"></i><b><?php echo $current_invoices_count; ?></b> Current Invoices</strong>
+        <strong><i class="fas fa-fw fa-clock mr-2"></i><b><?= $current_invoices_count ?></b> Current Invoices</strong>
     </div>
     <div card="card-body">
         <table class="table table-sm">
@@ -385,13 +383,13 @@ if ($current_invoices_count > 0) { ?>
 
             while ($row = mysqli_fetch_assoc($sql_current_invoices)) {
                 $invoice_id = intval($row['invoice_id']);
-                $invoice_prefix = nullable_htmlentities($row['invoice_prefix']);
+                $invoice_prefix = escapeHtml($row['invoice_prefix']);
                 $invoice_number = intval($row['invoice_number']);
-                $invoice_date = nullable_htmlentities($row['invoice_date']);
-                $invoice_due = nullable_htmlentities($row['invoice_due']);
+                $invoice_date = escapeHtml($row['invoice_date']);
+                $invoice_due = escapeHtml($row['invoice_due']);
                 $invoice_amount = floatval($row['invoice_amount']);
-                $invoice_currency_code = nullable_htmlentities($row['invoice_currency_code']);
-                $invoice_url_key = nullable_htmlentities($row['invoice_url_key']);
+                $invoice_currency_code = escapeHtml($row['invoice_currency_code']);
+                $invoice_url_key = escapeHtml($row['invoice_url_key']);
                 $invoice_tally_total = $invoice_amount + $invoice_tally_total;
                 $difference = strtotime($invoice_due) - time();
                 $days = floor($difference / (60*60*24));
@@ -399,10 +397,10 @@ if ($current_invoices_count > 0) { ?>
                 ?>
 
                 <tr <?php if ($_GET['invoice_id'] == $invoice_id) { echo "class='table-primary'"; } ?>>
-                    <th class="text-center"><a href="guest_view_invoice.php?invoice_id=<?php echo $invoice_id; ?>&url_key=<?php echo $invoice_url_key; ?>"><?php echo "$invoice_prefix$invoice_number"; ?></a></th>
-                    <td><?php echo $invoice_date; ?></td>
-                    <td><?php echo $invoice_due; ?> (Due in <?php echo $days; ?> Days)</td>
-                    <td class="text-right text-bold"><?php echo numfmt_format_currency($currency_format, $invoice_amount, $invoice_currency_code); ?></td>
+                    <th class="text-center"><a href="guest_view_invoice.php?invoice_id=<?= $invoice_id ?>&url_key=<?= $invoice_url_key ?>"><?= "$invoice_prefix$invoice_number" ?></a></th>
+                    <td><?= $invoice_date ?></td>
+                    <td><?= $invoice_due ?> (Due in <?= $days ?> Days)</td>
+                    <td class="text-right text-bold"><?= numfmt_format_currency($currency_format, $invoice_amount, $invoice_currency_code) ?></td>
                 </tr>
 
             <?php } ?>
@@ -430,7 +428,7 @@ if ($outstanding_invoices_count > 0) { ?>
 
 <div class="card d-print-none card-danger">
     <div class="card-header">
-        <strong><i class="fa fa-fw fa-exclamation-triangle mr-2"></i><b><?php echo $outstanding_invoices_count; ?></b> Outstanding Invoices</strong>
+        <strong><i class="fa fa-fw fa-exclamation-triangle mr-2"></i><b><?= $outstanding_invoices_count ?></b> Outstanding Invoices</strong>
     </div>
     <div card="card-body">
         <table class="table table-sm">
@@ -447,13 +445,13 @@ if ($outstanding_invoices_count > 0) { ?>
 
             while ($row = mysqli_fetch_assoc($sql_outstanding_invoices)) {
                 $invoice_id = intval($row['invoice_id']);
-                $invoice_prefix = nullable_htmlentities($row['invoice_prefix']);
+                $invoice_prefix = escapeHtml($row['invoice_prefix']);
                 $invoice_number = intval($row['invoice_number']);
-                $invoice_date = nullable_htmlentities($row['invoice_date']);
-                $invoice_due = nullable_htmlentities($row['invoice_due']);
+                $invoice_date = escapeHtml($row['invoice_date']);
+                $invoice_due = escapeHtml($row['invoice_due']);
                 $invoice_amount = floatval($row['invoice_amount']);
-                $invoice_currency_code = nullable_htmlentities($row['invoice_currency_code']);
-                $invoice_url_key = nullable_htmlentities($row['invoice_url_key']);
+                $invoice_currency_code = escapeHtml($row['invoice_currency_code']);
+                $invoice_url_key = escapeHtml($row['invoice_url_key']);
                 $invoice_tally_total = $invoice_amount + $invoice_tally_total;
                 $difference = time() - strtotime($invoice_due);
                 $days = floor($difference / (60*60*24));
@@ -461,10 +459,10 @@ if ($outstanding_invoices_count > 0) { ?>
                 ?>
 
                 <tr <?php if ($_GET['invoice_id'] == $invoice_id) { echo "class='table-primary'"; } ?>>
-                    <th class="text-center"><a href="guest_view_invoice.php?invoice_id=<?php echo $invoice_id; ?>&url_key=<?php echo $invoice_url_key; ?>"><?php echo "$invoice_prefix$invoice_number"; ?></a></th>
-                    <td><?php echo $invoice_date; ?></td>
-                    <td class="text-danger"><?php echo $invoice_due; ?> (Over Due by <?php echo $days; ?> Days)</td>
-                    <td class="text-right text-bold"><?php echo numfmt_format_currency($currency_format, $invoice_amount, $invoice_currency_code); ?></td>
+                    <th class="text-center"><a href="guest_view_invoice.php?invoice_id=<?= $invoice_id ?>&url_key=<?= $invoice_url_key ?>"><?= "$invoice_prefix$invoice_number" ?></a></th>
+                    <td><?= $invoice_date ?></td>
+                    <td class="text-danger"><?= $invoice_due ?> (Over Due by <?= $days ?> Days)</td>
+                    <td class="text-right text-bold"><?= numfmt_format_currency($currency_format, $invoice_amount, $invoice_currency_code) ?></td>
                 </tr>
 
                 <?php

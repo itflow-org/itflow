@@ -4,37 +4,49 @@ require_once "../config.php";
 require_once "../functions.php";
 require_once "../includes/load_global_settings.php";
 
-session_start();
+require_once __DIR__ . "/../includes/session_init.php";
 
 require_once "../includes/inc_set_timezone.php"; // Must be included after session_start to work
+
+// logAudit() reads these globals - without them guest audit rows have no IP
+$session_ip = escapeSql(getIP());
+$session_user_agent = escapeSql($_SERVER['HTTP_USER_AGENT']);
 
 if (isset($_GET['accept_quote'], $_GET['url_key'])) {
 
     $quote_id = intval($_GET['accept_quote']);
-    $url_key = sanitizeInput($_GET['url_key']);
+    $url_key = escapeSql($_GET['url_key']);
 
     // Select only the necessary fields
     $sql = mysqli_query($mysqli, "SELECT quote_prefix, quote_number, client_name, client_id FROM quotes LEFT JOIN clients ON quote_client_id = client_id WHERE quote_id = $quote_id AND quote_url_key = '$url_key'");
 
     if (mysqli_num_rows($sql) == 1) {
         $row = mysqli_fetch_assoc($sql);
-        $quote_prefix = sanitizeInput($row['quote_prefix']);
+        $quote_prefix = escapeSql($row['quote_prefix']);
         $quote_number = intval($row['quote_number']);
-        $client_name = sanitizeInput($row['client_name']);
+        $client_name = escapeSql($row['client_name']);
         $client_id = intval($row['client_id']);
 
-        mysqli_query($mysqli, "UPDATE quotes SET quote_status = 'Accepted' WHERE quote_id = $quote_id");
+        // Claim the response - only a quote still awaiting one can be accepted,
+        // and only the first request through wins
+        mysqli_query($mysqli, "UPDATE quotes SET quote_status = 'Accepted' WHERE quote_id = $quote_id AND quote_status IN ('Sent', 'Viewed')");
+
+        if (mysqli_affected_rows($mysqli) !== 1) {
+            flashAlert("This quote is no longer awaiting a response", 'error');
+            redirect();
+        }
+
         mysqli_query($mysqli, "INSERT INTO history SET history_status = 'Accepted', history_description = 'Client accepted Quote!', history_quote_id = $quote_id");
 
         // Notification
         appNotify("Quote Accepted", "Quote $quote_prefix$quote_number has been accepted by $client_name", "/agent/quote.php?quote_id=$quote_id", $client_id);
-        customAction('quote_accept', $quote_id);
+        triggerCustomAction('quote_accept', $quote_id);
 
         // Internal email notification
 
         $sql_company = mysqli_query($mysqli, "SELECT company_name FROM companies WHERE company_id = 1");
         $row = mysqli_fetch_assoc($sql_company);
-        $company_name = sanitizeInput($row['company_name']);
+        $company_name = escapeSql($row['company_name']);
 
         $sql_settings = mysqli_query($mysqli, "SELECT * FROM settings WHERE company_id = 1");
         $row = mysqli_fetch_assoc($sql_settings);
@@ -43,10 +55,10 @@ if (isset($_GET['accept_quote'], $_GET['url_key'])) {
         $config_smtp_encryption = $row['config_smtp_encryption'];
         $config_smtp_username = $row['config_smtp_username'];
         $config_smtp_password = $row['config_smtp_password'];
-        $config_quote_from_name = sanitizeInput($row['config_quote_from_name']);
-        $config_quote_from_email = sanitizeInput($row['config_quote_from_email']);
-        $config_quote_notification_email = sanitizeInput($row['config_quote_notification_email']);
-        $config_base_url = sanitizeInput($config_base_url);
+        $config_quote_from_name = escapeSql($row['config_quote_from_name']);
+        $config_quote_from_email = escapeSql($row['config_quote_from_email']);
+        $config_quote_notification_email = escapeSql($row['config_quote_notification_email']);
+        $config_base_url = escapeSql($config_base_url);
 
         if (!empty($config_smtp_host) && !empty($config_quote_notification_email)) {
             $subject = "Quote Accepted - $client_name - Quote $quote_prefix$quote_number";
@@ -63,7 +75,7 @@ if (isset($_GET['accept_quote'], $_GET['url_key'])) {
             $mail = addToMailQueue($data);
         }
 
-        flash_alert("Quote Accepted");
+        flashAlert("Quote Accepted");
 
         redirect();
 
@@ -76,30 +88,38 @@ if (isset($_GET['accept_quote'], $_GET['url_key'])) {
 if (isset($_GET['decline_quote'], $_GET['url_key'])) {
 
     $quote_id = intval($_GET['decline_quote']);
-    $url_key = sanitizeInput($_GET['url_key']);
+    $url_key = escapeSql($_GET['url_key']);
 
     // Select only the necessary fields
     $sql = mysqli_query($mysqli, "SELECT quote_prefix, quote_number, client_name, client_id FROM quotes LEFT JOIN clients ON quote_client_id = client_id WHERE quote_id = $quote_id AND quote_url_key = '$url_key'");
 
     if (mysqli_num_rows($sql) == 1) {
         $row = mysqli_fetch_assoc($sql);
-        $quote_prefix = sanitizeInput($row['quote_prefix']);
+        $quote_prefix = escapeSql($row['quote_prefix']);
         $quote_number = intval($row['quote_number']);
-        $client_name = sanitizeInput($row['client_name']);
+        $client_name = escapeSql($row['client_name']);
         $client_id = intval($row['client_id']);
 
-        mysqli_query($mysqli, "UPDATE quotes SET quote_status = 'Declined' WHERE quote_id = $quote_id");
+        // Claim the response - only a quote still awaiting one can be declined,
+        // and only the first request through wins
+        mysqli_query($mysqli, "UPDATE quotes SET quote_status = 'Declined' WHERE quote_id = $quote_id AND quote_status IN ('Sent', 'Viewed')");
+
+        if (mysqli_affected_rows($mysqli) !== 1) {
+            flashAlert("This quote is no longer awaiting a response", 'error');
+            redirect();
+        }
+
         mysqli_query($mysqli, "INSERT INTO history SET history_status = 'Declined', history_description = 'Client declined Quote!', history_quote_id = $quote_id");
 
         // Notification
         appNotify("Quote Declined", "Quote $quote_prefix$quote_number has been declined by $client_name", "/agent/quote.php?quote_id=$quote_id", $client_id);
-        customAction('quote_decline', $quote_id);
+        triggerCustomAction('quote_decline', $quote_id);
 
         // Internal email notification
 
         $sql_company = mysqli_query($mysqli, "SELECT company_name FROM companies WHERE company_id = 1");
         $row = mysqli_fetch_assoc($sql_company);
-        $company_name = sanitizeInput($row['company_name']);
+        $company_name = escapeSql($row['company_name']);
 
         $sql_settings = mysqli_query($mysqli, "SELECT * FROM settings WHERE company_id = 1");
         $row = mysqli_fetch_assoc($sql_settings);
@@ -108,10 +128,10 @@ if (isset($_GET['decline_quote'], $_GET['url_key'])) {
         $config_smtp_encryption = $row['config_smtp_encryption'];
         $config_smtp_username = $row['config_smtp_username'];
         $config_smtp_password = $row['config_smtp_password'];
-        $config_quote_from_name = sanitizeInput($row['config_quote_from_name']);
-        $config_quote_from_email = sanitizeInput($row['config_quote_from_email']);
-        $config_quote_notification_email = sanitizeInput($row['config_quote_notification_email']);
-        $config_base_url = sanitizeInput($config_base_url);
+        $config_quote_from_name = escapeSql($row['config_quote_from_name']);
+        $config_quote_from_email = escapeSql($row['config_quote_from_email']);
+        $config_quote_notification_email = escapeSql($row['config_quote_notification_email']);
+        $config_base_url = escapeSql($config_base_url);
 
         if (!empty($config_smtp_host) && !empty($config_quote_notification_email)) {
             $subject = "Quote Declined - $client_name - Quote $quote_prefix$quote_number";
@@ -127,7 +147,7 @@ if (isset($_GET['decline_quote'], $_GET['url_key'])) {
 
             $mail = addToMailQueue($data);
         }
-        flash_alert("Quote Declined", 'danger');
+        flashAlert("Quote Declined", 'danger');
 
         redirect();
 
@@ -140,7 +160,7 @@ if (isset($_GET['decline_quote'], $_GET['url_key'])) {
 if (isset($_GET['reopen_ticket'], $_GET['url_key'])) {
 
     $ticket_id = intval($_GET['ticket_id']);
-    $url_key = sanitizeInput($_GET['url_key']);
+    $url_key = escapeSql($_GET['url_key']);
 
     // Select only the necessary fields
     $sql = mysqli_query($mysqli, "SELECT ticket_id FROM tickets WHERE ticket_id = $ticket_id AND ticket_url_key = '$url_key' AND ticket_resolved_at IS NOT NULL AND ticket_closed_at IS NULL");
@@ -148,13 +168,14 @@ if (isset($_GET['reopen_ticket'], $_GET['url_key'])) {
     if (mysqli_num_rows($sql) == 1) {
         // Update the ticket
         mysqli_query($mysqli, "UPDATE tickets SET ticket_status = 2, ticket_resolved_at = NULL WHERE ticket_id = $ticket_id AND ticket_url_key = '$url_key'");
+        logTicketHistory($ticket_id, "The client reopened the ticket from the guest link");
 
         // Add reply
         mysqli_query($mysqli, "INSERT INTO ticket_replies SET ticket_reply = 'Ticket reopened by client (guest URL).', ticket_reply_type = 'Internal', ticket_reply_by = 0, ticket_reply_ticket_id = $ticket_id");
 
-        customAction('ticket_update', $ticket_id);
+        triggerCustomAction('ticket_update', $ticket_id);
 
-        flash_alert("Ticket reopened");
+        flashAlert("Ticket reopened");
 
         redirect();
 
@@ -167,7 +188,7 @@ if (isset($_GET['reopen_ticket'], $_GET['url_key'])) {
 if (isset($_GET['close_ticket'], $_GET['url_key'])) {
 
     $ticket_id = intval($_GET['ticket_id']);
-    $url_key = sanitizeInput($_GET['url_key']);
+    $url_key = escapeSql($_GET['url_key']);
 
     // Select only the necessary fields
     $sql = mysqli_query($mysqli, "SELECT ticket_id FROM tickets WHERE ticket_id = $ticket_id AND ticket_url_key = '$url_key' AND ticket_resolved_at IS NOT NULL AND ticket_closed_at IS NULL");
@@ -176,13 +197,14 @@ if (isset($_GET['close_ticket'], $_GET['url_key'])) {
 
         // Update the ticket
         mysqli_query($mysqli, "UPDATE tickets SET ticket_status = 5, ticket_closed_at = NOW() WHERE ticket_id = $ticket_id AND ticket_url_key = '$url_key'");
+        logTicketHistory($ticket_id, "The client closed the ticket from the guest link");
 
         // Add reply
         mysqli_query($mysqli, "INSERT INTO ticket_replies SET ticket_reply = 'Ticket closed by client (guest URL).', ticket_reply_type = 'Internal', ticket_reply_by = 0, ticket_reply_ticket_id = $ticket_id");
 
-        customAction('ticket_close', $ticket_id);
+        triggerCustomAction('ticket_close', $ticket_id);
 
-        flash_alert("Ticket closed");
+        flashAlert("Ticket closed");
 
         redirect();
 
@@ -194,8 +216,8 @@ if (isset($_GET['close_ticket'], $_GET['url_key'])) {
 if (isset($_GET['add_ticket_feedback'], $_GET['url_key'])) {
 
     $ticket_id = intval($_GET['ticket_id']);
-    $url_key = sanitizeInput($_GET['url_key']);
-    $feedback = sanitizeInput($_GET['feedback']);
+    $url_key = escapeSql($_GET['url_key']);
+    $feedback = escapeSql($_GET['feedback']);
 
     // Select only the necessary fields
     $sql = mysqli_query($mysqli, "SELECT ticket_id FROM tickets WHERE ticket_id = $ticket_id AND ticket_url_key = '$url_key' AND ticket_closed_at IS NOT NULL");
@@ -207,17 +229,17 @@ if (isset($_GET['add_ticket_feedback'], $_GET['url_key'])) {
         // Notify on bad feedback
         if ($feedback == "Bad") {
             $ticket_details = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT ticket_prefix, ticket_number FROM tickets WHERE ticket_id = $ticket_id LIMIT 1"));
-            $ticket_prefix = sanitizeInput($ticket_details['ticket_prefix']);
+            $ticket_prefix = escapeSql($ticket_details['ticket_prefix']);
             $ticket_number = intval($ticket_details['ticket_number']);
 
             appNotify("Feedback", "Guest rated ticket number $ticket_prefix$ticket_number (ID: $ticket_id) as bad", "/agent/ticket.php?ticket_id=$ticket_id");
         }
 
-        flash_alert("Feedback recorded - thank you");
+        flashAlert("Feedback recorded - thank you");
 
         redirect();
 
-        customAction('ticket_feedback', $ticket_id);
+        triggerCustomAction('ticket_feedback', $ticket_id);
 
     } else {
         echo "Invalid!!";
@@ -229,13 +251,13 @@ if (isset($_GET['approve_ticket_task'])) {
 
     $task_id = intval($_GET['approve_ticket_task']);
     $approval_id = intval($_GET['approval_id']);
-    $url_key = sanitizeInput($_GET['approval_url_key']);
+    $url_key = escapeSql($_GET['approval_url_key']);
 
     $approval_row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT * FROM task_approvals LEFT JOIN tasks on task_id = approval_task_id WHERE approval_id = $approval_id AND approval_task_id = $task_id AND approval_url_key = '$url_key' AND approval_status = 'pending'"));
 
-    $task_name = nullable_htmlentities($approval_row['task_name']);
-    $scope = nullable_htmlentities($approval_row['approval_scope']);
-    $type = nullable_htmlentities($approval_row['approval_type']);
+    $task_name = escapeHtml($approval_row['task_name']);
+    $scope = escapeHtml($approval_row['approval_scope']);
+    $type = escapeHtml($approval_row['approval_type']);
     $required_user = intval($approval_row['approval_required_user_id']);
     $created_by = intval($approval_row['approval_created_by']);
     $ticket_id = intval($approval_row['task_ticket_id']);
@@ -251,9 +273,9 @@ if (isset($_GET['approve_ticket_task'])) {
     mysqli_query($mysqli, "INSERT INTO notifications SET notification_type = 'Ticket', notification = 'Guest approved ticket task $task_name', notification_action = 'ticket.php?ticket_id=$ticket_id', notification_user_id = $created_by");
 
     // Logging
-    logAction("Task", "Edit", "Guest user approved task $task_name via link (approval $approval_id)", 0, $task_id);
+    logAudit("Task", "Edit", "Guest user approved task $task_name via link (approval $approval_id)", 0, $task_id);
 
-    flash_alert("Task Approved");
+    flashAlert("Task Approved");
     redirect();
 
 }
@@ -261,7 +283,7 @@ if (isset($_GET['approve_ticket_task'])) {
 if (isset($_GET['export_quote_pdf'])) {
 
     $quote_id = intval($_GET['export_quote_pdf']);
-    $url_key = sanitizeInput($_GET['url_key']);
+    $url_key = escapeSql($_GET['url_key']);
 
     $sql = mysqli_query(
         $mysqli,
@@ -277,34 +299,34 @@ if (isset($_GET['export_quote_pdf'])) {
 
         $row = mysqli_fetch_assoc($sql);
         $quote_id = intval($row['quote_id']);
-        $quote_prefix = nullable_htmlentities($row['quote_prefix']);
+        $quote_prefix = escapeHtml($row['quote_prefix']);
         $quote_number = intval($row['quote_number']);
-        $quote_scope = nullable_htmlentities($row['quote_scope']);
-        $quote_status = nullable_htmlentities($row['quote_status']);
-        $quote_date = nullable_htmlentities($row['quote_date']);
-        $quote_expire = nullable_htmlentities($row['quote_expire']);
+        $quote_scope = escapeHtml($row['quote_scope']);
+        $quote_status = escapeHtml($row['quote_status']);
+        $quote_date = escapeHtml($row['quote_date']);
+        $quote_expire = escapeHtml($row['quote_expire']);
         $quote_amount = floatval($row['quote_amount']);
         $quote_discount = floatval($row['quote_discount_amount']);
-        $quote_currency_code = nullable_htmlentities($row['quote_currency_code']);
-        $quote_note = nullable_htmlentities($row['quote_note']);
-        $quote_url_key = nullable_htmlentities($row['quote_url_key']);
-        $quote_created_at = nullable_htmlentities($row['quote_created_at']);
+        $quote_currency_code = escapeHtml($row['quote_currency_code']);
+        $quote_note = escapeHtml($row['quote_note']);
+        $quote_url_key = escapeHtml($row['quote_url_key']);
+        $quote_created_at = escapeHtml($row['quote_created_at']);
         $category_id = intval($row['quote_category_id']);
         $client_id = intval($row['client_id']);
-        $client_name = nullable_htmlentities($row['client_name']);
-        $location_address = nullable_htmlentities($row['location_address']);
-        $location_city = nullable_htmlentities($row['location_city']);
-        $location_state = nullable_htmlentities($row['location_state']);
-        $location_zip = nullable_htmlentities($row['location_zip']);
-        $location_country = nullable_htmlentities($row['location_country']);
-        $contact_email = nullable_htmlentities($row['contact_email']);
-        $contact_phone_country_code = nullable_htmlentities($row['contact_phone_country_code']);
-        $contact_phone = nullable_htmlentities(formatPhoneNumber($row['contact_phone'], $contact_phone_country_code));
-        $contact_extension = nullable_htmlentities($row['contact_extension']);
-        $contact_mobile_country_code = nullable_htmlentities($row['contact_mobile_country_code']);
-        $contact_mobile = nullable_htmlentities(formatPhoneNumber($row['contact_mobile'], $contact_mobile_country_code));
-        $client_website = nullable_htmlentities($row['client_website']);
-        $client_currency_code = nullable_htmlentities($row['client_currency_code']);
+        $client_name = escapeHtml($row['client_name']);
+        $location_address = escapeHtml($row['location_address']);
+        $location_city = escapeHtml($row['location_city']);
+        $location_state = escapeHtml($row['location_state']);
+        $location_zip = escapeHtml($row['location_zip']);
+        $location_country = escapeHtml($row['location_country']);
+        $contact_email = escapeHtml($row['contact_email']);
+        $contact_phone_country_code = escapeHtml($row['contact_phone_country_code']);
+        $contact_phone = escapeHtml(formatPhoneNumber($row['contact_phone'], $contact_phone_country_code));
+        $contact_extension = escapeHtml($row['contact_extension']);
+        $contact_mobile_country_code = escapeHtml($row['contact_mobile_country_code']);
+        $contact_mobile = escapeHtml(formatPhoneNumber($row['contact_mobile'], $contact_mobile_country_code));
+        $client_website = escapeHtml($row['client_website']);
+        $client_currency_code = escapeHtml($row['client_currency_code']);
         $client_net_terms = intval($row['client_net_terms']);
         if ($client_net_terms == 0) {
             $client_net_terms = $config_default_net_terms;
@@ -314,22 +336,22 @@ if (isset($_GET['export_quote_pdf'])) {
         $row = mysqli_fetch_assoc($sql);
 
         $company_id = intval($row['company_id']);
-        $company_name = nullable_htmlentities($row['company_name']);
-        $company_country = nullable_htmlentities($row['company_country']);
-        $company_address = nullable_htmlentities($row['company_address']);
-        $company_city = nullable_htmlentities($row['company_city']);
-        $company_state = nullable_htmlentities($row['company_state']);
-        $company_zip = nullable_htmlentities($row['company_zip']);
-        $company_phone_country_code = nullable_htmlentities($row['company_phone_country_code']);
-        $company_phone = nullable_htmlentities(formatPhoneNumber($row['company_phone'], $company_phone_country_code));
-        $company_email = nullable_htmlentities($row['company_email']);
-        $company_website = nullable_htmlentities($row['company_website']);
-        $company_logo = nullable_htmlentities($row['company_logo']);
-        $company_locale = nullable_htmlentities($row['company_locale']);
+        $company_name = escapeHtml($row['company_name']);
+        $company_country = escapeHtml($row['company_country']);
+        $company_address = escapeHtml($row['company_address']);
+        $company_city = escapeHtml($row['company_city']);
+        $company_state = escapeHtml($row['company_state']);
+        $company_zip = escapeHtml($row['company_zip']);
+        $company_phone_country_code = escapeHtml($row['company_phone_country_code']);
+        $company_phone = escapeHtml(formatPhoneNumber($row['company_phone'], $company_phone_country_code));
+        $company_email = escapeHtml($row['company_email']);
+        $company_website = escapeHtml($row['company_website']);
+        $company_logo = escapeHtml($row['company_logo']);
+        $company_locale = escapeHtml($row['company_locale']);
         //Set Currency Format
         $currency_format = numfmt_create($company_locale, NumberFormatter::CURRENCY);
 
-        require_once("../plugins/TCPDF/tcpdf.php");
+        require_once("../libs/TCPDF/tcpdf.php");
 
         // Start TCPDF
         $pdf = new TCPDF('P', 'mm', 'A4', true, 'UTF-8', false);
@@ -367,8 +389,8 @@ if (isset($_GET['export_quote_pdf'])) {
             <td width="50%" align="right" style="font-size:14pt; font-weight:bold;">' . $client_name . '</td>
         </tr>
         <tr>
-            <td style="font-size:10pt; line-height:1.4;">' . nl2br("$company_address\n$company_city $company_state $company_zip\n$company_country\n$company_phone\n$company_website") . '</td>
-            <td style="font-size:10pt; line-height:1.4;" align="right">' . nl2br("$location_address\n$location_city $location_state $location_zip\n$location_country\n$contact_email\n$contact_phone") . '</td>
+            <td style="font-size:10pt; line-height:1.4;">' . nl2br(formatAddress($company_address, $company_city, $company_state, $company_zip, $company_country) . "\n$company_phone\n$company_website") . '</td>
+            <td style="font-size:10pt; line-height:1.4;" align="right">' . nl2br(formatAddress($location_address, $location_city, $location_state, $location_zip, $location_country) . "\n$contact_email\n$contact_phone") . '</td>
         </tr>
         </table><br>';
 
@@ -462,7 +484,7 @@ if (isset($_GET['export_quote_pdf'])) {
 if (isset($_GET['export_invoice_pdf'])) {
 
     $invoice_id = intval($_GET['export_invoice_pdf']);
-    $url_key = sanitizeInput($_GET['url_key']);
+    $url_key = escapeSql($_GET['url_key']);
 
     $sql = mysqli_query(
         $mysqli,
@@ -478,34 +500,34 @@ if (isset($_GET['export_invoice_pdf'])) {
 
         $row = mysqli_fetch_assoc($sql);
         $invoice_id = intval($row['invoice_id']);
-        $invoice_prefix = nullable_htmlentities($row['invoice_prefix']);
+        $invoice_prefix = escapeHtml($row['invoice_prefix']);
         $invoice_number = intval($row['invoice_number']);
-        $invoice_scope = nullable_htmlentities($row['invoice_scope']);
-        $invoice_status = nullable_htmlentities($row['invoice_status']);
-        $invoice_date = nullable_htmlentities($row['invoice_date']);
-        $invoice_due = nullable_htmlentities($row['invoice_due']);
+        $invoice_scope = escapeHtml($row['invoice_scope']);
+        $invoice_status = escapeHtml($row['invoice_status']);
+        $invoice_date = escapeHtml($row['invoice_date']);
+        $invoice_due = escapeHtml($row['invoice_due']);
         $invoice_amount = floatval($row['invoice_amount']);
         $invoice_discount = floatval($row['invoice_discount_amount']);
-        $invoice_currency_code = nullable_htmlentities($row['invoice_currency_code']);
-        $invoice_note = nullable_htmlentities($row['invoice_note']);
-        $invoice_url_key = nullable_htmlentities($row['invoice_url_key']);
-        $invoice_created_at = nullable_htmlentities($row['invoice_created_at']);
+        $invoice_currency_code = escapeHtml($row['invoice_currency_code']);
+        $invoice_note = escapeHtml($row['invoice_note']);
+        $invoice_url_key = escapeHtml($row['invoice_url_key']);
+        $invoice_created_at = escapeHtml($row['invoice_created_at']);
         $category_id = intval($row['invoice_category_id']);
         $client_id = intval($row['client_id']);
-        $client_name = nullable_htmlentities($row['client_name']);
-        $location_address = nullable_htmlentities($row['location_address']);
-        $location_city = nullable_htmlentities($row['location_city']);
-        $location_state = nullable_htmlentities($row['location_state']);
-        $location_zip = nullable_htmlentities($row['location_zip']);
-        $location_country = nullable_htmlentities($row['location_country']);
-        $contact_email = nullable_htmlentities($row['contact_email']);
-        $contact_phone_country_code = nullable_htmlentities($row['contact_phone_country_code']);
-        $contact_phone = nullable_htmlentities(formatPhoneNumber($row['contact_phone'], $contact_phone_country_code));
-        $contact_extension = nullable_htmlentities($row['contact_extension']);
-        $contact_mobile_country_code = nullable_htmlentities($row['contact_mobile_country_code']);
-        $contact_mobile = nullable_htmlentities(formatPhoneNumber($row['contact_mobile'], $contact_mobile_country_code));
-        $client_website = nullable_htmlentities($row['client_website']);
-        $client_currency_code = nullable_htmlentities($row['client_currency_code']);
+        $client_name = escapeHtml($row['client_name']);
+        $location_address = escapeHtml($row['location_address']);
+        $location_city = escapeHtml($row['location_city']);
+        $location_state = escapeHtml($row['location_state']);
+        $location_zip = escapeHtml($row['location_zip']);
+        $location_country = escapeHtml($row['location_country']);
+        $contact_email = escapeHtml($row['contact_email']);
+        $contact_phone_country_code = escapeHtml($row['contact_phone_country_code']);
+        $contact_phone = escapeHtml(formatPhoneNumber($row['contact_phone'], $contact_phone_country_code));
+        $contact_extension = escapeHtml($row['contact_extension']);
+        $contact_mobile_country_code = escapeHtml($row['contact_mobile_country_code']);
+        $contact_mobile = escapeHtml(formatPhoneNumber($row['contact_mobile'], $contact_mobile_country_code));
+        $client_website = escapeHtml($row['client_website']);
+        $client_currency_code = escapeHtml($row['client_currency_code']);
         $client_net_terms = intval($row['client_net_terms']);
         if ($client_net_terms == 0) {
             $client_net_terms = $config_default_net_terms;
@@ -514,24 +536,24 @@ if (isset($_GET['export_invoice_pdf'])) {
         $sql = mysqli_query($mysqli, "SELECT * FROM companies WHERE company_id = 1");
         $row = mysqli_fetch_assoc($sql);
         $company_id = intval($row['company_id']);
-        $company_name = nullable_htmlentities($row['company_name']);
-        $company_country = nullable_htmlentities($row['company_country']);
-        $company_address = nullable_htmlentities($row['company_address']);
-        $company_city = nullable_htmlentities($row['company_city']);
-        $company_state = nullable_htmlentities($row['company_state']);
-        $company_zip = nullable_htmlentities($row['company_zip']);
-        $company_phone_country_code = nullable_htmlentities($row['company_phone_country_code']);
-        $company_phone = nullable_htmlentities(formatPhoneNumber($row['company_phone'], $company_phone_country_code));
-        $company_email = nullable_htmlentities($row['company_email']);
-        $company_website = nullable_htmlentities($row['company_website']);
-        $company_tax_id = nullable_htmlentities($row['company_tax_id']);
+        $company_name = escapeHtml($row['company_name']);
+        $company_country = escapeHtml($row['company_country']);
+        $company_address = escapeHtml($row['company_address']);
+        $company_city = escapeHtml($row['company_city']);
+        $company_state = escapeHtml($row['company_state']);
+        $company_zip = escapeHtml($row['company_zip']);
+        $company_phone_country_code = escapeHtml($row['company_phone_country_code']);
+        $company_phone = escapeHtml(formatPhoneNumber($row['company_phone'], $company_phone_country_code));
+        $company_email = escapeHtml($row['company_email']);
+        $company_website = escapeHtml($row['company_website']);
+        $company_tax_id = escapeHtml($row['company_tax_id']);
         if ($config_invoice_show_tax_id && !empty($company_tax_id)) {
             $company_tax_id_display = "Tax ID: $company_tax_id";
         } else {
             $company_tax_id_display = "";
         }
-        $company_logo = nullable_htmlentities($row['company_logo']);
-        $company_locale = nullable_htmlentities($row['company_locale']);
+        $company_logo = escapeHtml($row['company_logo']);
+        $company_locale = escapeHtml($row['company_locale']);
         //Set Currency Format
         $currency_format = numfmt_create($company_locale, NumberFormatter::CURRENCY);
 
@@ -555,7 +577,7 @@ if (isset($_GET['export_invoice_pdf'])) {
         //Set Badge color based off of invoice status
         $invoice_badge_color = getInvoiceBadgeColor($invoice_status);
 
-        require_once("../plugins/TCPDF/tcpdf.php");
+        require_once("../libs/TCPDF/tcpdf.php");
 
         // Start TCPDF
         $pdf = new TCPDF('P', 'mm', 'A4', true, 'UTF-8', false);
@@ -590,8 +612,8 @@ if (isset($_GET['export_invoice_pdf'])) {
             <td width="50%" align="right" style="font-size:14pt; font-weight:bold;">' . $client_name . '</td>
         </tr>
         <tr>
-            <td style="font-size:10pt; line-height:1.4;">' . nl2br("$company_address\n$company_city $company_state $company_zip\n$company_country\n$company_phone\n$company_website\n$company_tax_id_display") . '</td>
-            <td style="font-size:10pt; line-height:1.4;" align="right">' . nl2br("$location_address\n$location_city $location_state $location_zip\n$location_country\n$contact_email\n$contact_phone") . '</td>
+            <td style="font-size:10pt; line-height:1.4;">' . nl2br(formatAddress($company_address, $company_city, $company_state, $company_zip, $company_country) . "\n$company_phone\n$company_website\n$company_tax_id_display") . '</td>
+            <td style="font-size:10pt; line-height:1.4;" align="right">' . nl2br(formatAddress($location_address, $location_city, $location_state, $location_zip, $location_country) . "\n$contact_email\n$contact_phone") . '</td>
         </tr>
         </table><br>';
 
@@ -691,14 +713,14 @@ if (isset($_GET['export_invoice_pdf'])) {
 if (isset($_POST['guest_quote_upload_file'])) {
 
     $quote_id = intval($_POST['quote_id']);
-    $url_key = sanitizeInput($_POST['url_key']);
+    $url_key = escapeSql($_POST['url_key']);
 
     // Select only the necessary fields
     $sql = mysqli_query($mysqli, "SELECT quote_prefix, quote_number, client_id FROM quotes LEFT JOIN clients ON quote_client_id = client_id WHERE quote_id = $quote_id AND quote_url_key = '$url_key'");
 
     if (mysqli_num_rows($sql) == 1) {
         $row = mysqli_fetch_assoc($sql);
-        $quote_prefix = sanitizeInput($row['quote_prefix']);
+        $quote_prefix = escapeSql($row['quote_prefix']);
         $quote_number = intval($row['quote_number']);
         $client_id = intval($row['client_id']);
 
@@ -723,12 +745,12 @@ if (isset($_POST['guest_quote_upload_file'])) {
 
                     $file_tmp_path = $_FILES['file']['tmp_name'][$i];
 
-                    $file_name = sanitizeInput($_FILES['file']['name'][$i]);
+                    $file_name = escapeSql($_FILES['file']['name'][$i]);
                     $extarr = explode('.', $_FILES['file']['name'][$i]);
-                    $file_extension = sanitizeInput(strtolower(end($extarr)));
+                    $file_extension = escapeSql(strtolower(end($extarr)));
 
                     // Extract the file mime type and size
-                    $file_mime_type = sanitizeInput($single_file['type']);
+                    $file_mime_type = escapeSql($single_file['type']);
                     $file_size = intval($single_file['size']);
 
                     // Define destination file path
@@ -744,7 +766,7 @@ if (isset($_POST['guest_quote_upload_file'])) {
                         // Create
                         mysqli_query($mysqli,"INSERT INTO folders SET folder_name = 'Client Uploads', parent_folder = 0, folder_location = 1, folder_client_id = $client_id");
                         $folder_id = mysqli_insert_id($mysqli);
-                        logAction("Folder", "Create", "Automatically created folder Client Uploads", $client_id, $folder_id);
+                        logAudit("Folder", "Create", "Automatically created folder Client Uploads", $client_id, $folder_id);
                     }
 
                     // Do move/upload
@@ -758,16 +780,16 @@ if (isset($_POST['guest_quote_upload_file'])) {
                     mysqli_query($mysqli, "INSERT INTO quote_files SET quote_id = $quote_id, file_id = $file_id");
 
                     // Logging & feedback
-                    flash_alert('File uploaded!');
+                    flashAlert('File uploaded!');
 
                     appNotify("Quote File", "$file_name was uploaded to quote $quote_prefix$quote_number", "/agent/quote.php?quote_id=$quote_id", $client_id);
 
                     mysqli_query($mysqli, "INSERT INTO history SET history_status = 'Upload', history_description = 'Client uploaded file $file_name', history_quote_id = $quote_id");
 
-                    logAction("File", "Upload", "Guest uploaded file $file_name to quote $quote_prefix$quote_number", $client_id);
+                    logAudit("File", "Upload", "Guest uploaded file $file_name to quote $quote_prefix$quote_number", $client_id);
 
                 } else {
-                    flash_alert('Something went wrong uploading the file - please let the support team know.', 'error');
+                    flashAlert('Something went wrong uploading the file - please let the support team know.', 'error');
 
                     logApp("Guest", "error", "Error uploading file to invoice");
                 }

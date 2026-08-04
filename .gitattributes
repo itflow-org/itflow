@@ -1,0 +1,44 @@
+# ITFlow line-ending policy
+#
+# Everything ITFlow ships is LF in the repository and LF in the working tree.
+# Contributors on Windows get LF too - this is deliberate. ITFlow is deployed
+# to Linux/Apache and edited over sftp/ssh as often as it is cloned, so a
+# checkout must be byte-identical everywhere.
+
+* text=auto eol=lf
+
+# Explicit for the file types we author, so nothing depends on git's guess.
+*.php   text eol=lf
+*.js    text eol=lf
+*.css   text eol=lf
+*.html  text eol=lf
+*.sql   text eol=lf
+*.md    text eol=lf
+*.json  text eol=lf
+*.yml   text eol=lf
+*.xsd   text eol=lf
+*.svg   text eol=lf
+*.txt   text eol=lf
+*.ini   text eol=lf
+.htaccess text eol=lf
+
+# Binary assets: never touched, never diffed as text.
+*.png   binary
+*.gif   binary
+*.jpg   binary
+*.jpeg  binary
+*.webp  binary
+*.ico   binary
+*.icc   binary
+*.woff  binary
+*.woff2 binary
+*.ttf   binary
+*.eot   binary
+*.crt   binary
+*.ser   binary
+*.z     binary
+
+# Vendored third-party code is preserved byte-for-byte as shipped upstream.
+# Per CONTRIBUTING.md libs/ is never edited in place - it is replaced wholesale -
+# so normalizing it here would create spurious diffs on the next library update.
+libs/** -text

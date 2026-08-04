@@ -39,34 +39,34 @@ if (isset($_GET['quote_id'])) {
 
     $row = mysqli_fetch_assoc($sql);
     $quote_id = intval($row['quote_id']);
-    $quote_prefix = nullable_htmlentities($row['quote_prefix']);
+    $quote_prefix = escapeHtml($row['quote_prefix']);
     $quote_number = intval($row['quote_number']);
-    $quote_scope = nullable_htmlentities($row['quote_scope']);
-    $quote_status = nullable_htmlentities($row['quote_status']);
-    $quote_date = nullable_htmlentities($row['quote_date']);
-    $quote_expire = nullable_htmlentities($row['quote_expire']);
+    $quote_scope = escapeHtml($row['quote_scope']);
+    $quote_status = escapeHtml($row['quote_status']);
+    $quote_date = escapeHtml($row['quote_date']);
+    $quote_expire = escapeHtml($row['quote_expire']);
     $quote_amount = floatval($row['quote_amount']);
     $quote_discount = floatval($row['quote_discount_amount']);
-    $quote_currency_code = nullable_htmlentities($row['quote_currency_code']);
-    $quote_note = nullable_htmlentities($row['quote_note']);
-    $quote_url_key = nullable_htmlentities($row['quote_url_key']);
-    $quote_created_at = nullable_htmlentities($row['quote_created_at']);
+    $quote_currency_code = escapeHtml($row['quote_currency_code']);
+    $quote_note = escapeHtml($row['quote_note']);
+    $quote_url_key = escapeHtml($row['quote_url_key']);
+    $quote_created_at = escapeHtml($row['quote_created_at']);
     $category_id = intval($row['quote_category_id']);
     $client_id = intval($row['client_id']);
-    $client_name = nullable_htmlentities($row['client_name']);
-    $location_address = nullable_htmlentities($row['location_address']);
-    $location_city = nullable_htmlentities($row['location_city']);
-    $location_state = nullable_htmlentities($row['location_state']);
-    $location_zip = nullable_htmlentities($row['location_zip']);
-    $location_country = nullable_htmlentities($row['location_country']);
-    $contact_email = nullable_htmlentities($row['contact_email']);
-    $contact_phone_country_code = nullable_htmlentities($row['contact_phone_country_code']);
-    $contact_phone = nullable_htmlentities(formatPhoneNumber($row['contact_phone'], $contact_phone_country_code));
-    $contact_extension = nullable_htmlentities($row['contact_extension']);
-    $contact_mobile_country_code = nullable_htmlentities($row['contact_mobile_country_code']);
-    $contact_mobile = nullable_htmlentities(formatPhoneNumber($row['contact_mobile'], $contact_mobile_country_code));
-    $client_website = nullable_htmlentities($row['client_website']);
-    $client_currency_code = nullable_htmlentities($row['client_currency_code']);
+    $client_name = escapeHtml($row['client_name']);
+    $location_address = escapeHtml($row['location_address']);
+    $location_city = escapeHtml($row['location_city']);
+    $location_state = escapeHtml($row['location_state']);
+    $location_zip = escapeHtml($row['location_zip']);
+    $location_country = escapeHtml($row['location_country']);
+    $contact_email = escapeHtml($row['contact_email']);
+    $contact_phone_country_code = escapeHtml($row['contact_phone_country_code']);
+    $contact_phone = escapeHtml(formatPhoneNumber($row['contact_phone'], $contact_phone_country_code));
+    $contact_extension = escapeHtml($row['contact_extension']);
+    $contact_mobile_country_code = escapeHtml($row['contact_mobile_country_code']);
+    $contact_mobile = escapeHtml(formatPhoneNumber($row['contact_mobile'], $contact_mobile_country_code));
+    $client_website = escapeHtml($row['client_website']);
+    $client_currency_code = escapeHtml($row['client_currency_code']);
     $client_net_terms = intval($row['client_net_terms']);
     if ($client_net_terms == 0) {
         $client_net_terms = $config_default_net_terms;
@@ -80,17 +80,17 @@ if (isset($_GET['quote_id'])) {
     $row = mysqli_fetch_assoc($sql);
 
     $company_id = intval($row['company_id']);
-    $company_name = nullable_htmlentities($row['company_name']);
-    $company_country = nullable_htmlentities($row['company_country']);
-    $company_address = nullable_htmlentities($row['company_address']);
-    $company_city = nullable_htmlentities($row['company_city']);
-    $company_state = nullable_htmlentities($row['company_state']);
-    $company_zip = nullable_htmlentities($row['company_zip']);
-    $company_phone_country_code = nullable_htmlentities($row['company_phone_country_code']);
-    $company_phone = nullable_htmlentities(formatPhoneNumber($row['company_phone'], $company_phone_country_code));
-    $company_email = nullable_htmlentities($row['company_email']);
-    $company_website = nullable_htmlentities($row['company_website']);
-    $company_logo = nullable_htmlentities($row['company_logo']);
+    $company_name = escapeHtml($row['company_name']);
+    $company_country = escapeHtml($row['company_country']);
+    $company_address = escapeHtml($row['company_address']);
+    $company_city = escapeHtml($row['company_city']);
+    $company_state = escapeHtml($row['company_state']);
+    $company_zip = escapeHtml($row['company_zip']);
+    $company_phone_country_code = escapeHtml($row['company_phone_country_code']);
+    $company_phone = escapeHtml(formatPhoneNumber($row['company_phone'], $company_phone_country_code));
+    $company_email = escapeHtml($row['company_email']);
+    $company_website = escapeHtml($row['company_website']);
+    $company_logo = escapeHtml($row['company_logo']);
 
     $sql_history = mysqli_query($mysqli, "SELECT * FROM history WHERE history_quote_id = $quote_id ORDER BY history_id DESC");
 
@@ -134,7 +134,7 @@ if (isset($_GET['quote_id'])) {
         <li class="breadcrumb-item">
             <a href="quotes.php?client_id=<?= $client_id ?>"><?= $client_name ?> Quotes</a>
         </li>
-        <li class="breadcrumb-item active"><?php echo "$quote_prefix$quote_number"; ?></li>
+        <li class="breadcrumb-item active"><?= "$quote_prefix$quote_number" ?></li>
     </ol>
 
     <div class="card">
@@ -212,7 +212,7 @@ if (isset($_GET['quote_id'])) {
                             <a class="dropdown-item" href="post.php?export_quote_pdf=<?= $quote_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>" target="_blank">
                                 <i class="fa fa-fw fa-download text-secondary mr-2"></i>Download PDF
                             </a>
-                            <?php if (!empty($config_smtp_host) && !empty($contact_email)) { ?>
+                            <?php if (!empty($config_smtp_provider) && !empty($contact_email)) { ?>
                                 <a class="dropdown-item" href="post.php?email_quote=<?= $quote_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>">
                                     <i class="fa fa-fw fa-paper-plane text-secondary mr-2"></i>Send Email
                                 </a>
@@ -238,36 +238,35 @@ if (isset($_GET['quote_id'])) {
             <div class="row mb-3">
                 <?php if (file_exists("../uploads/settings/$company_logo")) { ?>
                 <div class="col-sm-2">
-                    <img class="img-fluid" src="<?php echo "../uploads/settings/$company_logo"; ?>" alt="Company logo">
+                    <img class="img-fluid" src="<?= "../uploads/settings/$company_logo" ?>" alt="Company logo">
                 </div>
                 <?php } ?>
                 <div class="col-sm-6 <?php if (!file_exists("../uploads/settings/$company_logo")) { echo "col-sm-8"; } ?>">
                     <ul class="list-unstyled">
-                        <li><h4><strong><?php echo $company_name; ?></strong></h4></li>
-                        <li><?php echo $company_address; ?></li>
-                        <li><?php echo "$company_city $company_state $company_zip, $company_country"; ?></li>
-                        <li><?php echo "$company_email | $company_phone"; ?></li>
-                        <li><?php echo $company_website; ?></li>
+                        <li><h4><strong><?= $company_name ?></strong></h4></li>
+                        <li><?= formatAddress($company_address, $company_city, $company_state, $company_zip, $company_country, '<br>') ?></li>
+                        <li><?= "$company_email | $company_phone" ?></li>
+                        <li><?= $company_website ?></li>
                     </ul>
                 </div>
 
                 <div class="col-sm-4">
                     <h3 class="text-right"><strong>QUOTE</strong></h3>
-                    <h5 class="badge badge-<?php echo $quote_badge_color; ?> p-2 float-right">
-                        <?php echo "$quote_status"; ?>
+                    <h5 class="badge badge-<?= $quote_badge_color ?> p-2 float-right">
+                        <?= "$quote_status" ?>
                     </h5>
                     <table class="table table-sm table-borderless">
                         <tr>
                             <th>Quote #:</th>
-                            <td class="text-right"><?php echo "$quote_prefix$quote_number"; ?></td>
+                            <td class="text-right"><?= "$quote_prefix$quote_number" ?></td>
                         </tr>
                         <tr>
                             <th>Date:</th>
-                            <td class="text-right"><?php echo $quote_date; ?></td>
+                            <td class="text-right"><?= $quote_date ?></td>
                         </tr>
                         <tr>
                             <th>Expires:</th>
-                            <td class="text-right"><?php echo $quote_expire; ?></td>
+                            <td class="text-right"><?= $quote_expire ?></td>
                         </tr>
                     </table>
                 </div>
@@ -277,10 +276,9 @@ if (isset($_GET['quote_id'])) {
                 <div class="col">
                     <h6><strong>To:</strong></h6>
                     <ul class="list-unstyled mb-0">
-                        <li><?php echo $client_name; ?></li>
-                        <li><?php echo $location_address; ?></li>
-                        <li><?php echo "$location_city $location_state $location_zip, $location_country"; ?></li>
-                        <li><?php echo "$contact_email | $contact_phone $contact_extension"; ?></li>
+                        <li><?= $client_name ?></li>
+                        <li><?= formatAddress($location_address, $location_city, $location_state, $location_zip, $location_country, '<br>') ?></li>
+                        <li><?= "$contact_email | $contact_phone $contact_extension" ?></li>
                     </ul>
                 </div>
             </div>
@@ -311,19 +309,19 @@ if (isset($_GET['quote_id'])) {
 
                                     while ($row = mysqli_fetch_assoc($sql_items)) {
                                         $item_id = intval($row['item_id']);
-                                        $item_name = nullable_htmlentities($row['item_name']);
-                                        $item_description = nullable_htmlentities($row['item_description']);
+                                        $item_name = escapeHtml($row['item_name']);
+                                        $item_description = escapeHtml($row['item_description']);
                                         $item_quantity = floatval($row['item_quantity']);
                                         $item_price = floatval($row['item_price']);
                                         $item_tax = floatval($row['item_tax']);
                                         $item_total = floatval($row['item_total']);
-                                        $item_created_at = nullable_htmlentities($row['item_created_at']);
+                                        $item_created_at = escapeHtml($row['item_created_at']);
                                         $tax_id = intval($row['item_tax_id']);
                                         $total_tax = $item_tax + $total_tax;
                                         $sub_total = $item_price * $item_quantity + $sub_total;
                                         ?>
 
-                                        <tr data-item-id="<?php echo $item_id; ?>">
+                                        <tr data-item-id="<?= $item_id ?>">
                                             <td class="d-print-none">
                                                 <?php if ($quote_status !== "Invoiced" && $quote_status !== "Accepted" && $quote_status !== "Declined" && lookupUserPermission("module_sales") >= 2) { ?>
                                                     <div class="btn-group">
@@ -349,12 +347,12 @@ if (isset($_GET['quote_id'])) {
                                                     </div>
                                                 <?php } ?>
                                             </td>
-                                            <td><?php echo $item_name; ?></td>
-                                            <td><?php echo nl2br($item_description); ?></td>
-                                            <td class="text-center"><?php echo number_format($item_quantity, 2); ?></td>
-                                            <td class="text-right"><?php echo numfmt_format_currency($currency_format, $item_price, $quote_currency_code); ?></td>
-                                            <td class="text-right"><?php echo numfmt_format_currency($currency_format, $item_tax, $quote_currency_code); ?></td>
-                                            <td class="text-right"><?php echo numfmt_format_currency($currency_format, $item_total, $quote_currency_code); ?></td>
+                                            <td><?= $item_name ?></td>
+                                            <td><?= nl2br($item_description) ?></td>
+                                            <td class="text-center"><?= number_format($item_quantity, 2) ?></td>
+                                            <td class="text-right"><?= numfmt_format_currency($currency_format, $item_price, $quote_currency_code) ?></td>
+                                            <td class="text-right"><?= numfmt_format_currency($currency_format, $item_tax, $quote_currency_code) ?></td>
+                                            <td class="text-right"><?= numfmt_format_currency($currency_format, $item_total, $quote_currency_code) ?></td>
                                         </tr>
 
                                     <?php
@@ -368,7 +366,7 @@ if (isset($_GET['quote_id'])) {
                                                                 } ?>>
                                         <form action="post.php" method="post" autocomplete="off">
                                             <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
-                                            <input type="hidden" name="quote_id" value="<?php echo $quote_id; ?>">
+                                            <input type="hidden" name="quote_id" value="<?= $quote_id ?>">
                                             <input type="hidden" name="item_order" value="<?php
                                             //find largest order number and add 1
                                             $sql = mysqli_query($mysqli, "SELECT MAX(item_order) AS item_order FROM quote_items WHERE item_quote_id = $quote_id");
@@ -378,7 +376,7 @@ if (isset($_GET['quote_id'])) {
                                             ?>">
                                             <td></td>
                                             <td>
-                                                <input type="text" class="form-control" name="name" id="name" placeholder="Item" required>
+                                                <input type="text" class="form-control" name="name" id="name" placeholder="Item" maxlength="200" required>
                                             </td>
                                             <td>
                                                 <textarea class="form-control" rows="2" name="description" id="desc" placeholder="Enter a Description"></textarea>
@@ -387,7 +385,7 @@ if (isset($_GET['quote_id'])) {
                                                 <input type="text" class="form-control" inputmode="decimal" pattern="-?[0-9]*\.?[0-9]{0,2}" id="qty" style="text-align: center;" name="qty" placeholder="Qty">
                                             </td>
                                             <td>
-                                                <input type="text" class="form-control" inputmode="decimal" pattern="-?[0-9]*\.?[0-9]{0,2}" id="price" style="text-align: right;" name="price" placeholder="Price (<?php echo $quote_currency_code; ?>)">
+                                                <input type="text" class="form-control" inputmode="decimal" pattern="-?[0-9]*\.?[0-9]{0,2}" id="price" style="text-align: right;" name="price" placeholder="Price (<?= $quote_currency_code ?>)">
                                             </td>
                                             <td>
                                                 <select class="form-control select2" id="tax" name="tax_id" required>
@@ -397,10 +395,10 @@ if (isset($_GET['quote_id'])) {
                                                     $taxes_sql = mysqli_query($mysqli, "SELECT tax_id, tax_name, tax_percent FROM taxes WHERE tax_archived_at IS NULL ORDER BY tax_name ASC");
                                                     while ($row = mysqli_fetch_assoc($taxes_sql)) {
                                                         $tax_id = intval($row['tax_id']);
-                                                        $tax_name = nullable_htmlentities($row['tax_name']);
+                                                        $tax_name = escapeHtml($row['tax_name']);
                                                         $tax_percent = floatval($row['tax_percent']);
                                                     ?>
-                                                        <option value="<?php echo $tax_id; ?>"><?php echo "$tax_name $tax_percent%"; ?></option>
+                                                        <option value="<?= $tax_id ?>"><?= "$tax_name $tax_percent%" ?></option>
 
                                                     <?php
                                                     }
@@ -435,7 +433,7 @@ if (isset($_GET['quote_id'])) {
                             </div>
                         </div>
                         <div class="card-body">
-                            <?php echo nl2br($quote_note); ?>
+                            <?= nl2br($quote_note) ?>
                         </div>
                     </div>
                 </div>
@@ -446,23 +444,23 @@ if (isset($_GET['quote_id'])) {
                         <tbody>
                             <tr>
                                 <td>Subtotal:</td>
-                                <td class="text-right"><?php echo numfmt_format_currency($currency_format, $sub_total, $quote_currency_code); ?></td>
+                                <td class="text-right"><?= numfmt_format_currency($currency_format, $sub_total, $quote_currency_code) ?></td>
                             </tr>
                             <?php if ($quote_discount > 0) { ?>
                                 <tr>
                                     <td>Discount:</td>
-                                    <td class="text-right">-<?php echo numfmt_format_currency($currency_format, $quote_discount, $quote_currency_code); ?></td>
+                                    <td class="text-right">-<?= numfmt_format_currency($currency_format, $quote_discount, $quote_currency_code) ?></td>
                                 </tr>
                             <?php } ?>
                             <?php if ($total_tax > 0) { ?>
                                 <tr>
                                     <td>Tax:</td>
-                                    <td class="text-right"><?php echo numfmt_format_currency($currency_format, $total_tax, $quote_currency_code); ?></td>
+                                    <td class="text-right"><?= numfmt_format_currency($currency_format, $total_tax, $quote_currency_code) ?></td>
                                 </tr>
                             <?php } ?>
                             <tr class="h5 text-bold">
                                 <td>Total:</td>
-                                <td class="text-right"><?php echo numfmt_format_currency($currency_format, $quote_amount, $quote_currency_code); ?></td>
+                                <td class="text-right"><?= numfmt_format_currency($currency_format, $quote_amount, $quote_currency_code) ?></td>
                             </tr>
                         </tbody>
                     </table>
@@ -472,7 +470,7 @@ if (isset($_GET['quote_id'])) {
 
             <hr class="d-none d-print-block mt-5">
 
-            <div class="d-none d-print-block text-center"><?php echo nl2br(nullable_htmlentities($config_quote_footer)); ?></div>
+            <div class="d-none d-print-block text-center"><?= nl2br(escapeHtml($config_quote_footer)) ?></div>
         </div>
     </div>
 
@@ -503,14 +501,14 @@ if (isset($_GET['quote_id'])) {
                         <?php
 
                         while ($quote_file = mysqli_fetch_assoc($sql_quote_files)) {
-                            $name = nullable_htmlentities($quote_file['file_name']);
-                            $ref_name = nullable_htmlentities($quote_file['file_reference_name']);
-                            $created = nullable_htmlentities($quote_file['file_created_at']);
+                            $name = escapeHtml($quote_file['file_name']);
+                            $ref_name = escapeHtml($quote_file['file_reference_name']);
+                            $created = escapeHtml($quote_file['file_created_at']);
 
                             ?>
                             <tr>
-                                <td><a target="_blank" href="../uploads/clients/<?php echo $client_id ?>/<?php echo $ref_name ?>"><?php echo $name; ?></a></td>
-                                <td><?php echo $created; ?></td>
+                                <td><a target="_blank" href="../uploads/clients/<?= $client_id ?>/<?= $ref_name ?>"><?= $name ?></a></td>
+                                <td><?= $created ?></td>
                             </tr>
                             <?php
                         }
@@ -551,15 +549,15 @@ if (isset($_GET['quote_id'])) {
                             <?php
 
                             while ($row = mysqli_fetch_assoc($sql_history)) {
-                                $history_created_at = nullable_htmlentities($row['history_created_at']);
-                                $history_status = nullable_htmlentities($row['history_status']);
-                                $history_description = nullable_htmlentities($row['history_description']);
+                                $history_created_at = escapeHtml($row['history_created_at']);
+                                $history_status = escapeHtml($row['history_status']);
+                                $history_description = escapeHtml($row['history_description']);
 
                             ?>
                                 <tr>
-                                    <td><?php echo $history_created_at; ?></td>
-                                    <td><?php echo $history_status; ?></td>
-                                    <td><?php echo $history_description; ?></td>
+                                    <td><?= $history_created_at ?></td>
+                                    <td><?= $history_status ?></td>
+                                    <td><?= $history_description ?></td>
                                 </tr>
                             <?php
                             }
@@ -582,11 +580,11 @@ require_once "../includes/footer.php";
 
 <!-- JSON Autocomplete / type ahead -->
 <!-- //TODO: Move to js/ -->
-<link rel="stylesheet" href="../plugins/jquery-ui/jquery-ui.min.css">
-<script src="../plugins/jquery-ui/jquery-ui.min.js"></script>
+<link rel="stylesheet" href="../libs/jquery-ui/jquery-ui.min.css">
+<script src="../libs/jquery-ui/jquery-ui.min.js"></script>
 <script>
     $(function() {
-        var availableProducts = <?php echo $json_products ?? '""' ?>;
+        var availableProducts = <?= $json_products ?? '[]' ?>;
 
         $("#name").autocomplete({
             source: availableProducts,
@@ -595,14 +593,14 @@ require_once "../includes/footer.php";
                 $("#desc").val(ui.item.description); // Product description field
                 $("#qty").val(1); // Product quantity field automatically make it a 1
                 $("#price").val(ui.item.price); // Product price field
-                $("#tax").val(ui.item.tax); // Tax field
+                $("#tax").val(ui.item.tax).trigger('change'); // Tax field - trigger repaints select2
                 return false;
             }
         });
     });
 </script>
 
-<script src="../plugins/SortableJS/Sortable.min.js"></script>
+<script src="../libs/SortableJS/Sortable.min.js"></script>
 <script>
 new Sortable(document.querySelector('table#items tbody'), {
     handle: '.drag-handle',

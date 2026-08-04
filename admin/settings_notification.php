@@ -10,14 +10,8 @@ require_once "includes/inc_all_admin.php";
         </div>
         <div class="card-body">
             <form action="post.php" method="post" autocomplete="off">
-                <input type="hidden" name="csrf_token" value="<?php echo $_SESSION['csrf_token'] ?>">
+                <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
 
-                <div class="form-group">
-                    <div class="custom-control custom-switch">
-                        <input type="checkbox" class="custom-control-input" name="config_enable_cron" <?php if ($config_enable_cron == 1) { echo "checked"; } ?> value="1" id="enableCronSwitch">
-                        <label class="custom-control-label" for="enableCronSwitch">Enable Cron (recommended) <small>(several cron scripts must also be added to cron with correct schedules, <a href="https://docs.itflow.org/cron">docs</a>)</small></label>
-                    </div>
-                </div>
                 <div class="table-responsive">
                     <table class="table table-bordered">
                         <thead class="thead-dark">
@@ -45,32 +39,6 @@ require_once "includes/inc_all_admin.php";
                                       <input type="checkbox" class="custom-control-input" name="config_enable_alert_domain_expire" id="customCheck1" <?php if ($config_enable_alert_domain_expire == 1) { echo "checked"; } ?> value="1">
                                       <label class="custom-control-label" for="customCheck1"></label>      
                                     </div>
-                                </td>
-                                <td></td>
-                                <td></td>
-                                <td></td>
-                            </tr>
-                            <tr>
-                                <th>
-                                    <div><i class="fas fa-fw fa-lock mr-2"></i>Certificate Expiration Notice</div>
-                                    <small class="text-muted">
-                                        (This setting triggers a notification when a certificate is approaching its expiration date, specifically at 1, 7 and 45 days prior to expiry.)
-                                    </small>
-                                </th>
-                                <td>
-                                </td>
-                                <td></td>
-                                <td></td>
-                                <td></td>
-                            </tr>
-                            <tr>
-                                <th>
-                                    <div><i class="fas fa-fw fa-desktop mr-2"></i>Asset Warranty Expiration Notice</div>
-                                    <small class="text-muted">
-                                        (This setting triggers a notification when an asset is approaching its expiration date, specifically at 1, 7 and 45 days prior to expiry.)
-                                    </small>
-                                </th>
-                                <td>
                                 </td>
                                 <td></td>
                                 <td></td>
@@ -132,39 +100,6 @@ require_once "includes/inc_all_admin.php";
                                         <input type="checkbox" class="custom-control-input" name="config_ticket_client_general_notifications" <?php if($config_ticket_client_general_notifications == 1){ echo "checked"; } ?> value="1" id="ticketNotificationSwitch">
                                         <label class="custom-control-label" for="ticketNotificationSwitch"></label>
                                     </div>
-                                </td>
-                                <td></td>
-                            </tr>
-                            <tr>
-                                <th>
-                                    <div><i class="fas fa-fw fa-link mr-2"></i>Shared Item View</div>
-                                    <small class="text-secondary">(Notify when Shared items are viewed)</small>
-                                </th>
-                                <td></td>
-                                <td></td>
-                                <td>
-                                </td>
-                                <td></td>
-                            </tr>
-                            <tr>
-                                <th>
-                                    <div><i class="fas fa-fw fa-clock mr-2"></i>Cron Execution</div>
-                                    <small class="text-secondary">(Notify when the nightly cron job ran)</small>
-                                </th>
-                                <td></td>
-                                <td></td>
-                                <td>
-                                </td>
-                                <td></td>
-                            </tr>
-                            <tr>
-                                <th>
-                                    <div><i class="fas fa-fw fa-download mr-2"></i>ITFlow Updates</div>
-                                    <small class="text-secondary">(Notify when ITFlow has an update)</small>
-                                </th>
-                                <td></td>
-                                <td></td>
-                                <td>
                                 </td>
                                 <td></td>
                             </tr>

@@ -3,7 +3,7 @@
 require_once "includes/inc_all_guest.php";
 
 //Initialize the HTML Purifier to prevent XSS
-require "../plugins/htmlpurifier/HTMLPurifier.standalone.php";
+require "../libs/htmlpurifier/HTMLPurifier.standalone.php";
 
 $purifier_config = HTMLPurifier_Config::createDefault();
 $purifier_config->set('Cache.DefinitionImpl', null); // Disable cache by setting a non-existent directory or an invalid one
@@ -30,11 +30,11 @@ $company_sql_row = mysqli_fetch_assoc(mysqli_query($mysqli, "
         AND companies.company_id = 1"
 ));
 
-$company_phone_country_code = nullable_htmlentities($company_sql_row['company_phone_country_code']);
-$company_phone = nullable_htmlentities(formatPhoneNumber($company_sql_row['company_phone'], $company_phone_country_code));
-$company_website = nullable_htmlentities($company_sql_row['company_website']);
+$company_phone_country_code = escapeHtml($company_sql_row['company_phone_country_code']);
+$company_phone = escapeHtml(formatPhoneNumber($company_sql_row['company_phone'], $company_phone_country_code));
+$company_website = escapeHtml($company_sql_row['company_website']);
 
-$url_key = sanitizeInput($_GET['url_key']);
+$url_key = escapeSql($_GET['url_key']);
 $ticket_id = intval($_GET['ticket_id']);
 
 $ticket_sql = mysqli_query($mysqli,
@@ -56,39 +56,39 @@ $ticket_row = mysqli_fetch_assoc($ticket_sql);
 
 if ($ticket_row) {
 
-    $ticket_prefix = nullable_htmlentities($ticket_row['ticket_prefix']);
+    $ticket_prefix = escapeHtml($ticket_row['ticket_prefix']);
     $ticket_number = intval($ticket_row['ticket_number']);
-    $ticket_status = nullable_htmlentities($ticket_row['ticket_status_name']);
-    $ticket_priority = nullable_htmlentities($ticket_row['ticket_priority']);
-    $ticket_subject = nullable_htmlentities($ticket_row['ticket_subject']);
+    $ticket_status = escapeHtml($ticket_row['ticket_status_name']);
+    $ticket_priority = escapeHtml($ticket_row['ticket_priority']);
+    $ticket_subject = escapeHtml($ticket_row['ticket_subject']);
     $ticket_details = $purifier->purify($ticket_row['ticket_details']);
-    $ticket_assigned_to = nullable_htmlentities($ticket_row['user_name']);
-    $ticket_resolved_at = nullable_htmlentities($ticket_row['ticket_resolved_at']);
-    $ticket_closed_at = nullable_htmlentities($ticket_row['ticket_closed_at']);
-    $ticket_feedback = nullable_htmlentities($ticket_row['ticket_feedback']);
+    $ticket_assigned_to = escapeHtml($ticket_row['user_name']);
+    $ticket_resolved_at = escapeHtml($ticket_row['ticket_resolved_at']);
+    $ticket_closed_at = escapeHtml($ticket_row['ticket_closed_at']);
+    $ticket_feedback = escapeHtml($ticket_row['ticket_feedback']);
 
     ?>
 
     <div class="card mt-3">
         <div class="card-header bg-dark text-center">
             <h4 class="mt-1">
-                Ticket <?php echo $ticket_prefix, $ticket_number ?>
+                Ticket <?= $ticket_prefix, $ticket_number ?>
             </h4>
         </div>
 
         <div class="card-body prettyContent">
-            <h5><strong>Subject:</strong> <?php echo $ticket_subject ?></h5>
+            <h5><strong>Subject:</strong> <?= $ticket_subject ?></h5>
             <hr>
             <p>
-                <strong>State:</strong> <?php echo $ticket_status ?>
+                <strong>State:</strong> <?= $ticket_status ?>
                 <br>
-                <strong>Priority:</strong> <?php echo $ticket_priority ?>
+                <strong>Priority:</strong> <?= $ticket_priority ?>
                 <br>
                 <?php if (!empty($ticket_assigned_to) && empty($ticket_closed_at)) { ?>
-                    <strong>Assigned to: </strong> <?php echo $ticket_assigned_to ?>
+                    <strong>Assigned to: </strong> <?= $ticket_assigned_to ?>
                 <?php } ?>
             </p>
-            <?php echo $ticket_details ?>
+            <?= $ticket_details ?>
         </div>
     </div>
 
@@ -108,11 +108,11 @@ if ($ticket_row) {
         <div class="col-4">
             <div class="row">
                 <div class="col">
-                    <a href="guest_post.php?reopen_ticket&ticket_id=<?php echo $ticket_id; ?>&url_key=<?php echo $url_key ?>" class="btn btn-secondary btn-lg"><i class="fas fa-fw fa-redo text-white"></i> Reopen ticket</a>
+                    <a href="guest_post.php?reopen_ticket&ticket_id=<?= $ticket_id ?>&url_key=<?= $url_key ?>" class="btn btn-secondary btn-lg"><i class="fas fa-fw fa-redo text-white"></i> Reopen ticket</a>
                 </div>
 
                 <div class="col">
-                    <a href="guest_post.php?close_ticket=&ticket_id=<?php echo $ticket_id; ?>&url_key=<?php echo $url_key ?>" class="btn btn-success btn-lg"><i class="fas fa-fw fa-gavel text-white"></i> Close ticket</a>
+                    <a href="guest_post.php?close_ticket=&ticket_id=<?= $ticket_id ?>&url_key=<?= $url_key ?>" class="btn btn-success btn-lg"><i class="fas fa-fw fa-gavel text-white"></i> Close ticket</a>
                 </div>
             </div>
         </div>
@@ -125,11 +125,11 @@ if ($ticket_row) {
         <div class="col-4">
             <div class="row">
                 <div class="col">
-                    <a href="guest_post.php?add_ticket_feedback&ticket_id=<?php echo $ticket_id; ?>&url_key=<?php echo $url_key ?>&feedback=Good" class="btn btn-success btn-lg"><i class="fas fa-fw fa-smile text-white"></i> Good</a>
+                    <a href="guest_post.php?add_ticket_feedback&ticket_id=<?= $ticket_id ?>&url_key=<?= $url_key ?>&feedback=Good" class="btn btn-success btn-lg"><i class="fas fa-fw fa-smile text-white"></i> Good</a>
                 </div>
 
                 <div class="col">
-                    <a href="guest_post.php?add_ticket_feedback&ticket_id=<?php echo $ticket_id; ?>&url_key=<?php echo $url_key ?>&feedback=Bad" class="btn btn-danger btn-lg"><i class="fas fa-fw fa-frown text-white"></i> Bad</a>
+                    <a href="guest_post.php?add_ticket_feedback&ticket_id=<?= $ticket_id ?>&url_key=<?= $url_key ?>&feedback=Bad" class="btn btn-danger btn-lg"><i class="fas fa-fw fa-frown text-white"></i> Bad</a>
                 </div>
             </div>
         </div>
@@ -137,7 +137,7 @@ if ($ticket_row) {
 
     <?php } else { ?>
 
-        <h4>Rated <?php echo $ticket_feedback ?> -- Thanks for your feedback!</h4>
+        <h4>Rated <?= $ticket_feedback ?> -- Thanks for your feedback!</h4>
 
     <?php } ?>
 
@@ -152,18 +152,18 @@ if ($ticket_row) {
     while ($row = mysqli_fetch_assoc($sql)) {
         $ticket_reply_id = intval($row['ticket_reply_id']);
         $ticket_reply = $purifier->purify($row['ticket_reply']);
-        $ticket_reply_created_at = nullable_htmlentities($row['ticket_reply_created_at']);
-        $ticket_reply_updated_at = nullable_htmlentities($row['ticket_reply_updated_at']);
+        $ticket_reply_created_at = escapeHtml($row['ticket_reply_created_at']);
+        $ticket_reply_updated_at = escapeHtml($row['ticket_reply_updated_at']);
         $ticket_reply_by = intval($row['ticket_reply_by']);
         $ticket_reply_type = $row['ticket_reply_type'];
 
         if ($ticket_reply_type == "Client") {
-            $ticket_reply_by_display = nullable_htmlentities($row['contact_name']);
+            $ticket_reply_by_display = escapeHtml($row['contact_name']);
             $user_initials = initials($row['contact_name']);
             $user_avatar = $row['contact_photo'];
             $avatar_link = "../uploads/clients/$ticket_reply_by/$user_avatar";
         } else {
-            $ticket_reply_by_display = nullable_htmlentities($row['user_name']);
+            $ticket_reply_by_display = escapeHtml($row['user_name']);
             $user_id = intval($row['user_id']);
             $user_avatar = $row['user_avatar'];
             $user_initials = initials($row['user_name']);
@@ -178,29 +178,29 @@ if ($ticket_row) {
                         <?php
                         if (!empty($user_avatar)) {
                             ?>
-                            <img src="<?php echo $avatar_link ?>" alt="User Avatar" class="img-size-50 mr-3 img-circle">
+                            <img src="<?= $avatar_link ?>" alt="User Avatar" class="img-size-50 mr-3 img-circle">
                             <?php
                         } else {
                             ?>
                             <span class="fa-stack fa-2x">
                                     <i class="fa fa-circle fa-stack-2x text-secondary"></i>
-                                    <span class="fa fa-stack-1x text-white"><?php echo $user_initials; ?></span>
+                                    <span class="fa fa-stack-1x text-white"><?= $user_initials ?></span>
                                 </span>
                             <?php
                         }
                         ?>
 
                         <div class="media-body">
-                            <?php echo $ticket_reply_by_display; ?>
+                            <?= $ticket_reply_by_display ?>
                             <br>
-                            <small class="text-muted"><?php echo $ticket_reply_created_at; ?> <?php if (!empty($ticket_reply_updated_at)) { echo "(edited: $ticket_reply_updated_at)"; } ?></small>
+                            <small class="text-muted"><?= $ticket_reply_created_at ?> <?php if (!empty($ticket_reply_updated_at)) { echo "(edited: $ticket_reply_updated_at)"; } ?></small>
                         </div>
                     </div>
                 </h3>
             </div>
 
             <div class="card-body prettyContent">
-                <?php echo $ticket_reply; ?>
+                <?= $ticket_reply ?>
             </div>
         </div>
 
@@ -217,7 +217,7 @@ if ($ticket_row) {
     } ?>
 
 <div class="card-footer">
-    <?php echo "<i class='fas fa-phone fa-fw mr-2'></i>$company_phone | <i class='fas fa-globe fa-fw mr-2 ml-2'></i>$company_website"; ?>
+    <?= "<i class='fas fa-phone fa-fw mr-2'></i>$company_phone | <i class='fas fa-globe fa-fw mr-2 ml-2'></i>$company_website" ?>
 </div>
 
 <?php

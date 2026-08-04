@@ -1,6 +1,6 @@
 <?php
 
-require_once '../../../includes/modal_header.php';
+require_once '../../includes/modal_header.php';
 
 ob_start();
 
@@ -13,7 +13,7 @@ ob_start();
     </button>
 </div>
 <form action="post.php" method="post" autocomplete="off">
-    <input type="hidden" name="csrf_token" value="<?php echo $_SESSION['csrf_token'] ?>">
+    <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
 
     <div class="modal-body">
 
@@ -28,7 +28,7 @@ ob_start();
         </div>
 
         <div class="form-group">
-            <textarea class="form-control" rows="3" name="description" placeholder="Enter a description..."></textarea>
+            <textarea class="form-control" rows="3" name="description" placeholder="Enter a description..." maxlength="250"></textarea>
         </div>
 
     </div>

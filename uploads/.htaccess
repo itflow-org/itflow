@@ -1,4 +1,4 @@
-Options -ExecCGI
+Options -ExecCGI -Indexes
 php_flag engine off
 RemoveHandler .php .phtml .phar .phps
 RemoveType .php .phtml .phar .phps

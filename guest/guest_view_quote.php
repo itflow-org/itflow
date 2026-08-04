@@ -11,7 +11,7 @@ if (!isset($_GET['quote_id'], $_GET['url_key'])) {
 }
 
 
-$url_key = sanitizeInput($_GET['url_key']);
+$url_key = escapeSql($_GET['url_key']);
 $quote_id = intval($_GET['quote_id']);
 
 $sql = mysqli_query(
@@ -35,50 +35,50 @@ if (mysqli_num_rows($sql) !== 1) {
 $row = mysqli_fetch_assoc($sql);
 
 $quote_id = intval($row['quote_id']);
-$quote_prefix = nullable_htmlentities($row['quote_prefix']);
+$quote_prefix = escapeHtml($row['quote_prefix']);
 $quote_number = intval($row['quote_number']);
-$quote_status = nullable_htmlentities($row['quote_status']);
-$quote_date = nullable_htmlentities($row['quote_date']);
-$quote_expire = nullable_htmlentities($row['quote_expire']);
+$quote_status = escapeHtml($row['quote_status']);
+$quote_date = escapeHtml($row['quote_date']);
+$quote_expire = escapeHtml($row['quote_expire']);
 $quote_discount = floatval($row['quote_discount_amount']);
 $quote_amount = floatval($row['quote_amount']);
-$quote_currency_code = nullable_htmlentities($row['quote_currency_code']);
-$quote_note = nullable_htmlentities($row['quote_note']);
+$quote_currency_code = escapeHtml($row['quote_currency_code']);
+$quote_note = escapeHtml($row['quote_note']);
 $client_id = intval($row['client_id']);
-$client_name = nullable_htmlentities($row['client_name']);
-$client_name_escaped = sanitizeInput($row['client_name']);
-$location_address = nullable_htmlentities($row['location_address']);
-$location_city = nullable_htmlentities($row['location_city']);
-$location_state = nullable_htmlentities($row['location_state']);
-$location_zip = nullable_htmlentities($row['location_zip']);
-$location_country = nullable_htmlentities($row['location_country']);
-$contact_email = nullable_htmlentities($row['contact_email']);
-$contact_phone_country_code = nullable_htmlentities($row['contact_phone_country_code']);
-$contact_phone = nullable_htmlentities(formatPhoneNumber($row['contact_phone'], $contact_phone_country_code));
-$contact_extension = nullable_htmlentities($row['contact_extension']);
-$contact_mobile_country_code = nullable_htmlentities($row['contact_mobile_country_code']);
-$contact_mobile = nullable_htmlentities(formatPhoneNumber($row['contact_mobile'], $contact_mobile_country_code));
-$client_website = nullable_htmlentities($row['client_website']);
-$client_currency_code = nullable_htmlentities($row['client_currency_code']);
+$client_name = escapeHtml($row['client_name']);
+$client_name_escaped = escapeSql($row['client_name']);
+$location_address = escapeHtml($row['location_address']);
+$location_city = escapeHtml($row['location_city']);
+$location_state = escapeHtml($row['location_state']);
+$location_zip = escapeHtml($row['location_zip']);
+$location_country = escapeHtml($row['location_country']);
+$contact_email = escapeHtml($row['contact_email']);
+$contact_phone_country_code = escapeHtml($row['contact_phone_country_code']);
+$contact_phone = escapeHtml(formatPhoneNumber($row['contact_phone'], $contact_phone_country_code));
+$contact_extension = escapeHtml($row['contact_extension']);
+$contact_mobile_country_code = escapeHtml($row['contact_mobile_country_code']);
+$contact_mobile = escapeHtml(formatPhoneNumber($row['contact_mobile'], $contact_mobile_country_code));
+$client_website = escapeHtml($row['client_website']);
+$client_currency_code = escapeHtml($row['client_currency_code']);
 
 $sql = mysqli_query($mysqli, "SELECT * FROM companies, settings WHERE companies.company_id = settings.company_id AND companies.company_id = 1");
 $row = mysqli_fetch_assoc($sql);
-$company_name = nullable_htmlentities($row['company_name']);
-$company_address = nullable_htmlentities($row['company_address']);
-$company_city = nullable_htmlentities($row['company_city']);
-$company_state = nullable_htmlentities($row['company_state']);
-$company_zip = nullable_htmlentities($row['company_zip']);
-$company_country = nullable_htmlentities($row['company_country']);
-$company_phone_country_code = nullable_htmlentities($row['company_phone_country_code']);
-$company_phone = nullable_htmlentities(formatPhoneNumber($row['company_phone'], $company_phone_country_code));
-$company_email = nullable_htmlentities($row['company_email']);
-$company_website = nullable_htmlentities($row['company_website']);
-$company_logo = nullable_htmlentities($row['company_logo']);
+$company_name = escapeHtml($row['company_name']);
+$company_address = escapeHtml($row['company_address']);
+$company_city = escapeHtml($row['company_city']);
+$company_state = escapeHtml($row['company_state']);
+$company_zip = escapeHtml($row['company_zip']);
+$company_country = escapeHtml($row['company_country']);
+$company_phone_country_code = escapeHtml($row['company_phone_country_code']);
+$company_phone = escapeHtml(formatPhoneNumber($row['company_phone'], $company_phone_country_code));
+$company_email = escapeHtml($row['company_email']);
+$company_website = escapeHtml($row['company_website']);
+$company_logo = escapeHtml($row['company_logo']);
 if (!empty($company_logo)) {
     $company_logo_base64 = base64_encode(file_get_contents("../uploads/settings/$company_logo"));
 }
-$company_locale = nullable_htmlentities($row['company_locale']);
-$config_quote_footer = nullable_htmlentities($row['config_quote_footer']);
+$company_locale = escapeHtml($row['company_locale']);
+$config_quote_footer = escapeHtml($row['config_quote_footer']);
 
 //Set Currency Format
 $currency_format = numfmt_create($company_locale, NumberFormatter::CURRENCY);
@@ -119,7 +119,7 @@ if ($quote_status == "Draft" || $quote_status == "Sent" || $quote_status == "Vie
 
         <div class="float-right">
             <a class="btn btn-primary" href="#" onclick="window.print();"><i class="fas fa-fw fa-print mr-2"></i>Print</a>
-            <a class="btn btn-primary" href="guest_post.php?export_quote_pdf=<?php echo $quote_id; ?>&url_key=<?php echo $url_key; ?>">
+            <a class="btn btn-primary" href="guest_post.php?export_quote_pdf=<?= $quote_id ?>&url_key=<?= $url_key ?>">
                 <i class="fa fa-fw fa-download mr-2"></i>Download
             </a>
         </div>
@@ -129,36 +129,35 @@ if ($quote_status == "Draft" || $quote_status == "Sent" || $quote_status == "Vie
         <div class="row mb-3">
             <?php if (file_exists("../uploads/settings/$company_logo")) { ?>
             <div class="col-sm-2">
-                <img class="img-fluid" src="<?php echo "/uploads/settings/$company_logo"; ?>" alt="Company logo">
+                <img class="img-fluid" src="<?= "/uploads/settings/$company_logo" ?>" alt="Company logo">
             </div>
             <?php } ?>
             <div class="col-sm-6 <?php if (!file_exists("../uploads/settings/$company_logo")) { echo "col-sm-8"; } ?>">
                 <ul class="list-unstyled">
-                    <li><h4><strong><?php echo $company_name; ?></strong></h4></li>
-                    <li><?php echo $company_address; ?></li>
-                    <li><?php echo "$company_city $company_state $company_zip, $company_country"; ?></li>
-                    <li><?php echo "$company_email | $company_phone"; ?></li>
-                    <li><?php echo $company_website; ?></li>
+                    <li><h4><strong><?= $company_name ?></strong></h4></li>
+                    <li><?= formatAddress($company_address, $company_city, $company_state, $company_zip, $company_country, '<br>') ?></li>
+                    <li><?= "$company_email | $company_phone" ?></li>
+                    <li><?= $company_website ?></li>
                 </ul>
             </div>
 
             <div class="col-sm-4">
                 <h3 class="text-right"><strong>QUOTE</strong></h3>
-                <h5 class="badge badge-<?php echo $quote_badge_color; ?> p-2 float-right">
-                    <?php echo "$quote_status"; ?>
+                <h5 class="badge badge-<?= $quote_badge_color ?> p-2 float-right">
+                    <?= "$quote_status" ?>
                 </h5>
                 <table class="table table-sm table-borderless">
                     <tr>
                         <th>Quote #:</th>
-                        <td class="text-right"><?php echo "$quote_prefix$quote_number"; ?></td>
+                        <td class="text-right"><?= "$quote_prefix$quote_number" ?></td>
                     </tr>
                     <tr>
                         <th>Date:</th>
-                        <td class="text-right"><?php echo $quote_date; ?></td>
+                        <td class="text-right"><?= $quote_date ?></td>
                     </tr>
                     <tr>
                         <th>Expires:</th>
-                        <td class="text-right"><?php echo $quote_expire; ?></td>
+                        <td class="text-right"><?= $quote_expire ?></td>
                     </tr>
                 </table>
             </div>
@@ -168,10 +167,9 @@ if ($quote_status == "Draft" || $quote_status == "Sent" || $quote_status == "Vie
             <div class="col">
                 <h6><strong>To:</strong></h6>
                 <ul class="list-unstyled mb-0">
-                    <li><?php echo $client_name; ?></li>
-                    <li><?php echo $location_address; ?></li>
-                    <li><?php echo "$location_city $location_state $location_zip, $location_country"; ?></li>
-                    <li><?php echo "$contact_email | $contact_phone $contact_extension"; ?></li>
+                    <li><?= $client_name ?></li>
+                    <li><?= formatAddress($location_address, $location_city, $location_state, $location_zip, $location_country, '<br>') ?></li>
+                    <li><?= "$contact_email | $contact_phone $contact_extension" ?></li>
                 </ul>
             </div>
         </div>
@@ -200,8 +198,8 @@ if ($quote_status == "Draft" || $quote_status == "Sent" || $quote_status == "Vie
 
                             while ($row = mysqli_fetch_assoc($sql_items)) {
                                 $item_id = intval($row['item_id']);
-                                $item_name = nullable_htmlentities($row['item_name']);
-                                $item_description = nullable_htmlentities($row['item_description']);
+                                $item_name = escapeHtml($row['item_name']);
+                                $item_description = escapeHtml($row['item_description']);
                                 $item_quantity = floatval($row['item_quantity']);
                                 $item_price = floatval($row['item_price']);
                                 $item_tax = floatval($row['item_tax']);
@@ -212,12 +210,12 @@ if ($quote_status == "Draft" || $quote_status == "Sent" || $quote_status == "Vie
                                 ?>
 
                                 <tr>
-                                    <td><?php echo $item_name; ?></td>
-                                    <td><?php echo nl2br($item_description); ?></td>
-                                    <td class="text-center"><?php echo $item_quantity; ?></td>
-                                    <td class="text-right"><?php echo numfmt_format_currency($currency_format, $item_price, $quote_currency_code); ?></td>
-                                    <td class="text-right"><?php echo numfmt_format_currency($currency_format, $item_tax, $quote_currency_code); ?></td>
-                                    <td class="text-right"><?php echo numfmt_format_currency($currency_format, $item_total, $quote_currency_code); ?></td>
+                                    <td><?= $item_name ?></td>
+                                    <td><?= nl2br($item_description) ?></td>
+                                    <td class="text-center"><?= $item_quantity ?></td>
+                                    <td class="text-right"><?= numfmt_format_currency($currency_format, $item_price, $quote_currency_code) ?></td>
+                                    <td class="text-right"><?= numfmt_format_currency($currency_format, $item_tax, $quote_currency_code) ?></td>
+                                    <td class="text-right"><?= numfmt_format_currency($currency_format, $item_total, $quote_currency_code) ?></td>
                                 </tr>
 
                                 <?php
@@ -238,7 +236,7 @@ if ($quote_status == "Draft" || $quote_status == "Sent" || $quote_status == "Vie
                 <?php if (!empty($quote_note)) { ?>
                     <div class="card">
                         <div class="card-body">
-                            <?php echo nl2br($quote_note); ?>
+                            <?= nl2br($quote_note) ?>
                         </div>
                     </div>
                 <?php } ?>
@@ -249,23 +247,23 @@ if ($quote_status == "Draft" || $quote_status == "Sent" || $quote_status == "Vie
                     <tbody>
                     <tr>
                         <td>Subtotal:</td>
-                        <td class="text-right"><?php echo numfmt_format_currency($currency_format, $sub_total, $quote_currency_code); ?></td>
+                        <td class="text-right"><?= numfmt_format_currency($currency_format, $sub_total, $quote_currency_code) ?></td>
                     </tr>
                     <?php if ($quote_discount > 0) { ?>
                         <tr>
                             <td>Discount:</td>
-                            <td class="text-right"><?php echo numfmt_format_currency($currency_format, -$quote_discount, $quote_currency_code); ?></td>
+                            <td class="text-right"><?= numfmt_format_currency($currency_format, -$quote_discount, $quote_currency_code) ?></td>
                         </tr>
                     <?php } ?>
                     <?php if ($total_tax > 0) { ?>
                         <tr>
                             <td>Tax:</td>
-                            <td class="text-right"><?php echo numfmt_format_currency($currency_format, $total_tax, $quote_currency_code); ?></td>
+                            <td class="text-right"><?= numfmt_format_currency($currency_format, $total_tax, $quote_currency_code) ?></td>
                         </tr>
                     <?php } ?>
                     <tr class="border-top h5 text-bold">
                         <td><strong>Total:</strong></td>
-                        <td class="text-right"><strong><?php echo numfmt_format_currency($currency_format, $quote_amount, $quote_currency_code); ?></strong></td>
+                        <td class="text-right"><strong><?= numfmt_format_currency($currency_format, $quote_amount, $quote_currency_code) ?></strong></td>
                     </tr>
                     </tbody>
                 </table>
@@ -274,14 +272,14 @@ if ($quote_status == "Draft" || $quote_status == "Sent" || $quote_status == "Vie
 
         <hr class="mt-5">
 
-        <div class="text-center"><?php echo nl2br($config_quote_footer); ?></div>
+        <div class="text-center"><?= nl2br($config_quote_footer) ?></div>
         <div class="">
             <?php
                 if ($quote_status == "Sent" || $quote_status == "Viewed" && strtotime($quote_expire) > strtotime("now")) { ?>
-                    <a class="btn btn-success confirm-link" href="guest_post.php?accept_quote=<?php echo $quote_id; ?>&url_key=<?php echo $url_key; ?>">
+                    <a class="btn btn-success confirm-link" href="guest_post.php?accept_quote=<?= $quote_id ?>&url_key=<?= $url_key ?>">
                         <i class="fas fa-fw fa-thumbs-up mr-2"></i>Accept
                     </a>
-                    <a class="btn btn-danger confirm-link" href="guest_post.php?decline_quote=<?php echo $quote_id; ?>&url_key=<?php echo $url_key; ?>">
+                    <a class="btn btn-danger confirm-link" href="guest_post.php?decline_quote=<?= $quote_id ?>&url_key=<?= $url_key ?>">
                         <i class="fas fa-fw fa-thumbs-down mr-2"></i>Decline
                     </a>
                 <?php } ?>

@@ -1,6 +1,6 @@
 <?php
 
-require_once '../../../includes/modal_header.php';
+require_once '../../includes/modal_header.php';
 
 ob_start();
 
@@ -12,14 +12,9 @@ ob_start();
     </button>
 </div>
 <form action="post.php" method="post" autocomplete="off">
-    <input type="hidden" name="csrf_token" value="<?php echo $_SESSION['csrf_token'] ?>">
+    <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
 
     <div class="modal-body">
-
-        <div class="alert alert-info text-center">
-            <h6>Before Adding a Payment Provider!</h6>
-            We recommend you add an <strong>Account</strong> and <strong>Vendor</strong> based off the Provider name before continuing eg <strong>Stripe</strong>
-        </div>
 
         <ul class="nav nav-pills nav-justified mb-3">
             <li class="nav-item">
@@ -54,7 +49,7 @@ ob_start();
                         <div class="input-group-prepend">
                             <span class="input-group-text"><i class="fa fa-fw fa-eye"></i></span>
                         </div>
-                        <input type="text" class="form-control" name="public_key" placeholder="Publishable API Key (pk_...)">
+                        <input type="text" class="form-control" name="public_key" placeholder="Publishable API Key (pk_...)" maxlength="250">
                     </div>
                 </div>
 
@@ -64,7 +59,7 @@ ob_start();
                         <div class="input-group-prepend">
                             <span class="input-group-text"><i class="fa fa-fw fa-key"></i></span>
                         </div>
-                        <input type="text" class="form-control" name="private_key" placeholder="Secret API Key (sk_...)">
+                        <input type="text" class="form-control" name="private_key" placeholder="Secret API Key (sk_...)" maxlength="250">
                     </div>
                 </div>
 
@@ -81,7 +76,7 @@ ob_start();
                             $sql = mysqli_query($mysqli, "SELECT account_id, account_name FROM accounts WHERE account_archived_at IS NULL ORDER BY account_name ASC");
                             while ($row = mysqli_fetch_assoc($sql)) {
                                 $account_id = intval($row['account_id']);
-                                $account_name = nullable_htmlentities($row['account_name']);
+                                $account_name = escapeHtml($row['account_name']);
                                 ?>
                                 <option <?php if ($account_name === 'Stripe') { echo "selected"; } ?> value="<?= $account_id ?>"><?= $account_name ?></option>
 
@@ -90,6 +85,7 @@ ob_start();
                             ?>
                         </select>
                     </div>
+                    <small class="form-text text-muted">Should have a seperate account created off the payment provider's name e.g. Stripe</small>
                 </div>
 
                 <div class="form-group">
@@ -106,6 +102,10 @@ ob_start();
             </div>
 
             <div class="tab-pane fade" id="pills-expense">
+
+                <div class="alert alert-info text-center">
+                    Payment Processing Fee Expenses get reconciled nighly via the cron
+                </div>
 
                 <div class="form-group">
                     <div class="custom-control custom-switch">
@@ -127,7 +127,7 @@ ob_start();
                             $sql = mysqli_query($mysqli, "SELECT vendor_id, vendor_name FROM vendors WHERE vendor_client_id = 0 AND vendor_archived_at IS NULL ORDER BY vendor_name ASC");
                             while ($row = mysqli_fetch_assoc($sql)) {
                                 $vendor_id = intval($row['vendor_id']);
-                                $vendor_name = nullable_htmlentities($row['vendor_name']);
+                                $vendor_name = escapeHtml($row['vendor_name']);
                                 ?>
                                 <option <?php if ($vendor_name === 'Stripe') { echo "selected"; } ?> value="<?= $vendor_id ?>"><?= $vendor_name ?></option>
 
@@ -136,6 +136,7 @@ ob_start();
                             ?>
                         </select>
                     </div>
+                    <small class="form-text text-muted">Payment Privider name e.g. Stripe</small>
                 </div>
 
                 <div class="form-group">
@@ -151,7 +152,7 @@ ob_start();
                             $sql = mysqli_query($mysqli, "SELECT category_id, category_name FROM categories WHERE category_type = 'Expense' AND category_archived_at IS NULL ORDER BY category_name ASC");
                             while ($row = mysqli_fetch_assoc($sql)) {
                                 $category_id = intval($row['category_id']);
-                                $category_name = nullable_htmlentities($row['category_name']);
+                                $category_name = escapeHtml($row['category_name']);
                                 ?>
                                 <option <?php if ($category_name === 'Processing Fee') { echo "selected"; } ?> value="<?= $category_id ?>"><?= $category_name ?></option>
 
@@ -166,29 +167,8 @@ ob_start();
                             </button>
                         </div>
                     </div>
-                </div>
-
-                <div class="form-group">
-                    <label>Percentage Fee to expense</label>
-                    <div class="input-group">
-                        <div class="input-group-prepend">
-                            <span class="input-group-text"><i class="fa fa-fw fa-percent"></i></span>
-                        </div>
-                        <input type="text" class="form-control" inputmode="decimal" pattern="[0-9]*\.?[0-9]{0,2}" name="percentage_fee" placeholder="Enter Percentage">
-                    </div>
-                    <small class="form-text text-muted">See <a href="https://stripe.com/pricing" target="_blank">here <i class="fas fa-fw fa-external-link-alt"></i></a> for the latest Stripe Fees.</small>
-                </div>
-
-                <div class="form-group">
-                    <label>Flat Fee to expense</label>
-                    <div class="input-group">
-                        <div class="input-group-prepend">
-                            <span class="input-group-text"><i class="fa fa-fw fa-shopping-cart"></i></span>
-                        </div>
-                        <input type="text" class="form-control" inputmode="decimal" pattern="[0-9]*\.?[0-9]{0,3}" name="flat_fee" placeholder="0.030">
-                    </div>
-                    <small class="form-text text-muted">See <a href="https://stripe.com/pricing" target="_blank">here <i class="fas fa-fw fa-external-link-alt"></i></a> for the latest Stripe Fees.</small>
-                </div>
+                    <small class="form-text text-muted">Processing Fee, Credit Card Fee etc</small>
+                </div>        
 
             </div>
         </div>

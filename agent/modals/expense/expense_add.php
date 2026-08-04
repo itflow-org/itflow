@@ -24,7 +24,7 @@ ob_start();
                     <div class="input-group-prepend">
                         <span class="input-group-text"><i class="fa fa-fw fa-calendar"></i></span>
                     </div>
-                    <input type="date" class="form-control" name="date" max="2999-12-31" required>
+                    <input type="date" class="form-control" name="date" max="2999-12-31" value="<?= date("Y-m-d"); ?>" required>
                 </div>
             </div>
 
@@ -34,7 +34,7 @@ ob_start();
                     <div class="input-group-prepend">
                         <span class="input-group-text"><i class="fa fa-fw fa-dollar-sign"></i></span>
                     </div>
-                    <input type="text" class="form-control" inputmode="decimal" pattern="[0-9]*\.?[0-9]{0,2}" name="amount" placeholder="0.00" required>
+                    <input type="text" class="form-control" inputmode="decimal" pattern="-?[0-9]*\.?[0-9]{0,2}" name="amount" placeholder="0.00" required>
                 </div>
             </div>
         </div>
@@ -47,13 +47,13 @@ ob_start();
                         <span class="input-group-text"><i class="fa fa-fw fa-piggy-bank"></i></span>
                     </div>
                     <select class="form-control select2" name="account" required>
-                        <option value="">- Account -</option>
+                        <option value="">- Select an Account -</option>
                         <?php
 
                         $sql = mysqli_query($mysqli, "SELECT account_id, account_name, opening_balance FROM accounts WHERE account_archived_at IS NULL ORDER BY account_name ASC");
                         while ($row = mysqli_fetch_assoc($sql)) {
                             $account_id = intval($row['account_id']);
-                            $account_name = nullable_htmlentities($row['account_name']);
+                            $account_name = escapeHtml($row['account_name']);
                             $opening_balance = floatval($row['opening_balance']);
 
                             $sql_payments = mysqli_query($mysqli, "SELECT SUM(payment_amount) AS total_payments FROM payments WHERE payment_account_id = $account_id");
@@ -71,7 +71,7 @@ ob_start();
                             $balance = $opening_balance + $total_payments + $total_revenues - $total_expenses;
 
                             ?>
-                            <option <?php if ($config_default_expense_account == $account_id) { echo "selected"; } ?> value="<?php echo $account_id; ?>"><div class="float-left"><?php echo $account_name; ?></div><div class="float-right"> [$<?php echo number_format($balance, 2); ?>]</div></option>
+                            <option <?php if ($config_default_expense_account == $account_id) { echo "selected"; } ?> value="<?= $account_id ?>"><div class="float-left"><?= $account_name ?></div><div class="float-right"> [$<?= number_format($balance, 2) ?>]</div></option>
 
                             <?php
                         }
@@ -87,15 +87,15 @@ ob_start();
                         <span class="input-group-text"><i class="fa fa-fw fa-building"></i></span>
                     </div>
                     <select class="form-control select2" name="vendor" required>
-                        <option value="">- Vendor -</option>
+                        <option value="">- Select a Vendor -</option>
                         <?php
 
                         $sql = mysqli_query($mysqli, "SELECT vendor_id, vendor_name FROM vendors WHERE vendor_client_id = 0 AND vendor_archived_at IS NULL ORDER BY vendor_name ASC");
                         while ($row = mysqli_fetch_assoc($sql)) {
                             $vendor_id = intval($row['vendor_id']);
-                            $vendor_name = nullable_htmlentities($row['vendor_name']);
+                            $vendor_name = escapeHtml($row['vendor_name']);
                             ?>
-                            <option value="<?php echo $vendor_id; ?>"><?php echo $vendor_name; ?></option>
+                            <option value="<?= $vendor_id ?>"><?= $vendor_name ?></option>
 
                             <?php
                         }
@@ -132,15 +132,15 @@ ob_start();
                         <span class="input-group-text"><i class="fa fa-fw fa-list"></i></span>
                     </div>
                     <select class="form-control select2" name="category" required>
-                        <option value="">- Category -</option>
+                        <option value="">- Select a Category -</option>
                         <?php
 
                         $sql = mysqli_query($mysqli, "SELECT category_id, category_name FROM categories WHERE category_type = 'Expense' AND category_archived_at IS NULL ORDER BY category_name ASC");
                         while ($row = mysqli_fetch_assoc($sql)) {
                             $category_id = intval($row['category_id']);
-                            $category_name = nullable_htmlentities($row['category_name']);
+                            $category_name = escapeHtml($row['category_name']);
                             ?>
-                            <option value="<?php echo $category_id; ?>"><?php echo $category_name; ?></option>
+                            <option value="<?= $category_id ?>"><?= $category_name ?></option>
 
                             <?php
                         }
@@ -156,7 +156,7 @@ ob_start();
             </div>
 
             <?php if ($client_id) { ?>
-                <input type="hidden" name="client_id" value="<?php echo $client_id; ?>">
+                <input type="hidden" name="client_id" value="<?= $client_id ?>">
             <?php } else { ?>
 
                 <div class="form-group col-md">
@@ -166,13 +166,13 @@ ob_start();
                             <span class="input-group-text"><i class="fa fa-fw fa-user"></i></span>
                         </div>
                         <select class="form-control select2" name="client_id" required>
-                            <option value="0">- Client (Optional) -</option>
+                            <option value="0">- Select a Client (Optional) -</option>
                             <?php
 
-                            $sql = mysqli_query($mysqli, "SELECT client_id, client_name FROM clients ORDER BY client_name ASC");
+                            $sql = mysqli_query($mysqli, "SELECT client_id, client_name FROM clients WHERE client_archived_at IS NULL $access_permission_query ORDER BY client_name ASC");
                             while ($row = mysqli_fetch_assoc($sql)) {
                                 $client_id_select = intval($row['client_id']);
-                                $client_name = nullable_htmlentities($row['client_name']);
+                                $client_name = escapeHtml($row['client_name']);
                                 ?>
                                 <option value="<?= $client_id_select ?>"><?= $client_name ?></option>
 

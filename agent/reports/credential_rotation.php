@@ -47,19 +47,19 @@ $passwords_not_rotated_sql = mysqli_query($mysqli,
                     while ($row = mysqli_fetch_assoc($passwords_not_rotated_sql)) {
 
                         $credential_id = intval($row['credential_id']);
-                        $credential_name = nullable_htmlentities($row['credential_name']);
-                        $credential_description = nullable_htmlentities($row['credential_description']);
-                        $credential_password_changed = nullable_htmlentities($row['credential_password_changed_at']);
+                        $credential_name = escapeHtml($row['credential_name']);
+                        $credential_description = escapeHtml($row['credential_description']);
+                        $credential_password_changed = escapeHtml($row['credential_password_changed_at']);
                         $client_id = intval($row['client_id']);
-                        $client_name = nullable_htmlentities($row['client_name']);
+                        $client_name = escapeHtml($row['client_name']);
 
                         ?>
 
                         <tr>
-                            <td><?php echo $client_name; ?></td>
-                            <td class="text-right"><?php echo $credential_name; ?></td>
-                            <td class="text-right"><?php echo $credential_description; ?></td>
-                            <td class="text-right"><?php echo timeAgo($credential_password_changed) . " (" . $credential_password_changed . ")" ?></td>
+                            <td><?= $client_name ?></td>
+                            <td class="text-right"><?= $credential_name ?></td>
+                            <td class="text-right"><?= $credential_description ?></td>
+                            <td class="text-right"><?= timeAgo($credential_password_changed) . " (" . $credential_password_changed . ")" ?></td>
                         </tr>
 
                     <?php } ?>

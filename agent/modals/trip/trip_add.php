@@ -18,6 +18,36 @@ ob_start();
 
     <div class="modal-body">
 
+        <?php if ($client_id) { ?>
+            <input type="hidden" name="client_id" value="<?= $client_id ?>">
+        <?php }else{ ?>
+
+            <div class="form-group">
+                <label>Client</label>
+                <div class="input-group">
+                    <div class="input-group-prepend">
+                        <span class="input-group-text"><i class="fa fa-fw fa-user"></i></span>
+                    </div>
+                    <select class="form-control select2" name="client_id" required>
+                        <option value="0">- Client (Optional) -</option>
+                        <?php
+
+                        $sql = mysqli_query($mysqli, "SELECT * FROM clients WHERE client_archived_at is NULL $access_permission_query ORDER BY client_name ASC");
+                        while ($row = mysqli_fetch_assoc($sql)) {
+                            $client_id_select = intval($row['client_id']);
+                            $client_name = escapeHtml($row['client_name']);
+                            ?>
+                            <option value="<?= $client_id_select ?>"><?= $client_name ?></option>
+
+                            <?php
+                        }
+                        ?>
+                    </select>
+                </div>
+            </div>
+
+        <?php } ?>
+
         <div class="form-row">
             <div class="form-group col">
                 <label>Date <strong class="text-danger">*</strong></label>
@@ -25,7 +55,7 @@ ob_start();
                     <div class="input-group-prepend">
                         <span class="input-group-text"><i class="fa fa-fw fa-calendar"></i></span>
                     </div>
-                    <input type="date" class="form-control" name="date" max="2999-12-31" value="<?php echo date("Y-m-d"); ?>" required>
+                    <input type="date" class="form-control" name="date" max="2999-12-31" value="<?= date("Y-m-d") ?>" required>
                 </div>
             </div>
 
@@ -66,13 +96,13 @@ ob_start();
                     if ($client_id) {
                         $sql_locations = mysqli_query($mysqli, "SELECT * FROM locations WHERE location_archived_at IS NULL AND location_client_id = $client_id ORDER BY location_name ASC");
                     while ($row = mysqli_fetch_assoc($sql_locations)) {
-                        $location_name = nullable_htmlentities($row['location_name']);
-                        $location_address = nullable_htmlentities($row['location_address']);
-                        $location_city = nullable_htmlentities($row['location_city']);
-                        $location_state = nullable_htmlentities($row['location_state']);
-                        $location_zip = nullable_htmlentities($row['location_zip']);
+                        $location_name = escapeHtml($row['location_name']);
+                        $location_address = escapeHtml($row['location_address']);
+                        $location_city = escapeHtml($row['location_city']);
+                        $location_state = escapeHtml($row['location_state']);
+                        $location_zip = escapeHtml($row['location_zip']);
                         ?>
-                        <option><?php echo "$location_address $location_city $location_state $location_zip"; ?></option>
+                        <option><?= formatAddress($location_address, $location_city, $location_state, $location_zip, '', ' ') ?></option>
                         <?php
                     }
                 } ?>
@@ -100,9 +130,9 @@ ob_start();
                     );
                     while ($row = mysqli_fetch_assoc($sql)) {
                         $user_id = intval($row['user_id']);
-                        $user_name = nullable_htmlentities($row['user_name']);
+                        $user_name = escapeHtml($row['user_name']);
                         ?>
-                        <option <?php if ($session_user_id == $user_id) { echo "selected"; } ?> value="<?php echo $user_id; ?>"><?php echo $user_name; ?></option>
+                        <option <?php if ($session_user_id == $user_id) { echo "selected"; } ?> value="<?= $user_id ?>"><?= $user_name ?></option>
 
                         <?php
                     }
@@ -110,36 +140,6 @@ ob_start();
                 </select>
             </div>
         </div>
-
-        <?php if ($client_id) { ?>
-            <input type="hidden" name="client_id" value="<?php echo $client_id; ?>">
-        <?php }else{ ?>
-
-            <div class="form-group">
-                <label>Client</label>
-                <div class="input-group">
-                    <div class="input-group-prepend">
-                        <span class="input-group-text"><i class="fa fa-fw fa-user"></i></span>
-                    </div>
-                    <select class="form-control select2" name="client_id" required>
-                        <option value="0">- Client (Optional) -</option>
-                        <?php
-
-                        $sql = mysqli_query($mysqli, "SELECT * FROM clients WHERE client_archived_at is NULL ORDER BY client_name ASC");
-                        while ($row = mysqli_fetch_assoc($sql)) {
-                            $client_id_select = intval($row['client_id']);
-                            $client_name = nullable_htmlentities($row['client_name']);
-                            ?>
-                            <option value="<?php echo $client_id_select; ?>"><?php echo $client_name; ?></option>
-
-                            <?php
-                        }
-                        ?>
-                    </select>
-                </div>
-            </div>
-
-        <?php } ?>
 
     </div>
 

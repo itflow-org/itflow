@@ -18,7 +18,7 @@ if (!empty($client_id)) {
 
     if ($row) {
 
-        $client_name = sanitizeInput($row['client_name']);
+        $client_name = escapeSql($row['client_name']);
 
         // Stop recurring invoices
         $sql_recurring_invoices = mysqli_query($mysqli, "SELECT * FROM recurring_invoices WHERE recurring_invoice_client_id = $client_id AND recurring_invoice_status = 1");
@@ -35,7 +35,7 @@ if (!empty($client_id)) {
             $update_count = mysqli_affected_rows($mysqli);
 
             // Logging
-            logAction("Contact", "Archive", "$client_name archived via API ($api_key_name)", $client_id);
+            logAudit("Contact", "Archive", "$client_name archived via API ($api_key_name)", $client_id);
         }
     }
 }

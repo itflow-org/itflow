@@ -4,7 +4,7 @@ require_once '../../../includes/modal_header.php';
 
 $client_id = intval($_GET['client_id'] ?? 0);
 $contact_id = intval($_GET['contact_id'] ?? 0);
-$type = nullable_htmlentities(ucwords($_GET['type']) ?? '');
+$type = escapeHtml(ucwords($_GET['type']) ?? '');
 
 if ($client_id) {
     $sql_network_select = mysqli_query($mysqli, "SELECT * FROM networks WHERE network_archived_at IS NULL AND network_client_id = $client_id ORDER BY network_name ASC");
@@ -87,7 +87,7 @@ ob_start();
 
                                 while ($row = mysqli_fetch_assoc($sql_client_select)) {
                                     $client_id_select = intval($row['client_id']);
-                                    $client_name = nullable_htmlentities($row['client_name']); ?>
+                                    $client_name = escapeHtml($row['client_name']); ?>
                                     <option <?php if ($client_id == $client_id_select) { echo "selected"; } ?> value="<?= $client_id_select ?>"><?= $client_name ?></option>
 
                                 <?php } ?>
@@ -201,7 +201,7 @@ ob_start();
 
                             while ($row = mysqli_fetch_assoc($sql_location_select)) {
                                 $location_id = intval($row['location_id']);
-                                $location_name = nullable_htmlentities($row['location_name']);
+                                $location_name = escapeHtml($row['location_name']);
                                 ?>
                                 <option value="<?= $location_id ?>"><?= $location_name ?></option>
                             <?php } ?>
@@ -234,7 +234,7 @@ ob_start();
 
                             while ($row = mysqli_fetch_assoc($sql_contact_select)) {
                                 $contact_id_select = intval($row['contact_id']);
-                                $contact_name = nullable_htmlentities($row['contact_name']);
+                                $contact_name = escapeHtml($row['contact_name']);
                                 ?>
                                 <option
                                     <?php if ($contact_id == $contact_id_select) {
@@ -266,7 +266,7 @@ ob_start();
                                 ORDER BY category_order ASC, category_name ASC
                             ");
                             while ($row = mysqli_fetch_assoc($sql_interface_types_select)) {
-                                $asset_status_select = nullable_htmlentities($row['category_name']);
+                                $asset_status_select = escapeHtml($row['category_name']);
                                 ?>
                                 <option><?= $asset_status_select ?></option>
                             <?php } ?>
@@ -290,8 +290,8 @@ ob_start();
 
                             while ($row = mysqli_fetch_assoc($sql_network_select)) {
                                 $network_id = intval($row['network_id']);
-                                $network_name = nullable_htmlentities($row['network_name']);
-                                $network = nullable_htmlentities($row['network']);
+                                $network_name = escapeHtml($row['network_name']);
+                                $network = escapeHtml($row['network']);
 
                                 ?>
                                 <option value="<?= $network_id ?>"><?= $network_name ?> - <?= $network ?></option>
@@ -308,7 +308,7 @@ ob_start();
                         <div class="input-group-prepend">
                             <span class="input-group-text"><i class="fa fa-fw fa-ethernet"></i></span>
                         </div>
-                        <input type="text" class="form-control text-monospace" name="ip" placeholder="e.g. 192.168.1.10" data-inputmask="'alias': 'ip'" data-mask>
+                        <input type="text" class="form-control text-monospace" name="ip" placeholder="e.g. 192.168.1.10" maxlength="200" data-inputmask="'alias': 'ip'" data-mask>
                         <div class="input-group-append">
                             <div class="input-group-text">
                                 <input type="checkbox" name="dhcp" value="1">
@@ -395,9 +395,9 @@ ob_start();
 
                             while ($row = mysqli_fetch_assoc($sql_vendor_select)) {
                                 $vendor_id = intval($row['vendor_id']);
-                                $vendor_name = nullable_htmlentities($row['vendor_name']);
+                                $vendor_name = escapeHtml($row['vendor_name']);
                                 ?>
-                                <option value="<?php echo $vendor_id; ?>"><?php echo $vendor_name; ?></option>
+                                <option value="<?= $vendor_id ?>"><?= $vendor_name ?></option>
 
                             <?php } ?>
                         </select>
@@ -412,7 +412,7 @@ ob_start();
                             <div class="input-group-prepend">
                                 <span class="input-group-text"><i class="fa fa-fw fa-receipt"></i></span>
                             </div>
-                            <input type="text" class="form-control" name="purchase_reference" placeholder="e.g. INV-1045 or PO-7782">
+                            <input type="text" class="form-control" name="purchase_reference" placeholder="e.g. INV-1045 or PO-7782" maxlength="200">
                         </div>
                     </div>
 
@@ -459,7 +459,7 @@ ob_start();
                         <div class="input-group-prepend">
                             <span class="input-group-text"><i class="fa fa-fw fa-user"></i></span>
                         </div>
-                        <input type="text" class="form-control" name="username" placeholder="e.g. admin">
+                        <input type="text" class="form-control" name="username" placeholder="e.g. admin" maxlength="350">
                     </div>
                 </div>
 
@@ -469,7 +469,7 @@ ob_start();
                         <div class="input-group-prepend">
                             <span class="input-group-text"><i class="fa fa-fw fa-lock"></i></span>
                         </div>
-                        <input type="text" class="form-control" name="password" placeholder="Password" autocomplete="off">
+                        <input type="text" class="form-control" name="password" placeholder="Password" maxlength="350" autocomplete="off">
                     </div>
                 </div>
 
@@ -497,7 +497,7 @@ ob_start();
 
                             while ($row = mysqli_fetch_assoc($sql_tags_select)) {
                                 $tag_id = intval($row['tag_id']);
-                                $tag_name = nullable_htmlentities($row['tag_name']);
+                                $tag_name = escapeHtml($row['tag_name']);
                                 ?>
                                 <option value="<?= $tag_id ?>"><?= $tag_name ?></option>
                             <?php } ?>
@@ -524,11 +524,11 @@ ob_start();
 </form>
 
 <!-- JSON Autocomplete / type ahead -->
-<link rel="stylesheet" href="/plugins/jquery-ui/jquery-ui.min.css">
-<script src="/plugins/jquery-ui/jquery-ui.min.js"></script>
+<link rel="stylesheet" href="/libs/jquery-ui/jquery-ui.min.css">
+<script src="/libs/jquery-ui/jquery-ui.min.js"></script>
 <script>
     $(function() {
-        var operatingSystems = <?php echo $json_os; ?>;
+        var operatingSystems = <?= $json_os ?>;
         $("#os").autocomplete({
             source: operatingSystems,  // Should be an array of objects with 'label' and 'value'
             select: function(event, ui) {

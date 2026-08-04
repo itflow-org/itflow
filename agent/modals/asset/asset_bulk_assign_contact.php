@@ -2,7 +2,11 @@
 
 require_once '../../../includes/modal_header.php';
 
+enforceUserPermission('module_support', 2);
+
 $client_id = intval($_GET['client_id']);
+
+enforceClientAccess();
 $asset_ids = array_map('intval', $_GET['asset_ids'] ?? []);
 
 $count = count($asset_ids);
@@ -36,9 +40,9 @@ ob_start();
                     $sql = mysqli_query($mysqli, "SELECT * FROM contacts WHERE contact_archived_at IS NULL AND contact_client_id = $client_id ORDER BY contact_name ASC");
                     while ($row = mysqli_fetch_assoc($sql)) {
                         $contact_id = intval($row['contact_id']);
-                        $contact_name = nullable_htmlentities($row['contact_name']);
+                        $contact_name = escapeHtml($row['contact_name']);
                         ?>
-                        <option value="<?php echo $contact_id; ?>"><?php echo $contact_name; ?></option>
+                        <option value="<?= $contact_id ?>"><?= $contact_name ?></option>
 
                     <?php } ?>
 

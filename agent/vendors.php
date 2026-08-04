@@ -50,7 +50,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                     <?php if ($num_rows[0] > 0) { ?>
                         <div class="dropdown-divider"></div>
                         <a class="dropdown-item text-dark ajax-modal" href="#"
-                            data-modal-url="modals/vendor/vendor_export.php?<?= $client_url ?>">
+                            data-modal-url="<?= buildExportModalUrl('modals/vendor/vendor_export.php', ['client_id', 'archived', 'q']) ?>">
                             <i class="fa fa-fw fa-download mr-2"></i>Export
                         </a>
                     <?php } ?>
@@ -61,14 +61,14 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
     <div class="card-body">
         <form autocomplete="off">
             <?php if ($client_url) { ?>
-                <input type="hidden" name="client_id" value="<?php echo $client_id; ?>">
+                <input type="hidden" name="client_id" value="<?= $client_id ?>">
             <?php } ?>
-            <input type="hidden" name="archived" value="<?php echo $archived; ?>">
+            <input type="hidden" name="archived" value="<?= $archived ?>">
             <div class="row">
 
                 <div class="col-md-4">
                     <div class="input-group mb-3 mb-md-0">
-                        <input type="search" class="form-control" name="q" value="<?php if (isset($q)) { echo stripslashes(nullable_htmlentities($q)); } ?>" placeholder="Search Vendors">
+                        <input type="search" class="form-control" name="q" value="<?php if (isset($q)) { echo stripslashes(escapeHtml($q)); } ?>" placeholder="Search Vendors">
                         <div class="input-group-append">
                             <button class="btn btn-dark"><i class="fa fa-search"></i></button>
                         </div>
@@ -77,7 +77,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 
                 <div class="col-md-8">
                     <div class="btn-group float-right">
-                        <a href="?<?php echo "$client_url"; ?>archived=<?php if($archived == 1){ echo 0; } else { echo 1; } ?>"
+                        <a href="?<?= "$client_url" ?>archived=<?php if($archived == 1){ echo 0; } else { echo 1; } ?>"
                             class="btn btn-<?php if($archived == 1){ echo "primary"; } else { echo "default"; } ?>">
                             <i class="fa fa-fw fa-archive mr-2"></i>Archived
                         </a>
@@ -111,7 +111,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
         </form>
         <hr>
         <form id="bulkActions" action="post.php" method="post">
-            <input type="hidden" name="csrf_token" value="<?php echo $_SESSION['csrf_token'] ?>">
+            <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
 
             <div class="table-responsive">
                 <table class="table table-striped table-borderless table-hover">
@@ -123,22 +123,22 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                             </div>
                         </td>
                         <th>
-                            <a class="text-secondary" href="?<?php echo $url_query_strings_sort; ?>&sort=vendor_name&order=<?php echo $disp; ?>">
+                            <a class="text-secondary" href="?<?= $url_query_strings_sort ?>&sort=vendor_name&order=<?= $disp ?>">
                                 Vendor <?php if ($sort == 'vendor_name') { echo $order_icon; } ?>
                             </a>
                         </th>
                         <th>
-                            <a class="text-secondary" href="?<?php echo $url_query_strings_sort; ?>&sort=vendor_description&order=<?php echo $disp; ?>">
+                            <a class="text-secondary" href="?<?= $url_query_strings_sort ?>&sort=vendor_description&order=<?= $disp ?>">
                                 Description <?php if ($sort == 'vendor_description') { echo $order_icon; } ?>
                             </a>
                         </th>
                         <th>
-                            <a class="text-secondary" href="?<?php echo $url_query_strings_sort; ?>&sort=vendor_contact_name&order=<?php echo $disp; ?>">
+                            <a class="text-secondary" href="?<?= $url_query_strings_sort ?>&sort=vendor_contact_name&order=<?= $disp ?>">
                                 Contact <?php if ($sort == 'vendor_contact_name') { echo $order_icon; } ?>
                             </a>
                         </th>
                         <th>
-                            <a class="text-secondary" href="?<?php echo $url_query_strings_sort; ?>&sort=vendor_website&order=<?php echo $disp; ?>">
+                            <a class="text-secondary" href="?<?= $url_query_strings_sort ?>&sort=vendor_website&order=<?= $disp ?>">
                                 Website <?php if ($sort == 'vendor_website') { echo $order_icon; } ?>
                             </a>
                         </th>
@@ -151,43 +151,43 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 
                     while ($row = mysqli_fetch_assoc($sql)) {
                         $vendor_id = intval($row['vendor_id']);
-                        $vendor_name = nullable_htmlentities($row['vendor_name']);
-                        $vendor_description = nullable_htmlentities($row['vendor_description']);
+                        $vendor_name = escapeHtml($row['vendor_name']);
+                        $vendor_description = escapeHtml($row['vendor_description']);
                         if ($vendor_description) {
                             $vendor_description_display = $vendor_description;
                         } else {
                             $vendor_description_display = "-";
                         }
-                        $vendor_account_number = nullable_htmlentities($row['vendor_account_number']);
+                        $vendor_account_number = escapeHtml($row['vendor_account_number']);
                         if ($vendor_account_number) {
                             $vendor_account_number_display = "<div class='text-secondary'>Account #: <span class='text-monospace'>$vendor_account_number</span></div>";
                         } else {
                             $vendor_account_number_display = '';
                         }
-                        $vendor_contact_name = nullable_htmlentities($row['vendor_contact_name']);
+                        $vendor_contact_name = escapeHtml($row['vendor_contact_name']);
                         if ($vendor_contact_name) {
                             $vendor_contact_name_display = $vendor_contact_name;
                         } else {
                             $vendor_contact_name_display = "-";
                         }
-                        $vendor_phone_country_code = nullable_htmlentities($row['vendor_phone_country_code']);
-                        $vendor_phone = nullable_htmlentities(formatPhoneNumber($row['vendor_phone'], $vendor_phone_country_code));
-                        $vendor_extension = nullable_htmlentities($row['vendor_extension']);
-                        $vendor_email = nullable_htmlentities($row['vendor_email']);
-                        $vendor_website = nullable_htmlentities($row['vendor_website']);
+                        $vendor_phone_country_code = escapeHtml($row['vendor_phone_country_code']);
+                        $vendor_phone = escapeHtml(formatPhoneNumber($row['vendor_phone'], $vendor_phone_country_code));
+                        $vendor_extension = escapeHtml($row['vendor_extension']);
+                        $vendor_email = escapeHtml($row['vendor_email']);
+                        $vendor_website = escapeHtml($row['vendor_website']);
                         if ($vendor_website) {
                              $vendor_website_display = "<a href='https://$vendor_website' target='_blank'>$vendor_website <i class='fa fa-external-link-alt'></i></a><button type='button' class='btn btn-sm clipboardjs' data-clipboard-text='$vendor_website'><i class='far fa-copy text-secondary'></i></button>";
                         } else {
                             $vendor_website_display = "-";
                         }
-                        $vendor_hours = nullable_htmlentities($row['vendor_hours']);
-                        $vendor_sla = nullable_htmlentities($row['vendor_sla']);
-                        $vendor_code = nullable_htmlentities($row['vendor_code']);
-                        $vendor_notes = nullable_htmlentities($row['vendor_notes']);
-                        $vendor_created_at = nullable_htmlentities($row['vendor_created_at']);
-                        $vendor_archived_at = nullable_htmlentities($row['vendor_archived_at']);
+                        $vendor_hours = escapeHtml($row['vendor_hours']);
+                        $vendor_sla = escapeHtml($row['vendor_sla']);
+                        $vendor_code = escapeHtml($row['vendor_code']);
+                        $vendor_notes = escapeHtml($row['vendor_notes']);
+                        $vendor_created_at = escapeHtml($row['vendor_created_at']);
+                        $vendor_archived_at = escapeHtml($row['vendor_archived_at']);
                         $vendor_template_id = intval($row['vendor_template_id']);
-                        $vendor_template_name = nullable_htmlentities($row['vendor_template_name']);
+                        $vendor_template_name = escapeHtml($row['vendor_template_name']);
                         if ($vendor_template_id) {
                             $vendor_template_display = "<div class='text-secondary' title='Base Vendor Template'><i class='fas fa-puzzle-piece mr-1'></i>$vendor_template_name</div>";
                         } else {
@@ -198,7 +198,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                         <tr>
                             <td class="bg-light checkbox-column">
                                 <div class="form-check">
-                                    <input class="form-check-input bulk-select" type="checkbox" name="vendor_ids[]" value="<?php echo $vendor_id ?>">
+                                    <input class="form-check-input bulk-select" type="checkbox" name="vendor_ids[]" value="<?= $vendor_id ?>">
                                 </div>
                             </td>
                             <td>
@@ -206,36 +206,36 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                     <div class="media">
                                         <i class="fas fa-fw fa-2x fa-building text-dark mr-2"></i>
                                         <div class="media-body">
-                                            <div><?php echo $vendor_name; ?></div>
-                                            <div><small><?php echo $vendor_account_number_display; ?><small></div>
+                                            <div><?= $vendor_name ?></div>
+                                            <div><small><?= $vendor_account_number_display ?><small></div>
                                         </div>
                                     </div>
                                 </a>
                             </td>
                             <td>
-                                <?php echo $vendor_description_display; ?>
+                                <?= $vendor_description_display ?>
                             </td>
                             <td>
                                 <?php
                                 if (!empty($vendor_contact_name)) { ?>
-                                    <i class="fa fa-fw fa-user text-secondary mr-2 mb-2"></i><?php echo $vendor_contact_name_display; ?>
+                                    <i class="fa fa-fw fa-user text-secondary mr-2 mb-2"></i><?= $vendor_contact_name_display ?>
                                     <br>
                                 <?php } else {
                                     echo $vendor_contact_name_display;
                                 }
 
                                 if (!empty($vendor_phone)) { ?>
-                                    <i class="fa fa-fw fa-phone text-secondary mr-2 mb-2"></i><?php echo $vendor_phone; ?>
+                                    <i class="fa fa-fw fa-phone text-secondary mr-2 mb-2"></i><?= $vendor_phone ?>
                                     <br>
                                 <?php }
 
                                 if (!empty($vendor_email)) { ?>
-                                    <i class="fa fa-fw fa-envelope text-secondary mr-2 mb-2"></i><?php echo $vendor_email; ?>
+                                    <i class="fa fa-fw fa-envelope text-secondary mr-2 mb-2"></i><?= $vendor_email ?>
                                     <br>
                                 <?php } ?>
                             </td>
-                             <td><?php echo $vendor_website_display; ?></td>
-                             <td><?php echo $vendor_template_display; ?></td>
+                             <td><?= $vendor_website_display ?></td>
+                             <td><?= $vendor_template_display ?></td>
                             <td>
                                 <div class="dropdown dropleft text-center">
                                     <button class="btn btn-secondary btn-sm" type="button" data-toggle="dropdown">

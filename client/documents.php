@@ -8,10 +8,7 @@ header("Content-Security-Policy: default-src 'self'");
 
 require_once "includes/inc_all.php";
 
-if ($session_contact_primary == 0 && !$session_contact_is_technical_contact) {
-    header("Location: post.php?logout");
-    exit();
-}
+enforceContactCan('itdoc');
 
 $documents_sql = mysqli_query($mysqli, "SELECT document_id, document_name, document_created_at, folder_name FROM documents LEFT JOIN folders ON document_folder_id = folder_id WHERE document_client_visible = 1 AND document_client_id = $session_client_id AND document_archived_at IS NULL ORDER BY folder_id, document_name DESC");
 ?>
@@ -47,15 +44,15 @@ $documents_sql = mysqli_query($mysqli, "SELECT document_id, document_name, docum
             <?php
             while ($row = mysqli_fetch_assoc($documents_sql)) {
                 $document_id = intval($row['document_id']);
-                $folder_name = nullable_htmlentities($row['folder_name']);
-                $document_name = nullable_htmlentities($row['document_name']);
-                $document_created_at = nullable_htmlentities($row['document_created_at']);
+                $folder_name = escapeHtml($row['folder_name']);
+                $document_name = escapeHtml($row['document_name']);
+                $document_created_at = escapeHtml($row['document_created_at']);
 
                 ?>
 
                 <tr>
                     <td>
-                        <a href="document.php?id=<?php echo $document_id?>">
+                        <a href="document.php?id=<?= $document_id ?>">
                             <i class="fas fa-file-alt mr-2"></i>
                             <?php
                             if (!empty($folder_name)) {
@@ -65,9 +62,9 @@ $documents_sql = mysqli_query($mysqli, "SELECT document_id, document_name, docum
                             ?>
                         </a>
                     </td>
-                    <td><?php echo date('M j, Y', strtotime($document_created_at)); ?></td>
+                    <td><?= date('M j, Y', strtotime($document_created_at)) ?></td>
                     <td class="text-center">
-                        <a href="document.php?id=<?php echo $document_id?>" class="btn btn-sm btn-outline-primary">
+                        <a href="document.php?id=<?= $document_id ?>" class="btn btn-sm btn-outline-primary">
                             <i class="fas fa-eye"></i>
                         </a>
                     </td>

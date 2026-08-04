@@ -2,6 +2,8 @@
 
 require_once '../../../includes/modal_header.php';
 
+enforceUserPermission('module_support', 2);
+
 $ticket_id = intval($_GET['ticket_id']);
 
 $sql = mysqli_query($mysqli, "SELECT * FROM tickets
@@ -11,22 +13,28 @@ $sql = mysqli_query($mysqli, "SELECT * FROM tickets
 );
 
 $row = mysqli_fetch_assoc($sql);
-$ticket_prefix = nullable_htmlentities($row['ticket_prefix']);
+$ticket_prefix = escapeHtml($row['ticket_prefix']);
 $ticket_number = intval($row['ticket_number']);
+$client_name = escapeHtml($row['client_name']);
 $client_id = intval($row['ticket_client_id']);
-$client_name = nullable_htmlentities($row['client_name']);
+
+if ($client_id) {
+    enforceClientAccess();
+}
 
 $sql_merge = mysqli_query($mysqli, "SELECT * FROM tickets
     LEFT JOIN ticket_statuses ON ticket_status = ticket_status_id
     LEFT JOIN clients ON client_id = ticket_client_id
-    WHERE ticket_closed_at IS NULL AND ticket_id != $ticket_id
+    WHERE ticket_closed_at IS NULL
+    AND ticket_id != $ticket_id
+    $access_permission_query
     ORDER BY ticket_status ASC, ticket_id DESC"
 );
 
-// Generate the HTML form content using output buffering.
 ob_start();
 
 ?>
+
 <div class="modal-header bg-dark">
     <h5 class="modal-title"><i class="fa fa-fw fa-clone mr-2"></i>Merge & Close <?= "$ticket_prefix$ticket_number" ?> into another ticket</h5>
     <button type="button" class="close text-white" data-dismiss="modal">
@@ -53,11 +61,11 @@ ob_start();
                     <?php
                     while ($row = mysqli_fetch_assoc($sql_merge)) {
                         $ticket_id_merge = intval($row['ticket_id']);
-                        $ticket_prefix_merge = nullable_htmlentities($row['ticket_prefix']);
+                        $ticket_prefix_merge = escapeHtml($row['ticket_prefix']);
                         $ticket_number_merge = intval($row['ticket_number']);
-                        $ticket_status_name_merge = nullable_htmlentities($row['ticket_status_name']);
-                        $client_name_merge = nullable_htmlentities($row['client_name']);
-                        $ticket_subject_merge = nullable_htmlentities($row['ticket_subject']);
+                        $ticket_status_name_merge = escapeHtml($row['ticket_status_name']);
+                        $client_name_merge = escapeHtml($row['client_name']);
+                        $ticket_subject_merge = escapeHtml($row['ticket_subject']);
                         ?>
                         <option value="<?= $ticket_id_merge ?>">
                             <?= "$ticket_prefix_merge$ticket_number_merge ($ticket_status_name_merge) $client_name_merge -  $ticket_subject_merge" ?>

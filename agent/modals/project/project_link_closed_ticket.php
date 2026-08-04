@@ -2,11 +2,14 @@
 
 require_once '../../../includes/modal_header.php';
 
+enforceUserPermission('module_support', 2);
+
 $project_id = intval($_GET['project_id']);
 $client_id = intval($_GET['client_id'] ?? 0);
 
 if ($client_id) {
     $client_ticket_select_query = "AND ticket_client_id = $client_id"; // Used when linking a ticket to the project
+    enforceClientAccess();
 } else {
     $client_ticket_select_query = '';
 }
@@ -14,20 +17,20 @@ if ($client_id) {
 $sql = mysqli_query($mysqli, "SELECT * FROM projects WHERE project_id = $project_id LIMIT 1");
 
 $row = mysqli_fetch_assoc($sql);
-$project_name = nullable_htmlentities($row['project_name']);
+$project_name = escapeHtml($row['project_name']);
 
 ob_start();
 ?>
 
 <div class="modal-header bg-dark">
-    <h5 class="modal-title"><i class="fas fa-fw fa-life-ring mr-2"></i>Link closed ticket to project: <strong><?php echo $project_name; ?></strong></h5>
+    <h5 class="modal-title"><i class="fas fa-fw fa-life-ring mr-2"></i>Link closed ticket to project: <strong><?= $project_name ?></strong></h5>
     <button type="button" class="close text-white" data-dismiss="modal">
         <span>&times;</span>
     </button>
 </div>
 <form action="post.php" method="post" autocomplete="off">
     <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
-    <input type="hidden" name="project_id" value="<?php echo $project_id; ?>">
+    <input type="hidden" name="project_id" value="<?= $project_id ?>">
     <div class="modal-body">
 
         <div class="form-group">

@@ -7,7 +7,7 @@
 if (isset($_GET['logout'])) {
 
     // Logging
-    logAction("Logout", "Success", "$session_name logged out");
+    logAudit("Logout", "Success", "$session_name logged out");
     
     mysqli_query($mysqli, "UPDATE users SET user_php_session = '' WHERE user_id = $session_user_id");
 

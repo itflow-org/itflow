@@ -2,17 +2,24 @@
 
 require_once '../../../includes/modal_header.php';
 
+enforceUserPermission('module_support', 2);
+
 $task_id = intval($_GET['id']);
 
-$sql = mysqli_query($mysqli, "SELECT * FROM tasks
+$sql = mysqli_query($mysqli, "SELECT * FROM tasks LEFT JOIN tickets ON task_ticket_id = ticket_id
     WHERE task_id = $task_id
     LIMIT 1"
 );
 
 $row = mysqli_fetch_assoc($sql);
-$task_name = nullable_htmlentities($row['task_name']);
+$task_name = escapeHtml($row['task_name']);
 $task_completion_estimate = intval($row['task_completion_estimate']);
-$task_completed_at = nullable_htmlentities($row['task_completed_at']);
+$task_completed_at = escapeHtml($row['task_completed_at']);
+$client_id = intval($row['ticket_client_id']);
+
+if ($client_id) {
+    enforceClientAccess();
+}
 
 // Approvals
 $sql_task_approvals = mysqli_query($mysqli, "
@@ -22,7 +29,6 @@ $sql_task_approvals = mysqli_query($mysqli, "
     ORDER BY approval_approved_by"
 );
 
-// Generate the HTML form content using output buffering.
 ob_start();
 
 ?>
@@ -35,7 +41,7 @@ ob_start();
 </div>
 <form action="post.php" method="post" autocomplete="off">
     <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
-    <input type="hidden" name="task_id" value="<?php echo $task_id; ?>">
+    <input type="hidden" name="task_id" value="<?= $task_id ?>">
 
     <div class="modal-body">
 
@@ -45,7 +51,7 @@ ob_start();
                 <div class="input-group-prepend">
                     <span class="input-group-text"><i class="fa fa-fw fa-tag"></i></span>
                 </div>
-                <input type="text" class="form-control" name="name" placeholder="Name the task" maxlength="255" value="<?php echo $task_name; ?>" required autofocus>
+                <input type="text" class="form-control" name="name" placeholder="Name the task" maxlength="255" value="<?= $task_name ?>" required autofocus>
             </div>
         </div>
 
@@ -55,7 +61,7 @@ ob_start();
                 <div class="input-group-prepend">
                     <span class="input-group-text"><i class="fa fa-fw fa-clock"></i></span>
                 </div>
-                <input type="number" class="form-control" name="completion_estimate" placeholder="Estimated time to complete task in mins" value="<?php echo $task_completion_estimate; ?>">
+                <input type="number" class="form-control" name="completion_estimate" placeholder="Estimated time to complete task in mins" value="<?= $task_completion_estimate ?>">
             </div>
         </div>
 
@@ -76,12 +82,12 @@ ob_start();
                     <tbody>
                     <?php while ($row = mysqli_fetch_assoc($sql_task_approvals)) {
                         $approval_id = intval($row['approval_id']);
-                        $approval_scope = nullable_htmlentities($row['approval_scope']);
-                        $approval_type = nullable_htmlentities($row['approval_type']);
-                        $approval_user_name = nullable_htmlentities($row['user_name']);
-                        $approval_status = nullable_htmlentities($row['approval_status']);
+                        $approval_scope = escapeHtml($row['approval_scope']);
+                        $approval_type = escapeHtml($row['approval_type']);
+                        $approval_user_name = escapeHtml($row['user_name']);
+                        $approval_status = escapeHtml($row['approval_status']);
                         $approval_created_by = intval($row['approval_created_by']);
-                        $approval_approved_by = nullable_htmlentities($row['approval_approved_by']);
+                        $approval_approved_by = escapeHtml($row['approval_approved_by']);
                         ?>
                         <tr>
                             <td><?= ucfirst($approval_scope) ?></td>

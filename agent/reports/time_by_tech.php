@@ -4,46 +4,6 @@ require_once "includes/inc_all_reports.php";
 
 enforceUserPermission('module_support');
 
-function secondsToTime($inputSeconds) {
-    $inputSeconds = floor($inputSeconds);
-
-    $secondsInAMinute = 60;
-    $secondsInAnHour = 60 * $secondsInAMinute;
-    $secondsInADay = 24 * $secondsInAnHour;
-
-    // Extract days
-    $days = floor($inputSeconds / $secondsInADay);
-
-    // Extract hours
-    $hourSeconds = $inputSeconds % $secondsInADay;
-    $hours = floor($hourSeconds / $secondsInAnHour);
-
-    // Extract minutes
-    $minuteSeconds = $hourSeconds % $secondsInAnHour;
-    $minutes = floor($minuteSeconds / $secondsInAMinute);
-
-    // Extract the remaining seconds
-    $remainingSeconds = $minuteSeconds % $secondsInAMinute;
-    $seconds = ceil($remainingSeconds);
-
-    // Format and return
-    $timeParts = [];
-    $sections = [
-        'day' => (int)$days,
-        'hour' => (int)$hours,
-        'minute' => (int)$minutes,
-        'second' => (int)$seconds,
-    ];
-
-    foreach ($sections as $name => $value){
-        if ($value > 0){
-            $timeParts[] = $value. ' '.$name.($value == 1 ? '' : 's');
-        }
-    }
-
-    return implode(', ', $timeParts);
-}
-
 if (isset($_GET['year'])) {
     $year = intval($_GET['year']);
 } else {
@@ -85,14 +45,14 @@ $sql_users = mysqli_query($mysqli, "
                     <?php
                     while ($row = mysqli_fetch_assoc($sql_ticket_years)) {
                         $ticket_year = intval($row['ticket_year']); ?>
-                        <option <?php if ($year == $ticket_year) { ?> selected <?php } ?> > <?php echo $ticket_year; ?></option>
+                        <option <?php if ($year == $ticket_year) { ?> selected <?php } ?> > <?= $ticket_year ?></option>
                     <?php } ?>
                 </select>
             </form>
 
             <div class="card card-dark mb-3">
                 <div class="card-header">
-                    <h3 class="card-title"><i class="fas fa-fw fa-chart-area mr-2"></i>Yearly (<?php echo $year; ?>)</h3>
+                    <h3 class="card-title"><i class="fas fa-fw fa-chart-area mr-2"></i>Yearly (<?= $year ?>)</h3>
                 </div>
                 <div class="card-body">
                     <div class="table-responsive-sm">
@@ -110,7 +70,7 @@ $sql_users = mysqli_query($mysqli, "
 
                             while ($agent_row = mysqli_fetch_assoc($sql_users)) {
                                 $user_id = intval($agent_row['user_id']);
-                                $user_name = nullable_htmlentities($agent_row['user_name']);
+                                $user_name = escapeHtml($agent_row['user_name']);
 
                                 // Get tickets in period that are still assigned to the technician/agent
                                 $sql_ticket_count = mysqli_query($mysqli, "SELECT COUNT(ticket_id) AS ticket_count FROM tickets WHERE YEAR(ticket_created_at) = $year AND ticket_assigned_to = $user_id");
@@ -150,15 +110,15 @@ $sql_users = mysqli_query($mysqli, "
                                 // Calculate total time tracked towards tickets in the period (for this agent)
                                 $sql_time = mysqli_query($mysqli, "SELECT SEC_TO_TIME(SUM(TIME_TO_SEC(ticket_reply_time_worked))) as total_time FROM ticket_replies LEFT JOIN tickets ON tickets.ticket_id = ticket_replies.ticket_reply_ticket_id WHERE YEAR(ticket_created_at) = $year AND ticket_reply_by = $user_id AND ticket_reply_time_worked IS NOT NULL");
                                 $row = mysqli_fetch_assoc($sql_time);
-                                $ticket_total_time_worked = nullable_htmlentities($row['total_time']);
+                                $ticket_total_time_worked = escapeHtml($row['total_time']);
 
                                 ?>
 
                                 <tr>
-                                    <td><?php echo $user_name; ?></td>
-                                    <td class="text-right"><?php echo $ticket_raised_count; ?></td>
-                                    <td class="text-right"><?php echo $tickets_touched; ?></td>
-                                    <td class="text-right"><?php echo $ticket_total_time_worked; ?></td>
+                                    <td><?= $user_name ?></td>
+                                    <td class="text-right"><?= $ticket_raised_count ?></td>
+                                    <td class="text-right"><?= $tickets_touched ?></td>
+                                    <td class="text-right"><?= $ticket_total_time_worked ?></td>
                                 </tr>
 
                                 <?php

@@ -8,19 +8,14 @@ DEFINE("WORDING_PAYMENT_FAILED", "<br><h2>There was an error verifying your paym
 $stripe_provider = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT * FROM payment_providers"));
 
 
-$stripe_publishable      = nullable_htmlentities($stripe_provider['payment_provider_public_key']);
-$stripe_secret           = nullable_htmlentities($stripe_provider['payment_provider_private_key']);
+$stripe_publishable      = escapeHtml($stripe_provider['payment_provider_public_key']);
+$stripe_secret           = escapeHtml($stripe_provider['payment_provider_private_key']);
 $stripe_account          = intval($stripe_provider['payment_provider_account']);
-$stripe_expense_vendor   = intval($stripe_provider['payment_provider_expense_vendor']);
-$stripe_expense_category = intval($stripe_provider['payment_provider_expense_category']);
-$stripe_percentage_fee   = floatval($stripe_provider['payment_provider_expense_percentage_fee']);
-$stripe_flat_fee         = floatval($stripe_provider['payment_provider_expense_flat_fee']);
-
 
 // Show payment form
 if (isset($_GET['invoice_id'], $_GET['url_key']) && !isset($_GET['payment_intent'])) {
 
-    $invoice_url_key = sanitizeInput($_GET['url_key']);
+    $invoice_url_key = escapeSql($_GET['url_key']);
     $invoice_id      = intval($_GET['invoice_id']);
 
     // Query invoice details
@@ -44,22 +39,22 @@ if (isset($_GET['invoice_id'], $_GET['url_key']) && !isset($_GET['payment_intent
 
     $row = mysqli_fetch_assoc($sql);
     $invoice_id            = intval($row['invoice_id']);
-    $invoice_prefix        = nullable_htmlentities($row['invoice_prefix']);
+    $invoice_prefix        = escapeHtml($row['invoice_prefix']);
     $invoice_number        = intval($row['invoice_number']);
-    $invoice_status        = nullable_htmlentities($row['invoice_status']);
-    $invoice_date          = nullable_htmlentities($row['invoice_date']);
-    $invoice_due           = nullable_htmlentities($row['invoice_due']);
+    $invoice_status        = escapeHtml($row['invoice_status']);
+    $invoice_date          = escapeHtml($row['invoice_date']);
+    $invoice_due           = escapeHtml($row['invoice_due']);
     $invoice_discount      = floatval($row['invoice_discount_amount']);
     $invoice_amount        = floatval($row['invoice_amount']);
-    $invoice_currency_code = nullable_htmlentities($row['invoice_currency_code']);
+    $invoice_currency_code = escapeHtml($row['invoice_currency_code']);
     $client_id             = intval($row['client_id']);
-    $client_name           = nullable_htmlentities($row['client_name']);
+    $client_name           = escapeHtml($row['client_name']);
 
     // Company info for currency formatting, etc
     $sql_company = mysqli_query($mysqli, "SELECT * FROM companies WHERE company_id = 1");
     $company_row = mysqli_fetch_assoc($sql_company);
-    $company_locale = nullable_htmlentities($company_row['company_locale']);
-    $config_base_url = nullable_htmlentities($company_row['company_base_url'] ?? ''); // You might want to pull from settings if needed
+    $company_locale = escapeHtml($company_row['company_locale']);
+    $config_base_url = escapeHtml($company_row['company_base_url'] ?? ''); // You might want to pull from settings if needed
 
     // Add up all payments made to the invoice
     $sql_amount_paid = mysqli_query($mysqli, "SELECT SUM(payment_amount) AS amount_paid FROM payments WHERE payment_invoice_id = $invoice_id");
@@ -76,13 +71,13 @@ if (isset($_GET['invoice_id'], $_GET['url_key']) && !isset($_GET['payment_intent
 
     <!-- Stripe & jQuery -->
     <script src="https://js.stripe.com/v3/"></script>
-    <script src="../plugins/jquery/jquery.min.js"></script>
+    <script src="../libs/jquery/jquery.min.js"></script>
 
     <div class="row pt-5">
         <div class="col-sm">
             <div class="card">
                 <div class="card-header">
-                    <h3 class="card-title">Payment for Invoice: <strong><?php echo "$invoice_prefix$invoice_number"; ?></strong></h3>
+                    <h3 class="card-title">Payment for Invoice: <strong><?= "$invoice_prefix$invoice_number" ?></strong></h3>
                 </div>
                 <div class="table-responsive">
                     <table class="table">
@@ -96,21 +91,21 @@ if (isset($_GET['invoice_id'], $_GET['url_key']) && !isset($_GET['payment_intent
                         <tbody>
                         <?php
                         while ($row = mysqli_fetch_assoc($sql_invoice_items)) {
-                            $item_name = nullable_htmlentities($row['item_name']);
+                            $item_name = escapeHtml($row['item_name']);
                             $item_quantity = floatval($row['item_quantity']);
                             $item_total = floatval($row['item_total']);
                         ?>
                             <tr>
-                                <td><?php echo $item_name; ?></td>
-                                <td class="text-center"><?php echo $item_quantity; ?></td>
-                                <td class="text-right"><?php echo numfmt_format_currency($currency_format, $item_total, $invoice_currency_code); ?></td>
+                                <td><?= $item_name ?></td>
+                                <td class="text-center"><?= $item_quantity ?></td>
+                                <td class="text-right"><?= numfmt_format_currency($currency_format, $item_total, $invoice_currency_code) ?></td>
                             </tr>
                         <?php } ?>
                         <?php if ($invoice_discount > 0) { ?>
                             <tr class="text-right">
                                 <td colspan="2">Discount</td>
                                 <td>
-                                    <?php echo numfmt_format_currency($currency_format, $invoice_discount, $invoice_currency_code); ?>
+                                    <?= numfmt_format_currency($currency_format, $invoice_discount, $invoice_currency_code) ?>
                                 </td>
                             </tr>
                         <?php } ?>
@@ -118,7 +113,7 @@ if (isset($_GET['invoice_id'], $_GET['url_key']) && !isset($_GET['payment_intent
                             <tr class="text-right">
                                 <td colspan="2">Paid</td>
                                 <td>
-                                    <?php echo numfmt_format_currency($currency_format, $amount_paid, $invoice_currency_code); ?>
+                                    <?= numfmt_format_currency($currency_format, $amount_paid, $invoice_currency_code) ?>
                                 </td>
                             </tr>
                         <?php } ?>
@@ -131,13 +126,13 @@ if (isset($_GET['invoice_id'], $_GET['url_key']) && !isset($_GET['payment_intent
         <div class="col-sm offset-sm-1">
             <div class="card">
                 <div class="card-header">
-                    <h3 class="card-title">Payment Total: <strong><?php echo numfmt_format_currency($currency_format, $balance_to_pay, $invoice_currency_code); ?></strong></h3>
+                    <h3 class="card-title">Payment Total: <strong><?= numfmt_format_currency($currency_format, $balance_to_pay, $invoice_currency_code) ?></strong></h3>
                 </div>
                 <div class="card-body">
                     <form id="payment-form">
-                        <input type="hidden" id="stripe_publishable_key" value="<?php echo $stripe_publishable ?>">
-                        <input type="hidden" id="invoice_id" value="<?php echo $invoice_id ?>">
-                        <input type="hidden" id="url_key" value="<?php echo $invoice_url_key ?>">
+                        <input type="hidden" id="stripe_publishable_key" value="<?= $stripe_publishable ?>">
+                        <input type="hidden" id="invoice_id" value="<?= $invoice_id ?>">
+                        <input type="hidden" id="url_key" value="<?= $invoice_url_key ?>">
                         <div id="payment-element"></div>
                         <br>
                         <button type="submit" id="submit" class="btn btn-primary btn-lg btn-block text-bold" hidden="hidden">
@@ -158,10 +153,10 @@ if (isset($_GET['invoice_id'], $_GET['url_key']) && !isset($_GET['payment_intent
 // Payment result processing
 } elseif (isset($_GET['payment_intent'], $_GET['payment_intent_client_secret'])) {
 
-    $pi_id = sanitizeInput($_GET['payment_intent']);
+    $pi_id = escapeSql($_GET['payment_intent']);
     $pi_cs = $_GET['payment_intent_client_secret'];
 
-    require_once '../plugins/stripe-php/init.php';
+    require_once '../includes/stripe_init.php';
     \Stripe\Stripe::setApiKey($stripe_secret);
 
     $pi_obj = \Stripe\PaymentIntent::retrieve($pi_id);
@@ -181,7 +176,7 @@ if (isset($_GET['invoice_id'], $_GET['url_key']) && !isset($_GET['payment_intent
     $pi_invoice_id = intval($pi_obj->metadata->itflow_invoice_id);
     $pi_client_id = intval($pi_obj->metadata->itflow_client_id);
     $pi_amount_paid = floatval(($pi_obj->amount_received / 100));
-    $pi_currency = strtoupper(sanitizeInput($pi_obj->currency));
+    $pi_currency = strtoupper(escapeSql($pi_obj->currency));
     $pi_livemode = $pi_obj->livemode;
 
     // Get/Check invoice (& client/primary contact)
@@ -201,21 +196,21 @@ if (isset($_GET['invoice_id'], $_GET['url_key']) && !isset($_GET['payment_intent
 
     $row = mysqli_fetch_assoc($invoice_sql);
     $invoice_id = intval($row['invoice_id']);
-    $invoice_prefix = sanitizeInput($row['invoice_prefix']);
+    $invoice_prefix = escapeSql($row['invoice_prefix']);
     $invoice_number = intval($row['invoice_number']);
     $invoice_amount = floatval($row['invoice_amount']);
-    $invoice_currency_code = sanitizeInput($row['invoice_currency_code']);
-    $invoice_url_key = sanitizeInput($row['invoice_url_key']);
+    $invoice_currency_code = escapeSql($row['invoice_currency_code']);
+    $invoice_url_key = escapeSql($row['invoice_url_key']);
     $client_id = intval($row['client_id']);
-    $client_name = sanitizeInput($row['client_name']);
-    $contact_name = sanitizeInput($row['contact_name']);
-    $contact_email = sanitizeInput($row['contact_email']);
+    $client_name = escapeSql($row['client_name']);
+    $contact_name = escapeSql($row['contact_name']);
+    $contact_email = escapeSql($row['contact_email']);
 
     $sql_company = mysqli_query($mysqli, "SELECT * FROM companies WHERE company_id = 1");
     $row = mysqli_fetch_assoc($sql_company);
-    $company_name = sanitizeInput($row['company_name']);
-    $company_phone = sanitizeInput(formatPhoneNumber($row['company_phone']));
-    $company_locale = sanitizeInput($row['company_locale']);
+    $company_name = escapeSql($row['company_name']);
+    $company_phone = escapeSql(formatPhoneNumber($row['company_phone']));
+    $company_locale = escapeSql($row['company_locale']);
 
     $currency_format = numfmt_create($company_locale, NumberFormatter::CURRENCY);
 
@@ -223,28 +218,32 @@ if (isset($_GET['invoice_id'], $_GET['url_key']) && !isset($_GET['payment_intent
     $amount_paid_previously = floatval(mysqli_fetch_assoc($sql_amount_paid_previously)['amount_paid']);
     $balance_to_pay = $invoice_amount - $amount_paid_previously;
 
-    // Stripe expense
-    if ($stripe_expense_vendor > 0 && $stripe_expense_category > 0) {
-        $gateway_fee = round($balance_to_pay * $stripe_percentage_fee + $stripe_flat_fee, 2);
-        mysqli_query($mysqli, "INSERT INTO expenses SET expense_date = '$pi_date', expense_amount = $gateway_fee, expense_currency_code = '$invoice_currency_code', expense_account_id = $stripe_account, expense_vendor_id = $stripe_expense_vendor, expense_client_id = $client_id, expense_category_id = $stripe_expense_category, expense_description = 'Stripe Transaction for Invoice $invoice_prefix$invoice_number In the Amount of $balance_to_pay', expense_reference = 'Stripe - $pi_id'");
-    }
-
-    if (intval($balance_to_pay) !== intval($pi_amount_paid)) {
+    // Compare in whole cents - intval() truncates, which silently accepted an underpayment
+    // of up to 99c as payment in full while rejecting a 1c overpayment.
+    if ((int) round($balance_to_pay * 100) !== (int) round($pi_amount_paid * 100)) {
         error_log("Stripe payment error - Invoice balance does not match amount paid for $pi_id");
         exit(WORDING_PAYMENT_FAILED);
     }
 
-    // Update Invoice Status
-    mysqli_query($mysqli, "UPDATE invoices SET invoice_status = 'Paid' WHERE invoice_id = $invoice_id");
+    // Claim the invoice - the conditional UPDATE is the lock, and the row lock it takes
+    // is what serialises concurrent requests carrying the same payment intent. A request
+    // that loses the race matches 0 rows and must not book the payment a second time.
+    mysqli_query($mysqli, "UPDATE invoices SET invoice_status = 'Paid' WHERE invoice_id = $invoice_id AND invoice_status NOT IN ('Draft', 'Paid', 'Cancelled')");
+    if (mysqli_affected_rows($mysqli) !== 1) {
+        error_log("Stripe payment - invoice $invoice_id was already settled by a concurrent request; skipping duplicate booking of $pi_id");
+        header('Location: //' . $config_base_url . '/guest/guest_view_invoice.php?invoice_id=' . $invoice_id . '&url_key=' . $invoice_url_key);
+        exit();
+    }
 
     // Add Payment to History
     mysqli_query($mysqli, "INSERT INTO payments SET payment_date = '$pi_date', payment_amount = $pi_amount_paid, payment_currency_code = '$pi_currency', payment_account_id = $stripe_account, payment_method = 'Stripe', payment_reference = 'Stripe - $pi_id', payment_invoice_id = $invoice_id");
+    
     mysqli_query($mysqli, "INSERT INTO history SET history_status = 'Paid', history_description = 'Online Payment added (client) - $ip - $os - $browser', history_invoice_id = $invoice_id");
 
     // Notify
     appNotify("Invoice Paid", "Invoice $invoice_prefix$invoice_number has been paid by $client_name - $ip - $os - $browser", "/agent/invoice.php?invoice_id=$invoice_id", $pi_client_id);
 
-    customAction('invoice_pay', $invoice_id);
+    triggerCustomAction('invoice_pay', $invoice_id);
 
     $extended_log_desc = '';
     if (!$pi_livemode) {
@@ -257,9 +256,9 @@ if (isset($_GET['invoice_id'], $_GET['url_key']) && !isset($_GET['payment_intent
     $settings = mysqli_fetch_assoc($sql_settings);
 
     $config_smtp_host = $settings['config_smtp_host'];
-    $config_invoice_from_name = sanitizeInput($settings['config_invoice_from_name']);
-    $config_invoice_from_email = sanitizeInput($settings['config_invoice_from_email']);
-    $config_invoice_paid_notification_email = sanitizeInput($settings['config_invoice_paid_notification_email']);
+    $config_invoice_from_name = escapeSql($settings['config_invoice_from_name']);
+    $config_invoice_from_email = escapeSql($settings['config_invoice_from_email']);
+    $config_invoice_paid_notification_email = escapeSql($settings['config_invoice_paid_notification_email']);
 
     if (!empty($config_smtp_host)) {
         $subject = "Payment Received - Invoice $invoice_prefix$invoice_number";

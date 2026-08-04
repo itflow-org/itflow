@@ -41,7 +41,7 @@ ob_start();
                         ORDER BY category_order ASC, category_name ASC
                     ");
                     while ($row = mysqli_fetch_assoc($sql_interface_types_select)) {
-                        $interface_type_select = nullable_htmlentities($row['category_name']);
+                        $interface_type_select = escapeHtml($row['category_name']);
                         ?>
                         <option><?= $interface_type_select ?></option>
                     <?php } ?>

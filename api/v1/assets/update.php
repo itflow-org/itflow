@@ -31,8 +31,8 @@ if (!empty($asset_id)) {
         mysqli_query($mysqli,"INSERT INTO asset_history SET asset_history_status = '$status', asset_history_description = 'API updated $name ($api_key_name)', asset_history_asset_id = $asset_id");
 
         // Logging
-        logAction("Asset", "Edit", "$name via API ($api_key_name)", $client_id);
-        logAction("API", "Success", "Edited asset $name via API ($api_key_name)", $client_id);
+        logAudit("Asset", "Edit", "$name via API ($api_key_name)", $client_id);
+        logAudit("API", "Success", "Edited asset $name via API ($api_key_name)", $client_id);
     }
 }
 

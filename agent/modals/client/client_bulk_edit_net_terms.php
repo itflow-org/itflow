@@ -43,8 +43,8 @@ ob_start();
                 <select class="form-control select2" name="net_terms">
                     <option value="">- Net Terms -</option>
                     <?php foreach ($net_terms_array as $net_term_value => $net_term_name) { ?>
-                        <option value="<?php echo $net_term_value; ?>">
-                            <?php echo $net_term_name; ?>
+                        <option value="<?= $net_term_value ?>">
+                            <?= $net_term_name ?>
                         </option>
                     <?php } ?>
                 </select>

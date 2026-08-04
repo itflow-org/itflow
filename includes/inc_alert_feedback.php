@@ -27,7 +27,7 @@ if (!empty($_SESSION['alert_message'])) {
             "hideMethod": "fadeOut"
         }
 
-        toastr["<?php echo $_SESSION['alert_type']; ?>"]("<?php echo $_SESSION['alert_message']; ?>")
+        toastr["<?= $_SESSION['alert_type'] ?>"]("<?= $_SESSION['alert_message'] ?>")
 
     </script>
 

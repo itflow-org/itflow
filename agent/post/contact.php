@@ -8,7 +8,7 @@ defined('FROM_POST_HANDLER') || die("Direct file access is not allowed");
 
 if (isset($_POST['add_contact'])) {
 
-    validateCSRFToken($_POST['csrf_token']);
+    validateCSRFToken();
 
     enforceUserPermission('module_client', 2);
 
@@ -72,11 +72,11 @@ if (isset($_POST['add_contact'])) {
         }
     }
 
-    logAction("Contact", "Create", "$session_name created contact $name", $client_id, $contact_id);
+    logAudit("Contact", "Create", "$session_name created contact $name", $client_id, $contact_id);
 
-    customAction('contact_create', $contact_id);
+    triggerCustomAction('contact_create', $contact_id);
 
-    flash_alert("Contact <strong>$name</strong> created");
+    flashAlert("Contact <strong>$name</strong> created");
 
     redirect();
 
@@ -84,7 +84,7 @@ if (isset($_POST['add_contact'])) {
 
 if (isset($_POST['edit_contact'])) {
 
-    validateCSRFToken($_POST['csrf_token']);
+    validateCSRFToken();
 
     enforceUserPermission('module_client', 2);
 
@@ -96,7 +96,7 @@ if (isset($_POST['edit_contact'])) {
     // Get Contact Info
     $sql = mysqli_query($mysqli,"SELECT contact_photo, contact_user_id, contact_client_id FROM contacts WHERE contact_id = $contact_id");
     $row = mysqli_fetch_assoc($sql);
-    $existing_file_name = sanitizeInput($row['contact_photo']);
+    $existing_file_name = escapeSql($row['contact_photo']);
     $contact_user_id = intval($row['contact_user_id']);
     $client_id = intval($row['contact_client_id']);
 
@@ -175,17 +175,17 @@ if (isset($_POST['edit_contact'])) {
     if ($send_email && $auth_method && $config_smtp_provider && $contact_user_id) {
 
         // Sanitize Config vars from get_settings.php
-        $config_ticket_from_email = sanitizeInput($config_ticket_from_email);
-        $config_ticket_from_name = sanitizeInput($config_ticket_from_name);
-        $config_mail_from_email = sanitizeInput($config_mail_from_email);
-        $config_mail_from_name = sanitizeInput($config_mail_from_name);
-        $config_base_url = sanitizeInput($config_base_url);
+        $config_ticket_from_email = escapeSql($config_ticket_from_email);
+        $config_ticket_from_name = escapeSql($config_ticket_from_name);
+        $config_mail_from_email = escapeSql($config_mail_from_email);
+        $config_mail_from_name = escapeSql($config_mail_from_name);
+        $config_base_url = escapeSql($config_base_url);
 
         // Get Company Phone Number
         $sql = mysqli_query($mysqli,"SELECT company_name, company_phone FROM companies WHERE company_id = 1");
         $row = mysqli_fetch_assoc($sql);
-        $company_name = sanitizeInput($row['company_name']);
-        $company_phone = sanitizeInput(formatPhoneNumber($row['company_phone']));
+        $company_name = escapeSql($row['company_name']);
+        $company_phone = escapeSql(formatPhoneNumber($row['company_phone']));
 
         // Authentication info (azure, reset password, or tech-provided temporary password)
 
@@ -217,11 +217,11 @@ if (isset($_POST['edit_contact'])) {
 
     }
 
-    logAction("Contact", "Edit", "$session_name edited contact $name", $client_id, $contact_id);
+    logAudit("Contact", "Edit", "$session_name edited contact $name", $client_id, $contact_id);
 
-    customAction('contact_update', $contact_id);
+    triggerCustomAction('contact_update', $contact_id);
 
-    flash_alert("Contact <strong>$name</strong> updated");
+    flashAlert("Contact <strong>$name</strong> updated");
 
     redirect();
 
@@ -229,18 +229,18 @@ if (isset($_POST['edit_contact'])) {
 
 if (isset($_POST['add_contact_note'])) {
 
-    validateCSRFToken($_POST['csrf_token']);
+    validateCSRFToken();
 
     enforceUserPermission('module_client', 2);
 
     $contact_id = intval($_POST['contact_id']);
-    $type = sanitizeInput($_POST['type']);
-    $note = sanitizeInput($_POST['note']);
+    $type = escapeSql($_POST['type']);
+    $note = escapeSql($_POST['note']);
 
     // Get Contact details for logging and alerting
     $sql = mysqli_query($mysqli,"SELECT contact_name, contact_client_id FROM contacts WHERE contact_id = $contact_id");
     $row = mysqli_fetch_assoc($sql);
-    $contact_name = sanitizeInput($row['contact_name']);
+    $contact_name = escapeSql($row['contact_name']);
     $client_id = intval($row['contact_client_id']);
 
     enforceClientAccess();
@@ -250,7 +250,7 @@ if (isset($_POST['add_contact_note'])) {
     $contact_note_id = mysqli_insert_id($mysqli);
 
     //Logging
-    logAction("Contact", "Edit", "$session_name created a $type note for contact $contact_name", $client_id, $contact_id);
+    logAudit("Contact", "Edit", "$session_name created a $type note for contact $contact_name", $client_id, $contact_id);
 
     $_SESSION['alert_message'] = "Note <strong>$type</strong> created for <strong>$contact_name</strong>";
 
@@ -260,7 +260,7 @@ if (isset($_POST['add_contact_note'])) {
 
 if (isset($_GET['archive_contact_note'])) {
 
-    validateCSRFToken($_GET['csrf_token']);
+    validateCSRFToken();
 
     enforceUserPermission('module_client', 2);
 
@@ -269,8 +269,8 @@ if (isset($_GET['archive_contact_note'])) {
     // Get Contact Name and Client ID for logging and alert message
     $sql = mysqli_query($mysqli,"SELECT contact_note_type, contact_id, contact_name, contact_client_id FROM contact_notes LEFT JOIN contacts ON contact_id = contact_note_contact_id WHERE contact_note_id = $contact_note_id");
     $row = mysqli_fetch_assoc($sql);
-    $contact_note_type = sanitizeInput($row['contact_note_type']);
-    $contact_name = sanitizeInput($row['contact_name']);
+    $contact_note_type = escapeSql($row['contact_note_type']);
+    $contact_name = escapeSql($row['contact_name']);
     $client_id = intval($row['contact_client_id']);
     $contact_id = intval($row['contact_id']);
 
@@ -278,9 +278,9 @@ if (isset($_GET['archive_contact_note'])) {
 
     mysqli_query($mysqli,"UPDATE contact_notes SET contact_note_archived_at = NOW() WHERE contact_note_id = $contact_note_id");
 
-    logAction("Contact", "Edit", "$session_name archived note $contact_note_type for $contact_name", $client_id, $contact_id);
+    logAudit("Contact", "Edit", "$session_name archived note $contact_note_type for $contact_name", $client_id, $contact_id);
 
-    flash_alert("Note <strong>$contact_note_type</strong> archived", 'error');
+    flashAlert("Note <strong>$contact_note_type</strong> archived", 'error');
 
     redirect();
 
@@ -288,7 +288,7 @@ if (isset($_GET['archive_contact_note'])) {
 
 if (isset($_GET['restore_contact_note'])) {
 
-    validateCSRFToken($_GET['csrf_token']);
+    validateCSRFToken();
 
     enforceUserPermission('module_client', 2);
 
@@ -297,8 +297,8 @@ if (isset($_GET['restore_contact_note'])) {
     // Get Contact Name and Client ID for logging and alert message
     $sql = mysqli_query($mysqli,"SELECT contact_note_type, contact_id, contact_name, contact_client_id FROM contact_notes LEFT JOIN contacts ON contact_id = contact_note_contact_id WHERE contact_note_id = $contact_note_id");
     $row = mysqli_fetch_assoc($sql);
-    $contact_note_type = sanitizeInput($row['contact_note_type']);
-    $contact_name = sanitizeInput($row['contact_name']);
+    $contact_note_type = escapeSql($row['contact_note_type']);
+    $contact_name = escapeSql($row['contact_name']);
     $client_id = intval($row['contact_client_id']);
     $contact_id = intval($row['contact_id']);
 
@@ -306,9 +306,9 @@ if (isset($_GET['restore_contact_note'])) {
 
     mysqli_query($mysqli,"UPDATE contact_notes SET contact_note_archived_at = NULL WHERE contact_note_id = $contact_note_id");
 
-    logAction("Contact", "Edit", "$session_name restored note $contact_note_type for $contact_name", $client_id, $contact_id);
+    logAudit("Contact", "Edit", "$session_name restored note $contact_note_type for $contact_name", $client_id, $contact_id);
 
-    flash_alert("Note <strong>$contact_note_type</strong> restored");
+    flashAlert("Note <strong>$contact_note_type</strong> restored");
 
     redirect();
 
@@ -316,7 +316,7 @@ if (isset($_GET['restore_contact_note'])) {
 
 if (isset($_GET['delete_contact_note'])) {
 
-    validateCSRFToken($_GET['csrf_token']);
+    validateCSRFToken();
 
     enforceUserPermission('module_client', 3);
 
@@ -325,8 +325,8 @@ if (isset($_GET['delete_contact_note'])) {
     // Get Contact Name and Client ID for logging and alert message
     $sql = mysqli_query($mysqli,"SELECT contact_note_type, contact_id, contact_name, contact_client_id FROM contact_notes LEFT JOIN contacts ON contact_id = contact_note_contact_id WHERE contact_note_id = $contact_note_id");
     $row = mysqli_fetch_assoc($sql);
-    $contact_note_type = sanitizeInput($row['contact_note_type']);
-    $contact_name = sanitizeInput($row['contact_name']);
+    $contact_note_type = escapeSql($row['contact_note_type']);
+    $contact_name = escapeSql($row['contact_name']);
     $client_id = intval($row['contact_client_id']);
     $contact_id = intval($row['contact_id']);
 
@@ -334,9 +334,9 @@ if (isset($_GET['delete_contact_note'])) {
 
     mysqli_query($mysqli,"DELETE FROM contact_notes WHERE contact_note_id = $contact_note_id");
 
-    logAction("Contact", "Edit", "$session_name deleted $contact_note_type note for $contact_name", $client_id, $contact_id);
+    logAudit("Contact", "Edit", "$session_name deleted $contact_note_type note for $contact_name", $client_id, $contact_id);
 
-    flash_alert("Note <strong>$contact_note_type</strong> deleted.", 'error');
+    flashAlert("Note <strong>$contact_note_type</strong> deleted.", 'error');
 
     redirect();
 
@@ -344,7 +344,7 @@ if (isset($_GET['delete_contact_note'])) {
 
 if (isset($_POST['bulk_assign_contact_location'])) {
 
-    validateCSRFToken($_POST['csrf_token']);
+    validateCSRFToken();
 
     enforceUserPermission('module_client', 2);
 
@@ -353,7 +353,7 @@ if (isset($_POST['bulk_assign_contact_location'])) {
     // Get Location name for logging and Notification
     $sql = mysqli_query($mysqli,"SELECT location_name, location_client_id FROM locations WHERE location_id = $location_id");
     $row = mysqli_fetch_assoc($sql);
-    $location_name = sanitizeInput($row['location_name']);
+    $location_name = escapeSql($row['location_name']);
     $client_id = intval($row['location_client_id']);
 
     enforceClientAccess();
@@ -370,17 +370,17 @@ if (isset($_POST['bulk_assign_contact_location'])) {
             // Get Contact Details for Logging
             $sql = mysqli_query($mysqli,"SELECT contact_name FROM contacts WHERE contact_id = $contact_id");
             $row = mysqli_fetch_assoc($sql);
-            $contact_name = sanitizeInput($row['contact_name']);
+            $contact_name = escapeSql($row['contact_name']);
 
             mysqli_query($mysqli,"UPDATE contacts SET contact_location_id = $location_id WHERE contact_id = $contact_id");
 
-            logAction("Contact", "Edit", "$session_name assigned $contaxt_name to location $location_name", $client_id, $contact_id);
+            logAudit("Contact", "Edit", "$session_name assigned $contact_name to location $location_name", $client_id, $contact_id);
 
         } // End Assign Location Loop
 
-        logAction("Contact", "Bulk Edit", "$session_name assigned $contact_count contacts to location $location_name", $client_id);
+        logAudit("Contact", "Bulk Edit", "$session_name assigned $contact_count contacts to location $location_name", $client_id);
 
-        flash_alert("<b>$contact_count</b> contacts assigned to location <b>$location_name</b>");
+        flashAlert("<b>$contact_count</b> contacts assigned to location <b>$location_name</b>");
     }
 
     redirect();
@@ -389,7 +389,7 @@ if (isset($_POST['bulk_assign_contact_location'])) {
 
 if (isset($_POST['bulk_edit_contact_phone'])) {
 
-    validateCSRFToken($_POST['csrf_token']);
+    validateCSRFToken();
 
     enforceUserPermission('module_client', 2);
 
@@ -407,20 +407,20 @@ if (isset($_POST['bulk_edit_contact_phone'])) {
             // Get Contact Details for Logging
             $sql = mysqli_query($mysqli,"SELECT contact_name, contact_client_id FROM contacts WHERE contact_id = $contact_id");
             $row = mysqli_fetch_assoc($sql);
-            $contact_name = sanitizeInput($row['contact_name']);
+            $contact_name = escapeSql($row['contact_name']);
             $client_id = intval($row['contact_client_id']);
 
             enforceClientAccess();
 
             mysqli_query($mysqli,"UPDATE contacts SET contact_phone = '$phone' WHERE contact_id = $contact_id");
 
-            logAction("Contact", "Edit", "$session_name set Phone Number to $phone for $contact_name", $client_id, $contact_id);
+            logAudit("Contact", "Edit", "$session_name set Phone Number to $phone for $contact_name", $client_id, $contact_id);
 
         } // End Assign Location Loop
 
-        logAction("Contact", "Bulk Edit", "$session_name set the Phone Number $phone for $contact_count contacts", $client_id);
+        logAudit("Contact", "Bulk Edit", "$session_name set the Phone Number $phone for $contact_count contacts", $client_id);
 
-        flash_alert("Phone Number set to <b>" . formatPhoneNumber($phone) . "</b> on $contact_count</b> contacts");
+        flashAlert("Phone Number set to <b>" . formatPhoneNumber($phone) . "</b> on $contact_count</b> contacts");
     }
 
     redirect();
@@ -429,11 +429,11 @@ if (isset($_POST['bulk_edit_contact_phone'])) {
 
 if (isset($_POST['bulk_edit_contact_department'])) {
 
-    validateCSRFToken($_POST['csrf_token']);
+    validateCSRFToken();
 
     enforceUserPermission('module_client', 2);
 
-    $department = sanitizeInput($_POST['bulk_department']);
+    $department = escapeSql($_POST['bulk_department']);
 
     // Assign Location to Selected Contacts
     if (isset($_POST['contact_ids'])) {
@@ -447,20 +447,20 @@ if (isset($_POST['bulk_edit_contact_department'])) {
             // Get Contact Details for Logging
             $sql = mysqli_query($mysqli,"SELECT contact_name, contact_client_id FROM contacts WHERE contact_id = $contact_id");
             $row = mysqli_fetch_assoc($sql);
-            $contact_name = sanitizeInput($row['contact_name']);
+            $contact_name = escapeSql($row['contact_name']);
             $client_id = intval($row['contact_client_id']);
 
             enforceClientAccess();
 
             mysqli_query($mysqli,"UPDATE contacts SET contact_department = '$department' WHERE contact_id = $contact_id");
 
-            logAction("Contact", "Edit", "$session_name set Department to $department for $contact_name", $client_id, $contact_id);
+            logAudit("Contact", "Edit", "$session_name set Department to $department for $contact_name", $client_id, $contact_id);
 
         } // End Assign Location Loop
 
-        logAction("Contact", "Bulk Edit", "$session_name set the department $department for $contact_count contacts", $client_id);
+        logAudit("Contact", "Bulk Edit", "$session_name set the department $department for $contact_count contacts", $client_id);
 
-        flash_alert("You set the Department to <strong>$department</strong> for <strong>$contact_count</strong> contacts");
+        flashAlert("You set the Department to <strong>$department</strong> for <strong>$contact_count</strong> contacts");
     }
 
     redirect();
@@ -469,7 +469,7 @@ if (isset($_POST['bulk_edit_contact_department'])) {
 
 if (isset($_POST['bulk_edit_contact_role'])) {
 
-    validateCSRFToken($_POST['csrf_token']);
+    validateCSRFToken();
 
     enforceUserPermission('module_client', 2);
 
@@ -489,22 +489,22 @@ if (isset($_POST['bulk_edit_contact_role'])) {
             // Get Contact Details for Logging
             $sql = mysqli_query($mysqli,"SELECT contact_name, contact_client_id FROM contacts WHERE contact_id = $contact_id");
             $row = mysqli_fetch_assoc($sql);
-            $contact_name = sanitizeInput($row['contact_name']);
+            $contact_name = escapeSql($row['contact_name']);
             $client_id = intval($row['contact_client_id']);
 
             enforceClientAccess();
 
             mysqli_query($mysqli,"UPDATE contacts SET contact_important = $contact_important, contact_billing = $contact_billing, contact_technical = $contact_technical WHERE contact_id = $contact_id");
 
-            logAction("Contact", "Edit", "$session_name updated the contact role for $contact_name", $client_id, $contact_id);
+            logAudit("Contact", "Edit", "$session_name updated the contact role for $contact_name", $client_id, $contact_id);
 
-            customAction('contact_update', $contact_id);
+            triggerCustomAction('contact_update', $contact_id);
 
         } // End Assign Location Loop
 
-        logAction("Contact", "Bulk Edit", "$session_name edited the contact role for $contact_count contacts", $client_id);
+        logAudit("Contact", "Bulk Edit", "$session_name edited the contact role for $contact_count contacts", $client_id);
 
-        flash_alert("You updated contact roles for <b>$contact_count</b> contacts");
+        flashAlert("You updated contact roles for <b>$contact_count</b> contacts");
     }
 
     redirect();
@@ -513,7 +513,7 @@ if (isset($_POST['bulk_edit_contact_role'])) {
 
 if (isset($_POST['bulk_assign_contact_tags'])) {
 
-    validateCSRFToken($_POST['csrf_token']);
+    validateCSRFToken();
 
     enforceUserPermission('module_client', 2);
 
@@ -529,7 +529,7 @@ if (isset($_POST['bulk_assign_contact_tags'])) {
             // Get Contact Details for Logging
             $sql = mysqli_query($mysqli,"SELECT contact_name, contact_client_id FROM contacts WHERE contact_id = $contact_id");
             $row = mysqli_fetch_assoc($sql);
-            $contact_name = sanitizeInput($row['contact_name']);
+            $contact_name = escapeSql($row['contact_name']);
             $client_id = intval($row['contact_client_id']);
 
             enforceClientAccess();
@@ -551,13 +551,13 @@ if (isset($_POST['bulk_assign_contact_tags'])) {
                 }
             }
 
-            logAction("Contact", "Edit", "$session_name added tags to $contact_name", $client_id, $contact_id);
+            logAudit("Contact", "Edit", "$session_name added tags to $contact_name", $client_id, $contact_id);
 
         } // End Assign Location Loop
 
-        logAction("Contact", "Bulk Edit", "$session_name added tags for $contact_count contacts", $client_id);
+        logAudit("Contact", "Bulk Edit", "$session_name added tags for $contact_count contacts", $client_id);
 
-        flash_alert("You assigned tags for <strong>$count</strong> contacts");
+        flashAlert("You assigned tags for <strong>$count</strong> contacts");
     }
 
     redirect();
@@ -566,7 +566,7 @@ if (isset($_POST['bulk_assign_contact_tags'])) {
 
 if (isset($_POST['send_bulk_mail_now'])) {
 
-    validateCSRFToken($_POST['csrf_token']);
+    validateCSRFToken();
 
     enforceUserPermission('module_client');
 
@@ -574,11 +574,11 @@ if (isset($_POST['send_bulk_mail_now'])) {
 
         $count = count($_POST['contact_ids']);
 
-        $mail_from = sanitizeInput($_POST['mail_from']);
-        $mail_from_name = sanitizeInput($_POST['mail_from_name']);
-        $subject = sanitizeInput($_POST['subject']);
+        $mail_from = escapeSql($_POST['mail_from']);
+        $mail_from_name = escapeSql($_POST['mail_from_name']);
+        $subject = escapeSql($_POST['subject']);
         $body = mysqli_escape_string($mysqli, $_POST['body']);
-        $queued_at = sanitizeInput($_POST['queued_at']);
+        $queued_at = escapeSql($_POST['queued_at']);
 
         // Add Emails
         foreach($_POST['contact_ids'] as $contact_id) {
@@ -586,8 +586,8 @@ if (isset($_POST['send_bulk_mail_now'])) {
 
             $sql = mysqli_query($mysqli,"SELECT * FROM contacts WHERE contact_id = $contact_id");
             $row = mysqli_fetch_assoc($sql);
-            $contact_name = sanitizeInput($row['contact_name']);
-            $contact_email = sanitizeInput($row['contact_email']);
+            $contact_name = escapeSql($row['contact_name']);
+            $contact_email = escapeSql($row['contact_email']);
             $client_id = intval($row['contact_client_id']);
 
             enforceClientAccess();
@@ -605,9 +605,9 @@ if (isset($_POST['send_bulk_mail_now'])) {
         }
         addToMailQueue($data);
 
-        logAction("Bulk Mail", "Send", "$session_name sent $count messages via bulk mail");
+        logAudit("Bulk Mail", "Send", "$session_name sent $count messages via bulk mail");
 
-        flash_alert("<strong>$count</strong> messages queued");
+        flashAlert("<strong>$count</strong> messages queued");
 
     }
 
@@ -617,7 +617,7 @@ if (isset($_POST['send_bulk_mail_now'])) {
 
 if (isset($_POST['bulk_archive_contacts'])) {
 
-    validateCSRFToken($_POST['csrf_token']);
+    validateCSRFToken();
 
     enforceUserPermission('module_client', 2);
 
@@ -633,7 +633,7 @@ if (isset($_POST['bulk_archive_contacts'])) {
             // Get Contact Name and Client ID for logging and alert message
             $sql = mysqli_query($mysqli,"SELECT contact_name, contact_client_id, contact_primary, contact_user_id FROM contacts WHERE contact_id = $contact_id");
             $row = mysqli_fetch_assoc($sql);
-            $contact_name = sanitizeInput($row['contact_name']);
+            $contact_name = escapeSql($row['contact_name']);
             $contact_primary = intval($row['contact_primary']);
             $client_id = intval($row['contact_client_id']);
             $contact_user_id = intval($row['contact_user_id']);
@@ -650,16 +650,16 @@ if (isset($_POST['bulk_archive_contacts'])) {
                 mysqli_query($mysqli,"UPDATE contacts SET contact_important = 0, contact_billing = 0, contact_technical = 0, contact_archived_at = NOW() WHERE contact_id = $contact_id");
 
                 // Individual Contact logging
-                logAction("Contact", "Archive", "$session_name archived $contact_name", $client_id, $contact_id);
+                logAudit("Contact", "Archive", "$session_name archived $contact_name", $client_id, $contact_id);
 
                 $count++;
             }
 
         }
 
-        logAction("Contact", "Bulk Archive", "$session_name archived $count contacts", $client_id);
+        logAudit("Contact", "Bulk Archive", "$session_name archived $count contacts", $client_id);
 
-        flash_alert("Archived $count contact(s)", 'error');
+        flashAlert("Archived $count contact(s)", 'error');
 
     }
 
@@ -668,7 +668,7 @@ if (isset($_POST['bulk_archive_contacts'])) {
 
 if (isset($_POST['bulk_restore_contacts'])) {
 
-    validateCSRFToken($_POST['csrf_token']);
+    validateCSRFToken();
 
     enforceUserPermission('module_client', 2);
 
@@ -685,7 +685,7 @@ if (isset($_POST['bulk_restore_contacts'])) {
             // Get Contact Name and Client ID for logging and alert message
             $sql = mysqli_query($mysqli,"SELECT contact_name, contact_client_id, contact_user_id FROM contacts WHERE contact_id = $contact_id");
             $row = mysqli_fetch_assoc($sql);
-            $contact_name = sanitizeInput($row['contact_name']);
+            $contact_name = escapeSql($row['contact_name']);
             $client_id = intval($row['contact_client_id']);
             $contact_user_id = intval($row['contact_user_id']);
 
@@ -698,13 +698,13 @@ if (isset($_POST['bulk_restore_contacts'])) {
 
             mysqli_query($mysqli,"UPDATE contacts SET contact_archived_at = NULL WHERE contact_id = $contact_id");
 
-            logAction("Contact", "Restore", "$session_name restored $contact_name", $client_id, $contact_id);
+            logAudit("Contact", "Restore", "$session_name restored $contact_name", $client_id, $contact_id);
 
         }
 
-        logAction("Contact", "Bulk Restore", "$session_name restored $count contacts", $client_id);
+        logAudit("Contact", "Bulk Restore", "$session_name restored $count contacts", $client_id);
 
-        flash_alert("Restored <strong>$count</strong> contact(s)");
+        flashAlert("Restored <strong>$count</strong> contact(s)");
 
     }
 
@@ -713,7 +713,7 @@ if (isset($_POST['bulk_restore_contacts'])) {
 
 if (isset($_POST['bulk_delete_contacts'])) {
 
-    validateCSRFToken($_POST['csrf_token']);
+    validateCSRFToken();
 
     enforceUserPermission('module_client', 3);
 
@@ -730,7 +730,7 @@ if (isset($_POST['bulk_delete_contacts'])) {
             // Get Name and Client ID for logging and alert message
             $sql = mysqli_query($mysqli,"SELECT contact_name, contact_client_id, contact_user_id FROM contacts WHERE contact_id = $contact_id");
             $row = mysqli_fetch_assoc($sql);
-            $contact_name = sanitizeInput($row['contact_name']);
+            $contact_name = escapeSql($row['contact_name']);
             $client_id = intval($row['contact_client_id']);
             $contact_user_id = intval($row['contact_user_id']);
 
@@ -743,13 +743,13 @@ if (isset($_POST['bulk_delete_contacts'])) {
 
             mysqli_query($mysqli, "DELETE FROM contacts WHERE contact_id = $contact_id AND contact_client_id = $client_id");
 
-            logAction("Contact", "Delete", "$session_name deleted $contact_name", $client_id);
+            logAudit("Contact", "Delete", "$session_name deleted $contact_name", $client_id);
 
         }
 
-        logAction("Contact", "Bulk Delete", "$session_name deleted $count contacts", $client_id);
+        logAudit("Contact", "Bulk Delete", "$session_name deleted $count contacts", $client_id);
 
-        flash_alert("You deleted <strong>$count</strong> contact(s)");
+        flashAlert("You deleted <strong>$count</strong> contact(s)");
 
     }
 
@@ -759,7 +759,7 @@ if (isset($_POST['bulk_delete_contacts'])) {
 
 if (isset($_GET['anonymize_contact'])) {
 
-    validateCSRFToken($_GET['csrf_token']);
+    validateCSRFToken();
 
     enforceUserPermission('module_client', 3);
 
@@ -769,10 +769,10 @@ if (isset($_GET['anonymize_contact'])) {
     $sql = mysqli_query($mysqli,"SELECT contact_name, contact_email, contact_client_id, contact_user_id FROM contacts WHERE contact_id = $contact_id");
     $row = mysqli_fetch_assoc($sql);
 
-    $contact_name = sanitizeInput($row['contact_name']);
+    $contact_name = escapeSql($row['contact_name']);
     $contact_first_name = explode(" ", $contact_name)[0];
-    $contact_email = sanitizeInput($row['contact_email']);
-    $contact_phone = sanitizeInput($row['contact_phone']);
+    $contact_email = escapeSql($row['contact_email']);
+    $contact_phone = escapeSql($row['contact_phone']);
     $info_to_redact = array($contact_name, $contact_first_name, $contact_email, $contact_phone);
 
     $client_id = intval($row['contact_client_id']);
@@ -813,7 +813,7 @@ if (isset($_GET['anonymize_contact'])) {
         $log_id = intval($log['log_id']);
         $description = $log['log_description'];
         $description = str_ireplace($info_to_redact, "*****", $description);
-        $description = sanitizeInput($description);
+        $description = escapeSql($description);
 
         mysqli_query($mysqli,"UPDATE logs SET log_description = '$description' WHERE log_id = $log_id AND log_client_id = $client_id");
     }
@@ -828,14 +828,14 @@ if (isset($_GET['anonymize_contact'])) {
         // Redact contact name or email in the subject of all tickets they raised
         $subject = $ticket['ticket_subject'];
         $subject = str_ireplace($info_to_redact, "*****", $subject);
-        $subject = sanitizeInput($subject);
+        $subject = escapeSql($subject);
         mysqli_query($mysqli,"UPDATE tickets SET ticket_subject = '$subject' WHERE ticket_id = $ticket_id");
 
         // Redact contact name or email in the description of all tickets they raised
         $details = $ticket['ticket_details'];
 
         $details = str_ireplace($info_to_redact, "*****", $details);
-        $details = sanitizeInput($details);
+        $details = escapeSql($details);
         mysqli_query($mysqli,"UPDATE tickets SET ticket_details = '$details' WHERE ticket_id = $ticket_id");
 
         // Redact contact name or email in the replies of all tickets they raised
@@ -845,7 +845,7 @@ if (isset($_GET['anonymize_contact'])) {
             $ticket_reply_id = intval($ticket_reply['ticket_reply_id']);
             $ticket_reply_details = $ticket_reply['ticket_reply'];
             $ticket_reply_details = str_ireplace($info_to_redact, "*****", $ticket_reply_details);
-            $ticket_reply_details = sanitizeInput($ticket_reply_details);
+            $ticket_reply_details = escapeSql($ticket_reply_details);
 
             mysqli_query($mysqli,"UPDATE ticket_replies SET ticket_reply = '$ticket_reply_details'
                 WHERE ticket_reply_id = $ticket_reply_id"
@@ -857,9 +857,9 @@ if (isset($_GET['anonymize_contact'])) {
     // Archive contact
     mysqli_query($mysqli,"UPDATE contacts SET contact_archived_at = NOW() WHERE contact_id = $contact_id");
 
-    logAction("Contact", "Archive", "$session_name archived and anonymized contact", $client_id, $contact_id);
+    logAudit("Contact", "Archive", "$session_name archived and anonymized contact", $client_id, $contact_id);
 
-    flash_alert("Contact $contact_name anonymized & archived", 'error');
+    flashAlert("Contact $contact_name anonymized & archived", 'error');
 
     redirect();
 
@@ -867,7 +867,7 @@ if (isset($_GET['anonymize_contact'])) {
 
 if (isset($_GET['archive_contact'])) {
 
-    validateCSRFToken($_GET['csrf_token']);
+    validateCSRFToken();
 
     enforceUserPermission('module_client', 2);
 
@@ -876,7 +876,7 @@ if (isset($_GET['archive_contact'])) {
     // Get Contact Name and Client ID for logging and alert message
     $sql = mysqli_query($mysqli,"SELECT contact_name, contact_client_id, contact_user_id FROM contacts WHERE contact_id = $contact_id");
     $row = mysqli_fetch_assoc($sql);
-    $contact_name = sanitizeInput($row['contact_name']);
+    $contact_name = escapeSql($row['contact_name']);
     $client_id = intval($row['contact_client_id']);
     $contact_user_id = intval($row['contact_user_id']);
 
@@ -889,9 +889,9 @@ if (isset($_GET['archive_contact'])) {
 
     mysqli_query($mysqli,"UPDATE contacts SET contact_important = 0, contact_billing = 0, contact_technical = 0, contact_archived_at = NOW() WHERE contact_id = $contact_id");
 
-    logAction("Contact", "Archive", "$session_name archived contact $contact_name", $client_id, $contact_id);
+    logAudit("Contact", "Archive", "$session_name archived contact $contact_name", $client_id, $contact_id);
 
-    flash_alert("Contact <strong>$contact_name</strong> has been archived", 'error');
+    flashAlert("Contact <strong>$contact_name</strong> has been archived", 'error');
 
     redirect();
 
@@ -899,7 +899,7 @@ if (isset($_GET['archive_contact'])) {
 
 if (isset($_GET['restore_contact'])) {
 
-    validateCSRFToken($_GET['csrf_token']);
+    validateCSRFToken();
 
     enforceUserPermission('module_client', 2);
 
@@ -908,7 +908,7 @@ if (isset($_GET['restore_contact'])) {
     // Get Contact Name and Client ID for logging and alert message
     $sql = mysqli_query($mysqli,"SELECT contact_name, contact_client_id, contact_user_id FROM contacts WHERE contact_id = $contact_id");
     $row = mysqli_fetch_assoc($sql);
-    $contact_name = sanitizeInput($row['contact_name']);
+    $contact_name = escapeSql($row['contact_name']);
     $client_id = intval($row['contact_client_id']);
     $contact_user_id = intval($row['contact_user_id']);
 
@@ -921,9 +921,9 @@ if (isset($_GET['restore_contact'])) {
 
     mysqli_query($mysqli,"UPDATE contacts SET contact_archived_at = NULL WHERE contact_id = $contact_id");
 
-    logAction("Contact", "Restore", "$session_name restored contact $contact_name", $client_id, $contact_id);
+    logAudit("Contact", "Restore", "$session_name restored contact $contact_name", $client_id, $contact_id);
 
-    flash_alert("Contact <strong>$contact_name</strong> Restored");
+    flashAlert("Contact <strong>$contact_name</strong> Restored");
 
     redirect();
 
@@ -931,7 +931,7 @@ if (isset($_GET['restore_contact'])) {
 
 if (isset($_GET['delete_contact'])) {
 
-    validateCSRFToken($_GET['csrf_token']);
+    validateCSRFToken();
 
     enforceUserPermission('module_client', 3);
 
@@ -940,7 +940,7 @@ if (isset($_GET['delete_contact'])) {
     // Get Contact Name and Client ID for logging and alert message
     $sql = mysqli_query($mysqli,"SELECT contact_name, contact_client_id FROM contacts WHERE contact_id = $contact_id");
     $row = mysqli_fetch_assoc($sql);
-    $contact_name = sanitizeInput($row['contact_name']);
+    $contact_name = escapeSql($row['contact_name']);
     $client_id = intval($row['contact_client_id']);
     $contact_user_id = intval($row['contact_user_id']);
 
@@ -953,9 +953,9 @@ if (isset($_GET['delete_contact'])) {
 
     mysqli_query($mysqli,"DELETE FROM contacts WHERE contact_id = $contact_id");
 
-    logAction("Contact", "Delete", "$session_name deleted contact $contact_name", $client_id);
+    logAudit("Contact", "Delete", "$session_name deleted contact $contact_name", $client_id);
 
-    flash_alert("Contact <strong>$contact_name</strong> has been deleted.", 'error');
+    flashAlert("Contact <strong>$contact_name</strong> has been deleted.", 'error');
 
     redirect();
 
@@ -963,7 +963,7 @@ if (isset($_GET['delete_contact'])) {
 
 if (isset($_POST['link_contact_to_asset'])) {
 
-    validateCSRFToken($_POST['csrf_token']);
+    validateCSRFToken();
 
     enforceUserPermission('module_client', 2);
 
@@ -973,19 +973,19 @@ if (isset($_POST['link_contact_to_asset'])) {
     // Get Asset Name and Client ID for logging
     $sql_asset = mysqli_query($mysqli,"SELECT asset_name, asset_client_id FROM assets WHERE asset_id = $asset_id");
     $row = mysqli_fetch_assoc($sql_asset);
-    $asset_name = sanitizeInput($row['asset_name']);
+    $asset_name = escapeSql($row['asset_name']);
     $client_id = intval($row['asset_client_id']);
 
     enforceClientAccess();
 
     // Get Contact Name for logging
-    $contact_name = sanitizeInput(getFieldById('contacts', $contact_id, 'contact_name'));
+    $contact_name = escapeSql(getFieldById('contacts', $contact_id, 'contact_name'));
 
     mysqli_query($mysqli,"UPDATE assets SET asset_contact_id = $contact_id WHERE asset_id = $asset_id");
 
-    logAction("Asset", "Link", "$session_name linked asset $asset_name to contact $contact_name", $client_id, $asset_id);
+    logAudit("Asset", "Link", "$session_name linked asset $asset_name to contact $contact_name", $client_id, $asset_id);
 
-    flash_alert("Contact <strong>$contact_name</strong> linked with asset <strong>$asset_name</strong>");
+    flashAlert("Contact <strong>$contact_name</strong> linked with asset <strong>$asset_name</strong>");
 
     redirect();
 
@@ -993,7 +993,7 @@ if (isset($_POST['link_contact_to_asset'])) {
 
 if (isset($_GET['unlink_asset_from_contact'])) {
 
-    validateCSRFToken($_POST['csrf_token']);
+    validateCSRFToken();
 
     enforceUserPermission('module_client', 2);
 
@@ -1003,19 +1003,19 @@ if (isset($_GET['unlink_asset_from_contact'])) {
     // Get asset Name and Client ID for logging
     $sql_asset = mysqli_query($mysqli,"SELECT asset_name, asset_client_id FROM assets WHERE asset_id = $asset_id");
     $row = mysqli_fetch_assoc($sql_asset);
-    $asset_name = sanitizeInput($row['asset_name']);
+    $asset_name = escapeSql($row['asset_name']);
     $client_id = intval($row['asset_client_id']);
 
     enforceClientAccess();
 
     // Get Contact Name for logging
-    $contact_name = sanitizeInput(getFieldById('contacts', $contact_id, 'contact_name'));
+    $contact_name = escapeSql(getFieldById('contacts', $contact_id, 'contact_name'));
 
     mysqli_query($mysqli,"UPDATE assets SET asset_contact_id = 0 WHERE asset_id = $asset_id");
 
-    logAction("Asset", "Unlink", "$session_name unlinked contact $contact_name from asset $asset_name", $client_id, $asset_id);
+    logAudit("Asset", "Unlink", "$session_name unlinked contact $contact_name from asset $asset_name", $client_id, $asset_id);
 
-    flash_alert("Asset <strong>$asset_name</strong> unlinked from Contact <strong>$contact_name</strong>", 'error');
+    flashAlert("Asset <strong>$asset_name</strong> unlinked from Contact <strong>$contact_name</strong>", 'error');
 
     redirect();
 
@@ -1023,7 +1023,7 @@ if (isset($_GET['unlink_asset_from_contact'])) {
 
 if (isset($_POST['link_software_to_contact'])) {
 
-    validateCSRFToken($_POST['csrf_token']);
+    validateCSRFToken();
 
     enforceUserPermission('module_client', 2);
 
@@ -1033,19 +1033,19 @@ if (isset($_POST['link_software_to_contact'])) {
     // Get software Name and Client ID for logging
     $sql_software = mysqli_query($mysqli,"SELECT software_name, software_client_id FROM software WHERE software_id = $software_id");
     $row = mysqli_fetch_assoc($sql_software);
-    $software_name = sanitizeInput($row['software_name']);
+    $software_name = escapeSql($row['software_name']);
     $client_id = intval($row['software_client_id']);
 
     enforceClientAccess();
 
     // Get Contact Name for logging
-    $contact_name = sanitizeInput(getFieldById('contacts', $contact_id, 'contact_name'));
+    $contact_name = escapeSql(getFieldById('contacts', $contact_id, 'contact_name'));
 
     mysqli_query($mysqli,"INSERT INTO software_contacts SET contact_id = $contact_id, software_id = $software_id");
 
-    logAction("Software", "Link", "$session_name added software license $software_name to contact $contact_name", $client_id, $software_id);
+    logAudit("Software", "Link", "$session_name added software license $software_name to contact $contact_name", $client_id, $software_id);
 
-    flash_alert("Software <strong>$software_name</strong> licensed for contact <strong>$contact_name</strong>");
+    flashAlert("Software <strong>$software_name</strong> licensed for contact <strong>$contact_name</strong>");
 
     redirect();
 
@@ -1053,7 +1053,7 @@ if (isset($_POST['link_software_to_contact'])) {
 
 if (isset($_GET['unlink_software_from_contact'])) {
 
-    validateCSRFToken($_POST['csrf_token']);
+    validateCSRFToken();
 
     enforceUserPermission('module_client', 2);
 
@@ -1063,19 +1063,19 @@ if (isset($_GET['unlink_software_from_contact'])) {
     // Get software Name and Client ID for logging
     $sql_software = mysqli_query($mysqli,"SELECT software_name, software_client_id FROM software WHERE software_id = $software_id");
     $row = mysqli_fetch_assoc($sql_software);
-    $software_name = sanitizeInput($row['software_name']);
+    $software_name = escapeSql($row['software_name']);
     $client_id = intval($row['software_client_id']);
 
     enforceClientAccess();
 
     // Get Contact Name for logging
-    $contact_name = sanitizeInput(getFieldById('contacts', $contact_id, 'contact_name'));
+    $contact_name = escapeSql(getFieldById('contacts', $contact_id, 'contact_name'));
 
     mysqli_query($mysqli,"DELETE FROM software_contacts WHERE contact_id = $contact_id AND software_id = $software_id");
 
-    logAction("software", "Unlink", "$session_name removed software license $software_name from contact $contact_name", $client_id, $software_id);
+    logAudit("software", "Unlink", "$session_name removed software license $software_name from contact $contact_name", $client_id, $software_id);
 
-    flash_alert("Removed Software License <strong>$software_name</strong> for Contact <strong>$contact_name</strong>", 'error');
+    flashAlert("Removed Software License <strong>$software_name</strong> for Contact <strong>$contact_name</strong>", 'error');
 
     redirect();
 
@@ -1083,7 +1083,7 @@ if (isset($_GET['unlink_software_from_contact'])) {
 
 if (isset($_POST['link_contact_to_credential'])) {
 
-    validateCSRFToken($_POST['csrf_token']);
+    validateCSRFToken();
 
     enforceUserPermission('module_client', 2);
 
@@ -1093,19 +1093,19 @@ if (isset($_POST['link_contact_to_credential'])) {
     // Get credential Name and Client ID for logging
     $sql_credential = mysqli_query($mysqli,"SELECT credential_name, credential_client_id FROM credentials WHERE credential_id = $credential_id");
     $row = mysqli_fetch_assoc($sql_credential);
-    $credential_name = sanitizeInput($row['credential_name']);
+    $credential_name = escapeSql($row['credential_name']);
     $client_id = intval($row['credential_client_id']);
 
     enforceClientAccess();
 
     // Get Contact Name for logging
-    $contact_name = sanitizeInput(getFieldById('contacts', $contact_id, 'contact_name'));
+    $contact_name = escapeSql(getFieldById('contacts', $contact_id, 'contact_name'));
 
     mysqli_query($mysqli,"UPDATE credentials SET credential_contact_id = $contact_id WHERE credential_id = $credential_id");
 
-    logAction("Asset", "Link", "$session_name linked credential $credential_name to contact $contact_name", $client_id, $credential_id);
+    logAudit("Asset", "Link", "$session_name linked credential $credential_name to contact $contact_name", $client_id, $credential_id);
 
-    flash_alert("Contact <strong>$contact_name</strong> linked with credential <strong>$credential_name</strong>");
+    flashAlert("Contact <strong>$contact_name</strong> linked with credential <strong>$credential_name</strong>");
 
     redirect();
 
@@ -1113,7 +1113,7 @@ if (isset($_POST['link_contact_to_credential'])) {
 
 if (isset($_GET['unlink_credential_from_contact'])) {
 
-    validateCSRFToken($_GET['csrf_token']);
+    validateCSRFToken();
 
     enforceUserPermission('module_client', 2);
 
@@ -1123,19 +1123,19 @@ if (isset($_GET['unlink_credential_from_contact'])) {
     // Get credential Name and Client ID for logging
     $sql_credential = mysqli_query($mysqli,"SELECT credential_name, credential_client_id FROM credentials WHERE credential_id = $credential_id");
     $row = mysqli_fetch_assoc($sql_credential);
-    $credential_name = sanitizeInput($row['credential_name']);
+    $credential_name = escapeSql($row['credential_name']);
     $client_id = intval($row['credential_client_id']);
 
     enforceClientAccess();
 
     // Get Contact Name for logging
-    $contact_name = sanitizeInput(getFieldById('contacts', $contact_id, 'contact_name'));
+    $contact_name = escapeSql(getFieldById('contacts', $contact_id, 'contact_name'));
 
     mysqli_query($mysqli,"UPDATE credentials SET credential_contact_id = 0 WHERE credential_id = $credential_id");
 
-    logAction("Credential", "Unlink", "$session_name unlinked contact $contact_name from credential $credential_name", $client_id, $credential_id);
+    logAudit("Credential", "Unlink", "$session_name unlinked contact $contact_name from credential $credential_name", $client_id, $credential_id);
 
-    flash_alert("Credential <strong>$credential_name</strong> unlinked from Contact <strong>$contact_name</strong>", 'error');
+    flashAlert("Credential <strong>$credential_name</strong> unlinked from Contact <strong>$contact_name</strong>", 'error');
 
     redirect();
 
@@ -1143,7 +1143,7 @@ if (isset($_GET['unlink_credential_from_contact'])) {
 
 if (isset($_POST['link_service_to_contact'])) {
 
-    validateCSRFToken($_POST['csrf_token']);
+    validateCSRFToken();
 
     enforceUserPermission('module_client', 2);
 
@@ -1153,19 +1153,19 @@ if (isset($_POST['link_service_to_contact'])) {
     // Get service Name and Client ID for logging
     $sql_service = mysqli_query($mysqli,"SELECT service_name, service_client_id FROM services WHERE service_id = $service_id");
     $row = mysqli_fetch_assoc($sql_service);
-    $service_name = sanitizeInput($row['service_name']);
+    $service_name = escapeSql($row['service_name']);
     $client_id = intval($row['service_client_id']);
 
     enforceClientAccess();
 
     // Get Contact Name for logging
-    $contact_name = sanitizeInput(getFieldById('contacts', $contact_id, 'contact_name'));
+    $contact_name = escapeSql(getFieldById('contacts', $contact_id, 'contact_name'));
 
     mysqli_query($mysqli,"INSERT INTO service_contacts SET contact_id = $contact_id, service_id = $service_id");
 
-    logAction("Service", "Link", "$session_name linked contact $contact_name to service $service_name", $client_id, $service_id);
+    logAudit("Service", "Link", "$session_name linked contact $contact_name to service $service_name", $client_id, $service_id);
 
-    flash_alert("service <strong>$service_name</strong> linked with contact <strong>$contact_name</strong>");
+    flashAlert("service <strong>$service_name</strong> linked with contact <strong>$contact_name</strong>");
 
     redirect();
 
@@ -1173,7 +1173,7 @@ if (isset($_POST['link_service_to_contact'])) {
 
 if (isset($_GET['unlink_service_from_contact'])) {
 
-    validateCSRFToken($_GET['csrf_token']);
+    validateCSRFToken();
 
     enforceUserPermission('module_client', 2);
 
@@ -1183,19 +1183,19 @@ if (isset($_GET['unlink_service_from_contact'])) {
     // Get service Name and Client ID for logging
     $sql_service = mysqli_query($mysqli,"SELECT service_name, service_client_id FROM services WHERE service_id = $service_id");
     $row = mysqli_fetch_assoc($sql_service);
-    $service_name = sanitizeInput($row['service_name']);
+    $service_name = escapeSql($row['service_name']);
     $client_id = intval($row['service_client_id']);
 
     enforceClientAccess();
 
     // Get Contact Name for logging
-    $contact_name = sanitizeInput(getFieldById('contacts', $contact_id, 'contact_name'));
+    $contact_name = escapeSql(getFieldById('contacts', $contact_id, 'contact_name'));
 
     mysqli_query($mysqli,"DELETE FROM service_contacts WHERE contact_id = $contact_id AND service_id = $service_id");
 
-    logAction("service", "Unlink", "$session_name unlinked contact $contact_name from service $service_name", $client_id, $service_id);
+    logAudit("service", "Unlink", "$session_name unlinked contact $contact_name from service $service_name", $client_id, $service_id);
 
-    flash_alert("Contact <strong>$contact_name</strong> unlinked from service <strong>$service_name</strong>", 'error');
+    flashAlert("Contact <strong>$contact_name</strong> unlinked from service <strong>$service_name</strong>", 'error');
 
     redirect();
 
@@ -1203,7 +1203,7 @@ if (isset($_GET['unlink_service_from_contact'])) {
 
 if (isset($_POST['link_contact_to_file'])) {
 
-    validateCSRFToken($_POST['csrf_token']);
+    validateCSRFToken();
 
     enforceUserPermission('module_client', 2);
 
@@ -1213,20 +1213,20 @@ if (isset($_POST['link_contact_to_file'])) {
     // Get file Name and Client ID for logging
     $sql_file = mysqli_query($mysqli,"SELECT file_name, file_client_id FROM files WHERE file_id = $file_id");
     $row = mysqli_fetch_assoc($sql_file);
-    $file_name = sanitizeInput($row['file_name']);
+    $file_name = escapeSql($row['file_name']);
     $client_id = intval($row['file_client_id']);
 
     enforceClientAccess();
 
     // Get Contact Name for logging
-    $contact_name = sanitizeInput(getFieldById('contacts', $contact_id, 'contact_name'));
+    $contact_name = escapeSql(getFieldById('contacts', $contact_id, 'contact_name'));
 
     // Contact add query
     mysqli_query($mysqli,"INSERT INTO contact_files SET contact_id = $contact_id, file_id = $file_id");
 
-    logAction("File", "Link", "$session_name linked contact $contact_name to file $file_name", $client_id, $file_id);
+    logAudit("File", "Link", "$session_name linked contact $contact_name to file $file_name", $client_id, $file_id);
 
-    flash_alert("Contact <strong>$contact_name</strong> linked with File <strong>$file_name</strong>");
+    flashAlert("Contact <strong>$contact_name</strong> linked with File <strong>$file_name</strong>");
 
     redirect();
 
@@ -1234,7 +1234,7 @@ if (isset($_POST['link_contact_to_file'])) {
 
 if (isset($_GET['unlink_contact_from_file'])) {
 
-    validateCSRFToken($_GET['csrf_token']);
+    validateCSRFToken();
 
     enforceUserPermission('module_client', 2);
 
@@ -1244,77 +1244,134 @@ if (isset($_GET['unlink_contact_from_file'])) {
     // Get file Name and Client ID for logging
     $sql_file = mysqli_query($mysqli,"SELECT file_name, file_client_id FROM files WHERE file_id = $file_id");
     $row = mysqli_fetch_assoc($sql_file);
-    $file_name = sanitizeInput($row['file_name']);
+    $file_name = escapeSql($row['file_name']);
     $client_id = intval($row['file_client_id']);
 
     enforceClientAccess();
 
     // Get Contact Name for logging
-    $contact_name = sanitizeInput(getFieldById('contacts', $contact_id, 'contact_name'));
+    $contact_name = escapeSql(getFieldById('contacts', $contact_id, 'contact_name'));
 
     mysqli_query($mysqli,"DELETE FROM contact_files WHERE contact_id = $contact_id AND file_id = $file_id");
 
-    logAction("File", "Unlink", "$session_name unlinked contact $contact_name from file $file_name", $client_id, $file_id);
+    logAudit("File", "Unlink", "$session_name unlinked contact $contact_name from file $file_name", $client_id, $file_id);
 
-    flash_alert("Contact <strong>$contact_name</strong> unlinked from file <strong>$file_name</strong>", 'error');
+    flashAlert("Contact <strong>$contact_name</strong> unlinked from file <strong>$file_name</strong>", 'error');
 
     redirect();
 
 }
 
-if (isset($_POST['export_contacts_csv'])) {
+if (isset($_POST['export_contacts'])) {
 
-    validateCSRFToken($_POST['csrf_token']);
+    validateCSRFToken();
 
+    // Exports are reads - see CONTRIBUTING.md
     enforceUserPermission('module_client');
 
-    if ($_POST['client_id']) {
+    $format = resolveExportFormat($_POST['export_contacts']);
+
+    // Filters inherited from the contacts page - mirrors agent/contacts.php
+    $filter_summary = [];
+
+    // Archived Filter
+    $archived = (isset($_POST['archived']) && $_POST['archived'] == 1);
+    if ($archived) {
+        $filter_summary['Archived'] = 'Archived only';
+    }
+
+    if (!empty($_POST['client_id'])) {
         $client_id = intval($_POST['client_id']);
         $client_query = "AND contact_client_id = $client_id";
         $client_name = getFieldById('clients', $client_id, 'client_name');
         $file_name_prepend = "$client_name-";
+        $filter_summary['Client'] = $client_name;
+
+        enforceClientAccess();
+
+        $archive_query = $archived ? "contact_archived_at IS NOT NULL" : "contact_archived_at IS NULL";
     } else {
         $client_query = '';
-        $client_id = 0; //Logging;
+        $client_id = 0; // for Logging
         $file_name_prepend = "$session_company_name-";
+
+        // Client Filter
+        if (!empty($_POST['client'])) {
+            $filter_client_id = intval($_POST['client']);
+            $client_query = "AND (contact_client_id = $filter_client_id)";
+            $filter_summary['Client'] = getFieldById('clients', $filter_client_id, 'client_name');
+        }
+
+        $archive_query = $archived ? "(client_archived_at IS NOT NULL OR contact_archived_at IS NOT NULL)" : "(client_archived_at IS NULL AND contact_archived_at IS NULL)";
     }
 
-    //Contacts
-    $sql = mysqli_query($mysqli,"SELECT * FROM contacts LEFT JOIN locations ON location_id = contact_location_id LEFT JOIN clients ON client_id = contact_client_id WHERE contact_archived_at IS NULL AND client_archived_at IS NULL $client_query $access_permission_query ORDER BY contact_name ASC");
+    // Tags Filter
+    if (isset($_POST['tags']) && is_array($_POST['tags']) && !empty($_POST['tags'])) {
+        $tag_filter = implode(",", array_map('intval', $_POST['tags']));
+        $tag_query = "AND tags.tag_id IN ($tag_filter)";
+
+        $tag_names = [];
+        $sql_tags = mysqli_query($mysqli, "SELECT tag_name FROM tags WHERE tag_id IN ($tag_filter) ORDER BY tag_name ASC");
+        while ($tag_row = mysqli_fetch_assoc($sql_tags)) {
+            $tag_names[] = $tag_row['tag_name'];
+        }
+        $filter_summary['Tags'] = implode(', ', $tag_names);
+    } else {
+        // Default - any
+        $tag_query = '';
+    }
+
+    // Location Filter
+    if (!empty($_POST['location'])) {
+        $filter_location_id = intval($_POST['location']);
+        $location_query = "AND (contact_location_id = $filter_location_id)";
+        $filter_summary['Location'] = getFieldById('locations', $filter_location_id, 'location_name');
+    } else {
+        // Default - any
+        $location_query = '';
+    }
+
+    // Search Filter
+    $q = escapeSql($_POST['q'] ?? '');
+    if (!empty($q)) {
+        $filter_summary['Search'] = $_POST['q'];
+    }
+
+    $sql = mysqli_query(
+        $mysqli,
+        "SELECT contacts.*, clients.*, locations.*, users.*
+        FROM contacts
+        LEFT JOIN clients ON client_id = contact_client_id
+        LEFT JOIN locations ON location_id = contact_location_id
+        LEFT JOIN users ON user_id = contact_user_id
+        LEFT JOIN contact_tags ON contact_tags.contact_id = contacts.contact_id
+        LEFT JOIN tags ON tags.tag_id = contact_tags.tag_id
+        WHERE $archive_query
+        $tag_query
+        AND (contact_name LIKE '%$q%' OR contact_title LIKE '%$q%' OR location_name LIKE '%$q%' OR contact_email LIKE '%$q%' OR contact_department LIKE '%$q%' OR contact_phone LIKE '%$q%' OR contact_mobile LIKE '%$q%' OR client_name LIKE '%$q%' OR tag_name LIKE '%$q%')
+        $access_permission_query
+        $client_query
+        $location_query
+        GROUP BY contact_id
+        ORDER BY contact_name ASC"
+    );
+
     $num_rows = mysqli_num_rows($sql);
 
     if ($num_rows > 0) {
-        $delimiter = ",";
-        $enclosure = '"';
-        $escape    = '\\';   // backslash
-        $filename = sanitize_filename($file_name_prepend . "Contacts-" . date('Y-m-d_H-i-s') . ".csv");
 
-        //create a file pointer
-        $f = fopen('php://memory', 'w');
+        guardExportPdfRowCount($format, $num_rows);
 
-        //set column headers
-        $fields = array('Name', 'Title', 'Department', 'Email', 'Phone', 'Ext', 'Mobile', 'Location');
-        fputcsv($f, $fields, $delimiter, $enclosure, $escape);
+        $export = beginExport('contacts', $format, $file_name_prepend . 'Contacts', 'Contacts', summarizeExportFilters($filter_summary));
 
-        //output each row of the data, format line as csv and write to file pointer
-        while($row = $sql->fetch_assoc()) {
-            $lineData = array($row['contact_name'], $row['contact_title'], $row['contact_department'], $row['contact_email'], formatPhoneNumber($row['contact_phone']), $row['contact_extension'], formatPhoneNumber($row['contact_mobile']), $row['location_name']);
-            fputcsv($f, $lineData, $delimiter, $enclosure, $escape);
+        while ($row = mysqli_fetch_assoc($sql)) {
+            addExportRow($export, $row);
         }
 
-        //move back to beginning of file
-        fseek($f, 0);
-
-        //set headers to download file rather than displayed
-        header('Content-Type: text/csv');
-        header('Content-Disposition: attachment; filename="' . $filename . '";');
-
-        //output all remaining data on a file pointer
-        fpassthru($f);
-
+        finishExport($export);
     }
 
-    logAction("Contact", "Export", "$session_name exported $num_rows contact(s) to a CSV file", $client_id);
+    logAudit("Contact", "Export", "$session_name exported $num_rows contact(s) to a " . strtoupper($format) . " file", $client_id);
 
     exit;
 
@@ -1322,7 +1379,7 @@ if (isset($_POST['export_contacts_csv'])) {
 
 if (isset($_POST["import_contacts_csv"])) {
 
-    validateCSRFToken($_POST['csrf_token']);
+    validateCSRFToken();
 
     enforceUserPermission('module_client', 2);
 
@@ -1335,7 +1392,7 @@ if (isset($_POST["import_contacts_csv"])) {
     if (!empty($_FILES["file"]["tmp_name"])) {
         $file_name = $_FILES["file"]["tmp_name"];
     } else {
-        flash_alert("Please select a file to upload.", 'error');
+        flashAlert("Please select a file to upload.", 'error');
         redirect();
     }
 
@@ -1344,13 +1401,13 @@ if (isset($_POST["import_contacts_csv"])) {
     $allowed_file_extensions = array('csv');
     if (in_array($file_extension,$allowed_file_extensions) === false) {
         $error = true;
-        flash_alert("Bad file extension", 'error');
+        flashAlert("Bad file extension", 'error');
     }
 
     //Check file isn't empty
     elseif ($_FILES["file"]["size"] < 1) {
         $error = true;
-        flash_alert("Bad file size (empty?)", 'error');
+        flashAlert("Bad file size (empty?)", 'error');
     }
 
     //(Else)Check column count
@@ -1358,7 +1415,7 @@ if (isset($_POST["import_contacts_csv"])) {
     $f_columns = fgetcsv($f, 1000, ",");
     if (!$error & count($f_columns) != 8) {
         $error = true;
-        flash_alert("Bad column count.", 'error');
+        flashAlert("Bad column count.", 'error');
     }
 
     //Else, parse the file
@@ -1370,19 +1427,19 @@ if (isset($_POST["import_contacts_csv"])) {
         while(($column = fgetcsv($file, 1000, ",")) !== false) {
             $duplicate_detect = 0;
             if (isset($column[0])) {
-                $name = sanitizeInput($column[0]);
+                $name = escapeSql($column[0]);
                 if (mysqli_num_rows(mysqli_query($mysqli,"SELECT * FROM contacts WHERE contact_name = '$name' AND contact_client_id = $client_id")) > 0) {
                     $duplicate_detect = 1;
                 }
             }
             if (isset($column[1])) {
-                $title = sanitizeInput($column[1]);
+                $title = escapeSql($column[1]);
             }
             if (isset($column[2])) {
-                $department = sanitizeInput($column[2]);
+                $department = escapeSql($column[2]);
             }
             if (isset($column[3])) {
-                $email = sanitizeInput($column[3]);
+                $email = escapeSql($column[3]);
             }
             if (isset($column[4])) {
                 $phone = preg_replace("/[^0-9]/", '',$column[4]);
@@ -1394,7 +1451,7 @@ if (isset($_POST["import_contacts_csv"])) {
                 $mobile = preg_replace("/[^0-9]/", '',$column[6]);
             }
             if (isset($column[7])) {
-                $location = sanitizeInput($column[7]);
+                $location = escapeSql($column[7]);
                 $sql_location = mysqli_query($mysqli,"SELECT * FROM locations WHERE location_name = '$location' AND location_client_id = $client_id");
                 $row = mysqli_fetch_assoc($sql_location);
                 $location_id = intval($row['location_id']);
@@ -1413,9 +1470,9 @@ if (isset($_POST["import_contacts_csv"])) {
         }
         fclose($file);
 
-        logAction("Contact", "Import", "$session_name imported $row_count contact(s) via CSV file", $client_id);
+        logAudit("Contact", "Import", "$session_name imported $row_count contact(s) via CSV file", $client_id);
 
-        flash_alert("$row_count Contact(s) added, $duplicate_count duplicate(s) detected", 'warning');
+        flashAlert("$row_count Contact(s) added, $duplicate_count duplicate(s) detected", 'warning');
 
         redirect();
 

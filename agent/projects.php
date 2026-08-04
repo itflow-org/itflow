@@ -17,9 +17,14 @@ if (isset($_GET['client_id'])) {
 
 // Perms & Project client access snippet
 enforceUserPermission('module_support');
+
 $project_permission_snippet = '';
-if (!empty($client_access_string)) {
-    $project_permission_snippet = "AND project_client_id IN ($client_access_string) OR project_client_id = 0";
+
+if ($client_access_string) {
+    $project_permission_snippet .= " AND (project_client_id IN ($client_access_string) OR project_client_id = 0)";
+}
+if ($client_deny_string) {
+    $project_permission_snippet .= " AND project_client_id NOT IN ($client_deny_string)";
 }
 
 // Project Completed Status Query
@@ -62,14 +67,14 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
     <div class="card-body">
         <form class="mb-4" autocomplete="off">
             <?php if ($client_url) { ?>
-                <input type="hidden" name="client_id" value="<?php echo $client_id; ?>">
+                <input type="hidden" name="client_id" value="<?= $client_id ?>">
             <?php } ?>
-            <input type="hidden" name="status" value="<?php echo $status; ?>">
-            <input type="hidden" name="archived" value="<?php echo $archived; ?>">
+            <input type="hidden" name="status" value="<?= $status ?>">
+            <input type="hidden" name="archived" value="<?= $archived ?>">
             <div class="row">
                 <div class="col-sm-4">
                     <div class="input-group mb-3 mb-sm-0">
-                        <input type="search" class="form-control" name="q" value="<?php if (isset($q)) {echo stripslashes(nullable_htmlentities($q));} ?>" placeholder="Search Projects">
+                        <input type="search" class="form-control" name="q" value="<?php if (isset($q)) {echo stripslashes(escapeHtml($q));} ?>" placeholder="Search Projects">
                         <div class="input-group-append">
                             <button class="btn btn-secondary" type="button" data-toggle="collapse" data-target="#advancedFilter"><i class="fas fa-filter"></i></button>
                             <button class="btn btn-primary"><i class="fa fa-search"></i></button>
@@ -79,12 +84,12 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                 <div class="col-sm-8">
                     <div class="btn-toolbar float-right">
                         <div class="btn-group mr-2">
-                            <a href="?<?php echo $client_url; ?>status=0" class="btn btn-<?php if ($status == 0){ echo "primary"; } else { echo "default"; } ?>"><i class="fa fa-fw fa-door-open mr-2"></i>Open</a>
-                            <a href="?<?php echo $client_url; ?>status=1" class="btn btn-<?php if ($status == 1){ echo "primary"; } else { echo "default"; } ?>"><i class="fa fa-fw fa-door-closed mr-2"></i>Closed</a>
+                            <a href="?<?= $client_url ?>status=0" class="btn btn-<?php if ($status == 0){ echo "primary"; } else { echo "default"; } ?>"><i class="fa fa-fw fa-door-open mr-2"></i>Open</a>
+                            <a href="?<?= $client_url ?>status=1" class="btn btn-<?php if ($status == 1){ echo "primary"; } else { echo "default"; } ?>"><i class="fa fa-fw fa-door-closed mr-2"></i>Closed</a>
                         </div>
 
                         <div class="btn-group">
-                            <a href="?<?php echo $url_query_strings_sort ?>&archived=<?php if($archived == 1){ echo 0; } else { echo 1; } ?>"
+                            <a href="?<?= $url_query_strings_sort ?>&archived=<?php if($archived == 1){ echo 0; } else { echo 1; } ?>"
                                class="btn btn-<?php if ($archived == 1) { echo "primary"; } else { echo "default"; } ?>">
                                 <i class="fa fa-fw fa-archive mr-2"></i>Archived
                             </a>
@@ -99,9 +104,9 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                         <div class="form-group">
                             <label>Date range</label>
                             <input type="text" id="dateFilter" class="form-control" autocomplete="off">
-                            <input type="hidden" name="canned_date" id="canned_date" value="<?php echo nullable_htmlentities($_GET['canned_date']) ?? ''; ?>">
-                            <input type="hidden" name="dtf" id="dtf" value="<?php echo nullable_htmlentities($dtf ?? ''); ?>">
-                            <input type="hidden" name="dtt" id="dtt" value="<?php echo nullable_htmlentities($dtt ?? ''); ?>">
+                            <input type="hidden" name="canned_date" id="canned_date" value="<?= escapeHtml($_GET['canned_date']) ?? '' ?>">
+                            <input type="hidden" name="dtf" id="dtf" value="<?= escapeHtml($dtf ?? '') ?>">
+                            <input type="hidden" name="dtt" id="dtt" value="<?= escapeHtml($dtt ?? '') ?>">
                         </div>
                     </div>
                 </div>
@@ -113,41 +118,41 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                 <thead class="<?php if ($num_rows[0] == 0) { echo "d-none"; } ?> text-nowrap">
                 <tr>
                     <th>
-                        <a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=project_number&order=<?php echo $disp; ?>">
+                        <a class="text-dark" href="?<?= $url_query_strings_sort ?>&sort=project_number&order=<?= $disp ?>">
                             Number <?php if ($sort == 'project_number') { echo $order_icon; } ?>
                         </a>
                     </th>
                     <th>
-                        <a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=project_name&order=<?php echo $disp; ?>">
+                        <a class="text-dark" href="?<?= $url_query_strings_sort ?>&sort=project_name&order=<?= $disp ?>">
                             Project <?php if ($sort == 'project_name') { echo $order_icon; } ?>
                         </a>
                     </th>
                     <th>Tickets / Tasks</th>
                     <th>
-                        <a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=project_due&order=<?php echo $disp; ?>">
+                        <a class="text-dark" href="?<?= $url_query_strings_sort ?>&sort=project_due&order=<?= $disp ?>">
                             Due <?php if ($sort == 'project_due') { echo $order_icon; } ?>
                         </a>
                     </th>
                     <?php if ($status == 1) { ?>
                     <th>
-                        <a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=project_completed_at&order=<?php echo $disp; ?>">
+                        <a class="text-dark" href="?<?= $url_query_strings_sort ?>&sort=project_completed_at&order=<?= $disp ?>">
                             Completed
                         </a>
                     </th>
                     <?php } ?>
                     <th>
-                        <a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=user_name&order=<?php echo $disp; ?>">
+                        <a class="text-dark" href="?<?= $url_query_strings_sort ?>&sort=user_name&order=<?= $disp ?>">
                             Manager
                         </a>
                     </th>
                     <th>
-                        <a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=project_created_at&order=<?php echo $disp; ?>">
+                        <a class="text-dark" href="?<?= $url_query_strings_sort ?>&sort=project_created_at&order=<?= $disp ?>">
                             Created
                         </a>
                     </th>
                     <?php if (!$client_url) { ?>
                     <th>
-                        <a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=client_name&order=<?php echo $disp; ?>">
+                        <a class="text-dark" href="?<?= $url_query_strings_sort ?>&sort=client_name&order=<?= $disp ?>">
                             Client
                         </a>
                     </th>
@@ -160,20 +165,20 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 
                 while ($row = mysqli_fetch_assoc($sql_projects)) {
                     $project_id = intval($row['project_id']);
-                    $project_prefix = nullable_htmlentities($row['project_prefix']);
+                    $project_prefix = escapeHtml($row['project_prefix']);
                     $project_number = intval($row['project_number']);
-                    $project_name = nullable_htmlentities($row['project_name']);
-                    $project_description = nullable_htmlentities($row['project_description']);
-                    $project_due = nullable_htmlentities($row['project_due']);
-                    $project_created_at = nullable_htmlentities($row['project_created_at']);
+                    $project_name = escapeHtml($row['project_name']);
+                    $project_description = escapeHtml($row['project_description']);
+                    $project_due = escapeHtml($row['project_due']);
+                    $project_created_at = escapeHtml($row['project_created_at']);
                     $project_created_at_display = date("Y-m-d", strtotime($project_created_at));
-                    $project_updated_at = nullable_htmlentities($row['project_updated_at']);
-                    $project_completed_at = nullable_htmlentities($row['project_completed_at']);
+                    $project_updated_at = escapeHtml($row['project_updated_at']);
+                    $project_completed_at = escapeHtml($row['project_completed_at']);
                     $project_completed_at_display = date("Y-m-d", strtotime($project_completed_at));
-                    $project_archived_at = nullable_htmlentities($row['project_archived_at']);
+                    $project_archived_at = escapeHtml($row['project_archived_at']);
 
                     $client_id = intval($row['client_id']);
-                    $client_name = nullable_htmlentities($row['client_name']);
+                    $client_name = escapeHtml($row['client_name']);
                     if ($client_name) {
                         $client_name_display = "<a href='projects.php?client_id=$client_id'>$client_name</a>";
                     } else {
@@ -182,7 +187,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 
                     $project_manager = intval($row['user_id']);
                     if ($project_manager) {
-                        $project_manager_display = nullable_htmlentities($row['user_name']);
+                        $project_manager_display = escapeHtml($row['user_name']);
                     } else {
                         $project_manager_display = "-";
                     }
@@ -218,17 +223,17 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 
                     <tr>
                         <td>
-                            <a class="text-dark" href="project_details.php?<?php echo $client_url; ?>project_id=<?php echo $project_id; ?>">
-                                <?php echo "$project_prefix$project_number"; ?>
+                            <a class="text-dark" href="project.php?<?= $client_url ?>project_id=<?= $project_id ?>">
+                                <?= "$project_prefix$project_number" ?>
                             </a>
                         </td>
                         <td>
-                            <a class="text-dark" href="project_details.php?project_id=<?php echo $project_id; ?>">
+                            <a class="text-dark" href="project.php?project_id=<?= $project_id ?>">
                                 <div class="media">
                                     <i class="fa fa-fw fa-2x fa-project-diagram mr-3"></i>
                                     <div class="media-body">
-                                        <div><?php echo $project_name; ?></div>
-                                        <div><small class="text-secondary"><?php echo $project_description; ?></small></div>
+                                        <div><?= $project_name ?></div>
+                                        <div><small class="text-secondary"><?= $project_description ?></small></div>
                                     </div>
                                 </div>
                             </a>
@@ -237,24 +242,24 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                             <?php if($ticket_count) { ?>
                             <div class="progress" style="height: 20px;">
                                 <i class="fa fas fa-fw fa-life-ring mr-2"></i>
-                                <div class="progress-bar bg-primary" style="width: <?php echo $tickets_closed_percent; ?>%;"><?php echo $closed_ticket_count; ?> / <?php echo $ticket_count; ?></div>
+                                <div class="progress-bar bg-primary" style="width: <?= $tickets_closed_percent ?>%;"><?= $closed_ticket_count ?> / <?= $ticket_count ?></div>
                             </div>
                             <?php } else { echo "<div>-</div>"; } ?>
                             <?php if($task_count) { ?>
                             <div class="progress mt-2" style="height: 20px;">
                                 <i class="fa fas fa-fw fa-tasks mr-2"></i>
-                                <div class="progress-bar bg-secondary" style="width: <?php echo $tasks_completed_percent; ?>%;"><?php echo $completed_task_count; ?> / <?php echo $task_count; ?></div>
+                                <div class="progress-bar bg-secondary" style="width: <?= $tasks_completed_percent ?>%;"><?= $completed_task_count ?> / <?= $task_count ?></div>
                             </div>
                             <?php } ?>
                         </td>
-                        <td><?php echo $project_due; ?></td>
+                        <td><?= $project_due ?></td>
                         <?php if ($status == 1) { ?>
-                        <td><?php echo $project_completed_at_display; ?></td>
+                        <td><?= $project_completed_at_display ?></td>
                         <?php } ?>
-                        <td><?php echo $project_manager_display; ?></td>
-                        <td><?php echo $project_created_at_display; ?></td>
+                        <td><?= $project_manager_display ?></td>
+                        <td><?= $project_created_at_display ?></td>
                         <?php if (!$client_url) { ?>
-                        <td><?php echo $client_name_display; ?></td>
+                        <td><?= $client_name_display ?></td>
                         <?php } ?>
                         <td>
                             <div class="dropdown dropleft text-center">

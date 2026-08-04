@@ -2,32 +2,38 @@
 
 require_once '../../../includes/modal_header.php';
 
+enforceUserPermission('module_support', 2);
+
 $project_id = intval($_GET['id']);
 
 $sql = mysqli_query($mysqli, "SELECT * FROM projects WHERE project_id = $project_id LIMIT 1");
 
 $row = mysqli_fetch_assoc($sql);
-$project_prefix = nullable_htmlentities($row['project_prefix']);
+$project_prefix = escapeHtml($row['project_prefix']);
 $project_number = intval($row['project_number']);
-$project_name = nullable_htmlentities($row['project_name']);
-$project_description = nullable_htmlentities($row['project_description']);
-$project_due = nullable_htmlentities($row['project_due']);
-$project_created_at = nullable_htmlentities($row['project_created_at']);
+$project_name = escapeHtml($row['project_name']);
+$project_description = escapeHtml($row['project_description']);
+$project_due = escapeHtml($row['project_due']);
+$project_created_at = escapeHtml($row['project_created_at']);
 $project_created_at_display = date("Y-m-d", strtotime($project_created_at));
-$project_updated_at = nullable_htmlentities($row['project_updated_at']);
-$project_completed_at = nullable_htmlentities($row['project_completed_at']);
+$project_updated_at = escapeHtml($row['project_updated_at']);
+$project_completed_at = escapeHtml($row['project_completed_at']);
 $project_completed_at_display = date("Y-m-d", strtotime($project_completed_at));
-$project_archived_at = nullable_htmlentities($row['project_archived_at']);
+$project_archived_at = escapeHtml($row['project_archived_at']);
 $client_id = intval($row['project_client_id']);
 $project_manager = intval($row['project_manager']);
 
-// Generate the HTML form content using output buffering.
+if ($client_id) {
+    enforceClientAccess();
+}
+
 ob_start();
+
 ?>
 
 <div class="modal-header bg-dark">
     <h5 class="modal-title">
-        <i class="fas fa-fw fa-project-diagram mr-2"></i>Editing Project: <strong><?php echo $project_name; ?></strong>
+        <i class="fas fa-fw fa-project-diagram mr-2"></i>Editing Project: <strong><?= $project_name ?></strong>
     </h5>
     <button type="button" class="close text-white" data-dismiss="modal">
         <span>&times;</span>
@@ -35,7 +41,7 @@ ob_start();
 </div>
 <form action="post.php" method="post" autocomplete="off">
     <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
-    <input type="hidden" name="project_id" value="<?php echo $project_id; ?>">
+    <input type="hidden" name="project_id" value="<?= $project_id ?>">
     <div class="modal-body">
         <div class="form-group">
             <label>Project Name <strong class="text-danger">*</strong></label>
@@ -43,7 +49,7 @@ ob_start();
                 <div class="input-group-prepend">
                     <span class="input-group-text"><i class="fa fa-fw fa-project-diagram"></i></span>
                 </div>
-                <input type="text" class="form-control" name="name" placeholder="Project Name" maxlength="255" value="<?php echo $project_name; ?>" required autofocus>
+                <input type="text" class="form-control" name="name" placeholder="Project Name" maxlength="255" value="<?= $project_name ?>" required autofocus>
             </div>
         </div>
         <div class="form-group">
@@ -52,7 +58,7 @@ ob_start();
                 <div class="input-group-prepend">
                     <span class="input-group-text"><i class="fa fa-fw fa-align-left"></i></span>
                 </div>
-                <input type="text" class="form-control" name="description" placeholder="Description" value="<?php echo $project_description; ?>">
+                <input type="text" class="form-control" name="description" placeholder="Description" value="<?= $project_description ?>">
             </div>
         </div>
         <div class="form-group">
@@ -61,7 +67,7 @@ ob_start();
                 <div class="input-group-prepend">
                     <span class="input-group-text"><i class="fa fa-fw fa-calendar"></i></span>
                 </div>
-                <input type="date" class="form-control" name="due_date" value="<?php echo $project_due; ?>" required>
+                <input type="date" class="form-control" name="due_date" value="<?= $project_due ?>" required>
             </div>
         </div>
         <div class="form-group">
@@ -80,27 +86,8 @@ ob_start();
                     );
                     while ($row = mysqli_fetch_assoc($sql_project_managers_select)) {
                         $user_id_select = intval($row['user_id']);
-                        $user_name_select = nullable_htmlentities($row['user_name']); ?>
-                        <option <?php if ($project_manager == $user_id_select) { echo "selected"; } ?> value="<?php echo $user_id_select; ?>"><?php echo $user_name_select; ?></option>
-                    <?php } ?>
-                </select>
-            </div>
-        </div>
-        <div class="form-group">
-            <label>Client</label>
-            <div class="input-group">
-                <div class="input-group-prepend">
-                    <span class="input-group-text"><i class="fa fa-fw fa-users"></i></span>
-                </div>
-                <select class="form-control select2" name="client_id">
-                    <option value="0">- No Client -</option>
-                    <?php
-                    $sql = mysqli_query($mysqli, "SELECT * FROM clients WHERE client_archived_at IS NULL $access_permission_query ORDER BY client_name ASC");
-                    while ($row = mysqli_fetch_assoc($sql)) {
-                        $select_client_id = intval($row['client_id']);
-                        $select_client_name = nullable_htmlentities($row['client_name']);
-                        ?>
-                        <option value="<?php echo $select_client_id; ?>" <?php if ($client_id == $select_client_id) { echo "selected"; } ?>><?php echo $select_client_name; ?></option>
+                        $user_name_select = escapeHtml($row['user_name']); ?>
+                        <option <?php if ($project_manager == $user_id_select) { echo "selected"; } ?> value="<?= $user_id_select ?>"><?= $user_name_select ?></option>
                     <?php } ?>
                 </select>
             </div>

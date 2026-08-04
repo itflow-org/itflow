@@ -2,23 +2,28 @@
 
 require_once '../../../includes/modal_header.php';
 
+enforceUserPermission('module_support', 2);
+
 $ticket_id = intval($_GET['id']);
 
 $sql = mysqli_query($mysqli, "SELECT * FROM tickets LEFT JOIN clients ON client_id = ticket_client_id WHERE ticket_id = $ticket_id LIMIT 1");
 
 $row = mysqli_fetch_assoc($sql);
-$client_id = intval($row['ticket_client_id']);
-$client_name = nullable_htmlentities($row['client_name']);
-$ticket_prefix = nullable_htmlentities($row['ticket_prefix']);
+$client_name = escapeHtml($row['client_name']);
+$ticket_prefix = escapeHtml($row['ticket_prefix']);
 $ticket_number = intval($row['ticket_number']);
 $ticket_project_id = intval($row['ticket_project_id']);
+$client_id = intval($row['ticket_client_id']);
 
+if ($client_id) {
+    enforceClientAccess();
+}
 
 // Select box arrays
 $sql_projects = mysqli_query($mysqli, "SELECT project_id, project_name FROM projects WHERE (project_client_id = $client_id OR project_client_id = 0) AND project_completed_at IS NULL AND project_archived_at IS NULL ORDER BY project_name ASC");
 
-// Generate the HTML form content using output buffering.
 ob_start();
+
 ?>
 
 <div class="modal-header bg-dark">
@@ -29,7 +34,7 @@ ob_start();
 </div>
 <form action="post.php" method="post" autocomplete="off">
     <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
-    <input type="hidden" name="ticket_id" value="<?php echo $ticket_id; ?>">
+    <input type="hidden" name="ticket_id" value="<?= $ticket_id ?>">
     <div class="modal-body">
 
         <div class="form-group">
@@ -43,7 +48,7 @@ ob_start();
                     <?php
                     while ($row = mysqli_fetch_assoc($sql_projects)) {
                         $project_id = intval($row['project_id']);
-                        $project_name = nullable_htmlentities($row['project_name']); ?>
+                        $project_name = escapeHtml($row['project_name']); ?>
                         <option <?php if ($ticket_project_id == $project_id) { echo "selected"; } ?>
                             value="<?= $project_id ?>"><?= $project_name ?>
                         </option>

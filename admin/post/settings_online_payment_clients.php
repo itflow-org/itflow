@@ -4,19 +4,19 @@ defined('FROM_POST_HANDLER') || die("Direct file access is not allowed");
 
 if (isset($_GET['stripe_remove_pm'])) {
 
-    validateCSRFToken($_GET['csrf_token']);
+    validateCSRFToken();
 
     if (!$config_stripe_enable) {
-        flash_alert("Stripe not enabled", 'error');
+        flashAlert("Stripe not enabled", 'error');
         redirect();
     }
 
     $client_id = intval($_GET['client_id']);
-    $payment_method = sanitizeInput($_GET['pm']);
+    $payment_method = escapeSql($_GET['pm']);
 
     try {
         // Initialize stripe
-        require_once '../plugins/stripe-php/init.php';
+        require_once '../includes/stripe_init.php';
         $stripe = new \Stripe\StripeClient($config_stripe_secret);
 
         // Detach PM
@@ -39,9 +39,9 @@ if (isset($_GET['stripe_remove_pm'])) {
         mysqli_query($mysqli, "DELETE FROM recurring_payments WHERE recurring_payment_method = 'Stripe' AND recurring_payment_recurring_invoice_id = $recurring_invoice_id");
     }
 
-    logAction("Stripe", "Update", "$session_name deleted saved Stripe payment method (PM: $payment_method)", $client_id);
+    logAudit("Stripe", "Update", "$session_name deleted saved Stripe payment method (PM: $payment_method)", $client_id);
 
-    flash_alert("Payment method removed", 'error');
+    flashAlert("Payment method removed", 'error');
 
     redirect();
 
@@ -49,7 +49,7 @@ if (isset($_GET['stripe_remove_pm'])) {
 
 if (isset($_GET['stripe_reset_customer'])) {
 
-    validateCSRFToken($_GET['csrf_token']);
+    validateCSRFToken();
 
     $client_id = intval($_GET['client_id']);
 
@@ -64,9 +64,9 @@ if (isset($_GET['stripe_reset_customer'])) {
         mysqli_query($mysqli, "DELETE FROM recurring_payments WHERE recurring_payment_method = 'Stripe' AND recurring_payment_recurring_invoice_id = $recurring_invoice_id");
     }
 
-    logAction("Stripe", "Delete", "$session_name reset Stripe settings for client", $client_id);
+    logAudit("Stripe", "Delete", "$session_name reset Stripe settings for client", $client_id);
 
-    flash_alert("Reset client Stripe settings", 'error');
+    flashAlert("Reset client Stripe settings", 'error');
 
     redirect();
 

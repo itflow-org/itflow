@@ -3,7 +3,7 @@ define('number_regex', '/[^0-9]/');
 
 // Variable assignment from POST (or: blank/from DB is updating)
 if (isset($_POST['contact_name'])) {
-    $name = sanitizeInput($_POST['contact_name']);
+    $name = escapeSql($_POST['contact_name']);
 } elseif ($contact_row) {
     $name = mysqli_real_escape_string($mysqli, $contact_row['contact_name']);
 } else {
@@ -11,7 +11,7 @@ if (isset($_POST['contact_name'])) {
 }
 
 if (isset($_POST['contact_title'])) {
-    $title = sanitizeInput($_POST['contact_title']);
+    $title = escapeSql($_POST['contact_title']);
 } elseif ($contact_row) {
     $title = mysqli_real_escape_string($mysqli, $contact_row['contact_title']);
 } else {
@@ -19,7 +19,7 @@ if (isset($_POST['contact_title'])) {
 }
 
 if (isset($_POST['contact_department'])) {
-    $department = sanitizeInput($_POST['contact_department']);
+    $department = escapeSql($_POST['contact_department']);
 } elseif ($contact_row) {
     $department = mysqli_real_escape_string($mysqli, $contact_row['contact_department']);
 } else {
@@ -27,7 +27,7 @@ if (isset($_POST['contact_department'])) {
 }
 
 if (isset($_POST['contact_email'])) {
-    $email = sanitizeInput($_POST['contact_email']);
+    $email = escapeSql($_POST['contact_email']);
 } elseif ($contact_row) {
     $email = mysqli_real_escape_string($mysqli, $contact_row['contact_email']);
 } else {
@@ -59,7 +59,7 @@ if (isset($_POST['contact_mobile'])) {
 }
 
 if (isset($_POST['contact_notes'])) {
-    $notes = sanitizeInput($_POST['contact_notes']);
+    $notes = escapeSql($_POST['contact_notes']);
 } elseif ($contact_row) {
     $notes = mysqli_real_escape_string($mysqli, $contact_row['contact_notes']);
 } else {

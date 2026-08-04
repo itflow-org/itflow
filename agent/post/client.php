@@ -8,9 +8,7 @@ defined('FROM_POST_HANDLER') || die("Direct file access is not allowed");
 
 if (isset($_POST['add_client'])) {
 
-    // JQ - Using Prepared MySQLi Statements here for show this is not our standard and is only used in the client add/edit POST.
-
-    validateCSRFToken($_POST['csrf_token']);
+    validateCSRFToken();
 
     enforceUserPermission('module_client', 2);
 
@@ -22,57 +20,27 @@ if (isset($_POST['add_client'])) {
     $location_extension = preg_replace("/[^0-9]/", '', $_POST['location_extension']);
     $location_fax_country_code = preg_replace("/[^0-9]/", '', $_POST['location_fax_country_code']);
     $location_fax = preg_replace("/[^0-9]/", '', $_POST['location_fax']);
-    $address = cleanInput($_POST['address']);
-    $city = cleanInput($_POST['city']);
-    $state = cleanInput($_POST['state']);
-    $zip = cleanInput($_POST['zip']);
-    $country = cleanInput($_POST['country']);
+    $address = escapeSql($_POST['address']);
+    $city = escapeSql($_POST['city']);
+    $state = escapeSql($_POST['state']);
+    $zip = escapeSql($_POST['zip']);
+    $country = escapeSql($_POST['country']);
 
     // Contact inputs
-    $contact = cleanInput($_POST['contact']);
-    $title = cleanInput($_POST['title']);
+    $contact = escapeSql($_POST['contact']);
+    $title = escapeSql($_POST['title']);
     $contact_phone_country_code = preg_replace("/[^0-9]/", '', $_POST['contact_phone_country_code']);
     $contact_phone = preg_replace("/[^0-9]/", '', $_POST['contact_phone']);
     $contact_extension = preg_replace("/[^0-9]/", '', $_POST['contact_extension']);
     $contact_mobile_country_code = preg_replace("/[^0-9]/", '', $_POST['contact_mobile_country_code']);
     $contact_mobile = preg_replace("/[^0-9]/", '', $_POST['contact_mobile']);
-    $contact_email = cleanInput($_POST['contact_email']);
+    $contact_email = escapeSql($_POST['contact_email']);
 
     $extended_log_description = '';
 
-    // Insert client using SET
-    $query = mysqli_prepare(
-        $mysqli,
-        "INSERT INTO clients SET
-        client_name = ?,
-        client_type = ?,
-        client_website = ?,
-        client_referral = ?,
-        client_rate = ?,
-        client_currency_code = ?,
-        client_net_terms = ?,
-        client_tax_id_number = ?,
-        client_lead = ?,
-        client_abbreviation = ?,
-        client_notes = ?,
-        client_accessed_at = NOW()"
-    );
-    mysqli_stmt_bind_param(
-        $query,
-        "ssssdsiisss",
-        $name,
-        $type,
-        $website,
-        $referral,
-        $rate,
-        $session_company_currency,
-        $net_terms,
-        $tax_id_number,
-        $lead,
-        $abbreviation,
-        $notes
-    );
-    mysqli_stmt_execute($query);
+    // Create client
+    mysqli_query($mysqli, "INSERT INTO clients SET client_name = '$name', client_type = '$type', client_website = '$website', client_referral = '$referral', client_rate = $rate, client_currency_code = '$session_company_currency', client_net_terms = $net_terms, client_tax_id_number = '$tax_id_number', client_lead = $lead, client_abbreviation = '$abbreviation', client_notes = '$notes', client_accessed_at = NOW()");
+
     $client_id = mysqli_insert_id($mysqli);
 
     // Create client folder
@@ -83,125 +51,46 @@ if (isset($_POST['add_client'])) {
     }
 
     // Create referral category if it doesn't exist
-    $query = mysqli_prepare($mysqli, "SELECT category_name FROM categories WHERE category_type = 'Referral' AND category_archived_at IS NULL AND category_name = ?");
-    mysqli_stmt_bind_param($query, "s", $referral);
-    mysqli_stmt_execute($query);
-    mysqli_stmt_store_result($query);
-    if (mysqli_stmt_num_rows($query) == 0) {
-        $query = mysqli_prepare($mysqli, "INSERT INTO categories SET category_name = ?, category_type = 'Referral'");
-        mysqli_stmt_bind_param($query, "s", $referral);
-        mysqli_stmt_execute($query);
+    $sql = mysqli_query($mysqli, "SELECT category_name FROM categories WHERE category_type = 'Referral' AND category_archived_at IS NULL AND category_name = '$referral'");
+    if (mysqli_num_rows($sql) == 0) {
+        mysqli_query($mysqli, "INSERT INTO categories SET category_name = '$referral', category_type = 'Referral'");
 
-        logAction("Category", "Create", "$session_name created referral category $referral");
+        logAudit("Category", "Create", "$session_name created referral category $referral");
     }
 
-    // Insert primary location using SET
+    // Create primary location
     if (!empty($location_phone) || !empty($address) || !empty($city) || !empty($state) || !empty($zip)) {
-        $query = mysqli_prepare(
-            $mysqli,
-            "INSERT INTO locations SET
-            location_name = 'Primary',
-            location_address = ?,
-            location_city = ?,
-            location_state = ?,
-            location_zip = ?,
-            location_phone_country_code = ?,
-            location_phone = ?,
-            location_phone_extension = ?,
-            location_fax_country_code = ?,
-            location_fax = ?,
-            location_country = ?,
-            location_primary = 1,
-            location_client_id = ?"
-        );
-        mysqli_stmt_bind_param(
-            $query,
-            "ssssssssssi",
-            $address,
-            $city,
-            $state,
-            $zip,
-            $location_phone_country_code,
-            $location_phone,
-            $location_extension,
-            $location_fax_country_code,
-            $location_fax,
-            $country,
-            $client_id
-        );
-        mysqli_stmt_execute($query);
+        mysqli_query($mysqli, "INSERT INTO locations SET location_name = 'Primary', location_address = '$address', location_city = '$city', location_state = '$state', location_zip = '$zip', location_phone_country_code = '$location_phone_country_code', location_phone = '$location_phone', location_phone_extension = '$location_extension', location_fax_country_code = '$location_fax_country_code', location_fax = '$location_fax', location_country = '$country', location_primary = 1, location_client_id = $client_id");
+
         $extended_log_description .= ", primary location $address added";
     }
 
-    // Insert primary contact using SET
+    // Create primary contact
     if (!empty($contact) || !empty($title) || !empty($contact_phone) || !empty($contact_mobile) || !empty($contact_email)) {
-        $query = mysqli_prepare(
-            $mysqli,
-            "INSERT INTO contacts SET
-            contact_name = ?,
-            contact_title = ?,
-            contact_phone_country_code = ?,
-            contact_phone = ?,
-            contact_extension = ?,
-            contact_mobile_country_code = ?,
-            contact_mobile = ?,
-            contact_email = ?,
-            contact_primary = 1,
-            contact_important = 1,
-            contact_client_id = ?"
-        );
-        mysqli_stmt_bind_param(
-            $query,
-            "ssssssssi",
-            $contact,
-            $title,
-            $contact_phone_country_code,
-            $contact_phone,
-            $contact_extension,
-            $contact_mobile_country_code,
-            $contact_mobile,
-            $contact_email,
-            $client_id
-        );
-        mysqli_stmt_execute($query);
+        mysqli_query($mysqli, "INSERT INTO contacts SET contact_name = '$contact', contact_title = '$title', contact_phone_country_code = '$contact_phone_country_code', contact_phone = '$contact_phone', contact_extension = '$contact_extension', contact_mobile_country_code = '$contact_mobile_country_code', contact_mobile = '$contact_mobile', contact_email = '$contact_email', contact_primary = 1, contact_important = 1, contact_client_id = $client_id");
+
         $extended_log_description .= ", primary contact $contact added";
     }
 
     // Add tags
     if (isset($_POST['tags'])) {
-        $query = mysqli_prepare($mysqli, "INSERT INTO client_tags SET client_id = ?, tag_id = ?");
         foreach ($_POST['tags'] as $tag) {
             $tag = intval($tag);
-            mysqli_stmt_bind_param($query, "ii", $client_id, $tag);
-            mysqli_stmt_execute($query);
+            mysqli_query($mysqli, "INSERT INTO client_tags SET client_id = $client_id, tag_id = $tag");
         }
     }
 
-    // Insert domain and SSL using SET
+    // Create domain and SSL certificate
     if (!empty($website) && filter_var($website, FILTER_VALIDATE_DOMAIN, FILTER_FLAG_HOSTNAME)) {
         $expire = getDomainExpirationDate($website);
-        $records = getDomainRecords($website);
-        $a = cleanInput($records['a']);
-        $ns = cleanInput($records['ns']);
-        $mx = cleanInput($records['mx']);
-        $whois = cleanInput($records['whois']);
+        $records = getDnsRecords($website);
+        $a = escapeSql($records['a']);
+        $ns = escapeSql($records['ns']);
+        $mx = escapeSql($records['mx']);
+        $whois = escapeSql($records['whois']);
 
         try {
-            $query = mysqli_prepare(
-                $mysqli,
-                "INSERT INTO domains SET
-                domain_name = ?,
-                domain_registrar = 0,
-                domain_webhost = 0,
-                domain_expire = ?,
-                domain_ip = ?,
-                domain_name_servers = ?,
-                domain_mail_servers = ?,
-                domain_raw_whois = ?,
-                domain_client_id = ?"
-            );
-            mysqli_stmt_bind_param($query, "ssssssi", $website, $expire, $a, $ns, $mx, $whois, $client_id);
-            mysqli_stmt_execute($query);
+            mysqli_query($mysqli, "INSERT INTO domains SET domain_name = '$website', domain_registrar = 0, domain_webhost = 0, domain_expire = '$expire', domain_ip = '$a', domain_name_servers = '$ns', domain_mail_servers = '$mx', domain_raw_whois = '$whois', domain_client_id = $client_id");
             $extended_log_description .= ", domain $website added";
         } catch (Exception $e) {
             $extended_log_description .= ", domain not added";
@@ -209,44 +98,33 @@ if (isset($_POST['add_client'])) {
         }
 
         $domain_id = mysqli_insert_id($mysqli);
-        $certificate = getSSL($website);
+        $certificate = getSslCertificate($website);
 
         if ($certificate['success'] == "TRUE") {
-            $expire = cleanInput($certificate['expire']);
-            $issued_by = cleanInput($certificate['issued_by']);
-            $public_key = cleanInput($certificate['public_key']);
+            $expire = escapeSql($certificate['expire']);
+            $issued_by = escapeSql($certificate['issued_by']);
+            $public_key = escapeSql($certificate['public_key']);
 
-            $query = mysqli_prepare(
-                $mysqli,
-                "INSERT INTO certificates SET
-                certificate_name = ?,
-                certificate_domain = ?,
-                certificate_issued_by = ?,
-                certificate_expire = ?,
-                certificate_public_key = ?,
-                certificate_domain_id = ?,
-                certificate_client_id = ?"
-            );
-            mysqli_stmt_bind_param(
-                $query,
-                "sssssii",
-                $website,
-                $website,
-                $issued_by,
-                $expire,
-                $public_key,
-                $domain_id,
-                $client_id
-            );
-            mysqli_stmt_execute($query);
+            mysqli_query($mysqli, "INSERT INTO certificates SET certificate_name = '$website', certificate_domain = '$website', certificate_issued_by = '$issued_by', certificate_expire = '$expire', certificate_public_key = '$public_key', certificate_domain_id = $domain_id, certificate_client_id = $client_id");
 
             $extended_log_description .= ", SSL certificate $website added";
         }
     }
 
-    logAction("Client", "Create", "$session_name created client $name$extended_log_description", $client_id, $client_id);
+    // Ticket SLA assignments (fields only rendered when active SLAs exist)
+    if (isset($_POST['client_sla_low'])) {
+        foreach (['Low', 'Medium', 'High', 'Urgent'] as $sla_priority) {
+            $sla_value = strval($_POST['client_sla_' . strtolower($sla_priority)] ?? 'default');
+            if ($sla_value !== 'default') {
+                $client_sla_id = intval($sla_value);
+                mysqli_query($mysqli, "INSERT INTO sla_assignments SET sla_assignment_client_id = $client_id, sla_assignment_priority = '$sla_priority', sla_assignment_sla_id = $client_sla_id");
+            }
+        }
+    }
 
-    flash_alert("Client <strong>$name</strong> created");
+    logAudit("Client", "Create", "$session_name created client $name$extended_log_description", $client_id, $client_id);
+
+    flashAlert("Client <strong>$name</strong> created");
 
     redirect();
 
@@ -254,7 +132,7 @@ if (isset($_POST['add_client'])) {
 
 if (isset($_POST['edit_client'])) {
 
-    validateCSRFToken($_POST['csrf_token']);
+    validateCSRFToken();
 
     enforceUserPermission('module_client', 2);
 
@@ -262,69 +140,65 @@ if (isset($_POST['edit_client'])) {
 
     $client_id = intval($_POST['client_id']);
 
-    // Update client using prepared statement
-    $query = mysqli_prepare(
-        $mysqli,
-        "UPDATE clients SET
-        client_name = ?,
-        client_type = ?,
-        client_website = ?,
-        client_referral = ?,
-        client_rate = ?,
-        client_net_terms = ?,
-        client_tax_id_number = ?,
-        client_lead = ?,
-        client_abbreviation = ?,
-        client_notes = ?
-        WHERE client_id = ?"
-    );
-    mysqli_stmt_bind_param(
-        $query,
-        "ssssdisissi",
-        $name,
-        $type,
-        $website,
-        $referral,
-        $rate,
-        $net_terms,
-        $tax_id_number,
-        $lead,
-        $abbreviation,
-        $notes,
-        $client_id
-    );
-    mysqli_stmt_execute($query);
+    // Update client
+    mysqli_query($mysqli, "UPDATE clients SET client_name = '$name', client_type = '$type', client_website = '$website', client_referral = '$referral', client_rate = $rate, client_net_terms = $net_terms, client_tax_id_number = '$tax_id_number', client_lead = $lead, client_abbreviation = '$abbreviation', client_notes = '$notes' WHERE client_id = $client_id");
 
     // Create referral category if it doesn't exist
-    $query = mysqli_prepare($mysqli, "SELECT category_name FROM categories WHERE category_type = 'Referral' AND category_archived_at IS NULL AND category_name = ?");
-    mysqli_stmt_bind_param($query, "s", $referral);
-    mysqli_stmt_execute($query);
-    mysqli_stmt_store_result($query);
-    if (mysqli_stmt_num_rows($query) == 0) {
-        $query = mysqli_prepare($mysqli, "INSERT INTO categories SET category_name = ?, category_type = 'Referral'");
-        mysqli_stmt_bind_param($query, "s", $referral);
-        mysqli_stmt_execute($query);
+    $sql = mysqli_query($mysqli, "SELECT category_name FROM categories WHERE category_type = 'Referral' AND category_archived_at IS NULL AND category_name = '$referral'");
+    if (mysqli_num_rows($sql) == 0) {
+        mysqli_query($mysqli, "INSERT INTO categories SET category_name = '$referral', category_type = 'Referral'");
 
-        logAction("Category", "Create", "$session_name created referral category $referral");
+        logAudit("Category", "Create", "$session_name created referral category $referral");
     }
 
     // Tags - delete existing and re-insert
-    $query = mysqli_prepare($mysqli, "DELETE FROM client_tags WHERE client_id = ?");
-    mysqli_stmt_bind_param($query, "i", $client_id);
-    mysqli_stmt_execute($query);
+    mysqli_query($mysqli, "DELETE FROM client_tags WHERE client_id = $client_id");
 
     if (isset($_POST['tags'])) {
-        $query = mysqli_prepare($mysqli, "INSERT INTO client_tags SET client_id = ?, tag_id = ?");
         foreach ($_POST['tags'] as $tag) {
             $tag = intval($tag);
-            mysqli_stmt_bind_param($query, "ii", $client_id, $tag);
-            mysqli_stmt_execute($query);
+            mysqli_query($mysqli, "INSERT INTO client_tags SET client_id = $client_id, tag_id = $tag");
         }
     }
 
-    logAction("Client", "Edit", "$session_name edited client $name", $client_id, $client_id);
+    // Ticket SLA assignments (fields only rendered when active SLAs exist)
+    if (isset($_POST['client_sla_low'])) {
 
-    flash_alert("Client <strong>$name</strong> updated");
+        // Compare with current state so an unrelated client edit doesn't
+        // restamp tickets (restamping clobbers manual per-ticket SLA pins)
+        $current_sla_assignments = [];
+        $sql_current_slas = mysqli_query($mysqli, "SELECT sla_assignment_priority, sla_assignment_sla_id FROM sla_assignments WHERE sla_assignment_client_id = $client_id");
+        while ($current_sla_row = mysqli_fetch_assoc($sql_current_slas)) {
+            $current_sla_assignments[$current_sla_row['sla_assignment_priority']] = strval(intval($current_sla_row['sla_assignment_sla_id']));
+        }
+
+        $sla_assignments_changed = false;
+        foreach (['Low', 'Medium', 'High', 'Urgent'] as $sla_priority) {
+            $sla_value = strval($_POST['client_sla_' . strtolower($sla_priority)] ?? 'default');
+            $sla_current = $current_sla_assignments[$sla_priority] ?? 'default';
+            if ($sla_value === $sla_current) {
+                continue;
+            }
+            $sla_assignments_changed = true;
+            mysqli_query($mysqli, "DELETE FROM sla_assignments WHERE sla_assignment_client_id = $client_id AND sla_assignment_priority = '$sla_priority'");
+            if ($sla_value !== 'default') {
+                $client_sla_id = intval($sla_value);
+                mysqli_query($mysqli, "INSERT INTO sla_assignments SET sla_assignment_client_id = $client_id, sla_assignment_priority = '$sla_priority', sla_assignment_sla_id = $client_sla_id");
+            }
+        }
+
+        if ($sla_assignments_changed) {
+            // Re-resolve this client's open tickets against the new assignments
+            $sql_sla_tickets = mysqli_query($mysqli, "SELECT ticket_id FROM tickets WHERE ticket_client_id = $client_id AND ticket_closed_at IS NULL AND ticket_archived_at IS NULL");
+            while ($sla_ticket_row = mysqli_fetch_assoc($sql_sla_tickets)) {
+                applyTicketSla($sla_ticket_row['ticket_id']);
+            }
+        }
+    }
+
+    logAudit("Client", "Edit", "$session_name edited client $name", $client_id, $client_id);
+
+    flashAlert("Client <strong>$name</strong> updated");
 
     redirect();
 
@@ -332,7 +206,7 @@ if (isset($_POST['edit_client'])) {
 
 if (isset($_GET['archive_client'])) {
 
-    validateCSRFToken($_GET['csrf_token']);
+    validateCSRFToken();
 
     enforceUserPermission('module_client', 2);
 
@@ -350,11 +224,11 @@ if (isset($_GET['archive_client'])) {
     }
 
     // Get Client Name
-    $client_name = sanitizeInput(getFieldById('clients', $client_id, 'client_name'));
+    $client_name = escapeSql(getFieldById('clients', $client_id, 'client_name'));
 
-    logAction("Client", "Archive", "$session_name archived client $client_name", $client_id, $client_id);
+    logAudit("Client", "Archive", "$session_name archived client $client_name", $client_id, $client_id);
 
-    flash_alert("Client <strong>$client_name</strong> archived", 'error');
+    flashAlert("Client <strong>$client_name</strong> archived", 'error');
 
     redirect();
 
@@ -362,20 +236,20 @@ if (isset($_GET['archive_client'])) {
 
 if (isset($_GET['restore_client'])) {
 
-    validateCSRFToken($_GET['csrf_token']);
+    validateCSRFToken();
 
     enforceUserPermission('module_client', 2);
 
     $client_id = intval($_GET['restore_client']);
 
     // Get Client Name
-    $client_name = sanitizeInput(getFieldById('clients', $client_id, 'client_name'));
+    $client_name = escapeSql(getFieldById('clients', $client_id, 'client_name'));
 
     mysqli_query($mysqli, "UPDATE clients SET client_archived_at = NULL WHERE client_id = $client_id");
 
-    logAction("Client", "Restored", "$session_name restored client $client_name", $client_id);
+    logAudit("Client", "Restored", "$session_name restored client $client_name", $client_id);
 
-    flash_alert("Client <strong>$client_name</strong> restored");
+    flashAlert("Client <strong>$client_name</strong> restored");
 
     redirect();
 
@@ -383,18 +257,17 @@ if (isset($_GET['restore_client'])) {
 
 if (isset($_GET['delete_client'])) {
 
-    validateCSRFToken($_GET['csrf_token']);
+    validateCSRFToken();
 
     enforceUserPermission('module_client', 3);
 
     $client_id = intval($_GET['delete_client']);
 
     // Get Client Name
-    $client_name = sanitizeInput(getFieldById('clients', $client_id, 'client_name'));
+    $client_name = escapeSql(getFieldById('clients', $client_id, 'client_name'));
 
     // Delete Associations
     // Delete Client Data
-    mysqli_query($mysqli, "DELETE FROM api_keys WHERE api_key_client_id = $client_id");
     mysqli_query($mysqli, "DELETE FROM certificates WHERE certificate_client_id = $client_id");
     mysqli_query($mysqli, "DELETE FROM documents WHERE document_client_id = $client_id");
 
@@ -475,59 +348,133 @@ if (isset($_GET['delete_client'])) {
     //Finally Remove the Client
     mysqli_query($mysqli, "DELETE FROM clients WHERE client_id = $client_id");
 
-    logAction("Client", "Deleted", "$session_name deleted Client $client_name and all associated data");
+    logAudit("Client", "Deleted", "$session_name deleted Client $client_name and all associated data");
 
-    flash_alert("Client <strong>$client_name</strong> deleted along with all associated data", 'error');
+    flashAlert("Client <strong>$client_name</strong> deleted along with all associated data", 'error');
 
     redirect('clients.php');
 
 }
 
-if (isset($_POST['export_clients_csv'])) {
+if (isset($_POST['export_clients'])) {
 
-    validateCSRFToken($_POST['csrf_token']);
+    validateCSRFToken();
 
-    enforceUserPermission('module_client', 1);
+    enforceUserPermission('module_client');
 
-    //get records from database
-    $sql = mysqli_query($mysqli, "SELECT * FROM clients
+    $format = resolveExportFormat($_POST['export_clients']);
+
+    // Filters inherited from the clients page - mirrors agent/clients.php
+    $filter_summary = [];
+
+    // Leads Filter
+    if (isset($_POST['leads']) && $_POST['leads'] == 1) {
+        $leads_query = "AND client_lead = 1";
+        $filter_summary['Showing'] = 'Leads';
+        $export_label = 'Leads';
+    } else {
+        $leads_query = "AND client_lead = 0";
+        $export_label = 'Clients';
+    }
+
+    // Tags Filter
+    if (isset($_POST['tags']) && is_array($_POST['tags']) && !empty($_POST['tags'])) {
+        $tag_filter = implode(",", array_map('intval', $_POST['tags']));
+        $tag_query = "AND tags.tag_id IN ($tag_filter)";
+
+        $tag_names = [];
+        $sql_tags = mysqli_query($mysqli, "SELECT tag_name FROM tags WHERE tag_id IN ($tag_filter) ORDER BY tag_name ASC");
+        while ($tag_row = mysqli_fetch_assoc($sql_tags)) {
+            $tag_names[] = $tag_row['tag_name'];
+        }
+        $filter_summary['Tags'] = implode(', ', $tag_names);
+    } else {
+        // Default - any
+        $tag_query = '';
+    }
+
+    // Industry Filter
+    if (!empty($_POST['industry'])) {
+        $industry_query = "AND (clients.client_type = '" . escapeSql($_POST['industry']) . "')";
+        $filter_summary['Industry'] = $_POST['industry'];
+    } else {
+        // Default - any
+        $industry_query = '';
+    }
+
+    // Referral Filter
+    if (!empty($_POST['referral'])) {
+        $referral_query = "AND (clients.client_referral = '" . escapeSql($_POST['referral']) . "')";
+        $filter_summary['Referral'] = $_POST['referral'];
+    } else {
+        // Default - any
+        $referral_query = '';
+    }
+
+    // Archived Filter
+    if (isset($_POST['archived']) && $_POST['archived'] == 1) {
+        $archive_query = "client_archived_at IS NOT NULL";
+        $filter_summary['Archived'] = 'Archived only';
+    } else {
+        $archive_query = "client_archived_at IS NULL";
+    }
+
+    // Date Filter - all-time sentinels from filter_header.php are left in place,
+    // they match everything anyway
+    $dtf = escapeSql(!empty($_POST['dtf']) ? $_POST['dtf'] : '1970-01-01');
+    $dtt = escapeSql(!empty($_POST['dtt']) ? $_POST['dtt'] : '2099-12-31');
+    $date_range = formatExportDateRange($dtf, $dtt);
+    if ($date_range) {
+        $filter_summary['Created'] = $date_range;
+    }
+
+    // Search Filter
+    $q = escapeSql($_POST['q'] ?? '');
+    $phone_query = preg_replace('/\D/', '', $q);
+    if (!empty($q)) {
+        $filter_summary['Search'] = $_POST['q'];
+    }
+
+    // Get records from database - same shape as the clients page list query
+    $sql = mysqli_query(
+        $mysqli,
+        "SELECT clients.*, contacts.*, locations.*
+        FROM clients
         LEFT JOIN contacts ON clients.client_id = contacts.contact_client_id AND contact_primary = 1
         LEFT JOIN locations ON clients.client_id = locations.location_client_id AND location_primary = 1
-        ORDER BY client_name ASC
-    ");
+        LEFT JOIN client_tags ON client_tags.client_id = clients.client_id
+        LEFT JOIN tags ON tags.tag_id = client_tags.tag_id
+        WHERE (client_name LIKE '%$q%' OR client_abbreviation LIKE '%$q%' OR client_type LIKE '%$q%' OR client_referral LIKE '%$q%'
+               OR contact_email LIKE '%$q%' OR contact_name LIKE '%$q%' OR contact_phone LIKE '%$phone_query%'
+               OR contact_mobile LIKE '%$phone_query%' OR location_address LIKE '%$q%'
+               OR location_city LIKE '%$q%' OR location_state LIKE '%$q%' OR location_zip LIKE '%$q%' OR location_country LIKE '%$q%'
+               OR tag_name LIKE '%$q%' OR client_tax_id_number LIKE '%$q%')
+          AND $archive_query
+          AND DATE(client_created_at) BETWEEN '$dtf' AND '$dtt'
+          $leads_query
+          $access_permission_query
+          $tag_query
+          $industry_query
+          $referral_query
+        GROUP BY client_id
+        ORDER BY client_name ASC"
+    );
 
     $num_rows = mysqli_num_rows($sql);
 
     if ($num_rows > 0) {
-        $delimiter = ",";
-        $enclosure = '"';
-        $escape    = '\\';   // backslash
-        $filename = sanitize_filename($session_company_name . "-Clients-" . date('Y-m-d_H-i-s') . ".csv");
 
-        //create a file pointer
-        $f = fopen('php://memory', 'w');
+        guardExportPdfRowCount($format, $num_rows);
 
-        //set column headers
-        $fields = array('Client Name', 'Industry', 'Referral', 'Website', 'Primary Location Name', 'Location Phone', 'Location Address', 'City', 'State', 'Postal Code', 'Country', 'Primary Contact Name', 'Title', 'Contact Phone', 'Extension', 'Contact Mobile', 'Contact Email', 'Hourly Rate', 'Currency', 'Payment Terms', 'Tax ID', 'Abbreviation');
-        fputcsv($f, $fields, $delimiter, $enclosure, $escape);
+        $export = beginExport('clients', $format, "$session_company_name-$export_label", $export_label, summarizeExportFilters($filter_summary));
 
-        //output each row of the data, format line as csv and write to file pointer
-        while($row = $sql->fetch_assoc()) {
-            $lineData = array($row['client_name'], $row['client_type'], $row['client_referral'], $row['client_website'], $row['location_name'], formatPhoneNumber($row['location_phone']), $row['location_address'], $row['location_city'], $row['location_state'], $row['location_zip'], $row['location_country'], $row['contact_name'], $row['contact_title'], formatPhoneNumber($row['contact_phone']), $row['contact_extension'], formatPhoneNumber($row['contact_mobile']), $row['contact_email'], $row['client_rate'], $row['client_currency_code'], $row['client_net_terms'], $row['client_tax_id_number'], $row['client_abbreviation']);
-            fputcsv($f, $lineData, $delimiter, $enclosure, $escape);
+        while ($row = mysqli_fetch_assoc($sql)) {
+            addExportRow($export, $row);
         }
 
-        //move back to beginning of file
-        fseek($f, 0);
+        finishExport($export);
 
-        //set headers to download file rather than displayed
-        header('Content-Type: text/csv');
-        header('Content-Disposition: attachment; filename="' . $filename . '";');
-
-        //output all remaining data on a file pointer
-        fpassthru($f);
-
-        logAction("Client", "Export", "$session_name exported $num_rows client(s) to a CSV file");
+        logAudit("Client", "Export", "$session_name exported $num_rows client(s) to a " . strtoupper($format) . " file");
 
     }
 
@@ -537,7 +484,7 @@ if (isset($_POST['export_clients_csv'])) {
 
 if (isset($_POST["import_clients_csv"])) {
 
-    validateCSRFToken($_POST['csrf_token']);
+    validateCSRFToken();
 
     enforceUserPermission('module_client', 2);
     $error = false;
@@ -545,7 +492,7 @@ if (isset($_POST["import_clients_csv"])) {
     if (!empty($_FILES["file"]["tmp_name"])) {
         $file_name = $_FILES["file"]["tmp_name"];
     } else {
-        flash_alert("Please select a file to upload.", 'error');
+        flashAlert("Please select a file to upload.", 'error');
         redirect();
     }
 
@@ -554,13 +501,13 @@ if (isset($_POST["import_clients_csv"])) {
     $allowed_file_extensions = array('csv');
     if (in_array($file_extension,$allowed_file_extensions) === false) {
         $error = true;
-        flash_alert("Bad file extension", 'error');
+        flashAlert("Bad file extension", 'error');
     }
 
     //Check file isn't empty
     elseif ($_FILES["file"]["size"] < 1) {
         $error = true;
-        flash_alert("Bad file size (empty?)", 'error');
+        flashAlert("Bad file size (empty?)", 'error');
     }
 
     //(Else)Check column count
@@ -568,7 +515,7 @@ if (isset($_POST["import_clients_csv"])) {
     $f_columns = fgetcsv($f, 1000, ",");
     if (!$error & count($f_columns) != 22) {
         $error = true;
-        flash_alert("Bad column count.", 'error');
+        flashAlert("Bad column count.", 'error');
     }
 
     //Else, parse the file
@@ -580,7 +527,7 @@ if (isset($_POST["import_clients_csv"])) {
         while(($column = fgetcsv($file, 1000, ",")) !== false) {
             $duplicate_detect = 0;
             if (isset($column[0])) {
-                $name = sanitizeInput($column[0]);
+                $name = escapeSql($column[0]);
                 if (mysqli_num_rows(mysqli_query($mysqli,"SELECT * FROM clients WHERE client_name = '$name'")) > 0) {
                     $duplicate_detect = 1;
                 }
@@ -588,22 +535,22 @@ if (isset($_POST["import_clients_csv"])) {
 
             $industry = '';
             if (isset($column[1])) {
-                $industry = sanitizeInput($column[1]);
+                $industry = escapeSql($column[1]);
             }
 
             $referral = '';
             if (isset($column[2])) {
-                $referral = sanitizeInput($column[2]);
+                $referral = escapeSql($column[2]);
             }
 
             $website = '';
             if (isset($column[3])) {
-                $website = sanitizeInput(preg_replace("(^https?://)", "", $column[3]));
+                $website = escapeSql(preg_replace("(^https?://)", "", $column[3]));
             }
 
             $location_name = '';
             if (isset($column[4])) {
-                $location_name = sanitizeInput($column[4]);
+                $location_name = escapeSql($column[4]);
             }
 
             $location_phone = '';
@@ -613,37 +560,37 @@ if (isset($_POST["import_clients_csv"])) {
 
             $address = '';
             if (isset($column[6])) {
-                $address = sanitizeInput($column[6]);
+                $address = escapeSql($column[6]);
             }
 
             $city = '';
             if (isset($column[7])) {
-                $city = sanitizeInput($column[7]);
+                $city = escapeSql($column[7]);
             }
 
             $state = '';
             if (isset($column[8])) {
-                $state = sanitizeInput($column[8]);
+                $state = escapeSql($column[8]);
             }
 
             $zip = '';
             if (isset($column[9])) {
-                $zip = sanitizeInput($column[9]);
+                $zip = escapeSql($column[9]);
             }
 
             $country = '';
             if (isset($column[10])) {
-                $country = sanitizeInput($column[10]);
+                $country = escapeSql($column[10]);
             }
 
             $contact_name = '';
             if (isset($column[11])) {
-                $contact_name = sanitizeInput($column[11]);
+                $contact_name = escapeSql($column[11]);
             }
 
             $title = '';
             if (isset($column[12])) {
-                $title = sanitizeInput($column[12]);
+                $title = escapeSql($column[12]);
             }
 
             $contact_phone = '';
@@ -663,7 +610,7 @@ if (isset($_POST["import_clients_csv"])) {
 
             $contact_email = '';
             if (isset($column[16])) {
-                $contact_email = sanitizeInput($column[16]);
+                $contact_email = escapeSql($column[16]);
             }
 
             $hourly_rate = $config_default_hourly_rate;
@@ -671,24 +618,24 @@ if (isset($_POST["import_clients_csv"])) {
                 $hourly_rate = floatval($column[17]);
             }
 
-            $currency_code = sanitizeInput($session_company_currency);
+            $currency_code = escapeSql($session_company_currency);
             if (isset($column[18])) {
-                $currency_code = sanitizeInput($column[18]);
+                $currency_code = escapeSql($column[18]);
             }
 
-            $payment_terms = sanitizeInput($config_default_net_terms);
+            $payment_terms = escapeSql($config_default_net_terms);
             if (isset($column[19])) {
                 $payment_terms = intval($column[19]);
             }
 
             $tax_id_number = '';
             if (isset($column[20])) {
-                $tax_id_number = sanitizeInput($column[20]);
+                $tax_id_number = escapeSql($column[20]);
             }
 
             $abbreviation = '';
             if (isset($column[21])) {
-                $abbreviation = sanitizeInput($column[21]);
+                $abbreviation = escapeSql($column[21]);
             }
 
             // Check if duplicate was detected
@@ -709,7 +656,7 @@ if (isset($_POST["import_clients_csv"])) {
                 if(mysqli_num_rows($sql) == 0) {
                     mysqli_query($mysqli, "INSERT INTO categories SET category_name = '$referral', category_type = 'Referral'");
                     // Logging
-                    logAction("Category", "Create", "$session_name created new refferal category $referral");
+                    logAudit("Category", "Create", "$session_name created new refferal category $referral");
                 }
 
                 // Create Location
@@ -729,9 +676,9 @@ if (isset($_POST["import_clients_csv"])) {
         }
         fclose($file);
 
-        logAction("Client", "Import", "$session_name imported $row_count client(s) via CSV file, $duplicate_count duplicate(s) found");
+        logAudit("Client", "Import", "$session_name imported $row_count client(s) via CSV file, $duplicate_count duplicate(s) found");
 
-        flash_alert("<strong>$row_count</strong> Client(s) added, <strong>$duplicate_count</strong> duplicate(s) found");
+        flashAlert("<strong>$row_count</strong> Client(s) added, <strong>$duplicate_count</strong> duplicate(s) found");
 
         redirect();
 
@@ -773,7 +720,7 @@ if (isset($_GET['download_clients_csv_template'])) {
 
 if (isset($_POST['bulk_add_client_ticket'])) {
 
-    validateCSRFToken($_POST['csrf_token']);
+    validateCSRFToken();
 
     enforceUserPermission('module_support', 2);
 
@@ -783,8 +730,8 @@ if (isset($_POST['bulk_add_client_ticket'])) {
     } else {
         $ticket_status = 2;
     }
-    $subject = sanitizeInput($_POST['bulk_subject']);
-    $priority = sanitizeInput($_POST['bulk_priority']);
+    $subject = escapeSql($_POST['bulk_subject']);
+    $priority = escapeSql($_POST['bulk_priority']);
     $category_id = intval($_POST['bulk_category']);
     $details = mysqli_real_escape_string($mysqli, $_POST['bulk_details']);
     $project_id = intval($_POST['bulk_project']);
@@ -799,7 +746,7 @@ if (isset($_POST['bulk_add_client_ticket'])) {
 
         // Override Template Subject
         if(empty($subject)) {
-            $subject = sanitizeInput($row['ticket_template_subject']);
+            $subject = escapeSql($row['ticket_template_subject']);
         }
         $details = mysqli_escape_string($mysqli, $row['ticket_template_details']);
 
@@ -820,7 +767,7 @@ if (isset($_POST['bulk_add_client_ticket'])) {
             $sql = mysqli_query($mysqli, "SELECT * FROM clients WHERE client_id = $client_id");
             $row = mysqli_fetch_assoc($sql);
 
-            $client_name = sanitizeInput($row['client_name']);
+            $client_name = escapeSql($row['client_name']);
 
             // Atomically increment and get the new ticket number
             mysqli_query($mysqli, "
@@ -834,10 +781,10 @@ if (isset($_POST['bulk_add_client_ticket'])) {
             $ticket_number = mysqli_insert_id($mysqli);
 
             // Sanitize Config Vars from get_settings.php and Session Vars from check_login.php
-            $config_ticket_prefix = sanitizeInput($config_ticket_prefix);
-            $config_ticket_from_name = sanitizeInput($config_ticket_from_name);
-            $config_ticket_from_email = sanitizeInput($config_ticket_from_email);
-            $config_base_url = sanitizeInput($config_base_url);
+            $config_ticket_prefix = escapeSql($config_ticket_prefix);
+            $config_ticket_from_name = escapeSql($config_ticket_from_name);
+            $config_ticket_from_email = escapeSql($config_ticket_from_email);
+            $config_base_url = escapeSql($config_base_url);
 
             //Generate a unique URL key for clients to access
             $url_key = randomString(32);
@@ -845,11 +792,12 @@ if (isset($_POST['bulk_add_client_ticket'])) {
             mysqli_query($mysqli, "INSERT INTO tickets SET ticket_prefix = '$config_ticket_prefix', ticket_number = $ticket_number, ticket_category = $category_id, ticket_subject = '$subject', ticket_details = '$details', ticket_priority = '$priority', ticket_billable = $billable, ticket_status = $ticket_status, ticket_created_by = $session_user_id, ticket_assigned_to = $assigned_to, ticket_url_key = '$url_key', ticket_client_id = $client_id, ticket_project_id = $project_id");
 
             $ticket_id = mysqli_insert_id($mysqli);
+            applyTicketSla($ticket_id);
 
             // Add Tasks
             if (!empty($_POST['tasks'])) {
                 foreach ($_POST['tasks'] as $task) {
-                    $task_name = sanitizeInput($task);
+                    $task_name = escapeSql($task);
                     // Check that task_name is not-empty (For some reason the !empty on the array doesnt work here like in watchers)
                     if (!empty($task_name)) {
                         mysqli_query($mysqli,"INSERT INTO tasks SET task_name = '$task_name', task_ticket_id = $ticket_id");
@@ -862,7 +810,7 @@ if (isset($_POST['bulk_add_client_ticket'])) {
                 if (mysqli_num_rows($sql_task_templates) > 0) {
                     while ($row = mysqli_fetch_assoc($sql_task_templates)) {
                         $task_order = intval($row['task_template_order']);
-                        $task_name = sanitizeInput($row['task_template_name']);
+                        $task_name = escapeSql($row['task_template_name']);
 
                         mysqli_query($mysqli,"INSERT INTO tasks SET task_name = '$task_name', task_order = $task_order, task_ticket_id = $ticket_id");
                     }
@@ -870,12 +818,12 @@ if (isset($_POST['bulk_add_client_ticket'])) {
             }
 
             // Custom action/notif handler
-            customAction('ticket_create', $ticket_id);
+            triggerCustomAction('ticket_create', $ticket_id);
         }
 
-        logAction("Ticket", "Bulk Create", "$session_name created $client_count tickets for $client_name");
+        logAudit("Ticket", "Bulk Create", "$session_name created $client_count tickets for $client_name");
 
-        flash_alert("<strong>$client_count</strong> tickets created for selected clients");
+        flashAlert("<strong>$client_count</strong> tickets created for selected clients");
 
     }
 
@@ -885,11 +833,11 @@ if (isset($_POST['bulk_add_client_ticket'])) {
 
 if (isset($_POST['bulk_edit_client_industry'])) {
 
-    validateCSRFToken($_POST['csrf_token']);
+    validateCSRFToken();
 
     enforceUserPermission('module_client', 2);
 
-    $industry = sanitizeInput($_POST['bulk_industry']);
+    $industry = escapeSql($_POST['bulk_industry']);
 
     if (isset($_POST['client_ids'])) {
 
@@ -900,17 +848,17 @@ if (isset($_POST['bulk_edit_client_industry'])) {
 
             $sql = mysqli_query($mysqli,"SELECT client_name FROM clients WHERE client_id = $client_id");
             $row = mysqli_fetch_assoc($sql);
-            $client_name = sanitizeInput($row['client_name']);
+            $client_name = escapeSql($row['client_name']);
 
             mysqli_query($mysqli,"UPDATE clients SET client_type = '$industry' WHERE client_id = $client_id");
 
-            logAction("Client", "Edit", "$session_name set Industry to $industry for $client_name", $client_id);
+            logAudit("Client", "Edit", "$session_name set Industry to $industry for $client_name", $client_id);
 
         }
 
-        logAction("Client", "Bulk Edit", "$session_name set the department $industry for $count client(s)", $client_id);
+        logAudit("Client", "Bulk Edit", "$session_name set the department $industry for $count client(s)", $client_id);
 
-        flash_alert("Set the Industry to <strong>$industry</strong> for <strong>$count</strong> clients");
+        flashAlert("Set the Industry to <strong>$industry</strong> for <strong>$count</strong> clients");
     }
 
     redirect();
@@ -919,11 +867,11 @@ if (isset($_POST['bulk_edit_client_industry'])) {
 
 if (isset($_POST['bulk_edit_client_referral'])) {
 
-    validateCSRFToken($_POST['csrf_token']);
+    validateCSRFToken();
 
     enforceUserPermission('module_client', 2);
 
-    $referral = sanitizeInput($_POST['bulk_referral']);
+    $referral = escapeSql($_POST['bulk_referral']);
 
     if (isset($_POST['client_ids'])) {
 
@@ -934,17 +882,17 @@ if (isset($_POST['bulk_edit_client_referral'])) {
 
             $sql = mysqli_query($mysqli,"SELECT client_name FROM clients WHERE client_id = $client_id");
             $row = mysqli_fetch_assoc($sql);
-            $client_name = sanitizeInput($row['client_name']);
+            $client_name = escapeSql($row['client_name']);
 
             mysqli_query($mysqli,"UPDATE clients SET client_referral = '$referral' WHERE client_id = $client_id");
 
-            logAction("Client", "Edit", "$session_name set Referral to $referral for $client_name", $client_id);
+            logAudit("Client", "Edit", "$session_name set Referral to $referral for $client_name", $client_id);
 
         }
 
-        logAction("Client", "Bulk Edit", "$session_name set the referral $referral for $count client(s)", $client_id);
+        logAudit("Client", "Bulk Edit", "$session_name set the referral $referral for $count client(s)", $client_id);
 
-        flash_alert("Set the Referral to <strong>$referral</strong> for <strong>$count</strong> clients");
+        flashAlert("Set the Referral to <strong>$referral</strong> for <strong>$count</strong> clients");
     }
 
     redirect();
@@ -953,7 +901,7 @@ if (isset($_POST['bulk_edit_client_referral'])) {
 
 if (isset($_POST['bulk_edit_client_hourly_rate'])) {
 
-    validateCSRFToken($_POST['csrf_token']);
+    validateCSRFToken();
 
     enforceUserPermission('module_client', 2);
 
@@ -968,17 +916,17 @@ if (isset($_POST['bulk_edit_client_hourly_rate'])) {
 
             $sql = mysqli_query($mysqli,"SELECT client_name FROM clients WHERE client_id = $client_id");
             $row = mysqli_fetch_assoc($sql);
-            $client_name = sanitizeInput($row['client_name']);
+            $client_name = escapeSql($row['client_name']);
 
             mysqli_query($mysqli,"UPDATE clients SET client_rate = '$rate' WHERE client_id = $client_id");
 
-            logAction("Client", "Edit", "$session_name set Hourly Rate to" . numfmt_format_currency($currency_format, $rate, $session_company_currency) . "for $client_name", $client_id);
+            logAudit("Client", "Edit", "$session_name set Hourly Rate to" . numfmt_format_currency($currency_format, $rate, $session_company_currency) . "for $client_name", $client_id);
 
         }
 
-        logAction("Client", "Bulk Edit", "$session_name set the hourly rate" . numfmt_format_currency($currency_format, $rate, $session_company_currency) . "for $count client(s)", $client_id);
+        logAudit("Client", "Bulk Edit", "$session_name set the hourly rate" . numfmt_format_currency($currency_format, $rate, $session_company_currency) . "for $count client(s)", $client_id);
 
-        flash_alert("Set the Hourly Rate to <strong>" . numfmt_format_currency($currency_format, $rate, $session_company_currency) . "</strong> for <strong>$count</strong> client(s)");
+        flashAlert("Set the Hourly Rate to <strong>" . numfmt_format_currency($currency_format, $rate, $session_company_currency) . "</strong> for <strong>$count</strong> client(s)");
     }
 
     redirect();
@@ -987,7 +935,7 @@ if (isset($_POST['bulk_edit_client_hourly_rate'])) {
 
 if (isset($_POST['bulk_edit_client_net_terms'])) {
 
-    validateCSRFToken($_POST['csrf_token']);
+    validateCSRFToken();
 
     enforceUserPermission('module_client', 2);
 
@@ -1002,17 +950,17 @@ if (isset($_POST['bulk_edit_client_net_terms'])) {
 
             $sql = mysqli_query($mysqli,"SELECT client_name FROM clients WHERE client_id = $client_id");
             $row = mysqli_fetch_assoc($sql);
-            $client_name = sanitizeInput($row['client_name']);
+            $client_name = escapeSql($row['client_name']);
 
             mysqli_query($mysqli,"UPDATE clients SET client_net_terms = $net_terms WHERE client_id = $client_id");
 
-            logAction("Client", "Edit", "$session_name set net terms to $net_terms days for $client_name", $client_id);
+            logAudit("Client", "Edit", "$session_name set net terms to $net_terms days for $client_name", $client_id);
 
         }
 
-        logAction("Client", "Bulk Edit", "$session_name set the net terms to $net_terms days for $count client(s)", $client_id);
+        logAudit("Client", "Bulk Edit", "$session_name set the net terms to $net_terms days for $count client(s)", $client_id);
 
-        flash_alert("Set Net Term to <strong>$net_terms days</strong> for <strong>$count</strong> client(s)");
+        flashAlert("Set Net Term to <strong>$net_terms days</strong> for <strong>$count</strong> client(s)");
     }
 
     redirect();
@@ -1021,7 +969,7 @@ if (isset($_POST['bulk_edit_client_net_terms'])) {
 
 if (isset($_POST['bulk_assign_client_tags'])) {
 
-    validateCSRFToken($_POST['csrf_token']);
+    validateCSRFToken();
 
     enforceUserPermission('module_client', 2);
 
@@ -1034,7 +982,7 @@ if (isset($_POST['bulk_assign_client_tags'])) {
 
             $sql = mysqli_query($mysqli,"SELECT client_name FROM clients WHERE client_id = $client_id");
             $row = mysqli_fetch_assoc($sql);
-            $client_name = sanitizeInput($row['client_name']);
+            $client_name = escapeSql($row['client_name']);
 
             if ($_POST['bulk_remove_tags']) {
                 mysqli_query($mysqli, "DELETE FROM client_tags WHERE client_id = $client_id");
@@ -1051,13 +999,13 @@ if (isset($_POST['bulk_assign_client_tags'])) {
                 }
             }
 
-            logAction("Client", "Edit", "$session_name added tags to $client_name", $client_id, $client_id);
+            logAudit("Client", "Edit", "$session_name added tags to $client_name", $client_id, $client_id);
 
         }
 
-        logAction("Client", "Bulk Edit", "$session_name added tags for $count clients", $client_id);
+        logAudit("Client", "Bulk Edit", "$session_name added tags for $count clients", $client_id);
 
-        flash_alert("Assigned tags for <strong>$count</strong> clients");
+        flashAlert("Assigned tags for <strong>$count</strong> clients");
     }
 
     redirect();
@@ -1066,7 +1014,7 @@ if (isset($_POST['bulk_assign_client_tags'])) {
 
 if (isset($_POST['bulk_send_client_email']) && isset($_POST['client_ids'])) {
 
-    validateCSRFToken($_POST['csrf_token']);
+    validateCSRFToken();
 
     enforceUserPermission('module_client', 1);
 
@@ -1074,11 +1022,11 @@ if (isset($_POST['bulk_send_client_email']) && isset($_POST['client_ids'])) {
     $count = count($client_ids);
 
     // Email metadata
-    $mail_from = sanitizeInput($_POST['mail_from']);
-    $mail_from_name = sanitizeInput($_POST['mail_from_name']);
-    $subject = sanitizeInput($_POST['subject']);
+    $mail_from = escapeSql($_POST['mail_from']);
+    $mail_from_name = escapeSql($_POST['mail_from_name']);
+    $subject = escapeSql($_POST['subject']);
     $body = mysqli_real_escape_string($mysqli, $_POST['body']);
-    $queued_at = sanitizeInput($_POST['queued_at']);
+    $queued_at = escapeSql($_POST['queued_at']);
 
     // Build contact type filters
     $filters = [];
@@ -1115,7 +1063,7 @@ if (isset($_POST['bulk_send_client_email']) && isset($_POST['client_ids'])) {
     $unique_contacts = [];
 
     while ($row = mysqli_fetch_assoc($result)) {
-        $contact_email = sanitizeInput($row['contact_email']);
+        $contact_email = escapeSql($row['contact_email']);
 
         // Skip if email is missing or invalid
         if (empty($contact_email) || !filter_var($contact_email, FILTER_VALIDATE_EMAIL)) {
@@ -1128,7 +1076,7 @@ if (isset($_POST['bulk_send_client_email']) && isset($_POST['client_ids'])) {
         }
         $unique_contacts[$contact_email] = true;
 
-        $contact_name = sanitizeInput($row['contact_name']);
+        $contact_name = escapeSql($row['contact_name']);
 
         $data[] = [
             'from' => $mail_from,
@@ -1143,10 +1091,10 @@ if (isset($_POST['bulk_send_client_email']) && isset($_POST['client_ids'])) {
 
     if (!empty($data)) {
         addToMailQueue($data);
-        logAction("Bulk Mail", "Send", "$session_name sent " . count($data) . " messages via bulk mail");
-        flash_alert("<strong>" . count($data) . "</strong> messages queued");
+        logAudit("Bulk Mail", "Send", "$session_name sent " . count($data) . " messages via bulk mail");
+        flashAlert("<strong>" . count($data) . "</strong> messages queued");
     } else {
-        flash_alert("No valid contacts found to queue emails.", 'error');
+        flashAlert("No valid contacts found to queue emails.", 'error');
     }
 
     redirect();
@@ -1155,7 +1103,7 @@ if (isset($_POST['bulk_send_client_email']) && isset($_POST['client_ids'])) {
 
 if (isset($_POST['bulk_archive_clients'])) {
 
-    validateCSRFToken($_POST['csrf_token']);
+    validateCSRFToken();
 
     enforceUserPermission('module_client', 2);
 
@@ -1169,19 +1117,19 @@ if (isset($_POST['bulk_archive_clients'])) {
 
             $sql = mysqli_query($mysqli,"SELECT client_name FROM clients WHERE client_id = $client_id");
             $row = mysqli_fetch_assoc($sql);
-            $client_name = sanitizeInput($row['client_name']);
+            $client_name = escapeSql($row['client_name']);
 
             mysqli_query($mysqli,"UPDATE clients SET client_archived_at = NOW() WHERE client_id = $client_id");
 
-            logAction("Client", "Archive", "$session_name archived $client_name", $client_id);
+            logAudit("Client", "Archive", "$session_name archived $client_name", $client_id);
 
             $count++;
 
         }
 
-        logAction("Client", "Bulk Archive", "$session_name archived $count clients", $client_id);
+        logAudit("Client", "Bulk Archive", "$session_name archived $count clients", $client_id);
 
-        flash_alert("Archived $count client(s)", 'error');
+        flashAlert("Archived $count client(s)", 'error');
 
     }
 
@@ -1191,7 +1139,7 @@ if (isset($_POST['bulk_archive_clients'])) {
 
 if (isset($_POST['bulk_unarchive_clients'])) {
 
-    validateCSRFToken($_POST['csrf_token']);
+    validateCSRFToken();
 
     enforceUserPermission('module_client', 2);
 
@@ -1205,17 +1153,17 @@ if (isset($_POST['bulk_unarchive_clients'])) {
 
             $sql = mysqli_query($mysqli,"SELECT client_name FROM clients WHERE client_id = $client_id");
             $row = mysqli_fetch_assoc($sql);
-            $client_name = sanitizeInput($row['client_name']);
+            $client_name = escapeSql($row['client_name']);
 
             mysqli_query($mysqli,"UPDATE clients SET client_archived_at = NULL WHERE client_id = $client_id");
 
-            logAction("client", "Restore", "$session_name restored $client_name", $client_id);
+            logAudit("client", "Restore", "$session_name restored $client_name", $client_id);
 
         }
 
-        logAction("Client", "Bulk Restore", "$session_name restored $count client(s)", $client_id);
+        logAudit("Client", "Bulk Restore", "$session_name restored $count client(s)", $client_id);
 
-        flash_alert("You restored <strong>$count</strong> client(s)");
+        flashAlert("You restored <strong>$count</strong> client(s)");
 
     }
 
@@ -1225,7 +1173,7 @@ if (isset($_POST['bulk_unarchive_clients'])) {
 
 if (isset($_POST["export_client_pdf"])) {
 
-    validateCSRFToken($_POST['csrf_token']);
+    validateCSRFToken();
 
     // Enforce permissions
     enforceUserPermission("module_client", 3);
@@ -1235,12 +1183,12 @@ if (isset($_POST["export_client_pdf"])) {
 
     $sql = mysqli_query($mysqli, "SELECT * FROM companies, settings WHERE companies.company_id = settings.company_id AND companies.company_id = 1");
     $row = mysqli_fetch_assoc($sql);
-    $company_name = nullable_htmlentities($row['company_name']);
-    $company_phone_country_code = nullable_htmlentities($row['company_phone_country_code']);
-    $company_phone = nullable_htmlentities(formatPhoneNumber($row['company_phone'], $company_phone_country_code));
-    $company_email = nullable_htmlentities($row['company_email']);
-    $company_website = nullable_htmlentities($row['company_website']);
-    $company_logo = nullable_htmlentities($row['company_logo']);
+    $company_name = escapeHtml($row['company_name']);
+    $company_phone_country_code = escapeHtml($row['company_phone_country_code']);
+    $company_phone = escapeHtml(formatPhoneNumber($row['company_phone'], $company_phone_country_code));
+    $company_email = escapeHtml($row['company_email']);
+    $company_website = escapeHtml($row['company_website']);
+    $company_logo = escapeHtml($row['company_logo']);
 
     $client_id = intval($_POST["client_id"]);
     $export_contacts = intval($_POST["export_contacts"]);
@@ -1264,7 +1212,9 @@ if (isset($_POST["export_client_pdf"])) {
     $export_trips = intval($_POST["export_trips"]);
     $export_logs = intval($_POST["export_logs"]);
 
-    logAction("Client", "Export", "$session_name exported client data to a PDF file", $client_id, $client_id);
+    enforceClientAccess();
+
+    logAudit("Client", "Export", "$session_name exported client data to a PDF file", $client_id, $client_id);
 
     // Get client record (joining primary contact and primary location)
     $sql = mysqli_query($mysqli, "SELECT * FROM clients
@@ -1275,19 +1225,19 @@ if (isset($_POST["export_client_pdf"])) {
     $row = mysqli_fetch_assoc($sql);
 
     // Immediately sanitize retrieved values
-    $client_name = nullable_htmlentities($row["client_name"]);
-    $location_address = nullable_htmlentities($row["location_address"]);
-    $location_city = nullable_htmlentities($row["location_city"]);
-    $location_state = nullable_htmlentities($row["location_state"]);
-    $location_zip = nullable_htmlentities($row["location_zip"]);
-    $contact_name = nullable_htmlentities($row["contact_name"]);
-    $contact_phone_country_code = nullable_htmlentities($row["contact_phone_country_code"]);
-    $contact_phone = nullable_htmlentities(formatPhoneNumber($row["contact_phone"], $contact_phone_country_code));
-    $contact_extension = nullable_htmlentities($row["contact_extension"]);
-    $contact_mobile_country_code = nullable_htmlentities($row["contact_mobile_country_code"]);
-    $contact_mobile = nullable_htmlentities(formatPhoneNumber($row["contact_mobile"], $contact_mobile_country_code));
-    $contact_email = nullable_htmlentities($row["contact_email"]);
-    $client_website = nullable_htmlentities($row["client_website"]);
+    $client_name = escapeHtml($row["client_name"]);
+    $location_address = escapeHtml($row["location_address"]);
+    $location_city = escapeHtml($row["location_city"]);
+    $location_state = escapeHtml($row["location_state"]);
+    $location_zip = escapeHtml($row["location_zip"]);
+    $contact_name = escapeHtml($row["contact_name"]);
+    $contact_phone_country_code = escapeHtml($row["contact_phone_country_code"]);
+    $contact_phone = escapeHtml(formatPhoneNumber($row["contact_phone"], $contact_phone_country_code));
+    $contact_extension = escapeHtml($row["contact_extension"]);
+    $contact_mobile_country_code = escapeHtml($row["contact_mobile_country_code"]);
+    $contact_mobile = escapeHtml(formatPhoneNumber($row["contact_mobile"], $contact_mobile_country_code));
+    $contact_email = escapeHtml($row["contact_email"]);
+    $client_website = escapeHtml($row["client_website"]);
 
     // Other queries remain unchanged
     $sql_contacts = mysqli_query($mysqli, "SELECT * FROM contacts WHERE contact_client_id = $client_id AND contact_archived_at IS NULL ORDER BY contact_name ASC");
@@ -1384,7 +1334,7 @@ if (isset($_POST["export_client_pdf"])) {
             asset_name, software_name;"
     );
 
-    require_once("../plugins/TCPDF/tcpdf.php");
+    require_once("../libs/TCPDF/tcpdf.php");
 
     $pdf = new TCPDF(PDF_PAGE_ORIENTATION, PDF_UNIT, PDF_PAGE_FORMAT, true, "UTF-8", false);
     $pdf->SetCreator(PDF_CREATOR);
@@ -1460,11 +1410,12 @@ if (isset($_POST["export_client_pdf"])) {
     $html .= '<hr>';
 
     // Client header information (non-table)
+    $location_city_state_zip = formatAddress('', $location_city, $location_state, $location_zip, '', ' ');
     $html .= "
     <div class='client-header'>
       <h3>$client_name</h3>
       <p><strong>Address:</strong> $location_address</p>
-      <p><strong>City State Zip:</strong> $location_city $location_state $location_zip</p>
+      <p><strong>City State Zip:</strong> $location_city_state_zip</p>
       <p><strong>Phone:</strong> $contact_phone</p>
       <p><strong>Website:</strong> $client_website</p>
       <p><strong>Contact:</strong> $contact_name</p>
@@ -1491,18 +1442,18 @@ if (isset($_POST["export_client_pdf"])) {
           </thead>
           <tbody>";
         while ($row = mysqli_fetch_assoc($sql_contacts)) {
-            $contact_name = nullable_htmlentities(getFallBack($row["contact_name"]));
-            $contact_title = nullable_htmlentities(getFallBack($row["contact_title"]));
-            $contact_department = nullable_htmlentities($row["contact_department"]);
-            $contact_email = nullable_htmlentities($row["contact_email"]);
-            $contact_phone_country_code = nullable_htmlentities($row["contact_phone_country_code"]);
-            $contact_phone = nullable_htmlentities(formatPhoneNumber($row["contact_phone"], $contact_phone_country_code));
-            $contact_extension = nullable_htmlentities($row["contact_extension"]);
+            $contact_name = escapeHtml($row["contact_name"]) ?: '-';
+            $contact_title = escapeHtml($row["contact_title"]) ?: '-';
+            $contact_department = escapeHtml($row["contact_department"]);
+            $contact_email = escapeHtml($row["contact_email"]);
+            $contact_phone_country_code = escapeHtml($row["contact_phone_country_code"]);
+            $contact_phone = escapeHtml(formatPhoneNumber($row["contact_phone"], $contact_phone_country_code));
+            $contact_extension = escapeHtml($row["contact_extension"]);
             if (!empty($contact_extension)) {
                 $contact_extension = "x$contact_extension";
             }
-            $contact_mobile_country_code = nullable_htmlentities($row["contact_mobile_country_code"]);
-            $contact_mobile = nullable_htmlentities(formatPhoneNumber($row["contact_mobile"], $contact_mobile_country_code));
+            $contact_mobile_country_code = escapeHtml($row["contact_mobile_country_code"]);
+            $contact_mobile = escapeHtml(formatPhoneNumber($row["contact_mobile"], $contact_mobile_country_code));
             $html .= "
             <tr>
               <td>$contact_name</td>
@@ -1533,17 +1484,18 @@ if (isset($_POST["export_client_pdf"])) {
           </thead>
           <tbody>";
         while ($row = mysqli_fetch_assoc($sql_locations)) {
-            $location_name = nullable_htmlentities($row["location_name"]);
-            $location_address = nullable_htmlentities($row["location_address"]);
-            $location_city = nullable_htmlentities($row["location_city"]);
-            $location_state = nullable_htmlentities($row["location_state"]);
-            $location_zip = nullable_htmlentities($row["location_zip"]);
-            $location_phone_country_code = nullable_htmlentities($row["location_phone_country_code"]);
-            $location_phone = nullable_htmlentities(formatPhoneNumber($row["location_phone"], $location_phone_country_code));
+            $location_name = escapeHtml($row["location_name"]);
+            $location_address = escapeHtml($row["location_address"]);
+            $location_city = escapeHtml($row["location_city"]);
+            $location_state = escapeHtml($row["location_state"]);
+            $location_zip = escapeHtml($row["location_zip"]);
+            $location_phone_country_code = escapeHtml($row["location_phone_country_code"]);
+            $location_phone = escapeHtml(formatPhoneNumber($row["location_phone"], $location_phone_country_code));
+            $location_full_address = formatAddress($location_address, $location_city, $location_state, $location_zip, '', ' ');
             $html .= "
             <tr>
               <td>$location_name</td>
-              <td>$location_address $location_city $location_state $location_zip</td>
+              <td>$location_full_address</td>
               <td>$location_phone</td>
             </tr>";
         }
@@ -1569,12 +1521,12 @@ if (isset($_POST["export_client_pdf"])) {
           </thead>
           <tbody>";
         while ($row = mysqli_fetch_assoc($sql_vendors)) {
-            $vendor_name = nullable_htmlentities($row["vendor_name"]);
-            $vendor_description = nullable_htmlentities($row["vendor_description"]);
-            $vendor_account_number = nullable_htmlentities($row["vendor_account_number"]);
-            $vendor_phone_country_code = nullable_htmlentities($row["vendor_phone_country_code"]);
-            $vendor_phone = nullable_htmlentities(formatPhoneNumber($row["vendor_phone"], $vendor_phone_country_code));
-            $vendor_website = nullable_htmlentities($row["vendor_website"]);
+            $vendor_name = escapeHtml($row["vendor_name"]);
+            $vendor_description = escapeHtml($row["vendor_description"]);
+            $vendor_account_number = escapeHtml($row["vendor_account_number"]);
+            $vendor_phone_country_code = escapeHtml($row["vendor_phone_country_code"]);
+            $vendor_phone = escapeHtml(formatPhoneNumber($row["vendor_phone"], $vendor_phone_country_code));
+            $vendor_website = escapeHtml($row["vendor_website"]);
             $html .= "
             <tr>
               <td>$vendor_name</td>
@@ -1607,12 +1559,12 @@ if (isset($_POST["export_client_pdf"])) {
           </thead>
           <tbody>";
         while ($row = mysqli_fetch_assoc($sql_credentials)) {
-            $credential_name = nullable_htmlentities($row["credential_name"]);
-            $credential_description = getFallback(nullable_htmlentities($row["credential_description"]));
-            $credential_username = nullable_htmlentities(decryptCredentialEntry($row["credential_username"]));
-            $credential_password = nullable_htmlentities(decryptCredentialEntry($row["credential_password"]));
-            $credential_totp_secret = getFallback(nullable_htmlentities($row['credential_otp_secret']));
-            $credential_uri = getFallback(nullable_htmlentities($row["credential_uri"]));
+            $credential_name = escapeHtml($row["credential_name"]);
+            $credential_description = escapeHtml($row["credential_description"]) ?: '-';
+            $credential_username = escapeHtml(decryptCredentialEntry($row["credential_username"]));
+            $credential_password = escapeHtml(decryptCredentialEntry($row["credential_password"]));
+            $credential_totp_secret = escapeHtml($row['credential_otp_secret']) ?: '-';
+            $credential_uri = escapeHtml($row["credential_uri"]) ?: '-';
             $html .= "
             <tr>
               <td>$credential_name</td>
@@ -1657,17 +1609,17 @@ if (isset($_POST["export_client_pdf"])) {
           </thead>
           <tbody>";
         while ($row = mysqli_fetch_assoc($sql_asset_workstations)) {
-            $asset_name = nullable_htmlentities($row["asset_name"]);
-            $asset_type = nullable_htmlentities($row["asset_type"]);
-            $asset_make = nullable_htmlentities($row["asset_make"]);
-            $asset_model = nullable_htmlentities($row["asset_model"]);
-            $asset_serial = nullable_htmlentities($row["asset_serial"]);
-            $asset_os = nullable_htmlentities($row["asset_os"]);
-            $asset_purchase_date = nullable_htmlentities($row["asset_purchase_date"]);
-            $asset_warranty_expire = nullable_htmlentities($row["asset_warranty_expire"]);
-            $asset_install_date = nullable_htmlentities($row["asset_install_date"]);
-            $contact_name = nullable_htmlentities($row["contact_name"]);
-            $location_name = nullable_htmlentities($row["location_name"]);
+            $asset_name = escapeHtml($row["asset_name"]);
+            $asset_type = escapeHtml($row["asset_type"]);
+            $asset_make = escapeHtml($row["asset_make"]);
+            $asset_model = escapeHtml($row["asset_model"]);
+            $asset_serial = escapeHtml($row["asset_serial"]);
+            $asset_os = escapeHtml($row["asset_os"]);
+            $asset_purchase_date = escapeHtml($row["asset_purchase_date"]);
+            $asset_warranty_expire = escapeHtml($row["asset_warranty_expire"]);
+            $asset_install_date = escapeHtml($row["asset_install_date"]);
+            $contact_name = escapeHtml($row["contact_name"]);
+            $location_name = escapeHtml($row["location_name"]);
             $html .= "
             <tr style='page-break-inside: avoid;'>
               <td>$asset_name</td>
@@ -1708,16 +1660,16 @@ if (isset($_POST["export_client_pdf"])) {
           </thead>
           <tbody>";
         while ($row = mysqli_fetch_assoc($sql_asset_servers)) {
-            $asset_name = nullable_htmlentities($row["asset_name"]);
-            $asset_make = nullable_htmlentities($row["asset_make"]);
-            $asset_model = nullable_htmlentities($row["asset_model"]);
-            $asset_serial = nullable_htmlentities($row["asset_serial"]);
-            $asset_os = nullable_htmlentities($row["asset_os"]);
-            $asset_ip = nullable_htmlentities($row["interface_ip"]);
-            $asset_purchase_date = nullable_htmlentities($row["asset_purchase_date"]);
-            $asset_warranty_expire = nullable_htmlentities($row["asset_warranty_expire"]);
-            $asset_install_date = nullable_htmlentities($row["asset_install_date"]);
-            $location_name = nullable_htmlentities($row["location_name"]);
+            $asset_name = escapeHtml($row["asset_name"]);
+            $asset_make = escapeHtml($row["asset_make"]);
+            $asset_model = escapeHtml($row["asset_model"]);
+            $asset_serial = escapeHtml($row["asset_serial"]);
+            $asset_os = escapeHtml($row["asset_os"]);
+            $asset_ip = escapeHtml($row["interface_ip"]);
+            $asset_purchase_date = escapeHtml($row["asset_purchase_date"]);
+            $asset_warranty_expire = escapeHtml($row["asset_warranty_expire"]);
+            $asset_install_date = escapeHtml($row["asset_install_date"]);
+            $location_name = escapeHtml($row["location_name"]);
             $html .= "
             <tr style='page-break-inside: avoid;'>
               <td>$asset_name</td>
@@ -1752,10 +1704,10 @@ if (isset($_POST["export_client_pdf"])) {
           </thead>
           <tbody>";
         while ($row = mysqli_fetch_assoc($sql_asset_vms)) {
-            $asset_name = nullable_htmlentities($row["asset_name"]);
-            $asset_os = nullable_htmlentities($row["asset_os"]);
-            $asset_ip = nullable_htmlentities($row["interface_ip"]);
-            $asset_install_date = nullable_htmlentities($row["asset_install_date"]);
+            $asset_name = escapeHtml($row["asset_name"]);
+            $asset_os = escapeHtml($row["asset_os"]);
+            $asset_ip = escapeHtml($row["interface_ip"]);
+            $asset_install_date = escapeHtml($row["asset_install_date"]);
             $html .= "
             <tr style='page-break-inside: avoid;'>
               <td>$asset_name</td>
@@ -1790,16 +1742,16 @@ if (isset($_POST["export_client_pdf"])) {
           </thead>
           <tbody>";
         while ($row = mysqli_fetch_assoc($sql_asset_network)) {
-            $asset_name = nullable_htmlentities($row["asset_name"]);
-            $asset_type = nullable_htmlentities($row["asset_type"]);
-            $asset_make = nullable_htmlentities($row["asset_make"]);
-            $asset_model = nullable_htmlentities($row["asset_model"]);
-            $asset_serial = nullable_htmlentities($row["asset_serial"]);
-            $asset_ip = nullable_htmlentities($row["interface_ip"]);
-            $asset_purchase_date = nullable_htmlentities($row["asset_purchase_date"]);
-            $asset_warranty_expire = nullable_htmlentities($row["asset_warranty_expire"]);
-            $asset_install_date = nullable_htmlentities($row["asset_install_date"]);
-            $location_name = nullable_htmlentities($row["location_name"]);
+            $asset_name = escapeHtml($row["asset_name"]);
+            $asset_type = escapeHtml($row["asset_type"]);
+            $asset_make = escapeHtml($row["asset_make"]);
+            $asset_model = escapeHtml($row["asset_model"]);
+            $asset_serial = escapeHtml($row["asset_serial"]);
+            $asset_ip = escapeHtml($row["interface_ip"]);
+            $asset_purchase_date = escapeHtml($row["asset_purchase_date"]);
+            $asset_warranty_expire = escapeHtml($row["asset_warranty_expire"]);
+            $asset_install_date = escapeHtml($row["asset_install_date"]);
+            $location_name = escapeHtml($row["location_name"]);
             $html .= "
             <tr style='page-break-inside: avoid;'>
               <td>$asset_name</td>
@@ -1839,16 +1791,16 @@ if (isset($_POST["export_client_pdf"])) {
           </thead>
           <tbody>";
         while ($row = mysqli_fetch_assoc($sql_asset_other)) {
-            $asset_name = nullable_htmlentities($row["asset_name"]);
-            $asset_type = nullable_htmlentities($row["asset_type"]);
-            $asset_make = nullable_htmlentities($row["asset_make"]);
-            $asset_model = nullable_htmlentities($row["asset_model"]);
-            $asset_serial = nullable_htmlentities($row["asset_serial"]);
-            $asset_ip = nullable_htmlentities($row["interface_ip"]);
-            $asset_purchase_date = nullable_htmlentities($row["asset_purchase_date"]);
-            $asset_warranty_expire = nullable_htmlentities($row["asset_warranty_expire"]);
-            $asset_install_date = nullable_htmlentities($row["asset_install_date"]);
-            $location_name = nullable_htmlentities($row["location_name"]);
+            $asset_name = escapeHtml($row["asset_name"]);
+            $asset_type = escapeHtml($row["asset_type"]);
+            $asset_make = escapeHtml($row["asset_make"]);
+            $asset_model = escapeHtml($row["asset_model"]);
+            $asset_serial = escapeHtml($row["asset_serial"]);
+            $asset_ip = escapeHtml($row["interface_ip"]);
+            $asset_purchase_date = escapeHtml($row["asset_purchase_date"]);
+            $asset_warranty_expire = escapeHtml($row["asset_warranty_expire"]);
+            $asset_install_date = escapeHtml($row["asset_install_date"]);
+            $location_name = escapeHtml($row["location_name"]);
             $html .= "
             <tr style='page-break-inside: avoid;'>
               <td>$asset_name</td>
@@ -1886,13 +1838,13 @@ if (isset($_POST["export_client_pdf"])) {
           </thead>
           <tbody>";
         while ($row = mysqli_fetch_assoc($sql_software)) {
-            $software_name = nullable_htmlentities($row["software_name"]);
-            $software_type = nullable_htmlentities($row["software_type"]);
-            $software_license_type = nullable_htmlentities($row["software_license_type"]);
-            $software_key = nullable_htmlentities($row["software_key"]);
-            $software_purchase = nullable_htmlentities($row['software_purchase']);
-            $software_expire = nullable_htmlentities($row['software_expire']);
-            $software_notes = nullable_htmlentities($row["software_notes"]);
+            $software_name = escapeHtml($row["software_name"]);
+            $software_type = escapeHtml($row["software_type"]);
+            $software_license_type = escapeHtml($row["software_license_type"]);
+            $software_key = escapeHtml($row["software_key"]);
+            $software_purchase = escapeHtml($row['software_purchase']);
+            $software_expire = escapeHtml($row['software_expire']);
+            $software_notes = escapeHtml($row["software_notes"]);
             $html .= "
             <tr style='page-break-inside: avoid;'>
               <td>$software_name</td>
@@ -1923,8 +1875,8 @@ if (isset($_POST["export_client_pdf"])) {
           </thead>
           <tbody>";
         while ($row = mysqli_fetch_assoc($sql_user_licenses)) {
-            $contact_name = nullable_htmlentities($row["contact_name"]);
-            $software_name = nullable_htmlentities($row["software_name"]);
+            $contact_name = escapeHtml($row["contact_name"]);
+            $software_name = escapeHtml($row["software_name"]);
             $html .= "
             <tr style='page-break-inside: avoid;'>
               <td>$contact_name</td>
@@ -1950,8 +1902,8 @@ if (isset($_POST["export_client_pdf"])) {
           </thead>
           <tbody>";
         while ($row = mysqli_fetch_assoc($sql_asset_licenses)) {
-            $asset_name = nullable_htmlentities($row["asset_name"]);
-            $software_name = nullable_htmlentities($row["software_name"]);
+            $asset_name = escapeHtml($row["asset_name"]);
+            $software_name = escapeHtml($row["software_name"]);
             $html .= "
             <tr style='page-break-inside: avoid;'>
               <td>$asset_name</td>
@@ -1980,11 +1932,11 @@ if (isset($_POST["export_client_pdf"])) {
           </thead>
           <tbody>";
         while ($row = mysqli_fetch_assoc($sql_networks)) {
-            $network_name = nullable_htmlentities($row["network_name"]);
-            $network_vlan = nullable_htmlentities($row["network_vlan"]);
-            $network = nullable_htmlentities($row["network"]);
-            $network_gateway = nullable_htmlentities($row["network_gateway"]);
-            $network_dhcp_range = nullable_htmlentities($row["network_dhcp_range"]);
+            $network_name = escapeHtml($row["network_name"]);
+            $network_vlan = escapeHtml($row["network_vlan"]);
+            $network = escapeHtml($row["network"]);
+            $network_gateway = escapeHtml($row["network_gateway"]);
+            $network_dhcp_range = escapeHtml($row["network_dhcp_range"]);
             $html .= "
             <tr style='page-break-inside: avoid;'>
               <td>$network_name</td>
@@ -2013,8 +1965,8 @@ if (isset($_POST["export_client_pdf"])) {
           </thead>
           <tbody>";
         while ($row = mysqli_fetch_assoc($sql_domains)) {
-            $domain_name = nullable_htmlentities($row["domain_name"]);
-            $domain_expire = nullable_htmlentities($row["domain_expire"]);
+            $domain_name = escapeHtml($row["domain_name"]);
+            $domain_expire = escapeHtml($row["domain_expire"]);
             $html .= "
             <tr style='page-break-inside: avoid;'>
               <td>$domain_name</td>
@@ -2042,10 +1994,10 @@ if (isset($_POST["export_client_pdf"])) {
           </thead>
           <tbody>";
         while ($row = mysqli_fetch_assoc($sql_certficates)) {
-            $certificate_name = nullable_htmlentities($row["certificate_name"]);
-            $certificate_domain = nullable_htmlentities($row["certificate_domain"]);
-            $certificate_issued_by = nullable_htmlentities($row["certificate_issued_by"]);
-            $certificate_expire = nullable_htmlentities($row["certificate_expire"]);
+            $certificate_name = escapeHtml($row["certificate_name"]);
+            $certificate_domain = escapeHtml($row["certificate_domain"]);
+            $certificate_issued_by = escapeHtml($row["certificate_issued_by"]);
+            $certificate_expire = escapeHtml($row["certificate_expire"]);
             $html .= "
             <tr style='page-break-inside: avoid;'>
               <td>$certificate_name</td>
@@ -2063,7 +2015,7 @@ if (isset($_POST["export_client_pdf"])) {
     $pdf->writeHTML($html, true, false, true, false, "");
 
     // Output the PDF document for download
-    $pdf->Output(strtoAZaz09($client_name) . "-IT_Documentation-" . date("Y-m-d") . ".pdf", "D");
+    $pdf->Output(toAlphanumeric($client_name) . "-IT_Documentation-" . date("Y-m-d") . ".pdf", "D");
     exit;
 
 }

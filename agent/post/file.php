@@ -8,14 +8,14 @@ defined('FROM_POST_HANDLER') || die("Direct file access is not allowed");
 
 if (isset($_POST['upload_files'])) {
 
-    validateCSRFToken($_POST['csrf_token']);
+    validateCSRFToken();
 
     enforceUserPermission('module_support', 2);
 
     // Sanitize and initialize inputs
     $client_id   = intval($_POST['client_id']);
     $folder_id   = intval($_POST['folder_id']);
-    $description = sanitizeInput($_POST['description']);
+    $description = escapeSql($_POST['description']);
     $contact_id = intval($_POST['contact_id'] ?? 0);
     $asset_id = intval($_POST['asset_id'] ?? 0);
     $client_dir  = "../uploads/clients/$client_id";
@@ -52,10 +52,10 @@ if (isset($_POST['upload_files'])) {
         if ($file_reference_name = checkFileUpload($single_file, $allowedExtensions)) {
 
             $file_tmp_path   = $single_file['tmp_name'];
-            $file_name       = sanitizeInput($originalName);
+            $file_name       = escapeSql($originalName);
             $extParts        = explode('.', $file_name);
             $file_extension  = strtolower(end($extParts));
-            $file_mime_type  = sanitizeInput($single_file['type']);
+            $file_mime_type  = escapeSql($single_file['type']);
             $file_size       = intval($single_file['size']);
 
             // Define destination path and move the uploaded file
@@ -63,7 +63,7 @@ if (isset($_POST['upload_files'])) {
             $dest_path       = $upload_file_dir . $file_reference_name;
 
             if (!move_uploaded_file($file_tmp_path, $dest_path)) {
-                flash_alert('Error moving file to upload directory. Please ensure the directory is writable.', 'error');
+                flashAlert('Error moving file to upload directory. Please ensure the directory is writable.', 'error');
                 continue; // Skip processing this file
             }
 
@@ -92,9 +92,9 @@ if (isset($_POST['upload_files'])) {
                 mysqli_query($mysqli,"INSERT INTO asset_files SET asset_id = $asset_id, file_id = $file_id");
             }
 
-            logAction("File", "Upload", "$session_name uploaded file $file_name", $client_id, $file_id);
+            logAudit("File", "Upload", "$session_name uploaded file $file_name", $client_id, $file_id);
 
-            flash_alert("Uploaded file <strong>$file_name</strong>");
+            flashAlert("Uploaded file <strong>$file_name</strong>");
         }
     }
 
@@ -105,18 +105,18 @@ if (isset($_POST['upload_files'])) {
 
 if (isset($_POST['rename_file'])) {
 
-    validateCSRFToken($_POST['csrf_token']);
+    validateCSRFToken();
 
     enforceUserPermission('module_support', 2);
 
     $file_id = intval($_POST['file_id']);
-    $file_name = sanitizeInput($_POST['file_name']);
-    $file_description = sanitizeInput($_POST['file_description']);
+    $file_name = escapeSql($_POST['file_name']);
+    $file_description = escapeSql($_POST['file_description']);
 
     // Get File Details Client ID for Logging
     $sql = mysqli_query($mysqli,"SELECT file_name, file_client_id FROM files WHERE file_id = $file_id");
     $row = mysqli_fetch_assoc($sql);
-    $old_file_name = sanitizeInput($row['file_name']);
+    $old_file_name = escapeSql($row['file_name']);
     $client_id = intval($row['file_client_id']);
 
     enforceClientAccess();
@@ -124,9 +124,9 @@ if (isset($_POST['rename_file'])) {
     // file edit query
     mysqli_query($mysqli,"UPDATE files SET file_name = '$file_name' ,file_description = '$file_description' WHERE file_id = $file_id");
 
-    logAction("File", "Rename", "$session_name renamed file $old_file_name to $file_name", $client_id, $file_id);
+    logAudit("File", "Rename", "$session_name renamed file $old_file_name to $file_name", $client_id, $file_id);
 
-    flash_alert("Renamed file <strong>$old_file_name</strong> to <strong>$file_name</strong>");
+    flashAlert("Renamed file <strong>$old_file_name</strong> to <strong>$file_name</strong>");
 
     redirect();
 
@@ -134,7 +134,7 @@ if (isset($_POST['rename_file'])) {
 
 if (isset($_POST['move_file'])) {
 
-    validateCSRFToken($_POST['csrf_token']);
+    validateCSRFToken();
 
     enforceUserPermission('module_support', 2);
 
@@ -144,19 +144,19 @@ if (isset($_POST['move_file'])) {
     // Get File Name and  Client ID for Logging
     $sql = mysqli_query($mysqli,"SELECT file_name, file_client_id FROM files WHERE file_id = $file_id");
     $row = mysqli_fetch_assoc($sql);
-    $file_name = sanitizeInput($row['file_name']);
+    $file_name = escapeSql($row['file_name']);
     $client_id = intval($row['file_client_id']);
 
     enforceClientAccess();
 
     // Get Folder Name for Logging
-    $folder_name = sanitizeInput(getFieldById('folders', $folder_id, 'folder_name'));
+    $folder_name = escapeSql(getFieldById('folders', $folder_id, 'folder_name'));
 
     mysqli_query($mysqli,"UPDATE files SET file_folder_id = $folder_id WHERE file_id = $file_id");
 
-    logAction("File", "Move", "$session_name moved file $file_name to $folder_name", $client_id, $file_id);
+    logAudit("File", "Move", "$session_name moved file $file_name to $folder_name", $client_id, $file_id);
 
-    flash_alert("File <strong>$file_name</strong> moved to <strong>$folder_name</strong>");
+    flashAlert("File <strong>$file_name</strong> moved to <strong>$folder_name</strong>");
 
     redirect();
 
@@ -164,7 +164,7 @@ if (isset($_POST['move_file'])) {
 
 if (isset($_GET['archive_file'])) {
 
-    validateCSRFToken($_GET['csrf_token']);
+    validateCSRFToken();
 
     enforceUserPermission('module_support', 2);
 
@@ -173,16 +173,16 @@ if (isset($_GET['archive_file'])) {
     // Get Contact Name and Client ID for logging and alert message
     $sql = mysqli_query($mysqli,"SELECT file_name, file_client_id FROM files WHERE file_id = $file_id");
     $row = mysqli_fetch_assoc($sql);
-    $file_name = sanitizeInput($row['file_name']);
+    $file_name = escapeSql($row['file_name']);
     $client_id = intval($row['file_client_id']);
 
     enforceClientAccess();
 
     mysqli_query($mysqli,"UPDATE files SET file_archived_at = NOW() WHERE file_id = $file_id");
 
-    logAction("File", "Archive", "$session_name archived file $file_name", $client_id, $file_id);
+    logAudit("File", "Archive", "$session_name archived file $file_name", $client_id, $file_id);
 
-    flash_alert("File <strong>$file_name</strong> archived", 'error');
+    flashAlert("File <strong>$file_name</strong> archived", 'error');
 
     redirect();
 
@@ -190,7 +190,7 @@ if (isset($_GET['archive_file'])) {
 
 if (isset($_GET['restore_file'])) {
 
-    validateCSRFToken($_GET['csrf_token']);
+    validateCSRFToken();
 
     enforceUserPermission('module_support', 2);
 
@@ -199,16 +199,16 @@ if (isset($_GET['restore_file'])) {
     // Get Document Name and Client ID for logging and alert message
     $sql = mysqli_query($mysqli,"SELECT file_name, file_client_id FROM files WHERE file_id = $file_id");
     $row = mysqli_fetch_assoc($sql);
-    $file_name = sanitizeInput($row['file_name']);
+    $file_name = escapeSql($row['file_name']);
     $client_id = intval($row['file_client_id']);
 
     enforceClientAccess();
 
     mysqli_query($mysqli,"UPDATE files SET file_archived_at = NULL WHERE file_id = $file_id");
 
-    logAction("File", "Restore", "$session_name restored file $file_name", $client_id, $file_id);
+    logAudit("File", "Restore", "$session_name restored file $file_name", $client_id, $file_id);
 
-    flash_alert("File <strong>$file_name</strong> Restored");
+    flashAlert("File <strong>$file_name</strong> Restored");
 
     redirect();
 
@@ -216,7 +216,7 @@ if (isset($_GET['restore_file'])) {
 
 if (isset($_POST['delete_file'])) {
 
-    validateCSRFToken($_POST['csrf_token']);
+    validateCSRFToken();
 
     enforceUserPermission('module_support', 3);
 
@@ -225,8 +225,8 @@ if (isset($_POST['delete_file'])) {
     $sql_file = mysqli_query($mysqli,"SELECT * FROM files WHERE file_id = $file_id");
     $row = mysqli_fetch_assoc($sql_file);
     $client_id = intval($row['file_client_id']);
-    $file_name = sanitizeInput($row['file_name']);
-    $file_reference_name = sanitizeInput($row['file_reference_name']);
+    $file_name = escapeSql($row['file_name']);
+    $file_reference_name = escapeSql($row['file_reference_name']);
     $file_has_thumbnail = intval($row['file_has_thumbnail']);
     $file_has_preview = intval($row['file_has_preview']);
 
@@ -243,9 +243,9 @@ if (isset($_POST['delete_file'])) {
 
     mysqli_query($mysqli,"DELETE FROM files WHERE file_id = $file_id");
 
-    logAction("File", "Delete", "$session_name deleted file $file_name", $client_id);
+    logAudit("File", "Delete", "$session_name deleted file $file_name", $client_id);
 
-    flash_alert("File <strong>$file_name</strong> deleted", 'alert');
+    flashAlert("File <strong>$file_name</strong> deleted", 'alert');
 
     redirect();
 
@@ -253,7 +253,7 @@ if (isset($_POST['delete_file'])) {
 
 if (isset($_POST['bulk_archive_files'])) {
 
-    validateCSRFToken($_POST['csrf_token']);
+    validateCSRFToken();
 
     enforceUserPermission('module_support', 2);
 
@@ -270,13 +270,13 @@ if (isset($_POST['bulk_archive_files'])) {
             $sql_file = mysqli_query($mysqli,"SELECT * FROM files WHERE file_id = $file_id");
             $row = mysqli_fetch_assoc($sql_file);
             $client_id = intval($row['file_client_id']);
-            $file_name = sanitizeInput($row['file_name']);
+            $file_name = escapeSql($row['file_name']);
 
             enforceClientAccess();
 
             mysqli_query($mysqli,"UPDATE files SET file_archived_at = NOW() WHERE file_id = $file_id");
 
-            logAction("File", "Archive", "$session_name archived file $file_name", $client_id, $file_id);
+            logAudit("File", "Archive", "$session_name archived file $file_name", $client_id, $file_id);
         }
 
     }
@@ -293,22 +293,22 @@ if (isset($_POST['bulk_archive_files'])) {
             // Get document name for logging
             $sql = mysqli_query($mysqli,"SELECT document_name, document_client_id FROM documents WHERE document_id = $document_id");
             $row = mysqli_fetch_assoc($sql);
-            $document_name = sanitizeInput($row['document_name']);
+            $document_name = escapeSql($row['document_name']);
             $client_id = intval($row['document_client_id']);
 
             enforceClientAccess();
 
             mysqli_query($mysqli,"UPDATE documents SET document_archived_at = NOW(), document_updated_at = document_updated_at WHERE document_id = $document_id");
 
-            logAction("Document", "Archive", "$session_name archived document $document_name", $client_id, $document_id);
+            logAudit("Document", "Archive", "$session_name archived document $document_name", $client_id, $document_id);
 
         }
 
     }
 
-    logAction("File", "Bulk Archive", "$session_name archived $document_count document(s) and $file_count file(s)", $client_id);
+    logAudit("File", "Bulk Archive", "$session_name archived $document_count document(s) and $file_count file(s)", $client_id);
 
-    flash_alert("Archived <strong>$document_count</strong> Documents and <strong>$file_count</strong> files", 'error');
+    flashAlert("Archived <strong>$document_count</strong> Documents and <strong>$file_count</strong> files", 'error');
 
     redirect();
 
@@ -316,7 +316,7 @@ if (isset($_POST['bulk_archive_files'])) {
 
 if (isset($_POST['bulk_delete_files'])) {
 
-    validateCSRFToken($_POST['csrf_token']);
+    validateCSRFToken();
 
     enforceUserPermission('module_support', 3);
 
@@ -333,8 +333,8 @@ if (isset($_POST['bulk_delete_files'])) {
             $sql_file = mysqli_query($mysqli,"SELECT * FROM files WHERE file_id = $file_id");
             $row = mysqli_fetch_assoc($sql_file);
             $client_id = intval($row['file_client_id']);
-            $file_name = sanitizeInput($row['file_name']);
-            $file_reference_name = sanitizeInput($row['file_reference_name']);
+            $file_name = escapeSql($row['file_name']);
+            $file_reference_name = escapeSql($row['file_reference_name']);
             $file_has_thumbnail = intval($row['file_has_thumbnail']);
             $file_has_preview = intval($row['file_has_preview']);
 
@@ -351,7 +351,7 @@ if (isset($_POST['bulk_delete_files'])) {
 
             mysqli_query($mysqli,"DELETE FROM files WHERE file_id = $file_id");
 
-            logAction("File", "Delete", "$session_name deleted file $file_name", $client_id);
+            logAudit("File", "Delete", "$session_name deleted file $file_name", $client_id);
         }
 
     }
@@ -369,7 +369,7 @@ if (isset($_POST['bulk_delete_files'])) {
             $sql = mysqli_query($mysqli,"SELECT document_name, document_client_id FROM documents WHERE document_id = $document_id");
             $row = mysqli_fetch_assoc($sql);
             $client_id = intval($row['document_client_id']);
-            $document_name = sanitizeInput($row['document_name']);
+            $document_name = escapeSql($row['document_name']);
 
             enforceClientAccess();
 
@@ -381,15 +381,15 @@ if (isset($_POST['bulk_delete_files'])) {
             // Delete uploads/document/$document_id if exists
             removeDirectory($_SERVER['DOCUMENT_ROOT'] . "/uploads/documents/" . $document_id);
 
-            logAction("Document", "Delete", "$session_name deleted document $document_name and all versions", $client_id);
+            logAudit("Document", "Delete", "$session_name deleted document $document_name and all versions", $client_id);
 
         }
 
     }
 
-    logAction("File", "Bulk Delete", "$session_name deleted $document_count document(s) and $file_count file(s)", $client_id);
+    logAudit("File", "Bulk Delete", "$session_name deleted $document_count document(s) and $file_count file(s)", $client_id);
 
-    flash_alert("Deleted <strong>$document_count</strong> Documents and <strong>$file_count</strong> files", 'error');
+    flashAlert("Deleted <strong>$document_count</strong> Documents and <strong>$file_count</strong> files", 'error');
 
     redirect();
 
@@ -397,7 +397,7 @@ if (isset($_POST['bulk_delete_files'])) {
 
 if (isset($_POST['bulk_restore_files'])) {
 
-    validateCSRFToken($_POST['csrf_token']);
+    validateCSRFToken();
 
     enforceUserPermission('module_support', 2);
 
@@ -414,13 +414,13 @@ if (isset($_POST['bulk_restore_files'])) {
             $sql_file = mysqli_query($mysqli,"SELECT * FROM files WHERE file_id = $file_id");
             $row = mysqli_fetch_assoc($sql_file);
             $client_id = intval($row['file_client_id']);
-            $file_name = sanitizeInput($row['file_name']);
+            $file_name = escapeSql($row['file_name']);
 
             enforceClientAccess();
 
             mysqli_query($mysqli,"UPDATE files SET file_archived_at = NULL WHERE file_id = $file_id");
 
-            logAction("File", "Restore", "$session_name restored file $file_name", $client_id, $file_id);
+            logAudit("File", "Restore", "$session_name restored file $file_name", $client_id, $file_id);
         }
 
     }
@@ -437,22 +437,22 @@ if (isset($_POST['bulk_restore_files'])) {
             // Get document name for logging
             $sql = mysqli_query($mysqli,"SELECT document_name, document_client_id FROM documents WHERE document_id = $document_id");
             $row = mysqli_fetch_assoc($sql);
-            $document_name = sanitizeInput($row['document_name']);
+            $document_name = escapeSql($row['document_name']);
             $client_id = intval($row['document_client_id']);
 
             enforceClientAccess();
 
             mysqli_query($mysqli,"UPDATE documents SET document_archived_at = NULL, document_updated_at = document_updated_at WHERE document_id = $document_id");
 
-            logAction("Document", "Restore", "$session_name restored document $document_name", $client_id, $document_id);
+            logAudit("Document", "Restore", "$session_name restored document $document_name", $client_id, $document_id);
 
         }
 
     }
 
-    logAction("File", "Bulk Restore", "$session_name restored $document_count document(s) and $file_count file(s)", $client_id);
+    logAudit("File", "Bulk Restore", "$session_name restored $document_count document(s) and $file_count file(s)", $client_id);
 
-    flash_alert("Restored <strong>$document_count</strong> Documents and <strong>$file_count</strong> files");
+    flashAlert("Restored <strong>$document_count</strong> Documents and <strong>$file_count</strong> files");
 
     redirect();
 
@@ -461,7 +461,7 @@ if (isset($_POST['bulk_restore_files'])) {
 // Unified bulk move for Files + Documents
 if (isset($_POST['bulk_move_files'])) {
 
-    validateCSRFToken($_POST['csrf_token']);
+    validateCSRFToken();
 
     enforceUserPermission('module_support', 2);
 
@@ -475,7 +475,7 @@ if (isset($_POST['bulk_move_files'])) {
     if ($folder_id > 0) {
         $sql = mysqli_query($mysqli,"SELECT folder_name, folder_client_id FROM folders WHERE folder_id = $folder_id");
         if ($row = mysqli_fetch_assoc($sql)) {
-            $folder_name   = sanitizeInput($row['folder_name']);
+            $folder_name   = escapeSql($row['folder_name']);
             $log_client_id = intval($row['folder_client_id']);
         }
     }
@@ -494,7 +494,7 @@ if (isset($_POST['bulk_move_files'])) {
         foreach ($file_ids as $file_id) {
 
             // Get file name for logging
-            $file_name = sanitizeInput(getFieldById('files', $file_id, 'file_name'));
+            $file_name = escapeSql(getFieldById('files', $file_id, 'file_name'));
             $client_id = intval(getFieldById('files', $file_id, 'file_client_id'));
 
             enforceClientAccess();
@@ -503,7 +503,7 @@ if (isset($_POST['bulk_move_files'])) {
             mysqli_query($mysqli,"UPDATE files SET file_folder_id = $folder_id WHERE file_id = $file_id");
 
             // Per-file log
-            logAction(
+            logAudit(
                 "File",
                 "Move",
                 "$session_name moved file $file_name to folder $folder_name",
@@ -513,7 +513,7 @@ if (isset($_POST['bulk_move_files'])) {
         }
 
         // Bulk summary log for files
-        logAction(
+        logAudit(
             "File",
             "Bulk Move",
             "$session_name moved $file_count file(s) to folder $folder_name",
@@ -532,7 +532,7 @@ if (isset($_POST['bulk_move_files'])) {
         foreach ($document_ids as $document_id) {
 
             // Get document name for logging
-            $document_name = sanitizeInput(getFieldById('documents', $document_id, 'document_name'));
+            $document_name = escapeSql(getFieldById('documents', $document_id, 'document_name'));
             $client_id = intval(getFieldById('documents', $document_id, 'document_client_id'));
 
             enforceClientAccess();
@@ -541,7 +541,7 @@ if (isset($_POST['bulk_move_files'])) {
             mysqli_query($mysqli,"UPDATE documents SET document_folder_id = $folder_id, document_updated_at = document_updated_at WHERE document_id = $document_id");
 
             // Per-document log
-            logAction(
+            logAudit(
                 "Document",
                 "Move",
                 "$session_name moved document $document_name to folder $folder_name",
@@ -551,7 +551,7 @@ if (isset($_POST['bulk_move_files'])) {
         }
 
         // Bulk summary log for documents
-        logAction(
+        logAudit(
             "Document",
             "Bulk Move",
             "$session_name moved $document_count document(s) to folder $folder_name",
@@ -563,13 +563,13 @@ if (isset($_POST['bulk_move_files'])) {
     // Flash message
     // -------------------------
     if ($file_count && $document_count) {
-        flash_alert("Moved <strong>$file_count</strong> file(s) and <strong>$document_count</strong> document(s) to the folder <strong>$folder_name</strong>");
+        flashAlert("Moved <strong>$file_count</strong> file(s) and <strong>$document_count</strong> document(s) to the folder <strong>$folder_name</strong>");
     } elseif ($file_count) {
-        flash_alert("Moved <strong>$file_count</strong> file(s) to the folder <strong>$folder_name</strong>");
+        flashAlert("Moved <strong>$file_count</strong> file(s) to the folder <strong>$folder_name</strong>");
     } elseif ($document_count) {
-        flash_alert("Moved <strong>$document_count</strong> document(s) to the folder <strong>$folder_name</strong>");
+        flashAlert("Moved <strong>$document_count</strong> document(s) to the folder <strong>$folder_name</strong>");
     } else {
-        flash_alert("No items were moved.");
+        flashAlert("No items were moved.");
     }
 
     redirect();
@@ -578,7 +578,7 @@ if (isset($_POST['bulk_move_files'])) {
 
 if (isset($_POST['link_asset_to_file'])) {
 
-    validateCSRFToken($_POST['csrf_token']);
+    validateCSRFToken();
 
     enforceUserPermission('module_support', 2);
 
@@ -588,20 +588,20 @@ if (isset($_POST['link_asset_to_file'])) {
     // Get File Name and  Client ID for Logging
     $sql = mysqli_query($mysqli,"SELECT file_name, file_client_id FROM files WHERE file_id = $file_id");
     $row = mysqli_fetch_assoc($sql);
-    $file_name = sanitizeInput($row['file_name']);
+    $file_name = escapeSql($row['file_name']);
     $client_id = intval($row['file_client_id']);
 
     enforceClientAccess();
 
     // Get Asset Name for Logging
-    $asset_name = sanitizeInput(getFieldById('assets', $asset_id, 'asset_name'));
+    $asset_name = escapeSql(getFieldById('assets', $asset_id, 'asset_name'));
 
     // Contact add query
     mysqli_query($mysqli,"INSERT INTO asset_files SET asset_id = $asset_id, file_id = $file_id");
 
-    logAction("File", "Link", "$session_name linked asset $asset_name to file $file_name", $client_id, $file_id);
+    logAudit("File", "Link", "$session_name linked asset $asset_name to file $file_name", $client_id, $file_id);
 
-    flash_alert("Asset <strong>$asset_name</strong> linked to File <strong>$file_name</strong>");
+    flashAlert("Asset <strong>$asset_name</strong> linked to File <strong>$file_name</strong>");
 
     redirect();
 
@@ -609,7 +609,7 @@ if (isset($_POST['link_asset_to_file'])) {
 
 if (isset($_GET['unlink_asset_from_file'])) {
 
-    validateCSRFToken($_GET['csrf_token']);
+    validateCSRFToken();
 
     enforceUserPermission('module_support', 2);
 
@@ -619,19 +619,19 @@ if (isset($_GET['unlink_asset_from_file'])) {
     // Get File Name and  Client ID for Logging
     $sql = mysqli_query($mysqli,"SELECT file_name, file_client_id FROM files WHERE file_id = $file_id");
     $row = mysqli_fetch_assoc($sql);
-    $file_name = sanitizeInput($row['file_name']);
+    $file_name = escapeSql($row['file_name']);
     $client_id = intval($row['file_client_id']);
 
     enforceClientAccess();
 
     // Get Asset Name for Logging
-    $asset_name = sanitizeInput(getFieldById('assets', $asset_id, 'asset_name'));
+    $asset_name = escapeSql(getFieldById('assets', $asset_id, 'asset_name'));
 
     mysqli_query($mysqli,"DELETE FROM asset_files WHERE asset_id = $asset_id AND file_id = $file_id");
 
-    logAction("File", "Link", "$session_name unlinked asset $asset_name from file $file_name", $client_id, $file_id);
+    logAudit("File", "Link", "$session_name unlinked asset $asset_name from file $file_name", $client_id, $file_id);
 
-    flash_alert("Asset <strong>$asset_name</strong> unlinked from File <strong>$file_name</strong>");
+    flashAlert("Asset <strong>$asset_name</strong> unlinked from File <strong>$file_name</strong>");
 
     redirect();
 

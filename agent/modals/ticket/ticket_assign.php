@@ -2,6 +2,8 @@
 
 require_once '../../../includes/modal_header.php';
 
+enforceUserPermission('module_support', 2);
+
 $ticket_id = intval($_GET['id']);
 
 $sql = mysqli_query($mysqli, "SELECT * FROM tickets
@@ -11,20 +13,24 @@ $sql = mysqli_query($mysqli, "SELECT * FROM tickets
 );
 
 $row = mysqli_fetch_assoc($sql);
-$ticket_prefix = nullable_htmlentities($row['ticket_prefix']);
+$ticket_prefix = escapeHtml($row['ticket_prefix']);
 $ticket_number = intval($row['ticket_number']);
 $ticket_assigned_to = intval($row['ticket_assigned_to']);
 $ticket_status = intval($row['ticket_status']);
-$ticket_closed_at = nullable_htmlentities($row['ticket_closed_at']);
-$client_name = nullable_htmlentities($row['client_name']);
+$ticket_closed_at = escapeHtml($row['ticket_closed_at']);
+$client_name = escapeHtml($row['client_name']);
+$client_id = intval($row['ticket_client_id']);
 
-// Generate the HTML form content using output buffering.
+if ($client_id) {
+    enforceClientAccess();
+}
+
 ob_start();
 
 ?>
 
 <div class="modal-header bg-dark">
-    <h5 class="modal-title"><i class='fa fa-fw fa-user-check mr-2'></i>Assigning Ticket: <strong><?php echo "$ticket_prefix$ticket_number"; ?></strong> - <?php echo $client_name; ?></h5>
+    <h5 class="modal-title"><i class='fa fa-fw fa-user-check mr-2'></i>Assigning Ticket: <strong><?= "$ticket_prefix$ticket_number" ?></strong> - <?= $client_name ?></h5>
     <button type="button" class="close text-white" data-dismiss="modal">
         <span>&times;</span>
     </button>
@@ -32,8 +38,8 @@ ob_start();
 
 <form action="post.php" method="post" autocomplete="off">
     <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
-    <input type="hidden" name="ticket_id" value="<?php echo $ticket_id; ?>">
-    <input type="hidden" name="ticket_status" value="<?php echo $ticket_status; ?>">
+    <input type="hidden" name="ticket_id" value="<?= $ticket_id ?>">
+    <input type="hidden" name="ticket_status" value="<?= $ticket_status ?>">
     <div class="modal-body">
 
         <div class="form-group">
@@ -52,10 +58,10 @@ ob_start();
                     );
                     while ($row = mysqli_fetch_assoc($sql_users_select)) {
                         $user_id_select = intval($row['user_id']);
-                        $user_name_select = nullable_htmlentities($row['user_name']);
+                        $user_name_select = escapeHtml($row['user_name']);
 
                         ?>
-                        <option value="<?php echo $user_id_select; ?>" <?php if ($user_id_select  == $ticket_assigned_to) { echo "selected"; } ?>><?php echo $user_name_select; ?></option>
+                        <option value="<?= $user_id_select ?>" <?php if ($user_id_select  == $ticket_assigned_to) { echo "selected"; } ?>><?= $user_name_select ?></option>
                     <?php } ?>
                 </select>
             </div>

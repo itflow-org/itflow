@@ -5,13 +5,10 @@
 
 require_once "includes/inc_all.php";
 
-if ($session_contact_primary == 0 && !$session_contact_is_billing_contact) {
-    header("Location: post.php?logout");
-    exit();
-}
+enforceContactCan('accounting');
 
 // Initialize Stripe
-require_once '../plugins/stripe-php/init.php';
+require_once '../includes/stripe_init.php';
 
 // Get Stripe provider info
 $stripe_provider_query = mysqli_query($mysqli, "
@@ -26,8 +23,8 @@ if (!$stripe_provider) {
 }
 
 $stripe_provider_id = intval($stripe_provider['payment_provider_id']);
-$stripe_public_key = nullable_htmlentities($stripe_provider['payment_provider_public_key']);
-$stripe_secret_key = nullable_htmlentities($stripe_provider['payment_provider_private_key']);
+$stripe_public_key = escapeHtml($stripe_provider['payment_provider_public_key']);
+$stripe_secret_key = escapeHtml($stripe_provider['payment_provider_private_key']);
 
 // Get client's Stripe customer ID
 $stripe_customer_query = mysqli_query($mysqli, "
@@ -36,7 +33,7 @@ $stripe_customer_query = mysqli_query($mysqli, "
     LIMIT 1
 ");
 $stripe_customer = mysqli_fetch_assoc($stripe_customer_query);
-$stripe_customer_id = $stripe_customer ? sanitizeInput($stripe_customer['payment_provider_client']) : null;
+$stripe_customer_id = $stripe_customer ? escapeSql($stripe_customer['payment_provider_client']) : null;
 
 // Get saved payment methods
 $saved_methods_query = mysqli_query($mysqli, "
@@ -90,7 +87,7 @@ if (!$stripe_public_key || !$stripe_secret_key) {
 
                         foreach ($saved_methods as $method) {
                             $stripe_pm_id = $method['saved_payment_provider_method'];
-                            $description = nullable_htmlentities($method['saved_payment_description']);
+                            $description = escapeHtml($method['saved_payment_description']);
                             $payment_icon = "fas fa-credit-card"; // default icon
                             if (strpos($description, "visa") !== false) {
                                 $payment_icon = "fab fa-cc-visa";
@@ -103,10 +100,10 @@ if (!$stripe_public_key || !$stripe_secret_key) {
                             }
 
                             $pm = $stripe->paymentMethods->retrieve($stripe_pm_id, []);
-                            $brand = nullable_htmlentities($pm->card->brand);
-                            $last4 = nullable_htmlentities($pm->card->last4);
-                            $exp_month = nullable_htmlentities($pm->card->exp_month);
-                            $exp_year = nullable_htmlentities($pm->card->exp_year);
+                            $brand = escapeHtml($pm->card->brand);
+                            $last4 = escapeHtml($pm->card->last4);
+                            $exp_month = escapeHtml($pm->card->exp_month);
+                            $exp_year = escapeHtml($pm->card->exp_year);
 
                             echo "<li><i class='$payment_icon fa-2x mr-2'></i>$brand x<strong>$last4</strong> | Exp. $exp_month/$exp_year";
                             echo " – <a class='text-danger' href='post.php?delete_saved_payment={$method['saved_payment_id']}&csrf_token={$_SESSION['csrf_token']}'>Remove</a></li>";
@@ -124,7 +121,7 @@ if (!$stripe_public_key || !$stripe_secret_key) {
         <div class="col-md-6">
             <b>Add a new payment method</b><br><br>
 
-            <input type="hidden" id="stripe_publishable_key" value="<?php echo $stripe_public_key ?>">
+            <input type="hidden" id="stripe_publishable_key" value="<?= $stripe_public_key ?>">
             <script src="https://js.stripe.com/v3/"></script>
             <script src="../js/autopay_setup_stripe.js"></script>
             <div id="checkout">

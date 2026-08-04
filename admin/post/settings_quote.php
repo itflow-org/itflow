@@ -4,21 +4,21 @@ defined('FROM_POST_HANDLER') || die("Direct file access is not allowed");
 
 if (isset($_POST['edit_quote_settings'])) {
 
-    validateCSRFToken($_POST['csrf_token']);
+    validateCSRFToken();
 
-    $config_quote_prefix = sanitizeInput($_POST['config_quote_prefix']);
+    $config_quote_prefix = escapeSql($_POST['config_quote_prefix']);
     $config_quote_next_number = intval($_POST['config_quote_next_number']);
-    $config_quote_footer = sanitizeInput($_POST['config_quote_footer']);
+    $config_quote_footer = escapeSql($_POST['config_quote_footer']);
     $config_quote_notification_email = '';
     if (filter_var($_POST['config_quote_notification_email'], FILTER_VALIDATE_EMAIL)) {
-        $config_quote_notification_email = sanitizeInput($_POST['config_quote_notification_email']);
+        $config_quote_notification_email = escapeSql($_POST['config_quote_notification_email']);
     }
 
     mysqli_query($mysqli,"UPDATE settings SET config_quote_prefix = '$config_quote_prefix', config_quote_next_number = $config_quote_next_number, config_quote_footer = '$config_quote_footer', config_quote_notification_email = '$config_quote_notification_email' WHERE company_id = 1");
 
-    logAction("Settings", "Edit", "$session_name edited Quote settings");
+    logAudit("Settings", "Edit", "$session_name edited Quote settings");
 
-    flash_alert("Quote Settings updated");
+    flashAlert("Quote Settings updated");
 
     redirect();
 

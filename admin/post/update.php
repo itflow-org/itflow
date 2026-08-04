@@ -4,13 +4,21 @@ defined('FROM_POST_HANDLER') || die("Direct file access is not allowed");
 
 if (isset($_GET['update'])) {
 
-    validateAdminRole(); // Old function
+    validateCSRFToken();
 
-    //git fetch downloads the latest from remote without trying to merge or rebase anything. Then the git reset resets the master branch to what you just fetched. The --hard option changes all the files in your working tree to match the files in origin/master
+    enforceAdminPermission();
 
+    // git fetch downloads the latest from the remote without merging or rebasing anything.
+    // The hard reset then throws away every local change and makes the working tree match
+    // the tracked branch exactly.
+    //
+    // That reset used to name origin/master outright, so a force update on an install
+    // tracking any other branch silently moved it onto master and discarded the code it was
+    // actually running.
     if (isset($_GET['force_update']) == 1) {
+        $remote_ref = escapeshellarg("origin/" . getRepoBranch());
         exec("git fetch --all");
-        exec("git reset --hard origin/master");
+        exec("git reset --hard $remote_ref");
     } else {
         exec("git pull");
     }
@@ -23,12 +31,12 @@ if (isset($_GET['update'])) {
         $sql = mysqli_query($mysqli,"SELECT * FROM companies WHERE company_id = 1");
         $row = mysqli_fetch_assoc($sql);
 
-        $company_name = sanitizeInput($row['company_name']);
-        $website = sanitizeInput($row['company_website']);
-        $city = sanitizeInput($row['company_city']);
-        $state = sanitizeInput($row['company_state']);
-        $country = sanitizeInput($row['company_country']);
-        $currency = sanitizeInput($row['company_currency']);
+        $company_name = escapeSql($row['company_name']);
+        $website = escapeSql($row['company_website']);
+        $city = escapeSql($row['company_city']);
+        $state = escapeSql($row['company_state']);
+        $country = escapeSql($row['company_country']);
+        $currency = escapeSql($row['company_currency']);
         $current_version = exec("git rev-parse HEAD");
 
         // Client Count
@@ -272,9 +280,9 @@ if (isset($_GET['update'])) {
 
     }
 
-    logAction("App", "Update", "$session_name ran updates");
+    logAudit("App", "Update", "$session_name ran updates");
 
-    flash_alert("Update successful");
+    flashAlert("Update successful");
 
     sleep(1);
 
@@ -284,17 +292,21 @@ if (isset($_GET['update'])) {
 
 if (isset($_GET['update_db'])) {
 
-    //validateAdminRole(); // Old function
+    validateCSRFToken();
 
     // Get the current version
     require_once ('../includes/database_version.php');
 
-    // Perform upgrades, if required
+    // Perform upgrades, if required - populates $database_updates_applied and $database_updates_error
     require_once ('database_updates.php');
 
-    logAction("Database", "Update", "$session_name updated the database structure");
-
-    flash_alert("Database structure update successful");
+    if ($database_updates_error) {
+        logAudit("Database", "Update", "$session_name ran a database update that failed at $database_updates_error");
+        flashAlert("Database update failed at $database_updates_error - the version was not advanced past the last successful update, so it is safe to retry", "error");
+    } else {
+        logAudit("Database", "Update", "$session_name updated the database structure");
+        flashAlert("Database structure update successful");
+    }
 
     sleep(1);
 

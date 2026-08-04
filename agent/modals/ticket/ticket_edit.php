@@ -2,10 +2,15 @@
 
 require_once '../../../includes/modal_header.php';
 
+enforceUserPermission('module_support', 2);
+
 // Ticket client access overide - This is the only way to show tickets without a client to agents with restricted client access
 $access_permission_query_overide = '';
 if ($client_access_string) {
-    $access_permission_query_overide = "AND ticket_client_id IN (0,$client_access_string)";
+    $access_permission_query_overide .= " AND ticket_client_id IN (0,$client_access_string)";
+}
+if ($client_deny_string) {
+    $access_permission_query_overide .= " AND ticket_client_id NOT IN ($client_deny_string)";
 }
 
 $ticket_id = intval($_GET['id']);
@@ -14,23 +19,27 @@ $sql = mysqli_query($mysqli, "SELECT * FROM tickets LEFT JOIN clients ON client_
 
 $row = mysqli_fetch_assoc($sql);
 $client_id = intval($row['client_id']);
-$client_name = nullable_htmlentities($row['client_name']);
-$ticket_prefix = nullable_htmlentities($row['ticket_prefix']);
+$client_name = escapeHtml($row['client_name']);
+$ticket_prefix = escapeHtml($row['ticket_prefix']);
 $ticket_number = intval($row['ticket_number']);
 $ticket_category = intval($row['ticket_category']);
-$ticket_subject = nullable_htmlentities($row['ticket_subject']);
-$ticket_details = nullable_htmlentities($row['ticket_details']);
-$ticket_priority = nullable_htmlentities($row['ticket_priority']);
+$ticket_subject = escapeHtml($row['ticket_subject']);
+$ticket_details = escapeHtml($row['ticket_details']);
+$ticket_priority = escapeHtml($row['ticket_priority']);
 $ticket_billable = intval($row['ticket_billable']);
-$ticket_vendor_ticket_number = nullable_htmlentities($row['ticket_vendor_ticket_number']);
-$ticket_created_at = nullable_htmlentities($row['ticket_created_at']);
-$ticket_due_at = nullable_htmlentities($row['ticket_due_at']);
+$ticket_vendor_ticket_number = escapeHtml($row['ticket_vendor_ticket_number']);
+$ticket_created_at = escapeHtml($row['ticket_created_at']);
+$ticket_due_at = escapeHtml($row['ticket_due_at']);
 $ticket_assigned_to = intval($row['ticket_assigned_to']);
 $contact_id = intval($row['ticket_contact_id']);
 $asset_id = intval($row['ticket_asset_id']);
 $location_id = intval($row['ticket_location_id']);
 $vendor_id = intval($row['ticket_vendor_id']);
 $project_id = intval($row['ticket_project_id']);
+
+if ($client_id) {
+    enforceClientAccess();
+}
 
 // Additional Assets Selected
 $additional_assets_array = array();
@@ -40,9 +49,10 @@ while ($row = mysqli_fetch_assoc($sql_additional_assets)) {
     $additional_assets_array[] = $additional_asset_id;
 }
 
-// Generate the HTML form content using output buffering.
 ob_start();
+
 ?>
+
 <div class="modal-header bg-dark">
     <h5 class="modal-title"><i class="fa fa-fw fa-life-ring mr-2"></i>Ticket: <strong><?= "$ticket_prefix$ticket_number" ?></strong> - <?= $client_name ?></h5>
     <button type="button" class="close text-white" data-dismiss="modal">
@@ -81,12 +91,12 @@ ob_start();
                         <div class="input-group-prepend">
                             <span class="input-group-text"><i class="fa fa-fw fa-tag"></i></span>
                         </div>
-                        <input type="text" class="form-control" name="subject" maxlength="500" value="<?php echo $ticket_subject; ?>" placeholder="Subject" required>
+                        <input type="text" class="form-control" name="subject" maxlength="500" value="<?= $ticket_subject ?>" placeholder="Subject" required>
                     </div>
                 </div>
 
                 <div class="form-group">
-                    <textarea class="form-control tinymceTicket" rows="8" name="details"><?php echo $ticket_details; ?></textarea>
+                    <textarea class="form-control tinymceTicket" rows="8" name="details"><?= $ticket_details ?></textarea>
                 </div>
 
                 <div class="row">
@@ -101,6 +111,7 @@ ob_start();
                                     <option <?php if ($ticket_priority == 'Low') { echo "selected"; } ?> >Low</option>
                                     <option <?php if ($ticket_priority == 'Medium') { echo "selected"; } ?> >Medium</option>
                                     <option <?php if ($ticket_priority == 'High') { echo "selected"; } ?> >High</option>
+                                    <option <?php if ($ticket_priority == 'Urgent') { echo "selected"; } ?> >Urgent</option>
                                 </select>
                             </div>
                         </div>
@@ -119,10 +130,10 @@ ob_start();
                                     $sql_categories = mysqli_query($mysqli, "SELECT category_id, category_name FROM categories WHERE category_type = 'Ticket' AND category_archived_at IS NULL ORDER BY category_name ASC");
                                     while ($row = mysqli_fetch_assoc($sql_categories)) {
                                         $category_id = intval($row['category_id']);
-                                        $category_name = nullable_htmlentities($row['category_name']);
+                                        $category_name = escapeHtml($row['category_name']);
 
                                         ?>
-                                        <option <?php if ($ticket_category == $category_id) {echo "selected";} ?> value="<?php echo $category_id; ?>"><?php echo $category_name; ?></option>
+                                        <option <?php if ($ticket_category == $category_id) {echo "selected";} ?> value="<?= $category_id ?>"><?= $category_name ?></option>
                                     <?php } ?>
 
                                 </select>
@@ -160,8 +171,8 @@ ob_start();
                                     );
                                     while ($row = mysqli_fetch_assoc($sql)) {
                                         $user_id = intval($row['user_id']);
-                                        $user_name = nullable_htmlentities($row['user_name']); ?>
-                                        <option <?php if ($ticket_assigned_to === $user_id) { echo "selected"; } ?> value="<?php echo $user_id; ?>"><?php echo $user_name; ?></option>
+                                        $user_name = escapeHtml($row['user_name']); ?>
+                                        <option <?php if ($ticket_assigned_to === $user_id) { echo "selected"; } ?> value="<?= $user_id ?>"><?= $user_name ?></option>
                                     <?php } ?>
                                 </select>
                             </div>
@@ -174,7 +185,7 @@ ob_start();
                                 <div class="input-group-prepend">
                                     <span class="input-group-text"><i class="fa fa-fw fa-calendar-check"></i></span>
                                 </div>
-                                <input type="datetime-local" class="form-control" name="due" value="<?php echo $ticket_due_at; ?>">
+                                <input type="datetime-local" class="form-control" name="due" value="<?= $ticket_due_at ?>">
                             </div>
                         </div>
                     </div>
@@ -183,8 +194,8 @@ ob_start();
                 <?php if ($config_module_enable_accounting && lookupUserPermission("module_sales") >= 2) { ?>
                 <div class="form-group">
                     <div class="custom-control custom-switch">
-                        <input type="checkbox" class="custom-control-input" name="billable" <?php if ($ticket_billable == 1) { echo "checked"; } ?> value="1" id="billableSwitch<?php echo $ticket_id; ?>">
-                        <label class="custom-control-label" for="billableSwitch<?php echo $ticket_id; ?>">Mark Billable</label>
+                        <input type="checkbox" class="custom-control-input" name="billable" <?php if ($ticket_billable == 1) { echo "checked"; } ?> value="1" id="billableSwitch<?= $ticket_id ?>">
+                        <label class="custom-control-label" for="billableSwitch<?= $ticket_id ?>">Mark Billable</label>
                     </div>
                 </div>
                 <?php } ?>
@@ -207,7 +218,7 @@ ob_start();
                             $sql_client_contacts_select = mysqli_query($mysqli, "SELECT contact_id, contact_name, contact_title, contact_primary, contact_technical FROM contacts WHERE contact_client_id = $client_id AND contact_archived_at IS NULL ORDER BY contact_primary DESC, contact_technical DESC, contact_name ASC");
                             while ($row = mysqli_fetch_assoc($sql_client_contacts_select)) {
                                 $contact_id_select = intval($row['contact_id']);
-                                $contact_name_select = nullable_htmlentities($row['contact_name']);
+                                $contact_name_select = escapeHtml($row['contact_name']);
                                 $contact_primary_select = intval($row['contact_primary']);
                                 if($contact_primary_select == 1) {
                                     $contact_primary_display_select = " (Primary)";
@@ -220,7 +231,7 @@ ob_start();
                                 } else {
                                     $contact_technical_display_select = "";
                                 }
-                                $contact_title_select = nullable_htmlentities($row['contact_title']);
+                                $contact_title_select = escapeHtml($row['contact_title']);
                                 if(!empty($contact_title_select)) {
                                     $contact_title_display_select = " - $contact_title_select";
                                 } else {
@@ -228,7 +239,7 @@ ob_start();
                                 }
 
                                 ?>
-                                <option value="<?php echo $contact_id_select; ?>" <?php if ($contact_id_select  == $contact_id) { echo "selected"; } ?>><?php echo "$contact_name_select$contact_title_display_select$contact_primary_display_select$contact_technical_display_select"; ?></option>
+                                <option value="<?= $contact_id_select ?>" <?php if ($contact_id_select  == $contact_id) { echo "selected"; } ?>><?= "$contact_name_select$contact_title_display_select$contact_primary_display_select$contact_technical_display_select" ?></option>
                             <?php } ?>
                         </select>
                     </div>
@@ -262,10 +273,10 @@ ob_start();
                             $sql_assets = mysqli_query($mysqli, "SELECT asset_id, asset_name, contact_name FROM assets LEFT JOIN contacts ON contact_id = asset_contact_id WHERE asset_client_id = $client_id AND asset_archived_at IS NULL ORDER BY asset_name ASC");
                             while ($row = mysqli_fetch_assoc($sql_assets)) {
                                 $asset_id_select = intval($row['asset_id']);
-                                $asset_name_select = nullable_htmlentities($row['asset_name']);
-                                $asset_contact_name_select = nullable_htmlentities($row['contact_name']);
+                                $asset_name_select = escapeHtml($row['asset_name']);
+                                $asset_contact_name_select = escapeHtml($row['contact_name']);
                                 ?>
-                                <option <?php if ($asset_id == $asset_id_select) { echo "selected"; } ?> value="<?php echo $asset_id_select; ?>"><?php echo "$asset_name_select - $asset_contact_name_select"; ?></option>
+                                <option <?php if ($asset_id == $asset_id_select) { echo "selected"; } ?> value="<?= $asset_id_select ?>"><?= "$asset_name_select - $asset_contact_name_select" ?></option>
 
                                 <?php
                             }
@@ -287,12 +298,12 @@ ob_start();
                             $sql_assets = mysqli_query($mysqli, "SELECT asset_id, asset_name, contact_name FROM assets LEFT JOIN contacts ON contact_id = asset_contact_id WHERE asset_client_id = $client_id AND asset_id != $asset_id AND asset_archived_at IS NULL ORDER BY asset_name ASC");
                             while ($row = mysqli_fetch_assoc($sql_assets)) {
                                 $asset_id_select = intval($row['asset_id']);
-                                $asset_name_select = nullable_htmlentities($row['asset_name']);
-                                $asset_contact_name_select = nullable_htmlentities($row['contact_name']);
+                                $asset_name_select = escapeHtml($row['asset_name']);
+                                $asset_contact_name_select = escapeHtml($row['contact_name']);
                             ?>
-                                <option value="<?php echo $asset_id_select; ?>"
+                                <option value="<?= $asset_id_select ?>"
                                     <?php if (in_array($asset_id_select, $additional_assets_array)) { echo "selected"; } ?>
-                                    ><?php echo "$asset_name_select - $asset_contact_name_select"; ?></option>
+                                    ><?= "$asset_name_select - $asset_contact_name_select" ?></option>
 
                             <?php } ?>
                         </select>
@@ -312,9 +323,9 @@ ob_start();
                             $sql_locations = mysqli_query($mysqli, "SELECT location_id, location_name FROM locations WHERE location_client_id = $client_id AND location_archived_at IS NULL ORDER BY location_name ASC");
                             while ($row = mysqli_fetch_assoc($sql_locations)) {
                                 $location_id_select = intval($row['location_id']);
-                                $location_name_select = nullable_htmlentities($row['location_name']);
+                                $location_name_select = escapeHtml($row['location_name']);
                                 ?>
-                                <option <?php if ($location_id == $location_id_select) { echo "selected"; } ?> value="<?php echo $location_id_select; ?>"><?php echo $location_name_select; ?></option>
+                                <option <?php if ($location_id == $location_id_select) { echo "selected"; } ?> value="<?= $location_id_select ?>"><?= $location_name_select ?></option>
 
                                 <?php
                             }
@@ -340,9 +351,9 @@ ob_start();
                                     $sql_vendors = mysqli_query($mysqli, "SELECT vendor_id, vendor_name FROM vendors WHERE vendor_client_id = $client_id AND vendor_archived_at IS NULL ORDER BY vendor_name ASC");
                                     while ($row = mysqli_fetch_assoc($sql_vendors)) {
                                         $vendor_id_select = intval($row['vendor_id']);
-                                        $vendor_name_select = nullable_htmlentities($row['vendor_name']);
+                                        $vendor_name_select = escapeHtml($row['vendor_name']);
                                         ?>
-                                        <option <?php if ($vendor_id == $vendor_id_select) { echo "selected"; } ?> value="<?php echo $vendor_id_select; ?>"><?php echo $vendor_name_select; ?></option>
+                                        <option <?php if ($vendor_id == $vendor_id_select) { echo "selected"; } ?> value="<?= $vendor_id_select ?>"><?= $vendor_name_select ?></option>
 
                                         <?php
                                     }
@@ -361,7 +372,7 @@ ob_start();
                                 <div class="input-group-prepend">
                                     <span class="input-group-text"><i class="fa fa-fw fa-tag"></i></span>
                                 </div>
-                                <input type="text" class="form-control" name="vendor_ticket_number" placeholder="Vendor ticket number" value="<?php echo $ticket_vendor_ticket_number; ?>">
+                                <input type="text" class="form-control" name="vendor_ticket_number" placeholder="Vendor ticket number" maxlength="255" value="<?= $ticket_vendor_ticket_number ?>">
                             </div>
                         </div>
 
@@ -382,7 +393,7 @@ ob_start();
                             $sql_projects = mysqli_query($mysqli, "SELECT project_id, project_name FROM projects WHERE (project_client_id = $client_id OR project_client_id = 0) AND project_completed_at IS NULL AND project_archived_at IS NULL ORDER BY project_name ASC");
                             while ($row = mysqli_fetch_assoc($sql_projects)) {
                                 $project_id_select = intval($row['project_id']);
-                                $project_name_select = nullable_htmlentities($row['project_name']); ?>
+                                $project_name_select = escapeHtml($row['project_name']); ?>
                                 <option <?php if ($project_id == $project_id_select) { echo "selected"; } ?> value="<?= $project_id_select ?>"><?= $project_name_select ?></option>
 
                             <?php } ?>

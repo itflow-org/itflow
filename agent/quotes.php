@@ -45,7 +45,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                     <button type="button" class="btn btn-primary dropdown-toggle dropdown-toggle-split" data-toggle="dropdown"></button>
                     <div class="dropdown-menu">
                         <a class="dropdown-item text-dark ajax-modal" href="#"
-                            data-modal-url="modals/quote/quote_export.php?<?= $client_url ?>">
+                            data-modal-url="<?= buildExportModalUrl('modals/quote/quote_export.php', ['client_id', 'q'], ['dtf' => $dtf, 'dtt' => $dtt]) ?>">
                             <i class="fa fa-fw fa-download mr-2"></i>Export
                         </a>
                     </div>
@@ -58,12 +58,12 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
     <div class="card-body">
         <form class="mb-4" autocomplete="off">
             <?php if ($client_url) { ?>
-                <input type="hidden" name="client_id" value="<?php echo $client_id; ?>">
+                <input type="hidden" name="client_id" value="<?= $client_id ?>">
             <?php } ?>
             <div class="row">
                 <div class="col-sm-4">
                     <div class="input-group">
-                        <input type="search" class="form-control" name="q" value="<?php if (isset($q)) { echo stripslashes(nullable_htmlentities($q)); } ?>" placeholder="Search Quotes">
+                        <input type="search" class="form-control" name="q" value="<?php if (isset($q)) { echo stripslashes(escapeHtml($q)); } ?>" placeholder="Search Quotes">
                         <div class="input-group-append">
                             <button class="btn btn-secondary" type="button" data-toggle="collapse" data-target="#advancedFilter"><i class="fas fa-filter"></i></button>
                             <button class="btn btn-primary"><i class="fa fa-search"></i></button>
@@ -82,9 +82,9 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                         <div class="form-group">
                             <label>Date range</label>
                             <input type="text" id="dateFilter" class="form-control" autocomplete="off">
-                            <input type="hidden" name="canned_date" id="canned_date" value="<?php echo nullable_htmlentities($_GET['canned_date']) ?? ''; ?>">
-                            <input type="hidden" name="dtf" id="dtf" value="<?php echo nullable_htmlentities($dtf ?? ''); ?>">
-                            <input type="hidden" name="dtt" id="dtt" value="<?php echo nullable_htmlentities($dtt ?? ''); ?>">
+                            <input type="hidden" name="canned_date" id="canned_date" value="<?= escapeHtml($_GET['canned_date']) ?? '' ?>">
+                            <input type="hidden" name="dtf" id="dtf" value="<?= escapeHtml($dtf ?? '') ?>">
+                            <input type="hidden" name="dtt" id="dtt" value="<?= escapeHtml($dtt ?? '') ?>">
                         </div>
                     </div>
                 </div>
@@ -96,44 +96,44 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                 <thead class="text-dark <?php if ($num_rows[0] == 0) { echo "d-none"; } ?> text-nowrap">
                 <tr>
                     <th>
-                        <a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=quote_number&order=<?php echo $disp; ?>">
+                        <a class="text-dark" href="?<?= $url_query_strings_sort ?>&sort=quote_number&order=<?= $disp ?>">
                             Number <?php if ($sort == 'quote_number') { echo $order_icon; } ?>
                         </a>
                     </th>
                     <th>
-                        <a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=quote_scope&order=<?php echo $disp; ?>">
+                        <a class="text-dark" href="?<?= $url_query_strings_sort ?>&sort=quote_scope&order=<?= $disp ?>">
                             Scope <?php if ($sort == 'quote_scope') { echo $order_icon; } ?>
                         </a>
                     </th>
                     <?php if (!$client_url) { ?>
                     <th>
-                        <a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=client_name&order=<?php echo $disp; ?>">
+                        <a class="text-dark" href="?<?= $url_query_strings_sort ?>&sort=client_name&order=<?= $disp ?>">
                             Client <?php if ($sort == 'client_name') { echo $order_icon; } ?>
                         </a>
                     </th>
                     <?php } ?>
                     <th class="text-right">
-                        <a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=quote_amount&order=<?php echo $disp; ?>">
+                        <a class="text-dark" href="?<?= $url_query_strings_sort ?>&sort=quote_amount&order=<?= $disp ?>">
                             Amount <?php if ($sort == 'quote_amount') { echo $order_icon; } ?>
                         </a>
                     </th>
                     <th>
-                        <a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=quote_date&order=<?php echo $disp; ?>">
+                        <a class="text-dark" href="?<?= $url_query_strings_sort ?>&sort=quote_date&order=<?= $disp ?>">
                             Date <?php if ($sort == 'quote_number') { echo $order_icon; } ?>
                         </a>
                     </th>
                     <th>
-                        <a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=quote_expire&order=<?php echo $disp; ?>">
+                        <a class="text-dark" href="?<?= $url_query_strings_sort ?>&sort=quote_expire&order=<?= $disp ?>">
                             Expire <?php if ($sort == 'quote_number') { echo $order_icon; } ?>
                         </a>
                     </th>
                     <th>
-                        <a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=category_name&order=<?php echo $disp; ?>">
+                        <a class="text-dark" href="?<?= $url_query_strings_sort ?>&sort=category_name&order=<?= $disp ?>">
                             Category <?php if ($sort == 'category_name') { echo $order_icon; } ?>
                         </a>
                     </th>
                     <th>
-                        <a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=quote_status&order=<?php echo $disp; ?>">
+                        <a class="text-dark" href="?<?= $url_query_strings_sort ?>&sort=quote_status&order=<?= $disp ?>">
                             Status <?php if ($sort == 'quote_status') { echo $order_icon; } ?>
                         </a>
                     </th>
@@ -145,26 +145,26 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 
                 while ($row = mysqli_fetch_assoc($sql)) {
                     $quote_id = intval($row['quote_id']);
-                    $quote_prefix = nullable_htmlentities($row['quote_prefix']);
+                    $quote_prefix = escapeHtml($row['quote_prefix']);
                     $quote_number = intval($row['quote_number']);
-                    $quote_scope = nullable_htmlentities($row['quote_scope']);
+                    $quote_scope = escapeHtml($row['quote_scope']);
                     if (empty($quote_scope)) {
                         $quote_scope_display = "-";
                     } else {
                         $quote_scope_display = $quote_scope;
                     }
-                    $quote_status = nullable_htmlentities($row['quote_status']);
-                    $quote_date = nullable_htmlentities($row['quote_date']);
-                    $quote_expire = nullable_htmlentities($row['quote_expire']);
+                    $quote_status = escapeHtml($row['quote_status']);
+                    $quote_date = escapeHtml($row['quote_date']);
+                    $quote_expire = escapeHtml($row['quote_expire']);
                     $quote_amount = floatval($row['quote_amount']);
                     $quote_discount = floatval($row['quote_discount_amount']);
-                    $quote_currency_code = nullable_htmlentities($row['quote_currency_code']);
-                    $quote_created_at = nullable_htmlentities($row['quote_created_at']);
+                    $quote_currency_code = escapeHtml($row['quote_currency_code']);
+                    $quote_created_at = escapeHtml($row['quote_created_at']);
                     $client_id = intval($row['client_id']);
-                    $client_name = nullable_htmlentities($row['client_name']);
-                    $client_currency_code = nullable_htmlentities($row['client_currency_code']);
+                    $client_name = escapeHtml($row['client_name']);
+                    $client_currency_code = escapeHtml($row['client_currency_code']);
                     $category_id = intval($row['category_id']);
-                    $category_name = nullable_htmlentities($row['category_name']);
+                    $category_name = escapeHtml($row['category_name']);
                     $client_net_terms = intval($row['client_net_terms']);
                     if ($client_net_terms == 0) {
                         $client_net_terms = $config_default_net_terms;
@@ -189,22 +189,22 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                     <tr>
                         <td class="text-bold">
                             <a href="quote.php?client_id=<?= $client_id ?>&quote_id=<?= $quote_id ?>">
-                                <?php echo "$quote_prefix$quote_number"; ?>
+                                <?= "$quote_prefix$quote_number" ?>
                             </a>
                         </td>
-                        <td><?php echo $quote_scope_display; ?></td>
+                        <td><?= $quote_scope_display ?></td>
                         <?php if (!$client_url) { ?>
                         <td class="text-bold">
-                            <a href="quotes.php?client_id=<?php echo $client_id; ?>"><?php echo $client_name; ?></a>
+                            <a href="quotes.php?client_id=<?= $client_id ?>"><?= $client_name ?></a>
                         </td>
                         <?php } ?>
-                        <td class="text-right text-monospace"><?php echo numfmt_format_currency($currency_format, $quote_amount, $quote_currency_code); ?></td>
-                        <td><?php echo $quote_date; ?></td>
-                        <td><?php echo $quote_expire; ?></td>
-                        <td><?php echo $category_name; ?></td>
+                        <td class="text-right text-monospace"><?= numfmt_format_currency($currency_format, $quote_amount, $quote_currency_code) ?></td>
+                        <td><?= $quote_date ?></td>
+                        <td><?= $quote_expire ?></td>
+                        <td><?= $category_name ?></td>
                         <td>
-                            <span class="p-2 badge badge-<?php echo $quote_badge_color; ?>">
-                                <?php echo $quote_status; ?>
+                            <span class="p-2 badge badge-<?= $quote_badge_color ?>">
+                                <?= $quote_status ?>
                             </span>
                         </td>
                         <td>

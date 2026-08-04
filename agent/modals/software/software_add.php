@@ -55,7 +55,7 @@ ob_start();
             <div class="tab-pane fade show active" id="pills-details">
 
                 <?php if ($client_id) { ?>
-                    <input type="hidden" name="client_id" value="<?php echo $client_id; ?>">
+                    <input type="hidden" name="client_id" value="<?= $client_id ?>">
                 <?php } else { ?>
 
                     <div class="form-group">
@@ -71,8 +71,8 @@ ob_start();
                                 $sql = mysqli_query($mysqli, "SELECT client_id, client_name FROM clients WHERE client_archived_at IS NULL $access_permission_query ORDER BY client_name ASC");
                                 while ($row = mysqli_fetch_assoc($sql)) {
                                     $client_id_select = intval($row['client_id']);
-                                    $client_name = nullable_htmlentities($row['client_name']); ?>
-                                    <option <?php if ($client_id == $client_id_select) { echo "selected"; } ?> value="<?php echo $client_id_select; ?>"><?php echo $client_name; ?></option>
+                                    $client_name = escapeHtml($row['client_name']); ?>
+                                    <option <?php if ($client_id == $client_id_select) { echo "selected"; } ?> value="<?= $client_id_select ?>"><?= $client_name ?></option>
 
                                 <?php } ?>
                             </select>
@@ -97,7 +97,7 @@ ob_start();
                                 ORDER BY category_order ASC, category_name ASC
                             ");
                             while ($row = mysqli_fetch_assoc($sql_software_types_select)) {
-                                $software_type_select = nullable_htmlentities($row['category_name']);
+                                $software_type_select = escapeHtml($row['category_name']);
                                 ?>
                                 <option><?= $software_type_select ?></option>
                             <?php } ?>
@@ -139,9 +139,9 @@ ob_start();
                             $sql = mysqli_query($mysqli, "SELECT vendor_name, vendor_id FROM vendors WHERE vendor_archived_at IS NULL AND vendor_client_id = $client_id ORDER BY vendor_name ASC");
                             while ($row = mysqli_fetch_assoc($sql)) {
                                 $vendor_id = intval($row['vendor_id']);
-                                $vendor_name = nullable_htmlentities($row['vendor_name']);
+                                $vendor_name = escapeHtml($row['vendor_name']);
                                 ?>
-                                <option value="<?php echo $vendor_id; ?>"><?php echo $vendor_name; ?></option>
+                                <option value="<?= $vendor_id ?>"><?= $vendor_name ?></option>
                             <?php } ?>
                         </select>
                     </div>
@@ -171,7 +171,7 @@ ob_start();
                         <select class="form-control select2" name="license_type">
                             <option value="">- Select a License Type -</option>
                             <?php foreach ($license_types_array as $license_type) { ?>
-                                <option><?php echo $license_type; ?></option>
+                                <option><?= $license_type ?></option>
                             <?php } ?>
                         </select>
                     </div>
@@ -203,7 +203,7 @@ ob_start();
                         <div class="input-group-prepend">
                             <span class="input-group-text"><i class="fa fa-fw fa-shopping-cart"></i></span>
                         </div>
-                        <input type="text" class="form-control" name="purchase_reference" placeholder="eg. Invoice, PO Number">
+                        <input type="text" class="form-control" name="purchase_reference" placeholder="eg. Invoice, PO Number" maxlength="200">
                     </div>
                 </div>
 
@@ -248,21 +248,21 @@ ob_start();
 
                     while ($row = mysqli_fetch_assoc($sql_assets_select)) {
                         $asset_id_select = intval($row['asset_id']);
-                        $asset_name_select = nullable_htmlentities($row['asset_name']);
-                        $asset_type_select = nullable_htmlentities($row['asset_type']);
-                        $asset_archived_at = nullable_htmlentities($row['asset_archived_at']);
+                        $asset_name_select = escapeHtml($row['asset_name']);
+                        $asset_type_select = escapeHtml($row['asset_type']);
+                        $asset_archived_at = escapeHtml($row['asset_archived_at']);
                         if (empty($asset_archived_at)) {
                             $asset_archived_display = "";
                         } else {
                             $asset_archived_display = "Archived - ";
                         }
-                        $contact_name_select = nullable_htmlentities($row['contact_name']);
+                        $contact_name_select = escapeHtml($row['contact_name']);
 
                         ?>
                         <li class="list-group-item">
                             <div class="form-check">
-                                <input type="checkbox" class="form-check-input asset-checkbox" name="assets[]" value="<?php echo $asset_id_select; ?>">
-                                <label class="form-check-label ml-2"><?php echo "$asset_archived_display$asset_name_select - $contact_name_select"; ?></label>
+                                <input type="checkbox" class="form-check-input asset-checkbox" name="assets[]" value="<?= $asset_id_select ?>">
+                                <label class="form-check-label ml-2"><?= "$asset_archived_display$asset_name_select - $contact_name_select" ?></label>
                             </div>
                         </li>
 
@@ -288,14 +288,14 @@ ob_start();
 
                     while ($row = mysqli_fetch_assoc($sql_contacts_select)) {
                         $contact_id_select = intval($row['contact_id']);
-                        $contact_name_select = nullable_htmlentities($row['contact_name']);
-                        $contact_email_select = nullable_htmlentities($row['contact_email']);
+                        $contact_name_select = escapeHtml($row['contact_name']);
+                        $contact_email_select = escapeHtml($row['contact_email']);
 
                         ?>
                         <li class="list-group-item">
                             <div class="form-check">
-                                <input type="checkbox" class="form-check-input user-checkbox" name="contacts[]" value="<?php echo $contact_id_select; ?>">
-                                <label class="form-check-label ml-2"><?php echo "$contact_name_select - $contact_email_select"; ?></label>
+                                <input type="checkbox" class="form-check-input user-checkbox" name="contacts[]" value="<?= $contact_id_select ?>">
+                                <label class="form-check-label ml-2"><?= "$contact_name_select - $contact_email_select" ?></label>
                             </div>
                         </li>
 

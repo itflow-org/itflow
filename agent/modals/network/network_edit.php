@@ -9,15 +9,15 @@ $network_id = intval($_GET['id']);
 $sql = mysqli_query($mysqli, "SELECT * FROM networks WHERE network_id = $network_id LIMIT 1");
 
 $row = mysqli_fetch_assoc($sql);
-$network_name = nullable_htmlentities($row['network_name']);
-$network_description = nullable_htmlentities($row['network_description']);
+$network_name = escapeHtml($row['network_name']);
+$network_description = escapeHtml($row['network_description']);
 $network_vlan = intval($row['network_vlan']);
-$network = nullable_htmlentities($row['network']);
-$network_gateway = nullable_htmlentities($row['network_gateway']);
-$network_primary_dns = nullable_htmlentities($row['network_primary_dns']);
-$network_secondary_dns = nullable_htmlentities($row['network_secondary_dns']);
-$network_dhcp_range = nullable_htmlentities($row['network_dhcp_range']);
-$network_notes = nullable_htmlentities($row['network_notes']);
+$network = escapeHtml($row['network']);
+$network_gateway = escapeHtml($row['network_gateway']);
+$network_primary_dns = escapeHtml($row['network_primary_dns']);
+$network_secondary_dns = escapeHtml($row['network_secondary_dns']);
+$network_dhcp_range = escapeHtml($row['network_dhcp_range']);
+$network_notes = escapeHtml($row['network_notes']);
 $network_location_id = intval($row['network_location_id']);
 $client_id = intval($row['network_client_id']);
 
@@ -72,7 +72,7 @@ ob_start();
                             $locations_sql = mysqli_query($mysqli, "SELECT location_id, location_name FROM locations WHERE location_client_id = $client_id");
                             while ($row = mysqli_fetch_assoc($locations_sql)) {
                                 $location_id = intval($row['location_id']);
-                                $location_name = nullable_htmlentities($row['location_name']);
+                                $location_name = escapeHtml($row['location_name']);
                                 ?>
                                 <option value="<?= $location_id ?>" <?php if ($location_id == $network_location_id) { echo "selected"; } ?>>
                                     <?= $location_name ?>

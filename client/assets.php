@@ -8,10 +8,7 @@ header("Content-Security-Policy: default-src 'self'");
 
 require_once "includes/inc_all.php";
 
-if ($session_contact_primary == 0 && !$session_contact_is_technical_contact) {
-    header("Location: post.php?logout");
-    exit();
-}
+enforceContactCan('itdoc');
 
 $assets_sql = mysqli_query($mysqli, "SELECT * FROM assets LEFT JOIN contacts ON asset_contact_id = contact_id WHERE asset_client_id = $session_client_id AND asset_archived_at IS NULL ORDER BY asset_type ASC, asset_name ASC");
 ?>
@@ -45,36 +42,36 @@ $assets_sql = mysqli_query($mysqli, "SELECT * FROM assets LEFT JOIN contacts ON 
                 <?php
                 while ($row = mysqli_fetch_assoc($assets_sql)) {
                     $asset_id = intval($row['asset_id']);
-                    $asset_name = nullable_htmlentities($row['asset_name']);
-                    $asset_description = nullable_htmlentities($row['asset_description']);
-                    $asset_type = nullable_htmlentities($row['asset_type']);
-                    $asset_make = nullable_htmlentities($row['asset_make']);
-                    $asset_model = nullable_htmlentities($row['asset_model']);
-                    $asset_serial = nullable_htmlentities($row['asset_serial']);
-                    $asset_purchase_date = nullable_htmlentities($row['asset_purchase_date'] ?? "-");
-                    $asset_warranty_expire = nullable_htmlentities($row['asset_warranty_expire'] ?? "-");
-                    $assigned_to = nullable_htmlentities($row['contact_name'] ?? "-");
-                    $asset_status = nullable_htmlentities($row['asset_status']);
-                    $asset_uri_client = sanitize_url($row['asset_uri_client']);
+                    $asset_name = escapeHtml($row['asset_name']);
+                    $asset_description = escapeHtml($row['asset_description']);
+                    $asset_type = escapeHtml($row['asset_type']);
+                    $asset_make = escapeHtml($row['asset_make']);
+                    $asset_model = escapeHtml($row['asset_model']);
+                    $asset_serial = escapeHtml($row['asset_serial']);
+                    $asset_purchase_date = escapeHtml($row['asset_purchase_date'] ?? "-");
+                    $asset_warranty_expire = escapeHtml($row['asset_warranty_expire'] ?? "-");
+                    $assigned_to = escapeHtml($row['contact_name'] ?? "-");
+                    $asset_status = escapeHtml($row['asset_status']);
+                    $asset_uri_client = escapeUrl($row['asset_uri_client']);
 
                     ?>
 
                     <tr>
                         <td>
-                            <a href="#"><?php echo $asset_name ?></a>
+                            <a href="#"><?= $asset_name ?></a>
                             <br>
-                            <small class="text-secondary"><?php echo $asset_description; ?></small>
+                            <small class="text-secondary"><?= $asset_description ?></small>
                         </td>
-                        <td><?php echo $asset_type; ?></td>
-                        <td><?php echo "$asset_make<br><span class='text-secondary'>$asset_model</span>"; ?></td>
-                        <td><?php echo $asset_serial; ?></td>
-                        <td><?php echo $assigned_to; ?></td>
-                        <td><?php echo $asset_purchase_date; ?></td>
-                        <td><?php echo $asset_warranty_expire; ?></td>
-                        <td><?php echo $asset_status; ?></td>
+                        <td><?= $asset_type ?></td>
+                        <td><?= "$asset_make<br><span class='text-secondary'>$asset_model</span>" ?></td>
+                        <td><?= $asset_serial ?></td>
+                        <td><?= $assigned_to ?></td>
+                        <td><?= $asset_purchase_date ?></td>
+                        <td><?= $asset_warranty_expire ?></td>
+                        <td><?= $asset_status ?></td>
                         <td>
                             <?php if ($asset_uri_client) { ?>
-                            <i class="fa fa-fw fa-link text-secondary mr-1"></i><a href="<?php echo $asset_uri_client; ?>" target="_blank" title="<?php echo $asset_uri_client; ?>"><?php echo truncate($asset_uri_client, 40); ?></a>
+                            <i class="fa fa-fw fa-link text-secondary mr-1"></i><a href="<?= $asset_uri_client ?>" target="_blank" title="<?= $asset_uri_client ?>"><?= truncate($asset_uri_client, 40) ?></a>
                             <?php } else { ?>
                             -
                         <?php } ?>

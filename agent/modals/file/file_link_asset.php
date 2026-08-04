@@ -1,15 +1,15 @@
-<div class="modal" id="linkAssetToFileModal<?php echo $file_id; ?>" tabindex="-1">
+<div class="modal" id="linkAssetToFileModal<?= $file_id ?>" tabindex="-1">
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header bg-dark">
-                <h5 class="modal-title"><i class="fa fa-fw fa-desktop mr-2"></i>Link Asset to <strong><?php echo $file_name; ?></strong></h5>
+                <h5 class="modal-title"><i class="fa fa-fw fa-desktop mr-2"></i>Link Asset to <strong><?= $file_name ?></strong></h5>
                 <button type="button" class="close text-white" data-dismiss="modal">
                     <span>&times;</span>
                 </button>
             </div>
             <form action="post.php" method="post" autocomplete="off">
                 <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
-                <input type="hidden" name="file_id" value="<?php echo $file_id; ?>">
+                <input type="hidden" name="file_id" value="<?= $file_id ?>">
                 <div class="modal-body">
 
                     <div class="form-group">
@@ -28,10 +28,10 @@
                                 );
                                 while ($row = mysqli_fetch_assoc($sql_assets_select)) {
                                     $asset_id = intval($row['asset_id']);
-                                    $asset_name = nullable_htmlentities($row['asset_name']);
+                                    $asset_name = escapeHtml($row['asset_name']);
 
                                     ?>
-                                    <option value="<?php echo $asset_id ?>"><?php echo $asset_name; ?></option>
+                                    <option value="<?= $asset_id ?>"><?= $asset_name ?></option>
                                     <?php
                                 }
                                 ?>
@@ -50,14 +50,14 @@
 
                             while ($row = mysqli_fetch_assoc($sql_assets)) {
                                 $asset_id = intval($row['asset_id']);
-                                $asset_name = nullable_htmlentities($row['asset_name']);
+                                $asset_name = escapeHtml($row['asset_name']);
 
                                 $linked_assets[] = $asset_id;
 
                         ?>
                                 <div class="ml-2">
-                                    <a href="asset_details.php?client_id=<?php echo $client_id; ?>&asset_id=<?php echo $asset_id; ?>" target="_blank"><?php echo $asset_name; ?></a>
-                                    <a class="confirm-link float-right" href="post.php?unlink_asset_from_file&asset_id=<?php echo $asset_id; ?>&file_id=<?php echo $file_id; ?>">
+                                    <a href="asset.php?client_id=<?= $client_id ?>&asset_id=<?= $asset_id ?>" target="_blank"><?= $asset_name ?></a>
+                                    <a class="confirm-link float-right" href="post.php?unlink_asset_from_file&asset_id=<?= $asset_id ?>&file_id=<?= $file_id ?>">
                                         <i class="fas fa-fw fa-trash-alt text-secondary"></i>
                                     </a>
                                 </div>

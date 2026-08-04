@@ -69,8 +69,15 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                     <?php } ?>
                     <button type="button" class="btn btn-primary dropdown-toggle dropdown-toggle-split" data-toggle="dropdown"></button>
                     <div class="dropdown-menu">
+                        <?php if ($type_display == 'Products') { ?>
+                            <a class="dropdown-item text-dark ajax-modal" href="#"
+                                data-modal-url="modals/product/product_import.php">
+                                <i class="fa fa-fw fa-upload mr-2"></i>Import
+                            </a>
+                            <div class="dropdown-divider"></div>                            
+                        <?php } ?>                   
                         <a class="dropdown-item text-dark ajax-modal"
-                            data-modal-url="modals/product/product_export.php">
+                            data-modal-url="<?= buildExportModalUrl('modals/product/product_export.php', ['type', 'category', 'archived', 'q']) ?>">
                             <i class="fa fa-fw fa-download mr-2"></i>Export
                         </a>
                     </div>
@@ -80,13 +87,13 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 
         <div class="card-body">
             <form class="mb-4" autocomplete="off">
-                <input type="hidden" name="archived" value="<?php echo $archived; ?>">
-                <input type="hidden" name="type" value="<?php echo $type_filter; ?>">
+                <input type="hidden" name="archived" value="<?= $archived ?>">
+                <input type="hidden" name="type" value="<?= $type_filter ?>">
 
                 <div class="row">
                     <div class="col-sm-4">
                         <div class="input-group mb-3 mb-sm-0">
-                            <input type="search" class="form-control" name="q" value="<?php if (isset($q)) {echo stripslashes(nullable_htmlentities($q));} ?>" placeholder="Search <?= $type_display ?>">
+                            <input type="search" class="form-control" name="q" value="<?php if (isset($q)) {echo stripslashes(escapeHtml($q));} ?>" placeholder="Search <?= $type_display ?>">
                             <div class="input-group-append">
                                 <button class="btn btn-primary"><i class="fa fa-search"></i></button>
                             </div>
@@ -101,9 +108,9 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                 $sql_categories_filter = mysqli_query($mysqli, "SELECT category_id, category_name FROM categories WHERE category_type = 'Income' AND EXISTS (SELECT 1 FROM products WHERE product_category_id = category_id AND product_$archive_query $type_query) ORDER BY category_name ASC");
                                 while ($row = mysqli_fetch_assoc($sql_categories_filter)) {
                                     $category_id = intval($row['category_id']);
-                                    $category_name = nullable_htmlentities($row['category_name']);
+                                    $category_name = escapeHtml($row['category_name']);
                                 ?>
-                                    <option <?php if ($category_filter == $category_id) { echo "selected"; } ?> value="<?php echo $category_id; ?>"><?php echo $category_name; ?></option>
+                                    <option <?php if ($category_filter == $category_id) { echo "selected"; } ?> value="<?= $category_id ?>"><?= $category_name ?></option>
                                 <?php
                                 }
                                 ?>
@@ -126,7 +133,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                     <a href="?type=service" class="btn btn-<?php if ($type_filter == 'service'){ echo "primary"; } else { echo "default"; } ?>"><i class="fa fa-fw fa-wrench"></i><span class="d-none d-sm-inline ml-2">Service</span></a>
                                     <a href="?type=product" class="btn btn-<?php if ($type_filter == 'product'){ echo "primary"; } else { echo "default"; } ?>"><i class="fa fa-fw fa-cube"></i><span class="d-none d-sm-inline ml-2">Product</span></a>
                                 </div>
-                                <a href="?<?php echo $url_query_strings_sort ?>&archived=<?php if($archived == 1){ echo 0; } else { echo 1; } ?>"
+                                <a href="?<?= $url_query_strings_sort ?>&archived=<?php if($archived == 1){ echo 0; } else { echo 1; } ?>"
                                     class="btn btn-<?php if($archived == 1){ echo "primary"; } else { echo "default"; } ?>">
                                     <i class="fa fa-fw fa-archive mr-2"></i>Archived
                                 </a>
@@ -167,7 +174,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
             </form>
             <hr>
             <form id="bulkActions" action="post.php" method="post">
-                <input type="hidden" name="csrf_token" value="<?php echo $_SESSION['csrf_token'] ?>">
+                <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
 
                 <div class="table-responsive">
                     <table class="table table-striped table-borderless table-hover">
@@ -179,44 +186,44 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                 </div>
                             </td>
                             <th>
-                                <a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=product_name&order=<?php echo $disp; ?>">
+                                <a class="text-dark" href="?<?= $url_query_strings_sort ?>&sort=product_name&order=<?= $disp ?>">
                                     Name <?php if ($sort == 'product_name') { echo $order_icon; } ?>
                                 </a>
                             </th>
                             <th>
-                                <a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=category_name&order=<?php echo $disp; ?>">
+                                <a class="text-dark" href="?<?= $url_query_strings_sort ?>&sort=category_name&order=<?= $disp ?>">
                                     Category <?php if ($sort == 'category_name') { echo $order_icon; } ?>
                                 </a>
                             </th>
                             <th>
-                                <a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=product_description&order=<?php echo $disp; ?>">
+                                <a class="text-dark" href="?<?= $url_query_strings_sort ?>&sort=product_description&order=<?= $disp ?>">
                                     Description <?php if ($sort == 'product_description') { echo $order_icon; } ?>
                                 </a>
                             </th>
                             <?php if ($type_filter == 'product') { ?>
                             <th>
-                                <a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=product_qty&order=<?php echo $disp; ?>">
+                                <a class="text-dark" href="?<?= $url_query_strings_sort ?>&sort=product_qty&order=<?= $disp ?>">
                                     QTY <?php if ($sort == 'product_qty') { echo $order_icon; } ?>
                                 </a>
                             </th>
                             <th>
-                                <a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=product_location&order=<?php echo $disp; ?>">
+                                <a class="text-dark" href="?<?= $url_query_strings_sort ?>&sort=product_location&order=<?= $disp ?>">
                                     Location <?php if ($sort == 'product_location') { echo $order_icon; } ?>
                                 </a>
                             </th>
                             <?php } ?>
                             <th>
-                                <a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=tax_name&order=<?php echo $disp; ?>">
+                                <a class="text-dark" href="?<?= $url_query_strings_sort ?>&sort=tax_name&order=<?= $disp ?>">
                                     Tax Name <?php if ($sort == 'tax_name') { echo $order_icon; } ?>
                                 </a>
                             </th>
                             <th>
-                                <a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=tax_percent&order=<?php echo $disp; ?>">
+                                <a class="text-dark" href="?<?= $url_query_strings_sort ?>&sort=tax_percent&order=<?= $disp ?>">
                                     Tax Rate <?php if ($sort == 'tax_percent') { echo $order_icon; } ?>
                                 </a>
                             </th>
                             <th class="text-right">
-                                <a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=product_price&order=<?php echo $disp; ?>">
+                                <a class="text-dark" href="?<?= $url_query_strings_sort ?>&sort=product_price&order=<?= $disp ?>">
                                     Price <?php if ($sort == 'product_price') { echo $order_icon; } ?>
                                 </a>
                             </th>
@@ -228,24 +235,24 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 
                         while ($row = mysqli_fetch_assoc($sql)) {
                             $product_id = intval($row['product_id']);
-                            $product_name = nullable_htmlentities($row['product_name']);
-                            $product_description = nullable_htmlentities($row['product_description']);
+                            $product_name = escapeHtml($row['product_name']);
+                            $product_description = escapeHtml($row['product_description']);
                             if (empty($product_description)) {
                                 $product_description_display = "-";
                             } else {
                                 $product_description_display = "<div style='white-space:pre-line'>$product_description</div>";
                             }
                             $product_qty = intval($row['product_qty']);
-                            $product_code = nullable_htmlentities($row['product_code']);
-                            $product_location = nullable_htmlentities(getFallBack($row['product_location']));
+                            $product_code = escapeHtml($row['product_code']);
+                            $product_location = escapeHtml($row['product_location']) ?: '-';
                             $product_price = floatval($row['product_price']);
-                            $product_currency_code = nullable_htmlentities($row['product_currency_code']);
-                            $product_created_at = nullable_htmlentities($row['product_created_at']);
-                            $product_archived_at = nullable_htmlentities($row['product_archived_at']);
+                            $product_currency_code = escapeHtml($row['product_currency_code']);
+                            $product_created_at = escapeHtml($row['product_created_at']);
+                            $product_archived_at = escapeHtml($row['product_archived_at']);
                             $category_id = intval($row['category_id']);
-                            $category_name = nullable_htmlentities($row['category_name']);
+                            $category_name = escapeHtml($row['category_name']);
                             $product_tax_id = intval($row['product_tax_id']);
-                            $tax_name = nullable_htmlentities(getFallBack($row['tax_name']));
+                            $tax_name = escapeHtml($row['tax_name']) ?: '-';
                             $tax_percent = floatval($row['tax_percent']);
 
 
@@ -263,15 +270,15 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                         <?php if ($product_code) { echo "<div class='text-secondary'>$product_code</div>"; } ?>
                                     </a>
                                 </td>
-                                <td><?php echo $category_name; ?></td>
-                                <td><?php echo $product_description_display; ?></td>
+                                <td><?= $category_name ?></td>
+                                <td><?= $product_description_display ?></td>
                                 <?php if ($type_filter == 'product') { ?>
                                 <td><?= $product_qty ?></td>
                                 <td><?= $product_location ?></td>
                                 <?php } ?>
                                 <td><?= $tax_name ?></td>
                                 <td><?= $tax_percent ?>%</td>
-                                <td class="text-right text-monospace"><?php echo numfmt_format_currency($currency_format, $product_price, $product_currency_code); ?></td>
+                                <td class="text-right text-monospace"><?= numfmt_format_currency($currency_format, $product_price, $product_currency_code) ?></td>
 
                                 <td>
                                     <div class="dropdown dropleft text-center">

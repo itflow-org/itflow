@@ -20,8 +20,8 @@ if (!empty($api_key_decrypt_password) && !empty($name) && !(empty($password))) {
         $insert_id = mysqli_insert_id($mysqli);
 
         // Logging
-        logAction("Credential", "Create", "$name via API ($api_key_name)", $client_id, $insert_id);
-        logAction("API", "Success", "Created credential $name via API ($api_key_name)", $client_id);
+        logAudit("Credential", "Create", "$name via API ($api_key_name)", $client_id, $insert_id);
+        logAudit("API", "Success", "Created credential $name via API ($api_key_name)", $client_id);
     }
 
 }

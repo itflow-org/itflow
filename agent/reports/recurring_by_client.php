@@ -2,7 +2,7 @@
 
 require_once "includes/inc_all_reports.php";
 
-validateAccountantRole();
+enforceUserPermission('module_financial');
 
 $sql = mysqli_query($mysqli, "
     SELECT client_id, client_name,
@@ -39,15 +39,15 @@ $sql = mysqli_query($mysqli, "
 
                 while ($row = mysqli_fetch_assoc($sql)) {
                     $client_id = intval($row['client_id']);
-                    $client_name = nullable_htmlentities($row['client_name']);
+                    $client_name = escapeHtml($row['client_name']);
                     $recurring_monthly_total = floatval($row['recurring_monthly_total']);
                     $recurring_total = $recurring_total + $recurring_monthly_total;
                 ?>
 
 
                     <tr>
-                        <td><a href="../../agent/client_overview.php?client_id=<?php echo $client_id; ?>"><?php echo $client_name; ?></a></td>
-                        <td class="text-right"><?php echo numfmt_format_currency($currency_format, $recurring_monthly_total, $session_company_currency); ?></td>
+                        <td><a href="../../agent/client_overview.php?client_id=<?= $client_id ?>"><?= $client_name ?></a></td>
+                        <td class="text-right"><?= numfmt_format_currency($currency_format, $recurring_monthly_total, $session_company_currency) ?></td>
                     </tr>
                     <?php
                 }
@@ -55,7 +55,7 @@ $sql = mysqli_query($mysqli, "
                 ?>
                     <tr>
                         <th>Total Monthly Income</th>
-                        <th class="text-right"><?php echo numfmt_format_currency($currency_format, $recurring_total, $session_company_currency); ?></th>
+                        <th class="text-right"><?= numfmt_format_currency($currency_format, $recurring_total, $session_company_currency) ?></th>
                     </tr>
                 </tbody>
             </table>

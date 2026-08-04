@@ -7,21 +7,13 @@
 require_once '../config.php';
 require_once '../functions.php';
 
-if (!isset($_SESSION)) {
-    // HTTP Only cookies
-    ini_set("session.cookie_httponly", true);
-    if ($config_https_only) {
-        // Tell client to only send cookie(s) over HTTPS
-        ini_set("session.cookie_secure", true);
-    }
-    session_start();
-}
+require_once __DIR__ . "/../includes/session_init.php";
 
 // Set Timezone after session starts
 require_once "../includes/inc_set_timezone.php";
 
-$session_ip = sanitizeInput(getIP());
-$session_user_agent = sanitizeInput($_SERVER['HTTP_USER_AGENT']);
+$session_ip = escapeSql(getIP());
+$session_user_agent = escapeSql($_SERVER['HTTP_USER_AGENT']);
 
 $sql_settings = mysqli_query($mysqli, "SELECT config_azure_client_id, config_azure_client_secret FROM settings WHERE company_id = 1");
 $settings = mysqli_fetch_assoc($sql_settings);
@@ -37,27 +29,60 @@ $token_grant_url = "https://login.microsoftonline.com/organizations/oauth2/v2.0/
 
 // Initial Login Request, via Microsoft
 // Returns an authorization code if login was successful
-if ($_SERVER['REQUEST_METHOD'] == "GET") {
+if ($_SERVER['REQUEST_METHOD'] == "GET" && !isset($_GET['code']) && !isset($_GET['error'])) {
+
+    // Single-use random state held server side. Never the session ID - that
+    // would put it in the URL, browser history and Microsoft's logs.
+    try {
+        $state = bin2hex(random_bytes(32));
+    } catch (Throwable $e) {
+        $state = sha1(uniqid((string) mt_rand(), true));
+    }
+
+    $_SESSION['azure_oauth_state'] = $state;
+    $_SESSION['azure_oauth_state_expires_at'] = time() + 600;
 
     $params = array (
         'client_id' => $client_id,
         'redirect_uri' => $redirect_uri,
         'response_type' => 'code',
-        'response_mode' =>'form_post',
+        // Must come back as a top-level GET - a SameSite=Lax session cookie is
+        // not sent on the cross-site POST that form_post produces
+        'response_mode' => 'query',
         'scope' => 'https://graph.microsoft.com/User.Read',
-        'state' => session_id());
+        'state' => $state);
 
     header('Location: '.$auth_code_url.'?'.http_build_query($params));
+    exit();
 
 }
 
-// Login was successful, Microsoft has returned us an authorization code via POST
+// Microsoft has redirected back with an authorization code (or an error)
 // Request an access token using authorization code (& client secret) (server side)
-if (isset($_POST['code']) && $_POST['state'] == session_id()) {
+if (isset($_GET['code']) || isset($_GET['error'])) {
+
+    $state = is_string($_GET['state'] ?? null) ? $_GET['state'] : '';
+    $session_state = $_SESSION['azure_oauth_state'] ?? '';
+    $session_state_expires = intval($_SESSION['azure_oauth_state_expires_at'] ?? 0);
+
+    // Single use, consumed whether or not it validates
+    unset($_SESSION['azure_oauth_state'], $_SESSION['azure_oauth_state_expires_at']);
+
+    if (!empty($_GET['error'])) {
+        $_SESSION['login_message'] = 'Something went wrong with logging you in: Microsoft returned an error. Please try again.';
+        header("Location: ../login.php");
+        exit();
+    }
+
+    if (empty($state) || empty($session_state) || !hash_equals($session_state, $state) || time() > $session_state_expires) {
+        $_SESSION['login_message'] = 'Something went wrong with logging you in: the sign-in request could not be verified. Please try again.';
+        header("Location: ../login.php");
+        exit();
+    }
 
     $params = array (
         'client_id' =>$client_id,
-        'code' => $_POST['code'],
+        'code' => is_string($_GET['code'] ?? null) ? $_GET['code'] : '',
         'redirect_uri' => $redirect_uri,
         'grant_type' => 'authorization_code',
         'client_secret' => $client_secret
@@ -92,8 +117,9 @@ if (isset($_POST['code']) && $_POST['state'] == session_id()) {
 
         if (isset($msgraph_response['error'])) {
             // Something went wrong verifying the token/using the Graph API - quit
-            echo "Error with MS Graph API. Details:";
-            var_dump($msgraph_response['error']);
+            error_log("ITFlow: MS Graph API error during client portal Entra login: " . json_encode($msgraph_response['error']));
+            $_SESSION['login_message'] = 'Something went wrong with logging you in: could not read your profile from Microsoft. Please try again.';
+            header("Location: ../login.php");
             exit();
 
         } elseif (isset($msgraph_response['id'])) {
@@ -115,10 +141,13 @@ if (isset($_POST['code']) && $_POST['state'] == session_id()) {
             $user_id = intval($row['user_id']);
             $session_user_id = $user_id; // to pass the user_id to logAction function
             $contact_id = intval($row['contact_id']);
-            $user_email = sanitizeInput($row['user_email']);
-            $user_auth_method = sanitizeInput($row['user_auth_method']);
+            $user_email = escapeSql($row['user_email']);
+            $user_auth_method = escapeSql($row['user_auth_method']);
 
             if ($user_auth_method == 'azure') {
+
+                // New session ID for the authenticated session (CWE-384)
+                session_regenerate_id(true);
 
                 $_SESSION['client_logged_in'] = true;
                 $_SESSION['client_id'] = $client_id;
@@ -129,7 +158,7 @@ if (isset($_POST['code']) && $_POST['state'] == session_id()) {
                 $_SESSION['login_method'] = "azure";
 
                 // Logging
-                logAction("Client Login", "Success", "Client contact $upn successfully logged in via Entra", $client_id, $user_id);
+                logAudit("Client Login", "Success", "Client contact $upn successfully logged in via Entra", $client_id, $user_id);
 
                 header("Location: index.php");
 
@@ -137,22 +166,27 @@ if (isset($_POST['code']) && $_POST['state'] == session_id()) {
 
                 $_SESSION['login_message'] = 'Something went wrong with logging you in: Your account is not configured for Entra SSO. Please ensure you are setup in ITFlow as a contact and have Entra SSO configured.';
 
-                header("Location: index.php");
+                header("Location: ../login.php");
             }
+
+            exit();
 
         }
 
         header('Location: index.php');
+        exit();
 
     } else {
 
-        echo "Error getting access_token";
+        error_log("ITFlow: no access_token returned during client portal Entra login");
+        $_SESSION['login_message'] = 'Something went wrong with logging you in: Microsoft did not return an access token. Please try again.';
+        header("Location: ../login.php");
+        exit();
 
     }
 
 }
 
-// If the user is just sat on the page, redirect them to log in to try again
-if (empty($_GET)) {
-    echo "<script> setTimeout(function() { window.location = \"login.php\"; },1000);</script>";
-}
+// If the user is just sat on the page, send them back to log in to try again
+header("Location: ../login.php");
+exit();

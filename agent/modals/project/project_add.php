@@ -33,9 +33,9 @@ ob_start();
                         $sql = mysqli_query($mysqli, "SELECT * FROM clients WHERE client_archived_at IS NULL $access_permission_query ORDER BY client_name ASC");
                         while ($row = mysqli_fetch_assoc($sql)) {
                             $client_id_select = intval($row['client_id']);
-                            $client_name = nullable_htmlentities($row['client_name']);
+                            $client_name = escapeHtml($row['client_name']);
                         ?>
-                        <option value="<?php echo $client_id_select; ?>"><?php echo $client_name; ?></option>
+                        <option value="<?= $client_id_select ?>"><?= $client_name ?></option>
                         <?php } ?>
                     </select>
                 </div>
@@ -64,9 +64,9 @@ ob_start();
                     $sql = mysqli_query($mysqli, "SELECT * FROM project_templates WHERE project_template_archived_at IS NULL ORDER BY project_template_name ASC");
                     while ($row = mysqli_fetch_assoc($sql)) {
                         $project_template_id = intval($row['project_template_id']);
-                        $project_template_name = nullable_htmlentities($row['project_template_name']);
+                        $project_template_name = escapeHtml($row['project_template_name']);
                     ?>
-                    <option value="<?php echo $project_template_id; ?>"><?php echo $project_template_name; ?></option>
+                    <option value="<?= $project_template_id ?>"><?= $project_template_name ?></option>
                     <?php } ?>
                 </select>
             </div>
@@ -110,8 +110,8 @@ ob_start();
                     );
                     while ($row = mysqli_fetch_assoc($sql)) {
                         $user_id = intval($row['user_id']);
-                        $user_name = nullable_htmlentities($row['user_name']); ?>
-                        <option value="<?php echo $user_id; ?>"><?php echo $user_name; ?></option>
+                        $user_name = escapeHtml($row['user_name']); ?>
+                        <option value="<?= $user_id ?>"><?= $user_name ?></option>
                     <?php } ?>
                 </select>
             </div>

@@ -32,8 +32,8 @@ if (!empty($name) && !empty($email) && !empty($client_id)) {
             $insert_id = mysqli_insert_id($mysqli);
             
             // Logging
-            logAction("Contact", "Create", "$name via API ($api_key_name)", $client_id, $insert_id);
-            logAction("API", "Success", "Created contact $name via API ($api_key_name)", $client_id);
+            logAudit("Contact", "Create", "$name via API ($api_key_name)", $client_id, $insert_id);
+            logAudit("API", "Success", "Created contact $name via API ($api_key_name)", $client_id);
         }
 
     }

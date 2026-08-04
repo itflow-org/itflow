@@ -2,6 +2,8 @@
 
 require_once '../../../includes/modal_header.php';
 
+enforceUserPermission('module_support', 2);
+
 $ticket_id = intval($_GET['id']);
 
 $sql = mysqli_query($mysqli, "SELECT * FROM tickets
@@ -11,26 +13,27 @@ $sql = mysqli_query($mysqli, "SELECT * FROM tickets
 );
 
 $row = mysqli_fetch_assoc($sql);
-$ticket_prefix = nullable_htmlentities($row['ticket_prefix']);
+$ticket_prefix = escapeHtml($row['ticket_prefix']);
 $ticket_number = intval($row['ticket_number']);
 $contact_id = intval($row['ticket_contact_id']);
+$client_name = escapeHtml($row['client_name']);
 $client_id = intval($row['ticket_client_id']);
-$client_name = nullable_htmlentities($row['client_name']);
 
-// Generate the HTML form content using output buffering.
+enforceClientAccess();
+
 ob_start();
 
 ?>
 
 <div class="modal-header bg-dark">
-    <h5 class="modal-title"><i class="fa fa-fw fa-user mr-2"></i>Changing contact: <strong><?php echo "$ticket_prefix$ticket_number"; ?></strong> - <?php echo $client_name; ?></h5>
+    <h5 class="modal-title"><i class="fa fa-fw fa-user mr-2"></i>Changing contact: <strong><?= "$ticket_prefix$ticket_number" ?></strong> - <?= $client_name ?></h5>
     <button type="button" class="close text-white" data-dismiss="modal">
         <span>&times;</span>
     </button>
 </div>
 <form action="post.php" method="post" autocomplete="off">
     <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
-    <input type="hidden" name="ticket_id" value="<?php echo $ticket_id; ?>">
+    <input type="hidden" name="ticket_id" value="<?= $ticket_id ?>">
     <div class="modal-body">
 
         <div class="form-group">
@@ -45,7 +48,7 @@ ob_start();
                     $sql_client_contacts_select = mysqli_query($mysqli, "SELECT contact_id, contact_name, contact_title, contact_primary, contact_technical FROM contacts WHERE contact_client_id = $client_id AND contact_archived_at IS NULL ORDER BY contact_primary DESC, contact_technical DESC, contact_name ASC");
                     while ($row = mysqli_fetch_assoc($sql_client_contacts_select)) {
                         $contact_id_select = intval($row['contact_id']);
-                        $contact_name_select = nullable_htmlentities($row['contact_name']);
+                        $contact_name_select = escapeHtml($row['contact_name']);
                         $contact_primary_select = intval($row['contact_primary']);
                         if($contact_primary_select == 1) {
                             $contact_primary_display_select = " (Primary)";
@@ -58,7 +61,7 @@ ob_start();
                         } else {
                             $contact_technical_display_select = "";
                         }
-                        $contact_title_select = nullable_htmlentities($row['contact_title']);
+                        $contact_title_select = escapeHtml($row['contact_title']);
                         if(!empty($contact_title_select)) {
                             $contact_title_display_select = " - $contact_title_select";
                         } else {
@@ -67,10 +70,10 @@ ob_start();
 
                         ?>
                         <option
-                            value="<?php echo $contact_id_select; ?>"
+                            value="<?= $contact_id_select ?>"
                             <?php if ($contact_id_select  == $contact_id) { echo "selected"; } ?>
                             >
-                            <?php echo "$contact_name_select$contact_title_display_select$contact_primary_display_select$contact_technical_display_select"; ?>
+                            <?= "$contact_name_select$contact_title_display_select$contact_primary_display_select$contact_technical_display_select" ?>
                         </option>
                     <?php } ?>
                 </select>

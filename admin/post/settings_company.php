@@ -4,23 +4,23 @@ defined('FROM_POST_HANDLER') || die("Direct file access is not allowed");
 
 if (isset($_POST['edit_company'])) {
 
-    validateCSRFToken($_POST['csrf_token']);
+    validateCSRFToken();
 
-    $name = sanitizeInput($_POST['name']);
-    $address = sanitizeInput($_POST['address']);
-    $city = sanitizeInput($_POST['city']);
-    $state = sanitizeInput($_POST['state']);
-    $zip = sanitizeInput($_POST['zip']);
-    $country = sanitizeInput($_POST['country']);
+    $name = escapeSql($_POST['name']);
+    $address = escapeSql($_POST['address']);
+    $city = escapeSql($_POST['city']);
+    $state = escapeSql($_POST['state']);
+    $zip = escapeSql($_POST['zip']);
+    $country = escapeSql($_POST['country']);
     $phone_country_code = preg_replace("/[^0-9]/", '',$_POST['phone_country_code']);
     $phone = preg_replace("/[^0-9]/", '',$_POST['phone']);
-    $email = sanitizeInput($_POST['email']);
-    $website = sanitizeInput($_POST['website']);
-    $tax_id = sanitizeInput($_POST['tax_id']);
+    $email = escapeSql($_POST['email']);
+    $website = escapeSql($_POST['website']);
+    $tax_id = escapeSql($_POST['tax_id']);
 
     $sql = mysqli_query($mysqli,"SELECT company_logo FROM companies WHERE company_id = 1");
     $row = mysqli_fetch_assoc($sql);
-    $existing_file_name = sanitizeInput($row['company_logo']);
+    $existing_file_name = escapeSql($row['company_logo']);
 
     // Company logo
     if (isset($_FILES['file']['tmp_name'])) {
@@ -44,9 +44,9 @@ if (isset($_POST['edit_company'])) {
 
     mysqli_query($mysqli,"UPDATE companies SET company_name = '$name', company_address = '$address', company_city = '$city', company_state = '$state', company_zip = '$zip', company_country = '$country', company_phone_country_code = '$phone_country_code', company_phone = '$phone', company_email = '$email', company_website = '$website', company_tax_id = '$tax_id' WHERE company_id = 1");
 
-    logAction("Settings", "Edit", "$session_name edited company details");
+    logAudit("Settings", "Edit", "$session_name edited company details");
 
-    flash_alert("Company <strong>$name</strong> edited");
+    flashAlert("Company <strong>$name</strong> edited");
 
     redirect();
 
@@ -54,7 +54,7 @@ if (isset($_POST['edit_company'])) {
 
 if (isset($_GET['remove_company_logo'])) {
 
-    validateCSRFToken($_GET['csrf_token']);
+    validateCSRFToken();
 
     $sql = mysqli_query($mysqli,"SELECT company_logo FROM companies");
     $row = mysqli_fetch_assoc($sql);
@@ -64,9 +64,9 @@ if (isset($_GET['remove_company_logo'])) {
 
     mysqli_query($mysqli,"UPDATE companies SET company_logo = NULL WHERE company_id = 1");
 
-    logAction("Settings", "Edit", "$session_name deleted company logo");
+    logAudit("Settings", "Edit", "$session_name deleted company logo");
 
-    flash_alert("Removed company logo", 'error');
+    flashAlert("Removed company logo", 'error');
 
     redirect();
 

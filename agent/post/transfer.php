@@ -8,7 +8,7 @@ defined('FROM_POST_HANDLER') || die("Direct file access is not allowed");
 
 if (isset($_POST['add_transfer'])) {
 
-    validateCSRFToken($_POST['csrf_token']);
+    validateCSRFToken();
 
     enforceUserPermission('module_financial', 2);
 
@@ -17,13 +17,13 @@ if (isset($_POST['add_transfer'])) {
     // Get Source Account Name for logging
     $sql = mysqli_query($mysqli,"SELECT account_name, account_currency_code FROM accounts WHERE account_id = $account_from");
     $row = mysqli_fetch_assoc($sql);
-    $source_account_name = sanitizeInput($row['account_name']);
-    $account_currency_code = sanitizeInput($row['account_currency_code']);
+    $source_account_name = escapeSql($row['account_name']);
+    $account_currency_code = escapeSql($row['account_currency_code']);
 
     // Get Destination Account Name for logging
     $sql = mysqli_query($mysqli,"SELECT account_name FROM accounts WHERE account_id = $account_to");
     $row = mysqli_fetch_assoc($sql);
-    $destination_account_name = sanitizeInput($row['account_name']);
+    $destination_account_name = escapeSql($row['account_name']);
 
     mysqli_query($mysqli,"INSERT INTO expenses SET expense_date = '$date', expense_amount = $amount, expense_currency_code = '$session_company_currency', expense_vendor_id = 0, expense_category_id = 0, expense_account_id = $account_from");
     $expense_id = mysqli_insert_id($mysqli);
@@ -35,9 +35,9 @@ if (isset($_POST['add_transfer'])) {
 
     $transfer_id = mysqli_insert_id($mysqli);
 
-    logAction("Account Transfer", "Create", "$session_name transferred " . numfmt_format_currency($currency_format, $amount, $account_currency_code) . " from account $source_account_name to $destination_account_name", 0, $transfer_id);
+    logAudit("Account Transfer", "Create", "$session_name transferred " . numfmt_format_currency($currency_format, $amount, $account_currency_code) . " from account $source_account_name to $destination_account_name", 0, $transfer_id);
 
-    flash_alert("Transferred <strong>" . numfmt_format_currency($currency_format, $amount, $account_currency_code) . "</strong> from <strong>$source_account_name</strong> to <strong>$destination_account_name</strong>");
+    flashAlert("Transferred <strong>" . numfmt_format_currency($currency_format, $amount, $account_currency_code) . "</strong> from <strong>$source_account_name</strong> to <strong>$destination_account_name</strong>");
 
     redirect();
 
@@ -45,7 +45,7 @@ if (isset($_POST['add_transfer'])) {
 
 if (isset($_POST['edit_transfer'])) {
 
-    validateCSRFToken($_POST['csrf_token']);
+    validateCSRFToken();
 
     enforceUserPermission('module_financial', 2);
 
@@ -61,9 +61,9 @@ if (isset($_POST['edit_transfer'])) {
 
     mysqli_query($mysqli,"UPDATE transfers SET transfer_method = '$transfer_method', transfer_notes = '$notes' WHERE transfer_id = $transfer_id");
 
-    logAction("Account Transfer", "Edit", "$session_name edited transfer", 0, $transfer_id);
+    logAudit("Account Transfer", "Edit", "$session_name edited transfer", 0, $transfer_id);
 
-    flash_alert("Transfer edited");
+    flashAlert("Transfer edited");
 
     redirect();
 
@@ -71,7 +71,7 @@ if (isset($_POST['edit_transfer'])) {
 
 if (isset($_GET['delete_transfer'])) {
 
-    validateCSRFToken($_GET['csrf_token']);
+    validateCSRFToken();
 
     enforceUserPermission('module_financial', 3);
 
@@ -88,9 +88,9 @@ if (isset($_GET['delete_transfer'])) {
 
     mysqli_query($mysqli,"DELETE FROM transfers WHERE transfer_id = $transfer_id");
 
-    logAction("Account Transfer", "Delete", "$session_name deleted transfer");
+    logAudit("Account Transfer", "Delete", "$session_name deleted transfer");
 
-    flash_alert("Transfer deleted", 'error');
+    flashAlert("Transfer deleted", 'error');
 
     redirect();
 

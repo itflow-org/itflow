@@ -13,7 +13,7 @@ $remember_token_count = mysqli_num_rows($sql_remember_tokens);
     </div>
     <div class="card-body">
         <form action="post.php" method="post" enctype="multipart/form-data" autocomplete="off">
-            <input type="hidden" name="csrf_token" value="<?php echo $_SESSION['csrf_token'] ?>">
+            <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
 
             <div class="form-group">
                 <label>Your New Password <strong class="text-danger">*</strong></label>
@@ -41,7 +41,7 @@ $remember_token_count = mysqli_num_rows($sql_remember_tokens);
                 <?php require_once "modals/user_mfa_modal.php"; ?>
 
             <?php } else { ?>
-                <a href="post.php?disable_mfa&csrf_token=<?php echo $_SESSION['csrf_token'] ?>" class="btn btn-danger"><i class="fas fa-unlock mr-2"></i>Disable MFA</a>
+                <a href="post.php?disable_mfa&csrf_token=<?= $_SESSION['csrf_token'] ?>" class="btn btn-danger"><i class="fas fa-unlock mr-2"></i>Disable MFA</a>
             <?php } ?>
         </div>
 
@@ -58,14 +58,14 @@ $remember_token_count = mysqli_num_rows($sql_remember_tokens);
             <ul>
                 <?php while ($row = mysqli_fetch_assoc($sql_remember_tokens)) {
                     $token_id = intval($row['remember_token_id']);
-                    $token_created = nullable_htmlentities($row['remember_token_created_at']);
+                    $token_created = escapeHtml($row['remember_token_created_at']);
 
                     echo "<li>ID: $token_id | Created: $token_created</li>";
                 } ?>
             </ul>
 
             <form action="post.php" method="post" autocomplete="off">
-                <input type="hidden" name="csrf_token" value="<?php echo $_SESSION['csrf_token'] ?>">
+                <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
 
                 <button type="submit" name="revoke_your_2fa_remember_tokens" class="btn btn-danger btn-block mt-3"><i class="fas fa-exclamation-triangle mr-2"></i>Revoke Remember-Me Tokens</button>
 

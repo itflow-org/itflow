@@ -11,10 +11,10 @@
             </div>
             <form action="post.php" method="post" autocomplete="off">
                 <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
-                <input type="hidden" name="quote_id" value="<?php echo $quote_id; ?>">
+                <input type="hidden" name="quote_id" value="<?= $quote_id ?>">
                 <div class="modal-body">
                     <div class="form-group">
-                        <textarea class="form-control" rows="8" name="note" placeholder="Enter some notes"><?php echo $quote_note; ?></textarea>
+                        <textarea class="form-control" rows="8" name="note" placeholder="Enter some notes"><?= $quote_note ?></textarea>
                     </div>
                 </div>
                 <div class="modal-footer">

@@ -38,7 +38,7 @@ $largest_ticket_month = 0;
                 <?php
                 while ($row = mysqli_fetch_assoc($sql_ticket_years)) {
                     $ticket_year = intval($row['ticket_year']); ?>
-                    <option <?php if ($year == $ticket_year) { ?> selected <?php } ?>><?php echo $ticket_year; ?></option>
+                    <option <?php if ($year == $ticket_year) { ?> selected <?php } ?>><?= $ticket_year ?></option>
                 <?php } ?>
             </select>
         </form>
@@ -84,10 +84,10 @@ $largest_ticket_month = 0;
                     }
 
                     $total_tickets_for_all_months += $tickets_for_month; ?>
-                    <td class="text-right"><?php echo $tickets_for_month; ?></td>
+                    <td class="text-right"><?= $tickets_for_month ?></td>
                 <?php } ?>
 
-                <td class="text-right"><b><?php echo $total_tickets_for_all_months; ?></b></td>
+                <td class="text-right"><b><?= $total_tickets_for_all_months ?></b></td>
 
                 </tbody>
             </table>

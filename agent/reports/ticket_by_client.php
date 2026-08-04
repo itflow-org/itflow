@@ -4,46 +4,6 @@ require_once "includes/inc_all_reports.php";
 
 enforceUserPermission('module_support');
 
-function secondsToTime($inputSeconds) {
-    $inputSeconds = floor($inputSeconds);
-
-    $secondsInAMinute = 60;
-    $secondsInAnHour = 60 * $secondsInAMinute;
-    $secondsInADay = 24 * $secondsInAnHour;
-
-    // Extract days
-    $days = floor($inputSeconds / $secondsInADay);
-
-    // Extract hours
-    $hourSeconds = $inputSeconds % $secondsInADay;
-    $hours = floor($hourSeconds / $secondsInAnHour);
-
-    // Extract minutes
-    $minuteSeconds = $hourSeconds % $secondsInAnHour;
-    $minutes = floor($minuteSeconds / $secondsInAMinute);
-
-    // Extract the remaining seconds
-    $remainingSeconds = $minuteSeconds % $secondsInAMinute;
-    $seconds = ceil($remainingSeconds);
-
-    // Format and return
-    $timeParts = [];
-    $sections = [
-        'day' => (int)$days,
-        'hour' => (int)$hours,
-        'minute' => (int)$minutes,
-        'second' => (int)$seconds,
-    ];
-
-    foreach ($sections as $name => $value){
-        if ($value > 0) {
-            $timeParts[] = $value. ' '.$name.($value == 1 ? '' : 's');
-        }
-    }
-
-    return implode(', ', $timeParts);
-}
-
 if (isset($_GET['year'])) {
     $year = intval($_GET['year']);
 } else {
@@ -75,7 +35,7 @@ $sql_clients = mysqli_query($mysqli, "SELECT client_id, client_name FROM clients
                     <?php
                     while ($row = mysqli_fetch_assoc($sql_ticket_years)) {
                         $ticket_year = intval($row['ticket_year']); ?>
-                        <option <?php if ($year == $ticket_year) { ?> selected <?php } ?> > <?php echo $ticket_year; ?></option>
+                        <option <?php if ($year == $ticket_year) { ?> selected <?php } ?> > <?= $ticket_year ?></option>
                     <?php } ?>
                 </select>
                 <select onchange="this.form.submit()" class="form-control" name="month">
@@ -96,7 +56,7 @@ $sql_clients = mysqli_query($mysqli, "SELECT client_id, client_name FROM clients
 
             <div class="card card-dark mb-3">
                 <div class="card-header">
-                    <h3 class="card-title"><i class="fas fa-fw fa-chart-area mr-2"></i>Yearly (<?php echo $year; ?>)</h3>
+                    <h3 class="card-title"><i class="fas fa-fw fa-chart-area mr-2"></i>Yearly (<?= $year ?>)</h3>
                 </div>
                 <div class="card-body">
                     <div class="table-responsive-sm">
@@ -108,6 +68,7 @@ $sql_clients = mysqli_query($mysqli, "SELECT client_id, client_name FROM clients
                                 <th class="text-right">Priority: Low</th>
                                 <th class="text-right">Priority: Med</th>
                                 <th class="text-right">Priority: High</th>
+                                <th class="text-right">Priority: Urgent</th>
                                 <th class="text-right">Resolved</th>
                                 <th class="text-right">Total Time worked <i>(H:M:S)</i></th>
                                 <th class="text-right">Avg time to respond</th>
@@ -118,7 +79,7 @@ $sql_clients = mysqli_query($mysqli, "SELECT client_id, client_name FROM clients
                             <?php
                             while ($row = mysqli_fetch_assoc($sql_clients)) {
                                 $client_id = intval($row['client_id']);
-                                $client_name = nullable_htmlentities($row['client_name']);
+                                $client_name = escapeHtml($row['client_name']);
 
                                 // Calculate total tickets raised in period
                                 $sql_ticket_raised_count = mysqli_query($mysqli, "SELECT COUNT(ticket_id) AS ticket_raised_count FROM tickets WHERE YEAR(ticket_created_at) = $year AND ticket_client_id = $client_id");
@@ -145,6 +106,11 @@ $sql_clients = mysqli_query($mysqli, "SELECT client_id, client_name FROM clients
                                 $row = mysqli_fetch_assoc($sql_high_ticket_count);
                                 $high_ticket_count = intval($row['high_ticket_count']);
 
+                                // Breakdown tickets for each priority - Urgent
+                                $sql_urgent_ticket_count = mysqli_query($mysqli, "SELECT COUNT(ticket_id) AS urgent_ticket_count FROM tickets WHERE YEAR(ticket_created_at) = $year AND ticket_client_id = $client_id AND ticket_priority = 'Urgent'");
+                                $row = mysqli_fetch_assoc($sql_urgent_ticket_count);
+                                $urgent_ticket_count = intval($row['urgent_ticket_count']);
+
                                 // Used to calculate average time to respond to tickets that were raised in period specified
                                 $sql_tickets_respond = mysqli_query($mysqli, "SELECT ticket_created_at, ticket_first_response_at FROM tickets WHERE YEAR(ticket_created_at) = $year AND ticket_client_id = $client_id");
 
@@ -154,7 +120,7 @@ $sql_clients = mysqli_query($mysqli, "SELECT client_id, client_name FROM clients
                                 // Calculate total time tracked towards tickets in the period
                                 $sql_time = mysqli_query($mysqli, "SELECT SEC_TO_TIME(SUM(TIME_TO_SEC(ticket_reply_time_worked))) as total_time FROM ticket_replies LEFT JOIN tickets ON tickets.ticket_id = ticket_replies.ticket_reply_ticket_id WHERE YEAR(ticket_created_at) = $year AND ticket_client_id = $client_id AND ticket_reply_time_worked IS NOT NULL");
                                 $row = mysqli_fetch_assoc($sql_time);
-                                $ticket_total_time_worked = nullable_htmlentities($row['total_time']);
+                                $ticket_total_time_worked = escapeHtml($row['total_time']);
 
                                 if ($ticket_raised_count > 0 || $ticket_resolved_count > 0) {
 
@@ -193,15 +159,16 @@ $sql_clients = mysqli_query($mysqli, "SELECT client_id, client_name FROM clients
                                     ?>
 
                                     <tr>
-                                        <td><?php echo $client_name; ?></td>
-                                        <td class="text-right"><?php echo $ticket_raised_count; ?></td>
-                                        <td class="text-right"><?php echo $low_ticket_count; ?></td>
-                                        <td class="text-right"><?php echo $med_ticket_count; ?></td>
-                                        <td class="text-right"><?php echo $high_ticket_count; ?></td>
-                                        <td class="text-right"><?php echo $ticket_resolved_count; ?></td>
-                                        <td class="text-right"><?php echo $ticket_total_time_worked; ?></td>
-                                        <td class="text-right"><?php echo $avg_time_to_respond; ?></td>
-                                        <td class="text-right"><?php echo $avg_time_to_resolve; ?></td>
+                                        <td><?= $client_name ?></td>
+                                        <td class="text-right"><?= $ticket_raised_count ?></td>
+                                        <td class="text-right"><?= $low_ticket_count ?></td>
+                                        <td class="text-right"><?= $med_ticket_count ?></td>
+                                        <td class="text-right"><?= $high_ticket_count ?></td>
+                                        <td class="text-right"><?= $urgent_ticket_count ?></td>
+                                        <td class="text-right"><?= $ticket_resolved_count ?></td>
+                                        <td class="text-right"><?= $ticket_total_time_worked ?></td>
+                                        <td class="text-right"><?= $avg_time_to_respond ?></td>
+                                        <td class="text-right"><?= $avg_time_to_resolve ?></td>
                                     </tr>
                                     <?php
                                 }
@@ -217,7 +184,7 @@ $sql_clients = mysqli_query($mysqli, "SELECT client_id, client_name FROM clients
 
             <div class="card card-dark mb-3">
                 <div class="card-header">
-                    <h3 class="card-title"><i class="fas fa-fw fa-chart-area mr-2"></i>Monthly (<?php echo date("F", mktime(1, 1, 1, $month, 1)) . ' ' . $year; ?>)</h3>
+                    <h3 class="card-title"><i class="fas fa-fw fa-chart-area mr-2"></i>Monthly (<?= date("F", mktime(1, 1, 1, $month, 1)) . ' ' . $year ?>)</h3>
                 </div>
                 <div class="card-body">
                     <div class="table-responsive-sm">
@@ -229,6 +196,7 @@ $sql_clients = mysqli_query($mysqli, "SELECT client_id, client_name FROM clients
                                 <th class="text-right">Priority: Low</th>
                                 <th class="text-right">Priority: Med</th>
                                 <th class="text-right">Priority: High</th>
+                                <th class="text-right">Priority: Urgent</th>
                                 <th class="text-right">Resolved</th>
                                 <th class="text-right">Total Time worked <i>(H:M:S)</i></th>
                                 <th class="text-right">Avg time to respond</th>
@@ -240,7 +208,7 @@ $sql_clients = mysqli_query($mysqli, "SELECT client_id, client_name FROM clients
                             mysqli_data_seek($sql_clients, 0); // Reset
                             while ($row = mysqli_fetch_assoc($sql_clients)) {
                                 $client_id = intval($row['client_id']);
-                                $client_name = nullable_htmlentities($row['client_name']);
+                                $client_name = escapeHtml($row['client_name']);
 
                                 // Calculate total tickets raised in period
                                 $sql_ticket_raised_count = mysqli_query($mysqli, "SELECT COUNT(ticket_id) AS ticket_raised_count FROM tickets WHERE YEAR(ticket_created_at) = $year AND MONTH(ticket_created_at) = $month AND ticket_client_id = $client_id");
@@ -267,6 +235,11 @@ $sql_clients = mysqli_query($mysqli, "SELECT client_id, client_name FROM clients
                                 $row = mysqli_fetch_assoc($sql_high_ticket_count);
                                 $high_ticket_count = intval($row['high_ticket_count']);
 
+                                // Breakdown tickets for each priority - Urgent
+                                $sql_urgent_ticket_count = mysqli_query($mysqli, "SELECT COUNT(ticket_id) AS urgent_ticket_count FROM tickets WHERE YEAR(ticket_created_at) = $year AND MONTH(ticket_created_at) = $month AND ticket_client_id = $client_id AND ticket_priority = 'Urgent'");
+                                $row = mysqli_fetch_assoc($sql_urgent_ticket_count);
+                                $urgent_ticket_count = intval($row['urgent_ticket_count']);
+
                                 // Used to calculate average time to respond to tickets that were raised in period specified
                                 $sql_tickets_respond = mysqli_query($mysqli, "SELECT ticket_created_at, ticket_first_response_at FROM tickets WHERE YEAR(ticket_created_at) = $year AND MONTH(ticket_created_at) = $month AND ticket_client_id = $client_id");
 
@@ -276,7 +249,7 @@ $sql_clients = mysqli_query($mysqli, "SELECT client_id, client_name FROM clients
                                 // Calculate total time tracked towards tickets in the period
                                 $sql_time = mysqli_query($mysqli, "SELECT SEC_TO_TIME(SUM(TIME_TO_SEC(ticket_reply_time_worked))) as total_time FROM ticket_replies LEFT JOIN tickets ON tickets.ticket_id = ticket_replies.ticket_reply_ticket_id WHERE YEAR(ticket_created_at) = $year AND MONTH(ticket_created_at) = $month AND ticket_client_id = $client_id AND ticket_reply_time_worked IS NOT NULL");
                                 $row = mysqli_fetch_assoc($sql_time);
-                                $ticket_total_time_worked = nullable_htmlentities($row['total_time']);
+                                $ticket_total_time_worked = escapeHtml($row['total_time']);
 
                                 if ($ticket_raised_count > 0 || $ticket_resolved_count > 0) {
 
@@ -314,15 +287,16 @@ $sql_clients = mysqli_query($mysqli, "SELECT client_id, client_name FROM clients
                                     ?>
 
                                     <tr>
-                                        <td><?php echo $client_name; ?></td>
-                                        <td class="text-right"><?php echo $ticket_raised_count; ?></td>
-                                        <td class="text-right"><?php echo $low_ticket_count; ?></td>
-                                        <td class="text-right"><?php echo $med_ticket_count; ?></td>
-                                        <td class="text-right"><?php echo $high_ticket_count; ?></td>
-                                        <td class="text-right"><?php echo $ticket_resolved_count; ?></td>
-                                        <td class="text-right"><?php echo $ticket_total_time_worked; ?></td>
-                                        <td class="text-right"><?php echo $avg_time_to_respond; ?></td>
-                                        <td class="text-right"><?php echo $avg_time_to_resolve; ?></td>
+                                        <td><?= $client_name ?></td>
+                                        <td class="text-right"><?= $ticket_raised_count ?></td>
+                                        <td class="text-right"><?= $low_ticket_count ?></td>
+                                        <td class="text-right"><?= $med_ticket_count ?></td>
+                                        <td class="text-right"><?= $high_ticket_count ?></td>
+                                        <td class="text-right"><?= $urgent_ticket_count ?></td>
+                                        <td class="text-right"><?= $ticket_resolved_count ?></td>
+                                        <td class="text-right"><?= $ticket_total_time_worked ?></td>
+                                        <td class="text-right"><?= $avg_time_to_respond ?></td>
+                                        <td class="text-right"><?= $avg_time_to_resolve ?></td>
                                     </tr>
                                     <?php
                                 }

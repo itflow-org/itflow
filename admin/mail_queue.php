@@ -20,14 +20,14 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 
     <div class="card card-dark">
         <div class="card-header py-3">
-            <h3 class="card-title"><i class="fas fa-fw fa-mail-bulk mr-2"></i>Email Queue</h3>
+            <h3 class="card-title"><i class="fas fa-fw fa-inbox mr-2"></i>Email Queue</h3>
         </div>
         <div class="card-body">
             <form class="mb-4" autocomplete="off">
                 <div class="row">
                     <div class="col-sm-4">
                         <div class="input-group">
-                            <input type="search" class="form-control" name="q" value="<?php if (isset($q)) { echo stripslashes(nullable_htmlentities($q)); } ?>" placeholder="Search mail queue">
+                            <input type="search" class="form-control" name="q" value="<?php if (isset($q)) { echo stripslashes(escapeHtml($q)); } ?>" placeholder="Search mail queue">
                             <div class="input-group-append">
                                 <button class="btn btn-secondary" type="button" data-toggle="collapse" data-target="#advancedFilter"><i class="fas fa-filter"></i></button>
                                 <button class="btn btn-primary"><i class="fa fa-search"></i></button>
@@ -59,9 +59,9 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                             <div class="form-group">
                                 <label>Date range</label>
                                 <input type="text" id="dateFilter" class="form-control" autocomplete="off">
-                                <input type="hidden" name="canned_date" id="canned_date" value="<?php echo nullable_htmlentities($_GET['canned_date']) ?? ''; ?>">
-                                <input type="hidden" name="dtf" id="dtf" value="<?php echo nullable_htmlentities($dtf ?? ''); ?>">
-                                <input type="hidden" name="dtt" id="dtt" value="<?php echo nullable_htmlentities($dtt ?? ''); ?>">
+                                <input type="hidden" name="canned_date" id="canned_date" value="<?= escapeHtml($_GET['canned_date']) ?? '' ?>">
+                                <input type="hidden" name="dtf" id="dtf" value="<?= escapeHtml($dtf ?? '') ?>">
+                                <input type="hidden" name="dtt" id="dtt" value="<?= escapeHtml($dtt ?? '') ?>">
                             </div>
                         </div>
                     </div>
@@ -69,7 +69,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
             </form>
             <hr>
             <form id="bulkActions" action="post.php" method="post">
-                <input type="hidden" name="csrf_token" value="<?php echo $_SESSION['csrf_token'] ?>">
+                <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
 
                 <div class="table-responsive-sm">
                     <table class="table table-sm table-striped table-borderless table-hover">
@@ -81,32 +81,32 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                 </div>
                             </td>
                             <th>
-                                <a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=email_queued_at&order=<?php echo $disp; ?>">
+                                <a class="text-dark" href="?<?= $url_query_strings_sort ?>&sort=email_queued_at&order=<?= $disp ?>">
                                     Queued <?php if ($sort == 'email_queued_at') { echo $order_icon; } ?>
                                 </a>
                             </th>
                             <th>
-                                <a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=email_from&order=<?php echo $disp; ?>">
+                                <a class="text-dark" href="?<?= $url_query_strings_sort ?>&sort=email_from&order=<?= $disp ?>">
                                     From <?php if ($sort == 'email_from') { echo $order_icon; } ?>
                                 </a>
                             </th>
                             <th>
-                                <a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=email_recipient&order=<?php echo $disp; ?>">
+                                <a class="text-dark" href="?<?= $url_query_strings_sort ?>&sort=email_recipient&order=<?= $disp ?>">
                                     To <?php if ($sort == 'email_recipient') { echo $order_icon; } ?>
                                 </a>
                             </th>
                             <th>
-                                <a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=email_subject&order=<?php echo $disp; ?>">
+                                <a class="text-dark" href="?<?= $url_query_strings_sort ?>&sort=email_subject&order=<?= $disp ?>">
                                     Subject <?php if ($sort == 'email_subject') { echo $order_icon; } ?>
                                 </a>
                             </th>
                             <th>
-                                <a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=email_status&order=<?php echo $disp; ?>">
+                                <a class="text-dark" href="?<?= $url_query_strings_sort ?>&sort=email_status&order=<?= $disp ?>">
                                     Status <?php if ($sort == 'email_status') { echo $order_icon; } ?>
                                 </a>
                             </th>
                             <th>
-                                <a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=email_attempts&order=<?php echo $disp; ?>">
+                                <a class="text-dark" href="?<?= $url_query_strings_sort ?>&sort=email_attempts&order=<?= $disp ?>">
                                     Attempts <?php if ($sort == 'email_attempts') { echo $order_icon; } ?>
                                 </a>
                             </th>
@@ -118,15 +118,15 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 
                         while ($row = mysqli_fetch_assoc($sql)) {
                             $email_id = intval($row['email_id']);
-                            $email_from = nullable_htmlentities($row['email_from']);
-                            $email_from_name = nullable_htmlentities($row['email_from_name']);
-                            $email_recipient = nullable_htmlentities($row['email_recipient']);
-                            $email_recipient_name = nullable_htmlentities($row['email_recipient_name']);
-                            $email_subject = nullable_htmlentities($row['email_subject']);
+                            $email_from = escapeHtml($row['email_from']);
+                            $email_from_name = escapeHtml($row['email_from_name']);
+                            $email_recipient = escapeHtml($row['email_recipient']);
+                            $email_recipient_name = escapeHtml($row['email_recipient_name']);
+                            $email_subject = escapeHtml($row['email_subject']);
                             $email_attempts = intval($row['email_attempts']);
-                            $email_queued_at = nullable_htmlentities($row['email_queued_at']);
-                            $email_failed_at = nullable_htmlentities($row['email_failed_at']);
-                            $email_sent_at = nullable_htmlentities($row['email_sent_at']);
+                            $email_queued_at = escapeHtml($row['email_queued_at']);
+                            $email_failed_at = escapeHtml($row['email_failed_at']);
+                            $email_sent_at = escapeHtml($row['email_sent_at']);
                             $email_status = intval($row['email_status']);
                             if ($email_status == 0) {
                                 $email_status_display = "<div class='text-primary'>Queued</div>";
@@ -144,16 +144,16 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                 <td class="pr-0 bg-light">
                                     <?php if ($email_status !== 3) { ?>
                                     <div class="form-check">
-                                        <input class="form-check-input bulk-select" type="checkbox" name="email_ids[]" value="<?php echo $email_id ?>">
+                                        <input class="form-check-input bulk-select" type="checkbox" name="email_ids[]" value="<?= $email_id ?>">
                                     </div>
                                     <?php } ?>
                                 </td>
-                                <td class="text-monospace"><?php echo $email_queued_at; ?></td>
-                                <td><?php echo "$email_from<br><small class='text-secondary'>$email_from_name</small>"?></td>
-                                <td><?php echo "$email_recipient<br><small class='text-secondary'>$email_recipient_name</small>"?></td>
-                                <td><?php echo $email_subject; ?></td>
-                                <td><?php echo $email_status_display; ?></td>
-                                <td><?php echo $email_attempts; ?></td>
+                                <td class="text-monospace"><?= $email_queued_at ?></td>
+                                <td><?= "$email_from<br><small class='text-secondary'>$email_from_name</small>" ?></td>
+                                <td><?= "$email_recipient<br><small class='text-secondary'>$email_recipient_name</small>" ?></td>
+                                <td><?= $email_subject ?></td>
+                                <td><?= $email_status_display ?></td>
+                                <td><?= $email_attempts ?></td>
                                 <td class="text-center">
                                     <a class="btn btn-sm btn-secondary ajax-modal" href="#"
                                         data-modal-size="lg"
@@ -163,12 +163,12 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 
                                     <!-- Show force resend if all retries have failed -->
                                     <?php if ($email_status == 2 && $email_attempts > 3) { ?>
-                                        <a class="btn btn-sm btn-success" href="post.php?send_failed_mail=<?php echo $email_id; ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>"><i class="fas fa-fw fa-paper-plane"></i></a>
+                                        <a class="btn btn-sm btn-success" href="post.php?send_failed_mail=<?= $email_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>"><i class="fas fa-fw fa-paper-plane"></i></a>
                                     <?php } ?>
 
                                     <!-- Allow cancelling a message if it hasn't yet been picked up (e.g. stuck/bugged) -->
                                     <?php if ($email_status !== 3) { ?>
-                                        <a class="btn btn-sm btn-danger confirm-link" href="post.php?cancel_mail=<?php echo $email_id; ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>"><i class="fas fa-fw fa-trash"></i></a>
+                                        <a class="btn btn-sm btn-danger confirm-link" href="post.php?cancel_mail=<?= $email_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>"><i class="fas fa-fw fa-trash"></i></a>
                                     <?php } ?>
 
                                 </td>

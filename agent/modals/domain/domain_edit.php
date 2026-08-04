@@ -9,21 +9,21 @@ $domain_id = intval($_GET['id']);
 $sql = mysqli_query($mysqli, "SELECT * FROM domains WHERE domain_id = $domain_id LIMIT 1");
 
 $row = mysqli_fetch_assoc($sql);
-$domain_name = nullable_htmlentities($row['domain_name']);
-$domain_description = nullable_htmlentities($row['domain_description']);
-$domain_expire = nullable_htmlentities($row['domain_expire']);
+$domain_name = escapeHtml($row['domain_name']);
+$domain_description = escapeHtml($row['domain_description']);
+$domain_expire = escapeHtml($row['domain_expire']);
 $domain_registrar = intval($row['domain_registrar']);
 $domain_webhost = intval($row['domain_webhost']);
 $domain_dnshost = intval($row['domain_dnshost']);
 $domain_mailhost = intval($row['domain_mailhost']);
-$domain_ip = nullable_htmlentities($row['domain_ip']);
-$domain_name_servers = nullable_htmlentities($row['domain_name_servers']);
-$domain_mail_servers = nullable_htmlentities($row['domain_mail_servers']);
-$domain_txt = nullable_htmlentities($row['domain_txt']);
-$domain_raw_whois = nullable_htmlentities($row['domain_raw_whois']);
-$domain_notes = nullable_htmlentities($row['domain_notes']);
-$domain_created_at = nullable_htmlentities($row['domain_created_at']);
-$domain_archived_at = nullable_htmlentities($row['domain_archived_at']);
+$domain_ip = escapeHtml($row['domain_ip']);
+$domain_name_servers = escapeHtml($row['domain_name_servers']);
+$domain_mail_servers = escapeHtml($row['domain_mail_servers']);
+$domain_txt = escapeHtml($row['domain_txt']);
+$domain_raw_whois = escapeHtml($row['domain_raw_whois']);
+$domain_notes = escapeHtml($row['domain_notes']);
+$domain_created_at = escapeHtml($row['domain_created_at']);
+$domain_archived_at = escapeHtml($row['domain_archived_at']);
 $client_id = intval($row['domain_client_id']);
 
 $history_sql = mysqli_query($mysqli, "SELECT * FROM domain_history WHERE domain_history_domain_id = $domain_id");
@@ -35,29 +35,29 @@ ob_start();
 ?>
 
 <div class="modal-header bg-dark">
-    <h5 class="modal-title"><i class="fa fa-fw fa-globe mr-2"></i>Editing domain: <span class="text-bold"><?php echo $domain_name; ?></span></h5>
+    <h5 class="modal-title"><i class="fa fa-fw fa-globe mr-2"></i>Editing domain: <span class="text-bold"><?= $domain_name ?></span></h5>
     <button type="button" class="close text-white" data-dismiss="modal">
         <span>&times;</span>
     </button>
 </div>
 <form action="post.php" method="post" autocomplete="off">
     <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
-    <input type="hidden" name="domain_id" value="<?php echo $domain_id; ?>">
+    <input type="hidden" name="domain_id" value="<?= $domain_id ?>">
 
     <div class="modal-body">
 
         <ul class="nav nav-pills nav-justified mb-3">
             <li class="nav-item">
-                <a class="nav-link active" data-toggle="pill" href="#pills-overview<?php echo $domain_id; ?>">Overview</a>
+                <a class="nav-link active" data-toggle="pill" href="#pills-overview<?= $domain_id ?>">Overview</a>
             </li>
             <li class="nav-item">
-                <a class="nav-link" data-toggle="pill" href="#pills-records<?php echo $domain_id; ?>">Records</a>
+                <a class="nav-link" data-toggle="pill" href="#pills-records<?= $domain_id ?>">Records</a>
             </li>
             <li class="nav-item">
-                <a class="nav-link" data-toggle="pill" href="#pillsEditNotes<?php echo $domain_id; ?>">Notes</a>
+                <a class="nav-link" data-toggle="pill" href="#pillsEditNotes<?= $domain_id ?>">Notes</a>
             </li>
             <li class="nav-item">
-                <a class="nav-link" data-toggle="pill" href="#pillsEditHistory<?php echo $domain_id; ?>">History</a>
+                <a class="nav-link" data-toggle="pill" href="#pillsEditHistory<?= $domain_id ?>">History</a>
             </li>
         </ul>
 
@@ -65,7 +65,7 @@ ob_start();
 
         <div class="tab-content" <?php if (lookupUserPermission('module_support') <= 1) { echo 'inert'; } ?>>
 
-            <div class="tab-pane fade show active" id="pills-overview<?php echo $domain_id; ?>">
+            <div class="tab-pane fade show active" id="pills-overview<?= $domain_id ?>">
 
                 <div class="form-group">
                     <label>Domain Name <strong class="text-danger">*</strong></label>
@@ -73,7 +73,7 @@ ob_start();
                         <div class="input-group-prepend">
                             <span class="input-group-text"><i class="fa fa-fw fa-globe"></i></span>
                         </div>
-                        <input type="text" class="form-control" name="name" placeholder="Domain name example.com" maxlength="200" value="<?php echo $domain_name; ?>" required>
+                        <input type="text" class="form-control" name="name" placeholder="Domain name example.com" maxlength="200" value="<?= $domain_name ?>" required>
                     </div>
                 </div>
 
@@ -83,7 +83,7 @@ ob_start();
                         <div class="input-group-prepend">
                             <span class="input-group-text"><i class="fa fa-fw fa-align-left"></i></span>
                         </div>
-                        <input type="text" class="form-control" name="description" placeholder="Short Description" value="<?php echo $domain_description; ?>">
+                        <input type="text" class="form-control" name="description" placeholder="Short Description" value="<?= $domain_description ?>">
                     </div>
                 </div>
 
@@ -101,7 +101,7 @@ ob_start();
                                     $vendor_id = $row['vendor_id'];
                                     $vendor_name = $row['vendor_name'];
                                 ?>
-                                <option <?php if ($domain_registrar == $vendor_id) { echo "selected"; } ?> value="<?php echo $vendor_id; ?>"><?php echo $vendor_name; ?></option>
+                                <option <?php if ($domain_registrar == $vendor_id) { echo "selected"; } ?> value="<?= $vendor_id ?>"><?= $vendor_name ?></option>
                             <?php
                             }
                             ?>
@@ -123,7 +123,7 @@ ob_start();
                                     $vendor_id = $row['vendor_id'];
                                     $vendor_name = $row['vendor_name'];
                                 ?>
-                                <option <?php if ($domain_webhost == $vendor_id) { echo "selected"; } ?> value="<?php echo $vendor_id; ?>"><?php echo $vendor_name; ?></option>
+                                <option <?php if ($domain_webhost == $vendor_id) { echo "selected"; } ?> value="<?= $vendor_id ?>"><?= $vendor_name ?></option>
                             <?php
                             }
                             ?>
@@ -145,7 +145,7 @@ ob_start();
                                     $vendor_id = $row['vendor_id'];
                                     $vendor_name = $row['vendor_name'];
                                 ?>
-                                <option <?php if ($domain_dnshost == $vendor_id) { echo "selected"; } ?> value="<?php echo $vendor_id; ?>"><?php echo $vendor_name; ?></option>
+                                <option <?php if ($domain_dnshost == $vendor_id) { echo "selected"; } ?> value="<?= $vendor_id ?>"><?= $vendor_name ?></option>
                             <?php
                             }
                             ?>
@@ -167,7 +167,7 @@ ob_start();
                                     $vendor_id = $row['vendor_id'];
                                     $vendor_name = $row['vendor_name'];
                                 ?>
-                                <option <?php if ($domain_mailhost == $vendor_id) { echo "selected"; } ?> value="<?php echo $vendor_id; ?>"><?php echo $vendor_name; ?></option>
+                                <option <?php if ($domain_mailhost == $vendor_id) { echo "selected"; } ?> value="<?= $vendor_id ?>"><?= $vendor_name ?></option>
                             <?php
                             }
                             ?>
@@ -181,13 +181,13 @@ ob_start();
                         <div class="input-group-prepend">
                             <span class="input-group-text"><i class="fa fa-fw fa-calendar-times"></i></span>
                         </div>
-                        <input type="date" class="form-control" name="expire" max="2999-12-31" value="<?php echo $domain_expire; ?>">
+                        <input type="date" class="form-control" name="expire" max="2999-12-31" value="<?= $domain_expire ?>">
                     </div>
                 </div>
 
             </div>
 
-            <div class="tab-pane fade" id="pills-records<?php echo $domain_id; ?>">
+            <div class="tab-pane fade" id="pills-records<?= $domain_id ?>">
 
                 <div class="form-group">
                     <label>Domain IP(s)</label>
@@ -195,7 +195,7 @@ ob_start();
                         <div class="input-group-prepend">
                             <span class="input-group-text"><i class="fa fa-fw fa-project-diagram"></i></span>
                         </div>
-                        <textarea class="form-control" rows="1" name="domain_ip" disabled><?php echo $domain_ip; ?></textarea>
+                        <textarea class="form-control" rows="1" name="domain_ip" disabled><?= $domain_ip ?></textarea>
                     </div>
                 </div>
 
@@ -205,7 +205,7 @@ ob_start();
                         <div class="input-group-prepend">
                             <span class="input-group-text"><i class="fa fa-fw fa-crown"></i></span>
                         </div>
-                        <textarea class="form-control" rows="1" name="name_servers" disabled><?php echo $domain_name_servers; ?></textarea>
+                        <textarea class="form-control" rows="1" name="name_servers" disabled><?= $domain_name_servers ?></textarea>
                     </div>
                 </div>
 
@@ -215,7 +215,7 @@ ob_start();
                         <div class="input-group-prepend">
                             <span class="input-group-text"><i class="fa fa-fw fa-mail-bulk"></i></span>
                         </div>
-                        <textarea class="form-control" rows="1" name="mail_servers" disabled><?php echo $domain_mail_servers; ?></textarea>
+                        <textarea class="form-control" rows="1" name="mail_servers" disabled><?= $domain_mail_servers ?></textarea>
                     </div>
                 </div>
 
@@ -225,7 +225,7 @@ ob_start();
                         <div class="input-group-prepend">
                             <span class="input-group-text"><i class="fa fa-fw fa-check-double"></i></span>
                         </div>
-                        <textarea class="form-control" rows="1" name="txt_records" disabled><?php echo $domain_txt; ?></textarea>
+                        <textarea class="form-control" rows="1" name="txt_records" disabled><?= $domain_txt ?></textarea>
                     </div>
                 </div>
 
@@ -235,19 +235,19 @@ ob_start();
                         <div class="input-group-prepend">
                             <span class="input-group-text"><i class="fa fa-fw fa-search-plus"></i></span>
                         </div>
-                        <textarea class="form-control" rows="6" name="raw_whois" disabled><?php echo $domain_raw_whois; ?></textarea>
+                        <textarea class="form-control" rows="6" name="raw_whois" disabled><?= $domain_raw_whois ?></textarea>
                     </div>
                 </div>
 
             </div>
 
-            <div class="tab-pane fade" id="pillsEditNotes<?php echo $domain_id; ?>">
+            <div class="tab-pane fade" id="pillsEditNotes<?= $domain_id ?>">
                 <div class="form-group">
-                    <textarea class="form-control" name="notes" rows="12" placeholder="Enter some notes"><?php echo $domain_notes; ?></textarea>
+                    <textarea class="form-control" name="notes" rows="12" placeholder="Enter some notes"><?= $domain_notes ?></textarea>
                 </div>
             </div>
 
-            <div class="tab-pane fade" id="pillsEditHistory<?php echo $domain_id; ?>">
+            <div class="tab-pane fade" id="pillsEditHistory<?= $domain_id ?>">
                 <div class="table-responsive">
                     <table class='table table-sm table-striped border table-hover'>
                         <thead class='thead-dark'>
@@ -261,16 +261,16 @@ ob_start();
                         <tbody>
                             <?php
                                 while ($row = mysqli_fetch_assoc($history_sql)) {
-                                $domain_modified_at = nullable_htmlentities($row['domain_history_modified_at']);
-                                $domain_field = nullable_htmlentities($row['domain_history_column']);
-                                $domain_before_value = nullable_htmlentities($row['domain_history_old_value']);
-                                $domain_after_value = nullable_htmlentities($row['domain_history_new_value']);
+                                $domain_modified_at = escapeHtml($row['domain_history_modified_at']);
+                                $domain_field = escapeHtml($row['domain_history_column']);
+                                $domain_before_value = escapeHtml($row['domain_history_old_value']);
+                                $domain_after_value = escapeHtml($row['domain_history_new_value']);
                             ?>
                             <tr>
-                                <td><?php echo $domain_modified_at; ?></td>
-                                <td><?php echo $domain_field; ?></td>
-                                <td><?php echo $domain_before_value; ?></td>
-                                <td><?php echo $domain_after_value; ?></td>
+                                <td><?= $domain_modified_at ?></td>
+                                <td><?= $domain_field ?></td>
+                                <td><?= $domain_before_value ?></td>
+                                <td><?= $domain_after_value ?></td>
                             </tr>
                             <?php } ?>
                         </tbody>

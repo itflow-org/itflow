@@ -3,13 +3,36 @@
 
 // Variable assignment from POST (or: blank/from DB is updating)
 
+/*
+ * There is no form behind the API, so nothing has capped these before they arrive.
+ * An overlong value is a hard MySQL error, not a truncation, so it would surface as a
+ * generic "insert query failed" - say what actually went wrong instead.
+ * Only the fields present are checked, which keeps partial updates working.
+ */
+$credential_field_too_long = checkCredentialLengths([
+    'name'        => $_POST['credential_name'] ?? null,
+    'description' => $_POST['credential_description'] ?? null,
+    'uri'         => $_POST['credential_uri'] ?? null,
+    'uri_2'       => $_POST['credential_uri_2'] ?? null,
+    'username'    => $_POST['credential_username'] ?? null,
+    'password'    => $_POST['credential_password'] ?? null,
+    'otp_secret'  => $_POST['credential_otp_secret'] ?? null,
+]);
+
+if ($credential_field_too_long) {
+    $return_arr['success'] = "False";
+    $return_arr['message'] = "credential_$credential_field_too_long is too long to store.";
+    echo json_encode($return_arr);
+    exit();
+}
+
 $api_key_decrypt_password = '';
 if (isset($_POST['api_key_decrypt_password'])) {
     $api_key_decrypt_password = $_POST['api_key_decrypt_password']; // No sanitization
 }
 
 if (isset($_POST['credential_name'])) {
-    $name = sanitizeInput($_POST['credential_name']);
+    $name = escapeSql($_POST['credential_name']);
 } elseif (isset($credential_row) && isset($credential_row['credential_name'])) {
     $name = mysqli_real_escape_string($mysqli, $credential_row['credential_name']);
 } else {
@@ -17,7 +40,7 @@ if (isset($_POST['credential_name'])) {
 }
 
 if (isset($_POST['credential_description'])) {
-    $description = sanitizeInput($_POST['credential_description']);
+    $description = escapeSql($_POST['credential_description']);
 } elseif (isset($credential_row) && isset($credential_row['credential_description'])) {
     $description = mysqli_real_escape_string($mysqli, $credential_row['credential_description']);
 } else {
@@ -25,7 +48,7 @@ if (isset($_POST['credential_description'])) {
 }
 
 if (isset($_POST['credential_uri'])) {
-    $uri = sanitizeInput($_POST['credential_uri']);
+    $uri = escapeSql($_POST['credential_uri']);
 } elseif (isset($credential_row) && isset($credential_row['credential_uri'])) {
     $uri = mysqli_real_escape_string($mysqli, $credential_row['credential_uri']);
 } else {
@@ -33,7 +56,7 @@ if (isset($_POST['credential_uri'])) {
 }
 
 if (isset($_POST['credential_uri_2'])) {
-    $uri_2 = sanitizeInput($_POST['credential_uri_2']);
+    $uri_2 = escapeSql($_POST['credential_uri_2']);
 } elseif (isset($credential_row) && isset($credential_row['credential_uri_2'])) {
     $uri_2 = mysqli_real_escape_string($mysqli, $credential_row['credential_uri_2']);
 } else {
@@ -62,7 +85,7 @@ if (isset($_POST['credential_password'])) {
 }
 
 if (isset($_POST['credential_otp_secret'])) {
-    $otp_secret = sanitizeInput($_POST['credential_otp_secret']);
+    $otp_secret = escapeSql($_POST['credential_otp_secret']);
 } elseif (isset($credential_row) && isset($credential_row['credential_otp_secret'])) {
     $otp_secret = mysqli_real_escape_string($mysqli, $credential_row['credential_otp_secret']);
 } else {
@@ -70,7 +93,7 @@ if (isset($_POST['credential_otp_secret'])) {
 }
 
 if (isset($_POST['credential_note'])) {
-    $note = sanitizeInput($_POST['credential_note']);
+    $note = escapeSql($_POST['credential_note']);
 } elseif (isset($credential_row) && isset($credential_row['credential_note'])) {
     $note = mysqli_real_escape_string($mysqli, $credential_row['credential_note']);
 } else {

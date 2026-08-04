@@ -13,7 +13,7 @@ $user_config_calendar_first_day = intval($row['user_config_calendar_first_day'])
     <div class="card-body">
 
         <form action="post.php" method="post" enctype="multipart/form-data" autocomplete="off">
-            <input type="hidden" name="csrf_token" value="<?php echo $_SESSION['csrf_token'] ?>">
+            <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
 
             <div class="form-group">
                 <h5>Dark Mode</h5>

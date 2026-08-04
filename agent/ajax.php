@@ -9,7 +9,7 @@
 require_once "../config.php";
 require_once "../functions.php";
 require_once "../includes/check_login.php";
-require_once "../plugins/totp/totp.php";
+require_once "../libs/totp/totp.php";
 
 /*
  * Fetches SSL certificates from remote hosts & returns the relevant info (issuer, expiry, public key)
@@ -25,7 +25,7 @@ if (isset($_GET['certificate_fetch_parse_json_details'])) {
     $name = $_GET['domain'];
 
     // Get SSL cert for domain (if exists)
-    $certificate = getSSL($name);
+    $certificate = getSslCertificate($name);
 
     if ($certificate['success'] == "TRUE") {
         $response['success'] = "TRUE";
@@ -42,68 +42,74 @@ if (isset($_GET['certificate_fetch_parse_json_details'])) {
 
 if (isset($_POST['client_set_notes'])) {
 
-    validateCSRFToken($_POST['csrf_token']);
+    validateCSRFToken();
 
     enforceUserPermission('module_client', 2);
 
     $client_id = intval($_POST['client_id']);
-    $notes = sanitizeInput($_POST['notes']);
+    $notes = escapeSql($_POST['notes']);
+
+    enforceClientAccess();
 
     // Update notes
     mysqli_query($mysqli, "UPDATE clients SET client_notes = '$notes' WHERE client_id = $client_id");
 
     // Logging
-    logAction("Client", "Edit", "$session_name edited client notes", $client_id);
+    logAudit("Client", "Edit", "$session_name edited client notes", $client_id);
 
 }
 
 if (isset($_POST['contact_set_notes'])) {
 
-    validateCSRFToken($_POST['csrf_token']);
+    validateCSRFToken();
 
     enforceUserPermission('module_client', 2);
 
     $contact_id = intval($_POST['contact_id']);
-    $notes = sanitizeInput($_POST['notes']);
+    $notes = escapeSql($_POST['notes']);
 
     // Get Contact Details and Client ID for Logging
     $sql = mysqli_query($mysqli,"SELECT contact_name, contact_client_id
         FROM contacts WHERE contact_id = $contact_id"
     );
     $row = mysqli_fetch_assoc($sql);
-    $contact_name = sanitizeInput($row['contact_name']);
+    $contact_name = escapeSql($row['contact_name']);
     $client_id = intval($row['contact_client_id']);
+
+    enforceClientAccess();
 
     // Update notes
     mysqli_query($mysqli, "UPDATE contacts SET contact_notes = '$notes' WHERE contact_id = $contact_id");
 
     // Logging
-    logAction("Contact", "Edit", "$session_name edited contact notes for $contact_name", $client_id, $contact_id);
+    logAudit("Contact", "Edit", "$session_name edited contact notes for $contact_name", $client_id, $contact_id);
 
 }
 
 if (isset($_POST['asset_set_notes'])) {
 
-    validateCSRFToken($_POST['csrf_token']);
+    validateCSRFToken();
 
     enforceUserPermission('module_support', 2);
 
     $asset_id = intval($_POST['asset_id']);
-    $notes = sanitizeInput($_POST['notes']);
+    $notes = escapeSql($_POST['notes']);
 
     // Get Asset Details and Client ID for Logging
     $sql = mysqli_query($mysqli,"SELECT asset_name, asset_client_id
         FROM assets WHERE asset_id = $asset_id"
     );
     $row = mysqli_fetch_assoc($sql);
-    $asset_name = sanitizeInput($row['asset_name']);
+    $asset_name = escapeSql($row['asset_name']);
     $client_id = intval($row['asset_client_id']);
+
+    enforceClientAccess();
 
     // Update notes
     mysqli_query($mysqli, "UPDATE assets SET asset_notes = '$notes' WHERE asset_id = $asset_id");
 
     // Logging
-    logAction("Asset", "Edit", "$session_name edited asset notes for $asset_name", $client_id, $asset_id);
+    logAudit("Asset", "Edit", "$session_name edited asset notes for $asset_name", $client_id, $asset_id);
 
 }
 
@@ -135,10 +141,10 @@ if (isset($_GET['ticket_query_views'])) {
         $users = array_unique($users);
         if (count($users) > 1) {
             // Multiple viewers
-            $response['message'] = "<i class='fas fa-fw fa-eye mr-2'></i>" . nullable_htmlentities(implode(", ", $users) . " are viewing this ticket.");
+            $response['message'] = "<i class='fas fa-fw fa-eye mr-2'></i>" . escapeHtml(implode(", ", $users) . " are viewing this ticket.");
         } else {
             // Single viewer
-            $response['message'] = "<i class='fas fa-fw fa-eye mr-2'></i>" . nullable_htmlentities(implode("", $users) . " is viewing this ticket.");
+            $response['message'] = "<i class='fas fa-fw fa-eye mr-2'></i>" . escapeHtml(implode("", $users) . " is viewing this ticket.");
         }
     } else {
         // No viewers
@@ -153,7 +159,7 @@ if (isset($_GET['ticket_query_views'])) {
  */
 if (isset($_GET['share_generate_link'])) {
 
-    validateCSRFToken($_GET['csrf_token']);
+    validateCSRFToken();
 
     enforceUserPermission('module_support', 2);
 
@@ -161,10 +167,10 @@ if (isset($_GET['share_generate_link'])) {
     $item_encrypted_credential = '';  // Default empty
 
     $client_id = intval($_GET['client_id']);
-    $item_type = sanitizeInput($_GET['type']);
+    $item_type = escapeSql($_GET['type']);
     $item_id = intval($_GET['id']);
-    $item_email = sanitizeInput($_GET['contact_email']);
-    $item_note = sanitizeInput($_GET['note']);
+    $item_email = escapeSql($_GET['contact_email']);
+    $item_note = escapeSql($_GET['note']);
     $item_view_limit = intval($_GET['views']);
     $item_view_limit_wording = "";
     if ($item_view_limit == 1) {
@@ -188,19 +194,24 @@ if (isset($_GET['share_generate_link'])) {
 
     if ($item_type == "Document") {
         $row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT document_name FROM documents WHERE document_id = $item_id AND document_client_id = $client_id LIMIT 1"));
-        $item_name = sanitizeInput($row['document_name']);
+        $item_name = escapeSql($row['document_name']);
     }
 
     if ($item_type == "File") {
         $row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT file_name FROM files WHERE file_id = $item_id AND file_client_id = $client_id LIMIT 1"));
-        $item_name = sanitizeInput($row['file_name']);
+        $item_name = escapeSql($row['file_name']);
     }
 
     if ($item_type == "Credential") {
+
+        // Sharing a credential hands out the plaintext, so it needs the same
+        // module access as reading one anywhere else in the app
+        enforceUserPermission('module_credential');
+
         $credential = mysqli_query($mysqli, "SELECT credential_name, credential_username, credential_password FROM credentials WHERE credential_id = $item_id AND credential_client_id = $client_id LIMIT 1");
         $row = mysqli_fetch_assoc($credential);
 
-        $item_name = sanitizeInput($row['credential_name']);
+        $item_name = escapeSql($row['credential_name']);
 
         // Decrypt & re-encrypt username/password for sharing
         $credential_encryption_key = randomString();
@@ -230,14 +241,14 @@ if (isset($_GET['share_generate_link'])) {
 
     $sql = mysqli_query($mysqli,"SELECT * FROM companies WHERE company_id = 1");
     $row = mysqli_fetch_assoc($sql);
-    $company_name = sanitizeInput($row['company_name']);
-    $company_phone = sanitizeInput(formatPhoneNumber($row['company_phone'], $row['company_phone_country_code']));
+    $company_name = escapeSql($row['company_name']);
+    $company_phone = escapeSql(formatPhoneNumber($row['company_phone'], $row['company_phone_country_code']));
 
     // Sanitize Config vars from get_settings.php
-    $config_ticket_from_name = sanitizeInput($config_ticket_from_name);
-    $config_ticket_from_email = sanitizeInput($config_ticket_from_email);
-    $config_mail_from_name = sanitizeInput($config_mail_from_name);
-    $config_mail_from_email = sanitizeInput($config_mail_from_email);
+    $config_ticket_from_name = escapeSql($config_ticket_from_name);
+    $config_ticket_from_email = escapeSql($config_ticket_from_email);
+    $config_mail_from_name = escapeSql($config_mail_from_name);
+    $config_mail_from_email = escapeSql($config_mail_from_email);
 
     // Send user e-mail, if specified
     if(!empty($config_smtp_host) && filter_var($item_email, FILTER_VALIDATE_EMAIL)){
@@ -269,7 +280,7 @@ if (isset($_GET['share_generate_link'])) {
     echo json_encode($url);
 
     // Logging
-    logAction("Share", "Create", "$session_name created shared link for $item_type - $item_name", $client_id, $item_id);
+    logAudit("Share", "Create", "$session_name created shared link for $item_type - $item_name", $client_id, $item_id);
 
 }
 
@@ -302,14 +313,19 @@ if (isset($_GET['get_client_contacts'])) {
 
     $client_id = intval($_GET['client_id']);
 
+    enforceClientAccess();
+
     $contact_sql = mysqli_query(
         $mysqli,
-        "SELECT contact_id, contact_name, contact_primary, contact_important, contact_technical FROM contacts
+        "SELECT contact_id, contact_name, contact_title, contact_email, contact_primary, contact_important, contact_technical FROM contacts
         LEFT JOIN clients on contact_client_id = client_id
         WHERE contacts.contact_archived_at IS NULL AND contact_client_id = $client_id
         $access_permission_query
         ORDER BY contact_primary DESC, contact_technical DESC, contact_important DESC, contact_name"
     );
+
+    // Always return the key, so a client with none gives [] rather than null
+    $response['contacts'] = [];
 
     while ($row = mysqli_fetch_assoc($contact_sql)) {
         $response['contacts'][] = $row;
@@ -326,15 +342,20 @@ if (isset($_GET['get_client_assets'])) {
 
     $client_id = intval($_GET['client_id']);
 
+    enforceClientAccess();
+
     $asset_sql = mysqli_query(
         $mysqli,
-        "SELECT asset_id, asset_name, contact_name FROM assets
+        "SELECT asset_id, asset_name, asset_type, asset_make, asset_model, contact_name FROM assets
         LEFT JOIN clients on asset_client_id = client_id
         LEFT JOIN contacts ON contact_id = asset_contact_id
         WHERE assets.asset_archived_at IS NULL AND asset_client_id = $client_id
         $access_permission_query
-        ORDER BY asset_favorite DESC, asset_name"
+        ORDER BY asset_type ASC, asset_favorite DESC, asset_name"
     );
+
+    // Always return the key, so a client with no assets gives [] rather than null
+    $response['assets'] = [];
 
     while ($row = mysqli_fetch_assoc($asset_sql)) {
         $response['assets'][] = $row;
@@ -351,6 +372,8 @@ if (isset($_GET['get_client_locations'])) {
 
     $client_id = intval($_GET['client_id']);
 
+    enforceClientAccess();
+
     $locations_sql = mysqli_query(
         $mysqli,
         "SELECT location_id, location_name FROM locations
@@ -359,6 +382,9 @@ if (isset($_GET['get_client_locations'])) {
         $access_permission_query
         ORDER BY location_primary DESC, location_name ASC"
     );
+
+    // Always return the key, so a client with none gives [] rather than null
+    $response['locations'] = [];
 
     while ($row = mysqli_fetch_assoc($locations_sql)) {
         $response['locations'][] = $row;
@@ -375,6 +401,8 @@ if (isset($_GET['get_client_vendors'])) {
 
     $client_id = intval($_GET['client_id']);
 
+    enforceClientAccess();
+
     $vendors_sql = mysqli_query(
         $mysqli,
         "SELECT vendor_id, vendor_name FROM vendors
@@ -384,8 +412,40 @@ if (isset($_GET['get_client_vendors'])) {
         ORDER BY vendor_name ASC"
     );
 
+    // Always return the key, so a client with none gives [] rather than null
+    $response['vendors'] = [];
+
     while ($row = mysqli_fetch_assoc($vendors_sql)) {
         $response['vendors'][] = $row;
+    }
+
+    echo json_encode($response);
+}
+
+/*
+ * Returns open projects for a specified client
+ */
+if (isset($_GET['get_client_projects'])) {
+    enforceUserPermission('module_client');
+
+    $client_id = intval($_GET['client_id']);
+
+    enforceClientAccess();
+
+    $projects_sql = mysqli_query(
+        $mysqli,
+        "SELECT project_id, project_name FROM projects
+        LEFT JOIN clients on project_client_id = client_id
+        WHERE projects.project_archived_at IS NULL AND projects.project_completed_at IS NULL AND project_client_id = $client_id
+        $access_permission_query
+        ORDER BY project_name ASC"
+    );
+
+    // Always return the key, so a client with none gives [] rather than null
+    $response['projects'] = [];
+
+    while ($row = mysqli_fetch_assoc($projects_sql)) {
+        $response['projects'][] = $row;
     }
 
     echo json_encode($response);
@@ -401,7 +461,7 @@ if (isset($_GET['get_totp_token_via_id'])) {
     $credential_id = intval($_GET['credential_id']);
 
     $sql = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT credential_name, credential_otp_secret, credential_client_id FROM credentials WHERE credential_id = $credential_id"));
-    $name = sanitizeInput($sql['credential_name']);
+    $name = escapeSql($sql['credential_name']);
     $totp_secret = $sql['credential_otp_secret'];
     $client_id = intval($sql['credential_client_id']);
 
@@ -417,7 +477,7 @@ if (isset($_GET['get_totp_token_via_id'])) {
 
     if ($recent_totp_view_logged_count == 0) {
         // Logging
-        logAction("Credential", "View TOTP", "$session_name viewed credential TOTP code for $name", $client_id, $credential_id);
+        logAudit("Credential", "View TOTP", "$session_name viewed credential TOTP code for $name", $client_id, $credential_id);
 
     }
 }
@@ -478,16 +538,26 @@ if (isset($_POST['update_kanban_ticket'])) {
         if ($oldStatus === false) {
             // if ticket was not moved, just uptdate the order on kanban
             mysqli_query($mysqli, "UPDATE tickets SET ticket_order = $kanban WHERE ticket_id = $ticket_id");
-            customAction('ticket_update', $ticket_id);
+            triggerCustomAction('ticket_update', $ticket_id);
         } else {
             // If the ticket was moved from a resolved status to another status, we need to update ticket_resolved_at
             if ($oldStatus === $statuses['Resolved']) {
                 mysqli_query($mysqli, "UPDATE tickets SET ticket_order = $kanban, ticket_status = $status, ticket_resolved_at = NULL WHERE ticket_id = $ticket_id");
-                customAction('ticket_update', $ticket_id);
+                resetTicketResolutionSla($ticket_id);
+                syncTicketSlaClock($ticket_id);
+                $new_status_name = escapeSql(getTicketStatusName($status));
+                logTicketHistory($ticket_id, "$session_name reopened the ticket to $new_status_name from the kanban");
+                triggerCustomAction('ticket_update', $ticket_id);
             } elseif ($status === $statuses['Resolved']) {
                 // If the ticket was moved to a resolved status, we need to update ticket_resolved_at
                 mysqli_query($mysqli, "UPDATE tickets SET ticket_order = $kanban, ticket_status = $status, ticket_resolved_at = NOW() WHERE ticket_id = $ticket_id");
-                customAction('ticket_update', $ticket_id);
+                // An agent resolving the ticket counts as a response, same as
+                // resolving from the ticket itself does
+                setTicketFirstResponse($ticket_id);
+                setTicketResolutionSlaMet($ticket_id);
+                syncTicketSlaClock($ticket_id);
+                logTicketHistory($ticket_id, "$session_name resolved the ticket from the kanban");
+                triggerCustomAction('ticket_update', $ticket_id);
 
                 // Client notification email
                 if (!empty($config_smtp_host) && $config_ticket_client_general_notifications == 1) {
@@ -501,26 +571,26 @@ if (isset($_POST['update_kanban_ticket'])) {
                     ");
                     $row = mysqli_fetch_assoc($ticket_sql);
 
-                    $contact_name = sanitizeInput($row['contact_name']);
-                    $contact_email = sanitizeInput($row['contact_email']);
-                    $ticket_prefix = sanitizeInput($row['ticket_prefix']);
+                    $contact_name = escapeSql($row['contact_name']);
+                    $contact_email = escapeSql($row['contact_email']);
+                    $ticket_prefix = escapeSql($row['ticket_prefix']);
                     $ticket_number = intval($row['ticket_number']);
-                    $ticket_subject = sanitizeInput($row['ticket_subject']);
+                    $ticket_subject = escapeSql($row['ticket_subject']);
                     $client_id = intval($row['ticket_client_id']);
                     $ticket_assigned_to = intval($row['ticket_assigned_to']);
-                    $ticket_status = sanitizeInput($row['ticket_status_name']);
-                    $url_key = sanitizeInput($row['ticket_url_key']);
+                    $ticket_status = escapeSql($row['ticket_status_name']);
+                    $url_key = escapeSql($row['ticket_url_key']);
 
                     // Sanitize Config vars from get_settings.php
-                    $config_ticket_from_name = sanitizeInput($config_ticket_from_name);
-                    $config_ticket_from_email = sanitizeInput($config_ticket_from_email);
-                    $config_base_url = sanitizeInput($config_base_url);
+                    $config_ticket_from_name = escapeSql($config_ticket_from_name);
+                    $config_ticket_from_email = escapeSql($config_ticket_from_email);
+                    $config_base_url = escapeSql($config_base_url);
 
                     // Get Company Info
                     $sql = mysqli_query($mysqli, "SELECT company_name, company_phone, company_phone_country_code FROM companies WHERE company_id = 1");
                     $row = mysqli_fetch_assoc($sql);
-                    $company_name = sanitizeInput($row['company_name']);
-                    $company_phone = sanitizeInput(formatPhoneNumber($row['company_phone'], $row['company_phone_country_code']));
+                    $company_name = escapeSql($row['company_name']);
+                    $company_phone = escapeSql(formatPhoneNumber($row['company_phone'], $row['company_phone_country_code']));
 
                     // EMAIL
                     $subject = "Ticket resolved - [$ticket_prefix$ticket_number] - $ticket_subject | (pending closure)";
@@ -548,7 +618,7 @@ if (isset($_POST['update_kanban_ticket'])) {
                     $sql_watchers = mysqli_query($mysqli, "SELECT watcher_email FROM ticket_watchers WHERE watcher_ticket_id = $ticket_id");
                     $body .= "<br><br>----------------------------------------<br>YOU ARE A COLLABORATOR ON THIS TICKET";
                     while ($row = mysqli_fetch_assoc($sql_watchers)) {
-                        $watcher_email = sanitizeInput($row['watcher_email']);
+                        $watcher_email = escapeSql($row['watcher_email']);
 
                         // Queue Mail
                         $data[] = [
@@ -567,7 +637,10 @@ if (isset($_POST['update_kanban_ticket'])) {
             } else {
                 // If the ticket was moved from any status to another status
                 mysqli_query($mysqli, "UPDATE tickets SET ticket_order = $kanban, ticket_status = $status WHERE ticket_id = $ticket_id");
-                customAction('ticket_update', $ticket_id);
+                syncTicketSlaClock($ticket_id);
+                $new_status_name = escapeSql(getTicketStatusName($status));
+                logTicketHistory($ticket_id, "$session_name set the status to $new_status_name from the kanban");
+                triggerCustomAction('ticket_update', $ticket_id);
             }
         }
 
@@ -581,7 +654,7 @@ if (isset($_POST['update_kanban_ticket'])) {
 if (isset($_POST['update_ticket_tasks_order'])) {
     // Update multiple ticket tasks order
 
-    validateCSRFToken($_POST['csrf_token']);
+    validateCSRFToken();
 
     enforceUserPermission('module_support', 2);
 
@@ -603,7 +676,7 @@ if (isset($_POST['update_ticket_tasks_order'])) {
 if (isset($_POST['update_task_templates_order'])) {
     // Update multiple task templates order
 
-    validateCSRFToken($_POST['csrf_token']);
+    validateCSRFToken();
 
     enforceUserPermission('module_support', 2);
 
@@ -624,7 +697,7 @@ if (isset($_POST['update_task_templates_order'])) {
 
 if (isset($_POST['update_project_template_ticket_order'])) {
 
-    validateCSRFToken($_POST['csrf_token']);
+    validateCSRFToken();
 
     enforceUserPermission('module_support', 2);
 
@@ -646,7 +719,7 @@ if (isset($_POST['update_project_template_ticket_order'])) {
 if (isset($_POST['update_quote_items_order'])) {
     // Update multiple quote items order
 
-    validateCSRFToken($_POST['csrf_token']);
+    validateCSRFToken();
 
     enforceUserPermission('module_sales', 2);
 
@@ -668,7 +741,7 @@ if (isset($_POST['update_quote_items_order'])) {
 if (isset($_POST['update_invoice_items_order'])) {
     // Update multiple invoice items order
 
-    validateCSRFToken($_POST['csrf_token']);
+    validateCSRFToken();
 
     enforceUserPermission('module_sales', 2);
 
@@ -690,7 +763,7 @@ if (isset($_POST['update_invoice_items_order'])) {
 if (isset($_POST['update_recurring_invoice_items_order'])) {
     // Update multiple recurring invoice items order
 
-    validateCSRFToken($_POST['csrf_token']);
+    validateCSRFToken();
 
     enforceUserPermission('module_sales', 2);
 
@@ -712,7 +785,7 @@ if (isset($_POST['update_recurring_invoice_items_order'])) {
 if (isset($_GET['client_duplicate_check'])) {
     enforceUserPermission('module_client', 2);
 
-    $name = sanitizeInput($_GET['name']);
+    $name = escapeSql($_GET['name']);
 
     $response['message'] = ""; // default
 
@@ -725,7 +798,7 @@ if (isset($_GET['client_duplicate_check'])) {
 
         if (mysqli_num_rows($sql_clients) > 0) {
             while ($row = mysqli_fetch_assoc($sql_clients)) {
-                $response['message'] = "<i class='fas fa-fw fa-copy mr-2'></i> Potential duplicate: <i>" . nullable_htmlentities($row['client_name']) . "</i> already exists.";
+                $response['message'] = "<i class='fas fa-fw fa-copy mr-2'></i> Potential duplicate: <i>" . escapeHtml($row['client_name']) . "</i> already exists.";
             }
         }
     }
@@ -736,8 +809,8 @@ if (isset($_GET['client_duplicate_check'])) {
 if (isset($_GET['contact_email_check'])) {
     enforceUserPermission('module_client', 2);
 
-    $email = sanitizeInput($_GET['email']);
-    $domain = sanitizeInput(substr($_GET['email'], strpos($_GET['email'], '@') + 1));
+    $email = escapeSql($_GET['email']);
+    $domain = escapeSql(substr($_GET['email'], strpos($_GET['email'], '@') + 1));
 
     $response['message'] = ""; // default
 
@@ -747,7 +820,7 @@ if (isset($_GET['contact_email_check'])) {
         $sql_contacts = mysqli_query($mysqli, "SELECT contact_email FROM contacts WHERE contact_email = '$email' LIMIT 1");
         if (mysqli_num_rows($sql_contacts) > 0) {
             while ($row = mysqli_fetch_assoc($sql_contacts)) {
-                $response['message'] = "<i class='fas fa-fw fa-copy mr-2'></i> Potential duplicate: <i>" . nullable_htmlentities($row['contact_email']) . "</i> already exists.";
+                $response['message'] = "<i class='fas fa-fw fa-copy mr-2'></i> Potential duplicate: <i>" . escapeHtml($row['contact_email']) . "</i> already exists.";
             }
         }
 
@@ -1014,7 +1087,7 @@ if (isset($_GET['ai_ticket_summary'])) {
 if (isset($_GET['apex_domain_check'])) {
     enforceUserPermission('module_support', 2);
 
-    $domain = sanitizeInput($_GET['domain']);
+    $domain = escapeSql($_GET['domain']);
 
     $response['message'] = ""; // default
 
@@ -1049,4 +1122,29 @@ if (isset($_GET['get_internal_users'])) {
 
     echo json_encode($response);
     exit;
+}
+
+if (isset($_GET['get_credential_via_id'])) {
+    enforceUserPermission('module_credential');
+
+    $credential_id = intval($_GET['credential_id']);
+
+    $sql = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT credential_name, credential_username, credential_password, credential_client_id FROM credentials WHERE credential_id = $credential_id"));
+    $name = escapeSql($sql['credential_name']);
+    $client_id = intval($sql['credential_client_id']);
+
+    enforceClientAccess($client_id);
+
+    $response = array(
+        'username' => decryptCredentialEntry($sql['credential_username']),
+        'password' => decryptCredentialEntry($sql['credential_password'])
+    );
+    echo json_encode($response);
+
+    // Only log if this user hasn't viewed this credential recently (mirrors TOTP dedup)
+    $check_recent_view = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT COUNT(log_id) AS recent_view FROM logs WHERE log_type = 'Credential' AND log_action = 'View' AND log_user_id = $session_user_id AND log_entity_id = $credential_id AND log_client_id = $client_id AND log_created_at > (NOW() - INTERVAL 5 MINUTE)"));
+
+    if (intval($check_recent_view['recent_view']) == 0) {
+        logAudit("Credential", "View", "$session_name viewed credential $name", $client_id, $credential_id);
+    }
 }

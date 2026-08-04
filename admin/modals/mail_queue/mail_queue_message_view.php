@@ -1,15 +1,11 @@
 <?php
 
-require_once '../../../includes/modal_header.php';
-
-if (!isset($session_is_admin) || !$session_is_admin) {
-    exit(WORDING_ROLECHECK_FAILED . "<br>Tell your admin: Your role does not have admin access.");
-}
+require_once '../../includes/modal_header.php';
 
 $email_id = intval($_GET['id']);
 
 //Initialize the HTML Purifier to prevent XSS
-require "../../../plugins/htmlpurifier/HTMLPurifier.standalone.php";
+require "../../../libs/htmlpurifier/HTMLPurifier.standalone.php";
 
 $purifier_config = HTMLPurifier_Config::createDefault();
 $purifier_config->set('Cache.DefinitionImpl', null); // Disable cache by setting a non-existent directory or an invalid one
@@ -19,16 +15,16 @@ $purifier = new HTMLPurifier($purifier_config);
 $sql = mysqli_query($mysqli, "SELECT * FROM email_queue WHERE email_id = $email_id LIMIT 1");
 $row = mysqli_fetch_assoc($sql);
 
-$email_from = nullable_htmlentities($row['email_from']);
-$email_from_name = nullable_htmlentities($row['email_from_name']);
-$email_recipient = nullable_htmlentities($row['email_recipient']);
-$email_recipient_name = nullable_htmlentities($row['email_recipient_name']);
-$email_subject = nullable_htmlentities($row['email_subject']);
+$email_from = escapeHtml($row['email_from']);
+$email_from_name = escapeHtml($row['email_from_name']);
+$email_recipient = escapeHtml($row['email_recipient']);
+$email_recipient_name = escapeHtml($row['email_recipient_name']);
+$email_subject = escapeHtml($row['email_subject']);
 $email_content = $purifier->purify($row['email_content']);
 $email_attempts = intval($row['email_attempts']);
-$email_queued_at = nullable_htmlentities($row['email_queued_at']);
-$email_failed_at = nullable_htmlentities($row['email_failed_at']);
-$email_sent_at = nullable_htmlentities($row['email_sent_at']);
+$email_queued_at = escapeHtml($row['email_queued_at']);
+$email_failed_at = escapeHtml($row['email_failed_at']);
+$email_sent_at = escapeHtml($row['email_sent_at']);
 $email_status = intval($row['email_status']);
 if ($email_status == 0) {
     $email_status_display = "<div class='text-primary'>Queued</div>";
@@ -44,7 +40,7 @@ if ($email_status == 0) {
 ob_start();
 ?>
 <div class="modal-header bg-dark">
-    <h5 class="modal-title"><i class='fas fa-fw fa-envelope-open mr-2'></i><strong><?php echo $email_subject; ?></strong></h5>
+    <h5 class="modal-title"><i class='fas fa-fw fa-envelope-open mr-2'></i><strong><?= $email_subject ?></strong></h5>
     <button type="button" class="close text-light" data-dismiss="modal">
         <span>&times;</span>
     </button>
@@ -55,7 +51,7 @@ ob_start();
             <span class="text-secondary">From:</span>
         </div>
         <div class="col-md-10">
-            <?php echo "<strong>$email_from_name</strong> ($email_from)"; ?>
+            <?= "<strong>$email_from_name</strong> ($email_from)" ?>
         </div>
     </div>
     <hr class="my-2">
@@ -64,12 +60,14 @@ ob_start();
             <span class="text-secondary">To:</span>
         </div>
         <div class="col-md-10">
-            <?php echo "<strong>$email_recipient_name</strong> ($email_recipient)"; ?>
+            <?= "<strong>$email_recipient_name</strong> ($email_recipient)" ?>
         </div>
     </div>
     <hr class="my-2">
     <div class="prettyContent">
-        <?php echo $email_content; ?>
+        <?php if ($email_status == 3 && $email_content === '') { ?>
+            <em class="text-secondary">Message content was cleared on delivery.</em>
+        <?php } else { echo $email_content; } ?>
     </div>
 </div>
 

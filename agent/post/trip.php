@@ -10,7 +10,7 @@ defined('FROM_POST_HANDLER') || die("Direct file access is not allowed");
 
 if (isset($_POST['add_trip'])) {
 
-    validateCSRFToken($_POST['csrf_token']);
+    validateCSRFToken();
 
     require_once 'trip_model.php';
 
@@ -24,9 +24,9 @@ if (isset($_POST['add_trip'])) {
 
     $trip_id = mysqli_insert_id($mysqli);
 
-    logAction("Trip", "Create", "$session_name logged trip from $source to $destination", $client_id , $trip_id);
+    logAudit("Trip", "Create", "$session_name logged trip from $source to $destination", $client_id , $trip_id);
 
-    flash_alert("Trip from <strong>$source</strong> to <strong>$destination</strong> logged");
+    flashAlert("Trip from <strong>$source</strong> to <strong>$destination</strong> logged");
 
     redirect();
 
@@ -34,13 +34,13 @@ if (isset($_POST['add_trip'])) {
 
 if (isset($_POST['edit_trip'])) {
 
-    validateCSRFToken($_POST['csrf_token']);
+    validateCSRFToken();
 
     require_once 'trip_model.php';
 
     $trip_id = intval($_POST['trip_id']);
 
-    $client_id = intval(getFieldById('trips', $trip_id, 'trip_client_id'));
+    $client_id = intval($_POST['client_id']);
 
     if ($client_id) {
         enforceClientAccess();
@@ -48,9 +48,9 @@ if (isset($_POST['edit_trip'])) {
 
     mysqli_query($mysqli,"UPDATE trips SET trip_date = '$date', trip_source = '$source', trip_destination = '$destination', trip_miles = $miles, trip_purpose = '$purpose', round_trip = $roundtrip, trip_user_id = $user_id, trip_client_id = $client_id WHERE trip_id = $trip_id");
 
-    logAction("Trip", "Edit", "$session_name edited trip", $client_id , $trip_id);
+    logAudit("Trip", "Edit", "$session_name edited trip", $client_id , $trip_id);
 
-    flash_alert("Trip edited");
+    flashAlert("Trip edited");
 
     redirect();
 
@@ -58,7 +58,7 @@ if (isset($_POST['edit_trip'])) {
 
 if (isset($_GET['delete_trip'])) {
 
-    validateCSRFToken($_GET['csrf_token']);
+    validateCSRFToken();
 
     enforceUserPermission('module_financial', 3);
 
@@ -67,8 +67,8 @@ if (isset($_GET['delete_trip'])) {
     // Get Trip Info and Client ID for logging
     $row = mysqli_fetch_assoc(mysqli_query($mysqli,"SELECT * FROM trips WHERE trip_id = $trip_id"));
     $client_id = intval($row['trip_client_id']);
-    $trip_source = sanitizeInput($row['trip_source']);
-    $trip_destination = sanitizeInput($row['trip_destination']);
+    $trip_source = escapeSql($row['trip_source']);
+    $trip_destination = escapeSql($row['trip_destination']);
 
     if ($client_id) {
         enforceClientAccess();
@@ -76,84 +76,84 @@ if (isset($_GET['delete_trip'])) {
 
     mysqli_query($mysqli,"DELETE FROM trips WHERE trip_id = $trip_id");
 
-    logAction("Trip", "Delete", "$session_name deleted trip ($trip_source - $trip_destination)", $client_id);
+    logAudit("Trip", "Delete", "$session_name deleted trip ($trip_source - $trip_destination)", $client_id);
 
-    flash_alert("Trip ($trip_source - $trip_destination) deleted", 'error');
+    flashAlert("Trip ($trip_source - $trip_destination) deleted", 'error');
 
     redirect();
 
 }
 
-if (isset($_POST['export_trips_csv'])) {
+if (isset($_POST['export_trips'])) {
 
-    validateCSRFToken($_POST['csrf_token']);
+    validateCSRFToken();
 
+    // Exports are reads - see CONTRIBUTING.md
     enforceUserPermission('module_financial');
 
-    if ($_POST['client_id']) {
+    $format = resolveExportFormat($_POST['export_trips']);
+
+    // Filters inherited from the trips page - mirrors agent/trips.php
+    $filter_summary = [];
+
+    if (!empty($_POST['client_id'])) {
         $client_id = intval($_POST['client_id']);
         $client_query = "AND trip_client_id = $client_id";
         $client_name = getFieldById('clients', $client_id, 'client_name');
         $file_name_prepend = "$client_name-";
+        $filter_summary['Client'] = $client_name;
+
         enforceClientAccess();
     } else {
         $client_query = '';
-        $client_name = '';
+        $client_id = 0; // for Logging
         $file_name_prepend = "$session_company_name-";
     }
 
-    $date_from = sanitizeInput($_POST['date_from']);
-    $date_to = sanitizeInput($_POST['date_to']);
-    if (!empty($date_from) && !empty($date_to)){
-        $date_query = "DATE(trip_date) BETWEEN '$date_from' AND '$date_to'";
-        $file_name_date = "$date_from-to-$date_to";
-    } else {
-        $date_query = "trip_date IS NOT NULL";
-        $file_name_date = date('Y-m-d');
+    // Date Filter
+    $dtf = escapeSql(!empty($_POST['dtf']) ? $_POST['dtf'] : '1970-01-01');
+    $dtt = escapeSql(!empty($_POST['dtt']) ? $_POST['dtt'] : '2099-12-31');
+    $date_range = formatExportDateRange($dtf, $dtt);
+    if ($date_range) {
+        $filter_summary['Dated'] = $date_range;
     }
 
-    //get records from database
-    $sql = mysqli_query($mysqli,"SELECT * FROM trips
+    // Search Filter
+    $q = escapeSql($_POST['q'] ?? '');
+    if (!empty($q)) {
+        $filter_summary['Search'] = $_POST['q'];
+    }
+
+    $sql = mysqli_query(
+        $mysqli,
+        "SELECT * FROM trips
         LEFT JOIN clients ON trip_client_id = client_id
-        WHERE $date_query
+        LEFT JOIN users ON trip_user_id = user_id
+        WHERE (trip_purpose LIKE '%$q%' OR trip_source LIKE '%$q%' OR trip_destination LIKE '%$q%' OR trip_miles LIKE '%$q%' OR client_name LIKE '%$q%' OR user_name LIKE '%$q%')
+        AND DATE(trip_date) BETWEEN '$dtf' AND '$dtt'
+        AND trip_archived_at IS NULL
         $client_query
         $access_permission_query
-        ORDER BY trip_date DESC"
+        ORDER BY trip_date ASC"
     );
 
-    $count = mysqli_num_rows($sql);
+    $num_rows = mysqli_num_rows($sql);
 
-    if ($count > 0) {
-        $delimiter = ",";
-        $enclosure = '"';
-        $escape    = '\\';   // backslash
-        $filename = sanitize_filename($file_name_prepend . "Trips-" . date('Y-m-d_H-i-s') . ".csv");
+    if ($num_rows > 0) {
 
-        //create a file pointer
-        $f = fopen('php://memory', 'w');
+        guardExportPdfRowCount($format, $num_rows);
 
-        //set column headers
-        $fields = array('Date', 'Purpose', 'Source', 'Destination', 'Miles');
-        fputcsv($f, $fields, $delimiter, $enclosure, $escape);
+        $export = beginExport('trips', $format, $file_name_prepend . 'Trips', 'Trips', summarizeExportFilters($filter_summary));
 
-        //output each row of the data, format line as csv and write to file pointer
-        while($row = mysqli_fetch_assoc($sql)){
-            $lineData = array($row['trip_date'], $row['trip_purpose'], $row['trip_source'], $row['trip_destination'], $row['trip_miles']);
-            fputcsv($f, $lineData, $delimiter, $enclosure, $escape);
+        while ($row = mysqli_fetch_assoc($sql)) {
+            addExportRow($export, $row);
         }
 
-        //move back to beginning of file
-        fseek($f, 0);
-
-        //set headers to download file rather than displayed
-        header('Content-Type: text/csv');
-        header('Content-Disposition: attachment; filename="' . $filename . '";');
-
-        //output all remaining data on a file pointer
-        fpassthru($f);
-
-        logAction("Trip", "Export", "$session_name exported $count trip(s) to a CSV file");
+        finishExport($export);
     }
+
+    logAudit("Trip", "Export", "$session_name exported $num_rows trip(s) to a " . strtoupper($format) . " file", $client_id);
+
     exit;
 
 }

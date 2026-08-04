@@ -2,35 +2,40 @@
 
 require_once '../../../includes/modal_header.php';
 
+enforceUserPermission('module_sales', 2);
+
 $quote_id = intval($_GET['id']);
 
 $sql = mysqli_query($mysqli, "SELECT * FROM quotes LEFT JOIN clients ON quote_client_id = client_id WHERE quote_id = $quote_id LIMIT 1");
 
 $row = mysqli_fetch_assoc($sql);
 $quote_id = intval($row['quote_id']);
-$quote_prefix = nullable_htmlentities($row['quote_prefix']);
+$quote_prefix = escapeHtml($row['quote_prefix']);
 $quote_number = intval($row['quote_number']);
-$quote_scope = nullable_htmlentities($row['quote_scope']);
-$quote_date = nullable_htmlentities($row['quote_date']);
-$quote_expire = nullable_htmlentities($row['quote_expire']);
+$quote_scope = escapeHtml($row['quote_scope']);
+$quote_date = escapeHtml($row['quote_date']);
+$quote_expire = escapeHtml($row['quote_expire']);
 $quote_discount = floatval($row['quote_discount_amount']);
-$quote_created_at = nullable_htmlentities($row['quote_created_at']);
+$quote_created_at = escapeHtml($row['quote_created_at']);
 $quote_category_id = intval($row['quote_category_id']);
-$client_name = nullable_htmlentities($row['client_name']);
+$client_name = escapeHtml($row['client_name']);
+$client_id = intval($row['quote_client_id']);
 
-// Generate the HTML form content using output buffering.
+enforceClientAccess();
+
 ob_start();
+
 ?>
 
 <div class="modal-header bg-dark">
-    <h5 class="modal-title text-white"><i class="fas fa-fw fa-comment-dollar mr-2"></i>Editing quote: <span class="text-bold"><?php echo "$quote_prefix$quote_number"; ?></span> - <span class="text"><?php echo $client_name; ?></span></h5>
+    <h5 class="modal-title text-white"><i class="fas fa-fw fa-comment-dollar mr-2"></i>Editing quote: <span class="text-bold"><?= "$quote_prefix$quote_number" ?></span> - <span class="text"><?= $client_name ?></span></h5>
     <button type="button" class="close text-white" data-dismiss="modal">
         <span>&times;</span>
     </button>
 </div>
 <form action="post.php" method="post" autocomplete="off">
     <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
-    <input type="hidden" name="quote_id" value="<?php echo $quote_id; ?>">
+    <input type="hidden" name="quote_id" value="<?= $quote_id ?>">
 
     <div class="modal-body">
 
@@ -40,7 +45,7 @@ ob_start();
                 <div class="input-group-prepend">
                     <span class="input-group-text"><i class="fa fa-fw fa-calendar"></i></span>
                 </div>
-                <input type="date" class="form-control" name="date" max="2999-12-31" value="<?php echo $quote_date; ?>" required>
+                <input type="date" class="form-control" name="date" max="2999-12-31" value="<?= $quote_date ?>" required>
             </div>
         </div>
 
@@ -50,7 +55,7 @@ ob_start();
                 <div class="input-group-prepend">
                     <span class="input-group-text"><i class="fa fa-fw fa-calendar"></i></span>
                 </div>
-                <input type="date" class="form-control" name="expire" max="2999-12-31" value="<?php echo $quote_expire; ?>" required>
+                <input type="date" class="form-control" name="expire" max="2999-12-31" value="<?= $quote_expire ?>" required>
             </div>
         </div>
 
@@ -66,9 +71,9 @@ ob_start();
                     $sql = mysqli_query($mysqli, "SELECT * FROM categories WHERE category_type = 'Income' AND (category_archived_at > '$quote_created_at' OR category_archived_at IS NULL) ORDER BY category_name ASC");
                     while ($row = mysqli_fetch_assoc($sql)) {
                         $category_id = intval($row['category_id']);
-                        $category_name = nullable_htmlentities($row['category_name']);
+                        $category_name = escapeHtml($row['category_name']);
                         ?>
-                        <option <?php if ($quote_category_id == $category_id) { echo "selected"; } ?> value="<?php echo $category_id; ?>"><?php echo $category_name; ?></option>
+                        <option <?php if ($quote_category_id == $category_id) { echo "selected"; } ?> value="<?= $category_id ?>"><?= $category_name ?></option>
 
                     <?php } ?>
 
@@ -89,7 +94,7 @@ ob_start();
                 <div class='input-group-prepend'>
                     <span class='input-group-text'><i class='fa fa-fw fa-dollar-sign'></i></span>
                 </div>
-                <input type='text' class='form-control' inputmode="decimal" pattern="-?[0-9]*\.?[0-9]{0,2}" name='quote_discount' placeholder='0.00' value="<?php echo number_format($quote_discount, 2, '.', ''); ?>">
+                <input type='text' class='form-control' inputmode="decimal" pattern="-?[0-9]*\.?[0-9]{0,2}" name='quote_discount' placeholder='0.00' value="<?= number_format($quote_discount, 2, '.', '') ?>">
             </div>
         </div>
 
@@ -99,7 +104,7 @@ ob_start();
                 <div class="input-group-prepend">
                     <span class="input-group-text"><i class="fa fa-fw fa-comment"></i></span>
                 </div>
-                <input type="text" class="form-control" name="scope" placeholder="Quick description" value="<?php echo $quote_scope; ?>" maxlength="255">
+                <input type="text" class="form-control" name="scope" placeholder="Quick description" value="<?= $quote_scope ?>" maxlength="255">
             </div>
         </div>
 

@@ -11,11 +11,15 @@ $sql = mysqli_query($mysqli, "SELECT * FROM ticket_replies
 );
 
 $row = mysqli_fetch_assoc($sql);
-$ticket_reply_type = nullable_htmlentities($row['ticket_reply_type']);
+$ticket_reply_type = escapeHtml($row['ticket_reply_type']);
 $ticket_reply_time_worked = date_create($row['ticket_reply_time_worked']);
 $ticket_reply_time_worked_formatted = date_format($ticket_reply_time_worked, 'H:i:s');
-$ticket_reply = nullable_htmlentities($row['ticket_reply']);
+$ticket_reply = escapeHtml($row['ticket_reply']);
 $client_id = intval($row['ticket_client_id']);
+
+if ($client_id) {
+    enforceClientAccess();
+}
 
 // Generate the HTML form content using output buffering.
 ob_start();
@@ -30,8 +34,7 @@ ob_start();
 </div>
 <form action="post.php" method="post" autocomplete="off">
     <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
-    <input type="hidden" name="ticket_reply_id" value="<?php echo $ticket_reply_id; ?>">
-    <input type="hidden" name="client_id" value="<?php echo $client_id; ?>">
+    <input type="hidden" name="ticket_reply_id" value="<?= $ticket_reply_id ?>">
 
     <div class="modal-body">
 
@@ -47,14 +50,14 @@ ob_start();
         </div>
 
         <div class="form-group">
-            <textarea class="form-control tinymce" name="ticket_reply"><?php echo $ticket_reply; ?></textarea>
+            <textarea class="form-control tinymce" name="ticket_reply"><?= $ticket_reply ?></textarea>
         </div>
 
         <?php if (!empty($ticket_reply_time_worked)) { ?>
             <div class="col-3">
                 <div class="form-group">
                     <label>Time worked</label>
-                    <input class="form-control" name="time" type="text" placeholder="HH:MM:SS" pattern="([01]?[0-9]|2[0-3]):([0-5]?[0-9]):([0-5]?[0-9])" value="<?php echo $ticket_reply_time_worked_formatted; ?>" required>
+                    <input class="form-control" name="time" type="text" placeholder="HH:MM:SS" pattern="([01]?[0-9]|2[0-3]):([0-5]?[0-9]):([0-5]?[0-9])" value="<?= $ticket_reply_time_worked_formatted ?>" required>
                 </div>
             </div>
         <?php } ?>

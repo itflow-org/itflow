@@ -2,6 +2,8 @@
 
 require_once '../../../includes/modal_header.php';
 
+enforceUserPermission('module_credential', 2);
+
 $asset_id = intval($_GET['id']);
 
 $sql = mysqli_query($mysqli, "SELECT * FROM assets
@@ -10,23 +12,24 @@ $sql = mysqli_query($mysqli, "SELECT * FROM assets
 ");
 
 $row = mysqli_fetch_assoc($sql);
-$asset_name = nullable_htmlentities($row['asset_name']);
+$asset_name = escapeHtml($row['asset_name']);
 $client_id = intval($row['asset_client_id']);
 
-// Generate the HTML form content using output buffering.
+enforceClientAccess();
+
 ob_start();
 
 ?>
 
 <div class="modal-header bg-dark">
-    <h5 class="modal-title"><i class="fa fa-fw fa-paperclip mr-2"></i>Link File to <strong><?php echo $asset_name; ?></strong></h5>
+    <h5 class="modal-title"><i class="fa fa-fw fa-paperclip mr-2"></i>Link File to <strong><?= $asset_name ?></strong></h5>
     <button type="button" class="close text-white" data-dismiss="modal">
         <span>&times;</span>
     </button>
 </div>
 <form action="post.php" method="post" autocomplete="off">
     <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
-    <input type="hidden" name="asset_id" value="<?php echo $asset_id; ?>">
+    <input type="hidden" name="asset_id" value="<?= $asset_id ?>">
     <div class="modal-body">
 
         <div class="form-group">
@@ -52,10 +55,10 @@ ob_start();
 
                     while ($row = mysqli_fetch_assoc($sql_files_select)) {
                         $file_id = intval($row['file_id']);
-                        $file_name = nullable_htmlentities($row['file_name']);
-                        $folder_name = nullable_htmlentities($row['folder_name']);
+                        $file_name = escapeHtml($row['file_name']);
+                        $folder_name = escapeHtml($row['folder_name']);
                         ?>
-                        <option value="<?php echo $file_id ?>"><?php echo "$folder_name/$file_name"; ?></option>
+                        <option value="<?= $file_id ?>"><?= "$folder_name/$file_name" ?></option>
                         <?php
                     }
                     ?>
@@ -70,4 +73,5 @@ ob_start();
 </form>
 
 <?php
+
 require_once '../../../includes/modal_footer.php';

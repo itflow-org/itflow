@@ -2,12 +2,19 @@
 
 require_once '../../../includes/modal_header.php';
 
+enforceUserPermission('module_support', 2);
+
 $ticket_id = intval($_GET['ticket_id']);
 $client_id = intval(getFieldById('tickets', $ticket_id, 'ticket_client_id'));
+
+if ($client_id) {
+    enforceClientAccess();
+}
 
 ob_start();
 
 ?>
+
 <div class="modal-header bg-dark">
     <h5 class="modal-title"><i class="fa fa-fw fa-eye mr-2"></i>Adding a ticket Watcher</h5>
     <button type="button" class="close text-white" data-dismiss="modal">
@@ -16,7 +23,7 @@ ob_start();
 </div>
 <form action="post.php" method="post" autocomplete="off">
     <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
-    <input type="hidden" name="ticket_id" value="<?php echo $ticket_id; ?>">
+    <input type="hidden" name="ticket_id" value="<?= $ticket_id ?>">
     <div class="modal-body">
 
         <div class="form-group">
@@ -32,10 +39,10 @@ ob_start();
                     $sql_client_contacts_select = mysqli_query($mysqli, "SELECT contact_id, contact_name, contact_email FROM contacts WHERE contact_client_id = $client_id AND contact_email <> '' ORDER BY contact_name ASC");
                     while ($row = mysqli_fetch_assoc($sql_client_contacts_select)) {
                         $contact_id_select = intval($row['contact_id']);
-                        $contact_name_select = nullable_htmlentities($row['contact_name']);
-                        $contact_email_select = nullable_htmlentities($row['contact_email']);
+                        $contact_name_select = escapeHtml($row['contact_name']);
+                        $contact_email_select = escapeHtml($row['contact_email']);
                         ?>
-                        <option value="<?php echo $contact_email_select; ?>"><?php echo "$contact_name_select - $contact_email_select"; ?></option>
+                        <option value="<?= $contact_email_select ?>"><?= "$contact_name_select - $contact_email_select" ?></option>
 
                         <?php
                     }
@@ -65,4 +72,5 @@ ob_start();
 </form>
 
 <?php
+
 require_once '../../../includes/modal_footer.php';

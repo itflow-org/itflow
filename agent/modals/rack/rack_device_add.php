@@ -7,14 +7,17 @@ $rack_id = intval($_GET['id']);
 $sql = mysqli_query($mysqli, "SELECT * FROM racks WHERE rack_id = $rack_id LIMIT 1");
 
 $row = mysqli_fetch_assoc($sql);
-$rack_name = nullable_htmlentities($row['rack_name']);
+$rack_name = escapeHtml($row['rack_name']);
 $client_id = intval($row['rack_client_id']);
 
-// Generate the HTML form content using output buffering.
+enforceClientAccess();
+
 ob_start();
+
 ?>
+
 <div class="modal-header bg-dark">
-    <h5 class="modal-title"><i class="fa fa-fw fa-server mr-2"></i>Adding Device to Rack <strong><?php echo $rack_name; ?></strong></h5>
+    <h5 class="modal-title"><i class="fa fa-fw fa-server mr-2"></i>Adding Device to Rack <strong><?= $rack_name ?></strong></h5>
     <button type="button" class="close text-white" data-dismiss="modal">
         <span>&times;</span>
     </button>
@@ -22,7 +25,7 @@ ob_start();
 
 <form action="post.php" method="post" enctype="multipart/form-data" autocomplete="off">
     <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
-    <input type="hidden" name="rack_id" value="<?php echo $rack_id; ?>">
+    <input type="hidden" name="rack_id" value="<?= $rack_id ?>">
 
     <div class="modal-body">
 
@@ -58,9 +61,9 @@ ob_start();
                     $sql_assets = mysqli_query($mysqli, "SELECT * FROM assets WHERE asset_archived_at IS NULL AND asset_client_id = $client_id AND asset_id NOT IN ($assigned_assets_list) ORDER BY asset_name ASC");
                     while ($row = mysqli_fetch_assoc($sql_assets)) {
                         $asset_id = intval($row['asset_id']);
-                        $asset_name = nullable_htmlentities($row['asset_name']);
+                        $asset_name = escapeHtml($row['asset_name']);
                         ?>
-                        <option value="<?php echo $asset_id; ?>"><?php echo $asset_name; ?></option>
+                        <option value="<?= $asset_id ?>"><?= $asset_name ?></option>
                     <?php } ?>
 
                 </select>
@@ -73,8 +76,8 @@ ob_start();
                 <div class="input-group-prepend">
                     <span class="input-group-text"><i class="fa fa-fw fa-sort-numeric-up-alt"></i></span>
                 </div>
-                <input type="number" class="form-control" name="unit_start" placeholder="Unit Start" min="1" max="<?php echo $rack_units; ?>" required>
-                <input type="number" class="form-control" name="unit_end" placeholder="Unit End" min="1" max="<?php echo $rack_units; ?>" required>
+                <input type="number" class="form-control" name="unit_start" placeholder="Unit Start" min="1" max="<?= $rack_units ?>" required>
+                <input type="number" class="form-control" name="unit_end" placeholder="Unit End" min="1" max="<?= $rack_units ?>" required>
             </div>
         </div>
 

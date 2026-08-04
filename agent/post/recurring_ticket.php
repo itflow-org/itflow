@@ -8,7 +8,7 @@ defined('FROM_POST_HANDLER') || die("Direct file access is not allowed");
 
 if (isset($_POST['add_recurring_ticket'])) {
 
-    validateCSRFToken($_POST['csrf_token']);
+    validateCSRFToken();
 
     enforceUserPermission('module_support', 2);
 
@@ -18,9 +18,9 @@ if (isset($_POST['add_recurring_ticket'])) {
 
     enforceClientAccess();
 
-    $start_date = sanitizeInput($_POST['start_date']);
+    $start_date = escapeSql($_POST['start_date']);
 
-    mysqli_query($mysqli, "INSERT INTO recurring_tickets SET recurring_ticket_subject = '$subject', recurring_ticket_details = '$details', recurring_ticket_priority = '$priority', recurring_ticket_frequency = '$frequency', recurring_ticket_billable = $billable, recurring_ticket_start_date = '$start_date', recurring_ticket_next_run = '$start_date', recurring_ticket_assigned_to = $assigned_to, recurring_ticket_created_by = $session_user_id, recurring_ticket_client_id = $client_id, recurring_ticket_contact_id = $contact_id, recurring_ticket_asset_id = $asset_id, recurring_ticket_category = $category_id");
+    mysqli_query($mysqli, "INSERT INTO recurring_tickets SET recurring_ticket_subject = '$subject', recurring_ticket_details = '$details', recurring_ticket_priority = '$priority', recurring_ticket_frequency = '$frequency', recurring_ticket_billable = $billable, recurring_ticket_start_date = '$start_date', recurring_ticket_next_run = '$start_date', recurring_ticket_assigned_to = $assigned_to, recurring_ticket_created_by = $session_user_id, recurring_ticket_client_id = $client_id, recurring_ticket_contact_id = $contact_id, recurring_ticket_asset_id = $asset_id, recurring_ticket_category = $category_id, recurring_ticket_ticket_template_id = $ticket_template_id");
 
     $recurring_ticket_id = mysqli_insert_id($mysqli);
 
@@ -32,9 +32,14 @@ if (isset($_POST['add_recurring_ticket'])) {
         }
     }
 
-    logAction("Recurring Ticket", "Create", "$session_name created recurring ticket for $subject - $frequency", $client_id, $recurring_ticket_id);
+    // Add Tasks - stamped onto every ticket this schedule raises
+    foreach (parseSubmittedTasks() as $task) {
+        mysqli_query($mysqli, "INSERT INTO recurring_ticket_tasks SET recurring_ticket_task_name = '{$task['name']}', recurring_ticket_task_order = {$task['order']}, recurring_ticket_task_completion_estimate = {$task['estimate']}, recurring_ticket_task_recurring_ticket_id = $recurring_ticket_id");
+    }
 
-    flash_alert("Recurring ticket <strong>$subject - $frequency</strong> created");
+    logAudit("Recurring Ticket", "Create", "$session_name created recurring ticket for $subject - $frequency", $client_id, $recurring_ticket_id);
+
+    flashAlert("Recurring ticket <strong>$subject - $frequency</strong> created");
 
     redirect();
 
@@ -42,20 +47,20 @@ if (isset($_POST['add_recurring_ticket'])) {
 
 if (isset($_POST['edit_recurring_ticket'])) {
 
-    validateCSRFToken($_POST['csrf_token']);
+    validateCSRFToken();
 
     enforceUserPermission('module_support', 2);
 
     require_once 'recurring_ticket_model.php';
 
     $recurring_ticket_id = intval($_POST['recurring_ticket_id']);
-    $next_run_date = sanitizeInput($_POST['next_date']);
+    $next_run_date = escapeSql($_POST['next_date']);
 
     $client_id = intval(getFieldById('recurring_tickets', $recurring_ticket_id, 'recurring_ticket_client_id'));
 
     enforceClientAccess();
 
-    mysqli_query($mysqli, "UPDATE recurring_tickets SET recurring_ticket_subject = '$subject', recurring_ticket_details = '$details', recurring_ticket_priority = '$priority', recurring_ticket_frequency = '$frequency', recurring_ticket_billable = $billable, recurring_ticket_next_run = '$next_run_date', recurring_ticket_assigned_to = $assigned_to, recurring_ticket_asset_id = $asset_id, recurring_ticket_contact_id = $contact_id, recurring_ticket_category = $category_id WHERE recurring_ticket_id = $recurring_ticket_id");
+    mysqli_query($mysqli, "UPDATE recurring_tickets SET recurring_ticket_subject = '$subject', recurring_ticket_details = '$details', recurring_ticket_priority = '$priority', recurring_ticket_frequency = '$frequency', recurring_ticket_billable = $billable, recurring_ticket_next_run = '$next_run_date', recurring_ticket_assigned_to = $assigned_to, recurring_ticket_asset_id = $asset_id, recurring_ticket_contact_id = $contact_id, recurring_ticket_category = $category_id, recurring_ticket_ticket_template_id = $ticket_template_id WHERE recurring_ticket_id = $recurring_ticket_id");
 
     // Add Additional Assets
     if (isset($_POST['additional_assets'])) {
@@ -66,9 +71,18 @@ if (isset($_POST['edit_recurring_ticket'])) {
         }
     }
 
-    logAction("Recurring Ticket", "Edit", "$session_name edited recurring ticket $subject", $client_id, $recurring_ticket_id);
+    // Replace Tasks with whatever the modal submitted
+    if (isset($_POST['tasks_submitted'])) {
+        mysqli_query($mysqli, "DELETE FROM recurring_ticket_tasks WHERE recurring_ticket_task_recurring_ticket_id = $recurring_ticket_id");
 
-    flash_alert("Recurring ticket <strong>$subject - $frequency</strong> updated");
+        foreach (parseSubmittedTasks() as $task) {
+            mysqli_query($mysqli, "INSERT INTO recurring_ticket_tasks SET recurring_ticket_task_name = '{$task['name']}', recurring_ticket_task_order = {$task['order']}, recurring_ticket_task_completion_estimate = {$task['estimate']}, recurring_ticket_task_recurring_ticket_id = $recurring_ticket_id");
+        }
+    }
+
+    logAudit("Recurring Ticket", "Edit", "$session_name edited recurring ticket $subject", $client_id, $recurring_ticket_id);
+
+    flashAlert("Recurring ticket <strong>$subject - $frequency</strong> updated");
 
     redirect();
 
@@ -76,7 +90,7 @@ if (isset($_POST['edit_recurring_ticket'])) {
 
 if (isset($_POST['bulk_force_recurring_tickets'])) {
 
-    validateCSRFToken($_POST['csrf_token']);
+    validateCSRFToken();
 
     enforceUserPermission('module_support', 2);
 
@@ -90,12 +104,12 @@ if (isset($_POST['bulk_force_recurring_tickets'])) {
 
             if (mysqli_num_rows($sql) > 0) {
                 $row = mysqli_fetch_assoc($sql);
-                $subject = sanitizeInput($row['recurring_ticket_subject']);
+                $subject = escapeSql($row['recurring_ticket_subject']);
                 $details = mysqli_real_escape_string($mysqli, $row['recurring_ticket_details']);
-                $priority = sanitizeInput($row['recurring_ticket_priority']);
-                $frequency = sanitizeInput(strtolower($row['recurring_ticket_frequency']));
+                $priority = escapeSql($row['recurring_ticket_priority']);
+                $frequency = escapeSql(strtolower($row['recurring_ticket_frequency']));
                 $billable = intval($row['recurring_ticket_billable']);
-                $old_next_recurring_date = sanitizeInput($row['recurring_ticket_next_run']);
+                $old_next_recurring_date = escapeSql($row['recurring_ticket_next_run']);
                 $created_id = intval($row['recurring_ticket_created_by']);
                 $assigned_id = intval($row['recurring_ticket_assigned_to']);
                 $contact_id = intval($row['recurring_ticket_contact_id']);
@@ -112,10 +126,10 @@ if (isset($_POST['bulk_force_recurring_tickets'])) {
                 }
 
                 // Sanitize Config Vars from get_settings.php and Session Vars from check_login.php
-                $config_ticket_prefix = sanitizeInput($config_ticket_prefix);
-                $config_ticket_from_name = sanitizeInput($config_ticket_from_name);
-                $config_ticket_from_email = sanitizeInput($config_ticket_from_email);
-                $config_base_url = sanitizeInput($config_base_url);
+                $config_ticket_prefix = escapeSql($config_ticket_prefix);
+                $config_ticket_from_name = escapeSql($config_ticket_from_name);
+                $config_ticket_from_email = escapeSql($config_ticket_from_email);
+                $config_base_url = escapeSql($config_base_url);
 
                 // Atomically increment and get the new ticket number
                 mysqli_query($mysqli, "
@@ -131,6 +145,7 @@ if (isset($_POST['bulk_force_recurring_tickets'])) {
                 // Raise the ticket
                 mysqli_query($mysqli, "INSERT INTO tickets SET ticket_prefix = '$config_ticket_prefix', ticket_number = $ticket_number, ticket_source = 'Recurring', ticket_subject = '$subject', ticket_details = '$details', ticket_priority = '$priority', ticket_status = '$ticket_status', ticket_billable = $billable, ticket_url_key = '$url_key', ticket_created_by = $created_id, ticket_assigned_to = $assigned_id, ticket_contact_id = $contact_id, ticket_client_id = $client_id, ticket_asset_id = $asset_id, ticket_category = $category, ticket_recurring_ticket_id = $recurring_ticket_id");
                 $id = mysqli_insert_id($mysqli);
+                applyTicketSla($id);
 
                 // Copy Additional Assets from Recurring ticket to new ticket
                 mysqli_query($mysqli, "INSERT INTO ticket_assets (ticket_id, asset_id)
@@ -138,9 +153,12 @@ if (isset($_POST['bulk_force_recurring_tickets'])) {
                 FROM recurring_ticket_assets
                 WHERE recurring_ticket_id = $recurring_ticket_id");
 
+                // Copy Tasks from the schedule's own task list
+                addTasksFromRecurringTicket($id, $recurring_ticket_id);
+
                 // Notifications
 
-                customAction('ticket_create', $id);
+                triggerCustomAction('ticket_create', $id);
 
                 // Get client/contact/ticket details
                 $sql = mysqli_query(
@@ -152,15 +170,15 @@ if (isset($_POST['bulk_force_recurring_tickets'])) {
                 );
                 $row = mysqli_fetch_assoc($sql);
 
-                $contact_name = sanitizeInput($row['contact_name']);
-                $contact_email = sanitizeInput($row['contact_email']);
-                $client_name = sanitizeInput($row['client_name']);
-                $contact_name = sanitizeInput($row['contact_name']);
-                $contact_email = sanitizeInput($row['contact_email']);
-                $ticket_prefix = sanitizeInput($row['ticket_prefix']);
+                $contact_name = escapeSql($row['contact_name']);
+                $contact_email = escapeSql($row['contact_email']);
+                $client_name = escapeSql($row['client_name']);
+                $contact_name = escapeSql($row['contact_name']);
+                $contact_email = escapeSql($row['contact_email']);
+                $ticket_prefix = escapeSql($row['ticket_prefix']);
                 $ticket_number = intval($row['ticket_number']);
-                $ticket_priority = sanitizeInput($row['ticket_priority']);
-                $ticket_subject = sanitizeInput($row['ticket_subject']);
+                $ticket_priority = escapeSql($row['ticket_priority']);
+                $ticket_subject = escapeSql($row['ticket_subject']);
                 $ticket_details = mysqli_real_escape_string($mysqli, $row['ticket_details']);
 
                 $data = [];
@@ -205,13 +223,13 @@ if (isset($_POST['bulk_force_recurring_tickets'])) {
                 $next_run = $next_run->format('Y-m-d');
                 mysqli_query($mysqli, "UPDATE recurring_tickets SET recurring_ticket_next_run = '$next_run' WHERE recurring_ticket_id = $recurring_ticket_id");
 
-                logAction("Ticket", "Create", "$session_name force created recurring scheduled $frequency ticket - $config_ticket_prefix$ticket_number - $subject", $client_id, $id);
+                logAudit("Ticket", "Create", "$session_name force created recurring scheduled $frequency ticket - $config_ticket_prefix$ticket_number - $subject", $client_id, $id);
 
             }
 
         }
 
-        flash_alert("$count Recurring Tickets Forced");
+        flashAlert("$count Recurring Tickets Forced");
     }
 
     redirect();
@@ -220,7 +238,7 @@ if (isset($_POST['bulk_force_recurring_tickets'])) {
 
 if (isset($_GET['force_recurring_ticket'])) {
 
-    validateCSRFToken($_GET['csrf_token']);
+    validateCSRFToken();
 
     enforceUserPermission('module_support', 2);
 
@@ -230,12 +248,12 @@ if (isset($_GET['force_recurring_ticket'])) {
 
     if (mysqli_num_rows($sql) > 0) {
         $row = mysqli_fetch_assoc($sql);
-        $subject = sanitizeInput($row['recurring_ticket_subject']);
+        $subject = escapeSql($row['recurring_ticket_subject']);
         $details = mysqli_real_escape_string($mysqli, $row['recurring_ticket_details']);
-        $priority = sanitizeInput($row['recurring_ticket_priority']);
-        $frequency = sanitizeInput(strtolower($row['recurring_ticket_frequency']));
+        $priority = escapeSql($row['recurring_ticket_priority']);
+        $frequency = escapeSql(strtolower($row['recurring_ticket_frequency']));
         $billable = intval($row['recurring_ticket_billable']);
-        $old_next_recurring_date = sanitizeInput($row['recurring_ticket_next_run']);
+        $old_next_recurring_date = escapeSql($row['recurring_ticket_next_run']);
         $created_id = intval($row['recurring_ticket_created_by']);
         $assigned_id = intval($row['recurring_ticket_assigned_to']);
         $contact_id = intval($row['recurring_ticket_contact_id']);
@@ -252,10 +270,10 @@ if (isset($_GET['force_recurring_ticket'])) {
         }
 
         // Sanitize Config Vars from get_settings.php and Session Vars from check_login.php
-        $config_ticket_prefix = sanitizeInput($config_ticket_prefix);
-        $config_ticket_from_name = sanitizeInput($config_ticket_from_name);
-        $config_ticket_from_email = sanitizeInput($config_ticket_from_email);
-        $config_base_url = sanitizeInput($config_base_url);
+        $config_ticket_prefix = escapeSql($config_ticket_prefix);
+        $config_ticket_from_name = escapeSql($config_ticket_from_name);
+        $config_ticket_from_email = escapeSql($config_ticket_from_email);
+        $config_base_url = escapeSql($config_base_url);
 
         // Atomically increment and get the new ticket number
         mysqli_query($mysqli, "
@@ -271,6 +289,7 @@ if (isset($_GET['force_recurring_ticket'])) {
         // Raise the ticket
         mysqli_query($mysqli, "INSERT INTO tickets SET ticket_prefix = '$config_ticket_prefix', ticket_number = $ticket_number, ticket_source = 'Recurring', ticket_subject = '$subject', ticket_details = '$details', ticket_priority = '$priority', ticket_status = '$ticket_status', ticket_billable = $billable, ticket_url_key = '$url_key', ticket_created_by = $created_id, ticket_assigned_to = $assigned_id, ticket_contact_id = $contact_id, ticket_client_id = $client_id, ticket_asset_id = $asset_id, ticket_category = $category, ticket_recurring_ticket_id = $recurring_ticket_id");
         $id = mysqli_insert_id($mysqli);
+        applyTicketSla($id);
 
         // Copy Additional Assets from Recurring ticket to new ticket
         mysqli_query($mysqli, "INSERT INTO ticket_assets (ticket_id, asset_id)
@@ -278,9 +297,12 @@ if (isset($_GET['force_recurring_ticket'])) {
         FROM recurring_ticket_assets
         WHERE recurring_ticket_id = $recurring_ticket_id");
 
+        // Copy Tasks from the schedule's own task list
+        addTasksFromRecurringTicket($id, $recurring_ticket_id);
+
         // Notifications
 
-        customAction('ticket_create', $id);
+        triggerCustomAction('ticket_create', $id);
 
         // Get client/contact/ticket details
         $sql = mysqli_query(
@@ -292,15 +314,15 @@ if (isset($_GET['force_recurring_ticket'])) {
         );
         $row = mysqli_fetch_assoc($sql);
 
-        $contact_name = sanitizeInput($row['contact_name']);
-        $contact_email = sanitizeInput($row['contact_email']);
-        $client_name = sanitizeInput($row['client_name']);
-        $contact_name = sanitizeInput($row['contact_name']);
-        $contact_email = sanitizeInput($row['contact_email']);
-        $ticket_prefix = sanitizeInput($row['ticket_prefix']);
+        $contact_name = escapeSql($row['contact_name']);
+        $contact_email = escapeSql($row['contact_email']);
+        $client_name = escapeSql($row['client_name']);
+        $contact_name = escapeSql($row['contact_name']);
+        $contact_email = escapeSql($row['contact_email']);
+        $ticket_prefix = escapeSql($row['ticket_prefix']);
         $ticket_number = intval($row['ticket_number']);
-        $ticket_priority = sanitizeInput($row['ticket_priority']);
-        $ticket_subject = sanitizeInput($row['ticket_subject']);
+        $ticket_priority = escapeSql($row['ticket_priority']);
+        $ticket_subject = escapeSql($row['ticket_subject']);
         $ticket_details = mysqli_real_escape_string($mysqli, $row['ticket_details']);
 
         $data = [];
@@ -345,14 +367,14 @@ if (isset($_GET['force_recurring_ticket'])) {
         $next_run = $next_run->format('Y-m-d');
         mysqli_query($mysqli, "UPDATE recurring_tickets SET recurring_ticket_next_run = '$next_run' WHERE recurring_ticket_id = $recurring_ticket_id");
 
-        logAction("Ticket", "Create", "$session_name force created recurring scheduled $frequency ticket - $config_ticket_prefix$ticket_number - $subject", $client_id, $id);
+        logAudit("Ticket", "Create", "$session_name force created recurring scheduled $frequency ticket - $config_ticket_prefix$ticket_number - $subject", $client_id, $id);
 
-        flash_alert("Recurring Ticket Forced");
+        flashAlert("Recurring Ticket Forced");
 
         redirect();
 
     } else {
-        flash_alert("Recurring Ticket Force failed", 'error');
+        flashAlert("Recurring Ticket Force failed", 'error');
         redirect();
     }
 
@@ -360,7 +382,7 @@ if (isset($_GET['force_recurring_ticket'])) {
 
 if (isset($_GET['delete_recurring_ticket'])) {
 
-    validateCSRFToken($_GET['csrf_token']);
+    validateCSRFToken();
 
     enforceUserPermission('module_support', 3);
 
@@ -369,8 +391,8 @@ if (isset($_GET['delete_recurring_ticket'])) {
     // Get Scheduled Ticket Subject Ticket Prefix, Number and Client ID for logging and alert message
     $sql = mysqli_query($mysqli, "SELECT * FROM recurring_tickets WHERE recurring_ticket_id = $recurring_ticket_id");
     $row = mysqli_fetch_assoc($sql);
-    $subject = sanitizeInput($row['recurring_ticket_subject']);
-    $frequency = sanitizeInput($row['recurring_ticket_frequency']);
+    $subject = escapeSql($row['recurring_ticket_subject']);
+    $frequency = escapeSql($row['recurring_ticket_frequency']);
     $client_id = intval($row['recurring_ticket_client_id']);
 
     enforceClientAccess();
@@ -378,9 +400,9 @@ if (isset($_GET['delete_recurring_ticket'])) {
     // Delete
     mysqli_query($mysqli, "DELETE FROM recurring_tickets WHERE recurring_ticket_id = $recurring_ticket_id");
 
-    logAction("Recurring Ticket", "Delete", "$session_name deleted recurring ticket $subject", $client_id, $recurring_ticket_id);
+    logAudit("Recurring Ticket", "Delete", "$session_name deleted recurring ticket $subject", $client_id, $recurring_ticket_id);
 
-    flash_alert("Recurring ticket <strong>$subject - $frequency</strong> deleted", 'error');
+    flashAlert("Recurring ticket <strong>$subject - $frequency</strong> deleted", 'error');
 
     redirect();
 
@@ -388,7 +410,7 @@ if (isset($_GET['delete_recurring_ticket'])) {
 
 if (isset($_POST['bulk_delete_recurring_tickets'])) {
 
-    validateCSRFToken($_POST['csrf_token']);
+    validateCSRFToken();
 
     enforceUserPermission('module_support', 3);
 
@@ -404,21 +426,21 @@ if (isset($_POST['bulk_delete_recurring_tickets'])) {
             // Get Scheduled Ticket Subject Ticket Prefix, Number and Client ID for logging and alert message
             $sql = mysqli_query($mysqli, "SELECT * FROM recurring_tickets WHERE recurring_ticket_id = $recurring_ticket_id");
             $row = mysqli_fetch_assoc($sql);
-            $subject = sanitizeInput($row['recurring_ticket_subject']);
-            $frequency = sanitizeInput($row['recurring_ticket_frequency']);
+            $subject = escapeSql($row['recurring_ticket_subject']);
+            $frequency = escapeSql($row['recurring_ticket_frequency']);
             $client_id = intval($row['recurring_ticket_client_id']);
 
             enforceClientAccess();
 
             mysqli_query($mysqli, "DELETE FROM recurring_tickets WHERE recurring_ticket_id = $recurring_ticket_id");
 
-            logAction("Recurring Ticket", "Delete", "$session_name deleted recurring ticket $subject", $client_id, $recurring_ticket_id);
+            logAudit("Recurring Ticket", "Delete", "$session_name deleted recurring ticket $subject", $client_id, $recurring_ticket_id);
 
         }
 
-        logAction("Recurring Ticket", "Bulk Delete", "$session_name deleted $count recurring ticket(s)");
+        logAudit("Recurring Ticket", "Bulk Delete", "$session_name deleted $count recurring ticket(s)");
 
-        flash_alert("Deleted <strong>$count</strong> recurring ticket(s)", 'error');
+        flashAlert("Deleted <strong>$count</strong> recurring ticket(s)", 'error');
     }
 
     redirect();
@@ -427,7 +449,7 @@ if (isset($_POST['bulk_delete_recurring_tickets'])) {
 
 if (isset($_POST['bulk_assign_recurring_ticket'])) {
 
-    validateCSRFToken($_POST['csrf_token']);
+    validateCSRFToken();
 
     enforceUserPermission('module_support', 2);
 
@@ -445,8 +467,8 @@ if (isset($_POST['bulk_assign_recurring_ticket'])) {
             $sql = mysqli_query($mysqli, "SELECT * FROM recurring_tickets WHERE recurring_ticket_id = $recurring_ticket_id");
             $row = mysqli_fetch_assoc($sql);
 
-            $recurring_ticket_name = sanitizeInput($row['recurring_ticket_name']);
-            $recurring_ticket_subject = sanitizeInput($row['recurring_ticket_subject']);
+            $recurring_ticket_name = escapeSql($row['recurring_ticket_name']);
+            $recurring_ticket_subject = escapeSql($row['recurring_ticket_subject']);
             $client_id = intval($row['recurring_ticket_client_id']);
 
             enforceClientAccess();
@@ -460,11 +482,11 @@ if (isset($_POST['bulk_assign_recurring_ticket'])) {
                 $agent_details_sql = mysqli_query($mysqli, "SELECT user_name, user_email FROM users LEFT JOIN user_settings ON users.user_id = user_settings.user_id WHERE users.user_id = $assign_to");
                 $agent_details = mysqli_fetch_assoc($agent_details_sql);
 
-                $agent_name = sanitizeInput($agent_details['user_name']);
-                $agent_email = sanitizeInput($agent_details['user_email']);
+                $agent_name = escapeSql($agent_details['user_name']);
+                $agent_email = escapeSql($agent_details['user_email']);
 
                 if (!$agent_name) {
-                    flash_alert("Invalid agent!", 'error');
+                    flashAlert("Invalid agent!", 'error');
                     redirect();
                 }
             }
@@ -472,7 +494,7 @@ if (isset($_POST['bulk_assign_recurring_ticket'])) {
             // Update recurring ticket
             mysqli_query($mysqli, "UPDATE recurring_tickets SET recurring_ticket_assigned_to = $assign_to WHERE recurring_ticket_id = $recurring_ticket_id");
 
-            logAction("Recurring_Ticket", "Edit", "$session_name reassigned recurring ticket $recurring_ticket_subject to $agent_name", $client_id, $recurring_ticket_id);
+            logAudit("Recurring_Ticket", "Edit", "$session_name reassigned recurring ticket $recurring_ticket_subject to $agent_name", $client_id, $recurring_ticket_id);
 
             $tickets_assigned_body .= "$recurring_ticket_subject<br>";
         } // End For Each Ticket ID Loop
@@ -487,9 +509,9 @@ if (isset($_POST['bulk_assign_recurring_ticket'])) {
             if (!empty($config_smtp_provider)) {
 
                 // Sanitize Config vars from get_settings.php
-                $config_ticket_from_name = sanitizeInput($config_ticket_from_name);
-                $config_ticket_from_email = sanitizeInput($config_ticket_from_email);
-                $company_name = sanitizeInput($session_company_name);
+                $config_ticket_from_name = escapeSql($config_ticket_from_name);
+                $config_ticket_from_email = escapeSql($config_ticket_from_email);
+                $company_name = escapeSql($session_company_name);
 
                 $subject = "$config_app_name - $recurring_ticket_count recurring tickets have been assigned to you";
                 $body = "Hi $agent_name, <br><br>$session_name assigned $recurring_ticket_count recurring tickets to you!<br><br>$tickets_assigned_body<br>Thanks, <br>$session_name<br>$company_name";
@@ -511,7 +533,7 @@ if (isset($_POST['bulk_assign_recurring_ticket'])) {
         }
     }
 
-    flash_alert("Assigned <strong>$recurring_ticket_count</strong> Recurring Tickets to <strong>$agent_name</strong>");
+    flashAlert("Assigned <strong>$recurring_ticket_count</strong> Recurring Tickets to <strong>$agent_name</strong>");
 
     redirect();
 
@@ -519,11 +541,11 @@ if (isset($_POST['bulk_assign_recurring_ticket'])) {
 
 if (isset($_POST['bulk_edit_recurring_ticket_priority'])) {
 
-    validateCSRFToken($_POST['csrf_token']);
+    validateCSRFToken();
 
     enforceUserPermission('module_support', 2);
 
-    $priority = sanitizeInput($_POST['bulk_priority']);
+    $priority = escapeSql($_POST['bulk_priority']);
 
     // Assign Tech to Selected Recurring Tickets
     if (isset($_POST['recurring_ticket_ids'])) {
@@ -537,8 +559,8 @@ if (isset($_POST['bulk_edit_recurring_ticket_priority'])) {
             $sql = mysqli_query($mysqli, "SELECT * FROM recurring_tickets WHERE recurring_ticket_id = $recurring_ticket_id");
             $row = mysqli_fetch_assoc($sql);
 
-            $recurring_ticket_subject = sanitizeInput($row['recurring_ticket_subject']);
-            $original_recurring_ticket_priority = sanitizeInput($row['recurring_ticket_priority']);
+            $recurring_ticket_subject = escapeSql($row['recurring_ticket_subject']);
+            $original_recurring_ticket_priority = escapeSql($row['recurring_ticket_priority']);
             $client_id = intval($row['ticket_client_id']);
 
             enforceClientAccess();
@@ -546,14 +568,14 @@ if (isset($_POST['bulk_edit_recurring_ticket_priority'])) {
             // Update recurring ticket
             mysqli_query($mysqli, "UPDATE recurring_tickets SET recurring_ticket_priority = '$priority' WHERE recurring_ticket_id = $recurring_ticket_id");
 
-            logAction("Ticket", "Edit", "$session_name updated the priority on recurring ticket $ticket_subject from $original_recurring_ticket_priority to $priority", $client_id, $recurring_ticket_id);
+            logAudit("Ticket", "Edit", "$session_name updated the priority on recurring ticket $ticket_subject from $original_recurring_ticket_priority to $priority", $client_id, $recurring_ticket_id);
 
-            customAction('recurring_ticket_update', $recurring_ticket_id);
+            triggerCustomAction('recurring_ticket_update', $recurring_ticket_id);
         } // End For Each Recurring Ticket ID Loop
 
-        logAction("Recurring Ticket", " Bulk Edit", "$session_name updated the priority to $priority on $recurring_ticket_count Recurring Tickets");
+        logAudit("Recurring Ticket", " Bulk Edit", "$session_name updated the priority to $priority on $recurring_ticket_count Recurring Tickets");
 
-        flash_alert("Priority updated to <strong>$priority</strong> for <strong>$recurring_ticket_count</strong> Recurring Tickets");
+        flashAlert("Priority updated to <strong>$priority</strong> for <strong>$recurring_ticket_count</strong> Recurring Tickets");
     }
 
     redirect();
@@ -562,7 +584,7 @@ if (isset($_POST['bulk_edit_recurring_ticket_priority'])) {
 
 if (isset($_POST['bulk_edit_recurring_ticket_category'])) {
 
-    validateCSRFToken($_POST['csrf_token']);
+    validateCSRFToken();
 
     enforceUserPermission('module_support', 2);
 
@@ -578,24 +600,24 @@ if (isset($_POST['bulk_edit_recurring_ticket_category'])) {
             $sql = mysqli_query($mysqli, "SELECT recurring_ticket_subject, category_name, recurring_ticket_client_id FROM recurring_tickets LEFT JOIN categories ON recurring_ticket_category = category_id WHERE recurring_ticket_id = $recurring_ticket_id");
             $row = mysqli_fetch_assoc($sql);
 
-            $recurring_ticket_subject = sanitizeInput($row['recurring_ticket_subject']);
-            $previous_recurring_ticket_category_name = sanitizeInput($row['category_name']);
+            $recurring_ticket_subject = escapeSql($row['recurring_ticket_subject']);
+            $previous_recurring_ticket_category_name = escapeSql($row['category_name']);
             $client_id = intval($row['recurring_ticket_client_id']);
 
             enforceClientAccess();
 
-            $category_name = sanitizeInput(getFieldById('categories', $category_id, 'category_name'));
+            $category_name = escapeSql(getFieldById('categories', $category_id, 'category_name'));
 
             mysqli_query($mysqli, "UPDATE recurring_tickets SET recurring_ticket_category = '$category_id' WHERE recurring_ticket_id = $recurring_ticket_id");
 
-            logAction("Recurring Ticket", "Edit", "$session_name updated the category on recurring ticket $recurring_ticket_subject from $previous_recurring_ticket_category_name to $category_name", $client_id, $recurring_ticket_id);
+            logAudit("Recurring Ticket", "Edit", "$session_name updated the category on recurring ticket $recurring_ticket_subject from $previous_recurring_ticket_category_name to $category_name", $client_id, $recurring_ticket_id);
 
-            customAction('recurring_ticket_update', $recurring_ticket_id);
+            triggerCustomAction('recurring_ticket_update', $recurring_ticket_id);
         }
 
-        logAction("Recurring Ticket", " Bulk Edit", "$session_name updated the category to $category_name for $recurring_ticket_count Recurring Tickets");
+        logAudit("Recurring Ticket", " Bulk Edit", "$session_name updated the category to $category_name for $recurring_ticket_count Recurring Tickets");
 
-        flash_alert("Category set to $category_name for <strong>$recurring_ticket_count</strong> Recurring Tickets");
+        flashAlert("Category set to $category_name for <strong>$recurring_ticket_count</strong> Recurring Tickets");
     }
 
     redirect();
@@ -604,7 +626,7 @@ if (isset($_POST['bulk_edit_recurring_ticket_category'])) {
 
 if (isset($_POST['bulk_edit_recurring_ticket_billable'])) {
 
-    validateCSRFToken($_POST['csrf_token']);
+    validateCSRFToken();
 
     enforceUserPermission('module_support', 2);
     enforceUserPermission('module_sales', 2);
@@ -626,7 +648,7 @@ if (isset($_POST['bulk_edit_recurring_ticket_billable'])) {
             $sql = mysqli_query($mysqli, "SELECT recurring_ticket_subject, recurring_ticket_client_id FROM recurring_tickets WHERE recurring_ticket_id = $recurring_ticket_id");
             $row = mysqli_fetch_assoc($sql);
 
-            $recurring_ticket_subject = sanitizeInput($row['recurring_ticket_subject']);
+            $recurring_ticket_subject = escapeSql($row['recurring_ticket_subject']);
             $previous_recurring_ticket_billable = intval($row['recurring_ticket_billable']);
             if ($previous_recurring_ticket_billable) {
                 $previous_billable_status = "Billable";
@@ -639,14 +661,14 @@ if (isset($_POST['bulk_edit_recurring_ticket_billable'])) {
 
             mysqli_query($mysqli, "UPDATE recurring_tickets SET recurring_ticket_billable = $billable WHERE recurring_ticket_id = $recurring_ticket_id");
 
-            logAction("Recurring Ticket", "Edit", "$session_name updated the billable status on recurring ticket $recurring_ticket_subject from $previous_billable_status to $billable_status", $client_id, $recurring_ticket_id);
+            logAudit("Recurring Ticket", "Edit", "$session_name updated the billable status on recurring ticket $recurring_ticket_subject from $previous_billable_status to $billable_status", $client_id, $recurring_ticket_id);
 
-            customAction('recurring_ticket_update', $recurring_ticket_id);
+            triggerCustomAction('recurring_ticket_update', $recurring_ticket_id);
         }
 
-        logAction("Recurring Ticket", " Bulk Edit", "$session_name updated the billable status to $billable_status for $recurring_ticket_count Recurring Tickets");
+        logAudit("Recurring Ticket", " Bulk Edit", "$session_name updated the billable status to $billable_status for $recurring_ticket_count Recurring Tickets");
 
-        flash_alert("Billable status set to $billable_status for <strong>$recurring_ticket_count</strong> Recurring Tickets");
+        flashAlert("Billable status set to $billable_status for <strong>$recurring_ticket_count</strong> Recurring Tickets");
     }
 
     redirect();
@@ -655,11 +677,11 @@ if (isset($_POST['bulk_edit_recurring_ticket_billable'])) {
 
 if (isset($_POST['bulk_edit_recurring_ticket_next_run_date'])) {
 
-    validateCSRFToken($_POST['csrf_token']);
+    validateCSRFToken();
 
     enforceUserPermission('module_support', 2);
 
-    $next_run_date = sanitizeInput($_POST['next_run_date']);
+    $next_run_date = escapeSql($_POST['next_run_date']);
 
     if (isset($_POST['recurring_ticket_ids'])) {
 
@@ -671,22 +693,22 @@ if (isset($_POST['bulk_edit_recurring_ticket_next_run_date'])) {
             $sql = mysqli_query($mysqli, "SELECT recurring_ticket_subject, recurring_ticket_client_id FROM recurring_tickets WHERE recurring_ticket_id = $recurring_ticket_id");
             $row = mysqli_fetch_assoc($sql);
 
-            $recurring_ticket_subject = sanitizeInput($row['recurring_ticket_subject']);
-            $previous_recurring_ticket_next_run_date = sanitizeInput($row['recurring_ticket_next_run']);
+            $recurring_ticket_subject = escapeSql($row['recurring_ticket_subject']);
+            $previous_recurring_ticket_next_run_date = escapeSql($row['recurring_ticket_next_run']);
             $client_id = intval($row['recurring_ticket_client_id']);
 
             enforceClientAccess();
 
             mysqli_query($mysqli, "UPDATE recurring_tickets SET recurring_ticket_next_run = '$next_run_date' WHERE recurring_ticket_id = $recurring_ticket_id");
 
-            logAction("Recurring Ticket", "Edit", "$session_name updated the Next run date on recurring ticket $recurring_ticket_subject from $previous_recurring_ticket_next_run_date to $next_run_date", $client_id, $recurring_ticket_id);
+            logAudit("Recurring Ticket", "Edit", "$session_name updated the Next run date on recurring ticket $recurring_ticket_subject from $previous_recurring_ticket_next_run_date to $next_run_date", $client_id, $recurring_ticket_id);
 
-            customAction('recurring_ticket_update', $recurring_ticket_id);
+            triggerCustomAction('recurring_ticket_update', $recurring_ticket_id);
         }
 
-        logAction("Recurring Ticket", " Bulk Edit", "$session_name updated the Next run date to $next_run_date for $recurring_ticket_count Recurring Tickets");
+        logAudit("Recurring Ticket", " Bulk Edit", "$session_name updated the Next run date to $next_run_date for $recurring_ticket_count Recurring Tickets");
 
-        flash_alert("Next run date set to <strong>$next_run_date</strong> for <strong>$recurring_ticket_count</strong> Recurring Tickets");
+        flashAlert("Next run date set to <strong>$next_run_date</strong> for <strong>$recurring_ticket_count</strong> Recurring Tickets");
     }
 
     redirect();

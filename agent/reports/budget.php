@@ -32,7 +32,7 @@ $monthlyTotals = array_fill(1, 12, 0);  // Initialize monthly totals for each mo
                 while ($row = mysqli_fetch_assoc($sql_expense_years)) {
                     $expense_year = $row['expense_year'];
                     ?>
-                    <option <?php if ($year == $expense_year) { ?> selected <?php } ?> > <?php echo $expense_year; ?></option>
+                    <option <?php if ($year == $expense_year) { ?> selected <?php } ?> > <?= $expense_year ?></option>
 
                 <?php } ?>
 
@@ -66,7 +66,7 @@ $monthlyTotals = array_fill(1, 12, 0);  // Initialize monthly totals for each mo
                 if ($categories->num_rows > 0) {
                     while($category = $categories->fetch_assoc()) {
                         echo "<tr>";
-                        echo "<td>" . nullable_htmlentities($category['category_name']) . "</td>";
+                        echo "<td>" . escapeHtml($category['category_name']) . "</td>";
                         $categoryTotal = 0;
                         for ($month = 1; $month <= 12; $month++) {
                             // Fetch the monthly budget for this category for 2022

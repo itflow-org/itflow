@@ -10,13 +10,16 @@ $sql = mysqli_query($mysqli, "SELECT * FROM documents
 ");
 
 $row = mysqli_fetch_assoc($sql);
-$document_name = nullable_htmlentities($row['document_name']);
+$document_name = escapeHtml($row['document_name']);
 $document_client_visible = intval($row['document_client_visible']);
 $client_id = intval($row['document_client_id']);
+
+enforceClientAccess();
 
 ob_start();
 
 ?>
+
 <div class="modal-header bg-dark">
     <h5 class="modal-title">
         <i class="fa fa-fw fa-handshake mr-2"></i>

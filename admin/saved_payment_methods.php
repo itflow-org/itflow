@@ -1,0 +1,156 @@
+<?php
+
+// Default Column Sortby Filter
+$sort = "client_name";
+$order = "ASC";
+
+require_once "includes/inc_all_admin.php";
+
+$sql = mysqli_query($mysqli, "
+    SELECT SQL_CALC_FOUND_ROWS
+        client_saved_payment_methods.*,
+        payment_providers.payment_provider_name,
+        clients.client_name,
+        client_payment_provider.payment_provider_client
+    FROM client_saved_payment_methods
+    LEFT JOIN payment_providers
+        ON client_saved_payment_methods.saved_payment_provider_id = payment_providers.payment_provider_id
+    LEFT JOIN clients
+        ON client_saved_payment_methods.saved_payment_client_id = clients.client_id
+    LEFT JOIN client_payment_provider
+        ON client_payment_provider.client_id = client_saved_payment_methods.saved_payment_client_id
+        AND client_payment_provider.payment_provider_id = client_saved_payment_methods.saved_payment_provider_id
+    WHERE
+        client_name LIKE '%$q%'
+        OR payment_provider_name LIKE '%$q%'
+        OR saved_payment_description LIKE '%$q%'
+        OR payment_provider_client LIKE '%$q%'
+        OR saved_payment_provider_method LIKE '%$q%'
+    ORDER BY $sort $order
+");
+
+$num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
+
+?>
+
+<ol class="breadcrumb d-print-none">
+    <li class="breadcrumb-item">
+        <a href="/admin">Admin</a>
+    </li>
+    <li class="breadcrumb-item">
+        <a href="payment_providers.php">Payment Providers</a>
+    </li>
+    <li class="breadcrumb-item active">Saved Payment Methods (Stripe)</li>
+</ol>
+
+<div class="card card-dark">
+    <div class="card-header">
+        <h3 class="card-title"><i class="fas fa-fw fa-credit-card mr-2"></i>Saved Payment Methods</h3>
+    </div>
+    <div class="card-body">
+        <form class="mb-4" autocomplete="off">
+            <div class="row">
+                <div class="col-md-4">
+                    <div class="input-group">
+                        <input type="search" class="form-control" name="q" value="<?php if (isset($q)) {echo stripslashes(escapeHtml($q));} ?>" placeholder="Search Saved Payment Methods">
+                        <div class="input-group-append">
+                            <button class="btn btn-primary"><i class="fa fa-search"></i></button>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-8">
+                </div>
+            </div>
+        </form>
+        <hr>
+        <div class="table-responsive-sm">
+            <table class="table table-striped table-borderless table-hover">
+                <thead class="text-dark <?php if ($num_rows == 0) { echo "d-none"; } ?>">
+                <tr>
+                    <th>
+                        <a class="text-dark" href="?<?= $url_query_strings_sort ?>&sort=client_name&order=<?= $disp ?>">
+                            Client <?php if ($sort == 'client_name') { echo $order_icon; } ?>
+                        </a>
+                    </th>
+                    <th>
+                        <a class="text-dark" href="?<?= $url_query_strings_sort ?>&sort=payment_provider_name&order=<?= $disp ?>">
+                            Provider <?php if ($sort == 'payment_provider_name') { echo $order_icon; } ?>
+                        </a>
+                    </th>
+                    <th>
+                        <a class="text-dark" href="?<?= $url_query_strings_sort ?>&sort=saved_payment_description&order=<?= $disp ?>">
+                            Description <?php if ($sort == 'saved_payment_description') { echo $order_icon; } ?>
+                        </a>
+                    </th>
+                    <th>
+                        <a class="text-dark" href="?<?= $url_query_strings_sort ?>&sort=payment_provider_client&order=<?= $disp ?>">
+                            Provider Client ID <?php if ($sort == 'payment_provider_client') { echo $order_icon; } ?>
+                        </a>
+                    </th>
+
+                    <th>
+                        <a class="text-dark" href="?<?= $url_query_strings_sort ?>&sort=saved_payment_provider_method&order=<?= $disp ?>">
+                            Provider Payment Method ID <?php if ($sort == 'saved_payment_provider_method') { echo $order_icon; } ?>
+                        </a>
+                    </th>
+                    <th>
+                        <a class="text-dark" href="?<?= $url_query_strings_sort ?>&sort=saved_payment_created_at&order=<?= $disp ?>">
+                            Created <?php if ($sort == 'saved_payment_created_at') { echo $order_icon; } ?>
+                        </a>
+                    </th>
+                    <th class="text-center">Action</th>
+                </tr>
+                </thead>
+                <tbody>
+                <?php
+
+                while ($row = mysqli_fetch_assoc($sql)) {
+                    $saved_payment_id = intval($row['saved_payment_id']);
+                    $client_id = intval($row['saved_payment_client_id']);
+                    $client_name = escapeHtml($row['client_name']);
+                    $provider_id = intval($row['saved_payment_provider_id']);
+                    $provider_name = escapeHtml($row['payment_provider_name']);
+                    $saved_payment_description = escapeHtml($row['saved_payment_description']);
+                    $provider_client = escapeHtml($row['payment_provider_client']);
+                    $provider_payment_method = escapeHtml($row['saved_payment_provider_method']);
+                    $saved_payment_created_at = escapeHtml($row['saved_payment_created_at']);
+
+                    ?>
+                    <tr>
+                        <td>
+                            <?= $client_name ?>
+                            <br>
+                            <small class="text-secondary">ID: <?= $client_id ?></small>
+                        </td>
+                        <td>
+                            <?= $provider_name ?>
+                            <br>
+                            <small class="text-secondary">ID: <?= $provider_id ?></small>
+                        </td>
+                        <td><?= $saved_payment_description ?></td>
+                        <td><?= $provider_client ?></td>
+                        <td><?= $provider_payment_method ?></td>
+                        <td><?= $saved_payment_created_at ?></td>
+                        <td>
+                            <a class="btn btn-outline-danger confirm-link" href="post.php?delete_saved_payment=<?= $saved_payment_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>">
+                                <i class="fas fa-fw fa-trash mr-2"></i>Delete
+                            </a>
+                        </td>
+                    </tr>
+
+                    <?php
+
+                }
+
+                ?>
+
+                </tbody>
+            </table>
+
+        </div>
+        <?php require_once "../includes/filter_footer.php"; ?>
+    </div>
+</div>
+
+<?php
+require_once "../includes/footer.php";

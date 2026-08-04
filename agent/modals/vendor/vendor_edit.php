@@ -2,50 +2,57 @@
 
 require_once '../../../includes/modal_header.php';
 
+enforceUserPermission('module_client', 2);
+
 $vendor_id = intval($_GET['id']);
 
 $sql = mysqli_query($mysqli, "SELECT * FROM vendors WHERE vendor_id = $vendor_id LIMIT 1");
 
 $row = mysqli_fetch_assoc($sql);
-$vendor_name = nullable_htmlentities($row['vendor_name']);
-$vendor_description = nullable_htmlentities($row['vendor_description']);
-$vendor_account_number = nullable_htmlentities($row['vendor_account_number']);
-$vendor_contact_name = nullable_htmlentities($row['vendor_contact_name']);
-$vendor_phone_country_code = nullable_htmlentities($row['vendor_phone_country_code']);
-$vendor_phone = nullable_htmlentities(formatPhoneNumber($row['vendor_phone'], $vendor_phone_country_code));
-$vendor_extension = nullable_htmlentities($row['vendor_extension']);
-$vendor_email = nullable_htmlentities($row['vendor_email']);
-$vendor_website = nullable_htmlentities($row['vendor_website']);
-$vendor_hours = nullable_htmlentities($row['vendor_hours']);
-$vendor_sla = nullable_htmlentities($row['vendor_sla']);
-$vendor_code = nullable_htmlentities($row['vendor_code']);
-$vendor_notes = nullable_htmlentities($row['vendor_notes']);
+$vendor_name = escapeHtml($row['vendor_name']);
+$vendor_description = escapeHtml($row['vendor_description']);
+$vendor_account_number = escapeHtml($row['vendor_account_number']);
+$vendor_contact_name = escapeHtml($row['vendor_contact_name']);
+$vendor_phone_country_code = escapeHtml($row['vendor_phone_country_code']);
+$vendor_phone = escapeHtml(formatPhoneNumber($row['vendor_phone'], $vendor_phone_country_code));
+$vendor_extension = escapeHtml($row['vendor_extension']);
+$vendor_email = escapeHtml($row['vendor_email']);
+$vendor_website = escapeHtml($row['vendor_website']);
+$vendor_hours = escapeHtml($row['vendor_hours']);
+$vendor_sla = escapeHtml($row['vendor_sla']);
+$vendor_code = escapeHtml($row['vendor_code']);
+$vendor_notes = escapeHtml($row['vendor_notes']);
 $vendor_template_id = intval($row['vendor_template_id']);
+$client_id = intval($row['vendor_client_id']);
 
-// Generate the HTML form content using output buffering.
+if ($client_id) {
+    enforceClientAccess();
+}
+
 ob_start();
+
 ?>
 
 <div class="modal-header bg-dark">
-    <h5 class="modal-title"><i class="fas fa-fw fa-building mr-2"></i>Editing vendor: <strong><?php echo $vendor_name; ?></strong></h5>
+    <h5 class="modal-title"><i class="fas fa-fw fa-building mr-2"></i>Editing vendor: <strong><?= $vendor_name ?></strong></h5>
     <button type="button" class="close text-white" data-dismiss="modal">
         <span>&times;</span>
     </button>
 </div>
 <form action="post.php" method="post" autocomplete="off">
     <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
-    <input type="hidden" name="vendor_id" value="<?php echo $vendor_id; ?>">
+    <input type="hidden" name="vendor_id" value="<?= $vendor_id ?>">
     <div class="modal-body">
 
         <ul class="nav nav-pills nav-justified mb-3">
             <li class="nav-item">
-                <a class="nav-link active" data-toggle="pill" href="#pills-details<?php echo $vendor_id; ?>">Details</a>
+                <a class="nav-link active" data-toggle="pill" href="#pills-details<?= $vendor_id ?>">Details</a>
             </li>
             <li class="nav-item">
-                <a class="nav-link" data-toggle="pill" href="#pills-support<?php echo $vendor_id; ?>">Support</a>
+                <a class="nav-link" data-toggle="pill" href="#pills-support<?= $vendor_id ?>">Support</a>
             </li>
             <li class="nav-item">
-                <a class="nav-link" data-toggle="pill" href="#pills-notes<?php echo $vendor_id; ?>">Notes</a>
+                <a class="nav-link" data-toggle="pill" href="#pills-notes<?= $vendor_id ?>">Notes</a>
             </li>
         </ul>
 
@@ -53,7 +60,7 @@ ob_start();
 
         <div class="tab-content">
 
-            <div class="tab-pane fade show active" id="pills-details<?php echo $vendor_id; ?>">
+            <div class="tab-pane fade show active" id="pills-details<?= $vendor_id ?>">
 
                 <div class="form-group">
                     <label>Vendor Name <strong class="text-danger">*</strong></label>
@@ -61,7 +68,7 @@ ob_start();
                         <div class="input-group-prepend">
                             <span class="input-group-text"><i class="fa fa-fw fa-building"></i></span>
                         </div>
-                        <input type="text" class="form-control" name="name" placeholder="Vendor Name" maxlength="200" value="<?php echo "$vendor_name"; ?>" required>
+                        <input type="text" class="form-control" name="name" placeholder="Vendor Name" maxlength="200" value="<?= "$vendor_name" ?>" required>
                     </div>
                 </div>
 
@@ -71,7 +78,7 @@ ob_start();
                         <div class="input-group-prepend">
                             <span class="input-group-text"><i class="fa fa-fw fa-align-left"></i></span>
                         </div>
-                        <input type="text" class="form-control" name="description" placeholder="Description" maxlength="200" value="<?php echo $vendor_description; ?>">
+                        <input type="text" class="form-control" name="description" placeholder="Description" maxlength="200" value="<?= $vendor_description ?>">
                     </div>
                 </div>
 
@@ -81,7 +88,7 @@ ob_start();
                         <div class="input-group-prepend">
                             <span class="input-group-text"><i class="fa fa-fw fa-fingerprint"></i></span>
                         </div>
-                        <input type="text" class="form-control" name="account_number" placeholder="Account number" maxlength="200" value="<?php echo $vendor_account_number; ?>">
+                        <input type="text" class="form-control" name="account_number" placeholder="Account number" maxlength="200" value="<?= $vendor_account_number ?>">
                     </div>
                 </div>
 
@@ -91,7 +98,7 @@ ob_start();
                         <div class="input-group-prepend">
                             <span class="input-group-text"><i class="fa fa-fw fa-user"></i></span>
                         </div>
-                        <input type="text" class="form-control" name="contact_name" maxlength="200" value="<?php echo $vendor_contact_name; ?>" placeholder="Vendor contact name">
+                        <input type="text" class="form-control" name="contact_name" maxlength="200" value="<?= $vendor_contact_name ?>" placeholder="Vendor contact name">
                     </div>
                 </div>
 
@@ -108,8 +115,8 @@ ob_start();
                             $sql_vendor_templates = mysqli_query($mysqli, "SELECT * FROM vendor_templates WHERE vendor_template_archived_at IS NULL ORDER BY vendor_template_name ASC");
                             while ($row = mysqli_fetch_assoc($sql_vendor_templates)) {
                                 $vendor_template_id_select = $row['vendor_template_id'];
-                                $vendor_template_name_select = nullable_htmlentities($row['vendor_template_name']); ?>
-                                <option <?php if ($vendor_template_id == $vendor_template_id_select) { echo "selected"; } ?> value="<?php echo $vendor_template_id_select; ?>"><?php echo $vendor_template_name_select; ?></option>
+                                $vendor_template_name_select = escapeHtml($row['vendor_template_name']); ?>
+                                <option <?php if ($vendor_template_id == $vendor_template_id_select) { echo "selected"; } ?> value="<?= $vendor_template_id_select ?>"><?= $vendor_template_name_select ?></option>
 
                             <?php } ?>
                         </select>
@@ -118,7 +125,7 @@ ob_start();
 
             </div>
 
-            <div class="tab-pane fade" id="pills-support<?php echo $vendor_id; ?>">
+            <div class="tab-pane fade" id="pills-support<?= $vendor_id ?>">
 
                 <label>Support Phone / <span class="text-secondary">Extension</span></label>
                 <div class="form-row">
@@ -128,14 +135,14 @@ ob_start();
                                 <div class="input-group-prepend">
                                     <span class="input-group-text"><i class="fa fa-fw fa-phone"></i></span>
                                 </div>
-                                <input type="tel" class="form-control col-2" name="phone_country_code" value="<?php echo $vendor_phone_country_code; ?>" placeholder="+" maxlength="4">
-                                <input type="tel" class="form-control" name="phone" value="<?php echo $vendor_phone; ?>" placeholder="Phone Number" maxlength="200">
+                                <input type="tel" class="form-control col-2" name="phone_country_code" value="<?= $vendor_phone_country_code ?>" placeholder="+" maxlength="4">
+                                <input type="tel" class="form-control" name="phone" value="<?= $vendor_phone ?>" placeholder="Phone Number" maxlength="200">
                             </div>
                         </div>
                     </div>
                     <div class="col-3">
                         <div class="form-group">
-                            <input type="text" class="form-control" name="extension" value="<?php echo $vendor_extension; ?>" placeholder="ext." maxlength="200">
+                            <input type="text" class="form-control" name="extension" value="<?= $vendor_extension ?>" placeholder="ext." maxlength="200">
                         </div>
                     </div>
                 </div>
@@ -146,7 +153,7 @@ ob_start();
                         <div class="input-group-prepend">
                             <span class="input-group-text"><i class="fa fa-fw fa-calendar"></i></span>
                         </div>
-                        <input type="text" class="form-control" name="hours" placeholder="Support Hours" maxlength="200" value="<?php echo $vendor_hours; ?>">
+                        <input type="text" class="form-control" name="hours" placeholder="Support Hours" maxlength="200" value="<?= $vendor_hours ?>">
                     </div>
                 </div>
 
@@ -156,7 +163,7 @@ ob_start();
                         <div class="input-group-prepend">
                             <span class="input-group-text"><i class="fa fa-fw fa-envelope"></i></span>
                         </div>
-                        <input type="email" class="form-control" name="email" placeholder="Support Email" maxlength="200" value="<?php echo $vendor_email; ?>">
+                        <input type="email" class="form-control" name="email" placeholder="Support Email" maxlength="200" value="<?= $vendor_email ?>">
                     </div>
                 </div>
 
@@ -166,7 +173,7 @@ ob_start();
                         <div class="input-group-prepend">
                             <span class="input-group-text"><i class="fa fa-fw fa-globe"></i></span>
                         </div>
-                        <input type="text" class="form-control" name="website" placeholder="Do not include http(s)://" maxlength="200" value="<?php echo $vendor_website; ?>">
+                        <input type="text" class="form-control" name="website" placeholder="Do not include http(s)://" maxlength="200" value="<?= $vendor_website ?>">
                     </div>
                 </div>
 
@@ -176,7 +183,7 @@ ob_start();
                         <div class="input-group-prepend">
                             <span class="input-group-text"><i class="fa fa-fw fa-handshake"></i></span>
                         </div>
-                        <input type="text" class="form-control" name="sla" placeholder="SLA Response Time" maxlength="200" value="<?php echo $vendor_sla; ?>">
+                        <input type="text" class="form-control" name="sla" placeholder="SLA Response Time" maxlength="200" value="<?= $vendor_sla ?>">
                     </div>
                 </div>
 
@@ -186,16 +193,16 @@ ob_start();
                         <div class="input-group-prepend">
                             <span class="input-group-text"><i class="fa fa-fw fa-key"></i></span>
                         </div>
-                        <input type="text" class="form-control" name="code" placeholder="Access Code or Pin" maxlength="200" value="<?php echo $vendor_code; ?>">
+                        <input type="text" class="form-control" name="code" placeholder="Access Code or Pin" maxlength="200" value="<?= $vendor_code ?>">
                     </div>
                 </div>
 
             </div>
 
-            <div class="tab-pane fade" id="pills-notes<?php echo $vendor_id; ?>">
+            <div class="tab-pane fade" id="pills-notes<?= $vendor_id ?>">
 
                 <div class="form-group">
-                    <textarea class="form-control" rows="12" placeholder="Enter some notes" name="notes"><?php echo $vendor_notes; ?></textarea>
+                    <textarea class="form-control" rows="12" placeholder="Enter some notes" name="notes"><?= $vendor_notes ?></textarea>
                 </div>
 
                 <p class="text-muted text-right">Vendor ID: <?= $vendor_id ?></p>

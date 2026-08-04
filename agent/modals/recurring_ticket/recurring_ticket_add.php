@@ -17,8 +17,8 @@ ob_start();
 </div>
 <form action="post.php" method="post" autocomplete="off">
     <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
-    <?php if (isset($client_id)) { ?>
-           <input type="hidden" name="client_id" value="<?php echo $client_id; ?>>">
+    <?php if ($client_id) { ?>
+        <input type="hidden" name="client_id" id="clientIdHidden" value="<?= $client_id ?>">
     <?php } ?>
     <input type="hidden" name="billable" value="0">
 
@@ -28,11 +28,9 @@ ob_start();
             <li class="nav-item">
                 <a class="nav-link active" data-toggle="pill" href="#pills-add-details"><i class="fa fa-fw fa-life-ring mr-2"></i>Details</a>
             </li>
-            <?php if (!$contact_id) { ?>
             <li class="nav-item">
-                <a class="nav-link" data-toggle="pill" href="#pills-add-contacts"><i class="fa fa-fw fa-users mr-2"></i>Contact</a>
+                <a class="nav-link" data-toggle="pill" href="#pills-add-tasks"><i class="fa fa-fw fa-tasks mr-2"></i>Tasks</a>
             </li>
-            <?php } ?>
             <li class="nav-item">
                 <a class="nav-link" data-toggle="pill" href="#pills-add-schedule"><i class="fa fa-fw fa-building mr-2"></i>Schedule</a>
             </li>
@@ -45,18 +43,63 @@ ob_start();
 
             <div class="tab-pane fade show active" id="pills-add-details">
 
+                <?php if ($contact_id) { ?>
+                <input type="hidden" name="contact_id" value="<?= $contact_id ?>">
+                <?php } else { ?>
+                <div class="row">
+                    <div class="col">
+                        <div class="form-group">
+                            <label>Client <strong class="text-danger">*</strong></label>
+                            <div class="input-group">
+                                <div class="input-group-prepend">
+                                    <span class="input-group-text"><i class="fa fa-fw fa-user"></i></span>
+                                </div>
+                                <select class="form-control select2" name="client_id" id="changeClientSelect" required <?php if ($client_id) { echo "disabled"; } ?>>
+                                    <option value="">- Select a Client -</option>
+                                    <?php
+
+                                    $sql = mysqli_query($mysqli, "SELECT * FROM clients WHERE client_archived_at IS NULL $access_permission_query ORDER BY client_name ASC");
+                                    while ($row = mysqli_fetch_assoc($sql)) {
+                                        $client_id_select = intval($row['client_id']);
+                                        $client_name = escapeHtml($row['client_name']); ?>
+
+                                        <option value="<?= $client_id_select ?>" <?php if ($client_id == $client_id_select) {echo "selected"; } ?>><?= $client_name ?></option>
+
+                                    <?php } ?>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col">
+                        <div class="form-group">
+                            <label>Contact </label>
+                            <div class="input-group">
+                                <div class="input-group-prepend">
+                                    <span class="input-group-text"><i class="fa fa-fw fa-user"></i></span>
+                                </div>
+                                <select class="form-control select2" name="contact_id" id="contactSelect">
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <?php } ?>
+
+                <?php require_once '../../includes/inc_ticket_template_select.php'; ?>
+
                 <div class="form-group">
                     <label>Subject <strong class="text-danger">*</strong></label>
                     <div class="input-group">
                         <div class="input-group-prepend">
                             <span class="input-group-text"><i class="fa fa-fw fa-tag"></i></span>
                         </div>
-                        <input type="text" class="form-control" name="subject" placeholder="Subject" maxlength="500" required>
+                        <input type="text" class="form-control" id="subjectInput" name="subject" placeholder="Subject" maxlength="500" required>
                     </div>
                 </div>
 
                 <div class="form-group">
-                    <textarea class="form-control tinymceTicket" name="details"></textarea>
+                    <textarea class="form-control tinymceTicket" id="detailsInput" name="details"></textarea>
                 </div>
 
                 <div class="row">
@@ -72,6 +115,7 @@ ob_start();
                                     <option>Low</option>
                                     <option>Medium</option>
                                     <option>High</option>
+                                    <option>Urgent</option>
                                 </select>
                             </div>
                         </div>
@@ -90,10 +134,10 @@ ob_start();
                                     $sql_categories = mysqli_query($mysqli, "SELECT category_id, category_name FROM categories WHERE category_type = 'Ticket' AND category_archived_at IS NULL ORDER BY category_name ASC");
                                     while ($row = mysqli_fetch_assoc($sql_categories)) {
                                         $category_id = intval($row['category_id']);
-                                        $category_name = nullable_htmlentities($row['category_name']);
+                                        $category_name = escapeHtml($row['category_name']);
 
                                         ?>
-                                        <option value="<?php echo $category_id; ?>"><?php echo $category_name; ?></option>
+                                        <option value="<?= $category_id ?>"><?= $category_name ?></option>
                                     <?php } ?>
 
                                 </select>
@@ -126,8 +170,8 @@ ob_start();
                             );
                             while ($row = mysqli_fetch_assoc($sql)) {
                                 $user_id = intval($row['user_id']);
-                                $user_name = nullable_htmlentities($row['user_name']); ?>
-                                <option value="<?php echo $user_id; ?>"><?php echo $user_name; ?></option>
+                                $user_name = escapeHtml($row['user_name']); ?>
+                                <option value="<?= $user_id ?>"><?= $user_name ?></option>
                             <?php } ?>
                         </select>
                     </div>
@@ -144,52 +188,11 @@ ob_start();
 
             </div>
 
-            <?php if ($contact_id) { ?>
-                <input type="hidden" name="client_id" value="<?php echo $client_id; ?>">
-                <input type="hidden" name="contact_id" value="<?php echo $contact_id; ?>">
-            <?php } else { ?>
-            <div class="tab-pane fade" id="pills-add-contacts">
+            <div class="tab-pane fade" id="pills-add-tasks">
 
-                <div class="form-group">
-                    <label>Client <strong class="text-danger">*</strong></label>
-                    <div class="input-group">
-                        <div class="input-group-prepend">
-                            <span class="input-group-text"><i class="fa fa-fw fa-user"></i></span>
-                        </div>
-                        <select class="form-control select2" name="client_id" id="changeClientSelect" required <?php if ($client_id) { echo "disabled"; } ?>>
-                            <option value="">- Client -</option>
-                            <?php
+                <?php require_once '../../includes/inc_ticket_tasks_section.php'; ?>
 
-                            $sql = mysqli_query($mysqli, "SELECT * FROM clients WHERE client_archived_at IS NULL $access_permission_query ORDER BY client_name ASC");
-                            while ($row = mysqli_fetch_assoc($sql)) {
-                                $client_id_select = intval($row['client_id']);
-                                $client_name = nullable_htmlentities($row['client_name']); ?>
-
-                                <option value="<?php echo $client_id_select; ?>" <?php if ($client_id == $client_id_select) {echo "selected"; } ?>><?php echo $client_name; ?></option>
-
-                            <?php } ?>
-                        </select>
-                    </div>
-                </div>
-
-
-                <div class="form-group">
-                    <label>Contact </label>
-                    <div class="input-group">
-                        <div class="input-group-prepend">
-                            <span class="input-group-text"><i class="fa fa-fw fa-user"></i></span>
-                        </div>
-                        <select class="form-control select2" name="contact_id" id="contactSelect">
-                        </select>
-                    </div>
-                </div>
-
-                <div id="contacts-section">
-
-                </div>
             </div>
-
-            <?php } ?>
 
             <div class="tab-pane fade" id="pills-add-schedule">
 
@@ -222,7 +225,7 @@ ob_start();
                         <div class="input-group-prepend">
                             <span class="input-group-text"><i class="fa fa-fw fa-calendar-day"></i></span>
                         </div>
-                        <input class="form-control" type="date" name="start_date" min="<?php echo date("Y-m-d"); ?>" max="2999-12-31" required>
+                        <input class="form-control" type="date" name="start_date" min="<?= date("Y-m-d") ?>" max="2999-12-31" required>
                     </div>
                 </div>
 
@@ -230,113 +233,30 @@ ob_start();
 
             <div class="tab-pane fade" id="pills-add-assets">
 
-                <?php if ($client_id) { ?>
-
-                    <div class="form-group">
-                        <label>Asset</label>
-                        <div class="input-group">
-                            <div class="input-group-prepend">
-                                <span class="input-group-text"><i class="fa fa-fw fa-desktop"></i></span>
-                            </div>
-                            <select class="form-control select2" name="asset_id">
-                                <option value="0">- None -</option>
-
-                                <?php
-                                // Query assets ordered by type, then name
-                                $sql_assets = mysqli_query($mysqli, "
-                                    SELECT asset_id, asset_name, asset_type, asset_make, asset_model, contact_name
-                                    FROM assets
-                                    LEFT JOIN contacts ON contact_id = asset_contact_id
-                                    WHERE asset_client_id = $client_id
-                                      AND asset_archived_at IS NULL
-                                    ORDER BY asset_type ASC, asset_name ASC
-                                ");
-
-                                $current_type = null; // Track which optgroup we're in
-
-                                while ($row = mysqli_fetch_assoc($sql_assets)) {
-                                    $asset_id_select = intval($row['asset_id']);
-                                    $asset_name_select = nullable_htmlentities($row['asset_name']);
-                                    $asset_type_select = nullable_htmlentities($row['asset_type']);
-                                    $asset_make_select = nullable_htmlentities($row['asset_make']);
-                                    $asset_model_select = nullable_htmlentities($row['asset_model']);
-                                    $contact_name_select = nullable_htmlentities($row['contact_name']);
-
-                                    // Start new optgroup if type changes
-                                    if ($asset_type_select !== $current_type) {
-                                        if ($current_type !== null) echo "</optgroup>";
-                                        echo "<optgroup label=\"" . ($asset_type_select ?: 'Uncategorized') . "\">";
-                                        $current_type = $asset_type_select;
-                                    }
-
-                                    // Build full display
-                                    $full_name = $asset_name_select . ($asset_make_select ? " - $asset_make_select" . ($asset_model_select ? " $asset_model_select" : '') : '')
-                                                 . ($contact_name_select ? " - ($contact_name_select)" : '');
-                                    ?>
-
-                                    <option <?php if ($asset_id == $asset_id_select) { echo "selected"; } ?> value="<?= $asset_id_select ?>"><?= $full_name ?></option>
-
-                                <?php }
-
-                                if ($current_type_select !== null) echo "</optgroup>";
-                                ?>
-                            </select>
+                <div class="form-group">
+                    <label>Asset</label>
+                    <div class="input-group">
+                        <div class="input-group-prepend">
+                            <span class="input-group-text"><i class="fa fa-fw fa-desktop"></i></span>
                         </div>
+                        <select class="form-control select2" name="asset_id" id="assetSelect" data-selected="<?= $asset_id ?>">
+                        </select>
                     </div>
+                </div>
 
-                    <div class="form-group">
-                        <label>Additional Assets</label>
-                        <div class="input-group">
-                            <div class="input-group-prepend">
-                                <span class="input-group-text"><i class="fa fa-fw fa-desktop"></i></span>
-                            </div>
-                            <select class="form-control select2" name="additional_assets[]" data-tags="true" data-placeholder="- Select Additional Assets -" multiple>
-                                <option value=""></option>
-
-                                <?php
-                                // Query assets ordered by type then name
-                                $sql_assets = mysqli_query($mysqli, "
-                                    SELECT asset_id, asset_name, asset_type, asset_make, asset_model, contact_name
-                                    FROM assets
-                                    LEFT JOIN contacts ON contact_id = asset_contact_id
-                                    WHERE asset_client_id = $client_id
-                                      AND asset_archived_at IS NULL
-                                    ORDER BY asset_type ASC, asset_name ASC
-                                ");
-
-                                $current_type = null;
-
-                                while ($row = mysqli_fetch_assoc($sql_assets)) {
-                                    $asset_id_select = intval($row['asset_id']);
-                                    $asset_name_select = nullable_htmlentities($row['asset_name']);
-                                    $asset_type_select = nullable_htmlentities($row['asset_type']);
-                                    $asset_make_select = nullable_htmlentities($row['asset_make']);
-                                    $asset_model_select = nullable_htmlentities($row['asset_model']);
-                                    $contact_name_select = nullable_htmlentities($row['contact_name']);
-
-                                    // Start new optgroup if type changes
-                                    if ($asset_type_select !== $current_type) {
-                                        if ($current_type !== null) echo "</optgroup>";
-                                        echo "<optgroup label=\"" . ($asset_type_select ?: 'Uncategorized') . "\">";
-                                        $current_type = $asset_type_select;
-                                    }
-
-                                    // Build full display
-                                    $full_name = $asset_name_select . ($asset_make_select ? " - $asset_make_select" . ($asset_model_select ? " $asset_model_select" : '') : '')
-                                                 . ($contact_name_select ? " - ($contact_name_select)" : '');
-                                    ?>
-
-                                    <option value="<?= $asset_id_select ?>"><?= $full_name ?></option>
-
-                                <?php }
-
-                                if ($current_type !== null) echo "</optgroup>";
-                                ?>
-                            </select>
+                <div class="form-group">
+                    <label>Additional Assets</label>
+                    <div class="input-group">
+                        <div class="input-group-prepend">
+                            <span class="input-group-text"><i class="fa fa-fw fa-desktop"></i></span>
                         </div>
+                        <select class="form-control select2" name="additional_assets[]" id="additionalAssetsSelect" data-placeholder="- Select Additional Assets -" multiple>
+                        </select>
                     </div>
+                </div>
 
-
+                <?php if (!$client_id) { ?>
+                <small class="form-text text-muted">Select a client on the Details tab to load its assets.</small>
                 <?php } ?>
 
             </div>
@@ -345,15 +265,18 @@ ob_start();
 
     </div>
     <div class="modal-footer">
-        <button type="submit" name="add_recurring_ticket" class="btn btn-primary text-bold"><i class="fas fa-check mr-2"></i>Create</button>
+        <button type="submit" name="add_recurring_ticket" class="btn btn-primary text-bold"><i class="fas fa-check mr-2"></i>Create Recurring Ticket</button>
         <button type="button" class="btn btn-light" data-dismiss="modal"><i class="fas fa-times mr-2"></i>Cancel</button>
     </div>
 </form>
 
+
 <!-- Recurring Ticket Client/Contact JS -->
-<link rel="stylesheet" href="/plugins/jquery-ui/jquery-ui.min.css">
-<script src="/plugins/jquery-ui/jquery-ui.min.js"></script>
+<link rel="stylesheet" href="/libs/jquery-ui/jquery-ui.min.css">
+<script src="/libs/jquery-ui/jquery-ui.min.js"></script>
 <script src="/agent/js/tickets_add_modal.js"></script>
+
+<script src="/agent/js/ticket_tasks_modal.js"></script>
 
 <?php
 

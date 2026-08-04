@@ -1,0 +1,995 @@
+<?php
+
+require_once '../../../includes/modal_header.php';
+
+enforceUserPermission('module_support');
+
+$asset_id = intval($_GET['id']);
+
+$sql = mysqli_query($mysqli, "SELECT * FROM assets
+    LEFT JOIN clients ON client_id = asset_client_id
+    LEFT JOIN contacts ON asset_contact_id = contact_id
+    LEFT JOIN locations ON asset_location_id = location_id
+    LEFT JOIN asset_interfaces ON interface_asset_id = asset_id AND interface_primary = 1
+    WHERE asset_id = $asset_id
+    LIMIT 1
+");
+
+$row = mysqli_fetch_assoc($sql);
+
+$client_id = intval($row['client_id']);
+
+enforceClientAccess();
+
+$client_name = escapeHtml($row['client_name']);
+$asset_id = intval($row['asset_id']);
+$asset_type = escapeHtml($row['asset_type']);
+$asset_name = escapeHtml($row['asset_name']);
+$asset_description = escapeHtml($row['asset_description']);
+$asset_make = escapeHtml($row['asset_make']);
+$asset_model = escapeHtml($row['asset_model']);
+$asset_serial = escapeHtml($row['asset_serial']);
+$asset_os = escapeHtml($row['asset_os']);
+$asset_uri = escapeUrl($row['asset_uri']);
+$asset_uri_2 = escapeUrl($row['asset_uri_2']);
+$asset_uri_client = escapeUrl($row['asset_uri_client']);
+$asset_status = escapeHtml($row['asset_status']);
+$asset_purchase_reference = escapeHtml($row['asset_purchase_reference']);
+$asset_purchase_date = escapeHtml($row['asset_purchase_date']);
+$asset_warranty_expire = escapeHtml($row['asset_warranty_expire']);
+$asset_install_date = escapeHtml($row['asset_install_date']);
+$asset_photo = escapeHtml($row['asset_photo']);
+$asset_physical_location = escapeHtml($row['asset_physical_location']);
+$asset_notes = escapeHtml($row['asset_notes']);
+$asset_favorite = intval($row['asset_favorite']);
+$asset_created_at = escapeHtml($row['asset_created_at']);
+$asset_vendor_id = intval($row['asset_vendor_id']);
+$asset_location_id = intval($row['asset_location_id']);
+$asset_contact_id = intval($row['asset_contact_id']);
+
+$asset_ip = escapeHtml($row['interface_ip']);
+$asset_ipv6 = escapeHtml($row['interface_ipv6']);
+$asset_nat_ip = escapeHtml($row['interface_nat_ip']);
+$asset_mac = escapeHtml($row['interface_mac']);
+$asset_network_id = intval($row['interface_network_id']);
+
+$device_icon = getAssetIcon($asset_type);
+
+$contact_name = escapeHtml($row['contact_name']);
+$contact_email = escapeHtml($row['contact_email']);
+$contact_phone_country_code = escapeHtml($row['contact_phone_country_code']);
+$contact_phone = escapeHtml(formatPhoneNumber($row['contact_phone'], $contact_phone_country_code));
+$contact_extension = escapeHtml($row['contact_extension']);
+$contact_mobile_country_code = escapeHtml($row['contact_mobile_country_code']);
+$contact_mobile = escapeHtml(formatPhoneNumber($row['contact_mobile'], $contact_mobile_country_code));
+$contact_archived_at = escapeHtml($row['contact_archived_at']);
+if ($contact_archived_at) {
+    $contact_name_display = "<span class='text-danger' title='Archived'><s>$contact_name</s></span>";
+} else {
+    $contact_name_display = $contact_name;
+}
+$location_name = escapeHtml($row['location_name']);
+if (empty($location_name)) {
+    $location_name = "-";
+}
+$location_archived_at = escapeHtml($row['location_archived_at']);
+if ($location_archived_at) {
+    $location_name_display = "<span class='text-danger' title='Archived'><s>$location_name</s></span>";
+} else {
+    $location_name_display = $location_name;
+}
+
+// Tags - many to many relationship
+$asset_tag_name_display_array = array();
+$asset_tag_id_array = array();
+$sql_asset_tags = mysqli_query($mysqli, "SELECT * FROM asset_tags LEFT JOIN tags ON asset_tag_tag_id = tag_id WHERE asset_tag_asset_id = $asset_id ORDER BY tag_name ASC");
+while ($row = mysqli_fetch_assoc($sql_asset_tags)) {
+
+    $asset_tag_id = intval($row['tag_id']);
+    $asset_tag_name = escapeHtml($row['tag_name']);
+    $asset_tag_color = escapeHtml($row['tag_color']);
+    if (empty($asset_tag_color)) {
+        $asset_tag_color = "dark";
+    }
+    $asset_tag_icon = escapeHtml($row['tag_icon']);
+    if (empty($asset_tag_icon)) {
+        $asset_tag_icon = "tag";
+    }
+
+    $asset_tag_id_array[] = $asset_tag_id;
+    $asset_tag_name_display_array[] = "<a href='client_assets.php?client_id=$client_id&q=$asset_tag_name'><span class='badge text-light p-1 mr-1' style='background-color: $asset_tag_color;'><i class='fa fa-fw fa-$asset_tag_icon mr-2'></i>$asset_tag_name</span></a>";
+}
+$asset_tags_display = implode('', $asset_tag_name_display_array);
+
+// Network Interfaces
+$sql_related_interfaces = mysqli_query($mysqli, "
+    SELECT
+        ai.interface_id,
+        ai.interface_name,
+        ai.interface_description,
+        ai.interface_type,
+        ai.interface_mac,
+        ai.interface_ip,
+        ai.interface_nat_ip,
+        ai.interface_ipv6,
+        ai.interface_primary,
+        ai.interface_notes,
+        n.network_name,
+        n.network_id,
+        connected_interfaces.interface_id AS connected_interface_id,
+        connected_interfaces.interface_name AS connected_interface_name,
+        connected_assets.asset_name AS connected_asset_name,
+        connected_assets.asset_id AS connected_asset_id,
+        connected_assets.asset_type AS connected_asset_type
+    FROM asset_interfaces AS ai
+    LEFT JOIN networks AS n
+      ON n.network_id = ai.interface_network_id
+    LEFT JOIN asset_interface_links AS ail
+      ON (ail.interface_a_id = ai.interface_id OR ail.interface_b_id = ai.interface_id)
+    LEFT JOIN asset_interfaces AS connected_interfaces
+      ON (
+          (ail.interface_a_id = ai.interface_id AND ail.interface_b_id = connected_interfaces.interface_id)
+          OR
+          (ail.interface_b_id = ai.interface_id AND ail.interface_a_id = connected_interfaces.interface_id)
+      )
+    LEFT JOIN assets AS connected_assets
+      ON connected_assets.asset_id = connected_interfaces.interface_asset_id
+    WHERE
+        ai.interface_asset_id = $asset_id
+        AND ai.interface_archived_at IS NULL
+    ORDER BY ai.interface_name ASC
+");
+$interface_count = mysqli_num_rows($sql_related_interfaces);
+
+// Related Credentials Query
+$sql_related_credentials = mysqli_query($mysqli, "
+    SELECT
+        credentials.credential_id AS credential_id,
+        credentials.credential_name,
+        credentials.credential_description,
+        credentials.credential_uri,
+        credentials.credential_username,
+        credentials.credential_password,
+        credentials.credential_otp_secret,
+        credentials.credential_note,
+        credentials.credential_favorite,
+        credentials.credential_contact_id,
+        credentials.credential_asset_id
+    FROM credentials
+    LEFT JOIN credential_tags ON credential_tags.credential_id = credentials.credential_id
+    LEFT JOIN tags ON tags.tag_id = credential_tags.tag_id
+    WHERE credential_asset_id = $asset_id
+      AND credential_archived_at IS NULL
+    GROUP BY credentials.credential_id
+    ORDER BY credential_name DESC
+");
+$credential_count = mysqli_num_rows($sql_related_credentials);
+
+// Related Tickets Query
+$sql_related_tickets = mysqli_query($mysqli, "
+    SELECT tickets.*, users.*, ticket_statuses.*
+    FROM tickets
+    LEFT JOIN users ON ticket_assigned_to = user_id
+    LEFT JOIN ticket_statuses ON ticket_status_id = ticket_status
+    LEFT JOIN ticket_assets ON tickets.ticket_id = ticket_assets.ticket_id
+    WHERE ticket_asset_id = $asset_id OR ticket_assets.asset_id = $asset_id
+    GROUP BY tickets.ticket_id
+    ORDER BY ticket_number DESC
+");
+$ticket_count = mysqli_num_rows($sql_related_tickets);
+
+// Related Recurring Tickets Query
+$sql_related_recurring_tickets = mysqli_query($mysqli, "SELECT * FROM recurring_tickets
+    LEFT JOIN recurring_ticket_assets ON recurring_tickets.recurring_ticket_id = recurring_ticket_assets.recurring_ticket_id
+    WHERE recurring_ticket_asset_id = $asset_id OR recurring_ticket_assets.asset_id = $asset_id
+    GROUP BY recurring_tickets.recurring_ticket_id
+    ORDER BY recurring_ticket_next_run DESC"
+);
+$recurring_ticket_count = mysqli_num_rows($sql_related_recurring_tickets);
+
+// Related Documents
+$sql_related_documents = mysqli_query($mysqli, "SELECT * FROM asset_documents
+    LEFT JOIN documents ON asset_documents.document_id = documents.document_id
+    LEFT JOIN users ON user_id = document_created_by
+    WHERE asset_documents.asset_id = $asset_id
+    AND document_archived_at IS NULL
+    ORDER BY document_name DESC"
+);
+$document_count = mysqli_num_rows($sql_related_documents);
+
+// Related Files
+$sql_related_files = mysqli_query($mysqli, "SELECT * FROM asset_files
+    LEFT JOIN files ON asset_files.file_id = files.file_id
+    WHERE asset_files.asset_id = $asset_id
+    AND file_archived_at IS NULL
+    ORDER BY file_name DESC"
+);
+$file_count = mysqli_num_rows($sql_related_files);
+
+// Related Software Query
+$sql_related_software = mysqli_query(
+    $mysqli,
+    "SELECT * FROM software_assets
+    LEFT JOIN software ON software_assets.software_id = software.software_id
+    WHERE software_assets.asset_id = $asset_id
+    AND software_archived_at IS NULL
+    ORDER BY software_name DESC"
+);
+
+$software_count = mysqli_num_rows($sql_related_software);
+
+// Related Notes
+$sql_related_notes = mysqli_query($mysqli, "SELECT * FROM asset_notes
+    LEFT JOIN users ON asset_note_created_by = user_id
+    WHERE asset_note_asset_id = $asset_id
+    AND asset_note_archived_at IS NULL
+    ORDER BY asset_note_created_at DESC"
+);
+$note_count = mysqli_num_rows($sql_related_notes);
+
+// Note type icons, read from the categories list
+$note_type_icons = array();
+$sql_note_type_icons = mysqli_query($mysqli, "SELECT category_name, category_icon FROM categories WHERE category_type = 'asset_note_type'");
+while ($row = mysqli_fetch_assoc($sql_note_type_icons)) {
+    $note_type_icons[escapeHtml($row['category_name'])] = escapeHtml($row['category_icon']);
+}
+
+if (isset($_GET['client_id'])) {
+    $client_url = "client_id=$client_id&";
+} else {
+    $client_url = '';
+}
+
+ob_start();
+
+?>
+
+<div class="modal-header bg-dark">
+    <h5 class="modal-title"><i class="fa fa-fw fa-<?= $device_icon ?> mr-2"></i><strong><?= $asset_name ?></strong>
+        <?php if ($asset_favorite) { ?><i class="fas fa-fw text-warning fa-star" title="Favorite"></i><?php } ?>
+    </h5>
+    <button type="button" class="close text-white" data-dismiss="modal">
+        <span>&times;</span>
+    </button>
+</div>
+
+<div class="modal-body">
+
+    <ul class="nav nav-pills nav-justified mb-3">
+        <li class="nav-item">
+            <a class="nav-link active" data-toggle="pill" href="#pills-asset-details">
+                <i class="fas fa-fw fa-<?= $device_icon ?> mr-2"></i>Details
+            </a>
+        </li>
+        <?php if ($interface_count) { ?>
+        <li class="nav-item">
+            <a class="nav-link" data-toggle="pill" href="#pills-asset-interfaces">
+                <i class="fas fa-fw fa-ethernet mr-2"></i>Interfaces (<?= $interface_count ?>)
+            </a>
+        </li>
+        <?php } ?>
+        <?php if ($credential_count) { ?>
+        <li class="nav-item">
+            <a class="nav-link" data-toggle="pill" href="#pills-asset-credentials">
+                <i class="fas fa-fw fa-key mr-2"></i>Credentials (<?= $credential_count ?>)
+            </a>
+        </li>
+        <?php } ?>
+        <?php if ($ticket_count) { ?>
+        <li class="nav-item">
+            <a class="nav-link" data-toggle="pill" href="#pills-asset-tickets">
+                <i class="fas fa-fw fa-life-ring mr-2"></i>Tickets (<?= $ticket_count ?>)
+            </a>
+        </li>
+        <?php } ?>
+        <?php if ($recurring_ticket_count) { ?>
+        <li class="nav-item">
+            <a class="nav-link" data-toggle="pill" href="#pills-asset-recurring-tickets">
+                <i class="fas fa-fw fa-redo-alt mr-2"></i>Recurring Tickets (<?= $recurring_ticket_count ?>)
+            </a>
+        </li>
+        <?php } ?>
+         <?php if ($software_count) { ?>
+        <li class="nav-item">
+            <a class="nav-link" data-toggle="pill" href="#pills-asset-licenses">
+                <i class="fas fa-fw fa-cube mr-2"></i>Licenses (<?= $software_count ?>)
+            </a>
+        </li>
+        <?php } ?>
+        <?php if ($document_count) { ?>
+        <li class="nav-item">
+            <a class="nav-link" data-toggle="pill" href="#pills-asset-documents">
+                <i class="fas fa-fw fa-file-alt mr-2"></i>Documents (<?= $document_count ?>)
+            </a>
+        </li>
+        <?php } ?>
+        <?php if ($file_count) { ?>
+        <li class="nav-item">
+            <a class="nav-link" data-toggle="pill" href="#pills-asset-files">
+                <i class="fas fa-fw fa-briefcase mr-2"></i>Files (<?= $file_count ?>)</a>
+        </li>
+        <?php } ?>
+        <?php if ($note_count) { ?>
+        <li class="nav-item">
+            <a class="nav-link" data-toggle="pill" href="#pills-asset-notes">
+                <i class="fas fa-fw fa-sticky-note mr-2"></i>Notes (<?= $note_count ?>)
+            </a>
+        </li>
+        <?php } ?>
+    </ul>
+
+    <hr>
+
+    <div class="tab-content">
+
+        <div class="tab-pane fade show active" id="pills-asset-details">
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="text-bold"><i class="fa fa-fw text-secondary fa-<?= $device_icon ?> mr-2"></i><?= $asset_name ?>
+                        <?php if ($asset_favorite) { ?><i class="fas fa-fw text-warning fa-star" title="Favorite"></i><?php } ?>
+                    </h3>
+                    <?php if ($asset_photo) { ?>
+                        <img class="img-fluid img-circle p-3" alt="asset_photo" src="<?= "../uploads/clients/$client_id/$asset_photo" ?>">
+                    <?php } ?>
+                    <?php if ($asset_description) { ?>
+                        <div class="text-secondary"><?= $asset_description ?></div>
+                    <?php } ?>
+                </div>
+                <div class="card-body">
+                    <?php if ($asset_tags_display) { ?>
+                        <div>
+                            <?= $asset_tags_display ?>
+                        </div>
+                    <?php } ?>
+                    <?php if ($asset_type) { ?>
+                        <div class="mt-1"><i class="fa fa-fw fa-tag text-secondary mr-2"></i><?= $asset_type ?></div>
+                    <?php }
+                    if ($asset_make) { ?>
+                        <div class="mt-2"><i class="fa fa-fw fa-circle text-secondary mr-2"></i><?= "$asset_make $asset_model" ?></div>
+                    <?php }
+                    if ($asset_os) { ?>
+                        <div class="mt-2"><i class="fab fa-fw fa-windows text-secondary mr-2"></i><?= "$asset_os" ?></div>
+                    <?php }
+                    if ($asset_serial) { ?>
+                        <div class="mt-2"><i class="fa fa-fw fa-barcode text-secondary mr-2"></i><span class="text-monospace"><?= $asset_serial ?></span></div>
+                    <?php }
+                    if ($asset_purchase_date) { ?>
+                        <div class="mt-2"><i class="fa fa-fw fa-shopping-cart text-secondary mr-2"></i><?= date('Y-m-d', strtotime($asset_purchase_date)) ?></div>
+                    <?php }
+                    if ($asset_install_date) { ?>
+                        <div class="mt-2"><i class="fa fa-fw fa-calendar-check text-secondary mr-2"></i><?= date('Y-m-d', strtotime($asset_install_date)) ?></div>
+                    <?php }
+                    if ($asset_warranty_expire) { ?>
+                        <div class="mt-2"><i class="fa fa-fw fa-exclamation-triangle text-secondary mr-2"></i><?= date('Y-m-d', strtotime($asset_warranty_expire)) ?></div>
+                    <?php } ?>
+                </div>
+            </div>
+
+            <div class="card card-dark">
+                <div class="card-header">
+                    <h5 class="card-title">Primary Network Interface</h5>
+                </div>
+                <div class="card-body">
+                    <?php if ($asset_ip) { ?>
+                        <div><i class="fa fa-fw fa-globe text-secondary mr-2"></i><span class="text-monospace"><?= $asset_ip ?></span></div>
+                    <?php } ?>
+                    <?php if ($asset_nat_ip) { ?>
+                        <div class="mt-2"><i class="fa fa-fw fa-random text-secondary mr-2"></i><span class="text-monospace"><?= $asset_nat_ip ?></span></div>
+                    <?php }
+                    if ($asset_mac) { ?>
+                        <div class="mt-2"><i class="fa fa-fw fa-ethernet text-secondary mr-2"></i><span class="text-monospace"><?= $asset_mac ?></span></div>
+                    <?php }
+                    if ($asset_uri) { ?>
+                        <div class="mt-2"><i class="fa fa-fw fa-link text-secondary mr-2"></i><a href="<?= $asset_uri ?>" target="_blank" title="<?= $asset_uri ?>"><?= truncate($asset_uri, 20) ?></a></div>
+                    <?php }
+                    if ($asset_uri_2) { ?>
+                        <div class="mt-2"><i class="fa fa-fw fa-link text-secondary mr-2"></i><a href="<?= $asset_uri_2 ?>" target="_blank" title="<?= $asset_uri_2 ?>"><?= truncate($asset_uri_2, 20) ?></a></div>
+                    <?php } ?>
+                    <?php
+                    if ($asset_uri_client) { ?>
+                        <div class="mt-2"><i class="fa fa-fw fa-link text-secondary mr-2"></i>Client URI: <a href="<?= $asset_uri_client ?>" target="_blank" title="<?= $asset_uri_client ?>"><?= truncate($asset_uri_client, 20); ?></a></div>
+                    <?php } ?>
+                </div>
+            </div>
+
+
+            <div class="card card-dark">
+                <div class="card-header">
+                    <h5 class="card-title">Assignment</h5>
+                </div>
+                <div class="card-body">
+                    <?php if ($location_name) { ?>
+                        <div><i class="fa fa-fw fa-map-marker-alt text-secondary mr-2"></i><?= $location_name_display ?></div>
+                    <?php }
+                    if ($contact_name) { ?>
+                        <div class="mt-2"><i class="fa fa-fw fa-user text-secondary mr-2"></i><?= $contact_name_display ?></div>
+                    <?php }
+                    if ($contact_email) { ?>
+                        <div class="mt-2"><i class="fa fa-fw fa-envelope text-secondary mr-2"></i><a href='mailto:<?= $contact_email ?>'><?= $contact_email ?></a><button class='btn btn-sm clipboardjs' data-clipboard-text='<?= $contact_email ?>'><i class='far fa-copy text-secondary'></i></button></div>
+                    <?php }
+                    if ($contact_phone) { ?>
+                        <div class="mt-2"><i class="fa fa-fw fa-phone text-secondary mr-2"></i><?= $contact_phone ?></div>
+                    <?php }
+                    if ($contact_extension) { ?>
+                        <div class="mt-1"><i class="fa fa-fw text-secondary mr-2"></i><?= "ext. $contact_extension" ?></div>
+                    <?php }
+                    if ($contact_mobile) { ?>
+                        <div class="mt-2"><i class="fa fa-fw fa-mobile-alt text-secondary mr-2"></i><?= $contact_mobile ?></div>
+                    <?php } ?>
+
+                </div>
+            </div>
+
+            <div class="card card-dark mb-3">
+                <div class="card-header">
+                    <h5 class="card-title">Additional Notes</h5>
+                </div>
+                <textarea class="form-control" rows=6 id="assetNotes" placeholder="Enter quick notes here" onblur="updateAssetNotes(<?= $asset_id ?>)"><?= $asset_notes ?></textarea>
+            </div>
+
+        </div>
+
+        <script>
+            function updateAssetNotes(asset_id) {
+                var notes = document.getElementById("assetNotes").value;
+
+                // Send a POST request to ajax.php as ajax.php with data contact_set_notes=true, contact_id=NUM, notes=NOTES
+                jQuery.post(
+                    "ajax.php",
+                    {
+                        asset_set_notes: 'TRUE',
+                        csrf_token: '<?= $_SESSION['csrf_token'] ?>',
+                        asset_id: asset_id,
+                        notes: notes
+                    }
+                )
+            }
+        </script>
+
+        <?php if ($interface_count) { ?>
+        <div class="tab-pane fade" id="pills-asset-interfaces">
+
+            <div class="table-responsive-sm">
+                <table class="table table-striped table-hover table-sm">
+                    <thead class="<?php if ($interface_count == 0) { echo "d-none"; } ?>">
+                        <tr>
+                            <th>Name / Port</th>
+                            <th>Type</th>
+                            <th>Network</th>
+                            <th>IP</th>
+                            <th>MAC</th>
+                            <th>Connected To</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    <?php while ($row = mysqli_fetch_assoc($sql_related_interfaces)) { ?>
+                        <?php
+                            $interface_id       = intval($row['interface_id']);
+                            $interface_name     = escapeHtml($row['interface_name']);
+                            $interface_description = escapeHtml($row['interface_description']);
+                            $interface_type     = escapeHtml($row['interface_type']);
+                            $interface_mac      = escapeHtml($row['interface_mac']);
+                            $interface_ip       = escapeHtml($row['interface_ip']);
+                            $interface_nat_ip   = escapeHtml($row['interface_nat_ip']);
+                            $interface_ipv6     = escapeHtml($row['interface_ipv6']);
+                            $interface_primary  = intval($row['interface_primary']);
+                            $network_id         = intval($row['network_id']);
+                            $network_name       = escapeHtml($row['network_name']);
+                            $interface_notes    = escapeHtml($row['interface_notes']);
+
+                            // Prepare display text
+                            $interface_mac_display = $interface_mac ?: '-';
+                            $interface_ip_display  = $interface_ip ?: '-';
+                            $interface_type_display = $interface_type ?: '-';
+                            $network_name_display  = $network_name
+                                ? "<i class='fas fa-fw fa-network-wired mr-1'></i>$network_name"
+                                : '-';
+
+                            // Connected interface details
+                            $connected_asset_id = intval($row['connected_asset_id']);
+                            $connected_asset_name = escapeHtml($row['connected_asset_name']);
+                            $connected_asset_type = escapeHtml($row['connected_asset_type']);
+                            $connected_asset_icon = getAssetIcon($connected_asset_type);
+                            $connected_interface_name = escapeHtml($row['connected_interface_name']);
+
+
+                            // Show either "-" or "AssetName - Port"
+                            if ($connected_asset_name) {
+                                $connected_to_display = "<a class='ajax-modal' href='#' data-modal-size='lg'
+                                    data-modal-url='modals/asset/asset.php?id=$connected_asset_id'>
+                                    <strong><i class='fa fa-fw fa-$connected_asset_icon mr-1'></i>$connected_asset_name</strong> - $connected_interface_name
+                                    </a>
+                                ";
+                            } else {
+                                $connected_to_display = "-";
+                            }
+                        ?>
+                        <tr>
+                            <td>
+                                <i class="fa fa-fw fa-ethernet text-secondary mr-1"></i>
+                                <?= $interface_name ?> <?php if($interface_primary) { echo "<small class='text-primary'>(Primary)</small>"; } ?>
+                            </td>
+                            <td><?= $interface_type_display ?></td>
+                            <td><?= $network_name_display ?></td>
+                            <td class="text-monospace">
+                                <?= $interface_ip_display ?>
+                                <div><small class="text-secondary"><?= $interface_ipv6 ?></div>
+                            </td>
+                            <td class="text-monospace"><?= $interface_mac_display ?></td>
+                            <td><?= $connected_to_display ?></td>
+                        </tr>
+                    <?php } ?>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <?php } ?>
+
+        <?php if (lookupUserPermission('module_credential') && ($credential_count)) { ?>
+        <div class="tab-pane fade" id="pills-asset-credentials">
+            <div class="table-responsive-sm-sm">
+                <table class="table table-sm table-striped table-borderless table-hover">
+                    <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Username</th>
+                        <th>Password</th>
+                        <th>OTP</th>
+                        <th>URI</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <?php
+
+                    while ($row = mysqli_fetch_assoc($sql_related_credentials)) {
+                        $credential_id = intval($row['credential_id']);
+                        $credential_name = escapeHtml($row['credential_name']);
+                        $credential_description = escapeHtml($row['credential_description']);
+                        $credential_uri = escapeHtml($row['credential_uri']);
+                        if (empty($credential_uri)) {
+                            $credential_uri_display = "-";
+                        } else {
+                            $credential_uri_display = "$credential_uri";
+                        }
+                        $credential_username = escapeHtml(decryptCredentialEntry($row['credential_username']));
+                        if (empty($credential_username)) {
+                            $credential_username_display = "-";
+                        } else {
+                            $credential_username_display = "$credential_username <button type='button' class='btn btn-sm clipboardjs' data-clipboard-text='$credential_username'><i class='far fa-copy text-secondary'></i></button>";
+                        }
+                        $credential_otp_secret = escapeHtml($row['credential_otp_secret']);
+                        if (empty($credential_otp_secret)) {
+                            $otp_display = "-";
+                        } else {
+                            $otp_display = "<span onmouseenter='showOTPViaCredentialID($credential_id)'><i class='far fa-clock'></i> <span id='otp_$credential_id'><i>Hover..</i></span></span>";
+                        }
+                        $credential_note = escapeHtml($row['credential_note']);
+                        $credential_favorite = intval($row['credential_favorite']);
+                        $credential_contact_id = intval($row['credential_contact_id']);
+                        $credential_asset_id = intval($row['credential_asset_id']);
+
+                        // Tags
+                        $credential_tag_name_display_array = array();
+                        $credential_tag_id_array = array();
+                        $sql_credential_tags = mysqli_query($mysqli, "SELECT * FROM credential_tags LEFT JOIN tags ON credential_tags.tag_id = tags.tag_id WHERE credential_id = $credential_id ORDER BY tag_name ASC");
+                        while ($row = mysqli_fetch_assoc($sql_credential_tags)) {
+
+                            $credential_tag_id = intval($row['tag_id']);
+                            $credential_tag_name = escapeHtml($row['tag_name']);
+                            $credential_tag_color = escapeHtml($row['tag_color']);
+                            if (empty($credential_tag_color)) {
+                                $credential_tag_color = "dark";
+                            }
+                            $credential_tag_icon = escapeHtml($row['tag_icon']);
+                            if (empty($credential_tag_icon)) {
+                                $credential_tag_icon = "tag";
+                            }
+
+                            $credential_tag_id_array[] = $credential_tag_id;
+                            $credential_tag_name_display_array[] = "<a href='credentials.php?client_id=$client_id&tags[]=$credential_tag_id'><span class='badge text-light p-1 mr-1' style='background-color: $credential_tag_color;'><i class='fa fa-fw fa-$credential_tag_icon mr-2'></i>$credential_tag_name</span></a>";
+                        }
+                        $credential_tags_display = implode('', $credential_tag_name_display_array);
+
+                        ?>
+                        <tr>
+                            <td>
+                                <i class="fa fa-fw fa-key text-secondary"></i>
+                                <?= $credential_name ?>
+                            </td>
+                            <td><?= $credential_username_display ?></td>
+                            <td>
+                                <button class="btn p-0" type="button" onclick="showPasswordViaCredentialID(this, <?= $credential_id ?>)"><i class="fas fa-2x fa-ellipsis-h text-secondary"></i><i class="fas fa-2x fa-ellipsis-h text-secondary"></i></button><button class="btn btn-sm" type="button" onclick="copyPasswordViaCredentialID(this, <?= $credential_id ?>)"><i class="far fa-copy text-secondary"></i></button>
+                            </td>
+                            <td><?= $otp_display ?></td>
+                            <td><?= $credential_uri_display ?></td>
+                        </tr>
+
+                        <?php
+
+                    }
+
+                    ?>
+
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <!-- Include scripts to fetch TOTP codes and passwords via the credential ID -->
+        <script src="../js/credential_show_otp_via_id.js"></script>
+        <script src="../js/credential_show_password_via_id.js"></script>
+        <?php } ?>
+
+        <?php if ($ticket_count) { ?>
+        <div class="tab-pane fade" id="pills-asset-tickets">
+            <div class="table-responsive-sm">
+                <table class="table table-sm table-striped table-borderless table-hover">
+                    <thead class="text-dark">
+                    <tr>
+                        <th>Number</th>
+                        <th>Subject</th>
+                        <th>Priority</th>
+                        <th>Status</th>
+                        <th>Assigned</th>
+                        <th>Last Response</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <?php
+
+                    while ($row = mysqli_fetch_assoc($sql_related_tickets)) {
+                        $ticket_id = intval($row['ticket_id']);
+                        $ticket_prefix = escapeHtml($row['ticket_prefix']);
+                        $ticket_number = intval($row['ticket_number']);
+                        $ticket_subject = escapeHtml($row['ticket_subject']);
+                        $ticket_priority = escapeHtml($row['ticket_priority']);
+                        $ticket_status_id = intval($row['ticket_status_id']);
+                        $ticket_status_name = escapeHtml($row['ticket_status_name']);
+                        $ticket_status_color = escapeHtml($row['ticket_status_color']);
+                        $ticket_created_at = escapeHtml($row['ticket_created_at']);
+                        $ticket_updated_at = escapeHtml($row['ticket_updated_at']);
+                        if (empty($ticket_updated_at)) {
+                            if ($ticket_status_name == "Closed") {
+                                $ticket_updated_at_display = "<p>Never</p>";
+                            } else {
+                                $ticket_updated_at_display = "<p class='text-danger'>Never</p>";
+                            }
+                        } else {
+                            $ticket_updated_at_display = $ticket_updated_at;
+                        }
+                        $ticket_closed_at = escapeHtml($row['ticket_closed_at']);
+
+                        if ($ticket_priority == "Urgent") {
+                            $ticket_priority_display = "<span class='p-2 badge badge-dark'>$ticket_priority</span>";
+                        } elseif ($ticket_priority == "High") {
+                            $ticket_priority_display = "<span class='p-2 badge badge-danger'>$ticket_priority</span>";
+                        } elseif ($ticket_priority == "Medium") {
+                            $ticket_priority_display = "<span class='p-2 badge badge-warning'>$ticket_priority</span>";
+                        } elseif ($ticket_priority == "Low") {
+                            $ticket_priority_display = "<span class='p-2 badge badge-info'>$ticket_priority</span>";
+                        } else {
+                            $ticket_priority_display = "-";
+                        }
+                        $ticket_assigned_to = intval($row['ticket_assigned_to']);
+                        if (empty($ticket_assigned_to)) {
+                            if ($ticket_status_id == 5) {
+                                $ticket_assigned_to_display = "<p>Not Assigned</p>";
+                            } else {
+                                $ticket_assigned_to_display = "<p class='text-danger'>Not Assigned</p>";
+                            }
+                        } else {
+                            $ticket_assigned_to_display = escapeHtml($row['user_name']);
+                        }
+
+                        ?>
+
+                        <tr>
+                            <td>
+                                <a href="ticket.php?client_id=<?= $client_id ?>&ticket_id=<?= $ticket_id ?>">
+                                    <?= "$ticket_prefix$ticket_number" ?>
+                                </a>
+                            </td>
+                            <td><a href="ticket.php?client_id=<?= $client_id ?>&ticket_id=<?= $ticket_id ?>"><?= $ticket_subject ?></a></td>
+                            <td><?= $ticket_priority_display ?></td>
+                            <td>
+                                <span class='badge badge-pill text-light p-2' style="background-color: <?= $ticket_status_color ?>"><?= $ticket_status_name ?></span>
+                            </td>
+                            <td><?= $ticket_assigned_to_display ?></td>
+                            <td><?= $ticket_updated_at_display ?></td>
+                        </tr>
+
+                        <?php
+
+                    }
+
+                    ?>
+
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <?php } ?>
+
+        <?php if ($recurring_ticket_count) { ?>
+        <div class="tab-pane fade" id="pills-asset-recurring-tickets">
+
+            <div class="table-responsive-sm">
+                <table class="table table-sm table-striped table-borderless table-hover">
+                    <thead class="text-dark">
+                    <tr>
+                        <th>Subject</th>
+                        <th>Priority</th>
+                        <th>Frequency</th>
+                        <th>Next Run</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <?php
+
+                    while ($row = mysqli_fetch_assoc($sql_related_recurring_tickets)) {
+                        $recurring_ticket_id = intval($row['recurring_ticket_id']);
+                        $recurring_ticket_subject = escapeHtml($row['recurring_ticket_subject']);
+                        $recurring_ticket_priority = escapeHtml($row['recurring_ticket_priority']);
+                        $recurring_ticket_frequency = escapeHtml($row['recurring_ticket_frequency']);
+                        $recurring_ticket_next_run = escapeHtml($row['recurring_ticket_next_run']);
+                    ?>
+
+                        <tr>
+                            <td class="text-bold"><?= $recurring_ticket_subject ?></td>
+                            <td><?= $recurring_ticket_priority ?></td>
+                            <td><?= $recurring_ticket_frequency ?></td>
+                            <td><?= $recurring_ticket_next_run ?></td>
+                        </tr>
+
+                    <?php } ?>
+
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <?php } ?>
+
+        <?php if ($software_count) { ?>
+        <div class="tab-pane fade" id="pills-asset-licenses">
+            <div class="table-responsive-sm">
+                <table class="table table-striped table-borderless table-hover">
+                    <thead class="text-dark">
+                    <tr>
+                        <th>Software</th>
+                        <th>Type</th>
+                        <th>Key</th>
+                        <th>Seats</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <?php
+
+                    while ($row = mysqli_fetch_assoc($sql_related_software)) {
+                        $software_id = intval($row['software_id']);
+                        $software_name = escapeHtml($row['software_name']);
+                        $software_version = escapeHtml($row['software_version']);
+                        $software_type = escapeHtml($row['software_type']);
+                        $software_license_type = escapeHtml($row['software_license_type']);
+                        $software_key = escapeHtml($row['software_key']);
+                        $software_seats = escapeHtml($row['software_seats']);
+                        $software_purchase = escapeHtml($row['software_purchase']);
+                        $software_expire = escapeHtml($row['software_expire']);
+                        $software_notes = escapeHtml($row['software_notes']);
+
+                        $seat_count = 0;
+
+                        // Asset Licenses
+                        $asset_licenses_sql = mysqli_query($mysqli, "SELECT asset_id FROM software_assets WHERE software_id = $software_id");
+                        $asset_licenses_array = array();
+                        while ($row = mysqli_fetch_assoc($asset_licenses_sql)) {
+                            $asset_licenses_array[] = intval($row['asset_id']);
+                            $seat_count = $seat_count + 1;
+                        }
+                        $asset_licenses = implode(',', $asset_licenses_array);
+
+                        // Contact Licenses
+                        $contact_licenses_sql = mysqli_query($mysqli, "SELECT contact_id FROM software_contacts WHERE software_id = $software_id");
+                        $contact_licenses_array = array();
+                        while ($row = mysqli_fetch_assoc($contact_licenses_sql)) {
+                            $contact_licenses_array[] = intval($row['contact_id']);
+                            $seat_count = $seat_count + 1;
+                        }
+                        $contact_licenses = implode(',', $contact_licenses_array);
+
+                        ?>
+                        <tr>
+                            <td><?= "$software_name<br><span class='text-secondary'>$software_version</span>" ?></td>
+                            <td><?= $software_type ?></td>
+                            <td class="text-monospace"><?= $software_key ?></td>
+                            <td class="text-monospace"><?= "$seat_count / $software_seats" ?></td>
+                        </tr>
+
+                        <?php
+
+                    }
+
+                    ?>
+
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <?php } ?>
+
+        <?php if ($document_count) { ?>
+        <div class="tab-pane fade" id="pills-asset-documents">
+
+            <div class="table-responsive-sm">
+                <table class="table table-sm table-striped table-borderless table-hover">
+                    <thead class="text-dark">
+                    <tr>
+                        <th>Document Title</th>
+                        <th>By</th>
+                        <th>Created</th>
+                        <th>Updated</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <?php
+
+                    while ($row = mysqli_fetch_assoc($sql_related_documents)) {
+                        $document_id = intval($row['document_id']);
+                        $document_name = escapeHtml($row['document_name']);
+                        $document_description = escapeHtml($row['document_description']);
+                        $document_created_by = escapeHtml($row['user_name']);
+                        $document_created_at = escapeHtml($row['document_created_at']);
+                        $document_updated_at = escapeHtml($row['document_updated_at']);
+
+                        $linked_documents[] = $document_id;
+
+                        ?>
+
+                        <tr>
+                            <td>
+                                <a class="ajax-modal" href="#"
+                                    data-modal-size="lg"
+                                    data-modal-url="modals/document/document_view.php?id=<?= $document_id ?>">
+                                    <?= $document_name ?>
+                                </a>
+                                <div class="text-secondary"><?= $document_description ?></div>
+                            </td>
+                            <td><?= $document_created_by ?></td>
+                            <td><?= $document_created_at ?></td>
+                            <td><?= $document_updated_at ?></td>
+                        </tr>
+
+                        <?php
+
+                    }
+
+                    ?>
+
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <?php } ?>
+
+        <?php if ($file_count) { ?>
+        <div class="tab-pane fade" id="pills-asset-files">
+            <div class="table-responsive-sm">
+                <table class="table table-sm table-striped table-borderless table-hover">
+                    <thead class="text-dark">
+                    <tr>
+                        <th>Name</th>
+                        <th>Type</th>
+                        <th>Uploaded</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <?php
+
+                    while ($row = mysqli_fetch_assoc($sql_related_files)) {
+                        $file_id = intval($row['file_id']);
+                        $file_name = escapeHtml($row['file_name']);
+                        $file_mime_type = escapeHtml($row['file_mime_type']);
+                        $file_description = escapeHtml($row['file_description']);
+                        $file_ext = escapeHtml($row['file_ext']);
+                        if ($file_ext == 'pdf') {
+                            $file_icon = "file-pdf";
+                        } elseif ($file_ext == 'gz' || $file_ext == 'tar' || $file_ext == 'zip' || $file_ext == '7z' || $file_ext == 'rar') {
+                            $file_icon = "file-archive";
+                        } elseif ($file_ext == 'txt' || $file_ext == 'md') {
+                            $file_icon = "file-alt";
+                        } elseif ($file_ext == 'msg') {
+                            $file_icon = "envelope";
+                        } elseif ($file_ext == 'doc' || $file_ext == 'docx' || $file_ext == 'odt') {
+                            $file_icon = "file-word";
+                        } elseif ($file_ext == 'xls' || $file_ext == 'xlsx' || $file_ext == 'ods') {
+                            $file_icon = "file-excel";
+                        } elseif ($file_ext == 'pptx' || $file_ext == 'odp') {
+                            $file_icon = "file-powerpoint";
+                        } elseif ($file_ext == 'mp3' || $file_ext == 'wav' || $file_ext == 'ogg') {
+                            $file_icon = "file-audio";
+                        } elseif ($file_ext == 'mov' || $file_ext == 'mp4' || $file_ext == 'av1') {
+                            $file_icon = "file-video";
+                        } elseif ($file_ext == 'jpg' || $file_ext == 'jpeg' || $file_ext == 'png' || $file_ext == 'gif' || $file_ext == 'webp' || $file_ext == 'bmp' || $file_ext == 'tif') {
+                            $file_icon = "file-image";
+                        } else {
+                            $file_icon = "file";
+                        }
+                        $file_created_at = escapeHtml($row['file_created_at']);
+                        ?>
+                        <tr>
+                            <td>
+                                <a class="text-dark" href="file.php?file_id=<?=$file_id ?>&action=view" target="_blank" >
+                                    <?= "$file_name<br><span class='text-secondary'>$file_description</span>" ?>
+                                </a>
+                            </td>
+                            <td><?= $file_mime_type ?></td>
+                            <td><?= $file_created_at ?></td>
+                        </tr>
+
+                        <?php
+
+                    }
+
+                    ?>
+
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <?php } ?>
+
+        <?php if ($note_count) { ?>
+        <div class="tab-pane fade" id="pills-asset-notes">
+            <div class="table-responsive-sm">
+                <table class="table table-sm table-striped table-borderless table-hover">
+                    <thead class="text-dark">
+                    <tr>
+                        <th>Type</th>
+                        <th>Note</th>
+                        <th>By</th>
+                        <th>Created</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <?php
+
+                    while ($row = mysqli_fetch_assoc($sql_related_notes)) {
+                        $asset_note_type = escapeHtml($row['asset_note_type']);
+                        $asset_note = nl2br(escapeHtml($row['asset_note']));
+                        $note_by = escapeHtml($row['user_name']);
+                        $asset_note_created_at = escapeHtml($row['asset_note_created_at']);
+
+                        $note_type_icon = !empty($note_type_icons[$asset_note_type]) ? $note_type_icons[$asset_note_type] : 'fa-sticky-note';
+                        ?>
+                        <tr>
+                            <td><i class="fa fa-fw <?= $note_type_icon ?> mr-2"></i><?= $asset_note_type ?></td>
+                            <td><?= $asset_note ?></td>
+                            <td><?= $note_by ?></td>
+                            <td><?= $asset_note_created_at ?></td>
+                        </tr>
+                        <?php
+
+                    }
+
+                    ?>
+
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <?php } ?>
+
+    </div>
+
+</div>
+
+<div class="modal-footer">
+    <a href="asset.php?client_id=<?= $client_id ?>&asset_id=<?= $asset_id ?>"
+        class="btn btn-primary text-bold"><span class="text-white"><i class="fas fa-info-circle mr-2"></i>More Details</span>
+    </a>
+    <a href="#" class="btn btn-secondary ajax-modal" data-modal-url="modals/asset/asset_edit.php?id=<?= $asset_id ?>">
+        <span class="text-white"><i class="fas fa-edit mr-2"></i>Edit</span>
+    </a>
+    <button type="button" class="btn btn-light" data-dismiss="modal"><i class="fa fa-times mr-2"></i>Close</button>
+</div>
+
+<?php
+require_once '../../../includes/modal_footer.php';

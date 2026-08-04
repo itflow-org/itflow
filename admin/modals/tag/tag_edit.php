@@ -1,16 +1,16 @@
 <?php
 
-require_once '../../../includes/modal_header.php';
+require_once '../../includes/modal_header.php';
 
 $tag_id = intval($_GET['id']);
 
 $sql = mysqli_query($mysqli, "SELECT * FROM tags WHERE tag_id = $tag_id LIMIT 1");
 
 $row = mysqli_fetch_assoc($sql);
-$tag_name = nullable_htmlentities($row['tag_name']);
+$tag_name = escapeHtml($row['tag_name']);
 $tag_type = intval($row['tag_type']);
-$tag_color = nullable_htmlentities($row['tag_color']);
-$tag_icon = nullable_htmlentities($row['tag_icon']);
+$tag_color = escapeHtml($row['tag_color']);
+$tag_icon = escapeHtml($row['tag_icon']);
 
 if ($tag_type == 1) {
     $tag_type_display = "Client";
@@ -29,14 +29,14 @@ if ($tag_type == 1) {
 ob_start();
 ?>
 <div class="modal-header bg-dark">
-    <h5 class="modal-title"><i class="fas fa-fw fa-tag mr-2"></i><?= $tag_type_display ?> Tag: <strong><?php echo $tag_name; ?></strong></h5>
+    <h5 class="modal-title"><i class="fas fa-fw fa-tag mr-2"></i><?= $tag_type_display ?> Tag: <strong><?= $tag_name ?></strong></h5>
     <button type="button" class="close text-white" data-dismiss="modal">
         <span>&times;</span>
     </button>
 </div>
 <form action="post.php" method="post" autocomplete="off">
-    <input type="hidden" name="csrf_token" value="<?php echo $_SESSION['csrf_token'] ?>">
-    <input type="hidden" name="tag_id" value="<?php echo $tag_id; ?>">
+    <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
+    <input type="hidden" name="tag_id" value="<?= $tag_id ?>">
 
     <div class="modal-body">
 
@@ -46,7 +46,7 @@ ob_start();
                 <div class="input-group-prepend">
                     <span class="input-group-text"><i class="fa fa-fw fa-tag"></i></span>
                 </div>
-                <input type="text" class="form-control" name="name" maxlength="200" value="<?php echo $tag_name; ?>" required>
+                <input type="text" class="form-control" name="name" maxlength="200" value="<?= $tag_name ?>" required>
             </div>
         </div>
 
@@ -56,7 +56,7 @@ ob_start();
                 <div class="input-group-prepend">
                     <span class="input-group-text"><i class="fa fa-fw fa-paint-brush"></i></span>
                 </div>
-                <input type="color" class="form-control col-3" name="color" value="<?php echo $tag_color; ?>" required>
+                <input type="color" class="form-control col-3" name="color" value="<?= $tag_color ?>" required>
             </div>
         </div>
 
@@ -66,7 +66,7 @@ ob_start();
                 <div class="input-group-prepend">
                     <span class="input-group-text"><i class="fa fa-fw fa-image"></i></span>
                 </div>
-                <input type="text" class="form-control" name="icon" placeholder="Icon ex handshake" value="<?php echo $tag_icon; ?>">
+                <input type="text" class="form-control" name="icon" placeholder="Icon ex handshake" maxlength="200" value="<?= $tag_icon ?>">
             </div>
         </div>
 

@@ -34,7 +34,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                     <!--<a class="dropdown-item text-dark ajax-modal" href="#" data-modal-url="modals/user/user_invite.php"><i class="fas fa-paper-plane mr-2"></i>Invite User</a>-->
                     <?php if ($num_rows[0] > 1) { ?>
                         <a class="dropdown-item text-dark ajax-modal" href="#"
-                            data-modal-url="modals/user/user_export.php">
+                            data-modal-url="<?= buildExportModalUrl('modals/user/user_export.php', ['archived', 'q']) ?>">
                             <i class="fa fa-fw fa-download mr-2"></i>Export
                         </a>
                         <div class="dropdown-divider"></div>
@@ -53,7 +53,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
             <div class="row">
                 <div class="col-md-4">
                     <div class="input-group">
-                        <input type="search" class="form-control" name="q" value="<?php if (isset($q)) {echo stripslashes(nullable_htmlentities($q));} ?>" placeholder="Search Users">
+                        <input type="search" class="form-control" name="q" value="<?php if (isset($q)) {echo stripslashes(escapeHtml($q));} ?>" placeholder="Search Users">
                         <div class="input-group-append">
                             <button class="btn btn-primary"><i class="fa fa-search"></i></button>
                         </div>
@@ -75,22 +75,22 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                 <thead class="text-dark <?php if ($num_rows[0] == 0) { echo "d-none"; } ?>">
                 <tr>
                     <th class="text-center">
-                        <a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=user_name&order=<?php echo $disp; ?>">
+                        <a class="text-dark" href="?<?= $url_query_strings_sort ?>&sort=user_name&order=<?= $disp ?>">
                             Name <?php if ($sort == 'user_name') { echo $order_icon; } ?>
                         </a>
                     </th>
                     <th>
-                        <a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=user_email&order=<?php echo $disp; ?>">
+                        <a class="text-dark" href="?<?= $url_query_strings_sort ?>&sort=user_email&order=<?= $disp ?>">
                             Email <?php if ($sort == 'user_email') { echo $order_icon; } ?>
                         </a>
                     </th>
                     <th>
-                        <a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=role_name&order=<?php echo $disp; ?>">
+                        <a class="text-dark" href="?<?= $url_query_strings_sort ?>&sort=role_name&order=<?= $disp ?>">
                             Role <?php if ($sort == 'role_name') { echo $order_icon; } ?>
                         </a>
                     </th>
                     <th>
-                        <a class="text-dark" href="?<?php echo $url_query_strings_sort; ?>&sort=user_status&order=<?php echo $disp; ?>">
+                        <a class="text-dark" href="?<?= $url_query_strings_sort ?>&sort=user_status&order=<?= $disp ?>">
                             Status <?php if ($sort == 'user_status') { echo $order_icon; } ?>
                         </a>
                     </th>
@@ -106,8 +106,8 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 
                 while ($row = mysqli_fetch_assoc($sql)) {
                     $user_id = intval($row['user_id']);
-                    $user_name = nullable_htmlentities($row['user_name']);
-                    $user_email = nullable_htmlentities($row['user_email']);
+                    $user_name = escapeHtml($row['user_name']);
+                    $user_email = escapeHtml($row['user_email']);
                     $user_status = intval($row['user_status']);
                     if ($user_status == 2) {
                         $user_status_display = "<span class='text-info'>Invited</span>";
@@ -116,8 +116,8 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                     } else{
                         $user_status_display = "<span class='text-danger'>Disabled</span>";
                     }
-                    $user_avatar = nullable_htmlentities($row['user_avatar']);
-                    $user_token = nullable_htmlentities($row['user_token']);
+                    $user_avatar = escapeHtml($row['user_avatar']);
+                    $user_token = escapeHtml($row['user_token']);
                     if(empty($user_token)) {
                         $mfa_status_display = "<i class='fas fa-fw fa-unlock text-danger'></i>";
                     } else {
@@ -125,9 +125,9 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                     }
                     $user_config_force_mfa = intval($row['user_config_force_mfa']);
                     $user_role = intval($row['user_role_id']);
-                    $user_role_display = nullable_htmlentities($row['role_name']);
-                    $user_archived_at = nullable_htmlentities($row['user_archived_at']);
-                    $user_initials = nullable_htmlentities(initials($user_name));
+                    $user_role_display = escapeHtml($row['role_name']);
+                    $user_archived_at = escapeHtml($row['user_archived_at']);
+                    $user_initials = escapeHtml(initials($user_name));
 
 
                     $sql_last_login = mysqli_query(
@@ -140,9 +140,9 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                         $last_login = "<span class='text-bold'>Never logged in</span>";
                     } else {
                         $row = mysqli_fetch_assoc($sql_last_login);
-                        $log_created_at = nullable_htmlentities($row['log_created_at']);
-                        $log_ip = nullable_htmlentities($row['log_ip']);
-                        $log_user_agent = nullable_htmlentities($row['log_user_agent']);
+                        $log_created_at = escapeHtml($row['log_created_at']);
+                        $log_ip = escapeHtml($row['log_ip']);
+                        $log_user_agent = escapeHtml($row['log_user_agent']);
                         $log_user_os = getOS($log_user_agent);
                         $log_user_browser = getWebBrowser($log_user_agent);
                         $last_login = "$log_created_at<small class='text-secondary'><div class='mt-1'>$log_user_os</div><div class='mt-1'>$log_user_browser</div><div class='mt-1'><i class='fa fa-fw fa-globe'></i> $log_ip</div></small>";
@@ -170,23 +170,23 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                 <?php } ?>
                                 >
                                 <?php if (!empty($user_avatar)) { ?>
-                                    <img class="img-size-50 img-circle" src="<?php echo "../uploads/users/$user_id/$user_avatar"; ?>">
+                                    <img class="img-size-50 img-circle" src="<?= "../uploads/users/$user_id/$user_avatar" ?>">
                                 <?php } else { ?>
                                     <span class="fa-stack fa-2x">
                                         <i class="fa fa-circle fa-stack-2x text-secondary"></i>
-                                        <span class="fa fa-stack-1x text-white"><?php echo $user_initials; ?></span>
+                                        <span class="fa fa-stack-1x text-white"><?= $user_initials ?></span>
                                     </span>
                                     <br>
                                 <?php } ?>
 
-                                <div class="text-secondary"><?php echo $user_name; ?></div>
+                                <div class="text-secondary"><?= $user_name ?></div>
                             </a>
                         </td>
-                        <td><a href="mailto:<?php echo $user_email; ?>"><?php echo $user_email; ?></a></td>
-                        <td><?php echo $user_role_display; ?></td>
-                        <td><?php echo $user_status_display; ?></td>
-                        <td class="text-center"><?php echo $mfa_status_display; ?></td>
-                        <td><?php echo $last_login; ?></td>
+                        <td><a href="mailto:<?= $user_email ?>"><?= $user_email ?></a></td>
+                        <td><?= $user_role_display ?></td>
+                        <td><?= $user_status_display ?></td>
+                        <td class="text-center"><?= $mfa_status_display ?></td>
+                        <td><?= $last_login ?></td>
                         <td>
                             <?php if ($user_id !== $session_user_id) {   // Prevent modifying self ?>
                             <div class="dropdown dropleft text-center">
@@ -199,15 +199,15 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                         <i class="fas fa-fw fa-user-edit mr-2"></i>Edit
                                     </a>
                                     <?php if ($remember_token_count > 0) { ?>
-                                    <a class="dropdown-item" href="post.php?revoke_remember_me=<?php echo $user_id; ?>&csrf_token=<?php echo $_SESSION['csrf_token'] ?>"><i class="fas fa-fw fa-ban mr-2"></i>Revoke <?php echo $remember_token_count; ?> Remember Tokens
+                                    <a class="dropdown-item" href="post.php?revoke_remember_me=<?= $user_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>"><i class="fas fa-fw fa-ban mr-2"></i>Revoke <?= $remember_token_count ?> Remember Tokens
                                     </a>
                                     <?php } ?>
                                     <?php if ($user_status == 0) { ?>
-                                        <a class="dropdown-item text-success" href="post.php?activate_user=<?php echo $user_id; ?>&csrf_token=<?php echo $_SESSION['csrf_token'] ?>">
+                                        <a class="dropdown-item text-success" href="post.php?activate_user=<?= $user_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>">
                                             <i class="fas fa-fw fa-user-check mr-2"></i>Activate
                                         </a>
                                     <?php }elseif ($user_status == 1) { ?>
-                                        <a class="dropdown-item text-danger" href="post.php?disable_user=<?php echo $user_id; ?>&csrf_token=<?php echo $_SESSION['csrf_token'] ?>">
+                                        <a class="dropdown-item text-danger" href="post.php?disable_user=<?= $user_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>">
                                             <i class="fas fa-fw fa-user-slash mr-2"></i>Disable
                                         </a>
                                     <?php } ?>

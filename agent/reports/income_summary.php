@@ -39,7 +39,7 @@ $largest_income_month = 0;
             <select onchange="this.form.submit()" class="form-control" name="year">
                 <?php while ($row = mysqli_fetch_assoc($sql_payment_years)) {
                     $payment_year = intval($row['payment_year']); ?>
-                    <option <?php if ($year == $payment_year) { ?> selected <?php } ?>><?php echo $payment_year; ?></option>
+                    <option <?php if ($year == $payment_year) { ?> selected <?php } ?>><?= $payment_year ?></option>
                 <?php } ?>
             </select>
         </form>
@@ -73,9 +73,9 @@ $largest_income_month = 0;
                 <tbody>
                 <?php while ($row = mysqli_fetch_assoc($sql_categories)) {
                     $category_id = intval($row['category_id']);
-                    $category_name = nullable_htmlentities($row['category_name']); ?>
+                    $category_name = escapeHtml($row['category_name']); ?>
                     <tr>
-                        <td><?php echo $category_name; ?></td>
+                        <td><?= $category_name ?></td>
                         <?php
                         $total_payment_for_all_months = 0;
                         for ($month = 1; $month <= 12; $month++) {
@@ -92,9 +92,9 @@ $largest_income_month = 0;
                             $payment_amount_for_month = $payment_amount_for_month + $revenues_amount_for_month;
                             $total_payment_for_all_months += $payment_amount_for_month;
                             ?>
-                            <td class="text-right"><?php echo numfmt_format_currency($currency_format, $payment_amount_for_month, $session_company_currency); ?></td>
+                            <td class="text-right"><?= numfmt_format_currency($currency_format, $payment_amount_for_month, $session_company_currency) ?></td>
                         <?php } ?>
-                        <td class="text-right text-bold"><?php echo numfmt_format_currency($currency_format, $total_payment_for_all_months, $session_company_currency); ?></td>
+                        <td class="text-right text-bold"><?= numfmt_format_currency($currency_format, $total_payment_for_all_months, $session_company_currency) ?></td>
                     </tr>
                 <?php } ?>
 
@@ -114,9 +114,9 @@ $largest_income_month = 0;
                         $payment_total_amount_for_month += $revenues_total_amount_for_month;
                         $grand_total_all_months += $payment_total_amount_for_month;
                         ?>
-                        <th class="text-right"><?php echo numfmt_format_currency($currency_format, $payment_total_amount_for_month, $session_company_currency); ?></th>
+                        <th class="text-right"><?= numfmt_format_currency($currency_format, $payment_total_amount_for_month, $session_company_currency) ?></th>
                     <?php } ?>
-                    <th class="text-right"><?php echo numfmt_format_currency($currency_format, $grand_total_all_months, $session_company_currency); ?></th>
+                    <th class="text-right"><?= numfmt_format_currency($currency_format, $grand_total_all_months, $session_company_currency) ?></th>
                 </tr>
                 </tbody>
             </table>

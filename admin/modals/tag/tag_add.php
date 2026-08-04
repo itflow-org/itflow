@@ -1,6 +1,6 @@
 <?php
 
-require_once '../../../includes/modal_header.php';
+require_once '../../includes/modal_header.php';
 
 $type_display = '';
 
@@ -30,8 +30,8 @@ ob_start();
     </button>
 </div>
 <form action="post.php" method="post" autocomplete="off">
-    <input type="hidden" name="csrf_token" value="<?php echo $_SESSION['csrf_token'] ?>">
-    <input type="hidden" name="type" value="<?php echo $type; ?>">
+    <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
+    <input type="hidden" name="type" value="<?= $type ?>">
 
     <div class="modal-body">
         <div class="form-group">
@@ -85,7 +85,7 @@ ob_start();
                 <div class="input-group-prepend">
                     <span class="input-group-text"><i class="fa fa-fw fa-image"></i></span>
                 </div>
-                <input type="text" class="form-control" name="icon" placeholder="Icon ex handshake">
+                <input type="text" class="form-control" name="icon" placeholder="Icon ex handshake" maxlength="200">
             </div>
         </div>
 

@@ -8,10 +8,10 @@ defined('FROM_POST_HANDLER') || die("Direct file access is not allowed");
 
 if (isset($_POST['add_role'])) {
 
-    validateCSRFToken($_POST['csrf_token']);
+    validateCSRFToken();
 
-    $name = sanitizeInput($_POST['role_name']);
-    $description = sanitizeInput($_POST['role_description']);
+    $name = escapeSql($_POST['role_name']);
+    $description = escapeSql($_POST['role_description']);
     $admin = intval($_POST['role_is_admin']);
 
     mysqli_query($mysqli, "INSERT INTO user_roles SET role_name = '$name', role_description = '$description', role_is_admin = $admin");
@@ -32,9 +32,9 @@ if (isset($_POST['add_role'])) {
         }
     }
 
-    logAction("User Role", "Create", "$session_name created user role $name", 0, $role_id);
+    logAudit("User Role", "Create", "$session_name created user role $name", 0, $role_id);
 
-    flash_alert("User Role <strong>$name</strong> created");
+    flashAlert("User Role <strong>$name</strong> created");
 
     redirect();
 
@@ -42,11 +42,11 @@ if (isset($_POST['add_role'])) {
 
 if (isset($_POST['edit_role'])) {
 
-    validateCSRFToken($_POST['csrf_token']);
+    validateCSRFToken();
 
     $role_id = intval($_POST['role_id']);
-    $name = sanitizeInput($_POST['role_name']);
-    $description = sanitizeInput($_POST['role_description']);
+    $name = escapeSql($_POST['role_name']);
+    $description = escapeSql($_POST['role_description']);
     $admin = intval($_POST['role_is_admin']);
 
     mysqli_query($mysqli, "UPDATE user_roles SET role_name = '$name', role_description = '$description', role_is_admin = $admin WHERE role_id = $role_id");
@@ -65,9 +65,9 @@ if (isset($_POST['edit_role'])) {
 
     }
 
-    logAction("User Role", "Edit", "$session_name edited user role $name", 0, $role_id);
+    logAudit("User Role", "Edit", "$session_name edited user role $name", 0, $role_id);
 
-    flash_alert("User Role <strong>$name</strong> edited");
+    flashAlert("User Role <strong>$name</strong> edited");
 
     redirect();
 
@@ -75,7 +75,7 @@ if (isset($_POST['edit_role'])) {
 
 if (isset($_GET['archive_role'])) {
 
-    validateCSRFToken($_GET['csrf_token']);
+    validateCSRFToken();
 
     $role_id = intval($_GET['archive_role']);
 
@@ -83,18 +83,18 @@ if (isset($_GET['archive_role'])) {
     $sql_role_user_count = mysqli_query($mysqli, "SELECT COUNT(user_id) FROM users WHERE user_role_id = $role_id AND user_archived_at IS NULL");
     $role_user_count = mysqli_fetch_row($sql_role_user_count)[0];
     if ($role_user_count != 0) {
-        flash_alert("Role must not in use to archive it", 'error');
+        flashAlert("Role must not in use to archive it", 'error');
 
         redirect();
     }
 
     mysqli_query($mysqli, "UPDATE user_roles SET role_archived_at = NOW() WHERE role_id = $role_id");
 
-    $role_name = sanitizeInput(getFieldById('user_roles', $role_id, 'role_name'));
+    $role_name = escapeSql(getFieldById('user_roles', $role_id, 'role_name'));
 
-    logAction("User Role", "Archive", "$session_name archived user role $role_name", 0, $role_id);
+    logAudit("User Role", "Archive", "$session_name archived user role $role_name", 0, $role_id);
 
-    flash_alert("User Role <strong>$role_name</strong> archived", 'error');
+    flashAlert("User Role <strong>$role_name</strong> archived", 'error');
 
     redirect();
 

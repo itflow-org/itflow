@@ -4,6 +4,10 @@ require_once '../../../includes/modal_header.php';
 
 $client_id = intval($_GET['client_id'] ?? 0);
 
+if ($client_id) {
+    enforceClientAccess();
+}
+
 ob_start();
 
 ?>

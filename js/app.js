@@ -371,35 +371,15 @@ $(document).ready(function() {
     // ClipboardJS fix for Bootstrap modals
     $.fn.modal.Constructor.prototype._enforceFocus = function() {};
 
-    // Tooltip
-    $('button').tooltip({
-        trigger: 'click',
-        placement: 'bottom'
-    });
-
-    function setTooltip(btn, message) {
-        $(btn).tooltip('hide')
-            .attr('data-original-title', message)
-            .tooltip('show');
-    }
-
-    function hideTooltip(btn) {
-        setTimeout(function() {
-            $(btn).tooltip('hide');
-        }, 1000);
-    }
-
     // Clipboard
     var clipboard = new ClipboardJS('.clipboardjs');
 
     clipboard.on('success', function(e) {
-        setTooltip(e.trigger, 'Copied!');
-        hideTooltip(e.trigger);
+        flashTooltip(e.trigger, 'Copied!');
     });
 
     clipboard.on('error', function(e) {
-        setTooltip(e.trigger, 'Failed!');
-        hideTooltip(e.trigger);
+        flashTooltip(e.trigger, 'Failed!');
     });
 
     // Enable Popovers
@@ -410,3 +390,121 @@ $(document).ready(function() {
     // Data Tables
     new DataTable('.dataTables');
 });
+
+/*
+ * Calendar event modals - the All day switch shows or hides the time row.
+ *
+ * The form uses four separate fields (date from / date to / time from / time to),
+ * so nothing here rewrites a value or changes an input type. An earlier version
+ * flipped a single datetime-local input to type="date", which a browser answers by
+ * silently discarding a value it now considers invalid - a fragile arrangement that
+ * left the fields empty whenever this handler had not run.
+ *
+ * required tracks visibility: a hidden required field blocks form submission with an
+ * unfocusable-element error that the user cannot act on.
+ *
+ * Delegated on document because the edit event modal is injected by ajax. The
+ * namespaced .off() keeps this to a single handler - modal_footer.php re-loads this
+ * file on every ajax modal open.
+ */
+$(document).off('change.itflowAllDay').on('change.itflowAllDay', '.event-all-day-toggle', function () {
+
+    const allDay = this.checked;
+    const timeFields = document.getElementById(this.id.replace(/_all_day$/, '_time_fields'));
+
+    if (!timeFields) {
+        return;
+    }
+
+    timeFields.classList.toggle('d-none', allDay);
+
+    timeFields.querySelectorAll('input').forEach(function (field) {
+        if (allDay) {
+            field.removeAttribute('required');
+        } else {
+            field.setAttribute('required', 'required');
+        }
+    });
+});
+
+/*
+ * Keep the end date at or after the start date, without shortening a longer span
+ * the user has already chosen.
+ */
+$(document).off('change.itflowEventDate').on('change.itflowEventDate', '.event-start-date', function () {
+
+    const endField = document.getElementById(this.id.replace(/_start_date$/, '_end_date'));
+
+    if (!endField || !this.value) {
+        return;
+    }
+
+    if (!endField.value || endField.value < this.value) {
+        endField.value = this.value;
+    }
+});
+
+/*
+ * Default the end time to an hour after the start, leaving a longer span alone.
+ * A start late in the evening rolls the end onto the following day rather than
+ * wrapping round to an end that precedes the start.
+ */
+$(document).off('change.itflowEventTime').on('change.itflowEventTime', '.event-start-time', function () {
+
+    const prefix = this.id.replace(/_start_time$/, '');
+    const endField = document.getElementById(prefix + '_end_time');
+
+    if (!endField || !this.value) {
+        return;
+    }
+
+    if (endField.value && endField.value > this.value) {
+        return;
+    }
+
+    const parts = this.value.split(':');
+    const end = new Date(2000, 0, 1, Number(parts[0]), Number(parts[1]));
+    end.setHours(end.getHours() + 1);
+
+    const pad = (n) => String(n).padStart(2, '0');
+    endField.value = pad(end.getHours()) + ':' + pad(end.getMinutes());
+
+    // Crossed midnight - carry the end date forward so the event still ends after
+    // it starts
+    if (end.getDate() !== 1) {
+        const startDate = document.getElementById(prefix + '_start_date');
+        const endDate = document.getElementById(prefix + '_end_date');
+
+        if (startDate && endDate && startDate.value && endDate.value <= startDate.value) {
+            const next = new Date(startDate.value + 'T00:00:00');
+            next.setDate(next.getDate() + 1);
+            endDate.value = next.getFullYear() + '-' + pad(next.getMonth() + 1) + '-' + pad(next.getDate());
+        }
+    }
+});
+
+/*
+ * Bootstrap tooltips are only used for the brief "Copied!" flash on a copy
+ * button. Everything else relies on the browser's own title attribute.
+ *
+ * This used to be `$('button').tooltip({trigger: 'click'})`, which attached a
+ * click-toggled tooltip to EVERY button in the app. A click-triggered tooltip
+ * is only dismissed by clicking the same button again - clicking anywhere else
+ * leaves it on screen - and if the button was then removed from the DOM by a
+ * modal closing or an ajax refresh, its tooltip was orphaned and stayed up
+ * until the next page load.
+ */
+function flashTooltip(button, message) {
+    $(button)
+        .tooltip('dispose')
+        .tooltip({
+            trigger: 'manual',
+            placement: 'bottom',
+            title: message
+        })
+        .tooltip('show');
+
+    setTimeout(function() {
+        $(button).tooltip('dispose');
+    }, 1000);
+}

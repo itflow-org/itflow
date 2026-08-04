@@ -34,6 +34,21 @@ if (isset($_GET['client_id'])) {
 // Perms
 enforceUserPermission('module_support');
 
+// Expiring In Filter
+if (isset($_GET['expire_days']) && !empty($_GET['expire_days'])) {
+    if ($_GET['expire_days'] == "expired") {
+        $expire_days = "expired";
+        $expire_query = "AND (software_expire IS NOT NULL AND software_expire != '0000-00-00' AND software_expire < CURDATE())";
+    } else {
+        $expire_days = intval($_GET['expire_days']);
+        $expire_query = "AND (software_expire IS NOT NULL AND software_expire != '0000-00-00' AND software_expire BETWEEN CURDATE() AND DATE_ADD(CURDATE(), INTERVAL $expire_days DAY))";
+    }
+} else {
+    // Default - any
+    $expire_days = '';
+    $expire_query = '';
+}
+
 if (!$client_url) {
     // Client Filter
     if (isset($_GET['client']) & !empty($_GET['client'])) {
@@ -55,6 +70,7 @@ $sql = mysqli_query(
     AND $archive_query
     $access_permission_query
     $client_query
+    $expire_query
     ORDER BY $sort $order LIMIT $record_from, $record_to");
 
 $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
@@ -78,7 +94,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                         <?php if ($num_rows[0] > 0) { ?>
                             <div class="dropdown-divider"></div>
                             <a class="dropdown-item text-dark ajax-modal" href="#"
-                                data-modal-url="modals/software/software_export.php?<?= $client_url ?>">
+                                data-modal-url="<?= buildExportModalUrl('modals/software/software_export.php', ['client_id', 'client', 'expire_days', 'archived', 'q']) ?>">
                                 <i class="fa fa-fw fa-download mr-2"></i>Export
                             </a>
                         <?php } ?>
@@ -89,23 +105,21 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
         <div class="card-body">
             <form autocomplete="off">
                 <?php if($client_url) { ?>
-                <input type="hidden" name="client_id" value="<?php echo $client_id; ?>">
+                <input type="hidden" name="client_id" value="<?= $client_id ?>">
                 <?php } ?>
-                <input type="hidden" name="archived" value="<?php echo $archived; ?>">
+                <input type="hidden" name="archived" value="<?= $archived ?>">
                 <div class="row">
 
                     <div class="col-md-4">
                         <div class="input-group mb-3 mb-md-0">
-                            <input type="search" class="form-control" name="q" value="<?php if (isset($q)) { echo stripslashes(nullable_htmlentities($q)); } ?>" placeholder="Search Licenses">
+                            <input type="search" class="form-control" name="q" value="<?php if (isset($q)) { echo stripslashes(escapeHtml($q)); } ?>" placeholder="Search Licenses">
                             <div class="input-group-append">
                                 <button class="btn btn-dark"><i class="fa fa-search"></i></button>
                             </div>
                         </div>
                     </div>
 
-                    <?php if ($client_url) { ?>
-                    <div class="col-md-2"></div>
-                    <?php } else { ?>
+                    <?php if (!$client_url) { ?>
                     <div class="col-md-2">
                         <div class="input-group mb-3 mb-md-0">
                             <select class="form-control select2" name="client" onchange="this.form.submit()">
@@ -122,9 +136,9 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                 ");
                                 while ($row = mysqli_fetch_assoc($sql_clients_filter)) {
                                     $client_id = intval($row['client_id']);
-                                    $client_name = nullable_htmlentities($row['client_name']);
+                                    $client_name = escapeHtml($row['client_name']);
                                 ?>
-                                    <option <?php if ($client == $client_id) { echo "selected"; } ?> value="<?php echo $client_id; ?>"><?php echo $client_name; ?></option>
+                                    <option <?php if ($client == $client_id) { echo "selected"; } ?> value="<?= $client_id ?>"><?= $client_name ?></option>
                                 <?php
                                 }
                                 ?>
@@ -134,9 +148,27 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                     </div>
                     <?php } ?>
 
-                    <div class="col-md-6">
+                    <div class="col-md-2">
+                        <div class="input-group mb-3 mb-md-0">
+                            <select class="form-control select2" name="expire_days" onchange="this.form.submit()">
+                                <option value="" <?php if ($expire_days == "") { echo "selected"; } ?>>- Expiring In -</option>
+                                <option value="expired" <?php if ($expire_days === "expired") { echo "selected"; } ?>>Expired</option>
+                                <option value="7" <?php if ($expire_days === 7) { echo "selected"; } ?>>7 Days</option>
+                                <option value="30" <?php if ($expire_days === 30) { echo "selected"; } ?>>30 Days</option>
+                                <option value="45" <?php if ($expire_days === 45) { echo "selected"; } ?>>45 Days</option>
+                                <option value="60" <?php if ($expire_days === 60) { echo "selected"; } ?>>60 Days</option>
+                                <option value="90" <?php if ($expire_days === 90) { echo "selected"; } ?>>90 Days</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <?php if ($client_url) { // filler ?>
+                    <div class="col-md-2"></div>
+                    <?php } ?>
+
+                    <div class="col-md-4">
                         <div class="float-right">
-                            <a href="?<?php echo $client_url; ?>archived=<?php if($archived == 1){ echo 0; } else { echo 1; } ?>"
+                            <a href="?<?= $client_url ?>archived=<?php if($archived == 1){ echo 0; } else { echo 1; } ?>"
                                 class="btn btn-<?php if($archived == 1){ echo "primary"; } else { echo "default"; } ?>">
                                 <i class="fa fa-fw fa-archive mr-2"></i>Archived
                             </a>
@@ -151,38 +183,38 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                     <thead class="text-dark <?php if ($num_rows[0] == 0) { echo "d-none"; } ?> text-nowrap">
                     <tr>
                         <th>
-                            <a class="text-secondary" href="?<?php echo $url_query_strings_sort; ?>&sort=software_name&order=<?php echo $disp; ?>">
+                            <a class="text-secondary" href="?<?= $url_query_strings_sort ?>&sort=software_name&order=<?= $disp ?>">
                                 Software <?php if ($sort == 'software_name') { echo $order_icon; } ?>
                             </a>
                         </th>
                         <th>
-                            <a class="text-secondary" href="?<?php echo $url_query_strings_sort; ?>&sort=software_type&order=<?php echo $disp; ?>">
+                            <a class="text-secondary" href="?<?= $url_query_strings_sort ?>&sort=software_type&order=<?= $disp ?>">
                                 Type <?php if ($sort == 'software_type') { echo $order_icon; } ?>
                             </a>
                         </th>
                         <th>
-                            <a class="text-secondary" href="?<?php echo $url_query_strings_sort; ?>&sort=software_license_type&order=<?php echo $disp; ?>">
+                            <a class="text-secondary" href="?<?= $url_query_strings_sort ?>&sort=software_license_type&order=<?= $disp ?>">
                                 License Type <?php if ($sort == 'software_license_type') { echo $order_icon; } ?>
                             </a>
                         </th>
                         <th>
-                            <a class="text-secondary" href="?<?php echo $url_query_strings_sort; ?>&sort=software_seats&order=<?php echo $disp; ?>">
+                            <a class="text-secondary" href="?<?= $url_query_strings_sort ?>&sort=software_seats&order=<?= $disp ?>">
                                 Seats <?php if ($sort == 'software_seats') { echo $order_icon; } ?>
                             </a>
                         </th>
                         <th>
-                            <a class="text-secondary" href="?<?php echo $url_query_strings_sort; ?>&sort=software_expire&order=<?php echo $disp; ?>">
+                            <a class="text-secondary" href="?<?= $url_query_strings_sort ?>&sort=software_expire&order=<?= $disp ?>">
                                 Expire <?php if ($sort == 'software_expire') { echo $order_icon; } ?>
                             </a>
                         </th>
                         <th>
-                            <a class="text-secondary" href="?<?php echo $url_query_strings_sort; ?>&sort=vendor_name&order=<?php echo $disp; ?>">
+                            <a class="text-secondary" href="?<?= $url_query_strings_sort ?>&sort=vendor_name&order=<?= $disp ?>">
                                 Vendor <?php if ($sort == 'vendor_name') { echo $order_icon; } ?>
                             </a>
                         </th>
                         <?php if (!$client_url) { ?>
                         <th>
-                            <a class="text-secondary" href="?<?php echo $url_query_strings_sort; ?>&sort=client_name&order=<?php echo $disp; ?>">
+                            <a class="text-secondary" href="?<?= $url_query_strings_sort ?>&sort=client_name&order=<?= $disp ?>">
                                 Client <?php if ($sort == 'client_name') { echo $order_icon; } ?>
                             </a>
                         </th>
@@ -195,19 +227,19 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 
                     while ($row = mysqli_fetch_assoc($sql)) {
                         $client_id = intval($row['client_id']);
-                        $client_name = nullable_htmlentities($row['client_name']);
+                        $client_name = escapeHtml($row['client_name']);
                         $software_id = intval($row['software_id']);
-                        $software_name = nullable_htmlentities($row['software_name']);
-                        $software_description = nullable_htmlentities($row['software_description']);
-                        $software_version = nullable_htmlentities($row['software_version']);
-                        $software_type = nullable_htmlentities($row['software_type']);
-                        $software_license_type = getFallBack(nullable_htmlentities($row['software_license_type']));
-                        $software_seats = nullable_htmlentities($row['software_seats']);
-                        $software_expire = nullable_htmlentities($row['software_expire']);
-                        $vendor_name = nullable_htmlentities($row['vendor_name']);
+                        $software_name = escapeHtml($row['software_name']);
+                        $software_description = escapeHtml($row['software_description']);
+                        $software_version = escapeHtml($row['software_version']);
+                        $software_type = escapeHtml($row['software_type']);
+                        $software_license_type = escapeHtml($row['software_license_type']) ?: '-';
+                        $software_seats = escapeHtml($row['software_seats']);
+                        $software_expire = escapeHtml($row['software_expire']);
+                        $vendor_name = escapeHtml($row['vendor_name']);
                         $vendor_id = intval($row['vendor_id']);
                         if ($vendor_name) {
-                            $vendor_display = "<a class='ajax-modal' href='#' data-modal-url='modals/vendor/vendor_details.php?id=$vendor_id'>$vendor_name</a>";
+                            $vendor_display = "<a class='ajax-modal' href='#' data-modal-url='modals/vendor/vendor.php?id=$vendor_id'>$vendor_name</a>";
                         } else {
                             $vendor_display = "<span class='text-muted'>N/A</span>";
                         }
@@ -238,7 +270,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                             $tr_class = '';
                         }
 
-                        $software_created_at = nullable_htmlentities($row['software_created_at']);
+                        $software_created_at = escapeHtml($row['software_created_at']);
 
                         $seat_count = 0;
 
@@ -263,25 +295,25 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 
 
                         ?>
-                        <tr class="<?php echo $tr_class; ?>">
+                        <tr class="<?= $tr_class ?>">
                             <td>
                                 <a class="text-dark ajax-modal" href="#" data-modal-url="modals/software/software_edit.php?id=<?= $software_id ?>">
                                     <div class="media">
                                         <i class="fa fa-fw fa-2x fa-cube mr-3"></i>
                                         <div class="media-body">
-                                            <div><?php echo "$software_name <span>$software_version</span>"; ?></div>
-                                            <div><small class="text-secondary"><?php echo $software_description; ?></small></div>
+                                            <div><?= "$software_name <span>$software_version</span>" ?></div>
+                                            <div><small class="text-secondary"><?= $software_description ?></small></div>
                                         </div>
                                     </div>
                                 </a>
                             </td>
-                            <td><?php echo $software_type; ?></td>
-                            <td><?php echo $software_license_type; ?></td>
-                            <td><?php echo "$seat_count / $software_seats"; ?></td>
-                            <td><?php echo $software_expire_display; ?></td>
-                            <td><?php echo $vendor_display; ?></td>
+                            <td><?= $software_type ?></td>
+                            <td><?= $software_license_type ?></td>
+                            <td><?= "$seat_count / $software_seats" ?></td>
+                            <td><?= $software_expire_display ?></td>
+                            <td><?= $vendor_display ?></td>
                             <?php if (!$client_url) { ?>
-                            <td><a href="software.php?client_id=<?php echo $client_id; ?>"><?php echo $client_name; ?></a></td>
+                            <td><a href="software.php?client_id=<?= $client_id ?>"><?= $client_name ?></a></td>
                             <?php } ?>
                             <td>
                                 <div class="dropdown dropleft text-center">
@@ -294,12 +326,12 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                             <i class="fas fa-fw fa-edit mr-2"></i>Edit
                                         </a>
                                         <div class="dropdown-divider"></div>
-                                        <a class="dropdown-item text-danger confirm-link" href="post.php?archive_software=<?php echo $software_id; ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>">
+                                        <a class="dropdown-item text-danger confirm-link" href="post.php?archive_software=<?= $software_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>">
                                             <i class="fas fa-fw fa-archive mr-2"></i>Archive and<br><small>Remove Licenses</small></a>
                                         <?php if ($session_user_role == 3) { ?>
                                             <?php if ($config_destructive_deletes_enable) { ?>
                                             <div class="dropdown-divider"></div>
-                                            <a class="dropdown-item text-danger text-bold confirm-link" href="post.php?delete_software=<?php echo $software_id; ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>">
+                                            <a class="dropdown-item text-danger text-bold confirm-link" href="post.php?delete_software=<?= $software_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>">
                                                 <i class="fas fa-fw fa-trash mr-2"></i>Delete and<br><small>Remove Licenses</small></a>
                                             <?php } ?>
                                         <?php } ?>

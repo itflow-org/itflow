@@ -9,10 +9,10 @@
       </div>
       <form action="post.php" method="post" autocomplete="off">
         <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
-        <input type="hidden" name="invoice_id" value="<?php echo $invoice_id; ?>">
+        <input type="hidden" name="invoice_id" value="<?= $invoice_id ?>">
         <div class="modal-body">
           <div class="form-group">
-            <textarea class="form-control" rows="8" name="note" placeholder="Enter some notes"><?php echo $invoice_note; ?></textarea>
+            <textarea class="form-control" rows="8" name="note" placeholder="Enter some notes"><?= $invoice_note ?></textarea>
           </div>
         </div>
         <div class="modal-footer">

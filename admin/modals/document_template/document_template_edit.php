@@ -1,40 +1,40 @@
 <?php
 
-require_once '../../../includes/modal_header.php';
+require_once '../../includes/modal_header.php';
 
 $document_template_id = intval($_GET['id']);
 
 $sql = mysqli_query($mysqli, "SELECT * FROM document_templates WHERE document_template_id = $document_template_id LIMIT 1");
 $row = mysqli_fetch_assoc($sql);
-$document_template_name = nullable_htmlentities($row['document_template_name']);
-$document_template_description = nullable_htmlentities($row['document_template_description']);
-$document_template_content = nullable_htmlentities($row['document_template_content']);
+$document_template_name = escapeHtml($row['document_template_name']);
+$document_template_description = escapeHtml($row['document_template_description']);
+$document_template_content = escapeHtml($row['document_template_content']);
 
 ob_start();
 ?>
 
 <div class="modal-header bg-dark">
-    <h5 class="modal-title"><i class="fa fa-fw fa-file-alt mr-2"></i>Editing template: <strong><?php echo $document_template_name; ?></strong></h5>
+    <h5 class="modal-title"><i class="fa fa-fw fa-file-alt mr-2"></i>Editing template: <strong><?= $document_template_name ?></strong></h5>
     <button type="button" class="close text-white" data-dismiss="modal">
         <span>&times;</span>
     </button>
 </div>
 <form action="post.php" method="post" autocomplete="off">
     <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
-    <input type="hidden" name="document_template_id" value="<?php echo $document_template_id; ?>">
+    <input type="hidden" name="document_template_id" value="<?= $document_template_id ?>">
 
     <div class="modal-body">
 
         <div class="form-group">
-            <input type="text" class="form-control" name="name" maxlength="200" value="<?php echo $document_template_name; ?>" placeholder="Name" required>
+            <input type="text" class="form-control" name="name" maxlength="200" value="<?= $document_template_name ?>" placeholder="Name" required>
         </div>
 
         <div class="form-group">
-            <textarea class="form-control tinymce" name="content"><?php echo $document_template_content; ?></textarea>
+            <textarea class="form-control tinymce" name="content"><?= $document_template_content ?></textarea>
         </div>
 
         <div class="form-group">
-            <input type="text" class="form-control" name="description" value="<?php echo $document_template_description; ?>" placeholder="Short summary">
+            <input type="text" class="form-control" name="description" value="<?= $document_template_description ?>" placeholder="Short summary">
         </div>
 
     </div>

@@ -6,19 +6,19 @@ require_once "includes/inc_all_client.php";
 enforceUserPermission('module_sales');
 
 // Initialize stripe
-require_once 'plugins/stripe-php/init.php';
+require_once '../includes/stripe_init.php';
 
 // Get Stripe vars
 $stripe_vars = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT config_stripe_enable, config_stripe_publishable, config_stripe_secret FROM settings WHERE company_id = 1"));
 $config_stripe_enable = intval($stripe_vars['config_stripe_enable']);
-$config_stripe_publishable = nullable_htmlentities($stripe_vars['config_stripe_publishable']);
-$config_stripe_secret = nullable_htmlentities($stripe_vars['config_stripe_secret']);
+$config_stripe_publishable = escapeHtml($stripe_vars['config_stripe_publishable']);
+$config_stripe_secret = escapeHtml($stripe_vars['config_stripe_secret']);
 
 // Get client's StripeID from database
 $stripe_client_details = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT * FROM client_stripe WHERE client_id = $client_id LIMIT 1"));
 if ($stripe_client_details) {
-    $stripe_id = sanitizeInput($stripe_client_details['stripe_id']);
-    $stripe_pm = sanitizeInput($stripe_client_details['stripe_pm']);
+    $stripe_id = escapeSql($stripe_client_details['stripe_id']);
+    $stripe_pm = escapeSql($stripe_client_details['stripe_pm']);
 }
 
 // Stripe not enabled in settings
@@ -71,7 +71,7 @@ if (!$config_stripe_enable || !$config_stripe_publishable || !$config_stripe_sec
                 Please add the payment details you would like to save.<br>
                 By adding payment details here, you grant consent for future automatic payments of invoices.<br><br>
 
-                <input type="hidden" id="stripe_publishable_key" value="<?php echo $config_stripe_publishable ?>">
+                <input type="hidden" id="stripe_publishable_key" value="<?= $config_stripe_publishable ?>">
                 <script src="https://js.stripe.com/v3/"></script>
                 <script src="js/autopay_setup_stripe.js"></script>
                 <div id="checkout">
@@ -104,18 +104,18 @@ if (!$config_stripe_enable || !$config_stripe_publishable || !$config_stripe_sec
                     logApp("Stripe", "error", "Exception when fetching payment method info for $stripe_pm: $error");
                 }
 
-                $card_name = nullable_htmlentities($payment_method->billing_details->name);
-                $card_brand = nullable_htmlentities($payment_method->card->display_brand);
-                $card_last4 = nullable_htmlentities($payment_method->card->last4);
-                $card_expires = nullable_htmlentities($payment_method->card->exp_month) . "/" . nullable_htmlentities($payment_method->card->exp_year);
+                $card_name = escapeHtml($payment_method->billing_details->name);
+                $card_brand = escapeHtml($payment_method->card->display_brand);
+                $card_last4 = escapeHtml($payment_method->card->last4);
+                $card_expires = escapeHtml($payment_method->card->exp_month) . "/" . escapeHtml($payment_method->card->exp_year);
 
                 ?>
 
-                <ul><li><?php echo "$card_name - $card_brand card ending in $card_last4, expires $card_expires"; ?></li></ul>
+                <ul><li><?= "$card_name - $card_brand card ending in $card_last4, expires $card_expires" ?></li></ul>
 
                 <hr>
                 <b>Actions</b><br>
-                - <a href="post.php?stripe_remove_pm&pm=<?php echo $stripe_pm; ?>">Remove saved payment method</a>
+                - <a href="post.php?stripe_remove_pm&pm=<?= $stripe_pm ?>">Remove saved payment method</a>
 
             <?php } ?>
 

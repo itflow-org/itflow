@@ -54,9 +54,9 @@ if ($total_found_rows > 5) {
 
         <div class="col-sm">
             <p class="text-center">
-              Showing <strong><?php echo $start; ?></strong> to <strong><?php echo $end; ?></strong> of <strong><?php echo $total_found_rows; ?></strong> records
+              Showing <strong><?= $start ?></strong> to <strong><?= $end ?></strong> of <strong><?= $total_found_rows ?></strong> records
             </p>
-            <!--<p class="text-center mt-2"><?php echo $total_found_rows; ?></p> -->
+            <!--<p class="text-center mt-2"><?= $total_found_rows ?></p> -->
         </div>
         <div class="col-sm">
             <ul class="pagination justify-content-sm-end">

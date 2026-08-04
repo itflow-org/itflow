@@ -12,7 +12,7 @@ ob_start();
     </button>
 </div>
 <form action="post.php" method="post" autocomplete="off">
-    <input type="hidden" name="csrf_token" value="<?php echo $_SESSION['csrf_token'] ?>">
+    <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
 
     <div class="modal-body">
 
@@ -45,7 +45,7 @@ ob_start();
                 <select class="form-control select2" name="currency_code" required>
                     <option value="">- Currency -</option>
                     <?php foreach ($currencies_array as $currency_code => $currency_name) { ?>
-                        <option <?php if ($session_company_currency == $currency_code) { echo "selected"; } ?> value="<?php echo $currency_code; ?>"><?php echo "$currency_code - $currency_name"; ?></option>
+                        <option <?php if ($session_company_currency == $currency_code) { echo "selected"; } ?> value="<?= $currency_code ?>"><?= "$currency_code - $currency_name" ?></option>
                     <?php } ?>
                 </select>
             </div>

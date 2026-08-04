@@ -8,17 +8,17 @@ defined('FROM_POST_HANDLER') || die("Direct file access is not allowed");
 
 if (isset($_POST['add_service'])) {
 
-    validateCSRFToken($_POST['csrf_token']);
+    validateCSRFToken();
 
     enforceUserPermission('module_support', 2);
 
     $client_id = intval($_POST['client_id']);
-    $service_name = sanitizeInput($_POST['name']);
-    $service_description = sanitizeInput($_POST['description']);
-    $service_category = sanitizeInput($_POST['category']); //TODO: Needs integration with company categories
-    $service_importance = sanitizeInput($_POST['importance']);
-    $service_backup = sanitizeInput($_POST['backup']);
-    $service_notes = sanitizeInput($_POST['note']);
+    $service_name = escapeSql($_POST['name']);
+    $service_description = escapeSql($_POST['description']);
+    $service_category = escapeSql($_POST['category']); //TODO: Needs integration with company categories
+    $service_importance = escapeSql($_POST['importance']);
+    $service_backup = escapeSql($_POST['backup']);
+    $service_notes = escapeSql($_POST['note']);
 
     enforceClientAccess();
 
@@ -78,9 +78,9 @@ if (isset($_POST['add_service'])) {
         }
     }
 
-    logAction("Service", "Create", "$session_name created service $service_name", $client_id, $service_id);
+    logAudit("Service", "Create", "$session_name created service $service_name", $client_id, $service_id);
 
-    flash_alert("Service <strong>$service_name</strong> created");
+    flashAlert("Service <strong>$service_name</strong> created");
 
     redirect();
 
@@ -88,17 +88,17 @@ if (isset($_POST['add_service'])) {
 
 if (isset($_POST['edit_service'])) {
 
-    validateCSRFToken($_POST['csrf_token']);
+    validateCSRFToken();
 
     enforceUserPermission('module_support', 2);
 
     $service_id = intval($_POST['service_id']);
-    $service_name = sanitizeInput($_POST['name']);
-    $service_description = sanitizeInput($_POST['description']);
-    $service_category = sanitizeInput($_POST['category']); //TODO: Needs integration with company categories
-    $service_importance = sanitizeInput($_POST['importance']);
-    $service_backup = sanitizeInput($_POST['backup']);
-    $service_notes = sanitizeInput($_POST['note']);
+    $service_name = escapeSql($_POST['name']);
+    $service_description = escapeSql($_POST['description']);
+    $service_category = escapeSql($_POST['category']); //TODO: Needs integration with company categories
+    $service_importance = escapeSql($_POST['importance']);
+    $service_backup = escapeSql($_POST['backup']);
+    $service_notes = escapeSql($_POST['note']);
 
     $client_id = intval(getFieldById('services', $service_id, 'service_client_id'));
 
@@ -166,9 +166,9 @@ if (isset($_POST['edit_service'])) {
         }
     }
 
-    logAction("Service", "Edit", "$session_name edited service $service_name", $client_id, $service_id);
+    logAudit("Service", "Edit", "$session_name edited service $service_name", $client_id, $service_id);
 
-    flash_alert("Service <strong>$service_name</strong> edited");
+    flashAlert("Service <strong>$service_name</strong> edited");
 
     redirect();
 
@@ -176,7 +176,7 @@ if (isset($_POST['edit_service'])) {
 
 if (isset($_GET['delete_service'])) {
 
-    validateCSRFToken($_GET['csrf_token']);
+    validateCSRFToken();
 
     enforceUserPermission('module_support', 3);
 
@@ -185,7 +185,7 @@ if (isset($_GET['delete_service'])) {
     // Get Service Details
     $sql = mysqli_query($mysqli,"SELECT service_name, service_client_id FROM services WHERE service_id = $service_id");
     $row = mysqli_fetch_assoc($sql);
-    $service_name = sanitizeInput($row['service_name']);
+    $service_name = escapeSql($row['service_name']);
     $client_id = intval($row['service_client_id']);
 
     enforceClientAccess();
@@ -193,9 +193,9 @@ if (isset($_GET['delete_service'])) {
     // Delete service
     mysqli_query($mysqli, "DELETE FROM services WHERE service_id = $service_id");
 
-    logAction("Service", "Delete", "$session_name deleted service $service_name", $client_id);
+    logAudit("Service", "Delete", "$session_name deleted service $service_name", $client_id);
 
-    flash_alert("Service <strong>$service_name</strong> deleted", 'error');
+    flashAlert("Service <strong>$service_name</strong> deleted", 'error');
 
     redirect();
 

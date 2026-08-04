@@ -32,7 +32,7 @@ ob_start();
                     $sql_vendor_templates = mysqli_query($mysqli, "SELECT * FROM vendor_templates WHERE vendor_template_archived_at IS NULL ORDER BY vendor_template_name ASC");
                     while ($row = mysqli_fetch_assoc($sql_vendor_templates)) {
                         $vendor_template_id = intval($row['vendor_template_id']);
-                        $vendor_template_name = nullable_htmlentities($row['vendor_template_name']);
+                        $vendor_template_name = escapeHtml($row['vendor_template_name']);
 
                         ?>
                         <option value="<?= $vendor_template_id ?>"><?= $vendor_template_name ?></option>

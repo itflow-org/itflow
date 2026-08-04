@@ -2,7 +2,7 @@
 require_once "includes/inc_all_admin.php";
 
 // ---- Tiny status dot for tab labels ----------------------------------------
-function mail_status_dot($on) {
+function renderMailStatusDot($on) {
     return $on
         ? '<i class="fas fa-circle text-success ml-2" style="font-size:.5rem;vertical-align:middle;" title="Configured"></i>'
         : '<i class="far fa-circle text-muted ml-2" style="font-size:.5rem;vertical-align:middle;" title="Not configured"></i>';
@@ -12,6 +12,17 @@ $smtp_on = !empty($config_smtp_provider);
 $imap_on = !empty($config_imap_provider);
 $oauth_needed = in_array($config_smtp_provider, ['google_oauth', 'microsoft_oauth'], true)
              || in_array($config_imap_provider, ['google_oauth', 'microsoft_oauth'], true);
+
+// ---- Active tab -------------------------------------------------------------
+// The tab lives in the URL (?tab=imap) so it can be linked, bookmarked, survives a
+//  reload, and lets the POST handlers send you back to the tab you saved from
+$mail_tabs = ['smtp', 'imap', 'oauth', 'from', 'tests'];
+$active_tab = isset($_GET['tab']) && in_array($_GET['tab'], $mail_tabs, true) ? $_GET['tab'] : 'smtp';
+
+// A direct link to the OAuth tab reveals it even when no OAuth provider is selected yet
+if ($active_tab === 'oauth') {
+    $oauth_needed = true;
+}
 
 // ---- OAuth callback URI (for Entra App Registration) ------------------------
 if (defined('BASE_URL') && !empty(BASE_URL)) {
@@ -63,27 +74,27 @@ $imap_ready = $imap_standard_ready || $imap_oauth_ready;
 
         <ul class="nav nav-tabs" id="mailTabs" role="tablist">
             <li class="nav-item">
-                <a class="nav-link active" href="#tab-smtp" data-target="#tab-smtp">
-                    <i class="fas fa-fw fa-paper-plane mr-1"></i>Sending<?php echo mail_status_dot($smtp_on); ?>
+                <a class="nav-link <?php if ($active_tab === 'smtp') { echo 'active'; } ?>" href="?tab=smtp" data-target="#tab-smtp">
+                    <i class="fas fa-fw fa-paper-plane mr-1"></i>Sending<?= renderMailStatusDot($smtp_on) ?>
                 </a>
             </li>
             <li class="nav-item">
-                <a class="nav-link" href="#tab-imap" data-target="#tab-imap">
-                    <i class="fas fa-fw fa-inbox mr-1"></i>Receiving<?php echo mail_status_dot($imap_on); ?>
+                <a class="nav-link <?php if ($active_tab === 'imap') { echo 'active'; } ?>" href="?tab=imap" data-target="#tab-imap">
+                    <i class="fas fa-fw fa-inbox mr-1"></i>Receiving<?= renderMailStatusDot($imap_on) ?>
                 </a>
             </li>
-            <li class="nav-item" id="tabitem-oauth" style="<?php echo $oauth_needed ? '' : 'display:none;'; ?>">
-                <a class="nav-link" href="#tab-oauth" data-target="#tab-oauth">
+            <li class="nav-item" id="tabitem-oauth" style="<?= $oauth_needed ? '' : 'display:none;' ?>">
+                <a class="nav-link <?php if ($active_tab === 'oauth') { echo 'active'; } ?>" href="?tab=oauth" data-target="#tab-oauth">
                     <i class="fas fa-fw fa-key mr-1"></i>OAuth
                 </a>
             </li>
             <li class="nav-item">
-                <a class="nav-link" href="#tab-from" data-target="#tab-from">
+                <a class="nav-link <?php if ($active_tab === 'from') { echo 'active'; } ?>" href="?tab=from" data-target="#tab-from">
                     <i class="fas fa-fw fa-at mr-1"></i>From Addresses
                 </a>
             </li>
             <li class="nav-item">
-                <a class="nav-link" href="#tab-tests" data-target="#tab-tests">
+                <a class="nav-link <?php if ($active_tab === 'tests') { echo 'active'; } ?>" href="?tab=tests" data-target="#tab-tests">
                     <i class="fas fa-fw fa-vial mr-1"></i>Tests
                 </a>
             </li>
@@ -92,9 +103,10 @@ $imap_ready = $imap_standard_ready || $imap_oauth_ready;
         <div class="tab-content pt-4">
 
             <!-- ============================ SENDING / SMTP ============================ -->
-            <div class="tab-pane fade show active" id="tab-smtp" role="tabpanel">
+            <div class="tab-pane fade <?php if ($active_tab === 'smtp') { echo 'show active'; } ?>" id="tab-smtp" role="tabpanel">
                 <form action="post.php" method="post" autocomplete="off">
-                    <input type="hidden" name="csrf_token" value="<?php echo $_SESSION['csrf_token']; ?>">
+                    <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
+                    <input type="hidden" name="tab" value="smtp">
 
                     <div class="form-group">
                         <label>SMTP Provider <small class="text-muted">— outbound</small></label>
@@ -116,14 +128,14 @@ $imap_ready = $imap_standard_ready || $imap_oauth_ready;
                                 <label>SMTP Host</label>
                                 <div class="input-group">
                                     <div class="input-group-prepend"><span class="input-group-text"><i class="fa fa-fw fa-server"></i></span></div>
-                                    <input type="text" class="form-control" name="config_smtp_host" placeholder="smtp.yourcompany.com" value="<?php echo nullable_htmlentities($config_smtp_host); ?>" required>
+                                    <input type="text" class="form-control" name="config_smtp_host" placeholder="smtp.yourcompany.com" maxlength="200" value="<?= escapeHtml($config_smtp_host) ?>" required>
                                 </div>
                             </div>
                             <div class="form-group col-md-3">
                                 <label>Port</label>
                                 <div class="input-group">
                                     <div class="input-group-prepend"><span class="input-group-text"><i class="fa fa-fw fa-plug"></i></span></div>
-                                    <input type="text" class="form-control numeric-only" inputmode="numeric" pattern="[0-9]*" maxlength="5" name="config_smtp_port" placeholder="587 / 465 / 25" value="<?php echo !empty($config_smtp_port) ? intval($config_smtp_port) : ''; ?>" required>
+                                    <input type="text" class="form-control numeric-only" inputmode="numeric" pattern="[0-9]*" maxlength="5" name="config_smtp_port" placeholder="587 / 465 / 25" value="<?= !empty($config_smtp_port) ? intval($config_smtp_port) : '' ?>" required>
                                 </div>
                             </div>
                             <div class="form-group col-md-3">
@@ -145,7 +157,7 @@ $imap_ready = $imap_standard_ready || $imap_oauth_ready;
                             <label id="smtp_user_label">SMTP Username</label>
                             <div class="input-group">
                                 <div class="input-group-prepend"><span class="input-group-text"><i class="fa fa-fw fa-user"></i></span></div>
-                                <input type="text" class="form-control" name="config_smtp_username" id="config_smtp_username" placeholder="usually your full email address" value="<?php echo nullable_htmlentities($config_smtp_username); ?>">
+                                <input type="text" class="form-control" name="config_smtp_username" id="config_smtp_username" placeholder="usually your full email address" maxlength="200" value="<?= escapeHtml($config_smtp_username) ?>">
                             </div>
                             <small class="form-text text-muted" id="smtp_user_hint">Leave blank if no authentication is required.</small>
                         </div>
@@ -153,7 +165,7 @@ $imap_ready = $imap_standard_ready || $imap_oauth_ready;
                             <label>SMTP Password</label>
                             <div class="input-group">
                                 <div class="input-group-prepend"><span class="input-group-text"><i class="fa fa-fw fa-key"></i></span></div>
-                                <input type="password" class="form-control" data-toggle="password" name="config_smtp_password" placeholder="mailbox or app password" value="<?php echo nullable_htmlentities($config_smtp_password); ?>" autocomplete="new-password">
+                                <input type="password" class="form-control" data-toggle="password" name="config_smtp_password" placeholder="mailbox or app password" maxlength="200" value="<?= escapeHtml($config_smtp_password) ?>" autocomplete="new-password">
                                 <div class="input-group-append"><span class="input-group-text"><i class="fa fa-fw fa-eye"></i></span></div>
                             </div>
                         </div>
@@ -172,9 +184,10 @@ $imap_ready = $imap_standard_ready || $imap_oauth_ready;
             </div>
 
             <!-- ============================ RECEIVING / IMAP ============================ -->
-            <div class="tab-pane fade" id="tab-imap" role="tabpanel">
+            <div class="tab-pane fade <?php if ($active_tab === 'imap') { echo 'show active'; } ?>" id="tab-imap" role="tabpanel">
                 <form action="post.php" method="post" autocomplete="off">
-                    <input type="hidden" name="csrf_token" value="<?php echo $_SESSION['csrf_token']; ?>">
+                    <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
+                    <input type="hidden" name="tab" value="imap">
 
                     <div class="form-group">
                         <label>IMAP Provider <small class="text-muted">— inbound ticket inbox</small></label>
@@ -196,14 +209,14 @@ $imap_ready = $imap_standard_ready || $imap_oauth_ready;
                                 <label>IMAP Host</label>
                                 <div class="input-group">
                                     <div class="input-group-prepend"><span class="input-group-text"><i class="fa fa-fw fa-server"></i></span></div>
-                                    <input type="text" class="form-control" name="config_imap_host" placeholder="imap.yourcompany.com" value="<?php echo nullable_htmlentities($config_imap_host); ?>">
+                                    <input type="text" class="form-control" name="config_imap_host" placeholder="imap.yourcompany.com" maxlength="200" value="<?= escapeHtml($config_imap_host) ?>">
                                 </div>
                             </div>
                             <div class="form-group col-md-3">
                                 <label>Port</label>
                                 <div class="input-group">
                                     <div class="input-group-prepend"><span class="input-group-text"><i class="fa fa-fw fa-plug"></i></span></div>
-                                    <input type="text" class="form-control numeric-only" inputmode="numeric" pattern="[0-9]*" maxlength="5" name="config_imap_port" placeholder="993 / 143" value="<?php echo !empty($config_imap_port) ? intval($config_imap_port) : ''; ?>">
+                                    <input type="text" class="form-control numeric-only" inputmode="numeric" pattern="[0-9]*" maxlength="5" name="config_imap_port" placeholder="993 / 143" value="<?= !empty($config_imap_port) ? intval($config_imap_port) : '' ?>">
                                 </div>
                             </div>
                             <div class="form-group col-md-3">
@@ -225,7 +238,7 @@ $imap_ready = $imap_standard_ready || $imap_oauth_ready;
                             <label id="imap_user_label">IMAP Username</label>
                             <div class="input-group">
                                 <div class="input-group-prepend"><span class="input-group-text"><i class="fa fa-fw fa-user"></i></span></div>
-                                <input type="text" class="form-control" name="config_imap_username" placeholder="tickets@yourcompany.com" value="<?php echo nullable_htmlentities($config_imap_username); ?>" required>
+                                <input type="text" class="form-control" name="config_imap_username" placeholder="tickets@yourcompany.com" maxlength="200" value="<?= escapeHtml($config_imap_username) ?>" required>
                             </div>
                             <small class="form-text text-muted" id="imap_user_hint">The mailbox address to monitor for incoming tickets.</small>
                         </div>
@@ -233,7 +246,7 @@ $imap_ready = $imap_standard_ready || $imap_oauth_ready;
                             <label>IMAP Password</label>
                             <div class="input-group">
                                 <div class="input-group-prepend"><span class="input-group-text"><i class="fa fa-fw fa-key"></i></span></div>
-                                <input type="password" class="form-control" data-toggle="password" name="config_imap_password" placeholder="mailbox or app password" value="<?php echo nullable_htmlentities($config_imap_password); ?>" autocomplete="new-password">
+                                <input type="password" class="form-control" data-toggle="password" name="config_imap_password" placeholder="mailbox or app password" maxlength="200" value="<?= escapeHtml($config_imap_password) ?>" autocomplete="new-password">
                                 <div class="input-group-append"><span class="input-group-text"><i class="fa fa-fw fa-eye"></i></span></div>
                             </div>
                         </div>
@@ -252,9 +265,10 @@ $imap_ready = $imap_standard_ready || $imap_oauth_ready;
             </div>
 
             <!-- ============================ OAUTH ============================ -->
-            <div class="tab-pane fade" id="tab-oauth" role="tabpanel">
+            <div class="tab-pane fade <?php if ($active_tab === 'oauth') { echo 'show active'; } ?>" id="tab-oauth" role="tabpanel">
                 <form action="post.php" method="post" autocomplete="off">
-                    <input type="hidden" name="csrf_token" value="<?php echo $_SESSION['csrf_token']; ?>">
+                    <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
+                    <input type="hidden" name="tab" value="oauth">
 
                     <div class="alert alert-secondary" id="oauth_hint">
                         <i class="fas fa-fw fa-info-circle mr-2"></i>These credentials are shared by any Sending or Receiving provider set to Google / Microsoft OAuth.
@@ -265,14 +279,14 @@ $imap_ready = $imap_standard_ready || $imap_oauth_ready;
                             <label>OAuth Client ID</label>
                             <div class="input-group">
                                 <div class="input-group-prepend"><span class="input-group-text"><i class="fa fa-fw fa-id-badge"></i></span></div>
-                                <input type="text" class="form-control" name="config_mail_oauth_client_id" id="config_mail_oauth_client_id" placeholder="Application (client) ID" value="<?php echo nullable_htmlentities($config_mail_oauth_client_id ?? ''); ?>">
+                                <input type="text" class="form-control" name="config_mail_oauth_client_id" id="config_mail_oauth_client_id" placeholder="Application (client) ID" maxlength="255" value="<?= escapeHtml($config_mail_oauth_client_id ?? '') ?>">
                             </div>
                         </div>
                         <div class="form-group col-md-6">
                             <label>OAuth Client Secret</label>
                             <div class="input-group">
                                 <div class="input-group-prepend"><span class="input-group-text"><i class="fa fa-fw fa-key"></i></span></div>
-                                <input type="password" class="form-control" data-toggle="password" name="config_mail_oauth_client_secret" id="config_mail_oauth_client_secret" placeholder="Client secret value" value="<?php echo nullable_htmlentities($config_mail_oauth_client_secret ?? ''); ?>" autocomplete="new-password">
+                                <input type="password" class="form-control" data-toggle="password" name="config_mail_oauth_client_secret" id="config_mail_oauth_client_secret" placeholder="Client secret value" maxlength="255" value="<?= escapeHtml($config_mail_oauth_client_secret ?? '') ?>" autocomplete="new-password">
                                 <div class="input-group-append"><span class="input-group-text"><i class="fa fa-fw fa-eye"></i></span></div>
                             </div>
                         </div>
@@ -282,19 +296,19 @@ $imap_ready = $imap_standard_ready || $imap_oauth_ready;
                         <label>Tenant ID <small class="text-muted">— Microsoft 365 only</small></label>
                         <div class="input-group">
                             <div class="input-group-prepend"><span class="input-group-text"><i class="fa fa-fw fa-building"></i></span></div>
-                            <input type="text" class="form-control" name="config_mail_oauth_tenant_id" placeholder="Directory (tenant) ID, e.g. 00000000-0000-0000-0000-000000000000" value="<?php echo nullable_htmlentities($config_mail_oauth_tenant_id ?? ''); ?>">
+                            <input type="text" class="form-control" name="config_mail_oauth_tenant_id" placeholder="Directory (tenant) ID, e.g. 00000000-0000-0000-0000-000000000000" maxlength="255" value="<?= escapeHtml($config_mail_oauth_tenant_id ?? '') ?>">
                         </div>
                     </div>
 
                     <div class="form-row">
                         <div class="form-group col-md-6">
                             <label>Refresh Token</label>
-                            <textarea class="form-control" name="config_mail_oauth_refresh_token" rows="2" placeholder="Paste a refresh token, or use the Connect button below to fetch one"><?php echo nullable_htmlentities($config_mail_oauth_refresh_token ?? ''); ?></textarea>
+                            <textarea class="form-control" name="config_mail_oauth_refresh_token" rows="2" placeholder="Paste a refresh token, or use the Connect button below to fetch one"><?= escapeHtml($config_mail_oauth_refresh_token ?? '') ?></textarea>
                         </div>
                         <div class="form-group col-md-6">
                             <label>Access Token <small class="text-muted">— optional</small></label>
-                            <textarea class="form-control" name="config_mail_oauth_access_token" rows="2" placeholder="Leave blank — auto-refreshed from the refresh token"><?php echo nullable_htmlentities($config_mail_oauth_access_token ?? ''); ?></textarea>
-                            <small class="form-text text-muted">Expires at: <?php echo !empty($config_mail_oauth_access_token_expires_at) ? htmlspecialchars($config_mail_oauth_access_token_expires_at) : 'n/a'; ?></small>
+                            <textarea class="form-control" name="config_mail_oauth_access_token" rows="2" placeholder="Leave blank — auto-refreshed from the refresh token"><?= escapeHtml($config_mail_oauth_access_token ?? '') ?></textarea>
+                            <small class="form-text text-muted">Expires at: <?= !empty($config_mail_oauth_access_token_expires_at) ? htmlspecialchars($config_mail_oauth_access_token_expires_at) : 'n/a' ?></small>
                         </div>
                     </div>
 
@@ -302,7 +316,7 @@ $imap_ready = $imap_standard_ready || $imap_oauth_ready;
                         <label>Microsoft OAuth Connect (Web)</label>
                         <div class="input-group">
                             <div class="input-group-prepend"><span class="input-group-text"><i class="fa fa-fw fa-link"></i></span></div>
-                            <input type="text" class="form-control" readonly value="<?php echo htmlspecialchars($mail_oauth_callback_uri); ?>">
+                            <input type="text" class="form-control" readonly value="<?= htmlspecialchars($mail_oauth_callback_uri) ?>">
                             <div class="input-group-append">
                                 <button type="submit" name="oauth_connect_microsoft_mail" class="btn btn-outline-primary">
                                     <i class="fab fa-fw fa-microsoft mr-2"></i>Connect Microsoft 365
@@ -318,9 +332,10 @@ $imap_ready = $imap_standard_ready || $imap_oauth_ready;
             </div>
 
             <!-- ============================ FROM ADDRESSES ============================ -->
-            <div class="tab-pane fade" id="tab-from" role="tabpanel">
+            <div class="tab-pane fade <?php if ($active_tab === 'from') { echo 'show active'; } ?>" id="tab-from" role="tabpanel">
                 <form action="post.php" method="post" autocomplete="off">
-                    <input type="hidden" name="csrf_token" value="<?php echo $_SESSION['csrf_token']; ?>">
+                    <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
+                    <input type="hidden" name="tab" value="from">
 
                     <p class="text-muted">Each From address must be allowed to send on behalf of the SMTP user.</p>
 
@@ -335,23 +350,23 @@ $imap_ready = $imap_standard_ready || $imap_oauth_ready;
                         <tbody>
                             <tr>
                                 <td class="align-middle">System Default<br><small class="text-muted">share links &amp; system tasks</small></td>
-                                <td class="align-middle"><input type="email" class="form-control form-control-sm" name="config_mail_from_email" placeholder="noreply@yourcompany.com" value="<?php echo nullable_htmlentities($config_mail_from_email); ?>"></td>
-                                <td class="align-middle"><input type="text" class="form-control form-control-sm" name="config_mail_from_name" placeholder="YourCompany" value="<?php echo nullable_htmlentities($config_mail_from_name); ?>"></td>
+                                <td class="align-middle"><input type="email" class="form-control form-control-sm" name="config_mail_from_email" placeholder="noreply@yourcompany.com" maxlength="200" value="<?= escapeHtml($config_mail_from_email) ?>"></td>
+                                <td class="align-middle"><input type="text" class="form-control form-control-sm" name="config_mail_from_name" placeholder="YourCompany" maxlength="200" value="<?= escapeHtml($config_mail_from_name) ?>"></td>
                             </tr>
                             <tr>
                                 <td class="align-middle">Invoices<br><small class="text-muted">sent when emailing invoices</small></td>
-                                <td class="align-middle"><input type="email" class="form-control form-control-sm" name="config_invoice_from_email" placeholder="billing@yourcompany.com" value="<?php echo nullable_htmlentities($config_invoice_from_email); ?>"></td>
-                                <td class="align-middle"><input type="text" class="form-control form-control-sm" name="config_invoice_from_name" placeholder="YourCompany Billing" value="<?php echo nullable_htmlentities($config_invoice_from_name); ?>"></td>
+                                <td class="align-middle"><input type="email" class="form-control form-control-sm" name="config_invoice_from_email" placeholder="billing@yourcompany.com" maxlength="200" value="<?= escapeHtml($config_invoice_from_email) ?>"></td>
+                                <td class="align-middle"><input type="text" class="form-control form-control-sm" name="config_invoice_from_name" placeholder="YourCompany Billing" maxlength="200" value="<?= escapeHtml($config_invoice_from_name) ?>"></td>
                             </tr>
                             <tr>
                                 <td class="align-middle">Quotes<br><small class="text-muted">sent when emailing quotes</small></td>
-                                <td class="align-middle"><input type="email" class="form-control form-control-sm" name="config_quote_from_email" placeholder="sales@yourcompany.com" value="<?php echo nullable_htmlentities($config_quote_from_email); ?>"></td>
-                                <td class="align-middle"><input type="text" class="form-control form-control-sm" name="config_quote_from_name" placeholder="YourCompany Sales" value="<?php echo nullable_htmlentities($config_quote_from_name); ?>"></td>
+                                <td class="align-middle"><input type="email" class="form-control form-control-sm" name="config_quote_from_email" placeholder="sales@yourcompany.com" maxlength="200" value="<?= escapeHtml($config_quote_from_email) ?>"></td>
+                                <td class="align-middle"><input type="text" class="form-control form-control-sm" name="config_quote_from_name" placeholder="YourCompany Sales" maxlength="200" value="<?= escapeHtml($config_quote_from_name) ?>"></td>
                             </tr>
                             <tr>
                                 <td class="align-middle">Tickets<br><small class="text-muted">ticket creation &amp; client replies</small></td>
-                                <td class="align-middle"><input type="email" class="form-control form-control-sm" name="config_ticket_from_email" placeholder="support@yourcompany.com" value="<?php echo nullable_htmlentities($config_ticket_from_email); ?>"></td>
-                                <td class="align-middle"><input type="text" class="form-control form-control-sm" name="config_ticket_from_name" placeholder="YourCompany Support" value="<?php echo nullable_htmlentities($config_ticket_from_name); ?>"></td>
+                                <td class="align-middle"><input type="email" class="form-control form-control-sm" name="config_ticket_from_email" placeholder="support@yourcompany.com" maxlength="200" value="<?= escapeHtml($config_ticket_from_email) ?>"></td>
+                                <td class="align-middle"><input type="text" class="form-control form-control-sm" name="config_ticket_from_name" placeholder="YourCompany Support" maxlength="200" value="<?= escapeHtml($config_ticket_from_name) ?>"></td>
                             </tr>
                         </tbody>
                     </table>
@@ -361,7 +376,7 @@ $imap_ready = $imap_standard_ready || $imap_oauth_ready;
             </div>
 
             <!-- ============================ TESTS ============================ -->
-            <div class="tab-pane fade" id="tab-tests" role="tabpanel">
+            <div class="tab-pane fade <?php if ($active_tab === 'tests') { echo 'show active'; } ?>" id="tab-tests" role="tabpanel">
 
                 <?php if (!$send_ready && !$imap_ready && !$oauth_has_required_fields) { ?>
                     <div class="alert alert-secondary mb-0">
@@ -373,14 +388,15 @@ $imap_ready = $imap_standard_ready || $imap_oauth_ready;
                 <div class="mb-4">
                     <h6 class="text-bold"><i class="fas fa-fw fa-paper-plane mr-2"></i>Send a Test Email</h6>
                     <form action="post.php" method="post" autocomplete="off">
-                        <input type="hidden" name="csrf_token" value="<?php echo $_SESSION['csrf_token']; ?>">
+                        <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
+                        <input type="hidden" name="tab" value="tests">
                         <div class="input-group">
                             <select class="form-control select2" name="test_email" required>
                                 <option value="">- Select a From address -</option>
-                                <?php if ($config_mail_from_email) { ?><option value="1"><?php echo nullable_htmlentities($config_mail_from_name); ?> (<?php echo nullable_htmlentities($config_mail_from_email); ?>)</option><?php } ?>
-                                <?php if ($config_invoice_from_email) { ?><option value="2"><?php echo nullable_htmlentities($config_invoice_from_name); ?> (<?php echo nullable_htmlentities($config_invoice_from_email); ?>)</option><?php } ?>
-                                <?php if ($config_quote_from_email) { ?><option value="3"><?php echo nullable_htmlentities($config_quote_from_name); ?> (<?php echo nullable_htmlentities($config_quote_from_email); ?>)</option><?php } ?>
-                                <?php if ($config_ticket_from_email) { ?><option value="4"><?php echo nullable_htmlentities($config_ticket_from_name); ?> (<?php echo nullable_htmlentities($config_ticket_from_email); ?>)</option><?php } ?>
+                                <?php if ($config_mail_from_email) { ?><option value="1"><?= escapeHtml($config_mail_from_name) ?> (<?= escapeHtml($config_mail_from_email) ?>)</option><?php } ?>
+                                <?php if ($config_invoice_from_email) { ?><option value="2"><?= escapeHtml($config_invoice_from_name) ?> (<?= escapeHtml($config_invoice_from_email) ?>)</option><?php } ?>
+                                <?php if ($config_quote_from_email) { ?><option value="3"><?= escapeHtml($config_quote_from_name) ?> (<?= escapeHtml($config_quote_from_email) ?>)</option><?php } ?>
+                                <?php if ($config_ticket_from_email) { ?><option value="4"><?= escapeHtml($config_ticket_from_name) ?> (<?= escapeHtml($config_ticket_from_email) ?>)</option><?php } ?>
                             </select>
                             <input type="email" class="form-control" name="email_to" placeholder="recipient@example.com">
                             <div class="input-group-append">
@@ -395,7 +411,8 @@ $imap_ready = $imap_standard_ready || $imap_oauth_ready;
                 <div class="mb-4">
                     <h6 class="text-bold"><i class="fas fa-fw fa-plug mr-2"></i>Test IMAP Connection</h6>
                     <form action="post.php" method="post" autocomplete="off">
-                        <input type="hidden" name="csrf_token" value="<?php echo $_SESSION['csrf_token']; ?>">
+                        <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
+                        <input type="hidden" name="tab" value="tests">
                         <button type="submit" name="test_email_imap" class="btn btn-success"><i class="fas fa-fw fa-inbox mr-2"></i>Test IMAP</button>
                     </form>
                 </div>
@@ -405,9 +422,10 @@ $imap_ready = $imap_standard_ready || $imap_oauth_ready;
                 <div>
                     <h6 class="text-bold"><i class="fas fa-fw fa-sync-alt mr-2"></i>Test OAuth Token Refresh</h6>
                     <form action="post.php" method="post" autocomplete="off">
-                        <input type="hidden" name="csrf_token" value="<?php echo $_SESSION['csrf_token']; ?>">
-                        <input type="hidden" name="oauth_provider" value="<?php echo htmlspecialchars($oauth_provider_for_test); ?>">
-                        <p class="text-muted mb-2">Validates the refresh token and stores a new access token for <?php echo $oauth_provider_for_test === 'microsoft_oauth' ? 'Microsoft 365' : 'Google Workspace'; ?>.</p>
+                        <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
+                        <input type="hidden" name="tab" value="tests">
+                        <input type="hidden" name="oauth_provider" value="<?= htmlspecialchars($oauth_provider_for_test) ?>">
+                        <p class="text-muted mb-2">Validates the refresh token and stores a new access token for <?= $oauth_provider_for_test === 'microsoft_oauth' ? 'Microsoft 365' : 'Google Workspace' ?>.</p>
                         <button type="submit" name="test_oauth_token_refresh" class="btn btn-success"><i class="fas fa-fw fa-sync-alt mr-2"></i>Test OAuth Token Refresh</button>
                     </form>
                 </div>
@@ -434,11 +452,22 @@ $imap_ready = $imap_standard_ready || $imap_oauth_ready;
     });
 
     // ---- Self-contained tab controller (no dependency on the BS tab plugin) ----
+    // Set when the page was opened directly on the OAuth tab - stops the provider pass hiding it
+    const forcedOauthTab = <?= $active_tab === 'oauth' ? 'true' : 'false' ?>;
     const navLinks = Array.from(document.querySelectorAll('#mailTabs .nav-link'));
     const panes = ['tab-smtp', 'tab-imap', 'tab-oauth', 'tab-from', 'tab-tests']
         .map(id => document.getElementById(id)).filter(Boolean);
 
+    // Server rendered the initial tab; keep the URL honest as the user clicks around
+    function syncTabUrl(target) {
+        const tab = target.replace('#tab-', '');
+        const url = new URL(window.location.href);
+        url.searchParams.set('tab', tab);
+        history.replaceState(null, '', url);
+    }
+
     function activateTab(target) {
+        syncTabUrl(target);
         navLinks.forEach(l => l.classList.toggle('active', l.getAttribute('data-target') === target));
         panes.forEach(p => {
             const on = ('#' + p.id) === target;
@@ -508,7 +537,7 @@ $imap_ready = $imap_standard_ready || $imap_oauth_ready;
         const anyOauth = isOauth(sv) || isOauth(iv);
         const anyMs = sv === 'microsoft_oauth' || iv === 'microsoft_oauth';
 
-        show(oauthTabItem, anyOauth);
+        show(oauthTabItem, anyOauth || forcedOauthTab);
         toggle(tenantRow, anyMs);
         toggle(msConnect, anyMs);
         if (oauthClientId) oauthClientId.placeholder = anyMs
@@ -520,7 +549,7 @@ $imap_ready = $imap_standard_ready || $imap_oauth_ready;
             : anyOauth ? '<i class="fas fa-fw fa-info-circle mr-2"></i>Google Workspace: Client ID / Secret from Google Cloud; refresh token obtained via the consent flow.'
             : '<i class="fas fa-fw fa-info-circle mr-2"></i>These credentials are shared by any Sending or Receiving provider set to Google / Microsoft OAuth.';
 
-        if (!anyOauth) {
+        if (!anyOauth && !forcedOauthTab) {
             const oauthLink = document.querySelector('#mailTabs .nav-link[data-target="#tab-oauth"]');
             if (oauthLink && oauthLink.classList.contains('active')) activateTab('#tab-smtp');
         }

@@ -2,34 +2,39 @@
 
 require_once '../../../includes/modal_header.php';
 
+enforceUserPermission('module_sales', 2);
+
 $recurring_invoice_id = intval($_GET['id']);
 
 $sql = mysqli_query($mysqli, "SELECT * FROM recurring_invoices WHERE recurring_invoice_id = $recurring_invoice_id LIMIT 1");
 
 $row = mysqli_fetch_assoc($sql);
-$recurring_invoice_prefix = nullable_htmlentities($row['recurring_invoice_prefix']);
+$recurring_invoice_prefix = escapeHtml($row['recurring_invoice_prefix']);
 $recurring_invoice_number = intval($row['recurring_invoice_number']);
-$recurring_invoice_scope = nullable_htmlentities($row['recurring_invoice_scope']);
-$recurring_invoice_frequency = nullable_htmlentities($row['recurring_invoice_frequency']);
-$recurring_invoice_status = nullable_htmlentities($row['recurring_invoice_status']);
+$recurring_invoice_scope = escapeHtml($row['recurring_invoice_scope']);
+$recurring_invoice_frequency = escapeHtml($row['recurring_invoice_frequency']);
+$recurring_invoice_status = escapeHtml($row['recurring_invoice_status']);
 $recurring_invoice_created_at = date('Y-m-d', strtotime($row['recurring_invoice_created_at']));
-$recurring_invoice_next_date = nullable_htmlentities($row['recurring_invoice_next_date']);
+$recurring_invoice_next_date = escapeHtml($row['recurring_invoice_next_date']);
 $recurring_invoice_discount = floatval($row['recurring_invoice_discount_amount']);
 $category_id = intval($row['recurring_invoice_category_id']);
+$client_id = intval($row['recurring_invoice_client_id']);
 
-// Generate the HTML form content using output buffering.
+enforceClientAccess();
+
 ob_start();
+
 ?>
 
 <div class="modal-header bg-dark">
-    <h5 class="modal-title"><i class="fas fa-fw fa-redo-alt mr-2"></i>Editing Recur Invoice: <strong><?php echo "$recurring_invoice_prefix$recurring_invoice_number"; ?></strong></h5>
+    <h5 class="modal-title"><i class="fas fa-fw fa-redo-alt mr-2"></i>Editing Recur Invoice: <strong><?= "$recurring_invoice_prefix$recurring_invoice_number" ?></strong></h5>
     <button type="button" class="close text-white" data-dismiss="modal">
         <span>&times;</span>
     </button>
 </div>
 <form action="post.php" method="post" autocomplete="off">
     <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
-    <input type="hidden" name="recurring_invoice_id" value="<?php echo $recurring_invoice_id; ?>">
+    <input type="hidden" name="recurring_invoice_id" value="<?= $recurring_invoice_id ?>">
 
     <div class="modal-body">
 
@@ -39,7 +44,7 @@ ob_start();
                 <div class="input-group-prepend">
                     <span class="input-group-text"><i class="fa fa-fw fa-comment"></i></span>
                 </div>
-                <input type="text" class="form-control" name="scope" placeholder="Quick description" maxlength="255" value="<?php echo $recurring_invoice_scope; ?>">
+                <input type="text" class="form-control" name="scope" placeholder="Quick description" maxlength="255" value="<?= $recurring_invoice_scope ?>">
             </div>
         </div>
 
@@ -63,7 +68,7 @@ ob_start();
                 <div class="input-group-prepend">
                     <span class="input-group-text"><i class="fa fa-fw fa-calendar"></i></span>
                 </div>
-                <input type="date" class="form-control" name="next_date" max="2999-12-31" value="<?php echo $recurring_invoice_next_date; ?>" required>
+                <input type="date" class="form-control" name="next_date" max="2999-12-31" value="<?= $recurring_invoice_next_date ?>" required>
             </div>
         </div>
 
@@ -80,9 +85,9 @@ ob_start();
                     $sql_income_category = mysqli_query($mysqli, "SELECT * FROM categories WHERE category_type = 'Income' AND (category_archived_at > '$recurring_invoice_created_at' OR category_archived_at IS NULL) ORDER BY category_name ASC");
                     while ($row = mysqli_fetch_assoc($sql_income_category)) {
                         $category_id_select = intval($row['category_id']);
-                        $category_name_select = nullable_htmlentities($row['category_name']);
+                        $category_name_select = escapeHtml($row['category_name']);
                     ?>
-                        <option <?php if ($category_id == $category_id_select) { ?> selected <?php } ?> value="<?php echo $category_id_select; ?>"><?php echo $category_name_select; ?></option>
+                        <option <?php if ($category_id == $category_id_select) { ?> selected <?php } ?> value="<?= $category_id_select ?>"><?= $category_name_select ?></option>
 
                     <?php
                     }
@@ -103,7 +108,7 @@ ob_start();
                 <div class='input-group-prepend'>
                     <span class='input-group-text'><i class='fa fa-fw fa-dollar-sign'></i></span>
                 </div>
-                <input type='text' class='form-control' inputmode="decimal" pattern="-?[0-9]*\.?[0-9]{0,2}" name='recurring_invoice_discount' placeholder='0.00' value="<?php echo number_format($recurring_invoice_discount, 2, '.', ''); ?>">
+                <input type='text' class='form-control' inputmode="decimal" pattern="-?[0-9]*\.?[0-9]{0,2}" name='recurring_invoice_discount' placeholder='0.00' value="<?= number_format($recurring_invoice_discount, 2, '.', '') ?>">
             </div>
         </div>
 

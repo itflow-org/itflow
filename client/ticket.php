@@ -7,7 +7,7 @@
 require_once "includes/inc_all.php";
 
 //Initialize the HTML Purifier to prevent XSS
-require "../plugins/htmlpurifier/HTMLPurifier.standalone.php";
+require "../libs/htmlpurifier/HTMLPurifier.standalone.php";
 
 $purifier_config = HTMLPurifier_Config::createDefault();
 $purifier_config->set('Cache.DefinitionImpl', null); // Disable cache by setting a non-existent directory or an invalid one
@@ -38,17 +38,17 @@ if (isset($_GET['id']) && intval($_GET['id'])) {
 
     if ($ticket_row) {
 
-        $ticket_prefix = nullable_htmlentities($ticket_row['ticket_prefix']);
+        $ticket_prefix = escapeHtml($ticket_row['ticket_prefix']);
         $ticket_number = intval($ticket_row['ticket_number']);
-        $ticket_status = nullable_htmlentities($ticket_row['ticket_status_name']);
-        $ticket_priority = nullable_htmlentities($ticket_row['ticket_priority']);
-        $ticket_subject = nullable_htmlentities($ticket_row['ticket_subject']);
+        $ticket_status = escapeHtml($ticket_row['ticket_status_name']);
+        $ticket_priority = escapeHtml($ticket_row['ticket_priority']);
+        $ticket_subject = escapeHtml($ticket_row['ticket_subject']);
         $ticket_details = $purifier->purify($ticket_row['ticket_details']);
-        $ticket_assigned_to = nullable_htmlentities($ticket_row['user_name']);
-        $ticket_resolved_at = nullable_htmlentities($ticket_row['ticket_resolved_at']);
-        $ticket_closed_at = nullable_htmlentities($ticket_row['ticket_closed_at']);
-        $ticket_feedback = nullable_htmlentities($ticket_row['ticket_feedback']);
-        $ticket_category = nullable_htmlentities($ticket_row['category_name']);
+        $ticket_assigned_to = escapeHtml($ticket_row['user_name']);
+        $ticket_resolved_at = escapeHtml($ticket_row['ticket_resolved_at']);
+        $ticket_closed_at = escapeHtml($ticket_row['ticket_closed_at']);
+        $ticket_feedback = escapeHtml($ticket_row['ticket_feedback']);
+        $ticket_category = escapeHtml($ticket_row['category_name']);
 
         // Get Ticket Attachments (not associated with a specific reply)
         $sql_ticket_attachments = mysqli_query(
@@ -86,54 +86,67 @@ if (isset($_GET['id']) && intval($_GET['id'])) {
             <li class="breadcrumb-item">
                 <a href="tickets.php">Tickets</a>
             </li>
-            <li class="breadcrumb-item active">Ticket <?php echo $ticket_prefix . $ticket_number; ?></li>
+            <li class="breadcrumb-item active">Ticket <?= $ticket_prefix . $ticket_number ?></li>
         </ol>
 
         <div class="card">
             <div class="card-header bg-dark my-2">
                 <h4 class="card-title mt-1">
-                    Ticket <?php echo $ticket_prefix, $ticket_number ?>
+                    Ticket <?= $ticket_prefix, $ticket_number ?>
                 </h4>
                 <div class="card-tools">
                     <?php
                     if (empty($ticket_resolved_at) && $task_count == $completed_task_count) { ?>
-                        <a href="post.php?resolve_ticket=<?php echo $ticket_id; ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>" class="btn btn-sm btn-outline-success float-right text-white confirm-link"><i class="fas fa-fw fa-check text-success"></i> Resolve ticket</a>
+                        <a href="post.php?resolve_ticket=<?= $ticket_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>" class="btn btn-sm btn-outline-success float-right text-white confirm-link"><i class="fas fa-fw fa-check text-success"></i> Resolve ticket</a>
                     <?php } ?>
                 </div>
             </div>
 
             <div class="card-body prettyContent">
-                <h5><strong>Subject:</strong> <?php echo $ticket_subject ?></h5>
+                <h5><strong>Subject:</strong> <?= $ticket_subject ?></h5>
                 <p>
-                    <strong>State:</strong> <?php echo $ticket_status ?><br>
-                    <strong>Priority:</strong> <?php echo $ticket_priority ?><br>
+                    <strong>State:</strong> <?= $ticket_status ?><br>
+                    <strong>Priority:</strong> <?= $ticket_priority ?><br>
                     <?php if (!empty($ticket_category)) { ?>
-                        <strong>Category:</strong> <?php echo $ticket_category ?><br>
+                        <strong>Category:</strong> <?= $ticket_category ?><br>
                     <?php } ?>
 
                     <?php if (empty($ticket_closed_at)) { ?>
 
                         <?php if ($task_count) { ?>
-                            <strong>Tasks: </strong> <?php echo $completed_task_count . " / " .$task_count ?>
+                            <strong>Tasks: </strong> <?= $completed_task_count . " / " .$task_count ?>
                             <br>
                         <?php } ?>
 
                         <?php if (!empty($ticket_assigned_to)) { ?>
-                            <strong>Assigned to: </strong> <?php echo $ticket_assigned_to ?>
+                            <strong>Assigned to: </strong> <?= $ticket_assigned_to ?>
                         <?php } ?>
 
                     <?php } ?>
                 </p>
                 <hr>
-                <?php echo $ticket_details ?>
+                <?= $ticket_details ?>
+
+                <table class="table-sm">
 
                 <?php
                 while ($ticket_attachment = mysqli_fetch_assoc($sql_ticket_attachments)) {
-                    $name = nullable_htmlentities($ticket_attachment['ticket_attachment_name']);
-                    $ref_name = nullable_htmlentities($ticket_attachment['ticket_attachment_reference_name']);
-                    echo "<hr><i class='fas fa-fw fa-paperclip text-secondary mr-1'></i>$name | <a href='../uploads/tickets/$ticket_id/$ref_name' download='$name'><i class='fas fa-fw fa-download mr-1'></i>Download</a> | <a target='_blank' href='../uploads/tickets/$ticket_id/$ref_name'><i class='fas fa-fw fa-external-link-alt mr-1'></i>View</a>";
+                    $ticket_attachment_id = intval($ticket_attachment['ticket_attachment_id']);
+                    $name = escapeHtml($ticket_attachment['ticket_attachment_name']);
+
+                    ?>
+
+                    <tr>
+                        <td><i class='fas fa-fw fa-paperclip text-secondary mr-1'></i><?= $name ?></td>
+                        <td>
+                            <a target='_blank' class='mr-1 ml-1' href='ticket_attachment.php?attachment_id=<?= $ticket_attachment_id; ?>&action=view'>[View]</a><a href='ticket_attachment.php?attachment_id=<?= $ticket_attachment_id; ?>'>[Download]</a>
+                        </td>
+                    </tr>
+                    
+                 <?php  
                 }
                 ?>
+                </table>
             </div>
         </div>
 
@@ -150,9 +163,9 @@ if (isset($_GET['id']) && intval($_GET['id'])) {
                         while ($approvals = mysqli_fetch_assoc($sql_task_approvals)) {
                             $task_id = intval($approvals['task_id']);
                             $approval_id = intval($approvals['approval_id']);
-                            $task_name = nullable_htmlentities($approvals['task_name']);
-                            $approval_type = nullable_htmlentities($approvals['approval_type']);
-                            $approval_url_key = nullable_htmlentities($approvals['approval_url_key']);
+                            $task_name = escapeHtml($approvals['task_name']);
+                            $approval_type = escapeHtml($approvals['approval_type']);
+                            $approval_url_key = escapeHtml($approvals['approval_url_key']);
 
                             $contact_can_approve = false; // Default
 
@@ -199,7 +212,7 @@ if (isset($_GET['id']) && intval($_GET['id'])) {
 
             <form action="post.php" enctype="multipart/form-data" method="post">
                 <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
-                <input type="hidden" name="ticket_id" value="<?php echo $ticket_id ?>">
+                <input type="hidden" name="ticket_id" value="<?= $ticket_id ?>">
                 <div class="form-group">
                     <textarea class="form-control tinymce" name="comment" placeholder="Add comments.."></textarea>
                 </div>
@@ -217,11 +230,11 @@ if (isset($_GET['id']) && intval($_GET['id'])) {
             <div class="col-6">
                 <div class="row">
                     <div class="col">
-                        <a href="post.php?reopen_ticket=<?php echo $ticket_id; ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>" class="btn btn-secondary btn-lg"><i class="fas fa-fw fa-redo text-white"></i> Reopen ticket</a>
+                        <a href="post.php?reopen_ticket=<?= $ticket_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>" class="btn btn-secondary btn-lg"><i class="fas fa-fw fa-redo text-white"></i> Reopen ticket</a>
                     </div>
 
                     <div class="col">
-                        <a href="post.php?close_ticket=<?php echo $ticket_id; ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>" class="btn btn-success btn-lg confirm-link"><i class="fas fa-fw fa-gavel text-white"></i> Close ticket</a>
+                        <a href="post.php?close_ticket=<?= $ticket_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>" class="btn btn-success btn-lg confirm-link"><i class="fas fa-fw fa-gavel text-white"></i> Close ticket</a>
                     </div>
                 </div>
             </div>
@@ -233,7 +246,7 @@ if (isset($_GET['id']) && intval($_GET['id'])) {
 
             <form action="post.php" method="post">
                 <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
-                <input type="hidden" name="ticket_id" value="<?php echo $ticket_id ?>">
+                <input type="hidden" name="ticket_id" value="<?= $ticket_id ?>">
 
                 <button type="submit" class="btn btn-primary btn-lg" name="add_ticket_feedback" value="Good" onclick="this.form.submit()">
                     <span class="fa fa-smile" aria-hidden="true"></span> Good
@@ -246,7 +259,7 @@ if (isset($_GET['id']) && intval($_GET['id'])) {
 
         <?php } else { ?>
 
-            <h4>Rated <?php echo $ticket_feedback ?> -- Thanks for your feedback!</h4>
+            <h4>Rated <?= $ticket_feedback ?> -- Thanks for your feedback!</h4>
 
         <?php } ?>
 
@@ -261,18 +274,18 @@ if (isset($_GET['id']) && intval($_GET['id'])) {
         while ($row = mysqli_fetch_assoc($sql)) {
             $ticket_reply_id = intval($row['ticket_reply_id']);
             $ticket_reply = $purifier->purify($row['ticket_reply']);
-            $ticket_reply_created_at = nullable_htmlentities($row['ticket_reply_created_at']);
-            $ticket_reply_updated_at = nullable_htmlentities($row['ticket_reply_updated_at']);
+            $ticket_reply_created_at = escapeHtml($row['ticket_reply_created_at']);
+            $ticket_reply_updated_at = escapeHtml($row['ticket_reply_updated_at']);
             $ticket_reply_by = intval($row['ticket_reply_by']);
             $ticket_reply_type = $row['ticket_reply_type'];
 
             if ($ticket_reply_type == "Client") {
-                $ticket_reply_by_display = nullable_htmlentities($row['contact_name']);
+                $ticket_reply_by_display = escapeHtml($row['contact_name']);
                 $user_initials = initials($row['contact_name']);
                 $user_avatar = $row['contact_photo'];
                 $avatar_link = "../uploads/clients/$session_client_id/$user_avatar";
             } else {
-                $ticket_reply_by_display = nullable_htmlentities($row['user_name']);
+                $ticket_reply_by_display = escapeHtml($row['user_name']);
                 $user_id = intval($row['user_id']);
                 $user_avatar = $row['user_avatar'];
                 $user_initials = initials($row['user_name']);
@@ -295,37 +308,50 @@ if (isset($_GET['id']) && intval($_GET['id'])) {
                             <?php
                             if (!empty($user_avatar)) {
                                 ?>
-                                <img src="<?php echo $avatar_link ?>" alt="User Avatar" class="img-size-50 mr-3 img-circle">
+                                <img src="<?= $avatar_link ?>" alt="User Avatar" class="img-size-50 mr-3 img-circle">
                                 <?php
                             } else {
                                 ?>
                                 <span class="fa-stack fa-2x">
                                     <i class="fa fa-circle fa-stack-2x text-secondary"></i>
-                                    <span class="fa fa-stack-1x text-white"><?php echo $user_initials; ?></span>
+                                    <span class="fa fa-stack-1x text-white"><?= $user_initials ?></span>
                                 </span>
                                 <?php
                             }
                             ?>
 
                             <div class="media-body">
-                                <?php echo $ticket_reply_by_display; ?>
+                                <?= $ticket_reply_by_display ?>
                                 <br>
-                                <small class="text-muted"><?php echo $ticket_reply_created_at; ?> <?php if (!empty($ticket_reply_updated_at)) { echo "(edited: $ticket_reply_updated_at)"; } ?></small>
+                                <small class="text-muted"><?= $ticket_reply_created_at ?> <?php if (!empty($ticket_reply_updated_at)) { echo "(edited: $ticket_reply_updated_at)"; } ?></small>
                             </div>
                         </div>
                     </h3>
                 </div>
 
                 <div class="card-body prettyContent">
-                    <?php echo $ticket_reply; ?>
+                    <?= $ticket_reply ?>
+
+                    <table class="table-sm">
 
                     <?php
                     while ($ticket_attachment = mysqli_fetch_assoc($sql_ticket_reply_attachments)) {
-                        $name = nullable_htmlentities($ticket_attachment['ticket_attachment_name']);
-                        $ref_name = nullable_htmlentities($ticket_attachment['ticket_attachment_reference_name']);
-                        echo "<hr><i class='fas fa-fw fa-paperclip text-secondary mr-1'></i>$name | <a href='../uploads/tickets/$ticket_id/$ref_name' download='$name'><i class='fas fa-fw fa-download mr-1'></i>Download</a> | <a target='_blank' href='../uploads/tickets/$ticket_id/$ref_name'><i class='fas fa-fw fa-external-link-alt mr-1'></i>View</a>";
+                        $ticket_attachment_id = intval($ticket_attachment['ticket_attachment_id']);
+                        $name = escapeHtml($ticket_attachment['ticket_attachment_name']);
+
+                        ?>
+
+                        <tr>
+                            <td><i class='fas fa-fw fa-paperclip text-secondary mr-1'></i><?= $name ?></td>
+                            <td>
+                                <a target='_blank' class='mr-1 ml-1' href='ticket_attachment.php?attachment_id=<?= $ticket_attachment_id; ?>&action=view'>[View]</a><a href='ticket_attachment.php?attachment_id=<?= $ticket_attachment_id; ?>'>[Download]</a>
+                            </td>
+                        </tr>
+                        
+                     <?php  
                     }
                     ?>
+                    </table>
                 </div>
             </div>
 

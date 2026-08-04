@@ -1,6 +1,6 @@
 <?php
 
-require_once '../../../includes/modal_header.php';
+require_once '../../includes/modal_header.php';
 
 $project_template_id = intval($_GET['project_template_id']);
 
@@ -16,7 +16,7 @@ ob_start();
 </div>
 <form action="post.php" method="post" autocomplete="off">
     <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
-    <input type="hidden" name="project_template_id" value="<?php echo $project_template_id; ?>">
+    <input type="hidden" name="project_template_id" value="<?= $project_template_id ?>">
 
     <div class="modal-body">
 
@@ -40,9 +40,9 @@ ob_start();
                     );
                     while ($row = mysqli_fetch_assoc($sql_ticket_templates_select)) {
                         $ticket_template_id_select = intval($row['ticket_template_id']);
-                        $ticket_template_name_select = nullable_htmlentities($row['ticket_template_name']);
+                        $ticket_template_name_select = escapeHtml($row['ticket_template_name']);
                         ?>
-                        <option value="<?php echo $ticket_template_id_select; ?>"><?php echo $ticket_template_name_select; ?></option>
+                        <option value="<?= $ticket_template_id_select ?>"><?= $ticket_template_name_select ?></option>
                         <?php
                     }
 
