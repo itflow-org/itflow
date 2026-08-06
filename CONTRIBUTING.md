@@ -171,7 +171,24 @@ Everywhere else — anything under `agent/post/` — the call belongs in the blo
  
 ### 4. Client scoping is enforced, not assumed.
  
-After loading a record, call `enforceClientAccess()` (optionally with the record's client ID) so technicians restricted to specific clients cannot touch other clients' data by editing an ID in the URL. Look at how `resolve_ticket` does it — including the "skip if the record has no client" case.
+A user can be restricted to a subset of clients through `user_client_permissions`. Enforcing that has two halves, and a page usually needs both.
+
+**One record — `enforceClientAccess()`.** After loading a record, call it (optionally with the record's client ID) so technicians restricted to specific clients cannot touch other clients' data by editing an ID in the URL. Look at how `resolve_ticket` does it.
+
+**A list — `clientScopeSql()`.** Any query returning more than one row appends the fragment for that resource's own client column:
+
+```php
+$sql = mysqli_query($mysqli, "SELECT * FROM expenses
+    WHERE expense_archived_at IS NULL
+    " . clientScopeSql('expense_client_id') . "
+    ORDER BY expense_date DESC");
+```
+
+It returns `" AND ..."` or `""`, so it needs a `WHERE` to hang off — add `WHERE 1=1` if the query has no other condition. It is column-aware and takes an alias fine (`clientScopeSql('t.ticket_client_id')`). The API calls the same helper through the `apiClientScopeSql()` wrapper.
+
+Scope on the resource's **own** column, not on a joined `clients.client_id`. Joining `clients` just to scope makes the filter depend on the join: with a `LEFT JOIN`, a row whose client column is `0` produces `NULL`, and `NULL IN (...)` is neither true nor false, so the row silently vanishes. If the query joins `clients` for `client_name`, keep the join for that — but still scope on the owning column.
+
+**Records with no client (`0`) stay visible to restricted users.** `clientScopeSql()` emits `IN (0,...)` deliberately. Client restrictions partition *client* data, and a record belonging to no client is not any client's data to withhold. Do not hand-roll a variant that drops the `0` — the tree had accumulated several before this helper existed, disagreeing with each other, and reconciling them is what surfaced the inconsistency.
  
 ### 5. Escape on output.
  
@@ -224,6 +241,8 @@ A single update run applies every pending migration in order, stopping at the fi
 **After acting, log and notify.** State changes call `logAudit($type, $action, $description, $client_id, $entity_id)` for the audit trail. User-facing events may also call `appNotify()`. Fire `triggerCustomAction()` where a site might reasonably want a hook. Then call `flashAlert($message, $type)` and `redirect()` (defaults to the referer) rather than setting session keys or `header()` manually.
 
 **Function names (post-rename).** Helpers were renamed for clarity in 2026; the old names **no longer exist** — code calling them fatals. If you're rebasing an old PR or following an old tutorial, translate: `sanitizeInput` → `escapeSql`, `nullable_htmlentities` → `escapeHtml`, `logAction` → `logAudit`, `flash_alert` → `flashAlert`, `customAction` → `triggerCustomAction`, `encryptLoginEntry`/`decryptLoginEntry` → `encryptCredentialEntry`/`decryptCredentialEntry`, `strtoAZaz09` → `toAlphanumeric`, `fetchUpdates` → `checkForUpdates`, `sanitize_url` → `escapeUrl`.
+
+One removed **variable** deserves its own warning: the old `$access_permission_query` global is gone, replaced by `clientScopeSql()` (security rule 4). Unlike a removed function, it does not fatal — an undefined variable interpolates as an empty string, so a rebased query keeps running with **no client scoping at all**. Grep for it before rebasing anything that touches a list query.
  
 **Helpers that fetch data return it raw.** If you add a `getXById()`-style helper, return the column value untouched and let callers escape it (security rule 1). Validating what the helper interpolates into its *own* query — table and column names, the id — is still the helper's job; that is query construction, not output escaping, and the two are not the same thing.
 
