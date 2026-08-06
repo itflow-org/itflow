@@ -6,7 +6,11 @@ enforceUserPermission('module_client', 2);
 
 $location_id = intval($_GET['id']);
 
-$sql = mysqli_query($mysqli, "SELECT * FROM locations WHERE location_id = $location_id LIMIT 1");
+$sql = mysqli_query($mysqli, "SELECT location_address, location_archived_at, location_city, location_client_id,
+    location_contact_id, location_country, location_created_at, location_description,
+    location_fax, location_fax_country_code, location_hours, location_name, location_notes,
+    location_phone, location_phone_country_code, location_phone_extension, location_photo, location_primary,
+    location_state, location_zip FROM locations WHERE location_id = $location_id LIMIT 1");
 
 $row = mysqli_fetch_assoc($sql);
 $location_name = escapeHtml($row['location_name']);
@@ -18,7 +22,7 @@ $location_state = escapeHtml($row['location_state']);
 $location_zip = escapeHtml($row['location_zip']);
 $location_phone_country_code = escapeHtml($row['location_phone_country_code']);
 $location_phone = escapeHtml(formatPhoneNumber($row['location_phone'], $location_phone_country_code));
-//$location_extension = intval($row['location_extension']);
+$location_extension = escapeHtml($row['location_phone_extension']);
 $location_fax_country_code = escapeHtml($row['location_fax_country_code']);
 $location_fax = escapeHtml(formatPhoneNumber($row['location_fax'], $location_fax_country_code));
 $location_hours = escapeHtml($row['location_hours']);

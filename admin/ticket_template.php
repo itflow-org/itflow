@@ -34,7 +34,7 @@ $ticket_template_created_at = escapeHtml($row['ticket_template_created_at']);
 $ticket_template_updated_at = escapeHtml($row['ticket_template_updated_at']);
 
 // Get Task Templates
-$sql_task_templates = mysqli_query($mysqli, "SELECT * FROM task_templates WHERE task_template_ticket_template_id = $ticket_template_id ORDER BY task_template_order ASC, task_template_id ASC");
+$sql_task_templates = mysqli_query($mysqli, "SELECT task_template_completion_estimate, task_template_id, task_template_name FROM task_templates WHERE task_template_ticket_template_id = $ticket_template_id ORDER BY task_template_order ASC, task_template_id ASC");
 
 ?>
 

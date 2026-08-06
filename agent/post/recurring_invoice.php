@@ -671,7 +671,7 @@ if (isset($_POST['export_recurring_invoices'])) {
 
     $sql = mysqli_query(
         $mysqli,
-        "SELECT * FROM recurring_invoices
+        "SELECT recurring_invoice_frequency, recurring_invoice_number, recurring_invoice_prefix FROM recurring_invoices
         LEFT JOIN clients ON recurring_invoice_client_id = client_id
         LEFT JOIN categories ON recurring_invoice_category_id = category_id
         WHERE (CONCAT(recurring_invoice_prefix,recurring_invoice_number) LIKE '%$q%' OR recurring_invoice_frequency LIKE '%$q%' OR recurring_invoice_scope LIKE '%$q%' OR client_name LIKE '%$q%' OR category_name LIKE '%$q%')

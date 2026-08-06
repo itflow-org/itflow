@@ -4,7 +4,7 @@ require_once '../../includes/modal_header.php';
 
 $task_template_id = intval($_GET['id']);
 
-$sql = mysqli_query($mysqli, "SELECT * FROM task_templates WHERE task_template_id = $task_template_id LIMIT 1");
+$sql = mysqli_query($mysqli, "SELECT task_template_completion_estimate, task_template_name, task_template_order FROM task_templates WHERE task_template_id = $task_template_id LIMIT 1");
 
 $row = mysqli_fetch_assoc($sql);
 $task_template_name = escapeHtml($row['task_template_name']);

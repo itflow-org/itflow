@@ -2890,7 +2890,7 @@ if (isset($_POST['export_tickets'])) {
     // Get records from database - same shape as the tickets page list query
     $sql = mysqli_query(
         $mysqli,
-        "SELECT * FROM tickets
+        "SELECT category_name, ticket_billable, ticket_number, ticket_prefix, user_name FROM tickets
         LEFT JOIN clients ON ticket_client_id = client_id
         LEFT JOIN contacts ON ticket_contact_id = contact_id
         LEFT JOIN users ON ticket_assigned_to = user_id
