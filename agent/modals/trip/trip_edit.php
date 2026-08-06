@@ -87,7 +87,7 @@ ob_start();
                     <option><?= $trip_destination ?></option>
                     <?php
 
-                    $sql_locations_select = mysqli_query($mysqli, "SELECT * FROM locations WHERE location_archived_at IS NULL AND location_client_id = $client_id ORDER BY location_name ASC");
+                    $sql_locations_select = mysqli_query($mysqli, "SELECT location_address, location_city, location_name, location_state, location_zip FROM locations WHERE location_archived_at IS NULL AND location_client_id = $client_id ORDER BY location_name ASC");
                     while ($row = mysqli_fetch_assoc($sql_locations_select)) {
                         $location_name = escapeHtml($row['location_name']);
                         $location_address = escapeHtml($row['location_address']);
@@ -121,7 +121,7 @@ ob_start();
                     <option value="">- Driver -</option>
                     <?php
 
-                    $sql_users = mysqli_query($mysqli, "SELECT * FROM users
+                    $sql_users = mysqli_query($mysqli, "SELECT users.user_id, user_name FROM users
                         LEFT JOIN user_settings on users.user_id = user_settings.user_id
                         WHERE (users.user_id = $trip_user_id) OR (user_archived_at IS NULL AND user_status = 1) ORDER BY user_name ASC"
                     );
@@ -151,7 +151,7 @@ ob_start();
                         <option value="">- Client (Optional) -</option>
                         <?php
 
-                        $sql_clients = mysqli_query($mysqli, "SELECT * FROM clients WHERE client_archived_at IS NULL " . clientScopeSql('clients.client_id') . " ORDER BY client_name ASC");
+                        $sql_clients = mysqli_query($mysqli, "SELECT client_id, client_name FROM clients WHERE client_archived_at IS NULL " . clientScopeSql('clients.client_id') . " ORDER BY client_name ASC");
                         while ($row = mysqli_fetch_assoc($sql_clients)) {
                             $client_id_select = intval($row['client_id']);
                             $client_name_select = escapeHtml($row['client_name']);

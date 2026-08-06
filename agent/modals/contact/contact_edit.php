@@ -174,7 +174,7 @@ ob_start();
                             <option value="">- Select Location -</option>
                             <?php
 
-                            $sql_locations = mysqli_query($mysqli, "SELECT * FROM locations WHERE location_id = $contact_location_id OR location_archived_at IS NULL AND location_client_id = $client_id ORDER BY location_name ASC");
+                            $sql_locations = mysqli_query($mysqli, "SELECT location_archived_at, location_id, location_name FROM locations WHERE location_id = $contact_location_id OR location_archived_at IS NULL AND location_client_id = $client_id ORDER BY location_name ASC");
                             while ($row = mysqli_fetch_assoc($sql_locations)) {
                                 $location_id_select = intval($row['location_id']);
                                 $location_name_select = escapeHtml($row['location_name']);

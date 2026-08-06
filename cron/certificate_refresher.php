@@ -40,7 +40,7 @@ if ($config_enable_cron == 0) {
 
 $sql_certificates = mysqli_query(
     $mysqli,
-    "SELECT * FROM certificates
+    "SELECT certificate_domain, certificate_id FROM certificates
         LEFT JOIN clients ON certificates.certificate_client_id = clients.client_id
         WHERE certificate_archived_at IS NULL
         AND client_archived_at IS NULL"

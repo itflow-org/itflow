@@ -21,7 +21,8 @@ $invoice_badge_color = getInvoiceBadgeColor($invoice_status);
 
 $sql_payments = mysqli_query(
     $mysqli,
-    "SELECT * FROM payments
+    "SELECT account_archived_at, account_name, payment_amount, payment_currency_code, payment_date,
+        payment_id, payment_method, payment_reference FROM payments
     LEFT JOIN accounts ON payment_account_id = account_id
     WHERE payment_invoice_id = $invoice_id
     AND payment_archived_at IS NULL

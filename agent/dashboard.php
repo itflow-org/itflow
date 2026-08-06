@@ -120,14 +120,14 @@ if ($user_config_dashboard_financial_enable == 1) {
     $sql_accounts = mysqli_query($mysqli, "SELECT * FROM accounts WHERE account_archived_at IS NULL ORDER BY account_name ASC");
 
     $sql_latest_invoice_payments = mysqli_query($mysqli, "
-        SELECT * FROM payments
+        SELECT client_name, invoice_number, invoice_prefix, payment_amount, payment_date FROM payments
         JOIN invoices ON payment_invoice_id = invoice_id
         JOIN clients ON invoice_client_id = client_id
         ORDER BY payment_id DESC LIMIT 5
     ");
 
     $sql_latest_expenses = mysqli_query($mysqli, "
-        SELECT * FROM expenses
+        SELECT category_name, expense_amount, expense_date, vendor_name FROM expenses
         JOIN vendors ON expense_vendor_id = vendor_id
         JOIN categories ON expense_category_id = category_id
         ORDER BY expense_id DESC LIMIT 5
@@ -599,7 +599,9 @@ if ($user_config_dashboard_technical_enable == 1) {
     $expiring_asset_warranties = $sql_asset_warranty_expiring['expiring_asset_warranties'];
 
     $sql_your_tickets = mysqli_query($mysqli, "
-        SELECT * FROM tickets
+        SELECT client_name, contact_name, ticket_client_id, ticket_contact_id, ticket_created_at,
+            ticket_id, ticket_number, ticket_prefix, ticket_priority, ticket_status,
+            ticket_status_color, ticket_status_name, ticket_subject, ticket_updated_at FROM tickets
         LEFT JOIN ticket_statuses ON ticket_status = ticket_status_id
         LEFT JOIN clients ON ticket_client_id = client_id
         LEFT JOIN contacts ON ticket_contact_id = contact_id

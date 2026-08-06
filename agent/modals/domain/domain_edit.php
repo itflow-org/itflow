@@ -26,7 +26,8 @@ $domain_created_at = escapeHtml($row['domain_created_at']);
 $domain_archived_at = escapeHtml($row['domain_archived_at']);
 $client_id = intval($row['domain_client_id']);
 
-$history_sql = mysqli_query($mysqli, "SELECT * FROM domain_history WHERE domain_history_domain_id = $domain_id");
+$history_sql = mysqli_query($mysqli, "SELECT domain_history_column, domain_history_modified_at, domain_history_new_value,
+    domain_history_old_value FROM domain_history WHERE domain_history_domain_id = $domain_id");
 
 enforceClientAccess();
 

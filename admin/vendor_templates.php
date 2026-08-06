@@ -8,7 +8,10 @@ require_once "includes/inc_all_admin.php";
 
 $sql = mysqli_query(
     $mysqli,
-    "SELECT SQL_CALC_FOUND_ROWS * FROM vendor_templates
+    "SELECT SQL_CALC_FOUND_ROWS vendor_template_account_number, vendor_template_code, vendor_template_contact_name,
+        vendor_template_description, vendor_template_email, vendor_template_extension,
+        vendor_template_hours, vendor_template_id, vendor_template_name, vendor_template_notes,
+        vendor_template_phone, vendor_template_sla, vendor_template_website FROM vendor_templates
     WHERE vendor_template_name LIKE '%$q%' OR vendor_template_description LIKE '%$q%' OR vendor_template_account_number LIKE '%$q%' OR vendor_template_website LIKE '%$q%' OR vendor_template_contact_name LIKE '%$q%' OR vendor_template_email LIKE '%$q%' OR vendor_template_phone LIKE '%$phone_query%' ORDER BY $sort $order LIMIT $record_from, $record_to"
 );
 

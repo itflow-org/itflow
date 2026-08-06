@@ -43,7 +43,7 @@ ob_start();
                 <select class="form-control select2" data-placeholder="- Select Tickets- " multiple name="tickets[]" required>
                     <?php
 
-                    $sql_tickets_select = mysqli_query($mysqli, "SELECT * FROM tickets LEFT JOIN clients on ticket_client_id = client_id WHERE ticket_project_id = 0 AND ticket_closed_at IS NULL $client_ticket_select_query");
+                    $sql_tickets_select = mysqli_query($mysqli, "SELECT client_abbreviation, ticket_id, ticket_number, ticket_prefix, ticket_subject FROM tickets LEFT JOIN clients on ticket_client_id = client_id WHERE ticket_project_id = 0 AND ticket_closed_at IS NULL $client_ticket_select_query");
                     while ($row = mysqli_fetch_assoc($sql_tickets_select)) {
                         $ticket_id_select = intval($row['ticket_id']);
                         $ticket_prefix_select = escapeHtml($row['ticket_prefix']);

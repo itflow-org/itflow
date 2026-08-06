@@ -93,7 +93,7 @@ ob_start();
                         <select class="form-control select2" name="domain_id">
                             <option value="">- Domain -</option>
                             <?php
-                            $domains_sql = mysqli_query($mysqli, "SELECT * FROM domains WHERE domain_archived_at IS NULL AND domain_client_id = $client_id ORDER BY domain_name ASC");
+                            $domains_sql = mysqli_query($mysqli, "SELECT domain_id, domain_name FROM domains WHERE domain_archived_at IS NULL AND domain_client_id = $client_id ORDER BY domain_name ASC");
                             while ($domain_row = mysqli_fetch_assoc($domains_sql)) {
                                 $domain_id = intval($domain_row['domain_id']);
                                 $domain_name = escapeHtml($domain_row['domain_name']);

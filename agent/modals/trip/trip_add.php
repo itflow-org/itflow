@@ -32,7 +32,7 @@ ob_start();
                         <option value="0">- Client (Optional) -</option>
                         <?php
 
-                        $sql = mysqli_query($mysqli, "SELECT * FROM clients WHERE client_archived_at is NULL " . clientScopeSql('clients.client_id') . " ORDER BY client_name ASC");
+                        $sql = mysqli_query($mysqli, "SELECT client_id, client_name FROM clients WHERE client_archived_at is NULL " . clientScopeSql('clients.client_id') . " ORDER BY client_name ASC");
                         while ($row = mysqli_fetch_assoc($sql)) {
                             $client_id_select = intval($row['client_id']);
                             $client_name = escapeHtml($row['client_name']);
@@ -94,7 +94,7 @@ ob_start();
                     <option value=""></option>
                     <?php
                     if ($client_id) {
-                        $sql_locations = mysqli_query($mysqli, "SELECT * FROM locations WHERE location_archived_at IS NULL AND location_client_id = $client_id ORDER BY location_name ASC");
+                        $sql_locations = mysqli_query($mysqli, "SELECT location_address, location_city, location_name, location_state, location_zip FROM locations WHERE location_archived_at IS NULL AND location_client_id = $client_id ORDER BY location_name ASC");
                     while ($row = mysqli_fetch_assoc($sql_locations)) {
                         $location_name = escapeHtml($row['location_name']);
                         $location_address = escapeHtml($row['location_address']);

@@ -135,7 +135,7 @@ if ($invoice_status !== "Paid" && $invoice_status !== "Draft" && $invoice_status
 }
 
 // Invoice individual items
-$sql_invoice_items = mysqli_query($mysqli, "SELECT * FROM invoice_items WHERE item_invoice_id = $invoice_id ORDER BY item_order ASC");
+$sql_invoice_items = mysqli_query($mysqli, "SELECT item_description, item_id, item_name, item_price, item_quantity, item_tax, item_total FROM invoice_items WHERE item_invoice_id = $invoice_id ORDER BY item_order ASC");
 
 
 // Get Total Account Balance
@@ -358,7 +358,8 @@ if ($balance > 0) {
 
 // CURRENT INVOICES
 
-$sql_current_invoices = mysqli_query($mysqli, "SELECT * FROM invoices WHERE invoice_client_id = $client_id AND invoice_due > CURDATE() AND(invoice_status = 'Sent' OR invoice_status = 'Viewed' OR invoice_status = 'Partial') ORDER BY invoice_number DESC");
+$sql_current_invoices = mysqli_query($mysqli, "SELECT invoice_amount, invoice_currency_code, invoice_date, invoice_due, invoice_id,
+    invoice_number, invoice_prefix, invoice_url_key FROM invoices WHERE invoice_client_id = $client_id AND invoice_due > CURDATE() AND(invoice_status = 'Sent' OR invoice_status = 'Viewed' OR invoice_status = 'Partial') ORDER BY invoice_number DESC");
 
 $current_invoices_count = mysqli_num_rows($sql_current_invoices);
 
@@ -420,7 +421,8 @@ if ($current_invoices_count > 0) { ?>
 
 // OUTSTANDING INVOICES
 
-$sql_outstanding_invoices = mysqli_query($mysqli, "SELECT * FROM invoices WHERE invoice_client_id = $client_id AND invoice_due < CURDATE() AND(invoice_status = 'Sent' OR invoice_status = 'Viewed' OR invoice_status = 'Partial') ORDER BY invoice_date DESC");
+$sql_outstanding_invoices = mysqli_query($mysqli, "SELECT invoice_amount, invoice_currency_code, invoice_date, invoice_due, invoice_id,
+    invoice_number, invoice_prefix, invoice_url_key FROM invoices WHERE invoice_client_id = $client_id AND invoice_due < CURDATE() AND(invoice_status = 'Sent' OR invoice_status = 'Viewed' OR invoice_status = 'Partial') ORDER BY invoice_date DESC");
 
 $outstanding_invoices_count = mysqli_num_rows($sql_outstanding_invoices);
 

@@ -81,7 +81,8 @@ $row = mysqli_fetch_assoc($ticket_total_reply_time);
 $ticket_total_reply_time = escapeHtml($row['ticket_total_reply_time']);
 $ticket_total_reply_time_display = formatDuration($ticket_total_reply_time);
 
-$sql_invoices = mysqli_query($mysqli, "SELECT * FROM invoices WHERE invoice_status LIKE 'Draft' AND invoice_client_id = $client_id ORDER BY invoice_number ASC");
+$sql_invoices = mysqli_query($mysqli, "SELECT invoice_amount, invoice_date, invoice_due, invoice_id, invoice_number, invoice_prefix,
+    invoice_scope, invoice_status FROM invoices WHERE invoice_status LIKE 'Draft' AND invoice_client_id = $client_id ORDER BY invoice_number ASC");
 
 ob_start();
 

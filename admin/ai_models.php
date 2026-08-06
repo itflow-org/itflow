@@ -6,7 +6,8 @@ $order = "ASC";
 
 require_once "includes/inc_all_admin.php";
 
-$sql = mysqli_query($mysqli, "SELECT * FROM ai_models LEFT JOIN ai_providers ON ai_model_ai_provider_id = ai_provider_id ORDER BY $sort $order");
+$sql = mysqli_query($mysqli, "SELECT ai_model_id, ai_model_name, ai_model_prompt, ai_model_use_case, ai_provider_id,
+    ai_provider_name FROM ai_models LEFT JOIN ai_providers ON ai_model_ai_provider_id = ai_provider_id ORDER BY $sort $order");
 
 $num_rows = mysqli_num_rows($sql);
 

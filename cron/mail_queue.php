@@ -319,7 +319,8 @@ if ($orphaned_emails > 0) {
 /** =======================================================================
  *  SEND: status = 0 (Queued)
  * ======================================================================= */
-$sql_queue = mysqli_query($mysqli, "SELECT * FROM email_queue WHERE email_status = 0 AND email_queued_at <= NOW()");
+$sql_queue = mysqli_query($mysqli, "SELECT email_attachments, email_cal_str, email_content, email_from, email_from_name, email_id,
+    email_recipient, email_recipient_name, email_subject FROM email_queue WHERE email_status = 0 AND email_queued_at <= NOW()");
 
 if (mysqli_num_rows($sql_queue) > 0) {
     while ($rowq = mysqli_fetch_assoc($sql_queue)) {
@@ -417,7 +418,8 @@ if (mysqli_num_rows($sql_queue) > 0) {
  */
 $sql_failed_queue = mysqli_query(
     $mysqli,
-    "SELECT * FROM email_queue
+    "SELECT email_attachments, email_attempts, email_cal_str, email_content, email_from,
+        email_from_name, email_id, email_recipient, email_recipient_name, email_subject FROM email_queue
      WHERE email_status = 2
        AND email_attempts < 4
        AND email_failed_at <= NOW() - INTERVAL 30 MINUTE"

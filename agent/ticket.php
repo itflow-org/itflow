@@ -264,7 +264,9 @@ if (isset($_GET['ticket_id'])) {
         ))['user_names']);
 
         // Get ticket replies
-        $sql_ticket_replies = mysqli_query($mysqli, "SELECT * FROM ticket_replies
+        $sql_ticket_replies = mysqli_query($mysqli, "SELECT contact_name, contact_photo, ticket_reply, ticket_reply_created_at, ticket_reply_id,
+            ticket_reply_time_worked, ticket_reply_type, ticket_reply_updated_at, user_avatar, user_id,
+            user_name FROM ticket_replies
             LEFT JOIN users ON ticket_reply_by = user_id
             LEFT JOIN contacts ON ticket_reply_by = contact_id
             WHERE ticket_reply_ticket_id = $ticket_id
@@ -297,7 +299,7 @@ if (isset($_GET['ticket_id'])) {
         $watcher_count = mysqli_num_rows($sql_ticket_watchers);
 
         // Get Additional Assets
-        $sql_additional_assets = mysqli_query($mysqli, "SELECT * FROM assets, ticket_assets
+        $sql_additional_assets = mysqli_query($mysqli, "SELECT assets.asset_id, asset_name, asset_type FROM assets, ticket_assets
             WHERE assets.asset_id = ticket_assets.asset_id
             AND ticket_id = $ticket_id
             AND assets.asset_id != $asset_id"

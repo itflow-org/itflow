@@ -21,7 +21,7 @@
                                 <option value="">- Select an Asset -</option>
                                 <?php
 
-                                $sql_assets_select = mysqli_query($mysqli, "SELECT * FROM assets
+                                $sql_assets_select = mysqli_query($mysqli, "SELECT asset_id, asset_name FROM assets
                                     WHERE asset_client_id = $client_id
                                     AND asset_archived_at IS NULL
                                     ORDER BY asset_name ASC"
@@ -40,7 +40,7 @@
                         </div>
                     </div>
                         <?php
-                            $sql_assets = mysqli_query($mysqli, "SELECT * FROM assets, asset_files
+                            $sql_assets = mysqli_query($mysqli, "SELECT assets.asset_id, asset_name FROM assets, asset_files
                                 WHERE assets.asset_id = asset_files.asset_id
                                 AND asset_files.file_id = $file_id
                                 ORDER BY asset_name ASC"

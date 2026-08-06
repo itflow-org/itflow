@@ -423,7 +423,7 @@ if (isset($_GET['export_quote_pdf'])) {
         $sub_total = 0;
         $total_tax = 0;
 
-        $sql_items = mysqli_query($mysqli, "SELECT * FROM quote_items WHERE item_quote_id = $quote_id ORDER BY item_order ASC");
+        $sql_items = mysqli_query($mysqli, "SELECT item_description, item_name, item_price, item_quantity, item_tax, item_total FROM quote_items WHERE item_quote_id = $quote_id ORDER BY item_order ASC");
         while ($item = mysqli_fetch_assoc($sql_items)) {
             $name = $item['item_name'];
             $desc = $item['item_description'];
@@ -646,7 +646,7 @@ if (isset($_GET['export_invoice_pdf'])) {
         $sub_total = 0;
         $total_tax = 0;
 
-        $sql_items = mysqli_query($mysqli, "SELECT * FROM invoice_items WHERE item_invoice_id = $invoice_id ORDER BY item_order ASC");
+        $sql_items = mysqli_query($mysqli, "SELECT item_description, item_name, item_price, item_quantity, item_tax, item_total FROM invoice_items WHERE item_invoice_id = $invoice_id ORDER BY item_order ASC");
         while ($item = mysqli_fetch_assoc($sql_items)) {
             $name = $item['item_name'];
             $desc = $item['item_description'];

@@ -27,7 +27,9 @@ if (isset($_GET['project_template_id'])) {
     $project_template_updated_at = escapeHtml($row['project_template_updated_at']);
 
     // Get Associated Ticket Templates
-    $sql_ticket_templates = mysqli_query($mysqli, "SELECT * FROM ticket_templates, project_template_ticket_templates
+    $sql_ticket_templates = mysqli_query($mysqli, "SELECT ticket_template_created_at, ticket_template_description,
+        project_template_ticket_templates.ticket_template_id, ticket_template_name,
+        ticket_template_order, ticket_template_subject, ticket_template_updated_at FROM ticket_templates, project_template_ticket_templates
         WHERE ticket_templates.ticket_template_id = project_template_ticket_templates.ticket_template_id
         AND project_template_ticket_templates.project_template_id = $project_template_id
         ORDER BY ticket_template_order ASC, ticket_template_name ASC");
@@ -35,7 +37,7 @@ if (isset($_GET['project_template_id'])) {
 
     // Get All Task Templates
     $sql_task_templates = mysqli_query($mysqli,
-        "SELECT * FROM ticket_templates, task_templates, project_template_ticket_templates
+        "SELECT task_template_id, task_template_name FROM ticket_templates, task_templates, project_template_ticket_templates
         WHERE ticket_templates.ticket_template_id = project_template_ticket_templates.ticket_template_id
         AND project_template_ticket_templates.project_template_id = $project_template_id
         AND ticket_templates.ticket_template_id = task_template_ticket_template_id

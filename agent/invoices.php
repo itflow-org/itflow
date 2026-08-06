@@ -94,7 +94,11 @@ if (isset($_GET['category']) & !empty($_GET['category'])) {
 
 $sql = mysqli_query(
     $mysqli,
-    "SELECT SQL_CALC_FOUND_ROWS * FROM invoices
+    "SELECT SQL_CALC_FOUND_ROWS category_id, category_name, client_currency_code, client_id, client_name, client_net_terms,
+        invoice_amount, invoice_created_at, invoice_currency_code, invoice_date,
+        invoice_discount_amount, invoice_due, invoice_id, invoice_number, invoice_prefix,
+        invoice_scope, invoice_status, recurring_invoice_id, recurring_invoice_number,
+        recurring_invoice_prefix FROM invoices
     LEFT JOIN clients ON invoice_client_id = client_id
     LEFT JOIN categories ON invoice_category_id = category_id
     LEFT JOIN recurring_invoices ON invoice_recurring_invoice_id = recurring_invoice_id

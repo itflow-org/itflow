@@ -8,7 +8,8 @@
 
     $sql = mysqli_query(
         $mysqli,
-        "SELECT SQL_CALC_FOUND_ROWS * FROM document_templates
+        "SELECT SQL_CALC_FOUND_ROWS document_template_content, document_template_created_at, document_template_description,
+            document_template_id, document_template_name, document_template_updated_at, user_name FROM document_templates
         LEFT JOIN users ON document_template_created_by = user_id
         WHERE user_name LIKE '%$q%' OR document_template_name LIKE '%$q%'
         ORDER BY $sort $order LIMIT $record_from, $record_to"

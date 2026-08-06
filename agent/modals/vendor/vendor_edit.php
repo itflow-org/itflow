@@ -112,7 +112,7 @@ ob_start();
                             <option value="0">- None -</option>
                             <?php
 
-                            $sql_vendor_templates = mysqli_query($mysqli, "SELECT * FROM vendor_templates WHERE vendor_template_archived_at IS NULL ORDER BY vendor_template_name ASC");
+                            $sql_vendor_templates = mysqli_query($mysqli, "SELECT vendor_template_id, vendor_template_name FROM vendor_templates WHERE vendor_template_archived_at IS NULL ORDER BY vendor_template_name ASC");
                             while ($row = mysqli_fetch_assoc($sql_vendor_templates)) {
                                 $vendor_template_id_select = $row['vendor_template_id'];
                                 $vendor_template_name_select = escapeHtml($row['vendor_template_name']); ?>

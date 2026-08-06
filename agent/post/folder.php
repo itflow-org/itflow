@@ -78,7 +78,7 @@ if (isset($_GET['delete_folder'])) {
     mysqli_query($mysqli,"DELETE FROM folders WHERE folder_id = $folder_id");
 
     // Move files in deleted folder back to the root folder /
-    $sql_documents = mysqli_query($mysqli,"SELECT * FROM documents WHERE document_folder_id = $folder_id");
+    $sql_documents = mysqli_query($mysqli,"SELECT document_id FROM documents WHERE document_folder_id = $folder_id");
     while($row = mysqli_fetch_assoc($sql_documents)) {
         $document_id = intval($row['document_id']);
 

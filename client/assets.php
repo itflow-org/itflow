@@ -10,7 +10,9 @@ require_once "includes/inc_all.php";
 
 enforceContactCan('itdoc');
 
-$assets_sql = mysqli_query($mysqli, "SELECT * FROM assets LEFT JOIN contacts ON asset_contact_id = contact_id WHERE asset_client_id = $session_client_id AND asset_archived_at IS NULL ORDER BY asset_type ASC, asset_name ASC");
+$assets_sql = mysqli_query($mysqli, "SELECT asset_description, asset_id, asset_make, asset_model, asset_name, asset_purchase_date,
+    asset_serial, asset_status, asset_type, asset_uri_client, asset_warranty_expire,
+    contact_name FROM assets LEFT JOIN contacts ON asset_contact_id = contact_id WHERE asset_client_id = $session_client_id AND asset_archived_at IS NULL ORDER BY asset_type ASC, asset_name ASC");
 ?>
 
     <div class="row">

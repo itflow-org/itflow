@@ -33,7 +33,9 @@ if (!$client_url) {
 // Overview SQL query
 $sql = mysqli_query(
     $mysqli,
-    "SELECT SQL_CALC_FOUND_ROWS * FROM services
+    "SELECT SQL_CALC_FOUND_ROWS client_id, client_name, service_backup, service_category, service_created_at,
+        service_description, service_id, service_importance, service_name, service_notes,
+        service_review_due, service_updated_at FROM services
     LEFT JOIN clients ON client_id = service_client_id
     WHERE (service_name LIKE '%$q%' OR service_description LIKE '%$q%' OR service_category LIKE '%$q%' OR client_name LIKE '%$q%')
     AND client_archived_at IS NULL

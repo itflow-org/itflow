@@ -179,7 +179,8 @@ $sql_related_tickets = mysqli_query($mysqli, "
 $ticket_count = mysqli_num_rows($sql_related_tickets);
 
 // Related Recurring Tickets Query
-$sql_related_recurring_tickets = mysqli_query($mysqli, "SELECT * FROM recurring_tickets
+$sql_related_recurring_tickets = mysqli_query($mysqli, "SELECT recurring_ticket_frequency, recurring_ticket_assets.recurring_ticket_id,
+    recurring_ticket_next_run, recurring_ticket_priority, recurring_ticket_subject FROM recurring_tickets
     LEFT JOIN recurring_ticket_assets ON recurring_tickets.recurring_ticket_id = recurring_ticket_assets.recurring_ticket_id
     WHERE recurring_ticket_asset_id = $asset_id OR recurring_ticket_assets.asset_id = $asset_id
     GROUP BY recurring_tickets.recurring_ticket_id
@@ -188,7 +189,8 @@ $sql_related_recurring_tickets = mysqli_query($mysqli, "SELECT * FROM recurring_
 $recurring_ticket_count = mysqli_num_rows($sql_related_recurring_tickets);
 
 // Related Documents
-$sql_related_documents = mysqli_query($mysqli, "SELECT * FROM asset_documents
+$sql_related_documents = mysqli_query($mysqli, "SELECT document_created_at, document_description, documents.document_id, document_name,
+    document_updated_at, user_name FROM asset_documents
     LEFT JOIN documents ON asset_documents.document_id = documents.document_id
     LEFT JOIN users ON user_id = document_created_by
     WHERE asset_documents.asset_id = $asset_id
@@ -219,7 +221,7 @@ $sql_related_software = mysqli_query(
 $software_count = mysqli_num_rows($sql_related_software);
 
 // Related Notes
-$sql_related_notes = mysqli_query($mysqli, "SELECT * FROM asset_notes
+$sql_related_notes = mysqli_query($mysqli, "SELECT asset_note, asset_note_created_at, asset_note_type, user_name FROM asset_notes
     LEFT JOIN users ON asset_note_created_by = user_id
     WHERE asset_note_asset_id = $asset_id
     AND asset_note_archived_at IS NULL

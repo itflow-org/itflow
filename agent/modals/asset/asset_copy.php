@@ -181,7 +181,7 @@ ob_start();
                             <option value="">- Select Location -</option>
                             <?php
 
-                            $sql_locations = mysqli_query($mysqli, "SELECT * FROM locations WHERE location_archived_at IS NULL AND location_client_id = $client_id ORDER BY location_name ASC");
+                            $sql_locations = mysqli_query($mysqli, "SELECT location_id, location_name FROM locations WHERE location_archived_at IS NULL AND location_client_id = $client_id ORDER BY location_name ASC");
                             while ($row = mysqli_fetch_assoc($sql_locations)) {
                                 $location_id_select = intval($row['location_id']);
                                 $location_name_select = escapeHtml($row['location_name']);
@@ -213,7 +213,7 @@ ob_start();
                             <option value="">- Select Contact -</option>
                             <?php
 
-                            $sql_contacts = mysqli_query($mysqli, "SELECT * FROM contacts WHERE contact_archived_at IS NULL AND contact_client_id = $client_id ORDER BY contact_name ASC");
+                            $sql_contacts = mysqli_query($mysqli, "SELECT contact_id, contact_name FROM contacts WHERE contact_archived_at IS NULL AND contact_client_id = $client_id ORDER BY contact_name ASC");
                             while ($row = mysqli_fetch_assoc($sql_contacts)) {
                                 $contact_id_select = intval($row['contact_id']);
                                 $contact_name_select = escapeHtml($row['contact_name']);
@@ -265,7 +265,7 @@ ob_start();
                             <option value="">- Select Network -</option>
                             <?php
 
-                            $sql_networks = mysqli_query($mysqli, "SELECT * FROM networks WHERE network_archived_at IS NULL AND network_client_id = $client_id ORDER BY network_name ASC");
+                            $sql_networks = mysqli_query($mysqli, "SELECT network, network_id, network_name FROM networks WHERE network_archived_at IS NULL AND network_client_id = $client_id ORDER BY network_name ASC");
                             while ($row = mysqli_fetch_assoc($sql_networks)) {
                                 $network_id_select = intval($row['network_id']);
                                 $network_name_select = escapeHtml($row['network_name']);
@@ -358,7 +358,7 @@ ob_start();
                             <option value="">- Select Vendor -</option>
                             <?php
 
-                            $sql_vendors = mysqli_query($mysqli, "SELECT * FROM vendors WHERE vendor_archived_at IS NULL AND vendor_client_id = $client_id ORDER BY vendor_name ASC");
+                            $sql_vendors = mysqli_query($mysqli, "SELECT vendor_id, vendor_name FROM vendors WHERE vendor_archived_at IS NULL AND vendor_client_id = $client_id ORDER BY vendor_name ASC");
                             while ($row = mysqli_fetch_assoc($sql_vendors)) {
                                 $vendor_id_select = intval($row['vendor_id']);
                                 $vendor_name_select = escapeHtml($row['vendor_name']);

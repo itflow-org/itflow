@@ -190,7 +190,7 @@ ob_start();
                         <tbody>
 
                         <?php
-                        $sql_client_select = mysqli_query($mysqli, "SELECT * FROM clients WHERE client_archived_at IS NULL ORDER BY client_name ASC");
+                        $sql_client_select = mysqli_query($mysqli, "SELECT client_id, client_name FROM clients WHERE client_archived_at IS NULL ORDER BY client_name ASC");
                         while ($row = mysqli_fetch_assoc($sql_client_select)) {
                             $client_id_select = intval($row['client_id']);
                             $client_name_select = escapeHtml($row['client_name']);

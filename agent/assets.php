@@ -150,7 +150,14 @@ $other_count = intval($row['other_count']);
 
 $sql = mysqli_query(
     $mysqli,
-    "SELECT SQL_CALC_FOUND_ROWS * FROM assets
+    "SELECT SQL_CALC_FOUND_ROWS asset_archived_at, asset_contact_id, asset_created_at, asset_description, asset_favorite,
+        asset_id, asset_install_date, asset_location_id, asset_make, asset_model, asset_name,
+        asset_notes, asset_os, asset_photo, asset_physical_location, asset_purchase_date,
+        asset_purchase_reference, asset_serial, asset_status, asset_type, asset_uri, asset_uri_2,
+        asset_uri_client, asset_vendor_id, asset_warranty_expire, client_id, client_name,
+        contact_archived_at, contact_name, interface_ip, interface_ipv6, interface_mac,
+        interface_nat_ip, interface_network_id, location_archived_at, location_name, tag_color,
+        tag_icon, tag_id, tag_name FROM assets
     LEFT JOIN clients ON asset_client_id = client_id
     LEFT JOIN contacts ON asset_contact_id = contact_id
     LEFT JOIN locations ON asset_location_id = location_id

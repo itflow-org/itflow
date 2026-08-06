@@ -18,7 +18,8 @@ if (isset($_GET['dismissed'])) {
 
 $sql = mysqli_query(
     $mysqli,
-    "SELECT SQL_CALC_FOUND_ROWS * FROM notifications
+    "SELECT SQL_CALC_FOUND_ROWS client_id, client_name, notification, notification_dismissed_at, notification_id,
+        notification_timestamp, notification_type FROM notifications
     LEFT JOIN clients ON notification_client_id = client_id
     WHERE (notification_type LIKE '%$q%' OR notification LIKE '%$q%')
     AND DATE(notification_timestamp) BETWEEN '$dtf' AND '$dtt'

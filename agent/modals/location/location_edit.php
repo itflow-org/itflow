@@ -186,7 +186,7 @@ ob_start();
                             <option value="">- Contact -</option>
                             <?php
 
-                            $sql_contacts = mysqli_query($mysqli, "SELECT * FROM contacts WHERE (contact_archived_at > '$location_created_at' OR contact_archived_at IS NULL) AND contact_client_id = $client_id ORDER BY contact_archived_at ASC, contact_name ASC");
+                            $sql_contacts = mysqli_query($mysqli, "SELECT contact_archived_at, contact_id, contact_name FROM contacts WHERE (contact_archived_at > '$location_created_at' OR contact_archived_at IS NULL) AND contact_client_id = $client_id ORDER BY contact_archived_at ASC, contact_name ASC");
                             while ($row = mysqli_fetch_assoc($sql_contacts)) {
                                 $contact_id_select = intval($row['contact_id']);
                                 $contact_name_select = escapeHtml($row['contact_name']);

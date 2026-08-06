@@ -55,7 +55,7 @@ $sql_credentials = mysqli_query(
 // Associated Domains
 $sql_domains = mysqli_query(
     $mysqli,
-    "SELECT * FROM service_domains
+    "SELECT domain_name FROM service_domains
     LEFT JOIN domains ON service_domains.domain_id = domains.domain_id
     WHERE service_id = $service_id"
 );
@@ -63,7 +63,7 @@ $sql_domains = mysqli_query(
 // Associated Certificates
 $sql_certificates = mysqli_query(
     $mysqli,
-    "SELECT * FROM service_certificates
+    "SELECT certificate_domain, certificate_name FROM service_certificates
     LEFT JOIN certificates ON service_certificates.certificate_id = certificates.certificate_id
     WHERE service_id = $service_id"
 );
@@ -71,7 +71,7 @@ $sql_certificates = mysqli_query(
 // Associated Vendors
 $sql_vendors = mysqli_query(
     $mysqli,
-    "SELECT * FROM service_vendors
+    "SELECT vendors.vendor_id, vendor_name FROM service_vendors
     LEFT JOIN vendors ON service_vendors.vendor_id = vendors.vendor_id
     WHERE service_id = $service_id"
 );
@@ -79,7 +79,7 @@ $sql_vendors = mysqli_query(
 // Associated Contacts
 $sql_contacts = mysqli_query(
     $mysqli,
-    "SELECT * FROM service_contacts
+    "SELECT service_contacts.contact_id, contact_name FROM service_contacts
     LEFT JOIN contacts ON service_contacts.contact_id = contacts.contact_id
     WHERE service_id = $service_id"
 );
@@ -87,7 +87,7 @@ $sql_contacts = mysqli_query(
 // Associated Documents
 $sql_docs = mysqli_query(
     $mysqli,
-    "SELECT * FROM service_documents
+    "SELECT documents.document_id, document_name FROM service_documents
     LEFT JOIN documents ON service_documents.document_id = documents.document_id
     WHERE service_id = $service_id"
 );

@@ -62,7 +62,7 @@ if (isset($_GET['invoice_id'], $_GET['url_key']) && !isset($_GET['payment_intent
     $balance_to_pay = round($invoice_amount - $amount_paid, 2);
 
     // Get invoice items
-    $sql_invoice_items = mysqli_query($mysqli, "SELECT * FROM invoice_items WHERE item_invoice_id = $invoice_id ORDER BY item_id ASC");
+    $sql_invoice_items = mysqli_query($mysqli, "SELECT item_name, item_quantity, item_total FROM invoice_items WHERE item_invoice_id = $invoice_id ORDER BY item_id ASC");
 
     // Currency formatting
     $currency_format = numfmt_create($company_locale, NumberFormatter::CURRENCY);

@@ -8,7 +8,8 @@ require_once "includes/inc_all_admin.php";
 
 $sql = mysqli_query(
     $mysqli,
-    "SELECT SQL_CALC_FOUND_ROWS * FROM email_queue
+    "SELECT SQL_CALC_FOUND_ROWS email_attempts, email_failed_at, email_from, email_from_name, email_id, email_queued_at,
+        email_recipient, email_recipient_name, email_sent_at, email_status, email_subject FROM email_queue
     WHERE (email_id LIKE '%$q%' OR email_from LIKE '%$q%' OR email_from_name LIKE '%$q%' OR email_recipient LIKE '%$q%' OR email_recipient_name LIKE '%$q%' OR email_subject LIKE '%$q%')
     AND DATE(email_queued_at) BETWEEN '$dtf' AND '$dtt'
     ORDER BY $sort $order LIMIT $record_from, $record_to"

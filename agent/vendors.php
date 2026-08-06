@@ -17,7 +17,10 @@ if (isset($_GET['client_id'])) {
 
 $sql = mysqli_query(
     $mysqli,
-    "SELECT SQL_CALC_FOUND_ROWS * FROM vendors
+    "SELECT SQL_CALC_FOUND_ROWS vendor_account_number, vendor_archived_at, vendor_code, vendor_contact_name,
+        vendor_created_at, vendor_description, vendor_email, vendor_extension, vendor_hours,
+        vendor_id, vendor_name, vendor_notes, vendor_phone, vendor_phone_country_code, vendor_sla,
+        vendor_templates.vendor_template_id, vendor_template_name, vendor_website FROM vendors
     LEFT JOIN clients ON client_id = vendor_client_id
     LEFT JOIN vendor_templates ON vendors.vendor_template_id = vendor_templates.vendor_template_id
     WHERE vendor_$archive_query

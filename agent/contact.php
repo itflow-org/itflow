@@ -64,7 +64,11 @@ if (isset($_GET['contact_id'])) {
     }
 
     // Related Assets Query - 1 to 1 relationship
-    $sql_related_assets = mysqli_query($mysqli, "SELECT * FROM assets
+    $sql_related_assets = mysqli_query($mysqli, "SELECT asset_created_at, asset_description, asset_favorite, asset_id, asset_install_date,
+        asset_make, asset_model, asset_name, asset_notes, asset_os, asset_photo,
+        asset_physical_location, asset_purchase_date, asset_serial, asset_status, asset_type,
+        asset_uri, asset_uri_2, asset_warranty_expire, interface_ip, interface_ipv6, interface_mac,
+        interface_nat_ip, tag_color, tag_icon, tag_id, tag_name FROM assets
         LEFT JOIN asset_interfaces ON interface_asset_id = asset_id AND interface_primary = 1
         LEFT JOIN asset_tags ON asset_tag_asset_id = asset_id
         LEFT JOIN tags ON tag_id = asset_tag_tag_id
@@ -102,14 +106,17 @@ if (isset($_GET['contact_id'])) {
     $credential_count = mysqli_num_rows($sql_related_credentials);
 
     // Related Tickets Query - 1 to 1 relationship
-    $sql_related_tickets = mysqli_query($mysqli, "SELECT * FROM tickets
+    $sql_related_tickets = mysqli_query($mysqli, "SELECT ticket_assigned_to, ticket_closed_at, ticket_created_at, ticket_id, ticket_number,
+        ticket_prefix, ticket_priority, ticket_status, ticket_status_color, ticket_status_name,
+        ticket_subject, ticket_updated_at, user_name FROM tickets
         LEFT JOIN users ON ticket_assigned_to = user_id
         LEFT JOIN ticket_statuses ON ticket_status = ticket_status_id
         WHERE ticket_contact_id = $contact_id ORDER BY ticket_id DESC");
     $ticket_count = mysqli_num_rows($sql_related_tickets);
 
     // Related Recurring Tickets Query
-    $sql_related_recurring_tickets = mysqli_query($mysqli, "SELECT * FROM recurring_tickets
+    $sql_related_recurring_tickets = mysqli_query($mysqli, "SELECT recurring_ticket_frequency, recurring_ticket_id, recurring_ticket_next_run,
+        recurring_ticket_priority, recurring_ticket_subject FROM recurring_tickets
         WHERE recurring_ticket_contact_id = $contact_id
         ORDER BY recurring_ticket_next_run DESC"
     );
@@ -139,7 +146,7 @@ if (isset($_GET['contact_id'])) {
     $contact_tags_display = implode('', $contact_tag_name_display_array);
 
     // Notes - 1 to 1 relationship
-    $sql_related_notes = mysqli_query($mysqli, "SELECT * FROM contact_notes LEFT JOIN users ON contact_note_created_by = user_id WHERE contact_note_contact_id = $contact_id AND contact_note_archived_at IS NULL ORDER BY contact_note_created_at DESC");
+    $sql_related_notes = mysqli_query($mysqli, "SELECT contact_note, contact_note_created_at, contact_note_id, contact_note_type, user_name FROM contact_notes LEFT JOIN users ON contact_note_created_by = user_id WHERE contact_note_contact_id = $contact_id AND contact_note_archived_at IS NULL ORDER BY contact_note_created_at DESC");
     $note_count = mysqli_num_rows($sql_related_notes);
 
     // Note type icons, read from the categories list so the seeded icons
@@ -151,7 +158,8 @@ if (isset($_GET['contact_id'])) {
     }
 
      // Linked Services
-    $sql_linked_services = mysqli_query($mysqli, "SELECT * FROM service_contacts, services
+    $sql_linked_services = mysqli_query($mysqli, "SELECT service_category, service_description, service_contacts.service_id, service_importance,
+        service_name FROM service_contacts, services
         WHERE service_contacts.contact_id = $contact_id
         AND service_contacts.service_id = services.service_id
         ORDER BY service_name ASC"
@@ -161,7 +169,8 @@ if (isset($_GET['contact_id'])) {
     $linked_services = array();
 
     // Linked Documents
-    $sql_linked_documents = mysqli_query($mysqli, "SELECT * FROM contact_documents, documents
+    $sql_linked_documents = mysqli_query($mysqli, "SELECT document_created_at, document_description, documents.document_id, document_name,
+        document_updated_at, user_name FROM contact_documents, documents
         LEFT JOIN users ON document_created_by = user_id
         WHERE contact_documents.contact_id = $contact_id
         AND contact_documents.document_id = documents.document_id

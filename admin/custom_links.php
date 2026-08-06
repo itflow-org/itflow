@@ -8,7 +8,8 @@ require_once "includes/inc_all_admin.php";
 
 $sql = mysqli_query(
     $mysqli,
-    "SELECT SQL_CALC_FOUND_ROWS * FROM custom_links
+    "SELECT SQL_CALC_FOUND_ROWS custom_link_icon, custom_link_id, custom_link_location, custom_link_name,
+        custom_link_new_tab, custom_link_order, custom_link_uri FROM custom_links
     WHERE custom_link_name LIKE '%$q%'
     ORDER BY $sort $order LIMIT $record_from, $record_to"
 );

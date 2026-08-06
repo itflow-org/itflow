@@ -540,7 +540,7 @@ if (isset($_POST['bulk_transfer_client_asset'])) {
             $new_asset_id = mysqli_insert_id($mysqli);
 
             // Transfer all Interfaces over too
-            $sql_interfaces = mysqli_query($mysqli, "SELECT * FROM asset_interfaces WHERE interface_asset_id = $current_asset_id");
+            $sql_interfaces = mysqli_query($mysqli, "SELECT interface_mac, interface_name, interface_primary FROM asset_interfaces WHERE interface_asset_id = $current_asset_id");
 
             while ($row = mysqli_fetch_assoc($sql_interfaces)) {
                 $interface_name = escapeSql($row['interface_name']);

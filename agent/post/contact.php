@@ -820,7 +820,7 @@ if (isset($_GET['anonymize_contact'])) {
 
 
     // Get all tickets this contact raised
-    $contact_tickets_sql = mysqli_query($mysqli, "SELECT * FROM tickets WHERE ticket_client_id = $client_id AND ticket_contact_id =  $contact_id");
+    $contact_tickets_sql = mysqli_query($mysqli, "SELECT ticket_details, ticket_id, ticket_subject FROM tickets WHERE ticket_client_id = $client_id AND ticket_contact_id =  $contact_id");
     while ($ticket = mysqli_fetch_assoc($contact_tickets_sql)) {
 
         $ticket_id = intval($ticket['ticket_id']);
@@ -839,7 +839,7 @@ if (isset($_GET['anonymize_contact'])) {
         mysqli_query($mysqli,"UPDATE tickets SET ticket_details = '$details' WHERE ticket_id = $ticket_id");
 
         // Redact contact name or email in the replies of all tickets they raised
-        $ticket_replies_sql = mysqli_query($mysqli, "SELECT * FROM ticket_replies WHERE ticket_reply_ticket_id = $ticket_id");
+        $ticket_replies_sql = mysqli_query($mysqli, "SELECT ticket_reply, ticket_reply_id FROM ticket_replies WHERE ticket_reply_ticket_id = $ticket_id");
 
         while($ticket_reply = mysqli_fetch_assoc($ticket_replies_sql)) {
             $ticket_reply_id = intval($ticket_reply['ticket_reply_id']);

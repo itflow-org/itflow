@@ -58,7 +58,9 @@ if ($client_url && isset($_GET['location']) && !empty($_GET['location'])) {
 
 $sql = mysqli_query(
     $mysqli,
-    "SELECT SQL_CALC_FOUND_ROWS * FROM networks
+    "SELECT SQL_CALC_FOUND_ROWS client_id, client_name, location_name, network, network_archived_at, network_description,
+        network_dhcp_range, network_gateway, network_id, network_location_id, network_name,
+        network_primary_dns, network_secondary_dns, network_vlan FROM networks
     LEFT JOIN clients ON client_id = network_client_id
     LEFT JOIN locations ON location_id = network_location_id
     WHERE $archive_query

@@ -100,7 +100,8 @@ if (isset($_GET['invoice_id'])) {
 
     $sql_history = mysqli_query($mysqli, "SELECT * FROM history WHERE history_invoice_id = $invoice_id ORDER BY history_id DESC");
 
-    $sql_payments = mysqli_query($mysqli, "SELECT * FROM payments, accounts WHERE payment_account_id = account_id AND payment_invoice_id = $invoice_id ORDER BY payments.payment_id DESC");
+    $sql_payments = mysqli_query($mysqli, "SELECT account_name, payment_amount, payment_currency_code, payment_date, payment_id,
+        payment_reference FROM payments, accounts WHERE payment_account_id = account_id AND payment_invoice_id = $invoice_id ORDER BY payments.payment_id DESC");
 
     $sql_tickets = mysqli_query($mysqli, "
         SELECT
@@ -372,7 +373,8 @@ if (isset($_GET['invoice_id'])) {
                 </div>
             </div>
 
-            <?php $sql_invoice_items = mysqli_query($mysqli, "SELECT * FROM invoice_items WHERE item_invoice_id = $invoice_id ORDER BY item_order ASC"); ?>
+            <?php $sql_invoice_items = mysqli_query($mysqli, "SELECT item_created_at, item_description, item_id, item_name, item_price, item_product_id,
+                item_quantity, item_tax, item_tax_id, item_total FROM invoice_items WHERE item_invoice_id = $invoice_id ORDER BY item_order ASC"); ?>
 
             <div class="row mb-3">
                 <div class="col-md-12">

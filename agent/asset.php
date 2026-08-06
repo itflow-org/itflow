@@ -206,7 +206,8 @@ if (isset($_GET['asset_id'])) {
         }
 
         // Related Documents
-        $sql_related_documents = mysqli_query($mysqli, "SELECT * FROM asset_documents, documents
+        $sql_related_documents = mysqli_query($mysqli, "SELECT document_created_at, document_description, documents.document_id, document_name,
+            document_updated_at, user_name FROM asset_documents, documents
             LEFT JOIN users ON document_created_by = user_id
             WHERE asset_documents.asset_id = $asset_id
             AND asset_documents.document_id = documents.document_id
@@ -253,7 +254,8 @@ if (isset($_GET['asset_id'])) {
         $software_count = mysqli_num_rows($sql_related_software);
 
         // Linked Services
-        $sql_linked_services = mysqli_query($mysqli, "SELECT * FROM service_assets, services
+        $sql_linked_services = mysqli_query($mysqli, "SELECT service_category, service_description, service_assets.service_id, service_importance,
+            service_name FROM service_assets, services
             WHERE service_assets.asset_id = $asset_id
             AND service_assets.service_id = services.service_id
             ORDER BY service_name ASC"
@@ -263,7 +265,7 @@ if (isset($_GET['asset_id'])) {
         $linked_services = array();
 
         // Notes - 1 to many relationship
-        $sql_related_notes = mysqli_query($mysqli, "SELECT * FROM asset_notes
+        $sql_related_notes = mysqli_query($mysqli, "SELECT asset_note, asset_note_created_at, asset_note_id, asset_note_type, user_name FROM asset_notes
             LEFT JOIN users ON asset_note_created_by = user_id
             WHERE asset_note_asset_id = $asset_id
             AND asset_note_archived_at IS NULL

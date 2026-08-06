@@ -212,7 +212,7 @@ ob_start();
                                 <option value="">- Client -</option>
                                 <?php
 
-                                $sql_clients = mysqli_query($mysqli, "SELECT * FROM clients LEFT JOIN contacts ON clients.client_id = contacts.contact_client_id AND contact_primary = 1 ORDER BY client_name ASC");
+                                $sql_clients = mysqli_query($mysqli, "SELECT client_id, client_name, contact_email FROM clients LEFT JOIN contacts ON clients.client_id = contacts.contact_client_id AND contact_primary = 1 ORDER BY client_name ASC");
                                 while ($row = mysqli_fetch_assoc($sql_clients)) {
                                     $client_id_select = intval($row['client_id']);
                                     $client_name_select = escapeHtml($row['client_name']);

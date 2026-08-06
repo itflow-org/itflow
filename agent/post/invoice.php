@@ -74,7 +74,7 @@ if (isset($_POST['edit_invoice'])) {
     enforceClientAccess();
 
     // Calculate new total
-    $sql = mysqli_query($mysqli,"SELECT * FROM invoice_items WHERE item_invoice_id = $invoice_id");
+    $sql = mysqli_query($mysqli,"SELECT item_total FROM invoice_items WHERE item_invoice_id = $invoice_id");
     $invoice_amount = 0;
     while($row = mysqli_fetch_assoc($sql)) {
         $item_total = floatval($row['item_total']);
@@ -138,7 +138,8 @@ if (isset($_POST['add_invoice_copy'])) {
 
     mysqli_query($mysqli,"INSERT INTO history SET history_status = 'Draft', history_description = 'Copied INVOICE!', history_invoice_id = $new_invoice_id");
 
-    $sql_items = mysqli_query($mysqli,"SELECT * FROM invoice_items WHERE item_invoice_id = $invoice_id");
+    $sql_items = mysqli_query($mysqli,"SELECT item_description, item_id, item_name, item_order, item_price, item_quantity, item_subtotal,
+        item_tax, item_tax_id, item_total FROM invoice_items WHERE item_invoice_id = $invoice_id");
     while($row = mysqli_fetch_assoc($sql_items)) {
         $item_id = intval($row['item_id']);
         $item_name = escapeSql($row['item_name']);
@@ -271,7 +272,7 @@ if (isset($_GET['delete_invoice'])) {
     mysqli_query($mysqli,"DELETE FROM invoices WHERE invoice_id = $invoice_id");
 
     //Delete Items Associated with the Invoice
-    $sql = mysqli_query($mysqli,"SELECT * FROM invoice_items WHERE item_invoice_id = $invoice_id");
+    $sql = mysqli_query($mysqli,"SELECT item_id FROM invoice_items WHERE item_invoice_id = $invoice_id");
     while($row = mysqli_fetch_assoc($sql)) {
         $item_id = intval($row['item_id']);
         mysqli_query($mysqli,"DELETE FROM invoice_items WHERE item_id = $item_id");
@@ -372,7 +373,7 @@ if (isset($_POST['add_invoice_item'])) {
     $invoice_discount = floatval($row['invoice_discount_amount']);
 
     //add up all line items
-    $sql = mysqli_query($mysqli,"SELECT * FROM invoice_items WHERE item_invoice_id = $invoice_id");
+    $sql = mysqli_query($mysqli,"SELECT item_total FROM invoice_items WHERE item_invoice_id = $invoice_id");
     $invoice_total = 0;
     while($row = mysqli_fetch_assoc($sql)) {
         $item_total = floatval($row['item_total']);
@@ -974,7 +975,7 @@ if (isset($_GET['export_invoice_pdf'])) {
     $sub_total = 0;
     $total_tax = 0;
 
-    $sql_items = mysqli_query($mysqli, "SELECT * FROM invoice_items WHERE item_invoice_id = $invoice_id ORDER BY item_order ASC");
+    $sql_items = mysqli_query($mysqli, "SELECT item_description, item_name, item_price, item_quantity, item_tax, item_total FROM invoice_items WHERE item_invoice_id = $invoice_id ORDER BY item_order ASC");
     while ($item = mysqli_fetch_assoc($sql_items)) {
         $name = $item['item_name'];
         $desc = $item['item_description'];
@@ -1140,7 +1141,7 @@ if (isset($_GET['export_invoice_packing_slip'])) {
     $sub_total = 0;
     $total_tax = 0;
 
-    $sql_items = mysqli_query($mysqli, "SELECT * FROM invoice_items WHERE item_invoice_id = $invoice_id ORDER BY item_order ASC");
+    $sql_items = mysqli_query($mysqli, "SELECT item_name, item_quantity FROM invoice_items WHERE item_invoice_id = $invoice_id ORDER BY item_order ASC");
     while ($item = mysqli_fetch_assoc($sql_items)) {
         $name = $item['item_name'];
         $qty = $item['item_quantity'];

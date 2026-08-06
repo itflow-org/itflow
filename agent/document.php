@@ -142,7 +142,8 @@ $page_title = $row['document_name'];
                     </thead>
                     <tbody>
                         <?php
-                        $sql_document_versions = mysqli_query($mysqli, "SELECT * FROM document_versions
+                        $sql_document_versions = mysqli_query($mysqli, "SELECT document_version_created_at, document_version_description, document_version_id,
+                            document_version_name, user_name FROM document_versions
                             LEFT JOIN users ON document_version_created_by = user_id
                             WHERE document_version_document_id = $document_id
                             ORDER BY document_version_created_at ASC"
@@ -394,7 +395,8 @@ $page_title = $row['document_name'];
             <h6><i class="fas fa-history mr-2"></i>Revisions</h6>
             <?php
 
-            $sql_document_versions = mysqli_query($mysqli, "SELECT * FROM document_versions
+            $sql_document_versions = mysqli_query($mysqli, "SELECT document_version_created_at, document_version_description, document_version_id,
+                document_version_name, user_name FROM document_versions
                 LEFT JOIN users ON document_version_created_by = user_id
                 WHERE document_version_document_id = $document_id
                 ORDER BY document_version_created_at DESC"

@@ -112,7 +112,7 @@ if (isset($_GET['project_id'])) {
 
     // Get All Tasks
     $sql_tasks = mysqli_query($mysqli,
-        "SELECT * FROM tickets, tasks
+        "SELECT task_completed_at, task_id, task_name FROM tickets, tasks
         WHERE ticket_id = task_ticket_id
         AND ticket_project_id = $project_id
         ORDER BY task_created_at ASC"

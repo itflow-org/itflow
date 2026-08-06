@@ -167,7 +167,7 @@ ob_start();
                             <option value="">- Select Contact -</option>
                             <?php
 
-                            $sql = mysqli_query($mysqli, "SELECT * FROM contacts WHERE contact_client_id = $client_id ORDER BY contact_name ASC");
+                            $sql = mysqli_query($mysqli, "SELECT contact_id, contact_name FROM contacts WHERE contact_client_id = $client_id ORDER BY contact_name ASC");
                             while ($row = mysqli_fetch_assoc($sql)) {
                                 $contact_id_select = intval($row['contact_id']);
                                 $contact_name = escapeHtml($row['contact_name']);
@@ -194,7 +194,7 @@ ob_start();
                             <option value="">- Select Asset -</option>
                             <?php
 
-                            $sql = mysqli_query($mysqli, "SELECT * FROM assets LEFT JOIN locations on asset_location_id = location_id WHERE asset_client_id = $client_id AND asset_archived_at IS NULL ORDER BY asset_name ASC");
+                            $sql = mysqli_query($mysqli, "SELECT asset_id, asset_name, location_name FROM assets LEFT JOIN locations on asset_location_id = location_id WHERE asset_client_id = $client_id AND asset_archived_at IS NULL ORDER BY asset_name ASC");
                             while ($row = mysqli_fetch_assoc($sql)) {
                                 $asset_id_select = intval($row['asset_id']);
                                 $asset_name = escapeHtml($row['asset_name']);

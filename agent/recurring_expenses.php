@@ -11,7 +11,13 @@ enforceUserPermission('module_financial');
 
 $sql = mysqli_query(
     $mysqli,
-    "SELECT SQL_CALC_FOUND_ROWS * FROM recurring_expenses
+    "SELECT SQL_CALC_FOUND_ROWS account_name, category_name, client_name, recurring_expense_account_id,
+        recurring_expense_amount, recurring_expense_category_id, recurring_expense_client_id,
+        recurring_expense_created_at, recurring_expense_currency_code, recurring_expense_day,
+        recurring_expense_description, recurring_expense_frequency, recurring_expense_id,
+        recurring_expense_last_sent, recurring_expense_month, recurring_expense_next_date,
+        recurring_expense_payment_method, recurring_expense_reference, recurring_expense_status,
+        recurring_expense_vendor_id, vendor_name FROM recurring_expenses
     LEFT JOIN categories ON recurring_expense_category_id = category_id
     LEFT JOIN vendors ON recurring_expense_vendor_id = vendor_id
     LEFT JOIN accounts ON recurring_expense_account_id = account_id

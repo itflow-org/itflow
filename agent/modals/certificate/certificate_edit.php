@@ -20,7 +20,8 @@ $certificate_expire = escapeHtml($row['certificate_expire']);
 $certificate_created_at = escapeHtml($row['certificate_created_at']);
 $client_id = intval($row['certificate_client_id']);
 
-$history_sql = mysqli_query($mysqli, "SELECT * FROM certificate_history WHERE certificate_history_certificate_id = $certificate_id");
+$history_sql = mysqli_query($mysqli, "SELECT certificate_history_column, certificate_history_modified_at, certificate_history_new_value,
+    certificate_history_old_value FROM certificate_history WHERE certificate_history_certificate_id = $certificate_id");
 
 enforceClientAccess();
 

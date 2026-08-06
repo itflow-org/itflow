@@ -99,7 +99,8 @@ if (isset($_POST['add_quote_copy'])) {
 
     mysqli_query($mysqli,"INSERT INTO history SET history_status = 'Draft', history_description = 'Quote copied!', history_quote_id = $new_quote_id");
 
-    $sql_items = mysqli_query($mysqli,"SELECT * FROM quote_items WHERE item_quote_id = $quote_id");
+    $sql_items = mysqli_query($mysqli,"SELECT item_description, item_id, item_name, item_order, item_price, item_quantity, item_subtotal,
+        item_tax, item_tax_id, item_total FROM quote_items WHERE item_quote_id = $quote_id");
     while($row = mysqli_fetch_assoc($sql_items)) {
         $item_id = intval($row['item_id']);
         $item_name = escapeSql($row['item_name']);
@@ -172,7 +173,8 @@ if (isset($_POST['add_quote_to_invoice'])) {
 
     mysqli_query($mysqli,"INSERT INTO history SET history_status = 'Draft', history_description = 'Invoice created from quote $quote_prefix$quote_number', history_invoice_id = $new_invoice_id");
 
-    $sql_items = mysqli_query($mysqli,"SELECT * FROM quote_items WHERE item_quote_id = $quote_id");
+    $sql_items = mysqli_query($mysqli,"SELECT item_description, item_id, item_name, item_order, item_price, item_quantity, item_subtotal,
+        item_tax, item_tax_id, item_total FROM quote_items WHERE item_quote_id = $quote_id");
     while($row = mysqli_fetch_assoc($sql_items)) {
         $item_id = intval($row['item_id']);
         $item_name = escapeSql($row['item_name']);
@@ -260,7 +262,7 @@ if (isset($_POST['add_quote_item'])) {
     $client_id = intval($row['quote_client_id']);
 
     //add up the total of all items
-    $sql = mysqli_query($mysqli,"SELECT * FROM quote_items WHERE item_quote_id = $quote_id");
+    $sql = mysqli_query($mysqli,"SELECT item_total FROM quote_items WHERE item_quote_id = $quote_id");
     $quote_amount = 0;
     while($row = mysqli_fetch_assoc($sql)) {
         $item_total = floatval($row['item_total']);
@@ -385,7 +387,7 @@ if (isset($_POST['edit_quote'])) {
     enforceClientAccess();
 
     //Calculate the new quote amount
-    $sql = mysqli_query($mysqli,"SELECT * FROM quote_items WHERE item_quote_id = $quote_id");
+    $sql = mysqli_query($mysqli,"SELECT item_total FROM quote_items WHERE item_quote_id = $quote_id");
     $quote_amount = 0;
     while($row = mysqli_fetch_assoc($sql)) {
         $item_total = floatval($row['item_total']);
@@ -423,7 +425,7 @@ if (isset($_GET['delete_quote'])) {
     mysqli_query($mysqli,"DELETE FROM quotes WHERE quote_id = $quote_id");
 
     //Delete Items Associated with the Quote
-    $sql = mysqli_query($mysqli,"SELECT * FROM quote_items WHERE item_quote_id = $quote_id");
+    $sql = mysqli_query($mysqli,"SELECT item_id FROM quote_items WHERE item_quote_id = $quote_id");
     while($row = mysqli_fetch_assoc($sql)) {;
         $item_id = intval($row['item_id']);
         mysqli_query($mysqli,"DELETE FROM quote_items WHERE item_id = $item_id");
@@ -918,7 +920,7 @@ if (isset($_GET['export_quote_pdf'])) {
     $sub_total = 0;
     $total_tax = 0;
 
-    $sql_items = mysqli_query($mysqli, "SELECT * FROM quote_items WHERE item_quote_id = $quote_id ORDER BY item_order ASC");
+    $sql_items = mysqli_query($mysqli, "SELECT item_description, item_name, item_price, item_quantity, item_tax, item_total FROM quote_items WHERE item_quote_id = $quote_id ORDER BY item_order ASC");
     while ($item = mysqli_fetch_assoc($sql_items)) {
         $name = $item['item_name'];
         $desc = $item['item_description'];
