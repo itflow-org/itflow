@@ -63,6 +63,17 @@ ob_start();
         </div>
 
         <div class="form-group">
+            <label>Temperature</label>
+            <div class="input-group">
+                <div class="input-group-prepend">
+                    <span class="input-group-text"><i class="fa fa-fw fa-thermometer-half"></i></span>
+                </div>
+                <input type="number" class="form-control" name="temperature" step="0.1" min="0" max="2" value="" placeholder="Provider default">
+            </div>
+            <small class="form-text text-muted">Optional. Leave blank to let the provider use its default - some newer models reject every other value.</small>
+        </div>
+
+        <div class="form-group">
             <textarea class="form-control" rows="8" name="prompt" placeholder="Enter a model prompt:"></textarea>
         </div>
 

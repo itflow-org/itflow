@@ -74,6 +74,10 @@ if (isset($_POST['edit_ticket_priority'])) {
 ### The `_model.php` pattern
  
 Files named `agent/post/*_model.php` hold shared field collection/sanitization logic used by both the create and edit blocks of a module (e.g. `asset_model.php` is included by both `add_asset` and `edit_asset`). If create and edit share more than a couple of fields, use this pattern rather than duplicating. Model files carry the same `FROM_POST_HANDLER` guard and are excluded from the dispatcher's auto-load.
+
+**`_model.php` is a reserved suffix.** The exclusion is a filename match, so a *handler* named `*_model.php` is silently never loaded — its form posts, nothing claims the request, and the user gets a blank page with no error anywhere. This is what happened to `admin/post/ai_model.php`, which is why the AI Models handler is now `admin/post/ai_models.php`. Name entity handlers around the suffix (`ai_models.php`, `users.php`, `api_keys.php`).
+
+A POST that reaches the end of `admin/post.php` or `agent/post.php` without a handler claiming it is logged to App Logs as a `Request` warning, which is the fastest way to spot this class of mistake.
  
 ---
  

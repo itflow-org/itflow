@@ -837,89 +837,69 @@ if (isset($_GET['ai_reword'])) {
 
     header('Content-Type: application/json');
 
-    $sql = mysqli_query($mysqli, "SELECT ai_model_name, ai_model_prompt, ai_provider_api_key, ai_provider_api_url FROM ai_models LEFT JOIN ai_providers ON ai_model_ai_provider_id = ai_provider_id WHERE ai_model_use_case = 'General' LIMIT 1");
+    // The reword button sits on every TinyMCE instance, so the ticket editor asks for
+    // the Tickets model and everything else gets General. Anything unrecognised is
+    // treated as General rather than trusted into the query.
+    $use_case = ($_GET['use_case'] ?? '') === 'Tickets' ? 'Tickets' : 'General';
 
-    $row = mysqli_fetch_assoc($sql);
-    $model_name = $row['ai_model_name'];
-    $promptText = $row['ai_model_prompt'];
-    $url = $row['ai_provider_api_url'];
-    $key = $row['ai_provider_api_key'];
+    $model = getAiModel($use_case);
+
+    if (!$model) {
+        echo json_encode(['error' => aiModelMissingError($use_case)]);
+        exit;
+    }
 
     // Collecting the input data from the AJAX request.
     $inputJSON = file_get_contents('php://input');
     $input = json_decode($inputJSON, TRUE); // Convert JSON into array.
 
-    $userText = $input['text'];
+    $userText = $input['text'] ?? '';
 
-    // Preparing the data for the OpenAI Chat API request.
-    $data = [
-        "model" => "$model_name", // Specify the model
-        "messages" => [
-            ["role" => "system", "content" => $promptText],
-            ["role" => "user", "content" => $userText],
-        ],
-        "temperature" => 0.5
-    ];
-
-    // Initialize cURL session to the OpenAI Chat API.
-    $ch = curl_init("$url");
-
-    // Set cURL options for the request.
-    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-    curl_setopt($ch, CURLOPT_POST, true);
-    curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($data));
-    curl_setopt($ch, CURLOPT_HTTPHEADER, [
-        'Content-Type: application/json',
-        'Authorization: Bearer ' . $key,
+    $result = callAiApi($model, [
+        ["role" => "system", "content" => $model['ai_model_prompt']],
+        ["role" => "user", "content" => $userText],
     ]);
 
-    // Execute the cURL session and capture the response.
-    $response = curl_exec($ch);
-    curl_close($ch);
-
-    // Decode the JSON response.
-    $responseData = json_decode($response, true);
-
-    // Check if the response contains the expected data and return it.
-    if (isset($responseData['choices'][0]['message']['content'])) {
-        // Get the response content.
-        $content = $responseData['choices'][0]['message']['content'];
-
-        // Clean any leading "html" word or other unwanted text at the beginning.
-        $content = preg_replace('/^html/i', '', $content);  // Remove any occurrence of 'html' at the start
-
-        // Clean the response content to remove backticks or code block markers.
-        $cleanedContent = str_replace('```', '', $content); // Remove backticks if they exist.
-
-        // Trim any leading/trailing whitespace.
-        $cleanedContent = trim($cleanedContent);
-
-        // Return the cleaned response.
-        echo json_encode(['rewordedText' => $cleanedContent]);
-    } else {
-        // Handle errors or unexpected response structure.
-        echo json_encode(['rewordedText' => 'Failed to get a response from the AI API.']);
+    // Report failures as an error, never as reworded text - the editor writes
+    // rewordedText straight back over the user's content
+    if (!$result['ok']) {
+        echo json_encode(['error' => $result['error']]);
+        exit;
     }
+
+    $content = $result['content'];
+
+    // Clean any leading "html" word or other unwanted text at the beginning.
+    $content = preg_replace('/^html/i', '', $content);  // Remove any occurrence of 'html' at the start
+
+    // Clean the response content to remove backticks or code block markers.
+    $cleanedContent = str_replace('```', '', $content); // Remove backticks if they exist.
+
+    // Trim any leading/trailing whitespace.
+    $cleanedContent = trim($cleanedContent);
+
+    echo json_encode(['rewordedText' => $cleanedContent]);
 
 }
 
 if (isset($_GET['ai_create_document_template'])) {
-    // get_ai_document_template.php
+
+    enforceUserPermission('module_support');
 
     header('Content-Type: text/html; charset=UTF-8');
-
-    $sql = mysqli_query($mysqli, "SELECT ai_model_name, ai_provider_api_key, ai_provider_api_url FROM ai_models LEFT JOIN ai_providers ON ai_model_ai_provider_id = ai_provider_id WHERE ai_model_use_case = 'General' LIMIT 1");
-
-    $row = mysqli_fetch_assoc($sql);
-    $model_name = $row['ai_model_name'];
-    $url = $row['ai_provider_api_url'];
-    $key = $row['ai_provider_api_key'];
 
     $prompt = $_POST['prompt'] ?? '';
 
     // Basic validation
-    if(empty($prompt)){
+    if (empty($prompt)) {
         echo "No prompt provided.";
+        exit;
+    }
+
+    $model = getAiModel('Documentation');
+
+    if (!$model) {
+        echo escapeHtml(aiModelMissingError('Documentation'));
         exit;
     }
 
@@ -927,37 +907,18 @@ if (isset($_GET['ai_create_document_template'])) {
     $system_message = "You are a helpful IT documentation assistant. You will create a well-structured HTML template for IT documentation based on a given prompt. Include headings, subheadings, bullet points, and possibly tables for clarity. No Lorem Ipsum, use realistic placeholders and professional language.";
     $user_message = "Create an HTML formatted IT documentation template based on the following request:\n\n\"$prompt\"\n\nThe template should be structured, professional, and useful for IT staff. Include relevant sections, instructions, prerequisites, and best practices.";
 
-    $post_data = [
-        "model" => "$model_name",
-        "messages" => [
-            ["role" => "system", "content" => $system_message],
-            ["role" => "user", "content" => $user_message]
-        ],
-        "temperature" => 0.5
-    ];
-
-    $ch = curl_init();
-    curl_setopt($ch, CURLOPT_URL, $url);
-    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-    curl_setopt($ch, CURLOPT_POST, true);
-    curl_setopt($ch, CURLOPT_HTTPHEADER, [
-        'Content-Type: application/json',
-        'Authorization: Bearer ' . $key
+    $result = callAiApi($model, [
+        ["role" => "system", "content" => $system_message],
+        ["role" => "user", "content" => $user_message]
     ]);
-    curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($post_data));
 
-    $response = curl_exec($ch);
-    if (curl_errno($ch)) {
-        echo "Error: " . curl_error($ch);
+    if (!$result['ok']) {
+        echo "<p>" . escapeHtml($result['error']) . "</p>";
         exit;
     }
-    curl_close($ch);
-
-    $response_data = json_decode($response, true);
-    $template = $response_data['choices'][0]['message']['content'] ?? "<p>No content returned from AI.</p>";
 
     // Print the generated HTML template directly
-    echo $template;
+    echo $result['content'];
 }
 
 if (isset($_GET['ai_ticket_summary'])) {
@@ -966,12 +927,12 @@ if (isset($_GET['ai_ticket_summary'])) {
 
     header('Content-Type: text/html; charset=UTF-8');
 
-    $sql = mysqli_query($mysqli, "SELECT ai_model_name, ai_provider_api_key, ai_provider_api_url FROM ai_models LEFT JOIN ai_providers ON ai_model_ai_provider_id = ai_provider_id WHERE ai_model_use_case = 'General' LIMIT 1");
+    $model = getAiModel('Tickets');
 
-    $row = mysqli_fetch_assoc($sql);
-    $model_name = $row['ai_model_name'];
-    $url = $row['ai_provider_api_url'];
-    $key = $row['ai_provider_api_key'];
+    if (!$model) {
+        echo escapeHtml(aiModelMissingError('Tickets'));
+        exit;
+    }
 
     // Retrieve the ticket_id from POST
     $ticket_id = intval($_POST['ticket_id']);
@@ -1048,38 +1009,17 @@ if (isset($_GET['ai_ticket_summary'])) {
     If any part of the ticket or replies is unclear or ambiguous, mention it in the summary and suggest if further clarification is needed.
     ";
 
-    // Prepare the POST data
-    $post_data = [
-        "model" => "$model_name",
-        "messages" => [
-            ["role" => "system", "content" => "Your task is to summarize IT support tickets with clear, concise details."],
-            ["role" => "user", "content" => $prompt]
-        ],
-        "temperature" => 0.3
-    ];
-
-    $ch = curl_init();
-    curl_setopt($ch, CURLOPT_URL, $url);
-    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-    curl_setopt($ch, CURLOPT_POST, true);
-    curl_setopt($ch, CURLOPT_HTTPHEADER, [
-        'Content-Type: application/json',
-        'Authorization: Bearer ' . $key
+    $result = callAiApi($model, [
+        ["role" => "system", "content" => "Your task is to summarize IT support tickets with clear, concise details."],
+        ["role" => "user", "content" => $prompt]
     ]);
-    curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($post_data));
 
-    $response = curl_exec($ch);
-    if (curl_errno($ch)) {
-        echo "Error: " . curl_error($ch);
+    if (!$result['ok']) {
+        echo "<p>" . escapeHtml($result['error']) . "</p>";
         exit;
     }
-    curl_close($ch);
 
-    $response_data = json_decode($response, true);
-    $summary = $response_data['choices'][0]['message']['content'] ?? "No summary available.";
-
-
-    echo $summary; // nl2br to convert newlines to <br>, htmlspecialchars to prevent XSS
+    echo $result['content'];
 }
 
 // Stops people trying to use sub-domains in the domains tracker

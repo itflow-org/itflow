@@ -4,13 +4,14 @@ require_once '../../includes/modal_header.php';
 
 $model_id = intval($_GET['id']);
 
-$sql = mysqli_query($mysqli, "SELECT ai_model_ai_provider_id, ai_model_id, ai_model_name, ai_model_prompt, ai_model_use_case FROM ai_models WHERE ai_model_id = $model_id LIMIT 1");
+$sql = mysqli_query($mysqli, "SELECT ai_model_ai_provider_id, ai_model_id, ai_model_name, ai_model_prompt, ai_model_use_case, ai_model_temperature FROM ai_models WHERE ai_model_id = $model_id LIMIT 1");
 
 $row = mysqli_fetch_assoc($sql);
 $ai_model_ai_provider_id = intval($row['ai_model_ai_provider_id']);
 $model_id = intval($row['ai_model_id']);
 $model_name = escapeHtml($row['ai_model_name']);
 $use_case = escapeHtml($row['ai_model_use_case']);
+$temperature = escapeHtml($row['ai_model_temperature']);
 $prompt = escapeHtml($row['ai_model_prompt']);
 
 // Generate the HTML form content using output buffering.
@@ -74,6 +75,16 @@ ob_start();
             </div>
         </div>
 
+        <div class="form-group">
+            <label>Temperature</label>
+            <div class="input-group">
+                <div class="input-group-prepend">
+                    <span class="input-group-text"><i class="fa fa-fw fa-thermometer-half"></i></span>
+                </div>
+                <input type="number" class="form-control" name="temperature" step="0.1" min="0" max="2" value="<?= $temperature ?>" placeholder="Provider default">
+            </div>
+            <small class="form-text text-muted">Optional. Leave blank to let the provider use its default - some newer models reject every other value.</small>
+        </div>
         <div class="form-group">
             <textarea class="form-control" rows="8" name="prompt" placeholder="Enter a model prompt:"><?= $prompt ?></textarea>
         </div>
