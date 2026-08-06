@@ -6,7 +6,9 @@ enforceUserPermission('module_financial', 2);
 
 $expense_id = intval($_GET['id']);
 
-$sql = mysqli_query($mysqli, "SELECT * FROM expenses WHERE expense_id = $expense_id LIMIT 1");
+$sql = mysqli_query($mysqli, "SELECT expense_account_id, expense_amount, expense_category_id, expense_client_id,
+    expense_created_at, expense_currency_code, expense_date, expense_description,
+    expense_receipt, expense_reference, expense_vendor_id FROM expenses WHERE expense_id = $expense_id LIMIT 1");
 
 $row = mysqli_fetch_assoc($sql);
 $expense_date = escapeHtml($row['expense_date']);

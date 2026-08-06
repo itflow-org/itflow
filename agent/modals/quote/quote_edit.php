@@ -6,7 +6,8 @@ enforceUserPermission('module_sales', 2);
 
 $quote_id = intval($_GET['id']);
 
-$sql = mysqli_query($mysqli, "SELECT * FROM quotes LEFT JOIN clients ON quote_client_id = client_id WHERE quote_id = $quote_id LIMIT 1");
+$sql = mysqli_query($mysqli, "SELECT client_name, quote_category_id, quote_client_id, quote_created_at, quote_date,
+    quote_discount_amount, quote_expire, quote_id, quote_number, quote_prefix, quote_scope FROM quotes LEFT JOIN clients ON quote_client_id = client_id WHERE quote_id = $quote_id LIMIT 1");
 
 $row = mysqli_fetch_assoc($sql);
 $quote_id = intval($row['quote_id']);
@@ -68,7 +69,7 @@ ob_start();
                 <select class="form-control select2" name="category" required>
                     <?php
 
-                    $sql = mysqli_query($mysqli, "SELECT * FROM categories WHERE category_type = 'Income' AND (category_archived_at > '$quote_created_at' OR category_archived_at IS NULL) ORDER BY category_name ASC");
+                    $sql = mysqli_query($mysqli, "SELECT category_id, category_name FROM categories WHERE category_type = 'Income' AND (category_archived_at > '$quote_created_at' OR category_archived_at IS NULL) ORDER BY category_name ASC");
                     while ($row = mysqli_fetch_assoc($sql)) {
                         $category_id = intval($row['category_id']);
                         $category_name = escapeHtml($row['category_name']);

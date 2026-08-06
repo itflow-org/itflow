@@ -5,7 +5,7 @@ require_once 'includes/inc_all_guest.php';
 DEFINE("WORDING_PAYMENT_FAILED", "<br><h2>There was an error verifying your payment. Please contact us for more information before attempting payment again.</h2>");
 
 // --- Get Stripe config from payment_providers table ---
-$stripe_provider = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT * FROM payment_providers"));
+$stripe_provider = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT payment_provider_account, payment_provider_private_key, payment_provider_public_key FROM payment_providers"));
 
 
 $stripe_publishable      = escapeHtml($stripe_provider['payment_provider_public_key']);
@@ -21,7 +21,9 @@ if (isset($_GET['invoice_id'], $_GET['url_key']) && !isset($_GET['payment_intent
     // Query invoice details
     $sql = mysqli_query(
         $mysqli,
-        "SELECT * FROM invoices
+        "SELECT client_id, client_name, invoice_amount, invoice_currency_code, invoice_date,
+            invoice_discount_amount, invoice_due, invoice_id, invoice_number, invoice_prefix,
+            invoice_status FROM invoices
          LEFT JOIN clients ON invoice_client_id = client_id
          WHERE invoice_id = $invoice_id
          AND invoice_url_key = '$invoice_url_key'
@@ -182,7 +184,8 @@ if (isset($_GET['invoice_id'], $_GET['url_key']) && !isset($_GET['payment_intent
     // Get/Check invoice (& client/primary contact)
     $invoice_sql = mysqli_query(
         $mysqli,
-        "SELECT * FROM invoices
+        "SELECT client_id, client_name, contact_email, contact_name, invoice_amount, invoice_currency_code,
+            invoice_id, invoice_number, invoice_prefix, invoice_url_key FROM invoices
          LEFT JOIN clients ON invoice_client_id = client_id
          LEFT JOIN contacts ON clients.client_id = contacts.contact_client_id AND contact_primary = 1
          WHERE invoice_id = $pi_invoice_id
@@ -206,7 +209,7 @@ if (isset($_GET['invoice_id'], $_GET['url_key']) && !isset($_GET['payment_intent
     $contact_name = escapeSql($row['contact_name']);
     $contact_email = escapeSql($row['contact_email']);
 
-    $sql_company = mysqli_query($mysqli, "SELECT * FROM companies WHERE company_id = 1");
+    $sql_company = mysqli_query($mysqli, "SELECT company_locale, company_name, company_phone FROM companies WHERE company_id = 1");
     $row = mysqli_fetch_assoc($sql_company);
     $company_name = escapeSql($row['company_name']);
     $company_phone = escapeSql(formatPhoneNumber($row['company_phone']));
@@ -252,7 +255,8 @@ if (isset($_GET['invoice_id'], $_GET['url_key']) && !isset($_GET['payment_intent
     mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'Payment', log_action = 'Create', log_description = 'Stripe payment of $pi_currency $pi_amount_paid against invoice $invoice_prefix$invoice_number - $pi_id $extended_log_desc', log_ip = '$ip', log_user_agent = '$user_agent', log_client_id = $pi_client_id");
 
     // Email Receipt
-    $sql_settings = mysqli_query($mysqli, "SELECT * FROM settings WHERE company_id = 1");
+    $sql_settings = mysqli_query($mysqli, "SELECT config_invoice_from_email, config_invoice_from_name,
+        config_invoice_paid_notification_email, config_smtp_host FROM settings WHERE company_id = 1");
     $settings = mysqli_fetch_assoc($sql_settings);
 
     $config_smtp_host = $settings['config_smtp_host'];

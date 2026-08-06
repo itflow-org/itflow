@@ -34,7 +34,7 @@ enforceClientAccess();
 
 // Tags
 $location_tag_id_array = array();
-$sql_location_tags = mysqli_query($mysqli, "SELECT * FROM location_tags WHERE location_id = $location_id");
+$sql_location_tags = mysqli_query($mysqli, "SELECT tag_id FROM location_tags WHERE location_id = $location_id");
 while ($row = mysqli_fetch_assoc($sql_location_tags)) {
     $location_tag_id = intval($row['tag_id']);
     $location_tag_id_array[] = $location_tag_id;
@@ -267,7 +267,7 @@ ob_start();
                         <select class="form-control select2" name="tags[]" data-placeholder="Add some tags" multiple>
                             <?php
 
-                            $sql_tags_select = mysqli_query($mysqli, "SELECT * FROM tags WHERE tag_type = 2 ORDER BY tag_name ASC");
+                            $sql_tags_select = mysqli_query($mysqli, "SELECT tag_id, tag_name FROM tags WHERE tag_type = 2 ORDER BY tag_name ASC");
                             while ($row = mysqli_fetch_assoc($sql_tags_select)) {
                                 $tag_id_select = intval($row['tag_id']);
                                 $tag_name_select = escapeHtml($row['tag_name']);

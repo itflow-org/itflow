@@ -100,7 +100,10 @@ if (isset($_POST['bulk_force_recurring_tickets'])) {
         foreach ($_POST['recurring_ticket_ids'] as $recurring_ticket_id) {
 
             $recurring_ticket_id = intval($recurring_ticket_id);
-            $sql = mysqli_query($mysqli, "SELECT * FROM recurring_tickets WHERE recurring_ticket_id = $recurring_ticket_id");
+            $sql = mysqli_query($mysqli, "SELECT recurring_ticket_asset_id, recurring_ticket_assigned_to, recurring_ticket_billable,
+                recurring_ticket_category, recurring_ticket_client_id, recurring_ticket_contact_id,
+                recurring_ticket_created_by, recurring_ticket_details, recurring_ticket_frequency,
+                recurring_ticket_next_run, recurring_ticket_priority, recurring_ticket_subject FROM recurring_tickets WHERE recurring_ticket_id = $recurring_ticket_id");
 
             if (mysqli_num_rows($sql) > 0) {
                 $row = mysqli_fetch_assoc($sql);
@@ -244,7 +247,10 @@ if (isset($_GET['force_recurring_ticket'])) {
 
     $recurring_ticket_id = intval($_GET['force_recurring_ticket']);
 
-    $sql = mysqli_query($mysqli, "SELECT * FROM recurring_tickets WHERE recurring_ticket_id = $recurring_ticket_id");
+    $sql = mysqli_query($mysqli, "SELECT recurring_ticket_asset_id, recurring_ticket_assigned_to, recurring_ticket_billable,
+        recurring_ticket_category, recurring_ticket_client_id, recurring_ticket_contact_id,
+        recurring_ticket_created_by, recurring_ticket_details, recurring_ticket_frequency,
+        recurring_ticket_next_run, recurring_ticket_priority, recurring_ticket_subject FROM recurring_tickets WHERE recurring_ticket_id = $recurring_ticket_id");
 
     if (mysqli_num_rows($sql) > 0) {
         $row = mysqli_fetch_assoc($sql);
@@ -389,7 +395,7 @@ if (isset($_GET['delete_recurring_ticket'])) {
     $recurring_ticket_id = intval($_GET['delete_recurring_ticket']);
 
     // Get Scheduled Ticket Subject Ticket Prefix, Number and Client ID for logging and alert message
-    $sql = mysqli_query($mysqli, "SELECT * FROM recurring_tickets WHERE recurring_ticket_id = $recurring_ticket_id");
+    $sql = mysqli_query($mysqli, "SELECT recurring_ticket_client_id, recurring_ticket_frequency, recurring_ticket_subject FROM recurring_tickets WHERE recurring_ticket_id = $recurring_ticket_id");
     $row = mysqli_fetch_assoc($sql);
     $subject = escapeSql($row['recurring_ticket_subject']);
     $frequency = escapeSql($row['recurring_ticket_frequency']);
@@ -424,7 +430,7 @@ if (isset($_POST['bulk_delete_recurring_tickets'])) {
             $recurring_ticket_id = intval($recurring_ticket_id);
 
             // Get Scheduled Ticket Subject Ticket Prefix, Number and Client ID for logging and alert message
-            $sql = mysqli_query($mysqli, "SELECT * FROM recurring_tickets WHERE recurring_ticket_id = $recurring_ticket_id");
+            $sql = mysqli_query($mysqli, "SELECT recurring_ticket_client_id, recurring_ticket_frequency, recurring_ticket_subject FROM recurring_tickets WHERE recurring_ticket_id = $recurring_ticket_id");
             $row = mysqli_fetch_assoc($sql);
             $subject = escapeSql($row['recurring_ticket_subject']);
             $frequency = escapeSql($row['recurring_ticket_frequency']);

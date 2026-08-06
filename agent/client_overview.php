@@ -4,7 +4,7 @@ require_once "includes/inc_all_client.php";
 
 $sql_recent_activities = mysqli_query(
     $mysqli,
-    "SELECT * FROM logs
+    "SELECT log_created_at, log_description FROM logs
     WHERE log_client_id = $client_id
     ORDER BY log_created_at DESC
     LIMIT 5"
@@ -63,7 +63,8 @@ $sql_recent_credentials = mysqli_query(
 
 $sql_shared_items = mysqli_query(
     $mysqli,
-    "SELECT * FROM shared_items
+    "SELECT item_active, item_created_at, item_expire_at, item_id, item_key, item_note, item_recipient,
+        item_related_id, item_type, item_view_limit, item_views FROM shared_items
     WHERE item_client_id = $client_id
         AND item_active = 1
     ORDER BY item_created_at ASC

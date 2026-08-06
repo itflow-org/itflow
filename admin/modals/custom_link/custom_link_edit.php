@@ -4,7 +4,8 @@ require_once '../../includes/modal_header.php';
 
 $custom_link_id = intval($_GET['id']);
 
-$sql = mysqli_query($mysqli, "SELECT * FROM custom_links WHERE custom_link_id = $custom_link_id LIMIT 1");
+$sql = mysqli_query($mysqli, "SELECT custom_link_icon, custom_link_location, custom_link_name, custom_link_new_tab,
+    custom_link_order, custom_link_uri FROM custom_links WHERE custom_link_id = $custom_link_id LIMIT 1");
 $row = mysqli_fetch_assoc($sql);
 $custom_link_name = escapeHtml($row['custom_link_name']);
 $custom_link_uri = escapeHtml($row['custom_link_uri']);

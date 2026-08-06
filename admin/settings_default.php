@@ -59,7 +59,7 @@ $net_terms_array = array (
                         <option value="0">- None -</option>
                         <?php
 
-                        $sql = mysqli_query($mysqli, "SELECT * FROM calendars ORDER BY calendar_name ASC");
+                        $sql = mysqli_query($mysqli, "SELECT calendar_id, calendar_name FROM calendars ORDER BY calendar_name ASC");
                         while ($row = mysqli_fetch_assoc($sql)) {
                             $calendar_id = intval($row['calendar_id']);
                             $calendar_name = escapeHtml($row['calendar_name']); ?>
@@ -176,7 +176,7 @@ $net_terms_array = array (
                         <option value="">- None -</option>
                         <?php
 
-                        $sql = mysqli_query($mysqli, "SELECT * FROM categories WHERE category_type = 'Payment Method' ORDER BY category_name ASC");
+                        $sql = mysqli_query($mysqli, "SELECT category_name FROM categories WHERE category_type = 'Payment Method' ORDER BY category_name ASC");
                         while ($row = mysqli_fetch_assoc($sql)) {
                             $payment_method = escapeHtml($row['category_name']); ?>
                             <option <?php if ($config_default_payment_method == $payment_method) {
@@ -198,7 +198,7 @@ $net_terms_array = array (
                         <option value="">- None -</option>
                         <?php
 
-                        $sql = mysqli_query($mysqli, "SELECT * FROM categories WHERE category_type = 'Payment Method' ORDER BY category_name ASC");
+                        $sql = mysqli_query($mysqli, "SELECT category_name FROM categories WHERE category_type = 'Payment Method' ORDER BY category_name ASC");
                         while ($row = mysqli_fetch_assoc($sql)) {
                             $payment_method = escapeHtml($row['category_name']); ?>
                             <option <?php if ($config_default_expense_payment_method == $payment_method) {

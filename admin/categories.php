@@ -15,7 +15,7 @@ if (isset($_GET['category'])) {
 
 $sql = mysqli_query(
     $mysqli,
-    "SELECT SQL_CALC_FOUND_ROWS * FROM categories
+    "SELECT SQL_CALC_FOUND_ROWS category_color, category_description, category_id, category_name FROM categories
     WHERE category_name LIKE '%$q%'
     AND category_type = '$category'
     AND category_$archive_query

@@ -414,7 +414,8 @@ if (isset($_POST['add_telemetry'])) {
 
         $comments = escapeSql($_POST['comments']);
 
-        $sql = mysqli_query($mysqli,"SELECT * FROM companies WHERE company_id = 1");
+        $sql = mysqli_query($mysqli,"SELECT company_city, company_country, company_currency, company_name, company_state,
+            company_website FROM companies WHERE company_id = 1");
         $row = mysqli_fetch_assoc($sql);
 
         $company_name = $row['company_name'];

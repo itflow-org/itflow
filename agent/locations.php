@@ -306,7 +306,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 
                         $location_tag_name_display_array = array();
                         $location_tag_id_array = array();
-                        $sql_location_tags = mysqli_query($mysqli, "SELECT * FROM location_tags LEFT JOIN tags ON location_tags.tag_id = tags.tag_id WHERE location_tags.location_id = $location_id ORDER BY tag_name ASC");
+                        $sql_location_tags = mysqli_query($mysqli, "SELECT tag_color, tag_icon, location_tags.tag_id, tag_name FROM location_tags LEFT JOIN tags ON location_tags.tag_id = tags.tag_id WHERE location_tags.location_id = $location_id ORDER BY tag_name ASC");
                         while ($row = mysqli_fetch_assoc($sql_location_tags)) {
 
                             $location_tag_id = intval($row['tag_id']);

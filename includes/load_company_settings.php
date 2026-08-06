@@ -1,5 +1,5 @@
 <?php
-$sql = mysqli_query($mysqli, "SELECT * FROM companies, settings WHERE settings.company_id = companies.company_id AND companies.company_id = 1");
+$sql = mysqli_query($mysqli, "SELECT company_country, company_currency, company_locale, company_name FROM companies, settings WHERE settings.company_id = companies.company_id AND companies.company_id = 1");
 $row = mysqli_fetch_assoc($sql);
 
 $session_company_name = $row['company_name'];

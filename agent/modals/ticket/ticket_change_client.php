@@ -6,7 +6,7 @@ enforceUserPermission('module_support', 2);
 
 $ticket_id = intval($_GET['ticket_id']);
 
-$sql = mysqli_query($mysqli, "SELECT * FROM tickets WHERE ticket_id = $ticket_id LIMIT 1");
+$sql = mysqli_query($mysqli, "SELECT ticket_client_id, ticket_number, ticket_prefix FROM tickets WHERE ticket_id = $ticket_id LIMIT 1");
 
 $row = mysqli_fetch_assoc($sql);
 $ticket_prefix = escapeHtml($row['ticket_prefix']);

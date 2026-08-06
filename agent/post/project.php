@@ -74,7 +74,7 @@ if (isset($_POST['add_project'])) {
 
             // Task Templates for Ticket template and add the to the ticket
             $sql_task_templates = mysqli_query($mysqli,
-                "SELECT * FROM task_templates WHERE task_template_ticket_template_id = $ticket_template_id");
+                "SELECT task_template_id, task_template_name, task_template_order FROM task_templates WHERE task_template_ticket_template_id = $ticket_template_id");
             $task_template_count = mysqli_num_rows($sql_task_templates);
 
             while ($row = mysqli_fetch_assoc($sql_task_templates)) {

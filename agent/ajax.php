@@ -239,7 +239,7 @@ if (isset($_GET['share_generate_link'])) {
         $url = "https://$config_base_url/guest/guest_view_item.php?id=$share_id&key=$item_key";
     }
 
-    $sql = mysqli_query($mysqli,"SELECT * FROM companies WHERE company_id = 1");
+    $sql = mysqli_query($mysqli,"SELECT company_name, company_phone, company_phone_country_code FROM companies WHERE company_id = 1");
     $row = mysqli_fetch_assoc($sql);
     $company_name = escapeSql($row['company_name']);
     $company_phone = escapeSql(formatPhoneNumber($row['company_phone'], $row['company_phone_country_code']));
@@ -837,7 +837,7 @@ if (isset($_GET['ai_reword'])) {
 
     header('Content-Type: application/json');
 
-    $sql = mysqli_query($mysqli, "SELECT * FROM ai_models LEFT JOIN ai_providers ON ai_model_ai_provider_id = ai_provider_id WHERE ai_model_use_case = 'General' LIMIT 1");
+    $sql = mysqli_query($mysqli, "SELECT ai_model_name, ai_model_prompt, ai_provider_api_key, ai_provider_api_url FROM ai_models LEFT JOIN ai_providers ON ai_model_ai_provider_id = ai_provider_id WHERE ai_model_use_case = 'General' LIMIT 1");
 
     $row = mysqli_fetch_assoc($sql);
     $model_name = $row['ai_model_name'];
@@ -908,7 +908,7 @@ if (isset($_GET['ai_create_document_template'])) {
 
     header('Content-Type: text/html; charset=UTF-8');
 
-    $sql = mysqli_query($mysqli, "SELECT * FROM ai_models LEFT JOIN ai_providers ON ai_model_ai_provider_id = ai_provider_id WHERE ai_model_use_case = 'General' LIMIT 1");
+    $sql = mysqli_query($mysqli, "SELECT ai_model_name, ai_provider_api_key, ai_provider_api_url FROM ai_models LEFT JOIN ai_providers ON ai_model_ai_provider_id = ai_provider_id WHERE ai_model_use_case = 'General' LIMIT 1");
 
     $row = mysqli_fetch_assoc($sql);
     $model_name = $row['ai_model_name'];
@@ -966,7 +966,7 @@ if (isset($_GET['ai_ticket_summary'])) {
 
     header('Content-Type: text/html; charset=UTF-8');
 
-    $sql = mysqli_query($mysqli, "SELECT * FROM ai_models LEFT JOIN ai_providers ON ai_model_ai_provider_id = ai_provider_id WHERE ai_model_use_case = 'General' LIMIT 1");
+    $sql = mysqli_query($mysqli, "SELECT ai_model_name, ai_provider_api_key, ai_provider_api_url FROM ai_models LEFT JOIN ai_providers ON ai_model_ai_provider_id = ai_provider_id WHERE ai_model_use_case = 'General' LIMIT 1");
 
     $row = mysqli_fetch_assoc($sql);
     $model_name = $row['ai_model_name'];

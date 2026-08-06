@@ -6,7 +6,8 @@ enforceUserPermission('module_sales');
 
 $invoice_id = intval($_GET['invoice_id']);
 
-$sql = mysqli_query($mysqli, "SELECT * FROM invoices WHERE invoice_id = $invoice_id LIMIT 1");
+$sql = mysqli_query($mysqli, "SELECT invoice_amount, invoice_client_id, invoice_currency_code, invoice_number, invoice_prefix,
+    invoice_status FROM invoices WHERE invoice_id = $invoice_id LIMIT 1");
 $row = mysqli_fetch_assoc($sql);
 $invoice_prefix = escapeHtml($row['invoice_prefix']);
 $invoice_number = escapeHtml($row['invoice_number']);

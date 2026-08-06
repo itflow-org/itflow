@@ -54,7 +54,11 @@ class StaticTokenProvider implements OAuthTokenProvider {
 /** =======================================================================
  *  Load settings
  * ======================================================================= */
-$sql_settings = mysqli_query($mysqli, "SELECT * FROM settings WHERE company_id = 1");
+$sql_settings = mysqli_query($mysqli, "SELECT config_enable_cron, config_mail_oauth_access_token,
+    config_mail_oauth_access_token_expires_at, config_mail_oauth_client_id,
+    config_mail_oauth_client_secret, config_mail_oauth_refresh_token,
+    config_mail_oauth_tenant_id, config_smtp_encryption, config_smtp_host,
+    config_smtp_password, config_smtp_port, config_smtp_provider, config_smtp_username FROM settings WHERE company_id = 1");
 $row = mysqli_fetch_assoc($sql_settings);
 
 $config_enable_cron      = intval($row['config_enable_cron']);

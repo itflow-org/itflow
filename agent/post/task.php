@@ -43,7 +43,7 @@ if (isset($_POST['edit_ticket_task'])) {
     $task_completion_estimate = intval($_POST['completion_estimate']);
 
     // Get Client ID
-    $sql = mysqli_query($mysqli, "SELECT * FROM tasks LEFT JOIN tickets ON ticket_id = task_ticket_id WHERE task_id = $task_id");
+    $sql = mysqli_query($mysqli, "SELECT ticket_client_id FROM tasks LEFT JOIN tickets ON ticket_id = task_ticket_id WHERE task_id = $task_id");
     $row = mysqli_fetch_assoc($sql);
     $client_id = intval($row['ticket_client_id']);
     enforceClientAccess();
@@ -88,7 +88,7 @@ if (isset($_GET['delete_task'])) {
     $task_id = intval($_GET['delete_task']);
 
     // Get Client ID, task name from tasks and tickets using the task_id
-    $sql = mysqli_query($mysqli, "SELECT * FROM tasks LEFT JOIN tickets ON ticket_id = task_ticket_id WHERE task_id = $task_id");
+    $sql = mysqli_query($mysqli, "SELECT task_name, ticket_client_id FROM tasks LEFT JOIN tickets ON ticket_id = task_ticket_id WHERE task_id = $task_id");
     $row = mysqli_fetch_assoc($sql);
     $client_id = intval($row['ticket_client_id']);
     enforceClientAccess();
@@ -113,7 +113,7 @@ if (isset($_GET['complete_task'])) {
     $task_id = intval($_GET['complete_task']);
 
     // Get Client ID
-    $sql = mysqli_query($mysqli, "SELECT * FROM tasks LEFT JOIN tickets ON ticket_id = task_ticket_id WHERE task_id = $task_id");
+    $sql = mysqli_query($mysqli, "SELECT task_completion_estimate, task_name, ticket_client_id, ticket_id FROM tasks LEFT JOIN tickets ON ticket_id = task_ticket_id WHERE task_id = $task_id");
     $row = mysqli_fetch_assoc($sql);
     $client_id = intval($row['ticket_client_id']);
     enforceClientAccess();
@@ -148,7 +148,7 @@ if (isset($_GET['undo_complete_task'])) {
     $task_id = intval($_GET['undo_complete_task']);
 
     // Get Client ID
-    $sql = mysqli_query($mysqli, "SELECT * FROM tasks LEFT JOIN tickets ON ticket_id = task_ticket_id WHERE task_id = $task_id");
+    $sql = mysqli_query($mysqli, "SELECT task_name, ticket_client_id, ticket_id FROM tasks LEFT JOIN tickets ON ticket_id = task_ticket_id WHERE task_id = $task_id");
     $row = mysqli_fetch_assoc($sql);
     $client_id = intval($row['ticket_client_id']);
     enforceClientAccess();
@@ -192,7 +192,8 @@ if (isset($_POST['add_ticket_task_approver'])) {
 
     // Task/Ticket Info
     $tt_row = mysqli_fetch_assoc(mysqli_query($mysqli, "
-        SELECT * FROM tasks
+        SELECT task_name, task_ticket_id, ticket_client_id, ticket_contact_id, ticket_number,
+            ticket_prefix, ticket_status_name, ticket_subject, ticket_url_key FROM tasks
         LEFT JOIN tickets ON ticket_id = task_ticket_id
         LEFT JOIN ticket_statuses ON ticket_status = ticket_status_id
         WHERE task_id = $task_id LIMIT 1
@@ -354,7 +355,8 @@ if (isset($_GET['approve_ticket_task'])) {
     $task_id = intval($_GET['approve_ticket_task']);
     $approval_id = intval($_GET['approval_id']);
 
-    $approval_row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT * FROM task_approvals LEFT JOIN tasks on task_id = approval_task_id WHERE approval_id = $approval_id AND approval_task_id = $task_id AND approval_scope = 'internal'"));
+    $approval_row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT approval_created_by, approval_required_user_id, approval_scope, approval_type, task_name,
+        task_ticket_id FROM task_approvals LEFT JOIN tasks on task_id = approval_task_id WHERE approval_id = $approval_id AND approval_task_id = $task_id AND approval_scope = 'internal'"));
 
     $task_name = escapeHtml($approval_row['task_name']);
     $scope = escapeHtml($approval_row['approval_scope']);

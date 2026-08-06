@@ -4,7 +4,7 @@ require_once '../../../includes/modal_header.php';
 
 $contact_id = intval($_GET['id']);
 
-$sql = mysqli_query($mysqli, "SELECT * FROM contacts
+$sql = mysqli_query($mysqli, "SELECT contact_client_id, contact_name FROM contacts
     WHERE contact_id = $contact_id
     LIMIT 1
 ");

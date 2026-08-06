@@ -100,7 +100,7 @@ function addTasksFromTicketTemplate($ticket_id, $ticket_template_id) {
         return 0;
     }
 
-    $sql_task_templates = mysqli_query($mysqli, "SELECT * FROM task_templates WHERE task_template_ticket_template_id = $ticket_template_id ORDER BY task_template_order ASC");
+    $sql_task_templates = mysqli_query($mysqli, "SELECT task_template_completion_estimate, task_template_name, task_template_order FROM task_templates WHERE task_template_ticket_template_id = $ticket_template_id ORDER BY task_template_order ASC");
 
     $tasks_added = 0;
 
@@ -270,7 +270,7 @@ function getFieldById($table, $id, $field) {
 function displayFolderOptions($parent_folder_id, $client_id, $indent = 0) {
     global $mysqli;
 
-    $sql_folders = mysqli_query($mysqli, "SELECT * FROM folders WHERE parent_folder = $parent_folder_id AND folder_client_id = $client_id ORDER BY folder_name ASC");
+    $sql_folders = mysqli_query($mysqli, "SELECT folder_id, folder_name FROM folders WHERE parent_folder = $parent_folder_id AND folder_client_id = $client_id ORDER BY folder_name ASC");
     while ($row = mysqli_fetch_assoc($sql_folders)) {
         $folder_id = intval($row['folder_id']);
         $folder_name = escapeHtml($row['folder_name']);

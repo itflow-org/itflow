@@ -6,7 +6,12 @@ enforceUserPermission('module_support', 2);
 
 $asset_id = intval($_GET['id']);
 
-$sql = mysqli_query($mysqli, "SELECT * FROM assets
+$sql = mysqli_query($mysqli, "SELECT asset_archived_at, asset_client_id, asset_contact_id, asset_created_at, asset_description,
+    asset_id, asset_install_date, asset_location_id, asset_make, asset_model, asset_name,
+    asset_notes, asset_os, asset_photo, asset_physical_location, asset_purchase_date,
+    asset_purchase_reference, asset_serial, asset_status, asset_type, asset_uri, asset_uri_2,
+    asset_vendor_id, asset_warranty_expire, interface_ip, interface_ipv6, interface_mac,
+    interface_nat_ip, interface_network_id FROM assets
     LEFT JOIN asset_interfaces ON interface_asset_id = asset_id AND interface_primary = 1
     WHERE asset_id = $asset_id LIMIT 1"
 );

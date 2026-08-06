@@ -242,7 +242,7 @@ if (isset($_POST['bulk_assign_location_tags'])) {
                 foreach($_POST['bulk_tags'] as $tag) {
                     $tag = intval($tag);
 
-                    $sql = mysqli_query($mysqli,"SELECT * FROM location_tags WHERE location_id = $location_id AND tag_id = $tag");
+                    $sql = mysqli_query($mysqli,"SELECT 1 FROM location_tags WHERE location_id = $location_id AND tag_id = $tag");
                     if (mysqli_num_rows($sql) == 0) {
                         mysqli_query($mysqli, "INSERT INTO location_tags SET location_id = $location_id, tag_id = $tag");
                     }

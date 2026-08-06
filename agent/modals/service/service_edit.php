@@ -6,7 +6,9 @@ enforceUserPermission('module_support', 2);
 
 $service_id = intval($_GET['id']);
 
-$sql = mysqli_query($mysqli, "SELECT * FROM services WHERE service_id = $service_id LIMIT 1");
+$sql = mysqli_query($mysqli, "SELECT service_backup, service_category, service_client_id, service_created_at,
+    service_description, service_importance, service_name, service_notes, service_review_due,
+    service_updated_at FROM services WHERE service_id = $service_id LIMIT 1");
 
 $row = mysqli_fetch_assoc($sql);
 $service_name = escapeHtml($row['service_name']);

@@ -37,7 +37,7 @@ $config_ticket_from_name = escapeSql($config_ticket_from_name);
 $config_ticket_email_parse_unknown_senders = intval($row['config_ticket_email_parse_unknown_senders']);
 
 // Get company name & phone & timezone
-$sql = mysqli_query($mysqli, "SELECT * FROM companies, settings WHERE companies.company_id = settings.company_id AND companies.company_id = 1");
+$sql = mysqli_query($mysqli, "SELECT company_name, company_phone, company_phone_country_code FROM companies, settings WHERE companies.company_id = settings.company_id AND companies.company_id = 1");
 $row = mysqli_fetch_assoc($sql);
 $company_name = escapeSql($row['company_name']);
 $company_phone = escapeSql(formatPhoneNumber($row['company_phone'], $row['company_phone_country_code']));
@@ -764,7 +764,7 @@ foreach ($messages as $message) {
             } else {
                 // Else: check if sender domain is registered
                 $from_domain_esc = mysqli_real_escape_string($mysqli, $from_domain);
-                $domain_sql = mysqli_query($mysqli, "SELECT * FROM domains WHERE domain_name = '$from_domain_esc' AND domain_archived_at IS NULL LIMIT 1");
+                $domain_sql = mysqli_query($mysqli, "SELECT domain_client_id, domain_name FROM domains WHERE domain_name = '$from_domain_esc' AND domain_archived_at IS NULL LIMIT 1");
                 $domain_row = mysqli_fetch_assoc($domain_sql);
 
                 if ($domain_row && $from_domain == $domain_row['domain_name']) {
@@ -816,7 +816,7 @@ foreach ($messages as $message) {
         // 4. A known domain?
         if (!$email_processed) {
             $from_domain_esc = mysqli_real_escape_string($mysqli, $from_domain);
-            $domain_sql = mysqli_query($mysqli, "SELECT * FROM domains WHERE domain_name = '$from_domain_esc' AND domain_archived_at IS NULL LIMIT 1");
+            $domain_sql = mysqli_query($mysqli, "SELECT domain_client_id, domain_name FROM domains WHERE domain_name = '$from_domain_esc' AND domain_archived_at IS NULL LIMIT 1");
             $rowd = mysqli_fetch_assoc($domain_sql);
 
             if ($rowd && $from_domain == $rowd['domain_name']) {

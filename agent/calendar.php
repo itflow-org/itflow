@@ -38,7 +38,7 @@ if (isset($_GET['calendar_id'])) {
             </div>
             <div class="card-body">
                 <?php
-                $sql = mysqli_query($mysqli, "SELECT * FROM calendars");
+                $sql = mysqli_query($mysqli, "SELECT calendar_color, calendar_feed_key, calendar_id, calendar_name FROM calendars");
                 while ($row = mysqli_fetch_assoc($sql)) {
                     $calendar_id = intval($row['calendar_id']);
                     $calendar_name = escapeHtml($row['calendar_name']);

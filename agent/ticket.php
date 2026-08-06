@@ -295,7 +295,7 @@ if (isset($_GET['ticket_id'])) {
         }
 
         // Get Watchers
-        $sql_ticket_watchers = mysqli_query($mysqli, "SELECT * FROM ticket_watchers WHERE watcher_ticket_id = $ticket_id ORDER BY watcher_email DESC");
+        $sql_ticket_watchers = mysqli_query($mysqli, "SELECT watcher_email, watcher_id FROM ticket_watchers WHERE watcher_ticket_id = $ticket_id ORDER BY watcher_email DESC");
         $watcher_count = mysqli_num_rows($sql_ticket_watchers);
 
         // Get Additional Assets
@@ -306,7 +306,7 @@ if (isset($_GET['ticket_id'])) {
         );
 
         // Get Tasks
-        $sql_tasks = mysqli_query($mysqli, "SELECT * FROM tasks WHERE task_ticket_id = $ticket_id ORDER BY task_order ASC, task_id ASC");
+        $sql_tasks = mysqli_query($mysqli, "SELECT task_completed_at, task_completion_estimate, task_id, task_name FROM tasks WHERE task_ticket_id = $ticket_id ORDER BY task_order ASC, task_id ASC");
         $task_count = mysqli_num_rows($sql_tasks);
 
         $completed_task_count = intval(mysqli_fetch_row(mysqli_query(

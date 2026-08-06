@@ -14,7 +14,15 @@ if (isset($_GET['client_id'])) {
 if (isset($_GET['asset_id'])) {
     $asset_id = intval($_GET['asset_id']);
 
-    $sql = mysqli_query($mysqli, "SELECT * FROM assets
+    $sql = mysqli_query($mysqli, "SELECT asset_contact_id, asset_created_at, asset_description, asset_favorite, asset_id,
+        asset_install_date, asset_location_id, asset_make, asset_model, asset_name, asset_notes,
+        asset_os, asset_photo, asset_physical_location, asset_purchase_date,
+        asset_purchase_reference, asset_serial, asset_status, asset_type, asset_uri, asset_uri_2,
+        asset_uri_client, asset_vendor_id, asset_warranty_expire, client_id, client_name,
+        contact_archived_at, contact_email, contact_extension, contact_mobile,
+        contact_mobile_country_code, contact_name, contact_phone, contact_phone_country_code,
+        interface_ip, interface_ipv6, interface_mac, interface_nat_ip, interface_network_id,
+        location_archived_at, location_name FROM assets
         LEFT JOIN clients ON client_id = asset_client_id
         LEFT JOIN contacts ON asset_contact_id = contact_id
         LEFT JOIN locations ON asset_location_id = location_id
@@ -125,7 +133,7 @@ if (isset($_GET['asset_id'])) {
         // Tags - many to many relationship
         $asset_tag_name_display_array = array();
         $asset_tag_id_array = array();
-        $sql_asset_tags = mysqli_query($mysqli, "SELECT * FROM asset_tags LEFT JOIN tags ON asset_tag_tag_id = tag_id WHERE asset_tag_asset_id = $asset_id ORDER BY tag_name ASC");
+        $sql_asset_tags = mysqli_query($mysqli, "SELECT tag_color, tag_icon, tag_id, tag_name FROM asset_tags LEFT JOIN tags ON asset_tag_tag_id = tag_id WHERE asset_tag_asset_id = $asset_id ORDER BY tag_name ASC");
         while ($row = mysqli_fetch_assoc($sql_asset_tags)) {
 
             $asset_tag_id = intval($row['tag_id']);
@@ -186,7 +194,7 @@ if (isset($_GET['asset_id'])) {
         $interface_count = mysqli_num_rows($sql_related_interfaces);
 
         // Related Files
-        $sql_related_files = mysqli_query($mysqli, "SELECT * FROM asset_files
+        $sql_related_files = mysqli_query($mysqli, "SELECT file_created_at, file_description, file_ext, files.file_id, file_name FROM asset_files
             LEFT JOIN files ON asset_files.file_id = files.file_id
             WHERE asset_files.asset_id = $asset_id
             AND file_archived_at IS NULL
@@ -692,7 +700,7 @@ if (isset($_GET['asset_id'])) {
                                     // Tags
                                     $credential_tag_name_display_array = array();
                                     $credential_tag_id_array = array();
-                                    $sql_credential_tags = mysqli_query($mysqli, "SELECT * FROM credential_tags LEFT JOIN tags ON credential_tags.tag_id = tags.tag_id WHERE credential_id = $credential_id ORDER BY tag_name ASC");
+                                    $sql_credential_tags = mysqli_query($mysqli, "SELECT tag_color, tag_icon, credential_tags.tag_id, tag_name FROM credential_tags LEFT JOIN tags ON credential_tags.tag_id = tags.tag_id WHERE credential_id = $credential_id ORDER BY tag_name ASC");
                                     while ($row = mysqli_fetch_assoc($sql_credential_tags)) {
 
                                         $credential_tag_id = intval($row['tag_id']);

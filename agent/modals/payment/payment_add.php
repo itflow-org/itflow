@@ -6,7 +6,8 @@ $invoice_id = intval($_GET['id']);
 
 $sql = mysqli_query(
     $mysqli,
-    "SELECT * FROM invoices
+    "SELECT client_currency_code, client_id, client_name, contact_email, contact_name, invoice_amount,
+        invoice_id, invoice_number, invoice_prefix FROM invoices
     LEFT JOIN clients ON invoice_client_id = client_id
     LEFT JOIN contacts ON client_id = contact_client_id AND contact_primary = 1
     WHERE invoice_id = $invoice_id
@@ -136,7 +137,7 @@ ob_start();
                     <option value="">- Method of Payment -</option>
                     <?php
 
-                    $sql = mysqli_query($mysqli, "SELECT * FROM payment_methods ORDER BY payment_method_name ASC");
+                    $sql = mysqli_query($mysqli, "SELECT payment_method_name FROM payment_methods ORDER BY payment_method_name ASC");
                     while ($row = mysqli_fetch_assoc($sql)) {
                         $payment_method_name = escapeHtml($row['payment_method_name']);
                     ?>

@@ -1171,7 +1171,7 @@ if (isset($_POST['bulk_edit_ticket_priority'])) {
         foreach ($_POST['ticket_ids'] as $ticket_id) {
             $ticket_id = intval($ticket_id);
 
-            $sql = mysqli_query($mysqli, "SELECT * FROM tickets WHERE ticket_id = $ticket_id");
+            $sql = mysqli_query($mysqli, "SELECT ticket_client_id, ticket_number, ticket_prefix, ticket_priority, ticket_subject FROM tickets WHERE ticket_id = $ticket_id");
             $row = mysqli_fetch_assoc($sql);
 
             $ticket_prefix = escapeSql($row['ticket_prefix']);
@@ -1287,7 +1287,8 @@ if (isset($_POST['bulk_merge_tickets'])) {
 
             if ($ticket_id !== $merge_into_ticket_id) {
 
-                $sql = mysqli_query($mysqli, "SELECT * FROM tickets WHERE ticket_id = $ticket_id");
+                $sql = mysqli_query($mysqli, "SELECT ticket_client_id, ticket_details, ticket_first_response_at, ticket_number, ticket_prefix,
+                    ticket_priority, ticket_subject FROM tickets WHERE ticket_id = $ticket_id");
                 $row = mysqli_fetch_assoc($sql);
 
                 $ticket_prefix = escapeSql($row['ticket_prefix']);
@@ -1369,7 +1370,8 @@ if (isset($_POST['bulk_resolve_tickets'])) {
                 // Count the Ticket Loop
                 $ticket_count++;
 
-                $sql = mysqli_query($mysqli, "SELECT * FROM tickets WHERE ticket_id = $ticket_id");
+                $sql = mysqli_query($mysqli, "SELECT ticket_client_id, ticket_first_response_at, ticket_number, ticket_prefix, ticket_priority,
+                    ticket_subject, ticket_url_key FROM tickets WHERE ticket_id = $ticket_id");
                 $row = mysqli_fetch_assoc($sql);
 
                 $ticket_prefix = escapeSql($row['ticket_prefix']);
@@ -1509,7 +1511,8 @@ if (isset($_POST['bulk_ticket_reply'])) {
         foreach ($_POST['ticket_ids'] as $ticket_id) {
             $ticket_id = intval($ticket_id);
 
-            $sql = mysqli_query($mysqli, "SELECT * FROM tickets WHERE ticket_id = $ticket_id");
+            $sql = mysqli_query($mysqli, "SELECT ticket_client_id, ticket_first_response_at, ticket_number, ticket_prefix, ticket_priority,
+                ticket_subject, ticket_url_key FROM tickets WHERE ticket_id = $ticket_id");
             $row = mysqli_fetch_assoc($sql);
 
             $ticket_prefix = escapeSql($row['ticket_prefix']);
@@ -1684,7 +1687,7 @@ if (isset($_POST['bulk_add_ticket_project'])) {
         foreach ($_POST['ticket_ids'] as $ticket_id) {
             $ticket_id = intval($ticket_id);
 
-            $sql = mysqli_query($mysqli, "SELECT * FROM tickets WHERE ticket_id = $ticket_id");
+            $sql = mysqli_query($mysqli, "SELECT ticket_client_id, ticket_number, ticket_prefix, ticket_priority, ticket_subject FROM tickets WHERE ticket_id = $ticket_id");
             $row = mysqli_fetch_assoc($sql);
 
             $ticket_prefix = escapeSql($row['ticket_prefix']);
@@ -1737,7 +1740,7 @@ if (isset($_POST['bulk_add_asset_ticket'])) {
 
     // Check to see if adding a ticket by template
     if($ticket_template_id) {
-        $sql = mysqli_query($mysqli, "SELECT * FROM ticket_templates WHERE ticket_template_id = $ticket_template_id");
+        $sql = mysqli_query($mysqli, "SELECT ticket_template_details, ticket_template_subject FROM ticket_templates WHERE ticket_template_id = $ticket_template_id");
         $row = mysqli_fetch_assoc($sql);
 
         // Override Template Subject
@@ -1756,7 +1759,7 @@ if (isset($_POST['bulk_add_asset_ticket'])) {
         foreach ($_POST['asset_ids'] as $asset_id) {
             $asset_id = intval($asset_id);
 
-            $sql = mysqli_query($mysqli, "SELECT * FROM assets WHERE asset_id = $asset_id");
+            $sql = mysqli_query($mysqli, "SELECT asset_client_id, asset_name FROM assets WHERE asset_id = $asset_id");
             $row = mysqli_fetch_assoc($sql);
 
             $asset_name = escapeSql($row['asset_name']);
@@ -2301,7 +2304,7 @@ if (isset($_GET['resolve_ticket'])) {
 
     $ticket_id = intval($_GET['resolve_ticket']);
 
-    $sql = mysqli_query($mysqli, "SELECT * FROM tickets WHERE ticket_id = $ticket_id");
+    $sql = mysqli_query($mysqli, "SELECT ticket_client_id, ticket_first_response_at, ticket_number, ticket_prefix FROM tickets WHERE ticket_id = $ticket_id");
     $row = mysqli_fetch_assoc($sql);
     $ticket_prefix = escapeSql($row['ticket_prefix']);
     $ticket_number = intval($row['ticket_number']);
@@ -2556,7 +2559,9 @@ if (isset($_POST['add_invoice_from_ticket'])) {
 
     $sql = mysqli_query(
         $mysqli,
-        "SELECT * FROM tickets
+        "SELECT asset_id, client_id, client_net_terms, contact_email, contact_id, contact_name,
+            location_name, ticket_category, ticket_closed_at, ticket_created_at, ticket_number,
+            ticket_prefix, ticket_subject, ticket_updated_at FROM tickets
         LEFT JOIN clients ON ticket_client_id = client_id
         LEFT JOIN contacts ON ticket_contact_id = contact_id
         LEFT JOIN assets ON ticket_asset_id = asset_id
@@ -2626,7 +2631,7 @@ if (isset($_POST['add_invoice_from_ticket'])) {
     $subtotal = $price * $qty;
 
     if ($tax_id > 0) {
-        $sql = mysqli_query($mysqli, "SELECT * FROM taxes WHERE tax_id = $tax_id");
+        $sql = mysqli_query($mysqli, "SELECT tax_percent FROM taxes WHERE tax_id = $tax_id");
         $row = mysqli_fetch_assoc($sql);
         $tax_percent = floatval($row['tax_percent']);
         $tax_amount = $subtotal * $tax_percent / 100;
@@ -2640,7 +2645,7 @@ if (isset($_POST['add_invoice_from_ticket'])) {
 
     //Update Invoice Balances
 
-    $sql = mysqli_query($mysqli, "SELECT * FROM invoices WHERE invoice_id = $invoice_id");
+    $sql = mysqli_query($mysqli, "SELECT invoice_amount FROM invoices WHERE invoice_id = $invoice_id");
     $row = mysqli_fetch_assoc($sql);
 
     $new_invoice_amount = floatval($row['invoice_amount']) + $total;
@@ -2682,7 +2687,7 @@ if (isset($_POST['add_quote_from_ticket'])) {
     $subtotal = $price * $qty;
     $tax_amount = 0;
     if ($tax_id > 0) {
-        $sql = mysqli_query($mysqli, "SELECT * FROM taxes WHERE tax_id = $tax_id");
+        $sql = mysqli_query($mysqli, "SELECT tax_percent FROM taxes WHERE tax_id = $tax_id");
         $row = mysqli_fetch_assoc($sql);
         $tax_percent = floatval($row['tax_percent']);
         $tax_amount = $subtotal * $tax_percent / 100;
@@ -3187,7 +3192,8 @@ if (isset($_GET['cancel_ticket_schedule'])) {
 
     //Send emails
 
-    $sql = mysqli_query($mysqli, "SELECT * FROM tickets
+    $sql = mysqli_query($mysqli, "SELECT client_name, contact_email, contact_name, ticket_client_id, ticket_details, ticket_number,
+        ticket_prefix, ticket_subject, user_email, user_name FROM tickets
         LEFT JOIN clients ON ticket_client_id = client_id
         LEFT JOIN contacts ON ticket_contact_id = contact_id
         LEFT JOIN locations on contact_location_id = location_id

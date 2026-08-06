@@ -53,7 +53,7 @@ if (isset($_GET['id']) && intval($_GET['id'])) {
         // Get Ticket Attachments (not associated with a specific reply)
         $sql_ticket_attachments = mysqli_query(
             $mysqli,
-            "SELECT * FROM ticket_attachments
+            "SELECT ticket_attachment_id, ticket_attachment_name FROM ticket_attachments
             WHERE ticket_attachment_reply_id IS NULL
             AND ticket_attachment_ticket_id = $ticket_id"
         );
@@ -297,7 +297,7 @@ if (isset($_GET['id']) && intval($_GET['id'])) {
             // Get attachments for this reply
             $sql_ticket_reply_attachments = mysqli_query(
                 $mysqli,
-                "SELECT * FROM ticket_attachments
+                "SELECT ticket_attachment_id, ticket_attachment_name FROM ticket_attachments
                         WHERE ticket_attachment_reply_id = $ticket_reply_id
                         AND ticket_attachment_ticket_id = $ticket_id"
             );

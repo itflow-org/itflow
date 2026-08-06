@@ -4,7 +4,7 @@ require_once '../../includes/modal_header.php';
 
 $model_id = intval($_GET['id']);
 
-$sql = mysqli_query($mysqli, "SELECT * FROM ai_models WHERE ai_model_id = $model_id LIMIT 1");
+$sql = mysqli_query($mysqli, "SELECT ai_model_ai_provider_id, ai_model_id, ai_model_name, ai_model_prompt, ai_model_use_case FROM ai_models WHERE ai_model_id = $model_id LIMIT 1");
 
 $row = mysqli_fetch_assoc($sql);
 $ai_model_ai_provider_id = intval($row['ai_model_ai_provider_id']);
@@ -38,7 +38,7 @@ ob_start();
                 <select class="form-control select2" name="provider" required>
                     <option value="">- Select an AI Provider -</option>
                     <?php
-                        $sql_ai_providers = mysqli_query($mysqli, "SELECT * FROM ai_providers");
+                        $sql_ai_providers = mysqli_query($mysqli, "SELECT ai_provider_id, ai_provider_name FROM ai_providers");
                         while ($row = mysqli_fetch_assoc($sql_ai_providers)) {
                             $ai_provider_id = intval($row['ai_provider_id']);
                             $ai_provider_name = escapeHtml($row['ai_provider_name']);

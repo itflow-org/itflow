@@ -75,7 +75,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                         $sql_role_user_count = mysqli_query($mysqli, "SELECT COUNT(user_id) FROM users WHERE user_role_id = $role_id AND user_archived_at IS NULL");
                         $role_user_count = mysqli_fetch_row($sql_role_user_count)[0];
 
-                        $sql_users = mysqli_query($mysqli, "SELECT * FROM users WHERE user_role_id = $role_id AND user_archived_at IS NULL");
+                        $sql_users = mysqli_query($mysqli, "SELECT user_name FROM users WHERE user_role_id = $role_id AND user_archived_at IS NULL");
                         // Initialize an empty array to hold user names
                         $user_names = [];
 

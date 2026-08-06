@@ -349,7 +349,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                             // Tags
                             $credential_tag_name_display_array = array();
                             $credential_tag_id_array = array();
-                            $sql_credential_tags = mysqli_query($mysqli, "SELECT * FROM credential_tags LEFT JOIN tags ON credential_tags.tag_id = tags.tag_id WHERE credential_id = $credential_id ORDER BY tag_name ASC");
+                            $sql_credential_tags = mysqli_query($mysqli, "SELECT tag_color, tag_icon, credential_tags.tag_id, tag_name FROM credential_tags LEFT JOIN tags ON credential_tags.tag_id = tags.tag_id WHERE credential_id = $credential_id ORDER BY tag_name ASC");
                             while ($row = mysqli_fetch_assoc($sql_credential_tags)) {
 
                                 $credential_tag_id = intval($row['tag_id']);
@@ -389,7 +389,8 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                             // Check if shared
                             $sql_shared = mysqli_query(
                                 $mysqli,
-                                "SELECT * FROM shared_items
+                                "SELECT item_active, item_created_at, item_expire_at, item_id, item_key, item_note, item_recipient,
+                                    item_related_id, item_type, item_view_limit, item_views FROM shared_items
                                 WHERE item_client_id = $client_id
                                 AND item_active = 1
                                 AND (COALESCE(item_view_limit, 0) = 0 OR item_views < item_view_limit)

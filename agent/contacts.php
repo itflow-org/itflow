@@ -444,7 +444,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                         // Tags
                         $contact_tag_name_display_array = array();
                         $contact_tag_id_array = array();
-                        $sql_contact_tags = mysqli_query($mysqli, "SELECT * FROM contact_tags LEFT JOIN tags ON contact_tags.tag_id = tags.tag_id WHERE contact_id = $contact_id ORDER BY tag_name ASC");
+                        $sql_contact_tags = mysqli_query($mysqli, "SELECT tag_color, tag_icon, contact_tags.tag_id, tag_name FROM contact_tags LEFT JOIN tags ON contact_tags.tag_id = tags.tag_id WHERE contact_id = $contact_id ORDER BY tag_name ASC");
                         while ($row = mysqli_fetch_assoc($sql_contact_tags)) {
 
                             $contact_tag_id = intval($row['tag_id']);

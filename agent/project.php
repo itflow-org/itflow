@@ -26,7 +26,9 @@ if (isset($_GET['project_id'])) {
 
     $sql_project = mysqli_query(
         $mysqli,
-        "SELECT * FROM projects
+        "SELECT client_id, client_name, project_archived_at, project_completed_at, project_created_at,
+            project_description, project_due, project_id, project_name, project_number, project_prefix,
+            project_updated_at, user_id, user_name FROM projects
         LEFT JOIN clients ON project_client_id = client_id
         LEFT JOIN users ON project_manager = user_id
         WHERE project_id = $project_id

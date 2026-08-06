@@ -4,7 +4,8 @@ require_once '../../includes/modal_header.php';
 
 $ticket_status_id = intval($_GET['id']);
 
-$sql = mysqli_query($mysqli, "SELECT * FROM ticket_statuses WHERE ticket_status_id = $ticket_status_id LIMIT 1");
+$sql = mysqli_query($mysqli, "SELECT ticket_status_active, ticket_status_color, ticket_status_name, ticket_status_order,
+    ticket_status_pauses_sla FROM ticket_statuses WHERE ticket_status_id = $ticket_status_id LIMIT 1");
 $row = mysqli_fetch_assoc($sql);
 $ticket_status_name = escapeHtml($row['ticket_status_name']);
 $ticket_status_color = escapeHtml($row['ticket_status_color']);

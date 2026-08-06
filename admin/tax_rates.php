@@ -8,7 +8,7 @@ require_once "includes/inc_all_admin.php";
 
 $sql = mysqli_query(
     $mysqli,
-    "SELECT * FROM taxes
+    "SELECT tax_id, tax_name, tax_percent FROM taxes
     WHERE tax_archived_at IS NULL
     ORDER BY $sort $order"
 );

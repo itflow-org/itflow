@@ -6,9 +6,9 @@ require_once '../../../includes/modal_header.php';
 $leads_filter = intval($_GET['lead'] ?? 0);
 
 // Selects
-$referral_sql = mysqli_query($mysqli, "SELECT * FROM categories WHERE category_type = 'Referral' AND category_archived_at IS NULL ORDER BY category_name ASC");
+$referral_sql = mysqli_query($mysqli, "SELECT category_name FROM categories WHERE category_type = 'Referral' AND category_archived_at IS NULL ORDER BY category_name ASC");
 
-$sql_tags_select = mysqli_query($mysqli, "SELECT * FROM tags WHERE tag_type = 1 ORDER BY tag_name ASC");
+$sql_tags_select = mysqli_query($mysqli, "SELECT tag_id, tag_name FROM tags WHERE tag_type = 1 ORDER BY tag_name ASC");
 
 $net_terms_array = array (
     '0'=>'On Receipt',

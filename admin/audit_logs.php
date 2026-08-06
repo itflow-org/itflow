@@ -108,7 +108,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                 <option value="">- All Users -</option>
 
                                 <?php
-                                $sql_users_filter = mysqli_query($mysqli, "SELECT * FROM users ORDER BY user_name ASC");
+                                $sql_users_filter = mysqli_query($mysqli, "SELECT user_id, user_name FROM users ORDER BY user_name ASC");
                                 while ($row = mysqli_fetch_assoc($sql_users_filter)) {
                                     $user_id = intval($row['user_id']);
                                     $user_name = escapeHtml($row['user_name']);

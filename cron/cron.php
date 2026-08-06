@@ -86,7 +86,7 @@ function cronJobClaim($mysqli, array $job): bool
         cron_job_interval_minutes = $default_interval,
         cron_job_daily_at = $default_daily_at");
 
-    $row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT * FROM cron_jobs WHERE cron_job_name = '$name' LIMIT 1"));
+    $row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT cron_job_daily_at, cron_job_enabled, cron_job_interval_minutes, cron_job_schedule FROM cron_jobs WHERE cron_job_name = '$name' LIMIT 1"));
 
     if (!$row) {
         return false;

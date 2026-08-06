@@ -18,7 +18,13 @@ if (isset($_GET['client_id'])) {
 
     $sql = mysqli_query(
         $mysqli,
-        "SELECT * FROM clients
+        "SELECT client_abbreviation, client_archived_at, client_created_at, client_currency_code,
+            client_lead, client_name, client_net_terms, client_notes, client_rate, client_referral,
+            client_tax_id_number, client_type, client_website, contact_email, contact_extension,
+            contact_id, contact_mobile, contact_mobile_country_code, contact_name, contact_phone,
+            contact_phone_country_code, contact_primary, contact_title, location_address,
+            location_city, location_country, location_id, location_name, location_phone,
+            location_phone_country_code, location_primary, location_state, location_zip FROM clients
         LEFT JOIN locations ON client_id = location_client_id AND location_primary = 1
         LEFT JOIN contacts ON client_id = contact_client_id AND contact_primary = 1
         WHERE client_id = $client_id"
@@ -75,7 +81,7 @@ if (isset($_GET['client_id'])) {
 
         $client_tag_name_display_array = array();
         $client_tag_id_array = array();
-        $sql_client_tags = mysqli_query($mysqli, "SELECT * FROM client_tags LEFT JOIN tags ON client_tags.tag_id = tags.tag_id WHERE client_id = $client_id ORDER BY tag_name ASC");
+        $sql_client_tags = mysqli_query($mysqli, "SELECT tag_color, tag_icon, client_tags.tag_id, tag_name FROM client_tags LEFT JOIN tags ON client_tags.tag_id = tags.tag_id WHERE client_id = $client_id ORDER BY tag_name ASC");
         while ($row = mysqli_fetch_assoc($sql_client_tags)) {
 
             $client_tag_id = intval($row['tag_id']);

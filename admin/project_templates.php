@@ -69,7 +69,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                     $project_template_created_at = escapeHtml($row['project_template_created_at']);
 
                     // Get Ticket Template Count
-                    $sql_ticket_templates = mysqli_query($mysqli, "SELECT * FROM ticket_templates, project_template_ticket_templates
+                    $sql_ticket_templates = mysqli_query($mysqli, "SELECT 1 FROM ticket_templates, project_template_ticket_templates
                         WHERE ticket_templates.ticket_template_id = project_template_ticket_templates.ticket_template_id
                         AND project_template_ticket_templates.project_template_id = $project_template_id
                         ORDER BY ticket_template_order ASC, ticket_template_name ASC");
@@ -77,7 +77,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 
                     // Get Tasks Template Count
                     $sql_task_templates = mysqli_query($mysqli,
-                        "SELECT * FROM ticket_templates, task_templates, project_template_ticket_templates
+                        "SELECT 1 FROM ticket_templates, task_templates, project_template_ticket_templates
                         WHERE ticket_templates.ticket_template_id = project_template_ticket_templates.ticket_template_id
                         AND project_template_ticket_templates.project_template_id = $project_template_id
                         AND ticket_templates.ticket_template_id = task_template_ticket_template_id

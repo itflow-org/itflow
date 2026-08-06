@@ -6,7 +6,9 @@ enforceUserPermission('module_financial', 2);
 
 $expense_id = intval($_GET['id']);
 
-$sql = mysqli_query($mysqli, "SELECT * FROM expenses
+$sql = mysqli_query($mysqli, "SELECT category_name, expense_account_id, expense_amount, expense_category_id, expense_client_id,
+    expense_created_at, expense_currency_code, expense_date, expense_description,
+    expense_receipt, expense_reference, expense_vendor_id, vendor_name FROM expenses
     LEFT JOIN vendors ON expense_vendor_id = vendor_id
     LEFT JOIN categories ON expense_category_id = category_id
     WHERE expense_id = $expense_id LIMIT 1"

@@ -6,7 +6,9 @@ $session_user_id = intval($_SESSION['user_id']);
 
 $sql = mysqli_query(
     $mysqli,
-    "SELECT * FROM users
+    "SELECT role_is_admin, role_name, user_archived_at, user_avatar, user_config_force_mfa,
+        user_config_records_per_page, user_config_theme_dark, user_email, user_name, user_role_id,
+        user_status, user_token, user_type FROM users
      LEFT JOIN user_settings ON users.user_id = user_settings.user_id
      LEFT JOIN user_roles ON user_role_id = role_id
      WHERE users.user_id = $session_user_id"

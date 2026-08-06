@@ -7,7 +7,13 @@ $contract_types_array = ['Fully Managed', 'Partialy Managed', 'Break/Fix'];
 $update_frequency_array = ['Manual', 'Annually', '2 Year', '3 Year', '5 Year', '7 Year'];
 
 // Fetch existing template
-$sql = mysqli_query($mysqli, "SELECT * FROM contract_templates WHERE contract_template_id = $contract_template_id LIMIT 1");
+$sql = mysqli_query($mysqli, "SELECT contract_template_description, contract_template_details, contract_template_name,
+    contract_template_net_terms, contract_template_rate_after_hours,
+    contract_template_rate_standard, contract_template_renewal_frequency,
+    contract_template_sla_high_resolution_time, contract_template_sla_high_response_time,
+    contract_template_sla_low_resolution_time, contract_template_sla_low_response_time,
+    contract_template_sla_medium_resolution_time, contract_template_sla_medium_response_time,
+    contract_template_support_hours, contract_template_type FROM contract_templates WHERE contract_template_id = $contract_template_id LIMIT 1");
 $row = mysqli_fetch_assoc($sql);
 
 // Assign locals

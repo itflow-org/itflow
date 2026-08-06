@@ -6,7 +6,10 @@ enforceUserPermission('module_sales', 2);
 
 $recurring_invoice_id = intval($_GET['id']);
 
-$sql = mysqli_query($mysqli, "SELECT * FROM recurring_invoices WHERE recurring_invoice_id = $recurring_invoice_id LIMIT 1");
+$sql = mysqli_query($mysqli, "SELECT recurring_invoice_category_id, recurring_invoice_client_id, recurring_invoice_created_at,
+    recurring_invoice_discount_amount, recurring_invoice_frequency,
+    recurring_invoice_next_date, recurring_invoice_number, recurring_invoice_prefix,
+    recurring_invoice_scope, recurring_invoice_status FROM recurring_invoices WHERE recurring_invoice_id = $recurring_invoice_id LIMIT 1");
 
 $row = mysqli_fetch_assoc($sql);
 $recurring_invoice_prefix = escapeHtml($row['recurring_invoice_prefix']);
@@ -82,7 +85,7 @@ ob_start();
                     <option value="">- Category -</option>
                     <?php
 
-                    $sql_income_category = mysqli_query($mysqli, "SELECT * FROM categories WHERE category_type = 'Income' AND (category_archived_at > '$recurring_invoice_created_at' OR category_archived_at IS NULL) ORDER BY category_name ASC");
+                    $sql_income_category = mysqli_query($mysqli, "SELECT category_id, category_name FROM categories WHERE category_type = 'Income' AND (category_archived_at > '$recurring_invoice_created_at' OR category_archived_at IS NULL) ORDER BY category_name ASC");
                     while ($row = mysqli_fetch_assoc($sql_income_category)) {
                         $category_id_select = intval($row['category_id']);
                         $category_name_select = escapeHtml($row['category_name']);

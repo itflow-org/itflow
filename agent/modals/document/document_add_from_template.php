@@ -77,7 +77,7 @@ ob_start();
                 <select class="form-control" name="folder">
                     <option value="0">/</option>
                     <?php
-                    $sql_folders = mysqli_query($mysqli, "SELECT * FROM folders WHERE folder_client_id = $client_id ORDER BY folder_name ASC");
+                    $sql_folders = mysqli_query($mysqli, "SELECT folder_id, folder_name FROM folders WHERE folder_client_id = $client_id ORDER BY folder_name ASC");
                     while ($row = mysqli_fetch_assoc($sql_folders)) {
                         $folder_id = intval($row['folder_id']);
                         $folder_name = escapeHtml($row['folder_name']);

@@ -6,7 +6,8 @@ enforceUserPermission('module_financial', 2);
 
 $trip_id = intval($_GET['id']);
 
-$sql = mysqli_query($mysqli, "SELECT * FROM trips WHERE trip_id = $trip_id LIMIT 1");
+$sql = mysqli_query($mysqli, "SELECT round_trip, trip_archived_at, trip_client_id, trip_created_at, trip_date, trip_destination,
+    trip_miles, trip_purpose, trip_source, trip_user_id FROM trips WHERE trip_id = $trip_id LIMIT 1");
 
 $row = mysqli_fetch_assoc($sql);
 $trip_date = escapeHtml($row['trip_date']);

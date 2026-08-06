@@ -4,7 +4,7 @@ require_once '../../../includes/modal_header.php';
 
 $rack_id = intval($_GET['id']);
 
-$sql = mysqli_query($mysqli, "SELECT * FROM racks WHERE rack_id = $rack_id LIMIT 1");
+$sql = mysqli_query($mysqli, "SELECT rack_client_id, rack_name FROM racks WHERE rack_id = $rack_id LIMIT 1");
 
 $row = mysqli_fetch_assoc($sql);
 $rack_name = escapeHtml($row['rack_name']);

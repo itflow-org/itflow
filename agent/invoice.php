@@ -16,7 +16,13 @@ if (isset($_GET['invoice_id'])) {
 
     $sql = mysqli_query(
         $mysqli,
-        "SELECT * FROM invoices
+        "SELECT client_currency_code, client_id, client_name, client_net_terms, client_website,
+            contact_email, contact_extension, contact_mobile, contact_mobile_country_code,
+            contact_phone, contact_phone_country_code, invoice_amount, invoice_category_id,
+            invoice_created_at, invoice_credit_amount, invoice_currency_code, invoice_date,
+            invoice_discount_amount, invoice_due, invoice_id, invoice_note, invoice_number,
+            invoice_prefix, invoice_scope, invoice_status, invoice_url_key, location_address,
+            location_city, location_country, location_state, location_zip FROM invoices
         LEFT JOIN clients ON invoice_client_id = client_id
         LEFT JOIN contacts ON client_id = contact_client_id AND contact_primary = 1
         LEFT JOIN locations ON client_id = location_client_id AND location_primary = 1
@@ -77,7 +83,9 @@ if (isset($_GET['invoice_id'])) {
     $tab_title = $row['client_name'];
     $page_title = "{$row['invoice_prefix']}{$row['invoice_number']}";
 
-    $sql = mysqli_query($mysqli, "SELECT * FROM companies WHERE company_id = 1");
+    $sql = mysqli_query($mysqli, "SELECT company_address, company_city, company_country, company_email, company_id, company_logo,
+        company_name, company_phone, company_phone_country_code, company_state, company_tax_id,
+        company_website, company_zip FROM companies WHERE company_id = 1");
     $row = mysqli_fetch_assoc($sql);
     $company_id = intval($row['company_id']);
     $company_name = escapeHtml($row['company_name']);
@@ -98,7 +106,7 @@ if (isset($_GET['invoice_id'])) {
     }
     $company_logo = escapeHtml($row['company_logo']);
 
-    $sql_history = mysqli_query($mysqli, "SELECT * FROM history WHERE history_invoice_id = $invoice_id ORDER BY history_id DESC");
+    $sql_history = mysqli_query($mysqli, "SELECT history_created_at, history_description, history_status FROM history WHERE history_invoice_id = $invoice_id ORDER BY history_id DESC");
 
     $sql_payments = mysqli_query($mysqli, "SELECT account_name, payment_amount, payment_currency_code, payment_date, payment_id,
         payment_reference FROM payments, accounts WHERE payment_account_id = account_id AND payment_invoice_id = $invoice_id ORDER BY payments.payment_id DESC");
@@ -471,7 +479,7 @@ if (isset($_GET['invoice_id'])) {
                                             <select class="form-control select2" name="tax_id" id="tax" required>
                                                 <option value="0">No Tax</option>
                                                 <?php
-                                                $taxes_sql = mysqli_query($mysqli, "SELECT * FROM taxes WHERE tax_archived_at IS NULL ORDER BY tax_name ASC");
+                                                $taxes_sql = mysqli_query($mysqli, "SELECT tax_id, tax_name, tax_percent FROM taxes WHERE tax_archived_at IS NULL ORDER BY tax_name ASC");
                                                 while ($row = mysqli_fetch_assoc($taxes_sql)) {
                                                     $tax_id = intval($row['tax_id']);
                                                     $tax_name = escapeHtml($row['tax_name']);

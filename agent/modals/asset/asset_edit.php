@@ -6,7 +6,12 @@ enforceUserPermission('module_support', 2);
 
 $asset_id = intval($_GET['id']);
 
-$sql = mysqli_query($mysqli, "SELECT * FROM assets
+$sql = mysqli_query($mysqli, "SELECT asset_archived_at, asset_client_id, asset_contact_id, asset_created_at, asset_description,
+    asset_favorite, asset_id, asset_install_date, asset_location_id, asset_make, asset_model,
+    asset_name, asset_notes, asset_os, asset_photo, asset_physical_location,
+    asset_purchase_date, asset_purchase_reference, asset_serial, asset_status, asset_type,
+    asset_uri, asset_uri_2, asset_uri_client, asset_vendor_id, asset_warranty_expire,
+    interface_ip, interface_ipv6, interface_mac, interface_nat_ip, interface_network_id FROM assets
     LEFT JOIN asset_interfaces ON interface_asset_id = asset_id AND interface_primary = 1
     WHERE asset_id = $asset_id LIMIT 1"
 );
@@ -47,7 +52,7 @@ $asset_network_id = intval($row['interface_network_id']);
 $device_icon = getAssetIcon($asset_type);
 
 // Asset History Query
-$sql_asset_history = mysqli_query($mysqli, "SELECT * FROM asset_history
+$sql_asset_history = mysqli_query($mysqli, "SELECT asset_history_created_at, asset_history_description, asset_history_status FROM asset_history
     WHERE asset_history_asset_id = $asset_id
     ORDER BY asset_history_id
     DESC LIMIT 10"
@@ -506,7 +511,7 @@ ob_start();
                         <select class="form-control select2" name="tags[]" data-placeholder="Add some tags" multiple>
                             <?php
 
-                            $sql_tags_select = mysqli_query($mysqli, "SELECT * FROM tags WHERE tag_type = 5 ORDER BY tag_name ASC");
+                            $sql_tags_select = mysqli_query($mysqli, "SELECT tag_id, tag_name FROM tags WHERE tag_type = 5 ORDER BY tag_name ASC");
                             while ($row = mysqli_fetch_assoc($sql_tags_select)) {
                                 $tag_id_select = intval($row['tag_id']);
                                 $tag_name_select = escapeHtml($row['tag_name']);

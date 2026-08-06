@@ -6,7 +6,8 @@ enforceUserPermission('module_sales', 2);
 
 $invoice_id = intval($_GET['id']);
 
-$sql = mysqli_query($mysqli, "SELECT * FROM invoices LEFT JOIN clients ON invoice_client_id = client_id WHERE invoice_id = $invoice_id LIMIT 1");
+$sql = mysqli_query($mysqli, "SELECT client_id, client_name, invoice_category_id, invoice_created_at, invoice_date,
+    invoice_discount_amount, invoice_due, invoice_number, invoice_prefix, invoice_scope FROM invoices LEFT JOIN clients ON invoice_client_id = client_id WHERE invoice_id = $invoice_id LIMIT 1");
 
 $row = mysqli_fetch_assoc($sql);
 $invoice_prefix = escapeHtml($row['invoice_prefix']);
@@ -68,7 +69,7 @@ ob_start();
                     <option value="">- Category -</option>
                     <?php
 
-                    $sql_income_category = mysqli_query($mysqli, "SELECT * FROM categories WHERE category_type = 'Income' AND (category_archived_at > '$invoice_created_at' OR category_archived_at IS NULL) ORDER BY category_name ASC");
+                    $sql_income_category = mysqli_query($mysqli, "SELECT category_id, category_name FROM categories WHERE category_type = 'Income' AND (category_archived_at > '$invoice_created_at' OR category_archived_at IS NULL) ORDER BY category_name ASC");
                     while ($row = mysqli_fetch_assoc($sql_income_category)) {
                         $category_id_select = intval($row['category_id']);
                         $category_name_select = escapeHtml($row['category_name']);

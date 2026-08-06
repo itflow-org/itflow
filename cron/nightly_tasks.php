@@ -26,7 +26,20 @@ require_once "../config.php";
 require_once "../includes/inc_set_timezone.php";
 require_once "../functions.php";
 
-$sql_companies = mysqli_query($mysqli, "SELECT * FROM companies, settings WHERE companies.company_id = settings.company_id AND companies.company_id = 1");
+$sql_companies = mysqli_query($mysqli, "SELECT company_city, company_country, company_currency, company_email, company_locale,
+    company_name, company_phone, company_phone_country_code, company_state, company_website,
+    config_enable_alert_domain_expire, config_enable_cron, config_invoice_from_email,
+    config_invoice_from_name, config_invoice_late_fee_enable, config_invoice_late_fee_percent,
+    config_invoice_prefix, config_log_retention, config_login_remember_me_expire,
+    config_mail_from_email, config_mail_from_name, config_module_enable_accounting,
+    config_module_enable_itdoc, config_module_enable_ticketing,
+    config_recurring_auto_send_invoice, config_send_invoice_reminders, config_smtp_encryption,
+    config_smtp_host, config_smtp_password, config_smtp_port, config_smtp_provider,
+    config_smtp_username, config_telemetry, config_theme, config_ticket_autoclose_hours,
+    config_ticket_client_general_notifications, config_ticket_email_parse,
+    config_ticket_from_email, config_ticket_from_name,
+    config_ticket_new_ticket_notification_email, config_ticket_prefix,
+    config_whitelabel_enabled, config_whitelabel_key FROM companies, settings WHERE companies.company_id = settings.company_id AND companies.company_id = 1");
 
 $row = mysqli_fetch_assoc($sql_companies);
 
@@ -739,7 +752,8 @@ while ($row = mysqli_fetch_assoc($sql_recurring_invoices)) {
     // Get details of the newly generated invoice
     $sql = mysqli_query(
         $mysqli,
-        "SELECT * FROM invoices
+        "SELECT client_id, client_name, contact_email, contact_name, invoice_amount, invoice_date,
+            invoice_due, invoice_number, invoice_prefix, invoice_scope, invoice_url_key FROM invoices
             LEFT JOIN clients ON invoice_client_id = client_id
             LEFT JOIN contacts ON clients.client_id = contacts.contact_client_id AND contact_primary = 1
             WHERE invoice_id = $new_invoice_id"
@@ -868,7 +882,8 @@ while ($row = mysqli_fetch_assoc($sql_recurring_payments)) {
     if ($recurring_payment_saved_payment_id) {
         // Get the saved payment method and provider details
         $saved_payment = mysqli_fetch_assoc(mysqli_query($mysqli, "
-            SELECT * FROM client_saved_payment_methods
+            SELECT payment_provider_account, payment_provider_id, payment_provider_name,
+                payment_provider_private_key, saved_payment_description, saved_payment_provider_method FROM client_saved_payment_methods
             LEFT JOIN payment_providers ON saved_payment_provider_id = payment_provider_id
             WHERE saved_payment_id = $recurring_payment_saved_payment_id
               AND saved_payment_client_id = $client_id

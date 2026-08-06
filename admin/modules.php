@@ -8,7 +8,7 @@ require_once "includes/inc_all_admin.php";
 
 $sql = mysqli_query(
     $mysqli,
-    "SELECT SQL_CALC_FOUND_ROWS * FROM modules
+    "SELECT SQL_CALC_FOUND_ROWS module_description, module_id, module_name FROM modules
     WHERE (module_name LIKE '%$q%' OR module_description LIKE '%$q%')
     ORDER BY $sort $order LIMIT $record_from, $record_to"
 );

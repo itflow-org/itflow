@@ -2,12 +2,12 @@
 require_once "includes/inc_all_user.php";
 
 
-$sql_recent_logins = mysqli_query($mysqli, "SELECT * FROM logs
+$sql_recent_logins = mysqli_query($mysqli, "SELECT log_created_at, log_id, log_ip, log_user_agent FROM logs
     WHERE log_type = 'Login' OR log_type = 'Login 2FA' AND log_action = 'Success' AND log_user_id = $session_user_id
     ORDER BY log_id DESC LIMIT 3"
 );
 
-$sql_recent_logs = mysqli_query($mysqli, "SELECT * FROM logs
+$sql_recent_logs = mysqli_query($mysqli, "SELECT log_action, log_created_at, log_description, log_id, log_type FROM logs
     WHERE log_user_id = $session_user_id AND log_type NOT LIKE 'Login'
     ORDER BY log_id DESC LIMIT 5"
 );

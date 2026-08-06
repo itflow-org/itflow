@@ -15,7 +15,8 @@ if (isset($_GET['ticket_template_id'])) {
     $ticket_template_id = intval($_GET['ticket_template_id']);
 }
 
-$sql_ticket_template = mysqli_query($mysqli, "SELECT * FROM ticket_templates WHERE ticket_template_id = $ticket_template_id LIMIT 1");
+$sql_ticket_template = mysqli_query($mysqli, "SELECT ticket_template_created_at, ticket_template_description, ticket_template_details,
+    ticket_template_name, ticket_template_subject, ticket_template_updated_at FROM ticket_templates WHERE ticket_template_id = $ticket_template_id LIMIT 1");
 
 if (mysqli_num_rows($sql_ticket_template) == 0) {
     echo "<center><h1 class='text-secondary mt-5'>Nothing to see here</h1><a class='btn btn-lg btn-secondary mt-3' href='javascript:history.back()'><i class='fa fa-fw fa-arrow-left'></i> Go Back</a></center>";

@@ -8,7 +8,7 @@ require_once "includes/inc_all_admin.php";
 
 $sql = mysqli_query(
     $mysqli,
-    "SELECT SQL_CALC_FOUND_ROWS * FROM api_keys
+    "SELECT SQL_CALC_FOUND_ROWS api_key_created_at, api_key_expire, api_key_id, api_key_name, api_key_secret, user_name FROM api_keys
     LEFT JOIN users on api_key_user_id = user_id
     WHERE (api_key_name LIKE '%$q%')
     ORDER BY $sort $order LIMIT $record_from, $record_to"

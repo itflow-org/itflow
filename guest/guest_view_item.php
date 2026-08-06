@@ -15,7 +15,9 @@ $purifier_config->set('Cache.DefinitionImpl', null); // Disable cache by setting
 $purifier_config->set('URI.AllowedSchemes', ['data' => true, 'src' => true, 'http' => true, 'https' => true]);
 $purifier = new HTMLPurifier($purifier_config);
 
-$sql = mysqli_query($mysqli, "SELECT * FROM companies, settings WHERE companies.company_id = settings.company_id AND companies.company_id = 1");
+$sql = mysqli_query($mysqli, "SELECT company_address, company_city, company_email, company_locale, company_logo, company_name,
+    company_phone, company_phone_country_code, company_state, company_website, company_zip,
+    config_invoice_footer FROM companies, settings WHERE companies.company_id = settings.company_id AND companies.company_id = 1");
 $row = mysqli_fetch_assoc($sql);
 
 $company_name = escapeHtml($row['company_name']);
@@ -47,7 +49,9 @@ if (!isset($_GET['id']) || !isset($_GET['key'])) {
 $item_id = intval($_GET['id']);
 $item_key = escapeSql($_GET['key']);
 
-$sql = mysqli_query($mysqli, "SELECT * FROM shared_items WHERE item_id = $item_id AND item_key = '$item_key' AND item_expire_at > NOW() LIMIT 1");
+$sql = mysqli_query($mysqli, "SELECT item_active, item_client_id, item_created_at, item_encrypted_credential,
+    item_encrypted_username, item_expire_at, item_note, item_recipient, item_related_id,
+    item_type, item_view_limit, item_views FROM shared_items WHERE item_id = $item_id AND item_key = '$item_key' AND item_expire_at > NOW() LIMIT 1");
 $row = mysqli_fetch_assoc($sql);
 
 // Check we got a result
@@ -171,7 +175,7 @@ if ($item_type == "Document") {
 } elseif ($item_type == "Credential") {
     $encryption_key = $_GET['ek'];
 
-    $credential_sql = mysqli_query($mysqli, "SELECT * FROM credentials WHERE credential_id = $item_related_id AND credential_client_id = $client_id LIMIT 1");
+    $credential_sql = mysqli_query($mysqli, "SELECT credential_id, credential_name, credential_note, credential_otp_secret, credential_uri FROM credentials WHERE credential_id = $item_related_id AND credential_client_id = $client_id LIMIT 1");
     $credential_row = mysqli_fetch_assoc($credential_sql);
     if (mysqli_num_rows($credential_sql) !== 1 || !$credential_row) {
         echo "<div class='alert alert-danger'>Error retrieving login.</div>";

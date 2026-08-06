@@ -218,7 +218,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                         <td><?= $recurring_invoice_last_sent ?></td>
                         <td><?= $category_name ?></td>
                         <td>
-                            <?php $sql_saved_payments = mysqli_query($mysqli, "SELECT * FROM client_saved_payment_methods WHERE saved_payment_client_id = $client_id");
+                            <?php $sql_saved_payments = mysqli_query($mysqli, "SELECT saved_payment_description, saved_payment_id FROM client_saved_payment_methods WHERE saved_payment_client_id = $client_id");
                             if (mysqli_num_rows($sql_saved_payments) > 0) { ?>
                                 <form class="form" action="post.php" method="post">
                                     <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">

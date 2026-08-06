@@ -194,7 +194,7 @@ if (isset($_POST['bulk_assign_credential_tags'])) {
                 foreach($_POST['bulk_tags'] as $tag) {
                     $tag = intval($tag);
 
-                    $sql = mysqli_query($mysqli,"SELECT * FROM credential_tags WHERE credential_id = $credential_id AND tag_id = $tag");
+                    $sql = mysqli_query($mysqli,"SELECT 1 FROM credential_tags WHERE credential_id = $credential_id AND tag_id = $tag");
                     if (mysqli_num_rows($sql) == 0) {
                         mysqli_query($mysqli, "INSERT INTO credential_tags SET credential_id = $credential_id, tag_id = $tag");
                     }

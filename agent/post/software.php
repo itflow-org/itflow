@@ -19,7 +19,8 @@ if (isset($_POST['add_software_from_template'])) {
     enforceClientAccess();
 
     // GET Software Template Info
-    $sql_software_templates = mysqli_query($mysqli,"SELECT * FROM software_templates WHERE software_template_id = $software_template_id");
+    $sql_software_templates = mysqli_query($mysqli,"SELECT software_template_description, software_template_license_type, software_template_name,
+        software_template_notes, software_template_type, software_template_version FROM software_templates WHERE software_template_id = $software_template_id");
     $row = mysqli_fetch_assoc($sql_software_templates);
     $name = escapeSql($row['software_template_name']);
     $version = escapeSql($row['software_template_version']);

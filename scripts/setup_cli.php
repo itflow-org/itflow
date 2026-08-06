@@ -301,7 +301,8 @@ if (!$non_interactive) {
         echo "Any comments to include? Press Enter if none: ";
         $comments = trim(fgets(STDIN));
 
-        $sql = mysqli_query($mysqli,"SELECT * FROM companies WHERE company_id = 1");
+        $sql = mysqli_query($mysqli,"SELECT company_city, company_country, company_currency, company_name, company_state,
+            company_website FROM companies WHERE company_id = 1");
         $row = mysqli_fetch_assoc($sql);
         $company_name_db = $row['company_name'];
         $website_db = $row['company_website'];

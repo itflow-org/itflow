@@ -14,7 +14,11 @@ if (isset($_GET['client_id'])) {
 if (isset($_GET['contact_id'])) {
     $contact_id = intval($_GET['contact_id']);
 
-    $sql = mysqli_query($mysqli, "SELECT * FROM contacts
+    $sql = mysqli_query($mysqli, "SELECT client_id, client_name, contact_billing, contact_client_id, contact_created_at,
+        contact_department, contact_email, contact_extension, contact_important,
+        contact_location_id, contact_mobile, contact_mobile_country_code, contact_name,
+        contact_notes, contact_phone, contact_phone_country_code, contact_photo, contact_pin,
+        contact_primary, contact_technical, contact_title, location_name, user_auth_method FROM contacts
         LEFT JOIN clients ON client_id = contact_client_id
         LEFT JOIN locations ON location_id = contact_location_id
         LEFT JOIN users ON user_id = contact_user_id
@@ -126,7 +130,7 @@ if (isset($_GET['contact_id'])) {
     // Tags - many to many relationship
     $contact_tag_name_display_array = array();
     $contact_tag_id_array = array();
-    $sql_contact_tags = mysqli_query($mysqli, "SELECT * FROM contact_tags LEFT JOIN tags ON contact_tags.tag_id = tags.tag_id WHERE contact_id = $contact_id ORDER BY tag_name ASC");
+    $sql_contact_tags = mysqli_query($mysqli, "SELECT tag_color, tag_icon, contact_tags.tag_id, tag_name FROM contact_tags LEFT JOIN tags ON contact_tags.tag_id = tags.tag_id WHERE contact_id = $contact_id ORDER BY tag_name ASC");
     while ($row = mysqli_fetch_assoc($sql_contact_tags)) {
 
         $contact_tag_id = intval($row['tag_id']);
@@ -182,7 +186,7 @@ if (isset($_GET['contact_id'])) {
     $linked_documents = array();
 
     // Linked Files
-    $sql_linked_files = mysqli_query($mysqli, "SELECT * FROM contact_files, files
+    $sql_linked_files = mysqli_query($mysqli, "SELECT file_created_at, file_description, files.file_id, file_mime_type, file_name, file_size FROM contact_files, files
         WHERE contact_files.contact_id = $contact_id
         AND contact_files.file_id = files.file_id
         AND file_archived_at IS NULL
@@ -429,7 +433,7 @@ if (isset($_GET['contact_id'])) {
                                 // Tags
                                 $asset_tag_name_display_array = array();
                                 $asset_tag_id_array = array();
-                                $sql_asset_tags = mysqli_query($mysqli, "SELECT * FROM asset_tags LEFT JOIN tags ON asset_tag_tag_id = tag_id WHERE asset_tag_asset_id = $asset_id ORDER BY tag_name ASC");
+                                $sql_asset_tags = mysqli_query($mysqli, "SELECT tag_color, tag_icon, tag_id, tag_name FROM asset_tags LEFT JOIN tags ON asset_tag_tag_id = tag_id WHERE asset_tag_asset_id = $asset_id ORDER BY tag_name ASC");
                                 while ($row = mysqli_fetch_assoc($sql_asset_tags)) {
 
                                     $asset_tag_id = intval($row['tag_id']);
@@ -583,7 +587,7 @@ if (isset($_GET['contact_id'])) {
                                 // Tags
                                 $credential_tag_name_display_array = array();
                                 $credential_tag_id_array = array();
-                                $sql_credential_tags = mysqli_query($mysqli, "SELECT * FROM credential_tags LEFT JOIN tags ON credential_tags.tag_id = tags.tag_id WHERE credential_id = $credential_id ORDER BY tag_name ASC");
+                                $sql_credential_tags = mysqli_query($mysqli, "SELECT tag_color, tag_icon, credential_tags.tag_id, tag_name FROM credential_tags LEFT JOIN tags ON credential_tags.tag_id = tags.tag_id WHERE credential_id = $credential_id ORDER BY tag_name ASC");
                                 while ($row = mysqli_fetch_assoc($sql_credential_tags)) {
 
                                     $credential_tag_id = intval($row['tag_id']);

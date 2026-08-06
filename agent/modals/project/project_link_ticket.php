@@ -14,7 +14,7 @@ if ($client_id) {
     $client_ticket_select_query = '';
 }
 
-$sql = mysqli_query($mysqli, "SELECT * FROM projects WHERE project_id = $project_id LIMIT 1");
+$sql = mysqli_query($mysqli, "SELECT project_name FROM projects WHERE project_id = $project_id LIMIT 1");
 
 $row = mysqli_fetch_assoc($sql);
 $project_name = escapeHtml($row['project_name']);

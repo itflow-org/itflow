@@ -741,7 +741,7 @@ if (isset($_POST['bulk_add_client_ticket'])) {
 
     // Check to see if adding a ticket by template
     if($ticket_template_id) {
-        $sql = mysqli_query($mysqli, "SELECT * FROM ticket_templates WHERE ticket_template_id = $ticket_template_id");
+        $sql = mysqli_query($mysqli, "SELECT ticket_template_details, ticket_template_subject FROM ticket_templates WHERE ticket_template_id = $ticket_template_id");
         $row = mysqli_fetch_assoc($sql);
 
         // Override Template Subject
@@ -751,7 +751,7 @@ if (isset($_POST['bulk_add_client_ticket'])) {
         $details = mysqli_escape_string($mysqli, $row['ticket_template_details']);
 
         // Get Associated Tasks from the ticket template
-        $sql_task_templates = mysqli_query($mysqli, "SELECT * FROM task_templates WHERE task_template_ticket_template_id = $ticket_template_id");
+        $sql_task_templates = mysqli_query($mysqli, "SELECT task_template_name, task_template_order FROM task_templates WHERE task_template_ticket_template_id = $ticket_template_id");
 
     }
 
@@ -764,7 +764,7 @@ if (isset($_POST['bulk_add_client_ticket'])) {
         foreach ($_POST['client_ids'] as $client_id) {
             $client_id = intval($client_id);
 
-            $sql = mysqli_query($mysqli, "SELECT * FROM clients WHERE client_id = $client_id");
+            $sql = mysqli_query($mysqli, "SELECT client_name FROM clients WHERE client_id = $client_id");
             $row = mysqli_fetch_assoc($sql);
 
             $client_name = escapeSql($row['client_name']);
@@ -992,7 +992,7 @@ if (isset($_POST['bulk_assign_client_tags'])) {
                 foreach($_POST['bulk_tags'] as $tag) {
                     $tag = intval($tag);
 
-                    $sql = mysqli_query($mysqli,"SELECT * FROM client_tags WHERE client_id = $client_id AND tag_id = $tag");
+                    $sql = mysqli_query($mysqli,"SELECT 1 FROM client_tags WHERE client_id = $client_id AND tag_id = $tag");
                     if (mysqli_num_rows($sql) == 0) {
                         mysqli_query($mysqli, "INSERT INTO client_tags SET client_id = $client_id, tag_id = $tag");
                     }
@@ -1181,7 +1181,8 @@ if (isset($_POST["export_client_pdf"])) {
     enforceUserPermission("module_sales", 1);
     enforceUserPermission("module_financial", 1);
 
-    $sql = mysqli_query($mysqli, "SELECT * FROM companies, settings WHERE companies.company_id = settings.company_id AND companies.company_id = 1");
+    $sql = mysqli_query($mysqli, "SELECT company_email, company_logo, company_name, company_phone, company_phone_country_code,
+        company_website FROM companies, settings WHERE companies.company_id = settings.company_id AND companies.company_id = 1");
     $row = mysqli_fetch_assoc($sql);
     $company_name = escapeHtml($row['company_name']);
     $company_phone_country_code = escapeHtml($row['company_phone_country_code']);

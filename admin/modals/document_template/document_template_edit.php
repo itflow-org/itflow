@@ -4,7 +4,7 @@ require_once '../../includes/modal_header.php';
 
 $document_template_id = intval($_GET['id']);
 
-$sql = mysqli_query($mysqli, "SELECT * FROM document_templates WHERE document_template_id = $document_template_id LIMIT 1");
+$sql = mysqli_query($mysqli, "SELECT document_template_content, document_template_description, document_template_name FROM document_templates WHERE document_template_id = $document_template_id LIMIT 1");
 $row = mysqli_fetch_assoc($sql);
 $document_template_name = escapeHtml($row['document_template_name']);
 $document_template_description = escapeHtml($row['document_template_description']);

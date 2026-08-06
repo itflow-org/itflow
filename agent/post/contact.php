@@ -544,7 +544,7 @@ if (isset($_POST['bulk_assign_contact_tags'])) {
                 foreach($_POST['bulk_tags'] as $tag) {
                     $tag = intval($tag);
 
-                    $sql = mysqli_query($mysqli,"SELECT * FROM contact_tags WHERE contact_id = $contact_id AND tag_id = $tag");
+                    $sql = mysqli_query($mysqli,"SELECT 1 FROM contact_tags WHERE contact_id = $contact_id AND tag_id = $tag");
                     if (mysqli_num_rows($sql) == 0) {
                         mysqli_query($mysqli, "INSERT INTO contact_tags SET contact_id = $contact_id, tag_id = $tag");
                     }
@@ -584,7 +584,7 @@ if (isset($_POST['send_bulk_mail_now'])) {
         foreach($_POST['contact_ids'] as $contact_id) {
             $contact_id = intval($contact_id);
 
-            $sql = mysqli_query($mysqli,"SELECT * FROM contacts WHERE contact_id = $contact_id");
+            $sql = mysqli_query($mysqli,"SELECT contact_client_id, contact_email, contact_name FROM contacts WHERE contact_id = $contact_id");
             $row = mysqli_fetch_assoc($sql);
             $contact_name = escapeSql($row['contact_name']);
             $contact_email = escapeSql($row['contact_email']);
@@ -808,7 +808,7 @@ if (isset($_GET['anonymize_contact'])) {
 
 
     // Redact audit logs
-    $log_sql = mysqli_query($mysqli, "SELECT * FROM logs WHERE log_client_id =  $client_id");
+    $log_sql = mysqli_query($mysqli, "SELECT log_description, log_id FROM logs WHERE log_client_id =  $client_id");
     while ($log = mysqli_fetch_assoc($log_sql)) {
         $log_id = intval($log['log_id']);
         $description = $log['log_description'];
@@ -1452,7 +1452,7 @@ if (isset($_POST["import_contacts_csv"])) {
             }
             if (isset($column[7])) {
                 $location = escapeSql($column[7]);
-                $sql_location = mysqli_query($mysqli,"SELECT * FROM locations WHERE location_name = '$location' AND location_client_id = $client_id");
+                $sql_location = mysqli_query($mysqli,"SELECT location_id FROM locations WHERE location_name = '$location' AND location_client_id = $client_id");
                 $row = mysqli_fetch_assoc($sql_location);
                 $location_id = intval($row['location_id']);
             }

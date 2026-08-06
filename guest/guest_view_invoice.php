@@ -14,7 +14,12 @@ $invoice_id = intval($_GET['invoice_id']);
 
 $sql = mysqli_query(
     $mysqli,
-    "SELECT * FROM invoices
+    "SELECT client_currency_code, client_id, client_name, client_net_terms, client_website,
+        contact_email, contact_extension, contact_mobile, contact_mobile_country_code,
+        contact_phone, contact_phone_country_code, invoice_amount, invoice_category_id,
+        invoice_currency_code, invoice_date, invoice_discount_amount, invoice_due, invoice_id,
+        invoice_note, invoice_number, invoice_prefix, invoice_status, location_address,
+        location_city, location_country, location_state, location_zip FROM invoices
     LEFT JOIN clients ON invoice_client_id = client_id
     LEFT JOIN locations ON clients.client_id = locations.location_client_id AND location_primary = 1
     LEFT JOIN contacts ON clients.client_id = contacts.contact_client_id AND contact_primary = 1
@@ -61,7 +66,9 @@ $client_website = escapeHtml($row['client_website']);
 $client_currency_code = escapeHtml($row['client_currency_code']);
 $client_net_terms = intval($row['client_net_terms']);
 
-$sql = mysqli_query($mysqli, "SELECT * FROM companies, settings WHERE companies.company_id = settings.company_id AND companies.company_id = 1");
+$sql = mysqli_query($mysqli, "SELECT company_address, company_city, company_country, company_email, company_locale,
+    company_logo, company_name, company_phone, company_phone_country_code, company_state,
+    company_tax_id, company_website, company_zip, config_invoice_footer FROM companies, settings WHERE companies.company_id = settings.company_id AND companies.company_id = 1");
 $row = mysqli_fetch_assoc($sql);
 
 $company_name = escapeHtml($row['company_name']);
@@ -88,7 +95,7 @@ $company_locale = escapeHtml($row['company_locale']);
 $config_invoice_footer = escapeHtml($row['config_invoice_footer']);
 
 // Get Payment Provide Details
-$sql = mysqli_query($mysqli, "SELECT * FROM payment_providers WHERE payment_provider_active = 1 LIMIT 1");
+$sql = mysqli_query($mysqli, "SELECT payment_provider_id, payment_provider_name, payment_provider_threshold FROM payment_providers WHERE payment_provider_active = 1 LIMIT 1");
 $row = mysqli_fetch_assoc($sql);
 $payment_provider_id = intval($row['payment_provider_id']);
 $payment_provider_name = escapeHtml($row['payment_provider_name']);

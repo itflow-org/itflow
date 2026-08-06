@@ -369,7 +369,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                     // Client Tags
                     $client_tag_name_display_array = array();
                     $client_tag_id_array = array();
-                    $sql_client_tags = mysqli_query($mysqli, "SELECT * FROM client_tags LEFT JOIN tags ON client_tags.tag_id = tags.tag_id WHERE client_id = $client_id ORDER BY tag_name ASC");
+                    $sql_client_tags = mysqli_query($mysqli, "SELECT tag_color, tag_icon, client_tags.tag_id, tag_name FROM client_tags LEFT JOIN tags ON client_tags.tag_id = tags.tag_id WHERE client_id = $client_id ORDER BY tag_name ASC");
                     while ($row = mysqli_fetch_assoc($sql_client_tags)) {
                         $client_tag_id = intval($row['tag_id']);
                         $client_tag_name = escapeHtml($row['tag_name']);

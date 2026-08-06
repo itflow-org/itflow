@@ -207,7 +207,7 @@ if (isset($_GET['archive_domain'])) {
     $domain_id = intval($_GET['archive_domain']);
 
     //Get domain Name
-    $sql = mysqli_query($mysqli,"SELECT * FROM domains WHERE domain_id = $domain_id");
+    $sql = mysqli_query($mysqli,"SELECT domain_client_id, domain_name FROM domains WHERE domain_id = $domain_id");
     $row = mysqli_fetch_assoc($sql);
     $domain_name = escapeSql($row['domain_name']);
     $client_id = intval($row['domain_client_id']);

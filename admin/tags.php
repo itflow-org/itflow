@@ -26,7 +26,7 @@ $tag_type_display = $tag_types[$type_filter]['label'] ?? 'Unknown';
 
 $sql = mysqli_query(
     $mysqli,
-    "SELECT SQL_CALC_FOUND_ROWS * FROM tags
+    "SELECT SQL_CALC_FOUND_ROWS tag_color, tag_icon, tag_id, tag_name FROM tags
     WHERE tag_name LIKE '%$q%'
     AND tag_type = $type_filter
     ORDER BY $sort $order LIMIT $record_from, $record_to"

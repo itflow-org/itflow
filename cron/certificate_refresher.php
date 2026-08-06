@@ -19,7 +19,7 @@ require_once "../includes/inc_set_timezone.php";
 require_once "../functions.php";
 
 
-$sql_settings = mysqli_query($mysqli, "SELECT * FROM settings WHERE settings.company_id = 1");
+$sql_settings = mysqli_query($mysqli, "SELECT config_enable_cron FROM settings WHERE settings.company_id = 1");
 
 $row = mysqli_fetch_assoc($sql_settings);
 

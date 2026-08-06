@@ -132,7 +132,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 
                     $sql_last_login = mysqli_query(
                         $mysqli,
-                        "SELECT * FROM logs
+                        "SELECT log_created_at, log_ip, log_user_agent FROM logs
                         WHERE log_user_id = $user_id AND log_type = 'Login'
                         ORDER BY log_id DESC LIMIT 1"
                     );
@@ -155,7 +155,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                         $client_access_array[] = intval($row['client_id']);
                     }
 
-                    $sql_remember_tokens = mysqli_query($mysqli, "SELECT * FROM remember_tokens WHERE remember_token_user_id = $user_id");
+                    $sql_remember_tokens = mysqli_query($mysqli, "SELECT 1 FROM remember_tokens WHERE remember_token_user_id = $user_id");
                     $remember_token_count = mysqli_num_rows($sql_remember_tokens);
 
 

@@ -6,7 +6,7 @@ enforceUserPermission('module_sales', 2);
 
 $invoice_id = intval($_GET['id']);
 
-$sql = mysqli_query($mysqli, "SELECT * FROM invoices LEFT JOIN clients ON invoice_client_id = client_id WHERE invoice_id = $invoice_id LIMIT 1");
+$sql = mysqli_query($mysqli, "SELECT client_name, invoice_client_id, invoice_number, invoice_prefix FROM invoices LEFT JOIN clients ON invoice_client_id = client_id WHERE invoice_id = $invoice_id LIMIT 1");
 
 $row = mysqli_fetch_assoc($sql);
 $invoice_prefix = escapeHtml($row['invoice_prefix']);

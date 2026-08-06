@@ -31,7 +31,8 @@ if (isset($_GET['stripe_create_pi'])) {
     // Query invoice details
     $invoice_sql = mysqli_query(
         $mysqli,
-        "SELECT * FROM invoices
+        "SELECT client_id, client_name, invoice_amount, invoice_currency_code, invoice_number,
+            invoice_prefix FROM invoices
         LEFT JOIN clients ON invoice_client_id = client_id
         WHERE invoice_id = $invoice_id
         AND invoice_url_key = '$url_key'
@@ -63,7 +64,7 @@ if (isset($_GET['stripe_create_pi'])) {
     }
 
     // Setup Stripe from payment_providers
-    $stripe_provider = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT * FROM payment_providers WHERE payment_provider_name = 'Stripe' LIMIT 1"));
+    $stripe_provider = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT payment_provider_private_key FROM payment_providers WHERE payment_provider_name = 'Stripe' LIMIT 1"));
     if (!$stripe_provider) {
         exit("Stripe not enabled / configured");
     }

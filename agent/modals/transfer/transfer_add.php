@@ -159,7 +159,7 @@ ob_start();
                     <option value="">- Method of Transfer -</option>
                     <?php
 
-                    $sql = mysqli_query($mysqli, "SELECT * FROM payment_methods ORDER BY payment_method_name ASC");
+                    $sql = mysqli_query($mysqli, "SELECT payment_method_name FROM payment_methods ORDER BY payment_method_name ASC");
                     while ($row = mysqli_fetch_assoc($sql)) {
                         $payment_method_name = escapeHtml($row['payment_method_name']);
                     ?>

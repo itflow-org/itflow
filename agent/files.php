@@ -99,7 +99,7 @@ function displayFolders($parent_folder_id, $client_id, $indent = 0, $render_root
 
     $sql_folders = mysqli_query(
         $mysqli,
-        "SELECT * FROM folders
+        "SELECT folder_id, folder_name FROM folders
          WHERE parent_folder = $parent_folder_id
          AND folder_client_id = $client_id
          ORDER BY folder_name ASC"
@@ -731,7 +731,7 @@ $num_root_items = intval($row_root_files['num']) + intval($row_root_docs['num'])
                                         // Shared?
                                         $sql_shared = mysqli_query(
                                             $mysqli,
-                                            "SELECT * FROM shared_items
+                                            "SELECT item_expire_at, item_recipient FROM shared_items
                                              WHERE item_client_id = $client_id
                                              AND item_active = 1
                                              AND (COALESCE(item_view_limit, 0) = 0 OR item_views < item_view_limit)
@@ -843,7 +843,7 @@ $num_root_items = intval($row_root_files['num']) + intval($row_root_docs['num'])
 
                                         $sql_shared = mysqli_query(
                                             $mysqli,
-                                            "SELECT * FROM shared_items
+                                            "SELECT item_expire_at, item_recipient FROM shared_items
                                              WHERE item_client_id = $client_id
                                              AND item_active = 1
                                              AND (COALESCE(item_view_limit, 0) = 0 OR item_views < item_view_limit)

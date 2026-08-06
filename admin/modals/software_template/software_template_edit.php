@@ -4,7 +4,8 @@ require_once '../../includes/modal_header.php';
 
 $software_template_id = intval($_GET['id']);
 
-$sql = mysqli_query($mysqli, "SELECT * FROM software_templates WHERE software_template_id = $software_template_id LIMIT 1");
+$sql = mysqli_query($mysqli, "SELECT software_template_description, software_template_license_type, software_template_name,
+    software_template_notes, software_template_type, software_template_version FROM software_templates WHERE software_template_id = $software_template_id LIMIT 1");
 $row = mysqli_fetch_assoc($sql);
 $software_name = escapeHtml($row['software_template_name']);
 $software_version = escapeHtml($row['software_template_version']);

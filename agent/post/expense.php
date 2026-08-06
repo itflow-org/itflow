@@ -104,7 +104,7 @@ if (isset($_GET['delete_expense'])) {
 
     $expense_id = intval($_GET['delete_expense']);
 
-    $sql = mysqli_query($mysqli,"SELECT * FROM expenses WHERE expense_id = $expense_id");
+    $sql = mysqli_query($mysqli,"SELECT expense_client_id, expense_description, expense_receipt FROM expenses WHERE expense_id = $expense_id");
     $row = mysqli_fetch_assoc($sql);
     $expense_receipt = escapeSql($row['expense_receipt']);
     $expense_description = escapeSql($row['expense_description']);
@@ -270,7 +270,7 @@ if (isset($_POST['bulk_delete_expenses'])) {
 
             $expense_id = intval($expense_id);
 
-            $sql = mysqli_query($mysqli,"SELECT * FROM expenses WHERE expense_id = $expense_id");
+            $sql = mysqli_query($mysqli,"SELECT expense_client_id, expense_description, expense_receipt FROM expenses WHERE expense_id = $expense_id");
             $row = mysqli_fetch_assoc($sql);
             $expense_description = escapeSql($row['expense_description']);
             $expense_receipt = escapeSql($row['expense_receipt']);

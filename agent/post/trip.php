@@ -65,7 +65,7 @@ if (isset($_GET['delete_trip'])) {
     $trip_id = intval($_GET['delete_trip']);
 
     // Get Trip Info and Client ID for logging
-    $row = mysqli_fetch_assoc(mysqli_query($mysqli,"SELECT * FROM trips WHERE trip_id = $trip_id"));
+    $row = mysqli_fetch_assoc(mysqli_query($mysqli,"SELECT trip_client_id, trip_destination, trip_source FROM trips WHERE trip_id = $trip_id"));
     $client_id = intval($row['trip_client_id']);
     $trip_source = escapeSql($row['trip_source']);
     $trip_destination = escapeSql($row['trip_destination']);

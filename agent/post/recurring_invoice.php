@@ -15,7 +15,8 @@ if (isset($_POST['add_invoice_recurring'])) {
     $invoice_id = intval($_POST['invoice_id']);
     $recurring_invoice_frequency = validateRecurringFrequency($_POST['frequency']);
 
-    $sql = mysqli_query($mysqli,"SELECT * FROM invoices WHERE invoice_id = $invoice_id");
+    $sql = mysqli_query($mysqli,"SELECT invoice_amount, invoice_category_id, invoice_client_id, invoice_currency_code,
+        invoice_date, invoice_note, invoice_number, invoice_prefix, invoice_scope FROM invoices WHERE invoice_id = $invoice_id");
     $row = mysqli_fetch_assoc($sql);
     $invoice_prefix = escapeSql($row['invoice_prefix']);
     $invoice_number = intval($row['invoice_number']);
@@ -182,7 +183,7 @@ if (isset($_GET['delete_recurring_invoice'])) {
     }
 
     //Delete History Associated with the Invoice
-    $sql = mysqli_query($mysqli,"SELECT * FROM history WHERE history_recurring_invoice_id = $recurring_invoice_id");
+    $sql = mysqli_query($mysqli,"SELECT history_id FROM history WHERE history_recurring_invoice_id = $recurring_invoice_id");
     while($row = mysqli_fetch_assoc($sql)) {
         $history_id = intval($row['history_id']);
         mysqli_query($mysqli,"DELETE FROM history WHERE history_id = $history_id");
@@ -217,7 +218,7 @@ if (isset($_POST['add_recurring_invoice_item'])) {
     $subtotal = $price * $qty;
 
     if ($tax_id > 0) {
-        $sql = mysqli_query($mysqli,"SELECT * FROM taxes WHERE tax_id = $tax_id");
+        $sql = mysqli_query($mysqli,"SELECT tax_percent FROM taxes WHERE tax_id = $tax_id");
         $row = mysqli_fetch_assoc($sql);
         $tax_percent = floatval($row['tax_percent']);
         $tax_amount = $subtotal * $tax_percent / 100;
@@ -230,7 +231,8 @@ if (isset($_POST['add_recurring_invoice_item'])) {
     mysqli_query($mysqli,"INSERT INTO recurring_invoice_items SET item_name = '$name', item_description = '$description', item_quantity = $qty, item_price = $price, item_subtotal = $subtotal, item_tax = $tax_amount, item_total = $total, item_tax_id = $tax_id, item_order = $item_order, item_recurring_invoice_id = $recurring_invoice_id");
 
 
-    $sql = mysqli_query($mysqli,"SELECT * FROM recurring_invoices WHERE recurring_invoice_id = $recurring_invoice_id");
+    $sql = mysqli_query($mysqli,"SELECT recurring_invoice_client_id, recurring_invoice_discount_amount, recurring_invoice_number,
+        recurring_invoice_prefix FROM recurring_invoices WHERE recurring_invoice_id = $recurring_invoice_id");
     $row = mysqli_fetch_assoc($sql);
     $recurring_invoice_discount = floatval($row['recurring_invoice_discount_amount']);
     $recurring_invoice_prefix = escapeSql($row['recurring_invoice_prefix']);
@@ -273,7 +275,7 @@ if (isset($_POST['edit_recurring_invoice_item'])) {
     $subtotal = $price * $qty;
 
     if ($tax_id > 0) {
-        $sql = mysqli_query($mysqli,"SELECT * FROM taxes WHERE tax_id = $tax_id");
+        $sql = mysqli_query($mysqli,"SELECT tax_percent FROM taxes WHERE tax_id = $tax_id");
         $row = mysqli_fetch_assoc($sql);
         $tax_percent = floatval($row['tax_percent']);
         $tax_amount = $subtotal * $tax_percent / 100;
@@ -289,7 +291,8 @@ if (isset($_POST['edit_recurring_invoice_item'])) {
     $recurring_invoice_id = intval($row['item_recurring_invoice_id']);
 
     //Get Discount Amount
-    $sql = mysqli_query($mysqli,"SELECT * FROM recurring_invoices WHERE recurring_invoice_id = $recurring_invoice_id");
+    $sql = mysqli_query($mysqli,"SELECT recurring_invoice_client_id, recurring_invoice_discount_amount, recurring_invoice_number,
+        recurring_invoice_prefix FROM recurring_invoices WHERE recurring_invoice_id = $recurring_invoice_id");
     $row = mysqli_fetch_assoc($sql);
     $recurring_invoice_prefix = escapeSql($row['recurring_invoice_prefix']);
     $recurring_invoice_number = intval($row['recurring_invoice_number']);
@@ -352,7 +355,7 @@ if (isset($_GET['delete_recurring_invoice_item'])) {
 
     $item_id = intval($_GET['delete_recurring_invoice_item']);
 
-    $sql = mysqli_query($mysqli,"SELECT * FROM recurring_invoice_items WHERE item_id = $item_id");
+    $sql = mysqli_query($mysqli,"SELECT item_name, item_recurring_invoice_id, item_subtotal, item_tax, item_total FROM recurring_invoice_items WHERE item_id = $item_id");
     $row = mysqli_fetch_assoc($sql);
     $recurring_invoice_id = intval($row['item_recurring_invoice_id']);
     $item_name = escapeSql($row['item_name']);
@@ -360,7 +363,8 @@ if (isset($_GET['delete_recurring_invoice_item'])) {
     $item_tax = floatval($row['item_tax']);
     $item_total = floatval($row['item_total']);
 
-    $sql = mysqli_query($mysqli,"SELECT * FROM recurring_invoices WHERE recurring_invoice_id = $recurring_invoice_id");
+    $sql = mysqli_query($mysqli,"SELECT recurring_invoice_amount, recurring_invoice_client_id, recurring_invoice_number,
+        recurring_invoice_prefix FROM recurring_invoices WHERE recurring_invoice_id = $recurring_invoice_id");
     $row = mysqli_fetch_assoc($sql);
     $recurring_invoice_prefix = escapeSql($row['recurring_invoice_prefix']);
     $recurring_invoice_number = intval($row['recurring_invoice_number']);
@@ -390,7 +394,11 @@ if (isset($_GET['force_recurring'])) {
 
     $recurring_invoice_id = intval($_GET['force_recurring']);
 
-    $sql_recurring_invoices = mysqli_query($mysqli,"SELECT * FROM recurring_invoices, clients WHERE client_id = recurring_invoice_client_id AND recurring_invoice_id = $recurring_invoice_id");
+    $sql_recurring_invoices = mysqli_query($mysqli,"SELECT client_net_terms, recurring_invoice_amount, recurring_invoice_category_id,
+        recurring_invoice_client_id, recurring_invoice_currency_code,
+        recurring_invoice_discount_amount, recurring_invoice_frequency, recurring_invoice_id,
+        recurring_invoice_last_sent, recurring_invoice_next_date, recurring_invoice_note,
+        recurring_invoice_scope, recurring_invoice_status FROM recurring_invoices, clients WHERE client_id = recurring_invoice_client_id AND recurring_invoice_id = $recurring_invoice_id");
 
     $row = mysqli_fetch_assoc($sql_recurring_invoices);
     $recurring_invoice_id = intval($row['recurring_invoice_id']);
@@ -442,7 +450,7 @@ if (isset($_GET['force_recurring'])) {
 
         //Recalculate Item Tax since Tax percents can change.
         if ($tax_id > 0) {
-            $sql = mysqli_query($mysqli,"SELECT * FROM taxes WHERE tax_id = $tax_id");
+            $sql = mysqli_query($mysqli,"SELECT tax_percent FROM taxes WHERE tax_id = $tax_id");
             $row = mysqli_fetch_assoc($sql);
             $tax_percent = floatval($row['tax_percent']);
             $item_tax_amount = $item_subtotal * $tax_percent / 100;
@@ -493,7 +501,7 @@ if (isset($_GET['force_recurring'])) {
         $contact_extension = intval($row['contact_extension']);
         $contact_mobile = escapeSql(formatPhoneNumber($row['contact_mobile'], $row['contact_mobile_country_code']));
 
-        $sql = mysqli_query($mysqli,"SELECT * FROM companies WHERE company_id = 1");
+        $sql = mysqli_query($mysqli,"SELECT company_email, company_name, company_phone, company_phone_country_code, company_website FROM companies WHERE company_id = 1");
         $row = mysqli_fetch_assoc($sql);
         $company_name = escapeSql($row['company_name']);
         $company_phone = escapeSql(formatPhoneNumber($row['company_phone'], $row['company_phone_country_code']));
@@ -559,7 +567,8 @@ if (isset($_POST['set_recurring_payment'])) {
     $saved_payment_id = intval($_POST['saved_payment_id']);
 
     // Get Recurring Invoice Info for logging and alerting
-    $sql = mysqli_query($mysqli, "SELECT * FROM recurring_invoices WHERE recurring_invoice_id = $recurring_invoice_id");
+    $sql = mysqli_query($mysqli, "SELECT recurring_invoice_amount, recurring_invoice_client_id, recurring_invoice_currency_code,
+        recurring_invoice_number, recurring_invoice_prefix FROM recurring_invoices WHERE recurring_invoice_id = $recurring_invoice_id");
     $row = mysqli_fetch_assoc($sql);
     $client_id = intval($row['recurring_invoice_client_id']);
     $recurring_invoice_prefix = escapeSql($row['recurring_invoice_prefix']);
@@ -573,7 +582,8 @@ if (isset($_POST['set_recurring_payment'])) {
 
         // Get Payment provider and method
         $sql = mysqli_query($mysqli, "
-            SELECT * FROM payment_providers
+            SELECT payment_provider_account, payment_provider_id, payment_provider_name,
+                saved_payment_description FROM payment_providers
             LEFT JOIN client_saved_payment_methods ON saved_payment_provider_id = payment_provider_id
             WHERE saved_payment_id = $saved_payment_id
         ");
@@ -703,7 +713,7 @@ if (isset($_GET['recurring_invoice_email_notify'])) {
     $recurring_invoice_email_notify = intval($_GET['recurring_invoice_email_notify']);
     $recurring_invoice_id = intval($_GET['recurring_invoice_id']);
 
-    $sql = mysqli_query($mysqli,"SELECT * FROM recurring_invoices WHERE recurring_invoice_id = $recurring_invoice_id");
+    $sql = mysqli_query($mysqli,"SELECT recurring_invoice_client_id, recurring_invoice_number, recurring_invoice_prefix FROM recurring_invoices WHERE recurring_invoice_id = $recurring_invoice_id");
     $row = mysqli_fetch_assoc($sql);
     $recurring_invoice_prefix = escapeSql($row['recurring_invoice_prefix']);
     $recurring_invoice_number = intval($row['recurring_invoice_number']);

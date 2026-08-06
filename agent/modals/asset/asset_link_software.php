@@ -4,7 +4,7 @@ require_once '../../../includes/modal_header.php';
 
 $asset_id = intval($_GET['id']);
 
-$sql = mysqli_query($mysqli, "SELECT * FROM assets
+$sql = mysqli_query($mysqli, "SELECT asset_client_id, asset_name FROM assets
     WHERE asset_id = $asset_id
     LIMIT 1
 ");

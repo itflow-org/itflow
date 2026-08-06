@@ -6,7 +6,7 @@ enforceUserPermission('module_support', 2);
 
 $document_id = intval($_GET['id']);
 
-$sql = mysqli_query($mysqli, "SELECT * FROM documents WHERE document_id = $document_id LIMIT 1");
+$sql = mysqli_query($mysqli, "SELECT document_client_id, document_name FROM documents WHERE document_id = $document_id LIMIT 1");
 
 $row = mysqli_fetch_assoc($sql);
 $client_id = intval($row['document_client_id']);

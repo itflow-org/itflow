@@ -2,7 +2,7 @@
 require_once "includes/inc_all_user.php";
 
 // User remember me tokens
-$sql_remember_tokens = mysqli_query($mysqli, "SELECT * FROM remember_tokens WHERE remember_token_user_id = $session_user_id");
+$sql_remember_tokens = mysqli_query($mysqli, "SELECT remember_token_created_at, remember_token_id FROM remember_tokens WHERE remember_token_user_id = $session_user_id");
 $remember_token_count = mysqli_num_rows($sql_remember_tokens);
 
 ?>

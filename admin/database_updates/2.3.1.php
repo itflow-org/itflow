@@ -8,7 +8,7 @@
 defined('FROM_DB_UPDATER') || die("Direct file access is not allowed");
 
     // Migrate Payment Methods from Categories Table to new payment_methods table
-    $sql_categories = mysqli_query($mysqli, "SELECT * FROM categories WHERE category_type = 'Payment Method' AND category_name != 'Stripe' AND category_archived_at IS NULL");
+    $sql_categories = mysqli_query($mysqli, "SELECT category_name FROM categories WHERE category_type = 'Payment Method' AND category_name != 'Stripe' AND category_archived_at IS NULL");
 
     while ($row = mysqli_fetch_assoc($sql_categories)) {
         $category_name = escapeSql($row['category_name']);

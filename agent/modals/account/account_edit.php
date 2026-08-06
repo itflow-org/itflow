@@ -6,7 +6,7 @@ enforceUserPermission('module_financial', 2);
 
 $account_id = intval($_GET['id']);
 
-$sql = mysqli_query($mysqli, "SELECT * FROM accounts WHERE account_id = $account_id LIMIT 1");
+$sql = mysqli_query($mysqli, "SELECT account_name, account_notes FROM accounts WHERE account_id = $account_id LIMIT 1");
 
 $row = mysqli_fetch_assoc($sql);
 $account_name = escapeHtml($row['account_name']);

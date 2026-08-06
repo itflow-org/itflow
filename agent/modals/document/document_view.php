@@ -14,7 +14,7 @@ $purifier = new HTMLPurifier($purifier_config);
 
 $document_id = intval($_GET['id']);
 
-$sql = mysqli_query($mysqli, "SELECT * FROM documents WHERE document_id = $document_id LIMIT 1");
+$sql = mysqli_query($mysqli, "SELECT document_client_id, document_content, document_name FROM documents WHERE document_id = $document_id LIMIT 1");
 
 $row = mysqli_fetch_assoc($sql);
 $document_name = escapeHtml($row['document_name']);

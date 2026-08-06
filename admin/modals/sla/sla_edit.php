@@ -3,7 +3,7 @@ require_once '../../includes/modal_header.php';
 
 $sla_id = intval($_GET['id']);
 
-$sql = mysqli_query($mysqli, "SELECT * FROM slas WHERE sla_id = $sla_id LIMIT 1");
+$sql = mysqli_query($mysqli, "SELECT sla_description, sla_name, sla_resolution_minutes, sla_response_minutes FROM slas WHERE sla_id = $sla_id LIMIT 1");
 $row = mysqli_fetch_assoc($sql);
 $sla_name = escapeHtml($row['sla_name']);
 $sla_description = escapeHtml($row['sla_description']);

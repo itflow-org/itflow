@@ -26,7 +26,7 @@ ob_start();
                 <select class="form-control select2" name="provider" required>
                     <option value="">- Select an AI Provider -</option>
                     <?php
-                        $sql_ai_providers = mysqli_query($mysqli, "SELECT * FROM ai_providers");
+                        $sql_ai_providers = mysqli_query($mysqli, "SELECT ai_provider_id, ai_provider_name FROM ai_providers");
                         while ($row = mysqli_fetch_assoc($sql_ai_providers)) {
                             $ai_provider_id = intval($row['ai_provider_id']);
                             $ai_provider_name = escapeHtml($row['ai_provider_name']);

@@ -6,7 +6,9 @@ enforceUserPermission('module_support', 2);
 
 $network_id = intval($_GET['id']);
 
-$sql = mysqli_query($mysqli, "SELECT * FROM networks WHERE network_id = $network_id LIMIT 1");
+$sql = mysqli_query($mysqli, "SELECT network, network_client_id, network_description, network_dhcp_range, network_gateway,
+    network_location_id, network_name, network_notes, network_primary_dns,
+    network_secondary_dns, network_vlan FROM networks WHERE network_id = $network_id LIMIT 1");
 
 $row = mysqli_fetch_assoc($sql);
 $network_name = escapeHtml($row['network_name']);

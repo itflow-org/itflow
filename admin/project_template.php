@@ -8,7 +8,8 @@ if (isset($_GET['project_template_id'])) {
 
     $sql_project_templates = mysqli_query(
         $mysqli,
-        "SELECT * FROM project_templates
+        "SELECT project_template_created_at, project_template_description, project_template_name,
+            project_template_updated_at FROM project_templates
         WHERE project_template_id = $project_template_id LIMIT 1"
     );
 

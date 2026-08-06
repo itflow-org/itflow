@@ -6,7 +6,7 @@ enforceUserPermission('module_sales', 2);
 
 $quote_id = intval($_GET['quote_id']);
 
-$sql = mysqli_query($mysqli, "SELECT * FROM quotes WHERE quote_id = $quote_id LIMIT 1");
+$sql = mysqli_query($mysqli, "SELECT quote_client_id, quote_number, quote_prefix FROM quotes WHERE quote_id = $quote_id LIMIT 1");
 
 $row = mysqli_fetch_assoc($sql);
 $quote_prefix = escapeHtml($row['quote_prefix']);

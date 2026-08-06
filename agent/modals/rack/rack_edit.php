@@ -6,7 +6,9 @@ enforceUserPermission('module_support', 2);
 
 $rack_id = intval($_GET['id']);
 
-$sql = mysqli_query($mysqli, "SELECT * FROM racks WHERE rack_id = $rack_id LIMIT 1");
+$sql = mysqli_query($mysqli, "SELECT rack_client_id, rack_created_at, rack_depth, rack_description, rack_location_id,
+    rack_model, rack_name, rack_notes, rack_photo, rack_physical_location, rack_type,
+    rack_units FROM racks WHERE rack_id = $rack_id LIMIT 1");
 
 $row = mysqli_fetch_assoc($sql);
 $rack_name = escapeHtml($row['rack_name']);

@@ -366,7 +366,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 
                         // Saved Payment Methods
                         $sql_saved_payment_methods = mysqli_query($mysqli, "
-                            SELECT * FROM client_saved_payment_methods
+                            SELECT 1 FROM client_saved_payment_methods
                             LEFT JOIN payment_providers
                                 ON client_saved_payment_methods.saved_payment_provider_id = payment_providers.payment_provider_id
                             WHERE saved_payment_client_id = $client_id

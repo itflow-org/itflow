@@ -16,7 +16,7 @@ if (isset($_GET['enable_technical'])) {
 }
 
 // Fetch User Dashboard Settings
-$sql_user_dashboard_settings = mysqli_query($mysqli, "SELECT * FROM user_settings WHERE user_id = $session_user_id");
+$sql_user_dashboard_settings = mysqli_query($mysqli, "SELECT user_config_dashboard_financial_enable, user_config_dashboard_technical_enable FROM user_settings WHERE user_id = $session_user_id");
 $row = mysqli_fetch_assoc($sql_user_dashboard_settings);
 $user_config_dashboard_financial_enable = intval($row['user_config_dashboard_financial_enable']);
 $user_config_dashboard_technical_enable = intval($row['user_config_dashboard_technical_enable']);

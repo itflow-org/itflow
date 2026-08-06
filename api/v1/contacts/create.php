@@ -15,7 +15,7 @@ $insert_id = false;
 if (!empty($name) && !empty($email) && !empty($client_id)) {
 
     // Check contact with $email doesn't already exist
-    $email_duplication_sql = mysqli_query($mysqli, "SELECT * FROM contacts WHERE contact_email = '$email' AND contact_client_id = '$client_id'");
+    $email_duplication_sql = mysqli_query($mysqli, "SELECT 1 FROM contacts WHERE contact_email = '$email' AND contact_client_id = '$client_id'");
 
     if (mysqli_num_rows($email_duplication_sql) == 0) {
 

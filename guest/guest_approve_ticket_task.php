@@ -38,7 +38,8 @@ $approval_id = intval($_GET['task_approval_id']);
 $url_key = escapeSql($_GET['url_key']);
 
 $task_row = mysqli_fetch_assoc(mysqli_query($mysqli,
-    "SELECT * FROM task_approvals
+    "SELECT approval_scope, approval_status, approval_type, task_id, task_name, ticket_details,
+        ticket_number, ticket_prefix, ticket_priority, ticket_status_name, ticket_subject FROM task_approvals
         LEFT JOIN tasks ON approval_task_id = task_id
         LEFT JOIN tickets on task_ticket_id = ticket_id
         LEFT JOIN ticket_statuses ON ticket_status = ticket_status_id

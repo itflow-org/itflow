@@ -4,7 +4,8 @@ require_once '../../../includes/modal_header.php';
 
 $event_id = intval($_GET['id']);
 
-$sql = mysqli_query($mysqli, "SELECT * FROM calendar_events LEFT JOIN calendars ON event_calendar_id = calendar_id WHERE event_id = $event_id LIMIT 1");
+$sql = mysqli_query($mysqli, "SELECT calendar_color, calendar_id, calendar_name, event_all_day, event_client_id,
+    event_description, event_end, event_location, event_repeat, event_start, event_title FROM calendar_events LEFT JOIN calendars ON event_calendar_id = calendar_id WHERE event_id = $event_id LIMIT 1");
 
 $row = mysqli_fetch_assoc($sql);
 $event_title = escapeHtml($row['event_title']);
@@ -78,7 +79,7 @@ ob_start();
                         <select class="form-control select2" name="calendar" required>
                             <?php
 
-                            $sql_calendars_select = mysqli_query($mysqli, "SELECT * FROM calendars ORDER BY calendar_name ASC");
+                            $sql_calendars_select = mysqli_query($mysqli, "SELECT calendar_color, calendar_id, calendar_name FROM calendars ORDER BY calendar_name ASC");
                             while ($row = mysqli_fetch_assoc($sql_calendars_select)) {
                                 $calendar_id_select = intval($row['calendar_id']);
                                 $calendar_name_select = escapeHtml($row['calendar_name']);

@@ -12,7 +12,8 @@ $config_sla_warning_percent = intval($row['config_sla_warning_percent']);
 $config_sla_notification_email = escapeHtml($row['config_sla_notification_email']);
 
 // SLA plans (active first)
-$sql_slas = mysqli_query($mysqli, "SELECT * FROM slas ORDER BY sla_archived_at IS NOT NULL, sla_name ASC");
+$sql_slas = mysqli_query($mysqli, "SELECT sla_archived_at, sla_description, sla_id, sla_name, sla_resolution_minutes,
+    sla_response_minutes FROM slas ORDER BY sla_archived_at IS NOT NULL, sla_name ASC");
 
 // Active plans for the assignment dropdowns
 $active_slas = [];
