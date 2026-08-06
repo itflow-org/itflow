@@ -408,7 +408,7 @@ if (isset($_POST['export_certificates'])) {
         LEFT JOIN clients ON client_id = certificate_client_id
         WHERE $archive_query
         AND (certificate_name LIKE '%$q%' OR certificate_domain LIKE '%$q%' OR certificate_description LIKE '%$q%' OR certificate_issued_by LIKE '%$q%' OR client_name LIKE '%$q%')
-        $access_permission_query
+        " . clientScopeSql('certificate_client_id') . "
         $client_query
         $expire_query
         ORDER BY certificate_name ASC"

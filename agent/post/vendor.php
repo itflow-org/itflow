@@ -398,7 +398,7 @@ if (isset($_POST['export_vendors'])) {
         WHERE $archive_query
         AND (vendor_name LIKE '%$q%' OR vendor_description LIKE '%$q%' OR vendor_account_number LIKE '%$q%' OR vendor_website LIKE '%$q%' OR vendor_contact_name LIKE '%$q%' OR vendor_email LIKE '%$q%' OR vendor_phone LIKE '%$q%')
         $client_query
-        $access_permission_query
+        " . clientScopeSql('vendor_client_id') . "
         ORDER BY vendor_name ASC"
     );
 

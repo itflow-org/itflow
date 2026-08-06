@@ -732,7 +732,7 @@ if (isset($_POST['export_quotes'])) {
         LEFT JOIN categories ON quote_category_id = category_id
         WHERE (CONCAT(quote_prefix,quote_number) LIKE '%$q%' OR quote_scope LIKE '%$q%' OR category_name LIKE '%$q%' OR quote_status LIKE '%$q%' OR quote_amount LIKE '%$q%' OR client_name LIKE '%$q%')
         AND DATE(quote_date) BETWEEN '$dtf' AND '$dtt'
-        $access_permission_query
+        " . clientScopeSql('quote_client_id') . "
         $client_query
         ORDER BY quote_number ASC"
     );
@@ -774,7 +774,7 @@ if (isset($_GET['export_quote_pdf'])) {
         LEFT JOIN contacts ON clients.client_id = contacts.contact_client_id AND contact_primary = 1
         LEFT JOIN locations ON clients.client_id = locations.location_client_id AND location_primary = 1
         WHERE quote_id = $quote_id
-        $access_permission_query
+        " . clientScopeSql('quote_client_id') . "
         LIMIT 1"
     );
 

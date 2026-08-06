@@ -296,7 +296,7 @@ if (isset($_POST['export_software'])) {
         LEFT JOIN vendors ON vendor_id = software_vendor_id
         WHERE (software_name LIKE '%$q%' OR software_type LIKE '%$q%' OR software_key LIKE '%$q%' OR client_name LIKE '%$q%')
         AND $archive_query
-        $access_permission_query
+        " . clientScopeSql('software_client_id') . "
         $client_query
         $expire_query
         ORDER BY software_name ASC"

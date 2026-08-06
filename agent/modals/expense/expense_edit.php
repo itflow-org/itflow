@@ -205,7 +205,7 @@ ob_start();
                             <option value="">- Select Client -</option>
                             <?php
 
-                            $sql_clients = mysqli_query($mysqli, "SELECT client_id, client_name FROM clients WHERE 1 = 1 $access_permission_query ORDER BY client_name ASC");
+                            $sql_clients = mysqli_query($mysqli, "SELECT client_id, client_name FROM clients WHERE 1 = 1 " . clientScopeSql('clients.client_id') . " ORDER BY client_name ASC");
                             while ($row = mysqli_fetch_assoc($sql_clients)) {
                                 $client_id_select = intval($row['client_id']);
                                 $client_name_select = escapeHtml($row['client_name']);

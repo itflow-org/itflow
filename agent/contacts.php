@@ -74,7 +74,7 @@ $sql = mysqli_query($mysqli, "SELECT SQL_CALC_FOUND_ROWS contacts.*, clients.*, 
     WHERE $archive_query
     $tag_query
     AND (contact_name LIKE '%$q%' OR contact_title LIKE '%$q%' OR location_name LIKE '%$q%'  OR contact_email LIKE '%$q%' OR contact_department LIKE '%$q%' OR contact_phone LIKE '%$phone_query%' OR contact_extension LIKE '%$q%' OR contact_mobile LIKE '%$phone_query%' OR tag_name LIKE '%$q%' OR client_name LIKE '%$q%')
-    $access_permission_query
+    " . clientScopeSql('contact_client_id') . "
     $client_query
     $location_query
     GROUP BY contact_id
@@ -193,7 +193,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                 FROM clients
                                 JOIN contacts ON contact_client_id = client_id
                                 WHERE $archive_query
-                                $access_permission_query
+                                " . clientScopeSql('clients.client_id') . "
                                 ORDER BY client_name ASC
                             ");
                             while ($row = mysqli_fetch_assoc($sql_clients_filter)) {

@@ -68,7 +68,7 @@ $sql = mysqli_query(
     LEFT JOIN vendors ON vendor_id = software_vendor_id
     WHERE (software_name LIKE '%$q%' OR software_type LIKE '%$q%' OR software_key LIKE '%$q%' OR client_name LIKE '%$q%')
     AND $archive_query
-    $access_permission_query
+    " . clientScopeSql('software_client_id') . "
     $client_query
     $expire_query
     ORDER BY $sort $order LIMIT $record_from, $record_to");
@@ -131,7 +131,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                     FROM clients
                                     JOIN software ON software_client_id = client_id
                                     WHERE $archive_query
-                                    $access_permission_query
+                                    " . clientScopeSql('clients.client_id') . "
                                     ORDER BY client_name ASC
                                 ");
                                 while ($row = mysqli_fetch_assoc($sql_clients_filter)) {

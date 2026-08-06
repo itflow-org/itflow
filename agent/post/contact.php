@@ -1349,7 +1349,7 @@ if (isset($_POST['export_contacts'])) {
         WHERE $archive_query
         $tag_query
         AND (contact_name LIKE '%$q%' OR contact_title LIKE '%$q%' OR location_name LIKE '%$q%' OR contact_email LIKE '%$q%' OR contact_department LIKE '%$q%' OR contact_phone LIKE '%$q%' OR contact_mobile LIKE '%$q%' OR client_name LIKE '%$q%' OR tag_name LIKE '%$q%')
-        $access_permission_query
+        " . clientScopeSql('contact_client_id') . "
         $client_query
         $location_query
         GROUP BY contact_id

@@ -341,7 +341,7 @@ while ($row = mysqli_fetch_assoc($sql)) {
             }
 
             // Invoices Created
-            $sql = mysqli_query($mysqli, "SELECT * FROM clients LEFT JOIN invoices ON client_id = invoice_client_id $client_query $access_permission_query");
+            $sql = mysqli_query($mysqli, "SELECT * FROM clients LEFT JOIN invoices ON client_id = invoice_client_id $client_query " . clientScopeSql('clients.client_id') . "");
             while ($row = mysqli_fetch_assoc($sql)) {
                 $event_id = intval($row['invoice_id']);
                 $scope = strval($row['invoice_scope']);
@@ -356,7 +356,7 @@ while ($row = mysqli_fetch_assoc($sql)) {
             }
 
             // Quotes Created
-            $sql = mysqli_query($mysqli, "SELECT * FROM clients LEFT JOIN quotes ON client_id = quote_client_id $client_query $access_permission_query");
+            $sql = mysqli_query($mysqli, "SELECT * FROM clients LEFT JOIN quotes ON client_id = quote_client_id $client_query " . clientScopeSql('clients.client_id') . "");
             while ($row = mysqli_fetch_assoc($sql)) {
                 $event_id = intval($row['quote_id']);
                 $event_title = json_encode($row['quote_prefix'] . $row['quote_number'] . " " . $row['quote_scope']);
@@ -370,7 +370,7 @@ while ($row = mysqli_fetch_assoc($sql)) {
                 LEFT JOIN tickets ON client_id = ticket_client_id
                 LEFT JOIN ticket_statuses ON ticket_status = ticket_status_id
                 LEFT JOIN users ON ticket_assigned_to = user_id
-                $client_query $access_permission_query"
+                $client_query " . clientScopeSql('clients.client_id') . ""
             );
             while ($row = mysqli_fetch_assoc($sql)) {
                 $event_id = intval($row['ticket_id']);
@@ -404,7 +404,7 @@ while ($row = mysqli_fetch_assoc($sql)) {
             $sql = mysqli_query($mysqli, "SELECT * FROM clients
                 LEFT JOIN recurring_tickets ON client_id = recurring_ticket_client_id
                 LEFT JOIN users ON recurring_ticket_assigned_to = user_id
-                $client_query $access_permission_query"
+                $client_query " . clientScopeSql('clients.client_id') . ""
             );
             while ($row = mysqli_fetch_assoc($sql)) {
                 $event_id = intval($row['recurring_ticket_id']);
@@ -429,7 +429,7 @@ while ($row = mysqli_fetch_assoc($sql)) {
                 LEFT JOIN tickets ON client_id = ticket_client_id
                 LEFT JOIN ticket_statuses ON ticket_status = ticket_status_id
                 LEFT JOIN users ON ticket_assigned_to = user_id
-                $client_query $access_permission_query AND ticket_schedule IS NOT NULL"
+                $client_query " . clientScopeSql('clients.client_id') . " AND ticket_schedule IS NOT NULL"
             );
             while ($row = mysqli_fetch_assoc($sql)) {
                 $event_id = intval($row['ticket_id']);
@@ -460,7 +460,7 @@ while ($row = mysqli_fetch_assoc($sql)) {
             }
 
             // Vendors Added Created
-            $sql = mysqli_query($mysqli, "SELECT * FROM clients LEFT JOIN vendors ON client_id = vendor_client_id $client_query $access_permission_query");
+            $sql = mysqli_query($mysqli, "SELECT * FROM clients LEFT JOIN vendors ON client_id = vendor_client_id $client_query " . clientScopeSql('clients.client_id') . "");
             while ($row = mysqli_fetch_assoc($sql)) {
                 $event_id = intval($row['vendor_id']);
                 $client_id = intval($row['client_id']);

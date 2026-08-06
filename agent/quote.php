@@ -21,7 +21,7 @@ if (isset($_GET['quote_id'])) {
         LEFT JOIN contacts ON clients.client_id = contacts.contact_client_id AND contact_primary = 1
         LEFT JOIN locations ON clients.client_id = locations.location_client_id AND location_primary = 1
         WHERE quote_id = $quote_id
-        $access_permission_query
+        " . clientScopeSql('quote_client_id') . "
         LIMIT 1"
     );
 

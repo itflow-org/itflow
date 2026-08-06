@@ -1442,7 +1442,7 @@ if (isset($_POST['export_assets'])) {
         $tag_query
         AND (asset_name LIKE '%$q%' OR asset_description LIKE '%$q%' OR asset_type LIKE '%$q%' OR interface_ip LIKE '%$q%' OR interface_ipv6 LIKE '%$q%' OR interface_mac LIKE '%$q%' OR asset_make LIKE '%$q%' OR asset_model LIKE '%$q%' OR asset_serial LIKE '%$q%' OR asset_os LIKE '%$q%' OR contact_name LIKE '%$q%' OR location_name LIKE '%$q%' OR client_name LIKE '%$q%' OR tag_name LIKE '%$q%')
         AND ($type_query)
-        $access_permission_query
+        " . clientScopeSql('asset_client_id') . "
         $location_query
         $expire_query
         $client_query

@@ -21,7 +21,7 @@ if (isset($_GET['invoice_id'])) {
         LEFT JOIN contacts ON client_id = contact_client_id AND contact_primary = 1
         LEFT JOIN locations ON client_id = location_client_id AND location_primary = 1
         WHERE invoice_id = $invoice_id
-        $access_permission_query
+        " . clientScopeSql('invoice_client_id') . "
         LIMIT 1"
     );
 

@@ -666,7 +666,7 @@ if (isset($_POST['export_recurring_invoices'])) {
         AND DATE(recurring_invoice_created_at) BETWEEN '$dtf' AND '$dtt'
         $status_query
         $client_query
-        $access_permission_query
+        " . clientScopeSql('recurring_invoice_client_id') . "
         ORDER BY recurring_invoice_number ASC"
     );
 

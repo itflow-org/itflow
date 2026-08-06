@@ -124,7 +124,7 @@ $row = mysqli_fetch_assoc(mysqli_query($mysqli, "
         LEFT JOIN tags ON tag_id = asset_tag_tag_id
         WHERE $archive_query
         $tag_query
-        $access_permission_query
+        " . clientScopeSql('asset_client_id') . "
         $client_query
         GROUP BY asset_id
     ) AS filtered_assets;
@@ -161,7 +161,7 @@ $sql = mysqli_query(
     $tag_query
     AND (asset_name LIKE '%$q%' OR asset_description LIKE '%$q%' OR asset_type LIKE '%$q%' OR interface_ip LIKE '%$q%' OR interface_ipv6 LIKE '%$q%' OR interface_mac LIKE '%$q%' OR asset_make LIKE '%$q%' OR asset_model LIKE '%$q%' OR asset_serial LIKE '%$q%' OR asset_os LIKE '%$q%' OR contact_name LIKE '%$q%' OR location_name LIKE '%$q%' OR client_name LIKE '%$q%' OR tag_name LIKE '%$q%')
     AND ($type_query)
-    $access_permission_query
+    " . clientScopeSql('asset_client_id') . "
     $location_query
     $expire_query
     $client_query
@@ -288,7 +288,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                 FROM clients
                                 JOIN assets ON asset_client_id = client_id
                                 WHERE $archive_query
-                                $access_permission_query
+                                " . clientScopeSql('clients.client_id') . "
                                 ORDER BY client_name ASC
                             ");
                             while ($row = mysqli_fetch_assoc($sql_clients_filter)) {

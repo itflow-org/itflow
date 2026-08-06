@@ -63,16 +63,7 @@ while ($row = mysqli_fetch_assoc($user_client_access_result)) {
     }
 }
 
+// Client scoping for queries is built per-query by clientScopeSql() in functions/auth.php,
+// which is column-aware. These strings remain for any caller that needs the raw lists.
 $client_access_string = implode(',', $client_access_array);
 $client_deny_string = implode(',', $client_deny_array);
-
-$access_permission_query = "";
-if (!$session_is_admin) {
-    // Restrict to the allow list (if any), then subtract the deny list
-    if ($client_access_string) {
-        $access_permission_query .= " AND clients.client_id IN ($client_access_string)";
-    }
-    if ($client_deny_string) {
-        $access_permission_query .= " AND clients.client_id NOT IN ($client_deny_string)";
-    }
-}

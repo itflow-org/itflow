@@ -247,11 +247,8 @@ if ($q !== '') {
     $active_filters[] = array('label' => 'Search', 'value' => stripslashes(escapeHtml($q)), 'drop' => 'q');
 }
 
-// Ticket client access overide - This is the only way to show tickets without a client to agents with restricted client access
-$access_permission_query_overide = '';
-if ($client_access_string) {
-    $access_permission_query_overide = "AND ticket_client_id IN (0,$client_access_string)";
-}
+// Tickets with no client stay visible to restricted agents - clientScopeSql() includes 0
+$access_permission_query_overide = clientScopeSql('ticket_client_id');
 
 /*
  * Columns the two views need. Explicit rather than SELECT * - the tickets

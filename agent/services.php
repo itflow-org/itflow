@@ -37,7 +37,7 @@ $sql = mysqli_query(
     LEFT JOIN clients ON client_id = service_client_id
     WHERE (service_name LIKE '%$q%' OR service_description LIKE '%$q%' OR service_category LIKE '%$q%' OR client_name LIKE '%$q%')
     AND client_archived_at IS NULL
-    $access_permission_query
+    " . clientScopeSql('service_client_id') . "
     $client_query
     ORDER BY $sort $order LIMIT $record_from, $record_to"
 );
@@ -85,7 +85,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                     FROM clients
                                     JOIN services ON service_client_id = client_id
                                     WHERE client_archived_at IS NULL
-                                    $access_permission_query
+                                    " . clientScopeSql('clients.client_id') . "
                                     ORDER BY client_name ASC
                                 ");
                                 while ($row = mysqli_fetch_assoc($sql_clients_filter)) {

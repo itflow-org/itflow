@@ -370,7 +370,7 @@ if (isset($_POST['export_expenses'])) {
         $category_query
         AND (vendor_name LIKE '%$q%' OR client_name LIKE '%$q%' OR category_name LIKE '%$q%' OR account_name LIKE '%$q%' OR expense_description LIKE '%$q%' OR expense_amount LIKE '%$q%')
         $account_query
-        $access_permission_query
+        " . clientScopeSql('expense_client_id') . "
         ORDER BY expense_date ASC"
     );
 

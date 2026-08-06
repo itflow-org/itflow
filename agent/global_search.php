@@ -32,7 +32,7 @@ if (isset($_GET['query'])) {
         LEFT JOIN locations ON clients.client_id = locations.location_client_id AND location_primary = 1
         WHERE client_archived_at IS NULL
             AND (client_name LIKE '%$query%' OR client_abbreviation LIKE '%$query%')
-            $access_permission_query
+            " . clientScopeSql('clients.client_id') . "
         ORDER BY client_id DESC LIMIT 5"
     );
 
@@ -44,7 +44,7 @@ if (isset($_GET['query'])) {
             OR contact_email LIKE '%$query%'
             OR contact_phone LIKE '%$phone_query%'
             OR contact_mobile LIKE '%$phone_query%')
-            $access_permission_query
+            " . clientScopeSql('contact_client_id') . "
         ORDER BY contact_id DESC LIMIT 5"
     );
 
@@ -52,7 +52,7 @@ if (isset($_GET['query'])) {
         LEFT JOIN clients ON vendor_client_id = client_id
         WHERE vendor_archived_at IS NULL
             AND (vendor_name LIKE '%$query%' OR vendor_phone LIKE '%$phone_query%')
-            $access_permission_query
+            " . clientScopeSql('vendor_client_id') . "
         ORDER BY vendor_id DESC LIMIT 5"
     );
 
@@ -60,7 +60,7 @@ if (isset($_GET['query'])) {
         LEFT JOIN clients ON domain_client_id = client_id
         WHERE domain_archived_at IS NULL
             AND domain_name LIKE '%$query%'
-            $access_permission_query
+            " . clientScopeSql('domain_client_id') . "
         ORDER BY domain_id DESC LIMIT 5"
     );
 
@@ -74,7 +74,7 @@ if (isset($_GET['query'])) {
         LEFT JOIN clients on document_client_id = clients.client_id
         WHERE document_archived_at IS NULL
             AND MATCH(document_content_raw) AGAINST ('$query')
-            $access_permission_query
+            " . clientScopeSql('document_client_id') . "
         ORDER BY document_id DESC LIMIT 5"
     );
 
@@ -84,7 +84,7 @@ if (isset($_GET['query'])) {
         WHERE file_archived_at IS NULL
             AND (file_name LIKE '%$query%'
             OR file_description LIKE '%$query%')
-            $access_permission_query
+            " . clientScopeSql('file_client_id') . "
         ORDER BY file_id DESC LIMIT 5"
     );
 
@@ -96,7 +96,7 @@ if (isset($_GET['query'])) {
             OR ticket_details LIKE '%$query%'
             OR CONCAT(ticket_prefix,ticket_number) LIKE '%$query%'
             OR ticket_number = '$ticket_num_query')
-            $access_permission_query
+            " . clientScopeSql('tickets.ticket_client_id') . "
         ORDER BY ticket_id DESC LIMIT 5"
     );
 
@@ -104,7 +104,7 @@ if (isset($_GET['query'])) {
         LEFT JOIN clients ON recurring_ticket_client_id = client_id
         WHERE (recurring_ticket_subject LIKE '%$query%'
             OR recurring_ticket_details LIKE '%$query%')
-            $access_permission_query
+            " . clientScopeSql('recurring_ticket_client_id') . "
         ORDER BY recurring_ticket_id DESC LIMIT 5"
     );
 
@@ -113,7 +113,7 @@ if (isset($_GET['query'])) {
         LEFT JOIN clients ON credential_client_id = client_id
         WHERE credential_archived_at IS NULL
             AND (credential_name LIKE '%$query%' OR credential_description LIKE '%$query%')
-            $access_permission_query
+            " . clientScopeSql('credential_client_id') . "
         ORDER BY credential_id DESC LIMIT 5"
     );
 
@@ -122,7 +122,7 @@ if (isset($_GET['query'])) {
         LEFT JOIN categories ON quote_category_id = category_id
         WHERE quote_archived_at IS NULL
             AND (CONCAT(quote_prefix,quote_number) LIKE '%$query%' OR quote_number LIKE '%$query%' OR quote_scope LIKE '%$query%')
-            $access_permission_query
+            " . clientScopeSql('quote_client_id') . "
         ORDER BY quote_number DESC LIMIT 5"
     );
 
@@ -131,7 +131,7 @@ if (isset($_GET['query'])) {
         LEFT JOIN categories ON invoice_category_id = category_id
         WHERE invoice_archived_at IS NULL
             AND (CONCAT(invoice_prefix,invoice_number) LIKE '%$query%' OR invoice_number LIKE '%$query%' OR invoice_scope LIKE '%$query%')
-            $access_permission_query
+            " . clientScopeSql('invoice_client_id') . "
         ORDER BY invoice_number DESC LIMIT 5"
     );
 
@@ -142,7 +142,7 @@ if (isset($_GET['query'])) {
         LEFT JOIN asset_interfaces ON interface_asset_id = asset_id AND interface_primary = 1
         WHERE asset_archived_at IS NULL
             AND (asset_name LIKE '%$query%' OR asset_description LIKE '%$query%' OR asset_type LIKE '%$query%' OR asset_make LIKE '%$query%' OR asset_model LIKE '%$query%' OR asset_serial LIKE '%$query%' OR asset_os LIKE '%$query%' OR interface_ip LIKE '%$query%' OR interface_nat_ip LIKE '%$query%' OR interface_mac LIKE '%$query%' OR asset_status LIKE '%$query%')
-            $access_permission_query
+            " . clientScopeSql('asset_client_id') . "
         ORDER BY asset_name DESC LIMIT 5"
     );
 
@@ -151,7 +151,7 @@ if (isset($_GET['query'])) {
         LEFT JOIN clients ON ticket_client_id = client_id
         WHERE ticket_reply_archived_at IS NULL
             AND (ticket_reply LIKE '%$query%')
-            $access_permission_query
+            " . clientScopeSql('ticket_client_id') . "
         ORDER BY ticket_id DESC, ticket_reply_id ASC LIMIT 20"
     );
 

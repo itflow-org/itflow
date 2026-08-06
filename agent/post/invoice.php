@@ -730,7 +730,7 @@ if (isset($_POST['export_invoices'])) {
         $category_query
         AND DATE(invoice_date) BETWEEN '$dtf' AND '$dtt'
         AND (CONCAT(invoice_prefix,invoice_number) LIKE '%$q%' OR invoice_scope LIKE '%$q%' OR client_name LIKE '%$q%' OR invoice_status LIKE '%$q%' OR invoice_amount LIKE '%$q%' OR category_name LIKE '%$q%')
-        $access_permission_query
+        " . clientScopeSql('invoice_client_id') . "
         $client_query
         ORDER BY invoice_number ASC"
     );
@@ -823,7 +823,7 @@ if (isset($_GET['export_invoice_pdf'])) {
         LEFT JOIN contacts ON clients.client_id = contacts.contact_client_id AND contact_primary = 1
         LEFT JOIN locations ON clients.client_id = locations.location_client_id AND location_primary = 1
         WHERE invoice_id = $invoice_id
-        $access_permission_query
+        " . clientScopeSql('invoice_client_id') . "
         LIMIT 1"
     );
 
@@ -1052,7 +1052,7 @@ if (isset($_GET['export_invoice_packing_slip'])) {
         LEFT JOIN contacts ON clients.client_id = contacts.contact_client_id AND contact_primary = 1
         LEFT JOIN locations ON clients.client_id = locations.location_client_id AND location_primary = 1
         WHERE invoice_id = $invoice_id
-        $access_permission_query
+        " . clientScopeSql('invoice_client_id') . "
         LIMIT 1"
     );
 

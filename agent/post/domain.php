@@ -530,7 +530,7 @@ if (isset($_POST['export_domains'])) {
         LEFT JOIN vendors AS webhost ON domains.domain_webhost = webhost.vendor_id
         WHERE (domains.domain_name LIKE '%$q%' OR domains.domain_description LIKE '%$q%' OR registrar.vendor_name LIKE '%$q%' OR webhost.vendor_name LIKE '%$q%' OR client_name LIKE '%$q%')
         AND $archive_query
-        $access_permission_query
+        " . clientScopeSql('domain_client_id') . "
         $client_query
         $expire_query
         ORDER BY domains.domain_name ASC"

@@ -463,7 +463,7 @@ if (isset($_POST['export_locations'])) {
         WHERE $archive_query
         $tag_query
         AND (location_name LIKE '%$q%' OR location_description LIKE '%$q%' OR location_address LIKE '%$q%' OR location_city LIKE '%$q%' OR location_state LIKE '%$q%' OR location_zip LIKE '%$q%' OR location_country LIKE '%$q%' OR location_phone LIKE '%$q%' OR client_name LIKE '%$q%' OR tag_name LIKE '%$q%')
-        $access_permission_query
+        " . clientScopeSql('location_client_id') . "
         $client_query
         GROUP BY location_id
         ORDER BY location_name ASC"

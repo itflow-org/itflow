@@ -2871,12 +2871,8 @@ if (isset($_POST['export_tickets'])) {
         $ticket_project_snippet = '';
     }
 
-    // Client access override - the only way tickets without a client reach agents
-    // with restricted client access
-    $access_permission_query_overide = '';
-    if ($client_access_string) {
-        $access_permission_query_overide = "AND ticket_client_id IN (0,$client_access_string)";
-    }
+    // Tickets with no client stay visible to restricted agents - clientScopeSql() includes 0
+    $access_permission_query_overide = clientScopeSql('ticket_client_id');
 
     // Date Filter
     $dtf = escapeSql(!empty($_POST['dtf']) ? $_POST['dtf'] : '1970-01-01');

@@ -18,7 +18,7 @@ $sql = mysqli_query(
     LEFT JOIN clients ON recurring_expense_client_id = client_id
     WHERE DATE(recurring_expense_created_at) BETWEEN '$dtf' AND '$dtt'
     AND (vendor_name LIKE '%$q%' OR client_name LIKE '%$q%' OR category_name LIKE '%$q%' OR account_name LIKE '%$q%' OR recurring_expense_description LIKE '%$q%' OR recurring_expense_amount LIKE '%$q%')
-    $access_permission_query
+    " . clientScopeSql('recurring_expense_client_id') . "
     ORDER BY $sort $order LIMIT $record_from, $record_to"
 );
 

@@ -24,7 +24,7 @@ $sql = mysqli_query(
     AND DATE(trip_date) BETWEEN '$dtf' AND '$dtt'
     AND trip_archived_at IS NULL
     $client_query
-    $access_permission_query
+    " . clientScopeSql('trip_client_id') . "
     ORDER BY $sort $order LIMIT $record_from, $record_to"
 );
 

@@ -27,7 +27,7 @@ $sql_merge = mysqli_query($mysqli, "SELECT * FROM tickets
     LEFT JOIN clients ON client_id = ticket_client_id
     WHERE ticket_closed_at IS NULL
     AND ticket_id != $ticket_id
-    $access_permission_query
+    " . clientScopeSql('ticket_client_id') . "
     ORDER BY ticket_status ASC, ticket_id DESC"
 );
 

@@ -67,7 +67,7 @@ $sql = mysqli_query(
       AND client_$archive_query
       AND DATE(client_created_at) BETWEEN '$dtf' AND '$dtt'
       $leads_query
-      $access_permission_query
+      " . clientScopeSql('clients.client_id') . "
       $tag_query
       $industry_query
       $referral_query

@@ -90,7 +90,7 @@ $sql = mysqli_query(
     $tag_query
     AND (c.credential_name LIKE '%$q%' OR c.credential_description LIKE '%$q%' OR c.credential_uri LIKE '%$q%' OR tag_name LIKE '%$q%' OR client_name LIKE '%$q%')
     $location_query
-    $access_permission_query
+    " . clientScopeSql('credential_client_id') . "
     $client_query
     GROUP BY c.credential_id
     ORDER BY c.credential_favorite DESC, $sort $order LIMIT $record_from, $record_to"
@@ -204,7 +204,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                 FROM clients
                                 JOIN credentials ON credential_client_id = client_id
                                 WHERE $archive_query
-                                $access_permission_query
+                                " . clientScopeSql('clients.client_id') . "
                                 ORDER BY client_name ASC
                             ");
                             while ($row = mysqli_fetch_assoc($sql_clients_filter)) {

@@ -294,7 +294,7 @@ if (isset($_GET['get_active_clients'])) {
         $mysqli,
         "SELECT client_id, client_name FROM clients
         WHERE client_archived_at IS NULL
-        $access_permission_query
+        " . clientScopeSql('clients.client_id') . "
         ORDER BY client_accessed_at DESC"
     );
 
@@ -320,7 +320,7 @@ if (isset($_GET['get_client_contacts'])) {
         "SELECT contact_id, contact_name, contact_title, contact_email, contact_primary, contact_important, contact_technical FROM contacts
         LEFT JOIN clients on contact_client_id = client_id
         WHERE contacts.contact_archived_at IS NULL AND contact_client_id = $client_id
-        $access_permission_query
+        " . clientScopeSql('contact_client_id') . "
         ORDER BY contact_primary DESC, contact_technical DESC, contact_important DESC, contact_name"
     );
 
@@ -350,7 +350,7 @@ if (isset($_GET['get_client_assets'])) {
         LEFT JOIN clients on asset_client_id = client_id
         LEFT JOIN contacts ON contact_id = asset_contact_id
         WHERE assets.asset_archived_at IS NULL AND asset_client_id = $client_id
-        $access_permission_query
+        " . clientScopeSql('asset_client_id') . "
         ORDER BY asset_type ASC, asset_favorite DESC, asset_name"
     );
 
@@ -379,7 +379,7 @@ if (isset($_GET['get_client_locations'])) {
         "SELECT location_id, location_name FROM locations
         LEFT JOIN clients on location_client_id = client_id
         WHERE locations.location_archived_at IS NULL AND location_client_id = $client_id
-        $access_permission_query
+        " . clientScopeSql('location_client_id') . "
         ORDER BY location_primary DESC, location_name ASC"
     );
 
@@ -408,7 +408,7 @@ if (isset($_GET['get_client_vendors'])) {
         "SELECT vendor_id, vendor_name FROM vendors
         LEFT JOIN clients on vendor_client_id = client_id
         WHERE vendors.vendor_archived_at IS NULL AND vendor_client_id = $client_id
-        $access_permission_query
+        " . clientScopeSql('vendor_client_id') . "
         ORDER BY vendor_name ASC"
     );
 
@@ -437,7 +437,7 @@ if (isset($_GET['get_client_projects'])) {
         "SELECT project_id, project_name FROM projects
         LEFT JOIN clients on project_client_id = client_id
         WHERE projects.project_archived_at IS NULL AND projects.project_completed_at IS NULL AND project_client_id = $client_id
-        $access_permission_query
+        " . clientScopeSql('project_client_id') . "
         ORDER BY project_name ASC"
     );
 

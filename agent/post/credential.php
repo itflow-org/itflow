@@ -487,7 +487,7 @@ if (isset($_POST['export_credentials'])) {
         WHERE $archive_query
         $tag_query
         AND (c.credential_name LIKE '%$q%' OR c.credential_description LIKE '%$q%' OR c.credential_uri LIKE '%$q%' OR tag_name LIKE '%$q%' OR client_name LIKE '%$q%')
-        $access_permission_query
+        " . clientScopeSql('credential_client_id') . "
         $client_query
         GROUP BY c.credential_id
         ORDER BY c.credential_name ASC"

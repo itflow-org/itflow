@@ -9,11 +9,8 @@ if (isset($_GET['client_id'])) {
     $client_url = '';
 }
 
-// Ticket client access overide - This is the only way to show tickets without a client to agents with restricted client access
-$access_permission_query_overide = '';
-if ($client_access_string) {
-    $access_permission_query_overide = "AND ticket_client_id IN (0,$client_access_string)";
-}
+// Tickets with no client stay visible to restricted agents - clientScopeSql() includes 0
+$access_permission_query_overide = clientScopeSql('ticket_client_id');
 
 // Perms
 enforceUserPermission('module_support');

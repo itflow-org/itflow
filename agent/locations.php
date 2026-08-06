@@ -64,7 +64,7 @@ $sql = mysqli_query(
     WHERE $archive_query
     $tag_query
     AND (location_name LIKE '%$q%' OR location_description LIKE '%$q%' OR location_address LIKE '%$q%' OR location_city LIKE '%$q%' OR location_state LIKE '%$q%' OR location_zip LIKE '%$q%' OR location_country LIKE '%$q%' OR location_phone LIKE '%$phone_query%' OR tag_name LIKE '%$q%' OR client_name LIKE '%$q%')
-    $access_permission_query
+    " . clientScopeSql('location_client_id') . "
     $client_query
     GROUP BY location_id
     ORDER BY location_primary DESC, $sort $order LIMIT $record_from, $record_to"
@@ -154,7 +154,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                 FROM clients
                                 JOIN locations ON location_client_id = client_id
                                 WHERE $archive_query
-                                $access_permission_query
+                                " . clientScopeSql('clients.client_id') . "
                                 ORDER BY client_name ASC
                             ");
                             while ($row = mysqli_fetch_assoc($sql_clients_filter)) {
