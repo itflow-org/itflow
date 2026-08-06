@@ -388,7 +388,7 @@ if (isset($_POST['bulk_delete_locations'])) {
 
 }
 
-if (isset($_POST['export_locations'])) {
+if (isExportRequest('export_locations')) {
 
     validateCSRFToken();
 

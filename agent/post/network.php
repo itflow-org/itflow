@@ -172,7 +172,7 @@ if (isset($_POST['bulk_delete_networks'])) {
 
 }
 
-if (isset($_POST['export_networks'])) {
+if (isExportRequest('export_networks')) {
 
     validateCSRFToken();
 

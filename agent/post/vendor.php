@@ -353,7 +353,7 @@ if (isset($_POST['bulk_delete_vendors'])) {
 
 }
 
-if (isset($_POST['export_vendors'])) {
+if (isExportRequest('export_vendors')) {
 
     validateCSRFToken();
 

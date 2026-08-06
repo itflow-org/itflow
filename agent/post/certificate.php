@@ -338,7 +338,7 @@ if (isset($_POST['bulk_delete_certificates'])) {
 
 }
 
-if (isset($_POST['export_certificates'])) {
+if (isExportRequest('export_certificates')) {
 
     validateCSRFToken();
 

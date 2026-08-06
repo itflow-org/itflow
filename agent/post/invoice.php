@@ -657,7 +657,7 @@ if (isset($_GET['email_invoice'])) {
 
 }
 
-if (isset($_POST['export_invoices'])) {
+if (isExportRequest('export_invoices')) {
 
     validateCSRFToken();
 

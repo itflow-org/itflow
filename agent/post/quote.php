@@ -692,7 +692,7 @@ if (isset($_GET['mark_quote_invoiced'])) {
 
 }
 
-if (isset($_POST['export_quotes'])) {
+if (isExportRequest('export_quotes')) {
 
     validateCSRFToken();
 

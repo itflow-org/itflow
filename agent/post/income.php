@@ -307,7 +307,7 @@ if (isset($_POST['bulk_edit_income_method'])) {
 
 }
 
-if (isset($_POST['export_income'])) {
+if (isExportRequest('export_income')) {
 
     validateCSRFToken();
 

@@ -226,7 +226,7 @@ if (isset($_GET['delete_software'])) {
 
 }
 
-if (isset($_POST['export_software'])) {
+if (isExportRequest('export_software')) {
 
     validateCSRFToken();
 

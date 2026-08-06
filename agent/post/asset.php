@@ -1316,7 +1316,7 @@ if (isset($_GET['download_assets_csv_template'])) {
 
 }
 
-if (isset($_POST['export_assets'])) {
+if (isExportRequest('export_assets')) {
 
     validateCSRFToken();
 
@@ -2056,7 +2056,7 @@ if (isset($_GET['download_client_asset_interfaces_csv_template'])) {
 
 }
 
-if (isset($_POST['export_asset_interfaces'])) {
+if (isExportRequest('export_asset_interfaces')) {
 
     validateCSRFToken();
 

@@ -84,7 +84,7 @@ if (isset($_GET['delete_trip'])) {
 
 }
 
-if (isset($_POST['export_trips'])) {
+if (isExportRequest('export_trips')) {
 
     validateCSRFToken();
 

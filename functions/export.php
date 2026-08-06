@@ -349,6 +349,17 @@ function resolveExportFormat($format) {
 }
 
 /*
+ * The gate every export handler opens on. Keying on isset() alone means any other
+ * field that happens to share the trigger's name fires the export - the client PDF
+ * pack's section checkboxes (export_assets=1, export_contacts=1, ...) did exactly
+ * that, and since post.php loads every handler, the first match won and streamed a
+ * CSV instead. Only 'csv' or 'pdf' - what renderExportButtons() posts - counts.
+ */
+function isExportRequest($trigger) {
+    return isset($_POST[$trigger]) && in_array($_POST[$trigger], ['csv', 'pdf'], true);
+}
+
+/*
  * PDF is capped - see EXPORT_PDF_MAX_ROWS. Call this after the row count is known
  * and before beginExport(); it redirects rather than returning on refusal.
  */

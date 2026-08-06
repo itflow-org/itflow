@@ -2741,7 +2741,7 @@ if (isset($_POST['add_quote_from_ticket'])) {
 
 }
 
-if (isset($_POST['export_tickets'])) {
+if (isExportRequest('export_tickets')) {
 
     validateCSRFToken();
 

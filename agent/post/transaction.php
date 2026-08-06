@@ -9,7 +9,7 @@ if (!defined('FROM_POST_HANDLER')) {
     exit;
 }
 
-if (isset($_POST['export_transactions'])) {
+if (isExportRequest('export_transactions')) {
 
     validateCSRFToken();
 

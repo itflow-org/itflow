@@ -298,7 +298,7 @@ if (isset($_POST['bulk_delete_expenses'])) {
 
 }
 
-if (isset($_POST['export_expenses'])) {
+if (isExportRequest('export_expenses')) {
 
     validateCSRFToken();
 

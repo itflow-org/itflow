@@ -356,7 +356,7 @@ if (isset($_GET['delete_client'])) {
 
 }
 
-if (isset($_POST['export_clients'])) {
+if (isExportRequest('export_clients')) {
 
     validateCSRFToken();
 
@@ -1192,26 +1192,26 @@ if (isset($_POST["export_client_pdf"])) {
     $company_logo = escapeHtml($row['company_logo']);
 
     $client_id = intval($_POST["client_id"]);
-    $export_contacts = intval($_POST["export_contacts"]);
-    $export_locations = intval($_POST["export_locations"]);
-    $export_assets = intval($_POST["export_assets"]);
-    $export_software = intval($_POST["export_software"]);
+    $export_contacts = intval($_POST["include_contacts"] ?? 0);
+    $export_locations = intval($_POST["include_locations"] ?? 0);
+    $export_assets = intval($_POST["include_assets"] ?? 0);
+    $export_software = intval($_POST["include_software"] ?? 0);
     $export_credentials = 0;
     if (lookupUserPermission("module_credential") >= 1) {
-        $export_credentials = intval($_POST["export_credentials"] ?? 0);
+        $export_credentials = intval($_POST["include_credentials"] ?? 0);
     }
-    $export_networks = intval($_POST["export_networks"]);
-    $export_certificates = intval($_POST["export_certificates"]);
-    $export_domains = intval($_POST["export_domains"]);
-    $export_tickets = intval($_POST["export_tickets"]);
-    $export_recurring_tickets = intval($_POST["export_recurring_tickets"]);
-    $export_vendors = intval($_POST["export_vendors"]);
-    $export_invoices = intval($_POST["export_invoices"]);
-    $export_recurring_invoices = intval($_POST["export_recurring_invoices"]);
-    $export_quotes = intval($_POST["export_quotes"]);
-    $export_payments = intval($_POST["export_payments"]);
-    $export_trips = intval($_POST["export_trips"]);
-    $export_logs = intval($_POST["export_logs"]);
+    $export_networks = intval($_POST["include_networks"] ?? 0);
+    $export_certificates = intval($_POST["include_certificates"] ?? 0);
+    $export_domains = intval($_POST["include_domains"] ?? 0);
+    $export_tickets = intval($_POST["include_tickets"] ?? 0);
+    $export_recurring_tickets = intval($_POST["include_recurring_tickets"] ?? 0);
+    $export_vendors = intval($_POST["include_vendors"] ?? 0);
+    $export_invoices = intval($_POST["include_invoices"] ?? 0);
+    $export_recurring_invoices = intval($_POST["include_recurring_invoices"] ?? 0);
+    $export_quotes = intval($_POST["include_quotes"] ?? 0);
+    $export_payments = intval($_POST["include_payments"] ?? 0);
+    $export_trips = intval($_POST["include_trips"] ?? 0);
+    $export_logs = intval($_POST["include_logs"] ?? 0);
 
     enforceClientAccess();
 

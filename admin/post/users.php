@@ -328,7 +328,7 @@ if (isset($_POST['restore_user'])) {
 
 }
 
-if (isset($_POST['export_users'])) {
+if (isExportRequest('export_users')) {
 
     validateCSRFToken();
 

@@ -17,7 +17,7 @@
 
                                 <li class="list-group-item">
                                     <div class="custom-control custom-checkbox">
-                                        <input class="custom-control-input" type="checkbox" id="contacts" name="export_contacts" value="1" checked>
+                                        <input class="custom-control-input" type="checkbox" id="contacts" name="include_contacts" value="1" checked>
                                         <label for="contacts" class="custom-control-label">
                                             <i class='fas fa-fw fa-users mr-2'></i>Contacts
                                         </label>
@@ -26,7 +26,7 @@
 
                                 <li class="list-group-item">
                                     <div class="custom-control custom-checkbox">
-                                        <input class="custom-control-input" type="checkbox" id="locations" name="export_locations" value="1" checked>
+                                        <input class="custom-control-input" type="checkbox" id="locations" name="include_locations" value="1" checked>
                                         <label for="locations" class="custom-control-label">
                                             <i class='fas fa-fw fa-map-marker-alt mr-2'></i>Locations
                                         </label>
@@ -35,7 +35,7 @@
 
                                 <li class="list-group-item">
                                     <div class="custom-control custom-checkbox">
-                                        <input class="custom-control-input" type="checkbox" id="assets" name="export_assets" value="1" checked>
+                                        <input class="custom-control-input" type="checkbox" id="assets" name="include_assets" value="1" checked>
                                         <label for="assets" class="custom-control-label">
                                             <i class='fas fa-fw fa-desktop mr-2'></i>Assets
                                         </label>
@@ -44,7 +44,7 @@
 
                                 <li class="list-group-item">
                                     <div class="custom-control custom-checkbox">
-                                        <input class="custom-control-input" type="checkbox" id="software" name="export_software" value="1" checked>
+                                        <input class="custom-control-input" type="checkbox" id="software" name="include_software" value="1" checked>
                                         <label for="software" class="custom-control-label">
                                             <i class='fas fa-fw fa-cube mr-2'></i>Software / Licenses
                                         </label>
@@ -53,7 +53,7 @@
 
                                 <li class="list-group-item">
                                     <div class="custom-control custom-checkbox">
-                                        <input class="custom-control-input" type="checkbox" id="credentials" name="export_credentials" value="1">
+                                        <input class="custom-control-input" type="checkbox" id="credentials" name="include_credentials" value="1">
                                         <label for="credentials" class="custom-control-label">
                                             <i class='fas fa-fw fa-key mr-2'></i>Credentials
                                         </label>
@@ -62,7 +62,7 @@
 
                                 <li class="list-group-item">
                                     <div class="custom-control custom-checkbox">
-                                        <input class="custom-control-input" type="checkbox" id="networks" name="export_networks" value="1" checked>
+                                        <input class="custom-control-input" type="checkbox" id="networks" name="include_networks" value="1" checked>
                                         <label for="networks" class="custom-control-label">
                                             <i class='fas fa-fw fa-network-wired mr-2'></i>Networks
                                         </label>
@@ -71,7 +71,7 @@
 
                                 <li class="list-group-item">
                                     <div class="custom-control custom-checkbox">
-                                        <input class="custom-control-input" type="checkbox" id="certificates" name="export_certificates" value="1" checked>
+                                        <input class="custom-control-input" type="checkbox" id="certificates" name="include_certificates" value="1" checked>
                                         <label for="certificates" class="custom-control-label">
                                             <i class='fas fa-fw fa-lock mr-2'></i>Certificates
                                         </label>
@@ -80,7 +80,7 @@
 
                                 <li class="list-group-item">
                                     <div class="custom-control custom-checkbox">
-                                        <input class="custom-control-input" type="checkbox" id="domains" name="export_domains" value="1" checked>
+                                        <input class="custom-control-input" type="checkbox" id="domains" name="include_domains" value="1" checked>
                                         <label for="domains" class="custom-control-label">
                                             <i class='fas fa-fw fa-globe mr-2'></i>Domains
                                         </label>
@@ -89,7 +89,7 @@
 
                                 <li class="list-group-item">
                                     <div class="custom-control custom-checkbox">
-                                        <input class="custom-control-input" type="checkbox" id="tickets" name="export_tickets" value="1" checked>
+                                        <input class="custom-control-input" type="checkbox" id="tickets" name="include_tickets" value="1" checked>
                                         <label for="tickets" class="custom-control-label">
                                             <i class='fas fa-fw fa-life-ring mr-2'></i>Tickets
                                         </label>
@@ -102,7 +102,7 @@
 
                                 <li class="list-group-item">
                                     <div class="custom-control custom-checkbox">
-                                        <input class="custom-control-input" type="checkbox" id="recurring_tickets" name="export_recurring_tickets" value="1" checked>
+                                        <input class="custom-control-input" type="checkbox" id="recurring_tickets" name="include_recurring_tickets" value="1" checked>
                                         <label for="recurring_tickets" class="custom-control-label">
                                             <i class='fas fa-fw fa-clock mr-2'></i>Recurring Tickets
                                         </label>
@@ -111,7 +111,7 @@
 
                                 <li class="list-group-item">
                                     <div class="custom-control custom-checkbox">
-                                        <input class="custom-control-input" type="checkbox" id="vendors" name="export_vendors" value="1" checked>
+                                        <input class="custom-control-input" type="checkbox" id="vendors" name="include_vendors" value="1" checked>
                                         <label for="vendors" class="custom-control-label">
                                             <i class='fas fa-fw fa-building mr-2'></i>Vendors
                                         </label>
@@ -120,7 +120,7 @@
 
                                 <li class="list-group-item">
                                     <div class="custom-control custom-checkbox">
-                                        <input class="custom-control-input" type="checkbox" id="invoices" name="export_invoices" value="1" checked>
+                                        <input class="custom-control-input" type="checkbox" id="invoices" name="include_invoices" value="1" checked>
                                         <label for="invoices" class="custom-control-label">
                                             <i class='fas fa-fw fa-file-invoice mr-2'></i>Invoices
                                         </label>
@@ -129,7 +129,7 @@
 
                                 <li class="list-group-item">
                                     <div class="custom-control custom-checkbox">
-                                        <input class="custom-control-input" type="checkbox" id="recurring_invoices" name="export_recurring_invoices" value="1" checked>
+                                        <input class="custom-control-input" type="checkbox" id="recurring_invoices" name="include_recurring_invoices" value="1" checked>
                                         <label for="recurring_invoices" class="custom-control-label">
                                             <i class='fas fa-fw fa-sync mr-2'></i>Recurring Invoices
                                         </label>
@@ -138,7 +138,7 @@
 
                                 <li class="list-group-item">
                                     <div class="custom-control custom-checkbox">
-                                        <input class="custom-control-input" type="checkbox" id="quotes" name="export_quotes" value="1" checked>
+                                        <input class="custom-control-input" type="checkbox" id="quotes" name="include_quotes" value="1" checked>
                                         <label for="quotes" class="custom-control-label">
                                             <i class='fas fa-fw fa-file mr-2'></i>Quotes
                                         </label>
@@ -147,7 +147,7 @@
 
                                 <li class="list-group-item">
                                     <div class="custom-control custom-checkbox">
-                                        <input class="custom-control-input" type="checkbox" id="payments" name="export_payments" value="1" checked>
+                                        <input class="custom-control-input" type="checkbox" id="payments" name="include_payments" value="1" checked>
                                         <label for="payments" class="custom-control-label">
                                             <i class='fas fa-fw fa-credit-card mr-2'></i>Payments
                                         </label>
@@ -156,7 +156,7 @@
 
                                 <li class="list-group-item">
                                     <div class="custom-control custom-checkbox">
-                                        <input class="custom-control-input" type="checkbox" id="trips" name="export_trips" value="1" checked>
+                                        <input class="custom-control-input" type="checkbox" id="trips" name="include_trips" value="1" checked>
                                         <label for="trips" class="custom-control-label">
                                             <i class='fas fa-fw fa-route mr-2'></i>Trips
                                         </label>
@@ -165,7 +165,7 @@
 
                                 <li class="list-group-item">
                                     <div class="custom-control custom-checkbox">
-                                        <input class="custom-control-input" type="checkbox" id="logs" name="export_logs" value="1" checked>
+                                        <input class="custom-control-input" type="checkbox" id="logs" name="include_logs" value="1" checked>
                                         <label for="logs" class="custom-control-label">
                                             <i class='fas fa-fw fa-eye mr-2'></i>Audit Log
                                         </label>

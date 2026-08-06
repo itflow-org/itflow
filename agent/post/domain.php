@@ -455,7 +455,7 @@ if (isset($_POST['bulk_refresh_domains'])) {
 
 }
 
-if (isset($_POST['export_domains'])) {
+if (isExportRequest('export_domains')) {
 
     validateCSRFToken();
 

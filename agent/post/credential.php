@@ -410,7 +410,7 @@ if (isset($_POST['bulk_delete_credentials'])) {
 
 }
 
-if (isset($_POST['export_credentials'])) {
+if (isExportRequest('export_credentials')) {
 
     validateCSRFToken();
 

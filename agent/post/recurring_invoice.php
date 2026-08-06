@@ -617,7 +617,7 @@ if (isset($_POST['set_recurring_payment'])) {
 
 }
 
-if (isset($_POST['export_recurring_invoices'])) {
+if (isExportRequest('export_recurring_invoices')) {
 
     validateCSRFToken();
 

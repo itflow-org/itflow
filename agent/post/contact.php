@@ -1262,7 +1262,7 @@ if (isset($_GET['unlink_contact_from_file'])) {
 
 }
 
-if (isset($_POST['export_contacts'])) {
+if (isExportRequest('export_contacts')) {
 
     validateCSRFToken();
 
