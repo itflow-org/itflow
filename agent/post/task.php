@@ -113,23 +113,18 @@ if (isset($_GET['complete_task'])) {
     $task_id = intval($_GET['complete_task']);
 
     // Get Client ID
-    $sql = mysqli_query($mysqli, "SELECT task_completion_estimate, task_name, ticket_client_id, ticket_id FROM tasks LEFT JOIN tickets ON ticket_id = task_ticket_id WHERE task_id = $task_id");
+    $sql = mysqli_query($mysqli, "SELECT task_name, ticket_client_id, ticket_id FROM tasks LEFT JOIN tickets ON ticket_id = task_ticket_id WHERE task_id = $task_id");
     $row = mysqli_fetch_assoc($sql);
     $client_id = intval($row['ticket_client_id']);
     enforceClientAccess();
     $task_name = escapeSql($row['task_name']);
-    $task_completion_estimate = intval($row['task_completion_estimate']);
     $ticket_id = intval($row['ticket_id']);
 
     mysqli_query($mysqli, "UPDATE tasks SET task_completed_at = NOW(), task_completed_by = $session_user_id WHERE task_id = $task_id");
 
-    // Convert task completion estimate from minutes to TIME format
-    $time_worked = gmdate("H:i:s", $task_completion_estimate * 60); // Convert minutes to HH:MM:SS
-
-    // Add reply
-    mysqli_query($mysqli, "INSERT INTO ticket_replies SET ticket_reply = 'Completed Task - $task_name', ticket_reply_time_worked = '$time_worked', ticket_reply_type = 'Internal', ticket_reply_by = $session_user_id, ticket_reply_ticket_id = $ticket_id");
-
-    $ticket_reply_id = mysqli_insert_id($mysqli);
+    // Audit trail only - task_completion_estimate is planning information, not labour.
+    // Booking it as time worked double-counted against whatever the tech actually logged.
+    mysqli_query($mysqli, "INSERT INTO ticket_replies SET ticket_reply = 'Completed Task - $task_name', ticket_reply_time_worked = '00:00:00', ticket_reply_type = 'Internal', ticket_reply_by = $session_user_id, ticket_reply_ticket_id = $ticket_id");
 
     logAudit("Task", "Edit", "$session_name completed task $task_name", $client_id, $task_id);
 
@@ -157,10 +152,8 @@ if (isset($_GET['undo_complete_task'])) {
 
     mysqli_query($mysqli, "UPDATE tasks SET task_completed_at = NULL, task_completed_by = NULL WHERE task_id = $task_id");
 
-    // Add reply
-    mysqli_query($mysqli, "INSERT INTO ticket_replies SET ticket_reply = 'Undo Completed Task - $task_name', ticket_reply_time_worked = '00:01:00', ticket_reply_type = 'Internal', ticket_reply_by = $session_user_id, ticket_reply_ticket_id = $ticket_id");
-
-    $ticket_reply_id = mysqli_insert_id($mysqli);
+    // Audit trail only - see complete_task
+    mysqli_query($mysqli, "INSERT INTO ticket_replies SET ticket_reply = 'Undo Completed Task - $task_name', ticket_reply_time_worked = '00:00:00', ticket_reply_type = 'Internal', ticket_reply_by = $session_user_id, ticket_reply_ticket_id = $ticket_id");
 
     logAudit("Task", "Edit", "$session_name marked task $task_name as incomplete", $client_id, $task_id);
 
@@ -431,9 +424,7 @@ if (isset($_GET['complete_all_tasks'])) {
     mysqli_query($mysqli, "UPDATE tasks SET task_completed_at = NOW(), task_completed_by = $session_user_id WHERE task_ticket_id = $ticket_id AND task_completed_at IS NULL");
 
     // Add reply
-    mysqli_query($mysqli, "INSERT INTO ticket_replies SET ticket_reply = 'Marked all tasks complete', ticket_reply_type = 'Internal', ticket_reply_by = $session_user_id, ticket_reply_ticket_id = $ticket_id");
-
-    $ticket_reply_id = mysqli_insert_id($mysqli);
+    mysqli_query($mysqli, "INSERT INTO ticket_replies SET ticket_reply = 'Marked all tasks complete', ticket_reply_time_worked = '00:00:00', ticket_reply_type = 'Internal', ticket_reply_by = $session_user_id, ticket_reply_ticket_id = $ticket_id");
 
     logAudit("Ticket", "Edit", "$session_name marked all tasks complete for ticket", $client_id, $ticket_id);
 
@@ -458,9 +449,7 @@ if (isset($_GET['undo_complete_all_tasks'])) {
     mysqli_query($mysqli, "UPDATE tasks SET task_completed_at = NULL, task_completed_by = NULL WHERE task_ticket_id = $ticket_id AND task_completed_at IS NOT NULL");
 
     // Add reply
-    mysqli_query($mysqli, "INSERT INTO ticket_replies SET ticket_reply = 'Marked all tasks incomplete', ticket_reply_type = 'Internal', ticket_reply_by = $session_user_id, ticket_reply_ticket_id = $ticket_id");
-
-    $ticket_reply_id = mysqli_insert_id($mysqli);
+    mysqli_query($mysqli, "INSERT INTO ticket_replies SET ticket_reply = 'Marked all tasks incomplete', ticket_reply_time_worked = '00:00:00', ticket_reply_type = 'Internal', ticket_reply_by = $session_user_id, ticket_reply_ticket_id = $ticket_id");
 
     logAudit("Ticket", "Edit", "$session_name marked all tasks as incomplete for ticket", $client_id, $ticket_id);
 

@@ -228,7 +228,9 @@ Per [SECURITY.md](SECURITY.md) — never in a public issue.
 ---
  
 ## Conventions
- 
+
+**Only technician-entered time is time worked.** `ticket_replies.ticket_reply_time_worked` is billable labour and feeds ticket totals, the technician and client time reports, project totals, invoicing and the API. A reply the *system* writes — assignment, priority change, merge, close, invoice/quote created, schedule edited, task completed or reopened — is an audit trail, not work, and records `'00:00:00'`. Only a value the technician actually typed goes in that column. Task completion estimates are planning information and stay on the task; they are never converted into time worked. `agent/ticket.php` hides the clock badge on a reply whose time is exactly `00:00:00`, so a zero renders as no time rather than as "0m".
+
 **Database naming.** Every column is prefixed with the singular name of the entity it belongs to: `tickets.ticket_id`, `tickets.ticket_subject`, `clients.client_name`. This makes JOIN results unambiguous, so a `SELECT *` across joins is never *wrong*. New tables must follow it.
 
 **Select the columns you use, not `*`.** Unambiguous is not the same as cheap. `SELECT *` across three joined tables fetches every column of all three, including the `*_notes` and `*_details` TEXT columns, and throws away whatever the page never renders. A search result list that shows five fields was pulling sixty. List the columns instead:
