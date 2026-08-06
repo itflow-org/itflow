@@ -11,7 +11,7 @@ enforceUserPermission('module_financial');
 
 $sql = mysqli_query(
     $mysqli,
-    "SELECT SQL_CALC_FOUND_ROWS * FROM accounts
+    "SELECT SQL_CALC_FOUND_ROWS account_currency_code, account_id, account_name, account_notes, opening_balance FROM accounts
     WHERE (account_name LIKE '%$q%')
     AND account_archived_at IS NULL
     ORDER BY $sort $order LIMIT $record_from, $record_to"

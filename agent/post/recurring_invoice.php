@@ -436,7 +436,8 @@ if (isset($_GET['force_recurring'])) {
     $new_invoice_id = mysqli_insert_id($mysqli);
 
     //Copy Items from original invoice to new invoice
-    $sql_invoice_items = mysqli_query($mysqli,"SELECT * FROM recurring_invoice_items WHERE item_recurring_invoice_id = $recurring_invoice_id ORDER BY item_id ASC");
+    $sql_invoice_items = mysqli_query($mysqli,"SELECT item_description, item_id, item_name, item_order, item_price, item_quantity, item_subtotal,
+        item_tax_id FROM recurring_invoice_items WHERE item_recurring_invoice_id = $recurring_invoice_id ORDER BY item_id ASC");
 
     while($row = mysqli_fetch_assoc($sql_invoice_items)) {
         $item_id = intval($row['item_id']);

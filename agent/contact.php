@@ -83,7 +83,9 @@ if (isset($_GET['contact_id'])) {
     $asset_count = mysqli_num_rows($sql_related_assets);
 
     // Linked Software Licenses
-    $sql_linked_software = mysqli_query($mysqli, "SELECT * FROM software_contacts, software
+    $sql_linked_software = mysqli_query($mysqli, "SELECT software_expire, software_contacts.software_id, software_key, software_license_type,
+        software_name, software_notes, software_purchase, software_seats, software_type,
+        software_version FROM software_contacts, software
         WHERE software_contacts.contact_id = $contact_id
         AND software_contacts.software_id = software.software_id
         AND software_archived_at IS NULL

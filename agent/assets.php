@@ -641,7 +641,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                             $location_name_display = $location_name;
                         }
 
-                        $sql_credentials = mysqli_query($mysqli, "SELECT * FROM credentials WHERE credential_asset_id = $asset_id");
+                        $sql_credentials = mysqli_query($mysqli, "SELECT 1 FROM credentials WHERE credential_asset_id = $asset_id");
                         $credential_count = mysqli_num_rows($sql_credentials);
 
                         // Tags

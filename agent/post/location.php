@@ -541,7 +541,7 @@ if (isset($_POST["import_locations_csv"])) {
             $duplicate_detect = 0;
             if(isset($column[0])){
                 $name = escapeSql($column[0]);
-                if(mysqli_num_rows(mysqli_query($mysqli,"SELECT * FROM locations WHERE location_name = '$name' AND location_client_id = $client_id")) > 0){
+                if(mysqli_num_rows(mysqli_query($mysqli,"SELECT 1 FROM locations WHERE location_name = '$name' AND location_client_id = $client_id")) > 0){
                     $duplicate_detect = 1;
                 }
             }

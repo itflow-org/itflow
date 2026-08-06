@@ -158,7 +158,7 @@ while ($row = mysqli_fetch_assoc($sql_note_type_icons)) {
 }
 
 // Linked Services
-$sql_linked_services = mysqli_query($mysqli, "SELECT * FROM service_contacts, services
+$sql_linked_services = mysqli_query($mysqli, "SELECT 1 FROM service_contacts, services
     WHERE service_contacts.contact_id = $contact_id
     AND service_contacts.service_id = services.service_id
     ORDER BY service_name ASC"

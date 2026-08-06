@@ -122,7 +122,7 @@ if (isset($_GET['asset_id'])) {
         $recurring_ticket_count = mysqli_num_rows($sql_related_recurring_tickets);
 
         // Related Documents
-        $sql_related_documents = mysqli_query($mysqli, "SELECT * FROM asset_documents
+        $sql_related_documents = mysqli_query($mysqli, "SELECT 1 FROM asset_documents
             LEFT JOIN documents ON asset_documents.document_id = documents.document_id
             WHERE asset_documents.asset_id = $asset_id
             AND document_archived_at IS NULL
@@ -252,7 +252,9 @@ if (isset($_GET['asset_id'])) {
         // Related Software Query
         $sql_related_software = mysqli_query(
             $mysqli,
-            "SELECT * FROM software_assets
+            "SELECT software_expire, software_assets.software_id, software_key, software_license_type,
+                software_name, software_notes, software_purchase, software_seats, software_type,
+                software_version FROM software_assets
             LEFT JOIN software ON software_assets.software_id = software.software_id
             WHERE software_assets.asset_id = $asset_id
             AND software_archived_at IS NULL

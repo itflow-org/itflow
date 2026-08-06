@@ -130,8 +130,7 @@ if (isset($_GET['invoice_id'])) {
     //Get billable, and unbilled tickets to add to invoice
     $sql_tickets_billable = mysqli_query(
         $mysqli, "
-        SELECT
-            *
+        SELECT 1
         FROM
             tickets
         WHERE
@@ -199,7 +198,7 @@ if (isset($_GET['invoice_id'])) {
 
     // Saved Payment Methods
     $sql_saved_payment_methods = mysqli_query($mysqli, "
-        SELECT * FROM client_saved_payment_methods
+        SELECT 1 FROM client_saved_payment_methods
         LEFT JOIN payment_providers
             ON client_saved_payment_methods.saved_payment_provider_id = payment_providers.payment_provider_id
         WHERE saved_payment_client_id = $client_id

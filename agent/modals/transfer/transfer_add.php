@@ -50,7 +50,7 @@ ob_start();
                     <option value="">- Account From -</option>
                     <?php
 
-                    $sql = mysqli_query($mysqli, "SELECT * FROM accounts WHERE account_archived_at IS NULL ORDER BY account_name ASC");
+                    $sql = mysqli_query($mysqli, "SELECT account_id, account_name, opening_balance FROM accounts WHERE account_archived_at IS NULL ORDER BY account_name ASC");
                     while ($row = mysqli_fetch_assoc($sql)) {
                         $account_id = intval($row['account_id']);
                         $account_name = escapeHtml($row['account_name']);
@@ -88,7 +88,7 @@ ob_start();
                     <option value="">- Account To -</option>
                     <?php
 
-                    $sql = mysqli_query($mysqli, "SELECT * FROM accounts WHERE account_archived_at IS NULL ORDER BY account_name ASC");
+                    $sql = mysqli_query($mysqli, "SELECT account_id, account_name, opening_balance FROM accounts WHERE account_archived_at IS NULL ORDER BY account_name ASC");
                     while ($row = mysqli_fetch_assoc($sql)) {
                         $account_id = intval($row['account_id']);
                         $account_name = escapeHtml($row['account_name']);

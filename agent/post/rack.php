@@ -211,7 +211,7 @@ if (isset($_POST['add_rack_unit'])) {
     }
 
     // Check if the unit range is already occupied
-    $check_sql = mysqli_query($mysqli, "SELECT * FROM rack_units WHERE unit_rack_id = $rack_id AND unit_start_number <= $unit_end AND unit_end_number >= $unit_start");
+    $check_sql = mysqli_query($mysqli, "SELECT 1 FROM rack_units WHERE unit_rack_id = $rack_id AND unit_start_number <= $unit_end AND unit_end_number >= $unit_start");
 
     if (mysqli_num_rows($check_sql) > 0) {
         // If there is an overlap, return an error message;

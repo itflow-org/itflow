@@ -72,7 +72,7 @@ ob_start();
                         <option value="">- Select Account -</option>
                         <?php
 
-                        $sql_accounts = mysqli_query($mysqli, "SELECT * FROM accounts WHERE (account_archived_at > '$revenue_created_at' OR account_archived_at IS NULL) ORDER BY account_archived_at ASC, account_name ASC");
+                        $sql_accounts = mysqli_query($mysqli, "SELECT account_archived_at, account_currency_code, account_id, account_name, opening_balance FROM accounts WHERE (account_archived_at > '$revenue_created_at' OR account_archived_at IS NULL) ORDER BY account_archived_at ASC, account_name ASC");
                         while ($row = mysqli_fetch_assoc($sql_accounts)) {
                             $account_id_select = intval($row['account_id']);
                             $account_name_select = escapeHtml($row['account_name']);

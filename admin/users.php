@@ -8,7 +8,8 @@ require_once "includes/inc_all_admin.php";
 
 $sql = mysqli_query(
     $mysqli,
-    "SELECT SQL_CALC_FOUND_ROWS * FROM users
+    "SELECT SQL_CALC_FOUND_ROWS role_name, user_archived_at, user_avatar, user_config_force_mfa, user_email,
+        user_settings.user_id, user_name, user_role_id, user_status, user_token FROM users
     LEFT JOIN user_roles ON user_role_id = role_id
     LEFT JOIN user_settings ON users.user_id = user_settings.user_id
     WHERE (user_name LIKE '%$q%' OR user_email LIKE '%$q%')

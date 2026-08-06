@@ -29,7 +29,13 @@ if (isset($_GET['status']) && $_GET['status'] == "inactive") {
 
 $sql = mysqli_query(
     $mysqli,
-    "SELECT SQL_CALC_FOUND_ROWS * FROM recurring_invoices
+    "SELECT SQL_CALC_FOUND_ROWS category_id, category_name, client_currency_code, client_id, client_name,
+        recurring_invoice_amount, recurring_invoice_created_at, recurring_invoice_currency_code,
+        recurring_invoice_discount_amount, recurring_invoice_frequency, recurring_invoice_id,
+        recurring_invoice_last_sent, recurring_invoice_next_date, recurring_invoice_number,
+        recurring_invoice_prefix, recurring_invoice_scope, recurring_invoice_status,
+        recurring_payment_id, recurring_payment_recurring_invoice_id,
+        recurring_payment_saved_payment_id FROM recurring_invoices
     LEFT JOIN clients ON recurring_invoice_client_id = client_id
     LEFT JOIN categories ON recurring_invoice_category_id = category_id
     LEFT JOIN recurring_payments ON recurring_payment_recurring_invoice_id = recurring_invoice_id

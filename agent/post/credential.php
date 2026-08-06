@@ -584,7 +584,7 @@ if (isset($_POST["import_credentials_csv"])) {
             // Name
             if (isset($column[0])) {
                 $name = escapeSql($column[0]);
-                if (mysqli_num_rows(mysqli_query($mysqli,"SELECT * FROM credentials WHERE credential_name = '$name' AND credential_client_id = $client_id")) > 0){
+                if (mysqli_num_rows(mysqli_query($mysqli,"SELECT 1 FROM credentials WHERE credential_name = '$name' AND credential_client_id = $client_id")) > 0){
                     $duplicate_detect = 1;
                 }
             }

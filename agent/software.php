@@ -63,7 +63,9 @@ if (!$client_url) {
 
 $sql = mysqli_query(
     $mysqli,
-    "SELECT SQL_CALC_FOUND_ROWS * FROM software
+    "SELECT SQL_CALC_FOUND_ROWS client_id, client_name, software_created_at, software_description, software_expire,
+        software_id, software_license_type, software_name, software_seats, software_type,
+        software_version, vendor_id, vendor_name FROM software
     LEFT JOIN clients ON client_id = software_client_id
     LEFT JOIN vendors ON vendor_id = software_vendor_id
     WHERE (software_name LIKE '%$q%' OR software_type LIKE '%$q%' OR software_key LIKE '%$q%' OR client_name LIKE '%$q%')

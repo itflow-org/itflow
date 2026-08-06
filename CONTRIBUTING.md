@@ -178,7 +178,8 @@ A user can be restricted to a subset of clients through `user_client_permissions
 **A list — `clientScopeSql()`.** Any query returning more than one row appends the fragment for that resource's own client column:
 
 ```php
-$sql = mysqli_query($mysqli, "SELECT * FROM expenses
+$sql = mysqli_query($mysqli, "SELECT expense_id, expense_date, expense_amount, expense_description
+    FROM expenses
     WHERE expense_archived_at IS NULL
     " . clientScopeSql('expense_client_id') . "
     ORDER BY expense_date DESC");
@@ -224,7 +225,26 @@ Per [SECURITY.md](SECURITY.md) — never in a public issue.
  
 ## Conventions
  
-**Database naming.** Every column is prefixed with the singular name of the entity it belongs to: `tickets.ticket_id`, `tickets.ticket_subject`, `clients.client_name`. This makes JOIN results unambiguous and is why queries can `SELECT *` across joins safely. New tables must follow it.
+**Database naming.** Every column is prefixed with the singular name of the entity it belongs to: `tickets.ticket_id`, `tickets.ticket_subject`, `clients.client_name`. This makes JOIN results unambiguous, so a `SELECT *` across joins is never *wrong*. New tables must follow it.
+
+**Select the columns you use, not `*`.** Unambiguous is not the same as cheap. `SELECT *` across three joined tables fetches every column of all three, including the `*_notes` and `*_details` TEXT columns, and throws away whatever the page never renders. A search result list that shows five fields was pulling sixty. List the columns instead:
+
+```php
+$sql = mysqli_query($mysqli, "SELECT ticket_id, ticket_prefix, ticket_number, ticket_subject, client_name
+    FROM tickets
+    LEFT JOIN clients ON ticket_client_id = client_id
+    WHERE ticket_archived_at IS NULL
+    " . clientScopeSql('ticket_client_id') . "");
+```
+
+Two things follow from that:
+
+- A query whose result only feeds `mysqli_num_rows()` needs no columns at all — write `SELECT 1`. Do not select a primary key "just in case": if the query joins two tables that both carry that column name, an unqualified `SELECT ticket_template_id` is an ambiguous-column error.
+- Keep the join even when no column of the joined table survives into the `SELECT`, if the join is doing work — supplying a `WHERE` term, an `ORDER BY`, or the client column you scope on. Dropping a join is a separate decision from trimming the column list.
+
+The trade is real and worth stating: `SELECT *` picks up new columns for free, an explicit list does not. Add a column to a table and every query that needs it must be updated by hand, and the failure mode is a blank field or a PHP 8 undefined-key warning rather than an error. That is the price of not fetching data nobody reads, and the project has decided to pay it on anything that loops or touches a TEXT column.
+
+The exception is `api/v1/*/read.php`. Those endpoints hand the whole row to `read_output.php`, which serialises it straight into the JSON response — there the row *is* the output contract, so `SELECT *` is correct and trimming it would silently drop fields from every consumer.
 
 The prefix is the entity name, which is usually but not always the singular of the table name. Where a table is named for its container rather than its row, the prefix follows the row: `calendar_events` → `event_*`, `asset_interfaces` → `interface_*`, `invoice_items` / `quote_items` → `item_*`, `rack_units` → `unit_*`, `user_roles` → `role_*`, `product_stock` → `stock_*`. Pick the prefix your columns will read best as and use it for every column in the table.
 

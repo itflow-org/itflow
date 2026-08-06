@@ -6,7 +6,7 @@ $order = "ASC";
 
 require_once "includes/inc_all_admin.php";
 
-$sql = mysqli_query($mysqli, "SELECT * FROM ai_providers ORDER BY $sort $order");
+$sql = mysqli_query($mysqli, "SELECT ai_provider_api_key, ai_provider_api_url, ai_provider_id, ai_provider_name FROM ai_providers ORDER BY $sort $order");
 
 $num_rows = mysqli_num_rows($sql);
 

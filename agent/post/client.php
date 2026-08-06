@@ -528,7 +528,7 @@ if (isset($_POST["import_clients_csv"])) {
             $duplicate_detect = 0;
             if (isset($column[0])) {
                 $name = escapeSql($column[0]);
-                if (mysqli_num_rows(mysqli_query($mysqli,"SELECT * FROM clients WHERE client_name = '$name'")) > 0) {
+                if (mysqli_num_rows(mysqli_query($mysqli,"SELECT 1 FROM clients WHERE client_name = '$name'")) > 0) {
                     $duplicate_detect = 1;
                 }
             }
@@ -1245,7 +1245,7 @@ if (isset($_POST["export_client_pdf"])) {
     $sql_locations = mysqli_query($mysqli, "SELECT * FROM locations WHERE location_client_id = $client_id AND location_archived_at IS NULL ORDER BY location_name ASC");
     $sql_vendors = mysqli_query($mysqli, "SELECT * FROM vendors WHERE vendor_client_id = $client_id AND vendor_archived_at IS NULL ORDER BY vendor_name ASC");
     $sql_credentials = mysqli_query($mysqli, "SELECT * FROM credentials WHERE credential_client_id = $client_id ORDER BY credential_name ASC");
-    $sql_assets = mysqli_query($mysqli, "SELECT * FROM assets
+    $sql_assets = mysqli_query($mysqli, "SELECT 1 FROM assets
         LEFT JOIN contacts ON asset_contact_id = contact_id
         LEFT JOIN locations ON asset_location_id = location_id
         LEFT JOIN asset_interfaces ON interface_asset_id = asset_id AND interface_primary = 1

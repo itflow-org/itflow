@@ -349,7 +349,10 @@ if ($tickets_pending_assignment > 0) {
 // Recurring tickets
 
 // Get recurring tickets for today
-$sql_recurring_tickets = mysqli_query($mysqli, "SELECT * FROM recurring_tickets WHERE recurring_ticket_next_run = CURDATE()");
+$sql_recurring_tickets = mysqli_query($mysqli, "SELECT recurring_ticket_asset_id, recurring_ticket_assigned_to, recurring_ticket_billable,
+    recurring_ticket_category, recurring_ticket_client_id, recurring_ticket_contact_id,
+    recurring_ticket_created_by, recurring_ticket_details, recurring_ticket_frequency,
+    recurring_ticket_id, recurring_ticket_priority, recurring_ticket_subject FROM recurring_tickets WHERE recurring_ticket_next_run = CURDATE()");
 
 if (mysqli_num_rows($sql_recurring_tickets) > 0) {
     while ($row = mysqli_fetch_assoc($sql_recurring_tickets)) {
@@ -671,7 +674,13 @@ if ($config_send_invoice_reminders == 1) {
 // Send Recurring Invoices that match todays date and are active
 
 //Loop through all recurring that match today's date and is active
-$sql_recurring_invoices = mysqli_query($mysqli, "SELECT * FROM recurring_invoices
+$sql_recurring_invoices = mysqli_query($mysqli, "SELECT client_name, client_net_terms, recurring_invoice_amount, recurring_invoice_category_id,
+    recurring_invoice_client_id, recurring_invoice_currency_code,
+    recurring_invoice_discount_amount, recurring_invoice_email_notify,
+    recurring_invoice_frequency, recurring_invoice_id, recurring_invoice_last_sent,
+    recurring_invoice_next_date, recurring_invoice_note, recurring_invoice_scope,
+    recurring_invoice_status, recurring_payment_account_id, recurring_payment_currency_code,
+    recurring_payment_method, recurring_payment_recurring_invoice_id FROM recurring_invoices
     LEFT JOIN recurring_payments ON recurring_invoice_id = recurring_payment_recurring_invoice_id
     LEFT JOIN clients ON client_id = recurring_invoice_client_id
     WHERE recurring_invoice_next_date = CURDATE()

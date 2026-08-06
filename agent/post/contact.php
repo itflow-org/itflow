@@ -1428,7 +1428,7 @@ if (isset($_POST["import_contacts_csv"])) {
             $duplicate_detect = 0;
             if (isset($column[0])) {
                 $name = escapeSql($column[0]);
-                if (mysqli_num_rows(mysqli_query($mysqli,"SELECT * FROM contacts WHERE contact_name = '$name' AND contact_client_id = $client_id")) > 0) {
+                if (mysqli_num_rows(mysqli_query($mysqli,"SELECT 1 FROM contacts WHERE contact_name = '$name' AND contact_client_id = $client_id")) > 0) {
                     $duplicate_detect = 1;
                 }
             }

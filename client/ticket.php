@@ -59,12 +59,12 @@ if (isset($_GET['id']) && intval($_GET['id'])) {
         );
 
         // Get Tasks
-        $sql_tasks = mysqli_query( $mysqli, "SELECT * FROM tasks WHERE task_ticket_id = $ticket_id ORDER BY task_order ASC, task_id ASC");
+        $sql_tasks = mysqli_query( $mysqli, "SELECT 1 FROM tasks WHERE task_ticket_id = $ticket_id ORDER BY task_order ASC, task_id ASC");
         $task_count = mysqli_num_rows($sql_tasks);
 
         // Get Completed Task Count
         $sql_tasks_completed = mysqli_query($mysqli,
-            "SELECT * FROM tasks
+            "SELECT 1 FROM tasks
             WHERE task_ticket_id = $ticket_id
             AND task_completed_at IS NOT NULL"
         );

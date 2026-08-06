@@ -117,7 +117,7 @@ if ($user_config_dashboard_financial_enable == 1) {
 
     $profit = $total_income - $total_expenses;
 
-    $sql_accounts = mysqli_query($mysqli, "SELECT * FROM accounts WHERE account_archived_at IS NULL ORDER BY account_name ASC");
+    $sql_accounts = mysqli_query($mysqli, "SELECT account_id, account_name, opening_balance FROM accounts WHERE account_archived_at IS NULL ORDER BY account_name ASC");
 
     $sql_latest_invoice_payments = mysqli_query($mysqli, "
         SELECT client_name, invoice_number, invoice_prefix, payment_amount, payment_date FROM payments

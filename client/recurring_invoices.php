@@ -11,7 +11,10 @@ require_once "includes/inc_all.php";
 
 enforceContactCan('accounting');
 
-$recurring_invoices_sql = mysqli_query($mysqli, "SELECT * FROM recurring_invoices
+$recurring_invoices_sql = mysqli_query($mysqli, "SELECT recurring_invoice_amount, recurring_invoice_frequency, recurring_invoice_id,
+    recurring_invoice_next_date, recurring_invoice_number, recurring_invoice_prefix,
+    recurring_invoice_scope, recurring_invoice_status, recurring_payment_id,
+    recurring_payment_recurring_invoice_id, recurring_payment_saved_payment_id FROM recurring_invoices
     LEFT JOIN recurring_payments ON recurring_payment_recurring_invoice_id = recurring_invoice_id
     WHERE recurring_invoice_client_id = $session_client_id
     AND recurring_invoice_status = 1
