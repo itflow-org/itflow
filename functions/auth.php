@@ -62,6 +62,39 @@ function enforceUserPermission($module, $check_access_level = 1) {
     }
 }
 
+// Client-scope SQL fragment for a list query, built from the signed-in user's allow / deny lists.
+// Admin and unrestricted users get no restriction. This is the list-level counterpart to
+// enforceClientAccess(), which gates a single record.
+//
+// Column-aware on purpose: it scopes on the resource's OWN client column rather than a joined
+// clients.client_id, so a row with no client (column = 0) is judged on its real value instead of
+// becoming NULL through a LEFT JOIN and silently dropping out of the result set.
+//
+// Returns " AND ..." or "" - append it after a WHERE clause (add "WHERE 1=1" if there isn't one).
+function clientScopeSql($column) {
+    global $session_is_admin, $client_access_array, $client_deny_array;
+
+    if ($session_is_admin) {
+        return '';
+    }
+
+    if (empty($client_access_array) && empty($client_deny_array)) {
+        return ''; // Unrestricted user - all clients
+    }
+
+    $sql = '';
+
+    if (!empty($client_access_array)) {
+        $sql .= " AND $column IN (" . implode(',', array_map('intval', $client_access_array)) . ")";
+    }
+
+    if (!empty($client_deny_array)) {
+        $sql .= " AND $column NOT IN (" . implode(',', array_map('intval', $client_deny_array)) . ")";
+    }
+
+    return $sql;
+}
+
 function enforceClientAccess($client_id = null) {
     global $mysqli, $session_user_id, $session_is_admin, $session_name;
 

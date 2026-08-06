@@ -45,24 +45,10 @@ function apiUserCanAccessClient($client_id) {
 }
 
 // Client-scope SQL fragment for a read query, from the user's allow / deny lists.
-// Admin and unrestricted users get no restriction. Column-aware, so it works on any
-// resource. Returns " AND ..." or "" (used after a "WHERE 1=1" anchor).
+// Thin wrapper over clientScopeSql() in functions/auth.php so the API and the UI share one
+// implementation. Kept under the api* name because every endpoint already calls it.
 function apiClientScopeSql($column) {
-    global $session_is_admin, $client_access_array, $client_deny_array;
-    if ($session_is_admin) {
-        return '';
-    }
-    if (empty($client_access_array) && empty($client_deny_array)) {
-        return ''; // unrestricted user - all clients
-    }
-    $sql = '';
-    if (!empty($client_access_array)) {
-        $sql .= " AND $column IN (" . implode(',', array_map('intval', $client_access_array)) . ")";
-    }
-    if (!empty($client_deny_array)) {
-        $sql .= " AND $column NOT IN (" . implode(',', array_map('intval', $client_deny_array)) . ")";
-    }
-    return $sql;
+    return clientScopeSql($column);
 }
 
 // --- Every key must be tied to a user (legacy keys were removed in the 2.4.7 migration) ---
