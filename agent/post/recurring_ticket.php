@@ -473,7 +473,6 @@ if (isset($_POST['bulk_assign_recurring_ticket'])) {
             $sql = mysqli_query($mysqli, "SELECT * FROM recurring_tickets WHERE recurring_ticket_id = $recurring_ticket_id");
             $row = mysqli_fetch_assoc($sql);
 
-            $recurring_ticket_name = escapeSql($row['recurring_ticket_name']);
             $recurring_ticket_subject = escapeSql($row['recurring_ticket_subject']);
             $client_id = intval($row['recurring_ticket_client_id']);
 

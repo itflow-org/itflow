@@ -56,7 +56,6 @@ if (isset($_GET['invoice_id'], $_GET['url_key']) && !isset($_GET['payment_intent
     $sql_company = mysqli_query($mysqli, "SELECT * FROM companies WHERE company_id = 1");
     $company_row = mysqli_fetch_assoc($sql_company);
     $company_locale = escapeHtml($company_row['company_locale']);
-    $config_base_url = escapeHtml($company_row['company_base_url'] ?? ''); // You might want to pull from settings if needed
 
     // Add up all payments made to the invoice
     $sql_amount_paid = mysqli_query($mysqli, "SELECT SUM(payment_amount) AS amount_paid FROM payments WHERE payment_invoice_id = $invoice_id");

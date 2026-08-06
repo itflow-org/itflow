@@ -1066,7 +1066,6 @@ if (isset($_POST['bulk_assign_ticket'])) {
             $ticket_prefix = escapeSql($row['ticket_prefix']);
             $ticket_number = intval($row['ticket_number']);
             $ticket_status = intval($row['ticket_status']);
-            $ticket_name = escapeSql($row['ticket_name']);
             $ticket_subject = escapeSql($row['ticket_subject']);
             $client_id = intval($row['ticket_client_id']);
 
