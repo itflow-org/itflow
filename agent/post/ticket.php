@@ -113,7 +113,6 @@ if (isset($_POST['add_ticket'])) {
 
         // Get contact/ticket details
         $sql = mysqli_query($mysqli, "SELECT contact_name, contact_email, ticket_prefix, ticket_number, ticket_category, ticket_subject, ticket_details, ticket_priority, ticket_status, ticket_created_by, ticket_assigned_to, ticket_client_id FROM tickets
-              LEFT JOIN clients ON ticket_client_id = client_id
               LEFT JOIN contacts ON ticket_contact_id = contact_id
               WHERE ticket_id = $ticket_id");
         $row = mysqli_fetch_assoc($sql);
@@ -285,7 +284,6 @@ if (isset($_POST['edit_ticket'])) {
 
     // Get contact/ticket details after update for logging / email purposes
     $sql = mysqli_query($mysqli, "SELECT contact_name, contact_email, ticket_prefix, ticket_number, ticket_category, ticket_details, ticket_status_name, ticket_created_by, ticket_assigned_to, ticket_url_key, ticket_client_id FROM tickets
-        LEFT JOIN clients ON ticket_client_id = client_id
         LEFT JOIN contacts ON ticket_contact_id = contact_id
         LEFT JOIN ticket_statuses ON ticket_status = ticket_status_id
         WHERE ticket_id = $ticket_id
@@ -582,7 +580,6 @@ if (isset($_POST['add_ticket_watcher'])) {
 
     // Get contact/ticket details
     $sql = mysqli_query($mysqli, "SELECT ticket_prefix, ticket_number, ticket_category, ticket_subject, ticket_details, ticket_priority, ticket_status_name, ticket_url_key, ticket_created_by, ticket_assigned_to, ticket_client_id FROM tickets
-    LEFT JOIN clients ON ticket_client_id = client_id
     LEFT JOIN contacts ON ticket_contact_id = contact_id
     LEFT JOIN ticket_statuses ON ticket_status = ticket_status_id
     WHERE ticket_id = $ticket_id
@@ -1896,7 +1893,6 @@ if (isset($_POST['add_ticket_reply'])) {
         // Get Ticket Details
         $ticket_sql = mysqli_query($mysqli, "SELECT contact_name, contact_email, ticket_prefix, ticket_number, ticket_subject, ticket_status, ticket_status_name, ticket_url_key, ticket_first_response_at, ticket_created_by, ticket_assigned_to, ticket_client_id
         FROM tickets
-        LEFT JOIN clients ON ticket_client_id = client_id
         LEFT JOIN contacts ON ticket_contact_id = contact_id
         LEFT JOIN ticket_statuses ON ticket_status = ticket_status_id
         WHERE ticket_id = $ticket_id
@@ -2338,7 +2334,6 @@ if (isset($_GET['resolve_ticket'])) {
 
         // Get details
         $ticket_sql = mysqli_query($mysqli, "SELECT contact_name, contact_email, ticket_prefix, ticket_number, ticket_subject, ticket_status_name, ticket_assigned_to, ticket_url_key FROM tickets
-            LEFT JOIN clients ON ticket_client_id = client_id
             LEFT JOIN contacts ON ticket_contact_id = contact_id
             LEFT JOIN ticket_statuses ON ticket_status = ticket_status_id
             WHERE ticket_id = $ticket_id
@@ -2444,7 +2439,6 @@ if (isset($_GET['close_ticket'])) {
 
         // Get details
         $ticket_sql = mysqli_query($mysqli, "SELECT contact_name, contact_email, ticket_prefix, ticket_number, ticket_subject, ticket_url_key FROM tickets
-            LEFT JOIN clients ON ticket_client_id = client_id
             LEFT JOIN contacts ON ticket_contact_id = contact_id
             WHERE ticket_id = $ticket_id
         ");

@@ -6,7 +6,6 @@ $interface_id = intval($_GET['id']);
 
 $sql = mysqli_query($mysqli, "SELECT * FROM asset_interfaces
     LEFT JOIN assets ON asset_id = interface_asset_id
-    LEFT JOIN clients ON client_id = asset_client_id
     WHERE interface_id = $interface_id LIMIT 1"
 );
 

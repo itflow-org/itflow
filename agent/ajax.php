@@ -564,7 +564,6 @@ if (isset($_POST['update_kanban_ticket'])) {
 
                     // Get details
                     $ticket_sql = mysqli_query($mysqli, "SELECT contact_name, contact_email, ticket_prefix, ticket_number, ticket_subject, ticket_status_name, ticket_assigned_to, ticket_url_key, ticket_client_id FROM tickets
-                        LEFT JOIN clients ON ticket_client_id = client_id
                         LEFT JOIN contacts ON ticket_contact_id = contact_id
                         LEFT JOIN ticket_statuses ON ticket_status = ticket_status_id
                         WHERE ticket_id = $ticket_id

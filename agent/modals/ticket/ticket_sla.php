@@ -7,7 +7,6 @@ enforceUserPermission('module_support', 2);
 $ticket_id = intval($_GET['id']);
 
 $sql = mysqli_query($mysqli, "SELECT * FROM tickets
-    LEFT JOIN clients ON client_id = ticket_client_id
     WHERE ticket_id = $ticket_id
     LIMIT 1"
 );
