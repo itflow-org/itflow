@@ -766,7 +766,7 @@ if (isset($_GET['anonymize_contact'])) {
     $contact_id = intval($_GET['anonymize_contact']);
 
     // Get contact & client info
-    $sql = mysqli_query($mysqli,"SELECT contact_name, contact_email, contact_client_id, contact_user_id FROM contacts WHERE contact_id = $contact_id");
+    $sql = mysqli_query($mysqli,"SELECT contact_name, contact_email, contact_phone, contact_client_id, contact_user_id FROM contacts WHERE contact_id = $contact_id");
     $row = mysqli_fetch_assoc($sql);
 
     $contact_name = escapeSql($row['contact_name']);
@@ -938,7 +938,7 @@ if (isset($_GET['delete_contact'])) {
     $contact_id = intval($_GET['delete_contact']);
 
     // Get Contact Name and Client ID for logging and alert message
-    $sql = mysqli_query($mysqli,"SELECT contact_name, contact_client_id FROM contacts WHERE contact_id = $contact_id");
+    $sql = mysqli_query($mysqli,"SELECT contact_name, contact_client_id, contact_user_id FROM contacts WHERE contact_id = $contact_id");
     $row = mysqli_fetch_assoc($sql);
     $contact_name = escapeSql($row['contact_name']);
     $client_id = intval($row['contact_client_id']);
