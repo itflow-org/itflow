@@ -70,6 +70,7 @@ if (!empty($ticket_id) && !empty($reply)) {
         $ticket_url_key = escapeSql($ticket_row['ticket_url_key']);
         $ticket_first_response_at = escapeSql($ticket_row['ticket_first_response_at']);
         $client_id = intval($ticket_row['ticket_client_id']);
+        $original_ticket_status = intval($ticket_row['ticket_status']);
 
         // Mark first response time if required - internal notes don't count as a response
         if (empty($ticket_first_response_at) && $reply_type == 'Public') {
@@ -87,11 +88,15 @@ if (!empty($ticket_id) && !empty($reply)) {
             if (!empty($reply_ticket_status)) {
                 mysqli_query($mysqli, "UPDATE tickets SET ticket_status = $reply_ticket_status WHERE ticket_id = $ticket_id LIMIT 1");
 
-                $new_status_name = escapeSql(getTicketStatusName($reply_ticket_status));
-                logTicketHistory($ticket_id, "Status set to $new_status_name via the API ($api_key_name)");
+                // Only record a status change when the status actually changed -
+                // Resolved is left out because the resolve block below logs it
+                if ($reply_ticket_status !== $original_ticket_status && $reply_ticket_status != 4) {
+                    $new_status_name = escapeSql(getTicketStatusName($reply_ticket_status));
+                    logTicketHistory($ticket_id, "Status set to $new_status_name via the API ($api_key_name)");
+                }
 
-                // Resolve the ticket, if set
-                if ($reply_ticket_status == 4) {
+                // Resolve the ticket, if it is actually moving into Resolved
+                if ($reply_ticket_status == 4 && $original_ticket_status != 4) {
                     mysqli_query($mysqli, "UPDATE tickets SET ticket_resolved_at = NOW() WHERE ticket_id = $ticket_id AND ticket_resolved_at IS NULL LIMIT 1");
                     setTicketResolutionSlaMet($ticket_id);
 

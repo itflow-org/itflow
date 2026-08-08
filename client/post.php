@@ -105,9 +105,16 @@ if (isset($_POST['add_ticket_comment'])) {
         $ticket_reply_id = mysqli_insert_id($mysqli);
 
         // Update Ticket Last Response Field & set ticket to open as client has replied
+        $original_row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT ticket_status FROM tickets WHERE ticket_id = $ticket_id LIMIT 1"));
+        $original_ticket_status = intval($original_row['ticket_status'] ?? 0);
+
         mysqli_query($mysqli, "UPDATE tickets SET ticket_status = 2 WHERE ticket_id = $ticket_id AND ticket_client_id = $session_client_id LIMIT 1");
         syncTicketSlaClock($ticket_id);
-        logTicketHistory($ticket_id, "$session_contact_name replied from the client portal, reopening the ticket");
+
+        // Only record the reopen when the ticket was not already open
+        if ($original_ticket_status !== 2) {
+            logTicketHistory($ticket_id, "$session_contact_name replied from the client portal, reopening the ticket");
+        }
 
 
         // Get ticket details &  Notify the assigned tech (if any)

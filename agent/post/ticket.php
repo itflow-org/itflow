@@ -1510,7 +1510,7 @@ if (isset($_POST['bulk_ticket_reply'])) {
         foreach ($_POST['ticket_ids'] as $ticket_id) {
             $ticket_id = intval($ticket_id);
 
-            $sql = mysqli_query($mysqli, "SELECT ticket_client_id, ticket_first_response_at, ticket_number, ticket_prefix, ticket_priority,
+            $sql = mysqli_query($mysqli, "SELECT ticket_client_id, ticket_status, ticket_first_response_at, ticket_number, ticket_prefix, ticket_priority,
                 ticket_subject, ticket_url_key FROM tickets WHERE ticket_id = $ticket_id");
             $row = mysqli_fetch_assoc($sql);
 
@@ -1521,6 +1521,7 @@ if (isset($_POST['bulk_ticket_reply'])) {
             $url_key = escapeSql($row['ticket_url_key']);
             $ticket_first_response_at = escapeSql($row['ticket_first_response_at']);
             $client_id = intval($row['ticket_client_id']);
+            $original_ticket_status = intval($row['ticket_status']);
 
             // Don't Enforce Client Access if Ticket doesn't have an assigned client
             if ($client_id) {
@@ -1547,8 +1548,12 @@ if (isset($_POST['bulk_ticket_reply'])) {
             mysqli_query($mysqli, "UPDATE tickets SET ticket_status = '$ticket_status' WHERE ticket_id = $ticket_id");
             syncTicketSlaClock($ticket_id);
 
-            $new_status_name = escapeSql(getTicketStatusName($ticket_status));
-            logTicketHistory($ticket_id, "$session_name set the status to $new_status_name");
+            // Only record a status change when the status actually changed - Resolved
+            // is left out because the resolve block below logs it
+            if ($ticket_status !== $original_ticket_status && $ticket_status != 4) {
+                $new_status_name = escapeSql(getTicketStatusName($ticket_status));
+                logTicketHistory($ticket_id, "$session_name set the status to $new_status_name");
+            }
 
             logAudit("Ticket", "Reply", "$session_name replied to ticket $ticket_prefix$ticket_number - $ticket_subject and was a $ticket_reply_type reply", $client_id, $ticket_id);
 
@@ -1559,8 +1564,9 @@ if (isset($_POST['bulk_ticket_reply'])) {
                 triggerCustomAction('reply_reply_agent_public', $ticket_id);
             }
 
-            // Resolve the ticket, if set
-            if ($ticket_status == 4) {
+            // Resolve the ticket, if it is actually moving into Resolved - a bulk reply
+            // on an already-resolved ticket must not restamp resolved_at
+            if ($ticket_status == 4 && $original_ticket_status != 4) {
                 mysqli_query($mysqli, "UPDATE tickets SET ticket_resolved_at = NOW() WHERE ticket_id = $ticket_id");
                 setTicketResolutionSlaMet($ticket_id);
 
@@ -1834,7 +1840,10 @@ if (isset($_POST['add_ticket_reply'])) {
     $ticket_reply = $_POST['ticket_reply']; // Reply is SQL escaped below
     $ticket_status = intval($_POST['status']);
     
-    $client_id = intval(getFieldById('tickets', $ticket_id, 'ticket_client_id'));
+    // Read the ticket as it stands before the reply changes anything
+    $original_row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT ticket_client_id, ticket_status FROM tickets WHERE ticket_id = $ticket_id"));
+    $client_id = intval($original_row['ticket_client_id'] ?? 0);
+    $original_ticket_status = intval($original_row['ticket_status'] ?? 0);
 
     // Don't Enforce Client Access if Ticket doesn't have an assigned client
     if ($client_id) {
@@ -1869,8 +1878,9 @@ if (isset($_POST['add_ticket_reply'])) {
     mysqli_query($mysqli, "UPDATE tickets SET ticket_status = $ticket_status, ticket_updated_at = NOW() WHERE ticket_id = $ticket_id");
     syncTicketSlaClock($ticket_id);
 
-    // Resolve the ticket, if set
-    if ($ticket_status == 4) {
+    // Resolve the ticket, if it is actually moving into Resolved - replying on an
+    // already-resolved ticket must not restamp resolved_at or re-log the resolve
+    if ($ticket_status == 4 && $original_ticket_status != 4) {
         mysqli_query($mysqli, "UPDATE tickets SET ticket_resolved_at = NOW() WHERE ticket_id = $ticket_id");
         setTicketResolutionSlaMet($ticket_id);
 
@@ -2030,8 +2040,15 @@ if (isset($_POST['add_ticket_reply'])) {
         flashAlert("Stored on the ticket but too large to email: <strong>" . implode(', ', $skipped_names) . "</strong>", 'error');
     }
 
-    $new_status_name = escapeSql(getTicketStatusName($ticket_status));
-    logTicketHistory($ticket_id, "$session_name set the status to $new_status_name");
+    /*
+     * The reply form preselects the ticket's current status, so most replies post
+     * it straight back - only record a status change when it actually changed.
+     * Resolved is left out because the resolve block above already logged it
+     */
+    if ($ticket_status !== $original_ticket_status && $ticket_status != 4) {
+        $new_status_name = escapeSql(getTicketStatusName($ticket_status));
+        logTicketHistory($ticket_id, "$session_name set the status to $new_status_name");
+    }
 
     logAudit("Ticket", "Reply", "$session_name replied to ticket $ticket_prefix$ticket_number - $ticket_subject and was a $ticket_reply_type reply", $client_id, $ticket_id);
 
