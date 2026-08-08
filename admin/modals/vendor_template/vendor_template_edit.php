@@ -4,7 +4,10 @@ require_once '../../includes/modal_header.php';
 
 $vendor_template_id = intval($_GET['id']);
 
-$sql = mysqli_query($mysqli, "SELECT * FROM vendor_templates WHERE vendor_template_id = $vendor_template_id LIMIT 1");
+$sql = mysqli_query($mysqli, "SELECT vendor_template_account_number, vendor_template_code, vendor_template_contact_name,
+    vendor_template_description, vendor_template_email, vendor_template_extension,
+    vendor_template_hours, vendor_template_name, vendor_template_notes, vendor_template_phone,
+    vendor_template_phone_country_code, vendor_template_sla, vendor_template_website FROM vendor_templates WHERE vendor_template_id = $vendor_template_id LIMIT 1");
 $row = mysqli_fetch_assoc($sql);
 $vendor_name = escapeHtml($row['vendor_template_name']);
 $vendor_description = escapeHtml($row['vendor_template_description']);

@@ -68,7 +68,7 @@ ob_start();
                                 <option value="">- Select Client -</option>
                                 <?php
 
-                                $sql = mysqli_query($mysqli, "SELECT client_id, client_name FROM clients WHERE client_archived_at IS NULL $access_permission_query ORDER BY client_name ASC");
+                                $sql = mysqli_query($mysqli, "SELECT client_id, client_name FROM clients WHERE client_archived_at IS NULL " . clientScopeSql('clients.client_id') . " ORDER BY client_name ASC");
                                 while ($row = mysqli_fetch_assoc($sql)) {
                                     $client_id_select = intval($row['client_id']);
                                     $client_name = escapeHtml($row['client_name']); ?>
@@ -244,7 +244,7 @@ ob_start();
 
 
                     <?php
-                    $sql_assets_select = mysqli_query($mysqli, "SELECT * FROM assets LEFT JOIN contacts ON asset_contact_id = contact_id WHERE asset_archived_at IS NULL AND asset_client_id = $client_id ORDER BY asset_archived_at ASC, asset_name ASC");
+                    $sql_assets_select = mysqli_query($mysqli, "SELECT asset_archived_at, asset_id, asset_name, asset_type, contact_name FROM assets LEFT JOIN contacts ON asset_contact_id = contact_id WHERE asset_archived_at IS NULL AND asset_client_id = $client_id ORDER BY asset_archived_at ASC, asset_name ASC");
 
                     while ($row = mysqli_fetch_assoc($sql_assets_select)) {
                         $asset_id_select = intval($row['asset_id']);
@@ -284,7 +284,7 @@ ob_start();
                     </li>
 
                     <?php
-                    $sql_contacts_select = mysqli_query($mysqli, "SELECT * FROM contacts WHERE contact_archived_at IS NULL AND contact_client_id = $client_id ORDER BY contact_name ASC");
+                    $sql_contacts_select = mysqli_query($mysqli, "SELECT contact_email, contact_id, contact_name FROM contacts WHERE contact_archived_at IS NULL AND contact_client_id = $client_id ORDER BY contact_name ASC");
 
                     while ($row = mysqli_fetch_assoc($sql_contacts_select)) {
                         $contact_id_select = intval($row['contact_id']);

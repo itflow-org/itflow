@@ -6,7 +6,7 @@ enforceUserPermission('module_sales', 2);
 
 $quote_id = intval($_GET['id']);
 
-$sql = mysqli_query($mysqli, "SELECT * FROM quotes LEFT JOIN clients ON quote_client_id = client_id WHERE quote_id = $quote_id LIMIT 1");
+$sql = mysqli_query($mysqli, "SELECT client_id, client_name, quote_number, quote_prefix FROM quotes LEFT JOIN clients ON quote_client_id = client_id WHERE quote_id = $quote_id LIMIT 1");
 
 $row = mysqli_fetch_assoc($sql);
 $quote_prefix = escapeHtml($row['quote_prefix']);
@@ -41,7 +41,7 @@ ob_start();
                 </div>
                 <select class="form-control select2" name="client_id" required>
                     <?php
-                        $sql_client_select = mysqli_query($mysqli, "SELECT * FROM clients WHERE client_archived_at IS NULL ORDER BY client_name ASC");
+                        $sql_client_select = mysqli_query($mysqli, "SELECT client_id, client_name FROM clients WHERE client_archived_at IS NULL ORDER BY client_name ASC");
                         while ($row = mysqli_fetch_assoc($sql_client_select)) {
                             $client_id_select = intval($row['client_id']);
                             $client_name_select = escapeHtml($row['client_name']);

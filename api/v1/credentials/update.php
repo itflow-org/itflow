@@ -20,7 +20,7 @@ if (!empty($_POST['api_key_decrypt_password']) && !empty($credential_id)) {
     $update_sql = mysqli_query($mysqli,"UPDATE credentials SET credential_name = '$name', credential_description = '$description', credential_uri = '$uri', credential_uri_2 = '$uri_2', credential_username = '$username', credential_password = '$password', credential_otp_secret = '$otp_secret', credential_note = '$note', credential_favorite = $favorite, credential_contact_id = $contact_id, credential_asset_id = $asset_id, credential_client_id = $client_id WHERE credential_id = '$credential_id' AND credential_client_id = $client_id LIMIT 1");
 
     // Check insert & get insert ID
-    if ($update_sql) {
+    if ($update_sql && $credential_row) {
         $update_count = mysqli_affected_rows($mysqli);
 
         if ($password_changed) {

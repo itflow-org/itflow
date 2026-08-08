@@ -100,7 +100,7 @@ function addTasksFromTicketTemplate($ticket_id, $ticket_template_id) {
         return 0;
     }
 
-    $sql_task_templates = mysqli_query($mysqli, "SELECT * FROM task_templates WHERE task_template_ticket_template_id = $ticket_template_id ORDER BY task_template_order ASC");
+    $sql_task_templates = mysqli_query($mysqli, "SELECT task_template_completion_estimate, task_template_name, task_template_order FROM task_templates WHERE task_template_ticket_template_id = $ticket_template_id ORDER BY task_template_order ASC");
 
     $tasks_added = 0;
 
@@ -270,7 +270,7 @@ function getFieldById($table, $id, $field) {
 function displayFolderOptions($parent_folder_id, $client_id, $indent = 0) {
     global $mysqli;
 
-    $sql_folders = mysqli_query($mysqli, "SELECT * FROM folders WHERE parent_folder = $parent_folder_id AND folder_client_id = $client_id ORDER BY folder_name ASC");
+    $sql_folders = mysqli_query($mysqli, "SELECT folder_id, folder_name FROM folders WHERE parent_folder = $parent_folder_id AND folder_client_id = $client_id ORDER BY folder_name ASC");
     while ($row = mysqli_fetch_assoc($sql_folders)) {
         $folder_id = intval($row['folder_id']);
         $folder_name = escapeHtml($row['folder_name']);
@@ -415,8 +415,17 @@ function addToMailQueue($data) {
     return true;
 }
 
-function createiCalStr($datetime, $title, $description, $location) {
-    require_once "libs/zapcal/zapcallib.php";
+function getTicketCalendarUid($ticket_id) {
+    // An invite and its later cancellation MUST carry the same UID or the
+    // recipient's calendar client cannot match them up. Derive it from the
+    // ticket so it is stable across both, rather than from the current time.
+    $ticket_id = intval($ticket_id);
+    $host = $_SERVER['SERVER_NAME'] ?? 'itflow';
+    return "ticket-$ticket_id@$host";
+}
+
+function createiCalStr($datetime, $title, $description, $location, $uid = null) {
+    require_once "../libs/zapcal/zapcallib.php";
 
     // Create the iCal object
     $cal_event = new ZCiCal();
@@ -431,8 +440,11 @@ function createiCalStr($datetime, $title, $description, $location) {
     // Todo: adjust this for actual duration
     $event->addNode(new ZCiCalDataNode("DTEND:" . ZCiCal::fromSqlDateTime($datetime)));
     $event->addNode(new ZCiCalDataNode("DTSTAMP:" . ZCiCal::fromSqlDateTime()));
-    $uid = date('Y-m-d-H-i-s') . "@" . $_SERVER['SERVER_NAME'];
+    if (empty($uid)) {
+        $uid = date('Y-m-d-H-i-s') . "@" . ($_SERVER['SERVER_NAME'] ?? 'itflow');
+    }
     $event->addNode(new ZCiCalDataNode("UID:" . $uid));
+    $event->addNode(new ZCiCalDataNode("SEQUENCE:0"));
     $event->addNode(new ZCiCalDataNode("LOCATION:" . $location));
     $event->addNode(new ZCiCalDataNode("DESCRIPTION:" . $description));
     // Todo: add organizer details
@@ -442,31 +454,27 @@ function createiCalStr($datetime, $title, $description, $location) {
     return $cal_event->export();
 }
 
-function createiCalStrCancel($originaliCalStr) {
-    require_once "libs/zapcal/zapcallib.php";
+function createiCalStrCancel($datetime, $title, $uid) {
+    require_once "../libs/zapcal/zapcallib.php";
 
-    // Import the original iCal string
-    $cal_event = new ZCiCal($originaliCalStr);
+    // Build the cancellation fresh. There is no stored copy of the original
+    // invite to reopen - the match is made by UID, not by the body.
+    $cal_event = new ZCiCal();
 
-    // Iterate through the iCalendar object to find VEVENT nodes
-    foreach($cal_event->tree->child as $node) {
-        if($node->getName() == "VEVENT") {
-            // Check if STATUS node exists, update it, or add a new one
-            $statusFound = false;
-            foreach($node->data as $key => $value) {
-                if($key == "STATUS") {
-                    $value->setValue("CANCELLED");
-                    $statusFound = true;
-                    break; // Exit the loop once the STATUS is updated
-                }
-            }
-            // If STATUS node is not found, add a new STATUS node
-            if (!$statusFound) {
-                $node->addNode(new ZCiCalDataNode("STATUS:CANCELLED"));
-            }
-        }
+    // METHOD belongs on the VCALENDAR, not on the VEVENT
+    $cal_event->tree->data['METHOD'] = new ZCiCalDataNode("METHOD:CANCEL");
+
+    $event = new ZCiCalNode("VEVENT", $cal_event->curnode);
+    $event->addNode(new ZCiCalDataNode("UID:" . $uid));
+    $event->addNode(new ZCiCalDataNode("SUMMARY:" . $title));
+    if (!empty($datetime)) {
+        $event->addNode(new ZCiCalDataNode("DTSTART:" . ZCiCal::fromSqlDateTime($datetime)));
+        $event->addNode(new ZCiCalDataNode("DTEND:" . ZCiCal::fromSqlDateTime($datetime)));
     }
+    $event->addNode(new ZCiCalDataNode("DTSTAMP:" . ZCiCal::fromSqlDateTime()));
+    // Must outrank the invite's SEQUENCE:0 or clients ignore the cancellation
+    $event->addNode(new ZCiCalDataNode("SEQUENCE:1"));
+    $event->addNode(new ZCiCalDataNode("STATUS:CANCELLED"));
 
-    // Return the modified iCal string
     return $cal_event->export();
 }

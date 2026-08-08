@@ -19,7 +19,8 @@ $cron_is_running = $cron_last_dispatch_at !== null && (time() - strtotime($cron_
 
 $backup_job = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT cron_job_enabled, cron_job_daily_at FROM cron_jobs WHERE cron_job_name = 'backup'"));
 
-$backups = mysqli_query($mysqli, "SELECT * FROM backups ORDER BY backup_created_at DESC LIMIT 100");
+$backups = mysqli_query($mysqli, "SELECT backup_created_at, backup_error, backup_id, backup_size, backup_source, backup_status,
+    backup_type FROM backups ORDER BY backup_created_at DESC LIMIT 100");
 
 $pending_count = intval(mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT COUNT(*) AS c FROM backups WHERE backup_status IN ('Pending','Running')"))['c']);
 

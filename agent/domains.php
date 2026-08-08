@@ -78,7 +78,7 @@ $sql = mysqli_query($mysqli, "SELECT SQL_CALC_FOUND_ROWS domains.*, clients.*,
     LEFT JOIN vendors AS webhost ON domains.domain_webhost = webhost.vendor_id
     WHERE (domains.domain_name LIKE '%$q%' OR domains.domain_description LIKE '%$q%' OR registrar.vendor_name LIKE '%$q%' OR dnshost.vendor_name LIKE '%$q%' OR mailhost.vendor_name LIKE '%$q%' OR webhost.vendor_name LIKE '%$q%' OR client_name LIKE '%$q%')
     AND $archive_query
-    $access_permission_query
+    " . clientScopeSql('domain_client_id') . "
     $client_query
     $expire_query
     ORDER BY $sort $order LIMIT $record_from, $record_to");
@@ -134,7 +134,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                 FROM clients
                                 JOIN domains ON domain_client_id = client_id
                                 WHERE $archive_query
-                                $access_permission_query
+                                " . clientScopeSql('clients.client_id') . "
                                 ORDER BY client_name ASC
                             ");
                             while ($row = mysqli_fetch_assoc($sql_clients_filter)) {

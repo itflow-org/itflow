@@ -9,11 +9,8 @@ if (isset($_GET['client_id'])) {
     $client_url = '';
 }
 
-// Ticket client access overide - This is the only way to show tickets without a client to agents with restricted client access
-$access_permission_query_overide = '';
-if ($client_access_string) {
-    $access_permission_query_overide = "AND ticket_client_id IN (0,$client_access_string)";
-}
+// Tickets with no client stay visible to restricted agents - clientScopeSql() includes 0
+$access_permission_query_overide = clientScopeSql('ticket_client_id');
 
 // Perms
 enforceUserPermission('module_support');
@@ -267,7 +264,9 @@ if (isset($_GET['ticket_id'])) {
         ))['user_names']);
 
         // Get ticket replies
-        $sql_ticket_replies = mysqli_query($mysqli, "SELECT * FROM ticket_replies
+        $sql_ticket_replies = mysqli_query($mysqli, "SELECT contact_name, contact_photo, ticket_reply, ticket_reply_created_at, ticket_reply_id,
+            ticket_reply_time_worked, ticket_reply_type, ticket_reply_updated_at, user_avatar, user_id,
+            user_name FROM ticket_replies
             LEFT JOIN users ON ticket_reply_by = user_id
             LEFT JOIN contacts ON ticket_reply_by = contact_id
             WHERE ticket_reply_ticket_id = $ticket_id
@@ -296,18 +295,18 @@ if (isset($_GET['ticket_id'])) {
         }
 
         // Get Watchers
-        $sql_ticket_watchers = mysqli_query($mysqli, "SELECT * FROM ticket_watchers WHERE watcher_ticket_id = $ticket_id ORDER BY watcher_email DESC");
+        $sql_ticket_watchers = mysqli_query($mysqli, "SELECT watcher_email, watcher_id FROM ticket_watchers WHERE watcher_ticket_id = $ticket_id ORDER BY watcher_email DESC");
         $watcher_count = mysqli_num_rows($sql_ticket_watchers);
 
         // Get Additional Assets
-        $sql_additional_assets = mysqli_query($mysqli, "SELECT * FROM assets, ticket_assets
+        $sql_additional_assets = mysqli_query($mysqli, "SELECT assets.asset_id, asset_name, asset_type FROM assets, ticket_assets
             WHERE assets.asset_id = ticket_assets.asset_id
             AND ticket_id = $ticket_id
             AND assets.asset_id != $asset_id"
         );
 
         // Get Tasks
-        $sql_tasks = mysqli_query($mysqli, "SELECT * FROM tasks WHERE task_ticket_id = $ticket_id ORDER BY task_order ASC, task_id ASC");
+        $sql_tasks = mysqli_query($mysqli, "SELECT task_completed_at, task_completion_estimate, task_id, task_name FROM tasks WHERE task_ticket_id = $ticket_id ORDER BY task_order ASC, task_id ASC");
         $task_count = mysqli_num_rows($sql_tasks);
 
         $completed_task_count = intval(mysqli_fetch_row(mysqli_query(

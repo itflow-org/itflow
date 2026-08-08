@@ -4,7 +4,7 @@ require_once '../../includes/modal_header.php';
 
 $provider_id = intval($_GET['id']);
 
-$sql = mysqli_query($mysqli, "SELECT * FROM ai_providers WHERE ai_provider_id = $provider_id LIMIT 1");
+$sql = mysqli_query($mysqli, "SELECT ai_provider_api_key, ai_provider_api_url, ai_provider_name FROM ai_providers WHERE ai_provider_id = $provider_id LIMIT 1");
 
 $row = mysqli_fetch_assoc($sql);
 $provider_name = escapeHtml($row['ai_provider_name']);

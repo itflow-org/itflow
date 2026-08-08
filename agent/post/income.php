@@ -307,7 +307,7 @@ if (isset($_POST['bulk_edit_income_method'])) {
 
 }
 
-if (isset($_POST['export_income'])) {
+if (isExportRequest('export_income')) {
 
     validateCSRFToken();
 
@@ -439,7 +439,7 @@ if (isset($_POST['export_income'])) {
             LEFT JOIN categories ON invoice_category_id = category_id
             WHERE payment_archived_at IS NULL
             $payment_client_query
-            $access_permission_query
+            " . clientScopeSql('invoice_client_id') . "
 
             UNION ALL
 

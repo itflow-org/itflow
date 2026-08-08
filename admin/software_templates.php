@@ -8,7 +8,9 @@ require_once "includes/inc_all_admin.php";
 
 $sql = mysqli_query(
     $mysqli,
-    "SELECT SQL_CALC_FOUND_ROWS * FROM software_templates
+    "SELECT SQL_CALC_FOUND_ROWS software_template_description, software_template_id, software_template_license_type,
+        software_template_name, software_template_notes, software_template_type,
+        software_template_version FROM software_templates
     WHERE software_template_name LIKE '%$q%' OR software_template_type LIKE '%$q%'
     ORDER BY $sort $order LIMIT $record_from, $record_to"
 );

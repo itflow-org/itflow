@@ -18,14 +18,7 @@ if (isset($_GET['client_id'])) {
 // Perms & Project client access snippet
 enforceUserPermission('module_support');
 
-$project_permission_snippet = '';
-
-if ($client_access_string) {
-    $project_permission_snippet .= " AND (project_client_id IN ($client_access_string) OR project_client_id = 0)";
-}
-if ($client_deny_string) {
-    $project_permission_snippet .= " AND project_client_id NOT IN ($client_deny_string)";
-}
+$project_permission_snippet = clientScopeSql('project_client_id');
 
 // Project Completed Status Query
 if (isset($_GET['status']) && $_GET['status'] == 1) {
@@ -38,7 +31,9 @@ if (isset($_GET['status']) && $_GET['status'] == 1) {
 
 $sql_projects = mysqli_query(
     $mysqli,
-    "SELECT SQL_CALC_FOUND_ROWS * FROM projects
+    "SELECT SQL_CALC_FOUND_ROWS client_id, client_name, project_archived_at, project_completed_at, project_created_at,
+        project_description, project_due, project_id, project_name, project_number, project_prefix,
+        project_updated_at, user_id, user_name FROM projects
     LEFT JOIN clients ON client_id = project_client_id
     LEFT JOIN users ON user_id = project_manager
     WHERE DATE(project_created_at) BETWEEN '$dtf' AND '$dtt'

@@ -6,7 +6,9 @@ enforceUserPermission('module_support', 2);
 
 $certificate_id = intval($_GET['id']);
 
-$sql = mysqli_query($mysqli, "SELECT * FROM certificates WHERE certificate_id = $certificate_id LIMIT 1");
+$sql = mysqli_query($mysqli, "SELECT certificate_client_id, certificate_created_at, certificate_description, certificate_domain,
+    certificate_domain_id, certificate_expire, certificate_issued_by, certificate_name,
+    certificate_notes, certificate_public_key FROM certificates WHERE certificate_id = $certificate_id LIMIT 1");
 
 $row = mysqli_fetch_assoc($sql);
 $certificate_name = escapeHtml($row['certificate_name']);
@@ -20,7 +22,8 @@ $certificate_expire = escapeHtml($row['certificate_expire']);
 $certificate_created_at = escapeHtml($row['certificate_created_at']);
 $client_id = intval($row['certificate_client_id']);
 
-$history_sql = mysqli_query($mysqli, "SELECT * FROM certificate_history WHERE certificate_history_certificate_id = $certificate_id");
+$history_sql = mysqli_query($mysqli, "SELECT certificate_history_column, certificate_history_modified_at, certificate_history_new_value,
+    certificate_history_old_value FROM certificate_history WHERE certificate_history_certificate_id = $certificate_id");
 
 enforceClientAccess();
 

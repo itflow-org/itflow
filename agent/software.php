@@ -63,12 +63,14 @@ if (!$client_url) {
 
 $sql = mysqli_query(
     $mysqli,
-    "SELECT SQL_CALC_FOUND_ROWS * FROM software
+    "SELECT SQL_CALC_FOUND_ROWS client_id, client_name, software_created_at, software_description, software_expire,
+        software_id, software_license_type, software_name, software_seats, software_type,
+        software_version, vendor_id, vendor_name FROM software
     LEFT JOIN clients ON client_id = software_client_id
     LEFT JOIN vendors ON vendor_id = software_vendor_id
     WHERE (software_name LIKE '%$q%' OR software_type LIKE '%$q%' OR software_key LIKE '%$q%' OR client_name LIKE '%$q%')
     AND $archive_query
-    $access_permission_query
+    " . clientScopeSql('software_client_id') . "
     $client_query
     $expire_query
     ORDER BY $sort $order LIMIT $record_from, $record_to");
@@ -131,7 +133,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                     FROM clients
                                     JOIN software ON software_client_id = client_id
                                     WHERE $archive_query
-                                    $access_permission_query
+                                    " . clientScopeSql('clients.client_id') . "
                                     ORDER BY client_name ASC
                                 ");
                                 while ($row = mysqli_fetch_assoc($sql_clients_filter)) {

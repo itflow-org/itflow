@@ -79,7 +79,7 @@ ob_start();
 
                 <?php
                 // Enumerate modules
-                $sql_modules = mysqli_query($mysqli, "SELECT * FROM modules");
+                $sql_modules = mysqli_query($mysqli, "SELECT module_description, module_id, module_name FROM modules");
                 while ($row_modules = mysqli_fetch_assoc($sql_modules)) {
 
                     $module_id = intval($row_modules['module_id']);

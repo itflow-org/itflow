@@ -4,7 +4,7 @@ require_once '../../includes/modal_header.php';
 
 $category_id = intval($_GET['id']);
 
-$sql = mysqli_query($mysqli, "SELECT * FROM categories WHERE category_id = $category_id LIMIT 1");
+$sql = mysqli_query($mysqli, "SELECT category_color, category_description, category_name, category_type FROM categories WHERE category_id = $category_id LIMIT 1");
 
 $row = mysqli_fetch_assoc($sql);
 $category_name = escapeHtml($row['category_name']);

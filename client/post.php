@@ -105,13 +105,20 @@ if (isset($_POST['add_ticket_comment'])) {
         $ticket_reply_id = mysqli_insert_id($mysqli);
 
         // Update Ticket Last Response Field & set ticket to open as client has replied
+        $original_row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT ticket_status FROM tickets WHERE ticket_id = $ticket_id LIMIT 1"));
+        $original_ticket_status = intval($original_row['ticket_status'] ?? 0);
+
         mysqli_query($mysqli, "UPDATE tickets SET ticket_status = 2 WHERE ticket_id = $ticket_id AND ticket_client_id = $session_client_id LIMIT 1");
         syncTicketSlaClock($ticket_id);
-        logTicketHistory($ticket_id, "$session_contact_name replied from the client portal, reopening the ticket");
+
+        // Only record the reopen when the ticket was not already open
+        if ($original_ticket_status !== 2) {
+            logTicketHistory($ticket_id, "$session_contact_name replied from the client portal, reopening the ticket");
+        }
 
 
         // Get ticket details &  Notify the assigned tech (if any)
-        $ticket_details = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT * FROM tickets LEFT JOIN clients ON ticket_client_id = client_id WHERE ticket_id = $ticket_id LIMIT 1"));
+        $ticket_details = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT client_name, ticket_assigned_to, ticket_number, ticket_subject FROM tickets LEFT JOIN clients ON ticket_client_id = client_id WHERE ticket_id = $ticket_id LIMIT 1"));
 
         $ticket_number = intval($ticket_details['ticket_number']);
         $ticket_assigned_to = intval($ticket_details['ticket_assigned_to']);
@@ -166,7 +173,8 @@ if (isset($_GET['approve_ticket_task'])) {
     $approval_id = intval($_GET['approval_id']);
     $url_key = escapeSql($_GET['approval_url_key']);
 
-    $approval_row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT * FROM task_approvals LEFT JOIN tasks on task_id = approval_task_id WHERE approval_id = $approval_id AND approval_task_id = $task_id AND approval_url_key = '$url_key' AND approval_status = 'pending' AND approval_scope = 'client'"));
+    $approval_row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT approval_created_by, approval_required_user_id, approval_scope, approval_type, task_name,
+        task_ticket_id FROM task_approvals LEFT JOIN tasks on task_id = approval_task_id WHERE approval_id = $approval_id AND approval_task_id = $task_id AND approval_url_key = '$url_key' AND approval_status = 'pending' AND approval_scope = 'client'"));
 
     $task_name = escapeHtml($approval_row['task_name']);
     $scope = escapeHtml($approval_row['approval_scope']);
@@ -236,7 +244,7 @@ if (isset($_GET['resolve_ticket'])) {
     $ticket_id = intval($_GET['resolve_ticket']);
 
     // Get ticket details for logging
-    $row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT * FROM tickets WHERE ticket_id = $ticket_id LIMIT 1"));
+    $row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT ticket_number, ticket_prefix FROM tickets WHERE ticket_id = $ticket_id LIMIT 1"));
 
     $ticket_prefix = escapeSql($row['ticket_prefix']);
     $ticket_number = intval($row['ticket_number']);
@@ -274,7 +282,7 @@ if (isset($_GET['reopen_ticket'])) {
     $ticket_id = intval($_GET['reopen_ticket']);
 
     // Get ticket details for logging
-    $row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT * FROM tickets WHERE ticket_id = $ticket_id LIMIT 1"));
+    $row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT ticket_number, ticket_prefix FROM tickets WHERE ticket_id = $ticket_id LIMIT 1"));
 
     $ticket_prefix = escapeSql($row['ticket_prefix']);
     $ticket_number = intval($row['ticket_number']);
@@ -312,7 +320,7 @@ if (isset($_GET['close_ticket'])) {
     $ticket_id = intval($_GET['close_ticket']);
 
     // Get ticket details for logging
-    $row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT * FROM tickets WHERE ticket_id = $ticket_id LIMIT 1"));
+    $row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT ticket_number, ticket_prefix FROM tickets WHERE ticket_id = $ticket_id LIMIT 1"));
 
     $ticket_prefix = escapeSql($row['ticket_prefix']);
     $ticket_number = intval($row['ticket_number']);
@@ -481,7 +489,10 @@ if (isset($_GET['add_payment_by_provider'])) {
     $saved_payment_id = intval($_GET['add_payment_by_provider']);
 
     // Get invoice details
-    $sql = mysqli_query($mysqli,"SELECT * FROM invoices
+    $sql = mysqli_query($mysqli,"SELECT client_id, client_name, contact_email, contact_extension, contact_mobile,
+        contact_mobile_country_code, contact_name, contact_phone, contact_phone_country_code,
+        invoice_amount, invoice_currency_code, invoice_number, invoice_prefix, invoice_status,
+        invoice_url_key FROM invoices
             LEFT JOIN clients ON invoice_client_id = client_id
             LEFT JOIN contacts ON client_id = contact_client_id AND contact_primary = 1
             WHERE invoice_id = $invoice_id AND client_id = $session_client_id"
@@ -503,7 +514,8 @@ if (isset($_GET['add_payment_by_provider'])) {
     $contact_mobile = escapeSql(formatPhoneNumber($row['contact_mobile'], $row['contact_mobile_country_code']));
 
     // Get ITFlow company details
-    $sql = mysqli_query($mysqli,"SELECT * FROM companies WHERE company_id = 1");
+    $sql = mysqli_query($mysqli,"SELECT company_address, company_city, company_country, company_email, company_name, company_phone,
+        company_phone_country_code, company_state, company_website, company_zip FROM companies WHERE company_id = 1");
     $row = mysqli_fetch_assoc($sql);
     $company_name = escapeSql($row['company_name']);
     $company_country = escapeSql($row['company_country']);
@@ -520,7 +532,9 @@ if (isset($_GET['add_payment_by_provider'])) {
     $config_invoice_from_email = escapeSql($config_invoice_from_email);
 
     // Get Client Payment Details
-    $sql = mysqli_query($mysqli, "SELECT * FROM client_saved_payment_methods LEFT JOIN payment_providers ON saved_payment_provider_id = payment_provider_id LEFT JOIN client_payment_provider ON saved_payment_client_id = client_id WHERE saved_payment_id = $saved_payment_id AND saved_payment_client_id = $session_client_id LIMIT 1");
+    $sql = mysqli_query($mysqli, "SELECT payment_provider_account, payment_provider_client, payment_provider_private_key,
+        payment_provider_public_key, saved_payment_client_id, saved_payment_description,
+        saved_payment_provider_method FROM client_saved_payment_methods LEFT JOIN payment_providers ON saved_payment_provider_id = payment_provider_id LEFT JOIN client_payment_provider ON saved_payment_client_id = client_id WHERE saved_payment_id = $saved_payment_id AND saved_payment_client_id = $session_client_id LIMIT 1");
     $row = mysqli_fetch_assoc($sql);
 
     $public_key = escapeSql($row['payment_provider_public_key']);
@@ -671,7 +685,7 @@ if (isset($_POST['create_stripe_customer'])) {
 
     // Get Stripe provider
     $stripe_provider_result = mysqli_query($mysqli, "
-        SELECT * FROM payment_providers
+        SELECT payment_provider_id, payment_provider_private_key FROM payment_providers
         WHERE payment_provider_name = 'Stripe'
         AND payment_provider_active = 1
         LIMIT 1
@@ -759,7 +773,7 @@ if (isset($_GET['create_stripe_checkout'])) {
 
     // Fetch Stripe provider info
     $stripe_provider_result = mysqli_query($mysqli, "
-        SELECT * FROM payment_providers
+        SELECT payment_provider_id, payment_provider_private_key FROM payment_providers
         WHERE payment_provider_name = 'Stripe'
         AND payment_provider_active = 1
         LIMIT 1
@@ -842,7 +856,7 @@ if (isset($_GET['stripe_save_card'])) {
 
     // Get Stripe provider
     $stripe_provider_result = mysqli_query($mysqli, "
-        SELECT * FROM payment_providers
+        SELECT payment_provider_id, payment_provider_private_key FROM payment_providers
         WHERE payment_provider_name = 'Stripe'
         AND payment_provider_active = 1
         LIMIT 1
@@ -925,7 +939,8 @@ if (isset($_GET['stripe_save_card'])) {
 
     // Email Confirmation
     $sql_settings = mysqli_query($mysqli, "
-        SELECT * FROM companies, settings
+        SELECT company_name, company_phone, company_phone_country_code, config_invoice_from_email,
+            config_invoice_from_name, config_smtp_host FROM companies, settings
         WHERE companies.company_id = settings.company_id
         AND companies.company_id = 1
     ");
@@ -973,7 +988,7 @@ if (isset($_GET['delete_saved_payment'])) {
 
     // Get Stripe provider info
     $stripe_provider_result = mysqli_query($mysqli, "
-        SELECT * FROM payment_providers
+        SELECT payment_provider_id, payment_provider_private_key FROM payment_providers
         WHERE payment_provider_name = 'Stripe'
         AND payment_provider_active = 1
         LIMIT 1
@@ -1073,7 +1088,8 @@ if (isset($_POST['set_recurring_payment'])) {
     $saved_payment_id = intval($_POST['saved_payment_id']);
 
     // Get Recurring Invoice Info for logging and alerting
-    $sql = mysqli_query($mysqli, "SELECT * FROM recurring_invoices WHERE recurring_invoice_id = $recurring_invoice_id AND recurring_invoice_client_id = $session_client_id");
+    $sql = mysqli_query($mysqli, "SELECT recurring_invoice_amount, recurring_invoice_currency_code, recurring_invoice_number,
+        recurring_invoice_prefix FROM recurring_invoices WHERE recurring_invoice_id = $recurring_invoice_id AND recurring_invoice_client_id = $session_client_id");
     $row = mysqli_fetch_assoc($sql);
     $recurring_invoice_prefix = escapeSql($row['recurring_invoice_prefix']);
     $recurring_invoice_number = intval($row['recurring_invoice_number']);
@@ -1084,7 +1100,8 @@ if (isset($_POST['set_recurring_payment'])) {
 
         // Get Payment provider and method
         $sql = mysqli_query($mysqli, "
-            SELECT * FROM payment_providers
+            SELECT payment_provider_account, payment_provider_id, payment_provider_name,
+                saved_payment_description FROM payment_providers
             LEFT JOIN client_saved_payment_methods ON saved_payment_provider_id = payment_provider_id
             WHERE saved_payment_id = $saved_payment_id
             AND saved_payment_client_id = $session_client_id

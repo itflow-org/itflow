@@ -31,7 +31,7 @@ ob_start();
             <select class="form-control select2" name="bulk_status" required>
 
                 <!-- Show all active ticket statuses, apart from new or closed as these are system-managed -->
-                <?php $sql_ticket_status = mysqli_query($mysqli, "SELECT * FROM ticket_statuses WHERE ticket_status_id != 1 AND ticket_status_id != 5 AND ticket_status_active = 1");
+                <?php $sql_ticket_status = mysqli_query($mysqli, "SELECT ticket_status_id, ticket_status_name FROM ticket_statuses WHERE ticket_status_id != 1 AND ticket_status_id != 5 AND ticket_status_active = 1");
                 while ($row = mysqli_fetch_assoc($sql_ticket_status)) {
                     $ticket_status_id_select = intval($row['ticket_status_id']);
                     $ticket_status_name_select = escapeHtml($row['ticket_status_name']); ?>

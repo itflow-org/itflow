@@ -6,7 +6,9 @@ enforceUserPermission('module_financial', 2);
 
 $revenue_id = intval($_GET['id']);
 
-$sql = mysqli_query($mysqli, "SELECT * FROM revenues WHERE revenue_id = $revenue_id LIMIT 1");
+$sql = mysqli_query($mysqli, "SELECT revenue_account_id, revenue_amount, revenue_category_id, revenue_created_at,
+    revenue_currency_code, revenue_date, revenue_description, revenue_payment_method,
+    revenue_reference FROM revenues WHERE revenue_id = $revenue_id LIMIT 1");
 
 $row = mysqli_fetch_assoc($sql);
 $revenue_description = escapeHtml($row['revenue_description']);
@@ -70,7 +72,7 @@ ob_start();
                         <option value="">- Select Account -</option>
                         <?php
 
-                        $sql_accounts = mysqli_query($mysqli, "SELECT * FROM accounts WHERE (account_archived_at > '$revenue_created_at' OR account_archived_at IS NULL) ORDER BY account_archived_at ASC, account_name ASC");
+                        $sql_accounts = mysqli_query($mysqli, "SELECT account_archived_at, account_currency_code, account_id, account_name, opening_balance FROM accounts WHERE (account_archived_at > '$revenue_created_at' OR account_archived_at IS NULL) ORDER BY account_archived_at ASC, account_name ASC");
                         while ($row = mysqli_fetch_assoc($sql_accounts)) {
                             $account_id_select = intval($row['account_id']);
                             $account_name_select = escapeHtml($row['account_name']);
@@ -116,7 +118,7 @@ ob_start();
                         <option value="">- Select Category -</option>
                         <?php
 
-                        $sql_category = mysqli_query($mysqli, "SELECT * FROM categories WHERE category_type = 'Income' AND (category_archived_at > '$revenue_created_at' OR category_archived_at IS NULL) ORDER BY category_name ASC");
+                        $sql_category = mysqli_query($mysqli, "SELECT category_id, category_name FROM categories WHERE category_type = 'Income' AND (category_archived_at > '$revenue_created_at' OR category_archived_at IS NULL) ORDER BY category_name ASC");
                         while ($row = mysqli_fetch_assoc($sql_category)) {
                             $category_id_select = intval($row['category_id']);
                             $category_name = escapeHtml($row['category_name']);
@@ -155,7 +157,7 @@ ob_start();
                         <option value="">- Select Method of Payment -</option>
                         <?php
 
-                        $sql_categories = mysqli_query($mysqli, "SELECT * FROM payment_methods ORDER BY payment_method_name ASC");
+                        $sql_categories = mysqli_query($mysqli, "SELECT payment_method_name FROM payment_methods ORDER BY payment_method_name ASC");
                         while ($row = mysqli_fetch_assoc($sql_categories)) {
                             $payment_method_name_select = escapeHtml($row['payment_method_name']);
                             ?>

@@ -50,7 +50,7 @@ ob_start();
                                 <option value="">- Select Client -</option>
                                 <?php
 
-                                $sql = mysqli_query($mysqli, "SELECT client_id, client_name FROM clients WHERE client_archived_at IS NULL $access_permission_query ORDER BY client_name ASC");
+                                $sql = mysqli_query($mysqli, "SELECT client_id, client_name FROM clients WHERE client_archived_at IS NULL " . clientScopeSql('clients.client_id') . " ORDER BY client_name ASC");
                                 while ($row = mysqli_fetch_assoc($sql)) {
                                     $client_id_select = intval($row['client_id']);
                                     $client_name = escapeHtml($row['client_name']); ?>
@@ -93,7 +93,7 @@ ob_start();
                         <select class="form-control select2" name="domain_id">
                             <option value="">- Domain -</option>
                             <?php
-                            $domains_sql = mysqli_query($mysqli, "SELECT * FROM domains WHERE domain_archived_at IS NULL AND domain_client_id = $client_id ORDER BY domain_name ASC");
+                            $domains_sql = mysqli_query($mysqli, "SELECT domain_id, domain_name FROM domains WHERE domain_archived_at IS NULL AND domain_client_id = $client_id ORDER BY domain_name ASC");
                             while ($domain_row = mysqli_fetch_assoc($domains_sql)) {
                                 $domain_id = intval($domain_row['domain_id']);
                                 $domain_name = escapeHtml($domain_row['domain_name']);

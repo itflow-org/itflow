@@ -4,7 +4,7 @@ require_once '../../includes/modal_header.php';
 
 $user_id = intval($_GET['id']);
 
-$sql = mysqli_query($mysqli, "SELECT * FROM users WHERE user_id = $user_id AND user_archived_at IS NOT NULL LIMIT 1");
+$sql = mysqli_query($mysqli, "SELECT user_avatar, user_email, user_name, user_role_id FROM users WHERE user_id = $user_id AND user_archived_at IS NOT NULL LIMIT 1");
 
 $row = mysqli_fetch_assoc($sql);
 $user_name = str_replace(" (archived)", "", $row['user_name']); //Removed (archived) from user_name
@@ -63,7 +63,7 @@ ob_start();
                 </div>
                 <select class="form-control select2" name="role" required>
                     <?php
-                    $sql_user_roles = mysqli_query($mysqli, "SELECT * FROM user_roles WHERE role_archived_at IS NULL");
+                    $sql_user_roles = mysqli_query($mysqli, "SELECT role_id, role_name FROM user_roles WHERE role_archived_at IS NULL");
                     while ($row = mysqli_fetch_assoc($sql_user_roles)) {
                         $role_id = intval($row['role_id']);
                         $role_name = escapeHtml($row['role_name']);

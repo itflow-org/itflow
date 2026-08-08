@@ -15,7 +15,7 @@ if (isset($_GET['id']) && isset($_GET['key'])) {
     $item_id = intval($_GET['id']);
     $item_key = escapeSql($_GET['key']);
 
-    $sql = mysqli_query($mysqli, "SELECT * FROM shared_items WHERE item_id = $item_id AND item_key = '$item_key' AND item_expire_at > NOW() LIMIT 1");
+    $sql = mysqli_query($mysqli, "SELECT item_active, item_client_id, item_related_id, item_type, item_view_limit, item_views FROM shared_items WHERE item_id = $item_id AND item_key = '$item_key' AND item_expire_at > NOW() LIMIT 1");
     $row = mysqli_fetch_assoc($sql);
 
     $item_active = intval($row['item_active']);
@@ -49,7 +49,7 @@ if (isset($_GET['id']) && isset($_GET['key'])) {
         }
     }
 
-    $file_sql = mysqli_query($mysqli, "SELECT * FROM files WHERE file_id = $item_related_id AND file_client_id = $client_id LIMIT 1");
+    $file_sql = mysqli_query($mysqli, "SELECT file_client_id, file_name, file_reference_name FROM files WHERE file_id = $item_related_id AND file_client_id = $client_id LIMIT 1");
     $file_row = mysqli_fetch_assoc($file_sql);
 
     if (mysqli_num_rows($file_sql) !== 1 || !$file_row) {

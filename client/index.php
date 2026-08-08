@@ -42,7 +42,7 @@ $recurring_monthly = $recurring_monthly_total + $recurring_yearly_total;
 // Get Domains Expiring
 $sql_domains_expiring = mysqli_query(
     $mysqli,
-    "SELECT * FROM domains
+    "SELECT domain_expire, domain_id, domain_name FROM domains
     WHERE domain_client_id = $session_client_id
         AND domain_expire IS NOT NULL
         AND domain_archived_at IS NULL
@@ -161,7 +161,7 @@ $sql_asset_retired = mysqli_query(
 // Assigned Assets
 $sql_assigned_assets = mysqli_query(
     $mysqli,
-    "SELECT * FROM assets
+    "SELECT asset_name, asset_type, asset_uri_client FROM assets
     WHERE asset_contact_id = $session_contact_id
         AND asset_archived_at IS NULL
     ORDER BY asset_name ASC"

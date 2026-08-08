@@ -6,7 +6,8 @@ enforceUserPermission('module_sales', 2);
 
 $product_id = intval($_GET['id']);
 
-$sql = mysqli_query($mysqli, "SELECT * FROM products WHERE product_id = $product_id LIMIT 1");
+$sql = mysqli_query($mysqli, "SELECT product_category_id, product_code, product_created_at, product_description,
+    product_location, product_name, product_price, product_tax_id, product_type FROM products WHERE product_id = $product_id LIMIT 1");
 
 $row = mysqli_fetch_assoc($sql);
 $product_name = escapeHtml($row['product_name']);
@@ -53,7 +54,7 @@ ob_start();
                 <select class="form-control select2" name="category" required>
                     <?php
 
-                    $sql_select = mysqli_query($mysqli, "SELECT * FROM categories WHERE category_type = 'Income' AND (category_archived_at > '$product_created_at' OR category_archived_at IS NULL)");
+                    $sql_select = mysqli_query($mysqli, "SELECT category_id, category_name FROM categories WHERE category_type = 'Income' AND (category_archived_at > '$product_created_at' OR category_archived_at IS NULL)");
                     while ($row = mysqli_fetch_assoc($sql_select)) {
                         $category_id_select = intval($row['category_id']);
                         $category_name_select = escapeHtml($row['category_name']);
@@ -96,7 +97,7 @@ ob_start();
                             <option value="0">None</option>
                             <?php
 
-                            $taxes_sql = mysqli_query($mysqli, "SELECT * FROM taxes WHERE (tax_archived_at > '$product_created_at' OR tax_archived_at IS NULL) ORDER BY tax_name ASC");
+                            $taxes_sql = mysqli_query($mysqli, "SELECT tax_id, tax_name, tax_percent FROM taxes WHERE (tax_archived_at > '$product_created_at' OR tax_archived_at IS NULL) ORDER BY tax_name ASC");
                             while ($row = mysqli_fetch_assoc($taxes_sql)) {
                                 $tax_id_select = intval($row['tax_id']);
                                 $tax_name = escapeHtml($row['tax_name']);

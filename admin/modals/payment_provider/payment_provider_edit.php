@@ -4,7 +4,9 @@ require_once '../../includes/modal_header.php';
 
 $provider_id = intval($_GET['id']);
 
-$sql = mysqli_query($mysqli, "SELECT * FROM payment_providers WHERE payment_provider_id = $provider_id LIMIT 1");
+$sql = mysqli_query($mysqli, "SELECT payment_provider_account, payment_provider_expense_category,
+    payment_provider_expense_vendor, payment_provider_name, payment_provider_private_key,
+    payment_provider_public_key, payment_provider_threshold FROM payment_providers WHERE payment_provider_id = $provider_id LIMIT 1");
 
 $row = mysqli_fetch_assoc($sql);
 $provider_name = escapeHtml($row['payment_provider_name']);

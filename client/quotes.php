@@ -10,7 +10,8 @@ require_once "includes/inc_all.php";
 
 enforceContactCan('accounting');
 
-$quotes_sql = mysqli_query($mysqli, "SELECT * FROM quotes WHERE quote_client_id = $session_client_id AND quote_status != 'Draft' ORDER BY quote_date DESC");
+$quotes_sql = mysqli_query($mysqli, "SELECT quote_amount, quote_date, quote_id, quote_number, quote_prefix, quote_scope, quote_status,
+    quote_url_key FROM quotes WHERE quote_client_id = $session_client_id AND quote_status != 'Draft' ORDER BY quote_date DESC");
 ?>
 
 <h3>Quotes</h3>

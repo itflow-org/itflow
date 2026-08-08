@@ -53,18 +53,18 @@ if (isset($_GET['id']) && intval($_GET['id'])) {
         // Get Ticket Attachments (not associated with a specific reply)
         $sql_ticket_attachments = mysqli_query(
             $mysqli,
-            "SELECT * FROM ticket_attachments
+            "SELECT ticket_attachment_id, ticket_attachment_name FROM ticket_attachments
             WHERE ticket_attachment_reply_id IS NULL
             AND ticket_attachment_ticket_id = $ticket_id"
         );
 
         // Get Tasks
-        $sql_tasks = mysqli_query( $mysqli, "SELECT * FROM tasks WHERE task_ticket_id = $ticket_id ORDER BY task_order ASC, task_id ASC");
+        $sql_tasks = mysqli_query( $mysqli, "SELECT 1 FROM tasks WHERE task_ticket_id = $ticket_id ORDER BY task_order ASC, task_id ASC");
         $task_count = mysqli_num_rows($sql_tasks);
 
         // Get Completed Task Count
         $sql_tasks_completed = mysqli_query($mysqli,
-            "SELECT * FROM tasks
+            "SELECT 1 FROM tasks
             WHERE task_ticket_id = $ticket_id
             AND task_completed_at IS NOT NULL"
         );
@@ -269,7 +269,9 @@ if (isset($_GET['id']) && intval($_GET['id'])) {
         <br>
 
         <?php
-        $sql = mysqli_query($mysqli, "SELECT * FROM ticket_replies LEFT JOIN users ON ticket_reply_by = user_id LEFT JOIN contacts ON ticket_reply_by = contact_id WHERE ticket_reply_ticket_id = $ticket_id AND ticket_reply_archived_at IS NULL AND ticket_reply_type != 'Internal' ORDER BY ticket_reply_id DESC");
+        $sql = mysqli_query($mysqli, "SELECT contact_name, contact_photo, ticket_reply, ticket_reply_by, ticket_reply_created_at,
+            ticket_reply_id, ticket_reply_type, ticket_reply_updated_at, user_avatar, user_id,
+            user_name FROM ticket_replies LEFT JOIN users ON ticket_reply_by = user_id LEFT JOIN contacts ON ticket_reply_by = contact_id WHERE ticket_reply_ticket_id = $ticket_id AND ticket_reply_archived_at IS NULL AND ticket_reply_type != 'Internal' ORDER BY ticket_reply_id DESC");
 
         while ($row = mysqli_fetch_assoc($sql)) {
             $ticket_reply_id = intval($row['ticket_reply_id']);
@@ -295,7 +297,7 @@ if (isset($_GET['id']) && intval($_GET['id'])) {
             // Get attachments for this reply
             $sql_ticket_reply_attachments = mysqli_query(
                 $mysqli,
-                "SELECT * FROM ticket_attachments
+                "SELECT ticket_attachment_id, ticket_attachment_name FROM ticket_attachments
                         WHERE ticket_attachment_reply_id = $ticket_reply_id
                         AND ticket_attachment_ticket_id = $ticket_id"
             );

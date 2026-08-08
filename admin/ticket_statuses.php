@@ -8,7 +8,8 @@ require_once "includes/inc_all_admin.php";
 
 $sql = mysqli_query(
     $mysqli,
-    "SELECT SQL_CALC_FOUND_ROWS * FROM ticket_statuses
+    "SELECT SQL_CALC_FOUND_ROWS ticket_status_active, ticket_status_color, ticket_status_id, ticket_status_name,
+        ticket_status_pauses_sla FROM ticket_statuses
     WHERE ticket_status_name LIKE '%$q%'
     ORDER BY $sort $order LIMIT $record_from, $record_to"
 );

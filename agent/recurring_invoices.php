@@ -29,7 +29,13 @@ if (isset($_GET['status']) && $_GET['status'] == "inactive") {
 
 $sql = mysqli_query(
     $mysqli,
-    "SELECT SQL_CALC_FOUND_ROWS * FROM recurring_invoices
+    "SELECT SQL_CALC_FOUND_ROWS category_id, category_name, client_currency_code, client_id, client_name,
+        recurring_invoice_amount, recurring_invoice_created_at, recurring_invoice_currency_code,
+        recurring_invoice_discount_amount, recurring_invoice_frequency, recurring_invoice_id,
+        recurring_invoice_last_sent, recurring_invoice_next_date, recurring_invoice_number,
+        recurring_invoice_prefix, recurring_invoice_scope, recurring_invoice_status,
+        recurring_payment_id, recurring_payment_recurring_invoice_id,
+        recurring_payment_saved_payment_id FROM recurring_invoices
     LEFT JOIN clients ON recurring_invoice_client_id = client_id
     LEFT JOIN categories ON recurring_invoice_category_id = category_id
     LEFT JOIN recurring_payments ON recurring_payment_recurring_invoice_id = recurring_invoice_id
@@ -37,7 +43,7 @@ $sql = mysqli_query(
     AND DATE(recurring_invoice_created_at) BETWEEN '$dtf' AND '$dtt'
     $status_query
     $client_query
-    $access_permission_query
+    " . clientScopeSql('recurring_invoice_client_id') . "
 
     ORDER BY $sort $order LIMIT $record_from, $record_to");
 
@@ -218,7 +224,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                         <td><?= $recurring_invoice_last_sent ?></td>
                         <td><?= $category_name ?></td>
                         <td>
-                            <?php $sql_saved_payments = mysqli_query($mysqli, "SELECT * FROM client_saved_payment_methods WHERE saved_payment_client_id = $client_id");
+                            <?php $sql_saved_payments = mysqli_query($mysqli, "SELECT saved_payment_description, saved_payment_id FROM client_saved_payment_methods WHERE saved_payment_client_id = $client_id");
                             if (mysqli_num_rows($sql_saved_payments) > 0) { ?>
                                 <form class="form" action="post.php" method="post">
                                     <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">

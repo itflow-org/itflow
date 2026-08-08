@@ -14,7 +14,7 @@ $sql_payment_years = mysqli_query($mysqli, "SELECT DISTINCT YEAR(payment_date) A
     UNION SELECT DISTINCT YEAR(revenue_date) AS payment_year FROM revenues
     ORDER BY payment_year DESC");
 
-$sql_categories = mysqli_query($mysqli, "SELECT * FROM categories WHERE category_type = 'Income' ORDER BY category_name ASC");
+$sql_categories = mysqli_query($mysqli, "SELECT category_id, category_name FROM categories WHERE category_type = 'Income' ORDER BY category_name ASC");
 
 // Used for chart y-axis max calculation
 $largest_income_month = 0;

@@ -6,7 +6,10 @@ enforceUserPermission('module_support', 2);
 
 $recurring_ticket_id = intval($_GET['id']);
 
-$sql = mysqli_query($mysqli, "SELECT * FROM recurring_tickets WHERE recurring_ticket_id = $recurring_ticket_id LIMIT 1");
+$sql = mysqli_query($mysqli, "SELECT recurring_ticket_asset_id, recurring_ticket_assigned_to, recurring_ticket_billable,
+    recurring_ticket_category, recurring_ticket_client_id, recurring_ticket_contact_id,
+    recurring_ticket_details, recurring_ticket_frequency, recurring_ticket_next_run,
+    recurring_ticket_priority, recurring_ticket_subject, recurring_ticket_ticket_template_id FROM recurring_tickets WHERE recurring_ticket_id = $recurring_ticket_id LIMIT 1");
 
 $row = mysqli_fetch_assoc($sql);
 $client_id = intval($row['recurring_ticket_client_id']);

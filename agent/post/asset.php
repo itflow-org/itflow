@@ -111,7 +111,7 @@ if (isset($_POST['edit_asset'])) {
 
     mysqli_query($mysqli,"UPDATE assets SET asset_name = '$name', asset_description = '$description', asset_type = '$type', asset_make = '$make', asset_model = '$model', asset_serial = '$serial', asset_os = '$os', asset_uri = '$uri', asset_uri_2 = '$uri_2', asset_uri_client = '$uri_client', asset_location_id = $location, asset_vendor_id = $vendor, asset_contact_id = $contact, asset_status = '$status', asset_purchase_reference = '$purchase_reference', asset_purchase_date = $purchase_date, asset_warranty_expire = $warranty_expire, asset_install_date = $install_date, asset_physical_location = '$physical_location', asset_notes = '$notes', asset_favorite = $favorite WHERE asset_id = $asset_id");
 
-    $sql_interfaces = mysqli_query($mysqli, "SELECT * FROM asset_interfaces WHERE interface_asset_id = $asset_id AND interface_primary = 1");
+    $sql_interfaces = mysqli_query($mysqli, "SELECT 1 FROM asset_interfaces WHERE interface_asset_id = $asset_id AND interface_primary = 1");
 
     if(mysqli_num_rows($sql_interfaces) == 0 ) {
         // Add Primary Interface
@@ -387,7 +387,7 @@ if (isset($_POST['bulk_assign_asset_tags'])) {
                 foreach($_POST['tags'] as $tag) {
                     $tag = intval($tag);
 
-                    $sql = mysqli_query($mysqli,"SELECT * FROM asset_tags WHERE asset_tag_asset_id = $asset_id AND asset_tag_tag_id = $tag");
+                    $sql = mysqli_query($mysqli,"SELECT 1 FROM asset_tags WHERE asset_tag_asset_id = $asset_id AND asset_tag_tag_id = $tag");
                     if (mysqli_num_rows($sql) == 0) {
                         mysqli_query($mysqli, "INSERT INTO asset_tags SET asset_tag_asset_id = $asset_id, asset_tag_tag_id = $tag");
                     }
@@ -540,7 +540,7 @@ if (isset($_POST['bulk_transfer_client_asset'])) {
             $new_asset_id = mysqli_insert_id($mysqli);
 
             // Transfer all Interfaces over too
-            $sql_interfaces = mysqli_query($mysqli, "SELECT * FROM asset_interfaces WHERE interface_asset_id = $current_asset_id");
+            $sql_interfaces = mysqli_query($mysqli, "SELECT interface_mac, interface_name, interface_primary FROM asset_interfaces WHERE interface_asset_id = $current_asset_id");
 
             while ($row = mysqli_fetch_assoc($sql_interfaces)) {
                 $interface_name = escapeSql($row['interface_name']);
@@ -1174,7 +1174,7 @@ if (isset($_POST["import_assets_csv"])) {
             // Name
             if (isset($column[0])) {
                 $name = escapeSql($column[0]);
-                if (mysqli_num_rows(mysqli_query($mysqli,"SELECT * FROM assets WHERE asset_name = '$name' AND asset_client_id = $client_id")) > 0) {
+                if (mysqli_num_rows(mysqli_query($mysqli,"SELECT 1 FROM assets WHERE asset_name = '$name' AND asset_client_id = $client_id")) > 0) {
                     $duplicate_detect = 1;
                 }
             }
@@ -1224,7 +1224,7 @@ if (isset($_POST["import_assets_csv"])) {
             if (!empty($column[8])) {
                 $contact = escapeSql($column[8]);
                 if ($contact) {
-                    $sql_contact = mysqli_query($mysqli,"SELECT * FROM contacts WHERE contact_name = '$contact' AND contact_client_id = $client_id");
+                    $sql_contact = mysqli_query($mysqli,"SELECT contact_id FROM contacts WHERE contact_name = '$contact' AND contact_client_id = $client_id");
                     $row = mysqli_fetch_assoc($sql_contact);
                     $contact_id = intval($row['contact_id']);
                 }
@@ -1234,7 +1234,7 @@ if (isset($_POST["import_assets_csv"])) {
             if (!empty($column[9])) {
                 $location = escapeSql($column[9]);
                 if ($location) {
-                    $sql_location = mysqli_query($mysqli,"SELECT * FROM locations WHERE location_name = '$location' AND location_client_id = $client_id");
+                    $sql_location = mysqli_query($mysqli,"SELECT location_id FROM locations WHERE location_name = '$location' AND location_client_id = $client_id");
                     $row = mysqli_fetch_assoc($sql_location);
                     $location_id = intval($row['location_id']);
                 }
@@ -1316,7 +1316,7 @@ if (isset($_GET['download_assets_csv_template'])) {
 
 }
 
-if (isset($_POST['export_assets'])) {
+if (isExportRequest('export_assets')) {
 
     validateCSRFToken();
 
@@ -1442,7 +1442,7 @@ if (isset($_POST['export_assets'])) {
         $tag_query
         AND (asset_name LIKE '%$q%' OR asset_description LIKE '%$q%' OR asset_type LIKE '%$q%' OR interface_ip LIKE '%$q%' OR interface_ipv6 LIKE '%$q%' OR interface_mac LIKE '%$q%' OR asset_make LIKE '%$q%' OR asset_model LIKE '%$q%' OR asset_serial LIKE '%$q%' OR asset_os LIKE '%$q%' OR contact_name LIKE '%$q%' OR location_name LIKE '%$q%' OR client_name LIKE '%$q%' OR tag_name LIKE '%$q%')
         AND ($type_query)
-        $access_permission_query
+        " . clientScopeSql('asset_client_id') . "
         $location_query
         $expire_query
         $client_query
@@ -1911,7 +1911,7 @@ if (isset($_POST["import_client_asset_interfaces_csv"])) {
     $file_name = $_FILES["file"]["tmp_name"];
 
     // Get Asset Details for logging
-    $sql_asset = mysqli_query($mysqli,"SELECT * FROM assets WHERE asset_id = $asset_id");
+    $sql_asset = mysqli_query($mysqli,"SELECT asset_client_id, asset_name FROM assets WHERE asset_id = $asset_id");
     $row = mysqli_fetch_assoc($sql_asset);
     $client_id = intval($row['asset_client_id']);
     $asset_name = escapeSql($row['asset_name']);
@@ -1989,7 +1989,7 @@ if (isset($_POST["import_client_asset_interfaces_csv"])) {
             if (!empty($column[7])) {
                 $network = escapeSql($column[7]);
                 if ($network) {
-                    $sql_network = mysqli_query($mysqli,"SELECT * FROM networks WHERE network_name = '$network' AND network_archived_at IS NULL AND network_client_id = $client_id");
+                    $sql_network = mysqli_query($mysqli,"SELECT network_id FROM networks WHERE network_name = '$network' AND network_archived_at IS NULL AND network_client_id = $client_id");
                     $row = mysqli_fetch_assoc($sql_network);
                     $network_id = intval($row['network_id']);
                 }
@@ -2056,7 +2056,7 @@ if (isset($_GET['download_client_asset_interfaces_csv_template'])) {
 
 }
 
-if (isset($_POST['export_asset_interfaces'])) {
+if (isExportRequest('export_asset_interfaces')) {
 
     validateCSRFToken();
 

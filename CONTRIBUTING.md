@@ -74,6 +74,10 @@ if (isset($_POST['edit_ticket_priority'])) {
 ### The `_model.php` pattern
  
 Files named `agent/post/*_model.php` hold shared field collection/sanitization logic used by both the create and edit blocks of a module (e.g. `asset_model.php` is included by both `add_asset` and `edit_asset`). If create and edit share more than a couple of fields, use this pattern rather than duplicating. Model files carry the same `FROM_POST_HANDLER` guard and are excluded from the dispatcher's auto-load.
+
+**`_model.php` is a reserved suffix.** The exclusion is a filename match, so a *handler* named `*_model.php` is silently never loaded — its form posts, nothing claims the request, and the user gets a blank page with no error anywhere. This is what happened to `admin/post/ai_model.php`, which is why the AI Models handler is now `admin/post/ai_models.php`. Name entity handlers around the suffix (`ai_models.php`, `users.php`, `api_keys.php`).
+
+A POST that reaches the end of `admin/post.php` or `agent/post.php` without a handler claiming it is logged to App Logs as a `Request` warning, which is the fastest way to spot this class of mistake.
  
 ---
  
@@ -171,7 +175,25 @@ Everywhere else — anything under `agent/post/` — the call belongs in the blo
  
 ### 4. Client scoping is enforced, not assumed.
  
-After loading a record, call `enforceClientAccess()` (optionally with the record's client ID) so technicians restricted to specific clients cannot touch other clients' data by editing an ID in the URL. Look at how `resolve_ticket` does it — including the "skip if the record has no client" case.
+A user can be restricted to a subset of clients through `user_client_permissions`. Enforcing that has two halves, and a page usually needs both.
+
+**One record — `enforceClientAccess()`.** After loading a record, call it (optionally with the record's client ID) so technicians restricted to specific clients cannot touch other clients' data by editing an ID in the URL. Look at how `resolve_ticket` does it.
+
+**A list — `clientScopeSql()`.** Any query returning more than one row appends the fragment for that resource's own client column:
+
+```php
+$sql = mysqli_query($mysqli, "SELECT expense_id, expense_date, expense_amount, expense_description
+    FROM expenses
+    WHERE expense_archived_at IS NULL
+    " . clientScopeSql('expense_client_id') . "
+    ORDER BY expense_date DESC");
+```
+
+It returns `" AND ..."` or `""`, so it needs a `WHERE` to hang off — add `WHERE 1=1` if the query has no other condition. It is column-aware and takes an alias fine (`clientScopeSql('t.ticket_client_id')`). The API calls the same helper through the `apiClientScopeSql()` wrapper.
+
+Scope on the resource's **own** column, not on a joined `clients.client_id`. Joining `clients` just to scope makes the filter depend on the join: with a `LEFT JOIN`, a row whose client column is `0` produces `NULL`, and `NULL IN (...)` is neither true nor false, so the row silently vanishes. If the query joins `clients` for `client_name`, keep the join for that — but still scope on the owning column.
+
+**Records with no client (`0`) stay visible to restricted users.** `clientScopeSql()` emits `IN (0,...)` deliberately. Client restrictions partition *client* data, and a record belonging to no client is not any client's data to withhold. Do not hand-roll a variant that drops the `0` — the tree had accumulated several before this helper existed, disagreeing with each other, and reconciling them is what surfaced the inconsistency.
  
 ### 5. Escape on output.
  
@@ -206,8 +228,29 @@ Per [SECURITY.md](SECURITY.md) — never in a public issue.
 ---
  
 ## Conventions
- 
-**Database naming.** Every column is prefixed with the singular name of the entity it belongs to: `tickets.ticket_id`, `tickets.ticket_subject`, `clients.client_name`. This makes JOIN results unambiguous and is why queries can `SELECT *` across joins safely. New tables must follow it.
+
+**Only technician-entered time is time worked.** `ticket_replies.ticket_reply_time_worked` is billable labour and feeds ticket totals, the technician and client time reports, project totals, invoicing and the API. A reply the *system* writes — assignment, priority change, merge, close, invoice/quote created, schedule edited, task completed or reopened — is an audit trail, not work, and records `'00:00:00'`. Only a value the technician actually typed goes in that column. Task completion estimates are planning information and stay on the task; they are never converted into time worked. `agent/ticket.php` hides the clock badge on a reply whose time is exactly `00:00:00`, so a zero renders as no time rather than as "0m".
+
+**Database naming.** Every column is prefixed with the singular name of the entity it belongs to: `tickets.ticket_id`, `tickets.ticket_subject`, `clients.client_name`. This makes JOIN results unambiguous, so a `SELECT *` across joins is never *wrong*. New tables must follow it.
+
+**Select the columns you use, not `*`.** Unambiguous is not the same as cheap. `SELECT *` across three joined tables fetches every column of all three, including the `*_notes` and `*_details` TEXT columns, and throws away whatever the page never renders. A search result list that shows five fields was pulling sixty. List the columns instead:
+
+```php
+$sql = mysqli_query($mysqli, "SELECT ticket_id, ticket_prefix, ticket_number, ticket_subject, client_name
+    FROM tickets
+    LEFT JOIN clients ON ticket_client_id = client_id
+    WHERE ticket_archived_at IS NULL
+    " . clientScopeSql('ticket_client_id') . "");
+```
+
+Two things follow from that:
+
+- A query whose result only feeds `mysqli_num_rows()` needs no columns at all — write `SELECT 1`. Do not select a primary key "just in case": if the query joins two tables that both carry that column name, an unqualified `SELECT ticket_template_id` is an ambiguous-column error.
+- Keep the join even when no column of the joined table survives into the `SELECT`, if the join is doing work — supplying a `WHERE` term, an `ORDER BY`, or the client column you scope on. Dropping a join is a separate decision from trimming the column list.
+
+The trade is real and worth stating: `SELECT *` picks up new columns for free, an explicit list does not. Add a column to a table and every query that needs it must be updated by hand, and the failure mode is a blank field or a PHP 8 undefined-key warning rather than an error. That is the price of not fetching data nobody reads, and the project has decided to pay it on anything that loops or touches a TEXT column.
+
+The exception is `api/v1/*/read.php`. Those endpoints hand the whole row to `read_output.php`, which serialises it straight into the JSON response — there the row *is* the output contract, so `SELECT *` is correct and trimming it would silently drop fields from every consumer.
 
 The prefix is the entity name, which is usually but not always the singular of the table name. Where a table is named for its container rather than its row, the prefix follows the row: `calendar_events` → `event_*`, `asset_interfaces` → `interface_*`, `invoice_items` / `quote_items` → `item_*`, `rack_units` → `unit_*`, `user_roles` → `role_*`, `product_stock` → `stock_*`. Pick the prefix your columns will read best as and use it for every column in the table.
 
@@ -224,6 +267,8 @@ A single update run applies every pending migration in order, stopping at the fi
 **After acting, log and notify.** State changes call `logAudit($type, $action, $description, $client_id, $entity_id)` for the audit trail. User-facing events may also call `appNotify()`. Fire `triggerCustomAction()` where a site might reasonably want a hook. Then call `flashAlert($message, $type)` and `redirect()` (defaults to the referer) rather than setting session keys or `header()` manually.
 
 **Function names (post-rename).** Helpers were renamed for clarity in 2026; the old names **no longer exist** — code calling them fatals. If you're rebasing an old PR or following an old tutorial, translate: `sanitizeInput` → `escapeSql`, `nullable_htmlentities` → `escapeHtml`, `logAction` → `logAudit`, `flash_alert` → `flashAlert`, `customAction` → `triggerCustomAction`, `encryptLoginEntry`/`decryptLoginEntry` → `encryptCredentialEntry`/`decryptCredentialEntry`, `strtoAZaz09` → `toAlphanumeric`, `fetchUpdates` → `checkForUpdates`, `sanitize_url` → `escapeUrl`.
+
+One removed **variable** deserves its own warning: the old `$access_permission_query` global is gone, replaced by `clientScopeSql()` (security rule 4). Unlike a removed function, it does not fatal — an undefined variable interpolates as an empty string, so a rebased query keeps running with **no client scoping at all**. Grep for it before rebasing anything that touches a list query.
  
 **Helpers that fetch data return it raw.** If you add a `getXById()`-style helper, return the column value untouched and let callers escape it (security rule 1). Validating what the helper interpolates into its *own* query — table and column names, the id — is still the helper's job; that is query construction, not output escaping, and the two are not the same thing.
 

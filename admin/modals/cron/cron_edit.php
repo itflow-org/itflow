@@ -5,7 +5,8 @@ require_once '../../../includes/cron_jobs.php';
 
 $cron_job_id = intval($_GET['id']);
 
-$row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT * FROM cron_jobs WHERE cron_job_id = $cron_job_id LIMIT 1"));
+$row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT cron_job_daily_at, cron_job_enabled, cron_job_interval_minutes, cron_job_name,
+    cron_job_schedule FROM cron_jobs WHERE cron_job_id = $cron_job_id LIMIT 1"));
 
 $registry = cronJobRegistryByName();
 $job = $registry[$row['cron_job_name']] ?? null;

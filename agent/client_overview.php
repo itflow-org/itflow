@@ -4,7 +4,7 @@ require_once "includes/inc_all_client.php";
 
 $sql_recent_activities = mysqli_query(
     $mysqli,
-    "SELECT * FROM logs
+    "SELECT log_created_at, log_description FROM logs
     WHERE log_client_id = $client_id
     ORDER BY log_created_at DESC
     LIMIT 5"
@@ -12,7 +12,9 @@ $sql_recent_activities = mysqli_query(
 
 $sql_important_contacts = mysqli_query(
     $mysqli,
-    "SELECT * FROM contacts
+    "SELECT contact_email, contact_extension, contact_id, contact_mobile, contact_mobile_country_code,
+        contact_name, contact_phone, contact_phone_country_code, contact_photo, contact_primary,
+        contact_title FROM contacts
     WHERE contact_client_id = $client_id
         AND (contact_important = 1
             OR contact_billing = 1
@@ -25,7 +27,7 @@ $sql_important_contacts = mysqli_query(
 
 $sql_favorite_assets = mysqli_query(
     $mysqli,
-    "SELECT * FROM assets
+    "SELECT asset_id, asset_make, asset_model, asset_name, asset_type FROM assets
     WHERE asset_client_id = $client_id
         AND asset_favorite = 1
         AND asset_archived_at IS NULL
@@ -34,7 +36,8 @@ $sql_favorite_assets = mysqli_query(
 
 $sql_favorite_credentials = mysqli_query(
     $mysqli,
-    "SELECT * FROM credentials
+    "SELECT credential_description, credential_id, credential_name, credential_otp_secret,
+        credential_uri, credential_uri_2, credential_username FROM credentials
     WHERE credential_client_id = $client_id
         AND credential_favorite = 1
         AND credential_archived_at IS NULL
@@ -60,7 +63,8 @@ $sql_recent_credentials = mysqli_query(
 
 $sql_shared_items = mysqli_query(
     $mysqli,
-    "SELECT * FROM shared_items
+    "SELECT item_active, item_created_at, item_expire_at, item_id, item_key, item_note, item_recipient,
+        item_related_id, item_type, item_view_limit, item_views FROM shared_items
     WHERE item_client_id = $client_id
         AND item_active = 1
     ORDER BY item_created_at ASC
@@ -74,7 +78,7 @@ $sql_shared_items = mysqli_query(
 // Stale Tickets
 $sql_stale_tickets = mysqli_query(
     $mysqli,
-    "SELECT * FROM tickets
+    "SELECT ticket_created_at, ticket_id, ticket_number, ticket_prefix, ticket_subject FROM tickets
     WHERE ticket_client_id = $client_id
         AND ticket_updated_at < CURRENT_DATE - INTERVAL 7 DAY
         AND ticket_resolved_At IS NULL
@@ -87,7 +91,7 @@ $sql_stale_tickets = mysqli_query(
 // Get Domains Expiring
 $sql_domains_expiring = mysqli_query(
     $mysqli,
-    "SELECT * FROM domains
+    "SELECT domain_expire, domain_id, domain_name FROM domains
     WHERE domain_client_id = $client_id
         AND domain_expire IS NOT NULL
         AND domain_archived_at IS NULL
@@ -99,7 +103,7 @@ $sql_domains_expiring = mysqli_query(
 // Get Certificates Expiring
 $sql_certificates_expiring = mysqli_query(
     $mysqli,
-    "SELECT * FROM certificates
+    "SELECT certificate_expire, certificate_id, certificate_name FROM certificates
     WHERE certificate_client_id = $client_id
         AND certificate_expire IS NOT NULL
         AND certificate_archived_at IS NULL
@@ -111,7 +115,7 @@ $sql_certificates_expiring = mysqli_query(
 // Get Licenses Expiring
 $sql_licenses_expiring = mysqli_query(
     $mysqli,
-    "SELECT * FROM software
+    "SELECT software_expire, software_id, software_name FROM software
     WHERE software_client_id = $client_id
         AND software_expire IS NOT NULL
         AND software_archived_at IS NULL
@@ -123,7 +127,7 @@ $sql_licenses_expiring = mysqli_query(
 // Get Asset Warranties Expiring
 $sql_asset_warranties_expiring = mysqli_query(
     $mysqli,
-    "SELECT * FROM assets
+    "SELECT asset_id, asset_name, asset_warranty_expire FROM assets
     WHERE asset_client_id = $client_id
         AND asset_warranty_expire IS NOT NULL
         AND asset_archived_at IS NULL
@@ -135,7 +139,7 @@ $sql_asset_warranties_expiring = mysqli_query(
 // Get Assets Retiring 7 Year
 $sql_asset_retire = mysqli_query(
     $mysqli,
-    "SELECT * FROM assets
+    "SELECT asset_id, asset_install_date, asset_name FROM assets
     WHERE asset_client_id = $client_id
         AND asset_install_date IS NOT NULL
         AND asset_archived_at IS NULL
@@ -151,7 +155,7 @@ $sql_asset_retire = mysqli_query(
 // Get Domains Expired
 $sql_domains_expired = mysqli_query(
     $mysqli,
-    "SELECT * FROM domains
+    "SELECT domain_expire, domain_id, domain_name FROM domains
     WHERE domain_client_id = $client_id
         AND domain_expire IS NOT NULL
         AND domain_archived_at IS NULL
@@ -162,7 +166,7 @@ $sql_domains_expired = mysqli_query(
 // Get Certificates Expired
 $sql_certificates_expired = mysqli_query(
     $mysqli,
-    "SELECT * FROM certificates
+    "SELECT certificate_expire, certificate_id, certificate_name FROM certificates
     WHERE certificate_client_id = $client_id
         AND certificate_expire IS NOT NULL
         AND certificate_archived_at IS NULL
@@ -173,7 +177,7 @@ $sql_certificates_expired = mysqli_query(
 // Get Licenses Expired
 $sql_licenses_expired = mysqli_query(
     $mysqli,
-    "SELECT * FROM software
+    "SELECT software_expire, software_id, software_name FROM software
     WHERE software_client_id = $client_id
         AND software_expire IS NOT NULL
         AND software_archived_at IS NULL
@@ -184,7 +188,7 @@ $sql_licenses_expired = mysqli_query(
 // Get Asset Warranties Expired
 $sql_asset_warranties_expired = mysqli_query(
     $mysqli,
-    "SELECT * FROM assets
+    "SELECT asset_id, asset_name, asset_warranty_expire FROM assets
     WHERE asset_client_id = $client_id
         AND asset_warranty_expire IS NOT NULL
         AND asset_archived_at IS NULL
@@ -195,7 +199,7 @@ $sql_asset_warranties_expired = mysqli_query(
 // Get Retired Assets
 $sql_asset_retired = mysqli_query(
     $mysqli,
-    "SELECT * FROM assets
+    "SELECT asset_id, asset_install_date, asset_name FROM assets
     WHERE asset_client_id = $client_id
         AND asset_install_date IS NOT NULL
         AND asset_archived_at IS NULL

@@ -6,7 +6,11 @@ enforceUserPermission('module_client', 2);
 
 $contact_id = intval($_GET['id']);
 
-$sql = mysqli_query($mysqli, "SELECT * FROM contacts
+$sql = mysqli_query($mysqli, "SELECT contact_archived_at, contact_billing, contact_client_id, contact_created_at,
+    contact_department, contact_email, contact_extension, contact_important,
+    contact_location_id, contact_mobile, contact_mobile_country_code, contact_name,
+    contact_notes, contact_phone, contact_phone_country_code, contact_photo, contact_pin,
+    contact_primary, contact_technical, contact_title, contact_user_id, user_auth_method FROM contacts
     LEFT JOIN users ON user_id = contact_user_id
     WHERE contact_id = $contact_id
     LIMIT 1"
@@ -174,7 +178,7 @@ ob_start();
                             <option value="">- Select Location -</option>
                             <?php
 
-                            $sql_locations = mysqli_query($mysqli, "SELECT * FROM locations WHERE location_id = $contact_location_id OR location_archived_at IS NULL AND location_client_id = $client_id ORDER BY location_name ASC");
+                            $sql_locations = mysqli_query($mysqli, "SELECT location_archived_at, location_id, location_name FROM locations WHERE location_id = $contact_location_id OR location_archived_at IS NULL AND location_client_id = $client_id ORDER BY location_name ASC");
                             while ($row = mysqli_fetch_assoc($sql_locations)) {
                                 $location_id_select = intval($row['location_id']);
                                 $location_name_select = escapeHtml($row['location_name']);
@@ -318,7 +322,7 @@ ob_start();
                         <select class="form-control select2" name="tags[]" data-placeholder="Add some tags" multiple>
                             <?php
 
-                            $sql_tags_select = mysqli_query($mysqli, "SELECT * FROM tags WHERE tag_type = 3 ORDER BY tag_name ASC");
+                            $sql_tags_select = mysqli_query($mysqli, "SELECT tag_id, tag_name FROM tags WHERE tag_type = 3 ORDER BY tag_name ASC");
                             while ($row = mysqli_fetch_assoc($sql_tags_select)) {
                                 $tag_id_select = intval($row['tag_id']);
                                 $tag_name_select = escapeHtml($row['tag_name']);

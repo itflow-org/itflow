@@ -207,7 +207,7 @@ if (isset($_GET['archive_domain'])) {
     $domain_id = intval($_GET['archive_domain']);
 
     //Get domain Name
-    $sql = mysqli_query($mysqli,"SELECT * FROM domains WHERE domain_id = $domain_id");
+    $sql = mysqli_query($mysqli,"SELECT domain_client_id, domain_name FROM domains WHERE domain_id = $domain_id");
     $row = mysqli_fetch_assoc($sql);
     $domain_name = escapeSql($row['domain_name']);
     $client_id = intval($row['domain_client_id']);
@@ -455,7 +455,7 @@ if (isset($_POST['bulk_refresh_domains'])) {
 
 }
 
-if (isset($_POST['export_domains'])) {
+if (isExportRequest('export_domains')) {
 
     validateCSRFToken();
 
@@ -530,7 +530,7 @@ if (isset($_POST['export_domains'])) {
         LEFT JOIN vendors AS webhost ON domains.domain_webhost = webhost.vendor_id
         WHERE (domains.domain_name LIKE '%$q%' OR domains.domain_description LIKE '%$q%' OR registrar.vendor_name LIKE '%$q%' OR webhost.vendor_name LIKE '%$q%' OR client_name LIKE '%$q%')
         AND $archive_query
-        $access_permission_query
+        " . clientScopeSql('domain_client_id') . "
         $client_query
         $expire_query
         ORDER BY domains.domain_name ASC"

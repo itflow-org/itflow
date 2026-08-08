@@ -19,21 +19,16 @@ if (isset($_GET['client_id'])) {
 
 // Perms & Project client access snippet
 enforceUserPermission('module_support');
-$project_permission_snippet = '';
-
-if ($client_access_string) {
-    $project_permission_snippet .= " AND (project_client_id IN ($client_access_string) OR project_client_id = 0)";
-}
-if ($client_deny_string) {
-    $project_permission_snippet .= " AND project_client_id NOT IN ($client_deny_string)";
-}
+$project_permission_snippet = clientScopeSql('project_client_id');
 
 if (isset($_GET['project_id'])) {
     $project_id = intval($_GET['project_id']);
 
     $sql_project = mysqli_query(
         $mysqli,
-        "SELECT * FROM projects
+        "SELECT client_id, client_name, project_archived_at, project_completed_at, project_created_at,
+            project_description, project_due, project_id, project_name, project_number, project_prefix,
+            project_updated_at, user_id, user_name FROM projects
         LEFT JOIN clients ON project_client_id = client_id
         LEFT JOIN users ON project_manager = user_id
         WHERE project_id = $project_id
@@ -89,7 +84,10 @@ if (isset($_GET['project_id'])) {
     $page_title = $row['project_name'];
 
     // Get Tickets
-    $sql_tickets = mysqli_query($mysqli, "SELECT * FROM tickets
+    $sql_tickets = mysqli_query($mysqli, "SELECT client_id, client_name, ticket_assigned_to, ticket_billable, ticket_closed_at,
+        ticket_created_at, ticket_id, ticket_number, ticket_prefix, ticket_priority,
+        ticket_project_id, ticket_status, ticket_status_color, ticket_status_name, ticket_subject,
+        ticket_updated_at, user_name FROM tickets
         LEFT JOIN ticket_statuses ON ticket_status = ticket_status_id
         LEFT JOIN clients ON ticket_client_id = client_id
         LEFT JOIN users ON ticket_assigned_to = user_id
@@ -99,11 +97,11 @@ if (isset($_GET['project_id'])) {
     $ticket_count = mysqli_num_rows($sql_tickets);
 
     // Get Closed Ticket Count
-    $sql_closed_tickets = mysqli_query($mysqli, "SELECT * FROM tickets WHERE ticket_project_id = $project_id AND ticket_closed_at IS NOT NULL");
+    $sql_closed_tickets = mysqli_query($mysqli, "SELECT 1 FROM tickets WHERE ticket_project_id = $project_id AND ticket_closed_at IS NOT NULL");
     $closed_ticket_count = mysqli_num_rows($sql_closed_tickets);
 
     // Get Resolved Ticket Count
-    $sql_resolved_tickets = mysqli_query($mysqli, "SELECT * FROM tickets WHERE ticket_project_id = $project_id AND ticket_resolved_at IS NOT NULL");
+    $sql_resolved_tickets = mysqli_query($mysqli, "SELECT 1 FROM tickets WHERE ticket_project_id = $project_id AND ticket_resolved_at IS NOT NULL");
 
     $resolved_ticket_count = mysqli_num_rows($sql_resolved_tickets);
 
@@ -119,7 +117,7 @@ if (isset($_GET['project_id'])) {
 
     // Get All Tasks
     $sql_tasks = mysqli_query($mysqli,
-        "SELECT * FROM tickets, tasks
+        "SELECT task_completed_at, task_id, task_name FROM tickets, tasks
         WHERE ticket_id = task_ticket_id
         AND ticket_project_id = $project_id
         ORDER BY task_created_at ASC"
@@ -128,7 +126,7 @@ if (isset($_GET['project_id'])) {
 
     // Get Completed Task Count
     $sql_tasks_completed = mysqli_query($mysqli,
-        "SELECT * FROM tickets, tasks
+        "SELECT 1 FROM tickets, tasks
         WHERE ticket_id = task_ticket_id
         AND ticket_project_id = $project_id
         AND task_completed_at IS NOT NULL"

@@ -28,15 +28,19 @@ if (isset($_GET['query'])) {
     $can_sales      = lookupUserPermission('module_sales')      >= 1;
     $can_credential = lookupUserPermission('module_credential') >= 1;
 
-    $sql_clients = !$can_client ? false : mysqli_query($mysqli, "SELECT * FROM clients
+    $sql_clients = !$can_client ? false : mysqli_query($mysqli, "SELECT client_id, client_name, client_website, location_phone, location_phone_country_code
+        FROM clients
         LEFT JOIN locations ON clients.client_id = locations.location_client_id AND location_primary = 1
         WHERE client_archived_at IS NULL
             AND (client_name LIKE '%$query%' OR client_abbreviation LIKE '%$query%')
-            $access_permission_query
+            " . clientScopeSql('clients.client_id') . "
         ORDER BY client_id DESC LIMIT 5"
     );
 
-    $sql_contacts = !$can_client ? false : mysqli_query($mysqli, "SELECT * FROM contacts
+    $sql_contacts = !$can_client ? false : mysqli_query($mysqli, "SELECT client_id, client_name, contact_department, contact_email, contact_extension, contact_id,
+        contact_mobile, contact_mobile_country_code, contact_name, contact_phone,
+        contact_phone_country_code, contact_title
+        FROM contacts
         LEFT JOIN clients ON client_id = contact_client_id
         WHERE contact_archived_at IS NULL
             AND (contact_name LIKE '%$query%'
@@ -44,51 +48,59 @@ if (isset($_GET['query'])) {
             OR contact_email LIKE '%$query%'
             OR contact_phone LIKE '%$phone_query%'
             OR contact_mobile LIKE '%$phone_query%')
-            $access_permission_query
+            " . clientScopeSql('contact_client_id') . "
         ORDER BY contact_id DESC LIMIT 5"
     );
 
-    $sql_vendors = !$can_client ? false : mysqli_query($mysqli, "SELECT * FROM vendors
+    $sql_vendors = !$can_client ? false : mysqli_query($mysqli, "SELECT client_id, client_name, vendor_description, vendor_name, vendor_phone,
+        vendor_phone_country_code
+        FROM vendors
         LEFT JOIN clients ON vendor_client_id = client_id
         WHERE vendor_archived_at IS NULL
             AND (vendor_name LIKE '%$query%' OR vendor_phone LIKE '%$phone_query%')
-            $access_permission_query
+            " . clientScopeSql('vendor_client_id') . "
         ORDER BY vendor_id DESC LIMIT 5"
     );
 
-    $sql_domains = !$can_support ? false : mysqli_query($mysqli, "SELECT * FROM domains
+    $sql_domains = !$can_support ? false : mysqli_query($mysqli, "SELECT client_id, client_name, domain_expire, domain_id, domain_name
+        FROM domains
         LEFT JOIN clients ON domain_client_id = client_id
         WHERE domain_archived_at IS NULL
             AND domain_name LIKE '%$query%'
-            $access_permission_query
+            " . clientScopeSql('domain_client_id') . "
         ORDER BY domain_id DESC LIMIT 5"
     );
 
-    $sql_products = !$can_sales ? false : mysqli_query($mysqli, "SELECT * FROM products
+    $sql_products = !$can_sales ? false : mysqli_query($mysqli, "SELECT product_description, product_name
+        FROM products
         WHERE product_archived_at IS NULL
             AND product_name LIKE '%$query%'
         ORDER BY product_id DESC LIMIT 5"
     );
 
-    $sql_documents = !$can_support ? false : mysqli_query($mysqli, "SELECT * FROM documents
+    $sql_documents = !$can_support ? false : mysqli_query($mysqli, "SELECT client_name, document_client_id, document_id, document_name
+        FROM documents
         LEFT JOIN clients on document_client_id = clients.client_id
         WHERE document_archived_at IS NULL
             AND MATCH(document_content_raw) AGAINST ('$query')
-            $access_permission_query
+            " . clientScopeSql('document_client_id') . "
         ORDER BY document_id DESC LIMIT 5"
     );
 
-    $sql_files = !$can_support ? false : mysqli_query($mysqli, "SELECT * FROM files
+    $sql_files = !$can_support ? false : mysqli_query($mysqli, "SELECT client_name, file_client_id, file_description, file_id, file_name, folder_id, folder_name
+        FROM files
         LEFT JOIN clients ON file_client_id = client_id
         LEFT JOIN folders ON folder_id = file_folder_id
         WHERE file_archived_at IS NULL
             AND (file_name LIKE '%$query%'
             OR file_description LIKE '%$query%')
-            $access_permission_query
+            " . clientScopeSql('file_client_id') . "
         ORDER BY file_id DESC LIMIT 5"
     );
 
-    $sql_tickets = !$can_support ? false : mysqli_query($mysqli, "SELECT * FROM tickets
+    $sql_tickets = !$can_support ? false : mysqli_query($mysqli, "SELECT client_name, ticket_client_id, ticket_id, ticket_number, ticket_prefix, ticket_status_name,
+        ticket_subject
+        FROM tickets
         LEFT JOIN clients on tickets.ticket_client_id = clients.client_id
         LEFT JOIN ticket_statuses ON ticket_status = ticket_status_id
         WHERE ticket_archived_at IS NULL
@@ -96,62 +108,75 @@ if (isset($_GET['query'])) {
             OR ticket_details LIKE '%$query%'
             OR CONCAT(ticket_prefix,ticket_number) LIKE '%$query%'
             OR ticket_number = '$ticket_num_query')
-            $access_permission_query
+            " . clientScopeSql('tickets.ticket_client_id') . "
         ORDER BY ticket_id DESC LIMIT 5"
     );
 
-    $sql_recurring_tickets = !$can_support ? false : mysqli_query($mysqli, "SELECT * FROM recurring_tickets
+    $sql_recurring_tickets = !$can_support ? false : mysqli_query($mysqli, "SELECT client_id, client_name, recurring_ticket_frequency, recurring_ticket_id,
+        recurring_ticket_next_run, recurring_ticket_subject
+        FROM recurring_tickets
         LEFT JOIN clients ON recurring_ticket_client_id = client_id
         WHERE (recurring_ticket_subject LIKE '%$query%'
             OR recurring_ticket_details LIKE '%$query%')
-            $access_permission_query
+            " . clientScopeSql('recurring_ticket_client_id') . "
         ORDER BY recurring_ticket_id DESC LIMIT 5"
     );
 
-    $sql_credentials = !$can_credential ? false : mysqli_query($mysqli, "SELECT * FROM credentials
+    $sql_credentials = !$can_credential ? false : mysqli_query($mysqli, "SELECT client_id, client_name, credential_client_id, credential_description, credential_name,
+        credential_password, credential_username
+        FROM credentials
         LEFT JOIN contacts ON credential_contact_id = contact_id
         LEFT JOIN clients ON credential_client_id = client_id
         WHERE credential_archived_at IS NULL
             AND (credential_name LIKE '%$query%' OR credential_description LIKE '%$query%')
-            $access_permission_query
+            " . clientScopeSql('credential_client_id') . "
         ORDER BY credential_id DESC LIMIT 5"
     );
 
-    $sql_quotes = !$can_sales ? false : mysqli_query($mysqli, "SELECT * FROM quotes
+    $sql_quotes = !$can_sales ? false : mysqli_query($mysqli, "SELECT client_id, client_name, quote_amount, quote_currency_code, quote_id, quote_number,
+        quote_prefix, quote_status
+        FROM quotes
         LEFT JOIN clients ON quote_client_id = client_id
         LEFT JOIN categories ON quote_category_id = category_id
         WHERE quote_archived_at IS NULL
             AND (CONCAT(quote_prefix,quote_number) LIKE '%$query%' OR quote_number LIKE '%$query%' OR quote_scope LIKE '%$query%')
-            $access_permission_query
+            " . clientScopeSql('quote_client_id') . "
         ORDER BY quote_number DESC LIMIT 5"
     );
 
-    $sql_invoices = !$can_sales ? false : mysqli_query($mysqli, "SELECT * FROM invoices
+    $sql_invoices = !$can_sales ? false : mysqli_query($mysqli, "SELECT client_id, client_name, invoice_amount, invoice_currency_code, invoice_id, invoice_number,
+        invoice_prefix, invoice_status
+        FROM invoices
         LEFT JOIN clients ON invoice_client_id = client_id
         LEFT JOIN categories ON invoice_category_id = category_id
         WHERE invoice_archived_at IS NULL
             AND (CONCAT(invoice_prefix,invoice_number) LIKE '%$query%' OR invoice_number LIKE '%$query%' OR invoice_scope LIKE '%$query%')
-            $access_permission_query
+            " . clientScopeSql('invoice_client_id') . "
         ORDER BY invoice_number DESC LIMIT 5"
     );
 
-    $sql_assets = !$can_support ? false : mysqli_query($mysqli,"SELECT * FROM assets
+    $sql_assets = !$can_support ? false : mysqli_query($mysqli,"SELECT asset_client_id, asset_contact_id, asset_created_at, asset_description, asset_id,
+        asset_location_id, asset_make, asset_model, asset_name, asset_serial, asset_status, asset_type,
+        asset_uri, client_name, contact_archived_at, contact_id, contact_name
+        FROM assets
         LEFT JOIN contacts ON asset_contact_id = contact_id
         LEFT JOIN locations ON asset_location_id = location_id
         LEFT JOIN clients ON asset_client_id = client_id
         LEFT JOIN asset_interfaces ON interface_asset_id = asset_id AND interface_primary = 1
         WHERE asset_archived_at IS NULL
             AND (asset_name LIKE '%$query%' OR asset_description LIKE '%$query%' OR asset_type LIKE '%$query%' OR asset_make LIKE '%$query%' OR asset_model LIKE '%$query%' OR asset_serial LIKE '%$query%' OR asset_os LIKE '%$query%' OR interface_ip LIKE '%$query%' OR interface_nat_ip LIKE '%$query%' OR interface_mac LIKE '%$query%' OR asset_status LIKE '%$query%')
-            $access_permission_query
+            " . clientScopeSql('asset_client_id') . "
         ORDER BY asset_name DESC LIMIT 5"
     );
 
-    $sql_ticket_replies = !$can_support ? false : mysqli_query($mysqli,"SELECT * FROM ticket_replies
+    $sql_ticket_replies = !$can_support ? false : mysqli_query($mysqli,"SELECT client_name, ticket_client_id, ticket_id, ticket_number, ticket_prefix, ticket_reply,
+        ticket_subject
+        FROM ticket_replies
         LEFT JOIN tickets ON ticket_reply_ticket_id = ticket_id
         LEFT JOIN clients ON ticket_client_id = client_id
         WHERE ticket_reply_archived_at IS NULL
             AND (ticket_reply LIKE '%$query%')
-            $access_permission_query
+            " . clientScopeSql('ticket_client_id') . "
         ORDER BY ticket_id DESC, ticket_reply_id ASC LIMIT 20"
     );
 

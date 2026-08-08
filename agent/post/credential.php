@@ -194,7 +194,7 @@ if (isset($_POST['bulk_assign_credential_tags'])) {
                 foreach($_POST['bulk_tags'] as $tag) {
                     $tag = intval($tag);
 
-                    $sql = mysqli_query($mysqli,"SELECT * FROM credential_tags WHERE credential_id = $credential_id AND tag_id = $tag");
+                    $sql = mysqli_query($mysqli,"SELECT 1 FROM credential_tags WHERE credential_id = $credential_id AND tag_id = $tag");
                     if (mysqli_num_rows($sql) == 0) {
                         mysqli_query($mysqli, "INSERT INTO credential_tags SET credential_id = $credential_id, tag_id = $tag");
                     }
@@ -410,7 +410,7 @@ if (isset($_POST['bulk_delete_credentials'])) {
 
 }
 
-if (isset($_POST['export_credentials'])) {
+if (isExportRequest('export_credentials')) {
 
     validateCSRFToken();
 
@@ -487,7 +487,7 @@ if (isset($_POST['export_credentials'])) {
         WHERE $archive_query
         $tag_query
         AND (c.credential_name LIKE '%$q%' OR c.credential_description LIKE '%$q%' OR c.credential_uri LIKE '%$q%' OR tag_name LIKE '%$q%' OR client_name LIKE '%$q%')
-        $access_permission_query
+        " . clientScopeSql('credential_client_id') . "
         $client_query
         GROUP BY c.credential_id
         ORDER BY c.credential_name ASC"
@@ -584,7 +584,7 @@ if (isset($_POST["import_credentials_csv"])) {
             // Name
             if (isset($column[0])) {
                 $name = escapeSql($column[0]);
-                if (mysqli_num_rows(mysqli_query($mysqli,"SELECT * FROM credentials WHERE credential_name = '$name' AND credential_client_id = $client_id")) > 0){
+                if (mysqli_num_rows(mysqli_query($mysqli,"SELECT 1 FROM credentials WHERE credential_name = '$name' AND credential_client_id = $client_id")) > 0){
                     $duplicate_detect = 1;
                 }
             }

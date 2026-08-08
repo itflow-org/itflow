@@ -145,12 +145,22 @@ $(document).ready(function() {
                             return response.json();
                         })
                         .then(data => {
-                            editor.undoManager.transact(function() {
-                                editor.setContent(data.rewordedText || 'Error: Could not reword the text.');
-                            });
-
                             editor.setProgressState(false);
                             rewordButtonApi.setEnabled(true);
+
+                            // Leave the user's text alone if the reword failed
+                            if (data.error || !data.rewordedText) {
+                                editor.notificationManager.open({
+                                    text: data.error || 'Could not reword the text.',
+                                    type: 'error',
+                                    timeout: 8000
+                                });
+                                return;
+                            }
+
+                            editor.undoManager.transact(function() {
+                                editor.setContent(data.rewordedText);
+                            });
 
                             editor.notificationManager.open({
                                 text: 'Text reworded successfully!',
@@ -245,7 +255,7 @@ $(document).ready(function() {
                     rewordButtonApi.setEnabled(false);
                     editor.setProgressState(true);
 
-                    fetch('ajax.php?ai_reword', {
+                    fetch('ajax.php?ai_reword&use_case=Tickets', {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify({ text: content }),
@@ -255,11 +265,22 @@ $(document).ready(function() {
                             return response.json();
                         })
                         .then(data => {
-                            editor.undoManager.transact(function() {
-                                editor.setContent(data.rewordedText || 'Error: Could not reword the text.');
-                            });
                             editor.setProgressState(false);
                             rewordButtonApi.setEnabled(true);
+
+                            // Leave the user's text alone if the reword failed
+                            if (data.error || !data.rewordedText) {
+                                editor.notificationManager.open({
+                                    text: data.error || 'Could not reword the text.',
+                                    type: 'error',
+                                    timeout: 8000
+                                });
+                                return;
+                            }
+
+                            editor.undoManager.transact(function() {
+                                editor.setContent(data.rewordedText);
+                            });
                             editor.notificationManager.open({
                                 text: 'Text reworded successfully!',
                                 type: 'success',

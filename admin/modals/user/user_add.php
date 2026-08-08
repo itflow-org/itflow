@@ -75,7 +75,7 @@ ob_start();
                         <select class="form-control select2" name="role" required>
                             <option value="">- Role -</option>
                             <?php
-                                $sql_user_roles = mysqli_query($mysqli, "SELECT * FROM user_roles WHERE role_archived_at IS NULL");
+                                $sql_user_roles = mysqli_query($mysqli, "SELECT role_id, role_name FROM user_roles WHERE role_archived_at IS NULL");
                                 while ($row = mysqli_fetch_assoc($sql_user_roles)) {
                                     $role_id = intval($row['role_id']);
                                     $role_name = escapeHtml($row['role_name']);
@@ -138,7 +138,7 @@ ob_start();
                         <tbody>
 
                         <?php
-                        $sql_client_select = mysqli_query($mysqli, "SELECT * FROM clients WHERE client_archived_at IS NULL ORDER BY client_name ASC");
+                        $sql_client_select = mysqli_query($mysqli, "SELECT client_id, client_name FROM clients WHERE client_archived_at IS NULL ORDER BY client_name ASC");
                         while ($row = mysqli_fetch_assoc($sql_client_select)) {
                             $client_id = intval($row['client_id']);
                             $client_name = escapeHtml($row['client_name']);

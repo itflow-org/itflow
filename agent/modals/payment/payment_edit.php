@@ -6,7 +6,8 @@ enforceUserPermission('module_sales', 2);
 
 $payment_id = intval($_GET['id']);
 
-$sql = mysqli_query($mysqli, "SELECT * FROM payments LEFT JOIN invoices ON invoice_id = payment_invoice_id WHERE payment_id = $payment_id LIMIT 1");
+$sql = mysqli_query($mysqli, "SELECT invoice_client_id, payment_account_id, payment_amount, payment_date, payment_method,
+    payment_reference FROM payments LEFT JOIN invoices ON invoice_id = payment_invoice_id WHERE payment_id = $payment_id LIMIT 1");
 
 $row = mysqli_fetch_assoc($sql);
 $payment_date = escapeHtml($row['payment_date']);
@@ -74,7 +75,7 @@ ob_start();
                     <option value="">- Select an Account -</option>
                     <?php
 
-                    $sql = mysqli_query($mysqli, "SELECT * FROM accounts WHERE account_archived_at IS NULL ORDER BY account_name ASC");
+                    $sql = mysqli_query($mysqli, "SELECT account_id, account_name, opening_balance FROM accounts WHERE account_archived_at IS NULL ORDER BY account_name ASC");
                     while ($row = mysqli_fetch_assoc($sql)) {
                         $account_id = intval($row['account_id']);
                         $account_name = escapeHtml($row['account_name']);

@@ -6,7 +6,8 @@ enforceUserPermission('module_sales', 2);
 
 $item_id = intval($_GET['id']);
 
-$sql = mysqli_query($mysqli, "SELECT * FROM quote_items LEFT JOIN quotes ON quote_id = item_quote_id WHERE item_id = $item_id LIMIT 1");
+$sql = mysqli_query($mysqli, "SELECT item_created_at, item_description, item_name, item_price, item_product_id, item_quantity,
+    item_tax_id, quote_client_id FROM quote_items LEFT JOIN quotes ON quote_id = item_quote_id WHERE item_id = $item_id LIMIT 1");
 $row = mysqli_fetch_assoc($sql);
 $item_name = escapeHtml($row['item_name']);
 $item_description = escapeHtml($row['item_description']);
@@ -87,7 +88,7 @@ ob_start();
                 <select class="form-control select2" name="tax_id" required>
                     <option value="0">No Tax</option>
                     <?php
-                        $taxes_sql = mysqli_query($mysqli, "SELECT * FROM taxes WHERE (tax_archived_at > '$item_created_at' OR tax_archived_at IS NULL) ORDER BY tax_name ASC");
+                        $taxes_sql = mysqli_query($mysqli, "SELECT tax_id, tax_name, tax_percent FROM taxes WHERE (tax_archived_at > '$item_created_at' OR tax_archived_at IS NULL) ORDER BY tax_name ASC");
                         while ($row = mysqli_fetch_assoc($taxes_sql)) {
                             $tax_id_select = intval($row['tax_id']);
                             $tax_name = escapeHtml($row['tax_name']);

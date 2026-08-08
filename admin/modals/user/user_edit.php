@@ -4,7 +4,7 @@ require_once '../../includes/modal_header.php';
 
 $user_id = intval($_GET['id']);
 
-$sql = mysqli_query($mysqli, "SELECT * FROM users
+$sql = mysqli_query($mysqli, "SELECT user_avatar, user_config_force_mfa, user_email, user_name, user_role_id, user_token FROM users
     LEFT JOIN user_settings ON users.user_id = user_settings.user_id
     WHERE users.user_id = $user_id LIMIT 1"
 );
@@ -119,7 +119,7 @@ ob_start();
                         </div>
                         <select class="form-control select2" name="role" required>
                             <?php
-                            $sql_user_roles = mysqli_query($mysqli, "SELECT * FROM user_roles WHERE role_archived_at IS NULL");
+                            $sql_user_roles = mysqli_query($mysqli, "SELECT role_id, role_name FROM user_roles WHERE role_archived_at IS NULL");
                             while ($row = mysqli_fetch_assoc($sql_user_roles)) {
                                 $role_id = intval($row['role_id']);
                                 $role_name = escapeHtml($row['role_name']);
@@ -190,7 +190,7 @@ ob_start();
                         <tbody>
 
                         <?php
-                        $sql_client_select = mysqli_query($mysqli, "SELECT * FROM clients WHERE client_archived_at IS NULL ORDER BY client_name ASC");
+                        $sql_client_select = mysqli_query($mysqli, "SELECT client_id, client_name FROM clients WHERE client_archived_at IS NULL ORDER BY client_name ASC");
                         while ($row = mysqli_fetch_assoc($sql_client_select)) {
                             $client_id_select = intval($row['client_id']);
                             $client_name_select = escapeHtml($row['client_name']);

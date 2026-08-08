@@ -19,7 +19,8 @@ if (isset($_POST['add_software_from_template'])) {
     enforceClientAccess();
 
     // GET Software Template Info
-    $sql_software_templates = mysqli_query($mysqli,"SELECT * FROM software_templates WHERE software_template_id = $software_template_id");
+    $sql_software_templates = mysqli_query($mysqli,"SELECT software_template_description, software_template_license_type, software_template_name,
+        software_template_notes, software_template_type, software_template_version FROM software_templates WHERE software_template_id = $software_template_id");
     $row = mysqli_fetch_assoc($sql_software_templates);
     $name = escapeSql($row['software_template_name']);
     $version = escapeSql($row['software_template_version']);
@@ -225,7 +226,7 @@ if (isset($_GET['delete_software'])) {
 
 }
 
-if (isset($_POST['export_software'])) {
+if (isExportRequest('export_software')) {
 
     validateCSRFToken();
 
@@ -291,12 +292,12 @@ if (isset($_POST['export_software'])) {
 
     $sql = mysqli_query(
         $mysqli,
-        "SELECT * FROM software
+        "SELECT software_id FROM software
         LEFT JOIN clients ON client_id = software_client_id
         LEFT JOIN vendors ON vendor_id = software_vendor_id
         WHERE (software_name LIKE '%$q%' OR software_type LIKE '%$q%' OR software_key LIKE '%$q%' OR client_name LIKE '%$q%')
         AND $archive_query
-        $access_permission_query
+        " . clientScopeSql('software_client_id') . "
         $client_query
         $expire_query
         ORDER BY software_name ASC"

@@ -124,7 +124,7 @@ $row = mysqli_fetch_assoc(mysqli_query($mysqli, "
         LEFT JOIN tags ON tag_id = asset_tag_tag_id
         WHERE $archive_query
         $tag_query
-        $access_permission_query
+        " . clientScopeSql('asset_client_id') . "
         $client_query
         GROUP BY asset_id
     ) AS filtered_assets;
@@ -150,7 +150,14 @@ $other_count = intval($row['other_count']);
 
 $sql = mysqli_query(
     $mysqli,
-    "SELECT SQL_CALC_FOUND_ROWS * FROM assets
+    "SELECT SQL_CALC_FOUND_ROWS asset_archived_at, asset_contact_id, asset_created_at, asset_description, asset_favorite,
+        asset_id, asset_install_date, asset_location_id, asset_make, asset_model, asset_name,
+        asset_notes, asset_os, asset_photo, asset_physical_location, asset_purchase_date,
+        asset_purchase_reference, asset_serial, asset_status, asset_type, asset_uri, asset_uri_2,
+        asset_uri_client, asset_vendor_id, asset_warranty_expire, client_id, client_name,
+        contact_archived_at, contact_name, interface_ip, interface_ipv6, interface_mac,
+        interface_nat_ip, interface_network_id, location_archived_at, location_name, tag_color,
+        tag_icon, tag_id, tag_name FROM assets
     LEFT JOIN clients ON asset_client_id = client_id
     LEFT JOIN contacts ON asset_contact_id = contact_id
     LEFT JOIN locations ON asset_location_id = location_id
@@ -161,7 +168,7 @@ $sql = mysqli_query(
     $tag_query
     AND (asset_name LIKE '%$q%' OR asset_description LIKE '%$q%' OR asset_type LIKE '%$q%' OR interface_ip LIKE '%$q%' OR interface_ipv6 LIKE '%$q%' OR interface_mac LIKE '%$q%' OR asset_make LIKE '%$q%' OR asset_model LIKE '%$q%' OR asset_serial LIKE '%$q%' OR asset_os LIKE '%$q%' OR contact_name LIKE '%$q%' OR location_name LIKE '%$q%' OR client_name LIKE '%$q%' OR tag_name LIKE '%$q%')
     AND ($type_query)
-    $access_permission_query
+    " . clientScopeSql('asset_client_id') . "
     $location_query
     $expire_query
     $client_query
@@ -288,7 +295,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                 FROM clients
                                 JOIN assets ON asset_client_id = client_id
                                 WHERE $archive_query
-                                $access_permission_query
+                                " . clientScopeSql('clients.client_id') . "
                                 ORDER BY client_name ASC
                             ");
                             while ($row = mysqli_fetch_assoc($sql_clients_filter)) {
@@ -634,13 +641,13 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                             $location_name_display = $location_name;
                         }
 
-                        $sql_credentials = mysqli_query($mysqli, "SELECT * FROM credentials WHERE credential_asset_id = $asset_id");
+                        $sql_credentials = mysqli_query($mysqli, "SELECT 1 FROM credentials WHERE credential_asset_id = $asset_id");
                         $credential_count = mysqli_num_rows($sql_credentials);
 
                         // Tags
                         $asset_tag_name_display_array = array();
                         $asset_tag_id_array = array();
-                        $sql_asset_tags = mysqli_query($mysqli, "SELECT * FROM asset_tags LEFT JOIN tags ON asset_tag_tag_id = tag_id WHERE asset_tag_asset_id = $asset_id ORDER BY tag_name ASC");
+                        $sql_asset_tags = mysqli_query($mysqli, "SELECT tag_color, tag_icon, tag_id, tag_name FROM asset_tags LEFT JOIN tags ON asset_tag_tag_id = tag_id WHERE asset_tag_asset_id = $asset_id ORDER BY tag_name ASC");
                         while ($row = mysqli_fetch_assoc($sql_asset_tags)) {
 
                             $asset_tag_id = intval($row['tag_id']);

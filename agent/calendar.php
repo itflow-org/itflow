@@ -38,7 +38,7 @@ if (isset($_GET['calendar_id'])) {
             </div>
             <div class="card-body">
                 <?php
-                $sql = mysqli_query($mysqli, "SELECT * FROM calendars");
+                $sql = mysqli_query($mysqli, "SELECT calendar_color, calendar_feed_key, calendar_id, calendar_name FROM calendars");
                 while ($row = mysqli_fetch_assoc($sql)) {
                     $calendar_id = intval($row['calendar_id']);
                     $calendar_name = escapeHtml($row['calendar_name']);
@@ -135,7 +135,8 @@ if (isset($_GET['calendar_id'])) {
 require_once "modals/calendar/calendar_event_add.php";
 
 //loop through IDs and create a modal for each
-$sql = mysqli_query($mysqli, "SELECT * FROM calendar_events LEFT JOIN calendars ON event_calendar_id = calendar_id $client_event_query");
+$sql = mysqli_query($mysqli, "SELECT calendar_color, calendar_id, calendar_name, event_client_id, event_description, event_end,
+    event_id, event_location, event_repeat, event_start, event_title FROM calendar_events LEFT JOIN calendars ON event_calendar_id = calendar_id $client_event_query");
 while ($row = mysqli_fetch_assoc($sql)) {
     $event_id = intval($row['event_id']);
     $event_title = escapeHtml($row['event_title']);
@@ -303,7 +304,8 @@ while ($row = mysqli_fetch_assoc($sql)) {
         },
         events: [
             <?php
-            $sql = mysqli_query($mysqli, "SELECT * FROM calendar_events LEFT JOIN calendars ON event_calendar_id = calendar_id $client_event_query");
+            $sql = mysqli_query($mysqli, "SELECT calendar_color, calendar_id, calendar_name, event_all_day, event_id, event_repeat,
+                event_title FROM calendar_events LEFT JOIN calendars ON event_calendar_id = calendar_id $client_event_query");
 
             // Repeating events are stored as a single row, so the occurrences have to
             // be materialised here - the bundled FullCalendar build has no rrule
@@ -341,7 +343,7 @@ while ($row = mysqli_fetch_assoc($sql)) {
             }
 
             // Invoices Created
-            $sql = mysqli_query($mysqli, "SELECT * FROM clients LEFT JOIN invoices ON client_id = invoice_client_id $client_query $access_permission_query");
+            $sql = mysqli_query($mysqli, "SELECT invoice_date, invoice_id, invoice_number, invoice_prefix, invoice_scope FROM clients LEFT JOIN invoices ON client_id = invoice_client_id $client_query " . clientScopeSql('clients.client_id') . "");
             while ($row = mysqli_fetch_assoc($sql)) {
                 $event_id = intval($row['invoice_id']);
                 $scope = strval($row['invoice_scope']);
@@ -356,7 +358,7 @@ while ($row = mysqli_fetch_assoc($sql)) {
             }
 
             // Quotes Created
-            $sql = mysqli_query($mysqli, "SELECT * FROM clients LEFT JOIN quotes ON client_id = quote_client_id $client_query $access_permission_query");
+            $sql = mysqli_query($mysqli, "SELECT quote_date, quote_id, quote_number, quote_prefix, quote_scope FROM clients LEFT JOIN quotes ON client_id = quote_client_id $client_query " . clientScopeSql('clients.client_id') . "");
             while ($row = mysqli_fetch_assoc($sql)) {
                 $event_id = intval($row['quote_id']);
                 $event_title = json_encode($row['quote_prefix'] . $row['quote_number'] . " " . $row['quote_scope']);
@@ -366,11 +368,12 @@ while ($row = mysqli_fetch_assoc($sql)) {
             }
 
             // Tickets Created
-            $sql = mysqli_query($mysqli, "SELECT * FROM clients
+            $sql = mysqli_query($mysqli, "SELECT ticket_created_at, ticket_id, ticket_number, ticket_prefix, ticket_status,
+                ticket_status_name, ticket_subject, user_name FROM clients
                 LEFT JOIN tickets ON client_id = ticket_client_id
                 LEFT JOIN ticket_statuses ON ticket_status = ticket_status_id
                 LEFT JOIN users ON ticket_assigned_to = user_id
-                $client_query $access_permission_query"
+                $client_query " . clientScopeSql('clients.client_id') . ""
             );
             while ($row = mysqli_fetch_assoc($sql)) {
                 $event_id = intval($row['ticket_id']);
@@ -401,10 +404,11 @@ while ($row = mysqli_fetch_assoc($sql)) {
             }
 
             // Recurring Tickets
-            $sql = mysqli_query($mysqli, "SELECT * FROM clients
+            $sql = mysqli_query($mysqli, "SELECT client_id, recurring_ticket_frequency, recurring_ticket_id, recurring_ticket_next_run,
+                recurring_ticket_subject, user_name FROM clients
                 LEFT JOIN recurring_tickets ON client_id = recurring_ticket_client_id
                 LEFT JOIN users ON recurring_ticket_assigned_to = user_id
-                $client_query $access_permission_query"
+                $client_query " . clientScopeSql('clients.client_id') . ""
             );
             while ($row = mysqli_fetch_assoc($sql)) {
                 $event_id = intval($row['recurring_ticket_id']);
@@ -425,11 +429,12 @@ while ($row = mysqli_fetch_assoc($sql)) {
             }
 
             // Tickets Scheduled
-            $sql = mysqli_query($mysqli, "SELECT * FROM clients
+            $sql = mysqli_query($mysqli, "SELECT ticket_id, ticket_number, ticket_prefix, ticket_schedule, ticket_status_name,
+                ticket_subject, user_name FROM clients
                 LEFT JOIN tickets ON client_id = ticket_client_id
                 LEFT JOIN ticket_statuses ON ticket_status = ticket_status_id
                 LEFT JOIN users ON ticket_assigned_to = user_id
-                $client_query $access_permission_query AND ticket_schedule IS NOT NULL"
+                $client_query " . clientScopeSql('clients.client_id') . " AND ticket_schedule IS NOT NULL"
             );
             while ($row = mysqli_fetch_assoc($sql)) {
                 $event_id = intval($row['ticket_id']);
@@ -460,7 +465,7 @@ while ($row = mysqli_fetch_assoc($sql)) {
             }
 
             // Vendors Added Created
-            $sql = mysqli_query($mysqli, "SELECT * FROM clients LEFT JOIN vendors ON client_id = vendor_client_id $client_query $access_permission_query");
+            $sql = mysqli_query($mysqli, "SELECT client_id, vendor_created_at, vendor_id, vendor_name FROM clients LEFT JOIN vendors ON client_id = vendor_client_id $client_query " . clientScopeSql('clients.client_id') . "");
             while ($row = mysqli_fetch_assoc($sql)) {
                 $event_id = intval($row['vendor_id']);
                 $client_id = intval($row['client_id']);
@@ -472,7 +477,7 @@ while ($row = mysqli_fetch_assoc($sql)) {
 
             if (!isset($_GET['client_id'])) {
                 //Clients Added
-                $sql = mysqli_query($mysqli, "SELECT * FROM clients");
+                $sql = mysqli_query($mysqli, "SELECT client_created_at, client_id, client_name FROM clients");
                 while ($row = mysqli_fetch_assoc($sql)) {
                     $event_id = intval($row['client_id']);
                     $event_title = json_encode("Client: '" . $row['client_name'] . "' created");

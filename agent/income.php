@@ -91,7 +91,7 @@ $income_query =
     LEFT JOIN categories ON invoice_category_id = category_id
     WHERE payment_archived_at IS NULL
     $payment_client_query
-    $access_permission_query
+    " . clientScopeSql('invoice_client_id') . "
 
     UNION ALL
 
@@ -120,7 +120,8 @@ $income_query =
     LEFT JOIN transfers ON transfer_revenue_id = revenue_id
     WHERE revenue_archived_at IS NULL
     AND transfer_id IS NULL
-    $revenue_client_query";
+    $revenue_client_query
+    " . clientScopeSql('revenue_client_id') . "";
 
 $income_filter_query =
     "WHERE DATE(income_date) BETWEEN '$dtf' AND '$dtt'

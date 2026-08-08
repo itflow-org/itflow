@@ -17,14 +17,15 @@ if (isset($_GET['client_id'])) {
 
 $sql = mysqli_query(
     $mysqli,
-    "SELECT SQL_CALC_FOUND_ROWS * FROM trips
+    "SELECT SQL_CALC_FOUND_ROWS client_id, client_name, round_trip, trip_archived_at, trip_created_at, trip_date,
+        trip_destination, trip_id, trip_miles, trip_purpose, trip_source, trip_user_id, user_name FROM trips
     LEFT JOIN clients ON trip_client_id = client_id
     LEFT JOIN users ON trip_user_id = user_id
     WHERE (trip_purpose LIKE '%$q%' OR trip_source LIKE '%$q%' OR trip_destination LIKE '%$q%' OR trip_miles LIKE '%$q%' OR client_name LIKE '%$q%' OR user_name LIKE '%$q%')
     AND DATE(trip_date) BETWEEN '$dtf' AND '$dtt'
     AND trip_archived_at IS NULL
     $client_query
-    $access_permission_query
+    " . clientScopeSql('trip_client_id') . "
     ORDER BY $sort $order LIMIT $record_from, $record_to"
 );
 

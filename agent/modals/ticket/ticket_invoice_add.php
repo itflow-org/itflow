@@ -6,7 +6,12 @@ $ticket_id = intval($_GET['ticket_id']);
 
 $ticket_sql = mysqli_query(
     $mysqli,
-    "SELECT * FROM tickets
+    "SELECT asset_id, asset_name, asset_type, category_name, client_id, client_rate, contact_id,
+        contact_name, location_address, location_city, location_id, location_name, location_phone,
+        location_state, location_zip, ticket_assigned_to, ticket_billable, ticket_category,
+        ticket_created_at, ticket_created_by, ticket_first_response_at, ticket_number,
+        ticket_onsite, ticket_prefix, ticket_priority, ticket_quote_id, ticket_resolved_at,
+        ticket_subject, user_name FROM tickets
     LEFT JOIN clients ON ticket_client_id = client_id
     LEFT JOIN contacts ON ticket_contact_id = contact_id
     LEFT JOIN users ON ticket_assigned_to = user_id
@@ -15,7 +20,7 @@ $ticket_sql = mysqli_query(
     LEFT JOIN ticket_statuses ON ticket_status = ticket_status_id
     LEFT JOIN categories ON ticket_category = category_id
     WHERE ticket_id = $ticket_id
-    $access_permission_query
+    " . clientScopeSql('ticket_client_id') . "
     LIMIT 1"
 );
 
@@ -81,7 +86,8 @@ $row = mysqli_fetch_assoc($ticket_total_reply_time);
 $ticket_total_reply_time = escapeHtml($row['ticket_total_reply_time']);
 $ticket_total_reply_time_display = formatDuration($ticket_total_reply_time);
 
-$sql_invoices = mysqli_query($mysqli, "SELECT * FROM invoices WHERE invoice_status LIKE 'Draft' AND invoice_client_id = $client_id ORDER BY invoice_number ASC");
+$sql_invoices = mysqli_query($mysqli, "SELECT invoice_amount, invoice_date, invoice_due, invoice_id, invoice_number, invoice_prefix,
+    invoice_scope, invoice_status FROM invoices WHERE invoice_status LIKE 'Draft' AND invoice_client_id = $client_id ORDER BY invoice_number ASC");
 
 ob_start();
 
@@ -183,7 +189,7 @@ ob_start();
                                     <option value="">- Select a Category -</option>
                                     <?php
 
-                                    $sql = mysqli_query($mysqli, "SELECT * FROM categories WHERE category_type = 'Income' AND category_archived_at IS NULL ORDER BY category_name ASC");
+                                    $sql = mysqli_query($mysqli, "SELECT category_id, category_name FROM categories WHERE category_type = 'Income' AND category_archived_at IS NULL ORDER BY category_name ASC");
                                     while ($row = mysqli_fetch_assoc($sql)) {
                                         $category_id = intval($row['category_id']);
                                         $category_name = escapeHtml($row['category_name']);
@@ -314,7 +320,7 @@ ob_start();
                     <option value="0">None</option>
                     <?php
 
-                    $taxes_sql = mysqli_query($mysqli, "SELECT * FROM taxes WHERE tax_archived_at IS NULL ORDER BY tax_name ASC");
+                    $taxes_sql = mysqli_query($mysqli, "SELECT tax_id, tax_name, tax_percent FROM taxes WHERE tax_archived_at IS NULL ORDER BY tax_name ASC");
                     while ($row = mysqli_fetch_assoc($taxes_sql)) {
                         $tax_id_select = intval($row['tax_id']);
                         $tax_name = escapeHtml($row['tax_name']);

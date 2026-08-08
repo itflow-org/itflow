@@ -31,7 +31,7 @@
                         </a>
                         <?php } ?>
                     <?php } ?>
-                    <?php if (lookupUserPermission("module_client") >= 3) { ?>
+                    <?php if (lookupUserPermission("module_client") >= 1) { ?>
                         <div class="dropdown-divider"></div>
                         <a class="dropdown-item" href="#" data-toggle="modal" data-target="#exportClientPDFModal">
                             <i class="fas fa-fw fa-file-pdf mr-2"></i>Export Data

@@ -11,7 +11,9 @@ enforceUserPermission('module_support');
 
 $sql = mysqli_query(
     $mysqli,
-    "SELECT SQL_CALC_FOUND_ROWS * FROM racks
+    "SELECT SQL_CALC_FOUND_ROWS location_name, rack_created_at, rack_depth, rack_description, rack_id, rack_location_id,
+        rack_model, rack_name, rack_notes, rack_photo, rack_physical_location, rack_type,
+        rack_units FROM racks
     LEFT JOIN locations ON location_id = rack_location_id
     WHERE rack_client_id = $client_id
     AND rack_$archive_query

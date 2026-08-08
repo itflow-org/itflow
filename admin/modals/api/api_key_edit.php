@@ -4,7 +4,7 @@ require_once '../../includes/modal_header.php';
 
 $api_key_id = intval($_GET['id']);
 
-$sql = mysqli_query($mysqli, "SELECT * FROM api_keys WHERE api_key_id = $api_key_id LIMIT 1");
+$sql = mysqli_query($mysqli, "SELECT api_key_expire, api_key_name, api_key_user_id FROM api_keys WHERE api_key_id = $api_key_id LIMIT 1");
 $row = mysqli_fetch_assoc($sql);
 $api_key_name = escapeHtml($row['api_key_name']);
 $api_key_expire = escapeHtml($row['api_key_expire']);

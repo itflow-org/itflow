@@ -6,7 +6,12 @@ enforceUserPermission('module_financial', 2);
 
 $recurring_expense_id = intval($_GET['id']);
 
-$sql = mysqli_query($mysqli, "SELECT * FROM recurring_expenses WHERE recurring_expense_id = $recurring_expense_id LIMIT 1");
+$sql = mysqli_query($mysqli, "SELECT recurring_expense_account_id, recurring_expense_amount, recurring_expense_category_id,
+    recurring_expense_client_id, recurring_expense_created_at, recurring_expense_currency_code,
+    recurring_expense_day, recurring_expense_description, recurring_expense_frequency,
+    recurring_expense_last_sent, recurring_expense_month, recurring_expense_next_date,
+    recurring_expense_payment_method, recurring_expense_reference, recurring_expense_status,
+    recurring_expense_vendor_id FROM recurring_expenses WHERE recurring_expense_id = $recurring_expense_id LIMIT 1");
 
 $row = mysqli_fetch_assoc($sql);
 $recurring_expense_frequency = intval($row['recurring_expense_frequency']);
@@ -244,7 +249,7 @@ ob_start();
                             <option value="">- Select Client -</option>
                             <?php
 
-                            $sql_clients = mysqli_query($mysqli, "SELECT client_id, client_name FROM clients WHERE 1 = 1 $access_permission_query ORDER BY client_name ASC");
+                            $sql_clients = mysqli_query($mysqli, "SELECT client_id, client_name FROM clients WHERE 1 = 1 " . clientScopeSql('clients.client_id') . " ORDER BY client_name ASC");
                             while ($row = mysqli_fetch_assoc($sql_clients)) {
                                 $client_id_select = intval($row['client_id']);
                                 $client_name_select = escapeHtml($row['client_name']);

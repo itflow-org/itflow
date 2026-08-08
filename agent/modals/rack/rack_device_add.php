@@ -4,7 +4,7 @@ require_once '../../../includes/modal_header.php';
 
 $rack_id = intval($_GET['id']);
 
-$sql = mysqli_query($mysqli, "SELECT * FROM racks WHERE rack_id = $rack_id LIMIT 1");
+$sql = mysqli_query($mysqli, "SELECT rack_client_id, rack_name FROM racks WHERE rack_id = $rack_id LIMIT 1");
 
 $row = mysqli_fetch_assoc($sql);
 $rack_name = escapeHtml($row['rack_name']);
@@ -58,7 +58,7 @@ ob_start();
                     $assigned_assets_list = empty($assigned_assets_list) ? '0' : $assigned_assets_list;
 
                     // Fetch assets not assigned to any rack
-                    $sql_assets = mysqli_query($mysqli, "SELECT * FROM assets WHERE asset_archived_at IS NULL AND asset_client_id = $client_id AND asset_id NOT IN ($assigned_assets_list) ORDER BY asset_name ASC");
+                    $sql_assets = mysqli_query($mysqli, "SELECT asset_id, asset_name FROM assets WHERE asset_archived_at IS NULL AND asset_client_id = $client_id AND asset_id NOT IN ($assigned_assets_list) ORDER BY asset_name ASC");
                     while ($row = mysqli_fetch_assoc($sql_assets)) {
                         $asset_id = intval($row['asset_id']);
                         $asset_name = escapeHtml($row['asset_name']);

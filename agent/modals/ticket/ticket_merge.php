@@ -6,7 +6,7 @@ enforceUserPermission('module_support', 2);
 
 $ticket_id = intval($_GET['ticket_id']);
 
-$sql = mysqli_query($mysqli, "SELECT * FROM tickets
+$sql = mysqli_query($mysqli, "SELECT client_name, ticket_client_id, ticket_number, ticket_prefix FROM tickets
     LEFT JOIN clients ON client_id = ticket_client_id
     WHERE ticket_id = $ticket_id
     LIMIT 1"
@@ -22,12 +22,12 @@ if ($client_id) {
     enforceClientAccess();
 }
 
-$sql_merge = mysqli_query($mysqli, "SELECT * FROM tickets
+$sql_merge = mysqli_query($mysqli, "SELECT client_name, ticket_id, ticket_number, ticket_prefix, ticket_status_name, ticket_subject FROM tickets
     LEFT JOIN ticket_statuses ON ticket_status = ticket_status_id
     LEFT JOIN clients ON client_id = ticket_client_id
     WHERE ticket_closed_at IS NULL
     AND ticket_id != $ticket_id
-    $access_permission_query
+    " . clientScopeSql('ticket_client_id') . "
     ORDER BY ticket_status ASC, ticket_id DESC"
 );
 

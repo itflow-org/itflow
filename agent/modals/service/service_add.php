@@ -57,7 +57,7 @@ ob_start();
                                 <option value="">- Select Client -</option>
                                 <?php
 
-                                $sql = mysqli_query($mysqli, "SELECT client_id, client_name FROM clients WHERE client_archived_at IS NULL $access_permission_query ORDER BY client_name ASC");
+                                $sql = mysqli_query($mysqli, "SELECT client_id, client_name FROM clients WHERE client_archived_at IS NULL " . clientScopeSql('clients.client_id') . " ORDER BY client_name ASC");
                                 while ($row = mysqli_fetch_assoc($sql)) {
                                     $client_id = intval($row['client_id']);
                                     $client_name = escapeHtml($row['client_name']); ?>
@@ -138,7 +138,7 @@ ob_start();
                     <label for="contacts">Select related Contacts</label>
                     <select class="form-control select2" id="contacts" name="contacts[]" multiple>
                         <?php
-                        $sql = mysqli_query($mysqli, "SELECT * FROM contacts WHERE contact_archived_at IS NULL AND contact_client_id = $client_id");
+                        $sql = mysqli_query($mysqli, "SELECT contact_id, contact_name FROM contacts WHERE contact_archived_at IS NULL AND contact_client_id = $client_id");
                         while ($row = mysqli_fetch_assoc($sql)) {
                             $contact_id = intval($row['contact_id']);
                             $contact_name = escapeHtml($row['contact_name']);
@@ -152,7 +152,7 @@ ob_start();
                     <label for="vendors">Select related vendors</label>
                     <select class="form-control select2" id="vendors" name="vendors[]" multiple>
                         <?php
-                        $sql = mysqli_query($mysqli, "SELECT * FROM vendors WHERE vendor_archived_at IS NULL AND vendor_client_id = $client_id");
+                        $sql = mysqli_query($mysqli, "SELECT vendor_id, vendor_name FROM vendors WHERE vendor_archived_at IS NULL AND vendor_client_id = $client_id");
                         while ($row = mysqli_fetch_assoc($sql)) {
                             $vendor_id = intval($row['vendor_id']);
                             $vendor_name = escapeHtml($row['vendor_name']);
@@ -166,7 +166,7 @@ ob_start();
                     <label for="documents">Select related documents</label>
                     <select class="form-control select2" id="documents" name="documents[]" multiple>
                         <?php
-                        $sql = mysqli_query($mysqli, "SELECT * FROM documents WHERE document_archived_at IS NULL AND document_client_id = $client_id");
+                        $sql = mysqli_query($mysqli, "SELECT document_id, document_name FROM documents WHERE document_archived_at IS NULL AND document_client_id = $client_id");
                         while ($row = mysqli_fetch_assoc($sql)) {
                             $document_id = intval($row['document_id']);
                             $document_name = escapeHtml($row['document_name']);
@@ -186,7 +186,7 @@ ob_start();
                     <label for="assets">Select related assets</label>
                     <select class="form-control select2" id="assets" name="assets[]" multiple>
                         <?php
-                        $sql = mysqli_query($mysqli, "SELECT * FROM assets WHERE asset_archived_at IS NULL AND asset_client_id = $client_id");
+                        $sql = mysqli_query($mysqli, "SELECT asset_id, asset_name FROM assets WHERE asset_archived_at IS NULL AND asset_client_id = $client_id");
                         while ($row = mysqli_fetch_assoc($sql)) {
                             $asset_id = intval($row['asset_id']);
                             $asset_name = escapeHtml($row['asset_name']);
@@ -200,7 +200,7 @@ ob_start();
                     <label for="logins">Select related Credentials</label>
                     <select class="form-control select2" id="credentials" name="credentials[]" multiple>
                         <?php
-                        $sql = mysqli_query($mysqli, "SELECT * FROM credentials WHERE credential_archived_at IS NULL AND credential_client_id = $client_id");
+                        $sql = mysqli_query($mysqli, "SELECT credential_id, credential_name FROM credentials WHERE credential_archived_at IS NULL AND credential_client_id = $client_id");
                         while ($row = mysqli_fetch_assoc($sql)) {
                             $credential_id = intval($row['credential_id']);
                             $credential_name = escapeHtml($row['credential_name']);
@@ -214,7 +214,7 @@ ob_start();
                     <label for="domains">Select related domains</label>
                     <select class="form-control select2" id="domains" name="domains[]" multiple>
                         <?php
-                        $sql = mysqli_query($mysqli, "SELECT * FROM domains WHERE domain_archived_at IS NULL AND domain_client_id = $client_id");
+                        $sql = mysqli_query($mysqli, "SELECT domain_id, domain_name FROM domains WHERE domain_archived_at IS NULL AND domain_client_id = $client_id");
                         while ($row = mysqli_fetch_assoc($sql)) {
                             $domain_id = intval($row['domain_id']);
                             $domain_name = escapeHtml($row['domain_name']);
@@ -228,7 +228,7 @@ ob_start();
                     <label for="certificates">Select related certificates</label>
                     <select class="form-control select2" id="certificates" name="certificates[]" multiple>
                         <?php
-                        $sql = mysqli_query($mysqli, "SELECT * FROM certificates WHERE certificate_archived_at IS NULL AND certificate_client_id = $client_id");
+                        $sql = mysqli_query($mysqli, "SELECT certificate_domain, certificate_id, certificate_name FROM certificates WHERE certificate_archived_at IS NULL AND certificate_client_id = $client_id");
                         while ($row = mysqli_fetch_assoc($sql)) {
                             $cert_id = intval($row['certificate_id']);
                             $cert_name = escapeHtml($row['certificate_name']);

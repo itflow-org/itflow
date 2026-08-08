@@ -172,7 +172,7 @@ if (isset($_POST['bulk_delete_networks'])) {
 
 }
 
-if (isset($_POST['export_networks'])) {
+if (isExportRequest('export_networks')) {
 
     validateCSRFToken();
 
@@ -238,7 +238,7 @@ if (isset($_POST['export_networks'])) {
         LEFT JOIN locations ON location_id = network_location_id
         WHERE $archive_query
         AND (network_name LIKE '%$q%' OR network_description LIKE '%$q%' OR network_vlan LIKE '%$q%' OR network LIKE '%$q%' OR network_gateway LIKE '%$q%' OR network_primary_dns LIKE '%$q%' OR network_secondary_dns LIKE '%$q%' OR client_name LIKE '%$q%')
-        $access_permission_query
+        " . clientScopeSql('network_client_id') . "
         $location_query
         $client_query
         ORDER BY network_name ASC"

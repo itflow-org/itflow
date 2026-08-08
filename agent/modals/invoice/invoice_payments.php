@@ -6,7 +6,8 @@ enforceUserPermission('module_sales');
 
 $invoice_id = intval($_GET['invoice_id']);
 
-$sql = mysqli_query($mysqli, "SELECT * FROM invoices WHERE invoice_id = $invoice_id LIMIT 1");
+$sql = mysqli_query($mysqli, "SELECT invoice_amount, invoice_client_id, invoice_currency_code, invoice_number, invoice_prefix,
+    invoice_status FROM invoices WHERE invoice_id = $invoice_id LIMIT 1");
 $row = mysqli_fetch_assoc($sql);
 $invoice_prefix = escapeHtml($row['invoice_prefix']);
 $invoice_number = escapeHtml($row['invoice_number']);
@@ -21,7 +22,8 @@ $invoice_badge_color = getInvoiceBadgeColor($invoice_status);
 
 $sql_payments = mysqli_query(
     $mysqli,
-    "SELECT * FROM payments
+    "SELECT account_archived_at, account_name, payment_amount, payment_currency_code, payment_date,
+        payment_id, payment_method, payment_reference FROM payments
     LEFT JOIN accounts ON payment_account_id = account_id
     WHERE payment_invoice_id = $invoice_id
     AND payment_archived_at IS NULL

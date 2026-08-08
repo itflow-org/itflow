@@ -16,12 +16,17 @@ if (isset($_GET['quote_id'])) {
 
     $sql = mysqli_query(
         $mysqli,
-        "SELECT * FROM quotes
+        "SELECT client_currency_code, client_id, client_name, client_net_terms, client_website,
+            contact_email, contact_extension, contact_mobile, contact_mobile_country_code,
+            contact_phone, contact_phone_country_code, location_address, location_city,
+            location_country, location_state, location_zip, quote_amount, quote_category_id,
+            quote_created_at, quote_currency_code, quote_date, quote_discount_amount, quote_expire,
+            quote_id, quote_note, quote_number, quote_prefix, quote_scope, quote_status, quote_url_key FROM quotes
         LEFT JOIN clients ON quote_client_id = client_id
         LEFT JOIN contacts ON clients.client_id = contacts.contact_client_id AND contact_primary = 1
         LEFT JOIN locations ON clients.client_id = locations.location_client_id AND location_primary = 1
         WHERE quote_id = $quote_id
-        $access_permission_query
+        " . clientScopeSql('quote_client_id') . "
         LIMIT 1"
     );
 
@@ -76,7 +81,9 @@ if (isset($_GET['quote_id'])) {
     $tab_title = $row['client_name'];
     $page_title = "{$row['quote_prefix']}{$row['quote_number']}";
 
-    $sql = mysqli_query($mysqli, "SELECT * FROM companies, settings WHERE companies.company_id = settings.company_id AND companies.company_id = 1");
+    $sql = mysqli_query($mysqli, "SELECT company_address, company_city, company_country, company_email, settings.company_id,
+        company_logo, company_name, company_phone, company_phone_country_code, company_state,
+        company_website, company_zip FROM companies, settings WHERE companies.company_id = settings.company_id AND companies.company_id = 1");
     $row = mysqli_fetch_assoc($sql);
 
     $company_id = intval($row['company_id']);
@@ -92,7 +99,7 @@ if (isset($_GET['quote_id'])) {
     $company_website = escapeHtml($row['company_website']);
     $company_logo = escapeHtml($row['company_logo']);
 
-    $sql_history = mysqli_query($mysqli, "SELECT * FROM history WHERE history_quote_id = $quote_id ORDER BY history_id DESC");
+    $sql_history = mysqli_query($mysqli, "SELECT history_created_at, history_description, history_status FROM history WHERE history_quote_id = $quote_id ORDER BY history_id DESC");
 
     //Set Badge color based off of quote status
     if ($quote_status == "Sent") {
@@ -283,7 +290,8 @@ if (isset($_GET['quote_id'])) {
                 </div>
             </div>
 
-            <?php $sql_items = mysqli_query($mysqli, "SELECT * FROM quote_items WHERE item_quote_id = $quote_id ORDER BY item_order ASC"); ?>
+            <?php $sql_items = mysqli_query($mysqli, "SELECT item_created_at, item_description, item_id, item_name, item_price, item_quantity, item_tax,
+                item_tax_id, item_total FROM quote_items WHERE item_quote_id = $quote_id ORDER BY item_order ASC"); ?>
 
             <div class="row mb-3">
                 <div class="col-md-12">

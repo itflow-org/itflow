@@ -6,7 +6,9 @@ $session_user_id = intval($_SESSION['user_id']);
 
 $sql = mysqli_query(
     $mysqli,
-    "SELECT * FROM users
+    "SELECT role_is_admin, role_name, user_archived_at, user_avatar, user_config_force_mfa,
+        user_config_records_per_page, user_config_theme_dark, user_email, user_name, user_role_id,
+        user_status, user_token, user_type FROM users
      LEFT JOIN user_settings ON users.user_id = user_settings.user_id
      LEFT JOIN user_roles ON user_role_id = role_id
      WHERE users.user_id = $session_user_id"
@@ -60,19 +62,5 @@ while ($row = mysqli_fetch_assoc($user_client_access_result)) {
         $client_deny_array[] = (int) $row['client_id'];
     } else {
         $client_access_array[] = (int) $row['client_id'];
-    }
-}
-
-$client_access_string = implode(',', $client_access_array);
-$client_deny_string = implode(',', $client_deny_array);
-
-$access_permission_query = "";
-if (!$session_is_admin) {
-    // Restrict to the allow list (if any), then subtract the deny list
-    if ($client_access_string) {
-        $access_permission_query .= " AND clients.client_id IN ($client_access_string)";
-    }
-    if ($client_deny_string) {
-        $access_permission_query .= " AND clients.client_id NOT IN ($client_deny_string)";
     }
 }

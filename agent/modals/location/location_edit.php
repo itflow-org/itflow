@@ -6,7 +6,11 @@ enforceUserPermission('module_client', 2);
 
 $location_id = intval($_GET['id']);
 
-$sql = mysqli_query($mysqli, "SELECT * FROM locations WHERE location_id = $location_id LIMIT 1");
+$sql = mysqli_query($mysqli, "SELECT location_address, location_archived_at, location_city, location_client_id,
+    location_contact_id, location_country, location_created_at, location_description,
+    location_fax, location_fax_country_code, location_hours, location_name, location_notes,
+    location_phone, location_phone_country_code, location_phone_extension, location_photo, location_primary,
+    location_state, location_zip FROM locations WHERE location_id = $location_id LIMIT 1");
 
 $row = mysqli_fetch_assoc($sql);
 $location_name = escapeHtml($row['location_name']);
@@ -18,7 +22,7 @@ $location_state = escapeHtml($row['location_state']);
 $location_zip = escapeHtml($row['location_zip']);
 $location_phone_country_code = escapeHtml($row['location_phone_country_code']);
 $location_phone = escapeHtml(formatPhoneNumber($row['location_phone'], $location_phone_country_code));
-//$location_extension = intval($row['location_extension']);
+$location_extension = escapeHtml($row['location_phone_extension']);
 $location_fax_country_code = escapeHtml($row['location_fax_country_code']);
 $location_fax = escapeHtml(formatPhoneNumber($row['location_fax'], $location_fax_country_code));
 $location_hours = escapeHtml($row['location_hours']);
@@ -34,7 +38,7 @@ enforceClientAccess();
 
 // Tags
 $location_tag_id_array = array();
-$sql_location_tags = mysqli_query($mysqli, "SELECT * FROM location_tags WHERE location_id = $location_id");
+$sql_location_tags = mysqli_query($mysqli, "SELECT tag_id FROM location_tags WHERE location_id = $location_id");
 while ($row = mysqli_fetch_assoc($sql_location_tags)) {
     $location_tag_id = intval($row['tag_id']);
     $location_tag_id_array[] = $location_tag_id;
@@ -186,7 +190,7 @@ ob_start();
                             <option value="">- Contact -</option>
                             <?php
 
-                            $sql_contacts = mysqli_query($mysqli, "SELECT * FROM contacts WHERE (contact_archived_at > '$location_created_at' OR contact_archived_at IS NULL) AND contact_client_id = $client_id ORDER BY contact_archived_at ASC, contact_name ASC");
+                            $sql_contacts = mysqli_query($mysqli, "SELECT contact_archived_at, contact_id, contact_name FROM contacts WHERE (contact_archived_at > '$location_created_at' OR contact_archived_at IS NULL) AND contact_client_id = $client_id ORDER BY contact_archived_at ASC, contact_name ASC");
                             while ($row = mysqli_fetch_assoc($sql_contacts)) {
                                 $contact_id_select = intval($row['contact_id']);
                                 $contact_name_select = escapeHtml($row['contact_name']);
@@ -267,7 +271,7 @@ ob_start();
                         <select class="form-control select2" name="tags[]" data-placeholder="Add some tags" multiple>
                             <?php
 
-                            $sql_tags_select = mysqli_query($mysqli, "SELECT * FROM tags WHERE tag_type = 2 ORDER BY tag_name ASC");
+                            $sql_tags_select = mysqli_query($mysqli, "SELECT tag_id, tag_name FROM tags WHERE tag_type = 2 ORDER BY tag_name ASC");
                             while ($row = mysqli_fetch_assoc($sql_tags_select)) {
                                 $tag_id_select = intval($row['tag_id']);
                                 $tag_name_select = escapeHtml($row['tag_name']);

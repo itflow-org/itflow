@@ -48,7 +48,9 @@ if (isset($_GET['accept_quote'], $_GET['url_key'])) {
         $row = mysqli_fetch_assoc($sql_company);
         $company_name = escapeSql($row['company_name']);
 
-        $sql_settings = mysqli_query($mysqli, "SELECT * FROM settings WHERE company_id = 1");
+        $sql_settings = mysqli_query($mysqli, "SELECT config_quote_from_email, config_quote_from_name, config_quote_notification_email,
+            config_smtp_encryption, config_smtp_host, config_smtp_password, config_smtp_port,
+            config_smtp_username FROM settings WHERE company_id = 1");
         $row = mysqli_fetch_assoc($sql_settings);
         $config_smtp_host = $row['config_smtp_host'];
         $config_smtp_port = intval($row['config_smtp_port']);
@@ -121,7 +123,9 @@ if (isset($_GET['decline_quote'], $_GET['url_key'])) {
         $row = mysqli_fetch_assoc($sql_company);
         $company_name = escapeSql($row['company_name']);
 
-        $sql_settings = mysqli_query($mysqli, "SELECT * FROM settings WHERE company_id = 1");
+        $sql_settings = mysqli_query($mysqli, "SELECT config_quote_from_email, config_quote_from_name, config_quote_notification_email,
+            config_smtp_encryption, config_smtp_host, config_smtp_password, config_smtp_port,
+            config_smtp_username FROM settings WHERE company_id = 1");
         $row = mysqli_fetch_assoc($sql_settings);
         $config_smtp_host = $row['config_smtp_host'];
         $config_smtp_port = intval($row['config_smtp_port']);
@@ -253,7 +257,8 @@ if (isset($_GET['approve_ticket_task'])) {
     $approval_id = intval($_GET['approval_id']);
     $url_key = escapeSql($_GET['approval_url_key']);
 
-    $approval_row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT * FROM task_approvals LEFT JOIN tasks on task_id = approval_task_id WHERE approval_id = $approval_id AND approval_task_id = $task_id AND approval_url_key = '$url_key' AND approval_status = 'pending'"));
+    $approval_row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT approval_created_by, approval_required_user_id, approval_scope, approval_type, task_name,
+        task_ticket_id FROM task_approvals LEFT JOIN tasks on task_id = approval_task_id WHERE approval_id = $approval_id AND approval_task_id = $task_id AND approval_url_key = '$url_key' AND approval_status = 'pending'"));
 
     $task_name = escapeHtml($approval_row['task_name']);
     $scope = escapeHtml($approval_row['approval_scope']);
@@ -287,7 +292,12 @@ if (isset($_GET['export_quote_pdf'])) {
 
     $sql = mysqli_query(
         $mysqli,
-        "SELECT * FROM quotes
+        "SELECT client_currency_code, client_id, client_name, client_net_terms, client_website,
+            contact_email, contact_extension, contact_mobile, contact_mobile_country_code,
+            contact_phone, contact_phone_country_code, location_address, location_city,
+            location_country, location_state, location_zip, quote_amount, quote_category_id,
+            quote_created_at, quote_currency_code, quote_date, quote_discount_amount, quote_expire,
+            quote_id, quote_note, quote_number, quote_prefix, quote_scope, quote_status, quote_url_key FROM quotes
         LEFT JOIN clients ON quote_client_id = client_id
         LEFT JOIN contacts ON clients.client_id = contacts.contact_client_id AND contact_primary = 1
         LEFT JOIN locations ON clients.client_id = locations.location_client_id AND location_primary = 1
@@ -332,7 +342,9 @@ if (isset($_GET['export_quote_pdf'])) {
             $client_net_terms = $config_default_net_terms;
         }
 
-        $sql = mysqli_query($mysqli, "SELECT * FROM companies, settings WHERE companies.company_id = settings.company_id AND companies.company_id = 1");
+        $sql = mysqli_query($mysqli, "SELECT company_address, company_city, company_country, company_email, settings.company_id,
+            company_locale, company_logo, company_name, company_phone, company_phone_country_code,
+            company_state, company_website, company_zip FROM companies, settings WHERE companies.company_id = settings.company_id AND companies.company_id = 1");
         $row = mysqli_fetch_assoc($sql);
 
         $company_id = intval($row['company_id']);
@@ -423,7 +435,7 @@ if (isset($_GET['export_quote_pdf'])) {
         $sub_total = 0;
         $total_tax = 0;
 
-        $sql_items = mysqli_query($mysqli, "SELECT * FROM quote_items WHERE item_quote_id = $quote_id ORDER BY item_order ASC");
+        $sql_items = mysqli_query($mysqli, "SELECT item_description, item_name, item_price, item_quantity, item_tax, item_total FROM quote_items WHERE item_quote_id = $quote_id ORDER BY item_order ASC");
         while ($item = mysqli_fetch_assoc($sql_items)) {
             $name = $item['item_name'];
             $desc = $item['item_description'];
@@ -488,7 +500,13 @@ if (isset($_GET['export_invoice_pdf'])) {
 
     $sql = mysqli_query(
         $mysqli,
-        "SELECT * FROM invoices
+        "SELECT client_currency_code, client_id, client_name, client_net_terms, client_website,
+            contact_email, contact_extension, contact_mobile, contact_mobile_country_code,
+            contact_phone, contact_phone_country_code, invoice_amount, invoice_category_id,
+            invoice_created_at, invoice_currency_code, invoice_date, invoice_discount_amount,
+            invoice_due, invoice_id, invoice_note, invoice_number, invoice_prefix, invoice_scope,
+            invoice_status, invoice_url_key, location_address, location_city, location_country,
+            location_state, location_zip FROM invoices
         LEFT JOIN clients ON invoice_client_id = client_id
         LEFT JOIN contacts ON clients.client_id = contacts.contact_client_id AND contact_primary = 1
         LEFT JOIN locations ON clients.client_id = locations.location_client_id AND location_primary = 1
@@ -533,7 +551,9 @@ if (isset($_GET['export_invoice_pdf'])) {
             $client_net_terms = $config_default_net_terms;
         }
 
-        $sql = mysqli_query($mysqli, "SELECT * FROM companies WHERE company_id = 1");
+        $sql = mysqli_query($mysqli, "SELECT company_address, company_city, company_country, company_email, company_id, company_locale,
+            company_logo, company_name, company_phone, company_phone_country_code, company_state,
+            company_tax_id, company_website, company_zip FROM companies WHERE company_id = 1");
         $row = mysqli_fetch_assoc($sql);
         $company_id = intval($row['company_id']);
         $company_name = escapeHtml($row['company_name']);
@@ -646,7 +666,7 @@ if (isset($_GET['export_invoice_pdf'])) {
         $sub_total = 0;
         $total_tax = 0;
 
-        $sql_items = mysqli_query($mysqli, "SELECT * FROM invoice_items WHERE item_invoice_id = $invoice_id ORDER BY item_order ASC");
+        $sql_items = mysqli_query($mysqli, "SELECT item_description, item_name, item_price, item_quantity, item_tax, item_total FROM invoice_items WHERE item_invoice_id = $invoice_id ORDER BY item_order ASC");
         while ($item = mysqli_fetch_assoc($sql_items)) {
             $name = $item['item_name'];
             $desc = $item['item_description'];
@@ -757,7 +777,7 @@ if (isset($_POST['guest_quote_upload_file'])) {
                     $dest_path = $upload_file_dir . $file_reference_name;
 
                     // Get/Create a top-level folder called Client Uploads
-                    $folder_sql = mysqli_query($mysqli, "SELECT * FROM folders WHERE folder_name = 'Client Uploads' AND parent_folder = 0 AND folder_client_id = $client_id LIMIT 1");
+                    $folder_sql = mysqli_query($mysqli, "SELECT folder_id FROM folders WHERE folder_name = 'Client Uploads' AND parent_folder = 0 AND folder_client_id = $client_id LIMIT 1");
                     if (mysqli_num_rows($folder_sql) == 1) {
                         // Get
                         $row = mysqli_fetch_assoc($folder_sql);

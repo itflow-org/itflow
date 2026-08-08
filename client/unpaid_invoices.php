@@ -13,11 +13,12 @@ require_once "includes/inc_all.php";
 
 enforceContactCan('accounting');
 
-$invoices_sql = mysqli_query($mysqli, "SELECT * FROM invoices WHERE invoice_client_id = $session_client_id AND (invoice_status = 'Viewed' OR invoice_status = 'Sent' OR invoice_status = 'Partial') ORDER BY invoice_date DESC");
+$invoices_sql = mysqli_query($mysqli, "SELECT invoice_amount, invoice_date, invoice_due, invoice_id, invoice_number, invoice_prefix,
+    invoice_scope, invoice_status, invoice_url_key FROM invoices WHERE invoice_client_id = $session_client_id AND (invoice_status = 'Viewed' OR invoice_status = 'Sent' OR invoice_status = 'Partial') ORDER BY invoice_date DESC");
 
 
 // Payment Provider Active Query
-$sql_payment_provider = mysqli_query($mysqli, "SELECT * FROM payment_providers WHERE payment_provider_active = 1 LIMIT 1;");
+$sql_payment_provider = mysqli_query($mysqli, "SELECT payment_provider_active, payment_provider_id, payment_provider_threshold FROM payment_providers WHERE payment_provider_active = 1 LIMIT 1;");
 $row = mysqli_fetch_assoc($sql_payment_provider);
 $payment_provider_id = intval($row['payment_provider_id']);
 $payment_provider_active = intval($row['payment_provider_active']);
@@ -25,7 +26,7 @@ $payment_provider_threshold = floatval($row['payment_provider_threshold']);
 
 // Saved Payment Methods
 $sql_saved_payment_methods = mysqli_query($mysqli, "
-    SELECT * FROM client_saved_payment_methods
+    SELECT payment_provider_name, saved_payment_description, saved_payment_id FROM client_saved_payment_methods
     LEFT JOIN payment_providers
         ON client_saved_payment_methods.saved_payment_provider_id = payment_providers.payment_provider_id
     WHERE saved_payment_client_id = $session_client_id
@@ -156,7 +157,7 @@ $balance = $invoice_amounts - $amount_paid;
                             <?php
                             // Saved Payment Methods
                             $sql_saved_payment_methods = mysqli_query($mysqli, "
-                                SELECT * FROM client_saved_payment_methods
+                                SELECT payment_provider_name, saved_payment_description, saved_payment_id FROM client_saved_payment_methods
                                 LEFT JOIN payment_providers
                                     ON client_saved_payment_methods.saved_payment_provider_id = payment_providers.payment_provider_id
                                 WHERE saved_payment_client_id = $session_client_id

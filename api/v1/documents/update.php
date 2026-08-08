@@ -14,7 +14,8 @@ if (!empty($document_id)) {
     // 1) Load the current document (scoped to this client)
     $sql_original_document = mysqli_query(
         $mysqli,
-        "SELECT * FROM documents
+        "SELECT document_content, document_created_at, document_created_by, document_description,
+            document_name, document_updated_at, document_updated_by FROM documents
          WHERE document_client_id = $client_id
            AND document_id = $document_id
          LIMIT 1"

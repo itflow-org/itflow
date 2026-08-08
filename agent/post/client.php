@@ -216,7 +216,7 @@ if (isset($_GET['archive_client'])) {
     mysqli_query($mysqli, "UPDATE clients SET client_archived_at = NOW() WHERE client_id = $client_id");
 
     // Stop recurring invoices
-    $sql_recurring_invoices = mysqli_query($mysqli, "SELECT * FROM recurring_invoices WHERE recurring_invoice_client_id = $client_id AND recurring_invoice_status = 1");
+    $sql_recurring_invoices = mysqli_query($mysqli, "SELECT recurring_invoice_id FROM recurring_invoices WHERE recurring_invoice_client_id = $client_id AND recurring_invoice_status = 1");
     while ($row = mysqli_fetch_assoc($sql_recurring_invoices)) {
         $recurring_invoice_id = intval($row['recurring_invoice_id']);
         mysqli_query($mysqli,"UPDATE recurring_invoices SET recurring_invoice_status = 0 WHERE recurring_invoice_id = $recurring_invoice_id AND recurring_invoice_client_id = $client_id");
@@ -356,7 +356,7 @@ if (isset($_GET['delete_client'])) {
 
 }
 
-if (isset($_POST['export_clients'])) {
+if (isExportRequest('export_clients')) {
 
     validateCSRFToken();
 
@@ -452,7 +452,7 @@ if (isset($_POST['export_clients'])) {
           AND $archive_query
           AND DATE(client_created_at) BETWEEN '$dtf' AND '$dtt'
           $leads_query
-          $access_permission_query
+          " . clientScopeSql('clients.client_id') . "
           $tag_query
           $industry_query
           $referral_query
@@ -528,7 +528,7 @@ if (isset($_POST["import_clients_csv"])) {
             $duplicate_detect = 0;
             if (isset($column[0])) {
                 $name = escapeSql($column[0]);
-                if (mysqli_num_rows(mysqli_query($mysqli,"SELECT * FROM clients WHERE client_name = '$name'")) > 0) {
+                if (mysqli_num_rows(mysqli_query($mysqli,"SELECT 1 FROM clients WHERE client_name = '$name'")) > 0) {
                     $duplicate_detect = 1;
                 }
             }
@@ -741,7 +741,7 @@ if (isset($_POST['bulk_add_client_ticket'])) {
 
     // Check to see if adding a ticket by template
     if($ticket_template_id) {
-        $sql = mysqli_query($mysqli, "SELECT * FROM ticket_templates WHERE ticket_template_id = $ticket_template_id");
+        $sql = mysqli_query($mysqli, "SELECT ticket_template_details, ticket_template_subject FROM ticket_templates WHERE ticket_template_id = $ticket_template_id");
         $row = mysqli_fetch_assoc($sql);
 
         // Override Template Subject
@@ -751,7 +751,7 @@ if (isset($_POST['bulk_add_client_ticket'])) {
         $details = mysqli_escape_string($mysqli, $row['ticket_template_details']);
 
         // Get Associated Tasks from the ticket template
-        $sql_task_templates = mysqli_query($mysqli, "SELECT * FROM task_templates WHERE task_template_ticket_template_id = $ticket_template_id");
+        $sql_task_templates = mysqli_query($mysqli, "SELECT task_template_name, task_template_order FROM task_templates WHERE task_template_ticket_template_id = $ticket_template_id");
 
     }
 
@@ -764,7 +764,7 @@ if (isset($_POST['bulk_add_client_ticket'])) {
         foreach ($_POST['client_ids'] as $client_id) {
             $client_id = intval($client_id);
 
-            $sql = mysqli_query($mysqli, "SELECT * FROM clients WHERE client_id = $client_id");
+            $sql = mysqli_query($mysqli, "SELECT client_name FROM clients WHERE client_id = $client_id");
             $row = mysqli_fetch_assoc($sql);
 
             $client_name = escapeSql($row['client_name']);
@@ -992,7 +992,7 @@ if (isset($_POST['bulk_assign_client_tags'])) {
                 foreach($_POST['bulk_tags'] as $tag) {
                     $tag = intval($tag);
 
-                    $sql = mysqli_query($mysqli,"SELECT * FROM client_tags WHERE client_id = $client_id AND tag_id = $tag");
+                    $sql = mysqli_query($mysqli,"SELECT 1 FROM client_tags WHERE client_id = $client_id AND tag_id = $tag");
                     if (mysqli_num_rows($sql) == 0) {
                         mysqli_query($mysqli, "INSERT INTO client_tags SET client_id = $client_id, tag_id = $tag");
                     }
@@ -1175,13 +1175,18 @@ if (isset($_POST["export_client_pdf"])) {
 
     validateCSRFToken();
 
-    // Enforce permissions
-    enforceUserPermission("module_client", 3);
-    enforceUserPermission("module_support", 1);
-    enforceUserPermission("module_sales", 1);
-    enforceUserPermission("module_financial", 1);
+    // The pack always carries the client's own record, so client read is the floor.
+    // Everything past that is gated per section in resolveClientPackSections() - a
+    // role missing one module loses that section, not the whole export.
+    enforceUserPermission('module_client');
 
-    $sql = mysqli_query($mysqli, "SELECT * FROM companies, settings WHERE companies.company_id = settings.company_id AND companies.company_id = 1");
+    $client_id = intval($_POST["client_id"]);
+    enforceClientAccess();
+
+    $pack = resolveClientPackSections();
+
+    $sql = mysqli_query($mysqli, "SELECT company_email, company_logo, company_name, company_phone, company_phone_country_code,
+        company_website FROM companies, settings WHERE companies.company_id = settings.company_id AND companies.company_id = 1");
     $row = mysqli_fetch_assoc($sql);
     $company_name = escapeHtml($row['company_name']);
     $company_phone_country_code = escapeHtml($row['company_phone_country_code']);
@@ -1189,30 +1194,6 @@ if (isset($_POST["export_client_pdf"])) {
     $company_email = escapeHtml($row['company_email']);
     $company_website = escapeHtml($row['company_website']);
     $company_logo = escapeHtml($row['company_logo']);
-
-    $client_id = intval($_POST["client_id"]);
-    $export_contacts = intval($_POST["export_contacts"]);
-    $export_locations = intval($_POST["export_locations"]);
-    $export_assets = intval($_POST["export_assets"]);
-    $export_software = intval($_POST["export_software"]);
-    $export_credentials = 0;
-    if (lookupUserPermission("module_credential") >= 1) {
-        $export_credentials = intval($_POST["export_credentials"] ?? 0);
-    }
-    $export_networks = intval($_POST["export_networks"]);
-    $export_certificates = intval($_POST["export_certificates"]);
-    $export_domains = intval($_POST["export_domains"]);
-    $export_tickets = intval($_POST["export_tickets"]);
-    $export_recurring_tickets = intval($_POST["export_recurring_tickets"]);
-    $export_vendors = intval($_POST["export_vendors"]);
-    $export_invoices = intval($_POST["export_invoices"]);
-    $export_recurring_invoices = intval($_POST["export_recurring_invoices"]);
-    $export_quotes = intval($_POST["export_quotes"]);
-    $export_payments = intval($_POST["export_payments"]);
-    $export_trips = intval($_POST["export_trips"]);
-    $export_logs = intval($_POST["export_logs"]);
-
-    enforceClientAccess();
 
     logAudit("Client", "Export", "$session_name exported client data to a PDF file", $client_id, $client_id);
 
@@ -1240,19 +1221,19 @@ if (isset($_POST["export_client_pdf"])) {
     $client_website = escapeHtml($row["client_website"]);
 
     // Other queries remain unchanged
-    $sql_contacts = mysqli_query($mysqli, "SELECT * FROM contacts WHERE contact_client_id = $client_id AND contact_archived_at IS NULL ORDER BY contact_name ASC");
-    $sql_locations = mysqli_query($mysqli, "SELECT * FROM locations WHERE location_client_id = $client_id AND location_archived_at IS NULL ORDER BY location_name ASC");
-    $sql_vendors = mysqli_query($mysqli, "SELECT * FROM vendors WHERE vendor_client_id = $client_id AND vendor_archived_at IS NULL ORDER BY vendor_name ASC");
-    $sql_credentials = mysqli_query($mysqli, "SELECT * FROM credentials WHERE credential_client_id = $client_id ORDER BY credential_name ASC");
-    $sql_assets = mysqli_query($mysqli, "SELECT * FROM assets
+    $sql_contacts = $pack['contacts'] ? mysqli_query($mysqli, "SELECT * FROM contacts WHERE contact_client_id = $client_id AND contact_archived_at IS NULL ORDER BY contact_name ASC") : false;
+    $sql_locations = $pack['locations'] ? mysqli_query($mysqli, "SELECT * FROM locations WHERE location_client_id = $client_id AND location_archived_at IS NULL ORDER BY location_name ASC") : false;
+    $sql_vendors = $pack['vendors'] ? mysqli_query($mysqli, "SELECT * FROM vendors WHERE vendor_client_id = $client_id AND vendor_archived_at IS NULL ORDER BY vendor_name ASC") : false;
+    $sql_credentials = $pack['credentials'] ? mysqli_query($mysqli, "SELECT * FROM credentials WHERE credential_client_id = $client_id ORDER BY credential_name ASC") : false;
+    $sql_assets = $pack['assets'] ? mysqli_query($mysqli, "SELECT 1 FROM assets
         LEFT JOIN contacts ON asset_contact_id = contact_id
         LEFT JOIN locations ON asset_location_id = location_id
         LEFT JOIN asset_interfaces ON interface_asset_id = asset_id AND interface_primary = 1
         WHERE asset_client_id = $client_id
         AND asset_archived_at IS NULL
         ORDER BY asset_type ASC"
-    );
-    $sql_asset_workstations = mysqli_query($mysqli, "SELECT * FROM assets
+    ) : false;
+    $sql_asset_workstations = $pack['assets'] ? mysqli_query($mysqli, "SELECT * FROM assets
         LEFT JOIN contacts ON asset_contact_id = contact_id
         LEFT JOIN locations ON asset_location_id = location_id
         LEFT JOIN asset_interfaces ON interface_asset_id = asset_id AND interface_primary = 1
@@ -1260,31 +1241,31 @@ if (isset($_POST["export_client_pdf"])) {
         AND (asset_type = 'desktop' OR asset_type = 'laptop')
         AND asset_archived_at IS NULL
         ORDER BY asset_name ASC"
-    );
-    $sql_asset_servers = mysqli_query($mysqli, "SELECT * FROM assets
+    ) : false;
+    $sql_asset_servers = $pack['assets'] ? mysqli_query($mysqli, "SELECT * FROM assets
         LEFT JOIN locations ON asset_location_id = location_id
         LEFT JOIN asset_interfaces ON interface_asset_id = asset_id AND interface_primary = 1
         WHERE asset_client_id = $client_id
         AND asset_type = 'server'
         AND asset_archived_at IS NULL
         ORDER BY asset_name ASC"
-    );
-    $sql_asset_vms = mysqli_query($mysqli, "SELECT * FROM assets
+    ) : false;
+    $sql_asset_vms = $pack['assets'] ? mysqli_query($mysqli, "SELECT * FROM assets
         LEFT JOIN asset_interfaces ON interface_asset_id = asset_id AND interface_primary = 1
         WHERE asset_client_id = $client_id
         AND asset_type = 'virtual machine'
         AND asset_archived_at IS NULL
         ORDER BY asset_name ASC"
-    );
-    $sql_asset_network = mysqli_query($mysqli, "SELECT * FROM assets
+    ) : false;
+    $sql_asset_network = $pack['assets'] ? mysqli_query($mysqli, "SELECT * FROM assets
         LEFT JOIN locations ON asset_location_id = location_id
         LEFT JOIN asset_interfaces ON interface_asset_id = asset_id AND interface_primary = 1
         WHERE asset_client_id = $client_id
         AND (asset_type = 'Firewall/Router' OR asset_type = 'Switch' OR asset_type = 'Access Point')
         AND asset_archived_at IS NULL
         ORDER BY asset_type ASC"
-    );
-    $sql_asset_other = mysqli_query($mysqli, "SELECT * FROM assets
+    ) : false;
+    $sql_asset_other = $pack['assets'] ? mysqli_query($mysqli, "SELECT * FROM assets
         LEFT JOIN contacts ON asset_contact_id = contact_id
         LEFT JOIN locations ON asset_location_id = location_id
         LEFT JOIN asset_interfaces ON interface_asset_id = asset_id AND interface_primary = 1
@@ -1292,13 +1273,13 @@ if (isset($_POST["export_client_pdf"])) {
         AND (asset_type NOT LIKE 'laptop' AND asset_type NOT LIKE 'desktop' AND asset_type NOT LIKE 'server' AND asset_type NOT LIKE 'virtual machine' AND asset_type NOT LIKE 'firewall/router' AND asset_type NOT LIKE 'switch' AND asset_type NOT LIKE 'access point')
         AND asset_archived_at IS NULL
         ORDER BY asset_type ASC"
-    );
-    $sql_networks = mysqli_query($mysqli, "SELECT * FROM networks WHERE network_client_id = $client_id AND network_archived_at IS NULL ORDER BY network_name ASC");
-    $sql_domains = mysqli_query($mysqli, "SELECT * FROM domains WHERE domain_client_id = $client_id AND domain_archived_at IS NULL ORDER BY domain_name ASC");
-    $sql_certficates = mysqli_query($mysqli, "SELECT * FROM certificates WHERE certificate_client_id = $client_id AND certificate_archived_at IS NULL ORDER BY certificate_name ASC");
-    $sql_software = mysqli_query($mysqli, "SELECT * FROM software WHERE software_client_id = $client_id AND software_archived_at IS NULL ORDER BY software_name ASC");
+    ) : false;
+    $sql_networks = $pack['networks'] ? mysqli_query($mysqli, "SELECT * FROM networks WHERE network_client_id = $client_id AND network_archived_at IS NULL ORDER BY network_name ASC") : false;
+    $sql_domains = $pack['domains'] ? mysqli_query($mysqli, "SELECT * FROM domains WHERE domain_client_id = $client_id AND domain_archived_at IS NULL ORDER BY domain_name ASC") : false;
+    $sql_certficates = $pack['certificates'] ? mysqli_query($mysqli, "SELECT * FROM certificates WHERE certificate_client_id = $client_id AND certificate_archived_at IS NULL ORDER BY certificate_name ASC") : false;
+    $sql_software = $pack['software'] ? mysqli_query($mysqli, "SELECT * FROM software WHERE software_client_id = $client_id AND software_archived_at IS NULL ORDER BY software_name ASC") : false;
 
-    $sql_user_licenses = mysqli_query($mysqli, "
+    $sql_user_licenses = $pack['software'] ? mysqli_query($mysqli, "
         SELECT
             contact_name,
             software_name
@@ -1314,9 +1295,9 @@ if (isset($_POST["export_client_pdf"])) {
         AND contact_client_id = $client_id
         ORDER BY
             contact_name, software_name;"
-    );
+    ) : false;
 
-    $sql_asset_licenses = mysqli_query($mysqli, "
+    $sql_asset_licenses = $pack['software'] ? mysqli_query($mysqli, "
         SELECT
             asset_name,
             software_name
@@ -1332,7 +1313,7 @@ if (isset($_POST["export_client_pdf"])) {
         AND asset_client_id = $client_id
         ORDER BY
             asset_name, software_name;"
-    );
+    ) : false;
 
     require_once("../libs/TCPDF/tcpdf.php");
 
@@ -1425,7 +1406,7 @@ if (isset($_POST["export_client_pdf"])) {
     // Add bookmarks and TOC entries for each major section:
 
     // Contacts Section
-    if (mysqli_num_rows($sql_contacts) > 0 && $export_contacts == 1) {
+    if ($pack['contacts'] == 1 && mysqli_num_rows($sql_contacts) > 0) {
         $pdf->Bookmark("Contacts", 0, 0, "", "B", array(0,0,0));
         $html .= "
         <h2 class='section-title'>Contacts</h2>
@@ -1470,7 +1451,7 @@ if (isset($_POST["export_client_pdf"])) {
     }
 
     // Locations Section
-    if (mysqli_num_rows($sql_locations) > 0 && $export_locations == 1) {
+    if ($pack['locations'] == 1 && mysqli_num_rows($sql_locations) > 0) {
         $pdf->Bookmark("Locations", 0, 0, "", "B", array(0,0,0));
         $html .= "
         <h2 class='section-title'>Locations</h2>
@@ -1505,7 +1486,7 @@ if (isset($_POST["export_client_pdf"])) {
     }
 
     // Vendors Section
-    if (mysqli_num_rows($sql_vendors) > 0 && $export_vendors == 1) {
+    if ($pack['vendors'] == 1 && mysqli_num_rows($sql_vendors) > 0) {
         $pdf->Bookmark("Vendors", 0, 0, "", "B", array(0,0,0));
         $html .= "
         <h2 class='section-title'>Vendors</h2>
@@ -1542,7 +1523,7 @@ if (isset($_POST["export_client_pdf"])) {
     }
 
     // Credentials Section
-    if (mysqli_num_rows($sql_credentials) > 0 && $export_credentials == 1) {
+    if ($pack['credentials'] == 1 && mysqli_num_rows($sql_credentials) > 0) {
         $pdf->Bookmark("Credentials", 0, 0, "", "B", array(0,0,0));
         $html .= "
         <h2 class='section-title'>Credentials</h2>
@@ -1581,14 +1562,14 @@ if (isset($_POST["export_client_pdf"])) {
     }
 
     // Assets Section Header
-    if (mysqli_num_rows($sql_assets) > 0 && $export_assets == 1) {
+    if ($pack['assets'] == 1 && mysqli_num_rows($sql_assets) > 0) {
         $pdf->Bookmark("Assets", 0, 0, "", "B", array(0,0,0));
         $html .= "
         <h2 class='section-title'>Assets</h2>";
     }
 
     // Workstations
-    if (mysqli_num_rows($sql_asset_workstations) > 0 && $export_assets == 1) {
+    if ($pack['assets'] == 1 && mysqli_num_rows($sql_asset_workstations) > 0) {
         $pdf->Bookmark("Workstations", 1, 0, "", "", array(0,0,0));
         $html .= "
         <h3 class='subsection-title'>Workstations</h3>
@@ -1640,7 +1621,7 @@ if (isset($_POST["export_client_pdf"])) {
     }
 
     // Servers
-    if (mysqli_num_rows($sql_asset_servers) > 0 && $export_assets == 1) {
+    if ($pack['assets'] == 1 && mysqli_num_rows($sql_asset_servers) > 0) {
         $pdf->Bookmark("Servers", 1, 0, "", "", array(0,0,0));
         $html .= "
         <h3 class='subsection-title'>Servers</h3>
@@ -1689,7 +1670,7 @@ if (isset($_POST["export_client_pdf"])) {
     }
 
     // Virtual Machines
-    if (mysqli_num_rows($sql_asset_vms) > 0 && $export_assets == 1) {
+    if ($pack['assets'] == 1 && mysqli_num_rows($sql_asset_vms) > 0) {
         $pdf->Bookmark("Virtual Machines", 1, 0, "", "", array(0,0,0));
         $html .= "
         <h3 class='subsection-title'>Virtual Machines</h3>
@@ -1722,7 +1703,7 @@ if (isset($_POST["export_client_pdf"])) {
     }
 
     // Network Devices
-    if (mysqli_num_rows($sql_asset_network) > 0 && $export_assets == 1) {
+    if ($pack['assets'] == 1 && mysqli_num_rows($sql_asset_network) > 0) {
         $pdf->Bookmark("Network Devices", 1, 0, "", "", array(0,0,0));
         $html .= "
         <h3 class='subsection-title'>Network Devices</h3>
@@ -1771,7 +1752,7 @@ if (isset($_POST["export_client_pdf"])) {
     }
 
     // Other Devices
-    if (mysqli_num_rows($sql_asset_other) > 0 && $export_assets == 1) {
+    if ($pack['assets'] == 1 && mysqli_num_rows($sql_asset_other) > 0) {
         $pdf->Bookmark("Other Devices", 1, 0, "", "", array(0,0,0));
         $html .= "
         <h3 class='subsection-title'>Other Devices</h3>
@@ -1820,7 +1801,7 @@ if (isset($_POST["export_client_pdf"])) {
     }
 
     // Software Section
-    if (mysqli_num_rows($sql_software) > 0 && $export_software == 1) {
+    if ($pack['software'] == 1 && mysqli_num_rows($sql_software) > 0) {
         $pdf->Bookmark("Software", 0, 0, "", "B", array(0,0,0));
         $html .= "
         <h2 class='section-title'>Software</h2>
@@ -1862,7 +1843,7 @@ if (isset($_POST["export_client_pdf"])) {
     }
 
     // User Assigned Software Licenses
-    if (mysqli_num_rows($sql_user_licenses) > 0 && $export_software == 1) {
+    if ($pack['software'] == 1 && mysqli_num_rows($sql_user_licenses) > 0) {
         $pdf->Bookmark("User Assigned Licenses", 0, 0, "", "B", array(0,0,0));
         $html .= "
         <h2 class='section-title'>User Assigned Licenses</h2>
@@ -1889,7 +1870,7 @@ if (isset($_POST["export_client_pdf"])) {
     }
 
     // Asset Assigned Software Licenses
-    if (mysqli_num_rows($sql_asset_licenses) > 0 && $export_software == 1) {
+    if ($pack['software'] == 1 && mysqli_num_rows($sql_asset_licenses) > 0) {
         $pdf->Bookmark("Asset Assigned Licenses", 0, 0, "", "B", array(0,0,0));
         $html .= "
         <h2 class='section-title'>Asset Assigned Licenses</h2>
@@ -1916,7 +1897,7 @@ if (isset($_POST["export_client_pdf"])) {
     }
 
     // Networks Section
-    if (mysqli_num_rows($sql_networks) > 0 && $export_networks == 1) {
+    if ($pack['networks'] == 1 && mysqli_num_rows($sql_networks) > 0) {
         $pdf->Bookmark("Networks", 0, 0, "", "B", array(0,0,0));
         $html .= "
         <h2 class='section-title'>Networks</h2>
@@ -1952,7 +1933,7 @@ if (isset($_POST["export_client_pdf"])) {
     }
 
     // Domains Section
-    if (mysqli_num_rows($sql_domains) > 0 && $export_domains == 1) {
+    if ($pack['domains'] == 1 && mysqli_num_rows($sql_domains) > 0) {
         $pdf->Bookmark("Domains", 0, 0, "", "B", array(0,0,0));
         $html .= "
         <h2 class='section-title'>Domains</h2>
@@ -1979,7 +1960,7 @@ if (isset($_POST["export_client_pdf"])) {
     }
 
     // Certificates Section
-    if (mysqli_num_rows($sql_certficates) > 0 && $export_certificates == 1) {
+    if ($pack['certificates'] == 1 && mysqli_num_rows($sql_certficates) > 0) {
         $pdf->Bookmark("Certificates", 0, 0, "", "B", array(0,0,0));
         $html .= "
         <h2 class='section-title'>Certificates</h2>

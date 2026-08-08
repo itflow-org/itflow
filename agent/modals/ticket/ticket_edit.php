@@ -4,18 +4,15 @@ require_once '../../../includes/modal_header.php';
 
 enforceUserPermission('module_support', 2);
 
-// Ticket client access overide - This is the only way to show tickets without a client to agents with restricted client access
-$access_permission_query_overide = '';
-if ($client_access_string) {
-    $access_permission_query_overide .= " AND ticket_client_id IN (0,$client_access_string)";
-}
-if ($client_deny_string) {
-    $access_permission_query_overide .= " AND ticket_client_id NOT IN ($client_deny_string)";
-}
+// Tickets with no client stay visible to restricted agents - clientScopeSql() includes 0
+$access_permission_query_overide = clientScopeSql('ticket_client_id');
 
 $ticket_id = intval($_GET['id']);
 
-$sql = mysqli_query($mysqli, "SELECT * FROM tickets LEFT JOIN clients ON client_id = ticket_client_id WHERE ticket_id = $ticket_id $access_permission_query_overide LIMIT 1");
+$sql = mysqli_query($mysqli, "SELECT client_id, client_name, ticket_asset_id, ticket_assigned_to, ticket_billable,
+    ticket_category, ticket_contact_id, ticket_created_at, ticket_details, ticket_due_at,
+    ticket_location_id, ticket_number, ticket_prefix, ticket_priority, ticket_project_id,
+    ticket_subject, ticket_vendor_id, ticket_vendor_ticket_number FROM tickets LEFT JOIN clients ON client_id = ticket_client_id WHERE ticket_id = $ticket_id $access_permission_query_overide LIMIT 1");
 
 $row = mysqli_fetch_assoc($sql);
 $client_id = intval($row['client_id']);

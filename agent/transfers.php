@@ -182,7 +182,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                         $expense_id = intval($row['transfer_expense_id']);
                         $revenue_id = intval($row['transfer_revenue_id']);
 
-                        $sql_from = mysqli_query($mysqli, "SELECT * FROM accounts WHERE account_id = $transfer_account_from");
+                        $sql_from = mysqli_query($mysqli, "SELECT account_archived_at, account_name FROM accounts WHERE account_id = $transfer_account_from");
                         $row = mysqli_fetch_assoc($sql_from);
                         $account_name_from = escapeHtml($row['account_name']);
                         $account_from_archived_at = escapeHtml($row['account_archived_at']);
@@ -192,7 +192,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                             $account_from_archived_display = "Archived - ";
                         }
 
-                        $sql_to = mysqli_query($mysqli, "SELECT * FROM accounts WHERE account_id = $transfer_account_to");
+                        $sql_to = mysqli_query($mysqli, "SELECT account_archived_at, account_name FROM accounts WHERE account_id = $transfer_account_to");
                         $row = mysqli_fetch_assoc($sql_to);
                         $account_name_to = escapeHtml($row['account_name']);
                         $account_to_archived_at = escapeHtml($row['account_archived_at']);

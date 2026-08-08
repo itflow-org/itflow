@@ -1,7 +1,37 @@
 <?php
 
 // Query Settings
-$sql_settings = mysqli_query($mysqli, "SELECT * FROM settings WHERE company_id = 1");
+$sql_settings = mysqli_query($mysqli, "SELECT config_azure_client_id, config_azure_client_secret, config_client_portal_enable,
+    config_current_database_version, config_default_calendar, config_default_expense_account,
+    config_default_expense_payment_method, config_default_hourly_rate,
+    config_default_net_terms, config_default_payment_account, config_default_payment_method,
+    config_default_transfer_from_account, config_default_transfer_to_account,
+    config_destructive_deletes_enable, config_enable_alert_domain_expire, config_enable_cron,
+    config_imap_encryption, config_imap_host, config_imap_password, config_imap_port,
+    config_imap_provider, config_imap_username, config_invoice_footer,
+    config_invoice_from_email, config_invoice_from_name, config_invoice_late_fee_enable,
+    config_invoice_late_fee_percent, config_invoice_next_number,
+    config_invoice_paid_notification_email, config_invoice_prefix, config_invoice_show_tax_id,
+    config_log_retention, config_login_key_required, config_login_key_secret,
+    config_login_message, config_login_remember_me_expire, config_mail_from_email,
+    config_mail_from_name, config_mail_oauth_access_token,
+    config_mail_oauth_access_token_expires_at, config_mail_oauth_client_id,
+    config_mail_oauth_client_secret, config_mail_oauth_refresh_token,
+    config_mail_oauth_tenant_id, config_module_enable_accounting, config_module_enable_itdoc,
+    config_module_enable_ticketing, config_project_next_number, config_project_prefix,
+    config_quote_footer, config_quote_from_email, config_quote_from_name,
+    config_quote_next_number, config_quote_notification_email, config_quote_prefix,
+    config_recurring_auto_send_invoice, config_recurring_invoice_next_number,
+    config_recurring_invoice_prefix, config_send_invoice_reminders, config_smtp_encryption,
+    config_smtp_host, config_smtp_password, config_smtp_port, config_smtp_provider,
+    config_smtp_username, config_start_page, config_telemetry, config_theme,
+    config_ticket_autoclose_hours, config_ticket_client_general_notifications,
+    config_ticket_default_billable, config_ticket_default_view, config_ticket_email_parse,
+    config_ticket_email_parse_unknown_senders, config_ticket_from_email,
+    config_ticket_from_name, config_ticket_moving_columns,
+    config_ticket_new_ticket_notification_email, config_ticket_next_number,
+    config_ticket_ordering, config_ticket_prefix, config_ticket_timer_autostart,
+    config_timezone, config_whitelabel_enabled, config_whitelabel_key FROM settings WHERE company_id = 1");
 $row = mysqli_fetch_assoc($sql_settings);
 
 // Database version

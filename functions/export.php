@@ -349,6 +349,17 @@ function resolveExportFormat($format) {
 }
 
 /*
+ * The gate every export handler opens on. Keying on isset() alone means any other
+ * field that happens to share the trigger's name fires the export - the client PDF
+ * pack's section checkboxes (export_assets=1, export_contacts=1, ...) did exactly
+ * that, and since post.php loads every handler, the first match won and streamed a
+ * CSV instead. Only 'csv' or 'pdf' - what renderExportButtons() posts - counts.
+ */
+function isExportRequest($trigger) {
+    return isset($_POST[$trigger]) && in_array($_POST[$trigger], ['csv', 'pdf'], true);
+}
+
+/*
  * PDF is capped - see EXPORT_PDF_MAX_ROWS. Call this after the row count is known
  * and before beginExport(); it redirects rather than returning on refusal.
  */
@@ -796,4 +807,108 @@ function finishExport(&$export) {
     $pdf->Output($export['filename'], 'D');
 
     return $export['rows'];
+}
+
+/*
+ * ---------------------------------------------------------------------------
+ * Client PDF pack
+ * ---------------------------------------------------------------------------
+ *
+ * The sections the client "Export Data" PDF can contain, in document order.
+ *
+ *   'label'   Checkbox label in the export modal.
+ *   'icon'    Font Awesome class shown beside it.
+ *   'module'  Permission module that owns the section - same mapping the list
+ *             exports use. A role without read access to it never sees the
+ *             checkbox and never gets the section, so one missing module drops a
+ *             section rather than refusing the whole export.
+ *   'default' Whether the box starts ticked.
+ *
+ * The modal renders from this and the handler resolves from it, so a section
+ * can't be offered by one and ignored by the other.
+ */
+function getClientPackSections() {
+    return [
+        'contacts'     => ['label' => 'Contacts',            'icon' => 'fa-users',          'module' => 'module_client',     'default' => true],
+        'locations'    => ['label' => 'Locations',           'icon' => 'fa-map-marker-alt', 'module' => 'module_client',     'default' => true],
+        'vendors'      => ['label' => 'Vendors',             'icon' => 'fa-building',       'module' => 'module_client',     'default' => true],
+        'credentials'  => ['label' => 'Credentials',         'icon' => 'fa-key',            'module' => 'module_credential', 'default' => false],
+        'assets'       => ['label' => 'Assets',              'icon' => 'fa-desktop',        'module' => 'module_support',    'default' => true],
+        'software'     => ['label' => 'Software / Licenses', 'icon' => 'fa-cube',           'module' => 'module_support',    'default' => true],
+        'networks'     => ['label' => 'Networks',            'icon' => 'fa-network-wired',  'module' => 'module_support',    'default' => true],
+        'domains'      => ['label' => 'Domains',             'icon' => 'fa-globe',          'module' => 'module_support',    'default' => true],
+        'certificates' => ['label' => 'Certificates',        'icon' => 'fa-lock',           'module' => 'module_support',    'default' => true],
+    ];
+}
+
+/*
+ * Read access per module, resolved once rather than once per section.
+ */
+function getClientPackSectionAccess() {
+    $access = [];
+    foreach (getClientPackSections() as $section) {
+        if (!isset($access[$section['module']])) {
+            $access[$section['module']] = lookupUserPermission($section['module']) >= 1;
+        }
+    }
+    return $access;
+}
+
+/*
+ * Resolves the posted checkboxes against the signed-in role. Returns
+ * ['contacts' => 1|0, ...]. A section the role can't read is 0 whatever was
+ * posted, so a hand-rolled POST can't pull in a section the modal never offered.
+ */
+function resolveClientPackSections() {
+
+    $access = getClientPackSectionAccess();
+
+    $selected = [];
+    foreach (getClientPackSections() as $key => $section) {
+        $selected[$key] = ($access[$section['module']] && !empty($_POST["include_$key"])) ? 1 : 0;
+    }
+
+    return $selected;
+}
+
+/*
+ * The section checkboxes for the client PDF pack modal, split across two columns.
+ * Sections the role can't read are left out entirely rather than shown and then
+ * silently dropped server side.
+ */
+function renderClientPackSections() {
+
+    $access = getClientPackSectionAccess();
+
+    $visible = [];
+    foreach (getClientPackSections() as $key => $section) {
+        if ($access[$section['module']]) {
+            $visible[$key] = $section;
+        }
+    }
+
+    $split = (int) ceil(count($visible) / 2);
+    $index = 0;
+
+    ?>
+    <div class="row">
+        <div class="col-sm-6">
+        <?php foreach ($visible as $key => $section) { ?>
+            <?php if ($index === $split) { ?>
+        </div>
+        <div class="col-sm-6">
+            <?php } ?>
+            <li class="list-group-item">
+                <div class="custom-control custom-checkbox">
+                    <input class="custom-control-input" type="checkbox" id="include_<?= $key ?>" name="include_<?= $key ?>" value="1" <?php if ($section['default']) { echo 'checked'; } ?>>
+                    <label for="include_<?= $key ?>" class="custom-control-label">
+                        <i class="fas fa-fw <?= $section['icon'] ?> mr-2"></i><?= escapeHtml($section['label']) ?>
+                    </label>
+                </div>
+            </li>
+            <?php $index++; ?>
+        <?php } ?>
+        </div>
+    </div>
+    <?php
 }

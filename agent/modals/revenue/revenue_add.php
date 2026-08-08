@@ -51,7 +51,7 @@ ob_start();
                         <option value="">- Account -</option>
                         <?php
 
-                        $sql = mysqli_query($mysqli, "SELECT * FROM accounts WHERE account_archived_at IS NULL ORDER BY account_name ASC");
+                        $sql = mysqli_query($mysqli, "SELECT account_currency_code, account_id, account_name, opening_balance FROM accounts WHERE account_archived_at IS NULL ORDER BY account_name ASC");
                         while ($row = mysqli_fetch_assoc($sql)) {
                             $account_id = intval($row['account_id']);
                             $account_name = escapeHtml($row['account_name']);
@@ -92,7 +92,7 @@ ob_start();
                         <option value="">- Category -</option>
                         <?php
 
-                        $sql = mysqli_query($mysqli, "SELECT * FROM categories WHERE category_type = 'Income' AND category_archived_at IS NULL ORDER BY category_name ASC");
+                        $sql = mysqli_query($mysqli, "SELECT category_id, category_name FROM categories WHERE category_type = 'Income' AND category_archived_at IS NULL ORDER BY category_name ASC");
                         while ($row = mysqli_fetch_assoc($sql)) {
                             $category_id = intval($row['category_id']);
                             $category_name = escapeHtml($row['category_name']);
@@ -131,7 +131,7 @@ ob_start();
                         <option value="">- Method of Payment -</option>
                         <?php
 
-                        $sql = mysqli_query($mysqli, "SELECT * FROM payment_methods ORDER BY payment_method_name ASC");
+                        $sql = mysqli_query($mysqli, "SELECT payment_method_name FROM payment_methods ORDER BY payment_method_name ASC");
                         while ($row = mysqli_fetch_assoc($sql)) {
                             $payment_method_name = escapeHtml($row['payment_method_name']);
                             ?>

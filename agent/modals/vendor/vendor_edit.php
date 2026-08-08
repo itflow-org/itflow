@@ -6,7 +6,10 @@ enforceUserPermission('module_client', 2);
 
 $vendor_id = intval($_GET['id']);
 
-$sql = mysqli_query($mysqli, "SELECT * FROM vendors WHERE vendor_id = $vendor_id LIMIT 1");
+$sql = mysqli_query($mysqli, "SELECT vendor_account_number, vendor_client_id, vendor_code, vendor_contact_name,
+    vendor_description, vendor_email, vendor_extension, vendor_hours, vendor_name,
+    vendor_notes, vendor_phone, vendor_phone_country_code, vendor_sla, vendor_template_id,
+    vendor_website FROM vendors WHERE vendor_id = $vendor_id LIMIT 1");
 
 $row = mysqli_fetch_assoc($sql);
 $vendor_name = escapeHtml($row['vendor_name']);
@@ -112,7 +115,7 @@ ob_start();
                             <option value="0">- None -</option>
                             <?php
 
-                            $sql_vendor_templates = mysqli_query($mysqli, "SELECT * FROM vendor_templates WHERE vendor_template_archived_at IS NULL ORDER BY vendor_template_name ASC");
+                            $sql_vendor_templates = mysqli_query($mysqli, "SELECT vendor_template_id, vendor_template_name FROM vendor_templates WHERE vendor_template_archived_at IS NULL ORDER BY vendor_template_name ASC");
                             while ($row = mysqli_fetch_assoc($sql_vendor_templates)) {
                                 $vendor_template_id_select = $row['vendor_template_id'];
                                 $vendor_template_name_select = escapeHtml($row['vendor_template_name']); ?>

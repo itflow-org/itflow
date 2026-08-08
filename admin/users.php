@@ -8,7 +8,8 @@ require_once "includes/inc_all_admin.php";
 
 $sql = mysqli_query(
     $mysqli,
-    "SELECT SQL_CALC_FOUND_ROWS * FROM users
+    "SELECT SQL_CALC_FOUND_ROWS role_name, user_archived_at, user_avatar, user_config_force_mfa, user_email,
+        user_settings.user_id, user_name, user_role_id, user_status, user_token FROM users
     LEFT JOIN user_roles ON user_role_id = role_id
     LEFT JOIN user_settings ON users.user_id = user_settings.user_id
     WHERE (user_name LIKE '%$q%' OR user_email LIKE '%$q%')
@@ -132,7 +133,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 
                     $sql_last_login = mysqli_query(
                         $mysqli,
-                        "SELECT * FROM logs
+                        "SELECT log_created_at, log_ip, log_user_agent FROM logs
                         WHERE log_user_id = $user_id AND log_type = 'Login'
                         ORDER BY log_id DESC LIMIT 1"
                     );
@@ -155,7 +156,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                         $client_access_array[] = intval($row['client_id']);
                     }
 
-                    $sql_remember_tokens = mysqli_query($mysqli, "SELECT * FROM remember_tokens WHERE remember_token_user_id = $user_id");
+                    $sql_remember_tokens = mysqli_query($mysqli, "SELECT 1 FROM remember_tokens WHERE remember_token_user_id = $user_id");
                     $remember_token_count = mysqli_num_rows($sql_remember_tokens);
 
 

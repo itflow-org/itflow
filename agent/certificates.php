@@ -61,11 +61,13 @@ if (!$client_url) {
     }
 }
 
-$sql = mysqli_query($mysqli, "SELECT SQL_CALC_FOUND_ROWS * FROM certificates
+$sql = mysqli_query($mysqli, "SELECT SQL_CALC_FOUND_ROWS certificate_archived_at, certificate_created_at, certificate_description,
+    certificate_domain, certificate_expire, certificate_id, certificate_issued_by,
+    certificate_name, client_id, client_name FROM certificates
     LEFT JOIN clients ON client_id = certificate_client_id
     WHERE $archive_query
     AND (certificate_name LIKE '%$q%' OR certificate_domain LIKE '%$q%' OR certificate_description LIKE '%$q%' OR certificate_issued_by LIKE '%$q%' OR client_name LIKE '%$q%')
-    $access_permission_query
+    " . clientScopeSql('certificate_client_id') . "
     $client_query
     $expire_query
     ORDER BY $sort $order LIMIT $record_from, $record_to"
@@ -122,7 +124,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                 FROM clients
                                 JOIN certificates ON certificate_client_id = client_id
                                 WHERE $archive_query
-                                $access_permission_query
+                                " . clientScopeSql('clients.client_id') . "
                                 ORDER BY client_name ASC
                             ");
                             while ($row = mysqli_fetch_assoc($sql_clients_filter)) {

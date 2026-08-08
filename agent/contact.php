@@ -14,7 +14,11 @@ if (isset($_GET['client_id'])) {
 if (isset($_GET['contact_id'])) {
     $contact_id = intval($_GET['contact_id']);
 
-    $sql = mysqli_query($mysqli, "SELECT * FROM contacts
+    $sql = mysqli_query($mysqli, "SELECT client_id, client_name, contact_billing, contact_client_id, contact_created_at,
+        contact_department, contact_email, contact_extension, contact_important,
+        contact_location_id, contact_mobile, contact_mobile_country_code, contact_name,
+        contact_notes, contact_phone, contact_phone_country_code, contact_photo, contact_pin,
+        contact_primary, contact_technical, contact_title, location_name, user_auth_method FROM contacts
         LEFT JOIN clients ON client_id = contact_client_id
         LEFT JOIN locations ON location_id = contact_location_id
         LEFT JOIN users ON user_id = contact_user_id
@@ -64,7 +68,11 @@ if (isset($_GET['contact_id'])) {
     }
 
     // Related Assets Query - 1 to 1 relationship
-    $sql_related_assets = mysqli_query($mysqli, "SELECT * FROM assets
+    $sql_related_assets = mysqli_query($mysqli, "SELECT asset_created_at, asset_description, asset_favorite, asset_id, asset_install_date,
+        asset_make, asset_model, asset_name, asset_notes, asset_os, asset_photo,
+        asset_physical_location, asset_purchase_date, asset_serial, asset_status, asset_type,
+        asset_uri, asset_uri_2, asset_warranty_expire, interface_ip, interface_ipv6, interface_mac,
+        interface_nat_ip, tag_color, tag_icon, tag_id, tag_name FROM assets
         LEFT JOIN asset_interfaces ON interface_asset_id = asset_id AND interface_primary = 1
         LEFT JOIN asset_tags ON asset_tag_asset_id = asset_id
         LEFT JOIN tags ON tag_id = asset_tag_tag_id
@@ -75,7 +83,9 @@ if (isset($_GET['contact_id'])) {
     $asset_count = mysqli_num_rows($sql_related_assets);
 
     // Linked Software Licenses
-    $sql_linked_software = mysqli_query($mysqli, "SELECT * FROM software_contacts, software
+    $sql_linked_software = mysqli_query($mysqli, "SELECT software_expire, software_contacts.software_id, software_key, software_license_type,
+        software_name, software_notes, software_purchase, software_seats, software_type,
+        software_version FROM software_contacts, software
         WHERE software_contacts.contact_id = $contact_id
         AND software_contacts.software_id = software.software_id
         AND software_archived_at IS NULL
@@ -102,14 +112,17 @@ if (isset($_GET['contact_id'])) {
     $credential_count = mysqli_num_rows($sql_related_credentials);
 
     // Related Tickets Query - 1 to 1 relationship
-    $sql_related_tickets = mysqli_query($mysqli, "SELECT * FROM tickets
+    $sql_related_tickets = mysqli_query($mysqli, "SELECT ticket_assigned_to, ticket_closed_at, ticket_created_at, ticket_id, ticket_number,
+        ticket_prefix, ticket_priority, ticket_status, ticket_status_color, ticket_status_name,
+        ticket_subject, ticket_updated_at, user_name FROM tickets
         LEFT JOIN users ON ticket_assigned_to = user_id
         LEFT JOIN ticket_statuses ON ticket_status = ticket_status_id
         WHERE ticket_contact_id = $contact_id ORDER BY ticket_id DESC");
     $ticket_count = mysqli_num_rows($sql_related_tickets);
 
     // Related Recurring Tickets Query
-    $sql_related_recurring_tickets = mysqli_query($mysqli, "SELECT * FROM recurring_tickets
+    $sql_related_recurring_tickets = mysqli_query($mysqli, "SELECT recurring_ticket_frequency, recurring_ticket_id, recurring_ticket_next_run,
+        recurring_ticket_priority, recurring_ticket_subject FROM recurring_tickets
         WHERE recurring_ticket_contact_id = $contact_id
         ORDER BY recurring_ticket_next_run DESC"
     );
@@ -119,7 +132,7 @@ if (isset($_GET['contact_id'])) {
     // Tags - many to many relationship
     $contact_tag_name_display_array = array();
     $contact_tag_id_array = array();
-    $sql_contact_tags = mysqli_query($mysqli, "SELECT * FROM contact_tags LEFT JOIN tags ON contact_tags.tag_id = tags.tag_id WHERE contact_id = $contact_id ORDER BY tag_name ASC");
+    $sql_contact_tags = mysqli_query($mysqli, "SELECT tag_color, tag_icon, contact_tags.tag_id, tag_name FROM contact_tags LEFT JOIN tags ON contact_tags.tag_id = tags.tag_id WHERE contact_id = $contact_id ORDER BY tag_name ASC");
     while ($row = mysqli_fetch_assoc($sql_contact_tags)) {
 
         $contact_tag_id = intval($row['tag_id']);
@@ -139,7 +152,7 @@ if (isset($_GET['contact_id'])) {
     $contact_tags_display = implode('', $contact_tag_name_display_array);
 
     // Notes - 1 to 1 relationship
-    $sql_related_notes = mysqli_query($mysqli, "SELECT * FROM contact_notes LEFT JOIN users ON contact_note_created_by = user_id WHERE contact_note_contact_id = $contact_id AND contact_note_archived_at IS NULL ORDER BY contact_note_created_at DESC");
+    $sql_related_notes = mysqli_query($mysqli, "SELECT contact_note, contact_note_created_at, contact_note_id, contact_note_type, user_name FROM contact_notes LEFT JOIN users ON contact_note_created_by = user_id WHERE contact_note_contact_id = $contact_id AND contact_note_archived_at IS NULL ORDER BY contact_note_created_at DESC");
     $note_count = mysqli_num_rows($sql_related_notes);
 
     // Note type icons, read from the categories list so the seeded icons
@@ -151,7 +164,8 @@ if (isset($_GET['contact_id'])) {
     }
 
      // Linked Services
-    $sql_linked_services = mysqli_query($mysqli, "SELECT * FROM service_contacts, services
+    $sql_linked_services = mysqli_query($mysqli, "SELECT service_category, service_description, service_contacts.service_id, service_importance,
+        service_name FROM service_contacts, services
         WHERE service_contacts.contact_id = $contact_id
         AND service_contacts.service_id = services.service_id
         ORDER BY service_name ASC"
@@ -161,7 +175,8 @@ if (isset($_GET['contact_id'])) {
     $linked_services = array();
 
     // Linked Documents
-    $sql_linked_documents = mysqli_query($mysqli, "SELECT * FROM contact_documents, documents
+    $sql_linked_documents = mysqli_query($mysqli, "SELECT document_created_at, document_description, documents.document_id, document_name,
+        document_updated_at, user_name FROM contact_documents, documents
         LEFT JOIN users ON document_created_by = user_id
         WHERE contact_documents.contact_id = $contact_id
         AND contact_documents.document_id = documents.document_id
@@ -173,7 +188,7 @@ if (isset($_GET['contact_id'])) {
     $linked_documents = array();
 
     // Linked Files
-    $sql_linked_files = mysqli_query($mysqli, "SELECT * FROM contact_files, files
+    $sql_linked_files = mysqli_query($mysqli, "SELECT file_created_at, file_description, files.file_id, file_mime_type, file_name, file_size FROM contact_files, files
         WHERE contact_files.contact_id = $contact_id
         AND contact_files.file_id = files.file_id
         AND file_archived_at IS NULL
@@ -420,7 +435,7 @@ if (isset($_GET['contact_id'])) {
                                 // Tags
                                 $asset_tag_name_display_array = array();
                                 $asset_tag_id_array = array();
-                                $sql_asset_tags = mysqli_query($mysqli, "SELECT * FROM asset_tags LEFT JOIN tags ON asset_tag_tag_id = tag_id WHERE asset_tag_asset_id = $asset_id ORDER BY tag_name ASC");
+                                $sql_asset_tags = mysqli_query($mysqli, "SELECT tag_color, tag_icon, tag_id, tag_name FROM asset_tags LEFT JOIN tags ON asset_tag_tag_id = tag_id WHERE asset_tag_asset_id = $asset_id ORDER BY tag_name ASC");
                                 while ($row = mysqli_fetch_assoc($sql_asset_tags)) {
 
                                     $asset_tag_id = intval($row['tag_id']);
@@ -574,7 +589,7 @@ if (isset($_GET['contact_id'])) {
                                 // Tags
                                 $credential_tag_name_display_array = array();
                                 $credential_tag_id_array = array();
-                                $sql_credential_tags = mysqli_query($mysqli, "SELECT * FROM credential_tags LEFT JOIN tags ON credential_tags.tag_id = tags.tag_id WHERE credential_id = $credential_id ORDER BY tag_name ASC");
+                                $sql_credential_tags = mysqli_query($mysqli, "SELECT tag_color, tag_icon, credential_tags.tag_id, tag_name FROM credential_tags LEFT JOIN tags ON credential_tags.tag_id = tags.tag_id WHERE credential_id = $credential_id ORDER BY tag_name ASC");
                                 while ($row = mysqli_fetch_assoc($sql_credential_tags)) {
 
                                     $credential_tag_id = intval($row['tag_id']);

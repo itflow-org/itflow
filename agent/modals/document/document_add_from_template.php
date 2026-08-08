@@ -35,7 +35,7 @@ ob_start();
                 <select class="form-control" name="document_template_id" required>
                     <option value="">- Select Template -</option>
                     <?php
-                    $sql_document_templates = mysqli_query($mysqli, "SELECT * FROM document_templates WHERE document_template_archived_at IS NULL ORDER BY document_template_name ASC");
+                    $sql_document_templates = mysqli_query($mysqli, "SELECT document_template_id, document_template_name FROM document_templates WHERE document_template_archived_at IS NULL ORDER BY document_template_name ASC");
                     while ($row = mysqli_fetch_assoc($sql_document_templates)) {
                         $document_template_id = intval($row['document_template_id']);
                         $document_template_name = escapeHtml($row['document_template_name']);
@@ -77,7 +77,7 @@ ob_start();
                 <select class="form-control" name="folder">
                     <option value="0">/</option>
                     <?php
-                    $sql_folders = mysqli_query($mysqli, "SELECT * FROM folders WHERE folder_client_id = $client_id ORDER BY folder_name ASC");
+                    $sql_folders = mysqli_query($mysqli, "SELECT folder_id, folder_name FROM folders WHERE folder_client_id = $client_id ORDER BY folder_name ASC");
                     while ($row = mysqli_fetch_assoc($sql_folders)) {
                         $folder_id = intval($row['folder_id']);
                         $folder_name = escapeHtml($row['folder_name']);

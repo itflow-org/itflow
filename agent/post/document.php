@@ -70,7 +70,7 @@ if (isset($_POST['add_document_from_template'])) {
     // Get template
     $sql_document = mysqli_query(
         $mysqli,
-        "SELECT * FROM document_templates
+        "SELECT document_template_content, document_template_name FROM document_templates
          WHERE document_template_id = $document_template_id"
     );
 
@@ -154,7 +154,8 @@ if (isset($_POST['edit_document'])) {
     // 1) Load the current document to create a version
     $sql_original_document = mysqli_query(
         $mysqli,
-        "SELECT * FROM documents
+        "SELECT document_content, document_created_at, document_created_by, document_description,
+            document_name, document_updated_at, document_updated_by FROM documents
          WHERE document_client_id = $client_id
            AND document_id = $document_id"
     );

@@ -4,7 +4,7 @@ require_once '../../../includes/modal_header.php';
 
 $invoice_id = intval($_GET['id']);
 
-$sql = mysqli_query($mysqli, "SELECT * FROM invoices WHERE invoice_id = $invoice_id LIMIT 1");
+$sql = mysqli_query($mysqli, "SELECT invoice_amount, invoice_client_id, invoice_number, invoice_prefix FROM invoices WHERE invoice_id = $invoice_id LIMIT 1");
 
 $row = mysqli_fetch_assoc($sql);
 $invoice_prefix = escapeHtml($row['invoice_prefix']);
@@ -41,7 +41,7 @@ ob_start();
                     <option value="">- Saved Payment Methods -</option>
                     <?php
 
-                    $sql = mysqli_query($mysqli, "SELECT * FROM client_saved_payment_methods WHERE saved_payment_client_id = $client_id ORDER BY saved_payment_description ASC");
+                    $sql = mysqli_query($mysqli, "SELECT saved_payment_description, saved_payment_id FROM client_saved_payment_methods WHERE saved_payment_client_id = $client_id ORDER BY saved_payment_description ASC");
                     while ($row = mysqli_fetch_assoc($sql)) {
                         $saved_payment_id = intval($row['saved_payment_id']);
                         $saved_payment_description = escapeHtml($row['saved_payment_description']);

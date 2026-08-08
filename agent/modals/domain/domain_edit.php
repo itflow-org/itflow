@@ -6,7 +6,10 @@ enforceUserPermission('module_support', 2);
 
 $domain_id = intval($_GET['id']);
 
-$sql = mysqli_query($mysqli, "SELECT * FROM domains WHERE domain_id = $domain_id LIMIT 1");
+$sql = mysqli_query($mysqli, "SELECT domain_archived_at, domain_client_id, domain_created_at, domain_description,
+    domain_dnshost, domain_expire, domain_ip, domain_mail_servers, domain_mailhost,
+    domain_name, domain_name_servers, domain_notes, domain_raw_whois, domain_registrar,
+    domain_txt, domain_webhost FROM domains WHERE domain_id = $domain_id LIMIT 1");
 
 $row = mysqli_fetch_assoc($sql);
 $domain_name = escapeHtml($row['domain_name']);
@@ -26,7 +29,8 @@ $domain_created_at = escapeHtml($row['domain_created_at']);
 $domain_archived_at = escapeHtml($row['domain_archived_at']);
 $client_id = intval($row['domain_client_id']);
 
-$history_sql = mysqli_query($mysqli, "SELECT * FROM domain_history WHERE domain_history_domain_id = $domain_id");
+$history_sql = mysqli_query($mysqli, "SELECT domain_history_column, domain_history_modified_at, domain_history_new_value,
+    domain_history_old_value FROM domain_history WHERE domain_history_domain_id = $domain_id");
 
 enforceClientAccess();
 

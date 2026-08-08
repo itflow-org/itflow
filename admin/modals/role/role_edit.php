@@ -15,7 +15,7 @@ $role_admin = intval($row['role_is_admin']);
 $sql_role_user_count = mysqli_query($mysqli, "SELECT COUNT(user_id) FROM users WHERE user_role_id = $role_id AND user_archived_at IS NULL");
 $role_user_count = mysqli_fetch_row($sql_role_user_count)[0];
 
-$sql_users = mysqli_query($mysqli, "SELECT * FROM users WHERE user_role_id = $role_id AND user_archived_at IS NULL");
+$sql_users = mysqli_query($mysqli, "SELECT user_name FROM users WHERE user_role_id = $role_id AND user_archived_at IS NULL");
 // Initialize an empty array to hold user names
 $user_names = [];
 
@@ -113,7 +113,7 @@ ob_start();
                 <?php
 
                 // Enumerate modules
-                $sql_modules = mysqli_query($mysqli, "SELECT * FROM modules");
+                $sql_modules = mysqli_query($mysqli, "SELECT module_description, module_id, module_name FROM modules");
                 while ($row_modules = mysqli_fetch_assoc($sql_modules)) {
                     $module_id = intval($row_modules['module_id']);
                     $module_name = escapeHtml($row_modules['module_name']);

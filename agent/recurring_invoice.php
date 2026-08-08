@@ -15,7 +15,17 @@ if (isset($_GET['recurring_invoice_id'])) {
 
     $sql = mysqli_query(
         $mysqli,
-        "SELECT * FROM recurring_invoices
+        "SELECT client_currency_code, client_id, client_name, client_net_terms, client_website,
+            contact_email, contact_extension, contact_mobile, contact_mobile_country_code,
+            contact_phone, contact_phone_country_code, location_address, location_city,
+            location_country, location_state, location_zip, recurring_invoice_amount,
+            recurring_invoice_category_id, recurring_invoice_created_at,
+            recurring_invoice_currency_code, recurring_invoice_discount_amount,
+            recurring_invoice_email_notify, recurring_invoice_frequency, recurring_invoice_last_sent,
+            recurring_invoice_next_date, recurring_invoice_note, recurring_invoice_number,
+            recurring_invoice_prefix, recurring_invoice_scope, recurring_invoice_status,
+            recurring_payment_id, recurring_payment_method, recurring_payment_recurring_invoice_id,
+            recurring_payment_saved_payment_id FROM recurring_invoices
         LEFT JOIN clients ON recurring_invoice_client_id = client_id
         LEFT JOIN contacts ON clients.client_id = contacts.contact_client_id AND contact_primary = 1
         LEFT JOIN locations ON clients.client_id = locations.location_client_id AND location_primary = 1
@@ -86,7 +96,9 @@ if (isset($_GET['recurring_invoice_id'])) {
     $tab_title = $row['client_name'];
     $page_title = "{$row['recurring_invoice_prefix']}{$row['recurring_invoice_number']}";
 
-    $sql = mysqli_query($mysqli, "SELECT * FROM companies WHERE company_id = 1");
+    $sql = mysqli_query($mysqli, "SELECT company_address, company_city, company_country, company_email, company_id, company_logo,
+        company_name, company_phone, company_phone_country_code, company_state, company_website,
+        company_zip FROM companies WHERE company_id = 1");
     $row = mysqli_fetch_assoc($sql);
 
     $company_id = intval($row['company_id']);
@@ -102,7 +114,7 @@ if (isset($_GET['recurring_invoice_id'])) {
     $company_website = escapeHtml($row['company_website']);
     $company_logo = escapeHtml($row['company_logo']);
 
-    $sql_history = mysqli_query($mysqli, "SELECT * FROM history WHERE history_recurring_invoice_id = $recurring_invoice_id ORDER BY history_id DESC");
+    $sql_history = mysqli_query($mysqli, "SELECT history_created_at, history_description, history_status FROM history WHERE history_recurring_invoice_id = $recurring_invoice_id ORDER BY history_id DESC");
 
     //Product autocomplete
     $products_sql = mysqli_query($mysqli, "SELECT product_name AS label, product_description AS description, product_price AS price, product_tax_id AS tax FROM products WHERE product_archived_at IS NULL");
@@ -150,7 +162,7 @@ if (isset($_GET['recurring_invoice_id'])) {
                     <?php } ?>
                 </div>
                 <div class="col-3">
-                    <?php $sql_saved_payments = mysqli_query($mysqli, "SELECT * FROM client_saved_payment_methods WHERE saved_payment_client_id = $client_id");
+                    <?php $sql_saved_payments = mysqli_query($mysqli, "SELECT saved_payment_description, saved_payment_id FROM client_saved_payment_methods WHERE saved_payment_client_id = $client_id");
                     if (mysqli_num_rows($sql_saved_payments) > 0) { ?>
                         <form class="form" action="post.php" method="post">
                             <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
@@ -252,7 +264,8 @@ if (isset($_GET['recurring_invoice_id'])) {
                 </div>
             </div>
 
-            <?php $sql_items = mysqli_query($mysqli, "SELECT * FROM recurring_invoice_items WHERE item_recurring_invoice_id = $recurring_invoice_id ORDER BY item_order ASC"); ?>
+            <?php $sql_items = mysqli_query($mysqli, "SELECT item_created_at, item_description, item_id, item_name, item_price, item_quantity, item_tax,
+                item_tax_id, item_total FROM recurring_invoice_items WHERE item_recurring_invoice_id = $recurring_invoice_id ORDER BY item_order ASC"); ?>
 
             <div class="row mb-3">
                 <div class="col-md-12">

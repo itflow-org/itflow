@@ -54,7 +54,11 @@ class StaticTokenProvider implements OAuthTokenProvider {
 /** =======================================================================
  *  Load settings
  * ======================================================================= */
-$sql_settings = mysqli_query($mysqli, "SELECT * FROM settings WHERE company_id = 1");
+$sql_settings = mysqli_query($mysqli, "SELECT config_enable_cron, config_mail_oauth_access_token,
+    config_mail_oauth_access_token_expires_at, config_mail_oauth_client_id,
+    config_mail_oauth_client_secret, config_mail_oauth_refresh_token,
+    config_mail_oauth_tenant_id, config_smtp_encryption, config_smtp_host,
+    config_smtp_password, config_smtp_port, config_smtp_provider, config_smtp_username FROM settings WHERE company_id = 1");
 $row = mysqli_fetch_assoc($sql_settings);
 
 $config_enable_cron      = intval($row['config_enable_cron']);
@@ -319,7 +323,8 @@ if ($orphaned_emails > 0) {
 /** =======================================================================
  *  SEND: status = 0 (Queued)
  * ======================================================================= */
-$sql_queue = mysqli_query($mysqli, "SELECT * FROM email_queue WHERE email_status = 0 AND email_queued_at <= NOW()");
+$sql_queue = mysqli_query($mysqli, "SELECT email_attachments, email_cal_str, email_content, email_from, email_from_name, email_id,
+    email_recipient, email_recipient_name, email_subject FROM email_queue WHERE email_status = 0 AND email_queued_at <= NOW()");
 
 if (mysqli_num_rows($sql_queue) > 0) {
     while ($rowq = mysqli_fetch_assoc($sql_queue)) {
@@ -417,7 +422,8 @@ if (mysqli_num_rows($sql_queue) > 0) {
  */
 $sql_failed_queue = mysqli_query(
     $mysqli,
-    "SELECT * FROM email_queue
+    "SELECT email_attachments, email_attempts, email_cal_str, email_content, email_from,
+        email_from_name, email_id, email_recipient, email_recipient_name, email_subject FROM email_queue
      WHERE email_status = 2
        AND email_attempts < 4
        AND email_failed_at <= NOW() - INTERVAL 30 MINUTE"

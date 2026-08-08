@@ -15,22 +15,25 @@ $can_show_restore = false;
 $should_skip_to_user = false;
 
 /*
- * An install with users in it is a live install, and setup is closed on one whatever
- * config.php says.
+ * How far through the wizard this install already is. Each step is a separate question
+ * because each one guards a different handler below - answering all of them with "are there
+ * users?" is what used to lock the wizard out three steps early.
  *
- * This used to default $config_enable_setup to 1 when the flag was absent, which fails the
- * wrong way: config.php is written when the database step completes but the flag is only
- * appended at the very end of a successful run, so an install abandoned in between - or one
- * where that final append failed - left the restore below reachable with no authentication
- * at all. That endpoint drops every table and imports whatever archive it is handed, and it
- * rewrites the uploads directory, including the .htaccess that stops PHP running there.
+ *   $install_is_live   - users exist. A restore would destroy real data, so restore closes
+ *                        and points at the CLI. One user row is enough.
+ *   $company_exists    - the company step has run (companies row, and settings seeded).
+ *   $localization_done - the localization step has run (company_locale filled in).
  */
 $install_is_live = false;
+$company_exists = false;
+$localization_done = false;
+$resume_step = 'checks';
 
 if (file_exists("../config.php") && $mysqli_available) {
     $table_result = mysqli_query($mysqli, "SHOW TABLES LIKE 'users'");
     if ($table_result && mysqli_num_rows($table_result) > 0) {
         $should_skip_to_user = true;
+        $resume_step = 'user';
 
         $user_count_result = mysqli_query($mysqli, "SELECT COUNT(*) AS user_count FROM users");
         if ($user_count_result) {
@@ -44,6 +47,26 @@ if (file_exists("../config.php") && $mysqli_available) {
         }
     }
 
+    if ($install_is_live) {
+        $resume_step = 'company';
+
+        $company_result = mysqli_query($mysqli, "SELECT company_locale FROM companies WHERE company_id = 1");
+        if (!$company_result) {
+            // Cannot prove either step is outstanding, so treat both as done
+            $company_exists = true;
+            $localization_done = true;
+            $resume_step = 'telemetry';
+        } elseif ($company_row = mysqli_fetch_assoc($company_result)) {
+            $company_exists = true;
+            $resume_step = 'localization';
+
+            if (trim($company_row['company_locale'] ?? '') !== '') {
+                $localization_done = true;
+                $resume_step = 'telemetry';
+            }
+        }
+    }
+
     // Restore needs a database connection and an empty install. A populated one restores
     // from the command line instead - scripts/restore_cli.php.
     if (!$install_is_live) {
@@ -54,11 +77,27 @@ if (file_exists("../config.php") && $mysqli_available) {
     }
 }
 
+/*
+ * config.php is written when the database step completes, but $config_enable_setup is only
+ * appended to it by the LAST step, so the flag is absent for the whole middle of an install
+ * and the wizard has to stay open across that gap or it cannot be finished.
+ *
+ * Deriving the flag from the database instead - closing setup as soon as the install looked
+ * "live" - is what stranded people: the first user made it live, three steps before there
+ * were companies or settings rows, and /setup and /login.php then redirected at each other
+ * until the browser gave up. Deriving it from any later step has the same shape, because the
+ * step that writes the flag is behind the gate that reads it.
+ *
+ * So the page stays open until the flag says otherwise, and each handler below refuses to run
+ * a second time on its own. That keeps the reason the derived flag was added in the first
+ * place - the restore handler drops every table, imports whatever archive it is handed and
+ * rewrites the uploads directory - without the page-level gate that came with it.
+ */
 if (!isset($config_enable_setup)) {
-    $config_enable_setup = $install_is_live ? 0 : 1;
+    $config_enable_setup = 1;
 }
 
-if ($config_enable_setup == 0 || $install_is_live) {
+if ($config_enable_setup == 0) {
     header("Location: /login.php");
     exit;
 }
@@ -246,8 +285,12 @@ if (isset($_POST['restore'])) {
 }
 
 if (isset($_POST['add_user'])) {
-    $user_count = mysqli_num_rows(mysqli_query($mysqli,"SELECT COUNT(*) FROM users"));
-    if ($user_count < 0) {
+
+    // SELECT COUNT(*) returns exactly one row whatever the count is, so the mysqli_num_rows()
+    // test this replaces was always 1 and never fired: a resubmitted form created a second
+    // user and then died on the duplicate user_settings row. $install_is_live is the same
+    // count, taken at the top of the file, and it fails closed.
+    if ($install_is_live) {
         $_SESSION['alert_message'] = "Users already exist in the database. Clear them to reconfigure here.";
         header("Location: ?company");
         exit;
@@ -265,7 +308,10 @@ if (isset($_POST['add_user'])) {
 
     mysqli_query($mysqli,"INSERT INTO users SET user_name = '$name', user_email = '$email', user_password = '$password', user_specific_encryption_ciphertext = '$user_specific_encryption_ciphertext', user_role_id = 3");
 
-    mkdirMissing("../uploads/users/1");
+    // Normally 1, but the table's AUTO_INCREMENT can already have moved on, so ask for it.
+    $user_id = intval(mysqli_insert_id($mysqli));
+
+    mkdirMissing("../uploads/users/$user_id");
 
     //Check to see if a file is attached
     if ($_FILES['file']['tmp_name'] != '') {
@@ -295,13 +341,13 @@ if (isset($_POST['add_user'])) {
 
         if ($file_error == 0) {
             // directory in which the uploaded file will be moved
-            $upload_file_dir = "../uploads/users/1/";
+            $upload_file_dir = "../uploads/users/$user_id/";
             $dest_path = $upload_file_dir . $new_file_name;
 
             move_uploaded_file($file_tmp_path, $dest_path);
 
             //Set Avatar
-            mysqli_query($mysqli,"UPDATE users SET user_avatar = '$new_file_name' WHERE user_id = 1");
+            mysqli_query($mysqli,"UPDATE users SET user_avatar = '$new_file_name' WHERE user_id = $user_id");
 
             $_SESSION['alert_message'] = 'File successfully uploaded.';
         } else {
@@ -311,7 +357,7 @@ if (isset($_POST['add_user'])) {
     }
 
     //Create Settings
-    mysqli_query($mysqli,"INSERT INTO user_settings SET user_id = 1");
+    mysqli_query($mysqli,"INSERT INTO user_settings SET user_id = $user_id");
 
     $_SESSION['alert_message'] = "User <strong>$name</strong> created";
 
@@ -321,6 +367,13 @@ if (isset($_POST['add_user'])) {
 }
 
 if (isset($_POST['add_company_settings'])) {
+
+    // Run once. A second pass would add a second companies row and re-seed the defaults.
+    if ($company_exists) {
+        $_SESSION['alert_message'] = "Company details have already been saved.";
+        header("Location: ?localization");
+        exit;
+    }
 
     $name = escapeSql($_POST['name']);
     $country = escapeSql($_POST['country']);
@@ -388,6 +441,13 @@ if (isset($_POST['add_company_settings'])) {
 
 if (isset($_POST['add_localization_settings'])) {
 
+    // Run once. A second pass would add a second Cash account.
+    if ($localization_done) {
+        $_SESSION['alert_message'] = "Localization has already been saved.";
+        header("Location: ?telemetry");
+        exit;
+    }
+
     $locale = escapeSql($_POST['locale']);
     $currency_code = escapeSql($_POST['currency_code']);
     $timezone = escapeSql($_POST['timezone']);
@@ -414,7 +474,8 @@ if (isset($_POST['add_telemetry'])) {
 
         $comments = escapeSql($_POST['comments']);
 
-        $sql = mysqli_query($mysqli,"SELECT * FROM companies WHERE company_id = 1");
+        $sql = mysqli_query($mysqli,"SELECT company_city, company_country, company_currency, company_name, company_state,
+            company_website FROM companies WHERE company_id = 1");
         $row = mysqli_fetch_assoc($sql);
 
         $company_name = $row['company_name'];
@@ -1047,6 +1108,14 @@ if (isset($_POST['add_telemetry'])) {
                         </div>
                         <div class="card-body">
 
+                            <?php if ($install_is_live): ?>
+
+                                <p>This install already has a user - the rest of your team is added from Admin &gt; Users once you are logged in.</p>
+                                <hr>
+                                <a href="?<?= $resume_step ?>" class="btn btn-primary text-bold">Continue Setup <i class="fa fa-fw fa-arrow-circle-right"></i></a>
+
+                            <?php else: ?>
+
                             <form method="post" enctype="multipart/form-data" autocomplete="off">
                                 <div class="form-group">
                                     <label>Name <strong class="text-danger">*</strong></label>
@@ -1090,6 +1159,9 @@ if (isset($_POST['add_telemetry'])) {
 
                                 <button type="submit" name="add_user" class="btn btn-primary text-bold">Next (Company details) <i class="fa fa-fw fa-arrow-circle-right"></i></button>
                             </form>
+
+                            <?php endif; ?>
+
                         </div>
                     </div>
 
@@ -1100,6 +1172,14 @@ if (isset($_POST['add_telemetry'])) {
                             <h3 class="card-title"><i class="fas fa-fw fa-briefcase mr-2"></i>Step 4 - Company Details</h3>
                         </div>
                         <div class="card-body">
+
+                            <?php if ($company_exists): ?>
+
+                                <p>Company details have already been saved - they can be changed later from Admin &gt; Settings.</p>
+                                <hr>
+                                <a href="?<?= $resume_step ?>" class="btn btn-primary text-bold">Continue Setup <i class="fa fa-fw fa-arrow-circle-right"></i></a>
+
+                            <?php else: ?>
                             <form method="post" enctype="multipart/form-data" autocomplete="off">
 
                                 <div class="form-group">
@@ -1219,6 +1299,9 @@ if (isset($_POST['add_telemetry'])) {
                                 </button>
 
                             </form>
+
+                            <?php endif; ?>
+
                         </div>
                     </div>
 
@@ -1229,6 +1312,14 @@ if (isset($_POST['add_telemetry'])) {
                             <h3 class="card-title"><i class="fas fa-fw fa-globe-americas mr-2"></i>Step 5 - Region and Language</h3>
                         </div>
                         <div class="card-body">
+
+                            <?php if ($localization_done): ?>
+
+                                <p>Localization has already been saved - it can be changed later from Admin &gt; Settings.</p>
+                                <hr>
+                                <a href="?<?= $resume_step ?>" class="btn btn-primary text-bold">Continue Setup <i class="fa fa-fw fa-arrow-circle-right"></i></a>
+
+                            <?php else: ?>
                             <form method="post" autocomplete="off">
 
                                 <div class="form-group">
@@ -1283,6 +1374,9 @@ if (isset($_POST['add_telemetry'])) {
                                 </button>
 
                             </form>
+
+                            <?php endif; ?>
+
                         </div>
                     </div>
 
@@ -1355,7 +1449,11 @@ if (isset($_POST['add_telemetry'])) {
                                 <li>Don't hesitate to reach out on the <a href="https://forum.itflow.org/t/support" target="_blank">forums</a> if you need any assistance</li>
                                 <li><i>Apache/PHP Error log: <?= $errorLog ?></i></li>
                             </ul>
-                            <br><p>A database must be created before proceeding - click on the button below to get started.</p>
+                            <?php if ($install_is_live): ?>
+                                <br><p>This install was left part-way through setup - click on the button below to pick up where it stopped.</p>
+                            <?php else: ?>
+                                <br><p>A database must be created before proceeding - click on the button below to get started.</p>
+                            <?php endif; ?>
                             <br><hr>
                             <p class="text-muted">ITFlow is <b>free software</b>: you can redistribute and/or modify it under the terms of the <a href="https://www.gnu.org/licenses/gpl-3.0.en.html" target="_blank">GNU General Public License</a>. <br> It is distributed in the hope that it will be useful, but <b>without any warranty</b>; without even the implied warranty of merchantability or fitness for a particular purpose.</p>
                             <?php
@@ -1366,7 +1464,11 @@ if (isset($_POST['add_telemetry'])) {
                             ?>
                             <hr>
                             <div class="text-center">
-                                <?php if ($should_skip_to_user): ?>
+                                <?php if ($install_is_live): ?>
+                                    <a href="?<?= $resume_step ?>" class="btn btn-primary text-bold mr-2">
+                                        Continue Setup <i class="fas fa-fw fa-arrow-alt-circle-right ml-2"></i>
+                                    </a>
+                                <?php elseif ($should_skip_to_user): ?>
                                     <a href="?user" class="btn btn-primary text-bold mr-2">
                                         Create First User <i class="fas fa-fw fa-user ml-2"></i>
                                     </a>

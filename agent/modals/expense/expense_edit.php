@@ -6,7 +6,9 @@ enforceUserPermission('module_financial', 2);
 
 $expense_id = intval($_GET['id']);
 
-$sql = mysqli_query($mysqli, "SELECT * FROM expenses
+$sql = mysqli_query($mysqli, "SELECT category_name, expense_account_id, expense_amount, expense_category_id, expense_client_id,
+    expense_created_at, expense_currency_code, expense_date, expense_description,
+    expense_receipt, expense_reference, expense_vendor_id, vendor_name FROM expenses
     LEFT JOIN vendors ON expense_vendor_id = vendor_id
     LEFT JOIN categories ON expense_category_id = category_id
     WHERE expense_id = $expense_id LIMIT 1"
@@ -205,7 +207,7 @@ ob_start();
                             <option value="">- Select Client -</option>
                             <?php
 
-                            $sql_clients = mysqli_query($mysqli, "SELECT client_id, client_name FROM clients WHERE 1 = 1 $access_permission_query ORDER BY client_name ASC");
+                            $sql_clients = mysqli_query($mysqli, "SELECT client_id, client_name FROM clients WHERE 1 = 1 " . clientScopeSql('clients.client_id') . " ORDER BY client_name ASC");
                             while ($row = mysqli_fetch_assoc($sql_clients)) {
                                 $client_id_select = intval($row['client_id']);
                                 $client_name_select = escapeHtml($row['client_name']);

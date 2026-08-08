@@ -67,7 +67,7 @@ ob_start();
                     <option value="">- Select Category -</option>
                     <?php
 
-                    $sql = mysqli_query($mysqli, "SELECT * FROM categories WHERE category_type = 'Income' AND category_archived_at IS NULL");
+                    $sql = mysqli_query($mysqli, "SELECT category_id, category_name FROM categories WHERE category_type = 'Income' AND category_archived_at IS NULL");
                     while ($row = mysqli_fetch_assoc($sql)) {
                         $category_id = intval($row['category_id']);
                         $category_name = escapeHtml($row['category_name']);
@@ -111,7 +111,7 @@ ob_start();
                             <option value="0">None</option>
                             <?php
 
-                            $taxes_sql = mysqli_query($mysqli, "SELECT * FROM taxes WHERE tax_archived_at IS NULL ORDER BY tax_name ASC");
+                            $taxes_sql = mysqli_query($mysqli, "SELECT tax_id, tax_name, tax_percent FROM taxes WHERE tax_archived_at IS NULL ORDER BY tax_name ASC");
                             while ($row = mysqli_fetch_assoc($taxes_sql)) {
                                 $tax_id = intval($row['tax_id']);
                                 $tax_name = escapeHtml($row['tax_name']);

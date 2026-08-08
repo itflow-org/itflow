@@ -6,7 +6,9 @@ enforceUserPermission('module_support', 2);
 
 $service_id = intval($_GET['id']);
 
-$sql = mysqli_query($mysqli, "SELECT * FROM services WHERE service_id = $service_id LIMIT 1");
+$sql = mysqli_query($mysqli, "SELECT service_backup, service_category, service_client_id, service_created_at,
+    service_description, service_importance, service_name, service_notes, service_review_due,
+    service_updated_at FROM services WHERE service_id = $service_id LIMIT 1");
 
 $row = mysqli_fetch_assoc($sql);
 $service_name = escapeHtml($row['service_name']);
@@ -193,7 +195,7 @@ ob_start();
                         // Get all contacts
                         // NOTE: These are called $sql_all and $row_all for a reason - anything overwriting $sql or $row will break the current while loop we are in from client_services.php
 
-                        $sql_all = mysqli_query($mysqli, "SELECT * FROM contacts WHERE (contact_archived_at > '$service_created_at' OR contact_archived_at IS NULL) AND contact_client_id = $client_id");
+                        $sql_all = mysqli_query($mysqli, "SELECT contact_id, contact_name FROM contacts WHERE (contact_archived_at > '$service_created_at' OR contact_archived_at IS NULL) AND contact_client_id = $client_id");
 
                         while ($row_all = mysqli_fetch_assoc($sql_all)) {
                             $contact_id = intval($row_all['contact_id']);
@@ -216,7 +218,7 @@ ob_start();
                         <?php
                         $selected_ids = array_column(mysqli_fetch_all($sql_vendors, MYSQLI_ASSOC), "vendor_id");
 
-                        $sql_all = mysqli_query($mysqli, "SELECT * FROM vendors WHERE (vendor_archived_at > '$service_created_at' OR vendor_archived_at IS NULL) AND vendor_client_id = $client_id");
+                        $sql_all = mysqli_query($mysqli, "SELECT vendor_id, vendor_name FROM vendors WHERE (vendor_archived_at > '$service_created_at' OR vendor_archived_at IS NULL) AND vendor_client_id = $client_id");
                         while ($row_all = mysqli_fetch_assoc($sql_all)) {
                             $vendor_id = intval($row_all['vendor_id']);
                             $vendor_name = escapeHtml($row_all['vendor_name']);
@@ -238,7 +240,7 @@ ob_start();
                         <?php
                         $selected_ids = array_column(mysqli_fetch_all($sql_docs, MYSQLI_ASSOC), "document_id");
 
-                        $sql_all = mysqli_query($mysqli, "SELECT * FROM documents WHERE document_archived_at IS NULL AND document_client_id = $client_id");
+                        $sql_all = mysqli_query($mysqli, "SELECT document_id, document_name FROM documents WHERE document_archived_at IS NULL AND document_client_id = $client_id");
                         while ($row_all = mysqli_fetch_assoc($sql_all)) {
                             $document_id = intval($row_all['document_id']);
                             $document_name = escapeHtml($row_all['document_name']);
@@ -268,7 +270,7 @@ ob_start();
                         <?php
                         $selected_ids = array_column(mysqli_fetch_all($sql_assets, MYSQLI_ASSOC), "asset_id");
 
-                        $sql_all = mysqli_query($mysqli, "SELECT * FROM assets WHERE (asset_archived_at > '$service_created_at' OR asset_archived_at IS NULL) AND asset_client_id = $client_id");
+                        $sql_all = mysqli_query($mysqli, "SELECT asset_id, asset_name FROM assets WHERE (asset_archived_at > '$service_created_at' OR asset_archived_at IS NULL) AND asset_client_id = $client_id");
                         while ($row_all = mysqli_fetch_assoc($sql_all)) {
                             $asset_id = intval($row_all['asset_id']);
                             $asset_name = escapeHtml($row_all['asset_name']);
@@ -290,7 +292,7 @@ ob_start();
                         <?php
                         $selected_ids = array_column(mysqli_fetch_all($sql_credentials, MYSQLI_ASSOC), "credential_id");
 
-                        $sql_all = mysqli_query($mysqli, "SELECT * FROM credentials WHERE (credential_archived_at > '$service_created_at' OR credential_archived_at IS NULL) AND credential_client_id = $client_id");
+                        $sql_all = mysqli_query($mysqli, "SELECT credential_id, credential_name FROM credentials WHERE (credential_archived_at > '$service_created_at' OR credential_archived_at IS NULL) AND credential_client_id = $client_id");
                         while ($row_all = mysqli_fetch_assoc($sql_all)) {
                             $credential_id = intval($row_all['credential_id']);
                             $credential_name = escapeHtml($row_all['credential_name']);
@@ -312,7 +314,7 @@ ob_start();
                         <?php
                         $selected_ids = array_column(mysqli_fetch_all($sql_domains, MYSQLI_ASSOC), "domain_id");
 
-                        $sql_all = mysqli_query($mysqli, "SELECT * FROM domains WHERE (domain_archived_at > '$service_created_at' OR domain_archived_at IS NULL) AND domain_client_id = $client_id");
+                        $sql_all = mysqli_query($mysqli, "SELECT domain_id, domain_name FROM domains WHERE (domain_archived_at > '$service_created_at' OR domain_archived_at IS NULL) AND domain_client_id = $client_id");
                         while ($row_all = mysqli_fetch_assoc($sql_all)) {
                             $domain_id = intval($row_all['domain_id']);
                             $domain_name = escapeHtml($row_all['domain_name']);
@@ -334,7 +336,7 @@ ob_start();
                         <?php
                         $selected_ids = array_column(mysqli_fetch_all($sql_certificates, MYSQLI_ASSOC), "certificate_id");
 
-                        $sql_all = mysqli_query($mysqli, "SELECT * FROM certificates WHERE (certificate_archived_at > '$service_created_at' OR certificate_archived_at IS NULL) AND certificate_client_id = $client_id");
+                        $sql_all = mysqli_query($mysqli, "SELECT certificate_id, certificate_name FROM certificates WHERE (certificate_archived_at > '$service_created_at' OR certificate_archived_at IS NULL) AND certificate_client_id = $client_id");
                         while ($row_all = mysqli_fetch_assoc($sql_all)) {
                             $cert_id = intval($row_all['certificate_id']);
                             $cert_name = escapeHtml($row_all['certificate_name']);

@@ -4,7 +4,7 @@ require_once '../../../includes/modal_header.php';
 
 $document_id = intval($_GET['document_id']);
 
-$sql = mysqli_query($mysqli, "SELECT * FROM documents
+$sql = mysqli_query($mysqli, "SELECT document_client_id, document_client_visible, document_name FROM documents
     WHERE document_id = $document_id
     LIMIT 1
 ");

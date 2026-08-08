@@ -6,7 +6,9 @@ enforceUserPermission('module_support', 2);
 
 $rack_id = intval($_GET['id']);
 
-$sql = mysqli_query($mysqli, "SELECT * FROM racks WHERE rack_id = $rack_id LIMIT 1");
+$sql = mysqli_query($mysqli, "SELECT rack_client_id, rack_created_at, rack_depth, rack_description, rack_location_id,
+    rack_model, rack_name, rack_notes, rack_photo, rack_physical_location, rack_type,
+    rack_units FROM racks WHERE rack_id = $rack_id LIMIT 1");
 
 $row = mysqli_fetch_assoc($sql);
 $rack_name = escapeHtml($row['rack_name']);
@@ -132,7 +134,7 @@ ob_start();
                             <option value="">- Location -</option>
                             <?php
 
-                            $sql_location_select = mysqli_query($mysqli, "SELECT * FROM locations WHERE location_archived_at IS NULL AND location_client_id = $client_id ORDER BY location_name ASC");
+                            $sql_location_select = mysqli_query($mysqli, "SELECT location_id, location_name FROM locations WHERE location_archived_at IS NULL AND location_client_id = $client_id ORDER BY location_name ASC");
                             while ($row = mysqli_fetch_assoc($sql_location_select)) {
                                 $location_id_select = intval($row['location_id']);
                                 $location_name_select = escapeHtml($row['location_name']);

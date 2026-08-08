@@ -90,7 +90,7 @@ $sql = mysqli_query(
     $tag_query
     AND (c.credential_name LIKE '%$q%' OR c.credential_description LIKE '%$q%' OR c.credential_uri LIKE '%$q%' OR tag_name LIKE '%$q%' OR client_name LIKE '%$q%')
     $location_query
-    $access_permission_query
+    " . clientScopeSql('credential_client_id') . "
     $client_query
     GROUP BY c.credential_id
     ORDER BY c.credential_favorite DESC, $sort $order LIMIT $record_from, $record_to"
@@ -179,7 +179,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                             <option value="">- All Asset Locations -</option>
 
                             <?php
-                            $sql_locations_filter = mysqli_query($mysqli, "SELECT * FROM locations WHERE location_client_id = $client_id AND location_archived_at IS NULL ORDER BY location_name ASC");
+                            $sql_locations_filter = mysqli_query($mysqli, "SELECT location_id, location_name FROM locations WHERE location_client_id = $client_id AND location_archived_at IS NULL ORDER BY location_name ASC");
                             while ($row = mysqli_fetch_assoc($sql_locations_filter)) {
                                 $location_id = intval($row['location_id']);
                                 $location_name = escapeHtml($row['location_name']);
@@ -204,7 +204,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                 FROM clients
                                 JOIN credentials ON credential_client_id = client_id
                                 WHERE $archive_query
-                                $access_permission_query
+                                " . clientScopeSql('clients.client_id') . "
                                 ORDER BY client_name ASC
                             ");
                             while ($row = mysqli_fetch_assoc($sql_clients_filter)) {
@@ -349,7 +349,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                             // Tags
                             $credential_tag_name_display_array = array();
                             $credential_tag_id_array = array();
-                            $sql_credential_tags = mysqli_query($mysqli, "SELECT * FROM credential_tags LEFT JOIN tags ON credential_tags.tag_id = tags.tag_id WHERE credential_id = $credential_id ORDER BY tag_name ASC");
+                            $sql_credential_tags = mysqli_query($mysqli, "SELECT tag_color, tag_icon, credential_tags.tag_id, tag_name FROM credential_tags LEFT JOIN tags ON credential_tags.tag_id = tags.tag_id WHERE credential_id = $credential_id ORDER BY tag_name ASC");
                             while ($row = mysqli_fetch_assoc($sql_credential_tags)) {
 
                                 $credential_tag_id = intval($row['tag_id']);
@@ -389,7 +389,8 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                             // Check if shared
                             $sql_shared = mysqli_query(
                                 $mysqli,
-                                "SELECT * FROM shared_items
+                                "SELECT item_active, item_created_at, item_expire_at, item_id, item_key, item_note, item_recipient,
+                                    item_related_id, item_type, item_view_limit, item_views FROM shared_items
                                 WHERE item_client_id = $client_id
                                 AND item_active = 1
                                 AND (COALESCE(item_view_limit, 0) = 0 OR item_views < item_view_limit)

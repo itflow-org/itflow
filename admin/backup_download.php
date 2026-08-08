@@ -23,7 +23,7 @@ if (!isset($_GET['backup_id'])) {
 
 $backup_id = intval($_GET['backup_id']);
 
-$sql = mysqli_query($mysqli, "SELECT * FROM backups WHERE backup_id = $backup_id AND backup_status = 'Complete' LIMIT 1");
+$sql = mysqli_query($mysqli, "SELECT backup_file_name FROM backups WHERE backup_id = $backup_id AND backup_status = 'Complete' LIMIT 1");
 
 if (mysqli_num_rows($sql) !== 1) {
     http_response_code(404);

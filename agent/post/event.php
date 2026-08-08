@@ -50,7 +50,7 @@ if (isset($_GET['delete_calendar'])) {
     $calendar_id = intval($_GET['delete_calendar']);
 
     // Get Calendar Name
-    $sql = mysqli_query($mysqli,"SELECT * FROM calendars WHERE calendar_id = $calendar_id");
+    $sql = mysqli_query($mysqli,"SELECT calendar_name FROM calendars WHERE calendar_id = $calendar_id");
     $row = mysqli_fetch_assoc($sql);
     $calendar_name = escapeSql($row['calendar_name']);
 
@@ -192,7 +192,8 @@ if (isset($_POST['add_event'])) {
         $contact_name = escapeSql($row['contact_name']);
         $contact_email = escapeSql($row['contact_email']);
 
-        $sql_company = mysqli_query($mysqli,"SELECT * FROM companies WHERE company_id = 1");
+        $sql_company = mysqli_query($mysqli,"SELECT company_address, company_city, company_country, company_email, company_logo, company_name,
+            company_phone, company_state, company_website, company_zip FROM companies WHERE company_id = 1");
         $row = mysqli_fetch_assoc($sql_company);
         $company_name = escapeSql($row['company_name']);
         $company_country = escapeSql($row['company_country']);
@@ -266,7 +267,8 @@ if (isset($_POST['edit_event'])) {
         $contact_name = escapeSql($row['contact_name']);
         $contact_email = escapeSql($row['contact_email']);
 
-        $sql_company = mysqli_query($mysqli,"SELECT * FROM companies WHERE company_id = 1");
+        $sql_company = mysqli_query($mysqli,"SELECT company_address, company_city, company_country, company_email, company_logo, company_name,
+            company_phone, company_state, company_website, company_zip FROM companies WHERE company_id = 1");
         $row = mysqli_fetch_assoc($sql_company);
         $company_name = escapeSql($row['company_name']);
         $company_country = escapeSql($row['company_country']);
@@ -323,7 +325,7 @@ if (isset($_GET['delete_event'])) {
     $event_id = intval($_GET['delete_event']);
 
     // Get Event Title
-    $sql = mysqli_query($mysqli,"SELECT * FROM calendar_events WHERE event_id = $event_id");
+    $sql = mysqli_query($mysqli,"SELECT event_client_id, event_title FROM calendar_events WHERE event_id = $event_id");
     $row = mysqli_fetch_assoc($sql);
     $event_title = escapeSql($row['event_title']);
     $client_id = intval($row['event_client_id']);

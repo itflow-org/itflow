@@ -50,6 +50,7 @@ CREATE TABLE `ai_models` (
   `ai_model_name` varchar(200) NOT NULL,
   `ai_model_prompt` text DEFAULT NULL,
   `ai_model_use_case` varchar(200) DEFAULT NULL,
+  `ai_model_temperature` decimal(3,2) DEFAULT NULL,
   `ai_model_created_at` datetime NOT NULL DEFAULT current_timestamp(),
   `ai_model_updated_at` datetime DEFAULT NULL ON UPDATE current_timestamp(),
   `ai_model_ai_provider_id` int(11) NOT NULL,

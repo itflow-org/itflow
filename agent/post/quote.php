@@ -79,7 +79,8 @@ if (isset($_POST['add_quote_copy'])) {
 
     $quote_number = mysqli_insert_id($mysqli);
 
-    $sql = mysqli_query($mysqli,"SELECT * FROM quotes WHERE quote_id = $quote_id");
+    $sql = mysqli_query($mysqli,"SELECT quote_amount, quote_category_id, quote_currency_code, quote_discount_amount, quote_note,
+        quote_number, quote_prefix, quote_scope FROM quotes WHERE quote_id = $quote_id");
     $row = mysqli_fetch_assoc($sql);
     $original_quote_prefix = escapeSql($row['quote_prefix']);
     $original_quote_number = escapeSql($row['quote_number']);
@@ -99,7 +100,8 @@ if (isset($_POST['add_quote_copy'])) {
 
     mysqli_query($mysqli,"INSERT INTO history SET history_status = 'Draft', history_description = 'Quote copied!', history_quote_id = $new_quote_id");
 
-    $sql_items = mysqli_query($mysqli,"SELECT * FROM quote_items WHERE item_quote_id = $quote_id");
+    $sql_items = mysqli_query($mysqli,"SELECT item_description, item_id, item_name, item_order, item_price, item_quantity, item_subtotal,
+        item_tax, item_tax_id, item_total FROM quote_items WHERE item_quote_id = $quote_id");
     while($row = mysqli_fetch_assoc($sql_items)) {
         $item_id = intval($row['item_id']);
         $item_name = escapeSql($row['item_name']);
@@ -134,7 +136,8 @@ if (isset($_POST['add_quote_to_invoice'])) {
     $quote_id = intval($_POST['quote_id']);
     $date = escapeSql($_POST['date']);
 
-    $sql = mysqli_query($mysqli,"SELECT * FROM clients, quotes WHERE client_id = quote_client_id AND quote_id = $quote_id");
+    $sql = mysqli_query($mysqli,"SELECT client_net_terms, quote_amount, quote_category_id, quote_client_id, quote_currency_code,
+        quote_discount_amount, quote_note, quote_number, quote_prefix, quote_scope FROM clients, quotes WHERE client_id = quote_client_id AND quote_id = $quote_id");
     $row = mysqli_fetch_assoc($sql);
     $client_net_terms = intval($row['client_net_terms']);
     $quote_prefix = escapeSql($row['quote_prefix']);
@@ -172,7 +175,8 @@ if (isset($_POST['add_quote_to_invoice'])) {
 
     mysqli_query($mysqli,"INSERT INTO history SET history_status = 'Draft', history_description = 'Invoice created from quote $quote_prefix$quote_number', history_invoice_id = $new_invoice_id");
 
-    $sql_items = mysqli_query($mysqli,"SELECT * FROM quote_items WHERE item_quote_id = $quote_id");
+    $sql_items = mysqli_query($mysqli,"SELECT item_description, item_id, item_name, item_order, item_price, item_quantity, item_subtotal,
+        item_tax, item_tax_id, item_total FROM quote_items WHERE item_quote_id = $quote_id");
     while($row = mysqli_fetch_assoc($sql_items)) {
         $item_id = intval($row['item_id']);
         $item_name = escapeSql($row['item_name']);
@@ -239,7 +243,7 @@ if (isset($_POST['add_quote_item'])) {
     $subtotal = $price * $qty;
 
     if ($tax_id > 0) {
-        $sql = mysqli_query($mysqli,"SELECT * FROM taxes WHERE tax_id = $tax_id");
+        $sql = mysqli_query($mysqli,"SELECT tax_percent FROM taxes WHERE tax_id = $tax_id");
         $row = mysqli_fetch_assoc($sql);
         $tax_percent = floatval($row['tax_percent']);
         $tax_amount = $subtotal * $tax_percent / 100;
@@ -252,7 +256,7 @@ if (isset($_POST['add_quote_item'])) {
     mysqli_query($mysqli,"INSERT INTO quote_items SET item_name = '$name', item_description = '$description', item_quantity = $qty, item_price = $price, item_subtotal = $subtotal, item_tax = $tax_amount, item_total = $total, item_tax_id = $tax_id, item_order = $item_order, item_quote_id = $quote_id");
 
     // Get Quote Details
-    $sql = mysqli_query($mysqli,"SELECT * FROM quotes WHERE quote_id = $quote_id");
+    $sql = mysqli_query($mysqli,"SELECT quote_client_id, quote_discount_amount, quote_number, quote_prefix FROM quotes WHERE quote_id = $quote_id");
     $row = mysqli_fetch_assoc($sql);
     $quote_prefix = escapeSql($row['quote_prefix']);
     $quote_number = escapeSql($row['quote_number']);
@@ -260,7 +264,7 @@ if (isset($_POST['add_quote_item'])) {
     $client_id = intval($row['quote_client_id']);
 
     //add up the total of all items
-    $sql = mysqli_query($mysqli,"SELECT * FROM quote_items WHERE item_quote_id = $quote_id");
+    $sql = mysqli_query($mysqli,"SELECT item_total FROM quote_items WHERE item_quote_id = $quote_id");
     $quote_amount = 0;
     while($row = mysqli_fetch_assoc($sql)) {
         $item_total = floatval($row['item_total']);
@@ -295,7 +299,7 @@ if (isset($_POST['edit_quote_item'])) {
     $subtotal = $price * $qty;
 
     if ($tax_id > 0) {
-        $sql = mysqli_query($mysqli,"SELECT * FROM taxes WHERE tax_id = $tax_id");
+        $sql = mysqli_query($mysqli,"SELECT tax_percent FROM taxes WHERE tax_id = $tax_id");
         $row = mysqli_fetch_assoc($sql);
         $tax_percent = floatval($row['tax_percent']);
         $tax_amount = $subtotal * $tax_percent / 100;
@@ -311,7 +315,7 @@ if (isset($_POST['edit_quote_item'])) {
     $quote_id = intval($row['item_quote_id']);
 
     //Get Discount Amount
-    $sql = mysqli_query($mysqli,"SELECT * FROM quotes WHERE quote_id = $quote_id");
+    $sql = mysqli_query($mysqli,"SELECT quote_client_id, quote_discount_amount, quote_number, quote_prefix FROM quotes WHERE quote_id = $quote_id");
     $row = mysqli_fetch_assoc($sql);
     $quote_prefix = escapeSql($row['quote_prefix']);
     $quote_number = intval($row['quote_number']);
@@ -347,7 +351,7 @@ if (isset($_POST['quote_note'])) {
     $note = escapeSql($_POST['note']);
 
     // Get Quote Details
-    $sql = mysqli_query($mysqli,"SELECT * FROM quotes WHERE quote_id = $quote_id");
+    $sql = mysqli_query($mysqli,"SELECT quote_client_id, quote_number, quote_prefix FROM quotes WHERE quote_id = $quote_id");
     $row = mysqli_fetch_assoc($sql);
     $quote_prefix = escapeSql($row['quote_prefix']);
     $quote_number = escapeSql($row['quote_number']);
@@ -376,7 +380,7 @@ if (isset($_POST['edit_quote'])) {
     $quote_id = intval($_POST['quote_id']);
 
     // Get Quote Details for logging
-    $sql = mysqli_query($mysqli,"SELECT * FROM quotes WHERE quote_id = $quote_id");
+    $sql = mysqli_query($mysqli,"SELECT quote_client_id, quote_number, quote_prefix FROM quotes WHERE quote_id = $quote_id");
     $row = mysqli_fetch_assoc($sql);
     $quote_prefix = escapeSql($row['quote_prefix']);
     $quote_number = escapeSql($row['quote_number']);
@@ -385,7 +389,7 @@ if (isset($_POST['edit_quote'])) {
     enforceClientAccess();
 
     //Calculate the new quote amount
-    $sql = mysqli_query($mysqli,"SELECT * FROM quote_items WHERE item_quote_id = $quote_id");
+    $sql = mysqli_query($mysqli,"SELECT item_total FROM quote_items WHERE item_quote_id = $quote_id");
     $quote_amount = 0;
     while($row = mysqli_fetch_assoc($sql)) {
         $item_total = floatval($row['item_total']);
@@ -412,7 +416,7 @@ if (isset($_GET['delete_quote'])) {
     $quote_id = intval($_GET['delete_quote']);
 
     // Get Quote Details for logging
-    $sql = mysqli_query($mysqli,"SELECT * FROM quotes WHERE quote_id = $quote_id");
+    $sql = mysqli_query($mysqli,"SELECT quote_client_id, quote_number, quote_prefix FROM quotes WHERE quote_id = $quote_id");
     $row = mysqli_fetch_assoc($sql);
     $quote_prefix = escapeSql($row['quote_prefix']);
     $quote_number = escapeSql($row['quote_number']);
@@ -423,14 +427,14 @@ if (isset($_GET['delete_quote'])) {
     mysqli_query($mysqli,"DELETE FROM quotes WHERE quote_id = $quote_id");
 
     //Delete Items Associated with the Quote
-    $sql = mysqli_query($mysqli,"SELECT * FROM quote_items WHERE item_quote_id = $quote_id");
+    $sql = mysqli_query($mysqli,"SELECT item_id FROM quote_items WHERE item_quote_id = $quote_id");
     while($row = mysqli_fetch_assoc($sql)) {;
         $item_id = intval($row['item_id']);
         mysqli_query($mysqli,"DELETE FROM quote_items WHERE item_id = $item_id");
     }
 
     //Delete History Associated with the Quote
-    $sql = mysqli_query($mysqli,"SELECT * FROM history WHERE history_quote_id = $quote_id");
+    $sql = mysqli_query($mysqli,"SELECT history_id FROM history WHERE history_quote_id = $quote_id");
     while($row = mysqli_fetch_assoc($sql)) {;
         $history_id = intval($row['history_id']);
         mysqli_query($mysqli,"DELETE FROM history WHERE history_id = $history_id");
@@ -457,7 +461,7 @@ if (isset($_GET['delete_quote_item'])) {
 
     $item_id = intval($_GET['delete_quote_item']);
 
-    $sql = mysqli_query($mysqli,"SELECT * FROM quote_items WHERE item_id = $item_id");
+    $sql = mysqli_query($mysqli,"SELECT item_name, item_quote_id, item_subtotal, item_tax, item_total FROM quote_items WHERE item_id = $item_id");
     $row = mysqli_fetch_assoc($sql);
     $item_name = escapeSql($row['item_name']);
     $quote_id = intval($row['item_quote_id']);
@@ -465,7 +469,7 @@ if (isset($_GET['delete_quote_item'])) {
     $item_tax = floatval($row['item_tax']);
     $item_total = floatval($row['item_total']);
 
-    $sql = mysqli_query($mysqli,"SELECT * FROM quotes WHERE quote_id = $quote_id");
+    $sql = mysqli_query($mysqli,"SELECT quote_amount, quote_client_id, quote_number, quote_prefix FROM quotes WHERE quote_id = $quote_id");
     $row = mysqli_fetch_assoc($sql);
     $quote_prefix = escapeSql($row['quote_prefix']);
     $quote_number = escapeSql($row['quote_number']);
@@ -495,7 +499,7 @@ if (isset($_GET['mark_quote_sent'])) {
 
     $quote_id = intval($_GET['mark_quote_sent']);
 
-    $sql = mysqli_query($mysqli,"SELECT * FROM quotes WHERE quote_id = $quote_id");
+    $sql = mysqli_query($mysqli,"SELECT quote_client_id, quote_number, quote_prefix FROM quotes WHERE quote_id = $quote_id");
     $row = mysqli_fetch_assoc($sql);
     $quote_prefix = escapeSql($row['quote_prefix']);
     $quote_number = escapeSql($row['quote_number']);
@@ -523,7 +527,7 @@ if (isset($_GET['accept_quote'])) {
 
     $quote_id = intval($_GET['accept_quote']);
 
-    $sql = mysqli_query($mysqli,"SELECT * FROM quotes WHERE quote_id = $quote_id");
+    $sql = mysqli_query($mysqli,"SELECT quote_client_id, quote_number, quote_prefix FROM quotes WHERE quote_id = $quote_id");
     $row = mysqli_fetch_assoc($sql);
     $quote_prefix = escapeSql($row['quote_prefix']);
     $quote_number = escapeSql($row['quote_number']);
@@ -553,7 +557,7 @@ if (isset($_GET['decline_quote'])) {
 
     $quote_id = intval($_GET['decline_quote']);
 
-    $sql = mysqli_query($mysqli,"SELECT * FROM quotes WHERE quote_id = $quote_id");
+    $sql = mysqli_query($mysqli,"SELECT quote_client_id, quote_number, quote_prefix FROM quotes WHERE quote_id = $quote_id");
     $row = mysqli_fetch_assoc($sql);
     $quote_prefix = escapeSql($row['quote_prefix']);
     $quote_number = escapeSql($row['quote_number']);
@@ -583,7 +587,9 @@ if (isset($_GET['email_quote'])) {
 
     $quote_id = intval($_GET['email_quote']);
 
-    $sql = mysqli_query($mysqli,"SELECT * FROM quotes
+    $sql = mysqli_query($mysqli,"SELECT client_id, client_name, contact_email, contact_name, quote_amount, quote_currency_code,
+        quote_date, quote_expire, quote_number, quote_prefix, quote_scope, quote_status,
+        quote_url_key FROM quotes
     LEFT JOIN clients ON quote_client_id = client_id
     LEFT JOIN contacts ON clients.client_id = contacts.contact_client_id AND contact_primary = 1
     WHERE quote_id = $quote_id"
@@ -606,7 +612,8 @@ if (isset($_GET['email_quote'])) {
 
     enforceClientAccess();
 
-    $sql = mysqli_query($mysqli,"SELECT * FROM companies WHERE company_id = 1");
+    $sql = mysqli_query($mysqli,"SELECT company_address, company_city, company_country, company_email, company_logo, company_name,
+        company_phone, company_phone_country_code, company_state, company_website, company_zip FROM companies WHERE company_id = 1");
     $row = mysqli_fetch_assoc($sql);
 
     $company_name = escapeSql($row['company_name']);
@@ -665,7 +672,7 @@ if (isset($_GET['mark_quote_invoiced'])) {
 
     $quote_id = intval($_GET['mark_quote_invoiced']);
 
-    $sql = mysqli_query($mysqli,"SELECT * FROM quotes WHERE quote_id = $quote_id");
+    $sql = mysqli_query($mysqli,"SELECT quote_client_id, quote_number, quote_prefix FROM quotes WHERE quote_id = $quote_id");
     $row = mysqli_fetch_assoc($sql);
     $quote_prefix = escapeSql($row['quote_prefix']);
     $quote_number = escapeSql($row['quote_number']);
@@ -685,7 +692,7 @@ if (isset($_GET['mark_quote_invoiced'])) {
 
 }
 
-if (isset($_POST['export_quotes'])) {
+if (isExportRequest('export_quotes')) {
 
     validateCSRFToken();
 
@@ -727,12 +734,12 @@ if (isset($_POST['export_quotes'])) {
 
     $sql = mysqli_query(
         $mysqli,
-        "SELECT * FROM quotes
+        "SELECT quote_number, quote_prefix FROM quotes
         LEFT JOIN clients ON quote_client_id = client_id
         LEFT JOIN categories ON quote_category_id = category_id
         WHERE (CONCAT(quote_prefix,quote_number) LIKE '%$q%' OR quote_scope LIKE '%$q%' OR category_name LIKE '%$q%' OR quote_status LIKE '%$q%' OR quote_amount LIKE '%$q%' OR client_name LIKE '%$q%')
         AND DATE(quote_date) BETWEEN '$dtf' AND '$dtt'
-        $access_permission_query
+        " . clientScopeSql('quote_client_id') . "
         $client_query
         ORDER BY quote_number ASC"
     );
@@ -769,12 +776,17 @@ if (isset($_GET['export_quote_pdf'])) {
 
     $sql = mysqli_query(
         $mysqli,
-        "SELECT * FROM quotes
+        "SELECT client_currency_code, client_id, client_name, client_net_terms, client_website,
+            contact_email, contact_extension, contact_mobile, contact_mobile_country_code,
+            contact_phone, contact_phone_country_code, location_address, location_city,
+            location_country, location_state, location_zip, quote_amount, quote_category_id,
+            quote_created_at, quote_currency_code, quote_date, quote_discount_amount, quote_expire,
+            quote_id, quote_note, quote_number, quote_prefix, quote_scope, quote_status, quote_url_key FROM quotes
         LEFT JOIN clients ON quote_client_id = client_id
         LEFT JOIN contacts ON clients.client_id = contacts.contact_client_id AND contact_primary = 1
         LEFT JOIN locations ON clients.client_id = locations.location_client_id AND location_primary = 1
         WHERE quote_id = $quote_id
-        $access_permission_query
+        " . clientScopeSql('quote_client_id') . "
         LIMIT 1"
     );
 
@@ -815,7 +827,9 @@ if (isset($_GET['export_quote_pdf'])) {
 
     enforceClientAccess();
 
-    $sql = mysqli_query($mysqli, "SELECT * FROM companies, settings WHERE companies.company_id = settings.company_id AND companies.company_id = 1");
+    $sql = mysqli_query($mysqli, "SELECT company_address, company_city, company_country, company_email, settings.company_id,
+        company_logo, company_name, company_phone, company_phone_country_code, company_state,
+        company_website, company_zip FROM companies, settings WHERE companies.company_id = settings.company_id AND companies.company_id = 1");
     $row = mysqli_fetch_assoc($sql);
 
     $company_id = intval($row['company_id']);
@@ -918,7 +932,7 @@ if (isset($_GET['export_quote_pdf'])) {
     $sub_total = 0;
     $total_tax = 0;
 
-    $sql_items = mysqli_query($mysqli, "SELECT * FROM quote_items WHERE item_quote_id = $quote_id ORDER BY item_order ASC");
+    $sql_items = mysqli_query($mysqli, "SELECT item_description, item_name, item_price, item_quantity, item_tax, item_total FROM quote_items WHERE item_quote_id = $quote_id ORDER BY item_order ASC");
     while ($item = mysqli_fetch_assoc($sql_items)) {
         $name = $item['item_name'];
         $desc = $item['item_description'];

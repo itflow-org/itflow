@@ -12,7 +12,9 @@ $purifier_config->set('Cache.DefinitionImpl', null); // Disable cache by setting
 $purifier_config->set('URI.AllowedSchemes', ['data' => true, 'src' => true, 'http' => true, 'https' => true]);
 $purifier = new HTMLPurifier($purifier_config);
 
-$sql = mysqli_query($mysqli, "SELECT * FROM email_queue WHERE email_id = $email_id LIMIT 1");
+$sql = mysqli_query($mysqli, "SELECT email_attempts, email_content, email_failed_at, email_from, email_from_name,
+    email_queued_at, email_recipient, email_recipient_name, email_sent_at, email_status,
+    email_subject FROM email_queue WHERE email_id = $email_id LIMIT 1");
 $row = mysqli_fetch_assoc($sql);
 
 $email_from = escapeHtml($row['email_from']);

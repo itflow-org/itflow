@@ -43,7 +43,9 @@ if (isset($_POST['add_payment'])) {
         $total_payments_amount = floatval($row['payments_amount']);
 
         //Get the invoice total
-        $sql = mysqli_query($mysqli,"SELECT * FROM invoices
+        $sql = mysqli_query($mysqli,"SELECT client_name, contact_email, contact_extension, contact_mobile, contact_mobile_country_code,
+            contact_name, contact_phone, contact_phone_country_code, invoice_amount,
+            invoice_currency_code, invoice_number, invoice_prefix, invoice_url_key FROM invoices
             LEFT JOIN clients ON invoice_client_id = client_id
             LEFT JOIN contacts ON clients.client_id = contacts.contact_client_id AND contact_primary = 1
             WHERE invoice_id = $invoice_id"
@@ -62,7 +64,8 @@ if (isset($_POST['add_payment'])) {
         $contact_extension = preg_replace("/[^0-9]/", '',$row['contact_extension']);
         $contact_mobile = escapeSql(formatPhoneNumber($row['contact_mobile'], $row['contact_mobile_country_code']));
 
-        $sql = mysqli_query($mysqli,"SELECT * FROM companies WHERE company_id = 1");
+        $sql = mysqli_query($mysqli,"SELECT company_address, company_city, company_country, company_email, company_logo, company_name,
+            company_phone, company_phone_country_code, company_state, company_website, company_zip FROM companies WHERE company_id = 1");
         $row = mysqli_fetch_assoc($sql);
 
         $company_name = escapeSql($row['company_name']);
@@ -218,7 +221,7 @@ if (isset($_POST['apply_credit'])) {
     $invoice_id = intval($_POST['invoice_id']);
     $credit_amount_applied = floatval($_POST['credit_amount_applied']);
 
-    $sql = mysqli_query($mysqli, "SELECT * FROM invoices LEFT JOIN clients ON invoice_client_id = client_id WHERE invoice_id = $invoice_id");
+    $sql = mysqli_query($mysqli, "SELECT invoice_client_id, invoice_credit_amount, invoice_number, invoice_prefix, invoice_status FROM invoices LEFT JOIN clients ON invoice_client_id = client_id WHERE invoice_id = $invoice_id");
     $row = mysqli_fetch_assoc($sql);
 
     $invoice_prefix = escapeSql($row['invoice_prefix']);
@@ -329,7 +332,10 @@ if (isset($_POST['add_payment_stripe'])) {
     $saved_payment_id = intval($_POST['saved_payment_id']);
 
     // Get invoice details
-    $sql = mysqli_query($mysqli,"SELECT * FROM invoices
+    $sql = mysqli_query($mysqli,"SELECT client_id, client_name, contact_email, contact_extension, contact_mobile,
+        contact_mobile_country_code, contact_name, contact_phone, contact_phone_country_code,
+        invoice_amount, invoice_currency_code, invoice_number, invoice_prefix, invoice_status,
+        invoice_url_key FROM invoices
             LEFT JOIN clients ON invoice_client_id = client_id
             LEFT JOIN contacts ON client_id = contact_client_id AND contact_primary = 1
             WHERE invoice_id = $invoice_id"
@@ -353,7 +359,8 @@ if (isset($_POST['add_payment_stripe'])) {
     enforceClientAccess();
 
     // Get ITFlow company details
-    $sql = mysqli_query($mysqli,"SELECT * FROM companies WHERE company_id = 1");
+    $sql = mysqli_query($mysqli,"SELECT company_address, company_city, company_country, company_email, company_name, company_phone,
+        company_phone_country_code, company_state, company_website, company_zip FROM companies WHERE company_id = 1");
     $row = mysqli_fetch_assoc($sql);
     $company_name = escapeSql($row['company_name']);
     $company_country = escapeSql($row['company_country']);
@@ -370,7 +377,8 @@ if (isset($_POST['add_payment_stripe'])) {
     $config_invoice_from_email = escapeSql($config_invoice_from_email);
 
     // Get Client Payment Details
-    $sql = mysqli_query($mysqli, "SELECT * FROM client_saved_payment_methods LEFT JOIN payment_providers ON saved_payment_provider_id = payment_provider_id LEFT JOIN client_payment_provider ON saved_payment_client_id = client_id WHERE saved_payment_id = $saved_payment_id LIMIT 1");
+    $sql = mysqli_query($mysqli, "SELECT payment_provider_account, payment_provider_client, payment_provider_private_key,
+        payment_provider_public_key, saved_payment_description, saved_payment_provider_method FROM client_saved_payment_methods LEFT JOIN payment_providers ON saved_payment_provider_id = payment_provider_id LEFT JOIN client_payment_provider ON saved_payment_client_id = client_id WHERE saved_payment_id = $saved_payment_id LIMIT 1");
     $row = mysqli_fetch_assoc($sql);
 
     $public_key = escapeSql($row['payment_provider_public_key']);
@@ -651,7 +659,7 @@ if (isset($_GET['delete_payment'])) {
     $payment_id = intval($_GET['delete_payment']);
 
     // payments has no client column - the client comes from the invoice the payment sits on
-    $sql = mysqli_query($mysqli,"SELECT * FROM payments
+    $sql = mysqli_query($mysqli,"SELECT invoice_client_id, invoice_number, invoice_prefix, payment_invoice_id FROM payments
         LEFT JOIN invoices ON payment_invoice_id = invoice_id
         WHERE payment_id = $payment_id
         LIMIT 1"

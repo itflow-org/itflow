@@ -45,7 +45,7 @@ $feed_key = escapeSql($_GET['key']);
 
 $sql = mysqli_query(
     $mysqli,
-    "SELECT * FROM calendars
+    "SELECT calendar_id, calendar_name FROM calendars
     WHERE calendar_feed_key = '$feed_key'
     AND calendar_feed_key IS NOT NULL
     AND calendar_archived_at IS NULL

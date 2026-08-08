@@ -75,7 +75,7 @@ ob_start();
                 <select class="form-control select2" name="account_from" required>
                     <?php
 
-                    $sql_accounts = mysqli_query($mysqli, "SELECT * FROM accounts WHERE (account_archived_at > '$transfer_created_at' OR account_archived_at IS NULL) ORDER BY account_archived_at ASC, account_name ASC");
+                    $sql_accounts = mysqli_query($mysqli, "SELECT account_archived_at, account_id, account_name, opening_balance FROM accounts WHERE (account_archived_at > '$transfer_created_at' OR account_archived_at IS NULL) ORDER BY account_archived_at ASC, account_name ASC");
                     while ($row = mysqli_fetch_assoc($sql_accounts)) {
                         $account_id_select = intval($row['account_id']);
                         $account_name_select = escapeHtml($row['account_name']);
@@ -119,7 +119,7 @@ ob_start();
                 <select class="form-control select2" name="account_to" required>
                     <?php
 
-                    $sql2 = mysqli_query($mysqli, "SELECT * FROM accounts WHERE (account_archived_at > '$transfer_created_at' OR account_archived_at IS NULL) ORDER BY account_archived_at ASC, account_name ASC");
+                    $sql2 = mysqli_query($mysqli, "SELECT account_archived_at, account_id, account_name, opening_balance FROM accounts WHERE (account_archived_at > '$transfer_created_at' OR account_archived_at IS NULL) ORDER BY account_archived_at ASC, account_name ASC");
                     while ($row = mysqli_fetch_assoc($sql2)) {
                         $account_id2 = intval($row['account_id']);
                         $account_name = escapeHtml($row['account_name']);
@@ -169,7 +169,7 @@ ob_start();
                     <option value="">- Method of Transfer -</option>
                     <?php
 
-                    $sql_transfer_method_select = mysqli_query($mysqli, "SELECT * FROM payment_methods ORDER BY payment_method_name ASC");
+                    $sql_transfer_method_select = mysqli_query($mysqli, "SELECT payment_method_name FROM payment_methods ORDER BY payment_method_name ASC");
                     while ($row = mysqli_fetch_assoc($sql_transfer_method_select)) {
                         $payment_method_name_select = escapeHtml($row['payment_method_name']);
                     ?>

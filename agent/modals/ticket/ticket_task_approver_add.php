@@ -6,7 +6,7 @@ enforceUserPermission('module_support', 2);
 
 $task_id = intval($_GET['id']);
 
-$sql = mysqli_query($mysqli, "SELECT * FROM tasks
+$sql = mysqli_query($mysqli, "SELECT task_name, ticket_client_id FROM tasks
     LEFT JOIN tickets ON task_ticket_id = ticket_id
     WHERE task_id = $task_id
     LIMIT 1"

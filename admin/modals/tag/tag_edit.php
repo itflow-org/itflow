@@ -4,7 +4,7 @@ require_once '../../includes/modal_header.php';
 
 $tag_id = intval($_GET['id']);
 
-$sql = mysqli_query($mysqli, "SELECT * FROM tags WHERE tag_id = $tag_id LIMIT 1");
+$sql = mysqli_query($mysqli, "SELECT tag_color, tag_icon, tag_name, tag_type FROM tags WHERE tag_id = $tag_id LIMIT 1");
 
 $row = mysqli_fetch_assoc($sql);
 $tag_name = escapeHtml($row['tag_name']);

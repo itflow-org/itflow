@@ -6,7 +6,10 @@ enforceUserPermission('module_credential', 2);
 
 $credential_id = intval($_GET['id']);
 
-$sql = mysqli_query($mysqli, "SELECT * FROM credentials WHERE credential_id = $credential_id LIMIT 1");
+$sql = mysqli_query($mysqli, "SELECT credential_archived_at, credential_asset_id, credential_client_id, credential_contact_id,
+    credential_created_at, credential_description, credential_favorite, credential_name,
+    credential_note, credential_otp_secret, credential_password, credential_uri,
+    credential_uri_2, credential_username FROM credentials WHERE credential_id = $credential_id LIMIT 1");
 
 $row = mysqli_fetch_assoc($sql);
 $client_id = intval($row['credential_client_id']);

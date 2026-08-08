@@ -9,7 +9,7 @@ if (!defined('FROM_POST_HANDLER')) {
     exit;
 }
 
-if (isset($_POST['export_transactions'])) {
+if (isExportRequest('export_transactions')) {
 
     validateCSRFToken();
 
@@ -103,7 +103,7 @@ if (isset($_POST['export_transactions'])) {
     if ($account) {
 
         // Account details for the running balance and file name
-        $row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT * FROM accounts WHERE account_id = $account LIMIT 1"));
+        $row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT account_name, opening_balance FROM accounts WHERE account_id = $account LIMIT 1"));
         $account_name = $row['account_name'];
         $account_opening_balance = floatval($row['opening_balance']);
 

@@ -267,7 +267,7 @@ if (isset($_POST['bulk_archive_files'])) {
 
             $file_id = intval($file_id);
 
-            $sql_file = mysqli_query($mysqli,"SELECT * FROM files WHERE file_id = $file_id");
+            $sql_file = mysqli_query($mysqli,"SELECT file_client_id, file_name FROM files WHERE file_id = $file_id");
             $row = mysqli_fetch_assoc($sql_file);
             $client_id = intval($row['file_client_id']);
             $file_name = escapeSql($row['file_name']);
@@ -411,7 +411,7 @@ if (isset($_POST['bulk_restore_files'])) {
 
             $file_id = intval($file_id);
 
-            $sql_file = mysqli_query($mysqli,"SELECT * FROM files WHERE file_id = $file_id");
+            $sql_file = mysqli_query($mysqli,"SELECT file_client_id, file_name FROM files WHERE file_id = $file_id");
             $row = mysqli_fetch_assoc($sql_file);
             $client_id = intval($row['file_client_id']);
             $file_name = escapeSql($row['file_name']);

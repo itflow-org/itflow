@@ -242,7 +242,7 @@ if (isset($_POST['bulk_assign_location_tags'])) {
                 foreach($_POST['bulk_tags'] as $tag) {
                     $tag = intval($tag);
 
-                    $sql = mysqli_query($mysqli,"SELECT * FROM location_tags WHERE location_id = $location_id AND tag_id = $tag");
+                    $sql = mysqli_query($mysqli,"SELECT 1 FROM location_tags WHERE location_id = $location_id AND tag_id = $tag");
                     if (mysqli_num_rows($sql) == 0) {
                         mysqli_query($mysqli, "INSERT INTO location_tags SET location_id = $location_id, tag_id = $tag");
                     }
@@ -388,7 +388,7 @@ if (isset($_POST['bulk_delete_locations'])) {
 
 }
 
-if (isset($_POST['export_locations'])) {
+if (isExportRequest('export_locations')) {
 
     validateCSRFToken();
 
@@ -463,7 +463,7 @@ if (isset($_POST['export_locations'])) {
         WHERE $archive_query
         $tag_query
         AND (location_name LIKE '%$q%' OR location_description LIKE '%$q%' OR location_address LIKE '%$q%' OR location_city LIKE '%$q%' OR location_state LIKE '%$q%' OR location_zip LIKE '%$q%' OR location_country LIKE '%$q%' OR location_phone LIKE '%$q%' OR client_name LIKE '%$q%' OR tag_name LIKE '%$q%')
-        $access_permission_query
+        " . clientScopeSql('location_client_id') . "
         $client_query
         GROUP BY location_id
         ORDER BY location_name ASC"
@@ -541,7 +541,7 @@ if (isset($_POST["import_locations_csv"])) {
             $duplicate_detect = 0;
             if(isset($column[0])){
                 $name = escapeSql($column[0]);
-                if(mysqli_num_rows(mysqli_query($mysqli,"SELECT * FROM locations WHERE location_name = '$name' AND location_client_id = $client_id")) > 0){
+                if(mysqli_num_rows(mysqli_query($mysqli,"SELECT 1 FROM locations WHERE location_name = '$name' AND location_client_id = $client_id")) > 0){
                     $duplicate_detect = 1;
                 }
             }

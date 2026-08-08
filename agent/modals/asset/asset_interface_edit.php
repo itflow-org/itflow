@@ -4,9 +4,10 @@ require_once '../../../includes/modal_header.php';
 
 $interface_id = intval($_GET['id']);
 
-$sql = mysqli_query($mysqli, "SELECT * FROM asset_interfaces
+$sql = mysqli_query($mysqli, "SELECT asset_client_id, asset_name, interface_asset_id, interface_description, interface_id,
+    interface_ip, interface_ipv6, interface_mac, interface_name, interface_nat_ip,
+    interface_network_id, interface_notes, interface_primary, interface_type FROM asset_interfaces
     LEFT JOIN assets ON asset_id = interface_asset_id
-    LEFT JOIN clients ON client_id = asset_client_id
     WHERE interface_id = $interface_id LIMIT 1"
 );
 

@@ -118,7 +118,7 @@ ob_start();
                             <option value="0">- None -</option>
                             <?php
 
-                            $sql_projects = mysqli_query($mysqli, "SELECT * FROM projects WHERE project_completed_at IS NULL AND project_archived_at IS NULL ORDER BY project_name ASC");
+                            $sql_projects = mysqli_query($mysqli, "SELECT project_id, project_name FROM projects WHERE project_completed_at IS NULL AND project_archived_at IS NULL ORDER BY project_name ASC");
                             while ($row = mysqli_fetch_assoc($sql_projects)) {
                                 $project_id_select = intval($row['project_id']);
                                 $project_name_select = escapeHtml($row['project_name']); ?>

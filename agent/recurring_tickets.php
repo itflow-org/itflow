@@ -62,7 +62,7 @@ $sql = mysqli_query(
     LEFT JOIN users ON user_id = recurring_ticket_assigned_to
     LEFT JOIN ticket_templates ON ticket_template_id = recurring_ticket_ticket_template_id
     WHERE (recurring_tickets.recurring_ticket_subject LIKE '%$q%' OR category_name LIKE '%$q%')
-    $access_permission_query
+    " . clientScopeSql('recurring_ticket_client_id') . "
     $category_query
     $assigned_agent_query
     $billable_query

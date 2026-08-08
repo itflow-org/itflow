@@ -6,7 +6,8 @@ $order = "ASC";
 
 require_once "includes/inc_all_admin.php";
 
-$sql = mysqli_query($mysqli, "SELECT * FROM payment_methods ORDER BY $sort $order");
+$sql = mysqli_query($mysqli, "SELECT payment_method_created_at, payment_method_description, payment_method_id,
+    payment_method_name FROM payment_methods ORDER BY $sort $order");
 
 $num_rows = mysqli_num_rows($sql);
 

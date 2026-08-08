@@ -25,7 +25,7 @@ $session_contact_id = intval($_SESSION['contact_id']);
 $session_user_id = intval($_SESSION['user_id']);
 
 // Load user session vars
-$sql = mysqli_query($mysqli, "SELECT * FROM users WHERE users.user_id = $session_user_id");
+$sql = mysqli_query($mysqli, "SELECT user_archived_at, user_avatar, user_status, user_type FROM users WHERE users.user_id = $session_user_id");
 
 $row = mysqli_fetch_assoc($sql);
 
@@ -56,7 +56,7 @@ if ($session_user_archived_at !== null) {
 }
 
 // Load company session vars
-$sql = mysqli_query($mysqli, "SELECT * FROM companies WHERE company_id = 1");
+$sql = mysqli_query($mysqli, "SELECT company_country, company_currency, company_locale, company_logo, company_name FROM companies WHERE company_id = 1");
 $row = mysqli_fetch_assoc($sql);
 
 $session_company_name = $row['company_name'];
@@ -67,7 +67,8 @@ $currency_format = numfmt_create($session_company_locale, NumberFormatter::CURRE
 $session_company_logo = $row['company_logo'];
 
 // Load contact session vars
-$contact_sql = mysqli_query($mysqli, "SELECT * FROM contacts WHERE contact_id = $session_contact_id AND contact_client_id = $session_client_id");
+$contact_sql = mysqli_query($mysqli, "SELECT contact_billing, contact_email, contact_name, contact_photo, contact_pin, contact_primary,
+    contact_technical, contact_title FROM contacts WHERE contact_id = $session_contact_id AND contact_client_id = $session_client_id");
 $contact = mysqli_fetch_assoc($contact_sql);
 
 $session_contact_name = escapeSql($contact['contact_name']);
@@ -88,7 +89,7 @@ if ($contact['contact_billing'] == 1) {
 }
 
 // Load client session vars
-$client_sql = mysqli_query($mysqli, "SELECT * FROM clients WHERE client_id = $session_client_id");
+$client_sql = mysqli_query($mysqli, "SELECT client_name FROM clients WHERE client_id = $session_client_id");
 $client = mysqli_fetch_assoc($client_sql);
 
 $session_client_name = $client['client_name'];

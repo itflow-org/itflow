@@ -11,57 +11,57 @@ if (isset($_GET['client_id'])) {
     $client_url = "client_id=$client_id&";
 } else {
     require_once "includes/inc_all.php";
-    $client_query = "$access_permission_query";
+    $client_query = clientScopeSql('invoice_client_id');
     $client_url = '';
 }
 
 // Perms
 enforceUserPermission('module_sales');
 
-$row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT COUNT('invoice_id') AS num FROM invoices LEFT JOIN clients ON invoice_client_id = client_id WHERE invoice_status = 'Sent' $client_query"));
+$row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT COUNT('invoice_id') AS num FROM invoices WHERE invoice_status = 'Sent' $client_query"));
 $sent_count = $row['num'];
 
-$row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT COUNT('invoice_id') AS num FROM invoices LEFT JOIN clients ON invoice_client_id = client_id WHERE invoice_status = 'Viewed' $client_query"));
+$row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT COUNT('invoice_id') AS num FROM invoices WHERE invoice_status = 'Viewed' $client_query"));
 $viewed_count = $row['num'];
 
-$row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT COUNT('invoice_id') AS num FROM invoices LEFT JOIN clients ON invoice_client_id = client_id WHERE invoice_status = 'Partial' $client_query"));
+$row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT COUNT('invoice_id') AS num FROM invoices WHERE invoice_status = 'Partial' $client_query"));
 $partial_count = $row['num'];
 
-$row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT COUNT('invoice_id') AS num FROM invoices LEFT JOIN clients ON invoice_client_id = client_id WHERE invoice_status = 'Draft' $client_query"));
+$row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT COUNT('invoice_id') AS num FROM invoices WHERE invoice_status = 'Draft' $client_query"));
 $draft_count = $row['num'];
 
-$row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT COUNT('invoice_id') AS num FROM invoices LEFT JOIN clients ON invoice_client_id = client_id WHERE invoice_status = 'Cancelled' $client_query"));
+$row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT COUNT('invoice_id') AS num FROM invoices WHERE invoice_status = 'Cancelled' $client_query"));
 $cancelled_count = $row['num'];
 
-$row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT COUNT('invoice_id') AS num FROM invoices LEFT JOIN clients ON invoice_client_id = client_id WHERE invoice_status NOT LIKE 'Draft' AND invoice_status NOT LIKE 'Paid' AND invoice_status NOT LIKE 'Cancelled' AND invoice_status NOT LIKE 'Non-Billable' AND invoice_due < CURDATE() $client_query"));
+$row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT COUNT('invoice_id') AS num FROM invoices WHERE invoice_status NOT LIKE 'Draft' AND invoice_status NOT LIKE 'Paid' AND invoice_status NOT LIKE 'Cancelled' AND invoice_status NOT LIKE 'Non-Billable' AND invoice_due < CURDATE() $client_query"));
 $overdue_count = $row['num'];
 
-$sql_total_draft_amount = mysqli_query($mysqli, "SELECT SUM(invoice_amount) AS total_draft_amount FROM invoices LEFT JOIN clients ON invoice_client_id = client_id WHERE invoice_status = 'Draft' $client_query");
+$sql_total_draft_amount = mysqli_query($mysqli, "SELECT SUM(invoice_amount) AS total_draft_amount FROM invoices WHERE invoice_status = 'Draft' $client_query");
 $row = mysqli_fetch_assoc($sql_total_draft_amount);
 $total_draft_amount = floatval($row['total_draft_amount']);
 
-$sql_total_sent_amount = mysqli_query($mysqli, "SELECT SUM(invoice_amount) AS total_sent_amount FROM invoices LEFT JOIN clients ON invoice_client_id = client_id WHERE invoice_status = 'Sent' $client_query");
+$sql_total_sent_amount = mysqli_query($mysqli, "SELECT SUM(invoice_amount) AS total_sent_amount FROM invoices WHERE invoice_status = 'Sent' $client_query");
 $row = mysqli_fetch_assoc($sql_total_sent_amount);
 $total_sent_amount = floatval($row['total_sent_amount']);
 
-$sql_total_viewed_amount = mysqli_query($mysqli, "SELECT SUM(invoice_amount) AS total_viewed_amount FROM invoices LEFT JOIN clients ON invoice_client_id = client_id WHERE invoice_status = 'Viewed' $client_query");
+$sql_total_viewed_amount = mysqli_query($mysqli, "SELECT SUM(invoice_amount) AS total_viewed_amount FROM invoices WHERE invoice_status = 'Viewed' $client_query");
 $row = mysqli_fetch_assoc($sql_total_viewed_amount);
 $total_viewed_amount = floatval($row['total_viewed_amount']);
 
-$sql_total_cancelled_amount = mysqli_query($mysqli, "SELECT SUM(invoice_amount) AS total_cancelled_amount FROM invoices LEFT JOIN clients ON invoice_client_id = client_id WHERE invoice_status = 'Cancelled' $client_query");
+$sql_total_cancelled_amount = mysqli_query($mysqli, "SELECT SUM(invoice_amount) AS total_cancelled_amount FROM invoices WHERE invoice_status = 'Cancelled' $client_query");
 $row = mysqli_fetch_assoc($sql_total_cancelled_amount);
 $total_cancelled_amount = floatval($row['total_cancelled_amount']);
 
-$sql_total_partial_amount = mysqli_query($mysqli, "SELECT SUM(invoice_amount) AS total_partial_amount FROM payments, invoices LEFT JOIN clients ON invoice_client_id = client_id WHERE payment_invoice_id = invoice_id AND invoice_status = 'Partial' $client_query");
+$sql_total_partial_amount = mysqli_query($mysqli, "SELECT SUM(invoice_amount) AS total_partial_amount FROM payments, invoices WHERE payment_invoice_id = invoice_id AND invoice_status = 'Partial' $client_query");
 $row = mysqli_fetch_assoc($sql_total_partial_amount);
 $total_partial_amount = floatval($row['total_partial_amount']);
 $total_partial_count = mysqli_num_rows($sql_total_partial_amount);
 
-$sql_total_overdue_partial_amount = mysqli_query($mysqli, "SELECT SUM(payment_amount) AS total_overdue_partial_amount FROM payments, invoices LEFT JOIN clients ON invoice_client_id = client_id WHERE payment_invoice_id = invoice_id AND invoice_status = 'Partial' AND invoice_due < CURDATE() $client_query");
+$sql_total_overdue_partial_amount = mysqli_query($mysqli, "SELECT SUM(payment_amount) AS total_overdue_partial_amount FROM payments, invoices WHERE payment_invoice_id = invoice_id AND invoice_status = 'Partial' AND invoice_due < CURDATE() $client_query");
 $row = mysqli_fetch_assoc($sql_total_overdue_partial_amount);
 $total_overdue_partial_amount = floatval($row['total_overdue_partial_amount']);
 
-$sql_total_overdue_amount = mysqli_query($mysqli, "SELECT SUM(invoice_amount) AS total_overdue_amount FROM invoices LEFT JOIN clients ON invoice_client_id = client_id WHERE invoice_status != 'Draft' AND invoice_status != 'Paid' AND invoice_status != 'Cancelled' AND invoice_status != 'Non-Billable' AND invoice_due < CURDATE() $client_query");
+$sql_total_overdue_amount = mysqli_query($mysqli, "SELECT SUM(invoice_amount) AS total_overdue_amount FROM invoices WHERE invoice_status != 'Draft' AND invoice_status != 'Paid' AND invoice_status != 'Cancelled' AND invoice_status != 'Non-Billable' AND invoice_due < CURDATE() $client_query");
 $row = mysqli_fetch_assoc($sql_total_overdue_amount);
 $total_overdue_amount = floatval($row['total_overdue_amount']);
 
@@ -94,7 +94,11 @@ if (isset($_GET['category']) & !empty($_GET['category'])) {
 
 $sql = mysqli_query(
     $mysqli,
-    "SELECT SQL_CALC_FOUND_ROWS * FROM invoices
+    "SELECT SQL_CALC_FOUND_ROWS category_id, category_name, client_currency_code, client_id, client_name, client_net_terms,
+        invoice_amount, invoice_created_at, invoice_currency_code, invoice_date,
+        invoice_discount_amount, invoice_due, invoice_id, invoice_number, invoice_prefix,
+        invoice_scope, invoice_status, recurring_invoice_id, recurring_invoice_number,
+        recurring_invoice_prefix FROM invoices
     LEFT JOIN clients ON invoice_client_id = client_id
     LEFT JOIN categories ON invoice_category_id = category_id
     LEFT JOIN recurring_invoices ON invoice_recurring_invoice_id = recurring_invoice_id
@@ -103,7 +107,7 @@ $sql = mysqli_query(
     $category_query
     AND DATE(invoice_date) BETWEEN '$dtf' AND '$dtt'
     AND (CONCAT(invoice_prefix,invoice_number) LIKE '%$q%' OR invoice_scope LIKE '%$q%' OR client_name LIKE '%$q%' OR invoice_status LIKE '%$q%' OR invoice_amount LIKE '%$q%' OR category_name LIKE '%$q%')
-    $access_permission_query
+    " . clientScopeSql('invoice_client_id') . "
     $client_query
     ORDER BY $sort $order LIMIT $record_from, $record_to"
 );
@@ -362,7 +366,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 
                         // Saved Payment Methods
                         $sql_saved_payment_methods = mysqli_query($mysqli, "
-                            SELECT * FROM client_saved_payment_methods
+                            SELECT 1 FROM client_saved_payment_methods
                             LEFT JOIN payment_providers
                                 ON client_saved_payment_methods.saved_payment_provider_id = payment_providers.payment_provider_id
                             WHERE saved_payment_client_id = $client_id

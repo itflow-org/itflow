@@ -6,7 +6,15 @@ enforceUserPermission('module_support');
 
 $asset_id = intval($_GET['id']);
 
-$sql = mysqli_query($mysqli, "SELECT * FROM assets
+$sql = mysqli_query($mysqli, "SELECT asset_contact_id, asset_created_at, asset_description, asset_favorite, asset_id,
+    asset_install_date, asset_location_id, asset_make, asset_model, asset_name, asset_notes,
+    asset_os, asset_photo, asset_physical_location, asset_purchase_date,
+    asset_purchase_reference, asset_serial, asset_status, asset_type, asset_uri, asset_uri_2,
+    asset_uri_client, asset_vendor_id, asset_warranty_expire, client_id, client_name,
+    contact_archived_at, contact_email, contact_extension, contact_mobile,
+    contact_mobile_country_code, contact_name, contact_phone, contact_phone_country_code,
+    interface_ip, interface_ipv6, interface_mac, interface_nat_ip, interface_network_id,
+    location_archived_at, location_name FROM assets
     LEFT JOIN clients ON client_id = asset_client_id
     LEFT JOIN contacts ON asset_contact_id = contact_id
     LEFT JOIN locations ON asset_location_id = location_id
@@ -82,7 +90,7 @@ if ($location_archived_at) {
 // Tags - many to many relationship
 $asset_tag_name_display_array = array();
 $asset_tag_id_array = array();
-$sql_asset_tags = mysqli_query($mysqli, "SELECT * FROM asset_tags LEFT JOIN tags ON asset_tag_tag_id = tag_id WHERE asset_tag_asset_id = $asset_id ORDER BY tag_name ASC");
+$sql_asset_tags = mysqli_query($mysqli, "SELECT tag_color, tag_icon, tag_id, tag_name FROM asset_tags LEFT JOIN tags ON asset_tag_tag_id = tag_id WHERE asset_tag_asset_id = $asset_id ORDER BY tag_name ASC");
 while ($row = mysqli_fetch_assoc($sql_asset_tags)) {
 
     $asset_tag_id = intval($row['tag_id']);
@@ -179,7 +187,8 @@ $sql_related_tickets = mysqli_query($mysqli, "
 $ticket_count = mysqli_num_rows($sql_related_tickets);
 
 // Related Recurring Tickets Query
-$sql_related_recurring_tickets = mysqli_query($mysqli, "SELECT * FROM recurring_tickets
+$sql_related_recurring_tickets = mysqli_query($mysqli, "SELECT recurring_ticket_frequency, recurring_ticket_assets.recurring_ticket_id,
+    recurring_ticket_next_run, recurring_ticket_priority, recurring_ticket_subject FROM recurring_tickets
     LEFT JOIN recurring_ticket_assets ON recurring_tickets.recurring_ticket_id = recurring_ticket_assets.recurring_ticket_id
     WHERE recurring_ticket_asset_id = $asset_id OR recurring_ticket_assets.asset_id = $asset_id
     GROUP BY recurring_tickets.recurring_ticket_id
@@ -188,7 +197,8 @@ $sql_related_recurring_tickets = mysqli_query($mysqli, "SELECT * FROM recurring_
 $recurring_ticket_count = mysqli_num_rows($sql_related_recurring_tickets);
 
 // Related Documents
-$sql_related_documents = mysqli_query($mysqli, "SELECT * FROM asset_documents
+$sql_related_documents = mysqli_query($mysqli, "SELECT document_created_at, document_description, documents.document_id, document_name,
+    document_updated_at, user_name FROM asset_documents
     LEFT JOIN documents ON asset_documents.document_id = documents.document_id
     LEFT JOIN users ON user_id = document_created_by
     WHERE asset_documents.asset_id = $asset_id
@@ -198,7 +208,7 @@ $sql_related_documents = mysqli_query($mysqli, "SELECT * FROM asset_documents
 $document_count = mysqli_num_rows($sql_related_documents);
 
 // Related Files
-$sql_related_files = mysqli_query($mysqli, "SELECT * FROM asset_files
+$sql_related_files = mysqli_query($mysqli, "SELECT file_created_at, file_description, file_ext, files.file_id, file_mime_type, file_name FROM asset_files
     LEFT JOIN files ON asset_files.file_id = files.file_id
     WHERE asset_files.asset_id = $asset_id
     AND file_archived_at IS NULL
@@ -209,7 +219,9 @@ $file_count = mysqli_num_rows($sql_related_files);
 // Related Software Query
 $sql_related_software = mysqli_query(
     $mysqli,
-    "SELECT * FROM software_assets
+    "SELECT software_expire, software_assets.software_id, software_key, software_license_type,
+        software_name, software_notes, software_purchase, software_seats, software_type,
+        software_version FROM software_assets
     LEFT JOIN software ON software_assets.software_id = software.software_id
     WHERE software_assets.asset_id = $asset_id
     AND software_archived_at IS NULL
@@ -219,7 +231,7 @@ $sql_related_software = mysqli_query(
 $software_count = mysqli_num_rows($sql_related_software);
 
 // Related Notes
-$sql_related_notes = mysqli_query($mysqli, "SELECT * FROM asset_notes
+$sql_related_notes = mysqli_query($mysqli, "SELECT asset_note, asset_note_created_at, asset_note_type, user_name FROM asset_notes
     LEFT JOIN users ON asset_note_created_by = user_id
     WHERE asset_note_asset_id = $asset_id
     AND asset_note_archived_at IS NULL
@@ -571,7 +583,7 @@ ob_start();
                         // Tags
                         $credential_tag_name_display_array = array();
                         $credential_tag_id_array = array();
-                        $sql_credential_tags = mysqli_query($mysqli, "SELECT * FROM credential_tags LEFT JOIN tags ON credential_tags.tag_id = tags.tag_id WHERE credential_id = $credential_id ORDER BY tag_name ASC");
+                        $sql_credential_tags = mysqli_query($mysqli, "SELECT tag_color, tag_icon, credential_tags.tag_id, tag_name FROM credential_tags LEFT JOIN tags ON credential_tags.tag_id = tags.tag_id WHERE credential_id = $credential_id ORDER BY tag_name ASC");
                         while ($row = mysqli_fetch_assoc($sql_credential_tags)) {
 
                             $credential_tag_id = intval($row['tag_id']);

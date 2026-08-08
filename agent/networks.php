@@ -58,12 +58,14 @@ if ($client_url && isset($_GET['location']) && !empty($_GET['location'])) {
 
 $sql = mysqli_query(
     $mysqli,
-    "SELECT SQL_CALC_FOUND_ROWS * FROM networks
+    "SELECT SQL_CALC_FOUND_ROWS client_id, client_name, location_name, network, network_archived_at, network_description,
+        network_dhcp_range, network_gateway, network_id, network_location_id, network_name,
+        network_primary_dns, network_secondary_dns, network_vlan FROM networks
     LEFT JOIN clients ON client_id = network_client_id
     LEFT JOIN locations ON location_id = network_location_id
     WHERE $archive_query
     AND (network_name LIKE '%$q%' OR network_description LIKE '%$q%' OR network_vlan LIKE '%$q%' OR network LIKE '%$q%' OR network_gateway LIKE '%$q%' OR network_subnet LIKE '%$q%' OR network_primary_dns LIKE '%$q%' OR network_secondary_dns LIKE '%$q%' OR network_dhcp_range LIKE '%$q%' OR location_name LIKE '%$q%' OR client_name LIKE '%$q%')
-    $access_permission_query
+    " . clientScopeSql('network_client_id') . "
     $location_query
     $client_query
     ORDER BY $sort $order LIMIT $record_from, $record_to"
@@ -153,7 +155,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                 FROM clients
                                 JOIN networks ON network_client_id = client_id
                                 WHERE $archive_query
-                                $access_permission_query
+                                " . clientScopeSql('clients.client_id') . "
                                 ORDER BY client_name ASC
                             ");
                             while ($row = mysqli_fetch_assoc($sql_clients_filter)) {

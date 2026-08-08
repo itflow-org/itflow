@@ -86,7 +86,7 @@ if ($sort == 'transaction_date') {
 if ($account_filter) {
 
     // Account details - opening balance feeds the running balance, currency feeds the summary
-    $row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT * FROM accounts WHERE account_id = $account_filter LIMIT 1"));
+    $row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT account_currency_code, opening_balance FROM accounts WHERE account_id = $account_filter LIMIT 1"));
     $account_currency_code = escapeHtml($row['account_currency_code']);
     $account_opening_balance = floatval($row['opening_balance']);
 

@@ -33,7 +33,7 @@ ob_start();
                         <?php
 
                         //select unarchived clients
-                        $sql = mysqli_query($mysqli, "SELECT * FROM clients WHERE client_archived_at IS NULL $access_permission_query ORDER BY client_name ASC");
+                        $sql = mysqli_query($mysqli, "SELECT client_id, client_name FROM clients WHERE client_archived_at IS NULL " . clientScopeSql('clients.client_id') . " ORDER BY client_name ASC");
                         while ($row = mysqli_fetch_assoc($sql)) {
                             $client_id_select = intval($row['client_id']);
                             $client_name = escapeHtml($row['client_name']);
@@ -67,7 +67,7 @@ ob_start();
                     <option value="">- Category -</option>
                     <?php
 
-                    $sql = mysqli_query($mysqli, "SELECT * FROM categories WHERE category_type = 'Income' AND category_archived_at IS NULL ORDER BY category_name ASC");
+                    $sql = mysqli_query($mysqli, "SELECT category_id, category_name FROM categories WHERE category_type = 'Income' AND category_archived_at IS NULL ORDER BY category_name ASC");
                     while ($row = mysqli_fetch_assoc($sql)) {
                         $category_id = intval($row['category_id']);
                         $category_name = escapeHtml($row['category_name']);

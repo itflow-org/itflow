@@ -16,7 +16,12 @@ $quote_id = intval($_GET['quote_id']);
 
 $sql = mysqli_query(
     $mysqli,
-    "SELECT * FROM quotes
+    "SELECT client_currency_code, client_id, client_name, client_website, contact_email,
+        contact_extension, contact_mobile, contact_mobile_country_code, contact_phone,
+        contact_phone_country_code, location_address, location_city, location_country,
+        location_state, location_zip, quote_amount, quote_currency_code, quote_date,
+        quote_discount_amount, quote_expire, quote_id, quote_note, quote_number, quote_prefix,
+        quote_status FROM quotes
     LEFT JOIN clients ON quote_client_id = client_id
     LEFT JOIN contacts ON clients.client_id = contacts.contact_client_id AND contact_primary = 1
     LEFT JOIN locations ON clients.client_id = locations.location_client_id AND location_primary = 1
@@ -61,7 +66,9 @@ $contact_mobile = escapeHtml(formatPhoneNumber($row['contact_mobile'], $contact_
 $client_website = escapeHtml($row['client_website']);
 $client_currency_code = escapeHtml($row['client_currency_code']);
 
-$sql = mysqli_query($mysqli, "SELECT * FROM companies, settings WHERE companies.company_id = settings.company_id AND companies.company_id = 1");
+$sql = mysqli_query($mysqli, "SELECT company_address, company_city, company_country, company_email, company_locale,
+    company_logo, company_name, company_phone, company_phone_country_code, company_state,
+    company_website, company_zip, config_quote_footer FROM companies, settings WHERE companies.company_id = settings.company_id AND companies.company_id = 1");
 $row = mysqli_fetch_assoc($sql);
 $company_name = escapeHtml($row['company_name']);
 $company_address = escapeHtml($row['company_address']);
@@ -174,7 +181,7 @@ if ($quote_status == "Draft" || $quote_status == "Sent" || $quote_status == "Vie
             </div>
         </div>
 
-        <?php $sql_items = mysqli_query($mysqli, "SELECT * FROM quote_items WHERE item_quote_id = $quote_id ORDER BY item_order ASC"); ?>
+        <?php $sql_items = mysqli_query($mysqli, "SELECT item_description, item_id, item_name, item_price, item_quantity, item_tax, item_total FROM quote_items WHERE item_quote_id = $quote_id ORDER BY item_order ASC"); ?>
 
         <div class="row mb-3">
             <div class="col-md-12">

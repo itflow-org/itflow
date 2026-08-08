@@ -60,7 +60,7 @@ ob_start();
                     <option value="0">- No -</option>
                     <?php
 
-                    $sql_project_templates = mysqli_query($mysqli, "SELECT * FROM project_templates WHERE project_template_archived_at IS NULL ORDER BY project_template_name ASC");
+                    $sql_project_templates = mysqli_query($mysqli, "SELECT project_template_id, project_template_name FROM project_templates WHERE project_template_archived_at IS NULL ORDER BY project_template_name ASC");
                     while ($row = mysqli_fetch_assoc($sql_project_templates)) {
                         $project_template_id_select = intval($row['project_template_id']);
                         $project_template_name_select = escapeHtml($row['project_template_name']); ?>

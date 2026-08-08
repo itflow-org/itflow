@@ -78,7 +78,7 @@ if (isset($_GET['delete_transfer'])) {
     $transfer_id = intval($_GET['delete_transfer']);
 
     // Query the transfer ID to get the Payment and Expense IDs, so we can delete those as well
-    $row = mysqli_fetch_assoc(mysqli_query($mysqli,"SELECT * FROM transfers WHERE transfer_id = $transfer_id"));
+    $row = mysqli_fetch_assoc(mysqli_query($mysqli,"SELECT transfer_expense_id, transfer_revenue_id FROM transfers WHERE transfer_id = $transfer_id"));
     $expense_id = intval($row['transfer_expense_id']);
     $revenue_id = intval($row['transfer_revenue_id']);
 

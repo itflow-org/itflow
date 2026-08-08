@@ -6,7 +6,7 @@ enforceUserPermission('module_support', 2);
 
 $folder_id = intval($_GET['id']);
 
-$sql = mysqli_query($mysqli, "SELECT * FROM folders WHERE folder_id = $folder_id LIMIT 1");
+$sql = mysqli_query($mysqli, "SELECT folder_client_id, folder_name FROM folders WHERE folder_id = $folder_id LIMIT 1");
 
 $row = mysqli_fetch_assoc($sql);
 $folder_name = escapeHtml($row['folder_name']);

@@ -14,7 +14,12 @@ $invoice_id = intval($_GET['invoice_id']);
 
 $sql = mysqli_query(
     $mysqli,
-    "SELECT * FROM invoices
+    "SELECT client_currency_code, client_id, client_name, client_net_terms, client_website,
+        contact_email, contact_extension, contact_mobile, contact_mobile_country_code,
+        contact_phone, contact_phone_country_code, invoice_amount, invoice_category_id,
+        invoice_currency_code, invoice_date, invoice_discount_amount, invoice_due, invoice_id,
+        invoice_note, invoice_number, invoice_prefix, invoice_status, location_address,
+        location_city, location_country, location_state, location_zip FROM invoices
     LEFT JOIN clients ON invoice_client_id = client_id
     LEFT JOIN locations ON clients.client_id = locations.location_client_id AND location_primary = 1
     LEFT JOIN contacts ON clients.client_id = contacts.contact_client_id AND contact_primary = 1
@@ -61,7 +66,9 @@ $client_website = escapeHtml($row['client_website']);
 $client_currency_code = escapeHtml($row['client_currency_code']);
 $client_net_terms = intval($row['client_net_terms']);
 
-$sql = mysqli_query($mysqli, "SELECT * FROM companies, settings WHERE companies.company_id = settings.company_id AND companies.company_id = 1");
+$sql = mysqli_query($mysqli, "SELECT company_address, company_city, company_country, company_email, company_locale,
+    company_logo, company_name, company_phone, company_phone_country_code, company_state,
+    company_tax_id, company_website, company_zip, config_invoice_footer FROM companies, settings WHERE companies.company_id = settings.company_id AND companies.company_id = 1");
 $row = mysqli_fetch_assoc($sql);
 
 $company_name = escapeHtml($row['company_name']);
@@ -88,7 +95,7 @@ $company_locale = escapeHtml($row['company_locale']);
 $config_invoice_footer = escapeHtml($row['config_invoice_footer']);
 
 // Get Payment Provide Details
-$sql = mysqli_query($mysqli, "SELECT * FROM payment_providers WHERE payment_provider_active = 1 LIMIT 1");
+$sql = mysqli_query($mysqli, "SELECT payment_provider_id, payment_provider_name, payment_provider_threshold FROM payment_providers WHERE payment_provider_active = 1 LIMIT 1");
 $row = mysqli_fetch_assoc($sql);
 $payment_provider_id = intval($row['payment_provider_id']);
 $payment_provider_name = escapeHtml($row['payment_provider_name']);
@@ -135,7 +142,7 @@ if ($invoice_status !== "Paid" && $invoice_status !== "Draft" && $invoice_status
 }
 
 // Invoice individual items
-$sql_invoice_items = mysqli_query($mysqli, "SELECT * FROM invoice_items WHERE item_invoice_id = $invoice_id ORDER BY item_order ASC");
+$sql_invoice_items = mysqli_query($mysqli, "SELECT item_description, item_id, item_name, item_price, item_quantity, item_tax, item_total FROM invoice_items WHERE item_invoice_id = $invoice_id ORDER BY item_order ASC");
 
 
 // Get Total Account Balance
@@ -358,7 +365,8 @@ if ($balance > 0) {
 
 // CURRENT INVOICES
 
-$sql_current_invoices = mysqli_query($mysqli, "SELECT * FROM invoices WHERE invoice_client_id = $client_id AND invoice_due > CURDATE() AND(invoice_status = 'Sent' OR invoice_status = 'Viewed' OR invoice_status = 'Partial') ORDER BY invoice_number DESC");
+$sql_current_invoices = mysqli_query($mysqli, "SELECT invoice_amount, invoice_currency_code, invoice_date, invoice_due, invoice_id,
+    invoice_number, invoice_prefix, invoice_url_key FROM invoices WHERE invoice_client_id = $client_id AND invoice_due > CURDATE() AND(invoice_status = 'Sent' OR invoice_status = 'Viewed' OR invoice_status = 'Partial') ORDER BY invoice_number DESC");
 
 $current_invoices_count = mysqli_num_rows($sql_current_invoices);
 
@@ -420,7 +428,8 @@ if ($current_invoices_count > 0) { ?>
 
 // OUTSTANDING INVOICES
 
-$sql_outstanding_invoices = mysqli_query($mysqli, "SELECT * FROM invoices WHERE invoice_client_id = $client_id AND invoice_due < CURDATE() AND(invoice_status = 'Sent' OR invoice_status = 'Viewed' OR invoice_status = 'Partial') ORDER BY invoice_date DESC");
+$sql_outstanding_invoices = mysqli_query($mysqli, "SELECT invoice_amount, invoice_currency_code, invoice_date, invoice_due, invoice_id,
+    invoice_number, invoice_prefix, invoice_url_key FROM invoices WHERE invoice_client_id = $client_id AND invoice_due < CURDATE() AND(invoice_status = 'Sent' OR invoice_status = 'Viewed' OR invoice_status = 'Partial') ORDER BY invoice_date DESC");
 
 $outstanding_invoices_count = mysqli_num_rows($sql_outstanding_invoices);
 

@@ -28,7 +28,7 @@ if (isset($_GET['category']) & !empty($_GET['catergory'])) {
 
 $sql = mysqli_query(
     $mysqli,
-    "SELECT SQL_CALC_FOUND_ROWS * FROM app_logs
+    "SELECT SQL_CALC_FOUND_ROWS app_log_category, app_log_created_at, app_log_details, app_log_id, app_log_type FROM app_logs
     WHERE (app_log_type LIKE '%$q%' OR app_log_category LIKE '%$q%' OR app_log_details LIKE '%$q%')
     AND DATE(app_log_created_at) BETWEEN '$dtf' AND '$dtt'
     $log_type_query

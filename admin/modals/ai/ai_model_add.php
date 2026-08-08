@@ -26,7 +26,7 @@ ob_start();
                 <select class="form-control select2" name="provider" required>
                     <option value="">- Select an AI Provider -</option>
                     <?php
-                        $sql_ai_providers = mysqli_query($mysqli, "SELECT * FROM ai_providers");
+                        $sql_ai_providers = mysqli_query($mysqli, "SELECT ai_provider_id, ai_provider_name FROM ai_providers");
                         while ($row = mysqli_fetch_assoc($sql_ai_providers)) {
                             $ai_provider_id = intval($row['ai_provider_id']);
                             $ai_provider_name = escapeHtml($row['ai_provider_name']);
@@ -60,6 +60,17 @@ ob_start();
                     <option>Documentation</option>
                 </select>
             </div>
+        </div>
+
+        <div class="form-group">
+            <label>Temperature</label>
+            <div class="input-group">
+                <div class="input-group-prepend">
+                    <span class="input-group-text"><i class="fa fa-fw fa-thermometer-half"></i></span>
+                </div>
+                <input type="number" class="form-control" name="temperature" step="0.1" min="0" max="2" value="" placeholder="Provider default">
+            </div>
+            <small class="form-text text-muted">Optional. Leave blank to let the provider use its default - some newer models reject every other value.</small>
         </div>
 
         <div class="form-group">

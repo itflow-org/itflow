@@ -2,6 +2,37 @@
 
 This file documents all notable changes made to ITFlow.
 
+## [26.08.1] Maint Release
+
+### Upgrading to 26.08.1
+
+Update the files from Settings > Update as normal. This release moves the database to 2.6.7 and the web updater completes it for you — the command line step that 26.08 required is not needed again.
+
+### Breaking Changes and Notes
+
+- Client access: agents with restricted client access now see records that have no client assigned. Previously this varied by page — unassigned tickets and projects were visible, unassigned expenses and credentials were not. It is now consistent everywhere.
+
+### Bug Fixes
+- Setup: fixed the wizard closing itself after the first user, which left new 26.08 installs stuck in a redirect loop between `/setup` and `/login.php`.
+- API: tightened client scoping on the expense read and record update endpoints.
+- Income: revenue rows now respect restricted client access.
+- Client PDF Export: fixed the export producing a CSV file, and each section is now gated on the module that owns it.
+- AI: fixed model creation, per-use-case model selection, configurable temperature, and error reporting.
+- Ticket: system-generated replies no longer record time worked that was never worked.
+- Ticket: fixed an error when scheduling a ticket.
+- Ticket: cancelling a schedule now cancels the calendar event on the recipient's calendar.
+- Ticket: history no longer records a status change when the status did not change.
+- Recurring Ticket: bulk priority changes no longer deny access to agents who are not administrators.
+- Contact: deleting a contact now removes the linked portal user, and anonymizing now redacts the phone number.
+- Calendar: fixed event deletion.
+
+### New Features & Updates
+- Performance: queries now select only the columns they use instead of `SELECT *`, cutting memory use and query time across the app and especially in the crons.
+- Performance: removed client joins that were only there for scoping — side nav badge counts are significantly faster.
+- Client scoping: added a `clientScopeSql()` helper so list queries scope on the owning column instead of a joined `clients.client_id`.
+- Contributing: documented the column-selection and client-scoping conventions.
+
+
 ## [26.08]
  
 ### Upgrading to 26.08

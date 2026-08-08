@@ -12,7 +12,7 @@ require_once '../includes/stripe_init.php';
 
 // Get Stripe provider info
 $stripe_provider_query = mysqli_query($mysqli, "
-    SELECT * FROM payment_providers WHERE payment_provider_name = 'Stripe' LIMIT 1
+    SELECT payment_provider_id, payment_provider_private_key, payment_provider_public_key FROM payment_providers WHERE payment_provider_name = 'Stripe' LIMIT 1
 ");
 $stripe_provider = mysqli_fetch_assoc($stripe_provider_query);
 
@@ -28,7 +28,7 @@ $stripe_secret_key = escapeHtml($stripe_provider['payment_provider_private_key']
 
 // Get client's Stripe customer ID
 $stripe_customer_query = mysqli_query($mysqli, "
-    SELECT * FROM client_payment_provider
+    SELECT payment_provider_client FROM client_payment_provider
     WHERE client_id = $session_client_id AND payment_provider_id = $stripe_provider_id
     LIMIT 1
 ");

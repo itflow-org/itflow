@@ -48,7 +48,8 @@ if (isset($_GET['action']) & !empty($_GET['action'])) {
 
 $sql = mysqli_query(
     $mysqli,
-    "SELECT SQL_CALC_FOUND_ROWS * FROM logs
+    "SELECT SQL_CALC_FOUND_ROWS client_id, client_name, log_action, log_created_at, log_description, log_entity_id, log_id,
+        log_ip, log_type, log_user_agent, user_id, user_name FROM logs
     LEFT JOIN users ON log_user_id = user_id
     LEFT JOIN clients ON log_client_id = client_id
     WHERE (log_type LIKE '%$q%' OR log_action LIKE '%$q%' OR log_description LIKE '%$q%' OR log_ip LIKE '%$q%' OR log_user_agent LIKE '%$q%' OR user_name LIKE '%$q%' OR client_name LIKE '%$q%')
@@ -87,7 +88,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                 <option value="">- All Clients -</option>
 
                                 <?php
-                                $sql_clients_filter = mysqli_query($mysqli, "SELECT * FROM clients ORDER BY client_name ASC");
+                                $sql_clients_filter = mysqli_query($mysqli, "SELECT client_id, client_name FROM clients ORDER BY client_name ASC");
                                 while ($row = mysqli_fetch_assoc($sql_clients_filter)) {
                                     $client_id = intval($row['client_id']);
                                     $client_name = escapeHtml($row['client_name']);
@@ -107,7 +108,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                 <option value="">- All Users -</option>
 
                                 <?php
-                                $sql_users_filter = mysqli_query($mysqli, "SELECT * FROM users ORDER BY user_name ASC");
+                                $sql_users_filter = mysqli_query($mysqli, "SELECT user_id, user_name FROM users ORDER BY user_name ASC");
                                 while ($row = mysqli_fetch_assoc($sql_users_filter)) {
                                     $user_id = intval($row['user_id']);
                                     $user_name = escapeHtml($row['user_name']);

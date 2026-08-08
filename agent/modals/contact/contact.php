@@ -6,7 +6,13 @@ enforceUserPermission('module_client');
 
 $contact_id = intval($_GET['id']);
 
-$sql = mysqli_query($mysqli, "SELECT * FROM contacts
+$sql = mysqli_query($mysqli, "SELECT client_id, client_name, contact_billing, contact_client_id, contact_created_at,
+    contact_department, contact_email, contact_extension, contact_important,
+    contact_location_id, contact_mobile, contact_mobile_country_code, contact_name,
+    contact_notes, contact_phone, contact_phone_country_code, contact_photo, contact_pin,
+    contact_primary, contact_technical, contact_title, location_address, location_city,
+    location_country, location_name, location_phone, location_phone_country_code,
+    location_state, location_zip, user_auth_method FROM contacts
     LEFT JOIN clients ON client_id = contact_client_id
     LEFT JOIN locations ON location_id = contact_location_id
     LEFT JOIN users ON user_id = contact_user_id
@@ -52,7 +58,8 @@ $auth_method = escapeHtml($row['user_auth_method']);
 $contact_client_id = intval($row['contact_client_id']);
 
 // Related Assets Query - 1 to 1 relationship
-$sql_related_assets = mysqli_query($mysqli, "SELECT * FROM assets
+$sql_related_assets = mysqli_query($mysqli, "SELECT asset_description, asset_favorite, asset_id, asset_install_date, asset_make, asset_model,
+    asset_name, asset_serial, asset_status, asset_type FROM assets
     LEFT JOIN asset_interfaces ON interface_asset_id = asset_id AND interface_primary = 1
     LEFT JOIN asset_tags ON asset_tag_asset_id = asset_id
     LEFT JOIN tags ON tag_id = asset_tag_tag_id
@@ -63,7 +70,8 @@ $sql_related_assets = mysqli_query($mysqli, "SELECT * FROM assets
 $asset_count = mysqli_num_rows($sql_related_assets);
 
 // Linked Software Licenses
-$sql_linked_software = mysqli_query($mysqli, "SELECT * FROM software_contacts, software
+$sql_linked_software = mysqli_query($mysqli, "SELECT software.software_id, software_key, software_name, software_seats, software_type,
+    software_version FROM software_contacts, software
     WHERE software_contacts.contact_id = $contact_id
     AND software_contacts.software_id = software.software_id
     AND software_archived_at IS NULL
@@ -89,7 +97,9 @@ $sql_related_credentials = mysqli_query($mysqli, "
 $credential_count = mysqli_num_rows($sql_related_credentials);
 
 // Related Tickets Query - 1 to 1 relationship
-$sql_related_tickets = mysqli_query($mysqli, "SELECT * FROM tickets
+$sql_related_tickets = mysqli_query($mysqli, "SELECT ticket_assigned_to, ticket_created_at, ticket_id, ticket_number, ticket_prefix,
+    ticket_priority, ticket_status, ticket_status_color, ticket_status_name, ticket_subject,
+    ticket_updated_at, user_name FROM tickets
     LEFT JOIN users ON ticket_assigned_to = user_id
     LEFT JOIN ticket_statuses ON ticket_status = ticket_status_id
     WHERE ticket_contact_id = $contact_id
@@ -98,7 +108,8 @@ $sql_related_tickets = mysqli_query($mysqli, "SELECT * FROM tickets
 $ticket_count = mysqli_num_rows($sql_related_tickets);
 
 // Related Recurring Tickets Query
-$sql_related_recurring_tickets = mysqli_query($mysqli, "SELECT * FROM recurring_tickets
+$sql_related_recurring_tickets = mysqli_query($mysqli, "SELECT recurring_ticket_frequency, recurring_ticket_next_run, recurring_ticket_priority,
+    recurring_ticket_subject FROM recurring_tickets
     WHERE recurring_ticket_contact_id = $contact_id
     ORDER BY recurring_ticket_next_run DESC"
 );
@@ -107,7 +118,7 @@ $recurring_ticket_count = mysqli_num_rows($sql_related_recurring_tickets);
 // Tags - many to many relationship
 $contact_tag_name_display_array = array();
 $contact_tag_id_array = array();
-$sql_contact_tags = mysqli_query($mysqli, "SELECT * FROM contact_tags
+$sql_contact_tags = mysqli_query($mysqli, "SELECT tag_color, tag_icon, contact_tags.tag_id, tag_name FROM contact_tags
     LEFT JOIN tags ON contact_tags.tag_id = tags.tag_id
     WHERE contact_id = $contact_id
     ORDER BY tag_name ASC
@@ -131,7 +142,7 @@ while ($row = mysqli_fetch_assoc($sql_contact_tags)) {
 $contact_tags_display = implode('', $contact_tag_name_display_array);
 
 // Notes - 1 to 1 relationship
-$sql_related_notes = mysqli_query($mysqli, "SELECT * FROM contact_notes
+$sql_related_notes = mysqli_query($mysqli, "SELECT contact_note, contact_note_created_at, contact_note_type, user_name FROM contact_notes
     LEFT JOIN users ON contact_note_created_by = user_id
     WHERE contact_note_contact_id = $contact_id
     AND contact_note_archived_at IS NULL
@@ -147,7 +158,7 @@ while ($row = mysqli_fetch_assoc($sql_note_type_icons)) {
 }
 
 // Linked Services
-$sql_linked_services = mysqli_query($mysqli, "SELECT * FROM service_contacts, services
+$sql_linked_services = mysqli_query($mysqli, "SELECT 1 FROM service_contacts, services
     WHERE service_contacts.contact_id = $contact_id
     AND service_contacts.service_id = services.service_id
     ORDER BY service_name ASC"
@@ -156,7 +167,8 @@ $services_count = mysqli_num_rows($sql_linked_services);
 $linked_services = array();
 
 // Linked Documents
-$sql_linked_documents = mysqli_query($mysqli, "SELECT * FROM contact_documents, documents
+$sql_linked_documents = mysqli_query($mysqli, "SELECT document_created_at, document_description, documents.document_id, document_name,
+    document_updated_at, user_name FROM contact_documents, documents
     LEFT JOIN users ON document_created_by = user_id
     WHERE contact_documents.contact_id = $contact_id
     AND contact_documents.document_id = documents.document_id
@@ -167,7 +179,7 @@ $document_count = mysqli_num_rows($sql_linked_documents);
 $linked_documents = array();
 
 // Linked Files
-$sql_linked_files = mysqli_query($mysqli, "SELECT * FROM contact_files, files
+$sql_linked_files = mysqli_query($mysqli, "SELECT file_created_at, file_description, files.file_id, file_mime_type, file_name, file_size FROM contact_files, files
     WHERE contact_files.contact_id = $contact_id
     AND contact_files.file_id = files.file_id
     AND file_archived_at IS NULL
@@ -475,7 +487,7 @@ ob_start();
 
                                 // Tags
                                 $asset_tag_name_display_array = array();
-                                $sql_asset_tags = mysqli_query($mysqli, "SELECT * FROM asset_tags LEFT JOIN tags ON asset_tag_tag_id = tag_id WHERE asset_tag_asset_id = $asset_id ORDER BY tag_name ASC");
+                                $sql_asset_tags = mysqli_query($mysqli, "SELECT tag_color, tag_icon, tag_id, tag_name FROM asset_tags LEFT JOIN tags ON asset_tag_tag_id = tag_id WHERE asset_tag_asset_id = $asset_id ORDER BY tag_name ASC");
                                 while ($row2 = mysqli_fetch_assoc($sql_asset_tags)) {
                                     $asset_tag_id = intval($row2['tag_id']);
                                     $asset_tag_name = escapeHtml($row2['tag_name']);

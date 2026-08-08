@@ -4,7 +4,7 @@ require_once '../../includes/modal_header.php';
 
 $payment_method_id = intval($_GET['id']);
 
-$sql = mysqli_query($mysqli, "SELECT * FROM payment_methods WHERE payment_method_id = $payment_method_id LIMIT 1");
+$sql = mysqli_query($mysqli, "SELECT payment_method_description, payment_method_id, payment_method_name FROM payment_methods WHERE payment_method_id = $payment_method_id LIMIT 1");
 
 $row = mysqli_fetch_assoc($sql);
 $payment_method_id = intval($row['payment_method_id']);

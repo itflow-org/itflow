@@ -6,7 +6,8 @@ $order = "ASC";
 
 require_once "includes/inc_all_admin.php";
 
-$sql = mysqli_query($mysqli, "SELECT * FROM payment_providers
+$sql = mysqli_query($mysqli, "SELECT account_name, category_name, payment_provider_description, payment_provider_id,
+    payment_provider_name, payment_provider_threshold, vendor_name FROM payment_providers
     LEFT JOIN accounts ON payment_provider_account = account_id
     LEFT JOIN vendors ON payment_provider_expense_vendor = vendor_id
     LEFT JOIN categories ON payment_provider_expense_category = category_id

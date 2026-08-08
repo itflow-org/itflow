@@ -6,7 +6,7 @@ $client_id = intval($_GET['client_id']);
 
 $sql = mysqli_query(
     $mysqli,
-    "SELECT * FROM clients
+    "SELECT client_currency_code, client_name, contact_email, contact_name FROM clients
     LEFT JOIN contacts ON clients.client_id = contacts.contact_client_id AND contact_primary = 1
     WHERE client_id = $client_id"
 );
@@ -95,7 +95,7 @@ ob_start();
                     <option value="">- Select an Account -</option>
                     <?php
 
-                    $sql = mysqli_query($mysqli, "SELECT * FROM accounts WHERE account_archived_at IS NULL ORDER BY account_name ASC");
+                    $sql = mysqli_query($mysqli, "SELECT account_id, account_name, opening_balance FROM accounts WHERE account_archived_at IS NULL ORDER BY account_name ASC");
                     while ($row = mysqli_fetch_assoc($sql)) {
                         $account_id = intval($row['account_id']);
                         $account_name = escapeHtml($row['account_name']);
@@ -138,7 +138,7 @@ ob_start();
                     <option value="">- Method of Payment -</option>
                     <?php
 
-                    $sql = mysqli_query($mysqli, "SELECT * FROM payment_methods ORDER BY payment_method_name ASC");
+                    $sql = mysqli_query($mysqli, "SELECT payment_method_name FROM payment_methods ORDER BY payment_method_name ASC");
                     while ($row = mysqli_fetch_assoc($sql)) {
                         $payment_method_name = escapeHtml($row['payment_method_name']);
                     ?>

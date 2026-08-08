@@ -41,7 +41,10 @@ if (isset($_GET['category']) & !empty($_GET['category'])) {
 
 $sql = mysqli_query(
     $mysqli,
-    "SELECT SQL_CALC_FOUND_ROWS * FROM expenses
+    "SELECT SQL_CALC_FOUND_ROWS account_name, category_name, client_name, expense_account_id, expense_amount,
+        expense_category_id, expense_client_id, expense_created_at, expense_currency_code,
+        expense_date, expense_description, expense_id, expense_receipt, expense_reference,
+        expense_vendor_id, vendor_name FROM expenses
     LEFT JOIN categories ON expense_category_id = category_id
     LEFT JOIN vendors ON expense_vendor_id = vendor_id
     LEFT JOIN accounts ON expense_account_id = account_id
@@ -52,7 +55,7 @@ $sql = mysqli_query(
     $category_query
     AND (vendor_name LIKE '%$q%' OR client_name LIKE '%$q%' OR category_name LIKE '%$q%' OR account_name LIKE '%$q%' OR expense_description LIKE '%$q%' OR expense_amount LIKE '%$q%')
     $account_query
-    $access_permission_query
+    " . clientScopeSql('expense_client_id') . "
     ORDER BY $sort $order LIMIT $record_from, $record_to"
 );
 

@@ -2,7 +2,9 @@
 require_once "includes/inc_all_admin.php";
 
 
-$sql = mysqli_query($mysqli,"SELECT * FROM companies, settings WHERE companies.company_id = settings.company_id AND companies.company_id = 1");
+$sql = mysqli_query($mysqli,"SELECT company_address, company_city, company_country, company_currency, company_email,
+    settings.company_id, company_locale, company_logo, company_name, company_phone,
+    company_phone_country_code, company_state, company_tax_id, company_website, company_zip FROM companies, settings WHERE companies.company_id = settings.company_id AND companies.company_id = 1");
 
 $row = mysqli_fetch_assoc($sql);
 $company_id = intval($row['company_id']);

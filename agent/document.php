@@ -17,7 +17,9 @@ if (isset($_GET['document_id'])) {
 
 $folder_location = 0;
 
-$sql_document = mysqli_query($mysqli, "SELECT * FROM documents
+$sql_document = mysqli_query($mysqli, "SELECT document_archived_at, document_client_visible, document_content, document_created_at,
+    document_created_by, document_description, document_folder_id, document_name,
+    document_updated_at, folder_name, user_name FROM documents
     LEFT JOIN folders ON document_folder_id = folder_id
     LEFT JOIN users ON document_created_by = user_id
     WHERE document_client_id = $client_id AND document_id = $document_id
@@ -142,7 +144,8 @@ $page_title = $row['document_name'];
                     </thead>
                     <tbody>
                         <?php
-                        $sql_document_versions = mysqli_query($mysqli, "SELECT * FROM document_versions
+                        $sql_document_versions = mysqli_query($mysqli, "SELECT document_version_created_at, document_version_description, document_version_id,
+                            document_version_name, user_name FROM document_versions
                             LEFT JOIN users ON document_version_created_by = user_id
                             WHERE document_version_document_id = $document_id
                             ORDER BY document_version_created_at ASC"
@@ -208,7 +211,7 @@ $page_title = $row['document_name'];
                 </button>
             </h6>
             <?php
-            $sql_files = mysqli_query($mysqli, "SELECT * FROM files, document_files
+            $sql_files = mysqli_query($mysqli, "SELECT file_folder_id, files.file_id, file_name FROM files, document_files
                 WHERE document_files.file_id = files.file_id
                 AND document_files.document_id = $document_id
                 ORDER BY file_name ASC"
@@ -394,7 +397,8 @@ $page_title = $row['document_name'];
             <h6><i class="fas fa-history mr-2"></i>Revisions</h6>
             <?php
 
-            $sql_document_versions = mysqli_query($mysqli, "SELECT * FROM document_versions
+            $sql_document_versions = mysqli_query($mysqli, "SELECT document_version_created_at, document_version_description, document_version_id,
+                document_version_name, user_name FROM document_versions
                 LEFT JOIN users ON document_version_created_by = user_id
                 WHERE document_version_document_id = $document_id
                 ORDER BY document_version_created_at DESC"

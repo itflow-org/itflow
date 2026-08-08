@@ -6,7 +6,9 @@ enforceUserPermission('module_support', 2);
 
 $project_id = intval($_GET['id']);
 
-$sql = mysqli_query($mysqli, "SELECT * FROM projects WHERE project_id = $project_id LIMIT 1");
+$sql = mysqli_query($mysqli, "SELECT project_archived_at, project_client_id, project_completed_at, project_created_at,
+    project_description, project_due, project_manager, project_name, project_number,
+    project_prefix, project_updated_at FROM projects WHERE project_id = $project_id LIMIT 1");
 
 $row = mysqli_fetch_assoc($sql);
 $project_prefix = escapeHtml($row['project_prefix']);

@@ -54,7 +54,7 @@ if (isset($_POST['add_user'])) {
     // Create Settings
     mysqli_query($mysqli, "INSERT INTO user_settings SET user_id = $user_id, user_config_force_mfa = $force_mfa");
 
-    $sql = mysqli_query($mysqli,"SELECT * FROM companies WHERE company_id = 1");
+    $sql = mysqli_query($mysqli,"SELECT company_name FROM companies WHERE company_id = 1");
     $row = mysqli_fetch_assoc($sql);
     $company_name = escapeSql($row['company_name']);
 
@@ -328,7 +328,7 @@ if (isset($_POST['restore_user'])) {
 
 }
 
-if (isset($_POST['export_users'])) {
+if (isExportRequest('export_users')) {
 
     validateCSRFToken();
 
@@ -355,7 +355,7 @@ if (isset($_POST['export_users'])) {
 
     $sql = mysqli_query(
         $mysqli,
-        "SELECT * FROM users
+        "SELECT user_status FROM users
         LEFT JOIN user_roles ON user_role_id = role_id
         WHERE (user_name LIKE '%$q%' OR user_email LIKE '%$q%')
         AND user_type = 1
@@ -402,7 +402,7 @@ if (isset($_POST['ir_reset_user_password'])) {
 
     // Confirm logged-in user password, for security
     $admin_password = $_POST['admin_password'];
-    $sql = mysqli_query($mysqli, "SELECT * FROM users WHERE user_id = $session_user_id");
+    $sql = mysqli_query($mysqli, "SELECT user_password FROM users WHERE user_id = $session_user_id");
     $userRow = mysqli_fetch_assoc($sql);
 
     if (!password_verify($admin_password, $userRow['user_password'])) {
@@ -411,7 +411,7 @@ if (isset($_POST['ir_reset_user_password'])) {
     }
 
     // Get agents/users, other than the current user
-    $sql_users = mysqli_query($mysqli, "SELECT * FROM users WHERE (user_archived_at IS NULL AND user_id != $session_user_id)");
+    $sql_users = mysqli_query($mysqli, "SELECT user_email, user_id FROM users WHERE (user_archived_at IS NULL AND user_id != $session_user_id)");
 
     // Reset passwords
     while ($row = mysqli_fetch_assoc($sql_users)) {

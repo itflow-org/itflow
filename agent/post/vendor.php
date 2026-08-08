@@ -26,7 +26,10 @@ if (isset($_POST['add_vendor_from_template'])) {
     $vendor_template_id = intval($_POST['vendor_template_id']);
 
     //GET Vendor Info
-    $sql_vendor_templates = mysqli_query($mysqli,"SELECT * FROM vendor_templates WHERE vendor_template_id = $vendor_template_id");
+    $sql_vendor_templates = mysqli_query($mysqli,"SELECT vendor_template_account_number, vendor_template_code, vendor_template_contact_name,
+        vendor_template_description, vendor_template_email, vendor_template_extension,
+        vendor_template_hours, vendor_template_name, vendor_template_notes, vendor_template_phone,
+        vendor_template_phone_country_code, vendor_template_sla, vendor_template_website FROM vendor_templates WHERE vendor_template_id = $vendor_template_id");
 
     $row = mysqli_fetch_assoc($sql_vendor_templates);
 
@@ -124,7 +127,7 @@ if (isset($_GET['archive_vendor'])) {
     $vendor_id = intval($_GET['archive_vendor']);
 
     //Get Vendor Name
-    $sql = mysqli_query($mysqli,"SELECT * FROM vendors WHERE vendor_id = $vendor_id");
+    $sql = mysqli_query($mysqli,"SELECT vendor_client_id, vendor_name FROM vendors WHERE vendor_id = $vendor_id");
     $row = mysqli_fetch_assoc($sql);
     $vendor_name = escapeSql($row['vendor_name']);
     $client_id = intval($row['vendor_client_id']);
@@ -184,7 +187,7 @@ if (isset($_GET['delete_vendor'])) {
     $vendor_id = intval($_GET['delete_vendor']);
 
     //Get Vendor Name
-    $sql = mysqli_query($mysqli,"SELECT * FROM vendors WHERE vendor_id = $vendor_id");
+    $sql = mysqli_query($mysqli,"SELECT vendor_client_id, vendor_name, vendor_template_id FROM vendors WHERE vendor_id = $vendor_id");
     $row = mysqli_fetch_assoc($sql);
     $vendor_name = escapeSql($row['vendor_name']);
     $client_id = intval($row['vendor_client_id']);
@@ -350,7 +353,7 @@ if (isset($_POST['bulk_delete_vendors'])) {
 
 }
 
-if (isset($_POST['export_vendors'])) {
+if (isExportRequest('export_vendors')) {
 
     validateCSRFToken();
 
@@ -398,7 +401,7 @@ if (isset($_POST['export_vendors'])) {
         WHERE $archive_query
         AND (vendor_name LIKE '%$q%' OR vendor_description LIKE '%$q%' OR vendor_account_number LIKE '%$q%' OR vendor_website LIKE '%$q%' OR vendor_contact_name LIKE '%$q%' OR vendor_email LIKE '%$q%' OR vendor_phone LIKE '%$q%')
         $client_query
-        $access_permission_query
+        " . clientScopeSql('vendor_client_id') . "
         ORDER BY vendor_name ASC"
     );
 
