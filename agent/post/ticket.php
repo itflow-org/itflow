@@ -3062,7 +3062,7 @@ if (isset($_POST['edit_ticket_schedule'])) {
 
 
     /// Create iCal event
-    $cal_str = createiCalStr($schedule, $cal_subject, $cal_description, $cal_location);
+    $cal_str = createiCalStr($schedule, $cal_subject, $cal_description, $cal_location, getTicketCalendarUid($ticket_id));
 
     // Notify the agent of the scheduled work
     $data[] = [
@@ -3183,7 +3183,6 @@ if (isset($_GET['cancel_ticket_schedule'])) {
     $ticket_number = intval($row['ticket_number']);
     $ticket_subject = escapeSql($row['ticket_subject']);
     $ticket_schedule = escapeSql($row['ticket_schedule']);
-    $ticket_cal_str = escapeSql($row['ticket_cal_str']);
 
     // Don't Enforce Client Access if Ticket doesn't have an assigned client
     if ($client_id) {
@@ -3202,9 +3201,6 @@ if (isset($_GET['cancel_ticket_schedule'])) {
     $config_ticket_from_email = escapeSql($config_ticket_from_email);
     $config_ticket_from_name = escapeSql($config_ticket_from_name);
     $session_company_name = escapeSql($session_company_name);
-
-    //Create iCal event
-    $cal_str = createiCalStrCancel($ticket_cal_str);
 
     //Send emails
 
@@ -3228,6 +3224,10 @@ if (isset($_GET['cancel_ticket_schedule'])) {
     $ticket_subject = escapeSql($row['ticket_subject']);
     $user_name = escapeSql($row['user_name']);
     $user_email = escapeSql($row['user_email']);
+
+    //Create the iCal cancellation - same UID and subject as the original invite
+    $cal_subject = $ticket_number . ": " . $client_name . " - " . $ticket_subject;
+    $cal_str = createiCalStrCancel($ticket_schedule, $cal_subject, getTicketCalendarUid($ticket_id));
 
     // Notify the agent of the cancellation
     $data[] = [
