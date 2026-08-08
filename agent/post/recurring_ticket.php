@@ -566,7 +566,7 @@ if (isset($_POST['bulk_edit_recurring_ticket_priority'])) {
 
             $recurring_ticket_subject = escapeSql($row['recurring_ticket_subject']);
             $original_recurring_ticket_priority = escapeSql($row['recurring_ticket_priority']);
-            $client_id = intval($row['ticket_client_id']);
+            $client_id = intval($row['recurring_ticket_client_id']);
 
             enforceClientAccess();
 
