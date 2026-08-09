@@ -22,7 +22,9 @@ foreach (cronJobRegistry() as $job) {
     $cron_jobs[$job['name']]['row'] = null;
 }
 
-$sql = mysqli_query($mysqli, "SELECT cron_job_name FROM cron_jobs");
+$sql = mysqli_query($mysqli, "SELECT cron_job_daily_at, cron_job_enabled, cron_job_id, cron_job_interval_minutes,
+    cron_job_last_duration, cron_job_last_error, cron_job_last_error_at, cron_job_last_run_at, cron_job_last_status,
+    cron_job_name, cron_job_run_now, cron_job_schedule FROM cron_jobs");
 while ($job_row = mysqli_fetch_assoc($sql)) {
     if (isset($cron_jobs[$job_row['cron_job_name']])) {
         $cron_jobs[$job_row['cron_job_name']]['row'] = $job_row;

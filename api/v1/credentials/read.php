@@ -25,7 +25,7 @@ if (isset($_GET['credential_id']) && !empty($api_key_decrypt_password)) {
 } elseif (!empty($api_key_decrypt_password)) {
     // All credentials ("credentials")
 
-    $sql = mysqli_query($mysqli, "SELECT credential_password, credential_username FROM credentials WHERE 1=1 " . apiClientScopeSql('credential_client_id') . " ORDER BY credential_id LIMIT $limit OFFSET $offset");
+    $sql = mysqli_query($mysqli, "SELECT * FROM credentials WHERE 1=1 " . apiClientScopeSql('credential_client_id') . " ORDER BY credential_id LIMIT $limit OFFSET $offset");
 
 }
 
