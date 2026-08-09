@@ -304,8 +304,8 @@ while ($row = mysqli_fetch_assoc($sql)) {
         },
         events: [
             <?php
-            $sql = mysqli_query($mysqli, "SELECT calendar_color, calendar_id, calendar_name, event_all_day, event_id, event_repeat,
-                event_title FROM calendar_events LEFT JOIN calendars ON event_calendar_id = calendar_id $client_event_query");
+            $sql = mysqli_query($mysqli, "SELECT calendar_color, calendar_id, calendar_name, event_all_day, event_end, event_id,
+                event_repeat, event_start, event_title FROM calendar_events LEFT JOIN calendars ON event_calendar_id = calendar_id $client_event_query");
 
             // Repeating events are stored as a single row, so the occurrences have to
             // be materialised here - the bundled FullCalendar build has no rrule
