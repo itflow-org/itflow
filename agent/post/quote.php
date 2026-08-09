@@ -734,7 +734,8 @@ if (isExportRequest('export_quotes')) {
 
     $sql = mysqli_query(
         $mysqli,
-        "SELECT quote_number, quote_prefix FROM quotes
+        "SELECT client_name, quote_amount, quote_date, quote_number, quote_prefix, quote_scope,
+        quote_status FROM quotes
         LEFT JOIN clients ON quote_client_id = client_id
         LEFT JOIN categories ON quote_category_id = category_id
         WHERE (CONCAT(quote_prefix,quote_number) LIKE '%$q%' OR quote_scope LIKE '%$q%' OR category_name LIKE '%$q%' OR quote_status LIKE '%$q%' OR quote_amount LIKE '%$q%' OR client_name LIKE '%$q%')

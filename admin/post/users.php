@@ -355,7 +355,7 @@ if (isExportRequest('export_users')) {
 
     $sql = mysqli_query(
         $mysqli,
-        "SELECT user_status FROM users
+        "SELECT role_name, user_created_at, user_email, user_name, user_status FROM users
         LEFT JOIN user_roles ON user_role_id = role_id
         WHERE (user_name LIKE '%$q%' OR user_email LIKE '%$q%')
         AND user_type = 1
