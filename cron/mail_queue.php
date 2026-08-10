@@ -198,16 +198,25 @@ function sendQueueEmail(
     string $oauth_access_token,
     string $oauth_access_token_expires_at
 ) {
-    // Sensible defaults for OAuth providers if fields were left blank
+    // Google and Microsoft each expose exactly one XOAUTH2 SMTP endpoint, so the
+    // stored host/port/encryption are overridden rather than used as a fallback -
+    // the same thing cron/ticket_email_parser.php already does on the IMAP side.
+    //
+    // These used to apply only when the columns were blank, which quietly broke
+    // every install that moved from Standard SMTP to OAuth: the old server is
+    // still sitting in config_smtp_host/port/encryption, the settings page hides
+    // those fields for OAuth providers so there is no way to clear them, and the
+    // send then pointed an M365 bearer token at the previous mail host. Only a
+    // fresh install, where the columns happened to be empty, ever worked.
     if ($provider === 'google_oauth') {
-        if (!$host) $host = 'smtp.gmail.com';
-        if (!$port) $port = 587;
-        if (!$encryption) $encryption = 'tls';
+        $host       = 'smtp.gmail.com';
+        $port       = 587;
+        $encryption = 'tls';
         if (!$username) $username = $from_email;
     } elseif ($provider === 'microsoft_oauth') {
-        if (!$host) $host = 'smtp.office365.com';
-        if (!$port) $port = 587;
-        if (!$encryption) $encryption = 'tls';
+        $host       = 'smtp.office365.com';
+        $port       = 587;
+        $encryption = 'tls';
         if (!$username) $username = $from_email;
     }
 
