@@ -2906,7 +2906,9 @@ if (isExportRequest('export_tickets')) {
     // Get records from database - same shape as the tickets page list query
     $sql = mysqli_query(
         $mysqli,
-        "SELECT category_name, ticket_billable, ticket_number, ticket_prefix, user_name FROM tickets
+        "SELECT category_name, client_name, contact_name, ticket_billable, ticket_closed_at,
+        ticket_created_at, ticket_number, ticket_prefix, ticket_priority, ticket_resolved_at,
+        ticket_status_name, ticket_subject, user_name FROM tickets
         LEFT JOIN clients ON ticket_client_id = client_id
         LEFT JOIN contacts ON ticket_contact_id = contact_id
         LEFT JOIN users ON ticket_assigned_to = user_id

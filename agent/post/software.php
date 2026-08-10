@@ -292,7 +292,9 @@ if (isExportRequest('export_software')) {
 
     $sql = mysqli_query(
         $mysqli,
-        "SELECT software_id FROM software
+        "SELECT software_description, software_expire, software_id, software_key, software_license_type,
+        software_name, software_notes, software_purchase, software_seats, software_type,
+        software_version FROM software
         LEFT JOIN clients ON client_id = software_client_id
         LEFT JOIN vendors ON vendor_id = software_vendor_id
         WHERE (software_name LIKE '%$q%' OR software_type LIKE '%$q%' OR software_key LIKE '%$q%' OR client_name LIKE '%$q%')

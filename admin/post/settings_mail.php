@@ -91,6 +91,18 @@ if (isset($_POST['edit_mail_smtp_settings'])) {
     $config_smtp_username   = escapeSql($_POST['config_smtp_username'] ?? $config_smtp_username);
     $config_smtp_password   = escapeSql($_POST['config_smtp_password'] ?? $config_smtp_password);
 
+    // The host/port/encryption/password inputs are hidden and disabled for OAuth
+    // providers, so they never post and the ?? fallbacks above keep whatever the
+    // install used before. Clear them instead: the endpoint is fixed by provider,
+    // and the stored values would otherwise be both wrong and unreachable from
+    // the settings page. The mailbox password is no longer used either.
+    if ($config_smtp_provider === 'google_oauth' || $config_smtp_provider === 'microsoft_oauth') {
+        $config_smtp_host       = '';
+        $config_smtp_port       = 0;
+        $config_smtp_encryption = '';
+        $config_smtp_password   = '';
+    }
+
     mysqli_query($mysqli, "
         UPDATE settings SET
             config_smtp_provider              = '$config_smtp_provider',
@@ -120,6 +132,15 @@ if (isset($_POST['edit_mail_imap_settings'])) {
     $config_imap_encryption = escapeSql($_POST['config_imap_encryption'] ?? $config_imap_encryption);
     $config_imap_username   = escapeSql($_POST['config_imap_username'] ?? $config_imap_username);
     $config_imap_password   = escapeSql($_POST['config_imap_password'] ?? $config_imap_password);
+
+    // Same as the SMTP handler above - the connection fields are hidden for OAuth
+    // providers and never post, so drop the leftovers rather than carrying them.
+    if ($config_imap_provider === 'google_oauth' || $config_imap_provider === 'microsoft_oauth') {
+        $config_imap_host       = '';
+        $config_imap_port       = 0;
+        $config_imap_encryption = '';
+        $config_imap_password   = '';
+    }
 
     mysqli_query($mysqli, "
         UPDATE settings SET
@@ -259,26 +280,17 @@ if (isset($_POST['test_email_imap'])) {
 
     $is_oauth = ($provider === 'google_oauth' || $provider === 'microsoft_oauth');
 
+    // Override, don't default - a leftover standard-IMAP host from before the
+    // switch to OAuth would otherwise make this test fail against the old server
+    // while the cron parser (which overrides unconditionally) connects fine.
     if ($provider === 'google_oauth') {
-        if (empty($host)) {
-            $host = 'imap.gmail.com';
-        }
-        if (empty($port)) {
-            $port = 993;
-        }
-        if (empty($encryption)) {
-            $encryption = 'ssl';
-        }
+        $host       = 'imap.gmail.com';
+        $port       = 993;
+        $encryption = 'ssl';
     } elseif ($provider === 'microsoft_oauth') {
-        if (empty($host)) {
-            $host = 'outlook.office365.com';
-        }
-        if (empty($port)) {
-            $port = 993;
-        }
-        if (empty($encryption)) {
-            $encryption = 'ssl';
-        }
+        $host       = 'outlook.office365.com';
+        $port       = 993;
+        $encryption = 'ssl';
     }
 
     if (empty($host) || empty($port) || empty($username)) {
