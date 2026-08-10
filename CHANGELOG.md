@@ -2,6 +2,21 @@
 
 This file documents all notable changes made to ITFlow.
 
+## [26.08.2] Maint Release
+
+### Upgrading to 26.08.2
+
+Update the files from Settings > Update as normal. There is no database change in this release, so nothing else is required.
+
+### Bug Fixes
+- Calendar: fixed the agent calendar showing no events.
+- Calendar: shared calendar feeds set to publish busy blocks only were publishing full event titles, locations and descriptions to anyone holding the subscription link.
+- Cron: fixed Maintenance > Cron failing to load. Scheduled jobs themselves were unaffected and kept running.
+- Exports: restored the missing columns on the ticket, quote, recurring invoice, software and user exports.
+- API: restored the full record on the credentials list endpoint.
+- Mail: switching an existing install from Standard SMTP/IMAP to Microsoft 365 or Google OAuth no longer leaves the old mail server behind, which stopped sending and ticket email fetching from working. The connection settings for OAuth providers are now fixed by the provider and cleared on save.
+
+
 ## [26.08.1] Maint Release
 
 ### Upgrading to 26.08.1
