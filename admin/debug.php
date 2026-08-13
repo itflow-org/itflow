@@ -114,12 +114,12 @@ $phpConfig[] = [
     'value' => $post_max_size,
 ];
 
-// PHP Memory Limit >= 128M
+// PHP Memory Limit >= 512M
 $memoryLimit = ini_get('memory_limit');
 $memoryLimitBytes = toBytes($memoryLimit);
-$memoryLimitPassed = $memoryLimitBytes >= (128 * 1024 * 1024);
+$memoryLimitPassed = $memoryLimitBytes >= (512 * 1024 * 1024);
 $phpConfig[] = [
-    'name' => 'PHP Memory Limit >= 128M',
+    'name' => 'PHP Memory Limit >= 512M',
     'passed' => $memoryLimitPassed,
     'value' => $memoryLimit,
 ];
