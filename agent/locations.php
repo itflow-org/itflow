@@ -76,23 +76,23 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 
 <div class="card card-dark">
     <div class="card-header py-2">
-        <h3 class="card-title mt-2"><i class="fa fa-fw fa-map-marker-alt mr-2"></i>Locations</h3>
+        <h3 class="card-title mt-2"><i class="fa fa-fw fa-map-marker-alt me-2"></i>Locations</h3>
         <div class="card-tools">
             <div class="btn-group">
                 <button type="button" class="btn btn-primary ajax-modal" data-modal-url="modals/location/location_add.php?<?= $client_url ?>">
-                    <i class="fas fa-plus mr-2"></i>New Location
+                    <i class="fas fa-plus me-2"></i>New Location
                 </button>
-                <button type="button" class="btn btn-primary dropdown-toggle dropdown-toggle-split" data-toggle="dropdown"></button>
+                <button type="button" class="btn btn-primary dropdown-toggle dropdown-toggle-split" data-bs-toggle="dropdown"></button>
                 <div class="dropdown-menu">
                     <a class="dropdown-item text-dark ajax-modal" href="#"
                         data-modal-url="modals/location/location_import.php?<?= $client_url ?>">
-                        <i class="fa fa-fw fa-upload mr-2"></i>Import
+                        <i class="fa fa-fw fa-upload me-2"></i>Import
                     </a>
                     <?php if ($num_rows[0] > 0) { ?>
                         <div class="dropdown-divider"></div>
                         <a class="dropdown-item text-dark ajax-modal" href="#"
                             data-modal-url="<?= buildExportModalUrl('modals/location/location_export.php', ['client_id', 'client', 'tags', 'archived', 'q']) ?>">
-                            <i class="fa fa-fw fa-download mr-2"></i>Export
+                            <i class="fa fa-fw fa-download me-2"></i>Export
                         </a>
                     <?php } ?>
                 </div>
@@ -110,9 +110,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                 <div class="col-md-4">
                     <div class="input-group mb-3 mb-md-0">
                         <input type="search" class="form-control" name="q" value="<?php if (isset($q)) { echo stripslashes(escapeHtml($q)); } ?>" placeholder="Search Locations">
-                        <div class="input-group-append">
                             <button class="btn btn-dark"><i class="fa fa-search"></i></button>
-                        </div>
                     </div>
                 </div>
 
@@ -172,37 +170,37 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                 <?php } ?>
 
                 <div class="col-md-3">
-                    <div class="btn-group float-right">
+                    <div class="btn-group float-end">
                         <a href="?<?= $client_url ?>archived=<?php if($archived == 1){ echo 0; } else { echo 1; } ?>"
                             class="btn btn-<?php if($archived == 1){ echo "primary"; } else { echo "default"; } ?>">
-                            <i class="fa fa-fw fa-archive mr-2"></i>Archived
+                            <i class="fa fa-fw fa-archive me-2"></i>Archived
                         </a>
-                        <div class="dropdown ml-2" id="bulkActionButton" hidden>
-                            <button class="btn btn-secondary dropdown-toggle" type="button" data-toggle="dropdown">
-                                <i class="fas fa-fw fa-layer-group mr-2"></i>Bulk Action (<span id="selectedCount">0</span>)
+                        <div class="dropdown ms-2" id="bulkActionButton" hidden>
+                            <button class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                                <i class="fas fa-fw fa-layer-group me-2"></i>Bulk Action (<span id="selectedCount">0</span>)
                             </button>
                             <div class="dropdown-menu">
                                 <a class="dropdown-item ajax-modal" href="#"
                                     data-modal-url="modals/location/location_bulk_assign_tags.php"
                                     data-bulk="true">
-                                    <i class="fas fa-fw fa-tags mr-2"></i>Assign Tags
+                                    <i class="fas fa-fw fa-tags me-2"></i>Assign Tags
                                 </a>
                                 <?php if ($archived) { ?>
                                 <div class="dropdown-divider"></div>
                                 <button class="dropdown-item text-info"
                                     type="submit" form="bulkActions" name="bulk_restore_locations">
-                                    <i class="fas fa-fw fa-redo mr-2"></i>Restore
+                                    <i class="fas fa-fw fa-redo me-2"></i>Restore
                                 </button>
                                 <div class="dropdown-divider"></div>
                                 <button class="dropdown-item text-danger text-bold"
                                     type="submit" form="bulkActions" name="bulk_delete_locations">
-                                    <i class="fas fa-fw fa-trash mr-2"></i>Delete
+                                    <i class="fas fa-fw fa-trash me-2"></i>Delete
                                 </button>
                                 <?php } else { ?>
                                 <div class="dropdown-divider"></div>
                                 <button class="dropdown-item text-danger confirm-link"
                                     type="submit" form="bulkActions" name="bulk_archive_locations">
-                                    <i class="fas fa-fw fa-archive mr-2"></i>Archive
+                                    <i class="fas fa-fw fa-archive me-2"></i>Archive
                                 </button>
                                 <?php } ?>
                             </div>
@@ -321,7 +319,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                             }
 
                             $location_tag_id_array[] = $location_tag_id;
-                            $location_tag_name_display_array[] = "<a href='locations.php?$client_url tags[]=$location_tag_id'><span class='badge text-light p-1 mr-1' style='background-color: $location_tag_color;'><i class='fa fa-fw fa-$location_tag_icon mr-2'></i>$location_tag_name</span></a>";
+                            $location_tag_name_display_array[] = "<a href='locations.php?$client_url tags[]=$location_tag_id'><span class='badge text-light p-1 me-1' style='background-color: $location_tag_color;'><i class='fa fa-fw fa-$location_tag_icon me-2'></i>$location_tag_name</span></a>";
                         }
                         $location_tags_display = implode('', $location_tag_name_display_array);
 
@@ -334,9 +332,9 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                             </td>
                             <td>
                                 <a class="text-dark ajax-modal" href="#" data-modal-url="modals/location/location_edit.php?id=<?= $location_id ?>">
-                                    <div class="media">
-                                        <i class="fa fa-fw fa-2x fa-map-marker-alt mr-2"></i>
-                                        <div class="media-body">
+                                    <div class="d-flex">
+                                        <i class="fa fa-fw fa-2x fa-map-marker-alt me-2"></i>
+                                        <div class="flex-grow-1">
                                             <div <?php if($location_primary) { echo "class='text-bold'"; } ?>><?= $location_name ?></div>
                                             <div><small class="text-secondary"><?= $location_description ?></small></div>
                                             <div><?= $location_primary_display ?></div>
@@ -364,30 +362,30 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                             <td><a href="locations.php?client_id=<?= $client_id ?>"><?= $client_name ?></a></td>
                             <?php } ?>
                             <td>
-                                <div class="dropdown dropleft text-center">
-                                    <button class="btn btn-secondary btn-sm" type="button" data-toggle="dropdown">
+                                <div class="dropdown dropstart text-center">
+                                    <button class="btn btn-secondary btn-sm" type="button" data-bs-toggle="dropdown">
                                         <i class="fas fa-ellipsis-h"></i>
                                     </button>
                                     <div class="dropdown-menu">
                                         <a class="dropdown-item ajax-modal" href="#" data-modal-url="modals/location/location_edit.php?id=<?= $location_id ?>">
-                                            <i class="fas fa-fw fa-edit mr-2"></i>Edit
+                                            <i class="fas fa-fw fa-edit me-2"></i>Edit
                                         </a>
                                         <?php if ($session_user_role == 3 && $location_primary == 0) { ?>
                                             <?php if ($location_archived_at) { ?>
                                             <div class="dropdown-divider"></div>
                                             <a class="dropdown-item text-info confirm-link" href="post.php?restore_location=<?= $location_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>">
-                                                <i class="fas fa-fw fa-redo mr-2"></i>Restore
+                                                <i class="fas fa-fw fa-redo me-2"></i>Restore
                                             </a>
                                             <?php if ($config_destructive_deletes_enable) { ?>
                                             <div class="dropdown-divider"></div>
                                             <a class="dropdown-item text-danger text-bold confirm-link" href="post.php?delete_location=<?= $location_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>">
-                                                <i class="fas fa-fw fa-trash mr-2"></i>Delete
+                                                <i class="fas fa-fw fa-trash me-2"></i>Delete
                                             </a>
                                             <?php } ?>
                                             <?php } else { ?>
                                             <div class="dropdown-divider"></div>
                                             <a class="dropdown-item text-danger confirm-link" href="post.php?archive_location=<?= $location_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>">
-                                                <i class="fas fa-fw fa-archive mr-2"></i>Archive
+                                                <i class="fas fa-fw fa-archive me-2"></i>Archive
                                             </a>
                                             <?php } ?>
 

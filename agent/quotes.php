@@ -38,17 +38,17 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 
 <div class="card card-dark">
     <div class="card-header py-2">
-        <h3 class="card-title mt-2"><i class="fa fa-comment-dollar mr-2"></i>Quotes</h3>
+        <h3 class="card-title mt-2"><i class="fa fa-comment-dollar me-2"></i>Quotes</h3>
         <div class="card-tools">
         <?php if (lookupUserPermission("module_sales") >= 2) { ?>
             <div class="btn-group">
-                <button type="button" class="btn btn-primary ajax-modal" data-modal-url="modals/quote/quote_add.php?<?= $client_url ?>"><i class="fas fa-plus mr-2"></i>New Quote</button>
+                <button type="button" class="btn btn-primary ajax-modal" data-modal-url="modals/quote/quote_add.php?<?= $client_url ?>"><i class="fas fa-plus me-2"></i>New Quote</button>
                 <?php if ($num_rows[0] > 0) { ?>
-                    <button type="button" class="btn btn-primary dropdown-toggle dropdown-toggle-split" data-toggle="dropdown"></button>
+                    <button type="button" class="btn btn-primary dropdown-toggle dropdown-toggle-split" data-bs-toggle="dropdown"></button>
                     <div class="dropdown-menu">
                         <a class="dropdown-item text-dark ajax-modal" href="#"
                             data-modal-url="<?= buildExportModalUrl('modals/quote/quote_export.php', ['client_id', 'q'], ['dtf' => $dtf, 'dtt' => $dtt]) ?>">
-                            <i class="fa fa-fw fa-download mr-2"></i>Export
+                            <i class="fa fa-fw fa-download me-2"></i>Export
                         </a>
                     </div>
                 <?php } ?>
@@ -66,14 +66,12 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                 <div class="col-sm-4">
                     <div class="input-group">
                         <input type="search" class="form-control" name="q" value="<?php if (isset($q)) { echo stripslashes(escapeHtml($q)); } ?>" placeholder="Search Quotes">
-                        <div class="input-group-append">
-                            <button class="btn btn-secondary" type="button" data-toggle="collapse" data-target="#advancedFilter"><i class="fas fa-filter"></i></button>
+                            <button class="btn btn-secondary" type="button" data-bs-toggle="collapse" data-bs-target="#advancedFilter"><i class="fas fa-filter"></i></button>
                             <button class="btn btn-primary"><i class="fa fa-search"></i></button>
-                        </div>
                     </div>
                 </div>
                 <div class="col-sm-8">
-                    <div class="float-right">
+                    <div class="float-end">
 
                     </div>
                 </div>
@@ -81,7 +79,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
             <div class="collapse mt-3 <?php if (isset($_GET['dtf']) && $_GET['dtf'] !== '1970-01-01') { echo "show"; } ?>" id="advancedFilter">
                 <div class="row">
                     <div class="col-md-3">
-                        <div class="form-group">
+                        <div class="mb-3">
                             <label>Date range</label>
                             <input type="text" id="dateFilter" class="form-control" autocomplete="off">
                             <input type="hidden" name="canned_date" id="canned_date" value="<?= escapeHtml($_GET['canned_date']) ?? '' ?>">
@@ -114,7 +112,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                         </a>
                     </th>
                     <?php } ?>
-                    <th class="text-right">
+                    <th class="text-end">
                         <a class="text-dark" href="?<?= $url_query_strings_sort ?>&sort=quote_amount&order=<?= $disp ?>">
                             Amount <?php if ($sort == 'quote_amount') { echo $order_icon; } ?>
                         </a>
@@ -200,7 +198,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                             <a href="quotes.php?client_id=<?= $client_id ?>"><?= $client_name ?></a>
                         </td>
                         <?php } ?>
-                        <td class="text-right text-monospace"><?= numfmt_format_currency($currency_format, $quote_amount, $quote_currency_code) ?></td>
+                        <td class="text-end font-monospace"><?= numfmt_format_currency($currency_format, $quote_amount, $quote_currency_code) ?></td>
                         <td><?= $quote_date ?></td>
                         <td><?= $quote_expire ?></td>
                         <td><?= $category_name ?></td>
@@ -210,30 +208,30 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                             </span>
                         </td>
                         <td>
-                            <div class="dropdown dropleft text-center">
-                                <button class="btn btn-secondary btn-sm" type="button" data-toggle="dropdown">
+                            <div class="dropdown dropstart text-center">
+                                <button class="btn btn-secondary btn-sm" type="button" data-bs-toggle="dropdown">
                                     <i class="fas fa-ellipsis-h"></i>
                                 </button>
                                 <div class="dropdown-menu">
                                     <a class="dropdown-item ajax-modal" href="#"
                                         data-modal-url="modals/quote/quote_edit.php?id=<?= $quote_id ?>">
-                                        <i class="fas fa-fw fa-edit mr-2"></i>Edit
+                                        <i class="fas fa-fw fa-edit me-2"></i>Edit
                                     </a>
                                     <?php if (lookupUserPermission("module_sales") >= 2) { ?>
                                         <a class="dropdown-item ajax-modal" href="#"
                                             data-modal-url="modals/quote/quote_copy.php?id=<?= $quote_id ?>">
-                                            <i class="fas fa-fw fa-copy mr-2"></i>Copy
+                                            <i class="fas fa-fw fa-copy me-2"></i>Copy
                                         </a>
                                         <?php if (!empty($config_smtp_provider)) { ?>
                                             <div class="dropdown-divider"></div>
                                             <a class="dropdown-item" href="post.php?email_quote=<?= $quote_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>">
-                                                <i class="fas fa-fw fa-paper-plane mr-2"></i>Email
+                                                <i class="fas fa-fw fa-paper-plane me-2"></i>Email
                                             </a>
                                         <?php } ?>
                                         <?php if (lookupUserPermission("module_sales") >= 3) { ?>
                                             <div class="dropdown-divider"></div>
                                             <a class="dropdown-item text-danger text-bold confirm-link" href="post.php?delete_quote=<?= $quote_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>">
-                                                <i class="fas fa-fw fa-trash mr-2"></i>Delete
+                                                <i class="fas fa-fw fa-trash me-2"></i>Delete
                                             </a>
                                         <?php } ?>
                                     <?php } ?>

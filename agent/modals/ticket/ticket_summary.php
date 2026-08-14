@@ -10,9 +10,7 @@ ob_start();
 
 <div class="modal-header bg-dark">
     <h5 class="modal-title" id="summaryModalTitle">Ticket Summary</h5>
-    <button type="button" class="close text-white" data-dismiss="modal">
-        <span>&times;</span>
-    </button>
+    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
 </div>
 <div class="modal-body">
     <div id="summaryContent">

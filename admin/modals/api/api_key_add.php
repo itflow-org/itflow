@@ -10,20 +10,18 @@ ob_start();
 ?>
 
 <div class="modal-header bg-dark">
-    <h5 class="modal-title"><i class="fas fa-fw fa-key mr-2"></i>New Key</h5>
-    <button type="button" class="close text-white" data-dismiss="modal">
-        <span>&times;</span>
-    </button>
+    <h5 class="modal-title"><i class="fas fa-fw fa-key me-2"></i>New Key</h5>
+    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
 </div>
 <form action="post.php" method="post" autocomplete="off">
     <div class="modal-body">
 
         <ul class="nav nav-pills nav-justified mb-3">
             <li class="nav-item">
-                <a class="nav-link active" data-toggle="pill" href="#pills-api-details">Details</a>
+                <a class="nav-link active" data-bs-toggle="pill" href="#pills-api-details">Details</a>
             </li>
             <li class="nav-item">
-                <a class="nav-link" data-toggle="pill" href="#pills-api-keys">Keys</a>
+                <a class="nav-link" data-bs-toggle="pill" href="#pills-api-keys">Keys</a>
             </li>
         </ul>
         <hr>
@@ -35,32 +33,26 @@ ob_start();
                 <input type="hidden" name="key" value="<?= $key ?>">
                 <input type="hidden" name="password" value="<?= $decryptPW ?>">
 
-                <div class="form-group">
+                <div class="mb-3">
                     <label>Name <strong class="text-danger">*</strong></label>
                     <div class="input-group">
-                        <div class="input-group-prepend">
                             <span class="input-group-text"><i class="fa fa-fw fa-sticky-note"></i></span>
-                        </div>
                         <input type="text" class="form-control" name="name" placeholder="Key Name" maxlength="255" required autofocus>
                     </div>
                 </div>
 
-                <div class="form-group">
+                <div class="mb-3">
                     <label>Expiration Date <strong class="text-danger">*</strong></label>
                     <div class="input-group">
-                        <div class="input-group-prepend">
                             <span class="input-group-text"><i class="fa fa-fw fa-calendar"></i></span>
-                        </div>
                         <input type="date" class="form-control" name="expire" min="<?= date('Y-m-d') ?>" max="2999-12-31" required>
                     </div>
                 </div>
 
-                <div class="form-group">
+                <div class="mb-3">
                     <label>Run as User <strong class="text-danger">*</strong></label>
                     <div class="input-group">
-                        <div class="input-group-prepend">
                             <span class="input-group-text"><i class="fa fa-fw fa-user-shield"></i></span>
-                        </div>
                         <select class="form-control select2" name="run_as_user" required>
                             <option value="">- Select a user -</option>
                             <?php
@@ -77,38 +69,28 @@ ob_start();
             </div>
 
             <div class="tab-pane fade" id="pills-api-keys">
-                <div class="form-group">
+                <div class="mb-3">
                     <label>API Key <strong class="text-danger">*</strong></label>
                     <div class="input-group">
-                        <div class="input-group-prepend">
                             <span class="input-group-text"><i class="fa fa-fw fa-key"></i></span>
-                        </div>
                         <input type="text" class="form-control" value="<?= $key ?>" required disabled>
-                        <div class="input-group-append">
                             <button class="btn btn-default clipboardjs" type="button" data-clipboard-text="<?= $key ?>"><i class="fa fa-fw fa-copy"></i></button>
-                        </div>
                     </div>
                 </div>
 
-                <div class="form-group">
+                <div class="mb-3">
                     <label>Login credential decryption password <strong class="text-danger">*</strong></label>
                     <div class="input-group">
-                        <div class="input-group-prepend">
                             <span class="input-group-text"><i class="fa fa-fw fa-unlock-alt"></i></span>
-                        </div>
                         <input type="text" class="form-control" value="<?= $decryptPW ?>" required disabled>
-                        <div class="input-group-append">
                             <button class="btn btn-default clipboardjs" type="button" data-clipboard-text="<?= $decryptPW ?>"><i class="fa fa-fw fa-copy"></i></button>
-                        </div>
                     </div>
                 </div>
                 <br>
-                <div class="form-group">
+                <div class="mb-3">
                     <label>I have made a copy of the key(s)<strong class="text-danger">*</strong></label>
                     <div class="input-group">
-                        <div class="input-group-prepend">
                             <input type="checkbox" name="ack" value="1" required>
-                        </div>
                     </div>
                 </div>
             </div>
@@ -117,8 +99,8 @@ ob_start();
 
         </div>
     <div class="modal-footer">
-        <button type="submit" name="add_api_key" class="btn btn-primary text-bold"><i class="fa fa-check mr-2"></i>Create</button>
-        <button type="button" class="btn btn-light" data-dismiss="modal"><i class="fas fa-times mr-2"></i>Cancel</button>
+        <button type="submit" name="add_api_key" class="btn btn-primary text-bold"><i class="fa fa-check me-2"></i>Create</button>
+        <button type="button" class="btn btn-light" data-bs-dismiss="modal"><i class="fas fa-times me-2"></i>Cancel</button>
     </div>
 </form>
 

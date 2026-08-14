@@ -176,11 +176,11 @@ if ($ticket_row) {
         <div class="card card-outline <?php if ($ticket_reply_type == 'Client') { echo "card-warning"; } else { echo "card-info"; } ?> mb-3">
             <div class="card-header">
                 <h3 class="card-title">
-                    <div class="media">
+                    <div class="d-flex">
                         <?php
                         if (!empty($user_avatar)) {
                             ?>
-                            <img src="<?= $avatar_link ?>" alt="User Avatar" class="img-size-50 mr-3 img-circle">
+                            <img src="<?= $avatar_link ?>" alt="User Avatar" class="img-size-50 me-3 img-circle">
                             <?php
                         } else {
                             ?>
@@ -192,7 +192,7 @@ if ($ticket_row) {
                         }
                         ?>
 
-                        <div class="media-body">
+                        <div class="flex-grow-1">
                             <?= $ticket_reply_by_display ?>
                             <br>
                             <small class="text-muted"><?= $ticket_reply_created_at ?> <?php if (!empty($ticket_reply_updated_at)) { echo "(edited: $ticket_reply_updated_at)"; } ?></small>
@@ -219,7 +219,7 @@ if ($ticket_row) {
     } ?>
 
 <div class="card-footer">
-    <?= "<i class='fas fa-phone fa-fw mr-2'></i>$company_phone | <i class='fas fa-globe fa-fw mr-2 ml-2'></i>$company_website" ?>
+    <?= "<i class='fas fa-phone fa-fw me-2'></i>$company_phone | <i class='fas fa-globe fa-fw me-2 ms-2'></i>$company_website" ?>
 </div>
 
 <?php

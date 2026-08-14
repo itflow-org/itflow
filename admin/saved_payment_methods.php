@@ -45,7 +45,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 
 <div class="card card-dark">
     <div class="card-header">
-        <h3 class="card-title"><i class="fas fa-fw fa-credit-card mr-2"></i>Saved Payment Methods</h3>
+        <h3 class="card-title"><i class="fas fa-fw fa-credit-card me-2"></i>Saved Payment Methods</h3>
     </div>
     <div class="card-body">
         <form class="mb-4" autocomplete="off">
@@ -53,9 +53,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                 <div class="col-md-4">
                     <div class="input-group">
                         <input type="search" class="form-control" name="q" value="<?php if (isset($q)) {echo stripslashes(escapeHtml($q));} ?>" placeholder="Search Saved Payment Methods">
-                        <div class="input-group-append">
                             <button class="btn btn-primary"><i class="fa fa-search"></i></button>
-                        </div>
                     </div>
                 </div>
                 <div class="col-md-8">
@@ -133,7 +131,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                         <td><?= $saved_payment_created_at ?></td>
                         <td>
                             <a class="btn btn-outline-danger confirm-link" href="post.php?delete_saved_payment=<?= $saved_payment_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>">
-                                <i class="fas fa-fw fa-trash mr-2"></i>Delete
+                                <i class="fas fa-fw fa-trash me-2"></i>Delete
                             </a>
                         </td>
                     </tr>

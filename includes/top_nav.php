@@ -1,32 +1,30 @@
 <!-- Navbar -->
-<nav class="main-header navbar navbar-expand navbar-<?= escapeHtml($config_theme) ?> navbar-dark">
+<nav class="app-header navbar navbar-expand bg-<?= escapeHtml($config_theme) ?>" data-bs-theme="dark">
 
     <!-- Left navbar links -->
     <ul class="navbar-nav">
         <li class="nav-item">
-            <a class="nav-link" data-widget="pushmenu" data-enable-remember="TRUE" href="#"><i class="fas fa-bars"></i></a>
+            <a class="nav-link" data-lte-toggle="sidebar" data-enable-remember="TRUE" href="#"><i class="fas fa-bars"></i></a>
         </li>
     </ul>
 
     <!-- Center navbar links -->
-    <ul class="navbar-nav ml-auto">
+    <ul class="navbar-nav ms-auto">
 
         <!-- SEARCH FORM -->
-        <form class="form-inline" action="/agent/global_search.php">
+        <form class="d-flex" action="/agent/global_search.php">
             <div class="input-group input-group-sm">
                 <input class="form-control form-control-navbar" type="search" placeholder="Search everywhere" name="query"
                     value="<?php if (isset($_GET['query'])) { echo escapeHtml($_GET['query']); } ?>">
-                <div class="input-group-append">
                     <button class="btn btn-navbar" type="submit">
                         <i class="fas fa-search"></i>
                     </button>
-                </div>
             </div>
         </form>
     </ul>
 
     <!-- Right navbar links -->
-    <ul class="navbar-nav ml-auto">
+    <ul class="navbar-nav ms-auto">
 
         <!--Custom Nav Link -->
         <?php
@@ -67,7 +65,7 @@
             <a class="nav-link ajax-modal" href="#" data-modal-url="/modals/notifications.php">
                 <i class="fas fa-bell"></i>
                 <?php if ($num_notifications) { ?>
-                <span class="badge badge-light badge-pill navbar-badge position-absolute" style="top: 1px; right: 3px;">
+                <span class="badge bg-light text-dark rounded-pill navbar-badge position-absolute" style="top: 1px; right: 3px;">
                     <?= $num_notifications ?>
                 </span>
                 <?php } ?>
@@ -75,9 +73,9 @@
         </li>
 
         <li class="nav-item dropdown user-menu">
-            <a href="#" class="nav-link" data-toggle="dropdown">
+            <a href="#" class="nav-link" data-bs-toggle="dropdown">
                 <?php if (empty($session_avatar)) { ?>
-                <i class="fas fa-user-circle mr-1"></i>
+                <i class="fas fa-user-circle me-1"></i>
                 <?php }else{ ?>
                 <img src="<?= "/uploads/users/$session_user_id/$session_avatar" ?>"
                     class="user-image img-circle">
@@ -85,7 +83,7 @@
                 <span
                     class="d-none d-md-inline dropdown-toggle"><?= stripslashes(escapeHtml($session_name)) ?></span>
             </a>
-            <ul class="dropdown-menu dropdown-menu-lg dropdown-menu-right">
+            <ul class="dropdown-menu dropdown-menu-lg dropdown-menu-end">
                 <!-- User image -->
                 <li class="user-header bg-gray-dark">
                     <?php if (empty($session_avatar)) { ?>
@@ -102,10 +100,10 @@
                 <!-- Menu Footer-->
                 <li class="user-footer">
                     <?php if ($session_is_admin) { ?>
-                        <a href="/admin" class="btn btn-default btn-block btn-flat mb-2"><i class="fas fa-user-shield mr-2"></i>Administration</a>
+                        <a href="/admin" class="btn btn-default w-100 btn-flat mb-2"><i class="fas fa-user-shield me-2"></i>Administration</a>
                     <?php } ?>
-                    <a href="/agent/user/user_details.php" class="btn btn-default btn-flat"><i class="fas fa-user-cog mr-2"></i>Account</a>
-                    <a href="/agent/post.php?logout" class="btn btn-default btn-flat float-right"><i class="fas fa-sign-out-alt mr-2"></i>Logout</a>
+                    <a href="/agent/user/user_details.php" class="btn btn-default btn-flat"><i class="fas fa-user-cog me-2"></i>Account</a>
+                    <a href="/agent/post.php?logout" class="btn btn-default btn-flat float-end"><i class="fas fa-sign-out-alt me-2"></i>Logout</a>
                 </li>
             </ul>
         </li>

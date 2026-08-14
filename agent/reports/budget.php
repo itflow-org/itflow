@@ -19,9 +19,9 @@ $monthlyTotals = array_fill(1, 12, 0);  // Initialize monthly totals for each mo
 
 <div class="card card-dark">
     <div class="card-header py-2">
-        <h3 class="card-title mt-2"><i class="fas fa-fw fa-balance-scale mr-2"></i>Annual Budget</h3>
+        <h3 class="card-title mt-2"><i class="fas fa-fw fa-balance-scale me-2"></i>Annual Budget</h3>
         <div class="card-tools">
-            <button type="button" class="btn btn-primary d-print-none" onclick="window.print();"><i class="fas fa-fw fa-print mr-2"></i>Print</button>
+            <button type="button" class="btn btn-primary d-print-none" onclick="window.print();"><i class="fas fa-fw fa-print me-2"></i>Print</button>
         </div>
     </div>
     <div class="card-body">
@@ -46,19 +46,19 @@ $monthlyTotals = array_fill(1, 12, 0);  // Initialize monthly totals for each mo
                 <thead class="text-dark">
                 <tr>
                     <th>Category</th>
-                    <th class="text-right">January</th>
-                    <th class="text-right">February</th>
-                    <th class="text-right">March</th>
-                    <th class="text-right">April</th>
-                    <th class="text-right">May</th>
-                    <th class="text-right">June</th>
-                    <th class="text-right">July</th>
-                    <th class="text-right">August</th>
-                    <th class="text-right">September</th>
-                    <th class="text-right">October</th>
-                    <th class="text-right">November</th>
-                    <th class="text-right">December</th>
-                    <th class="text-right">Total</th>
+                    <th class="text-end">January</th>
+                    <th class="text-end">February</th>
+                    <th class="text-end">March</th>
+                    <th class="text-end">April</th>
+                    <th class="text-end">May</th>
+                    <th class="text-end">June</th>
+                    <th class="text-end">July</th>
+                    <th class="text-end">August</th>
+                    <th class="text-end">September</th>
+                    <th class="text-end">October</th>
+                    <th class="text-end">November</th>
+                    <th class="text-end">December</th>
+                    <th class="text-end">Total</th>
                 </tr>
                 </thead>
                 <tbody>
@@ -77,12 +77,12 @@ $monthlyTotals = array_fill(1, 12, 0);  // Initialize monthly totals for each mo
                                 $amount = $budget['budget_amount'];
                                 $categoryTotal += $amount;
                                 $monthlyTotals[$month] += $amount;
-                                echo "<td class='text-right'>" . $amount . "</td>";
+                                echo "<td class='text-end'>" . $amount . "</td>";
                             } else {
-                                echo "<td class='text-right'>0</td>";
+                                echo "<td class='text-end'>0</td>";
                             }
                         }
-                        echo "<td class='text-right'>" . $categoryTotal . "</td>";
+                        echo "<td class='text-end'>" . $categoryTotal . "</td>";
                         echo "</tr>";
                     }
 
@@ -91,9 +91,9 @@ $monthlyTotals = array_fill(1, 12, 0);  // Initialize monthly totals for each mo
                     $grandTotal = 0;
                     for ($month = 1; $month <= 12; $month++) {
                         $grandTotal += $monthlyTotals[$month];
-                        echo "<td class='text-right'>" . $monthlyTotals[$month] . "</td>";
+                        echo "<td class='text-end'>" . $monthlyTotals[$month] . "</td>";
                     }
-                    echo "<td class='text-right'>" . $grandTotal . "</td>";
+                    echo "<td class='text-end'>" . $grandTotal . "</td>";
                     echo "</tr>";
                 }
                 ?>

@@ -4,7 +4,7 @@ require_once "inc_confirm_modal.php";
 
 <?php
 if (basename(dirname($_SERVER['REQUEST_URI'])) === 'admin') { ?>
-    <p class="text-right font-weight-light">ITFlow <?= APP_VERSION ?> &nbsp; · &nbsp; <a target="_blank" href="https://docs.itflow.org">Docs</a> &nbsp; · &nbsp; <a target="_blank" href="https://forum.itflow.org">Forum</a> &nbsp; · &nbsp; <a target="_blank" href="https://services.itflow.org">Services</a></p>
+    <p class="text-end fw-light">ITFlow <?= APP_VERSION ?> &nbsp; · &nbsp; <a target="_blank" href="https://docs.itflow.org">Docs</a> &nbsp; · &nbsp; <a target="_blank" href="https://forum.itflow.org">Forum</a> &nbsp; · &nbsp; <a target="_blank" href="https://services.itflow.org">Services</a></p>
     <br>
 <?php } ?>
 <?php
@@ -20,27 +20,26 @@ if (basename(dirname($_SERVER['REQUEST_URI'])) === 'guest') { ?>
 <?php } ?>
 
 </div><!-- /.container-fluid -->
-</div> <!-- /.content -->
-</div> <!-- /.content-wrapper -->
-</div> <!-- ./wrapper -->
+</div> <!-- /.app-content -->
+</main> <!-- /.app-main -->
+</div> <!-- /.app-wrapper -->
 
 <!-- Set the browser window title to the clients name -->
 <script>document.title = <?= json_encode("$tab_title - $page_title") ?>;</script>
 
 <!-- REQUIRED SCRIPTS -->
 
-<!-- Bootstrap 4 -->
+<!-- Bootstrap 5 -->
 <script src="/libs/bootstrap/js/bootstrap.bundle.min.js"></script>
 
 <!-- Custom js-->
 <script src="/libs/moment/moment.min.js"></script>
 <script src="/libs/chart.js/chart.umd.min.js"></script>
-<script src="/libs/tempusdominus-bootstrap-4/js/tempusdominus-bootstrap-4.min.js"></script>
+<script src="/libs/tempus-dominus/js/tempus-dominus.min.js"></script>
 <script src="/libs/daterangepicker/daterangepicker.js"></script>
 <script src="/libs/select2/js/select2.min.js"></script>
 <script src="/libs/inputmask/jquery.inputmask.min.js"></script>
 <script src="/libs/tinymce/tinymce.min.js" referrerpolicy="origin"></script>
-<script src="/libs/Show-Hide-Passwords-Bootstrap-4/bootstrap-show-password.min.js"></script>
 <script src="/libs/clipboardjs/clipboard.min.js"></script>
 <script src="/js/keepalive.js"></script>
 <script src="/libs/DataTables/datatables.min.js"></script>

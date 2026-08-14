@@ -51,10 +51,10 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 
 <div class="card card-dark">
     <div class="card-header py-2">
-        <h3 class="card-title mt-2"><i class="fas fa-fw fa-project-diagram mr-2"></i>Projects</h3>
+        <h3 class="card-title mt-2"><i class="fas fa-fw fa-project-diagram me-2"></i>Projects</h3>
         <?php if (lookupUserPermission("module_support") >= 2) { ?>
             <div class="card-tools">
-                <button type="button" class="btn btn-primary ajax-modal" data-modal-url="modals/project/project_add.php?<?= $client_url ?>"><i class="fas fa-plus"></i><span class="d-none d-lg-inline ml-2">New Project</span></button>
+                <button type="button" class="btn btn-primary ajax-modal" data-modal-url="modals/project/project_add.php?<?= $client_url ?>"><i class="fas fa-plus"></i><span class="d-none d-lg-inline ms-2">New Project</span></button>
             </div>
         <?php } ?>
     </div>
@@ -70,23 +70,21 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                 <div class="col-sm-4">
                     <div class="input-group mb-3 mb-sm-0">
                         <input type="search" class="form-control" name="q" value="<?php if (isset($q)) {echo stripslashes(escapeHtml($q));} ?>" placeholder="Search Projects">
-                        <div class="input-group-append">
-                            <button class="btn btn-secondary" type="button" data-toggle="collapse" data-target="#advancedFilter"><i class="fas fa-filter"></i></button>
+                            <button class="btn btn-secondary" type="button" data-bs-toggle="collapse" data-bs-target="#advancedFilter"><i class="fas fa-filter"></i></button>
                             <button class="btn btn-primary"><i class="fa fa-search"></i></button>
-                        </div>
                     </div>
                 </div>
                 <div class="col-sm-8">
-                    <div class="btn-toolbar float-right">
-                        <div class="btn-group mr-2">
-                            <a href="?<?= $client_url ?>status=0" class="btn btn-<?php if ($status == 0){ echo "primary"; } else { echo "default"; } ?>"><i class="fa fa-fw fa-door-open mr-2"></i>Open</a>
-                            <a href="?<?= $client_url ?>status=1" class="btn btn-<?php if ($status == 1){ echo "primary"; } else { echo "default"; } ?>"><i class="fa fa-fw fa-door-closed mr-2"></i>Closed</a>
+                    <div class="btn-toolbar float-end">
+                        <div class="btn-group me-2">
+                            <a href="?<?= $client_url ?>status=0" class="btn btn-<?php if ($status == 0){ echo "primary"; } else { echo "default"; } ?>"><i class="fa fa-fw fa-door-open me-2"></i>Open</a>
+                            <a href="?<?= $client_url ?>status=1" class="btn btn-<?php if ($status == 1){ echo "primary"; } else { echo "default"; } ?>"><i class="fa fa-fw fa-door-closed me-2"></i>Closed</a>
                         </div>
 
                         <div class="btn-group">
                             <a href="?<?= $url_query_strings_sort ?>&archived=<?php if($archived == 1){ echo 0; } else { echo 1; } ?>"
                                class="btn btn-<?php if ($archived == 1) { echo "primary"; } else { echo "default"; } ?>">
-                                <i class="fa fa-fw fa-archive mr-2"></i>Archived
+                                <i class="fa fa-fw fa-archive me-2"></i>Archived
                             </a>
                         </div>
 
@@ -96,7 +94,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
             <div class="collapse mt-3 <?php if (isset($_GET['dtf']) && $_GET['dtf'] !== '1970-01-01') { echo "show"; } ?>" id="advancedFilter">
                 <div class="row">
                     <div class="col-md-3">
-                        <div class="form-group">
+                        <div class="mb-3">
                             <label>Date range</label>
                             <input type="text" id="dateFilter" class="form-control" autocomplete="off">
                             <input type="hidden" name="canned_date" id="canned_date" value="<?= escapeHtml($_GET['canned_date']) ?? '' ?>">
@@ -224,9 +222,9 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                         </td>
                         <td>
                             <a class="text-dark" href="project.php?project_id=<?= $project_id ?>">
-                                <div class="media">
-                                    <i class="fa fa-fw fa-2x fa-project-diagram mr-3"></i>
-                                    <div class="media-body">
+                                <div class="d-flex">
+                                    <i class="fa fa-fw fa-2x fa-project-diagram me-3"></i>
+                                    <div class="flex-grow-1">
                                         <div><?= $project_name ?></div>
                                         <div><small class="text-secondary"><?= $project_description ?></small></div>
                                     </div>
@@ -236,13 +234,13 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                         <td>
                             <?php if($ticket_count) { ?>
                             <div class="progress" style="height: 20px;">
-                                <i class="fa fas fa-fw fa-life-ring mr-2"></i>
+                                <i class="fa fas fa-fw fa-life-ring me-2"></i>
                                 <div class="progress-bar bg-primary" style="width: <?= $tickets_closed_percent ?>%;"><?= $closed_ticket_count ?> / <?= $ticket_count ?></div>
                             </div>
                             <?php } else { echo "<div>-</div>"; } ?>
                             <?php if($task_count) { ?>
                             <div class="progress mt-2" style="height: 20px;">
-                                <i class="fa fas fa-fw fa-tasks mr-2"></i>
+                                <i class="fa fas fa-fw fa-tasks me-2"></i>
                                 <div class="progress-bar bg-secondary" style="width: <?= $tasks_completed_percent ?>%;"><?= $completed_task_count ?> / <?= $task_count ?></div>
                             </div>
                             <?php } ?>
@@ -257,31 +255,31 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                         <td><?= $client_name_display ?></td>
                         <?php } ?>
                         <td>
-                            <div class="dropdown dropleft text-center">
-                                <button class="btn btn-secondary btn-sm" type="button" data-toggle="dropdown">
+                            <div class="dropdown dropstart text-center">
+                                <button class="btn btn-secondary btn-sm" type="button" data-bs-toggle="dropdown">
                                     <i class="fas fa-ellipsis-h"></i>
                                 </button>
                                 <div class="dropdown-menu">
                                     <?php if (empty($project_completed_at)) { ?>
                                         <a class="dropdown-item ajax-modal" href="#"
                                             data-modal-url = "modals/project/project_edit.php?id=<?= $project_id ?>">
-                                            <i class="fas fa-fw fa-edit mr-2"></i>Edit
+                                            <i class="fas fa-fw fa-edit me-2"></i>Edit
                                         </a>
                                     <?php } ?>
                                     <?php if (!empty($project_completed_at) && lookupUserPermission("module_support" >= 2)) { ?>
                                         <div class="dropdown-divider"></div>
                                         <?php if (empty($project_archived_at)) { ?>
                                             <a class="dropdown-item text-danger confirm-link" href="post.php?archive_project=<?= $project_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>">
-                                                <i class="fas fa-fw fa-archive mr-2"></i>Archive
+                                                <i class="fas fa-fw fa-archive me-2"></i>Archive
                                             </a>
                                         <?php } else { ?>
                                             <a class="dropdown-item text-info confirm-link" href="post.php?restore_project=<?= $project_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>">
-                                                <i class="fas fa-fw fa-redo mr-2"></i>Restore
+                                                <i class="fas fa-fw fa-redo me-2"></i>Restore
                                             </a>
                                             <?php if (lookupUserPermission("module_support" >= 3)) { ?>
                                                 <div class="dropdown-divider"></div>
                                                 <a class="dropdown-item text-danger confirm-link" href="post.php?delete_project=<?= $project_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>">
-                                                    <i class="fas fa-fw fa-archive mr-2"></i>Delete
+                                                    <i class="fas fa-fw fa-archive me-2"></i>Delete
                                                 </a>
                                             <?php } ?>
                                         <?php } ?>

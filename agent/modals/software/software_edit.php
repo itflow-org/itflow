@@ -63,10 +63,8 @@ ob_start();
 ?>
 
 <div class="modal-header bg-dark">
-    <h5 class="modal-title"><i class="fa fa-fw fa-cube mr-2"></i>Editing license: <strong><?= $software_name ?></strong></h5>
-    <button type="button" class="close text-white" data-dismiss="modal">
-        <span>&times;</span>
-    </button>
+    <h5 class="modal-title"><i class="fa fa-fw fa-cube me-2"></i>Editing license: <strong><?= $software_name ?></strong></h5>
+    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
 </div>
 <form action="post.php" method="post" autocomplete="off">
     <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
@@ -75,19 +73,19 @@ ob_start();
 
         <ul class="nav nav-pills nav-justified mb-3">
             <li class="nav-item">
-                <a class="nav-link active" data-toggle="pill" href="#pills-details<?= $software_id ?>">Details</a>
+                <a class="nav-link active" data-bs-toggle="pill" href="#pills-details<?= $software_id ?>">Details</a>
             </li>
             <li class="nav-item">
-                <a class="nav-link" data-toggle="pill" href="#pills-license<?= $software_id ?>">License</a>
+                <a class="nav-link" data-bs-toggle="pill" href="#pills-license<?= $software_id ?>">License</a>
             </li>
             <li class="nav-item">
-                <a class="nav-link" data-toggle="pill" href="#pills-device-licenses<?= $software_id ?>">Devices</a>
+                <a class="nav-link" data-bs-toggle="pill" href="#pills-device-licenses<?= $software_id ?>">Devices</a>
             </li>
             <li class="nav-item">
-                <a class="nav-link" data-toggle="pill" href="#pills-user-licenses<?= $software_id ?>">Users</a>
+                <a class="nav-link" data-bs-toggle="pill" href="#pills-user-licenses<?= $software_id ?>">Users</a>
             </li>
             <li class="nav-item">
-                <a class="nav-link" data-toggle="pill" href="#pills-notes<?= $software_id ?>">Notes</a>
+                <a class="nav-link" data-bs-toggle="pill" href="#pills-notes<?= $software_id ?>">Notes</a>
             </li>
         </ul>
 
@@ -97,12 +95,10 @@ ob_start();
 
             <div class="tab-pane fade show active" id="pills-details<?= $software_id ?>">
 
-                <div class="form-group">
+                <div class="mb-3">
                     <label>Type <strong class="text-danger">*</strong></label>
                     <div class="input-group">
-                        <div class="input-group-prepend">
                             <span class="input-group-text"><i class="fa fa-fw fa-tag"></i></span>
-                        </div>
                         <select class="form-control select2" name="type" required>
                             <option value="">- Select Type -</option>
                             <<?php
@@ -123,32 +119,26 @@ ob_start();
                     </div>
                 </div>
 
-                <div class="form-group">
+                <div class="mb-3">
                     <label>Software Name <strong class="text-danger">*</strong></label>
                     <div class="input-group">
-                        <div class="input-group-prepend">
                             <span class="input-group-text"><i class="fa fa-fw fa-cube"></i></span>
-                        </div>
                         <input type="text" class="form-control" name="name" placeholder="Software name" maxlength="200" value="<?= $software_name ?>" required>
                     </div>
                 </div>
 
-                <div class="form-group">
+                <div class="mb-3">
                     <label>Version</label>
                     <div class="input-group">
-                        <div class="input-group-prepend">
                             <span class="input-group-text"><i class="fa fa-fw fa-cube"></i></span>
-                        </div>
                         <input type="text" class="form-control" name="version" placeholder="Software version" maxlength="200" value="<?= $software_version ?>">
                     </div>
                 </div>
 
-                <div class="form-group">
+                <div class="mb-3">
                     <label>Vendor</label>
                     <div class="input-group">
-                        <div class="input-group-prepend">
                             <span class="input-group-text"><i class="fa fa-fw fa-building"></i></span>
-                        </div>
                         <select class="form-control select2" name="vendor">
                             <option value="">- Select Vendor -</option>
                             <?php
@@ -165,12 +155,10 @@ ob_start();
                     </div>
                 </div>
 
-                <div class="form-group">
+                <div class="mb-3">
                     <label>Description</label>
                     <div class="input-group">
-                        <div class="input-group-prepend">
                             <span class="input-group-text"><i class="fa fa-fw fa-align-left"></i></span>
-                        </div>
                         <input type="text" class="form-control" name="description" placeholder="Short description" value="<?= $software_description ?>">
                     </div>
                 </div>
@@ -179,12 +167,10 @@ ob_start();
 
              <div class="tab-pane fade" id="pills-license<?= $software_id ?>">
 
-                <div class="form-group">
+                <div class="mb-3">
                     <label>License Type</label>
                     <div class="input-group">
-                        <div class="input-group-prepend">
                             <span class="input-group-text"><i class="fa fa-fw fa-cube"></i></span>
-                        </div>
                         <select class="form-control select2" name="license_type">
                             <option value="">- Select a License Type -</option>
                             <?php foreach($license_types_array as $license_type_select) { ?>
@@ -194,52 +180,42 @@ ob_start();
                     </div>
                 </div>
 
-                <div class="form-group">
+                <div class="mb-3">
                     <label>Seats</label>
                     <div class="input-group">
-                        <div class="input-group-prepend">
                             <span class="input-group-text"><i class="fa fa-fw fa-cube"></i></span>
-                        </div>
                         <input type="text" class="form-control" inputmode="numeric" pattern="[0-9]*" name="seats" placeholder="Number of seats" value="<?= $software_seats ?>">
                     </div>
                 </div>
 
-                <div class="form-group">
+                <div class="mb-3">
                     <label>License Key</label>
                     <div class="input-group">
-                        <div class="input-group-prepend">
                             <span class="input-group-text"><i class="fa fa-fw fa-key"></i></span>
-                        </div>
                         <input type="text" class="form-control" name="key" placeholder="License key" maxlength="200" value="<?= $software_key ?>">
                     </div>
                 </div>
 
-                <div class="form-group">
+                <div class="mb-3">
                     <label>Purchase Reference</label>
                     <div class="input-group">
-                        <div class="input-group-prepend">
                             <span class="input-group-text"><i class="fa fa-fw fa-shopping-cart"></i></span>
-                        </div>
                         <input type="text" class="form-control" name="purchase_reference" placeholder="eg. Invoice, PO Number" maxlength="200" value="<?= $software_purchase_reference ?>">
                     </div>
                 </div>
 
-                <div class="form-group">
+                <div class="mb-3">
                     <label>Purchase Date</label>
                     <div class="input-group">
-                        <div class="input-group-prepend">
                             <span class="input-group-text"><i class="fa fa-fw fa-calendar-check"></i></span>
-                        </div>
                         <input type="date" class="form-control" name="purchase" max="2999-12-31" value="<?= $software_purchase ?>">
                     </div>
                 </div>
 
-                <div class="form-group">
+                <div class="mb-3">
                     <label>Expire</label>
                     <div class="input-group">
-                        <div class="input-group-prepend">
                             <span class="input-group-text"><i class="fa fa-fw fa-calendar-times"></i></span>
-                        </div>
                         <input type="date" class="form-control" name="expire" max="2999-12-31" value="<?= $software_expire ?>">
                     </div>
                 </div>
@@ -255,7 +231,7 @@ ob_start();
                             <input type="checkbox" class="form-check-input"
                                 onclick="this.closest('.tab-pane').querySelectorAll('.asset-checkbox').forEach(checkbox => checkbox.checked = this.checked);"
                             >
-                            <label class="form-check-label ml-3"><strong>Licensed Devices</strong></label>
+                            <label class="form-check-label ms-3"><strong>Licensed Devices</strong></label>
                         </div>
                     </li>
 
@@ -279,7 +255,7 @@ ob_start();
                         <li class="list-group-item">
                             <div class="form-check">
                                 <input type="checkbox" class="form-check-input asset-checkbox" name="assets[]" value="<?= $asset_id_select ?>" <?php if (in_array($asset_id_select, $asset_licenses_array)) { echo "checked"; } ?>>
-                                <label class="form-check-label ml-2"><?= "$asset_archived_display$asset_name_select - $contact_name_select" ?></label>
+                                <label class="form-check-label ms-2"><?= "$asset_archived_display$asset_name_select - $contact_name_select" ?></label>
                             </div>
                         </li>
 
@@ -296,7 +272,7 @@ ob_start();
                     <li class="list-group-item bg-dark">
                         <div class="form-check">
                             <input type="checkbox" class="form-check-input" onclick="this.closest('.tab-pane').querySelectorAll('.user-checkbox').forEach(checkbox => checkbox.checked = this.checked);">
-                            <label class="form-check-label ml-3"><strong>Licensed Users</strong></label>
+                            <label class="form-check-label ms-3"><strong>Licensed Users</strong></label>
                         </div>
                     </li>
 
@@ -318,7 +294,7 @@ ob_start();
                         <li class="list-group-item">
                             <div class="form-check">
                                 <input type="checkbox" class="form-check-input user-checkbox" name="contacts[]" value="<?= $contact_id_select ?>" <?php if (in_array("$contact_id_select", $contact_licenses_array)) { echo "checked"; } ?>>
-                                <label class="form-check-label ml-2"><?= "$contact_archived_display$contact_name_select - $contact_email_select" ?></label>
+                                <label class="form-check-label ms-2"><?= "$contact_archived_display$contact_name_select - $contact_email_select" ?></label>
                             </div>
                         </li>
 
@@ -338,8 +314,8 @@ ob_start();
 
     </div>
     <div class="modal-footer">
-        <button type="submit" name="edit_software" class="btn btn-primary text-bold"><i class="fa fa-check mr-2"></i>Save</button>
-        <button type="button" class="btn btn-light" data-dismiss="modal"><i class="fa fa-times mr-2"></i>Cancel</button>
+        <button type="submit" name="edit_software" class="btn btn-primary text-bold"><i class="fa fa-check me-2"></i>Save</button>
+        <button type="button" class="btn btn-light" data-bs-dismiss="modal"><i class="fa fa-times me-2"></i>Cancel</button>
     </div>
 </form>
 

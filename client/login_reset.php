@@ -215,18 +215,16 @@ if ($_SERVER['REQUEST_METHOD'] == "POST") {
 
                         <div class="input-group mb-3">
                             <input type="password" class="form-control" placeholder="New Password" name="new_password" required minlength="8">
-                            <div class="input-group-append">
                                 <div class="input-group-text">
                                     <span class="fas fa-lock"></span>
                                 </div>
-                            </div>
                         </div>
 
                         <input type="hidden" name="token" value="<?= $token ?>">
                         <input type="hidden" name="email" value="<?= $email ?>">
                         <input type="hidden" name="client" value="<?= $client ?>">
 
-                        <button type="submit" class="btn btn-success btn-block mb-3" name="password_reset_set_password">Reset password</button>
+                        <button type="submit" class="btn btn-success w-100 mb-3" name="password_reset_set_password">Reset password</button>
 
 
                     <?php } else {
@@ -243,14 +241,12 @@ if ($_SERVER['REQUEST_METHOD'] == "POST") {
 
                     <div class="input-group mb-3">
                         <input type="email" class="form-control" placeholder="Registered Client Email" name="email" required autofocus>
-                        <div class="input-group-append">
                             <div class="input-group-text">
                                 <span class="fas fa-envelope"></span>
                             </div>
-                        </div>
                     </div>
 
-                    <button type="submit" class="btn btn-success btn-block mb-3" name="password_reset_email_request">Reset my password</button>
+                    <button type="submit" class="btn btn-success w-100 mb-3" name="password_reset_email_request">Reset my password</button>
 
                 <?php }
                 ?>

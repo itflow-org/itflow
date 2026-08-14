@@ -1,9 +1,9 @@
 <!-- Main Sidebar Container -->
-<aside class="main-sidebar sidebar-dark-<?= escapeHtml($config_theme) ?> d-print-none">
+<aside class="app-sidebar shadow d-print-none" data-bs-theme="dark">
 
     <a class="brand-link pb-1 mt-1" href="/agent/<?= $config_start_page ?>">
         <p class="h5">
-            <i class="nav-icon fas fa-arrow-left ml-3 mr-2"></i> 
+            <i class="nav-icon fas fa-arrow-left ms-3 me-2"></i> 
             <span class="brand-text">
                 Back | <strong>Account</strong>
             </span>
@@ -11,12 +11,12 @@
     </a>
 
     <!-- Sidebar -->
-    <div class="sidebar">
+    <div class="sidebar-wrapper">
 
         <!-- Sidebar Menu -->
         <nav>
 
-            <ul class="nav nav-pills nav-sidebar flex-column mt-2" data-widget="treeview" role="menu" data-accordion="false">
+            <ul class="nav nav-pills sidebar-menu flex-column mt-2" data-lte-toggle="treeview" role="menu" data-accordion="false">
 
                 <li class="nav-item">
                     <a href="/agent/user/user_details.php" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "user_details.php") { echo "active"; } ?>">

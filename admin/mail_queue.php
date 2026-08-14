@@ -21,7 +21,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 
     <div class="card card-dark">
         <div class="card-header py-3">
-            <h3 class="card-title"><i class="fas fa-fw fa-inbox mr-2"></i>Email Queue</h3>
+            <h3 class="card-title"><i class="fas fa-fw fa-inbox me-2"></i>Email Queue</h3>
         </div>
         <div class="card-body">
             <form class="mb-4" autocomplete="off">
@@ -29,26 +29,24 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                     <div class="col-sm-4">
                         <div class="input-group">
                             <input type="search" class="form-control" name="q" value="<?php if (isset($q)) { echo stripslashes(escapeHtml($q)); } ?>" placeholder="Search mail queue">
-                            <div class="input-group-append">
-                                <button class="btn btn-secondary" type="button" data-toggle="collapse" data-target="#advancedFilter"><i class="fas fa-filter"></i></button>
+                                <button class="btn btn-secondary" type="button" data-bs-toggle="collapse" data-bs-target="#advancedFilter"><i class="fas fa-filter"></i></button>
                                 <button class="btn btn-primary"><i class="fa fa-search"></i></button>
-                            </div>
                         </div>
                     </div>
                     <div class="col-sm-8">
-                        <div class="dropdown float-right" id="bulkActionButton" hidden>
-                            <button class="btn btn-secondary dropdown-toggle" type="button" data-toggle="dropdown">
-                                <i class="fas fa-fw fa-layer-group mr-2"></i>Bulk Action (<span id="selectedCount">0</span>)
+                        <div class="dropdown float-end" id="bulkActionButton" hidden>
+                            <button class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                                <i class="fas fa-fw fa-layer-group me-2"></i>Bulk Action (<span id="selectedCount">0</span>)
                             </button>
                             <div class="dropdown-menu">
                                 <button class="dropdown-item"
                                         type="submit" form="bulkActions" name="bulk_cancel_emails">
-                                    <i class="fas fa-fw fa-ban mr-2"></i>Cancel
+                                    <i class="fas fa-fw fa-ban me-2"></i>Cancel
                                 </button>
                                 <div class="dropdown-divider"></div>
                                 <button class="dropdown-item text-danger text-bold"
                                         type="submit" form="bulkActions" name="bulk_delete_emails">
-                                    <i class="fas fa-fw fa-trash mr-2"></i>Delete
+                                    <i class="fas fa-fw fa-trash me-2"></i>Delete
                                 </button>
                             </div>
                         </div>
@@ -57,7 +55,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                 <div class="collapse mt-3 <?php if (isset($_GET['dtf']) && $_GET['dtf'] !== '1970-01-01') { echo "show"; } ?>" id="advancedFilter">
                     <div class="row">
                         <div class="col-md-3">
-                            <div class="form-group">
+                            <div class="mb-3">
                                 <label>Date range</label>
                                 <input type="text" id="dateFilter" class="form-control" autocomplete="off">
                                 <input type="hidden" name="canned_date" id="canned_date" value="<?= escapeHtml($_GET['canned_date']) ?? '' ?>">
@@ -76,7 +74,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                     <table class="table table-sm table-striped table-borderless table-hover">
                         <thead class="text-dark <?php if ($num_rows[0] == 0) { echo "d-none"; } ?>">
                         <tr>
-                            <td class="bg-light pr-0">
+                            <td class="bg-light pe-0">
                                 <div class="form-check">
                                     <input class="form-check-input" id="selectAllCheckbox" type="checkbox" onclick="checkAll(this)">
                                 </div>
@@ -134,22 +132,22 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                             } elseif($email_status == 1) {
                                 $email_status_display = "<div class='text-warning'>Sending</div>";
                             } elseif($email_status == 2) {
-                                $email_status_display = "<div class='text-danger'>Failed</div><small class='text-secondary text-monospace'>$email_failed_at</small>";
+                                $email_status_display = "<div class='text-danger'>Failed</div><small class='text-secondary font-monospace'>$email_failed_at</small>";
                             } else {
-                                $email_status_display = "<div class='text-success'>Sent</div><small class='text-secondary text-monospace'>$email_sent_at</small>";
+                                $email_status_display = "<div class='text-success'>Sent</div><small class='text-secondary font-monospace'>$email_sent_at</small>";
                             }
 
                             ?>
 
                             <tr>
-                                <td class="pr-0 bg-light">
+                                <td class="pe-0 bg-light">
                                     <?php if ($email_status !== 3) { ?>
                                     <div class="form-check">
                                         <input class="form-check-input bulk-select" type="checkbox" name="email_ids[]" value="<?= $email_id ?>">
                                     </div>
                                     <?php } ?>
                                 </td>
-                                <td class="text-monospace"><?= $email_queued_at ?></td>
+                                <td class="font-monospace"><?= $email_queued_at ?></td>
                                 <td><?= "$email_from<br><small class='text-secondary'>$email_from_name</small>" ?></td>
                                 <td><?= "$email_recipient<br><small class='text-secondary'>$email_recipient_name</small>" ?></td>
                                 <td><?= $email_subject ?></td>

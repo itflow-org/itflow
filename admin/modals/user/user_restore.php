@@ -18,11 +18,9 @@ $user_role_id = intval($row['user_role_id']);
 ob_start();
 ?>
 <div class="modal-header bg-dark">
-    <h5 class="modal-title"><i class="fas fa-fw fa-redo-alt mr-2"></i>Restoring user:
+    <h5 class="modal-title"><i class="fas fa-fw fa-redo-alt me-2"></i>Restoring user:
         <strong><?= $user_name ?></strong></h5>
-    <button type="button" class="close text-white" data-dismiss="modal">
-        <span>&times;</span>
-    </button>
+    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
 </div>
 <form action="post.php" method="post" autocomplete="off">
     <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
@@ -41,26 +39,20 @@ ob_start();
             <?php } ?>
         </center>
 
-        <div class="form-group">
+        <div class="mb-3">
             <label>Set a New Password</label>
             <div class="input-group">
-                <div class="input-group-prepend">
                     <span class="input-group-text"><i class="fa fa-fw fa-lock"></i></span>
-                </div>
                 <input type="password" class="form-control" data-toggle="password" name="new_password"
                        placeholder="Enter a new password" autocomplete="new-password" required>
-                <div class="input-group-append">
                     <span class="input-group-text"><i class="fa fa-fw fa-eye"></i></span>
-                </div>
             </div>
         </div>
 
-        <div class="form-group">
+        <div class="mb-3">
             <label>Role <strong class="text-danger">*</strong></label>
             <div class="input-group">
-                <div class="input-group-prepend">
                     <span class="input-group-text"><i class="fa fa-fw fa-user-shield"></i></span>
-                </div>
                 <select class="form-control select2" name="role" required>
                     <?php
                     $sql_user_roles = mysqli_query($mysqli, "SELECT role_id, role_name FROM user_roles WHERE role_archived_at IS NULL");
@@ -78,8 +70,8 @@ ob_start();
 
     </div>
     <div class="modal-footer">
-        <button type="submit" name="restore_user" class="btn btn-primary text-bold"><i class="fas fa-check mr-2"></i>Restore</button>
-        <button type="button" class="btn btn-light" data-dismiss="modal"><i class="fas fa-times mr-2"></i>Cancel</button>
+        <button type="submit" name="restore_user" class="btn btn-primary text-bold"><i class="fas fa-check me-2"></i>Restore</button>
+        <button type="button" class="btn btn-light" data-bs-dismiss="modal"><i class="fas fa-times me-2"></i>Cancel</button>
     </div>
 </form>
 

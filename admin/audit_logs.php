@@ -67,7 +67,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 
     <div class="card card-dark">
         <div class="card-header py-3">
-            <h3 class="card-title"><i class="fas fa-fw fa-history mr-2"></i>Audit Logs</h3>
+            <h3 class="card-title"><i class="fas fa-fw fa-history me-2"></i>Audit Logs</h3>
         </div>
         <div class="card-body">
             <form class="mb-4" autocomplete="off">
@@ -75,10 +75,8 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                     <div class="col-sm-4">
                         <div class="input-group mb-3 mb-md-0">
                             <input type="search" class="form-control" name="q" value="<?php if (isset($q)) { echo stripslashes(escapeHtml($q)); } ?>" placeholder="Search audit logs">
-                            <div class="input-group-append">
-                                <button class="btn btn-secondary" type="button" data-toggle="collapse" data-target="#advancedFilter"><i class="fas fa-filter"></i></button>
+                                <button class="btn btn-secondary" type="button" data-bs-toggle="collapse" data-bs-target="#advancedFilter"><i class="fas fa-filter"></i></button>
                                 <button class="btn btn-primary"><i class="fa fa-search"></i></button>
-                            </div>
                         </div>
                     </div>
 
@@ -163,7 +161,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                 <div class="collapse mt-3 <?php if (isset($_GET['dtf']) && $_GET['dtf'] !== '1970-01-01') { echo "show"; } ?>" id="advancedFilter">
                     <div class="row">
                         <div class="col-md-3">
-                            <div class="form-group">
+                            <div class="mb-3">
                                 <label>Date range</label>
                                 <input type="text" id="dateFilter" class="form-control" autocomplete="off">
                                 <input type="hidden" name="canned_date" id="canned_date" value="<?= escapeHtml($_GET['canned_date']) ?? '' ?>">
@@ -255,7 +253,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                         ?>
 
                         <tr>
-                            <td class="text-monospace"><?= $log_created_at ?></td>
+                            <td class="font-monospace"><?= $log_created_at ?></td>
                             <td><?= $user_name_display ?></td>
                             <?php if(empty($client)) { ?>
                             <td><?= $client_name_display ?></td>
@@ -263,7 +261,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                             <td><?= $log_type ?></td>
                             <td><?= $log_action ?></td>
                             <td><?= $log_description ?></td>
-                            <td class="text-monospace"><?= $log_ip ?></td>
+                            <td class="font-monospace"><?= $log_ip ?></td>
                             <td><?= "$log_user_os<div class='text-secondary'>$log_user_browser</div>" ?></td>
                         </tr>
 

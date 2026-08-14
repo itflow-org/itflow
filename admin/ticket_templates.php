@@ -25,9 +25,9 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 
 <div class="card card-dark">
     <div class="card-header py-2">
-        <h3 class="card-title mt-2"><i class="fas fa-fw fa-life-ring mr-2"></i>Ticket Templates</h3>
+        <h3 class="card-title mt-2"><i class="fas fa-fw fa-life-ring me-2"></i>Ticket Templates</h3>
         <div class="card-tools">
-            <button type="button" class="btn btn-primary ajax-modal" data-modal-url="modals/ticket_template/ticket_template_add.php" data-modal-size="lg"><i class="fas fa-plus mr-2"></i>New Ticket Template</button>
+            <button type="button" class="btn btn-primary ajax-modal" data-modal-url="modals/ticket_template/ticket_template_add.php" data-modal-size="lg"><i class="fas fa-plus me-2"></i>New Ticket Template</button>
         </div>
     </div>
     <div class="card-body">
@@ -37,9 +37,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                 <div class="col-md-4">
                     <div class="input-group mb-3 mb-md-0">
                         <input type="search" class="form-control" name="q" value="<?php if(isset($q)){ echo stripslashes(escapeHtml($q)); } ?>" placeholder="Search Ticket Templates">
-                        <div class="input-group-append">
                             <button class="btn btn-dark"><i class="fa fa-search"></i></button>
-                        </div>
                     </div>
                 </div>
 
@@ -81,9 +79,9 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                     <tr>
                         <td>
                             <a class="text-dark">
-                                <div class="media">
-                                    <i class="fa fa-fw fa-2x fa-life-ring mr-3"></i>
-                                    <div class="media-body">
+                                <div class="d-flex">
+                                    <i class="fa fa-fw fa-2x fa-life-ring me-3"></i>
+                                    <div class="flex-grow-1">
                                         <div>
                                             <a href="ticket_template.php?ticket_template_id=<?= $ticket_template_id ?>">
                                                 <?= $ticket_template_name ?>
@@ -96,13 +94,13 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                         </td>
                         <td><?= $task_count ?></td>
                         <td>
-                            <div class="dropdown dropleft text-center">
-                                <button class="btn btn-secondary btn-sm" data-toggle="dropdown">
+                            <div class="dropdown dropstart text-center">
+                                <button class="btn btn-secondary btn-sm" data-bs-toggle="dropdown">
                                     <i class="fas fa-ellipsis-h"></i>
                                 </button>
                                 <div class="dropdown-menu">
                                     <a class="dropdown-item text-danger text-bold confirm-link" href="post.php?delete_ticket_template=<?= $ticket_template_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>">
-                                        <i class="fas fa-fw fa-trash mr-2"></i>Delete
+                                        <i class="fas fa-fw fa-trash me-2"></i>Delete
                                     </a>
                                 </div>
                             </div>

@@ -16,10 +16,8 @@ ob_start();
 ?>
 
 <div class="modal-header bg-dark">
-    <h5 class="modal-title"><i class="fa fa-fw fa-file-alt mr-2"></i>New Document from Template</h5>
-    <button type="button" class="close text-white" data-dismiss="modal">
-        <span>&times;</span>
-    </button>
+    <h5 class="modal-title"><i class="fa fa-fw fa-file-alt me-2"></i>New Document from Template</h5>
+    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
 </div>
 <form action="post.php" method="post" autocomplete="off">
     <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
@@ -27,11 +25,9 @@ ob_start();
     <div class="modal-body">
 
         <label>Template</label>
-        <div class="form-group">
+        <div class="mb-3">
             <div class="input-group">
-                <div class="input-group-prepend">
                     <span class="input-group-text"><i class="fa fa-fw fa-puzzle-piece"></i></span>
-                </div>
                 <select class="form-control" name="document_template_id" required>
                     <option value="">- Select Template -</option>
                     <?php
@@ -49,31 +45,25 @@ ob_start();
         </div>
 
         <label>Document name</label>
-        <div class="form-group">
+        <div class="mb-3">
             <div class="input-group">
-                <div class="input-group-prepend">
                     <span class="input-group-text"><i class="fa fa-fw fa-file"></i></span>
-                </div>
                 <input type="text" class="form-control" name="name" placeholder="Name" maxlength="200" required>
             </div>
         </div>
 
         <label>Description</label>
-        <div class="form-group">
+        <div class="mb-3">
             <div class="input-group">
-                <div class="input-group-prepend">
                     <span class="input-group-text"><i class="fa fa-fw fa-align-left"></i></span>
-                </div>
                 <input type="text" class="form-control" name="description" placeholder="Short summary of the document">
             </div>
         </div>
 
         <label>Folder</label>
-        <div class="form-group">
+        <div class="mb-3">
             <div class="input-group">
-                <div class="input-group-prepend">
                     <span class="input-group-text"><i class="fa fa-fw fa-folder"></i></span>
-                </div>
                 <select class="form-control" name="folder">
                     <option value="0">/</option>
                     <?php
@@ -93,8 +83,8 @@ ob_start();
     </div>
 
     <div class="modal-footer">
-        <button type="submit" name="add_document_from_template" class="btn btn-primary text-bold"><i class="fa fa-check mr-2"></i>Create</button>
-        <button type="button" class="btn btn-light" data-dismiss="modal"><i class="fa fa-times mr-2"></i>Cancel</button>
+        <button type="submit" name="add_document_from_template" class="btn btn-primary text-bold"><i class="fa fa-check me-2"></i>Create</button>
+        <button type="button" class="btn btn-light" data-bs-dismiss="modal"><i class="fa fa-times me-2"></i>Cancel</button>
     </div>
 </form>
 

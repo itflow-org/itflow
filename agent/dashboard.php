@@ -50,8 +50,8 @@ $sql_years_select = mysqli_query($mysqli, "
         <input type="hidden" name="enable_financial" value="0">
         <input type="hidden" name="enable_technical" value="0">
 
-        <label for="year" class="mr-sm-2">Select Year:</label>
-        <select id="year" onchange="this.form.submit()" class="form-control mr-sm-3 col-sm-2 mb-3 mb-sm-0" name="year">
+        <label for="year" class="me-sm-2">Select Year:</label>
+        <select id="year" onchange="this.form.submit()" class="form-control me-sm-3 col-sm-2 mb-3 mb-sm-0" name="year">
             <?php while ($row = mysqli_fetch_assoc($sql_years_select)) {
                 $year_select = $row['all_years'];
                 if (empty($year_select)) {
@@ -65,16 +65,16 @@ $sql_years_select = mysqli_query($mysqli, "
         </select>
 
         <?php if ($session_user_role == 1 || ($session_user_role == 3 && $config_module_enable_accounting == 1)) { ?>
-            <div class="custom-control custom-switch mr-3">
-                <input type="checkbox" onchange="this.form.submit()" class="custom-control-input" id="customSwitch1" name="enable_financial" value="1" <?php if ($user_config_dashboard_financial_enable == 1) { echo "checked"; } ?>>
-                <label class="custom-control-label" for="customSwitch1">Financial</label>
+            <div class="form-check form-switch me-3">
+                <input type="checkbox" onchange="this.form.submit()" class="form-check-input" id="customSwitch1" name="enable_financial" value="1" <?php if ($user_config_dashboard_financial_enable == 1) { echo "checked"; } ?>>
+                <label class="form-check-label" for="customSwitch1">Financial</label>
             </div>
         <?php } ?>
 
         <?php if ($session_user_role >= 2 && $config_module_enable_ticketing == 1) { ?>
-            <div class="custom-control custom-switch">
-                <input type="checkbox" onchange="this.form.submit()" class="custom-control-input" id="customSwitch2" name="enable_technical" value="1" <?php if ($user_config_dashboard_technical_enable == 1) { echo "checked"; } ?>>
-                <label class="custom-control-label" for="customSwitch2">Technical</label>
+            <div class="form-check form-switch">
+                <input type="checkbox" onchange="this.form.submit()" class="form-check-input" id="customSwitch2" name="enable_technical" value="1" <?php if ($user_config_dashboard_technical_enable == 1) { echo "checked"; } ?>>
+                <label class="form-check-label" for="customSwitch2">Technical</label>
             </div>
         <?php } ?>
     </form>
@@ -336,12 +336,12 @@ if ($user_config_dashboard_financial_enable == 1) {
         <div class="col-md-12">
             <div class="card card-dark mb-3">
                 <div class="card-header">
-                    <h3 class="card-title"><i class="fas fa-fw fa-chart-area mr-2"></i>Cash Flow</h3>
+                    <h3 class="card-title"><i class="fas fa-fw fa-chart-area me-2"></i>Cash Flow</h3>
                     <div class="card-tools">
                         <a href="reports/income_summary.php" class="btn btn-tool">
                             <i class="fas fa-eye"></i>
                         </a>
-                        <button type="button" class="btn btn-tool" data-card-widget="remove">
+                        <button type="button" class="btn btn-tool" data-lte-toggle="card-remove">
                             <i class="fas fa-times"></i>
                         </button>
                     </div>
@@ -357,9 +357,9 @@ if ($user_config_dashboard_financial_enable == 1) {
         <div class="col-lg-4">
             <div class="card card-dark mb-3">
                 <div class="card-header">
-                    <h3 class="card-title"><i class="fas fa-fw fa-chart-pie mr-2"></i>Income by Category <small>(Top 5)</small></h3>
+                    <h3 class="card-title"><i class="fas fa-fw fa-chart-pie me-2"></i>Income by Category <small>(Top 5)</small></h3>
                     <div class="card-tools">
-                        <button type="button" class="btn btn-tool" data-card-widget="remove">
+                        <button type="button" class="btn btn-tool" data-lte-toggle="card-remove">
                             <i class="fas fa-times"></i>
                         </button>
                     </div>
@@ -375,9 +375,9 @@ if ($user_config_dashboard_financial_enable == 1) {
         <div class="col-lg-4">
             <div class="card card-dark mb-3">
                 <div class="card-header">
-                    <h3 class="card-title"><i class="fa fa-fw fa-shopping-cart mr-2"></i>Expenses by Category <small>(Top 5)</small></h3>
+                    <h3 class="card-title"><i class="fa fa-fw fa-shopping-cart me-2"></i>Expenses by Category <small>(Top 5)</small></h3>
                     <div class="card-tools">
-                        <button type="button" class="btn btn-tool" data-card-widget="remove">
+                        <button type="button" class="btn btn-tool" data-lte-toggle="card-remove">
                             <i class="fas fa-times"></i>
                         </button>
                     </div>
@@ -393,9 +393,9 @@ if ($user_config_dashboard_financial_enable == 1) {
         <div class="col-lg-4">
             <div class="card card-dark mb-3">
                 <div class="card-header">
-                    <h3 class="card-title"><i class="fa fa-fw fa-building mr-2"></i>Expenses by Vendor <small>(Top 5)</small></h3>
+                    <h3 class="card-title"><i class="fa fa-fw fa-building me-2"></i>Expenses by Vendor <small>(Top 5)</small></h3>
                     <div class="card-tools">
-                        <button type="button" class="btn btn-tool" data-card-widget="remove">
+                        <button type="button" class="btn btn-tool" data-lte-toggle="card-remove">
                             <i class="fas fa-times"></i>
                         </button>
                     </div>
@@ -411,9 +411,9 @@ if ($user_config_dashboard_financial_enable == 1) {
         <div class="col-md-4">
             <div class="card card-dark mb-3">
                 <div class="card-header">
-                    <h3 class="card-title"><i class="fa fa-fw fa-piggy-bank mr-2"></i>Account Balances</h3>
+                    <h3 class="card-title"><i class="fa fa-fw fa-piggy-bank me-2"></i>Account Balances</h3>
                     <div class="card-tools">
-                        <button type="button" class="btn btn-tool" data-card-widget="remove">
+                        <button type="button" class="btn btn-tool" data-lte-toggle="card-remove">
                             <i class="fas fa-times"></i>
                         </button>
                     </div>
@@ -447,7 +447,7 @@ if ($user_config_dashboard_financial_enable == 1) {
                                         $balance = '0.00';
                                     }
                                     ?>
-                                    <td class="text-right text-monospace"><?= numfmt_format_currency($currency_format, $balance, "$session_company_currency") ?></td>
+                                    <td class="text-end font-monospace"><?= numfmt_format_currency($currency_format, $balance, "$session_company_currency") ?></td>
                                 </tr>
                             <?php } ?>
                         </tbody>
@@ -459,9 +459,9 @@ if ($user_config_dashboard_financial_enable == 1) {
         <div class="col-md-4">
             <div class="card card-dark mb-3">
                 <div class="card-header">
-                    <h3 class="card-title"><i class="fas fa-fw fa-credit-card mr-2"></i>Latest Income</h3>
+                    <h3 class="card-title"><i class="fas fa-fw fa-credit-card me-2"></i>Latest Income</h3>
                     <div class="card-tools">
-                        <button type="button" class="btn btn-tool" data-card-widget="remove">
+                        <button type="button" class="btn btn-tool" data-lte-toggle="card-remove">
                             <i class="fas fa-times"></i>
                         </button>
                     </div>
@@ -473,7 +473,7 @@ if ($user_config_dashboard_financial_enable == 1) {
                                 <th>Date</th>
                                 <th>Customer</th>
                                 <th>Invoice</th>
-                                <th class="text-right">Amount</th>
+                                <th class="text-end">Amount</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -488,7 +488,7 @@ if ($user_config_dashboard_financial_enable == 1) {
                                     <td><?= $payment_date ?></td>
                                     <td><?= $client_name ?></td>
                                     <td><?= "$invoice_prefix$invoice_number" ?></td>
-                                    <td class="text-right text-monospace"><?= numfmt_format_currency($currency_format, $payment_amount, "$session_company_currency") ?></td>
+                                    <td class="text-end font-monospace"><?= numfmt_format_currency($currency_format, $payment_amount, "$session_company_currency") ?></td>
                                 </tr>
                             <?php } ?>
                         </tbody>
@@ -500,9 +500,9 @@ if ($user_config_dashboard_financial_enable == 1) {
         <div class="col-md-4">
             <div class="card card-dark mb-3">
                 <div class="card-header">
-                    <h3 class="card-title"><i class="fas fa-fw fa-shopping-cart mr-2"></i>Latest Expenses</h3>
+                    <h3 class="card-title"><i class="fas fa-fw fa-shopping-cart me-2"></i>Latest Expenses</h3>
                     <div class="card-tools">
-                        <button type="button" class="btn btn-tool" data-card-widget="remove">
+                        <button type="button" class="btn btn-tool" data-lte-toggle="card-remove">
                             <i class="fas fa-times"></i>
                         </button>
                     </div>
@@ -514,7 +514,7 @@ if ($user_config_dashboard_financial_enable == 1) {
                                 <th>Date</th>
                                 <th>Vendor</th>
                                 <th>Category</th>
-                                <th class="text-right">Amount</th>
+                                <th class="text-end">Amount</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -528,7 +528,7 @@ if ($user_config_dashboard_financial_enable == 1) {
                                     <td><?= $expense_date ?></td>
                                     <td><?= $vendor_name ?></td>
                                     <td><?= $category_name ?></td>
-                                    <td class="text-right text-monospace"><?= numfmt_format_currency($currency_format, $expense_amount, "$session_company_currency") ?></td>
+                                    <td class="text-end font-monospace"><?= numfmt_format_currency($currency_format, $expense_amount, "$session_company_currency") ?></td>
                                 </tr>
                             <?php } ?>
                         </tbody>
@@ -540,12 +540,12 @@ if ($user_config_dashboard_financial_enable == 1) {
         <div class="col-md-12">
             <div class="card card-dark mb-3">
                 <div class="card-header">
-                    <h3 class="card-title"><i class="fas fa-fw fa-route mr-2"></i>Trip Flow</h3>
+                    <h3 class="card-title"><i class="fas fa-fw fa-route me-2"></i>Trip Flow</h3>
                     <div class="card-tools">
                         <a href="trips.php" class="btn btn-tool">
                             <i class="fas fa-eye"></i>
                         </a>
-                        <button type="button" class="btn btn-tool" data-card-widget="remove">
+                        <button type="button" class="btn btn-tool" data-lte-toggle="card-remove">
                             <i class="fas fa-times"></i>
                         </button>
                     </div>
@@ -725,9 +725,9 @@ if ($user_config_dashboard_technical_enable == 1) {
             <div class="col-12">
                 <div class="card card-dark mb-3">
                     <div class="card-header">
-                        <h3 class="card-title"><i class="fa fa-fw fa-life-ring mr-2"></i>Your Open Tickets</h3>
+                        <h3 class="card-title"><i class="fa fa-fw fa-life-ring me-2"></i>Your Open Tickets</h3>
                         <div class="card-tools">
-                            <button type="button" class="btn btn-tool" data-card-widget="remove">
+                            <button type="button" class="btn btn-tool" data-lte-toggle="card-remove">
                                 <i class="fas fa-times"></i>
                             </button>
                         </div>
@@ -784,8 +784,8 @@ if ($user_config_dashboard_technical_enable == 1) {
                                         <td><a href="ticket.php?ticket_id=<?= "$ticket_id$has_client" ?>"><?= $ticket_subject ?></a></td>
                                         <td><a href="tickets.php?client_id=<?= $client_id ?>"><strong><?= $client_name ?></strong></a></td>
                                         <td><?= $contact_display ?></td>
-                                        <td><span class='p-2 badge badge-pill badge-<?= $ticket_priority_color ?>'><?= $ticket_priority ?></span></td>
-                                        <td><span class='badge badge-pill text-light p-2' style="background-color: <?= $ticket_status_color ?>"><?= $ticket_status_name ?></span></td>
+                                        <td><span class='p-2 badge rounded-pill badge-<?= $ticket_priority_color ?>'><?= $ticket_priority ?></span></td>
+                                        <td><span class='badge rounded-pill text-light p-2' style="background-color: <?= $ticket_status_color ?>"><?= $ticket_status_name ?></span></td>
                                         <td><?= $ticket_updated_at_display ?></td>
                                     </tr>
                                 <?php } ?>

@@ -4,10 +4,8 @@
     <div class="modal-dialog modal-md">
         <div class="modal-content">
             <div class="modal-header bg-dark">
-                <h5 class="modal-title"><i class="fas fa-fw fa-share mr-2"></i>Share Link</h5>
-                <button type="button" class="close text-white" data-dismiss="modal">
-                    <span>&times;</span>
-                </button>
+                <h5 class="modal-title"><i class="fas fa-fw fa-share me-2"></i>Share Link</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
             </div>
             <form action="ajax.php" method="GET" id="newShareLink">
                 <input type="hidden" name="csrf_token" id="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
@@ -18,12 +16,10 @@
 
                     <div id="div_share_link_form">
 
-                        <div class="form-group">
+                        <div class="mb-3">
                             <label>Share with</label>
                             <div class="input-group">
-                                <div class="input-group-prepend">
                                     <span class="input-group-text"><i class="fa fa-fw fa-user"></i></span>
-                                </div>
                                 <select class="form-control select2" name="contact_email" id="share_email" data-placeholder="Select or enter an Email">
                                     <option value=""></option>
                                     <?php
@@ -44,8 +40,8 @@
                         </div>
 
                         <label>Expiration</label>
-                        <div class="form-group">
-                            <div class="btn-group btn-block btn-group-toggle" data-toggle="buttons">
+                        <div class="mb-3">
+                            <div class="btn-group w-100 btn-group-toggle" data-toggle="buttons">
                                 <label class="btn btn-outline-dark active">
                                     <input type="radio" name="expires" value="1 HOUR" checked>1 hour
                                 </label>
@@ -61,14 +57,14 @@
                             </div>
                         </div>
 
-                        <div class="form-group">
-                            <div class="custom-control custom-switch">
-                                <input type="checkbox" class="custom-control-input" name="views" id="share_views" value="1">
-                                <label class="custom-control-label" for="share_views">Delete after view</label>
+                        <div class="mb-3">
+                            <div class="form-check form-switch">
+                                <input type="checkbox" class="form-check-input" name="views" id="share_views" value="1">
+                                <label class="form-check-label" for="share_views">Delete after view</label>
                             </div>
                         </div>
 
-                        <div class="form-group">
+                        <div class="mb-3">
                             <textarea class="form-control" rows="6" name="note" id="share_note" placeholder="Client visible note" maxlength="255"></textarea>
                         </div>
 
@@ -84,8 +80,8 @@
                 </div>
 
                 <div class="modal-footer">
-                    <button type="button" id="div_share_link_generate" class="btn btn-primary text-bold" onclick="event.preventDefault(); generateShareLink()"><i class="fas fa-paper-plane mr-2"></i>Send and Show Link</button>
-                    <button type="button" class="btn btn-light" data-dismiss="modal"><i class="fa fa-times mr-2"></i>Cancel</button>
+                    <button type="button" id="div_share_link_generate" class="btn btn-primary text-bold" onclick="event.preventDefault(); generateShareLink()"><i class="fas fa-paper-plane me-2"></i>Send and Show Link</button>
+                    <button type="button" class="btn btn-light" data-bs-dismiss="modal"><i class="fa fa-times me-2"></i>Cancel</button>
                 </div>
             </form>
         </div>

@@ -14,10 +14,8 @@ ob_start();
 ?>
 
 <div class="modal-header bg-dark">
-    <h5 class="modal-title"><i class="fa fa-fw fa-cloud-upload-alt mr-2"></i>Upload File(s)</h5>
-    <button type="button" class="close text-white" data-dismiss="modal">
-        <span>&times;</span>
-    </button>
+    <h5 class="modal-title"><i class="fa fa-fw fa-cloud-upload-alt me-2"></i>Upload File(s)</h5>
+    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
 </div>
 <form action="post.php" method="post" enctype="multipart/form-data" autocomplete="off">
     <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
@@ -26,22 +24,18 @@ ob_start();
     <input type="hidden" name="asset_id" value="<?= $asset_id ?>">
     <div class="modal-body">
 
-        <div class="form-group">
+        <div class="mb-3">
             <label>Description</label>
             <div class="input-group">
-                <div class="input-group-prepend">
                     <span class="input-group-text"><i class="fa fa-fw fa-align-left"></i></span>
-                </div>
                 <input type="text" class="form-control" name="description" maxlength="250" placeholder="Description of the file(s)">
             </div>
         </div>
 
-        <div class="form-group mb-4">
+        <div class="mb-3 mb-4">
             <label>Folder</label>
             <div class="input-group">
-                <div class="input-group-prepend">
                     <span class="input-group-text"><i class="fa fa-fw fa-folder"></i></span>
-                </div>
                 <select class="form-control select2" name="folder_id">
                     <option value="0">/</option>
                     <?php
@@ -52,15 +46,15 @@ ob_start();
             </div>
         </div>
 
-        <div class="form-group">
-            <input type="file" class="form-control-file" name="file[]" multiple id="fileInput" accept=".jpg, .jpeg, .gif, .png, .webp, .pdf, .txt, .md, .doc, .docx, .odt, .csv, .xls, .xlsx, .ods, .pptx, .odp, .zip, .tar, .gz, .msg, .json, .wav, .mp3, .ogg, .mov, .mp4, .av1, .ovpn, .cfg, .ps1, .vsdx, .drawio, .pfx, .unf, .key, .stk, .bat, .swb">
+        <div class="mb-3">
+            <input type="file" class="form-control" name="file[]" multiple id="fileInput" accept=".jpg, .jpeg, .gif, .png, .webp, .pdf, .txt, .md, .doc, .docx, .odt, .csv, .xls, .xlsx, .ods, .pptx, .odp, .zip, .tar, .gz, .msg, .json, .wav, .mp3, .ogg, .mov, .mp4, .av1, .ovpn, .cfg, .ps1, .vsdx, .drawio, .pfx, .unf, .key, .stk, .bat, .swb">
         </div>
         <small class="text-secondary">Up to 20 files can be uploaded at once by holding down CTRL and selecting files</small>
 
     </div>
     <div class="modal-footer">
-        <button type="submit" name="upload_files" class="btn btn-primary text-bold"><i class="fa fa-upload mr-2"></i>Upload</button>
-        <button type="button" class="btn btn-light" data-dismiss="modal"><i class="fa fa-times mr-2"></i>Cancel</button>
+        <button type="submit" name="upload_files" class="btn btn-primary text-bold"><i class="fa fa-upload me-2"></i>Upload</button>
+        <button type="button" class="btn btn-light" data-bs-dismiss="modal"><i class="fa fa-times me-2"></i>Cancel</button>
     </div>
 </form>
 

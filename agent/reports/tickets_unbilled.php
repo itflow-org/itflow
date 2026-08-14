@@ -21,9 +21,9 @@ $rows = 0;
 
     <div class="card card-dark">
         <div class="card-header py-2">
-            <h3 class="card-title mt-2"><i class="fas fa-fw fa-life-ring mr-2"></i>Unbilled Tickets By Client</h3>
+            <h3 class="card-title mt-2"><i class="fas fa-fw fa-life-ring me-2"></i>Unbilled Tickets By Client</h3>
             <div class="card-tools">
-                <button type="button" class="btn btn-primary d-print-none" onclick="window.print();"><i class="fas fa-fw fa-print mr-2"></i>Print</button>
+                <button type="button" class="btn btn-primary d-print-none" onclick="window.print();"><i class="fas fa-fw fa-print me-2"></i>Print</button>
             </div>
         </div>
         <div class="card-body">
@@ -42,9 +42,9 @@ $rows = 0;
                     <thead>
                     <tr>
                         <th>Client</th>
-                        <th class="text-right">Tickets Raised</th>
-                        <th class="text-right">Billable Tickets</th>
-                        <th class="text-right">Unbilled Tickets</th>
+                        <th class="text-end">Tickets Raised</th>
+                        <th class="text-end">Billable Tickets</th>
+                        <th class="text-end">Unbilled Tickets</th>
                     </tr>
                     </thead>
                     <tbody>
@@ -116,9 +116,9 @@ $rows = 0;
                                 <td>
                                     <a href="../../agent/tickets.php?client_id=<?= $client_id ?>&billable=1&unbilled"><?= $client_name ?></a>
                                 </td>
-                                <td class="text-right"><?= $ticket_raised_count ?></td>
-                                <td class="text-right"><?= $ticket_closed_count ?></td>
-                                <td class="text-right"><?= $ticket_unbilled_count ?></td>
+                                <td class="text-end"><?= $ticket_raised_count ?></td>
+                                <td class="text-end"><?= $ticket_closed_count ?></td>
+                                <td class="text-end"><?= $ticket_unbilled_count ?></td>
                             </tr>
                             <?php
                         }

@@ -163,20 +163,20 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 
 <div class="card card-dark">
     <div class="card-header py-2">
-        <h3 class="card-title mt-2"><i class="fa fa-fw fa-file-invoice mr-2"></i>Invoices</h3>
+        <h3 class="card-title mt-2"><i class="fa fa-fw fa-file-invoice me-2"></i>Invoices</h3>
         <div class="card-tools">
             <div class="btn-group">
                 <?php if (lookupUserPermission("module_sales") >= 2) { ?>
                 <button type="button" class="btn btn-primary ajax-modal"
                     data-modal-url="modals/invoice/invoice_add.php?<?= $client_url ?>">
-                    <i class="fas fa-plus mr-2"></i>New Invoice
+                    <i class="fas fa-plus me-2"></i>New Invoice
                 </button>
                 <?php } ?>
-                <button type="button" class="btn btn-primary dropdown-toggle dropdown-toggle-split" data-toggle="dropdown"></button>
+                <button type="button" class="btn btn-primary dropdown-toggle dropdown-toggle-split" data-bs-toggle="dropdown"></button>
                 <div class="dropdown-menu">
                     <a class="dropdown-item text-dark ajax-modal" href="#"
                          data-modal-url="<?= buildExportModalUrl('modals/invoice/invoice_export.php', ['client_id', 'status', 'category', 'q'], ['dtf' => $dtf, 'dtt' => $dtt]) ?>">
-                        <i class="fa fa-fw fa-download mr-2"></i>Export
+                        <i class="fa fa-fw fa-download me-2"></i>Export
                     </a>
                 </div>
             </div>
@@ -191,18 +191,16 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
             <?php } ?>
             <div class="row">
                 <div class="col-sm-4">
-                    <div class="form-group mb-md-0">
+                    <div class="mb-3 mb-md-0">
                         <div class="input-group">
                             <input type="search" class="form-control" name="q" value="<?php if (isset($q)) {echo stripslashes(escapeHtml($q));} ?>" placeholder="Search Invoices">
-                            <div class="input-group-append">
-                                <button class="btn btn-secondary" type="button" data-toggle="collapse" data-target="#advancedFilter"><i class="fas fa-filter"></i></button>
+                                <button class="btn btn-secondary" type="button" data-bs-toggle="collapse" data-bs-target="#advancedFilter"><i class="fas fa-filter"></i></button>
                                 <button class="btn btn-primary"><i class="fa fa-search"></i></button>
-                            </div>
                         </div>
                     </div>
                 </div>
                 <div class="col-sm-3">
-                    <div class="form-group mb-md-0">
+                    <div class="mb-3 mb-md-0">
                         <select class="form-control select2" name="category" onchange="this.form.submit()">
                             <option value="">- All Categories -</option>
 
@@ -221,23 +219,23 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                     </div>
                 </div>
                 <div class="col-md-5">
-                    <div class="btn-group float-right">
-                        <div class="dropdown ml-2" id="bulkActionButton" hidden>
-                            <button class="btn btn-secondary dropdown-toggle" type="button" data-toggle="dropdown">
-                                <i class="fas fa-fw fa-layer-group mr-2"></i>Bulk Action (<span id="selectedCount">0</span>)
+                    <div class="btn-group float-end">
+                        <div class="dropdown ms-2" id="bulkActionButton" hidden>
+                            <button class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                                <i class="fas fa-fw fa-layer-group me-2"></i>Bulk Action (<span id="selectedCount">0</span>)
                             </button>
                             <div class="dropdown-menu">
                                 <?php if ($client_url && $balance > 0) { ?>
                                     <a class="dropdown-item ajax-modal" href="#"
                                         data-modal-url="modals/payment/payment_bulk_add.php?<?= $client_url ?>">
-                                        <i class="fa fa-credit-card mr-2"></i>Batch Payment
+                                        <i class="fa fa-credit-card me-2"></i>Batch Payment
                                     </a>
                                     <div class="dropdown-divider"></div>
                                 <?php } ?>
                                 <a class="dropdown-item ajax-modal" href="#"
                                     data-modal-url="modals/invoice/invoice_bulk_edit_category.php"
                                     data-bulk="true">
-                                    <i class="fas fa-fw fa-list-ul mr-2"></i>Set Category
+                                    <i class="fas fa-fw fa-list-ul me-2"></i>Set Category
                                 </a>
                             </div>
                         </div>
@@ -247,7 +245,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
             <div class="collapse mt-3 <?php if (isset($_GET['dtf']) && $_GET['dtf'] !== '1970-01-01') { echo "show"; } ?>" id="advancedFilter">
                 <div class="row">
                     <div class="col-md-3">
-                        <div class="form-group">
+                        <div class="mb-3">
                             <label>Date range</label>
                             <input type="text" id="dateFilter" class="form-control" autocomplete="off">
                             <input type="hidden" name="canned_date" id="canned_date" value="<?= escapeHtml($_GET['canned_date']) ?? '' ?>">
@@ -287,7 +285,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                 </a>
                             </th>
                             <?php } ?>
-                            <th class="text-right">
+                            <th class="text-end">
                                 <a class="text-dark" href="?<?= $url_query_strings_sort ?>&sort=invoice_amount&order=<?= $disp ?>">
                                     Amount <?php if ($sort == 'invoice_amount') { echo $order_icon; } ?>
                                 </a>
@@ -349,7 +347,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                         $recurring_invoice_prefix = escapeHtml($row['recurring_invoice_prefix']);
                         $recurring_invoice_number = escapeHtml($row['recurring_invoice_number']);
                         if($recurring_invoice_id) {
-                            $recurring_invoice_display = "<i class='fas fa-fw fa-redo-alt text-secondary mr-1'></i><a href='recurring_invoice.php?recurring_invoice_id=$recurring_invoice_id'>$recurring_invoice_prefix$recurring_invoice_number</a>";
+                            $recurring_invoice_display = "<i class='fas fa-fw fa-redo-alt text-secondary me-1'></i><a href='recurring_invoice.php?recurring_invoice_id=$recurring_invoice_id'>$recurring_invoice_prefix$recurring_invoice_number</a>";
                         } else {
                             $recurring_invoice_display = "-";
                         }
@@ -357,7 +355,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                         $now = time();
 
                         if (($invoice_status == "Sent" || $invoice_status == "Partial" || $invoice_status == "Viewed") && strtotime($invoice_due) + 86400 < $now) {
-                            $overdue_color = "text-danger font-weight-bold";
+                            $overdue_color = "text-danger fw-bold";
                         } else {
                             $overdue_color = "";
                         }
@@ -390,7 +388,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                             <?php if (!$client_url) { ?>
                             <td class="text-bold"><a href="invoices.php?client_id=<?= $client_id ?>"><?= $client_name ?></a></td>
                             <?php } ?>
-                            <td class="text-right text-monospace"><?= numfmt_format_currency($currency_format, $invoice_amount, $invoice_currency_code) ?></td>
+                            <td class="text-end font-monospace"><?= numfmt_format_currency($currency_format, $invoice_amount, $invoice_currency_code) ?></td>
                             <td><?= $invoice_date ?></td>
                             <td class="<?= $overdue_color ?>"><?= $invoice_due ?></td>
                             <td><?= $category_name ?></td>
@@ -410,45 +408,45 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                             </td>
                             <td><?= $recurring_invoice_display ?></td>
                             <td>
-                                <div class="dropdown dropleft text-center">
-                                    <button class="btn btn-secondary btn-sm" type="button" data-toggle="dropdown">
+                                <div class="dropdown dropstart text-center">
+                                    <button class="btn btn-secondary btn-sm" type="button" data-bs-toggle="dropdown">
                                         <i class="fas fa-ellipsis-h"></i>
                                     </button>
                                     <div class="dropdown-menu">
                                         <?php if ($invoice_status !== 'Paid' && $invoice_status !== 'Cancelled' && $invoice_status !== 'Draft' && $invoice_status !== 'Non-Billable' && $invoice_amount != 0) { ?>
                                             <a class="dropdown-item ajax-modal" href="#"
                                                 data-modal-url="modals/payment/payment_add.php?id=<?= $invoice_id ?>">
-                                                <i class="fa fa-fw fa-credit-card mr-2"></i>Add Payment
+                                                <i class="fa fa-fw fa-credit-card me-2"></i>Add Payment
                                             </a>
                                             <div class="dropdown-divider"></div>
                                             <?php if (mysqli_num_rows($sql_saved_payment_methods) > 0 && ($invoice_status === 'Sent' || $invoice_status === 'Viewed')) { ?>
-                                                <a class="dropdown-item ajax-modal" href="#" data-modal-url="modals/payment/payment_saved_method_add.php?id=<?= $invoice_id ?>"><i class="fas fa-fw fa-wallet mr-2"></i>Pay with Saved Card</a>
+                                                <a class="dropdown-item ajax-modal" href="#" data-modal-url="modals/payment/payment_saved_method_add.php?id=<?= $invoice_id ?>"><i class="fas fa-fw fa-wallet me-2"></i>Pay with Saved Card</a>
                                                 <div class="dropdown-divider"></div>
                                             <?php } ?>
                                         <?php } ?>
                                         <a class="dropdown-item ajax-modal" href="#"
                                             data-modal-url="modals/invoice/invoice_edit.php?id=<?= $invoice_id ?>">
-                                            <i class="fas fa-fw fa-edit mr-2"></i>Edit
+                                            <i class="fas fa-fw fa-edit me-2"></i>Edit
                                         </a>
                                         <a class="dropdown-item ajax-modal" href="#"
                                             data-modal-url="modals/invoice/invoice_copy.php?id=<?= $invoice_id ?>">
-                                            <i class="fas fa-fw fa-copy mr-2"></i>Copy
+                                            <i class="fas fa-fw fa-copy me-2"></i>Copy
                                         </a>
                                         <div class="dropdown-divider"></div>
                                         <?php if (!empty($config_smtp_provider)) { ?>
                                             <a class="dropdown-item" href="post.php?email_invoice=<?= $invoice_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>">
-                                                <i class="fas fa-fw fa-paper-plane mr-2"></i>Send Email
+                                                <i class="fas fa-fw fa-paper-plane me-2"></i>Send Email
                                             </a>
                                             <div class="dropdown-divider"></div>
                                         <?php } ?>
                                         <?php if ($invoice_status == 'Draft') { ?>
                                         <a class="dropdown-item" href="post.php?mark_invoice_sent=<?= $invoice_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>">
-                                            <i class="fas fa-fw fa-check mr-2"></i>Mark Sent
+                                            <i class="fas fa-fw fa-check me-2"></i>Mark Sent
                                         </a>
                                         <div class="dropdown-divider"></div>
                                         <?php } ?>
                                         <a class="dropdown-item text-danger text-bold confirm-link" href="post.php?delete_invoice=<?= $invoice_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>">
-                                            <i class="fas fa-fw fa-trash mr-2"></i>Delete
+                                            <i class="fas fa-fw fa-trash me-2"></i>Delete
                                         </a>
                                     </div>
                                 </div>

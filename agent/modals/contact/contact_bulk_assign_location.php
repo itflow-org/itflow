@@ -16,22 +16,18 @@ ob_start();
 ?>
 
 <div class="modal-header bg-dark">
-    <h5 class="modal-title"><i class="fa fa-fw fa-map-marker-alt mr-2"></i>Assign Location to <strong><?= $count ?></strong> Contacts</h5>
-    <button type="button" class="close text-white" data-dismiss="modal">
-        <span>&times;</span>
-    </button>
+    <h5 class="modal-title"><i class="fa fa-fw fa-map-marker-alt me-2"></i>Assign Location to <strong><?= $count ?></strong> Contacts</h5>
+    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
 </div>
 <form action="post.php" method="post" autocomplete="off">
     <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
     <?php foreach ($contact_ids as $contact_id) { ?><input type="hidden" name="contact_ids[]" value="<?= $contact_id ?>"><?php } ?>
     <div class="modal-body">
 
-        <div class="form-group">
+        <div class="mb-3">
             <label>Location</label>
             <div class="input-group">
-                <div class="input-group-prepend">
                     <span class="input-group-text"><i class="fa fa-fw fa-map-marker-alt"></i></span>
-                </div>
                 <select class="form-control select2" name="bulk_location_id">
                     <option value="">- Select Location -</option>
                     <?php
@@ -51,8 +47,8 @@ ob_start();
     </div>
 
     <div class="modal-footer">
-        <button type="submit" name="bulk_assign_contact_location" class="btn btn-primary text-bold"><i class="fas fa-check mr-2"></i>Assign Location</button>
-        <button type="button" class="btn btn-light" data-dismiss="modal"><i class="fa fa-times mr-2"></i>Cancel</button>
+        <button type="submit" name="bulk_assign_contact_location" class="btn btn-primary text-bold"><i class="fas fa-check me-2"></i>Assign Location</button>
+        <button type="button" class="btn btn-light" data-bs-dismiss="modal"><i class="fa fa-times me-2"></i>Cancel</button>
     </div>
 </form>
 

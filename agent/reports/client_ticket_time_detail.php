@@ -122,15 +122,15 @@ $result = $stmt->get_result();
 <div class="card">
     <div class="card-header bg-dark py-2">
         <h3 class="card-title mt-2">
-            <i class="fas fa-fw fa-life-ring mr-2"></i>
+            <i class="fas fa-fw fa-life-ring me-2"></i>
             Client Time Detail Audit Report (<?= escapeHtml($from) ?> to <?= escapeHtml($to) ?>)
             <?php if ($billable_only) { ?>
-                <span class="badge badge-success ml-2">Billable Only</span>
+                <span class="badge bg-success ms-2">Billable Only</span>
             <?php } ?>
         </h3>
         <div class="card-tools">
             <button type="button" class="btn btn-primary d-print-none" onclick="window.print();">
-                <i class="fas fa-fw fa-print mr-2"></i>Print
+                <i class="fas fa-fw fa-print me-2"></i>Print
             </button>
         </div>
     </div>
@@ -158,23 +158,23 @@ $result = $stmt->get_result();
                     </select>
                 </div>
 
-                <div class="col-md-2 mb-2 d-flex align-items-end ml-auto">
-                    <button type="submit" class="btn btn-success btn-block">
-                        <i class="fas fa-fw fa-filter mr-1"></i>Apply
+                <div class="col-md-2 mb-2 d-flex align-items-end ms-auto">
+                    <button type="submit" class="btn btn-success w-100">
+                        <i class="fas fa-fw fa-filter me-1"></i>Apply
                     </button>
                 </div>
 
                 <div class="col-md-4 mb-2 d-flex align-items-end">
-                    <div class="custom-control custom-checkbox">
+                    <div class="form-check">
                         <input
                             type="checkbox"
-                            class="custom-control-input"
+                            class="form-check-input"
                             id="billable_only"
                             name="billable_only"
                             value="1"
                             <?php if ($billable_only) echo 'checked'; ?>
                         >
-                        <label class="custom-control-label" for="billable_only">Billable tickets only</label>
+                        <label class="form-check-label" for="billable_only">Billable tickets only</label>
                     </div>
                 </div>
 
@@ -190,8 +190,8 @@ $result = $stmt->get_result();
             <thead class="bg-dark">
             <tr>
                 <th>Ticket / Replies with Time</th>
-                <th class="text-right" style="width: 150px;">Time Worked</th>
-                <th class="text-right" style="width: 120px;">Billable (hrs)</th>
+                <th class="text-end" style="width: 150px;">Time Worked</th>
+                <th class="text-end" style="width: 120px;">Billable (hrs)</th>
             </tr>
             </thead>
 
@@ -201,10 +201,10 @@ $result = $stmt->get_result();
             $printTicketSubtotalRow = function($ticket_label_html, $ticket_seconds, $ticket_billable_seconds) {
                 $ticket_billed = secondsToDecimalHours($ticket_billable_seconds);
                 ?>
-                <tr class="font-weight-bold">
-                    <td class="text-right pr-3">Ticket Total for <?= $ticket_label_html ?></td>
-                    <td class="text-right"><?= formatDuration(secondsToHmsString($ticket_seconds)) ?></td>
-                    <td class="text-right"><?= number_format($ticket_billed, 2) ?></td>
+                <tr class="fw-bold">
+                    <td class="text-end pe-3">Ticket Total for <?= $ticket_label_html ?></td>
+                    <td class="text-end"><?= formatDuration(secondsToHmsString($ticket_seconds)) ?></td>
+                    <td class="text-end"><?= number_format($ticket_billed, 2) ?></td>
                 </tr>
                 <?php
                 return $ticket_billed;
@@ -273,12 +273,12 @@ $result = $stmt->get_result();
 
                     // Client subtotal (billable based on sum of rounded replies across all tickets)
                     ?>
-                    <tr class="font-weight-bold">
-                        <td class="text-right">
+                    <tr class="fw-bold">
+                        <td class="text-end">
                             Total for <?= $current_client_name ?> (<?= $client_ticket_count ?> tickets)
                         </td>
-                        <td class="text-right"><?= formatDuration(secondsToHmsString($client_time_seconds)) ?></td>
-                        <td class="text-right"><?= number_format(secondsToDecimalHours($client_billable_seconds), 2) ?></td>
+                        <td class="text-end"><?= formatDuration(secondsToHmsString($client_time_seconds)) ?></td>
+                        <td class="text-end"><?= number_format(secondsToDecimalHours($client_billable_seconds), 2) ?></td>
                     </tr>
                     <tr><td colspan="3"></td></tr>
                     <?php
@@ -295,7 +295,7 @@ $result = $stmt->get_result();
                     $current_client_name = $client_name_html;
                     ?>
                     <tr class="table-active">
-                        <td colspan="3" class="font-weight-bold"><?= $client_name_html ?></td>
+                        <td colspan="3" class="fw-bold"><?= $client_name_html ?></td>
                     </tr>
                     <?php
                 }
@@ -328,9 +328,9 @@ $result = $stmt->get_result();
 
                     ?>
                     <tr>
-                        <td class="font-weight-bold"><?= $ticket_label_html ?></td>
-                        <td class="text-right text-muted"></td>
-                        <td class="text-right text-muted"></td>
+                        <td class="fw-bold"><?= $ticket_label_html ?></td>
+                        <td class="text-end text-muted"></td>
+                        <td class="text-end text-muted"></td>
                     </tr>
                     <?php
                 }
@@ -338,15 +338,15 @@ $result = $stmt->get_result();
                 // Reply row (indented)
                 ?>
                 <tr>
-                    <td class="pl-4 text-muted">
-                        <i class="far fa-clock mr-1"></i>
+                    <td class="ps-4 text-muted">
+                        <i class="far fa-clock me-1"></i>
                         <?= escapeHtml(date('Y-m-d g:i A', strtotime($reply_created_at))) ?>
                         <div class="mt-1 text-body" style="white-space: normal;">
                             <?= $reply_content_html ?>
                         </div>
                     </td>
-                    <td class="text-right"><?= formatDuration($reply_hms) ?></td>
-                    <td class="text-right"><?= number_format(secondsToDecimalHours($reply_billable_seconds), 2) ?></td>
+                    <td class="text-end"><?= formatDuration($reply_hms) ?></td>
+                    <td class="text-end"><?= number_format(secondsToDecimalHours($reply_billable_seconds), 2) ?></td>
                 </tr>
                 <?php
 
@@ -378,23 +378,23 @@ $result = $stmt->get_result();
 
                 // Close last client subtotal
                 ?>
-                <tr class="font-weight-bold">
-                    <td class="text-right">
+                <tr class="fw-bold">
+                    <td class="text-end">
                         Total for <?= $current_client_name ?> (<?= $client_ticket_count ?> tickets)
                     </td>
-                    <td class="text-right"><?= formatDuration(secondsToHmsString($client_time_seconds)) ?></td>
-                    <td class="text-right"><?= number_format(secondsToDecimalHours($client_billable_seconds), 2) ?></td>
+                    <td class="text-end"><?= formatDuration(secondsToHmsString($client_time_seconds)) ?></td>
+                    <td class="text-end"><?= number_format(secondsToDecimalHours($client_billable_seconds), 2) ?></td>
                 </tr>
 
                 <tr><td colspan="3"></td></tr>
 
                 <!-- Grand totals -->
-                <tr class="font-weight-bold">
-                    <td class="text-right">
+                <tr class="fw-bold">
+                    <td class="text-end">
                         Grand Total (<?= $grand_ticket_count ?> tickets)
                     </td>
-                    <td class="text-right"><?= formatDuration(secondsToHmsString($grand_time_seconds)) ?></td>
-                    <td class="text-right"><?= number_format(secondsToDecimalHours($grand_billable_seconds), 2) ?></td>
+                    <td class="text-end"><?= formatDuration(secondsToHmsString($grand_time_seconds)) ?></td>
+                    <td class="text-end"><?= number_format(secondsToDecimalHours($grand_billable_seconds), 2) ?></td>
                 </tr>
                 <?php
             }

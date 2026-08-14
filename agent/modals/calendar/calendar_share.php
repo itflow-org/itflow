@@ -28,25 +28,23 @@ ob_start();
 ?>
 
 <div class="modal-header bg-dark">
-    <h5 class="modal-title"><i class="fas fa-fw fa-share-alt mr-2"></i>Share <?= $calendar_name ?></h5>
-    <button type="button" class="close text-white" data-dismiss="modal">
-        <span>&times;</span>
-    </button>
+    <h5 class="modal-title"><i class="fas fa-fw fa-share-alt me-2"></i>Share <?= $calendar_name ?></h5>
+    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
 </div>
 
 <?php if (empty($base_url)) { ?>
 
     <div class="modal-body">
         <div class="alert alert-danger mb-0">
-            <i class="fas fa-fw fa-exclamation-triangle mr-2"></i>
+            <i class="fas fa-fw fa-exclamation-triangle me-2"></i>
             <strong>$config_base_url is not set in config.php.</strong>
             Without it there is no hostname to build a subscription link from. Set it
             to the hostname this install is reached on and reopen this dialog.
         </div>
     </div>
     <div class="modal-footer">
-        <button type="button" class="btn btn-light" data-dismiss="modal">
-            <i class="fas fa-fw fa-times mr-2"></i>Close
+        <button type="button" class="btn btn-light" data-bs-dismiss="modal">
+            <i class="fas fa-fw fa-times me-2"></i>Close
         </button>
     </div>
 
@@ -65,15 +63,15 @@ ob_start();
             </p>
 
             <div class="alert alert-warning">
-                <i class="fas fa-fw fa-exclamation-triangle mr-2"></i>
+                <i class="fas fa-fw fa-exclamation-triangle me-2"></i>
                 Anyone with the link can read this calendar without logging in. Share it
                 like a password, and revoke it here if it gets out.
             </div>
 
-            <div class="form-group">
-                <div class="custom-control custom-switch">
-                    <input type="checkbox" class="custom-control-input" id="feedBusyOnly" name="busy_only" value="1">
-                    <label class="custom-control-label" for="feedBusyOnly">
+            <div class="mb-3">
+                <div class="form-check form-switch">
+                    <input type="checkbox" class="form-check-input" id="feedBusyOnly" name="busy_only" value="1">
+                    <label class="form-check-label" for="feedBusyOnly">
                         Busy only &mdash; publish time blocks without titles, descriptions or locations
                     </label>
                 </div>
@@ -82,10 +80,10 @@ ob_start();
         </div>
         <div class="modal-footer">
             <button type="submit" name="share_calendar" class="btn btn-primary">
-                <i class="fas fa-fw fa-link mr-2"></i>Create link
+                <i class="fas fa-fw fa-link me-2"></i>Create link
             </button>
-            <button type="button" class="btn btn-light" data-dismiss="modal">
-                <i class="fas fa-fw fa-times mr-2"></i>Cancel
+            <button type="button" class="btn btn-light" data-bs-dismiss="modal">
+                <i class="fas fa-fw fa-times me-2"></i>Cancel
             </button>
         </div>
     </form>
@@ -99,15 +97,13 @@ ob_start();
 
         <div class="modal-body">
 
-            <div class="form-group">
+            <div class="mb-3">
                 <label>Subscription link</label>
                 <div class="input-group">
                     <input type="text" class="form-control" value="<?= $feed_url_https ?>" readonly onclick="this.select();">
-                    <div class="input-group-append">
                         <button class="btn btn-secondary clipboardjs" type="button" data-clipboard-text="<?= $feed_url_https ?>" title="Copy link">
                             <i class="far fa-fw fa-copy"></i>
                         </button>
-                    </div>
                 </div>
                 <small class="form-text text-muted">
                     Paste this into <strong>Google Calendar</strong> &rarr; Other calendars &rarr; From URL,
@@ -115,27 +111,25 @@ ob_start();
                 </small>
             </div>
 
-            <div class="form-group">
+            <div class="mb-3">
                 <label>Or open directly in a desktop calendar app</label>
                 <div class="input-group">
                     <input type="text" class="form-control" value="<?= $feed_url_webcal ?>" readonly onclick="this.select();">
-                    <div class="input-group-append">
                         <button class="btn btn-secondary clipboardjs" type="button" data-clipboard-text="<?= $feed_url_webcal ?>" title="Copy link">
                             <i class="far fa-fw fa-copy"></i>
                         </button>
                         <a class="btn btn-secondary" href="<?= $feed_url_webcal ?>" title="Open">
                             <i class="fas fa-fw fa-external-link-alt"></i>
                         </a>
-                    </div>
                 </div>
             </div>
 
             <hr>
 
-            <div class="form-group">
-                <div class="custom-control custom-switch">
-                    <input type="checkbox" class="custom-control-input" id="feedBusyOnly" name="busy_only" value="1" <?php if ($calendar_feed_busy_only == 1) { echo "checked"; } ?>>
-                    <label class="custom-control-label" for="feedBusyOnly">
+            <div class="mb-3">
+                <div class="form-check form-switch">
+                    <input type="checkbox" class="form-check-input" id="feedBusyOnly" name="busy_only" value="1" <?php if ($calendar_feed_busy_only == 1) { echo "checked"; } ?>>
+                    <label class="form-check-label" for="feedBusyOnly">
                         Busy only &mdash; publish time blocks without titles, descriptions or locations
                     </label>
                 </div>
@@ -149,7 +143,7 @@ ob_start();
             </dl>
 
             <div class="alert alert-secondary mt-3 mb-0">
-                <i class="fas fa-fw fa-info-circle mr-2"></i>
+                <i class="fas fa-fw fa-info-circle me-2"></i>
                 Subscriptions are read-only, and clients decide how often to refresh.
                 Google refreshes on its own schedule (often 12&ndash;24 hours) and cannot be
                 forced. Nextcloud defaults to once a week unless
@@ -161,23 +155,23 @@ ob_start();
         <div class="modal-footer justify-content-between">
             <div>
                 <button type="submit" name="share_calendar" class="btn btn-primary">
-                    <i class="fas fa-fw fa-check mr-2"></i>Save
+                    <i class="fas fa-fw fa-check me-2"></i>Save
                 </button>
-                <button type="button" class="btn btn-light" data-dismiss="modal">
-                    <i class="fas fa-fw fa-times mr-2"></i>Close
+                <button type="button" class="btn btn-light" data-bs-dismiss="modal">
+                    <i class="fas fa-fw fa-times me-2"></i>Close
                 </button>
             </div>
             <div class="dropdown dropup">
-                <button class="btn btn-light" type="button" data-toggle="dropdown">
+                <button class="btn btn-light" type="button" data-bs-toggle="dropdown">
                     <i class="fas fa-fw fa-ellipsis-v"></i>
                 </button>
-                <div class="dropdown-menu dropdown-menu-right">
+                <div class="dropdown-menu dropdown-menu-end">
                     <a class="dropdown-item confirm-link" href="post.php?regenerate_calendar_feed=<?= $calendar_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>">
-                        <i class="fas fa-fw fa-sync mr-2"></i>Regenerate link
+                        <i class="fas fa-fw fa-sync me-2"></i>Regenerate link
                     </a>
                     <div class="dropdown-divider"></div>
                     <a class="dropdown-item text-danger text-bold confirm-link" href="post.php?unshare_calendar=<?= $calendar_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>">
-                        <i class="fas fa-fw fa-unlink mr-2"></i>Stop sharing
+                        <i class="fas fa-fw fa-unlink me-2"></i>Stop sharing
                     </a>
                 </div>
             </div>

@@ -36,7 +36,7 @@ $payment_provider_threshold = floatval($row['payment_provider_threshold']);
     <div class="col-md-10">
 
         <table class="table tabled-bordered border border-dark">
-            <thead class="thead-dark">
+            <thead class="table-dark">
             <tr>
                 <th>Scope</th>
                 <th>Amount</th>

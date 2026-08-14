@@ -1,5 +1,5 @@
 <!-- Main Sidebar Container -->
-<aside class="main-sidebar sidebar-dark-<?= escapeHtml($config_theme) ?> d-print-none">
+<aside class="app-sidebar shadow d-print-none" data-bs-theme="dark">
 
     <a class="brand-link" href="/agent/dashboard.php">
         <div class="brand-image"></div>
@@ -7,11 +7,11 @@
     </a>
 
     <!-- Sidebar -->
-    <div class="sidebar">
+    <div class="sidebar-wrapper">
 
         <!-- Sidebar Menu -->
         <nav>
-            <ul class="nav nav-pills nav-sidebar flex-column mt-3" data-widget="treeview" data-accordion="false">
+            <ul class="nav nav-pills sidebar-menu flex-column mt-3" data-lte-toggle="treeview" data-accordion="false">
                 <li class="nav-item">
                     <a href="/agent/dashboard.php" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "dashboard.php") { echo "active"; } ?>">
                         <i class="nav-icon fas fa-tachometer-alt"></i>
@@ -25,7 +25,7 @@
                             <p>
                                 Clients
                                 <?php if ($num_active_clients) { ?>
-                                    <span class="right badge text-light" data-toggle="tooltip" title="Active Clients"><?= $num_active_clients ?></span>
+                                    <span class="right badge text-light" data-bs-toggle="tooltip" title="Active Clients"><?= $num_active_clients ?></span>
                                 <?php } ?>
                             </p>
                         </a>
@@ -34,7 +34,7 @@
                         <a href="/agent/contacts.php" class="nav-link">
                             <i class="fas fa-layer-group nav-icon"></i>
                             <p>All Client Docs</p>
-                            <i class="fas fa-angle-right nav-icon float-right"></i>
+                            <i class="fas fa-angle-right nav-icon float-end"></i>
                         </a>
                     </li>
                 <?php } ?>
@@ -62,7 +62,7 @@
                                 <p>
                                     Tickets
                                     <?php if ($num_active_tickets) { ?>
-                                        <span class="right badge text-light" data-toggle="tooltip" title="Open Tickets"><?= $num_active_tickets ?></span>
+                                        <span class="right badge text-light" data-bs-toggle="tooltip" title="Open Tickets"><?= $num_active_tickets ?></span>
                                     <?php } ?>
                                 </p>
                             </a>
@@ -73,7 +73,7 @@
                                 <p>
                                     Recurring Tickets
                                     <?php if ($num_recurring_tickets) { ?>
-                                        <span class="right badge text-light" data-toggle="tooltip" title="Active Recurring Tickets"><?= $num_recurring_tickets ?></span>
+                                        <span class="right badge text-light" data-bs-toggle="tooltip" title="Active Recurring Tickets"><?= $num_recurring_tickets ?></span>
                                     <?php } ?>
                                 </p>
                             </a>
@@ -84,7 +84,7 @@
                                 <p>
                                     Projects
                                     <?php if ($num_active_projects) { ?>
-                                        <span class="right badge text-light" data-toggle="tooltip" title="Open Projects"><?= $num_active_projects ?></span>
+                                        <span class="right badge text-light" data-bs-toggle="tooltip" title="Open Projects"><?= $num_active_projects ?></span>
                                     <?php } ?>
                                 </p>
                             </a>
@@ -100,7 +100,7 @@
                             <p>
                                 Quotes
                                 <?php if ($num_open_quotes) { ?>
-                                    <span class="right badge text-light" data-toggle="tooltip" title="Active Quotes"><?= $num_open_quotes ?></span>
+                                    <span class="right badge text-light" data-bs-toggle="tooltip" title="Active Quotes"><?= $num_open_quotes ?></span>
                                 <?php } ?>
                             </p>
                         </a>
@@ -111,7 +111,7 @@
                             <p>
                                 Invoices
                                 <?php if ($num_open_invoices) { ?>
-                                    <span class="right badge text-light" data-toggle="tooltip" title="Open Invoices"><?= $num_open_invoices ?></span>
+                                    <span class="right badge text-light" data-bs-toggle="tooltip" title="Open Invoices"><?= $num_open_invoices ?></span>
                                 <?php } ?>
                             </p>
                         </a>
@@ -122,7 +122,7 @@
                             <p>
                                 Recurring Invoices
                                 <?php if ($num_recurring_invoices) { ?>
-                                    <span class="right badge text-light" data-toggle="tooltip" title="Active Recurring Invoices"><?= $num_recurring_invoices ?></span>
+                                    <span class="right badge text-light" data-bs-toggle="tooltip" title="Active Recurring Invoices"><?= $num_recurring_invoices ?></span>
                                 <?php } ?>
                             </p>
                         </a>
@@ -156,7 +156,7 @@
                                 <p>
                                     Recurring Expenses
                                     <?php if ($num_recurring_expenses) { ?>
-                                        <span class="right badge text-light" data-toggle="tooltip" title="Recurring Expenses"><?= $num_recurring_expenses ?></span>
+                                        <span class="right badge text-light" data-bs-toggle="tooltip" title="Recurring Expenses"><?= $num_recurring_expenses ?></span>
                                     <?php } ?>
                                 </p>
                             </a>
@@ -194,7 +194,7 @@
                         <a href="/agent/reports/" class="nav-link">
                             <i class="fas fa-chart-line nav-icon"></i>
                             <p>Reports</p>
-                            <i class="fas fa-angle-right nav-icon float-right"></i>
+                            <i class="fas fa-angle-right nav-icon float-end"></i>
                         </a>
                     </li>
                 <?php } ?>
@@ -221,7 +221,7 @@
                     <a href="<?= $custom_link_uri ?>" <?= $target ?> class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == basename($custom_link_uri)) { echo "active"; } ?>">
                         <i class="fas fa-<?= $custom_link_icon ?> nav-icon"></i>
                         <p><?= $custom_link_name ?></p>
-                        <i class="fas fa-angle-right nav-icon float-right"></i>
+                        <i class="fas fa-angle-right nav-icon float-end"></i>
                     </a>
                 </li>
 

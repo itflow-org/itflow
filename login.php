@@ -708,7 +708,7 @@ $show_login_form = (!$show_role_choice && !$show_mfa_form);
         <?php if (!empty($company_logo)) { ?>
             <img alt="<?=escapeHtml($company_name)?> logo" height="110" width="380" class="img-fluid" src="<?= "uploads/settings/$company_logo" ?>">
         <?php } else { ?>
-            <span class="text-primary text-bold"><i class="fas fa-paper-plane mr-2"></i>IT</span>Flow
+            <span class="text-primary text-bold"><i class="fas fa-paper-plane me-2"></i>IT</span>Flow
         <?php } ?>
     </div>
 
@@ -739,23 +739,19 @@ $show_login_form = (!$show_role_choice && !$show_mfa_form);
                             value="<?= htmlspecialchars($email ?? '', ENT_QUOTES) ?>"
                             required autofocus
                         >
-                        <div class="input-group-append">
                             <div class="input-group-text">
                                 <span class="fas fa-envelope"></span>
                             </div>
-                        </div>
                     </div>
 
                     <div class="input-group mb-3">
                         <input type="password" class="form-control" placeholder="Password" name="password" required>
-                        <div class="input-group-append">
                             <div class="input-group-text">
                                 <span class="fas fa-lock"></span>
                             </div>
-                        </div>
                     </div>
 
-                    <button type="submit" class="btn btn-primary btn-block mb-3" name="login">Sign In</button>
+                    <button type="submit" class="btn btn-primary w-100 mb-3" name="login">Sign In</button>
                 <?php endif; ?>
 
                 <?php if ($show_role_choice): ?>
@@ -764,10 +760,10 @@ $show_login_form = (!$show_role_choice && !$show_mfa_form);
                            value="<?= htmlspecialchars($_SESSION['pending_dual_login']['token'] ?? '', ENT_QUOTES) ?>">
 
                     <div class="mb-2 text-center">
-                        <button type="submit" class="btn btn-dark btn-block mb-2" name="role_choice" value="agent">
+                        <button type="submit" class="btn btn-dark w-100 mb-2" name="role_choice" value="agent">
                             Log in as Agent
                         </button>
-                        <button type="submit" class="btn btn-light btn-block" name="role_choice" value="client">
+                        <button type="submit" class="btn btn-light w-100" name="role_choice" value="client">
                             Log in as Client
                         </button>
                     </div>
@@ -780,14 +776,14 @@ $show_login_form = (!$show_role_choice && !$show_mfa_form);
                     <input type="hidden" name="pending_mfa_token"
                            value="<?= htmlspecialchars($_SESSION['pending_mfa_login']['token'] ?? '', ENT_QUOTES) ?>">
 
-                    <div class="form-group mb-3">
-                        <div class="custom-control custom-checkbox">
-                            <input type="checkbox" class="custom-control-input" id="remember_me" name="remember_me">
-                            <label class="custom-control-label" for="remember_me">Remember Me</label>
+                    <div class="mb-3 mb-3">
+                        <div class="form-check">
+                            <input type="checkbox" class="form-check-input" id="remember_me" name="remember_me">
+                            <label class="form-check-label" for="remember_me">Remember Me</label>
                         </div>
                     </div>
 
-                    <button type="submit" class="btn btn-dark btn-block mb-3" name="mfa_login">Verify & Sign In</button>
+                    <button type="submit" class="btn btn-dark w-100 mb-3" name="mfa_login">Verify & Sign In</button>
                 <?php endif; ?>
 
             </form>

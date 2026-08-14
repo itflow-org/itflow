@@ -141,10 +141,10 @@ if (isset($_GET['ticket_query_views'])) {
         $users = array_unique($users);
         if (count($users) > 1) {
             // Multiple viewers
-            $response['message'] = "<i class='fas fa-fw fa-eye mr-2'></i>" . escapeHtml(implode(", ", $users) . " are viewing this ticket.");
+            $response['message'] = "<i class='fas fa-fw fa-eye me-2'></i>" . escapeHtml(implode(", ", $users) . " are viewing this ticket.");
         } else {
             // Single viewer
-            $response['message'] = "<i class='fas fa-fw fa-eye mr-2'></i>" . escapeHtml(implode("", $users) . " is viewing this ticket.");
+            $response['message'] = "<i class='fas fa-fw fa-eye me-2'></i>" . escapeHtml(implode("", $users) . " is viewing this ticket.");
         }
     } else {
         // No viewers
@@ -797,7 +797,7 @@ if (isset($_GET['client_duplicate_check'])) {
 
         if (mysqli_num_rows($sql_clients) > 0) {
             while ($row = mysqli_fetch_assoc($sql_clients)) {
-                $response['message'] = "<i class='fas fa-fw fa-copy mr-2'></i> Potential duplicate: <i>" . escapeHtml($row['client_name']) . "</i> already exists.";
+                $response['message'] = "<i class='fas fa-fw fa-copy me-2'></i> Potential duplicate: <i>" . escapeHtml($row['client_name']) . "</i> already exists.";
             }
         }
     }
@@ -819,13 +819,13 @@ if (isset($_GET['contact_email_check'])) {
         $sql_contacts = mysqli_query($mysqli, "SELECT contact_email FROM contacts WHERE contact_email = '$email' LIMIT 1");
         if (mysqli_num_rows($sql_contacts) > 0) {
             while ($row = mysqli_fetch_assoc($sql_contacts)) {
-                $response['message'] = "<i class='fas fa-fw fa-copy mr-2'></i> Potential duplicate: <i>" . escapeHtml($row['contact_email']) . "</i> already exists.";
+                $response['message'] = "<i class='fas fa-fw fa-copy me-2'></i> Potential duplicate: <i>" . escapeHtml($row['contact_email']) . "</i> already exists.";
             }
         }
 
         // 2. MX record check
         if (!checkdnsrr($domain, 'MX')) {
-            $response['message'] = "<i class='fas fa-fw fa-exclamation-triangle mr-2'></i> E-mail domain invalid.";
+            $response['message'] = "<i class='fas fa-fw fa-exclamation-triangle me-2'></i> E-mail domain invalid.";
         }
 
     }
@@ -1035,7 +1035,7 @@ if (isset($_GET['apex_domain_check'])) {
         // SOA record check
         //  This isn't 100%, as sub-domains can have their own SOA but will capture 99%
         if (!checkdnsrr($domain, 'SOA')) {
-            $response['message'] = "<i class='fas fa-fw fa-exclamation-triangle mr-2'></i> Domain name is invalid.";
+            $response['message'] = "<i class='fas fa-fw fa-exclamation-triangle me-2'></i> Domain name is invalid.";
         }
 
     }

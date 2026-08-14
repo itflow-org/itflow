@@ -25,32 +25,26 @@ ob_start();
 ?>
 
 <div class="modal-header bg-dark">
-    <h5 class="modal-title"><i class="fas fa-fw fa-box-open mr-2"></i>Editing <?= ucwords($product_type) ?>: <strong><?= $product_name ?></strong></h5>
-    <button type="button" class="close text-white" data-dismiss="modal">
-        <span>&times;</span>
-    </button>
+    <h5 class="modal-title"><i class="fas fa-fw fa-box-open me-2"></i>Editing <?= ucwords($product_type) ?>: <strong><?= $product_name ?></strong></h5>
+    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
 </div>
 <form action="post.php" method="post" autocomplete="off">
     <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
     <input type="hidden" name="product_id" value="<?= $product_id ?>">
     <div class="modal-body">
 
-        <div class="form-group">
+        <div class="mb-3">
             <label>Name <strong class="text-danger">*</strong></label>
             <div class="input-group">
-                <div class="input-group-prepend">
                     <span class="input-group-text"><i class="fas fa-fw fa-box"></i></span>
-                </div>
                 <input type="text" class="form-control" name="name" maxlength="200" value="<?= $product_name ?>" required>
             </div>
         </div>
 
-        <div class="form-group">
+        <div class="mb-3">
             <label>Category <strong class="text-danger">*</strong></label>
             <div class="input-group">
-                <div class="input-group-prepend">
                     <span class="input-group-text"><i class="fa fa-fw fa-list"></i></span>
-                </div>
                 <select class="form-control select2" name="category" required>
                     <?php
 
@@ -65,34 +59,28 @@ ob_start();
 
                     ?>
                 </select>
-                <div class="input-group-append">
                     <button class="btn btn-secondary ajax-modal" type="button"
                         data-modal-url="../admin/modals/category/category_add.php?category=Income">
                         <i class="fas fa-fw fa-plus"></i>
                     </button>
-                </div>
             </div>
         </div>
 
-        <div class="form-row">
+        <div class="row g-2">
             <div class="col">
-                <div class="form-group">
+                <div class="mb-3">
                     <label>Price <strong class="text-danger">*</strong></label>
                     <div class="input-group">
-                        <div class="input-group-prepend">
                             <span class="input-group-text"><i class="fa fa-fw fa-dollar-sign"></i></span>
-                        </div>
                         <input type="text" inputmode="decimal" pattern="[0-9]*\.?[0-9]{0,2}" class="form-control" name="price" value="<?= number_format($product_price, 2, '.', '') ?>" placeholder="0.00" required>
                     </div>
                 </div>
             </div>
             <div class="col">
-                <div class="form-group">
+                <div class="mb-3">
                     <label>Tax</label>
                     <div class="input-group">
-                        <div class="input-group-prepend">
                             <span class="input-group-text"><i class="fa fa-fw fa-balance-scale"></i></span>
-                        </div>
                         <select class="form-control select2" name="tax">
                             <option value="0">None</option>
                             <?php
@@ -115,28 +103,24 @@ ob_start();
         </div>
 
         <?php if ($product_type == 'product') { ?>
-        <div class="form-group">
+        <div class="mb-3">
             <label>Location</label>
             <div class="input-group">
-                <div class="input-group-prepend">
                     <span class="input-group-text"><i class="fa fa-fw fa-map-marker-alt"></i></span>
-                </div>
                 <input type="text" class="form-control" name="location" placeholder="Enter a location" maxlength="250" value="<?= $product_location ?>">
             </div>
         </div>
         <?php } ?>
 
-        <div class="form-group">
+        <div class="mb-3">
             <label>Description</label>
             <textarea class="form-control" rows="4" name="description"><?= $product_description ?></textarea>
         </div>
 
-        <div class="form-group">
+        <div class="mb-3">
             <label>Code</label>
             <div class="input-group">
-                <div class="input-group-prepend">
                     <span class="input-group-text"><i class="fa fa-fw fa-barcode"></i></span>
-                </div>
                 <input type="text" class="form-control" name="code" placeholder="Enter product code eg. SKU #" maxlength="200" value="<?= $product_code ?>">
             </div>
         </div>
@@ -144,8 +128,8 @@ ob_start();
     </div>
 
     <div class="modal-footer">
-        <button type="submit" name="edit_product" class="btn btn-primary text-bold"><i class="fas fa-check mr-2"></i>Save</button>
-        <button type="button" class="btn btn-light" data-dismiss="modal"><i class="fas fa-times mr-2"></i>Cancel</button>
+        <button type="submit" name="edit_product" class="btn btn-primary text-bold"><i class="fas fa-check me-2"></i>Save</button>
+        <button type="button" class="btn btn-light" data-bs-dismiss="modal"><i class="fas fa-times me-2"></i>Cancel</button>
     </div>
 </form>
 

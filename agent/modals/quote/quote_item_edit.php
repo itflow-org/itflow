@@ -25,10 +25,8 @@ ob_start();
 ?>
 
 <div class="modal-header bg-dark">
-    <h5 class="modal-title"><i class="fas fa-fw fa-edit mr-2"></i>Editing Line Item: <strong><?= $item_name ?></strong></h5>
-    <button type="button" class="close text-white" data-dismiss="modal">
-        <span>&times;</span>
-    </button>
+    <h5 class="modal-title"><i class="fas fa-fw fa-edit me-2"></i>Editing Line Item: <strong><?= $item_name ?></strong></h5>
+    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
 </div>
 <form action="post.php" method="post" autocomplete="off">
     <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
@@ -36,55 +34,47 @@ ob_start();
     <input type="hidden" name="product_id" value="<?= $product_id ?>">
 
     <div class="modal-body">
-        <div class="form-group">
+        <div class="mb-3">
             <label>Item <strong class="text-danger">*</strong></label>
             <div class="input-group">
-                <div class="input-group-prepend">
                     <span class="input-group-text"><i class="fa fa-fw fa-box"></i></span>
-                </div>
                 <input type="text" class="form-control" name="name" maxlength="200" value="<?= $item_name ?>" placeholder="Enter item name" required>
             </div>
         </div>
 
-        <div class="form-row">
+        <div class="row g-2">
             <div class="col-sm">
-                <div class="form-group">
+                <div class="mb-3">
                     <label>Quantity <strong class="text-danger">*</strong></label>
                     <div class="input-group">
-                        <div class="input-group-prepend">
                             <span class="input-group-text"><i class="fa fa-fw fa-balance-scale"></i></span>
-                        </div>
                         <input type="text" class="form-control" inputmode="decimal" pattern="[0-9]*\.?[0-9]{0,2}" name="qty" value="<?= number_format($item_quantity, 2) ?>" placeholder="0.00" required>
                     </div>
                 </div>
             </div>
 
             <div class="col-sm">
-                <div class="form-group">
+                <div class="mb-3">
                     <label>Price <strong class="text-danger">*</strong></label>
                     <div class="input-group">
-                        <div class="input-group-prepend">
                             <span class="input-group-text"><i class="fa fa-fw fa-dollar-sign"></i></span>
-                        </div>
                         <input type="text" class="form-control" inputmode="decimal" pattern="-?[0-9]*\.?[0-9]{0,2}" name="price" value="<?= number_format($item_price, 2, '.', '') ?>" placeholder="0.00" required>
                     </div>
                 </div>
             </div>
         </div>
 
-        <div class="form-group">
+        <div class="mb-3">
             <label>Description</label>
             <div class="input-group">
                 <textarea class="form-control" rows="5" name="description" placeholder="Enter a description"><?= $item_description ?></textarea>
             </div>
         </div>
 
-        <div class="form-group">
+        <div class="mb-3">
             <label>Tax <strong class="text-danger">*</strong></label>
             <div class="input-group">
-                <div class="input-group-prepend">
                     <span class="input-group-text"><i class="fa fa-fw fa-piggy-bank"></i></span>
-                </div>
                 <select class="form-control select2" name="tax_id" required>
                     <option value="0">No Tax</option>
                     <?php
@@ -104,8 +94,8 @@ ob_start();
     </div>
 
     <div class="modal-footer">
-        <button type="submit" name="edit_quote_item" class="btn btn-primary text-bold"><i class="fas fa-check mr-2"></i>Save</button>
-        <button type="button" class="btn btn-light" data-dismiss="modal"><i class="fas fa-times mr-2"></i>Cancel</button>
+        <button type="submit" name="edit_quote_item" class="btn btn-primary text-bold"><i class="fas fa-check me-2"></i>Save</button>
+        <button type="button" class="btn btn-light" data-bs-dismiss="modal"><i class="fas fa-times me-2"></i>Cancel</button>
     </div>
 </form>
 

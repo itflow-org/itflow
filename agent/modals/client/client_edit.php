@@ -57,10 +57,8 @@ ob_start();
 ?>
 
 <div class="modal-header bg-dark">
-    <h5 class="modal-title"><i class='fa fa-fw fa-user-edit mr-2'></i>Editing Client: <strong><?= $client_name ?></strong></h5>
-    <button type="button" class="close text-white" data-dismiss="modal">
-        <span>&times;</span>
-    </button>
+    <h5 class="modal-title"><i class='fa fa-fw fa-user-edit me-2'></i>Editing Client: <strong><?= $client_name ?></strong></h5>
+    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
 </div>
 
 <form action="post.php" method="post" autocomplete="off">
@@ -69,15 +67,15 @@ ob_start();
 
     <ul class="modal-header nav nav-pills nav-justified mb-3">
         <li class="nav-item">
-            <a class="nav-link active" data-toggle="pill" href="#pills-client-details<?= $client_id ?>">Details</a>
+            <a class="nav-link active" data-bs-toggle="pill" href="#pills-client-details<?= $client_id ?>">Details</a>
         </li>
         <?php if ($config_module_enable_accounting) { ?>
             <li class="nav-item">
-                <a class="nav-link" data-toggle="pill" href="#pills-client-billing<?= $client_id ?>">Billing</a>
+                <a class="nav-link" data-bs-toggle="pill" href="#pills-client-billing<?= $client_id ?>">Billing</a>
             </li>
         <?php } ?>
         <li class="nav-item">
-            <a class="nav-link" data-toggle="pill" href="#pills-client-notes<?= $client_id ?>">Notes</a>
+            <a class="nav-link" data-bs-toggle="pill" href="#pills-client-notes<?= $client_id ?>">Notes</a>
         </li>
     </ul>
 
@@ -87,49 +85,39 @@ ob_start();
 
             <div class="tab-pane fade show active" id="pills-client-details<?= $client_id ?>">
 
-                <div class="form-group">
+                <div class="mb-3">
                     <label>Name <strong class="text-danger">*</strong> / <span class="text-secondary">Is Lead</span></label>
                     <div class="input-group">
-                        <div class="input-group-prepend">
                             <span class="input-group-text"><i class="fa fa-fw fa-id-badge"></i></span>
-                        </div>
                         <input type="text" class="form-control" name="name" placeholder="Name or Company" maxlength="200"
                                value="<?= $client_name ?>" required>
-                        <div class="input-group-append">
                             <div class="input-group-text">
                                 <input type="checkbox" name="lead" value="1" <?php if($client_is_lead == 1){ echo "checked"; } ?>>
                             </div>
-                        </div>
                     </div>
                 </div>
 
-                <div class="form-group">
+                <div class="mb-3">
                     <label>Shortened Name</label>
                     <div class="input-group">
-                        <div class="input-group-prepend">
                             <span class="input-group-text"><i class="fa fa-fw fa-id-badge"></i></span>
-                        </div>
                         <input type="text" class="form-control" name="abbreviation" placeholder="Shortned name for client - Max chars 6" value="<?= $client_abbreviation ?>" maxlength="6" oninput="this.value = this.value.toUpperCase()">
                     </div>
                 </div>
 
-                <div class="form-group">
+                <div class="mb-3">
                     <label>Industry</label>
                     <div class="input-group">
-                        <div class="input-group-prepend">
                             <span class="input-group-text"><i class="fa fa-fw fa-briefcase"></i></span>
-                        </div>
                         <input type="text" class="form-control" name="type" placeholder="Industry" maxlength="200"
                                value="<?= $client_type ?>">
                     </div>
                 </div>
 
-                <div class="form-group">
+                <div class="mb-3">
                     <label>Referral</label>
                     <div class="input-group">
-                        <div class="input-group-prepend">
                             <span class="input-group-text"><i class="fa fa-fw fa-link"></i></span>
-                        </div>
                         <select class="form-control select2" data-tags="true" name="referral">
                             <option value="">- Select Referral -</option>
                             <?php
@@ -148,32 +136,26 @@ ob_start();
                             }
                             ?>
                         </select>
-                        <div class="input-group-append">
                             <button class="btn btn-secondary ajax-modal" type="button"
                                 data-modal-url="../admin/modals/category/category_add.php?category=Referral">
                                 <i class="fas fa-fw fa-plus"></i>
                             </button>
-                        </div>
                     </div>
                 </div>
 
-                <div class="form-group">
+                <div class="mb-3">
                     <label>Website</label>
                     <div class="input-group">
-                        <div class="input-group-prepend">
                             <span class="input-group-text"><i class="fa fa-fw fa-globe"></i></span>
-                        </div>
                         <input type="text" class="form-control" name="website" placeholder="ex. google.com" maxlength="200"
                                value="<?= $client_website ?>">
                     </div>
                 </div>
 
-                <div class="form-group">
+                <div class="mb-3">
                     <label>Tags</label>
                     <div class="input-group">
-                        <div class="input-group-prepend">
                             <span class="input-group-text"><i class="fa fa-fw fa-tags"></i></span>
-                        </div>
                         <select class="form-control select2" name="tags[]" data-placeholder="Add some tags" multiple>
                             <?php
 
@@ -186,12 +168,10 @@ ob_start();
                             <?php } ?>
 
                         </select>
-                        <div class="input-group-append">
                             <button class="btn btn-secondary ajax-modal" type="button"
                                 data-modal-url="../admin/modals/tag/tag_add.php?type=1">
                                 <i class="fas fa-fw fa-plus"></i>
                             </button>
-                        </div>
                     </div>
                 </div>
 
@@ -201,24 +181,20 @@ ob_start();
 
                 <div class="tab-pane fade" id="pills-client-billing<?= $client_id ?>">
 
-                    <div class="form-group">
+                    <div class="mb-3">
                         <label>Hourly Rate</label>
                         <div class="input-group">
-                            <div class="input-group-prepend">
                                 <span class="input-group-text"><i class="fa fa-fw fa-clock"></i></span>
-                            </div>
                             <input type="text" class="form-control" inputmode="decimal"
                                    pattern="[0-9]*\.?[0-9]{0,2}" name="rate" placeholder="0.00"
                                    value="<?= number_format($client_rate, 2, '.', '') ?>">
                         </div>
                     </div>
 
-                    <div class="form-group">
+                    <div class="mb-3">
                         <label>Invoice Net Terms</label>
                         <div class="input-group">
-                            <div class="input-group-prepend">
                                 <span class="input-group-text"><i class="fa fa-fw fa-calendar"></i></span>
-                            </div>
                             <select class="form-control select2" name="net_terms">
                                 <option value="">- Net Terms -</option>
                                 <?php foreach ($net_terms_array as $net_term_value => $net_term_name) { ?>
@@ -232,12 +208,10 @@ ob_start();
                         </div>
                     </div>
 
-                    <div class="form-group">
+                    <div class="mb-3">
                         <label>Tax ID</label>
                         <div class="input-group">
-                            <div class="input-group-prepend">
                                 <span class="input-group-text"><i class="fa fa-fw fa-balance-scale"></i></span>
-                            </div>
                             <input type="text" class="form-control" name="tax_id_number" maxlength="255"
                                    placeholder="Tax ID Number" value="<?= $client_tax_id_number ?>">
                         </div>
@@ -250,7 +224,7 @@ ob_start();
 
             <div class="tab-pane fade" id="pills-client-notes<?= $client_id ?>">
 
-                <div class="form-group">
+                <div class="mb-3">
                     <textarea class="form-control" rows="10" placeholder="Enter some notes" name="notes"><?= $client_notes ?></textarea>
                 </div>
 
@@ -262,9 +236,9 @@ ob_start();
                     $sla_options[intval($sla_option_row['sla_id'])] = $sla_option_row['sla_name'];
                 }
                 if ($config_module_enable_ticketing && !empty($sla_options)) { ?>
-                    <div class="form-group">
+                    <div class="mb-3">
                         <label>Ticket SLAs</label>
-                        <div class="form-row">
+                        <div class="row g-2">
                             <?php foreach (['Low', 'Medium', 'High', 'Urgent'] as $sla_priority) { $sla_current = $client_sla_assignments[$sla_priority] ?? 'default'; ?>
                                 <div class="col-3">
                                     <small class="text-secondary"><?= $sla_priority ?></small>
@@ -287,8 +261,8 @@ ob_start();
         </div>
     </div>
     <div class="modal-footer">
-        <button type="submit" name="edit_client" class="btn btn-primary text-bold"><i class="fa fa-check mr-2"></i>Save</button>
-        <button type="button" class="btn btn-outline-secondary" data-dismiss="modal"><i class="fa fa-times mr-2"></i>Cancel</button>
+        <button type="submit" name="edit_client" class="btn btn-primary text-bold"><i class="fa fa-check me-2"></i>Save</button>
+        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal"><i class="fa fa-times me-2"></i>Cancel</button>
     </div>
 </form>
 

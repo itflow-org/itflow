@@ -41,13 +41,13 @@ $app_update_available = !empty($pending_commits);
 
 <div class="card card-dark">
     <div class="card-header py-3">
-        <h3 class="card-title"><i class="fas fa-fw fa-download mr-2"></i>Update</h3>
+        <h3 class="card-title"><i class="fas fa-fw fa-download me-2"></i>Update</h3>
     </div>
     <div class="card-body">
 
         <?php if (!$fetch_ok) { ?>
             <div class="alert alert-danger">
-                <h5><i class="fas fa-fw fa-exclamation-triangle mr-2"></i>Cannot reach the Git remote</h5>
+                <h5><i class="fas fa-fw fa-exclamation-triangle me-2"></i>Cannot reach the Git remote</h5>
                 ITFlow updates itself with Git, so nothing below is current until this is fixed.
                 <?php if (!empty($updates->output)) { ?>
                     <pre class="bg-dark text-white p-2 mt-2 mb-2"><?= escapeHtml(implode("\n", $updates->output)) ?></pre>
@@ -99,16 +99,14 @@ $app_update_available = !empty($pending_commits);
             <?php if (rand(1, 10) == 1) { ?>
                 <div class="alert alert-info alert-dismissible fade show mb-0" role="alert">
                     You are up to date, but when did you last check that your backup restores?
-                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
-                    </button>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                 </div>
             <?php } ?>
 
         <?php } else { ?>
 
             <div class="alert alert-danger">
-                <h5><i class="fas fa-fw fa-exclamation-triangle mr-2"></i>Do not update without a backup</h5>
+                <h5><i class="fas fa-fw fa-exclamation-triangle me-2"></i>Do not update without a backup</h5>
                 A VM snapshot is the safest option - other methods are covered in the
                 <a href="https://docs.itflow.org/backups" class="alert-link" target="_blank">docs</a>. Read the
                 <a href="https://github.com/itflow-org/itflow/blob/master/CHANGELOG.md" class="alert-link" target="_blank">changelog</a>
@@ -117,7 +115,7 @@ $app_update_available = !empty($pending_commits);
 
             <?php if ($app_update_available && $db_update_available) { ?>
                 <p class="text-muted">
-                    <i class="fas fa-fw fa-info-circle mr-1"></i>Both are pending. Update the application files first -
+                    <i class="fas fa-fw fa-info-circle me-1"></i>Both are pending. Update the application files first -
                     they bring the database migrations that the second step then applies.
                 </p>
             <?php } ?>
@@ -130,10 +128,10 @@ $app_update_available = !empty($pending_commits);
                         behind <code><?= escapeHtml("origin/$repo_branch") ?></code>.
                     </p>
                     <a class="btn btn-primary confirm-link" href="post.php?update&csrf_token=<?= $_SESSION['csrf_token'] ?>">
-                        <i class="fas fa-fw fa-download mr-2"></i>Update App
+                        <i class="fas fa-fw fa-download me-2"></i>Update App
                     </a>
-                    <a class="btn btn-outline-danger ml-2 confirm-link" href="post.php?update&force_update=1&csrf_token=<?= $_SESSION['csrf_token'] ?>">
-                        <i class="fas fa-fw fa-hammer mr-2"></i>Force Update
+                    <a class="btn btn-outline-danger ms-2 confirm-link" href="post.php?update&force_update=1&csrf_token=<?= $_SESSION['csrf_token'] ?>">
+                        <i class="fas fa-fw fa-hammer me-2"></i>Force Update
                     </a>
                     <p class="text-muted mt-2 mb-0">
                         <small>
@@ -154,7 +152,7 @@ $app_update_available = !empty($pending_commits);
                         this is applied.
                     </p>
                     <a class="btn btn-dark confirm-link" href="post.php?update_db&csrf_token=<?= $_SESSION['csrf_token'] ?>">
-                        <i class="fas fa-fw fa-database mr-2"></i>Update Database
+                        <i class="fas fa-fw fa-database me-2"></i>Update Database
                     </a>
                     <p class="text-muted mt-2 mb-0">
                         <small>

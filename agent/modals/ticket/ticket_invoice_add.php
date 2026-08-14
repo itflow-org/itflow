@@ -94,10 +94,8 @@ ob_start();
 ?>
 
 <div class="modal-header bg-dark">
-    <h5 class="modal-title"><i class="fa fa-fw fa-file-invoice-dollar mr-2"></i>Invoice ticket</h5>
-    <button type="button" class="close text-white" data-dismiss="modal">
-        <span>&times;</span>
-    </button>
+    <h5 class="modal-title"><i class="fa fa-fw fa-file-invoice-dollar me-2"></i>Invoice ticket</h5>
+    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
 </div>
 <form action="post.php" method="post" autocomplete="off">
     <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
@@ -113,10 +111,10 @@ ob_start();
 
         <ul class="nav nav-pills nav-justified mb-3">
             <li class="nav-item">
-                <a class="nav-link active" data-toggle="pill" href="#pills-add-to-invoice"><i class="fa fa-fw fa-plus mr-2"></i>Add to Existing Invoice</a>
+                <a class="nav-link active" data-bs-toggle="pill" href="#pills-add-to-invoice"><i class="fa fa-fw fa-plus me-2"></i>Add to Existing Invoice</a>
             </li>
             <li class="nav-item">
-                <a class="nav-link" data-toggle="pill" href="#pills-create-invoice"><i class="fa fa-fw fa-check mr-2"></i>Create New Invoice</a>
+                <a class="nav-link" data-bs-toggle="pill" href="#pills-create-invoice"><i class="fa fa-fw fa-check me-2"></i>Create New Invoice</a>
             </li>
 
         </ul>
@@ -132,12 +130,10 @@ ob_start();
                 if (mysqli_num_rows($sql_invoices) > 0) { ?>
 
                 <div class="tab-pane fade <?php if (mysqli_num_rows($sql_invoices) > 0) { echo "active show"; } ?>" id="pills-add-to-invoice">
-                    <div class="form-group">
+                    <div class="mb-3">
                         <label>Existing Invoice</label>
                         <div class="input-group">
-                            <div class="input-group-prepend">
                                 <span class="input-group-text"><i class="fa fa-fw fa-file-invoice-dollar"></i></span>
-                            </div>
                             <select class="form-control" name="invoice_id">
                                 <option value="0">- Select an Existing Invoice -</option>
                                 <?php
@@ -167,24 +163,20 @@ ob_start();
                 <div class="row">
                     <div class="col-sm-6">
 
-                        <div class="form-group">
+                        <div class="mb-3">
                             <label>Invoice Date <strong class="text-danger">*</strong></label>
                             <div class="input-group">
-                                <div class="input-group-prepend">
                                     <span class="input-group-text"><i class="fa fa-fw fa-calendar"></i></span>
-                                </div>
                                 <input type="date" class="form-control" name="date" max="2999-12-31" value="<?= date("Y-m-d") ?>">
                             </div>
                         </div>
 
                     </div>
                     <div class="col-sm-6">
-                        <div class="form-group">
+                        <div class="mb-3">
                             <label>Invoice Category <strong class="text-danger">*</strong></label>
                             <div class="input-group">
-                                <div class="input-group-prepend">
                                     <span class="input-group-text"><i class="fa fa-fw fa-list"></i></span>
-                                </div>
                                 <select class="form-control select2" name="category">
                                     <option value="">- Select a Category -</option>
                                     <?php
@@ -200,20 +192,16 @@ ob_start();
                                     }
                                     ?>
                                 </select>
-                                <div class="input-group-append">
                                     <button type="button" class="btn btn-secondary ajax-modal" data-modal-url="/admin/modals/category/category_add.php?category=Expense"><i class="fas fa-fw fa-plus"></i></button>
-                                </div>
                             </div>
                         </div>
                     </div>
                 </div>
 
-                <div class="form-group">
+                <div class="mb-3">
                     <label>Invoice Title</label>
                     <div class="input-group">
-                        <div class="input-group-prepend">
                             <span class="input-group-text"><i class="fa fa-fw fa-comment"></i></span>
-                        </div>
                         <select class="form-control select2" name="scope" data-tags="true" data-placeholder="- Enter or Select an Invoice Title -">
                             <option value=""></option>
                             <option><?= date('F Y'); ?> Tickets</option>
@@ -226,17 +214,15 @@ ob_start();
 
         </div>
 
-        <div class="form-group">
+        <div class="mb-3">
             <label>Item <strong class="text-danger">*</strong></label>
             <div class="input-group">
-                <div class="input-group-prepend">
                     <span class="input-group-text"><i class="fa fa-fw fa-box"></i></span>
-                </div>
                 <input type="text" class="form-control" name="item_name" placeholder="Item" maxlength="200" value="Support [Hourly]" required>
             </div>
         </div>
 
-        <div class="form-group">
+        <div class="mb-3">
             <label>Item Description</label>
             <div class="input-group">
                 <textarea class="form-control" rows="10" name="item_description"><?php
@@ -273,15 +259,13 @@ ob_start();
             </div>
         </div>
 
-        <div class="form-row">
+        <div class="row g-2">
             <div class="col">
 
-                <div class="form-group">
+                <div class="mb-3">
                     <label>QTY <strong class="text-danger">*</strong></label>
                     <div class="input-group">
-                        <div class="input-group-prepend">
                             <span class="input-group-text"><i class="fa fa-fw fa-balance-scale"></i></span>
-                        </div>
                         <input type="text" class="form-control" inputmode="decimal" pattern="-?[0-9]*\.?[0-9]{0,2}" name="qty" value="<?= roundToNearest15Min($ticket_total_reply_time) ?>" required>
                     </div>
                     <small class="form-text text-muted">
@@ -293,12 +277,10 @@ ob_start();
 
             <div class="col">
 
-                <div class="form-group">
+                <div class="mb-3">
                     <label>Price <strong class="text-danger">*</strong></label>
                     <div class="input-group">
-                        <div class="input-group-prepend">
                             <span class="input-group-text"><i class="fa fa-fw fa-dollar-sign"></i></span>
-                        </div>
                         <input type="text" class="form-control" inputmode="decimal" pattern="-?[0-9]*\.?[0-9]{0,2}" name="price" value="<?= number_format($client_rate, 2, '.', '') ?>" required>
                     </div>
                     <small class="form-text text-muted">
@@ -310,12 +292,10 @@ ob_start();
 
         </div>
 
-        <div class="form-group">
+        <div class="mb-3">
             <label>Tax <strong class="text-danger">*</strong></label>
             <div class="input-group">
-                <div class="input-group-prepend">
                     <span class="input-group-text"><i class="fa fa-fw fa-piggy-bank"></i></span>
-                </div>
                 <select class="form-control select2" name="tax_id" required>
                     <option value="0">None</option>
                     <?php
@@ -335,8 +315,8 @@ ob_start();
 
     </div>
     <div class="modal-footer">
-        <button type="submit" name="add_invoice_from_ticket" class="btn btn-primary text-bold"><i class="fa fa-check mr-2"></i>Invoice</button>
-        <button type="button" class="btn btn-light" data-dismiss="modal"><i class="fa fa-times mr-2"></i>Cancel</button>
+        <button type="submit" name="add_invoice_from_ticket" class="btn btn-primary text-bold"><i class="fa fa-check me-2"></i>Invoice</button>
+        <button type="button" class="btn btn-light" data-bs-dismiss="modal"><i class="fa fa-times me-2"></i>Cancel</button>
     </div>
 </form>
 

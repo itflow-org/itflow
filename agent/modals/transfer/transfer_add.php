@@ -6,46 +6,38 @@ ob_start();
 
 ?>
 <div class="modal-header bg-dark">
-    <h5 class="modal-title"><i class="fas fa-fw fa-exchange-alt mr-2"></i>Transfering Funds</h5>
-    <button type="button" class="close text-white" data-dismiss="modal">
-        <span>&times;</span>
-    </button>
+    <h5 class="modal-title"><i class="fas fa-fw fa-exchange-alt me-2"></i>Transfering Funds</h5>
+    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
 </div>
 <form action="post.php" method="post" autocomplete="off">
     <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
 
     <div class="modal-body">
 
-        <div class="form-row">
+        <div class="row g-2">
 
-            <div class="form-group col">
+            <div class="mb-3 col">
                 <label>Date <strong class="text-danger">*</strong></label>
                 <div class="input-group">
-                    <div class="input-group-prepend">
                         <span class="input-group-text"><i class="fa fa-fw fa-calendar"></i></span>
-                    </div>
                     <input type="date" class="form-control" name="date" max="2999-12-31" value="<?= date("Y-m-d") ?>" required>
                 </div>
             </div>
 
-            <div class="form-group col">
+            <div class="mb-3 col">
                 <label>Amount <strong class="text-danger">*</strong></label>
                 <div class="input-group">
-                    <div class="input-group-prepend">
                         <span class="input-group-text"><i class="fa fa-fw fa-dollar-sign"></i></span>
-                    </div>
                     <input type="text" class="form-control" inputmode="decimal" pattern="[0-9]*\.?[0-9]{0,2}" name="amount" placeholder="0.00" required>
                 </div>
             </div>
 
         </div>
 
-        <div class="form-group">
+        <div class="mb-3">
             <label>Transfer <strong class="text-danger">*</strong></label>
             <div class="input-group">
-                <div class="input-group-prepend">
                     <span class="input-group-text"><i class="fa fa-fw fa-piggy-bank"></i></span>
-                </div>
                 <select class="form-control select2" name="account_from" required>
                     <option value="">- Account From -</option>
                     <?php
@@ -79,11 +71,9 @@ ob_start();
             </div>
         </div>
 
-        <div class="form-group">
+        <div class="mb-3">
             <div class="input-group">
-                <div class="input-group-prepend">
                     <span class="input-group-text"><i class="fa fa-fw fa-arrow-right"></i></span>
-                </div>
                 <select class="form-control select2" name="account_to" required>
                     <option value="">- Account To -</option>
                     <?php
@@ -116,11 +106,11 @@ ob_start();
             </div>
         </div>
 
-        <div class="form-group">
+        <div class="mb-3">
             <textarea class="form-control" rows="5" name="notes" id="transferNotes" placeholder="Enter some notes"></textarea>
         </div>
 
-        <div class="form-group">
+        <div class="mb-3">
             <div class="input-group">
                 <select class="form-control" id="paymentSelect">
                     <option value="">Select a Payment to Add to Notes</option>
@@ -143,18 +133,14 @@ ob_start();
                     <?php } ?>
 
                 </select>
-                <div class="input-group-append">
                     <button type="button" class="btn btn-secondary" onclick="addOptionToTextbox()"><i class="fas fa-fw fa-plus"></i></button>
-                </div>
             </div>
         </div>
 
-        <div class="form-group">
+        <div class="mb-3">
             <label>Transfer Method</label>
             <div class="input-group">
-                <div class="input-group-prepend">
                     <span class="input-group-text"><i class="fa fa-fw fa-money-check-alt"></i></span>
-                </div>
                 <select class="form-control select2" name="transfer_method">
                     <option value="">- Method of Transfer -</option>
                     <?php
@@ -175,8 +161,8 @@ ob_start();
     </div>
 
     <div class="modal-footer">
-        <button type="submit" name="add_transfer" class="btn btn-primary text-bold"><i class="fas fa-check mr-2"></i>Transfer</button>
-        <button type="button" class="btn btn-light" data-dismiss="modal"><i class="fa fa-times mr-2"></i>Cancel</button>
+        <button type="submit" name="add_transfer" class="btn btn-primary text-bold"><i class="fas fa-check me-2"></i>Transfer</button>
+        <button type="button" class="btn btn-light" data-bs-dismiss="modal"><i class="fa fa-times me-2"></i>Cancel</button>
     </div>
 </form>
 

@@ -29,10 +29,8 @@ ob_start();
 ?>
 
 <div class="modal-header bg-dark">
-    <h5 class="modal-title"><i class="fas fa-fw fa-exchange-alt mr-2"></i>Editing Transfer</h5>
-    <button type="button" class="close text-white" data-dismiss="modal">
-        <span>&times;</span>
-    </button>
+    <h5 class="modal-title"><i class="fas fa-fw fa-exchange-alt me-2"></i>Editing Transfer</h5>
+    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
 </div>
 <form action="post.php" method="post" autocomplete="off">
     <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
@@ -42,36 +40,30 @@ ob_start();
 
     <div class="modal-body">
 
-        <div class="form-row">
+        <div class="row g-2">
 
-            <div class="form-group col-sm">
+            <div class="mb-3 col-sm">
                 <label>Date <strong class="text-danger">*</strong></label>
                 <div class="input-group">
-                    <div class="input-group-prepend">
                         <span class="input-group-text"><i class="fa fa-fw fa-calendar"></i></span>
-                    </div>
                     <input type="date" class="form-control" name="date" max="2999-12-31" value="<?= $transfer_date ?>" required>
                 </div>
             </div>
 
-            <div class="form-group col-sm">
+            <div class="mb-3 col-sm">
                 <label>Amount <strong class="text-danger">*</strong></label>
                 <div class="input-group">
-                    <div class="input-group-prepend">
                         <span class="input-group-text"><i class="fa fa-fw fa-dollar-sign"></i></span>
-                    </div>
                     <input type="text" class="form-control" inputmode="decimal" pattern="[0-9]*\.?[0-9]{0,2}" name="amount" placeholder="0.00" value="<?= number_format($transfer_amount, 2, '.', '') ?>" required>
                 </div>
             </div>
 
         </div>
 
-        <div class="form-group">
+        <div class="mb-3">
             <label>Transfer <strong class="text-danger">*</strong></label>
             <div class="input-group">
-                <div class="input-group-prepend">
                     <span class="input-group-text"><i class="fa fa-fw fa-piggy-bank"></i></span>
-                </div>
                 <select class="form-control select2" name="account_from" required>
                     <?php
 
@@ -111,11 +103,9 @@ ob_start();
             </div>
         </div>
 
-        <div class="form-group">
+        <div class="mb-3">
             <div class="input-group">
-                <div class="input-group-prepend">
                     <span class="input-group-text"><i class="fa fa-fw fa-arrow-right"></i></span>
-                </div>
                 <select class="form-control select2" name="account_to" required>
                     <?php
 
@@ -155,16 +145,14 @@ ob_start();
             </div>
         </div>
 
-        <div class="form-group">
+        <div class="mb-3">
             <textarea class="form-control" rows="5" name="notes" placeholder="Enter some notes"><?= $transfer_notes ?></textarea>
         </div>
 
-        <div class="form-group">
+        <div class="mb-3">
             <label>Transfer Method</label>
             <div class="input-group">
-                <div class="input-group-prepend">
                     <span class="input-group-text"><i class="fa fa-fw fa-money-check-alt"></i></span>
-                </div>
                 <select class="form-control select2" name="transfer_method">
                     <option value="">- Method of Transfer -</option>
                     <?php
@@ -185,8 +173,8 @@ ob_start();
     </div>
 
     <div class="modal-footer">
-        <button type="submit" name="edit_transfer" class="btn btn-primary text-bold"><i class="fas fa-check mr-2"></i>Save</button>
-        <button type="button" class="btn btn-light" data-dismiss="modal"><i class="fa fa-times mr-2"></i>Cancel</button>
+        <button type="submit" name="edit_transfer" class="btn btn-primary text-bold"><i class="fas fa-check me-2"></i>Save</button>
+        <button type="button" class="btn btn-light" data-bs-dismiss="modal"><i class="fa fa-times me-2"></i>Cancel</button>
     </div>
 </form>
 

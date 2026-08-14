@@ -8,10 +8,8 @@ ob_start();
 
 ?>
 <div class="modal-header bg-dark">
-    <h5 class="modal-title text-white"><i class="fa fa-fw fa-stream mr-2"></i>New Service</h5>
-    <button type="button" class="close text-white" data-dismiss="modal">
-        <span>&times;</span>
-    </button>
+    <h5 class="modal-title text-white"><i class="fa fa-fw fa-stream me-2"></i>New Service</h5>
+    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
 </div>
 
 <form action="post.php" method="post" autocomplete="off">
@@ -21,14 +19,14 @@ ob_start();
         <?php if ($client_id) { ?>
         <ul class="nav nav-pills nav-justified mb-3">
             <li class="nav-item">
-                <a class="nav-link active" data-toggle="pill" href="#pills-overview">Overview</a>
+                <a class="nav-link active" data-bs-toggle="pill" href="#pills-overview">Overview</a>
             </li>
 
             <li class="nav-item">
-                <a class="nav-link" data-toggle="pill" href="#pills-general">General</a>
+                <a class="nav-link" data-bs-toggle="pill" href="#pills-general">General</a>
             </li>
             <li class="nav-item">
-                <a class="nav-link" data-toggle="pill" href="#pills-assets">Assets</a>
+                <a class="nav-link" data-bs-toggle="pill" href="#pills-assets">Assets</a>
             </li>
 
         </ul>
@@ -47,12 +45,10 @@ ob_start();
                     <input type="hidden" name="client_id" value="<?= $client_id ?>">
                 <?php } else { ?>
 
-                    <div class="form-group">
+                    <div class="mb-3">
                         <label>Client <strong class="text-danger">*</strong></label>
                         <div class="input-group">
-                            <div class="input-group-prepend">
                                 <span class="input-group-text"><i class="fa fa-fw fa-user"></i></span>
-                            </div>
                             <select class="form-control select2" name="client_id" required>
                                 <option value="">- Select Client -</option>
                                 <?php
@@ -70,43 +66,35 @@ ob_start();
 
                 <?php } ?>
 
-                <div class="form-group">
+                <div class="mb-3">
                     <label>Name <strong class="text-danger">*</strong></label>
                     <div class="input-group">
-                        <div class="input-group-prepend">
                             <span class="input-group-text"><i class="fa fa-fw fa-stream"></i></span>
-                        </div>
                         <input type="text" class="form-control" name="name" placeholder="Name of Service" maxlength="200" required>
                     </div>
                 </div>
 
-                <div class="form-group">
+                <div class="mb-3">
                     <label>Description <strong class="text-danger">*</strong></label>
                     <div class="input-group">
-                        <div class="input-group-prepend">
                             <span class="input-group-text"><i class="fa fa-fw fa-align-left"></i></span>
-                        </div>
                         <input type="text" class="form-control" name="description" placeholder="Description of Service" maxlength="200" required>
                     </div>
                 </div>
 
                 <!--   //TODO: Integrate with company wide categories: /categories.php  -->
-                <div class="form-group">
+                <div class="mb-3">
                     <label>Category</label>
                     <div class="input-group">
-                        <div class="input-group-prepend">
                             <span class="input-group-text"><i class="fa fa-fw fa-info"></i></span>
-                        </div>
                         <input type="text" class="form-control" name="category" placeholder="Category" maxlength="20">
                     </div>
                 </div>
 
-                <div class="form-group">
+                <div class="mb-3">
                     <label>Importance</label>
                     <div class="input-group">
-                        <div class="input-group-prepend">
                             <span class="input-group-text"><i class="fa fa-fw fa-thermometer-half"></i></span>
-                        </div>
                         <select class="form-control select2" name="importance" required>
                             <option>Low</option>
                             <option>Medium</option>
@@ -115,17 +103,15 @@ ob_start();
                     </div>
                 </div>
 
-                <div class="form-group">
+                <div class="mb-3">
                     <label>Backup</label>
                     <div class="input-group">
-                        <div class="input-group-prepend">
                             <span class="input-group-text"><i class="fa fa-fw fa-hdd"></i></span>
-                        </div>
                         <input type="text" class="form-control" name="backup" placeholder="Backup strategy" maxlength="200">
                     </div>
                 </div>
 
-                <div class="form-group">
+                <div class="mb-3">
                     <label>Notes</label>
                     <textarea class="form-control" rows="3" placeholder="Enter some notes" name="note"></textarea>
                 </div>
@@ -134,7 +120,7 @@ ob_start();
             <?php if ($client_id) { ?>
 
             <div class="tab-pane fade" id="pills-general">
-                <div class="form-group">
+                <div class="mb-3">
                     <label for="contacts">Select related Contacts</label>
                     <select class="form-control select2" id="contacts" name="contacts[]" multiple>
                         <?php
@@ -148,7 +134,7 @@ ob_start();
                     </select>
                 </div>
 
-                <div class="form-group">
+                <div class="mb-3">
                     <label for="vendors">Select related vendors</label>
                     <select class="form-control select2" id="vendors" name="vendors[]" multiple>
                         <?php
@@ -162,7 +148,7 @@ ob_start();
                     </select>
                 </div>
 
-                <div class="form-group">
+                <div class="mb-3">
                     <label for="documents">Select related documents</label>
                     <select class="form-control select2" id="documents" name="documents[]" multiple>
                         <?php
@@ -182,7 +168,7 @@ ob_start();
 
             <div class="tab-pane fade" id="pills-assets">
 
-                <div class="form-group">
+                <div class="mb-3">
                     <label for="assets">Select related assets</label>
                     <select class="form-control select2" id="assets" name="assets[]" multiple>
                         <?php
@@ -196,7 +182,7 @@ ob_start();
                     </select>
                 </div>
 
-                <div class="form-group">
+                <div class="mb-3">
                     <label for="logins">Select related Credentials</label>
                     <select class="form-control select2" id="credentials" name="credentials[]" multiple>
                         <?php
@@ -210,7 +196,7 @@ ob_start();
                     </select>
                 </div>
 
-                <div class="form-group">
+                <div class="mb-3">
                     <label for="domains">Select related domains</label>
                     <select class="form-control select2" id="domains" name="domains[]" multiple>
                         <?php
@@ -224,7 +210,7 @@ ob_start();
                     </select>
                 </div>
 
-                <div class="form-group">
+                <div class="mb-3">
                     <label for="certificates">Select related certificates</label>
                     <select class="form-control select2" id="certificates" name="certificates[]" multiple>
                         <?php
@@ -245,8 +231,8 @@ ob_start();
         </div>
     </div>
     <div class="modal-footer">
-        <button type="submit" name="add_service" class="btn btn-primary text-bold"><i class="fa fa-check mr-2"></i>Create</button>
-        <button type="button" class="btn btn-light" data-dismiss="modal"><i class="fa fa-times mr-2"></i>Cancel</button>
+        <button type="submit" name="add_service" class="btn btn-primary text-bold"><i class="fa fa-check me-2"></i>Create</button>
+        <button type="button" class="btn btn-light" data-bs-dismiss="modal"><i class="fa fa-times me-2"></i>Cancel</button>
     </div>
 </form>
 

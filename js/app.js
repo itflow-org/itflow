@@ -11,7 +11,7 @@ $(document).ready(function() {
 
     // Initialize Select2 Elements
     $('.select2').select2({
-        theme: 'bootstrap4',
+        theme: 'bootstrap-5',
     });
 
     // Initialize TinyMCE
@@ -384,10 +384,32 @@ $(document).ready(function() {
     });
 
     // DateTime
-    $('.datetimepicker').datetimepicker();
+    document.querySelectorAll('.datetimepicker').forEach(function (el) {
+        new tempusDominus.TempusDominus(el);
+    });
 
     // Data Input Mask
     $('[data-mask]').inputmask();
+
+    // Password reveal. Replaces Show-Hide-Passwords-Bootstrap-4, which has no
+    // Bootstrap 5 release. Same data-toggle="password" contract as before.
+    document.querySelectorAll('[data-toggle="password"]').forEach(function (btn) {
+        btn.addEventListener('click', function () {
+            var group = btn.closest('.input-group');
+            var input = group && group.querySelector('input');
+            if (!input) {
+                return;
+            }
+            var hidden = input.type === 'password';
+            input.type = hidden ? 'text' : 'password';
+            var icon = btn.querySelector('i');
+            if (icon) {
+                icon.classList.toggle('fa-eye', !hidden);
+                icon.classList.toggle('fa-eye-slash', hidden);
+            }
+            btn.setAttribute('aria-pressed', hidden ? 'true' : 'false');
+        });
+    });
 
     // ClipboardJS fix for Bootstrap modals
     $.fn.modal.Constructor.prototype._enforceFocus = function() {};
@@ -405,7 +427,7 @@ $(document).ready(function() {
 
     // Enable Popovers
     $(function() {
-        $('[data-toggle="popover"]').popover();
+        $('[data-bs-toggle="popover"]').popover();
     });
 
     // Data Tables

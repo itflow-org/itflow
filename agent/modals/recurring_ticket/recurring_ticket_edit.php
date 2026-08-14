@@ -58,10 +58,8 @@ ob_start();
 ?>
 
 <div class="modal-header bg-dark">
-    <h5 class="modal-title"><i class="fas fa-fw fa-calendar-check mr-2"></i>Editing Recurring Ticket: <strong><?= $recurring_ticket_subject ?></strong></h5>
-    <button type="button" class="close text-white" data-dismiss="modal">
-        <span>&times;</span>
-    </button>
+    <h5 class="modal-title"><i class="fas fa-fw fa-calendar-check me-2"></i>Editing Recurring Ticket: <strong><?= $recurring_ticket_subject ?></strong></h5>
+    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
 </div>
 <form action="post.php" method="post" autocomplete="off">
     <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
@@ -72,19 +70,19 @@ ob_start();
 
         <ul class="nav nav-pills nav-justified mb-3">
             <li class="nav-item">
-                <a class="nav-link active" data-toggle="pill" href="#pills-edit-details"><i class="fa fa-fw fa-life-ring mr-2"></i>Details</a>
+                <a class="nav-link active" data-bs-toggle="pill" href="#pills-edit-details"><i class="fa fa-fw fa-life-ring me-2"></i>Details</a>
             </li>
             <li class="nav-item">
-                <a class="nav-link" data-toggle="pill" href="#pills-edit-tasks"><i class="fa fa-fw fa-tasks mr-2"></i>Tasks</a>
+                <a class="nav-link" data-bs-toggle="pill" href="#pills-edit-tasks"><i class="fa fa-fw fa-tasks me-2"></i>Tasks</a>
             </li>
             <li class="nav-item">
-                <a class="nav-link" data-toggle="pill" href="#pills-edit-contacts"><i class="fa fa-fw fa-users mr-2"></i>Contact</a>
+                <a class="nav-link" data-bs-toggle="pill" href="#pills-edit-contacts"><i class="fa fa-fw fa-users me-2"></i>Contact</a>
             </li>
             <li class="nav-item">
-                <a class="nav-link" data-toggle="pill" href="#pills-edit-schedule"><i class="fa fa-fw fa-building mr-2"></i>Schedule</a>
+                <a class="nav-link" data-bs-toggle="pill" href="#pills-edit-schedule"><i class="fa fa-fw fa-building me-2"></i>Schedule</a>
             </li>
             <li class="nav-item">
-                <a class="nav-link" data-toggle="pill" href="#pills-edit-assets"><i class="fa fa-fw fa-desktop mr-2"></i>Assets</a>
+                <a class="nav-link" data-bs-toggle="pill" href="#pills-edit-assets"><i class="fa fa-fw fa-desktop me-2"></i>Assets</a>
             </li>
         </ul>
 
@@ -97,28 +95,24 @@ ob_start();
                 require_once '../../includes/inc_ticket_template_select.php';
                 ?>
 
-                <div class="form-group">
+                <div class="mb-3">
                     <label>Subject <strong class="text-danger">*</strong></label>
                     <div class="input-group">
-                        <div class="input-group-prepend">
                             <span class="input-group-text"><i class="fa fa-fw fa-tag"></i></span>
-                        </div>
                         <input type="text" class="form-control" id="subjectInput" name="subject" placeholder="Subject" maxlength="500" value="<?= $recurring_ticket_subject ?>" required >
                     </div>
                 </div>
 
-                <div class="form-group">
+                <div class="mb-3">
                     <textarea class="form-control tinymce" id="detailsInput" name="details"><?= $recurring_ticket_details ?></textarea>
                 </div>
 
                 <div class="row">
                     <div class="col">
-                        <div class="form-group">
+                        <div class="mb-3">
                             <label>Priority <strong class="text-danger">*</strong></label>
                             <div class="input-group">
-                                <div class="input-group-prepend">
                                     <span class="input-group-text"><i class="fa fa-fw fa-thermometer-half"></i></span>
-                                </div>
                                 <select class="form-control select2" name="priority" required>
                                     <option <?php if ($recurring_ticket_priority == "Low") { echo "selected"; } ?> >Low</option>
                                     <option <?php if ($recurring_ticket_priority == "Medium") { echo "selected"; } ?> >Medium</option>
@@ -130,12 +124,10 @@ ob_start();
                     </div>
 
                     <div class="col">
-                        <div class="form-group">
+                        <div class="mb-3">
                             <label>Category</label>
                             <div class="input-group">
-                                <div class="input-group-prepend">
                                     <span class="input-group-text"><i class="fa fa-fw fa-layer-group"></i></span>
-                                </div>
                                 <select class="form-control select2" name="category_id">
                                     <option value="0">- Uncategorized -</option>
                                     <?php
@@ -149,23 +141,19 @@ ob_start();
                                     <?php } ?>
 
                                 </select>
-                                <div class="input-group-append">
                                     <button class="btn btn-secondary ajax-modal" type="button"
                                         data-modal-url="../admin/modals/category/category_add.php?category=Ticket">
                                         <i class="fas fa-fw fa-plus"></i>
                                     </button>
-                                </div>
                             </div>
                         </div>
                     </div>
                 </div>
 
-                <div class="form-group">
+                <div class="mb-3">
                     <label>Assign To</label>
                     <div class="input-group">
-                        <div class="input-group-prepend">
                             <span class="input-group-text"><i class="fa fa-fw fa-user-check"></i></span>
-                        </div>
                         <select class="form-control select2" name="assigned_to">
                             <option value="0">- Select Agent -</option>
                             <?php
@@ -185,12 +173,12 @@ ob_start();
                     </div>
                 </div>
 
-                <div class="form-group <?php if (!$config_module_enable_accounting) { echo 'd-none'; } ?>">
-                    <div class="custom-control custom-switch">
-                        <input type="checkbox" class="custom-control-input" id="editTicketBillable" name="billable"
+                <div class="mb-3 <?php if (!$config_module_enable_accounting) { echo 'd-none'; } ?>">
+                    <div class="form-check form-switch">
+                        <input type="checkbox" class="form-check-input" id="editTicketBillable" name="billable"
                             <?php if ($recurring_ticket_billable == 1) { echo "checked"; } ?> value="1"
                         >
-                        <label class="custom-control-label" for="editTicketBillable">Mark Billable</label>
+                        <label class="form-check-label" for="editTicketBillable">Mark Billable</label>
                     </div>
                 </div>
 
@@ -204,12 +192,10 @@ ob_start();
 
             <div class="tab-pane fade" id="pills-edit-contacts">
 
-                <div class="form-group">
+                <div class="mb-3">
                     <label>Contact</label>
                     <div class="input-group">
-                        <div class="input-group-prepend">
                             <span class="input-group-text"><i class="fa fa-fw fa-user"></i></span>
-                        </div>
                         <select class="form-control select2" name="contact_id">
                             <option value="0">- Select Contact -</option>
                             <?php
@@ -247,12 +233,10 @@ ob_start();
 
             <div class="tab-pane fade" id="pills-edit-schedule">
 
-                <div class="form-group">
+                <div class="mb-3">
                     <label>Frequency <strong class="text-danger">*</strong></label>
                     <div class="input-group">
-                        <div class="input-group-prepend">
                             <span class="input-group-text"><i class="fa fa-fw fa-recycle"></i></span>
-                        </div>
                         <select class="form-control select2" name="frequency">
                             <option <?php if ($recurring_ticket_frequency == "Three Days") { echo "selected"; } ?>>Three Days</option>
                             <option <?php if ($recurring_ticket_frequency == "Weekly") { echo "selected"; } ?>>Weekly</option>
@@ -265,12 +249,10 @@ ob_start();
                     </div>
                 </div>
 
-                <div class="form-group">
+                <div class="mb-3">
                     <label>Next run date <strong class="text-danger">*</strong></label>
                     <div class="input-group">
-                        <div class="input-group-prepend">
                             <span class="input-group-text"><i class="fa fa-fw fa-calendar-day"></i></span>
-                        </div>
                         <input class="form-control" type="date" name="next_date" max="2999-12-31" value="<?= $recurring_ticket_next_run ?>">
                     </div>
                 </div>
@@ -279,12 +261,10 @@ ob_start();
 
             <div class="tab-pane fade" id="pills-edit-assets">
 
-                <div class="form-group">
+                <div class="mb-3">
                     <label>Asset</label>
                     <div class="input-group">
-                        <div class="input-group-prepend">
                             <span class="input-group-text"><i class="fa fa-fw fa-desktop"></i></span>
-                        </div>
                         <select class="form-control select2" name="asset_id">
                             <option value="0">- Select Asset -</option>
                             <?php
@@ -304,12 +284,10 @@ ob_start();
                     </div>
                 </div>
 
-                <div class="form-group">
+                <div class="mb-3">
                     <label>Additional Assets</label>
                     <div class="input-group">
-                        <div class="input-group-prepend">
                             <span class="input-group-text"><i class="fa fa-fw fa-desktop"></i></span>
-                        </div>
                         <select class="form-control select2" name="additional_assets[]" data-tags="true" data-placeholder="- Select Additional Assets -" multiple>
                             <option value=""></option>
                             <?php
@@ -335,8 +313,8 @@ ob_start();
 
     </div>
     <div class="modal-footer">
-        <button type="submit" name="edit_recurring_ticket" class="btn btn-primary text-bold"><i class="fas fa-check mr-2"></i>Save</button>
-        <button type="button" class="btn btn-light" data-dismiss="modal"><i class="fas fa-times mr-2"></i>Cancel</button>
+        <button type="submit" name="edit_recurring_ticket" class="btn btn-primary text-bold"><i class="fas fa-check me-2"></i>Save</button>
+        <button type="button" class="btn btn-light" data-bs-dismiss="modal"><i class="fas fa-times me-2"></i>Cancel</button>
     </div>
 </form>
 

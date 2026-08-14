@@ -163,25 +163,25 @@ $summary_total_income = floatval($row['total_income']);
 
     <div class="card card-dark">
         <div class="card-header py-2">
-            <h3 class="card-title mt-2"><i class="fas fa-fw fa-hand-holding-usd mr-2"></i>Income</h3>
+            <h3 class="card-title mt-2"><i class="fas fa-fw fa-hand-holding-usd me-2"></i>Income</h3>
             <div class="card-tools">
                 <?php if (lookupUserPermission("module_sales") >= 2) { ?>
                     <div class="btn-group">
                         <button type="button" class="btn btn-primary ajax-modal" data-modal-url="modals/revenue/revenue_add.php" data-modal-size="lg">
-                            <i class="fas fa-plus mr-2"></i>New Revenue
+                            <i class="fas fa-plus me-2"></i>New Revenue
                         </button>
-                        <button type="button" class="btn btn-primary dropdown-toggle dropdown-toggle-split" data-toggle="dropdown"></button>
+                        <button type="button" class="btn btn-primary dropdown-toggle dropdown-toggle-split" data-bs-toggle="dropdown"></button>
                         <div class="dropdown-menu">
                             <a class="dropdown-item text-dark ajax-modal" href="#"
                                 data-modal-url="modals/income/income_export.php?<?= $client_url ?>type=<?= urlencode($type_filter) ?>&category=<?= $category_filter ?>&account=<?= $account_filter ?>&method=<?= urlencode($_GET['method'] ?? '') ?>&dtf=<?= $dtf ?>&dtt=<?= $dtt ?>&q=<?= urlencode($q ?? '') ?>">
-                                <i class="fa fa-fw fa-download mr-2"></i>Export
+                                <i class="fa fa-fw fa-download me-2"></i>Export
                             </a>
                         </div>
                     </div>
                 <?php } else { ?>
                     <button type="button" class="btn btn-default ajax-modal"
                         data-modal-url="modals/income/income_export.php?<?= $client_url ?>type=<?= urlencode($type_filter) ?>&category=<?= $category_filter ?>&account=<?= $account_filter ?>&method=<?= urlencode($_GET['method'] ?? '') ?>&dtf=<?= $dtf ?>&dtt=<?= $dtt ?>&q=<?= urlencode($q ?? '') ?>">
-                        <i class="fa fa-fw fa-download mr-2"></i>Export
+                        <i class="fa fa-fw fa-download me-2"></i>Export
                     </button>
                 <?php } ?>
             </div>
@@ -196,10 +196,8 @@ $summary_total_income = floatval($row['total_income']);
                     <div class="col-sm-4">
                         <div class="input-group mb-3 mb-sm-0">
                             <input type="search" class="form-control" name="q" value="<?php if (isset($q)) { echo stripslashes(escapeHtml($q)); } ?>" placeholder="Search Income">
-                            <div class="input-group-append">
-                                <button class="btn btn-secondary" type="button" data-toggle="collapse" data-target="#advancedFilter"><i class="fas fa-filter"></i></button>
+                                <button class="btn btn-secondary" type="button" data-bs-toggle="collapse" data-bs-target="#advancedFilter"><i class="fas fa-filter"></i></button>
                                 <button class="btn btn-primary"><i class="fa fa-search"></i></button>
-                            </div>
                         </div>
                     </div>
                     <div class="col-md-2">
@@ -282,28 +280,28 @@ $summary_total_income = floatval($row['total_income']);
                 <?php if (lookupUserPermission("module_sales") >= 3 && lookupUserPermission("module_financial") >= 3) { ?>
                 <div class="row">
                     <div class="col-12">
-                        <div class="btn-group float-right">
+                        <div class="btn-group float-end">
                             <div class="dropdown mt-3" id="bulkActionButton" hidden>
-                                <button class="btn btn-secondary dropdown-toggle" type="button" data-toggle="dropdown">
-                                    <i class="fas fa-fw fa-layer-group mr-2"></i>Bulk Action (<span id="selectedCount">0</span>)
+                                <button class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                                    <i class="fas fa-fw fa-layer-group me-2"></i>Bulk Action (<span id="selectedCount">0</span>)
                                 </button>
                                 <div class="dropdown-menu">
                                     <a class="dropdown-item ajax-modal" href="#"
                                         data-modal-url="modals/income/income_bulk_edit_category.php"
                                         data-bulk="true">
-                                        <i class="fas fa-fw fa-list mr-2"></i>Set Category
+                                        <i class="fas fa-fw fa-list me-2"></i>Set Category
                                     </a>
                                     <div class="dropdown-divider"></div>
                                     <a class="dropdown-item ajax-modal" href="#"
                                         data-modal-url="modals/income/income_bulk_edit_account.php"
                                         data-bulk="true">
-                                        <i class="fas fa-fw fa-piggy-bank mr-2"></i>Set Account
+                                        <i class="fas fa-fw fa-piggy-bank me-2"></i>Set Account
                                     </a>
                                     <div class="dropdown-divider"></div>
                                     <a class="dropdown-item ajax-modal" href="#"
                                         data-modal-url="modals/income/income_bulk_edit_method.php"
                                         data-bulk="true">
-                                        <i class="fas fa-fw fa-money-check-alt mr-2"></i>Set Payment Method
+                                        <i class="fas fa-fw fa-money-check-alt me-2"></i>Set Payment Method
                                     </a>
                                 </div>
                             </div>
@@ -314,7 +312,7 @@ $summary_total_income = floatval($row['total_income']);
                 <div class="collapse mt-3 <?php if (isset($_GET['dtf']) && $_GET['dtf'] !== '1970-01-01') { echo "show"; } ?>" id="advancedFilter">
                     <div class="row">
                         <div class="col-md-3">
-                            <div class="form-group">
+                            <div class="mb-3">
                                 <label>Date range</label>
                                 <input type="text" id="dateFilter" class="form-control" autocomplete="off">
                                 <input type="hidden" name="canned_date" id="canned_date" value="<?= escapeHtml($_GET['canned_date'] ?? '') ?>">
@@ -409,7 +407,7 @@ $summary_total_income = floatval($row['total_income']);
                             </a>
                         </th>
                         <?php } ?>
-                        <th class="text-right">
+                        <th class="text-end">
                             <a class="text-dark" href="?<?= $url_query_strings_sort ?>&sort=income_amount&order=<?= $disp ?>">
                                 Amount <?php if ($sort == 'income_amount') { echo $order_icon; } ?>
                             </a>
@@ -465,11 +463,11 @@ $summary_total_income = floatval($row['total_income']);
                         if ($income_type == 'Payment') {
                             $income_edit_modal = "modals/payment/payment_edit.php?id=$income_id";
                             $income_delete_action = "delete_payment=$income_id";
-                            $income_type_badge = "badge-primary";
+                            $income_type_badge = "bg-primary";
                         } else {
                             $income_edit_modal = "modals/revenue/revenue_edit.php?id=$income_id";
                             $income_delete_action = "delete_revenue=$income_id";
-                            $income_type_badge = "badge-info";
+                            $income_type_badge = "bg-info";
                         }
 
                         ?>
@@ -509,25 +507,25 @@ $summary_total_income = floatval($row['total_income']);
                                 <?php } ?>
                             </td>
                             <?php } ?>
-                            <td class="text-right text-monospace"><?= numfmt_format_currency($currency_format, $income_amount, $income_currency_code) ?></td>
+                            <td class="text-end font-monospace"><?= numfmt_format_currency($currency_format, $income_amount, $income_currency_code) ?></td>
                             <td><?= $income_method ?></td>
                             <td><?= $income_reference_display ?></td>
                             <td><?= "$income_account_archived_display$income_account" ?></td>
                             <td>
                                 <?php if (lookupUserPermission("module_sales") >= 3) { ?>
-                                    <div class="dropdown dropleft text-center">
-                                        <button class="btn btn-secondary btn-sm" type="button" data-toggle="dropdown">
+                                    <div class="dropdown dropstart text-center">
+                                        <button class="btn btn-secondary btn-sm" type="button" data-bs-toggle="dropdown">
                                             <i class="fas fa-ellipsis-h"></i>
                                         </button>
                                         <div class="dropdown-menu">
                                             <a class="dropdown-item ajax-modal" href="#"
                                                 data-modal-size = "lg"
                                                 data-modal-url = "<?= $income_edit_modal ?>">
-                                                <i class="fas fa-fw fa-edit mr-2"></i>Edit
+                                                <i class="fas fa-fw fa-edit me-2"></i>Edit
                                             </a>
                                             <div class="dropdown-divider"></div>
                                             <a class="dropdown-item text-danger text-bold confirm-link" href="post.php?<?= $income_delete_action ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>">
-                                                <i class="fas fa-fw fa-trash mr-2"></i>Delete
+                                                <i class="fas fa-fw fa-trash me-2"></i>Delete
                                             </a>
                                         </div>
                                     </div>

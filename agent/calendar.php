@@ -45,31 +45,31 @@ if (isset($_GET['calendar_id'])) {
                     $calendar_color = escapeHtml($row['calendar_color']);
                     $calendar_feed_key = escapeHtml($row['calendar_feed_key'] ?? null);
                 ?>
-                <div class="form-group d-flex align-items-center">
-                    <i class="fas fa-fw fa-circle mr-2" style="color:<?= $calendar_color ?>;"></i><?= $calendar_name ?>
+                <div class="mb-3 d-flex align-items-center">
+                    <i class="fas fa-fw fa-circle me-2" style="color:<?= $calendar_color ?>;"></i><?= $calendar_name ?>
                     <?php if (!empty($calendar_feed_key)) { ?>
-                        <i class="fas fa-fw fa-share-alt text-info ml-2" title="Published as a subscription link"></i>
+                        <i class="fas fa-fw fa-share-alt text-info ms-2" title="Published as a subscription link"></i>
                     <?php } ?>
 
-                    <div class="dropdown dropright ml-auto">
-                        <button class="btn btn-tool" type="button" data-toggle="dropdown">
+                    <div class="dropdown dropend ms-auto">
+                        <button class="btn btn-tool" type="button" data-bs-toggle="dropdown">
                             <i class="fas fa-ellipsis-v"></i>
                         </button>
                         <div class="dropdown-menu">
                             <a class="dropdown-item ajax-modal" href="#"
                                 data-modal-url="modals/calendar/calendar_edit.php?id=<?= $calendar_id ?>">
-                                <i class="fas fa-fw fa-pencil-alt mr-2"></i>Rename
+                                <i class="fas fa-fw fa-pencil-alt me-2"></i>Rename
                             </a>
                             <?php if ($session_is_admin) { ?>
                                 <a class="dropdown-item ajax-modal" href="#"
                                     data-modal-url="modals/calendar/calendar_share.php?id=<?= $calendar_id ?>">
-                                    <i class="fas fa-fw fa-share-alt mr-2"></i><?= empty($calendar_feed_key) ? 'Share' : 'Manage sharing' ?>
+                                    <i class="fas fa-fw fa-share-alt me-2"></i><?= empty($calendar_feed_key) ? 'Share' : 'Manage sharing' ?>
                                 </a>
                             <?php } ?>
                             <?php if ($session_user_role == 3) { ?>
                                 <div class="dropdown-divider"></div>
                                 <a class="dropdown-item text-danger text-bold confirm-link" href="post.php?delete_calendar=<?= $calendar_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>">
-                                    <i class="fas fa-fw fa-trash mr-2"></i>Delete
+                                    <i class="fas fa-fw fa-trash me-2"></i>Delete
                                 </a>
                             <?php } ?>
                         </div>
@@ -86,34 +86,34 @@ if (isset($_GET['calendar_id'])) {
                 <h3 class="card-title">Built-in</h3>
             </div>
             <div class="card-body">
-                <div class="form-group">
-                    <i class="fas fa-fw fa-circle mr-2" style="color:blue;"></i>Invoices
+                <div class="mb-3">
+                    <i class="fas fa-fw fa-circle me-2" style="color:blue;"></i>Invoices
                 </div>
 
-                <div class="form-group">
-                    <i class="fas fa-fw fa-circle mr-2" style="color:purple;"></i>Quotes
+                <div class="mb-3">
+                    <i class="fas fa-fw fa-circle me-2" style="color:purple;"></i>Quotes
                 </div>
 
-                <div class="form-group">
-                    <i class="fas fa-fw fa-circle mr-2" style="color:red;"></i>Tickets (Created)
+                <div class="mb-3">
+                    <i class="fas fa-fw fa-circle me-2" style="color:red;"></i>Tickets (Created)
                 </div>
 
-                <div class="form-group">
-                    <i class="fas fa-fw fa-circle mr-2" style="color:grey;"></i>Recurring Tickets
+                <div class="mb-3">
+                    <i class="fas fa-fw fa-circle me-2" style="color:grey;"></i>Recurring Tickets
                 </div>
 
-                <div class="form-group">
-                    <i class="fas fa-fw fa-circle mr-2" style="color:grey;"></i>Tickets (Scheduled)
+                <div class="mb-3">
+                    <i class="fas fa-fw fa-circle me-2" style="color:grey;"></i>Tickets (Scheduled)
                 </div>
 
-                <div class="form-group">
-                    <i class="fas fa-fw fa-circle mr-2" style="color:brown;"></i>Vendors
+                <div class="mb-3">
+                    <i class="fas fa-fw fa-circle me-2" style="color:brown;"></i>Vendors
                 </div>
 
                 <?php if (!isset($_GET['client_id'])) { ?>
 
-                <div class="form-group">
-                    <i class="fas fa-fw fa-circle mr-2" style="color:brown;"></i>Clients
+                <div class="mb-3">
+                    <i class="fas fa-fw fa-circle me-2" style="color:brown;"></i>Clients
                 </div>
 
                 <?php } ?>
@@ -227,7 +227,7 @@ while ($row = mysqli_fetch_assoc($sql)) {
                 const titleEl = info.el.querySelector('.fc-event-title') || info.el.querySelector('.fc-list-event-title');
                 if (titleEl) {
                     const icon = document.createElement('i');
-                    icon.className = 'fas fa-redo fa-xs mr-1';
+                    icon.className = 'fas fa-redo fa-xs me-1';
                     titleEl.prepend(icon);
                 }
             }

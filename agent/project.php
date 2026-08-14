@@ -58,7 +58,7 @@ if (isset($_GET['project_id'])) {
     $client_id = intval($row['client_id']);
     $client_name = escapeHtml($row['client_name']);
     if ($client_name) {
-        $client_name_display = "<div class='text-secondary'><i class='fas fa-fw fa-users mr-2'></i>$client_name</div>";
+        $client_name_display = "<div class='text-secondary'><i class='fas fa-fw fa-users me-2'></i>$client_name</div>";
     } else {
         $client_name_display = "";
     }
@@ -66,16 +66,16 @@ if (isset($_GET['project_id'])) {
     $project_manager = intval($row['user_id']);
     $project_manager_name = escapeHtml($row['user_name']);
     if ($project_manager) {
-        $project_manager_display = "<div class='text-secondary'><i class='fas fa-fw fa-user-tie mr-2'></i>$project_manager_name</div>";
+        $project_manager_display = "<div class='text-secondary'><i class='fas fa-fw fa-user-tie me-2'></i>$project_manager_name</div>";
     } else {
         $project_manager_display = "-";
     }
 
     if ($project_completed_at) {
-        $project_status_display = "<span class='badge badge-pill badge-dark ml-2'>Closed</span>";
-        $project_completed_date_display = "<div class='text-primary text-bold'><small><i class='fa fa-fw fa-door-closed mr-2'></i>" . date('Y-m-d', strtotime($project_completed_at)) . "</small></div>";
+        $project_status_display = "<span class='badge rounded-pill bg-dark ms-2'>Closed</span>";
+        $project_completed_date_display = "<div class='text-primary text-bold'><small><i class='fa fa-fw fa-door-closed me-2'></i>" . date('Y-m-d', strtotime($project_completed_at)) . "</small></div>";
     } else {
-        $project_status_display = "<span class='badge badge-pill badge-primary ml-2'>Open</span>";
+        $project_status_display = "<span class='badge rounded-pill bg-primary ms-2'>Open</span>";
         $project_completed_date_display = "";
     }
 
@@ -174,62 +174,62 @@ if (isset($_GET['project_id'])) {
 <div class="card">
     <div class="card-header">
         <h5 class="card-title">
-            <i class="fas fa-project-diagram text-secondary mr-2"></i>
+            <i class="fas fa-project-diagram text-secondary me-2"></i>
             <span class="h4"><?= "$project_prefix$project_number$project_status_display" ?></span>
         </h5>
         <div class="card-tools d-print-none">
             <div class="btn-group">
                 <?php if (empty($project_completed_at)) { ?>
-                    <div class="dropdown mr-2">
-                        <button class="btn btn-primary btn-sm" type="button" id="dropdownMenuButton" data-toggle="dropdown">
-                            <i class="fas fa-fw fa-plus mr-2"></i>New
+                    <div class="dropdown me-2">
+                        <button class="btn btn-primary btn-sm" type="button" id="dropdownMenuButton" data-bs-toggle="dropdown">
+                            <i class="fas fa-fw fa-plus me-2"></i>New
                         </button>
                         <div class="dropdown-menu">
                             <a class="dropdown-item text-dark ajax-modal" href="#" data-modal-url="modals/ticket/ticket_add.php?<?= $client_url ?>&project_id=<?= $project_id ?>" data-modal-size="lg">
-                            <i class="fa fa-fw fa-life-ring mr-2"></i>Ticket
+                            <i class="fa fa-fw fa-life-ring me-2"></i>Ticket
                         </a>
                         </div>
                     </div>
                     <div class="dropdown">
-                        <button class="btn btn-outline-primary btn-sm mr-3" type="button" id="dropdownMenuButton" data-toggle="dropdown">
-                            <i class="fas fa-fw fa-link mr-2"></i>Link
+                        <button class="btn btn-outline-primary btn-sm me-3" type="button" id="dropdownMenuButton" data-bs-toggle="dropdown">
+                            <i class="fas fa-fw fa-link me-2"></i>Link
                         </button>
                         <div class="dropdown-menu">
                             <a class="dropdown-item ajax-modal" href="#" data-modal-url="modals/project/project_link_ticket.php?<?= $client_url ?>project_id=<?= $project_id ?>">
-                                <i class="fas fa-fw fa-life-ring mr-2"></i>Open Ticket
+                                <i class="fas fa-fw fa-life-ring me-2"></i>Open Ticket
                             </a>
                             <div class="dropdown-divider"></div>
                             <a class="dropdown-item ajax-modal" href="#" data-modal-url="modals/project/project_link_closed_ticket.php?<?= $client_url ?>project_id=<?= $project_id ?>.php">
-                                <i class="fas fa-fw fa-life-ring mr-2"></i>Closed Ticket
+                                <i class="fas fa-fw fa-life-ring me-2"></i>Closed Ticket
                             </a>
                         </div>
                     </div>
                 <?php } ?>
                 <?php if (($tickets_closed_percent == 100 || $tickets_resolved_percent == 100) && empty($project_completed_at)) { ?>
                     <a class="btn btn-dark btn-sm confirm-link" href="post.php?close_project=<?= $project_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>">
-                        <i class="fas fa-fw fa-check mr-2"></i>Close
+                        <i class="fas fa-fw fa-check me-2"></i>Close
                     </a>
                 <?php } ?>
-                <div class="dropdown dropleft text-center ml-3">
-                    <button class="btn btn-secondary btn-sm" type="button" id="dropdownMenuButton" data-toggle="dropdown">
+                <div class="dropdown dropstart text-center ms-3">
+                    <button class="btn btn-secondary btn-sm" type="button" id="dropdownMenuButton" data-bs-toggle="dropdown">
                         <i class="fas fa-fw fa-ellipsis-v"></i>
                     </button>
                     <div class="dropdown-menu">
                         <?php if (empty($project_completed_at)) { ?>
                             <a class="dropdown-item ajax-modal" href="#"
                                 data-modal-url = "modals/project/project_edit.php?id=<?= $project_id ?>">
-                                <i class="fas fa-fw fa-edit mr-2"></i>Edit
+                                <i class="fas fa-fw fa-edit me-2"></i>Edit
                             </a>
                         <?php } ?>
                         <?php if (!empty($project_completed_at) && empty($project_archived_at) && lookupUserPermission("module_support" >= 2)) { ?>
                             <a class="dropdown-item text-danger text-bold confirm-link" href="post.php?archive_project=<?= $project_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>">
-                                <i class="fas fa-fw fa-archive mr-2"></i>Archive
+                                <i class="fas fa-fw fa-archive me-2"></i>Archive
                             </a>
                         <?php } ?>
                         <?php if (!empty($project_archived_at) && lookupUserPermission("module_support" >= 3)) { ?>
                             <div class="dropdown-divider"></div>
                             <a class="dropdown-item text-danger confirm-link" href="post.php?delete_project=<?= $project_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>">
-                                <i class="fas fa-fw fa-trash mr-2"></i>Delete
+                                <i class="fas fa-fw fa-trash me-2"></i>Delete
                             </a>
                         <?php } ?>
                     </div>
@@ -247,12 +247,12 @@ if (isset($_GET['project_id'])) {
     <div class="card card-body">
         <div><?= $client_name_display ?></div>
         <div><?= $project_manager_display ?></div>
-        <div class='text-secondary'><i class='fa fa-fw fa-clock mr-2'></i><?= $project_due ?></div>
+        <div class='text-secondary'><i class='fa fa-fw fa-clock me-2'></i><?= $project_due ?></div>
         <div><?= $project_completed_date_display ?></div>
         <!-- Time tracking -->
         <?php if ($ticket_total_reply_time) { ?>
             <div>
-                <i class="far fa-fw fa-clock text-secondary mr-2"></i>Total time worked: <?= $ticket_total_reply_time ?>
+                <i class="far fa-fw fa-clock text-secondary me-2"></i>Total time worked: <?= $ticket_total_reply_time ?>
             </div>
         <?php } ?>
     </div>
@@ -260,19 +260,19 @@ if (isset($_GET['project_id'])) {
     <div class="card card-body">
         <?php if ($ticket_count) { ?>
             <div class="progress" style="height: 20px;">
-                <i class="fa fas fa-fw fa-life-ring mr-2"></i>
+                <i class="fa fas fa-fw fa-life-ring me-2"></i>
                 <div class="progress-bar bg-primary" style="width: <?= $tickets_closed_percent ?>%;"><?= $closed_ticket_count ?> / <?= $ticket_count ?></div>
             </div>
         <?php } ?>
         <?php if ($task_count) { ?>
             <div class="progress mt-2" style="height: 20px;">
-                <i class="fa fas fa-fw fa-tasks mr-2"></i>
+                <i class="fa fas fa-fw fa-tasks me-2"></i>
                 <div class="progress-bar bg-secondary" style="width: <?= $tasks_completed_percent ?>%;"><?= $completed_task_count ?> / <?= $task_count ?></div>
             </div>
         <?php } ?>
         <?php if ($ticket_collaborators) { ?>
             <div class=mt-1>
-                <i class="fas fa-fw fa-users mr-2 text-secondary"></i><?= $ticket_collaborators ?>
+                <i class="fas fa-fw fa-users me-2 text-secondary"></i><?= $ticket_collaborators ?>
             </div>
         <?php } ?>
     </div>
@@ -286,51 +286,51 @@ if (isset($_GET['project_id'])) {
             <div class="card card-outline card-dark mb-3">
                 <div class="card-header py-2">
 
-                    <h5 class="card-title mt-2 mb-2"><i class="fa fa-fw fa-life-ring mr-2"></i>Project Tickets</h5>
+                    <h5 class="card-title mt-2 mb-2"><i class="fa fa-fw fa-life-ring me-2"></i>Project Tickets</h5>
 
                     <div class="card-tools">
                         <?php if (lookupUserPermission("module_support") >= 2) { ?>
-                            <div class="dropdown ml-2" id="bulkActionButton" hidden>
-                                <button class="btn btn-secondary dropdown-toggle" type="button" data-toggle="dropdown">
-                                    <i class="fas fa-fw fa-layer-group mr-2"></i>Bulk Action (<span id="selectedCount">0</span>)
+                            <div class="dropdown ms-2" id="bulkActionButton" hidden>
+                                <button class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                                    <i class="fas fa-fw fa-layer-group me-2"></i>Bulk Action (<span id="selectedCount">0</span>)
                                 </button>
                                 <div class="dropdown-menu">
                                     <a class="dropdown-item ajax-modal" href="#"
                                             data-modal-url="modals/ticket/ticket_bulk_assign.php"
                                             data-bulk="true">
-                                            <i class="fas fa-fw fa-user-check mr-2"></i>Assign Agent
+                                            <i class="fas fa-fw fa-user-check me-2"></i>Assign Agent
                                         </a>
                                         <div class="dropdown-divider"></div>
                                         <a class="dropdown-item ajax-modal" href="#"
                                             data-modal-url="modals/ticket/ticket_bulk_edit_category.php"
                                             data-bulk="true">
-                                            <i class="fas fa-fw fa-layer-group mr-2"></i>Set Category
+                                            <i class="fas fa-fw fa-layer-group me-2"></i>Set Category
                                         </a>
                                         <div class="dropdown-divider"></div>
                                         <a class="dropdown-item ajax-modal" href="#"
                                             data-modal-url="modals/ticket/ticket_bulk_edit_priority.php"
                                             data-bulk="true">
-                                            <i class="fas fa-fw fa-thermometer-half mr-2"></i>Set Priority
+                                            <i class="fas fa-fw fa-thermometer-half me-2"></i>Set Priority
                                         </a>
                                         <div class="dropdown-divider"></div>
                                         <a class="dropdown-item ajax-modal" href="#"
                                             data-modal-url="modals/ticket/ticket_bulk_reply.php"
                                             data-modal-size="lg"
                                             data-bulk="true">
-                                            <i class="fas fa-fw fa-paper-plane mr-2"></i>Update/Reply
+                                            <i class="fas fa-fw fa-paper-plane me-2"></i>Update/Reply
                                         </a>
                                         <div class="dropdown-divider"></div>
                                         <a class="dropdown-item ajax-modal" href="#"
                                             data-modal-url="modals/ticket/ticket_bulk_merge.php"
                                             data-bulk="true">
-                                            <i class="fas fa-fw fa-clone mr-2"></i>Merge
+                                            <i class="fas fa-fw fa-clone me-2"></i>Merge
                                         </a>
                                         <div class="dropdown-divider"></div>
                                         <a class="dropdown-item ajax-modal" href="#"
                                             data-modal-url="modals/ticket/ticket_bulk_resolve.php"
                                             data-modal-size="lg"
                                             data-bulk="true">
-                                            <i class="fas fa-fw fa-check mr-2"></i>Resolve
+                                            <i class="fas fa-fw fa-check me-2"></i>Resolve
                                         </a>
                                 </div>
                             </div>
@@ -344,7 +344,7 @@ if (isset($_GET['project_id'])) {
                         <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
                         <div class="table-responsive">
                             <table class="table table-border table-hover">
-                                <thead class="thead-light">
+                                <thead class="table-light">
                                 <tr>
                                     <td class="bg-light checkbox-column">
                                         <div class="form-check">
@@ -412,13 +412,13 @@ if (isset($_GET['project_id'])) {
                                     $ticket_closed_at = escapeHtml($row['ticket_closed_at']);
 
                                     if ($ticket_priority == "Urgent") {
-                                        $ticket_priority_display = "<span class='p-2 badge badge-dark'>$ticket_priority</span>";
+                                        $ticket_priority_display = "<span class='p-2 badge bg-dark'>$ticket_priority</span>";
                                     } elseif ($ticket_priority == "High") {
-                                        $ticket_priority_display = "<span class='p-2 badge badge-danger'>$ticket_priority</span>";
+                                        $ticket_priority_display = "<span class='p-2 badge bg-danger'>$ticket_priority</span>";
                                     } elseif ($ticket_priority == "Medium") {
-                                        $ticket_priority_display = "<span class='p-2 badge badge-warning'>$ticket_priority</span>";
+                                        $ticket_priority_display = "<span class='p-2 badge bg-warning text-dark'>$ticket_priority</span>";
                                     } elseif ($ticket_priority == "Low") {
-                                        $ticket_priority_display = "<span class='p-2 badge badge-info'>$ticket_priority</span>";
+                                        $ticket_priority_display = "<span class='p-2 badge bg-info text-dark'>$ticket_priority</span>";
                                     } else{
                                         $ticket_priority_display = "-";
                                     }
@@ -474,7 +474,7 @@ if (isset($_GET['project_id'])) {
                                         <!-- Ticket Number / Subject -->
                                         <td>
                                             <a href="ticket.php?ticket_id=<?= $ticket_id ?>">
-                                                <span class="badge badge-pill badge-secondary p-3 mr-2"><?= "$ticket_prefix$ticket_number" ?></span>
+                                                <span class="badge rounded-pill bg-secondary p-3 me-2"><?= "$ticket_prefix$ticket_number" ?></span>
                                                 <?= $ticket_subject ?>
                                             </a>
                                         </td>
@@ -483,7 +483,7 @@ if (isset($_GET['project_id'])) {
 
                                         <!-- Ticket Status -->
                                         <td>
-                                            <span class='badge badge-pill text-light p-2' style="background-color: <?= $ticket_status_color ?>"><?= $ticket_status_name ?></span>
+                                            <span class='badge rounded-pill text-light p-2' style="background-color: <?= $ticket_status_color ?>"><?= $ticket_status_name ?></span>
                                         </td>
 
                                         <!-- Ticket Assigned agent -->
@@ -514,7 +514,7 @@ if (isset($_GET['project_id'])) {
         <?php if (mysqli_num_rows($sql_tasks) > 0) { ?>
             <div class="card card-outline card-dark">
                 <div class="card-header py-3">
-                    <h5 class="card-title"><i class="fas fa-fw fa-tasks mr-2"></i>All Tasks</h5>
+                    <h5 class="card-title"><i class="fas fa-fw fa-tasks me-2"></i>All Tasks</h5>
                 </div>
                 <div class="card-body p-0">
                     <table class="table table-sm">
@@ -527,10 +527,10 @@ if (isset($_GET['project_id'])) {
                             <tr>
                                 <td>
                                     <?php if ($task_completed_at) { ?>
-                                        <i class="far fa-check-square text-success mr-2"></i>
+                                        <i class="far fa-check-square text-success me-2"></i>
                                     <?php } else { ?>
                                         <a href="post.php?complete_task=<?= $task_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>">
-                                            <i class="far fa-square text-secondary mr-2"></i>
+                                            <i class="far fa-square text-secondary me-2"></i>
                                         </a>
                                     <?php } ?>
                                     <?= $task_name ?>

@@ -88,17 +88,17 @@ if (mysqli_num_rows($sql_files) > 0) {
             <div class="card-header">
                 <div class="row align-items-center">
                     <div class="col">
-                        <h3 class="mb-0"><i class="fas fa-file-pdf text-danger mr-2"></i><?= $document_name ?></h3>
+                        <h3 class="mb-0"><i class="fas fa-file-pdf text-danger me-2"></i><?= $document_name ?></h3>
                         <?php if (!empty($document_description)) { ?>
                             <small class="text-muted"><?= $document_description ?></small>
                         <?php } ?>
                     </div>
                     <div class="col-auto">
                         <a href="<?= $file_view_url ?>" target="_blank" class="btn btn-primary">
-                            <i class="fas fa-external-link-alt mr-2"></i>Open in New Tab
+                            <i class="fas fa-external-link-alt me-2"></i>Open in New Tab
                         </a>
                         <a href="<?= $file_download_url ?>" class="btn btn-secondary">
-                            <i class="fas fa-download mr-2"></i>Download
+                            <i class="fas fa-download me-2"></i>Download
                         </a>
                     </div>
                 </div>
@@ -116,17 +116,17 @@ if (mysqli_num_rows($sql_files) > 0) {
             <div class="card-header">
                 <div class="row align-items-center">
                     <div class="col">
-                        <h3 class="mb-0"><i class="fas fa-image text-primary mr-2"></i><?= $document_name ?></h3>
+                        <h3 class="mb-0"><i class="fas fa-image text-primary me-2"></i><?= $document_name ?></h3>
                         <?php if (!empty($document_description)) { ?>
                             <small class="text-muted"><?= $document_description ?></small>
                         <?php } ?>
                     </div>
                     <div class="col-auto">
                         <a href="<?= $file_view_url ?>" target="_blank" class="btn btn-primary">
-                            <i class="fas fa-external-link-alt mr-2"></i>View Full Size
+                            <i class="fas fa-external-link-alt me-2"></i>View Full Size
                         </a>
                         <a href="<?= $file_download_url ?>" class="btn btn-secondary">
-                            <i class="fas fa-download mr-2"></i>Download
+                            <i class="fas fa-download me-2"></i>Download
                         </a>
                     </div>
                 </div>
@@ -145,17 +145,17 @@ if (mysqli_num_rows($sql_files) > 0) {
             <div class="card-header">
                 <div class="row align-items-center">
                     <div class="col">
-                        <h3 class="mb-0"><i class="fas fa-<?= $file_icon ?> mr-2"></i><?= $document_name ?></h3>
+                        <h3 class="mb-0"><i class="fas fa-<?= $file_icon ?> me-2"></i><?= $document_name ?></h3>
                         <?php if (!empty($document_description)) { ?>
                             <small class="text-muted"><?= $document_description ?></small>
                         <?php } ?>
                     </div>
                     <div class="col-auto">
                         <a href="<?= $file_download_url ?>" class="btn btn-primary">
-                            <i class="fas fa-external-link-alt mr-2"></i>Open File
+                            <i class="fas fa-external-link-alt me-2"></i>Open File
                         </a>
                         <a href="<?= $file_download_url ?>" class="btn btn-secondary">
-                            <i class="fas fa-download mr-2"></i>Download
+                            <i class="fas fa-download me-2"></i>Download
                         </a>
                     </div>
                 </div>

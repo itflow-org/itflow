@@ -46,10 +46,8 @@ ob_start();
 ?>
 
 <div class="modal-header bg-dark">
-    <h5 class="modal-title"><i class="fas fa-fw fa-download mr-2"></i>Export Tickets</h5>
-    <button type="button" class="close text-white" data-dismiss="modal">
-        <span>&times;</span>
-    </button>
+    <h5 class="modal-title"><i class="fas fa-fw fa-download me-2"></i>Export Tickets</h5>
+    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
 </div>
 
 <?php exportTabsNav(); ?>
@@ -62,22 +60,18 @@ ob_start();
 
         <?php exportTabsFiltersOpen(); ?>
 
-        <div class="form-group">
+        <div class="mb-3">
             <label>Search</label>
             <div class="input-group">
-                <div class="input-group-prepend">
                     <span class="input-group-text"><i class="fa fa-fw fa-search"></i></span>
-                </div>
                 <input type="text" class="form-control" name="q" value="<?= stripslashes(escapeHtml($q_filter)) ?>" placeholder="Number, subject, client, contact">
             </div>
         </div>
 
-        <div class="form-group">
+        <div class="mb-3">
             <label>Status</label>
             <div class="input-group">
-                <div class="input-group-prepend">
                     <span class="input-group-text"><i class="fa fa-fw fa-tasks"></i></span>
-                </div>
                 <select class="form-control select2" name="status[]" data-placeholder="- Open tickets -" multiple>
                     <?php
                     $sql_statuses_filter = mysqli_query($mysqli, "SELECT ticket_status_id, ticket_status_name FROM ticket_statuses ORDER BY ticket_status_name ASC");
@@ -94,12 +88,10 @@ ob_start();
             <small class="form-text text-muted">Leave empty for open tickets only.</small>
         </div>
 
-        <div class="form-group">
+        <div class="mb-3">
             <label>Resolution</label>
             <div class="input-group">
-                <div class="input-group-prepend">
                     <span class="input-group-text"><i class="fa fa-fw fa-check"></i></span>
-                </div>
                 <select class="form-control select2" name="resolution">
                     <option <?php if ($state_filter === 'open') { echo "selected"; } ?> value="">Open</option>
                     <option <?php if ($state_filter === 'closed') { echo "selected"; } ?> value="Closed">Closed</option>
@@ -109,12 +101,10 @@ ob_start();
         </div>
 
         <?php if ($config_module_enable_accounting && lookupUserPermission("module_sales") >= 2) { ?>
-        <div class="form-group">
+        <div class="mb-3">
             <label>Billing</label>
             <div class="input-group">
-                <div class="input-group-prepend">
                     <span class="input-group-text"><i class="fa fa-fw fa-dollar-sign"></i></span>
-                </div>
                 <select class="form-control select2" name="billing">
                     <option value="">- Any -</option>
                     <option <?php if ($billing_filter === 'unbilled') { echo "selected"; } ?> value="unbilled">Billable, not invoiced</option>
@@ -126,12 +116,10 @@ ob_start();
         <?php } ?>
 
         <?php if (!$client_id) { ?>
-        <div class="form-group">
+        <div class="mb-3">
             <label>Client</label>
             <div class="input-group">
-                <div class="input-group-prepend">
                     <span class="input-group-text"><i class="fa fa-fw fa-user"></i></span>
-                </div>
                 <select class="form-control select2" name="client">
                     <option value="">- All Clients -</option>
                     <?php
@@ -149,12 +137,10 @@ ob_start();
         </div>
         <?php } ?>
 
-        <div class="form-group">
+        <div class="mb-3">
             <label>Category</label>
             <div class="input-group">
-                <div class="input-group-prepend">
                     <span class="input-group-text"><i class="fa fa-fw fa-list"></i></span>
-                </div>
                 <select class="form-control select2" name="category">
                     <option value="">- All Categories -</option>
                     <?php
@@ -171,12 +157,10 @@ ob_start();
             </div>
         </div>
 
-        <div class="form-group">
+        <div class="mb-3">
             <label>Assigned To</label>
             <div class="input-group">
-                <div class="input-group-prepend">
                     <span class="input-group-text"><i class="fa fa-fw fa-user-tie"></i></span>
-                </div>
                 <select class="form-control select2" name="assigned">
                     <option value="">- Anyone -</option>
                     <?php
@@ -193,12 +177,10 @@ ob_start();
             </div>
         </div>
 
-        <div class="form-group">
+        <div class="mb-3">
             <label>SLA</label>
             <div class="input-group">
-                <div class="input-group-prepend">
                     <span class="input-group-text"><i class="fa fa-fw fa-stopwatch"></i></span>
-                </div>
                 <select class="form-control select2" name="sla">
                     <option value="">- Any SLA state -</option>
                     <option <?php if ($sla_filter === 'breached') { echo "selected"; } ?> value="breached">Breached</option>
@@ -210,22 +192,18 @@ ob_start();
             </div>
         </div>
 
-        <div class="form-group">
+        <div class="mb-3">
             <label>Opened From</label>
             <div class="input-group">
-                <div class="input-group-prepend">
                     <span class="input-group-text"><i class="fa fa-fw fa-calendar"></i></span>
-                </div>
                 <input type="date" class="form-control" name="dtf" value="<?= $date_from_filter ?>" max="2999-12-31">
             </div>
         </div>
 
-        <div class="form-group">
+        <div class="mb-3">
             <label>Opened To</label>
             <div class="input-group">
-                <div class="input-group-prepend">
                     <span class="input-group-text"><i class="fa fa-fw fa-calendar"></i></span>
-                </div>
                 <input type="date" class="form-control" name="dtt" value="<?= $date_to_filter ?>" max="2999-12-31">
             </div>
         </div>

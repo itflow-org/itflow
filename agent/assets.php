@@ -182,29 +182,29 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 
 <div class="col-sm-12 mb-3">
     <div class="btn-toolbar">
-        <div class="btn-group btn-block">
+        <div class="btn-group w-100">
             <?php if($all_count) { ?>
-            <a href="?<?= $url_query_strings_sort ?>&type=" class="btn <?php if ($_GET['type'] == 'all' || empty($_GET['type'])) { echo 'btn-primary'; } else { echo 'btn-default'; } ?>">All Assets<span class="right badge badge-light ml-2"><?= $all_count ?></span></a>
+            <a href="?<?= $url_query_strings_sort ?>&type=" class="btn <?php if ($_GET['type'] == 'all' || empty($_GET['type'])) { echo 'btn-primary'; } else { echo 'btn-default'; } ?>">All Assets<span class="right badge bg-light text-dark ms-2"><?= $all_count ?></span></a>
             <?php } ?>
             <?php
             if ($workstation_count > 0) { ?>
-                <a href="?<?= $url_query_strings_sort ?>&type=workstation" class="btn <?php if ($_GET['type'] == 'workstation') { echo 'btn-primary'; } else { echo 'btn-default'; } ?>"><i class="fa fa-fw fa-desktop mr-2"></i>Workstations<span class="right badge badge-light ml-2"><?= $workstation_count ?></span></a>
+                <a href="?<?= $url_query_strings_sort ?>&type=workstation" class="btn <?php if ($_GET['type'] == 'workstation') { echo 'btn-primary'; } else { echo 'btn-default'; } ?>"><i class="fa fa-fw fa-desktop me-2"></i>Workstations<span class="right badge bg-light text-dark ms-2"><?= $workstation_count ?></span></a>
                 <?php
             }
             if ($server_count > 0) { ?>
-                <a href="?<?= $url_query_strings_sort ?>&type=server" class="btn <?php if ($_GET['type'] == 'server') { echo 'btn-primary'; } else { echo 'btn-default'; } ?>"><i class="fa fa-fw fa-server mr-2"></i>Servers<span class="right badge badge-light ml-2"><?= $server_count ?></span></a>
+                <a href="?<?= $url_query_strings_sort ?>&type=server" class="btn <?php if ($_GET['type'] == 'server') { echo 'btn-primary'; } else { echo 'btn-default'; } ?>"><i class="fa fa-fw fa-server me-2"></i>Servers<span class="right badge bg-light text-dark ms-2"><?= $server_count ?></span></a>
                 <?php
             }
             if ($virtual_count > 0) { ?>
-                <a href="?<?= $url_query_strings_sort ?>&type=virtual" class="btn <?php if ($_GET['type'] == 'virtual') { echo 'btn-primary'; } else { echo 'btn-default'; } ?>"><i class="fa fa-fw fa-cloud mr-2"></i>Virtual<span class="right badge badge-light ml-2"><?= $virtual_count ?></span></a>
+                <a href="?<?= $url_query_strings_sort ?>&type=virtual" class="btn <?php if ($_GET['type'] == 'virtual') { echo 'btn-primary'; } else { echo 'btn-default'; } ?>"><i class="fa fa-fw fa-cloud me-2"></i>Virtual<span class="right badge bg-light text-dark ms-2"><?= $virtual_count ?></span></a>
                 <?php
             }
             if ($network_count > 0) { ?>
-                <a href="?<?= $url_query_strings_sort ?>&type=network" class="btn <?php if ($_GET['type'] == 'network') { echo 'btn-primary'; } else { echo 'btn-default'; } ?>"><i class="fa fa-fw fa-network-wired mr-2"></i>Network<span class="right badge badge-light ml-2"><?= $network_count ?></span></a>
+                <a href="?<?= $url_query_strings_sort ?>&type=network" class="btn <?php if ($_GET['type'] == 'network') { echo 'btn-primary'; } else { echo 'btn-default'; } ?>"><i class="fa fa-fw fa-network-wired me-2"></i>Network<span class="right badge bg-light text-dark ms-2"><?= $network_count ?></span></a>
                 <?php
             }
             if ($other_count > 0) { ?>
-                <a href="?<?= $url_query_strings_sort ?>&type=other" class="btn <?php if ($_GET['type'] == 'other') { echo 'btn-primary'; } else { echo 'btn-default'; } ?>"><i class="fa fa-fw fa-tag mr-2"></i>Other<span class="right badge badge-light ml-2"><?= $other_count ?></span></a>
+                <a href="?<?= $url_query_strings_sort ?>&type=other" class="btn <?php if ($_GET['type'] == 'other') { echo 'btn-primary'; } else { echo 'btn-default'; } ?>"><i class="fa fa-fw fa-tag me-2"></i>Other<span class="right badge bg-light text-dark ms-2"><?= $other_count ?></span></a>
                 <?php
             } ?>
         </div>
@@ -213,19 +213,19 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 
 <div class="card card-dark">
     <div class="card-header py-2">
-        <h3 class="card-title mt-2"><i class="fas fa-fw fa-desktop mr-2"></i>Assets</h3>
+        <h3 class="card-title mt-2"><i class="fas fa-fw fa-desktop me-2"></i>Assets</h3>
         <div class="card-tools">
             <?php if (lookupUserPermission("module_support") >= 2) { ?>
             <div class="btn-group">
                 <button type="button" class="btn btn-primary ajax-modal" data-modal-url="modals/asset/asset_add.php?<?= $client_url ?>&type=<?= $type_filter ?>">
-                    <i class="fas fa-plus mr-2"></i>New <?php if ($type_filter) { echo ucwords($type_filter); } else { echo "Asset"; } ?>
+                    <i class="fas fa-plus me-2"></i>New <?php if ($type_filter) { echo ucwords($type_filter); } else { echo "Asset"; } ?>
                 </button>
-                <button type="button" class="btn btn-primary dropdown-toggle dropdown-toggle-split" data-toggle="dropdown"></button>
+                <button type="button" class="btn btn-primary dropdown-toggle dropdown-toggle-split" data-bs-toggle="dropdown"></button>
                 <div class="dropdown-menu">
                     <?php if ($client_url) { ?>
                     <a class="dropdown-item text-dark ajax-modal" href="#"
                         data-modal-url="modals/asset/asset_import.php?<?= $client_url ?>">
-                        <i class="fa fa-fw fa-upload mr-2"></i>Import
+                        <i class="fa fa-fw fa-upload me-2"></i>Import
                     </a>
                     <div class="dropdown-divider"></div>
                     <?php } ?>
@@ -233,7 +233,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 
                         <a class="dropdown-item text-dark ajax-modal" href="#"
                             data-modal-url="<?= buildExportModalUrl('modals/asset/asset_export.php', ['client_id', 'type', 'client', 'location', 'tags', 'expire_days', 'archived', 'q']) ?>">
-                            <i class="fa fa-fw fa-download mr-2"></i>Export
+                            <i class="fa fa-fw fa-download me-2"></i>Export
                         </a>
                     <?php } ?>
                 </div>
@@ -252,9 +252,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                 <div class="col-md-3">
                     <div class="input-group mb-3 mb-md-0">
                         <input type="search" class="form-control" name="q" value="<?php if (isset($q)) { echo stripslashes(escapeHtml($q)); } ?>" placeholder="Search <?php if (!empty($_GET['type'])) { echo ucwords(stripslashes(escapeHtml($_GET['type']))); } else { echo "Asset"; } ?>s">
-                        <div class="input-group-append">
                             <button class="btn btn-dark"><i class="fa fa-search"></i></button>
-                        </div>
                     </div>
                 </div>
                 <?php if ($client_url) { ?>
@@ -350,7 +348,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                     </div>
                 </div>
                 <div class="col-md-2">
-                    <div class="form-group">
+                    <div class="mb-3">
                         <select onchange="this.form.submit()" class="form-control select2" name="show_column[]" data-placeholder="- Show Additional Columns -" multiple>
                             <option
                                 <?php if (isset($_GET['show_column']) && is_array($_GET['show_column']) && in_array('Mac_Address', $_GET['show_column'])) { echo 'selected'; } ?>>Mac_Address
@@ -368,86 +366,86 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                     </div>
                 </div>
                 <div class="col-md-1">
-                    <div class="btn-group float-right">
+                    <div class="btn-group float-end">
                         <a href="?<?= $client_url ?>&archived=<?php if($archived == 1){ echo 0; } else { echo 1; } ?>"
                             class="btn btn-<?php if($archived == 1){ echo "primary"; } else { echo "default"; } ?>">
-                            <i class="fa fa-fw fa-archive mr-2"></i>Archived
+                            <i class="fa fa-fw fa-archive me-2"></i>Archived
                         </a>
-                        <div class="dropdown ml-2" id="bulkActionButton" hidden>
-                            <button class="btn btn-secondary dropdown-toggle" type="button" data-toggle="dropdown">
-                                <i class="fas fa-fw fa-layer-group mr-2"></i>Bulk Action (<span id="selectedCount"></span>)
+                        <div class="dropdown ms-2" id="bulkActionButton" hidden>
+                            <button class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                                <i class="fas fa-fw fa-layer-group me-2"></i>Bulk Action (<span id="selectedCount"></span>)
                             </button>
                             <div class="dropdown-menu">
                                 <button class="dropdown-item"
                                     type="submit" form="bulkActions" name="bulk_favorite_assets">
-                                    <i class="fas fa-fw fa-star text-warning mr-2"></i>Favorite
+                                    <i class="fas fa-fw fa-star text-warning me-2"></i>Favorite
                                 </button>
                                 <div class="dropdown-divider"></div>
                                 <button class="dropdown-item"
                                     type="submit" form="bulkActions" name="bulk_unfavorite_assets">
-                                    <i class="far fa-fw fa-star mr-2"></i>Unfavorite
+                                    <i class="far fa-fw fa-star me-2"></i>Unfavorite
                                 </button>
                                 <div class="dropdown-divider"></div>
                                 <?php if ($client_url) { ?>
                                 <a class="dropdown-item ajax-modal" href="#"
                                     data-modal-url="modals/asset/asset_bulk_assign_contact.php?<?= $client_url ?>"
                                     data-bulk="true">
-                                    <i class="fas fa-fw fa-user mr-2"></i>Assign Contact
+                                    <i class="fas fa-fw fa-user me-2"></i>Assign Contact
                                 </a>
                                 <div class="dropdown-divider"></div>
                                 <a class="dropdown-item ajax-modal" href="#"
                                     data-modal-url="modals/asset/asset_bulk_assign_location.php?<?= $client_url ?>"
                                     data-bulk="true">
-                                    <i class="fas fa-fw fa-map-marker-alt mr-2"></i>Assign Location
+                                    <i class="fas fa-fw fa-map-marker-alt me-2"></i>Assign Location
                                 </a>
                                 <div class="dropdown-divider"></div>
                                 <?php } ?>
                                 <a class="dropdown-item ajax-modal" href="#"
                                     data-modal-url="modals/asset/asset_bulk_assign_tags.php"
                                     data-bulk="true">
-                                    <i class="fas fa-fw fa-tags mr-2"></i>Assign Tags
+                                    <i class="fas fa-fw fa-tags me-2"></i>Assign Tags
                                 </a>
                                 <div class="dropdown-divider"></div>
                                 <a class="dropdown-item ajax-modal" href="#"
                                     data-modal-url="modals/asset/asset_bulk_assign_physical_location.php"
                                     data-bulk="true">
-                                    <i class="fas fa-fw fa-map-marker-alt mr-2"></i>Set Physical Location
+                                    <i class="fas fa-fw fa-map-marker-alt me-2"></i>Set Physical Location
                                 </a>
                                 <div class="dropdown-divider"></div>
                                 <a class="dropdown-item ajax-modal" href="#"
                                     data-modal-url="modals/asset/asset_bulk_edit_status.php"
                                     data-bulk="true">
-                                    <i class="fas fa-fw fa-info mr-2"></i>Set Status
+                                    <i class="fas fa-fw fa-info me-2"></i>Set Status
                                 </a>
                                 <div class="dropdown-divider"></div>
                                 <a class="dropdown-item ajax-modal" href="#"
                                     data-modal-url="modals/asset/asset_bulk_add_ticket.php"
                                     data-modal-size="lg"
                                     data-bulk="true">
-                                    <i class="fas fa-fw fa-life-ring mr-2"></i>Create Tickets
+                                    <i class="fas fa-fw fa-life-ring me-2"></i>Create Tickets
                                 </a>
                                 <div class="dropdown-divider"></div>
                                 <a class="dropdown-item ajax-modal" href="#"
                                     data-modal-url="modals/asset/asset_bulk_transfer_client.php?<?= $client_url ?>"
                                     data-bulk="true">
-                                    <i class="fas fa-fw fa-arrow-right mr-2"></i>Transfer to Client
+                                    <i class="fas fa-fw fa-arrow-right me-2"></i>Transfer to Client
                                 </a>
                                 <?php if ($archived) { ?>
                                     <div class="dropdown-divider"></div>
                                     <button class="dropdown-item text-info"
                                         type="submit" form="bulkActions" name="bulk_restore_assets">
-                                        <i class="fas fa-fw fa-redo mr-2"></i>Restore
+                                        <i class="fas fa-fw fa-redo me-2"></i>Restore
                                     </button>
                                     <div class="dropdown-divider"></div>
                                     <button class="dropdown-item text-danger text-bold"
                                         type="submit" form="bulkActions" name="bulk_delete_assets">
-                                        <i class="fas fa-fw fa-trash mr-2"></i>Delete
+                                        <i class="fas fa-fw fa-trash me-2"></i>Delete
                                     </button>
                                 <?php } else { ?>
                                     <div class="dropdown-divider"></div>
                                     <button class="dropdown-item text-danger confirm-link"
                                         type="submit" form="bulkActions" name="bulk_archive_assets">
-                                        <i class="fas fa-fw fa-archive mr-2"></i>Archive
+                                        <i class="fas fa-fw fa-archive me-2"></i>Archive
                                     </button>
                                 <?php } ?>
                             </div>
@@ -463,7 +461,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 
             <div class="table-responsive">
                 <table class="table border table-hover">
-                    <thead class="thead-light <?php if (!$num_rows[0]) { echo "d-none"; } ?> text-nowrap">
+                    <thead class="table-light <?php if (!$num_rows[0]) { echo "d-none"; } ?> text-nowrap">
                     <tr>
                         <td class="bg-light checkbox-column">
                             <div class="form-check">
@@ -567,7 +565,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                         $asset_model = escapeHtml($row['asset_model']);
                         $asset_serial = escapeHtml($row['asset_serial']);
                         if ($asset_serial) {
-                            $asset_serial_display = "<span class='text-monospace'>$asset_serial</span>";
+                            $asset_serial_display = "<span class='font-monospace'>$asset_serial</span>";
                         } else {
                             $asset_serial_display = "-";
                         }
@@ -662,7 +660,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                             }
 
                             $asset_tag_id_array[] = $asset_tag_id;
-                            $asset_tag_name_display_array[] = "<a href='assets.php?$client_url tags[]=$asset_tag_id'><span class='badge text-light p-1 mr-1' style='background-color: $asset_tag_color;'><i class='fa fa-fw fa-$asset_tag_icon mr-1'></i>$asset_tag_name</span></a>";
+                            $asset_tag_name_display_array[] = "<a href='assets.php?$client_url tags[]=$asset_tag_id'><span class='badge text-light p-1 me-1' style='background-color: $asset_tag_color;'><i class='fa fa-fw fa-$asset_tag_icon me-1'></i>$asset_tag_name</span></a>";
                         }
                         $asset_tags_display = implode('', $asset_tag_name_display_array);
 
@@ -675,9 +673,9 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                             </td>
                             <td>
                                 <a class="text-dark" href="asset.php?client_id=<?= $client_id ?>&asset_id=<?= $asset_id ?>">
-                                    <div class="media">
-                                        <i class="fa fa-fw fa-2x fa-<?= $device_icon ?> mr-3 mt-1"></i>
-                                        <div class="media-body">
+                                    <div class="d-flex">
+                                        <i class="fa fa-fw fa-2x fa-<?= $device_icon ?> me-3 mt-1"></i>
+                                        <div class="flex-grow-1">
                                             <div>
                                                 <?= $asset_name ?>
 
@@ -694,25 +692,25 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                     <?= $asset_type ?>
                                     <?php if ( !empty($asset_uri) || !empty($asset_uri_2) || !empty($asset_uri_client)) { ?>
                                     <div class="dropdown d-inline">
-                                        <button class="btn btn-tool" type="button" data-toggle="dropdown">
+                                        <button class="btn btn-tool" type="button" data-bs-toggle="dropdown">
                                             <i class="fas fa-external-link-alt"></i>
                                         </button>
                                         <div class="dropdown-menu">
                                             <?php if ($asset_uri) { ?>
                                             <a href="<?= $asset_uri ?>" alt="<?= $asset_uri ?>" target="_blank" class="dropdown-item" >
-                                                <i class="fa fa-fw fa-external-link-alt mr-2"></i><?= truncate($asset_uri,40) ?>
+                                                <i class="fa fa-fw fa-external-link-alt me-2"></i><?= truncate($asset_uri,40) ?>
                                             </a>
                                             <?php } ?>
                                             <?php if ($asset_uri_2) { ?>
                                             <div class="dropdown-divider"></div>
                                             <a href="<?= $asset_uri_2 ?>" target="_blank" class="dropdown-item" >
-                                                <i class="fa fa-fw fa-external-link-alt mr-2"></i><?= truncate($asset_uri_2,40) ?>
+                                                <i class="fa fa-fw fa-external-link-alt me-2"></i><?= truncate($asset_uri_2,40) ?>
                                             </a>
                                             <?php } ?>
                                             <?php if ($asset_uri_client) { ?>
                                             <div class="dropdown-divider"></div>
                                             <a href="<?= $asset_uri_client ?>" target="_blank" class="dropdown-item" >
-                                                <i class="fa fa-fw fa-external-link-alt mr-2"></i>Client URI: <?= truncate($asset_uri_client,40) ?>
+                                                <i class="fa fa-fw fa-external-link-alt me-2"></i>Client URI: <?= truncate($asset_uri_client,40) ?>
                                             </a>
                                             <?php } ?>
                                         </div>
@@ -728,12 +726,12 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                     <div><small class="text-secondary"><?= $asset_serial_display ?></small></div>
                                 </td>
                             <?php } ?>
-                                <td class="text-monospace">
+                                <td class="font-monospace">
                                     <?= $asset_ip ?>
                                     <div class="text-secondary"><small><?= $asset_ipv6 ?></small></div>
                                 </td>
                             <?php if (isset($_GET['show_column']) && is_array($_GET['show_column']) && in_array('Mac_Address', $_GET['show_column'])) { ?>
-                                <td class="text-monospace"><?= $asset_mac ?></td>
+                                <td class="font-monospace"><?= $asset_mac ?></td>
                             <?php } ?>
                             <?php if (isset($_GET['show_column']) && is_array($_GET['show_column']) && in_array('Purchase_Date', $_GET['show_column'])) { ?>
                                 <td><?= $asset_purchase_date_display ?></td>
@@ -751,32 +749,32 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                 <div><?= $location_name_display ?></div>
                                 <div><small><?= $asset_physical_location_display ?></small></div>
                             </td>
-                            <td><span class="badge badge-pill badge-secondary p-2"><?= $asset_status ?></span></td>
+                            <td><span class="badge rounded-pill bg-secondary p-2"><?= $asset_status ?></span></td>
                             <?php if (!$client_url) { ?>
                             <td><a href="assets.php?client_id=<?= $client_id ?>"><?= $client_name ?></a></td>
                             <?php } ?>
                             <td class="text-center">
                                 <div class="btn-group">
-                                    <div class="dropdown dropleft text-center">
-                                        <button class="btn btn-secondary btn-sm" type="button" data-toggle="dropdown"><i class="fas fa-ellipsis-h"></i></button>
+                                    <div class="dropdown dropstart text-center">
+                                        <button class="btn btn-secondary btn-sm" type="button" data-bs-toggle="dropdown"><i class="fas fa-ellipsis-h"></i></button>
                                         <div class="dropdown-menu">
                                             <a class="dropdown-item ajax-modal" href="#" data-modal-url="modals/asset/asset_edit.php?id=<?= $asset_id ?>">
-                                                <i class="fas fa-fw fa-edit mr-2"></i>Edit
+                                                <i class="fas fa-fw fa-edit me-2"></i>Edit
                                             </a>
                                             <a class="dropdown-item ajax-modal" href="#" data-modal-url="modals/asset/asset_copy.php?id=<?= $asset_id ?>">
-                                                <i class="fas fa-fw fa-copy mr-2"></i>Copy
+                                                <i class="fas fa-fw fa-copy me-2"></i>Copy
                                             </a>
                                             <?php if ($session_user_role > 2) { ?>
                                                 <?php if ($asset_archived_at) { ?>
                                                 <a class="dropdown-item text-info" href="post.php?restore_asset=<?= $asset_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>">
-                                                    <i class="fas fa-fw fa-redo mr-2"></i>Restore
+                                                    <i class="fas fa-fw fa-redo me-2"></i>Restore
                                                 </a>
                                                 <a class="dropdown-item text-danger text-bold confirm-link" href="post.php?delete_asset=<?= $asset_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>">
-                                                    <i class="fas fa-fw fa-trash mr-2"></i>Delete
+                                                    <i class="fas fa-fw fa-trash me-2"></i>Delete
                                                 </a>
                                                 <?php } else { ?>
                                                 <a class="dropdown-item text-danger confirm-link" href="post.php?archive_asset=<?= $asset_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>">
-                                                    <i class="fas fa-fw fa-archive mr-2"></i>Archive
+                                                    <i class="fas fa-fw fa-archive me-2"></i>Archive
                                                 </a>
                                                 <?php } ?>
 

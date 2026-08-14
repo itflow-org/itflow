@@ -17,13 +17,13 @@ foreach ($starter_content_status as $pack_status) {
 
 <div class="card card-dark">
     <div class="card-header py-3">
-        <h3 class="card-title"><i class="fas fa-fw fa-seedling mr-2"></i>Starter Content</h3>
+        <h3 class="card-title"><i class="fas fa-fw fa-seedling me-2"></i>Starter Content</h3>
         <?php if ($total_missing) { ?>
         <div class="card-tools">
             <form action="post.php" method="POST" autocomplete="off">
                 <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
                 <button type="submit" name="load_starter_content" value="all" class="btn btn-primary btn-sm">
-                    <i class="fas fa-fw fa-download mr-2"></i>Add all <?= $total_missing ?> missing
+                    <i class="fas fa-fw fa-download me-2"></i>Add all <?= $total_missing ?> missing
                 </button>
             </form>
         </div>
@@ -50,7 +50,7 @@ foreach ($starter_content_status as $pack_status) {
                         <th class="text-center">In library</th>
                         <th class="text-center">Already here</th>
                         <th class="text-center">Will be added</th>
-                        <th class="text-right"></th>
+                        <th class="text-end"></th>
                     </tr>
                 </thead>
                 <tbody>
@@ -59,7 +59,7 @@ foreach ($starter_content_status as $pack_status) {
                     ?>
                     <tr>
                         <td>
-                            <strong><i class="fas fa-fw <?= escapeHtml($pack_details['icon']) ?> mr-2"></i><?= escapeHtml($pack_details['label']) ?></strong>
+                            <strong><i class="fas fa-fw <?= escapeHtml($pack_details['icon']) ?> me-2"></i><?= escapeHtml($pack_details['label']) ?></strong>
                             <br><small class="text-muted"><?= escapeHtml($pack_details['description']) ?></small>
                             <?php
                                 // Loading out of order works, it just produces less - say so up front
@@ -67,24 +67,24 @@ foreach ($starter_content_status as $pack_status) {
                                 $requires = $pack_details['requires'] ?? '';
                                 if ($requires && !empty($starter_content_status[$requires]['missing'])) {
                             ?>
-                            <br><small class="text-warning"><i class="fas fa-fw fa-exclamation-triangle mr-1"></i>Add <?= escapeHtml($starter_content_packs[$requires]['label']) ?> first, or these come in without them.</small>
+                            <br><small class="text-warning"><i class="fas fa-fw fa-exclamation-triangle me-1"></i>Add <?= escapeHtml($starter_content_packs[$requires]['label']) ?> first, or these come in without them.</small>
                             <?php } ?>
                         </td>
                         <td class="text-center"><?= intval($pack_status['total']) ?></td>
                         <td class="text-center"><?= intval($pack_status['present']) ?></td>
                         <td class="text-center">
                             <?php if ($pack_status['missing']) { ?>
-                                <span class="badge badge-warning p-2"><?= intval($pack_status['missing']) ?></span>
+                                <span class="badge bg-warning text-dark p-2"><?= intval($pack_status['missing']) ?></span>
                             <?php } else { ?>
                                 <span class="text-success"><i class="fas fa-fw fa-check"></i></span>
                             <?php } ?>
                         </td>
-                        <td class="text-right">
+                        <td class="text-end">
                             <?php if ($pack_status['missing']) { ?>
                             <form action="post.php" method="POST" autocomplete="off">
                                 <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
                                 <button type="submit" name="load_starter_content" value="<?= escapeHtml($pack) ?>" class="btn btn-primary btn-sm">
-                                    <i class="fas fa-fw fa-plus mr-2"></i>Add
+                                    <i class="fas fa-fw fa-plus me-2"></i>Add
                                 </button>
                             </form>
                             <?php } else { ?>

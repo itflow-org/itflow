@@ -76,10 +76,8 @@ ob_start();
 ?>
 
 <div class="modal-header bg-dark">
-    <h5 class="modal-title"><i class="fa fa-fw fa-download mr-2"></i>Export Transactions</h5>
-    <button type="button" class="close text-white" data-dismiss="modal">
-        <span>&times;</span>
-    </button>
+    <h5 class="modal-title"><i class="fa fa-fw fa-download me-2"></i>Export Transactions</h5>
+    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
 </div>
 <?php exportTabsNav(); ?>
 
@@ -90,12 +88,10 @@ ob_start();
 
         <?php exportTabsFiltersOpen(); ?>
 
-        <div class="form-group">
+        <div class="mb-3">
             <label>Account</label>
             <div class="input-group">
-                <div class="input-group-prepend">
                     <span class="input-group-text"><i class="fa fa-fw fa-piggy-bank"></i></span>
-                </div>
                 <select class="form-control select2" name="account" required>
                     <option value="">- Select an Account -</option>
 
@@ -114,22 +110,18 @@ ob_start();
             </div>
         </div>
 
-        <div class="form-group">
+        <div class="mb-3">
             <label>Search</label>
             <div class="input-group">
-                <div class="input-group-prepend">
                     <span class="input-group-text"><i class="fa fa-fw fa-search"></i></span>
-                </div>
                 <input type="text" class="form-control" name="q" value="<?= stripslashes(escapeHtml($q_filter)) ?>" placeholder="Description, category, reference or amount">
             </div>
         </div>
 
-        <div class="form-group">
+        <div class="mb-3">
             <label>Type</label>
             <div class="input-group">
-                <div class="input-group-prepend">
                     <span class="input-group-text"><i class="fa fa-fw fa-exchange-alt"></i></span>
-                </div>
                 <select class="form-control select2" name="type">
                     <option value="">- All Types -</option>
 
@@ -141,12 +133,10 @@ ob_start();
             </div>
         </div>
 
-        <div class="form-group">
+        <div class="mb-3">
             <label>Category</label>
             <div class="input-group">
-                <div class="input-group-prepend">
                     <span class="input-group-text"><i class="fa fa-fw fa-list"></i></span>
-                </div>
                 <select class="form-control select2" name="category">
                     <option value="">- All Categories -</option>
 
@@ -165,12 +155,10 @@ ob_start();
             </div>
         </div>
 
-        <div class="form-group">
+        <div class="mb-3">
             <label>Client</label>
             <div class="input-group">
-                <div class="input-group-prepend">
                     <span class="input-group-text"><i class="fa fa-fw fa-user"></i></span>
-                </div>
                 <select class="form-control select2" name="client">
                     <option value="">- All Clients -</option>
 
@@ -189,12 +177,10 @@ ob_start();
             </div>
         </div>
 
-        <div class="form-group">
+        <div class="mb-3">
             <label>Payment Method</label>
             <div class="input-group">
-                <div class="input-group-prepend">
                     <span class="input-group-text"><i class="fa fa-fw fa-credit-card"></i></span>
-                </div>
                 <select class="form-control select2" name="payment_method">
                     <option value="">- All Methods -</option>
 
@@ -212,33 +198,27 @@ ob_start();
             </div>
         </div>
 
-        <div class="form-group">
+        <div class="mb-3">
             <label>Amount Range</label>
             <div class="input-group">
-                <div class="input-group-prepend">
                     <span class="input-group-text"><i class="fa fa-fw fa-dollar-sign"></i></span>
-                </div>
                 <input type="number" step="0.01" min="0" class="form-control" name="amount_min" value="<?= $amount_min_filter ?>" placeholder="Min">
                 <input type="number" step="0.01" min="0" class="form-control" name="amount_max" value="<?= $amount_max_filter ?>" placeholder="Max">
             </div>
         </div>
 
-        <div class="form-group">
+        <div class="mb-3">
             <label>Date From</label>
             <div class="input-group">
-                <div class="input-group-prepend">
                     <span class="input-group-text"><i class="fa fa-fw fa-calendar"></i></span>
-                </div>
                 <input type="date" class="form-control" name="date_from" value="<?= $date_from_filter ?>" max="2999-12-31">
             </div>
         </div>
 
-        <div class="form-group">
+        <div class="mb-3">
             <label>Date To</label>
             <div class="input-group">
-                <div class="input-group-prepend">
                     <span class="input-group-text"><i class="fa fa-fw fa-calendar"></i></span>
-                </div>
                 <input type="date" class="form-control" name="date_to" value="<?= $date_to_filter ?>" max="2999-12-31">
             </div>
         </div>

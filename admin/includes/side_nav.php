@@ -1,8 +1,8 @@
 <!-- Main Sidebar Container -->
-<aside class="main-sidebar sidebar-dark-<?= escapeHtml($config_theme) ?> d-print-none">
+<aside class="app-sidebar shadow d-print-none" data-bs-theme="dark">
     <a class="brand-link pb-1 mt-1" href="/agent/<?= $config_start_page ?>">
         <p class="h6">
-            <i class="nav-icon fas fa-arrow-left ml-3 mr-2"></i>
+            <i class="nav-icon fas fa-arrow-left ms-3 me-2"></i>
             <span class="brand-text">
                 Back | <strong>Administration</strong>
             </span>
@@ -10,10 +10,10 @@
     </a>
 
     <!-- Sidebar -->
-    <div class="sidebar">
+    <div class="sidebar-wrapper">
         <!-- Sidebar Menu -->
         <nav>
-            <ul class="nav nav-pills nav-sidebar flex-column mt-2" data-widget="treeview" data-accordion="false">
+            <ul class="nav nav-pills sidebar-menu flex-column mt-2" data-lte-toggle="treeview" data-accordion="false">
                 <li class="nav-header">ACCESS</li>
                 <li class="nav-item">
                     <a href="/admin/users.php" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "users.php") {echo "active";} ?>">
@@ -336,7 +336,7 @@
                     <a href="<?= $custom_link_uri ?>" <?= $target ?> class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == basename($custom_link_uri)) { echo "active"; } ?>">
                         <i class="fas fa-<?= $custom_link_icon ?> nav-icon"></i>
                         <p><?= $custom_link_name ?></p>
-                        <i class="fas fa-angle-right nav-icon float-right"></i>
+                        <i class="fas fa-angle-right nav-icon float-end"></i>
                     </a>
                 </li>
 

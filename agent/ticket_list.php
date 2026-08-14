@@ -104,36 +104,36 @@ if ($tickets) {
                     <!-- Bulk actions - sits with the rows it acts on, and only appears once something is ticked -->
                     <div class="mb-2" id="bulkActionButton" hidden>
                         <div class="dropdown d-inline-block">
-                            <button class="btn btn-secondary dropdown-toggle" type="button" data-toggle="dropdown">
-                                <i class="fas fa-fw fa-layer-group mr-2"></i><span id="selectedCount">0</span> selected
+                            <button class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                                <i class="fas fa-fw fa-layer-group me-2"></i><span id="selectedCount">0</span> selected
                             </button>
                             <div class="dropdown-menu">
                                 <a class="dropdown-item ajax-modal" href="#" data-modal-url="modals/ticket/ticket_bulk_assign.php" data-bulk="true">
-                                    <i class="fas fa-fw fa-user-check mr-2"></i>Assign Agent
+                                    <i class="fas fa-fw fa-user-check me-2"></i>Assign Agent
                                 </a>
                                 <a class="dropdown-item ajax-modal" href="#" data-modal-url="modals/ticket/ticket_bulk_edit_priority.php" data-bulk="true">
-                                    <i class="fas fa-fw fa-thermometer-half mr-2"></i>Set Priority
+                                    <i class="fas fa-fw fa-thermometer-half me-2"></i>Set Priority
                                 </a>
                                 <a class="dropdown-item ajax-modal" href="#" data-modal-url="modals/ticket/ticket_bulk_edit_category.php" data-bulk="true">
-                                    <i class="fas fa-fw fa-layer-group mr-2"></i>Set Category
+                                    <i class="fas fa-fw fa-layer-group me-2"></i>Set Category
                                 </a>
                                 <a class="dropdown-item ajax-modal" href="#" data-modal-url="modals/ticket/ticket_bulk_add_project.php" data-bulk="true">
-                                    <i class="fas fa-fw fa-project-diagram mr-2"></i>Set Project
+                                    <i class="fas fa-fw fa-project-diagram me-2"></i>Set Project
                                 </a>
                                 <div class="dropdown-divider"></div>
                                 <a class="dropdown-item ajax-modal" href="#" data-modal-url="modals/ticket/ticket_bulk_reply.php" data-modal-size="lg" data-bulk="true">
-                                    <i class="fas fa-fw fa-paper-plane mr-2"></i>Update/Reply
+                                    <i class="fas fa-fw fa-paper-plane me-2"></i>Update/Reply
                                 </a>
                                 <a class="dropdown-item ajax-modal" href="#" data-modal-url="modals/ticket/ticket_bulk_merge.php" data-bulk="true">
-                                    <i class="fas fa-fw fa-clone mr-2"></i>Merge
+                                    <i class="fas fa-fw fa-clone me-2"></i>Merge
                                 </a>
                                 <a class="dropdown-item ajax-modal" href="#" data-modal-url="modals/ticket/ticket_bulk_resolve.php" data-modal-size="lg" data-bulk="true">
-                                    <i class="fas fa-fw fa-check mr-2"></i>Resolve
+                                    <i class="fas fa-fw fa-check me-2"></i>Resolve
                                 </a>
                                 <?php if (lookupUserPermission("module_support") === 3) { ?>
                                     <div class="dropdown-divider"></div>
                                     <button class="dropdown-item text-danger text-bold confirm-link" type="submit" form="bulkActions" name="bulk_delete_tickets">
-                                        <i class="fas fa-fw fa-trash mr-2"></i>Delete
+                                        <i class="fas fa-fw fa-trash me-2"></i>Delete
                                     </button>
                                 <?php } ?>
                             </div>
@@ -312,7 +312,7 @@ if ($tickets) {
                                 $row_title = 'Waiting on a reply from us';
                             }
                             if ($ticket_is_open && $ticket_reply_created_at_time_ago == "Never") {
-                                $row_class .= ' font-weight-bold';
+                                $row_class .= ' fw-bold';
                                 $row_title = $row_title ? $row_title . ', not yet replied to' : 'Not yet replied to';
                             }
 
@@ -332,7 +332,7 @@ if ($tickets) {
                                 <!-- Ticket Number -->
                                 <td>
                                     <a href="ticket.php?ticket_id=<?= "$ticket_id$has_client" ?>">
-                                        <span class="badge badge-pill badge-dark p-2"><?= "$ticket_prefix$ticket_number" ?></span>
+                                        <span class="badge rounded-pill bg-dark p-2"><?= "$ticket_prefix$ticket_number" ?></span>
                                     </a>
                                 </td>
 
@@ -342,7 +342,7 @@ if ($tickets) {
 
                                     <?php if ($task_count) { ?>
                                         <div class="d-flex align-items-center mt-1">
-                                            <div class="progress mr-2" style="flex: 0 0 48px; height: 5px;" role="progressbar" aria-valuenow="<?= $tasks_completed_percent ?>" aria-valuemin="0" aria-valuemax="100">
+                                            <div class="progress me-2" style="flex: 0 0 48px; height: 5px;" role="progressbar" aria-valuenow="<?= $tasks_completed_percent ?>" aria-valuemin="0" aria-valuemax="100">
                                                 <div class="progress-bar <?= $completed_task_count == $task_count ? 'bg-success' : 'bg-secondary' ?>" style="width: <?= $tasks_completed_percent ?>%;"></div>
                                             </div>
                                             <small class="text-muted"><?= "$completed_task_count / $task_count tasks" ?></small>
@@ -367,16 +367,16 @@ if ($tickets) {
                                 <?php if ($show_billing_column) { ?>
                                     <td class="text-center">
                                         <?php if ($ticket_invoice_id) { ?>
-                                            <a href="invoice.php?client_id=<?= $client_id ?>&invoice_id=<?= $ticket_invoice_id ?>"><span class="badge badge-pill badge-success p-2">Invoiced</span></a>
+                                            <a href="invoice.php?client_id=<?= $client_id ?>&invoice_id=<?= $ticket_invoice_id ?>"><span class="badge rounded-pill bg-success p-2">Invoiced</span></a>
                                         <?php } elseif ($ticket_quote_id) { ?>
-                                            <a href="quote.php?client_id=<?= $client_id ?>&quote_id=<?= $ticket_quote_id ?>"><span class="badge badge-pill badge-primary p-2">Quoted</span></a>
+                                            <a href="quote.php?client_id=<?= $client_id ?>&quote_id=<?= $ticket_quote_id ?>"><span class="badge rounded-pill bg-primary p-2">Quoted</span></a>
                                         <?php } else { ?>
                                             <a href="#" class="ajax-modal" data-modal-url="modals/ticket/ticket_billable.php?id=<?= $ticket_id ?>"
                                                 title="<?= $ticket_billable ? 'Billable - click to change' : 'Not billable - click to change' ?>">
                                                 <?php if ($ticket_billable) { ?>
-                                                    <span class="badge badge-pill badge-success p-2"><i class="fas fa-fw fa-dollar-sign"></i></span>
+                                                    <span class="badge rounded-pill bg-success p-2"><i class="fas fa-fw fa-dollar-sign"></i></span>
                                                 <?php } else { ?>
-                                                    <span class="badge badge-pill badge-secondary p-2"><i class="fas fa-fw fa-minus"></i></span>
+                                                    <span class="badge rounded-pill bg-secondary p-2"><i class="fas fa-fw fa-minus"></i></span>
                                                 <?php } ?>
                                             </a>
                                         <?php } ?>
@@ -391,15 +391,15 @@ if ($tickets) {
                                         data-modal-url="modals/ticket/ticket_priority.php?id=<?= $ticket_id ?>"
                                         <?php } ?>
                                         >
-                                        <span class="p-2 badge badge-pill badge-<?= $ticket_priority_color ?>"><?= $ticket_priority ?></span>
+                                        <span class="p-2 badge rounded-pill badge-<?= $ticket_priority_color ?>"><?= $ticket_priority ?></span>
                                     </a>
                                 </td>
 
                                 <!-- Ticket Status -->
                                 <td>
-                                    <span class="badge badge-pill text-light p-2" style="background-color: <?= $ticket_status_color ?>"><?= $ticket_status_name ?></span>
+                                    <span class="badge rounded-pill text-light p-2" style="background-color: <?= $ticket_status_color ?>"><?= $ticket_status_name ?></span>
                                     <?php if (!empty($ticket_scheduled_for)) { ?>
-                                        <div class="mt-1"><small class="text-secondary"><i class="fas fa-fw fa-calendar-check mr-1"></i><?= $ticket_scheduled_for ?></small></div>
+                                        <div class="mt-1"><small class="text-secondary"><i class="fas fa-fw fa-calendar-check me-1"></i><?= $ticket_scheduled_for ?></small></div>
                                     <?php } ?>
                                 </td>
 
@@ -410,14 +410,14 @@ if ($tickets) {
                                         if (!intval($row['ticket_sla_id'])) {
                                             echo "<span class='text-muted'>-</span>";
                                         } elseif ($ticket_sla_paused) {
-                                            echo "<span class='badge badge-pill badge-secondary p-2' title='The resolution clock is paused in this status'><i class='fas fa-fw fa-pause'></i> Paused</span>";
+                                            echo "<span class='badge rounded-pill bg-secondary p-2' title='The resolution clock is paused in this status'><i class='fas fa-fw fa-pause'></i> Paused</span>";
                                         } elseif ($ticket_sla_alert_stage == 2) {
-                                            echo "<span class='badge badge-pill badge-danger p-2'><i class='fas fa-fw fa-stopwatch'></i> Breached</span>";
+                                            echo "<span class='badge rounded-pill bg-danger p-2'><i class='fas fa-fw fa-stopwatch'></i> Breached</span>";
                                         } elseif ($ticket_sla_alert_stage == 1) {
-                                            echo "<span class='badge badge-pill badge-warning p-2'><i class='fas fa-fw fa-stopwatch'></i> At risk</span>";
+                                            echo "<span class='badge rounded-pill bg-warning p-2'><i class='fas fa-fw fa-stopwatch'></i> At risk</span>";
                                         } elseif (!$ticket_is_open) {
                                             $sla_met = intval($row['ticket_response_sla_met'] ?? 0) && (is_null($row['ticket_resolution_due_at']) || intval($row['ticket_resolution_sla_met'] ?? 0));
-                                            echo $sla_met ? "<span class='badge badge-pill badge-success p-2'>Met</span>" : "<span class='text-muted'>-</span>";
+                                            echo $sla_met ? "<span class='badge rounded-pill bg-success p-2'>Met</span>" : "<span class='text-muted'>-</span>";
                                         } else {
                                             // Whichever clock is still running is the one worth showing
                                             $sla_due_at = empty($row['ticket_first_response_at']) ? $row['ticket_response_due_at'] : $row['ticket_resolution_due_at'];

@@ -29,10 +29,8 @@ ob_start();
 ?>
 
 <div class="modal-header bg-dark">
-    <h5 class="modal-title text-white"><i class="fas fa-fw fa-comment-dollar mr-2"></i>Editing quote: <span class="text-bold"><?= "$quote_prefix$quote_number" ?></span> - <span class="text"><?= $client_name ?></span></h5>
-    <button type="button" class="close text-white" data-dismiss="modal">
-        <span>&times;</span>
-    </button>
+    <h5 class="modal-title text-white"><i class="fas fa-fw fa-comment-dollar me-2"></i>Editing quote: <span class="text-bold"><?= "$quote_prefix$quote_number" ?></span> - <span class="text"><?= $client_name ?></span></h5>
+    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
 </div>
 <form action="post.php" method="post" autocomplete="off">
     <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
@@ -40,32 +38,26 @@ ob_start();
 
     <div class="modal-body">
 
-        <div class="form-group">
+        <div class="mb-3">
             <label>Quote Date</label>
             <div class="input-group">
-                <div class="input-group-prepend">
                     <span class="input-group-text"><i class="fa fa-fw fa-calendar"></i></span>
-                </div>
                 <input type="date" class="form-control" name="date" max="2999-12-31" value="<?= $quote_date ?>" required>
             </div>
         </div>
 
-        <div class="form-group">
+        <div class="mb-3">
             <label>Expire <strong class="text-danger">*</strong></label>
             <div class="input-group">
-                <div class="input-group-prepend">
                     <span class="input-group-text"><i class="fa fa-fw fa-calendar"></i></span>
-                </div>
                 <input type="date" class="form-control" name="expire" max="2999-12-31" value="<?= $quote_expire ?>" required>
             </div>
         </div>
 
-        <div class="form-group">
+        <div class="mb-3">
             <label>Income Category</label>
             <div class="input-group">
-                <div class="input-group-prepend">
                     <span class="input-group-text"><i class="fa fa-fw fa-tag"></i></span>
-                </div>
                 <select class="form-control select2" name="category" required>
                     <?php
 
@@ -79,17 +71,15 @@ ob_start();
                     <?php } ?>
 
                 </select>
-                <div class="input-group-append">
                     <button class="btn btn-secondary ajax-modal" type="button"
                         data-modal-url="../admin/modals/category/category_add.php?category=Income">
                         <i class="fas fa-fw fa-plus"></i>
                     </button>
-                </div>
             </div>
         </div>
 
 
-        <div class='form-group'>
+        <div class='mb-3'>
             <label>Discount Amount</label>
             <div class='input-group'>
                 <div class='input-group-prepend'>
@@ -99,20 +89,18 @@ ob_start();
             </div>
         </div>
 
-        <div class="form-group">
+        <div class="mb-3">
             <label>Scope</label>
             <div class="input-group">
-                <div class="input-group-prepend">
                     <span class="input-group-text"><i class="fa fa-fw fa-comment"></i></span>
-                </div>
                 <input type="text" class="form-control" name="scope" placeholder="Quick description" value="<?= $quote_scope ?>" maxlength="255">
             </div>
         </div>
 
     </div>
     <div class="modal-footer">
-        <button type="submit" name="edit_quote" class="btn btn-primary text-bold"><i class="fas fa-check mr-2"></i>Save</button>
-        <button type="button" class="btn btn-light" data-dismiss="modal"><i class="fas fa-times mr-2"></i>Cancel</button>
+        <button type="submit" name="edit_quote" class="btn btn-primary text-bold"><i class="fas fa-check me-2"></i>Save</button>
+        <button type="button" class="btn btn-light" data-bs-dismiss="modal"><i class="fas fa-times me-2"></i>Cancel</button>
     </div>
 </form>
 

@@ -219,10 +219,10 @@ if ($account_filter) {
 
     <div class="card card-dark">
         <div class="card-header py-2">
-            <h3 class="card-title mt-2"><i class="fas fa-fw fa-list-alt mr-2"></i>Transactions</h3>
+            <h3 class="card-title mt-2"><i class="fas fa-fw fa-list-alt me-2"></i>Transactions</h3>
             <?php if ($account_filter) { ?>
             <div class="card-tools">
-                <button type="button" class="btn btn-primary ajax-modal" data-modal-url="modals/transaction/transaction_export.php?account=<?= $account_filter ?>&type=<?= urlencode($type_filter) ?>&category=<?= $category_filter ?>&client=<?= $client_filter ?>&payment_method=<?= urlencode($payment_method_filter) ?>&amount_min=<?= $amount_min_filter ?>&amount_max=<?= $amount_max_filter ?>&dtf=<?= $dtf ?>&dtt=<?= $dtt ?>&q=<?= urlencode($q ?? '') ?>"><i class="fa fa-download mr-2"></i>Export</button>
+                <button type="button" class="btn btn-primary ajax-modal" data-modal-url="modals/transaction/transaction_export.php?account=<?= $account_filter ?>&type=<?= urlencode($type_filter) ?>&category=<?= $category_filter ?>&client=<?= $client_filter ?>&payment_method=<?= urlencode($payment_method_filter) ?>&amount_min=<?= $amount_min_filter ?>&amount_max=<?= $amount_max_filter ?>&dtf=<?= $dtf ?>&dtt=<?= $dtt ?>&q=<?= urlencode($q ?? '') ?>"><i class="fa fa-download me-2"></i>Export</button>
             </div>
             <?php } ?>
         </div>
@@ -231,18 +231,16 @@ if ($account_filter) {
             <form class="mb-4" autocomplete="off">
                 <div class="row">
                     <div class="col-sm-3">
-                        <div class="form-group">
+                        <div class="mb-3">
                             <label>Search</label>
                             <div class="input-group">
                                 <input type="search" class="form-control" name="q" value="<?php if (isset($q)) { echo stripslashes(escapeHtml($q)); } ?>" placeholder="Search Transactions">
-                                <div class="input-group-append">
                                     <button class="btn btn-primary"><i class="fa fa-search"></i></button>
-                                </div>
                             </div>
                         </div>
                     </div>
                     <div class="col-sm-3">
-                        <div class="form-group">
+                        <div class="mb-3">
                             <label>Account</label>
                             <select class="form-control select2" name="account" onchange="this.form.submit()">
                                 <option value="">- Select an Account -</option>
@@ -272,7 +270,7 @@ if ($account_filter) {
                         </div>
                     </div>
                     <div class="col-sm-3">
-                        <div class="form-group">
+                        <div class="mb-3">
                             <label>Type</label>
                             <select class="form-control select2" name="type" onchange="this.form.submit()">
                                 <option value="">- All Types -</option>
@@ -285,7 +283,7 @@ if ($account_filter) {
                         </div>
                     </div>
                     <div class="col-sm-3">
-                        <div class="form-group">
+                        <div class="mb-3">
                             <label>Category</label>
                             <select class="form-control select2" name="category" onchange="this.form.submit()">
                                 <option value="">- All Categories -</option>
@@ -307,7 +305,7 @@ if ($account_filter) {
                 </div>
                 <div class="row">
                     <div class="col-sm-3">
-                        <div class="form-group mb-md-0">
+                        <div class="mb-3 mb-md-0">
                             <label>Client</label>
                             <select class="form-control select2" name="client" onchange="this.form.submit()">
                                 <option value="">- All Clients -</option>
@@ -327,7 +325,7 @@ if ($account_filter) {
                         </div>
                     </div>
                     <div class="col-sm-3">
-                        <div class="form-group mb-md-0">
+                        <div class="mb-3 mb-md-0">
                             <label>Payment Method</label>
                             <select class="form-control select2" name="payment_method" onchange="this.form.submit()">
                                 <option value="">- All Methods -</option>
@@ -346,7 +344,7 @@ if ($account_filter) {
                         </div>
                     </div>
                     <div class="col-sm-3">
-                        <div class="form-group mb-md-0">
+                        <div class="mb-3 mb-md-0">
                             <label>Amount Range</label>
                             <div class="input-group">
                                 <input type="number" step="0.01" min="0" class="form-control" name="amount_min" value="<?= $amount_min_filter ?>" placeholder="Min" onchange="this.form.submit()">
@@ -355,7 +353,7 @@ if ($account_filter) {
                         </div>
                     </div>
                     <div class="col-sm-3">
-                        <div class="form-group mb-md-0">
+                        <div class="mb-3 mb-md-0">
                             <label>Date Range</label>
                             <input type="text" id="dateFilter" class="form-control" autocomplete="off">
                             <input type="hidden" name="canned_date" id="canned_date" value="<?= escapeHtml($_GET['canned_date']) ?? '' ?>">
@@ -436,13 +434,13 @@ if ($account_filter) {
                                 Description <?php if ($sort == 'transaction_description') { echo $order_icon; } ?>
                             </a>
                         </th>
-                        <th class="text-right">
+                        <th class="text-end">
                             <a class="text-dark" href="?<?= $url_query_strings_sort ?>&sort=transaction_amount&order=<?= $disp ?>">
                                 Amount <?php if ($sort == 'transaction_amount') { echo $order_icon; } ?>
                             </a>
                         </th>
                         <?php if ($balance_visible) { ?>
-                        <th class="text-right">Balance</th>
+                        <th class="text-end">Balance</th>
                         <?php } ?>
                     </tr>
                     </thead>
@@ -464,9 +462,9 @@ if ($account_filter) {
 
                         // Category cell display - transfers show the other account instead of a category
                         if ($transaction_type == 'Transfer In') {
-                            $transaction_category_display = "<i class='fas fa-fw fa-arrow-left text-secondary mr-1'></i>From $transaction_other_account";
+                            $transaction_category_display = "<i class='fas fa-fw fa-arrow-left text-secondary me-1'></i>From $transaction_other_account";
                         } elseif ($transaction_type == 'Transfer Out') {
-                            $transaction_category_display = "<i class='fas fa-fw fa-arrow-right text-secondary mr-1'></i>To $transaction_other_account";
+                            $transaction_category_display = "<i class='fas fa-fw fa-arrow-right text-secondary me-1'></i>To $transaction_other_account";
                         } else {
                             $transaction_category_display = $transaction_category;
                         }
@@ -526,9 +524,9 @@ if ($account_filter) {
                                 <?= $transaction_category_display ?>
                                 <div class="text-secondary"><small><?= truncate($transaction_description, 60) ?></small></div>
                             </td>
-                            <td class="text-right text-monospace <?= $transaction_amount_color ?>"><?= numfmt_format_currency($currency_format, $transaction_amount, $transaction_currency_code) ?></td>
+                            <td class="text-end font-monospace <?= $transaction_amount_color ?>"><?= numfmt_format_currency($currency_format, $transaction_amount, $transaction_currency_code) ?></td>
                             <?php if ($balance_visible) { ?>
-                            <td class="text-right text-monospace <?= $transaction_balance_color ?>"><?= numfmt_format_currency($currency_format, $transaction_balance, $transaction_currency_code) ?></td>
+                            <td class="text-end font-monospace <?= $transaction_balance_color ?>"><?= numfmt_format_currency($currency_format, $transaction_balance, $transaction_currency_code) ?></td>
                             <?php } ?>
                         </tr>
 

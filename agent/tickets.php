@@ -324,24 +324,24 @@ if ($date_filter_active) {
 
 <div class="card card-dark">
     <div class="card-header py-2">
-        <h3 class="card-title mt-2"><i class="fa fa-fw fa-life-ring mr-2"></i>Tickets
-            <small class="ml-3">
-                <a href="<?= ticketsFilterUrl(['state' => 'open', 'status' => null]) ?>" class="badge badge-pill p-1 <?= (!$status_filter && $state == 'open') ? 'badge-light text-dark' : 'text-light' ?>"><strong><?= $total_tickets_open ?></strong> Open</a> |
-                <a href="<?= ticketsFilterUrl(['state' => 'closed', 'status' => null]) ?>" class="badge badge-pill p-1 <?= (!$status_filter && $state == 'closed') ? 'badge-light text-dark' : 'text-light' ?>"><strong><?= $total_tickets_closed ?></strong> Closed</a> |
-                <a href="<?= ticketsFilterUrl(['state' => 'all', 'status' => null]) ?>" class="badge badge-pill p-1 <?= (!$status_filter && $state == 'all') ? 'badge-light text-dark' : 'text-light' ?>">All</a>
+        <h3 class="card-title mt-2"><i class="fa fa-fw fa-life-ring me-2"></i>Tickets
+            <small class="ms-3">
+                <a href="<?= ticketsFilterUrl(['state' => 'open', 'status' => null]) ?>" class="badge rounded-pill p-1 <?= (!$status_filter && $state == 'open') ? 'bg-light text-dark' : 'text-light' ?>"><strong><?= $total_tickets_open ?></strong> Open</a> |
+                <a href="<?= ticketsFilterUrl(['state' => 'closed', 'status' => null]) ?>" class="badge rounded-pill p-1 <?= (!$status_filter && $state == 'closed') ? 'bg-light text-dark' : 'text-light' ?>"><strong><?= $total_tickets_closed ?></strong> Closed</a> |
+                <a href="<?= ticketsFilterUrl(['state' => 'all', 'status' => null]) ?>" class="badge rounded-pill p-1 <?= (!$status_filter && $state == 'all') ? 'bg-light text-dark' : 'text-light' ?>">All</a>
             </small>
         </h3>
         <?php if (lookupUserPermission("module_support") >= 2) { ?>
             <div class="card-tools">
                 <div class="btn-group">
                     <button type="button" class="btn btn-primary ajax-modal" data-modal-url="modals/ticket/ticket_add.php?<?= $client_url ?>" data-modal-size="lg">
-                        <i class="fas fa-plus"></i><span class="d-none d-lg-inline ml-2">New Ticket</span>
+                        <i class="fas fa-plus"></i><span class="d-none d-lg-inline ms-2">New Ticket</span>
                     </button>
-                    <button type="button" class="btn btn-primary dropdown-toggle dropdown-toggle-split" data-toggle="dropdown"></button>
-                    <div class="dropdown-menu dropdown-menu-right">
+                    <button type="button" class="btn btn-primary dropdown-toggle dropdown-toggle-split" data-bs-toggle="dropdown"></button>
+                    <div class="dropdown-menu dropdown-menu-end">
                         <a class="dropdown-item text-dark ajax-modal" href="#"
                             data-modal-url="<?= buildExportModalUrl('modals/ticket/ticket_export.php', ['client_id', 'state', 'status', 'billing', 'category', 'priority', 'assigned', 'sla', 'project', 'q'], ['dtf' => $dtf, 'dtt' => $dtt]) ?>">
-                            <i class="fa fa-fw fa-download mr-2"></i>Export
+                            <i class="fa fa-fw fa-download me-2"></i>Export
                         </a>
                     </div>
                 </div>
@@ -365,32 +365,30 @@ if ($date_filter_active) {
 
             <div class="row">
                 <div class="col-sm-4">
-                    <div class="form-group mb-2 mb-sm-0">
+                    <div class="mb-3 mb-2 mb-sm-0">
                         <div class="input-group">
                             <input type="search" class="form-control" name="q" value="<?php if (isset($q)) { echo stripslashes(escapeHtml($q)); } ?>" placeholder="Search Tickets">
-                            <div class="input-group-append">
-                                <button class="btn <?= $hidden_filter_count ? 'btn-warning' : 'btn-secondary' ?>" type="button" data-toggle="collapse" data-target="#advancedFilter" title="Filters">
-                                    <i class="fas fa-filter"></i><?php if ($hidden_filter_count) { ?><span class="ml-1"><?= $hidden_filter_count ?></span><?php } ?>
+                                <button class="btn <?= $hidden_filter_count ? 'btn-warning' : 'btn-secondary' ?>" type="button" data-bs-toggle="collapse" data-bs-target="#advancedFilter" title="Filters">
+                                    <i class="fas fa-filter"></i><?php if ($hidden_filter_count) { ?><span class="ms-1"><?= $hidden_filter_count ?></span><?php } ?>
                                 </button>
                                 <button class="btn btn-primary" type="submit"><i class="fa fa-search"></i></button>
-                            </div>
                         </div>
                     </div>
                 </div>
 
                 <div class="col-sm-8">
-                    <div class="btn-group float-sm-right">
+                    <div class="btn-group float-sm-end">
                         <a href="<?= $ticket_assigned_filter_id === intval($session_user_id) ? ticketsFilterUrl(['assigned' => null]) : ticketsFilterUrl(['assigned' => $session_user_id]) ?>"
                             class="btn <?= $ticket_assigned_filter_id === intval($session_user_id) ? 'btn-primary' : 'btn-outline-primary' ?>">
-                            <i class="fas fa-fw fa-user"></i><span class="d-none d-xl-inline ml-2">Mine</span> | <strong><?= $user_active_assigned_tickets ?></strong>
+                            <i class="fas fa-fw fa-user"></i><span class="d-none d-xl-inline ms-2">Mine</span> | <strong><?= $user_active_assigned_tickets ?></strong>
                         </a>
                         <a href="<?= $ticket_assigned_filter_id === 0 ? ticketsFilterUrl(['assigned' => null]) : ticketsFilterUrl(['assigned' => 'unassigned']) ?>"
                             class="btn <?= $ticket_assigned_filter_id === 0 ? 'btn-danger' : 'btn-outline-danger' ?>">
-                            <i class="fas fa-fw fa-exclamation-triangle"></i><span class="d-none d-xl-inline ml-2">Unassigned</span> | <strong><?= $total_tickets_unassigned ?></strong>
+                            <i class="fas fa-fw fa-exclamation-triangle"></i><span class="d-none d-xl-inline ms-2">Unassigned</span> | <strong><?= $total_tickets_unassigned ?></strong>
                         </a>
-                        <a href="<?= ticketsFilterUrl(['view' => $view == 'kanban' ? 'list' : 'kanban']) ?>" class="btn btn-outline-dark ml-2" title="Switch to the <?= $view == 'kanban' ? 'list' : 'kanban' ?> view">
+                        <a href="<?= ticketsFilterUrl(['view' => $view == 'kanban' ? 'list' : 'kanban']) ?>" class="btn btn-outline-dark ms-2" title="Switch to the <?= $view == 'kanban' ? 'list' : 'kanban' ?> view">
                             <i class="fa fa-fw <?= $view == 'kanban' ? 'fa-list' : 'fa-columns' ?>"></i>
-                            <span class="d-none d-xl-inline ml-2"><?= $view == 'kanban' ? 'List' : 'Kanban' ?></span>
+                            <span class="d-none d-xl-inline ms-2"><?= $view == 'kanban' ? 'List' : 'Kanban' ?></span>
                         </a>
                     </div>
                 </div>
@@ -399,7 +397,7 @@ if ($date_filter_active) {
             <div class="collapse mt-3 <?php if ($hidden_filter_count) { echo "show"; } ?>" id="advancedFilter">
                 <div class="row">
                     <div class="col-md-3">
-                        <div class="form-group mb-md-0">
+                        <div class="mb-3 mb-md-0">
                             <label>Status</label>
                             <select onchange="this.form.submit()" class="form-control select2" name="status[]" data-placeholder="Any status" multiple>
                                 <?php
@@ -417,7 +415,7 @@ if ($date_filter_active) {
                     </div>
 
                     <div class="col-md-3">
-                        <div class="form-group mb-md-0">
+                        <div class="mb-3 mb-md-0">
                             <label>Assigned to</label>
                             <select onchange="this.form.submit()" class="form-control select2" name="assigned">
                                 <option value="">Anyone</option>
@@ -438,7 +436,7 @@ if ($date_filter_active) {
                     </div>
 
                     <div class="col-md-3">
-                        <div class="form-group mb-md-0">
+                        <div class="mb-3 mb-md-0">
                             <label>Priority</label>
                             <select onchange="this.form.submit()" class="form-control select2" name="priority">
                                 <option value="">Any priority</option>
@@ -450,7 +448,7 @@ if ($date_filter_active) {
                     </div>
 
                     <div class="col-md-3">
-                        <div class="form-group mb-md-0">
+                        <div class="mb-3 mb-md-0">
                             <label>Category</label>
                             <select onchange="this.form.submit()" class="form-control select2" name="category">
                                 <option value="">Any category</option>
@@ -472,7 +470,7 @@ if ($date_filter_active) {
 
                 <div class="row mt-3">
                     <div class="col-md-3">
-                        <div class="form-group mb-md-0">
+                        <div class="mb-3 mb-md-0">
                             <label>Project</label>
                             <select onchange="this.form.submit()" class="form-control select2" name="project">
                                 <option value="">Any project</option>
@@ -493,7 +491,7 @@ if ($date_filter_active) {
 
                     <?php if ($show_billing_column) { ?>
                         <div class="col-md-3">
-                            <div class="form-group mb-md-0">
+                            <div class="mb-3 mb-md-0">
                                 <label>Billing</label>
                                 <select class="form-control select2" name="billing" onchange="this.form.submit()">
                                     <option value="">Any</option>
@@ -507,7 +505,7 @@ if ($date_filter_active) {
 
                     <?php if ($sla_filter_in_use) { ?>
                         <div class="col-md-3">
-                            <div class="form-group mb-md-0">
+                            <div class="mb-3 mb-md-0">
                                 <label>SLA</label>
                                 <select class="form-control select2" name="sla" onchange="this.form.submit()">
                                     <option value="">Any SLA state</option>
@@ -520,7 +518,7 @@ if ($date_filter_active) {
                     <?php } ?>
 
                     <div class="col-md-3">
-                        <div class="form-group mb-md-0">
+                        <div class="mb-3 mb-md-0">
                             <label>Created</label>
                             <input type="text" id="dateFilter" class="form-control" autocomplete="off">
                             <input type="hidden" name="canned_date" id="canned_date" value="<?= escapeHtml($_GET['canned_date'] ?? '') ?>">
@@ -539,12 +537,12 @@ if ($date_filter_active) {
                 <?php foreach ($active_filters as $filter) {
                     $drop = is_array($filter['drop']) ? array_fill_keys($filter['drop'], null) : array($filter['drop'] => null);
                     ?>
-                    <span class="badge badge-pill badge-light border p-2 mr-1 font-weight-normal">
+                    <span class="badge rounded-pill bg-light border p-2 me-1 fw-normal">
                         <span class="text-secondary"><?= $filter['label'] ?>:</span> <?= $filter['value'] ?>
-                        <a href="<?= ticketsFilterUrl($drop) ?>" class="text-danger ml-1" title="Remove this filter"><i class="fas fa-times"></i></a>
+                        <a href="<?= ticketsFilterUrl($drop) ?>" class="text-danger ms-1" title="Remove this filter"><i class="fas fa-times"></i></a>
                     </span>
                 <?php } ?>
-                <a href="<?= escapeHtml('?' . http_build_query(array_filter(array('client_id' => $_GET['client_id'] ?? null, 'view' => $view)))) ?>" class="small text-danger ml-1">Clear all</a>
+                <a href="<?= escapeHtml('?' . http_build_query(array_filter(array('client_id' => $_GET['client_id'] ?? null, 'view' => $view)))) ?>" class="small text-danger ms-1">Clear all</a>
             </div>
         <?php } ?>
 

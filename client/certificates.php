@@ -19,7 +19,7 @@ $certificates_sql = mysqli_query($mysqli, "SELECT certificate_id, certificate_na
         <div class="col-md-10">
 
             <table class="table tabled-bordered border border-dark">
-                <thead class="thead-dark">
+                <thead class="table-dark">
                 <tr>
                     <th>Certificate Name</th>
                     <th>FQDN</th>

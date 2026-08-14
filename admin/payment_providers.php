@@ -20,9 +20,9 @@ $num_rows = mysqli_num_rows($sql);
 
 <div class="card card-dark">
     <div class="card-header py-2">
-        <h3 class="card-title mt-2"><i class="fas fa-fw fa-credit-card mr-2"></i>Payment Providers</h3>
+        <h3 class="card-title mt-2"><i class="fas fa-fw fa-credit-card me-2"></i>Payment Providers</h3>
         <div class="card-tools">
-            <button type="button" class="btn btn-primary ajax-modal" data-modal-url="modals/payment_provider/payment_provider_add.php"><i class="fas fa-plus mr-2"></i>Add Provider</button>
+            <button type="button" class="btn btn-primary ajax-modal" data-modal-url="modals/payment_provider/payment_provider_add.php"><i class="fas fa-plus me-2"></i>Add Provider</button>
         </div>
     </div>
     <div class="card-body">
@@ -95,21 +95,21 @@ $num_rows = mysqli_num_rows($sql);
                         <td><?= $vendor_name ?></td>
                         <td><?= $category ?></td>
                         <td class="text-center">
-                            <a class="badge badge-dark badge-pill p-2" href="saved_payment_methods.php"><?= $saved_payment_count ?></a>
+                            <a class="badge bg-dark rounded-pill p-2" href="saved_payment_methods.php"><?= $saved_payment_count ?></a>
                         </td>
                         <td>
-                            <div class="dropdown dropleft text-center">
-                                <button class="btn btn-secondary btn-sm" type="button" data-toggle="dropdown">
+                            <div class="dropdown dropstart text-center">
+                                <button class="btn btn-secondary btn-sm" type="button" data-bs-toggle="dropdown">
                                     <i class="fas fa-ellipsis-h"></i>
                                 </button>
                                 <div class="dropdown-menu">
                                     <a class="dropdown-item ajax-modal" href="#"
                                         data-modal-url="modals/payment_provider/payment_provider_edit.php?id=<?= $provider_id ?>">
-                                        <i class="fas fa-fw fa-edit mr-2"></i>Edit
+                                        <i class="fas fa-fw fa-edit me-2"></i>Edit
                                     </a>
                                     <div class="dropdown-divider"></div>
                                     <a class="dropdown-item text-danger confirm-link" href="post.php?delete_payment_provider=<?= $provider_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>">
-                                        <i class="fas fa-fw fa-trash mr-2"></i><strong>Delete Provider and</strong>
+                                        <i class="fas fa-fw fa-trash me-2"></i><strong>Delete Provider and</strong>
                                         <ul class="text-xs">
                                             <li>Related Recurring Payments</li>
                                             <li>Related Saved cards</li>

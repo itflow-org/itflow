@@ -20,9 +20,9 @@ $sql_tax = mysqli_query($mysqli, "SELECT `tax_name` FROM `taxes`");
 
     <div class="card card-dark">
         <div class="card-header py-2">
-            <h3 class="card-title mt-2"><i class="fas fa-fw fa-balance-scale mr-2"></i>Collected Tax Summary</h3>
+            <h3 class="card-title mt-2"><i class="fas fa-fw fa-balance-scale me-2"></i>Collected Tax Summary</h3>
             <div class="card-tools">
-                <button type="button" class="btn btn-primary d-print-none" onclick="window.print();"><i class="fas fa-fw fa-print mr-2"></i>Print</button>
+                <button type="button" class="btn btn-primary d-print-none" onclick="window.print();"><i class="fas fa-fw fa-print me-2"></i>Print</button>
             </div>
         </div>
         <div class="card-body p-0">
@@ -56,16 +56,16 @@ $sql_tax = mysqli_query($mysqli, "SELECT `tax_name` FROM `taxes`");
                         <?php
                         if ($view == 'monthly') {
                             for ($i = 1; $i <= 12; $i++) {
-                                echo "<th class='text-right'>" . date('M', mktime(0, 0, 0, $i, 10)) . "</th>";
+                                echo "<th class='text-end'>" . date('M', mktime(0, 0, 0, $i, 10)) . "</th>";
                             }
                         } else {
-                            echo "<th class='text-right'>Jan-Mar</th>";
-                            echo "<th class='text-right'>Apr-Jun</th>";
-                            echo "<th class='text-right'>Jul-Sep</th>";
-                            echo "<th class='text-right'>Oct-Dec</th>";
+                            echo "<th class='text-end'>Jan-Mar</th>";
+                            echo "<th class='text-end'>Apr-Jun</th>";
+                            echo "<th class='text-end'>Jul-Sep</th>";
+                            echo "<th class='text-end'>Oct-Dec</th>";
                         }
                         ?>
-                        <th class="text-right">Total</th>
+                        <th class="text-end">Total</th>
                     </tr>
                     </thead>
                     <tbody>
@@ -93,7 +93,7 @@ $sql_tax = mysqli_query($mysqli, "SELECT `tax_name` FROM `taxes`");
                                 $monthly_totals[$i] += $monthly_tax;
                                 $grand_total += $monthly_tax;
 
-                                echo "<td class='text-right'>" . numfmt_format_currency($currency_format, $monthly_tax, $company_currency) . "</td>";
+                                echo "<td class='text-end'>" . numfmt_format_currency($currency_format, $monthly_tax, $company_currency) . "</td>";
                             }
 
                             // Row total = sum of this tax’s 12 months
@@ -101,7 +101,7 @@ $sql_tax = mysqli_query($mysqli, "SELECT `tax_name` FROM `taxes`");
                             for ($i = 1; $i <= 12; $i++) {
                                 $row_total += (float) getMonthlyTax($tax_name, $i, $year, $mysqli);
                             }
-                            echo "<td class='text-right text-bold'>" . numfmt_format_currency($currency_format, $row_total, $company_currency) . "</td>";
+                            echo "<td class='text-end text-bold'>" . numfmt_format_currency($currency_format, $row_total, $company_currency) . "</td>";
 
                         } else {
 
@@ -115,10 +115,10 @@ $sql_tax = mysqli_query($mysqli, "SELECT `tax_name` FROM `taxes`");
 
                                 $row_total += $quarterly_tax;
 
-                                echo "<td class='text-right'>" . numfmt_format_currency($currency_format, $quarterly_tax, $company_currency) . "</td>";
+                                echo "<td class='text-end'>" . numfmt_format_currency($currency_format, $quarterly_tax, $company_currency) . "</td>";
                             }
 
-                            echo "<td class='text-right text-bold'>" . numfmt_format_currency($currency_format, $row_total, $company_currency) . "</td>";
+                            echo "<td class='text-end text-bold'>" . numfmt_format_currency($currency_format, $row_total, $company_currency) . "</td>";
                         }
 
                         echo "</tr>";
@@ -130,15 +130,15 @@ $sql_tax = mysqli_query($mysqli, "SELECT `tax_name` FROM `taxes`");
 
                     if ($view == 'monthly') {
                         for ($i = 1; $i <= 12; $i++) {
-                            echo "<th class='text-right text-bold'>" . numfmt_format_currency($currency_format, $monthly_totals[$i], $company_currency) . "</th>";
+                            echo "<th class='text-end text-bold'>" . numfmt_format_currency($currency_format, $monthly_totals[$i], $company_currency) . "</th>";
                         }
                     } else {
                         for ($q = 1; $q <= 4; $q++) {
-                            echo "<th class='text-right text-bold'>" . numfmt_format_currency($currency_format, $quarterly_totals[$q], $company_currency) . "</th>";
+                            echo "<th class='text-end text-bold'>" . numfmt_format_currency($currency_format, $quarterly_totals[$q], $company_currency) . "</th>";
                         }
                     }
 
-                    echo "<th class='text-right text-bold'>" . numfmt_format_currency($currency_format, $grand_total, $company_currency) . "</th>";
+                    echo "<th class='text-end text-bold'>" . numfmt_format_currency($currency_format, $grand_total, $company_currency) . "</th>";
                     echo "</tr>";
 
                     ?>

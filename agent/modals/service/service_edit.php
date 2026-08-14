@@ -92,10 +92,8 @@ ob_start();
 ?>
 
 <div class="modal-header bg-dark">
-    <h5 class="modal-title text-white"><i class="fa fa-fw fa-stream mr-2"></i>Editing service: <strong><?= $service_name ?></strong></h5>
-    <button type="button" class="close text-white" data-dismiss="modal">
-        <span aria-hidden="true">&times;</span>
-    </button>
+    <h5 class="modal-title text-white"><i class="fa fa-fw fa-stream me-2"></i>Editing service: <strong><?= $service_name ?></strong></h5>
+    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
 </div>
 
 <form action="post.php" method="post" autocomplete="off">
@@ -106,13 +104,13 @@ ob_start();
 
         <ul class="nav nav-pills nav-justified mb-3">
             <li class="nav-item">
-                <a class="nav-link active" data-toggle="pill" href="#pills-overview<?= $service_id ?>">Overview</a>
+                <a class="nav-link active" data-bs-toggle="pill" href="#pills-overview<?= $service_id ?>">Overview</a>
             </li>
             <li class="nav-item">
-                <a class="nav-link" data-toggle="pill" href="#pills-general<?= $service_id ?>">General</a>
+                <a class="nav-link" data-bs-toggle="pill" href="#pills-general<?= $service_id ?>">General</a>
             </li>
             <li class="nav-item">
-                <a class="nav-link" data-toggle="pill" href="#pills-assets<?= $service_id ?>">Assets</a>
+                <a class="nav-link" data-bs-toggle="pill" href="#pills-assets<?= $service_id ?>">Assets</a>
             </li>
         </ul>
 
@@ -122,43 +120,35 @@ ob_start();
 
             <div class="tab-pane fade show active" id="pills-overview<?= $service_id ?>">
 
-                <div class="form-group">
+                <div class="mb-3">
                     <label>Name <strong class="text-danger">*</strong></label>
                     <div class="input-group">
-                        <div class="input-group-prepend">
                             <span class="input-group-text"><i class="fa fa-fw fa-stream"></i></span>
-                        </div>
                         <input type="text" class="form-control" name="name" placeholder="Name of Service" maxlength="200" value="<?= $service_name ?>" required>
                     </div>
                 </div>
 
-                <div class="form-group">
+                <div class="mb-3">
                     <label>Description <strong class="text-danger">*</strong></label>
                     <div class="input-group">
-                        <div class="input-group-prepend">
                             <span class="input-group-text"><i class="fa fa-fw fa-align-left"></i></span>
-                        </div>
                         <input type="text" class="form-control" name="description" placeholder="Description of Service" maxlength="200" value="<?= $service_description ?>" required>
                     </div>
                 </div>
 
                 <!--   //TODO: Integrate with company wide categories: /categories.php  -->
-                <div class="form-group">
+                <div class="mb-3">
                     <label>Category</label>
                     <div class="input-group">
-                        <div class="input-group-prepend">
                             <span class="input-group-text"><i class="fa fa-fw fa-info"></i></span>
-                        </div>
                         <input type="text" class="form-control" name="category" placeholder="Category" maxlength="20" value="<?= $service_category ?>">
                     </div>
                 </div>
 
-                <div class="form-group">
+                <div class="mb-3">
                     <label>Importance</label>
                     <div class="input-group">
-                        <div class="input-group-prepend">
                             <span class="input-group-text"><i class="fa fa-fw fa-thermometer-half"></i></span>
-                        </div>
                         <select class="form-control select2" name="importance" required>
                             <option <?php if ($service_importance == 'Low') { echo "selected"; } ?> >Low</option>
                             <option <?php if ($service_importance == 'Medium') { echo "selected"; } ?> >Medium</option>
@@ -167,17 +157,15 @@ ob_start();
                     </div>
                 </div>
 
-                <div class="form-group">
+                <div class="mb-3">
                     <label>Backup</label>
                     <div class="input-group">
-                        <div class="input-group-prepend">
                             <span class="input-group-text"><i class="fa fa-fw fa-hdd"></i></span>
-                        </div>
                         <input type="text" class="form-control" name="backup" placeholder="Backup strategy" maxlength="200" value="<?= $service_backup ?>">
                     </div>
                 </div>
 
-                <div class="form-group">
+                <div class="mb-3">
                     <label>Notes</label>
                     <textarea class="form-control" rows="3" placeholder="Enter some notes" name="note"><?= $service_notes ?></textarea>
                 </div>
@@ -185,7 +173,7 @@ ob_start();
 
             <div class="tab-pane fade" id="pills-general<?= $service_id ?>">
 
-                <div class="form-group">
+                <div class="mb-3">
                     <label for="contacts">Contacts</label>
                     <select multiple class="form-control select2" name="contacts[]">
                         <?php
@@ -212,7 +200,7 @@ ob_start();
                     </select>
                 </div>
 
-                <div class="form-group">
+                <div class="mb-3">
                     <label for="vendors">Vendors</label>
                     <select multiple class="form-control select2" name="vendors[]">
                         <?php
@@ -234,7 +222,7 @@ ob_start();
                     </select>
                 </div>
 
-                <div class="form-group">
+                <div class="mb-3">
                     <label for="documents">Documents</label>
                     <select multiple class="form-control select2" name="documents[]">
                         <?php
@@ -264,7 +252,7 @@ ob_start();
 
             <div class="tab-pane fade" id="pills-assets<?= $service_id ?>">
 
-                <div class="form-group">
+                <div class="mb-3">
                     <label for="assets">Assets</label>
                     <select multiple class="form-control select2" name="assets[]">
                         <?php
@@ -286,7 +274,7 @@ ob_start();
                     </select>
                 </div>
 
-                <div class="form-group">
+                <div class="mb-3">
                     <label for="credentials">Credentials</label>
                     <select multiple class="form-control select2" name="credentials[]">
                         <?php
@@ -308,7 +296,7 @@ ob_start();
                     </select>
                 </div>
 
-                <div class="form-group">
+                <div class="mb-3">
                     <label for="domains">Domains</label>
                     <select multiple class="form-control select2" name="domains[]">
                         <?php
@@ -330,7 +318,7 @@ ob_start();
                     </select>
                 </div>
 
-                <div class="form-group">
+                <div class="mb-3">
                     <label for="certificates">Certificates</label>
                     <select multiple class="form-control select2" name="certificates[]">
                         <?php
@@ -356,8 +344,8 @@ ob_start();
         </div>
     </div>
     <div class="modal-footer">
-        <button type="submit" name="edit_service" class="btn btn-primary text-bold"><i class="fa fa-check mr-2"></i>Save</button>
-        <button type="button" class="btn btn-light" data-dismiss="modal"><i class="fa fa-times mr-2"></i>Cancel</button>
+        <button type="submit" name="edit_service" class="btn btn-primary text-bold"><i class="fa fa-check me-2"></i>Save</button>
+        <button type="button" class="btn btn-light" data-bs-dismiss="modal"><i class="fa fa-times me-2"></i>Cancel</button>
     </div>
 </form>
 

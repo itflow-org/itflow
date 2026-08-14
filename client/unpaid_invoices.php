@@ -56,12 +56,12 @@ $balance = $invoice_amounts - $amount_paid;
     </div>
     <div class="col-5">
         <?php if ($payment_provider_active && $bulk_payment_enabled) { // Currently not implmented fully ?>
-        <button type="button" class="btn btn-outline-success dropdown-toggle float-right" data-toggle="dropdown"><i class="fa fa-fw fa-credit-card mr-2"></i>Pay Balance <strong>(<?= numfmt_format_currency($currency_format, $balance, $session_company_currency) ?>)</strong></button>
+        <button type="button" class="btn btn-outline-success dropdown-toggle float-end" data-bs-toggle="dropdown"><i class="fa fa-fw fa-credit-card me-2"></i>Pay Balance <strong>(<?= numfmt_format_currency($currency_format, $balance, $session_company_currency) ?>)</strong></button>
         <div class="dropdown-menu">
             <a class="dropdown-item" href="//<?= $config_base_url ?>/guest/guest_pay_invoice_stripe.php?invoice_id=<?= "$invoice_id&url_key=$invoice_url_key" ?>">Enter Card Manually</a>
             <?php
             if (mysqli_num_rows($sql_saved_payment_methods) > 0) { ?>
-                <h6 class="dropdown-header text-left">Pay with a Saved Card</h6>
+                <h6 class="dropdown-header text-start">Pay with a Saved Card</h6>
             <?php
             while ($row = mysqli_fetch_assoc($sql_saved_payment_methods)) {
                 $saved_payment_id = intval($row['saved_payment_id']);
@@ -81,7 +81,7 @@ $balance = $invoice_amounts - $amount_paid;
     <div class="col-md-10">
 
         <table class="table tabled-bordered border border-dark">
-            <thead class="thead-dark">
+            <thead class="table-dark">
             <tr>
                 <th>#</th>
                 <th>Scope</th>
@@ -113,7 +113,7 @@ $balance = $invoice_amounts - $amount_paid;
 
                 $now = time();
                 if (($invoice_status == "Sent" || $invoice_status == "Partial" || $invoice_status == "Viewed") && strtotime($invoice_due) + 86400 < $now) {
-                    $overdue_color = "text-danger font-weight-bold";
+                    $overdue_color = "text-danger fw-bold";
                 } else {
                     $overdue_color = "";
                 }
@@ -150,7 +150,7 @@ $balance = $invoice_amounts - $amount_paid;
                                 $payment_provider_threshold > $invoice_amount
                             )
                         ){ ?>
-                        <button type="button" class="btn btn-sm btn-outline-success dropdown-toggle" data-toggle="dropdown"><i class="fa fa-fw fa-credit-card mr-2"></i>Pay</button>
+                        <button type="button" class="btn btn-sm btn-outline-success dropdown-toggle" data-bs-toggle="dropdown"><i class="fa fa-fw fa-credit-card me-2"></i>Pay</button>
                         <div class="dropdown-menu">
                             <a class="dropdown-item" href="//<?= $config_base_url ?>/guest/guest_pay_invoice_stripe.php?invoice_id=<?= "$invoice_id&url_key=$invoice_url_key" ?>">Enter Card Manually</a>
 
@@ -164,7 +164,7 @@ $balance = $invoice_amounts - $amount_paid;
                                 AND payment_provider_active = 1;
                             ");
                             if (mysqli_num_rows($sql_saved_payment_methods) > 0) { ?>
-                                <h6 class="dropdown-header text-left">Pay with a Saved Card</h6>
+                                <h6 class="dropdown-header text-start">Pay with a Saved Card</h6>
                             <?php
                             while ($row = mysqli_fetch_assoc($sql_saved_payment_methods)) {
                                 $saved_payment_id = intval($row['saved_payment_id']);
@@ -184,7 +184,7 @@ $balance = $invoice_amounts - $amount_paid;
 
                                 <a class="dropdown-item confirm-link"
                                     href="post.php?add_payment_by_provider=<?= $saved_payment_id ?>&invoice_id=<?= $invoice_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>">
-                                    <i class="<?= $payment_icon ?> text-secondary mr-2"></i><?= $saved_payment_description ?>
+                                    <i class="<?= $payment_icon ?> text-secondary me-2"></i><?= $saved_payment_description ?>
                                 </a>
                             <?php }
                             } ?>

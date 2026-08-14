@@ -8,9 +8,9 @@ enforceUserPermission('module_financial');
 
 <div class="card card-dark">
     <div class="card-header py-2">
-        <h3 class="card-title mt-2"><i class="fas fa-fw fa-exclamation-triangle mr-2"></i>Clients with a Balance</h3>
+        <h3 class="card-title mt-2"><i class="fas fa-fw fa-exclamation-triangle me-2"></i>Clients with a Balance</h3>
         <div class="card-tools">
-            <button type="button" class="btn btn-primary d-print-none" onclick="window.print();"><i class="fas fa-fw fa-print mr-2"></i>Print</button>
+            <button type="button" class="btn btn-primary d-print-none" onclick="window.print();"><i class="fas fa-fw fa-print me-2"></i>Print</button>
         </div>
     </div>
     <div class="card-body">
@@ -54,7 +54,7 @@ enforceUserPermission('module_financial');
                 <thead>
                 <tr>
                     <th>Client</th>
-                    <th class="text-right">Balance</th>
+                    <th class="text-end">Balance</th>
                 </tr>
                 </thead>
                 <tbody>
@@ -68,7 +68,7 @@ enforceUserPermission('module_financial');
 
                     <tr>
                         <td><a href="../../agent/invoices.php?client_id=<?= $client_id ?>"><?= $client_name ?></a></td>
-                        <td class="text-right"><?= numfmt_format_currency($currency_format, $balance, $session_company_currency) ?></td>
+                        <td class="text-end"><?= numfmt_format_currency($currency_format, $balance, $session_company_currency) ?></td>
                     </tr>
                     <?php
                 }

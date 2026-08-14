@@ -16,7 +16,7 @@
     function buildTaskRow(taskName, taskEstimate) {
 
         const row = document.createElement("div");
-        row.className = "form-row mb-2 ticket-task-row";
+        row.className = "row g-2 mb-2 ticket-task-row";
 
         const nameColumn = document.createElement("div");
         nameColumn.className = "col-7";
@@ -47,7 +47,7 @@
 
         const removeButton = document.createElement("button");
         removeButton.type = "button";
-        removeButton.className = "btn btn-secondary btn-block ticket-task-remove";
+        removeButton.className = "btn btn-secondary w-100 ticket-task-remove";
         removeButton.title = "Remove task";
         removeButton.innerHTML = '<i class="fa fa-fw fa-trash"></i>';
         removeColumn.appendChild(removeButton);

@@ -1,19 +1,19 @@
 <!-- Main Sidebar Container -->
-<aside class="main-sidebar sidebar-dark-primary d-print-none">
+<aside class="app-sidebar shadow d-print-none" data-bs-theme="dark">
 
     <a class="pb-1 mt-1 brand-link" href="../<?= $config_start_page ?>">
-        <p class="h5"><i class="nav-icon fas fa-arrow-left ml-3 mr-2"></i>
+        <p class="h5"><i class="nav-icon fas fa-arrow-left ms-3 me-2"></i>
             <span class="brand-text ">Back | <strong>Custom</strong>
         </p>
     </a>
 
     <!-- Sidebar -->
-    <div class="sidebar">
+    <div class="sidebar-wrapper">
 
         <!-- Sidebar Menu -->
         <nav>
 
-            <ul class="nav nav-pills nav-sidebar flex-column mt-2" data-widget="treeview" data-accordion="false">
+            <ul class="nav nav-pills sidebar-menu flex-column mt-2" data-lte-toggle="treeview" data-accordion="false">
 
                 <li class="nav-header">CUSTOM HEADER</li>
          

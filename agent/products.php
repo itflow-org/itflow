@@ -57,28 +57,28 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 
     <div class="card card-dark">
         <div class="card-header py-2">
-            <h3 class="card-title mt-2"><i class="fas fa-fw <?= $type_icon ?> mr-2"></i><?= $type_display ?></h3>
+            <h3 class="card-title mt-2"><i class="fas fa-fw <?= $type_icon ?> me-2"></i><?= $type_display ?></h3>
             <div class="card-tools">
                 <div class="btn-group">
                     <?php if (lookupUserPermission("module_sales") >= 2) { ?>
                     <button type="button"
                         class="btn btn-primary ajax-modal"
                         data-modal-url="modals/product/product_add.php?type=<?= $type_filter ?>">
-                        <i class="fas fa-plus mr-2"></i>New <strong><?= ucwords($type_filter); ?></strong>
+                        <i class="fas fa-plus me-2"></i>New <strong><?= ucwords($type_filter); ?></strong>
                     </button>
                     <?php } ?>
-                    <button type="button" class="btn btn-primary dropdown-toggle dropdown-toggle-split" data-toggle="dropdown"></button>
+                    <button type="button" class="btn btn-primary dropdown-toggle dropdown-toggle-split" data-bs-toggle="dropdown"></button>
                     <div class="dropdown-menu">
                         <?php if ($type_display == 'Products') { ?>
                             <a class="dropdown-item text-dark ajax-modal" href="#"
                                 data-modal-url="modals/product/product_import.php">
-                                <i class="fa fa-fw fa-upload mr-2"></i>Import
+                                <i class="fa fa-fw fa-upload me-2"></i>Import
                             </a>
                             <div class="dropdown-divider"></div>                            
                         <?php } ?>                   
                         <a class="dropdown-item text-dark ajax-modal"
                             data-modal-url="<?= buildExportModalUrl('modals/product/product_export.php', ['type', 'category', 'archived', 'q']) ?>">
-                            <i class="fa fa-fw fa-download mr-2"></i>Export
+                            <i class="fa fa-fw fa-download me-2"></i>Export
                         </a>
                     </div>
                 </div>
@@ -94,9 +94,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                     <div class="col-sm-4">
                         <div class="input-group mb-3 mb-sm-0">
                             <input type="search" class="form-control" name="q" value="<?php if (isset($q)) {echo stripslashes(escapeHtml($q));} ?>" placeholder="Search <?= $type_display ?>">
-                            <div class="input-group-append">
                                 <button class="btn btn-primary"><i class="fa fa-search"></i></button>
-                            </div>
                         </div>
                     </div>
                     <div class="col-sm-3">
@@ -116,53 +114,51 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                 ?>
 
                             </select>
-                            <div class="input-group-append">
                                 <button class="btn btn-secondary" type="button"
                                     data-toggle="ajax-modal"
                                     data-modal-size="sm"
                                     data-ajax-url="ajax/ajax_category_add.php?category=Income">
                                     <i class="fas fa-plus"></i>
                                 </button>
-                            </div>
                         </div>
                     </div>
                     <div class="col-md-5">
-                        <div class="btn-toolbar form-group float-right">
+                        <div class="btn-toolbar mb-3 float-end">
                             <div class="btn-group">
-                                <div class="btn-group mr-2">
-                                    <a href="?type=service" class="btn btn-<?php if ($type_filter == 'service'){ echo "primary"; } else { echo "default"; } ?>"><i class="fa fa-fw fa-wrench"></i><span class="d-none d-sm-inline ml-2">Service</span></a>
-                                    <a href="?type=product" class="btn btn-<?php if ($type_filter == 'product'){ echo "primary"; } else { echo "default"; } ?>"><i class="fa fa-fw fa-cube"></i><span class="d-none d-sm-inline ml-2">Product</span></a>
+                                <div class="btn-group me-2">
+                                    <a href="?type=service" class="btn btn-<?php if ($type_filter == 'service'){ echo "primary"; } else { echo "default"; } ?>"><i class="fa fa-fw fa-wrench"></i><span class="d-none d-sm-inline ms-2">Service</span></a>
+                                    <a href="?type=product" class="btn btn-<?php if ($type_filter == 'product'){ echo "primary"; } else { echo "default"; } ?>"><i class="fa fa-fw fa-cube"></i><span class="d-none d-sm-inline ms-2">Product</span></a>
                                 </div>
                                 <a href="?<?= $url_query_strings_sort ?>&archived=<?php if($archived == 1){ echo 0; } else { echo 1; } ?>"
                                     class="btn btn-<?php if($archived == 1){ echo "primary"; } else { echo "default"; } ?>">
-                                    <i class="fa fa-fw fa-archive mr-2"></i>Archived
+                                    <i class="fa fa-fw fa-archive me-2"></i>Archived
                                 </a>
-                                <div class="dropdown ml-2" id="bulkActionButton" hidden>
-                                    <button class="btn btn-secondary dropdown-toggle" type="button" data-toggle="dropdown">
-                                        <i class="fas fa-fw fa-layer-group mr-2"></i>Bulk Action (<span id="selectedCount">0</span>)
+                                <div class="dropdown ms-2" id="bulkActionButton" hidden>
+                                    <button class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                                        <i class="fas fa-fw fa-layer-group me-2"></i>Bulk Action (<span id="selectedCount">0</span>)
                                     </button>
                                     <div class="dropdown-menu">
                                         <a class="dropdown-item ajax-modal" href="#"
                                             data-modal-url="modals/product/product_bulk_edit_category.php"
                                             data-bulk="true">
-                                            <i class="fas fa-fw fa-list mr-2"></i>Set Category
+                                            <i class="fas fa-fw fa-list me-2"></i>Set Category
                                         </a>
                                         <?php if ($archived) { ?>
                                         <div class="dropdown-divider"></div>
                                         <button class="dropdown-item text-info"
                                             type="submit" form="bulkActions" name="bulk_unarchive_products">
-                                            <i class="fas fa-fw fa-redo mr-2"></i>Unarchive
+                                            <i class="fas fa-fw fa-redo me-2"></i>Unarchive
                                         </button>
                                         <div class="dropdown-divider"></div>
                                         <button class="dropdown-item text-danger text-bold"
                                             type="submit" form="bulkActions" name="bulk_delete_products">
-                                            <i class="fas fa-fw fa-trash mr-2"></i>Delete
+                                            <i class="fas fa-fw fa-trash me-2"></i>Delete
                                         </button>
                                         <?php } else { ?>
                                         <div class="dropdown-divider"></div>
                                         <button class="dropdown-item text-danger confirm-link"
                                             type="submit" form="bulkActions" name="bulk_archive_products">
-                                            <i class="fas fa-fw fa-archive mr-2"></i>Archive
+                                            <i class="fas fa-fw fa-archive me-2"></i>Archive
                                         </button>
                                         <?php } ?>
                                     </div>
@@ -222,7 +218,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                     Tax Rate <?php if ($sort == 'tax_percent') { echo $order_icon; } ?>
                                 </a>
                             </th>
-                            <th class="text-right">
+                            <th class="text-end">
                                 <a class="text-dark" href="?<?= $url_query_strings_sort ?>&sort=product_price&order=<?= $disp ?>">
                                     Price <?php if ($sort == 'product_price') { echo $order_icon; } ?>
                                 </a>
@@ -278,41 +274,41 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                 <?php } ?>
                                 <td><?= $tax_name ?></td>
                                 <td><?= $tax_percent ?>%</td>
-                                <td class="text-right text-monospace"><?= numfmt_format_currency($currency_format, $product_price, $product_currency_code) ?></td>
+                                <td class="text-end font-monospace"><?= numfmt_format_currency($currency_format, $product_price, $product_currency_code) ?></td>
 
                                 <td>
-                                    <div class="dropdown dropleft text-center">
-                                        <button class="btn btn-secondary btn-sm" type="button" data-toggle="dropdown">
+                                    <div class="dropdown dropstart text-center">
+                                        <button class="btn btn-secondary btn-sm" type="button" data-bs-toggle="dropdown">
                                             <i class="fas fa-ellipsis-h"></i>
                                         </button>
                                         <div class="dropdown-menu">
                                             <?php if ($type_filter == 'product') { ?>
                                             <a class="dropdown-item ajax-modal" href="#"
                                                 data-modal-url="modals/product/product_stock_add.php?id=<?= $product_id ?>">
-                                                <i class="fas fa-fw fa-box-open mr-2"></i>Add Stock
+                                                <i class="fas fa-fw fa-box-open me-2"></i>Add Stock
                                             </a>
                                             <div class="dropdown-divider"></div>
                                             <?php } ?>
                                             <a class="dropdown-item ajax-modal" href="#"
                                                 data-modal-url="modals/product/product_edit.php?id=<?= $product_id ?>">
-                                                <i class="fas fa-fw fa-edit mr-2"></i>Edit
+                                                <i class="fas fa-fw fa-edit me-2"></i>Edit
                                             </a>
                                             <?php if ($session_user_role == 3) { ?>
                                                 <?php if ($product_archived_at) { ?>
                                                 <div class="dropdown-divider"></div>
                                                 <a class="dropdown-item text-info" href="post.php?restore_product=<?= $product_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>">
-                                                    <i class="fas fa-fw fa-redo mr-2"></i>Restore
+                                                    <i class="fas fa-fw fa-redo me-2"></i>Restore
                                                 </a>
                                                 <?php if ($config_destructive_deletes_enable) { ?>
                                                 <div class="dropdown-divider"></div>
                                                 <a class="dropdown-item text-danger text-bold confirm-link" href="post.php?delete_product=<?= $product_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>">
-                                                    <i class="fas fa-fw fa-trash mr-2"></i>Delete
+                                                    <i class="fas fa-fw fa-trash me-2"></i>Delete
                                                 </a>
                                                 <?php } ?>
                                                 <?php } else { ?>
                                                 <div class="dropdown-divider"></div>
                                                 <a class="dropdown-item text-danger confirm-link" href="post.php?archive_product=<?= $product_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>">
-                                                    <i class="fas fa-fw fa-archive mr-2"></i>Archive
+                                                    <i class="fas fa-fw fa-archive me-2"></i>Archive
                                                 </a>
                                                 <?php } ?>
                                             <?php } ?>

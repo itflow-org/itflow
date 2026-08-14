@@ -31,33 +31,27 @@ ob_start();
 
 <div class="modal-header bg-dark">
     <h5 class="modal-title">
-        <i class="fa fa-fw fa-calendar-check mr-2"></i>Scheduling Ticket: <strong><?= "$ticket_prefix$ticket_number" ?></strong>
+        <i class="fa fa-fw fa-calendar-check me-2"></i>Scheduling Ticket: <strong><?= "$ticket_prefix$ticket_number" ?></strong>
     </h5>
-    <button type="button" class="close text-white" data-dismiss="modal">
-        <span>&times;</span>
-    </button>
+    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
 </div>
 <form action="post.php" method="post" autocomplete="off">
     <div class="modal-body">
         <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
         <input type="hidden" name="ticket_id" value="<?= $ticket_id ?>">
 
-        <div class="form-group">
+        <div class="mb-3">
             <label>Date / Time</label>
             <div class="input-group">
-                <div class="input-group-prepend">
                     <span class="input-group-text"><i class="fa fa-fw fa-calendar-day"></i></span>
-                </div>
                 <input type="datetime-local" class="form-control" name="scheduled_date_time" placeholder="Scheduled Date & Time" min="<?= date('Y-m-d\TH:i') ?>" <?php if ($ticket_scheduled_for) { echo "value='$ticket_scheduled_for'"; } ?>>
             </div>
         </div>
 
-        <div class="form-group">
+        <div class="mb-3">
             <label>Onsite?</label>
             <div class="input-group">
-                <div class="input-group-prepend">
                     <span class="input-group-text"><i class="fa fa-fw fa-map-marker-alt"></i></span>
-                </div>
                 <select class="form-control" name="onsite" required>
                     <option value="0" <?php if ($ticket_onsite == 0) echo "selected"; ?>>No</option>
                     <option value="1" <?php if ($ticket_onsite == 1) echo "selected"; ?>>Yes</option>
@@ -69,11 +63,11 @@ ob_start();
     <div class="modal-footer">
     <?php if ($ticket_scheduled_for) { ?>
         <a href="post.php?cancel_ticket_schedule=<?= $ticket_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>" class="btn btn-danger text-bold">
-            <i class="fa fa-trash mr-2"></i>Cancel Scheduled Time
+            <i class="fa fa-trash me-2"></i>Cancel Scheduled Time
         </a>
     <?php } ?>
-        <button type="submit" name="edit_ticket_schedule" class="btn btn-primary text-bold"><i class="fa fa-check mr-2"></i>Save</button>
-        <button type="button" class="btn btn-light" data-dismiss="modal"><i class="fa fa-times mr-2"></i>Cancel</button>
+        <button type="submit" name="edit_ticket_schedule" class="btn btn-primary text-bold"><i class="fa fa-check me-2"></i>Save</button>
+        <button type="button" class="btn btn-light" data-bs-dismiss="modal"><i class="fa fa-times me-2"></i>Cancel</button>
     </div>
 
 </form>

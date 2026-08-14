@@ -37,10 +37,8 @@ ob_start();
 ?>
 
 <div class="modal-header bg-dark">
-    <h5 class="modal-title"><i class="fas fa-fw fa-download mr-2"></i>Export Assets</h5>
-    <button type="button" class="close text-white" data-dismiss="modal">
-        <span>&times;</span>
-    </button>
+    <h5 class="modal-title"><i class="fas fa-fw fa-download me-2"></i>Export Assets</h5>
+    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
 </div>
 
 <?php exportTabsNav(); ?>
@@ -53,22 +51,18 @@ ob_start();
 
         <?php exportTabsFiltersOpen(); ?>
 
-        <div class="form-group">
+        <div class="mb-3">
             <label>Search</label>
             <div class="input-group">
-                <div class="input-group-prepend">
                     <span class="input-group-text"><i class="fa fa-fw fa-search"></i></span>
-                </div>
                 <input type="text" class="form-control" name="q" value="<?= stripslashes(escapeHtml($q_filter)) ?>" placeholder="Name, serial, IP, OS">
             </div>
         </div>
 
-        <div class="form-group">
+        <div class="mb-3">
             <label>Type</label>
             <div class="input-group">
-                <div class="input-group-prepend">
                     <span class="input-group-text"><i class="fa fa-fw fa-desktop"></i></span>
-                </div>
                 <select class="form-control select2" name="type">
                     <option value="">- All Types -</option>
                     <option <?php if ($type_filter === 'workstation') { echo "selected"; } ?> value="workstation">Workstations</option>
@@ -81,12 +75,10 @@ ob_start();
         </div>
 
         <?php if (!$client_id) { ?>
-        <div class="form-group">
+        <div class="mb-3">
             <label>Client</label>
             <div class="input-group">
-                <div class="input-group-prepend">
                     <span class="input-group-text"><i class="fa fa-fw fa-user"></i></span>
-                </div>
                 <select class="form-control select2" name="client">
                     <option value="">- All Clients -</option>
                     <?php
@@ -105,12 +97,10 @@ ob_start();
         <?php } ?>
 
         <?php if ($client_id) { ?>
-        <div class="form-group">
+        <div class="mb-3">
             <label>Location</label>
             <div class="input-group">
-                <div class="input-group-prepend">
                     <span class="input-group-text"><i class="fa fa-fw fa-map-marker-alt"></i></span>
-                </div>
                 <select class="form-control select2" name="location">
                     <option value="">- All Locations -</option>
                     <?php
@@ -128,12 +118,10 @@ ob_start();
         </div>
         <?php } ?>
 
-        <div class="form-group">
+        <div class="mb-3">
             <label>Tags</label>
             <div class="input-group">
-                <div class="input-group-prepend">
                     <span class="input-group-text"><i class="fa fa-fw fa-tags"></i></span>
-                </div>
                 <select class="form-control select2" name="tags[]" data-placeholder="- All Tags -" multiple>
                     <?php
                     $sql_tags_filter = mysqli_query($mysqli, "SELECT tag_id, tag_name FROM tags WHERE tag_type = 5 ORDER BY tag_name ASC");
@@ -149,12 +137,10 @@ ob_start();
             </div>
         </div>
 
-        <div class="form-group">
+        <div class="mb-3">
             <label>Warranty Expiring In</label>
             <div class="input-group">
-                <div class="input-group-prepend">
                     <span class="input-group-text"><i class="fa fa-fw fa-hourglass-half"></i></span>
-                </div>
                 <select class="form-control select2" name="expire_days">
                     <option value="">- Any -</option>
                     <option <?php if ($expire_filter === 'expired') { echo "selected"; } ?> value="expired">Expired</option>
@@ -165,12 +151,10 @@ ob_start();
             </div>
         </div>
 
-        <div class="form-group">
+        <div class="mb-3">
             <label>Archived</label>
             <div class="input-group">
-                <div class="input-group-prepend">
                     <span class="input-group-text"><i class="fa fa-fw fa-archive"></i></span>
-                </div>
                 <select class="form-control select2" name="archived">
                     <option <?php if (!$archived_filter) { echo "selected"; } ?> value="0">Active only</option>
                     <option <?php if ($archived_filter) { echo "selected"; } ?> value="1">Archived only</option>

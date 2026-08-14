@@ -53,10 +53,8 @@ ob_start();
 ?>
 
 <div class="modal-header bg-dark">
-    <h5 class="modal-title"><i class='fa fa-fw fa-ethernet mr-2'></i>Editing Interface: <?= $asset_name ?> - <strong><?= $interface_name ?></strong></h5>
-    <button type="button" class="close text-white" data-dismiss="modal">
-        <span>&times;</span>
-    </button>
+    <h5 class="modal-title"><i class='fa fa-fw fa-ethernet me-2'></i>Editing Interface: <?= $asset_name ?> - <strong><?= $interface_name ?></strong></h5>
+    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
 </div>
 <form action="post.php" method="post" autocomplete="off">
     <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
@@ -66,13 +64,13 @@ ob_start();
 
         <ul class="nav nav-pills nav-justified mb-3">
             <li class="nav-item">
-                <a class="nav-link active" data-toggle="pill" href="#pills-interface-details<?= $interface_id ?>">Details</a>
+                <a class="nav-link active" data-bs-toggle="pill" href="#pills-interface-details<?= $interface_id ?>">Details</a>
             </li>
             <li class="nav-item">
-                <a class="nav-link" data-toggle="pill" href="#pills-interface-network<?= $interface_id ?>">Network</a>
+                <a class="nav-link" data-bs-toggle="pill" href="#pills-interface-network<?= $interface_id ?>">Network</a>
             </li>
             <li class="nav-item">
-                <a class="nav-link" data-toggle="pill" href="#pills-interface-notes<?= $interface_id ?>">Notes</a>
+                <a class="nav-link" data-bs-toggle="pill" href="#pills-interface-notes<?= $interface_id ?>">Notes</a>
             </li>
         </ul>
 
@@ -83,12 +81,10 @@ ob_start();
             <div class="tab-pane fade show active" id="pills-interface-details<?= $interface_id ?>">
 
                 <!-- Interface Name -->
-                <div class="form-group">
+                <div class="mb-3">
                     <label>Interface Name or Port / <span class="text-secondary">Primary</span></label>
                     <div class="input-group">
-                        <div class="input-group-prepend">
                             <span class="input-group-text"><i class="fa fa-fw fa-ethernet"></i></span>
-                        </div>
                         <input
                             type="text"
                             class="form-control"
@@ -98,21 +94,17 @@ ob_start();
                             value="<?= $interface_name ?>"
                             required
                         >
-                        <div class="input-group-append">
                             <div class="input-group-text">
                                 <input type="checkbox" name="primary_interface" value="1" <?php if($interface_primary) { echo "checked"; } ?> title="Mark Interface as primary">
                             </div>
-                        </div>
                     </div>
                 </div>
 
                 <!-- Interface Description -->
-                <div class="form-group">
+                <div class="mb-3">
                     <label>Description</label>
                     <div class="input-group">
-                        <div class="input-group-prepend">
                             <span class="input-group-text"><i class="fa fa-fw fa-tag"></i></span>
-                        </div>
                         <input
                             type="text"
                             class="form-control"
@@ -125,12 +117,10 @@ ob_start();
                 </div>
 
                 <!-- Type -->
-                <div class="form-group">
+                <div class="mb-3">
                     <label for="network">Interface Type</label>
                     <div class="input-group">
-                        <div class="input-group-prepend">
                             <span class="input-group-text"><i class="fa fa-fw fa-plug"></i></span>
-                        </div>
                         <select class="form-control select2" name="type">
                             <option value="">- Select Type -</option>
                             <?php
@@ -157,12 +147,10 @@ ob_start();
             <div class="tab-pane fade" id="pills-interface-network<?= $interface_id ?>">
 
                 <!-- Network -->
-                <div class="form-group">
+                <div class="mb-3">
                     <label>Network</label>
                     <div class="input-group">
-                        <div class="input-group-prepend">
                             <span class="input-group-text"><i class="fa fa-fw fa-network-wired"></i></span>
-                        </div>
                         <select class="form-control select2" name="network">
                             <option value="">- Select Network -</option>
                             <?php
@@ -187,15 +175,13 @@ ob_start();
                 </div>
 
                 <!-- IPv4 or DHCP -->
-                <div class="form-group">
+                <div class="mb-3">
                     <label>IPv4 Address / <span class="text-muted">DHCP</span></label>
                     <div class="input-group">
-                        <div class="input-group-prepend">
                             <span class="input-group-text"><i class="fa fa-fw fa-ethernet"></i></span>
-                        </div>
                         <input
                             type="text"
-                            class="form-control text-monospace"
+                            class="form-control font-monospace"
                             name="ip"
                             placeholder="e.g. 192.168.1.10"
                             maxlength="200"
@@ -203,7 +189,6 @@ ob_start();
                             data-inputmask="'alias': 'ip'"
                             data-mask
                         >
-                        <div class="input-group-append">
                             <div class="input-group-text">
                                 <input
                                     type="checkbox"
@@ -213,20 +198,17 @@ ob_start();
                                     <?php if ($interface_ip === 'DHCP') echo "checked"; ?>
                                 >
                             </div>
-                        </div>
                     </div>
                 </div>
 
                 <!-- MAC Address -->
-                <div class="form-group">
+                <div class="mb-3">
                     <label>MAC Address</label>
                     <div class="input-group">
-                        <div class="input-group-prepend">
                             <span class="input-group-text"><i class="fa fa-fw fa-ethernet"></i></span>
-                        </div>
                         <input
                             type="text"
-                            class="form-control text-monospace"
+                            class="form-control font-monospace"
                             name="mac"
                             placeholder="e.g. 00:1A:2B:3C:4D:5E"
                             maxlength="200"
@@ -238,15 +220,13 @@ ob_start();
                 </div>
 
                 <!-- IPv6 -->
-                <div class="form-group">
+                <div class="mb-3">
                     <label>IPv6 Address</label>
                     <div class="input-group">
-                        <div class="input-group-prepend">
                             <span class="input-group-text"><i class="fa fa-fw fa-ethernet"></i></span>
-                        </div>
                         <input
                             type="text"
-                            class="form-control text-monospace"
+                            class="form-control font-monospace"
                             name="ipv6"
                             placeholder="e.g. 2001:db8::1"
                             maxlength="200"
@@ -256,15 +236,13 @@ ob_start();
                 </div>
 
                 <!-- NAT IP -->
-                <div class="form-group">
+                <div class="mb-3">
                     <label>NAT Address</label>
                     <div class="input-group">
-                        <div class="input-group-prepend">
                             <span class="input-group-text"><i class="fa fa-fw fa-exchange-alt"></i></span>
-                        </div>
                         <input
                             type="text"
-                            class="form-control text-monospace"
+                            class="form-control font-monospace"
                             name="nat_ip"
                             placeholder="e.g. 203.0.113.10 or 10.0.0.5"
                             maxlength="200"
@@ -276,12 +254,10 @@ ob_start();
                 </div>
 
                 <!-- Connected to (One-to-One) -->
-                <div class="form-group">
+                <div class="mb-3">
                     <label>Connected to</label>
                     <div class="input-group">
-                        <div class="input-group-prepend">
                             <span class="input-group-text"><i class="fa fa-fw fa-plug"></i></span>
-                        </div>
                         <select class="form-control select2" name="connected_to">
                             <option value="">- Select Asset and Interface -</option>
                             <?php
@@ -322,7 +298,7 @@ ob_start();
             <!-- Notes Section -->
             <div class="tab-pane fade" id="pills-interface-notes<?= $interface_id ?>">
                 <!-- Notes -->
-                <div class="form-group">
+                <div class="mb-3">
                     <textarea class="form-control" rows="8" placeholder="Enter some notes" name="notes"><?= $interface_notes ?></textarea>
                 </div>
             </div>
@@ -334,10 +310,10 @@ ob_start();
     <!-- End Footer Section -->
     <div class="modal-footer">
         <button type="submit" name="edit_asset_interface" class="btn btn-primary text-bold">
-            <i class="fas fa-check mr-2"></i>Save
+            <i class="fas fa-check me-2"></i>Save
         </button>
-        <button type="button" class="btn btn-light" data-dismiss="modal">
-            <i class="fas fa-times mr-2"></i>Close
+        <button type="button" class="btn btn-light" data-bs-dismiss="modal">
+            <i class="fas fa-times me-2"></i>Close
         </button>
     </div>
 </form>

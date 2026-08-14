@@ -27,9 +27,9 @@ $largest_ticket_month = 0;
 
 <div class="card card-dark">
     <div class="card-header py-2">
-        <h3 class="card-title mt-2"><i class="fas fa-fw fa-life-ring mr-2"></i>Ticket Summary</h3>
+        <h3 class="card-title mt-2"><i class="fas fa-fw fa-life-ring me-2"></i>Ticket Summary</h3>
         <div class="card-tools">
-            <button type="button" class="btn btn-primary d-print-none" onclick="window.print();"><i class="fas fa-fw fa-print mr-2"></i>Print</button>
+            <button type="button" class="btn btn-primary d-print-none" onclick="window.print();"><i class="fas fa-fw fa-print me-2"></i>Print</button>
         </div>
     </div>
     <div class="card-body p-0">
@@ -53,19 +53,19 @@ $largest_ticket_month = 0;
             <table class="table table-striped">
                 <thead>
                 <tr>
-                    <th class="text-right">January</th>
-                    <th class="text-right">February</th>
-                    <th class="text-right">March</th>
-                    <th class="text-right">April</th>
-                    <th class="text-right">May</th>
-                    <th class="text-right">June</th>
-                    <th class="text-right">July</th>
-                    <th class="text-right">August</th>
-                    <th class="text-right">September</th>
-                    <th class="text-right">October</th>
-                    <th class="text-right">November</th>
-                    <th class="text-right">December</th>
-                    <th class="text-right">Total</th>
+                    <th class="text-end">January</th>
+                    <th class="text-end">February</th>
+                    <th class="text-end">March</th>
+                    <th class="text-end">April</th>
+                    <th class="text-end">May</th>
+                    <th class="text-end">June</th>
+                    <th class="text-end">July</th>
+                    <th class="text-end">August</th>
+                    <th class="text-end">September</th>
+                    <th class="text-end">October</th>
+                    <th class="text-end">November</th>
+                    <th class="text-end">December</th>
+                    <th class="text-end">Total</th>
                 </tr>
                 </thead>
                 <tbody>
@@ -84,10 +84,10 @@ $largest_ticket_month = 0;
                     }
 
                     $total_tickets_for_all_months += $tickets_for_month; ?>
-                    <td class="text-right"><?= $tickets_for_month ?></td>
+                    <td class="text-end"><?= $tickets_for_month ?></td>
                 <?php } ?>
 
-                <td class="text-right"><b><?= $total_tickets_for_all_months ?></b></td>
+                <td class="text-end"><b><?= $total_tickets_for_all_months ?></b></td>
 
                 </tbody>
             </table>

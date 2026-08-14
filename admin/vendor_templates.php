@@ -22,11 +22,11 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 <div class="card card-dark">
     <div class="card-header py-2">
         <h3 class="card-title mt-2">
-            <i class="fas fa-fw fa-building mr-2"></i>Vendor Templates
+            <i class="fas fa-fw fa-building me-2"></i>Vendor Templates
         </h3>
         <div class="card-tools">
             <button type="button" class="btn btn-primary ajax-modal" data-modal-url="modals/vendor_template/vendor_template_add.php">
-                <i class="fas fa-plus mr-2"></i>New Vendor Template
+                <i class="fas fa-plus me-2"></i>New Vendor Template
             </button>
         </div>
     </div>
@@ -37,9 +37,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                 <div class="col-md-4">
                     <div class="input-group mb-3 mb-md-0">
                         <input type="search" class="form-control" name="q" value="<?php if (isset($q)) { echo stripslashes(escapeHtml($q)); } ?>" placeholder="Search Vendors Templates">
-                        <div class="input-group-append">
                             <button class="btn btn-dark"><i class="fa fa-search"></i></button>
-                        </div>
                     </div>
                 </div>
 
@@ -97,7 +95,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                         <th>
                             <a class="text-dark ajax-modal" href="#"
                                 data-modal-url="modals/vendor_template/vendor_template_edit.php?id=<?= $vendor_template_id ?>">
-                                <i class="fa fa-fw fa-building text-secondary mr-2"></i><?= $vendor_template_name ?>
+                                <i class="fa fa-fw fa-building text-secondary me-2"></i><?= $vendor_template_name ?>
                             </a>
                             <?php
                             if (!empty($vendor_template_account_number)) {
@@ -113,7 +111,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                             <?php
                             if (!empty($vendor_template_contact_name)) {
                                 ?>
-                                <i class="fa fa-fw fa-user text-secondary mr-2 mb-2"></i><?= $vendor_template_contact_name_display ?>
+                                <i class="fa fa-fw fa-user text-secondary me-2 mb-2"></i><?= $vendor_template_contact_name_display ?>
                                 <br>
                                 <?php
                             } else {
@@ -121,30 +119,30 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                             }
 
                             if (!empty($vendor_template_phone)) { ?>
-                                <i class="fa fa-fw fa-phone text-secondary mr-2 mb-2"></i><?= $vendor_template_phone ?>
+                                <i class="fa fa-fw fa-phone text-secondary me-2 mb-2"></i><?= $vendor_template_phone ?>
                                 <br>
                             <?php }
 
                             if (!empty($vendor_template_email)) { ?>
-                                <i class="fa fa-fw fa-envelope text-secondary mr-2 mb-2"></i><?= $vendor_template_email ?>
+                                <i class="fa fa-fw fa-envelope text-secondary me-2 mb-2"></i><?= $vendor_template_email ?>
                                 <br>
                             <?php } ?>
 
                         </td>
                         <td>
-                            <div class="dropdown dropleft text-center">
-                                <button class="btn btn-secondary btn-sm" type="button" data-toggle="dropdown">
+                            <div class="dropdown dropstart text-center">
+                                <button class="btn btn-secondary btn-sm" type="button" data-bs-toggle="dropdown">
                                     <i class="fas fa-ellipsis-h"></i>
                                 </button>
                                 <div class="dropdown-menu">
                                     <a class="dropdown-item ajax-modal" href="#"
                                         data-modal-url="modals/vendor_template/vendor_template_edit.php?id=<?= $vendor_template_id ?>">
-                                        <i class="fas fa-fw fa-edit mr-2"></i>Edit
+                                        <i class="fas fa-fw fa-edit me-2"></i>Edit
                                     </a>
                                     <?php if ($session_user_role == 3) { ?>
                                         <div class="dropdown-divider"></div>
                                         <a class="dropdown-item text-danger text-bold confirm-link" href="post.php?delete_vendor_template=<?= $vendor_template_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>">
-                                            <i class="fas fa-fw fa-trash mr-2"></i>Delete
+                                            <i class="fas fa-fw fa-trash me-2"></i>Delete
                                         </a>
                                     <?php } ?>
                                 </div>

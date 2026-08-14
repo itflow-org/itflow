@@ -57,9 +57,9 @@ $overall = getSlaCompliance("AND YEAR(ticket_created_at) = $year");
 
     <div class="card card-dark">
         <div class="card-header py-2">
-            <h3 class="card-title mt-2"><i class="fas fa-fw fa-stopwatch mr-2"></i>SLA Summary</h3>
+            <h3 class="card-title mt-2"><i class="fas fa-fw fa-stopwatch me-2"></i>SLA Summary</h3>
             <div class="card-tools">
-                <button type="button" class="btn btn-primary d-print-none" onclick="window.print();"><i class="fas fa-fw fa-print mr-2"></i>Print</button>
+                <button type="button" class="btn btn-primary d-print-none" onclick="window.print();"><i class="fas fa-fw fa-print me-2"></i>Print</button>
             </div>
         </div>
         <div class="card-body">
@@ -109,7 +109,7 @@ $overall = getSlaCompliance("AND YEAR(ticket_created_at) = $year");
 
                 <div class="card card-dark mb-3">
                     <div class="card-header">
-                        <h3 class="card-title"><i class="fas fa-fw fa-chart-area mr-2"></i>By Priority (<?= $year ?>)</h3>
+                        <h3 class="card-title"><i class="fas fa-fw fa-chart-area me-2"></i>By Priority (<?= $year ?>)</h3>
                     </div>
                     <div class="card-body">
                         <div class="table-responsive-sm">
@@ -117,13 +117,13 @@ $overall = getSlaCompliance("AND YEAR(ticket_created_at) = $year");
                                 <thead>
                                 <tr>
                                     <th>Priority</th>
-                                    <th class="text-right">Tickets</th>
-                                    <th class="text-right">Response met</th>
-                                    <th class="text-right">Response missed</th>
-                                    <th class="text-right">Response %</th>
-                                    <th class="text-right">Resolution met</th>
-                                    <th class="text-right">Resolution missed</th>
-                                    <th class="text-right">Resolution %</th>
+                                    <th class="text-end">Tickets</th>
+                                    <th class="text-end">Response met</th>
+                                    <th class="text-end">Response missed</th>
+                                    <th class="text-end">Response %</th>
+                                    <th class="text-end">Resolution met</th>
+                                    <th class="text-end">Resolution missed</th>
+                                    <th class="text-end">Resolution %</th>
                                 </tr>
                                 </thead>
                                 <tbody>
@@ -135,13 +135,13 @@ $overall = getSlaCompliance("AND YEAR(ticket_created_at) = $year");
                                     ?>
                                     <tr>
                                         <td><?= $priority ?></td>
-                                        <td class="text-right"><?= $stats['ticket_count'] ?></td>
-                                        <td class="text-right"><?= $stats['response_met'] ?></td>
-                                        <td class="text-right"><?= $stats['response_missed'] ?></td>
-                                        <td class="text-right"><?= slaPercentDisplay($stats['response_percent']) ?></td>
-                                        <td class="text-right"><?= $stats['resolution_met'] ?></td>
-                                        <td class="text-right"><?= $stats['resolution_missed'] ?></td>
-                                        <td class="text-right"><?= slaPercentDisplay($stats['resolution_percent']) ?></td>
+                                        <td class="text-end"><?= $stats['ticket_count'] ?></td>
+                                        <td class="text-end"><?= $stats['response_met'] ?></td>
+                                        <td class="text-end"><?= $stats['response_missed'] ?></td>
+                                        <td class="text-end"><?= slaPercentDisplay($stats['response_percent']) ?></td>
+                                        <td class="text-end"><?= $stats['resolution_met'] ?></td>
+                                        <td class="text-end"><?= $stats['resolution_missed'] ?></td>
+                                        <td class="text-end"><?= slaPercentDisplay($stats['resolution_percent']) ?></td>
                                     </tr>
                                 <?php } ?>
                                 </tbody>
@@ -152,7 +152,7 @@ $overall = getSlaCompliance("AND YEAR(ticket_created_at) = $year");
 
                 <div class="card card-dark mb-3">
                     <div class="card-header">
-                        <h3 class="card-title"><i class="fas fa-fw fa-calendar mr-2"></i>By Month (<?= $year ?>)</h3>
+                        <h3 class="card-title"><i class="fas fa-fw fa-calendar me-2"></i>By Month (<?= $year ?>)</h3>
                     </div>
                     <div class="card-body">
                         <div class="table-responsive-sm">
@@ -160,10 +160,10 @@ $overall = getSlaCompliance("AND YEAR(ticket_created_at) = $year");
                                 <thead>
                                 <tr>
                                     <th>Month</th>
-                                    <th class="text-right">Tickets</th>
-                                    <th class="text-right">Response %</th>
-                                    <th class="text-right">Resolution %</th>
-                                    <th class="text-right">Still open</th>
+                                    <th class="text-end">Tickets</th>
+                                    <th class="text-end">Response %</th>
+                                    <th class="text-end">Resolution %</th>
+                                    <th class="text-end">Still open</th>
                                 </tr>
                                 </thead>
                                 <tbody>
@@ -175,10 +175,10 @@ $overall = getSlaCompliance("AND YEAR(ticket_created_at) = $year");
                                     ?>
                                     <tr>
                                         <td><?= date("F", mktime(1, 1, 1, $month, 1)) ?></td>
-                                        <td class="text-right"><?= $stats['ticket_count'] ?></td>
-                                        <td class="text-right"><?= slaPercentDisplay($stats['response_percent']) ?></td>
-                                        <td class="text-right"><?= slaPercentDisplay($stats['resolution_percent']) ?></td>
-                                        <td class="text-right"><?= $stats['resolution_pending'] ?></td>
+                                        <td class="text-end"><?= $stats['ticket_count'] ?></td>
+                                        <td class="text-end"><?= slaPercentDisplay($stats['response_percent']) ?></td>
+                                        <td class="text-end"><?= slaPercentDisplay($stats['resolution_percent']) ?></td>
+                                        <td class="text-end"><?= $stats['resolution_pending'] ?></td>
                                     </tr>
                                 <?php } ?>
                                 </tbody>

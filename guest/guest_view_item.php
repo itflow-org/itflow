@@ -285,7 +285,7 @@ if ($item_type == "Document") {
 
 </div>
 <div class="card-footer">
-<?= "<i class='fas fa-phone fa-fw mr-2'></i>$company_phone | <i class='fas fa-globe fa-fw mr-2 ml-2'></i>$company_website" ?>
+<?= "<i class='fas fa-phone fa-fw me-2'></i>$company_phone | <i class='fas fa-globe fa-fw me-2 ms-2'></i>$company_website" ?>
 </div>
 
 <?php

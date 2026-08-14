@@ -58,9 +58,9 @@ while ($resolve_row = mysqli_fetch_assoc($sql_resolve_times)) {
 
     <div class="card card-dark">
         <div class="card-header py-2">
-            <h3 class="card-title mt-2"><i class="fas fa-fw fa-stopwatch mr-2"></i>SLA by Client</h3>
+            <h3 class="card-title mt-2"><i class="fas fa-fw fa-stopwatch me-2"></i>SLA by Client</h3>
             <div class="card-tools">
-                <button type="button" class="btn btn-primary d-print-none" onclick="window.print();"><i class="fas fa-fw fa-print mr-2"></i>Print</button>
+                <button type="button" class="btn btn-primary d-print-none" onclick="window.print();"><i class="fas fa-fw fa-print me-2"></i>Print</button>
             </div>
         </div>
         <div class="card-body">
@@ -82,7 +82,7 @@ while ($resolve_row = mysqli_fetch_assoc($sql_resolve_times)) {
 
             <div class="card card-dark mb-3">
                 <div class="card-header">
-                    <h3 class="card-title"><i class="fas fa-fw fa-chart-area mr-2"></i><?= $period_label ?></h3>
+                    <h3 class="card-title"><i class="fas fa-fw fa-chart-area me-2"></i><?= $period_label ?></h3>
                 </div>
                 <div class="card-body">
                     <div class="table-responsive-sm">
@@ -90,15 +90,15 @@ while ($resolve_row = mysqli_fetch_assoc($sql_resolve_times)) {
                             <thead>
                             <tr>
                                 <th>Client</th>
-                                <th class="text-right">Tickets</th>
-                                <th class="text-right">Response met</th>
-                                <th class="text-right">Response missed</th>
-                                <th class="text-right">Response %</th>
-                                <th class="text-right">Resolution met</th>
-                                <th class="text-right">Resolution missed</th>
-                                <th class="text-right">Resolution %</th>
-                                <th class="text-right">Avg time to respond</th>
-                                <th class="text-right">Avg clock to resolve</th>
+                                <th class="text-end">Tickets</th>
+                                <th class="text-end">Response met</th>
+                                <th class="text-end">Response missed</th>
+                                <th class="text-end">Response %</th>
+                                <th class="text-end">Resolution met</th>
+                                <th class="text-end">Resolution missed</th>
+                                <th class="text-end">Resolution %</th>
+                                <th class="text-end">Avg time to respond</th>
+                                <th class="text-end">Avg clock to resolve</th>
                             </tr>
                             </thead>
                             <tbody>
@@ -147,15 +147,15 @@ while ($resolve_row = mysqli_fetch_assoc($sql_resolve_times)) {
                                 ?>
                                 <tr>
                                     <td><?= $client_name ?></td>
-                                    <td class="text-right"><?= $ticket_count ?></td>
-                                    <td class="text-right"><?= $response_met ?></td>
-                                    <td class="text-right"><?= $response_missed ?></td>
-                                    <td class="text-right"><?= slaPercentDisplay($response_percent) ?></td>
-                                    <td class="text-right"><?= $resolution_met ?></td>
-                                    <td class="text-right"><?= $resolution_missed ?></td>
-                                    <td class="text-right"><?= slaPercentDisplay($resolution_percent) ?></td>
-                                    <td class="text-right"><?= $avg_time_to_respond ?></td>
-                                    <td class="text-right"><?= $avg_time_to_resolve ?></td>
+                                    <td class="text-end"><?= $ticket_count ?></td>
+                                    <td class="text-end"><?= $response_met ?></td>
+                                    <td class="text-end"><?= $response_missed ?></td>
+                                    <td class="text-end"><?= slaPercentDisplay($response_percent) ?></td>
+                                    <td class="text-end"><?= $resolution_met ?></td>
+                                    <td class="text-end"><?= $resolution_missed ?></td>
+                                    <td class="text-end"><?= slaPercentDisplay($resolution_percent) ?></td>
+                                    <td class="text-end"><?= $avg_time_to_respond ?></td>
+                                    <td class="text-end"><?= $avg_time_to_resolve ?></td>
                                 </tr>
                             <?php }
                             if (!$any_rows) { ?>

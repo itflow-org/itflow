@@ -36,10 +36,8 @@ ob_start();
 ?>
 
 <div class="modal-header bg-dark">
-    <h5 class="modal-title"><i class="fa fa-fw fa-clone mr-2"></i>Merge & Close <?= "$ticket_prefix$ticket_number" ?> into another ticket</h5>
-    <button type="button" class="close text-white" data-dismiss="modal">
-        <span>&times;</span>
-    </button>
+    <h5 class="modal-title"><i class="fa fa-fw fa-clone me-2"></i>Merge & Close <?= "$ticket_prefix$ticket_number" ?> into another ticket</h5>
+    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
 </div>
 <form action="post.php" method="post" autocomplete="off">
     <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
@@ -50,12 +48,10 @@ ob_start();
             The current ticket <strong><?= "$ticket_prefix$ticket_number" ?></strong> will be closed once merging is complete.
         </div>
 
-        <div class="form-group">
+        <div class="mb-3">
             <label>Ticket number to merge this ticket into <strong class="text-danger">*</strong></label>
             <div class="input-group">
-                <div class="input-group-prepend">
                     <span class="input-group-text"><i class="fa fa-fw fa-tag"></i></span>
-                </div>
                 <select class="form-control select2" name="merge_into_ticket_id" required>
                     <option value=''>- Select a Ticket -</option>
                     <?php
@@ -75,17 +71,15 @@ ob_start();
             </div>
         </div>
 
-        <div class="form-group">
+        <div class="mb-3">
             <label>Reason for merge <strong class="text-danger">*</strong></label>
             <div class="input-group">
-                <div class="input-group-prepend">
                     <span class="input-group-text"><i class="fa fa-fw fa-sticky-note"></i></span>
-                </div>
                 <input type="text" class="form-control" name="merge_comment" placeholder="Comments" required>
             </div>
         </div>
 
-        <div class="form-group">
+        <div class="mb-3">
             <div class="form-check">
                 <input class="form-check-input" type="checkbox" name="merge_move_replies" value="1">
                 <label class="form-check-label" for="checkMoveReplies">
@@ -96,8 +90,8 @@ ob_start();
 
     </div>
     <div class="modal-footer">
-        <button type="submit" name="merge_ticket" class="btn btn-primary text-bold"><i class="fa fa-check mr-2"></i>Merge</button>
-        <button type="button" class="btn btn-light" data-dismiss="modal"><i class="fa fa-times mr-2"></i>Cancel</button>
+        <button type="submit" name="merge_ticket" class="btn btn-primary text-bold"><i class="fa fa-check me-2"></i>Merge</button>
+        <button type="button" class="btn btn-light" data-bs-dismiss="modal"><i class="fa fa-times me-2"></i>Cancel</button>
     </div>
 </form>
 

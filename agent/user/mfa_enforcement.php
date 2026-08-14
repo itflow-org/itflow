@@ -59,7 +59,7 @@ $data = "otpauth://totp/ITFlow:$session_email?secret=$token";
             <?php if (!empty($company_logo)) { ?>
                 <img alt="<?= escapeHtml($company_name)?> logo" height="110" width="380" class="img-fluid" src="<?= "../../uploads/settings/$company_logo" ?>">
             <?php } else { ?>
-                <span class="text-primary text-bold"><i class="fas fa-paper-plane mr-2"></i>IT</span>Flow
+                <span class="text-primary text-bold"><i class="fas fa-paper-plane me-2"></i>IT</span>Flow
             <?php } ?>
         </div>
 
@@ -72,23 +72,21 @@ $data = "otpauth://totp/ITFlow:$session_email?secret=$token";
                 <form action="post.php" method="post" autocomplete="off">
                     <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
 
-                    <img src='../../libs/barcode/barcode.php?f=png&s=qr&d=<?= $data ?>' data-toggle="tooltip" title="Scan QR code into your MFA App">
+                    <img src='../../libs/barcode/barcode.php?f=png&s=qr&d=<?= $data ?>' data-bs-toggle="tooltip" title="Scan QR code into your MFA App">
 
                     <p>
-                        <small data-toggle="tooltip" title="Can't Scan? Copy and paste this code into your app"><?= $token ?></small>
+                        <small data-bs-toggle="tooltip" title="Can't Scan? Copy and paste this code into your app"><?= $token ?></small>
                         <button type="button" class='btn btn-sm clipboardjs' data-clipboard-text='<?= $token ?>'><i class='far fa-copy text-secondary'></i></button>
                     </p>
 
                     <div class="input-group mb-3">
                         <input type="text" class="form-control" inputmode="numeric" pattern="[0-9]*" minlength="6" maxlength="6" name="verify_code" placeholder="Enter 6 digit code to verify MFA" required>
-                        <div class="input-group-append">
                             <div class="input-group-text">
                                 <span class="fas fa-lock"></span>
                             </div>
-                        </div>
                     </div>
 
-                    <button type="submit" name="enable_mfa" class="btn btn-primary btn-block mb-3"><i class="fa fa-check mr-2"></i>Enable MFA</button>
+                    <button type="submit" name="enable_mfa" class="btn btn-primary w-100 mb-3"><i class="fa fa-check me-2"></i>Enable MFA</button>
                 </form>
 
             </div>
@@ -146,7 +144,7 @@ $data = "otpauth://totp/ITFlow:$session_email?secret=$token";
 
     // Enable Popovers
     $(function () {
-        $('[data-toggle="popover"]').popover()
+        $('[data-bs-toggle="popover"]').popover()
     });
 
     </script>

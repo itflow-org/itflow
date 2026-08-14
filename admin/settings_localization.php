@@ -15,18 +15,16 @@ $timezones = DateTimeZone::listIdentifiers();
 
     <div class="card card-dark">
         <div class="card-header py-3">
-            <h3 class="card-title"><i class="fas fa-fw fa-globe mr-2"></i>Localization</h3>
+            <h3 class="card-title"><i class="fas fa-fw fa-globe me-2"></i>Localization</h3>
         </div>
         <div class="card-body">
             <form action="post.php" method="post" autocomplete="off">
                 <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
 
-                <div class="form-group">
+                <div class="mb-3">
                     <label>Language <strong class="text-danger">*</strong></label>
                     <div class="input-group">
-                        <div class="input-group-prepend">
                             <span class="input-group-text"><i class="fa fa-fw fa-language"></i></span>
-                        </div>
                         <select class="form-control select2" name="locale" required>
                             <option value="">- Select a Locale -</option>
                             <?php foreach($locales_array as $locale_code => $locale_name) { ?>
@@ -36,12 +34,10 @@ $timezones = DateTimeZone::listIdentifiers();
                     </div>
                 </div>
 
-                <div class="form-group">
+                <div class="mb-3">
                     <label>Currency <strong class="text-danger">*</strong></label>
                     <div class="input-group">
-                        <div class="input-group-prepend">
                             <span class="input-group-text"><i class="fa fa-fw fa-money-bill"></i></span>
-                        </div>
                         <select class="form-control select2" name="currency_code" required>
                             <option value="">- Currency -</option>
                             <?php foreach($currencies_array as $currency_code => $currency_name) { ?>
@@ -51,12 +47,10 @@ $timezones = DateTimeZone::listIdentifiers();
                     </div>
                 </div>
 
-                <div class="form-group">
+                <div class="mb-3">
                     <label>Timezone <strong class="text-danger">*</strong></label>
                     <div class="input-group">
-                        <div class="input-group-prepend">
                             <span class="input-group-text"><i class="fa fa-fw fa-business-time"></i></span>
-                        </div>
                         <select class="form-control select2" name="timezone" required>
                             <option value="">- Select a Timezone -</option>
                             <?php foreach ($timezones as $tz) { ?>
@@ -68,7 +62,7 @@ $timezones = DateTimeZone::listIdentifiers();
 
                 <hr>
 
-                <button type="submit" name="edit_localization" class="btn btn-primary text-bold"><i class="fas fa-check mr-2"></i>Save</button>
+                <button type="submit" name="edit_localization" class="btn btn-primary text-bold"><i class="fas fa-check me-2"></i>Save</button>
 
             </form>
         </div>

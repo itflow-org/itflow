@@ -25,10 +25,8 @@ ob_start();
 ?>
 
 <div class="modal-header bg-dark">
-    <h5 class="modal-title"><i class="fa fa-fw fa-shield-alt mr-2"></i>New approver for task <?=$task_name?></h5>
-    <button type="button" class="close text-white" data-dismiss="modal">
-        <span>&times;</span>
-    </button>
+    <h5 class="modal-title"><i class="fa fa-fw fa-shield-alt me-2"></i>New approver for task <?=$task_name?></h5>
+    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
 </div>
 <form action="post.php" method="post" autocomplete="off">
     <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
@@ -36,12 +34,10 @@ ob_start();
 
     <div class="modal-body">
 
-        <div class="form-group">
+        <div class="mb-3">
             <label>Approval scope <strong class="text-danger">*</strong></label>
             <div class="input-group">
-                <div class="input-group-prepend">
                     <span class="input-group-text"><i class="fa fa-fw fa-layer-group"></i></span>
-                </div>
                 <select class="form-control" name="approval_scope" id="approval_scope" required>
                     <option value="">Select scope...</option>
                     <option value="internal">Internal</option>
@@ -51,12 +47,10 @@ ob_start();
         </div>
 
 
-        <div class="form-group d-none" id="approval_type_wrapper">
+        <div class="mb-3 d-none" id="approval_type_wrapper">
             <label>Who can approve? <strong class="text-danger">*</strong></label>
             <div class="input-group">
-                <div class="input-group-prepend">
                     <span class="input-group-text"><i class="fa fa-fw fa-user-check"></i></span>
-                </div>
                 <select class="form-control" name="approval_type" id="approval_type" required>
                     <!-- JS -->
                 </select>
@@ -64,12 +58,10 @@ ob_start();
         </div>
 
 
-        <div class="form-group d-none" id="specific_user_wrapper">
+        <div class="mb-3 d-none" id="specific_user_wrapper">
             <label>Select specific internal approver <strong class="text-danger">*</strong></label>
             <div class="input-group">
-                <div class="input-group-prepend">
                     <span class="input-group-text"><i class="fa fa-fw fa-user-circle"></i></span>
-                </div>
                 <select class="form-control select2" name="approval_required_user_id" id="specific_user_select">
                     <option value="">Select user...</option>
                 </select>
@@ -80,8 +72,8 @@ ob_start();
     </div>
 
     <div class="modal-footer">
-        <button type="submit" name="add_ticket_task_approver" class="btn btn-primary text-bold"><i class="fa fa-check mr-2"></i>Save</button>
-        <button type="button" class="btn btn-light" data-dismiss="modal"><i class="fa fa-times mr-2"></i>Cancel</button>
+        <button type="submit" name="add_ticket_task_approver" class="btn btn-primary text-bold"><i class="fa fa-check me-2"></i>Save</button>
+        <button type="button" class="btn btn-light" data-bs-dismiss="modal"><i class="fa fa-times me-2"></i>Cancel</button>
     </div>
 
 </form>

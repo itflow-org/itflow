@@ -34,12 +34,10 @@ while ($row = mysqli_fetch_assoc($sql_ticket_template_tasks)) {
 
 ?>
 
-<div class="form-group">
+<div class="mb-3">
     <label>Template</label>
     <div class="input-group">
-        <div class="input-group-prepend">
             <span class="input-group-text"><i class="fa fa-fw fa-cube"></i></span>
-        </div>
         <select class="form-control select2" id="ticket_template_select" name="ticket_template_id">
             <option value="0">- No Template -</option>
             <?php

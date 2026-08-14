@@ -39,10 +39,8 @@ ob_start();
 ?>
 
 <div class="modal-header bg-dark">
-    <h5 class="modal-title"><i class="fa fa-fw fa-globe mr-2"></i>Editing domain: <span class="text-bold"><?= $domain_name ?></span></h5>
-    <button type="button" class="close text-white" data-dismiss="modal">
-        <span>&times;</span>
-    </button>
+    <h5 class="modal-title"><i class="fa fa-fw fa-globe me-2"></i>Editing domain: <span class="text-bold"><?= $domain_name ?></span></h5>
+    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
 </div>
 <form action="post.php" method="post" autocomplete="off">
     <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
@@ -52,16 +50,16 @@ ob_start();
 
         <ul class="nav nav-pills nav-justified mb-3">
             <li class="nav-item">
-                <a class="nav-link active" data-toggle="pill" href="#pills-overview<?= $domain_id ?>">Overview</a>
+                <a class="nav-link active" data-bs-toggle="pill" href="#pills-overview<?= $domain_id ?>">Overview</a>
             </li>
             <li class="nav-item">
-                <a class="nav-link" data-toggle="pill" href="#pills-records<?= $domain_id ?>">Records</a>
+                <a class="nav-link" data-bs-toggle="pill" href="#pills-records<?= $domain_id ?>">Records</a>
             </li>
             <li class="nav-item">
-                <a class="nav-link" data-toggle="pill" href="#pillsEditNotes<?= $domain_id ?>">Notes</a>
+                <a class="nav-link" data-bs-toggle="pill" href="#pillsEditNotes<?= $domain_id ?>">Notes</a>
             </li>
             <li class="nav-item">
-                <a class="nav-link" data-toggle="pill" href="#pillsEditHistory<?= $domain_id ?>">History</a>
+                <a class="nav-link" data-bs-toggle="pill" href="#pillsEditHistory<?= $domain_id ?>">History</a>
             </li>
         </ul>
 
@@ -71,32 +69,26 @@ ob_start();
 
             <div class="tab-pane fade show active" id="pills-overview<?= $domain_id ?>">
 
-                <div class="form-group">
+                <div class="mb-3">
                     <label>Domain Name <strong class="text-danger">*</strong></label>
                     <div class="input-group">
-                        <div class="input-group-prepend">
                             <span class="input-group-text"><i class="fa fa-fw fa-globe"></i></span>
-                        </div>
                         <input type="text" class="form-control" name="name" placeholder="Domain name example.com" maxlength="200" value="<?= $domain_name ?>" required>
                     </div>
                 </div>
 
-                <div class="form-group">
+                <div class="mb-3">
                     <label>Description</label>
                     <div class="input-group">
-                        <div class="input-group-prepend">
                             <span class="input-group-text"><i class="fa fa-fw fa-align-left"></i></span>
-                        </div>
                         <input type="text" class="form-control" name="description" placeholder="Short Description" value="<?= $domain_description ?>">
                     </div>
                 </div>
 
-                <div class="form-group">
+                <div class="mb-3">
                     <label>Domain Registrar</label>
                     <div class="input-group">
-                        <div class="input-group-prepend">
                             <span class="input-group-text"><i class="fa fa-fw fa-server"></i></span>
-                        </div>
                         <select class="form-control select2" name="registrar">
                             <option value="">- Select Vendor -</option>
                             <?php
@@ -113,12 +105,10 @@ ob_start();
                     </div>
                 </div>
 
-                <div class="form-group">
+                <div class="mb-3">
                     <label>Webhost</label>
                     <div class="input-group">
-                        <div class="input-group-prepend">
                             <span class="input-group-text"><i class="fa fa-fw fa-server"></i></span>
-                        </div>
                         <select class="form-control select2" name="webhost">
                             <option value="">- Select Vendor -</option>
                             <?php
@@ -135,12 +125,10 @@ ob_start();
                     </div>
                 </div>
 
-                <div class="form-group">
+                <div class="mb-3">
                     <label>DNS Host</label>
                     <div class="input-group">
-                        <div class="input-group-prepend">
                             <span class="input-group-text"><i class="fa fa-fw fa-server"></i></span>
-                        </div>
                         <select class="form-control select2" name="dnshost">
                             <option value="">- Select Vendor -</option>
                             <?php
@@ -157,12 +145,10 @@ ob_start();
                     </div>
                 </div>
 
-                <div class="form-group">
+                <div class="mb-3">
                     <label>Mail Host</label>
                     <div class="input-group">
-                        <div class="input-group-prepend">
                             <span class="input-group-text"><i class="fa fa-fw fa-envelope"></i></span>
-                        </div>
                         <select class="form-control select2" name="mailhost">
                             <option value="">- Select Vendor -</option>
                             <?php
@@ -179,12 +165,10 @@ ob_start();
                     </div>
                 </div>
 
-                <div class="form-group">
+                <div class="mb-3">
                     <label>Expire Date</label>
                     <div class="input-group">
-                        <div class="input-group-prepend">
                             <span class="input-group-text"><i class="fa fa-fw fa-calendar-times"></i></span>
-                        </div>
                         <input type="date" class="form-control" name="expire" max="2999-12-31" value="<?= $domain_expire ?>">
                     </div>
                 </div>
@@ -193,52 +177,42 @@ ob_start();
 
             <div class="tab-pane fade" id="pills-records<?= $domain_id ?>">
 
-                <div class="form-group">
+                <div class="mb-3">
                     <label>Domain IP(s)</label>
                     <div class="input-group">
-                        <div class="input-group-prepend">
                             <span class="input-group-text"><i class="fa fa-fw fa-project-diagram"></i></span>
-                        </div>
                         <textarea class="form-control" rows="1" name="domain_ip" disabled><?= $domain_ip ?></textarea>
                     </div>
                 </div>
 
-                <div class="form-group">
+                <div class="mb-3">
                     <label>Name Servers</label>
                     <div class="input-group">
-                        <div class="input-group-prepend">
                             <span class="input-group-text"><i class="fa fa-fw fa-crown"></i></span>
-                        </div>
                         <textarea class="form-control" rows="1" name="name_servers" disabled><?= $domain_name_servers ?></textarea>
                     </div>
                 </div>
 
-                <div class="form-group">
+                <div class="mb-3">
                     <label>MX Records</label>
                     <div class="input-group">
-                        <div class="input-group-prepend">
                             <span class="input-group-text"><i class="fa fa-fw fa-mail-bulk"></i></span>
-                        </div>
                         <textarea class="form-control" rows="1" name="mail_servers" disabled><?= $domain_mail_servers ?></textarea>
                     </div>
                 </div>
 
-                <div class="form-group">
+                <div class="mb-3">
                     <label>TXT Records</label>
                     <div class="input-group">
-                        <div class="input-group-prepend">
                             <span class="input-group-text"><i class="fa fa-fw fa-check-double"></i></span>
-                        </div>
                         <textarea class="form-control" rows="1" name="txt_records" disabled><?= $domain_txt ?></textarea>
                     </div>
                 </div>
 
-                <div class="form-group">
+                <div class="mb-3">
                     <label>Raw WHOIS</label>
                     <div class="input-group">
-                        <div class="input-group-prepend">
                             <span class="input-group-text"><i class="fa fa-fw fa-search-plus"></i></span>
-                        </div>
                         <textarea class="form-control" rows="6" name="raw_whois" disabled><?= $domain_raw_whois ?></textarea>
                     </div>
                 </div>
@@ -246,7 +220,7 @@ ob_start();
             </div>
 
             <div class="tab-pane fade" id="pillsEditNotes<?= $domain_id ?>">
-                <div class="form-group">
+                <div class="mb-3">
                     <textarea class="form-control" name="notes" rows="12" placeholder="Enter some notes"><?= $domain_notes ?></textarea>
                 </div>
             </div>
@@ -254,7 +228,7 @@ ob_start();
             <div class="tab-pane fade" id="pillsEditHistory<?= $domain_id ?>">
                 <div class="table-responsive">
                     <table class='table table-sm table-striped border table-hover'>
-                        <thead class='thead-dark'>
+                        <thead class='table-dark'>
                             <tr>
                                 <th>Date</th>
                                 <th>Field</th>
@@ -286,8 +260,8 @@ ob_start();
 
     </div>
     <div class="modal-footer">
-        <button type="submit" name="edit_domain" class="btn btn-primary text-bold"><i class="fa fa-check mr-2"></i>Save</button>
-        <button type="button" class="btn btn-light" data-dismiss="modal"><i class="fa fa-times mr-2"></i>Cancel</button>
+        <button type="submit" name="edit_domain" class="btn btn-primary text-bold"><i class="fa fa-check me-2"></i>Save</button>
+        <button type="button" class="btn btn-light" data-bs-dismiss="modal"><i class="fa fa-times me-2"></i>Cancel</button>
     </div>
 </form>
 

@@ -35,49 +35,39 @@ ob_start();
 
 <div class="modal-header bg-dark">
     <h5 class="modal-title">
-        <i class="fas fa-fw fa-project-diagram mr-2"></i>Editing Project: <strong><?= $project_name ?></strong>
+        <i class="fas fa-fw fa-project-diagram me-2"></i>Editing Project: <strong><?= $project_name ?></strong>
     </h5>
-    <button type="button" class="close text-white" data-dismiss="modal">
-        <span>&times;</span>
-    </button>
+    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
 </div>
 <form action="post.php" method="post" autocomplete="off">
     <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
     <input type="hidden" name="project_id" value="<?= $project_id ?>">
     <div class="modal-body">
-        <div class="form-group">
+        <div class="mb-3">
             <label>Project Name <strong class="text-danger">*</strong></label>
             <div class="input-group">
-                <div class="input-group-prepend">
                     <span class="input-group-text"><i class="fa fa-fw fa-project-diagram"></i></span>
-                </div>
                 <input type="text" class="form-control" name="name" placeholder="Project Name" maxlength="255" value="<?= $project_name ?>" required autofocus>
             </div>
         </div>
-        <div class="form-group">
+        <div class="mb-3">
             <label>Description</label>
             <div class="input-group">
-                <div class="input-group-prepend">
                     <span class="input-group-text"><i class="fa fa-fw fa-align-left"></i></span>
-                </div>
                 <input type="text" class="form-control" name="description" placeholder="Description" value="<?= $project_description ?>">
             </div>
         </div>
-        <div class="form-group">
+        <div class="mb-3">
             <label>Date Due <strong class="text-danger">*</strong></label>
             <div class="input-group">
-                <div class="input-group-prepend">
                     <span class="input-group-text"><i class="fa fa-fw fa-calendar"></i></span>
-                </div>
                 <input type="date" class="form-control" name="due_date" value="<?= $project_due ?>" required>
             </div>
         </div>
-        <div class="form-group">
+        <div class="mb-3">
             <label>Manager</label>
             <div class="input-group">
-                <div class="input-group-prepend">
                     <span class="input-group-text"><i class="fa fa-fw fa-user-tie"></i></span>
-                </div>
                 <select class="form-control select2" name="project_manager">
                     <option value="0">No Manager</option>
                     <?php
@@ -97,10 +87,10 @@ ob_start();
     </div>
     <div class="modal-footer">
         <button type="submit" name="edit_project" class="btn btn-primary text-bold">
-            <i class="fas fa-check mr-2"></i>Save
+            <i class="fas fa-check me-2"></i>Save
         </button>
-        <button type="button" class="btn btn-light" data-dismiss="modal">
-            <i class="fa fa-times mr-2"></i>Cancel
+        <button type="button" class="btn btn-light" data-bs-dismiss="modal">
+            <i class="fa fa-times me-2"></i>Cancel
         </button>
     </div>
 </form>

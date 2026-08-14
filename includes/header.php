@@ -9,7 +9,7 @@ header("X-Frame-Options: DENY");
 ?>
 
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en"<?php if ($user_config_theme_dark) echo ' data-bs-theme="dark"'; ?>>
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -27,24 +27,20 @@ header("X-Frame-Options: DENY");
     <link rel="stylesheet" href="/libs/fontawesome-free/css/all.min.css">
 
     <!-- Custom Styles -->
-    <link rel="stylesheet" href="/libs/tempusdominus-bootstrap-4/css/tempusdominus-bootstrap-4.min.css" >
+    <link rel="stylesheet" href="/libs/tempus-dominus/css/tempus-dominus.min.css">
     <link rel="stylesheet" href="/libs/select2/css/select2.min.css">
-    <link rel="stylesheet" href="/libs/select2-bootstrap4-theme/select2-bootstrap4.min.css">
+    <link rel="stylesheet" href="/libs/adminlte/css/adminlte-select2.min.css">
     <link rel="stylesheet" href="/libs/daterangepicker/daterangepicker.css">
     <link rel="stylesheet" href="/libs/toastr/toastr.min.css">
     <link rel="stylesheet" href="/libs/DataTables/datatables.min.css">
     <link rel="stylesheet" href="/libs/intl-tel-input/css/intlTelInput.min.css">
-    <link rel="stylesheet" href="/css/itflow_custom.css">
     <link rel="stylesheet" href="/libs/adminlte/css/adminlte.min.css">
+    <link rel="stylesheet" href="/css/itflow_custom.css">
 
     <!-- Scripts -->
     <script src="/libs/jquery/jquery.min.js"></script>
     <script src="/libs/toastr/toastr.min.js"></script>
 </head>
-<body class="
-    hold-transition sidebar-mini layout-fixed layout-navbar-fixed 
-    accent-<?= escapeHtml($config_theme) ?>
-    <?php if ($user_config_theme_dark) echo 'dark-mode'; ?>
-">
-    <div class="wrapper text-sm">
+<body class="layout-fixed sidebar-expand-lg app-loaded">
+    <div class="app-wrapper text-sm">
 

@@ -21,7 +21,7 @@ $invoices_sql = mysqli_query($mysqli, "SELECT invoice_amount, invoice_date, invo
     <div class="col-md-10">
 
         <table class="table tabled-bordered border border-dark">
-            <thead class="thead-dark">
+            <thead class="table-dark">
             <tr>
                 <th>#</th>
                 <th>Scope</th>
@@ -53,7 +53,7 @@ $invoices_sql = mysqli_query($mysqli, "SELECT invoice_amount, invoice_date, invo
 
                 $now = time();
                 if (($invoice_status == "Sent" || $invoice_status == "Partial" || $invoice_status == "Viewed") && strtotime($invoice_due) + 86400 < $now) {
-                    $overdue_color = "text-danger font-weight-bold";
+                    $overdue_color = "text-danger fw-bold";
                 } else {
                     $overdue_color = "";
                 }

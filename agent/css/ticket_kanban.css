@@ -64,7 +64,7 @@
     margin-bottom: 8px;
     padding: 10px;
     border: 1px solid #dee2e6;
-    border-left: 3px solid #adb5bd;
+    border-start: 3px solid #adb5bd;
     border-radius: 4px;
     cursor: grab;
     user-select: none;
@@ -87,11 +87,11 @@
 
 /* SLA state - the left edge carries it so it reads at a glance down a column */
 .kanban-card-at-risk {
-    border-left-color: #ffc107;
+    border-start-color: #ffc107;
 }
 
 .kanban-card-breached {
-    border-left-color: #dc3545;
+    border-start-color: #dc3545;
 }
 
 /* Card top row - number, priority, SLA flag, drag handle */

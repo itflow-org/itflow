@@ -23,9 +23,9 @@ $sql_payment_years = mysqli_query($mysqli, "SELECT DISTINCT YEAR(payment_date) A
 
 <div class="card card-dark">
     <div class="card-header py-2">
-        <h3 class="card-title mt-2"><i class="fas fa-fw fa-users mr-2"></i>Income By Client <small>(With payments of 600 or more)</small></h3>
+        <h3 class="card-title mt-2"><i class="fas fa-fw fa-users me-2"></i>Income By Client <small>(With payments of 600 or more)</small></h3>
         <div class="card-tools">
-            <button type="button" class="btn btn-primary d-print-none" onclick="window.print();"><i class="fas fa-fw fa-print mr-2"></i>Print</button>
+            <button type="button" class="btn btn-primary d-print-none" onclick="window.print();"><i class="fas fa-fw fa-print me-2"></i>Print</button>
         </div>
     </div>
     <div class="card-body">
@@ -64,7 +64,7 @@ $sql_payment_years = mysqli_query($mysqli, "SELECT DISTINCT YEAR(payment_date) A
                 <thead>
                 <tr>
                     <th>Client</th>
-                    <th class="text-right">Paid</th>
+                    <th class="text-end">Paid</th>
                 </tr>
                 </thead>
                 <tbody>
@@ -78,7 +78,7 @@ $sql_payment_years = mysqli_query($mysqli, "SELECT DISTINCT YEAR(payment_date) A
 
                     <tr>
                         <td><a href="../../agent/client_overview.php?client_id=<?= $client_id ?>"><?= $client_name ?></a></td>
-                        <td class="text-right"><?= numfmt_format_currency($currency_format, $amount_paid, $session_company_currency) ?></td>
+                        <td class="text-end"><?= numfmt_format_currency($currency_format, $amount_paid, $session_company_currency) ?></td>
                     </tr>
                     <?php
                 }

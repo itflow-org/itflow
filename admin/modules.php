@@ -19,11 +19,11 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 
 <div class="card card-dark">
     <div class="card-header py-2">
-        <h3 class="card-title mt-2"><i class="fas fa-fw fa-puzzle-piece mr-2"></i>Access Modules</h3>
+        <h3 class="card-title mt-2"><i class="fas fa-fw fa-puzzle-piece me-2"></i>Access Modules</h3>
         <div class="card-tools">
             <div class="btn-group">
                 <button type="button" class="btn btn-primary ajax-modal" data-modal-url="modals/module/module_add.php">
-                    <i class="fas fa-fw fa-plus mr-2"></i>New Module
+                    <i class="fas fa-fw fa-plus me-2"></i>New Module
                 </button>
             </div>
         </div>
@@ -34,9 +34,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                 <div class="col-md-4">
                     <div class="input-group">
                         <input type="search" class="form-control" name="q" value="<?php if (isset($q)) {echo stripslashes(escapeHtml($q));} ?>" placeholder="Search Modules">
-                        <div class="input-group-append">
                             <button class="btn btn-primary"><i class="fa fa-search"></i></button>
-                        </div>
                     </div>
                 </div>
             </div>
@@ -72,20 +70,20 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                         </td>
                         <td>
                             <?php if ($module_id > 6) { ?>
-                                <div class="dropdown dropleft text-center">
-                                    <button class="btn btn-secondary btn-sm" type="button" data-toggle="dropdown">
+                                <div class="dropdown dropstart text-center">
+                                    <button class="btn btn-secondary btn-sm" type="button" data-bs-toggle="dropdown">
                                         <i class="fas fa-ellipsis-h"></i>
                                     </button>
                                     <div class="dropdown-menu">
 
                                         <a class="dropdown-item ajax-modal" href="#"
                                             data-modal-url="modals/module/module_edit.php?id=<?= $module_id ?>">
-                                            <i class="fas fa-fw fa-user-edit mr-2"></i>Edit
+                                            <i class="fas fa-fw fa-user-edit me-2"></i>Edit
                                         </a>
 
                                         <div class="dropdown-divider"></div>
                                         <a class="dropdown-item text-danger confirm-link" href="post.php?delete_module=<?= $module_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>">
-                                            <i class="fas fa-fw fa-archive mr-2"></i>Delete
+                                            <i class="fas fa-fw fa-archive me-2"></i>Delete
                                         </a>
 
                                     </div>

@@ -45,9 +45,9 @@ while ($row = mysqli_fetch_assoc($sql_tag_type_counts)) {
 
     <div class="card card-dark">
         <div class="card-header py-2">
-            <h3 class="card-title mt-2"><i class="fas fa-fw fa-tags mr-2"></i><?= $tag_type_display ?> Tags</h3>
+            <h3 class="card-title mt-2"><i class="fas fa-fw fa-tags me-2"></i><?= $tag_type_display ?> Tags</h3>
             <div class="card-tools">
-                <button type="button" class="btn btn-primary ajax-modal" data-modal-url="modals/tag/tag_add.php?type=<?= $type_filter ?>"><i class="fas fa-plus mr-2"></i>New <?= $tag_type_display ?> Tag</button>
+                <button type="button" class="btn btn-primary ajax-modal" data-modal-url="modals/tag/tag_add.php?type=<?= $type_filter ?>"><i class="fas fa-plus me-2"></i>New <?= $tag_type_display ?> Tag</button>
             </div>
         </div>
 
@@ -55,15 +55,15 @@ while ($row = mysqli_fetch_assoc($sql_tag_type_counts)) {
             <div class="row">
 
                 <!-- Tag types -->
-                <div class="col-md-3 border-right mb-3">
+                <div class="col-md-3 border-end mb-3">
                     <ul class="nav nav-pills flex-column bg-light">
                         <?php foreach ($tag_types as $tag_type => $tag_type_details) { ?>
                         <li class="nav-item">
                             <a class="nav-link<?php if ($type_filter == $tag_type) {
                                 echo ' active';
                             } ?>" href="?type=<?= $tag_type ?>">
-                                <i class="fa fa-fw <?= $tag_type_details['icon'] ?> mr-2"></i><?= escapeHtml($tag_type_details['label']) ?>
-                                <span class="badge badge-pill badge-dark float-right mt-1"><?= $tag_type_counts[$tag_type] ?? 0 ?></span>
+                                <i class="fa fa-fw <?= $tag_type_details['icon'] ?> me-2"></i><?= escapeHtml($tag_type_details['label']) ?>
+                                <span class="badge rounded-pill bg-dark float-end mt-1"><?= $tag_type_counts[$tag_type] ?? 0 ?></span>
                             </a>
                         </li>
                         <?php } ?>
@@ -81,19 +81,17 @@ while ($row = mysqli_fetch_assoc($sql_tag_type_counts)) {
                             <div class="col-sm-6 mb-2">
                                 <div class="input-group">
                                     <input type="search" class="form-control" name="q" value="<?php if (isset($q)) { echo stripslashes(escapeHtml($q)); } ?>" placeholder="Search <?= $tag_type_display ?> Tags">
-                                    <div class="input-group-append">
                                         <button class="btn btn-primary"><i class="fa fa-search"></i></button>
-                                    </div>
                                 </div>
                             </div>
                             <div class="col-sm-6 mb-2">
                                 <a href="?<?= $url_query_strings_sort ?>&archived=1"
-                                    class="btn float-right <?php if (isset($_GET['archived'])) {
+                                    class="btn float-end <?php if (isset($_GET['archived'])) {
                                         echo 'btn-primary';
                                     } else {
                                         echo 'btn-default';
                                     } ?>"><i
-                                        class="fas fa-fw fa-archive mr-2"></i>Archived</a>
+                                        class="fas fa-fw fa-archive me-2"></i>Archived</a>
                             </div>
                         </div>
                     </form>
@@ -124,22 +122,22 @@ while ($row = mysqli_fetch_assoc($sql_tag_type_counts)) {
                                     <td>
                                         <a class="ajax-modal" href="#"
                                             data-modal-url="modals/tag/tag_edit.php?id=<?= $tag_id ?>">
-                                            <span class='badge text-light p-2 mr-1' style="background-color: <?= $tag_color ?>"><i class="fa fa-fw fa-<?= $tag_icon ?> mr-2"></i><?= $tag_name ?></span>
+                                            <span class='badge text-light p-2 me-1' style="background-color: <?= $tag_color ?>"><i class="fa fa-fw fa-<?= $tag_icon ?> me-2"></i><?= $tag_name ?></span>
                                         </a>
                                     </td>
                                     <td>
-                                        <div class="dropdown dropleft text-center">
-                                            <button class="btn btn-secondary btn-sm" type="button" data-toggle="dropdown">
+                                        <div class="dropdown dropstart text-center">
+                                            <button class="btn btn-secondary btn-sm" type="button" data-bs-toggle="dropdown">
                                                 <i class="fas fa-ellipsis-h"></i>
                                             </button>
                                             <div class="dropdown-menu">
                                                 <a class="dropdown-item ajax-modal" href="#"
                                                     data-modal-url="modals/tag/tag_edit.php?id=<?= $tag_id ?>">
-                                                    <i class="fas fa-fw fa-edit mr-2"></i>Edit
+                                                    <i class="fas fa-fw fa-edit me-2"></i>Edit
                                                 </a>
                                                 <div class="dropdown-divider"></div>
                                                 <a class="dropdown-item text-danger text-bold confirm-link" href="post.php?delete_tag=<?= $tag_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>">
-                                                    <i class="fas fa-fw fa-trash mr-2"></i>Delete
+                                                    <i class="fas fa-fw fa-trash me-2"></i>Delete
                                                 </a>
                                             </div>
                                         </div>

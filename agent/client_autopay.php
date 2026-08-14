@@ -32,7 +32,7 @@ if (!$config_stripe_enable || !$config_stripe_publishable || !$config_stripe_sec
 
 <div class="card card-dark">
     <div class="card-header">
-        <h3 class="card-title"><i class="fa fa-redo-alt mr-2"></i>AutoPay</h3>
+        <h3 class="card-title"><i class="fa fa-redo-alt me-2"></i>AutoPay</h3>
     </div>
 
     <div class="card-body">
@@ -47,16 +47,16 @@ if (!$config_stripe_enable || !$config_stripe_publishable || !$config_stripe_sec
                 <div class="col-5">
                     <form action="post.php" method="POST">
 
-                        <div class="form-group">
-                            <div class="custom-control custom-checkbox">
-                                <input class="custom-control-input" type="checkbox" id="consent" name="consent" value="1" required>
-                                <label for="consent" class="custom-control-label">
+                        <div class="mb-3">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="consent" name="consent" value="1" required>
+                                <label for="consent" class="form-check-label">
                                     I grant consent for automatic payments
                                 </label>
                             </div>
                         </div>
 
-                        <div class="form-group">
+                        <div class="mb-3">
                             <button type="submit" class="form-control btn-success" name="create_stripe_customer">Create Stripe Customer Record</button>
                         </div>
                     </form>

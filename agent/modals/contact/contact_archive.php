@@ -2,10 +2,8 @@
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header bg-dark">
-                <h5 class="modal-title"><i class="fa fa-fw fa-archive mr-2"></i>Archiving contact: <strong><?= $contact_name ?></strong></h5>
-                <button type="button" class="close text-white" data-dismiss="modal">
-                    <span>&times;</span>
-                </button>
+                <h5 class="modal-title"><i class="fa fa-fw fa-archive me-2"></i>Archiving contact: <strong><?= $contact_name ?></strong></h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
             </div>
             <form action="post.php" method="post" autocomplete="off">
                 <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
@@ -18,38 +16,38 @@
 
                     <label>Unassign:</label>
 
-                    <div class="form-group">
-                        <div class="custom-control custom-checkbox">
-                            <input type="checkbox" class="custom-control-input" id="unassignAssetsCheckbox<?= $contact_id ?>" name="unassign_assets" value="1">
-                            <label class="custom-control-label" for="unassignAssetsCheckbox<?= $contact_id ?>">Assets</label>
+                    <div class="mb-3">
+                        <div class="form-check">
+                            <input type="checkbox" class="form-check-input" id="unassignAssetsCheckbox<?= $contact_id ?>" name="unassign_assets" value="1">
+                            <label class="form-check-label" for="unassignAssetsCheckbox<?= $contact_id ?>">Assets</label>
                         </div>
                     </div>
 
-                    <div class="form-group">
-                        <div class="custom-control custom-checkbox">
-                            <input type="checkbox" class="custom-control-input" id="unassignLicensesCheckbox<?= $contact_id ?>" name="unassign_licenses" value="1">
-                            <label class="custom-control-label" for="unassignLicensesCheckbox<?= $contact_id ?>">Licenses</label>
+                    <div class="mb-3">
+                        <div class="form-check">
+                            <input type="checkbox" class="form-check-input" id="unassignLicensesCheckbox<?= $contact_id ?>" name="unassign_licenses" value="1">
+                            <label class="form-check-label" for="unassignLicensesCheckbox<?= $contact_id ?>">Licenses</label>
                         </div>
                     </div>
 
-                    <div class="form-group">
-                        <div class="custom-control custom-checkbox">
-                            <input type="checkbox" class="custom-control-input" id="unassignDocumentsCheckbox<?= $contact_id ?>" name="unassign_documents" value="1">
-                            <label class="custom-control-label" for="unassignDocumentsCheckbox<?= $contact_id ?>">Documents</label>
+                    <div class="mb-3">
+                        <div class="form-check">
+                            <input type="checkbox" class="form-check-input" id="unassignDocumentsCheckbox<?= $contact_id ?>" name="unassign_documents" value="1">
+                            <label class="form-check-label" for="unassignDocumentsCheckbox<?= $contact_id ?>">Documents</label>
                         </div>
                     </div>
 
-                    <div class="form-group">
-                        <div class="custom-control custom-checkbox">
-                            <input type="checkbox" class="custom-control-input" id="anonymizeCheckbox<?= $contact_id ?>" name="anonymize_contact" value="1">
-                            <label class="custom-control-label" for="anonymizeCheckbox<?= $contact_id ?>">Anonymize Contact</label>
+                    <div class="mb-3">
+                        <div class="form-check">
+                            <input type="checkbox" class="form-check-input" id="anonymizeCheckbox<?= $contact_id ?>" name="anonymize_contact" value="1">
+                            <label class="form-check-label" for="anonymizeCheckbox<?= $contact_id ?>">Anonymize Contact</label>
                         </div>
                     </div>
 
                 </div>
                 <div class="modal-footer">
-                    <button type="submit" name="archive_contact" class="btn btn-danger text-bold"><i class="fas fa-check mr-2"></i>Arhive</button>
-                    <button type="button" class="btn btn-light" data-dismiss="modal"><i class="fa fa-times mr-2"></i>Cancel</button>
+                    <button type="submit" name="archive_contact" class="btn btn-danger text-bold"><i class="fas fa-check me-2"></i>Arhive</button>
+                    <button type="button" class="btn btn-light" data-bs-dismiss="modal"><i class="fa fa-times me-2"></i>Cancel</button>
                 </div>
             </form>
         </div>
