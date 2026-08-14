@@ -1,13 +1,92 @@
-$(document).ready(function() {
+/**
+ * Delegated listener that binds exactly once.
+ *
+ * modal_footer.php re-loads this file every time an ajax modal opens, which is
+ * why the jQuery originals used a namespaced .off().on() - without it the
+ * handlers stacked up and fired once per modal ever opened. The named flag on
+ * window is the vanilla equivalent. `this` is the matched element, matching
+ * jQuery's delegation contract so the handler bodies are unchanged.
+ */
+/**
+ * $.post replacement. jQuery serialised nested arrays/objects into PHP-style
+ * bracket params (positions[0][status_id]=...), which is what ajax.php parses,
+ * so that encoding is reproduced here rather than sending JSON.
+ */
+function itflowPostForm(url, data) {
+    const params = new URLSearchParams();
+
+    (function add(prefix, value) {
+        if (Array.isArray(value)) {
+            value.forEach(function (v, i) {
+                add(prefix + '[' + i + ']', v);
+            });
+        } else if (value !== null && typeof value === 'object') {
+            Object.keys(value).forEach(function (k) {
+                add(prefix ? prefix + '[' + k + ']' : k, value[k]);
+            });
+        } else {
+            params.append(prefix, value === true ? 'true' : String(value));
+        }
+    })('', data);
+
+    return fetch(url, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        credentials: 'same-origin',
+        body: params.toString()
+    }).then(function (res) {
+        if (!res.ok) {
+            throw new Error('HTTP ' + res.status);
+        }
+        return res.text();
+    });
+}
+
+function itflowBindOnce(name, type, selector, handler) {
+    window.itflowBound = window.itflowBound || {};
+    if (window.itflowBound[name]) {
+        return;
+    }
+    window.itflowBound[name] = true;
+    document.addEventListener(type, function (e) {
+        const match = e.target.closest(selector);
+        if (match) {
+            handler.call(match, e);
+        }
+    });
+}
+
+function itflowInit() {
     // Prevents resubmit on forms
     if (window.history.replaceState) {
         window.history.replaceState(null, null, window.location.href);
     }
 
-    // Slide alert up after 4 secs
-    $("#alert").fadeTo(5000, 500).slideUp(500, function() {
-        $("#alert").slideUp(500);
-    });
+    // Fade the legacy #alert box out after 5s, then collapse it
+    (function () {
+        const alertEl = document.getElementById('alert');
+        if (!alertEl) {
+            return;
+        }
+        setTimeout(function () {
+            alertEl.style.transition = 'opacity .5s linear';
+            alertEl.style.opacity = '0';
+            setTimeout(function () {
+                alertEl.style.overflow = 'hidden';
+                alertEl.style.transition = 'height .5s ease, margin .5s ease, padding .5s ease';
+                alertEl.style.height = alertEl.offsetHeight + 'px';
+                void alertEl.offsetHeight;
+                alertEl.style.height = '0px';
+                alertEl.style.marginTop = '0';
+                alertEl.style.marginBottom = '0';
+                alertEl.style.paddingTop = '0';
+                alertEl.style.paddingBottom = '0';
+                setTimeout(function () {
+                    alertEl.style.display = 'none';
+                }, 500);
+            }, 500);
+        }, 5000);
+    })();
 
     // Initialize Tom Select (replaces Select2). Every instance is reachable
     // afterwards as element.tomselect, which is how the helpers below reach it.
@@ -446,8 +525,11 @@ $(document).ready(function() {
         });
     });
 
-    // ClipboardJS fix for Bootstrap modals
-    $.fn.modal.Constructor.prototype._enforceFocus = function() {};
+    // Bootstrap 4 needed _enforceFocus patched out so ClipboardJS could reach
+    // its textarea inside a modal. Bootstrap 5 registers no jQuery plugin, so
+    // the old $.fn.modal line threw and killed everything below it. If copying
+    // from inside a modal ever misbehaves, ClipboardJS's `container` option is
+    // the lever, not a Bootstrap patch.
 
     // Clipboard
     var clipboard = new ClipboardJS('.clipboardjs');
@@ -461,15 +543,21 @@ $(document).ready(function() {
     });
 
     // Enable Popovers
-    $(function() {
-        document.querySelectorAll('[data-bs-toggle="popover"]').forEach(function (el) {
-            bootstrap.Popover.getOrCreateInstance(el);
-        });
+    document.querySelectorAll('[data-bs-toggle="popover"]').forEach(function (el) {
+        bootstrap.Popover.getOrCreateInstance(el);
     });
 
     // Data Tables
     new DataTable('.dataTables');
-});
+}
+
+// modal_footer.php re-loads this file on every ajax modal open, so run now if
+// the document is already parsed, otherwise wait for it.
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', itflowInit);
+} else {
+    itflowInit();
+}
 
 /*
  * Calendar event modals - the All day switch shows or hides the time row.
@@ -487,7 +575,7 @@ $(document).ready(function() {
  * namespaced .off() keeps this to a single handler - modal_footer.php re-loads this
  * file on every ajax modal open.
  */
-$(document).off('change.itflowAllDay').on('change.itflowAllDay', '.event-all-day-toggle', function () {
+itflowBindOnce('itflowAllDay', 'change', '.event-all-day-toggle', function () {
 
     const allDay = this.checked;
     const timeFields = document.getElementById(this.id.replace(/_all_day$/, '_time_fields'));
@@ -511,7 +599,7 @@ $(document).off('change.itflowAllDay').on('change.itflowAllDay', '.event-all-day
  * Keep the end date at or after the start date, without shortening a longer span
  * the user has already chosen.
  */
-$(document).off('change.itflowEventDate').on('change.itflowEventDate', '.event-start-date', function () {
+itflowBindOnce('itflowEventDate', 'change', '.event-start-date', function () {
 
     const endField = document.getElementById(this.id.replace(/_start_date$/, '_end_date'));
 
@@ -529,7 +617,7 @@ $(document).off('change.itflowEventDate').on('change.itflowEventDate', '.event-s
  * A start late in the evening rolls the end onto the following day rather than
  * wrapping round to an end that precedes the start.
  */
-$(document).off('change.itflowEventTime').on('change.itflowEventTime', '.event-start-time', function () {
+itflowBindOnce('itflowEventTime', 'change', '.event-start-time', function () {
 
     const prefix = this.id.replace(/_start_time$/, '');
     const endField = document.getElementById(prefix + '_end_time');
@@ -575,7 +663,7 @@ $(document).off('change.itflowEventTime').on('change.itflowEventTime', '.event-s
  * until the next page load.
  */
 function flashTooltip(button, message) {
-    const el = button instanceof Element ? button : $(button)[0];
+    const el = button instanceof Element ? button : document.querySelector(button);
     if (!el) {
         return;
     }

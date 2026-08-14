@@ -248,8 +248,6 @@ ob_start();
 
 
 <!-- Recurring Ticket Client/Contact JS -->
-<link rel="stylesheet" href="/libs/jquery-ui/jquery-ui.min.css">
-<script src="/libs/jquery-ui/jquery-ui.min.js"></script>
 <script src="/agent/js/tickets_add_modal.js"></script>
 
 <script src="/agent/js/ticket_tasks_modal.js"></script>

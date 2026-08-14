@@ -145,7 +145,7 @@ new Sortable(document.querySelector('table#tasks tbody'), {
             order: index
         }));
 
-        $.post('/agent/ajax.php', {
+        itflowPostForm('/agent/ajax.php', {
             update_task_templates_order: true,
             csrf_token: '<?= $_SESSION['csrf_token'] ?>',
             ticket_template_id: <?= $ticket_template_id ?>,

@@ -47,7 +47,6 @@ $data = "otpauth://totp/ITFlow:$session_email?secret=$token";
     <link rel="stylesheet" href="../../libs/adminlte/css/adminlte.min.css">
 
     <!-- jQuery -->
-    <script src="../../libs/jquery/jquery.min.js"></script>
 
 </head>
 <body class="hold-transition login-page">
@@ -103,10 +102,20 @@ $data = "otpauth://totp/ITFlow:$session_email?secret=$token";
 
     <script>
 
-    // Slide alert up after 4 secs
-    $("#alert").fadeTo(5000, 500).slideUp(500, function(){
-        $("#alert").slideUp(500);
-    });
+    // Fade the alert out after 5s, then collapse it
+    (function () {
+        const alertEl = document.getElementById('alert');
+        if (!alertEl) {
+            return;
+        }
+        setTimeout(function () {
+            alertEl.style.transition = 'opacity .5s linear';
+            alertEl.style.opacity = '0';
+            setTimeout(function () {
+                alertEl.style.display = 'none';
+            }, 500);
+        }, 5000);
+    })();
 
     // ClipboardJS
 
@@ -114,7 +123,7 @@ $data = "otpauth://totp/ITFlow:$session_email?secret=$token";
     // on screen. This page is standalone and does not load js/app.js, so it
     // carries its own copy of the helper.
     function flashTooltip(button, message) {
-        const el = button instanceof Element ? button : $(button)[0];
+        const el = button instanceof Element ? button : document.querySelector(button);
         if (!el) {
             return;
         }
@@ -144,10 +153,8 @@ $data = "otpauth://totp/ITFlow:$session_email?secret=$token";
     });
 
     // Enable Popovers
-    $(function () {
-        document.querySelectorAll('[data-bs-toggle="popover"]').forEach(function (el) {
-            bootstrap.Popover.getOrCreateInstance(el);
-        })
+    document.querySelectorAll('[data-bs-toggle="popover"]').forEach(function (el) {
+        bootstrap.Popover.getOrCreateInstance(el);
     });
 
     </script>

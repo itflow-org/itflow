@@ -72,7 +72,6 @@ if (isset($_GET['invoice_id'], $_GET['url_key']) && !isset($_GET['payment_intent
 
     <!-- Stripe & jQuery -->
     <script src="https://js.stripe.com/v3/"></script>
-    <script src="../libs/jquery/jquery.min.js"></script>
 
     <div class="row pt-5">
         <div class="col-sm">

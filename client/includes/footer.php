@@ -24,7 +24,6 @@
 <?php require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/inc_confirm_modal.php'; ?>
 
 <!-- jQuery -->
-<script src="/libs/jquery/jquery.min.js"></script>
 
 <!-- Bootstrap 4 -->
 <script src="/libs/bootstrap/js/bootstrap.bundle.min.js"></script>

@@ -45,6 +45,7 @@ if (basename(dirname($_SERVER['REQUEST_URI'])) === 'guest') { ?>
 
 <!-- AdminLTE App -->
 <script src="/libs/adminlte/js/adminlte.min.js"></script>
+<script src="/js/autocomplete.js"></script>
 <script src="/js/app.js"></script>
 <script src="/js/ajax_modal.js"></script>
 <script src="/js/confirm_modal.js"></script>

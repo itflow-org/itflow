@@ -1457,7 +1457,6 @@ if (isset($_POST['add_telemetry'])) {
 <!-- REQUIRED SCRIPTS -->
 
 <!-- jQuery -->
-<script src="/libs/jquery/jquery.min.js"></script>
 <!-- Bootstrap 5 -->
 <script src="/libs/bootstrap/js/bootstrap.bundle.min.js"></script>
 <!-- Custom js-->

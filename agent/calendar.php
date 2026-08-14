@@ -192,7 +192,7 @@ while ($row = mysqli_fetch_assoc($sql)) {
                         const allDayToggle = document.getElementById("event_add_all_day");
                         if (allDayToggle) {
                             allDayToggle.checked = true;
-                            $(allDayToggle).trigger("change");
+                            allDayToggle.dispatchEvent(new Event('change', { bubbles: true }));
                         }
                         bootstrap.Modal.getOrCreateInstance(document.getElementById('addCalendarEventModal')).show();
                     }
@@ -270,7 +270,7 @@ while ($row = mysqli_fetch_assoc($sql)) {
             // Last, so the handler in app.js shows or hides the time row to match
             if (allDayToggle) {
                 allDayToggle.checked = selectionInfo.allDay;
-                $(allDayToggle).trigger("change");
+                allDayToggle.dispatchEvent(new Event('change', { bubbles: true }));
             }
 
             calendar.unselect();
@@ -278,15 +278,14 @@ while ($row = mysqli_fetch_assoc($sql)) {
         },
         eventClick: function(editEvent) {
             var eventId = editEvent.event.id;
-            var $link = $('<a>', {
-                href: '#',
-                'class': 'ajax-modal',
-                'data-modal-url': 'modals/calendar/calendar_event_edit.php?<?= $client_url ?>&id=' + eventId
-            });
+            var link = document.createElement('a');
+            link.href = '#';
+            link.className = 'ajax-modal';
+            link.dataset.modalUrl = 'modals/calendar/calendar_event_edit.php?<?= $client_url ?>&id=' + eventId;
 
-            $('body').append($link); // Append to the body
-            $link.trigger('click');  // Trigger the modal
-            $link.remove(); // Cleanup
+            document.body.appendChild(link); // Append to the body
+            link.click();                    // Trigger the modal
+            link.remove();                   // Cleanup
         },
         dayMaxEvents: true, // allow "more" link when too many events
         views: {

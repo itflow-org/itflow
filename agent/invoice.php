@@ -747,78 +747,64 @@ require_once "../includes/footer.php";
 ?>
 
 <!-- JSON Autocomplete / type ahead -->
-<link rel="stylesheet" href="../libs/jquery-ui/jquery-ui.min.css">
-<script src="../libs/jquery-ui/jquery-ui.min.js"></script>
 <script>
 
-$(function() {
+document.addEventListener('DOMContentLoaded', function () {
 
     var availableProducts = <?= $json_products ?? '[]' ?>;
 
-    $("#name").autocomplete({
+    var nameInput = document.getElementById('name');
+    if (!nameInput) {
+        return;
+    }
+
+    itflowAutocomplete(nameInput, {
         minLength: 1,
-        delay: 0,
-        source: function(request, response) {
-            var term = $.ui.autocomplete.escapeRegex(request.term.toLowerCase());
-            var matcher = new RegExp(term, "i");
-            var matches = $.grep(availableProducts, function(item) {
-                return matcher.test(item.label || "") || matcher.test(item.product_name || "") || matcher.test(item.product_code || "");
-            });
-            response(matches);
+        source: availableProducts,
+        match: function (item, term) {
+            return String(item.label || '').toLowerCase().indexOf(term) !== -1
+                || String(item.product_name || '').toLowerCase().indexOf(term) !== -1
+                || String(item.product_code || '').toLowerCase().indexOf(term) !== -1;
         },
-        select: function (event, ui) {
-            $("#name").val(ui.item.product_name);
-            $("#desc").val(ui.item.description);
-            $("#qty").val(1);
-            $("#price").val(ui.item.price);
-            $("#tax").val(ui.item.tax).trigger('change');
-            $("#product_id").val(ui.item.prod_id);
-            return false;
+        render: function (item) {
+            var esc = itflowEscapeHtml;
+            var typeText = item.type ? item.type.charAt(0).toUpperCase() + item.type.slice(1).toLowerCase() : "";
+            var showStock = (typeText.toLowerCase() !== "service");
+            var taxText = (item.tax_percent != null) ? (parseFloat(item.tax_percent) + "%") : "No tax";
+            var priceText = (item.price != null && item.price !== "") ? String(item.price) : "";
+            var stockText = (item.available_stock ?? 0);
+
+            return "<div class='d-flex justify-content-between align-items-start'>" +
+                       "<div class='flex-fill pe-2'>" +
+                           "<div class='fw-bold'>" + esc(item.label) +
+                               (typeText ? " <small class='text-muted'>(" + esc(typeText) + ")</small>" : "") +
+                           "</div>" +
+                           "<div class='small text-muted'>" + esc(item.description) + "</div>" +
+                           "<div class='mt-1'>" +
+                               "<span class='badge bg-secondary me-1'>Tax: " + esc(taxText) + "</span>" +
+                               (showStock ? "<span class='badge " + (stockText > 0 ? "bg-success" : "bg-danger") + "'>Stock: " + esc(stockText) + "</span>" : "") +
+                           "</div>" +
+                       "</div>" +
+                       "<div class='text-end'>" +
+                           "<div class='fw-bold'>" + esc(priceText) + "</div>" +
+                       "</div>" +
+                   "</div>";
+        },
+        onSelect: function (item) {
+            document.getElementById('name').value = item.product_name;
+            document.getElementById('desc').value = item.description;
+            document.getElementById('qty').value = 1;
+            document.getElementById('price').value = item.price;
+            setTomSelectValue(document.getElementById('tax'), item.tax);
+            document.getElementById('product_id').value = item.prod_id;
         }
     });
 
     // Typing over the name by hand breaks the link to the product
-    $("#name").on("input", function() {
-        $("#product_id").val(0);
+    nameInput.addEventListener('input', function () {
+        document.getElementById('product_id').value = 0;
     });
 
-    // Product names and descriptions are user supplied - escape before
-    // building markup, the default renderer uses .text() for this reason
-    function esc(value) {
-        return $("<div>").text(value == null ? "" : value).html();
-    }
-
-    // Keep it simple: default jQuery UI look, just richer content
-    $("#name").autocomplete("instance")._renderItem = function(ul, item) {
-        var typeText = item.type ? item.type.charAt(0).toUpperCase() + item.type.slice(1).toLowerCase() : "";
-        var showStock = (typeText.toLowerCase() !== "service");
-
-        var taxText = (item.tax_percent != null) ? (parseFloat(item.tax_percent) + "%") : "No tax";
-        var priceText = (item.price != null && item.price !== "") ? String(item.price) : "";
-        var stockText = (item.available_stock ?? 0);
-
-        var infoLeft =
-            "<div class='d-flex justify-content-between align-items-start'>" +
-                "<div class='flex-fill pe-2'>" +
-                    "<div class='fw-bold'>" + esc(item.label) +
-                        (typeText ? " <small class='text-muted'>(" + esc(typeText) + ")</small>" : "") +
-                    "</div>" +
-                    "<div class='small text-muted'>" + esc(item.description) + "</div>" +
-                    "<div class='mt-1'>" +
-                        "<span class='badge bg-secondary me-1'>Tax: " + esc(taxText) + "</span>" +
-                        (showStock ? "<span class='badge " + (stockText > 0 ? "bg-success" : "bg-danger") + "'>Stock: " + esc(stockText) + "</span>" : "") +
-                    "</div>" +
-                "</div>" +
-                "<div class='text-end'>" +
-                    "<div class='fw-bold'>" + esc(priceText) + "</div>" +
-                "</div>" +
-            "</div>";
-
-        // Use the jQuery UI wrapper so default hover/focus styles apply
-        return $("<li>")
-            .append($("<div class='ui-menu-item-wrapper'>").append(infoLeft))
-            .appendTo(ul);
-    };
 });
 
 </script>
@@ -835,7 +821,7 @@ new Sortable(document.querySelector('table#items tbody'), {
             order: index
         }));
 
-        $.post('ajax.php', {
+        itflowPostForm('ajax.php', {
             update_invoice_items_order: true,
             csrf_token: '<?= $_SESSION['csrf_token'] ?>',
             invoice_id: <?= $invoice_id ?>,

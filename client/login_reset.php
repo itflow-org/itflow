@@ -276,7 +276,6 @@ if ($_SERVER['REQUEST_METHOD'] == "POST") {
 <!-- /.login-box -->
 
 <!-- jQuery -->
-<script src="../libs/jquery/jquery.min.js"></script>
 
 <!-- Bootstrap 4 -->
 <script src="../libs/bootstrap/js/bootstrap.bundle.min.js"></script>

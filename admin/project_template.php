@@ -227,7 +227,7 @@ new Sortable(document.querySelector('table#ticket_templates tbody'), {
             order: index
         }));
 
-        $.post('/agent/ajax.php', {
+        itflowPostForm('/agent/ajax.php', {
             update_project_template_ticket_order: true,
             csrf_token: '<?= $_SESSION['csrf_token'] ?>',
             project_template_id: <?= $project_template_id ?>,

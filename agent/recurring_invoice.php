@@ -495,24 +495,66 @@ require_once "../includes/footer.php";
 ?>
 
 <!-- JSON Autocomplete / type ahead -->
-<link rel="stylesheet" href="../libs/jquery-ui/jquery-ui.min.css">
-<script src="../libs/jquery-ui/jquery-ui.min.js"></script>
 <script>
-    $(function() {
-        var availableProducts = <?= $json_products ?? '[]' ?>;
 
-        $("#name").autocomplete({
-            source: availableProducts,
-            select: function (event, ui) {
-                $("#name").val(ui.item.label); // Product name field - this seemingly has to referenced as label
-                $("#desc").val(ui.item.description); // Product description field
-                $("#qty").val(1); // Product quantity field automatically make it a 1
-                $("#price").val(ui.item.price); // Product price field
-                setTomSelectValue(document.getElementById("tax"), ui.item.tax); // Tax field - setValue repaints the Tom Select widget
-                return false;
-            }
-        });
+document.addEventListener('DOMContentLoaded', function () {
+
+    var availableProducts = <?= $json_products ?? '[]' ?>;
+
+    var nameInput = document.getElementById('name');
+    if (!nameInput) {
+        return;
+    }
+
+    itflowAutocomplete(nameInput, {
+        minLength: 1,
+        source: availableProducts,
+        match: function (item, term) {
+            return String(item.label || '').toLowerCase().indexOf(term) !== -1
+                || String(item.product_name || '').toLowerCase().indexOf(term) !== -1
+                || String(item.product_code || '').toLowerCase().indexOf(term) !== -1;
+        },
+        render: function (item) {
+            var esc = itflowEscapeHtml;
+            var typeText = item.type ? item.type.charAt(0).toUpperCase() + item.type.slice(1).toLowerCase() : "";
+            var showStock = (typeText.toLowerCase() !== "service");
+            var taxText = (item.tax_percent != null) ? (parseFloat(item.tax_percent) + "%") : "No tax";
+            var priceText = (item.price != null && item.price !== "") ? String(item.price) : "";
+            var stockText = (item.available_stock ?? 0);
+
+            return "<div class='d-flex justify-content-between align-items-start'>" +
+                       "<div class='flex-fill pe-2'>" +
+                           "<div class='fw-bold'>" + esc(item.label) +
+                               (typeText ? " <small class='text-muted'>(" + esc(typeText) + ")</small>" : "") +
+                           "</div>" +
+                           "<div class='small text-muted'>" + esc(item.description) + "</div>" +
+                           "<div class='mt-1'>" +
+                               "<span class='badge bg-secondary me-1'>Tax: " + esc(taxText) + "</span>" +
+                               (showStock ? "<span class='badge " + (stockText > 0 ? "bg-success" : "bg-danger") + "'>Stock: " + esc(stockText) + "</span>" : "") +
+                           "</div>" +
+                       "</div>" +
+                       "<div class='text-end'>" +
+                           "<div class='fw-bold'>" + esc(priceText) + "</div>" +
+                       "</div>" +
+                   "</div>";
+        },
+        onSelect: function (item) {
+            document.getElementById('name').value = item.product_name;
+            document.getElementById('desc').value = item.description;
+            document.getElementById('qty').value = 1;
+            document.getElementById('price').value = item.price;
+            setTomSelectValue(document.getElementById('tax'), item.tax);
+            document.getElementById('product_id').value = item.prod_id;
+        }
     });
+
+    // Typing over the name by hand breaks the link to the product
+    nameInput.addEventListener('input', function () {
+        document.getElementById('product_id').value = 0;
+    });
+
+});
+
 </script>
 
 <script src="../libs/SortableJS/Sortable.min.js"></script>
@@ -527,7 +569,7 @@ new Sortable(document.querySelector('table#items tbody'), {
             order: index
         }));
 
-        $.post('ajax.php', {
+        itflowPostForm('ajax.php', {
             update_recurring_invoice_items_order: true,
             csrf_token: '<?= $_SESSION['csrf_token'] ?>',
             recurring_invoice_id: <?= $recurring_invoice_id ?>,

@@ -810,7 +810,6 @@ if (!$config_whitelabel_enabled) {
 }
 ?>
 
-<script src="libs/jquery/jquery.min.js"></script>
 <script src="libs/bootstrap/js/bootstrap.bundle.min.js"></script>
 <script src="libs/adminlte/js/adminlte.min.js"></script>
 <script src="js/login_prevent_resubmit.js"></script>

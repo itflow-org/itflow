@@ -81,57 +81,93 @@ ob_start();
 
 <!-- JS to make the correct boxes appear depending on if internal/client approval) -->
 <script>
-    $('#approval_scope').on('change', function() {
-        const scope = $(this).val();
-        const typeSelect = $('#approval_type');
-        const wrapper = $('#approval_type_wrapper');
+    (function () {
+        var scopeSelect = document.getElementById('approval_scope');
+        var typeSelect = document.getElementById('approval_type');
+        var typeWrapper = document.getElementById('approval_type_wrapper');
+        var userWrapper = document.getElementById('specific_user_wrapper');
+        var userSelect = document.getElementById('specific_user_select');
 
-        typeSelect.empty();
-        $('#specific_user_wrapper').addClass('d-none');
-
-        if (!scope) {
-            wrapper.addClass('d-none');
+        if (!scopeSelect || !typeSelect) {
             return;
         }
 
-        wrapper.removeClass('d-none');
-
-        if (scope === 'internal') {
-            typeSelect.append('<option value="">Select...</option>');
-            typeSelect.append('<option value="any">Any internal reviewer</option>');
-            typeSelect.append('<option value="specific">Specific agent</option>');
-        }
-
-        if (scope === 'client') {
-            typeSelect.append('<option value="">Select...</option>');
-            typeSelect.append('<option value="any">Ticket contact</option>');
-            typeSelect.append('<option value="technical">Technical contacts</option>');
-            typeSelect.append('<option value="billing">Billing contacts</option>');
-        }
-    });
-
-    // Specific user (internal only for now)
-    $('#approval_type').on('change', function() {
-        const type = $(this).val();
-        const scope = $('#approval_scope').val();
-        const userSelect = $('#specific_user_select');
-
-        if (type !== 'specific' || scope !== 'internal') {
-            $('#specific_user_wrapper').addClass('d-none');
-            return;
-        }
-
-        $('#specific_user_wrapper').removeClass('d-none');
-        userSelect.empty().append('<option value="">Loading...</option>');
-
-        $.getJSON('ajax.php?get_internal_users=true', function(data) {
-            userSelect.empty().append('<option value="">Select user...</option>');
-            data.users.forEach(function(u) {
-                userSelect.append(`<option value="${u.user_id}">${u.user_name}</option>`);
+        function setOptions(select, pairs) {
+            select.innerHTML = '';
+            pairs.forEach(function (pair) {
+                // new Option() assigns text, so nothing here is parsed as markup
+                select.appendChild(new Option(pair[1], pair[0]));
             });
-        });
-    });
+            // the selects are Tom Select enhanced, so it has to re-read them
+            refreshTomSelect(select);
+        }
 
+        scopeSelect.addEventListener('change', function () {
+            var scope = this.value;
+
+            setOptions(typeSelect, []);
+            userWrapper.classList.add('d-none');
+
+            if (!scope) {
+                typeWrapper.classList.add('d-none');
+                return;
+            }
+
+            typeWrapper.classList.remove('d-none');
+
+            if (scope === 'internal') {
+                setOptions(typeSelect, [
+                    ['', 'Select...'],
+                    ['any', 'Any internal reviewer'],
+                    ['specific', 'Specific agent']
+                ]);
+            }
+
+            if (scope === 'client') {
+                setOptions(typeSelect, [
+                    ['', 'Select...'],
+                    ['any', 'Ticket contact'],
+                    ['technical', 'Technical contacts'],
+                    ['billing', 'Billing contacts']
+                ]);
+            }
+        });
+
+        // Specific user (internal only for now)
+        typeSelect.addEventListener('change', function () {
+            var type = this.value;
+            var scope = scopeSelect.value;
+
+            if (type !== 'specific' || scope !== 'internal') {
+                userWrapper.classList.add('d-none');
+                return;
+            }
+
+            userWrapper.classList.remove('d-none');
+            setOptions(userSelect, [['', 'Loading...']]);
+
+            fetch('ajax.php?get_internal_users=true', {
+                headers: { 'Accept': 'application/json' },
+                credentials: 'same-origin'
+            })
+                .then(function (res) {
+                    if (!res.ok) {
+                        throw new Error('HTTP ' + res.status);
+                    }
+                    return res.json();
+                })
+                .then(function (data) {
+                    var pairs = [['', 'Select user...']];
+                    data.users.forEach(function (u) {
+                        pairs.push([u.user_id, u.user_name]);
+                    });
+                    setOptions(userSelect, pairs);
+                })
+                .catch(function () {
+                    setOptions(userSelect, [['', 'Failed to load users']]);
+                });
+        });
+    })();
 </script>
 
 <?php

@@ -94,36 +94,57 @@ ob_start();
 </div>
 
 <script>
-$(document).ready(function () {
+document.addEventListener('DOMContentLoaded', function () {
     var perPage = 8;
-    var $items = $(".notification-item");
-    var totalItems = $items.length;
+    var items = Array.from(document.querySelectorAll('.notification-item'));
+    var totalItems = items.length;
     var totalPages = Math.ceil(totalItems / perPage);
     var currentPage = 0;
 
+    var prevBtn = document.getElementById('prev-btn');
+    var nextBtn = document.getElementById('next-btn');
+    var indicator = document.getElementById('page-indicator');
+
     function showPage(page) {
-        $items.hide().slice(page * perPage, (page + 1) * perPage).show();
-        $("#prev-btn").prop("disabled", page === 0);
-        $("#next-btn").prop("disabled", page >= totalPages - 1);
-        $("#page-indicator").text(`Page ${page + 1} of ${totalPages} (${totalItems} total)`);
+        items.forEach(function (item, i) {
+            var visible = i >= page * perPage && i < (page + 1) * perPage;
+            item.style.display = visible ? '' : 'none';
+        });
+        if (prevBtn) {
+            prevBtn.disabled = page === 0;
+        }
+        if (nextBtn) {
+            nextBtn.disabled = page >= totalPages - 1;
+        }
+        if (indicator) {
+            indicator.textContent = `Page ${page + 1} of ${totalPages} (${totalItems} total)`;
+        }
     }
 
-    $("#prev-btn").on("click", function () {
-        if (currentPage > 0) {
-            currentPage--;
-            showPage(currentPage);
-        }
-    });
+    if (prevBtn) {
+        prevBtn.addEventListener('click', function () {
+            if (currentPage > 0) {
+                currentPage--;
+                showPage(currentPage);
+            }
+        });
+    }
 
-    $("#next-btn").on("click", function () {
-        if (currentPage < totalPages - 1) {
-            currentPage++;
-            showPage(currentPage);
-        }
-    });
+    if (nextBtn) {
+        nextBtn.addEventListener('click', function () {
+            if (currentPage < totalPages - 1) {
+                currentPage++;
+                showPage(currentPage);
+            }
+        });
+    }
 
     if (totalItems <= perPage) {
-        $("#prev-btn, #next-btn, #page-indicator").hide();
+        [prevBtn, nextBtn, indicator].forEach(function (el) {
+            if (el) {
+                el.style.display = 'none';
+            }
+        });
     }
 
     showPage(currentPage);

@@ -26,7 +26,6 @@
     <link rel="stylesheet" href="/libs/tom-select/css/tom-select.bootstrap5.min.css">
 
     <!-- Scripts -->
-    <script src="/libs/jquery/jquery.min.js"></script>
 
 </head>
 <body class="layout-fixed theme-<?= escapeHtml($config_theme) ?>">

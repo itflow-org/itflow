@@ -19,18 +19,30 @@ ob_start();
 </div>
 
 <script>
-$(function() {
-    $.ajax({
-        url: 'ajax.php?ai_ticket_summary',
+document.addEventListener('DOMContentLoaded', function () {
+    var target = document.getElementById('summaryContent');
+    if (!target) {
+        return;
+    }
+
+    fetch('ajax.php?ai_ticket_summary', {
         method: 'POST',
-        data: { ticket_id: <?= $ticket_id ?> },
-        success: function(response) {
-            $('#summaryContent').html(response);
-        },
-        error: function() {
-            $('#summaryContent').html('Error generating summary.');
-        }
-    });
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        credentials: 'same-origin',
+        body: new URLSearchParams({ ticket_id: '<?= $ticket_id ?>' }).toString()
+    })
+        .then(function (res) {
+            if (!res.ok) {
+                throw new Error('HTTP ' + res.status);
+            }
+            return res.text();
+        })
+        .then(function (html) {
+            target.innerHTML = html;
+        })
+        .catch(function () {
+            target.textContent = 'Error generating summary.';
+        });
 });
 </script>
 

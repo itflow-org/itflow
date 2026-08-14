@@ -1414,7 +1414,7 @@ require_once "../includes/footer.php";
                     order: index
                 }));
 
-                $.post('ajax.php', {
+                itflowPostForm('ajax.php', {
                     update_ticket_tasks_order: true,
                     csrf_token: '<?= $_SESSION['csrf_token'] ?>',
                     ticket_id: <?= $ticket_id ?>,

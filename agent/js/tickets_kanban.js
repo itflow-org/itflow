@@ -1,38 +1,3 @@
-/**
- * $.post replacement. jQuery serialised nested arrays/objects into PHP-style
- * bracket params (positions[0][status_id]=...), which is what ajax.php parses,
- * so that encoding is reproduced here rather than sending JSON.
- */
-function itflowPostForm(url, data) {
-    const params = new URLSearchParams();
-
-    (function add(prefix, value) {
-        if (Array.isArray(value)) {
-            value.forEach(function (v, i) {
-                add(prefix + '[' + i + ']', v);
-            });
-        } else if (value !== null && typeof value === 'object') {
-            Object.keys(value).forEach(function (k) {
-                add(prefix ? prefix + '[' + k + ']' : k, value[k]);
-            });
-        } else {
-            params.append(prefix, value === true ? 'true' : String(value));
-        }
-    })('', data);
-
-    return fetch(url, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-        credentials: 'same-origin',
-        body: params.toString()
-    }).then(function (res) {
-        if (!res.ok) {
-            throw new Error('HTTP ' + res.status);
-        }
-        return res.text();
-    });
-}
-
 document.addEventListener('DOMContentLoaded', function () {
     // -------------------------------
     // Drag: Kanban Columns (Statuses)

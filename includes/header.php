@@ -35,7 +35,6 @@ header("X-Frame-Options: DENY");
     <link rel="stylesheet" href="/css/itflow_custom.css">
 
     <!-- Scripts -->
-    <script src="/libs/jquery/jquery.min.js"></script>
 </head>
 <body class="layout-fixed sidebar-expand-lg app-loaded theme-<?= escapeHtml($config_theme) ?>">
     <div class="app-wrapper text-sm">

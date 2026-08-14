@@ -49,34 +49,48 @@ ob_start();
 </form>
 
 <script>
-$(document).ready(function(){
+document.addEventListener('DOMContentLoaded', function () {
 
-    $('#generateAIContent').on('click', function(){
-        var prompt = $('#aiPrompt').val().trim();
-        if(prompt === '') {
+    var button = document.getElementById('generateAIContent');
+    var promptField = document.getElementById('aiPrompt');
+    if (!button || !promptField) {
+        return;
+    }
+
+    button.addEventListener('click', function () {
+        var prompt = promptField.value.trim();
+        if (prompt === '') {
             alert('Please enter a prompt.');
             return;
         }
 
-        $('#generateAIContent').prop('disabled', true).html('<i class="fa fa-spinner fa-spin"></i> Generating...');
+        button.disabled = true;
+        button.innerHTML = '<i class="fa fa-spinner fa-spin"></i> Generating...';
 
-        $.ajax({
-            url: '/agent/ajax.php?ai_create_document_template', // The PHP script that calls the OpenAI API
+        fetch('/agent/ajax.php?ai_create_document_template', {
             method: 'POST',
-            data: { prompt: prompt },
-            dataType: 'html',
-            success: function(response) {
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+            credentials: 'same-origin',
+            body: new URLSearchParams({ prompt: prompt }).toString()
+        })
+            .then(function (res) {
+                if (!res.ok) {
+                    throw new Error('HTTP ' + res.status);
+                }
+                return res.text();
+            })
+            .then(function (response) {
                 // Assuming you have exactly one TinyMCE instance on the page
                 // and it's targeting the .tinymce textarea:
                 tinymce.activeEditor.setContent(response);
-            },
-            error: function() {
+            })
+            .catch(function () {
                 alert('Error generating content. Please try again.');
-            },
-            complete: function() {
-                $('#generateAIContent').prop('disabled', false).html('<i class="fa fa-fw fa-magic me-1"></i>Generate with AI');
-            }
-        });
+            })
+            .finally(function () {
+                button.disabled = false;
+                button.innerHTML = '<i class="fa fa-fw fa-magic me-1"></i>Generate with AI';
+            });
     });
 });
 </script>

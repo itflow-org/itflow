@@ -1,3 +1,4 @@
+<script src="/js/autocomplete.js"></script>
 <script src="/js/app.js"></script>
 
 <?php

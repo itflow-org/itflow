@@ -460,18 +460,24 @@ ob_start();
 </form>
 
 <!-- JSON Autocomplete / type ahead -->
-<link rel="stylesheet" href="/libs/jquery-ui/jquery-ui.min.css">
-<script src="/libs/jquery-ui/jquery-ui.min.js"></script>
 <script>
-    $(function() {
+    document.addEventListener('DOMContentLoaded', function () {
+
         var operatingSystems = <?= $json_os ?>;
-        $("#os").autocomplete({
-            source: operatingSystems,  // Should be an array of objects with 'label' and 'value'
-            select: function(event, ui) {
-                $("#os").val(ui.item.label); // Set the input field value to the selected label
-                return false;
+
+        var osInput = document.getElementById('os');
+        if (!osInput) {
+            return;
+        }
+
+        itflowAutocomplete(osInput, {
+            minLength: 1,
+            source: operatingSystems,
+            onSelect: function (item) {
+                osInput.value = item.label;
             }
         });
+
     });
 </script>
 

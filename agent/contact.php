@@ -1228,16 +1228,24 @@ if (isset($_GET['contact_id'])) {
             );
         }
 
-        $(document).ready(function() {
-            $('.authMethod').on('change', function() {
-                var $form = $(this).closest('.authForm');
-                if ($(this).val() === 'local') {
-                    $form.find('.passwordGroup').show();
-                } else {
-                    $form.find('.passwordGroup').hide();
+        document.addEventListener('DOMContentLoaded', function () {
+            function syncAuthForm(select) {
+                var form = select.closest('.authForm');
+                if (!form) {
+                    return;
                 }
+                form.querySelectorAll('.passwordGroup').forEach(function (group) {
+                    group.style.display = select.value === 'local' ? '' : 'none';
+                });
+            }
+
+            document.querySelectorAll('.authMethod').forEach(function (select) {
+                select.addEventListener('change', function () {
+                    syncAuthForm(this);
+                });
+                syncAuthForm(select);
             });
-            $('.authMethod').trigger('change');
+        });
         });
     </script>
 
