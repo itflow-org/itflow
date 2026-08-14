@@ -116,17 +116,20 @@ $data = "otpauth://totp/ITFlow:$session_email?secret=$token";
     // on screen. This page is standalone and does not load js/app.js, so it
     // carries its own copy of the helper.
     function flashTooltip(button, message) {
-        $(button)
-            .tooltip('dispose')
-            .tooltip({
-                trigger: 'manual',
-                placement: 'bottom',
-                title: message
-            })
-            .tooltip('show');
+        const el = button instanceof Element ? button : $(button)[0];
+        if (!el) {
+            return;
+        }
+        bootstrap.Tooltip.getInstance(el)?.dispose();
+        const tip = new bootstrap.Tooltip(el, {
+            trigger: 'manual',
+            placement: 'bottom',
+            title: message
+        });
+        tip.show();
 
-        setTimeout(function() {
-            $(button).tooltip('dispose');
+        setTimeout(function () {
+            tip.dispose();
         }, 1000);
     }
 
@@ -144,7 +147,9 @@ $data = "otpauth://totp/ITFlow:$session_email?secret=$token";
 
     // Enable Popovers
     $(function () {
-        $('[data-bs-toggle="popover"]').popover()
+        document.querySelectorAll('[data-bs-toggle="popover"]').forEach(function (el) {
+            bootstrap.Popover.getOrCreateInstance(el);
+        })
     });
 
     </script>

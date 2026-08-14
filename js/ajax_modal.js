@@ -20,7 +20,7 @@ $(document).on('click', '.ajax-modal', function (e) {
     <div id="modal-loading-spinner" class="text-center p-5">
       <i class="fas fa-spinner fa-spin fa-2x text-muted"></i>
     </div>`;
-  $('.content-wrapper').append(loadingSpinner);
+  $('.app-main').append(loadingSpinner);
 
   // Make AJAX request
   $.ajax({
@@ -44,9 +44,9 @@ $(document).on('click', '.ajax-modal', function (e) {
           </div>
         </div>`;
 
-      $('.content-wrapper').append(modalHtml);
+      $('.app-main').append(modalHtml);
       const $modal = $('#' + modalId);
-      $modal.modal('show');
+      bootstrap.Modal.getOrCreateInstance($modal[0]).show();
 
       $modal.on('hidden.bs.modal', function () {
         $(this).remove();

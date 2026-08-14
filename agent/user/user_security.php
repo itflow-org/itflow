@@ -87,7 +87,7 @@ if (!empty($_SESSION['show_mfa_modal'])) {
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             // jQuery or vanilla JS to open the modal
-            $('#enableMFAModal').modal('show');
+            bootstrap.Modal.getOrCreateInstance(document.getElementById('enableMFAModal')).show();
         });
     </script>";
     unset($_SESSION['show_mfa_modal']);

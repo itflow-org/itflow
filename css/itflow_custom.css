@@ -58,3 +58,157 @@
     position: static;
     margin: 0;
 }
+
+/* ---------------------------------------------------------------
+   AdminLTE 4 compatibility.
+   v4 dropped .text-sm and the accent-* / navbar-* / sidebar-dark-*
+   trio that ITFlow's 16 theme choices were built on. In v3 the theme
+   colour drove the TOP NAVBAR, link colours and the active sidebar
+   item - the sidebar itself was always dark. That is reproduced here.
+   --------------------------------------------------------------- */
+.text-sm, .text-sm .form-control, .text-sm .form-select,
+.text-sm .btn, .text-sm .nav-link, .text-sm table {
+    font-size: .875rem;
+}
+
+/* one accent per theme - v3 used the same hex for navbar, links and
+   the active sidebar item */
+.theme-black { --itflow-accent: #000000; }
+.theme-blue { --itflow-accent: #007bff; }
+.theme-cyan { --itflow-accent: #17a2b8; }
+.theme-fuchsia { --itflow-accent: #f012be; }
+.theme-gray { --itflow-accent: #6c757d; }
+.theme-green { --itflow-accent: #28a745; }
+.theme-indigo { --itflow-accent: #6610f2; }
+.theme-lightblue { --itflow-accent: #3c8dbc; }
+.theme-maroon { --itflow-accent: #d81b60; }
+.theme-navy { --itflow-accent: #001f3f; }
+.theme-olive { --itflow-accent: #3d9970; }
+.theme-orange { --itflow-accent: #fd7e14; }
+.theme-pink { --itflow-accent: #e83e8c; }
+.theme-purple { --itflow-accent: #6f42c1; }
+.theme-red { --itflow-accent: #dc3545; }
+.theme-teal { --itflow-accent: #20c997; }
+
+/* top navbar takes the theme colour */
+.app-header.navbar {
+    background-color: var(--itflow-accent, #007bff) !important;
+}
+
+/* sidebar stays dark; only the ACTIVE item picks up the theme */
+.app-sidebar .sidebar-menu > .nav-item > .nav-link.active,
+.app-sidebar .nav-treeview > .nav-item > .nav-link.active {
+    background-color: var(--itflow-accent, #007bff);
+    color: #fff;
+}
+
+/* Bootstrap 5's reboot underlines every link; Bootstrap 4 did not, and
+   AdminLTE 3 additionally suppressed the hover underline. Restored so links
+   read the way they did before the migration. */
+a,
+a:hover,
+a:focus {
+    text-decoration: none;
+}
+
+/* links and accented controls */
+a:not(.dropdown-item):not(.btn-app):not(.nav-link):not(.brand-link):not(.page-link):not(.badge):not(.btn) {
+    color: var(--itflow-accent, #007bff);
+}
+a:not(.dropdown-item):not(.btn-app):not(.nav-link):not(.brand-link):not(.page-link):not(.badge):not(.btn):hover,
+.btn-link:hover,
+.nav-tabs .nav-link:hover {
+    /* v3 darkened the accent by exactly 15% HSL lightness on hover */
+    color: color-mix(in srgb, var(--itflow-accent, #007bff) 70%, #000);
+    color: hsl(from var(--itflow-accent, #007bff) h s calc(l - 15%));
+}
+.nav-tabs .nav-link.active { color: var(--itflow-accent, #007bff); }
+.page-item .page-link { color: var(--itflow-accent, #007bff); }
+.page-item.active .page-link {
+    background-color: var(--itflow-accent, #007bff);
+    border-color: var(--itflow-accent, #007bff);
+}
+.dropdown-item.active, .dropdown-item:active {
+    background-color: var(--itflow-accent, #007bff);
+}
+.form-control:focus, .form-select:focus, .form-check-input:focus {
+    border-color: var(--itflow-accent, #007bff);
+}
+.form-check-input:checked {
+    background-color: var(--itflow-accent, #007bff);
+    border-color: var(--itflow-accent, #007bff);
+}
+
+/* sidebar is ALWAYS dark - v4 gives .app-sidebar no background at all.
+   These are AdminLTE 3.2.0's [class*=sidebar-dark-] values verbatim. */
+.app-sidebar {
+    background-color: #343a40;
+}
+.app-sidebar .brand-link {
+    background-color: #343a40;
+    color: #fff;
+}
+.app-sidebar .sidebar-menu .nav-link,
+.app-sidebar .nav-header {
+    color: #c2c7d0;
+}
+.app-sidebar .sidebar-menu > .nav-item > .nav-link:focus,
+.app-sidebar .sidebar-menu > .nav-item:hover > .nav-link,
+.app-sidebar .sidebar-menu > .nav-item.menu-open > .nav-link {
+    background-color: rgba(255, 255, 255, .1);
+    color: #fff;
+}
+.app-sidebar .sidebar-menu > .nav-item > .nav-link.active {
+    color: #fff;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, .12), 0 1px 2px rgba(0, 0, 0, .24);
+}
+.app-sidebar .nav-treeview {
+    background-color: transparent;
+}
+
+/* Navbar search. v3 tinted the field with a LIGHTENED version of the theme
+   colour (navy #001f3f -> #002953 at rest, lighter again on focus) rather
+   than a fixed grey. The color-mix line is the fallback; the relative-colour
+   line reproduces v3's HSL lighten exactly where the browser supports it. */
+.app-header .form-control-navbar,
+.app-header .btn-navbar {
+    background-color: color-mix(in srgb, var(--itflow-accent, #007bff) 90%, #fff);
+    background-color: hsl(from var(--itflow-accent, #007bff) h s calc(l + 4%));
+    border-color: color-mix(in srgb, var(--itflow-accent, #007bff) 78%, #fff);
+    border-color: hsl(from var(--itflow-accent, #007bff) h s calc(l + 9%));
+    color: rgba(255, 255, 255, .8);
+    box-shadow: none;
+}
+.app-header .form-control-navbar::placeholder {
+    color: rgba(255, 255, 255, .6);
+}
+.app-header .form-control-navbar:focus,
+.app-header .form-control-navbar:focus + .btn-navbar {
+    background-color: color-mix(in srgb, var(--itflow-accent, #007bff) 82%, #fff);
+    background-color: hsl(from var(--itflow-accent, #007bff) h s calc(l + 9%));
+    border-color: hsl(from var(--itflow-accent, #007bff) h s calc(l + 14%));
+    color: #fff;
+    box-shadow: none;
+}
+.app-header .form-control-navbar:focus::placeholder {
+    color: #fff;
+}
+
+/* box/card colours AdminLTE 4 also dropped (bg-purple, bg-pink,
+   bg-olive and bg-gray are still used on a few pages) */
+.bg-black { background-color: #000 !important; }
+.bg-blue { background-color: rgba(63,103,145,.9) !important; }
+.bg-cyan { background-color: rgba(52,152,219,.9) !important; }
+.bg-fuchsia { background-color: rgba(246,114,216,.9) !important; }
+.bg-gray { background-color: rgba(108,117,125,.9) !important; }
+.bg-green { background-color: rgba(0,188,140,.9) !important; }
+.bg-indigo { background-color: rgba(102,16,242,.9) !important; }
+.bg-lightblue { background-color: rgba(134,186,216,.9) !important; }
+.bg-maroon { background-color: rgba(237,108,155,.9) !important; }
+.bg-navy { background-color: rgba(0,44,89,.9) !important; }
+.bg-olive { background-color: rgba(116,200,163,.9) !important; }
+.bg-orange { background-color: rgba(253,126,20,.9) !important; }
+.bg-pink { background-color: rgba(232,62,140,.9) !important; }
+.bg-purple { background-color: rgba(111,66,193,.9) !important; }
+.bg-red { background-color: rgba(231,76,60,.9) !important; }
+.bg-teal { background-color: rgba(32,201,151,.9) !important; }

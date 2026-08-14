@@ -194,7 +194,7 @@ while ($row = mysqli_fetch_assoc($sql)) {
                             allDayToggle.checked = true;
                             $(allDayToggle).trigger("change");
                         }
-                        $("#addCalendarEventModal").modal();
+                        bootstrap.Modal.getOrCreateInstance(document.getElementById('addCalendarEventModal')).show();
                     }
                 }
             },
@@ -274,7 +274,7 @@ while ($row = mysqli_fetch_assoc($sql)) {
             }
 
             calendar.unselect();
-            $("#addCalendarEventModal").modal();
+            bootstrap.Modal.getOrCreateInstance(document.getElementById('addCalendarEventModal')).show();
         },
         eventClick: function(editEvent) {
             var eventId = editEvent.event.id;

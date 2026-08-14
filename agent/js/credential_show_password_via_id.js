@@ -10,11 +10,12 @@ function showPasswordViaCredentialID(button, credential_id) {
 
             // (Re)create the popover with the fetched password and show it
             //  trigger: focus dismisses it when the user clicks away
-            jQuery(button).popover('dispose').popover({
+            bootstrap.Popover.getInstance(button)?.dispose();
+            new bootstrap.Popover(button, {
                 content: credential.password,
                 placement: 'top',
                 trigger: 'focus'
-            }).popover('show');
+            }).show();
         }
     );
 }

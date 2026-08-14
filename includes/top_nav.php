@@ -1,5 +1,5 @@
 <!-- Navbar -->
-<nav class="app-header navbar navbar-expand bg-<?= escapeHtml($config_theme) ?>" data-bs-theme="dark">
+<nav class="app-header navbar navbar-expand" data-bs-theme="dark">
 
     <!-- Left navbar links -->
     <ul class="navbar-nav">

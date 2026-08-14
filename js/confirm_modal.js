@@ -8,7 +8,7 @@ $(document).ready(function() {
       var linkReference = this;
 
       // Show the confirmation modal
-      $("#confirmationModal").modal('show');
+      bootstrap.Modal.getOrCreateInstance(document.getElementById('confirmationModal')).show();
 
       // When the submission is confirmed via the modal
       $("#confirmSubmitBtn").off('click').on('click', function() {

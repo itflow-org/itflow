@@ -967,7 +967,7 @@ $num_root_items = intval($row_root_files['num']) + intval($row_root_docs['num'])
 function openModal(index) {
     currentIndex = index;
     updateModalContent();
-    $('#viewFileModal').modal('show');
+    bootstrap.Modal.getOrCreateInstance(document.getElementById('viewFileModal')).show();
 }
 
 function updateModalContent() {

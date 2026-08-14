@@ -41,6 +41,6 @@ header("X-Frame-Options: DENY");
     <script src="/libs/jquery/jquery.min.js"></script>
     <script src="/libs/toastr/toastr.min.js"></script>
 </head>
-<body class="layout-fixed sidebar-expand-lg app-loaded">
+<body class="layout-fixed sidebar-expand-lg app-loaded theme-<?= escapeHtml($config_theme) ?>">
     <div class="app-wrapper text-sm">
 
