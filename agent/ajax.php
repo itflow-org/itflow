@@ -59,6 +59,83 @@ if (isset($_POST['client_set_notes'])) {
 
 }
 
+/*
+ * Inline notes for sales documents.
+ *
+ * These replace the invoice/quote/recurring-invoice note modals, which posted
+ * to post.php and reloaded the page. Same permission, client-access and audit
+ * behaviour as those handlers had - only the delivery changed.
+ */
+
+if (isset($_POST['invoice_set_notes'])) {
+
+    validateCSRFToken();
+
+    enforceUserPermission('module_sales', 2);
+
+    $invoice_id = intval($_POST['invoice_id']);
+    $note = escapeSql($_POST['note']);
+
+    $sql = mysqli_query($mysqli, "SELECT invoice_client_id, invoice_number, invoice_prefix FROM invoices WHERE invoice_id = $invoice_id");
+    $row = mysqli_fetch_assoc($sql);
+    $invoice_prefix = escapeSql($row['invoice_prefix']);
+    $invoice_number = intval($row['invoice_number']);
+    $client_id = intval($row['invoice_client_id']);
+
+    enforceClientAccess();
+
+    mysqli_query($mysqli, "UPDATE invoices SET invoice_note = '$note' WHERE invoice_id = $invoice_id");
+
+    logAudit("Invoice", "Edit", "$session_name edited notes on invoice $invoice_prefix$invoice_number", $client_id, $invoice_id);
+
+}
+
+if (isset($_POST['quote_set_notes'])) {
+
+    validateCSRFToken();
+
+    enforceUserPermission('module_sales', 2);
+
+    $quote_id = intval($_POST['quote_id']);
+    $note = escapeSql($_POST['note']);
+
+    $sql = mysqli_query($mysqli, "SELECT quote_client_id, quote_number, quote_prefix FROM quotes WHERE quote_id = $quote_id");
+    $row = mysqli_fetch_assoc($sql);
+    $quote_prefix = escapeSql($row['quote_prefix']);
+    $quote_number = intval($row['quote_number']);
+    $client_id = intval($row['quote_client_id']);
+
+    enforceClientAccess();
+
+    mysqli_query($mysqli, "UPDATE quotes SET quote_note = '$note' WHERE quote_id = $quote_id");
+
+    logAudit("Quote", "Edit", "$session_name edited notes on quote $quote_prefix$quote_number", $client_id, $quote_id);
+
+}
+
+if (isset($_POST['recurring_invoice_set_notes'])) {
+
+    validateCSRFToken();
+
+    enforceUserPermission('module_sales', 2);
+
+    $recurring_invoice_id = intval($_POST['recurring_invoice_id']);
+    $note = escapeSql($_POST['note']);
+
+    $sql = mysqli_query($mysqli, "SELECT recurring_invoice_prefix, recurring_invoice_number, recurring_invoice_client_id FROM recurring_invoices WHERE recurring_invoice_id = $recurring_invoice_id");
+    $row = mysqli_fetch_assoc($sql);
+    $recurring_invoice_prefix = escapeSql($row['recurring_invoice_prefix']);
+    $recurring_invoice_number = intval($row['recurring_invoice_number']);
+    $client_id = intval($row['recurring_invoice_client_id']);
+
+    enforceClientAccess();
+
+    mysqli_query($mysqli, "UPDATE recurring_invoices SET recurring_invoice_note = '$note' WHERE recurring_invoice_id = $recurring_invoice_id");
+
+    logAudit("Recurring Invoice", "Edit", "$session_name edited notes on recurring invoice $recurring_invoice_prefix$recurring_invoice_number", $client_id, $recurring_invoice_id);
+
+}
+
 if (isset($_POST['contact_set_notes'])) {
 
     validateCSRFToken();

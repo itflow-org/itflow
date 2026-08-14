@@ -319,34 +319,6 @@ if (isset($_POST['edit_recurring_invoice_item'])) {
 
 }
 
-if (isset($_POST['recurring_invoice_note'])) {
-
-    validateCSRFToken();
-
-    enforceUserPermission('module_sales', 2);
-
-    $recurring_invoice_id = intval($_POST['recurring_invoice_id']);
-    $note = escapeSql($_POST['note']);
-
-    // Get Recurring details for logging
-    $sql = mysqli_query($mysqli,"SELECT recurring_invoice_prefix, recurring_invoice_number, recurring_invoice_client_id FROM recurring_invoices WHERE recurring_invoice_id = $recurring_invoice_id");
-    $row = mysqli_fetch_assoc($sql);
-    $recurring_invoice_prefix = escapeSql($row['recurring_invoice_prefix']);
-    $recurring_invoice_number = intval($row['recurring_invoice_number']);
-    $client_id = intval($row['recurring_invoice_client_id']);
-
-    enforceClientAccess();
-
-    mysqli_query($mysqli,"UPDATE recurring_invoices SET recurring_invoice_note = '$note' WHERE recurring_invoice_id = $recurring_invoice_id");
-
-    logAudit("Recurring Invoice", "Edit", "$session_name added note to recurring invoice $recurring_invoice_prefix$recurring_invoice_number", $client_id, $recurring_invoice_id);
-
-    flashAlert("Notes added");
-
-    redirect();
-
-}
-
 if (isset($_GET['delete_recurring_invoice_item'])) {
 
     validateCSRFToken();

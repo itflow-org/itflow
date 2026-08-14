@@ -416,7 +416,7 @@ if (isset($_GET['ticket_id'])) {
             Ticket header - everything you need to identify the ticket and know
             what state it is in, without scrolling or hunting across cards.
         -->
-        <div class="card">
+        <div class="card mb-3">
             <div class="card-body pb-2">
 
                 <div class="d-flex flex-wrap justify-content-between">
@@ -932,7 +932,7 @@ if (isset($_GET['ticket_id'])) {
 
                 <!-- Tasks -->
                 <?php if (!$ticket_is_resolved || $task_count) { ?>
-                    <div class="card">
+                    <div class="card mb-3">
                         <div class="card-header px-3 py-2">
                             <h5 class="card-title mt-1">
                                 <i class="fas fa-fw fa-tasks me-2"></i>Tasks
@@ -1092,7 +1092,7 @@ if (isset($_GET['ticket_id'])) {
                 // is for links - setting the ticket's contact belongs here
                 $can_set_contact = $can_edit_ticket && !$ticket_is_resolved && $client_id;
                 if ($contact_id || $can_set_contact) { ?>
-                    <div class="card">
+                    <div class="card mb-3">
                         <div class="card-header px-3 py-2">
                             <h5 class="card-title mt-1"><i class="fas fa-fw fa-user-check me-2"></i>Contact</h5>
                             <?php if ($can_set_contact) { ?>
@@ -1163,7 +1163,7 @@ if (isset($_GET['ticket_id'])) {
                 $can_link = $can_edit_ticket && !$ticket_is_closed;
                 $has_links = $asset_id || $vendor_id || $project_id || $watcher_count;
                 if ($has_links || $can_link) { ?>
-                    <div class="card">
+                    <div class="card mb-3">
                         <div class="card-header px-3 py-2">
                             <h5 class="card-title mt-1"><i class="fas fa-fw fa-link me-2"></i>Linked</h5>
                             <div class="card-tools">

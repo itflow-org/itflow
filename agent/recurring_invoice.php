@@ -396,15 +396,23 @@ if (isset($_GET['recurring_invoice_id'])) {
                 <div class="col-sm-7">
                     <div class="card">
                         <div class="card-header text-bold">
-                            Notes
-                            <div class="card-tools d-print-none">
-                                <a href="#" class="btn btn-light btn-tool" data-bs-toggle="modal" data-bs-target="#recurringInvoiceNoteModal">
-                                    <i class="fas fa-edit"></i>
-                                </a>
-                            </div>
+                            Notes:
+                            <span class="d-print-none" data-note-status-for="recurringInvoiceNotes"></span>
                         </div>
-                        <div class="card-body">
-                            <?= nl2br($recurring_invoice_note) ?>
+                        <div class="card-body p-2">
+<?php if (lookupUserPermission("module_sales") >= 2) { ?>
+                            <textarea class="form-control itflow-inline-note d-print-none" rows="6"
+                                id="recurringInvoiceNotes"
+                                placeholder="Enter some notes"
+                                data-endpoint="recurring_invoice_set_notes"
+                                data-id-field="recurring_invoice_id"
+                                data-id="<?= $recurring_invoice_id ?>"
+                                data-csrf="<?= $_SESSION['csrf_token'] ?>"><?= $recurring_invoice_note ?></textarea>
+<?php } else { ?>
+                            <div class="d-print-none"><?= nl2br($recurring_invoice_note) ?></div>
+<?php } ?>
+                            <!-- Printed output must be plain text, not a form control -->
+                            <div class="d-none d-print-block"><?= nl2br($recurring_invoice_note) ?></div>
                         </div>
                     </div>
                 </div>
@@ -486,10 +494,14 @@ if (isset($_GET['recurring_invoice_id'])) {
 
     <?php
 
-    require_once "modals/recurring_invoice/recurring_invoice_note.php";
 
 }
 
+?>
+
+<script src="/js/inline_notes.js"></script>
+
+<?php
 require_once "../includes/footer.php";
 
 ?>

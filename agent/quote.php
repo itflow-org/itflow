@@ -432,16 +432,22 @@ if (isset($_GET['quote_id'])) {
                     <div class="card">
                         <div class="card-header text-bold">
                             Notes:
-                            <div class="card-tools d-print-none">
-                                <?php if (lookupUserPermission("module_sales") >= 2) { ?>
-                                    <a href="#" class="btn btn-light btn-tool" data-bs-toggle="modal" data-bs-target="#quoteNoteModal">
-                                        <i class="fas fa-edit"></i>
-                                    </a>
-                                <?php } ?>
-                            </div>
+                            <span class="d-print-none" data-note-status-for="quoteNotes"></span>
                         </div>
-                        <div class="card-body">
-                            <?= nl2br($quote_note) ?>
+                        <div class="card-body p-2">
+<?php if (lookupUserPermission("module_sales") >= 2) { ?>
+                            <textarea class="form-control itflow-inline-note d-print-none" rows="6"
+                                id="quoteNotes"
+                                placeholder="Enter some notes"
+                                data-endpoint="quote_set_notes"
+                                data-id-field="quote_id"
+                                data-id="<?= $quote_id ?>"
+                                data-csrf="<?= $_SESSION['csrf_token'] ?>"><?= $quote_note ?></textarea>
+<?php } else { ?>
+                            <div class="d-print-none"><?= nl2br($quote_note) ?></div>
+<?php } ?>
+                            <!-- Printed output must be plain text, not a form control -->
+                            <div class="d-none d-print-block"><?= nl2br($quote_note) ?></div>
                         </div>
                     </div>
                 </div>
@@ -579,9 +585,13 @@ if (isset($_GET['quote_id'])) {
     </div>
 
 <?php
-    require_once "modals/quote/quote_note.php";
 }
 
+?>
+
+<script src="/js/inline_notes.js"></script>
+
+<?php
 require_once "../includes/footer.php";
 
 ?>
