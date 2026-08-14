@@ -1,5 +1,4 @@
 <?php
-require_once "inc_confirm_modal.php";
 ?>
 
 <?php
@@ -45,6 +44,7 @@ if (basename(dirname($_SERVER['REQUEST_URI'])) === 'guest') { ?>
 
 <!-- AdminLTE App -->
 <script src="/libs/adminlte/js/adminlte.min.js"></script>
+<script src="/libs/sweetalert2/js/sweetalert2.min.js"></script>
 <script src="/js/autocomplete.js"></script>
 <script src="/js/app.js"></script>
 <script src="/js/ajax_modal.js"></script>

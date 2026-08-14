@@ -75,7 +75,7 @@ $remember_token_count = mysqli_num_rows($sql_remember_tokens);
 
 // Show the error alert if it exists:
 if (!empty($_SESSION['alert_type']) && $_SESSION['alert_type'] == 'error') {
-    echo "<div class='alert alert-danger'>{$_SESSION['alert_message']}</div>";
+    echo "<div class='alert alert-danger'>" . alertMessageHtml($_SESSION['alert_message']) . "</div>";
     // Clear it so it doesn't persist on refresh
     unset($_SESSION['alert_type']);
     unset($_SESSION['alert_message']);

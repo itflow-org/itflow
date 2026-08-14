@@ -29,6 +29,7 @@ header("X-Frame-Options: DENY");
     <!-- Custom Styles -->
     <link rel="stylesheet" href="/libs/flatpickr/css/flatpickr.min.css">
     <link rel="stylesheet" href="/libs/tom-select/css/tom-select.bootstrap5.min.css">
+    <link rel="stylesheet" href="/libs/sweetalert2/css/sweetalert2.min.css">
     <link rel="stylesheet" href="/libs/DataTables/datatables.min.css">
     <link rel="stylesheet" href="/libs/intl-tel-input/css/intlTelInput.min.css">
     <link rel="stylesheet" href="/libs/adminlte/css/adminlte.min.css">

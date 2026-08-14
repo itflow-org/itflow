@@ -36,23 +36,8 @@ if (!empty($_SESSION['alert_message'])) {
     $alert_style = $alert_styles[$alert_type] ?? 'text-bg-secondary';
     $alert_dark_text = in_array($alert_type, ['warning', 'alert', 'info'], true);
 
-    // Escape everything, then put back only these formatting tags.
-    $alert_allowed_tags = [
-        '<strong>', '</strong>',
-        '<b>', '</b>',
-        '<em>', '</em>',
-        '<i>', '</i>',
-        '<code>', '</code>',
-        '<br>', '<br/>', '<br />',
-    ];
-    $alert_safe_message = htmlspecialchars($_SESSION['alert_message'], ENT_QUOTES, 'UTF-8');
-    foreach ($alert_allowed_tags as $alert_tag) {
-        $alert_safe_message = str_replace(
-            htmlspecialchars($alert_tag, ENT_QUOTES, 'UTF-8'),
-            $alert_tag,
-            $alert_safe_message
-        );
-    }
+    // Escaping lives in one place now - see alertMessageHtml() in functions/sanitize.php
+    $alert_safe_message = alertMessageHtml($_SESSION['alert_message']);
 
     ?>
 

@@ -150,3 +150,41 @@ function escapeCsvFormula($value) {
 
     return $value;
 }
+
+/**
+ * Render a flash alert message for output.
+ *
+ * flashAlert() messages deliberately carry a little formatting markup - roughly
+ * 480 of the ~653 call sites wrap a value in <strong> - while 429 of them also
+ * interpolate PHP variables that are user controlled (custom link names, ticket
+ * status names, saved payment descriptions and so on). Escaping the lot would
+ * print the tags; printing the lot raw is an XSS hole.
+ *
+ * So: escape everything, then restore a fixed allowlist of formatting tags that
+ * carry no attributes and cannot execute. Attribute injection, </script>, event
+ * handlers and <a href> are all neutralised because the escaped forms are never
+ * put back.
+ *
+ * Every place that displays $_SESSION['alert_message'] must use this. Before it
+ * existed there were four separate implementations and one of them interpolated
+ * raw.
+ */
+function alertMessageHtml($message) {
+
+    $allowed_tags = [
+        '<strong>', '</strong>',
+        '<b>', '</b>',
+        '<em>', '</em>',
+        '<i>', '</i>',
+        '<code>', '</code>',
+        '<br>', '<br/>', '<br />',
+    ];
+
+    $safe = htmlspecialchars((string) $message, ENT_QUOTES, 'UTF-8');
+
+    foreach ($allowed_tags as $tag) {
+        $safe = str_replace(htmlspecialchars($tag, ENT_QUOTES, 'UTF-8'), $tag, $safe);
+    }
+
+    return $safe;
+}

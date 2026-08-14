@@ -21,7 +21,6 @@
 </p>
 
 
-<?php require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/inc_confirm_modal.php'; ?>
 
 <!-- jQuery -->
 
@@ -66,6 +65,7 @@
 
 <script src="/js/pretty_content.js"></script>
 
+<script src="/libs/sweetalert2/js/sweetalert2.min.js"></script>
 <script src="/js/confirm_modal.js"></script>
 
 <script src="/js/keepalive.js"></script>

@@ -1,25 +1,45 @@
-// Delegated on document rather than bound to the links present at page load, so
-// that confirm-link also works on markup injected by an ajax modal
+/**
+ * Confirmation dialogs, on SweetAlert2.
+ *
+ * Delegated on document rather than bound to the links present at page load, so
+ * that confirm-link also works on markup injected by an ajax modal.
+ *
+ * Per-link copy comes from data attributes, all optional:
+ *   data-confirm-title   heading            (default: "Are you sure?")
+ *   data-confirm-text    body               (default: none)
+ *   data-confirm-button  confirm label      (default: "Yes")
+ *   data-confirm-icon    warning|error|question|info|success
+ *
+ * A link whose classes mark it destructive (text-danger) defaults to a red
+ * confirm button and a warning icon, so the 92 delete links read as dangerous
+ * without touching any of them.
+ */
 document.addEventListener('click', function (e) {
     const link = e.target.closest('a.confirm-link');
-    if (!link) {
+    if (!link || typeof Swal === 'undefined') {
         return;
     }
     e.preventDefault();
 
-    const modalEl = document.getElementById('confirmationModal');
-    const confirmBtn = document.getElementById('confirmSubmitBtn');
-    if (!modalEl || !confirmBtn) {
-        return;
-    }
+    const destructive = link.classList.contains('text-danger');
 
-    // Replacing the node drops any handler left over from a previous link,
-    // which is what .off('click') used to do here.
-    const freshBtn = confirmBtn.cloneNode(true);
-    confirmBtn.replaceWith(freshBtn);
-    freshBtn.addEventListener('click', function () {
-        window.location.href = link.getAttribute('href');
+    Swal.fire({
+        title: link.dataset.confirmTitle || 'Are you sure?',
+        text: link.dataset.confirmText || '',
+        icon: link.dataset.confirmIcon || (destructive ? 'warning' : 'question'),
+        showCancelButton: true,
+        confirmButtonText: link.dataset.confirmButton || 'Yes',
+        cancelButtonText: 'Cancel',
+        reverseButtons: true,
+        focusCancel: destructive,
+        buttonsStyling: false,
+        customClass: {
+            confirmButton: destructive ? 'btn btn-danger mx-1' : 'btn btn-primary mx-1',
+            cancelButton: 'btn btn-secondary mx-1'
+        }
+    }).then(function (result) {
+        if (result.isConfirmed) {
+            window.location.href = link.getAttribute('href');
+        }
     });
-
-    bootstrap.Modal.getOrCreateInstance(modalEl).show();
 });

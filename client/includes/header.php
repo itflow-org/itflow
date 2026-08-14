@@ -28,6 +28,7 @@ header("X-Frame-Options: DENY"); // Legacy
 
     <!-- Theme style -->
     <link rel="stylesheet" href="/libs/adminlte/css/adminlte.min.css">
+    <link rel="stylesheet" href="/libs/sweetalert2/css/sweetalert2.min.css">
 
 </head>
 
@@ -155,7 +156,7 @@ header("X-Frame-Options: DENY"); // Legacy
         }
         ?>
         <div class="alert alert-<?= $_SESSION['alert_type'] ?>" id="alert">
-            <?= escapeHtml($_SESSION['alert_message']) ?>
+            <?= alertMessageHtml($_SESSION['alert_message']) ?>
             <button class='close' data-bs-dismiss='alert'>&times;</button>
         </div>
         <?php
