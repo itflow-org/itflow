@@ -325,7 +325,7 @@ ob_start();
 <script>
 
 function generatePassword() {
-    jQuery.get(
+    itflowGet(
         "ajax.php", {
             get_readable_pass: 'true'
         },

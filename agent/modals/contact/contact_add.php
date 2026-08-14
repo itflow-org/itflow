@@ -285,7 +285,7 @@ ob_start();
 <script>
 
 function generatePassword() {
-    jQuery.get(
+    itflowGet(
         "ajax.php", {
             get_readable_pass: 'true'
         },
@@ -321,7 +321,7 @@ document.addEventListener('DOMContentLoaded', function () {
     function checkContactEmail() {
         var email = document.getElementById("contact_email").value;
         //Send a GET request to ajax.php as ajax.php?contact_email_check=true&email=email
-        jQuery.get(
+        itflowGet(
             "ajax.php",
             {contact_email_check: 'true', email: email},
             function(data) {

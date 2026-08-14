@@ -1338,7 +1338,7 @@ if (isset($_GET['asset_id'])) {
             var notes = document.getElementById("assetNotes").value;
 
             // Send a POST request to ajax.php as ajax.php with data contact_set_notes=true, contact_id=NUM, notes=NOTES
-            jQuery.post(
+            itflowPost(
                 "ajax.php",
                 {
                     asset_set_notes: 'TRUE',

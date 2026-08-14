@@ -1,10 +1,11 @@
 <!-- Main Sidebar Container -->
 <aside class="app-sidebar shadow d-print-none" data-bs-theme="dark">
 
-    <a class="brand-link" href="/agent/dashboard.php">
-        <div class="brand-image"></div>
-        <span class="brand-text h4"><?= escapeHtml($session_company_name) ?></span>
-    </a>
+    <div class="sidebar-brand">
+        <a class="brand-link" href="/agent/dashboard.php">
+            <span class="brand-text h4"><?= escapeHtml($session_company_name) ?></span>
+        </a>
+    </div>
 
     <!-- Sidebar -->
     <div class="sidebar-wrapper">

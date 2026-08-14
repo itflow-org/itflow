@@ -168,10 +168,19 @@ a:not(.dropdown-item):not(.btn-app):not(.nav-link):not(.brand-link):not(.page-li
     color: hsl(from var(--itflow-accent, #007bff) h s calc(l - 15%));
 }
 .nav-tabs .nav-link.active { color: var(--itflow-accent, #007bff); }
-.page-item .page-link { color: var(--itflow-accent, #007bff); }
-.page-item.active .page-link {
-    background-color: var(--itflow-accent, #007bff);
-    border-color: var(--itflow-accent, #007bff);
+/* Pagination. Driving Bootstrap's own variables rather than overriding
+   .page-link directly: a flat `.page-item .page-link{color:...}` ties with
+   BS5's `.active>.page-link` and `.disabled>.page-link` on specificity and,
+   because this sheet loads last, silently won both - so the active number was
+   accent-on-accent (invisible) and disabled Prev/Next lost their muted grey. */
+.pagination {
+    --bs-pagination-color: var(--itflow-accent, #007bff);
+    --bs-pagination-hover-color: color-mix(in srgb, var(--itflow-accent, #007bff) 70%, #000);
+    --bs-pagination-hover-color: hsl(from var(--itflow-accent, #007bff) h s calc(l - 15%));
+    --bs-pagination-focus-color: var(--itflow-accent, #007bff);
+    --bs-pagination-active-color: #fff;
+    --bs-pagination-active-bg: var(--itflow-accent, #007bff);
+    --bs-pagination-active-border-color: var(--itflow-accent, #007bff);
 }
 .dropdown-item.active, .dropdown-item:active {
     background-color: var(--itflow-accent, #007bff);
@@ -189,8 +198,26 @@ a:not(.dropdown-item):not(.btn-app):not(.nav-link):not(.brand-link):not(.page-li
 .app-sidebar {
     background-color: #343a40;
 }
-.app-sidebar .brand-link {
+/* Sidebar header. v4 scopes its brand rules under .sidebar-brand, and its own
+   defaults centre the brand in a fixed 2.75rem box. v3's .brand-link was a
+   left-aligned block, and several of these headers carry a "Back | ..." line
+   that is taller than that, so height is relaxed and alignment restored. */
+.app-sidebar .sidebar-brand {
+    /* v4 deliberately pairs .sidebar-brand{height:2.75rem} with
+       .app-header{max-height:2.75rem} so the sidebar header lines up with the
+       top bar. Keep that height and cut the vertical padding instead - v4's
+       .8125rem leaves only 18px of the 44px box, which clips even an h6. */
+    height: 2.75rem;
+    padding: .25rem .5rem;
+    justify-content: flex-start;
     background-color: #343a40;
+    border-bottom: 1px solid #4b545c;
+}
+.app-sidebar .sidebar-brand .brand-link {
+    width: 100%;
+    color: #fff;
+}
+.app-sidebar .sidebar-brand .brand-text {
     color: #fff;
 }
 .app-sidebar .sidebar-menu .nav-link,

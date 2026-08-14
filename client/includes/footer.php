@@ -26,6 +26,7 @@
 
 <!-- Bootstrap 4 -->
 <script src="/libs/bootstrap/js/bootstrap.bundle.min.js"></script>
+<script src="/js/http.js"></script>
 
 <!--- TinyMCE -->
 <script src="/libs/tinymce/tinymce.min.js" referrerpolicy="origin"></script>

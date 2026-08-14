@@ -30,6 +30,7 @@ if (basename(dirname($_SERVER['REQUEST_URI'])) === 'guest') { ?>
 
 <!-- Bootstrap 5 -->
 <script src="/libs/bootstrap/js/bootstrap.bundle.min.js"></script>
+<script src="/js/http.js"></script>
 
 <!-- Custom js-->
 <script src="/libs/chart.js/chart.umd.min.js"></script>

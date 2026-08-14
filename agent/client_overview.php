@@ -811,7 +811,7 @@ $sql_asset_retired = mysqli_query(
         var notes = document.getElementById("clientNotes").value;
 
         // Send a POST request to ajax.php as ajax.php with data client_set_notes=true, client_id=NUM, notes=NOTES
-        jQuery.post(
+        itflowPost(
             "ajax.php",
             {
                 client_set_notes: 'TRUE',

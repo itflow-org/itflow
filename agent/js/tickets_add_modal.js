@@ -164,7 +164,7 @@
         }
 
         // Send a GET request to ajax.php as ajax.php?get_client_contacts=true&client_id=NUM
-        jQuery.get(
+        itflowGet(
             "ajax.php",
             {get_client_contacts: 'true', client_id: client_id},
             function(data) {
@@ -229,7 +229,7 @@
             return;
         }
 
-        jQuery.get(
+        itflowGet(
             "ajax.php",
             {get_client_assets: 'true', client_id: client_id},
             function(data) {
@@ -279,7 +279,7 @@
             return;
         }
 
-        jQuery.get(
+        itflowGet(
             "ajax.php",
             {get_client_locations: 'true', client_id: client_id},
             function(data) {
@@ -313,7 +313,7 @@
             return;
         }
 
-        jQuery.get(
+        itflowGet(
             "ajax.php",
             {get_client_vendors: 'true', client_id: client_id},
             function(data) {
@@ -347,7 +347,7 @@
             return;
         }
 
-        jQuery.get(
+        itflowGet(
             "ajax.php",
             {get_client_projects: 'true', client_id: client_id},
             function(data) {

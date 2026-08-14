@@ -95,6 +95,7 @@ $data = "otpauth://totp/ITFlow:$session_email?secret=$token";
     <!-- REQUIRED SCRIPTS -->
 
     <!-- Bootstrap 4 -->
+    <script src="/js/http.js"></script>
     <script src="../../libs/bootstrap/js/bootstrap.bundle.min.js"></script>
 
     <!-- Custom js-->

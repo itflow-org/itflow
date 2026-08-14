@@ -215,7 +215,7 @@ ob_start();
 
 function generatePassword() {
     // Send a GET request to ajax.php as ajax.php?get_readable_pass=true
-    jQuery.get(
+    itflowGet(
         "/agent/ajax.php", {
             get_readable_pass: 'true'
         },

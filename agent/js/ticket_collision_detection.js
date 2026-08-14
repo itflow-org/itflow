@@ -7,7 +7,7 @@ function ticket_collision_detection() {
     var ticket_id = document.getElementById("ticket_id").value;
 
     //Send a GET request to ajax.php as ajax.php?ticket_add_view=true&ticket_id=NUMBER
-    jQuery.get(
+    itflowGet(
         "ajax.php",
         {ticket_add_view: 'true', ticket_id: ticket_id},
         function(data) {
@@ -16,7 +16,7 @@ function ticket_collision_detection() {
     );
 
     //Send a GET request to ajax.php as ajax.php?ticket_query_views=true&ticket_id=NUMBER
-    jQuery.get(
+    itflowGet(
         "ajax.php",
         {ticket_query_views: 'true', ticket_id: ticket_id},
         function(data) {

@@ -1,3 +1,36 @@
+/**
+ * Re-run <script> elements that arrived via innerHTML, strictly in order.
+ *
+ * External scripts are awaited before the next one starts; inline scripts run
+ * synchronously. Order matters because a modal's own script is emitted before
+ * modal_footer.php's http.js / autocomplete.js / app.js, and depends on them.
+ */
+function runScriptsInOrder(scripts) {
+    return scripts.reduce(function (chain, old) {
+        return chain.then(function () {
+            return new Promise(function (resolve) {
+                const s = document.createElement('script');
+                for (const attr of old.attributes) {
+                    s.setAttribute(attr.name, attr.value);
+                }
+                if (old.src) {
+                    s.async = false;
+                    s.onload = resolve;
+                    s.onerror = function () {
+                        console.error('ajax-modal: failed to load', old.src);
+                        resolve();
+                    };
+                    old.replaceWith(s);
+                } else {
+                    s.textContent = old.textContent;
+                    old.replaceWith(s);
+                    resolve();
+                }
+            });
+        });
+    }, Promise.resolve());
+}
+
 // Ajax Modal Load Script
 document.addEventListener('click', function (e) {
     const trigger = e.target.closest('.ajax-modal');
@@ -64,19 +97,17 @@ document.addEventListener('click', function (e) {
                 '</div>';
             host.appendChild(wrapper);
 
-            // innerHTML does not execute <script> tags. The modal payload ends
-            // with modal_footer.php, which re-runs app.js to wire up Tom Select,
-            // IMask, flatpickr and friends - so re-inject them by hand.
-            wrapper.querySelectorAll('script').forEach(function (old) {
-                const s = document.createElement('script');
-                for (const attr of old.attributes) {
-                    s.setAttribute(attr.name, attr.value);
-                }
-                s.textContent = old.textContent;
-                old.replaceWith(s);
-            });
-
-            bootstrap.Modal.getOrCreateInstance(wrapper).show();
+            // innerHTML does not execute <script> tags, so they have to be
+            // re-injected. They must also run IN ORDER: a modal payload loads
+            // its own script first and modal_footer.php's http.js / app.js
+            // after, and the modal script depends on helpers those define.
+            // A dynamically created <script src> is async by default and would
+            // run in completion order instead - jQuery's .append() loaded them
+            // sequentially, which is the behaviour reproduced here.
+            runScriptsInOrder(Array.from(wrapper.querySelectorAll('script')))
+                .then(function () {
+                    bootstrap.Modal.getOrCreateInstance(wrapper).show();
+                });
 
             wrapper.addEventListener('hidden.bs.modal', function () {
                 wrapper.remove();

@@ -375,7 +375,7 @@ ob_start();
     function checkClientDuplicate() {
         var name = document.getElementById("client_name").value;
         //Send a GET request to ajax.php as ajax.php?client_duplicate_check=true&name=NAME
-        jQuery.get(
+        itflowGet(
             "ajax.php",
             {client_duplicate_check: 'true', name: name},
             function(data) {

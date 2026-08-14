@@ -1,11 +1,12 @@
 <!-- Main Sidebar Container -->
 <aside class="app-sidebar shadow d-print-none" data-bs-theme="dark">
 
-    <a class="pb-1 mt-1 brand-link" href="../<?= $config_start_page ?>">
-        <p class="h5"><i class="nav-icon fas fa-arrow-left ms-3 me-2"></i>
-            <span class="brand-text ">Back | <strong>Custom</strong>
-        </p>
-    </a>
+    <div class="sidebar-brand">
+        <a class="brand-link" href="../<?= $config_start_page ?>">
+            <i class="fas fa-arrow-left me-2"></i>
+            <span class="brand-text h5 mb-0">Back | <strong>Custom</strong></span>
+        </a>
+    </div>
 
     <!-- Sidebar -->
     <div class="sidebar-wrapper">

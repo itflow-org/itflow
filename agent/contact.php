@@ -1193,7 +1193,7 @@ if (isset($_GET['contact_id'])) {
             var notes = document.getElementById("contactNotes").value;
 
             // Send a POST request to ajax.php as ajax.php with data contact_set_notes=true, contact_id=NUM, notes=NOTES
-            jQuery.post(
+            itflowPost(
                 "ajax.php",
                 {
                     contact_set_notes: 'TRUE',
@@ -1210,7 +1210,7 @@ if (isset($_GET['contact_id'])) {
 
         function generatePassword(type, id) {
             // Send a GET request to ajax.php as ajax.php?get_readable_pass=true
-            jQuery.get(
+            itflowGet(
                 "ajax.php", {
                     get_readable_pass: 'true'
                 },

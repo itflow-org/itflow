@@ -33,7 +33,7 @@ function generateShareLink() {
     // Check values are provided
     if (item_expires) {
         // Send a GET request to ajax.php as ajax.php?share_generate_link=true....
-        jQuery.get(
+        itflowGet(
             "ajax.php",
             {share_generate_link: 'true', csrf_token: csrf_token, client_id: client_id, type: item_type, id: item_ref_id, note: item_note ,views: item_views, expires: item_expires, contact_email},
             function(data) {

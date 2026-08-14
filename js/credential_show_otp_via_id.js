@@ -1,6 +1,6 @@
 function showOTPViaCredentialID(credential_id) {
     // Send a GET request to ajax.php as ajax.php?get_totp_token_via_id=true&credential_id=ID
-    jQuery.get(
+    itflowGet(
         "../ajax.php", {
             get_totp_token_via_id: 'true',
             credential_id: credential_id

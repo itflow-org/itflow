@@ -1,6 +1,6 @@
 function showPasswordViaCredentialID(button, credential_id) {
     // Send a GET request to ajax.php as ajax.php?get_credential_via_id=true&credential_id=ID
-    jQuery.get(
+    itflowGet(
         "ajax.php", {
             get_credential_via_id: 'true',
             credential_id: credential_id
@@ -21,7 +21,7 @@ function showPasswordViaCredentialID(button, credential_id) {
 }
 
 function copyPasswordViaCredentialID(button, credential_id) {
-    jQuery.get(
+    itflowGet(
         "ajax.php", {
             get_credential_via_id: 'true',
             credential_id: credential_id

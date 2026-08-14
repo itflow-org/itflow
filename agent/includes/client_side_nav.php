@@ -1,14 +1,12 @@
 <!-- Main Sidebar Container -->
 <aside class="app-sidebar shadow d-print-none" data-bs-theme="dark">
 
-    <a class="brand-link pb-1 mt-1" href="/agent/clients.php">
-        <p class="h5">
-            <i class="nav-icon fas fa-arrow-left ms-3 me-1"></i>
-             <span class="brand-text">
-                 Back | <strong><?= $client_name_truncated ?></strong>
-            </span>
-        </p>
-    </a>
+    <div class="sidebar-brand">
+        <a class="brand-link" href="/agent/clients.php">
+            <i class="fas fa-arrow-left me-2"></i>
+            <span class="brand-text h5 mb-0">Back | <strong><?= $client_name_truncated ?></strong></span>
+        </a>
+    </div>
 
     <!-- Sidebar -->
     <div class="sidebar-wrapper">

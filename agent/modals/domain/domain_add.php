@@ -185,7 +185,7 @@ ob_start();
     function checkApexDomain() {
         var domain = document.getElementById("domain_name").value;
         //Send a GET request to ajax.php as ajax.php?apex_domain_check=true&domain=domain
-        jQuery.get(
+        itflowGet(
             "ajax.php",
             {apex_domain_check: 'true', domain: domain},
             function(data) {

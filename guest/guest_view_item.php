@@ -243,7 +243,7 @@ if ($item_type == "Document") {
     <script>
         function refreshOTP() {
             // Send a GET request to guest_ajax.php as guest_ajax.php?get_share_totp_token=true&id=ID&key=KEY
-            jQuery.get(
+            itflowGet(
                 "guest_ajax.php",
                 {
                     get_share_totp_token: 'true',

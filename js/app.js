@@ -8,38 +8,20 @@
  * jQuery's delegation contract so the handler bodies are unchanged.
  */
 /**
- * $.post replacement. jQuery serialised nested arrays/objects into PHP-style
- * bracket params (positions[0][status_id]=...), which is what ajax.php parses,
- * so that encoding is reproduced here rather than sending JSON.
+ * Run one initialiser in isolation.
+ *
+ * itflowInit() sets up eight independent libraries in sequence. Without this,
+ * a throw in any one of them aborts the whole function and every initialiser
+ * after it silently never runs - which is exactly the kind of failure that
+ * looks like "everything is broken" while the console shows one error from a
+ * library you were not looking at.
  */
-function itflowPostForm(url, data) {
-    const params = new URLSearchParams();
-
-    (function add(prefix, value) {
-        if (Array.isArray(value)) {
-            value.forEach(function (v, i) {
-                add(prefix + '[' + i + ']', v);
-            });
-        } else if (value !== null && typeof value === 'object') {
-            Object.keys(value).forEach(function (k) {
-                add(prefix ? prefix + '[' + k + ']' : k, value[k]);
-            });
-        } else {
-            params.append(prefix, value === true ? 'true' : String(value));
-        }
-    })('', data);
-
-    return fetch(url, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-        credentials: 'same-origin',
-        body: params.toString()
-    }).then(function (res) {
-        if (!res.ok) {
-            throw new Error('HTTP ' + res.status);
-        }
-        return res.text();
-    });
+function itflowStep(name, fn) {
+    try {
+        fn();
+    } catch (e) {
+        console.error('itflow init [' + name + '] failed:', e);
+    }
 }
 
 function itflowBindOnce(name, type, selector, handler) {
@@ -90,8 +72,10 @@ function itflowInit() {
 
     // Initialize Tom Select (replaces Select2). Every instance is reachable
     // afterwards as element.tomselect, which is how the helpers below reach it.
-    document.querySelectorAll('.select2').forEach(function (el) {
-        initTomSelect(el);
+    itflowStep('tom-select', function () {
+        document.querySelectorAll('.select2').forEach(function (el) {
+            initTomSelect(el);
+        });
     });
 
     // Initialize TinyMCE
@@ -532,23 +516,29 @@ function itflowInit() {
     // the lever, not a Bootstrap patch.
 
     // Clipboard
-    var clipboard = new ClipboardJS('.clipboardjs');
+    itflowStep('clipboard', function () {
+        var clipboard = new ClipboardJS('.clipboardjs');
 
-    clipboard.on('success', function(e) {
-        flashTooltip(e.trigger, 'Copied!');
-    });
+        clipboard.on('success', function(e) {
+            flashTooltip(e.trigger, 'Copied!');
+        });
 
-    clipboard.on('error', function(e) {
-        flashTooltip(e.trigger, 'Failed!');
+        clipboard.on('error', function(e) {
+            flashTooltip(e.trigger, 'Failed!');
+        });
     });
 
     // Enable Popovers
-    document.querySelectorAll('[data-bs-toggle="popover"]').forEach(function (el) {
-        bootstrap.Popover.getOrCreateInstance(el);
+    itflowStep('popovers', function () {
+        document.querySelectorAll('[data-bs-toggle="popover"]').forEach(function (el) {
+            bootstrap.Popover.getOrCreateInstance(el);
+        });
     });
 
     // Data Tables
-    new DataTable('.dataTables');
+    itflowStep('datatables', function () {
+        new DataTable('.dataTables');
+    });
 }
 
 // modal_footer.php re-loads this file on every ajax modal open, so run now if
