@@ -576,7 +576,7 @@ if (isset($_POST['add_telemetry'])) {
         <!-- Brand Logo -->
         <div class="sidebar-brand">
             <a href="https://itflow.org" class="brand-link">
-                <h3 class="brand-text fw-light"><i class="fas fa-paper-plane text-primary me-2"></i><span class="text-primary text-bold">IT</span>Flow</h3>
+                <h3 class="brand-text fw-light mb-0"><i class="fas fa-paper-plane text-primary me-2"></i><span class="text-primary text-bold">IT</span>Flow</h3>
             </a>
         </div>
 

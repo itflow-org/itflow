@@ -65,7 +65,7 @@
             <a class="nav-link ajax-modal" href="#" data-modal-url="/modals/notifications.php">
                 <i class="fas fa-bell"></i>
                 <?php if ($num_notifications) { ?>
-                <span class="badge bg-light text-dark rounded-pill navbar-badge position-absolute" style="top: 1px; right: 3px;">
+                <span class="badge bg-light text-dark rounded-pill navbar-badge">
                     <?= $num_notifications ?>
                 </span>
                 <?php } ?>

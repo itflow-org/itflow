@@ -140,6 +140,58 @@
     background-color: var(--itflow-accent, #007bff) !important;
 }
 
+/* Navbar height. v4 pairs .app-header{max-height:2.75rem} with 0.5rem of
+   navbar padding, but the tallest children - the 2rem avatar and the
+   input-group-sm search box - want 47-48px, so they overflow that 44px cap.
+   Everything below is sized so it fits inside a 2.75rem bar.
+   NOTE: .sidebar-brand is the matching half of this pair and is set to the
+   same height further down - change both or they stop lining up. */
+.app-header.navbar {
+    --bs-navbar-padding-y: .35rem;
+    min-height: 2.75rem;
+    max-height: 2.75rem;
+}
+/* Every item stretches the full bar and centres its own contents, so icons,
+   the avatar and the search box all sit on the same optical line regardless of
+   their individual heights. */
+.app-header .navbar-nav {
+    align-items: stretch;
+}
+.app-header .navbar-nav > .nav-item {
+    display: flex;
+    align-items: center;
+}
+.app-header .navbar-nav .nav-link {
+    display: flex;
+    align-items: center;
+    height: 100%;
+    max-height: none;
+    padding-top: 0;
+    padding-bottom: 0;
+}
+/* v4 sizes the avatar 2rem with a -2px nudge, which is too tall for this bar */
+.app-header .navbar-nav > .user-menu .user-image {
+    width: 1.6rem;
+    height: 1.6rem;
+    margin-top: 0;
+}
+/* the search box is the other oversized child */
+.app-header .input-group-sm > .form-control,
+.app-header .input-group-sm > .btn {
+    height: 1.9rem;
+    padding-top: 0;
+    padding-bottom: 0;
+    line-height: 1.9rem;
+}
+/* .navbar-badge positions itself (top:9px/right:5px) for a taller bar; the
+   markup used to override that inline, which is why it drifted when the bar
+   was tightened. Positioned against the flex-centred link instead. */
+.app-header .navbar-badge {
+    top: .15rem;
+    right: .15rem;
+    font-size: .65rem;
+}
+
 /* sidebar stays dark; only the ACTIVE item picks up the theme */
 .app-sidebar .sidebar-menu > .nav-item > .nav-link.active,
 .app-sidebar .nav-treeview > .nav-item > .nav-link.active {
@@ -205,8 +257,9 @@ a:not(.dropdown-item):not(.btn-app):not(.nav-link):not(.brand-link):not(.page-li
 .app-sidebar .sidebar-brand {
     /* v4 deliberately pairs .sidebar-brand{height:2.75rem} with
        .app-header{max-height:2.75rem} so the sidebar header lines up with the
-       top bar. Keep that height and cut the vertical padding instead - v4's
-       .8125rem leaves only 18px of the 44px box, which clips even an h6. */
+       top bar. Both are set to 2.75rem above - change them together or
+       they stop lining up. v4's .8125rem padding leaves too little room for
+       the heading, so it is cut right down. */
     height: 2.75rem;
     padding: .25rem .5rem;
     justify-content: flex-start;
@@ -219,6 +272,21 @@ a:not(.dropdown-item):not(.btn-app):not(.nav-link):not(.brand-link):not(.page-li
 }
 .app-sidebar .sidebar-brand .brand-text {
     color: #fff;
+    line-height: 1.2;
+}
+/* Bootstrap sizes .h1-.h4 responsively (e.g. .h4 is calc(1.275rem + .3vw)), so
+   on a wide screen they outgrow the bar and v4's .sidebar-brand{overflow:hidden}
+   clips them. Cap ONLY those - .h5 (1.25rem) and .h6 (1rem) are fixed and must
+   keep their own size, or the "Back | ..." headers get blown up to h4. */
+.app-sidebar .sidebar-brand .brand-text.h1,
+.app-sidebar .sidebar-brand .brand-text.h2,
+.app-sidebar .sidebar-brand .brand-text.h3,
+.app-sidebar .sidebar-brand .brand-text.h4,
+.app-sidebar .sidebar-brand h1.brand-text,
+.app-sidebar .sidebar-brand h2.brand-text,
+.app-sidebar .sidebar-brand h3.brand-text,
+.app-sidebar .sidebar-brand h4.brand-text {
+    font-size: min(1.6rem, calc(1.275rem + .3vw));
 }
 .app-sidebar .sidebar-menu .nav-link,
 .app-sidebar .nav-header {

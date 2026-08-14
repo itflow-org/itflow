@@ -3,7 +3,7 @@
 
     <div class="sidebar-brand">
         <a class="brand-link" href="/agent/dashboard.php">
-            <span class="brand-text h4"><?= escapeHtml($session_company_name) ?></span>
+            <span class="brand-text h4 mb-0"><?= escapeHtml($session_company_name) ?></span>
         </a>
     </div>
 
