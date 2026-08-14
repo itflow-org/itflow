@@ -183,7 +183,7 @@ ob_start();
                 </div>
 
                 <div class="mb-3">
-                    <label for="logins">Select related Credentials</label>
+                    <label for="credentials">Select related Credentials</label>
                     <select class="form-select select2" id="credentials" name="credentials[]" multiple>
                         <?php
                         $sql = mysqli_query($mysqli, "SELECT credential_id, credential_name FROM credentials WHERE credential_archived_at IS NULL AND credential_client_id = $client_id");

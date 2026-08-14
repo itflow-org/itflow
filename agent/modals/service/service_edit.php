@@ -175,7 +175,7 @@ ob_start();
 
                 <div class="mb-3">
                     <label for="contacts">Contacts</label>
-                    <select multiple class="form-select select2" name="contacts[]">
+                    <select multiple class="form-select select2" id="contacts" name="contacts[]">
                         <?php
                         // Get just the currently selected contact IDs
                         $selected_ids = array_column(mysqli_fetch_all($sql_contacts, MYSQLI_ASSOC), "contact_id");
@@ -202,7 +202,7 @@ ob_start();
 
                 <div class="mb-3">
                     <label for="vendors">Vendors</label>
-                    <select multiple class="form-select select2" name="vendors[]">
+                    <select multiple class="form-select select2" id="vendors" name="vendors[]">
                         <?php
                         $selected_ids = array_column(mysqli_fetch_all($sql_vendors, MYSQLI_ASSOC), "vendor_id");
 
@@ -224,7 +224,7 @@ ob_start();
 
                 <div class="mb-3">
                     <label for="documents">Documents</label>
-                    <select multiple class="form-select select2" name="documents[]">
+                    <select multiple class="form-select select2" id="documents" name="documents[]">
                         <?php
                         $selected_ids = array_column(mysqli_fetch_all($sql_docs, MYSQLI_ASSOC), "document_id");
 
@@ -254,7 +254,7 @@ ob_start();
 
                 <div class="mb-3">
                     <label for="assets">Assets</label>
-                    <select multiple class="form-select select2" name="assets[]">
+                    <select multiple class="form-select select2" id="assets" name="assets[]">
                         <?php
                         $selected_ids = array_column(mysqli_fetch_all($sql_assets, MYSQLI_ASSOC), "asset_id");
 
@@ -276,7 +276,7 @@ ob_start();
 
                 <div class="mb-3">
                     <label for="credentials">Credentials</label>
-                    <select multiple class="form-select select2" name="credentials[]">
+                    <select multiple class="form-select select2" id="credentials" name="credentials[]">
                         <?php
                         $selected_ids = array_column(mysqli_fetch_all($sql_credentials, MYSQLI_ASSOC), "credential_id");
 
@@ -298,7 +298,7 @@ ob_start();
 
                 <div class="mb-3">
                     <label for="domains">Domains</label>
-                    <select multiple class="form-select select2" name="domains[]">
+                    <select multiple class="form-select select2" id="domains" name="domains[]">
                         <?php
                         $selected_ids = array_column(mysqli_fetch_all($sql_domains, MYSQLI_ASSOC), "domain_id");
 
@@ -320,7 +320,7 @@ ob_start();
 
                 <div class="mb-3">
                     <label for="certificates">Certificates</label>
-                    <select multiple class="form-select select2" name="certificates[]">
+                    <select multiple class="form-select select2" id="certificates" name="certificates[]">
                         <?php
                         $selected_ids = array_column(mysqli_fetch_all($sql_certificates, MYSQLI_ASSOC), "certificate_id");
 

@@ -81,7 +81,7 @@ ob_start();
 
         <div class="mb-3">
             <div class="form-check">
-                <input class="form-check-input" type="checkbox" name="merge_move_replies" value="1">
+                <input class="form-check-input" type="checkbox" id="checkMoveReplies" name="merge_move_replies" value="1">
                 <label class="form-check-label" for="checkMoveReplies">
                     Move notes & replies to the new parent ticket
                 </label>

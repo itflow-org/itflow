@@ -51,10 +51,10 @@ ob_start();
 
                 <!-- Type -->
                 <div class="mb-3">
-                    <label for="network">Interface Type</label>
+                    <label for="interface_type">Interface Type</label>
                     <div class="input-group">
                             <span class="input-group-text"><i class="fa fa-fw fa-plug"></i></span>
-                        <select class="form-select select2" name="type">
+                        <select class="form-select select2" id="interface_type" name="type">
                             <option value="">- Select Type -</option>
                             <?php
                             $sql_interface_types_select = mysqli_query($mysqli, "
