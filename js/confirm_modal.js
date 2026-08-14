@@ -1,18 +1,25 @@
 // Delegated on document rather than bound to the links present at page load, so
 // that confirm-link also works on markup injected by an ajax modal
-$(document).ready(function() {
-  $(document).off('click.itflowConfirm').on('click.itflowConfirm', 'a.confirm-link', function(e) {
-      e.preventDefault();
+document.addEventListener('click', function (e) {
+    const link = e.target.closest('a.confirm-link');
+    if (!link) {
+        return;
+    }
+    e.preventDefault();
 
-      // Save the link reference to use after confirmation
-      var linkReference = this;
+    const modalEl = document.getElementById('confirmationModal');
+    const confirmBtn = document.getElementById('confirmSubmitBtn');
+    if (!modalEl || !confirmBtn) {
+        return;
+    }
 
-      // Show the confirmation modal
-      bootstrap.Modal.getOrCreateInstance(document.getElementById('confirmationModal')).show();
+    // Replacing the node drops any handler left over from a previous link,
+    // which is what .off('click') used to do here.
+    const freshBtn = confirmBtn.cloneNode(true);
+    confirmBtn.replaceWith(freshBtn);
+    freshBtn.addEventListener('click', function () {
+        window.location.href = link.getAttribute('href');
+    });
 
-      // When the submission is confirmed via the modal
-      $("#confirmSubmitBtn").off('click').on('click', function() {
-          window.location.href = $(linkReference).attr('href');
-      });
-  });
+    bootstrap.Modal.getOrCreateInstance(modalEl).show();
 });
