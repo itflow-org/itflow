@@ -19,7 +19,7 @@
                         <label>Type <strong class="text-danger">*</strong></label>
                         <div class="input-group">
                                 <span class="input-group-text"><i class="fa fa-fw fa-th"></i></span>
-                            <select class="form-control select2" name="type" required>
+                            <select class="form-select select2" name="type" required>
                                 <option value="">- Select a field type -</option>
                                 <option <?php if ($custom_field_type == 'text') { echo "selected"; } ?> value="text">Text</option>
                             </select>

@@ -72,7 +72,7 @@ ob_start();
                 <label>Account <strong class="text-danger">*</strong></label>
                 <div class="input-group">
                         <span class="input-group-text"><i class="fa fa-fw fa-piggy-bank"></i></span>
-                    <select class="form-control select2" name="account" required>
+                    <select class="form-select select2" name="account" required>
                         <?php
 
                         $sql_accounts = mysqli_query($mysqli, "SELECT account_id, account_name, opening_balance, account_archived_at FROM accounts WHERE (account_archived_at > '$expense_created_at' OR account_archived_at IS NULL) ORDER BY account_archived_at ASC, account_name ASC");
@@ -115,7 +115,7 @@ ob_start();
                 <label>Vendor <strong class="text-danger">*</strong></label>
                 <div class="input-group">
                         <span class="input-group-text"><i class="fa fa-fw fa-building"></i></span>
-                    <select class="form-control select2" name="vendor" required>
+                    <select class="form-select select2" name="vendor" required>
                         <?php
 
                         $sql_select = mysqli_query($mysqli, "SELECT vendor_id, vendor_name FROM vendors WHERE vendor_client_id = 0 AND (vendor_archived_at > '$expense_created_at' OR vendor_archived_at IS NULL) ORDER BY vendor_name ASC");
@@ -154,7 +154,7 @@ ob_start();
                 <label>Category <strong class="text-danger">*</strong></label>
                 <div class="input-group">
                         <span class="input-group-text"><i class="fa fa-fw fa-list"></i></span>
-                    <select class="form-control select2" name="category" required>
+                    <select class="form-select select2" name="category" required>
                         <?php
 
                         $sql_select = mysqli_query($mysqli, "SELECT category_id, category_name FROM categories WHERE category_type = 'Expense' AND (category_archived_at > '$expense_created_at' OR category_archived_at IS NULL) ORDER BY category_name ASC");
@@ -183,7 +183,7 @@ ob_start();
                     <label>Client</label>
                     <div class="input-group">
                             <span class="input-group-text"><i class="fa fa-fw fa-user"></i></span>
-                        <select class="form-control select2" name="client_id">
+                        <select class="form-select select2" name="client_id">
                             <option value="">- Select Client -</option>
                             <?php
 

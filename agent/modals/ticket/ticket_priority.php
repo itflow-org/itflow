@@ -41,7 +41,7 @@ ob_start();
             <label>Priority</label>
             <div class="input-group">
                     <span class="input-group-text"><i class="fa fa-fw fa-thermometer-half"></i></span>
-                <select class="form-control select2" name="priority" required>
+                <select class="form-select select2" name="priority" required>
                     <option <?php if ($ticket_priority == 'Low') { echo "selected"; } ?> >Low</option>
                     <option <?php if ($ticket_priority == 'Medium') { echo "selected"; } ?> >Medium</option>
                     <option <?php if ($ticket_priority == 'High') { echo "selected"; } ?> >High</option>

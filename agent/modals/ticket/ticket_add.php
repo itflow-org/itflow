@@ -54,7 +54,7 @@ ob_start();
                             <label>Client <strong class="text-danger">*</strong></label>
                             <div class="input-group">
                                     <span class="input-group-text"><i class="fa fa-fw fa-user"></i></span>
-                                <select class="form-control select2" name="client_id" id="changeClientSelect" required <?php if ($client_id) { echo "disabled"; } ?>>
+                                <select class="form-select select2" name="client_id" id="changeClientSelect" required <?php if ($client_id) { echo "disabled"; } ?>>
                                     <option value="">- Select a Client -</option>
                                     <?php
 
@@ -75,7 +75,7 @@ ob_start();
                             <label>Contact </label>
                             <div class="input-group">
                                     <span class="input-group-text"><i class="fa fa-fw fa-user"></i></span>
-                                <select class="form-control select2" name="contact_id" id="contactSelect" data-selected="<?= $contact_id ?>">
+                                <select class="form-select select2" name="contact_id" id="contactSelect" data-selected="<?= $contact_id ?>">
                                     <option value="0">- No One -</option>
                                 </select>
                             </div>
@@ -104,7 +104,7 @@ ob_start();
                             <label>Priority <strong class="text-danger">*</strong></label>
                             <div class="input-group">
                                     <span class="input-group-text"><i class="fa fa-fw fa-thermometer-half"></i></span>
-                                <select class="form-control select2" name="priority" required>
+                                <select class="form-select select2" name="priority" required>
                                     <option>Low</option>
                                     <option>Medium</option>
                                     <option>High</option>
@@ -119,7 +119,7 @@ ob_start();
                             <label>Category</label>
                             <div class="input-group">
                                     <span class="input-group-text"><i class="fa fa-fw fa-layer-group"></i></span>
-                                <select class="form-control select2" name="category_id">
+                                <select class="form-select select2" name="category_id">
                                     <option value="0">- Not Categorized -</option>
                                     <?php
                                     $sql_categories = mysqli_query($mysqli, "SELECT category_id, category_name FROM categories WHERE category_type = 'Ticket' AND category_archived_at IS NULL ORDER BY category_name ASC");
@@ -147,7 +147,7 @@ ob_start();
                             <label>Assign to</label>
                             <div class="input-group">
                                     <span class="input-group-text"><i class="fa fa-fw fa-user-check"></i></span>
-                                <select class="form-control select2" name="assigned_to">
+                                <select class="form-select select2" name="assigned_to">
                                     <option value="0">- Unassigned -</option>
                                     <?php
 
@@ -199,7 +199,7 @@ ob_start();
                     <label>Project</label>
                     <div class="input-group">
                             <span class="input-group-text"><i class="fa fa-fw fa-project-diagram"></i></span>
-                        <select class="form-control select2" name="project_id" id="projectSelect" data-selected="<?= $project_id ?>">
+                        <select class="form-select select2" name="project_id" id="projectSelect" data-selected="<?= $project_id ?>">
                         </select>
                     </div>
                 </div>
@@ -208,7 +208,7 @@ ob_start();
                     <label>Asset</label>
                     <div class="input-group">
                             <span class="input-group-text"><i class="fa fa-fw fa-desktop"></i></span>
-                        <select class="form-control select2" name="asset_id" id="assetSelect" data-selected="<?= $asset_id ?>">
+                        <select class="form-select select2" name="asset_id" id="assetSelect" data-selected="<?= $asset_id ?>">
                         </select>
                     </div>
                 </div>
@@ -217,7 +217,7 @@ ob_start();
                     <label>Additional Assets</label>
                     <div class="input-group">
                             <span class="input-group-text"><i class="fa fa-fw fa-desktop"></i></span>
-                        <select class="form-control select2" name="additional_assets[]" id="additionalAssetsSelect" data-placeholder="- Select Additional Assets -" multiple>
+                        <select class="form-select select2" name="additional_assets[]" id="additionalAssetsSelect" data-placeholder="- Select Additional Assets -" multiple>
                         </select>
                     </div>
                 </div>
@@ -226,7 +226,7 @@ ob_start();
                     <label>Location</label>
                     <div class="input-group">
                             <span class="input-group-text"><i class="fa fa-fw fa-map-marker-alt"></i></span>
-                        <select class="form-control select2" name="location_id" id="locationSelect">
+                        <select class="form-select select2" name="location_id" id="locationSelect">
                         </select>
                     </div>
                 </div>
@@ -238,7 +238,7 @@ ob_start();
                             <label>Vendor</label>
                             <div class="input-group">
                                     <span class="input-group-text"><i class="fa fa-fw fa-building"></i></span>
-                                <select class="form-control select2" name="vendor_id" id="vendorSelect">
+                                <select class="form-select select2" name="vendor_id" id="vendorSelect">
                                 </select>
                             </div>
                         </div>
@@ -260,7 +260,7 @@ ob_start();
                     <label>Watchers</label>
                     <div class="input-group">
                             <span class="input-group-text"><i class="fa fa-fw fa-envelope"></i></span>
-                        <select class="form-control select2" name="watchers[]" id="watchersSelect" data-tags="true" data-placeholder="Enter or select email address" multiple>
+                        <select class="form-select select2" name="watchers[]" id="watchersSelect" data-tags="true" data-placeholder="Enter or select email address" multiple>
                         </select>
                     </div>
                 </div>

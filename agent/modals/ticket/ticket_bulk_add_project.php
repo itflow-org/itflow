@@ -25,7 +25,7 @@ ob_start();
             <label>Project</label>
             <div class="input-group">
                     <span class="input-group-text"><i class="fa fa-fw fa-project-diagram"></i></span>
-                <select class="form-control select2" name="project_id">
+                <select class="form-select select2" name="project_id">
                     <option value="0">No Project</option>
                     <?php
                     $sql_projects_select = mysqli_query($mysqli, "SELECT project_id, project_name, project_prefix, project_number FROM projects

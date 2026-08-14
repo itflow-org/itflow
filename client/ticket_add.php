@@ -41,7 +41,7 @@ $sql_assets = mysqli_query($mysqli, "SELECT asset_id, asset_name, asset_type FRO
                         <label>Priority <strong class="text-danger">*</strong></label>
                         <div class="input-group">
                                 <span class="input-group-text"><i class="fa fa-fw fa-thermometer-half"></i></span>
-                            <select class="form-control select2" name="priority" required>
+                            <select class="form-select select2" name="priority" required>
                                 <option>Low</option>
                                 <option>Medium</option>
                                 <option>High</option>
@@ -56,7 +56,7 @@ $sql_assets = mysqli_query($mysqli, "SELECT asset_id, asset_name, asset_type FRO
                     <label>Category</label>
                     <div class="input-group">
                             <span class="input-group-text"><i class="fa fa-fw fa-layer-group"></i></span>
-                        <select class="form-control select2" name="category">
+                        <select class="form-select select2" name="category">
                             <option value="0">- No Category -</option>
                             <?php
                             $sql_categories = mysqli_query($mysqli, "SELECT category_id, category_name FROM categories WHERE category_type = 'Ticket' AND category_archived_at IS NULL");
@@ -79,7 +79,7 @@ $sql_assets = mysqli_query($mysqli, "SELECT asset_id, asset_name, asset_type FRO
                     <label>Asset</label>
                     <div class="input-group">
                             <span class="input-group-text"><i class="fa fa-fw fa-desktop"></i></span>
-                        <select class="form-control select2" name="asset">
+                        <select class="form-select select2" name="asset">
                             <option value="0">- None -</option>
                             <?php
 

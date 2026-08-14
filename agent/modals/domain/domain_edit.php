@@ -89,7 +89,7 @@ ob_start();
                     <label>Domain Registrar</label>
                     <div class="input-group">
                             <span class="input-group-text"><i class="fa fa-fw fa-server"></i></span>
-                        <select class="form-control select2" name="registrar">
+                        <select class="form-select select2" name="registrar">
                             <option value="">- Select Vendor -</option>
                             <?php
                             $vendor_sql = mysqli_query($mysqli, "SELECT vendor_id, vendor_name FROM vendors WHERE vendor_client_id = $client_id AND vendor_archived_at IS NULL ORDER BY vendor_name ASC");
@@ -109,7 +109,7 @@ ob_start();
                     <label>Webhost</label>
                     <div class="input-group">
                             <span class="input-group-text"><i class="fa fa-fw fa-server"></i></span>
-                        <select class="form-control select2" name="webhost">
+                        <select class="form-select select2" name="webhost">
                             <option value="">- Select Vendor -</option>
                             <?php
                             $vendor_sql = mysqli_query($mysqli, "SELECT vendor_id, vendor_name FROM vendors WHERE vendor_client_id = $client_id AND vendor_archived_at IS NULL ORDER BY vendor_name ASC");
@@ -129,7 +129,7 @@ ob_start();
                     <label>DNS Host</label>
                     <div class="input-group">
                             <span class="input-group-text"><i class="fa fa-fw fa-server"></i></span>
-                        <select class="form-control select2" name="dnshost">
+                        <select class="form-select select2" name="dnshost">
                             <option value="">- Select Vendor -</option>
                             <?php
                             $vendor_sql = mysqli_query($mysqli, "SELECT vendor_id, vendor_name FROM vendors WHERE vendor_client_id = $client_id AND vendor_archived_at IS NULL ORDER BY vendor_name ASC");
@@ -149,7 +149,7 @@ ob_start();
                     <label>Mail Host</label>
                     <div class="input-group">
                             <span class="input-group-text"><i class="fa fa-fw fa-envelope"></i></span>
-                        <select class="form-control select2" name="mailhost">
+                        <select class="form-select select2" name="mailhost">
                             <option value="">- Select Vendor -</option>
                             <?php
                             $vendor_sql = mysqli_query($mysqli, "SELECT vendor_id, vendor_name FROM vendors WHERE vendor_client_id = $client_id AND vendor_archived_at IS NULL ORDER BY vendor_name ASC");

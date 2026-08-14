@@ -31,7 +31,7 @@
                                 <label>Calendar <strong class="text-danger">*</strong></label>
                                 <div class="input-group">
                                         <span class="input-group-text"><i class="fa fa-fw fa-calendar"></i></span>
-                                    <select class="form-control select2" name="calendar" required>
+                                    <select class="form-select select2" name="calendar" required>
                                         <option value="">- Calendar -</option>
                                         <?php
 
@@ -105,7 +105,7 @@
                                 <label>Repeat</label>
                                 <div class="input-group">
                                         <span class="input-group-text"><i class="fa fa-fw fa-recycle"></i></span>
-                                    <select class="form-control select2" name="repeat">
+                                    <select class="form-select select2" name="repeat">
                                         <option value="">Never</option>
                                         <option>Day</option>
                                         <option>Week</option>
@@ -143,7 +143,7 @@
                                     <label>Client</label>
                                     <div class="input-group">
                                             <span class="input-group-text"><i class="fa fa-fw fa-user"></i></span>
-                                        <select class="form-control select2" name="client_id">
+                                        <select class="form-select select2" name="client_id">
                                             <option value="">- Client -</option>
                                             <?php
 

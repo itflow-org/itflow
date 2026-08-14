@@ -249,7 +249,7 @@ if (isset($_POST['test_email_smtp'])) {
     $mail = addToMailQueue($data);
 
     if ($mail === true) {
-        flashAlert("Test email queued! <a class='text-bold text-light' href='mail_queue.php'>Check Admin > Mail queue</a>");
+        flashAlert("Test email queued! Check <strong>Admin &gt; Mail queue</strong>");
     } else {
         flashAlert("Failed to add test mail to queue", 'error');
     }

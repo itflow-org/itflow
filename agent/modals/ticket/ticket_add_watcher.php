@@ -28,7 +28,7 @@ ob_start();
             <label>Watcher Email</label>
             <div class="input-group">
                     <span class="input-group-text"><i class="fa fa-fw fa-envelope"></i></span>
-                <select class="form-control select2" data-tags="true" name="watcher_email">
+                <select class="form-select select2" data-tags="true" name="watcher_email">
                     <option value="">- Select a contact or enter an email(s) -</option>
                     <?php
 

@@ -151,7 +151,7 @@ $result = $stmt->get_result();
 
                 <div class="col-md-3 mb-2">
                     <label class="mb-1">Billing time increment</label>
-                    <select class="form-control" name="billing_increment">
+                    <select class="form-select" name="billing_increment">
                         <option value="0.1"  <?= ($billing_increment_key === '0.1')  ? 'selected' : '' ?>>0.1 hour (6 minutes)</option>
                         <option value="0.25" <?= ($billing_increment_key === '0.25') ? 'selected' : '' ?>>0.25 hour (15 minutes)</option>
                         <option value="0.5"  <?= ($billing_increment_key === '0.5')  ? 'selected' : '' ?>>0.5 hour (30 minutes)</option>

@@ -307,7 +307,7 @@ if (isset($_GET['asset_id'])) {
                             <?php if ($asset_favorite) { ?><i class="fas fa-fw text-warning fa-star" title="Favorite"></i><?php } ?>
                         </h4>
                         <?php if ($asset_photo) { ?>
-                            <img class="img-fluid img-circle p-3" alt="asset_photo" src="<?= "../uploads/clients/$client_id/$asset_photo"; ?>">
+                            <img class="img-fluid rounded-circle p-3" alt="asset_photo" src="<?= "../uploads/clients/$client_id/$asset_photo"; ?>">
                         <?php } ?>
                         <?php if ($asset_description) { ?>
                             <div class="text-secondary"><?= $asset_description; ?></div>
@@ -656,7 +656,7 @@ if (isset($_GET['asset_id'])) {
                         <h3 class="card-title"><i class="fa fa-fw fa-key me-2"></i>Credentials</h3>
                     </div>
                     <div class="card-body">
-                        <div class="table-responsive-sm-sm">
+                        <div class="table-responsive-sm">
                             <table class="table table-striped table-borderless table-hover">
                                 <thead>
                                 <tr>

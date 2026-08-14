@@ -58,7 +58,7 @@ ob_start();
                     <label>Role <strong class="text-danger">*</strong></label>
                     <div class="input-group">
                             <span class="input-group-text"><i class="fa fa-fw fa-user-shield"></i></span>
-                        <select class="form-control select2" name="role" required>
+                        <select class="form-select select2" name="role" required>
                             <option value="">- Role -</option>
                             <?php
                                 $sql_user_roles = mysqli_query($mysqli, "SELECT role_id, role_name FROM user_roles WHERE role_archived_at IS NULL");
@@ -133,13 +133,13 @@ ob_start();
                             <tr>
                                 <td class="align-middle"><?= $client_name ?></td>
                                 <td class="text-center align-middle">
-                                    <input type="radio" class="perm-none" name="client_permission[<?= $client_id ?>]" value="" checked>
+                                    <input type="radio" class="form-check-input perm-none" name="client_permission[<?= $client_id ?>]" value="" checked>
                                 </td>
                                 <td class="text-center align-middle">
-                                    <input type="radio" class="perm-allow" name="client_permission[<?= $client_id ?>]" value="allow">
+                                    <input type="radio" class="form-check-input perm-allow" name="client_permission[<?= $client_id ?>]" value="allow">
                                 </td>
                                 <td class="text-center align-middle">
-                                    <input type="radio" class="perm-deny" name="client_permission[<?= $client_id ?>]" value="deny">
+                                    <input type="radio" class="form-check-input perm-deny" name="client_permission[<?= $client_id ?>]" value="deny">
                                 </td>
                             </tr>
 

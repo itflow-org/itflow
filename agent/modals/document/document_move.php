@@ -32,7 +32,7 @@ ob_start();
             <label>Move Document to</label>
             <div class="input-group">
                     <span class="input-group-text"><i class="fa fa-fw fa-folder"></i></span>
-                <select class="form-control select2" name="folder">
+                <select class="form-select select2" name="folder">
                     <option value="0">/</option>
                     <?php
                     // Fetch all folders for the client

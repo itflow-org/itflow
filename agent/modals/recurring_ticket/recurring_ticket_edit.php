@@ -113,7 +113,7 @@ ob_start();
                             <label>Priority <strong class="text-danger">*</strong></label>
                             <div class="input-group">
                                     <span class="input-group-text"><i class="fa fa-fw fa-thermometer-half"></i></span>
-                                <select class="form-control select2" name="priority" required>
+                                <select class="form-select select2" name="priority" required>
                                     <option <?php if ($recurring_ticket_priority == "Low") { echo "selected"; } ?> >Low</option>
                                     <option <?php if ($recurring_ticket_priority == "Medium") { echo "selected"; } ?> >Medium</option>
                                     <option <?php if ($recurring_ticket_priority == "High") { echo "selected"; } ?> >High</option>
@@ -128,7 +128,7 @@ ob_start();
                             <label>Category</label>
                             <div class="input-group">
                                     <span class="input-group-text"><i class="fa fa-fw fa-layer-group"></i></span>
-                                <select class="form-control select2" name="category_id">
+                                <select class="form-select select2" name="category_id">
                                     <option value="0">- Uncategorized -</option>
                                     <?php
                                     $sql_categories = mysqli_query($mysqli, "SELECT category_id, category_name FROM categories WHERE category_type = 'Ticket' AND category_archived_at IS NULL ORDER BY category_name ASC");
@@ -154,7 +154,7 @@ ob_start();
                     <label>Assign To</label>
                     <div class="input-group">
                             <span class="input-group-text"><i class="fa fa-fw fa-user-check"></i></span>
-                        <select class="form-control select2" name="assigned_to">
+                        <select class="form-select select2" name="assigned_to">
                             <option value="0">- Select Agent -</option>
                             <?php
                             $sql_users_select = mysqli_query($mysqli, "SELECT user_id, user_name FROM users
@@ -196,7 +196,7 @@ ob_start();
                     <label>Contact</label>
                     <div class="input-group">
                             <span class="input-group-text"><i class="fa fa-fw fa-user"></i></span>
-                        <select class="form-control select2" name="contact_id">
+                        <select class="form-select select2" name="contact_id">
                             <option value="0">- Select Contact -</option>
                             <?php
                             $sql_client_contacts_select = mysqli_query($mysqli, "SELECT contact_id, contact_name, contact_title, contact_primary, contact_technical FROM contacts WHERE contact_client_id = $client_id AND contact_archived_at IS NULL ORDER BY contact_primary DESC, contact_technical DESC, contact_name ASC");
@@ -237,7 +237,7 @@ ob_start();
                     <label>Frequency <strong class="text-danger">*</strong></label>
                     <div class="input-group">
                             <span class="input-group-text"><i class="fa fa-fw fa-recycle"></i></span>
-                        <select class="form-control select2" name="frequency">
+                        <select class="form-select select2" name="frequency">
                             <option <?php if ($recurring_ticket_frequency == "Three Days") { echo "selected"; } ?>>Three Days</option>
                             <option <?php if ($recurring_ticket_frequency == "Weekly") { echo "selected"; } ?>>Weekly</option>
                             <option <?php if ($recurring_ticket_frequency == "Biweekly") { echo "selected"; } ?>>Biweekly</option>
@@ -265,7 +265,7 @@ ob_start();
                     <label>Asset</label>
                     <div class="input-group">
                             <span class="input-group-text"><i class="fa fa-fw fa-desktop"></i></span>
-                        <select class="form-control select2" name="asset_id">
+                        <select class="form-select select2" name="asset_id">
                             <option value="0">- Select Asset -</option>
                             <?php
 
@@ -288,7 +288,7 @@ ob_start();
                     <label>Additional Assets</label>
                     <div class="input-group">
                             <span class="input-group-text"><i class="fa fa-fw fa-desktop"></i></span>
-                        <select class="form-control select2" name="additional_assets[]" data-tags="true" data-placeholder="- Select Additional Assets -" multiple>
+                        <select class="form-select select2" name="additional_assets[]" data-tags="true" data-placeholder="- Select Additional Assets -" multiple>
                             <option value=""></option>
                             <?php
 

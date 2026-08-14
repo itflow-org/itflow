@@ -32,7 +32,7 @@ ob_start();
             <label>SLA</label>
             <div class="input-group">
                     <span class="input-group-text"><i class="fa fa-fw fa-stopwatch"></i></span>
-                <select class="form-control select2" name="pauses_sla">
+                <select class="form-select select2" name="pauses_sla">
                     <option value="0">Resolution clock keeps running</option>
                     <option value="1">Pause the resolution clock</option>
                 </select>

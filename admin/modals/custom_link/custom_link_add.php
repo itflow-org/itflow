@@ -37,7 +37,7 @@ ob_start();
                     <span class="input-group-text"><i class="fa fa-fw fa-external-link-alt"></i></span>
                 <input type="text" class="form-control" name="uri" placeholder="Enter Link" maxlength="500" required>
                     <div class="input-group-text">
-                        <input type="checkbox" name="new_tab" value="1">
+                        <input class="form-check-input" type="checkbox" name="new_tab" value="1">
                     </div>
             </div>
         </div>
@@ -54,7 +54,7 @@ ob_start();
             <label>Location <strong class="text-danger">*</strong></label>
             <div class="input-group">
                     <span class="input-group-text"><i class="fa fa-fw fa-home"></i></span>
-                <select class="form-control select2" name="location" required>
+                <select class="form-select select2" name="location" required>
                     <option value="1">Main Side Nav</option>
                     <option value="2">Top Nav (Icon Required)</option>
                     <option value="3">Client Portal Nav</option>

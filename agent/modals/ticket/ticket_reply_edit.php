@@ -37,13 +37,11 @@ ob_start();
     <div class="modal-body">
 
         <div class="mb-3">
-            <div class="btn-group w-100 btn-group-toggle" data-toggle="buttons">
-                <label class="btn btn-outline-secondary <?php if ($ticket_reply_type == 'Internal') { echo "active"; } ?>">
-                    <input type="radio" name="ticket_reply_type" value="Internal" <?php if ($ticket_reply_type == 'Internal') { echo "checked"; } ?>>Internal Note
-                </label>
-                <label class="btn btn-outline-secondary <?php if ($ticket_reply_type == 'Public') { echo "active"; } ?>">
-                    <input type="radio" name="ticket_reply_type" value="Public" <?php if ($ticket_reply_type == 'Public') { echo "checked"; } ?>>Public Comment
-                </label>
+            <div class="btn-group w-100" role="group">
+                <input class="btn-check" id="ticket_reply_type_opt0" type="radio" name="ticket_reply_type" value="Internal" <?php if ($ticket_reply_type == 'Internal') { echo "checked"; } ?>>
+                <label class="btn btn-outline-secondary" for="ticket_reply_type_opt0">Internal Note</label>
+                <input class="btn-check" id="ticket_reply_type_opt1" type="radio" name="ticket_reply_type" value="Public" <?php if ($ticket_reply_type == 'Public') { echo "checked"; } ?>>
+                <label class="btn btn-outline-secondary" for="ticket_reply_type_opt1">Public Comment</label>
             </div>
         </div>
 

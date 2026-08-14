@@ -47,7 +47,7 @@ ob_start();
                         <label>Client <strong class="text-danger">*</strong></label>
                         <div class="input-group">
                                 <span class="input-group-text"><i class="fa fa-fw fa-user"></i></span>
-                            <select class="form-control select2" name="client_id" required>
+                            <select class="form-select select2" name="client_id" required>
                                 <option value="">- Select Client -</option>
                                 <?php
 
@@ -70,7 +70,7 @@ ob_start();
                             <span class="input-group-text"><i class="fa fa-fw fa-map-marker"></i></span>
                         <input type="text" class="form-control" name="name" placeholder="Name of location" maxlength="200" required autofocus>
                             <div class="input-group-text">
-                                <input type="checkbox" name="location_primary" value="1">
+                                <input class="form-check-input" type="checkbox" name="location_primary" value="1">
                             </div>
                     </div>
                 </div>
@@ -128,7 +128,7 @@ ob_start();
                     <label>Country</label>
                     <div class="input-group">
                             <span class="input-group-text"><i class="fa fa-fw fa-globe-americas"></i></span>
-                        <select class="form-control select2" name="country">
+                        <select class="form-select select2" name="country">
                             <option value="">- Country -</option>
                             <?php foreach($countries_array as $country_name) { ?>
                                 <option <?php if ($session_company_country == $country_name) { echo "selected"; } ?> ><?= $country_name ?></option>
@@ -145,7 +145,7 @@ ob_start();
                     <label>Contact</label>
                     <div class="input-group">
                             <span class="input-group-text"><i class="fa fa-fw fa-user"></i></span>
-                        <select class="form-control select2" name="contact">
+                        <select class="form-select select2" name="contact">
                             <option value="">- Contact -</option>
                             <?php
 
@@ -213,7 +213,7 @@ ob_start();
                     <label>Tags</label>
                     <div class="input-group">
                             <span class="input-group-text"><i class="fa fa-fw fa-tags"></i></span>
-                        <select class="form-control select2" name="tags[]" data-placeholder="Add some tags" multiple>
+                        <select class="form-select select2" name="tags[]" data-placeholder="Add some tags" multiple>
                             <?php
 
                             $sql_tags_select = mysqli_query($mysqli, "SELECT tag_id, tag_name FROM tags WHERE tag_type = 2 ORDER BY tag_name ASC");

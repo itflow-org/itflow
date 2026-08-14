@@ -24,7 +24,7 @@ ob_start();
             <label>Account <strong class="text-danger">*</strong></label>
             <div class="input-group">
                     <span class="input-group-text"><i class="fa fa-fw fa-piggy-bank"></i></span>
-                <select class="form-control select2" name="bulk_account_id">
+                <select class="form-select select2" name="bulk_account_id">
                     <?php
 
                     $sql = mysqli_query($mysqli, "SELECT account_id, account_name, opening_balance FROM accounts WHERE account_archived_at IS NULL ORDER BY account_name ASC");

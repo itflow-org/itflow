@@ -59,7 +59,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 
                     <div class="col-sm-2">
                         <div class="mb-3">
-                            <select class="form-control select2" name="type" onchange="this.form.submit()">
+                            <select class="form-select select2" name="type" onchange="this.form.submit()">
                                 <option value="">- All Types -</option>
 
                                 <?php
@@ -78,7 +78,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 
                     <div class="col-sm-2">
                         <div class="mb-3">
-                            <select class="form-control select2" name="category" onchange="this.form.submit()">
+                            <select class="form-select select2" name="category" onchange="this.form.submit()">
                                 <option value="">- All Categories -</option>
 
                                 <?php

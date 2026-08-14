@@ -716,20 +716,14 @@ if (isset($_GET['ticket_id'])) {
                             <div class="card-body p-3 d-print-none">
 
                                 <!-- Who will see this reply, stated in the label rather than left to a colour -->
-                                <div class="btn-group w-100 btn-group-toggle mb-3" data-toggle="buttons">
-                                    <label class="btn btn-outline-dark active">
-                                        <input type="radio" name="public_reply_type" value="0" checked>
-                                        <i class="fas fa-fw fa-lock me-1"></i>Internal note
-                                    </label>
-                                    <label class="btn btn-outline-info">
-                                        <input type="radio" name="public_reply_type" value="1">
-                                        <i class="fas fa-fw fa-comment me-1"></i>Public reply
-                                    </label>
+                                <div class="btn-group w-100 mb-3" role="group">
+                                    <input class="btn-check" id="public_reply_type_opt0" type="radio" name="public_reply_type" value="0" checked>
+                                    <label class="btn btn-outline-dark" for="public_reply_type_opt0"><i class="fas fa-fw fa-lock me-1"></i>Internal note</label>
+                                    <input class="btn-check" id="public_reply_type_opt1" type="radio" name="public_reply_type" value="1">
+                                    <label class="btn btn-outline-info" for="public_reply_type_opt1"><i class="fas fa-fw fa-comment me-1"></i>Public reply</label>
                                     <?php if ($contact_email) { ?>
-                                        <label class="btn btn-outline-info">
-                                            <input type="radio" name="public_reply_type" value="2">
-                                            <i class="fas fa-fw fa-paper-plane me-1"></i>Public + email
-                                        </label>
+                                        <input class="btn-check" id="public_reply_type_opt2" type="radio" name="public_reply_type" value="2">
+                                        <label class="btn btn-outline-info" for="public_reply_type_opt2"><i class="fas fa-fw fa-paper-plane me-1"></i>Public + email</label>
                                     <?php } ?>
                                 </div>
 
@@ -745,7 +739,7 @@ if (isset($_GET['ticket_id'])) {
                                     <div class="col-md-4">
                                         <div class="mb-3 mb-md-0">
                                             <label class="text-secondary small mb-1">Set status to</label>
-                                            <select class="form-control select2" name="status" required>
+                                            <select class="form-select select2" name="status" required>
                                                 <!-- Show all active ticket statuses, apart from new or closed as these are system-managed -->
                                                 <?php
                                                 $status_snippet = '';
@@ -852,7 +846,7 @@ if (isset($_GET['ticket_id'])) {
 
                                 <div class="d-flex align-items-center">
                                     <?php if (!empty($user_avatar)) { ?>
-                                        <img src="<?= $avatar_link ?>" alt="" class="img-size-32 me-2 img-circle">
+                                        <img src="<?= $avatar_link ?>" alt="" class="img-size-32 me-2 rounded-circle">
                                     <?php } else { ?>
                                         <span class="fa-stack me-2">
                                             <i class="fa fa-circle fa-stack-2x text-secondary"></i>
@@ -1038,7 +1032,7 @@ if (isset($_GET['ticket_id'])) {
 
                                                     <?php if ($user_can_approve) { ?>
                                                         <a class="confirm-link" href="post.php?approve_ticket_task=<?= $task_id ?>&approval_id=<?= $approval_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>">
-                                                            <i class="fas fa-thumbs-up text-green" title="Approve task"></i>
+                                                            <i class="fas fa-thumbs-up text-success" title="Approve task"></i>
                                                         </a>
                                                     <?php } ?>
 

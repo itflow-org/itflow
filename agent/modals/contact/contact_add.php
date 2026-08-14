@@ -54,7 +54,7 @@ ob_start();
                         <label>Client <strong class="text-danger">*</strong></label>
                         <div class="input-group">
                                 <span class="input-group-text"><i class="fa fa-fw fa-user"></i></span>
-                            <select class="form-control select2" name="client_id" required>
+                            <select class="form-select select2" name="client_id" required>
                                 <option value="">- Select Client -</option>
                                 <?php
 
@@ -76,7 +76,7 @@ ob_start();
                             <span class="input-group-text"><i class="fa fa-fw fa-user"></i></span>
                         <input type="text" class="form-control" name="name" placeholder="Full Name" maxlength="200" required autofocus>
                             <div class="input-group-text">
-                                <input type="checkbox" name="contact_primary" value="1">
+                                <input class="form-check-input" type="checkbox" name="contact_primary" value="1">
                             </div>
                     </div>
                 </div>
@@ -144,7 +144,7 @@ ob_start();
                     <label>Location</label>
                     <div class="input-group">
                             <span class="input-group-text"><i class="fa fa-fw fa-map-marker-alt"></i></span>
-                        <select class="form-control select2" name="location">
+                        <select class="form-select select2" name="location">
                             <option value="">- Select Location -</option>
                             <?php
 
@@ -186,7 +186,7 @@ ob_start();
                             <label>Client Portal</label>
                             <div class="input-group">
                                     <span class="input-group-text"><i class="fa fa-fw fa-user-circle"></i></span>
-                                <select class="form-control select2 authMethod" name="auth_method">
+                                <select class="form-select select2 authMethod" name="auth_method">
                                     <option value="">- No Access -</option>
                                     <option value="local">Using Set Password</option>
                                     <option value="azure">Using Azure Credentials</option>
@@ -253,7 +253,7 @@ ob_start();
                     <label>Tags</label>
                     <div class="input-group">
                             <span class="input-group-text"><i class="fa fa-fw fa-tags"></i></span>
-                        <select class="form-control select2" name="tags[]" data-placeholder="Add some tags" multiple>
+                        <select class="form-select select2" name="tags[]" data-placeholder="Add some tags" multiple>
                             <?php
 
                             while ($row = mysqli_fetch_assoc($sql_tags_select)) {

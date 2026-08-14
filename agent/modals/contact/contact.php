@@ -215,7 +215,7 @@ ob_start();
     <h5 class="modal-title">
         <div class="d-flex">
             <?php if ($contact_photo) { ?>
-                <img class="img-thumbnail img-circle img-size-50 me-1" src="<?= "../uploads/clients/$client_id/$contact_photo" ?>">
+                <img class="img-thumbnail rounded-circle img-size-50 me-1" src="<?= "../uploads/clients/$client_id/$contact_photo" ?>">
             <?php } else { ?>
                 <span class="fa-stack">
                     <i class="fa fa-circle fa-stack-2x text-secondary"></i>
@@ -266,7 +266,7 @@ ob_start();
                                 <div class="mt-1">
                                     <i class="fas fa-fw fa-envelope text-secondary me-1"></i>
                                     <a href="mailto:<?= $contact_email ?>"><?= $contact_email ?></a>
-                                    <button type="button" class="btn btn-xs btn-link p-0 ms-1 clipboardjs" data-clipboard-text="<?= $contact_email ?>">
+                                    <button type="button" class="btn btn-sm btn-link p-0 ms-1 clipboardjs" data-clipboard-text="<?= $contact_email ?>">
                                         <i class="far fa-copy text-secondary"></i>
                                     </button>
                                 </div>
@@ -342,7 +342,7 @@ ob_start();
         <!-- Left sticky nav -->
         <div class="col-12 col-md-3 pe-md-3 mb-3 mb-md-0">
             <div class="sticky-top">
-                <div class="nav nav-pills nav-sidebar flex-column" role="tablist" aria-orientation="vertical">
+                <div class="nav nav-pills sidebar-menu flex-column" role="tablist" aria-orientation="vertical">
 
                     <?php if ($asset_count) { ?>
                         <a class="nav-link <?= ($first_tab === "assets") ? "active" : "" ?>"

@@ -35,7 +35,7 @@ ob_start();
             <label>Client <strong class="text-danger">*</strong></label>
             <div class="input-group">
                     <span class="input-group-text"><i class="fa fa-fw fa-users"></i></span>
-                <select class="form-control select2" name="client_id" required>
+                <select class="form-select select2" name="client_id" required>
                     <?php
                         $sql_client_select = mysqli_query($mysqli, "SELECT client_id, client_name FROM clients WHERE client_archived_at IS NULL ORDER BY client_name ASC");
                         while ($row = mysqli_fetch_assoc($sql_client_select)) {

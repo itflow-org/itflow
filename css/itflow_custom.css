@@ -66,9 +66,54 @@
    colour drove the TOP NAVBAR, link colours and the active sidebar
    item - the sidebar itself was always dark. That is reproduced here.
    --------------------------------------------------------------- */
-.text-sm, .text-sm .form-control, .text-sm .form-select,
-.text-sm .btn, .text-sm .nav-link, .text-sm table {
+/* Font stack. v3 led with "Source Sans Pro" then -apple-system; v4/BS5 leads
+   with "Source Sans 3" then system-ui. ITFlow loads neither webfont, so the
+   two stacks fall through to different system fonts. Pinned to v3's. */
+:root {
+    --bs-font-sans-serif: "Source Sans Pro", -apple-system, BlinkMacSystemFont,
+        "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif,
+        "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+}
+
+/* The full .text-sm cascade. AdminLTE 3 shipped ~100 rules for this; these are
+   the ones that actually set sizing, and without them the app renders a step
+   larger everywhere than it used to. */
+.text-sm {
     font-size: .875rem;
+}
+.text-sm .form-control,
+.text-sm .form-select,
+.text-sm .input-group-text,
+.text-sm table {
+    font-size: .875rem;
+}
+.text-sm .btn,
+.text-sm .dropdown-menu {
+    font-size: .875rem !important;
+}
+.text-sm .card-title {
+    font-size: 1rem;
+}
+.text-sm .content-header h1,
+.text-sm .app-content-header h1 {
+    font-size: 1.5rem;
+}
+.text-sm .brand-link {
+    font-size: inherit;
+}
+
+/* Sidebar density. v3 tightened nav-link padding under .text-sm to .4rem .8rem;
+   BS5's default is .5rem 1rem, which is what made the menu items taller. */
+.text-sm .nav-link {
+    padding: .4rem .8rem;
+}
+/* v3 nav-icon metrics - v4 switched these to a 1.5rem flex box */
+.sidebar-menu .nav-icon {
+    min-width: 1.6rem;
+    max-width: 1.6rem;
+    margin-left: .05rem;
+    margin-right: .2rem;
+    font-size: 1.2rem;
 }
 
 /* one accent per theme - v3 used the same hex for navbar, links and
@@ -112,10 +157,10 @@ a:focus {
 }
 
 /* links and accented controls */
-a:not(.dropdown-item):not(.btn-app):not(.nav-link):not(.brand-link):not(.page-link):not(.badge):not(.btn) {
+a:not(.dropdown-item):not(.btn-app):not(.nav-link):not(.brand-link):not(.page-link):not(.badge):not(.btn):not(.small-box):not(.info-box) {
     color: var(--itflow-accent, #007bff);
 }
-a:not(.dropdown-item):not(.btn-app):not(.nav-link):not(.brand-link):not(.page-link):not(.badge):not(.btn):hover,
+a:not(.dropdown-item):not(.btn-app):not(.nav-link):not(.brand-link):not(.page-link):not(.badge):not(.btn):not(.small-box):not(.info-box):hover,
 .btn-link:hover,
 .nav-tabs .nav-link:hover {
     /* v3 darkened the accent by exactly 15% HSL lightness on hover */
@@ -194,6 +239,112 @@ a:not(.dropdown-item):not(.btn-app):not(.nav-link):not(.brand-link):not(.page-li
     color: #fff;
 }
 
+/* --- Bootstrap 5 unpaired background utilities -------------------------
+   BS4 + AdminLTE 3 shipped `.bg-dark,.card.bg-dark .card-body{color:#fff}`.
+   BS5 split the pair: .bg-* sets ONLY a background and you are expected to
+   use .text-bg-* for the pairing. ITFlow uses bg-dark 303 times (every modal
+   header, most card headers), so without this the header text is dark on
+   dark and effectively invisible. Contrast choices below mirror Bootstrap's
+   own .text-bg-* decisions. */
+.bg-dark, .bg-primary, .bg-secondary, .bg-success, .bg-danger,
+.bg-navy, .bg-indigo, .bg-purple, .bg-maroon, .bg-red, .bg-blue, .bg-black {
+    color: #fff;
+}
+.bg-info, .bg-warning, .bg-light, .bg-teal, .bg-olive, .bg-lightblue,
+.bg-orange, .bg-pink, .bg-cyan, .bg-green, .bg-gray, .bg-fuchsia {
+    color: #000;
+}
+.card.bg-dark .card-body {
+    color: #fff;
+}
+/* keep close buttons visible on the dark headers they sit in */
+.bg-dark > .btn-close, .modal-header.bg-dark .btn-close {
+    filter: var(--bs-btn-close-white-filter, invert(1) grayscale(100%) brightness(200%));
+}
+
+/* --- dashboard small-box ------------------------------------------------
+   AdminLTE 4 kept .small-box but dropped the watermark .icon entirely, along
+   with the paragraph sizing and the stacking context that keeps the text
+   above the icon. Without these the 19 dashboard boxes render their icon
+   inline at body size and shove the layout around. v3 values restored. */
+.small-box > .inner {
+    padding: 10px;
+}
+.small-box .icon {
+    color: rgba(0, 0, 0, .15);
+    z-index: 0;
+}
+.small-box .icon > i,
+.small-box .icon > svg {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    font-size: 90px;
+    transition: transform .3s linear;
+}
+.small-box:hover .icon > i,
+.small-box:hover .icon > svg {
+    transform: scale(1.1);
+}
+.small-box h3,
+.small-box .h3,
+.small-box p {
+    position: relative;
+    z-index: 5;
+}
+.small-box p {
+    font-size: 1rem;
+}
+.small-box p > small {
+    display: block;
+    margin-top: 5px;
+    font-size: .9rem;
+    color: #f8f9fa;
+}
+.small-box hr {
+    opacity: .25;
+}
+.small-box > .small-box-footer {
+    color: rgba(255, 255, 255, .8);
+}
+.small-box > .small-box-footer:hover {
+    color: #fff;
+}
+
+/* --- utility classes AdminLTE 4 dropped -------------------------------- */
+.text-bold, .text-bold.table td, .text-bold.table th {
+    font-weight: 700;
+}
+.text-xs {
+    font-size: .75rem !important;
+}
+.btn-default {
+    color: #6c757d;
+    background-color: #f8f9fa;
+    border-color: #ced4da;
+}
+.btn-default:hover {
+    color: #495057;
+    background-color: #e2e6ea;
+    border-color: #adb5bd;
+}
+.btn-flat {
+    border-radius: 0;
+    border-width: 1px;
+    box-shadow: none;
+}
+/* sidebar count badges - v3 positioned these absolutely */
+.sidebar-menu .nav-link > .right,
+.sidebar-menu .nav-link > p > .right {
+    position: absolute;
+    right: 1rem;
+    top: .7rem;
+}
+/* alert icons */
+.alert .icon {
+    margin-right: 10px;
+}
+
 /* box/card colours AdminLTE 4 also dropped (bg-purple, bg-pink,
    bg-olive and bg-gray are still used on a few pages) */
 .bg-black { background-color: #000 !important; }
@@ -212,3 +363,43 @@ a:not(.dropdown-item):not(.btn-app):not(.nav-link):not(.brand-link):not(.page-li
 .bg-purple { background-color: rgba(111,66,193,.9) !important; }
 .bg-red { background-color: rgba(231,76,60,.9) !important; }
 .bg-teal { background-color: rgba(32,201,151,.9) !important; }
+
+/* --- Flatpickr date-filter preset panel ---------------------------------
+   Flatpickr has no preset-ranges feature; js/date_filter.js injects this
+   panel to reproduce the nine ranges daterangepicker used to provide. */
+.flatpickr-calendar.itflow-fp-with-ranges {
+    width: auto;
+    padding-right: 0;
+}
+.itflow-fp-ranges {
+    display: flex;
+    flex-wrap: wrap;
+    gap: .25rem;
+    padding: .5rem;
+    border-top: 1px solid var(--bs-border-color, #dee2e6);
+}
+.itflow-fp-range {
+    padding: .2rem .5rem;
+    font-size: .8125rem;
+    color: var(--itflow-accent, #007bff);
+    white-space: nowrap;
+    background: none;
+    border: 1px solid transparent;
+    border-radius: .25rem;
+}
+.itflow-fp-range:hover,
+.itflow-fp-range:focus {
+    color: #fff;
+    background-color: var(--itflow-accent, #007bff);
+    border-color: var(--itflow-accent, #007bff);
+}
+
+/* --- Toast fade ---------------------------------------------------------
+   Bootstrap's .fade is a .15s transition, which next to toastr's old 1s
+   fadeOut reads as a blink. Bootstrap uses the same .showing class for both
+   directions, so in and out cannot be timed separately without JS - .5s is
+   the compromise. Change the duration here to taste. */
+#itflowFlashToast.toast.fade,
+.itflow-toast-js .toast.fade {
+    transition: opacity .5s linear;
+}

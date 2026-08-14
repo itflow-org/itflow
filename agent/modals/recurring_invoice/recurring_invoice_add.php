@@ -24,7 +24,7 @@ ob_start();
                 <label>Client <strong class="text-danger">*</strong></label>
                 <div class="input-group">
                         <span class="input-group-text"><i class="fa fa-fw fa-user"></i></span>
-                    <select class="form-control select2" name="client_id" required>
+                    <select class="form-select select2" name="client_id" required>
                         <option value="">- Select a Client -</option>
                         <?php
                         //select unarchived clients
@@ -64,7 +64,7 @@ ob_start();
             <label>Frequency <strong class="text-danger">*</strong></label>
             <div class="input-group">
                     <span class="input-group-text"><i class="fa fa-fw fa-clock"></i></span>
-                <select class="form-control select2" name="frequency" required>
+                <select class="form-select select2" name="frequency" required>
                     <option value="">- Frequency -</option>
                     <option value="month">Monthly</option>
                     <option value="year">Yearly</option>
@@ -76,7 +76,7 @@ ob_start();
             <label>Category <strong class="text-danger">*</strong></label>
             <div class="input-group">
                     <span class="input-group-text"><i class="fa fa-fw fa-tag"></i></span>
-                <select class="form-control select2" name="category" required>
+                <select class="form-select select2" name="category" required>
                     <option value="">- Category -</option>
                     <?php
 

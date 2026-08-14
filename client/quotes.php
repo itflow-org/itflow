@@ -19,7 +19,7 @@ $quotes_sql = mysqli_query($mysqli, "SELECT quote_amount, quote_date, quote_id, 
 
     <div class="col-md-10">
 
-        <table class="table tabled-bordered border border-dark">
+        <table class="table table-bordered border border-dark">
             <thead class="table-dark">
             <tr>
                 <th>#</th>

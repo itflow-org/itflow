@@ -25,7 +25,7 @@ ob_start();
             <label>Role <strong class="text-danger">*</strong></label>
             <div class="input-group">
                     <span class="input-group-text"><i class="fa fa-fw fa-user-shield"></i></span>
-                <select class="form-control select2" name="role" required>
+                <select class="form-select select2" name="role" required>
                     <option value="">- Role -</option>
                     <!-- //TODO: Pull from roles -->
                 </select>

@@ -19,7 +19,7 @@ ob_start();
             <label>Provider <strong class="text-danger">*</strong></label>
             <div class="input-group">
                     <span class="input-group-text"><i class="fa fa-fw fa-robot"></i></span>
-                <select class="form-control select2" name="provider" required>
+                <select class="form-select select2" name="provider" required>
                     <option value="">- Select an AI Provider -</option>
                     <?php
                         $sql_ai_providers = mysqli_query($mysqli, "SELECT ai_provider_id, ai_provider_name FROM ai_providers");
@@ -46,7 +46,7 @@ ob_start();
             <label>Use Case <strong class="text-danger">*</strong></label>
             <div class="input-group">
                     <span class="input-group-text"><i class="fa fa-fw fa-th-list"></i></span>
-                <select class="form-control select2" name="use_case">
+                <select class="form-select select2" name="use_case">
                     <option>General</option>
                     <option>Tickets</option>
                     <option>Documentation</option>

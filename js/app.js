@@ -9,9 +9,10 @@ $(document).ready(function() {
         $("#alert").slideUp(500);
     });
 
-    // Initialize Select2 Elements
-    $('.select2').select2({
-        theme: 'bootstrap-5',
+    // Initialize Tom Select (replaces Select2). Every instance is reachable
+    // afterwards as element.tomselect, which is how the helpers below reach it.
+    document.querySelectorAll('.select2').forEach(function (el) {
+        initTomSelect(el);
     });
 
     // Initialize TinyMCE
@@ -385,11 +386,45 @@ $(document).ready(function() {
 
     // DateTime
     document.querySelectorAll('.datetimepicker').forEach(function (el) {
-        new tempusDominus.TempusDominus(el);
+        if (el._flatpickr) {
+            return;
+        }
+        flatpickr(el, {
+            enableTime: true,
+            time_24hr: true,
+            dateFormat: 'Y-m-d H:i',
+            allowInput: true
+        });
     });
 
     // Data Input Mask
-    $('[data-mask]').inputmask();
+    // IMask replaces jquery.inputmask. Only two aliases were ever used.
+    document.querySelectorAll('[data-mask]').forEach(function (el) {
+        if (el.dataset.imaskReady) {
+            return;
+        }
+        el.dataset.imaskReady = '1';
+        var spec = el.getAttribute('data-inputmask') || '';
+        if (spec.indexOf('ip') !== -1) {
+            IMask(el, {
+                mask: 'a.b.c.d',
+                blocks: {
+                    a: { mask: IMask.MaskedRange, from: 0, to: 255 },
+                    b: { mask: IMask.MaskedRange, from: 0, to: 255 },
+                    c: { mask: IMask.MaskedRange, from: 0, to: 255 },
+                    d: { mask: IMask.MaskedRange, from: 0, to: 255 }
+                },
+                lazy: true
+            });
+        } else if (spec.indexOf('mac') !== -1) {
+            IMask(el, {
+                mask: 'HH:HH:HH:HH:HH:HH',
+                definitions: { H: /[0-9a-fA-F]/ },
+                prepare: function (s) { return s.toUpperCase(); },
+                lazy: true
+            });
+        }
+    });
 
     // Password reveal. Replaces Show-Hide-Passwords-Bootstrap-4, which has no
     // Bootstrap 5 release. Same data-toggle="password" contract as before.
@@ -555,4 +590,124 @@ function flashTooltip(button, message) {
     setTimeout(function () {
         tip.dispose();
     }, 1000);
+}
+
+/**
+ * Tom Select integration.
+ *
+ * Replaces Select2. Tom Select is vanilla JS and exposes its instance on the
+ * element as `el.tomselect`, so nothing here needs jQuery.
+ *
+ * Select2 concepts and their equivalents, for anyone reading this later:
+ *   $(el).select2({tags:true})        -> create: true
+ *   $(el).val(null).trigger('change') -> el.tomselect.clear()
+ *   $(el).trigger('change.select2')   -> el.tomselect.sync()   (options replaced)
+ *   $(el).on('select2:select', fn)    -> el.tomselect.on('change', fn)
+ */
+function initTomSelect(el, options) {
+    if (!el || el.tomselect) {
+        return el ? el.tomselect : null;
+    }
+    var settings = Object.assign({
+        create: false,
+        allowEmptyOption: true,
+        plugins: el.multiple ? ['remove_button'] : [],
+        placeholder: el.getAttribute('data-placeholder') || undefined
+    }, options || {});
+    return new TomSelect(el, settings);
+}
+
+/** Re-read the <option> list after it has been replaced server-side. */
+function refreshTomSelect(el) {
+    if (el && el.tomselect) {
+        el.tomselect.sync();
+    }
+}
+
+/** Clear a selection (single or multiple) without firing a server round-trip. */
+function clearTomSelect(el) {
+    if (el && el.tomselect) {
+        el.tomselect.clear(true);
+    }
+}
+
+/**
+ * Set a select's value from code. A plain el.value = x (or jQuery .val()) does
+ * not repaint a Tom Select widget - the underlying <select> changes but the
+ * visible control does not. Falls back to a native change event when the
+ * element was never enhanced.
+ */
+function setTomSelectValue(el, value) {
+    if (!el) {
+        return;
+    }
+    if (el.tomselect) {
+        el.tomselect.setValue(value);
+        return;
+    }
+    el.value = value;
+    el.dispatchEvent(new Event('change', { bubbles: true }));
+}
+
+/**
+ * Show a Bootstrap toast from JavaScript.
+ *
+ * The PHP side renders its own toast markup in includes/inc_alert_feedback.php
+ * so that user-supplied text never reaches a JS string literal. This helper is
+ * for toasts raised by client-side code, where the caller controls the text.
+ *
+ * Replaces toastr.success() / .error() / .warning() / .info().
+ */
+function itflowToast(message, type) {
+    var styles = {
+        success: 'text-bg-success',
+        info: 'text-bg-info',
+        warning: 'text-bg-warning',
+        alert: 'text-bg-warning',
+        error: 'text-bg-danger',
+        danger: 'text-bg-danger'
+    };
+    var style = styles[type] || styles.success;
+    var darkText = type === 'warning' || type === 'alert' || type === 'info';
+
+    var container = document.querySelector('.toast-container.itflow-toast-js');
+    if (!container) {
+        container = document.createElement('div');
+        container.className = 'toast-container itflow-toast-js position-fixed top-0 start-50 translate-middle-x p-3';
+        container.style.zIndex = '1090';
+        document.body.appendChild(container);
+    }
+
+    var toast = document.createElement('div');
+    toast.className = 'toast fade align-items-center ' + style + ' border-0';
+    toast.setAttribute('role', 'alert');
+    toast.setAttribute('aria-live', 'assertive');
+    toast.setAttribute('aria-atomic', 'true');
+
+    var flex = document.createElement('div');
+    flex.className = 'd-flex';
+
+    var body = document.createElement('div');
+    body.className = 'toast-body';
+    body.textContent = message;
+
+    var close = document.createElement('button');
+    close.type = 'button';
+    close.className = 'btn-close ' + (darkText ? '' : 'btn-close-white') + ' me-2 m-auto';
+    close.setAttribute('data-bs-dismiss', 'toast');
+    close.setAttribute('aria-label', 'Close');
+
+    flex.appendChild(body);
+    flex.appendChild(close);
+    toast.appendChild(flex);
+    container.appendChild(toast);
+
+    toast.addEventListener('hidden.bs.toast', function () {
+        toast.remove();
+    });
+    bootstrap.Toast.getOrCreateInstance(toast, {
+        animation: true,
+        autohide: true,
+        delay: 5000
+    }).show();
 }

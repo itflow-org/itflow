@@ -46,7 +46,7 @@ ob_start();
                         <label>Client <strong class="text-danger">*</strong></label>
                         <div class="input-group">
                                 <span class="input-group-text"><i class="fa fa-fw fa-user"></i></span>
-                            <select class="form-control select2" name="client_id" required>
+                            <select class="form-select select2" name="client_id" required>
                                 <option value="">- Select Client -</option>
                                 <?php
 
@@ -68,7 +68,7 @@ ob_start();
                     <label>Location</label>
                     <div class="input-group">
                             <span class="input-group-text"><i class="fa fa-fw fa-map-marker-alt"></i></span>
-                        <select class="form-control select2" name="location">
+                        <select class="form-select select2" name="location">
                             <option value="">- Select Location -</option>
                             <?php
 

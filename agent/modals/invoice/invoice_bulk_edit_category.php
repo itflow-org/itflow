@@ -25,7 +25,7 @@ ob_start();
             <label>Category <strong class="text-danger">*</strong></label>
             <div class="input-group">
                     <span class="input-group-text"><i class="fa fa-fw fa-list"></i></span>
-                <select class="form-control select2" name="bulk_category_id">
+                <select class="form-select select2" name="bulk_category_id">
                     <?php
 
                     $sql = mysqli_query($mysqli, "SELECT category_id, category_name FROM categories WHERE category_type = 'Income' AND category_archived_at IS NULL ORDER BY category_name ASC");

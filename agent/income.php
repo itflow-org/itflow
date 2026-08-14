@@ -202,7 +202,7 @@ $summary_total_income = floatval($row['total_income']);
                     </div>
                     <div class="col-md-2">
                         <div class="input-group mb-3 mb-sm-0">
-                            <select class="form-control select2" name="type" onchange="this.form.submit()">
+                            <select class="form-select select2" name="type" onchange="this.form.submit()">
                                 <option value="">- All Types -</option>
                                 <?php foreach ($income_types_array as $income_type_option) { ?>
                                     <option <?php if ($type_filter == $income_type_option) { echo "selected"; } ?>><?= $income_type_option ?></option>
@@ -212,7 +212,7 @@ $summary_total_income = floatval($row['total_income']);
                     </div>
                     <div class="col-md-2">
                         <div class="input-group mb-3 mb-sm-0">
-                            <select class="form-control select2" name="category" onchange="this.form.submit()">
+                            <select class="form-select select2" name="category" onchange="this.form.submit()">
                                 <option value="">- All Categories -</option>
 
                                 <?php
@@ -235,7 +235,7 @@ $summary_total_income = floatval($row['total_income']);
                     </div>
                     <div class="col-md-2">
                         <div class="input-group mb-3 mb-sm-0">
-                            <select class="form-control select2" name="account" onchange="this.form.submit()">
+                            <select class="form-select select2" name="account" onchange="this.form.submit()">
                                 <option value="">- All Accounts -</option>
 
                                 <?php
@@ -258,7 +258,7 @@ $summary_total_income = floatval($row['total_income']);
 
                     <div class="col-md-2">
                         <div class="input-group">
-                            <select class="form-control select2" name="method" onchange="this.form.submit()">
+                            <select class="form-select select2" name="method" onchange="this.form.submit()">
                                 <option value="">- All Payment Methods -</option>
 
                                 <?php

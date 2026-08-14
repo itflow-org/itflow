@@ -63,7 +63,7 @@ ob_start();
             <label>Showing</label>
             <div class="input-group">
                     <span class="input-group-text"><i class="fa fa-fw fa-user-friends"></i></span>
-                <select class="form-control select2" name="leads">
+                <select class="form-select select2" name="leads">
                     <option value="">- Clients -</option>
                     <option <?php if ($leads_filter === '1') { echo "selected"; } ?> value="1">Leads</option>
                 </select>
@@ -74,7 +74,7 @@ ob_start();
             <label>Industry</label>
             <div class="input-group">
                     <span class="input-group-text"><i class="fa fa-fw fa-industry"></i></span>
-                <select class="form-control select2" name="industry">
+                <select class="form-select select2" name="industry">
                     <option value="">- All Industries -</option>
                     <?php
                     $sql_industry_filter = mysqli_query($mysqli, "SELECT DISTINCT client_type FROM clients WHERE client_type != '' ORDER BY client_type ASC");
@@ -93,7 +93,7 @@ ob_start();
             <label>Referral</label>
             <div class="input-group">
                     <span class="input-group-text"><i class="fa fa-fw fa-share-alt"></i></span>
-                <select class="form-control select2" name="referral">
+                <select class="form-select select2" name="referral">
                     <option value="">- All Referrals -</option>
                     <?php
                     $sql_referral_filter = mysqli_query($mysqli, "SELECT DISTINCT client_referral FROM clients WHERE client_referral != '' ORDER BY client_referral ASC");
@@ -112,7 +112,7 @@ ob_start();
             <label>Tags</label>
             <div class="input-group">
                     <span class="input-group-text"><i class="fa fa-fw fa-tags"></i></span>
-                <select class="form-control select2" name="tags[]" data-placeholder="- All Tags -" multiple>
+                <select class="form-select select2" name="tags[]" data-placeholder="- All Tags -" multiple>
                     <?php
                     $sql_tags_filter = mysqli_query($mysqli, "SELECT tag_id, tag_name FROM tags WHERE tag_type = 1 ORDER BY tag_name ASC");
                     while ($row = mysqli_fetch_assoc($sql_tags_filter)) {
@@ -147,7 +147,7 @@ ob_start();
             <label>Archived</label>
             <div class="input-group">
                     <span class="input-group-text"><i class="fa fa-fw fa-archive"></i></span>
-                <select class="form-control select2" name="archived">
+                <select class="form-select select2" name="archived">
                     <option <?php if (!$archived_filter) { echo "selected"; } ?> value="0">Active only</option>
                     <option <?php if ($archived_filter) { echo "selected"; } ?> value="1">Archived only</option>
                 </select>

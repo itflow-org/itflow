@@ -64,7 +64,7 @@ ob_start();
                             <span class="input-group-text"><i class="fa fa-fw fa-user"></i></span>
                         <input type="text" class="form-control" name="name" id="client_name" placeholder="Name or Company" maxlength="200" onfocusout="checkClientDuplicate()" required autofocus>
                             <div class="input-group-text">
-                                <input type="checkbox" name="lead" value="1" <?php if($leads_filter == 1){ echo "checked"; } ?>>
+                                <input class="form-check-input" type="checkbox" name="lead" value="1" <?php if($leads_filter == 1){ echo "checked"; } ?>>
                             </div>
                     </div>
                     <div class="mt-2">
@@ -92,7 +92,7 @@ ob_start();
                     <label>Referral</label>
                     <div class="input-group">
                             <span class="input-group-text"><i class="fa fa-fw fa-link"></i></span>
-                        <select class="form-control select2" data-tags="true" name="referral">
+                        <select class="form-select select2" data-tags="true" name="referral">
                             <option value="">- Select Referral -</option>
                             <?php
 
@@ -121,7 +121,7 @@ ob_start();
                     <label>Tags</label>
                     <div class="input-group">
                             <span class="input-group-text"><i class="fa fa-fw fa-tags"></i></span>
-                        <select class="form-control select2" name="tags[]" data-placeholder="- Select Tags -"multiple>
+                        <select class="form-select select2" name="tags[]" data-placeholder="- Select Tags -"multiple>
                             <?php
 
                             while ($row = mysqli_fetch_assoc($sql_tags_select)) {
@@ -179,7 +179,7 @@ ob_start();
                     <label>Country</label>
                     <div class="input-group">
                             <span class="input-group-text"><i class="fa fa-fw fa-globe-americas"></i></span>
-                        <select class="form-control select2" name="country">
+                        <select class="form-select select2" name="country">
                             <option value="">- Select Country -</option>
                             <?php foreach($countries_array as $country_name) { ?>
                                 <option <?php if ($session_company_country == $country_name) { echo "selected"; } ?> ><?= $country_name ?></option>
@@ -297,7 +297,7 @@ ob_start();
                         <label>Payment Terms</label>
                         <div class="input-group">
                                 <span class="input-group-text"><i class="fa fa-fw fa-calendar"></i></span>
-                            <select class="form-control select2" name="net_terms">
+                            <select class="form-select select2" name="net_terms">
                                 <?php foreach($net_terms_array as $net_term_value => $net_term_name) { ?>
                                     <option <?php if ($config_default_net_terms == $net_term_value) { echo "selected"; } ?> value="<?= $net_term_value ?>"><?= $net_term_name ?></option>
                                 <?php } ?>
@@ -337,7 +337,7 @@ ob_start();
                             <?php foreach (['Low', 'Medium', 'High', 'Urgent'] as $sla_priority) { ?>
                                 <div class="col-3">
                                     <small class="text-secondary"><?= $sla_priority ?></small>
-                                    <select class="form-control" name="client_sla_<?= strtolower($sla_priority) ?>">
+                                    <select class="form-select" name="client_sla_<?= strtolower($sla_priority) ?>">
                                         <option value="default">Default</option>
                                         <option value="0">None</option>
                                         <?php foreach ($sla_options as $sla_option_id => $sla_option_name) { ?>

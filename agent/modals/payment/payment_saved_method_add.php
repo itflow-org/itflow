@@ -33,7 +33,7 @@ ob_start();
             <label>Payment Method <strong class="text-danger">*</strong></label>
             <div class="input-group">
                     <span class="input-group-text"><i class="fa fa-fw fa-money-check-alt"></i></span>
-                <select class="form-control select2" name="saved_payment_id" required>
+                <select class="form-select select2" name="saved_payment_id" required>
                     <option value="">- Saved Payment Methods -</option>
                     <?php
 

@@ -72,7 +72,7 @@ ob_start();
                     <label>Calendar <strong class="text-danger">*</strong></label>
                     <div class="input-group">
                             <span class="input-group-text"><i class="fa fa-calendar"></i></span>
-                        <select class="form-control select2" name="calendar" required>
+                        <select class="form-select select2" name="calendar" required>
                             <?php
 
                             $sql_calendars_select = mysqli_query($mysqli, "SELECT calendar_color, calendar_id, calendar_name FROM calendars ORDER BY calendar_name ASC");
@@ -150,7 +150,7 @@ ob_start();
                     <label>Repeat</label>
                     <div class="input-group">
                             <span class="input-group-text"><i class="fa fa-fw fa-recycle"></i></span>
-                        <select class="form-control select2" name="repeat">
+                        <select class="form-select select2" name="repeat">
                             <option <?php if (empty($event_repeat)) { echo "selected"; } ?> value="">Never</option>
                             <option <?php if ($event_repeat == "Day") { echo "selected"; } ?>>Day</option>
                             <option <?php if ($event_repeat == "Week") { echo "selected"; } ?>>Week</option>
@@ -189,7 +189,7 @@ ob_start();
                         <label>Client</label>
                         <div class="input-group">
                                 <span class="input-group-text"><i class="fa fa-fw fa-user"></i></span>
-                            <select class="form-control select2" name="client">
+                            <select class="form-select select2" name="client">
                                 <option value="">- Client -</option>
                                 <?php
 

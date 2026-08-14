@@ -55,7 +55,7 @@ ob_start();
             <label>Client</label>
             <div class="input-group">
                     <span class="input-group-text"><i class="fa fa-fw fa-user"></i></span>
-                <select class="form-control select2" name="client">
+                <select class="form-select select2" name="client">
                     <option value="">- All Clients -</option>
                     <?php
                     $sql_clients_filter = mysqli_query($mysqli, "SELECT client_id, client_name FROM clients WHERE EXISTS (SELECT 1 FROM certificates WHERE certificate_client_id = client_id) ORDER BY client_name ASC");
@@ -76,7 +76,7 @@ ob_start();
             <label>Expiring In</label>
             <div class="input-group">
                     <span class="input-group-text"><i class="fa fa-fw fa-hourglass-half"></i></span>
-                <select class="form-control select2" name="expire_days">
+                <select class="form-select select2" name="expire_days">
                     <option value="">- Any -</option>
                     <option <?php if ($expire_filter === 'expired') { echo "selected"; } ?> value="expired">Expired</option>
                     <?php foreach ([7, 30, 45, 60, 90] as $expire_option) { ?>
@@ -90,7 +90,7 @@ ob_start();
             <label>Archived</label>
             <div class="input-group">
                     <span class="input-group-text"><i class="fa fa-fw fa-archive"></i></span>
-                <select class="form-control select2" name="archived">
+                <select class="form-select select2" name="archived">
                     <option <?php if (!$archived_filter) { echo "selected"; } ?> value="0">Active only</option>
                     <option <?php if ($archived_filter) { echo "selected"; } ?> value="1">Archived only</option>
                 </select>

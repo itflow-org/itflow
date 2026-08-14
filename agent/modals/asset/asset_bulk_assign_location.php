@@ -30,7 +30,7 @@ ob_start();
             <label>Location</label>
             <div class="input-group">
                     <span class="input-group-text"><i class="fa fa-fw fa-map-marker-alt"></i></span>
-                <select class="form-control select2" name="bulk_location_id">
+                <select class="form-select select2" name="bulk_location_id">
                     <option value="">- Location -</option>
                     <?php
 

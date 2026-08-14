@@ -31,7 +31,7 @@ echo getUserAgent();
 
      <div class="mb-3">
                   <label>Minimal</label>
-                  <select class="form-control select2 select2-hidden-accessible" style="width: 100%;" data-select2-id="1" tabindex="-1" aria-hidden="true">
+                  <select class="form-select select2 select2-hidden-accessible" style="width: 100%;" data-select2-id="1" tabindex="-1" aria-hidden="true">
                     <option selected="selected" data-select2-id="3">Alabama</option>
                     <option data-select2-id="35">Alaska</option>
                     <option data-select2-id="36">California</option>
@@ -66,6 +66,6 @@ $date_time = date('Y-m-d H:i:s');
 echo "Current Date and Time: <strong>$date_time</strong>";
 ?>
 
-<script>toastr.success('Have Fun Wozz!!')</script>
+<script>itflowToast('Have Fun Wozz!!');</script>
 
 <?php require_once "../../includes/footer.php";

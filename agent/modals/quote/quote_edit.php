@@ -58,7 +58,7 @@ ob_start();
             <label>Income Category</label>
             <div class="input-group">
                     <span class="input-group-text"><i class="fa fa-fw fa-tag"></i></span>
-                <select class="form-control select2" name="category" required>
+                <select class="form-select select2" name="category" required>
                     <?php
 
                     $sql = mysqli_query($mysqli, "SELECT category_id, category_name FROM categories WHERE category_type = 'Income' AND (category_archived_at > '$quote_created_at' OR category_archived_at IS NULL) ORDER BY category_name ASC");
@@ -82,9 +82,7 @@ ob_start();
         <div class='mb-3'>
             <label>Discount Amount</label>
             <div class='input-group'>
-                <div class='input-group-prepend'>
                     <span class='input-group-text'><i class='fa fa-fw fa-dollar-sign'></i></span>
-                </div>
                 <input type='text' class='form-control' inputmode="decimal" pattern="-?[0-9]*\.?[0-9]{0,2}" name='quote_discount' placeholder='0.00' value="<?= number_format($quote_discount, 2, '.', '') ?>">
             </div>
         </div>

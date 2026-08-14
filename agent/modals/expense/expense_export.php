@@ -57,7 +57,7 @@ ob_start();
             <label>Account</label>
             <div class="input-group">
                     <span class="input-group-text"><i class="fa fa-fw fa-piggy-bank"></i></span>
-                <select class="form-control select2" name="account">
+                <select class="form-select select2" name="account">
                     <option value="">- All Accounts -</option>
                     <?php
                     $sql_account_filter = mysqli_query($mysqli, "SELECT account_id, account_name FROM accounts WHERE account_archived_at IS NULL ORDER BY account_name ASC");
@@ -77,7 +77,7 @@ ob_start();
             <label>Vendor</label>
             <div class="input-group">
                     <span class="input-group-text"><i class="fa fa-fw fa-building"></i></span>
-                <select class="form-control select2" name="vendor">
+                <select class="form-select select2" name="vendor">
                     <option value="">- All Vendors -</option>
                     <?php
                     $sql_vendor_filter = mysqli_query($mysqli, "SELECT vendor_id, vendor_name FROM vendors WHERE EXISTS (SELECT 1 FROM expenses WHERE expense_vendor_id = vendor_id) ORDER BY vendor_name ASC");
@@ -97,7 +97,7 @@ ob_start();
             <label>Category</label>
             <div class="input-group">
                     <span class="input-group-text"><i class="fa fa-fw fa-list"></i></span>
-                <select class="form-control select2" name="category">
+                <select class="form-select select2" name="category">
                     <option value="">- All Categories -</option>
                     <?php
                     $sql_category_filter = mysqli_query($mysqli, "SELECT category_id, category_name FROM categories WHERE category_type = 'Expense' ORDER BY category_name ASC");

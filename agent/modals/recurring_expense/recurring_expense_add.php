@@ -21,7 +21,7 @@ ob_start();
                 <label>Frequency <strong class="text-danger">*</strong></label>
                 <div class="input-group">
                         <span class="input-group-text"><i class="fa fa-fw fa-sync-alt"></i></span>
-                    <select class="form-control select2" name="frequency" required>
+                    <select class="form-select select2" name="frequency" required>
                         <option value="1">Monthly</option>
                         <option value="2">Annually</option>
                     </select>
@@ -32,7 +32,7 @@ ob_start();
                 <label>Month <strong class="text-danger">*</strong></label>
                 <div class="input-group">
                         <span class="input-group-text"><i class="fa fa-fw fa-calendar"></i></span>
-                    <select class="form-control select2" name="month" required>
+                    <select class="form-select select2" name="month" required>
                         <option value="">- Select a Month -</option>
                         <option value="1">01 - January</option>
                         <option value="2">02 - February</option>
@@ -76,7 +76,7 @@ ob_start();
                 <label>Account <strong class="text-danger">*</strong></label>
                 <div class="input-group">
                         <span class="input-group-text"><i class="fa fa-fw fa-piggy-bank"></i></span>
-                    <select class="form-control select2" name="account" required>
+                    <select class="form-select select2" name="account" required>
                         <option value="">- Account -</option>
                         <?php
 
@@ -114,7 +114,7 @@ ob_start();
                 <label>Vendor <strong class="text-danger">*</strong></label>
                 <div class="input-group">
                         <span class="input-group-text"><i class="fa fa-fw fa-building"></i></span>
-                    <select class="form-control select2" name="vendor" required>
+                    <select class="form-select select2" name="vendor" required>
                         <option value="">- Vendor -</option>
                         <?php
 
@@ -153,7 +153,7 @@ ob_start();
                 <label>Category <strong class="text-danger">*</strong></label>
                 <div class="input-group">
                         <span class="input-group-text"><i class="fa fa-fw fa-list"></i></span>
-                    <select class="form-control select2" name="category" required>
+                    <select class="form-select select2" name="category" required>
                         <option value="">- Category -</option>
                         <?php
 
@@ -185,7 +185,7 @@ ob_start();
                     <label>Client</label>
                     <div class="input-group">
                             <span class="input-group-text"><i class="fa fa-fw fa-user"></i></span>
-                        <select class="form-control select2" name="client_id" required>
+                        <select class="form-select select2" name="client_id" required>
                             <option value="0">- Client (Optional) -</option>
                             <?php
 

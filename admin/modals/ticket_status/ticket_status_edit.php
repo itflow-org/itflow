@@ -55,7 +55,7 @@ ob_start();
             <label>Status <strong class="text-danger">*</strong></label>
             <div class="input-group">
                     <span class="input-group-text"><i class="fa fa-fw fa-info-circle"></i></span>
-                <select class="form-control select2" name="status" required>
+                <select class="form-select select2" name="status" required>
                     <option <?php if ($ticket_status_active == 1) { echo "selected"; } ?> value="1">Active</option>
                     <option <?php if ($ticket_status_active == 0) { echo "selected"; } ?> value="0" <?php if ($ticket_status_id <= 5) { echo "disabled"; } ?>>Inactive</option>
                 </select>
@@ -66,7 +66,7 @@ ob_start();
             <label>SLA</label>
             <div class="input-group">
                     <span class="input-group-text"><i class="fa fa-fw fa-stopwatch"></i></span>
-                <select class="form-control select2" name="pauses_sla">
+                <select class="form-select select2" name="pauses_sla">
                     <option <?php if ($ticket_status_pauses_sla == 0) { echo "selected "; } ?>value="0">Resolution clock keeps running</option>
                     <option <?php if ($ticket_status_pauses_sla == 1) { echo "selected "; } ?>value="1">Pause the resolution clock</option>
                 </select>

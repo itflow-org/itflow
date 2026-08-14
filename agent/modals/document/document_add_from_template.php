@@ -28,7 +28,7 @@ ob_start();
         <div class="mb-3">
             <div class="input-group">
                     <span class="input-group-text"><i class="fa fa-fw fa-puzzle-piece"></i></span>
-                <select class="form-control" name="document_template_id" required>
+                <select class="form-select" name="document_template_id" required>
                     <option value="">- Select Template -</option>
                     <?php
                     $sql_document_templates = mysqli_query($mysqli, "SELECT document_template_id, document_template_name FROM document_templates WHERE document_template_archived_at IS NULL ORDER BY document_template_name ASC");
@@ -64,7 +64,7 @@ ob_start();
         <div class="mb-3">
             <div class="input-group">
                     <span class="input-group-text"><i class="fa fa-fw fa-folder"></i></span>
-                <select class="form-control" name="folder">
+                <select class="form-select" name="folder">
                     <option value="0">/</option>
                     <?php
                     $sql_folders = mysqli_query($mysqli, "SELECT folder_id, folder_name FROM folders WHERE folder_client_id = $client_id ORDER BY folder_name ASC");

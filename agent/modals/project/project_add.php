@@ -23,7 +23,7 @@ ob_start();
                 <label>Client</label>
                 <div class="input-group">
                         <span class="input-group-text"><i class="fa fa-fw fa-users"></i></span>
-                    <select class="form-control select2" name="client_id">
+                    <select class="form-select select2" name="client_id">
                         <option value="0">- No Client -</option>
                         <?php
                         $sql = mysqli_query($mysqli, "SELECT client_id, client_name FROM clients WHERE client_archived_at IS NULL " . clientScopeSql('clients.client_id') . " ORDER BY client_name ASC");
@@ -50,7 +50,7 @@ ob_start();
             <label>Template</label>
             <div class="input-group">
                     <span class="input-group-text"><i class="fa fa-fw fa-cube"></i></span>
-                <select class="form-control select2" name="project_template_id">
+                <select class="form-select select2" name="project_template_id">
                     <option value="">- Template -</option>
                     <?php
                     $sql = mysqli_query($mysqli, "SELECT project_template_id, project_template_name FROM project_templates WHERE project_template_archived_at IS NULL ORDER BY project_template_name ASC");
@@ -85,7 +85,7 @@ ob_start();
             <label>Project Manager</label>
             <div class="input-group">
                     <span class="input-group-text"><i class="fa fa-fw fa-user-tie"></i></span>
-                <select class="form-control select2" name="project_manager">
+                <select class="form-select select2" name="project_manager">
                     <option value="0">No Manager</option>
                     <?php
 

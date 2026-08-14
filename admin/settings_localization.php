@@ -25,7 +25,7 @@ $timezones = DateTimeZone::listIdentifiers();
                     <label>Language <strong class="text-danger">*</strong></label>
                     <div class="input-group">
                             <span class="input-group-text"><i class="fa fa-fw fa-language"></i></span>
-                        <select class="form-control select2" name="locale" required>
+                        <select class="form-select select2" name="locale" required>
                             <option value="">- Select a Locale -</option>
                             <?php foreach($locales_array as $locale_code => $locale_name) { ?>
                                 <option <?php if ($company_locale == $locale_code) { echo "selected"; } ?> value="<?= $locale_code ?>"><?= $locale_name ?></option>
@@ -38,7 +38,7 @@ $timezones = DateTimeZone::listIdentifiers();
                     <label>Currency <strong class="text-danger">*</strong></label>
                     <div class="input-group">
                             <span class="input-group-text"><i class="fa fa-fw fa-money-bill"></i></span>
-                        <select class="form-control select2" name="currency_code" required>
+                        <select class="form-select select2" name="currency_code" required>
                             <option value="">- Currency -</option>
                             <?php foreach($currencies_array as $currency_code => $currency_name) { ?>
                                 <option <?php if ($company_currency == $currency_code) { echo "selected"; } ?> value="<?= $currency_code ?>"><?= "$currency_code - $currency_name" ?></option>
@@ -51,7 +51,7 @@ $timezones = DateTimeZone::listIdentifiers();
                     <label>Timezone <strong class="text-danger">*</strong></label>
                     <div class="input-group">
                             <span class="input-group-text"><i class="fa fa-fw fa-business-time"></i></span>
-                        <select class="form-control select2" name="timezone" required>
+                        <select class="form-select select2" name="timezone" required>
                             <option value="">- Select a Timezone -</option>
                             <?php foreach ($timezones as $tz) { ?>
                                 <option <?php if ($config_timezone == $tz) { echo "selected"; } ?> value="<?= $tz ?>"><?= $tz ?></option>

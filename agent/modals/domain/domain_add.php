@@ -40,7 +40,7 @@ ob_start();
                         <label>Client <strong class="text-danger">*</strong></label>
                         <div class="input-group">
                                 <span class="input-group-text"><i class="fa fa-fw fa-user"></i></span>
-                            <select class="form-control select2" name="client_id" required>
+                            <select class="form-select select2" name="client_id" required>
                                 <option value="">- Select Client -</option>
                                 <?php
 
@@ -81,7 +81,7 @@ ob_start();
                     <label>Registrar</label>
                     <div class="input-group">
                             <span class="input-group-text"><i class="fa fa-fw fa-server"></i></span>
-                        <select class="form-control select2" name="registrar">
+                        <select class="form-select select2" name="registrar">
                             <option value="">- Vendor -</option>
                             <?php
 
@@ -100,7 +100,7 @@ ob_start();
                     <label>Webhost</label>
                     <div class="input-group">
                             <span class="input-group-text"><i class="fa fa-fw fa-server"></i></span>
-                        <select class="form-control select2" name="webhost">
+                        <select class="form-select select2" name="webhost">
                             <option value="">- Vendor -</option>
                             <?php
 
@@ -119,7 +119,7 @@ ob_start();
                     <label>DNS Host</label>
                     <div class="input-group">
                             <span class="input-group-text"><i class="fa fa-fw fa-server"></i></span>
-                        <select class="form-control select2" name="dnshost">
+                        <select class="form-select select2" name="dnshost">
                             <option value="">- Vendor -</option>
                             <?php
 
@@ -138,7 +138,7 @@ ob_start();
                     <label>Mail Host</label>
                     <div class="input-group">
                             <span class="input-group-text"><i class="fa fa-fw fa-envelope"></i></span>
-                        <select class="form-control select2" name="mailhost">
+                        <select class="form-select select2" name="mailhost">
                             <option value="">- Vendor -</option>
                             <?php
 

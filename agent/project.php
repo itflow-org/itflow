@@ -343,7 +343,7 @@ if (isset($_GET['project_id'])) {
                     <form id="bulkActions" action="post.php" method="post">
                         <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
                         <div class="table-responsive">
-                            <table class="table table-border table-hover">
+                            <table class="table table-bordered table-hover">
                                 <thead class="table-light">
                                 <tr>
                                     <td class="bg-light checkbox-column">

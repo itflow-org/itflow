@@ -111,7 +111,7 @@ $imap_ready = $imap_standard_ready || $imap_oauth_ready;
                     <div class="mb-3">
                         <label>SMTP Provider <small class="text-muted">— outbound</small></label>
                         <div class="input-group"><span class="input-group-text"><i class="fa fa-fw fa-cloud"></i></span>
-                            <select class="form-control" name="config_smtp_provider" id="config_smtp_provider">
+                            <select class="form-select" name="config_smtp_provider" id="config_smtp_provider">
                                 <option value="" <?php if (empty($config_smtp_provider)) { echo 'selected'; } ?>>None (Disabled)</option>
                                 <option value="standard_smtp" <?php if ($config_smtp_provider === 'standard_smtp') { echo 'selected'; } ?>>Standard SMTP (Username/Password)</option>
                                 <option value="google_oauth" <?php if ($config_smtp_provider === 'google_oauth') { echo 'selected'; } ?>>Google Workspace (OAuth)</option>
@@ -138,7 +138,7 @@ $imap_ready = $imap_standard_ready || $imap_oauth_ready;
                             <div class="mb-3 col-md-3">
                                 <label>Encryption</label>
                                 <div class="input-group"><span class="input-group-text"><i class="fa fa-fw fa-lock"></i></span>
-                                    <select class="form-control" name="config_smtp_encryption">
+                                    <select class="form-select" name="config_smtp_encryption">
                                         <option value="">None</option>
                                         <option <?php if ($config_smtp_encryption == 'tls') { echo "selected"; } ?> value="tls">TLS</option>
                                         <option <?php if ($config_smtp_encryption == 'ssl') { echo "selected"; } ?> value="ssl">SSL</option>
@@ -185,7 +185,7 @@ $imap_ready = $imap_standard_ready || $imap_oauth_ready;
                     <div class="mb-3">
                         <label>IMAP Provider <small class="text-muted">— inbound ticket inbox</small></label>
                         <div class="input-group"><span class="input-group-text"><i class="fa fa-fw fa-cloud"></i></span>
-                            <select class="form-control" name="config_imap_provider" id="config_imap_provider">
+                            <select class="form-select" name="config_imap_provider" id="config_imap_provider">
                                 <option value="" <?php if (empty($config_imap_provider)) { echo 'selected'; } ?>>None (Disabled)</option>
                                 <option value="standard_imap" <?php if ($config_imap_provider === 'standard_imap') { echo 'selected'; } ?>>Standard IMAP (Username/Password)</option>
                                 <option value="google_oauth" <?php if ($config_imap_provider === 'google_oauth') { echo 'selected'; } ?>>Google Workspace (OAuth)</option>
@@ -212,7 +212,7 @@ $imap_ready = $imap_standard_ready || $imap_oauth_ready;
                             <div class="mb-3 col-md-3">
                                 <label>Encryption</label>
                                 <div class="input-group"><span class="input-group-text"><i class="fa fa-fw fa-lock"></i></span>
-                                    <select class="form-control" name="config_imap_encryption">
+                                    <select class="form-select" name="config_imap_encryption">
                                         <option value="">None</option>
                                         <option <?php if ($config_imap_encryption == 'tls') { echo "selected"; } ?> value="tls">TLS</option>
                                         <option <?php if ($config_imap_encryption == 'ssl') { echo "selected"; } ?> value="ssl">SSL</option>
@@ -370,7 +370,7 @@ $imap_ready = $imap_standard_ready || $imap_oauth_ready;
                         <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
                         <input type="hidden" name="tab" value="tests">
                         <div class="input-group">
-                            <select class="form-control select2" name="test_email" required>
+                            <select class="form-select select2" name="test_email" required>
                                 <option value="">- Select a From address -</option>
                                 <?php if ($config_mail_from_email) { ?><option value="1"><?= escapeHtml($config_mail_from_name) ?> (<?= escapeHtml($config_mail_from_email) ?>)</option><?php } ?>
                                 <?php if ($config_invoice_from_email) { ?><option value="2"><?= escapeHtml($config_invoice_from_name) ?> (<?= escapeHtml($config_invoice_from_email) ?>)</option><?php } ?>

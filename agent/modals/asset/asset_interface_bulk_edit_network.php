@@ -26,7 +26,7 @@ ob_start();
             <label>Network</label>
             <div class="input-group">
                     <span class="input-group-text"><i class="fa fa-fw fa-network-wired"></i></span>
-                <select class="form-control select2" name="bulk_network">
+                <select class="form-select select2" name="bulk_network">
                     <option value="">- Select a Network -</option>
                     <?php
                     $sql_network_select = mysqli_query($mysqli, "

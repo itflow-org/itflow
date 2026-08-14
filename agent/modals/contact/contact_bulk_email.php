@@ -23,7 +23,7 @@ ob_start();
         <div class="row g-2">
 
             <div class="mb-3 col-sm-6">
-                <select type="text" class="form-control select2" name="mail_from">
+                <select type="text" class="form-select select2" name="mail_from">
                     <option value="<?= escapeHtml($config_mail_from_email) ?>">
                         <?= escapeHtml("$config_mail_from_name - $config_mail_from_email") ?></option>
                     <option value="<?= escapeHtml($config_invoice_from_email) ?>">

@@ -22,7 +22,7 @@ ob_start();
         <div class="mb-3">
             <div class="input-group">
                     <span class="input-group-text"><i class="fa fa-fw fa-puzzle-piece"></i></span>
-                <select class="form-control" name="vendor_template_id" required>
+                <select class="form-select" name="vendor_template_id" required>
                     <option value="">- Select Template -</option>
                     <?php
                     $sql_vendor_templates = mysqli_query($mysqli, "SELECT vendor_template_id, vendor_template_name FROM vendor_templates WHERE vendor_template_archived_at IS NULL ORDER BY vendor_template_name ASC");

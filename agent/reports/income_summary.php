@@ -36,7 +36,7 @@ $largest_income_month = 0;
     </div>
     <div class="card-body p-0">
         <form class="p-3">
-            <select onchange="this.form.submit()" class="form-control" name="year">
+            <select onchange="this.form.submit()" class="form-select" name="year">
                 <?php while ($row = mysqli_fetch_assoc($sql_payment_years)) {
                     $payment_year = intval($row['payment_year']); ?>
                     <option <?php if ($year == $payment_year) { ?> selected <?php } ?>><?= $payment_year ?></option>

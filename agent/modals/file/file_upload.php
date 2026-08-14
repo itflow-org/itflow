@@ -36,7 +36,7 @@ ob_start();
             <label>Folder</label>
             <div class="input-group">
                     <span class="input-group-text"><i class="fa fa-fw fa-folder"></i></span>
-                <select class="form-control select2" name="folder_id">
+                <select class="form-select select2" name="folder_id">
                     <option value="0">/</option>
                     <?php
                     // Start displaying folder options from the root (parent_folder = 0)

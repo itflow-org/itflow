@@ -18,15 +18,11 @@ $user_config_calendar_first_day = intval($row['user_config_calendar_first_day'])
             <div class="mb-3">
                 <h5>Dark Mode</h5>
 
-                <div class="btn-group btn-group-toggle" data-toggle="buttons">
-                    <label class="btn btn-outline-primary <?php if ($user_config_theme_dark === 0) { echo "active"; } ?>">
-                    <input type="radio" name="dark_mode" id="light-mode" autocomplete="off" <?php if ($user_config_theme_dark === 0) { echo "checked"; } ?>>
-                    <i class="fas fa-sun me-2"></i>Light
-                    </label>
-                    <label class="btn btn-outline-dark <?php if ($user_config_theme_dark === 1) { echo "active"; } ?>">
-                    <input type="radio" name="dark_mode" id="dark-mode" autocomplete="off" value="1" <?php if ($user_config_theme_dark === 1) { echo "checked"; } ?>>
-                    <i class="fas fa-moon me-2"></i>Dark
-                    </label>
+                <div class="btn-group" role="group">
+                    <input class="btn-check" type="radio" name="dark_mode" id="light-mode" autocomplete="off" <?php if ($user_config_theme_dark === 0) { echo "checked"; } ?>>
+                    <label class="btn btn-outline-primary" for="light-mode"><i class="fas fa-sun me-2"></i>Light</label>
+                    <input class="btn-check" type="radio" name="dark_mode" id="dark-mode" autocomplete="off" value="1" <?php if ($user_config_theme_dark === 1) { echo "checked"; } ?>>
+                    <label class="btn btn-outline-dark" for="dark-mode"><i class="fas fa-moon me-2"></i>Dark</label>
                 </div>
             </div>
 
@@ -34,7 +30,7 @@ $user_config_calendar_first_day = intval($row['user_config_calendar_first_day'])
                 <label>Calendar starts on<strong class="text-danger">*</strong></label>
                 <div class="input-group">
                         <span class="input-group-text"><i class="fa fa-fw fa-calendar-day"></i></span>
-                    <select class="form-control select2" name="calendar_first_day" required>
+                    <select class="form-select select2" name="calendar_first_day" required>
                         <option <?php if ($user_config_calendar_first_day == '0') { echo "selected"; } ?> value="0" >Sunday</option>
                         <option <?php if ($user_config_calendar_first_day == '1') { echo "selected"; } ?> value="1" >Monday</option>
                     </select>

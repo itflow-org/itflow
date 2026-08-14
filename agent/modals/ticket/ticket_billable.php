@@ -34,7 +34,7 @@ ob_start();
             <label>Billable?</label>
             <div class="input-group">
                     <span class="input-group-text"><i class="fa fa-fw fa-money-bill"></i></span>
-                <select class="form-control" name="billable_status">
+                <select class="form-select" name="billable_status">
                     <option <?php if ($ticket_billable == 1) { echo "selected"; } ?> value="1">Yes</option>
                     <option <?php if ($ticket_billable == 0) { echo "selected"; } ?> value="0">No</option>
                 </select>

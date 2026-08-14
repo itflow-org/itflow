@@ -38,7 +38,7 @@ ob_start();
             <label>Contact</label>
             <div class="input-group">
                     <span class="input-group-text"><i class="fa fa-fw fa-user"></i></span>
-                <select class="form-control select2" name="contact">
+                <select class="form-select select2" name="contact">
                     <option value="">No One</option>
                     <?php
                     $sql_client_contacts_select = mysqli_query($mysqli, "SELECT contact_id, contact_name, contact_title, contact_primary, contact_technical FROM contacts WHERE contact_client_id = $client_id AND contact_archived_at IS NULL ORDER BY contact_primary DESC, contact_technical DESC, contact_name ASC");

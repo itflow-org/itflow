@@ -42,7 +42,7 @@ ob_start();
                         <label>Client <strong class="text-danger">*</strong></label>
                         <div class="input-group">
                                 <span class="input-group-text"><i class="fa fa-fw fa-user"></i></span>
-                            <select class="form-control select2" name="client_id" required>
+                            <select class="form-select select2" name="client_id" required>
                                 <option value="">- Select Client -</option>
                                 <?php
 
@@ -80,7 +80,7 @@ ob_start();
                     <label>Domain</label>
                     <div class="input-group">
                             <span class="input-group-text"><i class="fa fa-fw fa-globe"></i></span>
-                        <select class="form-control select2" name="domain_id">
+                        <select class="form-select select2" name="domain_id">
                             <option value="">- Domain -</option>
                             <?php
                             $domains_sql = mysqli_query($mysqli, "SELECT domain_id, domain_name FROM domains WHERE domain_archived_at IS NULL AND domain_client_id = $client_id ORDER BY domain_name ASC");

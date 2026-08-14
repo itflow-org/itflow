@@ -46,7 +46,7 @@ ob_start();
                         <label>Client <strong class="text-danger">*</strong></label>
                         <div class="input-group">
                                 <span class="input-group-text"><i class="fa fa-fw fa-user"></i></span>
-                            <select class="form-control select2" name="client_id" required>
+                            <select class="form-select select2" name="client_id" required>
                                 <option value="">- Select Client -</option>
                                 <?php
 
@@ -70,7 +70,7 @@ ob_start();
                         <input type="text" class="form-control" name="name" placeholder="Name of Login" maxlength="200" required autofocus>
                             <div class="input-group-text">
                                 <label class="star-toggle mb-0" title="Favorite">
-                                    <input type="checkbox" name="favorite" value="1"><i class="far fa-star"></i>
+                                    <input class="form-check-input" type="checkbox" name="favorite" value="1"><i class="far fa-star"></i>
                                 </label>
                             </div>
                     </div>
@@ -135,7 +135,7 @@ ob_start();
                     <label>Contact</label>
                     <div class="input-group">
                             <span class="input-group-text"><i class="fa fa-fw fa-user"></i></span>
-                        <select class="form-control select2" name="contact">
+                        <select class="form-select select2" name="contact">
                             <option value="">- Select Contact -</option>
                             <?php
 
@@ -160,7 +160,7 @@ ob_start();
                     <label>Asset</label>
                     <div class="input-group">
                             <span class="input-group-text"><i class="fa fa-fw fa-tag"></i></span>
-                        <select class="form-control select2" name="asset">
+                        <select class="form-select select2" name="asset">
                             <option value="">- Select Asset -</option>
                             <?php
 
@@ -198,7 +198,7 @@ ob_start();
                     <label>Tags</label>
                     <div class="input-group">
                             <span class="input-group-text"><i class="fa fa-fw fa-tags"></i></span>
-                        <select class="form-control select2" name="tags[]" data-placeholder="Add some tags" multiple>
+                        <select class="form-select select2" name="tags[]" data-placeholder="Add some tags" multiple>
                             <?php
 
                             $sql_tags_select = mysqli_query($mysqli, "SELECT tag_id, tag_name FROM tags WHERE tag_type = 4 ORDER BY tag_name ASC");

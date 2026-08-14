@@ -35,7 +35,7 @@ ob_start();
             <label>Vendor</label>
             <div class="input-group">
                     <span class="input-group-text"><i class="fa fa-fw fa-building"></i></span>
-                <select class="form-control select2" name="vendor">
+                <select class="form-select select2" name="vendor">
                     <option value="0">- None -</option>
                     <?php
 

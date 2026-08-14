@@ -552,11 +552,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && (isset($_POST['login']) || isset($_
                                 <input type='text' inputmode='numeric' pattern='[0-9]*' maxlength='6'
                                        class='form-control' placeholder='Verify your 2FA code'
                                        name='current_code' required autofocus>
-                                <div class='input-group-append'>
                                   <div class='input-group-text'>
                                     <span class='fas fa-key'></span>
                                   </div>
-                                </div>
                             </div>";
 
                         if ($mfa_locked) {

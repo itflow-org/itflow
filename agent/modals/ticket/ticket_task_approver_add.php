@@ -38,7 +38,7 @@ ob_start();
             <label>Approval scope <strong class="text-danger">*</strong></label>
             <div class="input-group">
                     <span class="input-group-text"><i class="fa fa-fw fa-layer-group"></i></span>
-                <select class="form-control" name="approval_scope" id="approval_scope" required>
+                <select class="form-select" name="approval_scope" id="approval_scope" required>
                     <option value="">Select scope...</option>
                     <option value="internal">Internal</option>
                     <option value="client">Client</option>
@@ -51,7 +51,7 @@ ob_start();
             <label>Who can approve? <strong class="text-danger">*</strong></label>
             <div class="input-group">
                     <span class="input-group-text"><i class="fa fa-fw fa-user-check"></i></span>
-                <select class="form-control" name="approval_type" id="approval_type" required>
+                <select class="form-select" name="approval_type" id="approval_type" required>
                     <!-- JS -->
                 </select>
             </div>
@@ -62,7 +62,7 @@ ob_start();
             <label>Select specific internal approver <strong class="text-danger">*</strong></label>
             <div class="input-group">
                     <span class="input-group-text"><i class="fa fa-fw fa-user-circle"></i></span>
-                <select class="form-control select2" name="approval_required_user_id" id="specific_user_select">
+                <select class="form-select select2" name="approval_required_user_id" id="specific_user_select">
                     <option value="">Select user...</option>
                 </select>
             </div>

@@ -99,7 +99,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                     </div>
                     <div class="col-sm-3">
                         <div class="input-group mb-3 mb-sm-0">
-                            <select class="form-control select2" name="category" onchange="this.form.submit()">
+                            <select class="form-select select2" name="category" onchange="this.form.submit()">
                                 <option value="">- All Categories -</option>
 
                                 <?php

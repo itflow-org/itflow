@@ -169,7 +169,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                 <?php } ?>
                                 >
                                 <?php if (!empty($user_avatar)) { ?>
-                                    <img class="img-size-50 img-circle" src="<?= "../uploads/users/$user_id/$user_avatar" ?>">
+                                    <img class="img-size-50 rounded-circle" src="<?= "../uploads/users/$user_id/$user_avatar" ?>">
                                 <?php } else { ?>
                                     <span class="fa-stack fa-2x">
                                         <i class="fa fa-circle fa-stack-2x text-secondary"></i>

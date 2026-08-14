@@ -36,7 +36,7 @@ ob_start();
             <label>Tickets <strong class="text-danger">*</strong></label>
             <div class="input-group">
                     <span class="input-group-text"><i class="fa fa-fw fa-life-ring"></i></span>
-                <select class="form-control select2" data-placeholder="- Select Tickets- " multiple name="tickets[]" required>
+                <select class="form-select select2" data-placeholder="- Select Tickets- " multiple name="tickets[]" required>
                     <?php
 
                     $sql_tickets_select = mysqli_query($mysqli, "SELECT client_abbreviation, ticket_id, ticket_number, ticket_prefix, ticket_subject FROM tickets LEFT JOIN clients on ticket_client_id = client_id WHERE ticket_project_id = 0 AND ticket_closed_at IS NULL $client_ticket_select_query");

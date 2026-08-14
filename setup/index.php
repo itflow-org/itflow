@@ -546,17 +546,16 @@ if (isset($_POST['add_telemetry'])) {
     <!-- Theme style -->
     <link rel="stylesheet" href="/libs/adminlte/css/adminlte.min.css">
     <!-- Custom Style Sheet -->
-    <link href="/libs/select2/css/select2.min.css" rel="stylesheet" type="text/css">
-    <link href="/libs/select2-bootstrap4-theme/select2-bootstrap4.min.css" rel="stylesheet" type="text/css">
+    <link href="/libs/tom-select/css/tom-select.bootstrap5.min.css" rel="stylesheet" type="text/css">
 
 </head>
 
 <body class="hold-transition sidebar-mini">
 
-<div class="wrapper text-sm">
+<div class="app-wrapper text-sm">
 
     <!-- Navbar -->
-    <nav class="main-header navbar navbar-expand navbar-primary navbar-dark">
+    <nav class="app-header navbar navbar-expand" data-bs-theme="dark">
 
         <!-- Left navbar links -->
         <ul class="navbar-nav">
@@ -572,7 +571,7 @@ if (isset($_POST['add_telemetry'])) {
     <!-- /.navbar -->
 
     <!-- Main Sidebar Container -->
-    <aside class="main-sidebar sidebar-dark-primary shadow">
+    <aside class="app-sidebar shadow" data-bs-theme="dark">
 
         <!-- Brand Logo -->
         <a href="https://itflow.org" class="brand-link">
@@ -584,7 +583,7 @@ if (isset($_POST['add_telemetry'])) {
 
             <!-- Sidebar Menu -->
             <nav class="mt-2">
-                <ul class="nav nav-pills nav-sidebar flex-column" data-lte-toggle="treeview" role="menu" data-accordion="false">
+                <ul class="nav nav-pills sidebar-menu flex-column" data-lte-toggle="treeview" role="menu" data-accordion="false">
                     <li class="nav-item">
                         <a href="index.php" class="nav-link <?php if (!isset($_GET) || empty($_GET)) { echo 'active'; } ?>">
                             <i class="nav-icon fas fa-home text-info"></i>
@@ -645,7 +644,7 @@ if (isset($_POST['add_telemetry'])) {
     </aside>
 
     <!-- Content Wrapper. Contains page content -->
-    <div class="content-wrapper">
+    <main class="app-main">
 
         <!-- Main content -->
         <div class="content mt-3">
@@ -1213,7 +1212,7 @@ if (isset($_POST['add_telemetry'])) {
                                     <label>Country <strong class="text-danger">*</strong></label>
                                     <div class="input-group">
                                             <span class="input-group-text"><i class="fa fa-fw fa-globe-americas"></i></span>
-                                        <select class="form-control select2" name="country" required>
+                                        <select class="form-select select2" name="country" required>
                                             <option value="">- Country -</option>
                                             <?php foreach($countries_array as $country_name) { ?>
                                                 <option><?= $country_name ?></option>
@@ -1288,7 +1287,7 @@ if (isset($_POST['add_telemetry'])) {
                                     <label>Language <strong class="text-danger">*</strong></label>
                                     <div class="input-group">
                                             <span class="input-group-text"><i class="fa fa-fw fa-language"></i></span>
-                                        <select class="form-control select2" name="locale" required>
+                                        <select class="form-select select2" name="locale" required>
                                             <option value="">- Select a Language -</option>
                                             <?php foreach($locales_array as $locale_code => $locale_name) { ?>
                                                 <option value="<?= $locale_code ?>"><?= $locale_name ?></option>
@@ -1301,7 +1300,7 @@ if (isset($_POST['add_telemetry'])) {
                                     <label>Currency <strong class="text-danger">*</strong></label>
                                     <div class="input-group">
                                             <span class="input-group-text"><i class="fa fa-fw fa-money-bill"></i></span>
-                                        <select class="form-control select2" name="currency_code" required>
+                                        <select class="form-select select2" name="currency_code" required>
                                             <option value="">- Select a Currency -</option>
                                             <?php foreach($currencies_array as $currency_code => $currency_name) { ?>
                                                 <option value="<?= $currency_code ?>"><?= "$currency_code - $currency_name" ?></option>
@@ -1314,7 +1313,7 @@ if (isset($_POST['add_telemetry'])) {
                                     <label>Timezone <strong class="text-danger">*</strong></label>
                                     <div class="input-group">
                                             <span class="input-group-text"><i class="fa fa-fw fa-business-time"></i></span>
-                                        <select class="form-control select2" name="timezone" required>
+                                        <select class="form-select select2" name="timezone" required>
                                             <option value="">- Select a Timezone -</option>
                                             <?php foreach ($timezones as $tz) { ?>
                                                 <option value="<?= $tz ?>"><?= $tz ?></option>
@@ -1449,21 +1448,20 @@ if (isset($_POST['add_telemetry'])) {
 
             </div><!-- /.container-fluid -->
         </div>
-        <!-- /.content -->
-    </div>
-    <!-- /.content-wrapper -->
+        <!-- /.app-content -->
+    </main>
+    <!-- /.app-main -->
 </div>
-<!-- ./wrapper -->
+<!-- /.app-wrapper -->
 
 <!-- REQUIRED SCRIPTS -->
 
 <!-- jQuery -->
 <script src="/libs/jquery/jquery.min.js"></script>
-<!-- Bootstrap 4 -->
+<!-- Bootstrap 5 -->
 <script src="/libs/bootstrap/js/bootstrap.bundle.min.js"></script>
 <!-- Custom js-->
-<script src='/libs/select2/js/select2.min.js'></script>
-<script src="/libs/Show-Hide-Passwords-Bootstrap-4/bootstrap-show-password.min.js"></script>
+<script src='/libs/tom-select/js/tom-select.complete.min.js'></script>
 <!-- AdminLTE App -->
 <script src="/libs/adminlte/js/adminlte.min.js"></script>
 

@@ -95,7 +95,7 @@ ob_start();
                     <label>Type <strong class="text-danger">*</strong></label>
                     <div class="input-group">
                             <span class="input-group-text"><i class="fa fa-fw fa-layer-group"></i></span>
-                        <select class="form-control select2" name="type" required>
+                        <select class="form-select select2" name="type" required>
                             <?php foreach($asset_types_array as $asset_type_select => $asset_icon_select) { ?>
                                 <option <?php if ($asset_type_select == $asset_type) { echo "selected"; } ?>><?= $asset_type_select ?></option>
                             <?php } ?>
@@ -164,7 +164,7 @@ ob_start();
                     <label>Location</label>
                     <div class="input-group">
                             <span class="input-group-text"><i class="fa fa-fw fa-building"></i></span>
-                        <select class="form-control select2" name="location">
+                        <select class="form-select select2" name="location">
                             <option value="">- Select Location -</option>
                             <?php
 
@@ -192,7 +192,7 @@ ob_start();
                     <label>Assign To</label>
                     <div class="input-group">
                             <span class="input-group-text"><i class="fa fa-fw fa-user-check"></i></span>
-                        <select class="form-control select2" name="contact">
+                        <select class="form-select select2" name="contact">
                             <option value="">- Select Contact -</option>
                             <?php
 
@@ -212,7 +212,7 @@ ob_start();
                     <label>Status</label>
                     <div class="input-group">
                             <span class="input-group-text"><i class="fa fa-fw fa-circle"></i></span>
-                        <select class="form-control select2" name="status">
+                        <select class="form-select select2" name="status">
                             <option value="">- Select Status -</option>
                             <?php
                             $sql_interface_types_select = mysqli_query($mysqli, "
@@ -240,7 +240,7 @@ ob_start();
                     <label>Network</label>
                     <div class="input-group">
                             <span class="input-group-text"><i class="fa fa-fw fa-network-wired"></i></span>
-                        <select class="form-control select2" name="network">
+                        <select class="form-select select2" name="network">
                             <option value="">- Select Network -</option>
                             <?php
 
@@ -264,7 +264,7 @@ ob_start();
                             <span class="input-group-text"><i class="fa fa-fw fa-ethernet"></i></span>
                         <input type="text" class="form-control font-monospace" name="ip" placeholder="192.168.10.250" maxlength="200" data-inputmask="'alias': 'ip'" data-mask>
                             <div class="input-group-text">
-                                <input type="checkbox" name="dhcp" value="1" <?php if($asset_ip == 'DHCP'){ echo "checked"; } ?>>
+                                <input class="form-check-input" type="checkbox" name="dhcp" value="1" <?php if($asset_ip == 'DHCP'){ echo "checked"; } ?>>
                             </div>
                     </div>
                 </div>
@@ -317,7 +317,7 @@ ob_start();
                     <label>Vendor</label>
                     <div class="input-group">
                             <span class="input-group-text"><i class="fa fa-fw fa-building"></i></span>
-                        <select class="form-control select2" name="vendor">
+                        <select class="form-select select2" name="vendor">
                             <option value="">- Select Vendor -</option>
                             <?php
 

@@ -32,7 +32,7 @@ ob_start();
             <label>Expense</label>
             <div class="input-group">
                     <span class="input-group-text"><i class="fa fa-fw fa-shopping-cart"></i></span>
-                <select class="form-control select2" name="expense">
+                <select class="form-select select2" name="expense">
                     <option value="0">- Link an Expense -</option>
                     <?php
 

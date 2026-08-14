@@ -46,7 +46,7 @@ ob_start();
             <label>Run as User <strong class="text-danger">*</strong></label>
             <div class="input-group">
                     <span class="input-group-text"><i class="fa fa-fw fa-user-shield"></i></span>
-                <select class="form-control select2" name="run_as_user" required>
+                <select class="form-select select2" name="run_as_user" required>
                     <option value="">- Select a user -</option>
                     <?php
                     $sql_run_users = mysqli_query($mysqli, "SELECT user_id, user_name FROM users WHERE user_type = 1 AND user_status = 1 AND user_archived_at IS NULL ORDER BY user_name ASC");

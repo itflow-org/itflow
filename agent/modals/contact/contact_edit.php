@@ -92,7 +92,7 @@ ob_start();
                             <span class="input-group-text"><i class="fa fa-fw fa-user"></i></span>
                         <input type="text" class="form-control" name="name" placeholder="Full Name" maxlength="200" value="<?= $contact_name ?>" required>
                             <div class="input-group-text">
-                                <input type="checkbox" name="contact_primary" value="1" <?php if ($contact_primary == 1) { echo "checked"; } ?>>
+                                <input class="form-check-input" type="checkbox" name="contact_primary" value="1" <?php if ($contact_primary == 1) { echo "checked"; } ?>>
                             </div>
                     </div>
                 </div>
@@ -156,7 +156,7 @@ ob_start();
                     <label>Location</label>
                     <div class="input-group">
                             <span class="input-group-text"><i class="fa fa-fw fa-map-marker-alt"></i></span>
-                        <select class="form-control select2" name="location">
+                        <select class="form-select select2" name="location">
                             <option value="">- Select Location -</option>
                             <?php
 
@@ -198,7 +198,7 @@ ob_start();
                             <label>Client Portal</label>
                             <div class="input-group">
                                     <span class="input-group-text"><i class="fa fa-fw fa-user-circle"></i></span>
-                                <select class="form-control select2 authMethod" name="auth_method">
+                                <select class="form-select select2 authMethod" name="auth_method">
                                     <option value="">- No Access -</option>
                                     <option value="local" <?php if ($auth_method == "local") { echo "selected"; } ?>>Using Set Password</option>
                                     <option value="azure" <?php if ($auth_method == "azure") { echo "selected"; } ?>>Using Azure Credentials</option>
@@ -289,7 +289,7 @@ ob_start();
                     <label>Tags</label>
                     <div class="input-group">
                             <span class="input-group-text"><i class="fa fa-fw fa-tags"></i></span>
-                        <select class="form-control select2" name="tags[]" data-placeholder="Add some tags" multiple>
+                        <select class="form-select select2" name="tags[]" data-placeholder="Add some tags" multiple>
                             <?php
 
                             $sql_tags_select = mysqli_query($mysqli, "SELECT tag_id, tag_name FROM tags WHERE tag_type = 3 ORDER BY tag_name ASC");

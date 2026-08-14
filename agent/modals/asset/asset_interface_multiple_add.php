@@ -35,7 +35,7 @@
                         <label for="network">Interface Type</label>
                         <div class="input-group">
                                 <span class="input-group-text"><i class="fa fa-fw fa-plug"></i></span>
-                            <select class="form-control select2" name="type">
+                            <select class="form-select select2" name="type">
                                 <option value="">- Select Type -</option>
                                 <?php
                                 $sql_interface_types_select = mysqli_query($mysqli, "
@@ -67,7 +67,7 @@
                         <label for="network">Network Assignment</label>
                         <div class="input-group">
                                 <span class="input-group-text"><i class="fa fa-fw fa-network-wired"></i></span>
-                            <select id="network" class="form-control select2" name="network">
+                            <select id="network" class="form-select select2" name="network">
                                 <option value="">- Select Network -</option>
                                 <?php
                                 $sql_network_select = mysqli_query($mysqli, "SELECT network_id, network_name, network FROM networks WHERE network_archived_at IS NULL AND network_client_id = $client_id ORDER BY network_name ASC");

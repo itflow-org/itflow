@@ -242,7 +242,7 @@ if ($account_filter) {
                     <div class="col-sm-3">
                         <div class="mb-3">
                             <label>Account</label>
-                            <select class="form-control select2" name="account" onchange="this.form.submit()">
+                            <select class="form-select select2" name="account" onchange="this.form.submit()">
                                 <option value="">- Select an Account -</option>
 
                                 <?php
@@ -272,7 +272,7 @@ if ($account_filter) {
                     <div class="col-sm-3">
                         <div class="mb-3">
                             <label>Type</label>
-                            <select class="form-control select2" name="type" onchange="this.form.submit()">
+                            <select class="form-select select2" name="type" onchange="this.form.submit()">
                                 <option value="">- All Types -</option>
 
                                 <?php foreach ($transaction_types_array as $transaction_type_option) { ?>
@@ -285,7 +285,7 @@ if ($account_filter) {
                     <div class="col-sm-3">
                         <div class="mb-3">
                             <label>Category</label>
-                            <select class="form-control select2" name="category" onchange="this.form.submit()">
+                            <select class="form-select select2" name="category" onchange="this.form.submit()">
                                 <option value="">- All Categories -</option>
 
                                 <?php
@@ -307,7 +307,7 @@ if ($account_filter) {
                     <div class="col-sm-3">
                         <div class="mb-3 mb-md-0">
                             <label>Client</label>
-                            <select class="form-control select2" name="client" onchange="this.form.submit()">
+                            <select class="form-select select2" name="client" onchange="this.form.submit()">
                                 <option value="">- All Clients -</option>
 
                                 <?php
@@ -327,7 +327,7 @@ if ($account_filter) {
                     <div class="col-sm-3">
                         <div class="mb-3 mb-md-0">
                             <label>Payment Method</label>
-                            <select class="form-control select2" name="payment_method" onchange="this.form.submit()">
+                            <select class="form-select select2" name="payment_method" onchange="this.form.submit()">
                                 <option value="">- All Methods -</option>
 
                                 <?php

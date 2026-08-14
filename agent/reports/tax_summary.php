@@ -27,7 +27,7 @@ $sql_tax = mysqli_query($mysqli, "SELECT `tax_name` FROM `taxes`");
         </div>
         <div class="card-body p-0">
             <form class="p-3">
-                <select onchange="this.form.submit()" class="form-control" name="year">
+                <select onchange="this.form.submit()" class="form-select" name="year">
                     <?php
 
                     while ($row = mysqli_fetch_assoc($sql_all_years)) {
@@ -42,7 +42,7 @@ $sql_tax = mysqli_query($mysqli, "SELECT `tax_name` FROM `taxes`");
                 </select>
 
                 <!-- View Selection Dropdown -->
-                <select onchange="this.form.submit()" class="form-control" name="view">
+                <select onchange="this.form.submit()" class="form-select" name="view">
                     <option value="monthly" <?php if ($view == 'monthly') echo "selected"; ?>>Monthly</option>
                     <option value="quarterly" <?php if ($view == 'quarterly') echo "selected"; ?>>Quarterly</option>
                 </select>

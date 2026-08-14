@@ -21,7 +21,7 @@
                         <label>Type<strong class="text-danger ms-2">*</strong></label>
                         <div class="input-group">
                                 <span class="input-group-text"><i class="fa fa-fw fa-th-list"></i></span>
-                            <select class="form-control select2" name="type" required>
+                            <select class="form-select select2" name="type" required>
                                 <option value="0">- Select Credit Type -</option>
                                 <option value="manual">Manual</option>
                                 <option value="prepaid">Prepaid</option>
@@ -54,7 +54,7 @@
                             <label>Client</label>
                             <div class="input-group">
                                     <span class="input-group-text"><i class="fa fa-fw fa-user"></i></span>
-                                <select class="form-control select2" name="client" required>
+                                <select class="form-select select2" name="client" required>
                                     <option value="0">- Client (Optional) -</option>
                                     <?php
 

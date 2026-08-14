@@ -65,14 +65,14 @@ while ($resolve_row = mysqli_fetch_assoc($sql_resolve_times)) {
         </div>
         <div class="card-body">
             <form class="mb-3">
-                <select onchange="this.form.submit()" class="form-control" name="year">
+                <select onchange="this.form.submit()" class="form-select" name="year">
                     <?php
                     while ($row = mysqli_fetch_assoc($sql_ticket_years)) {
                         $ticket_year = intval($row['ticket_year']); ?>
                         <option <?php if ($year == $ticket_year) { ?> selected <?php } ?> > <?= $ticket_year ?></option>
                     <?php } ?>
                 </select>
-                <select onchange="this.form.submit()" class="form-control" name="month">
+                <select onchange="this.form.submit()" class="form-select" name="month">
                     <option <?php if ($month == 0) { echo 'selected'; } ?> value="0">Whole year</option>
                     <?php for ($m = 1; $m <= 12; $m++) { ?>
                         <option <?php if ($month == $m) { echo 'selected'; } ?> value="<?= $m ?>"><?= date("F", mktime(1, 1, 1, $m, 1)) ?></option>

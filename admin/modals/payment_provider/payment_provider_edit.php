@@ -66,7 +66,7 @@ ob_start();
                     <label>Income / Expense Account <strong class="text-danger">*</strong></label>
                     <div class="input-group">
                             <span class="input-group-text"><i class="fa fa-fw fa-piggy-bank"></i></span>
-                        <select class="form-control select2" name="account" required>
+                        <select class="form-select select2" name="account" required>
                             <option value="">- Select an Account -</option>
                             <?php
 
@@ -106,7 +106,7 @@ ob_start();
                     <label>Payment Provider Vendor <strong class="text-danger">*</strong></label>
                     <div class="input-group">
                             <span class="input-group-text"><i class="fa fa-fw fa-building"></i></span>
-                        <select class="form-control select2" name="expense_vendor" required>
+                        <select class="form-select select2" name="expense_vendor" required>
                             <option value="0">Expense Disabled</option>
                             <?php
 
@@ -131,7 +131,7 @@ ob_start();
                     <label>Expense Category <strong class="text-danger">*</strong></label>
                     <div class="input-group">
                             <span class="input-group-text"><i class="fa fa-fw fa-list"></i></span>
-                        <select class="form-control select2" name="expense_category" required>
+                        <select class="form-select select2" name="expense_category" required>
                             <option value="">- Select a Category -</option>
                             <?php
 

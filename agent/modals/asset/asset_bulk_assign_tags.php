@@ -30,7 +30,7 @@ ob_start();
             <label>Tags</label>
             <div class="input-group">
                     <span class="input-group-text"><i class="fa fa-fw fa-tags"></i></span>
-                <select class="form-control select2" name="tags[]" data-placeholder="Add some tags" multiple>
+                <select class="form-select select2" name="tags[]" data-placeholder="Add some tags" multiple>
                     <?php
 
                     $sql_tags_select = mysqli_query($mysqli, "SELECT tag_id, tag_name FROM tags WHERE tag_type = 5 ORDER BY tag_name ASC");

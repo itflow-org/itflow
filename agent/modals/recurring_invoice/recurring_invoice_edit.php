@@ -51,7 +51,7 @@ ob_start();
             <label>Frequency <strong class="text-danger">*</strong></label>
             <div class="input-group">
                     <span class="input-group-text"><i class="fa fa-fw fa-clock"></i></span>
-                <select class="form-control select2" name="frequency" required>
+                <select class="form-select select2" name="frequency" required>
                     <option value="">- Frequency -</option>
                     <option <?php if ($recurring_invoice_frequency == 'month') { echo "selected"; } ?> value="month">Monthly</option>
                     <option <?php if ($recurring_invoice_frequency == 'year') { echo "selected"; } ?> value="year">Yearly</option>
@@ -71,7 +71,7 @@ ob_start();
             <label>Income Category <strong class="text-danger">*</strong></label>
             <div class="input-group">
                     <span class="input-group-text"><i class="fa fa-fw fa-tag"></i></span>
-                <select class="form-control select2" name="category" required>
+                <select class="form-select select2" name="category" required>
                     <option value="">- Category -</option>
                     <?php
 
@@ -96,9 +96,7 @@ ob_start();
         <div class='mb-3'>
             <label>Discount Amount</label>
             <div class='input-group'>
-                <div class='input-group-prepend'>
                     <span class='input-group-text'><i class='fa fa-fw fa-dollar-sign'></i></span>
-                </div>
                 <input type='text' class='form-control' inputmode="decimal" pattern="-?[0-9]*\.?[0-9]{0,2}" name='recurring_invoice_discount' placeholder='0.00' value="<?= number_format($recurring_invoice_discount, 2, '.', '') ?>">
             </div>
         </div>
@@ -107,7 +105,7 @@ ob_start();
             <label>Status <strong class="text-danger">*</strong></label>
             <div class="input-group">
                     <span class="input-group-text"><i class="fa fa-fw fa-clock"></i></span>
-                <select class="form-control select2" name="status" required>
+                <select class="form-select select2" name="status" required>
                     <option <?php if ($recurring_invoice_status == 1) {
                                 echo "selected";
                             } ?> value="1">Active</option>

@@ -52,7 +52,7 @@ ob_start();
             <label>Reassign <?= $ticket_count ?> Open Tickets and <?= $recurring_ticket_count ?> Recurring Tickets To:</label>
             <div class="input-group">
                     <span class="input-group-text"><i class="fa fa-fw fa-user"></i></span>
-                <select class="form-control select2" name="ticket_assign" required>
+                <select class="form-select select2" name="ticket_assign" required>
                     <option value="0">No one</option>
                     <?php
                     $sql_users = mysqli_query($mysqli, "SELECT user_id, user_name FROM users WHERE user_type = 1 AND user_archived_at IS NULL");

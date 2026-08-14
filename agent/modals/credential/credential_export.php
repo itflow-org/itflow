@@ -55,7 +55,7 @@ ob_start();
             <label>Client</label>
             <div class="input-group">
                     <span class="input-group-text"><i class="fa fa-fw fa-user"></i></span>
-                <select class="form-control select2" name="client">
+                <select class="form-select select2" name="client">
                     <option value="">- All Clients -</option>
                     <?php
                     $sql_clients_filter = mysqli_query($mysqli, "SELECT client_id, client_name FROM clients WHERE EXISTS (SELECT 1 FROM credentials WHERE credential_client_id = client_id) ORDER BY client_name ASC");
@@ -76,7 +76,7 @@ ob_start();
             <label>Tags</label>
             <div class="input-group">
                     <span class="input-group-text"><i class="fa fa-fw fa-tags"></i></span>
-                <select class="form-control select2" name="tags[]" data-placeholder="- All Tags -" multiple>
+                <select class="form-select select2" name="tags[]" data-placeholder="- All Tags -" multiple>
                     <?php
                     $sql_tags_filter = mysqli_query($mysqli, "SELECT tag_id, tag_name FROM tags WHERE tag_type = 4 ORDER BY tag_name ASC");
                     while ($row = mysqli_fetch_assoc($sql_tags_filter)) {
@@ -95,7 +95,7 @@ ob_start();
             <label>Archived</label>
             <div class="input-group">
                     <span class="input-group-text"><i class="fa fa-fw fa-archive"></i></span>
-                <select class="form-control select2" name="archived">
+                <select class="form-select select2" name="archived">
                     <option <?php if (!$archived_filter) { echo "selected"; } ?> value="0">Active only</option>
                     <option <?php if ($archived_filter) { echo "selected"; } ?> value="1">Archived only</option>
                 </select>

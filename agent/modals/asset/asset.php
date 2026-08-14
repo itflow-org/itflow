@@ -339,7 +339,7 @@ ob_start();
                         <?php if ($asset_favorite) { ?><i class="fas fa-fw text-warning fa-star" title="Favorite"></i><?php } ?>
                     </h3>
                     <?php if ($asset_photo) { ?>
-                        <img class="img-fluid img-circle p-3" alt="asset_photo" src="<?= "../uploads/clients/$client_id/$asset_photo" ?>">
+                        <img class="img-fluid rounded-circle p-3" alt="asset_photo" src="<?= "../uploads/clients/$client_id/$asset_photo" ?>">
                     <?php } ?>
                     <?php if ($asset_description) { ?>
                         <div class="text-secondary"><?= $asset_description ?></div>
@@ -537,7 +537,7 @@ ob_start();
 
         <?php if (lookupUserPermission('module_credential') && ($credential_count)) { ?>
         <div class="tab-pane fade" id="pills-asset-credentials">
-            <div class="table-responsive-sm-sm">
+            <div class="table-responsive-sm">
                 <table class="table table-sm table-striped table-borderless table-hover">
                     <thead>
                     <tr>

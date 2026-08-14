@@ -217,7 +217,7 @@ if (isset($_GET['contact_id'])) {
 
                     <div class="text-center">
                         <?php if ($contact_photo) { ?>
-                            <img class="img-fluid img-circle p-3" alt="contact_photo" src="<?= "../uploads/clients/$client_id/$contact_photo" ?>">
+                            <img class="img-fluid rounded-circle p-3" alt="contact_photo" src="<?= "../uploads/clients/$client_id/$contact_photo" ?>">
                         <?php } else { ?>
                             <span class="fa-stack fa-4x">
                                 <i class="fa fa-circle fa-stack-2x text-secondary"></i>
@@ -245,7 +245,7 @@ if (isset($_GET['contact_id'])) {
                         <div class="ms-4">x<?= $contact_extension ?></div>
                     <?php }
                     if ($contact_mobile) { ?>
-                        <div class="mt-l"><i class="fa fa-fw fa-mobile-alt text-secondary me-2"></i><a href="tel:<?= $contact_mobile ?>"><?= $contact_mobile ?></a></div>
+                        <div class="mt-1"><i class="fa fa-fw fa-mobile-alt text-secondary me-2"></i><a href="tel:<?= $contact_mobile ?>"><?= $contact_mobile ?></a></div>
                     <?php }
                     if ($contact_pin) { ?>
                         <div class="mt-2"><i class="fa fa-fw fa-key text-secondary me-2"></i><?= $contact_pin ?></div>

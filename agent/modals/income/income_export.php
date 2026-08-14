@@ -85,7 +85,7 @@ ob_start();
             <label>Type</label>
             <div class="input-group">
                     <span class="input-group-text"><i class="fa fa-fw fa-hand-holding-usd"></i></span>
-                <select class="form-control select2" name="type">
+                <select class="form-select select2" name="type">
                     <option value="">- All Types -</option>
 
                     <?php foreach ($income_types_array as $income_type_option) { ?>
@@ -100,7 +100,7 @@ ob_start();
             <label>Category</label>
             <div class="input-group">
                     <span class="input-group-text"><i class="fa fa-fw fa-tag"></i></span>
-                <select class="form-control select2" name="category">
+                <select class="form-select select2" name="category">
                     <option value="">- All Categories -</option>
 
                     <?php
@@ -126,7 +126,7 @@ ob_start();
             <label>Account</label>
             <div class="input-group">
                     <span class="input-group-text"><i class="fa fa-fw fa-piggy-bank"></i></span>
-                <select class="form-control select2" name="account">
+                <select class="form-select select2" name="account">
                     <option value="">- All Accounts -</option>
 
                     <?php
@@ -151,7 +151,7 @@ ob_start();
             <label>Payment Method</label>
             <div class="input-group">
                     <span class="input-group-text"><i class="fa fa-fw fa-credit-card"></i></span>
-                <select class="form-control select2" name="method">
+                <select class="form-select select2" name="method">
                     <option value="">- All Payment Methods -</option>
 
                     <?php

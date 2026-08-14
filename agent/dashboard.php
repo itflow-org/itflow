@@ -46,12 +46,12 @@ $sql_years_select = mysqli_query($mysqli, "
 </style>
 
 <div class="card card-body">
-    <form class="form-inline">
+    <form class="d-flex align-items-center gap-2">
         <input type="hidden" name="enable_financial" value="0">
         <input type="hidden" name="enable_technical" value="0">
 
         <label for="year" class="me-sm-2">Select Year:</label>
-        <select id="year" onchange="this.form.submit()" class="form-control me-sm-3 col-sm-2 mb-3 mb-sm-0" name="year">
+        <select id="year" onchange="this.form.submit()" class="form-select me-sm-3 col-sm-2 mb-3 mb-sm-0" name="year">
             <?php while ($row = mysqli_fetch_assoc($sql_years_select)) {
                 $year_select = $row['all_years'];
                 if (empty($year_select)) {

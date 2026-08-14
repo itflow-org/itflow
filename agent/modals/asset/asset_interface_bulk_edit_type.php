@@ -27,7 +27,7 @@ ob_start();
             <label for="network">Interface Type</label>
             <div class="input-group">
                     <span class="input-group-text"><i class="fa fa-fw fa-plug"></i></span>
-                <select class="form-control select2" name="bulk_type">
+                <select class="form-select select2" name="bulk_type">
                     <option value="">- Select Type -</option>
                     <?php
                     $sql_interface_types_select = mysqli_query($mysqli, "

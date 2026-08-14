@@ -97,7 +97,7 @@ if ($row) {
                 <label>Portal authentication</label>
                 <div class="input-group">
                         <span class="input-group-text"><i class="fa fa-fw fa-user-circle"></i></span>
-                    <select class="form-control select2 authMethod" name="contact_auth_method">
+                    <select class="form-select select2 authMethod" name="contact_auth_method">
                         <option value="">- No portal access -</option>
                         <option value="local" <?php if ($contact_auth_method == "local") { echo "selected"; } ?>>Local (Email and password)</option>
                         <?php if (!empty($config_azure_client_id)) { ?>

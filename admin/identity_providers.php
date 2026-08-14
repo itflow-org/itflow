@@ -16,7 +16,7 @@ require_once "includes/inc_all_admin.php";
                 <label>Identity Provider <small class='text-secondary'>(Currently only works with Microsoft Entra ID/AAD)</small></label>
                 <div class="input-group">
                         <span class="input-group-text"><i class="fa fa-fw fa-fingerprint"></i></span>
-                    <select class="form-control select2" readonly>
+                    <select class="form-select select2" readonly>
                         <option <?php if (empty($config_azure_client_id)) { echo "selected"; } ?>>Disabled</option>
                         <option <?php if ($config_azure_client_id) { echo "selected"; } ?>>Microsoft Entra</option>
                         <option>Google (WIP)</option>

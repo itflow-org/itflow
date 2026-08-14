@@ -24,7 +24,7 @@ ob_start();
                 <label>Client</label>
                 <div class="input-group">
                         <span class="input-group-text"><i class="fa fa-fw fa-user"></i></span>
-                    <select class="form-control select2" name="client_id" required>
+                    <select class="form-select select2" name="client_id" required>
                         <option value="0">- Client (Optional) -</option>
                         <?php
 
@@ -59,7 +59,7 @@ ob_start();
                         <span class="input-group-text"><i class="fa fa-fw fa-bicycle"></i></span>
                     <input type="text" class="form-control" inputmode="decimal" pattern="[0-9]*\.?[0-9]{0,1}" name="miles" placeholder="0.0" required autofocus>
                         <div class="input-group-text">
-                            <input type="checkbox" name="roundtrip" value="1">
+                            <input class="form-check-input" type="checkbox" name="roundtrip" value="1">
                         </div>
                 </div>
             </div>
@@ -76,7 +76,7 @@ ob_start();
         <div class="mb-3">
             <div class="input-group">
                     <span class="input-group-text"><i class="fa fa-fw fa-arrow-right"></i></span>
-                <select class="form-control select2" name="destination" data-tags="true" data-placeholder="- Select or Enter a Destination -" required>
+                <select class="form-select select2" name="destination" data-tags="true" data-placeholder="- Select or Enter a Destination -" required>
                     <option value=""></option>
                     <?php
                     if ($client_id) {
@@ -105,7 +105,7 @@ ob_start();
             <label>Driver</label>
             <div class="input-group">
                     <span class="input-group-text"><i class="fa fa-fw fa-user"></i></span>
-                <select class="form-control select2" name="user" required>
+                <select class="form-select select2" name="user" required>
                     <option value="">- Driver -</option>
                     <?php
 

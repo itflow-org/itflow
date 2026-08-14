@@ -26,7 +26,7 @@ $monthlyTotals = array_fill(1, 12, 0);  // Initialize monthly totals for each mo
     </div>
     <div class="card-body">
         <form class="mb-3">
-            <select onchange="this.form.submit()" class="form-control" name="year">
+            <select onchange="this.form.submit()" class="form-select" name="year">
                 <?php
 
                 while ($row = mysqli_fetch_assoc($sql_expense_years)) {

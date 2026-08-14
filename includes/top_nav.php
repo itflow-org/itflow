@@ -78,19 +78,19 @@
                 <i class="fas fa-user-circle me-1"></i>
                 <?php }else{ ?>
                 <img src="<?= "/uploads/users/$session_user_id/$session_avatar" ?>"
-                    class="user-image img-circle">
+                    class="user-image rounded-circle">
                 <?php } ?>
                 <span
                     class="d-none d-md-inline dropdown-toggle"><?= stripslashes(escapeHtml($session_name)) ?></span>
             </a>
             <ul class="dropdown-menu dropdown-menu-lg dropdown-menu-end">
                 <!-- User image -->
-                <li class="user-header bg-gray-dark">
+                <li class="user-header bg-dark">
                     <?php if (empty($session_avatar)) { ?>
                     <i class="fas fa-user-circle fa-6x"></i>
                     <?php }else{ ?>
 
-                    <img src="<?= "/uploads/users/$session_user_id/$session_avatar" ?>" class="img-circle">
+                    <img src="<?= "/uploads/users/$session_user_id/$session_avatar" ?>" class="rounded-circle">
                     <?php } ?>
                     <p>
                         <?= stripslashes(escapeHtml($session_name)) ?>

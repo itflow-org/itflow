@@ -31,7 +31,7 @@ ob_start();
         <div class="mb-3">
             <div class="input-group">
                     <span class="input-group-text"><i class="fa fa-fw fa-key"></i></span>
-                <select class="form-control select2" name="credential_id">
+                <select class="form-select select2" name="credential_id">
                     <option value="">- Select a Credential -</option>
                     <?php
                     $sql_credentials_select = mysqli_query($mysqli, "

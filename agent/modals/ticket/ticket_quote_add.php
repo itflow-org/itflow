@@ -101,7 +101,7 @@ ob_start();
                         <div class="input-group">
                                 <span class="input-group-text"><i class="fa fa-fw fa-list"></i></span>
 
-                            <select class="form-control select2" name="category">
+                            <select class="form-select select2" name="category">
                                 <option value="">- Select a Category -</option>
                                 <?php
                                 $sql = mysqli_query($mysqli, "SELECT category_id, category_name FROM categories WHERE category_type = 'Income' AND category_archived_at IS NULL ORDER BY category_name ASC");
@@ -193,7 +193,7 @@ ob_start();
                 <div class="input-group">
                         <span class="input-group-text"><i class="fa fa-fw fa-piggy-bank"></i></span>
 
-                    <select class="form-control select2" name="tax_id" required>
+                    <select class="form-select select2" name="tax_id" required>
                         <option value="0">None</option>
                         <?php
                         $taxes_sql = mysqli_query($mysqli, "SELECT tax_id, tax_name, tax_percent FROM taxes WHERE tax_archived_at IS NULL ORDER BY tax_name ASC");

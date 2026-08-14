@@ -104,7 +104,7 @@ header("X-Frame-Options: DENY"); // Legacy
 
             </ul><!-- End left nav -->
 
-            <ul class="nav navbar-nav pull-right">
+            <ul class="nav navbar-nav ms-auto">
                 <li class="nav-item dropdown">
                     <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown">
                         <?= stripslashes(escapeHtml($session_contact_name)) ?>
@@ -128,7 +128,7 @@ header("X-Frame-Options: DENY"); // Legacy
     <div class="row mb-3">
         <div class="col-md-1 text-center">
             <?php if (!empty($session_contact_photo)) { ?>
-                <img src="/uploads/clients/<?= $session_client_id ?>/<?= $session_contact_photo ?>" alt="..." height="50" width="50" class="img-circle img-responsive">
+                <img src="/uploads/clients/<?= $session_client_id ?>/<?= $session_contact_photo ?>" alt="..." height="50" width="50" class="rounded-circle img-fluid">
 
             <?php } else { ?>
                 <span class="fa-stack fa-2x rounded-start">

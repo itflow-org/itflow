@@ -39,7 +39,7 @@ ob_start();
                 <label>Account <strong class="text-danger">*</strong></label>
                 <div class="input-group">
                         <span class="input-group-text"><i class="fa fa-fw fa-piggy-bank"></i></span>
-                    <select class="form-control select2" name="account" required>
+                    <select class="form-select select2" name="account" required>
                         <option value="">- Account -</option>
                         <?php
 
@@ -78,7 +78,7 @@ ob_start();
                 <label>Category <strong class="text-danger">*</strong></label>
                 <div class="input-group">
                         <span class="input-group-text"><i class="fa fa-fw fa-money-check-alt"></i></span>
-                    <select class="form-control select2" name="category" required>
+                    <select class="form-select select2" name="category" required>
                         <option value="">- Category -</option>
                         <?php
 
@@ -113,7 +113,7 @@ ob_start();
                 <label>Payment Method <strong class="text-danger">*</strong></label>
                 <div class="input-group">
                         <span class="input-group-text"><i class="fa fa-fw fa-money-check-alt"></i></span>
-                    <select class="form-control select2" name="payment_method" required>
+                    <select class="form-select select2" name="payment_method" required>
                         <option value="">- Method of Payment -</option>
                         <?php
 

@@ -27,7 +27,7 @@ ob_start();
             <label>Category</label>
             <div class="input-group">
                     <span class="input-group-text"><i class="fa fa-fw fa-layer-group"></i></span>
-                <select class="form-control select2" name="bulk_category">
+                <select class="form-select select2" name="bulk_category">
                     <option value="0">- Uncategorized -</option>
                     <?php
                     $sql_categories = mysqli_query($mysqli, "SELECT category_id, category_name FROM categories WHERE category_type = 'Ticket' AND category_archived_at IS NULL ORDER BY category_name ASC");

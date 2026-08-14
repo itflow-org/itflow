@@ -60,7 +60,7 @@ ob_start();
                     <label>Type <strong class="text-danger">*</strong></label>
                     <div class="input-group">
                             <span class="input-group-text"><i class="fa fa-fw fa-server"></i></span>
-                        <select class="form-control select2" name="type" required>
+                        <select class="form-select select2" name="type" required>
                             <option value="">- Type -</option>
                             <?php
                             $sql_rack_types_select = mysqli_query($mysqli, "
@@ -116,7 +116,7 @@ ob_start();
                     <label>Location</label>
                     <div class="input-group">
                             <span class="input-group-text"><i class="fa fa-fw fa-map-marker-alt"></i></span>
-                        <select class="form-control select2" name="location">
+                        <select class="form-select select2" name="location">
                             <option value="">- Location -</option>
                             <?php
 

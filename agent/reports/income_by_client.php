@@ -30,7 +30,7 @@ $sql_payment_years = mysqli_query($mysqli, "SELECT DISTINCT YEAR(payment_date) A
     </div>
     <div class="card-body">
         <form class="mb-3">
-            <select onchange="this.form.submit()" class="form-control" name="year">
+            <select onchange="this.form.submit()" class="form-select" name="year">
                 <option value="all" <?php if ($year == 'all') { ?> selected <?php } ?> >All Years</option>
                 <?php
 

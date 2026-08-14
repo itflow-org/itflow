@@ -130,7 +130,7 @@ while ($assignment_row = mysqli_fetch_assoc($sql_assignments)) {
                     ?>
                     <div class="mb-3 col-md-3">
                         <label><?= $priority ?></label>
-                        <select class="form-control" name="global_sla_<?= strtolower($priority) ?>">
+                        <select class="form-select" name="global_sla_<?= strtolower($priority) ?>">
                             <option value="0">None</option>
                             <?php foreach ($active_slas as $active_sla_id => $active_sla_name) { ?>
                                 <option value="<?= $active_sla_id ?>" <?php if ($selected_sla_id == $active_sla_id) { echo "selected"; } ?>><?= escapeHtml($active_sla_name) ?></option>

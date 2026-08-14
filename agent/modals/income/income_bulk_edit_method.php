@@ -26,7 +26,7 @@ ob_start();
             <label>Payment Method <strong class="text-danger">*</strong></label>
             <div class="input-group">
                     <span class="input-group-text"><i class="fa fa-fw fa-money-check-alt"></i></span>
-                <select class="form-control select2" name="bulk_payment_method" data-placeholder="- Select a Method of Payment -" required>
+                <select class="form-select select2" name="bulk_payment_method" data-placeholder="- Select a Method of Payment -" required>
                     <option></option>
                     <?php
 

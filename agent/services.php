@@ -76,7 +76,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                     <?php } else { ?>
                     <div class="col-md-2">
                         <div class="input-group">
-                            <select class="form-control select2" name="client" onchange="this.form.submit()">
+                            <select class="form-select select2" name="client" onchange="this.form.submit()">
                                 <option value="" <?php if ($client == "") { echo "selected"; } ?>>- All Clients -</option>
 
                                 <?php

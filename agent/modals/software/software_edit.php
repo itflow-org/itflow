@@ -99,7 +99,7 @@ ob_start();
                     <label>Type <strong class="text-danger">*</strong></label>
                     <div class="input-group">
                             <span class="input-group-text"><i class="fa fa-fw fa-tag"></i></span>
-                        <select class="form-control select2" name="type" required>
+                        <select class="form-select select2" name="type" required>
                             <option value="">- Select Type -</option>
                             <<?php
                             $sql_software_types_select = mysqli_query($mysqli, "
@@ -139,7 +139,7 @@ ob_start();
                     <label>Vendor</label>
                     <div class="input-group">
                             <span class="input-group-text"><i class="fa fa-fw fa-building"></i></span>
-                        <select class="form-control select2" name="vendor">
+                        <select class="form-select select2" name="vendor">
                             <option value="">- Select Vendor -</option>
                             <?php
                             $vendor_sql = mysqli_query($mysqli, "SELECT vendor_id, vendor_name FROM vendors WHERE vendor_client_id = $client_id AND vendor_archived_at IS NULL ORDER BY vendor_name ASC");
@@ -171,7 +171,7 @@ ob_start();
                     <label>License Type</label>
                     <div class="input-group">
                             <span class="input-group-text"><i class="fa fa-fw fa-cube"></i></span>
-                        <select class="form-control select2" name="license_type">
+                        <select class="form-select select2" name="license_type">
                             <option value="">- Select a License Type -</option>
                             <?php foreach($license_types_array as $license_type_select) { ?>
                                 <option <?php if ($license_type_select == $software_license_type) { echo "selected"; } ?>><?= $license_type_select ?></option>

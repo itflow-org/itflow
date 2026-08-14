@@ -20,7 +20,7 @@ $invoices_sql = mysqli_query($mysqli, "SELECT invoice_amount, invoice_date, invo
 
     <div class="col-md-10">
 
-        <table class="table tabled-bordered border border-dark">
+        <table class="table table-bordered border border-dark">
             <thead class="table-dark">
             <tr>
                 <th>#</th>

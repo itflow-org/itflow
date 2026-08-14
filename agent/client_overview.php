@@ -265,7 +265,7 @@ $sql_asset_retired = mysqli_query(
                                     <div class="d-flex">
                                         <?php if ($contact_photo) { ?>
                                             <span class="fa-stack fa-2x me-2 text-center">
-                                                <img class="img-size-50 img-circle" src="<?= "../uploads/clients/$client_id/$contact_photo" ?>">
+                                                <img class="img-size-50 rounded-circle" src="<?= "../uploads/clients/$client_id/$contact_photo" ?>">
                                             </span>
                                         <?php } else { ?>
                                             <span class="fa-stack fa-2x me-2">

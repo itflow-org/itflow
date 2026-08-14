@@ -252,7 +252,7 @@ if (isset($_POST['add_recurring_invoice_item'])) {
 
     logAudit("Recurring Invoice", "Edit", "$session_name added item $name to recurring invoice $recurring_invoice_prefix$recurring_invoice_number", $client_id, $recurring_invoice_id);
 
-    flashAlert("Item <srrong>$name</strong> added to Recurring Invoice");
+    flashAlert("Item <strong>$name</strong> added to Recurring Invoice");
 
     redirect();
 

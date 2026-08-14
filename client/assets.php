@@ -25,7 +25,7 @@ $assets_sql = mysqli_query($mysqli, "SELECT asset_description, asset_id, asset_m
 
         <div class="col-md-12">
 
-            <table class="table tabled-bordered border border-dark">
+            <table class="table table-bordered border border-dark">
                 <thead class="table-dark">
                 <tr>
                     <th>Name</th>

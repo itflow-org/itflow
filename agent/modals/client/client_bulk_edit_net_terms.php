@@ -36,7 +36,7 @@ ob_start();
             <label>Invoice Net Terms</label>
             <div class="input-group">
                     <span class="input-group-text"><i class="fa fa-fw fa-calendar"></i></span>
-                <select class="form-control select2" name="net_terms">
+                <select class="form-select select2" name="net_terms">
                     <option value="">- Net Terms -</option>
                     <?php foreach ($net_terms_array as $net_term_value => $net_term_name) { ?>
                         <option value="<?= $net_term_value ?>">

@@ -115,7 +115,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                 </div>
                 <div class="col-sm-2">
                     <div class="mb-3">
-                        <select class="form-control select2" name="category" onchange="this.form.submit()">
+                        <select class="form-select select2" name="category" onchange="this.form.submit()">
                             <option value="">- All Categories -</option>
 
                             <?php
@@ -134,7 +134,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                 </div>
                 <div class="col-sm-2">
                     <div class="mb-3">
-                        <select class="form-control select2" name="assigned_agent" onchange="this.form.submit()">
+                        <select class="form-select select2" name="assigned_agent" onchange="this.form.submit()">
                             <option value="">- All Agents -</option>
 
                             <?php
@@ -153,7 +153,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                 </div>
                 <div class="col-sm-2">
                     <div class="mb-3">
-                        <select class="form-control select2" name="billable" onchange="this.form.submit()">
+                        <select class="form-select select2" name="billable" onchange="this.form.submit()">
                             <option value="">- Billable Status -</option>
                             <option <?php if ($billable_filter == 1) { echo "selected"; } ?> value="1">Billable</option>
                             <option <?php if ($billable_filter == 0) { echo "selected"; } ?> value="0">Non-Billable</option>

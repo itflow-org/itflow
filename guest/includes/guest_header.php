@@ -22,15 +22,12 @@
     <link rel="stylesheet" href="/libs/adminlte/css/adminlte.min.css">
 
     <!-- Custom Style Sheet -->
-    <link rel="stylesheet" href="/libs/tempusdominus-bootstrap-4/css/tempusdominus-bootstrap-4.min.css">
-    <link rel="stylesheet" href="/libs/select2/css/select2.min.css">
-    <link rel="stylesheet" href="/libs/select2-bootstrap4-theme/select2-bootstrap4.min.css">
-    <link rel="stylesheet" href='/libs/daterangepicker/daterangepicker.css'>
+    <link rel="stylesheet" href="/libs/flatpickr/css/flatpickr.min.css">
+    <link rel="stylesheet" href="/libs/tom-select/css/tom-select.bootstrap5.min.css">
 
     <!-- Scripts -->
     <script src="/libs/jquery/jquery.min.js"></script>
-    <script src="/libs/toastr/toastr.min.js"></script>
 
 </head>
-<body class="layout-top-nav">
-    <div class="wrapper text-sm">
+<body class="layout-fixed theme-<?= escapeHtml($config_theme) ?>">
+    <div class="app-wrapper text-sm">

@@ -45,11 +45,9 @@ $data = "otpauth://totp/ITFlow:$session_email?secret=$token";
 
     <!-- Theme style -->
     <link rel="stylesheet" href="../../libs/adminlte/css/adminlte.min.css">
-    <link href="../../libs/toastr/toastr.min.css" rel="stylesheet">
 
     <!-- jQuery -->
     <script src="../../libs/jquery/jquery.min.js"></script>
-    <script src="../../libs/toastr/toastr.min.js"></script>
 
 </head>
 <body class="hold-transition login-page">

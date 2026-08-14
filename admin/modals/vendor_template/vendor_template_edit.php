@@ -64,7 +64,7 @@ ob_start();
                             <span class="input-group-text"><i class="fa fa-fw fa-building"></i></span>
                         <input type="text" class="form-control" name="name" placeholder="Vendor Name" maxlength="200" value="<?= "$vendor_name" ?>" required>
                             <div class="input-group-text">
-                                <input type="checkbox" name="global_update_vendor_name" value="1">
+                                <input class="form-check-input" type="checkbox" name="global_update_vendor_name" value="1">
                             </div>
                     </div>
                 </div>
@@ -75,7 +75,7 @@ ob_start();
                             <span class="input-group-text"><i class="fa fa-fw fa-angle-right"></i></span>
                         <input type="text" class="form-control" name="description" placeholder="Description" maxlength="200" value="<?= $vendor_description ?>">
                             <div class="input-group-text">
-                                <input type="checkbox" name="global_update_vendor_description" value="1">
+                                <input class="form-check-input" type="checkbox" name="global_update_vendor_description" value="1">
                             </div>
                     </div>
                 </div>
@@ -86,7 +86,7 @@ ob_start();
                             <span class="input-group-text"><i class="fa fa-fw fa-fingerprint"></i></span>
                         <input type="text" class="form-control" name="account_number" placeholder="Account number" maxlength="200" value="<?= $vendor_account_number ?>">
                             <div class="input-group-text">
-                                <input type="checkbox" name="global_update_vendor_account_number" value="1">
+                                <input class="form-check-input" type="checkbox" name="global_update_vendor_account_number" value="1">
                             </div>
                     </div>
                 </div>
@@ -97,7 +97,7 @@ ob_start();
                             <span class="input-group-text"><i class="fa fa-fw fa-user"></i></span>
                         <input type="text" class="form-control" name="contact_name" maxlength="200" value="<?= $vendor_contact_name ?>" placeholder="Vendor contact name">
                             <div class="input-group-text">
-                                <input type="checkbox" name="global_update_vendor_contact_name" value="1">
+                                <input class="form-check-input" type="checkbox" name="global_update_vendor_contact_name" value="1">
                             </div>
                     </div>
                 </div>
@@ -128,7 +128,7 @@ ob_start();
                         <div class="input-group">
                             <input type="text" class="form-control" name="extension" placeholder="Prompts" maxlength="200" value="<?= $vendor_extension ?>">
                                 <div class="input-group-text">
-                                    <input type="checkbox" name="global_update_vendor_phone" value="1">
+                                    <input class="form-check-input" type="checkbox" name="global_update_vendor_phone" value="1">
                                 </div>
                         </div>
                     </div>
@@ -140,7 +140,7 @@ ob_start();
                             <span class="input-group-text"><i class="fa fa-fw fa-calendar"></i></span>
                         <input type="text" class="form-control" name="hours" placeholder="Support Hours" maxlength="200" value="<?= $vendor_hours ?>">
                             <div class="input-group-text">
-                                <input type="checkbox" name="global_update_vendor_hours" value="1">
+                                <input class="form-check-input" type="checkbox" name="global_update_vendor_hours" value="1">
                             </div>
                     </div>
                 </div>
@@ -151,7 +151,7 @@ ob_start();
                             <span class="input-group-text"><i class="fa fa-fw fa-envelope"></i></span>
                         <input type="email" class="form-control" name="email" placeholder="Support Email" maxlength="200" value="<?= $vendor_email ?>">
                             <div class="input-group-text">
-                                <input type="checkbox" name="global_update_vendor_email" value="1">
+                                <input class="form-check-input" type="checkbox" name="global_update_vendor_email" value="1">
                             </div>
                     </div>
                 </div>
@@ -162,7 +162,7 @@ ob_start();
                             <span class="input-group-text"><i class="fa fa-fw fa-globe"></i></span>
                         <input type="text" class="form-control" name="website" placeholder="Do not include http(s)://" maxlength="200" value="<?= $vendor_website ?>">
                             <div class="input-group-text">
-                                <input type="checkbox" name="global_update_vendor_website" value="1">
+                                <input class="form-check-input" type="checkbox" name="global_update_vendor_website" value="1">
                             </div>
                     </div>
                 </div>
@@ -173,7 +173,7 @@ ob_start();
                             <span class="input-group-text"><i class="fa fa-fw fa-handshake"></i></span>
                         <input type="text" class="form-control" name="sla" placeholder="SLA Response Time" maxlength="200" value="<?= $vendor_sla ?>">
                             <div class="input-group-text">
-                                <input type="checkbox" name="global_update_vendor_sla" value="1">
+                                <input class="form-check-input" type="checkbox" name="global_update_vendor_sla" value="1">
                             </div>
                     </div>
                 </div>
@@ -184,7 +184,7 @@ ob_start();
                             <span class="input-group-text"><i class="fa fa-fw fa-key"></i></span>
                         <input type="text" class="form-control" name="code" placeholder="Access Code or Pin" maxlength="200" value="<?= $vendor_code ?>">
                             <div class="input-group-text">
-                                <input type="checkbox" name="global_update_vendor_code" value="1">
+                                <input class="form-check-input" type="checkbox" name="global_update_vendor_code" value="1">
                             </div>
                     </div>
                 </div>
@@ -199,7 +199,7 @@ ob_start();
 
                 <div class="mb-3">
                     <label>Update Notes Globally?</label>
-                    <input type="checkbox" name="global_update_vendor_notes" value="1">
+                    <input class="form-check-input" type="checkbox" name="global_update_vendor_notes" value="1">
                 </div>
 
             </div>

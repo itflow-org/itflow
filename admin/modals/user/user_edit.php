@@ -103,7 +103,7 @@ ob_start();
                     <label>Role <strong class="text-danger">*</strong></label>
                     <div class="input-group">
                             <span class="input-group-text"><i class="fa fa-fw fa-user-shield"></i></span>
-                        <select class="form-control select2" name="role" required>
+                        <select class="form-select select2" name="role" required>
                             <?php
                             $sql_user_roles = mysqli_query($mysqli, "SELECT role_id, role_name FROM user_roles WHERE role_archived_at IS NULL");
                             while ($row = mysqli_fetch_assoc($sql_user_roles)) {
@@ -138,7 +138,7 @@ ob_start();
                         <label>2FA</label>
                         <div class="input-group">
                                 <span class="input-group-text"><i class="fa fa-fw fa-id-card"></i></span>
-                            <select class="form-control" name="2fa">
+                            <select class="form-select" name="2fa">
                                 <option value="">Keep enabled</option>
                                 <option value="disable">Disable</option>
                             </select>
@@ -185,13 +185,13 @@ ob_start();
                             <tr>
                                 <td class="align-middle"><?= $client_name_select ?></td>
                                 <td class="text-center align-middle">
-                                    <input type="radio" class="perm-none" name="client_permission[<?= $client_id_select ?>]" value="" <?php if (!$client_is_allow && !$client_is_deny) { echo "checked"; } ?>>
+                                    <input type="radio" class="form-check-input perm-none" name="client_permission[<?= $client_id_select ?>]" value="" <?php if (!$client_is_allow && !$client_is_deny) { echo "checked"; } ?>>
                                 </td>
                                 <td class="text-center align-middle">
-                                    <input type="radio" class="perm-allow" name="client_permission[<?= $client_id_select ?>]" value="allow" <?php if ($client_is_allow) { echo "checked"; } ?>>
+                                    <input type="radio" class="form-check-input perm-allow" name="client_permission[<?= $client_id_select ?>]" value="allow" <?php if ($client_is_allow) { echo "checked"; } ?>>
                                 </td>
                                 <td class="text-center align-middle">
-                                    <input type="radio" class="perm-deny" name="client_permission[<?= $client_id_select ?>]" value="deny" <?php if ($client_is_deny) { echo "checked"; } ?>>
+                                    <input type="radio" class="form-check-input perm-deny" name="client_permission[<?= $client_id_select ?>]" value="deny" <?php if ($client_is_deny) { echo "checked"; } ?>>
                                 </td>
                             </tr>
 

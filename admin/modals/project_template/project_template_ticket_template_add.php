@@ -22,7 +22,7 @@ ob_start();
             <label>Ticket Template <strong class="text-danger">*</strong></label>
             <div class="input-group">
                     <span class="input-group-text"><i class="fa fa-fw fa-life-ring"></i></span>
-                <select class="form-control select2" name="ticket_template_id" required>
+                <select class="form-select select2" name="ticket_template_id" required>
                     <option value="">- Select a Ticket Template -</option>
                     <?php
 

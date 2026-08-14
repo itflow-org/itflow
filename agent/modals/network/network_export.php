@@ -55,7 +55,7 @@ ob_start();
             <label>Client</label>
             <div class="input-group">
                     <span class="input-group-text"><i class="fa fa-fw fa-user"></i></span>
-                <select class="form-control select2" name="client">
+                <select class="form-select select2" name="client">
                     <option value="">- All Clients -</option>
                     <?php
                     $sql_clients_filter = mysqli_query($mysqli, "SELECT client_id, client_name FROM clients WHERE EXISTS (SELECT 1 FROM networks WHERE network_client_id = client_id) ORDER BY client_name ASC");
@@ -77,7 +77,7 @@ ob_start();
             <label>Location</label>
             <div class="input-group">
                     <span class="input-group-text"><i class="fa fa-fw fa-map-marker-alt"></i></span>
-                <select class="form-control select2" name="location">
+                <select class="form-select select2" name="location">
                     <option value="">- All Locations -</option>
                     <?php
                     $sql_locations_filter = mysqli_query($mysqli, "SELECT location_id, location_name FROM locations WHERE location_client_id = $client_id AND location_archived_at IS NULL ORDER BY location_name ASC");
@@ -98,7 +98,7 @@ ob_start();
             <label>Archived</label>
             <div class="input-group">
                     <span class="input-group-text"><i class="fa fa-fw fa-archive"></i></span>
-                <select class="form-control select2" name="archived">
+                <select class="form-select select2" name="archived">
                     <option <?php if (!$archived_filter) { echo "selected"; } ?> value="0">Active only</option>
                     <option <?php if ($archived_filter) { echo "selected"; } ?> value="1">Archived only</option>
                 </select>

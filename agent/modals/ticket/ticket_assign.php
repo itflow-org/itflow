@@ -45,7 +45,7 @@ ob_start();
             <label>Assign to</label>
             <div class="input-group">
                     <span class="input-group-text"><i class="fa fa-fw fa-user-check"></i></span>
-                <select class="form-control select2" name="assigned_to">
+                <select class="form-select select2" name="assigned_to">
                     <option value="0">Unassigned</option>
                     <?php
                     $sql_users_select = mysqli_query($mysqli, "SELECT user_id, user_name FROM users

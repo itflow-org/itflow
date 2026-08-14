@@ -80,7 +80,7 @@ ob_start();
                         <input type="text" class="form-control" name="name" placeholder="Name of Credential" maxlength="200" value="<?= $credential_name ?>" required>
                             <div class="input-group-text">
                                 <label class="star-toggle mb-0" title="Favorite">
-                                    <input type="checkbox"
+                                    <input class="form-check-input" type="checkbox"
                                             name="favorite"
                                             value="1"
                                             <?php if($credential_favorite) { echo 'checked'; } ?>>
@@ -154,7 +154,7 @@ ob_start();
                     <label>Contact</label>
                     <div class="input-group">
                             <span class="input-group-text"><i class="fa fa-fw fa-user"></i></span>
-                        <select class="form-control select2" name="contact">
+                        <select class="form-select select2" name="contact">
                             <option value="">- Select Contact -</option>
                             <?php
 
@@ -173,7 +173,7 @@ ob_start();
                     <label>Asset</label>
                     <div class="input-group">
                             <span class="input-group-text"><i class="fa fa-fw fa-tag"></i></span>
-                        <select class="form-control select2" name="asset">
+                        <select class="form-select select2" name="asset">
                             <option value="0">- Select Asset -</option>
                             <?php
 
@@ -208,7 +208,7 @@ ob_start();
                     <label>Tags</label>
                     <div class="input-group">
                             <span class="input-group-text"><i class="fa fa-fw fa-tags"></i></span>
-                        <select class="form-control select2" name="tags[]" data-placeholder="Add some tags" multiple>
+                        <select class="form-select select2" name="tags[]" data-placeholder="Add some tags" multiple>
                             <?php
 
                             $sql_tags_select = mysqli_query($mysqli, "SELECT tag_id, tag_name FROM tags WHERE tag_type = 4 ORDER BY tag_name ASC");

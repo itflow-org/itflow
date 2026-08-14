@@ -95,11 +95,10 @@ ob_start();
                     <div class="mb-3">
                         <label><?= $module_name_display_safe ?> <strong class="text-danger">*</strong></label>
 
-                        <div class="btn-group btn-group-toggle w-100" data-toggle="buttons" role="group"
+                        <div class="btn-group w-100" role="group"
                              aria-label="Permissions for <?= $module_name_display_safe ?>">
 
-                            <label class="btn btn-outline-secondary btn-sm active" title="No Access">
-                                <input
+                            <input class="btn-check"
                                     type="radio"
                                     name="<?= $field_name ?>"
                                     id="<?= $group_id ?>_0"
@@ -108,41 +107,34 @@ ob_start();
                                     checked
                                     required
                                 >
-                                None
-                            </label>
+                            <label class="btn btn-outline-secondary btn-sm" title="No Access" for="<?= $group_id ?>_0">None</label>
 
-                            <label class="btn btn-outline-primary btn-sm" title="Viewing Only">
-                                <input
+                            <input class="btn-check"
                                     type="radio"
                                     name="<?= $field_name ?>"
                                     id="<?= $group_id ?>_1"
                                     value="1"
                                     autocomplete="off"
                                 >
-                                <i class="fas fa-fw fa-eye me-1"></i>Read
-                            </label>
+                            <label class="btn btn-outline-primary btn-sm" title="Viewing Only" for="<?= $group_id ?>_1"><i class="fas fa-fw fa-eye me-1"></i>Read</label>
 
-                            <label class="btn btn-outline-warning btn-sm" title="Read, Edit, Archive">
-                                <input
+                            <input class="btn-check"
                                     type="radio"
                                     name="<?= $field_name ?>"
                                     id="<?= $group_id ?>_2"
                                     value="2"
                                     autocomplete="off"
                                 >
-                                <i class="fas fa-fw fa-edit me-1"></i>Modify
-                            </label>
+                            <label class="btn btn-outline-warning btn-sm" title="Read, Edit, Archive" for="<?= $group_id ?>_2"><i class="fas fa-fw fa-edit me-1"></i>Modify</label>
 
-                            <label class="btn btn-outline-danger btn-sm" title="Read, Edit, Archive, Delete">
-                                <input
+                            <input class="btn-check"
                                     type="radio"
                                     name="<?= $field_name ?>"
                                     id="<?= $group_id ?>_3"
                                     value="3"
                                     autocomplete="off"
                                 >
-                                <i class="fas fa-fw fa-trash me-1"></i>Full
-                            </label>
+                            <label class="btn btn-outline-danger btn-sm" title="Read, Edit, Archive, Delete" for="<?= $group_id ?>_3"><i class="fas fa-fw fa-trash me-1"></i>Full</label>
 
                         </div>
 

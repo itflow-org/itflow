@@ -39,7 +39,7 @@ ob_start();
             <label>Or Select a Device</label>
             <div class="input-group">
                     <span class="input-group-text"><i class="fa fa-fw fa-desktop"></i></span>
-                <select class="form-control select2" name="asset">
+                <select class="form-select select2" name="asset">
                     <option value="">- Select Asset -</option>
                     <?php
                     // Fetch IDs of all assets already assigned to any rack

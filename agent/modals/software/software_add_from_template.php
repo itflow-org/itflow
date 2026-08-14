@@ -25,7 +25,7 @@ ob_start();
                 <label>Client <strong class="text-danger">*</strong></label>
                 <div class="input-group">
                         <span class="input-group-text"><i class="fa fa-fw fa-user"></i></span>
-                    <select class="form-control select2" name="client_id" required>
+                    <select class="form-select select2" name="client_id" required>
                         <option value="">- Select Client -</option>
                         <?php
 
@@ -46,7 +46,7 @@ ob_start();
         <div class="mb-3">
             <div class="input-group">
                     <span class="input-group-text"><i class="fa fa-fw fa-puzzle-piece"></i></span>
-                <select class="form-control" name="software_template_id" required>
+                <select class="form-select" name="software_template_id" required>
                     <option value="">- Select Template -</option>
                     <?php
                     $sql_software_templates = mysqli_query($mysqli, "SELECT software_template_id, software_template_name FROM software_templates WHERE software_template_archived_at IS NULL ORDER BY software_template_name ASC");

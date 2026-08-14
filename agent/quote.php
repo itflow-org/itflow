@@ -396,7 +396,7 @@ if (isset($_GET['quote_id'])) {
                                                 <input type="text" class="form-control" inputmode="decimal" pattern="-?[0-9]*\.?[0-9]{0,2}" id="price" style="text-align: right;" name="price" placeholder="Price (<?= $quote_currency_code ?>)">
                                             </td>
                                             <td>
-                                                <select class="form-control select2" id="tax" name="tax_id" required>
+                                                <select class="form-select select2" id="tax" name="tax_id" required>
                                                     <option value="0">No Tax</option>
                                                     <?php
 
@@ -601,7 +601,7 @@ require_once "../includes/footer.php";
                 $("#desc").val(ui.item.description); // Product description field
                 $("#qty").val(1); // Product quantity field automatically make it a 1
                 $("#price").val(ui.item.price); // Product price field
-                $("#tax").val(ui.item.tax).trigger('change'); // Tax field - trigger repaints select2
+                setTomSelectValue(document.getElementById("tax"), ui.item.tax); // Tax field - setValue repaints the Tom Select widget
                 return false;
             }
         });

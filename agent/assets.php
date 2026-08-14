@@ -258,7 +258,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                 <?php if ($client_url) { ?>
                 <div class="col-md-2">
                     <div class="input-group mb-3 mb-md-0">
-                        <select class="form-control select2" name="location" onchange="this.form.submit()">
+                        <select class="form-select select2" name="location" onchange="this.form.submit()">
                             <option value="">- All Locations -</option>
 
                             <?php
@@ -284,7 +284,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                 <?php } else { ?>
                 <div class="col-md-2">
                     <div class="input-group mb-3 mb-md-0">
-                        <select class="form-control select2" name="client" onchange="this.form.submit()">
+                        <select class="form-select select2" name="client" onchange="this.form.submit()">
                             <option value="" <?php if ($client == "") { echo "selected"; } ?>>- All Clients -</option>
 
                             <?php
@@ -311,7 +311,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                 <?php } ?>
                 <div class="col-md-2">
                     <div class="input-group mb-3 mb-md-0">
-                        <select onchange="this.form.submit()" class="form-control select2" name="tags[]" data-placeholder="- Select Tags -" multiple>
+                        <select onchange="this.form.submit()" class="form-select select2" name="tags[]" data-placeholder="- Select Tags -" multiple>
 
                             <?php
                             $sql_tags_filter = mysqli_query($mysqli, "
@@ -336,7 +336,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                 </div>
                 <div class="col-md-2">
                     <div class="input-group mb-3 mb-md-0">
-                        <select class="form-control select2" name="expire_days" onchange="this.form.submit()">
+                        <select class="form-select select2" name="expire_days" onchange="this.form.submit()">
                             <option value="" <?php if ($expire_days == "") { echo "selected"; } ?>>- Expiring In -</option>
                             <option value="expired" <?php if ($expire_days === "expired") { echo "selected"; } ?>>Expired</option>
                             <option value="7" <?php if ($expire_days === 7) { echo "selected"; } ?>>7 Days</option>
@@ -349,7 +349,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                 </div>
                 <div class="col-md-2">
                     <div class="mb-3">
-                        <select onchange="this.form.submit()" class="form-control select2" name="show_column[]" data-placeholder="- Show Additional Columns -" multiple>
+                        <select onchange="this.form.submit()" class="form-select select2" name="show_column[]" data-placeholder="- Show Additional Columns -" multiple>
                             <option
                                 <?php if (isset($_GET['show_column']) && is_array($_GET['show_column']) && in_array('Mac_Address', $_GET['show_column'])) { echo 'selected'; } ?>>Mac_Address
                             </option>

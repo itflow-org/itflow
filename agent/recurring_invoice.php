@@ -170,7 +170,7 @@ if (isset($_GET['recurring_invoice_id'])) {
                             <input type="hidden" name="recurring_invoice_id" value="<?= $recurring_invoice_id ?>">
                             <div class="input-group">
                                     <span class="input-group-text"><i class="fa fa-fw fa-redo-alt"></i></span>
-                                <select class="form-control select2" name="saved_payment_id" onchange="this.form.submit()">
+                                <select class="form-select select2" name="saved_payment_id" onchange="this.form.submit()">
                                     <option value="0">Disabled</option>
                                     <?php
                                         while ($row = mysqli_fetch_assoc($sql_saved_payments)) {
@@ -361,7 +361,7 @@ if (isset($_GET['recurring_invoice_id'])) {
                                                 <input type="text" inputmode="decimal" pattern="[0-9]*\.?[0-9]{0,2}" class="form-control" style="text-align: right;" id="price" name="price" placeholder="Price (<?= $recurring_invoice_currency_code ?>)">
                                             </td>
                                             <td>
-                                                <select class="form-control" name="tax_id" id="tax" required>
+                                                <select class="form-select" name="tax_id" id="tax" required>
                                                     <option value="0">No Tax</option>
                                                     <?php
 
@@ -508,7 +508,7 @@ require_once "../includes/footer.php";
                 $("#desc").val(ui.item.description); // Product description field
                 $("#qty").val(1); // Product quantity field automatically make it a 1
                 $("#price").val(ui.item.price); // Product price field
-                $("#tax").val(ui.item.tax).trigger('change'); // Product tax field - trigger repaints select2
+                setTomSelectValue(document.getElementById("tax"), ui.item.tax); // Tax field - setValue repaints the Tom Select widget
                 return false;
             }
         });

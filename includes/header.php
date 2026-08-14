@@ -27,11 +27,8 @@ header("X-Frame-Options: DENY");
     <link rel="stylesheet" href="/libs/fontawesome-free/css/all.min.css">
 
     <!-- Custom Styles -->
-    <link rel="stylesheet" href="/libs/tempus-dominus/css/tempus-dominus.min.css">
-    <link rel="stylesheet" href="/libs/select2/css/select2.min.css">
-    <link rel="stylesheet" href="/libs/adminlte/css/adminlte-select2.min.css">
-    <link rel="stylesheet" href="/libs/daterangepicker/daterangepicker.css">
-    <link rel="stylesheet" href="/libs/toastr/toastr.min.css">
+    <link rel="stylesheet" href="/libs/flatpickr/css/flatpickr.min.css">
+    <link rel="stylesheet" href="/libs/tom-select/css/tom-select.bootstrap5.min.css">
     <link rel="stylesheet" href="/libs/DataTables/datatables.min.css">
     <link rel="stylesheet" href="/libs/intl-tel-input/css/intlTelInput.min.css">
     <link rel="stylesheet" href="/libs/adminlte/css/adminlte.min.css">
@@ -39,7 +36,6 @@ header("X-Frame-Options: DENY");
 
     <!-- Scripts -->
     <script src="/libs/jquery/jquery.min.js"></script>
-    <script src="/libs/toastr/toastr.min.js"></script>
 </head>
 <body class="layout-fixed sidebar-expand-lg app-loaded theme-<?= escapeHtml($config_theme) ?>">
     <div class="app-wrapper text-sm">

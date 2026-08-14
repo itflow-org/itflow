@@ -38,7 +38,7 @@ ob_start();
             <label>New Client <strong class="text-danger">*</strong></label>
             <div class="input-group">
                     <span class="input-group-text"><i class="fa fa-fw fa-users"></i></span>
-                <select class="form-control select2" name="new_client_id" id="client_select" required>
+                <select class="form-select select2" name="new_client_id" id="client_select" required>
                     <?php
                     $sql_clients = mysqli_query($mysqli, "SELECT client_id, client_name FROM clients WHERE client_lead = 0 AND client_archived_at IS NULL " . clientScopeSql('clients.client_id') . " ORDER BY client_name ASC");
                     while ($row = mysqli_fetch_assoc($sql_clients)) {
@@ -57,7 +57,7 @@ ob_start();
             <label>New Contact</label>
             <div class="input-group">
                     <span class="input-group-text"><i class="fa fa-fw fa-user"></i></span>
-                <select class="form-control select2" name="new_contact_id" id="contact_select">
+                <select class="form-select select2" name="new_contact_id" id="contact_select">
                     <option value="">- Select a contact -</option>
                 </select>
             </div>

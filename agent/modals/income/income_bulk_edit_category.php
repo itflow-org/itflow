@@ -86,7 +86,7 @@ ob_start();
             <label>Category <strong class="text-danger">*</strong></label>
             <div class="input-group">
                     <span class="input-group-text"><i class="fa fa-fw fa-list"></i></span>
-                <select class="form-control select2" name="bulk_category_id" data-placeholder="- Select a Category -" required>
+                <select class="form-select select2" name="bulk_category_id" data-placeholder="- Select a Category -" required>
                     <option></option>
                     <?php
 

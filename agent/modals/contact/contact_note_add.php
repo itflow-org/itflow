@@ -32,7 +32,7 @@ ob_start();
             <label>Type</label>
             <div class="input-group">
                     <span class="input-group-text"><i class="fa fa-fw fa-comment"></i></span>
-                <select class="form-control select2" name="type">
+                <select class="form-select select2" name="type">
                     <?php
                     $sql_contact_note_types_select = mysqli_query($mysqli, "
                         SELECT category_name FROM categories

@@ -27,7 +27,7 @@
         }
 
         // Listener for client selection. Populate select lists when a client is selected
-        $(clientSelectDropdown).on('select2:select', function (e) {
+        $(clientSelectDropdown).on('change', function (e) {
             let client_id = $(this).find(':selected').val();
 
             // Update the dependent dropdown lists
@@ -77,7 +77,7 @@
         dropdown.innerHTML = '';
 
         // A multi-select keeps showing its old selections until select2 is told the value changed
-        $(dropdown).val(null).trigger('change.select2');
+        clearTomSelect(dropdown instanceof Element ? dropdown : $(dropdown)[0]);
 
         if (placeholderLabel !== null) {
             dropdown[dropdown.length] = new Option(placeholderLabel, placeholderValue);
@@ -89,7 +89,7 @@
     // Redraws a select2 component after its options have been replaced
     function refreshDropdown(dropdown) {
         if (dropdown) {
-            $(dropdown).trigger('change.select2');
+            refreshTomSelect(dropdown instanceof Element ? dropdown : $(dropdown)[0]);
         }
     }
 

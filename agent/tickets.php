@@ -399,7 +399,7 @@ if ($date_filter_active) {
                     <div class="col-md-3">
                         <div class="mb-3 mb-md-0">
                             <label>Status</label>
-                            <select onchange="this.form.submit()" class="form-control select2" name="status[]" data-placeholder="Any status" multiple>
+                            <select onchange="this.form.submit()" class="form-select select2" name="status[]" data-placeholder="Any status" multiple>
                                 <?php
                                 $sql_ticket_status = mysqli_query($mysqli, "SELECT ticket_status_id, ticket_status_name FROM ticket_statuses WHERE ticket_status_active = 1 ORDER BY ticket_status_order");
                                 while ($row = mysqli_fetch_assoc($sql_ticket_status)) {
@@ -417,7 +417,7 @@ if ($date_filter_active) {
                     <div class="col-md-3">
                         <div class="mb-3 mb-md-0">
                             <label>Assigned to</label>
-                            <select onchange="this.form.submit()" class="form-control select2" name="assigned">
+                            <select onchange="this.form.submit()" class="form-select select2" name="assigned">
                                 <option value="">Anyone</option>
                                 <option value="unassigned" <?php if ($ticket_assigned_filter_id === 0) { echo "selected"; } ?>>Unassigned</option>
 
@@ -438,7 +438,7 @@ if ($date_filter_active) {
                     <div class="col-md-3">
                         <div class="mb-3 mb-md-0">
                             <label>Priority</label>
-                            <select onchange="this.form.submit()" class="form-control select2" name="priority">
+                            <select onchange="this.form.submit()" class="form-select select2" name="priority">
                                 <option value="">Any priority</option>
                                 <?php foreach (array('Urgent', 'High', 'Medium', 'Low') as $priority_option) { ?>
                                     <option value="<?= $priority_option ?>" <?php if ($priority_filter == $priority_option) { echo "selected"; } ?>><?= $priority_option ?></option>
@@ -450,7 +450,7 @@ if ($date_filter_active) {
                     <div class="col-md-3">
                         <div class="mb-3 mb-md-0">
                             <label>Category</label>
-                            <select onchange="this.form.submit()" class="form-control select2" name="category">
+                            <select onchange="this.form.submit()" class="form-select select2" name="category">
                                 <option value="">Any category</option>
 
                                 <?php
@@ -472,7 +472,7 @@ if ($date_filter_active) {
                     <div class="col-md-3">
                         <div class="mb-3 mb-md-0">
                             <label>Project</label>
-                            <select onchange="this.form.submit()" class="form-control select2" name="project">
+                            <select onchange="this.form.submit()" class="form-select select2" name="project">
                                 <option value="">Any project</option>
 
                                 <?php
@@ -493,7 +493,7 @@ if ($date_filter_active) {
                         <div class="col-md-3">
                             <div class="mb-3 mb-md-0">
                                 <label>Billing</label>
-                                <select class="form-control select2" name="billing" onchange="this.form.submit()">
+                                <select class="form-select select2" name="billing" onchange="this.form.submit()">
                                     <option value="">Any</option>
                                     <option value="unbilled" <?php if ($billing_filter == 'unbilled') { echo "selected"; } ?>>Billable, not invoiced</option>
                                     <option value="invoiced" <?php if ($billing_filter == 'invoiced') { echo "selected"; } ?>>Invoiced</option>
@@ -507,7 +507,7 @@ if ($date_filter_active) {
                         <div class="col-md-3">
                             <div class="mb-3 mb-md-0">
                                 <label>SLA</label>
-                                <select class="form-control select2" name="sla" onchange="this.form.submit()">
+                                <select class="form-select select2" name="sla" onchange="this.form.submit()">
                                     <option value="">Any SLA state</option>
                                     <?php foreach ($sla_filter_labels as $sla_option => $sla_option_label) { ?>
                                         <option value="<?= $sla_option ?>" <?php if ($ticket_sla_filter == $sla_option) { echo "selected"; } ?>><?= $sla_option_label ?></option>

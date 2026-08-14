@@ -77,7 +77,7 @@ ob_start();
                         <label>Client <strong class="text-danger">*</strong></label>
                         <div class="input-group">
                                 <span class="input-group-text"><i class="fa fa-fw fa-user"></i></span>
-                            <select class="form-control select2" name="client_id" required>
+                            <select class="form-select select2" name="client_id" required>
                                 <option value="">- Select Client -</option>
                                 <?php
 
@@ -97,7 +97,7 @@ ob_start();
                     <label>Type <strong class="text-danger">*</strong></label>
                     <div class="input-group">
                             <span class="input-group-text"><i class="fa fa-fw fa-layer-group"></i></span>
-                        <select class="form-control select2" name="type" required>
+                        <select class="form-select select2" name="type" required>
                             <option value="">- Select Type -</option>
                             <?php foreach($asset_types_array as $asset_type => $asset_icon) { ?>
                                 <option><?= $asset_type ?></option>
@@ -113,7 +113,7 @@ ob_start();
                         <input type="text" class="form-control" name="name" placeholder="e.g. SRV-DC01" maxlength="200" required autofocus>
                             <div class="input-group-text">
                                 <label class="star-toggle mb-0" title="Favorite">
-                                    <input type="checkbox" name="favorite" value="1"><i class="far fa-star"></i>
+                                    <input class="form-check-input" type="checkbox" name="favorite" value="1"><i class="far fa-star"></i>
                                 </label>
                             </div>
                     </div>
@@ -173,7 +173,7 @@ ob_start();
                     <label>Location</label>
                     <div class="input-group">
                             <span class="input-group-text"><i class="fa fa-fw fa-building"></i></span>
-                        <select class="form-control select2" name="location">
+                        <select class="form-select select2" name="location">
                             <option value="">- Select Location -</option>
                             <?php
 
@@ -202,7 +202,7 @@ ob_start();
                     <label>Assign To</label>
                     <div class="input-group">
                             <span class="input-group-text"><i class="fa fa-fw fa-user-check"></i></span>
-                        <select class="form-control select2" name="contact">
+                        <select class="form-select select2" name="contact">
                             <option value="">- Select Contact -</option>
                             <?php
 
@@ -228,7 +228,7 @@ ob_start();
                     <label>Status</label>
                     <div class="input-group">
                             <span class="input-group-text"><i class="fa fa-fw fa-circle"></i></span>
-                        <select class="form-control select2" name="status">
+                        <select class="form-select select2" name="status">
                             <option value="">- Select Status -</option>
                             <?php
                             $sql_interface_types_select = mysqli_query($mysqli, "
@@ -254,7 +254,7 @@ ob_start();
                     <label>Network</label>
                     <div class="input-group">
                             <span class="input-group-text"><i class="fa fa-fw fa-network-wired"></i></span>
-                        <select class="form-control select2" name="network">
+                        <select class="form-select select2" name="network">
                             <option value="">- Select Network -</option>
                             <?php
 
@@ -278,7 +278,7 @@ ob_start();
                             <span class="input-group-text"><i class="fa fa-fw fa-ethernet"></i></span>
                         <input type="text" class="form-control font-monospace" name="ip" placeholder="e.g. 192.168.1.10" maxlength="200" data-inputmask="'alias': 'ip'" data-mask>
                             <div class="input-group-text">
-                                <input type="checkbox" name="dhcp" value="1">
+                                <input class="form-check-input" type="checkbox" name="dhcp" value="1">
                             </div>
                     </div>
                 </div>
@@ -341,7 +341,7 @@ ob_start();
                     <label>Vendor</label>
                     <div class="input-group">
                             <span class="input-group-text"><i class="fa fa-fw fa-building"></i></span>
-                        <select class="form-control select2" name="vendor">
+                        <select class="form-select select2" name="vendor">
                             <option value="">- Select Vendor -</option>
                             <?php
 
@@ -430,7 +430,7 @@ ob_start();
                     <label>Tags</label>
                     <div class="input-group">
                             <span class="input-group-text"><i class="fa fa-fw fa-tags"></i></span>
-                        <select class="form-control select2" name="tags[]" data-placeholder="Add some tags" multiple>
+                        <select class="form-select select2" name="tags[]" data-placeholder="Add some tags" multiple>
                             <?php
 
                             while ($row = mysqli_fetch_assoc($sql_tags_select)) {

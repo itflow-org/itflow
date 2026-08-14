@@ -20,7 +20,7 @@
                             <label>Share with</label>
                             <div class="input-group">
                                     <span class="input-group-text"><i class="fa fa-fw fa-user"></i></span>
-                                <select class="form-control select2" name="contact_email" id="share_email" data-placeholder="Select or enter an Email">
+                                <select class="form-select select2" name="contact_email" id="share_email" data-placeholder="Select or enter an Email">
                                     <option value=""></option>
                                     <?php
 
@@ -41,19 +41,15 @@
 
                         <label>Expiration</label>
                         <div class="mb-3">
-                            <div class="btn-group w-100 btn-group-toggle" data-toggle="buttons">
-                                <label class="btn btn-outline-dark active">
-                                    <input type="radio" name="expires" value="1 HOUR" checked>1 hour
-                                </label>
-                                <label class="btn btn-outline-dark">
-                                    <input type="radio" name="expires" value="24 HOUR">1 day
-                                </label>
-                                <label class="btn btn-outline-dark">
-                                    <input type="radio" name="expires" value="168 HOUR">1 week
-                                </label>
-                                <label class="btn btn-outline-dark">
-                                    <input type="radio" name="expires" value="730 HOUR">1 month
-                                </label>
+                            <div class="btn-group w-100" role="group">
+                                <input class="btn-check" id="expires_opt0" type="radio" name="expires" value="1 HOUR" checked>
+                                <label class="btn btn-outline-dark" for="expires_opt0">1 hour</label>
+                                <input class="btn-check" id="expires_opt1" type="radio" name="expires" value="24 HOUR">
+                                <label class="btn btn-outline-dark" for="expires_opt1">1 day</label>
+                                <input class="btn-check" id="expires_opt2" type="radio" name="expires" value="168 HOUR">
+                                <label class="btn btn-outline-dark" for="expires_opt2">1 week</label>
+                                <input class="btn-check" id="expires_opt3" type="radio" name="expires" value="730 HOUR">
+                                <label class="btn btn-outline-dark" for="expires_opt3">1 month</label>
                             </div>
                         </div>
 

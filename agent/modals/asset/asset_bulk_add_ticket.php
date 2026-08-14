@@ -40,7 +40,7 @@ ob_start();
                     <label>Priority <strong class="text-danger">*</strong></label>
                     <div class="input-group">
                             <span class="input-group-text"><i class="fa fa-fw fa-thermometer-half"></i></span>
-                        <select class="form-control select2" name="bulk_priority" required>
+                        <select class="form-select select2" name="bulk_priority" required>
                             <option>Low</option>
                             <option>Medium</option>
                             <option>High</option>
@@ -55,7 +55,7 @@ ob_start();
                     <label>Category</label>
                     <div class="input-group">
                             <span class="input-group-text"><i class="fa fa-fw fa-layer-group"></i></span>
-                        <select class="form-control select2" name="bulk_category">
+                        <select class="form-select select2" name="bulk_category">
                             <option value="0">- Not Categorized -</option>
                             <?php
                             $sql_categories = mysqli_query($mysqli, "SELECT category_id, category_name FROM categories WHERE category_type = 'Ticket' AND category_archived_at IS NULL ORDER BY category_name ASC");
@@ -78,7 +78,7 @@ ob_start();
             <label>Assign to</label>
             <div class="input-group">
                     <span class="input-group-text"><i class="fa fa-fw fa-user-check"></i></span>
-                <select class="form-control select2" name="bulk_assigned_to">
+                <select class="form-select select2" name="bulk_assigned_to">
                     <option value="0">Not Assigned</option>
                     <?php
 
@@ -100,7 +100,7 @@ ob_start();
             <label>Project</label>
             <div class="input-group">
                     <span class="input-group-text"><i class="fa fa-fw fa-project-diagram"></i></span>
-                <select class="form-control select2" name="bulk_project">
+                <select class="form-select select2" name="bulk_project">
                     <option value="0">- None -</option>
                     <?php
 

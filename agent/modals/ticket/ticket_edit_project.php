@@ -39,7 +39,7 @@ ob_start();
             <label>Project</label>
             <div class="input-group">
                     <span class="input-group-text"><i class="fa fa-fw fa-project-diagram"></i></span>
-                <select class="form-control select2" name="project">
+                <select class="form-select select2" name="project">
                     <option value="0">- None -</option>
                     <?php
                     while ($row = mysqli_fetch_assoc($sql_projects)) {

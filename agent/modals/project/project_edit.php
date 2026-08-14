@@ -68,7 +68,7 @@ ob_start();
             <label>Manager</label>
             <div class="input-group">
                     <span class="input-group-text"><i class="fa fa-fw fa-user-tie"></i></span>
-                <select class="form-control select2" name="project_manager">
+                <select class="form-select select2" name="project_manager">
                     <option value="0">No Manager</option>
                     <?php
                     $sql_project_managers_select = mysqli_query(

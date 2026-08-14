@@ -44,7 +44,7 @@ ob_start();
                             <span class="input-group-text"><i class="fa fa-fw fa-ethernet"></i></span>
                         <input type="text" class="form-control" name="name" placeholder="Interface name or port number" maxlength="200" required>
                             <div class="input-group-text">
-                                <input type="checkbox" name="primary_interface" value="1" title="Mark Interface as primary">
+                                <input class="form-check-input" type="checkbox" name="primary_interface" value="1" title="Mark Interface as primary">
                             </div>
                     </div>
                 </div>
@@ -54,7 +54,7 @@ ob_start();
                     <label for="network">Interface Type</label>
                     <div class="input-group">
                             <span class="input-group-text"><i class="fa fa-fw fa-plug"></i></span>
-                        <select class="form-control select2" name="type">
+                        <select class="form-select select2" name="type">
                             <option value="">- Select Type -</option>
                             <?php
                             $sql_interface_types_select = mysqli_query($mysqli, "
@@ -96,7 +96,7 @@ ob_start();
                     <label>Network</label>
                     <div class="input-group">
                             <span class="input-group-text"><i class="fa fa-fw fa-network-wired"></i></span>
-                        <select class="form-control select2" name="network">
+                        <select class="form-select select2" name="network">
                             <option value="">- Select Network -</option>
                             <?php
                             $sql_network_select = mysqli_query($mysqli, "SELECT network, network_id, network_name FROM networks WHERE network_archived_at IS NULL AND network_client_id = $client_id ORDER BY network_name ASC");
@@ -120,7 +120,7 @@ ob_start();
                             <span class="input-group-text"><i class="fa fa-fw fa-ethernet"></i></span>
                         <input type="text" class="form-control font-monospace" name="ip" placeholder="e.g. 192.168.1.10" data-inputmask="'alias': 'ip'" maxlength="200" data-mask>
                             <div class="input-group-text">
-                                <input type="checkbox" name="dhcp" value="1" title="Check to mark address as DHCP controlled">
+                                <input class="form-check-input" type="checkbox" name="dhcp" value="1" title="Check to mark address as DHCP controlled">
                             </div>
                     </div>
                 </div>
@@ -164,7 +164,7 @@ ob_start();
                     <label>Connected to</label>
                     <div class="input-group">
                             <span class="input-group-text"><i class="fa fa-fw fa-plug"></i></span>
-                        <select class="form-control select2" name="connected_to">
+                        <select class="form-select select2" name="connected_to">
                             <option value="">- Select Asset and Interface -</option>
                             <?php
                             $sql_interfaces_select = mysqli_query($mysqli, "

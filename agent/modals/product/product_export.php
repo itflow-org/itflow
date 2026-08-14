@@ -53,7 +53,7 @@ ob_start();
             <label>Type</label>
             <div class="input-group">
                     <span class="input-group-text"><i class="fa fa-fw fa-box"></i></span>
-                <select class="form-control select2" name="type">
+                <select class="form-select select2" name="type">
                     <option value="">- All Types -</option>
                     <option <?php if ($type_filter === 'product') { echo "selected"; } ?> value="product">Products</option>
                     <option <?php if ($type_filter === 'service') { echo "selected"; } ?> value="service">Services</option>
@@ -65,7 +65,7 @@ ob_start();
             <label>Category</label>
             <div class="input-group">
                     <span class="input-group-text"><i class="fa fa-fw fa-list"></i></span>
-                <select class="form-control select2" name="category">
+                <select class="form-select select2" name="category">
                     <option value="">- All Categories -</option>
                     <?php
                     $sql_category_filter = mysqli_query($mysqli, "SELECT category_id, category_name FROM categories WHERE category_type = 'Income' ORDER BY category_name ASC");
@@ -85,7 +85,7 @@ ob_start();
             <label>Archived</label>
             <div class="input-group">
                     <span class="input-group-text"><i class="fa fa-fw fa-archive"></i></span>
-                <select class="form-control select2" name="archived">
+                <select class="form-select select2" name="archived">
                     <option <?php if (!$archived_filter) { echo "selected"; } ?> value="0">Active only</option>
                     <option <?php if ($archived_filter) { echo "selected"; } ?> value="1">Archived only</option>
                 </select>

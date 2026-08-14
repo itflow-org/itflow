@@ -76,7 +76,7 @@ require_once "includes/inc_all_admin.php";
                     <label>Tickets Default View</label>
                     <div class="input-group">
                             <span class="input-group-text"><i class="fa fa-fw fa-eye"></i></span>
-                        <select class="form-control" name="config_ticket_default_view">
+                        <select class="form-select" name="config_ticket_default_view">
                             <option value=0 <?php if ($config_ticket_default_view == 0) { echo "selected"; } ?>>List</option>
                             <option value=1 <?php if ($config_ticket_default_view == 1) { echo "selected"; } ?>>Compact</option>
                             <option value=2 <?php if ($config_ticket_default_view == 2) { echo "selected"; } ?>>Kanban</option>

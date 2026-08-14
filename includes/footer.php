@@ -33,12 +33,10 @@ if (basename(dirname($_SERVER['REQUEST_URI'])) === 'guest') { ?>
 <script src="/libs/bootstrap/js/bootstrap.bundle.min.js"></script>
 
 <!-- Custom js-->
-<script src="/libs/moment/moment.min.js"></script>
 <script src="/libs/chart.js/chart.umd.min.js"></script>
-<script src="/libs/tempus-dominus/js/tempus-dominus.min.js"></script>
-<script src="/libs/daterangepicker/daterangepicker.js"></script>
-<script src="/libs/select2/js/select2.min.js"></script>
-<script src="/libs/inputmask/jquery.inputmask.min.js"></script>
+<script src="/libs/flatpickr/js/flatpickr.min.js"></script>
+<script src="/libs/tom-select/js/tom-select.complete.min.js"></script>
+<script src="/libs/imask/js/imask.min.js"></script>
 <script src="/libs/tinymce/tinymce.min.js" referrerpolicy="origin"></script>
 <script src="/libs/clipboardjs/clipboard.min.js"></script>
 <script src="/js/keepalive.js"></script>

@@ -99,7 +99,7 @@ ob_start();
                     <label>Template Base</label>
                     <div class="input-group">
                             <span class="input-group-text"><i class="fa fa-fw fa-puzzle-piece"></i></span>
-                        <select class="form-control select2" name="vendor_template_id">
+                        <select class="form-select select2" name="vendor_template_id">
                             <option value="0">- None -</option>
                             <?php
 

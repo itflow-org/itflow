@@ -93,7 +93,7 @@ $company_initials = escapeHtml(initials($company_name));
                                 <label>Country</label>
                                 <div class="input-group">
                                         <span class="input-group-text"><i class="fa fa-fw fa-globe-americas"></i></span>
-                                    <select class="form-control select2" name="country">
+                                    <select class="form-select select2" name="country">
                                         <option value="">- Country -</option>
                                         <?php foreach($countries_array as $country_name) { ?>
                                             <option <?php if ($company_country == $country_name) { echo "selected"; } ?>><?= $country_name ?></option>

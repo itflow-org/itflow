@@ -134,7 +134,7 @@ ob_start();
                         <label>Existing Invoice</label>
                         <div class="input-group">
                                 <span class="input-group-text"><i class="fa fa-fw fa-file-invoice-dollar"></i></span>
-                            <select class="form-control" name="invoice_id">
+                            <select class="form-select" name="invoice_id">
                                 <option value="0">- Select an Existing Invoice -</option>
                                 <?php
 
@@ -177,7 +177,7 @@ ob_start();
                             <label>Invoice Category <strong class="text-danger">*</strong></label>
                             <div class="input-group">
                                     <span class="input-group-text"><i class="fa fa-fw fa-list"></i></span>
-                                <select class="form-control select2" name="category">
+                                <select class="form-select select2" name="category">
                                     <option value="">- Select a Category -</option>
                                     <?php
 
@@ -202,7 +202,7 @@ ob_start();
                     <label>Invoice Title</label>
                     <div class="input-group">
                             <span class="input-group-text"><i class="fa fa-fw fa-comment"></i></span>
-                        <select class="form-control select2" name="scope" data-tags="true" data-placeholder="- Enter or Select an Invoice Title -">
+                        <select class="form-select select2" name="scope" data-tags="true" data-placeholder="- Enter or Select an Invoice Title -">
                             <option value=""></option>
                             <option><?= date('F Y'); ?> Tickets</option>
                             <option><?= "Ticket $ticket_prefix$ticket_number - $ticket_subject" ?></option>
@@ -296,7 +296,7 @@ ob_start();
             <label>Tax <strong class="text-danger">*</strong></label>
             <div class="input-group">
                     <span class="input-group-text"><i class="fa fa-fw fa-piggy-bank"></i></span>
-                <select class="form-control select2" name="tax_id" required>
+                <select class="form-select select2" name="tax_id" required>
                     <option value="0">None</option>
                     <?php
 

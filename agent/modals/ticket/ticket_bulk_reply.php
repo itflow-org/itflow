@@ -24,7 +24,7 @@ ob_start();
         <div class="input-group mb-3">
                 <span class="input-group-text"><i class="fa fa-fw fa-thermometer-half"></i></span>
 
-            <select class="form-control select2" name="bulk_status" required>
+            <select class="form-select select2" name="bulk_status" required>
 
                 <!-- Show all active ticket statuses, apart from new or closed as these are system-managed -->
                 <?php $sql_ticket_status = mysqli_query($mysqli, "SELECT ticket_status_id, ticket_status_name FROM ticket_statuses WHERE ticket_status_id != 1 AND ticket_status_id != 5 AND ticket_status_active = 1");

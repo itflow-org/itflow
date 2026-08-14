@@ -92,7 +92,7 @@ ob_start();
                         <input type="text" class="form-control" name="name" placeholder="Name or Company" maxlength="200"
                                value="<?= $client_name ?>" required>
                             <div class="input-group-text">
-                                <input type="checkbox" name="lead" value="1" <?php if($client_is_lead == 1){ echo "checked"; } ?>>
+                                <input class="form-check-input" type="checkbox" name="lead" value="1" <?php if($client_is_lead == 1){ echo "checked"; } ?>>
                             </div>
                     </div>
                 </div>
@@ -118,7 +118,7 @@ ob_start();
                     <label>Referral</label>
                     <div class="input-group">
                             <span class="input-group-text"><i class="fa fa-fw fa-link"></i></span>
-                        <select class="form-control select2" data-tags="true" name="referral">
+                        <select class="form-select select2" data-tags="true" name="referral">
                             <option value="">- Select Referral -</option>
                             <?php
 
@@ -156,7 +156,7 @@ ob_start();
                     <label>Tags</label>
                     <div class="input-group">
                             <span class="input-group-text"><i class="fa fa-fw fa-tags"></i></span>
-                        <select class="form-control select2" name="tags[]" data-placeholder="Add some tags" multiple>
+                        <select class="form-select select2" name="tags[]" data-placeholder="Add some tags" multiple>
                             <?php
 
                             $sql_tags_select = mysqli_query($mysqli, "SELECT tag_id, tag_name FROM tags WHERE tag_type = 1 ORDER BY tag_name ASC");
@@ -195,7 +195,7 @@ ob_start();
                         <label>Invoice Net Terms</label>
                         <div class="input-group">
                                 <span class="input-group-text"><i class="fa fa-fw fa-calendar"></i></span>
-                            <select class="form-control select2" name="net_terms">
+                            <select class="form-select select2" name="net_terms">
                                 <option value="">- Net Terms -</option>
                                 <?php foreach ($net_terms_array as $net_term_value => $net_term_name) { ?>
                                     <option <?php if ($net_term_value == $client_net_terms) {
@@ -242,7 +242,7 @@ ob_start();
                             <?php foreach (['Low', 'Medium', 'High', 'Urgent'] as $sla_priority) { $sla_current = $client_sla_assignments[$sla_priority] ?? 'default'; ?>
                                 <div class="col-3">
                                     <small class="text-secondary"><?= $sla_priority ?></small>
-                                    <select class="form-control" name="client_sla_<?= strtolower($sla_priority) ?>">
+                                    <select class="form-select" name="client_sla_<?= strtolower($sla_priority) ?>">
                                         <option value="default" <?php if ($sla_current === 'default') { echo "selected"; } ?>>Default</option>
                                         <option value="0" <?php if ($sla_current === 0) { echo "selected"; } ?>>None</option>
                                         <?php foreach ($sla_options as $sla_option_id => $sla_option_name) { ?>

@@ -122,7 +122,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                     <?php if (!$client_url) { ?>
                     <div class="col-md-2">
                         <div class="input-group mb-3 mb-md-0">
-                            <select class="form-control select2" name="client" onchange="this.form.submit()">
+                            <select class="form-select select2" name="client" onchange="this.form.submit()">
                                 <option value="" <?php if ($client == "") { echo "selected"; } ?>>- All Clients -</option>
 
                                 <?php
@@ -150,7 +150,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 
                     <div class="col-md-2">
                         <div class="input-group mb-3 mb-md-0">
-                            <select class="form-control select2" name="expire_days" onchange="this.form.submit()">
+                            <select class="form-select select2" name="expire_days" onchange="this.form.submit()">
                                 <option value="" <?php if ($expire_days == "") { echo "selected"; } ?>>- Expiring In -</option>
                                 <option value="expired" <?php if ($expire_days === "expired") { echo "selected"; } ?>>Expired</option>
                                 <option value="7" <?php if ($expire_days === 7) { echo "selected"; } ?>>7 Days</option>

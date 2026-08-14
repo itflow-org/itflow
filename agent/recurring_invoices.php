@@ -228,7 +228,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                     <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
                                     <input type="hidden" name="set_recurring_payment" value="1">
                                     <input type="hidden" name="recurring_invoice_id" value="<?= $recurring_invoice_id ?>">
-                                    <select class="form-control select2" name="saved_payment_id" onchange="this.form.submit()">
+                                    <select class="form-select select2" name="saved_payment_id" onchange="this.form.submit()">
                                         <option value="0">Disabled</option>
                                         <?php
                                             while ($row = mysqli_fetch_assoc($sql_saved_payments)) {

@@ -32,9 +32,7 @@ $(document).ready(function() {
                 }
 
                 // Refresh Select2
-                if ($.fn.select2) {
-                    $contactSelect.trigger('change.select2');
-                }
+                refreshTomSelect($contactSelect[0]);
             },
             error: function(xhr, status, error) {
                 console.error('AJAX Error:', error);

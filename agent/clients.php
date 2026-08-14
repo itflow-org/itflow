@@ -225,7 +225,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                     <div class="col-md-3">
                         <div class="mb-3">
                             <label>Tag</label>
-                            <select onchange="this.form.submit()" class="form-control select2" name="tags[]" data-placeholder="- Select Tags -" multiple>
+                            <select onchange="this.form.submit()" class="form-select select2" name="tags[]" data-placeholder="- Select Tags -" multiple>
                                 <?php
                                 $sql_tags_filter = mysqli_query($mysqli, "
                                     SELECT tags.tag_id, tags.tag_name
@@ -248,7 +248,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                     <div class="col-sm-2">
                         <div class="mb-3">
                             <label>Industry</label>
-                            <select class="form-control select2" name="industry" onchange="this.form.submit()">
+                            <select class="form-select select2" name="industry" onchange="this.form.submit()">
                                 <option value="">- All Industries -</option>
 
                                 <?php
@@ -267,7 +267,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                     <div class="col-sm-2">
                         <div class="mb-3">
                             <label>Referral</label>
-                            <select class="form-control select2" name="referral" onchange="this.form.submit()">
+                            <select class="form-select select2" name="referral" onchange="this.form.submit()">
                                 <option value="">- All Referrals -</option>
 
                                 <?php

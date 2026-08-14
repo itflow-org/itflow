@@ -431,7 +431,7 @@ function renderExportColumnPicker($export_type) {
                 <?php foreach ($available as $column_key => $column) { ?>
                     <div class="col-md-6">
                         <label class="d-block mb-1 fw-normal text-truncate" title="<?= escapeHtml($column['label']) ?>">
-                            <input type="checkbox" name="columns[]" value="<?= $column_key ?>" <?php if ($column['default'] ?? true) { echo 'checked'; } ?>>
+                            <input class="form-check-input" type="checkbox" name="columns[]" value="<?= $column_key ?>" <?php if ($column['default'] ?? true) { echo 'checked'; } ?>>
                             <?= escapeHtml($column['label']) ?>
                         </label>
                     </div>

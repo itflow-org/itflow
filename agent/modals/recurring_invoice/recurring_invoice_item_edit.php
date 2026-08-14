@@ -75,7 +75,7 @@ ob_start();
             <label>Tax <strong class="text-danger">*</strong></label>
             <div class="input-group">
                     <span class="input-group-text"><i class="fa fa-fw fa-piggy-bank"></i></span>
-                <select class="form-control select2" name="tax_id" required>
+                <select class="form-select select2" name="tax_id" required>
                     <option value="0">No Tax</option>
                     <?php
                         $taxes_sql = mysqli_query($mysqli, "SELECT tax_id, tax_name, tax_percent FROM taxes WHERE (tax_archived_at > '$item_created_at' OR tax_archived_at IS NULL) ORDER BY tax_name ASC");

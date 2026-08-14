@@ -46,7 +46,7 @@ ob_start();
             <label>Add it to a Project Template?</label>
             <div class="input-group">
                     <span class="input-group-text"><i class="fa fa-fw fa-project-diagram"></i></span>
-                <select class="form-control select2" name="project_template">
+                <select class="form-select select2" name="project_template">
                     <option value="0">- No -</option>
                     <?php
 

@@ -31,14 +31,14 @@ $sql_clients = mysqli_query($mysqli, "SELECT client_id, client_name FROM clients
         </div>
         <div class="card-body">
             <form class="mb-3">
-                <select onchange="this.form.submit()" class="form-control" name="year">
+                <select onchange="this.form.submit()" class="form-select" name="year">
                     <?php
                     while ($row = mysqli_fetch_assoc($sql_ticket_years)) {
                         $ticket_year = intval($row['ticket_year']); ?>
                         <option <?php if ($year == $ticket_year) { ?> selected <?php } ?> > <?= $ticket_year ?></option>
                     <?php } ?>
                 </select>
-                <select onchange="this.form.submit()" class="form-control" name="month">
+                <select onchange="this.form.submit()" class="form-select" name="month">
                     <option <?php if ($month == 1) { echo 'selected'; } ?> value="1">January</option>
                     <option <?php if ($month == 2) { echo 'selected'; } ?> value="2">February</option>
                     <option <?php if ($month == 3) { echo 'selected'; } ?> value="3">March</option>

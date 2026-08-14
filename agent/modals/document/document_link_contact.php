@@ -31,7 +31,7 @@ ob_start();
         <div class="mb-3">
             <div class="input-group">
                     <span class="input-group-text"><i class="fa fa-fw fa-user"></i></span>
-                <select class="form-control select2" name="contact_id">
+                <select class="form-select select2" name="contact_id">
                     <option value="">- Select a Contact -</option>
                     <?php
                     $sql_contacts_select = mysqli_query($mysqli, "

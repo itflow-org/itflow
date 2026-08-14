@@ -36,7 +36,7 @@ ob_start();
             <p>Should this document be visible in the portal to client contacts with the 'Technical' role?</p>
             <div class="input-group">
                     <span class="input-group-text"><i class="fa fa-fw fa-eye"></i></span>
-                <select class="form-control" name="document_visible">
+                <select class="form-select" name="document_visible">
                     <option <?php if ($document_client_visible == 1) { echo "selected"; } ?> value="1">Yes</option>
                     <option <?php if ($document_client_visible == 0) { echo "selected"; } ?> value="0">No</option>
                 </select>

@@ -29,7 +29,7 @@ ob_start();
             <label>Contact</label>
             <div class="input-group">
                     <span class="input-group-text"><i class="fa fa-fw fa-user"></i></span>
-                <select class="form-control select2" name="bulk_contact_id">
+                <select class="form-select select2" name="bulk_contact_id">
                     <option value="">- Contact -</option>
                     <?php
 

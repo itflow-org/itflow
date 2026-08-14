@@ -64,7 +64,7 @@ ob_start();
             <label>Transfer <strong class="text-danger">*</strong></label>
             <div class="input-group">
                     <span class="input-group-text"><i class="fa fa-fw fa-piggy-bank"></i></span>
-                <select class="form-control select2" name="account_from" required>
+                <select class="form-select select2" name="account_from" required>
                     <?php
 
                     $sql_accounts = mysqli_query($mysqli, "SELECT account_archived_at, account_id, account_name, opening_balance FROM accounts WHERE (account_archived_at > '$transfer_created_at' OR account_archived_at IS NULL) ORDER BY account_archived_at ASC, account_name ASC");
@@ -106,7 +106,7 @@ ob_start();
         <div class="mb-3">
             <div class="input-group">
                     <span class="input-group-text"><i class="fa fa-fw fa-arrow-right"></i></span>
-                <select class="form-control select2" name="account_to" required>
+                <select class="form-select select2" name="account_to" required>
                     <?php
 
                     $sql2 = mysqli_query($mysqli, "SELECT account_archived_at, account_id, account_name, opening_balance FROM accounts WHERE (account_archived_at > '$transfer_created_at' OR account_archived_at IS NULL) ORDER BY account_archived_at ASC, account_name ASC");
@@ -153,7 +153,7 @@ ob_start();
             <label>Transfer Method</label>
             <div class="input-group">
                     <span class="input-group-text"><i class="fa fa-fw fa-money-check-alt"></i></span>
-                <select class="form-control select2" name="transfer_method">
+                <select class="form-select select2" name="transfer_method">
                     <option value="">- Method of Transfer -</option>
                     <?php
 

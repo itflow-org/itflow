@@ -47,7 +47,7 @@ ob_start();
             <label>Schedule</label>
             <div class="input-group">
                     <span class="input-group-text"><i class="fa fa-fw fa-calendar"></i></span>
-                <select class="form-control" name="schedule" id="cronJobSchedule">
+                <select class="form-select" name="schedule" id="cronJobSchedule">
                     <?php if ($cron_job_interval_safe) { ?>
                         <option value="Interval" <?= $cron_job_schedule === 'Interval' ? 'selected' : '' ?>>Every so many minutes</option>
                     <?php } ?>

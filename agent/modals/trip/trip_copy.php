@@ -54,7 +54,7 @@ ob_start();
                         <span class="input-group-text"><i class="fa fa-fw fa-bicycle"></i></span>
                     <input type="text" class="form-control" inputmode="decimal" pattern="[0-9]*\.?[0-9]{0,1}" name="miles" value="<?= $trip_miles ?>" placeholder="0.0" required>
                         <div class="input-group-text">
-                            <input type="checkbox" name="roundtrip" value="1" <?php if ($round_trip == 1) { echo "checked"; } ?>>
+                            <input class="form-check-input" type="checkbox" name="roundtrip" value="1" <?php if ($round_trip == 1) { echo "checked"; } ?>>
                         </div>
                 </div>
             </div>
@@ -72,7 +72,7 @@ ob_start();
         <div class="mb-3">
             <div class="input-group">
                     <span class="input-group-text"><i class="fa fa-arrow-right"></i></span>
-                <select class="form-control select2" name="destination" data-tags="true" data-placeholder="- Select / Input Destination -" required>
+                <select class="form-select select2" name="destination" data-tags="true" data-placeholder="- Select / Input Destination -" required>
                     <option><?= $trip_destination ?></option>
                     <?php
 
@@ -104,7 +104,7 @@ ob_start();
             <label>Driver</label>
             <div class="input-group">
                     <span class="input-group-text"><i class="fa fa-fw fa-user"></i></span>
-                <select class="form-control select2" name="user" required>
+                <select class="form-select select2" name="user" required>
                     <option value="">- Driver -</option>
                     <?php
 
@@ -131,7 +131,7 @@ ob_start();
                 <label>Client</label>
                 <div class="input-group">
                         <span class="input-group-text"><i class="fa fa-fw fa-user"></i></span>
-                    <select class="form-control select2" name="client_id">
+                    <select class="form-select select2" name="client_id">
                         <option value="">- Client (Optional) -</option>
                         <?php
 

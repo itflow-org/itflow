@@ -129,7 +129,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 
                 <div class="col-md-3">
                     <div class="input-group mb-3 mb-md-0">
-                        <select onchange="this.form.submit()" class="form-control select2" name="tags[]" data-placeholder="- Select Tags -" multiple>
+                        <select onchange="this.form.submit()" class="form-select select2" name="tags[]" data-placeholder="- Select Tags -" multiple>
 
                             <?php
                             $sql_tags_filter = mysqli_query($mysqli, "
@@ -156,7 +156,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                 <?php if ($client_url) { ?>
                 <div class="col-md-2">
                     <div class="input-group mb-3 mb-md-0">
-                        <select class="form-control select2" name="location" onchange="this.form.submit()">
+                        <select class="form-select select2" name="location" onchange="this.form.submit()">
                             <option value="">- All Locations -</option>
 
                             <?php
@@ -182,7 +182,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                 <?php } else { ?>
                 <div class="col-md-2">
                     <div class="input-group mb-3 mb-md-0">
-                        <select class="form-control select2" name="client" onchange="this.form.submit()">
+                        <select class="form-select select2" name="client" onchange="this.form.submit()">
                             <option value="" <?php if ($client == "") { echo "selected"; } ?>>- All Clients -</option>
 
                             <?php
@@ -473,7 +473,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                     <div class="d-flex">
                                         <?php if ($contact_photo) { ?>
                                             <span class="fa-stack fa-2x me-3 text-center">
-                                                <img class="img-size-50 img-circle" src="<?= "../uploads/clients/$client_id/$contact_photo" ?>">
+                                                <img class="img-size-50 rounded-circle" src="<?= "../uploads/clients/$client_id/$contact_photo" ?>">
                                             </span>
                                         <?php } else { ?>
                                             <span class="fa-stack fa-2x me-3">

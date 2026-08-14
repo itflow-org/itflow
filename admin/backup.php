@@ -211,7 +211,7 @@ if (!empty($_SESSION['backup_master_key_reveal'])) {
             <div class="row g-2">
                 <div class="mb-3 col-md-4">
                     <label>Scheduled backup type</label>
-                    <select class="form-control" name="config_backup_cron_type">
+                    <select class="form-select" name="config_backup_cron_type">
                         <option <?= $config_backup_cron_type === 'full' ? 'selected' : '' ?> value="full">Full Backup</option>
                         <option <?= $config_backup_cron_type === 'database' ? 'selected' : '' ?> value="database">Database Only</option>
                     </select>

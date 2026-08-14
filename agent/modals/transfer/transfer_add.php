@@ -38,7 +38,7 @@ ob_start();
             <label>Transfer <strong class="text-danger">*</strong></label>
             <div class="input-group">
                     <span class="input-group-text"><i class="fa fa-fw fa-piggy-bank"></i></span>
-                <select class="form-control select2" name="account_from" required>
+                <select class="form-select select2" name="account_from" required>
                     <option value="">- Account From -</option>
                     <?php
 
@@ -74,7 +74,7 @@ ob_start();
         <div class="mb-3">
             <div class="input-group">
                     <span class="input-group-text"><i class="fa fa-fw fa-arrow-right"></i></span>
-                <select class="form-control select2" name="account_to" required>
+                <select class="form-select select2" name="account_to" required>
                     <option value="">- Account To -</option>
                     <?php
 
@@ -112,7 +112,7 @@ ob_start();
 
         <div class="mb-3">
             <div class="input-group">
-                <select class="form-control" id="paymentSelect">
+                <select class="form-select" id="paymentSelect">
                     <option value="">Select a Payment to Add to Notes</option>
                     <?php
 
@@ -141,7 +141,7 @@ ob_start();
             <label>Transfer Method</label>
             <div class="input-group">
                     <span class="input-group-text"><i class="fa fa-fw fa-money-check-alt"></i></span>
-                <select class="form-control select2" name="transfer_method">
+                <select class="form-select select2" name="transfer_method">
                     <option value="">- Method of Transfer -</option>
                     <?php
 

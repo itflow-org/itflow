@@ -55,7 +55,7 @@ ob_start();
             <label>Status</label>
             <div class="input-group">
                     <span class="input-group-text"><i class="fa fa-fw fa-file-invoice-dollar"></i></span>
-                <select class="form-control select2" name="status">
+                <select class="form-select select2" name="status">
                     <option value="">- All Statuses -</option>
                     <option <?php if ($status_filter === 'Draft') { echo "selected"; } ?> value="Draft">Draft</option>
                     <option <?php if ($status_filter === 'Unpaid') { echo "selected"; } ?> value="Unpaid">Unpaid</option>
@@ -68,7 +68,7 @@ ob_start();
             <label>Category</label>
             <div class="input-group">
                     <span class="input-group-text"><i class="fa fa-fw fa-list"></i></span>
-                <select class="form-control select2" name="category">
+                <select class="form-select select2" name="category">
                     <option value="">- All Categories -</option>
                     <?php
                     $sql_category_filter = mysqli_query($mysqli, "SELECT category_id, category_name FROM categories WHERE category_type = 'Income' ORDER BY category_name ASC");

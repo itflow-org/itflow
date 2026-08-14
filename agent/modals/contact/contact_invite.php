@@ -24,7 +24,7 @@
                         <label>Welcome Letter</label>
                         <div class="input-group">
                                 <span class="input-group-text"><i class="fas fa-fw fa-envelope-open-text"></i></span>
-                            <select class="form-control select2" name="welcome_letter">
+                            <select class="form-select select2" name="welcome_letter">
                                 <option value="1">- Select One -</option>
                                 <option value="2">Standard</option>
                                 <option value="3">Big Wig</option>

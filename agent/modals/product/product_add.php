@@ -40,7 +40,7 @@ ob_start();
             <label>Type <strong class="text-danger">*</strong></label>
             <div class="input-group">
                     <span class="input-group-text"><i class="fa fa-fw fa-tag"></i></span>
-                <select class="form-control select2" name="type" required>
+                <select class="form-select select2" name="type" required>
                     <option value="">- Select Type -</option>
                     <?php foreach ($product_types_array as $type_select) { ?>
                         <option><?= $type_select ?></option>
@@ -55,7 +55,7 @@ ob_start();
             <label>Category <strong class="text-danger">*</strong></label>
             <div class="input-group">
                     <span class="input-group-text"><i class="fa fa-fw fa-tag"></i></span>
-                <select class="form-control select2" name="category" required>
+                <select class="form-select select2" name="category" required>
                     <option value="">- Select Category -</option>
                     <?php
 
@@ -93,7 +93,7 @@ ob_start();
                     <label>Tax</label>
                     <div class="input-group">
                             <span class="input-group-text"><i class="fa fa-fw fa-balance-scale"></i></span>
-                        <select class="form-control select2" name="tax">
+                        <select class="form-select select2" name="tax">
                             <option value="0">None</option>
                             <?php
 

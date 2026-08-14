@@ -475,7 +475,7 @@ if (isset($_GET['invoice_id'])) {
                                             <input type="text" class="form-control" inputmode="decimal" pattern="-?[0-9]*\.?[0-9]{0,2}" style="text-align: right;" id="price" name="price" placeholder="Price (<?= $invoice_currency_code ?>)">
                                         </td>
                                         <td>
-                                            <select class="form-control select2" name="tax_id" id="tax" required>
+                                            <select class="form-select select2" name="tax_id" id="tax" required>
                                                 <option value="0">No Tax</option>
                                                 <?php
                                                 $taxes_sql = mysqli_query($mysqli, "SELECT tax_id, tax_name, tax_percent FROM taxes WHERE tax_archived_at IS NULL ORDER BY tax_name ASC");
