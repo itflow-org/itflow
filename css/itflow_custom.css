@@ -508,10 +508,16 @@ a:not(.dropdown-item):not(.btn-app):not(.nav-link):not(.brand-link):not(.page-li
     border-radius: .25rem;
 }
 .itflow-fp-range:hover,
-.itflow-fp-range:focus {
+.itflow-fp-range:focus,
+.itflow-fp-range.active {
     color: #fff;
     background-color: var(--itflow-accent, #007bff);
     border-color: var(--itflow-accent, #007bff);
+}
+/* The preset currently in effect - without this there is nothing on screen
+   telling you which range you are looking at once the calendar is open. */
+.itflow-fp-range.active {
+    font-weight: 600;
 }
 
 /* --- Toast fade ---------------------------------------------------------

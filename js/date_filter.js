@@ -129,10 +129,18 @@
         var initialEnd = parseYmd(dtt.value) || parseYmd(ALL_TIME_END);
         var initialKey = ymd(initialStart) + '|' + ymd(initialEnd);
 
+        // 1970-01-01 / 2099-12-31 are SQL sentinels for "no bound", not dates a
+        // user picked - and they are also the server's fallback, so most pages
+        // arrive in this state. Seeding the calendar with them opened it on
+        // January 1970 every time. Treat it as "nothing selected" instead: the
+        // calendar opens on the current month with no range highlighted, so the
+        // first click starts a fresh selection.
+        var allTimeActive = initialKey === ALL_TIME_START + '|' + ALL_TIME_END;
+
         flatpickr(input, {
             mode: 'range',
             dateFormat: 'Y-m-d',
-            defaultDate: [initialStart, initialEnd],
+            defaultDate: allTimeActive ? null : [initialStart, initialEnd],
             locale: { firstDayOfWeek: 1 },
             allowInput: false,
             onReady: function (selectedDates, dateStr, instance) {
@@ -144,6 +152,10 @@
                     btn.type = 'button';
                     btn.className = 'itflow-fp-range';
                     btn.textContent = r.label;
+                    if (r.canned === canned.value ||
+                        (allTimeActive && r.canned === 'alltime' && !canned.value)) {
+                        btn.classList.add('active');
+                    }
                     btn.addEventListener('click', function () {
                         // close() fires onClose synchronously - flag it first
                         // or onClose applies the stale range as a custom one
@@ -164,7 +176,11 @@
                 }
                 // Abandoned half-selection - put the box back how it was.
                 if (selectedDates.length !== 2) {
-                    instance.setDate([initialStart, initialEnd], false);
+                    if (allTimeActive) {
+                        instance.clear(false);
+                    } else {
+                        instance.setDate([initialStart, initialEnd], false);
+                    }
                     setDisplay(initialStart, initialEnd);
                     return;
                 }
