@@ -33,7 +33,13 @@ if (isset($_POST['edit_ticket_status'])) {
     $order = intval($_POST['order']);
     $status = intval($_POST['status']);
 
-    $pauses_sla = intval($_POST['pauses_sla'] ?? 0);
+    // Built-in statuses have fixed SLA behaviour. The modal renders it read-only, and a
+    // read-only field submits nothing - so the value is decided here rather than taken
+    // from the POST, which also means a hand-made request cannot change it.
+    $pauses_sla = getTicketStatusSlaLock($ticket_status_id);
+    if (is_null($pauses_sla)) {
+        $pauses_sla = intval($_POST['pauses_sla'] ?? 0);
+    }
 
     mysqli_query($mysqli, "UPDATE ticket_statuses SET ticket_status_name = '$name', ticket_status_color = '$color', ticket_status_order = $order, ticket_status_active = $status, ticket_status_pauses_sla = $pauses_sla WHERE ticket_status_id = $ticket_status_id");
 

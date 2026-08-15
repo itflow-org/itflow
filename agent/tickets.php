@@ -199,7 +199,8 @@ if (!empty($_GET['sla']) && isset($sla_filter_labels[$_GET['sla']])) {
     } elseif ($ticket_sla_filter == 'at_risk') {
         $ticket_sla_query = 'AND ticket_sla_id > 0 AND COALESCE(ticket_status_pauses_sla, 0) = 0 AND (ticket_response_sla_alert_stage = 1 OR ticket_resolution_sla_alert_stage = 1)';
     } elseif ($ticket_sla_filter == 'paused') {
-        $ticket_sla_query = 'AND ticket_sla_id > 0 AND ticket_status_pauses_sla = 1';
+        // Resolved and Closed pause the clock as well, but they are finished, not parked
+        $ticket_sla_query = 'AND ticket_sla_id > 0 AND ticket_status_pauses_sla = 1 AND ticket_resolved_at IS NULL AND ticket_closed_at IS NULL';
     } elseif ($ticket_sla_filter == 'met') {
         $ticket_sla_query = 'AND ticket_sla_id > 0 AND ticket_response_sla_met = 1 AND (ticket_resolution_sla_met = 1 OR ticket_resolution_due_at IS NULL)';
     } elseif ($ticket_sla_filter == 'none') {

@@ -12,6 +12,8 @@ $ticket_status_color = escapeHtml($row['ticket_status_color']);
 $ticket_status_order = intval($row['ticket_status_order']);
 $ticket_status_active = intval($row['ticket_status_active']);
 $ticket_status_pauses_sla = intval($row['ticket_status_pauses_sla']);
+// Null for a custom status (the admin picks), 1 or 0 for the five built-in ones
+$ticket_status_sla_lock = getTicketStatusSlaLock($ticket_status_id);
 
 // Generate the HTML form content using output buffering.
 ob_start();
@@ -66,12 +68,22 @@ ob_start();
             <label>SLA</label>
             <div class="input-group">
                     <span class="input-group-text"><i class="fa fa-fw fa-stopwatch"></i></span>
-                <select class="form-select select2" name="pauses_sla">
-                    <option <?php if ($ticket_status_pauses_sla == 0) { echo "selected "; } ?>value="0">Resolution clock keeps running</option>
-                    <option <?php if ($ticket_status_pauses_sla == 1) { echo "selected "; } ?>value="1">Pause the resolution clock</option>
-                </select>
+                <?php if (is_null($ticket_status_sla_lock)) { ?>
+                    <select class="form-select select2" name="pauses_sla">
+                        <option <?php if ($ticket_status_pauses_sla == 0) { echo "selected "; } ?>value="0">Resolution clock keeps running</option>
+                        <option <?php if ($ticket_status_pauses_sla == 1) { echo "selected "; } ?>value="1">Pause the resolution clock</option>
+                    </select>
+                <?php } else { ?>
+                    <input type="text" class="form-control" value="<?= $ticket_status_sla_lock ? 'Pause the resolution clock' : 'Resolution clock keeps running' ?>" readonly>
+                <?php } ?>
             </div>
-            <small class="text-muted">Tickets sitting in a paused status never warn or breach on resolution. Time already spent is kept and the deadline moves out when the ticket comes back.</small>
+            <?php if (is_null($ticket_status_sla_lock)) { ?>
+                <small class="text-muted">Tickets sitting in a paused status never warn or breach on resolution. Time already spent is kept and the deadline moves out when the ticket comes back.</small>
+            <?php } elseif ($ticket_status_sla_lock) { ?>
+                <small class="text-muted">Fixed for built-in statuses. Tickets here never warn or breach on resolution - time already spent is kept and the deadline moves out when the ticket comes back.</small>
+            <?php } else { ?>
+                <small class="text-muted">Fixed for built-in statuses. Tickets here are being worked, so their resolution clock runs.</small>
+            <?php } ?>
         </div>
 
     </div>

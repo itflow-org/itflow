@@ -99,6 +99,9 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                             <?php } else { ?>
                                 <span class="text-secondary">Running</span>
                             <?php } ?>
+                            <?php if (!is_null(getTicketStatusSlaLock($ticket_status_id))) { ?>
+                                <small class="text-muted ms-1" title="Built-in statuses have fixed SLA behaviour">(fixed)</small>
+                            <?php } ?>
                         </td>
                         <td>
                             <div class="dropdown dropstart text-center">
