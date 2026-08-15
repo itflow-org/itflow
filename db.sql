@@ -472,6 +472,26 @@ CREATE TABLE `calendars` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
+-- Table structure for table `canned_responses`
+--
+
+DROP TABLE IF EXISTS `canned_responses`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8mb4 */;
+CREATE TABLE `canned_responses` (
+  `canned_response_id` int(11) NOT NULL AUTO_INCREMENT,
+  `canned_response_name` varchar(200) NOT NULL,
+  `canned_response_body` longtext DEFAULT NULL,
+  `canned_response_category_id` int(11) NOT NULL DEFAULT 0,
+  `canned_response_created_at` datetime NOT NULL DEFAULT current_timestamp(),
+  `canned_response_updated_at` datetime DEFAULT NULL ON UPDATE current_timestamp(),
+  `canned_response_archived_at` datetime DEFAULT NULL,
+  PRIMARY KEY (`canned_response_id`),
+  KEY `canned_response_category_id` (`canned_response_category_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
 -- Table structure for table `categories`
 --
 
@@ -3151,4 +3171,4 @@ CREATE TABLE `vendors` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2026-08-15 16:40:00
+-- Dump completed on 2026-08-15 17:28:46

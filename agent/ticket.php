@@ -727,8 +727,57 @@ if (isset($_GET['ticket_id'])) {
                                     <?php } ?>
                                 </div>
 
+                                <?php
+
+                                /*
+                                 * Canned responses offered on this ticket: the ones tied to its
+                                 * category, plus the general ones that are offered everywhere.
+                                 * Names only - the body is fetched when one is picked, so a
+                                 * shelf of long responses does not ride along with every ticket.
+                                 */
+                                $sql_canned_responses = mysqli_query($mysqli, "SELECT canned_response_id, canned_response_name, canned_response_category_id
+                                    FROM canned_responses
+                                    WHERE canned_response_archived_at IS NULL
+                                    AND (canned_response_category_id = 0 OR canned_response_category_id = $ticket_category)
+                                    ORDER BY canned_response_name ASC");
+
+                                $canned_responses_for_category = [];
+                                $canned_responses_general = [];
+
+                                while ($canned_row = mysqli_fetch_assoc($sql_canned_responses)) {
+                                    if (intval($canned_row['canned_response_category_id']) === 0) {
+                                        $canned_responses_general[] = $canned_row;
+                                    } else {
+                                        $canned_responses_for_category[] = $canned_row;
+                                    }
+                                }
+
+                                if ($canned_responses_for_category || $canned_responses_general) { ?>
+
+                                    <div class="mb-3">
+                                        <select class="form-select" id="canned_response_picker">
+                                            <option value="">- Insert a canned response -</option>
+                                            <?php if ($canned_responses_for_category) { ?>
+                                                <optgroup label="<?= $ticket_category_display ?>">
+                                                    <?php foreach ($canned_responses_for_category as $canned_row) { ?>
+                                                        <option value="<?= intval($canned_row['canned_response_id']) ?>"><?= escapeHtml($canned_row['canned_response_name']) ?></option>
+                                                    <?php } ?>
+                                                </optgroup>
+                                            <?php } ?>
+                                            <?php if ($canned_responses_general) { ?>
+                                                <optgroup label="All categories">
+                                                    <?php foreach ($canned_responses_general as $canned_row) { ?>
+                                                        <option value="<?= intval($canned_row['canned_response_id']) ?>"><?= escapeHtml($canned_row['canned_response_name']) ?></option>
+                                                    <?php } ?>
+                                                </optgroup>
+                                            <?php } ?>
+                                        </select>
+                                    </div>
+
+                                <?php } ?>
+
                                 <div class="mb-3">
-                                    <textarea class="form-control tinymceTicket" name="ticket_reply" placeholder="Type a response"></textarea>
+                                    <textarea class="form-control tinymceTicket" id="ticket_reply" name="ticket_reply" placeholder="Type a response"></textarea>
                                 </div>
 
                                 <div class="mb-3">
@@ -1421,6 +1470,43 @@ require_once "../includes/footer.php";
                     positions: positions
                 });
             }
+        });
+    }
+
+    // Canned responses - insert at the cursor rather than replacing, so picking one into a
+    // half-written reply adds to it. The body is fetched on demand; TinyMCE owns the field
+    // by now, so setting the textarea value directly would do nothing visible.
+    const cannedPicker = document.getElementById('canned_response_picker');
+    if (cannedPicker) {
+        cannedPicker.addEventListener('change', function () {
+            const cannedId = cannedPicker.value;
+            if (!cannedId) return;
+
+            cannedPicker.disabled = true;
+
+            fetch('ajax.php?get_canned_response=' + encodeURIComponent(cannedId))
+                .then(response => response.json())
+                .then(data => {
+                    const editor = window.tinymce ? tinymce.get('ticket_reply') : null;
+
+                    if (editor) {
+                        editor.insertContent(data.body);
+                        editor.focus();
+                    } else {
+                        // TinyMCE failed to load - fall back to the plain textarea
+                        const textarea = document.getElementById('ticket_reply');
+                        if (textarea) {
+                            textarea.value += data.body;
+                        }
+                    }
+                })
+                .catch(() => {
+                    alert('Could not load that canned response.');
+                })
+                .finally(() => {
+                    cannedPicker.disabled = false;
+                    cannedPicker.value = '';
+                });
         });
     }
 

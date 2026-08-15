@@ -383,6 +383,37 @@ if (isset($_GET['get_active_clients'])) {
 }
 
 /*
+ * Returns the body of one canned response, for the picker on the ticket reply form.
+ * Fetched on demand rather than rendered into every ticket page, because the bodies are
+ * full HTML replies and an install can have a lot of them.
+ */
+if (isset($_GET['get_canned_response'])) {
+    enforceUserPermission('module_support');
+
+    $canned_response_id = intval($_GET['get_canned_response']);
+
+    $canned_sql = mysqli_query($mysqli, "SELECT canned_response_body FROM canned_responses
+        WHERE canned_response_id = $canned_response_id AND canned_response_archived_at IS NULL LIMIT 1");
+
+    $canned_row = mysqli_fetch_assoc($canned_sql);
+
+    // Purified here rather than at save time, the same way ticket replies and ticket
+    // template details are - what lands in the editor is what would have been rendered
+    require_once "../libs/htmlpurifier/HTMLPurifier.standalone.php";
+
+    $canned_purifier_config = HTMLPurifier_Config::createDefault();
+    $canned_purifier_config->set('Cache.DefinitionImpl', null);
+    $canned_purifier_config->set('URI.AllowedSchemes', ['data' => true, 'src' => true, 'http' => true, 'https' => true]);
+    $canned_purifier = new HTMLPurifier($canned_purifier_config);
+
+    $response = [];
+    $response['body'] = $canned_row ? $canned_purifier->purify($canned_row['canned_response_body']) : '';
+
+    echo json_encode($response);
+
+}
+
+/*
  * Returns ordered list of active contacts for a specified client
  */
 if (isset($_GET['get_client_contacts'])) {

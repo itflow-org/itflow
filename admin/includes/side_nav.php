@@ -124,6 +124,12 @@
                             <p>Ticket Templates</p>
                         </a>
                     </li>
+                    <li class="nav-item">
+                        <a href="/admin/canned_responses.php" class="nav-link <?= (basename($_SERVER['PHP_SELF']) == 'canned_responses.php' ? 'active' : '') ?>">
+                            <i class="nav-icon fas fa-comment-dots"></i>
+                            <p>Canned Responses</p>
+                        </a>
+                    </li>
                 <?php } ?>
                 <?php if ($config_module_enable_itdoc) { ?>
                     <!-- 2025-11-16 JQ - Hide Contracts not yet ready
