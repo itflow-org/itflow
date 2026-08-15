@@ -70,3 +70,6 @@
 <script src="/js/confirm_modal.js"></script>
 
 <script src="/js/keepalive.js"></script>
+
+</body>
+</html>

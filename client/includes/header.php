@@ -32,6 +32,8 @@ header("X-Frame-Options: DENY"); // Legacy
 
 </head>
 
+<body class="theme-<?= escapeHtml($config_theme) ?>">
+
 <!-- Navbar -->
 
 <nav class="navbar navbar-expand-lg navbar-dark bg-dark">

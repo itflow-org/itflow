@@ -143,13 +143,13 @@
 /* Navbar height. v4 pairs .app-header{max-height:2.75rem} with 0.5rem of
    navbar padding, but the tallest children - the 2rem avatar and the
    input-group-sm search box - want 47-48px, so they overflow that 44px cap.
-   Everything below is sized so it fits inside a 2.75rem bar.
+   Everything below is sized so it fits inside a 3rem bar.
    NOTE: .sidebar-brand is the matching half of this pair and is set to the
    same height further down - change both or they stop lining up. */
 .app-header.navbar {
-    --bs-navbar-padding-y: .35rem;
-    min-height: 2.75rem;
-    max-height: 2.75rem;
+    --bs-navbar-padding-y: .4rem;
+    min-height: 3rem;
+    max-height: 3rem;
 }
 /* Every item stretches the full bar and centres its own contents, so icons,
    the avatar and the search box all sit on the same optical line regardless of
@@ -213,13 +213,34 @@ a:not(.dropdown-item):not(.btn-app):not(.nav-link):not(.brand-link):not(.page-li
     color: var(--itflow-accent, #007bff);
 }
 a:not(.dropdown-item):not(.btn-app):not(.nav-link):not(.brand-link):not(.page-link):not(.badge):not(.btn):not(.small-box):not(.info-box):hover,
-.btn-link:hover,
-.nav-tabs .nav-link:hover {
+.btn-link:hover {
     /* v3 darkened the accent by exactly 15% HSL lightness on hover */
     color: color-mix(in srgb, var(--itflow-accent, #007bff) 70%, #000);
     color: hsl(from var(--itflow-accent, #007bff) h s calc(l - 15%));
 }
-.nav-tabs .nav-link.active { color: var(--itflow-accent, #007bff); }
+/* Tabs and pills. Bootstrap points inactive nav links at --bs-link-color and
+   hardcodes --bs-nav-pills-link-active-bg to #0d6efd, so both states came out
+   blue regardless of theme. Scoped to .nav-tabs/.nav-pills rather than .nav:
+   .navbar-nav redefines these same variables for the top bar, and the sidebar
+   is protected by its own higher-specificity rules. */
+.nav-tabs,
+.nav-pills {
+    /* inactive sits at 70% so the active state still reads as the highlight */
+    --bs-nav-link-color: color-mix(in srgb, var(--itflow-accent, #007bff) 70%, transparent);
+    --bs-nav-link-hover-color: var(--itflow-accent, #007bff);
+}
+.nav-tabs {
+    --bs-nav-tabs-link-active-color: var(--itflow-accent, #007bff);
+    /* accent rule along the top edge marks the selected tab */
+    --bs-nav-tabs-link-active-border-color: var(--itflow-accent, #007bff) var(--bs-border-color) var(--bs-body-bg);
+}
+.nav-tabs .nav-link.active {
+    font-weight: 600;
+}
+.nav-pills {
+    --bs-nav-pills-link-active-bg: var(--itflow-accent, #007bff);
+    --bs-nav-pills-link-active-color: #fff;
+}
 /* Pagination. Driving Bootstrap's own variables rather than overriding
    .page-link directly: a flat `.page-item .page-link{color:...}` ties with
    BS5's `.active>.page-link` and `.disabled>.page-link` on specificity and,
@@ -234,8 +255,12 @@ a:not(.dropdown-item):not(.btn-app):not(.nav-link):not(.brand-link):not(.page-li
     --bs-pagination-active-bg: var(--itflow-accent, #007bff);
     --bs-pagination-active-border-color: var(--itflow-accent, #007bff);
 }
-.dropdown-item.active, .dropdown-item:active {
-    background-color: var(--itflow-accent, #007bff);
+.dropdown-menu {
+    --bs-dropdown-link-active-bg: var(--itflow-accent, #007bff);
+}
+.list-group {
+    --bs-list-group-active-bg: var(--itflow-accent, #007bff);
+    --bs-list-group-active-border-color: var(--itflow-accent, #007bff);
 }
 .form-control:focus, .form-select:focus, .form-check-input:focus {
     border-color: var(--itflow-accent, #007bff);
@@ -257,11 +282,11 @@ a:not(.dropdown-item):not(.btn-app):not(.nav-link):not(.brand-link):not(.page-li
 .app-sidebar .sidebar-brand {
     /* v4 deliberately pairs .sidebar-brand{height:2.75rem} with
        .app-header{max-height:2.75rem} so the sidebar header lines up with the
-       top bar. Both are set to 2.75rem above - change them together or
+       top bar. Both are set to 3rem above - change them together or
        they stop lining up. v4's .8125rem padding leaves too little room for
        the heading, so it is cut right down. */
-    height: 2.75rem;
-    padding: .25rem .5rem;
+    height: 3rem;
+    padding: .3rem .5rem;
     justify-content: flex-start;
     background-color: #343a40;
     border-bottom: 1px solid #4b545c;
@@ -497,4 +522,75 @@ a:not(.dropdown-item):not(.btn-app):not(.nav-link):not(.brand-link):not(.page-li
 #itflowFlashToast.toast.fade,
 .itflow-toast-js .toast.fade {
     transition: opacity .5s linear;
+}
+
+/* --- Filter footer -------------------------------------------------------
+   The pagination row wants a touch more breathing room than .py-2 gives, but
+   .py-3 is a 16px jump that makes the bar noticeably chunky. Bootstrap has no
+   step between the two, hence the named rule. */
+.card-footer.itflow-filter-footer {
+    padding-top: .75rem;
+    padding-bottom: .75rem;
+}
+
+/* --- Primary button follows the theme -----------------------------------
+   Bootstrap 5 buttons are entirely variable driven, so these set --bs-btn-*
+   rather than overriding background-color. That keeps hover, active,
+   disabled and the focus ring consistent instead of only recolouring the
+   resting state.
+
+   The shade steps are Bootstrap's own: hover is shade 15%, active shade 20%,
+   and shade(c, n%) is literally mix(black, c, n%) - which color-mix
+   reproduces exactly. */
+.btn-primary {
+    --bs-btn-bg: var(--itflow-accent, #007bff);
+    --bs-btn-border-color: var(--itflow-accent, #007bff);
+    --bs-btn-hover-bg: color-mix(in srgb, var(--itflow-accent, #007bff) 85%, #000);
+    --bs-btn-hover-border-color: color-mix(in srgb, var(--itflow-accent, #007bff) 80%, #000);
+    --bs-btn-active-bg: color-mix(in srgb, var(--itflow-accent, #007bff) 80%, #000);
+    --bs-btn-active-border-color: color-mix(in srgb, var(--itflow-accent, #007bff) 75%, #000);
+    --bs-btn-disabled-bg: var(--itflow-accent, #007bff);
+    --bs-btn-disabled-border-color: var(--itflow-accent, #007bff);
+}
+.btn-outline-primary {
+    --bs-btn-color: var(--itflow-accent, #007bff);
+    --bs-btn-border-color: var(--itflow-accent, #007bff);
+    --bs-btn-hover-bg: var(--itflow-accent, #007bff);
+    --bs-btn-hover-border-color: var(--itflow-accent, #007bff);
+    --bs-btn-active-bg: var(--itflow-accent, #007bff);
+    --bs-btn-active-border-color: var(--itflow-accent, #007bff);
+    --bs-btn-disabled-color: var(--itflow-accent, #007bff);
+    --bs-btn-disabled-border-color: var(--itflow-accent, #007bff);
+}
+
+/* Focus ring has to be an RGB triplet, so it is per theme. */
+.theme-black .btn-primary, .theme-black .btn-outline-primary { --bs-btn-focus-shadow-rgb: 0, 0, 0; }
+.theme-blue .btn-primary, .theme-blue .btn-outline-primary { --bs-btn-focus-shadow-rgb: 0, 123, 255; }
+.theme-cyan .btn-primary, .theme-cyan .btn-outline-primary { --bs-btn-focus-shadow-rgb: 23, 162, 184; }
+.theme-fuchsia .btn-primary, .theme-fuchsia .btn-outline-primary { --bs-btn-focus-shadow-rgb: 240, 18, 190; }
+.theme-gray .btn-primary, .theme-gray .btn-outline-primary { --bs-btn-focus-shadow-rgb: 108, 117, 125; }
+.theme-green .btn-primary, .theme-green .btn-outline-primary { --bs-btn-focus-shadow-rgb: 40, 167, 69; }
+.theme-indigo .btn-primary, .theme-indigo .btn-outline-primary { --bs-btn-focus-shadow-rgb: 102, 16, 242; }
+.theme-lightblue .btn-primary, .theme-lightblue .btn-outline-primary { --bs-btn-focus-shadow-rgb: 60, 141, 188; }
+.theme-maroon .btn-primary, .theme-maroon .btn-outline-primary { --bs-btn-focus-shadow-rgb: 216, 27, 96; }
+.theme-navy .btn-primary, .theme-navy .btn-outline-primary { --bs-btn-focus-shadow-rgb: 0, 31, 63; }
+.theme-olive .btn-primary, .theme-olive .btn-outline-primary { --bs-btn-focus-shadow-rgb: 61, 153, 112; }
+.theme-orange .btn-primary, .theme-orange .btn-outline-primary { --bs-btn-focus-shadow-rgb: 253, 126, 20; }
+.theme-pink .btn-primary, .theme-pink .btn-outline-primary { --bs-btn-focus-shadow-rgb: 232, 62, 140; }
+.theme-purple .btn-primary, .theme-purple .btn-outline-primary { --bs-btn-focus-shadow-rgb: 111, 66, 193; }
+.theme-red .btn-primary, .theme-red .btn-outline-primary { --bs-btn-focus-shadow-rgb: 220, 53, 69; }
+.theme-teal .btn-primary, .theme-teal .btn-outline-primary { --bs-btn-focus-shadow-rgb: 32, 201, 151; }
+
+/* Text colour on a solid primary button. Threshold derived from Bootstrap's
+   own palette (white up to L=0.183, black from L=0.486), so only these two
+   themes are light enough to need dark text - the rest keep white. */
+.theme-orange .btn-primary { --bs-btn-color: #000; --bs-btn-hover-color: #000; --bs-btn-active-color: #000; --bs-btn-disabled-color: #000; }
+.theme-orange .btn-outline-primary { --bs-btn-hover-color: #000; --bs-btn-active-color: #000; }
+.theme-teal .btn-primary { --bs-btn-color: #000; --bs-btn-hover-color: #000; --bs-btn-active-color: #000; --bs-btn-disabled-color: #000; }
+.theme-teal .btn-outline-primary { --bs-btn-hover-color: #000; --bs-btn-active-color: #000; }
+
+/* Same L>0.335 contrast cut as the primary button. */
+.theme-orange .nav-pills,
+.theme-teal .nav-pills {
+    --bs-nav-pills-link-active-color: #000;
 }

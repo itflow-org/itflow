@@ -15,13 +15,13 @@ if ($total_found_rows > 5) {
 
     ?>
 
-<div class="card-footer pb-0 pt-3">
+<div class="card-footer itflow-filter-footer">
 
-    <div class="row">
+    <div class="row align-items-center g-2">
         <div class="col-sm">
             <form action="post.php" method="post">
-                <div class="mb-3">
-                    <select onchange="this.form.submit()" class="form-select col-12 col-sm-3" name="change_records_per_page">
+                <div class="d-flex align-items-center">
+                    <select onchange="this.form.submit()" class="form-select form-select-sm w-auto" name="change_records_per_page" aria-label="Records per page">
                         <option <?php if ($user_config_records_per_page == 5) { echo "selected"; } ?> >5</option>
                         <option <?php if ($user_config_records_per_page == 10) { echo "selected"; } ?> >10</option>
                         <option <?php if ($user_config_records_per_page == 20) { echo "selected"; } ?> >20</option>
@@ -29,6 +29,7 @@ if ($total_found_rows > 5) {
                         <option <?php if ($user_config_records_per_page == 100) { echo "selected"; } ?> >100</option>
                         <option <?php if ($user_config_records_per_page == 500) { echo "selected"; } ?> >500</option>
                     </select>
+                    <span class="text-muted small ms-2">per page</span>
                 </div>
             </form>
         </div>
@@ -53,13 +54,12 @@ if ($total_found_rows > 5) {
         ?>
 
         <div class="col-sm">
-            <p class="text-center">
+            <p class="text-center mb-0">
               Showing <strong><?= $start ?></strong> to <strong><?= $end ?></strong> of <strong><?= $total_found_rows ?></strong> records
             </p>
-            <!--<p class="text-center mt-2"><?= $total_found_rows ?></p> -->
         </div>
         <div class="col-sm">
-            <ul class="pagination justify-content-sm-end">
+            <ul class="pagination justify-content-sm-end mb-0">
 
                 <?php
 
