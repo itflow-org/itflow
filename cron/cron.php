@@ -22,6 +22,8 @@
  *     and every job after it in the list.
  *   - Jobs share one global scope. A job must set the variables it reads rather than
  *     assuming the state a fresh process would have given it.
+ *   - A job that changes the code on disk must set $cron_dispatch_stop_cycle, so the jobs
+ *     behind it are not loaded half from the old release and half from the new one.
  *
  * SCHEDULING
  *
@@ -192,6 +194,15 @@ if (function_exists('backupDbHoldOpen')) {
 // Recording which job was running at the time is the only trace of that left behind.
 $cron_dispatch_running = null;
 $cron_dispatch_started = null;
+
+/*
+ * A job may end the cycle after itself by setting this to true. The application update does:
+ * once it has replaced the files on disk, every job still to come would be loaded into a
+ * process running the release from before. The next minute's dispatch runs them all against
+ * one version of the code.
+ */
+$cron_dispatch_stop_cycle = false;
+
 register_shutdown_function(function () use (&$cron_dispatch_running, &$cron_dispatch_started, $mysqli) {
     if ($cron_dispatch_running === null) {
         return;
@@ -260,4 +271,9 @@ foreach (cronJobRegistry() as $cron_dispatch_job) {
     $cron_dispatch_started = null;
 
     cronLockRelease($cron_dispatch_lock);
+
+    if ($cron_dispatch_stop_cycle) {
+        echo "Cron: '{$cron_dispatch_job['name']}' ended the cycle - the next dispatch picks up the rest.\n";
+        break;
+    }
 }
