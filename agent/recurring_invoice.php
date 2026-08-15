@@ -149,7 +149,7 @@ if (isset($_GET['recurring_invoice_id'])) {
         <li class="breadcrumb-item active"><?= "$recurring_invoice_prefix$recurring_invoice_number" ?></li>
     </ol>
 
-    <div class="card">
+    <div class="card mb-3">
         <div class="card-header d-print-none">
 
             <div class="row">

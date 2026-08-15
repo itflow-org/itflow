@@ -297,7 +297,7 @@ if (isset($_GET['asset_id'])) {
 
             <div class="col-md-3">
 
-                <div class="card">
+                <div class="card mb-3">
                     <div class="card-header">
                         <button type="button" class="btn btn-light float-end ajax-modal"
                             data-modal-url="modals/asset/asset_edit.php?id=<?= $asset_id ?>">
@@ -343,7 +343,7 @@ if (isset($_GET['asset_id'])) {
                     </div>
                 </div>
 
-                <div class="card card-dark">
+                <div class="card card-dark mb-3">
                     <div class="card-header">
                         <h5 class="card-title">Primary Network Interface</h5>
                     </div>
@@ -371,7 +371,7 @@ if (isset($_GET['asset_id'])) {
                 </div>
 
 
-                <div class="card card-dark">
+                <div class="card card-dark mb-3">
                     <div class="card-header">
                         <h5 class="card-title">Assignment</h5>
                     </div>
@@ -484,7 +484,7 @@ if (isset($_GET['asset_id'])) {
                     </div>
                 </div>
 
-                <div class="card card-dark">
+                <div class="card card-dark mb-3">
                     <div class="card-header py-2">
                         <h3 class="card-title mt-1"><i class="fa fa-fw fa-ethernet me-2"></i>Interfaces</h3>
                         <div class="card-tools">
@@ -651,7 +651,7 @@ if (isset($_GET['asset_id'])) {
 
                 <?php if (lookupUserPermission('module_credential')) { // Begin Credential Enforcement ?>
 
-                <div class="card card-dark <?php if ($credential_count == 0) { echo "d-none"; } ?>">
+                <div class="card card-dark mb-3 <?php if ($credential_count == 0) { echo "d-none"; } ?>">
                     <div class="card-header">
                         <h3 class="card-title"><i class="fa fa-fw fa-key me-2"></i>Credentials</h3>
                     </div>
@@ -780,7 +780,7 @@ if (isset($_GET['asset_id'])) {
 
                 <?php } // End Credential Enforcement ?>
 
-                <div class="card card-dark <?php if ($software_count == 0) { echo "d-none"; } ?>">
+                <div class="card card-dark mb-3 <?php if ($software_count == 0) { echo "d-none"; } ?>">
                     <div class="card-header py-2">
                         <h3 class="card-title mt-2"><i class="fa fa-fw fa-cube me-2"></i>Licenses</h3>
                         <div class="card-tools">
@@ -866,7 +866,7 @@ if (isset($_GET['asset_id'])) {
                     </div>
                 </div>
 
-                <div class="card card-dark <?php if ($document_count == 0) { echo "d-none"; } ?>">
+                <div class="card card-dark mb-3 <?php if ($document_count == 0) { echo "d-none"; } ?>">
                     <div class="card-header py-2">
                         <h3 class="card-title mt-2"><i class="fa fa-fw fa-folder me-2"></i>Documents</h3>
                         <div class="card-tools">
@@ -932,7 +932,7 @@ if (isset($_GET['asset_id'])) {
                     </div>
                 </div>
 
-                <div class="card card-dark <?php if ($files_count == 0) { echo "d-none"; } ?>">
+                <div class="card card-dark mb-3 <?php if ($files_count == 0) { echo "d-none"; } ?>">
                     <div class="card-header py-2">
                         <h3 class="card-title mt-2"><i class="fa fa-fw fa-cube me-2"></i>Files</h3>
                         <div class="card-tools">
@@ -1022,7 +1022,7 @@ if (isset($_GET['asset_id'])) {
                     </div>
                 </div>
 
-                <div class="card card-dark <?php if ($recurring_ticket_count == 0) { echo "d-none"; } ?>">
+                <div class="card card-dark mb-3 <?php if ($recurring_ticket_count == 0) { echo "d-none"; } ?>">
                     <div class="card-header">
                         <h3 class="card-title"><i class="fa fa-fw fa-recycle me-2"></i>Recurring Tickets</h3>
                     </div>
@@ -1098,7 +1098,7 @@ if (isset($_GET['asset_id'])) {
                     </div>
                 </div>
 
-                <div class="card card-dark <?php if ($ticket_count == 0) { echo "d-none"; } ?>">
+                <div class="card card-dark mb-3 <?php if ($ticket_count == 0) { echo "d-none"; } ?>">
                     <div class="card-header">
                         <h3 class="card-title"><i class="fa fa-fw fa-life-ring me-2"></i>Tickets</h3>
                     </div>
@@ -1189,7 +1189,7 @@ if (isset($_GET['asset_id'])) {
                     </div>
                 </div>
 
-                <div class="card card-dark <?php if ($service_count == 0) { echo "d-none"; } ?>">
+                <div class="card card-dark mb-3 <?php if ($service_count == 0) { echo "d-none"; } ?>">
                     <div class="card-header py-2">
                         <h3 class="card-title mt-2"><i class="fa fa-fw fa-stream me-2"></i>Linked Services</h3>
                         <div class="card-tools">

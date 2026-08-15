@@ -144,7 +144,7 @@ if (isset($_GET['quote_id'])) {
         <li class="breadcrumb-item active"><?= "$quote_prefix$quote_number" ?></li>
     </ol>
 
-    <div class="card">
+    <div class="card mb-3">
         <div class="card-header d-print-none">
 
             <?php if (lookupUserPermission("module_sales") >= 2) { ?>

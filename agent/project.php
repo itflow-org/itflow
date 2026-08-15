@@ -171,7 +171,7 @@ if (isset($_GET['project_id'])) {
 </ol>
 
 <!-- Project Header -->
-<div class="card">
+<div class="card mb-3">
     <div class="card-header">
         <h5 class="card-title">
             <i class="fas fa-project-diagram text-secondary me-2"></i>

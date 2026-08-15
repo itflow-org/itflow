@@ -201,7 +201,7 @@ $page_title = $row['document_name'];
                 <a class="btn btn-danger confirm-link" href="post.php?delete_document=<?= $document_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>&from=document_details" title="Delete"><i class='fas fa-fw fa-trash-alt'></i></a>
             </div>
         </div>
-        <div class="card card-body bg-light">
+        <div class="card card-body bg-light mb-3">
             <h5 class="mb-3"><i class="fas fa-tags me-2"></i>Related Items</h5>
             <h6>
                 <i class="fas fa-fw fa-paperclip text-secondary me-2"></i>Files
@@ -375,7 +375,7 @@ $page_title = $row['document_name'];
         </div>
 
         <?php if ($config_client_portal_enable) { ?>
-            <div class="card card-body bg-light">
+            <div class="card card-body bg-light mb-3">
                 <h6><i class="fas fa-handshake me-2"></i>Portal Collaboration</h6>
                 <div class="mt-1">
                     <i class="fa fa-fw fa-eye<?php if (!$document_client_visible) { echo '-slash'; } ?> text-secondary me-2"></i>Document is

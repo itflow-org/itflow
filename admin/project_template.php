@@ -60,7 +60,7 @@ if (isset($_GET['project_template_id'])) {
 </ol>
 
 <!-- Project Header -->
-<div class="card card-body">
+<div class="card card-body mb-3">
     <div class="row">
         <div class="col-sm-4">
             <div class="d-flex">

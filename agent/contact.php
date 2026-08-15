@@ -204,7 +204,7 @@ if (isset($_GET['contact_id'])) {
 
         <div class="col-md-3">
 
-            <div class="card card-dark">
+            <div class="card card-dark mb-3">
                 <div class="card-body">
                     <button type="button" class="btn btn-default float-end ajax-modal"
                         data-modal-url="modals/contact/contact_edit.php?id=<?= $contact_id ?>">
@@ -359,7 +359,7 @@ if (isset($_GET['contact_id'])) {
                 </div>
             </div>
 
-            <div class="card card-dark <?php if ($asset_count == 0) { echo "d-none"; } ?>">
+            <div class="card card-dark mb-3 <?php if ($asset_count == 0) { echo "d-none"; } ?>">
                 <div class="card-header py-2">
                     <h3 class="card-title mt-2"><i class="fa fa-fw fa-desktop me-2"></i>Related Assets</h3>
                     <div class="card-tools">
@@ -532,7 +532,7 @@ if (isset($_GET['contact_id'])) {
 
             <?php if (lookupUserPermission('module_credential')) { // Begin Credential Enforcement ?>
 
-            <div class="card card-dark <?php if ($credential_count == 0) { echo "d-none"; } ?>">
+            <div class="card card-dark mb-3 <?php if ($credential_count == 0) { echo "d-none"; } ?>">
                 <div class="card-header py-2">
                     <h3 class="card-title mt-2"><i class="fa fa-fw fa-key me-2"></i>Credentials</h3>
                     <div class="card-tools">
@@ -669,7 +669,7 @@ if (isset($_GET['contact_id'])) {
 
             <?php } // End Credential Enforcement ?>
 
-            <div class="card card-dark <?php if ($software_count == 0) { echo "d-none"; } ?>">
+            <div class="card card-dark mb-3 <?php if ($software_count == 0) { echo "d-none"; } ?>">
                 <div class="card-header py-2">
                     <h3 class="card-title mt-2"><i class="fa fa-fw fa-cube me-2"></i>Related Licenses</h3>
                     <div class="card-tools">
@@ -750,7 +750,7 @@ if (isset($_GET['contact_id'])) {
                 </div>
             </div>
 
-            <div class="card card-dark <?php if ($recurring_ticket_count == 0) { echo "d-none"; } ?>">
+            <div class="card card-dark mb-3 <?php if ($recurring_ticket_count == 0) { echo "d-none"; } ?>">
                 <div class="card-header">
                     <h3 class="card-title"><i class="fa fa-fw fa-recycle me-2"></i>Recurring Tickets</h3>
                 </div>
@@ -820,7 +820,7 @@ if (isset($_GET['contact_id'])) {
                 </div>
             </div>
 
-            <div class="card card-dark <?php if ($ticket_count == 0) { echo "d-none"; } ?>">
+            <div class="card card-dark mb-3 <?php if ($ticket_count == 0) { echo "d-none"; } ?>">
                 <div class="card-header py-2">
                     <h3 class="card-title mt-2"><i class="fa fa-fw fa-life-ring me-2"></i>Related Tickets</h3>
                     <div class="card-tools">
@@ -916,7 +916,7 @@ if (isset($_GET['contact_id'])) {
                 </div>
             </div>
 
-            <div class="card card-dark <?php if ($service_count == 0) { echo "d-none"; } ?>">
+            <div class="card card-dark mb-3 <?php if ($service_count == 0) { echo "d-none"; } ?>">
                 <div class="card-header py-2">
                     <h3 class="card-title mt-2"><i class="fa fa-fw fa-stream me-2"></i>Linked Services</h3>
                     <div class="card-tools">
@@ -974,7 +974,7 @@ if (isset($_GET['contact_id'])) {
                 </div>
             </div>
 
-            <div class="card card-dark <?php if ($document_count == 0) { echo "d-none"; } ?>">
+            <div class="card card-dark mb-3 <?php if ($document_count == 0) { echo "d-none"; } ?>">
                 <div class="card-header py-2">
                     <h3 class="card-title mt-2"><i class="fa fa-fw fa-folder me-2"></i>Linked Documents</h3>
                     <div class="card-tools">
@@ -1040,7 +1040,7 @@ if (isset($_GET['contact_id'])) {
                 </div>
             </div>
 
-            <div class="card card-dark <?php if ($file_count == 0) { echo "d-none"; } ?>">
+            <div class="card card-dark mb-3 <?php if ($file_count == 0) { echo "d-none"; } ?>">
                 <div class="card-header py-2">
                     <h3 class="card-title mt-2"><i class="fa fa-fw fa-folder me-2"></i>Linked Files</h3>
                     <div class="card-tools">
@@ -1102,7 +1102,7 @@ if (isset($_GET['contact_id'])) {
                 </div>
             </div>
 
-            <div class="card card-dark <?php if ($note_count == 0) { echo "d-none"; } ?>">
+            <div class="card card-dark mb-3 <?php if ($note_count == 0) { echo "d-none"; } ?>">
                 <div class="card-header py-2">
                     <h3 class="card-title mt-2"><i class="fa fa-fw fa-sticky-note me-2"></i>Notes</h3>
                     <div class="card-tools">

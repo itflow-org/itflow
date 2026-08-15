@@ -220,7 +220,7 @@ if (isset($_GET['invoice_id'])) {
         <?php } ?>
     </ol>
 
-    <div class="card">
+    <div class="card mb-3">
 
             <div class="card-header d-print-none">
 
@@ -587,7 +587,7 @@ if (isset($_GET['invoice_id'])) {
     </div>
     <div class="row d-print-none mb-3">
         <div class="col-sm">
-            <div class="card">
+            <div class="card mb-3">
                 <div class="card-header text-bold">
                     <i class="fa fa-history me-2"></i>History
                     <div class="card-tools">
@@ -632,7 +632,7 @@ if (isset($_GET['invoice_id'])) {
             </div>
         </div>
         <div class="col-sm d-print-none <?php if (mysqli_num_rows($sql_payments) == 0) { echo "d-none"; } ?>">
-            <div class="card">
+            <div class="card mb-3">
                 <div class="card-header text-bold">
                     <i class="fa fa-credit-card me-2"></i>Payments
                     <div class="card-tools">
