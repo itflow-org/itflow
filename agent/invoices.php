@@ -396,12 +396,12 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                               <?php if ($invoice_status == 'Paid' || $invoice_status == 'Partial') { ?>
                                 <a class="ajax-modal" href="#" title="View payments"
                                     data-modal-url="modals/invoice/invoice_payments.php?invoice_id=<?= $invoice_id ?>">
-                                  <span class="p-2 badge badge-<?= $invoice_badge_color ?>">
+                                  <span class="p-2 badge text-bg-<?= $invoice_badge_color ?>">
                                       <?= $invoice_status ?>
                                   </span>
                                 </a>
                               <?php } else { ?>
-                                <span class="p-2 badge badge-<?= $invoice_badge_color ?>">
+                                <span class="p-2 badge text-bg-<?= $invoice_badge_color ?>">
                                     <?= $invoice_status ?>
                                 </span>
                               <?php } ?>

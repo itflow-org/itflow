@@ -594,3 +594,25 @@ a:not(.dropdown-item):not(.btn-app):not(.nav-link):not(.brand-link):not(.page-li
 .theme-teal .nav-pills {
     --bs-nav-pills-link-active-color: #000;
 }
+
+/* --- Theme swatch colours -----------------------------------------------
+   admin/settings_theme.php renders each choice as <i class="fa-circle
+   text-<colour>">. AdminLTE 3 defined those; v4 does not, so every swatch
+   on the theme picker rendered with no colour at all - you could not see
+   what you were selecting. Same accent hexes the themes themselves use. */
+.text-black { color: #000000 !important; }
+.text-blue { color: #007bff !important; }
+.text-cyan { color: #17a2b8 !important; }
+.text-fuchsia { color: #f012be !important; }
+.text-gray { color: #6c757d !important; }
+.text-green { color: #28a745 !important; }
+.text-indigo { color: #6610f2 !important; }
+.text-lightblue { color: #3c8dbc !important; }
+.text-maroon { color: #d81b60 !important; }
+.text-navy { color: #001f3f !important; }
+.text-olive { color: #3d9970 !important; }
+.text-orange { color: #fd7e14 !important; }
+.text-pink { color: #e83e8c !important; }
+.text-purple { color: #6f42c1 !important; }
+.text-red { color: #dc3545 !important; }
+.text-teal { color: #20c997 !important; }

@@ -148,7 +148,7 @@ if (!empty($_SESSION['backup_master_key_reveal'])) {
                         <td><?= $backup['backup_size'] > 0 ? escapeHtml(backupFormatBytes($backup['backup_size'])) : '-' ?></td>
                         <td><?= escapeHtml($backup['backup_source']) ?></td>
                         <td>
-                            <span class="badge badge-<?= $badge ?>"><?= escapeHtml($status) ?></span>
+                            <span class="badge text-bg-<?= $badge ?>"><?= escapeHtml($status) ?></span>
                             <?php if (!empty($backup['backup_error'])) { ?>
                                 <br><small class="text-danger"><?= escapeHtml($backup['backup_error']) ?></small>
                             <?php } ?>

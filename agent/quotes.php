@@ -171,7 +171,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                     }
 
                     if ($quote_status == "Sent") {
-                        $quote_badge_color = "warning text-white";
+                        $quote_badge_color = "warning";
                     } elseif ($quote_status == "Viewed") {
                         $quote_badge_color = "primary";
                     } elseif ($quote_status == "Accepted") {
@@ -203,7 +203,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                         <td><?= $quote_expire ?></td>
                         <td><?= $category_name ?></td>
                         <td>
-                            <span class="p-2 badge badge-<?= $quote_badge_color ?>">
+                            <span class="p-2 badge text-bg-<?= $quote_badge_color ?>">
                                 <?= $quote_status ?>
                             </span>
                         </td>

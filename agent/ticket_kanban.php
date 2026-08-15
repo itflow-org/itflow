@@ -153,7 +153,7 @@ $kanban = array_values($statuses);
                                 <?= escapeHtml($item['ticket_prefix']) . intval($item['ticket_number']) ?>
                             </a>
 
-                            <span class="badge badge-<?= $ticket_priority_color ?>"><?= $item_priority ?></span>
+                            <span class="badge text-bg-<?= $ticket_priority_color ?>"><?= $item_priority ?></span>
 
                             <?php if ($ticket_sla_alert_stage == 2) { ?>
                                 <span class="badge bg-danger" title="SLA breached"><i class="fas fa-fw fa-stopwatch"></i></span>

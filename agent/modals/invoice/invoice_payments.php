@@ -43,7 +43,7 @@ ob_start();
 <div class="modal-header bg-dark">
     <h5 class="modal-title text-white">
         <i class="fa fa-fw fa-credit-card me-2"></i>Payments for <?= "$invoice_prefix$invoice_number" ?>
-        <span class="p-2 ms-2 badge badge-<?= $invoice_badge_color ?>"><?= $invoice_status ?></span>
+        <span class="p-2 ms-2 badge text-bg-<?= $invoice_badge_color ?>"><?= $invoice_status ?></span>
     </h5>
     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
 </div>

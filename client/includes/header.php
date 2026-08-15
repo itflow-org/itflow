@@ -157,9 +157,9 @@ header("X-Frame-Options: DENY"); // Legacy
             $_SESSION['alert_type'] = "info";
         }
         ?>
-        <div class="alert alert-<?= $_SESSION['alert_type'] ?>" id="alert">
+        <div class="alert alert-<?= alertStyleClass($_SESSION['alert_type'] ?? 'success') ?> alert-dismissible" id="alert">
             <?= alertMessageHtml($_SESSION['alert_message']) ?>
-            <button class='close' data-bs-dismiss='alert'>&times;</button>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
         </div>
         <?php
 

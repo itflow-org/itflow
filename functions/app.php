@@ -39,7 +39,7 @@ function getAssetIcon($asset_type) {
 
 function getInvoiceBadgeColor($invoice_status) {
     if ($invoice_status == "Sent") {
-        $invoice_badge_color = "warning text-white";
+        $invoice_badge_color = "warning";
     } elseif ($invoice_status == "Viewed") {
         $invoice_badge_color = "info";
     } elseif ($invoice_status == "Partial") {

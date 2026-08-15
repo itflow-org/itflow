@@ -20,21 +20,13 @@ if (!empty($_SESSION['alert_message'])) {
 
     $alert_type = $_SESSION['alert_type'] ?? 'success';
 
-    // flashAlert() is called with more type names than toastr ever defined -
-    // 'danger' (19 sites), 'alert' (4) and a typo'd 'errpr' (1) all resolved to
-    // an undefined toastr method, threw, and showed the user nothing at all.
-    // Everything maps onto a real style here; anything unrecognised still shows.
-    $alert_styles = [
-        'success' => 'text-bg-success',
-        'info'    => 'text-bg-info',
-        'warning' => 'text-bg-warning',
-        'alert'   => 'text-bg-warning',
-        'error'   => 'text-bg-danger',
-        'errpr'   => 'text-bg-danger',
-        'danger'  => 'text-bg-danger',
-    ];
-    $alert_style = $alert_styles[$alert_type] ?? 'text-bg-secondary';
-    $alert_dark_text = in_array($alert_type, ['warning', 'alert', 'info'], true);
+    // One mapping for both renderers - see alertStyleClass() in
+    // functions/sanitize.php. flashAlert() is called with more type names than
+    // Bootstrap has classes ('danger', 'alert' and a typo'd 'errpr' among
+    // them), and an unmapped value used to resolve to nothing at all.
+    $alert_style = 'text-bg-' . alertStyleClass($alert_type);
+    // text-bg-info and text-bg-warning are the two Bootstrap pairs with dark text
+    $alert_dark_text = in_array(alertStyleClass($alert_type), ['warning', 'info'], true);
 
     // Escaping lives in one place now - see alertMessageHtml() in functions/sanitize.php
     $alert_safe_message = alertMessageHtml($_SESSION['alert_message']);

@@ -519,7 +519,7 @@ if ($account_filter) {
                                     </a>
                                 <?php } ?>
                             </td>
-                            <td><span class="badge badge-<?= $transaction_badge_color ?>"><?= $transaction_type ?></span></td>
+                            <td><span class="badge text-bg-<?= $transaction_badge_color ?>"><?= $transaction_type ?></span></td>
                             <td>
                                 <?= $transaction_category_display ?>
                                 <div class="text-secondary"><small><?= truncate($transaction_description, 60) ?></small></div>

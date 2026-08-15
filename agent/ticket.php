@@ -573,7 +573,7 @@ if (isset($_GET['ticket_id'])) {
                                     data-modal-url="modals/ticket/ticket_priority.php?id=<?= $ticket_id ?>"
                                 <?php } ?>
                             >
-                                <span class="badge rounded-pill badge-<?= $ticket_priority_color ?> p-2"><?= $ticket_priority ?></span>
+                                <span class="badge rounded-pill text-bg-<?= $ticket_priority_color ?> p-2"><?= $ticket_priority ?></span>
                             </a>
                         </div>
                     </div>

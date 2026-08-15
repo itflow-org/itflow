@@ -245,7 +245,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                             <?php } ?>
                         </td>
                         <td>
-                            <span class="p-2 badge badge-<?= $status_badge_color ?>">
+                            <span class="p-2 badge text-bg-<?= $status_badge_color ?>">
                                 <?= $status ?>
                             </span>
 

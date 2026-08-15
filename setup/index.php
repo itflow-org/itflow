@@ -658,7 +658,7 @@ if (isset($_POST['add_telemetry'])) {
                     ?>
                     <div class="alert alert-info" id="alert">
                         <?= alertMessageHtml($_SESSION['alert_message']) ?>
-                        <button class='close' data-bs-dismiss='alert'>&times;</button>
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                     </div>
                     <?php
                     $_SESSION['alert_type'] = '';

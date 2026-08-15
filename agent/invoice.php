@@ -349,7 +349,7 @@ if (isset($_GET['invoice_id'])) {
 
                 <div class="col-sm-4">
                     <h3 class="text-end"><strong>INVOICE</strong></h3>
-                    <h5 class="badge badge-<?= $invoice_badge_color ?> p-2 float-end">
+                    <h5 class="badge text-bg-<?= $invoice_badge_color ?> p-2 float-end">
                         <?= "$invoice_status" ?>
                     </h5>
                     <table class="table table-sm table-borderless">

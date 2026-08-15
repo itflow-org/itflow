@@ -820,7 +820,7 @@ if (isset($_GET['export_quote_pdf'])) {
 
     //Set Badge color based off of quote status
     if ($quote_status == "Sent") {
-        $quote_badge_color = "warning text-white";
+        $quote_badge_color = "warning";
     } elseif ($quote_status == "Viewed") {
         $quote_badge_color = "primary";
     } elseif ($quote_status == "Accepted") {

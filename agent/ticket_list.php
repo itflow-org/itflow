@@ -391,7 +391,7 @@ if ($tickets) {
                                         data-modal-url="modals/ticket/ticket_priority.php?id=<?= $ticket_id ?>"
                                         <?php } ?>
                                         >
-                                        <span class="p-2 badge rounded-pill badge-<?= $ticket_priority_color ?>"><?= $ticket_priority ?></span>
+                                        <span class="p-2 badge rounded-pill text-bg-<?= $ticket_priority_color ?>"><?= $ticket_priority ?></span>
                                     </a>
                                 </td>
 

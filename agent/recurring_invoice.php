@@ -227,7 +227,7 @@ if (isset($_GET['recurring_invoice_id'])) {
 
                 <div class="col-sm-4">
                     <h3 class="text-end"><strong>RECURRING INVOICE</strong></h3>
-                    <h5 class="badge badge-<?= $status_badge_color ?> p-2 float-end">
+                    <h5 class="badge text-bg-<?= $status_badge_color ?> p-2 float-end">
                         <?= $status ?>
                     </h5>
                     <table class="table table-sm table-borderless">
