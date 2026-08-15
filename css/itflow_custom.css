@@ -134,6 +134,7 @@
 .theme-purple { --itflow-accent: #6f42c1; }
 .theme-red { --itflow-accent: #dc3545; }
 .theme-teal { --itflow-accent: #20c997; }
+.theme-yellow { --itflow-accent: #ffc107; }
 
 /* top navbar takes the theme colour */
 .app-header.navbar {
@@ -483,6 +484,7 @@ a:not(.dropdown-item):not(.btn-app):not(.nav-link):not(.brand-link):not(.page-li
 .bg-purple { background-color: rgba(111,66,193,.9) !important; }
 .bg-red { background-color: rgba(231,76,60,.9) !important; }
 .bg-teal { background-color: rgba(32,201,151,.9) !important; }
+.bg-yellow { background-color: rgba(243,156,18,.9) !important; }
 
 /* --- Flatpickr date-filter preset panel ---------------------------------
    Flatpickr has no preset-ranges feature; js/date_filter.js injects this
@@ -586,6 +588,7 @@ a:not(.dropdown-item):not(.btn-app):not(.nav-link):not(.brand-link):not(.page-li
 .theme-purple .btn-primary, .theme-purple .btn-outline-primary { --bs-btn-focus-shadow-rgb: 111, 66, 193; }
 .theme-red .btn-primary, .theme-red .btn-outline-primary { --bs-btn-focus-shadow-rgb: 220, 53, 69; }
 .theme-teal .btn-primary, .theme-teal .btn-outline-primary { --bs-btn-focus-shadow-rgb: 32, 201, 151; }
+.theme-yellow .btn-primary, .theme-yellow .btn-outline-primary { --bs-btn-focus-shadow-rgb: 255, 193, 7; }
 
 /* Text colour on a solid primary button. Threshold derived from Bootstrap's
    own palette (white up to L=0.183, black from L=0.486), so only these two
@@ -594,10 +597,13 @@ a:not(.dropdown-item):not(.btn-app):not(.nav-link):not(.brand-link):not(.page-li
 .theme-orange .btn-outline-primary { --bs-btn-hover-color: #000; --bs-btn-active-color: #000; }
 .theme-teal .btn-primary { --bs-btn-color: #000; --bs-btn-hover-color: #000; --bs-btn-active-color: #000; --bs-btn-disabled-color: #000; }
 .theme-teal .btn-outline-primary { --bs-btn-hover-color: #000; --bs-btn-active-color: #000; }
+.theme-yellow .btn-primary { --bs-btn-color: #000; --bs-btn-hover-color: #000; --bs-btn-active-color: #000; --bs-btn-disabled-color: #000; }
+.theme-yellow .btn-outline-primary { --bs-btn-hover-color: #000; --bs-btn-active-color: #000; }
 
 /* Same L>0.335 contrast cut as the primary button. */
 .theme-orange .nav-pills,
-.theme-teal .nav-pills {
+.theme-teal .nav-pills,
+.theme-yellow .nav-pills {
     --bs-nav-pills-link-active-color: #000;
 }
 
@@ -622,3 +628,65 @@ a:not(.dropdown-item):not(.btn-app):not(.nav-link):not(.brand-link):not(.page-li
 .text-purple { color: #6f42c1 !important; }
 .text-red { color: #dc3545 !important; }
 .text-teal { color: #20c997 !important; }
+.text-yellow { color: #ffc107 !important; }
+
+/* --- Theme picker (admin/settings_theme.php) -----------------------------
+   Keeps the coloured circles - the radio button beside each one is what was
+   in the way, so the input is now a visually hidden .btn-check and the label
+   is the control. Selection reads as a tick in the circle plus a bolder name.
+
+   The circle carries .theme-<name> and paints itself from --itflow-accent, so
+   it always shows the colour that theme will actually apply - add a theme to
+   the stylesheet and its swatch is correct with no extra rule. */
+.itflow-theme-swatch {
+    display: block;
+    padding: .5rem .25rem;
+    text-align: center;
+    cursor: pointer;
+    border-radius: .5rem;
+    transition: background-color .15s ease;
+}
+.itflow-theme-swatch:hover {
+    background-color: var(--bs-secondary-bg);
+}
+.itflow-theme-circle {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    line-height: 1;
+}
+.itflow-theme-circle .fa-circle {
+    font-size: 3.5rem;
+    color: var(--itflow-accent, #007bff);
+}
+.itflow-theme-tick {
+    position: absolute;
+    font-size: 1.35rem;
+    color: #fff;
+    opacity: 0;
+    transition: opacity .15s ease;
+}
+/* light circles need a dark tick - same L>0.335 cut as the buttons */
+.itflow-theme-circle.theme-yellow .itflow-theme-tick,
+.itflow-theme-circle.theme-orange .itflow-theme-tick,
+.itflow-theme-circle.theme-teal .itflow-theme-tick {
+    color: #000;
+}
+.itflow-theme-name {
+    display: block;
+    margin-top: .4rem;
+    font-size: .8125rem;
+    text-transform: capitalize;
+}
+.btn-check:checked + .itflow-theme-swatch .itflow-theme-tick {
+    opacity: 1;
+}
+.btn-check:checked + .itflow-theme-swatch .itflow-theme-name {
+    font-weight: 600;
+}
+.btn-check:focus-visible + .itflow-theme-swatch {
+    outline: 2px solid var(--itflow-accent, #007bff);
+    outline-offset: 2px;
+}
+

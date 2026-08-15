@@ -1,25 +1,26 @@
 <?php
 require_once "includes/inc_all_admin.php";
 
-$theme_colors_array = array (
+// Keep in step with the .theme-<name> blocks in css/itflow_custom.css - a name
+// listed here with no matching block renders as an uncoloured, dead choice.
+$theme_colors_array = array(
     'lightblue',
     'blue',
-    'cyan',
-    'green',
-    'olive',
-    'teal',
-    'red',
-    'maroon',
-    'pink',
-    'purple',
+    'navy',
     'indigo',
+    'purple',
     'fuchsia',
-    'yellow',
+    'pink',
+    'maroon',
+    'red',
     'orange',
     'yellow',
-    'black',
-    'navy',
-    'gray'
+    'olive',
+    'green',
+    'teal',
+    'cyan',
+    'gray',
+    'black'
 );
 
 ?>
@@ -32,8 +33,9 @@ $theme_colors_array = array (
         <form action="post.php" method="post" autocomplete="off">
             <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
 
-            <label>Select a Theme</label>
-            <div class="row g-2">
+            <p class="text-muted">Sets the colour of the top bar, links, buttons and highlights.</p>
+
+            <div class="row row-cols-3 row-cols-sm-4 row-cols-lg-6 g-3">
 
                 <?php
 
@@ -41,17 +43,20 @@ $theme_colors_array = array (
 
                     ?>
 
-                    <div class="col-4 text-center mb-3">
-                        <div class="mb-3">
-                            <div class="form-check">
-                                <input class="form-check-input" type="radio" onchange="this.form.submit()" id="customRadio<?= $theme_color ?>" name="edit_theme_settings" value="<?= $theme_color ?>" <?php if ($config_theme == $theme_color) { echo "checked"; } ?>>
-                                <label for="customRadio<?= $theme_color ?>" class="form-check-label">
-                                    <i class="fa fa-fw fa-6x fa-circle text-<?= $theme_color ?>"></i>
-                                    <br>
-                                    <?= $theme_color ?>
-                                </label>
-                            </div>
-                        </div>
+                    <div class="col">
+                        <input type="radio" class="btn-check" onchange="this.form.submit()"
+                            id="theme-<?= $theme_color ?>" name="edit_theme_settings"
+                            value="<?= $theme_color ?>"
+                            <?php if ($config_theme == $theme_color) { echo "checked"; } ?>>
+                        <label class="itflow-theme-swatch" for="theme-<?= $theme_color ?>">
+                            <?php /* the circle paints itself from --itflow-accent, so it can
+                                     never drift out of step with the stylesheet */ ?>
+                            <span class="itflow-theme-circle theme-<?= $theme_color ?>">
+                                <i class="fas fa-circle"></i>
+                                <i class="fas fa-check itflow-theme-tick"></i>
+                            </span>
+                            <span class="itflow-theme-name"><?= escapeHtml($theme_color) ?></span>
+                        </label>
                     </div>
 
                 <?php } ?>
