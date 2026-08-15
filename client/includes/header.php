@@ -30,6 +30,11 @@ header("X-Frame-Options: DENY"); // Legacy
     <link rel="stylesheet" href="/libs/adminlte/css/adminlte.min.css">
     <link rel="stylesheet" href="/libs/sweetalert2/css/sweetalert2.min.css">
 
+    <!-- ITFlow style: the AdminLTE 3 compatibility layer and the theme colours. Must load
+         last so it wins, and must load HERE too - it used to be on the agent header only,
+         which left this portal without .text-bold, the bg-dark text pairing or any theme. -->
+    <link rel="stylesheet" href="/css/itflow_custom.css">
+
 </head>
 
 <body class="theme-<?= escapeHtml($config_theme) ?>">

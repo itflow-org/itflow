@@ -698,6 +698,7 @@ $show_login_form = (!$show_role_choice && !$show_mfa_form);
     <?php } ?>
 
     <link rel="stylesheet" href="libs/adminlte/css/adminlte.min.css">
+    <link rel="stylesheet" href="css/itflow_custom.css">
 </head>
 <body class="hold-transition login-page">
 

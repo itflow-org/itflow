@@ -547,6 +547,7 @@ if (isset($_POST['add_telemetry'])) {
     <link rel="stylesheet" href="/libs/adminlte/css/adminlte.min.css">
     <!-- Custom Style Sheet -->
     <link href="/libs/tom-select/css/tom-select.bootstrap5.min.css" rel="stylesheet" type="text/css">
+    <link rel="stylesheet" href="/css/itflow_custom.css">
 
 </head>
 

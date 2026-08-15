@@ -186,6 +186,7 @@ if ($_SERVER['REQUEST_METHOD'] == "POST") {
 
     <!-- Theme style -->
     <link rel="stylesheet" href="../libs/adminlte/css/adminlte.min.css">
+    <link rel="stylesheet" href="../css/itflow_custom.css">
 
 </head>
 

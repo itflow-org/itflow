@@ -25,6 +25,9 @@
     <link rel="stylesheet" href="/libs/flatpickr/css/flatpickr.min.css">
     <link rel="stylesheet" href="/libs/tom-select/css/tom-select.bootstrap5.min.css">
 
+    <!-- ITFlow style: loaded last so it wins. See includes/header.php -->
+    <link rel="stylesheet" href="/css/itflow_custom.css">
+
     <!-- Scripts -->
 
 </head>
