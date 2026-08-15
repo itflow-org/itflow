@@ -80,8 +80,7 @@
                 <img src="<?= "/uploads/users/$session_user_id/$session_avatar" ?>"
                     class="user-image rounded-circle">
                 <?php } ?>
-                <span
-                    class="d-none d-md-inline dropdown-toggle"><?= stripslashes(escapeHtml($session_name)) ?></span>
+                <span class="d-none d-md-inline dropdown-toggle"><?= stripslashes(escapeHtml($session_name)) ?></span>
             </a>
             <ul class="dropdown-menu dropdown-menu-lg dropdown-menu-end">
                 <!-- User image -->
@@ -98,7 +97,7 @@
                     </p>
                 </li>
                 <!-- Menu Footer-->
-                <li class="user-footer">
+                <li class="user-footer bg-light">
                     <?php if ($session_is_admin) { ?>
                         <a href="/admin" class="btn btn-default w-100 btn-flat mb-2"><i class="fas fa-user-shield me-2"></i>Administration</a>
                     <?php } ?>

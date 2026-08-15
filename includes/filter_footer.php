@@ -21,7 +21,7 @@ if ($total_found_rows > 5) {
         <div class="col-sm">
             <form action="post.php" method="post">
                 <div class="mb-3">
-                    <select onchange="this.form.submit()" class="form-select select2 col-12 col-sm-3" name="change_records_per_page">
+                    <select onchange="this.form.submit()" class="form-select col-12 col-sm-3" name="change_records_per_page">
                         <option <?php if ($user_config_records_per_page == 5) { echo "selected"; } ?> >5</option>
                         <option <?php if ($user_config_records_per_page == 10) { echo "selected"; } ?> >10</option>
                         <option <?php if ($user_config_records_per_page == 20) { echo "selected"; } ?> >20</option>

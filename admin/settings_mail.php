@@ -14,10 +14,10 @@ $oauth_needed = in_array($config_smtp_provider, ['google_oauth', 'microsoft_oaut
              || in_array($config_imap_provider, ['google_oauth', 'microsoft_oauth'], true);
 
 // ---- Active tab -------------------------------------------------------------
-// The tab lives in the URL (?tab=imap) so it can be linked, bookmarked, survives a
+// The tab lives in the URL (?tab=receiving) so it can be linked, bookmarked, survives a
 //  reload, and lets the POST handlers send you back to the tab you saved from
-$mail_tabs = ['smtp', 'imap', 'oauth', 'from', 'tests'];
-$active_tab = isset($_GET['tab']) && in_array($_GET['tab'], $mail_tabs, true) ? $_GET['tab'] : 'smtp';
+$mail_tabs = ['sending', 'receiving', 'oauth', 'from', 'tests'];
+$active_tab = isset($_GET['tab']) && in_array($_GET['tab'], $mail_tabs, true) ? $_GET['tab'] : 'sending';
 
 // A direct link to the OAuth tab reveals it even when no OAuth provider is selected yet
 if ($active_tab === 'oauth') {
@@ -74,12 +74,12 @@ $imap_ready = $imap_standard_ready || $imap_oauth_ready;
 
         <ul class="nav nav-tabs" id="mailTabs" role="tablist">
             <li class="nav-item">
-                <a class="nav-link <?php if ($active_tab === 'smtp') { echo 'active'; } ?>" href="?tab=smtp" data-bs-target="#tab-smtp">
+                <a class="nav-link <?php if ($active_tab === 'sending') { echo 'active'; } ?>" href="?tab=sending" data-bs-target="#tab-sending">
                     <i class="fas fa-fw fa-paper-plane me-1"></i>Sending<?= renderMailStatusDot($smtp_on) ?>
                 </a>
             </li>
             <li class="nav-item">
-                <a class="nav-link <?php if ($active_tab === 'imap') { echo 'active'; } ?>" href="?tab=imap" data-bs-target="#tab-imap">
+                <a class="nav-link <?php if ($active_tab === 'receiving') { echo 'active'; } ?>" href="?tab=receiving" data-bs-target="#tab-receiving">
                     <i class="fas fa-fw fa-inbox me-1"></i>Receiving<?= renderMailStatusDot($imap_on) ?>
                 </a>
             </li>
@@ -103,10 +103,10 @@ $imap_ready = $imap_standard_ready || $imap_oauth_ready;
         <div class="tab-content pt-4">
 
             <!-- ============================ SENDING / SMTP ============================ -->
-            <div class="tab-pane fade <?php if ($active_tab === 'smtp') { echo 'show active'; } ?>" id="tab-smtp" role="tabpanel">
+            <div class="tab-pane fade <?php if ($active_tab === 'sending') { echo 'show active'; } ?>" id="tab-sending" role="tabpanel">
                 <form action="post.php" method="post" autocomplete="off">
                     <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
-                    <input type="hidden" name="tab" value="smtp">
+                    <input type="hidden" name="tab" value="sending">
 
                     <div class="mb-3">
                         <label>SMTP Provider <small class="text-muted">— outbound</small></label>
@@ -177,10 +177,10 @@ $imap_ready = $imap_standard_ready || $imap_oauth_ready;
             </div>
 
             <!-- ============================ RECEIVING / IMAP ============================ -->
-            <div class="tab-pane fade <?php if ($active_tab === 'imap') { echo 'show active'; } ?>" id="tab-imap" role="tabpanel">
+            <div class="tab-pane fade <?php if ($active_tab === 'receiving') { echo 'show active'; } ?>" id="tab-receiving" role="tabpanel">
                 <form action="post.php" method="post" autocomplete="off">
                     <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
-                    <input type="hidden" name="tab" value="imap">
+                    <input type="hidden" name="tab" value="receiving">
 
                     <div class="mb-3">
                         <label>IMAP Provider <small class="text-muted">— inbound ticket inbox</small></label>
@@ -432,29 +432,36 @@ $imap_ready = $imap_standard_ready || $imap_oauth_ready;
     // Set when the page was opened directly on the OAuth tab - stops the provider pass hiding it
     const forcedOauthTab = <?= $active_tab === 'oauth' ? 'true' : 'false' ?>;
     const navLinks = Array.from(document.querySelectorAll('#mailTabs .nav-link'));
-    const panes = ['tab-smtp', 'tab-imap', 'tab-oauth', 'tab-from', 'tab-tests']
+    const panes = ['tab-sending', 'tab-receiving', 'tab-oauth', 'tab-from', 'tab-tests']
         .map(id => document.getElementById(id)).filter(Boolean);
 
     // Server rendered the initial tab; keep the URL honest as the user clicks around
-    function syncTabUrl(target) {
+    function syncTabUrl(target, push) {
         const tab = target.replace('#tab-', '');
         const url = new URL(window.location.href);
         url.searchParams.set('tab', tab);
-        history.replaceState(null, '', url);
+        // pushState, not replaceState, so back/forward step through the tabs
+        // instead of jumping straight off the settings page
+        history[push ? 'pushState' : 'replaceState']({ tab: tab }, '', url);
     }
 
-    function activateTab(target) {
-        syncTabUrl(target);
-        navLinks.forEach(l => l.classList.toggle('active', l.getAttribute('data-target') === target));
+    function activateTab(target, push) {
+        syncTabUrl(target, push !== false);
+        navLinks.forEach(l => l.classList.toggle('active', l.getAttribute('data-bs-target') === target));
         panes.forEach(p => {
             const on = ('#' + p.id) === target;
             p.classList.toggle('active', on);
             p.classList.toggle('show', on);
         });
     }
+    window.addEventListener('popstate', function () {
+        const tab = new URL(window.location.href).searchParams.get('tab') || 'sending';
+        activateTab('#tab-' + tab, false);
+    });
+
     navLinks.forEach(l => l.addEventListener('click', function (e) {
         e.preventDefault();
-        activateTab(l.getAttribute('data-target'));
+        activateTab(l.getAttribute('data-bs-target'), true);
     }));
 
     // ---- Provider-driven field visibility ----
@@ -528,7 +535,7 @@ $imap_ready = $imap_standard_ready || $imap_oauth_ready;
 
         if (!anyOauth && !forcedOauthTab) {
             const oauthLink = document.querySelector('#mailTabs .nav-link[data-bs-target="#tab-oauth"]');
-            if (oauthLink && oauthLink.classList.contains('active')) activateTab('#tab-smtp');
+            if (oauthLink && oauthLink.classList.contains('active')) activateTab('#tab-sending');
         }
     }
 
