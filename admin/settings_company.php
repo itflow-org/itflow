@@ -141,6 +141,27 @@ $company_initials = escapeHtml(initials($company_name));
 
                             <hr>
 
+                            <div class="mb-3">
+                                <label>My Company's Client Record</label>
+                                <div class="input-group">
+                                        <span class="input-group-text"><i class="fa fa-fw fa-house-user"></i></span>
+                                    <select class="form-select select2" name="internal_client_id">
+                                        <option value="0">None</option>
+                                        <?php
+                                        $sql_internal_clients = mysqli_query($mysqli, "SELECT client_id, client_name FROM clients WHERE client_archived_at IS NULL ORDER BY client_name ASC");
+                                        while ($row_internal_client = mysqli_fetch_assoc($sql_internal_clients)) {
+                                            $internal_client_id_select = intval($row_internal_client['client_id']);
+                                            $internal_client_name_select = escapeHtml($row_internal_client['client_name']);
+                                            ?>
+                                            <option <?php if ($config_internal_client_id == $internal_client_id_select) { echo "selected"; } ?> value="<?= $internal_client_id_select ?>"><?= $internal_client_name_select ?></option>
+                                        <?php } ?>
+                                    </select>
+                                </div>
+                                <small class="text-muted">If you keep a client record for your own company - for internal tickets, documentation, assets and credentials - point it out here. Your company name in the sidebar then links straight to it.</small>
+                            </div>
+
+                            <hr>
+
                             <button type="submit" name="edit_company" class="btn btn-primary text-bold"><i class="fas fa-check me-2"></i>Save</button>
                         </div>
                     </div>

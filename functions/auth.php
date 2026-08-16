@@ -98,6 +98,36 @@ function clientScopeSql($column) {
     return $sql;
 }
 
+/*
+ * Can this user reach this client? Answers yes or no instead of redirecting, for places
+ * that need to decide whether to render something - enforceClientAccess() below is the
+ * gate that protects the page itself and still has to be called there.
+ *
+ * Reads the permission arrays that includes/load_user_session.php already loaded, so this
+ * costs no query and can be called from the sidebar on every page. The rules match
+ * clientScopeSql() above: a deny wins, an allow list restricts to its members, and no
+ * rules at all means unrestricted.
+ */
+function hasClientAccess($client_id) {
+    global $session_is_admin, $client_access_array, $client_deny_array;
+
+    $client_id = intval($client_id);
+
+    if ($session_is_admin) {
+        return true;
+    }
+
+    if (in_array($client_id, array_map('intval', $client_deny_array))) {
+        return false;
+    }
+
+    if (empty($client_access_array)) {
+        return true;
+    }
+
+    return in_array($client_id, array_map('intval', $client_access_array));
+}
+
 function enforceClientAccess($client_id = null) {
     global $mysqli, $session_user_id, $session_is_admin, $session_name;
 

@@ -1,8 +1,21 @@
 <!-- Main Sidebar Container -->
 <aside class="app-sidebar shadow d-print-none" data-bs-theme="dark">
 
+    <?php
+    /*
+     * The company name goes to your own company's client record once one is designated in
+     * Admin > Settings > Company Details, and falls back to the dashboard otherwise. The
+     * access check keeps a restricted agent from being sent to a client they would only be
+     * bounced off, and costs no query - the permission arrays are already in the session.
+     */
+    $brand_link = "/agent/dashboard.php";
+    if (!empty($config_internal_client_id) && lookupUserPermission("module_client") >= 1 && hasClientAccess($config_internal_client_id)) {
+        $brand_link = "/agent/client_overview.php?client_id=" . intval($config_internal_client_id);
+    }
+    ?>
+
     <div class="sidebar-brand">
-        <a class="brand-link" href="/agent/dashboard.php">
+        <a class="brand-link" href="<?= $brand_link ?>">
             <span class="brand-text h4 mb-0"><?= escapeHtml($session_company_name) ?></span>
         </a>
     </div>
