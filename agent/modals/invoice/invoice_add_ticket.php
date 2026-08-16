@@ -1,5 +1,5 @@
 
-<div class="modal" id="addTicketModal">
+<div class="modal" id="addTicketModal" tabindex="-1">
 <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header bg-dark">

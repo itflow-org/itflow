@@ -99,8 +99,7 @@ $largest_ticket_month = 0;
 
 <script>
     // Bootstrap-like defaults for Chart.js v4
-    Chart.defaults.font.family = '-apple-system,system-ui,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif';
-    Chart.defaults.color = '#292b2c';
+    var itflowChart = itflowChartDefaults();
 
     (function () {
         var ctx = document.getElementById("tickets");
@@ -151,7 +150,7 @@ $largest_ticket_month = 0;
                             echo function_exists('roundUpToNearestMultiple') ? roundUpToNearestMultiple($max) : $max;
                         ?>,
                         ticks: { maxTicksLimit: 5, precision: 0 },
-                        grid: { color: "rgba(0, 0, 0, .125)" }
+                        grid: { color: itflowChart.grid }
                     }
                 },
                 plugins: {

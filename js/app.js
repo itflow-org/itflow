@@ -24,6 +24,76 @@ function itflowStep(name, fn) {
     }
 }
 
+/**
+ * TinyMCE skin options for the current colour mode.
+ *
+ * TinyMCE renders its chrome in its own DOM and its content inside an iframe,
+ * so it inherits nothing from the page - a dark page still got a white editor.
+ * Both the oxide-dark UI skin and the dark content stylesheet are already
+ * vendored under libs/tinymce/skins, so this only has to point at them.
+ */
+function itflowTinyMceSkin() {
+    var dark = document.documentElement.getAttribute('data-bs-theme') === 'dark';
+    var root = getComputedStyle(document.documentElement);
+    var body = getComputedStyle(document.body);
+
+    function v(name, fallback) {
+        var value = root.getPropertyValue(name).trim();
+        return value || fallback;
+    }
+
+    // The editing surface lives in an iframe, so no page CSS reaches it and
+    // custom properties do not cross the boundary either - the values have to
+    // be read here and passed through as literal text. Without this the editor
+    // keeps TinyMCE's own blue-slate dark (#222f3e) next to the app's neutral
+    // grey (#212529), which is close enough to look like a mistake.
+    var contentStyle =
+        'body{' +
+            'background-color:' + v('--bs-body-bg', '#fff') + ';' +
+            'color:' + v('--bs-body-color', '#212529') + ';' +
+            'font-family:' + body.fontFamily + ';' +
+            'font-size:' + body.fontSize + ';' +
+        '}' +
+        'a{color:' + v('--itflow-accent', '#007bff') + ';}' +
+        'table td,table th{border-color:' + v('--bs-border-color', '#dee2e6') + ';}';
+
+    return {
+        skin: dark ? 'oxide-dark' : 'oxide',
+        content_css: dark ? 'dark' : 'default',
+        content_style: contentStyle
+    };
+}
+
+/**
+ * Chart.js defaults for the current colour mode.
+ *
+ * Charts are drawn to a <canvas>, so no CSS reaches them - every colour has to
+ * be handed to Chart.js as a literal. The pages used to hardcode
+ * Chart.defaults.color = '#292b2c', which was fine while the cards were
+ * effectively light but is invisible on a real dark background.
+ *
+ * Returns the axis/grid colour too, since the charts set that per-scale.
+ */
+function itflowChartDefaults() {
+    var root = getComputedStyle(document.documentElement);
+    var body = getComputedStyle(document.body);
+
+    function v(name, fallback) {
+        return (root.getPropertyValue(name) || '').trim() || fallback;
+    }
+
+    var text = v('--bs-body-color', '#292b2c');
+    var grid = v('--bs-border-color', 'rgba(0, 0, 0, .125)');
+
+    if (window.Chart) {
+        Chart.defaults.font.family = body.fontFamily;
+        Chart.defaults.color = text;
+        Chart.defaults.borderColor = grid;
+    }
+
+    return { text: text, grid: grid };
+}
+
 function itflowBindOnce(name, type, selector, handler) {
     window.itflowBound = window.itflowBound || {};
     if (window.itflowBound[name]) {
@@ -80,6 +150,7 @@ function itflowInit() {
 
     // Initialize TinyMCE
     tinymce.init({
+        ...itflowTinyMceSkin(),
         selector: '.tinymce-simple',
         browser_spellcheck: true,
         contextmenu: false,
@@ -132,6 +203,7 @@ function itflowInit() {
 
     // Initialize TinyMCE with AI
     tinymce.init({
+        ...itflowTinyMceSkin(),
         selector: '.tinymce',
         browser_spellcheck: true,
         contextmenu: false,
@@ -253,6 +325,7 @@ function itflowInit() {
 
     // Initialize TinyMCE AI for Tickets
     tinymce.init({
+        ...itflowTinyMceSkin(),
         selector: '.tinymceTicket',
         browser_spellcheck: true,
         contextmenu: false,
@@ -386,6 +459,7 @@ function itflowInit() {
 
     // Initialize TinyMCE Redact-only
     tinymce.init({
+        ...itflowTinyMceSkin(),
         selector: '.tinymceRedact',
         browser_spellcheck: true,
         contextmenu: false,
@@ -565,6 +639,26 @@ if (document.readyState === 'loading') {
  * namespaced .off() keeps this to a single handler - modal_footer.php re-loads this
  * file on every ajax modal open.
  */
+/**
+ * Initial focus for modals with no autofocus target.
+ *
+ * Bootstrap's focus trap sends focus to the FIRST focusable child whenever it
+ * lands outside the trap, and in ITFlow's modals that is the header close
+ * button - so opening any of the ~230 modals without an autofocus field parked
+ * a focus ring on the X. Putting focus on the dialog itself is what Bootstrap
+ * intends, keeps the trap and Escape working, and leaves screen readers
+ * announcing the dialog rather than "Close".
+ *
+ * Deliberately does NOT auto-focus the first input: that would pop the
+ * keyboard on mobile for every modal, which is a bigger change than the bug.
+ */
+itflowBindOnce('itflowModalFocus', 'shown.bs.modal', '.modal', function () {
+    if (this.querySelector('[autofocus]')) {
+        return;
+    }
+    this.focus();
+});
+
 itflowBindOnce('itflowAllDay', 'change', '.event-all-day-toggle', function () {
 
     const allDay = this.checked;

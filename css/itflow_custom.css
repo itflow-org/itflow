@@ -763,6 +763,36 @@ a:not(.dropdown-item):not(.btn-app):not(.nav-link):not(.brand-link):not(.page-li
     --bs-btn-disabled-bg: #343a40;
     --bs-btn-disabled-border-color: #454d55;
 }
+/* .btn-dark is #212529 - EXACTLY --bs-body-bg in dark mode, so the button was
+   the same colour as the page. Its main use is the search button welded to an
+   input group, so it needs to read as a control next to a .form-control rather
+   than invert to a bright button. Sits a step above the input, and above the
+   other two neutrals, mirroring its light-mode role as the strongest of them:
+   btn-light #343a40 < btn-secondary #3d4349 < btn-dark #495057 */
+[data-bs-theme=dark] .btn-dark {
+    --bs-btn-color: #dee2e6;
+    --bs-btn-bg: #495057;
+    --bs-btn-border-color: #545b62;
+    --bs-btn-hover-color: #fff;
+    --bs-btn-hover-bg: #545b62;
+    --bs-btn-hover-border-color: #6c757d;
+    --bs-btn-active-color: #fff;
+    --bs-btn-active-bg: #6c757d;
+    --bs-btn-active-border-color: #7d858c;
+    --bs-btn-disabled-color: #adb5bd;
+    --bs-btn-disabled-bg: #495057;
+    --bs-btn-disabled-border-color: #545b62;
+}
+[data-bs-theme=dark] .btn-outline-dark {
+    --bs-btn-color: #dee2e6;
+    --bs-btn-border-color: #6c757d;
+    --bs-btn-hover-color: #fff;
+    --bs-btn-hover-bg: #495057;
+    --bs-btn-hover-border-color: #6c757d;
+    --bs-btn-active-color: #fff;
+    --bs-btn-active-bg: #545b62;
+    --bs-btn-active-border-color: #6c757d;
+}
 [data-bs-theme=dark] .btn-outline-secondary {
     --bs-btn-color: #adb5bd;
     --bs-btn-border-color: #6c757d;
@@ -781,5 +811,391 @@ a:not(.dropdown-item):not(.btn-app):not(.nav-link):not(.brand-link):not(.page-li
     color: #fff;
     background-color: #454d55;
     border-color: #565e64;
+}
+
+/* --- TinyMCE chrome ------------------------------------------------------
+   TinyMCE's oxide skins ship their own palette - a blue-slate #222f3e with
+   #161f29 borders in dark - which sits next to the app's neutral #212529 and
+   #495057 and reads as a mismatch rather than a choice. The toolbar and
+   frame live in the main document (only the editing area is iframed), so
+   they can be driven from the same --bs-* variables as every other control,
+   which also means light and dark are handled by one set of rules.
+
+   The frame is matched to .form-control: same border, radius and focus ring. */
+.tox.tox-tinymce {
+    border: var(--bs-border-width) solid var(--bs-border-color);
+    border-radius: var(--bs-border-radius);
+}
+.tox .tox-editor-header,
+.tox .tox-toolbar,
+.tox .tox-toolbar__primary,
+.tox .tox-toolbar-overlord,
+.tox .tox-menubar,
+.tox .tox-statusbar {
+    background-color: var(--bs-tertiary-bg) !important;
+    border-color: var(--bs-border-color) !important;
+}
+.tox .tox-editor-header {
+    box-shadow: none;
+}
+.tox .tox-statusbar {
+    border-top: var(--bs-border-width) solid var(--bs-border-color);
+    color: var(--bs-secondary-color);
+}
+.tox .tox-edit-area__iframe {
+    background-color: var(--bs-body-bg) !important;
+}
+/* Toolbar buttons.
+   The skin gives every .tox-tbtn its own background:#222f3e, which sits as a
+   visible blue-slate box on the retinted toolbar - they need to be transparent
+   so the toolbar surface shows through, the way oxide looks in light mode.
+
+   Colour is set via `color`, never `fill`: the skin already declares
+   `.tox .tox-tbtn svg{fill:currentColor!important}`, so setting fill directly
+   fights its own model and, worse, overrides the forecolor swatch that is
+   supposed to show the currently selected text colour. */
+.tox .tox-tbtn,
+.tox .tox-mbtn,
+.tox .tox-split-button {
+    background: transparent !important;
+    color: var(--bs-body-color) !important;
+}
+.tox .tox-tbtn:hover,
+.tox .tox-mbtn:hover,
+.tox .tox-tbtn:focus,
+.tox .tox-split-button:hover {
+    background: var(--bs-secondary-bg) !important;
+    color: var(--bs-emphasis-color) !important;
+}
+.tox .tox-tbtn--enabled,
+.tox .tox-tbtn--enabled:hover,
+.tox .tox-tbtn.tox-tbtn--active {
+    background: var(--itflow-accent, #007bff) !important;
+    color: #fff !important;
+}
+/* light accents need a dark glyph - same L>0.335 cut as the buttons */
+.theme-yellow .tox .tox-tbtn--enabled,
+.theme-orange .tox .tox-tbtn--enabled,
+.theme-teal .tox .tox-tbtn--enabled,
+.theme-yellow .tox .tox-tbtn.tox-tbtn--active,
+.theme-orange .tox .tox-tbtn.tox-tbtn--active,
+.theme-teal .tox .tox-tbtn.tox-tbtn--active {
+    color: #000 !important;
+}
+.theme-yellow .tox .tox-mbtn--active,
+.theme-orange .tox .tox-mbtn--active,
+.theme-teal .tox .tox-mbtn--active {
+    color: #000 !important;
+}
+.theme-yellow .tox .tox-collection__item--active,
+.theme-orange .tox .tox-collection__item--active,
+.theme-teal .tox .tox-collection__item--active,
+.theme-yellow .tox .tox-collection__item--enabled,
+.theme-orange .tox .tox-collection__item--enabled,
+.theme-teal .tox .tox-collection__item--enabled {
+    color: #000 !important;
+}
+/* Form controls that live IN the toolbar - the Styles listbox is the obvious
+   one - keep their own #2b3b4e fill and #161f29 border. Matched to .form-select
+   / .form-control instead so they read as the same kind of control as the rest
+   of the app. */
+.tox .tox-listboxfield .tox-listbox--select,
+.tox .tox-textfield,
+.tox .tox-toolbar-textfield,
+.tox .tox-textarea {
+    background-color: var(--bs-body-bg) !important;
+    border-color: var(--bs-border-color) !important;
+    border-radius: var(--bs-border-radius) !important;
+    color: var(--bs-body-color) !important;
+}
+.tox .tox-listboxfield .tox-listbox--select:focus,
+.tox .tox-textfield:focus,
+.tox .tox-toolbar-textfield:focus,
+.tox .tox-textarea:focus {
+    border-color: var(--itflow-accent, #007bff) !important;
+    box-shadow: 0 0 0 .25rem color-mix(in srgb, var(--itflow-accent, #007bff) 25%, transparent) !important;
+}
+/* the caret and label inside those controls */
+.tox .tox-listboxfield .tox-listbox--select,
+.tox .tox-tbtn__select-chevron {
+    color: var(--bs-body-color) !important;
+}
+.tox .tox-label,
+.tox .tox-toolbar-label {
+    color: var(--bs-secondary-color) !important;
+}
+/* the Styles button face - 'styles' is in every ITFlow toolbar */
+.tox .tox-tbtn--bespoke {
+    background: var(--bs-body-bg) !important;
+    border: var(--bs-border-width) solid var(--bs-border-color) !important;
+    border-radius: var(--bs-border-radius) !important;
+}
+.tox .tox-tbtn--bespoke:hover {
+    background: var(--bs-secondary-bg) !important;
+}
+.tox .tox-tbtn__select-label {
+    color: var(--bs-body-color) !important;
+}
+/* menubar active state was a fixed #599fef blue */
+.tox .tox-mbtn--active,
+.tox .tox-mbtn:not(:disabled).tox-mbtn--active:focus {
+    background: var(--itflow-accent, #007bff) !important;
+    color: #fff !important;
+}
+/* split buttons (forecolor, backcolor) - the focus fill was a fixed #222f3e */
+.tox .tox-split-button:hover,
+.tox .tox-split-button__main:focus,
+.tox .tox-split-button__chevron:focus {
+    background: var(--bs-secondary-bg) !important;
+    color: var(--bs-body-color) !important;
+}
+/* disabled toolbar items */
+.tox .tox-tbtn--disabled,
+.tox .tox-tbtn:disabled {
+    color: var(--bs-secondary-color) !important;
+}
+
+/* focus ring, so the editor matches every other focused input */
+.tox.tox-tinymce.tox-edit-focus,
+.tox.tox-tinymce:focus-within {
+    border-color: var(--itflow-accent, #007bff);
+    box-shadow: 0 0 0 .25rem color-mix(in srgb, var(--itflow-accent, #007bff) 25%, transparent);
+}
+/* menus and dropdowns the toolbar opens */
+.tox .tox-menu,
+.tox .tox-collection--list .tox-collection__group {
+    background-color: var(--bs-body-bg) !important;
+    border-color: var(--bs-border-color) !important;
+}
+.tox .tox-collection__item {
+    color: var(--bs-body-color) !important;
+}
+.tox .tox-collection__item--active,
+.tox .tox-collection__item--enabled {
+    background-color: var(--itflow-accent, #007bff) !important;
+    color: #fff !important;
+}
+
+/* --- Tom Select ----------------------------------------------------------
+   The bootstrap5 theme uses --bs-* variables for borders and radii but
+   hardcodes the focus state (#86b7fe border, rgba(13,110,253,.25) glow) and
+   the selected multi-value chips (#0d6efd), so a themed app still focused
+   Bootstrap blue. Matched to .form-control:focus. */
+.ts-wrapper.focus .ts-control,
+.focus .ts-control {
+    border-color: var(--itflow-accent, #007bff);
+    box-shadow: 0 0 0 .25rem color-mix(in srgb, var(--itflow-accent, #007bff) 25%, transparent);
+}
+/* the resting multi-select chip is a fixed #efefef with #343a40 text, so it
+   goes near-white in dark mode */
+.ts-wrapper.multi .ts-control > div {
+    background: var(--bs-secondary-bg);
+    color: var(--bs-body-color);
+}
+/* selected values in a multi-select */
+.ts-wrapper.multi .ts-control > div.active {
+    background: var(--itflow-accent, #007bff);
+    color: #fff;
+}
+/* highlighted option in the dropdown, to match .dropdown-item.active */
+.ts-dropdown .active,
+.ts-dropdown .active.create {
+    background-color: var(--itflow-accent, #007bff);
+    color: #fff;
+}
+.ts-dropdown .option:hover {
+    background-color: var(--bs-secondary-bg);
+    color: var(--bs-body-color);
+}
+/* the dropdown border and the disabled chips are fixed light greys - #d0d0d0
+   and #fff - so they glare in dark mode */
+.ts-dropdown {
+    border-color: var(--bs-border-color);
+}
+.ts-wrapper.multi.disabled .ts-control > div,
+.ts-wrapper.multi.disabled .ts-control > div.active {
+    background: var(--bs-secondary-bg);
+    border-color: var(--bs-border-color);
+    color: var(--bs-secondary-color);
+}
+/* light accents need dark text - same L>0.335 cut as everywhere else */
+.theme-yellow .ts-wrapper.multi .ts-control > div.active,
+.theme-orange .ts-wrapper.multi .ts-control > div.active,
+.theme-teal .ts-wrapper.multi .ts-control > div.active,
+.theme-yellow .ts-dropdown .active,
+.theme-orange .ts-dropdown .active,
+.theme-teal .ts-dropdown .active {
+    color: #000;
+}
+
+/* --- Muted contextual palette for dark mode ------------------------------
+   AdminLTE 3 swapped in softer variants of the contextual colours whenever
+   dark mode was on, so a success badge or a danger button did not glare off a
+   dark surface. Bootstrap 5 does not do this - it keeps one palette for both
+   modes. These are v3's own dark-mode values, taken from its
+   .dark-mode .card-<colour> > .card-header rules.
+
+   Overriding --bs-<colour> and its -rgb pair carries the change through every
+   consumer at once: .bg-*, .text-*, .text-bg-*, .border-*, badges and tables.
+   Buttons are handled separately below because .btn-* hardcodes its own hex
+   rather than reading the theme colour.
+
+   --bs-primary is deliberately left alone: btn-primary already follows
+   --itflow-accent, and moving --bs-primary would fight that. */
+[data-bs-theme=dark] {
+    --bs-success: #00bc8c;
+    --bs-success-rgb: 0, 188, 140;
+    --bs-info: #3498db;
+    --bs-info-rgb: 52, 152, 219;
+    --bs-warning: #f39c12;
+    --bs-warning-rgb: 243, 156, 18;
+    --bs-danger: #e74c3c;
+    --bs-danger-rgb: 231, 76, 60;
+}
+/* .text-bg-* hardcodes its foreground, so the pairs that changed lightness
+   need re-stating. Same L>0.335 cut used everywhere else: the muted success
+   (L=0.379) and warning (L=0.429) take dark text, info and danger keep white. */
+[data-bs-theme=dark] .text-bg-success {
+    color: #000;
+}
+[data-bs-theme=dark] .text-bg-info,
+[data-bs-theme=dark] .text-bg-danger {
+    color: #fff;
+}
+
+/* Contextual table rows hardcode a pale tint plus black text, which is
+   unreadable on a dark table. ITFlow uses danger/warning/primary/secondary. */
+[data-bs-theme=dark] .table-danger,
+[data-bs-theme=dark] .table-warning,
+[data-bs-theme=dark] .table-primary,
+[data-bs-theme=dark] .table-secondary {
+    --bs-table-color: var(--bs-body-color);
+    --bs-table-striped-color: var(--bs-body-color);
+    --bs-table-active-color: var(--bs-body-color);
+    --bs-table-hover-color: var(--bs-body-color);
+    --bs-table-border-color: var(--bs-border-color);
+}
+[data-bs-theme=dark] .table-danger {
+    --bs-table-bg: rgba(231, 76, 60, .22);
+}
+[data-bs-theme=dark] .table-warning {
+    --bs-table-bg: rgba(243, 156, 18, .22);
+}
+[data-bs-theme=dark] .table-primary {
+    --bs-table-bg: rgba(63, 103, 145, .28);
+}
+[data-bs-theme=dark] .table-secondary {
+    --bs-table-bg: rgba(108, 117, 125, .25);
+}
+
+/* Buttons hardcode their own hex instead of reading --bs-<colour>. */
+[data-bs-theme=dark] .btn-success {
+    --bs-btn-color: #000;
+    --bs-btn-bg: #00bc8c;
+    --bs-btn-border-color: #00bc8c;
+    --bs-btn-hover-color: #000;
+    --bs-btn-hover-bg: #26c69d;
+    --bs-btn-hover-border-color: #1ac295;
+    --bs-btn-active-color: #000;
+    --bs-btn-active-bg: #33cda3;
+    --bs-btn-active-border-color: #1ac295;
+    --bs-btn-disabled-color: #000;
+    --bs-btn-disabled-bg: #00bc8c;
+    --bs-btn-disabled-border-color: #00bc8c;
+}
+[data-bs-theme=dark] .btn-info {
+    --bs-btn-color: #fff;
+    --bs-btn-bg: #3498db;
+    --bs-btn-border-color: #3498db;
+    --bs-btn-hover-color: #fff;
+    --bs-btn-hover-bg: #2c81ba;
+    --bs-btn-hover-border-color: #2a7aaf;
+    --bs-btn-active-color: #fff;
+    --bs-btn-active-bg: #2a7aaf;
+    --bs-btn-active-border-color: #2772a4;
+    --bs-btn-disabled-color: #fff;
+    --bs-btn-disabled-bg: #3498db;
+    --bs-btn-disabled-border-color: #3498db;
+}
+[data-bs-theme=dark] .btn-warning {
+    --bs-btn-color: #000;
+    --bs-btn-bg: #f39c12;
+    --bs-btn-border-color: #f39c12;
+    --bs-btn-hover-color: #000;
+    --bs-btn-hover-bg: #f5ab36;
+    --bs-btn-hover-border-color: #f4a62a;
+    --bs-btn-active-color: #000;
+    --bs-btn-active-bg: #f5b041;
+    --bs-btn-active-border-color: #f4a62a;
+    --bs-btn-disabled-color: #000;
+    --bs-btn-disabled-bg: #f39c12;
+    --bs-btn-disabled-border-color: #f39c12;
+}
+[data-bs-theme=dark] .btn-danger {
+    --bs-btn-color: #fff;
+    --bs-btn-bg: #e74c3c;
+    --bs-btn-border-color: #e74c3c;
+    --bs-btn-hover-color: #fff;
+    --bs-btn-hover-bg: #c44133;
+    --bs-btn-hover-border-color: #b93d30;
+    --bs-btn-active-color: #fff;
+    --bs-btn-active-bg: #b93d30;
+    --bs-btn-active-border-color: #ae392d;
+    --bs-btn-disabled-color: #fff;
+    --bs-btn-disabled-bg: #e74c3c;
+    --bs-btn-disabled-border-color: #e74c3c;
+}
+/* outline variants read --bs-<colour>, so they follow automatically apart
+   from the foreground on hover */
+[data-bs-theme=dark] .btn-outline-success:hover,
+[data-bs-theme=dark] .btn-outline-warning:hover {
+    --bs-btn-hover-color: #000;
+}
+
+/* --- FullCalendar --------------------------------------------------------
+   v7's classic theme ships a dark palette keyed on [data-color-scheme=dark],
+   which nothing was setting - that attribute is now emitted next to
+   data-bs-theme in includes/header.php, so the built-in dark mode activates.
+
+   These then pull the palette onto the app's own colours, so the calendar
+   matches in BOTH modes rather than being a near-black (#030712) panel next to
+   a #212529 page, and so events and the toolbar follow the theme accent. */
+#calendar {
+    --fc-classic-background: var(--bs-body-bg);
+    --fc-classic-foreground: var(--bs-body-color);
+    --fc-classic-muted-foreground: var(--bs-secondary-color);
+    --fc-classic-border: var(--bs-border-color);
+    --fc-classic-strong-border: var(--bs-border-color);
+
+    /* events and the "primary" accent */
+    --fc-classic-primary: var(--itflow-accent, #007bff);
+    --fc-classic-event: var(--itflow-accent, #007bff);
+
+    /* Only the pressed/active toolbar button is themed. FullCalendar's resting
+       slate is the same in both its palettes, i.e. deliberate, and recolouring
+       it to a dark grey would look wrong in light mode. */
+    --fc-classic-button-strong: var(--itflow-accent, #007bff);
+    --fc-classic-button-strong-border: var(--itflow-accent, #007bff);
+}
+/* light accents need a dark foreground on events and the active view button */
+.theme-yellow #calendar,
+.theme-orange #calendar,
+.theme-teal #calendar {
+    --fc-classic-primary-foreground: #000;
+    --fc-classic-event-contrast: #000;
+    --fc-classic-button-foreground: #000;
+}
+
+/* --- Close button focus ring ---------------------------------------------
+   Bootstrap styles .btn-close on plain :focus rather than :focus-visible, so
+   any programmatic or mouse-driven focus leaves a visible ring on it. Keyboard
+   users still get the ring; a modal that merely opened does not. */
+.btn-close:focus:not(:focus-visible) {
+    box-shadow: none;
+}
+/* the modal container is focused on open and is not an interactive control,
+   so it should never draw a ring of its own */
+.modal:focus {
+    outline: 0;
 }
 

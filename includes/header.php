@@ -9,7 +9,9 @@ header("X-Frame-Options: DENY");
 ?>
 
 <!DOCTYPE html>
-<html lang="en"<?php if ($user_config_theme_dark) echo ' data-bs-theme="dark"'; ?>>
+<?php /* data-color-scheme is FullCalendar v7's own switch - its themes ship a
+         dark palette keyed on [data-color-scheme=dark] that nothing was turning on */ ?>
+<html lang="en"<?php if ($user_config_theme_dark) echo ' data-bs-theme="dark" data-color-scheme="dark"'; ?>>
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">

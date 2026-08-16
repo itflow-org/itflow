@@ -806,8 +806,7 @@ if ($user_config_dashboard_technical_enable == 1) {
 
 <script>
     // Bootstrap-like defaults for Chart.js v4
-    Chart.defaults.font.family = '-apple-system,system-ui,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif';
-    Chart.defaults.color = '#292b2c';
+    var itflowChart = itflowChartDefaults();
 
     // CASH FLOW
     (function () {
@@ -882,11 +881,11 @@ if ($user_config_dashboard_technical_enable == 1) {
                     {
                         label: "Projected",
                         fill: false,
-                        borderColor: "black",
-                        pointBackgroundColor: "black",
-                        pointBorderColor: "black",
+                        borderColor: itflowChart.text,
+                        pointBackgroundColor: itflowChart.text,
+                        pointBorderColor: itflowChart.text,
                         pointHoverRadius: 5,
-                        pointHoverBackgroundColor: "black",
+                        pointHoverBackgroundColor: itflowChart.text,
                         pointBorderWidth: 2,
                         data: [
                             <?php
@@ -945,7 +944,7 @@ if ($user_config_dashboard_technical_enable == 1) {
                         min: 0,
                         max: <?php $max = max(1000, $largest_expense_month, $largest_income_month, $largest_invoice_month); echo roundUpToNearestMultiple($max); ?>,
                         ticks: { maxTicksLimit: 5 },
-                        grid: { color: "rgba(0, 0, 0, .125)" }
+                        grid: { color: itflowChart.grid }
                     }
                 },
                 plugins: {
@@ -1006,7 +1005,7 @@ if ($user_config_dashboard_technical_enable == 1) {
                         min: 0,
                         max: <?php $max = max(1000, $largest_trip_miles_month); echo roundUpToNearestMultiple($max); ?>,
                         ticks: { maxTicksLimit: 5 },
-                        grid: { color: "rgba(0, 0, 0, .125)" }
+                        grid: { color: itflowChart.grid }
                     },
                 },
                 plugins: {

@@ -128,8 +128,7 @@ $largest_income_month = 0;
 
 <script>
     // Bootstrap-like defaults for Chart.js v4
-    Chart.defaults.font.family = '-apple-system,system-ui,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif';
-    Chart.defaults.color = '#292b2c';
+    var itflowChart = itflowChartDefaults();
 
     // INCOME (Line)
     (function () {
@@ -189,7 +188,7 @@ $largest_income_month = 0;
                             echo roundUpToNearestMultiple($max);
                         ?>,
                         ticks: { maxTicksLimit: 5 },
-                        grid: { color: "rgba(0, 0, 0, .125)" }
+                        grid: { color: itflowChart.grid }
                     }
                 },
                 plugins: {
