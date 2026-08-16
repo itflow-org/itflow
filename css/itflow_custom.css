@@ -55,8 +55,12 @@
 }
 
 .checkbox-column .form-check-input {
+    /* BS5 uses float:left here where BS4 used position:absolute - without
+       float:none the box ignores the cell's text-align and pins to the left */
+    float: none;
     position: static;
     margin: 0;
+    vertical-align: middle;
 }
 
 /* ---------------------------------------------------------------
@@ -263,8 +267,17 @@ a:not(.dropdown-item):not(.btn-app):not(.nav-link):not(.brand-link):not(.page-li
     --bs-list-group-active-bg: var(--itflow-accent, #007bff);
     --bs-list-group-active-border-color: var(--itflow-accent, #007bff);
 }
-.form-control:focus, .form-select:focus, .form-check-input:focus {
+.form-control:focus,
+.form-select:focus,
+.form-check-input:focus {
     border-color: var(--itflow-accent, #007bff);
+    /* the border was themed but the 0 0 0 .25rem glow was still Bootstrap blue */
+    box-shadow: var(--bs-box-shadow-inset, 0 0 #0000),
+                0 0 0 .25rem color-mix(in srgb, var(--itflow-accent, #007bff) 25%, transparent);
+}
+/* Bootstrap's generic focus ring (buttons, links, .btn-check labels) */
+:root {
+    --bs-focus-ring-color: color-mix(in srgb, var(--itflow-accent, #007bff) 25%, transparent);
 }
 .form-check-input:checked {
     background-color: var(--itflow-accent, #007bff);
@@ -688,5 +701,85 @@ a:not(.dropdown-item):not(.btn-app):not(.nav-link):not(.brand-link):not(.page-li
 .btn-check:focus-visible + .itflow-theme-swatch {
     outline: 2px solid var(--itflow-accent, #007bff);
     outline-offset: 2px;
+}
+
+/* --- Dark mode ------------------------------------------------------------
+   Bootstrap treats .bg-light / .text-dark / .bg-white as ABSOLUTE colours, so
+   none of them flip under [data-bs-theme=dark] - 69 bg-light and 425 text-dark
+   usages stayed bright. Overriding the utilities rather than the underlying
+   --bs-light-rgb / --bs-dark-rgb variables, because those same two variables
+   also drive .text-light and .bg-dark, which must NOT flip. */
+[data-bs-theme=dark] .bg-light {
+    background-color: var(--bs-secondary-bg) !important;
+}
+[data-bs-theme=dark] .bg-white {
+    background-color: var(--bs-body-bg) !important;
+}
+[data-bs-theme=dark] .text-dark {
+    color: var(--bs-body-color) !important;
+}
+[data-bs-theme=dark] .border-light {
+    border-color: var(--bs-border-color) !important;
+}
+/* .table-light hardcodes #f8f9fa and #000 outright */
+[data-bs-theme=dark] .table-light {
+    --bs-table-bg: var(--bs-secondary-bg);
+    --bs-table-color: var(--bs-body-color);
+    --bs-table-border-color: var(--bs-border-color);
+    --bs-table-striped-bg: var(--bs-tertiary-bg);
+    --bs-table-striped-color: var(--bs-body-color);
+    --bs-table-hover-bg: var(--bs-tertiary-bg);
+    --bs-table-hover-color: var(--bs-body-color);
+}
+
+/* Secondary and light buttons are fixed greys - #6c757d and #f8f9fa - so in
+   dark mode one goes muddy and the other glares. 260 btn-light and 185
+   btn-secondary uses, so these matter more than most. */
+[data-bs-theme=dark] .btn-secondary {
+    --bs-btn-color: #dee2e6;
+    --bs-btn-bg: #3d4349;
+    --bs-btn-border-color: #495057;
+    --bs-btn-hover-color: #fff;
+    --bs-btn-hover-bg: #495057;
+    --bs-btn-hover-border-color: #565e64;
+    --bs-btn-active-color: #fff;
+    --bs-btn-active-bg: #565e64;
+    --bs-btn-active-border-color: #6c757d;
+    --bs-btn-disabled-color: #adb5bd;
+    --bs-btn-disabled-bg: #3d4349;
+    --bs-btn-disabled-border-color: #495057;
+}
+[data-bs-theme=dark] .btn-light {
+    --bs-btn-color: #dee2e6;
+    --bs-btn-bg: #343a40;
+    --bs-btn-border-color: #454d55;
+    --bs-btn-hover-color: #fff;
+    --bs-btn-hover-bg: #454d55;
+    --bs-btn-hover-border-color: #565e64;
+    --bs-btn-active-color: #fff;
+    --bs-btn-active-bg: #565e64;
+    --bs-btn-active-border-color: #6c757d;
+    --bs-btn-disabled-color: #6c757d;
+    --bs-btn-disabled-bg: #343a40;
+    --bs-btn-disabled-border-color: #454d55;
+}
+[data-bs-theme=dark] .btn-outline-secondary {
+    --bs-btn-color: #adb5bd;
+    --bs-btn-border-color: #6c757d;
+    --bs-btn-hover-color: #fff;
+    --bs-btn-hover-bg: #6c757d;
+    --bs-btn-hover-border-color: #6c757d;
+}
+/* .btn-default is my own AdminLTE 3 shim and hardcodes a light grey, so it
+   glares in dark mode like the Bootstrap greys above. */
+[data-bs-theme=dark] .btn-default {
+    color: #dee2e6;
+    background-color: #343a40;
+    border-color: #454d55;
+}
+[data-bs-theme=dark] .btn-default:hover {
+    color: #fff;
+    background-color: #454d55;
+    border-color: #565e64;
 }
 
