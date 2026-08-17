@@ -22,8 +22,8 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 
 ?>
 
-<div class="card card-dark">
-    <div class="card-header py-2">
+<div class="card">
+    <div class="card-header bg-dark py-2">
         <h3 class="card-title mt-2"><i class="fas fa-fw fa-users me-2"></i>Users</h3>
         <div class="card-tools">
             <div class="btn-group">
@@ -49,9 +49,9 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
             </div>
         </div>
     </div>
-    <div class="card-body">
-        <form class="mb-4" autocomplete="off">
-            <div class="row">
+    <div class="card-header py-3">
+        <form autocomplete="off">
+            <div class="row g-2 align-items-center">
                 <div class="col-md-4">
                     <div class="input-group">
                         <input type="search" class="form-control" name="q" value="<?php if (isset($q)) {echo stripslashes(escapeHtml($q));} ?>" placeholder="Search Users">
@@ -61,183 +61,182 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                 <div class="col-md-8">
                     <div class="btn-group float-end">
                         <a href="?archived=<?php if($archived == 1){ echo 0; } else { echo 1; } ?>"
-                            class="btn btn-<?php if($archived == 1){ echo "primary"; } else { echo "default"; } ?>">
+                            class="btn btn-<?php if($archived == 1){ echo"primary"; } else { echo "default"; } ?>">
                             <i class="fa fa-fw fa-archive me-2"></i>Archived
                         </a>
                     </div>
                 </div>
             </div>
         </form>
-        <hr>
-        <div class="table-responsive-sm">
-            <table class="table table-striped table-borderless table-hover">
-                <thead class="text-dark <?php if ($num_rows[0] == 0) { echo "d-none"; } ?>">
-                <tr>
-                    <th class="text-center">
-                        <a class="text-dark" href="?<?= $url_query_strings_sort ?>&sort=user_name&order=<?= $disp ?>">
-                            Name <?php if ($sort == 'user_name') { echo $order_icon; } ?>
-                        </a>
-                    </th>
-                    <th>
-                        <a class="text-dark" href="?<?= $url_query_strings_sort ?>&sort=user_email&order=<?= $disp ?>">
-                            Email <?php if ($sort == 'user_email') { echo $order_icon; } ?>
-                        </a>
-                    </th>
-                    <th>
-                        <a class="text-dark" href="?<?= $url_query_strings_sort ?>&sort=role_name&order=<?= $disp ?>">
-                            Role <?php if ($sort == 'role_name') { echo $order_icon; } ?>
-                        </a>
-                    </th>
-                    <th>
-                        <a class="text-dark" href="?<?= $url_query_strings_sort ?>&sort=user_status&order=<?= $disp ?>">
-                            Status <?php if ($sort == 'user_status') { echo $order_icon; } ?>
-                        </a>
-                    </th>
-                    <th class="text-center">MFA</th>
-                    <th>
-                        Last Login
-                    </th>
-                    <th class="text-center">Action</th>
-                </tr>
-                </thead>
-                <tbody>
-                <?php
+    </div>
+    <div class="table-responsive-sm">
+        <table class="table table-striped table-borderless table-hover mb-0">
+            <thead class="text-dark <?php if ($num_rows[0] == 0) { echo "d-none"; } ?>">
+            <tr>
+                <th class="text-center">
+                    <a class="text-dark" href="?<?= $url_query_strings_sort ?>&sort=user_name&order=<?= $disp ?>">
+                        Name <?php if ($sort == 'user_name') { echo $order_icon; } ?>
+                    </a>
+                </th>
+                <th>
+                    <a class="text-dark" href="?<?= $url_query_strings_sort ?>&sort=user_email&order=<?= $disp ?>">
+                        Email <?php if ($sort == 'user_email') { echo $order_icon; } ?>
+                    </a>
+                </th>
+                <th>
+                    <a class="text-dark" href="?<?= $url_query_strings_sort ?>&sort=role_name&order=<?= $disp ?>">
+                        Role <?php if ($sort == 'role_name') { echo $order_icon; } ?>
+                    </a>
+                </th>
+                <th>
+                    <a class="text-dark" href="?<?= $url_query_strings_sort ?>&sort=user_status&order=<?= $disp ?>">
+                        Status <?php if ($sort == 'user_status') { echo $order_icon; } ?>
+                    </a>
+                </th>
+                <th class="text-center">MFA</th>
+                <th>
+                    Last Login
+                </th>
+                <th class="text-center">Action</th>
+            </tr>
+            </thead>
+            <tbody>
+            <?php
 
-                while ($row = mysqli_fetch_assoc($sql)) {
-                    $user_id = intval($row['user_id']);
-                    $user_name = escapeHtml($row['user_name']);
-                    $user_email = escapeHtml($row['user_email']);
-                    $user_status = intval($row['user_status']);
-                    if ($user_status == 2) {
-                        $user_status_display = "<span class='text-info'>Invited</span>";
-                    } elseif ($user_status == 1) {
-                        $user_status_display = "<span class='text-success'>Active</span>";
-                    } else{
-                        $user_status_display = "<span class='text-danger'>Disabled</span>";
-                    }
-                    $user_avatar = escapeHtml($row['user_avatar']);
-                    $user_token = escapeHtml($row['user_token']);
-                    if(empty($user_token)) {
-                        $mfa_status_display = "<i class='fas fa-fw fa-unlock text-danger'></i>";
-                    } else {
-                        $mfa_status_display = "<i class='fas fa-fw fa-lock text-success'></i>";
-                    }
-                    $user_config_force_mfa = intval($row['user_config_force_mfa']);
-                    $user_role = intval($row['user_role_id']);
-                    $user_role_display = escapeHtml($row['role_name']);
-                    $user_archived_at = escapeHtml($row['user_archived_at']);
-                    $user_initials = escapeHtml(initials($user_name));
-
-
-                    $sql_last_login = mysqli_query(
-                        $mysqli,
-                        "SELECT log_created_at, log_ip, log_user_agent FROM logs
-                        WHERE log_user_id = $user_id AND log_type = 'Login'
-                        ORDER BY log_id DESC LIMIT 1"
-                    );
-                    if (mysqli_num_rows($sql_last_login) == 0) {
-                        $last_login = "<span class='text-bold'>Never logged in</span>";
-                    } else {
-                        $row = mysqli_fetch_assoc($sql_last_login);
-                        $log_created_at = escapeHtml($row['log_created_at']);
-                        $log_ip = escapeHtml($row['log_ip']);
-                        $log_user_agent = escapeHtml($row['log_user_agent']);
-                        $log_user_os = getOS($log_user_agent);
-                        $log_user_browser = getWebBrowser($log_user_agent);
-                        $last_login = "$log_created_at<small class='text-secondary'><div class='mt-1'>$log_user_os</div><div class='mt-1'>$log_user_browser</div><div class='mt-1'><i class='fa fa-fw fa-globe'></i> $log_ip</div></small>";
-                    }
-
-                    // Get User Client Access Permissions
-                    $user_client_access_sql = mysqli_query($mysqli,"SELECT client_id FROM user_client_permissions WHERE user_id = $user_id");
-                    $client_access_array = [];
-                    while ($row = mysqli_fetch_assoc($user_client_access_sql)) {
-                        $client_access_array[] = intval($row['client_id']);
-                    }
-
-                    $sql_remember_tokens = mysqli_query($mysqli, "SELECT 1 FROM remember_tokens WHERE remember_token_user_id = $user_id");
-                    $remember_token_count = mysqli_num_rows($sql_remember_tokens);
+            while ($row = mysqli_fetch_assoc($sql)) {
+                $user_id = intval($row['user_id']);
+                $user_name = escapeHtml($row['user_name']);
+                $user_email = escapeHtml($row['user_email']);
+                $user_status = intval($row['user_status']);
+                if ($user_status == 2) {
+                    $user_status_display = "<span class='text-info'>Invited</span>";
+                } elseif ($user_status == 1) {
+                    $user_status_display = "<span class='text-success'>Active</span>";
+                } else{
+                    $user_status_display = "<span class='text-danger'>Disabled</span>";
+                }
+                $user_avatar = escapeHtml($row['user_avatar']);
+                $user_token = escapeHtml($row['user_token']);
+                if(empty($user_token)) {
+                    $mfa_status_display = "<i class='fas fa-fw fa-unlock text-danger'></i>";
+                } else {
+                    $mfa_status_display = "<i class='fas fa-fw fa-lock text-success'></i>";
+                }
+                $user_config_force_mfa = intval($row['user_config_force_mfa']);
+                $user_role = intval($row['user_role_id']);
+                $user_role_display = escapeHtml($row['role_name']);
+                $user_archived_at = escapeHtml($row['user_archived_at']);
+                $user_initials = escapeHtml(initials($user_name));
 
 
-
-                    ?>
-                    <tr>
-                        <td class="text-center">
-                            <a href="#" title="UserID: <?= $user_id ?>"
-                                <?php if ($user_id !== $session_user_id) { // Prevent modifying self ?>
-                                class="ajax-modal"
-                                data-modal-url="modals/user/user_edit.php?id=<?= $user_id ?>"
-                                <?php } ?>
-                                >
-                                <?php if (!empty($user_avatar)) { ?>
-                                    <img class="img-size-50 rounded-circle" src="<?= "../uploads/users/$user_id/$user_avatar" ?>">
-                                <?php } else { ?>
-                                    <span class="fa-stack fa-2x">
-                                        <i class="fa fa-circle fa-stack-2x text-secondary"></i>
-                                        <span class="fa fa-stack-1x text-white"><?= $user_initials ?></span>
-                                    </span>
-                                    <br>
-                                <?php } ?>
-
-                                <div class="text-secondary"><?= $user_name ?></div>
-                            </a>
-                        </td>
-                        <td><a href="mailto:<?= $user_email ?>"><?= $user_email ?></a></td>
-                        <td><?= $user_role_display ?></td>
-                        <td><?= $user_status_display ?></td>
-                        <td class="text-center"><?= $mfa_status_display ?></td>
-                        <td><?= $last_login ?></td>
-                        <td>
-                            <?php if ($user_id !== $session_user_id) {   // Prevent modifying self ?>
-                            <div class="dropdown dropstart text-center">
-                                <button class="btn btn-secondary btn-sm" type="button" data-bs-toggle="dropdown">
-                                    <i class="fas fa-ellipsis-h"></i>
-                                </button>
-                                <div class="dropdown-menu">
-                                    <a class="dropdown-item ajax-modal" href="#"
-                                        data-modal-url="modals/user/user_edit.php?id=<?= $user_id ?>">
-                                        <i class="fas fa-fw fa-user-edit me-2"></i>Edit
-                                    </a>
-                                    <?php if ($remember_token_count > 0) { ?>
-                                    <a class="dropdown-item" href="post.php?revoke_remember_me=<?= $user_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>"><i class="fas fa-fw fa-ban me-2"></i>Revoke <?= $remember_token_count ?> Remember Tokens
-                                    </a>
-                                    <?php } ?>
-                                    <?php if ($user_status == 0) { ?>
-                                        <a class="dropdown-item text-success" href="post.php?activate_user=<?= $user_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>">
-                                            <i class="fas fa-fw fa-user-check me-2"></i>Activate
-                                        </a>
-                                    <?php }elseif ($user_status == 1) { ?>
-                                        <a class="dropdown-item text-danger" href="post.php?disable_user=<?= $user_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>">
-                                            <i class="fas fa-fw fa-user-slash me-2"></i>Disable
-                                        </a>
-                                    <?php } ?>
-                                    <?php if ($user_archived_at) { ?>
-                                    <div class="dropdown-divider"></div>
-                                    <a class="dropdown-item text-info ajax-modal" href="#" data-modal-url="modals/user/user_restore.php?id=<?= $user_id ?>">
-                                        <i class="fas fa-fw fa-redo-alt me-2"></i>Restore
-                                    </a>
-                                    <?php } else { ?>
-                                    <div class="dropdown-divider"></div>
-                                    <a class="dropdown-item text-danger ajax-modal" href="#" data-modal-url="modals/user/user_archive.php?id=<?= $user_id ?>">
-                                        <i class="fas fa-fw fa-archive me-2"></i>Archive
-                                    </a>
-                                    <?php } ?>
-                                </div>
-                            </div>
-                            <?php } ?>
-                        </td>
-                    </tr>
-
-                    <?php
+                $sql_last_login = mysqli_query(
+                    $mysqli,
+                    "SELECT log_created_at, log_ip, log_user_agent FROM logs
+                    WHERE log_user_id = $user_id AND log_type = 'Login'
+                    ORDER BY log_id DESC LIMIT 1"
+                );
+                if (mysqli_num_rows($sql_last_login) == 0) {
+                    $last_login = "<span class='text-bold'>Never logged in</span>";
+                } else {
+                    $row = mysqli_fetch_assoc($sql_last_login);
+                    $log_created_at = escapeHtml($row['log_created_at']);
+                    $log_ip = escapeHtml($row['log_ip']);
+                    $log_user_agent = escapeHtml($row['log_user_agent']);
+                    $log_user_os = getOS($log_user_agent);
+                    $log_user_browser = getWebBrowser($log_user_agent);
+                    $last_login = "$log_created_at<small class='text-secondary'><div class='mt-1'>$log_user_os</div><div class='mt-1'>$log_user_browser</div><div class='mt-1'><i class='fa fa-fw fa-globe'></i> $log_ip</div></small>";
                 }
 
-                ?>
+                // Get User Client Access Permissions
+                $user_client_access_sql = mysqli_query($mysqli,"SELECT client_id FROM user_client_permissions WHERE user_id = $user_id");
+                $client_access_array = [];
+                while ($row = mysqli_fetch_assoc($user_client_access_sql)) {
+                    $client_access_array[] = intval($row['client_id']);
+                }
 
-                </tbody>
-            </table>
-        </div>
-        <?php require_once "../includes/filter_footer.php";
- ?>
+                $sql_remember_tokens = mysqli_query($mysqli, "SELECT 1 FROM remember_tokens WHERE remember_token_user_id = $user_id");
+                $remember_token_count = mysqli_num_rows($sql_remember_tokens);
+
+
+
+                ?>
+                <tr>
+                    <td class="text-center">
+                        <a href="#" title="UserID: <?= $user_id ?>"
+                            <?php if ($user_id !== $session_user_id) { // Prevent modifying self ?>
+                            class="ajax-modal"
+                            data-modal-url="modals/user/user_edit.php?id=<?= $user_id ?>"
+                            <?php } ?>
+                            >
+                            <?php if (!empty($user_avatar)) { ?>
+                                <img class="img-size-50 rounded-circle" src="<?= "../uploads/users/$user_id/$user_avatar" ?>">
+                            <?php } else { ?>
+                                <span class="fa-stack fa-2x">
+                                    <i class="fa fa-circle fa-stack-2x text-secondary"></i>
+                                    <span class="fa fa-stack-1x text-white"><?= $user_initials ?></span>
+                                </span>
+                                <br>
+                            <?php } ?>
+
+                            <div class="text-secondary"><?= $user_name ?></div>
+                        </a>
+                    </td>
+                    <td><a href="mailto:<?= $user_email ?>"><?= $user_email ?></a></td>
+                    <td><?= $user_role_display ?></td>
+                    <td><?= $user_status_display ?></td>
+                    <td class="text-center"><?= $mfa_status_display ?></td>
+                    <td><?= $last_login ?></td>
+                    <td>
+                        <?php if ($user_id !== $session_user_id) {   // Prevent modifying self ?>
+                        <div class="dropdown dropstart text-center">
+                            <button class="btn btn-secondary btn-sm" type="button" data-bs-toggle="dropdown">
+                                <i class="fas fa-ellipsis-h"></i>
+                            </button>
+                            <div class="dropdown-menu">
+                                <a class="dropdown-item ajax-modal" href="#"
+                                    data-modal-url="modals/user/user_edit.php?id=<?= $user_id ?>">
+                                    <i class="fas fa-fw fa-user-edit me-2"></i>Edit
+                                </a>
+                                <?php if ($remember_token_count > 0) { ?>
+                                <a class="dropdown-item" href="post.php?revoke_remember_me=<?= $user_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>"><i class="fas fa-fw fa-ban me-2"></i>Revoke <?= $remember_token_count ?> Remember Tokens
+                                </a>
+                                <?php } ?>
+                                <?php if ($user_status == 0) { ?>
+                                    <a class="dropdown-item text-success" href="post.php?activate_user=<?= $user_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>">
+                                        <i class="fas fa-fw fa-user-check me-2"></i>Activate
+                                    </a>
+                                <?php }elseif ($user_status == 1) { ?>
+                                    <a class="dropdown-item text-danger" href="post.php?disable_user=<?= $user_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>">
+                                        <i class="fas fa-fw fa-user-slash me-2"></i>Disable
+                                    </a>
+                                <?php } ?>
+                                <?php if ($user_archived_at) { ?>
+                                <div class="dropdown-divider"></div>
+                                <a class="dropdown-item text-info ajax-modal" href="#" data-modal-url="modals/user/user_restore.php?id=<?= $user_id ?>">
+                                    <i class="fas fa-fw fa-redo-alt me-2"></i>Restore
+                                </a>
+                                <?php } else { ?>
+                                <div class="dropdown-divider"></div>
+                                <a class="dropdown-item text-danger ajax-modal" href="#" data-modal-url="modals/user/user_archive.php?id=<?= $user_id ?>">
+                                    <i class="fas fa-fw fa-archive me-2"></i>Archive
+                                </a>
+                                <?php } ?>
+                            </div>
+                        </div>
+                        <?php } ?>
+                    </td>
+                </tr>
+
+                <?php
+            }
+
+            ?>
+
+            </tbody>
+        </table>
     </div>
+    <?php require_once "../includes/filter_footer.php";
+ ?>
 </div>
 
 <?php

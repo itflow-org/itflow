@@ -85,8 +85,8 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 
 ?>
 
-<div class="card card-dark">
-    <div class="card-header py-2">
+<div class="card">
+    <div class="card-header bg-dark py-2">
         <h3 class="card-title mt-2"><i class="fa fa-fw fa-address-book me-2"></i>Contacts</h3>
         <div class="card-tools">
             <div class="btn-group">
@@ -112,23 +112,23 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
             </div>
         </div>
     </div>
-    <div class="card-body">
+    <div class="card-header py-3">
         <form autocomplete="off">
             <?php if ($client_url) { ?>
             <input type="hidden" name="client_id" value="<?= $client_id ?>">
             <?php } ?>
             <input type="hidden" name="archived" value="<?= $archived ?>">
-            <div class="row">
+            <div class="row g-2 align-items-center">
 
                 <div class="col-md-4">
-                    <div class="input-group mb-3 mb-md-0">
+                    <div class="input-group">
                         <input type="search" class="form-control" name="q" value="<?php if (isset($q)) { echo stripslashes(escapeHtml($q)); } ?>" placeholder="Search Contacts">
                             <button class="btn btn-dark"><i class="fa fa-search"></i></button>
                     </div>
                 </div>
 
                 <div class="col-md-3">
-                    <div class="input-group mb-3 mb-md-0">
+                    <div class="input-group">
                         <select onchange="this.form.submit()" class="form-select select2" name="tags[]" data-placeholder="- Select Tags -" multiple>
 
                             <?php
@@ -155,7 +155,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 
                 <?php if ($client_url) { ?>
                 <div class="col-md-2">
-                    <div class="input-group mb-3 mb-md-0">
+                    <div class="input-group">
                         <select class="form-select select2" name="location" onchange="this.form.submit()">
                             <option value="">- All Locations -</option>
 
@@ -181,7 +181,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                 </div>
                 <?php } else { ?>
                 <div class="col-md-2">
-                    <div class="input-group mb-3 mb-md-0">
+                    <div class="input-group">
                         <select class="form-select select2" name="client" onchange="this.form.submit()">
                             <option value="" <?php if ($client == "") { echo "selected"; } ?>>- All Clients -</option>
 
@@ -211,7 +211,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                 <div class="col-md-3">
                     <div class="btn-group float-end">
                         <a href="?<?= $client_url ?>archived=<?php if($archived == 1){ echo 0; } else { echo 1; } ?>"
-                            class="btn btn-<?php if($archived == 1){ echo "primary"; } else { echo "default"; } ?>">
+                            class="btn btn-<?php if($archived == 1){ echo"primary"; } else { echo "default"; } ?>">
                             <i class="fa fa-fw fa-archive me-2"></i>Archived
                         </a>
                         <div class="dropdown ms-2" id="bulkActionButton" hidden>
@@ -282,285 +282,284 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 
             </div>
         </form>
-        <hr>
-        <form id="bulkActions" action="post.php" method="post" enctype="multipart/form-data">
-            <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
+    </div>
+    <form id="bulkActions" action="post.php" method="post" enctype="multipart/form-data">
+        <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
 
-            <div class="table-responsive">
-                <table class="table border">
-                    <thead class="table-light <?php if (!$num_rows[0]) { echo "d-none"; } ?>">
+        <div class="table-responsive">
+            <table class="table border mb-0">
+                <thead class="table-light <?php if (!$num_rows[0]) { echo "d-none"; } ?>">
+                <tr>
+                    <td class="bg-light checkbox-column">
+                        <div class="form-check">
+                            <input class="form-check-input" id="selectAllCheckbox" type="checkbox" onclick="checkAll(this)">
+                        </div>
+                    </td>
+                    <th>
+                        <a class="text-secondary ms-3" href="?<?= $url_query_strings_sort ?>&sort=contact_name&order=<?= $disp ?>">
+                            Name <?php if ($sort == 'contact_name') { echo $order_icon; } ?>
+                        </a>
+                    </th>
+                    <th>
+                        <a class="text-secondary" href="?<?= $url_query_strings_sort ?>&sort=contact_department&order=<?= $disp ?>">
+                            Department <?php if ($sort == 'contact_department') { echo $order_icon; } ?>
+                        </a>
+                    </th>
+                    <th>Contact</th>
+                    <th>
+                        <a class="text-secondary" href="?<?= $url_query_strings_sort ?>&sort=location_name&order=<?= $disp ?>">
+                            Location <?php if ($sort == 'location_name') { echo $order_icon; } ?>
+                        </a>
+                    </th>
+                    <th></th>
+                    <?php if (!$client_url) { ?>
+                    <th>
+                        <a class="text-secondary" href="?<?= $url_query_strings_sort ?>&sort=client_name&order=<?= $disp ?>">
+                            Client <?php if ($sort == 'client_name') { echo $order_icon; } ?>
+                        </a>
+                    </th>
+                    <?php } ?>
+                    <th class="text-center">Action</th>
+                </tr>
+                </thead>
+                <tbody>
+                <?php
+
+                while ($row = mysqli_fetch_assoc($sql)) {
+                    $client_id = intval($row['client_id']);
+                    $client_name = escapeHtml($row['client_name']);
+                    $contact_id = intval($row['contact_id']);
+                    $contact_name = escapeHtml($row['contact_name']);
+                    $contact_title = escapeHtml($row['contact_title']);
+                    if (empty($contact_title)) {
+                        $contact_title_display = "";
+                    } else {
+                        $contact_title_display = "<small class='text-secondary'>$contact_title</small>";
+                    }
+                    $contact_department = escapeHtml($row['contact_department']) ?: '-';
+                    $contact_extension = escapeHtml($row['contact_extension']);
+                    if (empty($contact_extension)) {
+                        $contact_extension_display = "";
+                    } else {
+                        $contact_extension_display = "<small class='text-secondary ms-1'>x$contact_extension</small>";
+                    }
+                    $contact_phone_country_code = escapeHtml($row['contact_phone_country_code']);
+                    $contact_phone = escapeHtml(formatPhoneNumber($row['contact_phone'], $contact_phone_country_code));
+                    if (empty($contact_phone)) {
+                        $contact_phone_display = "";
+                    } else {
+                        $contact_phone_display = "<div><i class='fas fa-fw fa-phone me-2'></i><a href='tel:$contact_phone'>$contact_phone$contact_extension_display</a></div>";
+                    }
+                    $contact_mobile_country_code = escapeHtml($row['contact_mobile_country_code']);
+                    $contact_mobile = escapeHtml(formatPhoneNumber($row['contact_mobile'], $contact_mobile_country_code));
+                    if (empty($contact_mobile)) {
+                        $contact_mobile_display = "";
+                    } else {
+                        $contact_mobile_display = "<div class='mt-2'><i class='fas fa-fw fa-mobile-alt me-2'></i><a href='tel:$contact_mobile'>$contact_mobile</a></div>";
+                    }
+                    $contact_email = escapeHtml($row['contact_email']);
+                    if (empty($contact_email)) {
+                        $contact_email_display = "";
+                    } else {
+                        $contact_email_display = "<div class='mt-1'><i class='fas fa-fw fa-envelope me-2'></i><a href='mailto:$contact_email'>$contact_email</a><button class='btn btn-sm clipboardjs' type='button' data-clipboard-text='$contact_email'><i class='far fa-copy text-secondary'></i></button></div>";
+                    }
+                    $contact_info_display = "$contact_phone_display $contact_mobile_display $contact_email_display";
+                    if (empty($contact_info_display)) {
+                        $contact_info_display = "-";
+                    }
+                    $contact_pin = escapeHtml($row['contact_pin']);
+                    $contact_photo = escapeHtml($row['contact_photo']);
+                    $contact_initials = initials($contact_name);
+                    $contact_notes = escapeHtml($row['contact_notes']);
+                    $contact_primary = intval($row['contact_primary']);
+                    $contact_important = intval($row['contact_important']);
+                    $contact_billing = intval($row['contact_billing']);
+                    $contact_technical = intval($row['contact_technical']);
+                    $contact_created_at = escapeHtml($row['contact_created_at']);
+                    $contact_archived_at = escapeHtml($row['contact_archived_at']);
+                    if ($contact_primary == 1) {
+                        $contact_primary_display = "<small class='text-success'>Primary Contact</small>";
+                    } else {
+                        $contact_primary_display = false;
+                    }
+                    $contact_location_id = intval($row['contact_location_id']);
+                    $location_name = escapeHtml($row['location_name']);
+                    if (empty($location_name)) {
+                        $location_name = "<span class='text-muted'>N/A</span>";
+                    }
+                    $location_archived_at = escapeHtml($row['location_archived_at']);
+                    if ($location_archived_at) {
+                        $location_name_display = "<div class='text-danger' title='Archived'><s>$location_name</s></div>";
+                    } else {
+                        $location_name_display = $location_name;
+                    }
+                    $auth_method = escapeHtml($row['user_auth_method']);
+                    $contact_user_id = intval($row['contact_user_id']);
+                    if ($contact_user_id) {
+                        $user_exists_display = "<span class='badge rounded-pill bg-dark p-1' title='User: $auth_method'><i class='fas fa-fw fa-user'></i></span>";
+                    } else {
+                        $user_exists_display = "";
+                    }
+
+                    // Counts
+
+                    // Asset Count
+                    $row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT COUNT('asset_id') AS num FROM assets WHERE asset_contact_id = $contact_id AND asset_archived_at IS NULL"));
+                    $asset_count = $row['num'];
+                    if ($asset_count) {
+                        $asset_count_display = "<a href='contact.php?client_id=$client_id&contact_id=$contact_id#assets' class='me-2 mb-1 badge rounded-pill bg-dark p-2' title='Assets ($asset_count)'><i class='fas fa-fw fa-desktop me-2'></i>$asset_count</a>";
+                    } else {
+                        $asset_count_display = '';
+                    }
+
+                    // Credential Count
+                    $row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT COUNT('credential_id') AS num FROM credentials WHERE credential_contact_id = $contact_id AND credential_archived_at IS NULL"));
+                    $credential_count = $row['num'];
+                    if ($credential_count) {
+                        $credential_count_display = "<a href='contact.php?client_id=$client_id&contact_id=$contact_id#credentials' class='me-2 mb-1 badge rounded-pill bg-secondary p-2' title='Credentials ($credential_count)'><i class='fas fa-fw fa-key me-2'></i>$credential_count</a>";
+                    } else {
+                        $credential_count_display = '';
+                    }
+
+                    // Software Count
+                    $row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT COUNT('software_id') AS num FROM software, software_contacts WHERE software.software_id = software_contacts.software_id AND software_contacts.contact_id = $contact_id AND software_archived_at IS NULL"));
+                    $software_count = $row['num'];
+                    if ($software_count) {
+                        $software_count_display = "<a href='contact.php?client_id=$client_id&contact_id=$contact_id#software' class='me-2 mb-1 badge rounded-pill bg-secondary p-2' title='Licenses ($software_count)'><i class='fas fa-fw fa-cube me-2'></i>$software_count</a>";
+                    } else {
+                        $software_count_display = '';
+                    }
+
+                    // Ticket Count
+                    $row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT COUNT('ticket_id') AS num FROM tickets WHERE ticket_contact_id = $contact_id AND ticket_archived_at IS NULL"));
+                    $ticket_count = $row['num'];
+                    if ($ticket_count) {
+                        $ticket_count_display = "<a href='contact.php?client_id=$client_id&contact_id=$contact_id#tickets' class='me-2 mb-1 badge rounded-pill bg-secondary p-2' title='Tickets ($ticket_count)'><i class='fas fa-fw fa-life-ring me-2'></i>$ticket_count</a>";
+                    } else {
+                        $ticket_count_display = '';
+                    }
+
+                    // Tags
+                    $contact_tag_name_display_array = array();
+                    $contact_tag_id_array = array();
+                    $sql_contact_tags = mysqli_query($mysqli, "SELECT tag_color, tag_icon, contact_tags.tag_id, tag_name FROM contact_tags LEFT JOIN tags ON contact_tags.tag_id = tags.tag_id WHERE contact_id = $contact_id ORDER BY tag_name ASC");
+                    while ($row = mysqli_fetch_assoc($sql_contact_tags)) {
+
+                        $contact_tag_id = intval($row['tag_id']);
+                        $contact_tag_name = escapeHtml($row['tag_name']);
+                        $contact_tag_color = escapeHtml($row['tag_color']);
+                        if (empty($contact_tag_color)) {
+                            $contact_tag_color = "dark";
+                        }
+                        $contact_tag_icon = escapeHtml($row['tag_icon']);
+                        if (empty($contact_tag_icon)) {
+                            $contact_tag_icon = "tag";
+                        }
+
+                        $contact_tag_id_array[] = $contact_tag_id;
+                        $contact_tag_name_display_array[] = "<a href='contacts.php?$client_url tags[]=$contact_tag_id'><span class='badge text-light p-1 me-1' style='background-color: $contact_tag_color;'><i class='fa fa-fw fa-$contact_tag_icon me-2'></i>$contact_tag_name</span></a>";
+                    }
+                    $contact_tags_display = implode('', $contact_tag_name_display_array);
+
+                    ?>
                     <tr>
                         <td class="bg-light checkbox-column">
                             <div class="form-check">
-                                <input class="form-check-input" id="selectAllCheckbox" type="checkbox" onclick="checkAll(this)">
+                                <input class="form-check-input bulk-select" type="checkbox" name="contact_ids[]" value="<?= $contact_id ?>">
                             </div>
                         </td>
-                        <th>
-                            <a class="text-secondary ms-3" href="?<?= $url_query_strings_sort ?>&sort=contact_name&order=<?= $disp ?>">
-                                Name <?php if ($sort == 'contact_name') { echo $order_icon; } ?>
+                        <td>
+                            <a class="text-dark" href="contact.php?client_id=<?= $client_id ?>&contact_id=<?= $contact_id ?>">
+                                <div class="d-flex">
+                                    <?php if ($contact_photo) { ?>
+                                        <span class="fa-stack fa-2x me-3 text-center">
+                                            <img class="img-size-50 rounded-circle" src="<?= "../uploads/clients/$client_id/$contact_photo" ?>">
+                                        </span>
+                                    <?php } else { ?>
+                                        <span class="fa-stack fa-2x me-3">
+                                            <i class="fa fa-circle fa-stack-2x text-secondary"></i>
+                                            <span class="fa fa-stack-1x text-white"><?= $contact_initials ?></span>
+                                        </span>
+                                    <?php } ?>
+
+                                    <div class="flex-grow-1">
+                                        <div class="<?php if($contact_important) { echo "text-bold"; } ?>"><?= $contact_name ?> <?= $user_exists_display ?></div>
+                                        <?= $contact_title_display ?>
+                                        <div><?= $contact_primary_display ?></div>
+                                        <?php
+                                        if (!empty($contact_tags_display)) { ?>
+                                            <div class="mt-1">
+                                                <?= $contact_tags_display ?>
+                                            </div>
+                                        <?php } ?>
+                                    </div>
+                                </div>
                             </a>
-                        </th>
-                        <th>
-                            <a class="text-secondary" href="?<?= $url_query_strings_sort ?>&sort=contact_department&order=<?= $disp ?>">
-                                Department <?php if ($sort == 'contact_department') { echo $order_icon; } ?>
-                            </a>
-                        </th>
-                        <th>Contact</th>
-                        <th>
-                            <a class="text-secondary" href="?<?= $url_query_strings_sort ?>&sort=location_name&order=<?= $disp ?>">
-                                Location <?php if ($sort == 'location_name') { echo $order_icon; } ?>
-                            </a>
-                        </th>
-                        <th></th>
+
+                        </td>
+                        <td><?= $contact_department ?></td>
+                        <td><?= $contact_info_display ?></td>
+                        <td><?= $location_name_display ?></td>
+                        <td>
+                            <?= "$asset_count_display$credential_count_display$software_count_display$ticket_count_display" ?>
+                        </td>
                         <?php if (!$client_url) { ?>
-                        <th>
-                            <a class="text-secondary" href="?<?= $url_query_strings_sort ?>&sort=client_name&order=<?= $disp ?>">
-                                Client <?php if ($sort == 'client_name') { echo $order_icon; } ?>
-                            </a>
-                        </th>
+                        <td><a href="contacts.php?client_id=<?= $client_id ?>"><?= $client_name ?></a></td>
                         <?php } ?>
-                        <th class="text-center">Action</th>
-                    </tr>
-                    </thead>
-                    <tbody>
-                    <?php
-
-                    while ($row = mysqli_fetch_assoc($sql)) {
-                        $client_id = intval($row['client_id']);
-                        $client_name = escapeHtml($row['client_name']);
-                        $contact_id = intval($row['contact_id']);
-                        $contact_name = escapeHtml($row['contact_name']);
-                        $contact_title = escapeHtml($row['contact_title']);
-                        if (empty($contact_title)) {
-                            $contact_title_display = "";
-                        } else {
-                            $contact_title_display = "<small class='text-secondary'>$contact_title</small>";
-                        }
-                        $contact_department = escapeHtml($row['contact_department']) ?: '-';
-                        $contact_extension = escapeHtml($row['contact_extension']);
-                        if (empty($contact_extension)) {
-                            $contact_extension_display = "";
-                        } else {
-                            $contact_extension_display = "<small class='text-secondary ms-1'>x$contact_extension</small>";
-                        }
-                        $contact_phone_country_code = escapeHtml($row['contact_phone_country_code']);
-                        $contact_phone = escapeHtml(formatPhoneNumber($row['contact_phone'], $contact_phone_country_code));
-                        if (empty($contact_phone)) {
-                            $contact_phone_display = "";
-                        } else {
-                            $contact_phone_display = "<div><i class='fas fa-fw fa-phone me-2'></i><a href='tel:$contact_phone'>$contact_phone$contact_extension_display</a></div>";
-                        }
-                        $contact_mobile_country_code = escapeHtml($row['contact_mobile_country_code']);
-                        $contact_mobile = escapeHtml(formatPhoneNumber($row['contact_mobile'], $contact_mobile_country_code));
-                        if (empty($contact_mobile)) {
-                            $contact_mobile_display = "";
-                        } else {
-                            $contact_mobile_display = "<div class='mt-2'><i class='fas fa-fw fa-mobile-alt me-2'></i><a href='tel:$contact_mobile'>$contact_mobile</a></div>";
-                        }
-                        $contact_email = escapeHtml($row['contact_email']);
-                        if (empty($contact_email)) {
-                            $contact_email_display = "";
-                        } else {
-                            $contact_email_display = "<div class='mt-1'><i class='fas fa-fw fa-envelope me-2'></i><a href='mailto:$contact_email'>$contact_email</a><button class='btn btn-sm clipboardjs' type='button' data-clipboard-text='$contact_email'><i class='far fa-copy text-secondary'></i></button></div>";
-                        }
-                        $contact_info_display = "$contact_phone_display $contact_mobile_display $contact_email_display";
-                        if (empty($contact_info_display)) {
-                            $contact_info_display = "-";
-                        }
-                        $contact_pin = escapeHtml($row['contact_pin']);
-                        $contact_photo = escapeHtml($row['contact_photo']);
-                        $contact_initials = initials($contact_name);
-                        $contact_notes = escapeHtml($row['contact_notes']);
-                        $contact_primary = intval($row['contact_primary']);
-                        $contact_important = intval($row['contact_important']);
-                        $contact_billing = intval($row['contact_billing']);
-                        $contact_technical = intval($row['contact_technical']);
-                        $contact_created_at = escapeHtml($row['contact_created_at']);
-                        $contact_archived_at = escapeHtml($row['contact_archived_at']);
-                        if ($contact_primary == 1) {
-                            $contact_primary_display = "<small class='text-success'>Primary Contact</small>";
-                        } else {
-                            $contact_primary_display = false;
-                        }
-                        $contact_location_id = intval($row['contact_location_id']);
-                        $location_name = escapeHtml($row['location_name']);
-                        if (empty($location_name)) {
-                            $location_name = "<span class='text-muted'>N/A</span>";
-                        }
-                        $location_archived_at = escapeHtml($row['location_archived_at']);
-                        if ($location_archived_at) {
-                            $location_name_display = "<div class='text-danger' title='Archived'><s>$location_name</s></div>";
-                        } else {
-                            $location_name_display = $location_name;
-                        }
-                        $auth_method = escapeHtml($row['user_auth_method']);
-                        $contact_user_id = intval($row['contact_user_id']);
-                        if ($contact_user_id) {
-                            $user_exists_display = "<span class='badge rounded-pill bg-dark p-1' title='User: $auth_method'><i class='fas fa-fw fa-user'></i></span>";
-                        } else {
-                            $user_exists_display = "";
-                        }
-
-                        // Counts
-
-                        // Asset Count
-                        $row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT COUNT('asset_id') AS num FROM assets WHERE asset_contact_id = $contact_id AND asset_archived_at IS NULL"));
-                        $asset_count = $row['num'];
-                        if ($asset_count) {
-                            $asset_count_display = "<a href='contact.php?client_id=$client_id&contact_id=$contact_id#assets' class='me-2 mb-1 badge rounded-pill bg-dark p-2' title='Assets ($asset_count)'><i class='fas fa-fw fa-desktop me-2'></i>$asset_count</a>";
-                        } else {
-                            $asset_count_display = '';
-                        }
-
-                        // Credential Count
-                        $row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT COUNT('credential_id') AS num FROM credentials WHERE credential_contact_id = $contact_id AND credential_archived_at IS NULL"));
-                        $credential_count = $row['num'];
-                        if ($credential_count) {
-                            $credential_count_display = "<a href='contact.php?client_id=$client_id&contact_id=$contact_id#credentials' class='me-2 mb-1 badge rounded-pill bg-secondary p-2' title='Credentials ($credential_count)'><i class='fas fa-fw fa-key me-2'></i>$credential_count</a>";
-                        } else {
-                            $credential_count_display = '';
-                        }
-
-                        // Software Count
-                        $row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT COUNT('software_id') AS num FROM software, software_contacts WHERE software.software_id = software_contacts.software_id AND software_contacts.contact_id = $contact_id AND software_archived_at IS NULL"));
-                        $software_count = $row['num'];
-                        if ($software_count) {
-                            $software_count_display = "<a href='contact.php?client_id=$client_id&contact_id=$contact_id#software' class='me-2 mb-1 badge rounded-pill bg-secondary p-2' title='Licenses ($software_count)'><i class='fas fa-fw fa-cube me-2'></i>$software_count</a>";
-                        } else {
-                            $software_count_display = '';
-                        }
-
-                        // Ticket Count
-                        $row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT COUNT('ticket_id') AS num FROM tickets WHERE ticket_contact_id = $contact_id AND ticket_archived_at IS NULL"));
-                        $ticket_count = $row['num'];
-                        if ($ticket_count) {
-                            $ticket_count_display = "<a href='contact.php?client_id=$client_id&contact_id=$contact_id#tickets' class='me-2 mb-1 badge rounded-pill bg-secondary p-2' title='Tickets ($ticket_count)'><i class='fas fa-fw fa-life-ring me-2'></i>$ticket_count</a>";
-                        } else {
-                            $ticket_count_display = '';
-                        }
-
-                        // Tags
-                        $contact_tag_name_display_array = array();
-                        $contact_tag_id_array = array();
-                        $sql_contact_tags = mysqli_query($mysqli, "SELECT tag_color, tag_icon, contact_tags.tag_id, tag_name FROM contact_tags LEFT JOIN tags ON contact_tags.tag_id = tags.tag_id WHERE contact_id = $contact_id ORDER BY tag_name ASC");
-                        while ($row = mysqli_fetch_assoc($sql_contact_tags)) {
-
-                            $contact_tag_id = intval($row['tag_id']);
-                            $contact_tag_name = escapeHtml($row['tag_name']);
-                            $contact_tag_color = escapeHtml($row['tag_color']);
-                            if (empty($contact_tag_color)) {
-                                $contact_tag_color = "dark";
-                            }
-                            $contact_tag_icon = escapeHtml($row['tag_icon']);
-                            if (empty($contact_tag_icon)) {
-                                $contact_tag_icon = "tag";
-                            }
-
-                            $contact_tag_id_array[] = $contact_tag_id;
-                            $contact_tag_name_display_array[] = "<a href='contacts.php?$client_url tags[]=$contact_tag_id'><span class='badge text-light p-1 me-1' style='background-color: $contact_tag_color;'><i class='fa fa-fw fa-$contact_tag_icon me-2'></i>$contact_tag_name</span></a>";
-                        }
-                        $contact_tags_display = implode('', $contact_tag_name_display_array);
-
-                        ?>
-                        <tr>
-                            <td class="bg-light checkbox-column">
-                                <div class="form-check">
-                                    <input class="form-check-input bulk-select" type="checkbox" name="contact_ids[]" value="<?= $contact_id ?>">
-                                </div>
-                            </td>
-                            <td>
-                                <a class="text-dark" href="contact.php?client_id=<?= $client_id ?>&contact_id=<?= $contact_id ?>">
-                                    <div class="d-flex">
-                                        <?php if ($contact_photo) { ?>
-                                            <span class="fa-stack fa-2x me-3 text-center">
-                                                <img class="img-size-50 rounded-circle" src="<?= "../uploads/clients/$client_id/$contact_photo" ?>">
-                                            </span>
+                        <td>
+                            <div class="dropdown dropstart text-center">
+                                <button class="btn btn-secondary btn-sm" type="button" data-bs-toggle="dropdown">
+                                    <i class="fas fa-ellipsis-h"></i>
+                                </button>
+                                <div class="dropdown-menu">
+                                    <a class="dropdown-item" href="contact.php?<?= $client_url ?>contact_id=<?= $contact_id ?>">
+                                        <i class="fas fa-fw fa-eye me-2"></i>Details
+                                    </a>
+                                    <a class="dropdown-item ajax-modal" href="#" data-modal-url="modals/contact/contact_note_add.php?id=<?= $contact_id ?>">
+                                        <i class="fas fa-fw fa-sticky-note me-2"></i>Make Note
+                                    </a>
+                                    <a class="dropdown-item ajax-modal" href="#" data-modal-url="modals/contact/contact_edit.php?id=<?= $contact_id ?>">
+                                        <i class="fas fa-fw fa-edit me-2"></i>Edit
+                                    </a>
+                                    <?php if ($session_user_role == 3 && $contact_primary == 0) { ?>
+                                        <?php if ($contact_archived_at) { ?>
+                                        <div class="dropdown-divider"></div>
+                                        <a class="dropdown-item text-info confirm-link" href="post.php?restore_contact=<?= $contact_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>">
+                                            <i class="fas fa-fw fa-redo me-2"></i>Restore
+                                        </a>
                                         <?php } else { ?>
-                                            <span class="fa-stack fa-2x me-3">
-                                                <i class="fa fa-circle fa-stack-2x text-secondary"></i>
-                                                <span class="fa fa-stack-1x text-white"><?= $contact_initials ?></span>
-                                            </span>
+                                        <div class="dropdown-divider"></div>
+                                        <a class="dropdown-item text-danger confirm-link" href="post.php?archive_contact=<?= $contact_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>">
+                                            <i class="fas fa-fw fa-archive me-2"></i>Archive
+                                        </a>
+                                        <div class="dropdown-divider"></div>
+                                        <a class="dropdown-item text-danger confirm-link" href="post.php?anonymize_contact=<?= $contact_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>">
+                                            <i class="fas fa-fw fa-user-secret me-2"></i>Anonymize & Archive
+                                        </a>
                                         <?php } ?>
 
-                                        <div class="flex-grow-1">
-                                            <div class="<?php if($contact_important) { echo "text-bold"; } ?>"><?= $contact_name ?> <?= $user_exists_display ?></div>
-                                            <?= $contact_title_display ?>
-                                            <div><?= $contact_primary_display ?></div>
-                                            <?php
-                                            if (!empty($contact_tags_display)) { ?>
-                                                <div class="mt-1">
-                                                    <?= $contact_tags_display ?>
-                                                </div>
-                                            <?php } ?>
-                                        </div>
-                                    </div>
-                                </a>
-
-                            </td>
-                            <td><?= $contact_department ?></td>
-                            <td><?= $contact_info_display ?></td>
-                            <td><?= $location_name_display ?></td>
-                            <td>
-                                <?= "$asset_count_display$credential_count_display$software_count_display$ticket_count_display" ?>
-                            </td>
-                            <?php if (!$client_url) { ?>
-                            <td><a href="contacts.php?client_id=<?= $client_id ?>"><?= $client_name ?></a></td>
-                            <?php } ?>
-                            <td>
-                                <div class="dropdown dropstart text-center">
-                                    <button class="btn btn-secondary btn-sm" type="button" data-bs-toggle="dropdown">
-                                        <i class="fas fa-ellipsis-h"></i>
-                                    </button>
-                                    <div class="dropdown-menu">
-                                        <a class="dropdown-item" href="contact.php?<?= $client_url ?>contact_id=<?= $contact_id ?>">
-                                            <i class="fas fa-fw fa-eye me-2"></i>Details
+                                        <?php if ($config_destructive_deletes_enable) { ?>
+                                        <div class="dropdown-divider"></div>
+                                        <a class="dropdown-item text-danger text-bold confirm-link" href="post.php?delete_contact=<?= $contact_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>">
+                                            <i class="fas fa-fw fa-trash me-2"></i>Delete
                                         </a>
-                                        <a class="dropdown-item ajax-modal" href="#" data-modal-url="modals/contact/contact_note_add.php?id=<?= $contact_id ?>">
-                                            <i class="fas fa-fw fa-sticky-note me-2"></i>Make Note
-                                        </a>
-                                        <a class="dropdown-item ajax-modal" href="#" data-modal-url="modals/contact/contact_edit.php?id=<?= $contact_id ?>">
-                                            <i class="fas fa-fw fa-edit me-2"></i>Edit
-                                        </a>
-                                        <?php if ($session_user_role == 3 && $contact_primary == 0) { ?>
-                                            <?php if ($contact_archived_at) { ?>
-                                            <div class="dropdown-divider"></div>
-                                            <a class="dropdown-item text-info confirm-link" href="post.php?restore_contact=<?= $contact_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>">
-                                                <i class="fas fa-fw fa-redo me-2"></i>Restore
-                                            </a>
-                                            <?php } else { ?>
-                                            <div class="dropdown-divider"></div>
-                                            <a class="dropdown-item text-danger confirm-link" href="post.php?archive_contact=<?= $contact_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>">
-                                                <i class="fas fa-fw fa-archive me-2"></i>Archive
-                                            </a>
-                                            <div class="dropdown-divider"></div>
-                                            <a class="dropdown-item text-danger confirm-link" href="post.php?anonymize_contact=<?= $contact_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>">
-                                                <i class="fas fa-fw fa-user-secret me-2"></i>Anonymize & Archive
-                                            </a>
-                                            <?php } ?>
-
-                                            <?php if ($config_destructive_deletes_enable) { ?>
-                                            <div class="dropdown-divider"></div>
-                                            <a class="dropdown-item text-danger text-bold confirm-link" href="post.php?delete_contact=<?= $contact_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>">
-                                                <i class="fas fa-fw fa-trash me-2"></i>Delete
-                                            </a>
-                                            <?php } ?>
                                         <?php } ?>
-                                    </div>
+                                    <?php } ?>
                                 </div>
-                            </td>
-                        </tr>
+                            </div>
+                        </td>
+                    </tr>
 
-                        <?php
-                    }
+                    <?php
+                }
 
-                    ?>
+                ?>
 
-                    </tbody>
-                </table>
-            </div>
-        </form>
-        <?php require_once "../includes/filter_footer.php"; ?>
-    </div>
+                </tbody>
+            </table>
+        </div>
+    </form>
+    <?php require_once "../includes/filter_footer.php"; ?>
 </div>
 
 <script src="../js/bulk_actions.js"></script>

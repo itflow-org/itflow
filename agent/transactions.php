@@ -217,8 +217,8 @@ if ($account_filter) {
 
 ?>
 
-    <div class="card card-dark">
-        <div class="card-header py-2">
+    <div class="card">
+        <div class="card-header bg-dark py-2">
             <h3 class="card-title mt-2"><i class="fas fa-fw fa-list-alt me-2"></i>Transactions</h3>
             <?php if ($account_filter) { ?>
             <div class="card-tools">
@@ -227,12 +227,12 @@ if ($account_filter) {
             <?php } ?>
         </div>
 
-        <div class="card-body">
-            <form class="mb-4" autocomplete="off">
-                <div class="row">
+        <div class="card-header py-3">
+            <form autocomplete="off">
+                <div class="row g-2 align-items-end">
                     <div class="col-sm-3">
-                        <div class="mb-3">
-                            <label>Search</label>
+                        <div>
+                            <label class="form-label">Search</label>
                             <div class="input-group">
                                 <input type="search" class="form-control" name="q" value="<?php if (isset($q)) { echo stripslashes(escapeHtml($q)); } ?>" placeholder="Search Transactions">
                                     <button class="btn btn-primary"><i class="fa fa-search"></i></button>
@@ -240,8 +240,8 @@ if ($account_filter) {
                         </div>
                     </div>
                     <div class="col-sm-3">
-                        <div class="mb-3">
-                            <label>Account</label>
+                        <div>
+                            <label class="form-label">Account</label>
                             <select class="form-select select2" name="account" onchange="this.form.submit()">
                                 <option value="">- Select an Account -</option>
 
@@ -270,8 +270,8 @@ if ($account_filter) {
                         </div>
                     </div>
                     <div class="col-sm-3">
-                        <div class="mb-3">
-                            <label>Type</label>
+                        <div>
+                            <label class="form-label">Type</label>
                             <select class="form-select select2" name="type" onchange="this.form.submit()">
                                 <option value="">- All Types -</option>
 
@@ -283,8 +283,8 @@ if ($account_filter) {
                         </div>
                     </div>
                     <div class="col-sm-3">
-                        <div class="mb-3">
-                            <label>Category</label>
+                        <div>
+                            <label class="form-label">Category</label>
                             <select class="form-select select2" name="category" onchange="this.form.submit()">
                                 <option value="">- All Categories -</option>
 
@@ -303,10 +303,10 @@ if ($account_filter) {
                         </div>
                     </div>
                 </div>
-                <div class="row">
+                <div class="row g-3">
                     <div class="col-sm-3">
-                        <div class="mb-3 mb-md-0">
-                            <label>Client</label>
+                        <div>
+                            <label class="form-label">Client</label>
                             <select class="form-select select2" name="client" onchange="this.form.submit()">
                                 <option value="">- All Clients -</option>
 
@@ -325,8 +325,8 @@ if ($account_filter) {
                         </div>
                     </div>
                     <div class="col-sm-3">
-                        <div class="mb-3 mb-md-0">
-                            <label>Payment Method</label>
+                        <div>
+                            <label class="form-label">Payment Method</label>
                             <select class="form-select select2" name="payment_method" onchange="this.form.submit()">
                                 <option value="">- All Methods -</option>
 
@@ -344,8 +344,8 @@ if ($account_filter) {
                         </div>
                     </div>
                     <div class="col-sm-3">
-                        <div class="mb-3 mb-md-0">
-                            <label>Amount Range</label>
+                        <div>
+                            <label class="form-label">Amount Range</label>
                             <div class="input-group">
                                 <input type="number" step="0.01" min="0" class="form-control" name="amount_min" value="<?= $amount_min_filter ?>" placeholder="Min" onchange="this.form.submit()">
                                 <input type="number" step="0.01" min="0" class="form-control" name="amount_max" value="<?= $amount_max_filter ?>" placeholder="Max" onchange="this.form.submit()">
@@ -353,8 +353,8 @@ if ($account_filter) {
                         </div>
                     </div>
                     <div class="col-sm-3">
-                        <div class="mb-3 mb-md-0">
-                            <label>Date Range</label>
+                        <div>
+                            <label class="form-label">Date Range</label>
                             <input type="text" id="dateFilter" class="form-control" autocomplete="off">
                             <input type="hidden" name="canned_date" id="canned_date" value="<?= escapeHtml($_GET['canned_date']) ?? '' ?>">
                             <input type="hidden" name="dtf" id="dtf" value="<?= escapeHtml($dtf ?? '') ?>">
@@ -363,181 +363,181 @@ if ($account_filter) {
                     </div>
                 </div>
             </form>
-            <hr>
+        </div>
 
-            <?php if ($account_filter) { ?>
+        <?php if ($account_filter) { ?>
 
-            <div class="row">
-                <div class="col-lg-4 col-md-6 col-sm-12">
-                    <!-- small box -->
-                    <div class="small-box bg-success">
-                        <div class="inner">
-                            <h3><?= numfmt_format_currency($currency_format, $summary_total_in, $account_currency_code) ?></h3>
-                            <p>Money In</p>
-                        </div>
-                        <div class="icon">
-                            <i class="fa fa-hand-holding-usd"></i>
-                        </div>
+        <div class="row">
+            <div class="col-lg-4 col-md-6 col-sm-12">
+                <!-- small box -->
+                <div class="small-box bg-success">
+                    <div class="inner">
+                        <h3><?= numfmt_format_currency($currency_format, $summary_total_in, $account_currency_code) ?></h3>
+                        <p>Money In</p>
+                    </div>
+                    <div class="icon">
+                        <i class="fa fa-hand-holding-usd"></i>
                     </div>
                 </div>
-                <!-- ./col -->
-
-                <div class="col-lg-4 col-md-6 col-sm-12">
-                    <!-- small box -->
-                    <div class="small-box bg-danger">
-                        <div class="inner">
-                            <h3><?= numfmt_format_currency($currency_format, $summary_total_out, $account_currency_code) ?></h3>
-                            <p>Money Out</p>
-                        </div>
-                        <div class="icon">
-                            <i class="fa fa-shopping-cart"></i>
-                        </div>
-                    </div>
-                </div>
-                <!-- ./col -->
-
-                <div class="col-lg-4 col-md-6 col-sm-12">
-                    <!-- small box -->
-                    <div class="small-box <?php if ($summary_total_net < 0) { echo "bg-danger"; } else { echo "bg-primary"; } ?>">
-                        <div class="inner">
-                            <h3><?= numfmt_format_currency($currency_format, $summary_total_net, $account_currency_code) ?></h3>
-                            <p>Net</p>
-                        </div>
-                        <div class="icon">
-                            <i class="fa fa-balance-scale"></i>
-                        </div>
-                    </div>
-                </div>
-                <!-- ./col -->
             </div>
+            <!-- ./col -->
 
-            <div class="table-responsive">
-                <table class="table table-striped table-borderless table-hover">
-                    <thead class="text-dark <?php if ($num_rows[0] == 0) { echo "d-none"; } ?>">
-                    <tr>
-                        <th>
-                            <a class="text-dark" href="?<?= $url_query_strings_sort ?>&sort=transaction_date&order=<?= $disp ?>">
-                                Date <?php if ($sort == 'transaction_date') { echo $order_icon; } ?>
-                            </a>
-                        </th>
-                        <th>
-                            <a class="text-dark" href="?<?= $url_query_strings_sort ?>&sort=transaction_type&order=<?= $disp ?>">
-                                Type <?php if ($sort == 'transaction_type') { echo $order_icon; } ?>
-                            </a>
-                        </th>
-                        <th>
-                            <a class="text-dark" href="?<?= $url_query_strings_sort ?>&sort=transaction_category&order=<?= $disp ?>">
-                                Category <?php if ($sort == 'transaction_category') { echo $order_icon; } ?>
-                            </a>
-                            /
-                            <a class="text-secondary" href="?<?= $url_query_strings_sort ?>&sort=transaction_description&order=<?= $disp ?>">
-                                Description <?php if ($sort == 'transaction_description') { echo $order_icon; } ?>
-                            </a>
-                        </th>
-                        <th class="text-end">
-                            <a class="text-dark" href="?<?= $url_query_strings_sort ?>&sort=transaction_amount&order=<?= $disp ?>">
-                                Amount <?php if ($sort == 'transaction_amount') { echo $order_icon; } ?>
-                            </a>
-                        </th>
-                        <?php if ($balance_visible) { ?>
-                        <th class="text-end">Balance</th>
-                        <?php } ?>
-                    </tr>
-                    </thead>
-                    <tbody>
-                    <?php
+            <div class="col-lg-4 col-md-6 col-sm-12">
+                <!-- small box -->
+                <div class="small-box bg-danger">
+                    <div class="inner">
+                        <h3><?= numfmt_format_currency($currency_format, $summary_total_out, $account_currency_code) ?></h3>
+                        <p>Money Out</p>
+                    </div>
+                    <div class="icon">
+                        <i class="fa fa-shopping-cart"></i>
+                    </div>
+                </div>
+            </div>
+            <!-- ./col -->
 
-                    while ($row = mysqli_fetch_assoc($sql)) {
-                        $transaction_id = intval($row['transaction_id']);
-                        $transaction_transfer_id = intval($row['transaction_transfer_id']);
-                        $transaction_invoice_id = intval($row['transaction_invoice_id']);
-                        $transaction_type = escapeHtml($row['transaction_type']);
-                        $transaction_date = escapeHtml($row['transaction_date']);
-                        $transaction_description = escapeHtml($row['transaction_description']);
-                        $transaction_category = escapeHtml($row['transaction_category']);
-                        $transaction_other_account = escapeHtml($row['transaction_other_account']);
-                        $transaction_amount = floatval($row['transaction_amount']);
-                        $transaction_balance = floatval($row['transaction_balance']);
-                        $transaction_currency_code = escapeHtml($row['transaction_currency_code']);
+            <div class="col-lg-4 col-md-6 col-sm-12">
+                <!-- small box -->
+                <div class="small-box <?php if ($summary_total_net < 0) { echo "bg-danger"; } else { echo "bg-primary"; } ?>">
+                    <div class="inner">
+                        <h3><?= numfmt_format_currency($currency_format, $summary_total_net, $account_currency_code) ?></h3>
+                        <p>Net</p>
+                    </div>
+                    <div class="icon">
+                        <i class="fa fa-balance-scale"></i>
+                    </div>
+                </div>
+            </div>
+            <!-- ./col -->
+        </div>
 
-                        // Category cell display - transfers show the other account instead of a category
-                        if ($transaction_type == 'Transfer In') {
-                            $transaction_category_display = "<i class='fas fa-fw fa-arrow-left text-secondary me-1'></i>From $transaction_other_account";
-                        } elseif ($transaction_type == 'Transfer Out') {
-                            $transaction_category_display = "<i class='fas fa-fw fa-arrow-right text-secondary me-1'></i>To $transaction_other_account";
-                        } else {
-                            $transaction_category_display = $transaction_category;
-                        }
+        <div class="table-responsive">
+            <table class="table table-striped table-borderless table-hover mb-0">
+                <thead class="text-dark <?php if ($num_rows[0] == 0) { echo "d-none"; } ?>">
+                <tr>
+                    <th>
+                        <a class="text-dark" href="?<?= $url_query_strings_sort ?>&sort=transaction_date&order=<?= $disp ?>">
+                            Date <?php if ($sort == 'transaction_date') { echo $order_icon; } ?>
+                        </a>
+                    </th>
+                    <th>
+                        <a class="text-dark" href="?<?= $url_query_strings_sort ?>&sort=transaction_type&order=<?= $disp ?>">
+                            Type <?php if ($sort == 'transaction_type') { echo $order_icon; } ?>
+                        </a>
+                    </th>
+                    <th>
+                        <a class="text-dark" href="?<?= $url_query_strings_sort ?>&sort=transaction_category&order=<?= $disp ?>">
+                            Category <?php if ($sort == 'transaction_category') { echo $order_icon; } ?>
+                        </a>
+                        /
+                        <a class="text-secondary" href="?<?= $url_query_strings_sort ?>&sort=transaction_description&order=<?= $disp ?>">
+                            Description <?php if ($sort == 'transaction_description') { echo $order_icon; } ?>
+                        </a>
+                    </th>
+                    <th class="text-end">
+                        <a class="text-dark" href="?<?= $url_query_strings_sort ?>&sort=transaction_amount&order=<?= $disp ?>">
+                            Amount <?php if ($sort == 'transaction_amount') { echo $order_icon; } ?>
+                        </a>
+                    </th>
+                    <?php if ($balance_visible) { ?>
+                    <th class="text-end">Balance</th>
+                    <?php } ?>
+                </tr>
+                </thead>
+                <tbody>
+                <?php
 
-                        // Badge color based on type
-                        if ($transaction_type == 'Revenue' || $transaction_type == 'Payment') {
-                            $transaction_badge_color = "success";
-                        } elseif ($transaction_type == 'Expense') {
-                            $transaction_badge_color = "danger";
-                        } else {
-                            $transaction_badge_color = "secondary";
-                        }
+                while ($row = mysqli_fetch_assoc($sql)) {
+                    $transaction_id = intval($row['transaction_id']);
+                    $transaction_transfer_id = intval($row['transaction_transfer_id']);
+                    $transaction_invoice_id = intval($row['transaction_invoice_id']);
+                    $transaction_type = escapeHtml($row['transaction_type']);
+                    $transaction_date = escapeHtml($row['transaction_date']);
+                    $transaction_description = escapeHtml($row['transaction_description']);
+                    $transaction_category = escapeHtml($row['transaction_category']);
+                    $transaction_other_account = escapeHtml($row['transaction_other_account']);
+                    $transaction_amount = floatval($row['transaction_amount']);
+                    $transaction_balance = floatval($row['transaction_balance']);
+                    $transaction_currency_code = escapeHtml($row['transaction_currency_code']);
 
-                        // Amount text color
-                        if ($transaction_amount < 0) {
-                            $transaction_amount_color = "text-danger";
-                        } else {
-                            $transaction_amount_color = "text-success";
-                        }
-
-                        // Balance text color
-                        if ($transaction_balance < 0) {
-                            $transaction_balance_color = "text-danger";
-                        } else {
-                            $transaction_balance_color = "";
-                        }
-
-                        // Route the date link to the right edit modal based on type
-                        if ($transaction_type == 'Transfer In' || $transaction_type == 'Transfer Out') {
-                            $transaction_modal_url = "modals/transfer/transfer_edit.php?id=$transaction_transfer_id";
-                        } elseif ($transaction_type == 'Expense') {
-                            $transaction_modal_url = "modals/expense/expense_edit.php?id=$transaction_id";
-                        } elseif ($transaction_type == 'Revenue') {
-                            $transaction_modal_url = "modals/revenue/revenue_edit.php?id=$transaction_id";
-                        } else {
-                            $transaction_modal_url = "";
-                        }
-
-                        ?>
-
-                        <tr>
-                            <td>
-                                <?php if ($transaction_type == 'Payment') { ?>
-                                    <a class="text-bold" href="invoice.php?invoice_id=<?= $transaction_invoice_id ?>">
-                                        <?= $transaction_date ?>
-                                    </a>
-                                <?php } else { ?>
-                                    <a class="text-bold ajax-modal" href="#"
-                                        data-modal-size="lg"
-                                        data-modal-url="<?= $transaction_modal_url ?>">
-                                        <?= $transaction_date ?>
-                                    </a>
-                                <?php } ?>
-                            </td>
-                            <td><span class="badge text-bg-<?= $transaction_badge_color ?>"><?= $transaction_type ?></span></td>
-                            <td>
-                                <?= $transaction_category_display ?>
-                                <div class="text-secondary"><small><?= truncate($transaction_description, 60) ?></small></div>
-                            </td>
-                            <td class="text-end font-monospace <?= $transaction_amount_color ?>"><?= numfmt_format_currency($currency_format, $transaction_amount, $transaction_currency_code) ?></td>
-                            <?php if ($balance_visible) { ?>
-                            <td class="text-end font-monospace <?= $transaction_balance_color ?>"><?= numfmt_format_currency($currency_format, $transaction_balance, $transaction_currency_code) ?></td>
-                            <?php } ?>
-                        </tr>
-
-                        <?php
+                    // Category cell display - transfers show the other account instead of a category
+                    if ($transaction_type == 'Transfer In') {
+                        $transaction_category_display = "<i class='fas fa-fw fa-arrow-left text-secondary me-1'></i>From $transaction_other_account";
+                    } elseif ($transaction_type == 'Transfer Out') {
+                        $transaction_category_display = "<i class='fas fa-fw fa-arrow-right text-secondary me-1'></i>To $transaction_other_account";
+                    } else {
+                        $transaction_category_display = $transaction_category;
                     }
+
+                    // Badge color based on type
+                    if ($transaction_type == 'Revenue' || $transaction_type == 'Payment') {
+                        $transaction_badge_color = "success";
+                    } elseif ($transaction_type == 'Expense') {
+                        $transaction_badge_color = "danger";
+                    } else {
+                        $transaction_badge_color = "secondary";
+                    }
+
+                    // Amount text color
+                    if ($transaction_amount < 0) {
+                        $transaction_amount_color = "text-danger";
+                    } else {
+                        $transaction_amount_color = "text-success";
+                    }
+
+                    // Balance text color
+                    if ($transaction_balance < 0) {
+                        $transaction_balance_color = "text-danger";
+                    } else {
+                        $transaction_balance_color = "";
+                    }
+
+                    // Route the date link to the right edit modal based on type
+                    if ($transaction_type == 'Transfer In' || $transaction_type == 'Transfer Out') {
+                        $transaction_modal_url = "modals/transfer/transfer_edit.php?id=$transaction_transfer_id";
+                    } elseif ($transaction_type == 'Expense') {
+                        $transaction_modal_url = "modals/expense/expense_edit.php?id=$transaction_id";
+                    } elseif ($transaction_type == 'Revenue') {
+                        $transaction_modal_url = "modals/revenue/revenue_edit.php?id=$transaction_id";
+                    } else {
+                        $transaction_modal_url = "";
+                    }
+
                     ?>
 
-                    </tbody>
-                </table>
-            </div>
-            <?php require_once "../includes/filter_footer.php"; ?>
+                    <tr>
+                        <td>
+                            <?php if ($transaction_type == 'Payment') { ?>
+                                <a class="text-bold" href="invoice.php?invoice_id=<?= $transaction_invoice_id ?>">
+                                    <?= $transaction_date ?>
+                                </a>
+                            <?php } else { ?>
+                                <a class="text-bold ajax-modal" href="#"
+                                    data-modal-size="lg"
+                                    data-modal-url="<?= $transaction_modal_url ?>">
+                                    <?= $transaction_date ?>
+                                </a>
+                            <?php } ?>
+                        </td>
+                        <td><span class="badge text-bg-<?= $transaction_badge_color ?>"><?= $transaction_type ?></span></td>
+                        <td>
+                            <?= $transaction_category_display ?>
+                            <div class="text-secondary"><small><?= truncate($transaction_description, 60) ?></small></div>
+                        </td>
+                        <td class="text-end font-monospace <?= $transaction_amount_color ?>"><?= numfmt_format_currency($currency_format, $transaction_amount, $transaction_currency_code) ?></td>
+                        <?php if ($balance_visible) { ?>
+                        <td class="text-end font-monospace <?= $transaction_balance_color ?>"><?= numfmt_format_currency($currency_format, $transaction_balance, $transaction_currency_code) ?></td>
+                        <?php } ?>
+                    </tr>
+
+                    <?php
+                }
+                ?>
+
+                </tbody>
+            </table>
+        </div>
+        <?php require_once "../includes/filter_footer.php"; ?>
 
             <?php } else { ?>
 
@@ -545,7 +545,6 @@ if ($account_filter) {
 
             <?php } ?>
 
-        </div>
     </div>
 
 <?php

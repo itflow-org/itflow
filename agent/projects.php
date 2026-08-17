@@ -49,8 +49,8 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 
 ?>
 
-<div class="card card-dark">
-    <div class="card-header py-2">
+<div class="card">
+    <div class="card-header bg-dark py-2">
         <h3 class="card-title mt-2"><i class="fas fa-fw fa-project-diagram me-2"></i>Projects</h3>
         <?php if (lookupUserPermission("module_support") >= 2) { ?>
             <div class="card-tools">
@@ -59,31 +59,31 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
         <?php } ?>
     </div>
 
-    <div class="card-body">
-        <form class="mb-4" autocomplete="off">
+    <div class="card-header py-3">
+        <form autocomplete="off">
             <?php if ($client_url) { ?>
                 <input type="hidden" name="client_id" value="<?= $client_id ?>">
             <?php } ?>
             <input type="hidden" name="status" value="<?= $status ?>">
             <input type="hidden" name="archived" value="<?= $archived ?>">
-            <div class="row">
+            <div class="row g-2 align-items-end">
                 <div class="col-sm-4">
-                    <div class="input-group mb-3 mb-sm-0">
+                    <div class="input-group">
                         <input type="search" class="form-control" name="q" value="<?php if (isset($q)) {echo stripslashes(escapeHtml($q));} ?>" placeholder="Search Projects">
                             <button class="btn btn-secondary" type="button" data-bs-toggle="collapse" data-bs-target="#advancedFilter"><i class="fas fa-filter"></i></button>
                             <button class="btn btn-primary"><i class="fa fa-search"></i></button>
                     </div>
                 </div>
                 <div class="col-sm-8">
-                    <div class="btn-toolbar float-end">
+                    <div class="btn-toolbar justify-content-md-end">
                         <div class="btn-group me-2">
-                            <a href="?<?= $client_url ?>status=0" class="btn btn-<?php if ($status == 0){ echo "primary"; } else { echo "default"; } ?>"><i class="fa fa-fw fa-door-open me-2"></i>Open</a>
-                            <a href="?<?= $client_url ?>status=1" class="btn btn-<?php if ($status == 1){ echo "primary"; } else { echo "default"; } ?>"><i class="fa fa-fw fa-door-closed me-2"></i>Closed</a>
+                            <a href="?<?= $client_url ?>status=0" class="btn btn-<?php if ($status == 0){ echo"primary"; } else { echo "default"; } ?>"><i class="fa fa-fw fa-door-open me-2"></i>Open</a>
+                            <a href="?<?= $client_url ?>status=1" class="btn btn-<?php if ($status == 1){ echo"primary"; } else { echo "default"; } ?>"><i class="fa fa-fw fa-door-closed me-2"></i>Closed</a>
                         </div>
 
                         <div class="btn-group">
                             <a href="?<?= $url_query_strings_sort ?>&archived=<?php if($archived == 1){ echo 0; } else { echo 1; } ?>"
-                               class="btn btn-<?php if ($archived == 1) { echo "primary"; } else { echo "default"; } ?>">
+                               class="btn btn-<?php if ($archived == 1) { echo"primary"; } else { echo "default"; } ?>">
                                 <i class="fa fa-fw fa-archive me-2"></i>Archived
                             </a>
                         </div>
@@ -91,11 +91,11 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                     </div>
                 </div>
             </div>
-            <div class="collapse mt-3 <?php if (isset($_GET['dtf']) && $_GET['dtf'] !== '1970-01-01') { echo "show"; } ?>" id="advancedFilter">
-                <div class="row">
+            <div class="collapse mt-3 <?php if (isset($_GET['dtf']) && $_GET['dtf'] !== '1970-01-01') { echo"show"; } ?>" id="advancedFilter">
+                <div class="row g-3">
                     <div class="col-md-3">
-                        <div class="mb-3">
-                            <label>Date range</label>
+                        <div>
+                            <label class="form-label">Date range</label>
                             <input type="text" id="dateFilter" class="form-control" autocomplete="off">
                             <input type="hidden" name="canned_date" id="canned_date" value="<?= escapeHtml($_GET['canned_date']) ?? '' ?>">
                             <input type="hidden" name="dtf" id="dtf" value="<?= escapeHtml($dtf ?? '') ?>">
@@ -105,201 +105,200 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                 </div>
             </div>
         </form>
-        <hr>
-        <div class="table-responsive">
-            <table class="table table-striped table-hover table-borderless">
-                <thead class="<?php if ($num_rows[0] == 0) { echo "d-none"; } ?> text-nowrap">
-                <tr>
-                    <th>
-                        <a class="text-dark" href="?<?= $url_query_strings_sort ?>&sort=project_number&order=<?= $disp ?>">
-                            Number <?php if ($sort == 'project_number') { echo $order_icon; } ?>
-                        </a>
-                    </th>
-                    <th>
-                        <a class="text-dark" href="?<?= $url_query_strings_sort ?>&sort=project_name&order=<?= $disp ?>">
-                            Project <?php if ($sort == 'project_name') { echo $order_icon; } ?>
-                        </a>
-                    </th>
-                    <th>Tickets / Tasks</th>
-                    <th>
-                        <a class="text-dark" href="?<?= $url_query_strings_sort ?>&sort=project_due&order=<?= $disp ?>">
-                            Due <?php if ($sort == 'project_due') { echo $order_icon; } ?>
-                        </a>
-                    </th>
-                    <?php if ($status == 1) { ?>
-                    <th>
-                        <a class="text-dark" href="?<?= $url_query_strings_sort ?>&sort=project_completed_at&order=<?= $disp ?>">
-                            Completed
-                        </a>
-                    </th>
-                    <?php } ?>
-                    <th>
-                        <a class="text-dark" href="?<?= $url_query_strings_sort ?>&sort=user_name&order=<?= $disp ?>">
-                            Manager
-                        </a>
-                    </th>
-                    <th>
-                        <a class="text-dark" href="?<?= $url_query_strings_sort ?>&sort=project_created_at&order=<?= $disp ?>">
-                            Created
-                        </a>
-                    </th>
-                    <?php if (!$client_url) { ?>
-                    <th>
-                        <a class="text-dark" href="?<?= $url_query_strings_sort ?>&sort=client_name&order=<?= $disp ?>">
-                            Client
-                        </a>
-                    </th>
-                    <?php } ?>
-                    <th class="text-center">Action</th>
-                </tr>
-                </thead>
-                <tbody>
-                <?php
+    </div>
+    <div class="table-responsive">
+        <table class="table table-striped table-hover table-borderless mb-0">
+            <thead class="<?php if ($num_rows[0] == 0) { echo "d-none"; } ?> text-nowrap">
+            <tr>
+                <th>
+                    <a class="text-dark" href="?<?= $url_query_strings_sort ?>&sort=project_number&order=<?= $disp ?>">
+                        Number <?php if ($sort == 'project_number') { echo $order_icon; } ?>
+                    </a>
+                </th>
+                <th>
+                    <a class="text-dark" href="?<?= $url_query_strings_sort ?>&sort=project_name&order=<?= $disp ?>">
+                        Project <?php if ($sort == 'project_name') { echo $order_icon; } ?>
+                    </a>
+                </th>
+                <th>Tickets / Tasks</th>
+                <th>
+                    <a class="text-dark" href="?<?= $url_query_strings_sort ?>&sort=project_due&order=<?= $disp ?>">
+                        Due <?php if ($sort == 'project_due') { echo $order_icon; } ?>
+                    </a>
+                </th>
+                <?php if ($status == 1) { ?>
+                <th>
+                    <a class="text-dark" href="?<?= $url_query_strings_sort ?>&sort=project_completed_at&order=<?= $disp ?>">
+                        Completed
+                    </a>
+                </th>
+                <?php } ?>
+                <th>
+                    <a class="text-dark" href="?<?= $url_query_strings_sort ?>&sort=user_name&order=<?= $disp ?>">
+                        Manager
+                    </a>
+                </th>
+                <th>
+                    <a class="text-dark" href="?<?= $url_query_strings_sort ?>&sort=project_created_at&order=<?= $disp ?>">
+                        Created
+                    </a>
+                </th>
+                <?php if (!$client_url) { ?>
+                <th>
+                    <a class="text-dark" href="?<?= $url_query_strings_sort ?>&sort=client_name&order=<?= $disp ?>">
+                        Client
+                    </a>
+                </th>
+                <?php } ?>
+                <th class="text-center">Action</th>
+            </tr>
+            </thead>
+            <tbody>
+            <?php
 
-                while ($row = mysqli_fetch_assoc($sql_projects)) {
-                    $project_id = intval($row['project_id']);
-                    $project_prefix = escapeHtml($row['project_prefix']);
-                    $project_number = intval($row['project_number']);
-                    $project_name = escapeHtml($row['project_name']);
-                    $project_description = escapeHtml($row['project_description']);
-                    $project_due = escapeHtml($row['project_due']);
-                    $project_created_at = escapeHtml($row['project_created_at']);
-                    $project_created_at_display = date("Y-m-d", strtotime($project_created_at));
-                    $project_updated_at = escapeHtml($row['project_updated_at']);
-                    $project_completed_at = escapeHtml($row['project_completed_at']);
-                    $project_completed_at_display = date("Y-m-d", strtotime($project_completed_at));
-                    $project_archived_at = escapeHtml($row['project_archived_at']);
+            while ($row = mysqli_fetch_assoc($sql_projects)) {
+                $project_id = intval($row['project_id']);
+                $project_prefix = escapeHtml($row['project_prefix']);
+                $project_number = intval($row['project_number']);
+                $project_name = escapeHtml($row['project_name']);
+                $project_description = escapeHtml($row['project_description']);
+                $project_due = escapeHtml($row['project_due']);
+                $project_created_at = escapeHtml($row['project_created_at']);
+                $project_created_at_display = date("Y-m-d", strtotime($project_created_at));
+                $project_updated_at = escapeHtml($row['project_updated_at']);
+                $project_completed_at = escapeHtml($row['project_completed_at']);
+                $project_completed_at_display = date("Y-m-d", strtotime($project_completed_at));
+                $project_archived_at = escapeHtml($row['project_archived_at']);
 
-                    $client_id = intval($row['client_id']);
-                    $client_name = escapeHtml($row['client_name']);
-                    if ($client_name) {
-                        $client_name_display = "<a href='projects.php?client_id=$client_id'>$client_name</a>";
-                    } else {
-                        $client_name_display = "-";
-                    }
+                $client_id = intval($row['client_id']);
+                $client_name = escapeHtml($row['client_name']);
+                if ($client_name) {
+                    $client_name_display = "<a href='projects.php?client_id=$client_id'>$client_name</a>";
+                } else {
+                    $client_name_display = "-";
+                }
 
-                    $project_manager = intval($row['user_id']);
-                    if ($project_manager) {
-                        $project_manager_display = escapeHtml($row['user_name']);
-                    } else {
-                        $project_manager_display = "-";
-                    }
+                $project_manager = intval($row['user_id']);
+                if ($project_manager) {
+                    $project_manager_display = escapeHtml($row['user_name']);
+                } else {
+                    $project_manager_display = "-";
+                }
 
 
-                    // Get Tasks and Tickets Stats
-                    // Get Tickets
-                    $row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT COUNT('ticket_id') AS count FROM tickets WHERE ticket_project_id = $project_id"));
-                    $ticket_count = $row['count'];
+                // Get Tasks and Tickets Stats
+                // Get Tickets
+                $row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT COUNT('ticket_id') AS count FROM tickets WHERE ticket_project_id = $project_id"));
+                $ticket_count = $row['count'];
 
-                    // Get Closed Ticket Count
-                    $row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT COUNT('ticket_id') AS count FROM tickets WHERE ticket_project_id = $project_id AND ticket_closed_at IS NOT NULL"));
-                    $closed_ticket_count = $row['count'];
+                // Get Closed Ticket Count
+                $row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT COUNT('ticket_id') AS count FROM tickets WHERE ticket_project_id = $project_id AND ticket_closed_at IS NOT NULL"));
+                $closed_ticket_count = $row['count'];
 
-                    // Ticket Closed Percent
-                    if($ticket_count) {
-                        $tickets_closed_percent = round(($closed_ticket_count / $ticket_count) * 100);
-                    }
-                    // Get All Tasks
-                    $row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT COUNT('task_id') AS count FROM tickets, tasks WHERE ticket_id = task_ticket_id AND ticket_project_id = $project_id"));
-                    $task_count = $row['count'];
+                // Ticket Closed Percent
+                if($ticket_count) {
+                    $tickets_closed_percent = round(($closed_ticket_count / $ticket_count) * 100);
+                }
+                // Get All Tasks
+                $row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT COUNT('task_id') AS count FROM tickets, tasks WHERE ticket_id = task_ticket_id AND ticket_project_id = $project_id"));
+                $task_count = $row['count'];
 
-                    // Get Completed Task Count
-                    $row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT COUNT('task_id') AS count FROM tickets, tasks WHERE ticket_id = task_ticket_id AND ticket_project_id = $project_id AND task_completed_at IS NOT NULL"));
-                    $completed_task_count = $row['count'];
+                // Get Completed Task Count
+                $row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT COUNT('task_id') AS count FROM tickets, tasks WHERE ticket_id = task_ticket_id AND ticket_project_id = $project_id AND task_completed_at IS NOT NULL"));
+                $completed_task_count = $row['count'];
 
-                    // Tasks Completed Percent
-                    if($task_count) {
-                        $tasks_completed_percent = round(($completed_task_count / $task_count) * 100);
-                    }
-
-                    ?>
-
-                    <tr>
-                        <td>
-                            <a class="text-dark" href="project.php?<?= $client_url ?>project_id=<?= $project_id ?>">
-                                <?= "$project_prefix$project_number" ?>
-                            </a>
-                        </td>
-                        <td>
-                            <a class="text-dark" href="project.php?project_id=<?= $project_id ?>">
-                                <div class="d-flex">
-                                    <i class="fa fa-fw fa-2x fa-project-diagram me-3"></i>
-                                    <div class="flex-grow-1">
-                                        <div><?= $project_name ?></div>
-                                        <div><small class="text-secondary"><?= $project_description ?></small></div>
-                                    </div>
-                                </div>
-                            </a>
-                        </td>
-                        <td>
-                            <?php if($ticket_count) { ?>
-                            <div class="progress" style="height: 20px;">
-                                <i class="fa fas fa-fw fa-life-ring me-2"></i>
-                                <div class="progress-bar bg-primary" style="width: <?= $tickets_closed_percent ?>%;"><?= $closed_ticket_count ?> / <?= $ticket_count ?></div>
-                            </div>
-                            <?php } else { echo "<div>-</div>"; } ?>
-                            <?php if($task_count) { ?>
-                            <div class="progress mt-2" style="height: 20px;">
-                                <i class="fa fas fa-fw fa-tasks me-2"></i>
-                                <div class="progress-bar bg-secondary" style="width: <?= $tasks_completed_percent ?>%;"><?= $completed_task_count ?> / <?= $task_count ?></div>
-                            </div>
-                            <?php } ?>
-                        </td>
-                        <td><?= $project_due ?></td>
-                        <?php if ($status == 1) { ?>
-                        <td><?= $project_completed_at_display ?></td>
-                        <?php } ?>
-                        <td><?= $project_manager_display ?></td>
-                        <td><?= $project_created_at_display ?></td>
-                        <?php if (!$client_url) { ?>
-                        <td><?= $client_name_display ?></td>
-                        <?php } ?>
-                        <td>
-                            <div class="dropdown dropstart text-center">
-                                <button class="btn btn-secondary btn-sm" type="button" data-bs-toggle="dropdown">
-                                    <i class="fas fa-ellipsis-h"></i>
-                                </button>
-                                <div class="dropdown-menu">
-                                    <?php if (empty($project_completed_at)) { ?>
-                                        <a class="dropdown-item ajax-modal" href="#"
-                                            data-modal-url = "modals/project/project_edit.php?id=<?= $project_id ?>">
-                                            <i class="fas fa-fw fa-edit me-2"></i>Edit
-                                        </a>
-                                    <?php } ?>
-                                    <?php if (!empty($project_completed_at) && lookupUserPermission("module_support" >= 2)) { ?>
-                                        <div class="dropdown-divider"></div>
-                                        <?php if (empty($project_archived_at)) { ?>
-                                            <a class="dropdown-item text-danger confirm-link" href="post.php?archive_project=<?= $project_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>">
-                                                <i class="fas fa-fw fa-archive me-2"></i>Archive
-                                            </a>
-                                        <?php } else { ?>
-                                            <a class="dropdown-item text-info confirm-link" href="post.php?restore_project=<?= $project_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>">
-                                                <i class="fas fa-fw fa-redo me-2"></i>Restore
-                                            </a>
-                                            <?php if (lookupUserPermission("module_support" >= 3)) { ?>
-                                                <div class="dropdown-divider"></div>
-                                                <a class="dropdown-item text-danger confirm-link" href="post.php?delete_project=<?= $project_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>">
-                                                    <i class="fas fa-fw fa-archive me-2"></i>Delete
-                                                </a>
-                                            <?php } ?>
-                                        <?php } ?>
-                                    <?php } ?>
-                                </div>
-                            </div>
-                        </td>
-                    </tr>
-
-                    <?php
-
+                // Tasks Completed Percent
+                if($task_count) {
+                    $tasks_completed_percent = round(($completed_task_count / $task_count) * 100);
                 }
 
                 ?>
 
-                </tbody>
-            </table>
-        </div>
-        <?php require_once "../includes/filter_footer.php"; ?>
+                <tr>
+                    <td>
+                        <a class="text-dark" href="project.php?<?= $client_url ?>project_id=<?= $project_id ?>">
+                            <?= "$project_prefix$project_number" ?>
+                        </a>
+                    </td>
+                    <td>
+                        <a class="text-dark" href="project.php?project_id=<?= $project_id ?>">
+                            <div class="d-flex">
+                                <i class="fa fa-fw fa-2x fa-project-diagram me-3"></i>
+                                <div class="flex-grow-1">
+                                    <div><?= $project_name ?></div>
+                                    <div><small class="text-secondary"><?= $project_description ?></small></div>
+                                </div>
+                            </div>
+                        </a>
+                    </td>
+                    <td>
+                        <?php if($ticket_count) { ?>
+                        <div class="progress" style="height: 20px;">
+                            <i class="fa fas fa-fw fa-life-ring me-2"></i>
+                            <div class="progress-bar bg-primary" style="width: <?= $tickets_closed_percent ?>%;"><?= $closed_ticket_count ?> / <?= $ticket_count ?></div>
+                        </div>
+                        <?php } else { echo "<div>-</div>"; } ?>
+                        <?php if($task_count) { ?>
+                        <div class="progress mt-2" style="height: 20px;">
+                            <i class="fa fas fa-fw fa-tasks me-2"></i>
+                            <div class="progress-bar bg-secondary" style="width: <?= $tasks_completed_percent ?>%;"><?= $completed_task_count ?> / <?= $task_count ?></div>
+                        </div>
+                        <?php } ?>
+                    </td>
+                    <td><?= $project_due ?></td>
+                    <?php if ($status == 1) { ?>
+                    <td><?= $project_completed_at_display ?></td>
+                    <?php } ?>
+                    <td><?= $project_manager_display ?></td>
+                    <td><?= $project_created_at_display ?></td>
+                    <?php if (!$client_url) { ?>
+                    <td><?= $client_name_display ?></td>
+                    <?php } ?>
+                    <td>
+                        <div class="dropdown dropstart text-center">
+                            <button class="btn btn-secondary btn-sm" type="button" data-bs-toggle="dropdown">
+                                <i class="fas fa-ellipsis-h"></i>
+                            </button>
+                            <div class="dropdown-menu">
+                                <?php if (empty($project_completed_at)) { ?>
+                                    <a class="dropdown-item ajax-modal" href="#"
+                                        data-modal-url = "modals/project/project_edit.php?id=<?= $project_id ?>">
+                                        <i class="fas fa-fw fa-edit me-2"></i>Edit
+                                    </a>
+                                <?php } ?>
+                                <?php if (!empty($project_completed_at) && lookupUserPermission("module_support" >= 2)) { ?>
+                                    <div class="dropdown-divider"></div>
+                                    <?php if (empty($project_archived_at)) { ?>
+                                        <a class="dropdown-item text-danger confirm-link" href="post.php?archive_project=<?= $project_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>">
+                                            <i class="fas fa-fw fa-archive me-2"></i>Archive
+                                        </a>
+                                    <?php } else { ?>
+                                        <a class="dropdown-item text-info confirm-link" href="post.php?restore_project=<?= $project_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>">
+                                            <i class="fas fa-fw fa-redo me-2"></i>Restore
+                                        </a>
+                                        <?php if (lookupUserPermission("module_support" >= 3)) { ?>
+                                            <div class="dropdown-divider"></div>
+                                            <a class="dropdown-item text-danger confirm-link" href="post.php?delete_project=<?= $project_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>">
+                                                <i class="fas fa-fw fa-archive me-2"></i>Delete
+                                            </a>
+                                        <?php } ?>
+                                    <?php } ?>
+                                <?php } ?>
+                            </div>
+                        </div>
+                    </td>
+                </tr>
+
+                <?php
+
+            }
+
+            ?>
+
+            </tbody>
+        </table>
     </div>
+    <?php require_once "../includes/filter_footer.php"; ?>
 </div>
 
 <?php

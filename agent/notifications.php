@@ -82,7 +82,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
             </div>
         </form>
         <div class="table-responsive-sm">
-            <table class="table table-hover">
+            <table class="table table-hover mb-0">
                 <thead class="<?php if ($num_rows[0] == 0) { echo "d-none"; } ?>">
                 <tr>
                     <th>

@@ -87,8 +87,8 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 
 ?>
 
-<div class="card card-dark">
-    <div class="card-header py-2">
+<div class="card">
+    <div class="card-header bg-dark py-2">
         <h3 class="card-title mt-2"><i class="fa fa-fw fa-globe me-2"></i>Domains</h3>
         <div class="card-tools">
             <div class="btn-group">
@@ -106,15 +106,15 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
         </div>
     </div>
 
-    <div class="card-body">
+    <div class="card-header py-3">
         <form autocomplete="off">
             <?php if ($client_url) { ?>
             <input type="hidden" name="client_id" value="<?= $client_id ?>">
             <?php } ?>
             <input type="hidden" name="archived" value="<?= $archived ?>">
-            <div class="row">
+            <div class="row g-2 align-items-center">
                 <div class="col-md-4">
-                    <div class="input-group mb-3 mb-md-0">
+                    <div class="input-group">
                         <input type="search" class="form-control" name="q" value="<?php if (isset($q)) { echo stripslashes(escapeHtml($q)); } ?>" placeholder="Search Domains">
                             <button class="btn btn-dark"><i class="fa fa-search"></i></button>
                     </div>
@@ -122,7 +122,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 
                 <?php if (!$client_url) { ?>
                 <div class="col-md-2">
-                    <div class="input-group mb-3 mb-md-0">
+                    <div class="input-group">
                         <select class="form-select select2" name="client" onchange="this.form.submit()">
                             <option value="" <?php if ($client == "") { echo "selected"; } ?>>- All Clients -</option>
 
@@ -150,7 +150,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                 <?php } ?>
 
                 <div class="col-md-2">
-                    <div class="input-group mb-3 mb-md-0">
+                    <div class="input-group">
                         <select class="form-select select2" name="expire_days" onchange="this.form.submit()">
                             <option value="" <?php if ($expire_days == "") { echo "selected"; } ?>>- Expiring In -</option>
                             <option value="expired" <?php if ($expire_days === "expired") { echo "selected"; } ?>>Expired</option>
@@ -170,7 +170,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                 <div class="col-md-4">
                     <div class="btn-group float-end">
                         <a href="?<?= $client_url ?>archived=<?php if($archived == 1){ echo 0; } else { echo 1; } ?>"
-                            class="btn btn-<?php if($archived == 1){ echo "primary"; } else { echo "default"; } ?>">
+                            class="btn btn-<?php if($archived == 1){ echo"primary"; } else { echo "default"; } ?>">
                             <i class="fa fa-fw fa-archive me-2"></i>Archived
                         </a>
                         <div class="dropdown ms-2" id="bulkActionButton" hidden>
@@ -206,199 +206,198 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 
             </div>
         </form>
-        <hr>
-        <div class="table-responsive">
+    </div>
+    <div class="table-responsive">
 
-            <form id="bulkActions" action="post.php" method="post">
-                <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
-                <?php if ($client_url) { ?>
-                <input type="hidden" name="client_id" value="<?= $client_id ?>">
-                <?php } ?>
-                <table class="table table-striped table-borderless table-hover">
-                    <thead class="text-dark <?php if ($num_rows[0] == 0) { echo "d-none"; } ?> text-nowrap">
-                    <tr>
+        <form id="bulkActions" action="post.php" method="post">
+            <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
+            <?php if ($client_url) { ?>
+            <input type="hidden" name="client_id" value="<?= $client_id ?>">
+            <?php } ?>
+            <table class="table table-striped table-borderless table-hover mb-0">
+                <thead class="text-dark <?php if ($num_rows[0] == 0) { echo "d-none"; } ?> text-nowrap">
+                <tr>
+                    <td class="checkbox-column">
+                        <div class="form-check">
+                            <input class="form-check-input" id="selectAllCheckbox" type="checkbox" onclick="checkAll(this)">
+                        </div>
+                    </td>
+                    <th>
+                        <a class="text-secondary" href="?<?= $url_query_strings_sort ?>&sort=domain_name&order=<?= $disp ?>">
+                            Domain <?php if ($sort == 'domain_name') { echo $order_icon; } ?>
+                        </a>
+                    </th>
+                    <th>
+                        <a class="text-secondary" href="?<?= $url_query_strings_sort ?>&sort=registrar_name&order=<?= $disp ?>">
+                            Registrar <?php if ($sort == 'registrar_name') { echo $order_icon; } ?>
+                        </a>
+                    </th>
+                    <th>
+                        <a class="text-secondary" href="?<?= $url_query_strings_sort ?>&sort=webhost_name&order=<?= $disp ?>">
+                            Web Host <?php if ($sort == 'webhost_name') { echo $order_icon; } ?>
+                        </a>
+                    </th>
+                    <th>
+                        <a class="text-secondary" href="?<?= $url_query_strings_sort ?>&sort=dnshost_name&order=<?= $disp ?>">
+                            DNS Host <?php if ($sort == 'dnshost_name') { echo $order_icon; } ?>
+                        </a>
+                    </th>
+                    <th>
+                        <a class="text-secondary" href="?<?= $url_query_strings_sort ?>&sort=mailhost_name&order=<?= $disp ?>">
+                            Mail Host <?php if ($sort == 'mailhost_name') { echo $order_icon; } ?>
+                        </a>
+                    </th>
+                    <th>
+                        <a class="text-secondary" href="?<?= $url_query_strings_sort ?>&sort=domain_expire&order=<?= $disp ?>">
+                            Expires <?php if ($sort == 'domain_expire') { echo $order_icon; } ?>
+                        </a>
+                    </th>
+                    <?php if (!$client_url) { ?>
+                    <th>
+                        <a class="text-dark" href="?<?= $url_query_strings_sort ?>&sort=client_name&order=<?= $disp ?>">
+                            Client <?php if ($sort == 'client_name') { echo $order_icon; } ?>
+                        </a>
+                    </th>
+                    <?php } ?>
+                    <th class="text-center">Action</th>
+                </tr>
+                </thead>
+                <tbody>
+                <?php
+
+                while ($row = mysqli_fetch_assoc($sql)) {
+                    $domain_id = intval($row['domain_id']);
+                    $domain_name = escapeHtml($row['domain_name']);
+                    $domain_description = escapeHtml($row['domain_description']);
+                    $domain_expire = escapeHtml($row['domain_expire']);
+                    $domain_expire_ago = timeAgo($domain_expire);
+                    // Convert the expiry date to a timestamp
+                    $domain_expire_timestamp = strtotime($row['domain_expire'] ?? '');
+                    $current_timestamp = time(); // Get current timestamp
+
+                    // Calculate the difference in days
+                    $days_until_expiry = ($domain_expire_timestamp - $current_timestamp) / (60 * 60 * 24);
+
+                    // Determine the class based on the number of days until expiry
+                    if ($days_until_expiry <= 0) {
+                        $tr_class = "table-secondary";
+                    } elseif ($days_until_expiry <= 14) {
+                        $tr_class = "table-danger";
+                    } elseif ($days_until_expiry <= 90) {
+                        $tr_class = "table-warning";
+                    } else {
+                        $tr_class = '';
+                    }
+                    $domain_registrar_id = intval($row['registrar_id']);
+                    $domain_webhost_id = intval($row['webhost_id']);
+                    $domain_dnshost_id = intval($row['dnshost_id']);
+                    $domain_mailhost_id = intval($row['mailhost_id']);
+                    $domain_registrar_name = escapeHtml($row['registrar_name']);
+                    $domain_webhost_name = escapeHtml($row['webhost_name']);
+                    $domain_dnshost_name = escapeHtml($row['dnshost_name']);
+                    $domain_mailhost_name = escapeHtml($row['mailhost_name']);
+                    $domain_created_at = escapeHtml($row['domain_created_at']);
+                    $domain_archived_at = escapeHtml($row['domain_archived_at']);
+                    $client_id = intval($row['domain_client_id']);
+                    $client_name = escapeHtml($row['client_name']);
+                    // Add - if empty on the table
+                    $domain_registrar_name_display = $domain_registrar_name ? "
+                        <a class='ajax-modal' href='#' data-modal-url='modals/vendor/vendor.php?id=$domain_registrar_id'>
+                            $domain_registrar_name
+                        </a>" : "-";
+                    $domain_webhost_name_display = $domain_webhost_name ? "
+                        <a class='ajax-modal' href='#' data-modal-url='modals/vendor/vendor.php?id=$domain_webhost_id'>
+                            $domain_webhost_name
+                        </a>" : "-";
+                    $domain_dnshost_name_display = $domain_dnshost_name ? "
+                        <a class='ajax-modal' href='#' data-modal-url='modals/vendor/vendor.php?id=$domain_dnshost_id'>
+                            $domain_dnshost_name
+                        </a>" : "-";
+                    $domain_mailhost_name_display = $domain_mailhost_name ? "
+                        <a class='ajax-modal' href='#' data-modal-url='modals/vendor/vendor.php?id=$domain_mailhost_id'>
+                            $domain_mailhost_name
+                        </a>" : "-";
+
+                    ?>
+                    <tr class="<?= $tr_class ?>">
                         <td class="checkbox-column">
                             <div class="form-check">
-                                <input class="form-check-input" id="selectAllCheckbox" type="checkbox" onclick="checkAll(this)">
+                                <input class="form-check-input bulk-select" type="checkbox" name="domain_ids[]" value="<?= $domain_id ?>">
                             </div>
                         </td>
-                        <th>
-                            <a class="text-secondary" href="?<?= $url_query_strings_sort ?>&sort=domain_name&order=<?= $disp ?>">
-                                Domain <?php if ($sort == 'domain_name') { echo $order_icon; } ?>
-                            </a>
-                        </th>
-                        <th>
-                            <a class="text-secondary" href="?<?= $url_query_strings_sort ?>&sort=registrar_name&order=<?= $disp ?>">
-                                Registrar <?php if ($sort == 'registrar_name') { echo $order_icon; } ?>
-                            </a>
-                        </th>
-                        <th>
-                            <a class="text-secondary" href="?<?= $url_query_strings_sort ?>&sort=webhost_name&order=<?= $disp ?>">
-                                Web Host <?php if ($sort == 'webhost_name') { echo $order_icon; } ?>
-                            </a>
-                        </th>
-                        <th>
-                            <a class="text-secondary" href="?<?= $url_query_strings_sort ?>&sort=dnshost_name&order=<?= $disp ?>">
-                                DNS Host <?php if ($sort == 'dnshost_name') { echo $order_icon; } ?>
-                            </a>
-                        </th>
-                        <th>
-                            <a class="text-secondary" href="?<?= $url_query_strings_sort ?>&sort=mailhost_name&order=<?= $disp ?>">
-                                Mail Host <?php if ($sort == 'mailhost_name') { echo $order_icon; } ?>
-                            </a>
-                        </th>
-                        <th>
-                            <a class="text-secondary" href="?<?= $url_query_strings_sort ?>&sort=domain_expire&order=<?= $disp ?>">
-                                Expires <?php if ($sort == 'domain_expire') { echo $order_icon; } ?>
-                            </a>
-                        </th>
-                        <?php if (!$client_url) { ?>
-                        <th>
-                            <a class="text-dark" href="?<?= $url_query_strings_sort ?>&sort=client_name&order=<?= $disp ?>">
-                                Client <?php if ($sort == 'client_name') { echo $order_icon; } ?>
-                            </a>
-                        </th>
-                        <?php } ?>
-                        <th class="text-center">Action</th>
-                    </tr>
-                    </thead>
-                    <tbody>
-                    <?php
-
-                    while ($row = mysqli_fetch_assoc($sql)) {
-                        $domain_id = intval($row['domain_id']);
-                        $domain_name = escapeHtml($row['domain_name']);
-                        $domain_description = escapeHtml($row['domain_description']);
-                        $domain_expire = escapeHtml($row['domain_expire']);
-                        $domain_expire_ago = timeAgo($domain_expire);
-                        // Convert the expiry date to a timestamp
-                        $domain_expire_timestamp = strtotime($row['domain_expire'] ?? '');
-                        $current_timestamp = time(); // Get current timestamp
-
-                        // Calculate the difference in days
-                        $days_until_expiry = ($domain_expire_timestamp - $current_timestamp) / (60 * 60 * 24);
-
-                        // Determine the class based on the number of days until expiry
-                        if ($days_until_expiry <= 0) {
-                            $tr_class = "table-secondary";
-                        } elseif ($days_until_expiry <= 14) {
-                            $tr_class = "table-danger";
-                        } elseif ($days_until_expiry <= 90) {
-                            $tr_class = "table-warning";
-                        } else {
-                            $tr_class = '';
-                        }
-                        $domain_registrar_id = intval($row['registrar_id']);
-                        $domain_webhost_id = intval($row['webhost_id']);
-                        $domain_dnshost_id = intval($row['dnshost_id']);
-                        $domain_mailhost_id = intval($row['mailhost_id']);
-                        $domain_registrar_name = escapeHtml($row['registrar_name']);
-                        $domain_webhost_name = escapeHtml($row['webhost_name']);
-                        $domain_dnshost_name = escapeHtml($row['dnshost_name']);
-                        $domain_mailhost_name = escapeHtml($row['mailhost_name']);
-                        $domain_created_at = escapeHtml($row['domain_created_at']);
-                        $domain_archived_at = escapeHtml($row['domain_archived_at']);
-                        $client_id = intval($row['domain_client_id']);
-                        $client_name = escapeHtml($row['client_name']);
-                        // Add - if empty on the table
-                        $domain_registrar_name_display = $domain_registrar_name ? "
-                            <a class='ajax-modal' href='#' data-modal-url='modals/vendor/vendor.php?id=$domain_registrar_id'>
-                                $domain_registrar_name
-                            </a>" : "-";
-                        $domain_webhost_name_display = $domain_webhost_name ? "
-                            <a class='ajax-modal' href='#' data-modal-url='modals/vendor/vendor.php?id=$domain_webhost_id'>
-                                $domain_webhost_name
-                            </a>" : "-";
-                        $domain_dnshost_name_display = $domain_dnshost_name ? "
-                            <a class='ajax-modal' href='#' data-modal-url='modals/vendor/vendor.php?id=$domain_dnshost_id'>
-                                $domain_dnshost_name
-                            </a>" : "-";
-                        $domain_mailhost_name_display = $domain_mailhost_name ? "
-                            <a class='ajax-modal' href='#' data-modal-url='modals/vendor/vendor.php?id=$domain_mailhost_id'>
-                                $domain_mailhost_name
-                            </a>" : "-";
-
-                        ?>
-                        <tr class="<?= $tr_class ?>">
-                            <td class="checkbox-column">
-                                <div class="form-check">
-                                    <input class="form-check-input bulk-select" type="checkbox" name="domain_ids[]" value="<?= $domain_id ?>">
-                                </div>
-                            </td>
-                            <td class="">
-                                <a class="text-dark ajax-modal" href="#"
-                                    data-modal-size="lg"
-                                    data-modal-url="modals/domain/domain_edit.php?<?= $client_url ?>&id=<?= $domain_id ?>">
-                                    <div class="d-flex">
-                                        <i class="fa fa-fw fa-2x fa-globe me-3"></i>
-                                        <div class="flex-grow-1">
-                                            <div><?= $domain_name ?></div>
-                                            <div><small class="text-secondary"><?= $domain_description ?></small></div>
-                                        </div>
+                        <td>
+                            <a class="text-dark ajax-modal" href="#"
+                                data-modal-size="lg"
+                                data-modal-url="modals/domain/domain_edit.php?<?= $client_url ?>&id=<?= $domain_id ?>">
+                                <div class="d-flex">
+                                    <i class="fa fa-fw fa-2x fa-globe me-3"></i>
+                                    <div class="flex-grow-1">
+                                        <div><?= $domain_name ?></div>
+                                        <div><small class="text-secondary"><?= $domain_description ?></small></div>
                                     </div>
-                                </a>
-                            </td>
-                            <td><?= $domain_registrar_name_display ?></td>
-                            <td><?= $domain_webhost_name_display ?></td>
-                            <td><?= $domain_dnshost_name_display ?></td>
-                            <td><?= $domain_mailhost_name_display ?></td>
-                            <td>
-                                <div><?= $domain_expire ?: '-' ?></div>
-                                <?php if (!empty($domain_expire)) { ?>
-                                    <div><small><?= $domain_expire_ago ?></small></div>
-                                <?php } ?>
-                            </td>
-                            <?php if (!$client_url) { ?>
-                            <td><a href="domains.php?client_id=<?= $client_id ?>"><?= $client_name ?></a></td>
+                                </div>
+                            </a>
+                        </td>
+                        <td><?= $domain_registrar_name_display ?></td>
+                        <td><?= $domain_webhost_name_display ?></td>
+                        <td><?= $domain_dnshost_name_display ?></td>
+                        <td><?= $domain_mailhost_name_display ?></td>
+                        <td>
+                            <div><?= $domain_expire ?: '-' ?></div>
+                            <?php if (!empty($domain_expire)) { ?>
+                                <div><small><?= $domain_expire_ago ?></small></div>
                             <?php } ?>
-                            <td>
-                                <div class="dropdown dropstart text-center">
-                                    <button class="btn btn-secondary btn-sm" type="button" data-bs-toggle="dropdown">
-                                        <i class="fas fa-ellipsis-h"></i>
-                                    </button>
-                                    <div class="dropdown-menu">
-                                        <a class="dropdown-item ajax-modal" href="#"
-                                            data-modal-size="lg"
-                                            data-modal-url="modals/domain/domain_edit.php?<?= $client_url ?>&id=<?= $domain_id ?>">
-                                            <i class="fas fa-fw fa-edit me-2"></i>Edit
+                        </td>
+                        <?php if (!$client_url) { ?>
+                        <td><a href="domains.php?client_id=<?= $client_id ?>"><?= $client_name ?></a></td>
+                        <?php } ?>
+                        <td>
+                            <div class="dropdown dropstart text-center">
+                                <button class="btn btn-secondary btn-sm" type="button" data-bs-toggle="dropdown">
+                                    <i class="fas fa-ellipsis-h"></i>
+                                </button>
+                                <div class="dropdown-menu">
+                                    <a class="dropdown-item ajax-modal" href="#"
+                                        data-modal-size="lg"
+                                        data-modal-url="modals/domain/domain_edit.php?<?= $client_url ?>&id=<?= $domain_id ?>">
+                                        <i class="fas fa-fw fa-edit me-2"></i>Edit
+                                    </a>
+                                    <div class="dropdown-divider"></div>
+                                    <a class="dropdown-item" href="post.php?refresh_domain=<?= $domain_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>">
+                                        <i class="fas fa-fw fa-sync-alt me-2"></i>Refresh Records
+                                    </a>
+                                    <?php if ($session_user_role == 3) { ?>
+                                        <?php if ($domain_archived_at) { ?>
+                                        <div class="dropdown-divider"></div>
+                                        <a class="dropdown-item text-info confirm-link" href="post.php?restore_domain=<?= $domain_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>">
+                                            <i class="fas fa-fw fa-redo me-2"></i>Restore
                                         </a>
                                         <div class="dropdown-divider"></div>
-                                        <a class="dropdown-item" href="post.php?refresh_domain=<?= $domain_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>">
-                                            <i class="fas fa-fw fa-sync-alt me-2"></i>Refresh Records
+                                        <a class="dropdown-item text-danger text-bold confirm-link" href="post.php?delete_domain=<?= $domain_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>">
+                                            <i class="fas fa-fw fa-trash me-2"></i>Delete
                                         </a>
-                                        <?php if ($session_user_role == 3) { ?>
-                                            <?php if ($domain_archived_at) { ?>
-                                            <div class="dropdown-divider"></div>
-                                            <a class="dropdown-item text-info confirm-link" href="post.php?restore_domain=<?= $domain_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>">
-                                                <i class="fas fa-fw fa-redo me-2"></i>Restore
-                                            </a>
-                                            <div class="dropdown-divider"></div>
-                                            <a class="dropdown-item text-danger text-bold confirm-link" href="post.php?delete_domain=<?= $domain_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>">
-                                                <i class="fas fa-fw fa-trash me-2"></i>Delete
-                                            </a>
-                                            <?php } else { ?>
-                                            <div class="dropdown-divider"></div>
-                                            <a class="dropdown-item text-danger confirm-link" href="post.php?archive_domain=<?= $domain_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>">
-                                                <i class="fas fa-fw fa-archive me-2"></i>Archive
-                                            </a>
-                                            <?php } ?>
+                                        <?php } else { ?>
+                                        <div class="dropdown-divider"></div>
+                                        <a class="dropdown-item text-danger confirm-link" href="post.php?archive_domain=<?= $domain_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>">
+                                            <i class="fas fa-fw fa-archive me-2"></i>Archive
+                                        </a>
                                         <?php } ?>
-                                    </div>
+                                    <?php } ?>
                                 </div>
-                            </td>
-                        </tr>
+                            </div>
+                        </td>
+                    </tr>
 
-                        <?php
-                    }
-                    ?>
+                    <?php
+                }
+                ?>
 
-                    </tbody>
-                </table>
+                </tbody>
+            </table>
 
-            </form>
-        </div>
-        <?php require_once "../includes/filter_footer.php"; ?>
+        </form>
     </div>
+    <?php require_once "../includes/filter_footer.php"; ?>
 </div>
 
 <script src="../js/bulk_actions.js"></script>

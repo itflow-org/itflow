@@ -23,19 +23,19 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 
 ?>
 
-<div class="card card-dark">
-    <div class="card-header py-2">
+<div class="card">
+    <div class="card-header bg-dark py-2">
         <h3 class="card-title mt-2"><i class="fas fa-fw fa-life-ring me-2"></i>Ticket Templates</h3>
         <div class="card-tools">
             <button type="button" class="btn btn-primary ajax-modal" data-modal-url="modals/ticket_template/ticket_template_add.php" data-modal-size="lg"><i class="fas fa-plus me-2"></i>New Ticket Template</button>
         </div>
     </div>
-    <div class="card-body">
+    <div class="card-header py-3">
         <form autocomplete="off">
-            <div class="row">
+            <div class="row g-2 align-items-center">
 
                 <div class="col-md-4">
-                    <div class="input-group mb-3 mb-md-0">
+                    <div class="input-group">
                         <input type="search" class="form-control" name="q" value="<?php if(isset($q)){ echo stripslashes(escapeHtml($q)); } ?>" placeholder="Search Ticket Templates">
                             <button class="btn btn-dark"><i class="fa fa-search"></i></button>
                     </div>
@@ -46,75 +46,74 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 
             </div>
         </form>
-        <hr>
-        <div class="table-responsive-sm">
-            <table class="table table-striped table-borderless table-hover">
-                <thead class="text-dark <?php if($num_rows[0] == 0) { echo "d-none"; } ?>">
+    </div>
+    <div class="table-responsive-sm">
+        <table class="table table-striped table-borderless table-hover mb-0">
+            <thead class="text-dark <?php if($num_rows[0] == 0) { echo "d-none"; } ?>">
+            <tr>
+                <th>
+                    <a class="text-secondary" href="?<?= $url_query_strings_sort ?>&sort=ticket_template_name&order=<?= $disp ?>">
+                        Template <?php if ($sort == 'ticket_template_name') { echo $order_icon; } ?>
+                    </a>
+                </th>
+                <th>
+                    <a class="text-secondary" href="?<?= $url_query_strings_sort ?>&sort=task_count&order=<?= $disp ?>">
+                        Tasks <?php if ($sort == 'task_count') { echo $order_icon; } ?>
+                    </a>
+                </th>
+                <th class="text-center">Action</th>
+            </tr>
+            </thead>
+            <tbody>
+            <?php
+
+            while($row = mysqli_fetch_assoc($sql)){
+                $ticket_template_id = intval($row['ticket_template_id']);
+                $ticket_template_name = escapeHtml($row['ticket_template_name']);
+                $ticket_template_description = escapeHtml($row['ticket_template_description']);
+                $ticket_template_subject = escapeHtml($row['ticket_template_subject']);
+                $ticket_template_created_at = escapeHtml($row['ticket_template_created_at']);
+                $task_count = intval($row['task_count']);
+
+                ?>
                 <tr>
-                    <th>
-                        <a class="text-secondary" href="?<?= $url_query_strings_sort ?>&sort=ticket_template_name&order=<?= $disp ?>">
-                            Template <?php if ($sort == 'ticket_template_name') { echo $order_icon; } ?>
-                        </a>
-                    </th>
-                    <th>
-                        <a class="text-secondary" href="?<?= $url_query_strings_sort ?>&sort=task_count&order=<?= $disp ?>">
-                            Tasks <?php if ($sort == 'task_count') { echo $order_icon; } ?>
-                        </a>
-                    </th>
-                    <th class="text-center">Action</th>
-                </tr>
-                </thead>
-                <tbody>
-                <?php
-
-                while($row = mysqli_fetch_assoc($sql)){
-                    $ticket_template_id = intval($row['ticket_template_id']);
-                    $ticket_template_name = escapeHtml($row['ticket_template_name']);
-                    $ticket_template_description = escapeHtml($row['ticket_template_description']);
-                    $ticket_template_subject = escapeHtml($row['ticket_template_subject']);
-                    $ticket_template_created_at = escapeHtml($row['ticket_template_created_at']);
-                    $task_count = intval($row['task_count']);
-
-                    ?>
-                    <tr>
-                        <td>
-                            <a class="text-dark">
-                                <div class="d-flex">
-                                    <i class="fa fa-fw fa-2x fa-life-ring me-3"></i>
-                                    <div class="flex-grow-1">
-                                        <div>
-                                            <a href="ticket_template.php?ticket_template_id=<?= $ticket_template_id ?>">
-                                                <?= $ticket_template_name ?>
-                                            </a>
-                                        </div>
-                                        <div><small class="text-secondary"><?= $ticket_template_description ?></small></div>
+                    <td>
+                        <a class="text-dark">
+                            <div class="d-flex">
+                                <i class="fa fa-fw fa-2x fa-life-ring me-3"></i>
+                                <div class="flex-grow-1">
+                                    <div>
+                                        <a href="ticket_template.php?ticket_template_id=<?= $ticket_template_id ?>">
+                                            <?= $ticket_template_name ?>
+                                        </a>
                                     </div>
-                                </div>
-                            </a>
-                        </td>
-                        <td><?= $task_count ?></td>
-                        <td>
-                            <div class="dropdown dropstart text-center">
-                                <button class="btn btn-secondary btn-sm" data-bs-toggle="dropdown">
-                                    <i class="fas fa-ellipsis-h"></i>
-                                </button>
-                                <div class="dropdown-menu">
-                                    <a class="dropdown-item text-danger text-bold confirm-link" href="post.php?delete_ticket_template=<?= $ticket_template_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>">
-                                        <i class="fas fa-fw fa-trash me-2"></i>Delete
-                                    </a>
+                                    <div><small class="text-secondary"><?= $ticket_template_description ?></small></div>
                                 </div>
                             </div>
-                        </td>
-                    </tr>
+                        </a>
+                    </td>
+                    <td><?= $task_count ?></td>
+                    <td>
+                        <div class="dropdown dropstart text-center">
+                            <button class="btn btn-secondary btn-sm" data-bs-toggle="dropdown">
+                                <i class="fas fa-ellipsis-h"></i>
+                            </button>
+                            <div class="dropdown-menu">
+                                <a class="dropdown-item text-danger text-bold confirm-link" href="post.php?delete_ticket_template=<?= $ticket_template_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>">
+                                    <i class="fas fa-fw fa-trash me-2"></i>Delete
+                                </a>
+                            </div>
+                        </div>
+                    </td>
+                </tr>
 
-                <?php } ?>
+            <?php } ?>
 
-                </tbody>
-            </table>
-        </div>
-        <?php require_once "../includes/filter_footer.php";
- ?>
+            </tbody>
+        </table>
     </div>
+    <?php require_once "../includes/filter_footer.php";
+ ?>
 </div>
 
 <?php

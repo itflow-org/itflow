@@ -97,7 +97,7 @@ while ($row = mysqli_fetch_assoc($sql_tag_type_counts)) {
                     </form>
                     <hr>
                     <div class="table-responsive-sm">
-                        <table class="table table-striped table-borderless table-hover">
+                        <table class="table table-striped table-borderless table-hover mb-0">
                             <thead class="text-dark <?php if ($num_rows[0] == 0) { echo "d-none"; } ?>">
                             <tr>
                                 <th>

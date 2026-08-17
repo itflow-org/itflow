@@ -18,7 +18,7 @@ if ($total_found_rows > 5) {
 <div class="card-footer itflow-filter-footer">
 
     <div class="row align-items-center g-2">
-        <div class="col-sm">
+        <div class="col-auto col-sm">
             <form action="post.php" method="post">
                 <div class="d-flex align-items-center">
                     <select onchange="this.form.submit()" class="form-select form-select-sm w-auto" name="change_records_per_page" aria-label="Records per page">
@@ -29,7 +29,7 @@ if ($total_found_rows > 5) {
                         <option <?php if ($user_config_records_per_page == 100) { echo "selected"; } ?> >100</option>
                         <option <?php if ($user_config_records_per_page == 500) { echo "selected"; } ?> >500</option>
                     </select>
-                    <span class="text-muted small ms-2">per page</span>
+                    <span class="text-muted small ms-2 d-none d-sm-inline">per page</span>
                 </div>
             </form>
         </div>
@@ -53,13 +53,13 @@ if ($total_found_rows > 5) {
         // Now output something like "Showing X to Y of Z records"
         ?>
 
-        <div class="col-sm">
+        <div class="col col-sm">
             <p class="text-center mb-0">
               Showing <strong><?= $start ?></strong> to <strong><?= $end ?></strong> of <strong><?= $total_found_rows ?></strong> records
             </p>
         </div>
-        <div class="col-sm">
-            <ul class="pagination justify-content-sm-end mb-0">
+        <div class="col-12 col-sm">
+            <ul class="pagination justify-content-center justify-content-sm-end mb-0">
 
                 <?php
 

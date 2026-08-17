@@ -106,22 +106,20 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
             <?php } ?>
         </div>
     </div>
-    <div class="card-header pb-2 pt-3">
+    <div class="card-header py-3">
         <form autocomplete="off">
             <input type="hidden" name="leads" value="<?= $leads_filter ?>">
             <input type="hidden" name="archived" value="<?= $archived ?>">
-            <div class="row">
+            <div class="row g-2 align-items-end">
                 <div class="col-md-5">
-                    <div class="mb-3">
-                        <div class="input-group">
-                            <input type="search" class="form-control" name="q" value="<?php if (isset($q)) { echo stripslashes(escapeHtml($q)); } ?>" placeholder="Search <?php if($leads_filter == 0){ echo "clients"; } else { echo "leads"; } ?>" autofocus>
-                                <button class="btn btn-secondary" type="button" data-bs-toggle="collapse" data-bs-target="#advancedFilter"><i class="fas fa-filter"></i></button>
-                                <button class="btn btn-primary"><i class="fa fa-search"></i></button>
-                        </div>
+                    <div class="input-group">
+                        <input type="search" class="form-control" name="q" value="<?php if (isset($q)) { echo stripslashes(escapeHtml($q)); } ?>" placeholder="Search <?php if($leads_filter == 0){ echo "clients"; } else { echo "leads"; } ?>" autofocus>
+                        <button class="btn btn-secondary" type="button" data-bs-toggle="collapse" data-bs-target="#advancedFilter"><i class="fas fa-filter"></i></button>
+                        <button class="btn btn-primary"><i class="fa fa-search"></i></button>
                     </div>
                 </div>
                 <div class="col-md-7">
-                    <div class="btn-toolbar mb-3 float-end">
+                    <div class="btn-toolbar justify-content-md-end">
                         <div class="btn-group me-2">
                             <a href="?leads=0" class="btn btn-<?php if ($leads_filter == 0){ echo "primary"; } else { echo "default"; } ?>" title="Clients"><i class="fa fa-fw fa-user-friends"></i><span class="d-none d-sm-inline ms-2">Clients</span></a>
                             <a href="?leads=1" class="btn btn-<?php if ($leads_filter == 1){ echo "primary"; } else { echo "default"; } ?>"><i class="fa fa-fw fa-bullhorn"></i><span class="d-none d-sm-inline ms-2">Leads</span></a>
@@ -200,7 +198,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                 </div>
             </div>
             <div
-                class="collapse
+                class="collapse mt-3
                     <?php
                     if (isset($_GET['dtf']) && $_GET['dtf'] !== '1970-01-01'
                         || $industry_filter
@@ -212,10 +210,10 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                 "
                 id="advancedFilter"
             >
-                <div class="row">
+                <div class="row g-3">
                     <div class="col-md-3">
-                        <div class="mb-3">
-                            <label>Date range</label>
+                        <div>
+                            <label class="form-label">Date range</label>
                             <input type="text" id="dateFilter" class="form-control" autocomplete="off">
                             <input type="hidden" name="canned_date" id="canned_date" value="<?= escapeHtml($_GET['canned_date']) ?? '' ?>">
                             <input type="hidden" name="dtf" id="dtf" value="<?= escapeHtml($dtf ?? '') ?>">
@@ -223,8 +221,8 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                         </div>
                     </div>
                     <div class="col-md-3">
-                        <div class="mb-3">
-                            <label>Tag</label>
+                        <div>
+                            <label class="form-label">Tag</label>
                             <select onchange="this.form.submit()" class="form-select select2" name="tags[]" data-placeholder="- Select Tags -" multiple>
                                 <?php
                                 $sql_tags_filter = mysqli_query($mysqli, "
@@ -246,8 +244,8 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                         </div>
                     </div>
                     <div class="col-sm-2">
-                        <div class="mb-3">
-                            <label>Industry</label>
+                        <div>
+                            <label class="form-label">Industry</label>
                             <select class="form-select select2" name="industry" onchange="this.form.submit()">
                                 <option value="">- All Industries -</option>
 
@@ -265,8 +263,8 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                         </div>
                     </div>
                     <div class="col-sm-2">
-                        <div class="mb-3">
-                            <label>Referral</label>
+                        <div>
+                            <label class="form-label">Referral</label>
                             <select class="form-select select2" name="referral" onchange="this.form.submit()">
                                 <option value="">- All Referrals -</option>
 

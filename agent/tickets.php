@@ -323,8 +323,8 @@ if ($date_filter_active) {
 
 ?>
 
-<div class="card card-dark">
-    <div class="card-header py-2">
+<div class="card">
+    <div class="card-header bg-dark py-2">
         <h3 class="card-title mt-2"><i class="fa fa-fw fa-life-ring me-2"></i>Tickets
             <small class="ms-3">
                 <a href="<?= ticketsFilterUrl(['state' => 'open', 'status' => null]) ?>" class="badge rounded-pill p-1 <?= (!$status_filter && $state == 'open') ? 'bg-light text-dark' : 'text-light' ?>"><strong><?= $total_tickets_open ?></strong> Open</a> |
@@ -350,7 +350,7 @@ if ($date_filter_active) {
         <?php } ?>
     </div>
 
-    <div class="card-body">
+    <div class="card-header py-3">
         <form autocomplete="off">
             <?php if ($client_url) { ?>
                 <input type="hidden" name="client_id" value="<?= $client_id ?>">
@@ -364,9 +364,9 @@ if ($date_filter_active) {
                 <input type="hidden" name="billing" value="<?= escapeHtml($billing_filter) ?>">
             <?php } ?>
 
-            <div class="row">
+            <div class="row g-2 align-items-end">
                 <div class="col-sm-4">
-                    <div class="mb-3 mb-2 mb-sm-0">
+                    <div>
                         <div class="input-group">
                             <input type="search" class="form-control" name="q" value="<?php if (isset($q)) { echo stripslashes(escapeHtml($q)); } ?>" placeholder="Search Tickets">
                                 <button class="btn <?= $hidden_filter_count ? 'btn-warning' : 'btn-secondary' ?>" type="button" data-bs-toggle="collapse" data-bs-target="#advancedFilter" title="Filters">
@@ -395,10 +395,10 @@ if ($date_filter_active) {
                 </div>
             </div>
 
-            <div class="collapse mt-3 <?php if ($hidden_filter_count) { echo "show"; } ?>" id="advancedFilter">
-                <div class="row">
+            <div class="collapse mt-3 <?php if ($hidden_filter_count) { echo"show"; } ?>" id="advancedFilter">
+                <div class="row g-3">
                     <div class="col-md-3">
-                        <div class="mb-3 mb-md-0">
+                        <div>
                             <label>Status</label>
                             <select onchange="this.form.submit()" class="form-select select2" name="status[]" data-placeholder="Any status" multiple>
                                 <?php
@@ -416,7 +416,7 @@ if ($date_filter_active) {
                     </div>
 
                     <div class="col-md-3">
-                        <div class="mb-3 mb-md-0">
+                        <div>
                             <label>Assigned to</label>
                             <select onchange="this.form.submit()" class="form-select select2" name="assigned">
                                 <option value="">Anyone</option>
@@ -437,7 +437,7 @@ if ($date_filter_active) {
                     </div>
 
                     <div class="col-md-3">
-                        <div class="mb-3 mb-md-0">
+                        <div>
                             <label>Priority</label>
                             <select onchange="this.form.submit()" class="form-select select2" name="priority">
                                 <option value="">Any priority</option>
@@ -449,7 +449,7 @@ if ($date_filter_active) {
                     </div>
 
                     <div class="col-md-3">
-                        <div class="mb-3 mb-md-0">
+                        <div>
                             <label>Category</label>
                             <select onchange="this.form.submit()" class="form-select select2" name="category">
                                 <option value="">Any category</option>
@@ -471,7 +471,7 @@ if ($date_filter_active) {
 
                 <div class="row mt-3">
                     <div class="col-md-3">
-                        <div class="mb-3 mb-md-0">
+                        <div>
                             <label>Project</label>
                             <select onchange="this.form.submit()" class="form-select select2" name="project">
                                 <option value="">Any project</option>
@@ -492,7 +492,7 @@ if ($date_filter_active) {
 
                     <?php if ($show_billing_column) { ?>
                         <div class="col-md-3">
-                            <div class="mb-3 mb-md-0">
+                            <div>
                                 <label>Billing</label>
                                 <select class="form-select select2" name="billing" onchange="this.form.submit()">
                                     <option value="">Any</option>
@@ -506,7 +506,7 @@ if ($date_filter_active) {
 
                     <?php if ($sla_filter_in_use) { ?>
                         <div class="col-md-3">
-                            <div class="mb-3 mb-md-0">
+                            <div>
                                 <label>SLA</label>
                                 <select class="form-select select2" name="sla" onchange="this.form.submit()">
                                     <option value="">Any SLA state</option>
@@ -519,7 +519,7 @@ if ($date_filter_active) {
                     <?php } ?>
 
                     <div class="col-md-3">
-                        <div class="mb-3 mb-md-0">
+                        <div>
                             <label>Created</label>
                             <input type="text" id="dateFilter" class="form-control" autocomplete="off">
                             <input type="hidden" name="canned_date" id="canned_date" value="<?= escapeHtml($_GET['canned_date'] ?? '') ?>">

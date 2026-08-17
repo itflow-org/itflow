@@ -550,8 +550,8 @@ a:not(.dropdown-item):not(.btn-app):not(.nav-link):not(.brand-link):not(.page-li
    .py-3 is a 16px jump that makes the bar noticeably chunky. Bootstrap has no
    step between the two, hence the named rule. */
 .card-footer.itflow-filter-footer {
-    padding-top: .75rem;
-    padding-bottom: .75rem;
+    padding-top: .5rem;
+    padding-bottom: .5rem;
 }
 
 /* --- Primary button follows the theme -----------------------------------

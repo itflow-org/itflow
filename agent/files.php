@@ -676,7 +676,7 @@ $num_root_items = intval($row_root_files['num']) + intval($row_root_docs['num'])
                     <form id="bulkActions" action="post.php" method="post">
                         <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
                         <div class="table-responsive-sm">
-                            <table class="table border">
+                            <table class="table border mb-0">
                                 <thead class="table-light <?php if ($num_rows[0] == 0) { echo "d-none"; } ?>">
                                 <tr>
                                     <td class="bg-light checkbox-column">

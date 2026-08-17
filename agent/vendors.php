@@ -34,8 +34,8 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 
 ?>
 
-<div class="card card-dark">
-    <div class="card-header py-2">
+<div class="card">
+    <div class="card-header bg-dark py-2">
         <h3 class="card-title mt-2">
             <i class="fas fa-fw fa-building me-2"></i>Vendors
         </h3>
@@ -61,16 +61,16 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
             </div>
         </div>
     </div>
-    <div class="card-body">
+    <div class="card-header py-3">
         <form autocomplete="off">
             <?php if ($client_url) { ?>
                 <input type="hidden" name="client_id" value="<?= $client_id ?>">
             <?php } ?>
             <input type="hidden" name="archived" value="<?= $archived ?>">
-            <div class="row">
+            <div class="row g-2 align-items-center">
 
                 <div class="col-md-4">
-                    <div class="input-group mb-3 mb-md-0">
+                    <div class="input-group">
                         <input type="search" class="form-control" name="q" value="<?php if (isset($q)) { echo stripslashes(escapeHtml($q)); } ?>" placeholder="Search Vendors">
                             <button class="btn btn-dark"><i class="fa fa-search"></i></button>
                     </div>
@@ -110,178 +110,178 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 
             </div>
         </form>
-        <hr>
-        <form id="bulkActions" action="post.php" method="post">
-            <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
+    </div>
 
-            <div class="table-responsive">
-                <table class="table table-striped table-borderless table-hover">
-                    <thead class="text-dark <?php if ($num_rows[0] == 0) { echo "d-none"; } ?> text-nowrap">
-                    <tr>
-                        <td class="bg-light checkbox-column">
-                            <div class="form-check">
-                                <input class="form-check-input" id="selectAllCheckbox" type="checkbox" onclick="checkAll(this)">
-                            </div>
-                        </td>
-                        <th>
-                            <a class="text-secondary" href="?<?= $url_query_strings_sort ?>&sort=vendor_name&order=<?= $disp ?>">
-                                Vendor <?php if ($sort == 'vendor_name') { echo $order_icon; } ?>
-                            </a>
-                        </th>
-                        <th>
-                            <a class="text-secondary" href="?<?= $url_query_strings_sort ?>&sort=vendor_description&order=<?= $disp ?>">
-                                Description <?php if ($sort == 'vendor_description') { echo $order_icon; } ?>
-                            </a>
-                        </th>
-                        <th>
-                            <a class="text-secondary" href="?<?= $url_query_strings_sort ?>&sort=vendor_contact_name&order=<?= $disp ?>">
-                                Contact <?php if ($sort == 'vendor_contact_name') { echo $order_icon; } ?>
-                            </a>
-                        </th>
-                        <th>
-                            <a class="text-secondary" href="?<?= $url_query_strings_sort ?>&sort=vendor_website&order=<?= $disp ?>">
-                                Website <?php if ($sort == 'vendor_website') { echo $order_icon; } ?>
-                            </a>
-                        </th>
-                        <th></th>
-                        <th class="text-center">Action</th>
-                    </tr>
-                    </thead>
-                    <tbody>
-                    <?php
+    <form id="bulkActions" action="post.php" method="post">
+        <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
 
-                    while ($row = mysqli_fetch_assoc($sql)) {
-                        $vendor_id = intval($row['vendor_id']);
-                        $vendor_name = escapeHtml($row['vendor_name']);
-                        $vendor_description = escapeHtml($row['vendor_description']);
-                        if ($vendor_description) {
-                            $vendor_description_display = $vendor_description;
-                        } else {
-                            $vendor_description_display = "-";
-                        }
-                        $vendor_account_number = escapeHtml($row['vendor_account_number']);
-                        if ($vendor_account_number) {
-                            $vendor_account_number_display = "<div class='text-secondary'>Account #: <span class='font-monospace'>$vendor_account_number</span></div>";
-                        } else {
-                            $vendor_account_number_display = '';
-                        }
-                        $vendor_contact_name = escapeHtml($row['vendor_contact_name']);
-                        if ($vendor_contact_name) {
-                            $vendor_contact_name_display = $vendor_contact_name;
-                        } else {
-                            $vendor_contact_name_display = "-";
-                        }
-                        $vendor_phone_country_code = escapeHtml($row['vendor_phone_country_code']);
-                        $vendor_phone = escapeHtml(formatPhoneNumber($row['vendor_phone'], $vendor_phone_country_code));
-                        $vendor_extension = escapeHtml($row['vendor_extension']);
-                        $vendor_email = escapeHtml($row['vendor_email']);
-                        $vendor_website = escapeHtml($row['vendor_website']);
-                        if ($vendor_website) {
-                             $vendor_website_display = "<a href='https://$vendor_website' target='_blank'>$vendor_website <i class='fa fa-external-link-alt'></i></a><button type='button' class='btn btn-sm clipboardjs' data-clipboard-text='$vendor_website'><i class='far fa-copy text-secondary'></i></button>";
-                        } else {
-                            $vendor_website_display = "-";
-                        }
-                        $vendor_hours = escapeHtml($row['vendor_hours']);
-                        $vendor_sla = escapeHtml($row['vendor_sla']);
-                        $vendor_code = escapeHtml($row['vendor_code']);
-                        $vendor_notes = escapeHtml($row['vendor_notes']);
-                        $vendor_created_at = escapeHtml($row['vendor_created_at']);
-                        $vendor_archived_at = escapeHtml($row['vendor_archived_at']);
-                        $vendor_template_id = intval($row['vendor_template_id']);
-                        $vendor_template_name = escapeHtml($row['vendor_template_name']);
-                        if ($vendor_template_id) {
-                            $vendor_template_display = "<div class='text-secondary' title='Base Vendor Template'><i class='fas fa-puzzle-piece me-1'></i>$vendor_template_name</div>";
-                        } else {
-                            $vendor_template_display = "";
-                        }
+        <div class="table-responsive">
+            <table class="table table-striped table-borderless table-hover mb-0">
+                <thead class="text-dark <?php if ($num_rows[0] == 0) { echo "d-none"; } ?> text-nowrap">
+                <tr>
+                    <td class="bg-light checkbox-column">
+                        <div class="form-check">
+                            <input class="form-check-input" id="selectAllCheckbox" type="checkbox" onclick="checkAll(this)">
+                        </div>
+                    </td>
+                    <th>
+                        <a class="text-secondary" href="?<?= $url_query_strings_sort ?>&sort=vendor_name&order=<?= $disp ?>">
+                            Vendor <?php if ($sort == 'vendor_name') { echo $order_icon; } ?>
+                        </a>
+                    </th>
+                    <th>
+                        <a class="text-secondary" href="?<?= $url_query_strings_sort ?>&sort=vendor_description&order=<?= $disp ?>">
+                            Description <?php if ($sort == 'vendor_description') { echo $order_icon; } ?>
+                        </a>
+                    </th>
+                    <th>
+                        <a class="text-secondary" href="?<?= $url_query_strings_sort ?>&sort=vendor_contact_name&order=<?= $disp ?>">
+                            Contact <?php if ($sort == 'vendor_contact_name') { echo $order_icon; } ?>
+                        </a>
+                    </th>
+                    <th>
+                        <a class="text-secondary" href="?<?= $url_query_strings_sort ?>&sort=vendor_website&order=<?= $disp ?>">
+                            Website <?php if ($sort == 'vendor_website') { echo $order_icon; } ?>
+                        </a>
+                    </th>
+                    <th></th>
+                    <th class="text-center">Action</th>
+                </tr>
+                </thead>
+                <tbody>
+                <?php
 
-                        ?>
-                        <tr>
-                            <td class="bg-light checkbox-column">
-                                <div class="form-check">
-                                    <input class="form-check-input bulk-select" type="checkbox" name="vendor_ids[]" value="<?= $vendor_id ?>">
-                                </div>
-                            </td>
-                            <td>
-                                <a class="ajax-modal" href="#" data-modal-url="modals/vendor/vendor_edit.php?id=<?= $vendor_id ?>">
-                                    <div class="d-flex">
-                                        <i class="fas fa-fw fa-2x fa-building text-dark me-2"></i>
-                                        <div class="flex-grow-1">
-                                            <div><?= $vendor_name ?></div>
-                                            <div><small><?= $vendor_account_number_display ?><small></div>
-                                        </div>
-                                    </div>
-                                </a>
-                            </td>
-                            <td>
-                                <?= $vendor_description_display ?>
-                            </td>
-                            <td>
-                                <?php
-                                if (!empty($vendor_contact_name)) { ?>
-                                    <i class="fa fa-fw fa-user text-secondary me-2 mb-2"></i><?= $vendor_contact_name_display ?>
-                                    <br>
-                                <?php } else {
-                                    echo $vendor_contact_name_display;
-                                }
-
-                                if (!empty($vendor_phone)) { ?>
-                                    <i class="fa fa-fw fa-phone text-secondary me-2 mb-2"></i><?= $vendor_phone ?>
-                                    <br>
-                                <?php }
-
-                                if (!empty($vendor_email)) { ?>
-                                    <i class="fa fa-fw fa-envelope text-secondary me-2 mb-2"></i><?= $vendor_email ?>
-                                    <br>
-                                <?php } ?>
-                            </td>
-                             <td><?= $vendor_website_display ?></td>
-                             <td><?= $vendor_template_display ?></td>
-                            <td>
-                                <div class="dropdown dropstart text-center">
-                                    <button class="btn btn-secondary btn-sm" type="button" data-bs-toggle="dropdown">
-                                        <i class="fas fa-ellipsis-h"></i>
-                                    </button>
-                                    <div class="dropdown-menu">
-                                        <a class="dropdown-item ajax-modal" href="#" data-modal-url="modals/vendor/vendor_edit.php?id=<?= $vendor_id ?>">
-                                            <i class="fas fa-fw fa-edit me-2"></i>Edit
-                                        </a>
-                                        <?php if ($session_user_role == 3) { ?>
-                                            <?php if ($vendor_archived_at) { ?>
-                                            <div class="dropdown-divider"></div>
-                                            <a class="dropdown-item text-info confirm-link" href="post.php?restore_vendor=<?= $vendor_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>">
-                                                <i class="fas fa-fw fa-redo me-2"></i>Restore
-                                            </a>
-                                            <?php if ($config_destructive_deletes_enable) { ?>
-                                            <div class="dropdown-divider"></div>
-                                            <a class="dropdown-item text-danger text-bold confirm-link" href="post.php?delete_vendor=<?= $vendor_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>">
-                                                <i class="fas fa-fw fa-trash me-2"></i>Delete
-                                            </a>
-                                            <?php } ?>
-                                            <?php } else { ?>
-                                            <div class="dropdown-divider"></div>
-                                            <a class="dropdown-item text-danger confirm-link" href="post.php?archive_vendor=<?= $vendor_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>">
-                                                <i class="fas fa-fw fa-archive me-2"></i>Archive
-                                            </a>
-                                            <?php } ?>
-                                        <?php } ?>
-                                    </div>
-                                </div>
-                            </td>
-                        </tr>
-
-                        <?php
+                while ($row = mysqli_fetch_assoc($sql)) {
+                    $vendor_id = intval($row['vendor_id']);
+                    $vendor_name = escapeHtml($row['vendor_name']);
+                    $vendor_description = escapeHtml($row['vendor_description']);
+                    if ($vendor_description) {
+                        $vendor_description_display = $vendor_description;
+                    } else {
+                        $vendor_description_display = "-";
+                    }
+                    $vendor_account_number = escapeHtml($row['vendor_account_number']);
+                    if ($vendor_account_number) {
+                        $vendor_account_number_display = "<div class='text-secondary'>Account #: <span class='font-monospace'>$vendor_account_number</span></div>";
+                    } else {
+                        $vendor_account_number_display = '';
+                    }
+                    $vendor_contact_name = escapeHtml($row['vendor_contact_name']);
+                    if ($vendor_contact_name) {
+                        $vendor_contact_name_display = $vendor_contact_name;
+                    } else {
+                        $vendor_contact_name_display = "-";
+                    }
+                    $vendor_phone_country_code = escapeHtml($row['vendor_phone_country_code']);
+                    $vendor_phone = escapeHtml(formatPhoneNumber($row['vendor_phone'], $vendor_phone_country_code));
+                    $vendor_extension = escapeHtml($row['vendor_extension']);
+                    $vendor_email = escapeHtml($row['vendor_email']);
+                    $vendor_website = escapeHtml($row['vendor_website']);
+                    if ($vendor_website) {
+                         $vendor_website_display = "<a href='https://$vendor_website' target='_blank'>$vendor_website <i class='fa fa-external-link-alt'></i></a><button type='button' class='btn btn-sm clipboardjs' data-clipboard-text='$vendor_website'><i class='far fa-copy text-secondary'></i></button>";
+                    } else {
+                        $vendor_website_display = "-";
+                    }
+                    $vendor_hours = escapeHtml($row['vendor_hours']);
+                    $vendor_sla = escapeHtml($row['vendor_sla']);
+                    $vendor_code = escapeHtml($row['vendor_code']);
+                    $vendor_notes = escapeHtml($row['vendor_notes']);
+                    $vendor_created_at = escapeHtml($row['vendor_created_at']);
+                    $vendor_archived_at = escapeHtml($row['vendor_archived_at']);
+                    $vendor_template_id = intval($row['vendor_template_id']);
+                    $vendor_template_name = escapeHtml($row['vendor_template_name']);
+                    if ($vendor_template_id) {
+                        $vendor_template_display = "<div class='text-secondary' title='Base Vendor Template'><i class='fas fa-puzzle-piece me-1'></i>$vendor_template_name</div>";
+                    } else {
+                        $vendor_template_display = "";
                     }
 
                     ?>
+                    <tr>
+                        <td class="bg-light checkbox-column">
+                            <div class="form-check">
+                                <input class="form-check-input bulk-select" type="checkbox" name="vendor_ids[]" value="<?= $vendor_id ?>">
+                            </div>
+                        </td>
+                        <td>
+                            <a class="ajax-modal" href="#" data-modal-url="modals/vendor/vendor_edit.php?id=<?= $vendor_id ?>">
+                                <div class="d-flex">
+                                    <i class="fas fa-fw fa-2x fa-building text-dark me-2"></i>
+                                    <div class="flex-grow-1">
+                                        <div><?= $vendor_name ?></div>
+                                        <div><small><?= $vendor_account_number_display ?><small></div>
+                                    </div>
+                                </div>
+                            </a>
+                        </td>
+                        <td>
+                            <?= $vendor_description_display ?>
+                        </td>
+                        <td>
+                            <?php
+                            if (!empty($vendor_contact_name)) { ?>
+                                <i class="fa fa-fw fa-user text-secondary me-2 mb-2"></i><?= $vendor_contact_name_display ?>
+                                <br>
+                            <?php } else {
+                                echo $vendor_contact_name_display;
+                            }
 
-                    </tbody>
-                </table>
-            </div>
-        </form>
-        <?php require_once "../includes/filter_footer.php";
+                            if (!empty($vendor_phone)) { ?>
+                                <i class="fa fa-fw fa-phone text-secondary me-2 mb-2"></i><?= $vendor_phone ?>
+                                <br>
+                            <?php }
+
+                            if (!empty($vendor_email)) { ?>
+                                <i class="fa fa-fw fa-envelope text-secondary me-2 mb-2"></i><?= $vendor_email ?>
+                                <br>
+                            <?php } ?>
+                        </td>
+                         <td><?= $vendor_website_display ?></td>
+                         <td><?= $vendor_template_display ?></td>
+                        <td>
+                            <div class="dropdown dropstart text-center">
+                                <button class="btn btn-secondary btn-sm" type="button" data-bs-toggle="dropdown">
+                                    <i class="fas fa-ellipsis-h"></i>
+                                </button>
+                                <div class="dropdown-menu">
+                                    <a class="dropdown-item ajax-modal" href="#" data-modal-url="modals/vendor/vendor_edit.php?id=<?= $vendor_id ?>">
+                                        <i class="fas fa-fw fa-edit me-2"></i>Edit
+                                    </a>
+                                    <?php if ($session_user_role == 3) { ?>
+                                        <?php if ($vendor_archived_at) { ?>
+                                        <div class="dropdown-divider"></div>
+                                        <a class="dropdown-item text-info confirm-link" href="post.php?restore_vendor=<?= $vendor_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>">
+                                            <i class="fas fa-fw fa-redo me-2"></i>Restore
+                                        </a>
+                                        <?php if ($config_destructive_deletes_enable) { ?>
+                                        <div class="dropdown-divider"></div>
+                                        <a class="dropdown-item text-danger text-bold confirm-link" href="post.php?delete_vendor=<?= $vendor_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>">
+                                            <i class="fas fa-fw fa-trash me-2"></i>Delete
+                                        </a>
+                                        <?php } ?>
+                                        <?php } else { ?>
+                                        <div class="dropdown-divider"></div>
+                                        <a class="dropdown-item text-danger confirm-link" href="post.php?archive_vendor=<?= $vendor_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>">
+                                            <i class="fas fa-fw fa-archive me-2"></i>Archive
+                                        </a>
+                                        <?php } ?>
+                                    <?php } ?>
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
+
+                    <?php
+                }
+
+                ?>
+
+                </tbody>
+            </table>
+        </div>
+    </form>
+    <?php require_once "../includes/filter_footer.php";
 ?>
-    </div>
 </div>
 
 <script src="../js/bulk_actions.js"></script>
