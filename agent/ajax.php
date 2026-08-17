@@ -591,7 +591,7 @@ if (isset($_GET['get_totp_token_via_id'])) {
 }
 
 if (isset($_GET['get_readable_pass'])) {
-    echo json_encode(GenerateReadablePassword(1));
+    echo json_encode(generateReadablePassword());
 }
 
 /*
