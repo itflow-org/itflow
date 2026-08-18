@@ -35,6 +35,11 @@ header("X-Frame-Options: DENY");
     <link rel="stylesheet" href="/libs/DataTables/datatables.min.css">
     <link rel="stylesheet" href="/libs/intl-tel-input/css/intlTelInput.min.css">
     <link rel="stylesheet" href="/libs/adminlte/css/adminlte.min.css">
+    <?php /* Opt-in AdminLTE 3 palette, new in v4.5.0. Supplies the
+             --bs-<colour> tokens plus .text-bg-* / .card-* / .callout-*
+             / .bg-gradient-* families. Loads BEFORE itflow_custom.css so
+             our own .bg-<colour> box colours still win. */ ?>
+    <link rel="stylesheet" href="/libs/adminlte/css/adminlte-colors-v3.css">
     <link rel="stylesheet" href="/css/itflow_custom.css">
 
     <!-- Scripts -->

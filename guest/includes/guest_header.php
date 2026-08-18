@@ -20,6 +20,11 @@
     <link rel="stylesheet" href="/libs/fontawesome-free/css/all.min.css">
     <!-- Theme style -->
     <link rel="stylesheet" href="/libs/adminlte/css/adminlte.min.css">
+    <?php /* Opt-in AdminLTE 3 palette, new in v4.5.0. Supplies the
+             --bs-<colour> tokens plus .text-bg-* / .card-* / .callout-*
+             / .bg-gradient-* families. Loads BEFORE itflow_custom.css so
+             our own .bg-<colour> box colours still win. */ ?>
+    <link rel="stylesheet" href="/libs/adminlte/css/adminlte-colors-v3.css">
 
     <!-- Custom Style Sheet -->
     <link rel="stylesheet" href="/libs/flatpickr/css/flatpickr.min.css">

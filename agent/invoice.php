@@ -388,7 +388,7 @@ if (isset($_GET['invoice_id'])) {
                     <div class="card">
                         <div class="table-responsive">
                             <table class="table table-hover mb-0" id="items">
-                                <thead class="bg-light">
+                                <thead class="table-light">
                                 <tr>
                                     <th class="d-print-none"></th>
                                     <th>Item</th>

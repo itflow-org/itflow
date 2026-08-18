@@ -290,7 +290,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
         <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
         <div class="table-responsive">
             <table class="table table-hover mb-0">
-                <thead class="<?php if ($num_rows[0] == 0) { echo "d-none"; } ?> bg-light">
+                <thead class="<?php if ($num_rows[0] == 0) { echo "d-none"; } ?> table-light">
                 <tr>
                     <td class="checkbox-column">
                         <div class="form-check">

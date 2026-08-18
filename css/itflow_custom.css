@@ -122,23 +122,25 @@
 
 /* one accent per theme - v3 used the same hex for navbar, links and
    the active sidebar item */
+/* black has no upstream token - AdminLTE calls its darkest neutral
+   gray-dark (#343a40), which is a different colour */
 .theme-black { --itflow-accent: #000000; }
-.theme-blue { --itflow-accent: #007bff; }
-.theme-cyan { --itflow-accent: #17a2b8; }
-.theme-fuchsia { --itflow-accent: #f012be; }
-.theme-gray { --itflow-accent: #6c757d; }
-.theme-green { --itflow-accent: #28a745; }
-.theme-indigo { --itflow-accent: #6610f2; }
-.theme-lightblue { --itflow-accent: #3c8dbc; }
-.theme-maroon { --itflow-accent: #d81b60; }
-.theme-navy { --itflow-accent: #001f3f; }
-.theme-olive { --itflow-accent: #3d9970; }
-.theme-orange { --itflow-accent: #fd7e14; }
-.theme-pink { --itflow-accent: #e83e8c; }
-.theme-purple { --itflow-accent: #6f42c1; }
-.theme-red { --itflow-accent: #dc3545; }
-.theme-teal { --itflow-accent: #20c997; }
-.theme-yellow { --itflow-accent: #ffc107; }
+.theme-blue { --itflow-accent: var(--bs-blue, #007bff); }
+.theme-cyan { --itflow-accent: var(--bs-cyan, #17a2b8); }
+.theme-fuchsia { --itflow-accent: var(--bs-fuchsia, #f012be); }
+.theme-gray { --itflow-accent: var(--bs-gray, #6c757d); }
+.theme-green { --itflow-accent: var(--bs-green, #28a745); }
+.theme-indigo { --itflow-accent: var(--bs-indigo, #6610f2); }
+.theme-lightblue { --itflow-accent: var(--bs-lightblue, #3c8dbc); }
+.theme-maroon { --itflow-accent: var(--bs-maroon, #d81b60); }
+.theme-navy { --itflow-accent: var(--bs-navy, #001f3f); }
+.theme-olive { --itflow-accent: var(--bs-olive, #3d9970); }
+.theme-orange { --itflow-accent: var(--bs-orange, #fd7e14); }
+.theme-pink { --itflow-accent: var(--bs-pink, #e83e8c); }
+.theme-purple { --itflow-accent: var(--bs-purple, #6f42c1); }
+.theme-red { --itflow-accent: var(--bs-red, #dc3545); }
+.theme-teal { --itflow-accent: var(--bs-teal, #20c997); }
+.theme-yellow { --itflow-accent: var(--bs-yellow, #ffc107); }
 
 /* top navbar takes the theme colour */
 .app-header.navbar {
@@ -620,28 +622,6 @@ a:not(.dropdown-item):not(.btn-app):not(.nav-link):not(.brand-link):not(.page-li
     --bs-nav-pills-link-active-color: #000;
 }
 
-/* --- Theme swatch colours -----------------------------------------------
-   admin/settings_theme.php renders each choice as <i class="fa-circle
-   text-<colour>">. AdminLTE 3 defined those; v4 does not, so every swatch
-   on the theme picker rendered with no colour at all - you could not see
-   what you were selecting. Same accent hexes the themes themselves use. */
-.text-black { color: #000000 !important; }
-.text-blue { color: #007bff !important; }
-.text-cyan { color: #17a2b8 !important; }
-.text-fuchsia { color: #f012be !important; }
-.text-gray { color: #6c757d !important; }
-.text-green { color: #28a745 !important; }
-.text-indigo { color: #6610f2 !important; }
-.text-lightblue { color: #3c8dbc !important; }
-.text-maroon { color: #d81b60 !important; }
-.text-navy { color: #001f3f !important; }
-.text-olive { color: #3d9970 !important; }
-.text-orange { color: #fd7e14 !important; }
-.text-pink { color: #e83e8c !important; }
-.text-purple { color: #6f42c1 !important; }
-.text-red { color: #dc3545 !important; }
-.text-teal { color: #20c997 !important; }
-.text-yellow { color: #ffc107 !important; }
 
 /* --- Theme picker (admin/settings_theme.php) -----------------------------
    Keeps the coloured circles - the radio button beside each one is what was
