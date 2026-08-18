@@ -8,7 +8,7 @@ header("X-Frame-Options: DENY"); // Legacy
 ?>
 
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-lte-print="plain">
 <head>
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
