@@ -1,5 +1,5 @@
 <!-- Navbar -->
-<nav class="app-header navbar navbar-expand" data-bs-theme="dark">
+<nav class="app-header navbar navbar-expand d-print-none" data-bs-theme="dark">
 
     <!-- Left navbar links -->
     <ul class="navbar-nav">
