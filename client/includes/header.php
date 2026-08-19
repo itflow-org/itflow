@@ -42,7 +42,7 @@ header("X-Frame-Options: DENY"); // Legacy
 
 </head>
 
-<body class="theme-<?= escapeHtml($config_theme) ?>">
+<body class="theme-<?= escapeHtml($config_theme) ?>" data-lte-primary="<?= escapeHtml($config_theme) ?>">
 
 <!-- Navbar -->
 

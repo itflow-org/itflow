@@ -216,15 +216,6 @@ a:focus {
 }
 
 /* links and accented controls */
-a:not(.dropdown-item):not(.btn-app):not(.nav-link):not(.brand-link):not(.page-link):not(.badge):not(.btn):not(.small-box):not(.info-box) {
-    color: var(--itflow-accent, #007bff);
-}
-a:not(.dropdown-item):not(.btn-app):not(.nav-link):not(.brand-link):not(.page-link):not(.badge):not(.btn):not(.small-box):not(.info-box):hover,
-.btn-link:hover {
-    /* v3 darkened the accent by exactly 15% HSL lightness on hover */
-    color: color-mix(in srgb, var(--itflow-accent, #007bff) 70%, #000);
-    color: hsl(from var(--itflow-accent, #007bff) h s calc(l - 15%));
-}
 /* Tabs and pills. Bootstrap points inactive nav links at --bs-link-color and
    hardcodes --bs-nav-pills-link-active-bg to #0d6efd, so both states came out
    blue regardless of theme. Scoped to .nav-tabs/.nav-pills rather than .nav:
@@ -244,43 +235,12 @@ a:not(.dropdown-item):not(.btn-app):not(.nav-link):not(.brand-link):not(.page-li
 .nav-tabs .nav-link.active {
     font-weight: 600;
 }
-.nav-pills {
-    --bs-nav-pills-link-active-bg: var(--itflow-accent, #007bff);
-    --bs-nav-pills-link-active-color: #fff;
-}
 /* Pagination. Driving Bootstrap's own variables rather than overriding
    .page-link directly: a flat `.page-item .page-link{color:...}` ties with
    BS5's `.active>.page-link` and `.disabled>.page-link` on specificity and,
    because this sheet loads last, silently won both - so the active number was
    accent-on-accent (invisible) and disabled Prev/Next lost their muted grey. */
-.pagination {
-    --bs-pagination-color: var(--itflow-accent, #007bff);
-    --bs-pagination-hover-color: color-mix(in srgb, var(--itflow-accent, #007bff) 70%, #000);
-    --bs-pagination-hover-color: hsl(from var(--itflow-accent, #007bff) h s calc(l - 15%));
-    --bs-pagination-focus-color: var(--itflow-accent, #007bff);
-    --bs-pagination-active-color: #fff;
-    --bs-pagination-active-bg: var(--itflow-accent, #007bff);
-    --bs-pagination-active-border-color: var(--itflow-accent, #007bff);
-}
-.dropdown-menu {
-    --bs-dropdown-link-active-bg: var(--itflow-accent, #007bff);
-}
-.list-group {
-    --bs-list-group-active-bg: var(--itflow-accent, #007bff);
-    --bs-list-group-active-border-color: var(--itflow-accent, #007bff);
-}
-.form-control:focus,
-.form-select:focus,
-.form-check-input:focus {
-    border-color: var(--itflow-accent, #007bff);
-    /* the border was themed but the 0 0 0 .25rem glow was still Bootstrap blue */
-    box-shadow: var(--bs-box-shadow-inset, 0 0 #0000),
-                0 0 0 .25rem color-mix(in srgb, var(--itflow-accent, #007bff) 25%, transparent);
-}
 /* Bootstrap's generic focus ring (buttons, links, .btn-check labels) */
-:root {
-    --bs-focus-ring-color: color-mix(in srgb, var(--itflow-accent, #007bff) 25%, transparent);
-}
 .form-check-input:checked {
     background-color: var(--itflow-accent, #007bff);
     border-color: var(--itflow-accent, #007bff);
@@ -565,55 +525,12 @@ a:not(.dropdown-item):not(.btn-app):not(.nav-link):not(.brand-link):not(.page-li
    The shade steps are Bootstrap's own: hover is shade 15%, active shade 20%,
    and shade(c, n%) is literally mix(black, c, n%) - which color-mix
    reproduces exactly. */
-.btn-primary {
-    --bs-btn-bg: var(--itflow-accent, #007bff);
-    --bs-btn-border-color: var(--itflow-accent, #007bff);
-    --bs-btn-hover-bg: color-mix(in srgb, var(--itflow-accent, #007bff) 85%, #000);
-    --bs-btn-hover-border-color: color-mix(in srgb, var(--itflow-accent, #007bff) 80%, #000);
-    --bs-btn-active-bg: color-mix(in srgb, var(--itflow-accent, #007bff) 80%, #000);
-    --bs-btn-active-border-color: color-mix(in srgb, var(--itflow-accent, #007bff) 75%, #000);
-    --bs-btn-disabled-bg: var(--itflow-accent, #007bff);
-    --bs-btn-disabled-border-color: var(--itflow-accent, #007bff);
-}
-.btn-outline-primary {
-    --bs-btn-color: var(--itflow-accent, #007bff);
-    --bs-btn-border-color: var(--itflow-accent, #007bff);
-    --bs-btn-hover-bg: var(--itflow-accent, #007bff);
-    --bs-btn-hover-border-color: var(--itflow-accent, #007bff);
-    --bs-btn-active-bg: var(--itflow-accent, #007bff);
-    --bs-btn-active-border-color: var(--itflow-accent, #007bff);
-    --bs-btn-disabled-color: var(--itflow-accent, #007bff);
-    --bs-btn-disabled-border-color: var(--itflow-accent, #007bff);
-}
 
 /* Focus ring has to be an RGB triplet, so it is per theme. */
-.theme-black .btn-primary, .theme-black .btn-outline-primary { --bs-btn-focus-shadow-rgb: 0, 0, 0; }
-.theme-blue .btn-primary, .theme-blue .btn-outline-primary { --bs-btn-focus-shadow-rgb: 0, 123, 255; }
-.theme-cyan .btn-primary, .theme-cyan .btn-outline-primary { --bs-btn-focus-shadow-rgb: 23, 162, 184; }
-.theme-fuchsia .btn-primary, .theme-fuchsia .btn-outline-primary { --bs-btn-focus-shadow-rgb: 240, 18, 190; }
-.theme-gray .btn-primary, .theme-gray .btn-outline-primary { --bs-btn-focus-shadow-rgb: 108, 117, 125; }
-.theme-green .btn-primary, .theme-green .btn-outline-primary { --bs-btn-focus-shadow-rgb: 40, 167, 69; }
-.theme-indigo .btn-primary, .theme-indigo .btn-outline-primary { --bs-btn-focus-shadow-rgb: 102, 16, 242; }
-.theme-lightblue .btn-primary, .theme-lightblue .btn-outline-primary { --bs-btn-focus-shadow-rgb: 60, 141, 188; }
-.theme-maroon .btn-primary, .theme-maroon .btn-outline-primary { --bs-btn-focus-shadow-rgb: 216, 27, 96; }
-.theme-navy .btn-primary, .theme-navy .btn-outline-primary { --bs-btn-focus-shadow-rgb: 0, 31, 63; }
-.theme-olive .btn-primary, .theme-olive .btn-outline-primary { --bs-btn-focus-shadow-rgb: 61, 153, 112; }
-.theme-orange .btn-primary, .theme-orange .btn-outline-primary { --bs-btn-focus-shadow-rgb: 253, 126, 20; }
-.theme-pink .btn-primary, .theme-pink .btn-outline-primary { --bs-btn-focus-shadow-rgb: 232, 62, 140; }
-.theme-purple .btn-primary, .theme-purple .btn-outline-primary { --bs-btn-focus-shadow-rgb: 111, 66, 193; }
-.theme-red .btn-primary, .theme-red .btn-outline-primary { --bs-btn-focus-shadow-rgb: 220, 53, 69; }
-.theme-teal .btn-primary, .theme-teal .btn-outline-primary { --bs-btn-focus-shadow-rgb: 32, 201, 151; }
-.theme-yellow .btn-primary, .theme-yellow .btn-outline-primary { --bs-btn-focus-shadow-rgb: 255, 193, 7; }
 
 /* Text colour on a solid primary button. Threshold derived from Bootstrap's
    own palette (white up to L=0.183, black from L=0.486), so only these two
    themes are light enough to need dark text - the rest keep white. */
-.theme-orange .btn-primary { --bs-btn-color: #000; --bs-btn-hover-color: #000; --bs-btn-active-color: #000; --bs-btn-disabled-color: #000; }
-.theme-orange .btn-outline-primary { --bs-btn-hover-color: #000; --bs-btn-active-color: #000; }
-.theme-teal .btn-primary { --bs-btn-color: #000; --bs-btn-hover-color: #000; --bs-btn-active-color: #000; --bs-btn-disabled-color: #000; }
-.theme-teal .btn-outline-primary { --bs-btn-hover-color: #000; --bs-btn-active-color: #000; }
-.theme-yellow .btn-primary { --bs-btn-color: #000; --bs-btn-hover-color: #000; --bs-btn-active-color: #000; --bs-btn-disabled-color: #000; }
-.theme-yellow .btn-outline-primary { --bs-btn-hover-color: #000; --bs-btn-active-color: #000; }
 
 /* Same L>0.335 contrast cut as the primary button. */
 .theme-orange .nav-pills,
@@ -1177,4 +1094,36 @@ a:not(.dropdown-item):not(.btn-app):not(.nav-link):not(.brand-link):not(.page-li
    so it should never draw a ring of its own */
 .modal:focus {
     outline: 0;
+}
+
+/* --- Primary colour: the two cases upstream cannot cover -------------------
+   `data-lte-primary` on <body> now drives buttons, links, pagination, pills,
+   dropdowns, list groups, progress, accordions and every form focus state
+   from AdminLTE's own palette. --itflow-accent is still ours and still drives
+   the navbar, sidebar, nav-tabs, TinyMCE, Tom Select, FullCalendar and the
+   theme picker.
+
+   1. There is no `black` in AdminLTE's palette - its darkest neutral is
+      gray-dark (#343a40), which is a different colour - so the same variables
+      are supplied here. The generic [data-lte-primary] component rules then
+      pick these up exactly as they do for a built-in colour. */
+.theme-black {
+    --bs-primary: #000000;
+    --bs-primary-rgb: 0, 0, 0;
+    --bs-link-color: #000000;
+    --bs-link-color-rgb: 0, 0, 0;
+    --bs-link-hover-color: #333333;
+    --bs-link-hover-color-rgb: 51, 51, 51;
+    --lte-primary-hover: #262626;
+    --lte-primary-hover-border: #1a1a1a;
+    --lte-primary-active: #1a1a1a;
+    --lte-primary-active-border: #000000;
+}
+
+/* 2. AdminLTE gives teal WHITE button text (its v3 YIQ rule). White on
+      #20c997 is a 2.13 contrast ratio, below the 4.5 AA threshold; black is
+      9.86. Overriding their own variable keeps the dark text we had. */
+.theme-teal {
+    --lte-primary-color: #000000;
+    --lte-primary-color-rgb: 0, 0, 0;
 }

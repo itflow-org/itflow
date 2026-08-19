@@ -36,5 +36,5 @@
     <!-- Scripts -->
 
 </head>
-<body class="layout-fixed theme-<?= escapeHtml($config_theme) ?>">
+<body class="layout-fixed theme-<?= escapeHtml($config_theme) ?>" data-lte-primary="<?= escapeHtml($config_theme) ?>">
     <div class="app-wrapper text-sm">

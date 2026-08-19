@@ -44,6 +44,6 @@ header("X-Frame-Options: DENY");
 
     <!-- Scripts -->
 </head>
-<body class="layout-fixed sidebar-expand-lg app-loaded theme-<?= escapeHtml($config_theme) ?>">
+<body class="layout-fixed sidebar-expand-lg app-loaded theme-<?= escapeHtml($config_theme) ?>" data-lte-primary="<?= escapeHtml($config_theme) ?>">
     <div class="app-wrapper text-sm">
 
