@@ -672,11 +672,18 @@ foreach ($messages as $message) {
         $subject = escapeSql((string)$message->subject() ?: 'No Subject');
 
         // Skip vacation/out-of-office auto-responders to prevent mail loops (RFC 3834)
-        // NDRs use "auto-generated" and are still handled by the NDR logic below
+        // Some* NDRs use "auto-generated" and are still handled by the NDR logic below
+        // Todo: Combine with the NDR logic so we can update the ticket too
         $auto_submitted = strtolower((string)($message->header('Auto-Submitted')?->getValue() ?? ''));
         $precedence     = strtolower((string)($message->header('Precedence')?->getValue() ?? ''));
         if (str_starts_with($auto_submitted, 'auto-replied') || $precedence === 'auto_reply') {
             logApp("Cron-Email-Parser", "info", "Email parser skipped auto-responder from $from_email ($subject)");
+                appNotify(
+                    "Mail",
+                    "Email parser: Skipped auto-responder message from $from_email. Subject: $subject",
+                    "",
+                    0
+                );
             $processed_count++;
             $message->markSeen();
             $message->move($targetFolderPath);
@@ -908,7 +915,7 @@ foreach ($messages as $message) {
 
                 appNotify(
                     "Ticket",
-                    "Email parser NDR: Message to $failed_recipient bounced. Subject: $original_subject Diagnostics: $status_code / $diagnostic_code - check ITFlow folder manually to see email",
+                    "Email parser: NDR - Message to $failed_recipient bounced. Subject: $original_subject Diagnostics: $status_code / $diagnostic_code - check ITFlow folder manually to see email",
                     "",
                     0
                 );
