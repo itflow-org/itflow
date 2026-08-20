@@ -62,7 +62,9 @@ ob_start();
                                     <option value="">- Select a Client -</option>
                                     <?php
 
-                                    $sql = mysqli_query($mysqli, "SELECT client_id, client_name FROM clients WHERE client_lead = 0 AND client_archived_at IS NULL " . clientScopeSql('clients.client_id') . " ORDER BY client_name ASC");
+                                    // Hide leads from the general list, but include the current client when opening a ticket from a lead page.
+                                    $selectedClientCondition = intval($client_id) > 0 ? " OR client_id = " . intval($client_id) : "";
+                                    $sql = mysqli_query($mysqli, "SELECT client_id, client_name FROM clients WHERE client_archived_at IS NULL AND (client_lead = 0 $selectedClientCondition) " . clientScopeSql('clients.client_id') . " ORDER BY client_name ASC");
                                     while ($row = mysqli_fetch_assoc($sql)) {
                                         $client_id_select = intval($row['client_id']);
                                         $client_name = escapeHtml($row['client_name']); ?>
