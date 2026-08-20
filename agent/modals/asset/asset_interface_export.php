@@ -2,10 +2,8 @@
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header bg-dark">
-                <h5 class="modal-title"><i class="fas fa-fw fa-download mr-2"></i>Export Interfaces</h5>
-                <button type="button" class="close text-white" data-dismiss="modal">
-                    <span>&times;</span>
-                </button>
+                <h5 class="modal-title"><i class="fas fa-fw fa-download me-2"></i>Export Interfaces</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
             </div>
             <form action="post.php" method="post" autocomplete="off">
                 <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">

@@ -42,7 +42,17 @@ if (isset($_POST['edit_company'])) {
         }
     }
 
+    // The client record standing in for this company. Verified against the clients table
+    // rather than trusted from the POST, so a stale or hand-made value cannot leave the
+    // sidebar pointing at a client that no longer exists. 0 clears the designation.
+    $internal_client_id = intval($_POST['internal_client_id'] ?? 0);
+    if ($internal_client_id !== 0 && !mysqli_num_rows(mysqli_query($mysqli, "SELECT client_id FROM clients WHERE client_id = $internal_client_id LIMIT 1"))) {
+        $internal_client_id = 0;
+    }
+
     mysqli_query($mysqli,"UPDATE companies SET company_name = '$name', company_address = '$address', company_city = '$city', company_state = '$state', company_zip = '$zip', company_country = '$country', company_phone_country_code = '$phone_country_code', company_phone = '$phone', company_email = '$email', company_website = '$website', company_tax_id = '$tax_id' WHERE company_id = 1");
+
+    mysqli_query($mysqli,"UPDATE settings SET config_internal_client_id = $internal_client_id WHERE company_id = 1");
 
     logAudit("Settings", "Edit", "$session_name edited company details");
 

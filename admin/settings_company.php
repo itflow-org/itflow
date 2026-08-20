@@ -29,7 +29,7 @@ $company_initials = escapeHtml(initials($company_name));
 
     <div class="card card-dark">
         <div class="card-header">
-            <h3 class="card-title"><i class="fas fa-fw fa-briefcase mr-2"></i>Company Details</h3>
+            <h3 class="card-title"><i class="fas fa-fw fa-briefcase me-2"></i>Company Details</h3>
         </div>
         <div class="card-body">
             <form action="post.php" method="post" enctype="multipart/form-data" autocomplete="off">
@@ -39,73 +39,61 @@ $company_initials = escapeHtml(initials($company_name));
                         <div class="col-md-3 text-center">
                             <?php if ($company_logo) { ?>
                                 <img class="img-thumbnail" src="<?= "../uploads/settings/$company_logo" ?>">
-                                <a href="post.php?remove_company_logo&csrf_token=<?= $_SESSION['csrf_token'] ?>" class="btn btn-outline-danger btn-block">Remove Logo</a>
+                                <a href="post.php?remove_company_logo&csrf_token=<?= $_SESSION['csrf_token'] ?>" class="btn btn-outline-danger w-100">Remove Logo</a>
                                 <hr>
                             <?php } ?>
-                            <div class="form-group">
+                            <div class="mb-3">
                                 <label>Upload company logo</label>
-                                <input type="file" class="form-control-file" name="file" accept=".jpg, .jpeg, .png">
+                                <input type="file" class="form-control" name="file" accept=".jpg, .jpeg, .png">
                             </div>
                         </div>
 
                         <div class="col-md-9">
-                            <div class="form-group">
+                            <div class="mb-3">
                                 <label>Name <strong class="text-danger">*</strong></label>
                                 <div class="input-group">
-                                    <div class="input-group-prepend">
                                         <span class="input-group-text"><i class="fa fa-fw fa-building"></i></span>
-                                    </div>
                                     <input type="text" class="form-control" name="name" placeholder="Company Name" maxlength="200" value="<?= $company_name ?>" required>
                                 </div>
                             </div>
 
-                            <div class="form-group">
+                            <div class="mb-3">
                                 <label>Address</label>
                                 <div class="input-group">
-                                    <div class="input-group-prepend">
                                         <span class="input-group-text"><i class="fa fa-fw fa-map-marker-alt"></i></span>
-                                    </div>
                                     <input type="text" class="form-control" name="address" placeholder="Street Address" maxlength="200" value="<?= $company_address ?>">
                                 </div>
                             </div>
 
-                            <div class="form-group">
+                            <div class="mb-3">
                                 <label>City</label>
                                 <div class="input-group">
-                                    <div class="input-group-prepend">
                                         <span class="input-group-text"><i class="fa fa-fw fa-city"></i></span>
-                                    </div>
                                     <input type="text" class="form-control" name="city" placeholder="City" maxlength="200" value="<?= $company_city ?>">
                                 </div>
                             </div>
 
-                            <div class="form-group">
+                            <div class="mb-3">
                                 <label>State / Province</label>
                                 <div class="input-group">
-                                    <div class="input-group-prepend">
                                         <span class="input-group-text"><i class="fa fa-fw fa-flag"></i></span>
-                                    </div>
                                     <input type="text" class="form-control" name="state" placeholder="State or Province" maxlength="200" value="<?= $company_state ?>">
                                 </div>
                             </div>
 
-                            <div class="form-group">
+                            <div class="mb-3">
                                 <label>Postal Code</label>
                                 <div class="input-group">
-                                    <div class="input-group-prepend">
                                         <span class="input-group-text"><i class="fab fa-fw fa-usps"></i></span>
-                                    </div>
                                     <input type="text" class="form-control" name="zip" placeholder="Zip or Postal Code" maxlength="200" value="<?= $company_zip ?>">
                                 </div>
                             </div>
 
-                            <div class="form-group">
+                            <div class="mb-3">
                                 <label>Country</label>
                                 <div class="input-group">
-                                    <div class="input-group-prepend">
                                         <span class="input-group-text"><i class="fa fa-fw fa-globe-americas"></i></span>
-                                    </div>
-                                    <select class="form-control select2" name="country">
+                                    <select class="form-select select2" name="country">
                                         <option value="">- Country -</option>
                                         <?php foreach($countries_array as $country_name) { ?>
                                             <option <?php if ($company_country == $country_name) { echo "selected"; } ?>><?= $country_name ?></option>
@@ -115,13 +103,11 @@ $company_initials = escapeHtml(initials($company_name));
                             </div>
 
                             <label>Phone</label>
-                            <div class="form-row">
+                            <div class="row g-2">
                                 <div class="col-md-9">
-                                    <div class="form-group">
+                                    <div class="mb-3">
                                         <div class="input-group">
-                                            <div class="input-group-prepend">
                                                 <span class="input-group-text"><i class="fa fa-fw fa-phone"></i></span>
-                                            </div>
                                             <input type="tel" class="form-control col-2" name="phone_country_code" value="<?= $company_phone_country_code ?>" placeholder="+" maxlength="4">
                                             <input type="tel" class="form-control" name="phone" value="<?= $company_phone ?>" placeholder="Phone Number" maxlength="200">
                                         </div>
@@ -129,39 +115,54 @@ $company_initials = escapeHtml(initials($company_name));
                                 </div>
                             </div>
 
-                            <div class="form-group">
+                            <div class="mb-3">
                                 <label>Email</label>
                                 <div class="input-group">
-                                    <div class="input-group-prepend">
                                         <span class="input-group-text"><i class="fa fa-fw fa-envelope"></i></span>
-                                    </div>
                                     <input type="email" class="form-control" name="email" placeholder="Email address" maxlength="200" value="<?= $company_email ?>">
                                 </div>
                             </div>
 
-                            <div class="form-group">
+                            <div class="mb-3">
                                 <label>Website</label>
                                 <div class="input-group">
-                                    <div class="input-group-prepend">
                                         <span class="input-group-text"><i class="fa fa-fw fa-globe"></i></span>
-                                    </div>
                                     <input type="text" class="form-control" name="website" placeholder="Website address" maxlength="200" value="<?= $company_website ?>">
                                 </div>
                             </div>
 
-                            <div class="form-group">
+                            <div class="mb-3">
                                 <label>Tax ID</label>
                                 <div class="input-group">
-                                    <div class="input-group-prepend">
                                         <span class="input-group-text"><i class="fa fa-fw fa-balance-scale"></i></span>
-                                    </div>
                                     <input type="text" class="form-control" name="tax_id" value="<?= $company_tax_id ?>" placeholder="Tax ID" maxlength="200">
                                 </div>
                             </div>
 
                             <hr>
 
-                            <button type="submit" name="edit_company" class="btn btn-primary text-bold"><i class="fas fa-check mr-2"></i>Save</button>
+                            <div class="mb-3">
+                                <label>My Company's Client Record</label>
+                                <div class="input-group">
+                                        <span class="input-group-text"><i class="fa fa-fw fa-house-user"></i></span>
+                                    <select class="form-select select2" name="internal_client_id">
+                                        <option value="0">None</option>
+                                        <?php
+                                        $sql_internal_clients = mysqli_query($mysqli, "SELECT client_id, client_name FROM clients WHERE client_archived_at IS NULL ORDER BY client_name ASC");
+                                        while ($row_internal_client = mysqli_fetch_assoc($sql_internal_clients)) {
+                                            $internal_client_id_select = intval($row_internal_client['client_id']);
+                                            $internal_client_name_select = escapeHtml($row_internal_client['client_name']);
+                                            ?>
+                                            <option <?php if ($config_internal_client_id == $internal_client_id_select) { echo "selected"; } ?> value="<?= $internal_client_id_select ?>"><?= $internal_client_name_select ?></option>
+                                        <?php } ?>
+                                    </select>
+                                </div>
+                                <small class="text-muted">If you keep a client record for your own company - for internal tickets, documentation, assets and credentials - point it out here. Your company name in the sidebar then links straight to it.</small>
+                            </div>
+
+                            <hr>
+
+                            <button type="submit" name="edit_company" class="btn btn-primary text-bold"><i class="fas fa-check me-2"></i>Save</button>
                         </div>
                     </div>
                 </div>

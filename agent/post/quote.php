@@ -341,34 +341,6 @@ if (isset($_POST['edit_quote_item'])) {
 
 }
 
-if (isset($_POST['quote_note'])) {
-
-    validateCSRFToken();
-
-    enforceUserPermission('module_sales', 2);
-
-    $quote_id = intval($_POST['quote_id']);
-    $note = escapeSql($_POST['note']);
-
-    // Get Quote Details
-    $sql = mysqli_query($mysqli,"SELECT quote_client_id, quote_number, quote_prefix FROM quotes WHERE quote_id = $quote_id");
-    $row = mysqli_fetch_assoc($sql);
-    $quote_prefix = escapeSql($row['quote_prefix']);
-    $quote_number = escapeSql($row['quote_number']);
-    $client_id = intval($row['quote_client_id']);
-
-    enforceClientAccess();
-
-    mysqli_query($mysqli,"UPDATE quotes SET quote_note = '$note' WHERE quote_id = $quote_id");
-
-    logAudit("Quote", "Edit", "$session_name added notes to quote $quote_prefix$quote_number", $client_id, $quote_id);
-
-    flashAlert("Notes added");
-
-    redirect();
-
-}
-
 if (isset($_POST['edit_quote'])) {
 
     validateCSRFToken();
@@ -848,7 +820,7 @@ if (isset($_GET['export_quote_pdf'])) {
 
     //Set Badge color based off of quote status
     if ($quote_status == "Sent") {
-        $quote_badge_color = "warning text-white";
+        $quote_badge_color = "warning";
     } elseif ($quote_status == "Viewed") {
         $quote_badge_color = "primary";
     } elseif ($quote_status == "Accepted") {

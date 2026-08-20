@@ -72,7 +72,6 @@ if (isset($_GET['invoice_id'], $_GET['url_key']) && !isset($_GET['payment_intent
 
     <!-- Stripe & jQuery -->
     <script src="https://js.stripe.com/v3/"></script>
-    <script src="../libs/jquery/jquery.min.js"></script>
 
     <div class="row pt-5">
         <div class="col-sm">
@@ -86,7 +85,7 @@ if (isset($_GET['invoice_id'], $_GET['url_key']) && !isset($_GET['payment_intent
                         <tr>
                             <th>Product</th>
                             <th class="text-center">Qty</th>
-                            <th class="text-right">Total</th>
+                            <th class="text-end">Total</th>
                         </tr>
                         </thead>
                         <tbody>
@@ -99,11 +98,11 @@ if (isset($_GET['invoice_id'], $_GET['url_key']) && !isset($_GET['payment_intent
                             <tr>
                                 <td><?= $item_name ?></td>
                                 <td class="text-center"><?= $item_quantity ?></td>
-                                <td class="text-right"><?= numfmt_format_currency($currency_format, $item_total, $invoice_currency_code) ?></td>
+                                <td class="text-end"><?= numfmt_format_currency($currency_format, $item_total, $invoice_currency_code) ?></td>
                             </tr>
                         <?php } ?>
                         <?php if ($invoice_discount > 0) { ?>
-                            <tr class="text-right">
+                            <tr class="text-end">
                                 <td colspan="2">Discount</td>
                                 <td>
                                     <?= numfmt_format_currency($currency_format, $invoice_discount, $invoice_currency_code) ?>
@@ -111,7 +110,7 @@ if (isset($_GET['invoice_id'], $_GET['url_key']) && !isset($_GET['payment_intent
                             </tr>
                         <?php } ?>
                         <?php if (intval($amount_paid) > 0) { ?>
-                            <tr class="text-right">
+                            <tr class="text-end">
                                 <td colspan="2">Paid</td>
                                 <td>
                                     <?= numfmt_format_currency($currency_format, $amount_paid, $invoice_currency_code) ?>
@@ -136,11 +135,11 @@ if (isset($_GET['invoice_id'], $_GET['url_key']) && !isset($_GET['payment_intent
                         <input type="hidden" id="url_key" value="<?= $invoice_url_key ?>">
                         <div id="payment-element"></div>
                         <br>
-                        <button type="submit" id="submit" class="btn btn-primary btn-lg btn-block text-bold" hidden="hidden">
+                        <button type="submit" id="submit" class="btn btn-primary btn-lg w-100 text-bold" hidden="hidden">
                             <div class="spinner hidden" id="spinner"></div>
-                            <span id="button-text"><i class="fas fa-check mr-2"></i>Pay Invoice</span>
+                            <span id="button-text"><i class="fas fa-check me-2"></i>Pay Invoice</span>
                         </button>
-                        <div id="payment-message" class="hidden"></div>
+                        <div id="payment-message" class="d-none"></div>
                     </form>
                 </div>
             </div>

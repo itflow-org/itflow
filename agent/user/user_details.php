@@ -5,7 +5,7 @@ require_once "includes/inc_all_user.php";
 
 <div class="card card-dark">
     <div class="card-header">
-        <h3 class="card-title"><i class="fas fa-cog mr-2"></i>User Preferences</h3>
+        <h3 class="card-title"><i class="fas fa-cog me-2"></i>User Preferences</h3>
     </div>
     <div class="card-body">
 
@@ -16,53 +16,47 @@ require_once "includes/inc_all_user.php";
                 <div class="col-md-3 text-center">
                     <?php if($session_avatar) { ?>
                     <img class="img-thumbnail" src="<?= "../../uploads/users/$session_user_id/" . escapeHtml($session_avatar) ?>">
-                    <a href="post.php?clear_your_user_avatar&csrf_token=<?= $_SESSION['csrf_token'] ?>" class="btn btn-outline-danger btn-block">Remove Avatar</a>
+                    <a href="post.php?clear_your_user_avatar&csrf_token=<?= $_SESSION['csrf_token'] ?>" class="btn btn-outline-danger w-100">Remove Avatar</a>
                     <hr>
                     <?php } ?>
-                    <div class="form-group">
+                    <div class="mb-3">
                         <label>Upload Avatar</label>
-                        <input type="file" class="form-control-file" accept="image/*" name="avatar">
+                        <input type="file" class="form-control" accept="image/*" name="avatar">
                     </div>
                 </div>
                 <div class="col-md-9">
 
-                    <div class="form-group">
+                    <div class="mb-3">
                         <label>Name <strong class="text-danger">*</strong></label>
                         <div class="input-group">
-                            <div class="input-group-prepend">
                                 <span class="input-group-text"><i class="fa fa-fw fa-user"></i></span>
-                            </div>
                             <input type="text" class="form-control" name="name" placeholder="Full Name" maxlength="200" value="<?= stripslashes(escapeHtml($session_name)) ?>" required>
                         </div>
                     </div>
 
-                    <div class="form-group">
+                    <div class="mb-3">
                         <label>Role</label>
                         <div class="input-group">
-                            <div class="input-group-prepend">
                                 <span class="input-group-text"><i class="fa fa-fw fa-user-shield"></i></span>
-                            </div>
                             <input type="text" class="form-control" value="<?= escapeHtml($session_user_role_display) ?>" disabled>
                         </div>
                     </div>
 
-                    <div class="form-group">
+                    <div class="mb-3">
                         <label>Email <strong class="text-danger">*</strong></label>
                         <div class="input-group">
-                            <div class="input-group-prepend">
                                 <span class="input-group-text"><i class="fa fa-fw fa-envelope"></i></span>
-                            </div>
                             <input type="email" class="form-control" name="email" placeholder="Email Address" maxlength="200" value="<?= escapeHtml($session_email) ?>" required>
                         </div>
                     </div>
 
-                    <div class="form-group">
+                    <div class="mb-3">
                         <label>Signature</label>
                         <textarea class="form-control tinymceTicket" name="signature" rows="4" placeholder="Create a signature automatically appended to tickets, emails etc"><?= escapeHtml(getFieldById('user_settings',$session_user_id,'user_config_signature')) ?>
                         </textarea>
                     </div>
                     
-                    <button type="submit" name="edit_your_user_details" class="btn btn-primary btn-responsive"><i class="fas fa-check mr-2"></i>Save</button>
+                    <button type="submit" name="edit_your_user_details" class="btn btn-primary btn-responsive"><i class="fas fa-check me-2"></i>Save</button>
 
                 </div>
             </div>

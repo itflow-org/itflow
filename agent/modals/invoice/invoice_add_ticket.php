@@ -1,12 +1,10 @@
 
-<div class="modal" id="addTicketModal">
+<div class="modal" id="addTicketModal" tabindex="-1">
 <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header bg-dark">
-                <h5 class="modal-title"><i class="fas fa-fw fa-file-invoice mr-2"></i>Add Unbilled Ticket to Invoice</h5>
-                <button type="button" class="close text-white" data-dismiss="modal">
-                    <span>&times;</span>
-                </button>
+                <h5 class="modal-title"><i class="fas fa-fw fa-file-invoice me-2"></i>Add Unbilled Ticket to Invoice</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
             </div>
             <div class="modal-body">
                 <div class="table-responsive">
@@ -27,13 +25,13 @@
 
                             switch ($ticket_status) {
                                 case 'Closed':
-                                    $ticket_status_class = 'badge-dark';
+                                    $ticket_status_class = 'bg-dark';
                                     break;
                                 case 'Auto Close':
-                                    $ticket_status_class = 'badge-warning';
+                                    $ticket_status_class = 'bg-warning';
                                     break;
                                 default:
-                                    $ticket_status_class = 'badge-secondary';
+                                    $ticket_status_class = 'bg-secondary';
                                     break;
                             }
 
@@ -42,7 +40,7 @@
                             <tr>
                                 <td>
                                     <a href="ticket.php?ticket_id=<?= $ticket_id ?>">
-                                        <span class="badge badge-pill <?= $ticket_status_class ?> p-3"><?= "$ticket_prefix$ticket_number" ?></span>
+                                        <span class="badge rounded-pill <?= $ticket_status_class ?> p-3"><?= "$ticket_prefix$ticket_number" ?></span>
                                     </a>
                                 </td>
                                 <td><?= $ticket_subject ?></td>

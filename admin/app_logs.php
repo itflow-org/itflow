@@ -40,28 +40,26 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 
 ?>
 
-    <div class="card card-dark">
-        <div class="card-header py-3">
-            <h3 class="card-title"><i class="fas fa-fw fa-history mr-2"></i>App Logs</h3>
+    <div class="card">
+        <div class="card-header bg-dark py-2">
+            <h3 class="card-title"><i class="fas fa-fw fa-history me-2"></i>App Logs</h3>
         </div>
-        <div class="card-body">
+        <div class="card-header py-3">
             <form autocomplete="off">
-                <div class="row">
+                <div class="row g-2 align-items-end">
                     <div class="col-sm-4">
-                        <div class="form-group">
+                        <div>
                             <div class="input-group">
                                 <input type="search" class="form-control" name="q" value="<?php if (isset($q)) { echo stripslashes(escapeHtml($q)); } ?>" placeholder="Search app logs">
-                                <div class="input-group-append">
-                                    <button class="btn btn-secondary" type="button" data-toggle="collapse" data-target="#advancedFilter"><i class="fas fa-filter"></i></button>
+                                    <button class="btn btn-secondary" type="button" data-bs-toggle="collapse" data-bs-target="#advancedFilter"><i class="fas fa-filter"></i></button>
                                     <button class="btn btn-primary"><i class="fa fa-search"></i></button>
-                                </div>
                             </div>
                         </div>
                     </div>
 
                     <div class="col-sm-2">
-                        <div class="form-group">
-                            <select class="form-control select2" name="type" onchange="this.form.submit()">
+                        <div>
+                            <select class="form-select select2" name="type" onchange="this.form.submit()">
                                 <option value="">- All Types -</option>
 
                                 <?php
@@ -79,8 +77,8 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                     </div>
 
                     <div class="col-sm-2">
-                        <div class="form-group">
-                            <select class="form-control select2" name="category" onchange="this.form.submit()">
+                        <div>
+                            <select class="form-select select2" name="category" onchange="this.form.submit()">
                                 <option value="">- All Categories -</option>
 
                                 <?php
@@ -98,10 +96,10 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                     </div>
                 </div>
                 <div class="collapse mt-3 <?php if (isset($_GET['dtf']) && $_GET['dtf'] !== '1970-01-01') { echo "show"; } ?>" id="advancedFilter">
-                    <div class="row">
+                    <div class="row g-3">
                         <div class="col-md-3">
-                            <div class="form-group">
-                                <label>Date range</label>
+                            <div>
+                                <label class="form-label">Date range</label>
                                 <input type="text" id="dateFilter" class="form-control" autocomplete="off">
                                 <input type="hidden" name="canned_date" id="canned_date" value="<?= escapeHtml($_GET['canned_date']) ?? '' ?>">
                                 <input type="hidden" name="dtf" id="dtf" value="<?= escapeHtml($dtf ?? '') ?>">
@@ -111,62 +109,61 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                     </div>
                 </div>
             </form>
-            <hr>
-            <div class="table-responsive-sm">
-                <table class="table table-sm table-striped table-borderless table-hover">
-                    <thead class="text-dark <?php if ($num_rows[0] == 0) { echo "d-none"; } ?>">
-                    <tr>
-                        <th>
-                            <a class="text-dark" href="?<?= $url_query_strings_sort ?>&sort=app_log_created_at&order=<?= $disp ?>">
-                                Timestamp <?php if ($sort == 'app_log_created_at') { echo $order_icon; } ?>
-                            </a>
-                        </th>
-                        <th>
-                            <a class="text-dark" href="?<?= $url_query_strings_sort ?>&sort=app_log_type&order=<?= $disp ?>">
-                                Type <?php if ($sort == 'app_log_type') { echo $order_icon; } ?>
-                            </a>
-                        </th>
-                        <th>
-                            <a class="text-dark" href="?<?= $url_query_strings_sort ?>&sort=app_log_category&order=<?= $disp ?>">
-                                Category <?php if ($sort == 'app_log_category') { echo $order_icon; } ?>
-                            </a>
-                        </th>
-                        <th>
-                            <a class="text-dark" href="?<?= $url_query_strings_sort ?>&sort=app_log_details&order=<?= $disp ?>">
-                                Details <?php if ($sort == 'app_log_details') { echo $order_icon; } ?>
-                            </a>
-                        </th>
-                    </tr>
-                    </thead>
-                    <tbody>
-                    <?php
+        </div>
+        <div class="table-responsive-sm">
+            <table class="table table-sm table-striped table-borderless table-hover mb-0">
+                <thead class="text-dark <?php if ($num_rows[0] == 0) { echo "d-none"; } ?>">
+                <tr>
+                    <th>
+                        <a class="text-dark" href="?<?= $url_query_strings_sort ?>&sort=app_log_created_at&order=<?= $disp ?>">
+                            Timestamp <?php if ($sort == 'app_log_created_at') { echo $order_icon; } ?>
+                        </a>
+                    </th>
+                    <th>
+                        <a class="text-dark" href="?<?= $url_query_strings_sort ?>&sort=app_log_type&order=<?= $disp ?>">
+                            Type <?php if ($sort == 'app_log_type') { echo $order_icon; } ?>
+                        </a>
+                    </th>
+                    <th>
+                        <a class="text-dark" href="?<?= $url_query_strings_sort ?>&sort=app_log_category&order=<?= $disp ?>">
+                            Category <?php if ($sort == 'app_log_category') { echo $order_icon; } ?>
+                        </a>
+                    </th>
+                    <th>
+                        <a class="text-dark" href="?<?= $url_query_strings_sort ?>&sort=app_log_details&order=<?= $disp ?>">
+                            Details <?php if ($sort == 'app_log_details') { echo $order_icon; } ?>
+                        </a>
+                    </th>
+                </tr>
+                </thead>
+                <tbody>
+                <?php
 
-                    while ($row = mysqli_fetch_assoc($sql)) {
-                        $log_id = intval($row['app_log_id']);
-                        $log_type = escapeHtml($row['app_log_type']);
-                        $log_category = escapeHtml($row['app_log_category']);
-                        $log_details = escapeHtml($row['app_log_details']);
-                        $log_created_at = escapeHtml($row['app_log_created_at']);
+                while ($row = mysqli_fetch_assoc($sql)) {
+                    $log_id = intval($row['app_log_id']);
+                    $log_type = escapeHtml($row['app_log_type']);
+                    $log_category = escapeHtml($row['app_log_category']);
+                    $log_details = escapeHtml($row['app_log_details']);
+                    $log_created_at = escapeHtml($row['app_log_created_at']);
 
-                        ?>
-
-                        <tr>
-                            <td class="text-monospace"><?= $log_created_at ?></td>
-                            <td><?= $log_type ?></td>
-                            <td><?= $log_category ?></td>
-                            <td><?= $log_details ?></td>
-                        </tr>
-
-                        <?php
-                    }
                     ?>
 
-                    </tbody>
-                </table>
-            </div>
-            <?php require_once "../includes/filter_footer.php";
- ?>
+                    <tr>
+                        <td class="font-monospace"><?= $log_created_at ?></td>
+                        <td><?= $log_type ?></td>
+                        <td><?= $log_category ?></td>
+                        <td><?= $log_details ?></td>
+                    </tr>
+
+                    <?php
+                }
+                ?>
+
+                </tbody>
+            </table>
         </div>
+        <?php require_once "../includes/filter_footer.php";
+ ?>
     </div>
 
 <?php

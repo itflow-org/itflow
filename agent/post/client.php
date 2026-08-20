@@ -348,6 +348,9 @@ if (isset($_GET['delete_client'])) {
     //Finally Remove the Client
     mysqli_query($mysqli, "DELETE FROM clients WHERE client_id = $client_id");
 
+    // Don't leave the company's own-client designation pointing at a client that is gone
+    mysqli_query($mysqli, "UPDATE settings SET config_internal_client_id = 0 WHERE config_internal_client_id = $client_id");
+
     logAudit("Client", "Deleted", "$session_name deleted Client $client_name and all associated data");
 
     flashAlert("Client <strong>$client_name</strong> deleted along with all associated data", 'error');

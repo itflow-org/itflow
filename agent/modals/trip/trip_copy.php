@@ -30,61 +30,49 @@ ob_start();
 ?>
 
 <div class="modal-header bg-dark">
-    <h5 class="modal-title"><i class="fas fa-fw fa-copy mr-2"></i>Copying Trip</h5>
-    <button type="button" class="close text-white" data-dismiss="modal">
-        <span>&times;</span>
-    </button>
+    <h5 class="modal-title"><i class="fas fa-fw fa-copy me-2"></i>Copying Trip</h5>
+    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
 </div>
 <form action="post.php" method="post" autocomplete="off">
     <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
 
     <div class="modal-body">
 
-        <div class="form-row">
+        <div class="row g-2">
 
-            <div class="form-group col">
+            <div class="mb-3 col">
                 <label>Date <strong class="text-danger">*</strong></label>
                 <div class="input-group">
-                    <div class="input-group-prepend">
                         <span class="input-group-text"><i class="fa fa-fw fa-calendar"></i></span>
-                    </div>
                     <input type="date" class="form-control" name="date" max="2999-12-31" value="<?= date("Y-m-d") ?>" required>
                 </div>
             </div>
 
-            <div class="form-group col">
+            <div class="mb-3 col">
                 <label>Miles <strong class="text-danger">*</strong> / <span class="text-secondary">Roundtrip</span></label>
                 <div class="input-group">
-                    <div class="input-group-prepend">
                         <span class="input-group-text"><i class="fa fa-fw fa-bicycle"></i></span>
-                    </div>
                     <input type="text" class="form-control" inputmode="decimal" pattern="[0-9]*\.?[0-9]{0,1}" name="miles" value="<?= $trip_miles ?>" placeholder="0.0" required>
-                    <div class="input-group-append">
                         <div class="input-group-text">
-                            <input type="checkbox" name="roundtrip" value="1" <?php if ($round_trip == 1) { echo "checked"; } ?>>
+                            <input class="form-check-input" type="checkbox" name="roundtrip" value="1" <?php if ($round_trip == 1) { echo "checked"; } ?>>
                         </div>
-                    </div>
                 </div>
             </div>
 
         </div>
 
-        <div class="form-group">
+        <div class="mb-3">
             <label>Location <strong class="text-danger">*</strong></label>
             <div class="input-group">
-                <div class="input-group-prepend">
                     <span class="input-group-text"><i class="fa fa-map-marker-alt"></i></span>
-                </div>
                 <input type="text" class="form-control" name="source" maxlength="200" value="<?= $trip_source ?>" required>
             </div>
         </div>
 
-        <div class="form-group">
+        <div class="mb-3">
             <div class="input-group">
-                <div class="input-group-prepend">
                     <span class="input-group-text"><i class="fa fa-arrow-right"></i></span>
-                </div>
-                <select class="form-control select2" name="destination" data-tags="true" data-placeholder="- Select / Input Destination -" required>
+                <select class="form-select select2" name="destination" data-tags="true" data-placeholder="- Select / Input Destination -" required>
                     <option><?= $trip_destination ?></option>
                     <?php
 
@@ -107,18 +95,16 @@ ob_start();
             </div>
         </div>
 
-        <div class="form-group">
+        <div class="mb-3">
             <label>Purpose <strong class="text-danger">*</strong></label>
             <textarea rows="4" class="form-control" placeholder="Enter a purpose" name="purpose" maxlength="200" required><?= $trip_purpose ?></textarea>
         </div>
 
-        <div class="form-group">
+        <div class="mb-3">
             <label>Driver</label>
             <div class="input-group">
-                <div class="input-group-prepend">
                     <span class="input-group-text"><i class="fa fa-fw fa-user"></i></span>
-                </div>
-                <select class="form-control select2" name="user" required>
+                <select class="form-select select2" name="user" required>
                     <option value="">- Driver -</option>
                     <?php
 
@@ -141,13 +127,11 @@ ob_start();
             <input type="hidden" name="client_id" value="<?= $client_id ?>">
         <?php } else { ?>
 
-            <div class="form-group">
+            <div class="mb-3">
                 <label>Client</label>
                 <div class="input-group">
-                    <div class="input-group-prepend">
                         <span class="input-group-text"><i class="fa fa-fw fa-user"></i></span>
-                    </div>
-                    <select class="form-control select2" name="client_id">
+                    <select class="form-select select2" name="client_id">
                         <option value="">- Client (Optional) -</option>
                         <?php
 
@@ -167,8 +151,8 @@ ob_start();
 
     </div>
     <div class="modal-footer">
-        <button type="submit" name="add_trip" class="btn btn-primary text-bold"><i class="fa fa-check mr-2"></i>Copy</button>
-        <button type="button" class="btn btn-light" data-dismiss="modal"><i class="fa fa-times mr-2"></i>Cancel</button>
+        <button type="submit" name="add_trip" class="btn btn-primary text-bold"><i class="fa fa-check me-2"></i>Copy</button>
+        <button type="button" class="btn btn-light" data-bs-dismiss="modal"><i class="fa fa-times me-2"></i>Cancel</button>
     </div>
 </form>
 

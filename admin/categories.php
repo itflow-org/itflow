@@ -67,7 +67,7 @@ $archive_toggle_url = '?' . http_build_query($archive_toggle_query);
 
 <div class="card card-dark">
     <div class="card-header py-2">
-        <h3 class="card-title mt-2"><i class="fa fa-fw fa-list-ul mr-2"></i>
+        <h3 class="card-title mt-2"><i class="fa fa-fw fa-list-ul me-2"></i>
             <?= escapeHtml($category_label) ?> Categories
         </h3>
         <?php
@@ -75,7 +75,7 @@ $archive_toggle_url = '?' . http_build_query($archive_toggle_query);
         ?>
         <div class="card-tools">
             <button type="button" class="btn btn-primary ajax-modal" data-modal-url="modals/category/category_add.php?category=<?= escapeHtml($category) ?>"><i
-                    class="fas fa-plus mr-2"></i>New <?= escapeHtml($category_label) ?> Category</button>
+                    class="fas fa-plus me-2"></i>New <?= escapeHtml($category_label) ?> Category</button>
         </div>
         <?php
             }
@@ -85,15 +85,15 @@ $archive_toggle_url = '?' . http_build_query($archive_toggle_query);
         <div class="row">
 
             <!-- Category types -->
-            <div class="col-md-3 border-right mb-3">
+            <div class="col-md-3 border-end mb-3">
                 <ul class="nav nav-pills flex-column bg-light">
                     <?php foreach ($category_types as $category_type => $category_type_details) { ?>
                     <li class="nav-item">
                         <a class="nav-link<?php if ($category == $category_type) {
                             echo ' active';
                         } ?>" href="?category=<?= urlencode($category_type) ?>">
-                            <i class="fa fa-fw <?= $category_type_details['icon'] ?> mr-2"></i><?= escapeHtml($category_type_details['label']) ?>
-                            <span class="badge badge-pill badge-dark float-right mt-1"><?= $category_type_counts[$category_type] ?? 0 ?></span>
+                            <i class="fa fa-fw <?= $category_type_details['icon'] ?> me-2"></i><?= escapeHtml($category_type_details['label']) ?>
+                            <span class="badge rounded-pill bg-dark float-end mt-1"><?= $category_type_counts[$category_type] ?? 0 ?></span>
                         </a>
                     </li>
                     <?php } ?>
@@ -115,25 +115,23 @@ $archive_toggle_url = '?' . http_build_query($archive_toggle_query);
                                         echo stripslashes(escapeHtml($q));
                                     } ?>"
                                     placeholder="Search <?= escapeHtml($category_label) ?> Categories ">
-                                <div class="input-group-append">
                                     <button class="btn btn-primary"><i class="fa fa-search"></i></button>
-                                </div>
                             </div>
                         </div>
                         <div class="col-sm-6 mb-2">
                             <a href="<?= $archive_toggle_url ?>"
-                                class="btn float-right <?php if ($archived) {
+                                class="btn float-end <?php if ($archived) {
                                     echo 'btn-primary';
                                 } else {
                                     echo 'btn-default';
                                 } ?>"><i
-                                    class="fas fa-fw fa-archive mr-2"></i>Archived</a>
+                                    class="fas fa-fw fa-archive me-2"></i>Archived</a>
                         </div>
                     </div>
                 </form>
                 <hr>
                 <div class="table-responsive-sm">
-                    <table class="table table-striped table-borderless table-hover">
+                    <table class="table table-striped table-borderless table-hover mb-0">
                         <thead class="text-dark <?php if ($num_rows[0] == 0) { echo "d-none"; } ?>">
                             <tr>
                                 <th>
@@ -165,8 +163,8 @@ $archive_toggle_url = '?' . http_build_query($archive_toggle_query);
                                     </td>
                                     <td><i class="fa fa-3x fa-circle" style="color:<?= $category_color ?>;"></i></td>
                                     <td>
-                                        <div class="dropdown dropleft text-center">
-                                            <button class="btn btn-secondary btn-sm" type="button" data-toggle="dropdown">
+                                        <div class="dropdown dropstart text-center">
+                                            <button class="btn btn-secondary btn-sm" type="button" data-bs-toggle="dropdown">
                                                 <i class="fas fa-ellipsis-h"></i>
                                             </button>
                                             <div class="dropdown-menu">
@@ -175,22 +173,22 @@ $archive_toggle_url = '?' . http_build_query($archive_toggle_query);
                                                     ?>
                                                     <a class="dropdown-item text-info confirm-link"
                                                         href="post.php?restore_category=<?= $category_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>">
-                                                        <i class="fas fa-fw fa-redo mr-2"></i>Restore
+                                                        <i class="fas fa-fw fa-redo me-2"></i>Restore
                                                     </a>
                                                     <a class="dropdown-item text-danger confirm-link"
                                                         href="post.php?delete_category=<?= $category_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>">
-                                                        <i class="fas fa-fw fa-trash mr-2"></i>Delete
+                                                        <i class="fas fa-fw fa-trash me-2"></i>Delete
                                                     </a>
                                                     <?php
                                                 } else {
                                                     ?>
                                                     <a class="dropdown-item ajax-modal" href="#"
                                                         data-modal-url="modals/category/category_edit.php?id=<?= $category_id ?>">
-                                                        <i class="fas fa-fw fa-edit mr-2"></i>Edit
+                                                        <i class="fas fa-fw fa-edit me-2"></i>Edit
                                                     </a>
                                                     <a class="dropdown-item text-danger confirm-link"
                                                         href="post.php?archive_category=<?= $category_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>">
-                                                        <i class="fas fa-fw fa-archive mr-2"></i>Archive
+                                                        <i class="fas fa-fw fa-archive me-2"></i>Archive
                                                     </a>
                                                     <?php
                                                 }

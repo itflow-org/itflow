@@ -21,13 +21,12 @@
 </p>
 
 
-<?php require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/inc_confirm_modal.php'; ?>
 
 <!-- jQuery -->
-<script src="/libs/jquery/jquery.min.js"></script>
 
 <!-- Bootstrap 4 -->
 <script src="/libs/bootstrap/js/bootstrap.bundle.min.js"></script>
+<script src="/js/http.js"></script>
 
 <!--- TinyMCE -->
 <script src="/libs/tinymce/tinymce.min.js" referrerpolicy="origin"></script>
@@ -67,6 +66,10 @@
 
 <script src="/js/pretty_content.js"></script>
 
+<script src="/libs/sweetalert2/js/sweetalert2.min.js"></script>
 <script src="/js/confirm_modal.js"></script>
 
 <script src="/js/keepalive.js"></script>
+
+</body>
+</html>

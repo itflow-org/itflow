@@ -16,22 +16,18 @@ ob_start();
 ?>
 
 <div class="modal-header bg-dark">
-    <h5 class="modal-title"><i class="fas fa-fw <?= $type_icon ?> mr-2"></i>New <strong><?= ucwords($type); ?></strong></h5>
-    <button type="button" class="close text-white" data-dismiss="modal">
-        <span>&times;</span>
-    </button>
+    <h5 class="modal-title"><i class="fas fa-fw <?= $type_icon ?> me-2"></i>New <strong><?= ucwords($type); ?></strong></h5>
+    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
 </div>
 <form action="post.php" method="post" autocomplete="off">
     <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
 
     <div class="modal-body">
 
-        <div class="form-group">
+        <div class="mb-3">
             <label>Name <strong class="text-danger">*</strong></label>
             <div class="input-group">
-                <div class="input-group-prepend">
                     <span class="input-group-text"><i class="fas fa-fw fa-box"></i></span>
-                </div>
                 <input type="text" class="form-control" name="name" placeholder="Product name" maxlength="200" required autofocus>
             </div>
         </div>
@@ -40,13 +36,11 @@ ob_start();
         <input type="hidden" name="type" value="<?= $type ?>">
         <?php } else { ?>
 
-        <div class="form-group">
+        <div class="mb-3">
             <label>Type <strong class="text-danger">*</strong></label>
             <div class="input-group">
-                <div class="input-group-prepend">
                     <span class="input-group-text"><i class="fa fa-fw fa-tag"></i></span>
-                </div>
-                <select class="form-control select2" name="type" required>
+                <select class="form-select select2" name="type" required>
                     <option value="">- Select Type -</option>
                     <?php foreach ($product_types_array as $type_select) { ?>
                         <option><?= $type_select ?></option>
@@ -57,13 +51,11 @@ ob_start();
 
         <?php } ?>
 
-        <div class="form-group">
+        <div class="mb-3">
             <label>Category <strong class="text-danger">*</strong></label>
             <div class="input-group">
-                <div class="input-group-prepend">
                     <span class="input-group-text"><i class="fa fa-fw fa-tag"></i></span>
-                </div>
-                <select class="form-control select2" name="category" required>
+                <select class="form-select select2" name="category" required>
                     <option value="">- Select Category -</option>
                     <?php
 
@@ -78,36 +70,30 @@ ob_start();
                     }
                     ?>
                 </select>
-                <div class="input-group-append">
                     <button class="btn btn-secondary ajax-modal" type="button"
                         data-modal-url="../admin/modals/category/category_add.php?category=Income">
                         <i class="fas fa-fw fa-plus"></i>
                     </button>
-                </div>
             </div>
         </div>
 
-        <div class="form-row">
+        <div class="row g-2">
             <div class="col">
-                <div class="form-group">
+                <div class="mb-3">
                     <label>Price <strong class="text-danger">*</strong></label>
                     <div class="input-group">
-                        <div class="input-group-prepend">
                             <span class="input-group-text"><i class="fa fa-fw fa-dollar-sign"></i></span>
-                        </div>
                         <input type="text" class="form-control" inputmode="decimal" pattern="[0-9]*\.?[0-9]{0,2}" name="price" placeholder="0.00" required>
                     </div>
                 </div>
             </div>
 
             <div class="col">
-                <div class="form-group">
+                <div class="mb-3">
                     <label>Tax</label>
                     <div class="input-group">
-                        <div class="input-group-prepend">
                             <span class="input-group-text"><i class="fa fa-fw fa-balance-scale"></i></span>
-                        </div>
-                        <select class="form-control select2" name="tax">
+                        <select class="form-select select2" name="tax">
                             <option value="0">None</option>
                             <?php
 
@@ -129,28 +115,24 @@ ob_start();
         </div>
 
         <?php if ($type == 'product') { ?>
-        <div class="form-group">
+        <div class="mb-3">
             <label>Location</label>
             <div class="input-group">
-                <div class="input-group-prepend">
                     <span class="input-group-text"><i class="fa fa-fw fa-map-marker-alt"></i></span>
-                </div>
                 <input type="text" class="form-control" name="location" placeholder="Enter a location" maxlength="250">
             </div>
         </div>
         <?php } ?>
 
-        <div class="form-group">
+        <div class="mb-3">
             <label>Description</label>
             <textarea class="form-control" rows="4" name="description" placeholder="Product description"></textarea>
         </div>
 
-        <div class="form-group">
+        <div class="mb-3">
             <label>Code</label>
             <div class="input-group">
-                <div class="input-group-prepend">
                     <span class="input-group-text"><i class="fa fa-fw fa-barcode"></i></span>
-                </div>
                 <input type="text" class="form-control" name="code" placeholder="Enter product code eg. SKU #" maxlength="200">
             </div>
         </div>
@@ -158,8 +140,8 @@ ob_start();
     </div>
 
     <div class="modal-footer">
-        <button type="submit" name="add_product" class="btn btn-primary text-bold"><i class="fas fa-check mr-2"></i>Create</button>
-        <button type="button" class="btn btn-light" data-dismiss="modal"><i class="fas fa-times mr-2"></i>Cancel</button>
+        <button type="submit" name="add_product" class="btn btn-primary text-bold"><i class="fas fa-check me-2"></i>Create</button>
+        <button type="button" class="btn btn-light" data-bs-dismiss="modal"><i class="fas fa-times me-2"></i>Cancel</button>
     </div>
 
 </form>

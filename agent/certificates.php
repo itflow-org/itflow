@@ -77,45 +77,43 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 
 ?>
 
-<div class="card card-dark">
-    <div class="card-header py-2">
-        <h3 class="card-title mt-2"><i class="fas fa-fw fa-lock mr-2"></i>Certificates</h3>
+<div class="card">
+    <div class="card-header bg-dark py-2">
+        <h3 class="card-title mt-2"><i class="fas fa-fw fa-lock me-2"></i>Certificates</h3>
         <div class="card-tools">
             <div class="btn-group">
-                <button type="button" class="btn btn-primary ajax-modal" data-modal-url="modals/certificate/certificate_add.php?<?= $client_url ?>"><i class="fas fa-plus mr-2"></i>New Certificate</button>
+                <button type="button" class="btn btn-primary ajax-modal" data-modal-url="modals/certificate/certificate_add.php?<?= $client_url ?>"><i class="fas fa-plus me-2"></i>New Certificate</button>
                 <?php if ($num_rows[0] > 0) { ?>
-                    <button type="button" class="btn btn-primary dropdown-toggle dropdown-toggle-split" data-toggle="dropdown"></button>
+                    <button type="button" class="btn btn-primary dropdown-toggle dropdown-toggle-split" data-bs-toggle="dropdown"></button>
                     <div class="dropdown-menu">
                         <a class="dropdown-item text-dark ajax-modal" href="#"\
                             data-modal-url="<?= buildExportModalUrl('modals/certificate/certificate_export.php', ['client_id', 'client', 'expire_days', 'archived', 'q']) ?>">
-                            <i class="fa fa-fw fa-download mr-2"></i>Export
+                            <i class="fa fa-fw fa-download me-2"></i>Export
                         </a>
                     </div>
                 <?php } ?>
             </div>
         </div>
     </div>
-    <div class="card-body">
+    <div class="card-header py-3">
         <form autocomplete="off">
             <?php if ($client_url) { ?>
             <input type="hidden" name="client_id" value="<?= $client_id ?>">
             <?php } ?>
             <input type="hidden" name="archived" value="<?= $archived ?>">
-            <div class="row">
+            <div class="row g-2 align-items-center">
 
                 <div class="col-md-4">
-                    <div class="input-group mb-3 mb-md-0">
+                    <div class="input-group">
                         <input type="search" class="form-control" name="q" value="<?php if (isset($q)) { echo stripslashes(escapeHtml($q)); } ?>" placeholder="Search Certificates">
-                        <div class="input-group-append">
                             <button class="btn btn-dark"><i class="fa fa-search"></i></button>
-                        </div>
                     </div>
                 </div>
 
                 <?php if (!$client_url) { ?>
                 <div class="col-md-2">
                     <div class="input-group">
-                        <select class="form-control select2" name="client" onchange="this.form.submit()">
+                        <select class="form-select select2" name="client" onchange="this.form.submit()">
                             <option value="" <?php if ($client == "") { echo "selected"; } ?>>- All Clients -</option>
 
                             <?php
@@ -142,8 +140,8 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                 <?php } ?>
 
                 <div class="col-md-2">
-                    <div class="input-group mb-3 mb-md-0">
-                        <select class="form-control select2" name="expire_days" onchange="this.form.submit()">
+                    <div class="input-group">
+                        <select class="form-select select2" name="expire_days" onchange="this.form.submit()">
                             <option value="" <?php if ($expire_days == "") { echo "selected"; } ?>>- Expiring In -</option>
                             <option value="expired" <?php if ($expire_days === "expired") { echo "selected"; } ?>>Expired</option>
                             <option value="7" <?php if ($expire_days === 7) { echo "selected"; } ?>>7 Days</option>
@@ -160,24 +158,24 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                 <?php } ?>
 
                 <div class="col-md-4">
-                    <div class="btn-group float-right">
+                    <div class="btn-group float-end">
                         <a href="?<?= $client_url ?>archived=<?php if($archived == 1){ echo 0; } else { echo 1; } ?>"
-                            class="btn btn-<?php if($archived == 1){ echo "primary"; } else { echo "default"; } ?>">
-                            <i class="fa fa-fw fa-archive mr-2"></i>Archived
+                            class="btn btn-<?php if($archived == 1){ echo"primary"; } else { echo "default"; } ?>">
+                            <i class="fa fa-fw fa-archive me-2"></i>Archived
                         </a>
-                        <div class="dropdown ml-2" id="bulkActionButton" hidden>
-                            <button class="btn btn-secondary dropdown-toggle" type="button" data-toggle="dropdown">
-                                <i class="fas fa-fw fa-layer-group mr-2"></i>Bulk Action (<span id="selectedCount">0</span>)
+                        <div class="dropdown ms-2" id="bulkActionButton" hidden>
+                            <button class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                                <i class="fas fa-fw fa-layer-group me-2"></i>Bulk Action (<span id="selectedCount">0</span>)
                             </button>
                             <div class="dropdown-menu">
                                 <button class="dropdown-item"
                                         type="submit" form="bulkActions" name="bulk_refresh_certificates">
-                                    <i class="fas fa-fw fa-sync-alt mr-2"></i>Refresh Certificates
+                                    <i class="fas fa-fw fa-sync-alt me-2"></i>Refresh Certificates
                                 </button>
                                 <div class="dropdown-divider"></div>
                                 <button class="dropdown-item text-danger text-bold"
                                         type="submit" form="bulkActions" name="bulk_delete_certificates">
-                                    <i class="fas fa-fw fa-trash mr-2"></i>Delete
+                                    <i class="fas fa-fw fa-trash me-2"></i>Delete
                                 </button>
                             </div>
                         </div>
@@ -186,165 +184,164 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 
             </div>
         </form>
-        <hr>
-        <div class="table-responsive">
+    </div>
+    <div class="table-responsive">
 
-            <form id="bulkActions" action="post.php" method="post">
-                <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
+        <form id="bulkActions" action="post.php" method="post">
+            <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
 
-                <table class="table table-striped table-borderless table-hover">
-                    <thead class="text-dark <?php if ($num_rows[0] == 0) { echo "d-none"; } ?>">
-                    <tr>
+            <table class="table table-striped table-borderless table-hover mb-0">
+                <thead class="text-dark <?php if ($num_rows[0] == 0) { echo "d-none"; } ?>">
+                <tr>
+                    <td class="checkbox-column">
+                        <div class="form-check">
+                            <input class="form-check-input" id="selectAllCheckbox" type="checkbox" onclick="checkAll(this)">
+                        </div>
+                    </td>
+                    <th>
+                        <a class="text-secondary" href="?<?= $url_query_strings_sort ?>&sort=certificate_name&order=<?= $disp ?>">
+                            Name <?php if ($sort == 'certificate_name') { echo $order_icon; } ?>
+                        </a>
+                    </th>
+                    <th>
+                        <a class="text-secondary" href="?<?= $url_query_strings_sort ?>&sort=certificate_domain&order=<?= $disp ?>">
+                            Domain <?php if ($sort == 'certificate_domain') { echo $order_icon; } ?>
+                        </a>
+                    </th>
+                    <th>
+                        <a class="text-secondary" href="?<?= $url_query_strings_sort ?>&sort=certificate_issued_by&order=<?= $disp ?>">
+                            Issued By <?php if ($sort == 'certificate_issued_by') { echo $order_icon; } ?>
+                        </a>
+                    </th>
+                    <th>
+                        <a class="text-secondary" href="?<?= $url_query_strings_sort ?>&sort=certificate_expire&order=<?= $disp ?>">
+                            Expire <?php if ($sort == 'certificate_expire') { echo $order_icon; } ?>
+                        </a>
+                    </th>
+                    <?php if (!$client_url) { ?>
+                    <th>
+                        <a class="text-secondary" href="?<?= $url_query_strings_sort ?>&sort=client_name&order=<?= $disp ?>">
+                            Client <?php if ($sort == 'client_name') { echo $order_icon; } ?>
+                        </a>
+                    </th>
+                    <?php } ?>
+                    <th class="text-center">Action</th>
+                </tr>
+                </thead>
+                <tbody>
+                <?php
+
+                while ($row = mysqli_fetch_assoc($sql)) {
+                    $client_id = intval($row['client_id']);
+                    $client_name = escapeHtml($row['client_name']);
+                    $certificate_id = intval($row['certificate_id']);
+                    $certificate_name = escapeHtml($row['certificate_name']);
+                    $certificate_description = escapeHtml($row['certificate_description']);
+                    $certificate_domain = escapeHtml($row['certificate_domain']);
+                    $certificate_issued_by = escapeHtml($row['certificate_issued_by']);
+                    $certificate_expire = escapeHtml($row['certificate_expire']);
+                    $certificate_created_at = escapeHtml($row['certificate_created_at']);
+                    $certificate_archived_at = escapeHtml($row['certificate_archived_at']);
+
+                    $certificate_expire_ago = timeAgo($certificate_expire);
+                    // Convert the expiry date to a timestamp
+                    $certificate_expire_timestamp = strtotime($row['certificate_expire']);
+                    $current_timestamp = time(); // Get current timestamp
+
+                    // Calculate the difference in days
+                    $days_until_expiry = ($certificate_expire_timestamp - $current_timestamp) / (60 * 60 * 24);
+
+                    // Determine the class based on the number of days until expiry
+                    if ($days_until_expiry <= 0) {
+                        $tr_class = "table-secondary";
+                    } elseif ($days_until_expiry <= 1) {
+                        $tr_class = "table-danger";
+                    } elseif ($days_until_expiry <= 7) {
+                        $tr_class = "table-warning";
+                    } else {
+                        $tr_class = '';
+                    }
+
+                    ?>
+                    <tr class="<?= $tr_class ?>">
                         <td class="checkbox-column">
                             <div class="form-check">
-                                <input class="form-check-input" id="selectAllCheckbox" type="checkbox" onclick="checkAll(this)">
+                                <input class="form-check-input bulk-select" type="checkbox" name="certificate_ids[]" value="<?= $certificate_id ?>">
+                                <input type="hidden" name="client_id" value="<?= $client_id ?>">
                             </div>
                         </td>
-                        <th>
-                            <a class="text-secondary" href="?<?= $url_query_strings_sort ?>&sort=certificate_name&order=<?= $disp ?>">
-                                Name <?php if ($sort == 'certificate_name') { echo $order_icon; } ?>
-                            </a>
-                        </th>
-                        <th>
-                            <a class="text-secondary" href="?<?= $url_query_strings_sort ?>&sort=certificate_domain&order=<?= $disp ?>">
-                                Domain <?php if ($sort == 'certificate_domain') { echo $order_icon; } ?>
-                            </a>
-                        </th>
-                        <th>
-                            <a class="text-secondary" href="?<?= $url_query_strings_sort ?>&sort=certificate_issued_by&order=<?= $disp ?>">
-                                Issued By <?php if ($sort == 'certificate_issued_by') { echo $order_icon; } ?>
-                            </a>
-                        </th>
-                        <th>
-                            <a class="text-secondary" href="?<?= $url_query_strings_sort ?>&sort=certificate_expire&order=<?= $disp ?>">
-                                Expire <?php if ($sort == 'certificate_expire') { echo $order_icon; } ?>
-                            </a>
-                        </th>
-                        <?php if (!$client_url) { ?>
-                        <th>
-                            <a class="text-secondary" href="?<?= $url_query_strings_sort ?>&sort=client_name&order=<?= $disp ?>">
-                                Client <?php if ($sort == 'client_name') { echo $order_icon; } ?>
-                            </a>
-                        </th>
-                        <?php } ?>
-                        <th class="text-center">Action</th>
-                    </tr>
-                    </thead>
-                    <tbody>
-                    <?php
-
-                    while ($row = mysqli_fetch_assoc($sql)) {
-                        $client_id = intval($row['client_id']);
-                        $client_name = escapeHtml($row['client_name']);
-                        $certificate_id = intval($row['certificate_id']);
-                        $certificate_name = escapeHtml($row['certificate_name']);
-                        $certificate_description = escapeHtml($row['certificate_description']);
-                        $certificate_domain = escapeHtml($row['certificate_domain']);
-                        $certificate_issued_by = escapeHtml($row['certificate_issued_by']);
-                        $certificate_expire = escapeHtml($row['certificate_expire']);
-                        $certificate_created_at = escapeHtml($row['certificate_created_at']);
-                        $certificate_archived_at = escapeHtml($row['certificate_archived_at']);
-
-                        $certificate_expire_ago = timeAgo($certificate_expire);
-                        // Convert the expiry date to a timestamp
-                        $certificate_expire_timestamp = strtotime($row['certificate_expire']);
-                        $current_timestamp = time(); // Get current timestamp
-
-                        // Calculate the difference in days
-                        $days_until_expiry = ($certificate_expire_timestamp - $current_timestamp) / (60 * 60 * 24);
-
-                        // Determine the class based on the number of days until expiry
-                        if ($days_until_expiry <= 0) {
-                            $tr_class = "table-secondary";
-                        } elseif ($days_until_expiry <= 1) {
-                            $tr_class = "table-danger";
-                        } elseif ($days_until_expiry <= 7) {
-                            $tr_class = "table-warning";
-                        } else {
-                            $tr_class = '';
-                        }
-
-                        ?>
-                        <tr class="<?= $tr_class ?>">
-                            <td class="checkbox-column">
-                                <div class="form-check">
-                                    <input class="form-check-input bulk-select" type="checkbox" name="certificate_ids[]" value="<?= $certificate_id ?>">
-                                    <input type="hidden" name="client_id" value="<?= $client_id ?>">
-                                </div>
-                            </td>
-                            <td>
-                                <a class="text-dark ajax-modal" href="#"
-                                    data-modal-url="modals/certificate/certificate_edit.php?<?= $client_url ?>&id=<?= $certificate_id ?>">
-                                    <div class="media">
-                                        <i class="fa fa-fw fa-2x fa-lock mr-3"></i>
-                                        <div class="media-body">
-                                            <div><?= $certificate_name ?></div>
-                                            <div><small class="text-secondary"><?= $certificate_description ?></small></div>
-                                        </div>
+                        <td>
+                            <a class="text-dark ajax-modal" href="#"
+                                data-modal-url="modals/certificate/certificate_edit.php?<?= $client_url ?>&id=<?= $certificate_id ?>">
+                                <div class="d-flex">
+                                    <i class="fa fa-fw fa-2x fa-lock me-3"></i>
+                                    <div class="flex-grow-1">
+                                        <div><?= $certificate_name ?></div>
+                                        <div><small class="text-secondary"><?= $certificate_description ?></small></div>
                                     </div>
-                                </a>
-                            </td>
-                            <td><?= $certificate_domain ?></td>
+                                </div>
+                            </a>
+                        </td>
+                        <td><?= $certificate_domain ?></td>
 
-                            <td><?= $certificate_issued_by ?></td>
+                        <td><?= $certificate_issued_by ?></td>
 
-                            <td>
-                                <div><?= $certificate_expire ?: '-' ?></div>
-                                <?php if (!empty($certificate_expire)) { ?>
-                                    <div><small><?= $certificate_expire_ago ?></small></div>
-                                <?php } ?>
-                            </td>
-                            <?php if (!$client_url) { ?>
-                            <td><a href="certificates.php?client_id=<?= $client_id ?>"><?= $client_name ?></a></td>
+                        <td>
+                            <div><?= $certificate_expire ?: '-' ?></div>
+                            <?php if (!empty($certificate_expire)) { ?>
+                                <div><small><?= $certificate_expire_ago ?></small></div>
                             <?php } ?>
-                            <td>
-                                <div class="dropdown dropleft text-center">
-                                    <button class="btn btn-secondary btn-sm" type="button" data-toggle="dropdown">
-                                        <i class="fas fa-ellipsis-h"></i>
-                                    </button>
-                                    <div class="dropdown-menu">
-                                        <a class="dropdown-item ajax-modal" href="#"
-                                            data-modal-url="modals/certificate/certificate_edit.php?<?= $client_url ?>&id=<?= $certificate_id ?>">
-                                            <i class="fas fa-fw fa-edit mr-2"></i>Edit
+                        </td>
+                        <?php if (!$client_url) { ?>
+                        <td><a href="certificates.php?client_id=<?= $client_id ?>"><?= $client_name ?></a></td>
+                        <?php } ?>
+                        <td>
+                            <div class="dropdown dropstart text-center">
+                                <button class="btn btn-secondary btn-sm" type="button" data-bs-toggle="dropdown">
+                                    <i class="fas fa-ellipsis-h"></i>
+                                </button>
+                                <div class="dropdown-menu">
+                                    <a class="dropdown-item ajax-modal" href="#"
+                                        data-modal-url="modals/certificate/certificate_edit.php?<?= $client_url ?>&id=<?= $certificate_id ?>">
+                                        <i class="fas fa-fw fa-edit me-2"></i>Edit
+                                    </a>
+                                    <div class="dropdown-divider"></div>
+                                     <a class="dropdown-item" href="post.php?refresh_certificate=<?= $certificate_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>">
+                                        <i class="fas fa-fw fa-sync-alt me-2"></i>Refresh Certificate
+                                    </a>
+                                    <?php if ($session_user_role == 3) { ?>
+                                        <?php if ($certificate_archived_at) { ?>
+                                        <div class="dropdown-divider"></div>
+                                        <a class="dropdown-item text-info confirm-link" href="post.php?restore_certificate=<?= $certificate_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>">
+                                            <i class="fas fa-fw fa-redo me-2"></i>Restore
                                         </a>
                                         <div class="dropdown-divider"></div>
-                                         <a class="dropdown-item" href="post.php?refresh_certificate=<?= $certificate_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>">
-                                            <i class="fas fa-fw fa-sync-alt mr-2"></i>Refresh Certificate
+                                        <a class="dropdown-item text-danger text-bold confirm-link" href="post.php?delete_certificate=<?= $certificate_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>">
+                                            <i class="fas fa-fw fa-trash me-2"></i>Delete
                                         </a>
-                                        <?php if ($session_user_role == 3) { ?>
-                                            <?php if ($certificate_archived_at) { ?>
-                                            <div class="dropdown-divider"></div>
-                                            <a class="dropdown-item text-info confirm-link" href="post.php?restore_certificate=<?= $certificate_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>">
-                                                <i class="fas fa-fw fa-redo mr-2"></i>Restore
-                                            </a>
-                                            <div class="dropdown-divider"></div>
-                                            <a class="dropdown-item text-danger text-bold confirm-link" href="post.php?delete_certificate=<?= $certificate_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>">
-                                                <i class="fas fa-fw fa-trash mr-2"></i>Delete
-                                            </a>
-                                            <?php } else { ?>
-                                            <div class="dropdown-divider"></div>
-                                            <a class="dropdown-item text-danger confirm-link" href="post.php?archive_certificate=<?= $certificate_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>">
-                                                <i class="fas fa-fw fa-archive mr-2"></i>Archive
-                                            </a>
-                                            <?php } ?>
-
+                                        <?php } else { ?>
+                                        <div class="dropdown-divider"></div>
+                                        <a class="dropdown-item text-danger confirm-link" href="post.php?archive_certificate=<?= $certificate_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>">
+                                            <i class="fas fa-fw fa-archive me-2"></i>Archive
+                                        </a>
                                         <?php } ?>
-                                    </div>
+
+                                    <?php } ?>
                                 </div>
-                            </td>
-                        </tr>
+                            </div>
+                        </td>
+                    </tr>
 
-                        <?php
-                    }
-                    ?>
+                    <?php
+                }
+                ?>
 
-                    </tbody>
-                </table>
+                </tbody>
+            </table>
 
-            </form>
-        </div>
-        <?php require_once "../includes/filter_footer.php"; ?>
+        </form>
     </div>
+    <?php require_once "../includes/filter_footer.php"; ?>
 </div>
 
 <script src="../js/bulk_actions.js"></script>

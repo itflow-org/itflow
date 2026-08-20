@@ -27,10 +27,10 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 
 <div class="card card-dark">
     <div class="card-header py-2">
-        <h3 class="card-title mt-2"><i class="fas fa-fw fa-server mr-2"></i>Network Racks</h3>
+        <h3 class="card-title mt-2"><i class="fas fa-fw fa-server me-2"></i>Network Racks</h3>
         <div class="card-tools">
             <button type="button" class="btn btn-primary ajax-modal" data-modal-url="modals/rack/rack_add.php?client_id=<?= $client_id ?>">
-                <i class="fas fa-plus mr-2"></i>New Rack
+                <i class="fas fa-plus me-2"></i>New Rack
             </button>
         </div>
     </div>
@@ -43,17 +43,15 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                 <div class="col-md-4">
                     <div class="input-group mb-3 mb-md-0">
                         <input type="search" class="form-control" name="q" value="<?php if (isset($q)) { echo stripslashes(escapeHtml($q)); } ?>" placeholder="Search Racks">
-                        <div class="input-group-append">
                             <button class="btn btn-dark"><i class="fa fa-search"></i></button>
-                        </div>
                     </div>
                 </div>
 
                 <div class="col-md-8">
-                    <div class="float-right">
+                    <div class="float-end">
                         <a href="?client_id=<?= $client_id ?>&archived=<?php if($archived == 1){ echo 0; } else { echo 1; } ?>"
                             class="btn btn-<?php if($archived == 1){ echo "primary"; } else { echo "default"; } ?>">
-                            <i class="fa fa-fw fa-archive mr-2"></i>Archived
+                            <i class="fa fa-fw fa-archive me-2"></i>Archived
                         </a>
                     </div>
                 </div>
@@ -92,31 +90,31 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 
                     <div class="card card-dark">
                         <div class="card-header">
-                            <h3 class="card-title"><i class="fas fa-fw fa-server mr-2"></i><?= "$rack_name - $rack_units" ?>U</h3>
+                            <h3 class="card-title"><i class="fas fa-fw fa-server me-2"></i><?= "$rack_name - $rack_units" ?>U</h3>
 
                             <div class="card-tools">
-                                <div class="dropdown dropleft">
-                                    <button class="btn btn-tool" type="button" data-toggle="dropdown">
+                                <div class="dropdown dropstart">
+                                    <button class="btn btn-tool" type="button" data-bs-toggle="dropdown">
                                         <i class="fas fa-fw fa-ellipsis-v"></i>
                                     </button>
                                     <div class="dropdown-menu">
                                         <a class="dropdown-item text-dark ajax-modal" href="#"
                                             data-modal-url="modals/rack/rack_device_add.php?id=<?= $rack_id ?>">
-                                            <i class="fas fa-fw fa-plus text-secondary mr-2"></i>Add Device
+                                            <i class="fas fa-fw fa-plus text-secondary me-2"></i>Add Device
                                         </a>
                                         <div class="dropdown-divider"></div>
                                         <a class="dropdown-item text-dark ajax-modal" href="#"
                                             data-modal-url="modals/rack/rack_edit.php?id=<?= $rack_id ?>">
-                                            <i class="fas fa-fw fa-edit text-secondary mr-2"></i>Edit
+                                            <i class="fas fa-fw fa-edit text-secondary me-2"></i>Edit
                                         </a>
                                         <?php if ($session_user_role == 3) { ?>
                                             <div class="dropdown-divider"></div>
                                             <a class="dropdown-item text-danger confirm-link" href="post.php?archive_rack=<?= $rack_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>">
-                                                <i class="fas fa-fw fa-archive mr-2"></i>Archive
+                                                <i class="fas fa-fw fa-archive me-2"></i>Archive
                                             </a>
                                             <div class="dropdown-divider"></div>
                                             <a class="dropdown-item text-danger text-bold confirm-link" href="post.php?delete_rack=<?= $rack_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>">
-                                                <i class="fas fa-fw fa-trash mr-2"></i>Delete
+                                                <i class="fas fa-fw fa-trash me-2"></i>Delete
                                             </a>
                                         <?php } ?>
                                     </div>
@@ -182,7 +180,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                 </div>
                                 <div class="col-md-6">
                                     <table class="table table-sm border">
-                                        <thead class="thead-dark">
+                                        <thead class="table-dark">
                                             <tr>
                                                 <th class="text-center px-0">U</th>
                                                 <th class="text-center">Device</th>
@@ -257,23 +255,23 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                                                 <a href="asset.php?client_id=<?= $client_id ?>&asset_id=<?= $d['asset_id'] ?>"
                                                                    target="_blank">
                                                                    <?= $d['asset_name'] ?>
-                                                                   <i class="fas fa-external-link-alt ml-1"></i>
+                                                                   <i class="fas fa-external-link-alt ms-1"></i>
                                                                 </a>
                                                                 <?php
                                                             }
                                                             ?>
                                                         </td>
 
-                                                        <td class="px-0 text-right align-middle" rowspan="<?= $span ?>">
+                                                        <td class="px-0 text-end align-middle" rowspan="<?= $span ?>">
                                                             <!-- ACTION ICON / DROPDOWN -->
-                                                            <div class="dropdown dropleft">
-                                                                <button class="btn btn-tool" type="button" data-toggle="dropdown">
+                                                            <div class="dropdown dropstart">
+                                                                <button class="btn btn-tool" type="button" data-bs-toggle="dropdown">
                                                                     <i class="fas fa-fw fa-ellipsis-v"></i>
                                                                 </button>
                                                                 <div class="dropdown-menu">
                                                                     <a class="dropdown-item text-danger text-bold confirm-link"
                                                                        href="post.php?remove_rack_unit=<?= $d['unit_id'] ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>">
-                                                                       <i class="fas fa-fw fa-minus mr-2"></i>Remove
+                                                                       <i class="fas fa-fw fa-minus me-2"></i>Remove
                                                                     </a>
                                                                 </div>
                                                             </div>
@@ -296,16 +294,16 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                                         <?php } ?>
                                                     </td>
 
-                                                    <td class="text-right">
-                                                        <div class="dropdown dropleft">
-                                                            <button class="btn btn-tool" type="button" data-toggle="dropdown">
+                                                    <td class="text-end">
+                                                        <div class="dropdown dropstart">
+                                                            <button class="btn btn-tool" type="button" data-bs-toggle="dropdown">
                                                                 <i class="fas fa-fw fa-ellipsis-v"></i>
                                                             </button>
                                                             <div class="dropdown-menu">
                                                                 <?php foreach ($unit_devices as $d) { ?>
                                                                     <a class="dropdown-item text-danger text-bold confirm-link"
                                                                        href="post.php?remove_rack_unit=<?= $d['unit_id'] ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>">
-                                                                       <i class="fas fa-fw fa-minus mr-2"></i>Remove
+                                                                       <i class="fas fa-fw fa-minus me-2"></i>Remove
                                                                     </a>
                                                                 <?php } ?>
                                                             </div>

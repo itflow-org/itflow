@@ -1,4 +1,4 @@
-$(document).ready(function () {
+document.addEventListener('DOMContentLoaded', function () {
     // -------------------------------
     // Drag: Kanban Columns (Statuses)
     // -------------------------------
@@ -8,16 +8,16 @@ $(document).ready(function () {
         draggable: '.kanban-column',
         onEnd: function () {
             const columnPositions = Array.from(document.querySelectorAll('#kanban-board .kanban-column')).map((col, index) => ({
-                status_id: $(col).data('status-id'),
+                status_id: col.dataset.statusId,
                 status_kanban: index
             }));
 
             if (CONFIG_TICKET_MOVING_COLUMNS === 1) {
-                $.post('ajax.php', {
+                itflowPostForm('ajax.php', {
                     update_kanban_status_position: true,
                     positions: columnPositions
-                }).fail((xhr) => {
-                    console.error('Error updating status order:', xhr.responseText);
+                }).catch((err) => {
+                    console.error('Error updating status order:', err);
                 });
             }
         }
@@ -46,15 +46,15 @@ $(document).ready(function () {
                     return;
                 }
 
-                const columnId = $(target).data('status-id');
+                const columnId = target.dataset.statusId;
 
                 const positions = Array.from(target.querySelectorAll('.task')).map((card, index) => {
-                    const ticketId = $(card).data('ticket-id');
-                    const oldStatus = ticketId === $(movedEl).data('ticket-id')
-                        ? $(movedEl).data('ticket-status-id')
+                    const ticketId = card.dataset.ticketId;
+                    const oldStatus = ticketId === movedEl.dataset.ticketId
+                        ? movedEl.dataset.ticketStatusId
                         : false;
 
-                    $(card).data('ticket-status-id', columnId); // update DOM
+                    card.dataset.ticketStatusId = columnId; // update DOM
 
                     return {
                         ticket_id: ticketId,
@@ -64,11 +64,11 @@ $(document).ready(function () {
                     };
                 });
 
-                $.post('ajax.php', {
+                itflowPostForm('ajax.php', {
                     update_kanban_ticket: true,
                     positions: positions
-                }).fail((xhr) => {
-                    console.error('Error updating ticket positions:', xhr.responseText);
+                }).catch((err) => {
+                    console.error('Error updating ticket positions:', err);
                 });
 
                 // Refresh placeholders after update
@@ -81,7 +81,9 @@ $(document).ready(function () {
     // 📱 Touch Support: Show drag handle on mobile
     // -------------------------------
     if (isTouchDevice()) {
-        $('.drag-handle-class').css('display', 'inline');
+        document.querySelectorAll('.drag-handle-class').forEach(function (el) {
+            el.style.display = 'inline';
+        });
     }
 
     // -------------------------------

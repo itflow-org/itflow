@@ -34,14 +34,14 @@ $sql_users = mysqli_query($mysqli, "
 
     <div class="card card-dark">
         <div class="card-header py-2">
-            <h3 class="card-title mt-2"><i class="fas fa-fw fa-life-ring mr-2"></i>Time Logged By Technician</h3>
+            <h3 class="card-title mt-2"><i class="fas fa-fw fa-life-ring me-2"></i>Time Logged By Technician</h3>
             <div class="card-tools">
-                <button type="button" class="btn btn-primary d-print-none" onclick="window.print();"><i class="fas fa-fw fa-print mr-2"></i>Print</button>
+                <button type="button" class="btn btn-primary d-print-none" onclick="window.print();"><i class="fas fa-fw fa-print me-2"></i>Print</button>
             </div>
         </div>
         <div class="card-body">
             <form class="mb-3">
-                <select onchange="this.form.submit()" class="form-control" name="year">
+                <select onchange="this.form.submit()" class="form-select" name="year">
                     <?php
                     while ($row = mysqli_fetch_assoc($sql_ticket_years)) {
                         $ticket_year = intval($row['ticket_year']); ?>
@@ -52,7 +52,7 @@ $sql_users = mysqli_query($mysqli, "
 
             <div class="card card-dark mb-3">
                 <div class="card-header">
-                    <h3 class="card-title"><i class="fas fa-fw fa-chart-area mr-2"></i>Yearly (<?= $year ?>)</h3>
+                    <h3 class="card-title"><i class="fas fa-fw fa-chart-area me-2"></i>Yearly (<?= $year ?>)</h3>
                 </div>
                 <div class="card-body">
                     <div class="table-responsive-sm">
@@ -60,9 +60,9 @@ $sql_users = mysqli_query($mysqli, "
                             <thead>
                             <tr>
                                 <th>Technician</th>
-                                <th class="text-right">Tickets assigned</th>
-                                <th class="text-right">Tickets touched</th>
-                                <th class="text-right">Total time worked <i>(H:M:S)</i></th>
+                                <th class="text-end">Tickets assigned</th>
+                                <th class="text-end">Tickets touched</th>
+                                <th class="text-end">Total time worked <i>(H:M:S)</i></th>
                             </tr>
                             </thead>
                             <tbody>
@@ -116,9 +116,9 @@ $sql_users = mysqli_query($mysqli, "
 
                                 <tr>
                                     <td><?= $user_name ?></td>
-                                    <td class="text-right"><?= $ticket_raised_count ?></td>
-                                    <td class="text-right"><?= $tickets_touched ?></td>
-                                    <td class="text-right"><?= $ticket_total_time_worked ?></td>
+                                    <td class="text-end"><?= $ticket_raised_count ?></td>
+                                    <td class="text-end"><?= $tickets_touched ?></td>
+                                    <td class="text-end"><?= $ticket_total_time_worked ?></td>
                                 </tr>
 
                                 <?php

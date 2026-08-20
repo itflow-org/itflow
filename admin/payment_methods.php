@@ -15,9 +15,9 @@ $num_rows = mysqli_num_rows($sql);
 
 <div class="card card-dark">
     <div class="card-header py-2">
-        <h3 class="card-title mt-2"><i class="fas fa-fw fa-credit-card mr-2"></i>Payment Methods</h3>
+        <h3 class="card-title mt-2"><i class="fas fa-fw fa-credit-card me-2"></i>Payment Methods</h3>
         <div class="card-tools">
-            <button type="button" class="btn btn-primary ajax-modal" data-modal-url="modals/payment_method/payment_method_add.php"><i class="fas fa-plus mr-2"></i>Add Payment Method</button>
+            <button type="button" class="btn btn-primary ajax-modal" data-modal-url="modals/payment_method/payment_method_add.php"><i class="fas fa-plus me-2"></i>Add Payment Method</button>
         </div>
     </div>
     <div class="card-body">
@@ -63,18 +63,18 @@ $num_rows = mysqli_num_rows($sql);
                         <td><?= $payment_method_description ?></td>
                         <td><?= $payment_method_created_at ?></td>
                         <td>
-                            <div class="dropdown dropleft text-center">
-                                <button class="btn btn-secondary btn-sm" type="button" data-toggle="dropdown">
+                            <div class="dropdown dropstart text-center">
+                                <button class="btn btn-secondary btn-sm" type="button" data-bs-toggle="dropdown">
                                     <i class="fas fa-ellipsis-h"></i>
                                 </button>
                                 <div class="dropdown-menu">
                                     <a class="dropdown-item ajax-modal" href="#"
                                         data-modal-url="modals/payment_method/payment_method_edit.php?id=<?= $payment_method_id ?>">
-                                        <i class="fas fa-fw fa-edit mr-2"></i>Edit
+                                        <i class="fas fa-fw fa-edit me-2"></i>Edit
                                     </a>
                                     <div class="dropdown-divider"></div>
                                     <a class="dropdown-item text-danger confirm-link" href="post.php?delete_payment_method=<?= $payment_method_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>">
-                                        <i class="fas fa-fw fa-trash mr-2"></i>Delete
+                                        <i class="fas fa-fw fa-trash me-2"></i>Delete
                                     </a>
                                 </div>
                             </div>

@@ -20,9 +20,9 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 
     <div class="card card-dark">
         <div class="card-header py-2">
-            <h3 class="card-title mt-2"><i class="fas fa-fw fa-external-link-alt mr-2"></i>Custom Links</h3>
+            <h3 class="card-title mt-2"><i class="fas fa-fw fa-external-link-alt me-2"></i>Custom Links</h3>
             <div class="card-tools">
-                <button type="button" class="btn btn-primary ajax-modal" data-modal-url="modals/custom_link/custom_link_add.php"><i class="fas fa-plus mr-2"></i>New Link</button>
+                <button type="button" class="btn btn-primary ajax-modal" data-modal-url="modals/custom_link/custom_link_add.php"><i class="fas fa-plus me-2"></i>New Link</button>
             </div>
         </div>
 
@@ -32,9 +32,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                     <form autocomplete="off">
                         <div class="input-group">
                             <input type="search" class="form-control" name="q" value="<?php if (isset($q)) { echo stripslashes(escapeHtml($q)); } ?>" placeholder="Search Links">
-                            <div class="input-group-append">
                                 <button class="btn btn-primary"><i class="fa fa-search"></i></button>
-                            </div>
                         </div>
                     </form>
                 </div>
@@ -44,7 +42,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 
             <hr>
             <div class="table-responsive-sm">
-                <table class="table table-striped table-borderless table-hover">
+                <table class="table table-striped table-borderless table-hover mb-0">
                     <thead class="text-dark <?php if ($num_rows[0] == 0) { echo "d-none"; } ?>">
                     <tr>
                         <th>
@@ -108,24 +106,24 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                             <td>
                                 <a class="ajax-modal" href="#"
                                     data-modal-url="modals/custom_link/custom_link_edit.php?id=<?= $custom_link_id ?>">
-                                    <i class="fa fa-fw fa-<?= $custom_link_icon ?> mr-2"></i><?= $custom_link_name ?>
+                                    <i class="fa fa-fw fa-<?= $custom_link_icon ?> me-2"></i><?= $custom_link_name ?>
                                 </a>
                             </td>
                             <td><?= $custom_link_order_display ?></td>
                             <td><?= "$custom_link_uri $custom_link_new_tab_display" ?></td>
                             <td><?= $custom_link_location_display ?></td>
                             <td>
-                                <div class="dropdown dropleft text-center">
-                                    <button class="btn btn-secondary btn-sm" type="button" data-toggle="dropdown">
+                                <div class="dropdown dropstart text-center">
+                                    <button class="btn btn-secondary btn-sm" type="button" data-bs-toggle="dropdown">
                                         <i class="fas fa-ellipsis-h"></i>
                                     </button>
                                     <div class="dropdown-menu">
                                         <a class="dropdown-item ajax-modal" href="#" data-modal-url="modals/custom_link/custom_link_edit.php?id=<?= $custom_link_id ?>">
-                                            <i class="fas fa-fw fa-edit mr-2"></i>Edit
+                                            <i class="fas fa-fw fa-edit me-2"></i>Edit
                                         </a>
                                         <div class="dropdown-divider"></div>
                                         <a class="dropdown-item text-danger text-bold confirm-link" href="post.php?delete_custom_link=<?= $custom_link_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>">
-                                            <i class="fas fa-fw fa-trash mr-2"></i>Delete
+                                            <i class="fas fa-fw fa-trash me-2"></i>Delete
                                         </a>
                                     </div>
                                 </div>

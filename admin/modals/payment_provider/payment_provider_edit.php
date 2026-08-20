@@ -22,10 +22,8 @@ ob_start();
 ?>
 
 <div class="modal-header bg-dark">
-    <h5 class="modal-title"><i class="fa fa-fw fa-credit-card mr-2"></i>Editing: <strong><?= $provider_name ?></strong></h5>
-    <button type="button" class="close text-white" data-dismiss="modal">
-        <span>&times;</span>
-    </button>
+    <h5 class="modal-title"><i class="fa fa-fw fa-credit-card me-2"></i>Editing: <strong><?= $provider_name ?></strong></h5>
+    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
 </div>
 <form action="post.php" method="post" autocomplete="off">
     <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
@@ -35,10 +33,10 @@ ob_start();
 
         <ul class="nav nav-pills nav-justified mb-3">
             <li class="nav-item">
-                <a class="nav-link active" data-toggle="pill" href="#pills-details">Details</a>
+                <a class="nav-link active" data-bs-toggle="pill" href="#pills-details">Details</a>
             </li>
             <li class="nav-item">
-                <a class="nav-link" data-toggle="pill" href="#pills-expense">Expense</a>
+                <a class="nav-link" data-bs-toggle="pill" href="#pills-expense">Expense</a>
             </li>
         </ul>
 
@@ -48,33 +46,27 @@ ob_start();
 
             <div class="tab-pane fade show active" id="pills-details">
 
-                <div class="form-group">
+                <div class="mb-3">
                     <label>Publishable key <strong class="text-danger">*</strong></label>
                     <div class="input-group">
-                        <div class="input-group-prepend">
                             <span class="input-group-text"><i class="fa fa-fw fa-eye"></i></span>
-                        </div>
                         <input type="text" class="form-control" name="public_key" placeholder="Publishable API Key (pk_...)" maxlength="250" value="<?= $public_key ?>">
                     </div>
                 </div>
 
-                <div class="form-group">
+                <div class="mb-3">
                     <label>Secret key <strong class="text-danger">*</strong></label>
                     <div class="input-group">
-                        <div class="input-group-prepend">
                             <span class="input-group-text"><i class="fa fa-fw fa-key"></i></span>
-                        </div>
                         <input type="text" class="form-control" name="private_key" placeholder="Secret API Key (sk_...)" maxlength="250" value="<?= $private_key ?>">
                     </div>
                 </div>
 
-                <div class="form-group">
+                <div class="mb-3">
                     <label>Income / Expense Account <strong class="text-danger">*</strong></label>
                     <div class="input-group">
-                        <div class="input-group-prepend">
                             <span class="input-group-text"><i class="fa fa-fw fa-piggy-bank"></i></span>
-                        </div>
-                        <select class="form-control select2" name="account" required>
+                        <select class="form-select select2" name="account" required>
                             <option value="">- Select an Account -</option>
                             <?php
 
@@ -93,12 +85,10 @@ ob_start();
                     <small class="form-text text-muted">Should have a seperate account created off the payment provider's name e.g. Stripe</small>
                 </div>
 
-                <div class="form-group">
+                <div class="mb-3">
                     <label>Threshold</label>
                     <div class="input-group">
-                        <div class="input-group-prepend">
                             <span class="input-group-text"><i class="fa fa-fw fa-shopping-cart"></i></span>
-                        </div>
                         <input type="text" class="form-control" inputmode="decimal" pattern="[0-9]*\.?[0-9]{0,2}" name="threshold" placeholder="1000.00" value="<?= $threshold ?>">
                     </div>
                     <small class="form-text text-muted">Will not show as an option at Checkout if above this number</small>
@@ -112,13 +102,11 @@ ob_start();
                     Payment Processing Fee Expenses get reconciled nighly via the cron
                 </div>
 
-                <div class="form-group">
+                <div class="mb-3">
                     <label>Payment Provider Vendor <strong class="text-danger">*</strong></label>
                     <div class="input-group">
-                        <div class="input-group-prepend">
                             <span class="input-group-text"><i class="fa fa-fw fa-building"></i></span>
-                        </div>
-                        <select class="form-control select2" name="expense_vendor" required>
+                        <select class="form-select select2" name="expense_vendor" required>
                             <option value="0">Expense Disabled</option>
                             <?php
 
@@ -139,13 +127,11 @@ ob_start();
                     <small class="form-text text-muted">Payment Privider name e.g. Stripe</small>
                 </div>
 
-                <div class="form-group">
+                <div class="mb-3">
                     <label>Expense Category <strong class="text-danger">*</strong></label>
                     <div class="input-group">
-                        <div class="input-group-prepend">
                             <span class="input-group-text"><i class="fa fa-fw fa-list"></i></span>
-                        </div>
-                        <select class="form-control select2" name="expense_category" required>
+                        <select class="form-select select2" name="expense_category" required>
                             <option value="">- Select a Category -</option>
                             <?php
 
@@ -160,12 +146,10 @@ ob_start();
                             }
                             ?>
                         </select>
-                        <div class="input-group-append">
                             <button class="btn btn-secondary ajax-modal" type="button"
                                 data-modal-url="../admin/modals/category/category_add.php?category=Expense">
                                 <i class="fas fa-plus"></i>
                             </button>
-                        </div>
                     </div>
                     <small class="form-text text-muted">Processing Fee, Credit Card Fee etc</small>
                 </div>
@@ -173,8 +157,8 @@ ob_start();
         </div>
     </div>
     <div class="modal-footer">
-        <button type="submit" name="edit_payment_provider" class="btn btn-primary text-bold"><i class="fa fa-check mr-2"></i>Save</button>
-        <button type="button" class="btn btn-light" data-dismiss="modal"><i class="fa fa-times mr-2"></i>Cancel</button>
+        <button type="submit" name="edit_payment_provider" class="btn btn-primary text-bold"><i class="fa fa-check me-2"></i>Save</button>
+        <button type="button" class="btn btn-light" data-bs-dismiss="modal"><i class="fa fa-times me-2"></i>Cancel</button>
     </div>
 </form>
 

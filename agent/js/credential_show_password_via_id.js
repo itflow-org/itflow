@@ -1,6 +1,6 @@
 function showPasswordViaCredentialID(button, credential_id) {
     // Send a GET request to ajax.php as ajax.php?get_credential_via_id=true&credential_id=ID
-    jQuery.get(
+    itflowGet(
         "ajax.php", {
             get_credential_via_id: 'true',
             credential_id: credential_id
@@ -10,17 +10,18 @@ function showPasswordViaCredentialID(button, credential_id) {
 
             // (Re)create the popover with the fetched password and show it
             //  trigger: focus dismisses it when the user clicks away
-            jQuery(button).popover('dispose').popover({
+            bootstrap.Popover.getInstance(button)?.dispose();
+            new bootstrap.Popover(button, {
                 content: credential.password,
                 placement: 'top',
                 trigger: 'focus'
-            }).popover('show');
+            }).show();
         }
     );
 }
 
 function copyPasswordViaCredentialID(button, credential_id) {
-    jQuery.get(
+    itflowGet(
         "ajax.php", {
             get_credential_via_id: 'true',
             credential_id: credential_id

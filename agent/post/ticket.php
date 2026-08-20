@@ -2865,7 +2865,8 @@ if (isExportRequest('export_tickets')) {
             $ticket_sla_query = 'AND ticket_sla_id > 0 AND COALESCE(ticket_status_pauses_sla, 0) = 0 AND (ticket_response_sla_alert_stage = 1 OR ticket_resolution_sla_alert_stage = 1)';
             $filter_summary['SLA'] = 'SLA at risk';
         } elseif ($sla_filter == 'paused') {
-            $ticket_sla_query = 'AND ticket_sla_id > 0 AND ticket_status_pauses_sla = 1';
+            // Mirrors agent/tickets.php - finished tickets have a verdict, not a pause
+            $ticket_sla_query = 'AND ticket_sla_id > 0 AND ticket_status_pauses_sla = 1 AND ticket_resolved_at IS NULL AND ticket_closed_at IS NULL';
             $filter_summary['SLA'] = 'SLA paused';
         } elseif ($sla_filter == 'met') {
             $ticket_sla_query = 'AND ticket_sla_id > 0 AND ticket_response_sla_met = 1 AND (ticket_resolution_sla_met = 1 OR ticket_resolution_due_at IS NULL)';

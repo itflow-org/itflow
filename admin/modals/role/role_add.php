@@ -6,10 +6,8 @@ ob_start();
 
 ?>
 <div class="modal-header bg-dark">
-    <h5 class="modal-title"><i class="fas fa-fw fa-user-shield mr-2"></i>New Role</h5>
-    <button type="button" class="close text-white" data-dismiss="modal">
-        <span>&times;</span>
-    </button>
+    <h5 class="modal-title"><i class="fas fa-fw fa-user-shield me-2"></i>New Role</h5>
+    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
 </div>
 
 <form action="post.php" method="post" enctype="multipart/form-data" autocomplete="off">
@@ -19,10 +17,10 @@ ob_start();
 
         <ul class="nav nav-pills nav-justified mb-3">
             <li class="nav-item">
-                <a class="nav-link active" data-toggle="pill" href="#pills-role-details">Details</a>
+                <a class="nav-link active" data-bs-toggle="pill" href="#pills-role-details">Details</a>
             </li>
             <li class="nav-item">
-                <a class="nav-link" data-toggle="pill" href="#pills-role-permissions">Permissions</a>
+                <a class="nav-link" data-bs-toggle="pill" href="#pills-role-permissions">Permissions</a>
             </li>
         </ul>
 
@@ -33,39 +31,35 @@ ob_start();
             <!-- DETAILS TAB -->
             <div class="tab-pane fade show active" id="pills-role-details">
 
-                <div class="form-group">
+                <div class="mb-3">
                     <label>Name <strong class="text-danger">*</strong></label>
                     <div class="input-group">
-                        <div class="input-group-prepend">
                             <span class="input-group-text"><i class="fa fa-fw fa-user-shield"></i></span>
-                        </div>
                         <input type="text" class="form-control" name="role_name" placeholder="Role Name" maxlength="200" required>
                     </div>
                 </div>
 
-                <div class="form-group">
+                <div class="mb-3">
                     <label>Description <strong class="text-danger">*</strong></label>
                     <div class="input-group">
-                        <div class="input-group-prepend">
                             <span class="input-group-text"><i class="fa fa-fw fa-chevron-right"></i></span>
-                        </div>
                         <input type="text" class="form-control" name="role_description" placeholder="Role Description" maxlength="200" required>
                     </div>
                 </div>
 
-                <div class="form-group">
+                <div class="mb-3">
                     <label>Admin Access <strong class="text-danger">*</strong></label>
 
-                    <div class="custom-control custom-radio mb-2">
-                        <input type="radio" class="custom-control-input" id="admin_no" name="role_is_admin" value="0" checked required>
-                        <label class="custom-control-label" for="admin_no">
+                    <div class="form-check mb-2">
+                        <input type="radio" class="form-check-input" id="admin_no" name="role_is_admin" value="0" checked required>
+                        <label class="form-check-label" for="admin_no">
                             No - use permissions on the next tab
                         </label>
                     </div>
 
-                    <div class="custom-control custom-radio">
-                        <input type="radio" class="custom-control-input" id="admin_yes" name="role_is_admin" value="1" required>
-                        <label class="custom-control-label" for="admin_yes">
+                    <div class="form-check">
+                        <input type="radio" class="form-check-input" id="admin_yes" name="role_is_admin" value="1" required>
+                        <label class="form-check-label" for="admin_yes">
                             Yes - this role should have full admin access
                         </label>
                     </div>
@@ -98,14 +92,13 @@ ob_start();
                     $group_id = "perm_group_$module_id";
                     ?>
 
-                    <div class="form-group">
+                    <div class="mb-3">
                         <label><?= $module_name_display_safe ?> <strong class="text-danger">*</strong></label>
 
-                        <div class="btn-group btn-group-toggle btn-block" data-toggle="buttons" role="group"
+                        <div class="btn-group w-100" role="group"
                              aria-label="Permissions for <?= $module_name_display_safe ?>">
 
-                            <label class="btn btn-outline-secondary btn-sm active" title="No Access">
-                                <input
+                            <input class="btn-check"
                                     type="radio"
                                     name="<?= $field_name ?>"
                                     id="<?= $group_id ?>_0"
@@ -114,41 +107,34 @@ ob_start();
                                     checked
                                     required
                                 >
-                                None
-                            </label>
+                            <label class="btn btn-outline-secondary btn-sm" title="No Access" for="<?= $group_id ?>_0">None</label>
 
-                            <label class="btn btn-outline-primary btn-sm" title="Viewing Only">
-                                <input
+                            <input class="btn-check"
                                     type="radio"
                                     name="<?= $field_name ?>"
                                     id="<?= $group_id ?>_1"
                                     value="1"
                                     autocomplete="off"
                                 >
-                                <i class="fas fa-fw fa-eye mr-1"></i>Read
-                            </label>
+                            <label class="btn btn-outline-primary btn-sm" title="Viewing Only" for="<?= $group_id ?>_1"><i class="fas fa-fw fa-eye me-1"></i>Read</label>
 
-                            <label class="btn btn-outline-warning btn-sm" title="Read, Edit, Archive">
-                                <input
+                            <input class="btn-check"
                                     type="radio"
                                     name="<?= $field_name ?>"
                                     id="<?= $group_id ?>_2"
                                     value="2"
                                     autocomplete="off"
                                 >
-                                <i class="fas fa-fw fa-edit mr-1"></i>Modify
-                            </label>
+                            <label class="btn btn-outline-warning btn-sm" title="Read, Edit, Archive" for="<?= $group_id ?>_2"><i class="fas fa-fw fa-edit me-1"></i>Modify</label>
 
-                            <label class="btn btn-outline-danger btn-sm" title="Read, Edit, Archive, Delete">
-                                <input
+                            <input class="btn-check"
                                     type="radio"
                                     name="<?= $field_name ?>"
                                     id="<?= $group_id ?>_3"
                                     value="3"
                                     autocomplete="off"
                                 >
-                                <i class="fas fa-fw fa-trash mr-1"></i>Full
-                            </label>
+                            <label class="btn btn-outline-danger btn-sm" title="Read, Edit, Archive, Delete" for="<?= $group_id ?>_3"><i class="fas fa-fw fa-trash me-1"></i>Full</label>
 
                         </div>
 
@@ -164,10 +150,10 @@ ob_start();
 
     <div class="modal-footer">
         <button type="submit" name="add_role" class="btn btn-primary text-bold">
-            <i class="fas fa-check mr-2"></i>Create
+            <i class="fas fa-check me-2"></i>Create
         </button>
-        <button type="button" class="btn btn-light" data-dismiss="modal">
-            <i class="fas fa-times mr-2"></i>Cancel
+        <button type="button" class="btn btn-light" data-bs-dismiss="modal">
+            <i class="fas fa-times me-2"></i>Cancel
         </button>
     </div>
 </form>

@@ -39,7 +39,7 @@ function getAssetIcon($asset_type) {
 
 function getInvoiceBadgeColor($invoice_status) {
     if ($invoice_status == "Sent") {
-        $invoice_badge_color = "warning text-white";
+        $invoice_badge_color = "warning";
     } elseif ($invoice_status == "Viewed") {
         $invoice_badge_color = "info";
     } elseif ($invoice_status == "Partial") {
@@ -59,6 +59,35 @@ function getInvoiceBadgeColor($invoice_status) {
  * The display name for a ticket status id, RAW. Escaping is the caller's job -
  * same convention as getFieldById() above.
  */
+/*
+ * Fixed SLA clock behaviour for the five built-in ticket statuses.
+ *
+ * New and Open always run the resolution clock; On Hold, Resolved and Closed
+ * always stop it, and none of the five can be configured otherwise. A ticket
+ * nobody can work on should not burn resolution budget, and a finished ticket
+ * has a verdict rather than a clock.
+ *
+ * Resolved and Closed additionally stop BOTH clocks through ticket_resolved_at
+ * and ticket_closed_at, which cron/ticket_sla.php and syncTicketSlaClock() read
+ * directly - their behaviour never depended on this flag and still does not.
+ * The flag is set on them so every SLA surface reads one consistent answer.
+ *
+ * Returns 1 or 0 for a built-in status, or null for a custom one (id > 5),
+ * which the admin configures freely.
+ */
+function getTicketStatusSlaLock($ticket_status_id)
+{
+    $locked_statuses = [
+        1 => 0, // New
+        2 => 0, // Open
+        3 => 1, // On Hold
+        4 => 1, // Resolved
+        5 => 1, // Closed
+    ];
+
+    return $locked_statuses[intval($ticket_status_id)] ?? null;
+}
+
 function getTicketStatusName($ticket_status) {
 
     global $mysqli;
@@ -306,7 +335,66 @@ function getRepoBranch(): string
     return $branch === '' ? 'master' : $branch;
 }
 
+/*
+ * Whether this PHP can run external commands at all. ITFlow updates itself with git, so the
+ * update path needs exec() and shell_exec(); hosts that disable them - shared hosting, a
+ * hardened php.ini, an FPM pool locked down while the CLI is not - can still update through
+ * cron, which runs under a different php.ini and its own settings.
+ *
+ * function_exists() already reports a disabled function as missing. disable_functions is
+ * read as well because some hardening extensions leave the function defined and refuse the
+ * call instead, and a fatal on the Update page is a poor way to find that out.
+ */
+function shellCommandsAvailable(): bool
+{
+    $disabled = array_map('trim', explode(',', (string) ini_get('disable_functions')));
+
+    foreach (['exec', 'shell_exec'] as $shell_function) {
+        if (!function_exists($shell_function) || in_array($shell_function, $disabled, true)) {
+            return false;
+        }
+    }
+
+    return true;
+}
+
+/*
+ * Whether a settings column exists yet.
+ *
+ * Maintenance > Update is the page that APPLIES database updates, so it has to keep working
+ * against a schema older than the code it is running - the window between the files being
+ * updated and the database catching up is exactly when somebody opens it. mysqli throws on
+ * an unknown column, so a page that reads a column newer than the oldest schema it might
+ * meet dies before it can render the button that fixes it.
+ *
+ * Anything else that runs before the migrations have caught up has the same problem, which
+ * is why this takes the column name rather than answering one question.
+ */
+function settingsColumnExists($mysqli, string $column): bool
+{
+    $column = escapeSql($column);
+
+    $result = mysqli_query($mysqli, "SHOW COLUMNS FROM `settings` LIKE '$column'");
+
+    return $result && mysqli_num_rows($result) > 0;
+}
+
 function checkForUpdates() {
+
+    $updates = new stdClass();
+
+    // Nothing here can run without a shell. Reported as a failed check rather than left to
+    // fatal, because the nightly job calls this too and one host's php.ini must not take
+    // the whole cron cycle down with it.
+    if (!shellCommandsAvailable()) {
+        $updates->output = ["PHP on this server cannot run external commands, so ITFlow cannot check for updates."];
+        $updates->result = 127;
+        $updates->current_version = '';
+        $updates->latest_version = '';
+        $updates->update_message = "Cannot check for updates";
+
+        return $updates;
+    }
 
     $remote_ref = escapeshellarg("origin/" . getRepoBranch());
 
@@ -324,7 +412,6 @@ function checkForUpdates() {
     }
 
 
-    $updates = new stdClass();
     $updates->output = $output;
     $updates->result = $result;
     $updates->current_version = $current_version;

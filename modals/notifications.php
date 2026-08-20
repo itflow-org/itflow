@@ -19,10 +19,8 @@ ob_start();
 ?>
 
 <div class="modal-header bg-dark">
-    <h5 class="modal-title"><i class='fas fa-bell mr-2'></i>Notifications<span class='badge badge-secondary badge-pill px-3 ml-3'><?= $num_notifications ?><span></h5>
-    <button type="button" class="close text-white" data-dismiss="modal">
-        <span>&times;</span>
-    </button>
+    <h5 class="modal-title"><i class='fas fa-bell me-2'></i>Notifications<span class='badge bg-secondary rounded-pill px-3 ms-3'><?= $num_notifications ?><span></h5>
+    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
 </div>
 
 <div class="modal-body">
@@ -51,8 +49,8 @@ ob_start();
         <tr class="notification-item">
             <th>
                 <a class="text-dark" href="<?= $notification_action ?>">
-                    <i class="fas fa-bullhorn mr-2"></i><?= $notification_type ?>
-                    <small class="text-muted float-right">
+                    <i class="fas fa-bullhorn me-2"></i><?= $notification_type ?>
+                    <small class="text-muted float-end">
                         <?= $notification_timestamp_formated ?>
                     </small>
                     <br>
@@ -66,7 +64,7 @@ ob_start();
         ?>
         </table>
         <div class="text-center mt-2">
-            <button id="prev-btn" class="btn btn-sm btn-outline-secondary mr-2"><i class="fas fa-caret-left"></i></button>
+            <button id="prev-btn" class="btn btn-sm btn-outline-secondary me-2"><i class="fas fa-caret-left"></i></button>
             <button id="next-btn" class="btn btn-sm btn-outline-secondary"><i class="fas fa-caret-right"></i></button>
         </div>
     <?php } else { ?>
@@ -80,7 +78,7 @@ ob_start();
     <?php if ($num_notifications) { ?>
 
     <a href="/agent/post.php?dismiss_all_notifications&csrf_token=<?= $_SESSION["csrf_token"] ?>" class="btn btn-primary">
-        <span class="text-white text-bold"><i class="fas fa-check mr-2"></i>Dismiss all</span>
+        <span class="text-white text-bold"><i class="fas fa-check me-2"></i>Dismiss all</span>
     </a>
     <a href="/agent/notifications.php" class="btn btn-secondary">
         <span class="text-white">See all Notifications</span>
@@ -90,42 +88,63 @@ ob_start();
         <span class="text-white text-bold">See Dismissed Notifications</span>
     </a>
     <?php } ?>
-    <button type="button" class="btn btn-light" data-dismiss="modal">
-        <i class="fas fa-times mr-2"></i>Close
+    <button type="button" class="btn btn-light" data-bs-dismiss="modal">
+        <i class="fas fa-times me-2"></i>Close
     </button>
 </div>
 
 <script>
-$(document).ready(function () {
+document.addEventListener('DOMContentLoaded', function () {
     var perPage = 8;
-    var $items = $(".notification-item");
-    var totalItems = $items.length;
+    var items = Array.from(document.querySelectorAll('.notification-item'));
+    var totalItems = items.length;
     var totalPages = Math.ceil(totalItems / perPage);
     var currentPage = 0;
 
+    var prevBtn = document.getElementById('prev-btn');
+    var nextBtn = document.getElementById('next-btn');
+    var indicator = document.getElementById('page-indicator');
+
     function showPage(page) {
-        $items.hide().slice(page * perPage, (page + 1) * perPage).show();
-        $("#prev-btn").prop("disabled", page === 0);
-        $("#next-btn").prop("disabled", page >= totalPages - 1);
-        $("#page-indicator").text(`Page ${page + 1} of ${totalPages} (${totalItems} total)`);
+        items.forEach(function (item, i) {
+            var visible = i >= page * perPage && i < (page + 1) * perPage;
+            item.style.display = visible ? '' : 'none';
+        });
+        if (prevBtn) {
+            prevBtn.disabled = page === 0;
+        }
+        if (nextBtn) {
+            nextBtn.disabled = page >= totalPages - 1;
+        }
+        if (indicator) {
+            indicator.textContent = `Page ${page + 1} of ${totalPages} (${totalItems} total)`;
+        }
     }
 
-    $("#prev-btn").on("click", function () {
-        if (currentPage > 0) {
-            currentPage--;
-            showPage(currentPage);
-        }
-    });
+    if (prevBtn) {
+        prevBtn.addEventListener('click', function () {
+            if (currentPage > 0) {
+                currentPage--;
+                showPage(currentPage);
+            }
+        });
+    }
 
-    $("#next-btn").on("click", function () {
-        if (currentPage < totalPages - 1) {
-            currentPage++;
-            showPage(currentPage);
-        }
-    });
+    if (nextBtn) {
+        nextBtn.addEventListener('click', function () {
+            if (currentPage < totalPages - 1) {
+                currentPage++;
+                showPage(currentPage);
+            }
+        });
+    }
 
     if (totalItems <= perPage) {
-        $("#prev-btn, #next-btn, #page-indicator").hide();
+        [prevBtn, nextBtn, indicator].forEach(function (el) {
+            if (el) {
+                el.style.display = 'none';
+            }
+        });
     }
 
     showPage(currentPage);

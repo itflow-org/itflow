@@ -29,10 +29,8 @@ if ($tag_type == 1) {
 ob_start();
 ?>
 <div class="modal-header bg-dark">
-    <h5 class="modal-title"><i class="fas fa-fw fa-tag mr-2"></i><?= $tag_type_display ?> Tag: <strong><?= $tag_name ?></strong></h5>
-    <button type="button" class="close text-white" data-dismiss="modal">
-        <span>&times;</span>
-    </button>
+    <h5 class="modal-title"><i class="fas fa-fw fa-tag me-2"></i><?= $tag_type_display ?> Tag: <strong><?= $tag_name ?></strong></h5>
+    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
 </div>
 <form action="post.php" method="post" autocomplete="off">
     <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
@@ -40,40 +38,34 @@ ob_start();
 
     <div class="modal-body">
 
-        <div class="form-group">
+        <div class="mb-3">
             <label>Name <strong class="text-danger">*</strong></label>
             <div class="input-group">
-                <div class="input-group-prepend">
                     <span class="input-group-text"><i class="fa fa-fw fa-tag"></i></span>
-                </div>
                 <input type="text" class="form-control" name="name" maxlength="200" value="<?= $tag_name ?>" required>
             </div>
         </div>
 
-        <div class="form-group">
+        <div class="mb-3">
             <label>Color <strong class="text-danger">*</strong></label>
             <div class="input-group">
-                <div class="input-group-prepend">
                     <span class="input-group-text"><i class="fa fa-fw fa-paint-brush"></i></span>
-                </div>
                 <input type="color" class="form-control col-3" name="color" value="<?= $tag_color ?>" required>
             </div>
         </div>
 
-        <div class="form-group">
+        <div class="mb-3">
             <label>Icon</label>
             <div class="input-group">
-                <div class="input-group-prepend">
                     <span class="input-group-text"><i class="fa fa-fw fa-image"></i></span>
-                </div>
                 <input type="text" class="form-control" name="icon" placeholder="Icon ex handshake" maxlength="200" value="<?= $tag_icon ?>">
             </div>
         </div>
 
     </div>
     <div class="modal-footer">
-        <button type="submit" name="edit_tag" class="btn btn-primary text-bold"><i class="fas fa-check mr-2"></i>Save changes</button>
-        <button type="button" class="btn btn-light" data-dismiss="modal"><i class="fas fa-times mr-2"></i>Cancel</button>
+        <button type="submit" name="edit_tag" class="btn btn-primary text-bold"><i class="fas fa-check me-2"></i>Save changes</button>
+        <button type="button" class="btn btn-light" data-bs-dismiss="modal"><i class="fas fa-times me-2"></i>Cancel</button>
     </div>
 </form>
 

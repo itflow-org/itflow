@@ -32,16 +32,14 @@ require_once 'includes/inc_all.php';
         <h4>Password</h4>
         <form action="post.php" method="post" autocomplete="off">
             <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
-            <div class="form-group">
+            <div class="mb-3">
                 <label>New Password</label>
                 <div class="input-group">
-                    <div class="input-group-prepend">
                         <span class="input-group-text"><i class="fa fa-fw fa-lock"></i></span>
-                    </div>
                     <input type="password" class="form-control" minlength="8" required data-toggle="password" name="new_password" placeholder="Leave blank for no change" autocomplete="new-password">
                 </div>
             </div>
-            <button type="submit" name="edit_profile" class="btn btn-primary text-bold mt-3"><i class="fas fa-check mr-2"></i>Save password</button>
+            <button type="submit" name="edit_profile" class="btn btn-primary text-bold mt-3"><i class="fas fa-check me-2"></i>Save password</button>
         </form>
     </div>
 <?php endif ?>

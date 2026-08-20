@@ -35,13 +35,13 @@ while ($job_row = mysqli_fetch_assoc($sql)) {
 
 <div class="card card-dark">
     <div class="card-header py-3">
-        <h3 class="card-title"><i class="fas fa-fw fa-clock mr-2"></i>Cron</h3>
+        <h3 class="card-title"><i class="fas fa-fw fa-clock me-2"></i>Cron</h3>
     </div>
     <div class="card-body">
 
         <?php if (!$cron_is_running) { ?>
             <div class="alert alert-danger">
-                <h5><i class="fas fa-fw fa-exclamation-triangle mr-2"></i>Cron is not running</h5>
+                <h5><i class="fas fa-fw fa-exclamation-triangle me-2"></i>Cron is not running</h5>
                 ITFlow last heard from cron <strong><?= escapeHtml(strtolower(cronJobTimeAgo($cron_last_dispatch_at))) ?></strong>.
                 Nothing below will run - no mail is being sent, no email is being turned into tickets, and invoices are not being generated.
                 Add this line to the crontab of the user that owns the ITFlow files:
@@ -49,26 +49,26 @@ while ($job_row = mysqli_fetch_assoc($sql)) {
             </div>
         <?php } else { ?>
             <div class="alert alert-success">
-                <i class="fas fa-fw fa-check mr-2"></i>Cron last checked in <strong><?= escapeHtml(strtolower(cronJobTimeAgo($cron_last_dispatch_at))) ?></strong>.
-                <span class="text-muted ml-2"><?= escapeHtml($cron_command) ?></span>
+                <i class="fas fa-fw fa-check me-2"></i>Cron last checked in <strong><?= escapeHtml(strtolower(cronJobTimeAgo($cron_last_dispatch_at))) ?></strong>.
+                <span class="text-muted ms-2"><?= escapeHtml($cron_command) ?></span>
             </div>
         <?php } ?>
 
         <?php if ($config_enable_cron == 0) { ?>
             <div class="alert alert-warning">
-                <div class="float-right">
+                <div class="float-end">
                     <a class="btn btn-sm btn-warning" href="post.php?enable_cron=1&amp;csrf_token=<?= $_SESSION['csrf_token'] ?>">
-                        <i class="fas fa-fw fa-power-off mr-2"></i>Turn cron on
+                        <i class="fas fa-fw fa-power-off me-2"></i>Turn cron on
                     </a>
                 </div>
-                <h5><i class="fas fa-fw fa-exclamation-circle mr-2"></i>Cron is switched off</h5>
+                <h5><i class="fas fa-fw fa-exclamation-circle me-2"></i>Cron is switched off</h5>
                 The dispatcher is running, but every job below stops itself immediately while this is off -
                 no mail is sent, no email becomes a ticket, and nothing is invoiced.
             </div>
         <?php } else { ?>
             <p class="text-muted">
                 <small>
-                    <i class="fas fa-fw fa-power-off mr-1"></i>The master switch is <strong>on</strong>. Turning it off
+                    <i class="fas fa-fw fa-power-off me-1"></i>The master switch is <strong>on</strong>. Turning it off
                     stops every job at once without touching their schedules, which is what you want on a restored
                     backup or a staging clone - those come up with every job enabled and will otherwise email clients
                     and charge cards. Switching back on returns you to exactly this configuration.
@@ -112,24 +112,24 @@ while ($job_row = mysqli_fetch_assoc($sql)) {
                     $next_run = $job_row ? cronJobNextRun($job_row) : null;
 
                     if ($run_now) {
-                        $status_badge = '<span class="badge badge-warning">Queued</span>';
+                        $status_badge = '<span class="badge bg-warning text-dark">Queued</span>';
                     } elseif ($last_status === 'Running') {
-                        $status_badge = '<span class="badge badge-info">Running</span>';
+                        $status_badge = '<span class="badge bg-info text-dark">Running</span>';
                     } elseif ($last_status === 'Completed') {
-                        $status_badge = '<span class="badge badge-success">Completed</span>';
+                        $status_badge = '<span class="badge bg-success">Completed</span>';
                     } elseif ($last_status === 'Failed') {
-                        $status_badge = '<span class="badge badge-danger">Failed</span>';
+                        $status_badge = '<span class="badge bg-danger">Failed</span>';
                     } elseif ($last_status !== null) {
-                        $status_badge = '<span class="badge badge-secondary">Stopped</span>';
+                        $status_badge = '<span class="badge bg-secondary">Stopped</span>';
                     } else {
-                        $status_badge = '<span class="badge badge-light">Never run</span>';
+                        $status_badge = '<span class="badge bg-light text-dark">Never run</span>';
                     }
 
                     ?>
                     <tr class="<?= $enabled ? '' : 'text-muted' ?>">
                         <td>
                             <strong><?= escapeHtml($job['label']) ?></strong>
-                            <?php if (!$enabled) { ?><span class="badge badge-secondary ml-1">Disabled</span><?php } ?>
+                            <?php if (!$enabled) { ?><span class="badge bg-secondary ms-1">Disabled</span><?php } ?>
                             <br><small class="text-secondary"><?= escapeHtml($job['description']) ?></small>
                             <br><small class="text-muted"><code>cron/<?= escapeHtml($job['script']) ?></code></small>
                         </td>
@@ -147,25 +147,25 @@ while ($job_row = mysqli_fetch_assoc($sql)) {
                         </td>
                         <td><?= $next_run === null ? '-' : escapeHtml(cronJobTimeAgo($next_run)) ?></td>
                         <td class="text-center">
-                            <div class="dropdown dropleft text-center">
-                                <button class="btn btn-secondary btn-sm" type="button" data-toggle="dropdown">
+                            <div class="dropdown dropstart text-center">
+                                <button class="btn btn-secondary btn-sm" type="button" data-bs-toggle="dropdown">
                                     <i class="fas fa-ellipsis-v"></i>
                                 </button>
                                 <div class="dropdown-menu">
                                     <a class="dropdown-item <?= $cron_job_id === 0 ? 'disabled' : '' ?>" href="post.php?run_cron_job=<?= $cron_job_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>">
-                                        <i class="fas fa-fw fa-play mr-2"></i>Run Now
+                                        <i class="fas fa-fw fa-play me-2"></i>Run Now
                                     </a>
                                     <button class="dropdown-item ajax-modal <?= $cron_job_id === 0 ? 'disabled' : '' ?>" type="button" data-toggle="ajax-modal"
                                             data-modal-url="modals/cron/cron_edit.php?id=<?= $cron_job_id ?>">
-                                        <i class="fas fa-fw fa-edit mr-2"></i>Edit Schedule
+                                        <i class="fas fa-fw fa-edit me-2"></i>Edit Schedule
                                     </button>
                                     <?php if ($enabled) { ?>
                                         <a class="dropdown-item text-danger" href="post.php?disable_cron_job=<?= $cron_job_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>">
-                                            <i class="fas fa-fw fa-pause mr-2"></i>Disable
+                                            <i class="fas fa-fw fa-pause me-2"></i>Disable
                                         </a>
                                     <?php } else { ?>
                                         <a class="dropdown-item text-success" href="post.php?enable_cron_job=<?= $cron_job_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>">
-                                            <i class="fas fa-fw fa-play-circle mr-2"></i>Enable
+                                            <i class="fas fa-fw fa-play-circle me-2"></i>Enable
                                         </a>
                                     <?php } ?>
                                 </div>
@@ -176,13 +176,13 @@ while ($job_row = mysqli_fetch_assoc($sql)) {
                         <tr>
                             <td colspan="7" class="pt-0">
                                 <div class="alert alert-danger mb-0 py-2">
-                                    <div class="float-right">
+                                    <div class="float-end">
                                         <a class="text-danger" href="post.php?clear_cron_error=<?= $cron_job_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>" title="Dismiss">
                                             <i class="fas fa-fw fa-times"></i>
                                         </a>
                                     </div>
-                                    <strong><i class="fas fa-fw fa-exclamation-triangle mr-2"></i>Last error</strong>
-                                    <small class="text-muted ml-2"><?= escapeHtml(cronJobTimeAgo($last_error_at)) ?></small>
+                                    <strong><i class="fas fa-fw fa-exclamation-triangle me-2"></i>Last error</strong>
+                                    <small class="text-muted ms-2"><?= escapeHtml(cronJobTimeAgo($last_error_at)) ?></small>
                                     <div class="mt-1"><small><?= escapeHtml($last_error) ?></small></div>
                                 </div>
                             </td>
@@ -195,7 +195,7 @@ while ($job_row = mysqli_fetch_assoc($sql)) {
 
         <p class="text-muted mb-0">
             <small>
-                <i class="fas fa-fw fa-info-circle mr-1"></i>Run Now does not start the job in your browser - it asks the
+                <i class="fas fa-fw fa-info-circle me-1"></i>Run Now does not start the job in your browser - it asks the
                 dispatcher to pick it up on its next pass, so a job starts within a minute and still runs on the command
                 line with the same locking as a scheduled run. Detailed per-job output is in
                 <a href="app_logs.php">App Logs</a>.

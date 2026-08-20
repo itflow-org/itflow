@@ -16,7 +16,7 @@
     function buildTaskRow(taskName, taskEstimate) {
 
         const row = document.createElement("div");
-        row.className = "form-row mb-2 ticket-task-row";
+        row.className = "row g-2 mb-2 ticket-task-row";
 
         const nameColumn = document.createElement("div");
         nameColumn.className = "col-7";
@@ -47,7 +47,7 @@
 
         const removeButton = document.createElement("button");
         removeButton.type = "button";
-        removeButton.className = "btn btn-secondary btn-block ticket-task-remove";
+        removeButton.className = "btn btn-secondary w-100 ticket-task-remove";
         removeButton.title = "Remove task";
         removeButton.innerHTML = '<i class="fa fa-fw fa-trash"></i>';
         removeColumn.appendChild(removeButton);
@@ -86,11 +86,11 @@
         });
     }
 
-    // jQuery parses a data-tasks attribute holding JSON into an array on its own,
-    // but hand it a string and it stays a string - so handle both
-    function readTemplateTasks($option) {
+    // dataset always gives a string; jQuery used to auto-parse JSON here, so
+    // parse it explicitly and still tolerate an already-parsed value
+    function readTemplateTasks(option) {
 
-        const tasks = $option.data('tasks');
+        const tasks = option.dataset.tasks;
 
         if (!tasks) {
             return [];
@@ -107,42 +107,56 @@
         return tasks;
     }
 
-    $(document).off('click.ticketTasks').on('click.ticketTasks', '#ticketTaskAdd', function () {
+    document.addEventListener('click', function (e) {
+        if (!e.target.closest('#ticketTaskAdd')) {
+            return;
+        }
         addTaskRow('', '');
     });
 
-    $(document).off('click.ticketTaskRemove').on('click.ticketTaskRemove', '.ticket-task-remove', function () {
-        $(this).closest('.ticket-task-row').remove();
+    document.addEventListener('click', function (e) {
+        const remove = e.target.closest('.ticket-task-remove');
+        if (!remove) {
+            return;
+        }
+        const row = remove.closest('.ticket-task-row');
+        if (row) {
+            row.remove();
+        }
     });
 
     // Ticket template picker - fills in the subject, details and task rows
-    $(document).off('change.ticketTemplate').on('change.ticketTemplate', '#ticket_template_select', function () {
-
-        const $option = $(this).find(':selected');
-
-        // Selecting "- No Template -" only unlinks the template - it must not wipe
-        // whatever the user has already written or added
-        if (!parseInt($option.val(), 10)) {
+    document.addEventListener('change', function (e) {
+        const select = e.target.closest('#ticket_template_select');
+        if (!select) {
             return;
         }
 
-        const templateSubject = $option.data('subject') || '';
-        const templateDetails = $option.data('details') || '';
+        const option = select.options[select.selectedIndex];
 
-        $('#subjectInput').val(templateSubject);
+        // Selecting "- No Template -" only unlinks the template - it must not wipe
+        // whatever the user has already written or added
+        if (!parseInt(option.value, 10)) {
+            return;
+        }
+
+        const templateSubject = option.dataset.subject || '';
+        const templateDetails = option.dataset.details || '';
+
+        document.getElementById('subjectInput').value = templateSubject;
 
         if (window.tinymce) {
             const editor = tinymce.get('detailsInput');
             if (editor) {
                 editor.setContent(templateDetails);
             } else {
-                $('#detailsInput').val(templateDetails);
+                document.getElementById('detailsInput').value = templateDetails;
             }
         } else {
-            $('#detailsInput').val(templateDetails);
+            document.getElementById('detailsInput').value = templateDetails;
         }
 
-        setTaskRows(readTemplateTasks($option));
+        setTaskRows(readTemplateTasks(option));
     });
 
 })();

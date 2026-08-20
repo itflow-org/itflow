@@ -16,23 +16,19 @@ ob_start();
 ?>
 
 <div class="modal-header bg-dark">
-    <h5 class="modal-title"><i class="fa fa-fw fa-eye mr-2"></i>Adding a ticket Watcher</h5>
-    <button type="button" class="close text-white" data-dismiss="modal">
-        <span>&times;</span>
-    </button>
+    <h5 class="modal-title"><i class="fa fa-fw fa-eye me-2"></i>Adding a ticket Watcher</h5>
+    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
 </div>
 <form action="post.php" method="post" autocomplete="off">
     <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
     <input type="hidden" name="ticket_id" value="<?= $ticket_id ?>">
     <div class="modal-body">
 
-        <div class="form-group">
+        <div class="mb-3">
             <label>Watcher Email</label>
             <div class="input-group">
-                <div class="input-group-prepend">
                     <span class="input-group-text"><i class="fa fa-fw fa-envelope"></i></span>
-                </div>
-                <select class="form-control select2" data-tags="true" name="watcher_email">
+                <select class="form-select select2" data-tags="true" name="watcher_email">
                     <option value="">- Select a contact or enter an email(s) -</option>
                     <?php
 
@@ -52,7 +48,7 @@ ob_start();
         </div>
 
         <?php if (!empty($config_smtp_host)) { ?>
-            <div class="form-group">
+            <div class="mb-3">
                 <div class="form-check">
                     <input class="form-check-input" type="checkbox" name="watcher_notify" value="1" id="checkNotifyWatcher">
                     <label class="form-check-label" for="checkNotifyWatcher">
@@ -65,8 +61,8 @@ ob_start();
     </div>
 
     <div class="modal-footer">
-        <button type="submit" name="add_ticket_watcher" class="btn btn-primary text-bold"><i class="fa fa-check mr-2"></i>Add</button>
-        <button type="button" class="btn btn-light" data-dismiss="modal"><i class="fa fa-times mr-2"></i>Cancel</button>
+        <button type="submit" name="add_ticket_watcher" class="btn btn-primary text-bold"><i class="fa fa-check me-2"></i>Add</button>
+        <button type="button" class="btn btn-light" data-bs-dismiss="modal"><i class="fa fa-times me-2"></i>Cancel</button>
     </div>
 
 </form>

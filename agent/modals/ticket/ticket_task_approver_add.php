@@ -25,10 +25,8 @@ ob_start();
 ?>
 
 <div class="modal-header bg-dark">
-    <h5 class="modal-title"><i class="fa fa-fw fa-shield-alt mr-2"></i>New approver for task <?=$task_name?></h5>
-    <button type="button" class="close text-white" data-dismiss="modal">
-        <span>&times;</span>
-    </button>
+    <h5 class="modal-title"><i class="fa fa-fw fa-shield-alt me-2"></i>New approver for task <?=$task_name?></h5>
+    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
 </div>
 <form action="post.php" method="post" autocomplete="off">
     <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
@@ -36,13 +34,11 @@ ob_start();
 
     <div class="modal-body">
 
-        <div class="form-group">
+        <div class="mb-3">
             <label>Approval scope <strong class="text-danger">*</strong></label>
             <div class="input-group">
-                <div class="input-group-prepend">
                     <span class="input-group-text"><i class="fa fa-fw fa-layer-group"></i></span>
-                </div>
-                <select class="form-control" name="approval_scope" id="approval_scope" required>
+                <select class="form-select" name="approval_scope" id="approval_scope" required>
                     <option value="">Select scope...</option>
                     <option value="internal">Internal</option>
                     <option value="client">Client</option>
@@ -51,26 +47,22 @@ ob_start();
         </div>
 
 
-        <div class="form-group d-none" id="approval_type_wrapper">
+        <div class="mb-3 d-none" id="approval_type_wrapper">
             <label>Who can approve? <strong class="text-danger">*</strong></label>
             <div class="input-group">
-                <div class="input-group-prepend">
                     <span class="input-group-text"><i class="fa fa-fw fa-user-check"></i></span>
-                </div>
-                <select class="form-control" name="approval_type" id="approval_type" required>
+                <select class="form-select" name="approval_type" id="approval_type" required>
                     <!-- JS -->
                 </select>
             </div>
         </div>
 
 
-        <div class="form-group d-none" id="specific_user_wrapper">
+        <div class="mb-3 d-none" id="specific_user_wrapper">
             <label>Select specific internal approver <strong class="text-danger">*</strong></label>
             <div class="input-group">
-                <div class="input-group-prepend">
                     <span class="input-group-text"><i class="fa fa-fw fa-user-circle"></i></span>
-                </div>
-                <select class="form-control select2" name="approval_required_user_id" id="specific_user_select">
+                <select class="form-select select2" name="approval_required_user_id" id="specific_user_select">
                     <option value="">Select user...</option>
                 </select>
             </div>
@@ -80,8 +72,8 @@ ob_start();
     </div>
 
     <div class="modal-footer">
-        <button type="submit" name="add_ticket_task_approver" class="btn btn-primary text-bold"><i class="fa fa-check mr-2"></i>Save</button>
-        <button type="button" class="btn btn-light" data-dismiss="modal"><i class="fa fa-times mr-2"></i>Cancel</button>
+        <button type="submit" name="add_ticket_task_approver" class="btn btn-primary text-bold"><i class="fa fa-check me-2"></i>Save</button>
+        <button type="button" class="btn btn-light" data-bs-dismiss="modal"><i class="fa fa-times me-2"></i>Cancel</button>
     </div>
 
 </form>
@@ -89,57 +81,93 @@ ob_start();
 
 <!-- JS to make the correct boxes appear depending on if internal/client approval) -->
 <script>
-    $('#approval_scope').on('change', function() {
-        const scope = $(this).val();
-        const typeSelect = $('#approval_type');
-        const wrapper = $('#approval_type_wrapper');
+    (function () {
+        var scopeSelect = document.getElementById('approval_scope');
+        var typeSelect = document.getElementById('approval_type');
+        var typeWrapper = document.getElementById('approval_type_wrapper');
+        var userWrapper = document.getElementById('specific_user_wrapper');
+        var userSelect = document.getElementById('specific_user_select');
 
-        typeSelect.empty();
-        $('#specific_user_wrapper').addClass('d-none');
-
-        if (!scope) {
-            wrapper.addClass('d-none');
+        if (!scopeSelect || !typeSelect) {
             return;
         }
 
-        wrapper.removeClass('d-none');
-
-        if (scope === 'internal') {
-            typeSelect.append('<option value="">Select...</option>');
-            typeSelect.append('<option value="any">Any internal reviewer</option>');
-            typeSelect.append('<option value="specific">Specific agent</option>');
-        }
-
-        if (scope === 'client') {
-            typeSelect.append('<option value="">Select...</option>');
-            typeSelect.append('<option value="any">Ticket contact</option>');
-            typeSelect.append('<option value="technical">Technical contacts</option>');
-            typeSelect.append('<option value="billing">Billing contacts</option>');
-        }
-    });
-
-    // Specific user (internal only for now)
-    $('#approval_type').on('change', function() {
-        const type = $(this).val();
-        const scope = $('#approval_scope').val();
-        const userSelect = $('#specific_user_select');
-
-        if (type !== 'specific' || scope !== 'internal') {
-            $('#specific_user_wrapper').addClass('d-none');
-            return;
-        }
-
-        $('#specific_user_wrapper').removeClass('d-none');
-        userSelect.empty().append('<option value="">Loading...</option>');
-
-        $.getJSON('ajax.php?get_internal_users=true', function(data) {
-            userSelect.empty().append('<option value="">Select user...</option>');
-            data.users.forEach(function(u) {
-                userSelect.append(`<option value="${u.user_id}">${u.user_name}</option>`);
+        function setOptions(select, pairs) {
+            select.innerHTML = '';
+            pairs.forEach(function (pair) {
+                // new Option() assigns text, so nothing here is parsed as markup
+                select.appendChild(new Option(pair[1], pair[0]));
             });
-        });
-    });
+            // the selects are Tom Select enhanced, so it has to re-read them
+            refreshTomSelect(select);
+        }
 
+        scopeSelect.addEventListener('change', function () {
+            var scope = this.value;
+
+            setOptions(typeSelect, []);
+            userWrapper.classList.add('d-none');
+
+            if (!scope) {
+                typeWrapper.classList.add('d-none');
+                return;
+            }
+
+            typeWrapper.classList.remove('d-none');
+
+            if (scope === 'internal') {
+                setOptions(typeSelect, [
+                    ['', 'Select...'],
+                    ['any', 'Any internal reviewer'],
+                    ['specific', 'Specific agent']
+                ]);
+            }
+
+            if (scope === 'client') {
+                setOptions(typeSelect, [
+                    ['', 'Select...'],
+                    ['any', 'Ticket contact'],
+                    ['technical', 'Technical contacts'],
+                    ['billing', 'Billing contacts']
+                ]);
+            }
+        });
+
+        // Specific user (internal only for now)
+        typeSelect.addEventListener('change', function () {
+            var type = this.value;
+            var scope = scopeSelect.value;
+
+            if (type !== 'specific' || scope !== 'internal') {
+                userWrapper.classList.add('d-none');
+                return;
+            }
+
+            userWrapper.classList.remove('d-none');
+            setOptions(userSelect, [['', 'Loading...']]);
+
+            fetch('ajax.php?get_internal_users=true', {
+                headers: { 'Accept': 'application/json' },
+                credentials: 'same-origin'
+            })
+                .then(function (res) {
+                    if (!res.ok) {
+                        throw new Error('HTTP ' + res.status);
+                    }
+                    return res.json();
+                })
+                .then(function (data) {
+                    var pairs = [['', 'Select user...']];
+                    data.users.forEach(function (u) {
+                        pairs.push([u.user_id, u.user_name]);
+                    });
+                    setOptions(userSelect, pairs);
+                })
+                .catch(function () {
+                    setOptions(userSelect, [['', 'Failed to load users']]);
+                });
+        });
+    })();
 </script>
 
 <?php

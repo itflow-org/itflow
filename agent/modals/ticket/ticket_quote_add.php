@@ -73,10 +73,8 @@ ob_start();
 ?>
 
     <div class="modal-header bg-dark">
-        <h5 class="modal-title"><i class="fa fa-fw fa-comment-dollar mr-2"></i>Quote ticket</h5>
-        <button type="button" class="close text-white" data-dismiss="modal">
-            <span>&times;</span>
-        </button>
+        <h5 class="modal-title"><i class="fa fa-fw fa-comment-dollar me-2"></i>Quote ticket</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
     </div>
 
     <form action="post.php" method="post" autocomplete="off">
@@ -88,26 +86,22 @@ ob_start();
             <!-- Row 1 -->
             <div class="row">
                 <div class="col-sm-6">
-                    <div class="form-group">
+                    <div class="mb-3">
                         <label>Scope</label>
                         <div class="input-group">
-                            <div class="input-group-prepend">
                                 <span class="input-group-text"><i class="fa fa-fw fa-comment"></i></span>
-                            </div>
                             <input type="text" class="form-control" name="scope" placeholder="Quick description" maxlength="255">
                         </div>
                     </div>
                 </div>
 
                 <div class="col-sm-6">
-                    <div class="form-group">
+                    <div class="mb-3">
                         <label>Quote Category <strong class="text-danger">*</strong></label>
                         <div class="input-group">
-                            <div class="input-group-prepend">
                                 <span class="input-group-text"><i class="fa fa-fw fa-list"></i></span>
-                            </div>
 
-                            <select class="form-control select2" name="category">
+                            <select class="form-select select2" name="category">
                                 <option value="">- Select a Category -</option>
                                 <?php
                                 $sql = mysqli_query($mysqli, "SELECT category_id, category_name FROM categories WHERE category_type = 'Income' AND category_archived_at IS NULL ORDER BY category_name ASC");
@@ -119,11 +113,9 @@ ob_start();
                                 <?php } ?>
                             </select>
 
-                            <div class="input-group-append">
                                 <button type="button" class="btn btn-secondary ajax-modal" data-modal-url="/admin/modals/category/category_add.php?category=Expense">
                                     <i class="fas fa-fw fa-plus"></i>
                                 </button>
-                            </div>
                         </div>
                     </div>
                 </div>
@@ -133,24 +125,20 @@ ob_start();
             <!-- Row 2 -->
             <div class="row">
                 <div class="col-sm-6">
-                    <div class="form-group">
+                    <div class="mb-3">
                         <label>Quote Date <strong class="text-danger">*</strong></label>
                         <div class="input-group">
-                            <div class="input-group-prepend">
                                 <span class="input-group-text"><i class="fa fa-fw fa-calendar"></i></span>
-                            </div>
                             <input type="date" class="form-control" name="date" max="2999-12-31" value="<?= date("Y-m-d") ?>">
                         </div>
                     </div>
                 </div>
 
                 <div class="col-sm-6">
-                    <div class="form-group">
+                    <div class="mb-3">
                         <label>Expire <strong class="text-danger">*</strong></label>
                         <div class="input-group">
-                            <div class="input-group-prepend">
                                 <span class="input-group-text"><i class="fa fa-fw fa-calendar"></i></span>
-                            </div>
                             <input type="date" class="form-control" name="expire" min="<?= date("Y-m-d") ?>" max="2999-12-31" value="<?= date("Y-m-d", strtotime("+30 days")) ?>" required>
                         </div>
                     </div>
@@ -158,45 +146,39 @@ ob_start();
             </div>
             <!-- End row 2 -->
 
-            <div class="form-group">
+            <div class="mb-3">
                 <label>Item <strong class="text-danger">*</strong></label>
                 <div class="input-group">
-                    <div class="input-group-prepend">
                         <span class="input-group-text"><i class="fa fa-fw fa-box"></i></span>
-                    </div>
                     <input type="text" class="form-control" name="item_name" placeholder="Item" maxlength="200" required>
                 </div>
             </div>
 
             <?php $description = "Ticket: {$ticket_prefix}{$ticket_number} - $ticket_subject\n"; ?>
 
-            <div class="form-group">
+            <div class="mb-3">
                 <label>Item Description</label>
                 <div class="input-group">
                     <textarea class="form-control" rows="10" name="item_description"><?= trim($description) ?></textarea>
                 </div>
             </div>
 
-            <div class="form-row">
+            <div class="row g-2">
                 <div class="col">
-                    <div class="form-group">
+                    <div class="mb-3">
                         <label>QTY <strong class="text-danger">*</strong></label>
                         <div class="input-group">
-                            <div class="input-group-prepend">
                                 <span class="input-group-text"><i class="fa fa-fw fa-balance-scale"></i></span>
-                            </div>
                             <input type="text" class="form-control" inputmode="decimal" pattern="-?[0-9]*\.?[0-9]{0,2}" name="qty" required>
                         </div>
                     </div>
                 </div>
 
                 <div class="col">
-                    <div class="form-group">
+                    <div class="mb-3">
                         <label>Price <strong class="text-danger">*</strong></label>
                         <div class="input-group">
-                            <div class="input-group-prepend">
                                 <span class="input-group-text"><i class="fa fa-fw fa-dollar-sign"></i></span>
-                            </div>
                             <input type="text" class="form-control" inputmode="decimal" pattern="-?[0-9]*\.?[0-9]{0,2}" name="price" value="<?= number_format($client_rate, 2, '.', '') ?>" required>
                         </div>
                         <small class="form-text text-muted">
@@ -206,14 +188,12 @@ ob_start();
                 </div>
             </div>
 
-            <div class="form-group">
+            <div class="mb-3">
                 <label>Tax <strong class="text-danger">*</strong></label>
                 <div class="input-group">
-                    <div class="input-group-prepend">
                         <span class="input-group-text"><i class="fa fa-fw fa-piggy-bank"></i></span>
-                    </div>
 
-                    <select class="form-control select2" name="tax_id" required>
+                    <select class="form-select select2" name="tax_id" required>
                         <option value="0">None</option>
                         <?php
                         $taxes_sql = mysqli_query($mysqli, "SELECT tax_id, tax_name, tax_percent FROM taxes WHERE tax_archived_at IS NULL ORDER BY tax_name ASC");
@@ -232,10 +212,10 @@ ob_start();
 
         <div class="modal-footer">
             <button type="submit" name="add_quote_from_ticket" class="btn btn-primary text-bold">
-                <i class="fa fa-check mr-2"></i>Quote
+                <i class="fa fa-check me-2"></i>Quote
             </button>
-            <button type="button" class="btn btn-light" data-dismiss="modal">
-                <i class="fa fa-times mr-2"></i>Cancel
+            <button type="button" class="btn btn-light" data-bs-dismiss="modal">
+                <i class="fa fa-times me-2"></i>Cancel
             </button>
         </div>
     </form>

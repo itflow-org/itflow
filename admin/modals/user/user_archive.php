@@ -26,11 +26,9 @@ $recurring_ticket_count = mysqli_num_rows($sql_related_recurring_tickets);
 ob_start();
 ?>
 <div class="modal-header bg-dark">
-    <h5 class="modal-title"><i class="fas fa-fw fa-user-slash mr-2"></i>Archiving user:
+    <h5 class="modal-title"><i class="fas fa-fw fa-user-slash me-2"></i>Archiving user:
         <strong><?= $user_name ?></strong></h5>
-    <button type="button" class="close text-white" data-dismiss="modal">
-        <span>&times;</span>
-    </button>
+    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
 </div>
 <form action="post.php" method="post" autocomplete="off">
     <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
@@ -50,13 +48,11 @@ ob_start();
         </center>
 
 
-        <div class="form-group">
+        <div class="mb-3">
             <label>Reassign <?= $ticket_count ?> Open Tickets and <?= $recurring_ticket_count ?> Recurring Tickets To:</label>
             <div class="input-group">
-                <div class="input-group-prepend">
                     <span class="input-group-text"><i class="fa fa-fw fa-user"></i></span>
-                </div>
-                <select class="form-control select2" name="ticket_assign" required>
+                <select class="form-select select2" name="ticket_assign" required>
                     <option value="0">No one</option>
                     <?php
                     $sql_users = mysqli_query($mysqli, "SELECT user_id, user_name FROM users WHERE user_type = 1 AND user_archived_at IS NULL");
@@ -74,8 +70,8 @@ ob_start();
 
     </div>
     <div class="modal-footer">
-        <button type="submit" name="archive_user" class="btn btn-danger text-bold"><i class="fas fa-archive mr-2"></i>Archive</button>
-        <button type="button" class="btn btn-light" data-dismiss="modal"><i class="fas fa-times mr-2"></i>Cancel</button>
+        <button type="submit" name="archive_user" class="btn btn-danger text-bold"><i class="fas fa-archive me-2"></i>Archive</button>
+        <button type="button" class="btn btn-light" data-bs-dismiss="modal"><i class="fas fa-times me-2"></i>Cancel</button>
     </div>
 </form>
 

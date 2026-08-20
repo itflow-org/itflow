@@ -19,8 +19,8 @@ $quotes_sql = mysqli_query($mysqli, "SELECT quote_amount, quote_date, quote_id, 
 
     <div class="col-md-10">
 
-        <table class="table tabled-bordered border border-dark">
-            <thead class="thead-dark">
+        <table class="table table-bordered border border-dark">
+            <thead class="table-dark">
             <tr>
                 <th>#</th>
                 <th>Scope</th>
@@ -49,7 +49,7 @@ $quotes_sql = mysqli_query($mysqli, "SELECT quote_amount, quote_date, quote_id, 
                 }
 
                 if ($quote_status == "Sent") {
-                    $quote_badge_color = "warning text-white";
+                    $quote_badge_color = "warning";
                 } elseif ($quote_status == "Viewed") {
                     $quote_badge_color = "primary";
                 } elseif ($quote_status == "Accepted") {
@@ -70,7 +70,7 @@ $quotes_sql = mysqli_query($mysqli, "SELECT quote_amount, quote_date, quote_id, 
                     <td><?= numfmt_format_currency($currency_format, $quote_amount, $session_company_currency) ?></td>
                     <td><?= $quote_date ?></td>
                     <td>
-                        <span class="p-2 badge badge-<?= $quote_badge_color ?>">
+                        <span class="p-2 badge text-bg-<?= $quote_badge_color ?>">
                             <?= $quote_status ?>
                         </span>
                     </td>

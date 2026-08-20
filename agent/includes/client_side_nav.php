@@ -1,22 +1,20 @@
 <!-- Main Sidebar Container -->
-<aside class="main-sidebar sidebar-dark-<?= escapeHtml($config_theme) ?> d-print-none">
+<aside class="app-sidebar shadow d-print-none" data-bs-theme="dark">
 
-    <a class="brand-link pb-1 mt-1" href="/agent/clients.php">
-        <p class="h5">
-            <i class="nav-icon fas fa-arrow-left ml-3 mr-1"></i>
-             <span class="brand-text">
-                 Back | <strong><?= $client_name_truncated ?></strong>
-            </span>
-        </p>
-    </a>
+    <div class="sidebar-brand">
+        <a class="brand-link" href="/agent/clients.php">
+            <i class="fas fa-arrow-left me-2"></i>
+            <span class="brand-text h5 mb-0">Back | <strong><?= $client_name_truncated ?></strong></span>
+        </a>
+    </div>
 
     <!-- Sidebar -->
-    <div class="sidebar">
+    <div class="sidebar-wrapper">
 
         <!-- Sidebar Menu -->
         <nav>
 
-            <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="menu" data-accordion="false">
+            <ul class="nav nav-pills sidebar-menu flex-column" data-lte-toggle="treeview" role="menu" data-accordion="false">
 
                 <li class="nav-item mt-3">
                     <a href="/agent/client_overview.php?client_id=<?= $client_id ?>" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "client_overview.php") { echo "active"; } ?>">
@@ -87,7 +85,7 @@
                                 Tickets
                                 <?php
                                 if ($num_active_tickets > 0) { ?>
-                                    <span class="right badge <?php if ($num_active_tickets > 0) { ?> badge-danger <?php } ?> text-light"><?= $num_active_tickets ?></span>
+                                    <span class="right badge <?php if ($num_active_tickets > 0) { ?> bg-danger <?php } ?> text-light"><?= $num_active_tickets ?></span>
                                 <?php } ?>
 
                             </p>
@@ -114,7 +112,7 @@
                             <p>
                                 Projects
                                 <?php if ($num_active_projects) { ?>
-                                    <span class="right badge text-light" data-toggle="tooltip" title="Open Projects"><?= $num_active_projects ?></span>
+                                    <span class="right badge text-light" data-bs-toggle="tooltip" title="Open Projects"><?= $num_active_projects ?></span>
                                 <?php } ?>
                             </p>
                         </a>
@@ -190,7 +188,7 @@
                                     Certificates
                                     <?php
                                     if ($num_certificates > 0) { ?>
-                                        <span class="right badge <?php if ($num_certificates_expiring > 0) { ?> badge-warning text-dark <?php } ?> <?php if ($num_certificates_expired > 0) { ?> badge-danger <?php } ?> text-white"><?= $num_certificates ?></span>
+                                        <span class="right badge <?php if ($num_certificates_expiring > 0) { ?> bg-warning text-dark <?php } ?> <?php if ($num_certificates_expired > 0) { ?> bg-danger <?php } ?> text-white"><?= $num_certificates ?></span>
                                     <?php } ?>
                                 </p>
                             </a>
@@ -203,7 +201,7 @@
                                     Domains
                                     <?php
                                     if ($num_domains > 0) { ?>
-                                        <span class="right badge <?php if (isset($num_domains_expiring)) { ?> badge-warning text-dark<?php } ?> <?php if (isset($num_domains_expired)) { ?> badge-danger <?php } ?> text-white"><?= $num_domains ?></span>
+                                        <span class="right badge <?php if (isset($num_domains_expiring)) { ?> bg-warning text-dark<?php } ?> <?php if (isset($num_domains_expired)) { ?> bg-danger <?php } ?> text-white"><?= $num_domains ?></span>
                                     <?php } ?>
                                 </p>
                             </a>
@@ -218,7 +216,7 @@
                                     Licenses
                                     <?php
                                     if ($num_software > 0) { ?>
-                                        <span class="right badge <?php if ($num_software_expiring > 0) { ?> badge-warning text-dark <?php } ?> <?php if ($num_software_expired > 0) { ?> badge-danger <?php } ?> text-white"><?= $num_software ?></span>
+                                        <span class="right badge <?php if ($num_software_expiring > 0) { ?> bg-warning text-dark <?php } ?> <?php if ($num_software_expired > 0) { ?> bg-danger <?php } ?> text-white"><?= $num_software ?></span>
                                     <?php } ?>
                                 </p>
                             </a>
@@ -281,7 +279,7 @@
                                     Invoices
                                     <?php
                                     if ($num_invoices > 0) { ?>
-                                        <span class="right badge <?php if ($num_invoices_open > 0) { ?> badge-danger <?php } ?> text-light"><?= $num_invoices ?></span>
+                                        <span class="right badge <?php if ($num_invoices_open > 0) { ?> bg-danger <?php } ?> text-light"><?= $num_invoices ?></span>
                                     <?php } ?>
                                 </p>
                             </a>

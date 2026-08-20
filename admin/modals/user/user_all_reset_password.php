@@ -18,16 +18,14 @@ ob_start();
             <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
             <div class="row col-7 offset-4">
                 <div class="input-group">
-                    <div class="input-group-prepend">
                         <input type="password" class="form-control" placeholder="Enter your account password to continue" name="admin_password" required>
-                    </div>
                 </div>
             </div>
             <br>
-            <button class="btn btn-danger" type="submit" name="ir_reset_user_password"><i class="fas fa-fw fa-key mr-2"></i>Reset passwords</button>
+            <button class="btn btn-danger" type="submit" name="ir_reset_user_password"><i class="fas fa-fw fa-key me-2"></i>Reset passwords</button>
         </form>
     </div>
-    <button type="button" class="btn btn-outline-secondary btn-lg px-5 mr-4" data-dismiss="modal">Cancel</button>
+    <button type="button" class="btn btn-outline-secondary btn-lg px-5 me-4" data-bs-dismiss="modal">Cancel</button>
 
 </div>
 

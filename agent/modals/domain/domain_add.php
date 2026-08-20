@@ -8,10 +8,8 @@ ob_start();
 
 ?>
 <div class="modal-header bg-dark">
-    <h5 class="modal-title"><i class="fa fa-fw fa-globe mr-2"></i>New Domain</h5>
-    <button type="button" class="close text-white" data-dismiss="modal">
-        <span>&times;</span>
-    </button>
+    <h5 class="modal-title"><i class="fa fa-fw fa-globe me-2"></i>New Domain</h5>
+    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
 </div>
 <form action="post.php" method="post" autocomplete="off">
     <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
@@ -20,10 +18,10 @@ ob_start();
 
         <ul class="nav nav-pills nav-justified mb-3">
             <li class="nav-item">
-                <a class="nav-link active" data-toggle="pill" href="#pills-details">Details</a>
+                <a class="nav-link active" data-bs-toggle="pill" href="#pills-details">Details</a>
             </li>
             <li class="nav-item">
-                <a class="nav-link" data-toggle="pill" href="#pills-notes">Notes</a>
+                <a class="nav-link" data-bs-toggle="pill" href="#pills-notes">Notes</a>
             </li>
 
         </ul>
@@ -38,13 +36,11 @@ ob_start();
                     <input type="hidden" name="client_id" value="<?= $client_id ?>">
                 <?php } else { ?>
 
-                    <div class="form-group">
+                    <div class="mb-3">
                         <label>Client <strong class="text-danger">*</strong></label>
                         <div class="input-group">
-                            <div class="input-group-prepend">
                                 <span class="input-group-text"><i class="fa fa-fw fa-user"></i></span>
-                            </div>
-                            <select class="form-control select2" name="client_id" required>
+                            <select class="form-select select2" name="client_id" required>
                                 <option value="">- Select Client -</option>
                                 <?php
 
@@ -61,12 +57,10 @@ ob_start();
 
                 <?php } ?>
 
-                <div class="form-group">
+                <div class="mb-3">
                     <label>Domain Name <strong class="text-danger">*</strong></label>
                     <div class="input-group">
-                        <div class="input-group-prepend">
                             <span class="input-group-text"><i class="fa fa-fw fa-globe"></i></span>
-                        </div>
                         <input type="text" class="form-control" name="name" id="domain_name" placeholder="example.com" maxlength="200" required autofocus onfocusout="checkApexDomain()">
                     </div>
                     <div class="mt-2">
@@ -74,24 +68,20 @@ ob_start();
                     </div>
                 </div>
 
-                <div class="form-group">
+                <div class="mb-3">
                     <label>Description</label>
                     <div class="input-group">
-                        <div class="input-group-prepend">
                             <span class="input-group-text"><i class="fa fa-fw fa-align-left"></i></span>
-                        </div>
                         <input type="text" class="form-control" name="description" placeholder="Short Description">
                     </div>
                 </div>
 
                 <?php if ($client_id) { ?>
-                <div class="form-group">
+                <div class="mb-3">
                     <label>Registrar</label>
                     <div class="input-group">
-                        <div class="input-group-prepend">
                             <span class="input-group-text"><i class="fa fa-fw fa-server"></i></span>
-                        </div>
-                        <select class="form-control select2" name="registrar">
+                        <select class="form-select select2" name="registrar">
                             <option value="">- Vendor -</option>
                             <?php
 
@@ -106,13 +96,11 @@ ob_start();
                     </div>
                 </div>
 
-                <div class="form-group">
+                <div class="mb-3">
                     <label>Webhost</label>
                     <div class="input-group">
-                        <div class="input-group-prepend">
                             <span class="input-group-text"><i class="fa fa-fw fa-server"></i></span>
-                        </div>
-                        <select class="form-control select2" name="webhost">
+                        <select class="form-select select2" name="webhost">
                             <option value="">- Vendor -</option>
                             <?php
 
@@ -127,13 +115,11 @@ ob_start();
                     </div>
                 </div>
 
-                <div class="form-group">
+                <div class="mb-3">
                     <label>DNS Host</label>
                     <div class="input-group">
-                        <div class="input-group-prepend">
                             <span class="input-group-text"><i class="fa fa-fw fa-server"></i></span>
-                        </div>
-                        <select class="form-control select2" name="dnshost">
+                        <select class="form-select select2" name="dnshost">
                             <option value="">- Vendor -</option>
                             <?php
 
@@ -148,13 +134,11 @@ ob_start();
                     </div>
                 </div>
 
-                <div class="form-group">
+                <div class="mb-3">
                     <label>Mail Host</label>
                     <div class="input-group">
-                        <div class="input-group-prepend">
                             <span class="input-group-text"><i class="fa fa-fw fa-envelope"></i></span>
-                        </div>
-                        <select class="form-control select2" name="mailhost">
+                        <select class="form-select select2" name="mailhost">
                             <option value="">- Vendor -</option>
                             <?php
 
@@ -170,12 +154,10 @@ ob_start();
                 </div>
                 <?php } ?>
 
-                <div class="form-group">
+                <div class="mb-3">
                     <label>Expire Date</label>
                     <div class="input-group">
-                        <div class="input-group-prepend">
                             <span class="input-group-text"><i class="fa fa-fw fa-calendar-times"></i></span>
-                        </div>
                         <input type="date" class="form-control" name="expire" max="2999-12-31">
                     </div>
                 </div>
@@ -183,7 +165,7 @@ ob_start();
             </div>
 
             <div class="tab-pane fade" id="pills-notes">
-                <div class="form-group">
+                <div class="mb-3">
                     <textarea class="form-control" rows="12" placeholder="Enter some notes" name="notes"></textarea>
                 </div>
             </div>
@@ -193,8 +175,8 @@ ob_start();
     </div>
 
     <div class="modal-footer">
-        <button type="submit" name="add_domain" class="btn btn-primary text-bold"><i class="fa fa-check mr-2"></i>Create</button>
-        <button type="button" class="btn btn-light" data-dismiss="modal"><i class="fa fa-times mr-2"></i>Cancel</button>
+        <button type="submit" name="add_domain" class="btn btn-primary text-bold"><i class="fa fa-check me-2"></i>Create</button>
+        <button type="button" class="btn btn-light" data-bs-dismiss="modal"><i class="fa fa-times me-2"></i>Cancel</button>
     </div>
 </form>
 
@@ -203,7 +185,7 @@ ob_start();
     function checkApexDomain() {
         var domain = document.getElementById("domain_name").value;
         //Send a GET request to ajax.php as ajax.php?apex_domain_check=true&domain=domain
-        jQuery.get(
+        itflowGet(
             "ajax.php",
             {apex_domain_check: 'true', domain: domain},
             function(data) {

@@ -14,11 +14,9 @@ ob_start();
 ?>
 
 <div class="modal-header bg-dark">
-    <h5 class="modal-title"><i class="fas fa-fw fa-key mr-2"></i>Editing API Key:
+    <h5 class="modal-title"><i class="fas fa-fw fa-key me-2"></i>Editing API Key:
         <strong><?= $api_key_name ?></strong></h5>
-    <button type="button" class="close text-white" data-dismiss="modal">
-        <span>&times;</span>
-    </button>
+    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
 </div>
 <form action="post.php" method="post" autocomplete="off">
     <div class="modal-body">
@@ -26,35 +24,29 @@ ob_start();
         <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
         <input type="hidden" name="api_key_id" value="<?= $api_key_id ?>">
 
-        <div class="form-group">
+        <div class="mb-3">
             <label>Name <strong class="text-danger">*</strong></label>
             <div class="input-group">
-                <div class="input-group-prepend">
                     <span class="input-group-text"><i class="fa fa-fw fa-sticky-note"></i></span>
-                </div>
                 <input type="text" class="form-control" name="name" placeholder="Key Name" maxlength="255"
                        value="<?= $api_key_name ?>" required autofocus>
             </div>
         </div>
 
-        <div class="form-group">
+        <div class="mb-3">
             <label>Expiration Date <strong class="text-danger">*</strong></label>
             <div class="input-group">
-                <div class="input-group-prepend">
                     <span class="input-group-text"><i class="fa fa-fw fa-calendar"></i></span>
-                </div>
                 <input type="date" class="form-control" name="expire" min="<?= date('Y-m-d') ?>" max="2999-12-31"
                        value="<?= $api_key_expire ?>" required>
             </div>
         </div>
 
-        <div class="form-group">
+        <div class="mb-3">
             <label>Run as User <strong class="text-danger">*</strong></label>
             <div class="input-group">
-                <div class="input-group-prepend">
                     <span class="input-group-text"><i class="fa fa-fw fa-user-shield"></i></span>
-                </div>
-                <select class="form-control select2" name="run_as_user" required>
+                <select class="form-select select2" name="run_as_user" required>
                     <option value="">- Select a user -</option>
                     <?php
                     $sql_run_users = mysqli_query($mysqli, "SELECT user_id, user_name FROM users WHERE user_type = 1 AND user_status = 1 AND user_archived_at IS NULL ORDER BY user_name ASC");
@@ -70,8 +62,8 @@ ob_start();
 
     </div>
     <div class="modal-footer">
-        <button type="submit" name="edit_api_key" class="btn btn-primary text-bold"><i class="fas fa-check mr-2"></i>Save</button>
-        <button type="button" class="btn btn-light" data-dismiss="modal"><i class="fas fa-times mr-2"></i>Cancel</button>
+        <button type="submit" name="edit_api_key" class="btn btn-primary text-bold"><i class="fas fa-check me-2"></i>Save</button>
+        <button type="button" class="btn btn-light" data-bs-dismiss="modal"><i class="fas fa-times me-2"></i>Cancel</button>
     </div>
 </form>
 

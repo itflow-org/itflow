@@ -393,34 +393,6 @@ if (isset($_POST['add_invoice_item'])) {
 
 }
 
-if (isset($_POST['invoice_note'])) {
-
-    validateCSRFToken();
-
-    enforceUserPermission('module_sales', 2);
-
-    $invoice_id = intval($_POST['invoice_id']);
-    $note = escapeSql($_POST['note']);
-
-    // Get Invoice Details for logging
-    $sql = mysqli_query($mysqli,"SELECT invoice_client_id, invoice_number, invoice_prefix FROM invoices WHERE invoice_id = $invoice_id");
-    $row = mysqli_fetch_assoc($sql);
-    $invoice_prefix = escapeSql($row['invoice_prefix']);
-    $invoice_number = intval($row['invoice_number']);
-    $client_id = intval($row['invoice_client_id']);
-
-    enforceClientAccess();
-
-    mysqli_query($mysqli,"UPDATE invoices SET invoice_note = '$note' WHERE invoice_id = $invoice_id");
-
-    logAudit("Invoice", "Edit", "$session_name added note to invoice $invoice_prefix$invoice_number", $client_id, $invoice_id);
-
-    flashAlert("Notes added");
-
-    redirect();
-
-}
-
 if (isset($_POST['edit_invoice_item'])) {
 
     validateCSRFToken();

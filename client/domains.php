@@ -18,8 +18,8 @@ $domains_sql = mysqli_query($mysqli, "SELECT domain_id, domain_name, domain_expi
 
         <div class="col-md-10">
 
-            <table class="table tabled-bordered border border-dark">
-                <thead class="thead-dark">
+            <table class="table table-bordered border border-dark">
+                <thead class="table-dark">
                 <tr>
                     <th>Domain Name</th>
                     <th>Expiry</th>

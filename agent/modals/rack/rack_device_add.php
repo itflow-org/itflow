@@ -17,10 +17,8 @@ ob_start();
 ?>
 
 <div class="modal-header bg-dark">
-    <h5 class="modal-title"><i class="fa fa-fw fa-server mr-2"></i>Adding Device to Rack <strong><?= $rack_name ?></strong></h5>
-    <button type="button" class="close text-white" data-dismiss="modal">
-        <span>&times;</span>
-    </button>
+    <h5 class="modal-title"><i class="fa fa-fw fa-server me-2"></i>Adding Device to Rack <strong><?= $rack_name ?></strong></h5>
+    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
 </div>
 
 <form action="post.php" method="post" enctype="multipart/form-data" autocomplete="off">
@@ -29,23 +27,19 @@ ob_start();
 
     <div class="modal-body">
 
-        <div class="form-group">
+        <div class="mb-3">
             <label>Custom Device</label>
             <div class="input-group">
-                <div class="input-group-prepend">
                     <span class="input-group-text"><i class="fa fa-fw fa-server"></i></span>
-                </div>
                 <input type="text" class="form-control" name="name" placeholder="Device Name" maxlength="200">
             </div>
         </div>
 
-        <div class="form-group">
+        <div class="mb-3">
             <label>Or Select a Device</label>
             <div class="input-group">
-                <div class="input-group-prepend">
                     <span class="input-group-text"><i class="fa fa-fw fa-desktop"></i></span>
-                </div>
-                <select class="form-control select2" name="asset">
+                <select class="form-select select2" name="asset">
                     <option value="">- Select Asset -</option>
                     <?php
                     // Fetch IDs of all assets already assigned to any rack
@@ -70,12 +64,10 @@ ob_start();
             </div>
         </div>
 
-        <div class="form-group">
+        <div class="mb-3">
             <label>Unit Number Start - End <strong class="text-danger">*</strong></label>
             <div class="input-group">
-                <div class="input-group-prepend">
                     <span class="input-group-text"><i class="fa fa-fw fa-sort-numeric-up-alt"></i></span>
-                </div>
                 <input type="number" class="form-control" name="unit_start" placeholder="Unit Start" min="1" max="<?= $rack_units ?>" required>
                 <input type="number" class="form-control" name="unit_end" placeholder="Unit End" min="1" max="<?= $rack_units ?>" required>
             </div>
@@ -83,8 +75,8 @@ ob_start();
 
     </div>
     <div class="modal-footer">
-        <button type="submit" name="add_rack_unit" class="btn btn-primary text-bold"><i class="fa fa-check mr-2"></i>Add to Rack</button>
-        <button type="button" class="btn btn-light" data-dismiss="modal"><i class="fa fa-times mr-2"></i>Cancel</button>
+        <button type="submit" name="add_rack_unit" class="btn btn-primary text-bold"><i class="fa fa-check me-2"></i>Add to Rack</button>
+        <button type="button" class="btn btn-light" data-bs-dismiss="modal"><i class="fa fa-times me-2"></i>Cancel</button>
     </div>
 </form>
 

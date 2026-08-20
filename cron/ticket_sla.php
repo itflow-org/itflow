@@ -60,6 +60,35 @@ $from_name = $sla_settings['ticket_from_name'];
 
 $now = time();
 
+/*
+ * Stop any clock that is running when it should not be.
+ *
+ * Every status change calls syncTicketSlaClock(), so this is normally a no-op. It
+ * matters when the pause rules themselves change underneath tickets that are already
+ * parked - the 2.7.0 update makes On Hold pause, and those tickets are still holding
+ * an open interval that would otherwise keep counting as consumed budget. Doing it
+ * here rather than in the migration keeps the business-hours maths in a process that
+ * has the app timezone set, which scripts/update_cli.php does not.
+ *
+ * Only the stopping direction is reconciled. Starting a clock re-bases the resolution
+ * deadline on the remaining budget, which is a real decision about a ticket and belongs
+ * with the status change that caused it, not with a background sweep.
+ */
+$sql_running = mysqli_query($mysqli, "SELECT DISTINCT ticket_id
+    FROM sla_history
+    JOIN tickets ON sla_history_ticket_id = ticket_id
+    LEFT JOIN ticket_statuses ON ticket_status = ticket_status_id
+    WHERE sla_history_ended_at IS NULL
+    AND (COALESCE(ticket_status_pauses_sla, 0) = 1
+        OR ticket_resolved_at IS NOT NULL
+        OR ticket_closed_at IS NOT NULL
+        OR ticket_archived_at IS NOT NULL)"
+);
+
+while ($running = mysqli_fetch_assoc($sql_running)) {
+    syncTicketSlaClock(intval($running['ticket_id']));
+}
+
 // Queue in-app + email notifications for an SLA event
 function sendSlaAlert($ticket, $subject_line, $body_line)
 {

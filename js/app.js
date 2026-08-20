@@ -1,21 +1,156 @@
-$(document).ready(function() {
+/**
+ * Delegated listener that binds exactly once.
+ *
+ * modal_footer.php re-loads this file every time an ajax modal opens, which is
+ * why the jQuery originals used a namespaced .off().on() - without it the
+ * handlers stacked up and fired once per modal ever opened. The named flag on
+ * window is the vanilla equivalent. `this` is the matched element, matching
+ * jQuery's delegation contract so the handler bodies are unchanged.
+ */
+/**
+ * Run one initialiser in isolation.
+ *
+ * itflowInit() sets up eight independent libraries in sequence. Without this,
+ * a throw in any one of them aborts the whole function and every initialiser
+ * after it silently never runs - which is exactly the kind of failure that
+ * looks like "everything is broken" while the console shows one error from a
+ * library you were not looking at.
+ */
+function itflowStep(name, fn) {
+    try {
+        fn();
+    } catch (e) {
+        console.error('itflow init [' + name + '] failed:', e);
+    }
+}
+
+/**
+ * TinyMCE skin options for the current colour mode.
+ *
+ * TinyMCE renders its chrome in its own DOM and its content inside an iframe,
+ * so it inherits nothing from the page - a dark page still got a white editor.
+ * Both the oxide-dark UI skin and the dark content stylesheet are already
+ * vendored under libs/tinymce/skins, so this only has to point at them.
+ */
+function itflowTinyMceSkin() {
+    var dark = document.documentElement.getAttribute('data-bs-theme') === 'dark';
+    var root = getComputedStyle(document.documentElement);
+    var body = getComputedStyle(document.body);
+
+    function v(name, fallback) {
+        var value = root.getPropertyValue(name).trim();
+        return value || fallback;
+    }
+
+    // The editing surface lives in an iframe, so no page CSS reaches it and
+    // custom properties do not cross the boundary either - the values have to
+    // be read here and passed through as literal text. Without this the editor
+    // keeps TinyMCE's own blue-slate dark (#222f3e) next to the app's neutral
+    // grey (#212529), which is close enough to look like a mistake.
+    var contentStyle =
+        'body{' +
+            'background-color:' + v('--bs-body-bg', '#fff') + ';' +
+            'color:' + v('--bs-body-color', '#212529') + ';' +
+            'font-family:' + body.fontFamily + ';' +
+            'font-size:' + body.fontSize + ';' +
+        '}' +
+        'a{color:' + v('--itflow-accent', '#007bff') + ';}' +
+        'table td,table th{border-color:' + v('--bs-border-color', '#dee2e6') + ';}';
+
+    return {
+        skin: dark ? 'oxide-dark' : 'oxide',
+        content_css: dark ? 'dark' : 'default',
+        content_style: contentStyle
+    };
+}
+
+/**
+ * Chart.js defaults for the current colour mode.
+ *
+ * Charts are drawn to a <canvas>, so no CSS reaches them - every colour has to
+ * be handed to Chart.js as a literal. The pages used to hardcode
+ * Chart.defaults.color = '#292b2c', which was fine while the cards were
+ * effectively light but is invisible on a real dark background.
+ *
+ * Returns the axis/grid colour too, since the charts set that per-scale.
+ */
+function itflowChartDefaults() {
+    var root = getComputedStyle(document.documentElement);
+    var body = getComputedStyle(document.body);
+
+    function v(name, fallback) {
+        return (root.getPropertyValue(name) || '').trim() || fallback;
+    }
+
+    var text = v('--bs-body-color', '#292b2c');
+    var grid = v('--bs-border-color', 'rgba(0, 0, 0, .125)');
+
+    if (window.Chart) {
+        Chart.defaults.font.family = body.fontFamily;
+        Chart.defaults.color = text;
+        Chart.defaults.borderColor = grid;
+    }
+
+    return { text: text, grid: grid };
+}
+
+function itflowBindOnce(name, type, selector, handler) {
+    window.itflowBound = window.itflowBound || {};
+    if (window.itflowBound[name]) {
+        return;
+    }
+    window.itflowBound[name] = true;
+    document.addEventListener(type, function (e) {
+        const match = e.target.closest(selector);
+        if (match) {
+            handler.call(match, e);
+        }
+    });
+}
+
+function itflowInit() {
     // Prevents resubmit on forms
     if (window.history.replaceState) {
         window.history.replaceState(null, null, window.location.href);
     }
 
-    // Slide alert up after 4 secs
-    $("#alert").fadeTo(5000, 500).slideUp(500, function() {
-        $("#alert").slideUp(500);
-    });
+    // Fade the legacy #alert box out after 5s, then collapse it
+    (function () {
+        const alertEl = document.getElementById('alert');
+        if (!alertEl) {
+            return;
+        }
+        setTimeout(function () {
+            alertEl.style.transition = 'opacity .5s linear';
+            alertEl.style.opacity = '0';
+            setTimeout(function () {
+                alertEl.style.overflow = 'hidden';
+                alertEl.style.transition = 'height .5s ease, margin .5s ease, padding .5s ease';
+                alertEl.style.height = alertEl.offsetHeight + 'px';
+                void alertEl.offsetHeight;
+                alertEl.style.height = '0px';
+                alertEl.style.marginTop = '0';
+                alertEl.style.marginBottom = '0';
+                alertEl.style.paddingTop = '0';
+                alertEl.style.paddingBottom = '0';
+                setTimeout(function () {
+                    alertEl.style.display = 'none';
+                }, 500);
+            }, 500);
+        }, 5000);
+    })();
 
-    // Initialize Select2 Elements
-    $('.select2').select2({
-        theme: 'bootstrap4',
+    // Initialize Tom Select (replaces Select2). Every instance is reachable
+    // afterwards as element.tomselect, which is how the helpers below reach it.
+    itflowStep('tom-select', function () {
+        document.querySelectorAll('.select2').forEach(function (el) {
+            initTomSelect(el);
+        });
     });
 
     // Initialize TinyMCE
     tinymce.init({
+        ...itflowTinyMceSkin(),
         selector: '.tinymce-simple',
         browser_spellcheck: true,
         contextmenu: false,
@@ -68,6 +203,7 @@ $(document).ready(function() {
 
     // Initialize TinyMCE with AI
     tinymce.init({
+        ...itflowTinyMceSkin(),
         selector: '.tinymce',
         browser_spellcheck: true,
         contextmenu: false,
@@ -189,6 +325,7 @@ $(document).ready(function() {
 
     // Initialize TinyMCE AI for Tickets
     tinymce.init({
+        ...itflowTinyMceSkin(),
         selector: '.tinymceTicket',
         browser_spellcheck: true,
         contextmenu: false,
@@ -322,6 +459,7 @@ $(document).ready(function() {
 
     // Initialize TinyMCE Redact-only
     tinymce.init({
+        ...itflowTinyMceSkin(),
         selector: '.tinymceRedact',
         browser_spellcheck: true,
         contextmenu: false,
@@ -384,33 +522,106 @@ $(document).ready(function() {
     });
 
     // DateTime
-    $('.datetimepicker').datetimepicker();
-
-    // Data Input Mask
-    $('[data-mask]').inputmask();
-
-    // ClipboardJS fix for Bootstrap modals
-    $.fn.modal.Constructor.prototype._enforceFocus = function() {};
-
-    // Clipboard
-    var clipboard = new ClipboardJS('.clipboardjs');
-
-    clipboard.on('success', function(e) {
-        flashTooltip(e.trigger, 'Copied!');
+    document.querySelectorAll('.datetimepicker').forEach(function (el) {
+        if (el._flatpickr) {
+            return;
+        }
+        flatpickr(el, {
+            enableTime: true,
+            time_24hr: true,
+            dateFormat: 'Y-m-d H:i',
+            allowInput: true
+        });
     });
 
-    clipboard.on('error', function(e) {
-        flashTooltip(e.trigger, 'Failed!');
+    // Data Input Mask
+    // IMask replaces jquery.inputmask. Only two aliases were ever used.
+    document.querySelectorAll('[data-mask]').forEach(function (el) {
+        if (el.dataset.imaskReady) {
+            return;
+        }
+        el.dataset.imaskReady = '1';
+        var spec = el.getAttribute('data-inputmask') || '';
+        if (spec.indexOf('ip') !== -1) {
+            IMask(el, {
+                mask: 'a.b.c.d',
+                blocks: {
+                    a: { mask: IMask.MaskedRange, from: 0, to: 255 },
+                    b: { mask: IMask.MaskedRange, from: 0, to: 255 },
+                    c: { mask: IMask.MaskedRange, from: 0, to: 255 },
+                    d: { mask: IMask.MaskedRange, from: 0, to: 255 }
+                },
+                lazy: true
+            });
+        } else if (spec.indexOf('mac') !== -1) {
+            IMask(el, {
+                mask: 'HH:HH:HH:HH:HH:HH',
+                definitions: { H: /[0-9a-fA-F]/ },
+                prepare: function (s) { return s.toUpperCase(); },
+                lazy: true
+            });
+        }
+    });
+
+    // Password reveal. Replaces Show-Hide-Passwords-Bootstrap-4, which has no
+    // Bootstrap 5 release. Same data-toggle="password" contract as before.
+    document.querySelectorAll('[data-toggle="password"]').forEach(function (btn) {
+        btn.addEventListener('click', function () {
+            var group = btn.closest('.input-group');
+            var input = group && group.querySelector('input');
+            if (!input) {
+                return;
+            }
+            var hidden = input.type === 'password';
+            input.type = hidden ? 'text' : 'password';
+            var icon = btn.querySelector('i');
+            if (icon) {
+                icon.classList.toggle('fa-eye', !hidden);
+                icon.classList.toggle('fa-eye-slash', hidden);
+            }
+            btn.setAttribute('aria-pressed', hidden ? 'true' : 'false');
+        });
+    });
+
+    // Bootstrap 4 needed _enforceFocus patched out so ClipboardJS could reach
+    // its textarea inside a modal. Bootstrap 5 registers no jQuery plugin, so
+    // the old $.fn.modal line threw and killed everything below it. If copying
+    // from inside a modal ever misbehaves, ClipboardJS's `container` option is
+    // the lever, not a Bootstrap patch.
+
+    // Clipboard
+    itflowStep('clipboard', function () {
+        var clipboard = new ClipboardJS('.clipboardjs');
+
+        clipboard.on('success', function(e) {
+            flashTooltip(e.trigger, 'Copied!');
+        });
+
+        clipboard.on('error', function(e) {
+            flashTooltip(e.trigger, 'Failed!');
+        });
     });
 
     // Enable Popovers
-    $(function() {
-        $('[data-toggle="popover"]').popover();
+    itflowStep('popovers', function () {
+        document.querySelectorAll('[data-bs-toggle="popover"]').forEach(function (el) {
+            bootstrap.Popover.getOrCreateInstance(el);
+        });
     });
 
     // Data Tables
-    new DataTable('.dataTables');
-});
+    itflowStep('datatables', function () {
+        new DataTable('.dataTables');
+    });
+}
+
+// modal_footer.php re-loads this file on every ajax modal open, so run now if
+// the document is already parsed, otherwise wait for it.
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', itflowInit);
+} else {
+    itflowInit();
+}
 
 /*
  * Calendar event modals - the All day switch shows or hides the time row.
@@ -428,7 +639,27 @@ $(document).ready(function() {
  * namespaced .off() keeps this to a single handler - modal_footer.php re-loads this
  * file on every ajax modal open.
  */
-$(document).off('change.itflowAllDay').on('change.itflowAllDay', '.event-all-day-toggle', function () {
+/**
+ * Initial focus for modals with no autofocus target.
+ *
+ * Bootstrap's focus trap sends focus to the FIRST focusable child whenever it
+ * lands outside the trap, and in ITFlow's modals that is the header close
+ * button - so opening any of the ~230 modals without an autofocus field parked
+ * a focus ring on the X. Putting focus on the dialog itself is what Bootstrap
+ * intends, keeps the trap and Escape working, and leaves screen readers
+ * announcing the dialog rather than "Close".
+ *
+ * Deliberately does NOT auto-focus the first input: that would pop the
+ * keyboard on mobile for every modal, which is a bigger change than the bug.
+ */
+itflowBindOnce('itflowModalFocus', 'shown.bs.modal', '.modal', function () {
+    if (this.querySelector('[autofocus]')) {
+        return;
+    }
+    this.focus();
+});
+
+itflowBindOnce('itflowAllDay', 'change', '.event-all-day-toggle', function () {
 
     const allDay = this.checked;
     const timeFields = document.getElementById(this.id.replace(/_all_day$/, '_time_fields'));
@@ -452,7 +683,7 @@ $(document).off('change.itflowAllDay').on('change.itflowAllDay', '.event-all-day
  * Keep the end date at or after the start date, without shortening a longer span
  * the user has already chosen.
  */
-$(document).off('change.itflowEventDate').on('change.itflowEventDate', '.event-start-date', function () {
+itflowBindOnce('itflowEventDate', 'change', '.event-start-date', function () {
 
     const endField = document.getElementById(this.id.replace(/_start_date$/, '_end_date'));
 
@@ -470,7 +701,7 @@ $(document).off('change.itflowEventDate').on('change.itflowEventDate', '.event-s
  * A start late in the evening rolls the end onto the following day rather than
  * wrapping round to an end that precedes the start.
  */
-$(document).off('change.itflowEventTime').on('change.itflowEventTime', '.event-start-time', function () {
+itflowBindOnce('itflowEventTime', 'change', '.event-start-time', function () {
 
     const prefix = this.id.replace(/_start_time$/, '');
     const endField = document.getElementById(prefix + '_end_time');
@@ -516,16 +747,139 @@ $(document).off('change.itflowEventTime').on('change.itflowEventTime', '.event-s
  * until the next page load.
  */
 function flashTooltip(button, message) {
-    $(button)
-        .tooltip('dispose')
-        .tooltip({
-            trigger: 'manual',
-            placement: 'bottom',
-            title: message
-        })
-        .tooltip('show');
+    const el = button instanceof Element ? button : document.querySelector(button);
+    if (!el) {
+        return;
+    }
+    bootstrap.Tooltip.getInstance(el)?.dispose();
+    const tip = new bootstrap.Tooltip(el, {
+        trigger: 'manual',
+        placement: 'bottom',
+        title: message
+    });
+    tip.show();
 
-    setTimeout(function() {
-        $(button).tooltip('dispose');
+    setTimeout(function () {
+        tip.dispose();
     }, 1000);
+}
+
+/**
+ * Tom Select integration.
+ *
+ * Replaces Select2. Tom Select is vanilla JS and exposes its instance on the
+ * element as `el.tomselect`, so nothing here needs jQuery.
+ *
+ * Select2 concepts and their equivalents, for anyone reading this later:
+ *   $(el).select2({tags:true})        -> create: true
+ *   $(el).val(null).trigger('change') -> el.tomselect.clear()
+ *   $(el).trigger('change.select2')   -> el.tomselect.sync()   (options replaced)
+ *   $(el).on('select2:select', fn)    -> el.tomselect.on('change', fn)
+ */
+function initTomSelect(el, options) {
+    if (!el || el.tomselect) {
+        return el ? el.tomselect : null;
+    }
+    var settings = Object.assign({
+        create: false,
+        allowEmptyOption: true,
+        plugins: el.multiple ? ['remove_button'] : [],
+        placeholder: el.getAttribute('data-placeholder') || undefined
+    }, options || {});
+    return new TomSelect(el, settings);
+}
+
+/** Re-read the <option> list after it has been replaced server-side. */
+function refreshTomSelect(el) {
+    if (el && el.tomselect) {
+        el.tomselect.sync();
+    }
+}
+
+/** Clear a selection (single or multiple) without firing a server round-trip. */
+function clearTomSelect(el) {
+    if (el && el.tomselect) {
+        el.tomselect.clear(true);
+    }
+}
+
+/**
+ * Set a select's value from code. A plain el.value = x (or jQuery .val()) does
+ * not repaint a Tom Select widget - the underlying <select> changes but the
+ * visible control does not. Falls back to a native change event when the
+ * element was never enhanced.
+ */
+function setTomSelectValue(el, value) {
+    if (!el) {
+        return;
+    }
+    if (el.tomselect) {
+        el.tomselect.setValue(value);
+        return;
+    }
+    el.value = value;
+    el.dispatchEvent(new Event('change', { bubbles: true }));
+}
+
+/**
+ * Show a Bootstrap toast from JavaScript.
+ *
+ * The PHP side renders its own toast markup in includes/inc_alert_feedback.php
+ * so that user-supplied text never reaches a JS string literal. This helper is
+ * for toasts raised by client-side code, where the caller controls the text.
+ *
+ * Replaces toastr.success() / .error() / .warning() / .info().
+ */
+function itflowToast(message, type) {
+    var styles = {
+        success: 'text-bg-success',
+        info: 'text-bg-info',
+        warning: 'text-bg-warning',
+        alert: 'text-bg-warning',
+        error: 'text-bg-danger',
+        danger: 'text-bg-danger'
+    };
+    var style = styles[type] || styles.success;
+    var darkText = type === 'warning' || type === 'alert' || type === 'info';
+
+    var container = document.querySelector('.toast-container.itflow-toast-js');
+    if (!container) {
+        container = document.createElement('div');
+        container.className = 'toast-container itflow-toast-js position-fixed top-0 start-50 translate-middle-x p-3';
+        container.style.zIndex = '1090';
+        document.body.appendChild(container);
+    }
+
+    var toast = document.createElement('div');
+    toast.className = 'toast fade align-items-center ' + style + ' border-0';
+    toast.setAttribute('role', 'alert');
+    toast.setAttribute('aria-live', 'assertive');
+    toast.setAttribute('aria-atomic', 'true');
+
+    var flex = document.createElement('div');
+    flex.className = 'd-flex';
+
+    var body = document.createElement('div');
+    body.className = 'toast-body';
+    body.textContent = message;
+
+    var close = document.createElement('button');
+    close.type = 'button';
+    close.className = 'btn-close ' + (darkText ? '' : 'btn-close-white') + ' me-2 m-auto';
+    close.setAttribute('data-bs-dismiss', 'toast');
+    close.setAttribute('aria-label', 'Close');
+
+    flex.appendChild(body);
+    flex.appendChild(close);
+    toast.appendChild(flex);
+    container.appendChild(toast);
+
+    toast.addEventListener('hidden.bs.toast', function () {
+        toast.remove();
+    });
+    bootstrap.Toast.getOrCreateInstance(toast, {
+        animation: true,
+        autohide: true,
+        delay: 5000
+    }).show();
 }

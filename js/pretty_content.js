@@ -1,7 +1,11 @@
-$(document).ready(function(){
+document.addEventListener('DOMContentLoaded', function () {
     // Add class to tables
-    $('div.prettyContent table').addClass('table');
+    document.querySelectorAll('div.prettyContent table').forEach(function (el) {
+        el.classList.add('table');
+    });
 
-    // Add img-responsive class to img tags
-    $('div.prettyContent img').addClass('img-fluid');
+    // Add img-fluid class to img tags
+    document.querySelectorAll('div.prettyContent img').forEach(function (el) {
+        el.classList.add('img-fluid');
+    });
 });

@@ -20,8 +20,8 @@ $invoices_sql = mysqli_query($mysqli, "SELECT invoice_amount, invoice_date, invo
 
     <div class="col-md-10">
 
-        <table class="table tabled-bordered border border-dark">
-            <thead class="thead-dark">
+        <table class="table table-bordered border border-dark">
+            <thead class="table-dark">
             <tr>
                 <th>#</th>
                 <th>Scope</th>
@@ -53,13 +53,13 @@ $invoices_sql = mysqli_query($mysqli, "SELECT invoice_amount, invoice_date, invo
 
                 $now = time();
                 if (($invoice_status == "Sent" || $invoice_status == "Partial" || $invoice_status == "Viewed") && strtotime($invoice_due) + 86400 < $now) {
-                    $overdue_color = "text-danger font-weight-bold";
+                    $overdue_color = "text-danger fw-bold";
                 } else {
                     $overdue_color = "";
                 }
 
                 if ($invoice_status == "Sent") {
-                    $invoice_badge_color = "warning text-white";
+                    $invoice_badge_color = "warning";
                 } elseif ($invoice_status == "Viewed") {
                     $invoice_badge_color = "info";
                 } elseif ($invoice_status == "Partial") {
@@ -80,7 +80,7 @@ $invoices_sql = mysqli_query($mysqli, "SELECT invoice_amount, invoice_date, invo
                     <td><?= $invoice_date ?></td>
                     <td class="<?= $overdue_color ?>"><?= $invoice_due ?></td>
                     <td>
-                        <span class="p-2 badge badge-<?= $invoice_badge_color ?>">
+                        <span class="p-2 badge text-bg-<?= $invoice_badge_color ?>">
                             <?= $invoice_status ?>
                         </span>
                     </td>

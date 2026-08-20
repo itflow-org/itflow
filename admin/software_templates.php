@@ -19,23 +19,21 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 
 ?>
 
-<div class="card card-dark">
-    <div class="card-header py-2">
-        <h3 class="card-title mt-2"><i class="fas fa-fw fa-cube mr-2"></i>License Templates</h3>
+<div class="card">
+    <div class="card-header bg-dark py-2">
+        <h3 class="card-title mt-2"><i class="fas fa-fw fa-cube me-2"></i>License Templates</h3>
         <div class="card-tools">
-            <button type="button" class="btn btn-primary ajax-modal" data-modal-url="modals/software_template/software_template_add.php"><i class="fas fa-plus mr-2"></i>New License Template</button>
+            <button type="button" class="btn btn-primary ajax-modal" data-modal-url="modals/software_template/software_template_add.php"><i class="fas fa-plus me-2"></i>New License Template</button>
         </div>
     </div>
-    <div class="card-body">
+    <div class="card-header py-3">
         <form autocomplete="off">
-            <div class="row">
+            <div class="row g-2 align-items-center">
 
                 <div class="col-md-4">
-                    <div class="input-group mb-3 mb-md-0">
+                    <div class="input-group">
                         <input type="search" class="form-control" name="q" value="<?php if(isset($q)){ echo stripslashes(escapeHtml($q)); } ?>" placeholder="Search License Templates">
-                        <div class="input-group-append">
                             <button class="btn btn-dark"><i class="fa fa-search"></i></button>
-                        </div>
                     </div>
                 </div>
 
@@ -44,88 +42,87 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 
             </div>
         </form>
-        <hr>
-        <div class="table-responsive-sm">
-            <table class="table table-striped table-borderless table-hover">
-                <thead class="text-dark <?php if($num_rows[0] == 0){ echo "d-none"; } ?>">
-                <tr>
-                    <th>
-                        <a class="text-secondary" href="?<?= $url_query_strings_sort ?>&sort=software_template_name&order=<?= $disp ?>">
-                            Template <?php if ($sort == 'software_template_name') { echo $order_icon; } ?>
-                        </a>
-                    </th>
-                    <th>
-                        <a class="text-secondary" href="?<?= $url_query_strings_sort ?>&sort=software_template_type&order=<?= $disp ?>">
-                            Type <?php if ($sort == 'software_template_type') { echo $order_icon; } ?>
-                        </a>
-                    </th>
-                    <th>
-                        <a class="text-secondary" href="?<?= $url_query_strings_sort ?>&sort=software_template_license_type&order=<?= $disp ?>">
-                            License Type <?php if ($sort == 'software_template_license_type') { echo $order_icon; } ?>
-                        </a>
-                    </th>
-                    <th class="text-center">Action</th>
-                </tr>
-                </thead>
-                <tbody>
-                <?php
+    </div>
+    <div class="table-responsive-sm">
+        <table class="table table-striped table-borderless table-hover mb-0">
+            <thead class="text-dark <?php if($num_rows[0] == 0){ echo "d-none"; } ?>">
+            <tr>
+                <th>
+                    <a class="text-secondary" href="?<?= $url_query_strings_sort ?>&sort=software_template_name&order=<?= $disp ?>">
+                        Template <?php if ($sort == 'software_template_name') { echo $order_icon; } ?>
+                    </a>
+                </th>
+                <th>
+                    <a class="text-secondary" href="?<?= $url_query_strings_sort ?>&sort=software_template_type&order=<?= $disp ?>">
+                        Type <?php if ($sort == 'software_template_type') { echo $order_icon; } ?>
+                    </a>
+                </th>
+                <th>
+                    <a class="text-secondary" href="?<?= $url_query_strings_sort ?>&sort=software_template_license_type&order=<?= $disp ?>">
+                        License Type <?php if ($sort == 'software_template_license_type') { echo $order_icon; } ?>
+                    </a>
+                </th>
+                <th class="text-center">Action</th>
+            </tr>
+            </thead>
+            <tbody>
+            <?php
 
-                while($row = mysqli_fetch_assoc($sql)){
-                    $software_template_id = intval($row['software_template_id']);
-                    $software_template_name = escapeHtml($row['software_template_name']);
-                    $software_template_version = escapeHtml($row['software_template_version']);
-                    $software_template_description = escapeHtml($row['software_template_description']);
-                    $software_template_type = escapeHtml($row['software_template_type']);
-                    $software_template_license_type = escapeHtml($row['software_template_license_type']);
-                    $software_template_notes = escapeHtml($row['software_template_notes']);
-
-                    ?>
-                    <tr>
-                        <td>
-                            <a class="text-dark ajax-modal" href="#" data-modal-url="modals/software_template/software_template_edit.php?id=<?= $software_template_id ?>">
-                                <div class="media">
-                                    <i class="fa fa-fw fa-2x fa-cube mr-3"></i>
-                                    <div class="media-body">
-                                        <div><?= "$software_template_name <span>$software_template_version</span>" ?></div>
-                                        <div><small class="text-secondary"><?= $software_template_description ?></small></div>
-                                    </div>
-                                </div>
-                            </a>
-                        </td>
-                        <td><?= $software_template_type ?></td>
-                        <td><?= $software_template_license_type ?></td>
-                        <td>
-                            <div class="dropdown dropleft text-center">
-                                <button class="btn btn-secondary btn-sm" data-toggle="dropdown">
-                                    <i class="fas fa-ellipsis-h"></i>
-                                </button>
-                                <div class="dropdown-menu">
-                                    <a class="dropdown-item ajax-modal" href="#" data-modal-url="modals/software_template/software_template_edit.php?id=<?= $software_template_id ?>">
-                                        <i class="fas fa-fw fa-edit mr-2"></i>Edit
-                                    </a>
-                                    <?php if($session_user_role == 3) { ?>
-                                        <div class="dropdown-divider"></div>
-                                        <a class="dropdown-item text-danger text-bold confirm-link" href="post.php?delete_software_template=<?= $software_template_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>">
-                                            <i class="fas fa-fw fa-trash mr-2"></i>Delete
-                                        </a>
-                                    <?php } ?>
-                                </div>
-                            </div>
-                        </td>
-                    </tr>
-
-                    <?php
-
-                }
+            while($row = mysqli_fetch_assoc($sql)){
+                $software_template_id = intval($row['software_template_id']);
+                $software_template_name = escapeHtml($row['software_template_name']);
+                $software_template_version = escapeHtml($row['software_template_version']);
+                $software_template_description = escapeHtml($row['software_template_description']);
+                $software_template_type = escapeHtml($row['software_template_type']);
+                $software_template_license_type = escapeHtml($row['software_template_license_type']);
+                $software_template_notes = escapeHtml($row['software_template_notes']);
 
                 ?>
+                <tr>
+                    <td>
+                        <a class="text-dark ajax-modal" href="#" data-modal-url="modals/software_template/software_template_edit.php?id=<?= $software_template_id ?>">
+                            <div class="d-flex">
+                                <i class="fa fa-fw fa-2x fa-cube me-3"></i>
+                                <div class="flex-grow-1">
+                                    <div><?= "$software_template_name <span>$software_template_version</span>" ?></div>
+                                    <div><small class="text-secondary"><?= $software_template_description ?></small></div>
+                                </div>
+                            </div>
+                        </a>
+                    </td>
+                    <td><?= $software_template_type ?></td>
+                    <td><?= $software_template_license_type ?></td>
+                    <td>
+                        <div class="dropdown dropstart text-center">
+                            <button class="btn btn-secondary btn-sm" data-bs-toggle="dropdown">
+                                <i class="fas fa-ellipsis-h"></i>
+                            </button>
+                            <div class="dropdown-menu">
+                                <a class="dropdown-item ajax-modal" href="#" data-modal-url="modals/software_template/software_template_edit.php?id=<?= $software_template_id ?>">
+                                    <i class="fas fa-fw fa-edit me-2"></i>Edit
+                                </a>
+                                <?php if($session_user_role == 3) { ?>
+                                    <div class="dropdown-divider"></div>
+                                    <a class="dropdown-item text-danger text-bold confirm-link" href="post.php?delete_software_template=<?= $software_template_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>">
+                                        <i class="fas fa-fw fa-trash me-2"></i>Delete
+                                    </a>
+                                <?php } ?>
+                            </div>
+                        </div>
+                    </td>
+                </tr>
 
-                </tbody>
-            </table>
-        </div>
-        <?php require_once "../includes/filter_footer.php";
- ?>
+                <?php
+
+            }
+
+            ?>
+
+            </tbody>
+        </table>
     </div>
+    <?php require_once "../includes/filter_footer.php";
+ ?>
 </div>
 
 <?php

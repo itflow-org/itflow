@@ -3,9 +3,7 @@
         <div class="modal-content bg-dark text-white">
             <div class="modal-header bg-dark">
                 <h6 class="modal-title" id="modalTitle"></h6>
-                <button type="button" class="close text-white" data-dismiss="modal">
-                    <span>&times;</span>
-                </button>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
             </div>
             <div class="position-relative text-center">
                 <!-- Left arrow -->
