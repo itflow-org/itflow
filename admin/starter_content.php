@@ -4,9 +4,13 @@ require_once "includes/inc_all_admin.php";
 
 define('FROM_STARTER_CONTENT', true);
 require_once "post/starter_content_model.php";
+require_once "post/demo_data_model.php";
 
 $starter_content_packs = starterContentPacks();
 $starter_content_status = starterContentStatus($mysqli);
+
+$demo_data_status = demoDataStatus($mysqli);
+$demo_data_loaded = count($demo_data_status['loaded']);
 
 $total_missing = 0;
 foreach ($starter_content_status as $pack_status) {
@@ -102,6 +106,81 @@ foreach ($starter_content_status as $pack_status) {
             categories and priced as starting points only - hardware and resold licensing come in at
             zero because they are quoted per deal.
         </p>
+
+    </div>
+</div>
+
+<div class="card card-dark mt-3">
+    <div class="card-header py-3">
+        <h3 class="card-title"><i class="fas fa-fw fa-flask me-2"></i>Demo Data</h3>
+    </div>
+    <div class="card-body">
+
+        <p>
+            A fictional book of business for demos, training and screenshots - <?= intval($demo_data_status['total']) ?> clients
+            with the people, equipment, documentation, tickets and billing a typical MSP would be carrying for them, plus the
+            bank accounts, operating costs and transfers on your own side of the books.
+            It is generated across the <strong>last two years</strong> and dated relative to today, so the dashboard, ticket
+            queue, aging, profit and loss and every other report have real history behind them rather than a single flat month.
+        </p>
+        <p class="text-muted">
+            This is sample data, not configuration. Every demo client carries the <strong>Demo Data</strong> client tag and
+            everything created hangs off one of them, so removing it takes the whole lot back out again. Contacts use
+            addresses on the reserved <strong>.example</strong> domain, which cannot receive mail, and the demo
+            agreements are created with email notification switched off.
+        </p>
+
+        <?php if ($demo_data_status['other_clients'] && !$demo_data_loaded) { ?>
+        <div class="alert alert-warning">
+            <i class="fas fa-fw fa-exclamation-triangle me-2"></i>
+            This install already has <strong><?= intval($demo_data_status['other_clients']) ?></strong> client(s) of its own.
+            Demo data is meant for a demo or training install - it will sit alongside your real clients in every list, report and total until it is removed.
+        </div>
+        <?php } ?>
+
+        <?php if (!$demo_data_loaded) { ?>
+
+            <?php if (!empty($starter_content_status['categories']['missing']) || !empty($starter_content_status['tags']['missing'])) { ?>
+            <p class="text-warning">
+                <i class="fas fa-fw fa-exclamation-triangle me-1"></i>Add the Categories and Tags packs above first, or the demo tickets, invoices and tags come in bare.
+            </p>
+            <?php } ?>
+
+            <form action="post.php" method="POST" autocomplete="off">
+                <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
+                <button type="submit" name="load_demo_data" value="1" class="btn btn-primary">
+                    <i class="fas fa-fw fa-flask me-2"></i>Add demo data
+                </button>
+            </form>
+
+        <?php } else { ?>
+
+            <p>
+                <strong><?= intval($demo_data_loaded) ?></strong> demo client(s) are here:
+                <?= escapeHtml(implode(', ', $demo_data_status['loaded'])) ?>
+            </p>
+
+            <div class="d-flex gap-2">
+
+                <form action="post.php" method="POST" autocomplete="off" onsubmit="return confirm('Delete every client tagged Demo Data, along with all of their contacts, assets, documentation, credentials, tickets, quotes, invoices and payments? This cannot be undone.');">
+                    <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
+                    <button type="submit" name="remove_demo_data" value="1" class="btn btn-danger">
+                        <i class="fas fa-fw fa-trash me-2"></i>Remove demo data
+                    </button>
+                </form>
+
+                <?php if ($demo_data_loaded < $demo_data_status['total']) { ?>
+                <form action="post.php" method="POST" autocomplete="off">
+                    <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
+                    <button type="submit" name="load_demo_data" value="1" class="btn btn-primary">
+                        <i class="fas fa-fw fa-plus me-2"></i>Add the missing <?= intval($demo_data_status['total'] - $demo_data_loaded) ?>
+                    </button>
+                </form>
+                <?php } ?>
+
+            </div>
+
+        <?php } ?>
 
     </div>
 </div>
