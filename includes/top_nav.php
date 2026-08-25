@@ -8,20 +8,18 @@
         </li>
     </ul>
 
-    <!-- Center navbar links -->
-    <ul class="navbar-nav ms-auto">
-
-        <!-- SEARCH FORM -->
-        <form class="d-flex" action="/agent/global_search.php">
-            <div class="input-group input-group-sm">
-                <input class="form-control form-control-navbar" type="search" placeholder="Search everywhere" name="query"
-                    value="<?php if (isset($_GET['query'])) { echo escapeHtml($_GET['query']); } ?>">
-                    <button class="btn btn-navbar" type="submit">
-                        <i class="fas fa-search"></i>
-                    </button>
-            </div>
-        </form>
-    </ul>
+    <!-- SEARCH FORM -->
+    <form class="navbar-search ms-auto" role="search" action="/agent/global_search.php">
+        <label for="navbar-search-input" class="visually-hidden">Search everywhere</label>
+        <div class="navbar-search-field">
+            <input class="form-control" type="search" id="navbar-search-input" name="query"
+                placeholder="Search everywhere" autocomplete="off"
+                value="<?php if (isset($_GET['query'])) { echo escapeHtml($_GET['query']); } ?>">
+            <button class="navbar-search-submit" type="submit" aria-label="Submit search">
+                <i class="fas fa-search" aria-hidden="true"></i>
+            </button>
+        </div>
+    </form>
 
     <!-- Right navbar links -->
     <ul class="navbar-nav ms-auto">

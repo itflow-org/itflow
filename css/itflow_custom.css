@@ -148,9 +148,9 @@
 }
 
 /* Navbar height. v4 pairs .app-header{max-height:2.75rem} with 0.5rem of
-   navbar padding, but the tallest children - the 2rem avatar and the
-   input-group-sm search box - want 47-48px, so they overflow that 44px cap.
-   Everything below is sized so it fits inside a 3rem bar.
+   navbar padding, but the tallest children want 47-48px and overflow that
+   44px cap. Everything below is sized so it fits inside a 3rem bar - the
+   .navbar-search field is ~33px and clears it without help.
    NOTE: .sidebar-brand is the matching half of this pair and is set to the
    same height further down - change both or they stop lining up. */
 .app-header.navbar {
@@ -181,14 +181,6 @@
     width: 1.6rem;
     height: 1.6rem;
     margin-top: 0;
-}
-/* the search box is the other oversized child */
-.app-header .input-group-sm > .form-control,
-.app-header .input-group-sm > .btn {
-    height: 1.9rem;
-    padding-top: 0;
-    padding-bottom: 0;
-    line-height: 1.9rem;
 }
 /* .navbar-badge positions itself (top:9px/right:5px) for a taller bar; the
    markup used to override that inline, which is why it drifted when the bar
@@ -307,33 +299,6 @@ a:focus {
     background-color: transparent;
 }
 
-/* Navbar search. v3 tinted the field with a LIGHTENED version of the theme
-   colour (navy #001f3f -> #002953 at rest, lighter again on focus) rather
-   than a fixed grey. The color-mix line is the fallback; the relative-colour
-   line reproduces v3's HSL lighten exactly where the browser supports it. */
-.app-header .form-control-navbar,
-.app-header .btn-navbar {
-    background-color: color-mix(in srgb, var(--itflow-accent, #007bff) 90%, #fff);
-    background-color: hsl(from var(--itflow-accent, #007bff) h s calc(l + 4%));
-    border-color: color-mix(in srgb, var(--itflow-accent, #007bff) 78%, #fff);
-    border-color: hsl(from var(--itflow-accent, #007bff) h s calc(l + 9%));
-    color: rgba(255, 255, 255, .8);
-    box-shadow: none;
-}
-.app-header .form-control-navbar::placeholder {
-    color: rgba(255, 255, 255, .6);
-}
-.app-header .form-control-navbar:focus,
-.app-header .form-control-navbar:focus + .btn-navbar {
-    background-color: color-mix(in srgb, var(--itflow-accent, #007bff) 82%, #fff);
-    background-color: hsl(from var(--itflow-accent, #007bff) h s calc(l + 9%));
-    border-color: hsl(from var(--itflow-accent, #007bff) h s calc(l + 14%));
-    color: #fff;
-    box-shadow: none;
-}
-.app-header .form-control-navbar:focus::placeholder {
-    color: #fff;
-}
 
 /* --- Bootstrap 5 unpaired background utilities -------------------------
    BS4 + AdminLTE 3 shipped `.bg-dark,.card.bg-dark .card-body{color:#fff}`.
