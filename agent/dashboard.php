@@ -45,7 +45,7 @@ $sql_years_select = mysqli_query($mysqli, "
   } */
 </style>
 
-<div class="card card-body">
+<div class="card card-body mb-3">
     <form class="d-flex flex-wrap align-items-center gap-2">
         <input type="hidden" name="enable_financial" value="0">
         <input type="hidden" name="enable_technical" value="0">
@@ -174,7 +174,7 @@ if ($user_config_dashboard_financial_enable == 1) {
     $row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT COUNT(vendor_id) AS vendors_added FROM vendors WHERE YEAR(vendor_created_at) = $year AND vendor_client_id = 0 AND vendor_archived_at IS NULL"));
     $vendors_added = intval($row['vendors_added']);
 ?>
-<div class="card card-body">
+<div class="card card-body mb-3">
     <!-- Icon Cards-->
     <div class="row">
         <div class="col-lg-4 col-md-6 col-sm-12">

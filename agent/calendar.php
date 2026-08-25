@@ -123,9 +123,7 @@ if (isset($_GET['calendar_id'])) {
     </div>
 
     <div class="col-md-9">
-        <div class="card">
-            <div id='calendar'></div>
-        </div>
+        <div id='calendar'></div>
     </div>
 
 </div>
