@@ -37,7 +37,7 @@ ob_start();
             <label>Color <strong class="text-danger">*</strong></label>
             <div class="input-group">
                     <span class="input-group-text"><i class="fa fa-fw fa-paint-brush"></i></span>
-                <input type="color" class="form-control col-3" name="color" value="<?= $category_color ?>" required>
+                <input type="color" class="form-control form-control-color w-auto flex-grow-0" name="color" value="<?= $category_color ?>" required>
             </div>
         </div>
 

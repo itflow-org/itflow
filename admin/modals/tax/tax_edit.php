@@ -30,7 +30,7 @@ ob_start();
 
         <div class="mb-3">
             <label>Percent <strong class="text-danger">*</strong></label>
-            <input type="number" min="0" step="any" class="form-control col-md-4" name="percent" value="<?= $tax_percent ?>">
+            <input type="number" min="0" step="any" class="form-control w-25" name="percent" value="<?= $tax_percent ?>">
         </div>
 
     </div>

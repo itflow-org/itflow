@@ -31,7 +31,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
         <div class="card-header py-3">
             <form autocomplete="off">
                 <div class="input-group">
-                    <input type="search" class="form-control col-md-4" name="q" value="<?php if (isset($q)) { echo stripslashes(escapeHtml($q)); } ?>" placeholder="Search Accounts">
+                    <input type="search" class="form-control" name="q" value="<?php if (isset($q)) { echo stripslashes(escapeHtml($q)); } ?>" placeholder="Search Accounts">
                         <button class="btn btn-primary"><i class="fa fa-search"></i></button>
                 </div>
             </form>

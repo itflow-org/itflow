@@ -20,7 +20,7 @@ ob_start();
         </div>
         <div class="mb-3">
             <label>Percent <strong class="text-danger">*</strong></label>
-            <input type="number" min="0" step="any" class="form-control col-md-4" name="percent">
+            <input type="number" min="0" step="any" class="form-control w-25" name="percent">
         </div>
     </div>
     <div class="modal-footer">

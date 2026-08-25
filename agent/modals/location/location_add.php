@@ -168,7 +168,7 @@ ob_start();
                         <div class="mb-3">
                             <div class="input-group">
                                     <span class="input-group-text"><i class="fa fa-fw fa-phone"></i></span>
-                                <input type="tel" class="form-control col-2" name="phone_country_code" placeholder="+" maxlength="4">
+                                <input type="tel" class="form-control w-25 flex-grow-0" name="phone_country_code" placeholder="+" maxlength="4">
                                 <input type="tel" class="form-control" name="phone" placeholder="Phone Number" maxlength="200">
                             </div>
                         </div>
@@ -186,7 +186,7 @@ ob_start();
                         <div class="mb-3">
                             <div class="input-group">
                                     <span class="input-group-text"><i class="fa fa-fw fa-fax"></i></span>
-                                <input type="tel" class="form-control col-2" name="fax_country_code" placeholder="+" maxlength="4">
+                                <input type="tel" class="form-control w-25 flex-grow-0" name="fax_country_code" placeholder="+" maxlength="4">
                                 <input type="tel" class="form-control" name="fax" placeholder="Fax Number" maxlength="200">
                             </div>
                         </div>

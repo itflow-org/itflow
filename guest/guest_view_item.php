@@ -217,7 +217,7 @@ if ($item_type == "Document") {
     ?>
 
     <h5><?= $credential_name ?></h5>
-    <table class="table col-md-3">
+    <table class="table w-auto">
         <tr>
             <th>URL</th>
             <td><?= $credential_uri ?></td>

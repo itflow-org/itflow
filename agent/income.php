@@ -328,7 +328,7 @@ $summary_total_income = floatval($row['total_income']);
         <div class="row">
             <div class="col-lg-4 col-md-6 col-sm-12">
                 <!-- small box -->
-                <div class="small-box bg-primary">
+                <div class="small-box bg-blue text-white">
                     <div class="inner">
                         <h3><?= numfmt_format_currency($currency_format, $summary_total_payments, $session_company_currency) ?></h3>
                         <p>Invoice Payments</p>
@@ -342,7 +342,7 @@ $summary_total_income = floatval($row['total_income']);
 
             <div class="col-lg-4 col-md-6 col-sm-12">
                 <!-- small box -->
-                <div class="small-box bg-info">
+                <div class="small-box bg-info text-white">
                     <div class="inner">
                         <h3><?= numfmt_format_currency($currency_format, $summary_total_revenues, $session_company_currency) ?></h3>
                         <p>Other Revenue</p>
@@ -463,7 +463,7 @@ $summary_total_income = floatval($row['total_income']);
                     if ($income_type == 'Payment') {
                         $income_edit_modal = "modals/payment/payment_edit.php?id=$income_id";
                         $income_delete_action = "delete_payment=$income_id";
-                        $income_type_badge = "bg-primary";
+                        $income_type_badge = "bg-blue";
                     } else {
                         $income_edit_modal = "modals/revenue/revenue_edit.php?id=$income_id";
                         $income_delete_action = "delete_revenue=$income_id";

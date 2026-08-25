@@ -46,12 +46,12 @@ $sql_years_select = mysqli_query($mysqli, "
 </style>
 
 <div class="card card-body">
-    <form class="d-flex align-items-center gap-2">
+    <form class="d-flex flex-wrap align-items-center gap-2">
         <input type="hidden" name="enable_financial" value="0">
         <input type="hidden" name="enable_technical" value="0">
 
         <label for="year" class="me-sm-2">Select Year:</label>
-        <select id="year" onchange="this.form.submit()" class="form-select me-sm-3 col-sm-2 mb-3 mb-sm-0" name="year">
+        <select id="year" onchange="this.form.submit()" class="form-select w-auto me-sm-3" name="year">
             <?php while ($row = mysqli_fetch_assoc($sql_years_select)) {
                 $year_select = $row['all_years'];
                 if (empty($year_select)) {
@@ -179,7 +179,7 @@ if ($user_config_dashboard_financial_enable == 1) {
     <div class="row">
         <div class="col-lg-4 col-md-6 col-sm-12">
             <!-- small box -->
-            <a class="small-box bg-primary" href="income.php?dtf=<?= $year ?>-01-01&dtt=<?= $year ?>-12-31">
+            <a class="small-box bg-blue text-white" href="income.php?dtf=<?= $year ?>-01-01&dtt=<?= $year ?>-12-31">
                 <div class="inner">
                     <h3><?= numfmt_format_currency($currency_format, $total_income, "$session_company_currency") ?></h3>
                     <p>Income</p>
@@ -223,7 +223,7 @@ if ($user_config_dashboard_financial_enable == 1) {
 
         <div class="col-lg-6 col-md-6 col-sm-12">
             <!-- small box -->
-            <a class="small-box bg-info" href="reports/recurring_by_client.php">
+            <a class="small-box bg-info text-white" href="reports/recurring_by_client.php">
                 <div class="inner">
                     <h3><?= numfmt_format_currency($currency_format, $recurring_monthly_total, "$session_company_currency") ?></h3>
                     <p>Monthly Recurring Income</p>
@@ -237,7 +237,7 @@ if ($user_config_dashboard_financial_enable == 1) {
 
         <div class="col-lg-6 col-md-6 col-sm-12">
             <!-- small box -->
-            <a class="small-box bg-pink" href="recurring_expenses.php">
+            <a class="small-box bg-pink text-white" href="recurring_expenses.php">
                 <div class="inner">
                     <h3><?= numfmt_format_currency($currency_format, $recurring_expense_monthly_total, "$session_company_currency") ?></h3>
                     <p>Monthly Recurring Expense</p>
