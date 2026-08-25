@@ -1502,6 +1502,27 @@ CREATE TABLE `modules` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
+-- Table structure for table `network_ips`
+--
+
+DROP TABLE IF EXISTS `network_ips`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8mb4 */;
+CREATE TABLE `network_ips` (
+  `ip_id` int(11) NOT NULL AUTO_INCREMENT,
+  `ip_address` varchar(45) NOT NULL,
+  `ip_hostname` varchar(200) DEFAULT NULL,
+  `ip_description` varchar(200) DEFAULT NULL,
+  `ip_created_at` datetime NOT NULL DEFAULT current_timestamp(),
+  `ip_updated_at` datetime DEFAULT NULL ON UPDATE current_timestamp(),
+  `ip_network_id` int(11) NOT NULL,
+  PRIMARY KEY (`ip_id`),
+  UNIQUE KEY `ip_network_address` (`ip_network_id`,`ip_address`),
+  CONSTRAINT `network_ips_ibfk_1` FOREIGN KEY (`ip_network_id`) REFERENCES `networks` (`network_id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
 -- Table structure for table `networks`
 --
 
@@ -3172,4 +3193,4 @@ CREATE TABLE `vendors` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2026-08-15 20:35:12
+-- Dump completed on 2026-08-25 12:18:16

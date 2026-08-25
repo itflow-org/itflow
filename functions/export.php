@@ -144,6 +144,16 @@ function getExportColumns($export_type) {
             'network_secondary_dns' => ['label' => 'Secondary DNS'],
         ],
 
+        'network_ips' => [
+            'ip_address'     => ['label' => 'IP Address'],
+            'ip_hostname'    => ['label' => 'Hostname', 'weight' => 2],
+            'ip_description' => ['label' => 'Description', 'weight' => 3],
+            // Available from the handler's join but not exported by default -
+            // the export is always scoped to one network of one client
+            'network_name'   => ['label' => 'Network', 'default' => false],
+            'client_name'    => ['label' => 'Client', 'default' => false],
+        ],
+
         'certificates' => [
             'certificate_name'        => ['label' => 'Name', 'weight' => 2],
             'certificate_description' => ['label' => 'Description', 'weight' => 3],

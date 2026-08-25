@@ -60,7 +60,8 @@ $sql = mysqli_query(
     $mysqli,
     "SELECT SQL_CALC_FOUND_ROWS client_id, client_name, location_name, network, network_archived_at, network_description,
         network_dhcp_range, network_gateway, network_id, network_location_id, network_name,
-        network_primary_dns, network_secondary_dns, network_vlan FROM networks
+        network_primary_dns, network_secondary_dns, network_vlan,
+        (SELECT COUNT(ip_id) FROM network_ips WHERE ip_network_id = network_id) AS ip_count FROM networks
     LEFT JOIN clients ON client_id = network_client_id
     LEFT JOIN locations ON location_id = network_location_id
     WHERE $archive_query
@@ -289,6 +290,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                         $location_name_display = $location_name;
                     }
                     $network_archived_at = escapeHtml($row['network_archived_at']);
+                    $ip_count = intval($row['ip_count']);
 
                     ?>
                     <tr>
@@ -298,11 +300,16 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                             </div>
                         </td>
                         <td>
-                            <a class="text-dark ajax-modal" href="#" data-modal-url="modals/network/network_edit.php?id=<?= $network_id ?>">
+                            <a class="text-dark" href="network.php?client_id=<?= $client_id ?>&network_id=<?= $network_id ?>">
                                 <div class="d-flex">
                                     <i class="fa fa-fw fa-2x fa-network-wired me-2"></i>
                                     <div class="flex-grow-1">
-                                        <div><?= $network_name ?></div>
+                                        <div>
+                                            <?= $network_name ?>
+                                            <?php if ($ip_count) { ?>
+                                            <span class="badge bg-secondary ms-1" title="Documented IP addresses"><?= $ip_count ?></span>
+                                            <?php } ?>
+                                        </div>
                                         <div><small class="text-secondary"><?= $network_description ?></small></div>
                                     </div>
                                 </div>
@@ -323,6 +330,10 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                     <i class="fas fa-ellipsis-h"></i>
                                 </button>
                                 <div class="dropdown-menu">
+                                    <a class="dropdown-item" href="network.php?client_id=<?= $client_id ?>&network_id=<?= $network_id ?>">
+                                        <i class="fas fa-fw fa-map-pin me-2"></i>IP Addresses
+                                    </a>
+                                    <div class="dropdown-divider"></div>
                                     <a class="dropdown-item ajax-modal" href="#" data-modal-url="modals/network/network_edit.php?id=<?= $network_id ?>">
                                         <i class="fas fa-fw fa-edit me-2"></i>Edit
                                     </a>
@@ -338,7 +349,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                         </a>
                                         <?php } else { ?>
                                         <div class="dropdown-divider"></div>
-                                        <a class="dropdown-item text-danger confirm-link" href="post.php?archive_network=<?= $network_id ?>">
+                                        <a class="dropdown-item text-danger confirm-link" href="post.php?archive_network=<?= $network_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>">
                                             <i class="fas fa-fw fa-archive me-2"></i>Archive
                                         </a>
                                         <?php } ?>
