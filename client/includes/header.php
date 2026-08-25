@@ -32,7 +32,7 @@ header("X-Frame-Options: DENY"); // Legacy
              --bs-<colour> tokens plus .text-bg-* / .card-* / .callout-*
              / .bg-gradient-* families. Loads BEFORE itflow_custom.css so
              our own .bg-<colour> box colours still win. */ ?>
-    <link rel="stylesheet" href="/libs/adminlte/css/adminlte-colors-v3.css">
+    <link rel="stylesheet" href="/libs/adminlte/css/adminlte-colors-v3.min.css">
     <link rel="stylesheet" href="/libs/sweetalert2/css/sweetalert2.min.css">
 
     <!-- ITFlow style: the AdminLTE 3 compatibility layer and the theme colours. Must load

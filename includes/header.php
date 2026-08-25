@@ -39,7 +39,7 @@ header("X-Frame-Options: DENY");
              --bs-<colour> tokens plus .text-bg-* / .card-* / .callout-*
              / .bg-gradient-* families. Loads BEFORE itflow_custom.css so
              our own .bg-<colour> box colours still win. */ ?>
-    <link rel="stylesheet" href="/libs/adminlte/css/adminlte-colors-v3.css">
+    <link rel="stylesheet" href="/libs/adminlte/css/adminlte-colors-v3.min.css">
     <link rel="stylesheet" href="/css/itflow_custom.css">
 
     <!-- Scripts -->
