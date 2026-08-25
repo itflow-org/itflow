@@ -487,7 +487,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 
                             if (!empty($contact_email)) { ?>
                                 <div class="mt-1">
-                                    <i class="fa fa-fw fa-envelope text-secondary me-2"></i><a href="mailto:<?= $contact_email ?>"><?= $contact_email ?></a><button class='btn btn-sm clipboardjs' type="button" data-clipboard-text='<?= $contact_email ?>'><i class='far fa-copy text-secondary'></i></button>
+                                    <i class="fa fa-fw fa-envelope text-secondary me-2"></i><a href="mailto:<?= $contact_email ?>"><?= $contact_email ?></a><button class='btn btn-sm btn-link clipboardjs' type="button" data-clipboard-text='<?= $contact_email ?>'><i class='far fa-copy text-secondary'></i></button>
                                 </div>
                             <?php } ?>
                         </td>
