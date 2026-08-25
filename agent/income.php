@@ -325,7 +325,7 @@ $summary_total_income = floatval($row['total_income']);
             </form>
         </div>
 
-        <div class="row">
+        <div class="row px-3 pt-3">
             <div class="col-lg-4 col-md-6 col-sm-12">
                 <!-- small box -->
                 <div class="small-box bg-blue text-white">
@@ -370,8 +370,8 @@ $summary_total_income = floatval($row['total_income']);
         </div>
 
         <div class="table-responsive">
-            <table class="table table-striped table-borderless table-hover mb-0">
-                <thead class="text-dark <?php if ($num_rows[0] == 0) { echo "d-none"; } ?> text-nowrap">
+            <table class="table table-hover mb-0">
+                <thead class="text-dark <?php if ($num_rows[0] == 0) { echo "d-none"; } ?> text-nowrap table-light border-top">
                 <tr>
                     <?php if (lookupUserPermission("module_sales") >= 3 && lookupUserPermission("module_financial") >= 3) { ?>
                     <td class="bg-light checkbox-column">

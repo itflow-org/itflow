@@ -49,11 +49,29 @@ $theme_colors_array = array(
                             value="<?= $theme_color ?>"
                             <?php if ($config_theme == $theme_color) { echo "checked"; } ?>>
                         <label class="itflow-theme-swatch" for="theme-<?= $theme_color ?>">
-                            <?php /* the circle paints itself from --itflow-accent, so it can
-                                     never drift out of step with the stylesheet */ ?>
-                            <span class="itflow-theme-circle theme-<?= $theme_color ?>">
-                                <i class="fas fa-circle"></i>
-                                <i class="fas fa-check itflow-theme-tick"></i>
+                            <?php /* A miniature of the app, after AdminLTE 4's theme generator.
+                                     The wrapper carries .theme-<name>, so everything inside
+                                     paints from that theme's --itflow-accent and the preview can
+                                     never drift out of step with the stylesheet. Decorative -
+                                     the name below is what the label actually announces. */ ?>
+                            <span class="itflow-theme-preview theme-<?= $theme_color ?>" aria-hidden="true">
+                                <span class="itflow-theme-preview-sidebar">
+                                    <span class="itflow-theme-preview-brand"></span>
+                                    <span class="itflow-theme-preview-item itflow-theme-preview-active"></span>
+                                    <span class="itflow-theme-preview-item"></span>
+                                    <span class="itflow-theme-preview-item"></span>
+                                </span>
+                                <span class="itflow-theme-preview-main">
+                                    <span class="itflow-theme-preview-header">
+                                        <span class="itflow-theme-preview-item"></span>
+                                        <span class="itflow-theme-preview-avatar"></span>
+                                    </span>
+                                    <span class="itflow-theme-preview-body">
+                                        <span class="itflow-theme-preview-box"></span>
+                                        <span class="itflow-theme-preview-box itflow-theme-preview-box-muted"></span>
+                                        <span class="itflow-theme-preview-card"></span>
+                                    </span>
+                                </span>
                             </span>
                             <span class="itflow-theme-name"><?= escapeHtml($theme_color) ?></span>
                         </label>

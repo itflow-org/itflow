@@ -486,13 +486,26 @@ a:focus {
 
 
 /* --- Theme picker (admin/settings_theme.php) -----------------------------
-   Keeps the coloured circles - the radio button beside each one is what was
-   in the way, so the input is now a visually hidden .btn-check and the label
-   is the control. Selection reads as a tick in the circle plus a bolder name.
+   Each choice is a miniature of the app rather than a colour circle, so you
+   can see where the colour actually lands before committing to it. Structure
+   and proportions are lifted from AdminLTE 4's own theme generator
+   (dist/generate/theme.html) - note those .lte-skin-preview-* rules live in
+   that page's inline <style> and are NOT in adminlte.min.css, so they are
+   reproduced here under ITFlow-owned names to avoid colliding with anything
+   upstream may ship later.
 
-   The circle carries .theme-<name> and paints itself from --itflow-accent, so
-   it always shows the colour that theme will actually apply - add a theme to
-   the stylesheet and its swatch is correct with no extra rule. */
+   The mini-app reflects how ITFlow actually applies a theme, not AdminLTE's
+   presets: the sidebar is always dark with the accent on its active item, the
+   top bar takes the accent, and the content area shows an accent widget
+   beside a neutral one.
+
+   The preview carries .theme-<name>, so --itflow-accent is re-scoped for that
+   subtree and every swatch paints itself from the same variable the theme
+   will apply - add a theme to the stylesheet and its preview is correct with
+   no extra rule.
+
+   The radio is a visually hidden .btn-check and the label is the control.
+   Selection reads as a ring around the preview plus a bolder name. */
 .itflow-theme-swatch {
     display: block;
     padding: .5rem .25rem;
@@ -504,29 +517,100 @@ a:focus {
 .itflow-theme-swatch:hover {
     background-color: var(--bs-secondary-bg);
 }
-.itflow-theme-circle {
-    position: relative;
+.itflow-theme-preview {
     display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    line-height: 1;
+    width: 6rem;
+    height: 3.75rem;
+    overflow: hidden;
+    vertical-align: middle;
+    background-color: var(--bs-tertiary-bg);
+    border: 1px solid var(--bs-border-color);
+    border-radius: var(--bs-border-radius);
+    transition: border-color .15s ease, box-shadow .15s ease;
 }
-.itflow-theme-circle .fa-circle {
-    font-size: 3.5rem;
-    color: var(--itflow-accent, #007bff);
-}
-.itflow-theme-tick {
-    position: absolute;
-    font-size: 1.35rem;
+/* the sidebar is always dark in ITFlow, whatever the theme */
+.itflow-theme-preview-sidebar {
+    display: flex;
+    flex: 0 0 30%;
+    flex-direction: column;
+    gap: 9%;
+    padding: 10% 12%;
     color: #fff;
-    opacity: 0;
-    transition: opacity .15s ease;
+    background-color: #343a40;
 }
-/* light circles need a dark tick - same L>0.335 cut as the buttons */
-.itflow-theme-circle.theme-yellow .itflow-theme-tick,
-.itflow-theme-circle.theme-orange .itflow-theme-tick,
-.itflow-theme-circle.theme-teal .itflow-theme-tick {
-    color: #000;
+.itflow-theme-preview-brand,
+.itflow-theme-preview-item {
+    display: block;
+    flex: none;
+    height: 7%;
+    min-height: 2px;
+    background: currentColor;
+    border-radius: 99px;
+    opacity: .45;
+}
+.itflow-theme-preview-brand {
+    width: 70%;
+    height: 11%;
+    min-height: 3px;
+    margin-bottom: 6%;
+    opacity: .9;
+}
+/* only the active sidebar item takes the accent - same as the real sidebar */
+.itflow-theme-preview-active {
+    background: var(--itflow-accent, #007bff);
+    opacity: 1;
+}
+.itflow-theme-preview-main {
+    display: flex;
+    flex: auto;
+    flex-direction: column;
+    min-width: 0;
+}
+.itflow-theme-preview-header {
+    display: flex;
+    flex: 0 0 24%;
+    gap: 6%;
+    align-items: center;
+    padding: 0 8%;
+    color: #fff;
+    background-color: var(--itflow-accent, #007bff);
+}
+.itflow-theme-preview-header .itflow-theme-preview-item {
+    width: 24%;
+    height: 22%;
+    opacity: .55;
+}
+.itflow-theme-preview-avatar {
+    display: block;
+    width: 14%;
+    margin-left: auto;
+    aspect-ratio: 1;
+    background: currentColor;
+    border-radius: 50%;
+    opacity: .55;
+}
+.itflow-theme-preview-body {
+    display: grid;
+    flex: auto;
+    grid-template-rows: 1fr 1fr;
+    grid-template-columns: 1fr 1fr;
+    gap: 8%;
+    padding: 10%;
+}
+.itflow-theme-preview-box {
+    display: block;
+    background-color: var(--itflow-accent, #007bff);
+    border-radius: 2px;
+}
+.itflow-theme-preview-box-muted {
+    background-color: var(--bs-secondary-bg);
+}
+.itflow-theme-preview-card {
+    display: block;
+    grid-column: 1 / -1;
+    background-color: var(--bs-body-bg);
+    border: 1px solid var(--bs-border-color);
+    border-radius: 2px;
 }
 .itflow-theme-name {
     display: block;
@@ -534,8 +618,9 @@ a:focus {
     font-size: .8125rem;
     text-transform: capitalize;
 }
-.btn-check:checked + .itflow-theme-swatch .itflow-theme-tick {
-    opacity: 1;
+.btn-check:checked + .itflow-theme-swatch .itflow-theme-preview {
+    border-color: var(--bs-body-color);
+    box-shadow: 0 0 0 1px var(--bs-body-color);
 }
 .btn-check:checked + .itflow-theme-swatch .itflow-theme-name {
     font-weight: 600;
