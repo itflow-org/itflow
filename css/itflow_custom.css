@@ -342,12 +342,10 @@ a:focus {
    header, most card headers), so without this the header text is dark on
    dark and effectively invisible. Contrast choices below mirror Bootstrap's
    own .text-bg-* decisions. */
-.bg-dark, .bg-primary, .bg-secondary, .bg-success, .bg-danger,
-.bg-navy, .bg-indigo, .bg-purple, .bg-maroon, .bg-red, .bg-blue, .bg-black {
+.bg-dark, .bg-primary, .bg-secondary, .bg-success, .bg-danger, .bg-purple {
     color: #fff;
 }
-.bg-info, .bg-warning, .bg-light, .bg-teal, .bg-olive, .bg-lightblue,
-.bg-orange, .bg-pink, .bg-cyan, .bg-green, .bg-gray, .bg-fuchsia {
+.bg-info, .bg-warning, .bg-light, .bg-olive, .bg-pink {
     color: #000;
 }
 .card.bg-dark .card-body {
@@ -359,13 +357,11 @@ a:focus {
 }
 
 /* --- dashboard small-box ------------------------------------------------
-   AdminLTE 4 kept .small-box but dropped the watermark .icon entirely, along
-   with the paragraph sizing and the stacking context that keeps the text
-   above the icon. Without these the 19 dashboard boxes render their icon
-   inline at body size and shove the layout around. v3 values restored. */
-.small-box > .inner {
-    padding: 10px;
-}
+   AdminLTE 4 dropped v3's watermark icon. 4.8.5 restored it, but under a new
+   class name (.small-box-icon) that ITFlow's markup does not use - the boxes
+   still carry v3's <div class="icon"> wrapper - so these rules stay.
+   The inner padding and the p > small rule ARE back upstream at identical
+   values and have been dropped from here. */
 .small-box .icon {
     color: rgba(0, 0, 0, .15);
     z-index: 0;
@@ -382,20 +378,20 @@ a:focus {
 .small-box:hover .icon > svg {
     transform: scale(1.1);
 }
+/* Upstream sets z-index:5 on these but no `position`, which leaves it inert -
+   the icon is absolutely positioned at z-index 0, so the text needs a
+   stacking context of its own to stay above it. */
 .small-box h3,
 .small-box .h3,
 .small-box p {
     position: relative;
-    z-index: 5;
 }
+/* 4.8.5 sets this same 1rem, but also shrinks it to 12px below 576px. This
+   file loads last at equal specificity, so keeping the line deliberately
+   holds the desktop size on phones too; delete it to take their mobile
+   treatment instead. */
 .small-box p {
     font-size: 1rem;
-}
-.small-box p > small {
-    display: block;
-    margin-top: 5px;
-    font-size: .9rem;
-    color: #f8f9fa;
 }
 .small-box hr {
     opacity: .25;
@@ -436,30 +432,14 @@ a:focus {
     right: 1rem;
     top: .7rem;
 }
-/* alert icons */
-.alert .icon {
-    margin-right: 10px;
-}
-
-/* box/card colours AdminLTE 4 also dropped (bg-purple, bg-pink,
-   bg-olive and bg-gray are still used on a few pages) */
-.bg-black { background-color: #000 !important; }
-.bg-blue { background-color: rgba(63,103,145,.9) !important; }
-.bg-cyan { background-color: rgba(52,152,219,.9) !important; }
-.bg-fuchsia { background-color: rgba(246,114,216,.9) !important; }
-.bg-gray { background-color: rgba(108,117,125,.9) !important; }
-.bg-green { background-color: rgba(0,188,140,.9) !important; }
-.bg-indigo { background-color: rgba(102,16,242,.9) !important; }
-.bg-lightblue { background-color: rgba(134,186,216,.9) !important; }
-.bg-maroon { background-color: rgba(237,108,155,.9) !important; }
-.bg-navy { background-color: rgba(0,44,89,.9) !important; }
+/* v3's softened box colours, kept for the three small-boxes that still use
+   them on the dashboard. The other fourteen were dropped - nothing in the
+   tree carries those classes, and the only class names PHP interpolates are
+   Bootstrap's seven contextual ones, so they were unreachable. adminlte-
+   colors-v3 defines all of them anyway if a page ever wants one back. */
 .bg-olive { background-color: rgba(116,200,163,.9) !important; }
-.bg-orange { background-color: rgba(253,126,20,.9) !important; }
 .bg-pink { background-color: rgba(232,62,140,.9) !important; }
 .bg-purple { background-color: rgba(111,66,193,.9) !important; }
-.bg-red { background-color: rgba(231,76,60,.9) !important; }
-.bg-teal { background-color: rgba(32,201,151,.9) !important; }
-.bg-yellow { background-color: rgba(243,156,18,.9) !important; }
 
 /* --- Flatpickr date-filter preset panel ---------------------------------
    Flatpickr has no preset-ranges feature; js/date_filter.js injects this
@@ -614,9 +594,6 @@ a:focus {
 }
 [data-bs-theme=dark] .text-dark {
     color: var(--bs-body-color) !important;
-}
-[data-bs-theme=dark] .border-light {
-    border-color: var(--bs-border-color) !important;
 }
 /* .table-light hardcodes #f8f9fa and #000 outright */
 [data-bs-theme=dark] .table-light {
