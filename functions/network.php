@@ -175,32 +175,126 @@ function isIpInSubnet($ip, $subnet) {
 }
 
 /*
- * The two safeguards on a documented IP, in one place so add, edit and CSV
- * import can't drift apart: the address must be valid and inside its network's
- * subnet, and the network must not already have it.
+ * The part of an address a subnet fixes for every host in it, as a display
+ * string with its trailing dot - 192.168.1.0/24 gives "192.168.1.".
  *
- * $ip is rewritten by reference to its canonical form, so callers store what
- * was checked rather than what was typed.
+ * This is what the add/edit form prepends so only the host part is typeable.
+ * Whole octets only, so it tracks the prefix: a /16 fixes two, a /26 fixes
+ * three (the last octet is still typed, and the range check catches a host
+ * outside the block).
+ *
+ * Returns an empty string when there is nothing useful to fix - IPv6, a prefix
+ * under /8, a /32 with no host part at all, or a subnet that won't parse. The
+ * form falls back to a plain full-address input in those cases.
+ */
+function ipSubnetFixedOctets($subnet) {
+
+    $parsed = parseSubnet($subnet);
+
+    if ($parsed === false || $parsed['bytes'] !== 4) {
+        return '';
+    }
+
+    $fixed = intdiv($parsed['prefix'], 8);
+
+    if ($fixed < 1 || $fixed > 3) {
+        return '';
+    }
+
+    $octets = explode('.', inet_ntop($parsed['network']));
+
+    return implode('.', array_slice($octets, 0, $fixed)) . '.';
+
+}
+
+/*
+ * Turns what was typed into the host part of the form into a full address.
+ *
+ * A complete address is passed straight through, so pasting 192.168.1.10 into
+ * the box still works, as does a CSV that carries full addresses.
+ */
+function expandIpSuffix($input, $subnet) {
+
+    $input = trim($input);
+
+    if ($input === '') {
+        return $input;
+    }
+
+    // Already complete - typed in full, pasted, or imported
+    if (normalizeIpAddress($input) !== false) {
+        return $input;
+    }
+
+    $fixed = ipSubnetFixedOctets($subnet);
+
+    if ($fixed === '') {
+        return $input;
+    }
+
+    // The host part has to supply exactly the octets the prefix doesn't
+    if (count(explode('.', $input)) !== 4 - substr_count($fixed, '.')) {
+        return $input;
+    }
+
+    return $fixed . $input;
+
+}
+
+/*
+ * The reverse, for the edit form: the host part of a stored address, or the
+ * whole address when the subnet fixes nothing.
+ */
+function ipSuffixForDisplay($ip, $subnet) {
+
+    $fixed = ipSubnetFixedOctets($subnet);
+
+    // The trailing dot matters - it stops 192.168.1. matching 192.168.10.5
+    if ($fixed === '' || strpos($ip, $fixed) !== 0) {
+        return $ip;
+    }
+
+    return substr($ip, strlen($fixed));
+
+}
+
+/*
+ * The two safeguards on a documented IP, in one place so add, edit, CSV import
+ * and the live check behind the form can't drift apart: the address must be
+ * valid and inside its network's subnet, and the network must not already have
+ * it.
+ *
+ * $ip is rewritten by reference to its canonical, fully-expanded form, so
+ * callers store what was checked rather than what was typed.
  *
  * Returns an error message for the user, or an empty string when it's good.
  * Pass the row's own id as $ignore_ip_id when editing so a row doesn't collide
  * with itself.
+ *
+ * The message is built for flashAlert(), which escapes at render - anything
+ * putting it somewhere else has to run it through alertMessageHtml() first.
  */
 function checkIpForNetwork(&$ip, $network_id, $ignore_ip_id = 0) {
 
     global $mysqli;
 
+    $network_id = intval($network_id);
+    $subnet = getFieldById('networks', $network_id, 'network');
+
     $original = trim($ip);
-    $normalized = normalizeIpAddress($original);
+
+    // Host part only from the form, full address from a paste or a CSV
+    $expanded = expandIpSuffix($original, $subnet);
+
+    $normalized = normalizeIpAddress($expanded);
 
     if ($normalized === false) {
-        return "<strong>$original</strong> is not a valid IP address";
+        // Report the expanded attempt, not the raw input - in a /24 the form
+        // only takes the host part, so "abc" reads better as 192.168.1.abc
+        return "<strong>$expanded</strong> is not a valid IP address";
     }
 
     $ip = $normalized;
-
-    $network_id = intval($network_id);
-    $subnet = getFieldById('networks', $network_id, 'network');
 
     if (!isIpInSubnet($ip, $subnet)) {
         return "<strong>$ip</strong> is outside <strong>$subnet</strong>";

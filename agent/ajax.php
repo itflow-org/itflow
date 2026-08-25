@@ -913,6 +913,47 @@ if (isset($_GET['client_duplicate_check'])) {
     echo json_encode($response);
 }
 
+/*
+ * Live check behind the IP address field on the add/edit network IP modals.
+ *
+ * Runs the exact same checkIpForNetwork() the POST handler runs, so what the
+ * field says while you type is what the save will do - no second copy of the
+ * rules to drift. It's advisory only; the handler still checks on submit.
+ */
+if (isset($_GET['network_ip_check'])) {
+    enforceUserPermission('module_support', 2);
+
+    $network_id = intval($_GET['network_id'] ?? 0);
+    $ip_id = intval($_GET['ip_id'] ?? 0);
+
+    $client_id = intval(getFieldById('networks', $network_id, 'network_client_id'));
+
+    enforceClientAccess();
+
+    $ip = $_GET['ip'] ?? '';
+
+    $response = ['ok' => false, 'ip' => '', 'message' => ''];
+
+    if (trim($ip) !== '') {
+
+        $ip_error = checkIpForNetwork($ip, $network_id, $ip_id);
+
+        if ($ip_error === '') {
+            $response['ok'] = true;
+            $response['ip'] = $ip;
+            $response['message'] = "<i class='fas fa-fw fa-check me-2'></i>" . escapeHtml($ip) . " is available";
+        } else {
+            // checkIpForNetwork() builds its message for flashAlert(), which
+            // escapes at render - this lands in innerHTML instead, so it has
+            // to be escaped here
+            $response['message'] = "<i class='fas fa-fw fa-exclamation-triangle me-2'></i>" . alertMessageHtml($ip_error);
+        }
+
+    }
+
+    echo json_encode($response);
+}
+
 if (isset($_GET['contact_email_check'])) {
     enforceUserPermission('module_client', 2);
 

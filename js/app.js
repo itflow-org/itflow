@@ -883,3 +883,83 @@ function itflowToast(message, type) {
         delay: 5000
     }).show();
 }
+
+/*
+ * Live IP check for the network IP add/edit modals (agent/modals/network/).
+ *
+ * Calls the same checkIpForNetwork() the POST handler uses, via
+ * ajax.php?network_ip_check, so the field reports exactly the verdict the save
+ * will reach. Advisory only - the handler re-checks on submit, and this never
+ * blocks submission.
+ *
+ * Lives here rather than in the modal because includes/modal_footer.php
+ * re-executes this file on every ajax modal open, so the function is already
+ * defined by the time the modal's inline call runs.
+ */
+function itflowWatchNetworkIp(networkId, ipId) {
+
+    var input = document.getElementById('networkIpAddress');
+    var feedback = document.getElementById('networkIpFeedback');
+
+    if (!input || !feedback) {
+        return;
+    }
+
+    var timer = null;
+    var lastChecked = null;
+
+    function render(cls, html) {
+        feedback.className = 'small mt-1 ' + cls;
+        feedback.innerHTML = html;
+    }
+
+    function check() {
+
+        var value = input.value.trim();
+
+        if (value === '') {
+            render('', '');
+            input.classList.remove('is-valid', 'is-invalid');
+            lastChecked = null;
+            return;
+        }
+
+        if (value === lastChecked) {
+            return;
+        }
+
+        lastChecked = value;
+
+        itflowGet(
+            'ajax.php',
+            {network_ip_check: 'true', network_id: networkId, ip_id: ipId, ip: value},
+            function (data) {
+
+                var result;
+
+                try {
+                    result = JSON.parse(data);
+                } catch (e) {
+                    return;
+                }
+
+                // A slow earlier response must not paint over a newer one
+                if (input.value.trim() !== lastChecked) {
+                    return;
+                }
+
+                render(result.ok ? 'text-success' : 'text-danger', result.message);
+                input.classList.toggle('is-valid', result.ok);
+                input.classList.toggle('is-invalid', !result.ok);
+            }
+        );
+    }
+
+    input.addEventListener('input', function () {
+        clearTimeout(timer);
+        timer = setTimeout(check, 350);
+    });
+
+    input.addEventListener('blur', check);
+
+}

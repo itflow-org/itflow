@@ -15,6 +15,11 @@ $client_id = intval($row['network_client_id']);
 
 enforceClientAccess();
 
+// The part of the address this subnet fixes. Empty for IPv6, a prefix under
+// /8, or a subnet that won't parse - then the field takes a whole address.
+$ip_fixed_octets = ipSubnetFixedOctets($row['network']);
+$ip_host_octets = $ip_fixed_octets ? 4 - substr_count($ip_fixed_octets, '.') : 0;
+
 ob_start();
 
 ?>
@@ -31,9 +36,19 @@ ob_start();
         <div class="mb-3">
             <label>IP Address <strong class="text-danger">*</strong></label>
             <div class="input-group">
+                <?php if ($ip_fixed_octets) { ?>
+                    <span class="input-group-text font-monospace text-bold"><?= escapeHtml($ip_fixed_octets) ?></span>
+                    <input type="text" class="form-control font-monospace" name="ip_address" id="networkIpAddress"
+                        placeholder="<?= $ip_host_octets === 1 ? '10' : str_repeat('0.', $ip_host_octets - 1) . '10' ?>"
+                        <?= $ip_host_octets === 1 ? 'inputmode="numeric"' : '' ?>
+                        maxlength="<?= ($ip_host_octets * 4) - 1 ?>" required autofocus>
+                <?php } else { ?>
                     <span class="input-group-text"><i class="fa fa-fw fa-map-pin"></i></span>
-                <input type="text" class="form-control font-monospace" name="ip_address" placeholder="Must be inside <?= $network ?>" maxlength="45" required autofocus>
+                    <input type="text" class="form-control font-monospace" name="ip_address" id="networkIpAddress"
+                        placeholder="Must be inside <?= $network ?>" maxlength="45" required autofocus>
+                <?php } ?>
             </div>
+            <div class="small mt-1" id="networkIpFeedback"></div>
             <small class="text-secondary"><?= $network_name ?> &mdash; <span class="font-monospace"><?= $network ?></span></small>
         </div>
 
@@ -59,6 +74,12 @@ ob_start();
         <button type="button" class="btn btn-light" data-bs-dismiss="modal"><i class="fa fa-times me-2"></i>Cancel</button>
     </div>
 </form>
+
+<script>
+    // Live version of the duplicate / inside-the-subnet checks. Advisory only -
+    // agent/post/network_ip.php runs the same checks again on submit.
+    itflowWatchNetworkIp(<?= $network_id ?>, 0);
+</script>
 
 <?php
 

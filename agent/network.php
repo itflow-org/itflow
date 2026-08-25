@@ -77,7 +77,22 @@ if (mysqli_num_rows($sql) == 0) {
 
     $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 
+    // The count above reflects the search box - the sidebar wants the real total
+    $ip_total = intval(mysqli_fetch_row(mysqli_query($mysqli, "SELECT COUNT(ip_id) FROM network_ips WHERE ip_network_id = $network_id"))[0]);
+
     ?>
+
+    <ol class="breadcrumb d-print-none">
+        <li class="breadcrumb-item">
+            <a href="client_overview.php?client_id=<?= $client_id ?>"><?= $client_name ?></a>
+        </li>
+        <li class="breadcrumb-item">
+            <a href="networks.php?<?= $client_url ?>">Networks</a>
+        </li>
+        <li class="breadcrumb-item active">
+            <i class="fas fa-fw fa-network-wired"></i> <?= $network_name ?>
+        </li>
+    </ol>
 
     <div class="row">
 
@@ -95,30 +110,38 @@ if (mysqli_num_rows($sql) == 0) {
                     <?php } ?>
                 </div>
                 <div class="card-body">
-                    <div><i class="fa fa-fw fa-network-wired text-secondary me-2"></i><span class="font-monospace"><?= $network ?></span></div>
+
+                    <div class="text-secondary small text-uppercase">Network</div>
+                    <div class="font-monospace mb-3"><i class="fa fa-fw fa-network-wired text-secondary me-2"></i><?= $network ?></div>
+
                     <?php if ($network_vlan) { ?>
-                        <div class="mt-2"><i class="fa fa-fw fa-layer-group text-secondary me-2"></i>VLAN <span class="font-monospace"><?= $network_vlan ?></span></div>
+                        <div class="text-secondary small text-uppercase">VLAN</div>
+                        <div class="font-monospace mb-3"><i class="fa fa-fw fa-layer-group text-secondary me-2"></i><?= $network_vlan ?></div>
                     <?php }
                     if ($network_gateway) { ?>
-                        <div class="mt-2"><i class="fa fa-fw fa-route text-secondary me-2"></i><span class="font-monospace"><?= $network_gateway ?></span></div>
+                        <div class="text-secondary small text-uppercase">Gateway</div>
+                        <div class="font-monospace mb-3"><i class="fa fa-fw fa-route text-secondary me-2"></i><?= $network_gateway ?></div>
                     <?php }
                     if ($network_dhcp_range) { ?>
-                        <div class="mt-2"><i class="fa fa-fw fa-arrows-alt-h text-secondary me-2"></i><span class="font-monospace"><?= $network_dhcp_range ?></span></div>
+                        <div class="text-secondary small text-uppercase">Assignable IP Range</div>
+                        <div class="font-monospace mb-3"><i class="fa fa-fw fa-arrows-alt-h text-secondary me-2"></i><?= $network_dhcp_range ?></div>
                     <?php }
                     if ($network_primary_dns) { ?>
-                        <div class="mt-2"><i class="fa fa-fw fa-globe text-secondary me-2"></i><span class="font-monospace"><?= $network_primary_dns ?></span></div>
+                        <div class="text-secondary small text-uppercase">Primary DNS</div>
+                        <div class="font-monospace mb-3"><i class="fa fa-fw fa-globe text-secondary me-2"></i><?= $network_primary_dns ?></div>
                     <?php }
                     if ($network_secondary_dns) { ?>
-                        <div class="mt-2"><i class="fa fa-fw fa-globe text-secondary me-2"></i><span class="font-monospace"><?= $network_secondary_dns ?></span></div>
+                        <div class="text-secondary small text-uppercase">Secondary DNS</div>
+                        <div class="font-monospace mb-3"><i class="fa fa-fw fa-globe text-secondary me-2"></i><?= $network_secondary_dns ?></div>
                     <?php }
                     if ($location_name) { ?>
-                        <div class="mt-2"><i class="fa fa-fw fa-map-marker-alt text-secondary me-2"></i><?= $location_name ?></div>
+                        <div class="text-secondary small text-uppercase">Location</div>
+                        <div class="mb-3"><i class="fa fa-fw fa-map-marker-alt text-secondary me-2"></i><?= $location_name ?></div>
                     <?php } ?>
-                    <div class="mt-3">
-                        <a class="btn btn-light btn-sm" href="networks.php?<?= $client_url ?>">
-                            <i class="fa fa-fw fa-arrow-left me-2"></i>All Networks
-                        </a>
-                    </div>
+
+                    <div class="text-secondary small text-uppercase">Documented IPs</div>
+                    <div class="font-monospace"><i class="fa fa-fw fa-map-pin text-secondary me-2"></i><?= $ip_total ?></div>
+
                 </div>
             </div>
 

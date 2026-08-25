@@ -11,6 +11,7 @@ $sql = mysqli_query($mysqli, "SELECT ip_address, ip_description, ip_hostname, ip
     WHERE ip_id = $ip_id LIMIT 1");
 
 $row = mysqli_fetch_assoc($sql);
+$network_id = intval($row['ip_network_id']);
 $ip_address = escapeHtml($row['ip_address']);
 $ip_hostname = escapeHtml($row['ip_hostname']);
 $ip_description = escapeHtml($row['ip_description']);
@@ -19,6 +20,14 @@ $network = escapeHtml($row['network']);
 $client_id = intval($row['network_client_id']);
 
 enforceClientAccess();
+
+// Same split as the add modal - the fixed octets are shown, the host part is
+// what's editable. An address that predates the subnet (or sits outside it)
+// won't match the prefix and is shown in full so it can still be corrected.
+$ip_fixed_octets = ipSubnetFixedOctets($row['network']);
+$ip_host_octets = $ip_fixed_octets ? 4 - substr_count($ip_fixed_octets, '.') : 0;
+$ip_host_value = escapeHtml(ipSuffixForDisplay($row['ip_address'], $row['network']));
+$ip_prefix_matched = ($ip_fixed_octets !== '' && $ip_host_value !== $ip_address);
 
 ob_start();
 
@@ -36,9 +45,19 @@ ob_start();
         <div class="mb-3">
             <label>IP Address <strong class="text-danger">*</strong></label>
             <div class="input-group">
+                <?php if ($ip_prefix_matched) { ?>
+                    <span class="input-group-text font-monospace text-bold"><?= escapeHtml($ip_fixed_octets) ?></span>
+                    <input type="text" class="form-control font-monospace" name="ip_address" id="networkIpAddress"
+                        value="<?= $ip_host_value ?>"
+                        <?= $ip_host_octets === 1 ? 'inputmode="numeric"' : '' ?>
+                        maxlength="<?= ($ip_host_octets * 4) - 1 ?>" required>
+                <?php } else { ?>
                     <span class="input-group-text"><i class="fa fa-fw fa-map-pin"></i></span>
-                <input type="text" class="form-control font-monospace" name="ip_address" value="<?= $ip_address ?>" maxlength="45" required>
+                    <input type="text" class="form-control font-monospace" name="ip_address" id="networkIpAddress"
+                        value="<?= $ip_address ?>" maxlength="45" required>
+                <?php } ?>
             </div>
+            <div class="small mt-1" id="networkIpFeedback"></div>
             <small class="text-secondary"><?= $network_name ?> &mdash; <span class="font-monospace"><?= $network ?></span></small>
         </div>
 
@@ -64,6 +83,12 @@ ob_start();
         <button type="button" class="btn btn-light" data-bs-dismiss="modal"><i class="fa fa-times me-2"></i>Cancel</button>
     </div>
 </form>
+
+<script>
+    // This row's own id is passed so saving an unchanged address doesn't report
+    // itself as a duplicate
+    itflowWatchNetworkIp(<?= $network_id ?>, <?= $ip_id ?>);
+</script>
 
 <?php
 
