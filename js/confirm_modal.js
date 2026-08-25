@@ -24,6 +24,10 @@ document.addEventListener('click', function (e) {
     const destructive = link.classList.contains('text-danger');
 
     Swal.fire({
+        // SweetAlert2 has no idea about Bootstrap's mode - it keys its own dark
+        // palette off the `theme` option and defaults to 'light', so the dialog
+        // stayed white on a dark page. Read at fire time, not at load.
+        theme: document.documentElement.getAttribute('data-bs-theme') === 'dark' ? 'dark' : 'light',
         title: link.dataset.confirmTitle || 'Are you sure?',
         text: link.dataset.confirmText || '',
         icon: link.dataset.confirmIcon || (destructive ? 'warning' : 'question'),

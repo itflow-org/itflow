@@ -1083,6 +1083,26 @@ a:focus {
     --fc-classic-button-foreground: #000;
 }
 
+/* --- SweetAlert2 ----------------------------------------------------------
+   v11 keys its dark palette on [data-swal2-theme=dark], an attribute it sets
+   on its own container from the `theme` option - which defaults to "light",
+   so the confirm dialogs stayed white in dark mode. js/confirm_modal.js now
+   hands it the app's mode.
+
+   Same treatment as FullCalendar above: its dark theme is its own near-black
+   (#19191a) next to a #212529 page, so the two seed variables are repointed
+   onto the app's colours. Everything else in its dark block - text, input
+   background, validation message - derives from these two, so nothing further
+   needs restating here. */
+[data-swal2-theme=dark] {
+    --swal2-dark-theme-black: var(--bs-body-bg);
+    --swal2-dark-theme-white: var(--bs-body-color);
+
+    /* The popup is borderless by default, which reads fine as a white panel on
+       the backdrop but leaves a #212529 one with no edge against it. */
+    --swal2-border: 1px solid var(--bs-border-color);
+}
+
 /* --- Close button focus ring ---------------------------------------------
    Bootstrap styles .btn-close on plain :focus rather than :focus-visible, so
    any programmatic or mouse-driven focus leaves a visible ring on it. Keyboard
