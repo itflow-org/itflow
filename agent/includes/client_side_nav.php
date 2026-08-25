@@ -139,7 +139,7 @@
                         </li>
 
                         <li class="nav-item">
-                            <a href="/agent/networks.php?client_id=<?= $client_id ?>" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "networks.php") { echo "active"; } ?>">
+                            <a href="/agent/networks.php?client_id=<?= $client_id ?>" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "networks.php" || basename($_SERVER["PHP_SELF"]) == "network.php") { echo "active"; } ?>">
                                 <i class="nav-icon fas fa-network-wired"></i>
                                 <p>
                                     Networks
