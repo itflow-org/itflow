@@ -63,7 +63,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
     </div>
     <div class="table-responsive-sm">
         <table class="table table-striped table-borderless table-hover mb-0">
-            <thead class="text-dark <?php if ($num_rows == 0) { echo "d-none"; } ?>">
+            <thead class="text-dark <?php if (!$num_rows[0]) { echo "d-none"; } ?>">
             <tr>
                 <th>
                     <a class="text-dark" href="?<?= $url_query_strings_sort ?>&sort=client_name&order=<?= $disp ?>">

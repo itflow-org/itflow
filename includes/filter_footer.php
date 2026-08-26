@@ -7,6 +7,14 @@
  * Relies upon the $num_rows variable being set correctly
  */
 
+/*
+ * Nothing to paginate means nothing rendered below the filter bar at all - the
+ * tables already hide their <thead> at zero rows. Handled here rather than in
+ * each of the 48 listing pages because this file is the one thing they all
+ * include, and it already has $num_rows.
+ */
+require __DIR__ . '/inc_empty_state.php';
+
 $total_found_rows = $num_rows[0];
 $total_pages = ceil($total_found_rows / $user_config_records_per_page);
 
@@ -119,9 +127,3 @@ if ($total_found_rows > 5) {
     <?php
 
 }
-
-if ($total_found_rows == 0) {
-    echo "<center class='my-3'><i class='far fa-fw fa-6x fa-meh-rolling-eyes text-secondary'></i><h3 class='text-secondary mt-3'>No Results</h3></center>";
-}
-
-?>

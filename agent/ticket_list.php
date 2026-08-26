@@ -142,7 +142,7 @@ if ($tickets) {
 
             <div class="table-responsive">
                 <table class="table table-striped table-borderless table-hover mb-0">
-                    <thead class="text-dark text-nowrap">
+                    <thead class="text-dark text-nowrap <?php if (!$num_rows[0]) { echo "d-none"; } ?>">
                     <tr>
                         <td class="checkbox-column">
                             <div class="form-check">
