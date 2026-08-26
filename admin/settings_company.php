@@ -14,8 +14,12 @@ $company_address = escapeHtml($row['company_address']);
 $company_city = escapeHtml($row['company_city']);
 $company_state = escapeHtml($row['company_state']);
 $company_zip = escapeHtml($row['company_zip']);
-$company_phone_country_code = formatPhoneNumber($row['company_phone_country_code']);
-$company_phone = escapeHtml(formatPhoneNumber($row['company_phone'], $company_phone_country_code));
+// escapeHtml, not formatPhoneNumber - this is a dial code, not a number.
+// The old call was a no-op (no $country_code arg means no reformatting) but
+// it left the value unescaped on the way into a hidden input, unlike every
+// sibling modal.
+$company_phone_country_code = escapeHtml($row['company_phone_country_code']);
+$company_phone = escapeHtml(formatPhoneNumber($row['company_phone'], $company_phone_country_code, false));
 $company_email = escapeHtml($row['company_email']);
 $company_website = escapeHtml($row['company_website']);
 $company_logo = escapeHtml($row['company_logo']);

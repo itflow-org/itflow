@@ -384,7 +384,7 @@ function guardExportPdfRowCount($format, $num_rows) {
  * Presentation only. CSV keeps numbers raw so spreadsheets and importers still
  * see a number; the PDF is for reading, so it gets thousands separators.
  */
-function formatExportValue($value, $format, $output) {
+function formatExportValue($value, $format, $output, $row = [], $field = '') {
 
     // An empty field is empty, whatever its format - a blank amount is not 0.00
     if ($value === null || $value === '') {
@@ -392,7 +392,10 @@ function formatExportValue($value, $format, $output) {
     }
 
     if ($format === 'phone') {
-        return formatPhoneNumber($value);
+        // Every phone column in the schema is paired with <column>_country_code,
+        // and the export queries all select the table wholesale, so the code is
+        // already in the row - it just was not reachable from here before.
+        return formatPhoneNumber($value, $row[$field . '_country_code'] ?? '');
     }
 
     if ($output === 'pdf' && $format === 'money') {
@@ -701,7 +704,7 @@ function addExportRow(&$export, $row) {
             $export['missing'][$field] = true;
         }
 
-        $values[$column_key] = formatExportValue($row[$field] ?? '', $column['format'] ?? '', $export['format']);
+        $values[$column_key] = formatExportValue($row[$field] ?? '', $column['format'] ?? '', $export['format'], $row, $field);
     }
 
     if ($export['format'] === 'csv') {
