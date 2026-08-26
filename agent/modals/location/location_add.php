@@ -131,7 +131,7 @@ ob_start();
                         <select class="form-select select2" name="country">
                             <option value="">- Country -</option>
                             <?php foreach($countries_array as $country_name) { ?>
-                                <option <?php if ($session_company_country == $country_name) { echo "selected"; } ?> ><?= $country_name ?></option>
+                                <option <?php if ($session_company_country == $country_name) { echo "selected"; } ?>  data-iso2="<?= $country_iso2_array[$country_name] ?? '' ?>"><?= $country_name ?></option>
                             <?php } ?>
                         </select>
                     </div>
@@ -168,8 +168,8 @@ ob_start();
                         <div class="mb-3">
                             <div class="input-group">
                                     <span class="input-group-text"><i class="fa fa-fw fa-phone"></i></span>
-                                <input type="tel" class="form-control w-25 flex-grow-0" name="phone_country_code" placeholder="+" maxlength="4">
-                                <input type="tel" class="form-control" name="phone" placeholder="Phone Number" maxlength="200">
+                                <input type="hidden" name="phone_country_code">
+                                <input type="tel" class="form-control" name="phone" placeholder="Phone Number" maxlength="200" data-itflow-phone="phone_country_code" data-itflow-phone-country-select="country">
                             </div>
                         </div>
                     </div>
@@ -186,8 +186,8 @@ ob_start();
                         <div class="mb-3">
                             <div class="input-group">
                                     <span class="input-group-text"><i class="fa fa-fw fa-fax"></i></span>
-                                <input type="tel" class="form-control w-25 flex-grow-0" name="fax_country_code" placeholder="+" maxlength="4">
-                                <input type="tel" class="form-control" name="fax" placeholder="Fax Number" maxlength="200">
+                                <input type="hidden" name="fax_country_code">
+                                <input type="tel" class="form-control" name="fax" placeholder="Fax Number" maxlength="200" data-itflow-phone="fax_country_code" data-itflow-phone-country-select="country">
                             </div>
                         </div>
                     </div>

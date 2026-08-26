@@ -44,6 +44,12 @@ header("X-Frame-Options: DENY");
 
     <!-- Scripts -->
 </head>
-<body class="layout-fixed sidebar-expand-lg app-loaded theme-<?= escapeHtml($config_theme) ?>" data-lte-primary="<?= escapeHtml($config_theme) ?>">
+<?php /* intl-tel-input needs an ISO2 country, the companies table stores a
+         country NAME - $country_iso2_array bridges the two. Passed as a data
+         attribute rather than an inline <script> so it does not add to the
+         CSP unsafe-inline debt. Empty when the company has no country set,
+         which js/app.js reads as "let the library decide". */ ?>
+<body class="layout-fixed sidebar-expand-lg app-loaded theme-<?= escapeHtml($config_theme) ?>" data-lte-primary="<?= escapeHtml($config_theme) ?>"
+      data-itflow-phone-country="<?= escapeHtml($country_iso2_array[$session_company_country] ?? '') ?>">
     <div class="app-wrapper text-sm">
 

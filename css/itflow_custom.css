@@ -1175,6 +1175,57 @@ a:focus {
     --lte-primary-color-rgb: 0, 0, 0;
 }
 
+/* --- intl-tel-input --------------------------------------------------------
+   The library wraps the input in a .iti container, which inside an
+   .input-group becomes the flex item instead of the input. Bootstrap sizes its
+   children with `.input-group > .form-control { flex: 1 1 auto; width: 1% }`,
+   and that selector no longer matches the now-nested input - so without these
+   the wrapper collapses to its content width and the field sits detached from
+   the addon beside it.
+
+   The wrapper takes the sizing the input used to get, and the input inside it
+   is squared off on the left because .iti draws the country button there and
+   the addon draws the rounded edge. */
+.input-group > .iti {
+    position: relative;
+    flex: 1 1 auto;
+    width: 1%;
+    min-width: 0;
+}
+.input-group > .iti > .form-control {
+    width: 100%;
+}
+.input-group > .iti:not(:last-child) > .form-control {
+    border-top-right-radius: 0;
+    border-bottom-right-radius: 0;
+}
+.input-group > .iti:not(:first-child) > .form-control,
+.iti--separate-dial-code .form-control {
+    border-top-left-radius: 0;
+    border-bottom-left-radius: 0;
+}
+/* the country button is chrome, not a control - keep it on the form-control
+   palette so it does not read as a raised button in either mode */
+.iti__selected-country {
+    background-color: var(--bs-tertiary-bg);
+    border: var(--bs-border-width) solid var(--bs-border-color);
+    border-right: 0;
+    border-radius: var(--bs-border-radius) 0 0 var(--bs-border-radius);
+}
+.iti__country-list,
+.iti__dropdown-content {
+    background-color: var(--bs-body-bg);
+    color: var(--bs-body-color);
+    border: var(--bs-border-width) solid var(--bs-border-color);
+}
+.iti__country.iti__highlight,
+.iti__country:hover {
+    background-color: var(--bs-secondary-bg);
+}
+.iti__dial-code {
+    color: var(--bs-secondary-color);
+}
+
 /* --- Print ----------------------------------------------------------------
    AdminLTE 3 bundled Bootstrap 4, whose print reboot shrank every printout by
    declaring `@page { size: a3 }` and letting the browser scale that oversized

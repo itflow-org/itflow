@@ -18,6 +18,20 @@ $sql = mysqli_query($mysqli, "SELECT contact_archived_at, contact_billing, conta
 
 $row = mysqli_fetch_assoc($sql);
 $client_id = intval($row['contact_client_id']);
+
+// A contact's phone belongs to the CLIENT's country, not the company's. The
+// client's country lives on its primary location; falls through to the
+// company default when the client has none.
+$client_phone_iso2 = '';
+if ($client_id) {
+    $sql_client_country = mysqli_query($mysqli, "SELECT location_country FROM locations
+        WHERE location_client_id = $client_id AND location_primary = 1 LIMIT 1");
+    $row_client_country = mysqli_fetch_assoc($sql_client_country);
+    if ($row_client_country) {
+        $client_phone_iso2 = $country_iso2_array[$row_client_country['location_country']] ?? '';
+    }
+}
+
 $contact_name = escapeHtml($row['contact_name']);
 $contact_title = escapeHtml($row['contact_title']);
 $contact_department = escapeHtml($row['contact_department']);
@@ -59,7 +73,8 @@ ob_start();
     <h5 class="modal-title"><i class='fas fa-user-edit me-2'></i>Editing Contact: <strong><?= $contact_name ?></strong></h5>
     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
 </div>
-<form action="post.php" method="post" enctype="multipart/form-data" autocomplete="off">
+<form action="post.php" method="post" enctype="multipart/form-data" autocomplete="off"
+      data-itflow-phone-country="<?= escapeHtml($client_phone_iso2) ?>">
     <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
     <input type="hidden" name="contact_id" value="<?= $contact_id ?>">
 
@@ -119,8 +134,8 @@ ob_start();
                         <div class="mb-3">
                             <div class="input-group">
                                     <span class="input-group-text"><i class="fa fa-fw fa-phone"></i></span>
-                                <input type="tel" class="form-control w-25 flex-grow-0" name="phone_country_code" value="<?= "$contact_phone_country_code" ?>" placeholder="+" maxlength="4">
-                                <input type="tel" class="form-control" name="phone" value="<?= $contact_phone ?>" placeholder="Phone Number" maxlength="200">
+                                <input type="hidden" name="phone_country_code" value="<?= "$contact_phone_country_code" ?>">
+                                <input type="tel" class="form-control" name="phone" value="<?= $contact_phone ?>" placeholder="Phone Number" maxlength="200" data-itflow-phone="phone_country_code">
                             </div>
                         </div>
                     </div>
@@ -137,8 +152,8 @@ ob_start();
                         <div class="mb-3">
                             <div class="input-group">
                                     <span class="input-group-text"><i class="fa fa-fw fa-mobile-alt"></i></span>
-                                <input type="tel" class="form-control w-25 flex-grow-0" name="mobile_country_code" value="<?= "$contact_mobile_country_code" ?>" placeholder="+" maxlength="4">
-                                <input type="tel" class="form-control" name="mobile" value="<?= $contact_mobile ?>" placeholder="Phone Number" maxlength="200">
+                                <input type="hidden" name="mobile_country_code" value="<?= "$contact_mobile_country_code" ?>">
+                                <input type="tel" class="form-control" name="mobile" value="<?= $contact_mobile ?>" placeholder="Phone Number" maxlength="200" data-itflow-phone="mobile_country_code">
                             </div>
                         </div>
                     </div>

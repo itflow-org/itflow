@@ -613,6 +613,9 @@ function itflowInit() {
     itflowStep('datatables', function () {
         new DataTable('.dataTables');
     });
+
+    // Phone inputs
+    itflowStep('phone-inputs', initPhoneInputs);
 }
 
 // modal_footer.php re-loads this file on every ajax modal open, so run now if
@@ -962,4 +965,148 @@ function itflowWatchNetworkIp(networkId, ipId) {
 
     input.addEventListener('blur', check);
 
+}
+
+
+/**
+ * intl-tel-input on every phone field.
+ *
+ * ITFlow stores the dial code and the number in separate columns
+ * (contact_phone_country_code / contact_phone and friends), so the library runs
+ * in separateDialCode mode: its dropdown owns the dial code, the visible input
+ * holds only the national number. That keeps the existing schema, the API and
+ * every render site untouched.
+ *
+ * Markup contract:
+ *   <input type="hidden" name="phone_country_code" value="1">
+ *   <input type="tel" name="phone" data-itflow-phone="phone_country_code">
+ *
+ * Which country a field starts on, most specific first:
+ *   1. data-itflow-phone-country-select on the input names a <select> in the
+ *      same form (the address Country picker) - the field follows it live, so
+ *      changing a client's country re-formats their phone straight away
+ *   2. data-itflow-phone-country on the form - a record's own country, used by
+ *      the contact modals where there is no country picker but the contact
+ *      belongs to a client that has one
+ *   3. data-itflow-phone-country on <body> - the company's country
+ *   4. the dial code already stored on the record
+ *
+ * A stored dial code ranks LAST on purpose: +1 alone matches about 25
+ * countries, so it can only ever recover "some country using this code", while
+ * every source above it names an actual country.
+ */
+function initPhoneInputs() {
+    if (typeof window.intlTelInput !== 'function') {
+        return;
+    }
+
+    document.querySelectorAll('input[data-itflow-phone]').forEach(function (el) {
+        // One field must never take the rest down with it. The first version of
+        // this called v17 API names that v29 dropped, and because the whole
+        // sweep shared one try/catch the throw on the first phone field meant
+        // every mobile and fax input after it silently never initialised.
+        try {
+            initOnePhoneInput(el);
+        } catch (e) {
+            console.error('itflow phone input failed:', el.name, e);
+        }
+    });
+}
+
+function initOnePhoneInput(el) {
+    // modal_footer.php re-executes this file on every ajax modal open, so
+    // without a guard each open would stack another instance on the input.
+    if (el.dataset.itiReady) {
+        return;
+    }
+
+    var form = el.form;
+    var hidden = form ? form.querySelector('input[name="' + el.dataset.itflowPhone + '"]') : null;
+    if (!hidden) {
+        return;
+    }
+    el.dataset.itiReady = '1';
+
+    var countrySelect = null;
+    if (form && el.dataset.itflowPhoneCountrySelect) {
+        countrySelect = form.querySelector('[name="' + el.dataset.itflowPhoneCountrySelect + '"]');
+    }
+
+    var initial = isoFromSelect(countrySelect)
+        || (form ? (form.dataset.itflowPhoneCountry || '') : '')
+        || (document.body.dataset.itflowPhoneCountry || '')
+        || isoForDialCode((hidden.value || '').replace(/[^0-9]/g, ''))
+        || '';
+
+    var iti = window.intlTelInput(el, {
+        initialCountry: initial.toLowerCase(),
+        separateDialCode: true,
+        countrySearch: true,
+        formatAsYouType: true
+    });
+
+    var sync = function () {
+        var country = iti.getSelectedCountry();
+        hidden.value = country && country.dialCode ? country.dialCode : '';
+    };
+
+    el.addEventListener('countrychange', sync);
+
+    // Follow the address country picker while the form is open.
+    if (countrySelect) {
+        countrySelect.addEventListener('change', function () {
+            var iso2 = isoFromSelect(countrySelect);
+            if (iso2) {
+                iti.setSelectedCountry(iso2.toLowerCase());
+                sync();
+            }
+        });
+    }
+
+    // Belt and braces for a form saved without ever opening the dropdown.
+    if (form && !form.dataset.itiSyncBound) {
+        form.dataset.itiSyncBound = '1';
+        form.addEventListener('submit', function () {
+            form.querySelectorAll('input[data-itflow-phone]').forEach(function (input) {
+                var target = form.querySelector('input[name="' + input.dataset.itflowPhone + '"]');
+                var inst = window.intlTelInput.getInstance(input);
+                if (target && inst) {
+                    var c = inst.getSelectedCountry();
+                    target.value = c && c.dialCode ? c.dialCode : '';
+                }
+            });
+        });
+    }
+
+    sync();
+}
+
+/**
+ * ISO2 for the country a <select> is currently on.
+ *
+ * Each <option> carries data-iso2, stamped by PHP from $country_iso2_array, so
+ * the 194-entry name -> ISO2 map never has to be duplicated into JS or shipped
+ * to the browser as a blob. It also sidesteps an inline <script>, which the
+ * CSP work would have to unpick later.
+ */
+function isoFromSelect(select) {
+    if (!select) {
+        return '';
+    }
+    var option = select.selectedOptions ? select.selectedOptions[0] : null;
+    return option && option.dataset ? (option.dataset.iso2 || '') : '';
+}
+
+/**
+ * First ISO2 whose dial code matches. Ambiguous by nature, which is why this is
+ * only ever the last resort.
+ */
+function isoForDialCode(dialCode) {
+    if (!dialCode || typeof window.intlTelInput.getAllCountries !== 'function') {
+        return '';
+    }
+    var match = window.intlTelInput.getAllCountries().find(function (c) {
+        return c.dialCode === dialCode;
+    });
+    return match ? match.iso2 : '';
 }

@@ -119,8 +119,8 @@ ob_start();
                         <div class="mb-3">
                             <div class="input-group">
                                     <span class="input-group-text"><i class="fa fa-fw fa-phone"></i></span>
-                                <input type="tel" class="form-control w-25 flex-grow-0" name="phone_country_code" placeholder="+" maxlength="4" value="<?= $vendor_phone_country_code ?>">
-                                <input type="tel" class="form-control" name="phone" maxlength="200" value="<?= $vendor_phone ?>">
+                                <input type="hidden" name="phone_country_code" value="<?= $vendor_phone_country_code ?>">
+                                <input type="tel" class="form-control" name="phone" maxlength="200" value="<?= $vendor_phone ?>" data-itflow-phone="phone_country_code">
                             </div>
                         </div>
                     </div>

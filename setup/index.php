@@ -1218,7 +1218,7 @@ if (isset($_POST['add_telemetry'])) {
                                         <select class="form-select select2" name="country" required>
                                             <option value="">- Country -</option>
                                             <?php foreach($countries_array as $country_name) { ?>
-                                                <option><?= $country_name ?></option>
+                                                <option data-iso2="<?= $country_iso2_array[$country_name] ?? '' ?>"><?= $country_name ?></option>
                                             <?php } ?>
                                         </select>
                                     </div>
