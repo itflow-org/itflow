@@ -981,19 +981,22 @@ function itflowWatchNetworkIp(networkId, ipId) {
  *   <input type="hidden" name="phone_country_code" value="1">
  *   <input type="tel" name="phone" data-itflow-phone="phone_country_code">
  *
- * Which country a field starts on, most specific first:
- *   1. data-itflow-phone-country-select on the input names a <select> in the
- *      same form (the address Country picker) - the field follows it live, so
- *      changing a client's country re-formats their phone straight away
- *   2. data-itflow-phone-country on the form - a record's own country, used by
- *      the contact modals where there is no country picker but the contact
- *      belongs to a client that has one
- *   3. data-itflow-phone-country on <body> - the company's country
- *   4. the dial code already stored on the record
+ * Which country a field starts on:
  *
- * A stored dial code ranks LAST on purpose: +1 alone matches about 25
- * countries, so it can only ever recover "some country using this code", while
- * every source above it names an actual country.
+ *   A saved record ALWAYS keeps the dial code it was saved with. Anything else
+ *   silently rewrites data - open a UK contact under a US client, close the
+ *   modal, and its +44 would have been saved back as +1.
+ *
+ *   Context only decides WHICH country claims that code, since a code is not a
+ *   country (+1 covers 25 of them). In order: the address Country picker named
+ *   by data-itflow-phone-country-select on the input, then
+ *   data-itflow-phone-country on the form (the contact modals use this for the
+ *   client's country), then the same attribute on <body> (the company's).
+ *   If none of them claims the stored code, the code's canonical country wins -
+ *   priority 0 in the library's own data, i.e. US for +1 rather than whichever
+ *   territory happens to sort first.
+ *
+ *   With nothing stored - a new record - context is the whole answer.
  */
 function initPhoneInputs() {
     if (typeof window.intlTelInput !== 'function') {
@@ -1032,11 +1035,12 @@ function initOnePhoneInput(el) {
         countrySelect = form.querySelector('[name="' + el.dataset.itflowPhoneCountrySelect + '"]');
     }
 
-    var initial = isoFromSelect(countrySelect)
+    var stored = (hidden.value || '').replace(/[^0-9]/g, '');
+    var context = isoFromSelect(countrySelect)
         || (form ? (form.dataset.itflowPhoneCountry || '') : '')
-        || (document.body.dataset.itflowPhoneCountry || '')
-        || isoForDialCode((hidden.value || '').replace(/[^0-9]/g, ''))
-        || '';
+        || (document.body.dataset.itflowPhoneCountry || '');
+
+    var initial = stored ? isoForDialCode(stored, context) : context;
 
     var iti = window.intlTelInput(el, {
         initialCountry: initial.toLowerCase(),
@@ -1049,6 +1053,14 @@ function initOnePhoneInput(el) {
         var country = iti.getSelectedCountry();
         hidden.value = country && country.dialCode ? country.dialCode : '';
     };
+
+    // Only write back on load when we know the stored code survived. If it
+    // resolved to nothing - a code no country uses - leave the field exactly as
+    // saved rather than blanking it; the user picking a country will set it.
+    var selected = iti.getSelectedCountry();
+    if (!stored || (selected && selected.dialCode === stored)) {
+        sync();
+    }
 
     el.addEventListener('countrychange', sync);
 
@@ -1077,8 +1089,6 @@ function initOnePhoneInput(el) {
             });
         });
     }
-
-    sync();
 }
 
 /**
@@ -1098,15 +1108,32 @@ function isoFromSelect(select) {
 }
 
 /**
- * First ISO2 whose dial code matches. Ambiguous by nature, which is why this is
- * only ever the last resort.
+ * Which country to show for a stored dial code.
+ *
+ * Prefers the contextual country when it actually uses that code, otherwise the
+ * canonical one. Plain .find() is wrong here - the library's data is in name
+ * order, so +1 would resolve to American Samoa. Priority 0 is the library's own
+ * marker for the country that owns a shared code.
  */
-function isoForDialCode(dialCode) {
+function isoForDialCode(dialCode, preferIso2) {
     if (!dialCode || typeof window.intlTelInput.getAllCountries !== 'function') {
         return '';
     }
-    var match = window.intlTelInput.getAllCountries().find(function (c) {
+    var matches = window.intlTelInput.getAllCountries().filter(function (c) {
         return c.dialCode === dialCode;
     });
-    return match ? match.iso2 : '';
+    if (!matches.length) {
+        return '';
+    }
+    if (preferIso2) {
+        var preferred = matches.find(function (c) {
+            return c.iso2 === preferIso2.toLowerCase();
+        });
+        if (preferred) {
+            return preferred.iso2;
+        }
+    }
+    return matches.reduce(function (best, c) {
+        return (c.priority || 0) < (best.priority || 0) ? c : best;
+    }).iso2;
 }
