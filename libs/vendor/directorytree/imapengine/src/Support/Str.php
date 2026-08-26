@@ -3,6 +3,7 @@
 namespace DirectoryTree\ImapEngine\Support;
 
 use BackedEnum;
+use Illuminate\Support\Collection;
 
 class Str
 {
@@ -75,18 +76,12 @@ class Str
     }
 
     /**
-     * Make a range set for use in a search command.
+     * Make an IMAP sequence set.
      */
     public static function set(int|string|array $from, int|float|string|null $to = null): string
     {
-        // If $from is an array with multiple elements, return them as a comma-separated list.
-        if (is_array($from) && count($from) > 1) {
-            return implode(',', $from);
-        }
-
-        // If $from is an array with a single element, return that element.
-        if (is_array($from) && count($from) === 1) {
-            return (string) reset($from);
+        if (is_array($from)) {
+            return static::toSequenceSet($from);
         }
 
         // At this point, $from is an integer. No upper bound provided, return $from as a string.
@@ -101,6 +96,44 @@ class Str
 
         // Otherwise, return a typical range string.
         return $from.':'.$to;
+    }
+
+    /**
+     * Convert the values into an IMAP sequence set.
+     *
+     * @param  array<int, int|string>  $values
+     */
+    protected static function toSequenceSet(array $values): string
+    {
+        return Collection::make(array_values($values))
+            ->chunkWhile(function (int|string $value, int $key, Collection $range) {
+                $previous = $range->last();
+
+                if (! is_numeric($value) || ! is_numeric($previous)) {
+                    return false;
+                }
+
+                $difference = (int) $value - (int) $previous;
+                $direction = (int) $previous <=> (int) $range->first();
+
+                return in_array($difference, [-1, 1], true)
+                    && ($range->count() === 1 || $difference === $direction);
+            })
+            ->map(fn (Collection $range) => static::toSequenceRange(
+                $range->first(),
+                $range->last(),
+            ))
+            ->implode(',');
+    }
+
+    /**
+     * Convert the values into an IMAP sequence range.
+     */
+    protected static function toSequenceRange(int|string $start, int|string $end): string
+    {
+        return (string) $start === (string) $end
+            ? (string) $start
+            : $start.':'.$end;
     }
 
     /**

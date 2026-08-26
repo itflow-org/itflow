@@ -229,4 +229,14 @@ class FakeStream implements StreamInterface
 
         Assert::assertTrue($found, "Failed asserting that the string '{$string}' was written to the stream.");
     }
+
+    /**
+     * Assert that the given data was not written to the stream.
+     */
+    public function assertNotWritten(string $string): void
+    {
+        foreach ($this->written as $written) {
+            Assert::assertStringNotContainsString($string, $written);
+        }
+    }
 }

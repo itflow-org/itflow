@@ -363,7 +363,7 @@ class ImapTokenizer
     /**
      * Reads an atom token.
      *
-     * ATOMs are sequences of printable ASCII characters that do not contain delimiters.
+     * ATOMs are sequences of non-control characters that do not contain delimiters.
      */
     protected function readAtom(): Atom
     {
@@ -496,20 +496,16 @@ class ImapTokenizer
      */
     protected function isValidAtomCharacter(string $char): bool
     {
-        // Get the ASCII code.
         $code = ord($char);
 
-        // Allow only printable ASCII (32-126).
-        if ($code < 32 || $code > 126) {
+        // Reject control characters and DEL while tolerating the
+        // 8-bit response text returned by some IMAP servers.
+        if ($code < 0x20 || $code === 0x7F) {
             return false;
         }
 
         // Delimiters are not allowed inside ATOMs.
-        if ($this->isDelimiter($char)) {
-            return false;
-        }
-
-        return true;
+        return ! $this->isDelimiter($char);
     }
 
     /**
