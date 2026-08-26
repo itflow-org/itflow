@@ -1179,8 +1179,10 @@ a:focus {
    AdminLTE 3 bundled Bootstrap 4, whose print reboot shrank every printout by
    declaring `@page { size: a3 }` and letting the browser scale that oversized
    page down onto the real sheet - roughly 71% on A4, 73% on Letter. Bootstrap
-   5 dropped that block and AdminLTE 4 ships no replacement, so pages now come
-   out at 1:1 and read about 1.4x larger than they used to.
+   5 dropped that block and AdminLTE 4 ships no page scaling of its own, so
+   pages come out at 1:1 and read about 1.4x larger than they used to.
+   AdminLTE 4.9.1 did add a real print block - it fixes the layout, the
+   chrome and the trailing blank page, but not the scale, so this stays.
 
    Deliberately NOT restoring the @page rule: modern browsers treat a CSS page
    size as a paper REQUEST rather than a scale hint, so it can hand you literal
@@ -1203,7 +1205,8 @@ a:focus {
        the card's edge with a box-shadow instead - and Bootstrap 4's print
        reboot then killed box-shadows, so a printed card had no outline at all,
        just the header's own bottom rule. AdminLTE 4 gives .card a real 1px
-       border, keeps the shadow, and ships no print reboot, so both now print.
+       border, keeps the shadow, and its print block leaves cards alone, so
+       both still print.
 
        border-WIDTH rather than the border shorthand, so .card-outline's 3px
        accent keeps its colour and can be handed its width straight back - it
@@ -1225,15 +1228,5 @@ a:focus {
     *::before,
     *::after {
         box-shadow: none !important;
-    }
-
-    /* .app-wrapper carries min-height:100vh so the layout fills the window on
-       screen. On paper a vh resolves against the whole SHEET while the content
-       box is the sheet MINUS the page margins, so the wrapper is always taller
-       than the area it can occupy and spills a sliver onto a second, blank
-       page - however short the invoice is. AdminLTE 4's own print block
-       rewrites this element's grid but never clears the height. */
-    .app-wrapper {
-        min-height: 0 !important;
     }
 }
