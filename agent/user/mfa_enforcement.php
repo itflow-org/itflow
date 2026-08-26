@@ -74,7 +74,7 @@ $data = "otpauth://totp/ITFlow:$session_email?secret=$token";
 
                     <p>
                         <small data-bs-toggle="tooltip" title="Can't Scan? Copy and paste this code into your app"><?= $token ?></small>
-                        <button type="button" class='btn btn-sm clipboardjs' data-clipboard-text='<?= $token ?>'><i class='far fa-copy text-secondary'></i></button>
+                        <button type="button" class='btn btn-sm btn-link clipboardjs' data-clipboard-text='<?= $token ?>'><i class='far fa-copy text-secondary'></i></button>
                     </p>
 
                     <div class="input-group mb-3">

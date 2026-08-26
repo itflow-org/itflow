@@ -415,7 +415,7 @@ ob_start();
                         <div class="mt-2"><i class="fa fa-fw fa-user text-secondary me-2"></i><?= $contact_name_display ?></div>
                     <?php }
                     if ($contact_email) { ?>
-                        <div class="mt-2"><i class="fa fa-fw fa-envelope text-secondary me-2"></i><a href='mailto:<?= $contact_email ?>'><?= $contact_email ?></a><button class='btn btn-sm clipboardjs' data-clipboard-text='<?= $contact_email ?>'><i class='far fa-copy text-secondary'></i></button></div>
+                        <div class="mt-2"><i class="fa fa-fw fa-envelope text-secondary me-2"></i><a href='mailto:<?= $contact_email ?>'><?= $contact_email ?></a><button class='btn btn-sm btn-link clipboardjs' data-clipboard-text='<?= $contact_email ?>'><i class='far fa-copy text-secondary'></i></button></div>
                     <?php }
                     if ($contact_phone) { ?>
                         <div class="mt-2"><i class="fa fa-fw fa-phone text-secondary me-2"></i><?= $contact_phone ?></div>
@@ -565,7 +565,7 @@ ob_start();
                         if (empty($credential_username)) {
                             $credential_username_display = "-";
                         } else {
-                            $credential_username_display = "$credential_username <button type='button' class='btn btn-sm clipboardjs' data-clipboard-text='$credential_username'><i class='far fa-copy text-secondary'></i></button>";
+                            $credential_username_display = "$credential_username <button type='button' class='btn btn-sm btn-link clipboardjs' data-clipboard-text='$credential_username'><i class='far fa-copy text-secondary'></i></button>";
                         }
                         $credential_otp_secret = escapeHtml($row['credential_otp_secret']);
                         if (empty($credential_otp_secret)) {

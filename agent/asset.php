@@ -383,7 +383,7 @@ if (isset($_GET['asset_id'])) {
                             <div class="mt-2"><i class="fa fa-fw fa-user text-secondary me-2"></i><?= $contact_name_display; ?></div>
                         <?php }
                         if ($contact_email) { ?>
-                            <div class="mt-2"><i class="fa fa-fw fa-envelope text-secondary me-2"></i><a href='mailto:<?= $contact_email; ?>'><?= $contact_email; ?></a><button class='btn btn-sm clipboardjs' data-clipboard-text='<?= $contact_email; ?>'><i class='far fa-copy text-secondary'></i></button></div>
+                            <div class="mt-2"><i class="fa fa-fw fa-envelope text-secondary me-2"></i><a href='mailto:<?= $contact_email; ?>'><?= $contact_email; ?></a><button class='btn btn-sm btn-link clipboardjs' data-clipboard-text='<?= $contact_email; ?>'><i class='far fa-copy text-secondary'></i></button></div>
                         <?php }
                         if ($contact_phone) { ?>
                             <div class="mt-2"><i class="fa fa-fw fa-phone text-secondary me-2"></i><?= $contact_phone ?></div>
@@ -680,13 +680,13 @@ if (isset($_GET['asset_id'])) {
                                     if (empty($credential_uri)) {
                                         $credential_uri_display = "-";
                                     } else {
-                                        $credential_uri_display = "$credential_uri<button class='btn btn-sm clipboardjs' data-clipboard-text='$credential_uri'><i class='far fa-copy text-secondary'></i></button><a href='$credential_uri' target='_blank'><i class='fa fa-external-link-alt text-secondary'></i></a>";
+                                        $credential_uri_display = "$credential_uri<button class='btn btn-sm btn-link clipboardjs' data-clipboard-text='$credential_uri'><i class='far fa-copy text-secondary'></i></button><a href='$credential_uri' target='_blank'><i class='fa fa-external-link-alt text-secondary'></i></a>";
                                     }
                                     $credential_username = escapeHtml(decryptCredentialEntry($row['credential_username']));
                                     if (empty($credential_username)) {
                                         $credential_username_display = "-";
                                     } else {
-                                        $credential_username_display = "$credential_username<button class='btn btn-sm clipboardjs' data-clipboard-text='$credential_username'><i class='far fa-copy text-secondary'></i></button>";
+                                        $credential_username_display = "$credential_username<button class='btn btn-sm btn-link clipboardjs' data-clipboard-text='$credential_username'><i class='far fa-copy text-secondary'></i></button>";
                                     }
                                     $credential_otp_secret = escapeHtml($row['credential_otp_secret']);
                                     if (empty($credential_otp_secret)) {

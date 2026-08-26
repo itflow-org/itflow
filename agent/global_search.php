@@ -657,7 +657,7 @@ if (isset($_GET['query'])) {
                                     <td><a href="credentials.php?client_id=<?= $credential_client_id ?>&q=<?= $q ?>"><?= $credential_name ?></a></td>
                                     <td><?= $credential_description ?></td>
                                     <td><?= $credential_username ?></td>
-                                    <td><a tabindex="0" class="btn btn-sm" data-bs-toggle="popover" data-bs-trigger="focus" data-bs-placement="left" data-bs-content="<?= $credential_password ?>"><i class="far fa-eye text-secondary"></i></a><button class="btn btn-sm clipboardjs" data-clipboard-text="<?= $credential_password ?>"><i class="far fa-copy text-secondary"></i></button>
+                                    <td><a tabindex="0" class="btn btn-sm" data-bs-toggle="popover" data-bs-trigger="focus" data-bs-placement="left" data-bs-content="<?= $credential_password ?>"><i class="far fa-eye text-secondary"></i></a><button class="btn btn-sm btn-link clipboardjs" data-clipboard-text="<?= $credential_password ?>"><i class="far fa-copy text-secondary"></i></button>
                                     </td>
                                     <td><a href="credentials.php?client_id=<?= $client_id ?>"><?= $client_name ?></a></td>
                                 </tr>
