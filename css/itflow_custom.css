@@ -191,9 +191,29 @@
     font-size: .65rem;
 }
 
-/* sidebar stays dark; only the ACTIVE item picks up the theme */
+/* sidebar stays dark; only the ACTIVE item picks up the theme.
+
+   The :hover and :focus variants are load-bearing, not decoration. A bare
+   `.nav-link.active` scores exactly the same specificity as the grey hover
+   rule further down this file (both 0,5,0), and that rule comes later - so
+   pointing at the current page's menu item repainted its accent grey.
+   AdminLTE 3 won this same tie on source order alone: its per-theme
+   `.sidebar-dark-<colour> ... .nav-link.active` rule was emitted AFTER the
+   `[class*=sidebar-dark-] ... .nav-item:hover > .nav-link` block, so the
+   accent held on hover. Spelling the states out here wins on specificity
+   instead, which survives any future reordering of this sheet.
+
+   v3 also pinned its treeview active item the same way
+   (`.nav-link.active, .nav-link.active:hover, .nav-link.active:focus`), so
+   both levels are covered. Deliberately NO separate hover shade for the
+   active item: v3 had none, and the current item is already the loudest
+   thing in the sidebar. */
 .app-sidebar .sidebar-menu > .nav-item > .nav-link.active,
-.app-sidebar .nav-treeview > .nav-item > .nav-link.active {
+.app-sidebar .sidebar-menu > .nav-item:hover > .nav-link.active,
+.app-sidebar .sidebar-menu > .nav-item > .nav-link.active:focus,
+.app-sidebar .nav-treeview > .nav-item > .nav-link.active,
+.app-sidebar .nav-treeview > .nav-item > .nav-link.active:hover,
+.app-sidebar .nav-treeview > .nav-item > .nav-link.active:focus {
     background-color: var(--itflow-accent, #007bff);
     color: #fff;
 }
