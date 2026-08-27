@@ -683,7 +683,7 @@ $show_login_form = (!$show_role_choice && !$show_mfa_form);
 
 ?>
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-bs-theme="light" data-lte-color-mode="off">
 <head>
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">

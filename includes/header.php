@@ -11,9 +11,24 @@ header("X-Frame-Options: DENY");
 <!DOCTYPE html>
 <?php /* data-color-scheme is FullCalendar v7's own switch - its themes ship a
          dark palette keyed on [data-color-scheme=dark] that nothing was turning on */ ?>
-<html lang="en"<?php if ($user_config_theme_dark) echo ' data-bs-theme="dark" data-color-scheme="dark"'; ?> data-lte-print="plain">
+<?php /* data-bs-theme is emitted for BOTH modes on purpose. AdminLTE 4 ships a
+         colour-mode manager that runs at DOMContentLoaded and resolves the theme
+         as localStorage['lte-theme'] ?? the markup attribute ?? prefers-color-scheme.
+         With no attribute in the markup it falls through to the OS preference and
+         sets data-bs-theme AFTER first paint - which is the light-to-dark flash.
+         data-lte-color-mode="off" disables that manager outright: ITFlow holds the
+         per-user setting in user_settings.user_config_theme_dark, so a browser-local
+         localStorage key or an OS preference must not be able to override it. */ ?>
+<html lang="en" data-bs-theme="<?= $user_config_theme_dark ? 'dark' : 'light' ?>"<?php if ($user_config_theme_dark) echo ' data-color-scheme="dark"'; ?> data-lte-color-mode="off" data-lte-print="plain">
 <head>
     <meta charset="utf-8">
+    <?php /* Must come BEFORE the stylesheets. The browser applies a meta
+             color-scheme while it parses the head, so the very first paint is
+             already dark. Left to CSS alone the only declaration is
+             [data-bs-theme=dark]{color-scheme:dark} inside adminlte.min.css,
+             which is ~580KB of render-blocking CSS away - the white canvas
+             painted while that loads is the dark-mode flash. */ ?>
+    <meta name="color-scheme" content="<?= $user_config_theme_dark ? 'dark' : 'light' ?>">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta http-equiv="x-ua-compatible" content="ie=edge">
     <meta name="robots" content="noindex">

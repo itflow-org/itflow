@@ -163,7 +163,7 @@ if ($_SERVER['REQUEST_METHOD'] == "POST") {
 ?>
 
 <!DOCTYPE html>
-<html>
+<html lang="en" data-bs-theme="light" data-lte-color-mode="off">
 <head>
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">

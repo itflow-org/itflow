@@ -532,7 +532,7 @@ if (isset($_POST['add_telemetry'])) {
 ?>
 
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-bs-theme="light" data-lte-color-mode="off">
 
 <head>
     <meta charset="utf-8">
