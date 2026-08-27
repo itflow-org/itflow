@@ -955,6 +955,51 @@ a:focus {
 }
 
 /* --- Tom Select ----------------------------------------------------------
+   Pre-init sizing. js/app.js runs at the end of the body, so the browser
+   paints the native <select> first and Tom Select swaps in its own markup a
+   moment later. For a SINGLE select that swap is invisible: Bootstrap's
+   .form-select is `1.5em + .75rem + 2 borders` tall and Tom Select's
+   .ts-wrapper declares min-height with that exact same calc, and because Tom
+   Select copies the original element's classes onto its wrapper, the
+   `.text-sm .form-select` font-size applies to both - so the two measure
+   identically.
+
+   A MULTIPLE select is the one that jumps. With no size attribute the
+   browser renders it as a listbox - four rows in Chrome and Firefox, ~100px -
+   which collapses to the ~35px control the instant Tom Select takes over,
+   yanking the rest of the form up with it. All 49 of them are tag pickers,
+   including the filter row on clients / contacts / assets / credentials /
+   locations / tickets, i.e. the first thing on the page.
+
+   Sizing the raw control to the height it is about to become removes the jump
+   without hiding anything and without touching JS. The calc is deliberately
+   the same expression Tom Select uses rather than a fixed pixel value, so it
+   tracks the .text-sm font-size and --bs-border-width. Tom Select stamps
+   .tomselected onto the original element when it takes over, so this stops
+   applying at exactly the right moment and can never fight the live widget.
+
+   visibility hides the native option text, which would otherwise flash in the
+   box before Tom Select replaces it with the data-placeholder. It reserves
+   layout space (unlike display:none, which would also break Tom Select's
+   width measurement at init), so the box holds its place and nothing moves.
+
+   The delayed reveal is a safety net, not decoration. app.js has no typeof
+   guards, so if anything above the tom-select step throws, .tomselected is
+   never stamped and these pickers would stay invisible with no clue why.
+   Normal init lands in well under a second and the rule stops matching before
+   the delay elapses, so the animation only ever fires when init did not
+   happen - at which point the native control comes back and stays usable. */
+select.select2[multiple]:not(.tomselected) {
+    height: calc(1.5em + .75rem + calc(var(--bs-border-width) * 2));
+    overflow-y: auto;
+    visibility: hidden;
+    animation: itflowRevealUninitSelect 1ms linear 3s forwards;
+}
+@keyframes itflowRevealUninitSelect {
+    to { visibility: visible; }
+}
+
+/* --- Tom Select theming ---------------------------------------------------
    The bootstrap5 theme uses --bs-* variables for borders and radii but
    hardcodes the focus state (#86b7fe border, rgba(13,110,253,.25) glow) and
    the selected multi-value chips (#0d6efd), so a themed app still focused
