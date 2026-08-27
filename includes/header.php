@@ -64,7 +64,12 @@ header("X-Frame-Options: DENY");
          attribute rather than an inline <script> so it does not add to the
          CSP unsafe-inline debt. Empty when the company has no country set,
          which js/app.js reads as "let the library decide". */ ?>
-<body class="layout-fixed sidebar-expand-lg app-loaded theme-<?= escapeHtml($config_theme) ?>" data-lte-primary="<?= escapeHtml($config_theme) ?>"
+<?php /* bg-body-tertiary is what tints the page behind the cards. AdminLTE 3 painted
+         it on .content-wrapper; v4's .app-main has no background at all and the tint
+         moved to this body utility, so the migration dropped it silently. It matters
+         because --bs-card-bg is --bs-body-bg - without it every card is the exact
+         colour of the page and only its border separates the two. */ ?>
+<body class="layout-fixed sidebar-expand-lg app-loaded bg-body-tertiary theme-<?= escapeHtml($config_theme) ?>" data-lte-primary="<?= escapeHtml($config_theme) ?>"
       data-itflow-phone-country="<?= escapeHtml($country_iso2_array[$session_company_country] ?? '') ?>">
     <div class="app-wrapper text-sm">
 

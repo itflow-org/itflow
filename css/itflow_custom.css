@@ -409,20 +409,54 @@ a:focus {
 /* --- Flatpickr date-filter preset panel ---------------------------------
    Flatpickr has no preset-ranges feature; js/date_filter.js injects this
    panel to reproduce the nine ranges daterangepicker used to provide. */
-.flatpickr-calendar.itflow-fp-with-ranges {
+/* The panel sits in a second column to the right of the month grid. This has to
+   be a GRID rather than flex: .flatpickr-calendar's own children are the month
+   nav and the day grid STACKED, so flexing the container would put those two
+   side by side as well. Two explicit columns keep flatpickr's own stacking in
+   column 1 and give the panel column 2, spanning both rows.
+
+   width:auto is safe in this layout but was NOT when the panel ran along the
+   bottom. The calendar is position:absolute, so auto means shrink-to-fit, which
+   resolves to max-content - and max-content for a horizontal row of nine nowrap
+   buttons is one long line that flex-wrap never breaks, while .flatpickr-days
+   keeps its own fixed 307.875px. Everything past the month grid then rendered as
+   an empty second pane. Stacked in a column the panel's max-content is just the
+   widest single label, so the container comes out calendar + panel wide.
+
+   The `> *` rule catches anything flatpickr adds later - an unplaced child would
+   otherwise auto-flow into column 2 and land on top of the panel. */
+.flatpickr-calendar.itflow-fp-with-ranges.open {
+    display: grid;
+    grid-template-columns: max-content max-content;
+    grid-template-rows: auto auto;
+    align-items: start;
     width: auto;
-    padding-right: 0;
+}
+.flatpickr-calendar.itflow-fp-with-ranges > * {
+    grid-column: 1;
+}
+.flatpickr-calendar.itflow-fp-with-ranges > .itflow-fp-ranges {
+    grid-column: 2;
+    grid-row: 1 / span 2;
+    /* stretch so the divider runs the calendar's full height, not just the
+       height of the nine buttons */
+    align-self: stretch;
 }
 .itflow-fp-ranges {
     display: flex;
-    flex-wrap: wrap;
-    gap: .25rem;
+    flex-direction: column;
+    gap: .125rem;
     padding: .5rem;
-    border-top: 1px solid var(--bs-border-color, #dee2e6);
+    border-left: 1px solid var(--bs-border-color, #dee2e6);
 }
 .itflow-fp-range {
     padding: .2rem .5rem;
     font-size: .8125rem;
+    /* .flatpickr-calendar sets line-height:24px and it inherits. Nine buttons at
+       that height overshoot the calendar's own ~296px; 1.4 brings the column back
+       under it so the two sides finish level. */
+    line-height: 1.4;
+    text-align: left;
     color: var(--itflow-accent, #007bff);
     white-space: nowrap;
     background: none;
