@@ -717,7 +717,7 @@ if (isset($_GET['ticket_id'])) {
 
                                 <!-- Who will see this reply, stated in the label rather than left to a colour -->
                                 <div class="btn-group w-100 mb-3" role="group">
-                                    <input class="btn-check" id="public_reply_type_opt0" type="radio" name="public_reply_type" value="0" checked>
+                                    <input class="btn-check" id="public_reply_type_opt0" type="radio" name="public_reply_type" value="0">
                                     <label class="btn btn-outline-dark" for="public_reply_type_opt0"><i class="fas fa-fw fa-lock me-1"></i>Internal note</label>
                                     <input class="btn-check" id="public_reply_type_opt1" type="radio" name="public_reply_type" value="1" checked>
                                     <label class="btn btn-outline-info" for="public_reply_type_opt1"><i class="fas fa-fw fa-comment me-1"></i>Public reply</label>
