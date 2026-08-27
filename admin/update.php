@@ -193,25 +193,35 @@ $app_update_available = !empty($pending_commits);
                 first: some releases need manual steps, and this page will not do them for you.
             </div>
 
-            <?php if ($app_update_available && $db_update_available) { ?>
-                <p class="text-muted">
-                    <i class="fas fa-fw fa-info-circle me-1"></i>Both are pending. Queueing the update covers both -
-                    cron applies the files and then the migrations they bring, in that order, in one run.
-                </p>
-            <?php } ?>
-
-            <?php if ($app_update_available || !$shell_available) { ?>
+            <?php /* One action covers both halves - scripts/update_cli.php always runs the database
+                     phase, whether or not the file phase moved anything - so the two are reported
+                     together under one button rather than as separate steps. The db_update_available
+                     arm of the condition matters: a schema behind its code with nothing to pull is
+                     exactly the state that needs queueing, and without it the button would not draw. */ ?>
+            <?php if ($app_update_available || $db_update_available || !$shell_available) { ?>
                 <div class="mb-4">
-                    <h6 class="text-uppercase text-secondary">Application files</h6>
+                    <h6 class="text-uppercase text-secondary">Pending</h6>
+
                     <?php if ($app_update_available) { ?>
                         <p class="mb-2">
+                            <strong>Application files:</strong>
                             <?= count($pending_commits) ?> commit<?= count($pending_commits) === 1 ? '' : 's' ?>
                             behind <code><?= escapeHtml("origin/$repo_branch") ?></code>.
                         </p>
-                    <?php } else { ?>
+                    <?php } elseif (!$shell_available) { ?>
                         <p class="mb-2">
-                            This server cannot check <code><?= escapeHtml("origin/$repo_branch") ?></code>, so there may
-                            or may not be anything waiting. Queueing an update when there is nothing to do is harmless.
+                            <strong>Application files:</strong> this server cannot check
+                            <code><?= escapeHtml("origin/$repo_branch") ?></code>, so there may or may not be anything
+                            waiting. Queueing an update when there is nothing to do is harmless.
+                        </p>
+                    <?php } ?>
+
+                    <?php if ($db_update_available) { ?>
+                        <p class="mb-2">
+                            <strong>Database:</strong> schema is at
+                            <strong><?= escapeHtml(CURRENT_DATABASE_VERSION) ?></strong> and this code expects
+                            <strong><?= escapeHtml(LATEST_DATABASE_VERSION) ?></strong>. Parts of the app will error
+                            until the update runs.
                         </p>
                     <?php } ?>
 
@@ -225,38 +235,21 @@ $app_update_available = !empty($pending_commits);
                         <small>
                             <?php if ($update_queue_available) { ?>
                                 Queue Update hands the job to cron, which runs
-                                <code>scripts/update_cli.php</code> in its own process - it updates the files and then the
-                                database, with no request timeout, as the user that owns the files. It resets the files to
-                                <code><?= escapeHtml("origin/$repo_branch") ?></code>, so local changes to them are lost.
+                                <code>scripts/update_cli.php</code> in its own process - it updates the files and then
+                                applies every pending migration, with no request timeout, as the user that owns the
+                                files. It resets the files to <code><?= escapeHtml("origin/$repo_branch") ?></code>, so
+                                local changes to them are lost. A migration that fails part way stops without advancing
+                                the recorded version, so it is safe to queue again once the cause is fixed.
                                 <?php if (!$cron_is_running) { ?>
                                     <strong class="text-warning">Cron is not checking in, so a queued update will sit there
                                     until it is.</strong>
                                 <?php } ?>
                             <?php } else { ?>
-                                <strong>Apply the database update below first.</strong> Queueing an update needs a schema
-                                change this install has not caught up with yet. From a shell,
-                                <code>php scripts/update_cli.php</code> does both in one step.
+                                <strong>This install cannot queue yet.</strong> Queueing needs a schema change it has not
+                                caught up with, so this one has to be started from a shell:
+                                <code>php scripts/update_cli.php</code>, as the user that owns the files. It updates the
+                                files and the database in one step, and Queue Update works from then on.
                             <?php } ?>
-                        </small>
-                    </p>
-                </div>
-            <?php } ?>
-
-            <?php if ($db_update_available) { ?>
-                <div class="mb-4">
-                    <h6 class="text-uppercase text-secondary">Database</h6>
-                    <p class="mb-2">
-                        Schema is at <strong><?= escapeHtml(CURRENT_DATABASE_VERSION) ?></strong> and this code expects
-                        <strong><?= escapeHtml(LATEST_DATABASE_VERSION) ?></strong>. Parts of the app will error until
-                        this is applied.
-                    </p>
-                    <a class="btn btn-dark confirm-link" href="post.php?update_db&csrf_token=<?= $_SESSION['csrf_token'] ?>">
-                        <i class="fas fa-fw fa-database me-2"></i>Update Database
-                    </a>
-                    <p class="text-muted mt-2 mb-0">
-                        <small>
-                            A large instance can take a minute or more. If it fails part way it stops without advancing
-                            the recorded version, so it is safe to run again after fixing the cause.
                         </small>
                     </p>
                 </div>

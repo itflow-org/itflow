@@ -18,7 +18,7 @@
  */
 
 // Check if our database versions are defined
-// If undefined, the file is probably being accessed directly rather than called via post.php?update_db or update_cli.php
+// If undefined, the file is probably being accessed directly rather than called via update_cli.php
 if (!defined("LATEST_DATABASE_VERSION") || !defined("CURRENT_DATABASE_VERSION") || !isset($mysqli)) {
     echo "Cannot access this file directly.";
     exit();
@@ -27,7 +27,7 @@ if (!defined("LATEST_DATABASE_VERSION") || !defined("CURRENT_DATABASE_VERSION") 
 // Migration files include-guard against this constant
 define("FROM_DB_UPDATER", true);
 
-// Outputs for the caller (post/update.php, update_cli.php)
+// Outputs for the caller (update_cli.php)
 $database_updates_applied = [];   // Versions successfully applied this run
 $database_updates_error = null;   // "version: error message" if a migration failed
 

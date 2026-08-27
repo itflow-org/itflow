@@ -3,11 +3,12 @@
 defined('FROM_POST_HANDLER') || die("Direct file access is not allowed");
 
 /*
- * Queueing is the ONLY way to update the application. There used to be an ?update handler
- * here that ran git pull (or a hard reset) inside this request; it is gone deliberately.
- * scripts/update_cli.php replaces the files this request is executing from and then applies
- * the migrations that came with them, which is not something to do half way through a page
- * load, and a host where PHP cannot run external commands could never do it at all.
+ * Queueing is the ONLY update path from the web - files and database both. There used to be
+ * an ?update handler here that ran git pull inside this request, and an ?update_db one that
+ * ran the migrations; both are gone deliberately. scripts/update_cli.php replaces the files
+ * this request is executing from and then applies the migrations that came with them, which
+ * is not something to do half way through a page load, and a host where PHP cannot run
+ * external commands could never do the first half at all.
  *
  * The row is written as well as the settings column: config_update_queued_at is what
  * cron/app_update.php acts on, and cron_job_run_now is what gets the dispatcher to look
@@ -20,9 +21,10 @@ if (isset($_GET['queue_update'])) {
     enforceAdminPermission();
 
     // The files can be newer than the schema - that is the window this whole page exists to
-    // close - and the column the queue is written to arrives with a migration
+    // close - and the column the queue is written to arrives with a migration. There is no
+    // longer a button that applies migrations on their own, so the way out is the shell.
     if (!settingsColumnExists($mysqli, 'config_update_queued_at')) {
-        flashAlert("Apply the database update first - queueing needs a schema change this install has not caught up with yet.", 'error');
+        flashAlert("Queueing needs a schema change this install has not caught up with yet - run php scripts/update_cli.php from a shell once, and it will work from then on.", 'error');
         redirect();
     }
 
@@ -32,30 +34,6 @@ if (isset($_GET['queue_update'])) {
     logAudit("App", "Update", "$session_name queued an update to be applied by cron");
 
     flashAlert("Update queued - cron will start it within a minute.");
-
-    redirect();
-
-}
-
-if (isset($_GET['update_db'])) {
-
-    validateCSRFToken();
-
-    // Get the current version
-    require_once ('../includes/database_version.php');
-
-    // Perform upgrades, if required - populates $database_updates_applied and $database_updates_error
-    require_once ('database_updates.php');
-
-    if ($database_updates_error) {
-        logAudit("Database", "Update", "$session_name ran a database update that failed at $database_updates_error");
-        flashAlert("Database update failed at $database_updates_error - the version was not advanced past the last successful update, so it is safe to retry", "error");
-    } else {
-        logAudit("Database", "Update", "$session_name updated the database structure");
-        flashAlert("Database structure update successful");
-    }
-
-    sleep(1);
 
     redirect();
 
