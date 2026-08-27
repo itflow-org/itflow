@@ -113,16 +113,110 @@ if (isset($_POST['edit_sla_settings'])) {
     getSlaSettings(true);
 
     // Business hours feed the due date math - re-stamp open SLA tickets
-    $restamped = 0;
-    $sql_tickets = mysqli_query($mysqli, "SELECT ticket_id, ticket_sla_id FROM tickets WHERE ticket_sla_id > 0 AND ticket_closed_at IS NULL AND ticket_archived_at IS NULL");
-    while ($ticket_row = mysqli_fetch_assoc($sql_tickets)) {
-        applyTicketSla($ticket_row['ticket_id'], $ticket_row['ticket_sla_id']);
-        $restamped++;
-    }
+    $restamped = restampOpenSlaTickets();
 
     logAudit("Settings", "Edit", "$session_name edited SLA / business hours settings");
 
     flashAlert("SLA settings updated - targets recalculated on $restamped open ticket(s)");
+
+    redirect();
+
+}
+
+if (isset($_POST['add_holiday'])) {
+
+    validateCSRFToken();
+
+    // Deliberately NOT validateDate() - that falls back to today's date on bad
+    // input, which would silently close the office today. Reject instead. The
+    // round-trip comparison also catches impossible dates like 2026-02-30,
+    // which createFromFormat would otherwise roll forward into March.
+    $holiday_date_input = $_POST['holiday_date'] ?? '';
+    $parsed_date = DateTime::createFromFormat('Y-m-d', $holiday_date_input);
+
+    if (!$parsed_date || $parsed_date->format('Y-m-d') !== $holiday_date_input) {
+        flashAlert("Enter a valid date for the closure day.", 'error');
+        redirect();
+    }
+
+    $holiday_name_input = trim($_POST['holiday_name'] ?? '');
+    if ($holiday_name_input === '') {
+        flashAlert("Enter a name for the closure day.", 'error');
+        redirect();
+    }
+
+    $holiday_date = escapeSql($holiday_date_input);
+    $holiday_name = escapeSql($holiday_name_input);
+
+    // INSERT IGNORE rather than an error: the date is UNIQUE, and re-adding a day
+    // that is already listed is a no-op the operator does not need telling about
+    mysqli_query($mysqli, "INSERT IGNORE INTO business_holidays SET holiday_date = '$holiday_date', holiday_name = '$holiday_name'");
+
+    getBusinessHolidays(true);
+    $restamped = restampOpenSlaTickets();
+
+    logAudit("Settings", "Create", "$session_name added SLA closure day $holiday_date - $holiday_name");
+
+    flashAlert("Closure day added - targets recalculated on $restamped open ticket(s)");
+
+    redirect();
+
+}
+
+if (isset($_POST['delete_holiday'])) {
+
+    validateCSRFToken();
+
+    $holiday_id = intval($_POST['holiday_id']);
+
+    $row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT holiday_date, holiday_name FROM business_holidays WHERE holiday_id = $holiday_id LIMIT 1"));
+    if (!$row) {
+        flashAlert("Closure day not found.", 'error');
+        redirect();
+    }
+    $holiday_date = escapeSql($row['holiday_date']);
+    $holiday_name = escapeSql($row['holiday_name']);
+
+    mysqli_query($mysqli, "DELETE FROM business_holidays WHERE holiday_id = $holiday_id");
+
+    getBusinessHolidays(true);
+    $restamped = restampOpenSlaTickets();
+
+    logAudit("Settings", "Delete", "$session_name removed SLA closure day $holiday_date - $holiday_name");
+
+    flashAlert("Closure day removed - targets recalculated on $restamped open ticket(s)");
+
+    redirect();
+
+}
+
+if (isset($_POST['generate_holidays'])) {
+
+    validateCSRFToken();
+
+    $holiday_year = intval($_POST['holiday_year']);
+
+    if ($holiday_year < 2000 || $holiday_year > 2100) {
+        flashAlert("Enter a year between 2000 and 2100.", 'error');
+        redirect();
+    }
+
+    // Existing rows win - INSERT IGNORE leaves a hand-entered name on a date the
+    // generator also produces, so running this over a partly-filled year is safe
+    $added = 0;
+    foreach (usFederalHolidays($holiday_year) as $holiday) {
+        $holiday_date = escapeSql($holiday['date']);
+        $holiday_name = escapeSql($holiday['name']);
+        mysqli_query($mysqli, "INSERT IGNORE INTO business_holidays SET holiday_date = '$holiday_date', holiday_name = '$holiday_name'");
+        $added += mysqli_affected_rows($mysqli) > 0 ? 1 : 0;
+    }
+
+    getBusinessHolidays(true);
+    $restamped = restampOpenSlaTickets();
+
+    logAudit("Settings", "Create", "$session_name generated $added US federal holiday closure day(s) for $holiday_year");
+
+    flashAlert("Added $added US federal holiday(s) for $holiday_year - targets recalculated on $restamped open ticket(s)");
 
     redirect();
 

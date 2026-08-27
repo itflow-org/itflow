@@ -59,8 +59,119 @@ function getSlaSettings($refresh = false)
     return $sla_settings;
 }
 
+// Closure days for the business calendar, fetched once per request. Returns a
+// map of 'Y-m-d' => holiday name so the day-walk in addBusinessMinutes and
+// businessMinutesBetween can do an O(1) lookup rather than a query per day -
+// those loops run up to 731 iterations.
+//
+// Callers that have just written to business_holidays pass true, same contract
+// as getSlaSettings().
+function getBusinessHolidays($refresh = false)
+{
+    global $mysqli;
+
+    static $holidays = null;
+
+    if ($refresh) {
+        $holidays = null;
+    }
+
+    if (!is_null($holidays)) {
+        return $holidays;
+    }
+
+    $holidays = [];
+
+    $sql = mysqli_query($mysqli, "SELECT holiday_date, holiday_name FROM business_holidays");
+    if ($sql) {
+        while ($row = mysqli_fetch_assoc($sql)) {
+            $holidays[$row['holiday_date']] = $row['holiday_name'];
+        }
+    }
+
+    return $holidays;
+}
+
+// US federal holidays for a calendar year, as a list of ['date' => 'Y-m-d',
+// 'name' => string]. Six of the eleven float on an nth-weekday rule, which
+// strtotime() understands directly, so no recurrence table is needed - the
+// generator writes concrete dates and the lookup above stays an exact match.
+//
+// Fixed-date holidays are shifted to the OBSERVED day (Saturday -> the Friday
+// before, Sunday -> the Monday after), because that is the weekday a business
+// actually closes. The floating ones always land on a Monday or Thursday and
+// need no shift.
+function usFederalHolidays($year)
+{
+    $year = intval($year);
+
+    $observed = function ($date) {
+        $day = intval(date('N', strtotime($date)));
+        if ($day == 6) {
+            return date('Y-m-d', strtotime($date . ' -1 day'));
+        }
+        if ($day == 7) {
+            return date('Y-m-d', strtotime($date . ' +1 day'));
+        }
+        return $date;
+    };
+
+    $fixed = [
+        "$year-01-01" => "New Year's Day",
+        "$year-06-19" => 'Juneteenth',
+        "$year-07-04" => 'Independence Day',
+        "$year-11-11" => 'Veterans Day',
+        "$year-12-25" => 'Christmas Day',
+    ];
+
+    $floating = [
+        "third monday of january $year"    => 'Martin Luther King Jr. Day',
+        "third monday of february $year"   => "Presidents' Day",
+        "last monday of may $year"         => 'Memorial Day',
+        "first monday of september $year"  => 'Labor Day',
+        "second monday of october $year"   => 'Columbus Day',
+        "fourth thursday of november $year" => 'Thanksgiving Day',
+    ];
+
+    $holidays = [];
+
+    foreach ($fixed as $date => $name) {
+        $holidays[] = ['date' => $observed($date), 'name' => $name];
+    }
+
+    foreach ($floating as $rule => $name) {
+        $holidays[] = ['date' => date('Y-m-d', strtotime($rule)), 'name' => $name];
+    }
+
+    usort($holidays, function ($a, $b) {
+        return strcmp($a['date'], $b['date']);
+    });
+
+    return $holidays;
+}
+
+// Re-stamp every open SLA ticket. Business hours and closure days both feed the
+// due-date math, so anything that changes the calendar has to run this or the
+// change only applies to tickets raised afterwards - which is the opposite of
+// what an operator adding next week's shutdown expects. Returns the count.
+function restampOpenSlaTickets()
+{
+    global $mysqli;
+
+    $restamped = 0;
+
+    $sql = mysqli_query($mysqli, "SELECT ticket_id, ticket_sla_id FROM tickets WHERE ticket_sla_id > 0 AND ticket_closed_at IS NULL AND ticket_archived_at IS NULL");
+    while ($row = mysqli_fetch_assoc($sql)) {
+        applyTicketSla($row['ticket_id'], $row['ticket_sla_id']);
+        $restamped++;
+    }
+
+    return $restamped;
+}
+
 // Add $minutes of business time to a datetime, honouring the configured
-// business days and hours. Returns a Y-m-d H:i:s string in the app timezone
+// business days and hours, and skipping closure days entirely. Returns a
+// Y-m-d H:i:s string in the app timezone
 // (includes/inc_set_timezone.php has already set it). With no usable business
 // calendar configured the clock is treated as 24x7.
 function addBusinessMinutes($start_datetime, $minutes)
@@ -82,6 +193,8 @@ function addBusinessMinutes($start_datetime, $minutes)
         return $cursor->format('Y-m-d H:i:s');
     }
 
+    $holidays = getBusinessHolidays();
+
     $remaining_seconds = $minutes * 60;
 
     // Walk forward a day at a time consuming available business time. Interval
@@ -90,10 +203,13 @@ function addBusinessMinutes($start_datetime, $minutes)
     // the honest reading. Guard: two years of calendar.
     for ($i = 0; $i < 731; $i++) {
 
-        if (in_array(intval($cursor->format('N')), $business_days)) {
+        $date_key = $cursor->format('Y-m-d');
 
-            $window_start = new DateTime($cursor->format('Y-m-d') . " $day_start");
-            $window_end = new DateTime($cursor->format('Y-m-d') . " $day_end");
+        // A closure day yields no business time, same as a non-business weekday
+        if (in_array(intval($cursor->format('N')), $business_days) && !isset($holidays[$date_key])) {
+
+            $window_start = new DateTime($date_key . " $day_start");
+            $window_end = new DateTime($date_key . " $day_end");
 
             if ($cursor < $window_start) {
                 $cursor = $window_start;
@@ -123,7 +239,8 @@ function addBusinessMinutes($start_datetime, $minutes)
 
 // Business minutes elapsed between two datetimes - the inverse of
 // addBusinessMinutes, used to measure how much of a resolution budget an
-// interval actually consumed.
+// interval actually consumed. Skips closure days for the same reason: time
+// nobody was working must not be charged to a ticket's budget.
 function businessMinutesBetween($start_datetime, $end_datetime)
 {
     $start = new DateTime($start_datetime);
@@ -142,6 +259,8 @@ function businessMinutesBetween($start_datetime, $end_datetime)
         return intval(floor(($end->getTimestamp() - $start->getTimestamp()) / 60));
     }
 
+    $holidays = getBusinessHolidays();
+
     $seconds = 0;
     $cursor = clone $start;
 
@@ -152,10 +271,12 @@ function businessMinutesBetween($start_datetime, $end_datetime)
             break;
         }
 
-        if (in_array(intval($cursor->format('N')), $business_days)) {
+        $date_key = $cursor->format('Y-m-d');
 
-            $window_start = new DateTime($cursor->format('Y-m-d') . " $day_start");
-            $window_end = new DateTime($cursor->format('Y-m-d') . " $day_end");
+        if (in_array(intval($cursor->format('N')), $business_days) && !isset($holidays[$date_key])) {
+
+            $window_start = new DateTime($date_key . " $day_start");
+            $window_end = new DateTime($date_key . " $day_end");
 
             $from = $cursor > $window_start ? $cursor : $window_start;
             $to = $end < $window_end ? $end : $window_end;

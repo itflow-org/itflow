@@ -22,6 +22,15 @@ while ($active_sla_row = mysqli_fetch_assoc($sql_active_slas)) {
     $active_slas[intval($active_sla_row['sla_id'])] = $active_sla_row['sla_name'];
 }
 
+// Closure days, newest first - past ones are kept as a record of what was applied
+$holidays = [];
+$sql_holidays = mysqli_query($mysqli, "SELECT holiday_date, holiday_id, holiday_name FROM business_holidays ORDER BY holiday_date DESC");
+while ($holiday_row = mysqli_fetch_assoc($sql_holidays)) {
+    $holidays[] = $holiday_row;
+}
+
+$holiday_year = intval(date('Y'));
+
 // Global default assignments: [priority] = sla_id (per-client overrides live on the client edit modal)
 $assignments = [];
 $sql_assignments = mysqli_query($mysqli, "SELECT sla_assignment_priority, sla_assignment_sla_id FROM sla_assignments WHERE sla_assignment_client_id = 0");
@@ -192,6 +201,72 @@ while ($assignment_row = mysqli_fetch_assoc($sql_assignments)) {
 
             <button type="submit" name="edit_sla_settings" class="btn btn-primary"><i class="fas fa-check me-2"></i>Save Settings</button>
         </form>
+
+    </div>
+</div>
+
+<div class="card card-dark">
+    <div class="card-header py-2">
+        <h3 class="card-title mt-2"><i class="fas fa-fw fa-calendar-times me-2"></i>Holidays &amp; Closure Days</h3>
+        <div class="card-tools">
+            <form action="post.php" method="post" class="d-inline" autocomplete="off">
+                <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
+                <div class="input-group input-group-sm d-inline-flex w-auto align-middle me-2">
+                    <input type="number" class="form-control" name="holiday_year" min="2000" max="2100" value="<?= $holiday_year ?>" required>
+                    <button type="submit" name="generate_holidays" class="btn btn-secondary"><i class="fas fa-magic me-2"></i>Add US Holidays</button>
+                </div>
+            </form>
+            <button type="button" class="btn btn-sm btn-primary ajax-modal" data-modal-url="modals/sla/holiday_add.php"><i class="fas fa-plus me-2"></i>New Closure Day</button>
+        </div>
+    </div>
+
+    <div class="card-body">
+
+        <p class="text-muted">
+            SLA clocks stop completely on these dates, the same as a day outside your business days.
+            Use them for public holidays or any other day the office is shut. Adding or removing one
+            recalculates the targets on every open ticket.
+        </p>
+
+        <?php if (empty($holidays)) { ?>
+            <p class="text-secondary mb-0">No closure days configured - SLA clocks run on every business day.</p>
+        <?php } else { ?>
+            <div class="table-responsive">
+                <table class="table table-borderless table-hover align-middle">
+                    <thead class="border-bottom">
+                        <tr>
+                            <th>Date</th>
+                            <th>Day</th>
+                            <th>Name</th>
+                            <th class="text-end">Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <?php foreach ($holidays as $holiday) {
+                            $holiday_id = intval($holiday['holiday_id']);
+                            $holiday_date_raw = $holiday['holiday_date'];
+                            $holiday_date = escapeHtml(date('M j, Y', strtotime($holiday_date_raw)));
+                            $holiday_day = escapeHtml(date('l', strtotime($holiday_date_raw)));
+                            $holiday_name = escapeHtml($holiday['holiday_name']);
+                            $holiday_is_past = strtotime($holiday_date_raw) < strtotime(date('Y-m-d'));
+                        ?>
+                            <tr class="<?php if ($holiday_is_past) { echo "text-secondary"; } ?>">
+                                <td><?= $holiday_date ?></td>
+                                <td><?= $holiday_day ?></td>
+                                <td><?= $holiday_name ?></td>
+                                <td class="text-end">
+                                    <form action="post.php" method="post" onsubmit="return confirm('Remove this closure day? Open ticket targets will be recalculated.');">
+                                        <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
+                                        <input type="hidden" name="holiday_id" value="<?= $holiday_id ?>">
+                                        <button type="submit" name="delete_holiday" class="btn btn-sm btn-light border"><i class="fas fa-fw fa-trash text-danger"></i></button>
+                                    </form>
+                                </td>
+                            </tr>
+                        <?php } ?>
+                    </tbody>
+                </table>
+            </div>
+        <?php } ?>
 
     </div>
 </div>
