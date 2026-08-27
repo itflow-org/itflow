@@ -27,7 +27,15 @@ if (isset($_POST['ticket_subject'])) {
 }
 
 
-if (isset($_POST['ticket_priority'])) {
+// Priority has to be one of the four the rest of the app is built around:
+// sla_assignments are keyed on these exact strings, and the ticket list and
+// kanban both fall through to the Low styling for anything else, so an
+// unrecognised value silently reads as the lowest priority everywhere.
+// Anything else is normalised away rather than rejected, matching how this
+// model already handles a non-integer client_id.
+$allowed_priorities = ['Low', 'Medium', 'High', 'Urgent'];
+
+if (isset($_POST['ticket_priority']) && in_array($_POST['ticket_priority'], $allowed_priorities, true)) {
     $priority = escapeSql($_POST['ticket_priority']);
 } elseif ($ticket_row) {
     $priority = mysqli_real_escape_string($mysqli, $ticket_row['ticket_priority']);

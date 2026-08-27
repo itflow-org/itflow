@@ -425,10 +425,18 @@ function applyTicketSla($ticket_id, $forced_sla_id = null)
     syncTicketSlaClock($ticket_id);
 }
 
-// Human-readable SLA target, e.g. "2 business hours" or "45 minutes". The
-// "business" qualifier is dropped when no business calendar is configured,
-// because addBusinessMinutes runs 24x7 in that case and the promise would
-// otherwise be misleading. The condition mirrors that function's own guard.
+// Human-readable SLA target, e.g. "45 minutes", "4 business hours" or
+// "3 business days". The "business" qualifier is dropped when no business
+// calendar is configured, because addBusinessMinutes runs 24x7 in that case
+// and the promise would otherwise be misleading. The condition mirrors that
+// function's own guard.
+//
+// Anything at or over one business day rolls up to days: with 9-5 hours a
+// 1440-minute target is three working days, but "24 business hours" reads to
+// a client as tomorrow. The exact deadline always travels next to this text
+// in the email, so the wording only has to give the right impression - a
+// remainder under five minutes is dropped rather than rendering the likes of
+// "1 business hour 1 minute".
 function formatSlaMinutes($minutes)
 {
     $minutes = intval($minutes);
@@ -438,20 +446,37 @@ function formatSlaMinutes($minutes)
     $day_end = $sla_settings['business_hours_end'];
 
     $qualifier = '';
+    $day_minutes = 1440;
     if (!empty($sla_settings['business_days']) && !empty($day_start) && !empty($day_end) && $day_start < $day_end) {
         $qualifier = 'business ';
+        $working_minutes = intval((strtotime($day_end) - strtotime($day_start)) / 60);
+        if ($working_minutes > 0) {
+            $day_minutes = $working_minutes;
+        }
     }
 
     if ($minutes < 60) {
         return $minutes . ' minute' . ($minutes == 1 ? '' : 's');
     }
 
-    $hours = intdiv($minutes, 60);
-    $remainder = $minutes % 60;
+    if ($minutes < $day_minutes) {
+        $hours = intdiv($minutes, 60);
+        $remainder = $minutes % 60;
 
-    $text = $hours . ' ' . $qualifier . 'hour' . ($hours == 1 ? '' : 's');
-    if ($remainder > 0) {
-        $text .= ' ' . $remainder . ' minute' . ($remainder == 1 ? '' : 's');
+        $text = $hours . ' ' . $qualifier . 'hour' . ($hours == 1 ? '' : 's');
+        if ($remainder >= 5) {
+            $text .= ' ' . $remainder . ' minutes';
+        }
+
+        return $text;
+    }
+
+    $days = intdiv($minutes, $day_minutes);
+    $hours = intdiv($minutes % $day_minutes, 60);
+
+    $text = $days . ' ' . $qualifier . 'day' . ($days == 1 ? '' : 's');
+    if ($hours > 0) {
+        $text .= ' ' . $hours . ' hour' . ($hours == 1 ? '' : 's');
     }
 
     return $text;
@@ -488,7 +513,9 @@ function getTicketSlaEmailNotice($ticket_id, $company_phone = '')
         return '';
     }
 
-    $priority = $row['ticket_priority'];
+    // The only value in this notice that comes from the database rather than a
+    // literal - escaped so the quote-free guarantee above holds for it too
+    $priority = escapeHtml($row['ticket_priority']);
     $target = formatSlaMinutes($response_minutes);
     $due = date('D j M, g:i A', strtotime($row['ticket_response_due_at']));
 
