@@ -336,10 +336,11 @@ function getRepoBranch(): string
 }
 
 /*
- * Whether this PHP can run external commands at all. ITFlow updates itself with git, so the
- * update path needs exec() and shell_exec(); hosts that disable them - shared hosting, a
- * hardened php.ini, an FPM pool locked down while the CLI is not - can still update through
- * cron, which runs under a different php.ini and its own settings.
+ * Whether this PHP can run external commands at all. Applying an update is cron's job now, so
+ * the only thing the web tier still wants a shell for is READING git - checkForUpdates() and
+ * the pending-commit list on Maintenance > Update. Hosts that disable exec()/shell_exec() -
+ * shared hosting, a hardened php.ini, an FPM pool locked down while the CLI is not - lose the
+ * "an update is waiting" readout, not the ability to update.
  *
  * function_exists() already reports a disabled function as missing. disable_functions is
  * read as well because some hardening extensions leave the function defined and refuse the

@@ -7,11 +7,12 @@ $repo_branch = getRepoBranch();
 $remote_ref = escapeshellarg("origin/$repo_branch");
 
 /*
- * Everything git can tell us needs a shell. Where PHP cannot run one - shared hosting, a
- * hardened php.ini, an FPM pool locked down while the command line is not - the page cannot
- * say whether an update is waiting and the web server cannot apply one either, so the
- * application half of this page is replaced by the queue, which cron carries out. The
- * database half is plain PHP and works everywhere.
+ * The web server never applies an application update - it queues one and cron runs it. The
+ * shell gate below therefore only decides whether this page can READ the git remote to say
+ * an update is waiting; where PHP cannot run one - shared hosting, a hardened php.ini, an
+ * FPM pool locked down while the command line is not - the page offers the queue blind,
+ * which is harmless when there is nothing to fetch. The database half is plain PHP and
+ * works everywhere.
  */
 $shell_available = shellCommandsAvailable();
 
@@ -109,10 +110,10 @@ $app_update_available = !empty($pending_commits);
 
         <?php if (!$shell_available) { ?>
             <div class="alert alert-info">
-                <h5><i class="fas fa-fw fa-info-circle me-2"></i>This server cannot run Git from the web</h5>
-                PHP here has <code>exec</code> and <code>shell_exec</code> disabled, so this page can neither check for
-                application updates nor apply one. Queue an update instead: cron runs it from the command line, which
-                is usually not restricted the same way. Database updates are plain PHP and are unaffected.
+                <h5><i class="fas fa-fw fa-info-circle me-2"></i>This server cannot check for updates</h5>
+                PHP here has <code>exec</code> and <code>shell_exec</code> disabled, so this page cannot read the Git
+                remote to tell you whether one is waiting. Queueing still works - cron runs the update from the command
+                line, which is usually not restricted the same way. Database updates are plain PHP and are unaffected.
             </div>
         <?php } ?>
 
@@ -194,8 +195,8 @@ $app_update_available = !empty($pending_commits);
 
             <?php if ($app_update_available && $db_update_available) { ?>
                 <p class="text-muted">
-                    <i class="fas fa-fw fa-info-circle me-1"></i>Both are pending. Update the application files first -
-                    they bring the database migrations that the second step then applies.
+                    <i class="fas fa-fw fa-info-circle me-1"></i>Both are pending. Queueing the update covers both -
+                    cron applies the files and then the migrations they bring, in that order, in one run.
                 </p>
             <?php } ?>
 
@@ -214,28 +215,14 @@ $app_update_available = !empty($pending_commits);
                         </p>
                     <?php } ?>
 
-                    <?php if ($shell_available) { ?>
-                        <a class="btn btn-primary confirm-link" href="post.php?update&csrf_token=<?= $_SESSION['csrf_token'] ?>">
-                            <i class="fas fa-fw fa-download me-2"></i>Update App
-                        </a>
-                        <a class="btn btn-outline-danger ms-2 confirm-link" href="post.php?update&force_update=1&csrf_token=<?= $_SESSION['csrf_token'] ?>">
-                            <i class="fas fa-fw fa-hammer me-2"></i>Force Update
-                        </a>
-                    <?php } ?>
-
                     <?php if ($update_queue_available) { ?>
-                    <a class="btn btn-dark <?= $shell_available ? 'ms-2' : '' ?> confirm-link" href="post.php?queue_update&csrf_token=<?= $_SESSION['csrf_token'] ?>">
+                    <a class="btn btn-primary confirm-link" href="post.php?queue_update&csrf_token=<?= $_SESSION['csrf_token'] ?>">
                         <i class="fas fa-fw fa-clock me-2"></i>Queue Update
                     </a>
                     <?php } ?>
 
                     <p class="text-muted mt-2 mb-0">
                         <small>
-                            <?php if ($shell_available) { ?>
-                                Update App runs <code>git pull</code>. Force Update discards every local change and resets
-                                the files to <code><?= escapeHtml("origin/$repo_branch") ?></code> - use it only when a
-                                normal update will not apply. Both run inside this request and stop if PHP runs out of time.
-                            <?php } ?>
                             <?php if ($update_queue_available) { ?>
                                 Queue Update hands the job to cron, which runs
                                 <code>scripts/update_cli.php</code> in its own process - it updates the files and then the
