@@ -11,6 +11,9 @@ if (isset($_GET['client_id'])) {
     $client_url = '';
 }
 
+// Perms
+enforceUserPermission('module_support');
+
 if (isset($_GET['asset_id'])) {
     $asset_id = intval($_GET['asset_id']);
 
@@ -28,6 +31,7 @@ if (isset($_GET['asset_id'])) {
         LEFT JOIN locations ON asset_location_id = location_id
         LEFT JOIN asset_interfaces ON interface_asset_id = asset_id AND interface_primary = 1
         WHERE asset_id = $asset_id
+        " . clientScopeSql('asset_client_id') . "
         $client_query
         LIMIT 1
     ");

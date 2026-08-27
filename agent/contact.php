@@ -11,6 +11,9 @@ if (isset($_GET['client_id'])) {
     $client_url = '';
 }
 
+// Perms
+enforceUserPermission('module_client');
+
 if (isset($_GET['contact_id'])) {
     $contact_id = intval($_GET['contact_id']);
 
@@ -23,6 +26,7 @@ if (isset($_GET['contact_id'])) {
         LEFT JOIN locations ON location_id = contact_location_id
         LEFT JOIN users ON user_id = contact_user_id
         WHERE contact_id = $contact_id
+        " . clientScopeSql('contact_client_id') . "
         $client_query
         LIMIT 1
     ");

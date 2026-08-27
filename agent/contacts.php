@@ -31,6 +31,9 @@ if (isset($_GET['client_id'])) {
     }
 }
 
+// Perms
+enforceUserPermission('module_client');
+
 // Tags Filter
 if (isset($_GET['tags']) && is_array($_GET['tags']) && !empty($_GET['tags'])) {
     // Sanitize each element of the tags array
