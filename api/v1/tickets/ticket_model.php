@@ -32,7 +32,7 @@ if (isset($_POST['ticket_priority'])) {
 } elseif ($ticket_row) {
     $priority = mysqli_real_escape_string($mysqli, $ticket_row['ticket_priority']);
 } else {
-    $priority = 'Low';
+    $priority = 'Medium';
 }
 
 

@@ -40,7 +40,7 @@ ob_start();
                             <span class="input-group-text"><i class="fa fa-fw fa-thermometer-half"></i></span>
                         <select class="form-select select2" name="bulk_priority" required>
                             <option>Low</option>
-                            <option>Medium</option>
+                            <option selected>Medium</option>
                             <option>High</option>
                             <option>Urgent</option>
                         </select>

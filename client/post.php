@@ -29,9 +29,9 @@ if (isset($_POST['add_ticket'])) {
     //Generate a unique URL key for clients to access
     $url_key = randomString(32);
 
-    // Ensure priority is low/med/high (as can be user defined)
+    // Ensure priority is one of the four allowed values (as can be user defined)
     if ($_POST['priority'] !== "Low" && $_POST['priority'] !== "Medium" && $_POST['priority'] !== "High" && $_POST['priority'] !== "Urgent") {
-        $priority = "Low";
+        $priority = "Medium";
     } else {
         $priority = escapeSql($_POST['priority']);
     }
