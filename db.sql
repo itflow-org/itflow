@@ -2349,6 +2349,9 @@ CREATE TABLE `settings` (
   `config_backup_cron_type` varchar(20) NOT NULL DEFAULT 'full',
   `config_update_queued_at` datetime DEFAULT NULL,
   `config_internal_client_id` int(11) NOT NULL DEFAULT 0,
+  `config_update_latest_commit` varchar(40) DEFAULT NULL,
+  `config_update_pending_commits` text DEFAULT NULL,
+  `config_update_checked_at` datetime DEFAULT NULL,
   PRIMARY KEY (`company_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -3193,4 +3196,4 @@ CREATE TABLE `vendors` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2026-08-25 12:18:16
+-- Dump completed on 2026-08-26 23:37:25

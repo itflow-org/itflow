@@ -754,27 +754,17 @@ if (isset($_POST['add_telemetry'])) {
                     // Section: Shell Commands
                     $shellCommands = [];
 
-                    if ($shell_exec_enabled) {
-                        $commands = ['git'];
-
-                        foreach ($commands as $command) {
-                            $which = trim(shell_exec("which $command 2>/dev/null"));
-                            $exists = !empty($which);
-                            $shellCommands[] = [
-                                'name' => "Command '$command' available",
-                                'passed' => $exists,
-                                'value' => $exists ? $which : 'Not Found',
-                            ];
-                        }
-                    } else {
-                        // If shell_exec is disabled, mark commands as unavailable
-                        foreach (['whois', 'dig', 'git'] as $command) {
-                            $shellCommands[] = [
-                                'name' => "Command '$command' available",
-                                'passed' => false,
-                                'value' => 'shell_exec Disabled',
-                            ];
-                        }
+                    // Located by walking PATH rather than by running `which`, so this reports
+                    // the truth on a host with shell_exec disabled. The no-shell branch this
+                    // replaces also still listed whois and dig, which ITFlow stopped shelling
+                    // out to when domain lookups moved to RDAP and native DNS
+                    foreach (['git'] as $command) {
+                        $path = commandPath($command);
+                        $shellCommands[] = [
+                            'name' => "Command '$command' available",
+                            'passed' => $path !== '',
+                            'value' => $path !== '' ? $path : 'Not Found',
+                        ];
                     }
 
                     // Section: SSL Checks

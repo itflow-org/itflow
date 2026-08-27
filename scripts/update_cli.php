@@ -24,19 +24,25 @@ require_once "../config.php";
 require_once "../functions.php";
 
 /*
- * This script takes no options. It updates the application and then the database, in that
- * order, because new code against an old schema is what breaks an install mid-upgrade.
+ * Run with no options this updates the application and then the database, in that order,
+ * because new code against an old schema is what breaks an install mid-upgrade.
  *
  * The application update is a hard reset onto the branch this install tracks, so local
  * modifications to tracked files are discarded. Untracked files are left alone, which is
  * everything an install keeps for itself: config.php, uploads/ and the custom/ directories.
+ *
+ * --update_db does the database half ON ITS OWN and never touches git. That matters on a box
+ * carrying work that is not pushed: the full run would hard-reset it away, and the database
+ * half is usually all that is wanted after a manual checkout or a restore.
  */
 
 function printUsage($stream = STDOUT) {
-    fwrite($stream, "Usage: php update_cli.php\n\n");
-    fwrite($stream, "Updates the application to the latest code on the branch this install tracks,\n");
-    fwrite($stream, "discarding local changes to tracked files, and then applies any outstanding\n");
-    fwrite($stream, "database updates. There are no options.\n");
+    fwrite($stream, "Usage: php update_cli.php [--update_db]\n\n");
+    fwrite($stream, "With no options, updates the application to the latest code on the branch this\n");
+    fwrite($stream, "install tracks, discarding local changes to tracked files, and then applies any\n");
+    fwrite($stream, "outstanding database updates.\n\n");
+    fwrite($stream, "  --update_db   Apply outstanding database updates only. The application files\n");
+    fwrite($stream, "                are left exactly as they are - git is not run at all.\n");
 }
 
 /*
@@ -47,22 +53,39 @@ function printUsage($stream = STDOUT) {
 $database_phase_only = getenv('ITFLOW_UPDATE_PHASE') === 'database';
 
 /*
- * The switches this script used to take are gone. Anything on the command line is refused
- * rather than ignored, so that an old --update_db call from a script or a set of notes
- * cannot silently trigger a hard reset of the application instead.
+ * --db_update is accepted alongside --update_db on purpose. The two spellings have been used
+ * interchangeably in this project's own notes and release steps for years, and the cost of a
+ * typo here is the opposite of what was asked for - a hard reset instead of a database update.
+ * Anything else on the command line is still REFUSED rather than ignored, for the same reason.
  */
+$database_only_requested = false;
+
 $arguments = array_slice($argv, 1);
 
 if (!$database_phase_only && count($arguments) > 0) {
 
-    if (in_array($arguments[0], ['--help', '-h', 'help'], true)) {
+    if (count($arguments) === 1 && in_array($arguments[0], ['--help', '-h', 'help'], true)) {
         printUsage();
         exit;
     }
 
-    fwrite(STDERR, "Error: this script takes no options.\n\n");
-    printUsage(STDERR);
-    exit(1);
+    if (count($arguments) === 1 && in_array($arguments[0], ['--update_db', '--db_update', '--database'], true)) {
+
+        $database_phase_only = true;
+        $database_only_requested = true;
+
+    } else {
+
+        fwrite(STDERR, "Error: unrecognised option.\n\n");
+        printUsage(STDERR);
+        exit(1);
+
+    }
+
+}
+
+if ($database_only_requested) {
+    echo "Database updates only - the application files will not be touched.\n";
 }
 
 // Whether the working tree actually moved. Decides how the database phase runs below

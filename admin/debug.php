@@ -6,11 +6,10 @@ require_once "../config.php";
 
 $checks = [];
 
-// Execute the git command to get the latest commit hash
-$commitHash = shell_exec('git log -1 --format=%H');
+// Read straight out of .git - no shell needed, and it still answers on a hardened host
+$commitHash = gitCurrentCommit();
 
-// Get branch info
-$gitBranch = shell_exec('git rev-parse --abbrev-ref HEAD');
+$gitBranch = gitCurrentBranch();
 
 // Section: System Information
 $systemInfo = [];
@@ -146,27 +145,15 @@ $phpConfig[] = [
 // Section: Shell Commands
 $shellCommands = [];
 
-if ($shell_exec_enabled) {
-    $commands = ['git'];
-
-    foreach ($commands as $command) {
-        $which = trim(shell_exec("which $command 2>/dev/null"));
-        $exists = !empty($which);
-        $shellCommands[] = [
-            'name' => "Command '$command' available",
-            'passed' => $exists,
-            'value' => $exists ? $which : 'Not Found',
-        ];
-    }
-} else {
-    // If shell_exec is disabled, mark commands as unavailable
-    foreach (['git'] as $command) {
-        $shellCommands[] = [
-            'name' => "Command '$command' available",
-            'passed' => false,
-            'value' => 'shell_exec Disabled',
-        ];
-    }
+// Located by walking PATH rather than by running `which`, so this reports the truth on a
+// host with shell_exec disabled instead of reporting the host's php.ini back at itself
+foreach (['git'] as $command) {
+    $path = commandPath($command);
+    $shellCommands[] = [
+        'name' => "Command '$command' available",
+        'passed' => $path !== '',
+        'value' => $path !== '' ? $path : 'Not Found',
+    ];
 }
 
 // Section: SSL Checks
@@ -531,11 +518,11 @@ $mysqli->close();
                 </tr>
                 <tr>
                     <td>Current Code Commit</td>
-                    <td><?= $commitHash ?></td>
+                    <td><?= $commitHash === '' ? 'Not a git checkout' : escapeHtml($commitHash) ?></td>
                 </tr>
                 <tr>
                     <td>Current Branch</td>
-                    <td><?= $gitBranch ?></td>
+                    <td><?= $gitBranch === '' ? 'Not a git checkout' : escapeHtml($gitBranch) ?></td>
                 </tr>
             </table>
         </div>

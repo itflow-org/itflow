@@ -1156,7 +1156,7 @@ while ($row = mysqli_fetch_assoc($sql_invalid_recurring_expenses)) {
 
 if ($config_telemetry > 0 || $config_telemetry == 2) {
 
-    $current_version = exec("git rev-parse HEAD");
+    $current_version = gitCurrentCommit();
 
     // Client Count
     $row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT COUNT('client_id') AS num FROM clients"));
@@ -1403,13 +1403,23 @@ if ($config_telemetry > 0 || $config_telemetry == 2) {
 
 
 // Fetch Updates
-$updates = checkForUpdates();
+/*
+ * The check itself is cron/update_check.php now - read what it stored rather than running a
+ * second git fetch here. Nothing to say until that job has run once, which is the same
+ * position this was in when a fetch failed.
+ */
+if (settingsColumnExists($mysqli, 'config_update_latest_commit')) {
 
-$update_message = $updates->update_message;
+    $update_check_row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT config_update_latest_commit FROM settings WHERE company_id = 1"));
 
-if ($updates->current_version !== $updates->latest_version) {
-    // Send Alert to inform Updates Available
-    appNotify("Update", "$update_message", "/admin/update.php");
+    $latest_version = (string) ($update_check_row['config_update_latest_commit'] ?? '');
+    $current_version = gitCurrentCommit();
+
+    if ($latest_version !== '' && $current_version !== '' && $latest_version !== $current_version) {
+        // Send Alert to inform Updates Available
+        appNotify("Update", "New Updates are Available [$latest_version]", "/admin/update.php");
+    }
+
 }
 
 

@@ -14,6 +14,32 @@ defined('FROM_POST_HANDLER') || die("Direct file access is not allowed");
  * cron/app_update.php acts on, and cron_job_run_now is what gets the dispatcher to look
  * before the job's own schedule comes round.
  */
+/*
+ * Check Now. The check runs git fetch, so it belongs on the command line for the same reason
+ * the update does; this only asks the dispatcher to bring the job forward. run_now works on a
+ * disabled job too, so turning the daily check off does not take the button with it.
+ */
+if (isset($_GET['check_update'])) {
+
+    validateCSRFToken();
+
+    enforceAdminPermission();
+
+    if (!settingsColumnExists($mysqli, 'config_update_latest_commit')) {
+        flashAlert("Checking needs a schema change this install has not caught up with yet - run php scripts/update_cli.php from a shell once, and it will work from then on.", 'error');
+        redirect();
+    }
+
+    mysqli_query($mysqli, "UPDATE cron_jobs SET cron_job_run_now = 1 WHERE cron_job_name = 'update_check'");
+
+    logAudit("App", "Update", "$session_name asked cron to check for updates");
+
+    flashAlert("Checking for updates - cron will run the check within a minute.");
+
+    redirect();
+
+}
+
 if (isset($_GET['queue_update'])) {
 
     validateCSRFToken();

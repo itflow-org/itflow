@@ -4,51 +4,50 @@ require_once "includes/inc_all_admin.php";
 require_once "../includes/database_version.php";
 
 $repo_branch = getRepoBranch();
-$remote_ref = escapeshellarg("origin/$repo_branch");
 
 /*
- * The web server never applies an application update - it queues one and cron runs it. The
- * shell gate below therefore only decides whether this page can READ the git remote to say
- * an update is waiting; where PHP cannot run one - shared hosting, a hardened php.ini, an
- * FPM pool locked down while the command line is not - the page offers the queue blind,
- * which is harmless when there is nothing to fetch. The database half is plain PHP and
- * works everywhere.
+ * This page does not run git. cron/update_check.php does the fetch on its own schedule and
+ * stores what it found; everything below is a read of that, plus .git for the local commit.
+ * Check Now asks the dispatcher for a run rather than checking inside the request, so the
+ * page works the same on a host whose web PHP cannot run external commands at all.
  */
-$shell_available = shellCommandsAvailable();
+$current_version = gitCurrentCommit();
 
-$current_version = '';
-$fetch_ok = true;
-$updates = null;
+// The stored answer arrives with a migration, and this page has to render on an install
+// whose files are newer than its schema
+$update_check_available = settingsColumnExists($mysqli, 'config_update_latest_commit');
 
-// Commits sitting between this working tree and the remote branch. Fields are separated
-// by \x1f rather than having git build the table markup, because a commit subject comes
-// from outside this install and used to reach the page as unescaped HTML.
+$latest_version = '';
+$update_checked_at = null;
 $pending_commits = [];
+$check_job = null;
 
-if ($shell_available) {
+if ($update_check_available) {
 
-    $updates = checkForUpdates();
+    $update_check_row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT config_update_latest_commit, config_update_pending_commits, config_update_checked_at FROM settings WHERE company_id = 1"));
 
-    $current_version = $updates->current_version;
-    $fetch_ok = $updates->result === 0;
+    $latest_version = (string) ($update_check_row['config_update_latest_commit'] ?? '');
+    $update_checked_at = $update_check_row['config_update_checked_at'] ?? null;
 
-    $git_log = shell_exec("git log HEAD..$remote_ref --pretty=format:'%h%x1f%ar%x1f%s'");
+    // Stored as JSON by the job: [[short hash, ISO date, subject], ...]. Rebuilt element by
+    // element rather than trusted wholesale - it is the shape the table indexes into
+    $stored_commits = json_decode((string) ($update_check_row['config_update_pending_commits'] ?? ''), true);
 
-    foreach (explode("\n", trim((string) $git_log)) as $commit_line) {
-
-        if ($commit_line === '') {
-            continue;
+    if (is_array($stored_commits)) {
+        foreach ($stored_commits as $stored_commit) {
+            if (is_array($stored_commit) && count($stored_commit) === 3) {
+                $pending_commits[] = array_values($stored_commit);
+            }
         }
-
-        $commit_fields = explode("\x1f", $commit_line, 3);
-
-        if (count($commit_fields) === 3) {
-            $pending_commits[] = $commit_fields;
-        }
-
     }
 
+    $check_job = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT cron_job_run_now, cron_job_last_error, cron_job_last_error_at FROM cron_jobs WHERE cron_job_name = 'update_check' LIMIT 1"));
+
 }
+
+// The dispatcher clears run_now inside the same UPDATE that claims the job, so this is true
+// for exactly as long as the request is outstanding
+$check_in_progress = !empty($check_job['cron_job_run_now']);
 
 /*
  * The queue. Maintenance > Update writes config_update_queued_at and asks the dispatcher for
@@ -84,7 +83,12 @@ $cron_is_running = $update_queue_available
 // version_compare, not > - "2.6.10" is less than "2.6.9" as a plain string comparison, so
 // the plain comparison silently stops offering database updates once a minor reaches 10.
 $db_update_available = version_compare(LATEST_DATABASE_VERSION, CURRENT_DATABASE_VERSION, '>');
-$app_update_available = !empty($pending_commits);
+
+// Derived from the two commits, not from the list: a force-push or a local commit leaves the
+// working tree at a different place with nothing to list, and that is still "not up to date"
+$app_update_available = $latest_version !== ''
+    && $current_version !== ''
+    && $latest_version !== $current_version;
 
 ?>
 
@@ -94,26 +98,33 @@ $app_update_available = !empty($pending_commits);
     </div>
     <div class="card-body">
 
-        <?php if ($shell_available && !$fetch_ok) { ?>
+        <?php if (!empty($check_job['cron_job_last_error'])) { ?>
             <div class="alert alert-danger">
-                <h5><i class="fas fa-fw fa-exclamation-triangle me-2"></i>Cannot reach the Git remote</h5>
-                ITFlow updates itself with Git, so nothing below is current until this is fixed.
-                <?php if (!empty($updates->output)) { ?>
-                    <pre class="bg-dark text-white p-2 mt-2 mb-2"><?= escapeHtml(implode("\n", $updates->output)) ?></pre>
-                <?php } ?>
-                Check that Git is installed, that the remote is reachable from this server, and that the web server
-                user can write to the ITFlow directory. The
-                <a href="https://forum.itflow.org" class="alert-link" target="_blank">forum</a> can help - include
-                your PHP error log and the output above.
+                <h5><i class="fas fa-fw fa-exclamation-triangle me-2"></i>The last update check did not finish</h5>
+                Anything below is from the check before it, so it may be out of date.
+                <pre class="bg-dark text-white p-2 mt-2 mb-2"><?= escapeHtml($check_job['cron_job_last_error']) ?></pre>
+                Recorded <?= escapeHtml((string) $check_job['cron_job_last_error_at']) ?>. Check that Git is installed
+                and that the remote is reachable from this server, then clear the error from
+                <a href="cron.php" class="alert-link">Maintenance &gt; Cron</a>. The
+                <a href="https://forum.itflow.org" class="alert-link" target="_blank">forum</a> can help - include the
+                output above.
             </div>
         <?php } ?>
 
-        <?php if (!$shell_available) { ?>
-            <div class="alert alert-info">
-                <h5><i class="fas fa-fw fa-info-circle me-2"></i>This server cannot check for updates</h5>
-                PHP here has <code>exec</code> and <code>shell_exec</code> disabled, so this page cannot read the Git
-                remote to tell you whether one is waiting. Queueing still works - cron runs the update from the command
-                line, which is usually not restricted the same way. Database updates are plain PHP and are unaffected.
+        <?php if ($check_in_progress) { ?>
+            <?php /* data-itflow-reload-seconds is read by js/auto_reload.js, loaded at the foot
+                     of this page. The dispatcher clears run_now when it claims the job, so one
+                     reload a few seconds later is normally enough to land on the result. */ ?>
+            <div class="alert alert-info" data-itflow-reload-seconds="15">
+                <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+                <strong>Checking for updates.</strong>
+                <?php if ($cron_is_running) { ?>
+                    Cron runs the check within a minute; this page refreshes itself.
+                <?php } else { ?>
+                    <strong class="text-warning">Nothing is going to pick it up</strong> - cron has not checked in
+                    recently or the master switch is off. See
+                    <a href="cron.php" class="alert-link">Maintenance &gt; Cron</a>.
+                <?php } ?>
             </div>
         <?php } ?>
 
@@ -144,6 +155,25 @@ $app_update_available = !empty($pending_commits);
             </div>
         </div>
 
+        <?php /* Outside the pending block on purpose - re-checking has to be reachable from the
+                 up-to-date view too, which is where somebody goes when they have just read that
+                 a release is out. */ ?>
+        <p class="text-muted mb-3">
+            <small>
+                <?php if (!empty($update_checked_at)) { ?>
+                    Last checked <?= escapeHtml(timeAgo($update_checked_at)) ?>
+                    (<?= escapeHtml($update_checked_at) ?>).
+                <?php } else { ?>
+                    Never checked.
+                <?php } ?>
+                <?php if ($update_check_available && !$check_in_progress) { ?>
+                    <a href="post.php?check_update&csrf_token=<?= $_SESSION['csrf_token'] ?>">Check now</a>
+                <?php } elseif ($check_in_progress) { ?>
+                    <span class="text-secondary">Checking&hellip;</span>
+                <?php } ?>
+            </small>
+        </p>
+
         <?php if (!empty($update_queued_at)) { ?>
             <div class="alert alert-info">
                 <i class="fas fa-fw fa-clock me-2"></i>An update was queued at
@@ -168,7 +198,7 @@ $app_update_available = !empty($pending_commits);
 
         <hr>
 
-        <?php if ($shell_available && !$app_update_available && !$db_update_available) { ?>
+        <?php if (!empty($update_checked_at) && !$app_update_available && !$db_update_available) { ?>
 
             <div class="text-center py-3">
                 <i class="far fa-3x fa-smile-wink text-dark"></i>
@@ -198,7 +228,7 @@ $app_update_available = !empty($pending_commits);
                      together under one button rather than as separate steps. The db_update_available
                      arm of the condition matters: a schema behind its code with nothing to pull is
                      exactly the state that needs queueing, and without it the button would not draw. */ ?>
-            <?php if ($app_update_available || $db_update_available || !$shell_available) { ?>
+            <?php if ($app_update_available || $db_update_available || empty($update_checked_at)) { ?>
                 <div class="mb-4">
                     <h6 class="text-uppercase text-secondary">Pending</h6>
 
@@ -208,11 +238,11 @@ $app_update_available = !empty($pending_commits);
                             <?= count($pending_commits) ?> commit<?= count($pending_commits) === 1 ? '' : 's' ?>
                             behind <code><?= escapeHtml("origin/$repo_branch") ?></code>.
                         </p>
-                    <?php } elseif (!$shell_available) { ?>
+                    <?php } elseif (empty($update_checked_at)) { ?>
                         <p class="mb-2">
-                            <strong>Application files:</strong> this server cannot check
-                            <code><?= escapeHtml("origin/$repo_branch") ?></code>, so there may or may not be anything
-                            waiting. Queueing an update when there is nothing to do is harmless.
+                            <strong>Application files:</strong> this install has not checked
+                            <code><?= escapeHtml("origin/$repo_branch") ?></code> yet, so there may or may not be
+                            anything waiting. Queueing an update when there is nothing to do is harmless.
                         </p>
                     <?php } ?>
 
@@ -272,7 +302,9 @@ $app_update_available = !empty($pending_commits);
                         <?php foreach ($pending_commits as $commit) { ?>
                             <tr>
                                 <td><code><?= escapeHtml($commit[0]) ?></code></td>
-                                <td class="text-nowrap"><?= escapeHtml($commit[1]) ?></td>
+                                <?php /* stored as an absolute ISO date by the check job - a stored
+                                         "2 hours ago" would be wrong the moment it was written */ ?>
+                                <td class="text-nowrap"><?= escapeHtml(timeAgo($commit[1])) ?></td>
                                 <td><?= escapeHtml($commit[2]) ?></td>
                             </tr>
                         <?php } ?>
@@ -283,6 +315,8 @@ $app_update_available = !empty($pending_commits);
 
     </div>
 </div>
+
+<script src="../js/auto_reload.js"></script>
 
 <?php
 

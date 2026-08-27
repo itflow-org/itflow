@@ -103,6 +103,14 @@ function cronJobRegistry(): array
             'daily_at' => '03:30',
         ],
         [
+            'name' => 'update_check',
+            'label' => 'Update Check',
+            'script' => 'update_check.php',
+            'description' => 'Asks the git remote whether a newer release exists and stores the answer for Maintenance > Update.',
+            'schedule' => 'Daily',
+            'daily_at' => '02:30',
+        ],
+        [
             'name' => 'app_update',
             'label' => 'Application Update',
             'script' => 'app_update.php',

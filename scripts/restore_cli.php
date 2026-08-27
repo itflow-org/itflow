@@ -130,7 +130,7 @@ echo "\nDone.\n";
 echo "\nNext steps:\n";
 echo "  1. Log in with the credentials that were in use when the backup was taken.\n";
 echo "  2. If the backup is older than the code in this directory, finish the database update:\n";
-echo "     php " . realpath(__DIR__) . "/update_cli.php\n";
+echo "     php " . realpath(__DIR__) . "/update_cli.php --update_db\n";
 echo "  3. Check Maintenance > Cron - the schedule came back with the database.\n";
 
 exit(0);
