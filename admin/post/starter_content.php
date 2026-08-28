@@ -61,9 +61,6 @@ if (isset($_POST['load_demo_data'])) {
 
     $summary = "{$counts['clients']} clients, {$counts['contacts']} contacts, {$counts['assets']} assets, {$counts['documentation']} documentation records, {$counts['tickets']} tickets, {$counts['projects']} projects, {$counts['billing']} billing records, {$counts['company']} company records";
 
-    if (!empty($counts['skipped_company'])) {
-        $summary = $summary . " (company financials skipped - this install already has its own accounts)";
-    }
 
     logAudit("Demo Data", "Create", "$session_name loaded demo data - $summary");
 

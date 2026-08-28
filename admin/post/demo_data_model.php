@@ -96,6 +96,38 @@ function demoDataTaxes() {
 }
 
 // ------------------------------
+// demoCategoryId
+// starterCategoryId returns 0 for a category that is not there, which is how a
+// load run before the Categories pack ends up with every expense, invoice and
+// ticket uncategorised. This creates what is missing instead, so the data is
+// complete whatever order the packs were loaded in.
+// ------------------------------
+function demoCategoryId($mysqli, $name, $type) {
+
+    static $cache = [];
+
+    $key = $type . '|' . $name;
+    if (isset($cache[$key])) {
+        return $cache[$key];
+    }
+
+    $id = starterCategoryId($mysqli, $name, $type);
+
+    if (!$id) {
+        $id = starterInsert($mysqli, 'categories', [
+            'category_name' => $name,
+            'category_type' => $type,
+            'category_color' => $type === 'Income' ? '#3d9970' : '#dc3545',
+            'category_created_at' => demoMonthDateTime(24, 1, 9, 0),
+        ]);
+    }
+
+    $cache[$key] = $id;
+
+    return $id;
+}
+
+// ------------------------------
 // demoDataProducts
 // Catalogue lines for the things this MSP actually sells, sitting alongside
 // whatever the Products starter pack put in. Deliberately a mix - the open
@@ -165,7 +197,7 @@ function demoEnsureProducts($mysqli, $currency) {
             'product_price' => $product[3],
             'product_currency_code' => $currency,
             'product_description' => $product[5],
-            'product_category_id' => starterCategoryId($mysqli, $product[4], 'Income'),
+            'product_category_id' => demoCategoryId($mysqli, $product[4], 'Income'),
             'product_tax_id' => 0,
         ]);
     }
@@ -399,28 +431,30 @@ function demoLink($mysqli, $table, $left_column, $left_id, $right_column, $right
 // ------------------------------
 function demoEnsureAccounts($mysqli, $currency) {
 
-    $accounts = ['ids' => [], 'created' => 0];
-    $existing = [];
-
-    $sql = mysqli_query($mysqli, "SELECT account_id, account_name FROM accounts");
-    while ($row = mysqli_fetch_assoc($sql)) {
-        $existing[mb_strtolower($row['account_name'])] = intval($row['account_id']);
-    }
+    $accounts = [];
 
     foreach (demoDataAccounts() as $account) {
-        $key = mb_strtolower($account[0]);
-        if (isset($existing[$key])) {
-            $accounts['ids'][$account[0]] = $existing[$key];
+
+        $name = escapeSql($account[0]);
+        $description = escapeSql($account[1]);
+
+        // Name and description together are what make an account ours. An
+        // install with its own Operating Checking keeps it untouched and gets a
+        // separate one here, so the company ledger is always built against
+        // accounts this library owns rather than being skipped.
+        $row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT account_id FROM accounts WHERE account_name = '$name' AND account_description = '$description' LIMIT 1"));
+        if (!empty($row['account_id'])) {
+            $accounts[$account[0]] = intval($row['account_id']);
             continue;
         }
-        $accounts['ids'][$account[0]] = starterInsert($mysqli, 'accounts', [
+
+        $accounts[$account[0]] = starterInsert($mysqli, 'accounts', [
             'account_name' => $account[0],
             'account_description' => $account[1],
             'opening_balance' => number_format($account[2], 2, '.', ''),
             'account_currency_code' => $currency,
             'account_created_at' => demoMonthDateTime(24, 1, 9, 0),
         ]);
-        $accounts['created']++;
     }
 
     return $accounts;
@@ -533,17 +567,14 @@ function demoDataLoad($mysqli) {
         'billing' => 0,
         'company' => 0,
         'skipped_credentials' => 0,
-        'skipped_company' => 0,
     ];
 
     $existing = starterExistingNames($mysqli, 'clients', 'client_name');
-    $accounts = demoEnsureAccounts($mysqli, $currency);
 
     $context = [
         'user_id' => intval($session_user_id ?? 0),
         'currency' => $currency,
-        'accounts' => $accounts['ids'],
-        'accounts_created' => $accounts['created'],
+        'accounts' => demoEnsureAccounts($mysqli, $currency),
         'cash_account_id' => demoCashAccountId($mysqli),
         'org_vendors' => demoEnsureOrgVendors($mysqli),
         'products' => demoEnsureProducts($mysqli, $currency),
@@ -576,17 +607,12 @@ function demoDataLoad($mysqli) {
     // The MSP's own operating costs and transfers. Only generated when the
     // accounts were ours to create - an install that already had an account
     // called Operating Checking has a real ledger, and we stay out of it.
-    if ($counts['clients']) {
-
-        // The diary and the mileage log carry no money, so they go in either way
-        demoBuildInternalDiary($mysqli, $context, $counts);
-
-        if ($context['accounts_created'] === count(demoDataAccounts())) {
-            demoBuildCompanyFinancials($mysqli, $context, $counts);
-        } else {
-            $counts['skipped_company'] = 1;
-        }
-    }
+    // The company side always gets built. It posts only to accounts and
+    // suppliers this library owns, so there is nothing to protect an existing
+    // install from - and both builders are guarded, so a run that only fills in
+    // missing clients does not double anything up.
+    demoBuildInternalDiary($mysqli, $context, $counts);
+    demoBuildCompanyFinancials($mysqli, $context, $counts);
 
     if (!$context['vault_open'] && $counts['clients']) {
         $counts['skipped_credentials'] = 1;
@@ -858,6 +884,25 @@ function demoDataRemove($mysqli) {
 
     }
 
+    // The transfer categories are ours - the Categories pack has no equivalent.
+    // Anything else demoCategoryId had to create was a category this install was
+    // missing and genuinely needs, so those stay.
+    foreach (['Expense', 'Income'] as $category_type) {
+        $row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT category_id FROM categories WHERE category_name = 'Account Transfer' AND category_type = '$category_type' LIMIT 1"));
+        $category_id = intval($row['category_id'] ?? 0);
+        if (!$category_id) {
+            continue;
+        }
+        $in_use = 0;
+        foreach (['expenses' => 'expense_category_id', 'revenues' => 'revenue_category_id', 'invoices' => 'invoice_category_id', 'quotes' => 'quote_category_id', 'recurring_invoices' => 'recurring_invoice_category_id', 'recurring_expenses' => 'recurring_expense_category_id', 'products' => 'product_category_id', 'budget' => 'budget_category_id'] as $table => $column) {
+            $row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT COUNT(*) AS total FROM $table WHERE $column = $category_id"));
+            $in_use = $in_use + intval($row['total'] ?? 0);
+        }
+        if (!$in_use) {
+            mysqli_query($mysqli, "DELETE FROM categories WHERE category_id = $category_id");
+        }
+    }
+
     // Closure days and budget lines, matched on exactly what we wrote
     foreach ([date('Y') - 1, date('Y'), date('Y') + 1] as $year) {
         foreach (demoDataHolidays($year) as $holiday) {
@@ -869,7 +914,7 @@ function demoDataRemove($mysqli) {
 
     foreach ([date('Y') - 1, date('Y')] as $year) {
         foreach (demoDataBudgets() as $budget) {
-            $category_id = starterCategoryId($mysqli, $budget[0], 'Expense');
+            $category_id = demoCategoryId($mysqli, $budget[0], 'Expense');
             if (!$category_id) {
                 continue;
             }
@@ -2032,7 +2077,7 @@ function demoBuildTickets($mysqli, $profile, $index, $client_id, $contact_ids, $
     $category_ids = [];
     $category_id = function ($name) use ($mysqli, &$category_ids) {
         if (!array_key_exists($name, $category_ids)) {
-            $category_ids[$name] = starterCategoryId($mysqli, $name, 'Ticket');
+            $category_ids[$name] = demoCategoryId($mysqli, $name, 'Ticket');
         }
         return (string)$category_ids[$name];
     };
@@ -2424,10 +2469,10 @@ function demoBuildBilling($mysqli, $profile, $index, $client_id, $vendor_id, $mo
 
     $currency = $context['currency'];
     $tax = $context['taxes'][$profile['tax']] ?? null;
-    $income_category_id = starterCategoryId($mysqli, 'Managed Services', 'Income');
-    $project_category_id = starterCategoryId($mysqli, 'Projects', 'Income') ?: $income_category_id;
-    $hardware_category_id = starterCategoryId($mysqli, 'Hardware Sales', 'Income') ?: $income_category_id;
-    $support_category_id = starterCategoryId($mysqli, 'Support', 'Income') ?: $income_category_id;
+    $income_category_id = demoCategoryId($mysqli, 'Managed Services', 'Income');
+    $project_category_id = demoCategoryId($mysqli, 'Projects', 'Income') ?: $income_category_id;
+    $hardware_category_id = demoCategoryId($mysqli, 'Hardware Sales', 'Income') ?: $income_category_id;
+    $support_category_id = demoCategoryId($mysqli, 'Support', 'Income') ?: $income_category_id;
 
     $bank_account_id = $context['accounts']['Operating Checking'] ?? 0;
     $card_account_id = $context['accounts']['Merchant Settlement'] ?? $bank_account_id;
@@ -2723,7 +2768,7 @@ function demoBuildBilling($mysqli, $profile, $index, $client_id, $vendor_id, $mo
             'expense_payment_method' => 'Credit Card',
             'expense_vendor_id' => $context['org_vendors'][$expense[3]] ?? 0,
             'expense_client_id' => $client_id,
-            'expense_category_id' => starterCategoryId($mysqli, $expense[2], 'Expense'),
+            'expense_category_id' => demoCategoryId($mysqli, $expense[2], 'Expense'),
             'expense_account_id' => $bank_account_id,
             'expense_created_at' => demoMonthDateTime($month, 14, 16, 45),
         ]);
@@ -2773,6 +2818,17 @@ function demoBuildBilling($mysqli, $profile, $index, $client_id, $vendor_id, $mo
 // ------------------------------
 function demoBuildCompanyFinancials($mysqli, $context, &$counts) {
 
+    // Already built on an earlier run - every company expense carries one of
+    // our own suppliers, so one of those is enough to tell
+    $vendor_ids = array_map('intval', $context['org_vendors']);
+    if ($vendor_ids) {
+        $vendor_ids = implode(',', $vendor_ids);
+        $row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT COUNT(expense_id) AS total FROM expenses WHERE expense_client_id = 0 AND expense_vendor_id IN ($vendor_ids)"));
+        if (intval($row['total'] ?? 0)) {
+            return;
+        }
+    }
+
     $currency = $context['currency'];
     $vendors = $context['org_vendors'];
     $operating_id = $context['accounts']['Operating Checking'] ?? 0;
@@ -2797,6 +2853,16 @@ function demoBuildCompanyFinancials($mysqli, $context, &$counts) {
         ['Bench stock - spare drives, cables and small parts', 640.00, 'Tools and Test Equipment', 4, 19, 'Ridgeline Technology Distribution'],
         ['UniFi shelf stock for the workshop', 1150.00, 'Hardware - Cost of Goods', 6, 7, 'Ubiquiti Store'],
         ['pfSense Plus support subscriptions', 795.00, 'Software', 12, 22, 'Netgate'],
+        ['Office supplies and printing', 145.00, 'Office Supplies', 1, 14, 'Ridgeline Technology Distribution'],
+        ['Team lunch', 96.00, 'Meals', 1, 17, 'Monongahela Property Group'],
+        ['Mobile phones and data for the team', 268.00, 'Telecom and Internet', 1, 8, 'Three Rivers Colocation'],
+        ['Professional body dues and subscriptions', 210.00, 'Dues and Subscriptions', 3, 20, 'Alcott and Reyes CPA'],
+        ['Van servicing and tyres', 480.00, 'Vehicle and Fuel', 6, 13, 'Ridgeline Technology Distribution'],
+        ['Replacement bench laptop and monitors', 1650.00, 'Equipment', 12, 16, 'Ridgeline Technology Distribution'],
+        ['Subcontract cabling work', 1250.00, 'Contractor', 4, 25, 'Ridgeline Technology Distribution'],
+        ['Courier and shipping', 88.00, 'Shipping and Postage', 1, 27, 'Ridgeline Technology Distribution'],
+        ['Quarterly estimated tax payment', 4200.00, 'Taxes', 3, 10, 'Alcott and Reyes CPA'],
+        ['Conference and travel', 1450.00, 'Travel', 12, 18, 'Alcott and Reyes CPA'],
     ];
 
     // Which purchases put hardware on the shelf, and what they bring in
@@ -2824,7 +2890,7 @@ function demoBuildCompanyFinancials($mysqli, $context, &$counts) {
                 'expense_payment_method' => $cost[0] === 'Payroll' ? 'ACH' : 'Credit Card',
                 'expense_vendor_id' => $vendors[$cost[5]] ?? 0,
                 'expense_client_id' => 0,
-                'expense_category_id' => starterCategoryId($mysqli, $cost[2], 'Expense'),
+                'expense_category_id' => demoCategoryId($mysqli, $cost[2], 'Expense'),
                 'expense_account_id' => $operating_id,
                 'expense_created_at' => demoMonthDateTime($month, $cost[4], 17, 0),
             ]);
@@ -2868,7 +2934,7 @@ function demoBuildCompanyFinancials($mysqli, $context, &$counts) {
                 'expense_payment_method' => 'Cash',
                 'expense_vendor_id' => $vendors[$item[3]] ?? 0,
                 'expense_client_id' => 0,
-                'expense_category_id' => starterCategoryId($mysqli, $item[2], 'Expense'),
+                'expense_category_id' => demoCategoryId($mysqli, $item[2], 'Expense'),
                 'expense_account_id' => $context['cash_account_id'],
                 'expense_created_at' => demoMonthDateTime($month, 23, 18, 10),
             ]);
@@ -2897,7 +2963,7 @@ function demoBuildCompanyFinancials($mysqli, $context, &$counts) {
             'recurring_expense_currency_code' => $currency,
             'recurring_expense_vendor_id' => $vendors[$recurring[5]] ?? 0,
             'recurring_expense_client_id' => 0,
-            'recurring_expense_category_id' => starterCategoryId($mysqli, $recurring[2], 'Expense'),
+            'recurring_expense_category_id' => demoCategoryId($mysqli, $recurring[2], 'Expense'),
             'recurring_expense_account_id' => $operating_id,
             'recurring_expense_created_at' => demoMonthDateTime(24, $recurring[4], 9, 0),
         ]);
@@ -2927,7 +2993,7 @@ function demoBuildCompanyFinancials($mysqli, $context, &$counts) {
     // The plan the actual spend gets measured against
     foreach ([date('Y') - 1, date('Y')] as $year) {
         foreach (demoDataBudgets() as $budget) {
-            $category_id = starterCategoryId($mysqli, $budget[0], 'Expense');
+            $category_id = demoCategoryId($mysqli, $budget[0], 'Expense');
             if (!$category_id) {
                 continue;
             }
@@ -3050,6 +3116,12 @@ function demoBuildInternalDiary($mysqli, $context, &$counts) {
         return;
     }
 
+    // Already built on an earlier run
+    $row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT COUNT(event_id) AS total FROM calendar_events WHERE event_calendar_id = $internal_id AND event_client_id = 0"));
+    if (intval($row['total'] ?? 0)) {
+        return;
+    }
+
     // Weekly and monthly fixtures, running back a quarter and forward a month
     // title, calendar, description, weekday offset from Monday, start hour, length in hours, every N weeks
     $fixtures = [
@@ -3150,6 +3222,13 @@ function demoBuildInternalDiary($mysqli, $context, &$counts) {
 // ------------------------------
 function demoTransfer($mysqli, $from_account_id, $to_account_id, $amount, $currency, $method, $notes, $month, $day, &$counts) {
 
+    // Both halves are categorised as a transfer. The handler leaves these at
+    // zero, but a blank category on the expense list looks like missing data -
+    // and because the same amount lands on the income and the expense side, the
+    // profit and loss still nets to nothing.
+    $expense_category_id = demoCategoryId($mysqli, 'Account Transfer', 'Expense');
+    $revenue_category_id = demoCategoryId($mysqli, 'Account Transfer', 'Income');
+
     $date = demoMonthDate($month, $day);
     if (demoIsFuture($date)) {
         return;
@@ -3163,7 +3242,7 @@ function demoTransfer($mysqli, $from_account_id, $to_account_id, $amount, $curre
         'expense_currency_code' => $currency,
         'expense_reference' => $reference,
         'expense_vendor_id' => 0,
-        'expense_category_id' => 0,
+        'expense_category_id' => $expense_category_id,
         'expense_client_id' => 0,
         'expense_account_id' => $from_account_id,
         'expense_created_at' => $created_at,
@@ -3174,7 +3253,7 @@ function demoTransfer($mysqli, $from_account_id, $to_account_id, $amount, $curre
         'revenue_amount' => number_format($amount, 2, '.', ''),
         'revenue_currency_code' => $currency,
         'revenue_reference' => $reference,
-        'revenue_category_id' => 0,
+        'revenue_category_id' => $revenue_category_id,
         'revenue_account_id' => $to_account_id,
         'revenue_client_id' => 0,
         'revenue_created_at' => $created_at,

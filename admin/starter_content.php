@@ -134,8 +134,8 @@ foreach ($starter_content_status as $pack_status) {
             the library, so <strong>renaming a demo client stops it being removable</strong>. Contacts use addresses on the
             reserved <strong>.example</strong> domain, which cannot receive mail, and the agreements are created with email
             notification switched off. Anything shared - accounts, suppliers, response targets, tax rates, catalogue lines and
-            calendars - is matched on more than its name, so records this install already had are never touched. If the
-            install already has bank accounts of its own, the company side of the books is left alone entirely.
+            calendars - is matched on more than its name, so records this install already had are never touched, and the
+            company side of the books is always built against accounts this page created rather than yours.
         </p>
 
         <?php if ($demo_data_status['other_clients'] && !$demo_data_loaded) { ?>
