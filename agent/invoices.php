@@ -434,9 +434,13 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                     </a>
                                     <div class="dropdown-divider"></div>
                                     <?php if (!empty($config_smtp_provider)) { ?>
+                                        <button type="submit" class="dropdown-item" form="quickSendInvoice"
+                                            name="invoice_id" value="<?= $invoice_id ?>">
+                                            <i class="fas fa-fw fa-bolt me-2"></i>Quick Send
+                                        </button>
                                         <a class="dropdown-item ajax-modal" href="#"
                                             data-modal-url="modals/invoice/invoice_email.php?invoice_id=<?= $invoice_id ?>">
-                                            <i class="fas fa-fw fa-paper-plane me-2"></i>Send Email
+                                            <i class="fas fa-fw fa-paper-plane me-2"></i>Send Email<span class="text-muted">...</span>
                                         </a>
                                         <div class="dropdown-divider"></div>
                                     <?php } ?>
@@ -467,6 +471,24 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
     </form>
     <?php require_once "../includes/filter_footer.php"; ?>
 </div>
+
+<?php if (lookupUserPermission("module_sales") >= 2 && !empty($config_smtp_provider)) { ?>
+    <?php
+    /*
+     * One hidden form for the whole page, targeted by the Quick Send buttons via
+     * their form="" attribute. It cannot be a form per button: agent/invoices.php
+     * wraps its table in a bulkActions form, and a nested form is invalid
+     * HTML - the browser drops the inner one and the click silently submits the
+     * bulk action instead. The button carries the id as its own name/value, which
+     * a submit button contributes to the submission.
+     */
+    ?>
+    <form id="quickSendInvoice" action="post.php" method="post" class="d-none">
+        <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
+        <input type="hidden" name="email_invoice" value="1">
+        <input type="hidden" name="quick_send" value="1">
+    </form>
+<?php } ?>
 
 <script src="../js/bulk_actions.js"></script>
 

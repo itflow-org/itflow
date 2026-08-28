@@ -168,9 +168,13 @@ if (isset($_GET['quote_id'])) {
                     </button>
                     <div class="dropdown-menu">
                         <?php if (!empty($config_smtp_provider) && $emailable_contacts > 0) { ?>
+                            <button type="submit" class="dropdown-item" form="quickSendQuote"
+                                name="quote_id" value="<?= $quote_id ?>">
+                                <i class="fas fa-fw fa-bolt me-2"></i>Quick Send
+                            </button>
                             <a class="dropdown-item ajax-modal" href="#"
                                 data-modal-url="modals/quote/quote_email.php?quote_id=<?= $quote_id ?>">
-                                <i class="fas fa-fw fa-paper-plane me-2"></i>Send Email
+                                <i class="fas fa-fw fa-paper-plane me-2"></i>Send Email<span class="text-muted">...</span>
                             </a>
                             <div class="dropdown-divider"></div>
                         <?php } ?>
@@ -233,9 +237,13 @@ if (isset($_GET['quote_id'])) {
                                 <i class="fa fa-fw fa-download text-secondary me-2"></i>Download PDF
                             </a>
                             <?php if (!empty($config_smtp_provider) && $emailable_contacts > 0) { ?>
+                                <button type="submit" class="dropdown-item" form="quickSendQuote"
+                                    name="quote_id" value="<?= $quote_id ?>">
+                                    <i class="fa fa-fw fa-bolt text-secondary me-2"></i>Quick Send
+                                </button>
                                 <a class="dropdown-item ajax-modal" href="#"
                                     data-modal-url="modals/quote/quote_email.php?quote_id=<?= $quote_id ?>">
-                                    <i class="fa fa-fw fa-paper-plane text-secondary me-2"></i>Send Email
+                                    <i class="fa fa-fw fa-paper-plane text-secondary me-2"></i>Send Email<span class="text-muted">...</span>
                                 </a>
                             <?php } ?>
                             <a class="dropdown-item clipboardjs" href="#" data-clipboard-text="https://<?= $config_base_url ?>/guest/guest_view_quote.php?quote_id=<?= "$quote_id&url_key=$quote_url_key" ?>">
@@ -597,6 +605,25 @@ if (isset($_GET['quote_id'])) {
             </div>
         </div>
     </div>
+
+        <?php if (lookupUserPermission("module_sales") >= 2 && !empty($config_smtp_provider) && $emailable_contacts > 0) { ?>
+            <?php
+            /*
+             * One hidden form for the page, targeted by the Quick Send buttons via
+             * their form="" attribute, so a button can sit inside a dropdown
+             * without needing a form of its own. The button carries the id as its
+             * own name/value, which a submit button contributes to the submission.
+             *
+             * Must stay inside this block - $emailable_contacts is only set on the
+             * path where the document was found.
+             */
+            ?>
+            <form id="quickSendQuote" action="post.php" method="post" class="d-none">
+                <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
+                <input type="hidden" name="email_quote" value="1">
+                <input type="hidden" name="quick_send" value="1">
+            </form>
+        <?php } ?>
 
 <?php
 }

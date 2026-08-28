@@ -815,6 +815,30 @@ function documentContactFilterSql($document_type) {
 }
 
 /*
+ * Which of the offered contacts are selected by default, as a SQL fragment.
+ *
+ * Two things read this and they must agree: the Send Email picker uses it to
+ * decide which boxes open ticked, and Quick Send uses it as the whole
+ * recipient list - Quick Send is exactly "send to the ticked ones without
+ * opening the modal".
+ *
+ *   invoice - primary and billing, which is everyone the picker offers. A bill
+ *             has no recipient you would routinely leave out.
+ *   quote   - primary only. Technical and important contacts are offered
+ *             because they often want the quote, but sending unasked to
+ *             someone who did not request pricing is not a safe default.
+ *
+ * Always a subset of documentContactFilterSql() for the same document type.
+ */
+function documentDefaultContactFilterSql($document_type) {
+    if ($document_type === 'quote') {
+        return "AND contact_primary = 1";
+    }
+
+    return "AND (contact_primary = 1 OR contact_billing = 1)";
+}
+
+/*
  * The delivery methods offered by the Mark Sent modal on invoices and quotes.
  *
  * Marking a document sent records that it left the building by some route

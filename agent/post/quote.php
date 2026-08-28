@@ -596,35 +596,49 @@ if (isset($_POST['email_quote'])) {
 
     enforceClientAccess();
 
-    // Recipients come from the Send Email modal's contact picker. Scoping the
-    // lookup to this quote's client is what makes a tampered contact_id
-    // harmless - it simply matches nothing.
-    $selected_contacts = $_POST['contacts'] ?? [];
-    if (!is_array($selected_contacts)) {
-        $selected_contacts = [];
-    }
-    $selected_contact_ids = array_filter(array_unique(array_map('intval', $selected_contacts)));
+    // Two ways in. Quick Send skips the modal and resolves the default
+    // recipients server-side; the modal posts an explicit contacts[] list.
+    // Scoping either lookup to this quote's client is what makes a tampered
+    // contact_id harmless - it simply matches nothing.
+    if (!empty($_POST['quick_send'])) {
 
-    if (empty($selected_contact_ids)) {
-        flashAlert("Select at least one contact to send to", 'error');
-        redirect();
-    }
+        $recipient_filter = documentDefaultContactFilterSql('quote');
 
-    $selected_contact_id_list = implode(',', $selected_contact_ids);
+    } else {
+
+        $selected_contacts = $_POST['contacts'] ?? [];
+        if (!is_array($selected_contacts)) {
+            $selected_contacts = [];
+        }
+        $selected_contact_ids = array_filter(array_unique(array_map('intval', $selected_contacts)));
+
+        if (empty($selected_contact_ids)) {
+            flashAlert("Select at least one contact to send to", 'error');
+            redirect();
+        }
+
+        $selected_contact_id_list = implode(',', $selected_contact_ids);
+        $recipient_filter = "AND contact_id IN ($selected_contact_id_list)";
+
+    }
 
     $sql_recipients = mysqli_query(
         $mysqli,
         "SELECT contact_email, contact_name FROM contacts
-        WHERE contact_id IN ($selected_contact_id_list)
-        AND contact_client_id = $client_id
+        WHERE contact_client_id = $client_id
         AND contact_archived_at IS NULL
         AND contact_email IS NOT NULL
         AND contact_email != ''
+        $recipient_filter
         ORDER BY contact_primary DESC, contact_billing DESC, contact_name ASC"
     );
 
     if (mysqli_num_rows($sql_recipients) == 0) {
-        flashAlert("None of the selected contacts have a usable email address", 'error');
+        if (!empty($_POST['quick_send'])) {
+            flashAlert("No default contacts to quick send to - use Send Email to choose recipients", 'error');
+        } else {
+            flashAlert("None of the selected contacts have a usable email address", 'error');
+        }
         redirect();
     }
 

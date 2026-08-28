@@ -33,6 +33,22 @@ $sql_contacts = mysqli_query(
 
 $contact_count = mysqli_num_rows($sql_contacts);
 
+// Which boxes open ticked. Read from the same helper Quick Send uses, so the
+// modal and the one-click path can never disagree about who "the defaults" are.
+$default_contact_ids = [];
+$sql_defaults = mysqli_query(
+    $mysqli,
+    "SELECT contact_id FROM contacts
+    WHERE contact_client_id = $client_id
+    AND contact_archived_at IS NULL
+    AND contact_email IS NOT NULL
+    AND contact_email != ''
+    " . documentDefaultContactFilterSql('quote')
+);
+while ($row = mysqli_fetch_assoc($sql_defaults)) {
+    $default_contact_ids[] = intval($row['contact_id']);
+}
+
 ob_start();
 
 ?>
@@ -75,11 +91,7 @@ ob_start();
                     $contact_technical = intval($row['contact_technical']);
                     $contact_important = intval($row['contact_important']);
 
-                    // Default selection reproduces the old link: quotes went to
-                    // the primary contact only. Billing contacts are listed and
-                    // one click away, but stay unchecked - a quote is a sales
-                    // conversation, not a bill
-                    $contact_checked = ($contact_primary == 1);
+                    $contact_checked = in_array($contact_id, $default_contact_ids, true);
 
                     ?>
 
