@@ -348,6 +348,165 @@ if (isset($_GET['close_ticket'])) {
     }
 }
 
+
+if (isset($_GET['export_statement_pdf'])) {
+
+    validateCSRFToken();
+
+    enforceContactCan('accounting');
+
+    /*
+     * SCOPING: the client is taken from the session, never from the request.
+     * There is no client_id parameter on this handler by design - a contact
+     * cannot ask for another company's statement because there is nothing to
+     * ask with. enforceContactCan('accounting') above limits it to primary and
+     * billing contacts, matching client/statement.php and client/invoices.php.
+     */
+    $client_id = $session_client_id;
+
+    $sql = mysqli_query($mysqli, "SELECT client_name FROM clients WHERE client_id = $client_id LIMIT 1");
+    $row = mysqli_fetch_assoc($sql);
+    $client_name = escapeHtml($row['client_name']);
+
+    $sql = mysqli_query($mysqli, "SELECT company_address, company_city, company_country, company_logo, company_name,
+        company_phone, company_phone_country_code, company_state, company_website, company_zip
+        FROM companies WHERE company_id = 1");
+    $row = mysqli_fetch_assoc($sql);
+
+    $company_name = escapeHtml($row['company_name']);
+    $company_country = escapeHtml($row['company_country']);
+    $company_address = escapeHtml($row['company_address']);
+    $company_city = escapeHtml($row['company_city']);
+    $company_state = escapeHtml($row['company_state']);
+    $company_zip = escapeHtml($row['company_zip']);
+    $company_phone = escapeHtml(formatPhoneNumber($row['company_phone'], $row['company_phone_country_code']));
+    $company_website = escapeHtml($row['company_website']);
+    $company_logo = escapeHtml($row['company_logo']);
+
+    // Same statement query as client/statement.php - payments summed in a
+    // derived table so a twice-paid invoice is not counted twice, and the
+    // balance test drops anything fully paid
+    $statement_sql = mysqli_query(
+        $mysqli,
+        "SELECT invoice_amount, invoice_date, invoice_due, invoice_id, invoice_number, invoice_prefix,
+            invoice_scope, IFNULL(amount_paid, 0) AS amount_paid
+        FROM invoices
+        LEFT JOIN (
+            SELECT payment_invoice_id, SUM(payment_amount) AS amount_paid FROM payments
+            WHERE payment_archived_at IS NULL
+            GROUP BY payment_invoice_id
+        ) AS invoice_payments ON payment_invoice_id = invoice_id
+        WHERE invoice_client_id = $client_id
+        AND invoice_status NOT IN ('Draft', 'Cancelled', 'Non-Billable')
+        AND invoice_amount - IFNULL(invoice_payments.amount_paid, 0) > 0
+        ORDER BY invoice_date ASC, invoice_number ASC"
+    );
+
+    if (mysqli_num_rows($statement_sql) == 0) {
+        flashAlert("There is nothing outstanding to put on a statement", 'error');
+        redirect("statement.php");
+    }
+
+    require_once("../libs/TCPDF/tcpdf.php");
+
+    // Start TCPDF
+    $pdf = new TCPDF('P', 'mm', 'A4', true, 'UTF-8', false);
+    $pdf->SetMargins(10, 10, 10);
+    $pdf->setPrintHeader(false);
+    $pdf->setPrintFooter(false);
+    $pdf->AddPage();
+    $pdf->SetFont('helvetica', '', 10);
+
+    // Logo + title
+    $html = '<table width="100%" cellspacing="0" cellpadding="3">
+    <tr>
+        <td width="40%">';
+    if (!empty($company_logo) && file_exists("../uploads/settings/$company_logo")) {
+        $html .= '<img src="/uploads/settings/' . $company_logo . '" width="120">';
+    }
+    $html .= '</td>
+        <td width="60%" align="right">
+            <span style="font-size:18pt; font-weight:bold;">Account Statement</span><br>
+            <span style="font-size:11pt;">As of ' . date("Y-m-d") . '</span>
+        </td>
+    </tr>
+    </table><br>';
+
+    $html .= '<table width="100%" cellspacing="0" cellpadding="2">
+    <tr>
+        <td width="50%" style="font-size:14pt; font-weight:bold;">' . $company_name . '</td>
+        <td width="50%" align="right" style="font-size:14pt; font-weight:bold;">' . $client_name . '</td>
+    </tr>
+    <tr>
+        <td style="font-size:10pt; line-height:1.4;">' . nl2br(formatAddress($company_address, $company_city, $company_state, $company_zip, $company_country) . "\n$company_phone\n$company_website") . '</td>
+        <td></td>
+    </tr>
+    </table><br>';
+
+    // Statement lines
+    $html .= '<table border="0" cellpadding="4" cellspacing="0" width="100%">
+    <tr style="background-color:#343a40; color:#ffffff; font-weight:bold;">
+        <td width="14%">Invoice</td>
+        <td width="30%">Scope</td>
+        <td width="13%">Date</td>
+        <td width="13%">Due</td>
+        <td width="10%" align="right">Amount</td>
+        <td width="10%" align="right">Paid</td>
+        <td width="10%" align="right">Balance</td>
+    </tr>';
+
+    $statement_total = 0;
+    $statement_row_shade = false;
+
+    while ($row = mysqli_fetch_assoc($statement_sql)) {
+        $invoice_prefix = escapeHtml($row['invoice_prefix']);
+        $invoice_number = intval($row['invoice_number']);
+        $invoice_scope = escapeHtml($row['invoice_scope']);
+        $invoice_date = escapeHtml($row['invoice_date']);
+        $invoice_due = escapeHtml($row['invoice_due']);
+        $invoice_amount = floatval($row['invoice_amount']);
+        $amount_paid = floatval($row['amount_paid']);
+        $invoice_balance = $invoice_amount - $amount_paid;
+
+        $statement_total = $statement_total + $invoice_balance;
+
+        // Same one-day grace as client/statement.php and client/invoices.php
+        if (strtotime($invoice_due) + 86400 < time()) {
+            $due_style = ' style="color:#dc3545;"';
+        } else {
+            $due_style = '';
+        }
+
+        $row_background = $statement_row_shade ? ' bgcolor="#f2f2f2"' : '';
+        $statement_row_shade = !$statement_row_shade;
+
+        $html .= '<tr' . $row_background . '>
+        <td style="font-size:9pt;">' . $invoice_prefix . $invoice_number . '</td>
+        <td style="font-size:9pt;">' . $invoice_scope . '</td>
+        <td style="font-size:9pt;">' . $invoice_date . '</td>
+        <td style="font-size:9pt;"' . $due_style . '>' . $invoice_due . '</td>
+        <td style="font-size:9pt;" align="right">' . numfmt_format_currency($currency_format, $invoice_amount, $session_company_currency) . '</td>
+        <td style="font-size:9pt;" align="right">' . numfmt_format_currency($currency_format, $amount_paid, $session_company_currency) . '</td>
+        <td style="font-size:9pt;" align="right">' . numfmt_format_currency($currency_format, $invoice_balance, $session_company_currency) . '</td>
+        </tr>';
+    }
+
+    $html .= '<tr>
+        <td colspan="6" align="right" style="font-weight:bold;">Total Balance Due</td>
+        <td align="right" style="font-weight:bold;">' . numfmt_format_currency($currency_format, $statement_total, $session_company_currency) . '</td>
+    </tr>
+    </table>';
+
+    $pdf->writeHTML($html, true, false, true, false, '');
+
+    $filename = toAlphanumeric($client_name) . "-Account_Statement-" . date("Y-m-d");
+
+    $pdf->Output("$filename.pdf", 'D');
+
+    exit();
+
+}
+
 if (isset($_GET['logout'])) {
 
     setcookie("PHPSESSID", '', time() - 3600, "/");
