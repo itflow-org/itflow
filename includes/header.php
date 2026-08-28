@@ -40,6 +40,16 @@ header("X-Frame-Options: DENY");
         <link rel="icon" type="image/x-icon" href="/uploads/favicon.ico">
     <?php } ?>
 
+    <?php /* The Tom Select pair is the first thing includes/footer.php runs,
+             because until it does the browser is showing raw <select>
+             controls. Preloading here starts both fetches during head parse,
+             in parallel with the stylesheets, so the bytes are already warm
+             when the parser reaches the tag instead of being requested only
+             at that point. Hints only - the <script> tags in footer.php are
+             what actually load them. */ ?>
+    <link rel="preload" as="script" href="/libs/tom-select/js/tom-select.complete.min.js">
+    <link rel="preload" as="script" href="/js/tom_select.js">
+
     <!-- Font Awesome -->
     <link rel="stylesheet" href="/libs/fontawesome-free/css/all.min.css">
 

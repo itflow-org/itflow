@@ -140,10 +140,16 @@ function itflowInit() {
         }, 5000);
     })();
 
-    // Initialize Tom Select (replaces Select2). Every instance is reachable
-    // afterwards as element.tomselect, which is how the helpers below reach it.
+    // Enhance any select that is not enhanced yet. On a normal page load
+    // js/tom_select.js has already done the work and every element here is
+    // guarded, so this is a no-op; it earns its place on ajax modals, whose
+    // markup does not exist until includes/modal_footer.php re-executes this
+    // file. Scoped to `select.select2` deliberately - a bare '.select2' also
+    // matches the .ts-wrapper divs left by earlier enhancement, because Tom
+    // Select copies the source element's classes onto them. See
+    // js/tom_select.js.
     itflowStep('tom-select', function () {
-        document.querySelectorAll('.select2').forEach(function (el) {
+        document.querySelectorAll('select.select2').forEach(function (el) {
             initTomSelect(el);
         });
     });
@@ -767,62 +773,12 @@ function flashTooltip(button, message) {
     }, 1000);
 }
 
-/**
- * Tom Select integration.
- *
- * Replaces Select2. Tom Select is vanilla JS and exposes its instance on the
- * element as `el.tomselect`, so nothing here needs jQuery.
- *
- * Select2 concepts and their equivalents, for anyone reading this later:
- *   $(el).select2({tags:true})        -> create: true
- *   $(el).val(null).trigger('change') -> el.tomselect.clear()
- *   $(el).trigger('change.select2')   -> el.tomselect.sync()   (options replaced)
- *   $(el).on('select2:select', fn)    -> el.tomselect.on('change', fn)
+/*
+ * The Tom Select layer (initTomSelect / refreshTomSelect / clearTomSelect /
+ * setTomSelectValue) lives in js/tom_select.js, which footer.php loads right
+ * after the library so the enhancement happens before the page's heavy libs
+ * are parsed. Those functions are global; this file only calls them.
  */
-function initTomSelect(el, options) {
-    if (!el || el.tomselect) {
-        return el ? el.tomselect : null;
-    }
-    var settings = Object.assign({
-        create: false,
-        allowEmptyOption: true,
-        plugins: el.multiple ? ['remove_button'] : [],
-        placeholder: el.getAttribute('data-placeholder') || undefined
-    }, options || {});
-    return new TomSelect(el, settings);
-}
-
-/** Re-read the <option> list after it has been replaced server-side. */
-function refreshTomSelect(el) {
-    if (el && el.tomselect) {
-        el.tomselect.sync();
-    }
-}
-
-/** Clear a selection (single or multiple) without firing a server round-trip. */
-function clearTomSelect(el) {
-    if (el && el.tomselect) {
-        el.tomselect.clear(true);
-    }
-}
-
-/**
- * Set a select's value from code. A plain el.value = x (or jQuery .val()) does
- * not repaint a Tom Select widget - the underlying <select> changes but the
- * visible control does not. Falls back to a native change event when the
- * element was never enhanced.
- */
-function setTomSelectValue(el, value) {
-    if (!el) {
-        return;
-    }
-    if (el.tomselect) {
-        el.tomselect.setValue(value);
-        return;
-    }
-    el.value = value;
-    el.dispatchEvent(new Event('change', { bubbles: true }));
-}
 
 /**
  * Show a Bootstrap toast from JavaScript.

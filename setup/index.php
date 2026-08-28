@@ -1451,9 +1451,10 @@ if (isset($_POST['add_telemetry'])) {
 
 <!-- jQuery -->
 <!-- Bootstrap 5 -->
-<script src="/libs/bootstrap/js/bootstrap.bundle.min.js"></script>
 <!-- Custom js-->
 <script src='/libs/tom-select/js/tom-select.complete.min.js'></script>
+<script src="/js/tom_select.js"></script>
+<script src="/libs/bootstrap/js/bootstrap.bundle.min.js"></script>
 <!-- AdminLTE App -->
 <script src="/libs/adminlte/js/adminlte.min.js"></script>
 

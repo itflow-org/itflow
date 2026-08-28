@@ -28,6 +28,21 @@ if (basename(dirname($_SERVER['REQUEST_URI'])) === 'guest') { ?>
 
 <!-- REQUIRED SCRIPTS -->
 
+<?php /* Tom Select goes FIRST, ahead of Bootstrap itself. Order is load-bearing:
+         until js/tom_select.js runs, the browser is showing the raw <select>
+         controls it painted while parsing the body, so every byte in front of
+         it is time spent looking at the wrong widget. Nothing here is needed to
+         turn a <select> into a Tom Select, so nothing goes in front of it.
+         includes/header.php preloads both files. See js/tom_select.js.
+
+         Bootstrap moving down is safe: it has always loaded in the footer, so
+         no markup above this point could ever have used the `bootstrap` global
+         at parse time. Every call site is inside an event handler or waits for
+         DOMContentLoaded - includes/inc_alert_feedback.php says so in its own
+         comment - and all of those still run well after this block. */ ?>
+<script src="/libs/tom-select/js/tom-select.complete.min.js"></script>
+<script src="/js/tom_select.js"></script>
+
 <!-- Bootstrap 5 -->
 <script src="/libs/bootstrap/js/bootstrap.bundle.min.js"></script>
 <script src="/js/http.js"></script>
@@ -35,7 +50,6 @@ if (basename(dirname($_SERVER['REQUEST_URI'])) === 'guest') { ?>
 <!-- Custom js-->
 <script src="/libs/chart.js/chart.umd.min.js"></script>
 <script src="/libs/flatpickr/js/flatpickr.min.js"></script>
-<script src="/libs/tom-select/js/tom-select.complete.min.js"></script>
 <script src="/libs/imask/js/imask.min.js"></script>
 <script src="/libs/tinymce/tinymce.min.js" referrerpolicy="origin"></script>
 <script src="/libs/clipboardjs/clipboard.min.js"></script>
