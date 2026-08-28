@@ -17,4 +17,18 @@
         </div>
     </div>
 </div>
-<script src="/agent/js/client_delete_confirm.js"></script>
+<?php /* defer, because this include is not at the end of the page.
+         inc_client_top_head.php requires this file, so on EVERY client-context
+         page this <script> sits in the middle of the body, between the client
+         header card and the page's own content. Without defer the HTML parser
+         stops here until the file arrives - and it arrives late, queued behind
+         the whole footer bundle the speculative preload scanner has already
+         started fetching - so the chrome paints and the content area below
+         stays blank for the duration. Measured on vendors.php?client_id=1:
+         document complete at 105ms, this script at 175ms, content painted at
+         219ms. That ~100ms hole is the flash.
+
+         defer is safe here: validateClientNameDelete() is only ever called
+         from the onkeyup handler above, and a deferred script is guaranteed to
+         have run before DOMContentLoaded, long before anyone can type. */ ?>
+<script src="/agent/js/client_delete_confirm.js" defer></script>
