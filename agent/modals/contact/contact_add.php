@@ -4,6 +4,10 @@ require_once '../../../includes/modal_header.php';
 
 $client_id = intval($_GET['client_id'] ?? 0);
 
+// Opened from an "Add Primary Contact" link, so the box below starts ticked.
+// A default, not a lock - it is still a normal checkbox.
+$contact_primary_default = !empty($_GET['primary']);
+
 if ($client_id) {
      $sql_location_select = mysqli_query($mysqli, "SELECT location_id, location_name FROM locations WHERE location_archived_at IS NULL AND location_client_id = $client_id ORDER BY location_name ASC");
 } else {
@@ -91,7 +95,7 @@ ob_start();
                             <span class="input-group-text"><i class="fa fa-fw fa-user"></i></span>
                         <input type="text" class="form-control" name="name" placeholder="Full Name" maxlength="200" required autofocus>
                             <div class="input-group-text">
-                                <input class="form-check-input" type="checkbox" name="contact_primary" value="1">
+                                <input class="form-check-input" type="checkbox" name="contact_primary" value="1"<?= $contact_primary_default ? ' checked' : '' ?>>
                             </div>
                     </div>
                 </div>

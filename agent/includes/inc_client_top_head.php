@@ -69,7 +69,21 @@
     <div class="card-group mb-3">
         <div class="card card-body px-3 py-2">
             <h5>Primary Location</h5>
-            <?php if (!empty($location_address)) { ?>
+            <?php /* location_id comes from inc_all_client.php's LEFT JOIN on
+                     location_primary = 1, so empty means there is genuinely no
+                     primary location - not merely a primary location with no
+                     street address filled in. Gated at module_client >= 2 to
+                     match enforceUserPermission() in agent/post/location.php;
+                     without that a read-only user would get a link that 403s. */ ?>
+            <?php if (empty($location_id) && lookupUserPermission("module_client") >= 2) { ?>
+                <div>
+                    <a class="ajax-modal" href="#" data-modal-url="modals/location/location_add.php?client_id=<?= $client_id ?>&primary=1">
+                        Add Primary Location
+                    </a>
+                </div>
+            <?php }
+
+            if (!empty($location_address)) { ?>
                 <div>
                     <a href="//maps.<?= $session_map_source ?>.com/?q=<?= "$location_address $location_zip" ?>" target="_blank">
                         <i class="fa fa-fw fa-map-marker-alt text-secondary ms-1 me-2"></i><?= $location_address ?>
@@ -100,6 +114,14 @@
         <div class="card card-body px-3 py-2">
             <h5>Primary Contact</h5>
             <?php
+
+            if (empty($contact_id) && lookupUserPermission("module_client") >= 2) { ?>
+                <div>
+                    <a class="ajax-modal" href="#" data-modal-url="modals/contact/contact_add.php?client_id=<?= $client_id ?>&primary=1">
+                        Add Primary Contact
+                    </a>
+                </div>
+            <?php }
 
             if (!empty($contact_name)) { ?>
                 <div>

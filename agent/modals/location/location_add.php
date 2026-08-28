@@ -4,6 +4,10 @@ require_once '../../../includes/modal_header.php';
 
 $client_id = intval($_GET['client_id'] ?? 0);
 
+// Opened from an "Add Primary Location" link, so the box below starts ticked.
+// A default, not a lock - it is still a normal checkbox.
+$location_primary_default = !empty($_GET['primary']);
+
 ob_start();
 
 ?>
@@ -70,7 +74,7 @@ ob_start();
                             <span class="input-group-text"><i class="fa fa-fw fa-map-marker"></i></span>
                         <input type="text" class="form-control" name="name" placeholder="Name of location" maxlength="200" required autofocus>
                             <div class="input-group-text">
-                                <input class="form-check-input" type="checkbox" name="location_primary" value="1">
+                                <input class="form-check-input" type="checkbox" name="location_primary" value="1"<?= $location_primary_default ? ' checked' : '' ?>>
                             </div>
                     </div>
                 </div>
