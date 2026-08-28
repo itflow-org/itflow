@@ -35,6 +35,9 @@ $payment_provider_threshold = floatval($row['payment_provider_threshold']);
 
     <div class="col-md-10">
 
+        <?php if (mysqli_num_rows($recurring_invoices_sql) == 0) { ?>
+            <?= portalEmptyState('There are no recurring invoices set up on this account.') ?>
+        <?php } else { ?>
         <table class="table table-bordered border border-dark">
             <thead class="table-dark">
             <tr>
@@ -105,6 +108,7 @@ $payment_provider_threshold = floatval($row['payment_provider_threshold']);
 
             </tbody>
         </table>
+        <?php } ?>
 
     </div>
 

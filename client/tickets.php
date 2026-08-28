@@ -47,6 +47,9 @@ $total_tickets = intval($row['total_tickets']);
 
     <div class="col-md-10">
 
+        <?php if (mysqli_num_rows($contact_tickets) == 0) { ?>
+            <?= portalEmptyState($status === '%' ? 'You have no tickets.' : 'You have no ' . strtolower($status) . ' tickets.') ?>
+        <?php } else { ?>
         <table class="table table-bordered border border-dark">
             <thead class="table-dark">
                 <tr>
@@ -80,6 +83,7 @@ $total_tickets = intval($row['total_tickets']);
             ?>
             </tbody>
         </table>
+        <?php } ?>
 
     </div>
 

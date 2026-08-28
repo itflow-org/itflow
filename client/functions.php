@@ -73,6 +73,21 @@ function enforceContactCan($capability) {
 }
 
 /*
+ * The empty state for the portal's list pages.
+ *
+ * Every list page here renders a header row and then a while loop, so a client
+ * with no assets, no quotes or no documents used to get a table with nothing
+ * under it - indistinguishable from a page that failed to load. This says so
+ * instead.
+ *
+ * Default is neutral, for a list that simply has nothing in it yet. Pass
+ * 'success' where empty is genuinely good news (nothing owed, nothing unpaid).
+ */
+function portalEmptyState($message, $icon = 'fa-inbox', $type = 'secondary') {
+    return '<div class="alert alert-' . $type . '"><i class="fa fa-fw ' . $icon . ' me-2"></i>' . $message . '</div>';
+}
+
+/*
  * Returns appropriate FontAwesome icon for file extension
  */
 function getFileIcon($file_extension) {

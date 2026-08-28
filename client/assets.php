@@ -25,6 +25,9 @@ $assets_sql = mysqli_query($mysqli, "SELECT asset_description, asset_id, asset_m
 
         <div class="col-md-12">
 
+            <?php if (mysqli_num_rows($assets_sql) == 0) { ?>
+                <?= portalEmptyState('There are no assets on this account yet.') ?>
+            <?php } else { ?>
             <table class="table table-bordered border border-dark">
                 <thead class="table-dark">
                 <tr>
@@ -84,6 +87,7 @@ $assets_sql = mysqli_query($mysqli, "SELECT asset_description, asset_id, asset_m
 
                 </tbody>
             </table>
+            <?php } ?>
 
         </div>
 

@@ -31,6 +31,9 @@ $documents_sql = mysqli_query($mysqli, "SELECT document_id, document_name, docum
 
 <div class="row mt-3">
     <div class="col-md-12">
+        <?php if (mysqli_num_rows($documents_sql) == 0) { ?>
+            <?= portalEmptyState('There are no documents shared with you yet.') ?>
+        <?php } else { ?>
         <table class="table table-bordered border border-dark">
             <thead class="table-dark">
             <tr>
@@ -73,6 +76,7 @@ $documents_sql = mysqli_query($mysqli, "SELECT document_id, document_name, docum
 
             </tbody>
         </table>
+        <?php } ?>
     </div>
 </div>
 

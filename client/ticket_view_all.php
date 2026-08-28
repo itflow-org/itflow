@@ -41,6 +41,9 @@ $all_tickets = mysqli_query($mysqli, "SELECT ticket_id, ticket_prefix, ticket_nu
             </form>
         </div>
     </div>
+    <?php if (mysqli_num_rows($all_tickets) == 0) { ?>
+        <?= portalEmptyState('There are no tickets for this account.') ?>
+    <?php } else { ?>
     <table class="table">
         <thead>
         <tr>
@@ -71,6 +74,7 @@ $all_tickets = mysqli_query($mysqli, "SELECT ticket_id, ticket_prefix, ticket_nu
         ?>
         </tbody>
     </table>
+    <?php } ?>
     </div>
 
 <?php

@@ -19,6 +19,9 @@ $quotes_sql = mysqli_query($mysqli, "SELECT quote_amount, quote_date, quote_id, 
 
     <div class="col-md-10">
 
+        <?php if (mysqli_num_rows($quotes_sql) == 0) { ?>
+            <?= portalEmptyState('There are no quotes on this account yet.') ?>
+        <?php } else { ?>
         <table class="table table-bordered border border-dark">
             <thead class="table-dark">
             <tr>
@@ -80,6 +83,7 @@ $quotes_sql = mysqli_query($mysqli, "SELECT quote_amount, quote_date, quote_id, 
 
             </tbody>
         </table>
+        <?php } ?>
 
     </div>
 

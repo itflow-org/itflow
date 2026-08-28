@@ -20,6 +20,9 @@ $invoices_sql = mysqli_query($mysqli, "SELECT invoice_amount, invoice_date, invo
 
     <div class="col-md-10">
 
+        <?php if (mysqli_num_rows($invoices_sql) == 0) { ?>
+            <?= portalEmptyState('There are no invoices on this account yet.') ?>
+        <?php } else { ?>
         <table class="table table-bordered border border-dark">
             <thead class="table-dark">
             <tr>
@@ -89,6 +92,7 @@ $invoices_sql = mysqli_query($mysqli, "SELECT invoice_amount, invoice_date, invo
 
             </tbody>
         </table>
+        <?php } ?>
 
     </div>
 

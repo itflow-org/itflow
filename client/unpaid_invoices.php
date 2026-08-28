@@ -80,6 +80,9 @@ $balance = $invoice_amounts - $amount_paid;
 
     <div class="col-md-10">
 
+        <?php if (mysqli_num_rows($invoices_sql) == 0) { ?>
+            <?= portalEmptyState('There is nothing unpaid on this account.', 'fa-check', 'success') ?>
+        <?php } else { ?>
         <table class="table table-bordered border border-dark">
             <thead class="table-dark">
             <tr>
@@ -197,6 +200,7 @@ $balance = $invoice_amounts - $amount_paid;
 
             </tbody>
         </table>
+        <?php } ?>
 
     </div>
 

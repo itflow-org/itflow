@@ -18,6 +18,9 @@ $certificates_sql = mysqli_query($mysqli, "SELECT certificate_id, certificate_na
 
         <div class="col-md-10">
 
+            <?php if (mysqli_num_rows($certificates_sql) == 0) { ?>
+                <?= portalEmptyState('There are no web certificates on this account yet.') ?>
+            <?php } else { ?>
             <table class="table table-bordered border border-dark">
                 <thead class="table-dark">
                 <tr>
@@ -49,6 +52,7 @@ $certificates_sql = mysqli_query($mysqli, "SELECT certificate_id, certificate_na
 
                 </tbody>
             </table>
+            <?php } ?>
 
         </div>
 

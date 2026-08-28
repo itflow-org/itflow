@@ -18,6 +18,9 @@ $domains_sql = mysqli_query($mysqli, "SELECT domain_id, domain_name, domain_expi
 
         <div class="col-md-10">
 
+            <?php if (mysqli_num_rows($domains_sql) == 0) { ?>
+                <?= portalEmptyState('There are no domains on this account yet.') ?>
+            <?php } else { ?>
             <table class="table table-bordered border border-dark">
                 <thead class="table-dark">
                 <tr>
@@ -43,6 +46,7 @@ $domains_sql = mysqli_query($mysqli, "SELECT domain_id, domain_name, domain_expi
 
                 </tbody>
             </table>
+            <?php } ?>
 
         </div>
 

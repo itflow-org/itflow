@@ -60,9 +60,7 @@ $statement_total = 0;
 
         <?php if ($statement_count == 0) { ?>
 
-            <div class="alert alert-success">
-                <i class="fa fa-fw fa-check me-2"></i>There is nothing outstanding on this account.
-            </div>
+            <?= portalEmptyState('There is nothing outstanding on this account.', 'fa-check', 'success') ?>
 
         <?php } else { ?>
 
