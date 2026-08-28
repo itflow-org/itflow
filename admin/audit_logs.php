@@ -46,6 +46,14 @@ if (isset($_GET['action']) & !empty($_GET['action'])) {
     $action_filter = '';
 }
 
+/*
+ * The date filter is a half-open range rather than DATE(log_created_at) BETWEEN
+ * ... - wrapping the column in a function makes the comparison non-sargable, so
+ * KEY log_created_at could never be used and every page view scanned the whole
+ * table. '< dtt + 1 day' keeps the end date inclusive, which BETWEEN on a bare
+ * DATETIME would not: '2026-08-28' alone means midnight, and would drop that
+ * day's rows.
+ */
 $sql = mysqli_query(
     $mysqli,
     "SELECT SQL_CALC_FOUND_ROWS client_id, client_name, log_action, log_created_at, log_description, log_entity_id, log_id,
@@ -53,7 +61,7 @@ $sql = mysqli_query(
     LEFT JOIN users ON log_user_id = user_id
     LEFT JOIN clients ON log_client_id = client_id
     WHERE (log_type LIKE '%$q%' OR log_action LIKE '%$q%' OR log_description LIKE '%$q%' OR log_ip LIKE '%$q%' OR log_user_agent LIKE '%$q%' OR user_name LIKE '%$q%' OR client_name LIKE '%$q%')
-    AND DATE(log_created_at) BETWEEN '$dtf' AND '$dtt'
+    AND log_created_at >= '$dtf 00:00:00' AND log_created_at < DATE_ADD('$dtt', INTERVAL 1 DAY)
     $user_query
     $client_query
     $log_type_query

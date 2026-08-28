@@ -224,7 +224,10 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                     </a>
                                     <?php if (!empty($config_smtp_provider)) { ?>
                                         <div class="dropdown-divider"></div>
-                                        <button type="submit" class="dropdown-item" form="quickSendQuote"
+                                        <button type="submit" class="dropdown-item confirm-link" form="quickSendQuote"
+                                            data-confirm-title="Send this quote now?"
+                                            data-confirm-text="It goes to the default contacts without opening the picker."
+                                            data-confirm-button="Send"
                                             name="quote_id" value="<?= $quote_id ?>">
                                             <i class="fas fa-fw fa-bolt me-2"></i>Quick Send
                                         </button>

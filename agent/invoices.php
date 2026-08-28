@@ -441,7 +441,10 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                     </a>
                                     <div class="dropdown-divider"></div>
                                     <?php if (!empty($config_smtp_provider)) { ?>
-                                        <button type="submit" class="dropdown-item" form="quickSendInvoice"
+                                        <button type="submit" class="dropdown-item confirm-link" form="quickSendInvoice"
+                                            data-confirm-title="Send this invoice now?"
+                                            data-confirm-text="It goes to the default contacts without opening the picker."
+                                            data-confirm-button="Send"
                                             name="invoice_id" value="<?= $invoice_id ?>">
                                             <i class="fas fa-fw fa-bolt me-2"></i>Quick Send
                                         </button>

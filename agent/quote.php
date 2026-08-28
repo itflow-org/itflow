@@ -168,7 +168,10 @@ if (isset($_GET['quote_id'])) {
                     </button>
                     <div class="dropdown-menu">
                         <?php if (!empty($config_smtp_provider) && $emailable_contacts > 0) { ?>
-                            <button type="submit" class="dropdown-item" form="quickSendQuote"
+                            <button type="submit" class="dropdown-item confirm-link" form="quickSendQuote"
+                                data-confirm-title="Send this quote now?"
+                                data-confirm-text="It goes to the default contacts without opening the picker."
+                                data-confirm-button="Send"
                                 name="quote_id" value="<?= $quote_id ?>">
                                 <i class="fas fa-fw fa-bolt me-2"></i>Quick Send
                             </button>
@@ -237,7 +240,10 @@ if (isset($_GET['quote_id'])) {
                                 <i class="fa fa-fw fa-download text-secondary me-2"></i>Download PDF
                             </a>
                             <?php if (!empty($config_smtp_provider) && $emailable_contacts > 0) { ?>
-                                <button type="submit" class="dropdown-item" form="quickSendQuote"
+                                <button type="submit" class="dropdown-item confirm-link" form="quickSendQuote"
+                                    data-confirm-title="Send this quote now?"
+                                    data-confirm-text="It goes to the default contacts without opening the picker."
+                                    data-confirm-button="Send"
                                     name="quote_id" value="<?= $quote_id ?>">
                                     <i class="fa fa-fw fa-bolt text-secondary me-2"></i>Quick Send
                                 </button>

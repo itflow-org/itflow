@@ -18,6 +18,18 @@ require_once "includes/inc_all.php";
 enforceContactCan('accounting');
 
 /*
+ * Amounts render in the client's own currency, matching the guest invoice view
+ * and the statement an agent emails. This page and its PDF used to render in
+ * the company currency, so the same invoice carried a different symbol
+ * depending on where you read it.
+ */
+$row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT client_currency_code FROM clients WHERE client_id = $session_client_id LIMIT 1"));
+$statement_currency_code = escapeHtml($row['client_currency_code']);
+if (empty($statement_currency_code)) {
+    $statement_currency_code = $session_company_currency;
+}
+
+/*
  * Payments are summed in a derived table rather than joined directly, or an
  * invoice with two payments against it would be counted twice.
  *
@@ -119,9 +131,9 @@ $statement_total = 0;
                         <td><?= $invoice_scope_display ?></td>
                         <td><?= $invoice_date ?></td>
                         <td class="<?= $overdue_color ?>"><?= $invoice_due ?></td>
-                        <td class="text-end"><?= numfmt_format_currency($currency_format, $invoice_amount, $session_company_currency) ?></td>
-                        <td class="text-end"><?= numfmt_format_currency($currency_format, $amount_paid, $session_company_currency) ?></td>
-                        <td class="text-end fw-bold"><?= numfmt_format_currency($currency_format, $invoice_balance, $session_company_currency) ?></td>
+                        <td class="text-end"><?= numfmt_format_currency($currency_format, $invoice_amount, $statement_currency_code) ?></td>
+                        <td class="text-end"><?= numfmt_format_currency($currency_format, $amount_paid, $statement_currency_code) ?></td>
+                        <td class="text-end fw-bold"><?= numfmt_format_currency($currency_format, $invoice_balance, $statement_currency_code) ?></td>
                     </tr>
 
                     <?php
@@ -134,7 +146,7 @@ $statement_total = 0;
                 <tfoot>
                 <tr>
                     <th colspan="6" class="text-end">Total Balance Due</th>
-                    <th class="text-end"><?= numfmt_format_currency($currency_format, $statement_total, $session_company_currency) ?></th>
+                    <th class="text-end"><?= numfmt_format_currency($currency_format, $statement_total, $statement_currency_code) ?></th>
                 </tr>
                 </tfoot>
             </table>

@@ -73,6 +73,36 @@ function enforceContactCan($capability) {
 }
 
 /*
+ * Confirms the person at the keyboard is the account holder, before a change
+ * that would let someone who hijacked a session take the account over or
+ * defeat phone verification.
+ *
+ * Returns true for SSO contacts without checking anything: there is no local
+ * password to compare against, and the identity provider has already done this
+ * work. Gating them on a password they do not have would just lock them out.
+ */
+function portalReauthenticate($current_password) {
+    global $mysqli, $session_user_id;
+
+    if (($_SESSION['login_method'] ?? 'local') !== 'local') {
+        return true;
+    }
+
+    if (empty($current_password)) {
+        return false;
+    }
+
+    $sql = mysqli_query($mysqli, "SELECT user_password FROM users WHERE user_id = $session_user_id LIMIT 1");
+    $row = mysqli_fetch_assoc($sql);
+
+    if (!$row || empty($row['user_password'])) {
+        return false;
+    }
+
+    return password_verify($current_password, $row['user_password']);
+}
+
+/*
  * A timestamp a person can read, in the company's configured date and time
  * format rather than the raw DATETIME the database hands back.
  *

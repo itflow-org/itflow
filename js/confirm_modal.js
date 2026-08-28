@@ -1,8 +1,13 @@
 /**
  * Confirmation dialogs, on SweetAlert2.
  *
- * Delegated on document rather than bound to the links present at page load, so
- * that confirm-link also works on markup injected by an ajax modal.
+ * Delegated on document rather than bound to the elements present at page load,
+ * so that confirm-link also works on markup injected by an ajax modal.
+ *
+ * Works on an <a class="confirm-link"> (navigates on confirm) and on a
+ * <button class="confirm-link"> that submits a form (submits on confirm). The
+ * button form exists for actions that must not be a GET - Quick Send mails a
+ * document to a client, so it posts.
  *
  * Per-link copy comes from data attributes, all optional:
  *   data-confirm-title   heading            (default: "Are you sure?")
@@ -15,11 +20,17 @@
  * without touching any of them.
  */
 document.addEventListener('click', function (e) {
-    const link = e.target.closest('a.confirm-link');
+    const link = e.target.closest('a.confirm-link, button.confirm-link');
     if (!link || typeof Swal === 'undefined') {
         return;
     }
     e.preventDefault();
+
+    // A submit button contributes its own name/value to the submission, and
+    // requestSubmit() preserves that where form.submit() would drop it - which
+    // is exactly how the Quick Send buttons carry their invoice or quote id.
+    const submitter = link.tagName === 'BUTTON' ? link : null;
+    const form = submitter ? (submitter.form || submitter.closest('form')) : null;
 
     const destructive = link.classList.contains('text-danger');
 
@@ -42,8 +53,27 @@ document.addEventListener('click', function (e) {
             cancelButton: 'btn btn-secondary mx-1'
         }
     }).then(function (result) {
-        if (result.isConfirmed) {
-            window.location.href = link.getAttribute('href');
+        if (!result.isConfirmed) {
+            return;
         }
+        if (form) {
+            if (typeof form.requestSubmit === 'function') {
+                form.requestSubmit(submitter);
+            } else {
+                // Fallback for browsers without requestSubmit: replay the
+                // button's name/value as a hidden field so the handler still
+                // sees which record was picked.
+                if (submitter.name) {
+                    const carried = document.createElement('input');
+                    carried.type = 'hidden';
+                    carried.name = submitter.name;
+                    carried.value = submitter.value;
+                    form.appendChild(carried);
+                }
+                form.submit();
+            }
+            return;
+        }
+        window.location.href = link.getAttribute('href');
     });
 });

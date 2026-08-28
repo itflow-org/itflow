@@ -246,7 +246,10 @@ if (isset($_GET['invoice_id'])) {
                                 </button>
                                 <div class="dropdown-menu">
                                     <?php if (!empty($config_smtp_provider) && $emailable_contacts > 0) { ?>
-                                        <button type="submit" class="dropdown-item" form="quickSendInvoice"
+                                        <button type="submit" class="dropdown-item confirm-link" form="quickSendInvoice"
+                                            data-confirm-title="Send this invoice now?"
+                                            data-confirm-text="It goes to the default contacts without opening the picker."
+                                            data-confirm-button="Send"
                                             name="invoice_id" value="<?= $invoice_id ?>">
                                             <i class="fas fa-fw fa-bolt me-2"></i>Quick Send
                                         </button>
@@ -318,7 +321,10 @@ if (isset($_GET['invoice_id'])) {
                                     <i class="fa fa-fw fa-box-open text-secondary me-2"></i>Packing Slip
                                 </a>
                                 <?php if (!empty($config_smtp_provider) && $emailable_contacts > 0) { ?>
-                                    <button type="submit" class="dropdown-item" form="quickSendInvoice"
+                                    <button type="submit" class="dropdown-item confirm-link" form="quickSendInvoice"
+                                        data-confirm-title="Send this invoice now?"
+                                        data-confirm-text="It goes to the default contacts without opening the picker."
+                                        data-confirm-button="Send"
                                         name="invoice_id" value="<?= $invoice_id ?>">
                                         <i class="fa fa-fw fa-bolt text-secondary me-2"></i>Quick Send
                                     </button>

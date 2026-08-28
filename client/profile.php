@@ -439,6 +439,17 @@ $sql_actions = mysqli_query(
                         will remember but that is not easy to guess.
                     </p>
 
+                    <?php if ($login_method === 'local') { ?>
+                        <div class="mb-3">
+                            <label for="pinCurrentPassword">Your current password</label>
+                            <div class="input-group">
+                                <span class="input-group-text"><i class="fa fa-fw fa-lock"></i></span>
+                                <input type="password" class="form-control" id="pinCurrentPassword" name="current_password"
+                                    autocomplete="current-password" required>
+                            </div>
+                        </div>
+                    <?php } ?>
+
                     <div class="mb-3">
                         <label for="contactPin"><?= empty($contact_pin) ? 'New PIN' : 'Replace with' ?></label>
                         <div class="input-group">
@@ -475,6 +486,15 @@ $sql_actions = mysqli_query(
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
+
+                    <div class="mb-3">
+                        <label for="currentPassword">Your current password</label>
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="fa fa-fw fa-lock"></i></span>
+                            <input type="password" class="form-control" id="currentPassword" name="current_password"
+                                autocomplete="current-password" required>
+                        </div>
+                    </div>
 
                     <div class="mb-3">
                         <label for="newPassword">New password</label>
