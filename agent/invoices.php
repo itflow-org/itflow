@@ -178,6 +178,13 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                          data-modal-url="<?= buildExportModalUrl('modals/invoice/invoice_export.php', ['client_id', 'status', 'category', 'q'], ['dtf' => $dtf, 'dtt' => $dtt]) ?>">
                         <i class="fa fa-fw fa-download me-2"></i>Export
                     </a>
+                    <?php if ($client_url && lookupUserPermission("module_sales") >= 2 && !empty($config_smtp_provider)) { ?>
+                        <div class="dropdown-divider"></div>
+                        <a class="dropdown-item text-dark ajax-modal" href="#"
+                            data-modal-url="modals/client/client_statement.php?client_id=<?= $client_id ?>">
+                            <i class="fa fa-fw fa-file-alt me-2"></i>Send Account Statement
+                        </a>
+                    <?php } ?>
                 </div>
             </div>
         </div>

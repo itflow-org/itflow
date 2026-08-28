@@ -672,6 +672,210 @@ if (isset($_POST['email_invoice'])) {
 
 }
 
+
+if (isset($_POST['send_statement'])) {
+
+    validateCSRFToken();
+
+    enforceUserPermission('module_sales', 2);
+
+    $client_id = intval($_POST['client_id']);
+
+    enforceClientAccess();
+
+    $sql = mysqli_query($mysqli, "SELECT client_currency_code, client_name FROM clients WHERE client_id = $client_id LIMIT 1");
+    $row = mysqli_fetch_assoc($sql);
+    $client_name = escapeSql($row['client_name']);
+    $client_currency_code = escapeSql($row['client_currency_code']);
+
+    if (empty($client_currency_code)) {
+        $client_currency_code = escapeSql($session_company_currency);
+    }
+
+    // Statement options. Emptiness has to be tested BEFORE validateDate(),
+    // which falls back to today rather than returning empty - running a blank
+    // From through it would silently produce a one-day statement.
+    $statement_date_to = $_POST['dtt'] ?? '';
+    if (empty($statement_date_to)) {
+        $statement_date_to = date("Y-m-d");
+    } else {
+        $statement_date_to = validateDate($statement_date_to);
+    }
+    $statement_date_to = escapeSql($statement_date_to);
+
+    $statement_date_from = $_POST['dtf'] ?? '';
+    if (empty($statement_date_from)) {
+        // Blank means the whole history, so there is no lower bound to apply
+        $statement_date_query = '';
+        $statement_period = "up to $statement_date_to";
+    } else {
+        $statement_date_from = escapeSql(validateDate($statement_date_from));
+        $statement_date_query = "AND invoice_date >= '$statement_date_from'";
+        $statement_period = "$statement_date_from to $statement_date_to";
+    }
+
+    $include_paid = !empty($_POST['include_paid']);
+
+    // Recipients - same picker contract as the invoice send, so the same
+    // client scoping applies and a tampered contact_id matches nothing
+    $selected_contacts = $_POST['contacts'] ?? [];
+    if (!is_array($selected_contacts)) {
+        $selected_contacts = [];
+    }
+    $selected_contact_ids = array_filter(array_unique(array_map('intval', $selected_contacts)));
+
+    if (empty($selected_contact_ids)) {
+        flashAlert("Select at least one contact to send to", 'error');
+        redirect();
+    }
+
+    $selected_contact_id_list = implode(',', $selected_contact_ids);
+
+    $sql_recipients = mysqli_query(
+        $mysqli,
+        "SELECT contact_email, contact_name FROM contacts
+        WHERE contact_id IN ($selected_contact_id_list)
+        AND contact_client_id = $client_id
+        AND contact_archived_at IS NULL
+        AND contact_email IS NOT NULL
+        AND contact_email != ''
+        ORDER BY contact_primary DESC, contact_billing DESC, contact_name ASC"
+    );
+
+    if (mysqli_num_rows($sql_recipients) == 0) {
+        flashAlert("None of the selected contacts have a usable email address", 'error');
+        redirect();
+    }
+
+    // The statement lines. Draft / Cancelled / Non-Billable are not money the
+    // client owes, so they never appear - same exclusion the Outstanding
+    // Balances report uses. Payments are summed in a derived table rather than
+    // joined directly, or an invoice with two payments would be counted twice.
+    $sql_statement = mysqli_query(
+        $mysqli,
+        "SELECT invoice_amount, invoice_date, invoice_due, invoice_id, invoice_number, invoice_prefix,
+            invoice_scope, invoice_status, invoice_url_key, IFNULL(amount_paid, 0) AS amount_paid
+        FROM invoices
+        LEFT JOIN (
+            SELECT payment_invoice_id, SUM(payment_amount) AS amount_paid FROM payments
+            WHERE payment_archived_at IS NULL
+            GROUP BY payment_invoice_id
+        ) AS invoice_payments ON payment_invoice_id = invoice_id
+        WHERE invoice_client_id = $client_id
+        AND invoice_status NOT IN ('Draft', 'Cancelled', 'Non-Billable')
+        AND invoice_date <= '$statement_date_to'
+        $statement_date_query
+        " . ($include_paid ? '' : "AND invoice_amount - IFNULL(invoice_payments.amount_paid, 0) > 0") . "
+        ORDER BY invoice_date ASC, invoice_number ASC"
+    );
+
+    if (mysqli_num_rows($sql_statement) == 0) {
+        flashAlert("No invoices to report for that period - nothing sent", 'error');
+        redirect();
+    }
+
+    $sql = mysqli_query($mysqli, "SELECT company_name, company_phone, company_phone_country_code FROM companies WHERE company_id = 1");
+    $row = mysqli_fetch_assoc($sql);
+    $company_name = escapeSql($row['company_name']);
+    $company_phone = escapeSql(formatPhoneNumber($row['company_phone'], $row['company_phone_country_code']));
+
+    $config_invoice_from_name = escapeSql($config_invoice_from_name);
+    $config_invoice_from_email = escapeSql($config_invoice_from_email);
+    $config_base_url = escapeSql($config_base_url);
+
+    // Build the table once - it is identical for every recipient, only the
+    // greeting differs. Everything interpolated here is already escaped:
+    // addToMailQueue() writes the body into the queue raw.
+    $statement_rows = '';
+    $statement_total = 0;
+    $statement_line_count = 0;
+
+    while ($row = mysqli_fetch_assoc($sql_statement)) {
+        $invoice_id = intval($row['invoice_id']);
+        $invoice_prefix = escapeSql($row['invoice_prefix']);
+        $invoice_number = intval($row['invoice_number']);
+        $invoice_scope = escapeSql($row['invoice_scope']);
+        $invoice_status = escapeSql($row['invoice_status']);
+        $invoice_date = escapeSql($row['invoice_date']);
+        $invoice_due = escapeSql($row['invoice_due']);
+        $invoice_url_key = escapeSql($row['invoice_url_key']);
+        $invoice_amount = floatval($row['invoice_amount']);
+        $amount_paid = floatval($row['amount_paid']);
+        $invoice_balance = $invoice_amount - $amount_paid;
+
+        $statement_total += $invoice_balance;
+        $statement_line_count++;
+
+        $invoice_link = "https://$config_base_url/guest/guest_view_invoice.php?invoice_id=$invoice_id&url_key=$invoice_url_key";
+
+        $overdue_flag = '';
+        if ($invoice_balance > 0 && !empty($invoice_due) && $invoice_due < date("Y-m-d")) {
+            $overdue_flag = ' <span style="color:#dc3545;">(overdue)</span>';
+        }
+
+        $statement_rows .= '<tr>'
+            . '<td style="padding:6px 10px; border-bottom:1px solid #dee2e6;"><a href=\'' . $invoice_link . '\'>' . "$invoice_prefix$invoice_number" . '</a></td>'
+            . '<td style="padding:6px 10px; border-bottom:1px solid #dee2e6;">' . $invoice_scope . '</td>'
+            . '<td style="padding:6px 10px; border-bottom:1px solid #dee2e6;">' . $invoice_date . '</td>'
+            . '<td style="padding:6px 10px; border-bottom:1px solid #dee2e6;">' . $invoice_due . $overdue_flag . '</td>'
+            . '<td style="padding:6px 10px; border-bottom:1px solid #dee2e6; text-align:right;">' . numfmt_format_currency($currency_format, $invoice_amount, $client_currency_code) . '</td>'
+            . '<td style="padding:6px 10px; border-bottom:1px solid #dee2e6; text-align:right;">' . numfmt_format_currency($currency_format, $amount_paid, $client_currency_code) . '</td>'
+            . '<td style="padding:6px 10px; border-bottom:1px solid #dee2e6; text-align:right;">' . numfmt_format_currency($currency_format, $invoice_balance, $client_currency_code) . '</td>'
+            . '</tr>';
+    }
+
+    $statement_table = '<table cellpadding="0" cellspacing="0" style="border-collapse:collapse; font-size:13px;">'
+        . '<tr style="background:#343a40; color:#ffffff;">'
+        . '<th style="padding:6px 10px; text-align:left;">Invoice</th>'
+        . '<th style="padding:6px 10px; text-align:left;">Scope</th>'
+        . '<th style="padding:6px 10px; text-align:left;">Date</th>'
+        . '<th style="padding:6px 10px; text-align:left;">Due</th>'
+        . '<th style="padding:6px 10px; text-align:right;">Amount</th>'
+        . '<th style="padding:6px 10px; text-align:right;">Paid</th>'
+        . '<th style="padding:6px 10px; text-align:right;">Balance</th>'
+        . '</tr>'
+        . $statement_rows
+        . '<tr><td colspan="6" style="padding:8px 10px; text-align:right;"><b>Total Balance Due</b></td>'
+        . '<td style="padding:8px 10px; text-align:right;"><b>' . numfmt_format_currency($currency_format, $statement_total, $client_currency_code) . '</b></td></tr>'
+        . '</table>';
+
+    $subject = "Account Statement - $client_name";
+
+    $data = [];
+    $recipient_labels = [];
+
+    while ($recipient = mysqli_fetch_assoc($sql_recipients)) {
+        $contact_name = escapeSql($recipient['contact_name']);
+        $contact_email = escapeSql($recipient['contact_email']);
+
+        $body = "Hello $contact_name,<br><br>Please find your account statement for $statement_period below.<br><br>"
+            . $statement_table
+            . "<br><br>Click any invoice number above to view or pay it online.<br><br><br>--<br>$company_name - Billing<br>$config_invoice_from_email<br>$company_phone";
+
+        $data[] = [
+            'from' => $config_invoice_from_email,
+            'from_name' => $config_invoice_from_name,
+            'recipient' => $contact_email,
+            'recipient_name' => $contact_name,
+            'subject' => $subject,
+            'body' => $body
+        ];
+
+        $recipient_labels[] = "$contact_name <$contact_email>";
+
+        logAudit("Invoice", "Statement", "$session_name emailed an account statement ($statement_period, $statement_line_count invoices) to $contact_email", $client_id);
+    }
+
+    addToMailQueue($data);
+
+    $recipient_count = count($recipient_labels);
+
+    flashAlert("Statement queued to $recipient_count " . ($recipient_count == 1 ? "recipient" : "recipients"));
+
+    redirect();
+
+}
+
 if (isExportRequest('export_invoices')) {
 
     validateCSRFToken();
