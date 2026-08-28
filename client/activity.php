@@ -4,6 +4,10 @@
  * Everything this contact has done in the portal, and every sign-in
  */
 
+// Read by client/includes/header.php and footer.php - see the note there.
+// Must be set before inc_all.php, which pulls the header in.
+$portal_load_datatables = true;
+
 header("Content-Security-Policy: default-src 'self'");
 
 require_once "includes/inc_all.php";
@@ -13,33 +17,26 @@ require_once "includes/inc_all.php";
  * not a section of the portal. Scoped on log_user_id - the portal user this
  * contact signs in as - so an agent working this client never appears here,
  * and on log_client_id as a second fence.
+ *
+ * DataTables searches and paginates in the browser, so the whole set is sent at
+ * once rather than a page at a time. The cap is there so that a contact with
+ * years of history cannot turn this page into a several-megabyte document; it
+ * is generous enough that nobody normal will meet it, and the note below says
+ * so plainly when they do.
  */
-$page = intval($_GET['page'] ?? 1);
-if ($page < 1) {
-    $page = 1;
-}
-
-$records_per_page = 25;
-$offset = ($page - 1) * $records_per_page;
+$activity_limit = 1000;
 
 $log_scope = "log_user_id = $session_user_id AND log_client_id = $session_client_id";
 
 $row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT COUNT(log_id) AS total FROM logs WHERE $log_scope"));
 $total_records = intval($row['total']);
-$total_pages = (int) ceil($total_records / $records_per_page);
-
-// A page number past the end would show nothing at all with no way back
-if ($total_pages > 0 && $page > $total_pages) {
-    $page = $total_pages;
-    $offset = ($page - 1) * $records_per_page;
-}
 
 $sql_activity = mysqli_query(
     $mysqli,
     "SELECT log_action, log_created_at, log_description, log_ip, log_type FROM logs
     WHERE $log_scope
     ORDER BY log_id DESC
-    LIMIT $records_per_page OFFSET $offset"
+    LIMIT $activity_limit"
 );
 
 ?>
@@ -59,10 +56,15 @@ $sql_activity = mysqli_query(
 
         <?php } else { ?>
 
-            <table class="table table-bordered border border-dark">
+            <table class="table table-striped table-bordered border border-dark dataTables" style="width:100%">
                 <thead class="table-dark">
                 <tr>
-                    <th>When</th>
+                    <?php /* Ordering off on this column deliberately. The cell reads
+                             "Today at 4:12 PM", and sorting that as text puts October
+                             before September and Today next to Tomorrow. The rows
+                             arrive newest-first from SQL and the initialiser keeps
+                             that order, so the useful sort is the one already applied. */ ?>
+                    <th data-dt-order="disable">When</th>
                     <th>Type</th>
                     <th>What happened</th>
                     <th>From</th>
@@ -107,25 +109,11 @@ $sql_activity = mysqli_query(
                 </tbody>
             </table>
 
-            <?php if ($total_pages > 1) { ?>
-                <div class="row align-items-center">
-                    <div class="col-sm">
-                        <p class="text-muted mb-0">
-                            Page <strong><?= $page ?></strong> of <strong><?= $total_pages ?></strong>
-                            &mdash; <strong><?= $total_records ?></strong> records
-                        </p>
-                    </div>
-                    <div class="col-sm">
-                        <ul class="pagination justify-content-sm-end mb-0">
-                            <li class="page-item <?= $page <= 1 ? 'disabled' : '' ?>">
-                                <a class="page-link" href="?page=<?= $page - 1 ?>">Previous</a>
-                            </li>
-                            <li class="page-item <?= $page >= $total_pages ? 'disabled' : '' ?>">
-                                <a class="page-link" href="?page=<?= $page + 1 ?>">Next</a>
-                            </li>
-                        </ul>
-                    </div>
-                </div>
+            <?php if ($total_records > $activity_limit) { ?>
+                <small class="text-muted">
+                    Showing your most recent <?= $activity_limit ?> records of <?= $total_records ?>.
+                    Raise a ticket if you need to go back further.
+                </small>
             <?php } ?>
 
         <?php } ?>

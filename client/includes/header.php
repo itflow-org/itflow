@@ -47,6 +47,10 @@ header("X-Frame-Options: DENY"); // Legacy
         <link rel="stylesheet" href="/libs/intl-tel-input/css/intlTelInput.min.css">
     <?php } ?>
 
+    <?php if (!empty($portal_load_datatables)) { ?>
+        <link rel="stylesheet" href="/libs/DataTables/datatables.min.css">
+    <?php } ?>
+
 </head>
 
 <?php /* Same country bridge as the agent header: intl-tel-input wants an ISO2

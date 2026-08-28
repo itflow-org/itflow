@@ -74,6 +74,11 @@
     <script src="/js/phone_inputs.js"></script>
 <?php } ?>
 
+<?php if (!empty($portal_load_datatables)) { ?>
+    <script src="/libs/DataTables/datatables.min.js"></script>
+    <script src="/js/portal_datatables.js"></script>
+<?php } ?>
+
 <script src="/js/keepalive.js"></script>
 
 </body>
