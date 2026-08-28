@@ -1283,7 +1283,7 @@ CREATE TABLE `email_queue` (
   `email_attempts` tinyint(1) NOT NULL DEFAULT 0,
   `email_sent_at` datetime DEFAULT NULL,
   PRIMARY KEY (`email_id`),
-  KEY `email_status` (`email_status`, `email_queued_at`)
+  KEY `email_status` (`email_status`,`email_queued_at`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -1603,7 +1603,7 @@ CREATE TABLE `notifications` (
   `notification_user_id` int(11) NOT NULL DEFAULT 0,
   `notification_entity_id` int(11) DEFAULT 0,
   PRIMARY KEY (`notification_id`),
-  KEY `notification_user_id` (`notification_user_id`, `notification_dismissed_at`)
+  KEY `notification_user_id` (`notification_user_id`,`notification_dismissed_at`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -3247,4 +3247,4 @@ CREATE TABLE `vendors` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2026-08-27 22:58:59
+-- Dump completed on 2026-08-28  0:13:03
