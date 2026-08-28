@@ -120,9 +120,11 @@ foreach ($starter_content_status as $pack_status) {
             A fictional book of business for demos, training and screenshots - <?= intval($demo_data_status['total']) ?> clients
             with the people, equipment, documentation, credentials, tickets and billing a typical MSP would be carrying for
             them. Each one arrives with an onboarding project, an onboarding ticket per asset, response targets, racked
-            infrastructure, documented IP addresses and a supplier list. Managed and break fix clients are both represented.
-            Your own side of the books is generated too - bank accounts, suppliers, operating costs, recurring expenses and
-            the transfers that settle card payments into the bank.
+            infrastructure, a documented switch port map, IP addresses and a supplier list. Managed, co-managed, break fix and hosting only
+            clients are all represented, most of them paid up to date and a few of them not.
+            Your own side of the business is generated too - bank accounts, suppliers, operating costs, recurring expenses,
+            transfers, catalogue lines for the things you sell, closure days, monthly budgets, and a working diary of team
+            meetings, maintenance windows and the unbilled running around that never gets logged against a client.
             Everything is spread across the <strong>last two years</strong> and dated relative to today, so the dashboard,
             ticket queue, aging, profit and loss and every other report have real history behind them rather than one flat month.
         </p>
@@ -131,8 +133,9 @@ foreach ($starter_content_status as $pack_status) {
             all read as real, which is the point. Removal matches the <?= intval($demo_data_status['total']) ?> client names in
             the library, so <strong>renaming a demo client stops it being removable</strong>. Contacts use addresses on the
             reserved <strong>.example</strong> domain, which cannot receive mail, and the agreements are created with email
-            notification switched off. If this install already has bank accounts of its own, the company side of the books is
-            left alone entirely.
+            notification switched off. Anything shared - accounts, suppliers, response targets, tax rates, catalogue lines and
+            calendars - is matched on more than its name, so records this install already had are never touched. If the
+            install already has bank accounts of its own, the company side of the books is left alone entirely.
         </p>
 
         <?php if ($demo_data_status['other_clients'] && !$demo_data_loaded) { ?>

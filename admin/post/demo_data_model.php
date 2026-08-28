@@ -31,8 +31,18 @@ function demoDataAccounts() {
         ['Operating Checking', 'Day to day business banking - client payments in, bills out', 18500.00],
         ['Business Savings', 'Tax and reserve holding', 42000.00],
         ['Merchant Settlement', 'Card and online payments waiting to be paid out', 0.00],
-        ['Petty Cash', 'Small cash purchases', 250.00],
     ];
+}
+
+// ------------------------------
+// demoCashAccountId
+// Setup already creates an account called Cash on every install, so small cash
+// spending posts there rather than inventing a second petty cash account. It is
+// never created and never removed by this library.
+// ------------------------------
+function demoCashAccountId($mysqli) {
+    $row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT account_id FROM accounts WHERE account_name = 'Cash' AND account_archived_at IS NULL ORDER BY account_id ASC LIMIT 1"));
+    return intval($row['account_id'] ?? 0);
 }
 
 // ------------------------------
@@ -83,6 +93,117 @@ function demoDataTaxes() {
         ['PA Sales Tax', 6.0],
         ['Allegheny County Sales Tax', 7.0],
     ];
+}
+
+// ------------------------------
+// demoDataProducts
+// Catalogue lines for the things this MSP actually sells, sitting alongside
+// whatever the Products starter pack put in. Deliberately a mix - the open
+// source stack is sold as hosting and support rather than licences, which is
+// where the margin on it comes from.
+// name, type, code, price, income category, description
+// ------------------------------
+function demoDataProducts() {
+    return [
+        // Hosting - the open source side of the business
+        ['Nextcloud Hosting - Per User', 'service', 'HOST-NC', '6.50', 'Web and Hosting', 'Per user, per month. Managed Nextcloud instance with sync, sharing and mobile access, backed up nightly.'],
+        ['Nextcloud Hosting - Instance', 'service', 'HOST-NCI', '95.00', 'Web and Hosting', 'Per instance, per month. Dedicated Nextcloud instance, updates, monitoring and support.'],
+        ['Web Hosting - Standard', 'service', 'HOST-WEB', '25.00', 'Web and Hosting', 'Per site, per month. Managed hosting with TLS, nightly backup and uptime monitoring.'],
+        ['Web Hosting - Business', 'service', 'HOST-WEBB', '65.00', 'Web and Hosting', 'Per site, per month. Higher resource allocation, staging site and priority restore.'],
+        ['Email Hosting - Per Mailbox', 'service', 'HOST-MAIL', '4.50', 'Web and Hosting', 'Per mailbox, per month. Mail hosting with spam filtering, webmail and mobile sync.'],
+        ['Mail Relay and Filtering', 'service', 'HOST-RELAY', '2.00', 'Web and Hosting', 'Per mailbox, per month. Inbound filtering and outbound relay with reputation monitoring.'],
+        ['Offsite Backup Storage - Self Hosted', 'service', 'HOST-BKP', '0.09', 'Backup', 'Per GB, per month. Encrypted offsite backup storage on our own infrastructure rather than a third party cloud.'],
+        ['Virtual Server Hosting', 'service', 'HOST-VPS', '55.00', 'Cloud Services', 'Per guest, per month. Proxmox hosted virtual server with backup and monitoring.'],
+
+        // Open source support and migration work
+        ['Proxmox VE Support', 'service', 'FOSS-PVE', '145.00', 'Managed Services', 'Per host, per month. Proxmox VE monitoring, updates and enterprise repository access.'],
+        ['pfSense Plus Support', 'service', 'FOSS-PF', '65.00', 'Managed Services', 'Per firewall, per month. pfSense Plus subscription, firmware and rule management.'],
+        ['OPNsense Support', 'service', 'FOSS-OPN', '65.00', 'Managed Services', 'Per firewall, per month. OPNsense updates, firmware and rule management.'],
+        ['TrueNAS Support', 'service', 'FOSS-TN', '95.00', 'Managed Services', 'Per array, per month. TrueNAS monitoring, pool health, snapshots and replication.'],
+        ['LibreOffice Migration', 'service', 'FOSS-LO', '145.00', 'Projects', 'Per hour. Template conversion, macro rework and user training when moving off a proprietary office suite.'],
+        ['Linux Desktop Build', 'service', 'FOSS-DSK', '125.00', 'Projects', 'Per machine. Standard Linux desktop build, data migration and handover.'],
+        ['Open Source Stack Review', 'service', 'FOSS-REV', '850.00', 'Consulting', 'Fixed fee. Review of a self hosted stack with a written report and a costed roadmap.'],
+
+        // Corporate licensing and hardware, resold
+        ['Google Workspace Business Standard', 'service', 'LIC-GWBS', '14.00', 'Managed Services', 'Per user, per month. Licence resold and managed.'],
+        ['Synology Active Backup Licence', 'product', 'LIC-SYNAB', '0.00', 'Hardware Sales', 'Included with Synology hardware. Listed so it appears on the quote.'],
+        ['Netgate 6100 MAX Firewall', 'product', 'HW-NG6100', '1245.00', 'Hardware Sales', 'pfSense Plus appliance with three years of support included.'],
+        ['Ubiquiti U6-Pro Access Point', 'product', 'HW-U6PRO', '245.00', 'Hardware Sales', 'Wi-Fi 6 ceiling mounted access point, PoE powered.'],
+        ['Ubiquiti USW-Pro-24-PoE Switch', 'product', 'HW-USW24', '785.00', 'Hardware Sales', '24 port managed PoE switch with SFP+ uplinks.'],
+        ['Synology RS1221+ with Drives', 'product', 'HW-RS1221', '2850.00', 'Hardware Sales', 'Rack NAS populated with NAS rated drives, running Active Backup for Business.'],
+        ['Rack Mount UPS 1500VA', 'product', 'HW-UPS15', '685.00', 'Hardware Sales', 'Rack mount UPS with network management card and graceful shutdown.'],
+    ];
+}
+
+// ------------------------------
+// demoEnsureProducts
+// Matched on the product code, which is what makes a catalogue line ours - a
+// name on its own could easily be something the install already sells.
+// ------------------------------
+function demoEnsureProducts($mysqli, $currency) {
+
+    $products = [];
+
+    foreach (demoDataProducts() as $product) {
+        $code = escapeSql($product[2]);
+        $name = escapeSql($product[0]);
+        $description = escapeSql($product[5]);
+        // Code, name and description all have to match. The Products starter
+        // pack ships its own catalogue and an install may well sell the same
+        // thing under the same code, so nothing weaker is safe at removal time.
+        // Edit the description and we leave our line behind rather than risk
+        // taking theirs - the harmless direction to fail in.
+        $row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT product_id FROM products WHERE product_code = '$code' AND product_name = '$name' AND product_description = '$description' LIMIT 1"));
+        if (!empty($row['product_id'])) {
+            $products[$product[0]] = intval($row['product_id']);
+            continue;
+        }
+        $products[$product[0]] = starterInsert($mysqli, 'products', [
+            'product_name' => $product[0],
+            'product_type' => $product[1],
+            'product_code' => $product[2],
+            'product_price' => $product[3],
+            'product_currency_code' => $currency,
+            'product_description' => $product[5],
+            'product_category_id' => starterCategoryId($mysqli, $product[4], 'Income'),
+            'product_tax_id' => 0,
+        ]);
+    }
+
+    return $products;
+}
+
+// ------------------------------
+// demoDataCalendars
+// An MSP does not run everything off one calendar. name, colour.
+// ------------------------------
+function demoDataCalendars() {
+    return [
+        ['Onsite Visits', 'blue'],
+        ['Maintenance Windows', 'orange'],
+        ['Internal', 'green'],
+    ];
+}
+
+function demoEnsureCalendars($mysqli) {
+
+    $calendars = [];
+
+    foreach (demoDataCalendars() as $calendar) {
+        $name = escapeSql($calendar[0]);
+        $row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT calendar_id FROM calendars WHERE calendar_name = '$name' AND calendar_color = '{$calendar[1]}' LIMIT 1"));
+        if (!empty($row['calendar_id'])) {
+            $calendars[$calendar[0]] = intval($row['calendar_id']);
+            continue;
+        }
+        $calendars[$calendar[0]] = starterInsert($mysqli, 'calendars', [
+            'calendar_name' => $calendar[0],
+            'calendar_color' => $calendar[1],
+            'calendar_created_at' => demoMonthDateTime(24, 1, 9, 0),
+        ]);
+    }
+
+    return $calendars;
 }
 
 // ------------------------------
@@ -423,7 +544,10 @@ function demoDataLoad($mysqli) {
         'currency' => $currency,
         'accounts' => $accounts['ids'],
         'accounts_created' => $accounts['created'],
+        'cash_account_id' => demoCashAccountId($mysqli),
         'org_vendors' => demoEnsureOrgVendors($mysqli),
+        'products' => demoEnsureProducts($mysqli, $currency),
+        'calendars' => demoEnsureCalendars($mysqli),
         'slas' => demoEnsureSlas($mysqli),
         'taxes' => demoEnsureTaxes($mysqli),
         'calendar_id' => demoFirstId($mysqli, 'calendars', 'calendar_id'),
@@ -453,6 +577,10 @@ function demoDataLoad($mysqli) {
     // accounts were ours to create - an install that already had an account
     // called Operating Checking has a real ledger, and we stay out of it.
     if ($counts['clients']) {
+
+        // The diary and the mileage log carry no money, so they go in either way
+        demoBuildInternalDiary($mysqli, $context, $counts);
+
         if ($context['accounts_created'] === count(demoDataAccounts())) {
             demoBuildCompanyFinancials($mysqli, $context, $counts);
         } else {
@@ -643,6 +771,11 @@ function demoDataRemove($mysqli) {
         mysqli_query($mysqli, "DELETE FROM projects WHERE project_client_id = $client_id");
         mysqli_query($mysqli, "DELETE FROM contracts WHERE contract_client_id = $client_id");
         mysqli_query($mysqli, "DELETE FROM client_notes WHERE client_note_client_id = $client_id");
+        $sql = mysqli_query($mysqli, "SELECT event_id FROM calendar_events WHERE event_client_id = $client_id");
+        while ($row = mysqli_fetch_assoc($sql)) {
+            $event_id = intval($row['event_id']);
+            mysqli_query($mysqli, "DELETE FROM calendar_event_attendees WHERE attendee_event_id = $event_id");
+        }
         mysqli_query($mysqli, "DELETE FROM calendar_events WHERE event_client_id = $client_id");
         mysqli_query($mysqli, "DELETE FROM shared_items WHERE item_client_id = $client_id");
         mysqli_query($mysqli, "DELETE FROM sla_assignments WHERE sla_assignment_client_id = $client_id");
@@ -662,18 +795,7 @@ function demoDataRemove($mysqli) {
 
         $vendor_ids = implode(',', array_map('intval', $org_vendors));
 
-        $sql = mysqli_query($mysqli, "SELECT transfer_id, transfer_expense_id, transfer_revenue_id FROM transfers
-            LEFT JOIN expenses ON expense_id = transfer_expense_id
-            WHERE expense_vendor_id IN ($vendor_ids)");
-        while ($row = mysqli_fetch_assoc($sql)) {
-            $transfer_id = intval($row['transfer_id']);
-            $expense_id = intval($row['transfer_expense_id']);
-            $revenue_id = intval($row['transfer_revenue_id']);
-            mysqli_query($mysqli, "DELETE FROM expenses WHERE expense_id = $expense_id");
-            mysqli_query($mysqli, "DELETE FROM revenues WHERE revenue_id = $revenue_id");
-            mysqli_query($mysqli, "DELETE FROM transfers WHERE transfer_id = $transfer_id");
-        }
-
+        mysqli_query($mysqli, "DELETE FROM product_stock WHERE stock_expense_id IN (SELECT expense_id FROM expenses WHERE expense_client_id = 0 AND expense_vendor_id IN ($vendor_ids))");
         mysqli_query($mysqli, "DELETE FROM expenses WHERE expense_client_id = 0 AND expense_vendor_id IN ($vendor_ids)");
         mysqli_query($mysqli, "DELETE FROM recurring_expenses WHERE recurring_expense_client_id = 0 AND recurring_expense_vendor_id IN ($vendor_ids)");
 
@@ -692,6 +814,117 @@ function demoDataRemove($mysqli) {
             }
         }
 
+    }
+
+    // Transfers carry no vendor and no category, the same as the ones the
+    // transfer handler writes, so they are found through the accounts instead.
+    // Both halves have to sit on accounts this library created - a transfer
+    // touching an account that was already here is somebody else's.
+    $demo_account_ids = [];
+    foreach (demoDataAccounts() as $account) {
+        $account_name = escapeSql($account[0]);
+        $account_description = escapeSql($account[1]);
+        $row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT account_id FROM accounts WHERE account_name = '$account_name' AND account_description = '$account_description' LIMIT 1"));
+        if (!empty($row['account_id'])) {
+            $demo_account_ids[] = intval($row['account_id']);
+        }
+    }
+
+    if ($demo_account_ids) {
+
+        // The cash float top ups land on the install's own Cash account, so it
+        // counts as one end of a transfer we own without ever being removable
+        $sweep_ids = $demo_account_ids;
+        $cash_account_id = demoCashAccountId($mysqli);
+        if ($cash_account_id) {
+            $sweep_ids[] = $cash_account_id;
+        }
+        $sweep_ids = implode(',', $sweep_ids);
+        $owned_ids = implode(',', $demo_account_ids);
+
+        $sql = mysqli_query($mysqli, "SELECT transfer_id, transfer_expense_id, transfer_revenue_id FROM transfers
+            LEFT JOIN expenses ON expense_id = transfer_expense_id
+            LEFT JOIN revenues ON revenue_id = transfer_revenue_id
+            WHERE expense_account_id IN ($sweep_ids) AND revenue_account_id IN ($sweep_ids)
+            AND (expense_account_id IN ($owned_ids) OR revenue_account_id IN ($owned_ids))");
+        while ($row = mysqli_fetch_assoc($sql)) {
+            $transfer_id = intval($row['transfer_id']);
+            $expense_id = intval($row['transfer_expense_id']);
+            $revenue_id = intval($row['transfer_revenue_id']);
+            mysqli_query($mysqli, "DELETE FROM expenses WHERE expense_id = $expense_id");
+            mysqli_query($mysqli, "DELETE FROM revenues WHERE revenue_id = $revenue_id");
+            mysqli_query($mysqli, "DELETE FROM transfers WHERE transfer_id = $transfer_id");
+        }
+
+    }
+
+    // Closure days and budget lines, matched on exactly what we wrote
+    foreach ([date('Y') - 1, date('Y'), date('Y') + 1] as $year) {
+        foreach (demoDataHolidays($year) as $holiday) {
+            $holiday_date = escapeSql($holiday[0]);
+            $holiday_name = escapeSql($holiday[1]);
+            mysqli_query($mysqli, "DELETE FROM business_holidays WHERE holiday_date = '$holiday_date' AND holiday_name = '$holiday_name'");
+        }
+    }
+
+    foreach ([date('Y') - 1, date('Y')] as $year) {
+        foreach (demoDataBudgets() as $budget) {
+            $category_id = starterCategoryId($mysqli, $budget[0], 'Expense');
+            if (!$category_id) {
+                continue;
+            }
+            mysqli_query($mysqli, "DELETE FROM budget WHERE budget_category_id = $category_id AND budget_year = $year AND budget_description = 'Planned monthly spend'");
+        }
+    }
+
+    // Catalogue lines and calendars, matched the same conservative way - the
+    // product code has to be ours, and a calendar only goes when it is empty
+    foreach (demoDataProducts() as $product) {
+        $code = escapeSql($product[2]);
+        $name = escapeSql($product[0]);
+        $description = escapeSql($product[5]);
+        $row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT product_id FROM products WHERE product_code = '$code' AND product_name = '$name' AND product_description = '$description' LIMIT 1"));
+        $product_id = intval($row['product_id'] ?? 0);
+        if (!$product_id) {
+            continue;
+        }
+        $in_use = 0;
+        foreach (['invoice_items', 'quote_items', 'recurring_invoice_items'] as $table) {
+            $row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT COUNT(*) AS total FROM $table WHERE item_product_id = $product_id"));
+            $in_use = $in_use + intval($row['total'] ?? 0);
+        }
+        if (!$in_use) {
+            mysqli_query($mysqli, "DELETE FROM product_stock WHERE stock_product_id = $product_id");
+            mysqli_query($mysqli, "DELETE FROM products WHERE product_id = $product_id");
+        }
+    }
+
+    foreach (demoDataCalendars() as $calendar) {
+        $calendar_name = escapeSql($calendar[0]);
+        $row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT calendar_id FROM calendars WHERE calendar_name = '$calendar_name' AND calendar_color = '{$calendar[1]}' LIMIT 1"));
+        $calendar_id = intval($row['calendar_id'] ?? 0);
+        if (!$calendar_id) {
+            continue;
+        }
+        // Our own internal fixtures carry no client, so they go with the calendar
+        $sql = mysqli_query($mysqli, "SELECT event_id FROM calendar_events WHERE event_calendar_id = $calendar_id AND event_client_id = 0");
+        while ($event = mysqli_fetch_assoc($sql)) {
+            $event_id = intval($event['event_id']);
+            mysqli_query($mysqli, "DELETE FROM calendar_event_attendees WHERE attendee_event_id = $event_id");
+            mysqli_query($mysqli, "DELETE FROM calendar_events WHERE event_id = $event_id");
+        }
+        $row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT COUNT(*) AS total FROM calendar_events WHERE event_calendar_id = $calendar_id"));
+        if (!intval($row['total'] ?? 0)) {
+            mysqli_query($mysqli, "DELETE FROM calendars WHERE calendar_id = $calendar_id");
+        }
+    }
+
+    // Our own unbilled running around, matched on the exact purposes we wrote.
+    // Anything else with no client against it belongs to whoever logged it.
+    foreach (demoDataErrands() as $errand) {
+        $purpose = escapeSql($errand[0]);
+        $destination = escapeSql($errand[1]);
+        mysqli_query($mysqli, "DELETE FROM trips WHERE trip_client_id = 0 AND trip_source = 'Office' AND trip_purpose = '$purpose' AND trip_destination = '$destination'");
     }
 
     // Accounts, SLAs and tax rates are shared company config, so each one only
@@ -780,7 +1013,9 @@ function demoBuildClient($mysqli, $profile, $index, $context, &$counts) {
         'client_lead' => $profile['lead'],
         'client_favorite' => $profile['favorite'],
         'client_notes' => $profile['notes'],
-        'client_created_at' => demoMonthDateTime($months, 3, 9, 14),
+        // First of the month, because the first agreement invoice is dated the
+        // first - a client record cannot postdate its own opening invoice
+        'client_created_at' => demoMonthDateTime($months, 1, 9, 14),
         'client_accessed_at' => demoDateTime($index % 5, 11, 20),
     ]);
 
@@ -930,6 +1165,7 @@ function demoBuildClient($mysqli, $profile, $index, $context, &$counts) {
     $assets = demoBuildAssets($mysqli, $profile, $index, $client_id, $primary_location_id, $contact_ids, $primary_vendor_id, $network_ids, $months, $user_id, $counts);
     demoBuildRack($mysqli, $profile, $client_id, $primary_location_id, $assets, $months, $counts);
     demoBuildNetworkIps($mysqli, $profile, $assets, $network_ids, $counts);
+    demoBuildPatchPanel($mysqli, $profile, $assets, $network_ids, $months, $counts);
 
     // Domain, DNS and the certificate on it
     $domain_id = starterInsert($mysqli, 'domains', [
@@ -964,6 +1200,30 @@ function demoBuildClient($mysqli, $profile, $index, $context, &$counts) {
         'certificate_created_at' => demoMonthDateTime($months, 7, 9, 50),
     ]);
     $counts['documentation'] += 2;
+
+    // The renewals behind them. Both tables cascade off their parent, so the
+    // client purge takes these with the domain and the certificate.
+    starterInsert($mysqli, 'domain_history', [
+        'domain_history_column' => 'domain_expire',
+        'domain_history_old_value' => demoMonthDate(12, 14),
+        'domain_history_new_value' => demoDate(-1 * (60 + ($index * 21))),
+        'domain_history_domain_id' => $domain_id,
+        'domain_history_modified_at' => demoMonthDateTime(12, 14, 10, 5),
+    ]);
+    starterInsert($mysqli, 'domain_history', [
+        'domain_history_column' => 'domain_ip',
+        'domain_history_old_value' => '198.51.100.' . (10 + $index),
+        'domain_history_new_value' => '203.0.113.' . (10 + $index),
+        'domain_history_domain_id' => $domain_id,
+        'domain_history_modified_at' => demoMonthDateTime(max(1, min(9, $months)), 6, 15, 40),
+    ]);
+    starterInsert($mysqli, 'certificate_history', [
+        'certificate_history_column' => 'certificate_expire',
+        'certificate_history_old_value' => demoMonthDate(3, 20),
+        'certificate_history_new_value' => demoDate(-1 * (20 + ($index * 9))),
+        'certificate_history_certificate_id' => $certificate_id,
+        'certificate_history_modified_at' => demoMonthDateTime(3, 20, 4, 15),
+    ]);
 
     // Credentials - only when the vault actually opened for this session
     $credential_ids = [];
@@ -1131,17 +1391,58 @@ function demoBuildClient($mysqli, $profile, $index, $context, &$counts) {
     demoBuildBilling($mysqli, $profile, $index, $client_id, $primary_vendor_id, $months, $context, $counts);
 
     // Calendar and mileage
-    if ($context['calendar_id']) {
+    $onsite_calendar_id = $context['calendars']['Onsite Visits'] ?? $context['calendar_id'];
+    if ($onsite_calendar_id) {
+
+        // The visit coming up, and the one before it
+        foreach ([-1 * (3 + ($index % 20)), 30 + ($index % 20)] as $visit_index => $days_ago) {
+
+            $event_id = starterInsert($mysqli, 'calendar_events', [
+                'event_title' => $profile['abbreviation'] . ' - ' . $profile['onsite_visit'],
+                'event_location' => $profile['sites'][0]['address'] . ', ' . $profile['sites'][0]['city'],
+                'event_description' => $visit_index === 0
+                    ? 'Scheduled onsite visit. Site contact is expecting us.'
+                    : 'Completed onsite visit. Notes written up against the maintenance ticket.',
+                'event_start' => demoDateTime($days_ago, 10, 0),
+                'event_end' => demoDateTime($days_ago, 12, 30),
+                'event_all_day' => 0,
+                'event_client_id' => $client_id,
+                'event_location_id' => $primary_location_id,
+                'event_calendar_id' => $onsite_calendar_id,
+                'event_created_at' => demoDateTime($days_ago + 10, 9, 0),
+            ]);
+
+            // Whoever is meeting us on site
+            if ($technical_contact_id) {
+                // attendee_invitation_status is a tinyint nothing in the app
+                // reads or writes yet, so it is left on its default rather than
+                // guessing at a meaning for it
+                starterInsert($mysqli, 'calendar_event_attendees', [
+                    'attendee_name' => $profile['people'][2][0] ?? $profile['people'][0][0],
+                    'attendee_email' => demoContactEmail($profile['people'][2][0] ?? $profile['people'][0][0], $profile['domain']),
+                    'attendee_contact_id' => $technical_contact_id,
+                    'attendee_event_id' => $event_id,
+                    'attendee_created_at' => demoDateTime($days_ago + 10, 9, 0),
+                ]);
+            }
+
+        }
+    }
+
+    // The quarterly review, for the clients who get one
+    $internal_calendar_id = $context['calendars']['Internal'] ?? 0;
+    if ($internal_calendar_id && in_array('Key Account', $profile['tags'])) {
         starterInsert($mysqli, 'calendar_events', [
-            'event_title' => $profile['abbreviation'] . ' - ' . $profile['onsite_visit'],
-            'event_location' => $profile['sites'][0]['address'] . ', ' . $profile['sites'][0]['city'],
-            'event_description' => 'Scheduled onsite visit. Site contact is expecting us.',
-            'event_start' => demoDateTime(-1 * (3 + $index), 10, 0),
-            'event_end' => demoDateTime(-1 * (3 + $index), 12, 30),
+            'event_title' => $profile['abbreviation'] . ' - quarterly business review',
+            'event_location' => $profile['sites'][0]['city'] . ', ' . $profile['sites'][0]['state'],
+            'event_description' => 'Spend to date, open projects, asset age and anything coming up in the next quarter.',
+            'event_start' => demoDateTime(-1 * (14 + ($index % 30)), 14, 0),
+            'event_end' => demoDateTime(-1 * (14 + ($index % 30)), 15, 30),
+            'event_all_day' => 0,
             'event_client_id' => $client_id,
             'event_location_id' => $primary_location_id,
-            'event_calendar_id' => $context['calendar_id'],
-            'event_created_at' => demoDateTime(5, 9, 0),
+            'event_calendar_id' => $internal_calendar_id,
+            'event_created_at' => demoDateTime(3, 9, 0),
         ]);
     }
 
@@ -1210,8 +1511,13 @@ function demoBuildAssets($mysqli, $profile, $index, $client_id, $location_id, $c
                 $contact_id = $contact_ids[($number - 1) % count($contact_ids)];
             }
 
-            // Older kit at the back of the fleet, newest at the front
-            $purchase_months = min(30, 4 + (int)floor(($quantity - $number) * 1.5) + ($seed % 6));
+            // Kit arrives in batches, not all at once, and a client we have had
+            // for years has some genuinely old machines in the corner. Spreading
+            // this properly is what makes the warranty, end of life and refresh
+            // reports show anything - a fleet where nothing is ever old is not a
+            // fleet anyone recognises.
+            $batch = (int)floor(($number - 1) / 4);
+            $purchase_months = min(70, 3 + ($batch * 12) + (($seed + $index) % 7) + (int)floor($profile['age_days'] / 120));
             $status = 'Deployed';
             if ($number === $quantity && $quantity > 3) {
                 $status = 'Ready to Deploy';
@@ -1245,7 +1551,7 @@ function demoBuildAssets($mysqli, $profile, $index, $client_id, $location_id, $c
                 'asset_accessed_at' => demoDateTime(($index + $seed) % 20, 9, 30),
             ]);
 
-            demoAttachTags($mysqli, 'asset_tags', 'asset_tag_asset_id', 'asset_tag_tag_id', $asset_id, 5, demoAssetTags($asset_type, $model[3]));
+            demoAttachTags($mysqli, 'asset_tags', 'asset_tag_asset_id', 'asset_tag_tag_id', $asset_id, 5, demoAssetTags($asset_type, $model[3], $status, $purchase_months, 36 - $purchase_months, $number));
 
             // The person it was issued to
             if ($contact_id) {
@@ -1253,8 +1559,9 @@ function demoBuildAssets($mysqli, $profile, $index, $client_id, $location_id, $c
             }
 
             // Management interface, for the kit that has one
+            $interface_id = 0;
             if ($infrastructure && $ip) {
-                starterInsert($mysqli, 'asset_interfaces', [
+                $interface_id = starterInsert($mysqli, 'asset_interfaces', [
                     'interface_name' => $asset_type === 'Firewall/Router' ? 'LAN' : 'mgmt0',
                     'interface_description' => 'Management interface',
                     'interface_type' => 'Ethernet',
@@ -1294,6 +1601,7 @@ function demoBuildAssets($mysqli, $profile, $index, $client_id, $location_id, $c
                 'os' => $model[2],
                 'contact_id' => $contact_id,
                 'ip' => $ip,
+                'interface_id' => $interface_id,
                 'install_months_ago' => $purchase_months,
                 'credential' => demoAssetCredentialName($asset_type),
             ];
@@ -1363,6 +1671,67 @@ function demoBuildRack($mysqli, $profile, $client_id, $location_id, $assets, $mo
             'unit_created_at' => demoMonthDateTime($months, 6, 15, 5),
         ]);
         $unit = $start;
+    }
+
+}
+
+// ------------------------------
+// demoBuildPatchPanel
+// Ports on the main switch, and what is plugged into them. The site runbook
+// tells an engineer the port map is documented, so it had better be - and a
+// switch with no ports on it is the kind of half finished documentation this
+// data is supposed to be showing people how to avoid.
+// ------------------------------
+function demoBuildPatchPanel($mysqli, $profile, $assets, $network_ids, $months, &$counts) {
+
+    $switch = null;
+    $patchable = [];
+    foreach ($assets as $asset) {
+        if ($asset['type'] === 'Switch' && !$switch) {
+            $switch = $asset;
+            continue;
+        }
+        // Anything with a management interface is worth recording a port for
+        if (!empty($asset['interface_id'])) {
+            $patchable[] = $asset;
+        }
+    }
+
+    if (!$switch) {
+        return;
+    }
+
+    $network_id = $network_ids[$profile['networks'][0][0]] ?? 0;
+    $created_at = demoMonthDateTime(min($months, $switch['install_months_ago']), 16, 13, 0);
+    $port_count = 24;
+    $ports = [];
+
+    for ($port = 1; $port <= $port_count; $port++) {
+        $ports[$port] = starterInsert($mysqli, 'asset_interfaces', [
+            'interface_name' => 'Gi1/0/' . $port,
+            'interface_description' => $port === $port_count ? 'Uplink to the edge firewall' : 'Access port',
+            'interface_type' => 'Ethernet',
+            'interface_primary' => 0,
+            'interface_network_id' => $network_id,
+            'interface_asset_id' => $switch['id'],
+            'interface_created_at' => $created_at,
+        ]);
+        $counts['documentation']++;
+    }
+
+    // Patch the documented kit in, leaving the middle of the panel spare the way
+    // a real one is - the ports nobody has needed yet
+    $port = 1;
+    foreach ($patchable as $asset) {
+        if ($port > 12) {
+            break;
+        }
+        // The firewall lands on the uplink port, everything else in order
+        $target_port = $asset['type'] === 'Firewall/Router' ? $port_count : $port;
+        demoLink($mysqli, 'asset_interface_links', 'interface_a_id', $ports[$target_port], 'interface_b_id', $asset['interface_id']);
+        if ($asset['type'] !== 'Firewall/Router') {
+            $port++;
+        }
     }
 
 }
@@ -1579,6 +1948,36 @@ function demoSeedTicket($mysqli, $fields, $trail, $context, &$counts) {
             $task_fields['task_completed_by'] = $user_id;
         }
         starterInsert($mysqli, 'tasks', $task_fields);
+    }
+
+    // The SLA clock. An open interval means the clock is running right now; a
+    // closed one is a finished segment with its minutes booked against the
+    // ticket. A ticket sitting in a status that pauses the clock has neither.
+    if ($sla) {
+
+        $paused = !empty($trail['sla_paused']);
+        $stopped_at = $fields['ticket_resolved_at'] ?? ($trail['sla_paused_at'] ?? '');
+
+        if ($stopped_at) {
+            // Business minutes, approximated at eight hours to the day rather
+            // than pulling the business hours calculation in here
+            $elapsed = max(1, (int)round((strtotime($stopped_at) - strtotime($fields['ticket_created_at'])) / 60));
+            $days = max(1, (int)ceil($elapsed / 1440));
+            starterInsert($mysqli, 'sla_history', [
+                'sla_history_started_at' => $fields['ticket_created_at'],
+                'sla_history_ended_at' => $stopped_at,
+                'sla_history_minutes' => min($elapsed, $days * 480),
+                'sla_history_ticket_id' => $ticket_id,
+            ]);
+        } elseif (!$paused) {
+            // Still running
+            starterInsert($mysqli, 'sla_history', [
+                'sla_history_started_at' => $fields['ticket_created_at'],
+                'sla_history_minutes' => 0,
+                'sla_history_ticket_id' => $ticket_id,
+            ]);
+        }
+
     }
 
     // A watcher, where somebody else wanted to be kept in the loop
@@ -1879,9 +2278,13 @@ function demoBuildTickets($mysqli, $profile, $index, $client_id, $contact_ids, $
             ];
         }
 
+        $on_hold = $stage['status'] === $context['status_hold'];
+
         demoSeedTicket($mysqli, $fields, [
             'closed_at' => $stage['closed'] ? demoDateTime($stage['closed'], 15, 30) : '',
             'sla' => $sla_for($ticket['priority']),
+            'sla_paused' => $on_hold,
+            'sla_paused_at' => $on_hold ? demoDateTime(max(0, $stage['created'] - 1), 11, 30) : '',
             'replies' => $replies,
             'tasks' => !$stage['closed'] ? ($ticket['tasks'] ?? []) : [],
             'watcher' => $slot === 3 && $contact_ids ? demoContactEmail($profile['people'][0][0], $profile['domain']) : '',
@@ -1979,23 +2382,33 @@ function demoDocumentTotal($lines, $tax) {
 // ------------------------------
 // demoPayment
 // ------------------------------
-function demoPayment($mysqli, $invoice_id, $amount, $currency, $method, $account_id, $month, $profile, $index) {
+function demoPayment($mysqli, $invoice_id, $amount, $currency, $method, $account_id, $month, $profile, $index, $invoice_date = '') {
     if (!$account_id) {
         return;
     }
+
     $day = 8 + (($index + $month) % 14);
-    if (demoIsFuture(demoMonthDate($month, $day))) {
+    $date = demoMonthDate($month, $day);
+
+    // Nobody pays an invoice before it is raised - work billed mid month gets
+    // settled on terms from the invoice date, not from the start of the month
+    if ($invoice_date && strtotime($date) < strtotime($invoice_date)) {
+        $date = date('Y-m-d', strtotime($invoice_date . ' +' . (4 + ($index % 10)) . ' days'));
+    }
+
+    if (demoIsFuture($date)) {
         return;
     }
+
     starterInsert($mysqli, 'payments', [
-        'payment_date' => demoMonthDate($month, $day),
+        'payment_date' => $date,
         'payment_amount' => number_format($amount, 2, '.', ''),
         'payment_currency_code' => $currency,
         'payment_method' => $method,
         'payment_reference' => strtoupper(substr($method, 0, 3)) . '-' . demoSerial($profile['abbreviation'] . 'pay' . $invoice_id, 8),
         'payment_account_id' => $account_id,
         'payment_invoice_id' => $invoice_id,
-        'payment_created_at' => demoMonthDateTime($month, $day, 14, 0),
+        'payment_created_at' => $date . ' 14:00:00',
     ]);
 }
 
@@ -2031,8 +2444,10 @@ function demoBuildBilling($mysqli, $profile, $index, $client_id, $vendor_id, $mo
     $one_off_pool = demoOneOffInvoicePool();
     $recurring_invoice_id = 0;
 
-    // ---- The agreement, for managed clients ----
-    if ($profile['billing'] === 'managed') {
+    // ---- The agreement, for anyone on one ----
+    // Managed clients and hosting only clients both run on a recurring invoice;
+    // break fix clients have no agreement lines at all
+    if ($profile['agreement']) {
 
         $recurring_total = demoDocumentTotal($profile['agreement'], $tax);
 
@@ -2065,9 +2480,17 @@ function demoBuildBilling($mysqli, $profile, $index, $client_id, $vendor_id, $mo
             $created_at = demoMonthDateTime($month, 1, 6, 5);
             $due_date = date('Y-m-d', strtotime($invoice_date . ' +' . $profile['net_terms'] . ' days'));
 
-            $outstanding_months = in_array('Past Due', $profile['tags']) ? 3 : 1;
+            // Most clients pay on time and sit at zero. Some are carrying the
+            // current month, a couple are properly behind - which is what makes
+            // the aging report and the outstanding balances report worth opening
+            $outstanding_months = 0;
+            if ($profile['balance'] === 'current') {
+                $outstanding_months = 1;
+            } elseif ($profile['balance'] === 'past_due') {
+                $outstanding_months = 3;
+            }
             $paid = $month >= $outstanding_months;
-            $partial = $paid && $month === 5;
+            $partial = $paid && $month === 5 && $profile['balance'] !== 'clear';
 
             $status = 'Paid';
             if (!$paid) {
@@ -2107,7 +2530,7 @@ function demoBuildBilling($mysqli, $profile, $index, $client_id, $vendor_id, $mo
             if ($paid) {
                 $method = $payment_methods[($index + $month) % 3];
                 $amount = $partial ? round($recurring_total / 2, 2) : $recurring_total;
-                demoPayment($mysqli, $invoice_id, $amount, $currency, $method, $method === 'Credit Card' ? $card_account_id : $bank_account_id, $month, $profile, $index);
+                demoPayment($mysqli, $invoice_id, $amount, $currency, $method, $method === 'Credit Card' ? $card_account_id : $bank_account_id, $month, $profile, $index, $invoice_date);
                 starterInsert($mysqli, 'history', [
                     'history_status' => $partial ? 'Partial' : 'Paid',
                     'history_description' => $partial ? 'Part payment received' : 'Payment received in full',
@@ -2149,7 +2572,16 @@ function demoBuildBilling($mysqli, $profile, $index, $client_id, $vendor_id, $mo
             }
             $created_at = $invoice_date . ' 17:20:00';
             $total = demoDocumentTotal($lines, $tax);
-            $paid = $month >= 1;
+
+            // Break fix clients settle on the same terms as everyone else - a
+            // client marked as clear has nothing outstanding here either
+            $outstanding_months = 0;
+            if ($profile['balance'] === 'current') {
+                $outstanding_months = 1;
+            } elseif ($profile['balance'] === 'past_due') {
+                $outstanding_months = 3;
+            }
+            $paid = $month >= $outstanding_months;
 
             $invoice_id = starterInsert($mysqli, 'invoices', [
                 'invoice_prefix' => $config_invoice_prefix ?? '',
@@ -2179,7 +2611,7 @@ function demoBuildBilling($mysqli, $profile, $index, $client_id, $vendor_id, $mo
             ]);
 
             if ($paid) {
-                demoPayment($mysqli, $invoice_id, $total, $currency, $payment_methods[($index + $month) % 3], $bank_account_id, max(0, $month - 1), $profile, $index);
+                demoPayment($mysqli, $invoice_id, $total, $currency, $payment_methods[($index + $month) % 3], $bank_account_id, max(0, $month - 1), $profile, $index, $invoice_date);
             }
 
             $counts['billing']++;
@@ -2222,7 +2654,7 @@ function demoBuildBilling($mysqli, $profile, $index, $client_id, $vendor_id, $mo
             demoInvoiceItem($mysqli, 'invoice_items', 'item_invoice_id', $one_off_id, $line, $item_order, $one_off_created, $tax, $product_ids);
         }
 
-        demoPayment($mysqli, $one_off_id, $one_off_total, $currency, 'ACH', $bank_account_id, max(0, $month - 1), $profile, $index);
+        demoPayment($mysqli, $one_off_id, $one_off_total, $currency, 'ACH', $bank_account_id, max(0, $month - 1), $profile, $index, demoMonthDate($month, 18));
         $counts['billing']++;
 
     }
@@ -2367,6 +2799,12 @@ function demoBuildCompanyFinancials($mysqli, $context, &$counts) {
         ['pfSense Plus support subscriptions', 795.00, 'Software', 12, 22, 'Netgate'],
     ];
 
+    // Which purchases put hardware on the shelf, and what they bring in
+    $stock_lines = [
+        'UniFi shelf stock for the workshop' => ['Ubiquiti U6-Pro Access Point', 4],
+        'Bench stock - spare drives, cables and small parts' => ['Rack Mount UPS 1500VA', 1],
+    ];
+
     for ($month = 24; $month >= 0; $month--) {
         foreach ($operating_costs as $cost) {
 
@@ -2377,7 +2815,7 @@ function demoBuildCompanyFinancials($mysqli, $context, &$counts) {
             // Payroll and rent creep up over two years rather than sitting flat
             $drift = 1 + ((24 - $month) * 0.004);
 
-            starterInsert($mysqli, 'expenses', [
+            $expense_id = starterInsert($mysqli, 'expenses', [
                 'expense_description' => $cost[0],
                 'expense_amount' => number_format($cost[1] * $drift, 2, '.', ''),
                 'expense_currency_code' => $currency,
@@ -2392,6 +2830,49 @@ function demoBuildCompanyFinancials($mysqli, $context, &$counts) {
             ]);
             $counts['company']++;
 
+            // Hardware bought for the shelf goes into stock against the
+            // purchase, the same way the stock modal records it
+            if (isset($stock_lines[$cost[0]]) && isset($context['products'][$stock_lines[$cost[0]][0]])) {
+                starterInsert($mysqli, 'product_stock', [
+                    'stock_qty' => $stock_lines[$cost[0]][1],
+                    'stock_note' => 'Shelf stock in from ' . $cost[5],
+                    'stock_expense_id' => $expense_id,
+                    'stock_product_id' => $context['products'][$stock_lines[$cost[0]][0]],
+                    'stock_created_at' => demoMonthDateTime($month, $cost[4], 17, 5),
+                ]);
+                $counts['company']++;
+            }
+
+        }
+    }
+
+    // Small cash spending, out of the Cash account setup already created
+    if ($context['cash_account_id']) {
+        $petty = [
+            ['Parking while onsite', 12.00, 'Vehicle and Fuel', 'Monongahela Property Group'],
+            ['Bench consumables and cable ties', 28.50, 'Tools and Test Equipment', 'Ridgeline Technology Distribution'],
+            ['Postage on a warranty return', 18.75, 'Shipping and Postage', 'Ridgeline Technology Distribution'],
+            ['Coffee for an all night cutover', 24.00, 'Meals', 'Ridgeline Technology Distribution'],
+        ];
+        for ($month = 24; $month >= 0; $month--) {
+            $item = $petty[$month % count($petty)];
+            if (demoIsFuture(demoMonthDate($month, 23))) {
+                continue;
+            }
+            starterInsert($mysqli, 'expenses', [
+                'expense_description' => $item[0],
+                'expense_amount' => number_format($item[1], 2, '.', ''),
+                'expense_currency_code' => $currency,
+                'expense_date' => demoMonthDate($month, 23),
+                'expense_reference' => 'CASH-' . demoSerial('petty' . $item[0] . $month, 6),
+                'expense_payment_method' => 'Cash',
+                'expense_vendor_id' => $vendors[$item[3]] ?? 0,
+                'expense_client_id' => 0,
+                'expense_category_id' => starterCategoryId($mysqli, $item[2], 'Expense'),
+                'expense_account_id' => $context['cash_account_id'],
+                'expense_created_at' => demoMonthDateTime($month, 23, 18, 10),
+            ]);
+            $counts['company']++;
         }
     }
 
@@ -2423,16 +2904,68 @@ function demoBuildCompanyFinancials($mysqli, $context, &$counts) {
         $counts['company']++;
     }
 
+    // Closure days, so the SLA clock has something to pause on. Matched on the
+    // date and the name so the built in US holiday importer can be run either
+    // before or after this without doubling anything up.
+    foreach ([date('Y') - 1, date('Y'), date('Y') + 1] as $year) {
+        foreach (demoDataHolidays($year) as $holiday) {
+            $holiday_date = escapeSql($holiday[0]);
+            $holiday_name = escapeSql($holiday[1]);
+            $row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT holiday_id FROM business_holidays WHERE holiday_date = '$holiday_date' AND holiday_name = '$holiday_name' LIMIT 1"));
+            if (!empty($row['holiday_id'])) {
+                continue;
+            }
+            starterInsert($mysqli, 'business_holidays', [
+                'holiday_date' => $holiday[0],
+                'holiday_name' => $holiday[1],
+                'holiday_created_at' => demoMonthDateTime(24, 4, 9, 0),
+            ]);
+            $counts['company']++;
+        }
+    }
+
+    // The plan the actual spend gets measured against
+    foreach ([date('Y') - 1, date('Y')] as $year) {
+        foreach (demoDataBudgets() as $budget) {
+            $category_id = starterCategoryId($mysqli, $budget[0], 'Expense');
+            if (!$category_id) {
+                continue;
+            }
+            // Last year's plan was set a little lower than this year's
+            $amount = $year < (int)date('Y') ? $budget[1] * 0.94 : $budget[1];
+            for ($month = 1; $month <= 12; $month++) {
+                $row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT budget_id FROM budget WHERE budget_category_id = $category_id AND budget_month = $month AND budget_year = $year LIMIT 1"));
+                if (!empty($row['budget_id'])) {
+                    continue;
+                }
+                starterInsert($mysqli, 'budget', [
+                    'budget_month' => $month,
+                    'budget_year' => $year,
+                    'budget_amount' => number_format($amount, 2, '.', ''),
+                    'budget_description' => 'Planned monthly spend',
+                    'budget_category_id' => $category_id,
+                    'budget_created_at' => demoMonthDateTime(24, 5, 9, 0),
+                ]);
+                $counts['company']++;
+            }
+        }
+    }
+
     // Card settlements landing in the bank, and the quarterly tax reserve
-    $bank_vendor_id = $vendors['Steelworks Business Bank'] ?? 0;
+    $cash_id = $context['cash_account_id'];
     for ($month = 24; $month >= 0; $month--) {
 
         if ($merchant_id) {
-            demoTransfer($mysqli, $merchant_id, $operating_id, 4250.00 + (($month % 7) * 315), $currency, 'Merchant payout', 'Card settlements paid out to the operating account', $month, 5, $bank_vendor_id, $counts);
+            demoTransfer($mysqli, $merchant_id, $operating_id, 4250.00 + (($month % 7) * 315), $currency, 'Merchant payout', 'Card settlements paid out to the operating account', $month, 5, $counts);
         }
 
         if ($savings_id && $month % 3 === 0) {
-            demoTransfer($mysqli, $operating_id, $savings_id, 6500.00, $currency, 'Bank Transfer', 'Quarterly tax reserve moved to savings', $month, 16, $bank_vendor_id, $counts);
+            demoTransfer($mysqli, $operating_id, $savings_id, 6500.00, $currency, 'Bank Transfer', 'Quarterly tax reserve moved to savings', $month, 16, $counts);
+        }
+
+        // Topping the cash tin back up out of the bank
+        if ($cash_id && $month % 4 === 0) {
+            demoTransfer($mysqli, $operating_id, $cash_id, 250.00, $currency, 'Cash', 'Cash float topped up for parts runs and parking', $month, 19, $counts);
         }
 
     }
@@ -2440,12 +2973,182 @@ function demoBuildCompanyFinancials($mysqli, $context, &$counts) {
 }
 
 // ------------------------------
+// demoDataHolidays
+// Closure days, so the SLA clock has something to pause on. Only the fixed date
+// ones are listed outright - the floating ones are worked out per year, which
+// is why they are computed rather than hard coded.
+// ------------------------------
+function demoDataHolidays($year) {
+
+    $thanksgiving = date('Y-m-d', strtotime("fourth thursday of november $year"));
+
+    return [
+        [$year . '-01-01', "New Year's Day"],
+        [$year . '-07-04', 'Independence Day'],
+        [$year . '-11-11', 'Veterans Day'],
+        [$year . '-12-24', 'Christmas Eve'],
+        [$year . '-12-25', 'Christmas Day'],
+        [date('Y-m-d', strtotime("last monday of may $year")), 'Memorial Day'],
+        [date('Y-m-d', strtotime("first monday of september $year")), 'Labor Day'],
+        [$thanksgiving, 'Thanksgiving'],
+        [date('Y-m-d', strtotime($thanksgiving . ' +1 day')), 'Day after Thanksgiving'],
+    ];
+}
+
+// ------------------------------
+// demoDataBudgets
+// What we plan to spend each month, by category. The budget report is empty
+// without it, and an empty report is the one thing a demo cannot show.
+// category, monthly amount
+// ------------------------------
+function demoDataBudgets() {
+    return [
+        ['Payroll', 15000.00],
+        ['Rent and Utilities', 1900.00],
+        ['Licensing - Cost of Goods', 2600.00],
+        ['Hardware - Cost of Goods', 1400.00],
+        ['Infrastructure', 550.00],
+        ['Software', 450.00],
+        ['Insurance', 500.00],
+        ['Professional Services', 350.00],
+        ['Telecom and Internet', 300.00],
+        ['Vehicle and Fuel', 250.00],
+        ['Tools and Test Equipment', 200.00],
+        ['Advertising', 150.00],
+    ];
+}
+
+// ------------------------------
+// demoDataErrands
+// The unbilled running around every MSP does and nobody logs against a client.
+// purpose, destination, miles, every N weeks, day offset
+// ------------------------------
+function demoDataErrands() {
+    return [
+        ['Bank - deposit cheques and cash', 'Steelworks Business Bank, Pittsburgh, PA', 6.4, 2, 3],
+        ['Distributor - parts collection', 'Ridgeline Technology Distribution, Pittsburgh, PA', 14.2, 3, 1],
+        ['Colocation - hands on at the rack', 'Three Rivers Colocation, Pittsburgh, PA', 11.8, 4, 4],
+        ['Post office - warranty returns', 'Post Office, Pittsburgh, PA', 3.1, 2, 5],
+        ['Accountant - drop off paperwork', 'Alcott and Reyes CPA, Pittsburgh, PA', 8.7, 12, 2],
+    ];
+}
+
+// ------------------------------
+// demoBuildInternalDiary
+// The MSP's own week - the meetings, on call handovers and maintenance windows
+// that have nothing to do with any one client, plus the running around that
+// never gets billed. None of this carries a client id, which is the point: a
+// calendar and a mileage log with only client work in it looks fake.
+// ------------------------------
+function demoBuildInternalDiary($mysqli, $context, &$counts) {
+
+    $user_id = $context['user_id'];
+    $internal_id = $context['calendars']['Internal'] ?? 0;
+    $maintenance_id = $context['calendars']['Maintenance Windows'] ?? 0;
+
+    if (!$internal_id) {
+        return;
+    }
+
+    // Weekly and monthly fixtures, running back a quarter and forward a month
+    // title, calendar, description, weekday offset from Monday, start hour, length in hours, every N weeks
+    $fixtures = [
+        ['Team stand up', $internal_id, 'Fifteen minutes on the queue, anything stuck and who is out.', 0, 8, 1, 1],
+        ['Ticket queue review', $internal_id, 'Walk the open queue, reassign anything stale and check nothing is sitting past target.', 2, 16, 1, 1],
+        ['On call handover', $internal_id, 'Handover of the on call phone, open incidents and anything scheduled overnight.', 4, 16, 1, 1],
+        ['Backup and patch review', $maintenance_id ?: $internal_id, 'Review failed backup jobs and patch compliance across every managed client.', 1, 9, 2, 1],
+        ['Monthly maintenance window', $maintenance_id ?: $internal_id, 'Firmware, hypervisor updates and reboots on the management stack. Notify clients 48 hours ahead.', 5, 20, 4, 4],
+        ['Vendor briefing', $internal_id, 'Distribution and vendor update - roadmap, stock and pricing.', 3, 13, 1, 4],
+        ['Quarterly planning', $internal_id, 'Pipeline, hiring, tooling spend and the client review schedule for the quarter.', 1, 13, 3, 12],
+        ['Technical training', $internal_id, 'Protected time for certification study and lab work.', 4, 13, 3, 2],
+    ];
+
+    foreach ($fixtures as $fixture) {
+        for ($week = 13; $week >= -4; $week--) {
+
+            if ($week % $fixture[6] !== 0) {
+                continue;
+            }
+
+            // Monday of that week, then the weekday offset
+            $days_ago = ($week * 7) - $fixture[3] + (int)date('N') - 1;
+            $start = demoDateTime($days_ago, $fixture[4], 0);
+            $end = date('Y-m-d H:i:s', strtotime($start . ' +' . $fixture[5] . ' hours'));
+
+            starterInsert($mysqli, 'calendar_events', [
+                'event_title' => $fixture[0],
+                'event_location' => $fixture[0] === 'Monthly maintenance window' ? 'Remote' : 'Office',
+                'event_description' => $fixture[2],
+                'event_start' => $start,
+                'event_end' => $end,
+                'event_all_day' => 0,
+                'event_client_id' => 0,
+                'event_calendar_id' => $fixture[1],
+                'event_created_at' => demoDateTime($days_ago + 7, 9, 0),
+            ]);
+            $counts['company']++;
+
+        }
+    }
+
+    // One off internal days
+    foreach ([
+        ['Company closed - public holiday', 21, 1, 'Office closed. On call cover only.'],
+        ['Insurance renewal call', 9, 2, 'Annual review of liability, errors and omissions and cyber cover.'],
+        ['Accountant - year end review', 30, 2, 'Year end accounts walkthrough and tax position.'],
+        ['Office network rebuild', -12, 6, 'Replacing our own switching and rerunning the bench cabling.'],
+    ] as $one_off) {
+        starterInsert($mysqli, 'calendar_events', [
+            'event_title' => $one_off[0],
+            'event_location' => 'Office',
+            'event_description' => $one_off[3],
+            'event_start' => demoDateTime($one_off[1], 9, 0),
+            'event_end' => demoDateTime($one_off[1], 9 + $one_off[2], 0),
+            'event_all_day' => $one_off[2] > 5 ? 1 : 0,
+            'event_client_id' => 0,
+            'event_calendar_id' => $internal_id,
+            'event_created_at' => demoDateTime($one_off[1] + 14, 9, 0),
+        ]);
+        $counts['company']++;
+    }
+
+    // Running around that is not billable to anybody
+    foreach (demoDataErrands() as $errand) {
+        for ($week = 26; $week >= 0; $week--) {
+            if ($week % $errand[3] !== 0) {
+                continue;
+            }
+            $days_ago = ($week * 7) - $errand[4];
+            if ($days_ago < 0 || demoIsFuture(demoDate($days_ago))) {
+                continue;
+            }
+            starterInsert($mysqli, 'trips', [
+                'trip_date' => demoDate($days_ago),
+                'trip_purpose' => $errand[0],
+                'trip_source' => 'Office',
+                'trip_destination' => $errand[1],
+                'trip_miles' => $errand[2],
+                'round_trip' => 1,
+                'trip_user_id' => $user_id,
+                'trip_client_id' => 0,
+                'trip_created_at' => demoDateTime($days_ago, 17, 45),
+            ]);
+            $counts['company']++;
+        }
+    }
+
+}
+
+// ------------------------------
 // demoTransfer
 // A transfer is an expense on one account and a revenue on the other, joined by
-// a transfers row - the same three writes the transfer handler makes. Both
-// halves carry the bank as the vendor, which is how removal finds them again.
+// a transfers row - the same three writes the transfer handler makes, including
+// leaving both halves with no vendor and no category. That is deliberate on
+// ITFlow's part: the expense and income reports key off those two columns to
+// keep money that only moved between accounts out of the profit and loss.
+// Removal finds them through the transfers table instead.
 // ------------------------------
-function demoTransfer($mysqli, $from_account_id, $to_account_id, $amount, $currency, $method, $notes, $month, $day, $vendor_id, &$counts) {
+function demoTransfer($mysqli, $from_account_id, $to_account_id, $amount, $currency, $method, $notes, $month, $day, &$counts) {
 
     $date = demoMonthDate($month, $day);
     if (demoIsFuture($date)) {
@@ -2459,7 +3162,7 @@ function demoTransfer($mysqli, $from_account_id, $to_account_id, $amount, $curre
         'expense_amount' => number_format($amount, 2, '.', ''),
         'expense_currency_code' => $currency,
         'expense_reference' => $reference,
-        'expense_vendor_id' => $vendor_id,
+        'expense_vendor_id' => 0,
         'expense_category_id' => 0,
         'expense_client_id' => 0,
         'expense_account_id' => $from_account_id,
@@ -2669,22 +3372,45 @@ function demoAssetMaintenanceNote($asset_type) {
     return '';
 }
 
-function demoAssetTags($asset_type, $family) {
-    $tags = [
+function demoAssetTags($asset_type, $family, $status, $age_months, $warranty_months_left, $number) {
+
+    $tags = [];
+
+    // Infrastructure is tagged because the tag says something operational -
+    // what wakes somebody up, what is monitored, what is backed up
+    $infrastructure = [
         'Firewall/Router' => ['Firewall', 'Business Critical', 'Monitored'],
         'Switch' => ['Switch', 'Monitored'],
         'Access Point' => ['Access Point', 'Monitored'],
         'Server' => ['Server', 'Business Critical', 'Backed Up', 'Monitored'],
         'Virtual Machine' => ['Server', 'Backed Up', 'Monitored'],
-        'Desktop' => ['Workstation', 'Endpoint Protection'],
-        'Laptop' => ['Laptop', 'Endpoint Protection'],
-        'Printer' => ['Printer'],
-        'Phone' => ['VoIP Handset'],
-        'Tablet' => ['Mobile'],
-        'Mobile Phone' => ['Mobile'],
-        'Camera' => ['Monitored'],
     ];
-    return $tags[$asset_type] ?? [];
+    if (isset($infrastructure[$asset_type])) {
+        $tags = $infrastructure[$asset_type];
+    }
+
+    // Everything else only earns a tag when there is something to say about it.
+    // Tagging all forty workstations "Workstation" tells nobody anything, and it
+    // makes the tag filter useless for the cases that do matter.
+    if ($status === 'Ready to Deploy') {
+        $tags[] = 'Spare Stock';
+    }
+    if ($warranty_months_left <= 0) {
+        $tags[] = 'Warranty Expired';
+    } elseif ($warranty_months_left <= 4) {
+        $tags[] = 'Under Warranty';
+    }
+    if ($age_months >= 60) {
+        $tags[] = 'End of Life';
+    }
+    if ($asset_type === 'Server' && $family === 'foss') {
+        $tags[] = 'Hypervisor Host';
+    }
+    if (in_array($asset_type, ['Laptop', 'Mobile Phone']) && $number === 1) {
+        $tags[] = 'Leased';
+    }
+
+    return array_values(array_unique($tags));
 }
 
 // ------------------------------
@@ -3007,6 +3733,7 @@ function demoDataSpecs() {
             'city' => 'Pittsburgh', 'state' => 'PA', 'zip' => '15212', 'area' => '412', 'street' => '1140 Ridge Avenue',
             'second_site' => ['Wexford Practice', '3025 Church Road', 'Wexford', 'PA', '15090'],
             'age_days' => 880, 'seats' => 26, 'servers' => 2, 'build' => 0, 'billing' => 'managed',
+            'balance' => 'clear', 'hosting' => [['Web Hosting - Standard', 1, 25.00, 'Practice website hosting with TLS and nightly backup', 0]],
             'lead' => 0, 'favorite' => 1, 'tax' => 'Allegheny County Sales Tax',
             'mail_platform' => 'Microsoft 365', 'cert_issuer' => "Let's Encrypt",
             'tags' => ['Managed', 'Key Account', 'Compliance', 'Multi Site', 'After Hours Support'],
@@ -3034,6 +3761,7 @@ function demoDataSpecs() {
             'city' => 'Erie', 'state' => 'PA', 'zip' => '16510', 'area' => '814', 'street' => '4400 Foundry Way',
             'second_site' => ['Plant Two', '820 Industrial Parkway', 'Erie', 'PA', '16511'],
             'age_days' => 1240, 'seats' => 42, 'servers' => 4, 'build' => 0, 'billing' => 'managed',
+            'balance' => 'current', 'hosting' => [],
             'lead' => 0, 'favorite' => 1, 'tax' => 'PA Sales Tax',
             'mail_platform' => 'Microsoft 365', 'cert_issuer' => 'DigiCert',
             'tags' => ['Managed', 'Key Account', 'Multi Site', 'After Hours Support', 'Compliance'],
@@ -3061,6 +3789,7 @@ function demoDataSpecs() {
             'city' => 'Pittsburgh', 'state' => 'PA', 'zip' => '15222', 'area' => '412', 'street' => '600 Grant Street, Suite 1900',
             'second_site' => null,
             'age_days' => 700, 'seats' => 18, 'servers' => 2, 'build' => 0, 'billing' => 'managed',
+            'balance' => 'clear', 'hosting' => [],
             'lead' => 0, 'favorite' => 0, 'tax' => 'Allegheny County Sales Tax',
             'mail_platform' => 'Microsoft 365', 'cert_issuer' => 'DigiCert',
             'tags' => ['Managed', 'Compliance', 'Cyber Insurance', 'Key Account'],
@@ -3087,6 +3816,7 @@ function demoDataSpecs() {
             'city' => 'Cleveland', 'state' => 'OH', 'zip' => '44113', 'area' => '216', 'street' => '1250 Lakeside Avenue',
             'second_site' => ['Parma Branch', '7300 Ridge Road', 'Parma', 'OH', '44129'],
             'age_days' => 1500, 'seats' => 34, 'servers' => 3, 'build' => 0, 'billing' => 'managed',
+            'balance' => 'clear', 'hosting' => [],
             'lead' => 0, 'favorite' => 1, 'tax' => 'PA Sales Tax',
             'mail_platform' => 'Microsoft 365', 'cert_issuer' => 'DigiCert',
             'tags' => ['Managed', 'Compliance', 'Cyber Insurance', 'After Hours Support', 'Multi Site', 'Key Account'],
@@ -3114,6 +3844,7 @@ function demoDataSpecs() {
             'city' => 'Columbus', 'state' => 'OH', 'zip' => '43215', 'area' => '614', 'street' => '88 East Broad Street',
             'second_site' => null,
             'age_days' => 520, 'seats' => 15, 'servers' => 1, 'build' => 1, 'billing' => 'managed',
+            'balance' => 'clear', 'hosting' => [['Nextcloud Hosting - Instance', 1, 95.00, 'Managed Nextcloud instance, updates and support', 0], ['Nextcloud Hosting - Per User', 15, 6.50, 'Per user file sync, sharing and mobile access', 0]],
             'lead' => 0, 'favorite' => 0, 'tax' => 'PA Sales Tax',
             'mail_platform' => 'Google Workspace', 'cert_issuer' => "Let's Encrypt",
             'tags' => ['Co-Managed', 'Managed', 'Block Hours'],
@@ -3140,6 +3871,7 @@ function demoDataSpecs() {
             'city' => 'Wexford', 'state' => 'PA', 'zip' => '15090', 'area' => '724', 'street' => '910 Perry Highway',
             'second_site' => null,
             'age_days' => 400, 'seats' => 12, 'servers' => 1, 'build' => 1, 'billing' => 'break_fix',
+            'balance' => 'clear', 'hosting' => [],
             'lead' => 0, 'favorite' => 0, 'tax' => 'Allegheny County Sales Tax',
             'mail_platform' => 'Microsoft 365', 'cert_issuer' => "Let's Encrypt",
             'tags' => ['Break Fix', 'Block Hours', 'At Risk'],
@@ -3166,6 +3898,7 @@ function demoDataSpecs() {
             'city' => 'Greensburg', 'state' => 'PA', 'zip' => '15601', 'area' => '724', 'street' => '2200 Route 30 East',
             'second_site' => ['Yard and Workshop', '145 Depot Street', 'Latrobe', 'PA', '15650'],
             'age_days' => 640, 'seats' => 22, 'servers' => 1, 'build' => 0, 'billing' => 'managed',
+            'balance' => 'current', 'hosting' => [['Web Hosting - Standard', 1, 25.00, 'Company website hosting', 0]],
             'lead' => 0, 'favorite' => 0, 'tax' => 'PA Sales Tax',
             'mail_platform' => 'Microsoft 365', 'cert_issuer' => "Let's Encrypt",
             'tags' => ['Managed', 'Multi Site', 'After Hours Support'],
@@ -3192,6 +3925,7 @@ function demoDataSpecs() {
             'city' => 'Morgantown', 'state' => 'WV', 'zip' => '26505', 'area' => '304', 'street' => '415 Chestnut Ridge Road',
             'second_site' => null,
             'age_days' => 300, 'seats' => 16, 'servers' => 1, 'build' => 1, 'billing' => 'managed',
+            'balance' => 'clear', 'hosting' => [['Nextcloud Hosting - Instance', 1, 95.00, 'Managed Nextcloud instance replacing consumer file sync', 0]],
             'lead' => 0, 'favorite' => 0, 'tax' => 'PA Sales Tax',
             'mail_platform' => 'Google Workspace', 'cert_issuer' => "Let's Encrypt",
             'tags' => ['Managed', 'Onboarding', 'Compliance'],
@@ -3218,6 +3952,7 @@ function demoDataSpecs() {
             'city' => 'Youngstown', 'state' => 'OH', 'zip' => '44505', 'area' => '330', 'street' => '3300 Logistics Drive',
             'second_site' => ['Distribution Warehouse', '760 Terminal Road', 'Youngstown', 'OH', '44506'],
             'age_days' => 1050, 'seats' => 30, 'servers' => 3, 'build' => 0, 'billing' => 'managed',
+            'balance' => 'past_due', 'hosting' => [],
             'lead' => 0, 'favorite' => 0, 'tax' => 'PA Sales Tax',
             'mail_platform' => 'Microsoft 365', 'cert_issuer' => 'DigiCert',
             'tags' => ['Managed', 'After Hours Support', 'Multi Site', 'Past Due'],
@@ -3245,6 +3980,7 @@ function demoDataSpecs() {
             'city' => 'Pittsburgh', 'state' => 'PA', 'zip' => '15201', 'area' => '412', 'street' => '2115 Butler Street',
             'second_site' => ['Roastery', '48 Preble Avenue', 'Pittsburgh', 'PA', '15233'],
             'age_days' => 180, 'seats' => 9, 'servers' => 0, 'build' => 1, 'billing' => 'break_fix',
+            'balance' => 'clear', 'hosting' => [],
             'lead' => 1, 'favorite' => 0, 'tax' => 'Allegheny County Sales Tax',
             'mail_platform' => 'Google Workspace', 'cert_issuer' => "Let's Encrypt",
             'tags' => ['Prospect', 'Break Fix', 'Multi Site', 'Onboarding'],
@@ -3263,6 +3999,281 @@ function demoDataSpecs() {
                 ['Mira Lachlan', 'Operations Manager', 'Operations', 1, 1, 1, 'Runs both sites and the roastery.', ['Technical', 'Billing', 'Onsite Point of Contact']],
                 ['Felix Oyelaran', 'Store Lead - Butler Street', 'Retail', 0, 0, 0, 'Front of house point of contact.', []],
                 ['Suzanne Kirby', 'Roastery Supervisor', 'Production', 0, 0, 0, 'Reports issues from the roastery.', []],
+            ],
+        ],
+        [
+            'name' => 'Larkspur Community Church', 'abbreviation' => 'LCC', 'type' => 'Non Profit',
+            'domain' => 'larkspurchurch.example', 'referral' => 'Friend', 'rate' => 95.00, 'terms' => 30,
+            'city' => 'Butler', 'state' => 'PA', 'zip' => '16001', 'area' => '724', 'street' => '318 Cedar Lane',
+            'second_site' => null,
+            'age_days' => 760, 'seats' => 8, 'servers' => 1, 'build' => 1, 'billing' => 'managed',
+            'balance' => 'clear', 'hosting' => [['Web Hosting - Standard', 1, 25.00, 'Church website and service times, hosted with nightly backup', 0], ['Email Hosting - Per Mailbox', 8, 4.50, 'Staff and volunteer mailboxes with filtering', 0]],
+            'lead' => 0, 'favorite' => 0, 'tax' => 'PA Sales Tax',
+            'mail_platform' => 'Google Workspace', 'cert_issuer' => "Let's Encrypt",
+            'tags' => ['Managed', 'Non Profit', 'Block Hours'],
+            'notes' => 'Non profit rate. Mostly volunteers on the machines, so the build is locked down and simple.',
+            'account_note' => 'Charity pricing agreed at onboarding. Anything chargeable needs the treasurer to sign off first.',
+            'review_note' => 'Moved off a consumer mail account onto hosted mail with us. Far fewer password problems since.',
+            'onsite_visit' => 'Office and media desk check',
+            'recurring_ticket' => 'Monthly maintenance visit - Larkspur Church',
+            'project' => null,
+            'vendors' => [
+                ['Butler Valley Internet', 'Building internet connection', '724-555-0181', 'butlervalley.example', 'Best effort', 'Residential grade line. No SLA - expect to wait.'],
+            ],
+            'fleet' => ['Firewall/Router' => 1, 'Switch' => 1, 'Access Point' => 3, 'Server' => 1, 'Desktop' => 5, 'Laptop' => 3, 'Printer' => 2],
+            'people' => [
+                ['Reverend Alan Petrie', 'Pastor', 'Management', 1, 0, 0, 'Prefers a phone call. Not technical, and does not need to be.', ['Primary', 'Executive']],
+                ['Harriet Dunmore', 'Church Treasurer', 'Finance', 1, 1, 0, 'Approves all spend, however small.', ['Billing', 'Authorized Approver']],
+                ['Tomas Okonjo', 'Volunteer Coordinator', 'Operations', 0, 0, 1, 'Runs the media desk and knows where everything is plugged in.', ['Technical', 'Onsite Point of Contact']],
+                ['Nancy Bell', 'Office Administrator', 'Administration', 0, 0, 0, 'In the office three mornings a week.', []],
+            ],
+        ],
+        [
+            'name' => 'Verity Insurance Agency', 'abbreviation' => 'VIA', 'type' => 'Insurance',
+            'domain' => 'verityinsurance.example', 'referral' => 'Partner', 'rate' => 155.00, 'terms' => 15,
+            'city' => 'Pittsburgh', 'state' => 'PA', 'zip' => '15205', 'area' => '412', 'street' => '4700 Campbells Run Road',
+            'second_site' => null,
+            'age_days' => 1120, 'seats' => 20, 'servers' => 2, 'build' => 0, 'billing' => 'managed',
+            'balance' => 'clear', 'hosting' => [],
+            'lead' => 0, 'favorite' => 0, 'tax' => 'Allegheny County Sales Tax',
+            'mail_platform' => 'Microsoft 365', 'cert_issuer' => 'DigiCert',
+            'tags' => ['Managed', 'Compliance', 'Cyber Insurance', 'Key Account'],
+            'notes' => 'Carrier portals drive everything. Browser and certificate problems are most of the ticket volume.',
+            'account_note' => 'They sell cyber cover themselves, so their own posture gets scrutinised. Keep the evidence current.',
+            'review_note' => 'Passed their own carrier audit last quarter with no findings. Worth repeating the same evidence pack.',
+            'onsite_visit' => 'Office equipment and carrier portal check',
+            'recurring_ticket' => 'Monthly maintenance visit - Verity Insurance',
+            'project' => null,
+            'vendors' => [
+                ['Allegheny Business Fiber', 'Office internet and failover', '412-555-0158', 'alleghenyfiber.example', '4 hour response', 'Primary fibre with a 4G backup that has never been tested under load.'],
+                ['Carrier Gateway Systems', 'Insurance carrier portal aggregator', '412-555-0159', 'carriergateway.example', '8x5 support', 'Browser fussy. Keep one machine on the known good version.'],
+            ],
+            'fleet' => ['Firewall/Router' => 1, 'Switch' => 2, 'Access Point' => 3, 'Server' => 2, 'Desktop' => 15, 'Laptop' => 5, 'Printer' => 3, 'Phone' => 14],
+            'people' => [
+                ['Gordon Verity', 'Principal Agent', 'Management', 1, 1, 0, 'Owner. Wants to hear about problems before clients do.', ['Primary', 'Executive', 'Authorized Approver']],
+                ['Marcy Threlfall', 'Office Manager', 'Administration', 1, 1, 1, 'Runs the office and holds the carrier portal logins.', ['Technical', 'Billing', 'Onsite Point of Contact']],
+                ['Petra Lindberg', 'Commercial Lines Agent', 'Sales', 0, 0, 0, 'Heavy portal user - first to notice a broken certificate.', []],
+                ['Sean Coughlin', 'Claims Handler', 'Operations', 0, 0, 0, 'Works two days a week from home.', ['After Hours']],
+            ],
+        ],
+        [
+            'name' => 'Ironbridge Architects', 'abbreviation' => 'IBA', 'type' => 'Architecture',
+            'domain' => 'ironbridgearch.example', 'referral' => 'Client', 'rate' => 160.00, 'terms' => 30,
+            'city' => 'Pittsburgh', 'state' => 'PA', 'zip' => '15203', 'area' => '412', 'street' => '1900 East Carson Street',
+            'second_site' => null,
+            'age_days' => 980, 'seats' => 14, 'servers' => 2, 'build' => 1, 'billing' => 'managed',
+            'balance' => 'current', 'hosting' => [['Nextcloud Hosting - Instance', 1, 95.00, 'Managed Nextcloud instance for drawing sets and client sharing', 0], ['Nextcloud Hosting - Per User', 14, 6.50, 'Per user sync and external sharing with expiring links', 0], ['Offsite Backup Storage - Self Hosted', 4000, 0.09, 'Offsite storage for the drawing archive, per GB', 0]],
+            'lead' => 0, 'favorite' => 1, 'tax' => 'Allegheny County Sales Tax',
+            'mail_platform' => 'Google Workspace', 'cert_issuer' => "Let's Encrypt",
+            'tags' => ['Managed', 'Key Account', 'Compliance'],
+            'notes' => 'Enormous drawing files. Storage growth and sharing with external consultants drive most of the work.',
+            'account_note' => 'Practice partners approve spend jointly. Do not act on one partner alone for anything over $1000.',
+            'review_note' => 'Archive crossed four terabytes this year. Storage expansion is quoted and waiting on a decision.',
+            'onsite_visit' => 'Studio workstation and storage check',
+            'recurring_ticket' => 'Monthly maintenance visit - Ironbridge Architects',
+            'project' => ['Drawing archive storage expansion', 'Expand the storage pool and restructure the drawing archive so the older projects move to slower storage without breaking links.'],
+            'vendors' => [
+                ['South Side Fibre', 'Studio internet - symmetric line for large uploads', '412-555-0193', 'southsidefibre.example', '4 hour response', 'Symmetric line chosen for upload speed. Do not let anyone downgrade it.'],
+            ],
+            'fleet' => ['Firewall/Router' => 1, 'Switch' => 2, 'Access Point' => 3, 'Server' => 2, 'Virtual Machine' => 3, 'Desktop' => 12, 'Laptop' => 5, 'Printer' => 2, 'Phone' => 8],
+            'people' => [
+                ['Yvette Corrigan', 'Managing Partner', 'Management', 1, 1, 0, 'Signs off jointly with the other partner.', ['Primary', 'Executive', 'Authorized Approver']],
+                ['Hugh Barrowman', 'Partner', 'Management', 1, 0, 0, 'Second signature on anything significant.', ['Executive', 'Authorized Approver']],
+                ['Ines Talavera', 'Studio Manager', 'Operations', 1, 1, 1, 'Manages the file structure and the external sharing.', ['Technical', 'Billing', 'Onsite Point of Contact']],
+                ['Rory Dennehy', 'Architectural Technologist', 'Design', 0, 0, 0, 'Pushes the workstations hardest.', []],
+            ],
+        ],
+        [
+            'name' => 'Blue Mountain Brewing Co', 'abbreviation' => 'BMB', 'type' => 'Food and Beverage',
+            'domain' => 'bluemountainbrew.example', 'referral' => 'Event', 'rate' => 135.00, 'terms' => 15,
+            'city' => 'Latrobe', 'state' => 'PA', 'zip' => '15650', 'area' => '724', 'street' => '55 Brewery Road',
+            'second_site' => ['Taproom', '210 Main Street', 'Ligonier', 'PA', '15658'],
+            'age_days' => 560, 'seats' => 17, 'servers' => 1, 'build' => 0, 'billing' => 'managed',
+            'balance' => 'current', 'hosting' => [['Web Hosting - Business', 1, 65.00, 'Brewery website and online shop with a staging site', 0]],
+            'lead' => 0, 'favorite' => 0, 'tax' => 'PA Sales Tax',
+            'mail_platform' => 'Google Workspace', 'cert_issuer' => "Let's Encrypt",
+            'tags' => ['Managed', 'Multi Site', 'Seasonal'],
+            'notes' => 'Brewery plus a taproom twenty minutes away. Point of sale and the online shop matter more than anything on a desk.',
+            'account_note' => 'Do not schedule anything disruptive on a Friday or over an event weekend.',
+            'review_note' => 'Taproom wireless struggles when it is busy. Extra access point quoted for the patio.',
+            'onsite_visit' => 'Brewery and taproom equipment check',
+            'recurring_ticket' => 'Monthly maintenance visit - Blue Mountain Brewing',
+            'project' => null,
+            'vendors' => [
+                ['Laurel Highlands Broadband', 'Connectivity at both sites', '724-555-0126', 'laurelhighlands.example', 'Next business day', 'Two accounts, one per site. Taproom line is the weaker of the two.'],
+                ['Tapline Point of Sale', 'Till and online ordering platform', '724-555-0127', 'taplinepos.example', '8x5 support', 'They own the card terminals. Our responsibility stops at the network.'],
+            ],
+            'fleet' => ['Firewall/Router' => 2, 'Switch' => 3, 'Access Point' => 6, 'Server' => 1, 'Desktop' => 6, 'Laptop' => 4, 'Tablet' => 7, 'Printer' => 3, 'Camera' => 5],
+            'people' => [
+                ['Dale Kovacs', 'Owner and Head Brewer', 'Management', 1, 0, 0, 'Usually in the brewhouse. Text rather than email.', ['Primary', 'Executive', 'Authorized Approver']],
+                ['Steph Ruane', 'General Manager', 'Operations', 1, 1, 1, 'Runs both sites day to day.', ['Technical', 'Billing', 'Onsite Point of Contact']],
+                ['Marco Devlin', 'Taproom Manager', 'Retail', 0, 0, 0, 'Point of contact at the taproom, evenings and weekends.', ['After Hours']],
+                ['Junie Alvarado', 'Events Coordinator', 'Sales', 0, 0, 0, 'Books the events that must not have a network problem.', []],
+            ],
+        ],
+        [
+            'name' => 'Summit Ridge Charter School', 'abbreviation' => 'SRC', 'type' => 'Education',
+            'domain' => 'summitridgecs.example', 'referral' => 'Networking Group', 'rate' => 120.00, 'terms' => 30,
+            'city' => 'Monroeville', 'state' => 'PA', 'zip' => '15146', 'area' => '412', 'street' => '2400 Haymaker Road',
+            'second_site' => null,
+            'age_days' => 1320, 'seats' => 38, 'servers' => 3, 'build' => 1, 'billing' => 'managed',
+            'balance' => 'clear', 'hosting' => [['Nextcloud Hosting - Instance', 1, 95.00, 'Staff and coursework file sharing', 0], ['Web Hosting - Standard', 1, 25.00, 'School website and newsletter archive', 0]],
+            'lead' => 0, 'favorite' => 0, 'tax' => 'Allegheny County Sales Tax',
+            'mail_platform' => 'Google Workspace', 'cert_issuer' => "Let's Encrypt",
+            'tags' => ['Co-Managed', 'Managed', 'Non Profit', 'Seasonal', 'Compliance'],
+            'notes' => 'Runs on open source deliberately - budget goes on staff, not licences. Quiet in July, chaotic in late August.',
+            'account_note' => 'Everything big happens in the summer break. Nothing disruptive during term time, ever.',
+            'review_note' => 'Linux desktop rollout finished last summer and cut the refresh budget substantially. Same again for the labs next year.',
+            'onsite_visit' => 'Classroom and lab equipment check',
+            'recurring_ticket' => 'Monthly maintenance visit - Summit Ridge Charter',
+            'project' => ['Computer lab refresh', 'Rebuild both computer labs on the standard Linux image over the summer break, including the imaging server and the lab management tooling.'],
+            'vendors' => [
+                ['Monroeville Municipal Fibre', 'School district connection', '412-555-0136', 'monroevillefibre.example', '4 hour response', 'Filtered connection required by policy. Filtering is theirs, not ours.'],
+                ['Cornerstone Student Records', 'Student information system', '412-555-0137', 'cornerstonesis.example', '8x5 support', 'Hosted by the vendor. We hold administrative access only.'],
+            ],
+            'fleet' => ['Firewall/Router' => 1, 'Switch' => 5, 'Access Point' => 10, 'Server' => 2, 'Virtual Machine' => 4, 'Desktop' => 28, 'Laptop' => 12, 'Printer' => 5, 'Tablet' => 10, 'Camera' => 6],
+            'people' => [
+                ['Dr Marisol Reyes', 'Principal', 'Management', 1, 0, 0, 'Approves anything affecting teaching time.', ['Primary', 'Executive', 'Authorized Approver']],
+                ['Wendell Frost', 'Business Manager', 'Finance', 0, 1, 0, 'Purchase orders and the grant paperwork.', ['Billing']],
+                ['Ada Kowalczyk', 'Technology Coordinator', 'Operations', 1, 0, 1, 'Internal counterpart - handles first line and the classroom kit.', ['Technical', 'Onsite Point of Contact']],
+                ['Byron Mensah', 'Facilities Lead', 'Facilities', 0, 0, 0, 'Building access outside school hours.', ['Emergency']],
+            ],
+        ],
+        [
+            'name' => 'Halcyon Physical Therapy', 'abbreviation' => 'HPT', 'type' => 'Healthcare',
+            'domain' => 'halcyonpt.example', 'referral' => 'Website', 'rate' => 130.00, 'terms' => 15,
+            'city' => 'Cranberry Township', 'state' => 'PA', 'zip' => '16066', 'area' => '724', 'street' => '20510 Route 19',
+            'second_site' => null,
+            'age_days' => 240, 'seats' => 11, 'servers' => 1, 'build' => 0, 'billing' => 'managed',
+            'balance' => 'clear', 'hosting' => [['Email Hosting - Per Mailbox', 11, 4.50, 'Practice mailboxes with filtering and mobile sync', 0]],
+            'lead' => 0, 'favorite' => 0, 'tax' => 'Allegheny County Sales Tax',
+            'mail_platform' => 'Microsoft 365', 'cert_issuer' => "Let's Encrypt",
+            'tags' => ['Managed', 'Onboarding', 'Compliance'],
+            'notes' => 'Recently onboarded. Scheduling and notes run in a hosted clinical system, so the local footprint is small.',
+            'account_note' => 'Practice owner is the only approver and is treating patients most of the day. Email, do not call.',
+            'review_note' => 'Onboarding turned up an unpatched machine still on an unsupported operating system. Replaced, not repaired.',
+            'onsite_visit' => 'Clinic equipment check',
+            'recurring_ticket' => 'Monthly maintenance visit - Halcyon Physical Therapy',
+            'project' => null,
+            'vendors' => [
+                ['Cranberry Connect', 'Clinic internet', '724-555-0168', 'cranberryconnect.example', 'Next business day', 'Single line. Backup connection quoted and declined.'],
+            ],
+            'fleet' => ['Firewall/Router' => 1, 'Switch' => 1, 'Access Point' => 3, 'Server' => 1, 'Desktop' => 8, 'Laptop' => 2, 'Printer' => 2, 'Tablet' => 4],
+            'people' => [
+                ['Dr Owen Beckwith', 'Practice Owner', 'Management', 1, 1, 0, 'Treating patients most of the day. Email is the reliable route.', ['Primary', 'Executive', 'Authorized Approver']],
+                ['Lena Moradi', 'Practice Coordinator', 'Administration', 1, 1, 1, 'First to call and the one who knows what actually happened.', ['Technical', 'Billing', 'Onsite Point of Contact']],
+                ['Cal Prentice', 'Physical Therapist', 'Clinical', 0, 0, 0, 'Uses the treatment room tablets.', []],
+                ['Wren Sutcliffe', 'Front Desk', 'Reception', 0, 0, 0, 'Reception and scheduling.', []],
+            ],
+        ],
+        [
+            'name' => 'Fieldstone Landscaping', 'abbreviation' => 'FSL', 'type' => 'Field Services',
+            'domain' => 'fieldstonescapes.example', 'referral' => 'Client', 'rate' => 125.00, 'terms' => 30,
+            'city' => 'Gibsonia', 'state' => 'PA', 'zip' => '15044', 'area' => '724', 'street' => '4820 William Flynn Highway',
+            'second_site' => null,
+            'age_days' => 430, 'seats' => 9, 'servers' => 0, 'build' => 0, 'billing' => 'break_fix',
+            'balance' => 'clear', 'hosting' => [['Web Hosting - Standard', 1, 25.00, 'Company website and quote request form', 0]],
+            'lead' => 0, 'favorite' => 0, 'tax' => 'Allegheny County Sales Tax',
+            'mail_platform' => 'Google Workspace', 'cert_issuer' => "Let's Encrypt",
+            'tags' => ['Break Fix', 'Seasonal', 'Block Hours'],
+            'notes' => 'Almost everything is mobile. Office is a portacabin at the yard with one machine and a printer.',
+            'account_note' => 'Flat out March to October, quiet all winter. Do the project work in January.',
+            'review_note' => 'Phones and tablets take a beating on site. Cases and screen protectors have paid for themselves twice over.',
+            'onsite_visit' => 'Yard office equipment check',
+            'recurring_ticket' => 'Monthly maintenance visit - Fieldstone Landscaping',
+            'project' => null,
+            'vendors' => [
+                ['North Hills Wireless', 'Yard connectivity and crew data plans', '724-555-0143', 'northhillswireless.example', 'Best effort', 'Pooled data across the crew handsets. Check the overage in summer.'],
+            ],
+            'fleet' => ['Firewall/Router' => 1, 'Access Point' => 2, 'Desktop' => 2, 'Laptop' => 3, 'Printer' => 1, 'Tablet' => 6, 'Mobile Phone' => 9],
+            'people' => [
+                ['Craig Fieldstone', 'Owner', 'Management', 1, 1, 0, 'On a job most days. Best reached early morning.', ['Primary', 'Executive', 'Authorized Approver']],
+                ['Bonnie Achebe', 'Office Manager', 'Administration', 1, 1, 1, 'Runs the yard office and the scheduling.', ['Technical', 'Billing', 'Onsite Point of Contact']],
+                ['Nate Lindqvist', 'Crew Lead', 'Operations', 0, 0, 0, 'Reports broken handsets and tablets.', []],
+                ['Rosa Ferreira', 'Estimator', 'Sales', 0, 0, 0, 'Works off a laptop from the truck.', []],
+            ],
+        ],
+        [
+            'name' => 'Corbin Machine Works', 'abbreviation' => 'CMW', 'type' => 'Manufacturing',
+            'domain' => 'corbinmachine.example', 'referral' => 'Cold Outreach', 'rate' => 150.00, 'terms' => 30,
+            'city' => 'New Castle', 'state' => 'PA', 'zip' => '16101', 'area' => '724', 'street' => '900 Industrial Boulevard',
+            'second_site' => null,
+            'age_days' => 1400, 'seats' => 24, 'servers' => 2, 'build' => 1, 'billing' => 'managed',
+            'balance' => 'past_due', 'hosting' => [['Virtual Server Hosting', 2, 55.00, 'Two hosted guests for the file server and the licence server', 0], ['Offsite Backup Storage - Self Hosted', 1500, 0.09, 'Offsite backup for the machine programs, per GB', 0]],
+            'lead' => 0, 'favorite' => 0, 'tax' => 'PA Sales Tax',
+            'mail_platform' => 'Microsoft 365', 'cert_issuer' => 'DigiCert',
+            'tags' => ['Managed', 'After Hours Support', 'Past Due', 'At Risk'],
+            'notes' => 'Machine shop with CNC controllers on an isolated network. Losing the program files would stop the shop.',
+            'account_note' => 'Payment has slipped twice this year. Owner deals with it personally when chased.',
+            'review_note' => 'Controllers are on unsupported operating systems and cannot be patched. Isolated at the firewall and documented as accepted risk.',
+            'onsite_visit' => 'Shop floor and controller check',
+            'recurring_ticket' => 'Monthly maintenance visit - Corbin Machine Works',
+            'project' => null,
+            'vendors' => [
+                ['Lawrence County Fibre', 'Shop internet', '724-555-0171', 'lawrencefibre.example', 'Next business day', 'Reliable line. Support desk is small but good.'],
+                ['Precision Controls Group', 'CNC controller support', '724-555-0172', 'precisioncontrols.example', '8x5 support', 'They will not certify anything newer. Isolation is the mitigation.'],
+            ],
+            'fleet' => ['Firewall/Router' => 1, 'Switch' => 4, 'Access Point' => 4, 'Server' => 2, 'Virtual Machine' => 3, 'Desktop' => 18, 'Laptop' => 4, 'Printer' => 3, 'Phone' => 10, 'Camera' => 4],
+            'people' => [
+                ['Walter Corbin', 'Owner', 'Management', 1, 1, 0, 'Second generation owner. Hands on and blunt.', ['Primary', 'Executive', 'Authorized Approver']],
+                ['Gail Prosser', 'Bookkeeper', 'Finance', 0, 1, 0, 'Part time. Invoices sometimes sit until she is in.', ['Billing', 'Past Due']],
+                ['Dmitri Vasiliev', 'Shop Foreman', 'Operations', 1, 0, 1, 'Knows the controllers and the program library.', ['Technical', 'Onsite Point of Contact', 'After Hours']],
+                ['Trina Boyle', 'Quality Inspector', 'Quality', 0, 0, 0, 'Owns the measurement machine and its very old software.', []],
+            ],
+        ],
+        [
+            'name' => 'Thistle and Vine Restaurant Group', 'abbreviation' => 'TVR', 'type' => 'Hospitality',
+            'domain' => 'thistleandvine.example', 'referral' => 'Social Media', 'rate' => 130.00, 'terms' => 15,
+            'city' => 'Pittsburgh', 'state' => 'PA', 'zip' => '15206', 'area' => '412', 'street' => '5730 Penn Avenue',
+            'second_site' => ['Second Restaurant', '1120 Freeport Road', 'Fox Chapel', 'PA', '15238'],
+            'age_days' => 320, 'seats' => 13, 'servers' => 0, 'build' => 0, 'billing' => 'break_fix',
+            'balance' => 'current', 'hosting' => [['Web Hosting - Business', 1, 65.00, 'Two restaurant sites with menus and booking widget', 0], ['Email Hosting - Per Mailbox', 6, 4.50, 'Management mailboxes', 0]],
+            'lead' => 0, 'favorite' => 0, 'tax' => 'Allegheny County Sales Tax',
+            'mail_platform' => 'Google Workspace', 'cert_issuer' => "Let's Encrypt",
+            'tags' => ['Break Fix', 'Multi Site', 'Prospect'],
+            'notes' => 'Two restaurants. Point of sale, card terminals and the booking system are the only things they care about.',
+            'account_note' => 'Never attend during service. Mornings before eleven or after close, nothing in between.',
+            'review_note' => 'Third till problem this quarter, all network related. Agreement proposal is drafted and waiting.',
+            'onsite_visit' => 'Point of sale and network check',
+            'recurring_ticket' => 'Monthly maintenance visit - Thistle and Vine',
+            'project' => null,
+            'vendors' => [
+                ['Penn Avenue Broadband', 'Connectivity at both restaurants', '412-555-0189', 'pennavebroadband.example', 'Best effort', 'Consumer grade at both sites. This is the root of most of their problems.'],
+                ['Covermark Hospitality Systems', 'Point of sale and booking platform', '412-555-0190', 'covermarkpos.example', '24/7 support', 'Good support line. Call them first for anything till specific.'],
+            ],
+            'fleet' => ['Firewall/Router' => 2, 'Switch' => 2, 'Access Point' => 5, 'Desktop' => 3, 'Laptop' => 2, 'Tablet' => 8, 'Printer' => 3],
+            'people' => [
+                ['Isla Brennan', 'Owner', 'Management', 1, 1, 0, 'Runs both restaurants. Reachable between services.', ['Primary', 'Executive', 'Authorized Approver']],
+                ['Duncan Reyes', 'Operations Manager', 'Operations', 1, 1, 1, 'The one who actually calls us.', ['Technical', 'Billing', 'Onsite Point of Contact']],
+                ['Priya Anand', 'General Manager - Penn Avenue', 'Retail', 0, 0, 0, 'Front of house at the original site.', ['After Hours']],
+                ['Tomasz Wierzbicki', 'General Manager - Fox Chapel', 'Retail', 0, 0, 0, 'Front of house at the second site.', ['After Hours']],
+            ],
+        ],
+        [
+            'name' => 'Ashford Legal Services', 'abbreviation' => 'ALS', 'type' => 'Legal',
+            'domain' => 'ashfordlegal.example', 'referral' => 'Partner', 'rate' => 165.00, 'terms' => 30,
+            'city' => 'Wheeling', 'state' => 'WV', 'zip' => '26003', 'area' => '304', 'street' => '1100 Main Street',
+            'second_site' => null,
+            'age_days' => 620, 'seats' => 6, 'servers' => 0, 'build' => 1, 'billing' => 'hosting',
+            'balance' => 'clear', 'hosting' => [['Web Hosting - Business', 1, 65.00, 'Firm website with staging and priority restore', 0], ['Email Hosting - Per Mailbox', 6, 4.50, 'Six mailboxes with filtering and archiving', 0], ['Mail Relay and Filtering', 6, 2.00, 'Inbound filtering and outbound relay', 0], ['Nextcloud Hosting - Instance', 1, 95.00, 'Client file exchange in place of email attachments', 0]],
+            'lead' => 0, 'favorite' => 0, 'tax' => 'PA Sales Tax',
+            'mail_platform' => 'Google Workspace', 'cert_issuer' => "Let's Encrypt",
+            'tags' => ['Hosting', 'Compliance'],
+            'notes' => 'Hosting only. They have their own IT person for the desktops - we run the website, the mail and the file exchange.',
+            'account_note' => 'Scope is hosting and nothing else. Desktop requests get politely redirected to their own IT contact.',
+            'review_note' => 'Asked twice about taking on the endpoints. Worth a proposal at renewal.',
+            'onsite_visit' => 'Annual hosting review',
+            'recurring_ticket' => 'Monthly hosting check - Ashford Legal',
+            'project' => null,
+            'vendors' => [
+                ['Ohio Valley Telecom', 'Office internet', '304-555-0152', 'ohiovalleytel.example', 'Next business day', 'Their line, not our responsibility. Listed for context only.'],
+            ],
+            'fleet' => ['Virtual Machine' => 3, 'Firewall/Router' => 1, 'Desktop' => 2],
+            'people' => [
+                ['Cordelia Ashford', 'Principal Attorney', 'Management', 1, 1, 0, 'Owner. Only wants to hear about outages and invoices.', ['Primary', 'Executive', 'Authorized Approver']],
+                ['Bertram Vance', 'Office Administrator', 'Administration', 1, 1, 0, 'Handles the invoices and the mailbox requests.', ['Billing']],
+                ['Nils Andersen', 'Their IT Contact', 'Operations', 0, 0, 1, 'Their own IT person. Owns the desktops - we own the hosting.', ['Technical', 'Onsite Point of Contact']],
+                ['Fiona Larkin', 'Paralegal', 'Legal', 0, 0, 0, 'Heaviest user of the client file exchange.', []],
             ],
         ],
     ];
@@ -3359,6 +4370,19 @@ function demoExpandProfile($spec) {
         $services[] = ['Nextcloud File Sync and Share', 'Company file storage, sync and external sharing for ' . $seats . ' users', 'Web', 'High', 'Included in the nightly backup job', 'Replaced the old mapped drive setup. External shares expire after 30 days by policy.', ['Virtual Machine', 'Server'], 'Hypervisor and Storage Administrator'];
     }
 
+    // Anything we host for them ourselves, on our own infrastructure
+    foreach ($spec['hosting'] as $hosting) {
+        if (strpos($hosting[0], 'Web Hosting') === 0) {
+            $services[] = ['Website Hosting', 'Public website hosted on our infrastructure', 'Web', 'Medium', 'Nightly snapshot with 30 day retention', 'Hosted on our own stack. TLS renews automatically at the reverse proxy.', ['Virtual Machine'], 'Registrar and DNS'];
+        }
+        if (strpos($hosting[0], 'Email Hosting') === 0) {
+            $services[] = ['Mailbox Hosting', 'Mail hosting for ' . $seats . ' mailboxes with filtering', 'Email', 'High', 'Mailbox level backup, 12 month retention', 'Hosted mail rather than a third party tenant. Filtering and relay are ours.', ['Virtual Machine'], 'Registrar and DNS'];
+        }
+        if (strpos($hosting[0], 'Nextcloud Hosting') === 0) {
+            $services[] = ['Nextcloud Hosting', 'Managed Nextcloud instance for ' . $seats . ' users', 'Web', 'High', 'Nightly backup with monthly restore test', 'Runs on our hosting stack. Updates are applied in the monthly maintenance window.', ['Virtual Machine'], 'Hypervisor and Storage Administrator'];
+        }
+    }
+
     // Software - the last two entries say which asset types it is installed on
     // and which credential administers it
     $software = [
@@ -3431,7 +4455,9 @@ function demoExpandProfile($spec) {
 
     // The monthly agreement. Line format: name, quantity, price, description, taxable
     $agreement = [];
-    if (!$breakfix) {
+    $hosting_only = $spec['billing'] === 'hosting';
+
+    if (!$breakfix && !$hosting_only) {
         $agreement[] = ['Managed Services - Per User', $seats, 89.00, 'Monitoring, patching, endpoint protection and remote support', 0];
         if ($servers > 0) {
             $agreement[] = ['Managed Services - Per Server', $servers, 145.00, 'Server monitoring, patching and backup verification', 0];
@@ -3441,9 +4467,12 @@ function demoExpandProfile($spec) {
             $seats, 22.00, 'Per user licence, resold and managed', 0,
         ];
         $agreement[] = ['Cloud Backup', max(1, $servers), 65.00, 'Offsite backup with monthly test restore', 0];
-        if ($foss) {
-            $agreement[] = ['Nextcloud Hosting', 1, 145.00, 'Managed Nextcloud instance, updates and support', 0];
-        }
+    }
+
+    // Hosting is billed on its own lines whether or not they are managed - some
+    // clients only ever buy hosting from us and nothing else
+    foreach ($spec['hosting'] as $hosting) {
+        $agreement[] = $hosting;
     }
 
     // Quotes in flight
@@ -3486,6 +4515,8 @@ function demoExpandProfile($spec) {
         'servers' => $servers,
         'build' => $spec['build'],
         'billing' => $spec['billing'],
+        'balance' => $spec['balance'],
+        'hosting' => $spec['hosting'],
         'lead' => $spec['lead'],
         'favorite' => $spec['favorite'],
         'tax' => $spec['tax'],

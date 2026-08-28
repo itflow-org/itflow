@@ -591,6 +591,8 @@ function starterContentTags() {
         [1, 'Past Due', '#dc3545', 'file-invoice-dollar'],
         [1, 'Multi Site', '#001f3f', 'map-marked-alt'],
         [1, 'Non Profit', '#3d9970', 'hand-holding-heart'],
+        [1, 'Hosting', '#20c997', 'server'],
+        [1, 'Seasonal', '#fd7e14', 'calendar-alt'],
         [1, 'After Hours Support', '#343a40', 'moon'],
         [1, 'Compliance', '#795548', 'balance-scale'],
         [1, 'Cyber Insurance', '#6610f2', 'shield-alt'],
