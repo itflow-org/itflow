@@ -73,6 +73,43 @@ function enforceContactCan($capability) {
 }
 
 /*
+ * A timestamp a person can read, in the company's configured date and time
+ * format rather than the raw DATETIME the database hands back.
+ *
+ * Today and yesterday are named instead of dated, because on an activity list
+ * the recent rows are the ones being scanned and "Today at 4:12 PM" answers
+ * "was that just now?" faster than a date does. Anything older gets the full
+ * date, since by then the date is the useful part.
+ *
+ * Returns HTML-escaped output - callers print it directly.
+ */
+function portalDateTime($datetime) {
+    global $config_date_format, $config_time_format;
+
+    if (empty($datetime)) {
+        return '';
+    }
+
+    $timestamp = strtotime($datetime);
+    if ($timestamp === false) {
+        return escapeHtml($datetime);
+    }
+
+    $time = date($config_time_format, $timestamp);
+    $day = date('Y-m-d', $timestamp);
+
+    if ($day === date('Y-m-d')) {
+        return escapeHtml("Today at $time");
+    }
+
+    if ($day === date('Y-m-d', strtotime('-1 day'))) {
+        return escapeHtml("Yesterday at $time");
+    }
+
+    return escapeHtml(date($config_date_format, $timestamp) . " at $time");
+}
+
+/*
  * The empty state for the portal's list pages.
  *
  * Every list page here renders a header row and then a while loop, so a client

@@ -164,6 +164,102 @@ if (isset($_POST['add_ticket_comment'])) {
     }
 }
 
+
+
+if (isset($_POST['set_contact_phone'])) {
+
+    validateCSRFToken();
+
+    /*
+     * SCOPING: as with the PIN above, the row updated is the logged-in
+     * contact's own, from the session. No contact_id parameter exists on this
+     * handler, so there is nothing to point at somebody else's record with.
+     *
+     * Sanitising exactly as agent/post/contact_model.php does - digits only for
+     * every phone field - so a number typed in the portal is stored in the same
+     * shape as one typed by an agent and formatPhoneNumber() renders both the
+     * same way. Anything else would make the portal the odd one out.
+     */
+    $phone_country_code = preg_replace("/[^0-9]/", '', $_POST['phone_country_code'] ?? '');
+    $phone = preg_replace("/[^0-9]/", '', $_POST['phone'] ?? '');
+    $extension = preg_replace("/[^0-9]/", '', $_POST['extension'] ?? '');
+    $mobile_country_code = preg_replace("/[^0-9]/", '', $_POST['mobile_country_code'] ?? '');
+    $mobile = preg_replace("/[^0-9]/", '', $_POST['mobile'] ?? '');
+
+    // Columns are varchar(200), country codes varchar(10)
+    $phone_country_code = substr($phone_country_code, 0, 10);
+    $mobile_country_code = substr($mobile_country_code, 0, 10);
+    $phone = substr($phone, 0, 200);
+    $extension = substr($extension, 0, 200);
+    $mobile = substr($mobile, 0, 200);
+
+    // A country code on its own is not a number - drop it rather than store a
+    // dangling code the formatter would try to render
+    if (empty($phone)) {
+        $phone_country_code = '';
+        $extension = '';
+    }
+    if (empty($mobile)) {
+        $mobile_country_code = '';
+    }
+
+    mysqli_query($mysqli, "UPDATE contacts SET
+        contact_phone_country_code = '$phone_country_code',
+        contact_phone = '$phone',
+        contact_extension = '$extension',
+        contact_mobile_country_code = '$mobile_country_code',
+        contact_mobile = '$mobile'
+        WHERE contact_id = $session_contact_id AND contact_client_id = $session_client_id");
+
+    logAudit("Contact", "Edit", "Client contact $session_contact_name updated their phone numbers in the client portal", $session_client_id, $session_contact_id);
+
+    flashAlert("Phone numbers updated");
+
+    redirect('profile.php');
+
+}
+
+if (isset($_POST['set_contact_pin'])) {
+
+    validateCSRFToken();
+
+    /*
+     * SCOPING: the row updated is the logged-in contact's own, taken from the
+     * session. There is no contact_id parameter on this handler by design, so
+     * there is nothing for a contact to point at somebody else's record with.
+     *
+     * No capability gate: the PIN belongs to the contact, not to a portal
+     * section, so every signed-in contact manages their own - same as the
+     * password change above.
+     */
+    $pin = trim($_POST['pin'] ?? '');
+
+    if ($pin === '') {
+        flashAlert("Enter a PIN, or leave the page to keep the current one", 'error');
+        redirect('profile.php');
+    }
+
+    if (strlen($pin) < 4) {
+        flashAlert("Your PIN needs to be at least 4 characters", 'error');
+        redirect('profile.php');
+    }
+
+    // contact_pin is varchar(255) - trim to fit rather than let an over-long
+    // value error out under strict mode
+    $pin = escapeSql(substr($pin, 0, 255));
+
+    mysqli_query($mysqli, "UPDATE contacts SET contact_pin = '$pin' WHERE contact_id = $session_contact_id AND contact_client_id = $session_client_id");
+
+    // The PIN itself never goes in the log - it is a verification secret, and
+    // an audit trail an agent can read would defeat the point of having one
+    logAudit("Contact", "Edit", "Client contact $session_contact_name set their phone PIN in the client portal", $session_client_id, $session_contact_id);
+
+    flashAlert("Phone PIN updated");
+
+    redirect('profile.php');
+
+}
+
 if (isset($_GET['approve_ticket_task'])) {
 
     validateCSRFToken();

@@ -69,6 +69,11 @@
 <script src="/libs/sweetalert2/js/sweetalert2.min.js"></script>
 <script src="/js/confirm_modal.js"></script>
 
+<?php if (!empty($portal_load_phone_inputs)) { ?>
+    <script src="/libs/intl-tel-input/js/intlTelInputWithUtils.min.js"></script>
+    <script src="/js/phone_inputs.js"></script>
+<?php } ?>
+
 <script src="/js/keepalive.js"></script>
 
 </body>

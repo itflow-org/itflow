@@ -56,6 +56,7 @@ if (basename(dirname($_SERVER['REQUEST_URI'])) === 'guest') { ?>
 <script src="/js/keepalive.js"></script>
 <script src="/libs/DataTables/datatables.min.js"></script>
 <script src="/libs/intl-tel-input/js/intlTelInputWithUtils.min.js"></script>
+<script src="/js/phone_inputs.js"></script>
 
 <!-- AdminLTE App -->
 <script src="/libs/adminlte/js/adminlte.min.js"></script>

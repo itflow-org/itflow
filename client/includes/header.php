@@ -40,9 +40,23 @@ header("X-Frame-Options: DENY"); // Legacy
          which left this portal without .text-bold, the bg-dark text pairing or any theme. -->
     <link rel="stylesheet" href="/css/itflow_custom.css">
 
+    <?php /* Only the pages that set this flag before including inc_all.php pull
+             in intl-tel-input - it is ~200KB of JS and flag sprites, and one
+             page uses it. */ ?>
+    <?php if (!empty($portal_load_phone_inputs)) { ?>
+        <link rel="stylesheet" href="/libs/intl-tel-input/css/intlTelInput.min.css">
+    <?php } ?>
+
 </head>
 
-<body class="bg-body-tertiary theme-<?= escapeHtml($config_theme) ?>" data-lte-primary="<?= escapeHtml($config_theme) ?>">
+<?php /* Same country bridge as the agent header: intl-tel-input wants an ISO2
+         code, the companies table stores a country NAME. Given as a data
+         attribute rather than an inline <script>, which this portal's CSP
+         (default-src 'self') would block outright. Empty when the company has
+         no country set, which js/phone_inputs.js reads as "let the library
+         decide". */ ?>
+<body class="bg-body-tertiary theme-<?= escapeHtml($config_theme) ?>" data-lte-primary="<?= escapeHtml($config_theme) ?>"
+      data-itflow-phone-country="<?= escapeHtml($country_iso2_array[$session_company_country] ?? '') ?>">
 
 <!-- Navbar -->
 
@@ -125,6 +139,7 @@ header("X-Frame-Options: DENY"); // Legacy
                     </a>
                     <div class="dropdown-menu">
                         <a class="dropdown-item" href="/client/profile.php"><i class="fas fa-fw fa-user me-2"></i>Account</a>
+                        <a class="dropdown-item" href="/client/activity.php"><i class="fas fa-fw fa-list me-2"></i>Activity</a>
                         <div class="dropdown-divider"></div>
                         <a class="dropdown-item" href="/client/post.php?logout"><i class="fas fa-fw fa-sign-out-alt me-2"></i>Sign out</a>
                     </div>
