@@ -414,6 +414,54 @@ if (isset($_GET['get_canned_response'])) {
 }
 
 /*
+ * Returns a document's rendered content for the file previewer on agent/files.php.
+ *
+ * The previewer shows files by pointing an iframe at file.php, but a document is
+ * rows in a table, not bytes on disk. Rather than embedding every document's
+ * HTML in the page payload - a folder of long documents would be megabytes of
+ * JSON on a page that shows two dozen tiles - it is fetched when the document is
+ * actually opened.
+ *
+ * Purified here rather than at save time, the same way canned responses above
+ * and agent/document.php do it.
+ */
+if (isset($_GET['get_document_content'])) {
+    enforceUserPermission('module_support');
+
+    $document_id = intval($_GET['get_document_content']);
+
+    $document_sql = mysqli_query($mysqli, "SELECT document_client_id, document_content, document_name
+        FROM documents WHERE document_id = $document_id LIMIT 1");
+
+    $document_row = mysqli_fetch_assoc($document_sql);
+
+    $response = [];
+
+    if ($document_row) {
+        // Scope the fetch to the client the document belongs to - this endpoint
+        // takes an id straight from the query string
+        $client_id = intval($document_row['document_client_id']);
+        enforceClientAccess();
+
+        require_once "../libs/htmlpurifier/HTMLPurifier.standalone.php";
+
+        $document_purifier_config = HTMLPurifier_Config::createDefault();
+        $document_purifier_config->set('Cache.DefinitionImpl', null);
+        $document_purifier_config->set('URI.AllowedSchemes', ['data' => true, 'src' => true, 'http' => true, 'https' => true]);
+        $document_purifier = new HTMLPurifier($document_purifier_config);
+
+        $response['name'] = $document_row['document_name'];
+        $response['content'] = $document_purifier->purify($document_row['document_content']);
+    } else {
+        $response['name'] = '';
+        $response['content'] = '';
+    }
+
+    echo json_encode($response);
+
+}
+
+/*
  * Returns ordered list of active contacts for a specified client
  */
 if (isset($_GET['get_client_contacts'])) {

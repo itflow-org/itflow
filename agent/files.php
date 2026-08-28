@@ -16,7 +16,40 @@ if (!empty($_GET['folder_id'])) {
 // Folder ID (used in forms/etc)
 $get_folder_id = $folder_id;
 
-// View Mode -- 0 List, 1 Thumbnail (thumbnail = files only)
+/*
+ * Type filter -- '' all, 'file' uploads only, 'document' created documents only.
+ *
+ * Whitelisted rather than trusted: it decides which of the two queries below run
+ * at all, so an unexpected value should mean "everything", not an empty page.
+ *
+ * Like the view mode, it rides along on every folder link - a filter that
+ * silently clears itself the moment you open a folder is worse than no filter.
+ */
+$type_filter = $_GET['type'] ?? '';
+if (!in_array($type_filter, ['file', 'document'], true)) {
+    $type_filter = '';
+}
+
+/*
+ * Links for the filter buttons. Built from a copy with 'type' removed so the
+ * new value does not land next to the old one, and with 'page' removed because
+ * switching filter while on page 4 of the files would otherwise open page 4 of
+ * a shorter list and show nothing.
+ */
+$type_get_copy = $_GET;
+unset($type_get_copy['type'], $type_get_copy['page'], $type_get_copy['sort'], $type_get_copy['order']);
+$url_query_strings_type = http_build_query($type_get_copy);
+if ($url_query_strings_type !== '') {
+    $url_query_strings_type .= '&';
+}
+
+/*
+ * View Mode -- 0 List, 1 Grid
+ *
+ * Carried on every folder link below. Without it, opening a folder dropped the
+ * parameter and the page fell back to list view, so picking grid only lasted
+ * until the next click.
+ */
 if (!empty($_GET['view'])) {
     $view = intval($_GET['view']);
 } else {
@@ -80,13 +113,13 @@ function isAncestorFolder($folder_id, $current_folder_id, $client_id) {
 }
 
 function displayFolders($parent_folder_id, $client_id, $indent = 0, $render_root = false) {
-    global $mysqli, $get_folder_id, $session_user_role, $archive_query, $archived, $num_root_items, $folders_expanded;
+    global $mysqli, $get_folder_id, $session_user_role, $archive_query, $archived, $num_root_items, $folders_expanded, $view, $type_filter;
 
     // Always render root (only once)
     if ($parent_folder_id == 0 && $indent == 0) {
         echo '<li class="nav-item">';
         echo '<a class="nav-link ' . ($get_folder_id == 0 ? 'active' : '') . '"';
-        echo ' href="?client_id=' . $client_id . '&folder_id=0&archived=' . $archived . '&folders_expanded=' . $folders_expanded . '">';
+        echo ' href="?client_id=' . $client_id . '&folder_id=0&view=' . $view . '&type=' . $type_filter . '&archived=' . $archived . '&folders_expanded=' . $folders_expanded . '">';
         echo '/';
 
         if ($num_root_items > 0) {
@@ -153,7 +186,7 @@ function displayFolders($parent_folder_id, $client_id, $indent = 0, $render_root
 
         echo '<a class="nav-link ' . ($get_folder_id == $folder_id ? 'active' : '') . '"';
         echo ' style="padding-left: ' . (12 + $indent_px) . 'px;"';
-        echo ' href="?client_id=' . $client_id . '&folder_id=' . $folder_id . '&archived=' . $archived . '&folders_expanded=' . $folders_expanded . '">';
+        echo ' href="?client_id=' . $client_id . '&folder_id=' . $folder_id . '&view=' . $view . '&type=' . $type_filter . '&archived=' . $archived . '&folders_expanded=' . $folders_expanded . '">';
 
         if ($on_active_path) {
             echo '<i class="fas fa-fw fa-folder-open"></i>';
@@ -213,46 +246,93 @@ function displayFolders($parent_folder_id, $client_id, $indent = 0, $render_root
 
 // ---------------------------------------------
 // DATA LOAD
-// view=1 (thumbs) uses original files-only query
+// view=1 (grid) - every file in the folder, thumbnail or file-type icon
 // view=0 (list) loads ALL files+documents, merges, sorts in PHP
 // ---------------------------------------------
 
 $items = [];
 $num_rows = [0];
 
+// Both views decide previewability from this, so it is set before the branch -
+// it used to be assigned inside the grid arm only, which left the list arm
+// passing null to in_array()
+$inline_viewable_mime_types = getInlineViewableMimeTypes();
+
 if ($view == 1) {
 
-    // Thumbnail view - only image files, similar to original behavior
-    $query_images = "AND (file_ext LIKE 'JPG' OR file_ext LIKE 'jpg' OR file_ext LIKE 'JPEG' OR file_ext LIKE 'jpeg' OR file_ext LIKE 'png' OR file_ext LIKE 'PNG' OR file_ext LIKE 'webp' OR file_ext LIKE 'WEBP')";
+    /*
+     * GRID VIEW: files AND documents, same as the list view beside it.
+     *
+     * This used to be a single files-only query with SQL_CALC_FOUND_ROWS and a
+     * LIMIT. Two sources cannot be paginated by one LIMIT, so it now mirrors
+     * exactly what the list view does: fetch both unpaginated, merge, sort by
+     * name, and slice in PHP. That also fixes the grid quietly omitting every
+     * created document - they were only ever visible in list view.
+     */
+    $safe_q = mysqli_real_escape_string($mysqli, $q);
 
     if ($get_folder_id == 0 && isset($_GET["q"])) {
-        $sql = mysqli_query(
-            $mysqli,
-            "SELECT SQL_CALC_FOUND_ROWS * FROM files
-             LEFT JOIN users ON file_created_by = user_id
-             WHERE file_client_id = $client_id
-             AND file_$archive_query
-             AND (file_name LIKE '%$q%' OR file_ext LIKE '%$q%' OR file_description LIKE '%$q%')
-             $query_images
-             ORDER BY file_name ASC
-             LIMIT $record_from, $record_to"
-        );
+        $file_folder_snippet = "";         // search across all folders
+        $doc_folder_snippet  = "";
     } else {
-        $sql = mysqli_query(
+        $file_folder_snippet = "AND file_folder_id = $folder_id";
+        $doc_folder_snippet  = "AND document_folder_id = $folder_id";
+    }
+
+    $file_search_snippet = "";
+    $doc_search_snippet = "";
+    if (!empty($q)) {
+        $file_search_snippet = "AND (file_name LIKE '%$safe_q%' OR file_ext LIKE '%$safe_q%' OR file_description LIKE '%$safe_q%')";
+        $doc_search_snippet = "AND (MATCH(document_content_raw) AGAINST ('$safe_q') OR document_name LIKE '%$safe_q%')";
+    }
+
+    // Skipped outright when the type filter excludes them
+    $sql_grid_files = false;
+    if ($type_filter !== 'document') {
+        $sql_grid_files = mysqli_query(
             $mysqli,
-            "SELECT SQL_CALC_FOUND_ROWS * FROM files
+            "SELECT files.*, users.user_name
+             FROM files
              LEFT JOIN users ON file_created_by = user_id
              WHERE file_client_id = $client_id
-             AND file_folder_id = $folder_id
              AND file_$archive_query
-             AND (file_name LIKE '%$q%' OR file_ext LIKE '%$q%' OR file_description LIKE '%$q%')
-             $query_images
-             ORDER BY file_name ASC
-             LIMIT $record_from, $record_to"
+             $file_folder_snippet
+             $file_search_snippet"
         );
     }
 
-    $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
+    $sql_grid_documents = false;
+    if ($type_filter !== 'file') {
+        $sql_grid_documents = mysqli_query(
+            $mysqli,
+            "SELECT documents.*, users.user_name
+             FROM documents
+             LEFT JOIN users ON document_created_by = user_id
+             WHERE document_client_id = $client_id
+             AND document_$archive_query
+             $doc_folder_snippet
+             $doc_search_snippet"
+        );
+    }
+
+    while ($sql_grid_files && ($row = mysqli_fetch_assoc($sql_grid_files))) {
+        $row['grid_kind'] = 'file';
+        $items[] = $row;
+    }
+
+    while ($sql_grid_documents && ($row = mysqli_fetch_assoc($sql_grid_documents))) {
+        $row['grid_kind'] = 'document';
+        $items[] = $row;
+    }
+
+    usort($items, function ($a, $b) {
+        $a_name = strtolower($a['grid_kind'] === 'file' ? $a['file_name'] : $a['document_name']);
+        $b_name = strtolower($b['grid_kind'] === 'file' ? $b['file_name'] : $b['document_name']);
+        return strcmp($a_name, $b_name);
+    });
+
+    $num_rows = [count($items)];
+    $items = array_slice($items, $record_from, $record_to);
 
 } else {
 
@@ -280,8 +360,11 @@ if ($view == 1) {
         $doc_search_snippet = "AND (MATCH(document_content_raw) AGAINST ('$safe_q') OR document_name LIKE '%$safe_q%')";
     }
 
-    // Files query (NO limit - we'll paginate in PHP)
-    $sql_files = mysqli_query(
+    // Files query (NO limit - we'll paginate in PHP). Skipped outright when the
+    // type filter excludes files, rather than fetching rows to throw away.
+    $sql_files = false;
+    if ($type_filter !== 'document') {
+        $sql_files = mysqli_query(
         $mysqli,
         "SELECT files.*, users.user_name
          FROM files
@@ -290,10 +373,13 @@ if ($view == 1) {
          AND file_$archive_query
          $file_folder_snippet
          $file_search_snippet"
-    );
+        );
+    }
 
     // Documents query (NO limit - paginate in PHP)
-    $sql_documents = mysqli_query(
+    $sql_documents = false;
+    if ($type_filter !== 'file') {
+        $sql_documents = mysqli_query(
         $mysqli,
         "SELECT documents.*, users.user_name
          FROM documents
@@ -302,10 +388,11 @@ if ($view == 1) {
          AND document_$archive_query
          $doc_folder_snippet
          $doc_search_snippet"
-    );
+        );
+    }
 
     // Normalize FILES into $items
-    while ($row = mysqli_fetch_assoc($sql_files)) {
+    while ($sql_files && ($row = mysqli_fetch_assoc($sql_files))) {
         $file_id            = intval($row['file_id']);
         $file_name          = escapeHtml($row['file_name']);
         $file_description   = escapeHtml($row['file_description']);
@@ -349,6 +436,7 @@ if ($view == 1) {
             'description'       => $file_description,
             'reference_name'    => $file_reference_name,
             'icon'              => $file_icon,
+            'ext'               => $file_ext,
             'mime'              => $file_mime_type,
             'size'              => $file_size,
             'created_at'        => $file_created_at,
@@ -358,7 +446,7 @@ if ($view == 1) {
     }
 
     // Normalize DOCUMENTS into $items
-    while ($row = mysqli_fetch_assoc($sql_documents)) {
+    while ($sql_documents && ($row = mysqli_fetch_assoc($sql_documents))) {
         $document_id              = intval($row['document_id']);
         $document_name            = escapeHtml($row['document_name']);
         $document_description     = escapeHtml($row['document_description']);
@@ -501,6 +589,7 @@ $num_root_items = intval($row_root_files['num']) + intval($row_root_docs['num'])
                 <form autocomplete="off">
                     <input type="hidden" name="client_id" value="<?= $client_id ?>">
                     <input type="hidden" name="view" value="<?= $view ?>">
+                    <input type="hidden" name="type" value="<?= escapeHtml($type_filter) ?>">
                     <input type="hidden" name="folder_id" value="<?= $get_folder_id ?>">
                     <input type="hidden" name="archived" value="<?= $archived ?>">
                     <input type="hidden" name="folders_expanded" value="<?= $folders_expanded ?>">
@@ -515,6 +604,11 @@ $num_root_items = intval($row_root_files['num']) + intval($row_root_docs['num'])
                         </div>
                         <div class="col-md-7">
                             <div class="float-end">
+                                <div class="btn-group me-2">
+                                    <a href="?<?= $url_query_strings_type ?>type=" class="btn <?php if($type_filter === ''){ echo "btn-primary"; } else { echo "btn-outline-secondary"; } ?>" title="Files and documents">All</a>
+                                    <a href="?<?= $url_query_strings_type ?>type=file" class="btn <?php if($type_filter === 'file'){ echo "btn-primary"; } else { echo "btn-outline-secondary"; } ?>" title="Uploaded files only"><i class="fas fa-fw fa-file me-1"></i>Files</a>
+                                    <a href="?<?= $url_query_strings_type ?>type=document" class="btn <?php if($type_filter === 'document'){ echo "btn-primary"; } else { echo "btn-outline-secondary"; } ?>" title="Created documents only"><i class="fas fa-fw fa-file-alt me-1"></i>Docs</a>
+                                </div>
                                 <div class="btn-group">
                                     <a href="?<?= $url_query_strings_sort ?>&view=0&folder_id=<?= $get_folder_id ?>" class="btn <?php if($view == 0){ echo "btn-primary"; } else { echo "btn-outline-secondary"; } ?>" title="List View"><i class="fas fa-list-ul"></i></a>
                                     <a href="?<?= $url_query_strings_sort ?>&view=1&folder_id=<?= $get_folder_id ?>" class="btn <?php if($view == 1){ echo "btn-primary"; } else { echo "btn-outline-secondary"; } ?>" title="Grid View"><i class="fas fa-th-large"></i></a>
@@ -566,7 +660,7 @@ $num_root_items = intval($row_root_files['num']) + intval($row_root_docs['num'])
                 <nav class="mt-3">
                     <ol class="breadcrumb">
                         <li class="breadcrumb-item">
-                            <a href="?client_id=<?= $client_id ?>&folder_id=0&archived=<?= $archived ?>">
+                            <a href="?client_id=<?= $client_id ?>&folder_id=0&view=<?= $view ?>&type=<?= escapeHtml($type_filter) ?>&archived=<?= $archived ?>">
                                 <i class="fas fa-fw fa-folder me-2"></i>Root
                             </a>
                         </li>
@@ -574,7 +668,7 @@ $num_root_items = intval($row_root_files['num']) + intval($row_root_docs['num'])
                             $bread_crumb_folder_id   = $folder['folder_id'];
                             $bread_crumb_folder_name = $folder['folder_name']; ?>
                             <li class="breadcrumb-item">
-                                <a href="?client_id=<?= $client_id ?>&folder_id=<?= $bread_crumb_folder_id ?>&archived=<?= $archived ?>&folders_expanded=<?= $folders_expanded ?>">
+                                <a href="?client_id=<?= $client_id ?>&folder_id=<?= $bread_crumb_folder_id ?>&view=<?= $view ?>&type=<?= escapeHtml($type_filter) ?>&archived=<?= $archived ?>&folders_expanded=<?= $folders_expanded ?>">
                                     <i class="fas fa-fw fa-folder-open me-2"></i><?= $bread_crumb_folder_name ?>
                                 </a>
                             </li>
@@ -584,34 +678,198 @@ $num_root_items = intval($row_root_files['num']) + intval($row_root_docs['num'])
 
                 <hr>
 
+                <?php
+                /*
+                 * Payload for the file previewer, filled by whichever view is
+                 * rendering below. Both build it: the grid from its tiles, the
+                 * list from its file rows, so a file opens the same previewer
+                 * either way. Documents are deliberately absent - they open the
+                 * document viewer, not this.
+                 */
+                $files = [];
+                ?>
+
                 <?php if ($view == 1) { ?>
 
                     <!-- THUMBNAIL VIEW (files only) -->
+                    <?php if ($num_rows[0] == 0) { ?>
+                        <p class="text-muted">
+                            <i class="fa fa-fw fa-folder-open me-2"></i>
+                            <?php if ($type_filter === 'file') { ?>
+                                No files in this folder.
+                            <?php } elseif ($type_filter === 'document') { ?>
+                                No documents in this folder.
+                            <?php } else { ?>
+                                Nothing in this folder.
+                            <?php } ?>
+                        </p>
+                    <?php } ?>
+
                     <div class="row">
                         <?php
-                        $files = [];
-                        while ($row = mysqli_fetch_assoc($sql)) {
-                            $file_id            = intval($row['file_id']);
-                            $file_name          = escapeHtml($row['file_name']);
-                            $file_reference_name= escapeHtml($row['file_reference_name']);
-                            $file_ext           = escapeHtml($row['file_ext']);
-                            $file_size          = intval($row['file_size']);
-                            $file_size_human    = formatBytes($file_size);
-                            $file_mime_type     = escapeHtml($row['file_mime_type']);
-                            $file_uploaded_by   = escapeHtml($row['user_name']);
-                            $file_archived_at   = escapeHtml($row['file_archived_at']);
+                        foreach ($items as $row) {
 
+                            $item_kind = $row['grid_kind'];
+
+                            if ($item_kind === 'document') {
+
+                                /*
+                                 * A created document has no file on disk, so the
+                                 * preview comes from document_content_raw.
+                                 *
+                                 * That column is NOT clean plain text: it is the
+                                 * editor's HTML run through strip_tags(), which
+                                 * drops the tags and leaves every entity behind,
+                                 * so it arrives full of &nbsp; and &amp;.
+                                 * cleanTextExcerpt() decodes those before the
+                                 * value is escaped for output - escaping first
+                                 * printed a literal &amp;nbsp; in every tile.
+                                 *
+                                 * document_model.php also builds the column as
+                                 * name . " " . content, so the excerpt opens with
+                                 * the document's own title, which the tile prints
+                                 * underneath anyway. Drop that prefix.
+                                 */
+                                $file_id            = intval($row['document_id']);
+                                $file_name          = escapeHtml($row['document_name']);
+                                $file_ext           = 'DOC';
+                                $file_size_human    = '';
+                                $file_archived_at   = escapeHtml($row['document_archived_at']);
+                                $file_icon          = 'file-alt';
+                                $file_preview_kind  = 'document';
+                                $document_excerpt   = cleanTextExcerpt($row['document_content_raw']);
+                                $document_title     = trim($row['document_name']);
+                                if ($document_title !== '' && stripos($document_excerpt, $document_title) === 0) {
+                                    $document_excerpt = ltrim(mb_substr($document_excerpt, mb_strlen($document_title)));
+                                }
+                                $file_excerpt       = escapeHtml($document_excerpt);
+                                $file_open_url      = "ajax.php?get_document_content=$file_id";
+                                $file_download_url  = "document.php?client_id=$client_id&document_id=$file_id";
+
+                            } else {
+
+                                $file_id            = intval($row['file_id']);
+                                $file_name          = escapeHtml($row['file_name']);
+                                $file_reference_name= escapeHtml($row['file_reference_name']);
+                                $file_ext           = escapeHtml($row['file_ext']);
+                                $file_size          = intval($row['file_size']);
+                                $file_size_human    = formatBytes($file_size);
+                                $file_mime_type     = escapeHtml($row['file_mime_type']);
+                                $file_uploaded_by   = escapeHtml($row['user_name']);
+                                $file_archived_at   = escapeHtml($row['file_archived_at']);
+                                $file_icon          = getFileIcon($file_ext);
+                                $file_excerpt       = '';
+                                $file_open_url      = "file.php?file_id=$file_id&action=view";
+                                $file_download_url  = "file.php?file_id=$file_id";
+
+                                /*
+                                 * What the preview can show is decided by file.php,
+                                 * which serves inline only for getInlineViewableMimeTypes()
+                                 * and forces a download for everything else. Ask the same
+                                 * list rather than guessing: a prefix test on "image/"
+                                 * would call an SVG previewable, and file.php refuses to
+                                 * serve those inline on purpose, so the modal would frame
+                                 * a URL that answers with an attachment.
+                                 */
+                                if (!in_array($file_mime_type, $inline_viewable_mime_types, true)) {
+                                    $file_preview_kind = 'none';
+                                } elseif ($file_mime_type === 'application/pdf') {
+                                    $file_preview_kind = 'pdf';
+                                } elseif ($file_mime_type === 'text/plain' || $file_mime_type === 'application/json') {
+                                    $file_preview_kind = 'text';
+                                    $file_excerpt = escapeHtml(getFileTextExcerpt($client_id, $row['file_reference_name']));
+                                } else {
+                                    $file_preview_kind = 'image';
+                                }
+                            }
+
+                            /*
+                             * Documents sit in the same payload as files so the
+                             * previewer can page across everything in the folder.
+                             * They carry no preview URL to frame - their content is
+                             * fetched from ajax.php when opened - and a "full page"
+                             * link to document.php for the real thing.
+                             */
+                            $tile_index = count($files);
                             $files[] = [
-                                'id'      => $file_id,
-                                'name'    => $file_name,
-                                'preview' => "file.php?file_id=$file_id&thumb=1"
+                                'id'       => $file_id,
+                                'name'     => $file_name,
+                                'kind'     => $file_preview_kind,
+                                'icon'     => $file_icon,
+                                'ext'      => strtoupper($file_ext),
+                                'size'     => $file_size_human,
+                                'excerpt'  => $file_excerpt,
+                                'preview'  => $file_open_url,
+                                'download' => $file_download_url,
+                                'action'   => ($item_kind === 'document') ? 'Open full page' : 'Download'
                             ];
                             ?>
 
                             <div class="col-xl-2 col-lg-2 col-md-6 col-sm-6 mb-3 text-center">
 
-                                <a href="#" onclick="openModal(<?= count($files)-1 ?>)">
-                                    <img class="img-thumbnail" src="file.php?file_id=<?= $file_id ?>&thumb=1" alt="<?= $file_name ?>">
+                                <?php
+                                /*
+                                 * Documents take a coloured border and badge so a
+                                 * created document is not mistaken for an uploaded
+                                 * file at a glance - they behave differently and
+                                 * open in different places.
+                                 */
+                                $tile_border = ($item_kind === 'document') ? 'border-primary' : '';
+                                ?>
+
+                                <a href="#" onclick="openModal(<?= $tile_index ?>); return false;"
+                                    class="d-block text-decoration-none position-relative">
+
+                                    <?php if ($item_kind === 'document') { ?>
+                                        <span class="badge text-bg-primary position-absolute top-0 start-0 m-1">Document</span>
+                                    <?php } else { ?>
+                                        <span class="badge text-bg-secondary position-absolute top-0 start-0 m-1"><?= strtoupper($file_ext) ?></span>
+                                    <?php } ?>
+
+                                    <?php if ($file_preview_kind === 'image') { ?>
+
+                                        <img class="img-thumbnail <?= $tile_border ?>" src="file.php?file_id=<?= $file_id ?>&thumb=1" alt="<?= $file_name ?>">
+
+                                    <?php } elseif ($file_preview_kind === 'pdf') { ?>
+
+                                        <?php
+                                        /*
+                                         * The browser's own PDF viewer renders the first
+                                         * page. loading="lazy" keeps a folder of 50 PDFs
+                                         * from spawning 50 viewers at once, and
+                                         * pointer-events:none stops the viewer swallowing
+                                         * the click meant for the preview modal.
+                                         *
+                                         * #toolbar=0 is honoured by Firefox and ignored by
+                                         * Chrome, which draws its viewer chrome regardless.
+                                         * So the iframe is made taller than its box and
+                                         * pulled up by that much: the toolbar strip lands
+                                         * above the overflow-hidden edge and is clipped,
+                                         * whichever browser is rendering. The full-size
+                                         * preview in the modal keeps its toolbar - that one
+                                         * is meant to be used.
+                                         */
+                                        ?>
+                                        <div class="img-thumbnail overflow-hidden p-0 <?= $tile_border ?>" style="height:150px;">
+                                            <iframe src="file.php?file_id=<?= $file_id ?>&action=view#toolbar=0&navpanes=0&scrollbar=0&view=FitH"
+                                                loading="lazy" title="<?= $file_name ?>" tabindex="-1"
+                                                style="width:100%; height:calc(100% + 56px); margin-top:-56px; border:0; pointer-events:none;"></iframe>
+                                        </div>
+
+                                    <?php } elseif (($file_preview_kind === 'text' || $file_preview_kind === 'document') && $file_excerpt !== '') { ?>
+
+                                        <div class="img-thumbnail overflow-hidden text-start <?= $tile_border ?>" style="height:150px;">
+                                            <pre class="small text-body-secondary mb-0" style="white-space:pre-wrap; word-break:break-word;"><?= $file_excerpt ?></pre>
+                                        </div>
+
+                                    <?php } else { ?>
+
+                                        <div class="img-thumbnail d-flex flex-column justify-content-center align-items-center text-secondary <?= $tile_border ?>" style="height:150px;">
+                                            <i class="fas fa-<?= $file_icon ?> fa-3x"></i>
+                                            <small class="mt-2 text-uppercase"><?= $file_ext ?></small>
+                                        </div>
+
+                                    <?php } ?>
                                 </a>
 
                                 <div>
@@ -620,40 +878,52 @@ $num_root_items = intval($row_root_files['num']) + intval($row_root_docs['num'])
                                             <i class="fas fa-ellipsis-v"></i>
                                         </button>
                                         <div class="dropdown-menu">
-                                            <a class="dropdown-item" href="file.php?file_id=<?= $file_id; ?>">
-                                                <i class="fas fa-fw fa-cloud-download-alt me-2"></i>Download
+                                        <?php if ($item_kind === 'document') { ?>
+
+                                            <a class="dropdown-item" href="document.php?client_id=<?= $client_id ?>&document_id=<?= $file_id ?>">
+                                                <i class="fas fa-fw fa-eye me-2"></i>Open
                                             </a>
-                                            <a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#shareModal" onclick="populateShareModal(<?= "$client_id, 'File', $file_id" ?>)">
+                                            <a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#shareModal" onclick="populateShareModal(<?= "$client_id, 'Document', $file_id" ?>)">
                                                 <i class="fas fa-fw fa-share me-2"></i>Share
                                             </a>
-                                            <a class="dropdown-item ajax-modal" href="#"
-                                               data-modal-url="modals/file/file_rename.php?id=<?= $file_id ?>">
-                                                <i class="fas fa-fw fa-edit me-2"></i>Rename
-                                            </a>
-                                            <a class="dropdown-item ajax-modal" href="#"
-                                               data-modal-url="modals/file/file_move.php?id=<?= $file_id ?>">
-                                                <i class="fas fa-fw fa-exchange-alt me-2"></i>Move
-                                            </a>
-                                            <a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#linkAssetToFileModal<?= $file_id ?>">
-                                                <i class="fas fa-fw fa-desktop me-2"></i>Link Asset
-                                            </a>
-                                            <?php if ($file_archived_at) { ?>
-                                                <div class="dropdown-divider"></div>
-                                                <a class="dropdown-item text-info" href="post.php?restore_file=<?= $file_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>">
-                                                    <i class="fas fa-fw fa-redo me-2"></i>Restore
+
+                                        <?php } else { ?>
+                                                <a class="dropdown-item" href="file.php?file_id=<?= $file_id; ?>">
+                                                    <i class="fas fa-fw fa-cloud-download-alt me-2"></i>Download
                                                 </a>
-                                                <?php if ($session_user_role == 3) { ?>
+                                                <a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#shareModal" onclick="populateShareModal(<?= "$client_id, 'File', $file_id" ?>)">
+                                                    <i class="fas fa-fw fa-share me-2"></i>Share
+                                                </a>
+                                                <a class="dropdown-item ajax-modal" href="#"
+                                                   data-modal-url="modals/file/file_rename.php?id=<?= $file_id ?>">
+                                                    <i class="fas fa-fw fa-edit me-2"></i>Rename
+                                                </a>
+                                                <a class="dropdown-item ajax-modal" href="#"
+                                                   data-modal-url="modals/file/file_move.php?id=<?= $file_id ?>">
+                                                    <i class="fas fa-fw fa-exchange-alt me-2"></i>Move
+                                                </a>
+                                                <a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#linkAssetToFileModal<?= $file_id ?>">
+                                                    <i class="fas fa-fw fa-desktop me-2"></i>Link Asset
+                                                </a>
+                                                <?php if ($file_archived_at) { ?>
                                                     <div class="dropdown-divider"></div>
-                                                    <a class="dropdown-item text-danger text-bold" href="#" data-bs-toggle="modal" data-bs-target="#deleteFileModal" onclick="populateFileDeleteModal(<?= "$file_id , '$file_name'" ?>)">
-                                                        <i class="fas fa-fw fa-trash me-2"></i>Delete
+                                                    <a class="dropdown-item text-info" href="post.php?restore_file=<?= $file_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>">
+                                                        <i class="fas fa-fw fa-redo me-2"></i>Restore
+                                                    </a>
+                                                    <?php if ($session_user_role == 3) { ?>
+                                                        <div class="dropdown-divider"></div>
+                                                        <a class="dropdown-item text-danger text-bold" href="#" data-bs-toggle="modal" data-bs-target="#deleteFileModal" onclick="populateFileDeleteModal(<?= "$file_id , '$file_name'" ?>)">
+                                                            <i class="fas fa-fw fa-trash me-2"></i>Delete
+                                                        </a>
+                                                    <?php } ?>
+                                                <?php } else { ?>
+                                                    <div class="dropdown-divider"></div>
+                                                    <a class="dropdown-item text-danger confirm-link" href="post.php?archive_file=<?= $file_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>">
+                                                        <i class="fas fa-fw fa-archive me-2"></i>Archive
                                                     </a>
                                                 <?php } ?>
-                                            <?php } else { ?>
-                                                <div class="dropdown-divider"></div>
-                                                <a class="dropdown-item text-danger confirm-link" href="post.php?archive_file=<?= $file_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>">
-                                                    <i class="fas fa-fw fa-archive me-2"></i>Archive
-                                                </a>
-                                            <?php } ?>
+
+                                        <?php } ?>
                                         </div>
                                     </div>
                                     <small class="text-secondary"><?= $file_name ?></small>
@@ -661,13 +931,13 @@ $num_root_items = intval($row_root_files['num']) + intval($row_root_docs['num'])
                             </div>
 
                             <?php
-                            require "modals/file/file_view.php";
                         }
+
+                        // Once, after the loop. This used to sit inside it, so a
+                        // folder of 30 files emitted 30 copies of the same modal
+                        // with the same element ids - getElementById found the
+                        // first and it happened to work.
                         ?>
-                        <script>
-                            var files = <?= json_encode($files) ?>;
-                            var currentIndex = 0;
-                        </script>
                     </div>
 
                 <?php } else { ?>
@@ -719,6 +989,7 @@ $num_root_items = intval($row_root_files['num']) + intval($row_root_docs['num'])
                                         $file_description   = $item['description'];
                                         $file_reference_name= $item['reference_name'];
                                         $file_icon          = $item['icon'];
+                                        $file_ext           = $item['ext'];
                                         $file_size          = $item['size'];
                                         $file_size_human    = formatBytes($file_size);
                                         $file_mime_type     = $item['mime'];
@@ -751,8 +1022,42 @@ $num_root_items = intval($row_root_files['num']) + intval($row_root_docs['num'])
                                                     <input class="form-check-input bulk-select" type="checkbox" name="file_ids[]" value="<?= $file_id ?>">
                                                 </div>
                                             </td>
+                                            <?php
+                                            /*
+                                             * A file the previewer can actually show opens
+                                             * it; anything else keeps the direct link, which
+                                             * downloads. Sending a .docx to the previewer
+                                             * would only show "cannot be previewed" and make
+                                             * the download a second click.
+                                             *
+                                             * Documents are untouched below - they go to
+                                             * document.php, which is where a document
+                                             * belongs.
+                                             */
+                                            $file_preview_index = -1;
+                                            if (in_array($file_mime_type, $inline_viewable_mime_types, true)) {
+                                                $file_preview_index = count($files);
+                                                $files[] = [
+                                                    'id'       => $file_id,
+                                                    'name'     => basename($file_name),
+                                                    'kind'     => ($file_mime_type === 'application/pdf') ? 'pdf'
+                                                                  : (($file_mime_type === 'text/plain' || $file_mime_type === 'application/json') ? 'text' : 'image'),
+                                                    'icon'     => $file_icon,
+                                                    'ext'      => strtoupper($file_ext),
+                                                    'size'     => $file_size_human,
+                                                    'excerpt'  => '',
+                                                    'preview'  => "file.php?file_id=$file_id&action=view",
+                                                    'download' => "file.php?file_id=$file_id",
+                                                    'action'   => 'Download'
+                                                ];
+                                            }
+                                            ?>
                                             <td>
-                                                <a href="file.php?file_id=<?= $file_id; ?>&action=view" target="_blank">
+                                                <?php if ($file_preview_index >= 0) { ?>
+                                                    <a href="#" onclick="openModal(<?= $file_preview_index ?>); return false;">
+                                                <?php } else { ?>
+                                                    <a href="file.php?file_id=<?= $file_id; ?>&action=view" target="_blank">
+                                                <?php } ?>
                                                     <div class="d-flex">
                                                         <i class="fa fa-fw fa-2x fa-<?= $file_icon ?> text-dark me-3"></i>
                                                         <div class="flex-grow-1">
@@ -864,9 +1169,12 @@ $num_root_items = intval($row_root_files['num']) + intval($row_root_docs['num'])
                                                 </div>
                                             </td>
                                             <td>
+                                                <?php /* Blue icon and badge, same as the grid tile - a created
+                                                         document and an uploaded file behave differently and open
+                                                         in different places, so they should not look alike. */ ?>
                                                 <a href="document.php?client_id=<?= $client_id ?>&document_id=<?= $document_id ?>">
                                                     <div class="d-flex">
-                                                        <i class="fa fa-fw fa-2x fa-file-alt text-dark me-3"></i>
+                                                        <i class="fa fa-fw fa-2x fa-file-alt text-primary me-3"></i>
                                                         <div class="flex-grow-1">
                                                             <p>
                                                                 <?= $document_name ?>
@@ -877,7 +1185,7 @@ $num_root_items = intval($row_root_files['num']) + intval($row_root_docs['num'])
                                                     </div>
                                                 </a>
                                             </td>
-                                            <td>Document</td>
+                                            <td><span class="badge text-bg-primary">Document</span></td>
                                             <td>-</td>
                                             <td>
                                                 <?= $document_created_at ?>
@@ -956,6 +1264,16 @@ $num_root_items = intval($row_root_files['num']) + intval($row_root_docs['num'])
 
                 <?php } ?>
 
+                <?php
+                // After both branches - the previewer serves the grid and the
+                // list, and $files is whichever view just filled it
+                require "modals/file/file_view.php";
+                ?>
+                <script>
+                    var files = <?= json_encode($files) ?>;
+                    var currentIndex = 0;
+                </script>
+
                 <?php require_once "../includes/filter_footer.php"; ?>
 
             </div>
@@ -971,8 +1289,74 @@ function openModal(index) {
 }
 
 function updateModalContent() {
-    document.getElementById('modalTitle').innerText = files[currentIndex].name;
-    document.getElementById('modalImage').src = files[currentIndex].preview;
+    var file = files[currentIndex];
+    var image = document.getElementById('modalImage');
+    var frame = document.getElementById('modalFrame');
+    var fallback = document.getElementById('modalFallback');
+    var text = document.getElementById('modalText');
+    var docPanel = document.getElementById('modalDocument');
+
+    document.getElementById('modalTitle').innerText = file.name;
+    document.getElementById('modalMeta').innerText = file.size ? (file.ext + ' \u00b7 ' + file.size) : file.ext;
+    var action = document.getElementById('modalDownload');
+    action.href = file.download;
+    action.innerHTML = '<i class="fas fa-fw fa-' + (file.kind === 'document' ? 'external-link-alt' : 'cloud-download-alt') + ' me-2"></i>' + file.action;
+    document.getElementById('modalPosition').innerText = (currentIndex + 1) + ' of ' + files.length;
+
+    // Blank the previous file's source before switching panels, or a heavy PDF
+    // keeps rendering behind the next image until the browser gets round to it
+    image.classList.add('d-none');
+    image.removeAttribute('src');
+    frame.classList.add('d-none');
+    frame.removeAttribute('src');
+    fallback.classList.add('d-none');
+    text.classList.add('d-none');
+    docPanel.classList.add('d-none');
+    docPanel.innerHTML = '';
+
+    if (file.kind === 'document') {
+
+        /*
+         * Fetched rather than carried in the page payload - see the endpoint's
+         * note in ajax.php. The index is captured so a fast click through to the
+         * next file does not get overwritten by a response that arrives late.
+         */
+        var requestedIndex = currentIndex;
+        docPanel.innerHTML = '<p class="text-secondary mb-0">Loading...</p>';
+        docPanel.classList.remove('d-none');
+
+        fetch(file.preview, { headers: { 'X-Requested-With': 'XMLHttpRequest' } })
+            .then(function (r) { return r.json(); })
+            .then(function (data) {
+                if (requestedIndex !== currentIndex) {
+                    return;
+                }
+                // The endpoint returns HTMLPurifier output, which is what
+                // document.php renders too
+                docPanel.innerHTML = data.content || '<p class="text-secondary mb-0">This document is empty.</p>';
+            })
+            .catch(function () {
+                if (requestedIndex === currentIndex) {
+                    docPanel.innerHTML = '<p class="text-danger mb-0">Could not load this document.</p>';
+                }
+            });
+
+    } else if (file.kind === 'image') {
+        image.src = file.preview;
+        image.alt = file.name;
+        image.classList.remove('d-none');
+    } else if (file.kind === 'pdf' || file.kind === 'text') {
+        frame.src = file.preview;
+        frame.classList.remove('d-none');
+    } else {
+        document.getElementById('modalFallbackIcon').className = 'fas fa-' + file.icon + ' fa-4x text-secondary';
+        fallback.classList.remove('d-none');
+    }
+
+    // One file in the folder means nothing to page through
+    var single = files.length < 2;
+    document.getElementById('modalPrev').classList.toggle('d-none', single);
+    document.getElementById('modalNext').classList.toggle('d-none', single);
 }
 
 function nextFile() {
@@ -984,6 +1368,19 @@ function prevFile() {
     currentIndex = (currentIndex - 1 + files.length) % files.length;
     updateModalContent();
 }
+
+// Arrow keys page the gallery while the preview is open
+document.addEventListener('keydown', function (e) {
+    var modal = document.getElementById('viewFileModal');
+    if (!modal || !modal.classList.contains('show') || files.length < 2) {
+        return;
+    }
+    if (e.key === 'ArrowRight') {
+        nextFile();
+    } else if (e.key === 'ArrowLeft') {
+        prevFile();
+    }
+});
 </script>
 
 <script src="../js/bulk_actions.js"></script>

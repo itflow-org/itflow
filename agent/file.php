@@ -54,14 +54,7 @@ enforceClientAccess();
 
 // MIME types that are safe to render inline in the browser
 // Everything else (esp. HTML/SVG - stored XSS risk) falls back to download
-$inline_allowed_mime_types = array(
-    "application/pdf",
-    "image/png",
-    "image/jpeg",
-    "image/gif",
-    "image/webp",
-    "text/plain"
-);
+$inline_allowed_mime_types = getInlineViewableMimeTypes();
 
 if ($disposition == "inline" && !in_array($file_mime_type, $inline_allowed_mime_types, true)) {
     $disposition = "attachment";
