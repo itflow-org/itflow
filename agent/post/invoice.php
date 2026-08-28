@@ -786,6 +786,17 @@ if (isset($_POST['send_statement'])) {
     // Build the table once - it is identical for every recipient, only the
     // greeting differs. Everything interpolated here is already escaped:
     // addToMailQueue() writes the body into the queue raw.
+    //
+    // KEEP EVERY ATTRIBUTE IN THIS MARKUP DOUBLE-QUOTED. The body is spliced
+    // into a single-quoted SQL literal, so a bare ' ends the statement and the
+    // INSERT dies; a " is just a character there and needs nothing. The older
+    // bodies above solve the same problem the other way, writing \' inside a
+    // double-quoted PHP string so the backslash itself reaches MySQL - do not
+    // copy that here, because \' inside a SINGLE-quoted PHP string collapses to
+    // a bare quote and puts the crash straight back.
+    //
+    // escapeSql() is not an option on assembled markup: it strip_tags() first,
+    // which would empty the table.
     $statement_rows = '';
     $statement_total = 0;
     $statement_line_count = 0;
@@ -814,7 +825,7 @@ if (isset($_POST['send_statement'])) {
         }
 
         $statement_rows .= '<tr>'
-            . '<td style="padding:6px 10px; border-bottom:1px solid #dee2e6;"><a href=\'' . $invoice_link . '\'>' . "$invoice_prefix$invoice_number" . '</a></td>'
+            . '<td style="padding:6px 10px; border-bottom:1px solid #dee2e6;"><a href="' . $invoice_link . '">' . "$invoice_prefix$invoice_number" . '</a></td>'
             . '<td style="padding:6px 10px; border-bottom:1px solid #dee2e6;">' . $invoice_scope . '</td>'
             . '<td style="padding:6px 10px; border-bottom:1px solid #dee2e6;">' . $invoice_date . '</td>'
             . '<td style="padding:6px 10px; border-bottom:1px solid #dee2e6;">' . $invoice_due . $overdue_flag . '</td>'
