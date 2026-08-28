@@ -351,7 +351,7 @@ function generatePassword() {
     );
 }
 
-document.addEventListener('DOMContentLoaded', function () {
+itflowReady(function () {
     function syncAuthForm(select) {
         var form = select.closest('.authForm');
         if (!form) {

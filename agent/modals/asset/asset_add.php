@@ -461,7 +461,7 @@ ob_start();
 
 <!-- JSON Autocomplete / type ahead -->
 <script>
-    document.addEventListener('DOMContentLoaded', function () {
+    itflowReady(function () {
 
         var operatingSystems = <?= $json_os ?>;
 

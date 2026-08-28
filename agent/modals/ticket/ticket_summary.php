@@ -19,7 +19,7 @@ ob_start();
 </div>
 
 <script>
-document.addEventListener('DOMContentLoaded', function () {
+itflowReady(function () {
     var target = document.getElementById('summaryContent');
     if (!target) {
         return;

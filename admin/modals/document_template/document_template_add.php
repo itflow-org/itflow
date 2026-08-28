@@ -49,7 +49,7 @@ ob_start();
 </form>
 
 <script>
-document.addEventListener('DOMContentLoaded', function () {
+itflowReady(function () {
 
     var button = document.getElementById('generateAIContent');
     var promptField = document.getElementById('aiPrompt');

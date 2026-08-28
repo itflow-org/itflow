@@ -108,6 +108,25 @@ function itflowBindOnce(name, type, selector, handler) {
     });
 }
 
+/**
+ * Run fn once the DOM is ready, the way jQuery's .ready() did.
+ *
+ * js/ajax_modal.js injects a modal payload's <script> tags long after
+ * DOMContentLoaded has fired, so a bare
+ * document.addEventListener('DOMContentLoaded', ...) inside one of them
+ * registers for an event that will never come again and the body silently
+ * never runs. jQuery's .ready() invoked the callback immediately when the
+ * document was already parsed, which is why that pattern worked before the
+ * vanilla conversion. Modal payload scripts must use this instead.
+ */
+function itflowReady(fn) {
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', fn);
+    } else {
+        fn();
+    }
+}
+
 function itflowInit() {
     // Prevents resubmit on forms
     if (window.history.replaceState) {
@@ -636,11 +655,7 @@ function itflowInit() {
 
 // modal_footer.php re-loads this file on every ajax modal open, so run now if
 // the document is already parsed, otherwise wait for it.
-if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', itflowInit);
-} else {
-    itflowInit();
-}
+itflowReady(itflowInit);
 
 /*
  * Calendar event modals - the All day switch shows or hides the time row.
