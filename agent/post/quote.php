@@ -463,13 +463,13 @@ if (isset($_GET['delete_quote_item'])) {
 
 }
 
-if (isset($_GET['mark_quote_sent'])) {
+if (isset($_POST['mark_quote_sent'])) {
 
     validateCSRFToken();
 
     enforceUserPermission('module_sales', 2);
 
-    $quote_id = intval($_GET['mark_quote_sent']);
+    $quote_id = intval($_POST['quote_id']);
 
     $sql = mysqli_query($mysqli,"SELECT quote_client_id, quote_number, quote_prefix FROM quotes WHERE quote_id = $quote_id");
     $row = mysqli_fetch_assoc($sql);
@@ -479,11 +479,26 @@ if (isset($_GET['mark_quote_sent'])) {
 
     enforceClientAccess();
 
+    // The modal offers a fixed list, so anything else is a tampered form
+    $sent_method = $_POST['sent_method'] ?? '';
+    if (!in_array($sent_method, getSentMethods(), true)) {
+        flashAlert("Invalid delivery method", 'error');
+        redirect();
+    }
+    $sent_method = escapeSql($sent_method);
+
+    $note = escapeSql(substr(trim($_POST['note'] ?? ''), 0, 500));
+
     mysqli_query($mysqli,"UPDATE quotes SET quote_status = 'Sent' WHERE quote_id = $quote_id");
 
-    mysqli_query($mysqli,"INSERT INTO history SET history_status = 'Sent', history_description = 'Quote marked sent', history_quote_id = $quote_id");
+    $history_description = "Quote marked sent by $session_name - $sent_method";
+    if (!empty($note)) {
+        $history_description .= "\nNote: $note";
+    }
 
-    logAudit("Quote", "Sent", "$session_name marked quote $quote_prefix$quote_number as sent", $client_id, $quote_id);
+    logHistory('Sent', $history_description, 0, $quote_id);
+
+    logAudit("Quote", "Sent", "$session_name marked quote $quote_prefix$quote_number as sent - $sent_method", $client_id, $quote_id);
 
     flashAlert("Quote marked sent");
 
@@ -551,19 +566,18 @@ if (isset($_GET['decline_quote'])) {
 
 }
 
-if (isset($_GET['email_quote'])) {
+if (isset($_POST['email_quote'])) {
 
     validateCSRFToken();
 
     enforceUserPermission('module_sales', 2);
 
-    $quote_id = intval($_GET['email_quote']);
+    $quote_id = intval($_POST['quote_id']);
 
-    $sql = mysqli_query($mysqli,"SELECT client_id, client_name, contact_email, contact_name, quote_amount, quote_currency_code,
+    $sql = mysqli_query($mysqli,"SELECT client_id, client_name, quote_amount, quote_currency_code,
         quote_date, quote_expire, quote_number, quote_prefix, quote_scope, quote_status,
         quote_url_key FROM quotes
     LEFT JOIN clients ON quote_client_id = client_id
-    LEFT JOIN contacts ON clients.client_id = contacts.contact_client_id AND contact_primary = 1
     WHERE quote_id = $quote_id"
     );
 
@@ -579,10 +593,40 @@ if (isset($_GET['email_quote'])) {
     $quote_currency_code = escapeSql($row['quote_currency_code']);
     $client_id = intval($row['client_id']);
     $client_name = escapeSql($row['client_name']);
-    $contact_name = escapeSql($row['contact_name']);
-    $contact_email = escapeSql($row['contact_email']);
 
     enforceClientAccess();
+
+    // Recipients come from the Send Email modal's contact picker. Scoping the
+    // lookup to this quote's client is what makes a tampered contact_id
+    // harmless - it simply matches nothing.
+    $selected_contacts = $_POST['contacts'] ?? [];
+    if (!is_array($selected_contacts)) {
+        $selected_contacts = [];
+    }
+    $selected_contact_ids = array_filter(array_unique(array_map('intval', $selected_contacts)));
+
+    if (empty($selected_contact_ids)) {
+        flashAlert("Select at least one contact to send to", 'error');
+        redirect();
+    }
+
+    $selected_contact_id_list = implode(',', $selected_contact_ids);
+
+    $sql_recipients = mysqli_query(
+        $mysqli,
+        "SELECT contact_email, contact_name FROM contacts
+        WHERE contact_id IN ($selected_contact_id_list)
+        AND contact_client_id = $client_id
+        AND contact_archived_at IS NULL
+        AND contact_email IS NOT NULL
+        AND contact_email != ''
+        ORDER BY contact_primary DESC, contact_billing DESC, contact_name ASC"
+    );
+
+    if (mysqli_num_rows($sql_recipients) == 0) {
+        flashAlert("None of the selected contacts have a usable email address", 'error');
+        redirect();
+    }
 
     $sql = mysqli_query($mysqli,"SELECT company_address, company_city, company_country, company_email, company_logo, company_name,
         company_phone, company_phone_country_code, company_state, company_website, company_zip FROM companies WHERE company_id = 1");
@@ -605,32 +649,45 @@ if (isset($_GET['email_quote'])) {
     $config_base_url = escapeSql($config_base_url);
 
     $subject = "Quote [$quote_scope]";
-    $body = "Hello $contact_name,<br><br>Thank you for your inquiry, we are pleased to provide you with the following estimate.<br><br><br>$quote_scope<br>Total Cost: " . numfmt_format_currency($currency_format, $quote_amount, $quote_currency_code) . "<br><br><br>View and accept your estimate online <a href=\'https://$config_base_url/guest/guest_view_quote.php?quote_id=$quote_id&url_key=$quote_url_key\'>here</a><br><br><br>--<br>$company_name - Sales<br>$config_quote_from_email<br>$company_phone";
 
-    // Queue Mail
-    $data = [
-        [
+    // One queue row per selected contact, each greeting its own recipient
+    $data = [];
+    $recipient_labels = [];
+
+    while ($recipient = mysqli_fetch_assoc($sql_recipients)) {
+        $contact_name = escapeSql($recipient['contact_name']);
+        $contact_email = escapeSql($recipient['contact_email']);
+
+        $body = "Hello $contact_name,<br><br>Thank you for your inquiry, we are pleased to provide you with the following estimate.<br><br><br>$quote_scope<br>Total Cost: " . numfmt_format_currency($currency_format, $quote_amount, $quote_currency_code) . "<br><br><br>View and accept your estimate online <a href=\'https://$config_base_url/guest/guest_view_quote.php?quote_id=$quote_id&url_key=$quote_url_key\'>here</a><br><br><br>--<br>$company_name - Sales<br>$config_quote_from_email<br>$company_phone";
+
+        $data[] = [
             'from' => $config_quote_from_email,
             'from_name' => $config_quote_from_name,
             'recipient' => $contact_email,
             'recipient_name' => $contact_name,
             'subject' => $subject,
             'body' => $body,
-        ]
-    ];
+        ];
+
+        $recipient_labels[] = "$contact_name <$contact_email>";
+
+        logAudit("Quote", "Email", "$session_name emailed quote $quote_prefix$quote_number to $contact_email", $client_id, $quote_id);
+    }
+
     addToMailQueue($data);
 
+    $recipient_list = implode(', ', $recipient_labels);
+    $recipient_count = count($recipient_labels);
+
     // Update History
-    mysqli_query($mysqli,"INSERT INTO history SET history_status = 'Sent', history_description = 'Emailed Quote', history_quote_id = $quote_id");
-
-    logAudit("Quote", "Email", "$session_name emailed quote $quote_prefix$quote_number to $contact_email", $client_id, $quote_id);
-
-    flashAlert("Quote sent!");
+    logHistory('Sent', "Quote emailed by $session_name to $recipient_list", 0, $quote_id);
 
     //Don't change the status to sent if the status is anything but draft
     if ($quote_status == 'Draft') {
         mysqli_query($mysqli,"UPDATE quotes SET quote_status = 'Sent' WHERE quote_id = $quote_id");
     }
+
+    flashAlert("Quote queued to $recipient_count " . ($recipient_count == 1 ? "recipient" : "recipients"));
 
     redirect();
 

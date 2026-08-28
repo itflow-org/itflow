@@ -785,3 +785,24 @@ function createiCalStrCancel($datetime, $title, $uid) {
 
     return $cal_event->export();
 }
+
+/*
+ * The delivery methods offered by the Mark Sent modal on invoices and quotes.
+ *
+ * Marking a document sent records that it left the building by some route
+ * other than ITFlow's own mailer, so the list is about how it got there. It is
+ * deliberately a fixed list rather than a categories row: the post handler
+ * validates the submitted value against it, and "Other" plus the free-text
+ * note covers anything not listed.
+ */
+function getSentMethods() {
+    return [
+        'Sent by Snail Mail',
+        'Sent by Email Client',
+        'Hand Delivered',
+        'Sent by Fax',
+        'Sent by Courier',
+        'Shared Guest Link',
+        'Other'
+    ];
+}

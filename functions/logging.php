@@ -95,6 +95,42 @@ function logTicketHistory($ticket_id, $description) {
     mysqli_query($mysqli, "INSERT INTO ticket_history SET ticket_history_status = '$status_name', ticket_history_description = '$description', ticket_history_ticket_id = $ticket_id");
 }
 
+/*
+ * Records an invoice / quote / recurring invoice history entry - the change
+ * trail shown in the History card on agent/invoice.php and agent/quote.php.
+ *
+ * Same convention as logAudit() and logTicketHistory() above: the description
+ * is interpolated as-is, so callers pass values that are already SQL-safe.
+ *
+ * Pass the id of the document the entry belongs to and leave the other two at
+ * zero - the history table serves all three from one set of rows and each
+ * detail page filters on its own column.
+ */
+function logHistory($status, $description, $invoice_id = 0, $quote_id = 0, $recurring_invoice_id = 0) {
+    global $mysqli;
+
+    $invoice_id = intval($invoice_id);
+    $quote_id = intval($quote_id);
+    $recurring_invoice_id = intval($recurring_invoice_id);
+
+    $status = substr($status, 0, 200);
+
+    // history_description is text as of db 2.7.7, so this cap is about keeping
+    // the trail readable rather than avoiding an overflow
+    $description = substr($description, 0, 1000);
+
+    // Both arrive already escaped, and cutting at a fixed length can split a \'
+    // pair - the leftover backslash would escape this query's closing quote
+    if ((strlen($status) - strlen(rtrim($status, '\\'))) % 2 === 1) {
+        $status = substr($status, 0, -1);
+    }
+    if ((strlen($description) - strlen(rtrim($description, '\\'))) % 2 === 1) {
+        $description = substr($description, 0, -1);
+    }
+
+    mysqli_query($mysqli, "INSERT INTO history SET history_status = '$status', history_description = '$description', history_invoice_id = $invoice_id, history_quote_id = $quote_id, history_recurring_invoice_id = $recurring_invoice_id");
+}
+
 function logApp($category, $type, $details) {
     global $mysqli;
 

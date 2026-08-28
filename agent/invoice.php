@@ -106,6 +106,17 @@ if (isset($_GET['invoice_id'])) {
     }
     $company_logo = escapeHtml($row['company_logo']);
 
+    // Send Email used to be gated on the PRIMARY contact having an email, which
+    // hid the button on a client whose only emailable contact was a billing or
+    // secondary one. The modal can send to any of them, so gate on whether the
+    // client has anybody reachable at all.
+    $row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT COUNT(contact_id) AS emailable_contacts FROM contacts
+        WHERE contact_client_id = $client_id
+        AND contact_archived_at IS NULL
+        AND contact_email IS NOT NULL
+        AND contact_email != ''"));
+    $emailable_contacts = intval($row['emailable_contacts']);
+
     $sql_history = mysqli_query($mysqli, "SELECT history_created_at, history_description, history_status FROM history WHERE history_invoice_id = $invoice_id ORDER BY history_id DESC");
 
     $sql_payments = mysqli_query($mysqli, "SELECT account_name, payment_amount, payment_currency_code, payment_date, payment_id,
@@ -234,13 +245,15 @@ if (isset($_GET['invoice_id'])) {
                                     <i class="fas fa-fw fa-paper-plane me-2"></i>Send
                                 </button>
                                 <div class="dropdown-menu">
-                                    <?php if (!empty($config_smtp_provider) && !empty($contact_email)) { ?>
-                                        <a class="dropdown-item" href="post.php?email_invoice=<?= $invoice_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>">
+                                    <?php if (!empty($config_smtp_provider) && $emailable_contacts > 0) { ?>
+                                        <a class="dropdown-item ajax-modal" href="#"
+                                            data-modal-url="modals/invoice/invoice_email.php?invoice_id=<?= $invoice_id ?>">
                                             <i class="fas fa-fw fa-paper-plane me-2"></i>Send Email
                                         </a>
                                         <div class="dropdown-divider"></div>
                                     <?php } ?>
-                                    <a class="dropdown-item" href="post.php?mark_invoice_sent=<?= $invoice_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>">
+                                    <a class="dropdown-item ajax-modal" href="#"
+                                        data-modal-url="modals/invoice/invoice_mark_sent.php?invoice_id=<?= $invoice_id ?>">
                                         <i class="fas fa-fw fa-check me-2"></i>Mark Sent
                                     </a>
                                 </div>
@@ -300,8 +313,9 @@ if (isset($_GET['invoice_id'])) {
                                 <a class="dropdown-item" href="post.php?export_invoice_packing_slip=<?= $invoice_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>" target="_blank">
                                     <i class="fa fa-fw fa-box-open text-secondary me-2"></i>Packing Slip
                                 </a>
-                                <?php if (!empty($config_smtp_provider) && !empty($contact_email)) { ?>
-                                    <a class="dropdown-item" href="post.php?email_invoice=<?= $invoice_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>">
+                                <?php if (!empty($config_smtp_provider) && $emailable_contacts > 0) { ?>
+                                    <a class="dropdown-item ajax-modal" href="#"
+                                        data-modal-url="modals/invoice/invoice_email.php?invoice_id=<?= $invoice_id ?>">
                                         <i class="fa fa-fw fa-paper-plane text-secondary me-2"></i>Send Email
                                     </a>
                                 <?php } ?>
@@ -614,7 +628,7 @@ if (isset($_GET['invoice_id'])) {
                         while ($row = mysqli_fetch_assoc($sql_history)) {
                             $history_created_at = $row['history_created_at'];
                             $history_status = escapeHtml($row['history_status']);
-                            $history_description = escapeHtml($row['history_description']);
+                            $history_description = nl2br(escapeHtml($row['history_description']));
 
                             ?>
                             <tr>

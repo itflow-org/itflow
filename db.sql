@@ -1369,7 +1369,7 @@ DROP TABLE IF EXISTS `history`;
 CREATE TABLE `history` (
   `history_id` int(11) NOT NULL AUTO_INCREMENT,
   `history_status` varchar(200) NOT NULL,
-  `history_description` varchar(200) NOT NULL,
+  `history_description` text NOT NULL,
   `history_created_at` datetime NOT NULL DEFAULT current_timestamp(),
   `history_invoice_id` int(11) NOT NULL DEFAULT 0,
   `history_recurring_invoice_id` int(11) NOT NULL DEFAULT 0,
@@ -3247,4 +3247,4 @@ CREATE TABLE `vendors` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2026-08-28  0:13:03
+-- Dump completed on 2026-08-28 13:31:14
