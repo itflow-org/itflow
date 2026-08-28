@@ -73,14 +73,14 @@ if (isset($_GET['invoice_id'], $_GET['url_key']) && !isset($_GET['payment_intent
     <!-- Stripe & jQuery -->
     <script src="https://js.stripe.com/v3/"></script>
 
-    <div class="row pt-5">
+    <div class="row py-5">
         <div class="col-sm">
             <div class="card">
                 <div class="card-header">
                     <h3 class="card-title">Payment for Invoice: <strong><?= "$invoice_prefix$invoice_number" ?></strong></h3>
                 </div>
                 <div class="table-responsive">
-                    <table class="table">
+                    <table class="table mb-0">
                         <thead>
                         <tr>
                             <th>Product</th>

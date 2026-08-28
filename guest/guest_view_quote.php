@@ -120,7 +120,7 @@ if ($quote_status == "Draft" || $quote_status == "Sent" || $quote_status == "Vie
 
 ?>
 
-<div class="card">
+<div class="card my-3">
 
     <div class="card-header d-print-none">
 

@@ -167,7 +167,7 @@ if ($balance > 0) {
 
 ?>
 
-<div class="card">
+<div class="card my-3">
     <div class="card-header bg-light d-print-none">
         <div class="row">
             <div class="col-6">
