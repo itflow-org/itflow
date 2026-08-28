@@ -804,7 +804,7 @@ function itflowToast(message, type) {
     var container = document.querySelector('.toast-container.itflow-toast-js');
     if (!container) {
         container = document.createElement('div');
-        container.className = 'toast-container itflow-toast-js position-fixed top-0 start-50 translate-middle-x p-3';
+        container.className = 'toast-container itflow-toast-js position-fixed top-0 end-0 p-3';
         container.style.zIndex = '1090';
         document.body.appendChild(container);
     }

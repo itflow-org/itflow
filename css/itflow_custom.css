@@ -496,12 +496,107 @@ a:focus {
     font-weight: 600;
 }
 
-/* --- Toast fade ---------------------------------------------------------
-   Bootstrap's .fade is a .15s transition, which next to toastr's old 1s
-   fadeOut reads as a blink. Bootstrap uses the same .showing class for both
-   directions, so in and out cannot be timed separately without JS - .5s is
-   the compromise. Change the duration here to taste. */
-#itflowFlashToast.toast.fade,
+/* --- Flash toast ---------------------------------------------------------
+   Restores the four things toastr did that a plain Bootstrap toast does not:
+   sits top-right rather than centred over what you are reading, carries an
+   icon for its type, counts its own timer down, and dismisses on a click
+   anywhere instead of only on the small x.
+
+   It also appears on the FIRST PAINT. includes/inc_alert_feedback.php renders
+   the element with .show already set and every state change here is an
+   animation, so nothing waits on bootstrap.Toast - which used to mean waiting
+   for DOMContentLoaded, and therefore for every parser-blocking script in the
+   document. The inline script in that file only handles the click and removes
+   the node; neither gates the appearance.
+
+   Durations are toastr's own: 300ms in, 5s on screen, 1s out. */
+.itflow-toast {
+    position: relative;
+    overflow: hidden;
+    cursor: pointer;
+    animation:
+        itflow-toast-in 300ms ease-out both,
+        itflow-toast-out 1s ease-in 5s both;
+}
+
+/* Hovering holds it open, so a long message cannot disappear mid-sentence.
+   The progress bar needs its own rule - animation-play-state does not
+   cascade to a child's separate animation. */
+.itflow-toast:hover,
+.itflow-toast:hover .itflow-toast-progress {
+    animation-play-state: paused;
+}
+
+/* currentColor, so the bar inherits whichever contrast text-bg-* already
+   picked - white on success and danger, dark on warning and info - rather
+   than needing a rule per type. */
+.itflow-toast-progress {
+    position: absolute;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    height: 3px;
+    background: currentColor;
+    opacity: .4;
+    transform-origin: left;
+    animation: itflow-toast-progress 5s linear both;
+}
+
+@keyframes itflow-toast-in {
+    from {
+        opacity: 0;
+        transform: translateX(100%);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+/* visibility flips on the last one percent rather than at the end, because a
+   discrete property switches at the MIDPOINT of its keyframe interval - put
+   it only on the 100% stop and the toast would vanish halfway through its own
+   fade. This is the fallback that matters if the inline remover never runs:
+   without it an invisible toast keeps sitting over the user menu, eating
+   clicks. */
+@keyframes itflow-toast-out {
+    0% {
+        opacity: 1;
+        visibility: visible;
+    }
+    99% {
+        opacity: 0;
+        visibility: visible;
+    }
+    100% {
+        opacity: 0;
+        visibility: hidden;
+    }
+}
+
+@keyframes itflow-toast-progress {
+    from {
+        transform: scaleX(1);
+    }
+    to {
+        transform: scaleX(0);
+    }
+}
+
+/* Reduced motion drops the slide and the moving bar but keeps the timed
+   dismissal - that is a timeout, not an animation the user is watching. */
+@media (prefers-reduced-motion: reduce) {
+    .itflow-toast {
+        animation: itflow-toast-out 1s linear 5s both;
+    }
+    .itflow-toast-progress {
+        animation: none;
+        transform: scaleX(0);
+    }
+}
+
+/* The JS-raised toasts from itflowToast() still go through bootstrap.Toast,
+   so they keep the slower fade. */
 .itflow-toast-js .toast.fade {
     transition: opacity .5s linear;
 }
