@@ -363,126 +363,132 @@ if ($balance > 0) {
 
 <?php
 
-// CURRENT INVOICES
+/*
+ * ACCOUNT STATEMENT
+ *
+ * Replaces the old Current Invoices / Outstanding Invoices pair. Those split
+ * the same list on due date and both showed invoice_amount, which is the
+ * ORIGINAL total - a $1,000 invoice with $900 paid appeared here as $1,000
+ * owing. This shows amount, paid and balance, and the running total both cards
+ * were accumulating into $invoice_tally_total but never printing.
+ *
+ * Payments are summed in a derived table rather than joined directly, or an
+ * invoice with two payments against it would be counted twice.
+ *
+ * Draft / Cancelled / Non-Billable are not money owed, and the balance test
+ * drops anything fully paid, so Paid invoices fall out without naming them.
+ */
 
-$sql_current_invoices = mysqli_query($mysqli, "SELECT invoice_amount, invoice_currency_code, invoice_date, invoice_due, invoice_id,
-    invoice_number, invoice_prefix, invoice_url_key FROM invoices WHERE invoice_client_id = $client_id AND invoice_due > CURDATE() AND(invoice_status = 'Sent' OR invoice_status = 'Viewed' OR invoice_status = 'Partial') ORDER BY invoice_number DESC");
+$sql_statement = mysqli_query(
+    $mysqli,
+    "SELECT invoice_amount, invoice_currency_code, invoice_date, invoice_due, invoice_id,
+        invoice_number, invoice_prefix, invoice_scope, invoice_url_key,
+        IFNULL(amount_paid, 0) AS amount_paid
+    FROM invoices
+    LEFT JOIN (
+        SELECT payment_invoice_id, SUM(payment_amount) AS amount_paid FROM payments
+        WHERE payment_archived_at IS NULL
+        GROUP BY payment_invoice_id
+    ) AS invoice_payments ON payment_invoice_id = invoice_id
+    WHERE invoice_client_id = $client_id
+    AND invoice_status NOT IN ('Draft', 'Cancelled', 'Non-Billable')
+    AND invoice_amount - IFNULL(invoice_payments.amount_paid, 0) > 0
+    ORDER BY invoice_date ASC, invoice_number ASC"
+);
 
-$current_invoices_count = mysqli_num_rows($sql_current_invoices);
+$statement_count = mysqli_num_rows($sql_statement);
 
-if ($current_invoices_count > 0) { ?>
+if ($statement_count > 0) { ?>
 
-<div class="card d-print-none card-dark">
-    <div class="card-header">
-        <strong><i class="fas fa-fw fa-clock me-2"></i><b><?= $current_invoices_count ?></b> Current Invoices</strong>
+<div class="card d-print-none">
+    <div class="card-header bg-dark">
+        <strong class="text-white">
+            <i class="fa fa-fw fa-file-alt me-2"></i>Account Statement
+        </strong>
     </div>
-    <div card="card-body">
-        <table class="table table-sm">
-            <thead>
-            <tr>
-                <th class="text-center">Invoice</th>
-                <th>Date</th>
-                <th>Due</th>
-                <th class="text-end">Amount</th>
-            </tr>
-            </thead>
-            <tbody>
-            <?php
-
-            while ($row = mysqli_fetch_assoc($sql_current_invoices)) {
-                $invoice_id = intval($row['invoice_id']);
-                $invoice_prefix = escapeHtml($row['invoice_prefix']);
-                $invoice_number = intval($row['invoice_number']);
-                $invoice_date = escapeHtml($row['invoice_date']);
-                $invoice_due = escapeHtml($row['invoice_due']);
-                $invoice_amount = floatval($row['invoice_amount']);
-                $invoice_currency_code = escapeHtml($row['invoice_currency_code']);
-                $invoice_url_key = escapeHtml($row['invoice_url_key']);
-                $invoice_tally_total = $invoice_amount + $invoice_tally_total;
-                $difference = strtotime($invoice_due) - time();
-                $days = floor($difference / (60*60*24));
-
-                ?>
-
-                <tr <?php if ($_GET['invoice_id'] == $invoice_id) { echo "class='table-primary'"; } ?>>
-                    <th class="text-center"><a href="guest_view_invoice.php?invoice_id=<?= $invoice_id ?>&url_key=<?= $invoice_url_key ?>"><?= "$invoice_prefix$invoice_number" ?></a></th>
-                    <td><?= $invoice_date ?></td>
-                    <td><?= $invoice_due ?> (Due in <?= $days ?> Days)</td>
-                    <td class="text-end text-bold"><?= numfmt_format_currency($currency_format, $invoice_amount, $invoice_currency_code) ?></td>
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-sm mb-0">
+                <thead>
+                <tr>
+                    <th class="text-center">Invoice</th>
+                    <th class="d-none d-md-table-cell">Scope</th>
+                    <th>Date</th>
+                    <th>Due</th>
+                    <th class="text-end">Amount</th>
+                    <th class="text-end">Paid</th>
+                    <th class="text-end">Balance</th>
                 </tr>
-
-            <?php } ?>
-
-            </tbody>
-        </table>
-    </div>
-</div>
-
-<?php
-
-}
-
-?>
-
-<?php
-
-// OUTSTANDING INVOICES
-
-$sql_outstanding_invoices = mysqli_query($mysqli, "SELECT invoice_amount, invoice_currency_code, invoice_date, invoice_due, invoice_id,
-    invoice_number, invoice_prefix, invoice_url_key FROM invoices WHERE invoice_client_id = $client_id AND invoice_due < CURDATE() AND(invoice_status = 'Sent' OR invoice_status = 'Viewed' OR invoice_status = 'Partial') ORDER BY invoice_date DESC");
-
-$outstanding_invoices_count = mysqli_num_rows($sql_outstanding_invoices);
-
-if ($outstanding_invoices_count > 0) { ?>
-
-<div class="card d-print-none card-danger">
-    <div class="card-header">
-        <strong><i class="fa fa-fw fa-exclamation-triangle me-2"></i><b><?= $outstanding_invoices_count ?></b> Outstanding Invoices</strong>
-    </div>
-    <div card="card-body">
-        <table class="table table-sm">
-            <thead>
-            <tr>
-                <th class="text-center">Invoice</th>
-                <th>Date</th>
-                <th>Due</th>
-                <th class="text-end">Amount</th>
-            </tr>
-            </thead>
-            <tbody>
-            <?php
-
-            while ($row = mysqli_fetch_assoc($sql_outstanding_invoices)) {
-                $invoice_id = intval($row['invoice_id']);
-                $invoice_prefix = escapeHtml($row['invoice_prefix']);
-                $invoice_number = intval($row['invoice_number']);
-                $invoice_date = escapeHtml($row['invoice_date']);
-                $invoice_due = escapeHtml($row['invoice_due']);
-                $invoice_amount = floatval($row['invoice_amount']);
-                $invoice_currency_code = escapeHtml($row['invoice_currency_code']);
-                $invoice_url_key = escapeHtml($row['invoice_url_key']);
-                $invoice_tally_total = $invoice_amount + $invoice_tally_total;
-                $difference = time() - strtotime($invoice_due);
-                $days = floor($difference / (60*60*24));
-
-                ?>
-
-                <tr <?php if ($_GET['invoice_id'] == $invoice_id) { echo "class='table-primary'"; } ?>>
-                    <th class="text-center"><a href="guest_view_invoice.php?invoice_id=<?= $invoice_id ?>&url_key=<?= $invoice_url_key ?>"><?= "$invoice_prefix$invoice_number" ?></a></th>
-                    <td><?= $invoice_date ?></td>
-                    <td class="text-danger"><?= $invoice_due ?> (Over Due by <?= $days ?> Days)</td>
-                    <td class="text-end text-bold"><?= numfmt_format_currency($currency_format, $invoice_amount, $invoice_currency_code) ?></td>
-                </tr>
-
+                </thead>
+                <tbody>
                 <?php
-            }
-            ?>
 
-            </tbody>
-        </table>
+                /*
+                 * Distinct variable names on purpose. The two cards this
+                 * replaces reused $invoice_id / $invoice_prefix / $invoice_due
+                 * for their loop rows, which clobbered the page's own invoice -
+                 * that is why the old highlight test had to read $_GET instead
+                 * of comparing against $invoice_id.
+                 */
+                while ($row = mysqli_fetch_assoc($sql_statement)) {
+                    $statement_invoice_id = intval($row['invoice_id']);
+                    $statement_invoice_prefix = escapeHtml($row['invoice_prefix']);
+                    $statement_invoice_number = intval($row['invoice_number']);
+                    $statement_invoice_scope = escapeHtml($row['invoice_scope']);
+                    $statement_invoice_date = escapeHtml($row['invoice_date']);
+                    $statement_invoice_due = escapeHtml($row['invoice_due']);
+                    $statement_invoice_url_key = escapeHtml($row['invoice_url_key']);
+                    $statement_invoice_amount = floatval($row['invoice_amount']);
+                    $statement_invoice_currency_code = escapeHtml($row['invoice_currency_code']);
+                    $statement_amount_paid = floatval($row['amount_paid']);
+                    $statement_invoice_balance = $statement_invoice_amount - $statement_amount_paid;
+
+                    $invoice_tally_total = $invoice_tally_total + $statement_invoice_balance;
+
+                    $statement_days = floor((time() - strtotime($statement_invoice_due)) / (60 * 60 * 24));
+
+                    if ($statement_days > 0) {
+                        $statement_due_class = 'text-danger';
+                        $statement_due_note = "(overdue by $statement_days days)";
+                    } else {
+                        $statement_due_class = '';
+                        $statement_due_note = '(due in ' . abs($statement_days) . ' days)';
+                    }
+
+                    ?>
+
+                    <tr <?php if ($statement_invoice_id === $invoice_id) { echo "class='table-primary'"; } ?>>
+                        <th class="text-center">
+                            <a href="guest_view_invoice.php?invoice_id=<?= $statement_invoice_id ?>&url_key=<?= $statement_invoice_url_key ?>">
+                                <?= "$statement_invoice_prefix$statement_invoice_number" ?>
+                            </a>
+                        </th>
+                        <td class="d-none d-md-table-cell"><?= $statement_invoice_scope ?></td>
+                        <td><?= $statement_invoice_date ?></td>
+                        <td class="<?= $statement_due_class ?>"><?= "$statement_invoice_due $statement_due_note" ?></td>
+                        <td class="text-end font-monospace"><?= numfmt_format_currency($currency_format, $statement_invoice_amount, $statement_invoice_currency_code) ?></td>
+                        <td class="text-end font-monospace"><?= numfmt_format_currency($currency_format, $statement_amount_paid, $statement_invoice_currency_code) ?></td>
+                        <td class="text-end font-monospace text-bold"><?= numfmt_format_currency($currency_format, $statement_invoice_balance, $statement_invoice_currency_code) ?></td>
+                    </tr>
+
+                    <?php
+
+                }
+
+                ?>
+
+                </tbody>
+                <tfoot>
+                <tr>
+                    <th colspan="6" class="text-end">Total Balance Due</th>
+                    <th class="text-end font-monospace"><?= numfmt_format_currency($currency_format, $invoice_tally_total, $client_currency_code) ?></th>
+                </tr>
+                </tfoot>
+            </table>
+        </div>
     </div>
 </div>
 
-<?php } // End previous unpaid invoices
+<?php } // End account statement
 
 require_once $_SERVER['DOCUMENT_ROOT']  . '/includes/footer.php';
