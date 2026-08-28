@@ -1381,73 +1381,6 @@ select.select2[multiple]:not(.tomselected) {
     }
 }
 
-/* ===========================================================================
-   CROSS-DOCUMENT VIEW TRANSITIONS
-   ===========================================================================
-   Crossfades between full page loads on same-origin navigation. No JS: the
-   browser snapshots the outgoing page, loads the incoming one, and animates
-   between the two snapshots.
-
-   Both documents have to carry the at-rule for a navigation to animate, which
-   is why it lives here - every ITFlow entry point loads this stylesheet, so
-   agent, admin, client portal, guest, login and setup all opt in together.
-
-   Browsers without support ignore the entire block and navigate exactly as
-   they did before. Nothing below is load-bearing.
-
-   Skipped automatically, no handling needed: reloads, address-bar and
-   bookmark navigations, cross-origin redirects (the M365 OAuth callback, the
-   Stripe return legs) and anything that never commits a navigation, such as
-   an authenticated file download. A navigation slower than roughly four
-   seconds is dropped back to an ordinary page load. */
-@view-transition {
-    navigation: auto;
-}
-
-/* Shorter than the 0.25s UA default - this should read as a soft handoff
-   rather than an animation you sit through. Overriding `animation` alone
-   keeps the UA stylesheet's mix-blend-mode: plus-lighter, which is what lets
-   regions that are identical on both pages crossfade without visibly dipping
-   through a lighter frame in the middle. */
-::view-transition-old(root) {
-    animation: itflow-vt-fade-out 120ms ease both;
-}
-
-::view-transition-new(root) {
-    animation: itflow-vt-fade-in 160ms ease both;
-}
-
-@keyframes itflow-vt-fade-out {
-    to {
-        opacity: 0;
-    }
-}
-
-@keyframes itflow-vt-fade-in {
-    from {
-        opacity: 0;
-    }
-}
-
-/* The header and side nav are deliberately NOT given a view-transition-name.
-
-   The first version of this block did, and froze both with animation:none so
-   they would sit still through the crossfade. That was a mistake. A named
-   element gets its own ::view-transition-group, and a frozen group holds the
-   OLD geometry for the whole transition while the incoming snapshot is
-   stretched to fit it, snapping to its real size only at the end. Geometry
-   here is not constant the way I assumed: .app-header and .app-sidebar are
-   fixed to the viewport, and the viewport width changes by the scrollbar width
-   whenever you navigate between a page long enough to scroll and one that is
-   not. Hence some navigations looking fine and others not.
-
-   Leaving them in the root snapshot is both simpler and better. The UA
-   stylesheet crossfades ::view-transition-old/new with
-   mix-blend-mode: plus-lighter precisely so that regions which are identical
-   on both pages hold steady rather than dipping through a lighter frame in the
-   middle, and the chrome is identical apart from which nav item carries
-   .active. Overriding `animation` alone above keeps that blend mode. */
-
 /* Keep the layout viewport a constant width.
 
    This is what was making some navigations judder and others not. AdminLTE
@@ -1488,14 +1421,3 @@ html {
     max-width: 100%;
 }
 
-/* AdminLTE ships its own reduced-motion handling, but it injects a
-   #adminlte-reduce-motion style block keyed on *, *::before and *::after.
-   The ::view-transition pseudo tree is not a descendant of any element those
-   match, so it is not covered and needs its own opt-out. */
-@media (prefers-reduced-motion: reduce) {
-    ::view-transition-group(*),
-    ::view-transition-old(*),
-    ::view-transition-new(*) {
-        animation: none !important;
-    }
-}
