@@ -245,4 +245,4 @@ require_once "../includes/footer.php";
 
 ?>
 
-<script src="js/pretty_content.js"></script>
+<script src="../js/pretty_content.js"></script>

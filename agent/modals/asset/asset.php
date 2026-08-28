@@ -625,8 +625,16 @@ ob_start();
             </div>
         </div>
         <!-- Include scripts to fetch TOTP codes and passwords via the credential ID -->
-        <script src="../js/credential_show_otp_via_id.js"></script>
-        <script src="../js/credential_show_password_via_id.js"></script>
+        <?php /* NOT ../js/ - this file is injected by js/ajax_modal.js, so a
+                 relative src resolves against the HOST page's URL (/agent/...),
+                 not this file's path. ../js/ therefore reached docroot, where
+                 credential_show_password_via_id.js does not exist at all and
+                 credential_show_otp_via_id.js was a stale copy posting to a
+                 /ajax.php that does not exist - which then redefined
+                 showOTPViaCredentialID and broke the reveal on the host page
+                 too. agent/modals/contact/contact.php has always used js/. */ ?>
+        <script src="js/credential_show_otp_via_id.js"></script>
+        <script src="js/credential_show_password_via_id.js"></script>
         <?php } ?>
 
         <?php if ($ticket_count) { ?>

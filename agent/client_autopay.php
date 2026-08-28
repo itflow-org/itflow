@@ -73,7 +73,7 @@ if (!$config_stripe_enable || !$config_stripe_publishable || !$config_stripe_sec
 
                 <input type="hidden" id="stripe_publishable_key" value="<?= $config_stripe_publishable ?>">
                 <script src="https://js.stripe.com/v3/"></script>
-                <script src="js/autopay_setup_stripe.js"></script>
+                <script src="/js/autopay_setup_stripe.js"></script>
                 <div id="checkout">
                     <!-- Checkout will insert the payment form here -->
                 </div>
