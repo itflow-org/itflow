@@ -463,7 +463,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                it was: it also covers a primary contact that exists but has
                                nothing worth printing. */
                             if (empty($contact_id) && lookupUserPermission("module_client") >= 2) { ?>
-                                <a class="ajax-modal" href="#" data-modal-url="modals/contact/contact_add.php?client_id=<?= $client_id ?>&primary=1">
+                                <a class="ajax-modal small" href="#" data-modal-url="modals/contact/contact_add.php?client_id=<?= $client_id ?>&primary=1">
                                     Add Primary Contact
                                 </a>
                             <?php } elseif (empty($contact_name) && empty($contact_phone) && empty($contact_mobile) && empty($client_email)) {
@@ -501,7 +501,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                         </td>
                         <td>
                             <?php if (empty($location_id) && lookupUserPermission("module_client") >= 2) { ?>
-                                <a class="ajax-modal" href="#" data-modal-url="modals/location/location_add.php?client_id=<?= $client_id ?>&primary=1">
+                                <a class="ajax-modal small" href="#" data-modal-url="modals/location/location_add.php?client_id=<?= $client_id ?>&primary=1">
                                     Add Primary Location
                                 </a>
                             <?php } else {

@@ -76,8 +76,8 @@
                      match enforceUserPermission() in agent/post/location.php;
                      without that a read-only user would get a link that 403s. */ ?>
             <?php if (empty($location_id) && lookupUserPermission("module_client") >= 2) { ?>
-                <div>
-                    <a class="ajax-modal" href="#" data-modal-url="modals/location/location_add.php?client_id=<?= $client_id ?>&primary=1">
+                <div class="mb-2">
+                    <a class="ajax-modal small" href="#" data-modal-url="modals/location/location_add.php?client_id=<?= $client_id ?>&primary=1">
                         Add Primary Location
                     </a>
                 </div>
@@ -117,7 +117,7 @@
 
             if (empty($contact_id) && lookupUserPermission("module_client") >= 2) { ?>
                 <div>
-                    <a class="ajax-modal" href="#" data-modal-url="modals/contact/contact_add.php?client_id=<?= $client_id ?>&primary=1">
+                    <a class="ajax-modal small" href="#" data-modal-url="modals/contact/contact_add.php?client_id=<?= $client_id ?>&primary=1">
                         Add Primary Contact
                     </a>
                 </div>
