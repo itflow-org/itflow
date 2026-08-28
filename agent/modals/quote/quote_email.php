@@ -16,15 +16,19 @@ $client_id = intval($row['quote_client_id']);
 
 enforceClientAccess();
 
+// Wider than the invoice picker - see documentContactFilterSql(). A quote is
+// read by whoever scoped the work as often as by whoever signs it.
 $sql_contacts = mysqli_query(
     $mysqli,
-    "SELECT contact_billing, contact_email, contact_id, contact_name, contact_primary, contact_title
+    "SELECT contact_billing, contact_email, contact_id, contact_important, contact_name,
+        contact_primary, contact_technical, contact_title
     FROM contacts
     WHERE contact_client_id = $client_id
     AND contact_archived_at IS NULL
     AND contact_email IS NOT NULL
     AND contact_email != ''
-    ORDER BY contact_primary DESC, contact_billing DESC, contact_name ASC"
+    " . documentContactFilterSql('quote') . "
+    ORDER BY contact_primary DESC, contact_billing DESC, contact_technical DESC, contact_name ASC"
 );
 
 $contact_count = mysqli_num_rows($sql_contacts);
@@ -48,9 +52,9 @@ ob_start();
         <?php if ($contact_count == 0) { ?>
 
             <p class="text-muted mb-0">
-                This client has no contacts with an email address, so there is nobody to send to.
-                Add a contact with an email address, or use Mark Sent to record that the quote
-                went out some other way.
+                This client has no primary, billing, technical or important contact with an email
+                address, so there is nobody to send a quote to. Flag a contact with one of those
+                roles, or use Mark Sent to record that the quote went out some other way.
             </p>
 
         <?php } else { ?>
@@ -68,6 +72,8 @@ ob_start();
                     $contact_title = escapeHtml($row['contact_title']);
                     $contact_primary = intval($row['contact_primary']);
                     $contact_billing = intval($row['contact_billing']);
+                    $contact_technical = intval($row['contact_technical']);
+                    $contact_important = intval($row['contact_important']);
 
                     // Default selection reproduces the old link: quotes went to
                     // the primary contact only. Billing contacts are listed and
@@ -87,6 +93,12 @@ ob_start();
                         <?php } ?>
                         <?php if ($contact_billing == 1) { ?>
                             <span class="badge text-bg-success ms-1">Billing</span>
+                        <?php } ?>
+                        <?php if ($contact_technical == 1) { ?>
+                            <span class="badge text-bg-info ms-1">Technical</span>
+                        <?php } ?>
+                        <?php if ($contact_important == 1) { ?>
+                            <span class="badge text-bg-warning ms-1">Important</span>
                         <?php } ?>
                         <?php if (!empty($contact_title)) { ?>
                             <span class="text-muted ms-1"><?= $contact_title ?></span>

@@ -16,9 +16,10 @@ $client_id = intval($row['invoice_client_id']);
 
 enforceClientAccess();
 
-// Everyone at the client who can actually receive mail. Primary and billing
-// contacts lead because they are the ones checked by default below - that
-// pairing is the behaviour the old one-click Send Email link had baked in.
+// Billing-facing contacts only - see documentContactFilterSql(). Everyone
+// shown is also checked by default, which is the behaviour the old one-click
+// Send Email link had baked in; the checkboxes are here to drop one, not to
+// go hunting for somebody.
 $sql_contacts = mysqli_query(
     $mysqli,
     "SELECT contact_billing, contact_email, contact_id, contact_name, contact_primary, contact_title
@@ -27,6 +28,7 @@ $sql_contacts = mysqli_query(
     AND contact_archived_at IS NULL
     AND contact_email IS NOT NULL
     AND contact_email != ''
+    " . documentContactFilterSql('invoice') . "
     ORDER BY contact_primary DESC, contact_billing DESC, contact_name ASC"
 );
 
@@ -51,9 +53,9 @@ ob_start();
         <?php if ($contact_count == 0) { ?>
 
             <p class="text-muted mb-0">
-                This client has no contacts with an email address, so there is nobody to send to.
-                Add a contact with an email address, or use Mark Sent to record that the invoice
-                went out some other way.
+                This client has no primary or billing contact with an email address, so there is
+                nobody to send an invoice to. Flag a contact as billing, or use Mark Sent to record
+                that the invoice went out some other way.
             </p>
 
         <?php } else { ?>

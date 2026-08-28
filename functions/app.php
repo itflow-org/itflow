@@ -787,6 +787,34 @@ function createiCalStrCancel($datetime, $title, $uid) {
 }
 
 /*
+ * Which contacts a document's Send Email picker offers, as a SQL fragment.
+ *
+ * A client with fifty contacts should not hand the agent a fifty-row list to
+ * scroll, so the picker is narrowed to the people a given document type is
+ * actually addressed to:
+ *
+ *   invoice - primary and billing. A bill goes to whoever pays it.
+ *   quote   - primary, billing, technical and important. A quote gets read by
+ *             the person who scoped the work as often as the one who signs it.
+ *
+ * Lives here rather than inline in the modals because the Send Email button on
+ * agent/invoice.php and agent/quote.php gates on a COUNT using the same rule -
+ * if the two drift, the button appears and then the modal it opens reports
+ * there is nobody to send to.
+ *
+ * Note the post handlers deliberately do NOT re-apply this filter. It is a
+ * shortlist, not a permission boundary: any agent who can send a document can
+ * already set these flags on a contact.
+ */
+function documentContactFilterSql($document_type) {
+    if ($document_type === 'quote') {
+        return "AND (contact_primary = 1 OR contact_billing = 1 OR contact_technical = 1 OR contact_important = 1)";
+    }
+
+    return "AND (contact_primary = 1 OR contact_billing = 1)";
+}
+
+/*
  * The delivery methods offered by the Mark Sent modal on invoices and quotes.
  *
  * Marking a document sent records that it left the building by some route

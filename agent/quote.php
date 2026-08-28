@@ -99,15 +99,15 @@ if (isset($_GET['quote_id'])) {
     $company_website = escapeHtml($row['company_website']);
     $company_logo = escapeHtml($row['company_logo']);
 
-    // Send Email used to be gated on the PRIMARY contact having an email, which
-    // hid the button on a client whose only emailable contact was a billing or
-    // secondary one. The modal can send to any of them, so gate on whether the
-    // client has anybody reachable at all.
+    // Must use the same rule as the Send Email picker in
+    // modals/quote/quote_email.php, or the button offers a modal that then
+    // reports there is nobody to send to.
     $row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT COUNT(contact_id) AS emailable_contacts FROM contacts
         WHERE contact_client_id = $client_id
         AND contact_archived_at IS NULL
         AND contact_email IS NOT NULL
-        AND contact_email != ''"));
+        AND contact_email != ''
+        " . documentContactFilterSql('quote')));
     $emailable_contacts = intval($row['emailable_contacts']);
 
     $sql_history = mysqli_query($mysqli, "SELECT history_created_at, history_description, history_status FROM history WHERE history_quote_id = $quote_id ORDER BY history_id DESC");
