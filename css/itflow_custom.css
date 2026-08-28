@@ -1184,6 +1184,22 @@ select.select2[multiple]:not(.tomselected) {
    matches in BOTH modes rather than being a near-black (#030712) panel next to
    a #212529 page, and so events and the toolbar follow the theme accent. */
 #calendar {
+    /* Reserve the calendar's final height before it exists.
+
+       agent/calendar.php renders an empty <div id="calendar"></div> and
+       FullCalendar only fills it on DOMContentLoaded - which cannot happen
+       until every parser-blocking script has run, including the 777KB
+       fullcalendar.global.js that loads after the footer. Until then the div
+       is zero pixels tall, so the page paints with no calendar and then snaps
+       to full height, shoving everything below it down. That jump is the
+       flash.
+
+       90vh is not a guess: it is the exact `height: '90vh'` the calendar is
+       configured with in calendar.php, set outside the mobile branch so it
+       applies on both. Matching it here means the box is the right size from
+       first paint and nothing moves when the widget arrives. */
+    min-height: 90vh;
+
     --fc-classic-background: var(--bs-body-bg);
     --fc-classic-foreground: var(--bs-body-color);
     --fc-classic-muted-foreground: var(--bs-secondary-color);
