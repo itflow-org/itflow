@@ -118,16 +118,21 @@ foreach ($starter_content_status as $pack_status) {
 
         <p>
             A fictional book of business for demos, training and screenshots - <?= intval($demo_data_status['total']) ?> clients
-            with the people, equipment, documentation, tickets and billing a typical MSP would be carrying for them, plus the
-            bank accounts, operating costs and transfers on your own side of the books.
-            It is generated across the <strong>last two years</strong> and dated relative to today, so the dashboard, ticket
-            queue, aging, profit and loss and every other report have real history behind them rather than a single flat month.
+            with the people, equipment, documentation, credentials, tickets and billing a typical MSP would be carrying for
+            them. Each one arrives with an onboarding project, an onboarding ticket per asset, response targets, racked
+            infrastructure, documented IP addresses and a supplier list. Managed and break fix clients are both represented.
+            Your own side of the books is generated too - bank accounts, suppliers, operating costs, recurring expenses and
+            the transfers that settle card payments into the bank.
+            Everything is spread across the <strong>last two years</strong> and dated relative to today, so the dashboard,
+            ticket queue, aging, profit and loss and every other report have real history behind them rather than one flat month.
         </p>
         <p class="text-muted">
-            This is sample data, not configuration. Every demo client carries the <strong>Demo Data</strong> client tag and
-            everything created hangs off one of them, so removing it takes the whole lot back out again. Contacts use
-            addresses on the reserved <strong>.example</strong> domain, which cannot receive mail, and the demo
-            agreements are created with email notification switched off.
+            This is sample data, not configuration. Nothing in it is labelled as demo data - the clients, tags and references
+            all read as real, which is the point. Removal matches the <?= intval($demo_data_status['total']) ?> client names in
+            the library, so <strong>renaming a demo client stops it being removable</strong>. Contacts use addresses on the
+            reserved <strong>.example</strong> domain, which cannot receive mail, and the agreements are created with email
+            notification switched off. If this install already has bank accounts of its own, the company side of the books is
+            left alone entirely.
         </p>
 
         <?php if ($demo_data_status['other_clients'] && !$demo_data_loaded) { ?>
@@ -142,7 +147,7 @@ foreach ($starter_content_status as $pack_status) {
 
             <?php if (!empty($starter_content_status['categories']['missing']) || !empty($starter_content_status['tags']['missing'])) { ?>
             <p class="text-warning">
-                <i class="fas fa-fw fa-exclamation-triangle me-1"></i>Add the Categories and Tags packs above first, or the demo tickets, invoices and tags come in bare.
+                <i class="fas fa-fw fa-exclamation-triangle me-1"></i>Add the Categories and Tags packs above first, or the tickets, invoices and tags come in bare.
             </p>
             <?php } ?>
 
@@ -162,7 +167,7 @@ foreach ($starter_content_status as $pack_status) {
 
             <div class="d-flex gap-2">
 
-                <form action="post.php" method="POST" autocomplete="off" onsubmit="return confirm('Delete every client tagged Demo Data, along with all of their contacts, assets, documentation, credentials, tickets, quotes, invoices and payments? This cannot be undone.');">
+                <form action="post.php" method="POST" autocomplete="off" onsubmit="return confirm('Delete the demo clients, along with all of their contacts, assets, documentation, credentials, tickets, quotes, invoices and payments, plus the demo suppliers, accounts, response targets and company expenses? This cannot be undone.');">
                     <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
                     <button type="submit" name="remove_demo_data" value="1" class="btn btn-danger">
                         <i class="fas fa-fw fa-trash me-2"></i>Remove demo data
