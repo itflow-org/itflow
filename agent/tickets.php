@@ -323,7 +323,7 @@ if ($date_filter_active) {
 
 ?>
 
-<div class="card">
+<div class="card mb-3">
     <div class="card-header bg-dark py-2">
         <h3 class="card-title mt-2"><i class="fa fa-fw fa-life-ring me-2"></i>Tickets
             <small class="ms-3">
