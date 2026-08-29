@@ -2,20 +2,133 @@
 
 This file documents all notable changes made to ITFlow.
 
-## [26.08.2] Maint Release
+## [26.09]
 
-### Upgrading to 26.08.2
+### Upgrading to 26.09
 
-Update the files from Settings > Update as normal. There is no database change in this release, so nothing else is required.
+> **The database update has to be run from the command line one more time.** The web interface no longer applies database updates, and the new queued-update path needs a schema change that this release itself adds — so on this one upgrade there is nothing in the browser that can finish the job. After this, it goes back to being a single button.
+
+1. **Back everything up.** Maintenance > Backup, or a full VM snapshot.
+2. **Update the files from Maintenance > Update as normal.** The old page pulls the new files and reports success, then drops you into 26.09 running against the 26.08 database. Errors at that point are expected and stop as soon as step 3 completes.
+3. **Run the database update from the command line.** Run it as the user that owns the ITFlow files — the script tells you which user if you get it wrong:
+```bash
+sudo -u www-data php /path/to/itflow/scripts/update_cli.php --update_db
+```
+It applies every pending version from 2.6.8 to 2.7.8 in order and reports each one as it goes. If a step fails it stops there without advancing the recorded version, so you can fix the cause and run it again.
+4. **Check it took.** Maintenance > Update should show the database up to date and the Queue Update button available.
+
+From here on the command line is optional. Maintenance > Update hands the work to cron, which updates the files and the database in one pass.
+
+### Breaking Changes and Notes
+
+- Updates are no longer applied by your browser. Maintenance > Update either hands the job to cron, which runs it in the background, or you run it from the shell. As a side effect ITFlow now updates cleanly on hardened hosts that disable PHP's shell functions, which it could not do before.
+- Database updates have been removed from the web interface entirely. Cron applies them as part of a queued update, or you run `php scripts/update_cli.php --update_db` yourself.
+- Running `php scripts/update_cli.php` with no arguments updates the files and then the database in one go, and the file update is forced — any local edits you have made to shipped files are discarded. Use `--update_db` if you only want the database half; it never touches your files.
+- If you have added your own CSS or JavaScript under `agent/custom/`, expect it to need updating. The interface has moved to a new major version of the framework it is built on and most class names have changed. Details are in Developer Updates below.
+- The five built-in ticket statuses now have fixed SLA clock behaviour and can no longer be configured. New and Open always run; On Hold, Resolved and Closed always pause the resolution clock. Only custom statuses keep the SLA Clock dropdown, and the built-ins are marked "(fixed)" in the list.
+- On Hold pauses the resolution clock, not the response clock, and only once the ticket has had its first reply. A ticket parked on hold before anyone replies still breaches its response target — reply first, then hold.
+- Breaches already recorded against on-hold tickets under the old behaviour are left as they are. Change a ticket's priority or SLA to re-stamp it if you want it recalculated.
+- Holidays and closure days are new and start empty. Until you add them, SLA clocks keep running through your closures exactly as they did before.
+- Tickets default to Medium priority when none is given, and ticket replies default to Public.
+- Send Email and Mark Sent on invoices and quotes now open modals rather than sending straight away, so any bookmarked direct links to those actions no longer work.
+
+### New Features & Updates
+
+- The interface has had a full visual overhaul, with dark mode carried properly through the calendar, the editor, confirmation dialogs, tables and form controls.
+- Your theme colour and any custom CSS now apply everywhere, including the client portal, the guest pages, login and setup. Those pages previously ignored both and rendered in the default styling.
+- Ticket: canned responses. Add them under Admin > Templates > Canned Responses, scoped to a ticket category or to all categories, and pick one from the reply form. It inserts at the cursor, so picking one into a half-written reply adds to it rather than replacing it.
+- Ticket: SLA response targets now appear on ticket-created emails, rolled up to business days, with a note to call in on High and Urgent.
+- Ticket: the reply card stays out of the way until you click Reply.
+- SLA: holidays and closure days. Define the days you are closed and the SLA clock pauses through them, with a one-click importer for US federal holidays.
+- Networks: a full IP address section under each subnet — address, hostname and description, with search, sort, bulk delete, CSV import and export. Addresses are checked against the subnet they are being added to and duplicates within a subnet are refused, so the same guard applies whether you type one in or import a thousand. Both IPv4 and IPv6, sorted numerically so .9 comes before .10.
+- Designate one client record as your own organization, under Company Details. Clicking your company name at the top of the side navigation now takes you straight to it.
+- Invoices and Quotes: Send Email opens a modal listing the client's contacts with their email addresses, with the usual defaults pre-checked — primary and billing for invoices, primary for quotes. Who it went to is recorded in the document history. Quick Send is still there for a one-click send to the defaults.
+- Invoices and Quotes: Mark Sent asks how it was sent — snail mail, an email client, in person and so on — and records the reason in the history.
+- Client account statements. Send one from the invoice list with a date range and an option to leave out paid invoices, view it on the guest invoice page, and download it as a PDF from the client portal.
+- Files: documents and files are now told apart, with a filter for all documents or just files. Thumbnail view shows every file, previews work for documents, PDFs and text, and your choice of list or thumbnail view survives navigating between folders.
+- Client Portal: the profile page has been rebuilt — department, location, title and phone with inline editing, PIN changes, recent sign-ins and recent activity, with a separate full activity page.
+- Client Portal: empty tables now say what is missing instead of showing a bare header row.
+- Phone numbers show their country code, and the country is kept when you edit the number. The international phone input is now used on every phone field.
+- Maintenance > Update: Queue Update hands the update to cron, which runs it in its own process and updates the files and the database in one pass. Check now looks for new commits without needing shell access, listing the pending commits with their dates and descriptions.
+- Mail Parser: you are now notified when the parser skips an autogenerated email rather than it disappearing silently.
+- Demo data. Twenty fictional clients with two years of history — a mix of managed and break-fix, tickets, invoices, expenses, assets and contracts, including FOSS products — loaded from Maintenance > Starter Content and tagged so it can be cleared out again.
+- Client pages load noticeably faster, running roughly a third fewer queries than before, and several pages that were slow on large installs have been sped up.
+- Lists now say whether nothing matched your filters or there are no records at all, instead of showing an empty table either way.
+- Assets and Contacts: an "Add primary" link where a client has no primary location or contact set.
+- The client header at the top of client pages collapses, and stays collapsed as you move between pages.
+- Page changes fade in rather than flashing, and the calendar reserves its height so the page no longer jumps as it loads.
+
+### Security
+
+- A restricted agent could open an asset, contact or location belonging to a client they have no access to by entering its id in the address bar. Those pages are now gated on the module permission that owns them and checked against the agent's client access rules, like every other record page.
+- Client Portal: changing a password or a PIN now requires the current password. Contacts signing in through SSO are exempt — there is no local password to check and the identity provider has already done it.
+- A user name containing HTML could inject markup into the page through the ticket task approver list. It no longer can.
 
 ### Bug Fixes
-- Calendar: fixed the agent calendar showing no events.
-- Calendar: shared calendar feeds set to publish busy blocks only were publishing full event titles, locations and descriptions to anyone holding the subscription link.
-- Cron: fixed Maintenance > Cron failing to load. Scheduled jobs themselves were unaffected and kept running.
-- Exports: restored the missing columns on the ticket, quote, recurring invoice, software and user exports.
-- API: restored the full record on the credentials list endpoint.
-- Mail: switching an existing install from Standard SMTP/IMAP to Microsoft 365 or Google OAuth no longer leaves the old mail server behind, which stopped sending and ticket email fetching from working. The connection settings for OAuth providers are now fixed by the provider and cleared on save.
 
+- Tickets could not be opened for clients marked as a lead.
+- Client Portal: raising a ticket sent no new-ticket notification — the notification errored out instead.
+- Notification pagination, asset OS autocomplete, the contact authentication toggle, AI ticket summaries and AI document template generation all did nothing when opened from a modal.
+- Fixed the readable password generator.
+- Date filter: All Time defaulted to 1970 rather than the current month.
+- Printing: side navigation and the top bar no longer print, the extra blank page is gone, cards print without their borders and the font is smaller, matching how it printed before.
+- Dark mode: fixed the light-mode flash on load, and the calendar, editor, confirmation dialogs, light backgrounds and buttons, and table checkboxes all follow the theme now.
+- Copy to clipboard was rendered as a button rather than a link.
+- Fixed the active side navigation highlight, and the Networks entry now stays active while viewing a subnet's IP addresses.
+- Select boxes no longer flash unstyled while the page loads.
+- Client pages flashed blank on every load.
+- Fixed the mail settings tabs regression.
+- Invoice emails went to archived contacts, and every copy carried the primary contact's name in the greeting rather than the name of the contact receiving it.
+- Client Portal: setting a PIN containing `<` or `>` silently cleared it while reporting that it saved.
+- Client Portal: audit entries were logged with an empty name.
+- Client Portal: the statement page and its PDF now render in the client's currency, matching the guest view and the emailed statement.
+- Filtering the audit log by date was slow on large installs.
+- Quick Send asks for confirmation before sending.
+- Fixed a bug sending client account statements.
+
+### Developer Updates
+
+Front-end framework migration:
+- AdminLTE 3.2.0 to 4.9.1 and Bootstrap 4.6.2 to 5.3.8. The layout skeleton is renamed throughout — `content-wrapper`, `main-sidebar` and `main-header` become `app-main`, `app-content`, `app-sidebar` and `app-header`.
+- AdminLTE 4 dropped a number of v3 classes ITFlow relies on. `text-bold`, `text-sm`, `btn-default`, `img-circle`, the `.alert .icon` pairing, the sidebar badge positioning, the `small-box` watermark icon and all sixteen theme colours are reproduced in `css/itflow_custom.css` at v3's computed values, driven by a single `--itflow-accent` variable per theme.
+- Bootstrap 5 split `.bg-*` from `.text-bg-*`, so every `bg-dark` card and modal header needed its text colour restored explicitly.
+- `input-group-append` and `input-group-prepend` wrappers are deleted rather than renamed, selects moved from `form-control` to `form-select`, `data-toggle="buttons"` groups became `.btn-check`, and `custom-control`, `custom-select` and `custom-file` are gone.
+- `css/itflow_custom.css` was previously loaded only by `includes/header.php`. It is now loaded by the client portal, guest, login, setup and MFA enforcement headers as well, which is what fixes theming on those pages.
+
+jQuery removal:
+- jQuery, jQuery UI, select2, Inputmask, daterangepicker, Moment, Tempus Dominus, toastr, pdfmake, Dropzone and Popper are all gone. Replacements are Tom Select, Flatpickr, IMask, SweetAlert2 and Bootstrap's own toasts, plus `js/autocomplete.js` for the product and OS autocompletes.
+- New helpers in `js/app.js`: `itflowPostForm()` reproduces jQuery's bracketed array encoding that `ajax.php` parses, `itflowBindOnce()` replaces the namespaced `.off().on()` pattern, and `initTomSelect` / `refreshTomSelect` / `clearTomSelect` / `setTomSelectValue` wrap Tom Select.
+- `includes/modal_footer.php` re-executes `js/app.js` on every ajax modal open, so every initialiser needs a re-entry guard or it double-initialises.
+- New `itflowReady()` restores jQuery's `.ready()` semantics. Scripts injected into an ajax modal run after `DOMContentLoaded` has already fired, so a bare listener never ran — that is what killed the six modals listed under Bug Fixes.
+- `js/ajax_modal.js` re-injects `<script>` tags explicitly, because `innerHTML` does not execute them and `.append()` did.
+
+Schema and queries:
+- `history_description` widens from `varchar(200)` to `text` (2.7.7). A send to several recipients overflows 200 characters and strict mode errors rather than truncating.
+- Indexes added on the client-scoped columns (2.7.5), the per-parent child fetches and the mail queue loop (2.7.6), and `logs(log_user_id, log_client_id)` for the portal profile and activity pages (2.7.8).
+- `agent/includes/inc_all_client.php` rewritten so the sidebar badge counts are one query per table rather than one per number: 43 queries to 27 per client page load, with invoices scanned once instead of eight times.
+- `admin/audit_logs.php`'s date filter was `DATE(log_created_at) BETWEEN`, which is not sargable and made `KEY log_created_at` unusable. It is now a half-open range.
+
+Other:
+- The client portal PIN handler checked length before `escapeSql()`, whose `strip_tags()` then emptied the value, and stored the blank while flashing success. Length is now checked after sanitising.
+- The client delete modal's script was blocking the parser mid-body, which is why every client page flashed blank; it is deferred now.
+- The gating fix under Security covers `agent/asset.php`, `agent/contact.php`, `agent/contacts.php` and `agent/locations.php`.
+- The ticket task approver picker built `<option>` markup by template literal into `innerHTML`; it uses `new Option()` now, which assigns text.
+- New `functions/network.php` (subnet containment and IP normalisation, v4 and v6) and `functions/files.php`; `functions/sla.php` extended for holidays and closure days.
+- Phone input handling moved out of `js/app.js` into `js/phone_inputs.js` so the client portal can load it without pulling in everything else.
+- Update path: `admin/post/update.php` no longer shells out at all. `cron/update_check.php` does the fetch and stores the result, `cron/app_update.php` runs `scripts/update_cli.php` as a child process, and the database phase re-execs against the newly updated code so a migration calling a brand new helper does not hit an undefined function.
+- Removed 29 dead or duplicate files, including 348KB of unused FullCalendar themes, and fixed two broken script paths.
+- The debug page now recommends 512M for PHP's memory limit.
+- README and SECURITY.md updated.
+
+### Library Updates
+
+- Bump AdminLTE from 3.2.0 to 4.9.1.
+- Bump Bootstrap from 4.6.2 to 5.3.8.
+- Bump intl-tel-input from 25.3.0 to 29.2.3.
+- Bump ImapEngine from 1.25.4 to 1.25.6, along with its dependencies.
+- Added Tom Select, Flatpickr, IMask and SweetAlert2, none of which need jQuery.
+- DataTables now uses its Bootstrap 5 styling build.
+- Removed jQuery, jQuery UI, select2, select2-bootstrap4-theme, Inputmask, daterangepicker, Moment, Tempus Dominus, toastr, pdfmake, Dropzone, Popper and Show-Hide-Passwords-Bootstrap-4.
 
 ## [26.08.1] Maint Release
 
