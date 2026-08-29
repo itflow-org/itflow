@@ -715,11 +715,15 @@ if (isset($_GET['ticket_id'])) {
                         <div class="card mb-3">
                             <div class="card-body p-3 d-print-none">
 
-                                <!-- Who will see this reply, stated in the label rather than left to a colour -->
-                                <div class="btn-group w-100 mb-3" role="group">
+                                <!--
+                                 * Picking a reply type is what opens the composer below. Nothing is
+                                 * preselected, so a public reply is always a deliberate choice, and the
+                                 * conversation sits right under this strip until an agent wants to write.
+                                -->
+                                <div class="btn-group w-100" role="group" id="replyTypePicker">
                                     <input class="btn-check" id="public_reply_type_opt0" type="radio" name="public_reply_type" value="0">
                                     <label class="btn btn-outline-dark" for="public_reply_type_opt0"><i class="fas fa-fw fa-lock me-1"></i>Internal note</label>
-                                    <input class="btn-check" id="public_reply_type_opt1" type="radio" name="public_reply_type" value="1" checked>
+                                    <input class="btn-check" id="public_reply_type_opt1" type="radio" name="public_reply_type" value="1">
                                     <label class="btn btn-outline-info" for="public_reply_type_opt1"><i class="fas fa-fw fa-comment me-1"></i>Public reply</label>
                                     <?php if ($contact_email) { ?>
                                         <input class="btn-check" id="public_reply_type_opt2" type="radio" name="public_reply_type" value="2">
@@ -727,103 +731,114 @@ if (isset($_GET['ticket_id'])) {
                                     <?php } ?>
                                 </div>
 
-                                <?php
+                                <div class="collapse" id="replyComposer">
+                                    <div class="pt-3">
 
-                                /*
-                                 * Canned responses offered on this ticket: the ones tied to its
-                                 * category, plus the general ones that are offered everywhere.
-                                 * Names only - the body is fetched when one is picked, so a
-                                 * shelf of long responses does not ride along with every ticket.
-                                 */
-                                $sql_canned_responses = mysqli_query($mysqli, "SELECT canned_response_id, canned_response_name, canned_response_category_id
-                                    FROM canned_responses
-                                    WHERE canned_response_archived_at IS NULL
-                                    AND (canned_response_category_id = 0 OR canned_response_category_id = $ticket_category)
-                                    ORDER BY canned_response_name ASC");
+                                        <?php
 
-                                $canned_responses_for_category = [];
-                                $canned_responses_general = [];
+                                        /*
+                                         * Canned responses offered on this ticket: the ones tied to its
+                                         * category, plus the general ones that are offered everywhere.
+                                         * Names only - the body is fetched when one is picked, so a
+                                         * shelf of long responses does not ride along with every ticket.
+                                         */
+                                        $sql_canned_responses = mysqli_query($mysqli, "SELECT canned_response_id, canned_response_name, canned_response_category_id
+                                            FROM canned_responses
+                                            WHERE canned_response_archived_at IS NULL
+                                            AND (canned_response_category_id = 0 OR canned_response_category_id = $ticket_category)
+                                            ORDER BY canned_response_name ASC");
 
-                                while ($canned_row = mysqli_fetch_assoc($sql_canned_responses)) {
-                                    if (intval($canned_row['canned_response_category_id']) === 0) {
-                                        $canned_responses_general[] = $canned_row;
-                                    } else {
-                                        $canned_responses_for_category[] = $canned_row;
-                                    }
-                                }
+                                        $canned_responses_for_category = [];
+                                        $canned_responses_general = [];
 
-                                if ($canned_responses_for_category || $canned_responses_general) { ?>
+                                        while ($canned_row = mysqli_fetch_assoc($sql_canned_responses)) {
+                                            if (intval($canned_row['canned_response_category_id']) === 0) {
+                                                $canned_responses_general[] = $canned_row;
+                                            } else {
+                                                $canned_responses_for_category[] = $canned_row;
+                                            }
+                                        }
 
-                                    <div class="mb-3">
-                                        <select class="form-select" id="canned_response_picker">
-                                            <option value="">- Insert a canned response -</option>
-                                            <?php if ($canned_responses_for_category) { ?>
-                                                <optgroup label="<?= $ticket_category_display ?>">
-                                                    <?php foreach ($canned_responses_for_category as $canned_row) { ?>
-                                                        <option value="<?= intval($canned_row['canned_response_id']) ?>"><?= escapeHtml($canned_row['canned_response_name']) ?></option>
+                                        if ($canned_responses_for_category || $canned_responses_general) { ?>
+
+                                            <div class="mb-3">
+                                                <select class="form-select" id="canned_response_picker">
+                                                    <option value="">- Insert a canned response -</option>
+                                                    <?php if ($canned_responses_for_category) { ?>
+                                                        <optgroup label="<?= $ticket_category_display ?>">
+                                                            <?php foreach ($canned_responses_for_category as $canned_row) { ?>
+                                                                <option value="<?= intval($canned_row['canned_response_id']) ?>"><?= escapeHtml($canned_row['canned_response_name']) ?></option>
+                                                            <?php } ?>
+                                                        </optgroup>
                                                     <?php } ?>
-                                                </optgroup>
-                                            <?php } ?>
-                                            <?php if ($canned_responses_general) { ?>
-                                                <optgroup label="All categories">
-                                                    <?php foreach ($canned_responses_general as $canned_row) { ?>
-                                                        <option value="<?= intval($canned_row['canned_response_id']) ?>"><?= escapeHtml($canned_row['canned_response_name']) ?></option>
+                                                    <?php if ($canned_responses_general) { ?>
+                                                        <optgroup label="All categories">
+                                                            <?php foreach ($canned_responses_general as $canned_row) { ?>
+                                                                <option value="<?= intval($canned_row['canned_response_id']) ?>"><?= escapeHtml($canned_row['canned_response_name']) ?></option>
+                                                            <?php } ?>
+                                                        </optgroup>
                                                     <?php } ?>
-                                                </optgroup>
-                                            <?php } ?>
-                                        </select>
-                                    </div>
+                                                </select>
+                                            </div>
 
-                                <?php } ?>
+                                        <?php } ?>
 
-                                <div class="mb-3">
-                                    <textarea class="form-control tinymceTicket" id="ticket_reply" name="ticket_reply" placeholder="Type a response"></textarea>
-                                </div>
-
-                                <div class="mb-3">
-                                    <input type="file" class="form-control" name="attachments[]" multiple accept=".jpg, .jpeg, .gif, .png, .webp, .pdf, .txt, .md, .doc, .docx, .odt, .csv, .xls, .xlsx, .ods, .pptx, .odp, .zip, .tar, .gz, .xml, .msg, .json, .wav, .mp3, .ogg, .mov, .mp4, .av1, .ovpn">
-                                </div>
-
-                                <div class="row g-2 align-items-center">
-                                    <div class="col-md-4">
-                                        <div class="mb-3 mb-md-0">
-                                            <label class="text-secondary small mb-1">Set status to</label>
-                                            <select class="form-select select2" name="status" required>
-                                                <!-- Show all active ticket statuses, apart from new or closed as these are system-managed -->
-                                                <?php
-                                                $status_snippet = '';
-                                                if ($tasks_block_resolve) {
-                                                    $status_snippet = "AND ticket_status_id != 4";
-                                                }
-                                                $sql_ticket_status = mysqli_query($mysqli, "SELECT ticket_status_id, ticket_status_name FROM ticket_statuses WHERE ticket_status_id != 1 AND ticket_status_id != 5 AND ticket_status_active = 1 $status_snippet ORDER BY ticket_status_order");
-                                                while ($status_row = mysqli_fetch_assoc($sql_ticket_status)) {
-                                                    $ticket_status_id_select = intval($status_row['ticket_status_id']);
-                                                    $ticket_status_name_select = escapeHtml($status_row['ticket_status_name']);
-                                                    ?>
-                                                    <option value="<?= $ticket_status_id_select ?>" <?php if ($ticket_status == $ticket_status_id_select) { echo 'selected'; } ?>><?= $ticket_status_name_select ?></option>
-                                                <?php } ?>
-                                            </select>
+                                        <div class="mb-3">
+                                            <textarea class="form-control tinymceTicket" id="ticket_reply" name="ticket_reply" placeholder="Type a response"></textarea>
                                         </div>
-                                    </div>
 
-                                    <!-- Time Tracking -->
-                                    <div class="col-md-5">
-                                        <div class="mb-3 mb-md-0">
-                                            <label class="text-secondary small mb-1">Time worked</label>
-                                            <div class="input-group">
-                                                <input type="text" class="form-control" inputmode="numeric" id="hours" name="hours" placeholder="Hrs" min="0" max="23" pattern="0?[0-9]|1[0-9]|2[0-3]">
-                                                <input type="text" class="form-control" inputmode="numeric" id="minutes" name="minutes" placeholder="Mins" min="0" max="59" pattern="[0-5]?[0-9]">
-                                                <input type="text" class="form-control" inputmode="numeric" id="seconds" name="seconds" placeholder="Secs" min="0" max="59" pattern="[0-5]?[0-9]">
-                                                    <button type="button" class="btn btn-light" id="startStopTimer" title="Start / stop timer"><i class="fas fa-play"></i></button>
-                                                    <button type="button" class="btn btn-light" id="resetTimer" title="Reset timer"><i class="fas fa-redo-alt"></i></button>
+                                        <div class="mb-3">
+                                            <input type="file" class="form-control" name="attachments[]" multiple accept=".jpg, .jpeg, .gif, .png, .webp, .pdf, .txt, .md, .doc, .docx, .odt, .csv, .xls, .xlsx, .ods, .pptx, .odp, .zip, .tar, .gz, .xml, .msg, .json, .wav, .mp3, .ogg, .mov, .mp4, .av1, .ovpn">
+                                        </div>
+
+                                        <div class="row g-2 align-items-center">
+                                            <div class="col-md-4">
+                                                <div class="mb-3 mb-md-0">
+                                                    <label class="text-secondary small mb-1">Set status to</label>
+                                                    <select class="form-select select2" name="status" required>
+                                                        <!-- Show all active ticket statuses, apart from new or closed as these are system-managed -->
+                                                        <?php
+                                                        $status_snippet = '';
+                                                        if ($tasks_block_resolve) {
+                                                            $status_snippet = "AND ticket_status_id != 4";
+                                                        }
+                                                        $sql_ticket_status = mysqli_query($mysqli, "SELECT ticket_status_id, ticket_status_name FROM ticket_statuses WHERE ticket_status_id != 1 AND ticket_status_id != 5 AND ticket_status_active = 1 $status_snippet ORDER BY ticket_status_order");
+                                                        while ($status_row = mysqli_fetch_assoc($sql_ticket_status)) {
+                                                            $ticket_status_id_select = intval($status_row['ticket_status_id']);
+                                                            $ticket_status_name_select = escapeHtml($status_row['ticket_status_name']);
+                                                            ?>
+                                                            <option value="<?= $ticket_status_id_select ?>" <?php if ($ticket_status == $ticket_status_id_select) { echo 'selected'; } ?>><?= $ticket_status_name_select ?></option>
+                                                        <?php } ?>
+                                                    </select>
+                                                </div>
+                                            </div>
+
+                                            <!-- Time Tracking -->
+                                            <div class="col-md-5">
+                                                <div class="mb-3 mb-md-0">
+                                                    <label class="text-secondary small mb-1">Time worked</label>
+                                                    <div class="input-group">
+                                                        <input type="text" class="form-control" inputmode="numeric" id="hours" name="hours" placeholder="Hrs" min="0" max="23" pattern="0?[0-9]|1[0-9]|2[0-3]">
+                                                        <input type="text" class="form-control" inputmode="numeric" id="minutes" name="minutes" placeholder="Mins" min="0" max="59" pattern="[0-5]?[0-9]">
+                                                        <input type="text" class="form-control" inputmode="numeric" id="seconds" name="seconds" placeholder="Secs" min="0" max="59" pattern="[0-5]?[0-9]">
+                                                            <button type="button" class="btn btn-light" id="startStopTimer" title="Start / stop timer"><i class="fas fa-play"></i></button>
+                                                            <button type="button" class="btn btn-light" id="resetTimer" title="Reset timer"><i class="fas fa-redo-alt"></i></button>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <div class="col-md-3">
+                                                <div class="d-flex gap-2 mt-3 mt-md-4">
+                                                    <button type="submit" id="ticket_add_reply" name="add_ticket_reply" class="btn btn-success flex-grow-1">
+                                                        <i class="fas fa-fw fa-paper-plane me-2"></i>Send
+                                                    </button>
+                                                    <button type="button" id="cancelReply" class="btn btn-light" title="Close without replying">
+                                                        <i class="fas fa-fw fa-times"></i>
+                                                    </button>
+                                                </div>
                                             </div>
                                         </div>
-                                    </div>
 
-                                    <div class="col-md-3">
-                                        <button type="submit" id="ticket_add_reply" name="add_ticket_reply" class="btn btn-success w-100 mt-3 mt-md-4">
-                                            <i class="fas fa-fw fa-paper-plane me-2"></i>Send
-                                        </button>
                                     </div>
                                 </div>
 
@@ -1508,6 +1523,53 @@ require_once "../includes/footer.php";
                     cannedPicker.value = '';
                 });
         });
+    }
+
+    // Reply composer - the type buttons above are the entry point. The composer stays
+    // collapsed until one is picked, so the conversation is not pushed down the page and
+    // a public reply is never the default.
+    const replyComposer = document.getElementById('replyComposer');
+    if (replyComposer) {
+        const replyComposerCollapse = bootstrap.Collapse.getOrCreateInstance(replyComposer, { toggle: false });
+        const replyTypes = document.querySelectorAll('input[name="public_reply_type"]');
+
+        // Only ever opens. Switching Internal -> Public mid-draft must not throw the draft away.
+        replyTypes.forEach(radio => radio.addEventListener('change', () => replyComposerCollapse.show()));
+
+        replyComposer.addEventListener('shown.bs.collapse', function () {
+            // TinyMCE's autoresize plugin measured the editor while its container was
+            // display:none, so it sized to nothing. Re-measure now the box is real.
+            const editor = window.tinymce ? tinymce.get('ticket_reply') : null;
+
+            if (editor) {
+                editor.execCommand('mceAutoResize');
+                editor.focus();
+            } else {
+                const textarea = document.getElementById('ticket_reply');
+                if (textarea) textarea.focus();
+            }
+        });
+
+        const cancelReply = document.getElementById('cancelReply');
+        if (cancelReply) {
+            cancelReply.addEventListener('click', function () {
+                replyComposerCollapse.hide();
+                replyTypes.forEach(radio => { radio.checked = false; });
+            });
+        }
+
+        // The status select is required and lives inside the collapse. A required control in a
+        // display:none container blocks submission with nothing on screen to explain it, and the
+        // form can still be submitted with Enter from a focused reply-type button, so refuse
+        // outright while the composer is shut.
+        const replyForm = replyComposer.closest('form');
+        if (replyForm) {
+            replyForm.addEventListener('submit', function (e) {
+                if (!replyComposer.classList.contains('show')) {
+                    e.preventDefault();
+                }
+            });
+        }
     }
 
     // Conversation filter - show everything, only what the client can see, or only internal notes

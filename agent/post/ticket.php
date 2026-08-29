@@ -1865,9 +1865,10 @@ if (isset($_POST['add_ticket_reply'])) {
     // Defaults
     $send_email = 0;
     $ticket_reply_id = 0;
-    if ($_POST['public_reply_type'] == 1 ){
+    $public_reply_type = intval($_POST['public_reply_type'] ?? 0);
+    if ($public_reply_type == 1) {
         $ticket_reply_type = 'Public';
-    } elseif ($_POST['public_reply_type'] == 2 ) {
+    } elseif ($public_reply_type == 2) {
         $ticket_reply_type = 'Public';
         $send_email = 1;
     } else {
