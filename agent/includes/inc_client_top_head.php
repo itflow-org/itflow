@@ -1,19 +1,25 @@
 <?php $show_add_credit = 0; // Remove once credits is added hides the button ?>
 <?php
     /*
-     * #clientHeader starts open on the client overview and closed everywhere else.
-     * The flag is worked out once because the disclosure chevron needs it too:
-     * Bootstrap only writes aria-expanded onto a data-api trigger after the first
-     * click, so without seeding it here the chevron points the wrong way until
-     * something is clicked.
+     * Whether #clientHeader starts open. Remembered in a cookie rather than
+     * localStorage precisely so it can be answered HERE, server side - the panel
+     * and its chevron then render in the right state on the first paint instead
+     * of flashing shut and springing open once JS has run.
+     *
+     * With no cookie yet, fall back to the old behaviour: open on the client
+     * overview, closed on every other client page.
      */
-    $client_header_open = basename($_SERVER["PHP_SELF"]) == "client_overview.php";
+    if (isset($_COOKIE['client_header_open'])) {
+        $client_header_open = $_COOKIE['client_header_open'] === '1';
+    } else {
+        $client_header_open = basename($_SERVER["PHP_SELF"]) == "client_overview.php";
+    }
 ?>
 
 <div class="card mb-3 d-print-none">
     <div class="card-header pb-1 pt-2 px-3">
         <div class="card-title">
-            <a href="#" class="client-header-toggle<?= $client_header_open ? '' : ' collapsed' ?>" data-bs-toggle="collapse" data-bs-target="#clientHeader" aria-controls="clientHeader" aria-expanded="<?= $client_header_open ? 'true' : 'false' ?>"><h4 class="text-dark" data-bs-toggle="tooltip" data-bs-placement="right" title="Client ID: <?= $client_id ?>"><i class="fas fa-fw fa-chevron-right client-header-chevron" aria-hidden="true"></i><strong><?= $client_name ?></strong> <?php if ($client_archived_at) { echo "(archived)"; } ?></h4></a>
+            <a href="#" class="client-header-toggle<?= $client_header_open ? '' : ' collapsed' ?>" data-bs-toggle="collapse" data-bs-target="#clientHeader" aria-controls="clientHeader" aria-expanded="<?= $client_header_open ? 'true' : 'false' ?>"><h4 class="text-dark" data-bs-toggle="tooltip" data-bs-placement="right" title="Client ID: <?= $client_id ?>"><i class="fas fa-fw fa-chevron-<?= $client_header_open ? 'down' : 'right' ?> client-header-chevron" aria-hidden="true"></i><strong><?= $client_name ?></strong> <?php if ($client_archived_at) { echo "(archived)"; } ?></h4></a>
         </div>
         <?php if (!empty($client_tag_name_display_array)) { ?><div class="card-title ms-2"><?= $client_tags_display ?></div> <?php } ?>
         <?php if (lookupUserPermission("module_client") >= 2) { ?>
@@ -219,6 +225,42 @@
 
     </div>
 </div>
+
+<script>
+(function () {
+    /*
+     * Remember whether the client header is open so it stays that way while you move
+     * around the client area. The cookie is what the PHP at the top of this file reads
+     * on the next request. The chevron is swapped by CLASS rather than rotated in CSS,
+     * so the direction cannot go stale behind a cached stylesheet.
+     *
+     * No readiness wrapper: these are document-level listeners for events that cannot
+     * fire until both Bootstrap and the markup exist, so registration order is moot.
+     */
+    function syncClientHeader(open) {
+        document.cookie = 'client_header_open=' + (open ? '1' : '0') +
+            ';path=/;max-age=31536000;samesite=lax' +
+            (location.protocol === 'https:' ? ';secure' : '');
+
+        document.querySelectorAll('.client-header-chevron').forEach(function (icon) {
+            icon.classList.toggle('fa-chevron-down', open);
+            icon.classList.toggle('fa-chevron-right', !open);
+        });
+    }
+
+    document.addEventListener('shown.bs.collapse', function (e) {
+        if (e.target.id === 'clientHeader') {
+            syncClientHeader(true);
+        }
+    });
+
+    document.addEventListener('hidden.bs.collapse', function (e) {
+        if (e.target.id === 'clientHeader') {
+            syncClientHeader(false);
+        }
+    });
+})();
+</script>
 
 <?php
 // require_once "modals/client/client_credit_add.php"; --Credit Not Ready 2025-08-27

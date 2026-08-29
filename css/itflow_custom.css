@@ -1532,26 +1532,23 @@ html {
     max-width: 100%;
 }
 
-
 /* Client header disclosure - agent/includes/inc_client_top_head.php
 
    The client name is the collapse trigger for #clientHeader, but links carry no
    underline in this app and the h4 is text-dark, so nothing said the heading was
-   clickable or that a panel was folded behind it. Bootstrap maintains
-   aria-expanded on the trigger itself, so the chevron reads the real state
-   rather than a second copy of it kept somewhere in JS. */
+   clickable or that a panel was folded behind it.
+
+   Size and colour only. Which way it points is carried by the icon class itself
+   (fa-chevron-right / fa-chevron-down) - emitted by PHP for the first paint, swapped
+   by the include's own script after that. Not a CSS rotation, so the direction cannot
+   go stale behind a cached stylesheet. */
 .client-header-chevron {
     font-size: .7em;
     margin-right: .25rem;
     vertical-align: middle;
     color: var(--bs-secondary-color);
-    transition: transform .15s ease-in-out;
 }
 
 .client-header-toggle:hover .client-header-chevron {
     color: var(--bs-body-color);
-}
-
-.client-header-toggle[aria-expanded="true"] .client-header-chevron {
-    transform: rotate(90deg);
 }
