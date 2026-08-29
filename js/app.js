@@ -588,23 +588,49 @@ function itflowInit() {
         }
     });
 
-    // Password reveal. Replaces Show-Hide-Passwords-Bootstrap-4, which has no
-    // Bootstrap 5 release. Same data-toggle="password" contract as before.
-    document.querySelectorAll('[data-toggle="password"]').forEach(function (btn) {
-        btn.addEventListener('click', function () {
-            var group = btn.closest('.input-group');
-            var input = group && group.querySelector('input');
-            if (!input) {
+    // Password reveal. Replaces Show-Hide-Passwords-Bootstrap-4, which has no Bootstrap 5
+    // release. The data-toggle="password" contract stays on the INPUT, which is where all
+    // 15 call sites write it and where the old plugin expected it - but the plugin built
+    // its own toggle button, and the click has to land on the eye SPAN beside the field.
+    // Binding it to the input instead meant the eye did nothing at all, and clicking into
+    // the field to type your password switched it to type="text" while you typed it.
+    itflowStep('password-reveal', function () {
+        document.querySelectorAll('input[data-toggle="password"]').forEach(function (input) {
+            var group = input.closest('.input-group');
+            var icon = group && group.querySelector('.fa-eye, .fa-eye-slash');
+            var toggle = icon && icon.closest('span, button, a');
+
+            // includes/modal_footer.php re-executes this file on every ajax modal open, so
+            // without a marker anything already on the page collects a second handler and
+            // the next click toggles twice, which looks exactly like nothing happening.
+            if (!toggle || toggle.dataset.itflowPasswordToggle) {
                 return;
             }
-            var hidden = input.type === 'password';
-            input.type = hidden ? 'text' : 'password';
-            var icon = btn.querySelector('i');
-            if (icon) {
+            toggle.dataset.itflowPasswordToggle = '1';
+
+            // The eye is a plain <span>, so it needs the role to get a pointer cursor and
+            // the tabindex to be reachable at all without a mouse.
+            toggle.setAttribute('role', 'button');
+            toggle.setAttribute('tabindex', '0');
+            toggle.setAttribute('aria-pressed', 'false');
+            toggle.setAttribute('aria-label', 'Show password');
+
+            function toggleReveal() {
+                var hidden = input.type === 'password';
+                input.type = hidden ? 'text' : 'password';
                 icon.classList.toggle('fa-eye', !hidden);
                 icon.classList.toggle('fa-eye-slash', hidden);
+                toggle.setAttribute('aria-pressed', hidden ? 'true' : 'false');
+                toggle.setAttribute('aria-label', hidden ? 'Hide password' : 'Show password');
             }
-            btn.setAttribute('aria-pressed', hidden ? 'true' : 'false');
+
+            toggle.addEventListener('click', toggleReveal);
+            toggle.addEventListener('keydown', function (e) {
+                if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    toggleReveal();
+                }
+            });
         });
     });
 

@@ -1,9 +1,19 @@
 <?php $show_add_credit = 0; // Remove once credits is added hides the button ?>
+<?php
+    /*
+     * #clientHeader starts open on the client overview and closed everywhere else.
+     * The flag is worked out once because the disclosure chevron needs it too:
+     * Bootstrap only writes aria-expanded onto a data-api trigger after the first
+     * click, so without seeding it here the chevron points the wrong way until
+     * something is clicked.
+     */
+    $client_header_open = basename($_SERVER["PHP_SELF"]) == "client_overview.php";
+?>
 
 <div class="card mb-3 d-print-none">
     <div class="card-header pb-1 pt-2 px-3">
         <div class="card-title">
-            <a href="#" data-bs-toggle="collapse" data-bs-target="#clientHeader"><h4 class="text-dark" data-bs-toggle="tooltip" data-bs-placement="right" title="Client ID: <?= $client_id ?>"><strong><?= $client_name ?></strong> <?php if ($client_archived_at) { echo "(archived)"; } ?></h4></a>
+            <a href="#" class="client-header-toggle<?= $client_header_open ? '' : ' collapsed' ?>" data-bs-toggle="collapse" data-bs-target="#clientHeader" aria-controls="clientHeader" aria-expanded="<?= $client_header_open ? 'true' : 'false' ?>"><h4 class="text-dark" data-bs-toggle="tooltip" data-bs-placement="right" title="Client ID: <?= $client_id ?>"><i class="fas fa-fw fa-chevron-right client-header-chevron" aria-hidden="true"></i><strong><?= $client_name ?></strong> <?php if ($client_archived_at) { echo "(archived)"; } ?></h4></a>
         </div>
         <?php if (!empty($client_tag_name_display_array)) { ?><div class="card-title ms-2"><?= $client_tags_display ?></div> <?php } ?>
         <?php if (lookupUserPermission("module_client") >= 2) { ?>
@@ -64,7 +74,7 @@
     </div>
 </div>
 
-<div class="collapse <?php if (basename($_SERVER["PHP_SELF"]) == "client_overview.php") { echo "show"; } ?>" id="clientHeader">
+<div class="collapse<?= $client_header_open ? ' show' : '' ?>" id="clientHeader">
 
     <div class="card-group mb-3">
         <div class="card card-body px-3 py-2">
