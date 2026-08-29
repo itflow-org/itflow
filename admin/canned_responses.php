@@ -55,7 +55,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
         <table class="table table-striped table-borderless table-hover mb-0">
             <thead class="text-dark <?php if($num_rows[0] == 0) { echo "d-none"; } ?>">
             <tr>
-                <th>
+                <th class="ps-3">
                     <a class="text-secondary" href="?<?= $url_query_strings_sort ?>&sort=canned_response_name&order=<?= $disp ?>">
                         Response <?php if ($sort == 'canned_response_name') { echo $order_icon; } ?>
                     </a>
@@ -84,7 +84,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 
                 ?>
                 <tr>
-                    <td>
+                    <td class="ps-3">
                         <div class="d-flex">
                             <i class="fa fa-fw fa-2x fa-comment-dots me-3"></i>
                             <div class="flex-grow-1">

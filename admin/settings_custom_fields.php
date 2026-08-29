@@ -56,7 +56,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
             <table class="table table-striped table-borderless table-hover mb-0">
                 <thead class="text-dark <?php if ($num_rows[0] == 0) { echo "d-none"; } ?>">
                 <tr>
-                    <th><a class="text-dark" href="?<?= $url_query_strings_sort ?>&sort=custom_field_label&order=<?= $disp ?>">Label</a></th>
+                    <th class="ps-3"><a class="text-dark" href="?<?= $url_query_strings_sort ?>&sort=custom_field_label&order=<?= $disp ?>">Label</a></th>
                     <th><a class="text-dark" href="?<?= $url_query_strings_sort ?>&sort=custom_field_type&order=<?= $disp ?>">Type</a></th>
                     <th class="text-center">Action</th>
                 </tr>
@@ -73,7 +73,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 
                     ?>
                     <tr>
-                        <td><a class="text-dark" href="#" data-bs-toggle="modal" data-bs-target="#editCustomFieldModal<?= $custom_field_id ?>"><?= $custom_field_label ?></a></td>
+                        <td class="ps-3"><a class="text-dark" href="#" data-bs-toggle="modal" data-bs-target="#editCustomFieldModal<?= $custom_field_id ?>"><?= $custom_field_label ?></a></td>
                         <td><?= $custom_field_type ?></td>
                         <td>
                             <div class="dropdown dropstart text-center">

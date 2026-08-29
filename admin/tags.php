@@ -153,10 +153,10 @@ while ($row = mysqli_fetch_assoc($sql_tag_type_counts)) {
                             </tbody>
                         </table>
                     </div>
-                    <?php require_once "../includes/filter_footer.php"; ?>
                 </div>
             </div>
         </div>
+        <?php require_once "../includes/filter_footer.php"; ?>
     </div>
 
 <?php

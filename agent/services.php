@@ -114,7 +114,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
             <table class="table table-striped table-borderless table-hover mb-0">
                 <thead class="<?php if ($num_rows[0] == 0) { echo "d-none"; } ?>">
                 <tr>
-                    <th>
+                    <th class="ps-3">
                         <a class="text-dark" href="?<?= $url_query_strings_sort ?>&sort=service_name&order=<?= $disp ?>">
                             Name <?php if ($sort == 'service_name') { echo $order_icon; } ?>
                         </a>
@@ -165,7 +165,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 
                     <tr>
                         <!-- Name/Category/Updated/Importance from DB -->
-                        <td>
+                        <td class="ps-3">
                             <a class="text-dark ajax-modal" href="#"
                                 data-modal-size="xl"
                                 data-modal-url="modals/service/service.php?id=<?= $service_id ?>">

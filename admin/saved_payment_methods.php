@@ -27,6 +27,7 @@ $sql = mysqli_query($mysqli, "
         OR payment_provider_client LIKE '%$q%'
         OR saved_payment_provider_method LIKE '%$q%'
     ORDER BY $sort $order
+    LIMIT $record_from, $record_to
 ");
 
 $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
@@ -65,7 +66,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
         <table class="table table-striped table-borderless table-hover mb-0">
             <thead class="text-dark <?php if (!$num_rows[0]) { echo "d-none"; } ?>">
             <tr>
-                <th>
+                <th class="ps-3">
                     <a class="text-dark" href="?<?= $url_query_strings_sort ?>&sort=client_name&order=<?= $disp ?>">
                         Client <?php if ($sort == 'client_name') { echo $order_icon; } ?>
                     </a>
@@ -115,7 +116,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 
                 ?>
                 <tr>
-                    <td>
+                    <td class="ps-3">
                         <?= $client_name ?>
                         <br>
                         <small class="text-secondary">ID: <?= $client_id ?></small>

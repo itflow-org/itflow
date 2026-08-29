@@ -10,7 +10,8 @@ require_once "includes/inc_all_admin.php";
 $sql = mysqli_query(
     $mysqli,
     "SELECT SQL_CALC_FOUND_ROWS * FROM contract_templates
-    WHERE contract_template_name LIKE '%$q%' OR contract_template_type LIKE '%$q%' OR contract_template_name LIKE '%$q%'
+    WHERE contract_template_name LIKE '%$q%' OR contract_template_type LIKE '%$q%'
+        OR contract_template_description LIKE '%$q%'
     ORDER BY $sort $order LIMIT $record_from, $record_to"
 );
 
@@ -41,17 +42,53 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
         <table class="table table-striped table-borderless table-hover mb-0">
             <thead class="text-dark <?php if ($num_rows[0] == 0) { echo "d-none"; } ?>">
                 <tr>
-                    <th>Template Name</th>
-                    <th>Type</th>
-                    <th>Update Frequency</th>
+                    <th class="ps-3">
+                        <a class="text-dark" href="?<?= $url_query_strings_sort ?>&sort=contract_template_name&order=<?= $disp ?>">
+                            Template Name <?php if ($sort == 'contract_template_name') { echo $order_icon; } ?>
+                        </a>
+                    </th>
+                    <th>
+                        <a class="text-dark" href="?<?= $url_query_strings_sort ?>&sort=contract_template_type&order=<?= $disp ?>">
+                            Type <?php if ($sort == 'contract_template_type') { echo $order_icon; } ?>
+                        </a>
+                    </th>
+                    <th>
+                        <a class="text-dark" href="?<?= $url_query_strings_sort ?>&sort=contract_template_renewal_frequency&order=<?= $disp ?>">
+                            Update Frequency <?php if ($sort == 'contract_template_renewal_frequency') { echo $order_icon; } ?>
+                        </a>
+                    </th>
                     <th>SLA (L/M/H Response)</th>
                     <th>SLA (L/M/H Resolution)</th>
-                    <th>Hourly Rate</th>
-                    <th>After Hours Rate</th>
-                    <th>Support Hours</th>
-                    <th>Net Terms</th>
-                    <th>Created</th>
-                    <th>Updated</th>
+                    <th>
+                        <a class="text-dark" href="?<?= $url_query_strings_sort ?>&sort=contract_template_rate_standard&order=<?= $disp ?>">
+                            Hourly Rate <?php if ($sort == 'contract_template_rate_standard') { echo $order_icon; } ?>
+                        </a>
+                    </th>
+                    <th>
+                        <a class="text-dark" href="?<?= $url_query_strings_sort ?>&sort=contract_template_rate_after_hours&order=<?= $disp ?>">
+                            After Hours Rate <?php if ($sort == 'contract_template_rate_after_hours') { echo $order_icon; } ?>
+                        </a>
+                    </th>
+                    <th>
+                        <a class="text-dark" href="?<?= $url_query_strings_sort ?>&sort=contract_template_support_hours&order=<?= $disp ?>">
+                            Support Hours <?php if ($sort == 'contract_template_support_hours') { echo $order_icon; } ?>
+                        </a>
+                    </th>
+                    <th>
+                        <a class="text-dark" href="?<?= $url_query_strings_sort ?>&sort=contract_template_net_terms&order=<?= $disp ?>">
+                            Net Terms <?php if ($sort == 'contract_template_net_terms') { echo $order_icon; } ?>
+                        </a>
+                    </th>
+                    <th>
+                        <a class="text-dark" href="?<?= $url_query_strings_sort ?>&sort=contract_template_created_at&order=<?= $disp ?>">
+                            Created <?php if ($sort == 'contract_template_created_at') { echo $order_icon; } ?>
+                        </a>
+                    </th>
+                    <th>
+                        <a class="text-dark" href="?<?= $url_query_strings_sort ?>&sort=contract_template_updated_at&order=<?= $disp ?>">
+                            Updated <?php if ($sort == 'contract_template_updated_at') { echo $order_icon; } ?>
+                        </a>
+                    </th>
                     <th class="text-center">Action</th>
                 </tr>
             </thead>
@@ -76,8 +113,10 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                         $updated = escapeHtml($row['contract_template_updated_at']);
                 ?>
                 <tr>
-                    <td>
-                        <a class="text-bold" href="contract_template_details.php?contract_template_id=<?= $id ?>">
+                    <td class="ps-3">
+                        <a class="text-bold ajax-modal" href="#"
+                            data-modal-size="xl"
+                            data-modal-url="modals/contract_template/contract_template_edit.php?id=<?= $id ?>">
                             <i class="fas fa-fw fa-file-alt text-dark"></i> <?= $name ?>
                         </a>
                         <div class="mt-1 text-secondary"><?= escapeHtml($row['contract_template_description']) ?></div>
@@ -114,7 +153,6 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                 <?php } ?>
             </tbody>
         </table>
-        <br>
     </div>
     <?php require_once "../includes/filter_footer.php"; ?>
 </div>

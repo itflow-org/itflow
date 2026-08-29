@@ -44,7 +44,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
         <table class="table table-striped table-borderless table-hover mb-0">
             <thead class="text-dark <?php if ($num_rows[0] == 0) { echo "d-none"; } ?> text-nowrap">
             <tr>
-                <th>
+                <th class="ps-3">
                     <a class="text-dark" href="?<?= $url_query_strings_sort ?>&sort=module_name&order=<?= $disp ?>">
                         Module <?php if ($sort == 'module_name') { echo $order_icon; } ?>
                     </a>
@@ -62,7 +62,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 
                 ?>
                 <tr>
-                    <td>
+                    <td class="ps-3">
                         <a href="#" <?php if ($module_id > 6) { ?> class="ajax-modal" data-modal-url="modals/modules/module_edit.php?id=<?= $module_id ?>" <?php } ?>>
                             <strong class="text-dark"><?= $module_name ?></strong>
                         </a>

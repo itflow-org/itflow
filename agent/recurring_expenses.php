@@ -72,7 +72,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
             <table class="table table-striped table-borderless table-hover mb-0">
                 <thead class="text-dark <?php if ($num_rows[0] == 0) { echo "d-none"; } ?>">
                 <tr>
-                    <th>
+                    <th class="ps-3">
                         <a class="text-dark" href="?<?= $url_query_strings_sort ?>&sort=recurring_expense_next_date&order=<?= $disp ?>">
                             Next Date <?php if ($sort == 'recurring_expense_next_date') { echo $order_icon; } ?>
                         </a>
@@ -164,7 +164,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                     ?>
 
                     <tr>
-                        <td>
+                        <td class="ps-3">
                             <a class="text-dark ajax-modal" href="#"
                                 data-modal-size = "lg"
                                 data-modal-url = "modals/recurring_expense/recurring_expense_edit.php?id=<?= $recurring_expense_id ?>">

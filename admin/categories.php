@@ -207,10 +207,10 @@ $archive_toggle_url = '?' . http_build_query($archive_toggle_query);
                         </tbody>
                     </table>
                 </div>
-                <?php require_once "../includes/filter_footer.php"; ?>
             </div>
         </div>
     </div>
+    <?php require_once "../includes/filter_footer.php"; ?>
 </div>
 
 <?php

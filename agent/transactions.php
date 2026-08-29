@@ -415,7 +415,7 @@ if ($account_filter) {
             <table class="table table-striped table-borderless table-hover mb-0">
                 <thead class="text-dark <?php if ($num_rows[0] == 0) { echo "d-none"; } ?>">
                 <tr>
-                    <th>
+                    <th class="ps-3">
                         <a class="text-dark" href="?<?= $url_query_strings_sort ?>&sort=transaction_date&order=<?= $disp ?>">
                             Date <?php if ($sort == 'transaction_date') { echo $order_icon; } ?>
                         </a>
@@ -506,7 +506,7 @@ if ($account_filter) {
                     ?>
 
                     <tr>
-                        <td>
+                        <td class="ps-3">
                             <?php if ($transaction_type == 'Payment') { ?>
                                 <a class="text-bold" href="invoice.php?invoice_id=<?= $transaction_invoice_id ?>">
                                     <?= $transaction_date ?>

@@ -114,7 +114,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
             <table class="table table-sm table-striped table-borderless table-hover mb-0">
                 <thead class="text-dark <?php if ($num_rows[0] == 0) { echo "d-none"; } ?>">
                 <tr>
-                    <th>
+                    <th class="ps-3">
                         <a class="text-dark" href="?<?= $url_query_strings_sort ?>&sort=app_log_created_at&order=<?= $disp ?>">
                             Timestamp <?php if ($sort == 'app_log_created_at') { echo $order_icon; } ?>
                         </a>
@@ -149,7 +149,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                     ?>
 
                     <tr>
-                        <td class="font-monospace"><?= $log_created_at ?></td>
+                        <td class="font-monospace ps-3"><?= $log_created_at ?></td>
                         <td><?= $log_type ?></td>
                         <td><?= $log_category ?></td>
                         <td><?= $log_details ?></td>

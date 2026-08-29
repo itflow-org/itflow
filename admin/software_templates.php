@@ -47,7 +47,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
         <table class="table table-striped table-borderless table-hover mb-0">
             <thead class="text-dark <?php if($num_rows[0] == 0){ echo "d-none"; } ?>">
             <tr>
-                <th>
+                <th class="ps-3">
                     <a class="text-secondary" href="?<?= $url_query_strings_sort ?>&sort=software_template_name&order=<?= $disp ?>">
                         Template <?php if ($sort == 'software_template_name') { echo $order_icon; } ?>
                     </a>
@@ -79,7 +79,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 
                 ?>
                 <tr>
-                    <td>
+                    <td class="ps-3">
                         <a class="text-dark ajax-modal" href="#" data-modal-url="modals/software_template/software_template_edit.php?id=<?= $software_template_id ?>">
                             <div class="d-flex">
                                 <i class="fa fa-fw fa-2x fa-cube me-3"></i>

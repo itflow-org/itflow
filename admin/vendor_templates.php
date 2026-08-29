@@ -48,7 +48,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
         <table class="table table-striped table-borderless table-hover mb-0">
             <thead class="text-dark <?php if ($num_rows[0] == 0) { echo "d-none"; } ?>">
             <tr>
-                <th>
+                <th class="ps-3">
                     <a class="text-secondary" href="?<?= $url_query_strings_sort ?>&sort=vendor_template_name&order=<?= $disp ?>">
                         Vendor <?php if ($sort == 'vendor_template_name') { echo $order_icon; } ?>
                     </a>
@@ -92,7 +92,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 
                 ?>
                 <tr>
-                    <th>
+                    <th class="ps-3">
                         <a class="text-dark ajax-modal" href="#"
                             data-modal-url="modals/vendor_template/vendor_template_edit.php?id=<?= $vendor_template_id ?>">
                             <i class="fa fa-fw fa-building text-secondary me-2"></i><?= $vendor_template_name ?>

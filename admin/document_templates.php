@@ -42,7 +42,7 @@
         <table class="table table-striped table-borderless table-hover mb-0">
             <thead class="text-dark <?php if ($num_rows[0] == 0) { echo "d-none"; } ?>">
                 <tr>
-                    <th>
+                    <th class="ps-3">
                         <a class="text-secondary" href="?<?= $url_query_strings_sort ?>&sort=document_template_name&order=<?= $disp ?>">
                             Template Name <?php if ($sort == 'document_template_name') { echo $order_icon; } ?>
                         </a>
@@ -77,7 +77,7 @@
                 ?>
 
                 <tr>
-                    <td>
+                    <td class="ps-3">
                         <a class="text-dark ajax-modal" href="#"
                             data-modal-size="xl"
                             data-modal-url="modals/document_template/document_template_edit.php?id=<?= $document_template_id ?>">

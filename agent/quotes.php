@@ -95,7 +95,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
         <table class="table table-striped table-borderless table-hover mb-0">
             <thead class="text-dark <?php if ($num_rows[0] == 0) { echo "d-none"; } ?> text-nowrap">
             <tr>
-                <th>
+                <th class="ps-3">
                     <a class="text-dark" href="?<?= $url_query_strings_sort ?>&sort=quote_number&order=<?= $disp ?>">
                         Number <?php if ($sort == 'quote_number') { echo $order_icon; } ?>
                     </a>
@@ -187,7 +187,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                 ?>
 
                 <tr>
-                    <td class="text-bold">
+                    <td class="text-bold ps-3">
                         <a href="quote.php?client_id=<?= $client_id ?>&quote_id=<?= $quote_id ?>">
                             <?= "$quote_prefix$quote_number" ?>
                         </a>
