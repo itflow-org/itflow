@@ -80,6 +80,7 @@ if (!$stripe_public_key || !$stripe_secret_key) {
             <?php if (empty($saved_methods)) { ?>
                 <p>You currently have no saved payment methods. Please add one below.</p>
             <?php } else { ?>
+                <p>Payment methods you've authorized us to save for future payments:</p>
                 <ul class="list-unstyled">
                     <?php
                     try {
@@ -119,7 +120,8 @@ if (!$stripe_public_key || !$stripe_secret_key) {
             <?php } ?>
         </div>
         <div class="col-md-6">
-            <b>Add a new payment method</b><br><br>
+            <b>Add a new payment method</b>
+            <p>Adding a new payment method will authorize us to charge your card for future invoices automatically.</p><br><br>
 
             <input type="hidden" id="stripe_publishable_key" value="<?= $stripe_public_key ?>">
             <script src="https://js.stripe.com/v3/"></script>
