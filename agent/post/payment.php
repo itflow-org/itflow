@@ -653,8 +653,8 @@ if (isset($_GET['delete_payment'])) {
 
     validateCSRFToken();
 
-    enforceUserPermission('module_sales', 2);
-    enforceUserPermission('module_financial', 2);
+    enforceUserPermission('module_sales', 3);
+    enforceUserPermission('module_financial', 3);
 
     $payment_id = intval($_GET['delete_payment']);
 
@@ -685,6 +685,105 @@ if (isset($_GET['delete_payment'])) {
     if ($config_stripe_enable) {
        flashAlert("Payment deleted - Stripe payments must be manually refunded in Stripe", 'error');
     }
+
+    redirect();
+
+}
+
+if (isset($_GET['refund_payment_stripe'])) {
+
+    validateCSRFToken();
+
+    enforceUserPermission('module_sales', 3);
+    enforceUserPermission('module_financial', 3);
+
+    $payment_id = intval($_GET['refund_payment_stripe']);
+
+    // payments has no client column - the client comes from the invoice the payment sits on
+    $sql = mysqli_query($mysqli,"SELECT invoice_client_id, invoice_number, invoice_prefix, payment_invoice_id FROM payments
+        LEFT JOIN invoices ON payment_invoice_id = invoice_id
+        WHERE payment_id = $payment_id
+        AND payment_method = 'Stripe'
+        LIMIT 1"
+    );
+    $row = mysqli_fetch_assoc($sql);
+    $invoice_id = intval($row['payment_invoice_id']);
+    $invoice_prefix = escapeSql($row['invoice_prefix']);
+    $invoice_number = intval($row['invoice_number']);
+    $client_id = intval($row['invoice_client_id']);
+
+    enforceClientAccess();
+
+    // Get Stripe Payment Intent ID
+    $sql = mysqli_query($mysqli,"SELECT payment_reference FROM payments WHERE payment_id = $payment_id LIMIT 1");
+    $row = mysqli_fetch_assoc($sql);
+    if (preg_match('/(?<payment_intent>pi_[A-Za-z0-9]+)/', $row['payment_reference'], $matches)) {
+        $stripe_payment_intent_id = $matches['payment_intent'];
+    }
+    
+    // Get invoice details
+    $sql = mysqli_query($mysqli,"SELECT client_id, client_name, contact_email, contact_extension, contact_mobile,
+        contact_mobile_country_code, contact_name, contact_phone, contact_phone_country_code,
+        invoice_amount, invoice_currency_code, invoice_number, invoice_prefix, invoice_status,
+        invoice_url_key FROM invoices
+            LEFT JOIN clients ON invoice_client_id = client_id
+            LEFT JOIN contacts ON client_id = contact_client_id AND contact_primary = 1
+            WHERE invoice_id = $invoice_id"
+    );
+    $row = mysqli_fetch_assoc($sql);
+    $invoice_number = intval($row['invoice_number']);
+    $invoice_status = escapeSql($row['invoice_status']);
+    $invoice_amount = floatval($row['invoice_amount']);
+    $invoice_prefix = escapeSql($row['invoice_prefix']);
+    $invoice_number = intval($row['invoice_number']);
+    $invoice_url_key = escapeSql($row['invoice_url_key']);
+    $invoice_currency_code = escapeSql($row['invoice_currency_code']);
+    $client_id = intval($row['client_id']);
+    $client_name = escapeSql($row['client_name']);
+    $contact_name = escapeSql($row['contact_name']);
+    $contact_email = escapeSql($row['contact_email']);
+    $contact_phone = escapeSql(formatPhoneNumber($row['contact_phone'], $row['contact_phone_country_code']));
+    $contact_extension = preg_replace("/[^0-9]/", '',$row['contact_extension']);
+    $contact_mobile = escapeSql(formatPhoneNumber($row['contact_mobile'], $row['contact_mobile_country_code']));
+
+    $stripe_provider = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT payment_provider_private_key FROM payment_providers WHERE payment_provider_name = 'Stripe' LIMIT 1"));
+    if (!$stripe_provider) {
+        exit("Stripe not enabled / configured");
+    }
+    $stripe_secret_key = $stripe_provider['payment_provider_private_key'];
+
+    // Initialize Stripe
+    try {
+        require_once __DIR__ . '/../../includes/stripe_init.php';
+        $stripe = new \Stripe\StripeClient($stripe_secret_key);
+
+        // Refund
+        $refund = $stripe->refunds->create([
+                'payment_intent' => $stripe_payment_intent_id
+        ]);        
+    } catch (Exception $e) {
+        $error = $e->getMessage();
+        error_log("Stripe refund error - encountered exception during refund for invoice ID $invoice_id / $invoice_prefix$invoice_number: $error");
+        logApp("Stripe", "error", "Exception during refund for invoice ID $invoice_id: $error");
+        flashAlert("Stripe refund failed: $error", 'error');
+        redirect();
+    }
+
+    mysqli_query($mysqli,"DELETE FROM payments WHERE payment_id = $payment_id");
+
+    // Recalculate from what is left rather than from the pre-delete total
+    $invoice_status = updateInvoiceStatusFromPayments($invoice_id);
+
+    mysqli_query($mysqli,"INSERT INTO history SET history_status = '$invoice_status', history_description = 'Payment $stripe_payment_intent_id deleted and refunded', history_invoice_id = $invoice_id");
+
+    // Log info
+    $extended_log_desc = '';
+    if (!$pi_livemode) {
+        $extended_log_desc = '(DEV MODE)';
+    }    
+    logAudit("Invoice", "Edit", "$session_name refunded and deleted Payment $stripe_payment_intent_id on Invoice $invoice_prefix$invoice_number", $client_id, $invoice_id);
+
+    flashAlert("Payment deleted and refunded in Stripe", 'error');
 
     redirect();
 

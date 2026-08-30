@@ -119,7 +119,7 @@ if (isset($_GET['invoice_id'])) {
 
     $sql_history = mysqli_query($mysqli, "SELECT history_created_at, history_description, history_status FROM history WHERE history_invoice_id = $invoice_id ORDER BY history_id DESC");
 
-    $sql_payments = mysqli_query($mysqli, "SELECT account_name, payment_amount, payment_currency_code, payment_date, payment_id,
+    $sql_payments = mysqli_query($mysqli, "SELECT account_name, payment_amount, payment_currency_code, payment_method, payment_date, payment_id,
         payment_reference FROM payments, accounts WHERE payment_account_id = account_id AND payment_invoice_id = $invoice_id ORDER BY payments.payment_id DESC");
 
     $sql_tickets = mysqli_query($mysqli, "
@@ -681,7 +681,9 @@ if (isset($_GET['invoice_id'])) {
                                     <th class="text-end">Amount</th>
                                     <th>Reference</th>
                                     <th>Account</th>
-                                    <th></th>
+                                    <?php if (lookupUserPermission("module_sales") >= 3 && lookupUserPermission("module_financial") >= 3) { ?>
+                                        <th></th>
+                                    <?php } ?>
                                 </tr>
                             </thead>
                             <tbody>
@@ -692,6 +694,7 @@ if (isset($_GET['invoice_id'])) {
                                 $payment_date = escapeHtml($row['payment_date']);
                                 $payment_amount = floatval($row['payment_amount']);
                                 $payment_currency_code = escapeHtml($row['payment_currency_code']);
+                                $payment_method = escapeHtml($row['payment_method']);
                                 $payment_reference = escapeHtml($row['payment_reference']);
                                 $account_name = escapeHtml($row['account_name']);
 
@@ -701,7 +704,14 @@ if (isset($_GET['invoice_id'])) {
                                     <td class="text-end"><?= numfmt_format_currency($currency_format, $payment_amount, $payment_currency_code) ?></td>
                                     <td><?= $payment_reference ?></td>
                                     <td><?= $account_name ?></td>
-                                    <td class="text-center"><a class="btn btn-light text-danger confirm-link" href="post.php?delete_payment=<?= $payment_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>"><i class="fa fa-times"></i></a></td>
+                                    <?php if (lookupUserPermission("module_sales") >= 3 && lookupUserPermission("module_financial") >= 3) { ?>
+                                        <td class="text-center">
+                                            <?php if ($payment_method == "Stripe") { ?>
+                                                <a class="btn btn-light text-warning confirm-link" title="Refund Payment" href="post.php?refund_payment_stripe=<?= $payment_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>"><i class="fa fa-undo"></i></a>
+                                            <?php } ?>
+                                            <a class="btn btn-light text-danger confirm-link" title="Delete Payment" href="post.php?delete_payment=<?= $payment_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>"><i class="fa fa-times"></i></a>
+                                        </td>
+                                    <?php } ?>
                                 </tr>
                                 <?php
                             }
