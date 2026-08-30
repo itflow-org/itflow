@@ -28,6 +28,7 @@ ob_start();
 <form action="post.php" method="post" autocomplete="off">
     <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
     <input type="hidden" name="provider_id" value="<?= $provider_id ?>">
+    <input type="hidden" name="provider" value="<?= $provider_name ?>">
 
     <div class="modal-body">
 

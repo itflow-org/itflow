@@ -1,7 +1,7 @@
 <?php
 
 /*
- * ITFlow - GET/POST request handler for AI Providers ('ai_providers')
+ * ITFlow - GET/POST request handler for payment Providers ('payment_providers')
  */
 
 defined('FROM_POST_HANDLER') || die("Direct file access is not allowed");
@@ -29,7 +29,19 @@ if (isset($_POST['add_payment_provider'])) {
 
     $provider_id = mysqli_insert_id($mysqli);
 
-    logAudit("Payment Provider", "Create", "$session_name created AI Provider $provider");
+    logAudit("Payment Provider", "Create", "$session_name created Payment Provider $provider");
+
+    // Check Stripe sk
+    if ($provider === 'Stripe') {
+        try {
+            require_once '../includes/stripe_init.php';
+            $stripe = new \Stripe\StripeClient($private_key);
+            $account = $stripe->accounts->retrieve();
+        } catch (Exception $e) {
+            flashAlert("Error checking Stripe key: " . $e->getMessage(), 'error');
+            redirect();
+        }
+    }
 
     flashAlert("Payment provider <strong>$provider</strong> created");
 
@@ -42,7 +54,6 @@ if (isset($_POST['edit_payment_provider'])) {
     validateCSRFToken();
 
     $provider_id = intval($_POST['provider_id']);
-    $description = escapeSql($_POST['description']);
     $public_key = escapeSql($_POST['public_key']);
     $private_key = escapeSql($_POST['private_key']);
     $threshold = floatval($_POST['threshold']);
@@ -53,6 +64,18 @@ if (isset($_POST['edit_payment_provider'])) {
     mysqli_query($mysqli,"UPDATE payment_providers SET payment_provider_public_key = '$public_key', payment_provider_private_key = '$private_key', payment_provider_threshold = $threshold, payment_provider_account = $account, payment_provider_expense_vendor = $expense_vendor, payment_provider_expense_category = $expense_category WHERE payment_provider_id = $provider_id");
 
     logAudit("Payment Provider", "Edit", "$session_name edited Payment Provider $provider");
+
+    // Check Stripe sk
+    if ($_POST['provider'] === 'Stripe') {
+        try {
+            require_once '../includes/stripe_init.php';
+            $stripe = new \Stripe\StripeClient($private_key);
+            $account = $stripe->accounts->retrieve();
+        } catch (Exception $e) {
+            flashAlert("Error checking Stripe key: " . $e->getMessage(), 'error');
+            redirect();
+        }
+    }
 
     flashAlert("Payment Provider <strong>$provider</strong> edited");
 

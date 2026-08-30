@@ -79,14 +79,14 @@ if (isset($_GET['invoice_id'], $_GET['url_key'])) {
 
                         <div class="mb-3">
                             <div class="form-floating">
-                                <input type="text" class="form-control" id="stripe_name" name="name" placeholder="Name" autocomplete="name" required>
+                                <input type="text" class="form-control" id="stripe_name" name="name" placeholder="Name" autocomplete="name" maxlength="80" required>
                                 <label for="stripe_name">Your Name</label>
                             </div>
                         </div>
 
                         <div class="mb-3">
                             <div class="form-floating">
-                                <input type="email" class="form-control" id="stripe_email" name="email" placeholder="Email" autocomplete="email" required>
+                                <input type="email" class="form-control" id="stripe_email" name="email" placeholder="Email" autocomplete="email" maxlength="80" required>
                                 <label for="stripe_email">Your Email</label>
                             </div>
                         </div>
