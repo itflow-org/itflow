@@ -64,13 +64,23 @@ if (isset($_GET['stripe_create_pi'])) {
     }
 
     // Setup Stripe from payment_providers
-    $stripe_provider = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT payment_provider_private_key FROM payment_providers WHERE payment_provider_name = 'Stripe' LIMIT 1"));
+    $stripe_provider = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT payment_provider_id, payment_provider_private_key FROM payment_providers WHERE payment_provider_name = 'Stripe' LIMIT 1"));
     if (!$stripe_provider) {
         exit("Stripe not enabled / configured");
     }
+    $stripe_provider_id = intval($stripe_provider['payment_provider_id']);
     $stripe_secret_key = $stripe_provider['payment_provider_private_key'];
 
     require_once '../includes/stripe_init.php';
+
+    // Get client's Stripe customer ID
+    $stripe_customer_query = mysqli_query($mysqli, "
+        SELECT payment_provider_client FROM client_payment_provider
+        WHERE client_id = $session_client_id AND payment_provider_id = $stripe_provider_id
+        LIMIT 1
+    ");
+    $stripe_customer = mysqli_fetch_assoc($stripe_customer_query);
+    $stripe_customer_id = $stripe_customer ? escapeSql($stripe_customer['payment_provider_client']) : null;
 
     $pi_description = "ITFlow: $client_name payment of $invoice_currency_code $balance_to_pay for $invoice_prefix$invoice_number";
 
@@ -88,6 +98,7 @@ if (isset($_GET['stripe_create_pi'])) {
                 'itflow_invoice_id' => $invoice_id,
             ],
             'payment_method_types' => ['card'],
+            'customer' => $stripe_customer_id,
         ]);
 
         $output = [

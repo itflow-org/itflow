@@ -824,3 +824,120 @@ if (isset($_POST['guest_quote_upload_file'])) {
     }
 
 }
+
+if (isset($_POST['create_stripe_customer'])) {
+
+    $invoice_url_key = escapeSql($_POST['url_key']);
+    $invoice_id      = intval($_POST['invoice_id']);
+    $name = escapeSql($_POST['name']);
+    $email = escapeSql($_POST['email']);
+
+    // Query invoice details
+    $sql = mysqli_query(
+        $mysqli,
+        "SELECT client_id, client_name, invoice_amount, invoice_currency_code, invoice_date,
+            invoice_discount_amount, invoice_due, invoice_id, invoice_number, invoice_prefix,
+            invoice_status FROM invoices
+         LEFT JOIN clients ON invoice_client_id = client_id
+         WHERE invoice_id = $invoice_id
+         AND invoice_url_key = '$invoice_url_key'
+         AND invoice_status NOT IN ('Draft', 'Paid', 'Cancelled')
+         LIMIT 1"
+    );
+
+    // Ensure valid invoice
+    if (!$sql || mysqli_num_rows($sql) !== 1) {
+        echo "<br><h2>Oops, something went wrong! Please ensure you have the correct URL and have not already paid this invoice.</h2>";
+        require_once 'includes/guest_footer.php';
+        error_log("Stripe payment error - Invoice with ID $invoice_id not found or not eligible.");
+        exit();
+    }
+
+    $row = mysqli_fetch_assoc($sql);
+    $invoice_id            = intval($row['invoice_id']);
+    $invoice_prefix        = escapeHtml($row['invoice_prefix']);
+    $invoice_number        = intval($row['invoice_number']);
+    $client_id             = intval($row['client_id']);
+    $client_name           = escapeHtml($row['client_name']);
+
+    // Get Stripe provider config
+    $stripe_provider_result = mysqli_query($mysqli, "
+        SELECT payment_provider_id, payment_provider_private_key
+        FROM payment_providers
+        WHERE payment_provider_name = 'Stripe'
+        AND payment_provider_active = 1
+        LIMIT 1
+    ");
+
+    $stripe_provider = mysqli_fetch_assoc($stripe_provider_result);
+    if (!$stripe_provider) {
+        flashAlert("Stripe provider is not configured in the system.", 'danger');
+        redirect("saved_payment_methods.php");
+    }
+
+    $stripe_provider_id = intval($stripe_provider['payment_provider_id']);
+    $stripe_secret_key = escapeHtml($stripe_provider['payment_provider_private_key']);
+
+    if (empty($stripe_secret_key)) {
+        flashAlert("Stripe credentials missing. Please contact support.", 'danger');
+        redirect("saved_payment_methods.php");
+    }
+
+    // Check if client already has a Stripe customer
+    $existing_customer = mysqli_fetch_assoc(mysqli_query($mysqli, "
+        SELECT payment_provider_client
+        FROM client_payment_provider
+        WHERE client_id = $client_id
+        AND payment_provider_id = $stripe_provider_id
+        LIMIT 1
+    "));
+
+    if (!$existing_customer) {
+        try {
+            // Initialize Stripe
+            require_once '../includes/stripe_init.php';
+            $stripe = new \Stripe\StripeClient($stripe_secret_key);
+
+            // Create new customer in Stripe
+            $customer = $stripe->customers->create([
+                'name' => $client_name,
+                'email' => $email,
+                'metadata' => [
+                    'itflow_client_id' => $client_id,
+                    'consent_by' => $name,
+                ]
+            ]);
+
+            $stripe_customer_id = escapeSql($customer->id);
+
+            // Insert customer into client_payment_provider
+            mysqli_query($mysqli, "
+                INSERT INTO client_payment_provider
+                SET client_id = $client_id,
+                    payment_provider_id = $stripe_provider_id,
+                    payment_provider_client = '$stripe_customer_id',
+                    client_payment_provider_created_at = NOW()
+            ");
+
+            logAudit("Stripe", "Create", "Guest $name created Stripe customer for $client_name as $stripe_customer_id and authorized future automatic payments", $client_id);
+
+            flashAlert("Stripe customer created. Thank you for your consent.");
+
+        } catch (Exception $e) {
+            $error = $e->getMessage();
+
+            error_log("Stripe error while creating customer for $client_name: $error");
+
+            logApp("Stripe", "error", "Failed to create Stripe customer for $client_name: $error");
+
+            flashAlert("An error occurred while creating your Stripe customer. Please try again.", 'danger');
+
+        }
+
+    } else {
+        flashAlert("Stripe customer already exists for your account.", 'danger');
+    }
+
+    redirect('guest_view_invoice.php?invoice_id=' . $invoice_id . '&url_key=' . urlencode($invoice_url_key));
+}
+
