@@ -95,11 +95,21 @@ $company_locale = escapeHtml($row['company_locale']);
 $config_invoice_footer = escapeHtml($row['config_invoice_footer']);
 
 // Get Payment Provide Details
-$sql = mysqli_query($mysqli, "SELECT payment_provider_id, payment_provider_name, payment_provider_threshold FROM payment_providers WHERE payment_provider_active = 1 LIMIT 1");
+$sql = mysqli_query($mysqli, "SELECT payment_provider_id, payment_provider_name, payment_provider_threshold FROM payment_providers WHERE payment_provider_active = 1 AND payment_provider_name = 'Stripe' LIMIT 1");
 $row = mysqli_fetch_assoc($sql);
-$payment_provider_id = intval($row['payment_provider_id']);
+$payment_provider_id = $stripe_provider_id = intval($row['payment_provider_id']);
 $payment_provider_name = escapeHtml($row['payment_provider_name']);
 $payment_provider_threshold = floatval($row['payment_provider_threshold']);
+
+
+// Get client's Stripe customer ID
+$stripe_customer_query = mysqli_query($mysqli, "
+    SELECT payment_provider_client FROM client_payment_provider
+    WHERE client_id = $client_id AND payment_provider_id = $stripe_provider_id
+    LIMIT 1
+");
+$stripe_customer = mysqli_fetch_assoc($stripe_customer_query);
+$stripe_customer_id = $stripe_customer ? escapeSql($stripe_customer['payment_provider_client']) : null;
 
 //Set Currency Format
 $currency_format = numfmt_create($company_locale, NumberFormatter::CURRENCY);
@@ -179,8 +189,8 @@ if ($balance > 0) {
                     <a class="btn btn-default" href="guest_post.php?export_invoice_pdf=<?= $invoice_id ?>&url_key=<?= $url_key ?>">
                         <i class="fa fa-fw fa-download me-2"></i>Download
                     </a>
-                    <?php
-                    if ($invoice_status !== "Paid" &&
+                    <?php if (
+                        $invoice_status !== "Paid" &&
                         $invoice_status  !== "Cancelled" &&
                         $invoice_status !== "Draft" &&
                         $payment_provider_id &&
@@ -188,9 +198,17 @@ if ($balance > 0) {
                             $payment_provider_threshold == 0 ||
                             $payment_provider_threshold > $invoice_amount
                         )
-                    ){ ?>
-                        <a class="btn btn-success" href="guest_pay_invoice_stripe.php?invoice_id=<?= $invoice_id ?>&url_key=<?= $url_key ?>"><i class="fa fa-fw fa-credit-card me-2"></i>Pay Now </a>
-                    <?php } ?>
+                    )
+                    {
+                        // Stripe - Online payment (either setup a customer record, or pay directly if customer record already exists)
+                        // Needs adjusting if we do ever add more payment providers but fine for now.
+                        if ($stripe_customer_id) { ?>
+                            <a class="btn btn-success" href="guest_pay_invoice_stripe.php?invoice_id=<?= $invoice_id ?>&url_key=<?= $url_key ?>"><i class="fa fa-fw fa-credit-card me-2"></i>Pay Now </a>
+                        <?php }
+                        else { ?>
+                            <a class="btn btn-success" href="guest_pay_setup_stripe_customer.php?invoice_id=<?= $invoice_id ?>&url_key=<?= $url_key ?>"><i class="fa fa-fw fa-credit-card me-2"></i>Pay Now </a>
+                        <?php }
+                    } ?>
                 </div>
             </div>
         </div>

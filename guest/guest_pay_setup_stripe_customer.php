@@ -3,7 +3,7 @@
 require_once 'includes/inc_all_guest.php';
 
 // --- Get Stripe config from payment_providers table ---
-$stripe_provider = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT payment_provider_id, payment_provider_account, payment_provider_private_key, payment_provider_public_key FROM payment_providers"));
+$stripe_provider = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT payment_provider_id, payment_provider_account, payment_provider_private_key, payment_provider_public_key FROM payment_providers WHERE payment_provider_name = 'Stripe' LIMIT 1"));
 
 $stripe_provider_id = intval($stripe_provider['payment_provider_id']);
 $stripe_publishable = escapeHtml($stripe_provider['payment_provider_public_key']);
