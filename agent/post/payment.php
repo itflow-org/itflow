@@ -682,9 +682,6 @@ if (isset($_GET['delete_payment'])) {
     logAudit("Invoice", "Edit", "$session_name deleted Payment on Invoice $invoice_prefix$invoice_number", $client_id, $invoice_id);
 
     flashAlert("Payment deleted", 'error');
-    if ($config_stripe_enable) {
-       flashAlert("Payment deleted - Stripe payments must be manually refunded in Stripe", 'error');
-    }
 
     redirect();
 
@@ -775,12 +772,7 @@ if (isset($_GET['refund_payment_stripe'])) {
     $invoice_status = updateInvoiceStatusFromPayments($invoice_id);
 
     mysqli_query($mysqli,"INSERT INTO history SET history_status = '$invoice_status', history_description = 'Payment $stripe_payment_intent_id deleted and refunded', history_invoice_id = $invoice_id");
-
-    // Log info
-    $extended_log_desc = '';
-    if (!$pi_livemode) {
-        $extended_log_desc = '(DEV MODE)';
-    }    
+  
     logAudit("Invoice", "Edit", "$session_name refunded and deleted Payment $stripe_payment_intent_id on Invoice $invoice_prefix$invoice_number", $client_id, $invoice_id);
 
     flashAlert("Payment deleted and refunded in Stripe", 'error');

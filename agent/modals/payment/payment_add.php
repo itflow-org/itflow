@@ -6,8 +6,8 @@ $invoice_id = intval($_GET['id']);
 
 $sql = mysqli_query(
     $mysqli,
-    "SELECT client_currency_code, client_id, client_name, contact_email, contact_name, invoice_amount,
-        invoice_id, invoice_number, invoice_prefix FROM invoices
+    "SELECT client_id, client_name, contact_email, contact_name, invoice_amount,
+        invoice_id, invoice_number, invoice_prefix, invoice_currency_code FROM invoices
     LEFT JOIN clients ON invoice_client_id = client_id
     LEFT JOIN contacts ON client_id = contact_client_id AND contact_primary = 1
     WHERE invoice_id = $invoice_id
@@ -21,7 +21,7 @@ $invoice_number = intval($row['invoice_number']);
 $invoice_amount = floatval($row['invoice_amount']);
 $client_id = intval($row['client_id']);
 $client_name = escapeHtml($row['client_name']);
-$client_currency_code = escapeHtml($row['client_currency_code']);
+$client_currency_code = escapeHtml($row['invoice_currency_code']);
 $contact_name = escapeHtml($row['contact_name']);
 $contact_email = escapeHtml($row['contact_email']);
 
