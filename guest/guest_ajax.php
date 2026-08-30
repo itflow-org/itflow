@@ -76,7 +76,7 @@ if (isset($_GET['stripe_create_pi'])) {
     // Get client's Stripe customer ID
     $stripe_customer_query = mysqli_query($mysqli, "
         SELECT payment_provider_client FROM client_payment_provider
-        WHERE client_id = $session_client_id AND payment_provider_id = $stripe_provider_id
+        WHERE client_id = $client_id AND payment_provider_id = $stripe_provider_id
         LIMIT 1
     ");
     $stripe_customer = mysqli_fetch_assoc($stripe_customer_query);
