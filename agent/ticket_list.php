@@ -144,7 +144,7 @@ if ($tickets) {
                 <table class="table table-striped table-borderless table-hover mb-0">
                     <thead class="text-dark text-nowrap <?php if (!$num_rows[0]) { echo "d-none"; } ?>">
                     <tr>
-                        <td class="checkbox-column">
+                        <td class="checkbox-column border-end">
                             <div class="form-check">
                                 <input class="form-check-input" id="selectAllCheckbox" type="checkbox" title="Select all on this page">
                             </div>
@@ -321,7 +321,7 @@ if ($tickets) {
 
                         <tr class="<?= trim($row_class) ?>" <?php if ($row_title) { ?>title="<?= $row_title ?>"<?php } ?>>
 
-                            <td class="checkbox-column">
+                            <td class="checkbox-column bg-light border-end">
                                 <!-- Ticket Bulk Select (for open tickets) -->
                                 <?php if (empty($ticket_closed_at)) { ?>
                                 <div class="form-check">

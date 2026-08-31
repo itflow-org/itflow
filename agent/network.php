@@ -227,7 +227,7 @@ if (mysqli_num_rows($sql) == 0) {
                         <table class="table table-striped table-borderless table-hover mb-0">
                             <thead class="text-dark <?php if ($num_rows[0] == 0) { echo "d-none"; } ?>">
                             <tr>
-                                <td class="checkbox-column">
+                                <td class="checkbox-column border-end">
                                     <div class="form-check">
                                         <input class="form-check-input" id="selectAllCheckbox" type="checkbox" onclick="checkAll(this)">
                                     </div>
@@ -261,7 +261,7 @@ if (mysqli_num_rows($sql) == 0) {
 
                                 ?>
                                 <tr>
-                                    <td class="checkbox-column">
+                                    <td class="checkbox-column bg-light border-end">
                                         <div class="form-check">
                                             <input class="form-check-input bulk-select" type="checkbox" name="network_ip_ids[]" value="<?= $ip_id ?>">
                                         </div>

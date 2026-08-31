@@ -949,7 +949,7 @@ $num_root_items = intval($row_root_files['num']) + intval($row_root_docs['num'])
                             <table class="table border mb-0">
                                 <thead class="table-light <?php if ($num_rows[0] == 0) { echo "d-none"; } ?>">
                                 <tr>
-                                    <td class="bg-light checkbox-column">
+                                    <td class="checkbox-column border-end">
                                         <div class="form-check">
                                             <input class="form-check-input" id="selectAllCheckbox" type="checkbox" onclick="checkAll(this)">
                                         </div>
@@ -1017,7 +1017,7 @@ $num_root_items = intval($row_root_files['num']) + intval($row_root_docs['num'])
                                         }
                                         ?>
                                         <tr>
-                                            <td class="bg-light checkbox-column">
+                                            <td class="checkbox-column bg-light border-end">
                                                 <div class="form-check">
                                                     <input class="form-check-input bulk-select" type="checkbox" name="file_ids[]" value="<?= $file_id ?>">
                                                 </div>
@@ -1163,7 +1163,7 @@ $num_root_items = intval($row_root_files['num']) + intval($row_root_docs['num'])
                                         }
                                         ?>
                                         <tr>
-                                            <td class="bg-light pe-0">
+                                            <td class="checkbox-column bg-light border-end">
                                                 <div class="form-check">
                                                     <input class="form-check-input bulk-select" type="checkbox" name="document_ids[]" value="<?= $document_id ?>">
                                                 </div>

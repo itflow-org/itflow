@@ -548,7 +548,7 @@ if (isset($_GET['asset_id'])) {
                             <table class="table table-striped table-borderless table-hover table-sm">
                                 <thead class="<?php if ($interface_count == 0) { echo "d-none"; } ?>">
                                     <tr>
-                                        <td class="bg-light checkbox-column">
+                                        <td class="checkbox-column border-end">
                                             <div class="form-check">
                                                 <input class="form-check-input" id="selectAllCheckbox" type="checkbox" onclick="checkAll(this)" onkeydown="checkAll(this)">
                                             </div>
@@ -606,7 +606,7 @@ if (isset($_GET['asset_id'])) {
                                         }
                                     ?>
                                     <tr>
-                                        <td class="bg-light checkbox-column">
+                                        <td class="checkbox-column bg-light border-end">
                                             <div class="form-check">
                                                 <input class="form-check-input bulk-select" type="checkbox" name="interface_ids[]" value="<?= $interface_id ?>">
                                             </div>

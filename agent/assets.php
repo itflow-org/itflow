@@ -463,7 +463,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
             <table class="table border table-hover mb-0">
                 <thead class="table-light <?php if (!$num_rows[0]) { echo "d-none"; } ?> text-nowrap">
                 <tr>
-                    <td class="bg-light checkbox-column">
+                    <td class="checkbox-column border-end">
                         <div class="form-check">
                             <input class="form-check-input" id="selectAllCheckbox" type="checkbox" onclick="checkAll(this)">
                         </div>
@@ -666,7 +666,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 
                     ?>
                     <tr>
-                        <td class="bg-light checkbox-column">
+                        <td class="checkbox-column bg-light border-end">
                             <div class="form-check">
                                 <input class="form-check-input bulk-select" type="checkbox" name="asset_ids[]" value="<?= $asset_id ?>">
                             </div>

@@ -346,7 +346,7 @@ if (isset($_GET['project_id'])) {
                             <table class="table table-bordered table-hover">
                                 <thead class="table-light">
                                 <tr>
-                                    <td class="bg-light checkbox-column">
+                                    <td class="checkbox-column border-end">
                                         <div class="form-check">
                                             <input class="form-check-input" id="selectAllCheckbox" type="checkbox" onclick="checkAll(this)">
                                         </div>
@@ -463,7 +463,7 @@ if (isset($_GET['project_id'])) {
                                     ?>
 
                                     <tr>
-                                        <td class="bg-light checkbox-column">
+                                        <td class="checkbox-column bg-light border-end">
                                             <!-- Ticket Bulk Select (for open tickets) -->
                                             <?php if (empty($ticket_closed_at)) { ?>
                                             <div class="form-check">

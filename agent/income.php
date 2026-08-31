@@ -374,7 +374,7 @@ $summary_total_income = floatval($row['total_income']);
                 <thead class="text-dark <?php if ($num_rows[0] == 0) { echo "d-none"; } ?> text-nowrap table-light border-top">
                 <tr>
                     <?php if (lookupUserPermission("module_sales") >= 3 && lookupUserPermission("module_financial") >= 3) { ?>
-                    <td class="bg-light checkbox-column">
+                    <td class="checkbox-column border-end">
                         <div class="form-check">
                             <input class="form-check-input" id="selectAllCheckbox" type="checkbox" onclick="checkAll(this)">
                         </div>
@@ -474,7 +474,7 @@ $summary_total_income = floatval($row['total_income']);
 
                     <tr>
                         <?php if (lookupUserPermission("module_sales") >= 3 && lookupUserPermission("module_financial") >= 3) { ?>
-                        <td class="bg-light checkbox-column">
+                        <td class="checkbox-column bg-light border-end">
                             <div class="form-check">
                                 <input class="form-check-input bulk-select" type="checkbox" name="income_ids[]" value="<?= $income_type ?>-<?= $income_id ?>">
                             </div>

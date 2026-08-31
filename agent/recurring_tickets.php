@@ -222,7 +222,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
             <table class="table table-striped table-borderless table-hover mb-0">
                 <thead class="<?php if (!$num_rows[0]) { echo "d-none"; } ?> text-nowrap">
                     <tr>
-                        <td class="checkbox-column">
+                        <td class="checkbox-column border-end">
                             <div class="form-check">
                                 <input class="form-check-input" id="selectAllCheckbox" type="checkbox" onclick="checkAll(this)">
                             </div>
@@ -301,7 +301,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                     ?>
 
                         <tr>
-                            <td class="checkbox-column">
+                            <td class="checkbox-column bg-light border-end">
                                 <div class="form-check">
                                     <input class="form-check-input bulk-select" type="checkbox" name="recurring_ticket_ids[]" value="<?= $recurring_ticket_id ?>">
                                 </div>

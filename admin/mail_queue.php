@@ -74,7 +74,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                 <table class="table table-sm table-striped table-borderless table-hover mb-0">
                     <thead class="text-dark <?php if ($num_rows[0] == 0) { echo "d-none"; } ?>">
                     <tr>
-                        <td class="bg-light pe-0">
+                        <td class="checkbox-column border-end">
                             <div class="form-check">
                                 <input class="form-check-input" id="selectAllCheckbox" type="checkbox" onclick="checkAll(this)">
                             </div>
@@ -140,7 +140,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                         ?>
 
                         <tr>
-                            <td class="pe-0 bg-light">
+                            <td class="checkbox-column bg-light border-end">
                                 <?php if ($email_status !== 3) { ?>
                                 <div class="form-check">
                                     <input class="form-check-input bulk-select" type="checkbox" name="email_ids[]" value="<?= $email_id ?>">
