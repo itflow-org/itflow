@@ -59,7 +59,7 @@ header("X-Frame-Options: DENY"); // Legacy
          (default-src 'self') would block outright. Empty when the company has
          no country set, which js/phone_inputs.js reads as "let the library
          decide". */ ?>
-<body class="bg-body-tertiary theme-<?= escapeHtml($config_theme) ?>" data-lte-primary="<?= escapeHtml($config_theme) ?>"
+<body class="d-flex flex-column min-vh-100 bg-body-tertiary theme-<?= escapeHtml($config_theme) ?>" data-lte-primary="<?= escapeHtml($config_theme) ?>"
       data-itflow-phone-country="<?= escapeHtml($country_iso2_array[$session_company_country] ?? '') ?>">
 
 <!-- Navbar -->
@@ -153,10 +153,18 @@ header("X-Frame-Options: DENY"); // Legacy
     </div>
 </nav>
 
-<br>
+<?php /* The gap under the navbar used to be a bare line-break element sitting
+         directly in the body. That stopped working the moment the body became a
+         flex column: a break is only a break inside an inline formatting
+         context, and as a flex item it is blockified into an empty zero-height
+         box - so the gap vanished and the welcome row rode up against the
+         navbar.
 
+         Carried on the container as a real margin instead. mt-4 is 1.5rem,
+         exactly what the break was worth: one line box at the body's 1.5
+         line-height on a 1rem font. */ ?>
 <!-- Page content container -->
-<div class="container">
+<div class="container mt-4">
 
     <div class="row mb-3">
         <div class="col-md-1 text-center">

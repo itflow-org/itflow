@@ -8,17 +8,29 @@
 <!-- Close container -->
 </div>
 
-<br>
-<hr>
+<?php /* This portal has no .app-wrapper grid - it is a plain navbar over a
+         .container - so the bottom edge is held by the body instead:
+         header.php gives the body d-flex flex-column min-vh-100, and mt-auto here
+         eats whatever height is left over. On a short page (an empty ticket
+         list, the statement) the bar lands on the bottom of the window rather
+         than directly under the content.
 
-<p class="text-center">
+         .app-footer is AdminLTE's own bar styling - border-top, body-bg,
+         min-height 3rem - which is what the old rule was standing in for, so
+         the trailing br and hr go with it. Its grid-area is inert outside a
+         grid.
+
+         Only the navbar, the .container and this become flex items: script
+         elements are display:none, and anything the libraries fix to the
+         viewport (sweetalert2, modal backdrops) is out of flow either way. */ ?>
+<footer class="app-footer mt-auto py-2 text-center">
     <?php
         echo escapeHtml($session_company_name);
         if (!$config_whitelabel_enabled) {
             echo '<br><small class="text-muted">Powered by ITFlow</small>';
         }
     ?>
-</p>
+</footer>
 
 
 

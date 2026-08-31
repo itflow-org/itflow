@@ -1,18 +1,6 @@
 <?php
 ?>
 
-<?php
-if (basename(dirname($_SERVER['REQUEST_URI'])) === 'guest') { ?>
-<p class="text-center">
-    <?php
-        echo escapeHtml($session_company_name);
-        if (!$config_whitelabel_enabled) {
-            echo '<br><small class="text-muted">Powered by ITFlow</small>';
-        }
-    ?>
-</p>
-<?php } ?>
-
 </div><!-- /.container-fluid -->
 </div> <!-- /.app-content -->
 </main> <!-- /.app-main -->
@@ -29,6 +17,23 @@ if (basename(dirname($_SERVER['REQUEST_URI'])) === 'guest') { ?>
 <?php if (basename(dirname($_SERVER['REQUEST_URI'])) === 'admin') { ?>
 <footer class="app-footer py-2 d-flex align-items-center">
     <div class="w-100 text-end fw-light">ITFlow <?= APP_VERSION ?> &nbsp; · &nbsp; <a target="_blank" href="https://docs.itflow.org">Docs</a> &nbsp; · &nbsp; <a target="_blank" href="https://forum.itflow.org">Forum</a> &nbsp; · &nbsp; <a target="_blank" href="https://services.itflow.org">Services</a></div>
+</footer>
+<?php } ?>
+
+<?php /* The guest portal shares this file and the same .app-wrapper grid (its
+         own guest_header.php opens it), so its footer goes in the same row.
+         guest_header.php renders no .app-header and no .app-sidebar, which the
+         grid handles on its own - the sidebar column is `auto` and the header
+         row is min-content, so both collapse to zero and .app-main still takes
+         the 1fr. */ ?>
+<?php if (basename(dirname($_SERVER['REQUEST_URI'])) === 'guest') { ?>
+<footer class="app-footer py-2 text-center">
+    <?php
+        echo escapeHtml($session_company_name);
+        if (!$config_whitelabel_enabled) {
+            echo '<br><small class="text-muted">Powered by ITFlow</small>';
+        }
+    ?>
 </footer>
 <?php } ?>
 
