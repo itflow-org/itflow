@@ -2,11 +2,6 @@
 ?>
 
 <?php
-if (basename(dirname($_SERVER['REQUEST_URI'])) === 'admin') { ?>
-    <p class="text-end fw-light">ITFlow <?= APP_VERSION ?> &nbsp; · &nbsp; <a target="_blank" href="https://docs.itflow.org">Docs</a> &nbsp; · &nbsp; <a target="_blank" href="https://forum.itflow.org">Forum</a> &nbsp; · &nbsp; <a target="_blank" href="https://services.itflow.org">Services</a></p>
-    <br>
-<?php } ?>
-<?php
 if (basename(dirname($_SERVER['REQUEST_URI'])) === 'guest') { ?>
 <p class="text-center">
     <?php
@@ -21,6 +16,22 @@ if (basename(dirname($_SERVER['REQUEST_URI'])) === 'guest') { ?>
 </div><!-- /.container-fluid -->
 </div> <!-- /.app-content -->
 </main> <!-- /.app-main -->
+
+<?php /* AdminLTE 4's .app-wrapper is a three row grid - header, main, footer -
+         and the footer row is already reserved (grid-template-rows:
+         min-content 1fr min-content). Sitting in that row is what pins this to
+         the bottom: the 1fr main row absorbs the leftover height, so on a short
+         page the bar lands on the bottom edge of the viewport instead of
+         floating directly under the content.
+
+         It has to be a direct child of .app-wrapper - inside .app-main it is
+         just content again. */ ?>
+<?php if (basename(dirname($_SERVER['REQUEST_URI'])) === 'admin') { ?>
+<footer class="app-footer py-2 d-flex align-items-center">
+    <div class="w-100 text-end fw-light">ITFlow <?= APP_VERSION ?> &nbsp; · &nbsp; <a target="_blank" href="https://docs.itflow.org">Docs</a> &nbsp; · &nbsp; <a target="_blank" href="https://forum.itflow.org">Forum</a> &nbsp; · &nbsp; <a target="_blank" href="https://services.itflow.org">Services</a></div>
+</footer>
+<?php } ?>
+
 </div> <!-- /.app-wrapper -->
 
 <!-- Set the browser window title to the clients name -->
