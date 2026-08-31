@@ -13,7 +13,7 @@ $delete_count = false;
 
 if (!empty($contact_id)) {
     $row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT contact_name FROM contacts WHERE contact_id = $contact_id AND contact_client_id = $client_id LIMIT 1"));
-    $contact_name = $row['contact_name'];
+    $contact_name = escapeSql($row['contact_name'] ?? '');
 
     $delete_sql = mysqli_query($mysqli, "DELETE FROM contacts WHERE contact_id = $contact_id AND contact_client_id = $client_id LIMIT 1");
 

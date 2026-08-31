@@ -146,6 +146,7 @@ ITFlow does not use prepared statements or an ORM; queries are built as strings.
 - **Integers** (IDs, flags, counts): `intval($_POST['ticket_id'])`. Interpolate unquoted.
 - **Strings**: `escapeSql($_POST['subject'])`. This normalizes encoding to UTF-8, then runs `strip_tags()`, `trim()`, and `mysqli_real_escape_string()`. Because it relies on SQL escaping, the value **must be placed inside quotes in the query** (`'$subject'`). An escaped string interpolated without quotes is still injectable.
 - **Values read back from the database** get the same treatment before reuse in another query (you will see `escapeSql($row['ticket_prefix'])` throughout — this is why).
+- **`logAudit()`, `appNotify()`, `logHistory()` and `logTicketHistory()` are queries too.** They interpolate their `$description` / `$details` / `$status` arguments straight into an `INSERT` — the SQL is just hidden inside the helper. A DB-read value passed into one of them (`logAudit("Asset", "Delete", "$asset_name ...", ...)`) must be `escapeSql`'d first, exactly as if you had written the `INSERT` by hand. This is easy to miss precisely because the call doesn't *look* like a query.
 If you write a query and even one variable in it skipped these, that is a SQL injection. This is the single most common review rejection.
 
 **Fetch helpers return raw values — you escape them.** `getFieldById()` and `getTicketStatusName()` hand back exactly what is in the column. Escaping is the call site's job, the same as any other row you read:

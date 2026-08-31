@@ -13,7 +13,7 @@ $delete_count = false;
 
 if (!empty($asset_id)) {
     $row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT asset_name FROM assets WHERE asset_id = $asset_id AND asset_client_id = $client_id LIMIT 1"));
-    $asset_name = $row['asset_name'];
+    $asset_name = escapeSql($row['asset_name'] ?? '');
 
     $delete_sql = mysqli_query($mysqli, "DELETE FROM assets WHERE asset_id = $asset_id AND asset_client_id = $client_id LIMIT 1");
 
