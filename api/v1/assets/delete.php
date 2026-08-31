@@ -17,12 +17,12 @@ if (!empty($asset_id)) {
 
     $delete_sql = mysqli_query($mysqli, "DELETE FROM assets WHERE asset_id = $asset_id AND asset_client_id = $client_id LIMIT 1");
 
-    // Delete Interfaces
-    mysqli_query($mysqli,"DELETE FROM asset_interfaces WHERE interface_asset_id = $asset_id");
-
     // Check delete & get affected rows
     if ($delete_sql && !empty($asset_name)) {
         $delete_count = mysqli_affected_rows($mysqli);
+
+        // Delete Interfaces
+        mysqli_query($mysqli,"DELETE FROM asset_interfaces WHERE interface_asset_id = $asset_id");
 
         // Logging
         logAudit("Asset", "Delete", "$asset_name via API ($api_key_name)", $client_id);
