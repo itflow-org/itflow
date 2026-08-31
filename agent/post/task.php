@@ -352,8 +352,8 @@ if (isset($_GET['approve_ticket_task'])) {
         task_ticket_id FROM task_approvals LEFT JOIN tasks on task_id = approval_task_id WHERE approval_id = $approval_id AND approval_task_id = $task_id AND approval_scope = 'internal'"));
 
     $task_name = escapeSql($approval_row['task_name']);
-    $scope = escapeHtml($approval_row['approval_scope']);
-    $type = escapeHtml($approval_row['approval_type']);
+    $scope = escapeSql($approval_row['approval_scope']);
+    $type = escapeSql($approval_row['approval_type']);
     $required_user = intval($approval_row['approval_required_user_id']);
     $created_by = intval($approval_row['approval_created_by']);
     $ticket_id = intval($approval_row['task_ticket_id']);
