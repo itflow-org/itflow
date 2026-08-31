@@ -22,9 +22,25 @@ function appNotify($type, $details, $action = null, $client_id = 0, $entity_id =
         $action = "NULL"; // Without quotes for SQL NULL
     }
 
+    $client_id = intval($client_id);
+    $entity_id = intval($entity_id);
+
     $type = substr($type, 0, 200);
     $details = substr($details, 0, 1000);
     $action = substr($action, 0, 250);
+
+    // Callers pass values that are already SQL-safe, but cutting at a fixed
+    // length (or an escaper that leaves backslashes, e.g. escapeHtml) can leave
+    // an odd trailing backslash that would escape this query's closing quote
+    if ((strlen($type) - strlen(rtrim($type, '\\'))) % 2 === 1) {
+        $type = substr($type, 0, -1);
+    }
+    if ((strlen($details) - strlen(rtrim($details, '\\'))) % 2 === 1) {
+        $details = substr($details, 0, -1);
+    }
+    if ((strlen($action) - strlen(rtrim($action, '\\'))) % 2 === 1) {
+        $action = substr($action, 0, -1);
+    }
 
     $sql = mysqli_query($mysqli, "SELECT user_id FROM users
         WHERE user_type = 1 AND user_status = 1 AND user_archived_at IS NULL
@@ -51,6 +67,19 @@ function logAudit($type, $action, $description, $client_id = 0, $entity_id = 0) 
     $type = substr($type, 0, 200);
     $action = substr($action, 0, 255);
     $description = substr($description, 0, 1000);
+
+    // Callers pass values that are already SQL-safe, but cutting at a fixed
+    // length (or an escaper that leaves backslashes, e.g. escapeHtml) can leave
+    // an odd trailing backslash that would escape this query's closing quote
+    if ((strlen($type) - strlen(rtrim($type, '\\'))) % 2 === 1) {
+        $type = substr($type, 0, -1);
+    }
+    if ((strlen($action) - strlen(rtrim($action, '\\'))) % 2 === 1) {
+        $action = substr($action, 0, -1);
+    }
+    if ((strlen($description) - strlen(rtrim($description, '\\'))) % 2 === 1) {
+        $description = substr($description, 0, -1);
+    }
 
     mysqli_query($mysqli, "INSERT INTO logs SET log_type = '$type', log_action = '$action', log_description = '$description', log_ip = '$session_ip', log_user_agent = '$session_user_agent', log_client_id = $client_id, log_user_id = $session_user_id, log_entity_id = $entity_id");
 }

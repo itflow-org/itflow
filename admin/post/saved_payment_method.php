@@ -61,7 +61,8 @@ if (isset($_GET['delete_saved_payment'])) {
 
     // SQL Cascade delete will Remove All Associated Auto Payment Methods on recurring invoices in the recurring payments table.
 
-    logAudit("Payment Provider", "Update", "$session_name deleted saved payment method $saved_payment_description (PM: $payment_method)", $client_id);
+    $payment_method_esc = escapeSql($payment_method);
+    logAudit("Payment Provider", "Update", "$session_name deleted saved payment method $saved_payment_description (PM: $payment_method_esc)", $client_id);
 
     flashAlert("Payment method <strong>$saved_payment_description</strong> removed", 'error');
 
