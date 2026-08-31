@@ -75,7 +75,7 @@ if (isset($_GET['invoice_id'], $_GET['url_key']) && !isset($_GET['payment_intent
 
     <div class="row py-5">
         <div class="col-sm">
-            <div class="card">
+            <div class="card mb-3">
                 <div class="card-header">
                     <h3 class="card-title">Payment for Invoice: <strong><?= "$invoice_prefix$invoice_number" ?></strong></h3>
                 </div>
