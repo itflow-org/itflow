@@ -1385,6 +1385,22 @@ select.select2[multiple]:not(.tomselected) {
     --lte-primary-color-rgb: 0, 0, 0;
 }
 
+/* --- Colour inputs ---------------------------------------------------------
+   Bootstrap sizes `.form-control-color` at width:3rem, but every colour input
+   in ITFlow sits inside an .input-group, and `.input-group > .form-control`
+   (0,2,0) sets `width: 1%; flex: 1 1 auto` - which outranks .form-control-color
+   (0,1,0) and collapses the swatch to a sliver. Matching that specificity is
+   the only way to win it back; the selector is strictly narrower than the one
+   it ties with, so nothing but a colour input is affected.
+
+   4rem rather than Bootstrap's 3rem: the swatch is the entire point of the
+   control, and .text-sm keeps the height at the 35px of its neighbours, so
+   there is only width available to read the colour by. */
+.input-group > .form-control-color {
+    flex: 0 0 auto;
+    width: 4rem;
+}
+
 /* --- intl-tel-input --------------------------------------------------------
    The library wraps the input in a .iti container, which inside an
    .input-group becomes the flex item instead of the input. Bootstrap sizes its

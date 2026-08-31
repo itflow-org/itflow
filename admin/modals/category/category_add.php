@@ -48,7 +48,7 @@ $category_types_array = ['Expense', 'Income', 'Referral', 'Ticket'];
             <label>Color <strong class="text-danger">*</strong></label>
             <div class="input-group">
                     <span class="input-group-text"><i class="fa fa-fw fa-paint-brush"></i></span>
-                <input type="color" class="form-control form-control-color w-auto flex-grow-0" name="color" required>
+                <input type="color" class="form-control form-control-color" name="color" required>
             </div>
         </div>
 
