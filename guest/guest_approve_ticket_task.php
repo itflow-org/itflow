@@ -86,7 +86,7 @@ $approve_link = "guest_post.php?approve_ticket_task=$task_id&approval_id=$approv
              context and exactly one thing to do, so the task being approved and
              the button that approves it sit above the fold; the ticket itself is
              supporting detail and follows underneath. */ ?>
-    <div class="card mt-3">
+    <div class="card mt-3 mb-3">
         <div class="card-header bg-dark text-center py-3">
             <h4 class="mb-0"><i class="fas fa-fw fa-clipboard-check me-2"></i>Task Approval</h4>
         </div>
