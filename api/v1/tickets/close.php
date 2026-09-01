@@ -25,15 +25,11 @@ if (!empty($ticket_id)) {
 
         // Resolve first if the ticket has not already been resolved
         $resolve_sql = mysqli_query($mysqli, "UPDATE tickets SET ticket_status = 4, ticket_resolved_at = NOW() WHERE ticket_id = $ticket_id AND ticket_client_id = $client_id AND ticket_resolved_at IS NULL LIMIT 1");
-        if ($resolve_sql) {
-            syncTicketSlaClock($ticket_id);
-            setTicketResolutionSlaMet($ticket_id);
-        }
+        syncTicketSlaClock($ticket_id);
+        setTicketResolutionSlaMet($ticket_id);
 
         // Close
         $update_sql = mysqli_query($mysqli, "UPDATE tickets SET ticket_status = 5, ticket_closed_at = NOW(), ticket_closed_by = $api_key_user_id WHERE ticket_id = $ticket_id AND ticket_client_id = $client_id LIMIT 1");
-        syncTicketSlaClock($ticket_id);
-        setTicketResolutionSlaMet($ticket_id);
 
         // Check insert & get insert ID
         if ($update_sql) {
