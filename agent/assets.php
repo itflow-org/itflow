@@ -556,11 +556,6 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                     $asset_type = escapeHtml($row['asset_type']);
                     $asset_name = escapeHtml($row['asset_name']);
                     $asset_description = escapeHtml($row['asset_description']);
-                    if ($asset_description) {
-                        $asset_description_display = $asset_description;
-                    } else {
-                        $asset_description_display = "-";
-                    }
                     $asset_make = escapeHtml($row['asset_make']);
                     $asset_model = escapeHtml($row['asset_model']);
                     $asset_serial = escapeHtml($row['asset_serial']);

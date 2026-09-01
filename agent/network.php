@@ -224,7 +224,7 @@ if (mysqli_num_rows($sql) == 0) {
                     <form id="bulkActions" action="post.php" method="post">
                         <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
 
-                        <table class="table table-striped table-borderless table-hover mb-0">
+                        <table class="table table-striped table-borderless table-hover table-sm mb-0">
                             <thead class="text-dark <?php if ($num_rows[0] == 0) { echo "d-none"; } ?>">
                             <tr>
                                 <td class="checkbox-column border-end">
@@ -233,17 +233,17 @@ if (mysqli_num_rows($sql) == 0) {
                                     </div>
                                 </td>
                                 <th>
-                                    <a class="text-secondary" href="?<?= $url_query_strings_sort ?>&sort=ip_address&order=<?= $disp ?>">
+                                    <a class="text-dark" href="?<?= $url_query_strings_sort ?>&sort=ip_address&order=<?= $disp ?>">
                                         IP Address <?php if ($sort == 'ip_address') { echo $order_icon; } ?>
                                     </a>
                                 </th>
                                 <th>
-                                    <a class="text-secondary" href="?<?= $url_query_strings_sort ?>&sort=ip_hostname&order=<?= $disp ?>">
+                                    <a class="text-dark" href="?<?= $url_query_strings_sort ?>&sort=ip_hostname&order=<?= $disp ?>">
                                         Hostname <?php if ($sort == 'ip_hostname') { echo $order_icon; } ?>
                                     </a>
                                 </th>
                                 <th>
-                                    <a class="text-secondary" href="?<?= $url_query_strings_sort ?>&sort=ip_description&order=<?= $disp ?>">
+                                    <a class="text-dark" href="?<?= $url_query_strings_sort ?>&sort=ip_description&order=<?= $disp ?>">
                                         Description <?php if ($sort == 'ip_description') { echo $order_icon; } ?>
                                     </a>
                                 </th>
@@ -256,8 +256,8 @@ if (mysqli_num_rows($sql) == 0) {
                             while ($row = mysqli_fetch_assoc($sql_ips)) {
                                 $ip_id = intval($row['ip_id']);
                                 $ip_address = escapeHtml($row['ip_address']);
-                                $ip_hostname = escapeHtml($row['ip_hostname']);
-                                $ip_description = escapeHtml($row['ip_description']);
+                                $ip_hostname = escapeHtml($row['ip_hostname']) ?: '-';
+                                $ip_description = escapeHtml($row['ip_description']) ?: '-';
 
                                 ?>
                                 <tr>
