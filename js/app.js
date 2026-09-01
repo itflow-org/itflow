@@ -568,15 +568,26 @@ function itflowInit() {
         el.dataset.imaskReady = '1';
         var spec = el.getAttribute('data-inputmask') || '';
         if (spec.indexOf('ip') !== -1) {
+            // A pattern mask built from MaskedRange blocks will not advance past the dot
+            // until the block reaches its maxLength, so 10.0.0.1 had to be entered as
+            // 010.000.000.001. A regex mask has no per-block completeness rule - it tests
+            // the whole value on every keystroke, so partial input like "10.0." is valid on
+            // its own. Octets are still bounded to 0-255 and leading zeros are still
+            // accepted, matching what jquery.inputmask's 'ip' alias allowed.
+            //
+            // interface_ip / asset_ip are varchar(200) and hold free text as well - 'DHCP'
+            // is written there by the checkbox on these same modals. Masking a value like
+            // that would strip it to nothing the moment the modal opened, so anything not
+            // made of digits and dots is left unmasked instead.
+            if (el.value && !/^[\d.]*$/.test(el.value)) {
+                return;
+            }
+            var octet = '(25[0-5]|2[0-4]\\d|[01]?\\d\\d?)';
+            var octet4 = octet + '?';
+            var octet3 = '(' + octet + '(\\.' + octet4 + ')?)?';
+            var octet2 = '(' + octet + '(\\.' + octet3 + ')?)?';
             IMask(el, {
-                mask: 'a.b.c.d',
-                blocks: {
-                    a: { mask: IMask.MaskedRange, from: 0, to: 255 },
-                    b: { mask: IMask.MaskedRange, from: 0, to: 255 },
-                    c: { mask: IMask.MaskedRange, from: 0, to: 255 },
-                    d: { mask: IMask.MaskedRange, from: 0, to: 255 }
-                },
-                lazy: true
+                mask: new RegExp('^(' + octet + '(\\.' + octet2 + ')?)?$')
             });
         } else if (spec.indexOf('mac') !== -1) {
             IMask(el, {
