@@ -292,6 +292,7 @@ Line endings and indentation are enforced by `.gitattributes` and `.editorconfig
 - CI runs PHP lint and db.sql lint; SonarCloud scans for security issues. Green checks are required but not sufficient — the conventions above are checked by human review.
 - Test your change against a real install: fresh setup from `db.sql` **and** an upgrade via `database_updates.php` if you touched schema.
 - For anything larger than a bug fix, **open an issue first** and discuss the approach. ITFlow's roadmap favors incremental modernization of the existing PHP codebase; large rewrites, framework introductions, and new runtime dependencies are out of scope.
+
 ## Getting help
- 
-Open a GitHub issue using the templates, or ask in the community forum linked from the README. When in doubt about a convention, find the closest existing example in the codebase and follow it — consistency beats novelty here.
+
+Ask in the community forum linked from the README. When in doubt about a convention, find the closest existing example in the codebase and follow it — consistency beats novelty here.
