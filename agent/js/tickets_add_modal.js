@@ -21,14 +21,14 @@
         // If the client selector is disabled, we must be on a client-specific page instead. Trigger the lists to update.
         if (clientSelectDropdown.disabled) {
 
-            let client_id = $(clientSelectDropdown).find(':selected').val();
+            let client_id = clientSelectDropdown.value;
 
             populateLists(client_id);
         }
 
         // Listener for client selection. Populate select lists when a client is selected
-        $(clientSelectDropdown).on('select2:select', function (e) {
-            let client_id = $(this).find(':selected').val();
+        clientSelectDropdown.addEventListener('change', function () {
+            let client_id = this.value;
 
             // Update the dependent dropdown lists
             populateLists(client_id);
@@ -77,7 +77,7 @@
         dropdown.innerHTML = '';
 
         // A multi-select keeps showing its old selections until select2 is told the value changed
-        $(dropdown).val(null).trigger('change.select2');
+        clearTomSelect(dropdown);
 
         if (placeholderLabel !== null) {
             dropdown[dropdown.length] = new Option(placeholderLabel, placeholderValue);
@@ -89,7 +89,7 @@
     // Redraws a select2 component after its options have been replaced
     function refreshDropdown(dropdown) {
         if (dropdown) {
-            $(dropdown).trigger('change.select2');
+            refreshTomSelect(dropdown);
         }
     }
 
@@ -164,7 +164,7 @@
         }
 
         // Send a GET request to ajax.php as ajax.php?get_client_contacts=true&client_id=NUM
-        jQuery.get(
+        itflowGet(
             "ajax.php",
             {get_client_contacts: 'true', client_id: client_id},
             function(data) {
@@ -229,7 +229,7 @@
             return;
         }
 
-        jQuery.get(
+        itflowGet(
             "ajax.php",
             {get_client_assets: 'true', client_id: client_id},
             function(data) {
@@ -279,7 +279,7 @@
             return;
         }
 
-        jQuery.get(
+        itflowGet(
             "ajax.php",
             {get_client_locations: 'true', client_id: client_id},
             function(data) {
@@ -313,7 +313,7 @@
             return;
         }
 
-        jQuery.get(
+        itflowGet(
             "ajax.php",
             {get_client_vendors: 'true', client_id: client_id},
             function(data) {
@@ -347,7 +347,7 @@
             return;
         }
 
-        jQuery.get(
+        itflowGet(
             "ajax.php",
             {get_client_projects: 'true', client_id: client_id},
             function(data) {

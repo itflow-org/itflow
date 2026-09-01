@@ -24,25 +24,21 @@ ob_start();
 ?>
 
 <div class="modal-header bg-dark">
-    <h5 class="modal-title"><i class="fa fa-fw fa-credit-card mr-2"></i>Edit Payment</h5>
-    <button type="button" class="close text-white" data-dismiss="modal">
-        <span>&times;</span>
-    </button>
+    <h5 class="modal-title"><i class="fa fa-fw fa-credit-card me-2"></i>Edit Payment</h5>
+    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
 </div>
 <form action="post.php" method="post" autocomplete="off">
     <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
     <input type="hidden" name="payment_id" value="<?= $payment_id ?>">
     <div class="modal-body">
 
-        <div class="form-row">
+        <div class="row g-2">
             <div class="col-md">
 
-                <div class="form-group">
+                <div class="mb-3">
                     <label>Date <strong class="text-danger">*</strong></label>
                     <div class="input-group">
-                        <div class="input-group-prepend">
                             <span class="input-group-text"><i class="fa fa-fw fa-calendar"></i></span>
-                        </div>
                         <input type="date" class="form-control" name="date" max="2999-12-31" value="<?= $payment_date ?>" required>
                     </div>
                 </div>
@@ -51,12 +47,10 @@ ob_start();
 
             <div class="col-md">
 
-                <div class="form-group">
+                <div class="mb-3">
                     <label>Amount <strong class="text-danger">*</strong></label>
                     <div class="input-group">
-                        <div class="input-group-prepend">
                             <span class="input-group-text"><i class="fa fa-fw fa-dollar-sign"></i></span>
-                        </div>
                         <input type="text" class="form-control" inputmode="decimal" pattern="[0-9]*\.?[0-9]{0,2}" name="amount" value="<?= $payment_amount ?>" placeholder="0.00" required>
                     </div>
                 </div>
@@ -65,13 +59,11 @@ ob_start();
 
         </div>
 
-        <div class="form-group">
+        <div class="mb-3">
             <label>Account <strong class="text-danger">*</strong></label>
             <div class="input-group">
-                <div class="input-group-prepend">
                     <span class="input-group-text"><i class="fa fa-fw fa-piggy-bank"></i></span>
-                </div>
-                <select class="form-control select2" name="account" required>
+                <select class="form-select select2" name="account" required>
                     <option value="">- Select an Account -</option>
                     <?php
 
@@ -108,13 +100,11 @@ ob_start();
             </div>
         </div>
 
-        <div class="form-group">
+        <div class="mb-3">
             <label>Payment Method <strong class="text-danger">*</strong></label>
             <div class="input-group">
-                <div class="input-group-prepend">
                     <span class="input-group-text"><i class="fa fa-fw fa-money-check-alt"></i></span>
-                </div>
-                <select class="form-control select2" name="payment_method" required>
+                <select class="form-select select2" name="payment_method" required>
                     <option value="">- Method of Payment -</option>
                     <?php
 
@@ -131,12 +121,10 @@ ob_start();
             </div>
         </div>
 
-        <div class="form-group">
+        <div class="mb-3">
             <label>Reference</label>
             <div class="input-group">
-                <div class="input-group-prepend">
                     <span class="input-group-text"><i class="fa fa-fw fa-file-alt"></i></span>
-                </div>
                 <input type="text" class="form-control" name="reference" value="<?= $payment_reference ?>" placeholder="Check #, Trans #, etc" maxlength="200">
             </div>
         </div>
@@ -144,8 +132,8 @@ ob_start();
     </div>
 
     <div class="modal-footer">
-        <button type="submit" name="edit_payment" class="btn btn-primary text-bold"><i class="fas fa-check mr-2"></i>Save Changes</button>
-        <button type="button" class="btn btn-light" data-dismiss="modal"><i class="fas fa-times mr-2"></i>Cancel</button>
+        <button type="submit" name="edit_payment" class="btn btn-primary text-bold"><i class="fas fa-check me-2"></i>Save Changes</button>
+        <button type="button" class="btn btn-light" data-bs-dismiss="modal"><i class="fas fa-times me-2"></i>Cancel</button>
     </div>
 </form>
 

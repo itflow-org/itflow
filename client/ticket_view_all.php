@@ -30,10 +30,10 @@ $all_tickets = mysqli_query($mysqli, "SELECT ticket_id, ticket_prefix, ticket_nu
 
     <h2>All tickets</h2>
     <div class="col-md-2">
-        <div class="form-group">
+        <div class="mb-3">
             <form method="get">
                 <label>Ticket Status</label>
-                <select class="form-control" name="status" onchange="this.form.submit()">
+                <select class="form-select" name="status" onchange="this.form.submit()">
                     <option value="%" <?php if ($status == "%") {echo "selected";}?> >Any</option>
                     <option value="Open" <?php if ($status == "Open") {echo "selected";}?> >Open</option>
                     <option value="Closed" <?php if ($status == "Closed") {echo "selected";}?> >Closed</option>
@@ -41,6 +41,9 @@ $all_tickets = mysqli_query($mysqli, "SELECT ticket_id, ticket_prefix, ticket_nu
             </form>
         </div>
     </div>
+    <?php if (mysqli_num_rows($all_tickets) == 0) { ?>
+        <?= portalEmptyState('There are no tickets for this account.') ?>
+    <?php } else { ?>
     <table class="table">
         <thead>
         <tr>
@@ -71,6 +74,7 @@ $all_tickets = mysqli_query($mysqli, "SELECT ticket_id, ticket_prefix, ticket_nu
         ?>
         </tbody>
     </table>
+    <?php } ?>
     </div>
 
 <?php

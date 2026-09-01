@@ -5,6 +5,26 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 3.1.0 - 2026-08-24
+
+### Added
+
+- Add `Utils::redactUriForMessage()` and `Utils::redactUriStringForMessage()` for URI diagnostics
+- Add support for PHP 8.6
+
+### Changed
+
+- Omit rejected header values and sensitive URI components from automatic exception messages
+
+## 3.0.1 - 2026-08-24
+
+### Fixed
+
+- Prefix relative paths that begin with a colon segment with `./` instead of throwing
+- Apply the `/.` prefix for authority-less `//` paths to percent-encoding normalizations as well
+- Keep colon-leading first path segments when reading the paths of scheme-less non-native URIs
+- Stop throwing when removing the default `file` host strands a `//` path, prefixing it with `/.`
+
 ## 3.0.0 - 2026-07-20
 
 ### Added

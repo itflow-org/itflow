@@ -532,7 +532,7 @@ if (isset($_POST['add_telemetry'])) {
 ?>
 
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-bs-theme="light" data-lte-color-mode="off">
 
 <head>
     <meta charset="utf-8">
@@ -546,22 +546,22 @@ if (isset($_POST['add_telemetry'])) {
     <!-- Theme style -->
     <link rel="stylesheet" href="/libs/adminlte/css/adminlte.min.css">
     <!-- Custom Style Sheet -->
-    <link href="/libs/select2/css/select2.min.css" rel="stylesheet" type="text/css">
-    <link href="/libs/select2-bootstrap4-theme/select2-bootstrap4.min.css" rel="stylesheet" type="text/css">
+    <link href="/libs/tom-select/css/tom-select.bootstrap5.min.css" rel="stylesheet" type="text/css">
+    <link rel="stylesheet" href="/css/itflow_custom.css">
 
 </head>
 
 <body class="hold-transition sidebar-mini">
 
-<div class="wrapper text-sm">
+<div class="app-wrapper text-sm">
 
     <!-- Navbar -->
-    <nav class="main-header navbar navbar-expand navbar-primary navbar-dark">
+    <nav class="app-header navbar navbar-expand" data-bs-theme="dark">
 
         <!-- Left navbar links -->
         <ul class="navbar-nav">
             <li class="nav-item">
-                <a class="nav-link" data-widget="pushmenu" href="#"><i class="fas fa-bars"></i></a>
+                <a class="nav-link" data-lte-toggle="sidebar" href="#"><i class="fas fa-bars"></i></a>
             </li>
         </ul>
 
@@ -572,19 +572,21 @@ if (isset($_POST['add_telemetry'])) {
     <!-- /.navbar -->
 
     <!-- Main Sidebar Container -->
-    <aside class="main-sidebar sidebar-dark-primary elevation-4">
+    <aside class="app-sidebar shadow" data-bs-theme="dark">
 
         <!-- Brand Logo -->
-        <a href="https://itflow.org" class="brand-link">
-            <h3 class="brand-text font-weight-light"><i class="fas fa-paper-plane text-primary mr-2"></i><span class="text-primary text-bold">IT</span>Flow</h3>
-        </a>
+        <div class="sidebar-brand">
+            <a href="https://itflow.org" class="brand-link">
+                <h3 class="brand-text fw-light mb-0"><i class="fas fa-paper-plane text-primary me-2"></i><span class="text-primary text-bold">IT</span>Flow</h3>
+            </a>
+        </div>
 
         <!-- Sidebar -->
         <div class="sidebar">
 
             <!-- Sidebar Menu -->
             <nav class="mt-2">
-                <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="menu" data-accordion="false">
+                <ul class="nav nav-pills sidebar-menu flex-column" data-lte-toggle="treeview" role="menu" data-accordion="false">
                     <li class="nav-item">
                         <a href="index.php" class="nav-link <?php if (!isset($_GET) || empty($_GET)) { echo 'active'; } ?>">
                             <i class="nav-icon fas fa-home text-info"></i>
@@ -645,7 +647,7 @@ if (isset($_POST['add_telemetry'])) {
     </aside>
 
     <!-- Content Wrapper. Contains page content -->
-    <div class="content-wrapper">
+    <main class="app-main">
 
         <!-- Main content -->
         <div class="content mt-3">
@@ -656,8 +658,8 @@ if (isset($_POST['add_telemetry'])) {
                 if (!empty($_SESSION['alert_message'])) {
                     ?>
                     <div class="alert alert-info" id="alert">
-                        <?= escapeHtml($_SESSION['alert_message']) ?>
-                        <button class='close' data-dismiss='alert'>&times;</button>
+                        <?= alertMessageHtml($_SESSION['alert_message']) ?>
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                     </div>
                     <?php
                     $_SESSION['alert_type'] = '';
@@ -752,27 +754,17 @@ if (isset($_POST['add_telemetry'])) {
                     // Section: Shell Commands
                     $shellCommands = [];
 
-                    if ($shell_exec_enabled) {
-                        $commands = ['git'];
-
-                        foreach ($commands as $command) {
-                            $which = trim(shell_exec("which $command 2>/dev/null"));
-                            $exists = !empty($which);
-                            $shellCommands[] = [
-                                'name' => "Command '$command' available",
-                                'passed' => $exists,
-                                'value' => $exists ? $which : 'Not Found',
-                            ];
-                        }
-                    } else {
-                        // If shell_exec is disabled, mark commands as unavailable
-                        foreach (['whois', 'dig', 'git'] as $command) {
-                            $shellCommands[] = [
-                                'name' => "Command '$command' available",
-                                'passed' => false,
-                                'value' => 'shell_exec Disabled',
-                            ];
-                        }
+                    // Located by walking PATH rather than by running `which`, so this reports
+                    // the truth on a host with shell_exec disabled. The no-shell branch this
+                    // replaces also still listed whois and dig, which ITFlow stopped shelling
+                    // out to when domain lookups moved to RDAP and native DNS
+                    foreach (['git'] as $command) {
+                        $path = commandPath($command);
+                        $shellCommands[] = [
+                            'name' => "Command '$command' available",
+                            'passed' => $path !== '',
+                            'value' => $path !== '' ? $path : 'Not Found',
+                        ];
                     }
 
                     // Section: SSL Checks
@@ -850,7 +842,7 @@ if (isset($_POST['add_telemetry'])) {
 
                     <div class="card card-dark">
                         <div class="card-header">
-                            <h3 class="card-title"><i class="fas fa-fw fa-check mr-2"></i>Step 1 - Setup Checks</h3>
+                            <h3 class="card-title"><i class="fas fa-fw fa-check me-2"></i>Step 1 - Setup Checks</h3>
                         </div>
                         <div class="card-body">
                             <table class="table table-sm table-bordered">
@@ -967,7 +959,7 @@ if (isset($_POST['add_telemetry'])) {
 
                             <hr>
 
-                            <a href="?database" class="btn btn-primary text-bold">Next (Database)<i class="fa fa-fw fa-arrow-circle-right ml-2"></i></a>
+                            <a href="?database" class="btn btn-primary text-bold">Next (Database)<i class="fa fa-fw fa-arrow-circle-right ms-2"></i></a>
                         </div>
                     </div>
 
@@ -975,7 +967,7 @@ if (isset($_POST['add_telemetry'])) {
 
                     <div class="card card-dark">
                         <div class="card-header">
-                            <h3 class="card-title"><i class="fas fa-fw fa-database mr-2"></i>Step 2 - Connect your Database</h3>
+                            <h3 class="card-title"><i class="fas fa-fw fa-database me-2"></i>Step 2 - Connect your Database</h3>
                         </div>
                         <div class="card-body">
                             <?php
@@ -984,7 +976,7 @@ if (isset($_POST['add_telemetry'])) {
                                 echo "<p>Database is already configured. Any further changes should be made by editing the <code>config.php</code> file.</p>";
 
                                 if (@$mysqli) {
-                                    echo "<a href='?user' class='btn btn-success text-bold mt-3'>Next Step (User Setup) <i class='fa fa-fw fa-arrow-circle-right ml-2'></i></a>";
+                                    echo "<a href='?user' class='btn btn-success text-bold mt-3'>Next Step (User Setup) <i class='fa fa-fw fa-arrow-circle-right ms-2'></i></a>";
                                 } else {
                                     echo "<div class='alert alert-danger mt-3'>Database connection failed. Check <code>config.php</code>.</div>";
                                 }
@@ -995,22 +987,18 @@ if (isset($_POST['add_telemetry'])) {
 
                                     <h5>Database Connection Details</h5>
 
-                                    <div class="form-group">
+                                    <div class="mb-3">
                                         <label>Database Name <strong class="text-danger">*</strong></label>
                                         <div class="input-group">
-                                            <div class="input-group-prepend">
                                                 <span class="input-group-text"><i class="fa fa-fw fa-database"></i></span>
-                                            </div>
                                             <input type="text" class="form-control" name="database" placeholder="Database name" autofocus required>
                                         </div>
                                     </div>
 
-                                    <div class="form-group">
+                                    <div class="mb-3">
                                         <label>Database Host <strong class="text-danger">*</strong></label>
                                         <div class="input-group">
-                                            <div class="input-group-prepend">
                                                 <span class="input-group-text"><i class="fa fa-fw fa-server"></i></span>
-                                            </div>
                                             <input type="text" class="form-control" name="host" value="localhost" placeholder="Database Host" required>
                                         </div>
                                     </div>
@@ -1018,32 +1006,26 @@ if (isset($_POST['add_telemetry'])) {
                                     <br>
                                     <h5>Database Authentication Details</h5>
 
-                                    <div class="form-group">
+                                    <div class="mb-3">
                                         <label>Database User <strong class="text-danger">*</strong></label>
                                         <div class="input-group">
-                                            <div class="input-group-prepend">
                                                 <span class="input-group-text"><i class="fa fa-fw fa-user"></i></span>
-                                            </div>
                                             <input type="text" class="form-control" name="username" placeholder="Database user account" required>
                                         </div>
                                     </div>
 
-                                    <div class="form-group">
+                                    <div class="mb-3">
                                         <label>Database Password <strong class="text-danger">*</strong></label>
                                         <div class="input-group">
-                                            <div class="input-group-prepend">
                                                 <span class="input-group-text"><i class="fa fa-fw fa-lock"></i></span>
-                                            </div>
                                             <input type="password" class="form-control" data-toggle="password" name="password" placeholder="Database user password" autocomplete="new-password" required>
-                                            <div class="input-group-append">
                                                 <span class="input-group-text"><i class="fa fa-fw fa-eye"></i></span>
-                                            </div>
                                         </div>
                                     </div>
 
                                     <hr>
                                     <button type="submit" name="add_database" class="btn btn-primary text-bold">
-                                        Next (First User)<i class="fas fa-fw fa-arrow-circle-right ml-2"></i>
+                                        Next (First User)<i class="fas fa-fw fa-arrow-circle-right ms-2"></i>
                                     </button>
                                 </form>
                             <?php } ?>
@@ -1055,29 +1037,29 @@ if (isset($_POST['add_telemetry'])) {
                     <?php if (!$can_show_restore) { ?>
                         <div class="card card-danger">
                             <div class="card-header">
-                                <h3 class="card-title"><i class="fas fa-exclamation-triangle mr-2"></i>Database Not Ready</h3>
+                                <h3 class="card-title"><i class="fas fa-exclamation-triangle me-2"></i>Database Not Ready</h3>
                             </div>
                             <div class="card-body text-center">
                                 <p>You must configure the database before restoring a backup.</p>
                                 <a href="?database" class="btn btn-primary text-bold">
-                                    Go to Database Setup <i class="fas fa-arrow-right ml-2"></i>
+                                    Go to Database Setup <i class="fas fa-arrow-right ms-2"></i>
                                 </a>
                             </div>
                         </div>
                     <?php } else { ?>
                         <div class="card card-dark">
                             <div class="card-header">
-                                <h3 class="card-title"><i class="fas fa-fw fa-database mr-2"></i>Restore from Backup</h3>
+                                <h3 class="card-title"><i class="fas fa-fw fa-database me-2"></i>Restore from Backup</h3>
                             </div>
                             <div class="card-body">
                                 <?php $setup_max_upload = backupMaxUploadBytes(); ?>
 
                                 <form method="post" enctype="multipart/form-data" autocomplete="off">
-                                    <div class="form-group">
+                                    <div class="mb-3">
                                         <label>ITFlow backup archive (.zip)</label>
-                                        <input type="file" name="backup_zip" accept=".zip" class="form-control-file" required>
+                                        <input type="file" name="backup_zip" accept=".zip" class="form-control" required>
                                     </div>
-                                    <div class="form-group">
+                                    <div class="mb-3">
                                         <label>Backup encryption key</label>
                                         <input type="text" name="backup_key" class="form-control" placeholder="The key from the install that made this backup" autocomplete="off" required>
                                         <small class="text-muted">Shown in Maintenance &gt; Backup on that install. The archive cannot be opened without it.</small>
@@ -1093,7 +1075,7 @@ if (isset($_POST['add_telemetry'])) {
                                     <p class="text-muted mt-2 mb-0"><small>The restore replaces the database and the uploads folder. Large restores take several minutes - do not close this page.</small></p>
                                     <hr>
                                     <button type="submit" name="restore" class="btn btn-primary text-bold">
-                                        Restore Backup<i class="fas fa-fw fa-upload ml-2"></i>
+                                        Restore Backup<i class="fas fa-fw fa-upload ms-2"></i>
                                     </button>
                                 </form>
                             </div>
@@ -1104,7 +1086,7 @@ if (isset($_POST['add_telemetry'])) {
 
                     <div class="card card-dark">
                         <div class="card-header">
-                            <h3 class="card-title"><i class="fas fa-fw fa-user mr-2"></i>Step 3 - Create your first user</h3>
+                            <h3 class="card-title"><i class="fas fa-fw fa-user me-2"></i>Step 3 - Create your first user</h3>
                         </div>
                         <div class="card-body">
 
@@ -1117,42 +1099,34 @@ if (isset($_POST['add_telemetry'])) {
                             <?php else: ?>
 
                             <form method="post" enctype="multipart/form-data" autocomplete="off">
-                                <div class="form-group">
+                                <div class="mb-3">
                                     <label>Name <strong class="text-danger">*</strong></label>
                                     <div class="input-group">
-                                        <div class="input-group-prepend">
                                             <span class="input-group-text"><i class="fa fa-fw fa-user"></i></span>
-                                        </div>
                                         <input type="text" class="form-control" name="name" placeholder="Full Name" maxlength="200" autofocus required>
                                     </div>
                                 </div>
 
-                                <div class="form-group">
+                                <div class="mb-3">
                                     <label>Email <strong class="text-danger">*</strong></label>
                                     <div class="input-group">
-                                        <div class="input-group-prepend">
                                             <span class="input-group-text"><i class="fa fa-fw fa-envelope"></i></span>
-                                        </div>
                                         <input type="email" class="form-control" name="email" placeholder="Email Address" maxlength="200" required>
                                     </div>
                                 </div>
 
-                                <div class="form-group">
+                                <div class="mb-3">
                                     <label>Password <strong class="text-danger">*</strong></label>
                                     <div class="input-group">
-                                        <div class="input-group-prepend">
                                             <span class="input-group-text"><i class="fa fa-fw fa-lock"></i></span>
-                                        </div>
                                         <input type="password" class="form-control" data-toggle="password" name="password" placeholder="Enter a Password" autocomplete="new-password" required minlength="8">
-                                        <div class="input-group-append">
                                             <span class="input-group-text"><i class="fa fa-fw fa-eye"></i></span>
-                                        </div>
                                     </div>
                                 </div>
 
-                                <div class="form-group">
+                                <div class="mb-3">
                                     <label>Avatar</label>
-                                    <input type="file" class="form-control-file" accept="image/*;capture=camera" name="file">
+                                    <input type="file" class="form-control" accept="image/*;capture=camera" name="file">
                                 </div>
 
                                 <hr>
@@ -1169,7 +1143,7 @@ if (isset($_POST['add_telemetry'])) {
 
                     <div class="card card-dark">
                         <div class="card-header">
-                            <h3 class="card-title"><i class="fas fa-fw fa-briefcase mr-2"></i>Step 4 - Company Details</h3>
+                            <h3 class="card-title"><i class="fas fa-fw fa-briefcase me-2"></i>Step 4 - Company Details</h3>
                         </div>
                         <div class="card-body">
 
@@ -1182,112 +1156,92 @@ if (isset($_POST['add_telemetry'])) {
                             <?php else: ?>
                             <form method="post" enctype="multipart/form-data" autocomplete="off">
 
-                                <div class="form-group">
+                                <div class="mb-3">
                                     <label>Company Name <strong class="text-danger">*</strong></label>
                                     <div class="input-group">
-                                        <div class="input-group-prepend">
                                             <span class="input-group-text"><i class="fa fa-fw fa-building"></i></span>
-                                        </div>
                                         <input type="text" class="form-control" name="name" placeholder="Company Name" maxlength="200" autofocus required>
                                     </div>
                                 </div>
 
-                                <div class="form-group">
+                                <div class="mb-3">
                                     <label>Logo</label>
-                                    <input type="file" class="form-control-file" name="file" accept=".jpg, .jpeg, .png">
+                                    <input type="file" class="form-control" name="file" accept=".jpg, .jpeg, .png">
                                 </div>
 
-                                <div class="form-group">
+                                <div class="mb-3">
                                     <label>Address</label>
                                     <div class="input-group">
-                                        <div class="input-group-prepend">
                                             <span class="input-group-text"><i class="fa fa-fw fa-map-marker-alt"></i></span>
-                                        </div>
                                         <input type="text" class="form-control" name="address" placeholder="Street Address">
                                     </div>
                                 </div>
 
-                                <div class="form-group">
+                                <div class="mb-3">
                                     <label>City</label>
                                     <div class="input-group">
-                                        <div class="input-group-prepend">
                                             <span class="input-group-text"><i class="fa fa-fw fa-city"></i></span>
-                                        </div>
                                         <input type="text" class="form-control" name="city" placeholder="City">
                                     </div>
                                 </div>
 
-                                <div class="form-group">
+                                <div class="mb-3">
                                     <label>State / Province</label>
                                     <div class="input-group">
-                                        <div class="input-group-prepend">
                                             <span class="input-group-text"><i class="fa fa-fw fa-flag"></i></span>
-                                        </div>
                                         <input type="text" class="form-control" name="state" placeholder="State or Province">
                                     </div>
                                 </div>
 
-                                <div class="form-group">
+                                <div class="mb-3">
                                     <label>Postal Code</label>
                                     <div class="input-group">
-                                        <div class="input-group-prepend">
                                             <span class="input-group-text"><i class="fab fa-fw fa-usps"></i></span>
-                                        </div>
                                         <input type="text" class="form-control" name="zip" placeholder="Zip or Postal Code">
                                     </div>
                                 </div>
 
-                                <div class="form-group">
+                                <div class="mb-3">
                                     <label>Country <strong class="text-danger">*</strong></label>
                                     <div class="input-group">
-                                        <div class="input-group-prepend">
                                             <span class="input-group-text"><i class="fa fa-fw fa-globe-americas"></i></span>
-                                        </div>
-                                        <select class="form-control select2" name="country" required>
+                                        <select class="form-select select2" name="country" required>
                                             <option value="">- Country -</option>
                                             <?php foreach($countries_array as $country_name) { ?>
-                                                <option><?= $country_name ?></option>
+                                                <option data-iso2="<?= $country_iso2_array[$country_name] ?? '' ?>"><?= $country_name ?></option>
                                             <?php } ?>
                                         </select>
                                     </div>
                                 </div>
 
-                                <div class="form-group">
+                                <div class="mb-3">
                                     <label>Phone</label>
                                     <div class="input-group">
-                                        <div class="input-group-prepend">
                                             <span class="input-group-text"><i class="fa fa-fw fa-phone"></i></span>
-                                        </div>
                                         <input type="tel" class="form-control" name="phone" placeholder="Phone Number">
                                     </div>
                                 </div>
 
-                                <div class="form-group">
+                                <div class="mb-3">
                                     <label>Email</label>
                                     <div class="input-group">
-                                        <div class="input-group-prepend">
                                             <span class="input-group-text"><i class="fa fa-fw fa-envelope"></i></span>
-                                        </div>
                                         <input type="email" class="form-control" name="email" placeholder="Company Email address eg: info@company.com" maxlength="200">
                                     </div>
                                 </div>
 
-                                <div class="form-group">
+                                <div class="mb-3">
                                     <label>Website</label>
                                     <div class="input-group">
-                                        <div class="input-group-prepend">
                                             <span class="input-group-text"><i class="fa fa-fw fa-globe"></i></span>
-                                        </div>
                                         <input type="text" class="form-control" name="website" placeholder="Website address">
                                     </div>
                                 </div>
 
-                                <div class="form-group">
+                                <div class="mb-3">
                                     <label>Tax ID</label>
                                     <div class="input-group">
-                                        <div class="input-group-prepend">
                                             <span class="input-group-text"><i class="fa fa-fw fa-balance-scale"></i></span>
-                                        </div>
                                         <input type="text" class="form-control" name="tax_id" placeholder="Tax ID" maxlength="200">
                                     </div>
                                 </div>
@@ -1295,7 +1249,7 @@ if (isset($_POST['add_telemetry'])) {
                                 <hr>
 
                                 <button type="submit" name="add_company_settings" class="btn btn-primary text-bold">
-                                    Next (Localization)<i class="fas fa-fw fa-arrow-circle-right ml-2"></i>
+                                    Next (Localization)<i class="fas fa-fw fa-arrow-circle-right ms-2"></i>
                                 </button>
 
                             </form>
@@ -1309,7 +1263,7 @@ if (isset($_POST['add_telemetry'])) {
 
                     <div class="card card-dark">
                         <div class="card-header">
-                            <h3 class="card-title"><i class="fas fa-fw fa-globe-americas mr-2"></i>Step 5 - Region and Language</h3>
+                            <h3 class="card-title"><i class="fas fa-fw fa-globe-americas me-2"></i>Step 5 - Region and Language</h3>
                         </div>
                         <div class="card-body">
 
@@ -1322,13 +1276,11 @@ if (isset($_POST['add_telemetry'])) {
                             <?php else: ?>
                             <form method="post" autocomplete="off">
 
-                                <div class="form-group">
+                                <div class="mb-3">
                                     <label>Language <strong class="text-danger">*</strong></label>
                                     <div class="input-group">
-                                        <div class="input-group-prepend">
                                             <span class="input-group-text"><i class="fa fa-fw fa-language"></i></span>
-                                        </div>
-                                        <select class="form-control select2" name="locale" required>
+                                        <select class="form-select select2" name="locale" required>
                                             <option value="">- Select a Language -</option>
                                             <?php foreach($locales_array as $locale_code => $locale_name) { ?>
                                                 <option value="<?= $locale_code ?>"><?= $locale_name ?></option>
@@ -1337,13 +1289,11 @@ if (isset($_POST['add_telemetry'])) {
                                     </div>
                                 </div>
 
-                                <div class="form-group">
+                                <div class="mb-3">
                                     <label>Currency <strong class="text-danger">*</strong></label>
                                     <div class="input-group">
-                                        <div class="input-group-prepend">
                                             <span class="input-group-text"><i class="fa fa-fw fa-money-bill"></i></span>
-                                        </div>
-                                        <select class="form-control select2" name="currency_code" required>
+                                        <select class="form-select select2" name="currency_code" required>
                                             <option value="">- Select a Currency -</option>
                                             <?php foreach($currencies_array as $currency_code => $currency_name) { ?>
                                                 <option value="<?= $currency_code ?>"><?= "$currency_code - $currency_name" ?></option>
@@ -1352,13 +1302,11 @@ if (isset($_POST['add_telemetry'])) {
                                     </div>
                                 </div>
 
-                                <div class="form-group">
+                                <div class="mb-3">
                                     <label>Timezone <strong class="text-danger">*</strong></label>
                                     <div class="input-group">
-                                        <div class="input-group-prepend">
                                             <span class="input-group-text"><i class="fa fa-fw fa-business-time"></i></span>
-                                        </div>
-                                        <select class="form-control select2" name="timezone" required>
+                                        <select class="form-select select2" name="timezone" required>
                                             <option value="">- Select a Timezone -</option>
                                             <?php foreach ($timezones as $tz) { ?>
                                                 <option value="<?= $tz ?>"><?= $tz ?></option>
@@ -1370,7 +1318,7 @@ if (isset($_POST['add_telemetry'])) {
                                 <hr>
 
                                 <button type="submit" name="add_localization_settings" class="btn btn-primary text-bold">
-                                    Next (Telemetry Settings)<i class="fas fa-fw fa-arrow-circle-right ml-2"></i>
+                                    Next (Telemetry Settings)<i class="fas fa-fw fa-arrow-circle-right ms-2"></i>
                                 </button>
 
                             </form>
@@ -1385,7 +1333,7 @@ if (isset($_POST['add_telemetry'])) {
 
                     <div class="card card-dark">
                         <div class="card-header">
-                            <h3 class="card-title"><i class="fas fa-fw fa-broadcast-tower mr-2"></i>Step 6 - Telemetry</h3>
+                            <h3 class="card-title"><i class="fas fa-fw fa-broadcast-tower me-2"></i>Step 6 - Telemetry</h3>
                         </div>
                         <div class="card-body">
                             <form method="post" autocomplete="off">
@@ -1395,12 +1343,12 @@ if (isset($_POST['add_telemetry'])) {
 
                                 <div class="form-check">
                                     <input type="checkbox" class="form-check-input" name="share_data" value="1">
-                                    <label class="form-check-label ml-2">Share <small class="form-text"><a href="https://docs.itflow.org/telemetry" target="_blank">Click Here for additional details regarding the information we gather <i class="fas fa-external-link-alt"></i></a></small></label>
+                                    <label class="form-check-label ms-2">Share <small class="form-text"><a href="https://docs.itflow.org/telemetry" target="_blank">Click Here for additional details regarding the information we gather <i class="fas fa-external-link-alt"></i></a></small></label>
                                 </div>
 
                                 <br>
 
-                                <div class="form-group">
+                                <div class="mb-3">
                                     <label>Comments</label>
                                     <textarea class="form-control" rows="4" name="comments" placeholder="Any Comments?"></textarea>
                                 </div>
@@ -1426,7 +1374,7 @@ if (isset($_POST['add_telemetry'])) {
                                 <hr>
 
                                 <button type="submit" name="add_telemetry" class="btn btn-primary text-bold">
-                                    Finish and Sign in<i class="fas fa-fw fa-check-circle ml-2"></i>
+                                    Finish and Sign in<i class="fas fa-fw fa-check-circle ms-2"></i>
                                 </button>
 
                             </form>
@@ -1438,7 +1386,7 @@ if (isset($_POST['add_telemetry'])) {
 
                     <div class="card card-dark">
                         <div class="card-header">
-                            <h3 class="card-title"><i class="fas fa-fw fa-cube mr-2"></i>ITFlow Setup</h3>
+                            <h3 class="card-title"><i class="fas fa-fw fa-cube me-2"></i>ITFlow Setup</h3>
                         </div>
                         <div class="card-body">
                             <h2><b>Thank you</b> for choosing to try ITFlow!</h2>
@@ -1465,24 +1413,24 @@ if (isset($_POST['add_telemetry'])) {
                             <hr>
                             <div class="text-center">
                                 <?php if ($install_is_live): ?>
-                                    <a href="?<?= $resume_step ?>" class="btn btn-primary text-bold mr-2">
-                                        Continue Setup <i class="fas fa-fw fa-arrow-alt-circle-right ml-2"></i>
+                                    <a href="?<?= $resume_step ?>" class="btn btn-primary text-bold me-2">
+                                        Continue Setup <i class="fas fa-fw fa-arrow-alt-circle-right ms-2"></i>
                                     </a>
                                 <?php elseif ($should_skip_to_user): ?>
-                                    <a href="?user" class="btn btn-primary text-bold mr-2">
-                                        Create First User <i class="fas fa-fw fa-user ml-2"></i>
+                                    <a href="?user" class="btn btn-primary text-bold me-2">
+                                        Create First User <i class="fas fa-fw fa-user ms-2"></i>
                                     </a>
                                 <?php endif; ?>
 
                                 <?php if ($can_show_restore): ?>
                                     <a href="?restore" class="btn btn-warning text-bold">
-                                        Restore from Backup <i class="fas fa-fw fa-upload ml-2"></i>
+                                        Restore from Backup <i class="fas fa-fw fa-upload ms-2"></i>
                                     </a>
                                 <?php endif; ?>
 
                                 <?php if (!$should_skip_to_user && !$can_show_restore): ?>
                                     <a href="?checks" class="btn btn-primary text-bold">
-                                        Begin Setup <i class="fas fa-fw fa-arrow-alt-circle-right ml-2"></i>
+                                        Begin Setup <i class="fas fa-fw fa-arrow-alt-circle-right ms-2"></i>
                                     </a>
                                 <?php endif; ?>
                             </div>
@@ -1493,21 +1441,20 @@ if (isset($_POST['add_telemetry'])) {
 
             </div><!-- /.container-fluid -->
         </div>
-        <!-- /.content -->
-    </div>
-    <!-- /.content-wrapper -->
+        <!-- /.app-content -->
+    </main>
+    <!-- /.app-main -->
 </div>
-<!-- ./wrapper -->
+<!-- /.app-wrapper -->
 
 <!-- REQUIRED SCRIPTS -->
 
 <!-- jQuery -->
-<script src="/libs/jquery/jquery.min.js"></script>
-<!-- Bootstrap 4 -->
-<script src="/libs/bootstrap/js/bootstrap.bundle.min.js"></script>
+<!-- Bootstrap 5 -->
 <!-- Custom js-->
-<script src='/libs/select2/js/select2.min.js'></script>
-<script src="/libs/Show-Hide-Passwords-Bootstrap-4/bootstrap-show-password.min.js"></script>
+<script src='/libs/tom-select/js/tom-select.complete.min.js'></script>
+<script src="/js/tom_select.js"></script>
+<script src="/libs/bootstrap/js/bootstrap.bundle.min.js"></script>
 <!-- AdminLTE App -->
 <script src="/libs/adminlte/js/adminlte.min.js"></script>
 

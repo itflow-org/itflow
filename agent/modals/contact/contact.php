@@ -137,7 +137,7 @@ while ($row = mysqli_fetch_assoc($sql_contact_tags)) {
     }
 
     $contact_tag_id_array[] = $contact_tag_id;
-    $contact_tag_name_display_array[] = "<a href='client_contacts.php?client_id=$client_id&q=$contact_tag_name'><span class='badge text-light p-1 mr-1' style='background-color: $contact_tag_color;'><i class='fa fa-fw fa-$contact_tag_icon mr-2'></i>$contact_tag_name</span></a>";
+    $contact_tag_name_display_array[] = "<a href='client_contacts.php?client_id=$client_id&q=$contact_tag_name'><span class='badge text-light p-1 me-1' style='background-color: $contact_tag_color;'><i class='fa fa-fw fa-$contact_tag_icon me-2'></i>$contact_tag_name</span></a>";
 }
 $contact_tags_display = implode('', $contact_tag_name_display_array);
 
@@ -213,9 +213,9 @@ ob_start();
 
 <div class="modal-header bg-dark">
     <h5 class="modal-title">
-        <div class="media">
+        <div class="d-flex">
             <?php if ($contact_photo) { ?>
-                <img class="img-thumbnail img-circle img-size-50 mr-1" src="<?= "../uploads/clients/$client_id/$contact_photo" ?>">
+                <img class="img-thumbnail rounded-circle img-size-50 me-1" src="<?= "../uploads/clients/$client_id/$contact_photo" ?>">
             <?php } else { ?>
                 <span class="fa-stack">
                     <i class="fa fa-circle fa-stack-2x text-secondary"></i>
@@ -223,15 +223,13 @@ ob_start();
                 </span>
             <?php } ?>
 
-            <div class="media-body ml-2">
+            <div class="flex-grow-1 ms-2">
                 <strong><?= $contact_name ?></strong>
                 <div class="text-sm"><?= $contact_title ?></div>
             </div>
         </div>
     </h5>
-    <button type="button" class="close text-white" data-dismiss="modal">
-        <span>&times;</span>
-    </button>
+    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
 </div>
 
 <div class="modal-body">
@@ -243,32 +241,32 @@ ob_start();
 
                 <div class="col-12 col-md-5 mb-3 mb-md-0">
                     <div class="d-flex align-items-start">
-                        <i class="fas fa-fw fa-user text-secondary mr-2 mt-1"></i>
+                        <i class="fas fa-fw fa-user text-secondary me-2 mt-1"></i>
                         <div class="w-100">
                             <div class="text-muted text-sm">Contact</div>
 
                             <?php if ($contact_phone) { ?>
                                 <div class="mt-1">
-                                    <i class="fas fa-fw fa-phone-alt text-secondary mr-1"></i>
+                                    <i class="fas fa-fw fa-phone-alt text-secondary me-1"></i>
                                     <a href="tel:<?= $contact_phone ?>"><?= $contact_phone ?></a>
                                     <?php if ($contact_extension) { ?>
-                                        <span class="text-muted ml-1">ext: <?= $contact_extension ?></span>
+                                        <span class="text-muted ms-1">ext: <?= $contact_extension ?></span>
                                     <?php } ?>
                                 </div>
                             <?php } ?>
 
                             <?php if ($contact_mobile) { ?>
                                 <div class="mt-1">
-                                    <i class="fas fa-fw fa-mobile-alt text-secondary mr-1"></i>
+                                    <i class="fas fa-fw fa-mobile-alt text-secondary me-1"></i>
                                     <a href="tel:<?= $contact_mobile ?>"><?= $contact_mobile ?></a>
                                 </div>
                             <?php } ?>
 
                             <?php if ($contact_email) { ?>
                                 <div class="mt-1">
-                                    <i class="fas fa-fw fa-envelope text-secondary mr-1"></i>
+                                    <i class="fas fa-fw fa-envelope text-secondary me-1"></i>
                                     <a href="mailto:<?= $contact_email ?>"><?= $contact_email ?></a>
-                                    <button type="button" class="btn btn-xs btn-link p-0 ml-1 clipboardjs" data-clipboard-text="<?= $contact_email ?>">
+                                    <button type="button" class="btn btn-sm btn-link p-0 ms-1 clipboardjs" data-clipboard-text="<?= $contact_email ?>">
                                         <i class="far fa-copy text-secondary"></i>
                                     </button>
                                 </div>
@@ -289,11 +287,11 @@ ob_start();
 
                 <div class="col-12 col-md-4 mb-3 mb-md-0">
                     <div class="d-flex align-items-start">
-                        <i class="fas fa-fw fa-map-marker-alt text-secondary mr-2 mt-1"></i>
+                        <i class="fas fa-fw fa-map-marker-alt text-secondary me-2 mt-1"></i>
                         <div class="w-100">
                             <div class="text-muted text-sm">Location</div>
                             <?php if ($location_name) { ?>
-                                <div class="font-weight-bold"><?= $location_name ?></div>
+                                <div class="fw-bold"><?= $location_name ?></div>
                                 <div class="text-muted">
                                     <?= $location_address ?><br>
                                     <?= formatAddress('', $location_city, $location_state, $location_zip, '', ' ') ?><br>
@@ -308,21 +306,21 @@ ob_start();
 
                 <div class="col-12 col-md-3">
                     <div class="d-flex align-items-start">
-                        <i class="fas fa-fw fa-info-circle text-secondary mr-2 mt-1"></i>
+                        <i class="fas fa-fw fa-info-circle text-secondary me-2 mt-1"></i>
                         <div class="w-100">
                             <div class="text-muted text-sm">Flags</div>
 
                             <?php if ($contact_primary) { ?>
-                                <div><span class="text-success font-weight-bold">Primary</span></div>
+                                <div><span class="text-success fw-bold">Primary</span></div>
                             <?php } ?>
                             <?php if ($contact_billing) { ?>
-                                <div><span class="font-weight-bold text-dark">Billing</span></div>
+                                <div><span class="fw-bold text-dark">Billing</span></div>
                             <?php } ?>
                             <?php if ($contact_technical) { ?>
                                 <div><span class="text-secondary">Technical</span></div>
                             <?php } ?>
                             <?php if ($contact_important) { ?>
-                                <div><span class="font-weight-bold text-dark">Important</span></div>
+                                <div><span class="fw-bold text-dark">Important</span></div>
                             <?php } ?>
                             <?php if ($contact_pin) { ?>
                                 <div class="mt-1"><span class="text-muted">PIN:</span> <?= $contact_pin ?></div>
@@ -339,21 +337,21 @@ ob_start();
         </div>
     </div>
 
-    <div class="row no-gutters">
+    <div class="row g-0">
 
         <!-- Left sticky nav -->
-        <div class="col-12 col-md-3 pr-md-3 mb-3 mb-md-0">
+        <div class="col-12 col-md-3 pe-md-3 mb-3 mb-md-0">
             <div class="sticky-top">
-                <div class="nav nav-pills nav-sidebar flex-column" role="tablist" aria-orientation="vertical">
+                <div class="nav nav-pills sidebar-menu flex-column" role="tablist" aria-orientation="vertical">
 
                     <?php if ($asset_count) { ?>
                         <a class="nav-link <?= ($first_tab === "assets") ? "active" : "" ?>"
-                           data-toggle="pill"
+                           data-bs-toggle="pill"
                            href="#pills-contact-assets<?= $contact_id ?>"
                            role="tab"
                            aria-controls="pills-contact-assets<?= $contact_id ?>"
                            aria-selected="<?= ($first_tab === "assets") ? "true" : "false" ?>">
-                            <i class="fas fa-fw fa-desktop mr-2"></i>
+                            <i class="fas fa-fw fa-desktop me-2"></i>
                             <span class="d-none d-md-inline">Assets (<?= $asset_count ?>)</span>
                         </a>
                     <?php } ?>
@@ -361,84 +359,84 @@ ob_start();
                     <?php
                     if (lookupUserPermission('module_credential') && ($credential_count)) { ?>
                         <a class="nav-link <?= ($first_tab === "credentials") ? "active" : "" ?>"
-                           data-toggle="pill"
+                           data-bs-toggle="pill"
                            href="#pills-contact-credentials<?= $contact_id ?>"
                            role="tab"
                            aria-controls="pills-contact-credentials<?= $contact_id ?>"
                            aria-selected="<?= ($first_tab === "credentials") ? "true" : "false" ?>">
-                            <i class="fas fa-fw fa-key mr-2"></i>
+                            <i class="fas fa-fw fa-key me-2"></i>
                             <span class="d-none d-md-inline">Credentials (<?= $credential_count ?>)</span>
                         </a>
                     <?php } ?>
 
                     <?php if ($software_count) { ?>
                         <a class="nav-link <?= ($first_tab === "licenses") ? "active" : "" ?>"
-                           data-toggle="pill"
+                           data-bs-toggle="pill"
                            href="#pills-contact-licenses<?= $contact_id ?>"
                            role="tab"
                            aria-controls="pills-contact-licenses<?= $contact_id ?>"
                            aria-selected="<?= ($first_tab === "licenses") ? "true" : "false" ?>">
-                            <i class="fas fa-fw fa-cube mr-2"></i>
+                            <i class="fas fa-fw fa-cube me-2"></i>
                             <span class="d-none d-md-inline">Licenses (<?= $software_count ?>)</span>
                         </a>
                     <?php } ?>
 
                     <?php if ($ticket_count) { ?>
                         <a class="nav-link <?= ($first_tab === "tickets") ? "active" : "" ?>"
-                           data-toggle="pill"
+                           data-bs-toggle="pill"
                            href="#pills-contact-tickets<?= $contact_id ?>"
                            role="tab"
                            aria-controls="pills-contact-tickets<?= $contact_id ?>"
                            aria-selected="<?= ($first_tab === "tickets") ? "true" : "false" ?>">
-                            <i class="fas fa-fw fa-life-ring mr-2"></i>
+                            <i class="fas fa-fw fa-life-ring me-2"></i>
                             <span class="d-none d-md-inline">Tickets (<?= $ticket_count ?>)</span>
                         </a>
                     <?php } ?>
 
                     <?php if ($recurring_ticket_count) { ?>
                         <a class="nav-link <?= ($first_tab === "recurring") ? "active" : "" ?>"
-                           data-toggle="pill"
+                           data-bs-toggle="pill"
                            href="#pills-contact-recurring-tickets<?= $contact_id ?>"
                            role="tab"
                            aria-controls="pills-contact-recurring-tickets<?= $contact_id ?>"
                            aria-selected="<?= ($first_tab === "recurring") ? "true" : "false" ?>">
-                            <i class="fas fa-fw fa-redo-alt mr-2"></i>
+                            <i class="fas fa-fw fa-redo-alt me-2"></i>
                             <span class="d-none d-md-inline">Rcr Tickets (<?= $recurring_ticket_count ?>)</span>
                         </a>
                     <?php } ?>
 
                     <?php if ($document_count) { ?>
                         <a class="nav-link <?= ($first_tab === "documents") ? "active" : "" ?>"
-                           data-toggle="pill"
+                           data-bs-toggle="pill"
                            href="#pills-contact-documents<?= $contact_id ?>"
                            role="tab"
                            aria-controls="pills-contact-documents<?= $contact_id ?>"
                            aria-selected="<?= ($first_tab === "documents") ? "true" : "false" ?>">
-                            <i class="fas fa-fw fa-file-alt mr-2"></i>
+                            <i class="fas fa-fw fa-file-alt me-2"></i>
                             <span class="d-none d-md-inline">Documents (<?= $document_count ?>)</span>
                         </a>
                     <?php } ?>
 
                     <?php if ($file_count) { ?>
                         <a class="nav-link <?= ($first_tab === "files") ? "active" : "" ?>"
-                           data-toggle="pill"
+                           data-bs-toggle="pill"
                            href="#pills-contact-files<?= $contact_id ?>"
                            role="tab"
                            aria-controls="pills-contact-files<?= $contact_id ?>"
                            aria-selected="<?= ($first_tab === "files") ? "true" : "false" ?>">
-                            <i class="fas fa-fw fa-briefcase mr-2"></i>
+                            <i class="fas fa-fw fa-briefcase me-2"></i>
                             <span class="d-none d-md-inline">Files (<?= $file_count ?>)</span>
                         </a>
                     <?php } ?>
 
                     <?php if ($note_count) { ?>
                         <a class="nav-link <?= ($first_tab === "notes") ? "active" : "" ?>"
-                           data-toggle="pill"
+                           data-bs-toggle="pill"
                            href="#pills-contact-notes<?= $contact_id ?>"
                            role="tab"
                            aria-controls="pills-contact-notes<?= $contact_id ?>"
                            aria-selected="<?= ($first_tab === "notes") ? "true" : "false" ?>">
-                            <i class="fas fa-fw fa-edit mr-2"></i>
+                            <i class="fas fa-fw fa-edit me-2"></i>
                             <span class="d-none d-md-inline">Notes (<?= $note_count ?>)</span>
                         </a>
                     <?php } ?>
@@ -500,7 +498,7 @@ ob_start();
                                         $asset_tag_icon = "tag";
                                     }
 
-                                    $asset_tag_name_display_array[] = "<a href='assets.php?$client_url tags[]=$asset_tag_id'><span class='badge text-light p-1 mr-1' style='background-color: $asset_tag_color;'><i class='fa fa-fw fa-$asset_tag_icon mr-2'></i>$asset_tag_name</span></a>";
+                                    $asset_tag_name_display_array[] = "<a href='assets.php?$client_url tags[]=$asset_tag_id'><span class='badge text-light p-1 me-1' style='background-color: $asset_tag_color;'><i class='fa fa-fw fa-$asset_tag_icon me-2'></i>$asset_tag_name</span></a>";
                                 }
                                 $asset_tags_display = implode('', $asset_tag_name_display_array);
                                 $asset_favorite = intval($row['asset_favorite']);
@@ -511,7 +509,7 @@ ob_start();
                                         <a href="#" class="ajax-modal"
                                            data-modal-size="lg"
                                            data-modal-url="modals/asset/asset.php?id=<?= $asset_id ?>">
-                                               <i class="fa fa-fw text-secondary fa-<?= $device_icon ?> mr-2"></i><?= $asset_name ?>
+                                               <i class="fa fa-fw text-secondary fa-<?= $device_icon ?> me-2"></i><?= $asset_name ?>
                                             <?php if ($asset_favorite) { echo "<i class='fas fa-fw fa-star text-warning' title='Favorite'></i>"; } ?>
                                         </a>
                                         <div class="mt-0">
@@ -572,7 +570,7 @@ ob_start();
                                 if (empty($credential_username)) {
                                     $credential_username_display = "-";
                                 } else {
-                                    $credential_username_display = "$credential_username <button type='button' class='btn btn-sm clipboardjs' data-clipboard-text='$credential_username'><i class='far fa-copy text-secondary'></i></button>";
+                                    $credential_username_display = "$credential_username <button type='button' class='btn btn-sm btn-link clipboardjs' data-clipboard-text='$credential_username'><i class='far fa-copy text-secondary'></i></button>";
                                 }
 
                                 $credential_otp_secret = escapeHtml($row['credential_otp_secret']);
@@ -583,7 +581,7 @@ ob_start();
                                 }
                                 ?>
                                 <tr>
-                                    <td><i class="fa fa-fw fa-key text-secondary mr-2"></i><?= $credential_name ?></td>
+                                    <td><i class="fa fa-fw fa-key text-secondary me-2"></i><?= $credential_name ?></td>
                                     <td><?= $credential_description ?></td>
                                     <td><?= $credential_username_display ?></td>
                                     <td>
@@ -649,13 +647,13 @@ ob_start();
                                 }
 
                                 if ($ticket_priority == "Urgent") {
-                                    $ticket_priority_display = "<span class='p-2 badge badge-dark'>$ticket_priority</span>";
+                                    $ticket_priority_display = "<span class='p-2 badge bg-dark'>$ticket_priority</span>";
                                 } elseif ($ticket_priority == "High") {
-                                    $ticket_priority_display = "<span class='p-2 badge badge-danger'>$ticket_priority</span>";
+                                    $ticket_priority_display = "<span class='p-2 badge bg-danger'>$ticket_priority</span>";
                                 } elseif ($ticket_priority == "Medium") {
-                                    $ticket_priority_display = "<span class='p-2 badge badge-warning'>$ticket_priority</span>";
+                                    $ticket_priority_display = "<span class='p-2 badge bg-warning text-dark'>$ticket_priority</span>";
                                 } elseif ($ticket_priority == "Low") {
-                                    $ticket_priority_display = "<span class='p-2 badge badge-info'>$ticket_priority</span>";
+                                    $ticket_priority_display = "<span class='p-2 badge bg-info text-dark'>$ticket_priority</span>";
                                 } else {
                                     $ticket_priority_display = "-";
                                 }
@@ -674,12 +672,12 @@ ob_start();
                                 <tr>
                                     <td>
                                         <a href="ticket.php?client_id=<?= $client_id ?>&ticket_id=<?= $ticket_id ?>">
-                                            <span class="badge badge-pill badge-secondary p-3"><?= "$ticket_prefix$ticket_number" ?></span>
+                                            <span class="badge rounded-pill bg-secondary p-3"><?= "$ticket_prefix$ticket_number" ?></span>
                                         </a>
                                     </td>
                                     <td><a href="ticket.php?client_id=<?= $client_id ?>&ticket_id=<?= $ticket_id ?>"><?= $ticket_subject ?></a></td>
                                     <td><?= $ticket_priority_display ?></td>
-                                    <td><span class="badge badge-pill text-light p-2" style="background-color: <?= $ticket_status_color ?>"><?= $ticket_status_name ?></span></td>
+                                    <td><span class="badge rounded-pill text-light p-2" style="background-color: <?= $ticket_status_color ?>"><?= $ticket_status_name ?></span></td>
                                     <td><?= $ticket_assigned_to_display ?></td>
                                     <td><?= $ticket_updated_at_display ?></td>
                                     <td><?= $ticket_created_at ?></td>
@@ -860,7 +858,7 @@ ob_start();
                                         <div class="text-secondary"><?= $file_description ?></div>
                                     </td>
                                     <td><?= $file_mime_type ?></td>
-                                    <td class="text-monospace"><?= $file_size_human ?></td>
+                                    <td class="font-monospace"><?= $file_size_human ?></td>
                                     <td><?= $file_created_at ?></td>
                                 </tr>
                                 <?php
@@ -895,7 +893,7 @@ ob_start();
                                 $note_type_icon = !empty($note_type_icons[$contact_note_type]) ? $note_type_icons[$contact_note_type] : 'fa-sticky-note';
                                 ?>
                                 <tr>
-                                    <td><i class="fa fa-fw <?= $note_type_icon ?> mr-2"></i><?= $contact_note_type ?></td>
+                                    <td><i class="fa fa-fw <?= $note_type_icon ?> me-2"></i><?= $contact_note_type ?></td>
                                     <td><?= $contact_note ?></td>
                                     <td><?= $note_by ?></td>
                                     <td><?= $contact_note_created_at ?></td>
@@ -918,11 +916,11 @@ ob_start();
 
 <div class="modal-footer">
     <a href="contact.php?client_id=<?= $client_id ?>&contact_id=<?= $contact_id ?>" class="btn btn-outline-primary">
-        <i class="fas fa-info-circle mr-2"></i>Open Full Contact
+        <i class="fas fa-info-circle me-2"></i>Open Full Contact
     </a>
     <a href="#" class="btn btn-secondary ajax-modal"
        data-modal-url="modals/contact/contact_edit.php?id=<?= $contact_id ?>">
-        <i class="fas fa-edit mr-2"></i>Edit
+        <i class="fas fa-edit me-2"></i>Edit
     </a>
 </div>
 

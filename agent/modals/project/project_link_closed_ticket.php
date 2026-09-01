@@ -23,20 +23,17 @@ ob_start();
 ?>
 
 <div class="modal-header bg-dark">
-    <h5 class="modal-title"><i class="fas fa-fw fa-life-ring mr-2"></i>Link closed ticket to project: <strong><?= $project_name ?></strong></h5>
-    <button type="button" class="close text-white" data-dismiss="modal">
-        <span>&times;</span>
-    </button>
+    <h5 class="modal-title"><i class="fas fa-fw fa-life-ring me-2"></i>Link closed ticket to project: <strong><?= $project_name ?></strong></h5>
+    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
 </div>
 <form action="post.php" method="post" autocomplete="off">
     <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
     <input type="hidden" name="project_id" value="<?= $project_id ?>">
     <div class="modal-body">
 
-        <div class="form-group">
+        <div class="mb-3">
             <label>Ticket number <strong class="text-danger">*</strong></label>
             <div class="input-group">
-                <div class="input-group-prepend">
                     <?php
                     // Show the ticket prefix, or just the tag icon
                     $config_row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT config_ticket_prefix FROM settings WHERE company_id = 1"));
@@ -47,7 +44,6 @@ ob_start();
                         echo "<div class=\"input-group-text\"> $config_ticket_prefix </div>";
                     }
                     ?>
-                </div>
                 <input type="text" class="form-control" name="ticket_number" inputmode="numeric" pattern="[0-9]*\.?[0-9]{0,2}" placeholder="Closed ticket number to link with project" required>
             </div>
         </div>
@@ -55,8 +51,8 @@ ob_start();
     </div>
 
     <div class="modal-footer">
-        <button type="submit" name="link_closed_ticket_to_project" class="btn btn-primary text-bold"><i class="fas fa-check mr-2"></i>Link Ticket</button>
-        <button type="button" class="btn btn-light" data-dismiss="modal"><i class="fas fa-times mr-2"></i>Cancel</button>
+        <button type="submit" name="link_closed_ticket_to_project" class="btn btn-primary text-bold"><i class="fas fa-check me-2"></i>Link Ticket</button>
+        <button type="button" class="btn btn-light" data-bs-dismiss="modal"><i class="fas fa-times me-2"></i>Cancel</button>
     </div>
 </form>
 

@@ -25,8 +25,11 @@ $assets_sql = mysqli_query($mysqli, "SELECT asset_description, asset_id, asset_m
 
         <div class="col-md-12">
 
-            <table class="table tabled-bordered border border-dark">
-                <thead class="thead-dark">
+            <?php if (mysqli_num_rows($assets_sql) == 0) { ?>
+                <?= portalEmptyState('There are no assets on this account yet.') ?>
+            <?php } else { ?>
+            <table class="table table-bordered border border-dark">
+                <thead class="table-dark">
                 <tr>
                     <th>Name</th>
                     <th>Type</th>
@@ -73,7 +76,7 @@ $assets_sql = mysqli_query($mysqli, "SELECT asset_description, asset_id, asset_m
                         <td><?= $asset_status ?></td>
                         <td>
                             <?php if ($asset_uri_client) { ?>
-                            <i class="fa fa-fw fa-link text-secondary mr-1"></i><a href="<?= $asset_uri_client ?>" target="_blank" title="<?= $asset_uri_client ?>"><?= truncate($asset_uri_client, 40) ?></a>
+                            <i class="fa fa-fw fa-link text-secondary me-1"></i><a href="<?= $asset_uri_client ?>" target="_blank" title="<?= $asset_uri_client ?>"><?= truncate($asset_uri_client, 40) ?></a>
                             <?php } else { ?>
                             -
                         <?php } ?>
@@ -84,6 +87,7 @@ $assets_sql = mysqli_query($mysqli, "SELECT asset_description, asset_id, asset_m
 
                 </tbody>
             </table>
+            <?php } ?>
 
         </div>
 

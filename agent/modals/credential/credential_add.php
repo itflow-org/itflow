@@ -10,10 +10,8 @@ ob_start();
 
 ?>
 <div class="modal-header bg-dark">
-    <h5 class="modal-title"><i class="fa fa-fw fa-key mr-2"></i>New Credential</h5>
-    <button type="button" class="close text-white" data-dismiss="modal">
-        <span>&times;</span>
-    </button>
+    <h5 class="modal-title"><i class="fa fa-fw fa-key me-2"></i>New Credential</h5>
+    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
 </div>
 <form action="post.php" method="post" autocomplete="off">
     <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
@@ -22,15 +20,15 @@ ob_start();
 
         <ul class="nav nav-pills nav-justified mb-3">
             <li class="nav-item">
-                <a class="nav-link active" data-toggle="pill" href="#pills-credential-details">Details</a>
+                <a class="nav-link active" data-bs-toggle="pill" href="#pills-credential-details">Details</a>
             </li>
             <?php if ($client_id) { ?>
             <li class="nav-item">
-                <a class="nav-link" data-toggle="pill" href="#pills-credential-relation">Relation</a>
+                <a class="nav-link" data-bs-toggle="pill" href="#pills-credential-relation">Relation</a>
             </li>
             <?php } ?>
             <li class="nav-item">
-                <a class="nav-link" data-toggle="pill" href="#pills-credential-notes">Notes</a>
+                <a class="nav-link" data-bs-toggle="pill" href="#pills-credential-notes">Notes</a>
             </li>
         </ul>
 
@@ -44,13 +42,11 @@ ob_start();
                     <input type="hidden" name="client_id" value="<?= $client_id ?>">
                 <?php } else { ?>
 
-                    <div class="form-group">
+                    <div class="mb-3">
                         <label>Client <strong class="text-danger">*</strong></label>
                         <div class="input-group">
-                            <div class="input-group-prepend">
                                 <span class="input-group-text"><i class="fa fa-fw fa-user"></i></span>
-                            </div>
-                            <select class="form-control select2" name="client_id" required>
+                            <select class="form-select select2" name="client_id" required>
                                 <option value="">- Select Client -</option>
                                 <?php
 
@@ -67,88 +63,66 @@ ob_start();
 
                 <?php } ?>
 
-                <div class="form-group">
+                <div class="mb-3">
                     <label>Name <strong class="text-danger">*</strong> / <span class="text-secondary">Important?</span></label>
                     <div class="input-group">
-                        <div class="input-group-prepend">
                             <span class="input-group-text"><i class="fa fa-fw fa-key"></i></span>
-                        </div>
                         <input type="text" class="form-control" name="name" placeholder="Name of Login" maxlength="200" required autofocus>
-                        <div class="input-group-append">
                             <div class="input-group-text">
                                 <label class="star-toggle mb-0" title="Favorite">
-                                    <input type="checkbox" name="favorite" value="1"><i class="far fa-star"></i>
+                                    <input class="form-check-input" type="checkbox" name="favorite" value="1"><i class="far fa-star"></i>
                                 </label>
                             </div>
-                        </div>
                     </div>
                 </div>
 
-                <div class="form-group">
+                <div class="mb-3">
                     <label>Description</label>
                     <div class="input-group">
-                        <div class="input-group-prepend">
                             <span class="input-group-text"><i class="fa fa-fw fa-align-left"></i></span>
-                        </div>
                         <input type="text" class="form-control" name="description" placeholder="Description" maxlength="500">
                     </div>
                 </div>
 
-                <div class="form-group">
+                <div class="mb-3">
                     <label>Username / ID</label>
                     <div class="input-group">
-                        <div class="input-group-prepend">
                             <span class="input-group-text"><i class="fa fa-fw fa-user"></i></span>
-                        </div>
                         <input type="text" class="form-control" name="username" placeholder="Username or ID" maxlength="350"> <!-- DB field is 500, 350 un-encrypted chars -->
                     </div>
                 </div>
 
-                <div class="form-group">
+                <div class="mb-3">
                     <label>Password / Key <strong class="text-danger">*</strong></label>
                     <div class="input-group">
-                        <div class="input-group-prepend">
                             <span class="input-group-text"><i class="fa fa-fw fa-lock"></i></span>
-                        </div>
                         <input type="password" class="form-control" data-toggle="password" id="password" name="password" placeholder="Password or Key" required maxlength="350" autocomplete="new-password">
-                        <div class="input-group-append">
                             <span class="input-group-text"><i class="fa fa-fw fa-eye"></i></span>
-                        </div>
-                        <div class="input-group-append">
                             <span class="btn btn-default"><i class="fa fa-fw fa-question" onclick="generatePassword()"></i></span>
-                        </div>
                     </div>
                 </div>
 
-                <div class="form-group">
+                <div class="mb-3">
                     <label>TOTP Seed</label>
                     <div class="input-group">
-                        <div class="input-group-prepend">
                             <span class="input-group-text"><i class="fa fa-fw fa-key"></i></span>
-                        </div>
                         <input type="password" class="form-control" data-toggle="password" name="otp_secret" placeholder="Insert secret key" maxlength="200">
-                        <div class="input-group-append">
                             <span class="input-group-text"><i class="fa fa-fw fa-eye"></i></span>
-                        </div>
                     </div>
                 </div>
 
-                <div class="form-group">
+                <div class="mb-3">
                     <label>URI</label>
                     <div class="input-group">
-                        <div class="input-group-prepend">
                             <span class="input-group-text"><i class="fa fa-fw fa-link"></i></span>
-                        </div>
                         <input type="text" class="form-control" name="uri" placeholder="http://192.168.1.1" maxlength="500">
                     </div>
                 </div>
 
-                <div class="form-group">
+                <div class="mb-3">
                     <label>URI 2</label>
                     <div class="input-group">
-                        <div class="input-group-prepend">
                             <span class="input-group-text"><i class="fa fa-fw fa-link"></i></span>
-                        </div>
                         <input type="text" class="form-control" name="uri_2" placeholder="https://server.company.com:5001" maxlength="500">
                     </div>
                 </div>
@@ -157,13 +131,11 @@ ob_start();
 
             <?php if ($client_id) { ?>
             <div class="tab-pane fade" id="pills-credential-relation">
-                <div class="form-group">
+                <div class="mb-3">
                     <label>Contact</label>
                     <div class="input-group">
-                        <div class="input-group-prepend">
                             <span class="input-group-text"><i class="fa fa-fw fa-user"></i></span>
-                        </div>
-                        <select class="form-control select2" name="contact">
+                        <select class="form-select select2" name="contact">
                             <option value="">- Select Contact -</option>
                             <?php
 
@@ -184,13 +156,11 @@ ob_start();
                     </div>
                 </div>
 
-                <div class="form-group">
+                <div class="mb-3">
                     <label>Asset</label>
                     <div class="input-group">
-                        <div class="input-group-prepend">
                             <span class="input-group-text"><i class="fa fa-fw fa-tag"></i></span>
-                        </div>
-                        <select class="form-control select2" name="asset">
+                        <select class="form-select select2" name="asset">
                             <option value="">- Select Asset -</option>
                             <?php
 
@@ -220,17 +190,15 @@ ob_start();
 
             <div class="tab-pane fade" id="pills-credential-notes">
 
-                <div class="form-group">
+                <div class="mb-3">
                     <textarea class="form-control" rows="12" placeholder="Enter some notes" name="note"></textarea>
                 </div>
 
-                <div class="form-group">
+                <div class="mb-3">
                     <label>Tags</label>
                     <div class="input-group">
-                        <div class="input-group-prepend">
                             <span class="input-group-text"><i class="fa fa-fw fa-tags"></i></span>
-                        </div>
-                        <select class="form-control select2" name="tags[]" data-placeholder="Add some tags" multiple>
+                        <select class="form-select select2" name="tags[]" data-placeholder="Add some tags" multiple>
                             <?php
 
                             $sql_tags_select = mysqli_query($mysqli, "SELECT tag_id, tag_name FROM tags WHERE tag_type = 4 ORDER BY tag_name ASC");
@@ -242,12 +210,10 @@ ob_start();
                             <?php } ?>
 
                         </select>
-                        <div class="input-group-append">
                             <button class="btn btn-secondary ajax-modal" type="button"
                                 data-modal-url="../admin/modals/tag/tag_add.php?type=4">
                                 <i class="fas fa-plus"></i>
                             </button>
-                        </div>
                     </div>
                 </div>
 
@@ -256,8 +222,8 @@ ob_start();
         </div>
     </div>
     <div class="modal-footer">
-        <button type="submit" name="add_credential" class="btn btn-primary text-bold"><i class="fa fa-check mr-2"></i>Create</button>
-        <button type="button" class="btn btn-light" data-dismiss="modal"><i class="fa fa-times mr-2"></i>Cancel</button>
+        <button type="submit" name="add_credential" class="btn btn-primary text-bold"><i class="fa fa-check me-2"></i>Create</button>
+        <button type="button" class="btn btn-light" data-bs-dismiss="modal"><i class="fa fa-times me-2"></i>Cancel</button>
     </div>
 </form>
 

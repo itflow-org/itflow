@@ -29,9 +29,9 @@ if (isset($_POST['add_ticket'])) {
     //Generate a unique URL key for clients to access
     $url_key = randomString(32);
 
-    // Ensure priority is low/med/high (as can be user defined)
+    // Ensure priority is one of the four allowed values (as can be user defined)
     if ($_POST['priority'] !== "Low" && $_POST['priority'] !== "Medium" && $_POST['priority'] !== "High" && $_POST['priority'] !== "Urgent") {
-        $priority = "Low";
+        $priority = "Medium";
     } else {
         $priority = escapeSql($_POST['priority']);
     }
@@ -55,7 +55,6 @@ if (isset($_POST['add_ticket'])) {
     if ($config_ticket_new_ticket_notification_email) {
 
         $client_name = escapeSql($session_client_name);
-        $details = removeEmoji($details);
 
         $email_subject = "ITFlow - New Ticket - $client_name: $subject";
         $email_body = "Hello, <br><br>This is a notification that a new ticket has been raised in ITFlow. <br>Client: $client_name<br>Priority: $priority<br>Link: https://$config_base_url/agent/ticket.php?ticket_id=$ticket_id&client_id=$session_client_id <br><br><b>$subject</b><br>$details";
@@ -165,6 +164,108 @@ if (isset($_POST['add_ticket_comment'])) {
     }
 }
 
+
+
+if (isset($_POST['set_contact_phone'])) {
+
+    validateCSRFToken();
+
+    /*
+     * SCOPING: as with the PIN above, the row updated is the logged-in
+     * contact's own, from the session. No contact_id parameter exists on this
+     * handler, so there is nothing to point at somebody else's record with.
+     *
+     * Sanitising exactly as agent/post/contact_model.php does - digits only for
+     * every phone field - so a number typed in the portal is stored in the same
+     * shape as one typed by an agent and formatPhoneNumber() renders both the
+     * same way. Anything else would make the portal the odd one out.
+     */
+    $phone_country_code = preg_replace("/[^0-9]/", '', $_POST['phone_country_code'] ?? '');
+    $phone = preg_replace("/[^0-9]/", '', $_POST['phone'] ?? '');
+    $extension = preg_replace("/[^0-9]/", '', $_POST['extension'] ?? '');
+    $mobile_country_code = preg_replace("/[^0-9]/", '', $_POST['mobile_country_code'] ?? '');
+    $mobile = preg_replace("/[^0-9]/", '', $_POST['mobile'] ?? '');
+
+    // Columns are varchar(200), country codes varchar(10)
+    $phone_country_code = substr($phone_country_code, 0, 10);
+    $mobile_country_code = substr($mobile_country_code, 0, 10);
+    $phone = substr($phone, 0, 200);
+    $extension = substr($extension, 0, 200);
+    $mobile = substr($mobile, 0, 200);
+
+    // A country code on its own is not a number - drop it rather than store a
+    // dangling code the formatter would try to render
+    if (empty($phone)) {
+        $phone_country_code = '';
+        $extension = '';
+    }
+    if (empty($mobile)) {
+        $mobile_country_code = '';
+    }
+
+    mysqli_query($mysqli, "UPDATE contacts SET
+        contact_phone_country_code = '$phone_country_code',
+        contact_phone = '$phone',
+        contact_extension = '$extension',
+        contact_mobile_country_code = '$mobile_country_code',
+        contact_mobile = '$mobile'
+        WHERE contact_id = $session_contact_id AND contact_client_id = $session_client_id");
+
+    logAudit("Contact", "Edit", "Client contact $session_contact_name updated their phone numbers in the client portal", $session_client_id, $session_contact_id);
+
+    flashAlert("Phone numbers updated");
+
+    redirect('profile.php');
+
+}
+
+if (isset($_POST['set_contact_pin'])) {
+
+    validateCSRFToken();
+
+    /*
+     * SCOPING: the row updated is the logged-in contact's own, taken from the
+     * session. There is no contact_id parameter on this handler by design, so
+     * there is nothing for a contact to point at somebody else's record with.
+     *
+     * No capability gate: the PIN belongs to the contact, not to a portal
+     * section, so every signed-in contact manages their own - same as the
+     * password change above.
+     */
+    // The PIN is what we read back to verify a caller, so changing it is
+    // re-authenticated for password logins. SSO contacts are exempt: they have
+    // no local password to check, and the identity provider already did this.
+    if (!portalReauthenticate($_POST['current_password'] ?? '')) {
+        flashAlert("That password was not right - your PIN has not been changed", 'error');
+        redirect('profile.php');
+    }
+
+    // contact_pin is varchar(255) - trim to fit rather than let an over-long
+    // value error out under strict mode.
+    //
+    // escapeSql() runs strip_tags() before escaping, so the length has to be
+    // re-checked AFTER it: a PIN of "<1234>" passed a check on the raw input,
+    // came out of strip_tags() as an empty string, and the UPDATE below then
+    // silently WIPED the contact's PIN while flashing "Phone PIN updated".
+    $pin = escapeSql(substr(trim($_POST['pin'] ?? ''), 0, 255));
+
+    if (strlen($pin) < 4) {
+        flashAlert("Your PIN needs to be at least 4 characters, and cannot contain < or >", 'error');
+        redirect('profile.php');
+    }
+
+    mysqli_query($mysqli, "UPDATE contacts SET contact_pin = '$pin' WHERE contact_id = $session_contact_id AND contact_client_id = $session_client_id");
+
+    // The PIN itself never goes in the log - it is a verification secret, and
+    // an audit trail an agent can read would defeat the point of having one
+    logAudit("Contact", "Edit", "Client contact $session_contact_name set their phone PIN in the client portal", $session_client_id, $session_contact_id);
+
+    flashAlert("Phone PIN updated");
+
+    redirect('profile.php');
+
+}
+
 if (isset($_GET['approve_ticket_task'])) {
 
     validateCSRFToken();
@@ -176,7 +277,7 @@ if (isset($_GET['approve_ticket_task'])) {
     $approval_row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT approval_created_by, approval_required_user_id, approval_scope, approval_type, task_name,
         task_ticket_id FROM task_approvals LEFT JOIN tasks on task_id = approval_task_id WHERE approval_id = $approval_id AND approval_task_id = $task_id AND approval_url_key = '$url_key' AND approval_status = 'pending' AND approval_scope = 'client'"));
 
-    $task_name = escapeHtml($approval_row['task_name']);
+    $task_name = escapeSql($approval_row['task_name']);
     $scope = escapeHtml($approval_row['approval_scope']);
     $type = escapeHtml($approval_row['approval_type']);
     $required_user = intval($approval_row['approval_required_user_id']);
@@ -349,6 +450,172 @@ if (isset($_GET['close_ticket'])) {
     }
 }
 
+
+if (isset($_GET['export_statement_pdf'])) {
+
+    validateCSRFToken();
+
+    enforceContactCan('accounting');
+
+    /*
+     * SCOPING: the client is taken from the session, never from the request.
+     * There is no client_id parameter on this handler by design - a contact
+     * cannot ask for another company's statement because there is nothing to
+     * ask with. enforceContactCan('accounting') above limits it to primary and
+     * billing contacts, matching client/statement.php and client/invoices.php.
+     */
+    $client_id = $session_client_id;
+
+    $sql = mysqli_query($mysqli, "SELECT client_currency_code, client_name FROM clients WHERE client_id = $client_id LIMIT 1");
+    $row = mysqli_fetch_assoc($sql);
+    $client_name = escapeHtml($row['client_name']);
+
+    // Match client/statement.php, the guest invoice view and the emailed
+    // statement - all four render in the client's own currency
+    $statement_currency_code = escapeHtml($row['client_currency_code']);
+    if (empty($statement_currency_code)) {
+        $statement_currency_code = $session_company_currency;
+    }
+
+    $sql = mysqli_query($mysqli, "SELECT company_address, company_city, company_country, company_logo, company_name,
+        company_phone, company_phone_country_code, company_state, company_website, company_zip
+        FROM companies WHERE company_id = 1");
+    $row = mysqli_fetch_assoc($sql);
+
+    $company_name = escapeHtml($row['company_name']);
+    $company_country = escapeHtml($row['company_country']);
+    $company_address = escapeHtml($row['company_address']);
+    $company_city = escapeHtml($row['company_city']);
+    $company_state = escapeHtml($row['company_state']);
+    $company_zip = escapeHtml($row['company_zip']);
+    $company_phone = escapeHtml(formatPhoneNumber($row['company_phone'], $row['company_phone_country_code']));
+    $company_website = escapeHtml($row['company_website']);
+    $company_logo = escapeHtml($row['company_logo']);
+
+    // Same statement query as client/statement.php - payments summed in a
+    // derived table so a twice-paid invoice is not counted twice, and the
+    // balance test drops anything fully paid
+    $statement_sql = mysqli_query(
+        $mysqli,
+        "SELECT invoice_amount, invoice_date, invoice_due, invoice_id, invoice_number, invoice_prefix,
+            invoice_scope, IFNULL(amount_paid, 0) AS amount_paid
+        FROM invoices
+        LEFT JOIN (
+            SELECT payment_invoice_id, SUM(payment_amount) AS amount_paid FROM payments
+            WHERE payment_archived_at IS NULL
+            GROUP BY payment_invoice_id
+        ) AS invoice_payments ON payment_invoice_id = invoice_id
+        WHERE invoice_client_id = $client_id
+        AND invoice_status NOT IN ('Draft', 'Cancelled', 'Non-Billable')
+        AND invoice_amount - IFNULL(invoice_payments.amount_paid, 0) > 0
+        ORDER BY invoice_date ASC, invoice_number ASC"
+    );
+
+    if (mysqli_num_rows($statement_sql) == 0) {
+        flashAlert("There is nothing outstanding to put on a statement", 'error');
+        redirect("statement.php");
+    }
+
+    require_once("../libs/TCPDF/tcpdf.php");
+
+    // Start TCPDF
+    $pdf = new TCPDF('P', 'mm', 'A4', true, 'UTF-8', false);
+    $pdf->SetMargins(10, 10, 10);
+    $pdf->setPrintHeader(false);
+    $pdf->setPrintFooter(false);
+    $pdf->AddPage();
+    $pdf->SetFont('helvetica', '', 10);
+
+    // Logo + title
+    $html = '<table width="100%" cellspacing="0" cellpadding="3">
+    <tr>
+        <td width="40%">';
+    if (!empty($company_logo) && file_exists("../uploads/settings/$company_logo")) {
+        $html .= '<img src="/uploads/settings/' . $company_logo . '" width="120">';
+    }
+    $html .= '</td>
+        <td width="60%" align="right">
+            <span style="font-size:18pt; font-weight:bold;">Account Statement</span><br>
+            <span style="font-size:11pt;">As of ' . date("Y-m-d") . '</span>
+        </td>
+    </tr>
+    </table><br>';
+
+    $html .= '<table width="100%" cellspacing="0" cellpadding="2">
+    <tr>
+        <td width="50%" style="font-size:14pt; font-weight:bold;">' . $company_name . '</td>
+        <td width="50%" align="right" style="font-size:14pt; font-weight:bold;">' . $client_name . '</td>
+    </tr>
+    <tr>
+        <td style="font-size:10pt; line-height:1.4;">' . nl2br(formatAddress($company_address, $company_city, $company_state, $company_zip, $company_country) . "\n$company_phone\n$company_website") . '</td>
+        <td></td>
+    </tr>
+    </table><br>';
+
+    // Statement lines
+    $html .= '<table border="0" cellpadding="4" cellspacing="0" width="100%">
+    <tr style="background-color:#343a40; color:#ffffff; font-weight:bold;">
+        <td width="14%">Invoice</td>
+        <td width="30%">Scope</td>
+        <td width="13%">Date</td>
+        <td width="13%">Due</td>
+        <td width="10%" align="right">Amount</td>
+        <td width="10%" align="right">Paid</td>
+        <td width="10%" align="right">Balance</td>
+    </tr>';
+
+    $statement_total = 0;
+    $statement_row_shade = false;
+
+    while ($row = mysqli_fetch_assoc($statement_sql)) {
+        $invoice_prefix = escapeHtml($row['invoice_prefix']);
+        $invoice_number = intval($row['invoice_number']);
+        $invoice_scope = escapeHtml($row['invoice_scope']);
+        $invoice_date = escapeHtml($row['invoice_date']);
+        $invoice_due = escapeHtml($row['invoice_due']);
+        $invoice_amount = floatval($row['invoice_amount']);
+        $amount_paid = floatval($row['amount_paid']);
+        $invoice_balance = $invoice_amount - $amount_paid;
+
+        $statement_total = $statement_total + $invoice_balance;
+
+        // Same one-day grace as client/statement.php and client/invoices.php
+        if (strtotime($invoice_due) + 86400 < time()) {
+            $due_style = ' style="color:#dc3545;"';
+        } else {
+            $due_style = '';
+        }
+
+        $row_background = $statement_row_shade ? ' bgcolor="#f2f2f2"' : '';
+        $statement_row_shade = !$statement_row_shade;
+
+        $html .= '<tr' . $row_background . '>
+        <td style="font-size:9pt;">' . $invoice_prefix . $invoice_number . '</td>
+        <td style="font-size:9pt;">' . $invoice_scope . '</td>
+        <td style="font-size:9pt;">' . $invoice_date . '</td>
+        <td style="font-size:9pt;"' . $due_style . '>' . $invoice_due . '</td>
+        <td style="font-size:9pt;" align="right">' . numfmt_format_currency($currency_format, $invoice_amount, $statement_currency_code) . '</td>
+        <td style="font-size:9pt;" align="right">' . numfmt_format_currency($currency_format, $amount_paid, $statement_currency_code) . '</td>
+        <td style="font-size:9pt;" align="right">' . numfmt_format_currency($currency_format, $invoice_balance, $statement_currency_code) . '</td>
+        </tr>';
+    }
+
+    $html .= '<tr>
+        <td colspan="6" align="right" style="font-weight:bold;">Total Balance Due</td>
+        <td align="right" style="font-weight:bold;">' . numfmt_format_currency($currency_format, $statement_total, $statement_currency_code) . '</td>
+    </tr>
+    </table>';
+
+    $pdf->writeHTML($html, true, false, true, false, '');
+
+    $filename = toAlphanumeric($client_name) . "-Account_Statement-" . date("Y-m-d");
+
+    $pdf->Output("$filename.pdf", 'D');
+
+    exit();
+
+}
+
 if (isset($_GET['logout'])) {
 
     setcookie("PHPSESSID", '', time() - 3600, "/");
@@ -366,6 +633,13 @@ if (isset($_POST['edit_profile'])) {
     validateCSRFToken();
 
     $new_password = $_POST['new_password'];
+
+    // Without this a hijacked session could set a new password without knowing
+    // the old one, locking the real contact out of their own portal.
+    if (!empty($new_password) && !portalReauthenticate($_POST['current_password'] ?? '')) {
+        flashAlert("That password was not right - your password has not been changed", 'error');
+        redirect('profile.php');
+    }
 
     if (!empty($new_password)) {
         $password_hash = password_hash($new_password, PASSWORD_DEFAULT);
@@ -659,7 +933,7 @@ if (isset($_GET['add_payment_by_provider'])) {
 
         // Notify/log
         appNotify("Invoice Paid", "Invoice $invoice_prefix$invoice_number automatically paid", "/agent/invoice.php?invoice_id=$invoice_id", $client_id);
-        logAudit("Invoice", "Payment", "$session_name initiated Stripe payment amount of " . numfmt_format_currency($currency_format, $invoice_amount, $invoice_currency_code) . " added to invoice $invoice_prefix$invoice_number - $pi_id $extended_log_desc", $client_id, $invoice_id);
+        logAudit("Invoice", "Payment", "$session_contact_name initiated Stripe payment amount of " . numfmt_format_currency($currency_format, $invoice_amount, $invoice_currency_code) . " added to invoice $invoice_prefix$invoice_number - $pi_id $extended_log_desc", $client_id, $invoice_id);
         triggerCustomAction('invoice_pay', $invoice_id);
 
         flashAlert("The amount " . numfmt_format_currency($currency_format, $invoice_amount, $invoice_currency_code) . " paid Invoice $invoice_prefix$invoice_number");
@@ -1120,14 +1394,14 @@ if (isset($_POST['set_recurring_payment'])) {
         // Get Payment ID for reference
         $recurring_payment_id = mysqli_insert_id($mysqli);
 
-        logAudit("Recurring Invoice", "Auto Payment", "$session_name created Auto Pay for Recurring Invoice $recurring_invoice_prefix$recurring_invoice_number in the amount of " . numfmt_format_currency($currency_format, $recurring_invoice_amount, $recurring_invoice_currency_code), $session_client_id, $recurring_invoice_id);
+        logAudit("Recurring Invoice", "Auto Payment", "$session_contact_name created Auto Pay for Recurring Invoice $recurring_invoice_prefix$recurring_invoice_number in the amount of " . numfmt_format_currency($currency_format, $recurring_invoice_amount, $recurring_invoice_currency_code), $session_client_id, $recurring_invoice_id);
 
         flashAlert("Automatic Payment $saved_payment_description enabled for Recurring Invoice $recurring_invoice_prefix$recurring_invoice_number");
     } else {
         // Delete
         mysqli_query($mysqli, "DELETE FROM recurring_payments WHERE recurring_payment_recurring_invoice_id = $recurring_invoice_id");
 
-        logAudit("Recurring Invoice", "Auto Payment", "$session_name removed Auto Pay for Recurring Invoice $recurring_invoice_prefix$recurring_invoice_number in the amount of " . numfmt_format_currency($currency_format, $recurring_invoice_amount, $recurring_invoice_currency_code), $session_client_id, $recurring_invoice_id);
+        logAudit("Recurring Invoice", "Auto Payment", "$session_contact_name removed Auto Pay for Recurring Invoice $recurring_invoice_prefix$recurring_invoice_number in the amount of " . numfmt_format_currency($currency_format, $recurring_invoice_amount, $recurring_invoice_currency_code), $session_client_id, $recurring_invoice_id);
 
         flashAlert("Automatic Payment Disabled for Recurring Invoice $recurring_invoice_prefix$recurring_invoice_number");
     }

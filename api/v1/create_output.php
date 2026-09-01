@@ -21,6 +21,8 @@ else {
     $return_arr['success'] = "False";
     $return_arr['message'] = "Auth success but insert query failed, ensure ALL required variables are provided (and aren't duplicates where applicable) and database schema is up-to-date. Turn on error logging and look for 'undefined index'.";
 
+    logApp("API", "Error", "Create query failed on API call to " . escapeSql(parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH)) . " containing " . count($_POST) . " POST variables" . " via API key " . escapeSql($api_key_name) . " from IP " . escapeSql(getIP()) . " with agent " . escapeSql(getUserAgent()));
+
     // Log any database/schema related errors to the PHP Error log
     if (mysqli_error($mysqli)) {
         error_log("API Database Error: " . mysqli_error($mysqli));

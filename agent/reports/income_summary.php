@@ -29,14 +29,14 @@ $largest_income_month = 0;
 
 <div class="card card-dark">
     <div class="card-header py-2">
-        <h3 class="card-title mt-2"><i class="fas fa-fw fa-coins mr-2"></i>Income Summary</h3>
+        <h3 class="card-title mt-2"><i class="fas fa-fw fa-coins me-2"></i>Income Summary</h3>
         <div class="card-tools">
-            <button type="button" class="btn btn-primary d-print-none" onclick="window.print();"><i class="fas fa-fw fa-print mr-2"></i>Print</button>
+            <button type="button" class="btn btn-primary d-print-none" onclick="window.print();"><i class="fas fa-fw fa-print me-2"></i>Print</button>
         </div>
     </div>
     <div class="card-body p-0">
         <form class="p-3">
-            <select onchange="this.form.submit()" class="form-control" name="year">
+            <select onchange="this.form.submit()" class="form-select" name="year">
                 <?php while ($row = mysqli_fetch_assoc($sql_payment_years)) {
                     $payment_year = intval($row['payment_year']); ?>
                     <option <?php if ($year == $payment_year) { ?> selected <?php } ?>><?= $payment_year ?></option>
@@ -55,19 +55,19 @@ $largest_income_month = 0;
                 <thead>
                 <tr>
                     <th>Category</th>
-                    <th class="text-right">January</th>
-                    <th class="text-right">February</th>
-                    <th class="text-right">March</th>
-                    <th class="text-right">April</th>
-                    <th class="text-right">May</th>
-                    <th class="text-right">June</th>
-                    <th class="text-right">July</th>
-                    <th class="text-right">August</th>
-                    <th class="text-right">September</th>
-                    <th class="text-right">October</th>
-                    <th class="text-right">November</th>
-                    <th class="text-right">December</th>
-                    <th class="text-right">Total</th>
+                    <th class="text-end">January</th>
+                    <th class="text-end">February</th>
+                    <th class="text-end">March</th>
+                    <th class="text-end">April</th>
+                    <th class="text-end">May</th>
+                    <th class="text-end">June</th>
+                    <th class="text-end">July</th>
+                    <th class="text-end">August</th>
+                    <th class="text-end">September</th>
+                    <th class="text-end">October</th>
+                    <th class="text-end">November</th>
+                    <th class="text-end">December</th>
+                    <th class="text-end">Total</th>
                 </tr>
                 </thead>
                 <tbody>
@@ -92,9 +92,9 @@ $largest_income_month = 0;
                             $payment_amount_for_month = $payment_amount_for_month + $revenues_amount_for_month;
                             $total_payment_for_all_months += $payment_amount_for_month;
                             ?>
-                            <td class="text-right"><?= numfmt_format_currency($currency_format, $payment_amount_for_month, $session_company_currency) ?></td>
+                            <td class="text-end"><?= numfmt_format_currency($currency_format, $payment_amount_for_month, $session_company_currency) ?></td>
                         <?php } ?>
-                        <td class="text-right text-bold"><?= numfmt_format_currency($currency_format, $total_payment_for_all_months, $session_company_currency) ?></td>
+                        <td class="text-end text-bold"><?= numfmt_format_currency($currency_format, $total_payment_for_all_months, $session_company_currency) ?></td>
                     </tr>
                 <?php } ?>
 
@@ -114,9 +114,9 @@ $largest_income_month = 0;
                         $payment_total_amount_for_month += $revenues_total_amount_for_month;
                         $grand_total_all_months += $payment_total_amount_for_month;
                         ?>
-                        <th class="text-right"><?= numfmt_format_currency($currency_format, $payment_total_amount_for_month, $session_company_currency) ?></th>
+                        <th class="text-end"><?= numfmt_format_currency($currency_format, $payment_total_amount_for_month, $session_company_currency) ?></th>
                     <?php } ?>
-                    <th class="text-right"><?= numfmt_format_currency($currency_format, $grand_total_all_months, $session_company_currency) ?></th>
+                    <th class="text-end"><?= numfmt_format_currency($currency_format, $grand_total_all_months, $session_company_currency) ?></th>
                 </tr>
                 </tbody>
             </table>
@@ -128,8 +128,7 @@ $largest_income_month = 0;
 
 <script>
     // Bootstrap-like defaults for Chart.js v4
-    Chart.defaults.font.family = '-apple-system,system-ui,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif';
-    Chart.defaults.color = '#292b2c';
+    var itflowChart = itflowChartDefaults();
 
     // INCOME (Line)
     (function () {
@@ -189,7 +188,7 @@ $largest_income_month = 0;
                             echo roundUpToNearestMultiple($max);
                         ?>,
                         ticks: { maxTicksLimit: 5 },
-                        grid: { color: "rgba(0, 0, 0, .125)" }
+                        grid: { color: itflowChart.grid }
                     }
                 },
                 plugins: {

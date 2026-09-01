@@ -2009,7 +2009,7 @@ if (isset($_POST["import_client_asset_interfaces_csv"])) {
 
         logAudit("Asset", "Import", "$session_name imported $row_count interfaces(s) to asset $asset_name via CSV file", $client_id);
 
-        flashAlert("<strong>$row_count</strong> Interfaces(s) added to asset <strong>$asset_name</stong>, <strong>$duplicate_count</strong> duplicate(s) detected");
+        flashAlert("<strong>$row_count</strong> Interfaces(s) added to asset <strong>$asset_name</strong>, <strong>$duplicate_count</strong> duplicate(s) detected");
 
         redirect();
 

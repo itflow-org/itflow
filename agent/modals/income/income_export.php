@@ -60,10 +60,8 @@ ob_start();
 ?>
 
 <div class="modal-header bg-dark">
-    <h5 class="modal-title"><i class="fa fa-fw fa-download mr-2"></i>Export Income</h5>
-    <button type="button" class="close text-white" data-dismiss="modal">
-        <span>&times;</span>
-    </button>
+    <h5 class="modal-title"><i class="fa fa-fw fa-download me-2"></i>Export Income</h5>
+    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
 </div>
 <?php exportTabsNav(); ?>
 
@@ -75,23 +73,19 @@ ob_start();
 
         <?php exportTabsFiltersOpen(); ?>
 
-        <div class="form-group">
+        <div class="mb-3">
             <label>Search</label>
             <div class="input-group">
-                <div class="input-group-prepend">
                     <span class="input-group-text"><i class="fa fa-fw fa-search"></i></span>
-                </div>
                 <input type="text" class="form-control" name="q" value="<?= stripslashes(escapeHtml($q_filter)) ?>" placeholder="Source, category, client, account, method, reference or amount">
             </div>
         </div>
 
-        <div class="form-group">
+        <div class="mb-3">
             <label>Type</label>
             <div class="input-group">
-                <div class="input-group-prepend">
                     <span class="input-group-text"><i class="fa fa-fw fa-hand-holding-usd"></i></span>
-                </div>
-                <select class="form-control select2" name="type">
+                <select class="form-select select2" name="type">
                     <option value="">- All Types -</option>
 
                     <?php foreach ($income_types_array as $income_type_option) { ?>
@@ -102,13 +96,11 @@ ob_start();
             </div>
         </div>
 
-        <div class="form-group">
+        <div class="mb-3">
             <label>Category</label>
             <div class="input-group">
-                <div class="input-group-prepend">
                     <span class="input-group-text"><i class="fa fa-fw fa-tag"></i></span>
-                </div>
-                <select class="form-control select2" name="category">
+                <select class="form-select select2" name="category">
                     <option value="">- All Categories -</option>
 
                     <?php
@@ -130,13 +122,11 @@ ob_start();
             </div>
         </div>
 
-        <div class="form-group">
+        <div class="mb-3">
             <label>Account</label>
             <div class="input-group">
-                <div class="input-group-prepend">
                     <span class="input-group-text"><i class="fa fa-fw fa-piggy-bank"></i></span>
-                </div>
-                <select class="form-control select2" name="account">
+                <select class="form-select select2" name="account">
                     <option value="">- All Accounts -</option>
 
                     <?php
@@ -157,13 +147,11 @@ ob_start();
             </div>
         </div>
 
-        <div class="form-group">
+        <div class="mb-3">
             <label>Payment Method</label>
             <div class="input-group">
-                <div class="input-group-prepend">
                     <span class="input-group-text"><i class="fa fa-fw fa-credit-card"></i></span>
-                </div>
-                <select class="form-control select2" name="method">
+                <select class="form-select select2" name="method">
                     <option value="">- All Payment Methods -</option>
 
                     <?php
@@ -182,22 +170,18 @@ ob_start();
             </div>
         </div>
 
-        <div class="form-group">
+        <div class="mb-3">
             <label>Date From</label>
             <div class="input-group">
-                <div class="input-group-prepend">
                     <span class="input-group-text"><i class="fa fa-fw fa-calendar"></i></span>
-                </div>
                 <input type="date" class="form-control" name="date_from" value="<?= $date_from_filter ?>" max="2999-12-31">
             </div>
         </div>
 
-        <div class="form-group">
+        <div class="mb-3">
             <label>Date To</label>
             <div class="input-group">
-                <div class="input-group-prepend">
                     <span class="input-group-text"><i class="fa fa-fw fa-calendar"></i></span>
-                </div>
                 <input type="date" class="form-control" name="date_to" value="<?= $date_to_filter ?>" max="2999-12-31">
             </div>
         </div>

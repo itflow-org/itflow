@@ -21,10 +21,10 @@ $location_city = escapeHtml($row['location_city']);
 $location_state = escapeHtml($row['location_state']);
 $location_zip = escapeHtml($row['location_zip']);
 $location_phone_country_code = escapeHtml($row['location_phone_country_code']);
-$location_phone = escapeHtml(formatPhoneNumber($row['location_phone'], $location_phone_country_code));
+$location_phone = escapeHtml(formatPhoneNumber($row['location_phone'], $location_phone_country_code, false));
 $location_extension = escapeHtml($row['location_phone_extension']);
 $location_fax_country_code = escapeHtml($row['location_fax_country_code']);
-$location_fax = escapeHtml(formatPhoneNumber($row['location_fax'], $location_fax_country_code));
+$location_fax = escapeHtml(formatPhoneNumber($row['location_fax'], $location_fax_country_code, false));
 $location_hours = escapeHtml($row['location_hours']);
 $location_photo = escapeHtml($row['location_photo']);
 $location_notes = escapeHtml($row['location_notes']);
@@ -49,10 +49,8 @@ ob_start();
 ?>
 
 <div class="modal-header bg-dark">
-    <h5 class="modal-title"><i class="fa fa-fw fa-map-marker-alt mr-2"></i>Editing location: <strong><?= $location_name ?></strong></h5>
-    <button type="button" class="close text-white" data-dismiss="modal">
-        <span>&times;</span>
-    </button>
+    <h5 class="modal-title"><i class="fa fa-fw fa-map-marker-alt me-2"></i>Editing location: <strong><?= $location_name ?></strong></h5>
+    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
 </div>
 <form action="post.php" method="post" enctype="multipart/form-data" autocomplete="off">
     <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
@@ -62,16 +60,16 @@ ob_start();
 
         <ul class="nav nav-pills nav-justified mb-3">
             <li class="nav-item">
-                <a class="nav-link active" data-toggle="pill" href="#pills-details<?= $location_id ?>">Details</a>
+                <a class="nav-link active" data-bs-toggle="pill" href="#pills-details<?= $location_id ?>">Details</a>
             </li>
             <li class="nav-item">
-                <a class="nav-link" data-toggle="pill" href="#pills-address<?= $location_id ?>">Address</a>
+                <a class="nav-link" data-bs-toggle="pill" href="#pills-address<?= $location_id ?>">Address</a>
             </li>
             <li class="nav-item">
-                <a class="nav-link" data-toggle="pill" href="#pills-contact<?= $location_id ?>">Contact</a>
+                <a class="nav-link" data-bs-toggle="pill" href="#pills-contact<?= $location_id ?>">Contact</a>
             </li>
             <li class="nav-item">
-                <a class="nav-link" data-toggle="pill" href="#pills-notes<?= $location_id ?>">Notes</a>
+                <a class="nav-link" data-bs-toggle="pill" href="#pills-notes<?= $location_id ?>">Notes</a>
             </li>
         </ul>
 
@@ -81,27 +79,21 @@ ob_start();
 
             <div class="tab-pane fade show active" id="pills-details<?= $location_id ?>">
 
-                <div class="form-group">
+                <div class="mb-3">
                     <label>Location Name <strong class="text-danger">*</strong> / <span class="text-secondary">Primary</span></label>
                     <div class="input-group">
-                        <div class="input-group-prepend">
                             <span class="input-group-text"><i class="fa fa-fw fa-map-marker"></i></span>
-                        </div>
                         <input type="text" class="form-control" name="name" placeholder="Name of location" maxlength="200" value="<?= $location_name ?>" required>
-                        <div class="input-group-append">
                             <div class="input-group-text">
-                                <input type="checkbox" name="location_primary" value="1" <?php if ($location_primary == 1) { echo "checked"; } ?>>
+                                <input class="form-check-input" type="checkbox" name="location_primary" value="1" <?php if ($location_primary == 1) { echo "checked"; } ?>>
                             </div>
-                        </div>
                     </div>
                 </div>
 
-                <div class="form-group">
+                <div class="mb-3">
                     <label>Description</label>
                     <div class="input-group">
-                        <div class="input-group-prepend">
                             <span class="input-group-text"><i class="fa fa-fw fa-align-left"></i></span>
-                        </div>
                         <input type="text" class="form-control" name="description" placeholder="Short Description" value="<?= $location_description ?>">
                     </div>
                 </div>
@@ -112,65 +104,55 @@ ob_start();
                     <?php } ?>
                 </div>
 
-                <div class="form-group">
+                <div class="mb-3">
                     <label>Photo</label>
-                    <input type="file" class="form-control-file" name="file" accept="image/*">
+                    <input type="file" class="form-control" name="file" accept="image/*">
                 </div>
 
             </div>
 
             <div class="tab-pane fade" id="pills-address<?= $location_id ?>">
 
-                <div class="form-group">
+                <div class="mb-3">
                     <label>Address</label>
                     <div class="input-group">
-                        <div class="input-group-prepend">
                             <span class="input-group-text"><i class="fa fa-fw fa-map-marker-alt"></i></span>
-                        </div>
                         <input type="text" class="form-control" name="address" placeholder="Street Address" maxlength="200" value="<?= $location_address ?>">
                     </div>
                 </div>
 
-                <div class="form-group">
+                <div class="mb-3">
                     <label>City</label>
                     <div class="input-group">
-                        <div class="input-group-prepend">
                             <span class="input-group-text"><i class="fa fa-fw fa-city"></i></span>
-                        </div>
                         <input type="text" class="form-control" name="city" placeholder="City" maxlength="200" value="<?= $location_city ?>">
                     </div>
                 </div>
 
-                <div class="form-group">
+                <div class="mb-3">
                     <label>State / Province</label>
                     <div class="input-group">
-                        <div class="input-group-prepend">
                             <span class="input-group-text"><i class="fa fa-fw fa-flag"></i></span>
-                        </div>
                         <input type="text" class="form-control" name="state" placeholder="State or Province" maxlength="200" value="<?= $location_state ?>">
                     </div>
                 </div>
 
-                <div class="form-group">
+                <div class="mb-3">
                     <label>Postal Code</label>
                     <div class="input-group">
-                        <div class="input-group-prepend">
                             <span class="input-group-text"><i class="fab fa-fw fa-usps"></i></span>
-                        </div>
                         <input type="text" class="form-control" name="zip" placeholder="Zip or Postal Code" maxlength="200" value="<?= $location_zip ?>">
                     </div>
                 </div>
 
-                <div class="form-group">
+                <div class="mb-3">
                     <label>Country</label>
                     <div class="input-group">
-                        <div class="input-group-prepend">
                             <span class="input-group-text"><i class="fa fa-fw fa-globe-americas"></i></span>
-                        </div>
-                        <select class="form-control select2" name="country">
+                        <select class="form-select select2" name="country">
                             <option value="">- Country -</option>
                             <?php foreach($countries_array as $country_name) { ?>
-                                <option <?php if ($location_country == $country_name) { echo "selected"; } ?>><?= $country_name ?></option>
+                                <option <?php if ($location_country == $country_name) { echo "selected"; } ?> data-iso2="<?= $country_iso2_array[$country_name] ?? '' ?>"><?= $country_name ?></option>
                             <?php } ?>
                         </select>
                     </div>
@@ -180,13 +162,11 @@ ob_start();
 
             <div class="tab-pane fade" id="pills-contact<?= $location_id ?>">
 
-                <div class="form-group">
+                <div class="mb-3">
                     <label>Contact</label>
                     <div class="input-group">
-                        <div class="input-group-prepend">
                             <span class="input-group-text"><i class="fa fa-fw fa-user"></i></span>
-                        </div>
-                        <select class="form-control select2" name="contact">
+                        <select class="form-select select2" name="contact">
                             <option value="">- Contact -</option>
                             <?php
 
@@ -210,46 +190,40 @@ ob_start();
                 </div>
 
                 <label>Phone / <span class="text-secondary">Extension</span></label>
-                <div class="form-row">
+                <div class="row g-2">
                     <div class="col-9">
-                        <div class="form-group">
+                        <div class="mb-3">
                             <div class="input-group">
-                                <div class="input-group-prepend">
                                     <span class="input-group-text"><i class="fa fa-fw fa-phone"></i></span>
-                                </div>
-                                <input type="tel" class="form-control col-2" name="phone_country_code" value="<?= $location_phone_country_code ?>" placeholder="+" maxlength="4">
-                                <input type="tel" class="form-control" name="phone" value="<?= $location_phone ?>" placeholder="Phone Number" maxlength="200">
+                                <input type="hidden" name="phone_country_code" value="<?= $location_phone_country_code ?>">
+                                <input type="tel" class="form-control" name="phone" value="<?= $location_phone ?>" placeholder="Phone Number" maxlength="200" data-itflow-phone="phone_country_code" data-itflow-phone-country-select="country">
                             </div>
                         </div>
                     </div>
                     <div class="col-3">
-                        <div class="form-group">
+                        <div class="mb-3">
                             <input type="text" class="form-control" name="extension" value="<?= $location_extension ?>" placeholder="ext." maxlength="200">
                         </div>
                     </div>
                 </div>
 
                 <label>Fax</label>
-                <div class="form-row">
+                <div class="row g-2">
                     <div class="col-9">
-                        <div class="form-group">
+                        <div class="mb-3">
                             <div class="input-group">
-                                <div class="input-group-prepend">
                                     <span class="input-group-text"><i class="fa fa-fw fa-fax"></i></span>
-                                </div>
-                                <input type="tel" class="form-control col-2" name="fax_country_code" value="<?= $location_fax_country_code ?>" placeholder="+" maxlength="4">
-                                <input type="tel" class="form-control" name="fax" value="<?= $location_fax ?>" placeholder="Phone Number" maxlength="200">
+                                <input type="hidden" name="fax_country_code" value="<?= $location_fax_country_code ?>">
+                                <input type="tel" class="form-control" name="fax" value="<?= $location_fax ?>" placeholder="Phone Number" maxlength="200" data-itflow-phone="fax_country_code" data-itflow-phone-country-select="country">
                             </div>
                         </div>
                     </div>
                 </div>
 
-                <div class="form-group">
+                <div class="mb-3">
                     <label>Hours</label>
                     <div class="input-group">
-                        <div class="input-group-prepend">
                             <span class="input-group-text"><i class="fa fa-fw fa-clock"></i></span>
-                        </div>
                         <input type="text" class="form-control" name="hours" placeholder="Hours of operation" maxlength="200" value="<?= $location_hours ?>">
                     </div>
                 </div>
@@ -258,17 +232,15 @@ ob_start();
 
             <div class="tab-pane fade" id="pills-notes<?= $location_id ?>">
 
-                <div class="form-group">
+                <div class="mb-3">
                     <textarea class="form-control" rows="8" name="notes" placeholder="Notes, eg Parking Info, Building Access etc"><?= $location_notes ?></textarea>
                 </div>
 
-                <div class="form-group">
+                <div class="mb-3">
                     <label>Tags</label>
                     <div class="input-group">
-                        <div class="input-group-prepend">
                             <span class="input-group-text"><i class="fa fa-fw fa-tags"></i></span>
-                        </div>
-                        <select class="form-control select2" name="tags[]" data-placeholder="Add some tags" multiple>
+                        <select class="form-select select2" name="tags[]" data-placeholder="Add some tags" multiple>
                             <?php
 
                             $sql_tags_select = mysqli_query($mysqli, "SELECT tag_id, tag_name FROM tags WHERE tag_type = 2 ORDER BY tag_name ASC");
@@ -280,16 +252,14 @@ ob_start();
                             <?php } ?>
 
                         </select>
-                        <div class="input-group-append">
                             <button class="btn btn-secondary ajax-modal" type="button"
                                 data-modal-url="../admin/modals/tag/tag_add.php?type=2">
                                 <i class="fas fa-plus"></i>
                             </button>
-                        </div>
                     </div>
                 </div>
 
-                <p class="text-muted text-right">Location ID: <?= $location_id ?></p>
+                <p class="text-muted text-end">Location ID: <?= $location_id ?></p>
 
             </div>
 
@@ -297,8 +267,8 @@ ob_start();
 
     </div>
     <div class="modal-footer">
-        <button type="submit" name="edit_location" class="btn btn-primary text-bold"><i class="fas fa-check mr-2"></i>Save</button>
-        <button type="button" class="btn btn-light" data-dismiss="modal"><i class="fas fa-times mr-2"></i>Cancel</button>
+        <button type="submit" name="edit_location" class="btn btn-primary text-bold"><i class="fas fa-check me-2"></i>Save</button>
+        <button type="button" class="btn btn-light" data-bs-dismiss="modal"><i class="fas fa-times me-2"></i>Cancel</button>
     </div>
 </form>
 

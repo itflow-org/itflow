@@ -60,7 +60,8 @@ $sql = mysqli_query(
     $mysqli,
     "SELECT SQL_CALC_FOUND_ROWS client_id, client_name, location_name, network, network_archived_at, network_description,
         network_dhcp_range, network_gateway, network_id, network_location_id, network_name,
-        network_primary_dns, network_secondary_dns, network_vlan FROM networks
+        network_primary_dns, network_secondary_dns, network_vlan,
+        (SELECT COUNT(ip_id) FROM network_ips WHERE ip_network_id = network_id) AS ip_count FROM networks
     LEFT JOIN clients ON client_id = network_client_id
     LEFT JOIN locations ON location_id = network_location_id
     WHERE $archive_query
@@ -75,24 +76,24 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 
 ?>
 
-<div class="card card-dark">
-    <div class="card-header py-2">
-        <h3 class="card-title mt-2"><i class="fas fa-fw fa-network-wired mr-2"></i>Networks</h3>
+<div class="card">
+    <div class="card-header bg-dark py-2">
+        <h3 class="card-title mt-2"><i class="fas fa-fw fa-network-wired me-2"></i>Networks</h3>
         <div class="card-tools">
             <div class="btn-group">
-                <button type="button" class="btn btn-primary ajax-modal" data-modal-url="modals/network/network_add.php?<?= $client_url ?>&location_id=<?= $location_filter ?>"><i class="fas fa-plus mr-2"></i>New Network</button>
-                    <button type="button" class="btn btn-primary dropdown-toggle dropdown-toggle-split" data-toggle="dropdown"></button>
+                <button type="button" class="btn btn-primary ajax-modal" data-modal-url="modals/network/network_add.php?<?= $client_url ?>&location_id=<?= $location_filter ?>"><i class="fas fa-plus me-2"></i>New Network</button>
+                    <button type="button" class="btn btn-primary dropdown-toggle dropdown-toggle-split" data-bs-toggle="dropdown"></button>
                     <div class="dropdown-menu">
                         <?php if ($num_rows[0] > 0) { ?>
                         <a class="dropdown-item text-dark ajax-modal" href="#"
                             data-modal-url="<?= buildExportModalUrl('modals/network/network_export.php', ['client_id', 'client', 'location', 'archived', 'q']) ?>">
-                            <i class="fa fa-fw fa-download mr-2"></i>Export
+                            <i class="fa fa-fw fa-download me-2"></i>Export
                         </a>
                         <?php } ?>
                         <div class="dropdown-divider"></div>
                         <a class="dropdown-item text-dark ajax-modal" href="#"
                             data-modal-url="modals/network/network_import.php?<?= $client_url ?>">
-                            <i class="fa fa-fw fa-upload mr-2"></i>Import
+                            <i class="fa fa-fw fa-upload me-2"></i>Import
                         </a>
                     </div>
 
@@ -100,27 +101,25 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 
         </div>
     </div>
-    <div class="card-body">
+    <div class="card-header py-3">
         <form autocomplete="off">
             <?php if ($client_url) { ?>
             <input type="hidden" name="client_id" value="<?= $client_id ?>">
             <?php } ?>
             <input type="hidden" name="archived" value="<?= $archived ?>">
-            <div class="row">
+            <div class="row g-2 align-items-center">
 
                 <div class="col-md-4">
-                    <div class="input-group mb-3 mb-md-0">
+                    <div class="input-group">
                         <input type="search" class="form-control" name="q" value="<?php if (isset($q)) { echo stripslashes(escapeHtml($q)); } ?>" placeholder="Search Networks">
-                        <div class="input-group-append">
                             <button class="btn btn-dark"><i class="fa fa-search"></i></button>
-                        </div>
                     </div>
                 </div>
 
                 <?php if ($client_url) { ?>
                 <div class="col-md-2">
                     <div class="input-group">
-                        <select class="form-control select2" name="location" onchange="this.form.submit()">
+                        <select class="form-select select2" name="location" onchange="this.form.submit()">
                             <option value="">- All Locations -</option>
 
                             <?php
@@ -146,7 +145,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                 <?php } else { ?>
                 <div class="col-md-2">
                     <div class="input-group">
-                        <select class="form-control select2" name="client" onchange="this.form.submit()">
+                        <select class="form-select select2" name="client" onchange="this.form.submit()">
                             <option value="" <?php if ($client == "") { echo "selected"; } ?>>- All Clients -</option>
 
                             <?php
@@ -173,19 +172,19 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                 <?php } ?>
 
                 <div class="col-md-6">
-                    <div class="btn-group float-right">
+                    <div class="btn-group float-end">
                         <a href="?<?= $client_url ?>archived=<?php if($archived == 1){ echo 0; } else { echo 1; } ?>"
-                            class="btn btn-<?php if($archived == 1){ echo "primary"; } else { echo "default"; } ?>">
-                            <i class="fa fa-fw fa-archive mr-2"></i>Archived
+                            class="btn btn-<?php if($archived == 1){ echo"primary"; } else { echo "default"; } ?>">
+                            <i class="fa fa-fw fa-archive me-2"></i>Archived
                         </a>
-                        <div class="dropdown ml-2" id="bulkActionButton" hidden>
-                            <button class="btn btn-secondary dropdown-toggle" type="button" data-toggle="dropdown">
-                                <i class="fas fa-fw fa-layer-group mr-2"></i>Bulk Action (<span id="selectedCount">0</span>)
+                        <div class="dropdown ms-2" id="bulkActionButton" hidden>
+                            <button class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                                <i class="fas fa-fw fa-layer-group me-2"></i>Bulk Action (<span id="selectedCount">0</span>)
                             </button>
                             <div class="dropdown-menu">
                                 <button class="dropdown-item text-danger text-bold confirm-link"
                                         type="submit" form="bulkActions" name="bulk_delete_networks">
-                                    <i class="fas fa-fw fa-trash mr-2"></i>Delete
+                                    <i class="fas fa-fw fa-trash me-2"></i>Delete
                                 </button>
                             </div>
                         </div>
@@ -194,171 +193,180 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 
             </div>
         </form>
-        <hr>
-        <div class="table-responsive">
+    </div>
+    <div class="table-responsive">
 
-            <form id="bulkActions" action="post.php" method="post">
-                <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
+        <form id="bulkActions" action="post.php" method="post">
+            <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
 
-                <table class="table table-striped table-borderless table-hover">
-                    <thead class="text-dark <?php if ($num_rows[0] == 0) { echo "d-none"; } ?>">
+            <table class="table table-striped table-borderless table-hover mb-0">
+                <thead class="text-dark <?php if ($num_rows[0] == 0) { echo "d-none"; } ?>">
+                <tr>
+                    <td class="checkbox-column border-end">
+                        <div class="form-check">
+                            <input class="form-check-input" id="selectAllCheckbox" type="checkbox" onclick="checkAll(this)">
+                        </div>
+                    </td>
+                    <th>
+                        <a class="text-secondary" href="?<?= $url_query_strings_sort ?>&sort=network_name&order=<?= $disp ?>">
+                            Name <?php if ($sort == 'network_name') { echo $order_icon; } ?>
+                        </a>
+                    </th>
+                    <th>
+                        <a class="text-secondary" href="?<?= $url_query_strings_sort ?>&sort=location_name&order=<?= $disp ?>">
+                            Location <?php if ($sort == 'location_name') { echo $order_icon; } ?>
+                        </a>
+                    </th>
+                    <th>
+                        <a class="text-secondary" href="?<?= $url_query_strings_sort ?>&sort=network_vlan&order=<?= $disp ?>">
+                            VLAN <?php if ($sort == 'network_vlan') { echo $order_icon; } ?>
+                        </a>
+                    </th>
+                    <th>
+                        <a class="text-secondary" href="?<?= $url_query_strings_sort ?>&sort=network&order=<?= $disp ?>">
+                            Network (CIDR) <?php if ($sort == 'network') { echo $order_icon; } ?>
+                        </a>
+                    </th>
+                    <th>
+                        <a class="text-secondary" href="?<?= $url_query_strings_sort ?>&sort=network_gateway&order=<?= $disp ?>">
+                            Gateway <?php if ($sort == 'network_gateway') { echo $order_icon; } ?>
+                        </a>
+                    </th>
+                    <th>
+                        <a class="text-secondary" href="?<?= $url_query_strings_sort ?>&sort=network_dhcp_range&order=<?= $disp ?>">
+                            IP Range <?php if ($sort == 'network_dhcp_range') { echo $order_icon; } ?>
+                        </a>
+                    </th>
+                    <th>
+                        <a class="text-secondary" href="?<?= $url_query_strings_sort ?>&sort=network_primary_dns&order=<?= $disp ?>">
+                            DNS <?php if ($sort == 'network_primary_dns') { echo $order_icon; } ?>
+                        </a>
+                    </th>
+                    <?php if (!$client_url) { ?>
+                    <th>
+                        <a class="text-secondary" href="?<?= $url_query_strings_sort ?>&sort=client_name&order=<?= $disp ?>">
+                            Client <?php if ($sort == 'client_name') { echo $order_icon; } ?>
+                        </a>
+                    </th>
+                    <?php } ?>
+                    <th class="text-center">Action</th>
+                </tr>
+                </thead>
+                <tbody>
+                <?php
+
+                while ($row = mysqli_fetch_assoc($sql)) {
+                    $client_id = intval($row['client_id']);
+                    $client_name = escapeHtml($row['client_name']);
+                    $network_id = intval($row['network_id']);
+                    $network_name = escapeHtml($row['network_name']);
+                    $network_description = escapeHtml($row['network_description']);
+                    $network_vlan = intval($row['network_vlan']);
+                    if ($network_vlan) {
+                        $network_vlan_display = $network_vlan;
+                    } else {
+                        $network_vlan_display = "-";
+                    }
+                    $network = escapeHtml($row['network']);
+                    $network_gateway = escapeHtml($row['network_gateway']);
+                    $network_primary_dns = escapeHtml($row['network_primary_dns']);
+                    $network_secondary_dns = escapeHtml($row['network_secondary_dns']);
+                    if ($network_primary_dns) {
+                        $network_dns_display = "$network_primary_dns<div class='text-secondary mt-1'>$network_secondary_dns</div>";
+                    } else {
+                        $network_dns_display = "-";
+                    }
+                    $network_dhcp_range = escapeHtml($row['network_dhcp_range']);
+                    if (empty($network_dhcp_range)) {
+                        $network_dhcp_range_display = "-";
+                    } else {
+                        $network_dhcp_range_display = $network_dhcp_range;
+                    }
+                    $network_location_id = intval($row['network_location_id']);
+                    $location_name = escapeHtml($row['location_name']);
+                    if (empty($location_name)) {
+                        $location_name_display = "-";
+                    } else {
+                        $location_name_display = $location_name;
+                    }
+                    $network_archived_at = escapeHtml($row['network_archived_at']);
+                    $ip_count = intval($row['ip_count']);
+
+                    ?>
                     <tr>
-                        <td class="checkbox-column">
+                        <td class="checkbox-column bg-light border-end">
                             <div class="form-check">
-                                <input class="form-check-input" id="selectAllCheckbox" type="checkbox" onclick="checkAll(this)">
+                                <input class="form-check-input bulk-select" type="checkbox" name="network_ids[]" value="<?= $network_id ?>">
                             </div>
                         </td>
-                        <th>
-                            <a class="text-secondary" href="?<?= $url_query_strings_sort ?>&sort=network_name&order=<?= $disp ?>">
-                                Name <?php if ($sort == 'network_name') { echo $order_icon; } ?>
-                            </a>
-                        </th>
-                        <th>
-                            <a class="text-secondary" href="?<?= $url_query_strings_sort ?>&sort=location_name&order=<?= $disp ?>">
-                                Location <?php if ($sort == 'location_name') { echo $order_icon; } ?>
-                            </a>
-                        </th>
-                        <th>
-                            <a class="text-secondary" href="?<?= $url_query_strings_sort ?>&sort=network_vlan&order=<?= $disp ?>">
-                                VLAN <?php if ($sort == 'network_vlan') { echo $order_icon; } ?>
-                            </a>
-                        </th>
-                        <th>
-                            <a class="text-secondary" href="?<?= $url_query_strings_sort ?>&sort=network&order=<?= $disp ?>">
-                                Network (CIDR) <?php if ($sort == 'network') { echo $order_icon; } ?>
-                            </a>
-                        </th>
-                        <th>
-                            <a class="text-secondary" href="?<?= $url_query_strings_sort ?>&sort=network_gateway&order=<?= $disp ?>">
-                                Gateway <?php if ($sort == 'network_gateway') { echo $order_icon; } ?>
-                            </a>
-                        </th>
-                        <th>
-                            <a class="text-secondary" href="?<?= $url_query_strings_sort ?>&sort=network_dhcp_range&order=<?= $disp ?>">
-                                IP Range <?php if ($sort == 'network_dhcp_range') { echo $order_icon; } ?>
-                            </a>
-                        </th>
-                        <th>
-                            <a class="text-secondary" href="?<?= $url_query_strings_sort ?>&sort=network_primary_dns&order=<?= $disp ?>">
-                                DNS <?php if ($sort == 'network_primary_dns') { echo $order_icon; } ?>
-                            </a>
-                        </th>
-                        <?php if (!$client_url) { ?>
-                        <th>
-                            <a class="text-secondary" href="?<?= $url_query_strings_sort ?>&sort=client_name&order=<?= $disp ?>">
-                                Client <?php if ($sort == 'client_name') { echo $order_icon; } ?>
-                            </a>
-                        </th>
-                        <?php } ?>
-                        <th class="text-center">Action</th>
-                    </tr>
-                    </thead>
-                    <tbody>
-                    <?php
-
-                    while ($row = mysqli_fetch_assoc($sql)) {
-                        $client_id = intval($row['client_id']);
-                        $client_name = escapeHtml($row['client_name']);
-                        $network_id = intval($row['network_id']);
-                        $network_name = escapeHtml($row['network_name']);
-                        $network_description = escapeHtml($row['network_description']);
-                        $network_vlan = intval($row['network_vlan']);
-                        if ($network_vlan) {
-                            $network_vlan_display = $network_vlan;
-                        } else {
-                            $network_vlan_display = "-";
-                        }
-                        $network = escapeHtml($row['network']);
-                        $network_gateway = escapeHtml($row['network_gateway']);
-                        $network_primary_dns = escapeHtml($row['network_primary_dns']);
-                        $network_secondary_dns = escapeHtml($row['network_secondary_dns']);
-                        if ($network_primary_dns) {
-                            $network_dns_display = "$network_primary_dns<div class='text-secondary mt-1'>$network_secondary_dns</div>";
-                        } else {
-                            $network_dns_display = "-";
-                        }
-                        $network_dhcp_range = escapeHtml($row['network_dhcp_range']);
-                        if (empty($network_dhcp_range)) {
-                            $network_dhcp_range_display = "-";
-                        } else {
-                            $network_dhcp_range_display = $network_dhcp_range;
-                        }
-                        $network_location_id = intval($row['network_location_id']);
-                        $location_name = escapeHtml($row['location_name']);
-                        if (empty($location_name)) {
-                            $location_name_display = "-";
-                        } else {
-                            $location_name_display = $location_name;
-                        }
-                        $network_archived_at = escapeHtml($row['network_archived_at']);
-
-                        ?>
-                        <tr>
-                            <td class="checkbox-column">
-                                <div class="form-check">
-                                    <input class="form-check-input bulk-select" type="checkbox" name="network_ids[]" value="<?= $network_id ?>">
-                                </div>
-                            </td>
-                            <td>
-                                <a class="text-dark ajax-modal" href="#" data-modal-url="modals/network/network_edit.php?id=<?= $network_id ?>">
-                                    <div class="media">
-                                        <i class="fa fa-fw fa-2x fa-network-wired mr-2"></i>
-                                        <div class="media-body">
-                                            <div><?= $network_name ?></div>
-                                            <div><small class="text-secondary"><?= $network_description ?></small></div>
-                                        </div>
-                                    </div>
-                                </a>
-                            </td>
-                            <td><?= $location_name_display ?></td>
-                            <td class="text-monospace"><?= $network_vlan_display ?></td>
-                            <td class="text-monospace"><?= $network ?></td>
-                            <td class="text-monospace"><?= $network_gateway ?></td>
-                            <td class="text-monospace"><?= $network_dhcp_range_display ?></td>
-                            <td class="text-monospace"><?= $network_dns_display ?></td>
-                            <?php if (!$client_url) { ?>
-                            <td><a href="networks.php?client_id=<?= $client_id ?>"><?= $client_name ?></a></td>
-                            <?php } ?>
-                            <td>
-                                <div class="dropdown dropleft text-center">
-                                    <button class="btn btn-secondary btn-sm" type="button" data-toggle="dropdown">
-                                        <i class="fas fa-ellipsis-h"></i>
-                                    </button>
-                                    <div class="dropdown-menu">
-                                        <a class="dropdown-item ajax-modal" href="#" data-modal-url="modals/network/network_edit.php?id=<?= $network_id ?>">
-                                            <i class="fas fa-fw fa-edit mr-2"></i>Edit
-                                        </a>
-                                        <?php if ($session_user_role == 3) { ?>
-                                            <?php if ($network_archived_at) { ?>
-                                            <div class="dropdown-divider"></div>
-                                            <a class="dropdown-item text-info confirm-link" href="post.php?restore_network=<?= $network_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>">
-                                                <i class="fas fa-fw fa-redo mr-2"></i>Restore
-                                            </a>
-                                            <div class="dropdown-divider"></div>
-                                            <a class="dropdown-item text-danger text-bold confirm-link" href="post.php?delete_network=<?= $network_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>">
-                                                <i class="fas fa-fw fa-trash mr-2"></i>Delete
-                                            </a>
-                                            <?php } else { ?>
-                                            <div class="dropdown-divider"></div>
-                                            <a class="dropdown-item text-danger confirm-link" href="post.php?archive_network=<?= $network_id ?>">
-                                                <i class="fas fa-fw fa-archive mr-2"></i>Archive
-                                            </a>
+                        <td>
+                            <a class="text-dark" href="network.php?client_id=<?= $client_id ?>&network_id=<?= $network_id ?>">
+                                <div class="d-flex">
+                                    <i class="fa fa-fw fa-2x fa-network-wired me-2"></i>
+                                    <div class="flex-grow-1">
+                                        <div>
+                                            <?= $network_name ?>
+                                            <?php if ($ip_count) { ?>
+                                            <span class="badge bg-secondary ms-1" title="Documented IP addresses"><?= $ip_count ?></span>
                                             <?php } ?>
-                                        <?php } ?>
+                                        </div>
+                                        <div><small class="text-secondary"><?= $network_description ?></small></div>
                                     </div>
                                 </div>
-                            </td>
-                        </tr>
+                            </a>
+                        </td>
+                        <td><?= $location_name_display ?></td>
+                        <td class="font-monospace"><?= $network_vlan_display ?></td>
+                        <td class="font-monospace"><?= $network ?></td>
+                        <td class="font-monospace"><?= $network_gateway ?></td>
+                        <td class="font-monospace"><?= $network_dhcp_range_display ?></td>
+                        <td class="font-monospace"><?= $network_dns_display ?></td>
+                        <?php if (!$client_url) { ?>
+                        <td><a href="networks.php?client_id=<?= $client_id ?>"><?= $client_name ?></a></td>
+                        <?php } ?>
+                        <td>
+                            <div class="dropdown dropstart text-center">
+                                <button class="btn btn-secondary btn-sm" type="button" data-bs-toggle="dropdown">
+                                    <i class="fas fa-ellipsis-h"></i>
+                                </button>
+                                <div class="dropdown-menu">
+                                    <a class="dropdown-item" href="network.php?client_id=<?= $client_id ?>&network_id=<?= $network_id ?>">
+                                        <i class="fas fa-fw fa-map-pin me-2"></i>IP Addresses
+                                    </a>
+                                    <div class="dropdown-divider"></div>
+                                    <a class="dropdown-item ajax-modal" href="#" data-modal-url="modals/network/network_edit.php?id=<?= $network_id ?>">
+                                        <i class="fas fa-fw fa-edit me-2"></i>Edit
+                                    </a>
+                                    <?php if ($session_user_role == 3) { ?>
+                                        <?php if ($network_archived_at) { ?>
+                                        <div class="dropdown-divider"></div>
+                                        <a class="dropdown-item text-info confirm-link" href="post.php?restore_network=<?= $network_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>">
+                                            <i class="fas fa-fw fa-redo me-2"></i>Restore
+                                        </a>
+                                        <div class="dropdown-divider"></div>
+                                        <a class="dropdown-item text-danger text-bold confirm-link" href="post.php?delete_network=<?= $network_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>">
+                                            <i class="fas fa-fw fa-trash me-2"></i>Delete
+                                        </a>
+                                        <?php } else { ?>
+                                        <div class="dropdown-divider"></div>
+                                        <a class="dropdown-item text-danger confirm-link" href="post.php?archive_network=<?= $network_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>">
+                                            <i class="fas fa-fw fa-archive me-2"></i>Archive
+                                        </a>
+                                        <?php } ?>
+                                    <?php } ?>
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
 
-                    <?php } ?>
+                <?php } ?>
 
-                    </tbody>
-                </table>
+                </tbody>
+            </table>
 
-            </form>
-        </div>
-        <?php require_once "../includes/filter_footer.php"; ?>
+        </form>
     </div>
+    <?php require_once "../includes/filter_footer.php"; ?>
 </div>
 
 <script src="../js/bulk_actions.js"></script>

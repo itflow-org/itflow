@@ -22,6 +22,9 @@ while ($row = mysqli_fetch_assoc($status_sql)) {
         'name'       => escapeHtml($row['ticket_status_name']),
         'color'      => escapeHtml($row['ticket_status_color']),
         'pauses_sla' => intval($row['ticket_status_pauses_sla']),
+        // Resolved pauses the clock by finishing the ticket rather than parking it, so
+        // the header marker would be noise on that column (Closed is not a column here)
+        'show_sla_pause' => intval($row['ticket_status_pauses_sla']) && $status_id != 4,
         'tickets'    => array()
     );
 }
@@ -90,7 +93,7 @@ $kanban = array_values($statuses);
     </div>
 <?php } elseif ($kanban_offboard_count) { ?>
     <div class="alert alert-secondary py-2">
-        <i class="fas fa-fw fa-info-circle mr-1"></i>
+        <i class="fas fa-fw fa-info-circle me-1"></i>
         <?= $kanban_offboard_count ?> matching ticket<?= $kanban_offboard_count == 1 ? ' is' : 's are' ?> not shown - the board has no column for closed tickets.
         <a href="<?= ticketsFilterUrl(['view' => 'list']) ?>">Show them in the list</a>
     </div>
@@ -104,9 +107,9 @@ $kanban = array_values($statuses);
 
             <div class="kanban-column-header" style="border-top-color: <?= $column['color'] ?>">
                 <span class="kanban-column-name"><?= $column['name'] ?></span>
-                <span class="badge badge-pill badge-secondary ml-1"><?= count($column['tickets']) ?></span>
-                <?php if ($column['pauses_sla']) { ?>
-                    <i class="fas fa-fw fa-pause text-secondary ml-1" title="The resolution SLA clock is paused in this status"></i>
+                <span class="badge rounded-pill bg-secondary ms-1"><?= count($column['tickets']) ?></span>
+                <?php if ($column['show_sla_pause']) { ?>
+                    <i class="fas fa-fw fa-pause text-secondary ms-1" title="The resolution SLA clock is paused in this status"></i>
                 <?php } ?>
             </div>
 
@@ -153,12 +156,12 @@ $kanban = array_values($statuses);
                                 <?= escapeHtml($item['ticket_prefix']) . intval($item['ticket_number']) ?>
                             </a>
 
-                            <span class="badge badge-<?= $ticket_priority_color ?>"><?= $item_priority ?></span>
+                            <span class="badge text-bg-<?= $ticket_priority_color ?>"><?= $item_priority ?></span>
 
                             <?php if ($ticket_sla_alert_stage == 2) { ?>
-                                <span class="badge badge-danger" title="SLA breached"><i class="fas fa-fw fa-stopwatch"></i></span>
+                                <span class="badge bg-danger" title="SLA breached"><i class="fas fa-fw fa-stopwatch"></i></span>
                             <?php } elseif ($ticket_sla_alert_stage == 1) { ?>
-                                <span class="badge badge-warning" title="SLA at risk"><i class="fas fa-fw fa-stopwatch"></i></span>
+                                <span class="badge bg-warning text-dark" title="SLA at risk"><i class="fas fa-fw fa-stopwatch"></i></span>
                             <?php } ?>
 
                             <span class="drag-handle-class" title="Drag to move"><i class="fas fa-grip-vertical"></i></span>
@@ -182,22 +185,22 @@ $kanban = array_values($statuses);
                         </div>
 
                         <?php if (!empty($item['asset_name'])) { ?>
-                            <div class="kanban-card-meta"><i class="fa fa-fw fa-desktop mr-1"></i><?= escapeHtml($item['asset_name']) ?></div>
+                            <div class="kanban-card-meta"><i class="fa fa-fw fa-desktop me-1"></i><?= escapeHtml($item['asset_name']) ?></div>
                         <?php } ?>
 
                         <div class="kanban-card-footer">
                             <span title="Assigned to">
                                 <?php if (!empty($item['user_name'])) { ?>
-                                    <i class="fas fa-fw fa-user mr-1"></i><?= escapeHtml($item['user_name']) ?>
+                                    <i class="fas fa-fw fa-user me-1"></i><?= escapeHtml($item['user_name']) ?>
                                 <?php } else { ?>
-                                    <i class="fas fa-fw fa-user-slash mr-1 text-danger"></i><span class="text-danger">Unassigned</span>
+                                    <i class="fas fa-fw fa-user-slash me-1 text-danger"></i><span class="text-danger">Unassigned</span>
                                 <?php } ?>
                             </span>
                             <span title="Created <?= escapeHtml($item['ticket_created_at']) ?>"><?= timeAgo($item['ticket_created_at']) ?></span>
                         </div>
 
                         <?php if (!empty($item['ticket_schedule'])) { ?>
-                            <div class="kanban-card-meta"><i class="fa fa-fw fa-calendar-check mr-1"></i><span class="badge badge-warning"><?= escapeHtml($item['ticket_schedule']) ?></span></div>
+                            <div class="kanban-card-meta"><i class="fa fa-fw fa-calendar-check me-1"></i><span class="badge bg-warning text-dark"><?= escapeHtml($item['ticket_schedule']) ?></span></div>
                         <?php } ?>
 
                     </div>

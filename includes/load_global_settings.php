@@ -12,6 +12,7 @@ $sql_settings = mysqli_query($mysqli, "SELECT config_azure_client_id, config_azu
     config_invoice_from_email, config_invoice_from_name, config_invoice_late_fee_enable,
     config_invoice_late_fee_percent, config_invoice_next_number,
     config_invoice_paid_notification_email, config_invoice_prefix, config_invoice_show_tax_id,
+    config_internal_client_id,
     config_log_retention, config_login_key_required, config_login_key_secret,
     config_login_message, config_login_remember_me_expire, config_mail_from_email,
     config_mail_from_name, config_mail_oauth_access_token,
@@ -135,6 +136,9 @@ $config_module_enable_itdoc = intval($row['config_module_enable_itdoc']);
 $config_module_enable_ticketing = intval($row['config_module_enable_ticketing']);
 $config_module_enable_accounting = intval($row['config_module_enable_accounting']);
 $config_client_portal_enable = intval($row['config_client_portal_enable']);
+
+// The client record that represents this MSP's own company, or 0 for none
+$config_internal_client_id = intval($row['config_internal_client_id']);
 
 // Login
 $config_login_message = $row['config_login_message'];

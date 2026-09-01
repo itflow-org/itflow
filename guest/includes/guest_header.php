@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-lte-print="plain">
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -20,17 +20,28 @@
     <link rel="stylesheet" href="/libs/fontawesome-free/css/all.min.css">
     <!-- Theme style -->
     <link rel="stylesheet" href="/libs/adminlte/css/adminlte.min.css">
+    <?php /* Opt-in AdminLTE 3 palette, new in v4.5.0. Supplies the
+             --bs-<colour> tokens plus .text-bg-* / .card-* / .callout-*
+             / .bg-gradient-* families. Loads BEFORE itflow_custom.css so
+             our own .bg-<colour> box colours still win. */ ?>
+    <link rel="stylesheet" href="/libs/adminlte/css/adminlte-colors-v3.min.css">
 
     <!-- Custom Style Sheet -->
-    <link rel="stylesheet" href="/libs/tempusdominus-bootstrap-4/css/tempusdominus-bootstrap-4.min.css">
-    <link rel="stylesheet" href="/libs/select2/css/select2.min.css">
-    <link rel="stylesheet" href="/libs/select2-bootstrap4-theme/select2-bootstrap4.min.css">
-    <link rel="stylesheet" href='/libs/daterangepicker/daterangepicker.css'>
+    <link rel="stylesheet" href="/libs/flatpickr/css/flatpickr.min.css">
+    <link rel="stylesheet" href="/libs/tom-select/css/tom-select.bootstrap5.min.css">
+    <?php /* Required: includes/footer.php loads sweetalert2.min.js for the
+             confirm-link dialogs used by guest_approve_ticket_task.php and
+             guest_view_quote.php. Every bit of the dialog's positioning
+             (position:fixed, inset:0, the centering grid) lives in this
+             stylesheet, so without it the popup renders as a static block at
+             the foot of the document. */ ?>
+    <link rel="stylesheet" href="/libs/sweetalert2/css/sweetalert2.min.css">
+
+    <!-- ITFlow style: loaded last so it wins. See includes/header.php -->
+    <link rel="stylesheet" href="/css/itflow_custom.css">
 
     <!-- Scripts -->
-    <script src="/libs/jquery/jquery.min.js"></script>
-    <script src="/libs/toastr/toastr.min.js"></script>
 
 </head>
-<body class="layout-top-nav">
-    <div class="wrapper text-sm">
+<body class="layout-fixed bg-body-tertiary theme-<?= escapeHtml($config_theme) ?>" data-lte-primary="<?= escapeHtml($config_theme) ?>">
+    <div class="app-wrapper text-sm">

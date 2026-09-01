@@ -45,11 +45,9 @@ $data = "otpauth://totp/ITFlow:$session_email?secret=$token";
 
     <!-- Theme style -->
     <link rel="stylesheet" href="../../libs/adminlte/css/adminlte.min.css">
-    <link href="../../libs/toastr/toastr.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="../../css/itflow_custom.css">
 
     <!-- jQuery -->
-    <script src="../../libs/jquery/jquery.min.js"></script>
-    <script src="../../libs/toastr/toastr.min.js"></script>
 
 </head>
 <body class="hold-transition login-page">
@@ -59,7 +57,7 @@ $data = "otpauth://totp/ITFlow:$session_email?secret=$token";
             <?php if (!empty($company_logo)) { ?>
                 <img alt="<?= escapeHtml($company_name)?> logo" height="110" width="380" class="img-fluid" src="<?= "../../uploads/settings/$company_logo" ?>">
             <?php } else { ?>
-                <span class="text-primary text-bold"><i class="fas fa-paper-plane mr-2"></i>IT</span>Flow
+                <span class="text-primary text-bold"><i class="fas fa-paper-plane me-2"></i>IT</span>Flow
             <?php } ?>
         </div>
 
@@ -72,23 +70,21 @@ $data = "otpauth://totp/ITFlow:$session_email?secret=$token";
                 <form action="post.php" method="post" autocomplete="off">
                     <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
 
-                    <img src='../../libs/barcode/barcode.php?f=png&s=qr&d=<?= $data ?>' data-toggle="tooltip" title="Scan QR code into your MFA App">
+                    <img src='../../libs/barcode/barcode.php?f=png&s=qr&d=<?= $data ?>' data-bs-toggle="tooltip" title="Scan QR code into your MFA App">
 
                     <p>
-                        <small data-toggle="tooltip" title="Can't Scan? Copy and paste this code into your app"><?= $token ?></small>
-                        <button type="button" class='btn btn-sm clipboardjs' data-clipboard-text='<?= $token ?>'><i class='far fa-copy text-secondary'></i></button>
+                        <small data-bs-toggle="tooltip" title="Can't Scan? Copy and paste this code into your app"><?= $token ?></small>
+                        <button type="button" class='btn btn-sm btn-link clipboardjs' data-clipboard-text='<?= $token ?>'><i class='far fa-copy text-secondary'></i></button>
                     </p>
 
                     <div class="input-group mb-3">
                         <input type="text" class="form-control" inputmode="numeric" pattern="[0-9]*" minlength="6" maxlength="6" name="verify_code" placeholder="Enter 6 digit code to verify MFA" required>
-                        <div class="input-group-append">
                             <div class="input-group-text">
                                 <span class="fas fa-lock"></span>
                             </div>
-                        </div>
                     </div>
 
-                    <button type="submit" name="enable_mfa" class="btn btn-primary btn-block mb-3"><i class="fa fa-check mr-2"></i>Enable MFA</button>
+                    <button type="submit" name="enable_mfa" class="btn btn-primary w-100 mb-3"><i class="fa fa-check me-2"></i>Enable MFA</button>
                 </form>
 
             </div>
@@ -100,6 +96,7 @@ $data = "otpauth://totp/ITFlow:$session_email?secret=$token";
     <!-- REQUIRED SCRIPTS -->
 
     <!-- Bootstrap 4 -->
+    <script src="/js/http.js"></script>
     <script src="../../libs/bootstrap/js/bootstrap.bundle.min.js"></script>
 
     <!-- Custom js-->
@@ -107,10 +104,20 @@ $data = "otpauth://totp/ITFlow:$session_email?secret=$token";
 
     <script>
 
-    // Slide alert up after 4 secs
-    $("#alert").fadeTo(5000, 500).slideUp(500, function(){
-        $("#alert").slideUp(500);
-    });
+    // Fade the alert out after 5s, then collapse it
+    (function () {
+        const alertEl = document.getElementById('alert');
+        if (!alertEl) {
+            return;
+        }
+        setTimeout(function () {
+            alertEl.style.transition = 'opacity .5s linear';
+            alertEl.style.opacity = '0';
+            setTimeout(function () {
+                alertEl.style.display = 'none';
+            }, 500);
+        }, 5000);
+    })();
 
     // ClipboardJS
 
@@ -118,17 +125,20 @@ $data = "otpauth://totp/ITFlow:$session_email?secret=$token";
     // on screen. This page is standalone and does not load js/app.js, so it
     // carries its own copy of the helper.
     function flashTooltip(button, message) {
-        $(button)
-            .tooltip('dispose')
-            .tooltip({
-                trigger: 'manual',
-                placement: 'bottom',
-                title: message
-            })
-            .tooltip('show');
+        const el = button instanceof Element ? button : document.querySelector(button);
+        if (!el) {
+            return;
+        }
+        bootstrap.Tooltip.getInstance(el)?.dispose();
+        const tip = new bootstrap.Tooltip(el, {
+            trigger: 'manual',
+            placement: 'bottom',
+            title: message
+        });
+        tip.show();
 
-        setTimeout(function() {
-            $(button).tooltip('dispose');
+        setTimeout(function () {
+            tip.dispose();
         }, 1000);
     }
 
@@ -145,8 +155,8 @@ $data = "otpauth://totp/ITFlow:$session_email?secret=$token";
     });
 
     // Enable Popovers
-    $(function () {
-        $('[data-toggle="popover"]').popover()
+    document.querySelectorAll('[data-bs-toggle="popover"]').forEach(function (el) {
+        bootstrap.Popover.getOrCreateInstance(el);
     });
 
     </script>

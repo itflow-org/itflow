@@ -22,23 +22,19 @@ ob_start();
 
 <div class="modal-header bg-dark">
     <h5 class="modal-title">
-        <i class="fa fa-fw fa-money-bill mr-2"></i>Editing Billable Status: <strong><?= "$ticket_prefix$ticket_number" ?></strong>
+        <i class="fa fa-fw fa-money-bill me-2"></i>Editing Billable Status: <strong><?= "$ticket_prefix$ticket_number" ?></strong>
     </h5>
-    <button type="button" class="close text-white" data-dismiss="modal">
-        <span>&times;</span>
-    </button>
+    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
 </div>
 <form action="post.php" method="post" autocomplete="off">
     <div class="modal-body">
         <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
         <input type="hidden" name="ticket_id" value="<?= $ticket_id ?>">
-        <div class="form-group">
+        <div class="mb-3">
             <label>Billable?</label>
             <div class="input-group">
-                <div class="input-group-prepend">
                     <span class="input-group-text"><i class="fa fa-fw fa-money-bill"></i></span>
-                </div>
-                <select class="form-control" name="billable_status">
+                <select class="form-select" name="billable_status">
                     <option <?php if ($ticket_billable == 1) { echo "selected"; } ?> value="1">Yes</option>
                     <option <?php if ($ticket_billable == 0) { echo "selected"; } ?> value="0">No</option>
                 </select>
@@ -49,10 +45,10 @@ ob_start();
 
     <div class="modal-footer">
         <button type="submit" name="edit_ticket_billable_status" class="btn btn-primary text-bold">
-            <i class="fa fa-check mr-2"></i>Save
+            <i class="fa fa-check me-2"></i>Save
         </button>
-        <button type="button" class="btn btn-light" data-dismiss="modal">
-            <i class="fa fa-times mr-2"></i>Cancel
+        <button type="button" class="btn btn-light" data-bs-dismiss="modal">
+            <i class="fa fa-times me-2"></i>Cancel
         </button>
     </div>
 

@@ -12,10 +12,8 @@ ob_start();
 
 ?>
 <div class="modal-header bg-dark">
-    <h5 class="modal-title"><i class="fas fa-fw fa-building mr-2"></i>New Vendor</h5>
-    <button type="button" class="close text-white" data-dismiss="modal">
-        <span>&times;</span>
-    </button>
+    <h5 class="modal-title"><i class="fas fa-fw fa-building me-2"></i>New Vendor</h5>
+    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
 </div>
 <form action="post.php" method="post" autocomplete="off">
     <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
@@ -24,13 +22,13 @@ ob_start();
     <div class="modal-body">
         <ul class="nav nav-pills nav-justified mb-3">
             <li class="nav-item">
-                <a class="nav-link active" data-toggle="pill" href="#pills-details">Details</a>
+                <a class="nav-link active" data-bs-toggle="pill" href="#pills-details">Details</a>
             </li>
             <li class="nav-item">
-                <a class="nav-link" data-toggle="pill" href="#pills-support">Support</a>
+                <a class="nav-link" data-bs-toggle="pill" href="#pills-support">Support</a>
             </li>
             <li class="nav-item">
-                <a class="nav-link" data-toggle="pill" href="#pills-notes">Notes</a>
+                <a class="nav-link" data-bs-toggle="pill" href="#pills-notes">Notes</a>
             </li>
         </ul>
 
@@ -38,42 +36,34 @@ ob_start();
 
         <div class="tab-content">
             <div class="tab-pane fade show active" id="pills-details">
-                <div class="form-group">
+                <div class="mb-3">
                     <label>Vendor Name <strong class="text-danger">*</strong></label>
                     <div class="input-group">
-                        <div class="input-group-prepend">
                             <span class="input-group-text"><i class="fa fa-fw fa-building"></i></span>
-                        </div>
                         <input type="text" class="form-control" name="name" placeholder="Vendor Name" maxlength="200" required autofocus>
                     </div>
                 </div>
 
-                <div class="form-group">
+                <div class="mb-3">
                     <label>Description</label>
                     <div class="input-group">
-                        <div class="input-group-prepend">
                             <span class="input-group-text"><i class="fa fa-fw fa-align-left"></i></span>
-                        </div>
                         <input type="text" class="form-control" name="description" placeholder="Description" maxlength="200">
                     </div>
                 </div>
 
-                <div class="form-group">
+                <div class="mb-3">
                     <label>Account Number</label>
                     <div class="input-group">
-                        <div class="input-group-prepend">
                             <span class="input-group-text"><i class="fa fa-fw fa-fingerprint"></i></span>
-                        </div>
                         <input type="text" class="form-control" name="account_number" placeholder="Account number" maxlength="200">
                     </div>
                 </div>
 
-                <div class="form-group">
+                <div class="mb-3">
                     <label>Account Manager</label>
                     <div class="input-group">
-                        <div class="input-group-prepend">
                             <span class="input-group-text"><i class="fa fa-fw fa-user"></i></span>
-                        </div>
                         <input type="text" class="form-control" name="contact_name" placeholder="Account manager's name" maxlength="200">
                     </div>
                 </div>
@@ -81,78 +71,66 @@ ob_start();
 
             <div class="tab-pane fade" id="pills-support">
                 <label>Support Phone / <span class="text-secondary">Extension</span></label>
-                <div class="form-row">
+                <div class="row g-2">
                     <div class="col-9">
-                        <div class="form-group">
+                        <div class="mb-3">
                             <div class="input-group">
-                                <div class="input-group-prepend">
                                     <span class="input-group-text"><i class="fa fa-fw fa-phone"></i></span>
-                                </div>
-                                <input type="tel" class="form-control col-2" name="phone_country_code" placeholder="+" maxlength="4">
-                                <input type="tel" class="form-control" name="phone" placeholder="Phone Number" maxlength="200">
+                                <input type="hidden" name="phone_country_code">
+                                <input type="tel" class="form-control" name="phone" placeholder="Phone Number" maxlength="200" data-itflow-phone="phone_country_code">
                             </div>
                         </div>
                     </div>
                     <div class="col-3">
-                        <div class="form-group">
+                        <div class="mb-3">
                             <input type="text" class="form-control" name="extension" placeholder="ext." maxlength="200">
                         </div>
                     </div>
                 </div>
 
-                <div class="form-group">
+                <div class="mb-3">
                     <label>Support Hours</label>
                     <div class="input-group">
-                        <div class="input-group-prepend">
                             <span class="input-group-text"><i class="fa fa-fw fa-calendar"></i></span>
-                        </div>
                         <input type="text" class="form-control" name="hours" placeholder="Support Hours" maxlength="200">
                     </div>
                 </div>
 
-                <div class="form-group">
+                <div class="mb-3">
                     <label>Support Email</label>
                     <div class="input-group">
-                        <div class="input-group-prepend">
                             <span class="input-group-text"><i class="fa fa-fw fa-envelope"></i></span>
-                        </div>
                         <input type="email" class="form-control" name="email" placeholder="Support Email" maxlength="200">
                     </div>
                 </div>
 
-                <div class="form-group">
+                <div class="mb-3">
                     <label>Support Website URL</label>
                     <div class="input-group">
-                        <div class="input-group-prepend">
                             <span class="input-group-text"><i class="fa fa-fw fa-globe"></i></span>
-                        </div>
                         <input type="text" class="form-control" name="website" placeholder="Do not include http(s)://" maxlength="200">
                     </div>
                 </div>
 
-                <div class="form-group">
+                <div class="mb-3">
                     <label>Pin/Code</label>
                     <div class="input-group">
-                        <div class="input-group-prepend">
                             <span class="input-group-text"><i class="fa fa-fw fa-key"></i></span>
-                        </div>
                         <input type="text" class="form-control" name="code" placeholder="Access Code or Pin" maxlength="200">
                     </div>
                 </div>
 
-                <div class="form-group">
+                <div class="mb-3">
                     <label>SLA</label>
                     <div class="input-group">
-                        <div class="input-group-prepend">
                             <span class="input-group-text"><i class="fa fa-fw fa-handshake"></i></span>
-                        </div>
                         <input type="text" class="form-control" name="sla" placeholder="SLA Response Time" maxlength="200">
                     </div>
                 </div>
             </div>
 
             <div class="tab-pane fade" id="pills-notes">
-                <div class="form-group">
+                <div class="mb-3">
                     <textarea class="form-control" rows="12" placeholder="Enter some notes" name="notes"></textarea>
                 </div>
             </div>
@@ -161,8 +139,8 @@ ob_start();
 
     </div>
     <div class="modal-footer">
-        <button type="submit" name="add_vendor" class="btn btn-primary text-bold"><i class="fas fa-check mr-2"></i>Create</button>
-        <button type="button" class="btn btn-light" data-dismiss="modal"><i class="fa fa-times mr-2"></i>Cancel</button>
+        <button type="submit" name="add_vendor" class="btn btn-primary text-bold"><i class="fas fa-check me-2"></i>Create</button>
+        <button type="button" class="btn btn-light" data-bs-dismiss="modal"><i class="fa fa-times me-2"></i>Cancel</button>
     </div>
 </form>
 

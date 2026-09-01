@@ -10,6 +10,7 @@
  *   ticket_reply_id   optional - Return a single reply by its own ID
  *   ticket_id         optional - Return all replies on a single ticket
  *   type              optional - Filter by reply type: Internal, Public or Client
+ *   client_id         optional - Only return replies on tickets for this client
  *   include_archived  optional - Set to 1 to include archived replies (default: excluded)
  *   limit             optional - Max rows to return (default 50)
  *   offset            optional - Offset for pagination (default 0)

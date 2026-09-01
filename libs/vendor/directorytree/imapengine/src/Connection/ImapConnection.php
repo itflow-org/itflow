@@ -259,7 +259,7 @@ class ImapConnection implements ConnectionInterface
 
         $this->assertTaggedResponse($tag);
 
-        return $this->result->responses()->untagged()->firstWhere(
+        return $this->result->responses()->untagged()->first(
             fn (UntaggedResponse $response) => $response->type()->is('STATUS')
         );
     }
@@ -621,8 +621,7 @@ class ImapConnection implements ConnectionInterface
     public function send(string $name, array $tokens = [], ?string &$tag = null): void
     {
         if (! $tag) {
-            $this->sequence++;
-            $tag = 'TAG'.$this->sequence;
+            $tag = 'TAG'.++$this->sequence;
         }
 
         $command = new ImapCommand($tag, $name, $tokens);
@@ -633,7 +632,11 @@ class ImapConnection implements ConnectionInterface
         $this->setResult(new Result($command));
 
         foreach ($command->compile() as $line) {
-            $this->write($line);
+            $this->write($line->value);
+
+            if ($line->synchronizing) {
+                $this->assertContinuationResponse($command);
+            }
         }
     }
 
@@ -737,6 +740,23 @@ class ImapConnection implements ConnectionInterface
         );
 
         return $response;
+    }
+
+    /**
+     * Assert the server is ready to receive literal data.
+     */
+    protected function assertContinuationResponse(ImapCommand $command): void
+    {
+        $this->assertNextResponse(
+            fn (Response $response) => (
+                $response instanceof ContinuationResponse || (
+                    $response instanceof TaggedResponse
+                    && $response->tag()->is($command->tag())
+                )
+            ),
+            fn (Response $response) => $response instanceof ContinuationResponse,
+            fn (Response $response) => ImapCommandException::make($command, $response),
+        );
     }
 
     /**

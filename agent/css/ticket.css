@@ -72,3 +72,18 @@
         min-width: 45%;
     }
 }
+
+/*
+ * Bootstrap cancels hover on any .btn following a .btn-check (twbs #31149 / PR #37026):
+ * a checked outline toggle and an unchecked one looked identical while hovered, so you
+ * could not read the control's state without moving the pointer away. Correct, but the
+ * selector also catches the UNCHECKED buttons, and with nothing preselected here that
+ * leaves the whole strip with no feedback at all.
+ *
+ * Give the unchecked ones a NEUTRAL tint - not the variant fill, which is what checked
+ * looks like and would reintroduce exactly the ambiguity #31149 was about. Upstream's
+ * color and border-color still apply, so only the background moves.
+ */
+#replyTypePicker .btn-check:not(:checked) + .btn:hover {
+    background-color: var(--bs-secondary-bg);
+}

@@ -217,7 +217,7 @@ if ($item_type == "Document") {
     ?>
 
     <h5><?= $credential_name ?></h5>
-    <table class="table col-md-3">
+    <table class="table w-auto">
         <tr>
             <th>URL</th>
             <td><?= $credential_uri ?></td>
@@ -243,7 +243,7 @@ if ($item_type == "Document") {
     <script>
         function refreshOTP() {
             // Send a GET request to guest_ajax.php as guest_ajax.php?get_share_totp_token=true&id=ID&key=KEY
-            jQuery.get(
+            itflowGet(
                 "guest_ajax.php",
                 {
                     get_share_totp_token: 'true',
@@ -285,7 +285,7 @@ if ($item_type == "Document") {
 
 </div>
 <div class="card-footer">
-<?= "<i class='fas fa-phone fa-fw mr-2'></i>$company_phone | <i class='fas fa-globe fa-fw mr-2 ml-2'></i>$company_website" ?>
+<?= "<i class='fas fa-phone fa-fw me-2'></i>$company_phone | <i class='fas fa-globe fa-fw me-2 ms-2'></i>$company_website" ?>
 </div>
 
 <?php

@@ -46,10 +46,8 @@ ob_start();
 ?>
 
 <div class="modal-header bg-dark">
-    <h5 class="modal-title"><i class='fas fa-fw fa-key mr-2'></i>Editing credential: <strong><?= $credential_name ?></strong></h5>
-    <button type="button" class="close text-white" data-dismiss="modal">
-        <span>&times;</span>
-    </button>
+    <h5 class="modal-title"><i class='fas fa-fw fa-key me-2'></i>Editing credential: <strong><?= $credential_name ?></strong></h5>
+    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
 </div>
 
 <form action="post.php" method="post" autocomplete="off">
@@ -59,13 +57,13 @@ ob_start();
 
         <ul class="nav nav-pills nav-justified mb-3">
             <li class="nav-item">
-                <a class="nav-link active" data-toggle="pill" href="#pills-credential-details<?= $credential_id ?>">Details</a>
+                <a class="nav-link active" data-bs-toggle="pill" href="#pills-credential-details<?= $credential_id ?>">Details</a>
             </li>
             <li class="nav-item">
-                <a class="nav-link" data-toggle="pill" href="#pills-credential-relation<?= $credential_id ?>">Relation</a>
+                <a class="nav-link" data-bs-toggle="pill" href="#pills-credential-relation<?= $credential_id ?>">Relation</a>
             </li>
             <li class="nav-item">
-                <a class="nav-link" data-toggle="pill" href="#pills-credential-notes<?= $credential_id ?>">Notes</a>
+                <a class="nav-link" data-bs-toggle="pill" href="#pills-credential-notes<?= $credential_id ?>">Notes</a>
             </li>
         </ul>
 
@@ -75,106 +73,76 @@ ob_start();
 
             <div class="tab-pane fade show active" id="pills-credential-details<?= $credential_id ?>">
 
-                <div class="form-group">
+                <div class="mb-3">
                     <label>Name <strong class="text-danger">*</strong> / <span class="text-secondary">Important?</span></label>
                     <div class="input-group">
-                        <div class="input-group-prepend">
                             <span class="input-group-text"><i class="fa fa-fw fa-key"></i></span>
-                        </div>
                         <input type="text" class="form-control" name="name" placeholder="Name of Credential" maxlength="200" value="<?= $credential_name ?>" required>
-                        <div class="input-group-append">
                             <div class="input-group-text">
                                 <label class="star-toggle mb-0" title="Favorite">
-                                    <input type="checkbox"
+                                    <input class="form-check-input" type="checkbox"
                                             name="favorite"
                                             value="1"
                                             <?php if($credential_favorite) { echo 'checked'; } ?>>
                                     <i class="far fa-star"></i>
                                 </label>
                             </div>
-                        </div>
                     </div>
                 </div>
 
-                <div class="form-group">
+                <div class="mb-3">
                     <label>Description</label>
                     <div class="input-group">
-                        <div class="input-group-prepend">
                             <span class="input-group-text"><i class="fa fa-fw fa-align-left"></i></span>
-                        </div>
                         <input type="text" class="form-control" name="description" placeholder="Description" maxlength="500" value="<?= $credential_description ?>">
                     </div>
                 </div>
 
-                <div class="form-group">
+                <div class="mb-3">
                     <label>Username / ID</label>
                     <div class="input-group">
-                        <div class="input-group-prepend">
                             <span class="input-group-text"><i class="fa fa-fw fa-user"></i></span>
-                        </div>
                         <input type="text" class="form-control" name="username" placeholder="Username or ID" maxlength="350" value="<?= $credential_username ?>">
                     </div>
                 </div>
 
-                <div class="form-group">
+                <div class="mb-3">
                     <label>Password / Key <strong class="text-danger">*</strong></label>
                     <div class="input-group">
-                        <div class="input-group-prepend">
                             <span class="input-group-text"><i class="fa fa-fw fa-lock"></i></span>
-                        </div>
                         <input type="password" class="form-control" data-toggle="password" name="password" placeholder="Password or Key" maxlength="350" value="<?= $credential_password ?>" required autocomplete="new-password">
-                        <div class="input-group-append">
                             <span class="input-group-text"><i class="fa fa-fw fa-eye"></i></span>
-                        </div>
-                        <div class="input-group-append">
                             <button class="btn btn-default clipboardjs" type="button" data-clipboard-text="<?= $credential_password ?>"><i class="fa fa-fw fa-copy"></i></button>
-                        </div>
                     </div>
                 </div>
 
-                <div class="form-group">
+                <div class="mb-3">
                     <label>OTP</label>
                     <div class="input-group">
-                        <div class="input-group-prepend">
                             <span class="input-group-text"><i class="fa fa-fw fa-key"></i></span>
-                        </div>
                         <input type="password" class="form-control" data-toggle="password" name="otp_secret" maxlength="200" value="<?= $credential_otp_secret ?>" placeholder="Insert secret key">
-                        <div class="input-group-append">
                             <span class="input-group-text"><i class="fa fa-fw fa-eye"></i></span>
-                        </div>
                     </div>
                 </div>
 
-                <div class="form-group">
+                <div class="mb-3">
                     <label>URI</label>
                     <div class="input-group">
-                        <div class="input-group-prepend">
                             <span class="input-group-text"><i class="fa fa-fw fa-link"></i></span>
-                        </div>
                         <input type="text" class="form-control" name="uri" placeholder="ex. http://192.168.1.1" maxlength="500" value="<?= $credential_uri ?>">
-                        <div class="input-group-append">
 
                             <a href="<?= $credential_uri_link ?>" target="_blank" class="input-group-text"><i class="fa fa-fw fa-link"></i></a>
-                        </div>
-                        <div class="input-group-append">
                             <button class="input-group-text clipboardjs" type="button" data-clipboard-text="<?= $credential_uri ?>"><i class="fa fa-fw fa-copy"></i></button>
-                        </div>
                     </div>
                 </div>
 
-                <div class="form-group">
+                <div class="mb-3">
                     <label>URI 2</label>
                     <div class="input-group">
-                        <div class="input-group-prepend">
                             <span class="input-group-text"><i class="fa fa-fw fa-link"></i></span>
-                        </div>
                         <input type="text" class="form-control" name="uri_2" placeholder="ex. https://server.company.com:5001" maxlength="500" value="<?= $credential_uri_2 ?>">
-                        <div class="input-group-append">
                             <a href="<?= $credential_uri_2_link ?>" target="_blank" class="input-group-text"><i class="fa fa-fw fa-link"></i></a>
-                        </div>
-                        <div class="input-group-append">
                             <button class="input-group-text clipboardjs" type="button" data-clipboard-text="<?= $credential_uri_2 ?>"><i class="fa fa-fw fa-copy"></i></button>
-                        </div>
                     </div>
                 </div>
 
@@ -182,13 +150,11 @@ ob_start();
 
             <div class="tab-pane fade" id="pills-credential-relation<?= $credential_id ?>">
 
-                <div class="form-group">
+                <div class="mb-3">
                     <label>Contact</label>
                     <div class="input-group">
-                        <div class="input-group-prepend">
                             <span class="input-group-text"><i class="fa fa-fw fa-user"></i></span>
-                        </div>
-                        <select class="form-control select2" name="contact">
+                        <select class="form-select select2" name="contact">
                             <option value="">- Select Contact -</option>
                             <?php
 
@@ -203,13 +169,11 @@ ob_start();
                     </div>
                 </div>
 
-                <div class="form-group">
+                <div class="mb-3">
                     <label>Asset</label>
                     <div class="input-group">
-                        <div class="input-group-prepend">
                             <span class="input-group-text"><i class="fa fa-fw fa-tag"></i></span>
-                        </div>
-                        <select class="form-control select2" name="asset">
+                        <select class="form-select select2" name="asset">
                             <option value="0">- Select Asset -</option>
                             <?php
 
@@ -236,17 +200,15 @@ ob_start();
 
             <div class="tab-pane fade" id="pills-credential-notes<?= $credential_id ?>">
 
-                <div class="form-group">
+                <div class="mb-3">
                     <textarea class="form-control" rows="12" placeholder="Enter some notes" name="note"><?= $credential_note ?></textarea>
                 </div>
 
-                <div class="form-group">
+                <div class="mb-3">
                     <label>Tags</label>
                     <div class="input-group">
-                        <div class="input-group-prepend">
                             <span class="input-group-text"><i class="fa fa-fw fa-tags"></i></span>
-                        </div>
-                        <select class="form-control select2" name="tags[]" data-placeholder="Add some tags" multiple>
+                        <select class="form-select select2" name="tags[]" data-placeholder="Add some tags" multiple>
                             <?php
 
                             $sql_tags_select = mysqli_query($mysqli, "SELECT tag_id, tag_name FROM tags WHERE tag_type = 4 ORDER BY tag_name ASC");
@@ -258,12 +220,10 @@ ob_start();
                             <?php } ?>
 
                         </select>
-                        <div class="input-group-append">
                             <button class="btn btn-secondary ajax-modal" type="button"
                                 data-modal-url="../admin/modals/tag/tag_add.php?type=4">
                                 <i class="fas fa-plus"></i>
                             </button>
-                        </div>
                     </div>
                 </div>
 
@@ -272,8 +232,8 @@ ob_start();
         </div>
     </div>
     <div class="modal-footer">
-        <button type="submit" name="edit_credential" class="btn btn-primary text-bold"><i class="fa fa-check mr-2"></i>Save</button>
-        <button type="button" class="btn btn-light" data-dismiss="modal"><i class="fa fa-times mr-2"></i>Cancel</button>
+        <button type="submit" name="edit_credential" class="btn btn-primary text-bold"><i class="fa fa-check me-2"></i>Save</button>
+        <button type="button" class="btn btn-light" data-bs-dismiss="modal"><i class="fa fa-times me-2"></i>Cancel</button>
     </div>
 </form>
 

@@ -31,21 +31,22 @@ $num_software = $row['num'];
 ?>
 
 <!-- Main Sidebar Container -->
-<aside class="main-sidebar sidebar-dark-primary d-print-none">
+<aside class="app-sidebar shadow d-print-none" data-bs-theme="dark">
 
-    <a class="pb-1 mt-1 brand-link" href="clients.php">
-        <p class="h6"><i class="nav-icon fas fa-arrow-left ml-3 mr-2"></i>
-            <span class="brand-text ">Back | <strong>All Client Docs</strong>
-        </p>
-    </a>
+    <div class="sidebar-brand">
+        <a class="brand-link" href="clients.php">
+            <i class="fas fa-arrow-left me-2"></i>
+            <span class="brand-text h6 mb-0">Back | <strong>All Client Docs</strong></span>
+        </a>
+    </div>
 
     <!-- Sidebar -->
-    <div class="sidebar">
+    <div class="sidebar-wrapper">
 
         <!-- Sidebar Menu -->
         <nav>
 
-            <ul class="nav nav-pills nav-sidebar flex-column mt-2" data-widget="treeview" data-accordion="false">
+            <ul class="nav nav-pills sidebar-menu flex-column mt-2" data-lte-toggle="treeview" data-accordion="false">
 
                 <?php  if (lookupUserPermission("module_support") >= 1) { ?>
                     <li class="nav-item">

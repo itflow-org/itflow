@@ -45,3 +45,50 @@ if (isset($_POST['load_starter_content'])) {
     redirect();
 
 }
+
+if (isset($_POST['load_demo_data'])) {
+
+    validateCSRFToken();
+
+    require_once 'demo_data_model.php';
+
+    $counts = demoDataLoad($mysqli);
+
+    if (!$counts['clients']) {
+        flashAlert("Nothing to add - every demo client is already here", 'info');
+        redirect();
+    }
+
+    $summary = "{$counts['clients']} clients, {$counts['contacts']} contacts, {$counts['assets']} assets, {$counts['documentation']} documentation records, {$counts['tickets']} tickets, {$counts['projects']} projects, {$counts['billing']} billing records, {$counts['company']} company records";
+
+
+    logAudit("Demo Data", "Create", "$session_name loaded demo data - $summary");
+
+    if ($counts['skipped_credentials']) {
+        flashAlert("Added demo data: $summary. Credentials were skipped - the credential vault did not open for this session", 'warning');
+    } else {
+        flashAlert("Added demo data: $summary");
+    }
+
+    redirect();
+
+}
+
+if (isset($_POST['remove_demo_data'])) {
+
+    validateCSRFToken();
+
+    require_once 'demo_data_model.php';
+
+    $clients_removed = demoDataRemove($mysqli);
+
+    if ($clients_removed) {
+        logAudit("Demo Data", "Deleted", "$session_name removed demo data - $clients_removed demo clients and all associated records");
+        flashAlert("Removed <strong>$clients_removed</strong> demo clients and everything associated with them", 'error');
+    } else {
+        flashAlert("No demo clients found - nothing to remove", 'info');
+    }
+
+    redirect();
+
+}

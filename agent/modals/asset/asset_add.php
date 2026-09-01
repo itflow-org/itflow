@@ -33,10 +33,8 @@ ob_start();
 
 ?>
 <div class="modal-header bg-dark">
-    <h5 class="modal-title"><i class="fa fa-fw fa-desktop mr-2"></i>New <?php if ($type) { echo $type; } ?> Asset</h5>
-    <button type="button" class="close text-white" data-dismiss="modal">
-        <span>&times;</span>
-    </button>
+    <h5 class="modal-title"><i class="fa fa-fw fa-desktop me-2"></i>New <?php if ($type) { echo $type; } ?> Asset</h5>
+    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
 </div>
 
 <form action="post.php" method="post" enctype="multipart/form-data" autocomplete="off">
@@ -46,22 +44,22 @@ ob_start();
 
         <ul class="nav nav-pills nav-justified mb-3">
             <li class="nav-item">
-                <a class="nav-link active" data-toggle="pill" href="#pills-asset-details">Details</a>
+                <a class="nav-link active" data-bs-toggle="pill" href="#pills-asset-details">Details</a>
             </li>
             <li class="nav-item">
-                <a class="nav-link" data-toggle="pill" href="#pills-asset-assignment">Assignment</a>
+                <a class="nav-link" data-bs-toggle="pill" href="#pills-asset-assignment">Assignment</a>
             </li>
             <li class="nav-item">
-                <a class="nav-link" data-toggle="pill" href="#pills-asset-network">Network</a>
+                <a class="nav-link" data-bs-toggle="pill" href="#pills-asset-network">Network</a>
             </li>
             <li class="nav-item">
-                <a class="nav-link" data-toggle="pill" href="#pills-asset-purchase">Purchase</a>
+                <a class="nav-link" data-bs-toggle="pill" href="#pills-asset-purchase">Purchase</a>
             </li>
             <li class="nav-item">
-                <a class="nav-link" data-toggle="pill" href="#pills-asset-login">Login</a>
+                <a class="nav-link" data-bs-toggle="pill" href="#pills-asset-login">Login</a>
             </li>
             <li class="nav-item">
-                <a class="nav-link" data-toggle="pill" href="#pills-asset-notes">Notes</a>
+                <a class="nav-link" data-bs-toggle="pill" href="#pills-asset-notes">Notes</a>
             </li>
         </ul>
 
@@ -75,13 +73,11 @@ ob_start();
                     <input type="hidden" name="client_id" value="<?= $client_id ?>">
                 <?php } else { ?>
 
-                    <div class="form-group">
+                    <div class="mb-3">
                         <label>Client <strong class="text-danger">*</strong></label>
                         <div class="input-group">
-                            <div class="input-group-prepend">
                                 <span class="input-group-text"><i class="fa fa-fw fa-user"></i></span>
-                            </div>
-                            <select class="form-control select2" name="client_id" required>
+                            <select class="form-select select2" name="client_id" required>
                                 <option value="">- Select Client -</option>
                                 <?php
 
@@ -97,13 +93,11 @@ ob_start();
 
                 <?php } ?>
 
-                <div class="form-group">
+                <div class="mb-3">
                     <label>Type <strong class="text-danger">*</strong></label>
                     <div class="input-group">
-                        <div class="input-group-prepend">
                             <span class="input-group-text"><i class="fa fa-fw fa-layer-group"></i></span>
-                        </div>
-                        <select class="form-control select2" name="type" required>
+                        <select class="form-select select2" name="type" required>
                             <option value="">- Select Type -</option>
                             <?php foreach($asset_types_array as $asset_type => $asset_icon) { ?>
                                 <option><?= $asset_type ?></option>
@@ -112,74 +106,60 @@ ob_start();
                     </div>
                 </div>
 
-                <div class="form-group">
+                <div class="mb-3">
                     <label>Name <strong class="text-danger">*</strong> / <span class="text-secondary" title="Pin to Overview">Favorite</span></label>
                     <div class="input-group">
-                        <div class="input-group-prepend">
                             <span class="input-group-text"><i class="fas fa-fw fa-tag"></i></span>
-                        </div>
                         <input type="text" class="form-control" name="name" placeholder="e.g. SRV-DC01" maxlength="200" required autofocus>
-                        <div class="input-group-append">
                             <div class="input-group-text">
                                 <label class="star-toggle mb-0" title="Favorite">
-                                    <input type="checkbox" name="favorite" value="1"><i class="far fa-star"></i>
+                                    <input class="form-check-input" type="checkbox" name="favorite" value="1"><i class="far fa-star"></i>
                                 </label>
                             </div>
-                        </div>
                     </div>
                 </div>
 
                 <?php //Do not display Make Model or Serial if Virtual is selected
                 if ($type !== 'Virtual') { ?>
-                    <div class="form-group">
+                    <div class="mb-3">
                         <label>Make</label>
                         <div class="input-group">
-                            <div class="input-group-prepend">
                                 <span class="input-group-text"><i class="fa fa-fw fa-building"></i></span>
-                            </div>
                             <input type="text" class="form-control" name="make" placeholder="e.g. Dell, HP, Lenovo" maxlength="200">
                         </div>
                     </div>
 
-                    <div class="form-group">
+                    <div class="mb-3">
                         <label>Model</label>
                         <div class="input-group">
-                            <div class="input-group-prepend">
                                 <span class="input-group-text"><i class="fa fa-fw fa-cube"></i></span>
-                            </div>
                             <input type="text" class="form-control" name="model" placeholder="e.g. PowerEdge R740" maxlength="200">
                         </div>
                     </div>
 
-                    <div class="form-group">
+                    <div class="mb-3">
                         <label>Serial Number</label>
                         <div class="input-group">
-                            <div class="input-group-prepend">
                                 <span class="input-group-text"><i class="fa fa-fw fa-barcode"></i></span>
-                            </div>
-                            <input type="text" class="form-control text-monospace" name="serial" placeholder="e.g. ABC1234XYZ" maxlength="200">
+                            <input type="text" class="form-control font-monospace" name="serial" placeholder="e.g. ABC1234XYZ" maxlength="200">
                         </div>
                     </div>
                 <?php } ?>
 
                 <?php if ($type !== 'Network' && $type !== 'Other') { ?>
-                    <div class="form-group">
+                    <div class="mb-3">
                         <label>Operating System</label>
                         <div class="input-group">
-                            <div class="input-group-prepend">
                                 <span class="input-group-text"><i class="fas fa-fw fa-laptop-code"></i></span>
-                            </div>
                             <input type="text" class="form-control" name="os" id="os" placeholder="e.g. Windows 11 Pro, Ubuntu 24.04" maxlength="200">
                         </div>
                     </div>
                 <?php } ?>
 
-                <div class="form-group">
+                <div class="mb-3">
                     <label>Description</label>
                     <div class="input-group">
-                        <div class="input-group-prepend">
                             <span class="input-group-text"><i class="fa fa-fw fa-align-left"></i></span>
-                        </div>
                         <input type="text" class="form-control" name="description" placeholder="e.g. Domain controller for HQ" maxlength="255">
                     </div>
                 </div>
@@ -189,13 +169,11 @@ ob_start();
             <div class="tab-pane fade" id="pills-asset-assignment">
 
                 <?php if ($client_id) { ?>
-                <div class="form-group">
+                <div class="mb-3">
                     <label>Location</label>
                     <div class="input-group">
-                        <div class="input-group-prepend">
                             <span class="input-group-text"><i class="fa fa-fw fa-building"></i></span>
-                        </div>
-                        <select class="form-control select2" name="location">
+                        <select class="form-select select2" name="location">
                             <option value="">- Select Location -</option>
                             <?php
 
@@ -211,24 +189,20 @@ ob_start();
                 </div>
                 <?php } ?>
 
-                <div class="form-group">
+                <div class="mb-3">
                     <label>Physical Location</label>
                     <div class="input-group">
-                        <div class="input-group-prepend">
                             <span class="input-group-text"><i class="fa fa-fw fa-map-marker-alt"></i></span>
-                        </div>
                         <input type="text" class="form-control" name="physical_location" placeholder="e.g. Floor 2, Closet B" maxlength="200">
                     </div>
                 </div>
 
                 <?php if ($client_id) { ?>
-                <div class="form-group">
+                <div class="mb-3">
                     <label>Assign To</label>
                     <div class="input-group">
-                        <div class="input-group-prepend">
                             <span class="input-group-text"><i class="fa fa-fw fa-user-check"></i></span>
-                        </div>
-                        <select class="form-control select2" name="contact">
+                        <select class="form-select select2" name="contact">
                             <option value="">- Select Contact -</option>
                             <?php
 
@@ -250,13 +224,11 @@ ob_start();
                 </div>
                 <?php } ?>
 
-                <div class="form-group">
+                <div class="mb-3">
                     <label>Status</label>
                     <div class="input-group">
-                        <div class="input-group-prepend">
                             <span class="input-group-text"><i class="fa fa-fw fa-circle"></i></span>
-                        </div>
-                        <select class="form-control select2" name="status">
+                        <select class="form-select select2" name="status">
                             <option value="">- Select Status -</option>
                             <?php
                             $sql_interface_types_select = mysqli_query($mysqli, "
@@ -278,13 +250,11 @@ ob_start();
 
             <div class="tab-pane fade" id="pills-asset-network">
                 <?php if ($client_id) { ?>
-                <div class="form-group">
+                <div class="mb-3">
                     <label>Network</label>
                     <div class="input-group">
-                        <div class="input-group-prepend">
                             <span class="input-group-text"><i class="fa fa-fw fa-network-wired"></i></span>
-                        </div>
-                        <select class="form-control select2" name="network">
+                        <select class="form-select select2" name="network">
                             <option value="">- Select Network -</option>
                             <?php
 
@@ -302,77 +272,61 @@ ob_start();
                 </div>
                 <?php } ?>
 
-                <div class="form-group">
+                <div class="mb-3">
                     <label>IPv4 Address / <span class="text-muted">DHCP</span></label>
                     <div class="input-group">
-                        <div class="input-group-prepend">
                             <span class="input-group-text"><i class="fa fa-fw fa-ethernet"></i></span>
-                        </div>
-                        <input type="text" class="form-control text-monospace" name="ip" placeholder="e.g. 192.168.1.10" maxlength="200" data-inputmask="'alias': 'ip'" data-mask>
-                        <div class="input-group-append">
+                        <input type="text" class="form-control font-monospace" name="ip" placeholder="e.g. 192.168.1.10" maxlength="200" data-inputmask="'alias': 'ip'" data-mask>
                             <div class="input-group-text">
-                                <input type="checkbox" name="dhcp" value="1">
+                                <input class="form-check-input" type="checkbox" name="dhcp" value="1">
                             </div>
-                        </div>
                     </div>
                 </div>
 
-                <div class="form-group">
+                <div class="mb-3">
                     <label>MAC Address</label>
                     <div class="input-group">
-                        <div class="input-group-prepend">
                             <span class="input-group-text"><i class="fa fa-fw fa-ethernet"></i></span>
-                        </div>
-                        <input type="text" class="form-control text-monospace" name="mac" placeholder="e.g. 00:1A:2B:3C:4D:5E" data-inputmask="'alias': 'mac'" maxlength="200" data-mask>
+                        <input type="text" class="form-control font-monospace" name="mac" placeholder="e.g. 00:1A:2B:3C:4D:5E" data-inputmask="'alias': 'mac'" maxlength="200" data-mask>
                     </div>
                 </div>
 
-                <div class="form-group">
+                <div class="mb-3">
                     <label>IPv6 Address</label>
                     <div class="input-group">
-                        <div class="input-group-prepend">
                             <span class="input-group-text"><i class="fa fa-fw fa-ethernet"></i></span>
-                        </div>
-                        <input type="text" class="form-control text-monospace" name="ipv6" placeholder="e.g. 2001:db8::1" maxlength="200">
+                        <input type="text" class="form-control font-monospace" name="ipv6" placeholder="e.g. 2001:db8::1" maxlength="200">
                     </div>
                 </div>
 
-                <div class="form-group">
+                <div class="mb-3">
                     <label>NAT Address</label>
                     <div class="input-group">
-                        <div class="input-group-prepend">
                             <span class="input-group-text"><i class="fa fa-fw fa-exchange-alt"></i></span>
-                        </div>
-                        <input type="text" class="form-control text-monospace" name="nat_ip" placeholder="e.g. 203.0.113.10 or 10.0.0.5" data-inputmask="'alias': 'ip'" maxlength="200" data-mask>
+                        <input type="text" class="form-control font-monospace" name="nat_ip" placeholder="e.g. 203.0.113.10 or 10.0.0.5" data-inputmask="'alias': 'ip'" maxlength="200" data-mask>
                     </div>
                 </div>
 
-                <div class="form-group">
+                <div class="mb-3">
                     <label>URI</label>
                     <div class="input-group">
-                        <div class="input-group-prepend">
                             <span class="input-group-text"><i class="fa fa-fw fa-globe"></i></span>
-                        </div>
                         <input type="text" class="form-control" name="uri" placeholder="e.g. https:// or ssh://" maxlength="500">
                     </div>
                 </div>
 
-                <div class="form-group">
+                <div class="mb-3">
                     <label>URI 2</label>
                     <div class="input-group">
-                        <div class="input-group-prepend">
                             <span class="input-group-text"><i class="fa fa-fw fa-globe"></i></span>
-                        </div>
                         <input type="text" class="form-control" name="uri_2" placeholder="e.g. https:// or ssh://" maxlength="500">
                     </div>
                 </div>
 
-                <div class="form-group">
+                <div class="mb-3">
                     <label>Client URI</label>
                     <div class="input-group">
-                        <div class="input-group-prepend">
                             <span class="input-group-text"><i class="fa fa-fw fa-globe"></i></span>
-                        </div>
                         <input type="text" class="form-control" name="uri_client" placeholder="e.g. https:// or ssh://" maxlength="500">
                     </div>
                     <small class="text-muted">Viewable in client portal.</small>
@@ -383,13 +337,11 @@ ob_start();
             <div class="tab-pane fade" id="pills-asset-purchase">
 
                 <?php if ($client_id) { ?>
-                <div class="form-group">
+                <div class="mb-3">
                     <label>Vendor</label>
                     <div class="input-group">
-                        <div class="input-group-prepend">
                             <span class="input-group-text"><i class="fa fa-fw fa-building"></i></span>
-                        </div>
-                        <select class="form-control select2" name="vendor">
+                        <select class="form-select select2" name="vendor">
                             <option value="">- Select Vendor -</option>
                             <?php
 
@@ -406,44 +358,36 @@ ob_start();
                 <?php } ?>
 
                 <?php if ($type !== 'Virtual') { ?>
-                    <div class="form-group">
+                    <div class="mb-3">
                         <label>Purchase Reference</label>
                         <div class="input-group">
-                            <div class="input-group-prepend">
                                 <span class="input-group-text"><i class="fa fa-fw fa-receipt"></i></span>
-                            </div>
                             <input type="text" class="form-control" name="purchase_reference" placeholder="e.g. INV-1045 or PO-7782" maxlength="200">
                         </div>
                     </div>
 
-                    <div class="form-group">
+                    <div class="mb-3">
                         <label>Purchase Date</label>
                         <div class="input-group">
-                            <div class="input-group-prepend">
                                 <span class="input-group-text"><i class="fa fa-fw fa-calendar"></i></span>
-                            </div>
                             <input type="date" class="form-control" name="purchase_date" max="2999-12-31">
                         </div>
                     </div>
                 <?php } ?>
 
-                <div class="form-group">
+                <div class="mb-3">
                     <label>Install Date</label>
                     <div class="input-group">
-                        <div class="input-group-prepend">
                             <span class="input-group-text"><i class="fa fa-fw fa-calendar-check"></i></span>
-                        </div>
                         <input type="date" class="form-control" name="install_date" max="2999-12-31">
                     </div>
                 </div>
 
                 <?php if ($type !== 'Virtual') { ?>
-                    <div class="form-group">
+                    <div class="mb-3">
                         <label>Warranty Expire</label>
                         <div class="input-group">
-                            <div class="input-group-prepend">
                                 <span class="input-group-text"><i class="fa fa-fw fa-calendar-times"></i></span>
-                            </div>
                             <input type="date" class="form-control" name="warranty_expire" max="2999-12-31">
                         </div>
                     </div>
@@ -453,22 +397,18 @@ ob_start();
 
             <div class="tab-pane fade" id="pills-asset-login">
 
-                <div class="form-group">
+                <div class="mb-3">
                     <label>Username</label>
                     <div class="input-group">
-                        <div class="input-group-prepend">
                             <span class="input-group-text"><i class="fa fa-fw fa-user"></i></span>
-                        </div>
                         <input type="text" class="form-control" name="username" placeholder="e.g. admin" maxlength="350">
                     </div>
                 </div>
 
-                <div class="form-group">
+                <div class="mb-3">
                     <label>Password</label>
                     <div class="input-group">
-                        <div class="input-group-prepend">
                             <span class="input-group-text"><i class="fa fa-fw fa-lock"></i></span>
-                        </div>
                         <input type="text" class="form-control" name="password" placeholder="Password" maxlength="350" autocomplete="off">
                     </div>
                 </div>
@@ -477,22 +417,20 @@ ob_start();
 
             <div class="tab-pane fade" id="pills-asset-notes">
 
-                <div class="form-group">
+                <div class="mb-3">
                     <textarea class="form-control" rows="8" placeholder="Additional notes or configuration details" name="notes"></textarea>
                 </div>
 
-                <div class="form-group">
+                <div class="mb-3">
                     <label>Upload Photo</label>
-                    <input type="file" class="form-control-file" name="file" accept="image/*">
+                    <input type="file" class="form-control" name="file" accept="image/*">
                 </div>
 
-                <div class="form-group">
+                <div class="mb-3">
                     <label>Tags</label>
                     <div class="input-group">
-                        <div class="input-group-prepend">
                             <span class="input-group-text"><i class="fa fa-fw fa-tags"></i></span>
-                        </div>
-                        <select class="form-control select2" name="tags[]" data-placeholder="Add some tags" multiple>
+                        <select class="form-select select2" name="tags[]" data-placeholder="Add some tags" multiple>
                             <?php
 
                             while ($row = mysqli_fetch_assoc($sql_tags_select)) {
@@ -503,12 +441,10 @@ ob_start();
                             <?php } ?>
 
                         </select>
-                        <div class="input-group-append">
                             <button class="btn btn-secondary ajax-modal" type="button"
                                 data-modal-url="../admin/modals/tag/tag_add.php?type=5">
                                 <i class="fas fa-plus"></i>
                             </button>
-                        </div>
                     </div>
                 </div>
 
@@ -518,24 +454,30 @@ ob_start();
         </div>
     </div>
     <div class="modal-footer">
-        <button type="submit" name="add_asset" class="btn btn-primary text-bold"><i class="fa fa-check mr-2"></i>Create</button>
-        <button type="button" class="btn btn-light" data-dismiss="modal"><i class="fa fa-times mr-2"></i>Cancel</button>
+        <button type="submit" name="add_asset" class="btn btn-primary text-bold"><i class="fa fa-check me-2"></i>Create</button>
+        <button type="button" class="btn btn-light" data-bs-dismiss="modal"><i class="fa fa-times me-2"></i>Cancel</button>
     </div>
 </form>
 
 <!-- JSON Autocomplete / type ahead -->
-<link rel="stylesheet" href="/libs/jquery-ui/jquery-ui.min.css">
-<script src="/libs/jquery-ui/jquery-ui.min.js"></script>
 <script>
-    $(function() {
+    itflowReady(function () {
+
         var operatingSystems = <?= $json_os ?>;
-        $("#os").autocomplete({
-            source: operatingSystems,  // Should be an array of objects with 'label' and 'value'
-            select: function(event, ui) {
-                $("#os").val(ui.item.label); // Set the input field value to the selected label
-                return false;
+
+        var osInput = document.getElementById('os');
+        if (!osInput) {
+            return;
+        }
+
+        itflowAutocomplete(osInput, {
+            minLength: 1,
+            source: operatingSystems,
+            onSelect: function (item) {
+                osInput.value = item.label;
             }
         });
+
     });
 </script>
 

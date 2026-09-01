@@ -4,9 +4,13 @@ require_once "includes/inc_all_admin.php";
 
 define('FROM_STARTER_CONTENT', true);
 require_once "post/starter_content_model.php";
+require_once "post/demo_data_model.php";
 
 $starter_content_packs = starterContentPacks();
 $starter_content_status = starterContentStatus($mysqli);
+
+$demo_data_status = demoDataStatus($mysqli);
+$demo_data_loaded = count($demo_data_status['loaded']);
 
 $total_missing = 0;
 foreach ($starter_content_status as $pack_status) {
@@ -17,13 +21,13 @@ foreach ($starter_content_status as $pack_status) {
 
 <div class="card card-dark">
     <div class="card-header py-3">
-        <h3 class="card-title"><i class="fas fa-fw fa-seedling mr-2"></i>Starter Content</h3>
+        <h3 class="card-title"><i class="fas fa-fw fa-seedling me-2"></i>Starter Content</h3>
         <?php if ($total_missing) { ?>
         <div class="card-tools">
             <form action="post.php" method="POST" autocomplete="off">
                 <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
                 <button type="submit" name="load_starter_content" value="all" class="btn btn-primary btn-sm">
-                    <i class="fas fa-fw fa-download mr-2"></i>Add all <?= $total_missing ?> missing
+                    <i class="fas fa-fw fa-download me-2"></i>Add all <?= $total_missing ?> missing
                 </button>
             </form>
         </div>
@@ -50,7 +54,7 @@ foreach ($starter_content_status as $pack_status) {
                         <th class="text-center">In library</th>
                         <th class="text-center">Already here</th>
                         <th class="text-center">Will be added</th>
-                        <th class="text-right"></th>
+                        <th class="text-end"></th>
                     </tr>
                 </thead>
                 <tbody>
@@ -59,7 +63,7 @@ foreach ($starter_content_status as $pack_status) {
                     ?>
                     <tr>
                         <td>
-                            <strong><i class="fas fa-fw <?= escapeHtml($pack_details['icon']) ?> mr-2"></i><?= escapeHtml($pack_details['label']) ?></strong>
+                            <strong><i class="fas fa-fw <?= escapeHtml($pack_details['icon']) ?> me-2"></i><?= escapeHtml($pack_details['label']) ?></strong>
                             <br><small class="text-muted"><?= escapeHtml($pack_details['description']) ?></small>
                             <?php
                                 // Loading out of order works, it just produces less - say so up front
@@ -67,24 +71,24 @@ foreach ($starter_content_status as $pack_status) {
                                 $requires = $pack_details['requires'] ?? '';
                                 if ($requires && !empty($starter_content_status[$requires]['missing'])) {
                             ?>
-                            <br><small class="text-warning"><i class="fas fa-fw fa-exclamation-triangle mr-1"></i>Add <?= escapeHtml($starter_content_packs[$requires]['label']) ?> first, or these come in without them.</small>
+                            <br><small class="text-warning"><i class="fas fa-fw fa-exclamation-triangle me-1"></i>Add <?= escapeHtml($starter_content_packs[$requires]['label']) ?> first, or these come in without them.</small>
                             <?php } ?>
                         </td>
                         <td class="text-center"><?= intval($pack_status['total']) ?></td>
                         <td class="text-center"><?= intval($pack_status['present']) ?></td>
                         <td class="text-center">
                             <?php if ($pack_status['missing']) { ?>
-                                <span class="badge badge-warning p-2"><?= intval($pack_status['missing']) ?></span>
+                                <span class="badge bg-warning text-dark p-2"><?= intval($pack_status['missing']) ?></span>
                             <?php } else { ?>
                                 <span class="text-success"><i class="fas fa-fw fa-check"></i></span>
                             <?php } ?>
                         </td>
-                        <td class="text-right">
+                        <td class="text-end">
                             <?php if ($pack_status['missing']) { ?>
                             <form action="post.php" method="POST" autocomplete="off">
                                 <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
                                 <button type="submit" name="load_starter_content" value="<?= escapeHtml($pack) ?>" class="btn btn-primary btn-sm">
-                                    <i class="fas fa-fw fa-plus mr-2"></i>Add
+                                    <i class="fas fa-fw fa-plus me-2"></i>Add
                                 </button>
                             </form>
                             <?php } else { ?>
@@ -102,6 +106,89 @@ foreach ($starter_content_status as $pack_status) {
             categories and priced as starting points only - hardware and resold licensing come in at
             zero because they are quoted per deal.
         </p>
+
+    </div>
+</div>
+
+<div class="card card-dark mt-3">
+    <div class="card-header py-3">
+        <h3 class="card-title"><i class="fas fa-fw fa-flask me-2"></i>Demo Data</h3>
+    </div>
+    <div class="card-body">
+
+        <p>
+            A fictional book of business for demos, training and screenshots - <?= intval($demo_data_status['total']) ?> clients
+            with the people, equipment, documentation, credentials, tickets and billing a typical MSP would be carrying for
+            them. Each one arrives with an onboarding project, an onboarding ticket per asset, response targets, racked
+            infrastructure, a documented switch port map, IP addresses and a supplier list. Managed, co-managed, break fix and hosting only
+            clients are all represented, most of them paid up to date and a few of them not.
+            Your own side of the business is generated too - bank accounts, suppliers, operating costs, recurring expenses,
+            transfers, catalogue lines for the things you sell, closure days, monthly budgets, and a working diary of team
+            meetings, maintenance windows and the unbilled running around that never gets logged against a client.
+            Everything is spread across the <strong>last two years</strong> and dated relative to today, so the dashboard,
+            ticket queue, aging, profit and loss and every other report have real history behind them rather than one flat month.
+        </p>
+        <p class="text-muted">
+            This is sample data, not configuration. Nothing in it is labelled as demo data - the clients, tags and references
+            all read as real, which is the point. Removal matches the <?= intval($demo_data_status['total']) ?> client names in
+            the library, so <strong>renaming a demo client stops it being removable</strong>. Contacts use addresses on the
+            reserved <strong>.example</strong> domain, which cannot receive mail, and the agreements are created with email
+            notification switched off. Anything shared - accounts, suppliers, response targets, tax rates, catalogue lines and
+            calendars - is matched on more than its name, so records this install already had are never touched, and the
+            company side of the books is always built against accounts this page created rather than yours.
+        </p>
+
+        <?php if ($demo_data_status['other_clients'] && !$demo_data_loaded) { ?>
+        <div class="alert alert-warning">
+            <i class="fas fa-fw fa-exclamation-triangle me-2"></i>
+            This install already has <strong><?= intval($demo_data_status['other_clients']) ?></strong> client(s) of its own.
+            Demo data is meant for a demo or training install - it will sit alongside your real clients in every list, report and total until it is removed.
+        </div>
+        <?php } ?>
+
+        <?php if (!$demo_data_loaded) { ?>
+
+            <?php if (!empty($starter_content_status['categories']['missing']) || !empty($starter_content_status['tags']['missing'])) { ?>
+            <p class="text-warning">
+                <i class="fas fa-fw fa-exclamation-triangle me-1"></i>Add the Categories and Tags packs above first, or the tickets, invoices and tags come in bare.
+            </p>
+            <?php } ?>
+
+            <form action="post.php" method="POST" autocomplete="off">
+                <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
+                <button type="submit" name="load_demo_data" value="1" class="btn btn-primary">
+                    <i class="fas fa-fw fa-flask me-2"></i>Add demo data
+                </button>
+            </form>
+
+        <?php } else { ?>
+
+            <p>
+                <strong><?= intval($demo_data_loaded) ?></strong> demo client(s) are here:
+                <?= escapeHtml(implode(', ', $demo_data_status['loaded'])) ?>
+            </p>
+
+            <div class="d-flex gap-2">
+
+                <form action="post.php" method="POST" autocomplete="off" onsubmit="return confirm('Delete the demo clients, along with all of their contacts, assets, documentation, credentials, tickets, quotes, invoices and payments, plus the demo suppliers, accounts, response targets and company expenses? This cannot be undone.');">
+                    <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
+                    <button type="submit" name="remove_demo_data" value="1" class="btn btn-danger">
+                        <i class="fas fa-fw fa-trash me-2"></i>Remove demo data
+                    </button>
+                </form>
+
+                <?php if ($demo_data_loaded < $demo_data_status['total']) { ?>
+                <form action="post.php" method="POST" autocomplete="off">
+                    <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
+                    <button type="submit" name="load_demo_data" value="1" class="btn btn-primary">
+                        <i class="fas fa-fw fa-plus me-2"></i>Add the missing <?= intval($demo_data_status['total'] - $demo_data_loaded) ?>
+                    </button>
+                </form>
+                <?php } ?>
+
+            </div>
+
+        <?php } ?>
 
     </div>
 </div>

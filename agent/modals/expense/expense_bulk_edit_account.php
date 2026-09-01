@@ -11,10 +11,8 @@ ob_start();
 
 ?>
 <div class="modal-header bg-dark">
-    <h5 class="modal-title"><i class="fa fa-fw fa-piggy-bank mr-2"></i>Set Account for <strong><?= $count ?></strong> Expense<?= $count == 1 ? '' : 's' ?></h5>
-    <button type="button" class="close text-white" data-dismiss="modal">
-        <span>&times;</span>
-    </button>
+    <h5 class="modal-title"><i class="fa fa-fw fa-piggy-bank me-2"></i>Set Account for <strong><?= $count ?></strong> Expense<?= $count == 1 ? '' : 's' ?></h5>
+    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
 </div>
 
 <form action="post.php" method="post" autocomplete="off">
@@ -22,13 +20,11 @@ ob_start();
     <?php foreach ($expense_ids as $expense_id) { ?> <input type="hidden" name="expense_ids[]" value="<?= $expense_id ?>"><?php } ?>
     <div class="modal-body">
 
-        <div class="form-group">
+        <div class="mb-3">
             <label>Account <strong class="text-danger">*</strong></label>
             <div class="input-group">
-                <div class="input-group-prepend">
                     <span class="input-group-text"><i class="fa fa-fw fa-piggy-bank"></i></span>
-                </div>
-                <select class="form-control select2" name="bulk_account_id">
+                <select class="form-select select2" name="bulk_account_id">
                     <?php
 
                     $sql = mysqli_query($mysqli, "SELECT account_id, account_name, opening_balance FROM accounts WHERE account_archived_at IS NULL ORDER BY account_name ASC");
@@ -52,7 +48,7 @@ ob_start();
                         $balance = $opening_balance + $total_payments + $total_revenues - $total_expenses;
 
                         ?>
-                        <option <?php if ($config_default_expense_account == $account_id) { echo "selected"; } ?> value="<?= $account_id ?>"><div class="float-left"><?= $account_name ?></div><div class="float-right"> [$<?= number_format($balance, 2) ?>]</div></option>
+                        <option <?php if ($config_default_expense_account == $account_id) { echo "selected"; } ?> value="<?= $account_id ?>"><div class="float-start"><?= $account_name ?></div><div class="float-end"> [$<?= number_format($balance, 2) ?>]</div></option>
 
                         <?php
                     }
@@ -63,8 +59,8 @@ ob_start();
 
     </div>
     <div class="modal-footer">
-        <button type="submit" name="bulk_edit_expense_account" class="btn btn-primary text-bold"><i class="fa fa-fw fa-check mr-2"></i>Set</button>
-        <button type="button" class="btn btn-light" data-dismiss="modal"><i class="fa fa-times mr-2"></i>Cancel</button>
+        <button type="submit" name="bulk_edit_expense_account" class="btn btn-primary text-bold"><i class="fa fa-fw fa-check me-2"></i>Set</button>
+        <button type="button" class="btn btn-light" data-bs-dismiss="modal"><i class="fa fa-times me-2"></i>Cancel</button>
     </div>
 </form>
 

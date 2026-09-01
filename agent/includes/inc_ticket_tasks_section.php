@@ -22,10 +22,10 @@ $existing_tasks = $existing_tasks ?? [];
 
 <input type="hidden" name="tasks_submitted" value="1">
 
-<div class="form-group">
+<div class="mb-3">
     <label>Tasks</label>
 
-    <div class="form-row mb-1 text-muted small">
+    <div class="row g-2 mb-1 text-muted small">
         <div class="col-7">Task</div>
         <div class="col-3">Estimate (mins)</div>
         <div class="col-2"></div>
@@ -33,7 +33,7 @@ $existing_tasks = $existing_tasks ?? [];
 
     <div id="ticketTasksContainer">
         <?php foreach ($existing_tasks as $existing_task) { ?>
-        <div class="form-row mb-2 ticket-task-row">
+        <div class="row g-2 mb-2 ticket-task-row">
             <div class="col-7">
                 <input type="text" class="form-control" name="tasks[]" placeholder="Task name" maxlength="255" value="<?= escapeHtml($existing_task['name']) ?>">
             </div>
@@ -41,13 +41,13 @@ $existing_tasks = $existing_tasks ?? [];
                 <input type="number" class="form-control" name="task_estimates[]" placeholder="Mins" min="0" value="<?= intval($existing_task['estimate']) ?: '' ?>">
             </div>
             <div class="col-2">
-                <button type="button" class="btn btn-secondary btn-block ticket-task-remove" title="Remove task"><i class="fa fa-fw fa-trash"></i></button>
+                <button type="button" class="btn btn-secondary w-100 ticket-task-remove" title="Remove task"><i class="fa fa-fw fa-trash"></i></button>
             </div>
         </div>
         <?php } ?>
     </div>
 
-    <button type="button" class="btn btn-secondary" id="ticketTaskAdd"><i class="fas fa-plus mr-2"></i>Add Task</button>
+    <button type="button" class="btn btn-secondary" id="ticketTaskAdd"><i class="fas fa-plus me-2"></i>Add Task</button>
 
     <small class="form-text text-muted">Leave the estimate blank if you don't track one. Blank task names are ignored.</small>
 </div>

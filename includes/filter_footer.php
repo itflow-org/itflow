@@ -7,6 +7,14 @@
  * Relies upon the $num_rows variable being set correctly
  */
 
+/*
+ * Nothing to paginate means nothing rendered below the filter bar at all - the
+ * tables already hide their <thead> at zero rows. Handled here rather than in
+ * each of the 48 listing pages because this file is the one thing they all
+ * include, and it already has $num_rows.
+ */
+require __DIR__ . '/inc_empty_state.php';
+
 $total_found_rows = $num_rows[0];
 $total_pages = ceil($total_found_rows / $user_config_records_per_page);
 
@@ -15,13 +23,13 @@ if ($total_found_rows > 5) {
 
     ?>
 
-<div class="card-footer pb-0 pt-3">
+<div class="card-footer itflow-filter-footer">
 
-    <div class="row">
-        <div class="col-sm">
+    <div class="row align-items-center g-2">
+        <div class="col-auto col-sm">
             <form action="post.php" method="post">
-                <div class="form-group">
-                    <select onchange="this.form.submit()" class="form-control select2 col-12 col-sm-3" name="change_records_per_page">
+                <div class="d-flex align-items-center">
+                    <select onchange="this.form.submit()" class="form-select form-select-sm w-auto" name="change_records_per_page" aria-label="Records per page">
                         <option <?php if ($user_config_records_per_page == 5) { echo "selected"; } ?> >5</option>
                         <option <?php if ($user_config_records_per_page == 10) { echo "selected"; } ?> >10</option>
                         <option <?php if ($user_config_records_per_page == 20) { echo "selected"; } ?> >20</option>
@@ -29,6 +37,7 @@ if ($total_found_rows > 5) {
                         <option <?php if ($user_config_records_per_page == 100) { echo "selected"; } ?> >100</option>
                         <option <?php if ($user_config_records_per_page == 500) { echo "selected"; } ?> >500</option>
                     </select>
+                    <span class="text-muted small ms-2 d-none d-sm-inline">per page</span>
                 </div>
             </form>
         </div>
@@ -52,14 +61,13 @@ if ($total_found_rows > 5) {
         // Now output something like "Showing X to Y of Z records"
         ?>
 
-        <div class="col-sm">
-            <p class="text-center">
+        <div class="col col-sm">
+            <p class="text-center mb-0">
               Showing <strong><?= $start ?></strong> to <strong><?= $end ?></strong> of <strong><?= $total_found_rows ?></strong> records
             </p>
-            <!--<p class="text-center mt-2"><?= $total_found_rows ?></p> -->
         </div>
-        <div class="col-sm">
-            <ul class="pagination justify-content-sm-end">
+        <div class="col-12 col-sm">
+            <ul class="pagination justify-content-center justify-content-sm-end mb-0">
 
                 <?php
 
@@ -119,9 +127,3 @@ if ($total_found_rows > 5) {
     <?php
 
 }
-
-if ($total_found_rows == 0) {
-    echo "<center class='my-3'><i class='far fa-fw fa-6x fa-meh-rolling-eyes text-secondary'></i><h3 class='text-secondary mt-3'>No Results</h3></center>";
-}
-
-?>

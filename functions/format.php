@@ -30,7 +30,20 @@ function truncate($text, $chars) {
 }
 
 
-function formatPhoneNumber($phoneNumber, $country_code = '', $show_country_code = false) {
+/**
+ * A number for reading.
+ *
+ * $show_country_code defaults to TRUE: a phone number on screen, in a PDF, in
+ * an email or in an export is being read by a human who may need to dial it,
+ * and a bare national number is ambiguous the moment a client is abroad. The
+ * dial code is only prepended when one is actually stored, so records without
+ * one look exactly as they did.
+ *
+ * Pass false where the output feeds a form INPUT - intl-tel-input runs in
+ * separateDialCode mode, so its dropdown owns the code and the field must hold
+ * the national number alone. Those are the only call sites that should.
+ */
+function formatPhoneNumber($phoneNumber, $country_code = '', $show_country_code = true) {
     // Remove all non-digit characters
     $digits = preg_replace('/\D/', '', $phoneNumber ?? '');
     $formatted = '';

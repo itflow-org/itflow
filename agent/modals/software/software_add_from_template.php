@@ -9,10 +9,8 @@ ob_start();
 ?>
 
 <div class="modal-header bg-dark">
-    <h5 class="modal-title"><i class="fa fa-fw fa-cube mr-2"></i>New License from Template</h5>
-    <button type="button" class="close text-white" data-dismiss="modal">
-        <span>&times;</span>
-    </button>
+    <h5 class="modal-title"><i class="fa fa-fw fa-cube me-2"></i>New License from Template</h5>
+    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
 </div>
 <form action="post.php" method="post" autocomplete="off">
     <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
@@ -23,13 +21,11 @@ ob_start();
             <input type="hidden" name="client_id" value="<?= $client_id ?>">
         <?php } else { ?>
 
-            <div class="form-group">
+            <div class="mb-3">
                 <label>Client <strong class="text-danger">*</strong></label>
                 <div class="input-group">
-                    <div class="input-group-prepend">
                         <span class="input-group-text"><i class="fa fa-fw fa-user"></i></span>
-                    </div>
-                    <select class="form-control select2" name="client_id" required>
+                    <select class="form-select select2" name="client_id" required>
                         <option value="">- Select Client -</option>
                         <?php
 
@@ -47,12 +43,10 @@ ob_start();
         <?php } ?>
 
         <label>Template</label>
-        <div class="form-group">
+        <div class="mb-3">
             <div class="input-group">
-                <div class="input-group-prepend">
                     <span class="input-group-text"><i class="fa fa-fw fa-puzzle-piece"></i></span>
-                </div>
-                <select class="form-control" name="software_template_id" required>
+                <select class="form-select" name="software_template_id" required>
                     <option value="">- Select Template -</option>
                     <?php
                     $sql_software_templates = mysqli_query($mysqli, "SELECT software_template_id, software_template_name FROM software_templates WHERE software_template_archived_at IS NULL ORDER BY software_template_name ASC");
@@ -71,8 +65,8 @@ ob_start();
     </div>
 
     <div class="modal-footer">
-        <button type="submit" name="add_software_from_template" class="btn btn-primary text-bold"><i class="fa fa-check mr-2"></i>Create</button>
-        <button type="button" class="btn btn-light" data-dismiss="modal"><i class="fa fa-times mr-2"></i>Cancel</button>
+        <button type="submit" name="add_software_from_template" class="btn btn-primary text-bold"><i class="fa fa-check me-2"></i>Create</button>
+        <button type="button" class="btn btn-light" data-bs-dismiss="modal"><i class="fa fa-times me-2"></i>Cancel</button>
     </div>
 </form>
 

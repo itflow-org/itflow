@@ -167,13 +167,13 @@ if (isset($_POST['add_invoice_copy'])) {
 
 }
 
-if (isset($_GET['mark_invoice_sent'])) {
+if (isset($_POST['mark_invoice_sent'])) {
 
     validateCSRFToken();
 
     enforceUserPermission('module_sales', 2);
 
-    $invoice_id = intval($_GET['mark_invoice_sent']);
+    $invoice_id = intval($_POST['invoice_id']);
 
     // Get Invoice Number and Prefix and Client ID for Logging
     $sql = mysqli_query($mysqli,"SELECT invoice_prefix, invoice_number, invoice_client_id FROM invoices WHERE invoice_id = $invoice_id");
@@ -184,11 +184,26 @@ if (isset($_GET['mark_invoice_sent'])) {
 
     enforceClientAccess();
 
+    // The modal offers a fixed list, so anything else is a tampered form
+    $sent_method = $_POST['sent_method'] ?? '';
+    if (!in_array($sent_method, getSentMethods(), true)) {
+        flashAlert("Invalid delivery method", 'error');
+        redirect();
+    }
+    $sent_method = escapeSql($sent_method);
+
+    $note = escapeSql(substr(trim($_POST['note'] ?? ''), 0, 500));
+
     mysqli_query($mysqli,"UPDATE invoices SET invoice_status = 'Sent' WHERE invoice_id = $invoice_id");
 
-    mysqli_query($mysqli,"INSERT INTO history SET history_status = 'Sent', history_description = 'Invoice marked sent by $session_name', history_invoice_id = $invoice_id");
+    $history_description = "Invoice marked sent by $session_name - $sent_method";
+    if (!empty($note)) {
+        $history_description .= "\nNote: $note";
+    }
 
-    logAudit("Invoice", "Edit", "$session_name marked invoice $invoice_prefix$invoice_number sent", $client_id, $invoice_id);
+    logHistory('Sent', $history_description, $invoice_id);
+
+    logAudit("Invoice", "Edit", "$session_name marked invoice $invoice_prefix$invoice_number sent - $sent_method", $client_id, $invoice_id);
 
     flashAlert("Invoice marked sent");
 
@@ -393,34 +408,6 @@ if (isset($_POST['add_invoice_item'])) {
 
 }
 
-if (isset($_POST['invoice_note'])) {
-
-    validateCSRFToken();
-
-    enforceUserPermission('module_sales', 2);
-
-    $invoice_id = intval($_POST['invoice_id']);
-    $note = escapeSql($_POST['note']);
-
-    // Get Invoice Details for logging
-    $sql = mysqli_query($mysqli,"SELECT invoice_client_id, invoice_number, invoice_prefix FROM invoices WHERE invoice_id = $invoice_id");
-    $row = mysqli_fetch_assoc($sql);
-    $invoice_prefix = escapeSql($row['invoice_prefix']);
-    $invoice_number = intval($row['invoice_number']);
-    $client_id = intval($row['invoice_client_id']);
-
-    enforceClientAccess();
-
-    mysqli_query($mysqli,"UPDATE invoices SET invoice_note = '$note' WHERE invoice_id = $invoice_id");
-
-    logAudit("Invoice", "Edit", "$session_name added note to invoice $invoice_prefix$invoice_number", $client_id, $invoice_id);
-
-    flashAlert("Notes added");
-
-    redirect();
-
-}
-
 if (isset($_POST['edit_invoice_item'])) {
 
     validateCSRFToken();
@@ -526,19 +513,18 @@ if (isset($_GET['delete_invoice_item'])) {
 
 }
 
-if (isset($_GET['email_invoice'])) {
+if (isset($_POST['email_invoice'])) {
 
     validateCSRFToken();
 
     enforceUserPermission('module_sales', 2);
 
-    $invoice_id = intval($_GET['email_invoice']);
+    $invoice_id = intval($_POST['invoice_id']);
 
-    $sql = mysqli_query($mysqli,"SELECT client_id, client_name, contact_email, contact_name, invoice_amount, invoice_currency_code,
+    $sql = mysqli_query($mysqli,"SELECT client_id, client_name, invoice_amount, invoice_currency_code,
         invoice_date, invoice_due, invoice_id, invoice_number, invoice_prefix, invoice_scope,
         invoice_status, invoice_url_key FROM invoices
         LEFT JOIN clients ON invoice_client_id = client_id
-        LEFT JOIN contacts ON clients.client_id = contacts.contact_client_id AND contact_primary = 1
         WHERE invoice_id = $invoice_id"
     );
     $row = mysqli_fetch_assoc($sql);
@@ -555,10 +541,54 @@ if (isset($_GET['email_invoice'])) {
     $invoice_currency_code = escapeSql($row['invoice_currency_code']);
     $client_id = intval($row['client_id']);
     $client_name = escapeSql($row['client_name']);
-    $contact_name = escapeSql($row['contact_name']);
-    $contact_email = escapeSql($row['contact_email']);
 
     enforceClientAccess();
+
+    // Two ways in. Quick Send skips the modal and resolves the default
+    // recipients server-side; the modal posts an explicit contacts[] list.
+    // Scoping either lookup to this invoice's client is what makes a tampered
+    // contact_id harmless - it simply matches nothing.
+    if (!empty($_POST['quick_send'])) {
+
+        $recipient_filter = documentDefaultContactFilterSql('invoice');
+
+    } else {
+
+        $selected_contacts = $_POST['contacts'] ?? [];
+        if (!is_array($selected_contacts)) {
+            $selected_contacts = [];
+        }
+        $selected_contact_ids = array_filter(array_unique(array_map('intval', $selected_contacts)));
+
+        if (empty($selected_contact_ids)) {
+            flashAlert("Select at least one contact to send to", 'error');
+            redirect();
+        }
+
+        $selected_contact_id_list = implode(',', $selected_contact_ids);
+        $recipient_filter = "AND contact_id IN ($selected_contact_id_list)";
+
+    }
+
+    $sql_recipients = mysqli_query(
+        $mysqli,
+        "SELECT contact_email, contact_name FROM contacts
+        WHERE contact_client_id = $client_id
+        AND contact_archived_at IS NULL
+        AND contact_email IS NOT NULL
+        AND contact_email != ''
+        $recipient_filter
+        ORDER BY contact_primary DESC, contact_billing DESC, contact_name ASC"
+    );
+
+    if (mysqli_num_rows($sql_recipients) == 0) {
+        if (!empty($_POST['quick_send'])) {
+            flashAlert("No default contacts to quick send to - use Send Email to choose recipients", 'error');
+        } else {
+            flashAlert("None of the selected contacts have a usable email address", 'error');
+        }
+        redirect();
+    }
 
     $sql = mysqli_query($mysqli,"SELECT company_address, company_city, company_country, company_email, company_logo, company_name,
         company_phone, company_phone_country_code, company_state, company_website, company_zip FROM companies WHERE company_id = 1");
@@ -579,8 +609,6 @@ if (isset($_GET['email_invoice'])) {
     $config_invoice_from_name = escapeSql($config_invoice_from_name);
     $config_invoice_from_email = escapeSql($config_invoice_from_email);
 
-    $sql_payments = mysqli_query($mysqli,"SELECT * FROM payments, accounts WHERE payment_account_id = account_id AND payment_invoice_id = $invoice_id ORDER BY payment_id DESC");
-
     // Add up all the payments for the invoice and get the total amount paid to the invoice
     $sql_amount_paid = mysqli_query($mysqli,"SELECT SUM(payment_amount) AS amount_paid FROM payments WHERE payment_invoice_id = $invoice_id");
     $row = mysqli_fetch_assoc($sql_amount_paid);
@@ -590,68 +618,270 @@ if (isset($_GET['email_invoice'])) {
 
     if ($invoice_status == 'Paid') {
         $subject = "Invoice $invoice_prefix$invoice_number Receipt";
-        $body = "Hello $contact_name,<br><br>Please click on the link below to see your invoice regarding \"$invoice_scope\" marked <b>paid</b>.<br><br><a href=\'https://$config_base_url/guest/guest_view_invoice.php?invoice_id=$invoice_id&url_key=$invoice_url_key\'>Invoice Link</a><br><br><br>--<br>$company_name - Billing<br>$config_invoice_from_email<br>$company_phone";
     } else {
         $subject = "Invoice $invoice_prefix$invoice_number";
-        $body = "Hello $contact_name,<br><br>Please view the details of your invoice regarding \"$invoice_scope\" below.<br><br>Invoice: $invoice_prefix$invoice_number<br>Issue Date: $invoice_date<br>Total: " . numfmt_format_currency($currency_format, $invoice_amount, $invoice_currency_code) . "<br>Balance Due: " . numfmt_format_currency($currency_format, $balance, $invoice_currency_code) . "<br>Due Date: $invoice_due<br><br><br>To view your invoice, please click <a href=\'https://$config_base_url/guest/guest_view_invoice.php?invoice_id=$invoice_id&url_key=$invoice_url_key\'>here</a>.<br><br><br>--<br>$company_name - Billing<br>$config_invoice_from_email<br>$company_phone";
     }
 
-    // Queue Mail
-    $data[] = [
-            'from' => $config_invoice_from_email,
-            'from_name' => $config_invoice_from_name,
-            'recipient' => $contact_email,
-            'recipient_name' => $contact_name,
-            'subject' => $subject,
-            'body' => $body
-    ];
+    // One queue row per selected contact, each greeting its own recipient.
+    // The old handler built a single body around the primary contact's name
+    // and reused it for the billing copies, so those read "Hello <someone
+    // else>" - visible enough with one hidden copy, wrong enough to keep once
+    // the recipient list is something the agent picks.
+    $data = [];
+    $recipient_labels = [];
+
+    while ($recipient = mysqli_fetch_assoc($sql_recipients)) {
+        $contact_name = escapeSql($recipient['contact_name']);
+        $contact_email = escapeSql($recipient['contact_email']);
+
+        if ($invoice_status == 'Paid') {
+            $body = "Hello $contact_name,<br><br>Please click on the link below to see your invoice regarding \"$invoice_scope\" marked <b>paid</b>.<br><br><a href=\'https://$config_base_url/guest/guest_view_invoice.php?invoice_id=$invoice_id&url_key=$invoice_url_key\'>Invoice Link</a><br><br><br>--<br>$company_name - Billing<br>$config_invoice_from_email<br>$company_phone";
+        } else {
+            $body = "Hello $contact_name,<br><br>Please view the details of your invoice regarding \"$invoice_scope\" below.<br><br>Invoice: $invoice_prefix$invoice_number<br>Issue Date: $invoice_date<br>Total: " . numfmt_format_currency($currency_format, $invoice_amount, $invoice_currency_code) . "<br>Balance Due: " . numfmt_format_currency($currency_format, $balance, $invoice_currency_code) . "<br>Due Date: $invoice_due<br><br><br>To view your invoice, please click <a href=\'https://$config_base_url/guest/guest_view_invoice.php?invoice_id=$invoice_id&url_key=$invoice_url_key\'>here</a>.<br><br><br>--<br>$company_name - Billing<br>$config_invoice_from_email<br>$company_phone";
+        }
+
+        $data[] = [
+                'from' => $config_invoice_from_email,
+                'from_name' => $config_invoice_from_name,
+                'recipient' => $contact_email,
+                'recipient_name' => $contact_name,
+                'subject' => $subject,
+                'body' => $body
+        ];
+
+        $recipient_labels[] = "$contact_name <$contact_email>";
+
+        logAudit("Invoice", "Email", "$session_name emailed $contact_email Invoice $invoice_prefix$invoice_number", $client_id, $invoice_id);
+    }
 
     addToMailQueue($data);
 
-    // Get Email ID for reference
-    $email_id = mysqli_insert_id($mysqli);
+    $recipient_list = implode(', ', $recipient_labels);
+    $recipient_count = count($recipient_labels);
 
-    flashAlert("Invoice sent!");
-
-    mysqli_query($mysqli,"INSERT INTO history SET history_status = 'Sent', history_description = 'Invoice sent by $session_name (mail queue ID: $email_id)', history_invoice_id = $invoice_id");
+    logHistory('Sent', "Invoice emailed by $session_name to $recipient_list", $invoice_id);
 
     // Don't change the status to sent if the status is anything but draft
     if ($invoice_status == 'Draft') {
         mysqli_query($mysqli,"UPDATE invoices SET invoice_status = 'Sent' WHERE invoice_id = $invoice_id");
     }
 
-    logAudit("Invoice", "Email", "$session_name Emailed $contact_email Invoice $invoice_prefix$invoice_number Email queued to Email ID: $email_id", $client_id, $invoice_id);
+    flashAlert("Invoice queued to $recipient_count " . ($recipient_count == 1 ? "recipient" : "recipients"));
 
-    // Send copies of the invoice to any additional billing contacts
-    $sql_billing_contacts = mysqli_query(
+    redirect();
+
+}
+
+
+if (isset($_POST['send_statement'])) {
+
+    validateCSRFToken();
+
+    enforceUserPermission('module_sales', 2);
+
+    $client_id = intval($_POST['client_id']);
+
+    enforceClientAccess();
+
+    $sql = mysqli_query($mysqli, "SELECT client_currency_code, client_name FROM clients WHERE client_id = $client_id LIMIT 1");
+    $row = mysqli_fetch_assoc($sql);
+    $client_name = escapeSql($row['client_name']);
+    $client_currency_code = escapeSql($row['client_currency_code']);
+
+    if (empty($client_currency_code)) {
+        $client_currency_code = escapeSql($session_company_currency);
+    }
+
+    // Statement options. Emptiness has to be tested BEFORE validateDate(),
+    // which falls back to today rather than returning empty - running a blank
+    // From through it would silently produce a one-day statement.
+    $statement_date_to = $_POST['dtt'] ?? '';
+    if (empty($statement_date_to)) {
+        $statement_date_to = date("Y-m-d");
+    } else {
+        $statement_date_to = validateDate($statement_date_to);
+    }
+    $statement_date_to = escapeSql($statement_date_to);
+
+    $statement_date_from = $_POST['dtf'] ?? '';
+    if (empty($statement_date_from)) {
+        // Blank means the whole history, so there is no lower bound to apply
+        $statement_date_query = '';
+        $statement_period = "up to $statement_date_to";
+    } else {
+        $statement_date_from = escapeSql(validateDate($statement_date_from));
+        $statement_date_query = "AND invoice_date >= '$statement_date_from'";
+        $statement_period = "$statement_date_from to $statement_date_to";
+    }
+
+    $include_paid = !empty($_POST['include_paid']);
+
+    // Recipients - same picker contract as the invoice send, so the same
+    // client scoping applies and a tampered contact_id matches nothing
+    $selected_contacts = $_POST['contacts'] ?? [];
+    if (!is_array($selected_contacts)) {
+        $selected_contacts = [];
+    }
+    $selected_contact_ids = array_filter(array_unique(array_map('intval', $selected_contacts)));
+
+    if (empty($selected_contact_ids)) {
+        flashAlert("Select at least one contact to send to", 'error');
+        redirect();
+    }
+
+    $selected_contact_id_list = implode(',', $selected_contact_ids);
+
+    $sql_recipients = mysqli_query(
         $mysqli,
-        "SELECT contact_name, contact_email FROM contacts
-        WHERE contact_billing = 1
-        AND contact_email != '$contact_email'
+        "SELECT contact_email, contact_name FROM contacts
+        WHERE contact_id IN ($selected_contact_id_list)
+        AND contact_client_id = $client_id
+        AND contact_archived_at IS NULL
+        AND contact_email IS NOT NULL
         AND contact_email != ''
-        AND contact_client_id = $client_id"
+        ORDER BY contact_primary DESC, contact_billing DESC, contact_name ASC"
     );
 
-    $data = [];
+    if (mysqli_num_rows($sql_recipients) == 0) {
+        flashAlert("None of the selected contacts have a usable email address", 'error');
+        redirect();
+    }
 
-    while ($billing_contact = mysqli_fetch_assoc($sql_billing_contacts)) {
-        $billing_contact_name = escapeSql($billing_contact['contact_name']);
-        $billing_contact_email = escapeSql($billing_contact['contact_email']);
+    // The statement lines. Draft / Cancelled / Non-Billable are not money the
+    // client owes, so they never appear - same exclusion the Outstanding
+    // Balances report uses. Payments are summed in a derived table rather than
+    // joined directly, or an invoice with two payments would be counted twice.
+    $sql_statement = mysqli_query(
+        $mysqli,
+        "SELECT invoice_amount, invoice_date, invoice_due, invoice_id, invoice_number, invoice_prefix,
+            invoice_scope, invoice_status, invoice_url_key, IFNULL(amount_paid, 0) AS amount_paid
+        FROM invoices
+        LEFT JOIN (
+            SELECT payment_invoice_id, SUM(payment_amount) AS amount_paid FROM payments
+            WHERE payment_archived_at IS NULL
+            GROUP BY payment_invoice_id
+        ) AS invoice_payments ON payment_invoice_id = invoice_id
+        WHERE invoice_client_id = $client_id
+        AND invoice_status NOT IN ('Draft', 'Cancelled', 'Non-Billable')
+        AND invoice_date <= '$statement_date_to'
+        $statement_date_query
+        " . ($include_paid ? '' : "AND invoice_amount - IFNULL(invoice_payments.amount_paid, 0) > 0") . "
+        ORDER BY invoice_date ASC, invoice_number ASC"
+    );
+
+    if (mysqli_num_rows($sql_statement) == 0) {
+        flashAlert("No invoices to report for that period - nothing sent", 'error');
+        redirect();
+    }
+
+    $sql = mysqli_query($mysqli, "SELECT company_name, company_phone, company_phone_country_code FROM companies WHERE company_id = 1");
+    $row = mysqli_fetch_assoc($sql);
+    $company_name = escapeSql($row['company_name']);
+    $company_phone = escapeSql(formatPhoneNumber($row['company_phone'], $row['company_phone_country_code']));
+
+    $config_invoice_from_name = escapeSql($config_invoice_from_name);
+    $config_invoice_from_email = escapeSql($config_invoice_from_email);
+    $config_base_url = escapeSql($config_base_url);
+
+    // Build the table once - it is identical for every recipient, only the
+    // greeting differs. Everything interpolated here is already escaped:
+    // addToMailQueue() writes the body into the queue raw.
+    //
+    // KEEP EVERY ATTRIBUTE IN THIS MARKUP DOUBLE-QUOTED. The body is spliced
+    // into a single-quoted SQL literal, so a bare ' ends the statement and the
+    // INSERT dies; a " is just a character there and needs nothing. The older
+    // bodies above solve the same problem the other way, writing \' inside a
+    // double-quoted PHP string so the backslash itself reaches MySQL - do not
+    // copy that here, because \' inside a SINGLE-quoted PHP string collapses to
+    // a bare quote and puts the crash straight back.
+    //
+    // escapeSql() is not an option on assembled markup: it strip_tags() first,
+    // which would empty the table.
+    $statement_rows = '';
+    $statement_total = 0;
+    $statement_line_count = 0;
+
+    while ($row = mysqli_fetch_assoc($sql_statement)) {
+        $invoice_id = intval($row['invoice_id']);
+        $invoice_prefix = escapeSql($row['invoice_prefix']);
+        $invoice_number = intval($row['invoice_number']);
+        $invoice_scope = escapeSql($row['invoice_scope']);
+        $invoice_status = escapeSql($row['invoice_status']);
+        $invoice_date = escapeSql($row['invoice_date']);
+        $invoice_due = escapeSql($row['invoice_due']);
+        $invoice_url_key = escapeSql($row['invoice_url_key']);
+        $invoice_amount = floatval($row['invoice_amount']);
+        $amount_paid = floatval($row['amount_paid']);
+        $invoice_balance = $invoice_amount - $amount_paid;
+
+        $statement_total += $invoice_balance;
+        $statement_line_count++;
+
+        $invoice_link = "https://$config_base_url/guest/guest_view_invoice.php?invoice_id=$invoice_id&url_key=$invoice_url_key";
+
+        $overdue_flag = '';
+        if ($invoice_balance > 0 && !empty($invoice_due) && $invoice_due < date("Y-m-d")) {
+            $overdue_flag = ' <span style="color:#dc3545;">(overdue)</span>';
+        }
+
+        $statement_rows .= '<tr>'
+            . '<td style="padding:6px 10px; border-bottom:1px solid #dee2e6;"><a href="' . $invoice_link . '">' . "$invoice_prefix$invoice_number" . '</a></td>'
+            . '<td style="padding:6px 10px; border-bottom:1px solid #dee2e6;">' . $invoice_scope . '</td>'
+            . '<td style="padding:6px 10px; border-bottom:1px solid #dee2e6;">' . $invoice_date . '</td>'
+            . '<td style="padding:6px 10px; border-bottom:1px solid #dee2e6;">' . $invoice_due . $overdue_flag . '</td>'
+            . '<td style="padding:6px 10px; border-bottom:1px solid #dee2e6; text-align:right;">' . numfmt_format_currency($currency_format, $invoice_amount, $client_currency_code) . '</td>'
+            . '<td style="padding:6px 10px; border-bottom:1px solid #dee2e6; text-align:right;">' . numfmt_format_currency($currency_format, $amount_paid, $client_currency_code) . '</td>'
+            . '<td style="padding:6px 10px; border-bottom:1px solid #dee2e6; text-align:right;">' . numfmt_format_currency($currency_format, $invoice_balance, $client_currency_code) . '</td>'
+            . '</tr>';
+    }
+
+    $statement_table = '<table cellpadding="0" cellspacing="0" style="border-collapse:collapse; font-size:13px;">'
+        . '<tr style="background:#343a40; color:#ffffff;">'
+        . '<th style="padding:6px 10px; text-align:left;">Invoice</th>'
+        . '<th style="padding:6px 10px; text-align:left;">Scope</th>'
+        . '<th style="padding:6px 10px; text-align:left;">Date</th>'
+        . '<th style="padding:6px 10px; text-align:left;">Due</th>'
+        . '<th style="padding:6px 10px; text-align:right;">Amount</th>'
+        . '<th style="padding:6px 10px; text-align:right;">Paid</th>'
+        . '<th style="padding:6px 10px; text-align:right;">Balance</th>'
+        . '</tr>'
+        . $statement_rows
+        . '<tr><td colspan="6" style="padding:8px 10px; text-align:right;"><b>Total Balance Due</b></td>'
+        . '<td style="padding:8px 10px; text-align:right;"><b>' . numfmt_format_currency($currency_format, $statement_total, $client_currency_code) . '</b></td></tr>'
+        . '</table>';
+
+    $subject = "Account Statement - $client_name";
+
+    $data = [];
+    $recipient_labels = [];
+
+    while ($recipient = mysqli_fetch_assoc($sql_recipients)) {
+        $contact_name = escapeSql($recipient['contact_name']);
+        $contact_email = escapeSql($recipient['contact_email']);
+
+        $body = "Hello $contact_name,<br><br>Please find your account statement for $statement_period below.<br><br>"
+            . $statement_table
+            . "<br><br>Click any invoice number above to view or pay it online.<br><br><br>--<br>$company_name - Billing<br>$config_invoice_from_email<br>$company_phone";
 
         $data[] = [
-                'from' => $config_invoice_from_email,
-                'from_name' => $config_invoice_from_name,
-                'recipient' => $billing_contact_email,
-                'recipient_name' => $billing_contact_name,
-                'subject' => $subject,
-                'body' => $body
+            'from' => $config_invoice_from_email,
+            'from_name' => $config_invoice_from_name,
+            'recipient' => $contact_email,
+            'recipient_name' => $contact_name,
+            'subject' => $subject,
+            'body' => $body
         ];
 
-        logAudit("Invoice", "Email", "$session_name Emailed $billing_contact_email Invoice $invoice_prefix$invoice_number Email queued Email ID: $email_id", $client_id, $invoice_id);
+        $recipient_labels[] = "$contact_name <$contact_email>";
 
+        logAudit("Invoice", "Statement", "$session_name emailed an account statement ($statement_period, $statement_line_count invoices) to $contact_email", $client_id);
     }
 
     addToMailQueue($data);
+
+    $recipient_count = count($recipient_labels);
+
+    flashAlert("Statement queued to $recipient_count " . ($recipient_count == 1 ? "recipient" : "recipients"));
 
     redirect();
 

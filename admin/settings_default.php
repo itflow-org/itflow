@@ -23,19 +23,17 @@ $net_terms_array = array (
 
 <div class="card card-dark">
     <div class="card-header py-3">
-        <h3 class="card-title"><i class="fas fa-fw fa-cogs mr-2"></i>Defaults</h3>
+        <h3 class="card-title"><i class="fas fa-fw fa-cogs me-2"></i>Defaults</h3>
     </div>
     <div class="card-body">
         <form action="post.php" method="post" autocomplete="off">
             <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
 
-            <div class="form-group">
+            <div class="mb-3">
                 <label>Start Page</label>
                 <div class="input-group">
-                    <div class="input-group-prepend">
                         <span class="input-group-text"><i class="fa fa-fw fa-home"></i></span>
-                    </div>
-                    <select class="form-control select2" name="start_page" data-tags="true" required>
+                    <select class="form-select select2" name="start_page" data-tags="true" required>
                         <?php if (!in_array($config_start_page, array_keys($start_page_select_array))) { ?>
                             <option selected> <?= escapeHtml($config_start_page) ?></option>
                         <?php } ?>
@@ -49,13 +47,11 @@ $net_terms_array = array (
                 </div>
             </div>
 
-            <div class="form-group">
+            <div class="mb-3">
                 <label>Calendar</label>
                 <div class="input-group">
-                    <div class="input-group-prepend">
                         <span class="input-group-text"><i class="fa fa-fw fa-calendar"></i></span>
-                    </div>
-                    <select class="form-control select2" name="calendar">
+                    <select class="form-select select2" name="calendar">
                         <option value="0">- None -</option>
                         <?php
 
@@ -72,13 +68,11 @@ $net_terms_array = array (
                 </div>
             </div>
 
-            <div class="form-group">
+            <div class="mb-3">
                 <label>Transfer From Account</label>
                 <div class="input-group">
-                    <div class="input-group-prepend">
                         <span class="input-group-text"><i class="fa fa-fw fa-exchange-alt"></i></span>
-                    </div>
-                    <select class="form-control select2" name="transfer_from_account">
+                    <select class="form-select select2" name="transfer_from_account">
                         <option value="0">- None -</option>
                         <?php
 
@@ -95,13 +89,11 @@ $net_terms_array = array (
                 </div>
             </div>
 
-            <div class="form-group">
+            <div class="mb-3">
                 <label>Transfer To Account</label>
                 <div class="input-group">
-                    <div class="input-group-prepend">
                         <span class="input-group-text"><i class="fa fa-fw fa-exchange-alt"></i></span>
-                    </div>
-                    <select class="form-control select2" name="transfer_to_account">
+                    <select class="form-select select2" name="transfer_to_account">
                         <option value="0">- None -</option>
                         <?php
 
@@ -118,13 +110,11 @@ $net_terms_array = array (
                 </div>
             </div>
 
-            <div class="form-group">
+            <div class="mb-3">
                 <label>Payment Account</label>
                 <div class="input-group">
-                    <div class="input-group-prepend">
                         <span class="input-group-text"><i class="fa fa-fw fa-credit-card"></i></span>
-                    </div>
-                    <select class="form-control select2" name="payment_account">
+                    <select class="form-select select2" name="payment_account">
                         <option value="0">- None -</option>
                         <?php
 
@@ -143,13 +133,11 @@ $net_terms_array = array (
                 </div>
             </div>
 
-            <div class="form-group">
+            <div class="mb-3">
                 <label>Expense Account</label>
                 <div class="input-group">
-                    <div class="input-group-prepend">
                         <span class="input-group-text"><i class="fa fa-fw fa-shopping-cart"></i></span>
-                    </div>
-                    <select class="form-control select2" name="expense_account">
+                    <select class="form-select select2" name="expense_account">
                         <option value="0">- None -</option>
                         <?php
 
@@ -166,13 +154,11 @@ $net_terms_array = array (
                 </div>
             </div>
 
-            <div class="form-group">
+            <div class="mb-3">
                 <label>Payment Method</label>
                 <div class="input-group">
-                    <div class="input-group-prepend">
                         <span class="input-group-text"><i class="fa fa-fw fa-credit-card"></i></span>
-                    </div>
-                    <select class="form-control select2" name="payment_method">
+                    <select class="form-select select2" name="payment_method">
                         <option value="">- None -</option>
                         <?php
 
@@ -188,13 +174,11 @@ $net_terms_array = array (
                 </div>
             </div>
 
-            <div class="form-group">
+            <div class="mb-3">
                 <label>Expense Payment Method</label>
                 <div class="input-group">
-                    <div class="input-group-prepend">
                         <span class="input-group-text"><i class="fa fa-fw fa-credit-card"></i></span>
-                    </div>
-                    <select class="form-control select2" name="expense_payment_method">
+                    <select class="form-select select2" name="expense_payment_method">
                         <option value="">- None -</option>
                         <?php
 
@@ -210,13 +194,11 @@ $net_terms_array = array (
                 </div>
             </div>
 
-            <div class="form-group">
+            <div class="mb-3">
                 <label>Net Terms</label>
                 <div class="input-group">
-                    <div class="input-group-prepend">
                         <span class="input-group-text"><i class="fa fa-fw fa-calendar"></i></span>
-                    </div>
-                    <select class="form-control select2" name="net_terms">
+                    <select class="form-select select2" name="net_terms">
                         <?php foreach ($net_terms_array as $net_term_value => $net_term_name) { ?>
                             <option <?php if ($config_default_net_terms == $net_term_value) {
                                         echo "selected";
@@ -226,19 +208,17 @@ $net_terms_array = array (
                 </div>
             </div>
 
-            <div class="form-group">
+            <div class="mb-3">
                 <label>Client Hourly Rate</label>
                 <div class="input-group">
-                    <div class="input-group-prepend">
                         <span class="input-group-text"><i class="fa fa-fw fa-clock"></i></span>
-                    </div>
                     <input type="text" class="form-control" inputmode="decimal" pattern="[0-9]*\.?[0-9]{0,2}" name="hourly_rate" value="<?= number_format($config_default_hourly_rate, 2, '.', '') ?>" placeholder="0.00" required>
                 </div>
             </div>
 
             <hr>
 
-            <button type="submit" name="edit_default_settings" class="btn btn-primary text-bold"><i class="fa fa-check mr-2"></i>Save</button>
+            <button type="submit" name="edit_default_settings" class="btn btn-primary text-bold"><i class="fa fa-check me-2"></i>Save</button>
 
         </form>
     </div>

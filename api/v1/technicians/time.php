@@ -9,6 +9,7 @@
  *   year (optional) - Filter by year (default: current year)
  *   month (optional) - Filter by month 1-12 (default: current month)
  *   technician_id (optional) - Filter by specific technician user ID
+ *   client_id (optional) - Only count time on tickets for this client
  *   limit (optional) - Number of results to return (default: 50)
  *   offset (optional) - Offset for pagination (default: 0)
  */

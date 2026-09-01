@@ -13,12 +13,10 @@ function populateShareModal(client_id, item_type, item_ref_id) {
     document.getElementById("div_share_link_form").hidden = false;
     document.getElementById("div_share_link_generate").hidden = false;
 
-    $(document).ready(function() {
-        $('#share_email').select2({
-            tags: true,
-            placeholder: 'Select or type a value',
-            allowClear: true
-        });
+    initTomSelect(document.getElementById('share_email'), {
+        create: true,
+        placeholder: 'Select or type a value',
+        allowEmptyOption: true
     });
 }
 
@@ -35,7 +33,7 @@ function generateShareLink() {
     // Check values are provided
     if (item_expires) {
         // Send a GET request to ajax.php as ajax.php?share_generate_link=true....
-        jQuery.get(
+        itflowGet(
             "ajax.php",
             {share_generate_link: 'true', csrf_token: csrf_token, client_id: client_id, type: item_type, id: item_ref_id, note: item_note ,views: item_views, expires: item_expires, contact_email},
             function(data) {

@@ -42,12 +42,10 @@ ob_start();
 
 <div class="modal-header bg-dark">
     <h5 class="modal-title text-white">
-        <i class="fa fa-fw fa-credit-card mr-2"></i>Payments for <?= "$invoice_prefix$invoice_number" ?>
-        <span class="p-2 ml-2 badge badge-<?= $invoice_badge_color ?>"><?= $invoice_status ?></span>
+        <i class="fa fa-fw fa-credit-card me-2"></i>Payments for <?= "$invoice_prefix$invoice_number" ?>
+        <span class="p-2 ms-2 badge text-bg-<?= $invoice_badge_color ?>"><?= $invoice_status ?></span>
     </h5>
-    <button type="button" class="close text-white" data-dismiss="modal">
-        <span>&times;</span>
-    </button>
+    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
 </div>
 <div class="modal-body">
 
@@ -62,7 +60,7 @@ ob_start();
                 <thead class="text-dark text-nowrap">
                 <tr>
                     <th>Date</th>
-                    <th class="text-right">Amount</th>
+                    <th class="text-end">Amount</th>
                     <th>Method</th>
                     <th>Reference</th>
                     <th>Account</th>
@@ -106,7 +104,7 @@ ob_start();
                                 <?= $payment_date ?>
                             <?php } ?>
                         </td>
-                        <td class="text-right text-monospace"><?= numfmt_format_currency($currency_format, $payment_amount, $payment_currency_code) ?></td>
+                        <td class="text-end font-monospace"><?= numfmt_format_currency($currency_format, $payment_amount, $payment_currency_code) ?></td>
                         <td><?= $payment_method ?></td>
                         <td><?= $payment_reference_display ?></td>
                         <td><?= "$account_archived_display$account_name" ?></td>
@@ -127,19 +125,19 @@ ob_start();
     <hr>
 
     <div class="row">
-        <div class="col-6 text-right ml-auto">
+        <div class="col-6 text-end ms-auto">
             <table class="table table-sm table-borderless mb-0">
                 <tr>
                     <td>Invoice Total:</td>
-                    <td class="text-right text-monospace"><?= numfmt_format_currency($currency_format, $invoice_amount, $invoice_currency_code) ?></td>
+                    <td class="text-end font-monospace"><?= numfmt_format_currency($currency_format, $invoice_amount, $invoice_currency_code) ?></td>
                 </tr>
                 <tr>
                     <td>Amount Paid:</td>
-                    <td class="text-right text-monospace"><?= numfmt_format_currency($currency_format, $amount_paid, $invoice_currency_code) ?></td>
+                    <td class="text-end font-monospace"><?= numfmt_format_currency($currency_format, $amount_paid, $invoice_currency_code) ?></td>
                 </tr>
                 <tr class="text-bold">
                     <td>Balance:</td>
-                    <td class="text-right text-monospace"><?= numfmt_format_currency($currency_format, $balance, $invoice_currency_code) ?></td>
+                    <td class="text-end font-monospace"><?= numfmt_format_currency($currency_format, $balance, $invoice_currency_code) ?></td>
                 </tr>
             </table>
         </div>
@@ -148,9 +146,9 @@ ob_start();
 </div>
 <div class="modal-footer">
     <a href="invoice.php?client_id=<?= $client_id ?>&invoice_id=<?= $invoice_id ?>" class="btn btn-primary text-bold">
-        <i class="fa fa-fw fa-file-invoice-dollar mr-2"></i>Open Invoice
+        <i class="fa fa-fw fa-file-invoice-dollar me-2"></i>Open Invoice
     </a>
-    <button type="button" class="btn btn-light" data-dismiss="modal"><i class="fa fa-times mr-2"></i>Close</button>
+    <button type="button" class="btn btn-light" data-bs-dismiss="modal"><i class="fa fa-times me-2"></i>Close</button>
 </div>
 
 <?php

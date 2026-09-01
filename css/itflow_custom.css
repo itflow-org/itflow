@@ -55,6 +55,1516 @@
 }
 
 .checkbox-column .form-check-input {
+    /* BS5 uses float:left here where BS4 used position:absolute - without
+       float:none the box ignores the cell's text-align and pins to the left */
+    float: none;
     position: static;
     margin: 0;
+    vertical-align: middle;
+}
+
+/* ---------------------------------------------------------------
+   AdminLTE 4 compatibility.
+   v4 dropped .text-sm and the accent-* / navbar-* / sidebar-dark-*
+   trio that ITFlow's 16 theme choices were built on. In v3 the theme
+   colour drove the TOP NAVBAR, link colours and the active sidebar
+   item - the sidebar itself was always dark. That is reproduced here.
+   --------------------------------------------------------------- */
+/* Font stack. v3 led with "Source Sans Pro" then -apple-system; v4/BS5 leads
+   with "Source Sans 3" then system-ui. ITFlow loads neither webfont, so the
+   two stacks fall through to different system fonts. Pinned to v3's. */
+:root {
+    --bs-font-sans-serif: "Source Sans Pro", -apple-system, BlinkMacSystemFont,
+        "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif,
+        "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+}
+
+/* The full .text-sm cascade. AdminLTE 3 shipped ~100 rules for this; these are
+   the ones that actually set sizing, and without them the app renders a step
+   larger everywhere than it used to. */
+.text-sm {
+    font-size: .875rem;
+}
+.text-sm .form-control,
+.text-sm .form-select,
+.text-sm .input-group-text,
+.text-sm table {
+    font-size: .875rem;
+}
+.text-sm .btn,
+.text-sm .dropdown-menu {
+    font-size: .875rem !important;
+}
+.text-sm .card-title {
+    font-size: 1rem;
+}
+.text-sm .content-header h1,
+.text-sm .app-content-header h1 {
+    font-size: 1.5rem;
+}
+.text-sm .brand-link {
+    font-size: inherit;
+}
+
+/* Sidebar density. v3 tightened nav-link padding under .text-sm to .4rem .8rem;
+   BS5's default is .5rem 1rem, which is what made the menu items taller. */
+.text-sm .nav-link {
+    padding: .4rem .8rem;
+}
+/* v3 nav-icon metrics - v4 switched these to a 1.5rem flex box */
+.sidebar-menu .nav-icon {
+    min-width: 1.6rem;
+    max-width: 1.6rem;
+    margin-left: .05rem;
+    margin-right: .2rem;
+    font-size: 1.2rem;
+}
+
+/* one accent per theme - v3 used the same hex for navbar, links and
+   the active sidebar item */
+/* black has no upstream token - AdminLTE calls its darkest neutral
+   gray-dark (#343a40), which is a different colour */
+.theme-black { --itflow-accent: #000000; }
+.theme-blue { --itflow-accent: var(--bs-blue, #007bff); }
+.theme-cyan { --itflow-accent: var(--bs-cyan, #17a2b8); }
+.theme-fuchsia { --itflow-accent: var(--bs-fuchsia, #f012be); }
+.theme-gray { --itflow-accent: var(--bs-gray, #6c757d); }
+.theme-green { --itflow-accent: var(--bs-green, #28a745); }
+.theme-indigo { --itflow-accent: var(--bs-indigo, #6610f2); }
+.theme-lightblue { --itflow-accent: var(--bs-lightblue, #3c8dbc); }
+.theme-maroon { --itflow-accent: var(--bs-maroon, #d81b60); }
+.theme-navy { --itflow-accent: var(--bs-navy, #001f3f); }
+.theme-olive { --itflow-accent: var(--bs-olive, #3d9970); }
+.theme-orange { --itflow-accent: var(--bs-orange, #fd7e14); }
+.theme-pink { --itflow-accent: var(--bs-pink, #e83e8c); }
+.theme-purple { --itflow-accent: var(--bs-purple, #6f42c1); }
+.theme-red { --itflow-accent: var(--bs-red, #dc3545); }
+.theme-teal { --itflow-accent: var(--bs-teal, #20c997); }
+.theme-yellow { --itflow-accent: var(--bs-yellow, #ffc107); }
+
+/* top navbar takes the theme colour */
+.app-header.navbar {
+    background-color: var(--itflow-accent, #007bff) !important;
+}
+
+/* Navbar height. v4 pairs .app-header{max-height:2.75rem} with 0.5rem of
+   navbar padding, but the tallest children want 47-48px and overflow that
+   44px cap. Everything below is sized so it fits inside a 3rem bar - the
+   .navbar-search field is ~33px and clears it without help.
+   NOTE: .sidebar-brand is the matching half of this pair and is set to the
+   same height further down - change both or they stop lining up. */
+.app-header.navbar {
+    --bs-navbar-padding-y: .4rem;
+    min-height: 3rem;
+    max-height: 3rem;
+}
+/* Every item stretches the full bar and centres its own contents, so icons,
+   the avatar and the search box all sit on the same optical line regardless of
+   their individual heights. */
+.app-header .navbar-nav {
+    align-items: stretch;
+}
+.app-header .navbar-nav > .nav-item {
+    display: flex;
+    align-items: center;
+}
+.app-header .navbar-nav .nav-link {
+    display: flex;
+    align-items: center;
+    height: 100%;
+    max-height: none;
+    padding-top: 0;
+    padding-bottom: 0;
+}
+/* v4 sizes the avatar 2rem with a -2px nudge, which is too tall for this bar */
+.app-header .navbar-nav > .user-menu .user-image {
+    width: 1.6rem;
+    height: 1.6rem;
+    margin-top: 0;
+}
+/* .navbar-badge positions itself (top:9px/right:5px) for a taller bar; the
+   markup used to override that inline, which is why it drifted when the bar
+   was tightened. Positioned against the flex-centred link instead. */
+.app-header .navbar-badge {
+    top: .15rem;
+    right: .15rem;
+    font-size: .65rem;
+}
+
+/* sidebar stays dark; only the ACTIVE item picks up the theme.
+
+   The :hover and :focus variants are load-bearing, not decoration. A bare
+   `.nav-link.active` scores exactly the same specificity as the grey hover
+   rule further down this file (both 0,5,0), and that rule comes later - so
+   pointing at the current page's menu item repainted its accent grey.
+   AdminLTE 3 won this same tie on source order alone: its per-theme
+   `.sidebar-dark-<colour> ... .nav-link.active` rule was emitted AFTER the
+   `[class*=sidebar-dark-] ... .nav-item:hover > .nav-link` block, so the
+   accent held on hover. Spelling the states out here wins on specificity
+   instead, which survives any future reordering of this sheet.
+
+   v3 also pinned its treeview active item the same way
+   (`.nav-link.active, .nav-link.active:hover, .nav-link.active:focus`), so
+   both levels are covered. Deliberately NO separate hover shade for the
+   active item: v3 had none, and the current item is already the loudest
+   thing in the sidebar. */
+.app-sidebar .sidebar-menu > .nav-item > .nav-link.active,
+.app-sidebar .sidebar-menu > .nav-item:hover > .nav-link.active,
+.app-sidebar .sidebar-menu > .nav-item > .nav-link.active:focus,
+.app-sidebar .nav-treeview > .nav-item > .nav-link.active,
+.app-sidebar .nav-treeview > .nav-item > .nav-link.active:hover,
+.app-sidebar .nav-treeview > .nav-item > .nav-link.active:focus {
+    background-color: var(--itflow-accent, #007bff);
+    color: #fff;
+}
+
+/* Bootstrap 5's reboot underlines every link; Bootstrap 4 did not, and
+   AdminLTE 3 additionally suppressed the hover underline. Restored so links
+   read the way they did before the migration. */
+a,
+a:hover,
+a:focus {
+    text-decoration: none;
+}
+
+/* links and accented controls */
+/* Tabs and pills. Bootstrap points inactive nav links at --bs-link-color and
+   hardcodes --bs-nav-pills-link-active-bg to #0d6efd, so both states came out
+   blue regardless of theme. Scoped to .nav-tabs/.nav-pills rather than .nav:
+   .navbar-nav redefines these same variables for the top bar, and the sidebar
+   is protected by its own higher-specificity rules. */
+.nav-tabs,
+.nav-pills {
+    /* inactive sits at 70% so the active state still reads as the highlight */
+    --bs-nav-link-color: color-mix(in srgb, var(--itflow-accent, #007bff) 70%, transparent);
+    --bs-nav-link-hover-color: var(--itflow-accent, #007bff);
+}
+.nav-tabs {
+    --bs-nav-tabs-link-active-color: var(--itflow-accent, #007bff);
+    /* accent rule along the top edge marks the selected tab */
+    --bs-nav-tabs-link-active-border-color: var(--itflow-accent, #007bff) var(--bs-border-color) var(--bs-body-bg);
+}
+.nav-tabs .nav-link.active {
+    font-weight: 600;
+}
+/* Pagination. Driving Bootstrap's own variables rather than overriding
+   .page-link directly: a flat `.page-item .page-link{color:...}` ties with
+   BS5's `.active>.page-link` and `.disabled>.page-link` on specificity and,
+   because this sheet loads last, silently won both - so the active number was
+   accent-on-accent (invisible) and disabled Prev/Next lost their muted grey. */
+/* Bootstrap's generic focus ring (buttons, links, .btn-check labels) */
+.form-check-input:checked {
+    background-color: var(--itflow-accent, #007bff);
+    border-color: var(--itflow-accent, #007bff);
+}
+
+/* sidebar is ALWAYS dark - v4 gives .app-sidebar no background at all.
+   These are AdminLTE 3.2.0's [class*=sidebar-dark-] values verbatim. */
+.app-sidebar {
+    background-color: #343a40;
+}
+/* Sidebar header. v4 scopes its brand rules under .sidebar-brand, and its own
+   defaults centre the brand in a fixed 2.75rem box. v3's .brand-link was a
+   left-aligned block, and several of these headers carry a "Back | ..." line
+   that is taller than that, so height is relaxed and alignment restored. */
+.app-sidebar .sidebar-brand {
+    /* v4 deliberately pairs .sidebar-brand{height:2.75rem} with
+       .app-header{max-height:2.75rem} so the sidebar header lines up with the
+       top bar. Both are set to 3rem above - change them together or
+       they stop lining up. v4's .8125rem padding leaves too little room for
+       the heading, so it is cut right down. */
+    height: 3rem;
+    padding: .3rem .5rem;
+    justify-content: flex-start;
+    background-color: #343a40;
+    border-bottom: 1px solid #4b545c;
+}
+.app-sidebar .sidebar-brand .brand-link {
+    width: 100%;
+    color: #fff;
+}
+.app-sidebar .sidebar-brand .brand-text {
+    color: #fff;
+    line-height: 1.2;
+}
+/* Bootstrap sizes .h1-.h4 responsively (e.g. .h4 is calc(1.275rem + .3vw)), so
+   on a wide screen they outgrow the bar and v4's .sidebar-brand{overflow:hidden}
+   clips them. Cap ONLY those - .h5 (1.25rem) and .h6 (1rem) are fixed and must
+   keep their own size, or the "Back | ..." headers get blown up to h4. */
+.app-sidebar .sidebar-brand .brand-text.h1,
+.app-sidebar .sidebar-brand .brand-text.h2,
+.app-sidebar .sidebar-brand .brand-text.h3,
+.app-sidebar .sidebar-brand .brand-text.h4,
+.app-sidebar .sidebar-brand h1.brand-text,
+.app-sidebar .sidebar-brand h2.brand-text,
+.app-sidebar .sidebar-brand h3.brand-text,
+.app-sidebar .sidebar-brand h4.brand-text {
+    font-size: min(1.6rem, calc(1.275rem + .3vw));
+}
+.app-sidebar .sidebar-menu .nav-link,
+.app-sidebar .nav-header {
+    color: #c2c7d0;
+}
+.app-sidebar .sidebar-menu > .nav-item > .nav-link:focus,
+.app-sidebar .sidebar-menu > .nav-item:hover > .nav-link,
+.app-sidebar .sidebar-menu > .nav-item.menu-open > .nav-link {
+    background-color: rgba(255, 255, 255, .1);
+    color: #fff;
+}
+.app-sidebar .sidebar-menu > .nav-item > .nav-link.active {
+    color: #fff;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, .12), 0 1px 2px rgba(0, 0, 0, .24);
+}
+.app-sidebar .nav-treeview {
+    background-color: transparent;
+}
+
+
+/* --- Bootstrap 5 unpaired background utilities -------------------------
+   BS4 + AdminLTE 3 shipped `.bg-dark,.card.bg-dark .card-body{color:#fff}`.
+   BS5 split the pair: .bg-* sets ONLY a background and you are expected to
+   use .text-bg-* for the pairing. ITFlow uses bg-dark 303 times (every modal
+   header, most card headers), so without this the header text is dark on
+   dark and effectively invisible. Contrast choices below mirror Bootstrap's
+   own .text-bg-* decisions. */
+.bg-dark, .bg-primary, .bg-secondary, .bg-success, .bg-danger, .bg-purple {
+    color: #fff;
+}
+.bg-info, .bg-warning, .bg-light, .bg-olive, .bg-pink {
+    color: #000;
+}
+.card.bg-dark .card-body {
+    color: #fff;
+}
+/* keep close buttons visible on the dark headers they sit in */
+.bg-dark > .btn-close, .modal-header.bg-dark .btn-close {
+    filter: var(--bs-btn-close-white-filter, invert(1) grayscale(100%) brightness(200%));
+}
+
+/* --- dashboard small-box ------------------------------------------------
+   AdminLTE 4 dropped v3's watermark icon. 4.8.5 restored it, but under a new
+   class name (.small-box-icon) that ITFlow's markup does not use - the boxes
+   still carry v3's <div class="icon"> wrapper - so these rules stay.
+   The inner padding and the p > small rule ARE back upstream at identical
+   values and have been dropped from here. */
+.small-box .icon {
+    color: rgba(0, 0, 0, .15);
+    z-index: 0;
+}
+.small-box .icon > i,
+.small-box .icon > svg {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    font-size: 90px;
+    transition: transform .3s linear;
+}
+.small-box:hover .icon > i,
+.small-box:hover .icon > svg {
+    transform: scale(1.1);
+}
+/* Upstream sets z-index:5 on these but no `position`, which leaves it inert -
+   the icon is absolutely positioned at z-index 0, so the text needs a
+   stacking context of its own to stay above it. */
+.small-box h3,
+.small-box .h3,
+.small-box p {
+    position: relative;
+}
+/* 4.8.5 sets this same 1rem, but also shrinks it to 12px below 576px. This
+   file loads last at equal specificity, so keeping the line deliberately
+   holds the desktop size on phones too; delete it to take their mobile
+   treatment instead. */
+.small-box p {
+    font-size: 1rem;
+}
+.small-box hr {
+    opacity: .25;
+}
+.small-box > .small-box-footer {
+    color: rgba(255, 255, 255, .8);
+}
+.small-box > .small-box-footer:hover {
+    color: #fff;
+}
+
+/* --- utility classes AdminLTE 4 dropped -------------------------------- */
+.text-bold, .text-bold.table td, .text-bold.table th {
+    font-weight: 700;
+}
+.text-xs {
+    font-size: .75rem !important;
+}
+.btn-default {
+    color: #6c757d;
+    background-color: #f8f9fa;
+    border-color: #ced4da;
+}
+.btn-default:hover {
+    color: #495057;
+    background-color: #e2e6ea;
+    border-color: #adb5bd;
+}
+.btn-flat {
+    border-radius: 0;
+    border-width: 1px;
+    box-shadow: none;
+}
+/* sidebar count badges - v3 positioned these absolutely */
+.sidebar-menu .nav-link > .right,
+.sidebar-menu .nav-link > p > .right {
+    position: absolute;
+    right: 1rem;
+    top: .7rem;
+}
+/* v3's softened box colours, kept for the three small-boxes that still use
+   them on the dashboard. The other fourteen were dropped - nothing in the
+   tree carries those classes, and the only class names PHP interpolates are
+   Bootstrap's seven contextual ones, so they were unreachable. adminlte-
+   colors-v3 defines all of them anyway if a page ever wants one back. */
+.bg-olive { background-color: rgba(116,200,163,.9) !important; }
+.bg-pink { background-color: rgba(232,62,140,.9) !important; }
+.bg-purple { background-color: rgba(111,66,193,.9) !important; }
+
+/* --- Flatpickr date-filter preset panel ---------------------------------
+   Flatpickr has no preset-ranges feature; js/date_filter.js injects this
+   panel to reproduce the nine ranges daterangepicker used to provide. */
+/* The panel sits in a second column to the right of the month grid. This has to
+   be a GRID rather than flex: .flatpickr-calendar's own children are the month
+   nav and the day grid STACKED, so flexing the container would put those two
+   side by side as well. Two explicit columns keep flatpickr's own stacking in
+   column 1 and give the panel column 2, spanning both rows.
+
+   width:auto is safe in this layout but was NOT when the panel ran along the
+   bottom. The calendar is position:absolute, so auto means shrink-to-fit, which
+   resolves to max-content - and max-content for a horizontal row of nine nowrap
+   buttons is one long line that flex-wrap never breaks, while .flatpickr-days
+   keeps its own fixed 307.875px. Everything past the month grid then rendered as
+   an empty second pane. Stacked in a column the panel's max-content is just the
+   widest single label, so the container comes out calendar + panel wide.
+
+   The `> *` rule catches anything flatpickr adds later - an unplaced child would
+   otherwise auto-flow into column 2 and land on top of the panel. */
+.flatpickr-calendar.itflow-fp-with-ranges.open {
+    display: grid;
+    grid-template-columns: max-content max-content;
+    grid-template-rows: auto auto;
+    align-items: start;
+    width: auto;
+}
+.flatpickr-calendar.itflow-fp-with-ranges > * {
+    grid-column: 1;
+}
+.flatpickr-calendar.itflow-fp-with-ranges > .itflow-fp-ranges {
+    grid-column: 2;
+    grid-row: 1 / span 2;
+    /* stretch so the divider runs the calendar's full height, not just the
+       height of the nine buttons */
+    align-self: stretch;
+}
+.itflow-fp-ranges {
+    display: flex;
+    flex-direction: column;
+    gap: .125rem;
+    padding: .5rem;
+    border-left: 1px solid var(--bs-border-color, #dee2e6);
+}
+.itflow-fp-range {
+    padding: .2rem .5rem;
+    font-size: .8125rem;
+    /* .flatpickr-calendar sets line-height:24px and it inherits. Nine buttons at
+       that height overshoot the calendar's own ~296px; 1.4 brings the column back
+       under it so the two sides finish level. */
+    line-height: 1.4;
+    text-align: left;
+    color: var(--itflow-accent, #007bff);
+    white-space: nowrap;
+    background: none;
+    border: 1px solid transparent;
+    border-radius: .25rem;
+}
+.itflow-fp-range:hover,
+.itflow-fp-range:focus,
+.itflow-fp-range.active {
+    color: #fff;
+    background-color: var(--itflow-accent, #007bff);
+    border-color: var(--itflow-accent, #007bff);
+}
+/* The preset currently in effect - without this there is nothing on screen
+   telling you which range you are looking at once the calendar is open. */
+.itflow-fp-range.active {
+    font-weight: 600;
+}
+
+/* --- Flash toast ---------------------------------------------------------
+   Restores the four things toastr did that a plain Bootstrap toast does not:
+   sits top-right rather than centred over what you are reading, carries an
+   icon for its type, counts its own timer down, and dismisses on a click
+   anywhere instead of only on the small x.
+
+   It also appears on the FIRST PAINT. includes/inc_alert_feedback.php renders
+   the element with .show already set and every state change here is an
+   animation, so nothing waits on bootstrap.Toast - which used to mean waiting
+   for DOMContentLoaded, and therefore for every parser-blocking script in the
+   document. The inline script in that file only handles the click and removes
+   the node; neither gates the appearance.
+
+   Durations are toastr's own: 300ms in, 5s on screen, 1s out. */
+.itflow-toast {
+    position: relative;
+    overflow: hidden;
+    cursor: pointer;
+    animation:
+        itflow-toast-in 300ms ease-out both,
+        itflow-toast-out 1s ease-in 5s both;
+}
+
+/* Hovering holds it open, so a long message cannot disappear mid-sentence.
+   The progress bar needs its own rule - animation-play-state does not
+   cascade to a child's separate animation. */
+.itflow-toast:hover,
+.itflow-toast:hover .itflow-toast-progress {
+    animation-play-state: paused;
+}
+
+/* currentColor, so the bar inherits whichever contrast text-bg-* already
+   picked - white on success and danger, dark on warning and info - rather
+   than needing a rule per type. */
+.itflow-toast-progress {
+    position: absolute;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    height: 3px;
+    background: currentColor;
+    opacity: .4;
+    transform-origin: left;
+    animation: itflow-toast-progress 5s linear both;
+}
+
+@keyframes itflow-toast-in {
+    from {
+        opacity: 0;
+        transform: translateX(100%);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+/* visibility flips on the last one percent rather than at the end, because a
+   discrete property switches at the MIDPOINT of its keyframe interval - put
+   it only on the 100% stop and the toast would vanish halfway through its own
+   fade. This is the fallback that matters if the inline remover never runs:
+   without it an invisible toast keeps sitting over the user menu, eating
+   clicks. */
+@keyframes itflow-toast-out {
+    0% {
+        opacity: 1;
+        visibility: visible;
+    }
+    99% {
+        opacity: 0;
+        visibility: visible;
+    }
+    100% {
+        opacity: 0;
+        visibility: hidden;
+    }
+}
+
+@keyframes itflow-toast-progress {
+    from {
+        transform: scaleX(1);
+    }
+    to {
+        transform: scaleX(0);
+    }
+}
+
+/* Reduced motion drops the slide and the moving bar but keeps the timed
+   dismissal - that is a timeout, not an animation the user is watching. */
+@media (prefers-reduced-motion: reduce) {
+    .itflow-toast {
+        animation: itflow-toast-out 1s linear 5s both;
+    }
+    .itflow-toast-progress {
+        animation: none;
+        transform: scaleX(0);
+    }
+}
+
+/* The JS-raised toasts from itflowToast() still go through bootstrap.Toast,
+   so they keep the slower fade. */
+.itflow-toast-js .toast.fade {
+    transition: opacity .5s linear;
+}
+
+/* --- Filter footer -------------------------------------------------------
+   The pagination row wants a touch more breathing room than .py-2 gives, but
+   .py-3 is a 16px jump that makes the bar noticeably chunky. Bootstrap has no
+   step between the two, hence the named rule. */
+.card-footer.itflow-filter-footer {
+    padding-top: .5rem;
+    padding-bottom: .5rem;
+}
+
+/* --- Primary button follows the theme -----------------------------------
+   Bootstrap 5 buttons are entirely variable driven, so these set --bs-btn-*
+   rather than overriding background-color. That keeps hover, active,
+   disabled and the focus ring consistent instead of only recolouring the
+   resting state.
+
+   The shade steps are Bootstrap's own: hover is shade 15%, active shade 20%,
+   and shade(c, n%) is literally mix(black, c, n%) - which color-mix
+   reproduces exactly. */
+
+/* Focus ring has to be an RGB triplet, so it is per theme. */
+
+/* Text colour on a solid primary button. Threshold derived from Bootstrap's
+   own palette (white up to L=0.183, black from L=0.486), so only these two
+   themes are light enough to need dark text - the rest keep white. */
+
+/* Same L>0.335 contrast cut as the primary button. */
+.theme-orange .nav-pills,
+.theme-teal .nav-pills,
+.theme-yellow .nav-pills {
+    --bs-nav-pills-link-active-color: #000;
+}
+
+
+/* --- Theme picker (admin/settings_theme.php) -----------------------------
+   Each choice is a miniature of the app rather than a colour circle, so you
+   can see where the colour actually lands before committing to it. Structure
+   and proportions are lifted from AdminLTE 4's own theme generator
+   (dist/generate/theme.html) - note those .lte-skin-preview-* rules live in
+   that page's inline <style> and are NOT in adminlte.min.css, so they are
+   reproduced here under ITFlow-owned names to avoid colliding with anything
+   upstream may ship later.
+
+   The mini-app reflects how ITFlow actually applies a theme, not AdminLTE's
+   presets: the sidebar is always dark with the accent on its active item, the
+   top bar takes the accent, and the content area shows an accent widget
+   beside a neutral one.
+
+   The preview carries .theme-<name>, so --itflow-accent is re-scoped for that
+   subtree and every swatch paints itself from the same variable the theme
+   will apply - add a theme to the stylesheet and its preview is correct with
+   no extra rule.
+
+   The radio is a visually hidden .btn-check and the label is the control.
+   Selection reads as a ring around the preview plus a bolder name. */
+.itflow-theme-swatch {
+    display: block;
+    padding: .5rem .25rem;
+    text-align: center;
+    cursor: pointer;
+    border-radius: .5rem;
+    transition: background-color .15s ease;
+}
+.itflow-theme-swatch:hover {
+    background-color: var(--bs-secondary-bg);
+}
+.itflow-theme-preview {
+    display: inline-flex;
+    width: 6rem;
+    height: 3.75rem;
+    overflow: hidden;
+    vertical-align: middle;
+    background-color: var(--bs-tertiary-bg);
+    border: 1px solid var(--bs-border-color);
+    border-radius: var(--bs-border-radius);
+    transition: border-color .15s ease, box-shadow .15s ease;
+}
+/* the sidebar is always dark in ITFlow, whatever the theme */
+.itflow-theme-preview-sidebar {
+    display: flex;
+    flex: 0 0 30%;
+    flex-direction: column;
+    gap: 9%;
+    padding: 10% 12%;
+    color: #fff;
+    background-color: #343a40;
+}
+.itflow-theme-preview-brand,
+.itflow-theme-preview-item {
+    display: block;
+    flex: none;
+    height: 7%;
+    min-height: 2px;
+    background: currentColor;
+    border-radius: 99px;
+    opacity: .45;
+}
+.itflow-theme-preview-brand {
+    width: 70%;
+    height: 11%;
+    min-height: 3px;
+    margin-bottom: 6%;
+    opacity: .9;
+}
+/* only the active sidebar item takes the accent - same as the real sidebar */
+.itflow-theme-preview-active {
+    background: var(--itflow-accent, #007bff);
+    opacity: 1;
+}
+.itflow-theme-preview-main {
+    display: flex;
+    flex: auto;
+    flex-direction: column;
+    min-width: 0;
+}
+.itflow-theme-preview-header {
+    display: flex;
+    flex: 0 0 24%;
+    gap: 6%;
+    align-items: center;
+    padding: 0 8%;
+    color: #fff;
+    background-color: var(--itflow-accent, #007bff);
+}
+.itflow-theme-preview-header .itflow-theme-preview-item {
+    width: 24%;
+    height: 22%;
+    opacity: .55;
+}
+.itflow-theme-preview-avatar {
+    display: block;
+    width: 14%;
+    margin-left: auto;
+    aspect-ratio: 1;
+    background: currentColor;
+    border-radius: 50%;
+    opacity: .55;
+}
+.itflow-theme-preview-body {
+    display: grid;
+    flex: auto;
+    grid-template-rows: 1fr 1fr;
+    grid-template-columns: 1fr 1fr;
+    gap: 8%;
+    padding: 10%;
+}
+.itflow-theme-preview-box {
+    display: block;
+    background-color: var(--itflow-accent, #007bff);
+    border-radius: 2px;
+}
+.itflow-theme-preview-box-muted {
+    background-color: var(--bs-secondary-bg);
+}
+.itflow-theme-preview-card {
+    display: block;
+    grid-column: 1 / -1;
+    background-color: var(--bs-body-bg);
+    border: 1px solid var(--bs-border-color);
+    border-radius: 2px;
+}
+.itflow-theme-name {
+    display: block;
+    margin-top: .4rem;
+    font-size: .8125rem;
+    text-transform: capitalize;
+}
+.btn-check:checked + .itflow-theme-swatch .itflow-theme-preview {
+    border-color: var(--bs-body-color);
+    box-shadow: 0 0 0 1px var(--bs-body-color);
+}
+.btn-check:checked + .itflow-theme-swatch .itflow-theme-name {
+    font-weight: 600;
+}
+.btn-check:focus-visible + .itflow-theme-swatch {
+    outline: 2px solid var(--itflow-accent, #007bff);
+    outline-offset: 2px;
+}
+
+/* --- Dark mode ------------------------------------------------------------
+   Bootstrap treats .bg-light / .text-dark / .bg-white as ABSOLUTE colours, so
+   none of them flip under [data-bs-theme=dark] - 69 bg-light and 425 text-dark
+   usages stayed bright. Overriding the utilities rather than the underlying
+   --bs-light-rgb / --bs-dark-rgb variables, because those same two variables
+   also drive .text-light and .bg-dark, which must NOT flip. */
+[data-bs-theme=dark] .bg-light {
+    background-color: var(--bs-secondary-bg) !important;
+}
+[data-bs-theme=dark] .bg-white {
+    background-color: var(--bs-body-bg) !important;
+}
+[data-bs-theme=dark] .text-dark {
+    color: var(--bs-body-color) !important;
+}
+/* .table-light hardcodes #f8f9fa and #000 outright */
+[data-bs-theme=dark] .table-light {
+    --bs-table-bg: var(--bs-secondary-bg);
+    --bs-table-color: var(--bs-body-color);
+    --bs-table-border-color: var(--bs-border-color);
+    --bs-table-striped-bg: var(--bs-tertiary-bg);
+    --bs-table-striped-color: var(--bs-body-color);
+    --bs-table-hover-bg: var(--bs-tertiary-bg);
+    --bs-table-hover-color: var(--bs-body-color);
+}
+
+/* Secondary and light buttons are fixed greys - #6c757d and #f8f9fa - so in
+   dark mode one goes muddy and the other glares. 260 btn-light and 185
+   btn-secondary uses, so these matter more than most. */
+[data-bs-theme=dark] .btn-secondary {
+    --bs-btn-color: #dee2e6;
+    --bs-btn-bg: #3d4349;
+    --bs-btn-border-color: #495057;
+    --bs-btn-hover-color: #fff;
+    --bs-btn-hover-bg: #495057;
+    --bs-btn-hover-border-color: #565e64;
+    --bs-btn-active-color: #fff;
+    --bs-btn-active-bg: #565e64;
+    --bs-btn-active-border-color: #6c757d;
+    --bs-btn-disabled-color: #adb5bd;
+    --bs-btn-disabled-bg: #3d4349;
+    --bs-btn-disabled-border-color: #495057;
+}
+[data-bs-theme=dark] .btn-light {
+    --bs-btn-color: #dee2e6;
+    --bs-btn-bg: #343a40;
+    --bs-btn-border-color: #454d55;
+    --bs-btn-hover-color: #fff;
+    --bs-btn-hover-bg: #454d55;
+    --bs-btn-hover-border-color: #565e64;
+    --bs-btn-active-color: #fff;
+    --bs-btn-active-bg: #565e64;
+    --bs-btn-active-border-color: #6c757d;
+    --bs-btn-disabled-color: #6c757d;
+    --bs-btn-disabled-bg: #343a40;
+    --bs-btn-disabled-border-color: #454d55;
+}
+/* .btn-dark is #212529 - EXACTLY --bs-body-bg in dark mode, so the button was
+   the same colour as the page. Its main use is the search button welded to an
+   input group, so it needs to read as a control next to a .form-control rather
+   than invert to a bright button. Sits a step above the input, and above the
+   other two neutrals, mirroring its light-mode role as the strongest of them:
+   btn-light #343a40 < btn-secondary #3d4349 < btn-dark #495057 */
+[data-bs-theme=dark] .btn-dark {
+    --bs-btn-color: #dee2e6;
+    --bs-btn-bg: #495057;
+    --bs-btn-border-color: #545b62;
+    --bs-btn-hover-color: #fff;
+    --bs-btn-hover-bg: #545b62;
+    --bs-btn-hover-border-color: #6c757d;
+    --bs-btn-active-color: #fff;
+    --bs-btn-active-bg: #6c757d;
+    --bs-btn-active-border-color: #7d858c;
+    --bs-btn-disabled-color: #adb5bd;
+    --bs-btn-disabled-bg: #495057;
+    --bs-btn-disabled-border-color: #545b62;
+}
+[data-bs-theme=dark] .btn-outline-dark {
+    --bs-btn-color: #dee2e6;
+    --bs-btn-border-color: #6c757d;
+    --bs-btn-hover-color: #fff;
+    --bs-btn-hover-bg: #495057;
+    --bs-btn-hover-border-color: #6c757d;
+    --bs-btn-active-color: #fff;
+    --bs-btn-active-bg: #545b62;
+    --bs-btn-active-border-color: #6c757d;
+}
+[data-bs-theme=dark] .btn-outline-secondary {
+    --bs-btn-color: #adb5bd;
+    --bs-btn-border-color: #6c757d;
+    --bs-btn-hover-color: #fff;
+    --bs-btn-hover-bg: #6c757d;
+    --bs-btn-hover-border-color: #6c757d;
+}
+/* .btn-default is my own AdminLTE 3 shim and hardcodes a light grey, so it
+   glares in dark mode like the Bootstrap greys above. */
+[data-bs-theme=dark] .btn-default {
+    color: #dee2e6;
+    background-color: #343a40;
+    border-color: #454d55;
+}
+[data-bs-theme=dark] .btn-default:hover {
+    color: #fff;
+    background-color: #454d55;
+    border-color: #565e64;
+}
+
+/* --- TinyMCE chrome ------------------------------------------------------
+   TinyMCE's oxide skins ship their own palette - a blue-slate #222f3e with
+   #161f29 borders in dark - which sits next to the app's neutral #212529 and
+   #495057 and reads as a mismatch rather than a choice. The toolbar and
+   frame live in the main document (only the editing area is iframed), so
+   they can be driven from the same --bs-* variables as every other control,
+   which also means light and dark are handled by one set of rules.
+
+   The frame is matched to .form-control: same border, radius and focus ring. */
+.tox.tox-tinymce {
+    border: var(--bs-border-width) solid var(--bs-border-color);
+    border-radius: var(--bs-border-radius);
+}
+.tox .tox-editor-header,
+.tox .tox-toolbar,
+.tox .tox-toolbar__primary,
+.tox .tox-toolbar-overlord,
+.tox .tox-menubar,
+.tox .tox-statusbar {
+    background-color: var(--bs-tertiary-bg) !important;
+    border-color: var(--bs-border-color) !important;
+}
+.tox .tox-editor-header {
+    box-shadow: none;
+}
+.tox .tox-statusbar {
+    border-top: var(--bs-border-width) solid var(--bs-border-color);
+    color: var(--bs-secondary-color);
+}
+.tox .tox-edit-area__iframe {
+    background-color: var(--bs-body-bg) !important;
+}
+/* Toolbar buttons.
+   The skin gives every .tox-tbtn its own background:#222f3e, which sits as a
+   visible blue-slate box on the retinted toolbar - they need to be transparent
+   so the toolbar surface shows through, the way oxide looks in light mode.
+
+   Colour is set via `color`, never `fill`: the skin already declares
+   `.tox .tox-tbtn svg{fill:currentColor!important}`, so setting fill directly
+   fights its own model and, worse, overrides the forecolor swatch that is
+   supposed to show the currently selected text colour. */
+.tox .tox-tbtn,
+.tox .tox-mbtn,
+.tox .tox-split-button {
+    background: transparent !important;
+    color: var(--bs-body-color) !important;
+}
+.tox .tox-tbtn:hover,
+.tox .tox-mbtn:hover,
+.tox .tox-tbtn:focus,
+.tox .tox-split-button:hover {
+    background: var(--bs-secondary-bg) !important;
+    color: var(--bs-emphasis-color) !important;
+}
+.tox .tox-tbtn--enabled,
+.tox .tox-tbtn--enabled:hover,
+.tox .tox-tbtn.tox-tbtn--active {
+    background: var(--itflow-accent, #007bff) !important;
+    color: #fff !important;
+}
+/* light accents need a dark glyph - same L>0.335 cut as the buttons */
+.theme-yellow .tox .tox-tbtn--enabled,
+.theme-orange .tox .tox-tbtn--enabled,
+.theme-teal .tox .tox-tbtn--enabled,
+.theme-yellow .tox .tox-tbtn.tox-tbtn--active,
+.theme-orange .tox .tox-tbtn.tox-tbtn--active,
+.theme-teal .tox .tox-tbtn.tox-tbtn--active {
+    color: #000 !important;
+}
+.theme-yellow .tox .tox-mbtn--active,
+.theme-orange .tox .tox-mbtn--active,
+.theme-teal .tox .tox-mbtn--active {
+    color: #000 !important;
+}
+.theme-yellow .tox .tox-collection__item--active,
+.theme-orange .tox .tox-collection__item--active,
+.theme-teal .tox .tox-collection__item--active,
+.theme-yellow .tox .tox-collection__item--enabled,
+.theme-orange .tox .tox-collection__item--enabled,
+.theme-teal .tox .tox-collection__item--enabled {
+    color: #000 !important;
+}
+/* Form controls that live IN the toolbar - the Styles listbox is the obvious
+   one - keep their own #2b3b4e fill and #161f29 border. Matched to .form-select
+   / .form-control instead so they read as the same kind of control as the rest
+   of the app. */
+.tox .tox-listboxfield .tox-listbox--select,
+.tox .tox-textfield,
+.tox .tox-toolbar-textfield,
+.tox .tox-textarea {
+    background-color: var(--bs-body-bg) !important;
+    border-color: var(--bs-border-color) !important;
+    border-radius: var(--bs-border-radius) !important;
+    color: var(--bs-body-color) !important;
+}
+.tox .tox-listboxfield .tox-listbox--select:focus,
+.tox .tox-textfield:focus,
+.tox .tox-toolbar-textfield:focus,
+.tox .tox-textarea:focus {
+    border-color: var(--itflow-accent, #007bff) !important;
+    box-shadow: 0 0 0 .25rem color-mix(in srgb, var(--itflow-accent, #007bff) 25%, transparent) !important;
+}
+/* the caret and label inside those controls */
+.tox .tox-listboxfield .tox-listbox--select,
+.tox .tox-tbtn__select-chevron {
+    color: var(--bs-body-color) !important;
+}
+.tox .tox-label,
+.tox .tox-toolbar-label {
+    color: var(--bs-secondary-color) !important;
+}
+/* the Styles button face - 'styles' is in every ITFlow toolbar */
+.tox .tox-tbtn--bespoke {
+    background: var(--bs-body-bg) !important;
+    border: var(--bs-border-width) solid var(--bs-border-color) !important;
+    border-radius: var(--bs-border-radius) !important;
+}
+.tox .tox-tbtn--bespoke:hover {
+    background: var(--bs-secondary-bg) !important;
+}
+.tox .tox-tbtn__select-label {
+    color: var(--bs-body-color) !important;
+}
+/* menubar active state was a fixed #599fef blue */
+.tox .tox-mbtn--active,
+.tox .tox-mbtn:not(:disabled).tox-mbtn--active:focus {
+    background: var(--itflow-accent, #007bff) !important;
+    color: #fff !important;
+}
+/* split buttons (forecolor, backcolor) - the focus fill was a fixed #222f3e */
+.tox .tox-split-button:hover,
+.tox .tox-split-button__main:focus,
+.tox .tox-split-button__chevron:focus {
+    background: var(--bs-secondary-bg) !important;
+    color: var(--bs-body-color) !important;
+}
+/* disabled toolbar items */
+.tox .tox-tbtn--disabled,
+.tox .tox-tbtn:disabled {
+    color: var(--bs-secondary-color) !important;
+}
+
+/* focus ring, so the editor matches every other focused input */
+.tox.tox-tinymce.tox-edit-focus,
+.tox.tox-tinymce:focus-within {
+    border-color: var(--itflow-accent, #007bff);
+    box-shadow: 0 0 0 .25rem color-mix(in srgb, var(--itflow-accent, #007bff) 25%, transparent);
+}
+/* menus and dropdowns the toolbar opens */
+.tox .tox-menu,
+.tox .tox-collection--list .tox-collection__group {
+    background-color: var(--bs-body-bg) !important;
+    border-color: var(--bs-border-color) !important;
+}
+.tox .tox-collection__item {
+    color: var(--bs-body-color) !important;
+}
+.tox .tox-collection__item--active,
+.tox .tox-collection__item--enabled {
+    background-color: var(--itflow-accent, #007bff) !important;
+    color: #fff !important;
+}
+
+/* --- Tom Select ----------------------------------------------------------
+   Pre-init sizing. js/app.js runs at the end of the body, so the browser
+   paints the native <select> first and Tom Select swaps in its own markup a
+   moment later. For a SINGLE select that swap is invisible: Bootstrap's
+   .form-select is `1.5em + .75rem + 2 borders` tall and Tom Select's
+   .ts-wrapper declares min-height with that exact same calc, and because Tom
+   Select copies the original element's classes onto its wrapper, the
+   `.text-sm .form-select` font-size applies to both - so the two measure
+   identically.
+
+   A MULTIPLE select is the one that jumps. With no size attribute the
+   browser renders it as a listbox - four rows in Chrome and Firefox, ~100px -
+   which collapses to the ~35px control the instant Tom Select takes over,
+   yanking the rest of the form up with it. All 49 of them are tag pickers,
+   including the filter row on clients / contacts / assets / credentials /
+   locations / tickets, i.e. the first thing on the page.
+
+   Sizing the raw control to the height it is about to become removes the jump
+   without hiding anything and without touching JS. The calc is deliberately
+   the same expression Tom Select uses rather than a fixed pixel value, so it
+   tracks the .text-sm font-size and --bs-border-width. Tom Select stamps
+   .tomselected onto the original element when it takes over, so this stops
+   applying at exactly the right moment and can never fight the live widget.
+
+   visibility hides the native option text, which would otherwise flash in the
+   box before Tom Select replaces it with the data-placeholder. It reserves
+   layout space (unlike display:none, which would also break Tom Select's
+   width measurement at init), so the box holds its place and nothing moves.
+
+   The delayed reveal is a safety net, not decoration. app.js has no typeof
+   guards, so if anything above the tom-select step throws, .tomselected is
+   never stamped and these pickers would stay invisible with no clue why.
+   Normal init lands in well under a second and the rule stops matching before
+   the delay elapses, so the animation only ever fires when init did not
+   happen - at which point the native control comes back and stays usable. */
+select.select2[multiple]:not(.tomselected) {
+    height: calc(1.5em + .75rem + calc(var(--bs-border-width) * 2));
+    overflow-y: auto;
+    visibility: hidden;
+    animation: itflowRevealUninitSelect 1ms linear 3s forwards;
+}
+@keyframes itflowRevealUninitSelect {
+    to { visibility: visible; }
+}
+
+/* --- Tom Select theming ---------------------------------------------------
+   The bootstrap5 theme uses --bs-* variables for borders and radii but
+   hardcodes the focus state (#86b7fe border, rgba(13,110,253,.25) glow) and
+   the selected multi-value chips (#0d6efd), so a themed app still focused
+   Bootstrap blue. Matched to .form-control:focus. */
+.ts-wrapper.focus .ts-control,
+.focus .ts-control {
+    border-color: var(--itflow-accent, #007bff);
+    box-shadow: 0 0 0 .25rem color-mix(in srgb, var(--itflow-accent, #007bff) 25%, transparent);
+}
+/* the resting multi-select chip is a fixed #efefef with #343a40 text, so it
+   goes near-white in dark mode */
+.ts-wrapper.multi .ts-control > div {
+    background: var(--bs-secondary-bg);
+    color: var(--bs-body-color);
+}
+/* selected values in a multi-select */
+.ts-wrapper.multi .ts-control > div.active {
+    background: var(--itflow-accent, #007bff);
+    color: #fff;
+}
+/* highlighted option in the dropdown, to match .dropdown-item.active */
+.ts-dropdown .active,
+.ts-dropdown .active.create {
+    background-color: var(--itflow-accent, #007bff);
+    color: #fff;
+}
+.ts-dropdown .option:hover {
+    background-color: var(--bs-secondary-bg);
+    color: var(--bs-body-color);
+}
+/* the dropdown border and the disabled chips are fixed light greys - #d0d0d0
+   and #fff - so they glare in dark mode */
+.ts-dropdown {
+    border-color: var(--bs-border-color);
+}
+.ts-wrapper.multi.disabled .ts-control > div,
+.ts-wrapper.multi.disabled .ts-control > div.active {
+    background: var(--bs-secondary-bg);
+    border-color: var(--bs-border-color);
+    color: var(--bs-secondary-color);
+}
+/* light accents need dark text - same L>0.335 cut as everywhere else */
+.theme-yellow .ts-wrapper.multi .ts-control > div.active,
+.theme-orange .ts-wrapper.multi .ts-control > div.active,
+.theme-teal .ts-wrapper.multi .ts-control > div.active,
+.theme-yellow .ts-dropdown .active,
+.theme-orange .ts-dropdown .active,
+.theme-teal .ts-dropdown .active {
+    color: #000;
+}
+
+/* --- Muted contextual palette for dark mode ------------------------------
+   AdminLTE 3 swapped in softer variants of the contextual colours whenever
+   dark mode was on, so a success badge or a danger button did not glare off a
+   dark surface. Bootstrap 5 does not do this - it keeps one palette for both
+   modes. These are v3's own dark-mode values, taken from its
+   .dark-mode .card-<colour> > .card-header rules.
+
+   Overriding --bs-<colour> and its -rgb pair carries the change through every
+   consumer at once: .bg-*, .text-*, .text-bg-*, .border-*, badges and tables.
+   Buttons are handled separately below because .btn-* hardcodes its own hex
+   rather than reading the theme colour.
+
+   --bs-primary is deliberately left alone: btn-primary already follows
+   --itflow-accent, and moving --bs-primary would fight that. */
+[data-bs-theme=dark] {
+    --bs-success: #00bc8c;
+    --bs-success-rgb: 0, 188, 140;
+    --bs-info: #3498db;
+    --bs-info-rgb: 52, 152, 219;
+    --bs-warning: #f39c12;
+    --bs-warning-rgb: 243, 156, 18;
+    --bs-danger: #e74c3c;
+    --bs-danger-rgb: 231, 76, 60;
+}
+/* .text-bg-* hardcodes its foreground, so the pairs that changed lightness
+   need re-stating. Same L>0.335 cut used everywhere else: the muted success
+   (L=0.379) and warning (L=0.429) take dark text, info and danger keep white. */
+[data-bs-theme=dark] .text-bg-success {
+    color: #000;
+}
+[data-bs-theme=dark] .text-bg-info,
+[data-bs-theme=dark] .text-bg-danger {
+    color: #fff;
+}
+
+/* Contextual table rows hardcode a pale tint plus black text, which is
+   unreadable on a dark table. ITFlow uses danger/warning/primary/secondary. */
+[data-bs-theme=dark] .table-danger,
+[data-bs-theme=dark] .table-warning,
+[data-bs-theme=dark] .table-primary,
+[data-bs-theme=dark] .table-secondary {
+    --bs-table-color: var(--bs-body-color);
+    --bs-table-striped-color: var(--bs-body-color);
+    --bs-table-active-color: var(--bs-body-color);
+    --bs-table-hover-color: var(--bs-body-color);
+    --bs-table-border-color: var(--bs-border-color);
+}
+[data-bs-theme=dark] .table-danger {
+    --bs-table-bg: rgba(231, 76, 60, .22);
+}
+[data-bs-theme=dark] .table-warning {
+    --bs-table-bg: rgba(243, 156, 18, .22);
+}
+[data-bs-theme=dark] .table-primary {
+    --bs-table-bg: rgba(63, 103, 145, .28);
+}
+[data-bs-theme=dark] .table-secondary {
+    --bs-table-bg: rgba(108, 117, 125, .25);
+}
+
+/* Buttons hardcode their own hex instead of reading --bs-<colour>. */
+[data-bs-theme=dark] .btn-success {
+    --bs-btn-color: #000;
+    --bs-btn-bg: #00bc8c;
+    --bs-btn-border-color: #00bc8c;
+    --bs-btn-hover-color: #000;
+    --bs-btn-hover-bg: #26c69d;
+    --bs-btn-hover-border-color: #1ac295;
+    --bs-btn-active-color: #000;
+    --bs-btn-active-bg: #33cda3;
+    --bs-btn-active-border-color: #1ac295;
+    --bs-btn-disabled-color: #000;
+    --bs-btn-disabled-bg: #00bc8c;
+    --bs-btn-disabled-border-color: #00bc8c;
+}
+[data-bs-theme=dark] .btn-info {
+    --bs-btn-color: #fff;
+    --bs-btn-bg: #3498db;
+    --bs-btn-border-color: #3498db;
+    --bs-btn-hover-color: #fff;
+    --bs-btn-hover-bg: #2c81ba;
+    --bs-btn-hover-border-color: #2a7aaf;
+    --bs-btn-active-color: #fff;
+    --bs-btn-active-bg: #2a7aaf;
+    --bs-btn-active-border-color: #2772a4;
+    --bs-btn-disabled-color: #fff;
+    --bs-btn-disabled-bg: #3498db;
+    --bs-btn-disabled-border-color: #3498db;
+}
+[data-bs-theme=dark] .btn-warning {
+    --bs-btn-color: #000;
+    --bs-btn-bg: #f39c12;
+    --bs-btn-border-color: #f39c12;
+    --bs-btn-hover-color: #000;
+    --bs-btn-hover-bg: #f5ab36;
+    --bs-btn-hover-border-color: #f4a62a;
+    --bs-btn-active-color: #000;
+    --bs-btn-active-bg: #f5b041;
+    --bs-btn-active-border-color: #f4a62a;
+    --bs-btn-disabled-color: #000;
+    --bs-btn-disabled-bg: #f39c12;
+    --bs-btn-disabled-border-color: #f39c12;
+}
+[data-bs-theme=dark] .btn-danger {
+    --bs-btn-color: #fff;
+    --bs-btn-bg: #e74c3c;
+    --bs-btn-border-color: #e74c3c;
+    --bs-btn-hover-color: #fff;
+    --bs-btn-hover-bg: #c44133;
+    --bs-btn-hover-border-color: #b93d30;
+    --bs-btn-active-color: #fff;
+    --bs-btn-active-bg: #b93d30;
+    --bs-btn-active-border-color: #ae392d;
+    --bs-btn-disabled-color: #fff;
+    --bs-btn-disabled-bg: #e74c3c;
+    --bs-btn-disabled-border-color: #e74c3c;
+}
+/* outline variants read --bs-<colour>, so they follow automatically apart
+   from the foreground on hover */
+[data-bs-theme=dark] .btn-outline-success:hover,
+[data-bs-theme=dark] .btn-outline-warning:hover {
+    --bs-btn-hover-color: #000;
+}
+
+/* --- FullCalendar --------------------------------------------------------
+   v7's classic theme ships a dark palette keyed on [data-color-scheme=dark],
+   which nothing was setting - that attribute is now emitted next to
+   data-bs-theme in includes/header.php, so the built-in dark mode activates.
+
+   These then pull the palette onto the app's own colours, so the calendar
+   matches in BOTH modes rather than being a near-black (#030712) panel next to
+   a #212529 page, and so events and the toolbar follow the theme accent. */
+#calendar {
+    /* Reserve the calendar's final height before it exists.
+
+       agent/calendar.php renders an empty <div id="calendar"></div> and
+       FullCalendar only fills it on DOMContentLoaded - which cannot happen
+       until every parser-blocking script has run, including the 777KB
+       fullcalendar.global.js that loads after the footer. Until then the div
+       is zero pixels tall, so the page paints with no calendar and then snaps
+       to full height, shoving everything below it down. That jump is the
+       flash.
+
+       90vh is not a guess: it is the exact `height: '90vh'` the calendar is
+       configured with in calendar.php, set outside the mobile branch so it
+       applies on both. Matching it here means the box is the right size from
+       first paint and nothing moves when the widget arrives. */
+    min-height: 90vh;
+
+    --fc-classic-background: var(--bs-body-bg);
+    --fc-classic-foreground: var(--bs-body-color);
+    --fc-classic-muted-foreground: var(--bs-secondary-color);
+    --fc-classic-border: var(--bs-border-color);
+    --fc-classic-strong-border: var(--bs-border-color);
+
+    /* events and the "primary" accent */
+    --fc-classic-primary: var(--itflow-accent, #007bff);
+    --fc-classic-event: var(--itflow-accent, #007bff);
+
+    /* Only the pressed/active toolbar button is themed. FullCalendar's resting
+       slate is the same in both its palettes, i.e. deliberate, and recolouring
+       it to a dark grey would look wrong in light mode. */
+    --fc-classic-button-strong: var(--itflow-accent, #007bff);
+    --fc-classic-button-strong-border: var(--itflow-accent, #007bff);
+}
+/* light accents need a dark foreground on events and the active view button */
+.theme-yellow #calendar,
+.theme-orange #calendar,
+.theme-teal #calendar {
+    --fc-classic-primary-foreground: #000;
+    --fc-classic-event-contrast: #000;
+    --fc-classic-button-foreground: #000;
+}
+
+/* --- SweetAlert2 ----------------------------------------------------------
+   v11 keys its dark palette on [data-swal2-theme=dark], an attribute it sets
+   on its own container from the `theme` option - which defaults to "light",
+   so the confirm dialogs stayed white in dark mode. js/confirm_modal.js now
+   hands it the app's mode.
+
+   Same treatment as FullCalendar above: its dark theme is its own near-black
+   (#19191a) next to a #212529 page, so the two seed variables are repointed
+   onto the app's colours. Everything else in its dark block - text, input
+   background, validation message - derives from these two, so nothing further
+   needs restating here. */
+[data-swal2-theme=dark] {
+    --swal2-dark-theme-black: var(--bs-body-bg);
+    --swal2-dark-theme-white: var(--bs-body-color);
+
+    /* The popup is borderless by default, which reads fine as a white panel on
+       the backdrop but leaves a #212529 one with no edge against it. */
+    --swal2-border: 1px solid var(--bs-border-color);
+}
+
+/* --- Close button focus ring ---------------------------------------------
+   Bootstrap styles .btn-close on plain :focus rather than :focus-visible, so
+   any programmatic or mouse-driven focus leaves a visible ring on it. Keyboard
+   users still get the ring; a modal that merely opened does not. */
+.btn-close:focus:not(:focus-visible) {
+    box-shadow: none;
+}
+/* the modal container is focused on open and is not an interactive control,
+   so it should never draw a ring of its own */
+.modal:focus {
+    outline: 0;
+}
+
+/* --- Primary colour: the two cases upstream cannot cover -------------------
+   `data-lte-primary` on <body> now drives buttons, links, pagination, pills,
+   dropdowns, list groups, progress, accordions and every form focus state
+   from AdminLTE's own palette. --itflow-accent is still ours and still drives
+   the navbar, sidebar, nav-tabs, TinyMCE, Tom Select, FullCalendar and the
+   theme picker.
+
+   1. There is no `black` in AdminLTE's palette - its darkest neutral is
+      gray-dark (#343a40), which is a different colour - so the same variables
+      are supplied here. The generic [data-lte-primary] component rules then
+      pick these up exactly as they do for a built-in colour. */
+.theme-black {
+    --bs-primary: #000000;
+    --bs-primary-rgb: 0, 0, 0;
+    --bs-link-color: #000000;
+    --bs-link-color-rgb: 0, 0, 0;
+    --bs-link-hover-color: #333333;
+    --bs-link-hover-color-rgb: 51, 51, 51;
+    --lte-primary-hover: #262626;
+    --lte-primary-hover-border: #1a1a1a;
+    --lte-primary-active: #1a1a1a;
+    --lte-primary-active-border: #000000;
+}
+
+/* 2. AdminLTE gives teal WHITE button text (its v3 YIQ rule). White on
+      #20c997 is a 2.13 contrast ratio, below the 4.5 AA threshold; black is
+      9.86. Overriding their own variable keeps the dark text we had. */
+.theme-teal {
+    --lte-primary-color: #000000;
+    --lte-primary-color-rgb: 0, 0, 0;
+}
+
+/* --- Colour inputs ---------------------------------------------------------
+   Bootstrap sizes `.form-control-color` at width:3rem, but every colour input
+   in ITFlow sits inside an .input-group, and `.input-group > .form-control`
+   (0,2,0) sets `width: 1%; flex: 1 1 auto` - which outranks .form-control-color
+   (0,1,0) and collapses the swatch to a sliver. Matching that specificity is
+   the only way to win it back; the selector is strictly narrower than the one
+   it ties with, so nothing but a colour input is affected.
+
+   4rem rather than Bootstrap's 3rem: the swatch is the entire point of the
+   control, and .text-sm keeps the height at the 35px of its neighbours, so
+   there is only width available to read the colour by. */
+.input-group > .form-control-color {
+    flex: 0 0 auto;
+    width: 4rem;
+}
+
+/* --- intl-tel-input --------------------------------------------------------
+   The library wraps the input in a .iti container, which inside an
+   .input-group becomes the flex item instead of the input. Bootstrap sizes its
+   children with `.input-group > .form-control { flex: 1 1 auto; width: 1% }`,
+   and that selector no longer matches the now-nested input - so without these
+   the wrapper collapses to its content width and the field sits detached from
+   the addon beside it.
+
+   The wrapper takes the sizing the input used to get, and the input inside it
+   is squared off on the left because .iti draws the country button there and
+   the addon draws the rounded edge. */
+.input-group > .iti {
+    position: relative;
+    flex: 1 1 auto;
+    width: 1%;
+    min-width: 0;
+}
+.input-group > .iti > .form-control {
+    width: 100%;
+}
+.input-group > .iti:not(:last-child) > .form-control {
+    border-top-right-radius: 0;
+    border-bottom-right-radius: 0;
+}
+.input-group > .iti:not(:first-child) > .form-control,
+.iti--separate-dial-code .form-control {
+    border-top-left-radius: 0;
+    border-bottom-left-radius: 0;
+}
+/* the country button is chrome, not a control - keep it on the form-control
+   palette so it does not read as a raised button in either mode */
+.iti__selected-country {
+    background-color: var(--bs-tertiary-bg);
+    border: var(--bs-border-width) solid var(--bs-border-color);
+    border-right: 0;
+    border-radius: var(--bs-border-radius) 0 0 var(--bs-border-radius);
+}
+.iti__country-list,
+.iti__dropdown-content {
+    background-color: var(--bs-body-bg);
+    color: var(--bs-body-color);
+    border: var(--bs-border-width) solid var(--bs-border-color);
+}
+.iti__country.iti__highlight,
+.iti__country:hover {
+    background-color: var(--bs-secondary-bg);
+}
+.iti__dial-code {
+    color: var(--bs-secondary-color);
+}
+
+/* --- Print ----------------------------------------------------------------
+   AdminLTE 3 bundled Bootstrap 4, whose print reboot shrank every printout by
+   declaring `@page { size: a3 }` and letting the browser scale that oversized
+   page down onto the real sheet - roughly 71% on A4, 73% on Letter. Bootstrap
+   5 dropped that block and AdminLTE 4 ships no page scaling of its own, so
+   pages come out at 1:1 and read about 1.4x larger than they used to.
+   AdminLTE 4.9.1 did add a real print block - it fixes the layout, the
+   chrome and the trailing blank page, but not the scale, so this stays.
+
+   Deliberately NOT restoring the @page rule: modern browsers treat a CSS page
+   size as a paper REQUEST rather than a scale hint, so it can hand you literal
+   A3 output instead of shrunken A4. Scaling the root font instead keeps the
+   page at whatever paper is actually selected and lets the layout reflow to
+   its real width, which suits the wide report tables better than shrinking the
+   whole page ever did.
+
+   Nothing else in the app sets a root font-size, and Bootstrap, AdminLTE and
+   the .text-sm wrapper all size in rem, so this one line is the only knob:
+   raise it for larger print, lower it for smaller. At 71% of a 16px default
+   the app's .text-sm body text lands at ~9.9px (~7.4pt), which is what v3's
+   page scaling was effectively producing. */
+@media print {
+    html {
+        font-size: 71%;
+    }
+
+    /* AdminLTE 3 zeroed Bootstrap's card border (`border: 0 solid`) and drew
+       the card's edge with a box-shadow instead - and Bootstrap 4's print
+       reboot then killed box-shadows, so a printed card had no outline at all,
+       just the header's own bottom rule. AdminLTE 4 gives .card a real 1px
+       border, keeps the shadow, and its print block leaves cards alone, so
+       both still print.
+
+       border-WIDTH rather than the border shorthand, so .card-outline's 3px
+       accent keeps its colour and can be handed its width straight back - it
+       is a border-top longhand and survived v3's border:0 the same way. */
+    .card {
+        border-width: 0 !important;
+    }
+    .card.card-outline {
+        border-top-width: 3px !important;
+    }
+    .card-footer {
+        border-top-width: 0 !important;
+    }
+
+    /* Bootstrap 4 dropped every shadow when printing; they render as grey
+       smudges on paper. Same rule it used, which also covers the dashboard
+       small-boxes rather than cards alone. */
+    *,
+    *::before,
+    *::after {
+        box-shadow: none !important;
+    }
+}
+
+/* Keep the layout viewport a constant width.
+
+   This is what was making some navigations judder and others not. AdminLTE
+   sizes .app-wrapper, .app-header, .app-main and .app-footer against 100vw,
+   and 100vw INCLUDES the scrollbar, so the usable width is 100vw minus
+   whatever the scrollbar takes. Nothing reserves that space, so the vertical
+   scrollbar - and with it the layout width - appears and disappears purely on
+   whether a given page happens to be taller than the window.
+
+   For a view transition that is not cosmetic. ::view-transition-group(root) is
+   sized to the viewport, and the UA animates the group's width and height from
+   the outgoing value to the incoming one, stretching BOTH snapshots to fit for
+   the whole duration and snapping at the end. Navigate between a page that
+   scrolls and one that does not and every glyph on the page smears sideways by
+   the scrollbar width and then jumps back.
+
+   The client side nav is where this shows worst, because
+   agent/includes/inc_client_top_head.php renders #clientHeader expanded on
+   client_overview.php and collapsed everywhere else - so moving between
+   Overview and any sibling page flips the scrollbar on and off almost every
+   time.
+
+   scrollbar-gutter reserves the space permanently, so the width never moves.
+   The max-width correction has to come with it: with the gutter always
+   present, an unqualified 100vw now overruns the layout viewport on EVERY
+   page rather than only on tall ones, which would trade an intermittent
+   horizontal jump for a permanent horizontal scrollbar. 100% is the width of
+   the grid area these four already occupy, which is what the rule wanted.
+   AdminLTE made the same correction upstream in 4.8.3. */
+html {
+    scrollbar-gutter: stable;
+}
+
+.app-wrapper,
+.app-header,
+.app-main,
+.app-footer {
+    max-width: 100%;
+}
+
+/* Client header disclosure - agent/includes/inc_client_top_head.php
+
+   The client name is the collapse trigger for #clientHeader, but links carry no
+   underline in this app and the h4 is text-dark, so nothing said the heading was
+   clickable or that a panel was folded behind it.
+
+   Size and colour only. Which way it points is carried by the icon class itself
+   (fa-chevron-right / fa-chevron-down) - emitted by PHP for the first paint, swapped
+   by the include's own script after that. Not a CSS rotation, so the direction cannot
+   go stale behind a cached stylesheet. */
+.client-header-chevron {
+    font-size: .7em;
+    margin-right: .25rem;
+    vertical-align: middle;
+    color: var(--bs-secondary-color);
+}
+
+.client-header-toggle:hover .client-header-chevron {
+    color: var(--bs-body-color);
 }

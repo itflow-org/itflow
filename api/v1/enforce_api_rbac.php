@@ -12,6 +12,10 @@
  * the user. Reads are scoped with apiClientScopeSql(); writes act on a single
  * target client supplied in the request and validated against the user's access.
  *
+ * Reads may also pass client_id as an optional filter (e.g. every asset belonging to
+ * client 5). It is applied inside apiClientScopeSql() on top of the user's scope, so it
+ * can only narrow the result set, never widen it.
+ *
  * Reuses the existing RBAC machinery so there is no parallel permission model.
  * Included by validate_api_key.php - runs in global scope with $mysqli,
  * $api_key_user_id and $return_arr available.
@@ -44,11 +48,32 @@ function apiUserCanAccessClient($client_id) {
     return empty($client_access_array) || in_array($client_id, $client_access_array, true);
 }
 
-// Client-scope SQL fragment for a read query, from the user's allow / deny lists.
-// Thin wrapper over clientScopeSql() in functions/auth.php so the API and the UI share one
-// implementation. Kept under the api* name because every endpoint already calls it.
+// Client-scope SQL fragment for a read query: the user's allow / deny lists, plus the
+// optional client_id filter the caller asked for.
+//
+// The scope half is a thin wrapper over clientScopeSql() in functions/auth.php so the API
+// and the UI share one implementation. Kept under the api* name because every endpoint
+// already calls it.
+//
+// The filter half is what lets a key that can see every client ask for just one of them -
+// GET assets/read.php?api_key=...&client_id=5. It is appended AFTER the scope fragment, so
+// it can only narrow: a user who cannot see client 5 still gets nothing back.
+//
+// Reads only. Writes take client_id as the target client they act on and validate it
+// against the user's access further down, so filtering a write query by it would be wrong.
 function apiClientScopeSql($column) {
-    return clientScopeSql($column);
+    global $client_id, $client_id_supplied, $is_write;
+
+    $sql = clientScopeSql($column);
+
+    // Tested on $client_id_supplied, not on the value: client_id = 0 is a real request
+    // (records with no client), and require_get_method.php turns an absent client_id
+    // into "%", which would silently compare as 0 against an integer column.
+    if (!empty($client_id_supplied) && empty($is_write)) {
+        $sql .= " AND $column = " . intval($client_id);
+    }
+
+    return $sql;
 }
 
 // --- Every key must be tied to a user (legacy keys were removed in the 2.4.7 migration) ---
@@ -145,11 +170,13 @@ if (lookupUserPermission($resource_module[$resource]) < $required_level) {
 }
 
 // --- 3) Target client for writes: taken from the request, validated against the user ---
-// Reads ignore this and use apiClientScopeSql(). Create/update/delete act on a single
-// client the caller names (client_id in the body/query); it must be within the user's
-// access. Callers that omit it get $client_id = 0 (creates that require a client fail
-// their own !empty($client_id) guard, which is the intended "must name a client").
+// Create/update/delete act on a single client the caller names (client_id in the
+// body/query); it must be within the user's access. Callers that omit it get
+// $client_id = 0 (creates that require a client fail their own !empty($client_id) guard,
+// which is the intended "must name a client"). On a read the same parameter is not a
+// permission at all, just an optional filter applied inside apiClientScopeSql().
 $client_id = intval($_POST['client_id'] ?? $_GET['client_id'] ?? 0);
+$client_id_supplied = isset($_POST['client_id']) || isset($_GET['client_id']);
 $is_write = in_array($operation_file, ['create.php', 'update.php', 'delete.php'], true);
 if ($is_write && !apiUserCanAccessClient($client_id)) {
     // Writes act on a single client the caller names (client_id 0 = a global record).
@@ -157,4 +184,5 @@ if ($is_write && !apiUserCanAccessClient($client_id)) {
     // writing global (client_id 0) records, which their access does not include.
     apiDeny("The user linked to this API key does not have access to the target client for this write.");
 }
-// Reads ignore $client_id entirely and are scoped by apiClientScopeSql().
+// Reads never treat $client_id as a permission - apiClientScopeSql() enforces the user's
+// scope first and only then narrows to $client_id if the caller supplied one.

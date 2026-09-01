@@ -36,7 +36,7 @@ if (isset($_GET['quote_id'])) {
         } else {
             $backlink_append = '';
         }
-        echo "<h1 class='text-secondary pt-5' style='text-align: center'>There is no Quote here<br><small><a href='quotes.php$backlink_append'><i class='fas fa-arrow-left mr-2'></i>Back to Quotes</a></small></h1>";
+        echo "<h1 class='text-secondary pt-5' style='text-align: center'>There is no Quote here<br><small><a href='quotes.php$backlink_append'><i class='fas fa-arrow-left me-2'></i>Back to Quotes</a></small></h1>";
         require_once "../includes/footer.php";
 
         exit();
@@ -99,11 +99,22 @@ if (isset($_GET['quote_id'])) {
     $company_website = escapeHtml($row['company_website']);
     $company_logo = escapeHtml($row['company_logo']);
 
+    // Must use the same rule as the Send Email picker in
+    // modals/quote/quote_email.php, or the button offers a modal that then
+    // reports there is nobody to send to.
+    $row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT COUNT(contact_id) AS emailable_contacts FROM contacts
+        WHERE contact_client_id = $client_id
+        AND contact_archived_at IS NULL
+        AND contact_email IS NOT NULL
+        AND contact_email != ''
+        " . documentContactFilterSql('quote')));
+    $emailable_contacts = intval($row['emailable_contacts']);
+
     $sql_history = mysqli_query($mysqli, "SELECT history_created_at, history_description, history_status FROM history WHERE history_quote_id = $quote_id ORDER BY history_id DESC");
 
     //Set Badge color based off of quote status
     if ($quote_status == "Sent") {
-        $quote_badge_color = "warning text-white";
+        $quote_badge_color = "warning";
     } elseif ($quote_status == "Viewed") {
         $quote_badge_color = "primary";
     } elseif ($quote_status == "Accepted") {
@@ -144,7 +155,7 @@ if (isset($_GET['quote_id'])) {
         <li class="breadcrumb-item active"><?= "$quote_prefix$quote_number" ?></li>
     </ol>
 
-    <div class="card">
+    <div class="card mb-3">
         <div class="card-header d-print-none">
 
             <?php if (lookupUserPermission("module_sales") >= 2) { ?>
@@ -152,28 +163,37 @@ if (isset($_GET['quote_id'])) {
 
                 <div class="col-8">
                 <?php if ($quote_status == 'Draft') { ?>
-                    <button class="btn btn-primary dropdown-toggle" type="button" data-toggle="dropdown">
-                        <i class="fas fa-fw fa-paper-plane mr-2"></i>Send
+                    <button class="btn btn-primary dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                        <i class="fas fa-fw fa-paper-plane me-2"></i>Send
                     </button>
                     <div class="dropdown-menu">
-                        <?php if (!empty($config_smtp_provider) && !empty($contact_email)) { ?>
-                            <a class="dropdown-item" href="post.php?email_quote=<?= $quote_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>">
-                                <i class="fas fa-fw fa-paper-plane mr-2"></i>Send Email
+                        <?php if (!empty($config_smtp_provider) && $emailable_contacts > 0) { ?>
+                            <button type="submit" class="dropdown-item confirm-link" form="quickSendQuote"
+                                data-confirm-title="Send this quote now?"
+                                data-confirm-text="It goes to the default contacts without opening the picker."
+                                data-confirm-button="Send"
+                                name="quote_id" value="<?= $quote_id ?>">
+                                <i class="fas fa-fw fa-bolt me-2"></i>Quick Send
+                            </button>
+                            <a class="dropdown-item ajax-modal" href="#"
+                                data-modal-url="modals/quote/quote_email.php?quote_id=<?= $quote_id ?>">
+                                <i class="fas fa-fw fa-paper-plane me-2"></i>Send Email<span class="text-muted">...</span>
                             </a>
                             <div class="dropdown-divider"></div>
                         <?php } ?>
-                        <a class="dropdown-item" href="post.php?mark_quote_sent=<?= $quote_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>">
-                            <i class="fas fa-fw fa-check mr-2"></i>Mark Sent
+                        <a class="dropdown-item ajax-modal" href="#"
+                            data-modal-url="modals/quote/quote_mark_sent.php?quote_id=<?= $quote_id ?>">
+                            <i class="fas fa-fw fa-check me-2"></i>Mark Sent
                         </a>
                     </div>
                 <?php } ?>
 
                 <?php if ($quote_status == 'Sent' || $quote_status == 'Viewed') { ?>
                     <a class="btn btn-primary confirm-link" href="post.php?accept_quote=<?= $quote_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>">
-                        <i class="fas fa-thumbs-up mr-2"></i>Accept
+                        <i class="fas fa-thumbs-up me-2"></i>Accept
                     </a>
                     <a class="btn btn-default confirm-link" href="post.php?decline_quote=<?= $quote_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>">
-                        <i class="fas fa-thumbs-down mr-2"></i>Decline
+                        <i class="fas fa-thumbs-down me-2"></i>Decline
                     </a>
                 <?php } ?>
 
@@ -181,14 +201,14 @@ if (isset($_GET['quote_id'])) {
                     <div class="btn-group fix-quote-dropdown">
                         <button type="button" class="btn btn-primary ajax-modal"
                             data-modal-url="modals/quote/quote_to_invoice.php?quote_id=<?= $quote_id ?>">
-                            <i class="fas fa-check mr-2"></i>Invoice
+                            <i class="fas fa-check me-2"></i>Invoice
                         </button>
-                        <button type="button" class="btn btn-primary dropdown-toggle dropdown-icon" data-toggle="dropdown" aria-expanded="false">
-                            <span class="sr-only">Toggle Dropdown</span>
+                        <button type="button" class="btn btn-primary dropdown-toggle dropdown-icon" data-bs-toggle="dropdown" aria-expanded="false">
+                            <span class="visually-hidden">Toggle Dropdown</span>
                         </button>
-                        <div class="dropdown-menu dropdown-menu-right">
+                        <div class="dropdown-menu dropdown-menu-end">
                             <a class="dropdown-item" href="post.php?mark_quote_invoiced=<?= $quote_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>">
-                                <i class="fas fa-fw fa-check mr-2"></i>Mark Invoiced
+                                <i class="fas fa-fw fa-check me-2"></i>Mark Invoiced
                             </a>
                         </div>
                     </div>
@@ -197,40 +217,48 @@ if (isset($_GET['quote_id'])) {
                 </div>
 
                 <div class="col-4">
-                    <div class="dropdown dropleft text-center float-right">
-                        <button class="btn btn-secondary" type="button" data-toggle="dropdown">
+                    <div class="dropdown dropstart text-center float-end">
+                        <button class="btn btn-secondary" type="button" data-bs-toggle="dropdown">
                             <i class="fas fa-ellipsis-v"></i>
                         </button>
                         <div class="dropdown-menu">
                             <a class="dropdown-item ajax-modal" href="#"
                                 data-modal-url="modals/quote/quote_edit.php?id=<?= $quote_id ?>">
-                                <i class="fa fa-fw fa-edit text-secondary mr-2"></i>Edit
+                                <i class="fa fa-fw fa-edit text-secondary me-2"></i>Edit
                             </a>
                             <?php if (lookupUserPermission("module_sales") >= 2) { ?>
                                 <a class="dropdown-item ajax-modal" href="#"
                                     data-modal-url="modals/quote/quote_copy.php?id=<?= $quote_id ?>">
-                                    <i class="fa fa-fw fa-copy text-secondary mr-2"></i>Copy
+                                    <i class="fa fa-fw fa-copy text-secondary me-2"></i>Copy
                                 </a>
                             <?php } ?>
                             <div class="dropdown-divider"></div>
                             <a class="dropdown-item" href="#" onclick="window.print();">
-                                <i class="fa fa-fw fa-print text-secondary mr-2"></i>Print
+                                <i class="fa fa-fw fa-print text-secondary me-2"></i>Print
                             </a>
                             <a class="dropdown-item" href="post.php?export_quote_pdf=<?= $quote_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>" target="_blank">
-                                <i class="fa fa-fw fa-download text-secondary mr-2"></i>Download PDF
+                                <i class="fa fa-fw fa-download text-secondary me-2"></i>Download PDF
                             </a>
-                            <?php if (!empty($config_smtp_provider) && !empty($contact_email)) { ?>
-                                <a class="dropdown-item" href="post.php?email_quote=<?= $quote_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>">
-                                    <i class="fa fa-fw fa-paper-plane text-secondary mr-2"></i>Send Email
+                            <?php if (!empty($config_smtp_provider) && $emailable_contacts > 0) { ?>
+                                <button type="submit" class="dropdown-item confirm-link" form="quickSendQuote"
+                                    data-confirm-title="Send this quote now?"
+                                    data-confirm-text="It goes to the default contacts without opening the picker."
+                                    data-confirm-button="Send"
+                                    name="quote_id" value="<?= $quote_id ?>">
+                                    <i class="fa fa-fw fa-bolt text-secondary me-2"></i>Quick Send
+                                </button>
+                                <a class="dropdown-item ajax-modal" href="#"
+                                    data-modal-url="modals/quote/quote_email.php?quote_id=<?= $quote_id ?>">
+                                    <i class="fa fa-fw fa-paper-plane text-secondary me-2"></i>Send Email<span class="text-muted">...</span>
                                 </a>
                             <?php } ?>
                             <a class="dropdown-item clipboardjs" href="#" data-clipboard-text="https://<?= $config_base_url ?>/guest/guest_view_quote.php?quote_id=<?= "$quote_id&url_key=$quote_url_key" ?>">
-                                <i class="fa fa-fw fa-copy text-secondary mr-2"></i>Copy Guest URL
+                                <i class="fa fa-fw fa-copy text-secondary me-2"></i>Copy Guest URL
                             </a>
                             <?php if (lookupUserPermission("module_sales") >= 3) { ?>
                                 <div class="dropdown-divider"></div>
                                 <a class="dropdown-item text-danger text-bold confirm-link" href="post.php?delete_quote=<?= $quote_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>">
-                                    <i class="fa fa-fw fa-times mr-2"></i>Delete
+                                    <i class="fa fa-fw fa-times me-2"></i>Delete
                                 </a>
                             <?php } ?>
                         </div>
@@ -258,22 +286,22 @@ if (isset($_GET['quote_id'])) {
                 </div>
 
                 <div class="col-sm-4">
-                    <h3 class="text-right"><strong>QUOTE</strong></h3>
-                    <h5 class="badge badge-<?= $quote_badge_color ?> p-2 float-right">
+                    <h3 class="text-end"><strong>QUOTE</strong></h3>
+                    <h5 class="badge text-bg-<?= $quote_badge_color ?> p-2 float-end">
                         <?= "$quote_status" ?>
                     </h5>
                     <table class="table table-sm table-borderless">
                         <tr>
                             <th>Quote #:</th>
-                            <td class="text-right"><?= "$quote_prefix$quote_number" ?></td>
+                            <td class="text-end"><?= "$quote_prefix$quote_number" ?></td>
                         </tr>
                         <tr>
                             <th>Date:</th>
-                            <td class="text-right"><?= $quote_date ?></td>
+                            <td class="text-end"><?= $quote_date ?></td>
                         </tr>
                         <tr>
                             <th>Expires:</th>
-                            <td class="text-right"><?= $quote_expire ?></td>
+                            <td class="text-end"><?= $quote_expire ?></td>
                         </tr>
                     </table>
                 </div>
@@ -304,9 +332,9 @@ if (isset($_GET['quote_id'])) {
                                         <th>Item</th>
                                         <th>Description</th>
                                         <th class="text-center">Qty</th>
-                                        <th class="text-right">Unit Price</th>
-                                        <th class="text-right">Tax</th>
-                                        <th class="text-right">Amount</th>
+                                        <th class="text-end">Unit Price</th>
+                                        <th class="text-end">Tax</th>
+                                        <th class="text-end">Amount</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -338,17 +366,17 @@ if (isset($_GET['quote_id'])) {
                                                         </button>
 
                                                         <div class="dropdown">
-                                                            <button class="btn btn-sm btn-light" type="button" data-toggle="dropdown">
+                                                            <button class="btn btn-sm btn-light" type="button" data-bs-toggle="dropdown">
                                                                 <i class="fas fa-ellipsis-v"></i>
                                                             </button>
                                                             <div class="dropdown-menu">
                                                                 <a class="dropdown-item ajax-modal" href="#"
                                                                     data-modal-url="modals/quote/quote_item_edit.php?id=<?= $item_id ?>">
-                                                                    <i class="fa fa-fw fa-edit mr-2"></i>Edit
+                                                                    <i class="fa fa-fw fa-edit me-2"></i>Edit
                                                                 </a>
                                                                 <div class="dropdown-divider"></div>
                                                                 <a class="dropdown-item text-danger confirm-link" href="post.php?delete_quote_item=<?= $item_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>">
-                                                                    <i class="fa fa-fw fa-trash mr-2"></i>Delete
+                                                                    <i class="fa fa-fw fa-trash me-2"></i>Delete
                                                                 </a>
                                                             </div>
                                                         </div>
@@ -358,9 +386,9 @@ if (isset($_GET['quote_id'])) {
                                             <td><?= $item_name ?></td>
                                             <td><?= nl2br($item_description) ?></td>
                                             <td class="text-center"><?= number_format($item_quantity, 2) ?></td>
-                                            <td class="text-right"><?= numfmt_format_currency($currency_format, $item_price, $quote_currency_code) ?></td>
-                                            <td class="text-right"><?= numfmt_format_currency($currency_format, $item_tax, $quote_currency_code) ?></td>
-                                            <td class="text-right"><?= numfmt_format_currency($currency_format, $item_total, $quote_currency_code) ?></td>
+                                            <td class="text-end"><?= numfmt_format_currency($currency_format, $item_price, $quote_currency_code) ?></td>
+                                            <td class="text-end"><?= numfmt_format_currency($currency_format, $item_tax, $quote_currency_code) ?></td>
+                                            <td class="text-end"><?= numfmt_format_currency($currency_format, $item_total, $quote_currency_code) ?></td>
                                         </tr>
 
                                     <?php
@@ -396,7 +424,7 @@ if (isset($_GET['quote_id'])) {
                                                 <input type="text" class="form-control" inputmode="decimal" pattern="-?[0-9]*\.?[0-9]{0,2}" id="price" style="text-align: right;" name="price" placeholder="Price (<?= $quote_currency_code ?>)">
                                             </td>
                                             <td>
-                                                <select class="form-control select2" id="tax" name="tax_id" required>
+                                                <select class="form-select select2" id="tax" name="tax_id" required>
                                                     <option value="0">No Tax</option>
                                                     <?php
 
@@ -432,16 +460,22 @@ if (isset($_GET['quote_id'])) {
                     <div class="card">
                         <div class="card-header text-bold">
                             Notes:
-                            <div class="card-tools d-print-none">
-                                <?php if (lookupUserPermission("module_sales") >= 2) { ?>
-                                    <a href="#" class="btn btn-light btn-tool" data-toggle="modal" data-target="#quoteNoteModal">
-                                        <i class="fas fa-edit"></i>
-                                    </a>
-                                <?php } ?>
-                            </div>
+                            <span class="d-print-none" data-note-status-for="quoteNotes"></span>
                         </div>
-                        <div class="card-body">
-                            <?= nl2br($quote_note) ?>
+                        <div class="card-body p-2">
+<?php if (lookupUserPermission("module_sales") >= 2) { ?>
+                            <textarea class="form-control itflow-inline-note d-print-none" rows="6"
+                                id="quoteNotes"
+                                placeholder="Enter some notes"
+                                data-endpoint="quote_set_notes"
+                                data-id-field="quote_id"
+                                data-id="<?= $quote_id ?>"
+                                data-csrf="<?= $_SESSION['csrf_token'] ?>"><?= $quote_note ?></textarea>
+<?php } else { ?>
+                            <div class="d-print-none"><?= nl2br($quote_note) ?></div>
+<?php } ?>
+                            <!-- Printed output must be plain text, not a form control -->
+                            <div class="d-none d-print-block"><?= nl2br($quote_note) ?></div>
                         </div>
                     </div>
                 </div>
@@ -452,23 +486,23 @@ if (isset($_GET['quote_id'])) {
                         <tbody>
                             <tr>
                                 <td>Subtotal:</td>
-                                <td class="text-right"><?= numfmt_format_currency($currency_format, $sub_total, $quote_currency_code) ?></td>
+                                <td class="text-end"><?= numfmt_format_currency($currency_format, $sub_total, $quote_currency_code) ?></td>
                             </tr>
                             <?php if ($quote_discount > 0) { ?>
                                 <tr>
                                     <td>Discount:</td>
-                                    <td class="text-right">-<?= numfmt_format_currency($currency_format, $quote_discount, $quote_currency_code) ?></td>
+                                    <td class="text-end">-<?= numfmt_format_currency($currency_format, $quote_discount, $quote_currency_code) ?></td>
                                 </tr>
                             <?php } ?>
                             <?php if ($total_tax > 0) { ?>
                                 <tr>
                                     <td>Tax:</td>
-                                    <td class="text-right"><?= numfmt_format_currency($currency_format, $total_tax, $quote_currency_code) ?></td>
+                                    <td class="text-end"><?= numfmt_format_currency($currency_format, $total_tax, $quote_currency_code) ?></td>
                                 </tr>
                             <?php } ?>
                             <tr class="h5 text-bold">
                                 <td>Total:</td>
-                                <td class="text-right"><?= numfmt_format_currency($currency_format, $quote_amount, $quote_currency_code) ?></td>
+                                <td class="text-end"><?= numfmt_format_currency($currency_format, $quote_amount, $quote_currency_code) ?></td>
                             </tr>
                         </tbody>
                     </table>
@@ -487,12 +521,12 @@ if (isset($_GET['quote_id'])) {
         <div class="col-sm d-print-none">
             <div class="card">
                 <div class="card-header text-bold">
-                    <i class="fa fa-paperclip mr-2"></i>Attachments
+                    <i class="fa fa-paperclip me-2"></i>Attachments
                     <div class="card-tools">
-                        <button type="button" class="btn btn-tool" data-card-widget="collapse">
+                        <button type="button" class="btn btn-tool" data-lte-toggle="card-collapse">
                             <i class="fas fa-minus"></i>
                         </button>
-                        <button type="button" class="btn btn-tool" data-card-widget="remove">
+                        <button type="button" class="btn btn-tool" data-lte-toggle="card-remove">
                             <i class="fas fa-times"></i>
                         </button>
                     </div>
@@ -534,12 +568,12 @@ if (isset($_GET['quote_id'])) {
         <div class="col-sm d-print-none">
             <div class="card">
                 <div class="card-header text-bold">
-                    <i class="fa fa-history mr-2"></i>History
+                    <i class="fa fa-history me-2"></i>History
                     <div class="card-tools">
-                        <button type="button" class="btn btn-tool" data-card-widget="collapse">
+                        <button type="button" class="btn btn-tool" data-lte-toggle="card-collapse">
                             <i class="fas fa-minus"></i>
                         </button>
-                        <button type="button" class="btn btn-tool" data-card-widget="remove">
+                        <button type="button" class="btn btn-tool" data-lte-toggle="card-remove">
                             <i class="fas fa-times"></i>
                         </button>
                     </div>
@@ -559,7 +593,7 @@ if (isset($_GET['quote_id'])) {
                             while ($row = mysqli_fetch_assoc($sql_history)) {
                                 $history_created_at = escapeHtml($row['history_created_at']);
                                 $history_status = escapeHtml($row['history_status']);
-                                $history_description = escapeHtml($row['history_description']);
+                                $history_description = nl2br(escapeHtml($row['history_description']));
 
                             ?>
                                 <tr>
@@ -578,34 +612,99 @@ if (isset($_GET['quote_id'])) {
         </div>
     </div>
 
+        <?php if (lookupUserPermission("module_sales") >= 2 && !empty($config_smtp_provider) && $emailable_contacts > 0) { ?>
+            <?php
+            /*
+             * One hidden form for the page, targeted by the Quick Send buttons via
+             * their form="" attribute, so a button can sit inside a dropdown
+             * without needing a form of its own. The button carries the id as its
+             * own name/value, which a submit button contributes to the submission.
+             *
+             * Must stay inside this block - $emailable_contacts is only set on the
+             * path where the document was found.
+             */
+            ?>
+            <form id="quickSendQuote" action="post.php" method="post" class="d-none">
+                <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
+                <input type="hidden" name="email_quote" value="1">
+                <input type="hidden" name="quick_send" value="1">
+            </form>
+        <?php } ?>
+
 <?php
-    require_once "modals/quote/quote_note.php";
 }
 
+?>
+
+<script src="/js/inline_notes.js"></script>
+
+<?php
 require_once "../includes/footer.php";
 
 ?>
 
 <!-- JSON Autocomplete / type ahead -->
 <!-- //TODO: Move to js/ -->
-<link rel="stylesheet" href="../libs/jquery-ui/jquery-ui.min.css">
-<script src="../libs/jquery-ui/jquery-ui.min.js"></script>
 <script>
-    $(function() {
-        var availableProducts = <?= $json_products ?? '[]' ?>;
 
-        $("#name").autocomplete({
-            source: availableProducts,
-            select: function(event, ui) {
-                $("#name").val(ui.item.label); // Product name field - this seemingly has to referenced as label
-                $("#desc").val(ui.item.description); // Product description field
-                $("#qty").val(1); // Product quantity field automatically make it a 1
-                $("#price").val(ui.item.price); // Product price field
-                $("#tax").val(ui.item.tax).trigger('change'); // Tax field - trigger repaints select2
-                return false;
-            }
-        });
+document.addEventListener('DOMContentLoaded', function () {
+
+    var availableProducts = <?= $json_products ?? '[]' ?>;
+
+    var nameInput = document.getElementById('name');
+    if (!nameInput) {
+        return;
+    }
+
+    itflowAutocomplete(nameInput, {
+        minLength: 1,
+        source: availableProducts,
+        match: function (item, term) {
+            return String(item.label || '').toLowerCase().indexOf(term) !== -1
+                || String(item.product_name || '').toLowerCase().indexOf(term) !== -1
+                || String(item.product_code || '').toLowerCase().indexOf(term) !== -1;
+        },
+        render: function (item) {
+            var esc = itflowEscapeHtml;
+            var typeText = item.type ? item.type.charAt(0).toUpperCase() + item.type.slice(1).toLowerCase() : "";
+            var showStock = (typeText.toLowerCase() !== "service");
+            var taxText = (item.tax_percent != null) ? (parseFloat(item.tax_percent) + "%") : "No tax";
+            var priceText = (item.price != null && item.price !== "") ? String(item.price) : "";
+            var stockText = (item.available_stock ?? 0);
+
+            return "<div class='d-flex justify-content-between align-items-start'>" +
+                       "<div class='flex-fill pe-2'>" +
+                           "<div class='fw-bold'>" + esc(item.label) +
+                               (typeText ? " <small class='text-muted'>(" + esc(typeText) + ")</small>" : "") +
+                           "</div>" +
+                           "<div class='small text-muted'>" + esc(item.description) + "</div>" +
+                           "<div class='mt-1'>" +
+                               "<span class='badge bg-secondary me-1'>Tax: " + esc(taxText) + "</span>" +
+                               (showStock ? "<span class='badge " + (stockText > 0 ? "bg-success" : "bg-danger") + "'>Stock: " + esc(stockText) + "</span>" : "") +
+                           "</div>" +
+                       "</div>" +
+                       "<div class='text-end'>" +
+                           "<div class='fw-bold'>" + esc(priceText) + "</div>" +
+                       "</div>" +
+                   "</div>";
+        },
+        onSelect: function (item) {
+            document.getElementById('name').value = item.product_name;
+            document.getElementById('desc').value = item.description;
+            document.getElementById('qty').value = 1;
+            document.getElementById('price').value = item.price;
+            setTomSelectValue(document.getElementById('tax'), item.tax);
+            document.getElementById('product_id').value = item.prod_id;
+        }
     });
+
+    // Typing over the name by hand breaks the link to the product
+    nameInput.addEventListener('input', function () {
+        document.getElementById('product_id').value = 0;
+    });
+
+});
+
 </script>
 
 <script src="../libs/SortableJS/Sortable.min.js"></script>
@@ -620,7 +719,7 @@ new Sortable(document.querySelector('table#items tbody'), {
             order: index
         }));
 
-        $.post('ajax.php', {
+        itflowPostForm('ajax.php', {
             update_quote_items_order: true,
             csrf_token: '<?= $_SESSION['csrf_token'] ?>',
             quote_id: <?= $quote_id ?>,

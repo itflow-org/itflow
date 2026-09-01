@@ -51,10 +51,8 @@ ob_start();
 ?>
 
 <div class="modal-header bg-dark">
-    <h5 class="modal-title"><i class="fa fa-fw fa-life-ring mr-2"></i>Ticket: <strong><?= "$ticket_prefix$ticket_number" ?></strong> - <?= $client_name ?></h5>
-    <button type="button" class="close text-white" data-dismiss="modal">
-        <span>&times;</span>
-    </button>
+    <h5 class="modal-title"><i class="fa fa-fw fa-life-ring me-2"></i>Ticket: <strong><?= "$ticket_prefix$ticket_number" ?></strong> - <?= $client_name ?></h5>
+    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
 </div>
 <form action="post.php" method="post" autocomplete="off">
     <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
@@ -64,14 +62,14 @@ ob_start();
         <?php if ($client_id) { ?>
         <ul class="nav nav-pills nav-justified mb-3">
             <li class="nav-item">
-                <a class="nav-link active" data-toggle="pill" href="#pills-details"><i class="fa fa-fw fa-life-ring mr-2"></i>Details</a>
+                <a class="nav-link active" data-bs-toggle="pill" href="#pills-details"><i class="fa fa-fw fa-life-ring me-2"></i>Details</a>
             </li>
 
             <li class="nav-item">
-                <a class="nav-link" data-toggle="pill" href="#pills-contacts"><i class="fa fa-fw fa-users mr-2"></i>Contact</a>
+                <a class="nav-link" data-bs-toggle="pill" href="#pills-contacts"><i class="fa fa-fw fa-users me-2"></i>Contact</a>
             </li>
             <li class="nav-item">
-                <a class="nav-link" data-toggle="pill" href="#pills-assignment"><i class="fa fa-fw fa-desktop mr-2"></i>Assignment</a>
+                <a class="nav-link" data-bs-toggle="pill" href="#pills-assignment"><i class="fa fa-fw fa-desktop me-2"></i>Assignment</a>
             </li>
 
         </ul>
@@ -82,29 +80,25 @@ ob_start();
 
             <div class="tab-pane fade show active" id="pills-details">
 
-                <div class="form-group">
+                <div class="mb-3">
                     <label>Subject <strong class="text-danger">*</strong></label>
                     <div class="input-group">
-                        <div class="input-group-prepend">
                             <span class="input-group-text"><i class="fa fa-fw fa-tag"></i></span>
-                        </div>
                         <input type="text" class="form-control" name="subject" maxlength="500" value="<?= $ticket_subject ?>" placeholder="Subject" required>
                     </div>
                 </div>
 
-                <div class="form-group">
+                <div class="mb-3">
                     <textarea class="form-control tinymceTicket" rows="8" name="details"><?= $ticket_details ?></textarea>
                 </div>
 
                 <div class="row">
                     <div class="col">
-                        <div class="form-group">
+                        <div class="mb-3">
                             <label>Priority <strong class="text-danger">*</strong></label>
                             <div class="input-group">
-                                <div class="input-group-prepend">
                                     <span class="input-group-text"><i class="fa fa-fw fa-thermometer-half"></i></span>
-                                </div>
-                                <select class="form-control select2" name="priority" required>
+                                <select class="form-select select2" name="priority" required>
                                     <option <?php if ($ticket_priority == 'Low') { echo "selected"; } ?> >Low</option>
                                     <option <?php if ($ticket_priority == 'Medium') { echo "selected"; } ?> >Medium</option>
                                     <option <?php if ($ticket_priority == 'High') { echo "selected"; } ?> >High</option>
@@ -115,13 +109,11 @@ ob_start();
                     </div>
 
                     <div class="col">
-                        <div class="form-group">
+                        <div class="mb-3">
                             <label>Category</label>
                             <div class="input-group">
-                                <div class="input-group-prepend">
                                     <span class="input-group-text"><i class="fa fa-fw fa-layer-group"></i></span>
-                                </div>
-                                <select class="form-control select2" name="category_id">
+                                <select class="form-select select2" name="category_id">
                                     <option value="0">- Uncategorized -</option>
                                     <?php
                                     $sql_categories = mysqli_query($mysqli, "SELECT category_id, category_name FROM categories WHERE category_type = 'Ticket' AND category_archived_at IS NULL ORDER BY category_name ASC");
@@ -134,12 +126,10 @@ ob_start();
                                     <?php } ?>
 
                                 </select>
-                                <div class="input-group-append">
                                     <button class="btn btn-secondary ajax-modal" type="button"
                                         data-modal-url="../admin/modals/category/category_add.php?category=Ticket">
                                         <i class="fas fa-fw fa-plus"></i>
                                     </button>
-                                </div>
                             </div>
                         </div>
                     </div>
@@ -147,13 +137,11 @@ ob_start();
 
                 <div class="row">
                     <div class="col">
-                        <div class="form-group">
+                        <div class="mb-3">
                             <label>Assign to</label>
                             <div class="input-group">
-                                <div class="input-group-prepend">
                                     <span class="input-group-text"><i class="fa fa-fw fa-user-check"></i></span>
-                                </div>
-                                <select class="form-control select2" name="assigned_to">
+                                <select class="form-select select2" name="assigned_to">
                                     <option value="0">Not Assigned</option>
                                     <?php
 
@@ -176,12 +164,10 @@ ob_start();
                         </div>
                     </div>
                     <div class="col">
-                        <div class="form-group">
+                        <div class="mb-3">
                             <label>Due</label>
                             <div class="input-group">
-                                <div class="input-group-prepend">
                                     <span class="input-group-text"><i class="fa fa-fw fa-calendar-check"></i></span>
-                                </div>
                                 <input type="datetime-local" class="form-control" name="due" value="<?= $ticket_due_at ?>">
                             </div>
                         </div>
@@ -189,10 +175,10 @@ ob_start();
                 </div>
 
                 <?php if ($config_module_enable_accounting && lookupUserPermission("module_sales") >= 2) { ?>
-                <div class="form-group">
-                    <div class="custom-control custom-switch">
-                        <input type="checkbox" class="custom-control-input" name="billable" <?php if ($ticket_billable == 1) { echo "checked"; } ?> value="1" id="billableSwitch<?= $ticket_id ?>">
-                        <label class="custom-control-label" for="billableSwitch<?= $ticket_id ?>">Mark Billable</label>
+                <div class="mb-3">
+                    <div class="form-check form-switch">
+                        <input type="checkbox" class="form-check-input" name="billable" <?php if ($ticket_billable == 1) { echo "checked"; } ?> value="1" id="billableSwitch<?= $ticket_id ?>">
+                        <label class="form-check-label" for="billableSwitch<?= $ticket_id ?>">Mark Billable</label>
                     </div>
                 </div>
                 <?php } ?>
@@ -203,13 +189,11 @@ ob_start();
 
             <div class="tab-pane fade" id="pills-contacts">
 
-                <div class="form-group">
+                <div class="mb-3">
                     <label>Contact</label>
                     <div class="input-group">
-                        <div class="input-group-prepend">
                             <span class="input-group-text"><i class="fa fa-fw fa-user"></i></span>
-                        </div>
-                        <select class="form-control select2" name="contact_id">
+                        <select class="form-select select2" name="contact_id">
                             <option value="0">No One</option>
                             <?php
                             $sql_client_contacts_select = mysqli_query($mysqli, "SELECT contact_id, contact_name, contact_title, contact_primary, contact_technical FROM contacts WHERE contact_client_id = $client_id AND contact_archived_at IS NULL ORDER BY contact_primary DESC, contact_technical DESC, contact_name ASC");
@@ -243,7 +227,7 @@ ob_start();
                 </div>
 
                 <?php if (!empty($config_smtp_host)) { ?>
-                    <div class="form-group">
+                    <div class="mb-3">
                         <div class="form-check">
                             <input class="form-check-input" type="checkbox" name="contact_notify" value="1" id="checkNotifyContact">
                             <label class="form-check-label" for="checkNotifyContact">
@@ -257,13 +241,11 @@ ob_start();
 
             <div class="tab-pane fade" id="pills-assignment">
 
-                <div class="form-group">
+                <div class="mb-3">
                     <label>Asset</label>
                     <div class="input-group">
-                        <div class="input-group-prepend">
                             <span class="input-group-text"><i class="fa fa-fw fa-desktop"></i></span>
-                        </div>
-                        <select class="form-control select2" name="asset_id">
+                        <select class="form-select select2" name="asset_id">
                             <option value="0">- None -</option>
                             <?php
 
@@ -282,13 +264,11 @@ ob_start();
                     </div>
                 </div>
 
-                <div class="form-group">
+                <div class="mb-3">
                     <label>Additional Assets</label>
                     <div class="input-group">
-                        <div class="input-group-prepend">
                             <span class="input-group-text"><i class="fa fa-fw fa-desktop"></i></span>
-                        </div>
-                        <select class="form-control select2" name="additional_assets[]" data-tags="true" data-placeholder="- Select Additional Assets -" multiple>
+                        <select class="form-select select2" name="additional_assets[]" data-tags="true" data-placeholder="- Select Additional Assets -" multiple>
                             <option value=""></option>
                             <?php
 
@@ -307,13 +287,11 @@ ob_start();
                     </div>
                 </div>
 
-                <div class="form-group">
+                <div class="mb-3">
                     <label>Location</label>
                     <div class="input-group">
-                        <div class="input-group-prepend">
                             <span class="input-group-text"><i class="fa fa-fw fa-map-marker-alt"></i></span>
-                        </div>
-                        <select class="form-control select2" name="location_id">
+                        <select class="form-select select2" name="location_id">
                             <option value="0">- None -</option>
                             <?php
 
@@ -335,13 +313,11 @@ ob_start();
 
                     <div class="col">
 
-                        <div class="form-group">
+                        <div class="mb-3">
                             <label>Vendor</label>
                             <div class="input-group">
-                                <div class="input-group-prepend">
                                     <span class="input-group-text"><i class="fa fa-fw fa-building"></i></span>
-                                </div>
-                                <select class="form-control select2" name="vendor_id">
+                                <select class="form-select select2" name="vendor_id">
                                     <option value="0">- None -</option>
                                     <?php
 
@@ -363,12 +339,10 @@ ob_start();
 
                     <div class="col">
 
-                        <div class="form-group">
+                        <div class="mb-3">
                             <label>Vendor Ticket Number</label>
                             <div class="input-group">
-                                <div class="input-group-prepend">
                                     <span class="input-group-text"><i class="fa fa-fw fa-tag"></i></span>
-                                </div>
                                 <input type="text" class="form-control" name="vendor_ticket_number" placeholder="Vendor ticket number" maxlength="255" value="<?= $ticket_vendor_ticket_number ?>">
                             </div>
                         </div>
@@ -377,13 +351,11 @@ ob_start();
 
                 </div>
 
-                <div class="form-group">
+                <div class="mb-3">
                     <label>Project</label>
                     <div class="input-group">
-                        <div class="input-group-prepend">
                             <span class="input-group-text"><i class="fa fa-fw fa-project-diagram"></i></span>
-                        </div>
-                        <select class="form-control select2" name="project_id">
+                        <select class="form-select select2" name="project_id">
                             <option value="0">- None -</option>
                             <?php
 
@@ -406,8 +378,8 @@ ob_start();
     </div>
 
     <div class="modal-footer">
-        <button type="submit" name="edit_ticket" class="btn btn-primary text-bold"><i class="fa fa-check mr-2"></i>Save changes</button>
-        <button type="button" class="btn btn-light" data-dismiss="modal"><i class="fa fa-times mr-2"></i>Cancel</button>
+        <button type="submit" name="edit_ticket" class="btn btn-primary text-bold"><i class="fa fa-check me-2"></i>Save changes</button>
+        <button type="button" class="btn btn-light" data-bs-dismiss="modal"><i class="fa fa-times me-2"></i>Cancel</button>
     </div>
 
 </form>

@@ -59,8 +59,119 @@ function getSlaSettings($refresh = false)
     return $sla_settings;
 }
 
+// Closure days for the business calendar, fetched once per request. Returns a
+// map of 'Y-m-d' => holiday name so the day-walk in addBusinessMinutes and
+// businessMinutesBetween can do an O(1) lookup rather than a query per day -
+// those loops run up to 731 iterations.
+//
+// Callers that have just written to business_holidays pass true, same contract
+// as getSlaSettings().
+function getBusinessHolidays($refresh = false)
+{
+    global $mysqli;
+
+    static $holidays = null;
+
+    if ($refresh) {
+        $holidays = null;
+    }
+
+    if (!is_null($holidays)) {
+        return $holidays;
+    }
+
+    $holidays = [];
+
+    $sql = mysqli_query($mysqli, "SELECT holiday_date, holiday_name FROM business_holidays");
+    if ($sql) {
+        while ($row = mysqli_fetch_assoc($sql)) {
+            $holidays[$row['holiday_date']] = $row['holiday_name'];
+        }
+    }
+
+    return $holidays;
+}
+
+// US federal holidays for a calendar year, as a list of ['date' => 'Y-m-d',
+// 'name' => string]. Six of the eleven float on an nth-weekday rule, which
+// strtotime() understands directly, so no recurrence table is needed - the
+// generator writes concrete dates and the lookup above stays an exact match.
+//
+// Fixed-date holidays are shifted to the OBSERVED day (Saturday -> the Friday
+// before, Sunday -> the Monday after), because that is the weekday a business
+// actually closes. The floating ones always land on a Monday or Thursday and
+// need no shift.
+function usFederalHolidays($year)
+{
+    $year = intval($year);
+
+    $observed = function ($date) {
+        $day = intval(date('N', strtotime($date)));
+        if ($day == 6) {
+            return date('Y-m-d', strtotime($date . ' -1 day'));
+        }
+        if ($day == 7) {
+            return date('Y-m-d', strtotime($date . ' +1 day'));
+        }
+        return $date;
+    };
+
+    $fixed = [
+        "$year-01-01" => "New Year's Day",
+        "$year-06-19" => 'Juneteenth',
+        "$year-07-04" => 'Independence Day',
+        "$year-11-11" => 'Veterans Day',
+        "$year-12-25" => 'Christmas Day',
+    ];
+
+    $floating = [
+        "third monday of january $year"    => 'Martin Luther King Jr. Day',
+        "third monday of february $year"   => "Presidents' Day",
+        "last monday of may $year"         => 'Memorial Day',
+        "first monday of september $year"  => 'Labor Day',
+        "second monday of october $year"   => 'Columbus Day',
+        "fourth thursday of november $year" => 'Thanksgiving Day',
+    ];
+
+    $holidays = [];
+
+    foreach ($fixed as $date => $name) {
+        $holidays[] = ['date' => $observed($date), 'name' => $name];
+    }
+
+    foreach ($floating as $rule => $name) {
+        $holidays[] = ['date' => date('Y-m-d', strtotime($rule)), 'name' => $name];
+    }
+
+    usort($holidays, function ($a, $b) {
+        return strcmp($a['date'], $b['date']);
+    });
+
+    return $holidays;
+}
+
+// Re-stamp every open SLA ticket. Business hours and closure days both feed the
+// due-date math, so anything that changes the calendar has to run this or the
+// change only applies to tickets raised afterwards - which is the opposite of
+// what an operator adding next week's shutdown expects. Returns the count.
+function restampOpenSlaTickets()
+{
+    global $mysqli;
+
+    $restamped = 0;
+
+    $sql = mysqli_query($mysqli, "SELECT ticket_id, ticket_sla_id FROM tickets WHERE ticket_sla_id > 0 AND ticket_closed_at IS NULL AND ticket_archived_at IS NULL");
+    while ($row = mysqli_fetch_assoc($sql)) {
+        applyTicketSla($row['ticket_id'], $row['ticket_sla_id']);
+        $restamped++;
+    }
+
+    return $restamped;
+}
+
 // Add $minutes of business time to a datetime, honouring the configured
-// business days and hours. Returns a Y-m-d H:i:s string in the app timezone
+// business days and hours, and skipping closure days entirely. Returns a
+// Y-m-d H:i:s string in the app timezone
 // (includes/inc_set_timezone.php has already set it). With no usable business
 // calendar configured the clock is treated as 24x7.
 function addBusinessMinutes($start_datetime, $minutes)
@@ -82,6 +193,8 @@ function addBusinessMinutes($start_datetime, $minutes)
         return $cursor->format('Y-m-d H:i:s');
     }
 
+    $holidays = getBusinessHolidays();
+
     $remaining_seconds = $minutes * 60;
 
     // Walk forward a day at a time consuming available business time. Interval
@@ -90,10 +203,13 @@ function addBusinessMinutes($start_datetime, $minutes)
     // the honest reading. Guard: two years of calendar.
     for ($i = 0; $i < 731; $i++) {
 
-        if (in_array(intval($cursor->format('N')), $business_days)) {
+        $date_key = $cursor->format('Y-m-d');
 
-            $window_start = new DateTime($cursor->format('Y-m-d') . " $day_start");
-            $window_end = new DateTime($cursor->format('Y-m-d') . " $day_end");
+        // A closure day yields no business time, same as a non-business weekday
+        if (in_array(intval($cursor->format('N')), $business_days) && !isset($holidays[$date_key])) {
+
+            $window_start = new DateTime($date_key . " $day_start");
+            $window_end = new DateTime($date_key . " $day_end");
 
             if ($cursor < $window_start) {
                 $cursor = $window_start;
@@ -123,7 +239,8 @@ function addBusinessMinutes($start_datetime, $minutes)
 
 // Business minutes elapsed between two datetimes - the inverse of
 // addBusinessMinutes, used to measure how much of a resolution budget an
-// interval actually consumed.
+// interval actually consumed. Skips closure days for the same reason: time
+// nobody was working must not be charged to a ticket's budget.
 function businessMinutesBetween($start_datetime, $end_datetime)
 {
     $start = new DateTime($start_datetime);
@@ -142,6 +259,8 @@ function businessMinutesBetween($start_datetime, $end_datetime)
         return intval(floor(($end->getTimestamp() - $start->getTimestamp()) / 60));
     }
 
+    $holidays = getBusinessHolidays();
+
     $seconds = 0;
     $cursor = clone $start;
 
@@ -152,10 +271,12 @@ function businessMinutesBetween($start_datetime, $end_datetime)
             break;
         }
 
-        if (in_array(intval($cursor->format('N')), $business_days)) {
+        $date_key = $cursor->format('Y-m-d');
 
-            $window_start = new DateTime($cursor->format('Y-m-d') . " $day_start");
-            $window_end = new DateTime($cursor->format('Y-m-d') . " $day_end");
+        if (in_array(intval($cursor->format('N')), $business_days) && !isset($holidays[$date_key])) {
+
+            $window_start = new DateTime($date_key . " $day_start");
+            $window_end = new DateTime($date_key . " $day_end");
 
             $from = $cursor > $window_start ? $cursor : $window_start;
             $to = $end < $window_end ? $end : $window_end;
@@ -423,6 +544,114 @@ function applyTicketSla($ticket_id, $forced_sla_id = null)
     mysqli_query($mysqli, "UPDATE tickets SET ticket_sla_id = $sla_id, ticket_response_due_at = '$response_due_at', ticket_resolution_due_at = $resolution_due_at_set, ticket_response_sla_met = $response_met_set, ticket_resolution_sla_met = $resolution_met_set, ticket_response_sla_alert_stage = 0, ticket_resolution_sla_alert_stage = 0 WHERE ticket_id = $ticket_id");
 
     syncTicketSlaClock($ticket_id);
+}
+
+// Human-readable SLA target, e.g. "45 minutes", "4 business hours" or
+// "3 business days". The "business" qualifier is dropped when no business
+// calendar is configured, because addBusinessMinutes runs 24x7 in that case
+// and the promise would otherwise be misleading. The condition mirrors that
+// function's own guard.
+//
+// Anything at or over one business day rolls up to days: with 9-5 hours a
+// 1440-minute target is three working days, but "24 business hours" reads to
+// a client as tomorrow. The exact deadline always travels next to this text
+// in the email, so the wording only has to give the right impression - a
+// remainder under five minutes is dropped rather than rendering the likes of
+// "1 business hour 1 minute".
+function formatSlaMinutes($minutes)
+{
+    $minutes = intval($minutes);
+
+    $sla_settings = getSlaSettings();
+    $day_start = $sla_settings['business_hours_start'];
+    $day_end = $sla_settings['business_hours_end'];
+
+    $qualifier = '';
+    $day_minutes = 1440;
+    if (!empty($sla_settings['business_days']) && !empty($day_start) && !empty($day_end) && $day_start < $day_end) {
+        $qualifier = 'business ';
+        $working_minutes = intval((strtotime($day_end) - strtotime($day_start)) / 60);
+        if ($working_minutes > 0) {
+            $day_minutes = $working_minutes;
+        }
+    }
+
+    if ($minutes < 60) {
+        return $minutes . ' minute' . ($minutes == 1 ? '' : 's');
+    }
+
+    if ($minutes < $day_minutes) {
+        $hours = intdiv($minutes, 60);
+        $remainder = $minutes % 60;
+
+        $text = $hours . ' ' . $qualifier . 'hour' . ($hours == 1 ? '' : 's');
+        if ($remainder >= 5) {
+            $text .= ' ' . $remainder . ' minutes';
+        }
+
+        return $text;
+    }
+
+    $days = intdiv($minutes, $day_minutes);
+    $hours = intdiv($minutes % $day_minutes, 60);
+
+    $text = $days . ' ' . $qualifier . 'day' . ($days == 1 ? '' : 's');
+    if ($hours > 0) {
+        $text .= ' ' . $hours . ' hour' . ($hours == 1 ? '' : 's');
+    }
+
+    return $text;
+}
+
+// Client-facing SLA block for a "ticket created" email. Returns '' when no SLA
+// applies to the ticket or the plan carries no response target, so callers can
+// append it unconditionally.
+//
+// Call this AFTER applyTicketSla(), which is what stamps ticket_response_due_at.
+//
+// The returned HTML deliberately contains NO single or double quotes. Most of
+// these email bodies are assembled pre-escaped and handed to addToMailQueue,
+// which interpolates the body straight into its INSERT without escaping it, so
+// a stray quote here would break the query at those call sites.
+function getTicketSlaEmailNotice($ticket_id, $company_phone = '')
+{
+    global $mysqli;
+
+    $ticket_id = intval($ticket_id);
+
+    $sql = mysqli_query($mysqli, "SELECT ticket_priority, ticket_response_due_at, sla_response_minutes
+        FROM tickets
+        LEFT JOIN slas ON ticket_sla_id = sla_id
+        WHERE ticket_id = $ticket_id LIMIT 1");
+    if (!$sql || !mysqli_num_rows($sql)) {
+        return '';
+    }
+    $row = mysqli_fetch_assoc($sql);
+
+    $response_minutes = intval($row['sla_response_minutes']);
+
+    if (empty($row['ticket_response_due_at']) || $response_minutes <= 0) {
+        return '';
+    }
+
+    // The only value in this notice that comes from the database rather than a
+    // literal - escaped so the quote-free guarantee above holds for it too
+    $priority = escapeHtml($row['ticket_priority']);
+    $target = formatSlaMinutes($response_minutes);
+    $due = date('D j M, g:i A', strtotime($row['ticket_response_due_at']));
+
+    $notice = "<br><br>Priority: $priority<br>Target response: within $target (by $due)";
+
+    // Higher priorities get told to phone rather than sit on an email thread
+    if (!empty($company_phone) && ($priority == 'Urgent' || $priority == 'High')) {
+        if ($priority == 'Urgent') {
+            $notice .= "<br><br><strong>This ticket is marked Urgent.</strong> If the issue is stopping work right now, please call us on $company_phone rather than waiting for a reply to this email.";
+        } else {
+            $notice .= "<br><br><strong>This ticket is marked High priority.</strong> If it is business-impacting, calling us on $company_phone will get you the fastest response.";
+        }
+    }
+
+    return $notice;
 }
 
 // Record the ticket's first response (if not already recorded) and judge the

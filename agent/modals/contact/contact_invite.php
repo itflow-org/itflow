@@ -2,10 +2,8 @@
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header bg-dark">
-                <h5 class="modal-title"><i class="fas fa-fw fa-user-plus mr-2"></i>Invite Contact</h5>
-                <button type="button" class="close text-white" data-dismiss="modal">
-                    <span>&times;</span>
-                </button>
+                <h5 class="modal-title"><i class="fas fa-fw fa-user-plus me-2"></i>Invite Contact</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
             </div>
 
             <form action="post.php" method="post" enctype="multipart/form-data" autocomplete="off">
@@ -14,23 +12,19 @@
 
                 <div class="modal-body">
 
-                    <div class="form-group">
+                    <div class="mb-3">
                         <label>Email</label>
                         <div class="input-group">
-                            <div class="input-group-prepend">
                                 <span class="input-group-text"><i class="fa fa-fw fa-envelope"></i></span>
-                            </div>
                             <input type="email" class="form-control" name="email" placeholder="Email Address" maxlength="200">
                         </div>
                     </div>
 
-                    <div class="form-group">
+                    <div class="mb-3">
                         <label>Welcome Letter</label>
                         <div class="input-group">
-                            <div class="input-group-prepend">
                                 <span class="input-group-text"><i class="fas fa-fw fa-envelope-open-text"></i></span>
-                            </div>
-                            <select class="form-control select2" name="welcome_letter">
+                            <select class="form-select select2" name="welcome_letter">
                                 <option value="1">- Select One -</option>
                                 <option value="2">Standard</option>
                                 <option value="3">Big Wig</option>
@@ -38,33 +32,33 @@
                         </div>
                     </div>
 
-                    <div class="form-group">
+                    <div class="mb-3">
                         <textarea class="form-control" rows="8" name="notes" placeholder="Enter some notes"><?= $contact_notes ?></textarea>
                     </div>
 
-                    <div class="form-row">
+                    <div class="row g-2">
 
                         <div class="col-md-4">
-                            <div class="form-group">
-                                <div class="custom-control custom-checkbox">
-                                    <input type="checkbox" class="custom-control-input" id="contactInviteImportantCheckbox" name="contact_important" value="1" >
-                                    <label class="custom-control-label" for="contactInviteImportantCheckbox">Important</label>
+                            <div class="mb-3">
+                                <div class="form-check">
+                                    <input type="checkbox" class="form-check-input" id="contactInviteImportantCheckbox" name="contact_important" value="1" >
+                                    <label class="form-check-label" for="contactInviteImportantCheckbox">Important</label>
                                 </div>
                             </div>
                         </div>
                         <div class="col-md-4">
-                            <div class="form-group">
-                                <div class="custom-control custom-checkbox">
-                                    <input type="checkbox" class="custom-control-input" id="contactInviteBillingCheckbox" name="contact_billing" value="1" >
-                                    <label class="custom-control-label" for="contactInviteBillingCheckbox">Billing</label>
+                            <div class="mb-3">
+                                <div class="form-check">
+                                    <input type="checkbox" class="form-check-input" id="contactInviteBillingCheckbox" name="contact_billing" value="1" >
+                                    <label class="form-check-label" for="contactInviteBillingCheckbox">Billing</label>
                                 </div>
                             </div>
                         </div>
                         <div class="col-md-4">
-                            <div class="form-group">
-                                <div class="custom-control custom-checkbox">
-                                    <input type="checkbox" class="custom-control-input" id="contactInviteTechnicalCheckbox" name="contact_technical" value="1" >
-                                    <label class="custom-control-label" for="contactInviteTechnicalCheckbox">Technical</label>
+                            <div class="mb-3">
+                                <div class="form-check">
+                                    <input type="checkbox" class="form-check-input" id="contactInviteTechnicalCheckbox" name="contact_technical" value="1" >
+                                    <label class="form-check-label" for="contactInviteTechnicalCheckbox">Technical</label>
                                 </div>
                             </div>
                         </div>
@@ -74,8 +68,8 @@
                 </div>
 
                 <div class="modal-footer">
-                    <button type="submit" name="invite_contact" class="btn btn-primary text-bold"><i class="fas fa-paper-plane mr-2"></i>Send Invite</button>
-                    <button type="button" class="btn btn-light" data-dismiss="modal"><i class="fa fa-times mr-2"></i>Cancel</button>
+                    <button type="submit" name="invite_contact" class="btn btn-primary text-bold"><i class="fas fa-paper-plane me-2"></i>Send Invite</button>
+                    <button type="button" class="btn btn-light" data-bs-dismiss="modal"><i class="fa fa-times me-2"></i>Cancel</button>
                 </div>
 
             </form>

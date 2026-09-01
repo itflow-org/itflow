@@ -144,6 +144,16 @@ function getExportColumns($export_type) {
             'network_secondary_dns' => ['label' => 'Secondary DNS'],
         ],
 
+        'network_ips' => [
+            'ip_address'     => ['label' => 'IP Address'],
+            'ip_hostname'    => ['label' => 'Hostname', 'weight' => 2],
+            'ip_description' => ['label' => 'Description', 'weight' => 3],
+            // Available from the handler's join but not exported by default -
+            // the export is always scoped to one network of one client
+            'network_name'   => ['label' => 'Network', 'default' => false],
+            'client_name'    => ['label' => 'Client', 'default' => false],
+        ],
+
         'certificates' => [
             'certificate_name'        => ['label' => 'Name', 'weight' => 2],
             'certificate_description' => ['label' => 'Description', 'weight' => 3],
@@ -374,7 +384,7 @@ function guardExportPdfRowCount($format, $num_rows) {
  * Presentation only. CSV keeps numbers raw so spreadsheets and importers still
  * see a number; the PDF is for reading, so it gets thousands separators.
  */
-function formatExportValue($value, $format, $output) {
+function formatExportValue($value, $format, $output, $row = [], $field = '') {
 
     // An empty field is empty, whatever its format - a blank amount is not 0.00
     if ($value === null || $value === '') {
@@ -382,7 +392,10 @@ function formatExportValue($value, $format, $output) {
     }
 
     if ($format === 'phone') {
-        return formatPhoneNumber($value);
+        // Every phone column in the schema is paired with <column>_country_code,
+        // and the export queries all select the table wholesale, so the code is
+        // already in the row - it just was not reachable from here before.
+        return formatPhoneNumber($value, $row[$field . '_country_code'] ?? '');
     }
 
     if ($output === 'pdf' && $format === 'money') {
@@ -418,11 +431,11 @@ function renderExportColumnPicker($export_type) {
 
     ?>
 
-    <div class="form-group">
+    <div class="mb-3">
         <label class="d-flex justify-content-between align-items-center">
             <span>Columns</span>
             <span>
-                <button type="button" class="btn btn-link btn-sm p-0 mr-2 export-columns-all">Select all</button>
+                <button type="button" class="btn btn-link btn-sm p-0 me-2 export-columns-all">Select all</button>
                 <button type="button" class="btn btn-link btn-sm p-0 export-columns-none">None</button>
             </span>
         </label>
@@ -430,8 +443,8 @@ function renderExportColumnPicker($export_type) {
             <div class="row">
                 <?php foreach ($available as $column_key => $column) { ?>
                     <div class="col-md-6">
-                        <label class="d-block mb-1 font-weight-normal text-truncate" title="<?= escapeHtml($column['label']) ?>">
-                            <input type="checkbox" name="columns[]" value="<?= $column_key ?>" <?php if ($column['default'] ?? true) { echo 'checked'; } ?>>
+                        <label class="d-block mb-1 fw-normal text-truncate" title="<?= escapeHtml($column['label']) ?>">
+                            <input class="form-check-input" type="checkbox" name="columns[]" value="<?= $column_key ?>" <?php if ($column['default'] ?? true) { echo 'checked'; } ?>>
                             <?= escapeHtml($column['label']) ?>
                         </label>
                     </div>
@@ -591,10 +604,10 @@ function exportTabsNav($filters_label = 'Filters') {
     ?>
     <ul class="modal-header nav nav-pills nav-justified">
         <li class="nav-item">
-            <a class="nav-link active" data-toggle="pill" href="#<?= $id ?>-filters"><?= escapeHtml($filters_label) ?></a>
+            <a class="nav-link active" data-bs-toggle="pill" href="#<?= $id ?>-filters"><?= escapeHtml($filters_label) ?></a>
         </li>
         <li class="nav-item">
-            <a class="nav-link" data-toggle="pill" href="#<?= $id ?>-columns">Columns</a>
+            <a class="nav-link" data-bs-toggle="pill" href="#<?= $id ?>-columns">Columns</a>
         </li>
     </ul>
     <?php
@@ -625,9 +638,9 @@ function exportTabsColumns($export_type) {
  */
 function renderExportButtons($trigger) {
     ?>
-    <button type="submit" name="<?= $trigger ?>" value="csv" class="btn btn-primary text-bold"><i class="fas fa-fw fa-file-csv mr-2"></i>Download CSV</button>
-    <button type="submit" name="<?= $trigger ?>" value="pdf" class="btn btn-secondary text-bold"><i class="fas fa-fw fa-file-pdf mr-2"></i>Download PDF</button>
-    <button type="button" class="btn btn-light" data-dismiss="modal"><i class="fas fa-times mr-2"></i>Cancel</button>
+    <button type="submit" name="<?= $trigger ?>" value="csv" class="btn btn-primary text-bold"><i class="fas fa-fw fa-file-csv me-2"></i>Download CSV</button>
+    <button type="submit" name="<?= $trigger ?>" value="pdf" class="btn btn-secondary text-bold"><i class="fas fa-fw fa-file-pdf me-2"></i>Download PDF</button>
+    <button type="button" class="btn btn-light" data-bs-dismiss="modal"><i class="fas fa-times me-2"></i>Cancel</button>
     <?php
 }
 
@@ -691,7 +704,7 @@ function addExportRow(&$export, $row) {
             $export['missing'][$field] = true;
         }
 
-        $values[$column_key] = formatExportValue($row[$field] ?? '', $column['format'] ?? '', $export['format']);
+        $values[$column_key] = formatExportValue($row[$field] ?? '', $column['format'] ?? '', $export['format'], $row, $field);
     }
 
     if ($export['format'] === 'csv') {
@@ -899,10 +912,10 @@ function renderClientPackSections() {
         <div class="col-sm-6">
             <?php } ?>
             <li class="list-group-item">
-                <div class="custom-control custom-checkbox">
-                    <input class="custom-control-input" type="checkbox" id="include_<?= $key ?>" name="include_<?= $key ?>" value="1" <?php if ($section['default']) { echo 'checked'; } ?>>
-                    <label for="include_<?= $key ?>" class="custom-control-label">
-                        <i class="fas fa-fw <?= $section['icon'] ?> mr-2"></i><?= escapeHtml($section['label']) ?>
+                <div class="form-check">
+                    <input class="form-check-input" type="checkbox" id="include_<?= $key ?>" name="include_<?= $key ?>" value="1" <?php if ($section['default']) { echo 'checked'; } ?>>
+                    <label for="include_<?= $key ?>" class="form-check-label">
+                        <i class="fas fa-fw <?= $section['icon'] ?> me-2"></i><?= escapeHtml($section['label']) ?>
                     </label>
                 </div>
             </li>

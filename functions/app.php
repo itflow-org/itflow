@@ -39,7 +39,7 @@ function getAssetIcon($asset_type) {
 
 function getInvoiceBadgeColor($invoice_status) {
     if ($invoice_status == "Sent") {
-        $invoice_badge_color = "warning text-white";
+        $invoice_badge_color = "warning";
     } elseif ($invoice_status == "Viewed") {
         $invoice_badge_color = "info";
     } elseif ($invoice_status == "Partial") {
@@ -59,6 +59,35 @@ function getInvoiceBadgeColor($invoice_status) {
  * The display name for a ticket status id, RAW. Escaping is the caller's job -
  * same convention as getFieldById() above.
  */
+/*
+ * Fixed SLA clock behaviour for the five built-in ticket statuses.
+ *
+ * New and Open always run the resolution clock; On Hold, Resolved and Closed
+ * always stop it, and none of the five can be configured otherwise. A ticket
+ * nobody can work on should not burn resolution budget, and a finished ticket
+ * has a verdict rather than a clock.
+ *
+ * Resolved and Closed additionally stop BOTH clocks through ticket_resolved_at
+ * and ticket_closed_at, which cron/ticket_sla.php and syncTicketSlaClock() read
+ * directly - their behaviour never depended on this flag and still does not.
+ * The flag is set on them so every SLA surface reads one consistent answer.
+ *
+ * Returns 1 or 0 for a built-in status, or null for a custom one (id > 5),
+ * which the admin configures freely.
+ */
+function getTicketStatusSlaLock($ticket_status_id)
+{
+    $locked_statuses = [
+        1 => 0, // New
+        2 => 0, // Open
+        3 => 1, // On Hold
+        4 => 1, // Resolved
+        5 => 1, // Closed
+    ];
+
+    return $locked_statuses[intval($ticket_status_id)] ?? null;
+}
+
 function getTicketStatusName($ticket_status) {
 
     global $mysqli;
@@ -306,16 +335,295 @@ function getRepoBranch(): string
     return $branch === '' ? 'master' : $branch;
 }
 
+/*
+ * Reading git WITHOUT running git.
+ *
+ * Everything below answers from the files in .git, so it works on hosts where exec() and
+ * shell_exec() are disabled and costs a couple of file reads instead of a process. Only
+ * operations that need the network (git fetch) or the object database (a commit list) still
+ * need the binary - see CONTRIBUTING rule 6.
+ *
+ * Returns '' rather than throwing on anything unexpected: a zip-drop install has no .git at
+ * all, and every caller here is reporting, not deciding.
+ */
+function gitDir(): string
+{
+    $root = dirname(__DIR__);
+    $git = $root . '/.git';
+
+    if (is_dir($git)) {
+        return $git;
+    }
+
+    // Submodules and linked worktrees put "gitdir: <path>" in a file instead of a directory
+    if (is_file($git)) {
+        $line = trim((string) @file_get_contents($git));
+
+        if (str_starts_with($line, 'gitdir:')) {
+            $path = trim(substr($line, 7));
+
+            if ($path !== '' && $path[0] !== '/') {
+                $path = $root . '/' . $path;
+            }
+
+            if ($path !== '' && is_dir($path)) {
+                return $path;
+            }
+        }
+    }
+
+    return '';
+}
+
+/*
+ * Where the refs live. A linked worktree keeps its own HEAD but shares the main repository's
+ * refs, and points at them with a commondir file - resolve a ref against the worktree's own
+ * directory and every lookup comes back empty.
+ */
+function gitCommonDir(): string
+{
+    $dir = gitDir();
+
+    if ($dir === '') {
+        return '';
+    }
+
+    $commondir = $dir . '/commondir';
+
+    if (is_file($commondir)) {
+        $path = trim((string) @file_get_contents($commondir));
+
+        if ($path !== '' && $path[0] !== '/') {
+            $path = $dir . '/' . $path;
+        }
+
+        if ($path !== '' && is_dir($path)) {
+            return rtrim($path, '/');
+        }
+    }
+
+    return $dir;
+}
+
+/*
+ * The commit a ref points at, e.g. gitRefCommit('refs/remotes/origin/develop').
+ *
+ * A ref is either its own file or a line in packed-refs; git writes loose files and moves
+ * them into packed-refs when it tidies up, so both have to be read. Lines starting with ^ in
+ * packed-refs are the peeled target of an annotated tag, not a ref.
+ */
+function gitRefCommit(string $ref, int $depth = 0): string
+{
+    // The ref becomes part of a path, and $repo_branch reaches this from config.php
+    if ($depth > 5 || str_contains($ref, '..') || !preg_match('#^[A-Za-z0-9._/-]+$#', $ref)) {
+        return '';
+    }
+
+    $dir = gitCommonDir();
+
+    if ($dir === '') {
+        return '';
+    }
+
+    $loose = $dir . '/' . $ref;
+
+    if (is_file($loose)) {
+        $value = trim((string) @file_get_contents($loose));
+
+        if (str_starts_with($value, 'ref: ')) {
+            return gitRefCommit(trim(substr($value, 5)), $depth + 1);
+        }
+
+        return preg_match('/^[0-9a-f]{40}$/', $value) ? $value : '';
+    }
+
+    $packed = $dir . '/packed-refs';
+
+    if (is_file($packed)) {
+        foreach ((array) @file($packed, FILE_IGNORE_NEW_LINES) as $line) {
+
+            if ($line === '' || $line[0] === '#' || $line[0] === '^') {
+                continue;
+            }
+
+            $parts = explode(' ', $line, 2);
+
+            if (count($parts) === 2 && trim($parts[1]) === $ref) {
+                return preg_match('/^[0-9a-f]{40}$/', $parts[0]) ? $parts[0] : '';
+            }
+
+        }
+    }
+
+    return '';
+}
+
+/* The branch this working tree is on, or 'HEAD' when it is detached. */
+function gitCurrentBranch(): string
+{
+    $dir = gitDir();
+
+    if ($dir === '') {
+        return '';
+    }
+
+    $head = trim((string) @file_get_contents($dir . '/HEAD'));
+
+    if (str_starts_with($head, 'ref: refs/heads/')) {
+        return substr($head, 16);
+    }
+
+    return $head === '' ? '' : 'HEAD';
+}
+
+/* The commit this working tree is on - the file-read equivalent of git rev-parse HEAD. */
+function gitCurrentCommit(): string
+{
+    $dir = gitDir();
+
+    if ($dir === '') {
+        return '';
+    }
+
+    $head = trim((string) @file_get_contents($dir . '/HEAD'));
+
+    if (str_starts_with($head, 'ref: ')) {
+        return gitRefCommit(trim(substr($head, 5)));
+    }
+
+    return preg_match('/^[0-9a-f]{40}$/', $head) ? $head : '';
+}
+
+/*
+ * Where a command lives, or '' if it is not on the path - what `which` was being run for.
+ *
+ * PHP-FPM pools often ship a nearly empty PATH, so the usual locations are checked as well;
+ * a missing hit here would otherwise read as "git is not installed" on a box where it is.
+ */
+function commandPath(string $command): string
+{
+    if (!preg_match('/^[A-Za-z0-9._-]+$/', $command)) {
+        return '';
+    }
+
+    $dirs = array_filter(explode(PATH_SEPARATOR, (string) getenv('PATH')));
+
+    foreach (['/usr/local/sbin', '/usr/local/bin', '/usr/sbin', '/usr/bin', '/sbin', '/bin'] as $fallback) {
+        if (!in_array($fallback, $dirs, true)) {
+            $dirs[] = $fallback;
+        }
+    }
+
+    foreach ($dirs as $dir) {
+        $candidate = rtrim($dir, '/') . '/' . $command;
+
+        if (@is_file($candidate) && @is_executable($candidate)) {
+            return $candidate;
+        }
+    }
+
+    return '';
+}
+
+/*
+ * Whether this PHP can run external commands at all. Nothing in the web tier does any more -
+ * checkForUpdates() is called from cron/update_check.php alone, and the Update page reads what
+ * that job stored. This is what the job asks before it starts, and what admin/debug.php
+ * reports, so a host with exec()/shell_exec() disabled shows why its checks stopped rather
+ * than failing silently.
+ *
+ * function_exists() already reports a disabled function as missing. disable_functions is
+ * read as well because some hardening extensions leave the function defined and refuse the
+ * call instead, and a fatal on the Update page is a poor way to find that out.
+ */
+function shellCommandsAvailable(): bool
+{
+    $disabled = array_map('trim', explode(',', (string) ini_get('disable_functions')));
+
+    foreach (['exec', 'shell_exec'] as $shell_function) {
+        if (!function_exists($shell_function) || in_array($shell_function, $disabled, true)) {
+            return false;
+        }
+    }
+
+    return true;
+}
+
+/*
+ * Whether a settings column exists yet.
+ *
+ * Maintenance > Update is the page that APPLIES database updates, so it has to keep working
+ * against a schema older than the code it is running - the window between the files being
+ * updated and the database catching up is exactly when somebody opens it. mysqli throws on
+ * an unknown column, so a page that reads a column newer than the oldest schema it might
+ * meet dies before it can render the button that fixes it.
+ *
+ * Anything else that runs before the migrations have caught up has the same problem, which
+ * is why this takes the column name rather than answering one question.
+ */
+function settingsColumnExists($mysqli, string $column): bool
+{
+    $column = escapeSql($column);
+
+    $result = mysqli_query($mysqli, "SHOW COLUMNS FROM `settings` LIKE '$column'");
+
+    return $result && mysqli_num_rows($result) > 0;
+}
+
 function checkForUpdates() {
 
-    $remote_ref = escapeshellarg("origin/" . getRepoBranch());
+    $updates = new stdClass();
+
+    // Nothing here can run without a shell. Reported as a failed check rather than left to
+    // fatal, because the nightly job calls this too and one host's php.ini must not take
+    // the whole cron cycle down with it.
+    if (!shellCommandsAvailable()) {
+        $updates->output = ["PHP on this server cannot run external commands, so ITFlow cannot check for updates."];
+        $updates->result = 127;
+        $updates->current_version = '';
+        $updates->latest_version = '';
+        $updates->update_message = "Cannot check for updates";
+        $updates->pending_commits = [];
+
+        return $updates;
+    }
 
     // Fetch the latest code changes but don't apply them. stderr is merged in because git
     // reports failures there, and it is the only thing the update page can show when this
     // breaks - it used to run a second git fetch of its own just to get the message.
     exec("git fetch 2>&1", $output, $result);
-    $latest_version = exec("git rev-parse $remote_ref");
-    $current_version = exec("git rev-parse HEAD");
+
+    // Both sides of the comparison are read out of .git rather than shelled for - the fetch
+    // has already written the remote-tracking ref by the time we get here
+    $latest_version = gitRefCommit("refs/remotes/origin/" . getRepoBranch());
+    $current_version = gitCurrentCommit();
+
+    /*
+     * The commits between here and there. Fields are separated by \x1f rather than letting
+     * git format the row itself, because a subject comes from outside this install and used
+     * to reach the Update page as unescaped HTML.
+     *
+     * The date is %aI (absolute, ISO 8601) rather than %ar. This result is stored and read
+     * back hours later, and a stored "2 hours ago" is wrong the moment it is written - the
+     * relative form is worked out at render time instead.
+     */
+    $updates->pending_commits = [];
+
+    $remote_ref = escapeshellarg("origin/" . getRepoBranch());
+
+    foreach (explode("\n", trim((string) shell_exec("git log HEAD..$remote_ref --pretty=format:'%h%x1f%aI%x1f%s'"))) as $commit_line) {
+
+        if ($commit_line === '') {
+            continue;
+        }
+
+        $commit_fields = explode("\x1f", $commit_line, 3);
+
+        if (count($commit_fields) === 3) {
+            $updates->pending_commits[] = $commit_fields;
+        }
+
+    }
 
     if ($current_version == $latest_version) {
         $update_message = "No Updates available";
@@ -324,7 +632,6 @@ function checkForUpdates() {
     }
 
 
-    $updates = new stdClass();
     $updates->output = $output;
     $updates->result = $result;
     $updates->current_version = $current_version;
@@ -477,4 +784,77 @@ function createiCalStrCancel($datetime, $title, $uid) {
     $event->addNode(new ZCiCalDataNode("STATUS:CANCELLED"));
 
     return $cal_event->export();
+}
+
+/*
+ * Which contacts a document's Send Email picker offers, as a SQL fragment.
+ *
+ * A client with fifty contacts should not hand the agent a fifty-row list to
+ * scroll, so the picker is narrowed to the people a given document type is
+ * actually addressed to:
+ *
+ *   invoice - primary and billing. A bill goes to whoever pays it.
+ *   quote   - primary, billing, technical and important. A quote gets read by
+ *             the person who scoped the work as often as the one who signs it.
+ *
+ * Lives here rather than inline in the modals because the Send Email button on
+ * agent/invoice.php and agent/quote.php gates on a COUNT using the same rule -
+ * if the two drift, the button appears and then the modal it opens reports
+ * there is nobody to send to.
+ *
+ * Note the post handlers deliberately do NOT re-apply this filter. It is a
+ * shortlist, not a permission boundary: any agent who can send a document can
+ * already set these flags on a contact.
+ */
+function documentContactFilterSql($document_type) {
+    if ($document_type === 'quote') {
+        return "AND (contact_primary = 1 OR contact_billing = 1 OR contact_technical = 1 OR contact_important = 1)";
+    }
+
+    return "AND (contact_primary = 1 OR contact_billing = 1)";
+}
+
+/*
+ * Which of the offered contacts are selected by default, as a SQL fragment.
+ *
+ * Two things read this and they must agree: the Send Email picker uses it to
+ * decide which boxes open ticked, and Quick Send uses it as the whole
+ * recipient list - Quick Send is exactly "send to the ticked ones without
+ * opening the modal".
+ *
+ *   invoice - primary and billing, which is everyone the picker offers. A bill
+ *             has no recipient you would routinely leave out.
+ *   quote   - primary only. Technical and important contacts are offered
+ *             because they often want the quote, but sending unasked to
+ *             someone who did not request pricing is not a safe default.
+ *
+ * Always a subset of documentContactFilterSql() for the same document type.
+ */
+function documentDefaultContactFilterSql($document_type) {
+    if ($document_type === 'quote') {
+        return "AND contact_primary = 1";
+    }
+
+    return "AND (contact_primary = 1 OR contact_billing = 1)";
+}
+
+/*
+ * The delivery methods offered by the Mark Sent modal on invoices and quotes.
+ *
+ * Marking a document sent records that it left the building by some route
+ * other than ITFlow's own mailer, so the list is about how it got there. It is
+ * deliberately a fixed list rather than a categories row: the post handler
+ * validates the submitted value against it, and "Other" plus the free-text
+ * note covers anything not listed.
+ */
+function getSentMethods() {
+    return [
+        'Sent by Snail Mail',
+        'Sent by Email Client',
+        'Hand Delivered',
+        'Sent by Fax',
+        'Sent by Courier',
+        'Shared Guest Link',
+        'Other'
+    ];
 }

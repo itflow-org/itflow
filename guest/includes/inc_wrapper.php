@@ -1,6 +1,6 @@
 <!-- Content Wrapper. Contains page content -->
-<div class="content-wrapper">
+<main class="app-main">
 
     <!-- Main content -->
-    <div class="content">
+    <div class="app-content">
         <div class="container">

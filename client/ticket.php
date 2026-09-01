@@ -97,7 +97,7 @@ if (isset($_GET['id']) && intval($_GET['id'])) {
                 <div class="card-tools">
                     <?php
                     if (empty($ticket_resolved_at) && $task_count == $completed_task_count) { ?>
-                        <a href="post.php?resolve_ticket=<?= $ticket_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>" class="btn btn-sm btn-outline-success float-right text-white confirm-link"><i class="fas fa-fw fa-check text-success"></i> Resolve ticket</a>
+                        <a href="post.php?resolve_ticket=<?= $ticket_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>" class="btn btn-sm btn-outline-success float-end text-white confirm-link"><i class="fas fa-fw fa-check text-success"></i> Resolve ticket</a>
                     <?php } ?>
                 </div>
             </div>
@@ -137,9 +137,9 @@ if (isset($_GET['id']) && intval($_GET['id'])) {
                     ?>
 
                     <tr>
-                        <td><i class='fas fa-fw fa-paperclip text-secondary mr-1'></i><?= $name ?></td>
+                        <td><i class='fas fa-fw fa-paperclip text-secondary me-1'></i><?= $name ?></td>
                         <td>
-                            <a target='_blank' class='mr-1 ml-1' href='ticket_attachment.php?attachment_id=<?= $ticket_attachment_id; ?>&action=view'>[View]</a><a href='ticket_attachment.php?attachment_id=<?= $ticket_attachment_id; ?>'>[Download]</a>
+                            <a target='_blank' class='me-1 ms-1' href='ticket_attachment.php?attachment_id=<?= $ticket_attachment_id; ?>&action=view'>[View]</a><a href='ticket_attachment.php?attachment_id=<?= $ticket_attachment_id; ?>'>[Download]</a>
                         </td>
                     </tr>
                     
@@ -213,11 +213,11 @@ if (isset($_GET['id']) && intval($_GET['id'])) {
             <form action="post.php" enctype="multipart/form-data" method="post">
                 <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
                 <input type="hidden" name="ticket_id" value="<?= $ticket_id ?>">
-                <div class="form-group">
+                <div class="mb-3">
                     <textarea class="form-control tinymce" name="comment" placeholder="Add comments.."></textarea>
                 </div>
-                <div class="form-group">
-                    <input type="file" class="form-control-file" name="file[]" multiple id="fileInput" accept=".jpg, .jpeg, .gif, .png, .webp, .pdf, .txt, .md, .doc, .docx, .odt, .csv, .xls, .xlsx, .ods, .pptx, .odp, .zip, .tar, .gz, .xml, .msg, .json, .wav, .mp3, .ogg, .mov, .mp4, .av1, .ovpn">
+                <div class="mb-3">
+                    <input type="file" class="form-control" name="file[]" multiple id="fileInput" accept=".jpg, .jpeg, .gif, .png, .webp, .pdf, .txt, .md, .doc, .docx, .odt, .csv, .xls, .xlsx, .ods, .pptx, .odp, .zip, .tar, .gz, .xml, .msg, .json, .wav, .mp3, .ogg, .mov, .mp4, .av1, .ovpn">
                 </div>
                 <button type="submit" class="btn btn-primary" name="add_ticket_comment">Reply</button>
             </form>
@@ -306,11 +306,11 @@ if (isset($_GET['id']) && intval($_GET['id'])) {
             <div class="card card-outline <?php if ($ticket_reply_type == 'Client') { echo "card-warning"; } else { echo "card-info"; } ?> mb-3">
                 <div class="card-header">
                     <h3 class="card-title">
-                        <div class="media">
+                        <div class="d-flex">
                             <?php
                             if (!empty($user_avatar)) {
                                 ?>
-                                <img src="<?= $avatar_link ?>" alt="User Avatar" class="img-size-50 mr-3 img-circle">
+                                <img src="<?= $avatar_link ?>" alt="User Avatar" class="img-size-50 me-3 rounded-circle">
                                 <?php
                             } else {
                                 ?>
@@ -322,7 +322,7 @@ if (isset($_GET['id']) && intval($_GET['id'])) {
                             }
                             ?>
 
-                            <div class="media-body">
+                            <div class="flex-grow-1">
                                 <?= $ticket_reply_by_display ?>
                                 <br>
                                 <small class="text-muted"><?= $ticket_reply_created_at ?> <?php if (!empty($ticket_reply_updated_at)) { echo "(edited: $ticket_reply_updated_at)"; } ?></small>
@@ -344,9 +344,9 @@ if (isset($_GET['id']) && intval($_GET['id'])) {
                         ?>
 
                         <tr>
-                            <td><i class='fas fa-fw fa-paperclip text-secondary mr-1'></i><?= $name ?></td>
+                            <td><i class='fas fa-fw fa-paperclip text-secondary me-1'></i><?= $name ?></td>
                             <td>
-                                <a target='_blank' class='mr-1 ml-1' href='ticket_attachment.php?attachment_id=<?= $ticket_attachment_id; ?>&action=view'>[View]</a><a href='ticket_attachment.php?attachment_id=<?= $ticket_attachment_id; ?>'>[Download]</a>
+                                <a target='_blank' class='me-1 ms-1' href='ticket_attachment.php?attachment_id=<?= $ticket_attachment_id; ?>&action=view'>[View]</a><a href='ticket_attachment.php?attachment_id=<?= $ticket_attachment_id; ?>'>[Download]</a>
                             </td>
                         </tr>
                         

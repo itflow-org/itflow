@@ -82,117 +82,113 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 
 <div class="card">
     <div class="card-header bg-dark py-2">
-        <h3 class="card-title mt-2"><i class="fa fa-fw fa-user-friends mr-2"></i><?php if($leads_filter == 0){ echo "Clients"; } else { echo "Leads"; } ?></h3>
+        <h3 class="card-title mt-2"><i class="fa fa-fw fa-user-friends me-2"></i><?php if($leads_filter == 0){ echo "Clients"; } else { echo "Leads"; } ?></h3>
         <div class="card-tools">
             <?php if (lookupUserPermission("module_client") >= 2) { ?>
                 <div class="btn-group">
                     <button type="button" class="btn btn-primary ajax-modal" data-modal-url="modals/client/client_add.php<?php if ($leads_filter) { echo "?lead=1"; } ?>">
-                        <i class="fas fa-plus mr-2"></i>New
+                        <i class="fas fa-plus me-2"></i>New
                         <?php if ($leads_filter == 0) { echo "Client"; } else { echo "Lead"; } ?>
                     </button>
-                    <button type="button" class="btn btn-primary dropdown-toggle dropdown-toggle-split" data-toggle="dropdown"></button>
+                    <button type="button" class="btn btn-primary dropdown-toggle dropdown-toggle-split" data-bs-toggle="dropdown"></button>
                     <div class="dropdown-menu">
                         <a class="dropdown-item text-dark ajax-modal" href="#"
                             data-modal-url="modals/client/client_import.php">
-                            <i class="fa fa-fw fa-upload mr-2"></i>Import
+                            <i class="fa fa-fw fa-upload me-2"></i>Import
                         </a>
                         <div class="dropdown-divider"></div>
                         <a class="dropdown-item text-dark ajax-modal" href="#"
                             data-modal-url="<?= buildExportModalUrl('modals/client/client_export.php', ['leads', 'tags', 'industry', 'referral', 'q', 'archived'], ['dtf' => $dtf, 'dtt' => $dtt]) ?>">
-                            <i class="fa fa-fw fa-download mr-2"></i>Export
+                            <i class="fa fa-fw fa-download me-2"></i>Export
                         </a>
                     </div>
                 </div>
             <?php } ?>
         </div>
     </div>
-    <div class="card-header pb-2 pt-3">
+    <div class="card-header py-3">
         <form autocomplete="off">
             <input type="hidden" name="leads" value="<?= $leads_filter ?>">
             <input type="hidden" name="archived" value="<?= $archived ?>">
-            <div class="row">
+            <div class="row g-2 align-items-end">
                 <div class="col-md-5">
-                    <div class="form-group">
-                        <div class="input-group">
-                            <input type="search" class="form-control" name="q" value="<?php if (isset($q)) { echo stripslashes(escapeHtml($q)); } ?>" placeholder="Search <?php if($leads_filter == 0){ echo "clients"; } else { echo "leads"; } ?>" autofocus>
-                            <div class="input-group-append">
-                                <button class="btn btn-secondary" type="button" data-toggle="collapse" data-target="#advancedFilter"><i class="fas fa-filter"></i></button>
-                                <button class="btn btn-primary"><i class="fa fa-search"></i></button>
-                            </div>
-                        </div>
+                    <div class="input-group">
+                        <input type="search" class="form-control" name="q" value="<?php if (isset($q)) { echo stripslashes(escapeHtml($q)); } ?>" placeholder="Search <?php if($leads_filter == 0){ echo "clients"; } else { echo "leads"; } ?>" autofocus>
+                        <button class="btn btn-secondary" type="button" data-bs-toggle="collapse" data-bs-target="#advancedFilter"><i class="fas fa-filter"></i></button>
+                        <button class="btn btn-primary"><i class="fa fa-search"></i></button>
                     </div>
                 </div>
                 <div class="col-md-7">
-                    <div class="btn-toolbar form-group float-right">
-                        <div class="btn-group mr-2">
-                            <a href="?leads=0" class="btn btn-<?php if ($leads_filter == 0){ echo "primary"; } else { echo "default"; } ?>" title="Clients"><i class="fa fa-fw fa-user-friends"></i><span class="d-none d-sm-inline ml-2">Clients</span></a>
-                            <a href="?leads=1" class="btn btn-<?php if ($leads_filter == 1){ echo "primary"; } else { echo "default"; } ?>"><i class="fa fa-fw fa-bullhorn"></i><span class="d-none d-sm-inline ml-2">Leads</span></a>
+                    <div class="btn-toolbar justify-content-md-end">
+                        <div class="btn-group me-2">
+                            <a href="?leads=0" class="btn btn-<?php if ($leads_filter == 0){ echo "primary"; } else { echo "default"; } ?>" title="Clients"><i class="fa fa-fw fa-user-friends"></i><span class="d-none d-sm-inline ms-2">Clients</span></a>
+                            <a href="?leads=1" class="btn btn-<?php if ($leads_filter == 1){ echo "primary"; } else { echo "default"; } ?>"><i class="fa fa-fw fa-bullhorn"></i><span class="d-none d-sm-inline ms-2">Leads</span></a>
                         </div>
 
                         <div class="btn-group">
                             <a href="?<?= $url_query_strings_sort ?>&archived=<?php if($archived == 1){ echo 0; } else { echo 1; } ?>"
                                 class="btn btn-<?php if ($archived == 1) { echo "primary"; } else { echo "default"; } ?>">
-                                <i class="fa fa-fw fa-archive mr-2"></i>Archived
+                                <i class="fa fa-fw fa-archive me-2"></i>Archived
                             </a>
-                            <div class="dropdown ml-2" id="bulkActionButton" hidden>
-                                <button class="btn btn-secondary dropdown-toggle" type="button" data-toggle="dropdown">
-                                    <i class="fas fa-fw fa-layer-group"></i><span class="d-none d-sm-inline ml-2">Action</span> (<span id="selectedCount">0</span>)
+                            <div class="dropdown ms-2" id="bulkActionButton" hidden>
+                                <button class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                                    <i class="fas fa-fw fa-layer-group"></i><span class="d-none d-sm-inline ms-2">Action</span> (<span id="selectedCount">0</span>)
                                 </button>
                                 <div class="dropdown-menu">
                                    <a class="dropdown-item ajax-modal" href="#"
                                         data-modal-url="modals/client/client_bulk_add_ticket.php"
                                         data-modal-size="lg"
                                         data-bulk="true">
-                                        <i class="fas fa-fw fa-life-ring mr-2"></i>Open Tickets
+                                        <i class="fas fa-fw fa-life-ring me-2"></i>Open Tickets
                                     </a>
                                     <div class="dropdown-divider"></div>
                                     <a class="dropdown-item ajax-modal" href="#"
                                         data-modal-url="modals/client/client_bulk_edit_hourly_rate.php"
                                         data-bulk="true">
-                                        <i class="fas fa-fw fa-clock mr-2"></i>Set Hourly Rate
+                                        <i class="fas fa-fw fa-clock me-2"></i>Set Hourly Rate
                                     </a>
                                     <div class="dropdown-divider"></div>
                                     <a class="dropdown-item ajax-modal" href="#"
                                         data-modal-url="modals/client/client_bulk_edit_net_terms.php"
                                         data-bulk="true">
-                                        <i class="fas fa-fw fa-calendar mr-2"></i>Set Net Terms
+                                        <i class="fas fa-fw fa-calendar me-2"></i>Set Net Terms
                                     </a>
                                     <div class="dropdown-divider"></div>
                                     <a class="dropdown-item ajax-modal" href="#"
                                         data-modal-url="modals/client/client_bulk_edit_industry.php"
                                         data-bulk="true">
-                                        <i class="fas fa-fw fa-briefcase mr-2"></i>Set Industry
+                                        <i class="fas fa-fw fa-briefcase me-2"></i>Set Industry
                                     </a>
                                     <div class="dropdown-divider"></div>
                                     <a class="dropdown-item ajax-modal" href="#"
                                         data-modal-url="modals/client/client_bulk_edit_referral.php"
                                         data-bulk="true">
-                                        <i class="fas fa-fw fa-link mr-2"></i>Set Referral
+                                        <i class="fas fa-fw fa-link me-2"></i>Set Referral
                                     </a>
                                     <div class="dropdown-divider"></div>
                                     <a class="dropdown-item ajax-modal" href="#"
                                         data-modal-url="modals/client/client_bulk_assign_tags.php"
                                         data-bulk="true">
-                                        <i class="fas fa-fw fa-tags mr-2"></i>Assign Tags
+                                        <i class="fas fa-fw fa-tags me-2"></i>Assign Tags
                                     </a>
                                     <div class="dropdown-divider"></div>
                                     <a class="dropdown-item ajax-modal" href="#"
                                         data-modal-url="modals/client/client_bulk_email.php"
                                         data-modal-size="lg"
                                         data-bulk="true">
-                                        <i class="fas fa-fw fa-paper-plane mr-2"></i>Send Email
+                                        <i class="fas fa-fw fa-paper-plane me-2"></i>Send Email
                                     </a>
                                     <?php if ($archived) { ?>
                                     <div class="dropdown-divider"></div>
                                     <button class="dropdown-item text-info"
                                         type="submit" form="bulkActions" name="bulk_unarchive_clients">
-                                        <i class="fas fa-fw fa-redo mr-2"></i>Restore
+                                        <i class="fas fa-fw fa-redo me-2"></i>Restore
                                     </button>
                                     <?php } else { ?>
                                     <div class="dropdown-divider"></div>
                                     <button class="dropdown-item text-danger confirm-link"
                                         type="submit" form="bulkActions" name="bulk_archive_clients">
-                                        <i class="fas fa-fw fa-archive mr-2"></i>Archive
+                                        <i class="fas fa-fw fa-archive me-2"></i>Archive
                                     </button>
                                     <?php } ?>
                                 </div>
@@ -202,7 +198,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                 </div>
             </div>
             <div
-                class="collapse
+                class="collapse mt-3
                     <?php
                     if (isset($_GET['dtf']) && $_GET['dtf'] !== '1970-01-01'
                         || $industry_filter
@@ -214,10 +210,10 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                 "
                 id="advancedFilter"
             >
-                <div class="row">
+                <div class="row g-3">
                     <div class="col-md-3">
-                        <div class="form-group">
-                            <label>Date range</label>
+                        <div>
+                            <label class="form-label">Date range</label>
                             <input type="text" id="dateFilter" class="form-control" autocomplete="off">
                             <input type="hidden" name="canned_date" id="canned_date" value="<?= escapeHtml($_GET['canned_date']) ?? '' ?>">
                             <input type="hidden" name="dtf" id="dtf" value="<?= escapeHtml($dtf ?? '') ?>">
@@ -225,9 +221,9 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                         </div>
                     </div>
                     <div class="col-md-3">
-                        <div class="form-group">
-                            <label>Tag</label>
-                            <select onchange="this.form.submit()" class="form-control select2" name="tags[]" data-placeholder="- Select Tags -" multiple>
+                        <div>
+                            <label class="form-label">Tag</label>
+                            <select onchange="this.form.submit()" class="form-select select2" name="tags[]" data-placeholder="- Select Tags -" multiple>
                                 <?php
                                 $sql_tags_filter = mysqli_query($mysqli, "
                                     SELECT tags.tag_id, tags.tag_name
@@ -247,10 +243,10 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                             </select>
                         </div>
                     </div>
-                    <div class="col-sm-2">
-                        <div class="form-group">
-                            <label>Industry</label>
-                            <select class="form-control select2" name="industry" onchange="this.form.submit()">
+                    <div class="col-sm-3">
+                        <div>
+                            <label class="form-label">Industry</label>
+                            <select class="form-select select2" name="industry" onchange="this.form.submit()">
                                 <option value="">- All Industries -</option>
 
                                 <?php
@@ -266,10 +262,10 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                             </select>
                         </div>
                     </div>
-                    <div class="col-sm-2">
-                        <div class="form-group">
-                            <label>Referral</label>
-                            <select class="form-control select2" name="referral" onchange="this.form.submit()">
+                    <div class="col-sm-3">
+                        <div>
+                            <label class="form-label">Referral</label>
+                            <select class="form-select select2" name="referral" onchange="this.form.submit()">
                                 <option value="">- All Referrals -</option>
 
                                 <?php
@@ -294,9 +290,9 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
         <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
         <div class="table-responsive">
             <table class="table table-hover mb-0">
-                <thead class="<?php if ($num_rows[0] == 0) { echo "d-none"; } ?> bg-light">
+                <thead class="<?php if ($num_rows[0] == 0) { echo "d-none"; } ?> table-light">
                 <tr>
-                    <td class="checkbox-column">
+                    <td class="checkbox-column border-end">
                         <div class="form-check">
                             <input class="form-check-input" id="selectAllCheckbox" type="checkbox" onclick="checkAll(this)">
                         </div>
@@ -383,7 +379,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                         }
 
                         $client_tag_id_array[] = $client_tag_id;
-                        $client_tag_name_display_array[] = "<a href='clients.php?tags[]=$client_tag_id'><span class='mt-1 badge badge-pill text-light p-1 mr-1' style='background-color: $client_tag_color;'><i class='fas fa-$client_tag_icon fa-fw mr-1'></i>$client_tag_name</span></a>";
+                        $client_tag_name_display_array[] = "<a href='clients.php?tags[]=$client_tag_id'><span class='mt-1 badge rounded-pill text-light p-1 me-1' style='background-color: $client_tag_color;'><i class='fas fa-$client_tag_icon fa-fw me-1'></i>$client_tag_name</span></a>";
                     }
                     $client_tags_display = '';
                     foreach (array_chunk($client_tag_name_display_array, 3) as $tag_row) {
@@ -431,44 +427,52 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 
                     ?>
                     <tr>
-                        <td class="checkbox-column bg-light">
+                        <td class="checkbox-column bg-light border-end">
                             <div class="form-check">
                                 <input class="form-check-input bulk-select" type="checkbox" name="client_ids[]" value="<?= $client_id ?>">
                             </div>
                         </td>
                         <td>
                             <a href="client_overview.php?client_id=<?= $client_id ?>"
-                                data-toggle="popover"
-                                data-trigger="hover"
-                                data-placement="right"
-                                data-html="true"
-                                data-delay='{"show": 800, "hide": 200}'
+                                data-bs-toggle="popover"
+                                data-bs-trigger="hover"
+                                data-bs-placement="right"
+                                data-bs-html="true"
+                                data-bs-delay='{"show": 800, "hide": 200}'
                                 title="<?= $client_name ?>"
-                                data-content="
+                                data-bs-content="
                                     <strong>Created:</strong> <?= $client_created_at ?><br>
                                     <strong>Short name:</strong> <?= $client_abbreviation ?><br>
                                     <strong>ID:</strong> <?= $client_id ?>
                                 ">
-                                <div class="media">
-                                    <i class="fas fa-fw fa-2x fa-user text-dark mr-2"></i>
-                                    <div class="media-body">
+                                <div class="d-flex">
+                                    <i class="fas fa-fw fa-2x fa-user text-dark me-2"></i>
+                                    <div class="flex-grow-1">
                                         <div class="text-bold"><?= $client_name ?></div>
                                         <div class="text-secondary"><?= $client_type ?></div>
 
                                     </div>
                                 </div>
-                                <div class="ml-2"><?php if ($client_tags_display) { echo $client_tags_display; } ?></div>
+                                <div class="ms-2"><?php if ($client_tags_display) { echo $client_tags_display; } ?></div>
                             </a>
                         </td>
                         <td>
                             <?php
-                            if (empty($contact_name) && empty($contact_phone) && empty($contact_mobile) && empty($client_email)) {
+                            /* contact_id is the LEFT JOIN on contact_primary = 1, so empty
+                               means no primary contact at all. The wider test below stays as
+                               it was: it also covers a primary contact that exists but has
+                               nothing worth printing. */
+                            if (empty($contact_id) && lookupUserPermission("module_client") >= 2) { ?>
+                                <a class="ajax-modal small" href="#" data-modal-url="modals/contact/contact_add.php?client_id=<?= $client_id ?>&primary=1">
+                                    Add Primary Contact
+                                </a>
+                            <?php } elseif (empty($contact_name) && empty($contact_phone) && empty($contact_mobile) && empty($client_email)) {
                                 echo "-";
                             }
 
                             if (!empty($contact_name)) { ?>
                                 <div class="text-bold">
-                                    <i class="fa fa-fw fa-user text-secondary mr-2 mb-2"></i><a class="ajax-modal" href="#"
+                                    <i class="fa fa-fw fa-user text-secondary me-2 mb-2"></i><a class="ajax-modal" href="#"
                                         data-modal-url="modals/contact/contact.php?client_id=<?= $client_id ?>&id=<?= $contact_id ?>" data-modal-size="lg"><?= $contact_name; ?>
 
                                      </a>
@@ -479,26 +483,34 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 
                             if (!empty($contact_phone)) { ?>
                                 <div class="mt-1">
-                                    <i class="fa fa-fw fa-phone text-secondary mr-2 mb-2"></i><?= $contact_phone ?> <?php if (!empty($contact_extension)) { echo "x$contact_extension"; } ?>
+                                    <i class="fa fa-fw fa-phone text-secondary me-2 mb-2"></i><?= $contact_phone ?> <?php if (!empty($contact_extension)) { echo "x$contact_extension"; } ?>
                                 </div>
                             <?php }
 
                             if (!empty($contact_mobile)) { ?>
                                 <div class="mt-1">
-                                    <i class="fa fa-fw fa-mobile-alt text-secondary mr-2"></i><?= $contact_mobile ?>
+                                    <i class="fa fa-fw fa-mobile-alt text-secondary me-2"></i><?= $contact_mobile ?>
                                 </div>
                             <?php }
 
                             if (!empty($contact_email)) { ?>
                                 <div class="mt-1">
-                                    <i class="fa fa-fw fa-envelope text-secondary mr-2"></i><a href="mailto:<?= $contact_email ?>"><?= $contact_email ?></a><button class='btn btn-sm clipboardjs' type="button" data-clipboard-text='<?= $contact_email ?>'><i class='far fa-copy text-secondary'></i></button>
+                                    <i class="fa fa-fw fa-envelope text-secondary me-2"></i><a href="mailto:<?= $contact_email ?>"><?= $contact_email ?></a><button class='btn btn-sm btn-link clipboardjs' type="button" data-clipboard-text='<?= $contact_email ?>'><i class='far fa-copy text-secondary'></i></button>
                                 </div>
                             <?php } ?>
                         </td>
-                        <td><?= $full_address ?></td>
+                        <td>
+                            <?php if (empty($location_id) && lookupUserPermission("module_client") >= 2) { ?>
+                                <a class="ajax-modal small" href="#" data-modal-url="modals/location/location_add.php?client_id=<?= $client_id ?>&primary=1">
+                                    Add Primary Location
+                                </a>
+                            <?php } else {
+                                echo $full_address;
+                            } ?>
+                        </td>
                         <!-- Show Billing if perms & if accounting module is enabled -->
                         <?php if ((lookupUserPermission("module_financial") >= 1) && $config_module_enable_accounting == 1) { ?>
-                            <td class="text-right">
+                            <td class="text-end">
                                 <div class="d-flex justify-content-between">
                                     <span class="text-secondary">Balance</span>
                                     <span class="<?= $balance_text_color ?>"><?= numfmt_format_currency($currency_format, $balance, $session_company_currency) ?></span>
@@ -527,24 +539,24 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                         <!-- Actions -->
                         <?php if (lookupUserPermission("module_client") >= 2) { ?>
                             <td>
-                                <div class="dropdown dropleft text-center">
-                                    <button class="btn btn-secondary btn-sm" type="button" data-toggle="dropdown">
+                                <div class="dropdown dropstart text-center">
+                                    <button class="btn btn-secondary btn-sm" type="button" data-bs-toggle="dropdown">
                                         <i class="fas fa-ellipsis-h"></i>
                                     </button>
                                     <div class="dropdown-menu">
                                         <a class="dropdown-item ajax-modal" href="#" data-modal-url="modals/client/client_edit.php?id=<?= $client_id ?>">
-                                            <i class="fas fa-fw fa-edit mr-2"></i>Edit
+                                            <i class="fas fa-fw fa-edit me-2"></i>Edit
                                         </a>
 
                                         <?php if ($client_archived_at) { ?>
                                         <div class="dropdown-divider"></div>
                                         <a class="dropdown-item text-info confirm-link" href="post.php?restore_client=<?= $client_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>">
-                                            <i class="fas fa-fw fa-redo mr-2"></i>Restore
+                                            <i class="fas fa-fw fa-redo me-2"></i>Restore
                                         </a>
                                         <?php } else { ?>
                                         <div class="dropdown-divider"></div>
                                         <a class="dropdown-item text-danger confirm-link" href="post.php?archive_client=<?= $client_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>">
-                                            <i class="fas fa-fw fa-archive mr-2"></i>Archive
+                                            <i class="fas fa-fw fa-archive me-2"></i>Archive
                                         </a>
                                         <?php } ?>
                                     </div>

@@ -35,11 +35,9 @@ ob_start();
 ?>
 
 <div class="modal-header bg-dark">
-    <h5 class="modal-title"><i class="fas fa-fw fa-user-edit mr-2"></i>Editing user:
+    <h5 class="modal-title"><i class="fas fa-fw fa-user-edit me-2"></i>Editing user:
         <strong><?= $user_name ?></strong></h5>
-    <button type="button" class="close text-white" data-dismiss="modal">
-        <span>&times;</span>
-    </button>
+    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
 </div>
 <form action="post.php" method="post" enctype="multipart/form-data" autocomplete="off">
     <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
@@ -48,10 +46,10 @@ ob_start();
 
         <ul class="nav nav-pills nav-justified mb-3">
             <li class="nav-item">
-                <a class="nav-link active" data-toggle="pill" href="#pills-user-details<?= $user_id ?>">Details</a>
+                <a class="nav-link active" data-bs-toggle="pill" href="#pills-user-details<?= $user_id ?>">Details</a>
             </li>
             <li class="nav-item">
-                <a class="nav-link" data-toggle="pill" href="#pills-user-access<?= $user_id ?>">Restrict Access</a>
+                <a class="nav-link" data-bs-toggle="pill" href="#pills-user-access<?= $user_id ?>">Restrict Access</a>
             </li>
         </ul>
 
@@ -72,52 +70,40 @@ ob_start();
                     <?php } ?>
                 </center>
 
-                <div class="form-group">
+                <div class="mb-3">
                     <label>Name <strong class="text-danger">*</strong></label>
                     <div class="input-group">
-                        <div class="input-group-prepend">
                             <span class="input-group-text"><i class="fa fa-fw fa-user"></i></span>
-                        </div>
                         <input type="text" class="form-control" name="name" placeholder="Full Name" maxlength="200"
                                value="<?= $user_name ?>" required>
                     </div>
                 </div>
 
-                <div class="form-group">
+                <div class="mb-3">
                     <label>Email <strong class="text-danger">*</strong></label>
                     <div class="input-group">
-                        <div class="input-group-prepend">
                             <span class="input-group-text"><i class="fa fa-fw fa-envelope"></i></span>
-                        </div>
                         <input type="email" class="form-control" name="email" placeholder="Email Address" maxlength="200"
                                value="<?= $user_email ?>" required>
                     </div>
                 </div>
 
-                <div class="form-group">
+                <div class="mb-3">
                     <label>New Password</label>
                     <div class="input-group">
-                        <div class="input-group-prepend">
                             <span class="input-group-text"><i class="fa fa-fw fa-lock"></i></span>
-                        </div>
                         <input type="password" class="form-control" data-toggle="password" name="new_password" id="password"
                                placeholder="Leave Blank For No Password Change" autocomplete="new-password">
-                        <div class="input-group-append">
                             <span class="input-group-text"><i class="fa fa-fw fa-eye"></i></span>
-                        </div>
-                        <div class="input-group-append">
                             <span class="btn btn-default"><i class="fa fa-fw fa-question" onclick="generatePassword()"></i></span>
-                        </div>
                     </div>
                 </div>
 
-                <div class="form-group">
+                <div class="mb-3">
                     <label>Role <strong class="text-danger">*</strong></label>
                     <div class="input-group">
-                        <div class="input-group-prepend">
                             <span class="input-group-text"><i class="fa fa-fw fa-user-shield"></i></span>
-                        </div>
-                        <select class="form-control select2" name="role" required>
+                        <select class="form-select select2" name="role" required>
                             <?php
                             $sql_user_roles = mysqli_query($mysqli, "SELECT role_id, role_name FROM user_roles WHERE role_archived_at IS NULL");
                             while ($row = mysqli_fetch_assoc($sql_user_roles)) {
@@ -132,15 +118,15 @@ ob_start();
                     </div>
                 </div>
 
-                <div class="form-group">
+                <div class="mb-3">
                     <label>Avatar</label>
-                    <input type="file" class="form-control-file" accept="image/*" name="file">
+                    <input type="file" class="form-control" accept="image/*" name="file">
                 </div>
 
-                <div class="form-group">
-                    <div class="custom-control custom-checkbox">
-                        <input class="custom-control-input" type="checkbox" id="forceMFACheckBox<?= $user_id ?>" name="force_mfa" value="1" <?php if($user_config_force_mfa == 1){ echo "checked"; } ?>>
-                        <label for="forceMFACheckBox<?= $user_id ?>" class="custom-control-label">
+                <div class="mb-3">
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" id="forceMFACheckBox<?= $user_id ?>" name="force_mfa" value="1" <?php if($user_config_force_mfa == 1){ echo "checked"; } ?>>
+                        <label for="forceMFACheckBox<?= $user_id ?>" class="form-check-label">
                             Force MFA
                         </label>
                     </div>
@@ -148,13 +134,11 @@ ob_start();
 
                 <?php if (!empty($user_token)) { ?>
 
-                    <div class="form-group">
+                    <div class="mb-3">
                         <label>2FA</label>
                         <div class="input-group">
-                            <div class="input-group-prepend">
                                 <span class="input-group-text"><i class="fa fa-fw fa-id-card"></i></span>
-                            </div>
-                            <select class="form-control" name="2fa">
+                            <select class="form-select" name="2fa">
                                 <option value="">Keep enabled</option>
                                 <option value="disable">Disable</option>
                             </select>
@@ -171,7 +155,7 @@ ob_start();
                 </div>
 
                 <div class="mb-2">
-                    <small class="text-muted mr-2">Set all:</small>
+                    <small class="text-muted me-2">Set all:</small>
                     <button type="button" class="btn btn-sm btn-outline-secondary" onclick="document.querySelectorAll('#accessTable<?= $user_id ?> .perm-none').forEach(r => r.checked = true);">No Rule</button>
                     <button type="button" class="btn btn-sm btn-outline-success" onclick="document.querySelectorAll('#accessTable<?= $user_id ?> .perm-allow').forEach(r => r.checked = true);">Allow</button>
                     <button type="button" class="btn btn-sm btn-outline-danger" onclick="document.querySelectorAll('#accessTable<?= $user_id ?> .perm-deny').forEach(r => r.checked = true);">Deny</button>
@@ -201,13 +185,13 @@ ob_start();
                             <tr>
                                 <td class="align-middle"><?= $client_name_select ?></td>
                                 <td class="text-center align-middle">
-                                    <input type="radio" class="perm-none" name="client_permission[<?= $client_id_select ?>]" value="" <?php if (!$client_is_allow && !$client_is_deny) { echo "checked"; } ?>>
+                                    <input type="radio" class="form-check-input perm-none" name="client_permission[<?= $client_id_select ?>]" value="" <?php if (!$client_is_allow && !$client_is_deny) { echo "checked"; } ?>>
                                 </td>
                                 <td class="text-center align-middle">
-                                    <input type="radio" class="perm-allow" name="client_permission[<?= $client_id_select ?>]" value="allow" <?php if ($client_is_allow) { echo "checked"; } ?>>
+                                    <input type="radio" class="form-check-input perm-allow" name="client_permission[<?= $client_id_select ?>]" value="allow" <?php if ($client_is_allow) { echo "checked"; } ?>>
                                 </td>
                                 <td class="text-center align-middle">
-                                    <input type="radio" class="perm-deny" name="client_permission[<?= $client_id_select ?>]" value="deny" <?php if ($client_is_deny) { echo "checked"; } ?>>
+                                    <input type="radio" class="form-check-input perm-deny" name="client_permission[<?= $client_id_select ?>]" value="deny" <?php if ($client_is_deny) { echo "checked"; } ?>>
                                 </td>
                             </tr>
 
@@ -222,8 +206,8 @@ ob_start();
 
     </div>
     <div class="modal-footer">
-        <button type="submit" name="edit_user" class="btn btn-primary text-bold"><i class="fas fa-check mr-2"></i>Save</button>
-        <button type="button" class="btn btn-light" data-dismiss="modal"><i class="fas fa-times mr-2"></i>Cancel</button>
+        <button type="submit" name="edit_user" class="btn btn-primary text-bold"><i class="fas fa-check me-2"></i>Save</button>
+        <button type="button" class="btn btn-light" data-bs-dismiss="modal"><i class="fas fa-times me-2"></i>Cancel</button>
     </div>
 </form>
 
@@ -231,7 +215,7 @@ ob_start();
 
 function generatePassword() {
     // Send a GET request to ajax.php as ajax.php?get_readable_pass=true
-    jQuery.get(
+    itflowGet(
         "/agent/ajax.php", {
             get_readable_pass: 'true'
         },

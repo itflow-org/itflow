@@ -48,7 +48,7 @@ $sql_task_templates = mysqli_query($mysqli, "SELECT task_template_completion_est
     <li class="breadcrumb-item">
         <a href="ticket_templates.php">Ticket Templates</a>
     </li>
-    <li class="breadcrumb-item active"><i class="fas fa-life-ring mr-2"></i><?= $ticket_template_name ?></li>
+    <li class="breadcrumb-item active"><i class="fas fa-life-ring me-2"></i><?= $ticket_template_name ?></li>
 </ol>
 
 <div class="row">
@@ -58,7 +58,7 @@ $sql_task_templates = mysqli_query($mysqli, "SELECT task_template_completion_est
             <div class="card-header">
                 <h3 class="card-title mt-1"><?= $ticket_template_name ?></h3>
                 <div class="card-tools">
-                    <button type="button" class="btn btn-tool btn-sm" data-toggle="modal" data-target="#editTicketTemplateModal">
+                    <button type="button" class="btn btn-tool btn-sm" data-bs-toggle="modal" data-bs-target="#editTicketTemplateModal">
                         <i class="fas fa-edit"></i>
                     </button>
                 </div>
@@ -74,18 +74,16 @@ $sql_task_templates = mysqli_query($mysqli, "SELECT task_template_completion_est
 
         <div class="card card-dark">
             <div class="card-header">
-                <h5 class="card-title"><i class="fa fa-fw fa-tasks mr-2"></i>Tasks</h5>
+                <h5 class="card-title"><i class="fa fa-fw fa-tasks me-2"></i>Tasks</h5>
             </div>
             <div class="card-body">
                 <form action="post.php" method="post" autocomplete="off">
                     <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
                     <input type="hidden" name="ticket_template_id" value="<?= $ticket_template_id ?>">
-                    <div class="form-group">
+                    <div class="mb-3">
                         <div class="input-group input-group-sm">
                             <input type="text" class="form-control" name="task_name" placeholder="Create a task" required maxlength="200">
-                            <div class="input-group-append">
                                 <button type="submit" name="add_ticket_template_task" class="btn btn-primary"><i class="fas fa-fw fa-check"></i></button>
-                            </div>
                         </div>
                     </div>
                 </form>
@@ -99,23 +97,23 @@ $sql_task_templates = mysqli_query($mysqli, "SELECT task_template_completion_est
                         ?>
                         <tr data-task-id="<?= $task_id ?>">
                             <td>
-                                <a href="#" class="drag-handle"><i class="fas fa-bars text-muted mr-2"></i></a>
+                                <a href="#" class="drag-handle"><i class="fas fa-bars text-muted me-2"></i></a>
                                 <span class="text-dark"><?= $task_name ?></span>
                             </td>
-                            <td class="text-right">
-                                <div class="float-right">
-                                    <div class="dropdown dropleft text-center">
-                                        <button class="btn btn-light text-secondary btn-sm" type="button" data-toggle="dropdown">
+                            <td class="text-end">
+                                <div class="float-end">
+                                    <div class="dropdown dropstart text-center">
+                                        <button class="btn btn-light text-secondary btn-sm" type="button" data-bs-toggle="dropdown">
                                             <i class="fas fa-ellipsis-v"></i>
                                         </button>
                                         <div class="dropdown-menu">
                                             <a class="dropdown-item ajax-modal" href="#"
                                                 data-modal-url="modals/ticket_template/ticket_template_task_edit.php?id=<?= $task_id ?>">
-                                                <i class="fas fa-fw fa-edit mr-2"></i>Edit
+                                                <i class="fas fa-fw fa-edit me-2"></i>Edit
                                             </a>
                                             <div class="dropdown-divider"></div>
                                             <a class="dropdown-item text-danger confirm-link" href="post.php?delete_task_template=<?= $task_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>">
-                                                <i class="fas fa-fw fa-trash-alt mr-2"></i>Delete
+                                                <i class="fas fa-fw fa-trash-alt me-2"></i>Delete
                                             </a>
                                         </div>
                                     </div>
@@ -147,7 +145,7 @@ new Sortable(document.querySelector('table#tasks tbody'), {
             order: index
         }));
 
-        $.post('/agent/ajax.php', {
+        itflowPostForm('/agent/ajax.php', {
             update_task_templates_order: true,
             csrf_token: '<?= $_SESSION['csrf_token'] ?>',
             ticket_template_id: <?= $ticket_template_id ?>,
