@@ -5,7 +5,15 @@
                 <div class="mb-4" style="text-align: center;">
                     <i class="far fa-10x fa-times-circle text-danger mb-3 mt-3"></i>
                     <h2>Are you really, really, really sure?</h2>
-                    <h6 class="mb-4 text-secondary">Do you really want to <b>delete <i><?= $client_name ?></i> and ALL associated data</b>? This includes <i><?= $client_name ?></i>'s documents, tickets, files, payments, invoices, logs, etc.<br>See <a href="https://forum.itflow.org/d/1147-deleting-a-client-deletes-payments" target="_blank">this</a> forum post.<br><br>This process cannot be undone.</h6>
+                    <br>
+                    <h6 class="mb-4 text-secondary"><b><u>DANGER</u></b><br> Do you really want to <b>delete <i><?= $client_name ?></i> and ALL associated data</b>? This includes <i><?= $client_name ?></i>'s documents, tickets, files, payments, invoices, logs, etc.
+                    <br><br>
+                    <?php if ($config_module_enable_accounting) { ?>                   
+                        <div class="alert alert-danger" role="alert">
+                            Deleting this client will also delete all associated accounting data. See <a href="https://forum.itflow.org/d/1147-deleting-a-client-deletes-payments" target="_blank">this</a> forum post for why that may be a bad idea.
+                        </div>
+                    <?php } ?>
+                    <u>This process cannot be undone.</u></h6>
                     <div class="mb-3">
                         <input type="hidden" id="clientName<?= $client_id ?>" value="<?= $client_name ?>">
                         <input class="form-control" type="text" id="clientNameProvided<?= $client_id ?>" onkeyup="validateClientNameDelete(<?= $client_id ?>)" placeholder="Type '<?= $client_name ?>' to confirm data deletion">
@@ -17,18 +25,5 @@
         </div>
     </div>
 </div>
-<?php /* defer, because this include is not at the end of the page.
-         inc_client_top_head.php requires this file, so on EVERY client-context
-         page this <script> sits in the middle of the body, between the client
-         header card and the page's own content. Without defer the HTML parser
-         stops here until the file arrives - and it arrives late, queued behind
-         the whole footer bundle the speculative preload scanner has already
-         started fetching - so the chrome paints and the content area below
-         stays blank for the duration. Measured on vendors.php?client_id=1:
-         document complete at 105ms, this script at 175ms, content painted at
-         219ms. That ~100ms hole is the flash.
-
-         defer is safe here: validateClientNameDelete() is only ever called
-         from the onkeyup handler above, and a deferred script is guaranteed to
-         have run before DOMContentLoaded, long before anyone can type. */ ?>
+<?php /* defer is safe here */ ?>
 <script src="/agent/js/client_delete_confirm.js" defer></script>
