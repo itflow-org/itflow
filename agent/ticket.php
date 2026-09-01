@@ -535,7 +535,7 @@ if (isset($_GET['ticket_id'])) {
                                         <a class="dropdown-item ajax-modal" href="#" id="clientChangeTicketModalLoad" data-modal-url="modals/ticket/ticket_change_client.php?ticket_id=<?= $ticket_id ?>">
                                             <i class="fas fa-fw fa-people-carry me-2"></i>Change Client
                                         </a>
-                                        <?php if (lookupUserPermission("module_support") == 3) { ?>
+                                        <?php if (lookupUserPermission("module_support") == 3 && empty($ticket_closed_at)) { ?>
                                             <div class="dropdown-divider"></div>
                                             <a class="dropdown-item text-danger text-bold confirm-link" href="post.php?delete_ticket=<?= $ticket_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>">
                                                 <i class="fas fa-fw fa-trash me-2"></i>Delete
