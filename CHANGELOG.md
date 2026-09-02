@@ -2,6 +2,26 @@
 
 This file documents all notable changes made to ITFlow.
 
+## [26.09.1] Maint Release
+
+### Upgrading to 26.09.1
+
+Update from Maintenance > Update — Queue Update hands the job to cron and it applies on its own. There is no database change in this release, so nothing else is required.
+
+### Breaking Changes and Notes
+
+- API: a contact must be archived before the delete endpoint will remove it. Deleting an active contact is refused and reports nothing deleted, so archive it first and then delete. Thanks to @Wrongecho.
+
+### Bug Fixes
+
+- Assets: IP address fields demanded all three digits of every octet, so `10.0.0.1` had to be entered as `010.000.000.001`. They take natural input again, and a field holding DHCP is now left alone rather than being emptied the moment the modal opens.
+- Networks: in the IP list, an empty hostname or description shows a dash rather than a blank cell, the column headings match the rest of the app, and the table is tighter so more addresses fit on screen.
+
+### Developer Updates
+
+- The IPv4 mask in `js/app.js` is a regex mask rather than four `IMask.MaskedRange` blocks. A pattern mask will not advance past a separator until the current block reaches its `maxLength`, which is what forced the three-digit octets. A regex mask has no per-block completeness rule and tests the whole value on each keystroke, so a partial `10.0.` is valid on its own. Octets are still bounded to 0-255 and leading zeros are still accepted, matching what the old jquery.inputmask `ip` alias allowed. Any value not made purely of digits and dots is skipped, because `interface_ip` and `asset_ip` are `varchar(200)` and also carry the literal `DHCP` written by the checkbox on those same modals.
+- Dead display variables removed from the asset, expense and product listings. `$asset_description_display`, `$client_name_display` and `$product_description_display` are folded into `?: '-'` at the point of assignment.
+
 ## [26.09]
 
 ### Upgrading to 26.09

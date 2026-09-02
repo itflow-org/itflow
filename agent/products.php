@@ -232,12 +232,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                     while ($row = mysqli_fetch_assoc($sql)) {
                         $product_id = intval($row['product_id']);
                         $product_name = escapeHtml($row['product_name']);
-                        $product_description = escapeHtml($row['product_description']);
-                        if (empty($product_description)) {
-                            $product_description_display = "-";
-                        } else {
-                            $product_description_display = "<div style='white-space:pre-line'>$product_description</div>";
-                        }
+                        $product_description = escapeHtml($row['product_description']) ?: '-';
                         $product_qty = intval($row['product_qty']);
                         $product_code = escapeHtml($row['product_code']);
                         $product_location = escapeHtml($row['product_location']) ?: '-';
@@ -267,7 +262,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                 </a>
                             </td>
                             <td><?= $category_name ?></td>
-                            <td><?= $product_description_display ?></td>
+                            <td><div style='white-space:pre-line'><?= $product_description ?></div></td>
                             <?php if ($type_filter == 'product') { ?>
                             <td><?= $product_qty ?></td>
                             <td><?= $product_location ?></td>

@@ -268,12 +268,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                     $category_name = escapeHtml($row['category_name']);
                     $account_name = escapeHtml($row['account_name']);
                     $expense_account_id = intval($row['expense_account_id']);
-                    $client_name = escapeHtml($row['client_name']);
-                    if(empty($client_name)) {
-                        $client_name_display = "-";
-                    } else {
-                        $client_name_display = $client_name;
-                    }
+                    $client_name = escapeHtml($row['client_name']) ?: '-';
                     $expense_client_id = intval($row['expense_client_id']);
 
                     if (empty($expense_receipt)) {
@@ -307,7 +302,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                         <td><?= $vendor_name ?></td>
                         <td class="text-end font-monospace"><?= numfmt_format_currency($currency_format, $expense_amount, $expense_currency_code) ?></td>
                         <td><?= $account_name ?></td>
-                        <td><?= $client_name_display ?></td>
+                        <td><?= $client_name ?></td>
                         <td>
                             <div class="dropdown dropstart text-center">
                                 <button class="btn btn-secondary btn-sm" type="button" data-bs-toggle="dropdown">
