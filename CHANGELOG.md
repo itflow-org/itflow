@@ -2,6 +2,11 @@
 
 This file documents all notable changes made to ITFlow.
 
+## [26.09.2] Maint Release
+
+- Updates the App Version to a proper version number.
+
+
 ## [26.09.1] Maint Release
 
 ### Upgrading to 26.09.1
