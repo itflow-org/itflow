@@ -52,10 +52,13 @@ $sql_total_cancelled_amount = mysqli_query($mysqli, "SELECT SUM(invoice_amount) 
 $row = mysqli_fetch_assoc($sql_total_cancelled_amount);
 $total_cancelled_amount = floatval($row['total_cancelled_amount']);
 
-$sql_total_partial_amount = mysqli_query($mysqli, "SELECT SUM(invoice_amount) AS total_partial_amount FROM payments, invoices WHERE payment_invoice_id = invoice_id AND invoice_status = 'Partial' $client_query");
+$sql_total_partial_amount = mysqli_query($mysqli, "SELECT SUM(invoice_amount) AS total_partial_amount FROM invoices WHERE invoice_status = 'Partial' $client_query");
 $row = mysqli_fetch_assoc($sql_total_partial_amount);
 $total_partial_amount = floatval($row['total_partial_amount']);
-$total_partial_count = mysqli_num_rows($sql_total_partial_amount);
+
+$sql_total_partial_paid_amount = mysqli_query($mysqli, "SELECT SUM(payment_amount) AS total_partial_paid_amount FROM payments, invoices WHERE payment_invoice_id = invoice_id AND invoice_status = 'Partial' $client_query");
+$row = mysqli_fetch_assoc($sql_total_partial_paid_amount);
+$total_partial_paid_amount = floatval($row['total_partial_paid_amount']);
 
 $sql_total_overdue_partial_amount = mysqli_query($mysqli, "SELECT SUM(payment_amount) AS total_overdue_partial_amount FROM payments, invoices WHERE payment_invoice_id = invoice_id AND invoice_status = 'Partial' AND invoice_due < CURDATE() $client_query");
 $row = mysqli_fetch_assoc($sql_total_overdue_partial_amount);
@@ -66,7 +69,7 @@ $row = mysqli_fetch_assoc($sql_total_overdue_amount);
 $total_overdue_amount = floatval($row['total_overdue_amount']);
 
 $real_overdue_amount = $total_overdue_amount - $total_overdue_partial_amount;
-$total_unpaid_amount = $total_sent_amount + $total_viewed_amount + $total_partial_amount;
+$total_unpaid_amount = $total_sent_amount + $total_viewed_amount + $total_partial_amount - $total_partial_paid_amount;
 $unpaid_count = $sent_count + $viewed_count + $partial_count;
 
 $overdue_query = '';
