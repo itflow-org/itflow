@@ -871,3 +871,46 @@ function getSentMethods() {
         'Other'
     ];
 }
+
+
+/*
+ * Products for the line-item autocomplete on invoices, quotes and recurring
+ * invoices.
+ *
+ * All three pages share js/product_autocomplete.js, so they must all be handed
+ * the same shape. They used to carry a SELECT each and they drifted: quote and
+ * recurring invoice only selected label/description/price/tax, so the shared
+ * onSelect wrote item.product_name - undefined - into the item name field.
+ *
+ * Returns a JSON string ready to emit into the page.
+ */
+function getProductsForAutocomplete($mysqli): string
+{
+    $products = [];
+
+    $sql = mysqli_query($mysqli, "
+        SELECT
+            IF(product_code IS NULL OR product_code = '', product_name, CONCAT(product_code, ' - ', product_name)) AS label,
+            product_name,
+            product_code,
+            product_type AS type,
+            product_description AS description,
+            product_price AS price,
+            product_tax_id AS tax,
+            tax_percent,
+            product_id AS prod_id,
+            COALESCE(SUM(product_stock.stock_qty), 0) AS available_stock
+        FROM products
+        LEFT JOIN product_stock ON product_id = stock_product_id
+        LEFT JOIN taxes ON product_tax_id = tax_id
+        WHERE product_archived_at IS NULL
+        GROUP BY product_id
+        ORDER BY product_name ASC
+    ");
+
+    while ($row = mysqli_fetch_assoc($sql)) {
+        $products[] = $row;
+    }
+
+    return json_encode($products) ?: '[]';
+}

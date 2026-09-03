@@ -128,14 +128,7 @@ if (isset($_GET['quote_id'])) {
     }
 
     //Product autocomplete
-    $products_sql = mysqli_query($mysqli, "SELECT product_name AS label, product_description AS description, product_price AS price, product_tax_id AS tax FROM products WHERE product_archived_at IS NULL");
-
-    if (mysqli_num_rows($products_sql) > 0) {
-        while ($row = mysqli_fetch_assoc($products_sql)) {
-            $products[] = $row;
-        }
-        $json_products = json_encode($products);
-    }
+    $json_products = getProductsForAutocomplete($mysqli);
 
     // Quote File Attachments
     $sql_quote_files = mysqli_query(
@@ -403,6 +396,7 @@ if (isset($_GET['quote_id'])) {
                                         <form action="post.php" method="post" autocomplete="off">
                                             <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
                                             <input type="hidden" name="quote_id" value="<?= $quote_id ?>">
+                                            <input type="hidden" id="product_id" name="product_id" value="0">
                                             <input type="hidden" name="item_order" value="<?php
                                             //find largest order number and add 1
                                             $sql = mysqli_query($mysqli, "SELECT MAX(item_order) AS item_order FROM quote_items WHERE item_quote_id = $quote_id");
@@ -643,68 +637,12 @@ require_once "../includes/footer.php";
 
 ?>
 
-<!-- JSON Autocomplete / type ahead -->
-<!-- //TODO: Move to js/ -->
+<!-- Product autocomplete for the add-item row -->
+<script src="/js/product_autocomplete.js"></script>
 <script>
-
 document.addEventListener('DOMContentLoaded', function () {
-
-    var availableProducts = <?= $json_products ?? '[]' ?>;
-
-    var nameInput = document.getElementById('name');
-    if (!nameInput) {
-        return;
-    }
-
-    itflowAutocomplete(nameInput, {
-        minLength: 1,
-        source: availableProducts,
-        match: function (item, term) {
-            return String(item.label || '').toLowerCase().indexOf(term) !== -1
-                || String(item.product_name || '').toLowerCase().indexOf(term) !== -1
-                || String(item.product_code || '').toLowerCase().indexOf(term) !== -1;
-        },
-        render: function (item) {
-            var esc = itflowEscapeHtml;
-            var typeText = item.type ? item.type.charAt(0).toUpperCase() + item.type.slice(1).toLowerCase() : "";
-            var showStock = (typeText.toLowerCase() !== "service");
-            var taxText = (item.tax_percent != null) ? (parseFloat(item.tax_percent) + "%") : "No tax";
-            var priceText = (item.price != null && item.price !== "") ? String(item.price) : "";
-            var stockText = (item.available_stock ?? 0);
-
-            return "<div class='d-flex justify-content-between align-items-start'>" +
-                       "<div class='flex-fill pe-2'>" +
-                           "<div class='fw-bold'>" + esc(item.label) +
-                               (typeText ? " <small class='text-muted'>(" + esc(typeText) + ")</small>" : "") +
-                           "</div>" +
-                           "<div class='small text-muted'>" + esc(item.description) + "</div>" +
-                           "<div class='mt-1'>" +
-                               "<span class='badge bg-secondary me-1'>Tax: " + esc(taxText) + "</span>" +
-                               (showStock ? "<span class='badge " + (stockText > 0 ? "bg-success" : "bg-danger") + "'>Stock: " + esc(stockText) + "</span>" : "") +
-                           "</div>" +
-                       "</div>" +
-                       "<div class='text-end'>" +
-                           "<div class='fw-bold'>" + esc(priceText) + "</div>" +
-                       "</div>" +
-                   "</div>";
-        },
-        onSelect: function (item) {
-            document.getElementById('name').value = item.product_name;
-            document.getElementById('desc').value = item.description;
-            document.getElementById('qty').value = 1;
-            document.getElementById('price').value = item.price;
-            setTomSelectValue(document.getElementById('tax'), item.tax);
-            document.getElementById('product_id').value = item.prod_id;
-        }
-    });
-
-    // Typing over the name by hand breaks the link to the product
-    nameInput.addEventListener('input', function () {
-        document.getElementById('product_id').value = 0;
-    });
-
+    initProductAutocomplete(<?= $json_products ?? '[]' ?>);
 });
-
 </script>
 
 <script src="../libs/SortableJS/Sortable.min.js"></script>

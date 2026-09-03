@@ -180,32 +180,7 @@ if (isset($_GET['invoice_id'])) {
     $invoice_badge_color = getInvoiceBadgeColor($invoice_status);
 
     //Product autocomplete
-    $products_sql = mysqli_query($mysqli, "
-        SELECT
-            IF(product_code IS NULL OR product_code = '', product_name, CONCAT(product_code, ' - ', product_name)) AS label,
-            product_name,
-            product_code,
-            product_type AS type,
-            product_description AS description,
-            product_price AS price,
-            product_tax_id AS tax,
-            tax_percent,
-            product_id AS prod_id,
-            COALESCE(SUM(product_stock.stock_qty), 0) AS available_stock
-        FROM products
-        LEFT JOIN product_stock ON product_id = stock_product_id
-        LEFT JOIN taxes ON product_tax_id = tax_id
-        WHERE product_archived_at IS NULL
-        GROUP BY product_id
-        ORDER BY product_name ASC
-    ");
-
-    if (mysqli_num_rows($products_sql) > 0) {
-        while ($row = mysqli_fetch_assoc($products_sql)) {
-            $products[] = $row;
-        }
-        $json_products = json_encode($products);
-    }
+    $json_products = getProductsForAutocomplete($mysqli);
 
     // Saved Payment Methods
     $sql_saved_payment_methods = mysqli_query($mysqli, "
@@ -815,67 +790,12 @@ require_once "../includes/footer.php";
 
 ?>
 
-<!-- JSON Autocomplete / type ahead -->
+<!-- Product autocomplete for the add-item row -->
+<script src="/js/product_autocomplete.js"></script>
 <script>
-
 document.addEventListener('DOMContentLoaded', function () {
-
-    var availableProducts = <?= $json_products ?? '[]' ?>;
-
-    var nameInput = document.getElementById('name');
-    if (!nameInput) {
-        return;
-    }
-
-    itflowAutocomplete(nameInput, {
-        minLength: 1,
-        source: availableProducts,
-        match: function (item, term) {
-            return String(item.label || '').toLowerCase().indexOf(term) !== -1
-                || String(item.product_name || '').toLowerCase().indexOf(term) !== -1
-                || String(item.product_code || '').toLowerCase().indexOf(term) !== -1;
-        },
-        render: function (item) {
-            var esc = itflowEscapeHtml;
-            var typeText = item.type ? item.type.charAt(0).toUpperCase() + item.type.slice(1).toLowerCase() : "";
-            var showStock = (typeText.toLowerCase() !== "service");
-            var taxText = (item.tax_percent != null) ? (parseFloat(item.tax_percent) + "%") : "No tax";
-            var priceText = (item.price != null && item.price !== "") ? String(item.price) : "";
-            var stockText = (item.available_stock ?? 0);
-
-            return "<div class='d-flex justify-content-between align-items-start'>" +
-                       "<div class='flex-fill pe-2'>" +
-                           "<div class='fw-bold'>" + esc(item.label) +
-                               (typeText ? " <small class='text-muted'>(" + esc(typeText) + ")</small>" : "") +
-                           "</div>" +
-                           "<div class='small text-muted'>" + esc(item.description) + "</div>" +
-                           "<div class='mt-1'>" +
-                               "<span class='badge bg-secondary me-1'>Tax: " + esc(taxText) + "</span>" +
-                               (showStock ? "<span class='badge " + (stockText > 0 ? "bg-success" : "bg-danger") + "'>Stock: " + esc(stockText) + "</span>" : "") +
-                           "</div>" +
-                       "</div>" +
-                       "<div class='text-end'>" +
-                           "<div class='fw-bold'>" + esc(priceText) + "</div>" +
-                       "</div>" +
-                   "</div>";
-        },
-        onSelect: function (item) {
-            document.getElementById('name').value = item.product_name;
-            document.getElementById('desc').value = item.description;
-            document.getElementById('qty').value = 1;
-            document.getElementById('price').value = item.price;
-            setTomSelectValue(document.getElementById('tax'), item.tax);
-            document.getElementById('product_id').value = item.prod_id;
-        }
-    });
-
-    // Typing over the name by hand breaks the link to the product
-    nameInput.addEventListener('input', function () {
-        document.getElementById('product_id').value = 0;
-    });
-
+    initProductAutocomplete(<?= $json_products ?? '[]' ?>);
 });
-
 </script>
 
 <script src="../libs/SortableJS/Sortable.min.js"></script>
