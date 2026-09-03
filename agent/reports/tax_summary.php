@@ -86,21 +86,19 @@ $sql_tax = mysqli_query($mysqli, "SELECT `tax_name` FROM `taxes`");
 
                         if ($view == 'monthly') {
 
+                            // Row total = sum of this tax’s 12 months, accumulated as we go
+                            $row_total = 0.0;
                             for ($i = 1; $i <= 12; $i++) {
                                 $monthly_tax = (float) getMonthlyTax($tax_name, $i, $year, $mysqli);
 
                                 // Accumulate totals
                                 $monthly_totals[$i] += $monthly_tax;
                                 $grand_total += $monthly_tax;
+                                $row_total += $monthly_tax;
 
                                 echo "<td class='text-end'>" . numfmt_format_currency($currency_format, $monthly_tax, $company_currency) . "</td>";
                             }
 
-                            // Row total = sum of this tax’s 12 months
-                            $row_total = 0.0;
-                            for ($i = 1; $i <= 12; $i++) {
-                                $row_total += (float) getMonthlyTax($tax_name, $i, $year, $mysqli);
-                            }
                             echo "<td class='text-end text-bold'>" . numfmt_format_currency($currency_format, $row_total, $company_currency) . "</td>";
 
                         } else {

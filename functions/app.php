@@ -644,12 +644,20 @@ function checkForUpdates() {
 }
 
 function getMonthlyTax($tax_name, $month, $year, $mysqli) {
-    // SQL to calculate monthly tax
-    $sql = "SELECT SUM(item_tax) AS monthly_tax FROM invoice_items
-            LEFT JOIN invoices ON invoice_items.item_invoice_id = invoices.invoice_id
-            LEFT JOIN payments ON invoices.invoice_id = payments.payment_invoice_id
+    // Cash basis - tax is booked to the month the money arrived, in proportion to
+    // how much of the invoice that payment covered. Driving off payments (rather
+    // than invoice_items) counts each payment exactly once, and pre-aggregating
+    // the line items stops a multi-payment invoice multiplying its own tax.
+    $sql = "SELECT SUM(invoice_tax.tax_total * (payments.payment_amount / invoices.invoice_amount)) AS monthly_tax
+            FROM payments
+            INNER JOIN invoices ON invoices.invoice_id = payments.payment_invoice_id
+            INNER JOIN (SELECT item_invoice_id, SUM(item_tax) AS tax_total
+                        FROM invoice_items
+                        WHERE item_tax_id = (SELECT tax_id FROM taxes WHERE tax_name = '$tax_name')
+                        GROUP BY item_invoice_id) AS invoice_tax
+                ON invoice_tax.item_invoice_id = invoices.invoice_id
             WHERE YEAR(payments.payment_date) = $year AND MONTH(payments.payment_date) = $month
-            AND invoice_items.item_tax_id = (SELECT tax_id FROM taxes WHERE tax_name = '$tax_name')";
+            AND invoices.invoice_amount > 0";
     $result = mysqli_query($mysqli, $sql);
     $row = mysqli_fetch_assoc($result);
     return $row['monthly_tax'] ?? 0;
@@ -660,12 +668,17 @@ function getQuarterlyTax($tax_name, $quarter, $year, $mysqli) {
     $start_month = ($quarter - 1) * 3 + 1;
     $end_month = $start_month + 2;
 
-    // SQL to calculate quarterly tax
-    $sql = "SELECT SUM(item_tax) AS quarterly_tax FROM invoice_items
-            LEFT JOIN invoices ON invoice_items.item_invoice_id = invoices.invoice_id
-            LEFT JOIN payments ON invoices.invoice_id = payments.payment_invoice_id
+    // SQL to calculate quarterly tax - see getMonthlyTax for why it is shaped this way
+    $sql = "SELECT SUM(invoice_tax.tax_total * (payments.payment_amount / invoices.invoice_amount)) AS quarterly_tax
+            FROM payments
+            INNER JOIN invoices ON invoices.invoice_id = payments.payment_invoice_id
+            INNER JOIN (SELECT item_invoice_id, SUM(item_tax) AS tax_total
+                        FROM invoice_items
+                        WHERE item_tax_id = (SELECT tax_id FROM taxes WHERE tax_name = '$tax_name')
+                        GROUP BY item_invoice_id) AS invoice_tax
+                ON invoice_tax.item_invoice_id = invoices.invoice_id
             WHERE YEAR(payments.payment_date) = $year AND MONTH(payments.payment_date) BETWEEN $start_month AND $end_month
-            AND invoice_items.item_tax_id = (SELECT tax_id FROM taxes WHERE tax_name = '$tax_name')";
+            AND invoices.invoice_amount > 0";
     $result = mysqli_query($mysqli, $sql);
     $row = mysqli_fetch_assoc($result);
     return $row['quarterly_tax'] ?? 0;
