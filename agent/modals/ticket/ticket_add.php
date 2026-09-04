@@ -161,7 +161,7 @@ ob_start();
                                     while ($row = mysqli_fetch_assoc($sql)) {
                                         $user_id = intval($row['user_id']);
                                         $user_name = escapeHtml($row['user_name']); ?>
-                                        <option value="<?= $user_id ?>"><?= $user_name ?></option>
+                                        <option <?php if ($session_user_id == $user_id) { echo "selected"; } ?> value="<?= $user_id ?>"><?= $user_name ?></option>
                                     <?php } ?>
                                 </select>
                             </div>

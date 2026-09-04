@@ -644,12 +644,20 @@ function checkForUpdates() {
 }
 
 function getMonthlyTax($tax_name, $month, $year, $mysqli) {
-    // SQL to calculate monthly tax
-    $sql = "SELECT SUM(item_tax) AS monthly_tax FROM invoice_items
-            LEFT JOIN invoices ON invoice_items.item_invoice_id = invoices.invoice_id
-            LEFT JOIN payments ON invoices.invoice_id = payments.payment_invoice_id
+    // Cash basis - tax is booked to the month the money arrived, in proportion to
+    // how much of the invoice that payment covered. Driving off payments (rather
+    // than invoice_items) counts each payment exactly once, and pre-aggregating
+    // the line items stops a multi-payment invoice multiplying its own tax.
+    $sql = "SELECT SUM(invoice_tax.tax_total * (payments.payment_amount / invoices.invoice_amount)) AS monthly_tax
+            FROM payments
+            INNER JOIN invoices ON invoices.invoice_id = payments.payment_invoice_id
+            INNER JOIN (SELECT item_invoice_id, SUM(item_tax) AS tax_total
+                        FROM invoice_items
+                        WHERE item_tax_id = (SELECT tax_id FROM taxes WHERE tax_name = '$tax_name')
+                        GROUP BY item_invoice_id) AS invoice_tax
+                ON invoice_tax.item_invoice_id = invoices.invoice_id
             WHERE YEAR(payments.payment_date) = $year AND MONTH(payments.payment_date) = $month
-            AND invoice_items.item_tax_id = (SELECT tax_id FROM taxes WHERE tax_name = '$tax_name')";
+            AND invoices.invoice_amount > 0";
     $result = mysqli_query($mysqli, $sql);
     $row = mysqli_fetch_assoc($result);
     return $row['monthly_tax'] ?? 0;
@@ -660,12 +668,17 @@ function getQuarterlyTax($tax_name, $quarter, $year, $mysqli) {
     $start_month = ($quarter - 1) * 3 + 1;
     $end_month = $start_month + 2;
 
-    // SQL to calculate quarterly tax
-    $sql = "SELECT SUM(item_tax) AS quarterly_tax FROM invoice_items
-            LEFT JOIN invoices ON invoice_items.item_invoice_id = invoices.invoice_id
-            LEFT JOIN payments ON invoices.invoice_id = payments.payment_invoice_id
+    // SQL to calculate quarterly tax - see getMonthlyTax for why it is shaped this way
+    $sql = "SELECT SUM(invoice_tax.tax_total * (payments.payment_amount / invoices.invoice_amount)) AS quarterly_tax
+            FROM payments
+            INNER JOIN invoices ON invoices.invoice_id = payments.payment_invoice_id
+            INNER JOIN (SELECT item_invoice_id, SUM(item_tax) AS tax_total
+                        FROM invoice_items
+                        WHERE item_tax_id = (SELECT tax_id FROM taxes WHERE tax_name = '$tax_name')
+                        GROUP BY item_invoice_id) AS invoice_tax
+                ON invoice_tax.item_invoice_id = invoices.invoice_id
             WHERE YEAR(payments.payment_date) = $year AND MONTH(payments.payment_date) BETWEEN $start_month AND $end_month
-            AND invoice_items.item_tax_id = (SELECT tax_id FROM taxes WHERE tax_name = '$tax_name')";
+            AND invoices.invoice_amount > 0";
     $result = mysqli_query($mysqli, $sql);
     $row = mysqli_fetch_assoc($result);
     return $row['quarterly_tax'] ?? 0;
@@ -857,4 +870,47 @@ function getSentMethods() {
         'Shared Guest Link',
         'Other'
     ];
+}
+
+
+/*
+ * Products for the line-item autocomplete on invoices, quotes and recurring
+ * invoices.
+ *
+ * All three pages share js/product_autocomplete.js, so they must all be handed
+ * the same shape. They used to carry a SELECT each and they drifted: quote and
+ * recurring invoice only selected label/description/price/tax, so the shared
+ * onSelect wrote item.product_name - undefined - into the item name field.
+ *
+ * Returns a JSON string ready to emit into the page.
+ */
+function getProductsForAutocomplete($mysqli): string
+{
+    $products = [];
+
+    $sql = mysqli_query($mysqli, "
+        SELECT
+            IF(product_code IS NULL OR product_code = '', product_name, CONCAT(product_code, ' - ', product_name)) AS label,
+            product_name,
+            product_code,
+            product_type AS type,
+            product_description AS description,
+            product_price AS price,
+            product_tax_id AS tax,
+            tax_percent,
+            product_id AS prod_id,
+            COALESCE(SUM(product_stock.stock_qty), 0) AS available_stock
+        FROM products
+        LEFT JOIN product_stock ON product_id = stock_product_id
+        LEFT JOIN taxes ON product_tax_id = tax_id
+        WHERE product_archived_at IS NULL
+        GROUP BY product_id
+        ORDER BY product_name ASC
+    ");
+
+    while ($row = mysqli_fetch_assoc($sql)) {
+        $products[] = $row;
+    }
+
+    return json_encode($products) ?: '[]';
 }

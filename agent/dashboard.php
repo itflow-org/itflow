@@ -1025,14 +1025,40 @@ if ($user_config_dashboard_technical_enable == 1) {
             data: {
                 labels: [
                     <?php
-                    mysqli_query($mysqli, "CREATE TEMPORARY TABLE TopCategories SELECT category_name, category_id, SUM(invoice_amount) AS total_income FROM categories, invoices WHERE invoice_category_id = category_id AND invoice_status = 'Paid' AND YEAR(invoice_date) = $year GROUP BY category_name, category_id ORDER BY total_income DESC LIMIT 5");
+                    // Cash basis, matching the Cash Flow chart above and the Income Summary
+                    // report - payments carry their invoice's category, and standalone
+                    // revenues count too. Keying off invoice_status = 'Paid' instead would
+                    // drop every partially paid invoice and every revenue from the chart.
+                    mysqli_query($mysqli, "CREATE TEMPORARY TABLE TopCategories
+                        SELECT category_name, category_id, SUM(income.amount) AS total_income
+                        FROM (SELECT invoice_category_id AS income_category_id, payment_amount AS amount
+                              FROM payments
+                              INNER JOIN invoices ON invoice_id = payment_invoice_id
+                              WHERE YEAR(payment_date) = $year AND invoice_category_id > 0
+                              UNION ALL
+                              SELECT revenue_category_id AS income_category_id, revenue_amount AS amount
+                              FROM revenues
+                              WHERE YEAR(revenue_date) = $year AND revenue_category_id > 0) AS income
+                        INNER JOIN categories ON category_id = income.income_category_id
+                        GROUP BY category_name, category_id
+                        ORDER BY total_income DESC LIMIT 5");
                     $sql_categories = mysqli_query($mysqli, "SELECT category_name FROM TopCategories");
                     while ($row = mysqli_fetch_assoc($sql_categories)) {
                         $category_name = json_encode($row['category_name']);
                         echo "$category_name,";
                     }
 
-                    $sql_other_categories = mysqli_query($mysqli, "SELECT SUM(invoices.invoice_amount) AS other_income FROM categories LEFT JOIN TopCategories ON categories.category_id = TopCategories.category_id INNER JOIN invoices ON categories.category_id = invoices.invoice_category_id WHERE TopCategories.category_id IS NULL AND invoice_status = 'Paid' AND YEAR(invoice_date) = $year");
+                    $sql_other_categories = mysqli_query($mysqli, "SELECT SUM(income.amount) AS other_income
+                        FROM (SELECT invoice_category_id AS income_category_id, payment_amount AS amount
+                              FROM payments
+                              INNER JOIN invoices ON invoice_id = payment_invoice_id
+                              WHERE YEAR(payment_date) = $year AND invoice_category_id > 0
+                              UNION ALL
+                              SELECT revenue_category_id AS income_category_id, revenue_amount AS amount
+                              FROM revenues
+                              WHERE YEAR(revenue_date) = $year AND revenue_category_id > 0) AS income
+                        LEFT JOIN TopCategories ON TopCategories.category_id = income.income_category_id
+                        WHERE TopCategories.category_id IS NULL");
                     $row = mysqli_fetch_assoc($sql_other_categories);
                     $other_income = floatval($row['other_income']);
                     if ($other_income > 0) {

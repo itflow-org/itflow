@@ -52,10 +52,13 @@ $sql_total_cancelled_amount = mysqli_query($mysqli, "SELECT SUM(invoice_amount) 
 $row = mysqli_fetch_assoc($sql_total_cancelled_amount);
 $total_cancelled_amount = floatval($row['total_cancelled_amount']);
 
-$sql_total_partial_amount = mysqli_query($mysqli, "SELECT SUM(invoice_amount) AS total_partial_amount FROM payments, invoices WHERE payment_invoice_id = invoice_id AND invoice_status = 'Partial' $client_query");
+$sql_total_partial_amount = mysqli_query($mysqli, "SELECT SUM(invoice_amount) AS total_partial_amount FROM invoices WHERE invoice_status = 'Partial' $client_query");
 $row = mysqli_fetch_assoc($sql_total_partial_amount);
 $total_partial_amount = floatval($row['total_partial_amount']);
-$total_partial_count = mysqli_num_rows($sql_total_partial_amount);
+
+$sql_total_partial_paid_amount = mysqli_query($mysqli, "SELECT SUM(payment_amount) AS total_partial_paid_amount FROM payments, invoices WHERE payment_invoice_id = invoice_id AND invoice_status = 'Partial' $client_query");
+$row = mysqli_fetch_assoc($sql_total_partial_paid_amount);
+$total_partial_paid_amount = floatval($row['total_partial_paid_amount']);
 
 $sql_total_overdue_partial_amount = mysqli_query($mysqli, "SELECT SUM(payment_amount) AS total_overdue_partial_amount FROM payments, invoices WHERE payment_invoice_id = invoice_id AND invoice_status = 'Partial' AND invoice_due < CURDATE() $client_query");
 $row = mysqli_fetch_assoc($sql_total_overdue_partial_amount);
@@ -66,7 +69,7 @@ $row = mysqli_fetch_assoc($sql_total_overdue_amount);
 $total_overdue_amount = floatval($row['total_overdue_amount']);
 
 $real_overdue_amount = $total_overdue_amount - $total_overdue_partial_amount;
-$total_unpaid_amount = $total_sent_amount + $total_viewed_amount + $total_partial_amount;
+$total_unpaid_amount = $total_sent_amount + $total_viewed_amount + $total_partial_amount - $total_partial_paid_amount;
 $unpaid_count = $sent_count + $viewed_count + $partial_count;
 
 $overdue_query = '';
@@ -98,10 +101,13 @@ $sql = mysqli_query(
         invoice_amount, invoice_created_at, invoice_currency_code, invoice_date,
         invoice_discount_amount, invoice_due, invoice_id, invoice_number, invoice_prefix,
         invoice_scope, invoice_status, recurring_invoice_id, recurring_invoice_number,
-        recurring_invoice_prefix FROM invoices
+        recurring_invoice_prefix, IFNULL(invoice_payments.amount_paid, 0) AS amount_paid FROM invoices
     LEFT JOIN clients ON invoice_client_id = client_id
     LEFT JOIN categories ON invoice_category_id = category_id
     LEFT JOIN recurring_invoices ON invoice_recurring_invoice_id = recurring_invoice_id
+    LEFT JOIN (SELECT payment_invoice_id, SUM(payment_amount) AS amount_paid
+               FROM payments
+               GROUP BY payment_invoice_id) AS invoice_payments ON payment_invoice_id = invoice_id
     WHERE ($status_query)
     $overdue_query
     $category_query
@@ -339,6 +345,8 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                     $invoice_due = escapeHtml($row['invoice_due']);
                     $invoice_discount = floatval($row['invoice_discount_amount']);
                     $invoice_amount = floatval($row['invoice_amount']);
+                    $amount_paid = floatval($row['amount_paid']);
+                    $invoice_balance = $invoice_amount - $amount_paid;
                     $invoice_currency_code = escapeHtml($row['invoice_currency_code']);
                     $invoice_created_at = escapeHtml($row['invoice_created_at']);
                     $client_id = intval($row['client_id']);
@@ -395,7 +403,12 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                         <?php if (!$client_url) { ?>
                         <td class="text-bold"><a href="invoices.php?client_id=<?= $client_id ?>"><?= $client_name ?></a></td>
                         <?php } ?>
-                        <td class="text-end font-monospace"><?= numfmt_format_currency($currency_format, $invoice_amount, $invoice_currency_code) ?></td>
+                        <td class="text-end font-monospace">
+                            <?= numfmt_format_currency($currency_format, $invoice_amount, $invoice_currency_code) ?>
+                            <?php if ($amount_paid > 0 && $invoice_balance > 0) { ?>
+                                <br><small class="text-danger"><?= numfmt_format_currency($currency_format, $invoice_balance, $invoice_currency_code) ?> due</small>
+                            <?php } ?>
+                        </td>
                         <td><?= $invoice_date ?></td>
                         <td class="<?= $overdue_color ?>"><?= $invoice_due ?></td>
                         <td><?= $category_name ?></td>

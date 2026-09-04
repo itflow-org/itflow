@@ -86,12 +86,12 @@ ob_start();
                             $sql = mysqli_query(
                                 $mysqli,
                                 "SELECT user_id, user_name FROM users
-                                WHERE user_role_id > 1 AND user_status = 1 AND user_archived_at IS NULL ORDER BY user_name ASC"
+                                WHERE user_type = 1 AND user_status = 1 AND user_archived_at IS NULL ORDER BY user_name ASC"
                             );
                             while ($row = mysqli_fetch_assoc($sql)) {
                                 $user_id = intval($row['user_id']);
                                 $user_name = escapeHtml($row['user_name']); ?>
-                                <option value="<?= $user_id ?>"><?= $user_name ?></option>
+                                <option <?php if ($session_user_id == $user_id) { echo "selected"; } ?> value="<?= $user_id ?>"><?= $user_name ?></option>
                             <?php } ?>
                         </select>
                     </div>

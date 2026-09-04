@@ -2,6 +2,40 @@
 
 This file documents all notable changes made to ITFlow.
 
+## [26.09.3] Maint Release
+
+### Upgrading to 26.09.3
+
+Update from Maintenance > Update — Queue Update hands the job to cron and it applies on its own. There is no database change in this release, so nothing else is required.
+
+### Breaking Changes and Notes
+
+- New tickets are now assigned to whoever is creating them. The assignee on the ticket form and on the client bulk-add form starts on your own name instead of Unassigned, and you can still pick anyone else or Unassigned before saving.
+- API: a ticket created with an assignee now comes in as Open rather than New, matching what happens when an agent assigns a ticket by hand. Anything of yours that watches for New tickets to pick up work will no longer see assigned ones.
+- Tax Summary and the dashboard Income by Category chart will show different numbers than they did before. Both were wrong wherever an invoice had been partly paid, and both usually read high. The corrected figures are described under Bug Fixes.
+
+### New Features & Updates
+
+- Invoices: a partly paid invoice shows what is still owed in red underneath the invoice total in the list, so you can see the outstanding balance without opening the invoice.
+
+### Bug Fixes
+
+- Invoices: the Unpaid figure at the top of the invoice list counted the whole of every partly paid invoice rather than what was left on it, and counted that invoice again for each payment against it. An invoice for $1,000 with three payments of $100 added $3,000 to Unpaid; it now adds the $700 that is actually outstanding.
+- Reports: Tax Summary counted an invoice's full tax once per payment recorded against it, so a partly paid invoice with three payments reported three times its tax. Tax is now booked to the month the money came in, in proportion to how much of the invoice that payment covered, and each payment is counted once. Yearly totals also no longer disagree with the months they are made of.
+- Dashboard: the Income by Category chart only counted invoices marked Paid, so partly paid invoices contributed nothing and revenues entered outside an invoice never appeared at all. It now counts payments and revenues as they land, matching the Cash Flow chart above it and the Income Summary report.
+- Tickets: ticket-created emails told the client the status was Open no matter what the ticket was actually set to. They now carry the real status, on tickets an agent creates and on scheduled tickets from recurring tickets.
+- Tickets: the assignee list on the client bulk-add form left out agents on the Accountant role and did not match the list on the normal ticket form. Both lists are now the same.
+- Quotes and Recurring Invoices: picking a product from the item autocomplete put the word "undefined" in the item name, while the description and price filled in correctly. Invoices were not affected. The product list behind the box was also missing information on those two pages, so every entry read "No tax", services showed a stock badge, and searching by product code did not match. Reported by @cthompson.
+
+### Developer Updates
+
+- `getMonthlyTax()` and `getQuarterlyTax()` in `functions/app.php` are rewritten. They previously joined `invoice_items` to `invoices` to `payments`, which multiplied the line-item rows by the payment rows — the double counting was row multiplication, not a rounding problem. Both now drive off `payments`, join a pre-aggregated per-invoice tax subquery, and scale by `payment_amount / invoice_amount`, with `invoice_amount > 0` guarding the division. `agent/reports/tax_summary.php` also dropped a second loop that recalculated each row total by calling `getMonthlyTax()` another twelve times; the total accumulates in the first loop instead, cutting the queries behind the monthly view in half.
+- `agent/invoices.php`: the Partial total no longer selects `SUM(invoice_amount)` across a `payments` join, and payments against partial invoices are subtracted from the unpaid figure. The list query gained a derived `LEFT JOIN (SELECT payment_invoice_id, SUM(payment_amount) ... GROUP BY payment_invoice_id)` for the per-row balance, which keeps it to one query rather than one per row.
+- `agent/dashboard.php`: the `TopCategories` temporary table is now built from a `UNION ALL` of payments (carrying their invoice's category) and revenues, keyed on payment and revenue dates rather than `invoice_status = 'Paid'` and `invoice_date`. The Other bucket is built from the same union.
+- `api/v1/tickets/create.php` sets `ticket_status = 2` when `assigned_to > 0`, rather than always inserting status 1.
+- `agent/modals/client/client_bulk_add_ticket.php` filtered the assignee list on `user_role_id > 1` where every other assignee list uses `user_type = 1`. Role 1 is the built-in Accountant role, so accountant-role agents were missing from it.
+- Product autocomplete is consolidated. The three pages each carried their own product `SELECT` and their own copy of the autocomplete JavaScript; the queries drifted, and quote and recurring invoice were still on a four-column version that had no `product_name` or `prod_id`, so the shared `onSelect` wrote `undefined` into `#name`. Its last line also assigned to `#product_id`, which only the invoice form has, so `onSelect` threw a `TypeError` on those two pages and the `input` handler under it threw on every keystroke. The query now lives in `getProductsForAutocomplete($mysqli)` in `functions/app.php` and the JavaScript in `js/product_autocomplete.js`, with the hidden `#product_id` added to the quote and recurring item forms and treated as optional in the JavaScript. Net 218 lines removed for 134 added. Note that `item_product_id` is still only written by `add_invoice_item` and the API, so the hidden field on those two forms is inert until the handlers are wired up.
+
 ## [26.09.2] Maint Release
 
 - Updates the App Version to a proper version number.
