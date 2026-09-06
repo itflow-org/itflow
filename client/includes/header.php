@@ -166,8 +166,9 @@ header("X-Frame-Options: DENY"); // Legacy
 <!-- Page content container -->
 <div class="container mt-4">
 
-    <div class="row mb-3">
-        <div class="col-md-1 text-center">
+    <!-- Flex row rather than col-md-1/col-md-11 -->
+    <div class="d-flex flex-wrap align-items-center gap-2 mb-3">
+        <div class="flex-shrink-0">
             <?php if (!empty($session_contact_photo)) { ?>
                 <img src="/uploads/clients/<?= $session_client_id ?>/<?= $session_contact_photo ?>" alt="..." height="50" width="50" class="rounded-circle img-fluid">
 
@@ -179,12 +180,11 @@ header("X-Frame-Options: DENY"); // Legacy
             <?php } ?>
         </div>
 
-        <div class="col-md-11 p-0">
-                <?php if ($session_company_logo) { ?>
-                    <img height="48" width="142" class="img-fluid float-end" src="<?= "/uploads/settings/$session_company_logo" ?>">
-                <?php } ?>
-            <h4>Welcome, <strong><?= stripslashes(escapeHtml($session_contact_name)) ?></strong>!</h4>
-        </div>
+        <h4 class="mb-0 flex-grow-1">Welcome, <strong><?= stripslashes(escapeHtml($session_contact_name)) ?></strong>!</h4>
+
+        <?php if ($session_company_logo) { ?>
+            <img height="48" width="142" class="img-fluid flex-shrink-0" src="<?= "/uploads/settings/$session_company_logo" ?>">
+        <?php } ?>
     </div>
     <hr>
 
