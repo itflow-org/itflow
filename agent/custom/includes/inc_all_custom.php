@@ -1,4 +1,5 @@
 <?php
+// Do not modify - copy if you need to edit
 
 require_once "../../config.php";
 require_once "../../functions.php";
