@@ -1,3 +1,7 @@
+<!-- Custom fix for scaling the brand text (MSP name) in the sidebar -->
+<link rel="stylesheet" href="css/sidebar_brand_fix.css">
+<script src="js/sidebar_brand_fix.js" defer></script>
+
 <!-- Main Sidebar Container -->
 <aside class="app-sidebar shadow d-print-none" data-bs-theme="dark">
 
@@ -16,7 +20,7 @@
 
     <div class="sidebar-brand">
         <a class="brand-link" href="<?= $brand_link ?>">
-            <span class="brand-text h4 mb-0"><?= escapeHtml($session_company_name) ?></span>
+            <span class="brand-text h4 mb-0" id="sidebar-brand-text"><?= escapeHtml($session_company_name) ?></span>
         </a>
     </div>
 

@@ -1,0 +1,8 @@
+/* Custom syling for scaling the brand text (MSP name) in the sidebar */
+
+.app-sidebar .brand-text {
+    display: inline-block;
+    vertical-align: middle;
+    white-space: nowrap;
+    transform-origin: left center;
+}
