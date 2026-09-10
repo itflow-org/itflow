@@ -653,7 +653,15 @@ function itflowInit() {
 
     // Clipboard
     itflowStep('clipboard', function () {
-        var clipboard = new ClipboardJS('.clipboardjs');
+        if (window.itflowClipboard) {
+            window.itflowClipboard.destroy();
+        }
+
+        var modals = document.querySelectorAll('.modal');
+        var clipboard = new ClipboardJS('.clipboardjs', {
+            container: modals.length ? modals[modals.length - 1] : document.body
+        });
+        window.itflowClipboard = clipboard;
 
         clipboard.on('success', function(e) {
             flashTooltip(e.trigger, 'Copied!');
