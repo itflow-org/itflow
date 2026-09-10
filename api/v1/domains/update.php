@@ -19,7 +19,7 @@ if (!empty($domain_id)) {
         LEFT JOIN vendors AS dnshost ON domains.domain_dnshost = dnshost.vendor_id
         LEFT JOIN vendors AS mailhost ON domains.domain_mailhost = mailhost.vendor_id
         LEFT JOIN vendors AS webhost ON domains.domain_webhost = webhost.vendor_id
-        WHERE domain_id = $domain_id AND domain_client_id = $client_id
+        WHERE domain_id = $domain_id AND domain_client_id = $client_id AND domain_archived_at IS NULL
         LIMIT 1
     "));
 
@@ -43,7 +43,7 @@ if (!empty($domain_id)) {
     $txt = escapeSql($records['txt']);
     $raw_whois = escapeSql($records['whois']);
 
-    $update_sql = mysqli_query($mysqli, "UPDATE domains SET domain_name = '$name', domain_description = '$description', domain_expire = $expire, domain_ip = '$ip', domain_name_servers = '$name_servers', domain_mail_servers = '$mail_servers', domain_txt = '$txt', domain_raw_whois = '$raw_whois', domain_notes = '$notes', domain_registrar = $registrar, domain_webhost = $webhost, domain_dnshost = $dnshost, domain_mailhost = $mailhost WHERE domain_id = $domain_id AND domain_client_id = $client_id LIMIT 1");
+    $update_sql = mysqli_query($mysqli, "UPDATE domains SET domain_name = '$name', domain_description = '$description', domain_expire = $expire, domain_ip = '$ip', domain_name_servers = '$name_servers', domain_mail_servers = '$mail_servers', domain_txt = '$txt', domain_raw_whois = '$raw_whois', domain_notes = '$notes', domain_registrar = $registrar, domain_webhost = $webhost, domain_dnshost = $dnshost, domain_mailhost = $mailhost WHERE domain_id = $domain_id AND domain_client_id = $client_id AND domain_archived_at IS NULL LIMIT 1");
 
     if ($update_sql && $domain_row) {
         // Capture the update result before any history or audit queries run.
