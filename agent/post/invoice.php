@@ -1003,6 +1003,7 @@ if (isExportRequest('export_invoices')) {
 
 }
 
+// TODO: This should probably be removed as we now allow multiple invoices to be linked to a single ticket
 if (isset($_POST['link_invoice_to_ticket'])) {
 
     validateCSRFToken();
@@ -1041,7 +1042,28 @@ if (isset($_POST['add_ticket_to_invoice'])) {
 
     flashAlert("Ticket linked to invoice");
 
-    redirect("post.php?add_ticket_to_invoice=$invoice_id");
+    redirect("invoice.php?invoice_id=$invoice_id");
+
+}
+
+if (isset($_GET['remove_ticket_from_invoice'])) {
+
+    validateCSRFToken();
+
+    enforceUserPermission('module_sales', 2);
+
+    $invoice_id = intval($_GET['invoice_id']);
+    $ticket_id = intval($_GET['ticket_id']);
+
+    $client_id = intval(getFieldById('tickets', $ticket_id, 'ticket_client_id'));
+
+    enforceClientAccess();
+
+    mysqli_query($mysqli,"UPDATE tickets SET ticket_invoice_id = 0 WHERE ticket_id = $ticket_id");
+
+    flashAlert("Ticket unlinked from invoice");
+
+    redirect("invoice.php?invoice_id=$invoice_id");
 
 }
 

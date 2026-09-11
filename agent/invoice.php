@@ -141,7 +141,7 @@ if (isset($_GET['invoice_id'])) {
     //Get billable, and unbilled tickets to add to invoice
     $sql_tickets_billable = mysqli_query(
         $mysqli, "
-        SELECT 1
+        SELECT ticket_id, ticket_subject, ticket_number, ticket_prefix, ticket_status
         FROM
             tickets
         WHERE
@@ -151,9 +151,8 @@ if (isset($_GET['invoice_id'])) {
         AND
             ticket_invoice_id = 0
         AND
-            ticket_status = 5;
+            ticket_status IN (4, 5);
     ");
-
 
     //Add up all the payments for the invoice and get the total amount paid to the invoice
     $sql_amount_paid = mysqli_query($mysqli, "SELECT SUM(payment_amount) AS amount_paid FROM payments WHERE payment_invoice_id = $invoice_id");
@@ -697,7 +696,7 @@ if (isset($_GET['invoice_id'])) {
                 </div>
             </div>
         </div>
-        <div class="col-sm d-print-none <?php if (mysqli_num_rows($sql_tickets) == 0) { echo "d-none"; } ?>">
+        <div class="col-sm d-print-none <?php if (mysqli_num_rows($sql_tickets) == 0 && mysqli_num_rows($sql_tickets_billable) == 0) { echo "d-none"; } ?>">
             <div class="card">
                 <div class="card-header text-bold">
                     <i class="fa fa-life-ring me-2"></i>Tickets
@@ -728,15 +727,19 @@ if (isset($_GET['invoice_id'])) {
                         <table class="table">
                             <thead>
                                 <tr>
+                                    <th>#</th>
                                     <th>Date</th>
                                     <th>Subject</th>
                                     <th class="text-end">Time Worked</th>
+                                    <th></th>
                                 </tr>
                             </thead>
                             <tbody>
                             <?php
 
                             while ($row = mysqli_fetch_assoc($sql_tickets)) {
+                                $ticket_prefix = escapeHtml($row['ticket_prefix']);
+                                $ticket_number = escapeHtml($row['ticket_number']);
                                 $ticket_id = intval($row['ticket_id']);
                                 $ticket_created_at = escapeHtml($row['ticket_created_at']);
                                 $ticket_subject = escapeHtml($row['ticket_subject']);
@@ -744,9 +747,12 @@ if (isset($_GET['invoice_id'])) {
 
                                 ?>
                                 <tr>
+                                    <td><a href="ticket.php?ticket_id=<?= $ticket_id ?>"><?= "$ticket_prefix$ticket_number" ?></a></td>
                                     <td><?= $ticket_created_at ?></td>
                                     <td><?= $ticket_subject ?></td>
                                     <td class="text-end"><?= $ticket_total_time_worked ?></td>
+                                    <td align="right"><a class="btn btn-light text-danger confirm-link" title="Remove" href="post.php?remove_ticket_from_invoice&invoice_id=<?= $invoice_id ?>&ticket_id=<?= $ticket_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>"><i class="fa fa-times"></i></a></td>
+                                
                                 </tr>
                                 <?php
                             }
