@@ -112,7 +112,7 @@ ob_start();
                     <option <?php if ($recurring_invoice_auto_send == 0) { echo "selected"; } ?> value="0">Generate Draft for Review</option>
                 </select>
             </div>
-        </div>        
+        </div>
 
         <div class="mb-3">
             <label>Status <strong class="text-danger">*</strong></label>
