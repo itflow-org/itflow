@@ -9,7 +9,8 @@ $recurring_invoice_id = intval($_GET['id']);
 $sql = mysqli_query($mysqli, "SELECT recurring_invoice_category_id, recurring_invoice_client_id, recurring_invoice_created_at,
     recurring_invoice_discount_amount, recurring_invoice_frequency,
     recurring_invoice_next_date, recurring_invoice_number, recurring_invoice_prefix,
-    recurring_invoice_scope, recurring_invoice_status FROM recurring_invoices WHERE recurring_invoice_id = $recurring_invoice_id LIMIT 1");
+    recurring_invoice_auto_send, recurring_invoice_scope, recurring_invoice_status
+     FROM recurring_invoices WHERE recurring_invoice_id = $recurring_invoice_id LIMIT 1");
 
 $row = mysqli_fetch_assoc($sql);
 $recurring_invoice_prefix = escapeHtml($row['recurring_invoice_prefix']);
@@ -19,6 +20,7 @@ $recurring_invoice_frequency = escapeHtml($row['recurring_invoice_frequency']);
 $recurring_invoice_status = escapeHtml($row['recurring_invoice_status']);
 $recurring_invoice_created_at = date('Y-m-d', strtotime($row['recurring_invoice_created_at']));
 $recurring_invoice_next_date = escapeHtml($row['recurring_invoice_next_date']);
+$recurring_invoice_auto_send = intval($row['recurring_invoice_auto_send']);
 $recurring_invoice_discount = floatval($row['recurring_invoice_discount_amount']);
 $category_id = intval($row['recurring_invoice_category_id']);
 $client_id = intval($row['recurring_invoice_client_id']);
@@ -102,10 +104,21 @@ ob_start();
         </div>
 
         <div class="mb-3">
+            <label>Action <strong class="text-danger">*</strong></label>
+            <div class="input-group">
+                    <span class="input-group-text"><i class="fa fa-fw fa-paper-plane"></i></span>
+                <select class="form-select select" name="auto_send" required>
+                    <option <?php if ($recurring_invoice_auto_send == 1) { echo "selected"; } ?> value="1">Send Automatically</option>
+                    <option <?php if ($recurring_invoice_auto_send == 0) { echo "selected"; } ?> value="0">Generate Draft for Review</option>
+                </select>
+            </div>
+        </div>        
+
+        <div class="mb-3">
             <label>Status <strong class="text-danger">*</strong></label>
             <div class="input-group">
                     <span class="input-group-text"><i class="fa fa-fw fa-clock"></i></span>
-                <select class="form-select select2" name="status" required>
+                <select class="form-select select" name="status" required>
                     <option <?php if ($recurring_invoice_status == 1) {
                                 echo "selected";
                             } ?> value="1">Active</option>
