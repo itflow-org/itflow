@@ -66,7 +66,7 @@ if (isset($_POST['add_asset'])) {
     // Add Primary Interface
     mysqli_query($mysqli,"INSERT INTO asset_interfaces SET interface_name = '01', interface_mac = '$mac', interface_ip = '$ip', interface_nat_ip = '$nat_ip', interface_ipv6 = '$ipv6', interface_primary = 1, interface_network_id = $network, interface_asset_id = $asset_id");
 
-    if (!empty($_POST['username'])) {
+    if (!empty($_POST['password'])) {
         $username = trim(mysqli_real_escape_string($mysqli, encryptCredentialEntry($_POST['username'])));
         $password = trim(mysqli_real_escape_string($mysqli, encryptCredentialEntry($_POST['password'])));
 
