@@ -953,7 +953,7 @@ while ($row = mysqli_fetch_assoc($sql_recurring_payments)) {
 
                 try {
                     $payment_intent = $stripe->paymentIntents->create([
-                        'amount' => intval($balance_to_pay * 100),
+                        'amount' => intval(round($balance_to_pay * 100)),
                         'currency' => $recurring_payment_currency_code,
                         'customer' => $stripe_customer_id,
                         'payment_method' => $stripe_payment_method_id,

@@ -410,7 +410,7 @@ if (isset($_POST['add_payment_stripe'])) {
     // Create a payment intent
     try {
         $payment_intent = $stripe->paymentIntents->create([
-            'amount' => intval($balance_to_pay * 100), // Times by 100 as Stripe expects values in cents
+            'amount' => intval(round($balance_to_pay * 100)), // Times by 100 as Stripe expects values in cents
             'currency' => $invoice_currency_code,
             'customer' => $payment_provider_client,
             'payment_method' => $saved_payment_method,
