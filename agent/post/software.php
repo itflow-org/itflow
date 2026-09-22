@@ -200,6 +200,32 @@ if (isset($_GET['archive_software'])) {
 
 }
 
+if(isset($_GET['restore_software'])){
+
+    validateCSRFToken();
+
+    enforceUserPermission('module_support', 2);
+
+    $software_id = intval($_GET['restore_software']);
+
+    // Get Software Name and Client ID for logging and alert message
+    $sql = mysqli_query($mysqli,"SELECT software_name, software_client_id FROM software WHERE software_id = $software_id");
+    $row = mysqli_fetch_assoc($sql);
+    $software_name = escapeSql($row['software_name']);
+    $client_id = intval($row['software_client_id']);
+
+    enforceClientAccess();
+
+    mysqli_query($mysqli,"UPDATE software SET software_archived_at = NULL WHERE software_id = $software_id");
+
+    logAudit("Software", "Restore", "$session_name restored software $software_name", $client_id, $software_id);
+
+    flashAlert("Software <strong>$software_name</strong> restored");
+
+    redirect();
+
+}
+
 if (isset($_GET['delete_software'])) {
 
     validateCSRFToken();
