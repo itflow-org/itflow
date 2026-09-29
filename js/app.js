@@ -646,7 +646,8 @@ function itflowInit() {
     });
 
     // Bootstrap 4 needed _enforceFocus patched out so ClipboardJS could reach
-    // its textarea inside a modal. Bootstrap 5 registers no jQuery plugin, so
+    // its textarea inside a modal - TinyMCE's popups needed it too, see
+    // itflowTinyMceFocus. Bootstrap 5 registers no jQuery plugin, so
     // the old $.fn.modal line threw and killed everything below it. If copying
     // from inside a modal ever misbehaves, ClipboardJS's `container` option is
     // the lever, not a Bootstrap patch.
@@ -736,6 +737,25 @@ itflowBindOnce('itflowModalFocus', 'shown.bs.modal', '.modal', function () {
         return;
     }
     this.focus();
+});
+
+/**
+ * Let TinyMCE's popups take focus inside a modal.
+ *
+ * TinyMCE renders its "..." overflow drawer, menus, colour picker and dialogs
+ * (link, source code, table) in .tox-tinymce-aux, appended to <body> - outside
+ * the modal. Bootstrap 5's focus trap pulls any focus outside the open modal
+ * back to its first focusable element (the header X), so the drawer closed as
+ * soon as it opened and the link dialog would not take typing. Bootstrap 4 was
+ * fine only because this file used to no-op _enforceFocus.
+ *
+ * Order matters: this is bound once at first load, and Bootstrap adds its own
+ * focusin listener each time a modal opens, so this one always runs first and
+ * stopImmediatePropagation keeps Bootstrap's from firing. The trap still holds
+ * for everything else.
+ */
+itflowBindOnce('itflowTinyMceFocus', 'focusin', '.tox-tinymce-aux', function (e) {
+    e.stopImmediatePropagation();
 });
 
 itflowBindOnce('itflowAllDay', 'change', '.event-all-day-toggle', function () {
