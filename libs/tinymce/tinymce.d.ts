@@ -1411,6 +1411,7 @@ interface SidebarInstanceApi {
 interface SidebarSpec {
     icon?: string;
     tooltip?: string;
+    resizable?: boolean;
     onShow?: (api: SidebarInstanceApi) => void;
     onSetup?: (api: SidebarInstanceApi) => (api: SidebarInstanceApi) => void;
     onHide?: (api: SidebarInstanceApi) => void;
@@ -1751,6 +1752,9 @@ interface ObjectResizeEvent {
     height: number;
     origin: string;
 }
+interface SidebarResizedEvent {
+    width: number;
+}
 interface ObjectSelectedEvent {
     target: Node;
     targetClone?: Node;
@@ -1863,6 +1867,8 @@ interface EditorEventMap extends Omit<NativeEventMap, 'blur' | 'focus'> {
     AfterScrollIntoView: ScrollIntoViewEvent;
     ObjectResized: ObjectResizeEvent;
     ObjectResizeStart: ObjectResizeEvent;
+    SidebarResizeStart: {};
+    SidebarResized: SidebarResizedEvent;
     SwitchMode: SwitchModeEvent;
     ScrollWindow: Event;
     ResizeWindow: UIEvent;
@@ -1957,6 +1963,7 @@ type EventTypes_d_NewBlockEvent = NewBlockEvent;
 type EventTypes_d_NodeChangeEvent = NodeChangeEvent;
 type EventTypes_d_FormatEvent = FormatEvent;
 type EventTypes_d_ObjectResizeEvent = ObjectResizeEvent;
+type EventTypes_d_SidebarResizedEvent = SidebarResizedEvent;
 type EventTypes_d_ObjectSelectedEvent = ObjectSelectedEvent;
 type EventTypes_d_ScrollIntoViewEvent = ScrollIntoViewEvent;
 type EventTypes_d_SetSelectionRangeEvent = SetSelectionRangeEvent;
@@ -1986,7 +1993,7 @@ type EventTypes_d_DisabledStateChangeEvent = DisabledStateChangeEvent;
 type EventTypes_d_EditorEventMap = EditorEventMap;
 type EventTypes_d_EditorManagerEventMap = EditorManagerEventMap;
 declare namespace EventTypes_d {
-    export { EventTypes_d_ExecCommandEvent as ExecCommandEvent, EventTypes_d_BeforeGetContentEvent as BeforeGetContentEvent, EventTypes_d_GetContentEvent as GetContentEvent, EventTypes_d_BeforeSetContentEvent as BeforeSetContentEvent, EventTypes_d_SetContentEvent as SetContentEvent, EventTypes_d_SaveContentEvent as SaveContentEvent, EventTypes_d_NewBlockEvent as NewBlockEvent, EventTypes_d_NodeChangeEvent as NodeChangeEvent, EventTypes_d_FormatEvent as FormatEvent, EventTypes_d_ObjectResizeEvent as ObjectResizeEvent, EventTypes_d_ObjectSelectedEvent as ObjectSelectedEvent, EventTypes_d_ScrollIntoViewEvent as ScrollIntoViewEvent, EventTypes_d_SetSelectionRangeEvent as SetSelectionRangeEvent, EventTypes_d_ShowCaretEvent as ShowCaretEvent, EventTypes_d_SwitchModeEvent as SwitchModeEvent, EventTypes_d_ChangeEvent as ChangeEvent, EventTypes_d_AddUndoEvent as AddUndoEvent, EventTypes_d_UndoRedoEvent as UndoRedoEvent, EventTypes_d_WindowEvent as WindowEvent, EventTypes_d_ProgressStateEvent as ProgressStateEvent, EventTypes_d_AfterProgressStateEvent as AfterProgressStateEvent, EventTypes_d_PlaceholderToggleEvent as PlaceholderToggleEvent, EventTypes_d_LoadErrorEvent as LoadErrorEvent, EventTypes_d_PreProcessEvent as PreProcessEvent, EventTypes_d_PostProcessEvent as PostProcessEvent, EventTypes_d_PastePlainTextToggleEvent as PastePlainTextToggleEvent, EventTypes_d_PastePreProcessEvent as PastePreProcessEvent, EventTypes_d_PastePostProcessEvent as PastePostProcessEvent, EventTypes_d_EditableRootStateChangeEvent as EditableRootStateChangeEvent, EventTypes_d_NewTableRowEvent as NewTableRowEvent, EventTypes_d_NewTableCellEvent as NewTableCellEvent, EventTypes_d_TableEventData as TableEventData, EventTypes_d_TableModifiedEvent as TableModifiedEvent, EventTypes_d_BeforeOpenNotificationEvent as BeforeOpenNotificationEvent, EventTypes_d_OpenNotificationEvent as OpenNotificationEvent, EventTypes_d_DisabledStateChangeEvent as DisabledStateChangeEvent, EventTypes_d_EditorEventMap as EditorEventMap, EventTypes_d_EditorManagerEventMap as EditorManagerEventMap, };
+    export { EventTypes_d_ExecCommandEvent as ExecCommandEvent, EventTypes_d_BeforeGetContentEvent as BeforeGetContentEvent, EventTypes_d_GetContentEvent as GetContentEvent, EventTypes_d_BeforeSetContentEvent as BeforeSetContentEvent, EventTypes_d_SetContentEvent as SetContentEvent, EventTypes_d_SaveContentEvent as SaveContentEvent, EventTypes_d_NewBlockEvent as NewBlockEvent, EventTypes_d_NodeChangeEvent as NodeChangeEvent, EventTypes_d_FormatEvent as FormatEvent, EventTypes_d_ObjectResizeEvent as ObjectResizeEvent, EventTypes_d_SidebarResizedEvent as SidebarResizedEvent, EventTypes_d_ObjectSelectedEvent as ObjectSelectedEvent, EventTypes_d_ScrollIntoViewEvent as ScrollIntoViewEvent, EventTypes_d_SetSelectionRangeEvent as SetSelectionRangeEvent, EventTypes_d_ShowCaretEvent as ShowCaretEvent, EventTypes_d_SwitchModeEvent as SwitchModeEvent, EventTypes_d_ChangeEvent as ChangeEvent, EventTypes_d_AddUndoEvent as AddUndoEvent, EventTypes_d_UndoRedoEvent as UndoRedoEvent, EventTypes_d_WindowEvent as WindowEvent, EventTypes_d_ProgressStateEvent as ProgressStateEvent, EventTypes_d_AfterProgressStateEvent as AfterProgressStateEvent, EventTypes_d_PlaceholderToggleEvent as PlaceholderToggleEvent, EventTypes_d_LoadErrorEvent as LoadErrorEvent, EventTypes_d_PreProcessEvent as PreProcessEvent, EventTypes_d_PostProcessEvent as PostProcessEvent, EventTypes_d_PastePlainTextToggleEvent as PastePlainTextToggleEvent, EventTypes_d_PastePreProcessEvent as PastePreProcessEvent, EventTypes_d_PastePostProcessEvent as PastePostProcessEvent, EventTypes_d_EditableRootStateChangeEvent as EditableRootStateChangeEvent, EventTypes_d_NewTableRowEvent as NewTableRowEvent, EventTypes_d_NewTableCellEvent as NewTableCellEvent, EventTypes_d_TableEventData as TableEventData, EventTypes_d_TableModifiedEvent as TableModifiedEvent, EventTypes_d_BeforeOpenNotificationEvent as BeforeOpenNotificationEvent, EventTypes_d_OpenNotificationEvent as OpenNotificationEvent, EventTypes_d_DisabledStateChangeEvent as DisabledStateChangeEvent, EventTypes_d_EditorEventMap as EditorEventMap, EventTypes_d_EditorManagerEventMap as EditorManagerEventMap, };
 }
 type Format_d_Formats = Formats;
 type Format_d_Format = Format;
@@ -2233,6 +2240,9 @@ interface BaseEditorOptions {
     selector?: string;
     setup?: SetupCallback;
     sidebar_show?: string;
+    sidebar_width?: number;
+    sidebar_min_width?: number;
+    sidebar_max_width?: number;
     skin?: boolean | string;
     skin_url?: string;
     smart_paste?: boolean;
@@ -2370,6 +2380,9 @@ interface EditorOptions extends NormalizedEditorOptions {
     removed_menuitems: string;
     sandbox_iframes: boolean;
     sandbox_iframes_exclusions: string[];
+    sidebar_width: number;
+    sidebar_min_width: number;
+    sidebar_max_width: number;
     toolbar: boolean | string | string[] | Array<ToolbarGroup>;
     toolbar_groups: Record<string, GroupToolbarButtonSpec>;
     toolbar_location: ToolbarLocation;
@@ -2424,6 +2437,10 @@ interface BlobInfoImagePair {
     image: HTMLImageElement;
     blobInfo: BlobInfo;
 }
+interface EditorFocusOptions {
+    readonly scrollToSelection?: boolean;
+}
+type EditorFocusArg = boolean | EditorFocusOptions;
 interface UrlObject {
     prefix: string;
     resource: string;
@@ -2896,11 +2913,20 @@ interface Model {
     };
 }
 type ModelManager = AddOnManager<Model>;
+interface BasePluginMetadata {
+    name: string;
+    hidden?: boolean;
+}
+interface UrlPluginMetadata extends BasePluginMetadata {
+    url: string;
+}
+interface TypedPluginMetadata extends BasePluginMetadata {
+    type: 'premium' | 'opensource';
+    slug: string;
+}
+type PluginMetadata = UrlPluginMetadata | TypedPluginMetadata;
 interface Plugin {
-    getMetadata?: () => {
-        name: string;
-        url: string;
-    };
+    getMetadata?: () => PluginMetadata;
     init?: (editor: Editor, url: string) => void;
     [key: string]: any;
 }
@@ -3028,7 +3054,7 @@ declare class Editor implements EditorObservable {
     hasEventListeners: EditorObservable['hasEventListeners'];
     constructor(id: string, options: RawEditorOptions, editorManager: EditorManager);
     render(): void;
-    focus(skipFocus?: boolean): void;
+    focus(skipFocus?: EditorFocusArg): void;
     hasFocus(): boolean;
     translate(text: Untranslated): TranslatedString;
     getParam<K extends BuiltInOptionType>(name: string, defaultVal: BuiltInOptionTypeMap[K], type: K): BuiltInOptionTypeMap[K];
