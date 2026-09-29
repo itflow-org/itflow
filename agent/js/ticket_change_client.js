@@ -1,4 +1,4 @@
-document.addEventListener('DOMContentLoaded', function () {
+itflowReady(function () {
 
     // Function to load contacts for a given client
     function loadContacts(clientId) {

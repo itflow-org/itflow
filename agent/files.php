@@ -1334,6 +1334,8 @@ function updateModalContent() {
                 // The endpoint returns HTMLPurifier output, which is what
                 // document.php renders too
                 docPanel.innerHTML = data.content || '<p class="text-secondary mb-0">This document is empty.</p>';
+                // Arrives after pretty_content.js's page-load pass, so run it again
+                prettyContent();
             })
             .catch(function () {
                 if (requestedIndex === currentIndex) {
@@ -1384,6 +1386,7 @@ document.addEventListener('keydown', function (e) {
 </script>
 
 <script src="../js/bulk_actions.js"></script>
+<script src="../js/pretty_content.js"></script>
 
 <?php
 require_once "modals/share_modal.php";
