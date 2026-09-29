@@ -87,7 +87,7 @@ if (isset($_GET['project_id'])) {
     $sql_tickets = mysqli_query($mysqli, "SELECT client_id, client_name, ticket_assigned_to, ticket_billable, ticket_closed_at,
         ticket_created_at, ticket_id, ticket_number, ticket_prefix, ticket_priority,
         ticket_project_id, ticket_status, ticket_status_color, ticket_status_name, ticket_subject,
-        ticket_updated_at, user_name FROM tickets
+        ticket_updated_at, user_avatar, user_name FROM tickets
         LEFT JOIN ticket_statuses ON ticket_status = ticket_status_id
         LEFT JOIN clients ON ticket_client_id = client_id
         LEFT JOIN users ON ticket_assigned_to = user_id
@@ -423,16 +423,7 @@ if (isset($_GET['project_id'])) {
                                         $ticket_priority_display = "-";
                                     }
 
-                                    $ticket_assigned_to = intval($row['ticket_assigned_to']);
-                                    if (empty($ticket_assigned_to)) {
-                                        if ($ticket_status == 5) {
-                                            $ticket_assigned_to_display = "<p>Not Assigned</p>";
-                                        } else {
-                                            $ticket_assigned_to_display = "<p class='text-danger'>Not Assigned</p>";
-                                        }
-                                    } else {
-                                        $ticket_assigned_to_display = escapeHtml($row['user_name']);
-                                    }
+                                    $ticket_assigned_to_display = formatAssignee($row['ticket_assigned_to'], $row['user_name'], $row['user_avatar'], !in_array($ticket_status, [4, 5]));
 
                                     $project_id = intval($row['ticket_project_id']);
 

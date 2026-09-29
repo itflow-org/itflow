@@ -267,7 +267,7 @@ $ticket_select_columns =
     ticket_response_sla_alert_stage, ticket_resolution_sla_alert_stage,
     ticket_status_id, ticket_status_name, ticket_status_color, ticket_status_pauses_sla,
     client_name, contact_id, contact_name, contact_email,
-    user_name, asset_name, category_name";
+    user_name, user_avatar, asset_name, category_name";
 
 $ticket_joins =
     "LEFT JOIN clients ON ticket_client_id = client_id
@@ -381,11 +381,11 @@ if ($date_filter_active) {
                     <div class="btn-group float-sm-end">
                         <a href="<?= $ticket_assigned_filter_id === intval($session_user_id) ? ticketsFilterUrl(['assigned' => null]) : ticketsFilterUrl(['assigned' => $session_user_id]) ?>"
                             class="btn <?= $ticket_assigned_filter_id === intval($session_user_id) ? 'btn-primary' : 'btn-outline-primary' ?>">
-                            <i class="fas fa-fw fa-user"></i><span class="d-none d-xl-inline ms-2">Mine</span> | <strong><?= $user_active_assigned_tickets ?></strong>
+                            <i class="fas fa-fw fa-user-check"></i><span class="d-none d-xl-inline ms-2">Mine</span> | <strong><?= $user_active_assigned_tickets ?></strong>
                         </a>
                         <a href="<?= $ticket_assigned_filter_id === 0 ? ticketsFilterUrl(['assigned' => null]) : ticketsFilterUrl(['assigned' => 'unassigned']) ?>"
                             class="btn <?= $ticket_assigned_filter_id === 0 ? 'btn-danger' : 'btn-outline-danger' ?>">
-                            <i class="fas fa-fw fa-exclamation-triangle"></i><span class="d-none d-xl-inline ms-2">Unassigned</span> | <strong><?= $total_tickets_unassigned ?></strong>
+                            <i class="fas fa-fw fa-user-slash"></i><span class="d-none d-xl-inline ms-2">Unassigned</span> | <strong><?= $total_tickets_unassigned ?></strong>
                         </a>
                         <a href="<?= ticketsFilterUrl(['view' => $view == 'kanban' ? 'list' : 'kanban']) ?>" class="btn btn-outline-dark ms-2" title="Switch to the <?= $view == 'kanban' ? 'list' : 'kanban' ?> view">
                             <i class="fa fa-fw <?= $view == 'kanban' ? 'fa-list' : 'fa-columns' ?>"></i>

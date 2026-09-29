@@ -1156,16 +1156,7 @@ if (isset($_GET['asset_id'])) {
                                     } else {
                                         $ticket_priority_display = "-";
                                     }
-                                    $ticket_assigned_to = intval($row['ticket_assigned_to']);
-                                    if (empty($ticket_assigned_to)) {
-                                        if ($ticket_status_id == 5) {
-                                            $ticket_assigned_to_display = "<p>Not Assigned</p>";
-                                        } else {
-                                            $ticket_assigned_to_display = "<p class='text-danger'>Not Assigned</p>";
-                                        }
-                                    } else {
-                                        $ticket_assigned_to_display = escapeHtml($row['user_name']);
-                                    }
+                                    $ticket_assigned_to_display = formatAssignee($row['ticket_assigned_to'], $row['user_name'], $row['user_avatar'], !in_array($ticket_status_id, [4, 5]));
 
                                     ?>
 

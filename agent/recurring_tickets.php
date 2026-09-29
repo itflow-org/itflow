@@ -295,7 +295,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                         }
                         $recurring_ticket_category = escapeHtml($row['category_name']) ?: '-';
                         $recurring_ticket_client_name = escapeHtml($row['client_name']);
-                        $assigned_to = escapeHtml($row['user_name']) ?: '-';
+                        $assigned_to = formatAssignee($row['recurring_ticket_assigned_to'], $row['user_name'], $row['user_avatar'], false);
                         $recurring_ticket_template_name = escapeHtml($row['ticket_template_name']);
                         $recurring_ticket_task_count = intval($row['recurring_ticket_task_count']);
                     ?>
