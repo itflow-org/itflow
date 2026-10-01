@@ -61,8 +61,22 @@ function initTomSelect(el, options) {
     if (el.tagName !== 'SELECT' && el.tagName !== 'INPUT') {
         return null;
     }
+    /*
+     * data-tags="true" is the select2 attribute for "the user can type a value
+     * that is not in the list". select2 read data-* attributes as options on
+     * its own, so the old bare $('.select2').select2() honoured it with no
+     * code; Tom Select does not, and every data-tags field quietly became a
+     * pick-from-list-only control in the migration (ticket watchers, trip
+     * destination, client referral, invoice scope, default start page).
+     *
+     * createOnBlur commits whatever is typed when focus leaves the control, so
+     * typing an address and clicking the modal's submit button posts it,
+     * rather than posting the empty value because Enter was never pressed.
+     */
+    var tags = el.getAttribute('data-tags') === 'true';
     var settings = Object.assign({
-        create: false,
+        create: tags,
+        createOnBlur: tags,
         allowEmptyOption: true,
         plugins: el.multiple ? ['remove_button'] : [],
         placeholder: el.getAttribute('data-placeholder') || undefined
