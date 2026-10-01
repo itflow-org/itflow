@@ -110,6 +110,20 @@ document.addEventListener('click', function (e) {
                 });
 
             wrapper.addEventListener('hidden.bs.modal', function () {
+                // TinyMCE keeps its own registry of editors, and dropping the
+                // modal's DOM does not take them out of it - it only purges an
+                // editor whose container was itself detached, not one whose
+                // whole modal went. The dead editor then made tinymce.init skip
+                // the next textarea with the same id (New Ticket's #detailsInput
+                // came back bare until a refresh) and tinymce.get() kept handing
+                // it out. Remove them before the modal goes.
+                if (window.tinymce) {
+                    tinymce.get().forEach(function (editor) {
+                        if (wrapper.contains(editor.getElement())) {
+                            editor.remove();
+                        }
+                    });
+                }
                 wrapper.remove();
             });
         })

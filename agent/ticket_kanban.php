@@ -189,13 +189,7 @@ $kanban = array_values($statuses);
                         <?php } ?>
 
                         <div class="kanban-card-footer">
-                            <span title="Assigned to">
-                                <?php if (!empty($item['user_name'])) { ?>
-                                    <i class="fas fa-fw fa-user me-1"></i><?= escapeHtml($item['user_name']) ?>
-                                <?php } else { ?>
-                                    <i class="fas fa-fw fa-user-slash me-1 text-danger"></i><span class="text-danger">Unassigned</span>
-                                <?php } ?>
-                            </span>
+                            <span title="Assigned to"><?= formatAssignee($item['ticket_assigned_to'], $item['user_name'], $item['user_avatar'], empty($item['ticket_resolved_at']) && empty($item['ticket_closed_at'])) ?></span>
                             <span title="Created <?= escapeHtml($item['ticket_created_at']) ?>"><?= timeAgo($item['ticket_created_at']) ?></span>
                         </div>
 

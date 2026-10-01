@@ -99,7 +99,7 @@ $credential_count = mysqli_num_rows($sql_related_credentials);
 // Related Tickets Query - 1 to 1 relationship
 $sql_related_tickets = mysqli_query($mysqli, "SELECT ticket_assigned_to, ticket_created_at, ticket_id, ticket_number, ticket_prefix,
     ticket_priority, ticket_status, ticket_status_color, ticket_status_name, ticket_subject,
-    ticket_updated_at, user_name FROM tickets
+    ticket_updated_at, user_avatar, user_name FROM tickets
     LEFT JOIN users ON ticket_assigned_to = user_id
     LEFT JOIN ticket_statuses ON ticket_status = ticket_status_id
     WHERE ticket_contact_id = $contact_id
@@ -658,16 +658,7 @@ ob_start();
                                     $ticket_priority_display = "-";
                                 }
 
-                                $ticket_assigned_to = intval($row['ticket_assigned_to']);
-                                if (empty($ticket_assigned_to)) {
-                                    if ($ticket_status == "Closed") {
-                                        $ticket_assigned_to_display = "<p>Not Assigned</p>";
-                                    } else {
-                                        $ticket_assigned_to_display = "<p class='text-danger'>Not Assigned</p>";
-                                    }
-                                } else {
-                                    $ticket_assigned_to_display = escapeHtml($row['user_name']);
-                                }
+                                $ticket_assigned_to_display = formatAssignee($row['ticket_assigned_to'], $row['user_name'], $row['user_avatar'], !in_array(intval($row['ticket_status']), [4, 5]));
                                 ?>
                                 <tr>
                                     <td>

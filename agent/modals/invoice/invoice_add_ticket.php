@@ -44,8 +44,16 @@
                                     </a>
                                 </td>
                                 <td><?= $ticket_subject ?></td>
-                                <td><a href='ticket.php?ticket_id=<?= $ticket_id ?>&invoice_id=<?= $invoice_id ?>#addInvoiceFromTicketModal'>
-                                    <i class="fas fa-fw fa-plus-circle"></i></td>
+                                <td>
+                                    <form action="post.php" method="post">
+                                        <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
+                                        <input type="hidden" name="invoice_id" value="<?= $invoice_id ?>">
+                                        <input type="hidden" name="ticket_id" value="<?= $ticket_id ?>">
+                                        <button class="btn btn-link p-0" type="submit" name="add_ticket_to_invoice" title="Add ticket to invoice">
+                                            <i class="fas fa-fw fa-plus-circle"></i>
+                                        </button>
+                                    </form>
+                                </td>
                             </tr>
                         <?php } ?>
                     </table>

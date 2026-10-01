@@ -2002,6 +2002,7 @@ CREATE TABLE `recurring_invoices` (
   `recurring_invoice_amount` decimal(15,2) NOT NULL DEFAULT 0.00,
   `recurring_invoice_currency_code` varchar(200) NOT NULL,
   `recurring_invoice_note` text DEFAULT NULL,
+  `recurring_invoice_auto_send` tinyint(1) NOT NULL DEFAULT 1,
   `recurring_invoice_email_notify` tinyint(1) NOT NULL DEFAULT 1,
   `recurring_invoice_created_at` datetime NOT NULL DEFAULT current_timestamp(),
   `recurring_invoice_updated_at` datetime DEFAULT NULL ON UPDATE current_timestamp(),

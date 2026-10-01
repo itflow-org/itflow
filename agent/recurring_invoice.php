@@ -22,7 +22,7 @@ if (isset($_GET['recurring_invoice_id'])) {
             recurring_invoice_category_id, recurring_invoice_created_at,
             recurring_invoice_currency_code, recurring_invoice_discount_amount,
             recurring_invoice_email_notify, recurring_invoice_frequency, recurring_invoice_last_sent,
-            recurring_invoice_next_date, recurring_invoice_note, recurring_invoice_number,
+            recurring_invoice_next_date, recurring_invoice_note, recurring_invoice_auto_send, recurring_invoice_number,
             recurring_invoice_prefix, recurring_invoice_scope, recurring_invoice_status,
             recurring_payment_id, recurring_payment_method, recurring_payment_recurring_invoice_id,
             recurring_payment_saved_payment_id FROM recurring_invoices
@@ -61,6 +61,7 @@ if (isset($_GET['recurring_invoice_id'])) {
     $recurring_invoice_discount = floatval($row['recurring_invoice_discount_amount']);
     $recurring_invoice_currency_code = escapeHtml($row['recurring_invoice_currency_code']);
     $recurring_invoice_note = escapeHtml($row['recurring_invoice_note']);
+    $recurring_invoice_auto_send = intval($row['recurring_invoice_auto_send']);
     $recurring_invoice_email_notify = intval($row['recurring_invoice_email_notify']);
     $category_id = intval($row['recurring_invoice_category_id']);
     $client_id = intval($row['client_id']);
@@ -148,10 +149,12 @@ if (isset($_GET['recurring_invoice_id'])) {
             <div class="row">
 
                 <div class="col-2">
-                    <?php if ($recurring_invoice_email_notify) { ?>
-                        <a href="post.php?recurring_invoice_email_notify=0&recurring_invoice_id=<?= $recurring_invoice_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>" class="btn btn-primary"><i class="fas fa-fw fa-bell me-2"></i>Email Notify</a>
-                    <?php } else { ?>
-                        <a href="post.php?recurring_invoice_email_notify=1&recurring_invoice_id=<?= $recurring_invoice_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>" class="btn btn-outline-danger"><i class="fas fa-fw fa-bell-slash me-2"></i>Email Notify</a>
+                    <?php if ($recurring_invoice_auto_send) { ?>
+                        <?php if ($recurring_invoice_email_notify) { ?>
+                            <a href="post.php?recurring_invoice_email_notify=0&recurring_invoice_id=<?= $recurring_invoice_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>" class="btn btn-primary"><i class="fas fa-fw fa-bell me-2"></i>Email Notify</a>
+                        <?php } else { ?>
+                            <a href="post.php?recurring_invoice_email_notify=1&recurring_invoice_id=<?= $recurring_invoice_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>" class="btn btn-outline-danger"><i class="fas fa-fw fa-bell-slash me-2"></i>Email Notify</a>
+                        <?php } ?>
                     <?php } ?>
                 </div>
                 <div class="col-3">

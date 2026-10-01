@@ -95,6 +95,10 @@ if (isset($_POST['add_ticket'])) {
     // Add Watchers
     if (isset($_POST['watchers'])) {
         foreach ($_POST['watchers'] as $watcher) {
+            // Watchers is free-entry, so anything can arrive here - same check add_ticket_watcher makes
+            if (!filter_var($watcher, FILTER_VALIDATE_EMAIL)) {
+                continue;
+            }
             $watcher_email = escapeSql($watcher);
             mysqli_query($mysqli, "INSERT INTO ticket_watchers SET watcher_email = '$watcher_email', watcher_ticket_id = $ticket_id");
         }

@@ -2,6 +2,80 @@
 
 This file documents all notable changes made to ITFlow.
 
+## [26.10]
+
+### Upgrading to 26.10
+
+Update from Maintenance > Update — Queue Update hands the job to cron, which updates the files and applies this release's one database change (2.7.8 to 2.7.9) in the same pass. Nothing else is required.
+
+If you are coming from 26.08 or earlier, the database update still has to be run from the command line one time, exactly as described under Upgrading to 26.09 below.
+
+### Breaking Changes and Notes
+
+- API: reading locations, documents, vendors, domains, networks and software no longer returns archived records, including when you ask for one by its ID. There is no way to list archived records through the API yet, so keep the ID of anything you archive if you may want to unarchive it later. Thanks to @Wrongecho.
+- API: a location must be archived before the delete endpoint will remove it, the same rule contacts have followed since 26.09.1.
+- Recurring Invoices: every existing recurring invoice is set to Send Automatically after the update, so nothing changes until you switch one to the new draft option below. A draft is not emailed, does not appear in the client portal, and is not charged automatically until you send it. Automatic payments only run on an invoice's due date, so if a recurring invoice also takes payment automatically, send its draft before the due date or it will not be charged.
+- Notifications: each night ITFlow posts a notification when draft invoices are waiting for review. It counts every draft invoice, including ones created by hand, so if you keep drafts around you will see it daily.
+- Stripe: payments affected by the one-cent problem under Bug Fixes are not repaired by the update. A guest invoice payment that went through in Stripe but never appeared in ITFlow still has to be added by hand with Add Payment, putting the pi_ reference from Stripe in the reference field.
+- The two shipped files in `agent/custom/includes/` (`custom_side_nav.php` and `inc_all_custom.php`) are now marked do not modify, because updates replace them. If you have edited either one, keep a copy of your version under a different name before you update.
+
+### New Features & Updates
+
+- Recurring Invoices: each recurring invoice now has an Action setting — Send Automatically, as before, or Generate Draft for Review. A draft is created on schedule as usual but waits for you to check it, change it if needed, and send it yourself. The Email Notify toggle is hidden while a recurring invoice is set to draft. Thanks to @Wrongecho.
+- Invoices: tickets can be taken back off an invoice. Each linked ticket has a remove button that unlinks it and returns it to unbilled, and the Tickets card shows each ticket's number as a link to the ticket. Billable tickets that are Resolved can now be added, not just Closed ones. Thanks to @Wrongecho.
+- Tickets: the assignee shows as a small pill with the agent's photo, or their initials if they have not uploaded one. This applies on the ticket list, the board view, the ticket itself, recurring tickets, and the ticket lists on assets, contacts and projects. An open unassigned ticket gets a red Unassigned pill that turns grey once the ticket is resolved or closed. The Mine and Unassigned buttons on the tickets page have new icons to match.
+- Networks: an archived network now shows (Archived) next to its name at the top of its page.
+- Navigation: your company name at the top of the side navigation shrinks to fit instead of overflowing when it is long. Thanks to @BoredManCodes.
+- API: new endpoints to update, archive, unarchive and delete locations; archive and unarchive documents and software; and create, update, archive and unarchive vendors, domains and networks. For domains, the DNS and WHOIS details are looked up from the domain itself rather than taken from the request, and so is the expiry date when you do not send one. Thanks to @Wrongecho.
+
+### Bug Fixes
+
+- Stripe: about one card payment in fifteen was charged a cent less than the invoice balance. When paid from a guest invoice link, the payment then failed to record in ITFlow even though Stripe had taken the money. When paid automatically, from the client portal or by an agent, it was recorded a cent short and the invoice was marked Paid. Charges now match the balance exactly. See the note above about payments already affected.
+- Invoices: adding an unbilled ticket from the invoice page did not work. The Tickets card that holds the add button also only appeared once a ticket was already linked, so the first ticket could never be added there. Both are fixed. Thanks to @Wrongecho.
+- Licenses: archived licenses could not be restored, because the menu on an archived license still offered Edit and Archive. It now offers Restore. Restoring does not bring back the asset and contact assignments that archiving removed.
+- Assets: a login entered while creating an asset was only saved if it had a username, so a password on its own was lost. A username or a password on its own is now enough.
+- Copy buttons inside pop-up windows, such as the ones for credentials and a new API key, did nothing. They copy again.
+- Editor: inside pop-up windows, the editor's "..." button for more tools closed as soon as it opened, and the link dialog would not take typing, so links could not be added or edited. The editor's other drop-down menus and dialogs were affected the same way. All of them work again.
+- Editor: closing a pop-up that contains an editor and opening it again, New Ticket for example, brought the editor back as a plain text box until the page was refreshed. It now loads every time.
+- Documents: images in documents, document versions and queued emails opened in a pop-up spilled past the edge of the window, and tables showed without their styling. The same happened in document previews on the Files page. Both now display properly.
+- Tickets: in Change Client, picking the new client did not load that client's contacts, so no contact could be chosen.
+- Client Portal: the header with your photo, the welcome line and the company logo no longer breaks onto separate rows on smaller screens, and the menu button on phones shows a proper menu icon. Thanks to @BoredManCodes.
+- Restore the ability to type in a manual entry in select boxes with data-tags=true inclusing adding custom ticket watchers.
+
+### Developer Updates
+
+- Database 2.7.9 adds `recurring_invoices.recurring_invoice_auto_send` (`tinyint(1) NOT NULL DEFAULT 1`). It is read by the nightly run in `cron/nightly_tasks.php` and by `force_recurring` in `agent/post/recurring_invoice.php`. Invoices generated in draft mode are inserted as Draft and everything else as Sent, as before. The cron email still also requires `config_recurring_auto_send_invoice` and the recurring invoice's email notify to be on.
+- The nightly draft notice is a single `appNotify('Draft Invoices', ...)` linking to `invoices.php?status=Draft`. It is raised whenever any Draft invoice exists.
+- Stripe: all four PaymentIntent sites (`agent/post/payment.php`, `client/post.php`, `cron/nightly_tasks.php`, `guest/guest_ajax.php`) now send `intval(round($balance_to_pay * 100))`.
+  - `intval()` alone truncates, and about 6.6% of two-decimal amounts land just under the whole cent in floating point (2.01 × 100 = 200.999…).
+  - The guest return path compares whole cents with `round()` on both sides, so the short charge failed that check and nothing was booked.
+  - The other three paths compare whole dollars, so the short charge passed and they booked the short amount. Those dollar-level checks are unchanged.
+- `formatAssignee($user_id, $user_name, $user_avatar, $highlight_unassigned = true)` in `functions/format.php` replaces the assignee rendering at nine sites. Callers need `user_avatar` in their query. It was added to the related-ticket queries on contacts and projects and to `$ticket_select_columns` in `agent/tickets.php`.
+- TinyMCE in modals: Bootstrap 5's focus trap pulled focus back out of TinyMCE's popups, which render in `.tox-tinymce-aux` on `<body>`.
+  - `js/app.js` binds a `focusin` listener on `.tox-tinymce-aux` once at page load, and it calls `stopImmediatePropagation()`. Bootstrap adds its own listener each time a modal opens, so this one always runs first.
+  - `js/ajax_modal.js` now removes a modal's TinyMCE editors on `hidden.bs.modal`. TinyMCE kept the dead editor in its registry, and `tinymce.init` skipped the next textarea with the same id.
+- Scripts loaded inside ajax modals cannot rely on `DOMContentLoaded`, which has already fired by then.
+  - `js/pretty_content.js` now exposes `prettyContent()` and runs it immediately when the document is already parsed. `agent/files.php` calls it again after loading a preview.
+  - `agent/js/ticket_change_client.js` moved to `itflowReady()`.
+- Clipboard: the ClipboardJS container is now chosen per click — the trigger's own modal, otherwise `body` — so Bootstrap's focus trap no longer swallows the copy.
+- Sidebar brand: `agent/css/sidebar_brand_fix.css` and `agent/js/sidebar_brand_fix.js` are loaded from `agent/includes/side_nav.php`. They scale `#sidebar-brand-text` with a CSS transform, driven by a `ResizeObserver` on the brand link. The custom side nav does not load them.
+- Invoices: new `remove_ticket_from_invoice` GET handler in `agent/post/invoice.php` (CSRF token in the URL, `module_sales` 2, `enforceClientAccess`). `add_ticket_to_invoice` now redirects to the invoice instead of `post.php`, and the billable list is `ticket_status IN (4, 5)`.
+- Software: new `restore_software` handler in `agent/post/software.php` (`module_support` 2).
+- API: new endpoint files under `api/v1/`:
+  - `locations/{update,archive,unarchive,delete}`, `documents/{archive,unarchive}`, `vendors/{create,update,archive,unarchive}`, `domains/{create,update,archive,unarchive}`, `networks/{create,update,archive,unarchive}` and `software/{archive,unarchive}`.
+  - New `vendor_model.php`, `domain_model.php` and `network_model.php`.
+  - Writes are POST and scoped by the posted `client_id`. Every `read.php` for those modules now filters on `*_archived_at IS NULL`.
+  - Domain create and update call `getDnsRecords()` and `getDomainExpirationDate()`, so each request does live DNS and WHOIS lookups. Update writes `domain_history` rows the way the web form does.
+  - Archiving software through the API only sets `software_archived_at` and leaves `software_assets` and `software_contacts` alone. The web archive deletes them.
+- `add_asset` in `agent/post/asset.php` creates the credential when either a username or a password is posted. It previously required a username.
+
+### Library Updates
+
+- Bump TinyMCE from 8.8.2 to 8.9.2.
+- Bump stripe-php from 21.0.0 to 21.3.2. The pinned API version moves from 2026-06-24.dahlia to 2026-08-26.dahlia. `TelemetryId` is unchanged, so `includes/stripe_init.php` is still needed.
+- Bump FullCalendar from 7.0.2 to 7.1.0.
+- Bump DataTables from 3.0.1 to 3.1.2.
+
 ## [26.09.3] Maint Release
 
 ### Upgrading to 26.09.3

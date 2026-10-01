@@ -67,7 +67,7 @@ ob_start();
             <label>Additional Assets</label>
             <div class="input-group">
                     <span class="input-group-text"><i class="fa fa-fw fa-desktop"></i></span>
-                <select class="form-select select2" name="additional_assets[]" data-tags="true" data-placeholder="- Select Additional Assets -" multiple>
+                <select class="form-select select2" name="additional_assets[]" data-placeholder="- Select Additional Assets -" multiple>
                     <option value=""></option>
                     <?php
 

@@ -65,7 +65,7 @@ $sql = mysqli_query(
     $mysqli,
     "SELECT SQL_CALC_FOUND_ROWS client_id, client_name, software_created_at, software_description, software_expire,
         software_id, software_license_type, software_name, software_seats, software_type,
-        software_version, vendor_id, vendor_name FROM software
+        software_version, software_archived_at, vendor_id, vendor_name FROM software
     LEFT JOIN clients ON client_id = software_client_id
     LEFT JOIN vendors ON vendor_id = software_vendor_id
     WHERE (software_name LIKE '%$q%' OR software_type LIKE '%$q%' OR software_key LIKE '%$q%' OR client_name LIKE '%$q%')
@@ -236,6 +236,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                     $software_license_type = escapeHtml($row['software_license_type']) ?: '-';
                     $software_seats = escapeHtml($row['software_seats']);
                     $software_expire = escapeHtml($row['software_expire']);
+                    $software_archived_at = escapeHtml($row['software_archived_at']);
                     $vendor_name = escapeHtml($row['vendor_name']);
                     $vendor_id = intval($row['vendor_id']);
                     if ($vendor_name) {
@@ -321,13 +322,19 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                     <i class="fas fa-ellipsis-h"></i>
                                 </button>
                                 <div class="dropdown-menu">
-                                    <a class="dropdown-item ajax-modal" href="#" data-modal-url="modals/software/software_edit.php?id=<?= $software_id ?>"
-                                        >
-                                        <i class="fas fa-fw fa-edit me-2"></i>Edit
-                                    </a>
-                                    <div class="dropdown-divider"></div>
-                                    <a class="dropdown-item text-danger confirm-link" href="post.php?archive_software=<?= $software_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>">
-                                        <i class="fas fa-fw fa-archive me-2"></i>Archive and<br><small>Remove Licenses</small></a>
+                                    <?php if (!$software_archived_at) { ?>
+                                        <a class="dropdown-item ajax-modal" href="#" data-modal-url="modals/software/software_edit.php?id=<?= $software_id ?>">
+                                            <i class="fas fa-fw fa-edit me-2"></i>Edit
+                                        </a>
+                                        <div class="dropdown-divider"></div>
+                                        <a class="dropdown-item text-danger confirm-link" href="post.php?archive_software=<?= $software_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>">
+                                            <i class="fas fa-fw fa-archive me-2"></i>Archive and<br><small>Remove Licenses</small>
+                                        </a>
+                                    <?php } else { ?>
+                                        <a class="dropdown-item text-info confirm-link" href="post.php?restore_software=<?= $software_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>">
+                                            <i class="fas fa-fw fa-redo me-2"></i>Restore
+                                        </a>
+                                    <?php } ?>
                                     <?php if ($session_user_role == 3) { ?>
                                         <?php if ($config_destructive_deletes_enable) { ?>
                                         <div class="dropdown-divider"></div>

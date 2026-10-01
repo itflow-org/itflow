@@ -130,12 +130,7 @@ if (isset($_GET['ticket_id'])) {
         $ticket_is_open = !$ticket_is_resolved && !$ticket_is_closed;
         $can_edit_ticket = lookupUserPermission("module_support") >= 2;
 
-        $ticket_assigned_to = intval($ticket['ticket_assigned_to']);
-        if (empty($ticket_assigned_to)) {
-            $ticket_assigned_to_display = "<span class='text-danger'><i class='fas fa-fw fa-user-slash me-1'></i>Unassigned</span>";
-        } else {
-            $ticket_assigned_to_display = escapeHtml($ticket['user_name']);
-        }
+        $ticket_assigned_to_display = formatAssignee($ticket['ticket_assigned_to'], $ticket['user_name'], $ticket['user_avatar'], $ticket_is_open);
 
         // Tab Title // No Sanitizing needed
         $page_title = $ticket['ticket_subject'];
@@ -604,7 +599,7 @@ if (isset($_GET['ticket_id'])) {
                         <div class="ticket-field-label">Assigned to</div>
                         <div class="ticket-field-value">
                             <?php if ($can_edit_ticket && !$ticket_is_closed) { ?>
-                                <a class="ajax-modal" href="#" data-modal-url="modals/ticket/ticket_assign.php?id=<?= $ticket_id ?>" title="Change assignment"><?= $ticket_assigned_to_display ?></a>
+                                <a class="ajax-modal text-decoration-none" href="#" data-modal-url="modals/ticket/ticket_assign.php?id=<?= $ticket_id ?>" title="Change assignment"><?= $ticket_assigned_to_display ?></a>
                             <?php } else { ?>
                                 <?= $ticket_assigned_to_display ?>
                             <?php } ?>

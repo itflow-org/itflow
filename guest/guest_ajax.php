@@ -88,7 +88,7 @@ if (isset($_GET['stripe_create_pi'])) {
         \Stripe\Stripe::setApiKey($stripe_secret_key);
 
         $paymentIntent = \Stripe\PaymentIntent::create([
-            'amount' => intval($balance_to_pay * 100), // Stripe expects cents
+            'amount' => intval(round($balance_to_pay * 100)), // Stripe expects cents
             'currency' => $invoice_currency_code,
             'description' => $pi_description,
             'metadata' => [

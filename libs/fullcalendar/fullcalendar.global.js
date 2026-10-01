@@ -1,12 +1,12 @@
 /*!
-FullCalendar (Vanilla JS) v7.0.2
+FullCalendar (Vanilla JS) v7.1.0
 Docs & License: https://fullcalendar.io
 (c) 2026 Adam Shaw
 */
 var FullCalendar = (function (exports) {
   'use strict';
 
-  var n$1,l$2,u$2,t$1,i$2,r$1,o$1,e$1,f$2,c$2,s$2,a$2,h,p$1,v$1,y,d={},w$1=[],_=/acit|ex(?:s|g|n|p|$)|rph|grid|ows|mnc|ntw|ine[ch]|zoo|^ord|itera/i,g$1=Array.isArray;function m$1(n,l){for(var u in l)n[u]=l[u];return n}function b(n){n&&n.parentNode&&n.parentNode.removeChild(n);}function k$1(l,u,t){var i,r,o,e={};for(o in u)"key"==o?i=u[o]:"ref"==o?r=u[o]:e[o]=u[o];if(arguments.length>2&&(e.children=arguments.length>3?n$1.call(arguments,2):t),"function"==typeof l&&null!=l.defaultProps)for(o in l.defaultProps)void 0===e[o]&&(e[o]=l.defaultProps[o]);return x(l,e,i,r,null)}function x(n,t,i,r,o){var e={type:n,props:t,key:i,ref:r,__k:null,__:null,__b:0,__e:null,__c:null,constructor:void 0,__v:null==o?++u$2:o,__i:-1,__u:0};return null==o&&null!=l$2.vnode&&l$2.vnode(e),e}function M$1(){return {current:null}}function S(n){return n.children}function C(n,l){this.props=n,this.context=l;}function $$1(n,l){if(null==l)return n.__?$$1(n.__,n.__i+1):null;for(var u;l<n.__k.length;l++)if(null!=(u=n.__k[l])&&null!=u.__e)return u.__e;return "function"==typeof n.type?$$1(n):null}function I(n){if(n.__P&&n.__d){var u=n.__v,t=u.__e,i=[],r=[],o=m$1({},u);o.__v=u.__v+1,l$2.vnode&&l$2.vnode(o),q$1(n.__P,o,u,n.__n,n.__P.namespaceURI,32&u.__u?[t]:null,i,null==t?$$1(u):t,!!(32&u.__u),r),o.__v=u.__v,o.__.__k[o.__i]=o,D(i,o,r),u.__e=u.__=null,o.__e!=t&&P$1(o);}}function P$1(n){if(null!=(n=n.__)&&null!=n.__c)return n.__e=n.__c.base=null,n.__k.some(function(l){if(null!=l&&null!=l.__e)return n.__e=n.__c.base=l.__e}),P$1(n)}function A(n){(!n.__d&&(n.__d=!0)&&i$2.push(n)&&!H$1.__r++||r$1!=l$2.debounceRendering)&&((r$1=l$2.debounceRendering)||o$1)(H$1);}function H$1(){try{for(var n,l=1;i$2.length;)i$2.length>l&&i$2.sort(e$1),n=i$2.shift(),l=i$2.length,I(n);}finally{i$2.length=H$1.__r=0;}}function L(n,l,u,t,i,r,o,e,f,c,s){var a,h,p,v,y,_,g,m=t&&t.__k||w$1,b=l.length;for(f=T$1(u,l,m,f,b),a=0;a<b;a++)null!=(p=u.__k[a])&&(h=-1!=p.__i&&m[p.__i]||d,p.__i=a,_=q$1(n,p,h,i,r,o,e,f,c,s),v=p.__e,p.ref&&h.ref!=p.ref&&(h.ref&&J$1(h.ref,null,p),s.push(p.ref,p.__c||v,p)),null==y&&null!=v&&(y=v),(g=!!(4&p.__u))||h.__k===p.__k?(f=j$2(p,f,n,g),g&&h.__e&&(h.__e=null)):"function"==typeof p.type&&void 0!==_?f=_:v&&(f=v.nextSibling),p.__u&=-7);return u.__e=y,f}function T$1(n,l,u,t,i){var r,o,e,f,c,s=u.length,a=s,h=0;for(n.__k=new Array(i),r=0;r<i;r++)null!=(o=l[r])&&"boolean"!=typeof o&&"function"!=typeof o?("string"==typeof o||"number"==typeof o||"bigint"==typeof o||o.constructor==String?o=n.__k[r]=x(null,o,null,null,null):g$1(o)?o=n.__k[r]=x(S,{children:o},null,null,null):void 0===o.constructor&&o.__b>0?o=n.__k[r]=x(o.type,o.props,o.key,o.ref?o.ref:null,o.__v):n.__k[r]=o,f=r+h,o.__=n,o.__b=n.__b+1,e=null,-1!=(c=o.__i=O$1(o,u,f,a))&&(a--,(e=u[c])&&(e.__u|=2)),null==e||null==e.__v?(-1==c&&(i>s?h--:i<s&&h++),"function"!=typeof o.type&&(o.__u|=4)):c!=f&&(c==f-1?h--:c==f+1?h++:(c>f?h--:h++,o.__u|=4))):n.__k[r]=null;if(a)for(r=0;r<s;r++)null!=(e=u[r])&&0==(2&e.__u)&&(e.__e==t&&(t=$$1(e)),K$1(e,e));return t}function j$2(n,l,u,t){var i,r;if("function"==typeof n.type){for(i=n.__k,r=0;i&&r<i.length;r++)i[r]&&(i[r].__=n,l=j$2(i[r],l,u,t));return l}n.__e!=l&&(t&&(l&&n.type&&!l.parentNode&&(l=$$1(n)),u.insertBefore(n.__e,l||null)),l=n.__e);do{l=l&&l.nextSibling;}while(null!=l&&8==l.nodeType);return l}function F(n,l){return l=l||[],null==n||"boolean"==typeof n||(g$1(n)?n.some(function(n){F(n,l);}):l.push(n)),l}function O$1(n,l,u,t){var i,r,o,e=n.key,f=n.type,c=l[u],s=null!=c&&0==(2&c.__u);if(null===c&&null==e||s&&e==c.key&&f==c.type)return u;if(t>(s?1:0))for(i=u-1,r=u+1;i>=0||r<l.length;)if(null!=(c=l[o=i>=0?i--:r++])&&0==(2&c.__u)&&e==c.key&&f==c.type)return o;return -1}function z$1(n,l,u){"-"==l[0]?n.setProperty(l,null==u?"":u):n[l]=null==u?"":"number"!=typeof u||_.test(l)?u:u+"px";}function N(n,l,u,t,i){var r,o;n:if("style"==l)if("string"==typeof u)n.style.cssText=u;else {if("string"==typeof t&&(n.style.cssText=t=""),t)for(l in t)u&&l in u||z$1(n.style,l,"");if(u)for(l in u)t&&u[l]==t[l]||z$1(n.style,l,u[l]);}else if("o"==l[0]&&"n"==l[1])r=l!=(l=l.replace(a$2,"$1")),o=l.toLowerCase(),l=o in n||"onFocusOut"==l||"onFocusIn"==l?o.slice(2):l.slice(2),n.l||(n.l={}),n.l[l+r]=u,u?t?u[s$2]=t[s$2]:(u[s$2]=h,n.addEventListener(l,r?v$1:p$1,r)):n.removeEventListener(l,r?v$1:p$1,r);else {if("http://www.w3.org/2000/svg"==i)l=l.replace(/xlink(H|:h)/,"h").replace(/sName$/,"s");else if("width"!=l&&"height"!=l&&"href"!=l&&"list"!=l&&"form"!=l&&"tabIndex"!=l&&"download"!=l&&"rowSpan"!=l&&"colSpan"!=l&&"role"!=l&&"popover"!=l&&l in n)try{n[l]=null==u?"":u;break n}catch(n){}"function"==typeof u||(null==u||!1===u&&"-"!=l[4]?n.removeAttribute(l):n.setAttribute(l,"popover"==l&&1==u?"":u));}}function V$1(n){return function(u){if(this.l){var t=this.l[u.type+n];if(null==u[c$2])u[c$2]=h++;else if(u[c$2]<t[s$2])return;return t(l$2.event?l$2.event(u):u)}}}function q$1(n,u,t,i,r,o,e,f,c,s){var a,h,p,v,y,d,_,k,x,M,$,I,P,A,H,T=u.type;if(void 0!==u.constructor)return null;128&t.__u&&(c=!!(32&t.__u),o=[f=u.__e=t.__e]),(a=l$2.__b)&&a(u);n:if("function"==typeof T)try{if(k=u.props,x=T.prototype&&T.prototype.render,M=(a=T.contextType)&&i[a.__c],$=a?M?M.props.value:a.__:i,t.__c?_=(h=u.__c=t.__c).__=h.__E:(x?u.__c=h=new T(k,$):(u.__c=h=new C(k,$),h.constructor=T,h.render=Q$1),M&&M.sub(h),h.state||(h.state={}),h.__n=i,p=h.__d=!0,h.__h=[],h._sb=[]),x&&null==h.__s&&(h.__s=h.state),x&&null!=T.getDerivedStateFromProps&&(h.__s==h.state&&(h.__s=m$1({},h.__s)),m$1(h.__s,T.getDerivedStateFromProps(k,h.__s))),v=h.props,y=h.state,h.__v=u,p)x&&null==T.getDerivedStateFromProps&&null!=h.componentWillMount&&h.componentWillMount(),x&&null!=h.componentDidMount&&h.__h.push(h.componentDidMount);else {if(x&&null==T.getDerivedStateFromProps&&k!==v&&null!=h.componentWillReceiveProps&&h.componentWillReceiveProps(k,$),u.__v==t.__v||!h.__e&&null!=h.shouldComponentUpdate&&!1===h.shouldComponentUpdate(k,h.__s,$)){u.__v!=t.__v&&(h.props=k,h.state=h.__s,h.__d=!1),u.__e=t.__e,u.__k=t.__k,u.__k.some(function(n){n&&(n.__=u);}),w$1.push.apply(h.__h,h._sb),h._sb=[],h.__h.length&&e.push(h);break n}null!=h.componentWillUpdate&&h.componentWillUpdate(k,h.__s,$),x&&null!=h.componentDidUpdate&&h.__h.push(function(){h.componentDidUpdate(v,y,d);});}if(h.context=$,h.props=k,h.__P=n,h.__e=!1,I=l$2.__r,P=0,x)h.state=h.__s,h.__d=!1,I&&I(u),a=h.render(h.props,h.state,h.context),w$1.push.apply(h.__h,h._sb),h._sb=[];else do{h.__d=!1,I&&I(u),a=h.render(h.props,h.state,h.context),h.state=h.__s;}while(h.__d&&++P<25);h.state=h.__s,null!=h.getChildContext&&(i=m$1(m$1({},i),h.getChildContext())),x&&!p&&null!=h.getSnapshotBeforeUpdate&&(d=h.getSnapshotBeforeUpdate(v,y)),A=null!=a&&a.type===S&&null==a.key?E$1(a.props.children):a,f=L(n,g$1(A)?A:[A],u,t,i,r,o,e,f,c,s),h.base=u.__e,u.__u&=-161,h.__h.length&&e.push(h),_&&(h.__E=h.__=null);}catch(n){if(u.__v=null,c||null!=o)if(n.then){for(u.__u|=c?160:128;f&&8==f.nodeType&&f.nextSibling;)f=f.nextSibling;o[o.indexOf(f)]=null,u.__e=f;}else {for(H=o.length;H--;)b(o[H]);B$2(u);}else u.__e=t.__e,u.__k=t.__k,n.then||B$2(u);l$2.__e(n,u,t);}else null==o&&u.__v==t.__v?(u.__k=t.__k,u.__e=t.__e):f=u.__e=G$1(t.__e,u,t,i,r,o,e,c,s);return (a=l$2.diffed)&&a(u),128&u.__u?void 0:f}function B$2(n){n&&(n.__c&&(n.__c.__e=!0),n.__k&&n.__k.some(B$2));}function D(n,u,t){for(var i=0;i<t.length;i++)J$1(t[i],t[++i],t[++i]);l$2.__c&&l$2.__c(u,n),n.some(function(u){try{n=u.__h,u.__h=[],n.some(function(n){n.call(u);});}catch(n){l$2.__e(n,u.__v);}});}function E$1(n){return "object"!=typeof n||null==n||n.__b>0?n:g$1(n)?n.map(E$1):m$1({},n)}function G$1(u,t,i,r,o,e,f,c,s){var a,h,p,v,y,w,_,m=i.props||d,k=t.props,x=t.type;if("svg"==x?o="http://www.w3.org/2000/svg":"math"==x?o="http://www.w3.org/1998/Math/MathML":o||(o="http://www.w3.org/1999/xhtml"),null!=e)for(a=0;a<e.length;a++)if((y=e[a])&&"setAttribute"in y==!!x&&(x?y.localName==x:3==y.nodeType)){u=y,e[a]=null;break}if(null==u){if(null==x)return document.createTextNode(k);u=document.createElementNS(o,x,k.is&&k),c&&(l$2.__m&&l$2.__m(t,e),c=!1),e=null;}if(null==x)m===k||c&&u.data==k||(u.data=k);else {if(e=e&&n$1.call(u.childNodes),!c&&null!=e)for(m={},a=0;a<u.attributes.length;a++)m[(y=u.attributes[a]).name]=y.value;for(a in m)y=m[a],"dangerouslySetInnerHTML"==a?p=y:"children"==a||a in k||"value"==a&&"defaultValue"in k||"checked"==a&&"defaultChecked"in k||N(u,a,null,y,o);for(a in k)y=k[a],"children"==a?v=y:"dangerouslySetInnerHTML"==a?h=y:"value"==a?w=y:"checked"==a?_=y:c&&"function"!=typeof y||m[a]===y||N(u,a,y,m[a],o);if(h)c||p&&(h.__html==p.__html||h.__html==u.innerHTML)||(u.innerHTML=h.__html),t.__k=[];else if(p&&(u.innerHTML=""),L("template"==t.type?u.content:u,g$1(v)?v:[v],t,i,r,"foreignObject"==x?"http://www.w3.org/1999/xhtml":o,e,f,e?e[0]:i.__k&&$$1(i,0),c,s),null!=e)for(a=e.length;a--;)b(e[a]);c||(a="value","progress"==x&&null==w?u.removeAttribute("value"):null!=w&&(w!==u[a]||"progress"==x&&!w||"option"==x&&w!=m[a])&&N(u,a,w,m[a],o),a="checked",null!=_&&_!=u[a]&&N(u,a,_,m[a],o));}return u}function J$1(n,u,t){try{if("function"==typeof n){var i="function"==typeof n.__u;i&&n.__u(),i&&null==u||(n.__u=n(u));}else n.current=u;}catch(n){l$2.__e(n,t);}}function K$1(n,u,t){var i,r;if(l$2.unmount&&l$2.unmount(n),(i=n.ref)&&(i.current&&i.current!=n.__e||J$1(i,null,u)),null!=(i=n.__c)){if(i.componentWillUnmount)try{i.componentWillUnmount();}catch(n){l$2.__e(n,u);}i.base=i.__P=null;}if(i=n.__k)for(r=0;r<i.length;r++)i[r]&&K$1(i[r],u,t||"function"!=typeof n.type);t||b(n.__e),n.__c=n.__=n.__e=void 0;}function Q$1(n,l,u){return this.constructor(n,u)}function R(u,t,i){var r,o,e,f;t==document&&(t=document.documentElement),l$2.__&&l$2.__(u,t),o=(r="function"==typeof i)?null:i&&i.__k||t.__k,e=[],f=[],q$1(t,u=(!r&&i||t).__k=k$1(S,null,[u]),o||d,d,t.namespaceURI,!r&&i?[i]:o?null:t.firstChild?n$1.call(t.childNodes):null,e,!r&&i?i:o?o.__e:t.firstChild,r,f),D(e,u,f);}function U$1(n,l){R(n,l,U$1);}function W$1(l,u,t){var i,r,o,e,f=m$1({},l.props);for(o in l.type&&l.type.defaultProps&&(e=l.type.defaultProps),u)"key"==o?i=u[o]:"ref"==o?r=u[o]:f[o]=void 0===u[o]&&null!=e?e[o]:u[o];return arguments.length>2&&(f.children=arguments.length>3?n$1.call(arguments,2):t),x(l.type,f,i||l.key,r||l.ref,null)}function X$1(n){function l(n){var u,t;return this.getChildContext||(u=new Set,(t={})[l.__c]=this,this.getChildContext=function(){return t},this.componentWillUnmount=function(){u=null;},this.shouldComponentUpdate=function(n){this.props.value!=n.value&&u.forEach(function(n){n.__e=!0,A(n);});},this.sub=function(n){u.add(n);var l=n.componentWillUnmount;n.componentWillUnmount=function(){u&&u.delete(n),l&&l.call(n);};}),n.children}return l.__c="__cC"+y++,l.__=n,l.Provider=l.__l=(l.Consumer=function(n,l){return n.children(l)}).contextType=l,l}n$1=w$1.slice,l$2={__e:function(n,l,u,t){for(var i,r,o;l=l.__;)if((i=l.__c)&&!i.__)try{if((r=i.constructor)&&null!=r.getDerivedStateFromError&&(i.setState(r.getDerivedStateFromError(n)),o=i.__d),null!=i.componentDidCatch&&(i.componentDidCatch(n,t||{}),o=i.__d),o)return i.__E=i}catch(l){n=l;}throw n}},u$2=0,t$1=function(n){return null!=n&&void 0===n.constructor},C.prototype.setState=function(n,l){var u;u=null!=this.__s&&this.__s!=this.state?this.__s:this.__s=m$1({},this.state),"function"==typeof n&&(n=n(m$1({},u),this.props)),n&&m$1(u,n),null!=n&&this.__v&&(l&&this._sb.push(l),A(this));},C.prototype.forceUpdate=function(n){this.__v&&(this.__e=!0,n&&this.__h.push(n),A(this));},C.prototype.render=S,i$2=[],o$1="function"==typeof Promise?Promise.prototype.then.bind(Promise.resolve()):setTimeout,e$1=function(n,l){return n.__v.__b-l.__v.__b},H$1.__r=0,f$2=Math.random().toString(8),c$2="__d"+f$2,s$2="__a"+f$2,a$2=/(PointerCapture)$|Capture$/i,h=0,p$1=V$1(!1),v$1=V$1(!0),y=0;
+  var n$1,l$2,u$2,t$1,i$2,r$1,o$1,e$1,f$2,c$2,a$2,s$1,h,p$2,v$1,y,d={},w$1=[],_=/acit|ex(?:s|g|n|p|$)|rph|grid|ows|mnc|ntw|ine[ch]|zoo|^ord|itera/i,g$1=Array.isArray;function m$1(n,l){for(var u in l)n[u]=l[u];return n}function b(n){n&&n.parentNode&&n.parentNode.removeChild(n);}function k$1(l,u,t){var i,r,o,e={};for(o in u)"key"==o?i=u[o]:"ref"==o?r=u[o]:e[o]=u[o];if(arguments.length>2&&(e.children=arguments.length>3?n$1.call(arguments,2):t),"function"==typeof l&&null!=l.defaultProps)for(o in l.defaultProps)void 0===e[o]&&(e[o]=l.defaultProps[o]);return x(l,e,i,r,null)}function x(n,t,i,r,o){var e={type:n,props:t,key:i,ref:r,__k:null,__:null,__b:0,__e:null,__c:null,constructor:void 0,__v:null==o?++u$2:o,__i:-1,__u:0};return null==o&&null!=l$2.vnode&&l$2.vnode(e),e}function M$1(){return {current:null}}function S(n){return n.children}function C(n,l){this.props=n,this.context=l;}function $$1(n,l){if(null==l)return n.__?$$1(n.__,n.__i+1):null;for(var u;l<n.__k.length;l++)if(null!=(u=n.__k[l])&&null!=u.__e)return u.__e;return "function"==typeof n.type?$$1(n):null}function I(n){if(n.__P&&n.__d){var u=n.__v,t=u.__e,i=[],r=[],o=m$1({},u);o.__v=u.__v+1,l$2.vnode&&l$2.vnode(o),q$1(n.__P,o,u,n.__n,n.__P.namespaceURI,32&u.__u?[t]:null,i,null==t?$$1(u):t,!!(32&u.__u),r),o.__v=u.__v,o.__.__k[o.__i]=o,D(i,o,r),u.__e=u.__=null,o.__e!=t&&P$1(o);}}function P$1(n){if(null!=(n=n.__)&&null!=n.__c)return n.__e=n.__c.base=null,n.__k.some(function(l){if(null!=l&&null!=l.__e)return n.__e=n.__c.base=l.__e}),P$1(n)}function A(n){(!n.__d&&(n.__d=!0)&&i$2.push(n)&&!H$1.__r++||r$1!=l$2.debounceRendering)&&((r$1=l$2.debounceRendering)||o$1)(H$1);}function H$1(){try{for(var n,l=1;i$2.length;)i$2.length>l&&i$2.sort(e$1),n=i$2.shift(),l=i$2.length,I(n);}finally{i$2.length=H$1.__r=0;}}function L(n,l,u,t,i,r,o,e,f,c,a){var s,h,p,v,y,_,g=t&&t.__k||w$1,m=l.length;for(f=T$1(u,l,g,f,m),s=0;s<m;s++)null!=(p=u.__k[s])&&(h=-1!=p.__i&&g[p.__i]||d,p.__i=s,_=q$1(n,p,h,i,r,o,e,f,c,a),v=p.__e,p.ref&&h.ref!=p.ref&&(h.ref&&J$1(h.ref,null,p),a.push(p.ref,p.__c||v,p)),null==y&&null!=v&&(y=v),4&p.__u?(f=j$2(p,f,n),h.__e&&(h.__e=null)):"function"==typeof p.type&&void 0!==_?f=_:v&&(f=v.nextSibling),p.__u&=-7);return u.__e=y,f}function T$1(n,l,u,t,i){var r,o,e,f,c,a=u.length,s=a,h=0;for(n.__k=new Array(i),r=0;r<i;r++)null!=(o=l[r])&&"boolean"!=typeof o&&"function"!=typeof o?("string"==typeof o||"number"==typeof o||"bigint"==typeof o||o.constructor==String?o=n.__k[r]=x(null,o,null,null,null):g$1(o)?o=n.__k[r]=x(S,{children:o},null,null,null):void 0===o.constructor&&o.__b>0?o=n.__k[r]=x(o.type,o.props,o.key,o.ref?o.ref:null,o.__v):n.__k[r]=o,f=r+h,o.__=n,o.__b=n.__b+1,e=null,-1!=(c=o.__i=O$1(o,u,f,s))&&(s--,(e=u[c])&&(e.__u|=2)),null==e||null==e.__v?(-1==c&&(i>a?h--:i<a&&h++),"function"!=typeof o.type&&(o.__u|=4)):c!=f&&(c==f-1?h--:c==f+1?h++:(c>f?h--:h++,o.__u|=4))):n.__k[r]=null;if(s)for(r=0;r<a;r++)null!=(e=u[r])&&0==(2&e.__u)&&(e.__e==t&&(t=$$1(e)),K$1(e,e));return t}function j$2(n,l,u){var t,i;if("function"==typeof n.type){for(t=n.__k,i=0;t&&i<t.length;i++)t[i]&&(t[i].__=n,l=j$2(t[i],l,u));return l}n.__e!=l&&(l&&n.type&&!l.parentNode&&(l=$$1(n)),l=u.insertBefore(n.__e,l||null));do{l=l&&l.nextSibling;}while(null!=l&&8==l.nodeType);return l}function F(n,l){return l=l||[],null==n||"boolean"==typeof n||(g$1(n)?n.some(function(n){F(n,l);}):l.push(n)),l}function O$1(n,l,u,t){var i,r,o,e=n.key,f=n.type,c=l[u],a=null!=c&&0==(2&c.__u);if(null===c&&null==e||a&&e==c.key&&f==c.type)return u;if(t>(a?1:0))for(i=u-1,r=u+1;i>=0||r<l.length;)if(null!=(c=l[o=i>=0?i--:r++])&&0==(2&c.__u)&&e==c.key&&f==c.type)return o;return -1}function z$1(n,l,u){"-"==l[0]?n.setProperty(l,null==u?"":u):n[l]=null==u?"":"number"!=typeof u||_.test(l)?u:u+"px";}function N(n,l,u,t,i){var r,o;n:if("style"==l)if("string"==typeof u)n.style.cssText=u;else {if("string"==typeof t&&(n.style.cssText=t=""),t)for(l in t)u&&l in u||z$1(n.style,l,"");if(u)for(l in u)t&&u[l]==t[l]||z$1(n.style,l,u[l]);}else if("o"==l[0]&&"n"==l[1])r=l!=(l=l.replace(s$1,"$1")),o=l.toLowerCase(),l=o in n||"onFocusOut"==l||"onFocusIn"==l?o.slice(2):l.slice(2),n.l||(n.l={}),n.l[l+r]=u,u?t?u[a$2]=t[a$2]:(u[a$2]=h,n.addEventListener(l,r?v$1:p$2,r)):n.removeEventListener(l,r?v$1:p$2,r);else {if("http://www.w3.org/2000/svg"==i)l=l.replace(/xlink(H|:h)/,"h").replace(/sName$/,"s");else if("width"!=l&&"height"!=l&&"href"!=l&&"list"!=l&&"form"!=l&&"tabIndex"!=l&&"download"!=l&&"rowSpan"!=l&&"colSpan"!=l&&"role"!=l&&"popover"!=l&&l in n)try{n[l]=null==u?"":u;break n}catch(n){}"function"==typeof u||(null==u||!1===u&&"-"!=l[4]?n.removeAttribute(l):n.setAttribute(l,"popover"==l&&1==u?"":u));}}function V$1(n){return function(u){if(this.l){var t=this.l[u.type+n];if(null==u[c$2])u[c$2]=h++;else if(u[c$2]<t[a$2])return;return t(l$2.event?l$2.event(u):u)}}}function q$1(n,u,t,i,r,o,e,f,c,a){var s,h,p,v,y,d,_,k,x,M,I,P,A,H,T,j,F=u.type;if(void 0!==u.constructor)return null;128&t.__u&&(c=!!(32&t.__u),o=[f=u.__e=t.__e]),(s=l$2.__b)&&s(u);n:if("function"==typeof F){h=e.length;try{if(x=u.props,M=F.prototype&&F.prototype.render,I=(s=F.contextType)&&i[s.__c],P=s?I?I.props.value:s.__:i,t.__c?k=(p=u.__c=t.__c).__=p.__E:(M?u.__c=p=new F(x,P):(u.__c=p=new C(x,P),p.constructor=F,p.render=Q$1),I&&I.sub(p),p.state||(p.state={}),p.__n=i,v=p.__d=!0,p.__h=[],p._sb=[]),M&&null==p.__s&&(p.__s=p.state),M&&null!=F.getDerivedStateFromProps&&(p.__s==p.state&&(p.__s=m$1({},p.__s)),m$1(p.__s,F.getDerivedStateFromProps(x,p.__s))),y=p.props,d=p.state,p.__v=u,v)M&&null==F.getDerivedStateFromProps&&null!=p.componentWillMount&&p.componentWillMount(),M&&null!=p.componentDidMount&&p.__h.push(p.componentDidMount);else {if(M&&null==F.getDerivedStateFromProps&&x!==y&&null!=p.componentWillReceiveProps&&p.componentWillReceiveProps(x,P),u.__v==t.__v||!p.__e&&null!=p.shouldComponentUpdate&&!1===p.shouldComponentUpdate(x,p.__s,P)){u.__v!=t.__v&&(p.props=x,p.state=p.__s,p.__d=!1),u.__e=t.__e,u.__k=t.__k,u.__k.some(function(n){n&&(n.__=u);}),w$1.push.apply(p.__h,p._sb),p._sb=[],p.__h.length&&e.push(p),f=$$1(t);break n}null!=p.componentWillUpdate&&p.componentWillUpdate(x,p.__s,P),M&&null!=p.componentDidUpdate&&p.__h.push(function(){p.componentDidUpdate(y,d,_);});}if(p.context=P,p.props=x,p.__P=n,p.__e=!1,A=l$2.__r,H=0,M)p.state=p.__s,p.__d=!1,A&&A(u),s=p.render(p.props,p.state,p.context),w$1.push.apply(p.__h,p._sb),p._sb=[];else do{p.__d=!1,A&&A(u),s=p.render(p.props,p.state,p.context),p.state=p.__s;}while(p.__d&&++H<25);p.state=p.__s,null!=p.getChildContext&&(i=m$1(m$1({},i),p.getChildContext())),M&&!v&&null!=p.getSnapshotBeforeUpdate&&(_=p.getSnapshotBeforeUpdate(y,d)),T=null!=s&&s.type===S&&null==s.key?E$1(s.props.children):s,f=L(n,g$1(T)?T:[T],u,t,i,r,o,e,f,c,a),p.base=u.__e,u.__u&=-161,p.__h.length&&e.push(p),k&&(p.__E=p.__=null);}catch(n){if(e.length=h,u.__v=null,c||null!=o){if(n.then){for(u.__u|=c?160:128;f&&8==f.nodeType&&f.nextSibling;)f=f.nextSibling;null!=o&&(o[o.indexOf(f)]=null),u.__e=f;}else if(null!=o)for(j=o.length;j--;)b(o[j]);}else u.__e=t.__e;null==u.__k&&(u.__k=t.__k||[]),n.then||B$2(u),l$2.__e(n,u,t);}}else null==o&&u.__v==t.__v?(u.__k=t.__k,u.__e=t.__e):f=u.__e=G$1(t.__e,u,t,i,r,o,e,c,a);return (s=l$2.diffed)&&s(u),128&u.__u?void 0:f}function B$2(n){n&&(n.__c&&(n.__c.__e=!0),n.__k&&n.__k.some(B$2));}function D(n,u,t){for(var i=0;i<t.length;i++)J$1(t[i],t[++i],t[++i]);l$2.__c&&l$2.__c(u,n),n.some(function(u){try{n=u.__h,u.__h=[],n.some(function(n){n.call(u);});}catch(n){l$2.__e(n,u.__v);}});}function E$1(n){return "object"!=typeof n||null==n||n.__b>0?n:g$1(n)?n.map(E$1):void 0!==n.constructor?null:m$1({},n)}function G$1(u,t,i,r,o,e,f,c,a){var s,h,p,v,y,w,_,m=i.props||d,k=t.props,x=t.type;if("svg"==x?o="http://www.w3.org/2000/svg":"math"==x?o="http://www.w3.org/1998/Math/MathML":o||(o="http://www.w3.org/1999/xhtml"),null!=e)for(s=0;s<e.length;s++)if((y=e[s])&&"setAttribute"in y==!!x&&(x?y.localName==x:3==y.nodeType)){u=y,e[s]=null;break}if(null==u){if(null==x)return document.createTextNode(k);u=document.createElementNS(o,x,k.is&&k),c&&(l$2.__m&&l$2.__m(t,e),c=!1),e=null;}if(null==x)m===k||c&&u.data==k||(u.data=k);else {if(e="textarea"==x&&null!=k.defaultValue?null:e&&n$1.call(u.childNodes),!c&&null!=e)for(m={},s=0;s<u.attributes.length;s++)m[(y=u.attributes[s]).name]=y.value;for(s in m)y=m[s],"dangerouslySetInnerHTML"==s?p=y:"children"==s||s in k||"value"==s&&"defaultValue"in k||"checked"==s&&"defaultChecked"in k||N(u,s,null,y,o);for(s in k)y=k[s],"children"==s?v=y:"dangerouslySetInnerHTML"==s?h=y:"value"==s?w=y:"checked"==s?_=y:c&&"function"!=typeof y||m[s]===y||N(u,s,y,m[s],o);if(h)c||p&&(h.__html==p.__html||h.__html==u.innerHTML)||(u.innerHTML=h.__html),t.__k=[];else if(p&&(u.innerHTML=""),L("template"==t.type?u.content:u,g$1(v)?v:[v],t,i,r,"foreignObject"==x?"http://www.w3.org/1999/xhtml":o,e,f,e?e[0]:i.__k&&$$1(i,0),c,a),null!=e)for(s=e.length;s--;)b(e[s]);c&&"textarea"!=x||(s="value","progress"==x&&null==w?u.removeAttribute("value"):null!=w&&(w!==u[s]||"progress"==x&&!w||"option"==x&&w!=m[s])&&N(u,s,w,m[s],o),s="checked",null!=_&&_!=u[s]&&N(u,s,_,m[s],o));}return u}function J$1(n,u,t){try{if("function"==typeof n){var i="function"==typeof n.__u;i&&n.__u(),i&&null==u||(n.__u=n(u));}else n.current=u;}catch(n){l$2.__e(n,t);}}function K$1(n,u,t){var i,r;if(l$2.unmount&&l$2.unmount(n),(i=n.ref)&&(i.current&&i.current!=n.__e||J$1(i,null,u)),null!=(i=n.__c)){if(i.componentWillUnmount)try{i.componentWillUnmount();}catch(n){l$2.__e(n,u);}i.base=i.__P=i.__n=null;}if(i=n.__k)for(r=0;r<i.length;r++)i[r]&&K$1(i[r],u,t||"function"!=typeof n.type);t||b(n.__e),n.__c=n.__=n.__e=void 0;}function Q$1(n,l,u){return this.constructor(n,u)}function R(u,t,i){var r,o,e,f;t==document&&(t=document.documentElement),l$2.__&&l$2.__(u,t),o=(r="function"==typeof i)?null:i&&i.__k||t.__k,e=[],f=[],q$1(t,u=(!r&&i||t).__k=k$1(S,null,[u]),o||d,d,t.namespaceURI,!r&&i?[i]:o?null:t.firstChild?n$1.call(t.childNodes):null,e,!r&&i?i:o?o.__e:t.firstChild,r,f),D(e,u,f),u.props.children=null;}function U$1(n,l){R(n,l,U$1);}function W$1(l,u,t){var i,r,o,e,f=m$1({},l.props);for(o in l.type&&l.type.defaultProps&&(e=l.type.defaultProps),u)"key"==o?i=u[o]:"ref"==o?r=u[o]:f[o]=void 0===u[o]&&null!=e?e[o]:u[o];return arguments.length>2&&(f.children=arguments.length>3?n$1.call(arguments,2):t),x(l.type,f,i||l.key,r||l.ref,null)}function X$1(n){function l(n){var u,t;return this.getChildContext||(u=new Set,(t={})[l.__c]=this,this.getChildContext=function(){return t},this.componentWillUnmount=function(){u=null;},this.shouldComponentUpdate=function(n){this.props.value!=n.value&&u.forEach(function(n){n.__e=!0,A(n);});},this.sub=function(n){u.add(n);var l=n.componentWillUnmount;n.componentWillUnmount=function(){u&&u.delete(n),l&&l.call(n);};}),n.children}return l.__c="__cC"+y++,l.__=n,l.Provider=l.__l=(l.Consumer=function(n,l){return n.children(l)}).contextType=l,l}n$1=w$1.slice,l$2={__e:function(n,l,u,t){for(var i,r,o;l=l.__;)if((i=l.__c)&&!i.__)try{if((r=i.constructor)&&null!=r.getDerivedStateFromError&&(i.setState(r.getDerivedStateFromError(n)),o=i.__d),null!=i.componentDidCatch&&(i.componentDidCatch(n,t||{}),o=i.__d),o)return i.__E=i}catch(l){n=l;}throw n}},u$2=0,t$1=function(n){return null!=n&&void 0===n.constructor},C.prototype.setState=function(n,l){var u;u=null!=this.__s&&this.__s!=this.state?this.__s:this.__s=m$1({},this.state),"function"==typeof n&&(n=n(m$1({},u),this.props)),n&&m$1(u,n),null!=n&&this.__v&&(l&&this._sb.push(l),A(this));},C.prototype.forceUpdate=function(n){this.__v&&(this.__e=!0,n&&this.__h.push(n),A(this));},C.prototype.render=S,i$2=[],o$1="function"==typeof Promise?Promise.prototype.then.bind(Promise.resolve()):setTimeout,e$1=function(n,l){return n.__v.__b-l.__v.__b},H$1.__r=0,f$2=Math.random().toString(8),c$2="__d"+f$2,a$2="__a"+f$2,s$1=/(PointerCapture)$|Capture$/i,h=0,p$2=V$1(!1),v$1=V$1(!0),y=0;
 
   var preact = /*#__PURE__*/Object.freeze({
       __proto__: null,
@@ -24,14 +24,14 @@ var FullCalendar = (function (exports) {
       toChildArray: F
   });
 
-  var t=/["&<]/;function n(r){if(0===r.length||!1===t.test(r))return r;for(var e=0,n=0,o="",f="";n<r.length;n++){switch(r.charCodeAt(n)){case 34:f="&quot;";break;case 38:f="&amp;";break;case 60:f="&lt;";break;default:continue}n!==e&&(o+=r.slice(e,n)),o+=f,e=n+1;}return n!==e&&(o+=r.slice(e,n)),o}var o=/acit|ex(?:s|g|n|p|$)|rph|grid|ows|mnc|ntw|ine[ch]|zoo|^ord|itera/i,f$1=0,i$1=Array.isArray;function u$1(e,t,n,o,i,u){t||(t={});var a,c,p=t;if("ref"in p)for(c in p={},t)"ref"==c?a=t[c]:p[c]=t[c];var l={type:e,props:p,key:n,ref:a,__k:null,__:null,__b:0,__e:null,__c:null,constructor:void 0,__v:--f$1,__i:-1,__u:0,__source:i,__self:u};if("function"==typeof e&&(a=e.defaultProps))for(c in a)void 0===p[c]&&(p[c]=a[c]);return l$2.vnode&&l$2.vnode(l),l}function a$1(r){var t=u$1(S,{tpl:r,exprs:[].slice.call(arguments,1)});return t.key=t.__v,t}var c$1={},p=/[A-Z]/g;function l$1(e,t){if(l$2.attr){var f=l$2.attr(e,t);if("string"==typeof f)return f}if(t=function(r){return null!==r&&"object"==typeof r&&"function"==typeof r.valueOf?r.valueOf():r}(t),"ref"===e||"key"===e)return "";if("style"===e&&"object"==typeof t){var i="";for(var u in t){var a=t[u];if(null!=a&&""!==a){var l="-"==u[0]?u:c$1[u]||(c$1[u]=u.replace(p,"-$&").toLowerCase()),s=";";"number"!=typeof a||l.startsWith("--")||o.test(l)||(s="px;"),i=i+l+":"+a+s;}}return e+'="'+n(i)+'"'}return null==t||!1===t||"function"==typeof t||"object"==typeof t?"":!0===t?e:e+'="'+n(""+t)+'"'}function s$1(r){if(null==r||"boolean"==typeof r||"function"==typeof r)return null;if("object"==typeof r){if(void 0===r.constructor)return r;if(i$1(r)){for(var e=0;e<r.length;e++)r[e]=s$1(r[e]);return r}}return n(""+r)}
+  var t=/["&<]/;function n(r){if(0===r.length||!1===t.test(r))return r;for(var e=0,n=0,o="",f="";n<r.length;n++){switch(r.charCodeAt(n)){case 34:f="&quot;";break;case 38:f="&amp;";break;case 60:f="&lt;";break;default:continue}n!==e&&(o+=r.slice(e,n)),o+=f,e=n+1;}return n!==e&&(o+=r.slice(e,n)),o}var o=/acit|ex(?:s|g|n|p|$)|rph|grid|ows|mnc|ntw|ine[ch]|zoo|^ord|itera/i,f$1=0,i$1=Array.isArray;function u$1(e,t,n,o,i,u){t||(t={});var a,c,p=t;if("ref"in p)for(c in p={},t)"ref"==c?a=t[c]:p[c]=t[c];var l={type:e,props:p,key:n,ref:a,__k:null,__:null,__b:0,__e:null,__c:null,constructor:void 0,__v:--f$1,__i:-1,__u:0,__source:i,__self:u};if("function"==typeof e&&(a=e.defaultProps))for(c in a)void 0===p[c]&&(p[c]=a[c]);return l$2.vnode&&l$2.vnode(l),l}function a$1(r){var t=u$1(S,{tpl:r,exprs:[].slice.call(arguments,1)});return t.key=t.__v,t}var c$1={},p$1=/[A-Z]/g;function l$1(e,t){if(l$2.attr){var f=l$2.attr(e,t);if("string"==typeof f)return f}if(t=function(r){return null!==r&&"object"==typeof r&&"function"==typeof r.valueOf?r.valueOf():r}(t),"ref"===e||"key"===e)return "";if("style"===e&&"object"==typeof t){var i="";for(var u in t){var a=t[u];if(null!=a&&""!==a){var l="-"==u[0]?u:c$1[u]||(c$1[u]=u.replace(p$1,"-$&").toLowerCase()),s=";";"number"!=typeof a||l.startsWith("--")||o.test(l)||(s="px;"),i=i+l+":"+a+s;}}return e+'="'+n(i)+'"'}return null==t||!1===t||"function"==typeof t||"object"==typeof t?"":!0===t?e:e+'="'+n(""+t)+'"'}function s(r){if(null==r||"boolean"==typeof r||"function"==typeof r)return null;if("object"==typeof r){if(void 0===r.constructor)return r;if(i$1(r)){for(var e=0;e<r.length;e++)r[e]=s(r[e]);return r}}return n(""+r)}
 
   var jsxRuntime = /*#__PURE__*/Object.freeze({
       __proto__: null,
       jsx: u$1,
       jsxAttr: l$1,
       jsxDEV: u$1,
-      jsxEscape: s$1,
+      jsxEscape: s,
       jsxTemplate: a$1,
       jsxs: u$1,
       Fragment: S
@@ -1717,11 +1717,12 @@ var FullCalendar = (function (exports) {
       return date;
   }
 
-  function expandZonedMarker(dateInfo, calendarSystem) {
+  function expandZonedInstant(dateInfo, calendarSystem) {
       let a = calendarSystem.markerToArray(dateInfo.marker);
       return {
           marker: dateInfo.marker,
-          timeZoneOffset: dateInfo.timeZoneOffset,
+          instantMs: dateInfo.instantMs,
+          timeZoneOffset: (dateInfo.marker.valueOf() - dateInfo.instantMs) / 60000,
           array: a,
           year: a[0],
           month: a[1],
@@ -1732,10 +1733,9 @@ var FullCalendar = (function (exports) {
           millisecond: a[6],
       };
   }
-
   function createVerboseFormattingArg(start, end, context) {
-      let startInfo = expandZonedMarker(start, context.calendarSystem);
-      let endInfo = end ? expandZonedMarker(end, context.calendarSystem) : null;
+      let startInfo = expandZonedInstant(start, context.calendarSystem);
+      let endInfo = end ? expandZonedInstant(end, context.calendarSystem) : null;
       return {
           date: startInfo,
           start: startInfo,
@@ -2017,13 +2017,16 @@ var FullCalendar = (function (exports) {
               return this.parse(input);
           }
           let marker = null;
+          let instantMs;
           if (typeof input === 'number') {
               marker = this.timestampToMarker(input);
+              instantMs = input;
           }
           else if (input instanceof Date) {
               input = input.valueOf();
               if (!isNaN(input)) {
                   marker = this.timestampToMarker(input);
+                  instantMs = input;
               }
           }
           else if (Array.isArray(input)) {
@@ -2032,7 +2035,7 @@ var FullCalendar = (function (exports) {
           if (marker === null || !isValidDate(marker)) {
               return null;
           }
-          return { marker, isTimeUnspecified: false };
+          return { marker, isTimeUnspecified: false, instantMs };
       }
       parse(s) {
           let parts = parse(s);
@@ -2040,10 +2043,12 @@ var FullCalendar = (function (exports) {
               return null;
           }
           let { marker } = parts;
+          let instantMs;
           if (parts.timeZoneOffset !== null) {
-              marker = this.timestampToMarker(marker.valueOf() - parts.timeZoneOffset * 60 * 1000);
+              instantMs = marker.valueOf() - parts.timeZoneOffset * 60 * 1000;
+              marker = this.timestampToMarker(instantMs);
           }
-          return { marker, isTimeUnspecified: parts.isTimeUnspecified };
+          return { marker, isTimeUnspecified: parts.isTimeUnspecified, instantMs };
       }
       // Accessors
       getYear(marker) {
@@ -2207,23 +2212,28 @@ var FullCalendar = (function (exports) {
           }
           return weekOfYear(marker, this.weekDow, this.weekDoy);
       }
-      formatToParts(marker, formatter) {
-          return formatter.formatToParts({
-              marker,
-              timeZoneOffset: this.offsetForMarker(marker),
-          }, this);
+      formatToParts(marker, formatter, dateOptions = {}) {
+          return formatter.formatToParts(this.toZonedInstant(marker, dateOptions.instantMs), this);
       }
       formatRangeToParts(start, end, formatter, dateOptions = {}) {
+          let { endInstantMs } = dateOptions;
           if (dateOptions.isEndExclusive) {
               end = addMs(end, -1);
+              if (endInstantMs != null) {
+                  endInstantMs -= 1;
+              }
           }
-          return formatter.formatRangeToParts({
-              marker: start,
-              timeZoneOffset: this.offsetForMarker(start),
-          }, {
-              marker: end,
-              timeZoneOffset: this.offsetForMarker(end),
-          }, this);
+          return formatter.formatRangeToParts(this.toZonedInstant(start, dateOptions.startInstantMs), this.toZonedInstant(end, endInstantMs), this);
+      }
+      // pairs a wall-clock marker with its real epoch instant (first occurrence when the
+      // wall-clock is ambiguous), unless an exact instant is supplied. the marker is
+      // re-derived from the instant so the pair always agrees, even when the given marker
+      // was nonexistent (DST gap) or expressed in a different offset's reading
+      toZonedInstant(marker, instantMs) {
+          if (instantMs == null) {
+              instantMs = this.toDate(marker).valueOf();
+          }
+          return { marker: this.timestampToMarker(instantMs), instantMs };
       }
       /*
       DUMB: the omitTime arg is dumb. if we omit the time, we want to omit the timezone offset. and if we do that,
@@ -2295,11 +2305,13 @@ var FullCalendar = (function (exports) {
                   standardOptions[name] = options[name];
               }
           }
-          if (standardOptions.timeZoneName === 'long') {
-              standardOptions.timeZoneName = 'short';
+          // all zone-name requests render as offsets ("GMT-4") for now, matching the historical
+          // synthesized style. flipping to real zone names ("EDT") is a deliberate future change
+          if (standardOptions.timeZoneName) {
+              standardOptions.timeZoneName = 'shortOffset';
           }
           this.timeZoneOnly = Object.keys(standardOptions).length === 1 &&
-              standardOptions.timeZoneName === 'short';
+              Boolean(standardOptions.timeZoneName);
           this.weekOnly = Boolean(!Object.keys(standardOptions).length && extendedOptions.week);
           if (!this.timeZoneOnly) {
               if (standardOptions.timeZoneName) {
@@ -2314,18 +2326,16 @@ var FullCalendar = (function (exports) {
                   (standardOptions.second || standardOptions.fractionalSecondDigits)) {
                   delete extendedOptions.omitZeroMinute;
               }
-              standardOptions.timeZone = 'UTC';
           }
           this.standardOptions = standardOptions;
           this.extendedOptions = extendedOptions;
       }
       formatToParts(date, context) {
-          const { standardOptions, extendedOptions } = this;
+          const { extendedOptions } = this;
           if (this.timeZoneOnly) {
-              return [{
-                      type: 'timeZoneName',
-                      value: formatTimeZoneOffset(date.timeZoneOffset),
-                  }];
+              return this.getFormats(context).normalFormat
+                  .formatToParts(date.instantMs)
+                  .filter((part) => part.type === 'timeZoneName');
           }
           if (this.weekOnly) {
               return formatWeekNumberParts(context.computeWeekNumber(date.marker), context.weekTextLong, context.weekTextShort, context.locale, extendedOptions.week);
@@ -2334,11 +2344,11 @@ var FullCalendar = (function (exports) {
           const format = (zeroFormat && !date.marker.getUTCMinutes())
               ? zeroFormat
               : normalFormat;
-          const parts = format.formatToParts(date.marker);
-          return postProcessParts(parts, date, standardOptions, extendedOptions);
+          const parts = format.formatToParts(date.instantMs);
+          return postProcessParts(parts, extendedOptions);
       }
       formatRangeToParts(start, end, context) {
-          const { standardOptions, extendedOptions } = this;
+          const { extendedOptions } = this;
           if (this.timeZoneOnly || this.weekOnly) {
               return this.formatToParts(start, context).map((part) => {
                   return {
@@ -2351,13 +2361,21 @@ var FullCalendar = (function (exports) {
           const format = (zeroFormat && !start.marker.getUTCMinutes() && !end.marker.getUTCMinutes())
               ? zeroFormat
               : normalFormat;
-          const parts = format.formatRangeToParts(start.marker, end.marker);
-          return postProcessRangeParts(parts, start, end, standardOptions, extendedOptions);
+          // the instants are real and ordered, so Intl's rendering is authoritative. ICU's
+          // interval output currently omits zone names and collapses equal-wall-clock
+          // endpoints — upstream limitations we deliberately do not paper over
+          const parts = format.formatRangeToParts(start.instantMs, end.instantMs);
+          return postProcessRangeParts(parts, extendedOptions);
       }
       getFormats(context) {
           if (this.cachedContext !== context) {
-              const { standardOptions, extendedOptions } = this;
+              const { extendedOptions } = this;
               const { codes } = context.locale;
+              const standardOptions = {
+                  ...this.standardOptions,
+                  // 'local' means the system zone, which is Intl's default
+                  timeZone: context.timeZone === 'local' ? undefined : context.timeZone,
+              };
               const normalFormat = new Intl.DateTimeFormat(codes, standardOptions);
               let zeroFormat;
               if (extendedOptions.omitZeroMinute) {
@@ -2371,8 +2389,7 @@ var FullCalendar = (function (exports) {
           return this.cachedFormats;
       }
   }
-  function processPartsLoop(parts, extendedOptions, getTzValue) {
-      let anyTzInjected = false;
+  function processPartsLoop(parts, extendedOptions) {
       let priorLiteral;
       for (const part of parts) {
           const isLiteral = part.type === 'literal';
@@ -2402,31 +2419,11 @@ var FullCalendar = (function (exports) {
               }
               part.value = s;
           }
-          else if (part.type === 'timeZoneName') {
-              const tzValue = getTzValue(part);
-              if (tzValue != null) {
-                  part.value = tzValue;
-                  anyTzInjected = true;
-              }
-          }
           priorLiteral = isLiteral ? part : undefined;
       }
-      return { lastLiteral: priorLiteral, anyTzInjected };
   }
-  function postProcessParts(parts, date, standardOptions, extendedOptions) {
-      const injectableTz = standardOptions.timeZoneName === 'short'
-          ? (date.timeZoneOffset == null ? 'UTC' : formatTimeZoneOffset(date.timeZoneOffset))
-          : undefined;
-      const { lastLiteral, anyTzInjected } = processPartsLoop(parts, extendedOptions, () => injectableTz);
-      if (injectableTz && !anyTzInjected) {
-          if (lastLiteral) {
-              lastLiteral.value += ' ';
-          }
-          else {
-              parts.push({ type: 'literal', value: ' ' });
-          }
-          parts.push({ type: 'timeZoneName', value: injectableTz });
-      }
+  function postProcessParts(parts, extendedOptions) {
+      processPartsLoop(parts, extendedOptions);
       if (extendedOptions.weekdayJustify &&
           parts.length === 3 &&
           WHITESPACE_ONLY_RE.test(parts[1].value)) {
@@ -2446,14 +2443,8 @@ var FullCalendar = (function (exports) {
       }
       return parts.filter((part) => part.value);
   }
-  function postProcessRangeParts(parts, start, end, standardOptions, extendedOptions) {
-      const injectTz = standardOptions.timeZoneName === 'short';
-      processPartsLoop(parts, extendedOptions, (part) => {
-          if (!injectTz)
-              return undefined;
-          const offset = part.source === 'endRange' ? end.timeZoneOffset : start.timeZoneOffset;
-          return offset == null ? 'UTC' : formatTimeZoneOffset(offset);
-      });
+  function postProcessRangeParts(parts, extendedOptions) {
+      processPartsLoop(parts, extendedOptions);
       if (extendedOptions.forceCommas) {
           for (const part of parts) {
               if (part.type === 'literal' && WHITESPACE_ONLY_RE.test(part.value)) {
@@ -2533,7 +2524,7 @@ var FullCalendar = (function (exports) {
       }
   }
 
-  var classNames = {"popoverZ":"fc-dp","isolate":"fc-6T","borderBoxRoot":"fc-BO","notAllowed":"fc-la","noScrollbars":"fc-mM","noShrink":"fc-yf","calendarScreenRoot":"fc-wS","safeTiles":"fc-mP","calendarPrintRoot":"fc-OB","cursorPointer":"fc-hH","cursorResizeT":"fc-wi","cursorResizeB":"fc-My","cursorResizeS":"fc-N8","cursorResizeE":"fc-Yv","cursorColResizer":"fc-DR","hit":"fc-Lp","hitX":"fc-YZ","hitY":"fc-RU","hitXSkinny":"fc-4P","selectNone":"fc-6M","invisible":"fc-Sy","borderNone":"fc-QX","borderOnlyT":"fc-3t","borderOnlyB":"fc-fo","borderOnlyS":"fc-wk","borderOnlyE":"fc-fx","borderlessX":"fc-8R","borderlessY":"fc-5a","fakeBorderS":"fc-hM","flexRow":"fc-ei","flexCol":"fc-Xt","grow":"fc-QU","liquid":"fc-J6","minHeight0":"fc-w9","liquidX":"fc-q3","printRoot":"fc-32","printHeader":"fc-IH","noPadding":"fc-Kk","noMargin":"fc-5M","noMarginY":"fc-G8","noMarginX":"fc-tR","whiteSpaceNoWrap":"fc-8y","whiteSpacePre":"fc-gR","overflowAnchorNone":"fc-eu","crop":"fc-75","cropNowrap":"fc-CJ","rel":"fc-xp","abs":"fc-So","start0":"fc-Q8","fill":"fc-TJ","fillTop":"fc-X3","fillX":"fc-O5","fillY":"fc-WS","fillStart":"fc-Ld","sticky":"fc-l5","stickyT":"fc-dl","stickyS":"fc-oh","tableHeaderSticky":"fc-3f","contentBox":"fc-wx","offscreen":"fc-pJ","alignCenter":"fc-xM","alignStart":"fc-RJ","alignEnd":"fc-x9","footerScrollbarSticky":"fc-10","footerScrollbar":"fc-rg","breakInsideAvoid":"fc-sv","printSiblingRow":"fc-Ph","z0":"fc-6d","z1":"fc-y0","focusZ2":"fc-5y","internalTimelineSlot":"fc-RK","internalEvent":"fc-vB","internalEventMirror":"fc-nH","internalEventDraggable":"fc-Be","internalEventSelected":"fc-w3","internalEventResizable":"fc-Kf","internalEventResizer":"fc-ve","internalEventResizerStart":"fc-Er","internalEventResizerEnd":"fc-ll","internalBgEvent":"fc-BR","internalMoreLink":"fc-GZ","internalNavLink":"fc-Z9","internalPopover":"fc-VO","internalView":"fc-rF","internalScroller":"fc-zT"};
+  var classNames = {"popoverZ":"fc-1U","isolate":"fc-1q","borderBoxRoot":"fc-pp","notAllowed":"fc-gm","noScrollbars":"fc-xp","noShrink":"fc-J9","calendarScreenRoot":"fc-oi","safeTiles":"fc-TV","calendarPrintRoot":"fc-OY","cursorPointer":"fc-ky","cursorResizeT":"fc-Wq","cursorResizeB":"fc-2H","cursorResizeS":"fc-lP","cursorResizeE":"fc-pu","cursorColResizer":"fc-Mo","hit":"fc-Bx","hitX":"fc-rT","hitY":"fc-1e","hitXSkinny":"fc-7U","selectNone":"fc-N6","invisible":"fc-BW","borderless":"fc-rf","borderlessX":"fc-Nq","borderlessY":"fc-zp","borderlessTop":"fc-1h","borderlessBottom":"fc-cZ","borderlessStart":"fc-G8","borderlessEnd":"fc-MA","flexRow":"fc-Dh","flexCol":"fc-vg","grow":"fc-85","liquid":"fc-91","minHeight0":"fc-Da","liquidX":"fc-1v","printTable":"fc-uR","noPadding":"fc-hF","noPaddingY":"fc-Ds","noMargin":"fc-TA","noMarginY":"fc-rt","noMarginX":"fc-wS","whiteSpaceNoWrap":"fc-mV","whiteSpacePre":"fc-zJ","overflowAnchorNone":"fc-Fk","pointerEventsNone":"fc-Ss","crop":"fc-D6","cropNowrap":"fc-5x","rel":"fc-DP","abs":"fc-P2","start0":"fc-5a","end0":"fc-lb","fill":"fc-0X","fillTop":"fc-9s","fillX":"fc-Gk","fillY":"fc-xh","fillStart":"fc-XV","sticky":"fc-XI","stickyT":"fc-7G","stickyS":"fc-Rw","tableHeaderSticky":"fc-yg","contentBox":"fc-2i","offscreen":"fc-o2","alignCenter":"fc-ih","alignStart":"fc-HJ","alignEnd":"fc-El","footerScrollbarSticky":"fc-nF","footerScrollbar":"fc-Or","breakInsideAvoid":"fc-6w","printCellContentMinHeight":"fc-9C","flowRoot":"fc-GJ","z0":"fc-d0","z1":"fc-Og","z2":"fc-BT","z3":"fc-XO","z4":"fc-e8","z5":"fc-sR","z1000":"fc-W4","z9999":"fc-eV","focusZ2":"fc-4U","internalTimelineSlot":"fc-YC","internalEvent":"fc-M0","internalEventMirror":"fc-N9","internalEventDraggable":"fc-41","internalEventSelected":"fc-vO","internalEventResizable":"fc-i0","internalEventResizer":"fc-Nc","internalEventResizerStart":"fc-hg","internalEventResizerEnd":"fc-dk","internalBgEvent":"fc-aw","internalMoreLink":"fc-kw","internalNavLink":"fc-Zy","internalPopover":"fc-ox","internalView":"fc-Q3","internalScroller":"fc-P4"};
 
   function joinClassNames(...args) {
       return args.filter(Boolean).join(' ');
@@ -2937,6 +2928,37 @@ var FullCalendar = (function (exports) {
       return Object.assign({}, props0, props1);
   }
 
+  // TODO: new util arrayify?
+  // Array.prototype.slice.call(
+  function flatArray(items) {
+      const res = [];
+      for (const item of items) {
+          if (Array.isArray(item)) {
+              for (const subItem of item) {
+                  res.push(subItem);
+              }
+          }
+          else {
+              res.push(item);
+          }
+      }
+      return res;
+  }
+  function flatMapArray(inputs, mapFunc) {
+      const res = [];
+      for (let i = 0; i < inputs.length; i += 1) {
+          const output = mapFunc(inputs[i], i);
+          if (Array.isArray(output)) {
+              for (const subOutput of output) {
+                  res.push(subOutput);
+              }
+          }
+          else {
+              res.push(output);
+          }
+      }
+      return res;
+  }
   function removeExact(array, exactItem) {
       let removeCnt = 0;
       let i = 0;
@@ -3334,6 +3356,7 @@ var FullCalendar = (function (exports) {
       unselectAuto: true,
       dropAccept: '*',
       eventOrder: 'start,-duration,allDay,title',
+      eventSlicing: true,
       eventPrintLayout: 'auto',
       popoverFormat: { month: 'long', day: 'numeric', year: 'numeric' },
       longPressDelay: 1000,
@@ -3459,6 +3482,147 @@ var FullCalendar = (function (exports) {
       return input === false ? null : createFormatter(input);
   }
 
+  /*
+  The canonical way to construct an EventInstanceRange. Pass undefined for an edge's
+  instant when the input didn't express one or the edge's marker was derived civilly —
+  the property is omitted entirely (never stored as an undefined-valued key).
+  */
+  function buildEventInstanceRange(start, end, instantStartMs, instantEndMs) {
+      const range = { start, end };
+      if (instantStartMs != null) {
+          range.instantStartMs = instantStartMs;
+      }
+      if (instantEndMs != null) {
+          range.instantEndMs = instantEndMs;
+      }
+      return range;
+  }
+  // Resolves an edge to its real instant, choosing the deterministic first occurrence when
+  // the marker is ambiguous and the edge does not carry an exact instant.
+  function resolveEdgeInstantMs(marker, instantMs, dateEnv) {
+      return instantMs ?? dateEnv.toDate(marker).valueOf();
+  }
+  /*
+  Builds every outward-facing representation of a range edge from one policy. Exact timed
+  edges use their true instant and its canonical wall-clock marker; civil/all-day edges keep
+  the supplied marker and DateEnv conversion.
+  */
+  function buildRangeEdgeOutput(marker, instantMs, dateEnv, omitTime) {
+      const canonicalMarker = instantMs != null ? dateEnv.timestampToMarker(instantMs) : marker;
+      const timeZoneOffset = instantMs != null
+          ? Math.round((canonicalMarker.valueOf() - instantMs) / 60000)
+          : dateEnv.offsetForMarker(marker);
+      if (!omitTime && instantMs != null) {
+          return {
+              marker: canonicalMarker,
+              date: new Date(instantMs),
+              dateStr: buildIsoString(canonicalMarker, timeZoneOffset),
+          };
+      }
+      return {
+          marker: canonicalMarker,
+          date: dateEnv.toDate(marker),
+          dateStr: omitTime
+              ? dateEnv.formatIso(marker, { omitTime })
+              : buildIsoString(marker, timeZoneOffset),
+      };
+  }
+  // the exact epoch instant of a range's start: the stored instant when present, otherwise
+  // deterministic first-occurrence resolution of the civil marker
+  function getRangeInstantStartMs(range, dateEnv) {
+      return resolveEdgeInstantMs(range.start, range.instantStartMs, dateEnv);
+  }
+  function getRangeInstantEndMs(range, dateEnv) {
+      return resolveEdgeInstantMs(range.end, range.instantEndMs, dateEnv);
+  }
+  // The canonical civil end: recomputed from the exact instant for fold-compressed ranges.
+  function canonicalRangeEndMarker(range, dateEnv) {
+      return range.instantEndMs != null ? dateEnv.timestampToMarker(range.instantEndMs) : range.end;
+  }
+  function rangeHasInstants(range) {
+      return range.instantStartMs != null || range.instantEndMs != null;
+  }
+  /*
+  Like rangesIntersect, but exact: when either range carries stored instants, real instants
+  are compared (a fold-compressed end's representational marker would otherwise falsely
+  collide with the other occurrence's civil times). Pure-civil pairs compare markers, as before.
+  */
+  function instanceRangesIntersect(range0, range1, dateEnv) {
+      if (rangeHasInstants(range0) || rangeHasInstants(range1)) {
+          return getRangeInstantStartMs(range0, dateEnv) < getRangeInstantEndMs(range1, dateEnv) &&
+              getRangeInstantEndMs(range0, dateEnv) > getRangeInstantStartMs(range1, dateEnv);
+      }
+      return rangesIntersect(range0, range1);
+  }
+  /*
+  Like rangeContainsRange, but exact in the same way as instanceRangesIntersect.
+  The outer range may be open-ended.
+  */
+  function instanceRangeContainsRange(outerRange, innerRange, dateEnv) {
+      if (rangeHasInstants(outerRange) || rangeHasInstants(innerRange)) {
+          const outerStartMs = outerRange.start != null ?
+              resolveEdgeInstantMs(outerRange.start, outerRange.instantStartMs, dateEnv) :
+              -Infinity;
+          const outerEndMs = outerRange.end != null ?
+              resolveEdgeInstantMs(outerRange.end, outerRange.instantEndMs, dateEnv) :
+              Infinity;
+          return outerStartMs <= getRangeInstantStartMs(innerRange, dateEnv) &&
+              outerEndMs >= getRangeInstantEndMs(innerRange, dateEnv);
+      }
+      return rangeContainsRange(outerRange, innerRange);
+  }
+  /*
+  Adds a positive duration to a start edge, deriving an END edge.
+  When the edge carries an exact instant and the duration is pure clock-time, the addition
+  happens in instant space (exact real elapsed time) and the result carries an instant too.
+  If a fall-back fold keeps the resulting canonical marker from advancing past the edge's own
+  marker, the result uses the edge's UTC-offset reading instead (the sanctioned
+  instant/marker disagreement — see EventInstanceRange). Calendar-unit durations and
+  instant-less edges use civil arithmetic (no instant).
+  */
+  function addDurationToEdge(edge, duration, dateEnv) {
+      if (edge.instantMs != null && !duration.years && !duration.months && !duration.days) {
+          const durMs = asRoughMs(duration);
+          const instantMs = edge.instantMs + durMs;
+          const marker = dateEnv.timestampToMarker(instantMs);
+          return marker > edge.marker
+              ? { marker, instantMs }
+              : { marker: addMs(edge.marker, durMs), instantMs };
+      }
+      return { marker: dateEnv.add(edge.marker, duration) };
+  }
+  /*
+  Builds a civilly-ordered EventInstanceRange from two edges, or null when the range is
+  invalid: pure-civil edges are invalid unless the end marker is after the start marker;
+  when either edge carries an exact instant, REAL-time order is the truth instead.
+  A real range that a DST fall-back fold civilly compresses (instants ordered, markers not)
+  is not discarded: its end marker is re-expressed in the start's UTC-offset reading
+  (start marker + real duration), keeping the exact end instant.
+  */
+  function buildValidInstanceRange(start, end, dateEnv) {
+      if (start.instantMs == null && end.instantMs == null) {
+          return end.marker > start.marker
+              ? buildEventInstanceRange(start.marker, end.marker)
+              : null;
+      }
+      const startMs = resolveEdgeInstantMs(start.marker, start.instantMs, dateEnv);
+      const endMs = resolveEdgeInstantMs(end.marker, end.instantMs, dateEnv);
+      if (endMs <= startMs) {
+          return null;
+      }
+      return buildEventInstanceRange(start.marker, end.marker > start.marker
+          ? end.marker
+          : addMs(start.marker, endMs - startMs), // fold-compressed: start's offset reading
+      start.instantMs, end.instantMs);
+  }
+  function createEventInstance(defId, range) {
+      return {
+          instanceId: guid(),
+          defId,
+          range,
+      };
+  }
+
   /* Date stuff that doesn't belong in datelib core
   ----------------------------------------------------------------------------------------------------------------------*/
   // given a timed range, computes an all-day range that has the same exact duration,
@@ -3501,14 +3665,6 @@ var FullCalendar = (function (exports) {
           return createDuration(dateEnv.diffWholeMonths(date0, date1), 'month');
       }
       return diffDayAndTime(date0, date1); // returns a duration
-  }
-
-  function createEventInstance(defId, range) {
-      return {
-          instanceId: guid(),
-          defId,
-          range,
-      };
   }
 
   function parseRecurring(refined, defaultAllDay, dateEnv, recurringTypes) {
@@ -3834,29 +3990,42 @@ var FullCalendar = (function (exports) {
       if (allDay && startMarker) {
           startMarker = startOfDay(startMarker);
       }
+      // exact instants are stamped when the input expressed them (ISO with offset, Date,
+      // epoch ms) and the marker was used as-is. allDay truncation invalidates instants.
+      let startInstantMs = (!allDay && startMeta) ? startMeta.instantMs : undefined;
+      let range = null;
       if (endMeta) {
-          endMarker = endMeta.marker;
-          if (allDay) {
-              endMarker = startOfDay(endMarker);
+          endMarker = allDay ? startOfDay(endMeta.marker) : endMeta.marker;
+          if (!startMarker) { // open start (allowOpenRange)
+              range = buildEventInstanceRange(startMarker, endMarker, undefined, allDay ? undefined : endMeta.instantMs);
           }
-          if (startMarker && endMarker <= startMarker) {
-              endMarker = null;
+          else if (allDay) {
+              if (endMarker > startMarker) {
+                  range = buildEventInstanceRange(startMarker, endMarker);
+              }
+          }
+          else {
+              // rejects ends invalid in real time; real ranges that a DST fall-back fold civilly
+              // compresses keep their exact end, re-expressed in the start's offset reading
+              range = buildValidInstanceRange({ marker: startMarker, instantMs: startInstantMs }, { marker: endMarker, instantMs: endMeta.instantMs }, context.dateEnv);
           }
       }
-      if (endMarker) {
+      if (range) {
           hasEnd = true;
       }
-      else if (!allowOpenRange) {
-          hasEnd = context.options.forceEventDuration || false;
-          endMarker = context.dateEnv.add(startMarker, allDay ?
-              context.options.defaultAllDayEventDuration :
-              context.options.defaultTimedEventDuration);
+      else if (allowOpenRange) {
+          range = buildEventInstanceRange(startMarker, null, startInstantMs);
       }
-      return {
-          allDay,
-          hasEnd,
-          range: { start: startMarker, end: endMarker },
-      };
+      else {
+          hasEnd = context.options.forceEventDuration || false;
+          // exact starts get an exact derived end (real elapsed duration), so the end can't
+          // re-resolve to the wrong side of a DST fold
+          let endEdge = addDurationToEdge({ marker: startMarker, instantMs: startInstantMs }, allDay ?
+              context.options.defaultAllDayEventDuration :
+              context.options.defaultTimedEventDuration, context.dateEnv);
+          range = buildEventInstanceRange(startMarker, endEdge.marker, startInstantMs, endEdge.instantMs);
+      }
+      return { allDay, hasEnd, range };
   }
   function computeIsDefaultAllDay(eventSource, context) {
       let res = null;
@@ -3876,6 +4045,9 @@ var FullCalendar = (function (exports) {
   };
   function parseDateSpan(raw, dateEnv, defaultDuration) {
       let span = parseOpenDateSpan(raw, dateEnv);
+      if (!span) {
+          return null;
+      }
       let { range } = span;
       if (!range.start) {
           return null;
@@ -3884,7 +4056,11 @@ var FullCalendar = (function (exports) {
           if (defaultDuration == null) {
               return null;
           }
-          range.end = dateEnv.add(range.start, defaultDuration);
+          const endEdge = addDurationToEdge({ marker: range.start, instantMs: span.instantStartMs }, defaultDuration, dateEnv);
+          range.end = endEdge.marker;
+          if (endEdge.instantMs != null) {
+              span.instantEndMs = endEdge.instantMs;
+          }
       }
       return span;
   }
@@ -3901,14 +4077,37 @@ var FullCalendar = (function (exports) {
           allDay = (startMeta && startMeta.isTimeUnspecified) &&
               (!endMeta || endMeta.isTimeUnspecified);
       }
-      return {
-          range: {
-              start: startMeta ? startMeta.marker : null,
-              end: endMeta ? endMeta.marker : null,
-          },
+      let range = {
+          start: startMeta ? startMeta.marker : null,
+          end: endMeta ? endMeta.marker : null,
+      };
+      if (!allDay && startMeta && endMeta && (startMeta.instantMs != null || endMeta.instantMs != null)) {
+          const validRange = buildValidInstanceRange({ marker: startMeta.marker, instantMs: startMeta.instantMs }, { marker: endMeta.marker, instantMs: endMeta.instantMs }, dateEnv);
+          if (!validRange && startMeta.instantMs != null && endMeta.instantMs != null) {
+              return null;
+          }
+          if (validRange) {
+              range = { start: validRange.start, end: validRange.end };
+          }
+      }
+      const span = {
+          range,
           allDay,
           ...extra,
       };
+      if (allDay) {
+          delete span.instantStartMs;
+          delete span.instantEndMs;
+      }
+      else {
+          if (startMeta?.instantMs != null) {
+              span.instantStartMs = startMeta.instantMs;
+          }
+          if (endMeta?.instantMs != null) {
+              span.instantEndMs = endMeta.instantMs;
+          }
+      }
+      return span;
   }
   function isDateSpansEqual(span0, span1) {
       return rangesEqual(span0.range, span1.range) &&
@@ -3935,7 +4134,7 @@ var FullCalendar = (function (exports) {
   }
   function buildDateSpanApi(span, dateEnv) {
       return {
-          ...buildRangeApi(span.range, dateEnv, span.allDay),
+          ...buildRangeApi(span.range, dateEnv, span.allDay, span),
           allDay: span.allDay,
       };
   }
@@ -3945,13 +4144,24 @@ var FullCalendar = (function (exports) {
           timeZone: dateEnv.timeZone,
       };
   }
-  function buildRangeApi(range, dateEnv, omitTime) {
+  function buildRangeApi(range, dateEnv, omitTime, rangeMeta) {
+      // exact instants may ride on a span (rangeMeta) or on the range itself
+      const instantStartMs = rangeMeta?.instantStartMs ?? range.instantStartMs;
+      const instantEndMs = rangeMeta?.instantEndMs ?? range.instantEndMs;
+      const start = buildRangeEdgeOutput(range.start, instantStartMs, dateEnv, omitTime);
+      const end = buildRangeEdgeOutput(range.end, instantEndMs, dateEnv, omitTime);
       return {
-          start: dateEnv.toDate(range.start),
-          end: dateEnv.toDate(range.end),
-          startStr: dateEnv.formatIso(range.start, { omitTime }),
-          endStr: dateEnv.formatIso(range.end, { omitTime }),
+          start: start.date,
+          end: end.date,
+          startStr: start.dateStr,
+          endStr: end.dateStr,
       };
+  }
+  function getDateSpanInstantStartMs(dateSpan, dateEnv) {
+      return resolveEdgeInstantMs(dateSpan.range.start, dateSpan.instantStartMs, dateEnv);
+  }
+  function getDateSpanInstantEndMs(dateSpan, dateEnv) {
+      return resolveEdgeInstantMs(dateSpan.range.end, dateSpan.instantEndMs, dateEnv);
   }
   function fabricateEventRange(dateSpan, eventUiBases, context) {
       let res = refineEventDef({ editable: false }, context);
@@ -4003,6 +4213,14 @@ var FullCalendar = (function (exports) {
       }
       return end;
   }
+  // like getDefaultEventEnd, but edge-based: an exact start yields an exact derived end
+  // (real elapsed duration), so the end can't re-resolve to the wrong side of a DST fold
+  function getDefaultEventEndEdge(allDay, start, context) {
+      if (allDay) {
+          return { marker: getDefaultEventEnd(true, start.marker, context) };
+      }
+      return addDurationToEdge(start, context.options.defaultTimedEventDuration, context.dateEnv);
+  }
 
   // applies the mutation to ALL defs/instances within the event store
   function applyMutationToEventStore(eventStore, eventConfigBase, mutation, context) {
@@ -4047,36 +4265,24 @@ var FullCalendar = (function (exports) {
   }
   function applyMutationToEventInstance(eventInstance, eventDef, // must first be modified by applyMutationToEventDef
   eventConfig, mutation, context) {
-      let { dateEnv } = context;
       let forceAllDay = mutation.standardProps && mutation.standardProps.allDay === true;
       let clearEnd = mutation.standardProps && mutation.standardProps.hasEnd === false;
       let copy = { ...eventInstance };
       if (forceAllDay) {
-          copy.range = computeAlignedDayRange(copy.range);
+          copy.range = computeAlignedDayRange(copy.range); // fresh plain range: instants stripped
       }
       if (mutation.datesDelta && eventConfig.startEditable) {
-          copy.range = {
-              start: dateEnv.add(copy.range.start, mutation.datesDelta),
-              end: dateEnv.add(copy.range.end, mutation.datesDelta),
-          };
+          copy.range = buildInstanceRange(addDeltaToRangeEdge(copy.range.start, copy.range.instantStartMs, mutation.datesDelta, mutation.instantDatesDeltaMs, context), addDeltaToRangeEdge(copy.range.end, copy.range.instantEndMs, mutation.datesDelta, mutation.instantDatesDeltaMs, context));
       }
       if (mutation.startDelta && eventConfig.durationEditable) {
-          copy.range = {
-              start: dateEnv.add(copy.range.start, mutation.startDelta),
-              end: copy.range.end,
-          };
+          copy.range = buildInstanceRange(addDeltaToRangeEdge(copy.range.start, copy.range.instantStartMs, mutation.startDelta, mutation.instantStartDeltaMs, context), { marker: copy.range.end, instantMs: copy.range.instantEndMs });
       }
       if (mutation.endDelta && eventConfig.durationEditable) {
-          copy.range = {
-              start: copy.range.start,
-              end: dateEnv.add(copy.range.end, mutation.endDelta),
-          };
+          copy.range = buildInstanceRange({ marker: copy.range.start, instantMs: copy.range.instantStartMs }, addDeltaToRangeEdge(copy.range.end, copy.range.instantEndMs, mutation.endDelta, mutation.instantEndDeltaMs, context));
       }
       if (clearEnd) {
-          copy.range = {
-              start: copy.range.start,
-              end: getDefaultEventEnd(eventDef.allDay, copy.range.start, context),
-          };
+          const startEdge = { marker: copy.range.start, instantMs: copy.range.instantStartMs };
+          copy.range = buildInstanceRange(startEdge, getDefaultEventEndEdge(eventDef.allDay, startEdge, context));
       }
       // in case event was all-day but the supplied deltas were not
       // better util for this?
@@ -4086,11 +4292,43 @@ var FullCalendar = (function (exports) {
               end: startOfDay(copy.range.end),
           };
       }
-      // handle invalid durations
-      if (copy.range.end < copy.range.start) {
-          copy.range.end = getDefaultEventEnd(eventDef.allDay, copy.range.start, context);
+      // handle invalid durations. a timed range can be invalid civilly or in real time.
+      // a real range that a DST fall-back fold civilly compresses is re-expressed (end in the
+      // start's offset reading) rather than repaired away
+      if (eventDef.allDay) {
+          if (copy.range.end <= copy.range.start) {
+              const startEdge = { marker: copy.range.start };
+              copy.range = buildInstanceRange(startEdge, getDefaultEventEndEdge(true, startEdge, context));
+          }
+      }
+      else {
+          const startEdge = { marker: copy.range.start, instantMs: copy.range.instantStartMs };
+          copy.range = buildValidInstanceRange(startEdge, { marker: copy.range.end, instantMs: copy.range.instantEndMs }, context.dateEnv) ?? buildInstanceRange(startEdge, getDefaultEventEndEdge(false, startEdge, context));
       }
       return copy;
+  }
+  /*
+  When instantDeltaMs is given, moves the edge by an exact instant amount, basing off the
+  edge's stored instant when present (preserves identity through DST fall-back doubled times).
+  The resulting marker is always a real local time in the current timeZone; ambiguous civil
+  times resolve deterministically. Civil (Duration-only) deltas invalidate any stored instant.
+  */
+  function addDeltaToRangeEdge(marker, instantMs, delta, instantDeltaMs, context) {
+      if (instantDeltaMs != null) {
+          const newInstantMs = resolveEdgeInstantMs(marker, instantMs, context.dateEnv) + instantDeltaMs;
+          return {
+              marker: context.dateEnv.timestampToMarker(newInstantMs),
+              instantMs: newInstantMs,
+          };
+      }
+      // civil deltas apply to the edge's canonical civil form — a fold-compressed end's
+      // stored marker is representational and must not enter civil arithmetic
+      return {
+          marker: context.dateEnv.add(instantMs != null ? context.dateEnv.timestampToMarker(instantMs) : marker, delta),
+      };
+  }
+  function buildInstanceRange(start, end) {
+      return buildEventInstanceRange(start.marker, end.marker, start.instantMs, end.instantMs);
   }
 
   class EventSourceImpl {
@@ -4173,31 +4411,35 @@ var FullCalendar = (function (exports) {
       }
       setStart(startInput, options = {}) {
           let { dateEnv } = this._context;
-          let start = dateEnv.createMarker(startInput);
-          if (start && this._instance) { // TODO: warning if parsed bad
+          let startMeta = dateEnv.createMarkerMeta(startInput);
+          if (startMeta && this._instance) { // TODO: warning if parsed bad
               let instanceRange = this._instance.range;
-              let startDelta = diffDates(instanceRange.start, start, dateEnv, options.granularity); // what if parsed bad!?
+              let startDelta = diffDates(instanceRange.start, startMeta.marker, dateEnv, options.granularity); // what if parsed bad!?
+              let instantDeltaMs = computeInstantDeltaMs(startMeta, getRangeInstantStartMs(instanceRange, dateEnv), options.granularity);
               if (options.maintainDuration) {
-                  this.mutate({ datesDelta: startDelta });
+                  this.mutate({ datesDelta: startDelta, instantDatesDeltaMs: instantDeltaMs });
               }
               else {
-                  this.mutate({ startDelta });
+                  this.mutate({ startDelta, instantStartDeltaMs: instantDeltaMs });
               }
           }
       }
       setEnd(endInput, options = {}) {
           let { dateEnv } = this._context;
-          let end;
+          let endMeta = null;
           if (endInput != null) {
-              end = dateEnv.createMarker(endInput);
-              if (!end) {
+              endMeta = dateEnv.createMarkerMeta(endInput);
+              if (!endMeta) {
                   return; // TODO: warning if parsed bad
               }
           }
           if (this._instance) {
-              if (end) {
-                  let endDelta = diffDates(this._instance.range.end, end, dateEnv, options.granularity);
-                  this.mutate({ endDelta });
+              if (endMeta) {
+                  let instanceRange = this._instance.range;
+                  // canonical base: matches what a civil delta will be applied to
+                  let endDelta = diffDates(canonicalRangeEndMarker(instanceRange, dateEnv), endMeta.marker, dateEnv, options.granularity);
+                  let instantDeltaMs = computeInstantDeltaMs(endMeta, getRangeInstantEndMs(instanceRange, dateEnv), options.granularity);
+                  this.mutate({ endDelta, instantEndDeltaMs: instantDeltaMs });
               }
               else {
                   this.mutate({ standardProps: { hasEnd: false } });
@@ -4207,37 +4449,42 @@ var FullCalendar = (function (exports) {
       setDates(startInput, endInput, options = {}) {
           let { dateEnv } = this._context;
           let standardProps = { allDay: options.allDay };
-          let start = dateEnv.createMarker(startInput);
-          let end;
-          if (!start) {
+          let startMeta = dateEnv.createMarkerMeta(startInput);
+          let endMeta = null;
+          if (!startMeta) {
               return; // TODO: warning if parsed bad
           }
           if (endInput != null) {
-              end = dateEnv.createMarker(endInput);
-              if (!end) { // TODO: warning if parsed bad
+              endMeta = dateEnv.createMarkerMeta(endInput);
+              if (!endMeta) { // TODO: warning if parsed bad
                   return;
               }
           }
           if (this._instance) {
               let instanceRange = this._instance.range;
+              // converting to all-day is civil-only: exact instants don't survive day-alignment
+              let skipInstants = options.allDay === true;
+              let instantStartDeltaMs = skipInstants ? undefined : computeInstantDeltaMs(startMeta, getRangeInstantStartMs(instanceRange, dateEnv), options.granularity);
+              let instantEndDeltaMs = (skipInstants || !endMeta) ? undefined : computeInstantDeltaMs(endMeta, getRangeInstantEndMs(instanceRange, dateEnv), options.granularity);
               // when computing the diff for an event being converted to all-day,
               // compute diff off of the all-day values the way event-mutation does.
               if (options.allDay === true) {
                   instanceRange = computeAlignedDayRange(instanceRange);
               }
-              let startDelta = diffDates(instanceRange.start, start, dateEnv, options.granularity);
-              if (end) {
-                  let endDelta = diffDates(instanceRange.end, end, dateEnv, options.granularity);
-                  if (durationsEqual(startDelta, endDelta)) {
-                      this.mutate({ datesDelta: startDelta, standardProps });
+              // canonical bases: match what civil deltas will be applied to
+              let startDelta = diffDates(instanceRange.start, startMeta.marker, dateEnv, options.granularity);
+              if (endMeta) {
+                  let endDelta = diffDates(canonicalRangeEndMarker(instanceRange, dateEnv), endMeta.marker, dateEnv, options.granularity);
+                  if (durationsEqual(startDelta, endDelta) && instantStartDeltaMs === instantEndDeltaMs) {
+                      this.mutate({ datesDelta: startDelta, instantDatesDeltaMs: instantStartDeltaMs, standardProps });
                   }
                   else {
-                      this.mutate({ startDelta, endDelta, standardProps });
+                      this.mutate({ startDelta, endDelta, instantStartDeltaMs, instantEndDeltaMs, standardProps });
                   }
               }
               else { // means "clear the end"
                   standardProps.hasEnd = false;
-                  this.mutate({ datesDelta: startDelta, standardProps });
+                  this.mutate({ datesDelta: startDelta, instantDatesDeltaMs: instantStartDeltaMs, standardProps });
               }
           }
       }
@@ -4274,10 +4521,17 @@ var FullCalendar = (function (exports) {
           let { dateEnv } = this._context;
           let instance = this._instance;
           let formatter = createFormatter(formatInput);
+          let start = buildRangeEdgeOutput(instance.range.start, instance.range.instantStartMs, dateEnv);
           if (this._def.hasEnd) {
-              return joinDateTimeFormatParts(dateEnv.formatRangeToParts(instance.range.start, instance.range.end, formatter));
+              let end = buildRangeEdgeOutput(instance.range.end, instance.range.instantEndMs, dateEnv);
+              return joinDateTimeFormatParts(dateEnv.formatRangeToParts(start.marker, end.marker, formatter, {
+                  startInstantMs: start.date.valueOf(),
+                  endInstantMs: end.date.valueOf(),
+              }));
           }
-          return joinDateTimeFormatParts(dateEnv.formatToParts(instance.range.start, formatter));
+          return joinDateTimeFormatParts(dateEnv.formatToParts(start.marker, formatter, {
+              instantMs: start.date.valueOf(),
+          }));
       }
       mutate(mutation) {
           let instance = this._instance;
@@ -4346,30 +4600,30 @@ var FullCalendar = (function (exports) {
           return null;
       }
       get start() {
-          return this._instance ?
-              this._context.dateEnv.toDate(this._instance.range.start) :
-              null;
+          let instance = this._instance;
+          if (instance) {
+              return buildRangeEdgeOutput(instance.range.start, instance.range.instantStartMs, this._context.dateEnv, this._def.allDay).date;
+          }
+          return null;
       }
       get end() {
-          return (this._instance && this._def.hasEnd) ?
-              this._context.dateEnv.toDate(this._instance.range.end) :
-              null;
+          let instance = this._instance;
+          if (instance && this._def.hasEnd) {
+              return buildRangeEdgeOutput(instance.range.end, instance.range.instantEndMs, this._context.dateEnv, this._def.allDay).date;
+          }
+          return null;
       }
       get startStr() {
           let instance = this._instance;
           if (instance) {
-              return this._context.dateEnv.formatIso(instance.range.start, {
-                  omitTime: this._def.allDay,
-              });
+              return buildRangeEdgeOutput(instance.range.start, instance.range.instantStartMs, this._context.dateEnv, this._def.allDay).dateStr;
           }
           return '';
       }
       get endStr() {
           let instance = this._instance;
           if (instance && this._def.hasEnd) {
-              return this._context.dateEnv.formatIso(instance.range.end, {
-                  omitTime: this._def.allDay,
-              });
+              return buildRangeEdgeOutput(instance.range.end, instance.range.instantEndMs, this._context.dateEnv, this._def.allDay).dateStr;
           }
           return '';
       }
@@ -4444,6 +4698,16 @@ var FullCalendar = (function (exports) {
           return this.toPlainObject();
       }
   }
+  /*
+  The exact-ms counterpart of a civil delta, present when the input expressed an exact
+  instant (ISO with offset, Date, epoch ms). Undefined means the mutation applies only the
+  civil delta. Skipped when a granularity is requested (whole-unit semantics).
+  */
+  function computeInstantDeltaMs(meta, fromInstantMs, granularity) {
+      return (meta.instantMs != null && !granularity)
+          ? meta.instantMs - fromInstantMs
+          : undefined;
+  }
   function eventApiToStore(eventApi) {
       let def = eventApi._def;
       let instance = eventApi._instance;
@@ -4468,9 +4732,6 @@ var FullCalendar = (function (exports) {
       return eventApis;
   }
 
-  function getEventKey(seg) {
-      return seg.eventRange.instance.instanceId;
-  }
   /*
   Specifying nextDayThreshold signals that all-day ranges should be sliced.
   */
@@ -4519,7 +4780,7 @@ var FullCalendar = (function (exports) {
                       def,
                       ui,
                       instance,
-                      range: slicedRange,
+                      range: buildSlicedEventRange(origRange, normalRange, slicedRange),
                       isStart: normalRange.start && normalRange.start.valueOf() === slicedRange.start.valueOf(),
                       isEnd: normalRange.end && normalRange.end.valueOf() === slicedRange.end.valueOf(),
                   });
@@ -4557,6 +4818,17 @@ var FullCalendar = (function (exports) {
           }
       }
       return { bg: bgRanges, fg: fgRanges };
+  }
+  /*
+  Carries instant fields from the original event range onto the sliced range, per-edge, only
+  for edges that were not clipped by the framing range. Only applies when the range was not
+  day-normalized (normalRange === origRange, i.e. timed events not subject to nextDayThreshold).
+  */
+  function buildSlicedEventRange(origRange, normalRange, slicedRange) {
+      if (normalRange !== origRange) {
+          return slicedRange;
+      }
+      return buildEventInstanceRange(slicedRange.start, slicedRange.end, slicedRange.start.valueOf() === origRange.start.valueOf() ? origRange.instantStartMs : undefined, slicedRange.end.valueOf() === origRange.end.valueOf() ? origRange.instantEndMs : undefined);
   }
   function hasBgRendering(def) {
       return def.ui.display === 'background' || def.ui.display === 'inverse-background';
@@ -4634,6 +4906,9 @@ var FullCalendar = (function (exports) {
   isStart, isEnd, context, defaultDisplayEventTime = true, defaultDisplayEventEnd = true) {
       const { dateEnv, options } = context;
       const { def } = eventRange;
+      const { range } = eventRange.instance;
+      const canonicalStart = buildRangeEdgeOutput(range.start, range.instantStartMs, dateEnv);
+      const canonicalEnd = buildRangeEdgeOutput(range.end, range.instantEndMs, dateEnv);
       let { displayEventTime, displayEventEnd } = options;
       if (displayEventTime == null) {
           displayEventTime = defaultDisplayEventTime !== false;
@@ -4645,32 +4920,42 @@ var FullCalendar = (function (exports) {
           slicedStart &&
           // if seg is the first seg, but start-date cut-off by slotMinTime, (technically isStart=false)
           // we still want to display the original start-time
-          startOfDay(slicedStart).valueOf() !== startOfDay(eventRange.instance.range.start).valueOf())
+          startOfDay(slicedStart).valueOf() !== startOfDay(canonicalStart.marker).valueOf())
           ? slicedStart
-          : eventRange.instance.range.start;
+          : canonicalStart.marker;
       const endDate = (!isEnd &&
           slicedEnd &&
           // See above HACK, but for end-time
-          startOfDay(addMs(slicedEnd, -1)).valueOf() !== startOfDay(addMs(eventRange.instance.range.end, -1)).valueOf())
+          startOfDay(addMs(slicedEnd, -1)).valueOf() !== startOfDay(addMs(canonicalEnd.marker, -1)).valueOf())
           ? slicedEnd
-          : eventRange.instance.range.end;
+          : canonicalEnd.marker;
+      const startInstantMs = startDate === canonicalStart.marker ? canonicalStart.date.valueOf() : undefined;
+      const endInstantMs = endDate === canonicalEnd.marker ? canonicalEnd.date.valueOf() : undefined;
       if (displayEventTime && !def.allDay) {
           if (displayEventEnd && (isStart || isEnd) && def.hasEnd) {
               // TODO: put this functionality in @full-ui/headless-calendar ?
+              const rangeParts = dateEnv.formatRangeToParts(startDate, endDate, timeFormat, {
+                  startInstantMs,
+                  endInstantMs,
+              });
+              const multiDaySeparator = detectMultiDayTimes(rangeParts);
               // NOTE: produces strings like '12:00pm - 1:00pm', without condensing dayPeriod,
               // but that's okay since it's technically a different dayPeriod on a different day
-              const rangeParts = dateEnv.formatRangeToParts(startDate, endDate, timeFormat);
-              const multiDaySeparator = detectMultiDayTimes(rangeParts);
-              //
               if (multiDaySeparator != null) {
-                  return joinDateTimeFormatParts(dateEnv.formatToParts(startDate, timeFormat)) +
+                  return joinDateTimeFormatParts(dateEnv.formatToParts(startDate, timeFormat, {
+                      instantMs: startInstantMs,
+                  })) +
                       multiDaySeparator +
-                      joinDateTimeFormatParts(dateEnv.formatToParts(endDate, timeFormat));
+                      joinDateTimeFormatParts(dateEnv.formatToParts(endDate, timeFormat, {
+                          instantMs: endInstantMs,
+                      }));
               }
               return joinDateTimeFormatParts(rangeParts);
           }
           if (isStart) {
-              return joinDateTimeFormatParts(dateEnv.formatToParts(startDate, timeFormat));
+              return joinDateTimeFormatParts(dateEnv.formatToParts(startDate, timeFormat, {
+                  instantMs: startInstantMs,
+              }));
           }
       }
       return '';
@@ -4689,11 +4974,15 @@ var FullCalendar = (function (exports) {
       }
       return hasDatePart ? sharedPart.value : undefined;
   }
-  function getEventRangeMeta(eventRange, todayRange, nowDate) {
+  function getEventRangeMeta(eventRange, todayRange, nowDate, nowMs) {
       let segRange = eventRange.range;
       return {
-          isPast: segRange.end <= (nowDate || todayRange.start),
-          isFuture: segRange.start >= (nowDate || todayRange.end),
+          isPast: segRange.instantEndMs != null && nowMs != null
+              ? segRange.instantEndMs <= nowMs
+              : segRange.end <= (nowDate || todayRange.start),
+          isFuture: segRange.instantStartMs != null && nowMs != null
+              ? segRange.instantStartMs >= nowMs
+              : segRange.start >= (nowDate || todayRange.end),
           isToday: todayRange && rangeContainsMarker(todayRange, segRange.start),
       };
   }
@@ -5548,9 +5837,9 @@ var FullCalendar = (function (exports) {
       },
   ];
 
-  var r,u,i,f=[],c=l$2,e=c.__b,a=c.__r,v=c.diffed,l=c.__c,m=c.unmount,s=c.__;function j$1(){for(var n;n=f.shift();){var t=n.__H;if(n.__P&&t)try{t.__h.some(z),t.__h.some(B$1),t.__h=[];}catch(r){t.__h=[],c.__e(r,n.__v);}}}c.__b=function(n){r=null,e&&e(n);},c.__=function(n,t){n&&t.__k&&t.__k.__m&&(n.__m=t.__k.__m),s&&s(n,t);},c.__r=function(n){a&&a(n);var i=(r=n.__c).__H;i&&(u===r?(i.__h=[],r.__h=[],i.__.some(function(n){n.__N&&(n.__=n.__N),n.u=n.__N=void 0;})):(i.__h.some(z),i.__h.some(B$1),i.__h=[],0)),u=r;},c.diffed=function(n){v&&v(n);var t=n.__c;t&&t.__H&&(t.__H.__h.length&&(1!==f.push(t)&&i===c.requestAnimationFrame||((i=c.requestAnimationFrame)||w)(j$1)),t.__H.__.some(function(n){n.u&&(n.__H=n.u),n.u=void 0;})),u=r=null;},c.__c=function(n,t){t.some(function(n){try{n.__h.some(z),n.__h=n.__h.filter(function(n){return !n.__||B$1(n)});}catch(r){t.some(function(n){n.__h&&(n.__h=[]);}),t=[],c.__e(r,n.__v);}}),l&&l(n,t);},c.unmount=function(n){m&&m(n);var t,r=n.__c;r&&r.__H&&(r.__H.__.some(function(n){try{z(n);}catch(n){t=n;}}),r.__H=void 0,t&&c.__e(t,r.__v));};var k="function"==typeof requestAnimationFrame;function w(n){var t,r=function(){clearTimeout(u),k&&cancelAnimationFrame(t),setTimeout(n);},u=setTimeout(r,35);k&&(t=requestAnimationFrame(r));}function z(n){var t=r,u=n.__c;"function"==typeof u&&(n.__c=void 0,u()),r=t;}function B$1(n){var t=r;n.__c=n.__(),r=t;}
+  var r,u,i,f=[],c=l$2,e=c.__b,a=c.__r,v=c.diffed,l=c.__c,m=c.unmount,p=c.__;function j$1(){for(var n;n=f.shift();){var t=n.__H;if(n.__P&&t)try{t.__h.some(z),t.__h.some(B$1),t.__h=[];}catch(r){t.__h=[],c.__e(r,n.__v);}}}c.__b=function(n){r=null,e&&e(n);},c.__=function(n,t){n&&t.__k&&t.__k.__m&&(n.__m=t.__k.__m),p&&p(n,t);},c.__r=function(n){a&&a(n);var i=(r=n.__c).__H;i&&(u===r?(i.__h=[],r.__h=[],i.__.some(function(n){n.__N&&(n.__=n.__N),n.u=n.__N=void 0;})):(i.__h.some(z),i.__h.some(B$1),i.__h=[],0)),u=r;},c.diffed=function(n){v&&v(n);var t=n.__c;t&&t.__H&&(t.__H.__h.length&&(1!==f.push(t)&&i===c.requestAnimationFrame||((i=c.requestAnimationFrame)||w)(j$1)),t.__H.__.some(function(n){n.u&&(n.__H=n.u,n.u=void 0);})),u=r=null;},c.__c=function(n,t){t.some(function(n){try{n.__h.some(z),n.__h=n.__h.filter(function(n){return !n.__||B$1(n)});}catch(r){t.some(function(n){n.__h&&(n.__h=[]);}),t=[],c.__e(r,n.__v);}}),l&&l(n,t);},c.unmount=function(n){m&&m(n);var t,r=n.__c;r&&r.__H&&(r.__H.__.some(function(n){try{z(n);}catch(n){t=n;}}),r.__H=void 0,t&&c.__e(t,r.__v));};var k="function"==typeof requestAnimationFrame;function w(n){var t,r=function(){clearTimeout(u),k&&cancelAnimationFrame(t),setTimeout(n);},u=setTimeout(r,35);k&&(t=requestAnimationFrame(r));}function z(n){var t=r,u=n.__c;"function"==typeof u&&(n.__c=void 0,u()),r=t;}function B$1(n){var t=r;n.__c=n.__(),r=t;}
 
-  function g(n,t){for(var e in t)n[e]=t[e];return n}function E(n,t){for(var e in n)if("__source"!==e&&!(e in t))return !0;for(var r in t)if("__source"!==r&&n[r]!==t[r])return !0;return !1}function M(n,t){this.props=n,this.context=t;}(M.prototype=new C).isPureReactComponent=!0,M.prototype.shouldComponentUpdate=function(n,t){return E(this.props,n)||E(this.state,t)};var T=l$2.__b;l$2.__b=function(n){n.type&&n.type.__f&&n.ref&&(n.props.ref=n.ref,n.ref=null),T&&T(n);};var O=l$2.__e;l$2.__e=function(n,t,e,r){if(n.then)for(var u,o=t;o=o.__;)if((u=o.__c)&&u.__c)return null==t.__e&&(t.__e=e.__e,t.__k=e.__k),u.__c(n,t);O(n,t,e,r);};var U=l$2.unmount;function V(n,t,e){return n&&(n.__c&&n.__c.__H&&(n.__c.__H.__.forEach(function(n){"function"==typeof n.__c&&n.__c();}),n.__c.__H=null),null!=(n=g({},n)).__c&&(n.__c.__P===e&&(n.__c.__P=t),n.__c.__e=!0,n.__c=null),n.__k=n.__k&&n.__k.map(function(n){return V(n,t,e)})),n}function W(n,t,e){return n&&e&&(n.__v=null,n.__k=n.__k&&n.__k.map(function(n){return W(n,t,e)}),n.__c&&n.__c.__P===t&&(n.__e&&e.appendChild(n.__e),n.__c.__e=!0,n.__c.__P=e)),n}function P(){this.__u=0,this.o=null,this.__b=null;}function j(n){var t=n.__&&n.__.__c;return t&&t.__a&&t.__a(n)}function B(){this.i=null,this.l=null;}l$2.unmount=function(n){var t=n.__c;t&&(t.__z=!0),t&&t.__R&&t.__R(),t&&32&n.__u&&(n.type=null),U&&U(n);},(P.prototype=new C).__c=function(n,t){var e=t.__c,r=this;null==r.o&&(r.o=[]),r.o.push(e);var u=j(r.__v),o=!1,i=function(){o||r.__z||(o=!0,e.__R=null,u?u(c):c());};e.__R=i;var l=e.__P;e.__P=null;var c=function(){if(!--r.__u){if(r.state.__a){var n=r.state.__a;r.__v.__k[0]=W(n,n.__c.__P,n.__c.__O);}var t;for(r.setState({__a:r.__b=null});t=r.o.pop();)t.__P=l,t.forceUpdate();}};r.__u++||32&t.__u||r.setState({__a:r.__b=r.__v.__k[0]}),n.then(i,i);},P.prototype.componentWillUnmount=function(){this.o=[];},P.prototype.render=function(n,e){if(this.__b){if(this.__v.__k){var r=document.createElement("div"),o=this.__v.__k[0].__c;this.__v.__k[0]=V(this.__b,r,o.__O=o.__P);}this.__b=null;}var i=e.__a&&k$1(S,null,n.fallback);return i&&(i.__u&=-33),[k$1(S,null,e.__a?null:n.children),i]};var H=function(n,t,e){if(++e[1]===e[0]&&n.l.delete(t),n.props.revealOrder&&("t"!==n.props.revealOrder[0]||!n.l.size))for(e=n.i;e;){for(;e.length>3;)e.pop()();if(e[1]<e[0])break;n.i=e=e[2];}};function Z(n){return this.getChildContext=function(){return n.context},n.children}function Y(n){var e=this,r=n.h;if(e.componentWillUnmount=function(){R(null,e.v),e.v=null,e.h=null;},e.h&&e.h!==r&&e.componentWillUnmount(),!e.v){for(var u=e.__v;null!==u&&!u.__m&&null!==u.__;)u=u.__;e.h=r,e.v={nodeType:1,parentNode:r,childNodes:[],__k:{__m:u.__m},contains:function(){return !0},namespaceURI:r.namespaceURI,insertBefore:function(n,t){this.childNodes.push(n),e.h.insertBefore(n,t);},removeChild:function(n){this.childNodes.splice(this.childNodes.indexOf(n)>>>1,1),e.h.removeChild(n);}};}R(k$1(Z,{context:e.context},n.__v),e.v);}function $(n,e){var r=k$1(Y,{__v:n,h:e});return r.containerInfo=e,r}(B.prototype=new C).__a=function(n){var t=this,e=j(t.__v),r=t.l.get(n);return r[0]++,function(u){var o=function(){t.props.revealOrder?(r.push(u),H(t,n,r)):u();};e?e(o):o();}},B.prototype.render=function(n){this.i=null,this.l=new Map;var t=F(n.children);n.revealOrder&&"b"===n.revealOrder[0]&&t.reverse();for(var e=t.length;e--;)this.l.set(t[e],this.i=[1,0,this.i]);return n.children},B.prototype.componentDidUpdate=B.prototype.componentDidMount=function(){var n=this;this.l.forEach(function(t,e){H(n,e,t);});};var q="undefined"!=typeof Symbol&&Symbol.for&&Symbol.for("react.element")||60103,G=/^(?:accent|alignment|arabic|baseline|cap|clip(?!PathU)|color|dominant|fill|flood|font|glyph(?!R)|horiz|image(!S)|letter|lighting|marker(?!H|W|U)|overline|paint|pointer|shape|stop|strikethrough|stroke|text(?!L)|transform|underline|unicode|units|v|vector|vert|word|writing|x(?!C))[A-Z]/,J=/^on(Ani|Tra|Tou|BeforeInp|Compo)/,K=/[A-Z0-9]/g,Q="undefined"!=typeof document,X=function(n){return ("undefined"!=typeof Symbol&&"symbol"==typeof Symbol()?/fil|che|rad/:/fil|che|ra/).test(n)};function nn(n,t,e){return null==t.__k&&(t.textContent=""),R(n,t),"function"==typeof e&&e(),n?n.__c:null}C.prototype.isReactComponent=!0,["componentWillMount","componentWillReceiveProps","componentWillUpdate"].forEach(function(t){Object.defineProperty(C.prototype,t,{configurable:!0,get:function(){return this["UNSAFE_"+t]},set:function(n){Object.defineProperty(this,t,{configurable:!0,writable:!0,value:n});}});});var en=l$2.event;l$2.event=function(n){return en&&(n=en(n)),n.persist=function(){},n.isPropagationStopped=function(){return this.cancelBubble},n.isDefaultPrevented=function(){return this.defaultPrevented},n.nativeEvent=n};var un={configurable:!0,get:function(){return this.class}},on=l$2.vnode;l$2.vnode=function(n){"string"==typeof n.type&&function(n){var t=n.props,e=n.type,u={},o=-1==e.indexOf("-");for(var i in t){var l=t[i];if(!("value"===i&&"defaultValue"in t&&null==l||Q&&"children"===i&&"noscript"===e||"class"===i||"className"===i)){var c=i.toLowerCase();"defaultValue"===i&&"value"in t&&null==t.value?i="value":"download"===i&&!0===l?l="":"translate"===c&&"no"===l?l=!1:"o"===c[0]&&"n"===c[1]?"ondoubleclick"===c?i="ondblclick":"onchange"!==c||"input"!==e&&"textarea"!==e||X(t.type)?"onfocus"===c?i="onfocusin":"onblur"===c?i="onfocusout":J.test(i)&&(i=c):c=i="oninput":o&&G.test(i)?i=i.replace(K,"-$&").toLowerCase():null===l&&(l=void 0),"oninput"===c&&u[i=c]&&(i="oninputCapture"),u[i]=l;}}"select"==e&&(u.multiple&&Array.isArray(u.value)&&(u.value=F(t.children).forEach(function(n){n.props.selected=-1!=u.value.indexOf(n.props.value);})),null!=u.defaultValue&&(u.value=F(t.children).forEach(function(n){n.props.selected=u.multiple?-1!=u.defaultValue.indexOf(n.props.value):u.defaultValue==n.props.value;}))),t.class&&!t.className?(u.class=t.class,Object.defineProperty(u,"className",un)):t.className&&(u.class=u.className=t.className),n.props=u;}(n),n.$$typeof=q,on&&on(n);};var ln=l$2.__r;l$2.__r=function(n){ln&&ln(n),n.__c;};var cn=l$2.diffed;l$2.diffed=function(n){cn&&cn(n);var t=n.props,e=n.__e;null!=e&&"textarea"===n.type&&"value"in t&&t.value!==e.value&&(e.value=null==t.value?"":t.value);};function hn(n){return !!n&&n.$$typeof===q}function pn(n){return !!n.__k&&(R(null,n),!0)}var bn=function(n,t){var r=l$2.debounceRendering;l$2.debounceRendering=function(n){return n()};var u=n(t);return l$2.debounceRendering=r,u};
+  function g(n,t){for(var e in t)n[e]=t[e];return n}function E(n,t){for(var e in n)if("__source"!==e&&!(e in t))return !0;for(var r in t)if("__source"!==r&&n[r]!==t[r])return !0;return !1}function M(n,t){this.props=n,this.context=t;}(M.prototype=new C).isPureReactComponent=!0,M.prototype.shouldComponentUpdate=function(n,t){return E(this.props,n)||E(this.state,t)};var T=l$2.__b;l$2.__b=function(n){n.type&&n.type.__f&&n.ref&&(n.props.ref=n.ref,n.ref=null),T&&T(n);};var O=l$2.__e;l$2.__e=function(n,t,e,r){if(n.then)for(var u,o=t;o=o.__;)if((u=o.__c)&&u.__c)return null==t.__e&&(t.__e=e.__e,t.__k=e.__k||[]),u.__c(n,t);O(n,t,e,r);};var U=l$2.unmount;function V(n,t,e){return n&&(n.__c&&n.__c.__H&&(n.__c.__H.__.forEach(function(n){"function"==typeof n.__c&&n.__c();}),n.__c.__H=null),null!=(n=g({},n)).__c&&(n.__c.__P===e&&(n.__c.__P=t),n.__c.__e=!0,n.__c=null),n.__k=n.__k&&n.__k.map(function(n){return V(n,t,e)})),n}function W(n,t,e){return n&&e&&(n.__v=null,n.__k=n.__k&&n.__k.map(function(n){return W(n,t,e)}),n.__c&&n.__c.__P===t&&(n.__e&&e.appendChild(n.__e),n.__c.__e=!0,n.__c.__P=e)),n}function P(){this.__u=0,this.o=null,this.__b=null;}function j(n){var t=n.__&&n.__.__c;return t&&t.__a&&t.__a(n)}function B(){this.i=null,this.l=null;}l$2.unmount=function(n){var t=n.__c;t&&(t.__z=!0),t&&t.__R&&t.__R(),t&&32&n.__u&&(n.type=null),U&&U(n);},(P.prototype=new C).__c=function(n,t){var e=t.__c,r=this;null==r.o&&(r.o=[]),r.o.push(e);var u=j(r.__v),o=!1,i=function(){o||r.__z||(o=!0,e.__R=null,u?u(f):f());};e.__R=i;var l=e.__P;e.__P=null;var f=function(){if(!--r.__u){if(r.state.__a){var n=r.state.__a;r.__v.__k[0]=W(n,n.__c.__P,n.__c.__O);}var t;for(r.setState({__a:r.__b=null});t=r.o.pop();)t.__P=l,t.forceUpdate();}};r.__u++||32&t.__u||r.setState({__a:r.__b=r.__v.__k[0]}),n.then(i,i);},P.prototype.componentWillUnmount=function(){this.o=[];},P.prototype.render=function(n,e){if(this.__b){if(this.__v.__k){var r=document.createElement("div"),o=this.__v.__k[0].__c;this.__v.__k[0]=V(this.__b,r,o.__O=o.__P);}this.__b=null;}var i=e.__a&&k$1(S,null,n.fallback);return i&&(i.__u&=-33),[k$1(S,null,e.__a?null:n.children),i]};var H=function(n,t,e){if(++e[1]===e[0]&&n.l.delete(t),n.props.revealOrder&&("t"!==n.props.revealOrder[0]||!n.l.size))for(e=n.i;e;){for(;e.length>3;)e.pop()();if(e[1]<e[0])break;n.i=e=e[2];}};function Z(n){return this.getChildContext=function(){return n.context},n.children}function Y(n){var e=this,r=n.h;if(e.componentWillUnmount=function(){R(null,e.v),e.v=null,e.h=null;},e.h&&e.h!==r&&e.componentWillUnmount(),!e.v){for(var u=e.__v;null!==u&&!u.__m&&null!==u.__;)u=u.__;e.h=r,e.v={nodeType:1,parentNode:r,childNodes:[],__k:{__m:u.__m},contains:function(){return !0},namespaceURI:r.namespaceURI,insertBefore:function(n,t){this.childNodes.push(n),e.h.insertBefore(n,t);},removeChild:function(n){this.childNodes.splice(this.childNodes.indexOf(n)>>>1,1),e.h.removeChild(n);}};}R(k$1(Z,{context:e.context},n.__v),e.v);}function $(n,e){var r=k$1(Y,{__v:n,h:e});return r.containerInfo=e,r}(B.prototype=new C).__a=function(n){var t=this,e=j(t.__v),r=t.l.get(n);return r[0]++,function(u){var o=function(){t.props.revealOrder?(r.push(u),H(t,n,r)):u();};e?e(o):o();}},B.prototype.render=function(n){this.i=null,this.l=new Map;var t=F(n.children);n.revealOrder&&"b"===n.revealOrder[0]&&t.reverse();for(var e=t.length;e--;)this.l.set(t[e],this.i=[1,0,this.i]);return n.children},B.prototype.componentDidUpdate=B.prototype.componentDidMount=function(){var n=this;this.l.forEach(function(t,e){H(n,e,t);});};var q="undefined"!=typeof Symbol&&Symbol.for&&Symbol.for("react.element")||60103,G=/^(?:accent|alignment|arabic|baseline|cap|clip(?!PathU)|color|dominant|fill|flood|font|glyph(?!R)|horiz|image(!S)|letter|lighting|marker(?!H|W|U)|overline|paint|pointer|shape|stop|strikethrough|stroke|text(?!L)|transform|underline|unicode|units|v|vector|vert|word|writing|x(?!C))[A-Z]/,J=/^on(Ani|Tra|Tou|BeforeInp|Compo)/,K=/[A-Z0-9]/g,Q="undefined"!=typeof document,X=function(n){return ("undefined"!=typeof Symbol&&"symbol"==typeof Symbol()?/fil|che|rad/:/fil|che|ra/).test(n)};function nn(n,t,e){return null==t.__k&&(t.textContent=""),R(n,t),"function"==typeof e&&e(),n?n.__c:null}C.prototype.isReactComponent=!0,["componentWillMount","componentWillReceiveProps","componentWillUpdate"].forEach(function(t){Object.defineProperty(C.prototype,t,{configurable:!0,get:function(){return this["UNSAFE_"+t]},set:function(n){Object.defineProperty(this,t,{configurable:!0,writable:!0,value:n});}});});var en=l$2.event;l$2.event=function(n){return en&&(n=en(n)),n.persist=function(){},n.isPropagationStopped=function(){return this.cancelBubble},n.isDefaultPrevented=function(){return this.defaultPrevented},n.nativeEvent=n};var un={configurable:!0,get:function(){return this.class}},on=l$2.vnode;l$2.vnode=function(n){"string"==typeof n.type&&function(n){var t=n.props,e=n.type,u={},o=-1==e.indexOf("-");for(var i in t){var l=t[i];if(!("value"===i&&"defaultValue"in t&&null==l||Q&&"children"===i&&"noscript"===e||"class"===i||"className"===i)){var f=i.toLowerCase();"defaultValue"===i&&"value"in t&&null==t.value?i="value":"download"===i&&!0===l?l="":"translate"===f&&"no"===l?l=!1:"o"===f[0]&&"n"===f[1]?"ondoubleclick"===f?i="ondblclick":"onchange"!==f||"input"!==e&&"textarea"!==e||X(t.type)?"onfocus"===f?i="onfocusin":"onblur"===f?i="onfocusout":J.test(i)&&(i=f):f=i="oninput":o&&G.test(i)?i=i.replace(K,"-$&").toLowerCase():null===l&&(l=void 0),"oninput"===f&&u[i=f]&&(i="oninputCapture"),u[i]=l;}}"select"==e&&(u.multiple&&Array.isArray(u.value)&&(u.value=F(t.children).forEach(function(n){n.props.selected=-1!=u.value.indexOf(n.props.value);})),null!=u.defaultValue&&(u.value=F(t.children).forEach(function(n){n.props.selected=u.multiple?-1!=u.defaultValue.indexOf(n.props.value):u.defaultValue==n.props.value;}))),t.class&&!t.className?(u.class=t.class,Object.defineProperty(u,"className",un)):t.className&&(u.class=u.className=t.className),n.props=u;}(n),n.$$typeof=q,on&&on(n);};var ln=l$2.__r;l$2.__r=function(n){ln&&ln(n),n.__c;};var fn=l$2.diffed;l$2.diffed=function(n){fn&&fn(n);var t=n.props,e=n.__e;null!=e&&"textarea"===n.type&&"value"in t&&t.value!==e.value&&(e.value=null==t.value?"":t.value);};function hn(n){return !!n&&n.$$typeof===q}function pn(n){return !!n.__k&&(R(null,n),!0)}var bn=function(n,t){var r,u=l$2.debounceRendering;l$2.debounceRendering=function(n){r=n;};try{var o=n(t);return r&&r(),o}finally{l$2.debounceRendering=u;}};
 
   function memoize(workerFunc, resEquality, teardownFunc) {
       let currentArgs;
@@ -5891,8 +6180,11 @@ var FullCalendar = (function (exports) {
           this.isMounted = false;
           this.handleRefresh = () => {
               let timing = this.computeTiming();
-              if (timing.nowDate.valueOf() !== this.nowDate.valueOf()) {
+              if (timing.nowDate.valueOf() !== this.nowDate.valueOf() ||
+                  timing.nowMs !== this.nowMs // marker alone can't detect fold-hour changes
+              ) {
                   this.nowDate = timing.nowDate;
+                  this.nowMs = timing.nowMs;
                   this.todayRange = timing.todayRange;
                   this.handleChange();
               }
@@ -5917,9 +6209,10 @@ var FullCalendar = (function (exports) {
               // init outputs
               const timing = this.computeTiming();
               this.nowDate = timing.nowDate;
+              this.nowMs = timing.nowMs;
               this.todayRange = timing.todayRange;
               // init listeners
-              this.setTimeout();
+              this.setTimeout(timing.waitMs);
               this.nowManager.addResetListener(this.handleRefresh);
               // fired tab becomes visible after being hidden
               // SSR check. CalendarDataManager calls top-level sync :(
@@ -5938,11 +6231,19 @@ var FullCalendar = (function (exports) {
               this.nowIndicatorSnap = input.nowIndicatorSnap;
               this.nowManager = input.nowManager;
               this.dateEnv = input.dateEnv;
+              // recompute outputs — a dateEnv (timezone) change re-projects the same exact "now"
+              // to a different civil time. (the nowManager reset listener can't do this: it fires
+              // before this runner receives the new dateEnv, so it recomputes with the old one)
+              const timing = this.computeTiming();
+              this.nowDate = timing.nowDate;
+              this.nowMs = timing.nowMs;
+              this.todayRange = timing.todayRange;
               this.clearTimeout();
-              this.setTimeout();
+              this.setTimeout(timing.waitMs);
           }
           return {
               nowDate: this.nowDate,
+              nowMs: this.nowMs,
               todayRange: this.todayRange,
           };
       }
@@ -5958,8 +6259,9 @@ var FullCalendar = (function (exports) {
           }
       }
       computeTiming() {
-          let unroundedNow = this.nowManager.getDateMarker();
           let { unit, unitValue, nowIndicatorSnap, dateEnv } = this;
+          let unroundedNowMs = this.nowManager.getEpochMs();
+          let unroundedNow = dateEnv.timestampToMarker(unroundedNowMs);
           if (nowIndicatorSnap === 'auto') {
               nowIndicatorSnap =
                   // large unit?
@@ -5968,14 +6270,17 @@ var FullCalendar = (function (exports) {
                       (unitValue || 1) === 1;
           }
           let nowDate;
+          let nowMs;
           let waitMs;
           if (nowIndicatorSnap) {
               nowDate = dateEnv.startOf(unroundedNow, unit); // aka currentUnitStart
+              nowMs = resolveSnappedInstant(nowDate, unroundedNowMs, dateEnv);
               let nextUnitStart = dateEnv.add(nowDate, createDuration(1, unit));
-              waitMs = nextUnitStart.valueOf() - unroundedNow.valueOf();
+              waitMs = resolveNextSnappedInstant(nextUnitStart, unroundedNowMs, dateEnv) - unroundedNowMs;
           }
           else {
               nowDate = unroundedNow;
+              nowMs = unroundedNowMs;
               waitMs = 1000 * 60; // 1 minute
           }
           // there is a max setTimeout ms value (https://stackoverflow.com/a/3468650/96342)
@@ -5983,6 +6288,7 @@ var FullCalendar = (function (exports) {
           waitMs = Math.min(1000 * 60 * 60 * 24, waitMs);
           return {
               nowDate,
+              nowMs,
               todayRange: buildDayRange(nowDate),
               waitMs,
           };
@@ -5995,6 +6301,7 @@ var FullCalendar = (function (exports) {
               // This is why use use same waitMs from computeTiming
               const timing = this.computeTiming();
               this.nowDate = timing.nowDate;
+              this.nowMs = timing.nowMs;
               this.todayRange = timing.todayRange;
               this.handleChange();
               this.setTimeout(timing.waitMs);
@@ -6006,10 +6313,214 @@ var FullCalendar = (function (exports) {
           }
       }
   }
+  /*
+  The instant of `snappedMarker` (a civil rounding of the time at `rawMs`), choosing the
+  occurrence on the same side of any DST transition as `rawMs` — during a fall-back fold, a
+  snapped civil time exists twice. Falls back to deterministic first-occurrence resolution
+  when the same-offset guess doesn't round-trip (e.g. snapping crossed the transition).
+  */
+  function resolveSnappedInstant(snappedMarker, rawMs, dateEnv) {
+      const offsetMs = dateEnv.timestampToMarker(rawMs).valueOf() - rawMs;
+      const candidateMs = snappedMarker.valueOf() - offsetMs;
+      if (dateEnv.timestampToMarker(candidateMs).valueOf() === snappedMarker.valueOf()) {
+          return candidateMs;
+      }
+      return dateEnv.toDate(snappedMarker).valueOf();
+  }
+  /*
+  The instant of the next change to the snapped display: the next civil unit boundary, or any
+  DST transition before it — at a fall-back transition the clock jumps backward onto an earlier
+  unit start (no civil boundary is crossed), and waking there recomputes with fresh offsets, so
+  boundaries beyond a transition never need resolving here. Scenarios (NY fall-back, hour unit):
+  first fold pass (05:30Z): guess for 02:00 fails round-trip → falls back to 07:00Z; transition
+  06:00Z wins. Second pass (06:30Z): guess 07:00Z round-trips; no transition ahead. Spring
+  forward: the nonexistent next unit normalizes past the gap; the transition candidate fires at
+  the jump itself.
+  */
+  function resolveNextSnappedInstant(nextUnitStart, rawMs, dateEnv) {
+      const nextSnappedMs = resolveSnappedInstant(nextUnitStart, rawMs, dateEnv);
+      const transitionMs = findNextOffsetTransitionMs(rawMs, dateEnv, Math.min(nextSnappedMs - rawMs, 48 * 60 * 60 * 1000));
+      return transitionMs != null ? Math.min(nextSnappedMs, transitionMs) : nextSnappedMs;
+  }
+  // Finds the first instant whose UTC offset differs from rawMs within a short search horizon.
+  function findNextOffsetTransitionMs(rawMs, dateEnv, horizonMs) {
+      if (horizonMs <= 0) {
+          return undefined;
+      }
+      const startOffsetMs = offsetAt(rawMs, dateEnv);
+      let lowerMs = rawMs;
+      let upperMs = rawMs + horizonMs;
+      if (offsetAt(upperMs, dateEnv) === startOffsetMs) {
+          return undefined;
+      }
+      while (upperMs - lowerMs > 1) {
+          const middleMs = Math.floor((lowerMs + upperMs) / 2);
+          if (offsetAt(middleMs, dateEnv) === startOffsetMs) {
+              lowerMs = middleMs;
+          }
+          else {
+              upperMs = middleMs;
+          }
+      }
+      return upperMs > rawMs ? upperMs : undefined;
+  }
+  function offsetAt(instantMs, dateEnv) {
+      return dateEnv.timestampToMarker(instantMs).valueOf() - instantMs;
+  }
   function buildDayRange(date) {
       let start = startOfDay(date);
       let end = addDays(start, 1);
       return { start, end };
+  }
+
+  function isDimsEqual(v0, v1) {
+      return v0 != null && (v0 === v1 || Math.abs(v0 - v1) < 0.01);
+  }
+
+  const nativeBorderBoxEnabled = true;
+  const configMap = new Map();
+  const afterSizeCallbacks = new Set();
+  let isHandling = false;
+  let isStalling = false;
+  let isAcquiringImmediately = false;
+  function afterSize(callback) {
+      afterSizeCallbacks.add(callback);
+      // batch & then flush when not within ResizeObserver handler loop
+      // happens for watchers that die and report `null` as dimension
+      if (!isHandling && !isStalling) {
+          isStalling = true;
+          requestAnimationFrame(() => {
+              isStalling = false;
+              flushAfterSize();
+          });
+      }
+  }
+  function flushAfterSize() {
+      for (const flushedCallback of afterSizeCallbacks.values()) {
+          afterSizeCallbacks.delete(flushedCallback);
+          flushedCallback();
+      }
+  }
+  /*
+  Commits synchronously while switching every watcher registered during the
+  commit to immediate acquisition: registration reads getBoundingClientRect()
+  on the spot and fires the callback before returning, instead of waiting for
+  the shared ResizeObserver's later delivery. This is the "measure now" path
+  required when print-only DOM mounts during the native beforeprint task —
+  observer delivery would arrive after the browser has already snapshotted.
+  (gBCR reflects transforms while the observer's border-box does not; for
+  print DOM that distinction is acceptable. Once components go functional, a
+  `useElementSize`-style hook performs this same acquire-then-observe.)
+
+  The afterSize work those callbacks (and any watcher deaths) queue
+  accumulates and drains ONCE after the commit, not once per registration —
+  so a commit mounting N measured wrappers costs one layout recomputation,
+  not N. The drain runs in its own flushSync so handler state updates still
+  settle within the calling task; additions made while draining are picked up
+  by the same loop. Preact flushes mount lifecycles after the root diff, so
+  the reads don't interleave with the commit's DOM writes.
+
+  Adopt this bracket a la carte, only for commits whose entire mounted-watcher
+  population tolerates a synchronous first report (currently: entering print
+  mode). Ordinary watchSize callers everywhere else keep their async-first
+  ResizeObserver semantics.
+  */
+  function flushSyncWithSizeBatching(callback) {
+      const wasHandling = isHandling;
+      isHandling = true;
+      isAcquiringImmediately = true;
+      try {
+          bn(callback);
+          if (!wasHandling) {
+              bn(() => {
+                  flushAfterSize();
+                  isHandling = false; // before drain's own commit, so late afterSize calls schedule a flush
+              });
+          }
+      }
+      finally {
+          isHandling = wasHandling;
+          isAcquiringImmediately = false;
+      }
+  }
+  // Native
+  // -------------------------------------------------------------------------------------------------
+  // Single global ResizeObserver does batching and uses less memory than individuals
+  // Will always fire with delay after DOM mutation, but before repaint,
+  // thus doesn't need !isHandling check like checkConfigMap
+  const globalResizeObserver = typeof ResizeObserver !== 'undefined' && new ResizeObserver((entries) => {
+      isHandling = true;
+      // // debug
+      // console.log('RESIZE-OBSERVER', entries.map((entry) => entry.target))
+      for (let entry of entries) {
+          const el = entry.target;
+          const config = configMap.get(el);
+          let width;
+          let height;
+          if (entry.borderBoxSize && nativeBorderBoxEnabled) {
+              const borderBoxSize = entry.borderBoxSize[0] || entry.borderBoxSize; // HACK for Firefox
+              width = borderBoxSize.inlineSize;
+              height = borderBoxSize.blockSize;
+          }
+          else {
+              ({ width, height } = el.getBoundingClientRect());
+          }
+          let shouldFire = false;
+          if (!isDimsEqual(config.width, width)) {
+              config.width = width;
+              shouldFire = config.watchWidth;
+          }
+          if (!isDimsEqual(config.height, height)) {
+              config.height = height;
+              shouldFire || (shouldFire = config.watchHeight);
+          }
+          if (shouldFire) {
+              config.callback(width, height);
+          }
+      }
+      bn(() => {
+          flushAfterSize();
+          isHandling = false;
+      });
+  });
+  /*
+  PRECONDITION: element can only have one listener attached
+  */
+  function watchSize(el, callback, watchWidth = true, watchHeight = true) {
+      const config = { callback, watchWidth, watchHeight };
+      configMap.set(el, config);
+      // within a flushSyncWithSizeBatching commit; see its comment.
+      // the stored dims dedupe the observer's later initial delivery.
+      if (isAcquiringImmediately) {
+          const { width, height } = el.getBoundingClientRect();
+          config.width = width;
+          config.height = height;
+          callback(width, height);
+      }
+      // if statement is for jsdom and other shim environments that execute component effects, but
+      // haven't implemented ResizeObserver. Reference: https://github.com/jsdom/jsdom/issues/3368
+      if (globalResizeObserver) {
+          globalResizeObserver.observe(el, {
+              box: 'border-box'
+                   // default is 'content-box'
+          });
+      }
+      return () => {
+          configMap.delete(el);
+          // same reasoning as above
+          if (globalResizeObserver) {
+              globalResizeObserver.unobserve(el);
+          }
+      };
+  }
+  function watchWidth(el, callback) {
+      return watchSize(el, callback, 
+      /* watchWidth = */ true);
+  }
+  function watchHeight(el, callback) {
+      return watchSize(el, (_width, height) => callback(height), 
+      /* watchWidth = */ false, 
+      /* watchHeight = */ true);
   }
 
   class DateProfileGenerator {
@@ -6462,12 +6973,22 @@ var FullCalendar = (function (exports) {
           if (def.allDay) {
               return instance; // isn't dependent on timezone
           }
+          // markers are zone-dependent, instants are not. recompute markers FROM the exact
+          // instants when present (correctly re-resolves DST-fold identity in the new zone).
+          // buildValidInstanceRange re-expresses ranges the new zone's fold civilly compresses
+          let { instantStartMs, instantEndMs } = instance.range;
+          let start = instantStartMs != null ?
+              newDateEnv.timestampToMarker(instantStartMs) :
+              newDateEnv.createMarker(oldDateEnv.toDate(instance.range.start));
+          let end = instantEndMs != null ?
+              newDateEnv.timestampToMarker(instantEndMs) :
+              newDateEnv.createMarker(oldDateEnv.toDate(instance.range.end));
           return {
               ...instance,
-              range: {
-                  start: newDateEnv.createMarker(oldDateEnv.toDate(instance.range.start)),
-                  end: newDateEnv.createMarker(oldDateEnv.toDate(instance.range.end)),
-              },
+              range: buildValidInstanceRange({ marker: start, instantMs: instantStartMs }, { marker: end, instantMs: instantEndMs }, newDateEnv) ?? buildEventInstanceRange(
+              // mixed exact/civil edges whose real order degenerated in the new zone (rare):
+              // keep the exact start, apply the old real duration civilly
+              start, addMs(start, getRangeInstantEndMs(instance.range, oldDateEnv) - getRangeInstantStartMs(instance.range, oldDateEnv)), instantStartMs),
           };
       });
       return { defs, instances };
@@ -7244,9 +7765,12 @@ var FullCalendar = (function (exports) {
                   this.nowFn = nowInput;
               }
               else if (!oldDateEnv) { // first time?
-                  this.nowAnchorDate = dateEnv.toDate(nowInput
-                      ? dateEnv.createMarker(nowInput)
-                      : dateEnv.createNowMarker());
+                  // inputs that express an exact instant (ISO with offset, Date, epoch ms) keep their
+                  // exact epoch (marker round-trips are ambiguous during DST folds). civil inputs
+                  // resolve deterministically to the first occurrence.
+                  this.nowAnchorDate = nowInput
+                      ? resolveInputToDate(nowInput, dateEnv)
+                      : new Date();
                   this.nowAnchorQueried = Date.now();
               }
               this.dateEnv = dateEnv;
@@ -7259,10 +7783,16 @@ var FullCalendar = (function (exports) {
           }
       }
       getDateMarker() {
+          return this.dateEnv.timestampToMarker(this.getEpochMs());
+      }
+      /*
+      The exact instant of "now". Unlike a DateMarker, unambiguous during DST transitions.
+      When `now` was supplied as a function returning a civil time, resolves deterministically.
+      */
+      getEpochMs() {
           return this.nowAnchorDate
-              ? this.dateEnv.timestampToMarker(this.nowAnchorDate.valueOf() +
-                  (Date.now() - this.nowAnchorQueried))
-              : this.dateEnv.createMarker(this.nowFn());
+              ? this.nowAnchorDate.valueOf() + (Date.now() - this.nowAnchorQueried)
+              : resolveInputToDate(this.nowFn(), this.dateEnv).valueOf();
       }
       addResetListener(handler) {
           this.resetListeners.add(handler);
@@ -7270,6 +7800,16 @@ var FullCalendar = (function (exports) {
       removeResetListener(handler) {
           this.resetListeners.delete(handler);
       }
+  }
+  /*
+  Resolves a date input to an exact-instant Date. Prefers the instant the input itself
+  expressed (unambiguous during DST folds); falls back to first-occurrence resolution.
+  */
+  function resolveInputToDate(input, dateEnv) {
+      const meta = dateEnv.createMarkerMeta(input);
+      return meta.instantMs != null
+          ? new Date(meta.instantMs)
+          : dateEnv.toDate(meta.marker);
   }
 
   class CalendarDataManager {
@@ -7937,12 +8477,19 @@ var FullCalendar = (function (exports) {
       // -----------------------------------------------------------------------------------------------------------------
       formatDate(d, formatter) {
           let { dateEnv } = this.getCurrentData();
-          return joinDateTimeFormatParts(dateEnv.formatToParts(dateEnv.createMarker(d), createFormatter(formatter)));
+          let dateMeta = dateEnv.createMarkerMeta(d);
+          return joinDateTimeFormatParts(dateEnv.formatToParts(dateMeta.marker, createFormatter(formatter), { instantMs: dateMeta.instantMs }));
       }
       // `settings` is for formatter AND isEndExclusive
       formatRange(d0, d1, settings) {
           let { dateEnv } = this.getCurrentData();
-          return joinDateTimeFormatParts(dateEnv.formatRangeToParts(dateEnv.createMarker(d0), dateEnv.createMarker(d1), createFormatter(settings), settings));
+          let startMeta = dateEnv.createMarkerMeta(d0);
+          let endMeta = dateEnv.createMarkerMeta(d1);
+          return joinDateTimeFormatParts(dateEnv.formatRangeToParts(startMeta.marker, endMeta.marker, createFormatter(settings), {
+              isEndExclusive: settings.isEndExclusive,
+              startInstantMs: startMeta.instantMs,
+              endInstantMs: endMeta.instantMs,
+          }));
       }
       formatIso(d, omitTime) {
           let { dateEnv } = this.getCurrentData();
@@ -8195,14 +8742,19 @@ var FullCalendar = (function (exports) {
               forPrint: false,
           };
           this.handleBeforePrint = () => {
-              bn(() => {
+              // The synchronous commit mounts print-only DOM during this beforeprint
+              // task. Watchers registering during the bracket measure immediately, and
+              // their layout recomputations settle in one batched drain before the
+              // native event returns.
+              flushSyncWithSizeBatching(() => {
                   this.setState({ forPrint: true });
               });
           };
           this.handleAfterPrint = () => {
-              bn(() => {
-                  this.setState({ forPrint: false });
-              });
+              // No synchronous commit needed: nothing else listens to _afterprint, and
+              // the ordinary microtask-batched re-render restores the screen DOM before
+              // the next paint. Screen watchers keep their async-first measurement.
+              this.setState({ forPrint: false });
           };
       }
       render() {
@@ -8744,14 +9296,14 @@ var FullCalendar = (function (exports) {
       }
       render() {
           const { props, context } = this;
-          const { nowDate, todayRange } = this.runner.update({
+          const { nowDate, nowMs, todayRange } = this.runner.update({
               nowManager: context.nowManager,
               unit: props.unit,
               unitValue: props.unitValue,
               nowIndicatorSnap: context.options.nowIndicatorSnap,
               dateEnv: context.dateEnv,
           });
-          return props.children(nowDate, todayRange);
+          return props.children(nowDate, todayRange, nowMs);
       }
       componentWillUnmount() {
           this.runner.destroy();
@@ -8836,104 +9388,6 @@ var FullCalendar = (function (exports) {
           isPast: !isDisabled && Boolean(nowDate ? (dateMarker < nowDate) : todayRange ? (dateMarker < todayRange.start) : false),
           isFuture: !isDisabled && Boolean(nowDate ? (dateMarker > nowDate) : todayRange ? (dateMarker >= todayRange.end) : false),
       };
-  }
-
-  function isDimsEqual(v0, v1) {
-      return v0 != null && (v0 === v1 || Math.abs(v0 - v1) < 0.01);
-  }
-
-  const nativeBorderBoxEnabled = true;
-  const configMap = new Map();
-  const afterSizeCallbacks = new Set();
-  let isHandling = false;
-  let isStalling = false;
-  function afterSize(callback) {
-      afterSizeCallbacks.add(callback);
-      // batch & then flush when not within ResizeObserver handler loop
-      // happens for watchers that die and report `null` as dimension
-      if (!isHandling && !isStalling) {
-          isStalling = true;
-          requestAnimationFrame(() => {
-              isStalling = false;
-              flushAfterSize();
-          });
-      }
-  }
-  function flushAfterSize() {
-      for (const flushedCallback of afterSizeCallbacks.values()) {
-          flushedCallback();
-          afterSizeCallbacks.delete(flushedCallback);
-      }
-  }
-  // Native
-  // -------------------------------------------------------------------------------------------------
-  // Single global ResizeObserver does batching and uses less memory than individuals
-  // Will always fire with delay after DOM mutation, but before repaint,
-  // thus doesn't need !isHandling check like checkConfigMap
-  const globalResizeObserver = typeof ResizeObserver !== 'undefined' && new ResizeObserver((entries) => {
-      isHandling = true;
-      // // debug
-      // console.log('RESIZE-OBSERVER', entries.map((entry) => entry.target))
-      for (let entry of entries) {
-          const el = entry.target;
-          const config = configMap.get(el);
-          let width;
-          let height;
-          if (entry.borderBoxSize && nativeBorderBoxEnabled) {
-              const borderBoxSize = entry.borderBoxSize[0] || entry.borderBoxSize; // HACK for Firefox
-              width = borderBoxSize.inlineSize;
-              height = borderBoxSize.blockSize;
-          }
-          else {
-              ({ width, height } = el.getBoundingClientRect());
-          }
-          let shouldFire = false;
-          if (!isDimsEqual(config.width, width)) {
-              config.width = width;
-              shouldFire = config.watchWidth;
-          }
-          if (!isDimsEqual(config.height, height)) {
-              config.height = height;
-              shouldFire || (shouldFire = config.watchHeight);
-          }
-          if (shouldFire) {
-              config.callback(width, height);
-          }
-      }
-      bn(() => {
-          flushAfterSize();
-          isHandling = false;
-      });
-  });
-  /*
-  PRECONDITION: element can only have one listener attached
-  */
-  function watchSize(el, callback, watchWidth = true, watchHeight = true) {
-      configMap.set(el, { callback, watchWidth, watchHeight });
-      // if statement is for jsdom and other shim environments that execute component effects, but
-      // haven't implemented ResizeObserver. Reference: https://github.com/jsdom/jsdom/issues/3368
-      if (globalResizeObserver) {
-          globalResizeObserver.observe(el, {
-              box: 'border-box'
-                   // default is 'content-box'
-          });
-      }
-      return () => {
-          configMap.delete(el);
-          // same reasoning as above
-          if (globalResizeObserver) {
-              globalResizeObserver.unobserve(el);
-          }
-      };
-  }
-  function watchWidth(el, callback) {
-      return watchSize(el, callback, 
-      /* watchWidth = */ true);
-  }
-  function watchHeight(el, callback) {
-      return watchSize(el, (_width, height) => callback(height), 
-      /* watchWidth = */ false, 
-      /* watchHeight = */ true);
   }
 
   class ViewContainer extends BaseComponent {
@@ -9478,6 +9932,23 @@ var FullCalendar = (function (exports) {
           this.sliceEventResize = memoize(this._sliceInteraction);
           this.forceDayIfListItem = false; // hack
       }
+      intersectDateSpan(dateSpan, activeRange, ...extraArgs) {
+          const activeDateSpanRange = intersectRanges(dateSpan.range, activeRange);
+          if (activeDateSpanRange) {
+              const slicedDateSpan = { ...dateSpan, range: activeDateSpanRange };
+              if (activeDateSpanRange.start.valueOf() !== dateSpan.range.start.valueOf()) {
+                  delete slicedDateSpan.instantStartMs;
+              }
+              if (activeDateSpanRange.end.valueOf() !== dateSpan.range.end.valueOf()) {
+                  delete slicedDateSpan.instantEndMs;
+              }
+              return slicedDateSpan;
+          }
+          return null;
+      }
+      sliceDateSpan(dateSpan, ...extraArgs) {
+          return this.sliceRange(dateSpan.range, ...extraArgs);
+      }
       sliceProps(props, dateProfile, nextDayThreshold, context, ...extraArgs) {
           let { eventUiBases } = props;
           let eventSegs = this.sliceEventStore(props.eventStore, eventUiBases, dateProfile, nextDayThreshold, ...extraArgs);
@@ -9528,11 +9999,11 @@ var FullCalendar = (function (exports) {
               return [];
           }
           let activeRange = computeActiveRange(dateProfile, Boolean(nextDayThreshold));
-          let activeDateSpanRange = intersectRanges(dateSpan.range, activeRange);
-          if (activeDateSpanRange) {
-              dateSpan = { ...dateSpan, range: activeDateSpanRange };
+          let slicedDateSpan = this.intersectDateSpan(dateSpan, activeRange, ...extraArgs);
+          if (slicedDateSpan) {
+              dateSpan = slicedDateSpan;
               let eventRange = fabricateEventRange(dateSpan, eventUiBases, context);
-              let segs = this.sliceRange(dateSpan.range, ...extraArgs);
+              let segs = this.sliceDateSpan(dateSpan, ...extraArgs);
               for (let seg of segs) {
                   seg.eventRange = eventRange;
               }
@@ -9587,13 +10058,103 @@ var FullCalendar = (function (exports) {
       };
   }
 
+  class DayTableModel {
+      constructor(daySeries, breakOnWeeks, dateEnv, majorUnit = '', activeRange) {
+          this.daySeries = daySeries;
+          this.dateEnv = dateEnv;
+          this.majorUnit = majorUnit;
+          this.activeRange = activeRange;
+          let { dates } = daySeries;
+          let daysPerRow;
+          let firstDay;
+          let rowCount;
+          if (breakOnWeeks) {
+              // count columns until the day-of-week repeats
+              firstDay = dates[0].getUTCDay();
+              for (daysPerRow = 1; daysPerRow < dates.length; daysPerRow += 1) {
+                  if (dates[daysPerRow].getUTCDay() === firstDay) {
+                      break;
+                  }
+              }
+              rowCount = Math.ceil(dates.length / daysPerRow);
+          }
+          else {
+              rowCount = 1;
+              daysPerRow = dates.length;
+          }
+          this.rowCount = rowCount;
+          this.colCount = daysPerRow;
+          this.cellRows = this.buildCells();
+          this.headerDates = this.buildHeaderDates();
+      }
+      buildCells() {
+          let rows = [];
+          for (let row = 0; row < this.rowCount; row += 1) {
+              let cells = [];
+              for (let col = 0; col < this.colCount; col += 1) {
+                  cells.push(this.buildCell(row, col));
+              }
+              rows.push(cells);
+          }
+          return rows;
+      }
+      buildCell(row, col) {
+          let date = this.daySeries.dates[row * this.colCount + col];
+          return {
+              key: date.toISOString(),
+              date,
+              isMajor: this.cellIsMajor(date),
+              isDisabled: this.activeRange === null || (this.activeRange !== undefined && !rangeContainsMarker(this.activeRange, date)),
+          };
+      }
+      cellIsMajor(dateMarker) {
+          return this.majorUnit ? isMajorUnit(dateMarker, this.majorUnit, this.dateEnv) : false;
+      }
+      buildHeaderDates() {
+          let dates = [];
+          for (let col = 0; col < this.colCount; col += 1) {
+              dates.push(this.cellRows[0][col].date);
+          }
+          return dates;
+      }
+  }
+  function buildDayGridRanges(seriesRange, daysPerRow) {
+      let ranges = [];
+      if (seriesRange) {
+          const { start, end } = seriesRange;
+          let index = start;
+          while (index < end) {
+              let row = Math.floor(index / daysPerRow);
+              let nextIndex = Math.min((row + 1) * daysPerRow, end);
+              ranges.push({
+                  row,
+                  start: index % daysPerRow,
+                  end: (nextIndex - 1) % daysPerRow + 1,
+                  isStart: seriesRange.isStart && index === start,
+                  isEnd: seriesRange.isEnd && nextIndex === end,
+              });
+              index = nextIndex;
+          }
+      }
+      return ranges;
+  }
+
   class DayTableSlicer extends Slicer {
       constructor() {
           super(...arguments);
           this.forceDayIfListItem = true;
       }
       sliceRange(dateRange, dayTableModel) {
-          return dayTableModel.sliceRange(dateRange);
+          return buildDayGridRanges(dayTableModel.daySeries.sliceRange(dateRange), dayTableModel.colCount);
+      }
+  }
+  class DaySeriesSlicer extends Slicer {
+      constructor() {
+          super(...arguments);
+          this.forceDayIfListItem = true;
+      }
+      sliceRange(dateRange, daySeries) {
+          return buildDayGridRanges(daySeries.sliceRange(dateRange), daySeries.cnt);
       }
   }
 
@@ -9624,11 +10185,11 @@ var FullCalendar = (function (exports) {
   Or ResourceApi object itself?
   */
   function buildDateRowConfig(dateMarkers, datesRepDistinctDays, dateProfile, todayRange, dayHeaderFormat, // TODO: rename to dateHeaderFormat?
-  context, colSpan, isMajorMod) {
+  context, colSpan, isMajorMod, totalDateCnt) {
       return {
           isDateRow: true,
           renderConfig: buildDateRenderConfig(dayHeaderFormat, datesRepDistinctDays, context),
-          dataConfigs: buildDateDataConfigs(dateMarkers, datesRepDistinctDays, dateProfile, todayRange, dayHeaderFormat, context, colSpan, undefined, undefined, undefined, undefined, isMajorMod)
+          dataConfigs: buildDateDataConfigs(dateMarkers, datesRepDistinctDays, dateProfile, todayRange, dayHeaderFormat, context, colSpan, undefined, undefined, undefined, undefined, isMajorMod, totalDateCnt)
       };
   }
   /*
@@ -9660,14 +10221,18 @@ var FullCalendar = (function (exports) {
   function buildDateDataConfigs(dateMarkers, datesRepDistinctDays, dateProfile, todayRange, dayHeaderFormat, // TODO: rename to dateHeaderFormat?
   context, colSpan = 1, keyPrefix = '', extraRenderProps = {}, // TODO
   extraAttrs = {}, // TODO
-  className = '', isMajorMod) {
+  className = '', isMajorMod, 
+  // how many dates the VIEW has, which is only different when a caller renders a subset:
+  // resource views build one date row per resource, and per-date filtering can drop dates
+  // that have no resources. nav links key off the view's count, not the subset's
+  totalDateCnt = dateMarkers.length) {
       const { dateEnv, viewApi, options } = context;
       return datesRepDistinctDays
           ? dateMarkers.map((dateMarker, i) => {
               const dateMeta = getDateMeta(dateMarker, dateEnv, dateProfile, todayRange);
               const isMajor = isMajorMod != null && !(i % isMajorMod);
               const hasNavLink = options.navLinks && !dateMeta.isDisabled &&
-                  dateMarkers.length > 1; // don't show navlink to day if only one day
+                  totalDateCnt > 1; // don't show navlink to day if only one day
               const renderProps = {
                   ...dateMeta,
                   ...extraRenderProps,
@@ -9753,18 +10318,26 @@ var FullCalendar = (function (exports) {
           this.callbacks = new Map;
           this.handleValue = (val, key) => {
               let { current, callbacks } = this;
+              let priorExists = current.has(key);
+              let priorVal = priorExists ? current.get(key) : null;
+              let anyChange = false;
+              // null signals deletion
               if (val === null) {
-                  if (!this.ignoreDeletes) {
+                  if (priorExists && !this.ignoreDeletes) {
                       current.delete(key);
                       callbacks.delete(key);
+                      anyChange = true;
                   }
               }
               else {
+                  anyChange = priorVal !== val;
                   current.set(key, val);
               }
-              this.rev = guid();
-              if (this.masterCallback) {
-                  this.masterCallback(val, key);
+              if (anyChange) {
+                  this.rev = guid();
+                  if (this.masterCallback) {
+                      this.masterCallback(val, key, priorVal);
+                  }
               }
           };
       }
@@ -9808,14 +10381,9 @@ var FullCalendar = (function (exports) {
       }
   }
 
-  /*
-  We need really specific keys because RefMap::createRef() which is then given to heightRef
-  unable to change key! As a result, we cannot reuse elements between normal/slice/standin types,
-  but that's okay since they render quite differently
-  */
-  function getEventPartKey(seg) {
-      return getEventKey(seg) + ':' + seg.start +
-          (seg.standinFor ? ':standin' : seg.isSlice ? ':slice' : '');
+  /** Identifies a DayGrid seg by event instance and start, remaining stable if its end changes. */
+  function getDayGridSegKey(seg) {
+      return `${seg.eventRange.instance.instanceId}:${seg.start}`;
   }
   // DayGridRange utils (TODO: move)
   // -------------------------------------------------------------------------------------------------
@@ -9849,16 +10417,6 @@ var FullCalendar = (function (exports) {
           }
       }
       return byRow;
-  }
-  function sliceSegForCol(seg, col) {
-      return {
-          ...seg,
-          start: col,
-          end: col + 1,
-          isStart: seg.isStart && seg.start === col,
-          isEnd: seg.isEnd && seg.end - 1 === col,
-          standinFor: seg,
-      };
   }
 
   class BgEvent extends BaseComponent {
@@ -9937,8 +10495,14 @@ var FullCalendar = (function (exports) {
               fillType === 'highlight' ? options.highlightClass : undefined, classNames.fill) }));
   }
 
-  const SPACE_FROM_VIEWPORT = 10;
+  // Temporary stand-in for lateral cell border widths.
+  // These should eventually be measured from the DOM.
+  const COL_BORDER_WIDTH = 1;
+  // Temporary stand-in for row-bottom border widths.
+  // These should eventually be measured from the DOM.
   const ROW_BORDER_WIDTH = 1;
+
+  const SPACE_FROM_VIEWPORT = 10;
   class MorePopover extends DateComponent {
       constructor() {
           super(...arguments);
@@ -10033,7 +10597,7 @@ var FullCalendar = (function (exports) {
                   left: 0,
               }, 
               // HACK because of portal
-              dir: isRtl ? 'rtl' : undefined, "data-color-scheme": options.colorScheme || undefined, ref: this.handleRootEl, children: [u$1("div", { tabIndex: 0, style: { outline: 'none' }, ref: this.focusStartRef }), u$1("div", { className: joinClassNames(generateClassName(options.dayHeaderClass, dayHeaderRenderProps), classNames.flexCol, classNames.borderOnlyB, align === 'center' ? classNames.alignCenter :
+              dir: isRtl ? 'rtl' : undefined, "data-color-scheme": options.colorScheme || undefined, ref: this.handleRootEl, children: [u$1("div", { tabIndex: 0, style: { outline: 'none' }, ref: this.focusStartRef }), u$1("div", { className: joinClassNames(generateClassName(options.dayHeaderClass, dayHeaderRenderProps), classNames.flexCol, classNames.borderlessX, classNames.borderlessTop, align === 'center' ? classNames.alignCenter :
                           align === 'end' ? classNames.alignEnd :
                               classNames.alignStart), children: [u$1("div", { children: u$1(ContentContainer, { tag: "div", attrs: {
                                       id: props.titleId,
@@ -10041,7 +10605,7 @@ var FullCalendar = (function (exports) {
                                   }, generatorName: "dayHeaderContent", renderProps: dayHeaderRenderProps, customGenerator: options.dayHeaderContent, defaultGenerator: renderText, classNameGenerator: options.dayHeaderInnerClass, didMount: options.dayHeaderDidMount, willUnmount: options.dayHeaderWillUnmount }) }), u$1(ContentContainer, { tag: 'button', attrs: {
                                   'aria-label': options.closeHint,
                                   ...createAriaClickAttrs(this.handleClose)
-                              }, elRef: this.closeRef, className: joinClassNames(options.popoverCloseClass, classNames.flexRow, classNames.cursorPointer), renderProps: {}, customGenerator: options.popoverCloseContent, generatorName: 'popoverCloseContent' })] }), u$1("div", { className: joinClassNames(generateClassName(options.dayCellClass, dayCellRenderProps), classNames.flexCol, classNames.borderNone), children: u$1("div", { className: generateClassName(options.dayCellInnerClass, dayCellRenderProps), children: props.children }) }), u$1("div", { tabIndex: 0, style: { outline: 'none' }, ref: this.focusEndRef })] }), getAppendableRoot(props.alignEl));
+                              }, elRef: this.closeRef, className: joinClassNames(options.popoverCloseClass, classNames.flexRow, classNames.cursorPointer), renderProps: {}, customGenerator: options.popoverCloseContent, generatorName: 'popoverCloseContent' })] }), u$1("div", { className: joinClassNames(generateClassName(options.dayCellClass, dayCellRenderProps), classNames.flexCol, classNames.borderless), children: u$1("div", { className: generateClassName(options.dayCellInnerClass, dayCellRenderProps), children: props.children }) }), u$1("div", { tabIndex: 0, style: { outline: 'none' }, ref: this.focusEndRef })] }), getAppendableRoot(props.alignEl));
       }
       queryHit(isRtl, positionLeft, positionTop, elWidth, elHeight) {
           let { rootEl, props } = this;
@@ -10124,30 +10688,9 @@ var FullCalendar = (function (exports) {
       return renderProps.text;
   }
 
-  function doCoordRangesIntersect(r0, r1) {
-      return r0.end > r1.start && r0.start < r1.end;
-  }
-  function intersectCoordRanges(r0, r1) {
-      const start = Math.max(r0.start, r1.start);
-      const end = Math.min(r0.end, r1.end);
-      if (start < end) {
-          return {
-              start,
-              end,
-              isStart: r0.isStart && start === r0.start,
-              isEnd: r0.isEnd && end === r0.end,
-          };
-      }
-  }
-  function joinCoordRanges(r0, r1) {
-      return {
-          start: Math.min(r0.start, r1.start),
-          end: Math.max(r0.end, r1.end),
-      };
-  }
-  function getCoordRangeEnd(r) {
-      return r.end;
-  }
+  // NOTE: numeric span algebra (intersection, subtraction, unions, sorted
+  // searches) lives in seg-placement/span-math.ts; CoordRange is structurally
+  // identical to its LateralSpan.
   // { eventRange }
   // -------------------------------------------------------------------------------------------------
   function computeEarliestStart(segs) {
@@ -10164,9 +10707,25 @@ var FullCalendar = (function (exports) {
   }
 
   /*
-  IMPORTANT: caller is responsible for injecting moreLinkInnerClass,
-  either on root `classNames` or within inner element
+  Renders only the themed, customizable more-link presentation. Interaction,
+  popover state, and date-range semantics belong to MoreLinkContainer.
   */
+  class MoreLinkTrigger extends BaseComponent {
+      render() {
+          const { props, context } = this;
+          const { options } = context;
+          const renderProps = buildMoreLinkRenderProps(props.num, props.isNarrow, props.isMicro, props.display, context);
+          return (u$1(ContentContainer, { tag: 'div', elRef: props.elRef, className: joinClassNames(generateClassName(props.display === 'row'
+                  ? options.rowMoreLinkClass
+                  : options.columnMoreLinkClass, renderProps), props.className, props.display === 'row'
+                  ? classNames.flexRow
+                  : classNames.flexCol, classNames.internalMoreLink, classNames.cursorPointer), style: props.style, attrs: props.attrs, renderProps: renderProps, generatorName: "moreLinkContent", customGenerator: options.moreLinkContent, defaultGenerator: renderMoreLinkText, classNameGenerator: options.moreLinkClass, didMount: props.didMount, willUnmount: props.willUnmount, children: (InnerContent) => (u$1(InnerContent, { tag: 'div', className: joinClassNames(generateClassName(options.moreLinkInnerClass, renderProps), generateClassName(props.display === 'row'
+                      ? options.rowMoreLinkInnerClass
+                      : options.columnMoreLinkInnerClass, renderProps), props.display === 'row'
+                      ? classNames.stickyS
+                      : classNames.stickyT) })) }));
+      }
+  }
   class MoreLinkContainer extends BaseComponent {
       constructor() {
           super(...arguments);
@@ -10186,10 +10745,12 @@ var FullCalendar = (function (exports) {
               let date = computeRange(props).start;
               function buildPublicSeg(seg) {
                   let { def, instance, range } = seg.eventRange;
+                  const start = buildRangeEdgeOutput(range.start, range.instantStartMs, dateEnv);
+                  const end = buildRangeEdgeOutput(range.end, range.instantEndMs, dateEnv);
                   return {
                       event: new EventImpl(context, def, instance),
-                      start: dateEnv.toDate(range.start),
-                      end: dateEnv.toDate(range.end),
+                      start: start.date,
+                      end: end.date,
                       isStart: seg.isStart,
                       isEnd: seg.isEnd,
                   };
@@ -10219,53 +10780,41 @@ var FullCalendar = (function (exports) {
           };
       }
       render() {
-          let { props, state } = this;
-          return (u$1(ViewContextType.Consumer, { children: (context) => {
-                  let { viewApi, options, calendarApi, baseId } = context;
-                  let { moreLinkText } = options;
-                  let moreCnt = props.hiddenSegs.length;
-                  let range = computeRange(props);
-                  let popoverId = baseId + 'popover-' + range.start.toISOString();
-                  let numericText = `+${moreCnt}`; // TODO: offer hook or i18n?
-                  let longText = typeof moreLinkText === 'function' // TODO: eventually use formatWithOrdinals
-                      ? moreLinkText.call(calendarApi, moreCnt)
-                      : `${numericText} ${moreLinkText}`;
-                  let hint = formatWithOrdinals(options.moreLinkHint, [moreCnt], longText);
-                  let renderProps = {
-                      num: moreCnt,
-                      numericText,
-                      longText,
-                      text: (props.isMicro || props.display === 'column') ? numericText : longText,
-                      isNarrow: props.isNarrow,
-                      view: viewApi,
-                  };
-                  return (u$1(S, { children: [Boolean(moreCnt) && (u$1(ContentContainer, { tag: 'div', elRef: this.handleLinkEl, className: joinClassNames(generateClassName(// will added to moreLinkClass
-                              props.display === 'row'
-                                  ? options.rowMoreLinkClass // row
-                                  : options.columnMoreLinkClass, // column
-                              renderProps), props.className, props.display === 'row'
-                                  ? classNames.flexRow
-                                  : classNames.flexCol, classNames.internalMoreLink, classNames.cursorPointer), style: props.style, attrs: {
-                                  ...props.attrs,
-                                  ...createAriaClickAttrs(this.handleClick),
-                                  title: hint,
-                                  'role': 'button',
-                                  'aria-haspopup': 'dialog',
-                                  'aria-expanded': state.isPopoverOpen,
-                                  'aria-controls': state.isPopoverOpen ? popoverId : undefined,
-                              }, renderProps: renderProps, generatorName: "moreLinkContent", customGenerator: options.moreLinkContent, defaultGenerator: renderMoreLinkText, classNameGenerator: options.moreLinkClass, didMount: options.moreLinkDidMount, willUnmount: options.moreLinkWillUnmount, children: (InnerContent) => (u$1(InnerContent, { tag: 'div', className: joinClassNames(generateClassName(options.moreLinkInnerClass, renderProps), generateClassName(props.display === 'row'
-                                      ? options.rowMoreLinkInnerClass // row
-                                      : options.columnMoreLinkInnerClass, // column
-                                  renderProps), props.display === 'row'
-                                      ? classNames.stickyS
-                                      : classNames.stickyT) })) })), state.isPopoverOpen && (u$1(MorePopover, { id: popoverId, titleId: popoverId + '-title', startDate: range.start, endDate: range.end, dateProfile: props.dateProfile, todayRange: props.todayRange, dateSpanProps: props.dateSpanProps, alignEl: props.alignElRef ?
-                                  props.alignElRef.current :
-                                  this.linkEl, alignParentTop: props.alignParentTop, forceTimed: props.forceTimed, onClose: this.handlePopoverClose, children: props.popoverContent() }))] }));
-              } }));
+          const { props, state, context } = this;
+          const { options, baseId } = context;
+          const moreCnt = props.hiddenSegs.length;
+          const range = computeRange(props);
+          const popoverId = baseId + 'popover-' + range.start.toISOString();
+          const renderProps = buildMoreLinkRenderProps(moreCnt, props.isNarrow, props.isMicro, props.display, context);
+          const hint = formatWithOrdinals(options.moreLinkHint, [moreCnt], renderProps.longText);
+          return (u$1(S, { children: [Boolean(moreCnt) && (u$1(MoreLinkTrigger, { num: moreCnt, display: props.display, isNarrow: props.isNarrow, isMicro: props.isMicro, elRef: this.handleLinkEl, className: props.className, style: props.style, attrs: {
+                          ...props.attrs,
+                          ...createAriaClickAttrs(this.handleClick),
+                          title: hint,
+                          'role': 'button',
+                          'aria-haspopup': 'dialog',
+                          'aria-expanded': state.isPopoverOpen,
+                          'aria-controls': state.isPopoverOpen ? popoverId : undefined,
+                      }, didMount: options.moreLinkDidMount, willUnmount: options.moreLinkWillUnmount })), state.isPopoverOpen && (u$1(MorePopover, { id: popoverId, titleId: popoverId + '-title', startDate: range.start, endDate: range.end, dateProfile: props.dateProfile, todayRange: props.todayRange, dateSpanProps: props.dateSpanProps, alignEl: props.alignElRef ? props.alignElRef.current : this.linkEl, alignParentTop: props.alignParentTop, forceTimed: props.forceTimed, onClose: this.handlePopoverClose, children: props.popoverContent() }))] }));
       }
   }
   function renderMoreLinkText(props) {
       return props.text;
+  }
+  function buildMoreLinkRenderProps(num, isNarrow, isMicro, display, context) {
+      const { viewApi, options, calendarApi } = context;
+      const numericText = `+${num}`; // TODO: offer hook or i18n?
+      const longText = typeof options.moreLinkText === 'function' // TODO: eventually use formatWithOrdinals
+          ? options.moreLinkText.call(calendarApi, num)
+          : `${numericText} ${options.moreLinkText}`;
+      return {
+          num,
+          numericText,
+          longText,
+          text: (isMicro || display === 'column') ? numericText : longText,
+          isNarrow,
+          view: viewApi,
+      };
   }
   function computeRange(props) {
       if (props.allDayDate) {
@@ -10286,20 +10835,28 @@ var FullCalendar = (function (exports) {
       omitZeroMinute: true,
       meridiem: 'narrow',
   });
-  function hasListItemDisplay(seg) {
-      let { display } = seg.eventRange.ui;
+  function hasListItemDisplay(range, eventRange) {
+      let { display } = eventRange.ui;
       return display === 'list-item' || (display === 'auto' &&
-          !seg.eventRange.def.allDay &&
-          (seg.end - seg.start) === 1 && // single-day
-          seg.isStart && // "
-          seg.isEnd // "
+          !eventRange.def.allDay &&
+          (range.end - range.start) === 1 && // single-day
+          range.isStart && // "
+          range.isEnd // "
       );
   }
+
+  // All positioned layers share the DayGrid row's isolated stacking context.
+  const DAY_GRID_NON_BUSINESS_Z_CLASS = classNames.z1;
+  const DAY_GRID_BG_EVENT_Z_CLASS = classNames.z2;
+  const DAY_GRID_HIGHLIGHT_Z_CLASS = classNames.z3;
+  const DAY_GRID_CELL_CONTENT_Z_CLASS = classNames.z4;
+  const DAY_GRID_EVENT_Z_CLASS = classNames.z5;
+  const DAY_GRID_INTERACTION_Z_CLASS = classNames.z1000;
 
   class DayGridMoreLink extends BaseComponent {
       render() {
           let { props } = this;
-          return (u$1(MoreLinkContainer, { display: 'row', className: props.className, isNarrow: props.isNarrow, isMicro: props.isMicro, dateProfile: props.dateProfile, todayRange: props.todayRange, allDayDate: props.allDayDate, segs: props.segs, hiddenSegs: props.hiddenSegs, alignElRef: props.alignElRef, alignParentTop: props.alignParentTop, dateSpanProps: props.dateSpanProps, popoverContent: () => (u$1(S, { children: props.segs.map((seg) => {
+          return (u$1(MoreLinkContainer, { display: 'row', className: joinClassNames(props.className, DAY_GRID_CELL_CONTENT_Z_CLASS), isNarrow: props.isNarrow, isMicro: props.isMicro, dateProfile: props.dateProfile, todayRange: props.todayRange, allDayDate: props.allDayDate, segs: props.segs, hiddenSegs: props.hiddenSegs, alignElRef: props.alignElRef, alignParentTop: props.alignParentTop, dateSpanProps: props.dateSpanProps, popoverContent: () => (u$1(S, { children: props.segs.map((seg) => {
                       let { eventRange } = seg;
                       let { instanceId } = eventRange.instance;
                       let isDragging = Boolean(props.eventDrag && props.eventDrag.affectedInstances[instanceId]);
@@ -10307,7 +10864,7 @@ var FullCalendar = (function (exports) {
                       let isInvisible = isDragging || isResizing;
                       return (u$1("div", { style: {
                               visibility: isInvisible ? 'hidden' : undefined,
-                          }, children: u$1(StandardEvent, { display: hasListItemDisplay(seg) ? 'list-item' : 'row', eventRange: eventRange, isStart: seg.isStart, isEnd: seg.isEnd, isDragging: isDragging, isResizing: isResizing, isMirror: false, isSelected: instanceId === props.eventSelection, defaultTimeFormat: DEFAULT_TABLE_EVENT_TIME_FORMAT, defaultDisplayEventEnd: false, ...getEventRangeMeta(eventRange, props.todayRange) }) }, instanceId));
+                          }, children: u$1(StandardEvent, { display: hasListItemDisplay(seg, eventRange) ? 'list-item' : 'row', eventRange: eventRange, isStart: seg.isStart, isEnd: seg.isEnd, isDragging: isDragging, isResizing: isResizing, isMirror: false, isSelected: instanceId === props.eventSelection, defaultTimeFormat: DEFAULT_TABLE_EVENT_TIME_FORMAT, defaultDisplayEventEnd: false, ...getEventRangeMeta(eventRange, props.todayRange) }) }, instanceId));
                   }) })) }));
       }
   }
@@ -10316,7 +10873,7 @@ var FullCalendar = (function (exports) {
       constructor() {
           super(...arguments);
           // memo
-          this.getDateMeta = memoize(getDateMeta);
+          this.getDateMeta = memoize(getDayGridCellDateMeta);
           this.refineRenderProps = memoizeObjArg(refineRenderProps);
           // ref
           this.rootElRef = M$1();
@@ -10324,25 +10881,39 @@ var FullCalendar = (function (exports) {
               if (this.disconnectBodyHeight) {
                   this.disconnectBodyHeight();
                   this.disconnectBodyHeight = undefined;
+                  this.headerHeight = undefined;
                   setRef(this.props.headerHeightRef, null);
                   setRef(this.props.mainHeightRef, null);
               }
-              if (bodyEl) {
+              // Print cells don't need this screen-only measurement.
+              if (bodyEl && (this.props.headerHeightRef || this.props.mainHeightRef)) {
                   // we want to fire on ANY size change, because we do more advanced stuff
                   this.disconnectBodyHeight = watchSize(bodyEl, (_bodyWidth, bodyHeight) => {
-                      if (this._isUnmounting)
+                      if (this._isUnmounting) {
                           return;
+                      }
                       const { props } = this;
+                      const rootEl = this.rootElRef.current;
+                      // A queued resize can outlive the cell element.
+                      if (!rootEl) {
+                          return;
+                      }
                       const mainRect = bodyEl.getBoundingClientRect();
-                      const rootRect = this.rootElRef.current.getBoundingClientRect();
+                      const rootRect = rootEl.getBoundingClientRect();
                       const headerHeight = mainRect.top - rootRect.top;
                       if (!isDimsEqual(this.headerHeight, headerHeight)) {
                           this.headerHeight = headerHeight;
                           setRef(props.headerHeightRef, headerHeight);
                       }
-                      if (props.fgLiquidHeight) {
-                          setRef(props.mainHeightRef, bodyHeight);
-                      }
+                      /*
+                      Reported in every mode, even though only a liquid cell's placement
+                      consumes it. The body keeps the same element and the same observer when
+                      `fgLiquidHeight` flips, and switching it between `grow` and `liquid`
+                      need not change its height at all, so a mode-conditional report would
+                      leave a newly liquid cell waiting for an unrelated resize before it
+                      ever learned its own ceiling.
+                      */
+                      setRef(props.mainHeightRef, bodyHeight);
                   });
               }
           };
@@ -10350,11 +10921,14 @@ var FullCalendar = (function (exports) {
       render() {
           let { props, context } = this;
           let { options, dateEnv } = context;
+          const { tableMode } = props;
           // TODO: memoize this
           const isMonthStart = props.showDayNumber &&
               shouldDisplayMonthStart(props.date, props.dateProfile.currentRange, dateEnv);
-          const dateMeta = this.getDateMeta(props.date, dateEnv, props.dateProfile, props.todayRange);
-          const baseClassName = joinClassNames(props.borderStart ? classNames.borderOnlyS : classNames.borderNone, props.width != null ? '' : classNames.liquid, classNames.flexCol, classNames.noMargin, classNames.noPadding);
+          const dateMeta = this.getDateMeta(props.date, dateEnv, props.dateProfile, props.todayRange, props.isDisabled);
+          const baseClassName = joinClassNames(classNames.borderlessTop, classNames.borderlessEnd, !props.borderStart && classNames.borderlessStart, !(tableMode && props.borderBottom) && classNames.borderlessBottom, !tableMode && props.width == null && classNames.liquid, !tableMode && classNames.flexCol, classNames.rel, classNames.noMargin, classNames.noPadding);
+          const CellTag = tableMode ? 'td' : 'div';
+          const cellStyle = tableMode ? undefined : { width: props.width };
           const hasNavLink = options.navLinks;
           const renderProps = this.refineRenderProps({
               date: props.date,
@@ -10372,29 +10946,26 @@ var FullCalendar = (function (exports) {
               businessHours: Boolean(options.businessHours),
           });
           if (dateMeta.isDisabled) {
-              return (u$1("div", { role: 'gridcell', "aria-disabled": true, className: joinClassNames(generateClassName(options.dayCellClass, renderProps), props.className, baseClassName), style: {
-                      width: props.width
-                  } }));
+              return (u$1(CellTag, { role: 'gridcell', "aria-disabled": true, className: joinClassNames(generateClassName(options.dayCellClass, renderProps), props.className, baseClassName), style: cellStyle, children: props.fills }));
           }
           const fullDateStr = buildDateStr(context, props.date);
-          return (u$1(ContentContainer, { tag: "div", elRef: this.rootElRef, className: joinClassNames(props.className, baseClassName), attrs: {
+          return (u$1(ContentContainer, { tag: CellTag, elRef: this.rootElRef, className: joinClassNames(props.className, baseClassName), attrs: {
                   ...props.attrs,
                   role: 'gridcell',
                   'aria-label': fullDateStr,
                   ...(renderProps.isToday ? { 'aria-current': 'date' } : {}),
                   'data-date': formatDayString(props.date),
-              }, style: {
-                  width: props.width,
-              }, renderProps: renderProps, generatorName: "dayCellTopContent" // !!! for top
-              , customGenerator: options.dayCellTopContent /* !!! for top */, defaultGenerator: renderTopInner, classNameGenerator: options.dayCellClass, didMount: options.dayCellDidMount, willUnmount: options.dayCellWillUnmount, children: (InnerContent) => (u$1(S, { children: [u$1("div", { className: joinClassNames(classNames.rel, // puts it above bg-fills, which are positioned on TOP of this component :|
-                          generateClassName(options.dayCellTopClass, renderProps)), children: props.showDayNumber && (u$1(InnerContent // the dayCellTopContent
+              }, style: cellStyle, renderProps: renderProps, generatorName: "dayCellTopContent" // !!! for top
+              , customGenerator: options.dayCellTopContent /* !!! for top */, defaultGenerator: renderTopInner, classNameGenerator: options.dayCellClass, didMount: options.dayCellDidMount, willUnmount: options.dayCellWillUnmount, children: (InnerContent) => (u$1(S, { children: [props.fills, u$1("div", { className: joinClassNames(classNames.rel, // puts it above bg-fills, which are positioned on TOP of this component :|
+                          DAY_GRID_CELL_CONTENT_Z_CLASS, generateClassName(options.dayCellTopClass, renderProps)), children: props.showDayNumber && (u$1(InnerContent // the dayCellTopContent
                           , { tag: 'div', attrs: hasNavLink
                                   ? buildNavLinkAttrs(context, props.date, undefined, fullDateStr)
                                   : { 'aria-hidden': true } // label already on cell
-                              , className: generateClassName(options.dayCellTopInnerClass, renderProps) })) }), u$1("div", { className: joinClassNames(classNames.flexCol, props.fgLiquidHeight ? classNames.liquid : classNames.grow), ref: this.handleBodyEl, children: [u$1("div", { className: generateClassName(options.dayCellInnerClass, renderProps), style: { minHeight: props.fgHeight }, children: props.fg }), u$1(DayGridMoreLink, { className: classNames.rel, allDayDate: props.date, segs: props.segs, hiddenSegs: props.hiddenSegs, alignElRef: this.rootElRef, alignParentTop: props.showDayNumber
+                              , className: generateClassName(options.dayCellTopInnerClass, renderProps) })) }), u$1("div", { className: joinClassNames(!tableMode && classNames.flexCol, !tableMode && (props.fgLiquidHeight ? classNames.liquid : classNames.grow), tableMode && classNames.printCellContentMinHeight), ref: this.handleBodyEl, children: [u$1("div", { className: joinClassNames(classNames.rel, // origin for this cell's foreground event wrappers
+                                  generateClassName(options.dayCellInnerClass, renderProps)), style: { minHeight: props.fgHeight }, children: props.fg }), u$1(DayGridMoreLink, { className: classNames.rel, allDayDate: props.date, segs: props.segs, hiddenSegs: props.hiddenSegs, alignElRef: this.rootElRef, alignParentTop: props.showDayNumber
                                       ? '[role=row]'
                                       : `.${classNames.internalView}`, dateSpanProps: props.dateSpanProps, dateProfile: props.dateProfile, eventSelection: props.eventSelection, eventDrag: props.eventDrag, eventResize: props.eventResize, todayRange: props.todayRange, isNarrow: props.isNarrow, isMicro: props.isMicro })] }), u$1("div", { className: joinClassNames(classNames.rel, // puts it above bg-fills
-                          generateClassName(options.dayCellBottomClass, renderProps)) })] })) }));
+                          DAY_GRID_CELL_CONTENT_Z_CLASS, generateClassName(options.dayCellBottomClass, renderProps)) })] })) }));
       }
       componentDidMount() {
           this._isUnmounting = false;
@@ -10405,6 +10976,12 @@ var FullCalendar = (function (exports) {
   }
   // Utils
   // -------------------------------------------------------------------------------------------------
+  function getDayGridCellDateMeta(date, dateEnv, dateProfile, todayRange, isDisabled) {
+      return {
+          ...getDateMeta(date, dateEnv, dateProfile, todayRange),
+          isDisabled,
+      };
+  }
   function renderTopInner(props) {
       return props.text || u$1(S, { children: "\u00A0" }); // TODO: DRY?
   }
@@ -10448,515 +11025,1480 @@ var FullCalendar = (function (exports) {
       };
   }
 
-  class SegHierarchy {
-      constructor(segs, getSegThickness = (seg) => {
-          return 1;
-      }, strictOrder = false, // HACK
-      maxCoord, maxDepth, hiddenConsumes = false, // hidden segs also hide the touchingPlacement?
-      allowSlicing = false) {
-          this.getSegThickness = getSegThickness;
-          this.strictOrder = strictOrder;
-          this.maxCoord = maxCoord;
-          this.maxDepth = maxDepth;
-          this.hiddenConsumes = hiddenConsumes;
-          this.allowSlicing = allowSlicing;
-          this.placementsByLevel = [];
-          this.levelCoords = []; // parallel with placementsByLevel
-          this.hiddenSegs = [];
-          for (const seg of segs) {
-              this.insertSeg(seg, this.getSegThickness(seg));
-          }
+  class MeasuredHeightHarness extends C {
+      constructor() {
+          super(...arguments);
+          this.rootElRef = M$1();
+          this._isUnmounting = false;
       }
-      insertSeg(seg, segThickness, isSlice) {
-          if (segThickness != null) {
-              const insertion = this.findInsertion(seg, segThickness);
-              if (this.isInsertionValid(insertion, segThickness)) {
-                  this.insertSegAt(seg, insertion, segThickness, isSlice);
-              }
-              else {
-                  const { touchingPlacement } = insertion;
-                  // is there a touching-seg?
-                  if (touchingPlacement) {
-                      // should we hide or reslice touchingPlacement?
-                      if (this.hiddenConsumes && !touchingPlacement.isZombie) {
-                          touchingPlacement.isZombie = true; // edit in-place
-                          this.hiddenSegs.push(touchingPlacement);
-                          if (this.allowSlicing) {
-                              const newSeg = Object.assign({}, touchingPlacement); // copy
-                              // slice touchingPlacement in-place
-                              Object.assign(touchingPlacement, intersectCoordRanges(touchingPlacement, seg));
-                              touchingPlacement.isSlice = true;
-                              // try to reinsert touchingPlacement's seg
-                              this.splitSeg(newSeg, touchingPlacement.thickness, touchingPlacement);
-                          }
-                      }
-                      // record seg as hidden, potentially split by touchingPlacement
-                      if (this.allowSlicing) {
-                          this.hiddenSegs.push({
-                              ...seg,
-                              ...intersectCoordRanges(seg, touchingPlacement),
-                          });
-                          this.splitSeg(seg, segThickness, touchingPlacement);
-                      }
-                      else {
-                          this.hiddenSegs.push(seg);
-                      }
-                      // not touching anything
-                  }
-                  else {
-                      this.hiddenSegs.push(seg);
-                  }
-              }
-          }
+      render() {
+          const { props } = this;
+          return (u$1("div", { className: props.className, style: props.style, ref: this.rootElRef, children: props.children }));
+      }
+      componentDidMount() {
+          this._isUnmounting = false;
+          const rootEl = this.rootElRef.current; // TODO: make dynamic with useEffect
+          this.disconnectHeight = watchHeight(rootEl, (height) => {
+              if (this._isUnmounting)
+                  return;
+              this.height = height;
+              setRef(this.props.heightRef, height);
+          });
       }
       /*
-      TODO: inline?
+      A wrapper can gain or lose measurement responsibility without remounting,
+      because a row switches placement routes (screen<->print, for example) while
+      reusing the same keyed nodes. The size observer only fires on an actual size
+      change, so hand the newly attached ref what was already observed, and release
+      the detached one.
       */
-      isInsertionValid(insertion, thickness) {
-          return (this.maxCoord == null || insertion.levelCoord + thickness <= this.maxCoord) &&
-              (this.maxDepth == null || insertion.depth < this.maxDepth);
-      }
-      /*
-      Does not add the portion that intersects with barrier to hiddenSegs
-      */
-      splitSeg(seg, segThickness, barrier) {
-          // any leftover seg on the start-side of the barrier?
-          if (seg.start < barrier.start) {
-              this.insertSeg({ ...seg, end: barrier.start, isEnd: false }, segThickness, 
-              /* isSlice = */ true);
-          }
-          // any leftover seg on the end-side of the barrier?
-          if (seg.end > barrier.end) {
-              this.insertSeg({ ...seg, start: barrier.end, isStart: false }, segThickness, 
-              /* isSlice = */ true);
-          }
-      }
-      /*
-      TODO: inline?
-      */
-      insertSegAt(seg, insertion, segThickness, isSlice) {
-          const placement = {
-              ...seg,
-              thickness: segThickness,
-              depth: insertion.depth,
-              isSlice: isSlice || seg.isSlice || false,
-              isZombie: false,
-          };
-          if (insertion.lateralIndex === -1) {
-              // create a new level
-              insertAt(this.placementsByLevel, insertion.levelIndex, [placement]);
-              insertAt(this.levelCoords, insertion.levelIndex, insertion.levelCoord);
-          }
-          else {
-              // insert into existing level
-              insertAt(this.placementsByLevel[insertion.levelIndex], insertion.lateralIndex, placement);
-          }
-      }
-      /*
-      Ignores limits
-      */
-      findInsertion(seg, segThickness) {
-          let { placementsByLevel, levelCoords } = this;
-          let levelCnt = placementsByLevel.length;
-          let candidateCoord = 0; // a tentative levelCoord for seg's placement
-          let touchingPlacement;
-          let touchingLevelIndex;
-          let depth = 0;
-          // iterate through existing levels
-          for (let currentLevelIndex = 0; currentLevelIndex < levelCnt; currentLevelIndex += 1) {
-              const currentLevelCoord = levelCoords[currentLevelIndex];
-              // if the current level has cleared seg's bottom coord, we have found a good empty space and can stop.
-              // if strictOrder, keep finding more lateral intersections.
-              if (!this.strictOrder && currentLevelCoord >= candidateCoord + segThickness) {
-                  break;
-              }
-              let currentLevelSegs = placementsByLevel[currentLevelIndex];
-              let currentSeg;
-              // finds the first possible entry that seg could intersect with
-              let [searchIndex, isExact] = binarySearch(currentLevelSegs, seg.start, getCoordRangeEnd); // find first entry after seg's end
-              let lateralIndex = searchIndex + isExact; // if exact match (which doesn't collide), go to next one
-              // loop through entries that horizontally intersect
-              while ((currentSeg = currentLevelSegs[lateralIndex]) && // but not past the whole entry list
-                  currentSeg.start < seg.end // and not entirely past seg
-              ) {
-                  let currentEntryBottom = currentLevelCoord + currentSeg.thickness;
-                  // intersects into the top of the candidate?
-                  if (currentEntryBottom > candidateCoord) {
-                      // push it downward so doesn't 'vertically' intersect anymore
-                      candidateCoord = currentEntryBottom;
-                      // tentatively record as touching
-                      touchingPlacement = currentSeg;
-                      touchingLevelIndex = currentLevelIndex;
-                  }
-                  // does current entry butt up against top of candidate?
-                  // will obviously happen if just intersected, but can also happen if pushed down previously
-                  // because intersected with a sibling
-                  // TODO: after automated tests hooked up, see if these gate is unnecessary,
-                  // we might just be able to do this for ALL intersecting currentEntries (this whole loop)
-                  if (currentEntryBottom === candidateCoord) {
-                      // accumulate the highest possible depth of the currentLevelSegs that butt up
-                      depth = Math.max(depth, currentSeg.depth + 1);
-                  }
-                  lateralIndex += 1;
-              }
-          }
-          // the destination level will be after touchingPlacement's level. find it
-          // TODO: can reuse work from above?
-          let destLevelIndex = 0;
-          if (touchingPlacement) {
-              destLevelIndex = touchingLevelIndex + 1;
-              while (destLevelIndex < levelCnt && levelCoords[destLevelIndex] < candidateCoord) {
-                  destLevelIndex += 1;
-              }
-          }
-          // if adding to an existing level, find where to insert
-          // TODO: can reuse work from above?
-          let destLateralIndex = -1;
-          if (destLevelIndex < levelCnt && levelCoords[destLevelIndex] === candidateCoord) {
-              [destLateralIndex] = binarySearch(placementsByLevel[destLevelIndex], seg.end, getCoordRangeEnd);
-          }
-          return {
-              touchingPlacement,
-              levelCoord: candidateCoord,
-              levelIndex: destLevelIndex,
-              lateralIndex: destLateralIndex,
-              depth,
-          };
-      }
-      traverseSegs(handler) {
-          const { placementsByLevel, levelCoords } = this;
-          for (let i = 0; i < placementsByLevel.length; i++) {
-              const placements = placementsByLevel[i];
-              const levelCoord = levelCoords[i];
-              for (const placement of placements) {
-                  if (!placement.isZombie) {
-                      handler(placement, levelCoord);
-                  }
+      componentDidUpdate(prevProps) {
+          const { heightRef } = this.props;
+          if (prevProps.heightRef !== heightRef) {
+              setRef(prevProps.heightRef, null);
+              if (this.height != null) {
+                  setRef(heightRef, this.height);
               }
           }
       }
-  }
-  /*
-  Returns groups with entries sorted by input order
-  */
-  function groupIntersectingSegs(segs) {
-      let mergedGroups = [];
-      for (let seg of segs) {
-          let filteredGroups = [];
-          let hungryGroup = {
-              segs: [seg],
-              start: seg.start,
-              end: seg.end,
-          };
-          for (let mergedGroup of mergedGroups) {
-              if (doCoordRangesIntersect(mergedGroup, hungryGroup)) {
-                  hungryGroup = {
-                      ...joinCoordRanges(mergedGroup, hungryGroup),
-                      segs: mergedGroup.segs.concat(hungryGroup.segs) // keep preexisting mergedGroup's items first. maintains order
-                  };
-              }
-              else {
-                  filteredGroups.push(mergedGroup);
-              }
-          }
-          filteredGroups.push(hungryGroup);
-          mergedGroups = filteredGroups;
+      componentWillUnmount() {
+          this._isUnmounting = true;
+          this.disconnectHeight?.();
+          setRef(this.props.heightRef, null);
       }
-      return mergedGroups.map((mergedGroup) => {
-          return {
-              key: buildIsoString(computeEarliestStart(mergedGroup.segs)),
-              ...mergedGroup
-          };
-      });
-  }
-  // General Utils
-  // -------------------------------------------------------------------------------------------------
-  function insertAt(arr, index, item) {
-      arr.splice(index, 0, item);
-  }
-  function binarySearch(a, searchVal, getItemVal) {
-      let startIndex = 0;
-      let endIndex = a.length; // exclusive
-      if (!endIndex || searchVal < getItemVal(a[startIndex])) { // no items OR before first item
-          return [0, 0];
-      }
-      if (searchVal > getItemVal(a[endIndex - 1])) { // after last item
-          return [endIndex, 0];
-      }
-      while (startIndex < endIndex) {
-          let middleIndex = Math.floor(startIndex + (endIndex - startIndex) / 2);
-          let middleVal = getItemVal(a[middleIndex]);
-          if (searchVal < middleVal) {
-              endIndex = middleIndex;
-          }
-          else if (searchVal > middleVal) {
-              startIndex = middleIndex + 1;
-          }
-          else { // equal!
-              return [middleIndex, 1];
-          }
-      }
-      return [startIndex, 0];
   }
 
-  function computeFgSegVerticals$1(segs, segHeightMap, cells, maxHeight, strictOrder, allowSlicing = true, dayMaxEvents, dayMaxEventRows) {
-      let maxCoord;
-      let maxDepth;
-      let hiddenConsumes;
-      if (dayMaxEvents === true || dayMaxEventRows === true) {
-          maxCoord = maxHeight;
-          hiddenConsumes = true;
+  /**
+   * Pure lateral-span geometry shared by the seg-placement engine.
+   *
+   * A span is a half-open interval `[start, end)` on the lateral axis. The axis
+   * can be discrete (DayGrid columns) or continuous (Timeline pixels). Exactly
+   * adjacent spans never intersect.
+   */
+  function doSpansIntersect(a, b) {
+      return a.start < b.end && b.start < a.end;
+  }
+  /** Returns the strict intersection; exactly adjacent spans do not intersect. */
+  function intersectSpans(a, b) {
+      const start = Math.max(a.start, b.start);
+      const end = Math.min(a.end, b.end);
+      return start < end ? { start, end } : null;
+  }
+  function getSpanLength(span) {
+      return span.end - span.start;
+  }
+  /**
+   * Finds every intersection within entries sorted by `start`. When the entries
+   * are also pairwise non-intersecting, only the single entry before the lower
+   * bound can straddle the span's start, so the scan begins one entry early.
+   */
+  function findIntersections(entries, span) {
+      let index = findLowerBoundByStart(entries, span.start);
+      if (index > 0) {
+          index--;
       }
-      else if (typeof dayMaxEvents === 'number') {
-          maxDepth = dayMaxEvents;
-          hiddenConsumes = false;
-      }
-      else if (typeof dayMaxEventRows === 'number') {
-          maxDepth = dayMaxEventRows;
-          hiddenConsumes = true;
-      }
-      // NOTE: visibleSegsMap and hiddenSegMap map NEVER overlap for a given event
-      // once a seg has a height, the combined potentially-sliced segs will comprise the entire span of the seg
-      // if a seg does not have a height yet, it won't be inserted into either visibleSegsMap/hiddenSegMap
-      const visibleSegMap = new Map();
-      const hiddenSegMap = new Map();
-      const segTops = new Map();
-      const isSlicedMap = new Map();
-      let hierarchy = new SegHierarchy(segs, (seg) => segHeightMap.get(getEventPartKey(seg)), strictOrder, maxCoord, maxDepth, hiddenConsumes, allowSlicing);
-      hierarchy.traverseSegs((seg, segTop) => {
-          addToSegMap(visibleSegMap, seg);
-          segTops.set(getEventPartKey(seg), segTop);
-          if (seg.isSlice) {
-              isSlicedMap.set(seg.eventRange, true);
+      const matches = [];
+      for (; index < entries.length; index++) {
+          const entry = entries[index];
+          if (entry.start >= span.end) {
+              break;
           }
-      });
-      for (const hiddenSeg of hierarchy.hiddenSegs) {
-          addToSegMap(hiddenSegMap, hiddenSeg); // hidden main segs
-      }
-      // recompute tops while considering slices
-      // portions of these slices might be added to hiddenSegMap
-      if (isSlicedMap.size) {
-          segTops.clear();
-          hierarchy = new SegHierarchy(compileSegMap(segs, visibleSegMap), (seg) => segHeightMap.get(getEventPartKey(seg)), strictOrder, maxCoord, maxDepth, hiddenConsumes);
-          hierarchy.traverseSegs((seg, segTop) => {
-              segTops.set(getEventPartKey(seg), segTop); // newly-hidden main segs and slices
-          });
-          for (const hiddenSeg of hierarchy.hiddenSegs) {
-              addToSegMap(hiddenSegMap, hiddenSeg);
+          if (doSpansIntersect(entry, span)) {
+              matches.push(entry);
           }
       }
-      const segsByCol = [];
-      const hiddenSegsByCol = [];
-      const renderableSegsByCol = [];
-      const heightsByCol = [];
-      for (let col = 0; col < cells.length; col++) {
-          segsByCol.push([]);
-          hiddenSegsByCol.push([]);
-          renderableSegsByCol.push([]);
-          heightsByCol.push(0);
+      return matches;
+  }
+  /**
+   * Computes the coverage set difference `span - covered`. The covered spans
+   * must be sorted by `start` and pairwise non-overlapping.
+   */
+  function subtractCoveredSpans(span, covered) {
+      const result = [];
+      let cursor = span.start;
+      for (const item of covered) {
+          if (item.end <= cursor) {
+              continue;
+          }
+          if (item.start >= span.end) {
+              break;
+          }
+          if (item.start > cursor) {
+              result.push({ start: cursor, end: Math.min(item.start, span.end) });
+          }
+          cursor = Math.max(cursor, item.end);
+          if (cursor >= span.end) {
+              break;
+          }
       }
+      if (cursor < span.end) {
+          result.push({ start: cursor, end: span.end });
+      }
+      return result;
+  }
+  /** Maintains a sorted strict-overlap union; adjacent spans remain separate. */
+  function addToUnion(spans, addition) {
+      const result = [];
+      let pending = { ...addition };
+      let inserted = false;
+      for (const span of spans) {
+          if (span.end <= pending.start) {
+              result.push(span);
+          }
+          else if (pending.end <= span.start) {
+              if (!inserted) {
+                  result.push(pending);
+                  inserted = true;
+              }
+              result.push(span);
+          }
+          else {
+              pending = {
+                  start: Math.min(pending.start, span.start),
+                  end: Math.max(pending.end, span.end),
+              };
+          }
+      }
+      if (!inserted) {
+          result.push(pending);
+      }
+      spans.splice(0, spans.length, ...result);
+  }
+  /** Preserves increasing lateral-start order within a sorted entry list. */
+  function insertLaterally(entries, entry) {
+      entries.splice(findLowerBoundByStart(entries, entry.start), 0, entry);
+  }
+  function findLowerBoundByStart(entries, start) {
+      let low = 0;
+      let high = entries.length;
+      while (low < high) {
+          const middle = (low + high) >>> 1;
+          if (entries[middle].start < start) {
+              low = middle + 1;
+          }
+          else {
+              high = middle;
+          }
+      }
+      return low;
+  }
+
+  /**
+   * Pure event-positioning kernel implementing measured logical repacking.
+   *
+   * Source segs own identity and event order. Slices own only lateral geometry,
+   * while their outer array index is their dimensionless level. Limiting stays
+   * primarily in logical slice-level space; the pixel path admits speculative
+   * slices only through occupied logical territory, then monotonically prunes
+   * the measured result against exact pixel and more-link boundaries.
+   */
+  /** Permissive epsilon for geometric coordinate and budget comparisons. */
+  const GEOMETRY_TOLERANCE = 0.000001;
+  /** Shared estimate for an event wrapper that has not reported a thickness. */
+  const DEFAULT_UNMEASURED_EVENT_THICKNESS = 20;
+  /** Shared estimate for a more-link wrapper that has not reported a thickness. */
+  const DEFAULT_UNMEASURED_MORE_LINK_THICKNESS = 20;
+  /**
+   * Streams at most `maxLevels` into the initial structure and fires every
+   * rejected slice back at those levels in event order.
+   *
+   * With slicing disabled, a failed slice hides whole. With slicing enabled,
+   * every level independently offers its maximal free runs and the winning plan
+   * balances exposed length against fragmentation. Every hidden slice grows a
+   * coverage accumulator; with a level tax, only newly covered runs reserve the
+   * bottom event level for a more link, evicting any slice already there.
+   */
+  function buildLevelLimitedLayout(segs, eventOrderStrict, eventSlicing, maxLevels, moreLinkLevelTax, sliceHeights) {
+      const { segLevels, excludedSegs } = buildSegLevels(segs, eventOrderStrict, maxLevels);
+      const placement = placeExtraSlicesInLevels(convertSegLevelsToWholeSlices(segLevels), convertSegsToWholeSlices(excludedSegs), eventOrderStrict, eventSlicing, moreLinkLevelTax);
+      const resolution = resolveLevelCoords(placement.sliceLevels, sliceHeights);
+      return {
+          renderSlices: flatArray(placement.sliceLevels),
+          hiddenSlices: placement.hiddenSlices,
+          sliceLevels: placement.sliceLevels,
+          sliceCoords: resolution.sliceCoords,
+          isSettled: resolution.isSettled,
+      };
+  }
+  /**
+   * Resolves the bounded whole-slice frontier, then offers excluded slices back
+   * to its occupied logical territory through slicing. Exact pixel pruning hides
+   * any measured result that crosses the canvas or an existing more-link band.
+   * Placement-only slices remain mounted as invisible measurement donors until
+   * measured, preventing mount-measure cycles.
+   *
+   * `levelCapacity` bounds the initial DOM whole-slice candidates; later
+   * slices begin hidden and unmeasured.
+   */
+  function buildPixelLimitedLayout(segs, eventOrderStrict, eventSlicing, sliceHeights, canvasHeight, levelCapacity, moreLinkHeight) {
+      const { segLevels, excludedSegs } = buildSegLevels(segs, eventOrderStrict, levelCapacity);
+      const domWholeSliceLevels = convertSegLevelsToWholeSlices(segLevels);
+      const domExcludedWholeSlices = convertSegsToWholeSlices(excludedSegs);
+      const wholeResolution = resolveLevelCoords(domWholeSliceLevels, sliceHeights, canvasHeight);
+      // Until the canvas and the link probe report a size, mount only the bounded
+      // whole-slice frontier so its measurements can arrive.
+      if (canvasHeight == null || moreLinkHeight == null) {
+          return {
+              renderSlices: flatArray(domWholeSliceLevels),
+              hiddenSlices: domExcludedWholeSlices,
+              sliceLevels: domWholeSliceLevels,
+              sliceCoords: wholeResolution.sliceCoords,
+              isSettled: wholeResolution.isSettled,
+          };
+      }
+      // Pending frontier wholes stay out of links until measured; beyond-frontier
+      // wholes are definite logical exclusions and hide without measurement.
+      const excludedWholeSlices = wholeResolution.excludedSlices.concat(domExcludedWholeSlices);
+      excludedWholeSlices.sort(compareByEventOrder);
+      // With slicing, the level tax punches link holes while preserving event
+      // remainders; otherwise measured pruning makes the smarter pixel choice.
+      const placement = placeExtraSlicesInLevels(wholeResolution.placementSliceLevels, excludedWholeSlices, eventOrderStrict, eventSlicing, 
+      /* moreLinkLevelTax = */ eventSlicing ? 1 : 0, 
+      /* requiresSlicing = */ true, 
+      /* taxDeepestOccupiedLevel = */ true);
+      const sliceResolution = resolveLevelCoords(placement.sliceLevels, sliceHeights);
+      // More links always render. When one consumes the full budget or more, zero
+      // is the deepest coordinate an intersecting event may reach.
+      const moreLinkEventMax = Math.max(0, canvasHeight - moreLinkHeight);
+      // Remove exact canvas and more-link overflows from the coordinated layout.
+      const pixelPrunedSlices = prunePixelLimitedSliceLevels(placement.sliceLevels, placement.hiddenSlices, sliceResolution.sliceCoords, sliceHeights, canvasHeight, moreLinkEventMax);
+      // Keep all frontier wholes and placement-added slices mounted as measurement
+      // donors; missing coordinates make rejected or pending slices invisible.
+      // Disjoint: requiresSlicing bars whole re-insertion, so every added slice is
+      // a freshly cut object, never a frontier whole.
+      const renderSlices = flatArray(domWholeSliceLevels).concat(placement.addedSlices);
+      // Frontier wholes resolve in the whole pass and every placement-added slice
+      // resolves in the placement pass, so together the two cover the render set.
+      const isSettled = wholeResolution.isSettled && sliceResolution.isSettled;
+      return {
+          renderSlices,
+          hiddenSlices: pixelPrunedSlices.concat(placement.hiddenSlices),
+          sliceLevels: placement.sliceLevels,
+          sliceCoords: sliceResolution.sliceCoords,
+          isSettled,
+      };
+  }
+  /* ========================================================================
+   * Whole-source level construction
+   * ===================================================================== */
+  /** Builds whole-source logical levels without consulting any dimensions. */
+  function buildSegLevels(segs, eventOrderStrict, maxLevels = Infinity) {
+      const segLevels = [];
+      const excludedSegs = [];
       for (const seg of segs) {
-          const { eventRange } = seg;
-          const visibleSegs = visibleSegMap.get(eventRange) || [];
-          const hiddenSegs = hiddenSegMap.get(eventRange) || [];
-          const isSliced = isSlicedMap.get(eventRange) || false;
-          // add orig to renderable
-          renderableSegsByCol[seg.start].push(seg);
-          // add slices to renderable
-          if (isSliced) {
-              for (const visibleSeg of visibleSegs) {
-                  renderableSegsByCol[visibleSeg.start].push(visibleSeg);
+          const levelIndex = findPackedLevelIndex(segLevels, seg, eventOrderStrict);
+          if (levelIndex >= maxLevels) {
+              excludedSegs.push(seg);
+          }
+          else {
+              while (segLevels.length <= levelIndex) {
+                  segLevels.push([]);
+              }
+              insertLaterally(segLevels[levelIndex], seg);
+          }
+      }
+      return { segLevels, excludedSegs };
+  }
+  /**
+   * The packed level a span belongs to: the shallowest vacant level, or with
+   * gap reuse forbidden, directly below the deepest intersecting occupant.
+   * `levels.length` means a new level must open.
+   */
+  function findPackedLevelIndex(levels, span, orderStrict) {
+      let levelIndex = 0;
+      if (orderStrict) {
+          for (let i = 0; i < levels.length; i++) {
+              if (findIntersections(levels[i], span).length) {
+                  levelIndex = i + 1;
               }
           }
-          // accumulate segsByCol/heightsByCol for visible segs
-          for (const visibleSeg of visibleSegs) {
-              for (let col = visibleSeg.start; col < visibleSeg.end; col++) {
-                  const slice = sliceSegForCol(visibleSeg, col);
-                  segsByCol[col].push(slice);
+      }
+      else {
+          while (levelIndex < levels.length &&
+              findIntersections(levels[levelIndex], span).length) {
+              levelIndex++;
+          }
+      }
+      return levelIndex;
+  }
+  function convertSegLevelsToWholeSlices(segLevels) {
+      return segLevels.map((level) => convertSegsToWholeSlices(level));
+  }
+  function convertSegsToWholeSlices(segs) {
+      return segs.map(createWholeSlice);
+  }
+  /* ========================================================================
+   * Slice-level coordinate resolution
+   * ===================================================================== */
+  /**
+   * Resolves fixed logical levels without changing the input or its slices.
+   * An unmeasured slice leaves the resolution unsettled; a measured bounded
+   * rejection is final. Neither blocks later traversal entries, so excluding a
+   * lower slice can let a later slice move upward. The returned placement
+   * structure re-levels the admitted slices from scratch, compacted around
+   * pending and excluded slices exactly like the coordinates. Each admitted
+   * slice files below every admitted slice it intersects — never into a
+   * shallower gap — so level order mirrors pixel stacking and strict input
+   * order survives without consulting it.
+   */
+  function resolveLevelCoords(sliceLevels, sliceHeights, maxPixels = Infinity) {
+      const placementSliceLevels = [];
+      const sliceCoords = new Map();
+      let isSettled = true;
+      const excludedSlices = [];
+      for (let levelIndex = 0; levelIndex < sliceLevels.length; levelIndex++) {
+          for (const slice of sliceLevels[levelIndex]) {
+              const sliceHeight = sliceHeights.get(getSliceKey(slice));
+              if (sliceHeight === undefined) {
+                  isSettled = false;
+                  continue;
               }
-              const segKey = getEventPartKey(visibleSeg);
-              const segTop = segTops.get(segKey);
-              if (segTop != null) { // positioned?
-                  const segHeight = segHeightMap.get(segKey);
-                  for (let col = visibleSeg.start; col < visibleSeg.end; col++) {
-                      heightsByCol[col] = Math.max(heightsByCol[col], segTop + segHeight);
+              const { bottom: levelCoord, levelIndex: packedLevelIndex, } = computeLateralSpanPlacement(placementSliceLevels, slice, sliceCoords, sliceHeights);
+              if (levelCoord + sliceHeight <=
+                  maxPixels + GEOMETRY_TOLERANCE) {
+                  // Repacking admitted slices merges levels, so keep lateral sort.
+                  while (placementSliceLevels.length <= packedLevelIndex) {
+                      placementSliceLevels.push([]);
+                  }
+                  insertLaterally(placementSliceLevels[packedLevelIndex], slice);
+                  sliceCoords.set(getSliceKey(slice), levelCoord);
+              }
+              else {
+                  excludedSlices.push(slice);
+              }
+          }
+      }
+      return { placementSliceLevels, sliceCoords, isSettled, excludedSlices };
+  }
+  /** Deepest measured, coordinated bottom and level among slices touching the span. */
+  function computeLateralSpanPlacement(sliceLevels, span, sliceCoords, sliceHeights) {
+      let bottom = 0;
+      let levelIndex = 0;
+      for (let i = 0; i < sliceLevels.length; i++) {
+          const level = sliceLevels[i];
+          for (const slice of findIntersections(level, span)) {
+              const key = getSliceKey(slice);
+              const sliceTop = sliceCoords.get(key);
+              const sliceHeight = sliceHeights.get(key);
+              if (sliceTop !== undefined && sliceHeight !== undefined) {
+                  bottom = Math.max(bottom, sliceTop + sliceHeight);
+                  levelIndex = i + 1;
+              }
+          }
+      }
+      return { bottom, levelIndex };
+  }
+  /** Deepest measured, coordinated bottom among slices touching the span. */
+  function computeLateralSpanBottom(sliceLevels, span, sliceCoords, sliceHeights) {
+      return computeLateralSpanPlacement(sliceLevels, span, sliceCoords, sliceHeights).bottom;
+  }
+  /** Recomputes every coordinated slice against the compacted visible set. */
+  function recomputeVisibleCoords(sliceLevels, sliceHeights, sliceCoords) {
+      const visibleLevels = sliceLevels.map((level) => level.filter((slice) => sliceCoords.has(getSliceKey(slice))));
+      const freshCoords = resolveLevelCoords(visibleLevels, sliceHeights).sliceCoords;
+      for (const [key, coord] of freshCoords) {
+          sliceCoords.set(key, coord);
+      }
+  }
+  /** Returns a measured slice's bottom, or `undefined` while it is pending. */
+  function getSliceBottom(slice, sliceCoords, sliceHeights) {
+      const key = getSliceKey(slice);
+      const coord = sliceCoords.get(key);
+      const height = sliceHeights.get(key);
+      return coord === undefined || height === undefined
+          ? undefined
+          : coord + height;
+  }
+  /**
+   * Monotonically removes measured slices that cross either the canvas boundary
+   * or an active more-link boundary. Hiding a slice grows the more-link coverage;
+   * only newly covered spans are fired through the remaining slices, so every
+   * removal can expose more link-band intruders without reconsidering old spans.
+   *
+   * SIDE EFFECT: mutates `sliceCoords`. A removed coordinate is the renderer's
+   * signal that the still-mounted slice is invisible. After every removal,
+   * surviving coordinates are resolved again so later queue entries are tested
+   * against the compacted pixel structure. Slices without a proposed coordinate
+   * are ignored. Existing hidden slices seed the more-link coverage before the
+   * first removal is considered.
+   *
+   * Returns the slices whose coordinates this pass removed, with no ordering
+   * guarantee.
+   */
+  function prunePixelLimitedSliceLevels(sliceLevels, initialHiddenSlices, sliceCoords, sliceHeights, maxPixelHeight, moreLinkMaxPixelHeight) {
+      const moreLinkGroups = [];
+      const pixelPrunedSlices = [];
+      const sliceHideQueue = [];
+      let sliceHideIndex = 0;
+      // Build the more-link coverage already established by logical placement.
+      for (const hiddenSlice of initialHiddenSlices) {
+          addHiddenSliceToGroups(moreLinkGroups, hiddenSlice);
+      }
+      // Seed the queue with canvas overflows and existing more-link intruders.
+      enqueueViolators();
+      // A head index preserves FIFO without shift()'s O(n) reindexing; pop() is LIFO.
+      while (sliceHideIndex < sliceHideQueue.length) {
+          const slice = sliceHideQueue[sliceHideIndex++];
+          const sliceBottom = getSliceBottom(slice, sliceCoords, sliceHeights);
+          // A missing coordinate means a prior queue entry already processed it, and
+          // compaction from earlier removals can make a queued slice compliant again.
+          if (sliceBottom === undefined ||
+              !violatesPixelBoundary(slice, sliceBottom)) {
+              continue;
+          }
+          // Removing the coordinate hides the still-mounted slice. The shared
+          // coordinate primitive then compacts later visible slices around it.
+          sliceCoords.delete(getSliceKey(slice));
+          pixelPrunedSlices.push(slice);
+          const newMoreLinkSpans = addHiddenSliceToGroups(moreLinkGroups, slice);
+          recomputeVisibleCoords(sliceLevels, sliceHeights, sliceCoords);
+          for (const newMoreLinkSpan of newMoreLinkSpans) {
+              enqueueViolators(newMoreLinkSpan);
+          }
+      }
+      return pixelPrunedSlices;
+      /** Whether a measured bottom crosses the canvas or an intersecting link band. */
+      function violatesPixelBoundary(slice, sliceBottom) {
+          return sliceBottom > maxPixelHeight + GEOMETRY_TOLERANCE ||
+              (sliceBottom > moreLinkMaxPixelHeight + GEOMETRY_TOLERANCE &&
+                  findIntersections(moreLinkGroups, slice).length > 0);
+      }
+      /** Queues every measured violator, or only those touching one span. */
+      function enqueueViolators(withinSpan) {
+          for (const level of sliceLevels) {
+              const candidates = withinSpan
+                  ? findIntersections(level, withinSpan)
+                  : level;
+              for (const slice of candidates) {
+                  const sliceBottom = getSliceBottom(slice, sliceCoords, sliceHeights);
+                  if (sliceBottom !== undefined &&
+                      violatesPixelBoundary(slice, sliceBottom)) {
+                      sliceHideQueue.push(slice);
                   }
               }
           }
-          // accumulate segsByCol/hiddenSegsByCol for hidden segs
-          for (const hiddenSeg of hiddenSegs) {
-              for (let col = hiddenSeg.start; col < hiddenSeg.end; col++) {
-                  const slice = sliceSegForCol(hiddenSeg, col);
-                  segsByCol[col].push(slice);
-                  hiddenSegsByCol[col].push(slice);
+      }
+  }
+  /**
+   * Fires event-ordered extras into a fixed set of logical levels. Repacking may
+   * reuse gaps in the received levels but never creates additional levels.
+   * By default, a more-link tax reserves the globally final level. Pixel flows
+   * can instead reserve the deepest occupied level local to each link span and
+   * require initial extras to expose some hidden coverage before admission.
+   *
+   * PRECONDITION: `extraSlices` is sorted by event order.
+   *
+   * SIDE EFFECT: mutates `sliceLevels`; callers transfer ownership of its outer
+   * array and level arrays to this placement operation.
+   */
+  function placeExtraSlicesInLevels(sliceLevels, extraSlices, eventOrderStrict, eventSlicing, moreLinkLevelTax, 
+  /** Whether initial extras must leave hidden coverage before admission. */
+  requiresSlicing = false, 
+  /** Whether each link taxes its deepest locally occupied level. */
+  taxDeepestOccupiedLevel = false) {
+      const addedSliceSet = new Set();
+      // Hidden membership remains flat for whole-layout operations. More-link
+      // groups duplicate that membership locally while also recording which
+      // lateral territory has already fired its link tax.
+      const hiddenSlices = [];
+      const moreLinkGroups = [];
+      const moreLinkReservations = [];
+      const placementState = {
+          levels: sliceLevels,
+          moreLinkReservations,
+          eventOrderStrict,
+      };
+      const work = [];
+      pushFire(extraSlices, requiresSlicing);
+      // LIFO runs newly created link reservations before older unrelated extras,
+      // so an extra cannot insert into space that a fresh reservation will claim.
+      while (work.length) {
+          const item = work.pop();
+          if (item.type === 'fire') {
+              fire(item.slice, item.requiresSlicing);
+          }
+          else {
+              fireMoreLink(item.span);
+          }
+      }
+      return {
+          sliceLevels,
+          hiddenSlices,
+          addedSlices: [...addedSliceSet],
+      };
+      /** Tries an allowed whole insertion before scored same-level slice plans. */
+      function fire(slice, requiresSlicing) {
+          if (!requiresSlicing) {
+              const levelIndex = findInsertionLevel(slice, placementState);
+              if (levelIndex !== null) {
+                  insertLaterally(sliceLevels[levelIndex], slice);
+                  addedSliceSet.add(slice);
+                  return;
+              }
+          }
+          if (!eventSlicing) {
+              hide(slice);
+              return;
+          }
+          const plan = findBestSlicePlan(slice, placementState, requiresSlicing);
+          if (!plan) {
+              hide(slice);
+              return;
+          }
+          for (const visibleSlice of plan.slices) {
+              insertLaterally(sliceLevels[plan.levelIndex], visibleSlice);
+              addedSliceSet.add(visibleSlice);
+          }
+          for (const hiddenSlice of subtractSpansFromSlice(slice, plan.slices)) {
+              hide(hiddenSlice);
+          }
+      }
+      /** Adds hidden membership and fires links only over new accumulator coverage. */
+      function hide(slice) {
+          hiddenSlices.push(slice);
+          // Only the set difference is fresh more-link territory; it can consist of
+          // several disjoint runs.
+          const newMoreLinkSpans = addHiddenSliceToGroups(moreLinkGroups, slice);
+          if (moreLinkLevelTax) {
+              for (let i = newMoreLinkSpans.length - 1; i >= 0; i--) {
+                  work.push({ type: 'moreLink', span: newMoreLinkSpans[i] });
               }
           }
       }
-      return [
-          segsByCol, // visible and hidden
-          hiddenSegsByCol,
-          renderableSegsByCol,
-          segTops,
-          heightsByCol,
-      ];
-  }
-  // Utils
-  // -------------------------------------------------------------------------------------------------
-  function addToSegMap(map, seg) {
-      let list = map.get(seg.eventRange);
-      if (!list) {
-          map.set(seg.eventRange, list = []);
+      /**
+       * Reserves one logical level over fresh accumulator coverage. The ordinary
+       * flow taxes the final level; span-local mode taxes the deepest level with
+       * an intersecting occupant, ignoring unrelated deeper territory.
+       */
+      function fireMoreLink(span) {
+          if (!sliceLevels.length) {
+              return;
+          }
+          let taxedLevelIndex = sliceLevels.length - 1;
+          let victims = findIntersections(sliceLevels[taxedLevelIndex], span);
+          if (taxDeepestOccupiedLevel) {
+              while (!victims.length && taxedLevelIndex > 0) {
+                  taxedLevelIndex--;
+                  victims = findIntersections(sliceLevels[taxedLevelIndex], span);
+              }
+          }
+          insertLaterally(moreLinkReservations, {
+              ...span,
+              levelIndex: taxedLevelIndex,
+          });
+          const taxedLevel = sliceLevels[taxedLevelIndex];
+          for (const victim of victims) {
+              taxedLevel.splice(taxedLevel.indexOf(victim), 1);
+              addedSliceSet.delete(victim);
+              if (eventSlicing) {
+                  hide(intersectSlice(victim, span));
+                  // The remainder has already satisfied the slicing requirement.
+                  pushFire(subtractSpansFromSlice(victim, [span]), false);
+              }
+              else {
+                  hide(victim);
+              }
+          }
       }
-      list.push(seg);
-  }
-  /*
-  Ensures relative order of DayRowEventRange stays consistent with segs
-  */
-  function compileSegMap(segs, segMap) {
-      const res = [];
-      for (const seg of segs) {
-          res.push(...(segMap.get(seg.eventRange) || []));
+      /** Reversing preserves received order on the LIFO work stack. */
+      function pushFire(slices, requiresSlicing) {
+          for (let i = slices.length - 1; i >= 0; i--) {
+              work.push({ type: 'fire', slice: slices[i], requiresSlicing });
+          }
       }
-      return res;
+  }
+  /** Returns the shallowest vacant level within the slice's fence, if any. */
+  function findInsertionLevel(slice, state) {
+      const fence = computeLevelFence(slice, state);
+      for (let levelIndex = fence.min; levelIndex < fence.maxExclusive; levelIndex++) {
+          if (!findIntersections(state.levels[levelIndex], slice).length) {
+              return levelIndex;
+          }
+      }
+      return null;
+  }
+  /**
+   * The level range where a slice may legally sit. The bottom reservation
+   * closes its taxed level and everything deeper over link coverage; strict
+   * event order additionally fences against intersecting neighbors' order.
+   *
+   * The pre-kernel SegHierarchy needed no upper fence: it inserted everything
+   * in event order, so "stay below anything you touch" sufficed. Repacking
+   * fires rejected extras after later-ordered slices are already committed,
+   * which is what makes strict order two-sided here.
+   */
+  function computeLevelFence(slice, state) {
+      const { levels } = state;
+      let min = 0;
+      let maxExclusive = levels.length;
+      for (const reservation of findIntersections(state.moreLinkReservations, slice)) {
+          maxExclusive = Math.min(maxExclusive, reservation.levelIndex);
+      }
+      if (state.eventOrderStrict) {
+          for (let levelIndex = 0; levelIndex < levels.length; levelIndex++) {
+              for (const other of findIntersections(levels[levelIndex], slice)) {
+                  if (other.sourceSeg.orderIndex < slice.sourceSeg.orderIndex) {
+                      min = Math.max(min, levelIndex + 1);
+                  }
+                  else if (other.sourceSeg.orderIndex > slice.sourceSeg.orderIndex) {
+                      maxExclusive = Math.min(maxExclusive, levelIndex);
+                  }
+              }
+          }
+      }
+      return { min, maxExclusive };
+  }
+  /* ========================================================================
+   * Slice plans
+   * ===================================================================== */
+  const MAX_SLICES_PER_PLAN = 3;
+  const EXTRA_SLICE_PENALTY = 0.15;
+  /**
+   * Scores the best one-, two-, or three-run insertion offered by each level.
+   * Runs from different levels are deliberately never mixed into one plan.
+   */
+  function findBestSlicePlan(slice, state, requiresSlicing) {
+      let selected = null;
+      const sourceLength = getSpanLength(slice);
+      for (let levelIndex = 0; levelIndex < state.levels.length; levelIndex++) {
+          // findIntersections returns a fresh, start-sorted array, and addToUnion
+          // replaces array contents without ever mutating a member, so link
+          // reservations can be folded in without touching the actual level.
+          const blockers = findIntersections(state.levels[levelIndex], slice);
+          for (const reservation of state.moreLinkReservations) {
+              if (levelIndex >= reservation.levelIndex) {
+                  addToUnion(blockers, reservation);
+              }
+          }
+          const runs = subtractSpansFromSlice(slice, blockers)
+              .filter((run) => isWithinLevelFence(run, levelIndex, state))
+              .sort((a, b) => getSpanLength(b) - getSpanLength(a) || a.start - b.start);
+          let visibleLength = 0;
+          for (let sliceCount = 1; sliceCount <= Math.min(MAX_SLICES_PER_PLAN, runs.length); sliceCount++) {
+              visibleLength += getSpanLength(runs[sliceCount - 1]);
+              // Full exposure leaves no hidden coverage, and visible length only
+              // grows with more runs, so no longer plan can satisfy slicing either.
+              if (requiresSlicing &&
+                  visibleLength >= sourceLength - GEOMETRY_TOLERANCE) {
+                  break;
+              }
+              const candidate = {
+                  levelIndex,
+                  slices: runs.slice(0, sliceCount),
+                  score: visibleLength / sourceLength -
+                      EXTRA_SLICE_PENALTY * (sliceCount - 1),
+              };
+              if (isBetterSlicePlan(candidate, selected)) {
+                  selected = candidate;
+              }
+          }
+      }
+      if (selected) {
+          selected.slices.sort(compareByEventOrder);
+      }
+      return selected;
+  }
+  /** Whether a slice may legally sit at this level, per its own fence. */
+  function isWithinLevelFence(slice, levelIndex, state) {
+      const fence = computeLevelFence(slice, state);
+      return levelIndex >= fence.min && levelIndex < fence.maxExclusive;
+  }
+  /** Comparison: score, then less fragmentation, then the shallower level. */
+  function isBetterSlicePlan(candidate, current) {
+      if (!current || candidate.score > current.score) {
+          return true;
+      }
+      if (candidate.score < current.score) {
+          return false;
+      }
+      if (candidate.slices.length !== current.slices.length) {
+          return candidate.slices.length < current.slices.length;
+      }
+      return candidate.levelIndex < current.levelIndex;
+  }
+  /**
+   * Merges strict lateral intersections into groups sorted by lateral start.
+   * Each group's hidden slices are event-ordered.
+   */
+  function groupLaterallyIntersecting(hiddenSlices) {
+      const groups = [];
+      for (const slice of hiddenSlices) {
+          addHiddenSliceToGroups(groups, slice);
+      }
+      return finalizeHiddenGroups(groups);
+  }
+  /**
+   * Adds one hidden slice to its strict-intersection component and returns only
+   * the newly covered spans. Exactly adjacent groups deliberately stay separate
+   * because each group corresponds to one independently rendered more link.
+   * The group list remains sorted by lateral start.
+   */
+  function addHiddenSliceToGroups(groups, slice) {
+      const newSpans = subtractCoveredSpans(slice, groups);
+      const untouchedGroups = [];
+      const mergedSlices = [slice];
+      let start = slice.start;
+      let end = slice.end;
+      for (const group of groups) {
+          if (intersectSpans(group, slice)) {
+              mergedSlices.push(...group.hiddenSlices);
+              start = Math.min(start, group.start);
+              end = Math.max(end, group.end);
+          }
+          else {
+              untouchedGroups.push(group);
+          }
+      }
+      mergedSlices.sort(compareByEventOrder);
+      insertLaterally(untouchedGroups, {
+          start,
+          end,
+          hiddenSlices: mergedSlices,
+      });
+      groups.splice(0, groups.length, ...untouchedGroups);
+      return newSpans;
+  }
+  /**
+   * Compiles internal accumulator groups for components: one entry per hidden
+   * source event, in event order, spanning that source's fragment hull.
+   */
+  function finalizeHiddenGroups(groups) {
+      return groups.map((group) => {
+          const hiddenSlices = mergeAdjacentSlices(group.hiddenSlices);
+          return {
+              key: getSliceKey(hiddenSlices[0]),
+              start: group.start,
+              end: group.end,
+              hiddenSlices,
+          };
+      });
+  }
+  /* ========================================================================
+   * Slice utilities
+   * ===================================================================== */
+  /**
+   * Identifies a whole or partial slice derived from a source seg. Partial keys
+   * deliberately omit the lateral end so a fragment re-cut at the same start
+   * keeps its DOM wrapper. The re-cut fragment transiently reuses the previous
+   * cut's measurement, which can mis-prune one pass; the structure still settles
+   * because every fragment cut depends only on logical geometry — the same
+   * wrapper just re-reports at its new width and the next pass corrects the
+   * decision.
+   */
+  function getSliceKey(slice) {
+      if (!isPartialSlice(slice)) {
+          return slice.sourceSeg.key;
+      }
+      return `${slice.sourceSeg.key}:${slice.start}:slice`;
+  }
+  function isPartialSlice(slice) {
+      return slice.start !== slice.sourceSeg.start ||
+          slice.end !== slice.sourceSeg.end;
+  }
+  function compareByEventOrder(a, b) {
+      return a.sourceSeg.orderIndex - b.sourceSeg.orderIndex ||
+          a.start - b.start ||
+          b.end - a.end; // longer events first
+  }
+  function sortByEventOrder(slices) {
+      return [...slices].sort(compareByEventOrder);
+  }
+  /** Orders by axis start, then resolved event order. */
+  function compareByAxisOrder(a, b) {
+      return a.start - b.start ||
+          a.sourceSeg.orderIndex - b.sourceSeg.orderIndex;
+  }
+  function sortByAxisOrder(items) {
+      return [...items].sort(compareByAxisOrder);
+  }
+  /**
+   * Collapses same-source runs of an event-ordered slice list into one slice
+   * per run spanning the run's lateral hull. The hull can bridge territory
+   * where the source is actually visible; consumers derive start/end
+   * continuity from the outermost hidden edges, not exact hidden coverage.
+   */
+  function mergeAdjacentSlices(slices) {
+      const merged = [];
+      for (const slice of slices) {
+          const previous = merged[merged.length - 1];
+          if (previous && previous.sourceSeg === slice.sourceSeg) {
+              merged[merged.length - 1] = createNarrowerSlice(createWholeSlice(previous.sourceSeg), previous.start, Math.max(previous.end, slice.end));
+          }
+          else {
+              merged.push(slice);
+          }
+      }
+      return merged;
+  }
+  /**
+   * Removes covered spans from a slice, returning identity-preserving
+   * remainders. Like `subtractCoveredSpans`, the covered spans must be sorted
+   * by start and pairwise non-overlapping — every caller already holds them
+   * that way (plan slices, union blockers, a single span).
+   */
+  function subtractSpansFromSlice(slice, covered) {
+      return subtractCoveredSpans(slice, covered).map((span) => createNarrowerSlice(slice, span.start, span.end));
+  }
+  /** Finds the strict intersection while retaining source identity. */
+  function intersectSlice(slice, barrier) {
+      const intersection = intersectSpans(slice, barrier);
+      return intersection
+          ? createNarrowerSlice(slice, intersection.start, intersection.end)
+          : null;
+  }
+  function createWholeSlice(sourceSeg) {
+      return {
+          sourceSeg,
+          start: sourceSeg.start,
+          end: sourceSeg.end,
+          isStart: sourceSeg.isStart,
+          isEnd: sourceSeg.isEnd,
+      };
+  }
+  function createNarrowerSlice(parent, start, end) {
+      return {
+          sourceSeg: parent.sourceSeg,
+          start,
+          end,
+          isStart: parent.isStart && start === parent.start,
+          isEnd: parent.isEnd && end === parent.end,
+      };
+  }
+
+  const DEFAULT_UNMEASURED_EVENT_AREA_HEIGHT = 150;
+  /** Initial DOM candidate frontier, before any measurement can widen it. */
+  const DEFAULT_LEVEL_CAPACITY = estimateLevelCapacity(DEFAULT_UNMEASURED_EVENT_AREA_HEIGHT, DEFAULT_UNMEASURED_EVENT_THICKNESS);
+  /** Converts sorted production ranges into the shared source vocabulary. */
+  function buildDayGridSegSources(eventOrderedSegs) {
+      return eventOrderedSegs.map((seg, orderIndex) => ({
+          ...seg,
+          key: getDayGridSegKey(seg),
+          orderIndex,
+      }));
+  }
+  /**
+   * Builds an immediately renderable kernel layout for unlimited and numeric
+   * DayGrid modes. Boolean-auto uses the pixel-limited adapter below.
+   */
+  function buildDayGridLevelPlacements(eventOrderedSegs, maxLevels, moreLinkLevelTax, orderStrict, eventSlicing, columnCount, sliceHeights) {
+      const sourceSegs = buildDayGridSegSources(eventOrderedSegs);
+      const layout = buildLevelLimitedLayout(sourceSegs, orderStrict, eventSlicing, maxLevels, moreLinkLevelTax, sliceHeights);
+      return buildDayGridPlacementLayout(sourceSegs, layout, sliceHeights, columnCount);
+  }
+  /** Builds the boolean-auto DayGrid route with a real pixel ceiling. */
+  function buildDayGridPixelPlacements(eventOrderedSegs, orderStrict, eventSlicing, columnCount, canvasHeight, moreLinkHeight, levelCapacity, sliceHeights) {
+      const sourceSegs = buildDayGridSegSources(eventOrderedSegs);
+      const layout = buildPixelLimitedLayout(sourceSegs, orderStrict, eventSlicing, sliceHeights, canvasHeight, levelCapacity, moreLinkHeight);
+      return buildDayGridPlacementLayout(sourceSegs, layout, sliceHeights, columnCount);
+  }
+  /** Projects ordered sources and event-ordered hidden slices into one cell. */
+  function buildDayGridPopoverSegs(eventOrderedSegs, hiddenSlices, column) {
+      return {
+          segs: flatMapArray(eventOrderedSegs, (source) => cutSegToColumn(source, column) ?? []),
+          hiddenSegs: flatMapArray(hiddenSlices, (slice) => cutSegToColumn(slice.sourceSeg, column, slice) ?? []),
+      };
+  }
+  /**
+   * Projects one complete source onto a column when its relevant span intersects.
+   *
+   * The optional span lets a hidden slice control membership while real event
+   * boundaries still control whether the projected entry reports "continues."
+   */
+  function cutSegToColumn(source, column, intersectionSpan = source) {
+      if (intersectionSpan.start >= column + 1 ||
+          column >= intersectionSpan.end)
+          return null;
+      const { key, orderIndex, ...seg } = source;
+      return {
+          ...seg,
+          start: column,
+          end: column + 1,
+          isStart: seg.isStart && source.start === column,
+          isEnd: seg.isEnd && source.end - 1 === column,
+      };
+  }
+  /**
+   * Resolves which measured route a row takes from the two max options.
+   *
+   * This is the single definition of production's option precedence: a boolean
+   * `true` on either option means auto, and only then does a number on either
+   * one apply, `dayMaxEvents` first.
+   */
+  function resolveDayGridPlacementMode(dayMaxEvents, dayMaxEventRows) {
+      if (dayMaxEvents === true || dayMaxEventRows === true) {
+          return 'auto';
+      }
+      if (typeof dayMaxEvents === 'number') {
+          return 'maxEvents';
+      }
+      if (typeof dayMaxEventRows === 'number') {
+          return 'maxEventRows';
+      }
+      return 'unlimited';
+  }
+  /**
+   * Computes the dimensionless DOM frontier from an already-resolved mode,
+   * without applying more-link tax. Numeric limits own their explicit cap;
+   * unlimited rows mount all sources; boolean-auto rows consume their row-local
+   * observed frontier.
+   */
+  function computeDayGridDomCandidateMaxLevels(mode, dayMaxEvents, dayMaxEventRows, maxDomLevels) {
+      switch (mode) {
+          case 'auto': return maxDomLevels;
+          case 'maxEvents': return dayMaxEvents;
+          case 'maxEventRows': return dayMaxEventRows;
+          default: return Infinity;
+      }
+  }
+  /**
+   * Logical levels an active more link charges its column. Only `dayMaxEventRows`
+   * counts the link as one of its rows.
+   */
+  function computeDayGridMoreLinkLevelTax(mode) {
+      return mode === 'maxEventRows' ? 1 : 0;
+  }
+  function buildDayGridPlacementLayout(sourceSegs, layout, sliceHeights, columnCount) {
+      const { hiddenSlices, renderSlices, sliceCoords, } = layout;
+      const eventOrderedHiddenSlices = sortByEventOrder(hiddenSlices);
+      const slicesByStart = federateSlicesByStart(renderSlices, columnCount);
+      const columns = Array.from({ length: columnCount }, (_, column) => ({
+          // Freshly built per column by federateSlicesByStart; owned outright.
+          renderSlices: slicesByStart[column],
+          contentHeight: 0,
+          ...buildDayGridPopoverSegs(sourceSegs, eventOrderedHiddenSlices, column),
+      }));
+      // A mounted slice is visible exactly when it has a coordinate; a coordinate
+      // in turn guarantees a measurement.
+      for (const slice of renderSlices) {
+          const key = getSliceKey(slice);
+          const sliceTop = sliceCoords.get(key);
+          if (sliceTop === undefined) {
+              continue;
+          }
+          const sliceBottom = sliceTop + sliceHeights.get(key);
+          for (let column = slice.start; column < slice.end; column += 1) {
+              columns[column].contentHeight = Math.max(columns[column].contentHeight, sliceBottom);
+          }
+      }
+      return {
+          columns,
+          sliceCoords,
+      };
+  }
+  function federateSlicesByStart(renderSlices, columnCount) {
+      const slicesByStart = Array.from({ length: columnCount }, () => []);
+      for (const slice of renderSlices) {
+          slicesByStart[slice.start].push(slice);
+      }
+      for (const slices of slicesByStart) {
+          slices.sort(compareByEventOrder);
+      }
+      return slicesByStart;
+  }
+  function estimateLevelCapacity(eventAreaHeight, eventHeight) {
+      return Math.max(1, Math.ceil(eventAreaHeight / eventHeight));
+  }
+
+  /** High but finite safety cap for event levels in either print view. */
+  const DEFAULT_PRINT_MAX_LEVELS = 200;
+  function planPrintDomCandidates(eventOrderedSegs, eventOrderStrict, eventSlicing) {
+      const { segLevels, excludedSegs } = buildSegLevels(eventOrderedSegs, eventOrderStrict, DEFAULT_PRINT_MAX_LEVELS);
+      const placement = placeExtraSlicesInLevels(convertSegLevelsToWholeSlices(segLevels), convertSegsToWholeSlices(excludedSegs), eventOrderStrict, eventSlicing, 0);
+      return {
+          sliceLevels: placement.sliceLevels,
+          hiddenSlices: placement.hiddenSlices,
+      };
+  }
+  /**
+   * Projects dimensionless levels into independently page-breakable bands.
+   *
+   * The level entries may carry unit-thickness planning coordinates, but those
+   * coordinates have no print meaning. Every print slice begins at level
+   * coordinate zero in its own band, whose thickness is the largest current
+   * slice-wrapper measurement. Missing measurements use the supplied fallback.
+   * Empty or sparse levels do not create empty DOM bands. The key resolver lets
+   * adapters retain their wrapper-level measurement identity.
+   */
+  function buildPrintEventBands(levels, printEventThicknesses, getPrintEventKey = (slice) => slice.sourceSeg.key, defaultPrintEventThickness = DEFAULT_UNMEASURED_EVENT_THICKNESS) {
+      const bands = [];
+      for (let levelIndex = 0; levelIndex < levels.length; levelIndex++) {
+          const entries = levels[levelIndex];
+          if (!entries?.length)
+              continue;
+          let thickness = 0;
+          const slices = entries.map((slice) => {
+              thickness = Math.max(thickness, printEventThicknesses.get(getPrintEventKey(slice)) ??
+                  defaultPrintEventThickness);
+              return slice;
+          });
+          bands.push({
+              levelIndex,
+              slices,
+              thickness,
+          });
+      }
+      return bands;
+  }
+  /** Builds Timeline's one final print more-link band when hidden groups exist. */
+  function buildPrintMoreLinkBand(hiddenGroups, printMoreLinkHeights) {
+      if (!hiddenGroups.length) {
+          return null;
+      }
+      // Group members arrive event-ordered, with the first member defining the key.
+      return {
+          moreLinkGroups: hiddenGroups,
+          thickness: Math.max(...hiddenGroups.map((group) => printMoreLinkHeights.get(group.key) ??
+              DEFAULT_UNMEASURED_MORE_LINK_THICKNESS)),
+      };
+  }
+
+  /** Plans one print row from its complete, resolved-order source list. */
+  function buildDayGridPrintPlan(eventOrderedSegs, orderStrict, eventSlicing, columnCount) {
+      const sourceSegs = buildDayGridSegSources(eventOrderedSegs);
+      const candidatePlan = planPrintDomCandidates(sourceSegs, orderStrict, eventSlicing);
+      return {
+          ...candidatePlan,
+          hiddenSlices: sortByEventOrder(candidatePlan.hiddenSlices),
+          sourceSegs,
+          columnCount,
+      };
+  }
+  /** Transposes row-wide print bands into one aligned slot sequence per cell. */
+  function buildDayGridPrintColumns(plan, printSegHeights) {
+      const columns = Array.from({ length: plan.columnCount }, () => []);
+      for (const band of buildPrintEventBands(plan.sliceLevels, printSegHeights, getDayGridPrintSliceKey)) {
+          const slicesByColumn = Array(plan.columnCount).fill(null);
+          for (const slice of band.slices) {
+              slicesByColumn[slice.start] = slice;
+          }
+          for (let column = 0; column < plan.columnCount; column++) {
+              columns[column].push({
+                  levelIndex: band.levelIndex,
+                  thickness: band.thickness,
+                  slice: slicesByColumn[column],
+              });
+          }
+      }
+      return columns;
+  }
+  /** Stable identity for one print wrapper when a source is split laterally. */
+  function getDayGridPrintSliceKey(slice) {
+      return `${slice.sourceSeg.key}:${slice.start}:${slice.end}`;
+  }
+
+  const DEFAULT_WEEK_NUM_FORMAT$1 = createFormatter({ week: 'narrow' });
+  class DayGridRow extends BaseComponent {
+      constructor() {
+          super(...arguments);
+          // ref
+          this.headerHeightRefMap = new RefMap(() => {
+              afterSize(this.handleSegPositioning);
+          });
+          this.mainHeightRefMap = new RefMap(() => {
+              // Recorded in every screen mode so a row that becomes liquid already knows its
+              // ceiling, but only a liquid row's placement depends on it.
+              const fgLiquidHeight = this.props.dayMaxEvents === true || this.props.dayMaxEventRows === true;
+              if (fgLiquidHeight) {
+                  afterSize(this.handleSegPositioning);
+              }
+          });
+          // Every screen slice (whole or partial) reports its occupied height here.
+          this.sliceHeightRefMap = new RefMap(() => {
+              afterSize(this.handleSegPositioning);
+          });
+          // print-only (band thickness is row-wide while slots render per-cell, so
+          // this state must live here; see also buildPrintPlan, renderPrintBandSlots,
+          // handlePrintSegHeights, and the reset in componentDidUpdate)
+          this.handlePrintSegHeightChange = () => {
+              afterSize(this.handlePrintSegHeights);
+          };
+          this.printSegHeightRefMap = new RefMap(this.handlePrintSegHeightChange);
+          // memo
+          this.buildWeekNumberRenderProps = memoize(buildWeekNumberRenderProps);
+          this.buildPrintPlan = memoize(buildDayGridPrintPlan);
+          this.sortEventSegs = memoize(sortEventSegs);
+          this.levelCapacity = DEFAULT_LEVEL_CAPACITY;
+          this.handleRootEl = (rootEl) => {
+              this.disconnectHeight?.();
+              this.disconnectHeight = undefined;
+              setRef(this.props.rootElRef, rootEl);
+              if (rootEl) {
+                  this.disconnectHeight = watchHeight(rootEl, (contentHeight) => {
+                      setRef(this.props.heightRef, contentHeight);
+                  });
+              }
+          };
+          this.handleSegPositioning = () => {
+              if (this._isUnmounting || this.props.forPrint)
+                  return;
+              this.updateAutoPlacementRatchets();
+              this.forceUpdate();
+          };
+          this.handlePrintSegHeights = () => {
+              if (this._isUnmounting || !this.props.forPrint)
+                  return;
+              this.forceUpdate();
+          };
+      }
+      render() {
+          const { props, context, headerHeightRefMap, mainHeightRefMap } = this;
+          const { cells, tableMode } = props;
+          const { options } = context;
+          const weekDateMarker = props.cells[0].date;
+          const fgEventSegs = this.sortEventSegs(props.fgEventSegs, options.eventOrder);
+          const screenFgLiquidHeight = props.dayMaxEvents === true || props.dayMaxEventRows === true;
+          let printPlan = null;
+          let printColumns = null;
+          let screenColumns = null;
+          let screenSliceCoords = new Map();
+          let screenMainOffsetsByCol = [];
+          let screenHeightsByCol = [];
+          if (props.forPrint) {
+              printPlan = this.buildPrintPlan(fgEventSegs, options.eventOrderStrict, options.eventSlicing, cells.length);
+              printColumns = buildDayGridPrintColumns(printPlan, this.printSegHeightRefMap.current);
+          }
+          else {
+              const placementMode = resolveDayGridPlacementMode(props.dayMaxEvents, props.dayMaxEventRows);
+              const [maxMainTop, minMainHeight] = this.computeFgDims();
+              const screenLayout = placementMode === 'auto'
+                  ? buildDayGridPixelPlacements(fgEventSegs, options.eventOrderStrict, options.eventSlicing, cells.length, minMainHeight, props.moreLinkHeight, this.levelCapacity, this.sliceHeightRefMap.current)
+                  : buildDayGridLevelPlacements(fgEventSegs, computeDayGridDomCandidateMaxLevels(placementMode, props.dayMaxEvents, props.dayMaxEventRows, Infinity), computeDayGridMoreLinkLevelTax(placementMode), options.eventOrderStrict, options.eventSlicing, cells.length, this.sliceHeightRefMap.current);
+              screenColumns = screenLayout.columns;
+              screenSliceCoords = screenLayout.sliceCoords;
+              if (maxMainTop != null) {
+                  for (let col = 0; col < cells.length; col++) {
+                      const cellHeaderHeight = headerHeightRefMap.current.get(cells[col].key);
+                      const mainOffset = cellHeaderHeight != null
+                          ? maxMainTop - cellHeaderHeight
+                          : undefined;
+                      screenMainOffsetsByCol.push(mainOffset);
+                      screenHeightsByCol.push(mainOffset != null
+                          ? screenColumns[col].contentHeight + mainOffset
+                          : undefined);
+                  }
+              }
+          }
+          const highlightSegs = this.getHighlightSegs();
+          const hasNavLink = options.navLinks;
+          const fullWeekStr = buildDateStr(context, weekDateMarker, 'week');
+          const weekNumberRenderProps = this.buildWeekNumberRenderProps(weekDateMarker, context, props.cellIsNarrow, hasNavLink);
+          const fillsByCol = cells.map(() => []);
+          // Table mode gives this theme-positioned node a row-wide canvas hosted by the first cell.
+          const weekNumberNode = (props.showWeekNumbers && !props.cellIsMicro) ? (u$1(ContentContainer, { tag: "div", attrs: {
+                  ...(hasNavLink
+                      ? buildNavLinkAttrs(context, weekDateMarker, 'week', fullWeekStr, /* isTabbable = */ false)
+                      : {}),
+                  'role': undefined, // HACK: a 'link' role can't be child of a 'row' role
+                  'aria-hidden': true, // HACK: never part of a11y tree because row already has label and role not allowed
+              }, className: DAY_GRID_EVENT_Z_CLASS, renderProps: weekNumberRenderProps, generatorName: "inlineWeekNumberContent", customGenerator: options.inlineWeekNumberContent, defaultGenerator: renderText$1, classNameGenerator: options.inlineWeekNumberClass, didMount: options.inlineWeekNumberDidMount, willUnmount: options.inlineWeekNumberWillUnmount })) : null;
+          if (tableMode && weekNumberNode) {
+              fillsByCol[0].push(u$1("div", { className: joinClassNames(classNames.fillY, classNames.start0, classNames.pointerEventsNone), style: {
+                      width: this.computeSpanWidth(0, cells.length),
+                  }, children: weekNumberNode }, "week-number"));
+          }
+          this.appendFillSegs(fillsByCol, props.businessHourSegs, 'non-business', DAY_GRID_NON_BUSINESS_Z_CLASS);
+          this.appendFillSegs(fillsByCol, props.bgEventSegs, 'bg-event', DAY_GRID_BG_EVENT_Z_CLASS);
+          this.appendFillSegs(fillsByCol, highlightSegs, 'highlight', DAY_GRID_HIGHLIGHT_Z_CLASS);
+          const RowTag = tableMode ? 'tr' : 'div';
+          return (u$1(RowTag, { role: props.role /* !!! */, "aria-label": props.role === 'row' // HACK
+                  ? fullWeekStr
+                  : undefined // can't have label on non-role div
+              , className: joinClassNames(options.dayRowClass, props.className, tableMode && classNames.borderless, !tableMode && classNames.flexRow, !tableMode && classNames.rel, // origin for the inline week number
+              !tableMode && classNames.borderlessX, !tableMode && classNames.borderlessTop, (!tableMode && !props.borderBottom) && classNames.borderlessBottom, classNames.isolate), style: {
+                  flexBasis: tableMode ? undefined : props.basis,
+              }, ref: this.handleRootEl, children: [!tableMode && weekNumberNode, props.cells.map((cell, col) => {
+                      const printPopover = printPlan
+                          ? buildDayGridPopoverSegs(printPlan.sourceSegs, printPlan.hiddenSlices, col)
+                          : null;
+                      let fg;
+                      if (printPlan) {
+                          fg = this.renderPrintBandSlots(printColumns[col]);
+                      }
+                      else {
+                          fg = [
+                              ...this.renderLevelFgSegs(screenMainOffsetsByCol[col], screenColumns[col].renderSlices, screenSliceCoords),
+                              ...this.renderMirrorFgSegs(col, screenMainOffsetsByCol[col], screenSliceCoords),
+                          ];
+                      }
+                      return (u$1(DayGridCell, { dateProfile: props.dateProfile, todayRange: props.todayRange, date: cell.date, isMajor: cell.isMajor, isDisabled: cell.isDisabled, showDayNumber: props.showDayNumbers, isNarrow: props.cellIsNarrow, isMicro: props.cellIsMicro, borderStart: Boolean(col), borderBottom: props.borderBottom, tableMode: tableMode, 
+                          // content
+                          fills: fillsByCol[col], segs: printPopover ? printPopover.segs : screenColumns[col].segs, hiddenSegs: printPopover ? printPopover.hiddenSegs : screenColumns[col].hiddenSegs, fgLiquidHeight: printPlan ? false : screenFgLiquidHeight, fg: fg, eventDrag: printPlan ? null : props.eventDrag, eventResize: printPlan ? null : props.eventResize, eventSelection: props.eventSelection, 
+                          // render hooks
+                          renderProps: cell.renderProps, dateSpanProps: cell.dateSpanProps, attrs: cell.attrs, className: cell.className, 
+                          // dimensions
+                          fgHeight: printPlan ? undefined : screenHeightsByCol[col], width: props.colWidth, 
+                          // refs
+                          headerHeightRef: printPlan ? undefined : headerHeightRefMap.createRef(cell.key), mainHeightRef: printPlan ? undefined : mainHeightRefMap.createRef(cell.key) }, cell.key));
+                  })] }));
+      }
+      /** Mirrors align with kernel coordinates but bypass admission and measurement. */
+      renderMirrorFgSegs(col, mainOffset, sliceCoords) {
+          const { props } = this;
+          const { eventSelection } = props;
+          const nodes = [];
+          for (const seg of this.getMirrorSegs()) {
+              if (seg.start !== col) {
+                  continue;
+              }
+              const key = getDayGridSegKey(seg);
+              const { eventRange } = seg;
+              const { instanceId } = eventRange.instance;
+              const top = mainOffset != null
+                  ? mainOffset + (sliceCoords.get(key) ?? 0)
+                  : undefined;
+              const isDragging = Boolean(props.eventDrag && props.eventDrag.affectedInstances[instanceId]);
+              const isResizing = Boolean(props.eventResize && props.eventResize.affectedInstances[instanceId]);
+              const isSelected = instanceId === eventSelection;
+              nodes.push(u$1(MeasuredHeightHarness, { className: joinClassNames(classNames.abs, classNames.start0, DAY_GRID_INTERACTION_Z_CLASS), style: {
+                      top,
+                      width: this.computeSpanWidth(seg.start, seg.end),
+                  }, heightRef: null, children: this.renderEventContent(seg, eventRange, {
+                      isDragging,
+                      isResizing,
+                      isMirror: true,
+                      isSelected,
+                  }) }, `mirror:${key}`));
+          }
+          return nodes;
+      }
+      /** Renders every kernel slice with its own measurement ref. */
+      renderLevelFgSegs(mainOffset, slices, sliceCoords) {
+          const { props } = this;
+          const { eventSelection } = props;
+          const nodes = [];
+          for (const slice of slices) {
+              const key = getSliceKey(slice);
+              const sliceTop = sliceCoords.get(key);
+              const { eventRange } = slice.sourceSeg;
+              const { instanceId } = eventRange.instance;
+              const top = mainOffset != null && sliceTop != null
+                  ? mainOffset + sliceTop
+                  : undefined;
+              const isDragging = Boolean(props.eventDrag && props.eventDrag.affectedInstances[instanceId]);
+              const isResizing = Boolean(props.eventResize && props.eventResize.affectedInstances[instanceId]);
+              const isInvisible = isDragging || isResizing || top == null;
+              const isSelected = instanceId === eventSelection;
+              nodes.push(u$1(MeasuredHeightHarness, { className: joinClassNames(classNames.abs, classNames.start0, isSelected ? DAY_GRID_INTERACTION_Z_CLASS : DAY_GRID_EVENT_Z_CLASS), style: {
+                      visibility: isInvisible ? 'hidden' : undefined,
+                      top,
+                      width: this.computeSpanWidth(slice.start, slice.end),
+                  }, heightRef: this.sliceHeightRefMap.createRef(key), children: this.renderEventContent(slice, eventRange, {
+                      isDragging,
+                      isResizing,
+                      isSelected,
+                  }) }, key));
+          }
+          return nodes;
+      }
+      /**
+       * The inner event, identical on both placement routes. Only the wrapper
+       * around it differs: the screen route positions it, print lets it sit at the
+       * static top of its band slot.
+      */
+      renderEventContent(range, eventRange, interaction) {
+          const { props } = this;
+          const isListItem = hasListItemDisplay(range, eventRange);
+          return (u$1(StandardEvent, { display: isListItem ? 'list-item' : 'row', eventRange: eventRange, isStart: range.isStart, isEnd: range.isEnd, isDragging: Boolean(interaction.isDragging), isResizing: Boolean(interaction.isResizing), isMirror: Boolean(interaction.isMirror), isSelected: Boolean(interaction.isSelected), isNarrow: props.cellIsNarrow, defaultTimeFormat: DEFAULT_TABLE_EVENT_TIME_FORMAT, defaultDisplayEventEnd: props.cells.length === 1, disableResizing: isListItem, forcedTimeText: props.cellIsMicro ? '' : undefined, ...getEventRangeMeta(eventRange, props.todayRange) }));
+      }
+      /** Renders aligned print slots with in-flow event wrappers that can paginate with their bands. */
+      renderPrintBandSlots(slots) {
+          const { printSegHeightRefMap } = this;
+          return slots.map((slot) => {
+              const { slice } = slot;
+              let eventNode = null;
+              if (slice) {
+                  const sliceKey = getDayGridPrintSliceKey(slice);
+                  eventNode = (u$1(MeasuredHeightHarness, { className: joinClassNames(classNames.rel, classNames.flowRoot, DAY_GRID_EVENT_Z_CLASS), style: {
+                          width: this.computeSpanWidth(slice.start, slice.end),
+                      }, heightRef: printSegHeightRefMap.createRef(sliceKey), children: this.renderEventContent(slice, slice.sourceSeg.eventRange, {}) }, sliceKey));
+              }
+              return (u$1("div", { className: classNames.breakInsideAvoid, style: { height: slot.thickness }, children: eventNode }, slot.levelIndex));
+          });
+      }
+      computeSpanWidth(start, end) {
+          const span = end - start;
+          const percentWidth = `${span * 100}%`;
+          // Flex cells have uniform inner widths, so spans must add crossed borders.
+          // Fixed-table cells have uniform outer widths; the borderless first cell's inner
+          // width already includes that space, so no border compensation is needed.
+          const crossedBorderWidth = this.props.tableMode && start === 0
+              ? 0
+              : Math.max(0, span - 1) * COL_BORDER_WIDTH;
+          return crossedBorderWidth
+              ? `calc(${percentWidth} + ${crossedBorderWidth}px)`
+              : percentWidth;
+      }
+      /** Places each fill in its first cell while allowing its wrapper to span subsequent cells. */
+      appendFillSegs(fillsByCol, segs, fillType, zClassName) {
+          const { props, context } = this;
+          const { todayRange } = props;
+          for (const seg of segs) {
+              fillsByCol[seg.start].push(u$1("div", { className: joinClassNames(classNames.fillY, classNames.start0, zClassName), style: {
+                      width: this.computeSpanWidth(seg.start, seg.end),
+                  }, children: fillType === 'bg-event' ?
+                      u$1(BgEvent, { eventRange: seg.eventRange, isStart: seg.isStart, isEnd: seg.isEnd, isNarrow: props.cellIsNarrow, isVertical: false, ...getEventRangeMeta(seg.eventRange, todayRange) }) : (renderFill(fillType, context.options)) }, `${fillType}:${buildEventRangeKey(seg.eventRange)}:${seg.start}:${seg.end}`));
+          }
+      }
+      // Sizing
+      // -----------------------------------------------------------------------------------------------
+      componentDidMount() {
+          this._isUnmounting = false;
+      }
+      componentDidUpdate(prevProps) {
+          if (prevProps.forPrint && !this.props.forPrint) {
+              this.printSegHeightRefMap = new RefMap(this.handlePrintSegHeightChange);
+          }
+      }
+      componentWillUnmount() {
+          this._isUnmounting = true;
+          this.disconnectHeight?.();
+          setRef(this.props.heightRef, null);
+      }
+      computeFgDims() {
+          const { cells } = this.props;
+          const headerHeightMap = this.headerHeightRefMap.current;
+          const mainHeightMap = this.mainHeightRefMap.current;
+          let maxMainTop;
+          let minMainBottom;
+          let isComplete = true;
+          for (const cell of cells) {
+              if (cell.isDisabled) {
+                  continue;
+              }
+              const mainTop = headerHeightMap.get(cell.key);
+              const mainHeight = mainHeightMap.get(cell.key);
+              if (mainTop == null || mainHeight == null) {
+                  isComplete = false;
+              }
+              if (mainTop != null) {
+                  if (maxMainTop === undefined || mainTop > maxMainTop) {
+                      maxMainTop = mainTop;
+                  }
+                  if (mainHeight != null) {
+                      const mainBottom = mainTop + mainHeight;
+                      if (minMainBottom === undefined || mainBottom < minMainBottom) {
+                          minMainBottom = mainBottom;
+                      }
+                  }
+              }
+          }
+          return [
+              maxMainTop,
+              isComplete && minMainBottom != null && maxMainTop != null
+                  ? minMainBottom - maxMainTop
+                  : undefined,
+          ];
+      }
+      /**
+       * Grows the row-local DOM candidate frontier from one post-size snapshot.
+       * This is the only monotone state auto placement needs: the engine itself
+       * consumes exact measurements and never predicts a thickness.
+       */
+      updateAutoPlacementRatchets() {
+          if (resolveDayGridPlacementMode(this.props.dayMaxEvents, this.props.dayMaxEventRows) !== 'auto')
+              return;
+          const [, canvasHeight] = this.computeFgDims();
+          if (canvasHeight != null) {
+              const smallestSliceHeight = Math.min(...this.sliceHeightRefMap.current.values());
+              this.levelCapacity = Math.max(this.levelCapacity, estimateLevelCapacity(canvasHeight, smallestSliceHeight));
+          }
+      }
+      // Internal Utils
+      // -----------------------------------------------------------------------------------------------
+      getMirrorSegs() {
+          let { props } = this;
+          if (props.eventResize && props.eventResize.segs.length) { // messy check
+              return props.eventResize.segs;
+          }
+          return [];
+      }
+      getHighlightSegs() {
+          let { props } = this;
+          if (props.eventDrag && props.eventDrag.segs.length) { // messy check
+              return props.eventDrag.segs;
+          }
+          if (props.eventResize && props.eventResize.segs.length) { // messy check
+              return props.eventResize.segs;
+          }
+          return props.dateSelectionSegs;
+      }
+  }
+  function buildWeekNumberRenderProps(weekDateMarker, context, isNarrow, hasNavLink) {
+      const { dateEnv, options } = context;
+      const weekNum = dateEnv.computeWeekNumber(weekDateMarker);
+      const weekNumTextParts = dateEnv.formatToParts(weekDateMarker, options.weekNumberFormat || DEFAULT_WEEK_NUM_FORMAT$1);
+      const weekNumText = joinDateTimeFormatParts(weekNumTextParts);
+      const weekDateZoned = dateEnv.toDate(weekDateMarker);
+      return {
+          num: weekNum,
+          text: weekNumText,
+          textParts: weekNumTextParts,
+          date: weekDateZoned,
+          isNarrow,
+          hasNavLink,
+      };
   }
 
   class DaySeriesModel {
       constructor(range, dateProfileGenerator) {
           let date = range.start;
           let { end } = range;
-          let indices = [];
+          let entries = [];
           let dates = [];
           let dayIndex = -1;
           while (date < end) { // loop each day from start to end
               if (dateProfileGenerator.isHiddenDay(date)) {
-                  indices.push(dayIndex + 0.5); // mark that it's between indices
+                  entries.push({
+                      kind: 'hidden',
+                      previousIndex: dayIndex,
+                      nextIndex: dayIndex + 1,
+                  });
               }
               else {
                   dayIndex += 1;
-                  indices.push(dayIndex);
+                  entries.push({ kind: 'visible', index: dayIndex });
                   dates.push(date);
               }
               date = addDays(date, 1);
           }
+          this.rangeStart = range.start;
           this.dates = dates;
-          this.indices = indices;
+          this.entries = entries;
           this.cnt = dates.length;
       }
       sliceRange(range) {
-          let firstIndex = this.getDateDayIndex(range.start); // inclusive first index
-          let lastIndex = this.getDateDayIndex(addDays(range.end, -1)); // inclusive last index
+          let firstResult = this.getDateIndex(range.start);
+          let lastResult = this.getDateIndex(addDays(range.end, -1));
+          let firstIndex = getFirstVisibleIndex(firstResult);
+          let lastIndex = getLastVisibleIndex(lastResult);
           let clippedFirstIndex = Math.max(0, firstIndex);
           let clippedLastIndex = Math.min(this.cnt - 1, lastIndex);
-          // deal with in-between indices
-          clippedFirstIndex = Math.ceil(clippedFirstIndex); // in-between starts round to next cell
-          clippedLastIndex = Math.floor(clippedLastIndex); // in-between ends round to prev cell
           if (clippedFirstIndex <= clippedLastIndex) {
               return {
                   start: clippedFirstIndex,
                   end: clippedLastIndex + 1, // make exclusive
-                  isStart: firstIndex === clippedFirstIndex,
-                  isEnd: lastIndex === clippedLastIndex,
+                  isStart: firstResult.kind === 'visible' && firstIndex === clippedFirstIndex,
+                  isEnd: lastResult.kind === 'visible' && lastIndex === clippedLastIndex,
               };
           }
           return null;
       }
-      // Given a date, returns its chronolocial cell-index from the first cell of the grid.
-      // If the date lies between cells (because of hiddenDays), returns a floating-point value between offsets.
-      // If before the first offset, returns a negative number.
-      // If after the last offset, returns an offset past the last cell offset.
-      // Only works for *start* dates of cells. Will not work for exclusive end dates for cells.
-      getDateDayIndex(date) {
-          let { indices } = this;
-          let dayOffset = Math.floor(diffDays(this.dates[0], date));
+      getDateIndex(date) {
+          let dayOffset = Math.floor(diffDays(this.rangeStart, date));
           if (dayOffset < 0) {
-              return indices[0] - 1;
+              return { kind: 'before', index: -1 };
           }
-          if (dayOffset >= indices.length) {
-              return indices[indices.length - 1] + 1;
+          if (dayOffset >= this.entries.length) {
+              return { kind: 'after', index: this.cnt };
           }
-          return indices[dayOffset];
+          return this.entries[dayOffset];
       }
   }
-
-  class DayTableModel {
-      constructor(daySeries, breakOnWeeks, dateEnv, majorUnit = '') {
-          this.dateEnv = dateEnv;
-          this.majorUnit = majorUnit;
-          let { dates } = daySeries;
-          let daysPerRow;
-          let firstDay;
-          let rowCount;
-          if (breakOnWeeks) {
-              // count columns until the day-of-week repeats
-              firstDay = dates[0].getUTCDay();
-              for (daysPerRow = 1; daysPerRow < dates.length; daysPerRow += 1) {
-                  if (dates[daysPerRow].getUTCDay() === firstDay) {
-                      break;
-                  }
-              }
-              rowCount = Math.ceil(dates.length / daysPerRow);
-          }
-          else {
-              rowCount = 1;
-              daysPerRow = dates.length;
-          }
-          this.rowCount = rowCount;
-          this.colCount = daysPerRow;
-          this.daySeries = daySeries;
-          this.cellRows = this.buildCells();
-          this.headerDates = this.buildHeaderDates();
-      }
-      buildCells() {
-          let rows = [];
-          for (let row = 0; row < this.rowCount; row += 1) {
-              let cells = [];
-              for (let col = 0; col < this.colCount; col += 1) {
-                  cells.push(this.buildCell(row, col));
-              }
-              rows.push(cells);
-          }
-          return rows;
-      }
-      buildCell(row, col) {
-          let date = this.daySeries.dates[row * this.colCount + col];
-          return {
-              key: date.toISOString(),
-              date,
-              isMajor: this.cellIsMajor(date),
-          };
-      }
-      cellIsMajor(dateMarker) {
-          return this.majorUnit ? isMajorUnit(dateMarker, this.majorUnit, this.dateEnv) : false;
-      }
-      buildHeaderDates() {
-          let dates = [];
-          for (let col = 0; col < this.colCount; col += 1) {
-              dates.push(this.cellRows[0][col].date);
-          }
-          return dates;
-      }
-      sliceRange(range) {
-          let { colCount } = this;
-          let seriesSeg = this.daySeries.sliceRange(range);
-          let segs = [];
-          if (seriesSeg) {
-              const { start, end } = seriesSeg;
-              let index = start;
-              while (index < end) {
-                  let row = Math.floor(index / colCount);
-                  let nextIndex = Math.min((row + 1) * colCount, end);
-                  segs.push({
-                      row,
-                      start: index % colCount,
-                      end: (nextIndex - 1) % colCount + 1,
-                      isStart: seriesSeg.isStart && index === start,
-                      isEnd: seriesSeg.isEnd && nextIndex === end,
-                  });
-                  index = nextIndex;
-              }
-          }
-          return segs;
-      }
+  function getFirstVisibleIndex(result) {
+      return result.kind === 'hidden' ? result.nextIndex : result.index;
+  }
+  function getLastVisibleIndex(result) {
+      return result.kind === 'hidden' ? result.previousIndex : result.index;
   }
 
   function buildDayTableModel(dateProfile, dateProfileGenerator, dateEnv) {
@@ -10965,7 +12507,7 @@ var FullCalendar = (function (exports) {
       const majorUnit = !breakOnWeeks && computeMajorUnit(dateProfile, dateEnv);
       // Exclude 'day': when cells are themselves days, all would match and the boundary
       // distinction is meaningless (unlike timeline slots which can be sub-day).
-      return new DayTableModel(daySeries, breakOnWeeks, dateEnv, majorUnit !== 'day' ? majorUnit : undefined);
+      return new DayTableModel(daySeries, breakOnWeeks, dateEnv, majorUnit !== 'day' ? majorUnit : undefined, dateProfile.activeRange);
   }
   function computeColWidth(colCount, colMinWidth, viewportWidth) {
       if (viewportWidth == null) {
@@ -10998,23 +12540,6 @@ var FullCalendar = (function (exports) {
           top += rowHeight;
       }
       return top;
-  }
-  /*
-  FYI, `width` is not dependable for aligning completely to farside
-  */
-  function computeHorizontalsFromSeg(seg, colWidth, colCount) {
-      let fromStart;
-      let fromEnd;
-      if (colWidth != null) {
-          fromStart = seg.start * colWidth;
-          fromEnd = (colCount - seg.end) * colWidth;
-      }
-      else {
-          const colWidthFrac = 1 / colCount;
-          fromStart = fracToCssDim(seg.start * colWidthFrac);
-          fromEnd = fracToCssDim(1 - seg.end * colWidthFrac);
-      }
-      return { insetInlineStart: fromStart, insetInlineEnd: fromEnd };
   }
   function computeColFromPosition(positionLeft, elWidth, colWidth, colCount, isRtl) {
       const realColWidth = colWidth != null ? colWidth : elWidth / colCount;
@@ -11081,258 +12606,10 @@ var FullCalendar = (function (exports) {
       });
   }
 
-  class DayGridEventHarness extends C {
-      constructor() {
-          super(...arguments);
-          // ref
-          this.rootElRef = M$1();
-      }
-      render() {
-          const { props } = this;
-          return (u$1("div", { className: joinClassNames(props.className, classNames.abs), style: props.style, ref: this.rootElRef, children: props.children }));
-      }
-      componentDidMount() {
-          this._isUnmounting = false;
-          const rootEl = this.rootElRef.current; // TODO: make dynamic with useEffect
-          this.disconnectHeight = watchHeight(rootEl, (height) => {
-              if (this._isUnmounting)
-                  return;
-              setRef(this.props.heightRef, height);
-          });
-      }
-      componentWillUnmount() {
-          this._isUnmounting = true;
-          this.disconnectHeight();
-          setRef(this.props.heightRef, null);
-      }
-  }
-
-  const DEFAULT_WEEK_NUM_FORMAT$1 = createFormatter({ week: 'narrow' });
-  class DayGridRow extends BaseComponent {
-      constructor() {
-          super(...arguments);
-          this.headerHeightRefMap = new RefMap(() => {
-              afterSize(this.handleSegPositioning);
-          });
-          this.mainHeightRefMap = new RefMap(() => {
-              const fgLiquidHeight = this.props.dayMaxEvents === true || this.props.dayMaxEventRows === true;
-              if (fgLiquidHeight) {
-                  afterSize(this.handleSegPositioning);
-              }
-          });
-          this.segHeightRefMap = new RefMap(() => {
-              afterSize(this.handleSegPositioning);
-          });
-          // memo
-          this.buildWeekNumberRenderProps = memoize(buildWeekNumberRenderProps);
-          this.handleRootEl = (rootEl) => {
-              this.rootEl = rootEl;
-              setRef(this.props.rootElRef, rootEl);
-          };
-          this.handleSegPositioning = () => {
-              if (this._isUnmounting)
-                  return;
-              this.forceUpdate();
-          };
-      }
-      render() {
-          const { props, context, headerHeightRefMap, mainHeightRefMap } = this;
-          const { cells } = props;
-          const { options } = context;
-          const weekDateMarker = props.cells[0].date;
-          const fgLiquidHeight = props.dayMaxEvents === true || props.dayMaxEventRows === true;
-          // TODO: memoize? sort all types of segs?
-          const fgEventSegs = sortEventSegs(props.fgEventSegs, options.eventOrder);
-          // TODO: memoize?
-          const [maxMainTop, minMainHeight] = this.computeFgDims(); // uses headerHeightRefMap/mainHeightRefMap
-          const [segsByCol, hiddenSegsByCol, renderableSegsByCol, segTops, simpleHeightsByCol] = computeFgSegVerticals$1(fgEventSegs, this.segHeightRefMap.current, cells, fgLiquidHeight ? minMainHeight : undefined, // if not defined in first run, will unlimited!?
-          options.eventOrderStrict, options.eventSlicing, props.dayMaxEvents, props.dayMaxEventRows);
-          const heightsByCol = [];
-          if (maxMainTop != null) {
-              let col = 0;
-              for (const cell of cells) { // uses headerHeightRefMap/maxMainTop/simpleHeightsByCol
-                  const cellHeaderHeight = headerHeightRefMap.current.get(cell.key);
-                  if (cellHeaderHeight != null) {
-                      const extraFgHeight = maxMainTop - cellHeaderHeight;
-                      heightsByCol.push(simpleHeightsByCol[col] + extraFgHeight);
-                  }
-                  else {
-                      heightsByCol.push(undefined);
-                  }
-                  col++;
-              }
-          }
-          const highlightSegs = this.getHighlightSegs();
-          const mirrorSegs = this.getMirrorSegs();
-          const hasNavLink = options.navLinks;
-          const fullWeekStr = buildDateStr(context, weekDateMarker, 'week');
-          const weekNumberRenderProps = this.buildWeekNumberRenderProps(weekDateMarker, context, props.cellIsNarrow, hasNavLink);
-          return (u$1("div", { role: props.role /* !!! */, "aria-label": props.role === 'row' // HACK
-                  ? fullWeekStr
-                  : undefined // can't have label on non-role div
-              , className: joinClassNames(options.dayRowClass, props.className, classNames.flexRow, classNames.rel, // origin for inlineWeekNumber?
-              classNames.isolate, (props.forPrint && props.basis !== undefined) && // basis implies siblings (must share height)
-                  classNames.printSiblingRow), style: {
-                  flexBasis: props.basis,
-              }, ref: this.handleRootEl, children: [(props.showWeekNumbers && !props.cellIsMicro) && (u$1(ContentContainer, { tag: 'div', attrs: {
-                          ...(hasNavLink
-                              ? buildNavLinkAttrs(context, weekDateMarker, 'week', fullWeekStr, /* isTabbable = */ false)
-                              : {}),
-                          'role': undefined, // HACK: a 'link' role can't be child of 'row' role
-                          'aria-hidden': true, // HACK: never part of a11y tree because row already has label and role not allowed
-                      }, 
-                      // put above all cells (TODO: put explicit z0 on each cell?)
-                      className: classNames.z1, renderProps: weekNumberRenderProps, generatorName: "inlineWeekNumberContent", customGenerator: options.inlineWeekNumberContent, defaultGenerator: renderText$1, classNameGenerator: options.inlineWeekNumberClass, didMount: options.inlineWeekNumberDidMount, willUnmount: options.inlineWeekNumberWillUnmount })), this.renderFillSegs(props.businessHourSegs, 'non-business'), this.renderFillSegs(props.bgEventSegs, 'bg-event'), this.renderFillSegs(highlightSegs, 'highlight'), props.cells.map((cell, col) => {
-                      const normalFgNodes = this.renderFgSegs(maxMainTop, renderableSegsByCol[col], segTops, props.todayRange, 
-                      /* isMirror = */ false);
-                      return (u$1(DayGridCell, { dateProfile: props.dateProfile, todayRange: props.todayRange, date: cell.date, isMajor: cell.isMajor, showDayNumber: props.showDayNumbers, isNarrow: props.cellIsNarrow, isMicro: props.cellIsMicro, borderStart: Boolean(col), 
-                          // content
-                          segs: segsByCol[col], hiddenSegs: hiddenSegsByCol[col], fgLiquidHeight: fgLiquidHeight, fg: (u$1(S, { children: normalFgNodes })), eventDrag: props.eventDrag, eventResize: props.eventResize, eventSelection: props.eventSelection, 
-                          // render hooks
-                          renderProps: cell.renderProps, dateSpanProps: cell.dateSpanProps, attrs: cell.attrs, className: cell.className, 
-                          // dimensions
-                          fgHeight: heightsByCol[col], width: props.colWidth, 
-                          // refs
-                          headerHeightRef: headerHeightRefMap.createRef(cell.key), mainHeightRef: mainHeightRefMap.createRef(cell.key) }, cell.key));
-                  }), this.renderFgSegs(maxMainTop, mirrorSegs, segTops, props.todayRange, 
-                  /* isMirror = */ true)] }));
-      }
-      renderFgSegs(headerHeight, segs, segTops, todayRange, isMirror) {
-          const { props, segHeightRefMap } = this;
-          const { colWidth, eventSelection, cellIsMicro } = props;
-          const colCount = props.cells.length;
-          const defaultDisplayEventEnd = props.cells.length === 1;
-          const nodes = [];
-          for (const seg of segs) {
-              const key = getEventPartKey(seg);
-              const { standinFor, eventRange } = seg;
-              const { instanceId } = eventRange.instance;
-              if (standinFor) {
-                  continue;
-              }
-              const { insetInlineStart, insetInlineEnd } = computeHorizontalsFromSeg(seg, colWidth, colCount);
-              const localTop = segTops.get(standinFor ? getEventPartKey(standinFor) : key) ?? (isMirror ? 0 : undefined);
-              const top = headerHeight != null && localTop != null
-                  ? headerHeight + localTop
-                  : undefined;
-              const isDragging = Boolean(props.eventDrag && props.eventDrag.affectedInstances[instanceId]);
-              const isResizing = Boolean(props.eventResize && props.eventResize.affectedInstances[instanceId]);
-              const isInvisible = !isMirror && (isDragging || isResizing || standinFor || top == null);
-              const isListItem = hasListItemDisplay(seg);
-              const isSelected = instanceId === eventSelection;
-              nodes.push(u$1(DayGridEventHarness, { className: seg.start ? classNames.fakeBorderS : '', style: {
-                      visibility: isInvisible ? 'hidden' : undefined,
-                      top,
-                      insetInlineStart,
-                      insetInlineEnd,
-                      zIndex: isSelected ? 1000 : 0, // container inner z-indexes; HACK: relies on hardcoded z-index offset; fragile if stacking context changes
-                  }, heightRef: (!standinFor && !isMirror)
-                      ? segHeightRefMap.createRef(key)
-                      : null, children: u$1(StandardEvent, { display: isListItem ? 'list-item' : 'row', eventRange: eventRange, isStart: seg.isStart, isEnd: seg.isEnd, isDragging: isDragging, isResizing: isResizing, isMirror: isMirror, isSelected: isSelected, isNarrow: props.cellIsNarrow, defaultTimeFormat: DEFAULT_TABLE_EVENT_TIME_FORMAT, defaultDisplayEventEnd: defaultDisplayEventEnd, disableResizing: isListItem, forcedTimeText: cellIsMicro ? '' : undefined, ...getEventRangeMeta(eventRange, todayRange) }) }, key));
-          }
-          return nodes;
-      }
-      renderFillSegs(segs, fillType) {
-          const { props, context } = this;
-          const { todayRange, colWidth } = props;
-          const colCount = props.cells.length;
-          const nodes = [];
-          for (const seg of segs) {
-              const key = seg.start + ':' + seg.end; // NOTE: don't use date, because could be multiple of same (w/ resources)
-              const { insetInlineStart, insetInlineEnd } = computeHorizontalsFromSeg(seg, colWidth, colCount);
-              const isVisible = !seg.standinFor;
-              nodes.push(u$1("div", { className: classNames.fillY, style: {
-                      visibility: (isVisible ? '' : 'hidden'),
-                      insetInlineStart,
-                      insetInlineEnd,
-                  }, children: fillType === 'bg-event' ?
-                      u$1(BgEvent, { eventRange: seg.eventRange, isStart: seg.isStart, isEnd: seg.isEnd, isNarrow: props.cellIsNarrow, isVertical: false, ...getEventRangeMeta(seg.eventRange, todayRange) }) : (renderFill(fillType, context.options)) }, key));
-          }
-          return u$1(S, { children: nodes });
-      }
-      // Sizing
-      // -----------------------------------------------------------------------------------------------
-      componentDidMount() {
-          this._isUnmounting = false;
-          const { rootEl } = this; // TODO: make dynamic with useEffect
-          this.disconnectHeight = watchHeight(rootEl, (contentHeight) => {
-              setRef(this.props.heightRef, contentHeight);
-          });
-      }
-      componentWillUnmount() {
-          this._isUnmounting = true;
-          this.disconnectHeight();
-          setRef(this.props.heightRef, null);
-      }
-      computeFgDims() {
-          const { cells } = this.props;
-          const headerHeightMap = this.headerHeightRefMap.current;
-          const mainHeightMap = this.mainHeightRefMap.current;
-          let maxMainTop;
-          let minMainBottom;
-          for (const cell of cells) {
-              const mainTop = headerHeightMap.get(cell.key);
-              const mainHeight = mainHeightMap.get(cell.key);
-              if (mainTop != null) {
-                  if (maxMainTop === undefined || mainTop > maxMainTop) {
-                      maxMainTop = mainTop;
-                  }
-                  if (mainHeight != null) {
-                      const mainBottom = mainTop + mainHeight;
-                      if (minMainBottom === undefined || mainBottom < minMainBottom) {
-                          minMainBottom = mainBottom;
-                      }
-                  }
-              }
-          }
-          return [
-              maxMainTop,
-              minMainBottom != null && maxMainTop != null
-                  ? minMainBottom - maxMainTop
-                  : undefined,
-          ];
-      }
-      // Internal Utils
-      // -----------------------------------------------------------------------------------------------
-      getMirrorSegs() {
-          let { props } = this;
-          if (props.eventResize && props.eventResize.segs.length) { // messy check
-              return props.eventResize.segs;
-          }
-          return [];
-      }
-      getHighlightSegs() {
-          let { props } = this;
-          if (props.eventDrag && props.eventDrag.segs.length) { // messy check
-              return props.eventDrag.segs;
-          }
-          if (props.eventResize && props.eventResize.segs.length) { // messy check
-              return props.eventResize.segs;
-          }
-          return props.dateSelectionSegs;
-      }
-  }
-  // Utils
-  // -------------------------------------------------------------------------------------------------
-  function buildWeekNumberRenderProps(weekDateMarker, context, isNarrow, hasNavLink) {
-      const { dateEnv, options } = context;
-      const weekNum = dateEnv.computeWeekNumber(weekDateMarker);
-      const weekNumTextParts = dateEnv.formatToParts(weekDateMarker, options.weekNumberFormat || DEFAULT_WEEK_NUM_FORMAT$1);
-      const weekNumText = joinDateTimeFormatParts(weekNumTextParts);
-      const weekDateZoned = dateEnv.toDate(weekDateMarker);
-      return {
-          num: weekNum,
-          text: weekNumText,
-          textParts: weekNumTextParts,
-          date: weekDateZoned,
-          isNarrow,
-          hasNavLink,
-      };
-  }
-
   class DayGridRows extends DateComponent {
       constructor() {
           super(...arguments);
+          this.state = {};
           // memo
           this.splitBusinessHourSegs = memoize(splitSegsByRow);
           this.splitBgEventSegs = memoize(splitAllDaySegsByRow);
@@ -11340,7 +12617,6 @@ var FullCalendar = (function (exports) {
           this.splitDateSelectionSegs = memoize(splitSegsByRow);
           this.splitEventDrag = memoize(splitInteractionByRow);
           this.splitEventResize = memoize(splitInteractionByRow);
-          // internal
           this.rowHeightRefMap = new RefMap((height, key) => {
               // HACKy way of syncing RefMap results with prop
               const { rowHeightRefMap } = this.props;
@@ -11348,6 +12624,17 @@ var FullCalendar = (function (exports) {
                   rowHeightRefMap.handleValue(height, key);
               }
           });
+          this.handleMoreLinkEl = (el) => {
+              this.disconnectMoreLinkHeight?.();
+              this.disconnectMoreLinkHeight = undefined;
+              if (el) {
+                  this.disconnectMoreLinkHeight = watchHeight(el, (height) => {
+                      if (this._isUnmounting)
+                          return;
+                      this.setState({ moreLinkHeight: height });
+                  });
+              }
+          };
           this.handleRootEl = (rootEl) => {
               this.rootEl = rootEl;
               if (rootEl) {
@@ -11362,9 +12649,9 @@ var FullCalendar = (function (exports) {
           };
       }
       render() {
-          let { props, context, rowHeightRefMap } = this;
+          let { props, state, context, rowHeightRefMap } = this;
           let { options } = context;
-          let { cellRows } = props;
+          let { cellRows, tableMode } = props;
           let rowCount = cellRows.length;
           // Will cause rows to not be reused across months
           let firstCellKey = cellRows[0]?.[0]?.key || '';
@@ -11377,19 +12664,30 @@ var FullCalendar = (function (exports) {
           let isHeightAuto = getIsHeightAuto(options);
           let rowHeightsRedistribute = !props.forPrint && !isHeightAuto;
           let rowBasis = computeRowBasis(props.visibleWidth, rowCount, isHeightAuto, options);
-          return (u$1("div", { role: 'rowgroup', className: joinClassNames(props.className, 
-              // HACK for Safari. Can't do break-inside:avoid with flexbox items, likely b/c it's not standard:
-              // https://stackoverflow.com/a/60256345
-              !props.forPrint && classNames.flexCol), style: { width: props.width }, ref: this.handleRootEl, children: cellRows.map((cells, row) => (u$1(DayGridRow, { role: 'row', dateProfile: props.dateProfile, todayRange: props.todayRange, cells: cells, cellIsNarrow: props.cellIsNarrow, cellIsMicro: props.cellIsMicro, showDayNumbers: rowCount > 1, showWeekNumbers: rowCount > 1 && options.weekNumbers, forPrint: props.forPrint, 
-                  // if not auto-height, distribute height of container somewhat evently to rows
-                  className: joinClassNames(rowHeightsRedistribute && classNames.grow, rowCount > 1 && classNames.breakInsideAvoid, // don't avoid breaks for single tall row
-                  row < rowCount - 1 ? classNames.borderOnlyB : classNames.borderNone), 
-                  // content
-                  fgEventSegs: fgEventSegsByRow[row], bgEventSegs: bgEventSegsByRow[row], businessHourSegs: businessHourSegsByRow[row], dateSelectionSegs: dateSelectionSegsByRow[row], eventSelection: props.eventSelection, eventDrag: eventDragByRow[row], eventResize: eventResizeByRow[row], dayMaxEvents: props.dayMaxEvents, dayMaxEventRows: props.dayMaxEventRows, 
-                  // dimensions
-                  colWidth: props.colWidth, basis: rowBasis, 
-                  // refs
-                  heightRef: rowHeightRefMap.createRef(cells[0].key) }, firstCellKey + ':' + cells[0].key))) }));
+          const needsMoreLinkProbe = !props.forPrint && resolveDayGridPlacementMode(props.dayMaxEvents, props.dayMaxEventRows) === 'auto';
+          const RowsTag = tableMode ? 'tbody' : 'div';
+          return (u$1(S, { children: [u$1(RowsTag, { role: "rowgroup", className: joinClassNames(props.className, 
+                      // HACK for Safari. Can't do break-inside:avoid with flexbox items, likely b/c it's not standard:
+                      // https://stackoverflow.com/a/60256345
+                      !tableMode && !props.forPrint && classNames.flexCol), style: tableMode ? undefined : { width: props.width }, ref: this.handleRootEl, children: cellRows.map((cells, row) => (u$1(DayGridRow, { role: "row", dateProfile: props.dateProfile, todayRange: props.todayRange, cells: cells, cellIsNarrow: props.cellIsNarrow, cellIsMicro: props.cellIsMicro, showDayNumbers: rowCount > 1, showWeekNumbers: rowCount > 1 && options.weekNumbers, forPrint: props.forPrint, tableMode: tableMode, borderBottom: row < rowCount - 1, 
+                          // if not auto-height, distribute height of container somewhat evently to rows
+                          className: rowHeightsRedistribute ? classNames.grow : undefined, 
+                          // content
+                          fgEventSegs: fgEventSegsByRow[row], bgEventSegs: bgEventSegsByRow[row], businessHourSegs: businessHourSegsByRow[row], dateSelectionSegs: dateSelectionSegsByRow[row], eventSelection: props.eventSelection, eventDrag: eventDragByRow[row], eventResize: eventResizeByRow[row], dayMaxEvents: props.dayMaxEvents, dayMaxEventRows: props.dayMaxEventRows, 
+                          // dimensions
+                          colWidth: props.colWidth, basis: rowBasis, moreLinkHeight: state.moreLinkHeight, 
+                          // refs
+                          heightRef: rowHeightRefMap.createRef(cells[0].key) }, firstCellKey + ':' + cells[0].key))) }), needsMoreLinkProbe && (u$1(MoreLinkTrigger, { num: 1, display: 'row', isNarrow: props.cellIsNarrow, isMicro: props.cellIsMicro, elRef: this.handleMoreLinkEl, className: classNames.offscreen, attrs: {
+                          'aria-hidden': true,
+                          inert: '',
+                      } }))] }));
+      }
+      componentDidMount() {
+          this._isUnmounting = false;
+      }
+      componentWillUnmount() {
+          this._isUnmounting = true;
+          this.disconnectMoreLinkHeight?.();
       }
       // Hit System
       // -----------------------------------------------------------------------------------------------
@@ -11474,10 +12772,26 @@ var FullCalendar = (function (exports) {
       }
       render() {
           const { props, state, context } = this;
-          const { renderConfig, dataConfig } = props;
+          const { renderConfig, dataConfig, tableMode } = props;
+          const colSpan = dataConfig.colSpan || 1;
           const totalColWidth = props.colWidth != null
-              ? props.colWidth * (dataConfig.colSpan || 1)
+              ? props.colWidth * colSpan
               : undefined;
+          const isLiquid = !tableMode && totalColWidth == null;
+          /*
+          A liquid cell that spans multiple columns can't use the .liquid class, which gives every
+          cell an equal share regardless of colSpan. Instead, grow proportionally to the columns
+          covered. Like the body cells, use a zero basis so borders remain within the distributed
+          border-box width.
+          */
+          const isSpanning = isLiquid && colSpan > 1;
+          const style = tableMode ? undefined : isSpanning ? {
+              flexGrow: colSpan,
+              flexBasis: 0,
+              minWidth: 0,
+          } : {
+              width: totalColWidth,
+          };
           // HACK
           const isDisabled = dataConfig.renderProps.isDisabled;
           const finalRenderProps = renderConfig.dayHeaderFormat
@@ -11496,7 +12810,8 @@ var FullCalendar = (function (exports) {
               ? alignInput({ level: props.rowLevel, inPopover: dataConfig.renderProps.inPopover, isNarrow: props.cellIsNarrow })
               : alignInput;
           const stickyInput = renderConfig.sticky;
-          const isSticky = props.rowLevel > 0 &&
+          const isSticky = !tableMode &&
+              props.rowLevel > 0 &&
               stickyInput !== false && (
           // if center-aligned, and wants to be sticky, must be >75% viewport width,
           // to avoid looking awkwardly aligned
@@ -11515,18 +12830,25 @@ var FullCalendar = (function (exports) {
                       typeof stickyInput === 'string') ? stickyInput : 0;
               }
           }
-          return (u$1(ContentContainer, { tag: 'div', attrs: {
+          /*
+          In screen mode, alignment belongs on the outer flex cell so the inner element
+          remains shrink-wrapped for sticky positioning measurements. In table mode, the
+          <th> must remain a table cell, so alignment moves to its full-width inner flex
+          element. That width cannot support sticky positioning, which table mode disables.
+          */
+          const alignClassName = align === 'center' ? classNames.alignCenter :
+              align === 'end' ? classNames.alignEnd :
+                  classNames.alignStart;
+          const CellTag = tableMode ? 'th' : 'div';
+          return (u$1(ContentContainer, { tag: CellTag, attrs: {
                   role: 'columnheader',
                   'aria-colspan': dataConfig.colSpan,
+                  colSpan: tableMode ? colSpan : undefined,
                   ...dataConfig.attrs,
-              }, className: joinClassNames(dataConfig.className, classNames.noMargin, classNames.noPadding, classNames.flexCol, props.borderStart ? classNames.borderOnlyS : classNames.borderNone, align === 'center' ? classNames.alignCenter :
-                  align === 'end' ? classNames.alignEnd :
-                      classNames.alignStart, props.colWidth == null && classNames.liquid, !isSticky && classNames.crop), style: {
-                  width: totalColWidth,
-              }, renderProps: finalRenderProps, generatorName: renderConfig.generatorName, customGenerator: renderConfig.customGenerator, defaultGenerator: renderText$1, classNameGenerator: 
+              }, className: joinClassNames(dataConfig.className, classNames.noMargin, classNames.noPadding, !tableMode && classNames.flexCol, classNames.borderlessTop, classNames.borderlessEnd, !props.borderStart && classNames.borderlessStart, !(tableMode && props.borderBottom) && classNames.borderlessBottom, !tableMode && alignClassName, isLiquid && !isSpanning && classNames.liquid, !isSticky && classNames.crop), style: style, renderProps: finalRenderProps, generatorName: renderConfig.generatorName, customGenerator: renderConfig.customGenerator, defaultGenerator: renderText$1, classNameGenerator: 
               // don't use custom classNames if disabled
               // TODO: make DRY with DayCellContainer
-              isDisabled ? undefined : renderConfig.classNameGenerator, didMount: renderConfig.didMount, willUnmount: renderConfig.willUnmount, children: (InnerContainer) => (u$1("div", { ref: this.handleInnerEl, className: joinClassNames(classNames.flexCol, classNames.noShrink, classNames.whiteSpaceNoWrap, isSticky && classNames.sticky), style: {
+              isDisabled ? undefined : renderConfig.classNameGenerator, didMount: renderConfig.didMount, willUnmount: renderConfig.willUnmount, children: (InnerContainer) => (u$1("div", { ref: this.handleInnerEl, className: joinClassNames(classNames.flexCol, classNames.noShrink, classNames.whiteSpaceNoWrap, tableMode && alignClassName, isSticky && classNames.sticky), style: {
                       left: edgeCoord,
                       right: edgeCoord,
                   }, children: u$1(InnerContainer, { tag: 'div', attrs: dataConfig.innerAttrs, className: generateClassName(renderConfig.innerClassNameGenerator, finalRenderProps) }) })) }));
@@ -11586,10 +12908,12 @@ var FullCalendar = (function (exports) {
       }
       render() {
           const { props, context } = this;
+          const { tableMode } = props;
           const { options } = context;
-          return (u$1("div", { role: props.role /* !!! */, "aria-rowindex": props.rowIndex != null ? 1 + props.rowIndex : undefined, className: joinClassNames(options.dayHeaderRowClass, props.className, classNames.flexRow, classNames.contentBox, props.borderBottom ? classNames.borderOnlyB : classNames.borderNone), style: {
+          const RowTag = tableMode ? 'tr' : 'div';
+          return (u$1(RowTag, { role: props.role /* !!! */, "aria-rowindex": props.rowIndex != null ? 1 + props.rowIndex : undefined, className: joinClassNames(options.dayHeaderRowClass, props.className, tableMode && classNames.borderless, !tableMode && classNames.flexRow, !tableMode && classNames.contentBox, !tableMode && classNames.borderlessX, !tableMode && classNames.borderlessTop, (!tableMode && !props.borderBottom) && classNames.borderlessBottom), style: {
                   height: props.height,
-              }, children: props.dataConfigs.map((dataConfig, cellI) => (u$1(DayGridHeaderCell, { renderConfig: props.renderConfig, dataConfig: dataConfig, borderStart: Boolean(cellI), colWidth: props.colWidth, viewportWidth: props.viewportWidth, innerHeightRef: this.innerHeightRefMap.createRef(dataConfig.key), cellIsNarrow: props.cellIsNarrow, cellIsMicro: props.cellIsMicro, rowLevel: props.rowLevel }, dataConfig.key))) }));
+              }, children: props.dataConfigs.map((dataConfig, cellI) => (u$1(DayGridHeaderCell, { renderConfig: props.renderConfig, dataConfig: dataConfig, borderStart: Boolean(cellI), colWidth: props.colWidth, viewportWidth: props.viewportWidth, innerHeightRef: this.innerHeightRefMap.createRef(dataConfig.key), cellIsNarrow: props.cellIsNarrow, cellIsMicro: props.cellIsMicro, rowLevel: props.rowLevel, tableMode: tableMode, borderBottom: props.borderBottom }, dataConfig.key))) }));
       }
       componentDidMount() {
           this._isUnmounting = false;
@@ -11601,16 +12925,44 @@ var FullCalendar = (function (exports) {
       }
   }
 
+  class DayGridHeaderRows extends BaseComponent {
+      render() {
+          const { props } = this;
+          const { headerTiers, tableMode } = props;
+          return headerTiers.map((rowConfig, i) => (k$1(DayGridHeaderRow, { ...rowConfig, key: i, role: 'row', borderBottom: i < headerTiers.length - 1, colWidth: props.colWidth, viewportWidth: props.viewportWidth, cellIsNarrow: props.cellIsNarrow, cellIsMicro: props.cellIsMicro, rowLevel: headerTiers.length - i - 1, tableMode: tableMode })));
+      }
+  }
+
+  class DayGridLayoutPrint extends BaseComponent {
+      render() {
+          const { props, context } = this;
+          const { options } = context;
+          const tableDisplayInfo = {
+              borderlessX: props.borderlessX,
+              borderlessTop: props.borderlessTop,
+              borderlessBottom: props.borderlessBottom,
+              multiMonthColumns: props.multiMonthColumns,
+          };
+          return (u$1("table", { role: "presentation", className: joinClassNames(generateClassName(options.tableClass, tableDisplayInfo), classNames.printTable), style: props.style, children: [u$1("colgroup", { children: props.cellRows[0].map((cell) => u$1("col", {}, cell.key)) }), props.showHeader && (u$1("thead", { ref: props.headerElRef, role: "rowgroup", className: generateClassName(options.tableHeaderClass, {
+                          ...tableDisplayInfo,
+                          isSticky: false,
+                      }), children: [u$1(DayGridHeaderRows, { tableMode: true, headerTiers: props.headerTiers, cellIsNarrow: props.cellIsNarrow, cellIsMicro: props.cellIsMicro }), u$1("tr", { role: "presentation", children: u$1("th", { role: "presentation", colSpan: props.cellRows[0].length, className: joinClassNames(classNames.noPadding, generateClassName(options.dayHeaderDividerClass, {
+                                      isSticky: false,
+                                      multiMonthColumns: props.multiMonthColumns,
+                                      options: { allDaySlot: Boolean(options.allDaySlot) },
+                                  })) }) })] })), u$1(DayGridRows, { dateProfile: props.dateProfile, todayRange: props.todayRange, cellRows: props.cellRows, forPrint: true, tableMode: true, className: generateClassName(options.tableBodyClass, tableDisplayInfo), dayMaxEvents: undefined, dayMaxEventRows: props.dayMaxEventRows, fgEventSegs: props.fgEventSegs, bgEventSegs: props.bgEventSegs, businessHourSegs: props.businessHourSegs, dateSelectionSegs: [], eventDrag: null, eventResize: null, eventSelection: props.eventSelection, visibleWidth: props.visibleWidth, cellIsNarrow: props.cellIsNarrow, cellIsMicro: props.cellIsMicro, rowHeightRefMap: props.rowHeightRefMap })] }));
+      }
+  }
+
   /*
-  TODO: kill this class in favor of DayGridHeaderRows?
+  Used only for screen rendering. Print places DayGridHeaderRows directly inside a table header.
   */
   class DayGridHeader extends BaseComponent {
       render() {
           const { props } = this;
-          const { headerTiers } = props;
           return (u$1("div", { role: 'rowgroup', className: joinClassNames(props.className, classNames.flexCol, props.width == null && classNames.liquid), style: {
                   width: props.width,
-              }, children: headerTiers.map((rowConfig, i) => (k$1(DayGridHeaderRow, { ...rowConfig, key: i, role: 'row', borderBottom: i < headerTiers.length - 1, colWidth: props.colWidth, viewportWidth: props.viewportWidth, cellIsNarrow: props.cellIsNarrow, cellIsMicro: props.cellIsMicro, rowLevel: headerTiers.length - i - 1 }))) }));
+              }, children: u$1(DayGridHeaderRows, { headerTiers: props.headerTiers, colWidth: props.colWidth, viewportWidth: props.viewportWidth, cellIsNarrow: props.cellIsNarrow, cellIsMicro: props.cellIsMicro }) }));
       }
   }
 
@@ -11647,17 +12999,19 @@ var FullCalendar = (function (exports) {
           const verticalScrollbars = !props.forPrint && !getIsHeightAuto(options);
           const tableHeaderSticky = !props.forPrint && getTableHeaderSticky(options);
           const colCount = props.cellRows[0].length;
-          const cellWidth = clientWidth != null ? clientWidth / colCount : undefined;
-          const cellIsMicro = cellWidth != null && cellWidth <= dayMicroWidth;
-          const cellIsNarrow = cellIsMicro || (cellWidth != null && cellWidth <= options.dayNarrowWidth);
+          const measuredColWidth = clientWidth != null ? clientWidth / colCount : undefined;
+          const cellIsMicro = measuredColWidth != null && measuredColWidth <= dayMicroWidth;
+          const cellIsNarrow = cellIsMicro || (measuredColWidth != null && measuredColWidth <= options.dayNarrowWidth);
+          if (props.forPrint) {
+              return (u$1(DayGridLayoutPrint, { dateProfile: props.dateProfile, todayRange: props.todayRange, cellRows: props.cellRows, headerTiers: props.headerTiers, showHeader: Boolean(options.dayHeaders), fgEventSegs: props.fgEventSegs, bgEventSegs: props.bgEventSegs, businessHourSegs: props.businessHourSegs, eventSelection: props.eventSelection, dayMaxEventRows: options.dayMaxEventRows, borderlessX: borderlessX, borderlessTop: borderlessTop, borderlessBottom: borderlessBottom, multiMonthColumns: 0, visibleWidth: totalWidth, cellIsNarrow: cellIsNarrow, cellIsMicro: cellIsMicro, rowHeightRefMap: props.rowHeightRefMap }));
+          }
           return (u$1(S, { children: [options.dayHeaders && (u$1("div", { className: joinClassNames(generateClassName(options.tableHeaderClass, {
                           isSticky: tableHeaderSticky,
                           borderlessX,
                           borderlessTop,
                           borderlessBottom,
                           multiMonthColumns: 0,
-                      }), classNames.printHeader, // either flexCol or table-header-group
-                      tableHeaderSticky && classNames.tableHeaderSticky), children: [u$1("div", { className: classNames.flexRow, children: [u$1(DayGridHeader, { headerTiers: props.headerTiers, cellIsNarrow: cellIsNarrow, cellIsMicro: cellIsMicro }), Boolean(endScrollbarWidth) && (u$1("div", { className: joinClassNames(generateClassName(options.fillerClass, { inTableHeader: true }), classNames.borderOnlyS), style: { minWidth: endScrollbarWidth } }))] }), u$1("div", { className: generateClassName(options.dayHeaderDividerClass, {
+                      }), classNames.flexCol, tableHeaderSticky && classNames.tableHeaderSticky), children: [u$1("div", { className: classNames.flexRow, children: [u$1(DayGridHeader, { headerTiers: props.headerTiers, cellIsNarrow: cellIsNarrow, cellIsMicro: cellIsMicro }), Boolean(endScrollbarWidth) && (u$1("div", { className: joinClassNames(generateClassName(options.fillerClass, { inTableHeader: true }), classNames.borderlessY, classNames.borderlessEnd), style: { minWidth: endScrollbarWidth } }))] }), u$1("div", { className: generateClassName(options.dayHeaderDividerClass, {
                                   isSticky: tableHeaderSticky,
                                   multiMonthColumns: 0,
                                   options: { allDaySlot: Boolean(options.allDaySlot) },
@@ -11745,17 +13099,20 @@ var FullCalendar = (function (exports) {
           const tableHeaderSticky = !props.forPrint && getTableHeaderSticky(options);
           const footerScrollbarSticky = !props.forPrint && getFooterScrollbarSticky(options);
           const colCount = props.cellRows[0].length;
-          const [canvasWidth, colWidth] = computeColWidth(colCount, props.dayMinWidth, clientWidth);
-          const cellIsMicro = colWidth != null && colWidth <= dayMicroWidth;
-          const cellIsNarrow = cellIsMicro || (colWidth != null && colWidth <= options.dayNarrowWidth);
+          const [canvasWidth, appliedColWidth] = computeColWidth(colCount, props.dayMinWidth, clientWidth);
+          const measuredColWidth = appliedColWidth ?? (clientWidth != null ? clientWidth / colCount : undefined);
+          const cellIsMicro = measuredColWidth != null && measuredColWidth <= dayMicroWidth;
+          const cellIsNarrow = cellIsMicro || (measuredColWidth != null && measuredColWidth <= options.dayNarrowWidth);
+          if (props.forPrint) {
+              return (u$1(DayGridLayoutPrint, { dateProfile: props.dateProfile, todayRange: props.todayRange, cellRows: props.cellRows, headerTiers: props.headerTiers, showHeader: Boolean(options.dayHeaders), fgEventSegs: props.fgEventSegs, bgEventSegs: props.bgEventSegs, businessHourSegs: props.businessHourSegs, eventSelection: props.eventSelection, dayMaxEventRows: options.dayMaxEventRows, borderlessX: borderlessX, borderlessTop: borderlessTop, borderlessBottom: borderlessBottom, multiMonthColumns: 0, visibleWidth: totalWidth, cellIsNarrow: cellIsNarrow, cellIsMicro: cellIsMicro, rowHeightRefMap: props.rowHeightRefMap }));
+          }
           return (u$1(S, { children: [options.dayHeaders && (u$1("div", { className: joinClassNames(generateClassName(options.tableHeaderClass, {
                           isSticky: tableHeaderSticky,
                           borderlessX,
                           borderlessTop,
                           borderlessBottom,
                           multiMonthColumns: 0,
-                      }), classNames.printHeader, // either flexCol or table-header-group
-                      tableHeaderSticky && classNames.tableHeaderSticky), children: [u$1(Scroller, { horizontal: true, hideScrollbars: true, className: classNames.flexRow, ref: this.headerScrollerRef, children: [u$1(DayGridHeader, { headerTiers: props.headerTiers, colWidth: colWidth, viewportWidth: clientWidth, width: canvasWidth, cellIsNarrow: cellIsNarrow, cellIsMicro: cellIsMicro }), Boolean(endScrollbarWidth) && (u$1("div", { className: joinClassNames(generateClassName(options.fillerClass, { inTableHeader: true }), classNames.borderOnlyS), style: { minWidth: endScrollbarWidth } }))] }), u$1("div", { className: generateClassName(options.dayHeaderDividerClass, {
+                      }), classNames.flexCol, tableHeaderSticky && classNames.tableHeaderSticky), children: [u$1(Scroller, { horizontal: true, hideScrollbars: true, className: classNames.flexRow, ref: this.headerScrollerRef, children: [u$1(DayGridHeader, { headerTiers: props.headerTiers, colWidth: appliedColWidth, viewportWidth: clientWidth, width: canvasWidth, cellIsNarrow: cellIsNarrow, cellIsMicro: cellIsMicro }), Boolean(endScrollbarWidth) && (u$1("div", { className: joinClassNames(generateClassName(options.fillerClass, { inTableHeader: true }), classNames.borderlessY, classNames.borderlessEnd), style: { minWidth: endScrollbarWidth } }))] }), u$1("div", { className: generateClassName(options.dayHeaderDividerClass, {
                                   isSticky: tableHeaderSticky,
                                   multiMonthColumns: 0,
                                   options: { allDaySlot: Boolean(options.allDaySlot) },
@@ -11773,7 +13130,7 @@ var FullCalendar = (function (exports) {
                           // content
                           fgEventSegs: props.fgEventSegs, bgEventSegs: props.bgEventSegs, businessHourSegs: props.businessHourSegs, dateSelectionSegs: props.dateSelectionSegs, eventDrag: props.eventDrag, eventResize: props.eventResize, eventSelection: props.eventSelection, 
                           // dimensions
-                          colWidth: colWidth, width: canvasWidth, visibleWidth: totalWidth, cellIsNarrow: cellIsNarrow, cellIsMicro: cellIsMicro, 
+                          colWidth: appliedColWidth, width: canvasWidth, visibleWidth: totalWidth, cellIsNarrow: cellIsNarrow, cellIsMicro: cellIsMicro, 
                           // refs
                           rowHeightRefMap: props.rowHeightRefMap }) }), Boolean(footerScrollbarSticky) && (u$1(FooterScrollbar, { isSticky: true, canvasWidth: canvasWidth, scrollerRef: this.footerScrollerRef })), u$1(Ruler, { widthRef: this.handleTotalWidth })] }));
       }
@@ -11843,13 +13200,11 @@ var FullCalendar = (function (exports) {
           const { props, context } = this;
           const { options } = context;
           const { borderlessX, borderlessTop, borderlessBottom } = computeViewBorderless(options);
-          const businessHourSegs = props.forPrint ? [] : props.businessHourSegs;
           const dateSelectionSegs = props.forPrint ? [] : props.dateSelectionSegs;
           const eventDrag = props.forPrint ? null : props.eventDrag;
           const eventResize = props.forPrint ? null : props.eventResize;
           const commonLayoutProps = {
               ...props,
-              businessHourSegs,
               dateSelectionSegs,
               eventDrag,
               eventResize,
@@ -11862,8 +13217,7 @@ var FullCalendar = (function (exports) {
                   'aria-colcount': props.cellRows[0].length,
                   'aria-labelledby': props.labelId,
                   'aria-label': props.labelStr,
-              }, className: joinClassNames(props.className, classNames.printRoot, // either flexCol or table
-              generateClassName(options.tableClass, {
+              }, className: joinClassNames(props.className, !props.forPrint && classNames.flexCol, !props.forPrint && generateClassName(options.tableClass, {
                   borderlessX,
                   borderlessTop,
                   borderlessBottom,
@@ -11874,26 +13228,57 @@ var FullCalendar = (function (exports) {
       // -----------------------------------------------------------------------------------------------
       componentDidMount() {
           this._isUnmounting = false;
-          this.resetScroll();
-          this.scrollerRef.current.addScrollEndListener(this.handleScrollEnd);
+          if (!this.props.forPrint) {
+              this.resetScroll();
+              this.scrollerRef.current?.addScrollEndListener(this.handleScrollEnd);
+          }
       }
       componentDidUpdate(prevProps) {
+          if (prevProps.forPrint && !this.props.forPrint) {
+              this.scrollerRef.current?.addScrollEndListener(this.handleScrollEnd);
+              this.resetScroll();
+          }
           if (prevProps.dateProfile !== this.props.dateProfile && this.context.options.scrollTimeReset) {
               this.resetScroll();
           }
       }
       componentWillUnmount() {
           this._isUnmounting = true;
-          this.scrollerRef.current.removeScrollEndListener(this.handleScrollEnd);
+          this.scrollerRef.current?.removeScrollEndListener(this.handleScrollEnd);
       }
       // Scrolling
       // -----------------------------------------------------------------------------------------------
       resetScroll() {
           this.scrollDate = this.props.dateProfile.currentDate;
           this.updateScrollY();
-          const scroller = this.scrollerRef.current;
-          scroller.scrollTo({ x: 0 });
+          this.scrollerRef.current?.scrollTo({ x: 0 });
       }
+  }
+
+  function buildDayCols(dateProfile, dateProfileGenerator, dateEnv, slotRange, majorUnit = '') {
+      return buildDayColsFromSeries(new DaySeriesModel(dateProfile.renderRange, dateProfileGenerator), dateEnv, {
+          slotRange,
+          majorUnit,
+          activeRange: dateProfile.activeRange,
+      });
+  }
+  function buildDayColsFromSeries(daySeries, dateEnv, config = {}) {
+      const { slotRange, majorUnit = '', activeRange } = config;
+      return daySeries.dates.map((date) => ({
+          key: date.toISOString(),
+          date,
+          range: slotRange
+              ? {
+                  start: dateEnv.add(date, slotRange.slotMinTime),
+                  end: dateEnv.add(date, slotRange.slotMaxTime),
+              }
+              : {
+                  start: date,
+                  end: addDays(date, 1),
+              },
+          isMajor: majorUnit ? isMajorUnit(date, majorUnit, dateEnv) : false,
+          isDisabled: activeRange === null || (activeRange !== undefined && !rangeContainsMarker(activeRange, date)),
+      }));
   }
 
   const EMPTY_EVENT_STORE = createEmptyEventStore(); // for purecomponents. TODO: keep elsewhere
@@ -12203,7 +13588,19 @@ var FullCalendar = (function (exports) {
   class TimeGridAllDayLane extends DateComponent {
       constructor() {
           super(...arguments);
+          this.state = {};
           this.heightRef = M$1();
+          this.handleMoreLinkEl = (el) => {
+              this.disconnectMoreLinkHeight?.();
+              this.disconnectMoreLinkHeight = undefined;
+              if (el) {
+                  this.disconnectMoreLinkHeight = watchHeight(el, (height) => {
+                      if (this._isUnmounting)
+                          return;
+                      this.setState({ moreLinkHeight: height });
+                  });
+              }
+          };
           this.handleRootEl = (rootEl) => {
               this.rootEl = rootEl;
               if (rootEl) {
@@ -12217,9 +13614,21 @@ var FullCalendar = (function (exports) {
           };
       }
       render() {
-          return (u$1(DayGridRow, { ...this.props, 
-              /* BAD: these overwrite the props! caller might want to pass them */
-              rootElRef: this.handleRootEl, heightRef: this.heightRef }));
+          const { props, state } = this;
+          const needsMoreLinkProbe = !props.forPrint && resolveDayGridPlacementMode(props.dayMaxEvents, props.dayMaxEventRows) === 'auto';
+          return (u$1(S, { children: [u$1(DayGridRow, { ...props, moreLinkHeight: state.moreLinkHeight, 
+                      /* BAD: these overwrite the props! caller might want to pass them */
+                      rootElRef: this.handleRootEl, heightRef: this.heightRef }), needsMoreLinkProbe && (u$1(MoreLinkTrigger, { num: 1, display: 'row', isNarrow: props.cellIsNarrow, isMicro: props.cellIsMicro, elRef: this.handleMoreLinkEl, className: classNames.offscreen, attrs: {
+                          'aria-hidden': true,
+                          inert: '',
+                      } }))] }));
+      }
+      componentDidMount() {
+          this._isUnmounting = false;
+      }
+      componentWillUnmount() {
+          this._isUnmounting = true;
+          this.disconnectMoreLinkHeight?.();
       }
       queryHit(isRtl, positionLeft, positionTop, elWidth) {
           const { props, heightRef } = this;
@@ -12250,20 +13659,6 @@ var FullCalendar = (function (exports) {
       }
   }
 
-  function buildTimeColsModel(dateProfile, dateProfileGenerator, dateEnv) {
-      let daySeries = new DaySeriesModel(dateProfile.renderRange, dateProfileGenerator);
-      return new DayTableModel(daySeries, false, dateEnv);
-  }
-  function buildDayRanges(dayTableModel, dateProfile, dateEnv) {
-      let ranges = [];
-      for (let date of dayTableModel.headerDates) {
-          ranges.push({
-              start: dateEnv.add(date, dateProfile.slotMinTime),
-              end: dateEnv.add(date, dateProfile.slotMaxTime),
-          });
-      }
-      return ranges;
-  }
   function computeSlatHeight(expandRows, slatCnt, explicitSlatMinHeight = 0, slatInnerHeight, // from the "inner" i think
   scrollerHeight) {
       if (!slatInnerHeight || !scrollerHeight) {
@@ -12301,6 +13696,18 @@ var FullCalendar = (function (exports) {
       return frac;
   }
 
+  /**
+   * Projects production's date range onto the slat canvas.
+   *
+   * This is TimeGrid's production-specific coordinate conversion: it owns hidden
+   * days, DST, and `eventMinHeight`. The shared engine consumes only the numbers
+   * it produces.
+   *
+   * The canvas height may be assumed rather than measured — callers substitute
+   * `ESTIMATED_SLAT_HEIGHT` so the first paint contains events — in which case
+   * they also pass no `eventMinHeight`. A null height still yields no verticals,
+   * but no production caller passes one.
+   */
   function computeFgSegVerticals(segs, dateProfile, colDate, slatCnt, slatHeight, // in pixels
   eventMinHeight, // in pixels
   eventShortHeight) {
@@ -12321,176 +13728,221 @@ var FullCalendar = (function (exports) {
                   start: startCoord,
                   end: endCoord,
                   size: height,
-                  isShort: height <= eventShortHeight
+                  isShort: height <= eventShortHeight,
               });
           }
       }
       return res;
   }
-
-  /*
-  segs assumed sorted
-  */
-  function buildWebPositioning(segs, segVerticals, strictOrder, maxDepth) {
-      const segRanges = [];
-      // isn't it true that there will either be ALL hcoords or NONE? can optimize
-      for (let i = 0; i < segs.length; i++) {
-          const segVertical = segVerticals[i];
+  /**
+   * Adapts production TimeGrid segs to and from the shared placement engine.
+   *
+   * The caller owns vertical geometry: `segVerticals` already incorporates
+   * clipping, and `eventMinHeight` too once the slat height is measured — the
+   * caller withholds that floor while the height is only assumed. Any missing
+   * entry is excluded. The engine owns only admission and normalized horizontal
+   * placement. `slotEventOverlap` remains a final CSS concern, and mirrors
+   * deliberately stay outside this normal-event admission path.
+   */
+  function buildTimeGridSegPlacements(segs, segVerticals, eventOrderStrict, eventMaxStack) {
+      const sourceSegs = [];
+      const segVerticalBySeg = new Map();
+      for (let orderIndex = 0; orderIndex < segs.length; orderIndex += 1) {
+          const seg = segs[orderIndex];
+          const segVertical = segVerticals[orderIndex];
           if (segVertical) {
-              segRanges.push({
-                  ...segs[i],
+              const sourceSeg = {
+                  ...seg,
+                  key: seg.eventRange.instance.instanceId,
                   start: segVertical.start,
                   end: segVertical.end,
-              });
+                  orderIndex,
+              };
+              sourceSegs.push(sourceSeg);
+              segVerticalBySeg.set(sourceSeg, segVertical);
           }
       }
-      const hierarchy = new SegHierarchy(segRanges, undefined, // 1 thickness for all segs
-      strictOrder, undefined, // maxCoord
-      maxDepth);
-      let web = buildWeb(hierarchy);
-      web = stretchWeb(web, 1); // all levelCoords/thickness will have 0.0-1.0
-      const segRects = webToRects(web);
-      const hiddenGroups = groupIntersectingSegs(hierarchy.hiddenSegs);
-      return [segRects, hiddenGroups];
-  }
-  /*
-  TODO: use SegHierarchy::traverseSegs for this?
-  */
-  function buildWeb(hierarchy) {
-      const { placementsByLevel } = hierarchy;
-      const buildNode = cacheable((level, lateral) => level + ':' + lateral, (level, lateral) => {
-          let siblingRange = findNextLevelSegs(hierarchy, level, lateral);
-          let [nextLevelNodes, maxPressure] = buildNodes(siblingRange, buildNode);
-          let segPlacement = placementsByLevel[level][lateral];
-          return [
-              { ...segPlacement, nextLevelNodes },
-              segPlacement.thickness + maxPressure, // the pressure builds
-          ];
-      });
-      const [topLevelNodes] = buildNodes(placementsByLevel.length
-          ? { level: 0, lateralStart: 0, lateralEnd: placementsByLevel[0].length }
-          : null, buildNode);
-      return topLevelNodes;
-  }
-  function buildNodes(siblingRange, buildNode) {
-      if (!siblingRange) {
-          return [[], 0];
-      }
-      let { level, lateralStart, lateralEnd } = siblingRange;
-      let lateral = lateralStart;
-      let pairs = [];
-      while (lateral < lateralEnd) {
-          pairs.push(buildNode(level, lateral));
-          lateral += 1;
-      }
-      pairs.sort(cmpDescPressures);
-      return [
-          pairs.map(extractNode), // nodes
-          pairs[0][1], // first item's pressure
-      ];
-  }
-  function cmpDescPressures(a, b) {
-      return b[1] - a[1];
-  }
-  function extractNode(a) {
-      return a[0];
-  }
-  function findNextLevelSegs(hierarchy, subjectLevel, subjectLateral) {
-      let { levelCoords, placementsByLevel } = hierarchy;
-      let subjectPlacement = placementsByLevel[subjectLevel][subjectLateral];
-      let afterSubject = levelCoords[subjectLevel] + subjectPlacement.thickness;
-      let levelCnt = levelCoords.length;
-      let level = subjectLevel;
-      // skip past levels that are too high up
-      for (; level < levelCnt && levelCoords[level] < afterSubject; level += 1)
-          ; // do nothing
-      for (; level < levelCnt; level += 1) {
-          let placements = placementsByLevel[level];
-          let placement;
-          let searchIndex = binarySearch(placements, subjectPlacement.start, getCoordRangeEnd);
-          let lateralStart = searchIndex[0] + searchIndex[1]; // if exact match (which doesn't collide), go to next one
-          let lateralEnd = lateralStart;
-          while ( // loop through placements that horizontally intersect
-          (placement = placements[lateralEnd]) && // but not past the whole seg list
-              placement.start < subjectPlacement.end) {
-              lateralEnd += 1;
-          }
-          if (lateralStart < lateralEnd) {
-              return { level, lateralStart, lateralEnd };
-          }
-      }
-      return null;
-  }
-  function stretchWeb(topLevelNodes, totalThickness) {
-      const stretchNode = cacheable((node, startCoord, prevThickness) => getEventKey(node), (node, startCoord, prevThickness) => {
-          let { nextLevelNodes, thickness } = node;
-          let allThickness = thickness + prevThickness;
-          let thicknessFraction = thickness / allThickness;
-          let endCoord;
-          let newChildren = [];
-          if (!nextLevelNodes.length) {
-              endCoord = totalThickness;
-          }
-          else {
-              for (let childNode of nextLevelNodes) {
-                  if (endCoord === undefined) {
-                      let res = stretchNode(childNode, startCoord, allThickness);
-                      endCoord = res[0];
-                      newChildren.push(res[1]);
-                  }
-                  else {
-                      let res = stretchNode(childNode, endCoord, 0);
-                      newChildren.push(res[1]);
-                  }
-              }
-          }
-          let newThickness = (endCoord - startCoord) * thicknessFraction;
-          return [endCoord - newThickness, {
-                  ...node,
-                  thickness: newThickness,
-                  nextLevelNodes: newChildren,
-              }];
-      });
-      return topLevelNodes.map((node) => stretchNode(node, 0, 0)[1]);
-  }
-  // not sorted in any particular order
-  function webToRects(topLevelNodes) {
-      let rectMap = new Map();
-      /*
-      Returns max stackForward of the node's forward children
-      */
-      const processNode = cacheable((node, levelCoord, stackDepth) => getEventKey(node), (node, levelCoord, stackDepth) => {
-          let rect = {
-              ...node,
-              levelCoord,
-              stackDepth,
-              stackForward: 0, // will assign after recursing
-          };
-          rectMap.set(rect.eventRange.instance.instanceId, rect);
-          return (rect.stackForward = processNodes(node.nextLevelNodes, levelCoord + node.thickness, stackDepth + 1));
-      });
-      /*
-      Returns max stackForward of all `nodes`
-      */
-      function processNodes(nodes, levelCoord, stackDepth) {
-          let stackForward = 0;
-          for (let node of nodes) {
-              stackForward = Math.max(processNode(node, levelCoord, stackDepth) + 1, stackForward);
-          }
-          return stackForward;
-      }
-      processNodes(topLevelNodes, 0, 0);
-      return rectMap;
-  }
-  // TODO: move to general util
-  function cacheable(keyFunc, workFunc) {
-      const cache = {};
-      return (...args) => {
-          let key = keyFunc(...args);
-          return (key in cache)
-              ? cache[key]
-              : (cache[key] = workFunc(...args));
+      const layout = layoutTimeGridColumnByMaxLevel(sourceSegs, eventMaxStack ?? Infinity, { orderStrict: eventOrderStrict ?? false });
+      return {
+          placements: layout.domOrderedPlacements.map((placement) => {
+              const seg = placement.sourceSeg;
+              return {
+                  seg,
+                  segVertical: segVerticalBySeg.get(seg),
+                  levelCoord: placement.levelCoord,
+                  thickness: placement.thickness,
+                  stackDepth: placement.backwardDepth,
+                  stackForward: placement.forwardDepth,
+              };
+          }),
+          hiddenGroups: layout.moreLinkGroups.map((group) => {
+              const groupSegs = group.hiddenSlices.map((slice) => slice.sourceSeg);
+              return {
+                  key: group.key,
+                  start: group.start,
+                  end: group.end,
+                  segs: groupSegs,
+              };
+          }),
       };
+  }
+  /**
+   * Builds, limits, and expands one TimeGrid day/resource column.
+   *
+   * TimeGrid rotates the visual meaning of the shared kernel's level structure.
+   * A seg's lateral span runs down the time axis, while logical levels proceed
+   * across the column. The retained levels become a normalized collision web:
+   * connected components get equal base columns, and events widen through empty
+   * deeper columns until their first collider.
+   */
+  function layoutTimeGridColumnByMaxLevel(eventOrderedSegs, maxLevels, options) {
+      const { segLevels, excludedSegs } = buildSegLevels(eventOrderedSegs, options.orderStrict, maxLevels);
+      const placements = positionTimeGridPlacements(segLevels);
+      const moreLinkGroups = groupLaterallyIntersecting(convertSegsToWholeSlices(excludedSegs));
+      return {
+          domOrderedPlacements: sortByAxisOrder(placements),
+          moreLinkGroups,
+      };
+  }
+  /**
+   * Turns retained dimensionless levels into normalized placement rectangles.
+   *
+   * Each connected collision component shares equal-width base columns. An
+   * event then expands through consecutive deeper columns until the first one
+   * containing a collider. A single intersection sweep supplies component
+   * membership, expansion stops, and backward/forward longest-chain depths.
+   */
+  function positionTimeGridPlacements(levels) {
+      const placementLevels = levels.map((level, levelIndex) => level.map((sourceSeg) => ({
+          sourceSeg,
+          start: sourceSeg.start,
+          end: sourceSeg.end,
+          isStart: sourceSeg.isStart,
+          isEnd: sourceSeg.isEnd,
+          levelIndex,
+      })));
+      // Level order matters below: every placement precedes its deeper colliders.
+      const placements = flatArray(placementLevels);
+      const collidersByKey = new Map();
+      const parentByKey = new Map(placements.map((placement) => [
+          placement.sourceSeg.key,
+          placement.sourceSeg.key,
+      ]));
+      for (const placement of placements) {
+          const colliders = [];
+          for (let levelIndex = placement.levelIndex + 1; levelIndex < levels.length; levelIndex += 1) {
+              colliders.push(...findIntersections(placementLevels[levelIndex], placement));
+          }
+          collidersByKey.set(placement.sourceSeg.key, colliders);
+          for (const collider of colliders) {
+              unionPlacementKeys(parentByKey, placement.sourceSeg.key, collider.sourceSeg.key);
+          }
+      }
+      const maxLevelByRoot = new Map();
+      for (const placement of placements) {
+          const root = findPlacementRoot(parentByKey, placement.sourceSeg.key);
+          maxLevelByRoot.set(root, Math.max(maxLevelByRoot.get(root) ?? 0, placement.levelIndex));
+      }
+      // Longest chains through the collision graph, as dynamic programming over
+      // the adjacency. The passes run in opposite level orders so each dependency
+      // is final before it contributes to the next placement.
+      const backwardDepthByKey = new Map(placements.map((placement) => [
+          placement.sourceSeg.key,
+          0,
+      ]));
+      const forwardDepthByKey = new Map(placements.map((placement) => [
+          placement.sourceSeg.key,
+          0,
+      ]));
+      for (const placement of placements) {
+          const depth = backwardDepthByKey.get(placement.sourceSeg.key) + 1;
+          for (const collider of collidersByKey.get(placement.sourceSeg.key)) {
+              backwardDepthByKey.set(collider.sourceSeg.key, Math.max(backwardDepthByKey.get(collider.sourceSeg.key), depth));
+          }
+      }
+      for (let index = placements.length - 1; index >= 0; index -= 1) {
+          const placement = placements[index];
+          let depth = 0;
+          for (const collider of collidersByKey.get(placement.sourceSeg.key)) {
+              depth = Math.max(depth, forwardDepthByKey.get(collider.sourceSeg.key) + 1);
+          }
+          forwardDepthByKey.set(placement.sourceSeg.key, depth);
+      }
+      return placements.map((placement) => {
+          const key = placement.sourceSeg.key;
+          const levelCount = maxLevelByRoot.get(findPlacementRoot(parentByKey, key)) + 1;
+          // Expand until the shallowest deeper collider. Colliders always share the
+          // component, so their levels stay within its column count.
+          let farLevel = levelCount;
+          for (const collider of collidersByKey.get(key)) {
+              farLevel = Math.min(farLevel, collider.levelIndex);
+          }
+          const levelCoord = placement.levelIndex / levelCount;
+          const thickness = (farLevel - placement.levelIndex) / levelCount;
+          return {
+              ...placement,
+              levelCoord,
+              thickness,
+              levelEndCoord: levelCoord + thickness,
+              backwardDepth: backwardDepthByKey.get(key),
+              forwardDepth: forwardDepthByKey.get(key),
+          };
+      });
+  }
+  function findPlacementRoot(parentByKey, key) {
+      const parent = parentByKey.get(key);
+      if (parent === key)
+          return key;
+      const root = findPlacementRoot(parentByKey, parent);
+      parentByKey.set(key, root);
+      return root;
+  }
+  function unionPlacementKeys(parentByKey, first, second) {
+      const firstRoot = findPlacementRoot(parentByKey, first);
+      const secondRoot = findPlacementRoot(parentByKey, second);
+      if (firstRoot !== secondRoot)
+          parentByKey.set(secondRoot, firstRoot);
+  }
+
+  /**
+   * Slat height assumed on the first render, before the real one is measured.
+   *
+   * Without it, `computeFgSegVerticals` has no canvas to project onto and returns
+   * nothing, so the view paints a frame containing no events at all and the
+   * calendar looks empty until measurement lands. Projecting against an assumed
+   * height instead means events are present in that very first paint.
+   *
+   * A flat constant is enough, and deliberately so. Placement compares segs
+   * against each other and never against the axis length, so scaling every
+   * coordinate by the same factor leaves collisions and level assignment
+   * untouched. Guessing wrong rescales the raw geometry; it does not reorganize
+   * it. That is why the caller withholds `eventMinHeight` while assuming — a
+   * pixel floor applied at the wrong scale would stretch the wrong segs, and
+   * stretching is what creates collisions.
+   *
+   * This is a claim about the raw coordinates only. The measured pass turns
+   * `eventMinHeight` back on, and stretching a sub-minimum seg there can make it
+   * collide with a neighbor it previously cleared, changing levels and
+   * `eventMaxStack` admission. Expect the assumed pass to agree in the common
+   * case; do not treat it as final.
+   *
+   * TimeGrid's caveat list stops there, unlike Timeline's: it places with unit
+   * thickness and measures no event wrappers, so nothing about the rendered size
+   * can feed back into placement. `isShort` also differs across passes, but that
+   * is a styling decision rather than geometry.
+   */
+  const ESTIMATED_SLAT_HEIGHT = 50;
+
+  // Firefox is terrible at rendering absolute elements that span across multiple print pages
+  const isBrowserPrintQuirky = /* true || */ (typeof navigator !== 'undefined' &&
+      navigator.userAgent.toLowerCase().includes('firefox'));
+  function computeTimeGridPrintMode(forPrint, eventPrintLayout) {
+      if (!forPrint) {
+          return 'positioned';
+      }
+      return eventPrintLayout === 'stack' || (eventPrintLayout !== 'grid' && isBrowserPrintQuirky)
+          ? 'stack'
+          : 'positioned';
   }
 
   const DEFAULT_TIME_FORMAT$1 = createFormatter({
@@ -12510,11 +13962,9 @@ var FullCalendar = (function (exports) {
   class TimeGridMoreLink extends BaseComponent {
       render() {
           let { props } = this;
-          return (u$1("div", { className: joinClassNames(classNames.abs, classNames.flexCol), style: {
+          return (u$1("div", { className: joinClassNames(classNames.abs, classNames.flexCol, classNames.end0, classNames.z9999), style: {
                   top: props.top,
                   height: props.height,
-                  insetInlineEnd: 0,
-                  zIndex: 9999, // HACK. move to className?
               }, children: u$1(MoreLinkContainer, { className: classNames.liquid, display: 'column', allDayDate: null, segs: props.hiddenSegs, hiddenSegs: props.hiddenSegs, dateSpanProps: props.dateSpanProps, dateProfile: props.dateProfile, todayRange: props.todayRange, popoverContent: () => renderPlainFgSegs(props.hiddenSegs, props, /* isMirror = */ false), forceTimed: true, isNarrow: props.isNarrow, isMicro: props.isMicro }) }));
       }
   }
@@ -12541,15 +13991,9 @@ var FullCalendar = (function (exports) {
       const top = props.totalHeight != null
           ? props.totalHeight * computeDateTopFrac(props.nowDate, props.dateProfile, props.dayDate)
           : undefined;
-      return (u$1("div", { className: classNames.fill, style: {
-              zIndex: 2, // inlined from $now-indicator-z
-              pointerEvents: 'none', // TODO: className
-          }, children: [u$1(NowIndicatorLineContainer, { className: joinClassNames(classNames.fillX, classNames.noMarginX, classNames.borderlessX), style: { top }, date: props.nowDate }), (props.showDot ?? true) && (u$1(NowIndicatorDot, { className: joinClassNames(classNames.abs, classNames.start0), style: { top } }))] }));
+      return (u$1("div", { className: joinClassNames(classNames.fill, classNames.pointerEventsNone, classNames.z2), children: [u$1(NowIndicatorLineContainer, { className: joinClassNames(classNames.fillX, classNames.noMarginX, classNames.borderlessX), style: { top }, date: props.nowDate }), (props.showDot ?? true) && (u$1(NowIndicatorDot, { className: joinClassNames(classNames.abs, classNames.start0), style: { top } }))] }));
   }
 
-  // Firefox is terrible at rendering absolute elements that span across multiple print pages
-  const isBrowserPrintQuirky = /* true || */ (typeof navigator !== 'undefined' &&
-      navigator.userAgent.toLowerCase().includes('firefox'));
   class TimeGridCol extends BaseComponent {
       constructor() {
           super(...arguments);
@@ -12566,10 +14010,10 @@ var FullCalendar = (function (exports) {
               (isSelectMirror && props.dateSelectionSegs) ||
               [];
           let dateMeta = this.getDateMeta(props.date, dateEnv, props.dateProfile, props.todayRange);
-          const baseClassName = joinClassNames(props.borderStart ? classNames.borderOnlyS : classNames.borderNone, props.width == null && classNames.liquid, classNames.rel);
+          const baseClassName = joinClassNames(classNames.borderlessY, classNames.borderlessEnd, !props.borderStart && classNames.borderlessStart, props.width == null && classNames.liquid, classNames.rel, // origin for abs-positioned children within
+          classNames.z1);
           const baseStyle = {
               width: props.width,
-              zIndex: 1, // get above slots
           };
           const isStack = this.getIsStack();
           const renderProps = {
@@ -12583,17 +14027,17 @@ var FullCalendar = (function (exports) {
           if (dateMeta.isDisabled) {
               return (u$1("div", { role: 'gridcell', "aria-disabled": true, className: joinClassNames(generateClassName(options.dayLaneClass, renderProps), baseClassName), style: baseStyle }));
           }
-          const innerClassName = joinClassNames(generateClassName(options.dayLaneInnerClass, renderProps), !isStack && classNames.fill);
+          const innerClassName = joinClassNames(generateClassName(options.dayLaneInnerClass, renderProps), !isStack && classNames.fill, classNames.z1);
           const sortedFgSegs = this.sortEventSegs(props.fgEventSegs, options.eventOrder);
           return (u$1(ContentContainer, { tag: "div", attrs: {
                   ...props.attrs,
                   role: 'gridcell',
                   ...(dateMeta.isToday ? { 'aria-current': 'date' } : {}),
                   'data-date': formatDayString(props.date),
-              }, className: baseClassName, style: baseStyle, renderProps: renderProps, generatorName: undefined, classNameGenerator: options.dayLaneClass, didMount: options.dayLaneDidMount, willUnmount: options.dayLaneWillUnmount, children: () => (u$1(S, { children: [this.renderFillSegs(props.businessHourSegs, 'non-business'), this.renderFillSegs(props.bgEventSegs, 'bg-event'), this.renderFillSegs(props.dateSelectionSegs, 'highlight'), u$1("div", { className: innerClassName, style: { zIndex: 1 }, children: this.renderFgSegs(sortedFgSegs, 
+              }, className: baseClassName, style: baseStyle, renderProps: renderProps, generatorName: undefined, classNameGenerator: options.dayLaneClass, didMount: options.dayLaneDidMount, willUnmount: options.dayLaneWillUnmount, children: () => (u$1(S, { children: [this.renderFillSegs(props.businessHourSegs, 'non-business'), this.renderFillSegs(props.bgEventSegs, 'bg-event'), this.renderFillSegs(props.dateSelectionSegs, 'highlight'), u$1("div", { className: innerClassName, children: this.renderFgSegs(sortedFgSegs, 
                           /* isMirror = */ false) }), Boolean(mirrorSegs.length) && (
                       // but only show it when there are actual mirror events, to avoid blocking clicks
-                      u$1("div", { className: innerClassName, style: { zIndex: 1 }, children: this.renderFgSegs(mirrorSegs, 
+                      u$1("div", { className: innerClassName, children: this.renderFgSegs(mirrorSegs, 
                           /* isMirror = */ true) })), this.renderNowIndicator(props.nowIndicatorSegs)] })) }));
       }
       renderFgSegs(sortedFgSegs, isMirror) {
@@ -12601,54 +14045,70 @@ var FullCalendar = (function (exports) {
           if (this.getIsStack()) {
               return renderPlainFgSegs(sortedFgSegs, props, isMirror);
           }
-          return this.renderPositionedFgSegs(sortedFgSegs, isMirror);
+          if (isMirror) {
+              return this.renderPositionedMirrorSegs(sortedFgSegs);
+          }
+          return this.renderPositionedFgSegs(sortedFgSegs);
       }
-      renderPositionedFgSegs(segs, // if not mirror, needs to be sorted
-      isMirror) {
-          let { props, context } = this;
-          let { date, dateProfile, eventSelection, todayRange, nowDate } = props;
-          let { eventMaxStack, eventShortHeight, eventOrderStrict, eventMinHeight } = context.options;
-          // TODO: memoize this?
-          let segVerticals = computeFgSegVerticals(segs, dateProfile, date, props.slatCnt, props.slatHeight, eventMinHeight, eventShortHeight);
-          let [segRects, hiddenGroups] = buildWebPositioning(segs, segVerticals, eventOrderStrict, eventMaxStack);
-          return (u$1(S, { children: [segs.map((seg, index) => {
-                      let { eventRange } = seg;
-                      let { instanceId } = eventRange.instance; // guaranteed because it's an fg event
-                      let segVertical = segVerticals[index] || {};
-                      let segRect = segRects.get(instanceId); // for horizontals. could be undefined!? HACK
-                      let hStyle = (!isMirror && segRect)
-                          ? this.computeSegHStyle(segRect)
-                          : { left: 0, right: 0, zIndex: 0 };
-                      let isSelected = instanceId === eventSelection;
-                      if (isSelected) {
-                          hStyle.zIndex += 1000; // HACK: relies on hardcoded z-index offset; fragile if stacking context changes
-                      }
-                      let isDragging = Boolean(props.eventDrag && props.eventDrag.affectedInstances[instanceId]);
-                      let isResizing = Boolean(props.eventResize && props.eventResize.affectedInstances[instanceId]);
-                      let isInvisible = !isMirror && (isDragging || isResizing || !segRect);
-                      return (u$1("div", { 
-                          // we would have used classNames.fill, but multi-page spanning breaks in Firefox
-                          // we would have used height:100%, but multi-page spanning breaks in Safari
-                          className: joinClassNames(classNames.abs, classNames.flexCol), style: {
-                              visibility: isInvisible ? 'hidden' : undefined,
-                              top: segVertical.start,
-                              height: segVertical.size,
-                              ...hStyle,
-                          }, children: u$1(TimeGridEvent, { eventRange: eventRange, slicedStart: seg.startDate, slicedEnd: seg.endDate, isStart: seg.isStart, isEnd: seg.isEnd, isDragging: isDragging, isResizing: isResizing, isMirror: isMirror, isSelected: isSelected, level: segRect ? segRect.stackDepth : 0, isNarrow: props.isNarrow, isShort: segVertical.isShort || false, isLiquid: true, ...getEventRangeMeta(eventRange, todayRange, nowDate) }) }, instanceId));
-                  }), this.renderHiddenGroups(hiddenGroups)] }));
+      renderPositionedFgSegs(segs) {
+          let { eventMaxStack, eventOrderStrict } = this.context.options;
+          let segVerticals = this.computeSegVerticals(segs);
+          let { placements, hiddenGroups } = buildTimeGridSegPlacements(segs, segVerticals, eventOrderStrict, eventMaxStack);
+          return (u$1(S, { children: [placements.map((placement) => this.renderPositionedSeg(placement.seg, placement.segVertical, this.computeSegHStyle(placement), placement.stackDepth, 
+                  /* isMirror = */ false)), this.renderHiddenGroups(hiddenGroups)] }));
+      }
+      // Mirrors bypass normal-event admission so limits cannot hide them or create more links.
+      renderPositionedMirrorSegs(segs) {
+          let segVerticals = this.computeSegVerticals(segs);
+          return segs.map((seg, index) => this.renderPositionedSeg(seg, segVerticals[index] || {}, { left: 0, right: 0, zIndex: 0 }, // full column width
+          /* level = */ 0, 
+          /* isMirror = */ true));
+      }
+      renderPositionedSeg(seg, segVertical, hStyle, level, isMirror) {
+          let { props } = this;
+          let { eventRange } = seg;
+          let { instanceId } = eventRange.instance; // guaranteed because it's an fg event
+          let isSelected = instanceId === props.eventSelection;
+          if (isSelected) {
+              hStyle.zIndex += 1000; // HACK: relies on hardcoded z-index offset; fragile if stacking context changes
+          }
+          let isDragging = Boolean(props.eventDrag && props.eventDrag.affectedInstances[instanceId]);
+          let isResizing = Boolean(props.eventResize && props.eventResize.affectedInstances[instanceId]);
+          let isInvisible = !isMirror && (isDragging || isResizing);
+          return (u$1("div", { 
+              // we would have used classNames.fill, but multi-page spanning breaks in Firefox
+              // we would have used height:100%, but multi-page spanning breaks in Safari
+              className: joinClassNames(classNames.abs, classNames.flexCol), style: {
+                  visibility: isInvisible ? 'hidden' : undefined,
+                  top: segVertical.start,
+                  height: segVertical.size,
+                  ...hStyle,
+              }, children: u$1(TimeGridEvent, { eventRange: eventRange, slicedStart: seg.startDate, slicedEnd: seg.endDate, isStart: seg.isStart, isEnd: seg.isEnd, isDragging: isDragging, isResizing: isResizing, isMirror: isMirror, isSelected: isSelected, level: level, isNarrow: props.isNarrow, isShort: segVertical.isShort || false, isLiquid: true, ...getEventRangeMeta(eventRange, props.todayRange, props.nowDate, props.nowMs) }) }, instanceId));
       }
       /*
-      NOTE: will already have eventMinHeight applied because segEntries(?) already had it
+      A pixel floor is only meaningful against a real slat height, so it stays off
+      while the height is assumed. See ESTIMATED_SLAT_HEIGHT for why, and for what
+      the assumed pass does and does not guarantee.
+      */
+      // TODO: memoize this?
+      computeSegVerticals(segs) {
+          let { props, context } = this;
+          let isMeasured = props.slatHeight != null;
+          return computeFgSegVerticals(segs, props.dateProfile, props.date, props.slatCnt, props.slatHeight ?? ESTIMATED_SLAT_HEIGHT, isMeasured ? context.options.eventMinHeight : undefined, context.options.eventShortHeight);
+      }
+      /*
+      NOTE: a group's coordinates come from computeFgSegVerticals, so eventMinHeight
+      has already been applied to the segs it was formed from
       */
       renderHiddenGroups(hiddenGroups) {
-          let { dateSpanProps, dateProfile, todayRange, nowDate, eventSelection, eventDrag, eventResize, isNarrow, isMicro } = this.props;
+          let { dateSpanProps, dateProfile, todayRange, nowDate, nowMs, eventSelection, eventDrag, eventResize, isNarrow, isMicro } = this.props;
           return (u$1(S, { children: hiddenGroups.map((hiddenGroup) => {
-                  return (u$1(TimeGridMoreLink, { hiddenSegs: hiddenGroup.segs, top: hiddenGroup.start, height: hiddenGroup.end - hiddenGroup.start, isNarrow: isNarrow, isMicro: isMicro, dateSpanProps: dateSpanProps, dateProfile: dateProfile, todayRange: todayRange, nowDate: nowDate, eventSelection: eventSelection, eventDrag: eventDrag, eventResize: eventResize }, hiddenGroup.key));
+                  return (u$1(TimeGridMoreLink, { hiddenSegs: hiddenGroup.segs, top: hiddenGroup.start, height: hiddenGroup.end - hiddenGroup.start, isNarrow: isNarrow, isMicro: isMicro, dateSpanProps: dateSpanProps, dateProfile: dateProfile, todayRange: todayRange, nowDate: nowDate, nowMs: nowMs, eventSelection: eventSelection, eventDrag: eventDrag, eventResize: eventResize }, hiddenGroup.key));
               }) }));
       }
       renderFillSegs(segs, fillType) {
           let { props, context } = this;
-          let segVerticals = computeFgSegVerticals(segs, props.dateProfile, props.date, props.slatCnt, props.slatHeight, context.options.eventMinHeight, context.options.eventShortHeight);
+          let segVerticals = this.computeSegVerticals(segs);
           return (u$1(S, { children: segs.map((seg, index) => {
                   const { eventRange } = seg;
                   const segVertical = segVerticals[index] || {};
@@ -12661,7 +14121,7 @@ var FullCalendar = (function (exports) {
                           // will render on both at the same time
                           marginInlineStart: -1,
                       }, children: fillType === 'bg-event' ?
-                          u$1(BgEvent, { eventRange: eventRange, isStart: seg.isStart, isEnd: seg.isEnd, isNarrow: props.isNarrow, isShort: segVertical.isShort || false, isVertical: true, ...getEventRangeMeta(eventRange, props.todayRange, props.nowDate) }) :
+                          u$1(BgEvent, { eventRange: eventRange, isStart: seg.isStart, isEnd: seg.isEnd, isNarrow: props.isNarrow, isShort: segVertical.isShort || false, isVertical: true, ...getEventRangeMeta(eventRange, props.todayRange, props.nowDate, props.nowMs) }) :
                           renderFill(fillType, context.options) }, buildEventRangeKey(eventRange)));
               }) }));
       }
@@ -12698,18 +14158,17 @@ var FullCalendar = (function (exports) {
       }
       getIsStack() {
           const { eventPrintLayout } = this.context.options;
-          return this.props.forPrint && (eventPrintLayout === 'stack' ||
-              (eventPrintLayout !== 'grid' /* aka 'auto' */ && isBrowserPrintQuirky));
+          return computeTimeGridPrintMode(this.props.forPrint, eventPrintLayout) === 'stack';
       }
   }
-  function renderPlainFgSegs(sortedFgSegs, { todayRange, nowDate, eventSelection, eventDrag, eventResize }, isMirror) {
+  function renderPlainFgSegs(sortedFgSegs, { todayRange, nowDate, nowMs, eventSelection, eventDrag, eventResize }, isMirror) {
       return (u$1(S, { children: sortedFgSegs.map((seg) => {
               let { eventRange } = seg;
               let { instanceId } = eventRange.instance;
               let isDragging = Boolean(eventDrag && eventDrag.affectedInstances[instanceId]);
               let isResizing = Boolean(eventResize && eventResize.affectedInstances[instanceId]);
               let isInvisible = isDragging || isResizing;
-              return (u$1("div", { className: classNames.breakInsideAvoid, style: { visibility: isInvisible ? 'hidden' : undefined }, children: u$1(TimeGridEvent, { eventRange: eventRange, slicedStart: seg.startDate, slicedEnd: seg.endDate, isStart: seg.isStart, isEnd: seg.isEnd, isDragging: isDragging, isResizing: isResizing, isMirror: isMirror, isSelected: instanceId === eventSelection, level: 0, isShort: false, isNarrow: false, disableResizing: true, ...getEventRangeMeta(eventRange, todayRange, nowDate) }) }, instanceId));
+              return (u$1("div", { className: classNames.breakInsideAvoid, style: { visibility: isInvisible ? 'hidden' : undefined }, children: u$1(TimeGridEvent, { eventRange: eventRange, slicedStart: seg.startDate, slicedEnd: seg.endDate, isStart: seg.isStart, isEnd: seg.isEnd, isDragging: isDragging, isResizing: isResizing, isMirror: isMirror, isSelected: instanceId === eventSelection, level: 0, isShort: false, isNarrow: false, disableResizing: true, ...getEventRangeMeta(eventRange, todayRange, nowDate, nowMs) }) }, instanceId));
           }) }));
   }
 
@@ -12733,7 +14192,7 @@ var FullCalendar = (function (exports) {
       }
       render() {
           const { props } = this;
-          return (u$1("div", { role: props.role /* !!! */, className: joinClassNames(props.className, classNames.flexRow), ref: this.handleRootEl, children: props.cells.map((cell, col) => (u$1(TimeGridCol, { dateProfile: props.dateProfile, nowDate: props.nowDate, todayRange: props.todayRange, date: cell.date, isMajor: cell.isMajor, slatCnt: props.slatCnt, renderProps: cell.renderProps, attrs: cell.attrs, dateSpanProps: cell.dateSpanProps, forPrint: props.forPrint, borderStart: Boolean(col), isNarrow: props.cellIsNarrow, isMicro: props.cellIsMicro, 
+          return (u$1("div", { role: props.role /* !!! */, className: joinClassNames(props.className, classNames.flexRow), ref: this.handleRootEl, children: props.cells.map((cell, col) => (u$1(TimeGridCol, { dateProfile: props.dateProfile, nowDate: props.nowDate, nowMs: props.nowMs, todayRange: props.todayRange, date: cell.date, isMajor: cell.isMajor, slatCnt: props.slatCnt, renderProps: cell.renderProps, attrs: cell.attrs, dateSpanProps: cell.dateSpanProps, forPrint: props.forPrint, borderStart: Boolean(col), isNarrow: props.cellIsNarrow, isMicro: props.cellIsMicro, 
                   // content
                   fgEventSegs: props.fgEventSegsByCol[col], bgEventSegs: props.bgEventSegsByCol[col], businessHourSegs: props.businessHourSegsByCol[col], nowIndicatorSegs: props.nowIndicatorSegsByCol[col], dateSelectionSegs: props.dateSelectionSegsByCol[col], eventDrag: props.eventDragByCol[col], eventResize: props.eventResizeByCol[col], eventSelection: props.eventSelection, 
                   // dimensions
@@ -12804,10 +14263,7 @@ var FullCalendar = (function (exports) {
       return (u$1("div", { 
           // crop any overflow that the arrow/line might cause
           // TODO: just do this on the entire canvas within the scroller
-          className: joinClassNames(classNames.fill, classNames.crop), style: {
-              zIndex: 2, // inlined from $now-indicator-z
-              pointerEvents: 'none', // TODO: className
-          }, children: u$1(NowIndicatorHeaderContainer, { className: classNames.abs, style: {
+          className: joinClassNames(classNames.fill, classNames.crop, classNames.pointerEventsNone, classNames.z2), children: u$1(NowIndicatorHeaderContainer, { className: classNames.abs, style: {
                   top: props.totalHeight != null
                       ? props.totalHeight * computeDateTopFrac(props.nowDate, props.dateProfile)
                       : undefined
@@ -12839,7 +14295,7 @@ var FullCalendar = (function (exports) {
               Array.isArray(options.slotHeaderFormat) ? createFormatter(options.slotHeaderFormat[0]) :
                   createFormatter(options.slotHeaderFormat);
           let renderProps = this.createRenderProps(props.date, props.time, !props.isLabeled, props.isNarrow, props.isFirst, headerFormat, context);
-          let className = joinClassNames(props.liquidHeight && classNames.liquid, classNames.flexRow, classNames.alignStart, classNames.noMargin, classNames.noPadding, props.borderTop ? classNames.borderOnlyT : classNames.borderNone);
+          let className = joinClassNames(props.liquidHeight && classNames.liquid, classNames.flexRow, classNames.alignStart, classNames.noMargin, classNames.noPadding, classNames.borderlessX, classNames.borderlessBottom, !props.borderTop && classNames.borderlessTop);
           if (!props.isLabeled) {
               return (u$1("div", { className: joinClassNames(generateClassName(options.slotHeaderClass, renderProps), className), style: {
                       height: props.height,
@@ -12915,7 +14371,7 @@ var FullCalendar = (function (exports) {
           };
           return (u$1(ContentContainer, { tag: "div", attrs: {
                   'data-time': props.isoTimeStr,
-              }, className: joinClassNames(classNames.noMargin, classNames.noPadding, classNames.liquid, props.borderTop ? classNames.borderOnlyT : classNames.borderNone), renderProps: renderProps, generatorName: undefined, classNameGenerator: options.slotLaneClass, didMount: options.slotLaneDidMount, willUnmount: options.slotLaneWillUnmount }));
+              }, className: joinClassNames(classNames.noMargin, classNames.noPadding, classNames.liquid, classNames.borderlessX, classNames.borderlessBottom, !props.borderTop && classNames.borderlessTop), renderProps: renderProps, generatorName: undefined, classNameGenerator: options.slotLaneClass, didMount: options.slotLaneDidMount, willUnmount: options.slotLaneWillUnmount }));
       }
   }
 
@@ -13096,16 +14552,14 @@ var FullCalendar = (function (exports) {
           const verticalScrolling = !forPrint && !getIsHeightAuto(options);
           const tableHeaderSticky = !forPrint && getTableHeaderSticky(options);
           const footerScrollbarSticky = !forPrint && getFooterScrollbarSticky(options);
-          // TODO: DRY with getIsStack
-          const { eventPrintLayout } = options;
-          const printStackEnabled = (eventPrintLayout === 'stack' ||
-              (eventPrintLayout !== 'grid' /* aka 'auto' */ && isBrowserPrintQuirky));
+          const printStackEnabled = computeTimeGridPrintMode(forPrint, options.eventPrintLayout) === 'stack';
           const absPrint = forPrint && !printStackEnabled;
           const simplePrint = forPrint && printStackEnabled;
           const colCount = props.cells.length;
-          const [canvasWidth, colWidth] = computeColWidth(colCount, props.dayMinWidth, clientWidth);
-          const cellIsMicro = colWidth != null && colWidth <= dayMicroWidth;
-          const cellIsNarrow = cellIsMicro || (colWidth != null && colWidth <= options.dayNarrowWidth);
+          const [canvasWidth, appliedColWidth] = computeColWidth(colCount, props.dayMinWidth, clientWidth);
+          const measuredColWidth = appliedColWidth ?? (clientWidth != null ? clientWidth / colCount : undefined);
+          const cellIsMicro = measuredColWidth != null && measuredColWidth <= dayMicroWidth;
+          const cellIsNarrow = cellIsMicro || (measuredColWidth != null && measuredColWidth <= options.dayNarrowWidth);
           const slatCnt = props.slatMetas.length;
           const [slatHeight, slatLiquidHeight] = computeSlatHeight(// TODO: memo?
           verticalScrolling && options.expandRows, slatCnt, options.slotMinHeight, state.slatInnerHeight, clientHeight);
@@ -13128,17 +14582,13 @@ var FullCalendar = (function (exports) {
                           borderlessBottom,
                           multiMonthColumns: 0,
                       }), 
-                      // see note in TimeGridLayout about why we don't do classNames.printHeader
-                      classNames.flexCol, tableHeaderSticky && classNames.tableHeaderSticky), style: {
-                          zIndex: 1,
-                      }, children: [u$1("div", { className: classNames.flexRow, children: [u$1("div", { role: 'rowgroup', className: classNames.contentBox, style: { width: axisWidth }, children: headerTiers.map((rowConfig, tierNum) => (u$1("div", { role: 'row', "aria-rowindex": tierNum + 1, className: joinClassNames(options.dayHeaderRowClass, classNames.flexRow, classNames.contentBox, tierNum < props.headerTiers.length - 1
-                                              ? classNames.borderOnlyB
-                                              : classNames.borderNone), style: {
+                      // See the note in TimeGridLayout about why print doesn't use repeating headers.
+                      classNames.flexCol, tableHeaderSticky && classNames.tableHeaderSticky, classNames.z1), children: [u$1("div", { className: classNames.flexRow, children: [u$1("div", { role: 'rowgroup', className: classNames.contentBox, style: { width: axisWidth }, children: headerTiers.map((rowConfig, tierNum) => (u$1("div", { role: 'row', "aria-rowindex": tierNum + 1, className: joinClassNames(options.dayHeaderRowClass, classNames.flexRow, classNames.contentBox, classNames.borderlessX, classNames.borderlessTop, tierNum === props.headerTiers.length - 1 && classNames.borderlessBottom), style: {
                                               height: state.headerTierHeights[tierNum]
                                           }, children: (options.weekNumbers && rowConfig.isDateRow) ? (u$1(TimeGridWeekNumber, { dateProfile: props.dateProfile, innerWidthRef: headerLabelInnerWidthRefMap.createRef(tierNum), innerHeightRef: headerLabelInnerHeightRefMap.createRef(tierNum), width: undefined, isLiquid: true, isNarrow: cellIsNarrow })) : (u$1(TimeGridAxisEmpty, { width: undefined, isLiquid: true })) }, tierNum))) }), u$1("div", { className: generateClassName(options.slotHeaderDividerClass, {
                                           inTableHeader: true,
                                           options: { dayMinWidth: options.dayMinWidth },
-                                      }) }), u$1(Scroller, { horizontal: true, hideScrollbars: true, className: joinClassNames(classNames.flexRow, classNames.liquid), ref: this.headerScrollerRef, children: [u$1("div", { role: 'rowgroup', className: canvasWidth == null ? classNames.liquid : '', style: { width: canvasWidth }, children: props.headerTiers.map((rowConfig, tierNum) => (k$1(DayGridHeaderRow, { ...rowConfig, key: tierNum, role: 'row', rowIndex: tierNum, borderBottom: tierNum < props.headerTiers.length - 1, height: state.headerTierHeights[tierNum], colWidth: colWidth, viewportWidth: clientWidth, innerHeightRef: headerMainInnerHeightRefMap.createRef(tierNum), cellIsNarrow: cellIsNarrow, cellIsMicro: cellIsMicro, rowLevel: props.headerTiers.length - tierNum - 1 }))) }), Boolean(endScrollbarWidth) && (u$1("div", { className: joinClassNames(generateClassName(options.fillerClass, { inTableHeader: true }), classNames.borderOnlyS), style: { minWidth: endScrollbarWidth } }))] })] }), u$1("div", { className: generateClassName(options.dayHeaderDividerClass, {
+                                      }) }), u$1(Scroller, { horizontal: true, hideScrollbars: true, className: joinClassNames(classNames.flexRow, classNames.liquid), ref: this.headerScrollerRef, children: [u$1("div", { role: 'rowgroup', className: canvasWidth == null ? classNames.liquid : '', style: { width: canvasWidth }, children: props.headerTiers.map((rowConfig, tierNum) => (k$1(DayGridHeaderRow, { ...rowConfig, key: tierNum, role: 'row', rowIndex: tierNum, borderBottom: tierNum < props.headerTiers.length - 1, height: state.headerTierHeights[tierNum], colWidth: appliedColWidth, viewportWidth: clientWidth, innerHeightRef: headerMainInnerHeightRefMap.createRef(tierNum), cellIsNarrow: cellIsNarrow, cellIsMicro: cellIsMicro, rowLevel: props.headerTiers.length - tierNum - 1 }))) }), Boolean(endScrollbarWidth) && (u$1("div", { className: joinClassNames(generateClassName(options.fillerClass, { inTableHeader: true }), classNames.borderlessY, classNames.borderlessEnd), style: { minWidth: endScrollbarWidth } }))] })] }), u$1("div", { className: generateClassName(options.dayHeaderDividerClass, {
                                   isSticky: tableHeaderSticky,
                                   multiMonthColumns: 0,
                                   options: { allDaySlot: Boolean(options.allDaySlot) },
@@ -13147,27 +14597,23 @@ var FullCalendar = (function (exports) {
                           borderlessTop,
                           borderlessBottom,
                           multiMonthColumns: 0,
-                      }), classNames.flexCol, verticalScrolling && classNames.liquid, classNames.isolate), style: {
-                          zIndex: 0,
-                      }, children: [options.allDaySlot && (u$1(S, { children: [u$1("div", { role: 'row', "aria-rowindex": firstBodyRowIndex, className: classNames.flexRow, style: { zIndex: 1 }, children: [u$1(TimeGridAllDayHeader, { width: axisWidth, innerWidthRef: this.handleAllDayLabelInnerWidth, isNarrow: cellIsNarrow }), u$1("div", { className: generateClassName(options.slotHeaderDividerClass, {
+                      }), classNames.flexCol, verticalScrolling && classNames.liquid, classNames.isolate, classNames.z0), children: [options.allDaySlot && (u$1(S, { children: [u$1("div", { role: 'row', "aria-rowindex": firstBodyRowIndex, className: joinClassNames(classNames.flexRow, classNames.z1), children: [u$1(TimeGridAllDayHeader, { width: axisWidth, innerWidthRef: this.handleAllDayLabelInnerWidth, isNarrow: cellIsNarrow }), u$1("div", { className: generateClassName(options.slotHeaderDividerClass, {
                                                   inTableHeader: false,
                                                   options: { dayMinWidth: options.dayMinWidth },
                                               }) }), u$1(Scroller, { horizontal: true, hideScrollbars: true, 
                                               // fill remaining width
-                                              className: joinClassNames(classNames.flexRow, classNames.liquidX), ref: this.allDayScrollerRef, children: [u$1("div", { className: classNames.flexRow, style: { width: canvasWidth }, children: u$1(TimeGridAllDayLane, { dateProfile: props.dateProfile, todayRange: props.todayRange, cells: props.cells, showDayNumbers: false, forPrint: forPrint, isHitComboAllowed: props.isHitComboAllowed, className: joinClassNames(classNames.borderNone, classNames.liquidX), cellIsNarrow: cellIsNarrow, cellIsMicro: cellIsMicro, 
+                                              className: joinClassNames(classNames.flexRow, classNames.liquidX), ref: this.allDayScrollerRef, children: [u$1("div", { className: classNames.flexRow, style: { width: canvasWidth }, children: u$1(TimeGridAllDayLane, { dateProfile: props.dateProfile, todayRange: props.todayRange, cells: props.cells, showDayNumbers: false, forPrint: forPrint, isHitComboAllowed: props.isHitComboAllowed, className: joinClassNames(classNames.borderless, classNames.liquidX), cellIsNarrow: cellIsNarrow, cellIsMicro: cellIsMicro, 
                                                           // content
                                                           fgEventSegs: props.fgEventSegs, bgEventSegs: props.bgEventSegs, businessHourSegs: props.businessHourSegs, dateSelectionSegs: props.dateSelectionSegs, eventSelection: props.eventSelection, eventDrag: props.eventDrag, eventResize: props.eventResize, dayMaxEvents: props.dayMaxEvents, dayMaxEventRows: props.dayMaxEventRows, 
                                                           // dimensions
-                                                          colWidth: colWidth }) }), Boolean(endScrollbarWidth) && (u$1("div", { className: joinClassNames(generateClassName(options.fillerClass, { inTableHeader: false }), classNames.borderOnlyS), style: { minWidth: endScrollbarWidth } }))] })] }), u$1("div", { className: joinClassNames(options.allDayDividerClass), style: { zIndex: 2 } })] })), u$1("div", { role: 'row', "aria-rowindex": firstBodyRowIndex + (options.allDaySlot ? 1 : 0), className: joinClassNames(classNames.flexRow, classNames.rel, // for Ruler.fillStart
-                              verticalScrolling && classNames.liquid), style: {
-                                  zIndex: 0,
-                              }, children: [u$1(Scroller, { vertical: verticalScrolling, hideScrollbars: true, className: joinClassNames(classNames.flexCol, classNames.contentBox), style: {
+                                                          colWidth: appliedColWidth }) }), Boolean(endScrollbarWidth) && (u$1("div", { className: joinClassNames(generateClassName(options.fillerClass, { inTableHeader: false }), classNames.borderlessY, classNames.borderlessEnd), style: { minWidth: endScrollbarWidth } }))] })] }), u$1("div", { className: joinClassNames(options.allDayDividerClass, classNames.z2) })] })), u$1("div", { role: 'row', "aria-rowindex": firstBodyRowIndex + (options.allDaySlot ? 1 : 0), className: joinClassNames(classNames.flexRow, classNames.rel, // for Ruler.fillStart
+                              verticalScrolling && classNames.liquid, classNames.z0), children: [u$1(Scroller, { vertical: verticalScrolling, hideScrollbars: true, className: joinClassNames(classNames.flexCol, classNames.contentBox), style: {
                                           width: axisWidth,
                                       }, ref: this.axisScrollerRef, clientHeightRef: this.handleBodyHeight, children: !simplePrint && (u$1(S, { children: u$1("div", { role: 'rowheader', "aria-label": options.timedText, className: joinClassNames(classNames.flexCol, classNames.grow, classNames.rel), style: {
                                                   height: forcedBodyHeight,
                                               }, children: [u$1("div", { "aria-hidden": true, className: joinClassNames(classNames.flexCol, (verticalScrolling && options.expandRows) && classNames.grow, absPrint && classNames.fillX), children: props.slatMetas.map((slatMeta, slatI) => (k$1(TimeGridSlatHeader, { ...slatMeta /* FYI doesn't need isoTimeStr */, key: slatMeta.key, innerWidthRef: slatLabelInnerWidthRefMap.createRef(slatMeta.key), innerHeightRef: slatLabelInnerHeightRefMap.createRef(slatMeta.key), borderTop: Boolean(slatI), isNarrow: cellIsNarrow, height: slatLiquidHeight ? undefined : slatHeight, liquidHeight: slatLiquidHeight }))) }), !forPrint && options.nowIndicator && rangeContainsMarker(props.dateProfile.currentRange, nowDate) &&
                                                       nowTimeMs >= props.dateProfile.slotMinTime.milliseconds &&
-                                                      nowTimeMs < props.dateProfile.slotMaxTime.milliseconds && (u$1(TimeGridNowIndicatorArrow, { nowDate: nowDate, dateProfile: props.dateProfile, totalHeight: slatHeight != null ? slatHeight * slatCnt : undefined })), Boolean(rowsNotExpanding || bottomScrollbarWidth) && (u$1("div", { className: joinClassNames(generateClassName(options.fillerClass, { inTableHeader: false }), classNames.borderOnlyT, rowsNotExpanding && classNames.liquid), style: {
+                                                      nowTimeMs < props.dateProfile.slotMaxTime.milliseconds && (u$1(TimeGridNowIndicatorArrow, { nowDate: nowDate, dateProfile: props.dateProfile, totalHeight: slatHeight != null ? slatHeight * slatCnt : undefined })), Boolean(rowsNotExpanding || bottomScrollbarWidth) && (u$1("div", { className: joinClassNames(generateClassName(options.fillerClass, { inTableHeader: false }), classNames.borderlessX, classNames.borderlessBottom, rowsNotExpanding && classNames.liquid), style: {
                                                           minHeight: bottomScrollbarWidth
                                                       } }))] }) })) }), u$1("div", { className: generateClassName(options.slotHeaderDividerClass, {
                                           inTableHeader: false,
@@ -13180,13 +14626,13 @@ var FullCalendar = (function (exports) {
                                               verticalScrolling && classNames.liquid), ref: this.mainScrollerRef, clientWidthRef: this.handleClientWidth, clientHeightRef: this.handleClientHeight, children: u$1("div", { className: joinClassNames(classNames.flexCol, classNames.grow, classNames.rel), style: {
                                                       width: canvasWidth,
                                                       height: forcedBodyHeight,
-                                                  }, children: [u$1(TimeGridCols, { dateProfile: props.dateProfile, nowDate: props.nowDate, todayRange: props.todayRange, cells: props.cells, slatCnt: slatCnt, forPrint: forPrint, isHitComboAllowed: props.isHitComboAllowed, className: simplePrint ? '' : classNames.fill, 
+                                                  }, children: [u$1(TimeGridCols, { dateProfile: props.dateProfile, nowDate: props.nowDate, nowMs: props.nowMs, todayRange: props.todayRange, cells: props.cells, slatCnt: slatCnt, forPrint: forPrint, isHitComboAllowed: props.isHitComboAllowed, className: simplePrint ? '' : classNames.fill, 
                                                           // content
                                                           fgEventSegsByCol: props.fgEventSegsByCol, bgEventSegsByCol: props.bgEventSegsByCol, businessHourSegsByCol: props.businessHourSegsByCol, nowIndicatorSegsByCol: props.nowIndicatorSegsByCol, dateSelectionSegsByCol: props.dateSelectionSegsByCol, eventDragByCol: props.eventDragByCol, eventResizeByCol: props.eventResizeByCol, eventSelection: props.eventSelection, 
                                                           // dimensions
-                                                          colWidth: colWidth, slatHeight: slatHeight, cellIsNarrow: cellIsNarrow, cellIsMicro: cellIsMicro }), !simplePrint && (u$1(S, { children: [u$1("div", { "aria-hidden": true, className: joinClassNames(classNames.flexCol, (verticalScrolling && options.expandRows) && classNames.grow, absPrint ? classNames.fillX : classNames.rel), children: props.slatMetas.map((slatMeta, slatI) => (u$1("div", { className: joinClassNames(classNames.flexRow, slatLiquidHeight && classNames.liquid), style: {
+                                                          colWidth: appliedColWidth, slatHeight: slatHeight, cellIsNarrow: cellIsNarrow, cellIsMicro: cellIsMicro }), !simplePrint && (u$1(S, { children: [u$1("div", { "aria-hidden": true, className: joinClassNames(classNames.flexCol, (verticalScrolling && options.expandRows) && classNames.grow, absPrint ? classNames.fillX : classNames.rel), children: props.slatMetas.map((slatMeta, slatI) => (u$1("div", { className: joinClassNames(classNames.flexRow, slatLiquidHeight && classNames.liquid), style: {
                                                                           height: slatLiquidHeight ? '' : slatHeight
-                                                                      }, children: k$1(TimeGridSlatLane, { ...slatMeta /* FYI doesn't need isoTimeStr */, key: slatMeta.key, borderTop: Boolean(slatI) }) }, slatMeta.key))) }), rowsNotExpanding && (u$1("div", { className: joinClassNames(generateClassName(options.fillerClass, { inTableHeader: false }), classNames.borderOnlyT, classNames.liquid) }))] }))] }) }), Boolean(footerScrollbarSticky) && (u$1(FooterScrollbar, { isSticky: true, canvasWidth: canvasWidth, scrollerRef: this.footScrollerRef, scrollbarWidthRef: this.handleStickyBottomScrollbarWidth }))] })] })] }), u$1(Ruler, { widthRef: this.handleTotalWidth })] }));
+                                                                      }, children: k$1(TimeGridSlatLane, { ...slatMeta /* FYI doesn't need isoTimeStr */, key: slatMeta.key, borderTop: Boolean(slatI) }) }, slatMeta.key))) }), rowsNotExpanding && (u$1("div", { className: joinClassNames(generateClassName(options.fillerClass, { inTableHeader: false }), classNames.borderlessX, classNames.borderlessBottom, classNames.liquid) }))] }))] }) }), Boolean(footerScrollbarSticky) && (u$1(FooterScrollbar, { isSticky: true, canvasWidth: canvasWidth, scrollerRef: this.footScrollerRef, scrollbarWidthRef: this.handleStickyBottomScrollbarWidth }))] })] })] }), u$1(Ruler, { widthRef: this.handleTotalWidth })] }));
       }
       // Lifecycle
       // -----------------------------------------------------------------------------------------------
@@ -13336,10 +14782,7 @@ var FullCalendar = (function (exports) {
           const totalSlatHeight = (slatHeight || 0) * slatCnt;
           const rowsNotExpanding = verticalScrolling && !options.expandRows &&
               state.clientHeight != null && state.clientHeight > totalSlatHeight;
-          // TODO: DRY with getIsStack
-          const { eventPrintLayout } = options;
-          const printStackEnabled = (eventPrintLayout === 'stack' ||
-              (eventPrintLayout !== 'grid' /* aka 'auto' */ && isBrowserPrintQuirky));
+          const printStackEnabled = computeTimeGridPrintMode(forPrint, options.eventPrintLayout) === 'stack';
           const absPrint = forPrint && !printStackEnabled;
           const simplePrint = forPrint && printStackEnabled;
           // for printing
@@ -13349,9 +14792,9 @@ var FullCalendar = (function (exports) {
           // so we need to set explicit height on flex-row and all parents
           const forcedBodyHeight = absPrint ? totalSlatHeight : undefined;
           const colCount = props.cells.length;
-          const colWidth = clientWidth != null ? clientWidth / colCount : undefined;
-          const cellIsMicro = colWidth != null && colWidth <= dayMicroWidth;
-          const cellIsNarrow = cellIsMicro || (colWidth != null && colWidth <= options.dayNarrowWidth);
+          const measuredColWidth = clientWidth != null ? clientWidth / colCount : undefined;
+          const cellIsMicro = measuredColWidth != null && measuredColWidth <= dayMicroWidth;
+          const cellIsNarrow = cellIsMicro || (measuredColWidth != null && measuredColWidth <= options.dayNarrowWidth);
           return (u$1(S, { children: [options.dayHeaders && (u$1("div", { role: 'rowgroup', className: joinClassNames(generateClassName(options.tableHeaderClass, {
                           isSticky: tableHeaderSticky,
                           borderlessX,
@@ -13359,15 +14802,11 @@ var FullCalendar = (function (exports) {
                           borderlessBottom,
                           multiMonthColumns: 0,
                       }), 
-                      // see note in TimeGridLayout about why we don't do classNames.printHeader
-                      classNames.flexCol, tableHeaderSticky && classNames.tableHeaderSticky), style: {
-                          zIndex: 1,
-                      }, children: [props.headerTiers.map((rowConfig, tierNum) => (u$1("div", { role: 'row', className: classNames.flexRow, children: [u$1("div", { className: joinClassNames(options.dayHeaderRowClass, classNames.flexRow, tierNum < props.headerTiers.length - 1
-                                          ? classNames.borderOnlyB
-                                          : classNames.borderNone), children: (options.weekNumbers && rowConfig.isDateRow) ? (u$1(TimeGridWeekNumber, { dateProfile: props.dateProfile, innerWidthRef: this.handleWeekNumberInnerWidth, innerHeightRef: headerLabelInnerWidthRefMap.createRef(tierNum), width: axisWidth, isLiquid: false, isNarrow: cellIsNarrow })) : (u$1(TimeGridAxisEmpty, { width: axisWidth, isLiquid: false })) }), u$1("div", { className: generateClassName(options.slotHeaderDividerClass, {
+                      // See the note in TimeGridLayout about why print doesn't use repeating headers.
+                      classNames.flexCol, tableHeaderSticky && classNames.tableHeaderSticky, classNames.z1), children: [props.headerTiers.map((rowConfig, tierNum) => (u$1("div", { role: 'row', className: classNames.flexRow, children: [u$1("div", { className: joinClassNames(options.dayHeaderRowClass, classNames.flexRow, classNames.borderlessX, classNames.borderlessTop, tierNum === props.headerTiers.length - 1 && classNames.borderlessBottom), children: (options.weekNumbers && rowConfig.isDateRow) ? (u$1(TimeGridWeekNumber, { dateProfile: props.dateProfile, innerWidthRef: this.handleWeekNumberInnerWidth, innerHeightRef: headerLabelInnerWidthRefMap.createRef(tierNum), width: axisWidth, isLiquid: false, isNarrow: cellIsNarrow })) : (u$1(TimeGridAxisEmpty, { width: axisWidth, isLiquid: false })) }), u$1("div", { className: generateClassName(options.slotHeaderDividerClass, {
                                           inTableHeader: true,
                                           options: { dayMinWidth: options.dayMinWidth },
-                                      }) }), u$1(DayGridHeaderRow, { ...rowConfig, className: classNames.liquid, borderBottom: tierNum < props.headerTiers.length - 1, viewportWidth: clientWidth, cellIsNarrow: cellIsNarrow, cellIsMicro: cellIsMicro, rowLevel: props.headerTiers.length - tierNum - 1 }), Boolean(endScrollbarWidth) && (u$1("div", { className: joinClassNames(generateClassName(options.fillerClass, { inTableHeader: true }), classNames.borderOnlyS), style: { minWidth: endScrollbarWidth } }))] }, tierNum))), u$1("div", { className: generateClassName(options.dayHeaderDividerClass, {
+                                      }) }), u$1(DayGridHeaderRow, { ...rowConfig, className: classNames.liquid, borderBottom: tierNum < props.headerTiers.length - 1, viewportWidth: clientWidth, cellIsNarrow: cellIsNarrow, cellIsMicro: cellIsMicro, rowLevel: props.headerTiers.length - tierNum - 1 }), Boolean(endScrollbarWidth) && (u$1("div", { className: joinClassNames(generateClassName(options.fillerClass, { inTableHeader: true }), classNames.borderlessY, classNames.borderlessEnd), style: { minWidth: endScrollbarWidth } }))] }, tierNum))), u$1("div", { className: generateClassName(options.dayHeaderDividerClass, {
                                   isSticky: tableHeaderSticky,
                                   multiMonthColumns: 0,
                                   options: { allDaySlot: Boolean(options.allDaySlot) },
@@ -13376,17 +14815,13 @@ var FullCalendar = (function (exports) {
                           borderlessTop,
                           borderlessBottom,
                           multiMonthColumns: 0,
-                      }), classNames.flexCol, verticalScrolling && classNames.liquid, classNames.isolate), style: {
-                          zIndex: 0,
-                      }, children: [options.allDaySlot && (u$1(S, { children: [u$1("div", { role: 'row', className: classNames.flexRow, style: { zIndex: 1 }, children: [u$1(TimeGridAllDayHeader, { width: axisWidth, innerWidthRef: this.handleAllDayLabelInnerWidth, isNarrow: cellIsNarrow }), u$1("div", { className: generateClassName(options.slotHeaderDividerClass, {
+                      }), classNames.flexCol, verticalScrolling && classNames.liquid, classNames.isolate, classNames.z0), children: [options.allDaySlot && (u$1(S, { children: [u$1("div", { role: 'row', className: joinClassNames(classNames.flexRow, classNames.z1), children: [u$1(TimeGridAllDayHeader, { width: axisWidth, innerWidthRef: this.handleAllDayLabelInnerWidth, isNarrow: cellIsNarrow }), u$1("div", { className: generateClassName(options.slotHeaderDividerClass, {
                                                   inTableHeader: false,
                                                   options: { dayMinWidth: options.dayMinWidth },
-                                              }) }), u$1(TimeGridAllDayLane, { dateProfile: props.dateProfile, todayRange: props.todayRange, cells: props.cells, showDayNumbers: false, forPrint: forPrint, isHitComboAllowed: props.isHitComboAllowed, className: joinClassNames(classNames.liquidX, classNames.borderNone), cellIsNarrow: cellIsNarrow, cellIsMicro: cellIsMicro, 
+                                              }) }), u$1(TimeGridAllDayLane, { dateProfile: props.dateProfile, todayRange: props.todayRange, cells: props.cells, showDayNumbers: false, forPrint: forPrint, isHitComboAllowed: props.isHitComboAllowed, className: joinClassNames(classNames.liquidX, classNames.borderless), cellIsNarrow: cellIsNarrow, cellIsMicro: cellIsMicro, 
                                               // content
-                                              fgEventSegs: props.fgEventSegs, bgEventSegs: props.bgEventSegs, businessHourSegs: props.businessHourSegs, dateSelectionSegs: props.dateSelectionSegs, eventDrag: props.eventDrag, eventResize: props.eventResize, eventSelection: props.eventSelection, dayMaxEvents: props.dayMaxEvents, dayMaxEventRows: props.dayMaxEventRows }), Boolean(endScrollbarWidth) && (u$1("div", { className: joinClassNames(generateClassName(options.fillerClass, { inTableHeader: false }), classNames.borderOnlyS), style: { minWidth: endScrollbarWidth } }))] }), u$1("div", { className: joinClassNames(options.allDayDividerClass), style: { zIndex: 2 } })] })), u$1(Scroller, { vertical: verticalScrolling, className: joinClassNames(classNames.flexCol, classNames.rel, // for Ruler.fillStart
-                              verticalScrolling && classNames.liquid), style: {
-                                  zIndex: 0,
-                              }, ref: props.timeScrollerRef, clientWidthRef: this.handleClientWidth, clientHeightRef: this.handleClientHeight, children: u$1("div", { className: joinClassNames(classNames.flexCol, classNames.grow, classNames.rel), style: {
+                                              fgEventSegs: props.fgEventSegs, bgEventSegs: props.bgEventSegs, businessHourSegs: props.businessHourSegs, dateSelectionSegs: props.dateSelectionSegs, eventDrag: props.eventDrag, eventResize: props.eventResize, eventSelection: props.eventSelection, dayMaxEvents: props.dayMaxEvents, dayMaxEventRows: props.dayMaxEventRows }), Boolean(endScrollbarWidth) && (u$1("div", { className: joinClassNames(generateClassName(options.fillerClass, { inTableHeader: false }), classNames.borderlessY, classNames.borderlessEnd), style: { minWidth: endScrollbarWidth } }))] }), u$1("div", { className: joinClassNames(options.allDayDividerClass, classNames.z2) })] })), u$1(Scroller, { vertical: verticalScrolling, className: joinClassNames(classNames.flexCol, classNames.rel, // for Ruler.fillStart
+                              verticalScrolling && classNames.liquid, classNames.z0), ref: props.timeScrollerRef, clientWidthRef: this.handleClientWidth, clientHeightRef: this.handleClientHeight, children: u$1("div", { className: joinClassNames(classNames.flexCol, classNames.grow, classNames.rel), style: {
                                       // in print mode, this div creates the height and everything is absolutely positioned within
                                       // we need to do this so that slats positioning synces with events's positioning
                                       // otherwise, get out of sync on second page
@@ -13394,7 +14829,7 @@ var FullCalendar = (function (exports) {
                                   }, children: [u$1("div", { role: 'row', className: joinClassNames(classNames.flexRow, !simplePrint && classNames.fill), children: [u$1("div", { role: 'rowheader', "aria-label": options.timedText, className: classNames.contentBox, style: { width: axisWidth } }), u$1("div", { className: generateClassName(options.slotHeaderDividerClass, {
                                                       inTableHeader: false,
                                                       options: { dayMinWidth: options.dayMinWidth },
-                                                  }) }), u$1(TimeGridCols, { dateProfile: props.dateProfile, nowDate: props.nowDate, todayRange: props.todayRange, cells: props.cells, slatCnt: slatCnt, forPrint: forPrint, isHitComboAllowed: props.isHitComboAllowed, className: classNames.liquid, 
+                                                  }) }), u$1(TimeGridCols, { dateProfile: props.dateProfile, nowDate: props.nowDate, nowMs: props.nowMs, todayRange: props.todayRange, cells: props.cells, slatCnt: slatCnt, forPrint: forPrint, isHitComboAllowed: props.isHitComboAllowed, className: classNames.liquid, 
                                                   // content
                                                   fgEventSegsByCol: props.fgEventSegsByCol, bgEventSegsByCol: props.bgEventSegsByCol, businessHourSegsByCol: props.businessHourSegsByCol, nowIndicatorSegsByCol: props.nowIndicatorSegsByCol, dateSelectionSegsByCol: props.dateSelectionSegsByCol, eventDragByCol: props.eventDragByCol, eventResizeByCol: props.eventResizeByCol, eventSelection: props.eventSelection, 
                                                   // dimensions
@@ -13408,7 +14843,7 @@ var FullCalendar = (function (exports) {
                                                               className: classNames.flexCol, style: { width: axisWidth }, children: k$1(TimeGridSlatHeader, { ...slatMeta /* FYI doesn't need isoTimeStr */, key: slatMeta.key, innerWidthRef: slatLabelInnerWidthRefMap.createRef(slatMeta.key), innerHeightRef: slatLabelInnerHeightRefMap.createRef(slatMeta.key), borderTop: Boolean(slatI), isNarrow: cellIsNarrow }) }), u$1("div", { className: generateClassName(options.slotHeaderDividerClass, {
                                                                   inTableHeader: false,
                                                                   options: { dayMinWidth: options.dayMinWidth },
-                                                              }), style: { visibility: 'hidden' } }), k$1(TimeGridSlatLane, { ...slatMeta /* FYI doesn't need isoTimeStr */, key: slatMeta.key, borderTop: Boolean(slatI) })] }, slatMeta.key))) }), rowsNotExpanding && (u$1("div", { className: joinClassNames(generateClassName(options.fillerClass, { inTableHeader: false }), classNames.borderOnlyT, classNames.liquid) })), !forPrint && options.nowIndicator && rangeContainsMarker(props.dateProfile.currentRange, nowDate) &&
+                                                              }), style: { visibility: 'hidden' } }), k$1(TimeGridSlatLane, { ...slatMeta /* FYI doesn't need isoTimeStr */, key: slatMeta.key, borderTop: Boolean(slatI) })] }, slatMeta.key))) }), rowsNotExpanding && (u$1("div", { className: joinClassNames(generateClassName(options.fillerClass, { inTableHeader: false }), classNames.borderlessX, classNames.borderlessBottom, classNames.liquid) })), !forPrint && options.nowIndicator && rangeContainsMarker(props.dateProfile.currentRange, nowDate) &&
                                                   nowTimeMs >= props.dateProfile.slotMinTime.milliseconds &&
                                                   nowTimeMs < props.dateProfile.slotMaxTime.milliseconds && (u$1(TimeGridNowIndicatorArrow, { nowDate: nowDate, dateProfile: props.dateProfile, totalHeight: slatHeight != null ? slatHeight * slatCnt : undefined }))] }))] }) })] }), u$1(Ruler, { widthRef: this.handleTotalWidth })] }));
       }
@@ -13508,17 +14943,16 @@ var FullCalendar = (function (exports) {
           const { borderlessX, borderlessTop, borderlessBottom } = computeViewBorderless(options);
           const slatMetas = this.buildSlatMetas(dateProfile.slotMinTime, dateProfile.slotMaxTime, options.slotHeaderInterval, options.slotDuration, dateEnv);
           this.currentSlatCnt = slatMetas.length;
-          const businessHourSegs = props.forPrint ? [] : props.businessHourSegs;
           const dateSelectionSegs = props.forPrint ? [] : props.dateSelectionSegs;
           const eventDrag = props.forPrint ? null : props.eventDrag;
           const eventResize = props.forPrint ? null : props.eventResize;
-          const businessHourSegsByCol = props.forPrint ? buildEmptySegCols(props.businessHourSegsByCol) : props.businessHourSegsByCol;
           const dateSelectionSegsByCol = props.forPrint ? buildEmptySegCols(props.dateSelectionSegsByCol) : props.dateSelectionSegsByCol;
           const eventDragByCol = props.forPrint ? buildEmptyInteractionCols(props.eventDragByCol) : props.eventDragByCol;
           const eventResizeByCol = props.forPrint ? buildEmptyInteractionCols(props.eventResizeByCol) : props.eventResizeByCol;
           const commonLayoutProps = {
               dateProfile: dateProfile,
               nowDate: props.nowDate,
+              nowMs: props.nowMs,
               todayRange: props.todayRange,
               cells: props.cells,
               slatMetas,
@@ -13529,7 +14963,7 @@ var FullCalendar = (function (exports) {
               // all-day content
               fgEventSegs: props.fgEventSegs,
               bgEventSegs: props.bgEventSegs,
-              businessHourSegs,
+              businessHourSegs: props.businessHourSegs,
               dateSelectionSegs,
               eventDrag,
               eventResize,
@@ -13537,7 +14971,7 @@ var FullCalendar = (function (exports) {
               // timed content
               fgEventSegsByCol: props.fgEventSegsByCol,
               bgEventSegsByCol: props.bgEventSegsByCol,
-              businessHourSegsByCol,
+              businessHourSegsByCol: props.businessHourSegsByCol,
               nowIndicatorSegsByCol: props.nowIndicatorSegsByCol,
               dateSelectionSegsByCol,
               eventDragByCol,
@@ -13562,7 +14996,7 @@ var FullCalendar = (function (exports) {
                   borderlessBottom,
                   multiMonthColumns: 0,
               }), 
-              // we don't do classNames.printRoot/classNames.printHeader here because works poorly with print:
+              // We don't use the repeating-header print treatment here because it works poorly:
               // - Firefox >85ish CAN have flexboxes within it, but those cannot do absolute positioning
               // - Chrome works okay, but abs-positioned events cover the repeated header
               //   Also, there's weird padding on the last page at bottom of container, which matches
@@ -13729,8 +15163,9 @@ var FullCalendar = (function (exports) {
           let eventOverlapFunc = typeof eventOverlap === 'function' ? eventOverlap : null;
           for (let otherInstanceId in otherInstances) {
               let otherInstance = otherInstances[otherInstanceId];
-              // intersect! evaluate
-              if (rangesIntersect(subjectRange, otherInstance.range)) {
+              // intersect! evaluate (exact-instant-aware: fold-compressed civil readings must
+              // not falsely collide across the two passes of a repeated hour)
+              if (instanceRangesIntersect(subjectRange, otherInstance.range, context.dateEnv)) {
                   let otherOverlap = otherConfigs[otherInstance.defId].overlap;
                   // consider the other event's overlap. only do this if the subject event is a "real" event
                   if (otherOverlap === false && interaction.isEvent) {
@@ -13776,7 +15211,8 @@ var FullCalendar = (function (exports) {
       let relevantDefs = relevantEventStore.defs;
       let relevantInstances = relevantEventStore.instances;
       let selection = state.dateSelection;
-      let selectionRange = selection.range;
+      // carry the span's exact instants (stamped by instant-aware views) into range checks
+      let selectionRange = buildEventInstanceRange(selection.range.start, selection.range.end, selection.instantStartMs, selection.instantEndMs);
       let { selectionConfig } = context.getCurrentData();
       if (filterConfig) {
           selectionConfig = filterConfig(selectionConfig);
@@ -13791,7 +15227,7 @@ var FullCalendar = (function (exports) {
       for (let relevantInstanceId in relevantInstances) {
           let relevantInstance = relevantInstances[relevantInstanceId];
           // intersect! evaluate
-          if (rangesIntersect(selectionRange, relevantInstance.range)) {
+          if (instanceRangesIntersect(selectionRange, relevantInstance.range, context.dateEnv)) {
               if (selectionConfig.overlap === false) {
                   return false;
               }
@@ -13813,7 +15249,7 @@ var FullCalendar = (function (exports) {
   // ------------------------------------------------------------------------------------------------------------------------
   function allConstraintsPass(constraints, subjectRange, otherEventStore, businessHoursUnexpanded, context) {
       for (let constraint of constraints) {
-          if (!anyRangesContainRange(constraintToRanges(constraint, subjectRange, otherEventStore, businessHoursUnexpanded, context), subjectRange)) {
+          if (!anyRangesContainRange(constraintToRanges(constraint, subjectRange, otherEventStore, businessHoursUnexpanded, context), subjectRange, context)) {
               return false;
           }
       }
@@ -13844,9 +15280,9 @@ var FullCalendar = (function (exports) {
       return ranges;
   }
   // TODO: move to geom file?
-  function anyRangesContainRange(outerRanges, innerRange) {
+  function anyRangesContainRange(outerRanges, innerRange, context) {
       for (let outerRange of outerRanges) {
-          if (rangeContainsRange(outerRange, innerRange)) {
+          if (instanceRangeContainsRange(outerRange, innerRange, context.dateEnv)) {
               return true;
           }
       }
@@ -13937,6 +15373,7 @@ var FullCalendar = (function (exports) {
       debounce: debounce,
       EventImpl: EventImpl,
       buildEventRangeKey: buildEventRangeKey,
+      buildValidInstanceRange: buildValidInstanceRange,
       combineEventUis: combineEventUis,
       compareByFieldSpecs: compareByFieldSpecs,
       computeViewBorderless: computeViewBorderless,
@@ -13945,8 +15382,11 @@ var FullCalendar = (function (exports) {
       createFormatter: createFormatter,
       filterHash: filterHash,
       flexibleCompare: flexibleCompare,
-      getEventKey: getEventKey,
+      getDateSpanInstantEndMs: getDateSpanInstantEndMs,
+      getDateSpanInstantStartMs: getDateSpanInstantStartMs,
       getEventRangeMeta: getEventRangeMeta,
+      getRangeInstantEndMs: getRangeInstantEndMs,
+      getRangeInstantStartMs: getRangeInstantStartMs,
       guid: guid,
       identity: identity,
       isArraysEqual: isArraysEqual,
@@ -13969,6 +15409,7 @@ var FullCalendar = (function (exports) {
       BaseComponent: BaseComponent,
       ContentContainer: ContentContainer,
       RenderId: RenderId,
+      afterSize: afterSize,
       generateClassName: generateClassName,
       getFooterScrollbarSticky: getFooterScrollbarSticky,
       getIsHeightAuto: getIsHeightAuto,
@@ -13976,6 +15417,9 @@ var FullCalendar = (function (exports) {
       memoize: memoize,
       memoizeObjArg: memoizeObjArg,
       setRef: setRef,
+      watchHeight: watchHeight,
+      watchSize: watchSize,
+      watchWidth: watchWidth,
       computeEdges: computeEdges,
       computeInnerRect: computeInnerRect,
       getRectCenter: getRectCenter,
@@ -13993,8 +15437,8 @@ var FullCalendar = (function (exports) {
       NowIndicatorLineContainer: NowIndicatorLineContainer,
       Splitter: Splitter,
       TimeGridLayout: TimeGridLayout,
-      buildDayRanges: buildDayRanges,
-      buildTimeColsModel: buildTimeColsModel,
+      buildDayCols: buildDayCols,
+      buildDayColsFromSeries: buildDayColsFromSeries,
       organizeSegsByCol: organizeSegsByCol,
       splitInteractionByCol: splitInteractionByCol,
       DateComponent: DateComponent,
@@ -14003,12 +15447,8 @@ var FullCalendar = (function (exports) {
       Scroller: Scroller,
       StandardEvent: StandardEvent,
       ViewContainer: ViewContainer,
-      afterSize: afterSize,
       buildNavLinkAttrs: buildNavLinkAttrs,
       getDateMeta: getDateMeta,
-      watchHeight: watchHeight,
-      watchSize: watchSize,
-      watchWidth: watchWidth,
       requestJson: requestJson,
       unpromisify: unpromisify,
       Emitter: Emitter,
@@ -14016,20 +15456,30 @@ var FullCalendar = (function (exports) {
       computeMajorUnit: computeMajorUnit,
       isMajorUnit: isMajorUnit,
       BgEvent: BgEvent,
+      DEFAULT_UNMEASURED_EVENT_THICKNESS: DEFAULT_UNMEASURED_EVENT_THICKNESS,
+      DaySeriesModel: DaySeriesModel,
+      DaySeriesSlicer: DaySeriesSlicer,
       DayTableModel: DayTableModel,
       DayTableSlicer: DayTableSlicer,
+      MeasuredHeightHarness: MeasuredHeightHarness,
       MoreLinkContainer: MoreLinkContainer,
       RefMap: RefMap,
       Ruler: Ruler,
-      SegHierarchy: SegHierarchy,
       Slicer: Slicer,
       buildDateDataConfigs: buildDateDataConfigs,
       buildDateRenderConfig: buildDateRenderConfig,
       buildDateRowConfig: buildDateRowConfig,
       buildDayTableModel: buildDayTableModel,
+      buildLevelLimitedLayout: buildLevelLimitedLayout,
+      buildPrintEventBands: buildPrintEventBands,
+      buildPrintMoreLinkBand: buildPrintMoreLinkBand,
+      computeLateralSpanBottom: computeLateralSpanBottom,
       createDayHeaderFormatter: createDayHeaderFormatter,
-      groupIntersectingSegs: groupIntersectingSegs,
+      getSliceKey: getSliceKey,
+      groupLaterallyIntersecting: groupLaterallyIntersecting,
+      planPrintDomCandidates: planPrintDomCandidates,
       renderFill: renderFill,
+      sortByAxisOrder: sortByAxisOrder,
       ElementDragging: ElementDragging,
       config: config,
       isPropsValid: isPropsValid,
@@ -15237,9 +16687,10 @@ var FullCalendar = (function (exports) {
       return props;
   }
   function buildDatePointApi(span, dateEnv) {
+      const start = buildRangeEdgeOutput(span.range.start, span.instantStartMs, dateEnv, span.allDay);
       return {
-          date: dateEnv.toDate(span.range.start),
-          dateStr: dateEnv.formatIso(span.range.start, { omitTime: span.allDay }),
+          date: start.date,
+          dateStr: start.dateStr,
           allDay: span.allDay,
       };
   }
@@ -15387,13 +16838,20 @@ var FullCalendar = (function (exports) {
   function joinHitsIntoSelection(hit0, hit1, dateSelectionTransformers) {
       let dateSpan0 = hit0.dateSpan;
       let dateSpan1 = hit1.dateSpan;
-      let ms = [
-          dateSpan0.range.start,
-          dateSpan0.range.end,
-          dateSpan1.range.start,
-          dateSpan1.range.end,
+      // Only instant-aware components (currently timed timeline axes) may sort by instant, which
+      // orders repeated civil times during DST fall-back correctly. For civil-only components,
+      // deriving instants would reorder nonexistent spring-forward times (a civil 02:30 resolves
+      // to instant 03:30, past a civil 03:00), so their edges must keep the civil marker sort.
+      let hasInstants = dateSpan0.instantStartMs != null || dateSpan1.instantStartMs != null;
+      let entries = [
+          { date: dateSpan0.range.start, ms: getDateSpanInstantStartMs(dateSpan0, hit0.context.dateEnv) },
+          { date: dateSpan0.range.end, ms: getDateSpanInstantEndMs(dateSpan0, hit0.context.dateEnv) },
+          { date: dateSpan1.range.start, ms: getDateSpanInstantStartMs(dateSpan1, hit1.context.dateEnv) },
+          { date: dateSpan1.range.end, ms: getDateSpanInstantEndMs(dateSpan1, hit1.context.dateEnv) },
       ];
-      ms.sort(compareNumbers);
+      entries.sort(hasInstants
+          ? (entry0, entry1) => compareNumbers(entry0.ms, entry1.ms)
+          : (entry0, entry1) => compareNumbers(entry0.date.valueOf(), entry1.date.valueOf()));
       let props = {};
       for (let transformer of dateSelectionTransformers) {
           let res = transformer(hit0, hit1);
@@ -15404,9 +16862,47 @@ var FullCalendar = (function (exports) {
               Object.assign(props, res);
           }
       }
-      props.range = { start: ms[0], end: ms[3] };
+      if (hasInstants) {
+          const validRange = buildValidInstanceRange({ marker: entries[0].date, instantMs: entries[0].ms }, { marker: entries[3].date, instantMs: entries[3].ms }, hit0.context.dateEnv);
+          if (!validRange) {
+              return null;
+          }
+          props.range = { start: validRange.start, end: validRange.end };
+      }
+      else {
+          props.range = { start: entries[0].date, end: entries[3].date };
+      }
       props.allDay = dateSpan0.allDay;
+      if (hasInstants) {
+          props.instantStartMs = entries[0].ms;
+          props.instantEndMs = entries[3].ms;
+      }
       return props;
+  }
+
+  /*
+  When both hits come from an instant-aware component (their dateSpans carry exact instants),
+  returns the drag distance in absolute ms. Otherwise null, and callers should fall back to
+  civil-duration diffing.
+  */
+  function computeHitInstantDeltaMs(hit0, hit1) {
+      const startMs0 = hit0.dateSpan.allDay ? null : hit0.dateSpan.instantStartMs;
+      const startMs1 = hit1.dateSpan.allDay ? null : hit1.dateSpan.instantStartMs;
+      if (startMs0 != null && startMs1 != null) {
+          return startMs1 - startMs0;
+      }
+      return null;
+  }
+  function computeHitDelta(hit0, hit1, options = {}) {
+      const instantDeltaMs = computeHitInstantDeltaMs(hit0, hit1);
+      const date0 = options.date0 || hit0.dateSpan.range.start;
+      const date1 = options.date1 || hit1.dateSpan.range.start;
+      return {
+          delta: instantDeltaMs != null
+              ? createDuration(instantDeltaMs)
+              : diffDates(date0, date1, hit0.context.dateEnv, options.largeUnit),
+          instantDeltaMs,
+      };
   }
 
   class EventDragging extends Interaction {
@@ -15744,14 +17240,17 @@ var FullCalendar = (function (exports) {
               date0 = eventInstanceStart;
           }
       }
-      let delta = diffDates(date0, date1, hit0.context.dateEnv, hit0.componentId === hit1.componentId ?
-          hit0.largeUnit :
-          null);
+      const { delta, instantDeltaMs } = computeHitDelta(hit0, hit1, {
+          date0,
+          date1,
+          largeUnit: hit0.componentId === hit1.componentId ? hit0.largeUnit : null,
+      });
       if (delta.milliseconds) { // has hours/minutes/seconds
           standardProps.allDay = false;
       }
       let mutation = {
           datesDelta: delta,
+          ...(instantDeltaMs != null ? { instantDatesDeltaMs: instantDeltaMs } : {}),
           standardProps,
       };
       for (let massager of massagers) {
@@ -15926,17 +17425,38 @@ var FullCalendar = (function (exports) {
       }
   }
   function computeMutation(hit0, hit1, isFromStart, instanceRange) {
-      let dateEnv = hit0.context.dateEnv;
+      const { context } = hit0;
       let date0 = hit0.dateSpan.range.start;
       let date1 = hit1.dateSpan.range.start;
-      let delta = diffDates(date0, date1, dateEnv, hit0.largeUnit);
+      const { delta, instantDeltaMs } = computeHitDelta(hit0, hit1, {
+          date0,
+          date1,
+          largeUnit: hit0.largeUnit,
+      });
+      // validate with the SAME baseline the mutation will apply with (addDeltaToRangeEdge
+      // bases instant deltas off the edge's stored instant). on the exact path, real-time
+      // order is the truth — the mutation re-expresses fold-compressed civil markers itself
       if (isFromStart) {
-          if (dateEnv.add(instanceRange.start, delta) < instanceRange.end) {
-              return { startDelta: delta };
+          const newStart = addDeltaToRangeEdge(instanceRange.start, instanceRange.instantStartMs, delta, instantDeltaMs ?? undefined, context);
+          if (newStart.instantMs != null
+              ? newStart.instantMs < getRangeInstantEndMs(instanceRange, context.dateEnv)
+              : newStart.marker < instanceRange.end) {
+              return {
+                  startDelta: delta,
+                  ...(instantDeltaMs != null ? { instantStartDeltaMs: instantDeltaMs } : {}),
+              };
           }
       }
-      else if (dateEnv.add(instanceRange.end, delta) > instanceRange.start) {
-          return { endDelta: delta };
+      else {
+          const newEnd = addDeltaToRangeEdge(instanceRange.end, instanceRange.instantEndMs, delta, instantDeltaMs ?? undefined, context);
+          if (newEnd.instantMs != null
+              ? newEnd.instantMs > getRangeInstantStartMs(instanceRange, context.dateEnv)
+              : newEnd.marker > instanceRange.start) {
+              return {
+                  endDelta: delta,
+                  ...(instantDeltaMs != null ? { instantEndDeltaMs: instantDeltaMs } : {}),
+              };
+          }
       }
       return null;
   }
@@ -16178,10 +17698,17 @@ var FullCalendar = (function (exports) {
       if (dateSpan.allDay && dragMeta.startTime) {
           start = context.dateEnv.add(start, dragMeta.startTime);
       }
-      let end = dragMeta.duration ?
-          context.dateEnv.add(start, dragMeta.duration) :
-          getDefaultEventEnd(dateSpan.allDay, start, context);
-      let instance = createEventInstance(def.defId, { start, end });
+      // carry the drop span's exact instant when the start marker was used as-is
+      // (keeps identity during DST fall-back doubled slots)
+      let startEdge = {
+          marker: start,
+          instantMs: !dateSpan.allDay ? dateSpan.instantStartMs : undefined,
+      };
+      // an exact start yields an exact derived end (real elapsed duration)
+      let endEdge = dragMeta.duration ?
+          addDurationToEdge(startEdge, dragMeta.duration, context.dateEnv) :
+          getDefaultEventEndEdge(dateSpan.allDay, startEdge, context);
+      let instance = createEventInstance(def.defId, buildEventInstanceRange(startEdge.marker, endEdge.marker, startEdge.instantMs, endEdge.instantMs));
       return { def, instance };
   }
   // Utils for extracting data from element
@@ -16457,8 +17984,10 @@ var FullCalendar = (function (exports) {
           super(...arguments);
           // memo
           this.createDayHeaderFormatter = memoize(createDayHeaderFormatter);
-          this.buildTimeColsModel = memoize(buildTimeColsModel);
-          this.buildDayRanges = memoize(buildDayRanges);
+          this.buildDaySeries = memoize((dateProfile, dateProfileGenerator) => (new DaySeriesModel(dateProfile.renderRange, dateProfileGenerator)));
+          this.buildDayCols = memoize(buildDayColsFromSeries);
+          this.extractColDates = memoize((cols) => cols.map((col) => col.date));
+          this.extractColRanges = memoize((cols) => cols.map((col) => col.range));
           this.buildDateRowConfigs = memoize(buildDateRowConfigs);
           this.splitFgEventSegs = memoize((organizeSegsByCol));
           this.splitBgEventSegs = memoize((organizeSegsByCol));
@@ -16469,22 +17998,27 @@ var FullCalendar = (function (exports) {
           this.splitEventResize = memoize(splitInteractionByCol);
           // internal
           this.allDaySplitter = new AllDaySplitter();
-          this.dayTableSlicer = new DayTableSlicer();
+          this.daySeriesSlicer = new DaySeriesSlicer();
           this.dayTimeColsSlicer = new DayTimeColsSlicer();
       }
       render() {
           const { props, context } = this;
           const { dateProfile } = props;
           const { options, dateProfileGenerator } = context;
-          const dayTableModel = this.buildTimeColsModel(dateProfile, dateProfileGenerator, context.dateEnv);
-          const dayRanges = this.buildDayRanges(dayTableModel, dateProfile, context.dateEnv);
+          const daySeries = this.buildDaySeries(dateProfile, dateProfileGenerator);
+          const cols = this.buildDayCols(daySeries, context.dateEnv, {
+              slotRange: dateProfile,
+              activeRange: dateProfile.activeRange,
+          });
+          const colDates = this.extractColDates(cols);
+          const dayRanges = this.extractColRanges(cols);
           const splitProps = this.allDaySplitter.splitProps(props);
-          const allDayProps = this.dayTableSlicer.sliceProps(splitProps.allDay, dateProfile, options.nextDayThreshold, context, dayTableModel);
+          const allDayProps = this.daySeriesSlicer.sliceProps(splitProps.allDay, dateProfile, options.nextDayThreshold, context, daySeries);
           const timedProps = this.dayTimeColsSlicer.sliceProps(splitProps.timed, dateProfile, null, context, dayRanges);
           const dayHeaderFormat = this.createDayHeaderFormatter(context.options.dayHeaderFormat, true, // datesRepDistinctDays
-          dayTableModel.colCount);
-          return (u$1(NowTimer, { unit: options.nowIndicator ? 'minute' : 'day' /* hacky */, children: (nowDate, todayRange) => {
-                  const colCount = dayTableModel.cellRows[0].length;
+          cols.length);
+          return (u$1(NowTimer, { unit: options.nowIndicator ? 'minute' : 'day' /* hacky */, children: (nowDate, todayRange, nowMs) => {
+                  const colCount = cols.length;
                   const nowIndicatorSeg = !props.forPrint && options.nowIndicator &&
                       this.dayTimeColsSlicer.sliceNowDate(nowDate, dateProfile, options.nextDayThreshold, context, dayRanges);
                   const fgEventSegsByCol = this.splitFgEventSegs(timedProps.fgEventSegs, colCount);
@@ -16494,9 +18028,9 @@ var FullCalendar = (function (exports) {
                   const dateSelectionSegsByCol = this.splitDateSelectionSegs(timedProps.dateSelectionSegs, colCount);
                   const eventDragByCol = this.splitEventDrag(timedProps.eventDrag, colCount);
                   const eventResizeByCol = this.splitEventResize(timedProps.eventResize, colCount);
-                  const headerTiers = this.buildDateRowConfigs(dayTableModel.headerDates, true, // datesRepDistinctDays
+                  const headerTiers = this.buildDateRowConfigs(colDates, true, // datesRepDistinctDays
                   props.dateProfile, todayRange, dayHeaderFormat, context);
-                  return (u$1(TimeGridLayout, { labelId: props.labelId, labelStr: props.labelStr, dateProfile: dateProfile, nowDate: nowDate, todayRange: todayRange, cells: dayTableModel.cellRows[0], forPrint: props.forPrint, className: props.className, 
+                  return (u$1(TimeGridLayout, { labelId: props.labelId, labelStr: props.labelStr, dateProfile: dateProfile, nowDate: nowDate, nowMs: nowMs, todayRange: todayRange, cells: cols, forPrint: props.forPrint, className: props.className, 
                       // header content
                       headerTiers: headerTiers, 
                       // all-day content
@@ -16644,10 +18178,10 @@ var FullCalendar = (function (exports) {
               view: context.viewApi,
           };
           return (u$1("div", { role: 'listitem', "aria-label": fullDateStr, className: generateClassName(options.listDayClass, listDayData), children: [u$1(ListDayHeader, { dayDate: props.dayDate, dateMeta: dateMeta, forPrint: props.forPrint }), u$1("div", { role: 'list', "aria-label": options.eventsHint, className: joinClassNames(generateClassName(options.listDayBodyClass, listDayEventsData), classNames.flexCol), children: segs.map((seg, index) => {
-                          const key = getEventKey(seg);
+                          const key = seg.eventRange.instance.instanceId;
                           const isFirst = index === 0;
                           const isLast = index === segs.length - 1;
-                          return (u$1(ListEvent, { eventRange: seg.eventRange, slicedStart: seg.slicedStart, slicedEnd: seg.slicedEnd, isStart: seg.isStart, isEnd: seg.isEnd, isFirst: isFirst, isLast: isLast, isDragging: false, isResizing: false, isMirror: false, isSelected: false, ...getEventRangeMeta(seg.eventRange, todayRange, nowDate) }, key));
+                          return (u$1(ListEvent, { eventRange: seg.eventRange, slicedStart: seg.slicedStart, slicedEnd: seg.slicedEnd, isStart: seg.isStart, isEnd: seg.isEnd, isFirst: isFirst, isLast: isLast, isDragging: false, isResizing: false, isMirror: false, isSelected: false, ...getEventRangeMeta(seg.eventRange, todayRange, nowDate, props.nowMs) }, key));
                       }) })] }));
       }
   }
@@ -16695,7 +18229,7 @@ var FullCalendar = (function (exports) {
       renderSegList(allSegs, dayDates) {
           let { options } = this.context;
           let segsByDay = groupSegsByDay(allSegs); // sparse array
-          return (u$1("div", { role: "list", "aria-labelledby": this.props.labelId, "aria-label": this.props.labelStr, className: joinClassNames(classNames.flexCol, joinClassNames(options.listDaysClass)), children: u$1(NowTimer, { unit: "day", children: (nowDate, todayRange) => {
+          return (u$1("div", { role: "list", "aria-labelledby": this.props.labelId, "aria-label": this.props.labelStr, className: joinClassNames(classNames.flexCol, joinClassNames(options.listDaysClass)), children: u$1(NowTimer, { unit: "day", children: (nowDate, todayRange, nowMs) => {
                       const dayNodes = [];
                       const populatedDayCount = segsByDay.reduce((count, daySegs) => count + (daySegs ? 1 : 0), 0);
                       let populatedDayIndex = 0;
@@ -16706,7 +18240,7 @@ var FullCalendar = (function (exports) {
                               const key = formatDayString(dayDate);
                               const isFirst = populatedDayIndex === 0;
                               const isLast = populatedDayIndex === populatedDayCount - 1;
-                              dayNodes.push(u$1(ListDay, { dayDate: dayDate, nowDate: nowDate, todayRange: todayRange, segs: daySegs, isFirst: isFirst, isLast: isLast, forPrint: this.props.forPrint }, key));
+                              dayNodes.push(u$1(ListDay, { dayDate: dayDate, nowDate: nowDate, nowMs: nowMs, todayRange: todayRange, segs: daySegs, isFirst: isFirst, isLast: isLast, forPrint: this.props.forPrint }, key));
                               populatedDayIndex += 1;
                           }
                       }
@@ -16818,7 +18352,6 @@ var FullCalendar = (function (exports) {
           this.buildDateRowConfig = memoize(buildDateRowConfig);
           // ref
           this.titleElRef = M$1();
-          this.tableHeaderElRef = M$1();
           this.rowHeightRefMap = new RefMap(() => {
               afterSize(this.handleHeights);
           });
@@ -16830,6 +18363,16 @@ var FullCalendar = (function (exports) {
                   options.singleMonthDidMount?.({
                       el: this.rootEl,
                       ...this.renderProps,
+                  });
+              }
+          };
+          this.handleTableHeaderEl = (el) => {
+              this.disconnectTableHeaderHeight?.();
+              this.disconnectTableHeaderHeight = undefined;
+              if (el) {
+                  this.disconnectTableHeaderHeight = watchHeight(el, (height) => {
+                      this.setState({ tableHeaderHeight: this.tableHeaderHeight = height });
+                      afterSize(this.handleHeights);
                   });
               }
           };
@@ -16867,9 +18410,9 @@ var FullCalendar = (function (exports) {
           const isTitleAndHeaderSticky = !forPrint && props.colCount === 1;
           const isAspectRatio = !forPrint || props.hasLateralSiblings;
           const cellColCnt = dayTableModel.cellRows[0].length;
-          const colWidth = state.gridWidth != null ? state.gridWidth / cellColCnt : undefined;
-          const cellIsMicro = colWidth != null && colWidth <= dayMicroWidth;
-          const cellIsNarrow = cellIsMicro || (colWidth != null && colWidth <= options.dayNarrowWidth);
+          const measuredColWidth = state.gridWidth != null ? state.gridWidth / cellColCnt : undefined;
+          const cellIsMicro = measuredColWidth != null && measuredColWidth <= dayMicroWidth;
+          const cellIsNarrow = cellIsMicro || (measuredColWidth != null && measuredColWidth <= options.dayNarrowWidth);
           const rowHeightGuess = state.gridWidth != null
               ? (1 / options.aspectRatio) * state.gridWidth / 6
               : undefined;
@@ -16879,10 +18422,11 @@ var FullCalendar = (function (exports) {
           const titleStickyBottom = isTitleAndHeaderSticky && rowHeightGuess != null && state.tableHeaderHeight != null
               ? rowHeightGuess + state.tableHeaderHeight + 1
               : undefined;
-          const businessHourSegs = forPrint ? [] : slicedProps.businessHourSegs;
+          const businessHourSegs = slicedProps.businessHourSegs;
           const dateSelectionSegs = forPrint ? [] : slicedProps.dateSelectionSegs;
           const eventDrag = forPrint ? null : slicedProps.eventDrag;
           const eventResize = forPrint ? null : slicedProps.eventResize;
+          const tableMode = forPrint && !props.hasLateralSiblings;
           const hasNavLink = options.navLinks && props.colCount > 1;
           const headerRenderProps = {
               multiMonthColumns: props.colCount || 0,
@@ -16898,28 +18442,28 @@ var FullCalendar = (function (exports) {
                       isFirst: props.isFirst,
                       isLast: props.isLast,
                       multiMonthColumns: props.colCount || 0,
-                  }), classNames.flexCol, props.hasLateralSiblings && classNames.breakInsideAvoid), children: [u$1(Ruler, { widthRef: this.handleGridWidth }), u$1("div", { id: this.titleId, ref: this.titleElRef, className: joinClassNames(generateClassName(options.singleMonthHeaderClass, headerRenderProps), isTitleAndHeaderSticky && classNames.stickyT, classNames.flexCol), style: {
+                  }), classNames.flexCol, props.hasLateralSiblings && classNames.breakInsideAvoid), children: [u$1(Ruler, { widthRef: this.handleGridWidth }), u$1("div", { id: this.titleId, ref: this.titleElRef, className: joinClassNames(generateClassName(options.singleMonthHeaderClass, headerRenderProps), isTitleAndHeaderSticky && classNames.stickyT, isTitleAndHeaderSticky && classNames.z3, classNames.flexCol), style: {
                               // HACK to keep zIndex above table-header,
                               // because in Chrome, something about position:sticky on this title div
                               // causes its bottom border to no be considered part of its mass,
                               // and would get overlapped and hidden by the table-header div
-                              zIndex: isTitleAndHeaderSticky ? 3 : undefined, // TODO: className?
                               marginBottom: titleStickyBottom,
-                          }, children: u$1("div", { ...navLinkAttrs, className: joinClassNames(generateClassName(options.singleMonthHeaderInnerClass, headerRenderProps), navLinkAttrs.className), children: joinDateTimeFormatParts(dateEnv.formatToParts(monthStartDate, props.titleFormat)) }) }), u$1("div", { className: joinClassNames(generateClassName(options.tableClass, {
+                          }, children: u$1("div", { ...navLinkAttrs, className: joinClassNames(generateClassName(options.singleMonthHeaderInnerClass, headerRenderProps), navLinkAttrs.className), children: joinDateTimeFormatParts(dateEnv.formatToParts(monthStartDate, props.titleFormat)) }) }), tableMode ? (u$1(DayGridLayoutPrint, { dateProfile: props.dateProfile, todayRange: props.todayRange, cellRows: dayTableModel.cellRows, headerTiers: [rowConfig], showHeader: true, headerElRef: this.handleTableHeaderEl, fgEventSegs: slicedProps.fgEventSegs, bgEventSegs: slicedProps.bgEventSegs, businessHourSegs: businessHourSegs, eventSelection: slicedProps.eventSelection, dayMaxEventRows: true, borderlessX: borderlessX, borderlessTop: borderlessTop, borderlessBottom: borderlessBottom, multiMonthColumns: props.colCount || 0, visibleWidth: state.gridWidth, cellIsNarrow: cellIsNarrow, cellIsMicro: cellIsMicro, rowHeightRefMap: this.rowHeightRefMap, style: {
+                              marginTop: titleStickyBottom != null ? -titleStickyBottom : undefined,
+                          } })) : (u$1("div", { className: joinClassNames(generateClassName(options.tableClass, {
                               borderlessX,
                               borderlessTop,
                               borderlessBottom,
                               multiMonthColumns: props.colCount || 0,
                           }), classNames.flexCol), style: {
                               marginTop: titleStickyBottom != null ? -titleStickyBottom : undefined,
-                          }, children: [u$1("div", { ref: this.tableHeaderElRef, className: joinClassNames(generateClassName(options.tableHeaderClass, {
+                          }, children: [u$1("div", { ref: this.handleTableHeaderEl, className: joinClassNames(generateClassName(options.tableHeaderClass, {
                                       isSticky: isTitleAndHeaderSticky,
                                       borderlessX,
                                       borderlessTop,
                                       borderlessBottom,
                                       multiMonthColumns: props.colCount || 0,
-                                  }), classNames.flexCol, isTitleAndHeaderSticky && classNames.sticky), style: {
-                                      zIndex: isTitleAndHeaderSticky ? 2 : undefined, // TODO: className?
+                                  }), classNames.flexCol, isTitleAndHeaderSticky && classNames.sticky, isTitleAndHeaderSticky && classNames.z2), style: {
                                       top: isTitleAndHeaderSticky ? state.titleHeight : 0,
                                       marginBottom: headerStickyBottom,
                                   }, children: [u$1(DayGridHeaderRow, { ...rowConfig, role: 'row', borderBottom: false, cellIsNarrow: cellIsNarrow, cellIsMicro: cellIsMicro, rowLevel: 0 }), u$1("div", { className: generateClassName(options.dayHeaderDividerClass, {
@@ -16931,8 +18475,7 @@ var FullCalendar = (function (exports) {
                                       borderlessTop,
                                       borderlessBottom,
                                       multiMonthColumns: props.colCount || 0,
-                                  }), classNames.flexCol, isAspectRatio && classNames.rel), style: {
-                                      zIndex: isTitleAndHeaderSticky ? 1 : undefined, // TODO: className?
+                                  }), classNames.flexCol, isAspectRatio && classNames.rel, isTitleAndHeaderSticky && classNames.z1), style: {
                                       marginTop: headerStickyBottom != null ? -headerStickyBottom : undefined,
                                       aspectRatio: isAspectRatio ? String(options.aspectRatio) : undefined,
                                   }, children: u$1(DayGridRows, { dateProfile: props.dateProfile, todayRange: props.todayRange, cellRows: dayTableModel.cellRows, className: isAspectRatio ? classNames.fill : '', forPrint: forPrint && !props.hasLateralSiblings, dayMaxEventRows: (forPrint && props.hasLateralSiblings)
@@ -16942,7 +18485,7 @@ var FullCalendar = (function (exports) {
                                       // content
                                       fgEventSegs: slicedProps.fgEventSegs, bgEventSegs: slicedProps.bgEventSegs, businessHourSegs: businessHourSegs, dateSelectionSegs: dateSelectionSegs, eventDrag: eventDrag, eventResize: eventResize, eventSelection: slicedProps.eventSelection, 
                                       // dimensions
-                                      visibleWidth: state.gridWidth, cellIsNarrow: cellIsNarrow, cellIsMicro: cellIsMicro, rowHeightRefMap: this.rowHeightRefMap }) })] })] }) }));
+                                      visibleWidth: state.gridWidth, cellIsNarrow: cellIsNarrow, cellIsMicro: cellIsMicro, rowHeightRefMap: this.rowHeightRefMap }) })] }))] }) }));
       }
       componentDidMount() {
           this._isUnmounting = false;
@@ -16950,16 +18493,12 @@ var FullCalendar = (function (exports) {
               this.setState({ titleHeight: this.titleHeight = height });
               afterSize(this.handleHeights);
           });
-          this.disconnectTableHeaderHeight = watchHeight(this.tableHeaderElRef.current, (height) => {
-              this.setState({ tableHeaderHeight: this.tableHeaderHeight = height });
-              afterSize(this.handleHeights);
-          });
       }
       componentWillUnmount() {
           const { options } = this.context;
           this._isUnmounting = true;
           this.disconnectTitleHeight();
-          this.disconnectTableHeaderHeight();
+          this.disconnectTableHeaderHeight?.();
           options.singleMonthWillUnmount?.({
               el: this.rootEl,
               ...this.renderProps,
@@ -17234,7 +18773,9 @@ var FullCalendar = (function (exports) {
       if (!dateMeta) { // TODO: warning?
           return '';
       }
-      return joinDateTimeFormatParts(dateEnv.formatToParts(dateMeta.marker, formatter));
+      return joinDateTimeFormatParts(dateEnv.formatToParts(dateMeta.marker, formatter, {
+          instantMs: dateMeta.instantMs,
+      }));
   }
   function formatRange(startInput, endInput, options) {
       let dateEnv = buildDateEnv(typeof options === 'object' && options ? options : {}); // pass in if non-null object
@@ -17246,6 +18787,8 @@ var FullCalendar = (function (exports) {
       }
       return joinDateTimeFormatParts(dateEnv.formatRangeToParts(startMeta.marker, endMeta.marker, formatter, {
           isEndExclusive: options.isEndExclusive,
+          startInstantMs: startMeta.instantMs,
+          endInstantMs: endMeta.instantMs,
       }));
   }
   // TODO: more DRY and optimized
@@ -17267,7 +18810,7 @@ var FullCalendar = (function (exports) {
       return sliceEventStore(props.eventStore, props.eventUiBases, props.dateProfile.activeRange, allDay ? props.nextDayThreshold : null).fg;
   }
 
-  const version = '7.0.2';
+  const version = '7.1.0';
 
   var protectedStyles = /*#__PURE__*/Object.freeze({
   	__proto__: null,

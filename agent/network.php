@@ -24,7 +24,7 @@ $sql = mysqli_query(
     $mysqli,
     "SELECT client_id, client_name, location_name, network, network_client_id, network_description,
         network_dhcp_range, network_gateway, network_id, network_name, network_notes,
-        network_primary_dns, network_secondary_dns, network_vlan FROM networks
+        network_primary_dns, network_secondary_dns, network_vlan, network_archived_at FROM networks
     LEFT JOIN clients ON client_id = network_client_id
     LEFT JOIN locations ON location_id = network_location_id
     WHERE network_id = $network_id
@@ -50,6 +50,7 @@ if (mysqli_num_rows($sql) == 0) {
     $network_primary_dns = escapeHtml($row['network_primary_dns']);
     $network_secondary_dns = escapeHtml($row['network_secondary_dns']);
     $network_dhcp_range = escapeHtml($row['network_dhcp_range']);
+    $network_archived_at = escapeHtml($row['network_archived_at']);
     $network_notes = escapeHtml($row['network_notes']);
     $location_name = escapeHtml($row['location_name']);
 
@@ -91,6 +92,9 @@ if (mysqli_num_rows($sql) == 0) {
         </li>
         <li class="breadcrumb-item active">
             <i class="fas fa-fw fa-network-wired"></i> <?= $network_name ?>
+            <?php if ($network_archived_at) { ?>
+                <span class="text-secondary"> (Archived)</span>
+            <?php } ?>
         </li>
     </ol>
 

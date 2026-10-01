@@ -256,12 +256,7 @@ if ($tickets) {
                             $ticket_priority_color = "info";
                         }
 
-                        $ticket_assigned_to = intval($row['ticket_assigned_to']);
-                        if (empty($ticket_assigned_to)) {
-                            $ticket_assigned_to_display = $ticket_is_open ? "<span class='text-muted'>Unassigned</span>" : "<span>Unassigned</span>";
-                        } else {
-                            $ticket_assigned_to_display = escapeHtml($row['user_name']);
-                        }
+                        $ticket_assigned_to_display = formatAssignee($row['ticket_assigned_to'], $row['user_name'], $row['user_avatar'], $ticket_is_open);
 
                         if (empty($contact_name)) {
                             $contact_display = "<span class='text-muted'>-</span>";
