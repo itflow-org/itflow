@@ -40,6 +40,7 @@ If you are coming from 26.08 or earlier, the database update still has to be run
 - Documents: images in documents, document versions and queued emails opened in a pop-up spilled past the edge of the window, and tables showed without their styling. The same happened in document previews on the Files page. Both now display properly.
 - Tickets: in Change Client, picking the new client did not load that client's contacts, so no contact could be chosen.
 - Client Portal: the header with your photo, the welcome line and the company logo no longer breaks onto separate rows on smaller screens, and the menu button on phones shows a proper menu icon. Thanks to @BoredManCodes.
+- Restore the ability to type in a manual entry in select boxes with data-tags=true inclusing adding custom ticket watchers.
 
 ### Developer Updates
 
