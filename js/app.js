@@ -205,14 +205,6 @@ function itflowInit() {
         plugins: 'link image lists table code codesample fullscreen autoresize',
         setup: function (editor) {
             editor.on('init', function() {
-                window.onbeforeunload = function() {
-                    // If editor is dirty AND not inside a visible modal → warn
-                    const inVisibleModal = editor.getContainer()?.closest('.modal.show');
-                    if (!inVisibleModal && editor.isDirty()) {
-                        return "You have unsaved changes. Are you sure you want to leave?";
-                    }
-                };
-
                 // When the modal closes, mark editor clean
                 const modal = editor.getContainer()?.closest('.modal');
                 if (modal) {
@@ -260,14 +252,6 @@ function itflowInit() {
         license_key: 'gpl',
         setup: function(editor) {
             editor.on('init', function() {
-                window.onbeforeunload = function() {
-                    // If editor is dirty AND not inside a visible modal → warn
-                    const inVisibleModal = editor.getContainer()?.closest('.modal.show');
-                    if (!inVisibleModal && editor.isDirty()) {
-                        return "You have unsaved changes. Are you sure you want to leave?";
-                    }
-                };
-
                 // When the modal closes, mark editor clean
                 const modal = editor.getContainer()?.closest('.modal');
                 if (modal) {
@@ -389,14 +373,6 @@ function itflowInit() {
         license_key: 'gpl',
         setup: function(editor) {
             editor.on('init', function() {
-                window.onbeforeunload = function() {
-                    // If editor is dirty AND not inside a visible modal → warn
-                    const inVisibleModal = editor.getContainer()?.closest('.modal.show');
-                    if (!inVisibleModal && editor.isDirty()) {
-                        return "You have unsaved changes. Are you sure you want to leave?";
-                    }
-                };
-
                 // When the modal closes, mark editor clean
                 const modal = editor.getContainer()?.closest('.modal');
                 if (modal) {
@@ -507,14 +483,6 @@ function itflowInit() {
         setup: function(editor) {
 
             editor.on('init', function() {
-                window.onbeforeunload = function() {
-                    // If editor is dirty AND not inside a visible modal → warn
-                    const inVisibleModal = editor.getContainer()?.closest('.modal.show');
-                    if (!inVisibleModal && editor.isDirty()) {
-                        return "You have unsaved changes. Are you sure you want to leave?";
-                    }
-                };
-
                 // When the modal closes, mark editor clean
                 const modal = editor.getContainer()?.closest('.modal');
                 if (modal) {
@@ -751,6 +719,40 @@ itflowBindOnce('itflowModalFocus', 'shown.bs.modal', '.modal', function () {
     }
     this.focus();
 });
+
+/**
+ * Warn before leaving the page with unsaved editor content.
+ *
+ * Each TinyMCE config used to assign window.onbeforeunload for its own editor.
+ * That is a single slot, so whichever editor initialised last owned it. Opening
+ * any ajax modal with an editor (Edit Ticket, Edit Reply) handed the slot to the
+ * modal's editor, and once that modal closed nothing guarded the page's own
+ * editor - a half-written ticket reply was lost on the next link click with no
+ * prompt. One listener now checks every live editor.
+ *
+ * Editors inside an open modal are skipped, as before: the modal is where that
+ * work gets submitted or discarded. Editors from a closed ajax modal are removed
+ * by js/ajax_modal.js, so tinymce.get() no longer returns them.
+ *
+ * Flagged on window because modal_footer.php re-loads this file on every ajax
+ * modal open.
+ */
+if (!window.itflowEditorUnloadGuard) {
+    window.itflowEditorUnloadGuard = true;
+    window.addEventListener('beforeunload', function (e) {
+        if (typeof tinymce === 'undefined') {
+            return;
+        }
+        const unsaved = tinymce.get().some(function (editor) {
+            const inVisibleModal = editor.getContainer()?.closest('.modal.show');
+            return !inVisibleModal && editor.isDirty();
+        });
+        if (unsaved) {
+            e.preventDefault();
+            e.returnValue = '';
+        }
+    });
+}
 
 /**
  * Let TinyMCE's popups take focus inside a modal.

@@ -43,7 +43,7 @@ $company_initials = escapeHtml(initials($company_name));
                         <div class="col-md-3 text-center">
                             <?php if ($company_logo) { ?>
                                 <img class="img-thumbnail" src="<?= "../uploads/settings/$company_logo" ?>">
-                                <a href="post.php?remove_company_logo&csrf_token=<?= $_SESSION['csrf_token'] ?>" class="btn btn-outline-danger w-100">Remove Logo</a>
+                                <a href="post.php?remove_company_logo&csrf_token=<?= $_SESSION['csrf_token'] ?>" class="btn btn-outline-danger w-100 confirm-link">Remove Logo</a>
                                 <hr>
                             <?php } ?>
                             <div class="mb-3">

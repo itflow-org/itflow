@@ -62,7 +62,7 @@ ob_start();
 
     <div class="modal-footer">
     <?php if ($ticket_scheduled_for) { ?>
-        <a href="post.php?cancel_ticket_schedule=<?= $ticket_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>" class="btn btn-danger text-bold">
+        <a href="post.php?cancel_ticket_schedule=<?= $ticket_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>" class="btn btn-danger text-bold confirm-link" data-confirm-text="A cancellation email goes to the assigned agent, and to the contact and watchers if client notifications are on." data-confirm-button="Cancel scheduled time">
             <i class="fa fa-trash me-2"></i>Cancel Scheduled Time
         </a>
     <?php } ?>

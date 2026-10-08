@@ -638,7 +638,7 @@ if (isset($_GET['asset_id'])) {
                                                     </a>
                                                     <?php if ($session_user_role == 3 && $interface_primary == 0): ?>
                                                         <div class="dropdown-divider"></div>
-                                                        <a class="dropdown-item text-danger text-bold" href="post.php?delete_asset_interface=<?= $interface_id; ?>&csrf_token=<?= $_SESSION['csrf_token']; ?>">
+                                                        <a class="dropdown-item text-danger text-bold confirm-link" href="post.php?delete_asset_interface=<?= $interface_id; ?>&csrf_token=<?= $_SESSION['csrf_token']; ?>">
                                                             <i class="fas fa-fw fa-trash me-2"></i>Delete
                                                         </a>
                                                     <?php endif; ?>
@@ -760,7 +760,7 @@ if (isset($_GET['asset_id'])) {
                                                     </a>
                                                     <?php if ($session_user_role == 3) { ?>
                                                         <div class="dropdown-divider"></div>
-                                                        <a class="dropdown-item text-danger text-bold" href="post.php?delete_credential=<?= $credential_id; ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>">
+                                                        <a class="dropdown-item text-danger text-bold confirm-link" href="post.php?delete_credential=<?= $credential_id; ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>">
                                                             <i class="fas fa-fw fa-trash me-2"></i>Delete
                                                         </a>
                                                     <?php } ?>
@@ -1295,7 +1295,7 @@ if (isset($_GET['asset_id'])) {
                                                     </a>
                                                     <?php if (lookupUserPermission("module_support") >= 3) { ?>
                                                         <div class="dropdown-divider"></div>
-                                                        <a class="dropdown-item text-danger text-bold" href="post.php?delete_asset_note=<?= $asset_note_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>">
+                                                        <a class="dropdown-item text-danger text-bold confirm-link" href="post.php?delete_asset_note=<?= $asset_note_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>">
                                                             <i class="fas fa-fw fa-trash me-2"></i>Delete
                                                         </a>
                                                     <?php } ?>

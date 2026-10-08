@@ -37,7 +37,7 @@ $remember_token_count = mysqli_num_rows($sql_remember_tokens);
                 <?php require_once "modals/user_mfa_modal.php"; ?>
 
             <?php } else { ?>
-                <a href="post.php?disable_mfa&csrf_token=<?= $_SESSION['csrf_token'] ?>" class="btn btn-danger"><i class="fas fa-unlock me-2"></i>Disable MFA</a>
+                <a href="post.php?disable_mfa&csrf_token=<?= $_SESSION['csrf_token'] ?>" class="btn btn-danger confirm-link"><i class="fas fa-unlock me-2"></i>Disable MFA</a>
             <?php } ?>
         </div>
 

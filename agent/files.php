@@ -1239,7 +1239,7 @@ $num_root_items = intval($row_root_files['num']) + intval($row_root_docs['num'])
                                                             </a>
                                                             <?php if ($session_user_role == 3) { ?>
                                                                 <div class="dropdown-divider"></div>
-                                                                <a class="dropdown-item text-danger text-bold" href="post.php?delete_document=<?= $document_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>">
+                                                                <a class="dropdown-item text-danger text-bold confirm-link" href="post.php?delete_document=<?= $document_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>">
                                                                     <i class="fas fa-fw fa-trash me-2"></i>Delete
                                                                 </a>
                                                             <?php } ?>

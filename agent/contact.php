@@ -512,7 +512,7 @@ if (isset($_GET['contact_id'])) {
                                                     <a class="dropdown-item text-danger" href="post.php?archive_asset=<?= $asset_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>">
                                                         <i class="fas fa-fw fa-archive me-2"></i>Archive
                                                     </a>
-                                                    <a class="dropdown-item text-danger text-bold" href="post.php?delete_asset=<?=  $asset_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>">
+                                                    <a class="dropdown-item text-danger text-bold confirm-link" href="post.php?delete_asset=<?=  $asset_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>">
                                                         <i class="fas fa-fw fa-trash me-2"></i>Delete
                                                     </a>
                                                 <?php } ?>
@@ -649,7 +649,7 @@ if (isset($_GET['contact_id'])) {
                                                 </a>
                                                 <?php if ($session_user_role == 3) { ?>
                                                     <div class="dropdown-divider"></div>
-                                                    <a class="dropdown-item text-danger text-bold" href="post.php?delete_credential=<?= $credential_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>">
+                                                    <a class="dropdown-item text-danger text-bold confirm-link" href="post.php?delete_credential=<?= $credential_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>">
                                                         <i class="fas fa-fw fa-trash me-2"></i>Delete
                                                     </a>
                                                 <?php } ?>
@@ -1150,7 +1150,7 @@ if (isset($_GET['contact_id'])) {
                                                 </a>
                                                 <?php if ($session_user_role == 3) { ?>
                                                     <div class="dropdown-divider"></div>
-                                                    <a class="dropdown-item text-danger text-bold" href="post.php?delete_contact_note=<?= $contact_note_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>">
+                                                    <a class="dropdown-item text-danger text-bold confirm-link" href="post.php?delete_contact_note=<?= $contact_note_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>">
                                                         <i class="fas fa-fw fa-trash me-2"></i>Delete
                                                     </a>
                                                 <?php } ?>

@@ -222,7 +222,7 @@ ob_start();
 
     </div>
     <div class="modal-footer">
-        <a class="btn btn-default text-danger me-auto" href="post.php?delete_event=<?= $event_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>"><i class="fa fa-calendar-times me-2"></i><?= empty($event_repeat) ? 'Delete' : 'Delete series' ?></a>
+        <a class="btn btn-default text-danger me-auto confirm-link" href="post.php?delete_event=<?= $event_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>"><i class="fa fa-calendar-times me-2"></i><?= empty($event_repeat) ? 'Delete' : 'Delete series' ?></a>
         <button type="submit" name="edit_event" class="btn btn-primary text-bold"><i class="fa fa-check me-2"></i>Save</button>
         <button type="button" class="btn btn-light" data-bs-dismiss="modal"><i class="fa fa-times me-2"></i>Cancel</button>
     </div>

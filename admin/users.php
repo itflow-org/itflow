@@ -206,7 +206,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                         <i class="fas fa-fw fa-user-check me-2"></i>Activate
                                     </a>
                                 <?php }elseif ($user_status == 1) { ?>
-                                    <a class="dropdown-item text-danger" href="post.php?disable_user=<?= $user_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>">
+                                    <a class="dropdown-item text-danger confirm-link" data-confirm-text="Their open tickets and recurring tickets will be unassigned. Activating them again does not reassign anything." data-confirm-button="Disable" href="post.php?disable_user=<?= $user_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>">
                                         <i class="fas fa-fw fa-user-slash me-2"></i>Disable
                                     </a>
                                 <?php } ?>

@@ -231,7 +231,7 @@ if (isset($_GET['disable_user'])) {
         logTicketHistory($affected_ticket_id, "$session_name unassigned the ticket when $user_name was disabled");
     }
 
-    logAudit("User", "Disable", "$session_name disabled user $name", 0, $user_id);
+    logAudit("User", "Disable", "$session_name disabled user $user_name", 0, $user_id);
 
     flashAlert("User <strong>$user_name</strong> disabled", 'error');
 
