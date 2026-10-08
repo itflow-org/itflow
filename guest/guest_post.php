@@ -848,7 +848,6 @@ if (isset($_POST['create_stripe_customer'])) {
     // Ensure valid invoice
     if (!$sql || mysqli_num_rows($sql) !== 1) {
         echo "<br><h2>Oops, something went wrong! Please ensure you have the correct URL and have not already paid this invoice.</h2>";
-        require_once 'includes/guest_footer.php';
         error_log("Stripe payment error - Invoice with ID $invoice_id not found or not eligible.");
         exit();
     }
