@@ -33,7 +33,7 @@ if (isset($_GET['calendar_id'])) {
             <div class="card-header">
                 <h3 class="card-title">Calendars</h3>
                 <div class="card-tools">
-                    <button type="button" class="btn btn-tool ajax-modal" data-modal-url="modals/calendar/calendar_add.php"><i class="fas fa-plus" title="New Calendar"></i></button>
+                    <button type="button" class="btn btn-tool ajax-modal" title="New calendar" data-modal-url="modals/calendar/calendar_add.php"><i class="fas fa-plus"></i></button>
                 </div>
             </div>
             <div class="card-body">
@@ -52,7 +52,7 @@ if (isset($_GET['calendar_id'])) {
                     <?php } ?>
 
                     <div class="dropdown dropend ms-auto">
-                        <button class="btn btn-tool" type="button" data-bs-toggle="dropdown">
+                        <button class="btn btn-tool" title="More actions" type="button" data-bs-toggle="dropdown">
                             <i class="fas fa-ellipsis-v"></i>
                         </button>
                         <div class="dropdown-menu">

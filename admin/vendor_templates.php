@@ -37,7 +37,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                 <div class="col-md-4">
                     <div class="input-group">
                         <input type="search" class="form-control" name="q" value="<?php if (isset($q)) { echo stripslashes(escapeHtml($q)); } ?>" placeholder="Search Vendors Templates">
-                            <button class="btn btn-dark"><i class="fa fa-search"></i></button>
+                            <button class="btn btn-dark" title="Search"><i class="fa fa-search"></i></button>
                     </div>
                 </div>
 
@@ -131,7 +131,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                     </td>
                     <td>
                         <div class="dropdown dropstart text-center">
-                            <button class="btn btn-secondary btn-sm" type="button" data-bs-toggle="dropdown">
+                            <button class="btn btn-secondary btn-sm" title="More actions" type="button" data-bs-toggle="dropdown">
                                 <i class="fas fa-ellipsis-h"></i>
                             </button>
                             <div class="dropdown-menu">

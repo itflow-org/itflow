@@ -268,7 +268,7 @@ if (isset($_GET['invoice_id'])) {
                     <div class="col-4">
 
                         <div class="dropdown dropstart text-center float-end">
-                            <button class="btn btn-secondary" type="button" data-bs-toggle="dropdown">
+                            <button class="btn btn-secondary" title="More actions" type="button" data-bs-toggle="dropdown">
                                 <i class="fas fa-ellipsis-v"></i>
                             </button>
                             <div class="dropdown-menu">
@@ -426,12 +426,12 @@ if (isset($_GET['invoice_id'])) {
                                             <?php if ($invoice_status !== "Paid" && $invoice_status !== "Cancelled") { ?>
 
                                                 <div class="btn-group">
-                                                    <button type="button" class="btn btn-sm btn-link drag-handle">
+                                                    <button type="button" class="btn btn-sm btn-link drag-handle" title="Drag to reorder">
                                                         <i class="fas fa-bars text-muted"></i>
                                                     </button>
 
                                                     <div class="dropdown">
-                                                        <button class="btn btn-sm btn-light" type="button" data-bs-toggle="dropdown">
+                                                        <button class="btn btn-sm btn-light" title="More actions" type="button" data-bs-toggle="dropdown">
                                                             <i class="fas fa-ellipsis-v"></i>
                                                         </button>
                                                         <div class="dropdown-menu">
@@ -493,7 +493,7 @@ if (isset($_GET['invoice_id'])) {
                                             </select>
                                         </td>
                                         <td class="text-center">
-                                            <button class="btn btn-light text-success" type="submit" name="add_invoice_item">
+                                            <button class="btn btn-light text-success" title="Add item" type="submit" name="add_invoice_item">
                                                 <i class="fa fa-check"></i>
                                             </button>
                                         </td>
@@ -593,10 +593,10 @@ if (isset($_GET['invoice_id'])) {
                 <div class="card-header text-bold">
                     <i class="fa fa-history me-2"></i>History
                     <div class="card-tools">
-                        <button type="button" class="btn btn-tool" data-lte-toggle="card-collapse">
+                        <button type="button" class="btn btn-tool" title="Show/hide" data-lte-toggle="card-collapse">
                             <i class="fas fa-minus"></i>
                         </button>
-                        <button type="button" class="btn btn-tool" data-lte-toggle="card-remove">
+                        <button type="button" class="btn btn-tool" title="Hide" data-lte-toggle="card-remove">
                             <i class="fas fa-times"></i>
                         </button>
                     </div>
@@ -638,10 +638,10 @@ if (isset($_GET['invoice_id'])) {
                 <div class="card-header text-bold">
                     <i class="fa fa-credit-card me-2"></i>Payments
                     <div class="card-tools">
-                        <button type="button" class="btn btn-tool" data-lte-toggle="card-collapse">
+                        <button type="button" class="btn btn-tool" title="Show/hide" data-lte-toggle="card-collapse">
                             <i class="fas fa-minus"></i>
                         </button>
-                        <button type="button" class="btn btn-tool" data-lte-toggle="card-remove">
+                        <button type="button" class="btn btn-tool" title="Hide" data-lte-toggle="card-remove">
                             <i class="fas fa-times"></i>
                         </button>
                     </div>
@@ -702,20 +702,20 @@ if (isset($_GET['invoice_id'])) {
                     <i class="fa fa-life-ring me-2"></i>Tickets
                     <div class="card-tools">
                         <?php if (mysqli_num_rows($sql_tickets_billable) > 0) { ?>
-                        <a class="btn btn-tool" href="#" data-bs-toggle="modal" data-bs-target="#addTicketModal">
+                        <a class="btn btn-tool" title="Add ticket" href="#" data-bs-toggle="modal" data-bs-target="#addTicketModal">
                             <i class="fas fa-plus"></i>
                         </a>
                         <?php } ?>
 
 
-                        <a class="btn btn-tool" href="tickets.php?client_id=<?= $client_id ?>">
+                        <a class="btn btn-tool" title="View tickets" href="tickets.php?client_id=<?= $client_id ?>">
                             <i class="fas fa-external-link-alt"></i>
                         </a>
-                        <button type="button" class="btn btn-tool" data-lte-toggle="card-collapse">
+                        <button type="button" class="btn btn-tool" title="Show/hide" data-lte-toggle="card-collapse">
                             <i class="fas fa-minus"></i>
 
                         </button>
-                        <button type="button" class="btn btn-tool" data-lte-toggle="card-remove">
+                        <button type="button" class="btn btn-tool" title="Hide" data-lte-toggle="card-remove">
                             <i class="fas fa-times"></i>
 
                         </button>

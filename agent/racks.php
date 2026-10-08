@@ -43,7 +43,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                 <div class="col-md-4">
                     <div class="input-group mb-3 mb-md-0">
                         <input type="search" class="form-control" name="q" value="<?php if (isset($q)) { echo stripslashes(escapeHtml($q)); } ?>" placeholder="Search Racks">
-                            <button class="btn btn-dark"><i class="fa fa-search"></i></button>
+                            <button class="btn btn-dark" title="Search"><i class="fa fa-search"></i></button>
                     </div>
                 </div>
 
@@ -94,7 +94,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 
                             <div class="card-tools">
                                 <div class="dropdown dropstart">
-                                    <button class="btn btn-tool" type="button" data-bs-toggle="dropdown">
+                                    <button class="btn btn-tool" title="More actions" type="button" data-bs-toggle="dropdown">
                                         <i class="fas fa-fw fa-ellipsis-v"></i>
                                     </button>
                                     <div class="dropdown-menu">
@@ -265,7 +265,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                                         <td class="px-0 text-end align-middle" rowspan="<?= $span ?>">
                                                             <!-- ACTION ICON / DROPDOWN -->
                                                             <div class="dropdown dropstart">
-                                                                <button class="btn btn-tool" type="button" data-bs-toggle="dropdown">
+                                                                <button class="btn btn-tool" title="More actions" type="button" data-bs-toggle="dropdown">
                                                                     <i class="fas fa-fw fa-ellipsis-v"></i>
                                                                 </button>
                                                                 <div class="dropdown-menu">
@@ -296,7 +296,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 
                                                     <td class="text-end">
                                                         <div class="dropdown dropstart">
-                                                            <button class="btn btn-tool" type="button" data-bs-toggle="dropdown">
+                                                            <button class="btn btn-tool" title="More actions" type="button" data-bs-toggle="dropdown">
                                                                 <i class="fas fa-fw fa-ellipsis-v"></i>
                                                             </button>
                                                             <div class="dropdown-menu">

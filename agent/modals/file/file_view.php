@@ -21,7 +21,7 @@
 
             <div class="position-relative text-center">
 
-                <button type="button" class="btn btn-dark position-absolute top-50 start-0 translate-middle-y ms-2"
+                <button type="button" class="btn btn-dark position-absolute top-50 start-0 translate-middle-y ms-2" title="Previous file"
                     id="modalPrev" onclick="prevFile()">
                     <i class="fas fa-chevron-left"></i>
                 </button>
@@ -44,7 +44,7 @@
                     <p class="mt-3 mb-0">This file type cannot be previewed in the browser.</p>
                 </div>
 
-                <button type="button" class="btn btn-dark position-absolute top-50 end-0 translate-middle-y me-2"
+                <button type="button" class="btn btn-dark position-absolute top-50 end-0 translate-middle-y me-2" title="Next file"
                     id="modalNext" onclick="nextFile()">
                     <i class="fas fa-chevron-right"></i>
                 </button>

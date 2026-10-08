@@ -162,7 +162,7 @@ ob_start();
                 </button>
             </div>
             <div class="dropdown dropup">
-                <button class="btn btn-light" type="button" data-bs-toggle="dropdown">
+                <button class="btn btn-light" title="More actions" type="button" data-bs-toggle="dropdown">
                     <i class="fas fa-fw fa-ellipsis-v"></i>
                 </button>
                 <div class="dropdown-menu dropdown-menu-end">

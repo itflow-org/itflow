@@ -266,7 +266,7 @@ ob_start();
                                 <div class="mt-1">
                                     <i class="fas fa-fw fa-envelope text-secondary me-1"></i>
                                     <a href="mailto:<?= $contact_email ?>"><?= $contact_email ?></a>
-                                    <button type="button" class="btn btn-sm btn-link p-0 ms-1 clipboardjs" data-clipboard-text="<?= $contact_email ?>">
+                                    <button type="button" class="btn btn-sm btn-link p-0 ms-1 clipboardjs" title="Copy email" data-clipboard-text="<?= $contact_email ?>">
                                         <i class="far fa-copy text-secondary"></i>
                                     </button>
                                 </div>
@@ -570,7 +570,7 @@ ob_start();
                                 if (empty($credential_username)) {
                                     $credential_username_display = "-";
                                 } else {
-                                    $credential_username_display = "$credential_username <button type='button' class='btn btn-sm btn-link clipboardjs' data-clipboard-text='$credential_username'><i class='far fa-copy text-secondary'></i></button>";
+                                    $credential_username_display = "$credential_username <button type='button' class='btn btn-sm btn-link clipboardjs' title='Copy username' data-clipboard-text='$credential_username'><i class='far fa-copy text-secondary'></i></button>";
                                 }
 
                                 $credential_otp_secret = escapeHtml($row['credential_otp_secret']);
@@ -585,10 +585,10 @@ ob_start();
                                     <td><?= $credential_description ?></td>
                                     <td><?= $credential_username_display ?></td>
                                     <td>
-                                        <button class="btn p-0" type="button" onclick="showPasswordViaCredentialID(this, <?= $credential_id ?>)">
+                                        <button class="btn p-0" aria-label="Show password" type="button" onclick="showPasswordViaCredentialID(this, <?= $credential_id ?>)">
                                             <i class="fas fa-2x fa-ellipsis-h text-secondary"></i><i class="fas fa-2x fa-ellipsis-h text-secondary"></i>
                                         </button>
-                                        <button class="btn btn-sm" type="button" onclick="copyPasswordViaCredentialID(this, <?= $credential_id ?>)">
+                                        <button class="btn btn-sm" title="Copy password" type="button" onclick="copyPasswordViaCredentialID(this, <?= $credential_id ?>)">
                                             <i class="far fa-copy text-secondary"></i>
                                         </button>
                                     </td>

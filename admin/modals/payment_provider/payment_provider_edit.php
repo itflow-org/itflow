@@ -147,7 +147,7 @@ ob_start();
                             }
                             ?>
                         </select>
-                            <button class="btn btn-secondary ajax-modal" type="button"
+                            <button class="btn btn-secondary ajax-modal" title="New category" type="button"
                                 data-modal-url="../admin/modals/category/category_add.php?category=Expense">
                                 <i class="fas fa-plus"></i>
                             </button>

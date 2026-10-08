@@ -106,7 +106,7 @@ ob_start();
                     <div class="input-group">
                             <span class="input-group-text"><i class="fa fa-fw fa-globe"></i>&nbsp;https://</span>
                         <input type="text" class="form-control" name="domain" id="editCertificateDomain" placeholder="Domain" maxlength="200" value="<?= $certificate_domain ?>" required>
-                            <button type="button" class="btn btn-secondary" onclick="fetchSSL('edit')"><i class="fas fa-fw fa-sync-alt"></i></button>
+                            <button type="button" class="btn btn-secondary" title="Fetch certificate" onclick="fetchSSL('edit')"><i class="fas fa-fw fa-sync-alt"></i></button>
                     </div>
                 </div>
 

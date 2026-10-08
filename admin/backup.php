@@ -155,11 +155,11 @@ if (!empty($_SESSION['backup_master_key_reveal'])) {
                         </td>
                         <td class="text-end">
                             <?php if ($status === 'Complete') { ?>
-                                <a class="btn btn-sm btn-primary" href="backup_download.php?backup_id=<?= $backup_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>">
+                                <a class="btn btn-sm btn-primary" title="Download backup" href="backup_download.php?backup_id=<?= $backup_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>">
                                     <i class="fas fa-fw fa-download"></i>
                                 </a>
                             <?php } ?>
-                            <a class="btn btn-sm btn-danger confirm-link" href="post.php?delete_backup=<?= $backup_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>">
+                            <a class="btn btn-sm btn-danger confirm-link" title="Delete backup" href="post.php?delete_backup=<?= $backup_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>">
                                 <i class="fas fa-fw fa-trash"></i>
                             </a>
                         </td>
@@ -187,7 +187,7 @@ if (!empty($_SESSION['backup_master_key_reveal'])) {
         <?php if ($backup_key !== '') { ?>
             <div class="input-group">
                 <input type="text" class="form-control font-monospace" value="<?= escapeHtml($backup_key) ?>" readonly onclick="this.select();">
-                    <button class="btn btn-secondary" type="button" onclick="navigator.clipboard.writeText('<?= escapeHtml($backup_key) ?>');">
+                    <button class="btn btn-secondary" title="Copy backup key" type="button" onclick="navigator.clipboard.writeText('<?= escapeHtml($backup_key) ?>');">
                         <i class="fas fa-fw fa-copy"></i>
                     </button>
             </div>

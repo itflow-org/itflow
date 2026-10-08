@@ -115,7 +115,7 @@ $archive_toggle_url = '?' . http_build_query($archive_toggle_query);
                                         echo stripslashes(escapeHtml($q));
                                     } ?>"
                                     placeholder="Search <?= escapeHtml($category_label) ?> Categories ">
-                                    <button class="btn btn-primary"><i class="fa fa-search"></i></button>
+                                    <button class="btn btn-primary" title="Search"><i class="fa fa-search"></i></button>
                             </div>
                         </div>
                         <div class="col-sm-6 mb-2">
@@ -164,7 +164,7 @@ $archive_toggle_url = '?' . http_build_query($archive_toggle_query);
                                     <td><i class="fa fa-3x fa-circle" style="color:<?= $category_color ?>;"></i></td>
                                     <td>
                                         <div class="dropdown dropstart text-center">
-                                            <button class="btn btn-secondary btn-sm" type="button" data-bs-toggle="dropdown">
+                                            <button class="btn btn-secondary btn-sm" title="More actions" type="button" data-bs-toggle="dropdown">
                                                 <i class="fas fa-ellipsis-h"></i>
                                             </button>
                                             <div class="dropdown-menu">

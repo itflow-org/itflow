@@ -210,7 +210,7 @@ if (isset($_GET['contact_id'])) {
 
             <div class="card card-dark mb-3">
                 <div class="card-body">
-                    <button type="button" class="btn btn-default float-end ajax-modal"
+                    <button type="button" class="btn btn-default float-end ajax-modal" title="Edit contact"
                         data-modal-url="modals/contact/contact_edit.php?id=<?= $contact_id ?>">
                         <i class="fas fa-fw fa-user-edit"></i>
                     </button>
@@ -240,7 +240,7 @@ if (isset($_GET['contact_id'])) {
                         <div><i class="fa fa-fw fa-map-marker-alt text-secondary me-2"></i><?= $location_name ?></div>
                     <?php }
                     if ($contact_email) { ?>
-                        <div class="mt-2"><i class="fa fa-fw fa-envelope text-secondary me-2"></i><a href='mailto:<?= $contact_email ?>'><?= $contact_email ?></a><button class='btn btn-sm btn-link clipboardjs' data-clipboard-text='<?= $contact_email ?>'><i class='far fa-copy text-secondary'></i></button></div>
+                        <div class="mt-2"><i class="fa fa-fw fa-envelope text-secondary me-2"></i><a href='mailto:<?= $contact_email ?>'><?= $contact_email ?></a><button class='btn btn-sm btn-link clipboardjs' title='Copy email' data-clipboard-text='<?= $contact_email ?>'><i class='far fa-copy text-secondary'></i></button></div>
                     <?php }
                     if ($contact_phone) { ?>
                         <div class="mt-2"><i class="fa fa-fw fa-phone text-secondary me-2"></i><a href="tel:<?= "$contact_phone" ?>"><?= $contact_phone ?></a></div>
@@ -413,7 +413,7 @@ if (isset($_GET['contact_id'])) {
                                 if (empty($asset_ip)) {
                                     $asset_ip_display = "-";
                                 } else {
-                                    $asset_ip_display = "$asset_ip<button class='btn btn-sm btn-link clipboardjs' type='button' data-clipboard-text='$asset_ip'><i class='far fa-copy text-secondary'></i></button>";
+                                    $asset_ip_display = "$asset_ip<button class='btn btn-sm btn-link clipboardjs' title='Copy IP' type='button' data-clipboard-text='$asset_ip'><i class='far fa-copy text-secondary'></i></button>";
                                 }
                                 $asset_nat_ip = escapeHtml($row['interface_nat_ip']);
                                 $asset_ipv6 = escapeHtml($row['interface_ipv6']);
@@ -491,7 +491,7 @@ if (isset($_GET['contact_id'])) {
                                     <td><?= $asset_status ?></td>
                                     <td>
                                         <div class="dropdown dropstart text-center">
-                                            <button class="btn btn-secondary btn-sm" type="button" data-bs-toggle="dropdown"><i class="fas fa-ellipsis-h"></i></button>
+                                            <button class="btn btn-secondary btn-sm" title="More actions" type="button" data-bs-toggle="dropdown"><i class="fas fa-ellipsis-h"></i></button>
                                             <div class="dropdown-menu">
                                                 <a class="dropdown-item ajax-modal" href="#"
                                                     data-modal-url="modals/asset/asset_edit.php?id=<?= $asset_id ?>">
@@ -570,14 +570,14 @@ if (isset($_GET['contact_id'])) {
                                 if (empty($credential_uri)) {
                                     $credential_uri_display = "-";
                                 } else {
-                                    $credential_uri_display = "$credential_uri<button class='btn btn-sm btn-link clipboardjs' data-clipboard-text='$credential_uri'><i class='far fa-copy text-secondary'></i></button><a href='$credential_uri' target='_blank'><i class='fa fa-external-link-alt text-secondary'></i></a>";
+                                    $credential_uri_display = "$credential_uri<button class='btn btn-sm btn-link clipboardjs' title='Copy URI' data-clipboard-text='$credential_uri'><i class='far fa-copy text-secondary'></i></button><a href='$credential_uri' target='_blank'><i class='fa fa-external-link-alt text-secondary'></i></a>";
                                 }
                                 $credential_uri_2 = escapeHtml($row['credential_uri_2']);
                                 $credential_username = escapeHtml(decryptCredentialEntry($row['credential_username']));
                                 if (empty($credential_username)) {
                                     $credential_username_display = "-";
                                 } else {
-                                    $credential_username_display = "$credential_username<button class='btn btn-sm btn-link clipboardjs' data-clipboard-text='$credential_username'><i class='far fa-copy text-secondary'></i></button>";
+                                    $credential_username_display = "$credential_username<button class='btn btn-sm btn-link clipboardjs' title='Copy username' data-clipboard-text='$credential_username'><i class='far fa-copy text-secondary'></i></button>";
                                 }
                                 $credential_otp_secret = escapeHtml($row['credential_otp_secret']);
                                 if (empty($credential_otp_secret)) {
@@ -624,13 +624,13 @@ if (isset($_GET['contact_id'])) {
                                     <td><?= $credential_description ?></td>
                                     <td><?= $credential_username_display ?></td>
                                     <td>
-                                        <button class="btn p-0" type="button" onclick="showPasswordViaCredentialID(this, <?= $credential_id ?>)"><i class="fas fa-2x fa-ellipsis-h text-secondary"></i><i class="fas fa-2x fa-ellipsis-h text-secondary"></i></button><button class="btn btn-sm" type="button" onclick="copyPasswordViaCredentialID(this, <?= $credential_id ?>)"><i class="far fa-copy text-secondary"></i></button>
+                                        <button class="btn p-0" aria-label="Show password" type="button" onclick="showPasswordViaCredentialID(this, <?= $credential_id ?>)"><i class="fas fa-2x fa-ellipsis-h text-secondary"></i><i class="fas fa-2x fa-ellipsis-h text-secondary"></i></button><button class="btn btn-sm" title="Copy password" type="button" onclick="copyPasswordViaCredentialID(this, <?= $credential_id ?>)"><i class="far fa-copy text-secondary"></i></button>
                                     </td>
                                     <td><?= $otp_display ?></td>
                                     <td><?= $credential_uri_display ?></td>
                                     <td>
                                         <div class="dropdown dropstart text-center">
-                                            <button class="btn btn-secondary btn-sm" type="button" data-bs-toggle="dropdown">
+                                            <button class="btn btn-secondary btn-sm" title="More actions" type="button" data-bs-toggle="dropdown">
                                                 <i class="fas fa-ellipsis-h"></i>
                                             </button>
                                             <div class="dropdown-menu">
@@ -792,7 +792,7 @@ if (isset($_GET['contact_id'])) {
                                     <td><?= $recurring_ticket_next_run ?></td>
                                     <td>
                                         <div class="dropdown dropstart text-center">
-                                            <button class="btn btn-secondary btn-sm" type="button" data-bs-toggle="dropdown">
+                                            <button class="btn btn-secondary btn-sm" title="More actions" type="button" data-bs-toggle="dropdown">
                                                 <i class="fas fa-ellipsis-h"></i>
                                             </button>
                                             <div class="dropdown-menu">
@@ -1014,7 +1014,7 @@ if (isset($_GET['contact_id'])) {
                                     <td><?= $document_created_at ?></td>
                                     <td><?= $document_updated_at ?></td>
                                     <td class="text-center">
-                                        <a href="#" class="btn btn-dark btn-sm ajax-modal"
+                                        <a href="#" class="btn btn-dark btn-sm ajax-modal" title="View document"
                                             data-modal-size="lg"
                                             data-modal-url="modals/document/document_view.php?id=<?= $document_id ?>">
                                             <i class="fas fa-fw fa-eye"></i>
@@ -1141,7 +1141,7 @@ if (isset($_GET['contact_id'])) {
                                     <td><?= $contact_note_created_at ?></td>
                                     <td>
                                         <div class="dropdown dropstart text-center">
-                                            <button class="btn btn-secondary btn-sm" type="button" data-bs-toggle="dropdown">
+                                            <button class="btn btn-secondary btn-sm" title="More actions" type="button" data-bs-toggle="dropdown">
                                                 <i class="fas fa-ellipsis-h"></i>
                                             </button>
                                             <div class="dropdown-menu">

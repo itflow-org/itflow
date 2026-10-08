@@ -129,7 +129,7 @@ ob_start();
                                     <?php } ?>
 
                                 </select>
-                                    <button class="btn btn-secondary ajax-modal" type="button"
+                                    <button class="btn btn-secondary ajax-modal" title="New category" type="button"
                                         data-modal-url="../admin/modals/category/category_add.php?category=Ticket">
                                         <i class="fas fa-fw fa-plus"></i>
                                     </button>

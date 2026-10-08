@@ -339,10 +339,10 @@ if ($user_config_dashboard_financial_enable == 1) {
                 <div class="card-header">
                     <h3 class="card-title"><i class="fas fa-fw fa-chart-area me-2"></i>Cash Flow</h3>
                     <div class="card-tools">
-                        <a href="reports/income_summary.php" class="btn btn-tool">
+                        <a href="reports/income_summary.php" class="btn btn-tool" title="View report">
                             <i class="fas fa-eye"></i>
                         </a>
-                        <button type="button" class="btn btn-tool" data-lte-toggle="card-remove">
+                        <button type="button" class="btn btn-tool" title="Hide" data-lte-toggle="card-remove">
                             <i class="fas fa-times"></i>
                         </button>
                     </div>
@@ -360,7 +360,7 @@ if ($user_config_dashboard_financial_enable == 1) {
                 <div class="card-header">
                     <h3 class="card-title"><i class="fas fa-fw fa-chart-pie me-2"></i>Income by Category <small>(Top 5)</small></h3>
                     <div class="card-tools">
-                        <button type="button" class="btn btn-tool" data-lte-toggle="card-remove">
+                        <button type="button" class="btn btn-tool" title="Hide" data-lte-toggle="card-remove">
                             <i class="fas fa-times"></i>
                         </button>
                     </div>
@@ -378,7 +378,7 @@ if ($user_config_dashboard_financial_enable == 1) {
                 <div class="card-header">
                     <h3 class="card-title"><i class="fa fa-fw fa-shopping-cart me-2"></i>Expenses by Category <small>(Top 5)</small></h3>
                     <div class="card-tools">
-                        <button type="button" class="btn btn-tool" data-lte-toggle="card-remove">
+                        <button type="button" class="btn btn-tool" title="Hide" data-lte-toggle="card-remove">
                             <i class="fas fa-times"></i>
                         </button>
                     </div>
@@ -396,7 +396,7 @@ if ($user_config_dashboard_financial_enable == 1) {
                 <div class="card-header">
                     <h3 class="card-title"><i class="fa fa-fw fa-building me-2"></i>Expenses by Vendor <small>(Top 5)</small></h3>
                     <div class="card-tools">
-                        <button type="button" class="btn btn-tool" data-lte-toggle="card-remove">
+                        <button type="button" class="btn btn-tool" title="Hide" data-lte-toggle="card-remove">
                             <i class="fas fa-times"></i>
                         </button>
                     </div>
@@ -414,7 +414,7 @@ if ($user_config_dashboard_financial_enable == 1) {
                 <div class="card-header">
                     <h3 class="card-title"><i class="fa fa-fw fa-piggy-bank me-2"></i>Account Balances</h3>
                     <div class="card-tools">
-                        <button type="button" class="btn btn-tool" data-lte-toggle="card-remove">
+                        <button type="button" class="btn btn-tool" title="Hide" data-lte-toggle="card-remove">
                             <i class="fas fa-times"></i>
                         </button>
                     </div>
@@ -462,7 +462,7 @@ if ($user_config_dashboard_financial_enable == 1) {
                 <div class="card-header">
                     <h3 class="card-title"><i class="fas fa-fw fa-credit-card me-2"></i>Latest Income</h3>
                     <div class="card-tools">
-                        <button type="button" class="btn btn-tool" data-lte-toggle="card-remove">
+                        <button type="button" class="btn btn-tool" title="Hide" data-lte-toggle="card-remove">
                             <i class="fas fa-times"></i>
                         </button>
                     </div>
@@ -503,7 +503,7 @@ if ($user_config_dashboard_financial_enable == 1) {
                 <div class="card-header">
                     <h3 class="card-title"><i class="fas fa-fw fa-shopping-cart me-2"></i>Latest Expenses</h3>
                     <div class="card-tools">
-                        <button type="button" class="btn btn-tool" data-lte-toggle="card-remove">
+                        <button type="button" class="btn btn-tool" title="Hide" data-lte-toggle="card-remove">
                             <i class="fas fa-times"></i>
                         </button>
                     </div>
@@ -543,10 +543,10 @@ if ($user_config_dashboard_financial_enable == 1) {
                 <div class="card-header">
                     <h3 class="card-title"><i class="fas fa-fw fa-route me-2"></i>Trip Flow</h3>
                     <div class="card-tools">
-                        <a href="trips.php" class="btn btn-tool">
+                        <a href="trips.php" class="btn btn-tool" title="View trips">
                             <i class="fas fa-eye"></i>
                         </a>
-                        <button type="button" class="btn btn-tool" data-lte-toggle="card-remove">
+                        <button type="button" class="btn btn-tool" title="Hide" data-lte-toggle="card-remove">
                             <i class="fas fa-times"></i>
                         </button>
                     </div>
@@ -729,7 +729,7 @@ if ($user_config_dashboard_technical_enable == 1) {
                     <div class="card-header">
                         <h3 class="card-title"><i class="fa fa-fw fa-life-ring me-2"></i>Your Open Tickets</h3>
                         <div class="card-tools">
-                            <button type="button" class="btn btn-tool" data-lte-toggle="card-remove">
+                            <button type="button" class="btn btn-tool" title="Hide" data-lte-toggle="card-remove">
                                 <i class="fas fa-times"></i>
                             </button>
                         </div>

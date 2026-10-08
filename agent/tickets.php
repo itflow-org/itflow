@@ -372,7 +372,7 @@ if ($date_filter_active) {
                                 <button class="btn <?= $hidden_filter_count ? 'btn-warning' : 'btn-secondary' ?>" type="button" data-bs-toggle="collapse" data-bs-target="#advancedFilter" title="Filters">
                                     <i class="fas fa-filter"></i><?php if ($hidden_filter_count) { ?><span class="ms-1"><?= $hidden_filter_count ?></span><?php } ?>
                                 </button>
-                                <button class="btn btn-primary" type="submit"><i class="fa fa-search"></i></button>
+                                <button class="btn btn-primary" title="Search" type="submit"><i class="fa fa-search"></i></button>
                         </div>
                     </div>
                 </div>

@@ -380,7 +380,7 @@ $sql_asset_retired = mysqli_query(
                     if (empty($credential_username)) {
                         $credential_username_display = "-";
                     } else {
-                        $credential_username_display = "$credential_username<button class='btn btn-sm btn-link clipboardjs' type='button' data-clipboard-text='$credential_username'><i class='far fa-copy text-secondary'></i></button>";
+                        $credential_username_display = "$credential_username<button class='btn btn-sm btn-link clipboardjs' title='Copy username' type='button' data-clipboard-text='$credential_username'><i class='far fa-copy text-secondary'></i></button>";
                     }
                     $credential_otp_secret = escapeHtml($row['credential_otp_secret']);
                     if (empty($credential_otp_secret)) {
@@ -399,7 +399,7 @@ $sql_asset_retired = mysqli_query(
                         </td>
                         <td><?= $credential_username_display ?></td>
                         <td class="text-nowrap">
-                            <button class="btn p-0" type="button" onclick="showPasswordViaCredentialID(this, <?= $credential_id ?>)"><i class="fas fa-2x fa-ellipsis-h text-secondary"></i><i class="fas fa-2x fa-ellipsis-h text-secondary"></i></button><button class="btn btn-sm" type="button" onclick="copyPasswordViaCredentialID(this, <?= $credential_id ?>)"><i class="far fa-copy text-secondary"></i></button>
+                            <button class="btn p-0" aria-label="Show password" type="button" onclick="showPasswordViaCredentialID(this, <?= $credential_id ?>)"><i class="fas fa-2x fa-ellipsis-h text-secondary"></i><i class="fas fa-2x fa-ellipsis-h text-secondary"></i></button><button class="btn btn-sm" title="Copy password" type="button" onclick="copyPasswordViaCredentialID(this, <?= $credential_id ?>)"><i class="far fa-copy text-secondary"></i></button>
                             <div><?= $otp_display ?></div>
                         </td>
 

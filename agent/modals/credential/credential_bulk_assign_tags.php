@@ -41,9 +41,9 @@ ob_start();
                     <?php } ?>
 
                 </select>
-                    <button class="btn btn-secondary ajax-modal" type="button"
+                    <button class="btn btn-secondary ajax-modal" title="New tag" type="button"
                         data-modal-size="sm"
-                        data-modal-url="../admin/modals/tag/tag_add.php?id=4">
+                        data-modal-url="../admin/modals/tag/tag_add.php?type=4">
                         <i class="fas fa-plus"></i>
                     </button>
             </div>

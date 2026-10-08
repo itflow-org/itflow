@@ -53,7 +53,7 @@ $document_template_updated_at = escapeHtml($row['document_template_updated_at'])
         <h3 class="card-title mt-1"><i class="fa fa-fw fa-file-alt me-2"></i><?= $document_template_name ?></h3>
 
         <div class="card-tools">
-            <button type="button" class="btn btn-tool ajax-modal"
+            <button type="button" class="btn btn-tool ajax-modal" title="Edit template"
                 data-modal-size="xl"
                 data-modal-url="modals/document_template/document_template_edit.php?id=<?= $document_template_id ?>">
                 <i class="fas fa-edit me-2"></i>

@@ -64,9 +64,9 @@ ob_start();
         ?>
         </table>
         <div class="text-center mt-2">
-            <button id="prev-btn" class="btn btn-sm btn-outline-secondary me-2"><i class="fas fa-caret-left"></i></button>
+            <button id="prev-btn" class="btn btn-sm btn-outline-secondary me-2" title="Previous page"><i class="fas fa-caret-left"></i></button>
             <span id="page-indicator" class="small text-muted mx-2"></span>
-            <button id="next-btn" class="btn btn-sm btn-outline-secondary ms-2"><i class="fas fa-caret-right"></i></button>
+            <button id="next-btn" class="btn btn-sm btn-outline-secondary ms-2" title="Next page"><i class="fas fa-caret-right"></i></button>
         </div>
     <?php } else { ?>
     <div class="text-center text-secondary pt-3">

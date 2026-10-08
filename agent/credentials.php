@@ -140,7 +140,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                 <div class="col-md-4">
                     <div class="input-group">
                         <input type="search" class="form-control" name="q" value="<?php if (isset($q)) { echo stripslashes(escapeHtml($q)); } ?>" placeholder="Search Credentials">
-                            <button class="btn btn-dark"><i class="fa fa-search"></i></button>
+                            <button class="btn btn-dark" title="Search"><i class="fa fa-search"></i></button>
                     </div>
                 </div>
 
@@ -327,7 +327,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                         if (empty($credential_username)) {
                             $credential_username_display = "-";
                         } else {
-                            $credential_username_display = "$credential_username<button class='btn btn-sm btn-link clipboardjs' type='button' data-clipboard-text='$credential_username'><i class='far fa-copy text-secondary'></i></button>";
+                            $credential_username_display = "$credential_username<button class='btn btn-sm btn-link clipboardjs' title='Copy username' type='button' data-clipboard-text='$credential_username'><i class='far fa-copy text-secondary'></i></button>";
                         }
                         $credential_otp_secret = escapeHtml($row['credential_otp_secret']);
                         if (empty($credential_otp_secret)) {
@@ -441,7 +441,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                             </td>
                             <td class="text-nowrap"><?= $credential_username_display ?></td>
                             <td class="text-nowrap">
-                                <button class="btn p-0" type="button" onclick="showPasswordViaCredentialID(this, <?= $credential_id ?>)"><i class="fas fa-2x fa-ellipsis-h text-secondary"></i><i class="fas fa-2x fa-ellipsis-h text-secondary"></i></button><button class="btn btn-sm" type="button" onclick="copyPasswordViaCredentialID(this, <?= $credential_id ?>)"><i class="far fa-copy text-secondary"></i></button>
+                                <button class="btn p-0" aria-label="Show password" type="button" onclick="showPasswordViaCredentialID(this, <?= $credential_id ?>)"><i class="fas fa-2x fa-ellipsis-h text-secondary"></i><i class="fas fa-2x fa-ellipsis-h text-secondary"></i></button><button class="btn btn-sm" title="Copy password" type="button" onclick="copyPasswordViaCredentialID(this, <?= $credential_id ?>)"><i class="far fa-copy text-secondary"></i></button>
                             </td>
                             <td class="text-nowrap"><?= $otp_display ?></td>
                             <td><?= $credential_uri_display ?></td>
@@ -464,7 +464,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                 <div class="btn-group">
                                     <?php if ( !empty($credential_uri) || !empty($credential_uri_2) ) { ?>
                                     <div class="dropdown dropstart text-center">
-                                        <button class="btn btn-default btn-sm" type="button" data-bs-toggle="dropdown">
+                                        <button class="btn btn-default btn-sm" title="Open link" type="button" data-bs-toggle="dropdown">
                                             <i class="fa fa-fw fa-external-link-alt"></i>
                                         </button>
                                         <div class="dropdown-menu">
@@ -483,7 +483,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                     </div>
                                     <?php } ?>
                                     <div class="dropdown dropstart text-center">
-                                        <button class="btn btn-secondary btn-sm" type="button" data-bs-toggle="dropdown">
+                                        <button class="btn btn-secondary btn-sm" title="More actions" type="button" data-bs-toggle="dropdown">
                                             <i class="fas fa-ellipsis-h"></i>
                                         </button>
                                         <div class="dropdown-menu">

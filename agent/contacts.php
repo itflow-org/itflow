@@ -126,7 +126,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                 <div class="col-md-4">
                     <div class="input-group">
                         <input type="search" class="form-control" name="q" value="<?php if (isset($q)) { echo stripslashes(escapeHtml($q)); } ?>" placeholder="Search Contacts">
-                            <button class="btn btn-dark"><i class="fa fa-search"></i></button>
+                            <button class="btn btn-dark" title="Search"><i class="fa fa-search"></i></button>
                     </div>
                 </div>
 
@@ -364,7 +364,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                     if (empty($contact_email)) {
                         $contact_email_display = "";
                     } else {
-                        $contact_email_display = "<div class='mt-1'><i class='fas fa-fw fa-envelope me-2'></i><a href='mailto:$contact_email'>$contact_email</a><button class='btn btn-sm btn-link clipboardjs' type='button' data-clipboard-text='$contact_email'><i class='far fa-copy text-secondary'></i></button></div>";
+                        $contact_email_display = "<div class='mt-1'><i class='fas fa-fw fa-envelope me-2'></i><a href='mailto:$contact_email'>$contact_email</a><button class='btn btn-sm btn-link clipboardjs' title='Copy email' type='button' data-clipboard-text='$contact_email'><i class='far fa-copy text-secondary'></i></button></div>";
                     }
                     $contact_info_display = "$contact_phone_display $contact_mobile_display $contact_email_display";
                     if (empty($contact_info_display)) {
@@ -511,7 +511,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                         <?php } ?>
                         <td>
                             <div class="dropdown dropstart text-center">
-                                <button class="btn btn-secondary btn-sm" type="button" data-bs-toggle="dropdown">
+                                <button class="btn btn-secondary btn-sm" title="More actions" type="button" data-bs-toggle="dropdown">
                                     <i class="fas fa-ellipsis-h"></i>
                                 </button>
                                 <div class="dropdown-menu">

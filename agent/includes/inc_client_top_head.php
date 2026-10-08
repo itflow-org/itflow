@@ -25,7 +25,7 @@
         <?php if (lookupUserPermission("module_client") >= 2) { ?>
         <div class="card-tools">
             <div class="dropdown dropstart text-center">
-                <button class="btn btn-dark btn-sm" type="button" data-bs-toggle="dropdown">
+                <button class="btn btn-dark btn-sm" title="More actions" type="button" data-bs-toggle="dropdown">
                     <i class="fas fa-fw fa-ellipsis-v"></i>
                 </button>
                 <div class="dropdown-menu">

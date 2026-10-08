@@ -133,7 +133,7 @@ ob_start();
                     <?php } ?>
 
                 </select>
-                    <button type="button" class="btn btn-secondary" onclick="addOptionToTextbox()"><i class="fas fa-fw fa-plus"></i></button>
+                    <button type="button" class="btn btn-secondary" title="Add to notes" onclick="addOptionToTextbox()"><i class="fas fa-fw fa-plus"></i></button>
             </div>
         </div>
 

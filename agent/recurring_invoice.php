@@ -184,7 +184,7 @@ if (isset($_GET['recurring_invoice_id'])) {
 
                 <div class="col-7">
                     <div class="dropdown dropstart text-center float-end">
-                        <button class="btn btn-secondary" type="button" data-bs-toggle="dropdown">
+                        <button class="btn btn-secondary" title="More actions" type="button" data-bs-toggle="dropdown">
                             <i class="fas fa-ellipsis-v"></i>
                         </button>
                         <div class="dropdown-menu">
@@ -300,11 +300,11 @@ if (isset($_GET['recurring_invoice_id'])) {
                                     <tr data-item-id="<?= $item_id ?>">
                                         <td class="d-print-none">
                                             <div class="btn-group">
-                                                <button type="button" class="btn btn-sm btn-link drag-handle">
+                                                <button type="button" class="btn btn-sm btn-link drag-handle" title="Drag to reorder">
                                                     <i class="fas fa-bars text-muted"></i>
                                                 </button>
                                                 <div class="dropdown">
-                                                    <button class="btn btn-sm btn-light" type="button" data-bs-toggle="dropdown">
+                                                    <button class="btn btn-sm btn-light" title="More actions" type="button" data-bs-toggle="dropdown">
                                                         <i class="fas fa-ellipsis-v"></i>
                                                     </button>
                                                     <div class="dropdown-menu">
@@ -376,7 +376,7 @@ if (isset($_GET['recurring_invoice_id'])) {
                                                 </select>
                                             </td>
                                             <td class="text-center">
-                                                <button class="btn btn-light text-success" type="submit" name="add_recurring_invoice_item">
+                                                <button class="btn btn-light text-success" title="Add item" type="submit" name="add_recurring_invoice_item">
                                                     <i class="fa fa-fw fa-check"></i>
                                                 </button>
                                             </td>
@@ -449,10 +449,10 @@ if (isset($_GET['recurring_invoice_id'])) {
                 <div class="card-header text-bold">
                     <i class="fas fa-fw fa-history me-2"></i>History
                     <div class="card-tools">
-                        <button type="button" class="btn btn-tool" data-lte-toggle="card-collapse">
+                        <button type="button" class="btn btn-tool" title="Show/hide" data-lte-toggle="card-collapse">
                             <i class="fas fa-minus"></i>
                         </button>
-                        <button type="button" class="btn btn-tool" data-lte-toggle="card-remove">
+                        <button type="button" class="btn btn-tool" title="Hide" data-lte-toggle="card-remove">
                             <i class="fas fa-times"></i>
                         </button>
                     </div>

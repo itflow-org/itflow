@@ -129,7 +129,7 @@ ob_start();
 
                         ?>
                     </select>
-                        <a class="btn btn-secondary" href="vendors.php" target="_blank"><i class="fas fa-fw fa-plus"></i></a>
+                        <a class="btn btn-secondary" title="Go to Vendors" href="vendors.php" target="_blank"><i class="fas fa-fw fa-plus"></i></a>
                 </div>
             </div>
 
@@ -168,7 +168,7 @@ ob_start();
 
                         ?>
                     </select>
-                        <button class="btn btn-secondary ajax-modal" type="button"
+                        <button class="btn btn-secondary ajax-modal" title="New category" type="button"
                             data-modal-url="../admin/modals/category/category_add.php?category=Expense">
                             <i class="fas fa-plus"></i>
                         </button>

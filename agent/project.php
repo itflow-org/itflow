@@ -211,7 +211,7 @@ if (isset($_GET['project_id'])) {
                     </a>
                 <?php } ?>
                 <div class="dropdown dropstart text-center ms-3">
-                    <button class="btn btn-secondary btn-sm" type="button" id="dropdownMenuButton" data-bs-toggle="dropdown">
+                    <button class="btn btn-secondary btn-sm" title="More actions" type="button" id="dropdownMenuButton" data-bs-toggle="dropdown">
                         <i class="fas fa-fw fa-ellipsis-v"></i>
                     </button>
                     <div class="dropdown-menu">

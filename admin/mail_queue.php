@@ -29,8 +29,8 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                     <div class="col-sm-4">
                         <div class="input-group">
                             <input type="search" class="form-control" name="q" value="<?php if (isset($q)) { echo stripslashes(escapeHtml($q)); } ?>" placeholder="Search mail queue">
-                                <button class="btn btn-secondary" type="button" data-bs-toggle="collapse" data-bs-target="#advancedFilter"><i class="fas fa-filter"></i></button>
-                                <button class="btn btn-primary"><i class="fa fa-search"></i></button>
+                                <button class="btn btn-secondary" title="More filters" type="button" data-bs-toggle="collapse" data-bs-target="#advancedFilter"><i class="fas fa-filter"></i></button>
+                                <button class="btn btn-primary" title="Search"><i class="fa fa-search"></i></button>
                         </div>
                     </div>
                     <div class="col-sm-8">
@@ -154,7 +154,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                             <td><?= $email_status_display ?></td>
                             <td><?= $email_attempts ?></td>
                             <td class="text-center">
-                                <a class="btn btn-sm btn-secondary ajax-modal" href="#"
+                                <a class="btn btn-sm btn-secondary ajax-modal" title="View message" href="#"
                                     data-modal-size="lg"
                                     data-modal-url="modals/mail_queue/mail_queue_message_view.php?id=<?= $email_id ?>">
                                     <i class="fas fa-fw fa-eye"></i>
@@ -162,12 +162,12 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 
                                 <!-- Show force resend if all retries have failed -->
                                 <?php if ($email_status == 2 && $email_attempts > 3) { ?>
-                                    <a class="btn btn-sm btn-success" href="post.php?send_failed_mail=<?= $email_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>"><i class="fas fa-fw fa-paper-plane"></i></a>
+                                    <a class="btn btn-sm btn-success" title="Resend" href="post.php?send_failed_mail=<?= $email_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>"><i class="fas fa-fw fa-paper-plane"></i></a>
                                 <?php } ?>
 
                                 <!-- Allow cancelling a message if it hasn't yet been picked up (e.g. stuck/bugged) -->
                                 <?php if ($email_status !== 3) { ?>
-                                    <a class="btn btn-sm btn-danger confirm-link" href="post.php?cancel_mail=<?= $email_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>"><i class="fas fa-fw fa-trash"></i></a>
+                                    <a class="btn btn-sm btn-danger confirm-link" title="Cancel message" href="post.php?cancel_mail=<?= $email_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>"><i class="fas fa-fw fa-trash"></i></a>
                                 <?php } ?>
 
                             </td>

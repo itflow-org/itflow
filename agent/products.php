@@ -94,7 +94,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                     <div class="col-sm-4">
                         <div class="input-group">
                             <input type="search" class="form-control" name="q" value="<?php if (isset($q)) {echo stripslashes(escapeHtml($q));} ?>" placeholder="Search <?= $type_display ?>">
-                                <button class="btn btn-primary"><i class="fa fa-search"></i></button>
+                                <button class="btn btn-primary" title="Search"><i class="fa fa-search"></i></button>
                         </div>
                     </div>
                     <div class="col-sm-3">
@@ -114,10 +114,9 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                 ?>
 
                             </select>
-                                <button class="btn btn-secondary" type="button"
-                                    data-toggle="ajax-modal"
+                                <button class="btn btn-secondary ajax-modal" title="New category" type="button"
                                     data-modal-size="sm"
-                                    data-ajax-url="ajax/ajax_category_add.php?category=Income">
+                                    data-modal-url="../admin/modals/category/category_add.php?category=Income">
                                     <i class="fas fa-plus"></i>
                                 </button>
                         </div>
@@ -273,7 +272,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 
                             <td>
                                 <div class="dropdown dropstart text-center">
-                                    <button class="btn btn-secondary btn-sm" type="button" data-bs-toggle="dropdown">
+                                    <button class="btn btn-secondary btn-sm" title="More actions" type="button" data-bs-toggle="dropdown">
                                         <i class="fas fa-ellipsis-h"></i>
                                     </button>
                                     <div class="dropdown-menu">

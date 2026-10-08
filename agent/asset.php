@@ -303,7 +303,7 @@ if (isset($_GET['asset_id'])) {
 
                 <div class="card mb-3">
                     <div class="card-header">
-                        <button type="button" class="btn btn-light float-end ajax-modal"
+                        <button type="button" class="btn btn-light float-end ajax-modal" title="Edit asset"
                             data-modal-url="modals/asset/asset_edit.php?id=<?= $asset_id ?>">
                             <i class="fas fa-fw fa-edit"></i>
                         </button>
@@ -387,7 +387,7 @@ if (isset($_GET['asset_id'])) {
                             <div class="mt-2"><i class="fa fa-fw fa-user text-secondary me-2"></i><?= $contact_name_display; ?></div>
                         <?php }
                         if ($contact_email) { ?>
-                            <div class="mt-2"><i class="fa fa-fw fa-envelope text-secondary me-2"></i><a href='mailto:<?= $contact_email; ?>'><?= $contact_email; ?></a><button class='btn btn-sm btn-link clipboardjs' data-clipboard-text='<?= $contact_email; ?>'><i class='far fa-copy text-secondary'></i></button></div>
+                            <div class="mt-2"><i class="fa fa-fw fa-envelope text-secondary me-2"></i><a href='mailto:<?= $contact_email; ?>'><?= $contact_email; ?></a><button class='btn btn-sm btn-link clipboardjs' title='Copy email' data-clipboard-text='<?= $contact_email; ?>'><i class='far fa-copy text-secondary'></i></button></div>
                         <?php }
                         if ($contact_phone) { ?>
                             <div class="mt-2"><i class="fa fa-fw fa-phone text-secondary me-2"></i><?= $contact_phone ?></div>
@@ -628,7 +628,7 @@ if (isset($_GET['asset_id'])) {
                                         <td><?= $connected_to_display; ?></td>
                                         <td>
                                             <div class="dropdown dropstart text-center">
-                                                <button class="btn btn-tool btn-sm" type="button" data-bs-toggle="dropdown">
+                                                <button class="btn btn-tool btn-sm" title="More actions" type="button" data-bs-toggle="dropdown">
                                                     <i class="fas fa-ellipsis-v"></i>
                                                 </button>
                                                 <div class="dropdown-menu">
@@ -684,13 +684,13 @@ if (isset($_GET['asset_id'])) {
                                     if (empty($credential_uri)) {
                                         $credential_uri_display = "-";
                                     } else {
-                                        $credential_uri_display = "$credential_uri<button class='btn btn-sm btn-link clipboardjs' data-clipboard-text='$credential_uri'><i class='far fa-copy text-secondary'></i></button><a href='$credential_uri' target='_blank'><i class='fa fa-external-link-alt text-secondary'></i></a>";
+                                        $credential_uri_display = "$credential_uri<button class='btn btn-sm btn-link clipboardjs' title='Copy URI' data-clipboard-text='$credential_uri'><i class='far fa-copy text-secondary'></i></button><a href='$credential_uri' target='_blank'><i class='fa fa-external-link-alt text-secondary'></i></a>";
                                     }
                                     $credential_username = escapeHtml(decryptCredentialEntry($row['credential_username']));
                                     if (empty($credential_username)) {
                                         $credential_username_display = "-";
                                     } else {
-                                        $credential_username_display = "$credential_username<button class='btn btn-sm btn-link clipboardjs' data-clipboard-text='$credential_username'><i class='far fa-copy text-secondary'></i></button>";
+                                        $credential_username_display = "$credential_username<button class='btn btn-sm btn-link clipboardjs' title='Copy username' data-clipboard-text='$credential_username'><i class='far fa-copy text-secondary'></i></button>";
                                     }
                                     $credential_otp_secret = escapeHtml($row['credential_otp_secret']);
                                     if (empty($credential_otp_secret)) {
@@ -737,13 +737,13 @@ if (isset($_GET['asset_id'])) {
                                         <td><?= $credential_description; ?></td>
                                         <td><?= $credential_username_display; ?></td>
                                         <td>
-                                            <button class="btn p-0" type="button" onclick="showPasswordViaCredentialID(this, <?= $credential_id ?>)"><i class="fas fa-2x fa-ellipsis-h text-secondary"></i><i class="fas fa-2x fa-ellipsis-h text-secondary"></i></button><button class="btn btn-sm" type="button" onclick="copyPasswordViaCredentialID(this, <?= $credential_id ?>)"><i class="far fa-copy text-secondary"></i></button>
+                                            <button class="btn p-0" aria-label="Show password" type="button" onclick="showPasswordViaCredentialID(this, <?= $credential_id ?>)"><i class="fas fa-2x fa-ellipsis-h text-secondary"></i><i class="fas fa-2x fa-ellipsis-h text-secondary"></i></button><button class="btn btn-sm" title="Copy password" type="button" onclick="copyPasswordViaCredentialID(this, <?= $credential_id ?>)"><i class="far fa-copy text-secondary"></i></button>
                                         </td>
                                         <td><?= $otp_display; ?></td>
                                         <td><?= $credential_uri_display; ?></td>
                                         <td>
                                             <div class="dropdown dropstart text-center">
-                                                <button class="btn btn-secondary btn-sm" type="button" data-bs-toggle="dropdown">
+                                                <button class="btn btn-secondary btn-sm" title="More actions" type="button" data-bs-toggle="dropdown">
                                                     <i class="fas fa-ellipsis-h"></i>
                                                 </button>
                                                 <div class="dropdown-menu">
@@ -915,7 +915,7 @@ if (isset($_GET['asset_id'])) {
                                         <td><?= $document_created_at ?></td>
                                         <td><?= $document_updated_at ?></td>
                                         <td class="text-center">
-                                            <a href="#" class="btn btn-dark btn-sm ajax-modal"
+                                            <a href="#" class="btn btn-dark btn-sm ajax-modal" title="View document"
                                                 data-modal-size="lg"
                                                 data-modal-url="modals/document/document_view.php?id=<?= $document_id ?>">
                                                 <i class="fas fa-fw fa-eye"></i>
@@ -944,13 +944,13 @@ if (isset($_GET['asset_id'])) {
                                 <?php
                                 if ($view == 0) {
                                 ?>
-                                <a href="?client_id=<?=$client_id?>&asset_id=<?=$asset_id?>&view=0" class="btn btn-primary"><i class="fas fa-list-ul"></i></a>
-                                <a href="?client_id=<?=$client_id?>&asset_id=<?=$asset_id?>&view=1" class="btn btn-outline-secondary"><i class="fas fa-th-large"></i></a>
+                                <a href="?client_id=<?=$client_id?>&asset_id=<?=$asset_id?>&view=0" class="btn btn-primary" title="List view"><i class="fas fa-list-ul"></i></a>
+                                <a href="?client_id=<?=$client_id?>&asset_id=<?=$asset_id?>&view=1" class="btn btn-outline-secondary" title="Grid view"><i class="fas fa-th-large"></i></a>
                                 <?php
                                     } else {
                                 ?>
-                                <a href="?client_id=<?=$client_id?>&asset_id=<?=$asset_id?>&view=0" class="btn btn-outline-secondary"><i class="fas fa-list-ul"></i></a>
-                                <a href="?client_id=<?=$client_id?>&asset_id=<?=$asset_id?>&view=1" class="btn btn-primary"><i class="fas fa-th-large"></i></a>
+                                <a href="?client_id=<?=$client_id?>&asset_id=<?=$asset_id?>&view=0" class="btn btn-outline-secondary" title="List view"><i class="fas fa-list-ul"></i></a>
+                                <a href="?client_id=<?=$client_id?>&asset_id=<?=$asset_id?>&view=1" class="btn btn-primary" title="Grid view"><i class="fas fa-th-large"></i></a>
                                 <?php
                                     }
                                 ?>
@@ -1069,7 +1069,7 @@ if (isset($_GET['asset_id'])) {
 
                                         <td>
                                             <div class="dropdown dropstart text-center">
-                                                <button class="btn btn-secondary btn-sm" type="button" data-bs-toggle="dropdown">
+                                                <button class="btn btn-secondary btn-sm" title="More actions" type="button" data-bs-toggle="dropdown">
                                                     <i class="fas fa-ellipsis-h"></i>
                                                 </button>
                                                 <div class="dropdown-menu">
@@ -1286,7 +1286,7 @@ if (isset($_GET['asset_id'])) {
                                         <td><?= $asset_note_created_at ?></td>
                                         <td>
                                             <div class="dropdown dropstart text-center">
-                                                <button class="btn btn-secondary btn-sm" type="button" data-bs-toggle="dropdown">
+                                                <button class="btn btn-secondary btn-sm" title="More actions" type="button" data-bs-toggle="dropdown">
                                                     <i class="fas fa-ellipsis-h"></i>
                                                 </button>
                                                 <div class="dropdown-menu">

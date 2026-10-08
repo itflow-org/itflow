@@ -212,7 +212,7 @@ function displayFolders($parent_folder_id, $client_id, $indent = 0, $render_root
         echo '<div class="col-2">';
         ?>
         <div class="dropdown">
-            <button class="btn btn-sm" type="button" data-bs-toggle="dropdown">
+            <button class="btn btn-sm" title="More actions" type="button" data-bs-toggle="dropdown">
                 <i class="fas fa-ellipsis-v"></i>
             </button>
             <div class="dropdown-menu">
@@ -599,7 +599,7 @@ $num_root_items = intval($row_root_files['num']) + intval($row_root_docs['num'])
                                 <input type="search" class="form-control" name="q"
                                        value="<?php if (isset($q)) { echo stripslashes(escapeHtml($q)); } ?>"
                                        placeholder="Search files and documents in <?= ($get_folder_id == 0 ? 'all folders' : 'current folder') ?>">
-                                    <button class="btn btn-dark"><i class="fa fa-search"></i></button>
+                                    <button class="btn btn-dark" title="Search"><i class="fa fa-search"></i></button>
                             </div>
                         </div>
                         <div class="col-md-7">
@@ -874,7 +874,7 @@ $num_root_items = intval($row_root_files['num']) + intval($row_root_docs['num'])
 
                                 <div>
                                     <div class="dropdown float-end">
-                                        <button class="btn btn-link btn-sm" type="button" data-bs-toggle="dropdown">
+                                        <button class="btn btn-link btn-sm" title="More actions" type="button" data-bs-toggle="dropdown">
                                             <i class="fas fa-ellipsis-v"></i>
                                         </button>
                                         <div class="dropdown-menu">
@@ -1089,7 +1089,7 @@ $num_root_items = intval($row_root_files['num']) + intval($row_root_docs['num'])
                                             </td>
                                             <td>
                                                 <div class="dropdown dropstart text-center">
-                                                    <button class="btn btn-secondary btn-sm" type="button" data-bs-toggle="dropdown">
+                                                    <button class="btn btn-secondary btn-sm" title="More actions" type="button" data-bs-toggle="dropdown">
                                                         <i class="fas fa-ellipsis-h"></i>
                                                     </button>
                                                     <div class="dropdown-menu">
@@ -1204,7 +1204,7 @@ $num_root_items = intval($row_root_files['num']) + intval($row_root_docs['num'])
                                             </td>
                                             <td>
                                                 <div class="dropdown dropstart text-center">
-                                                    <button class="btn btn-secondary btn-sm" type="button" data-bs-toggle="dropdown">
+                                                    <button class="btn btn-secondary btn-sm" title="More actions" type="button" data-bs-toggle="dropdown">
                                                         <i class="fas fa-ellipsis-h"></i>
                                                     </button>
                                                     <div class="dropdown-menu">

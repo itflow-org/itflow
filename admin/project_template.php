@@ -98,7 +98,7 @@ if (isset($_GET['project_template_id'])) {
                     <i class="fas fa-fw fa-plus me-2"></i>Add Ticket Template
                 </button>
                 <div class="dropdown dropstart text-center ms-3">
-                    <button class="btn btn-secondary btn-sm" type="button" id="dropdownMenuButton" data-bs-toggle="dropdown">
+                    <button class="btn btn-secondary btn-sm" title="More actions" type="button" id="dropdownMenuButton" data-bs-toggle="dropdown">
                         <i class="fas fa-fw fa-ellipsis-v"></i>
                     </button>
                     <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
@@ -170,7 +170,7 @@ if (isset($_GET['project_template_id'])) {
                                         <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
                                         <input type="hidden" name="project_template_id" value="<?= $project_template_id ?>">
                                         <input type="hidden" name="ticket_template_id" value="<?= $ticket_template_id ?>">
-                                        <button type="submit" class="btn btn-default btn-sm confirm-link"
+                                        <button type="submit" class="btn btn-default btn-sm confirm-link" title="Remove ticket template"
                                             name="remove_ticket_template_from_project_template">
                                             <i class="fa fa-fw fa-times"></i>
                                         </button>

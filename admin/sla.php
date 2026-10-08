@@ -94,7 +94,7 @@ while ($assignment_row = mysqli_fetch_assoc($sql_assignments)) {
                         </td>
                         <td>
                             <div class="dropdown dropstart text-center">
-                                <button class="btn btn-secondary btn-sm" type="button" data-bs-toggle="dropdown">
+                                <button class="btn btn-secondary btn-sm" title="More actions" type="button" data-bs-toggle="dropdown">
                                     <i class="fas fa-ellipsis-h"></i>
                                 </button>
                                 <div class="dropdown-menu">
@@ -258,7 +258,7 @@ while ($assignment_row = mysqli_fetch_assoc($sql_assignments)) {
                                     <form action="post.php" method="post" onsubmit="return confirm('Remove this closure day? Open ticket targets will be recalculated.');">
                                         <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
                                         <input type="hidden" name="holiday_id" value="<?= $holiday_id ?>">
-                                        <button type="submit" name="delete_holiday" class="btn btn-sm btn-light border"><i class="fas fa-fw fa-trash text-danger"></i></button>
+                                        <button type="submit" name="delete_holiday" class="btn btn-sm btn-light border" title="Delete holiday"><i class="fas fa-fw fa-trash text-danger"></i></button>
                                     </form>
                                 </td>
                             </tr>

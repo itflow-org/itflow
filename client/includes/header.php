@@ -67,7 +67,7 @@ header("X-Frame-Options: DENY"); // Legacy
 <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
     <div class="container">
         <a class="navbar-brand" href="index.php"><?= escapeHtml($session_company_name) ?></a>
-        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent">
+        <button class="navbar-toggler" aria-label="Toggle navigation" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent">
             <i class="fas fa-bars text-white"></i>
         </button>
 

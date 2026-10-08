@@ -104,7 +104,7 @@ if (mysqli_num_rows($sql) == 0) {
 
             <div class="card mb-3">
                 <div class="card-header">
-                    <button type="button" class="btn btn-light float-end ajax-modal"
+                    <button type="button" class="btn btn-light float-end ajax-modal" title="Edit network"
                         data-modal-url="modals/network/network_edit.php?id=<?= $network_id ?>">
                         <i class="fas fa-fw fa-edit"></i>
                     </button>
@@ -200,7 +200,7 @@ if (mysqli_num_rows($sql) == 0) {
                             <div class="col-md-6">
                                 <div class="input-group">
                                     <input type="search" class="form-control" name="q" value="<?php if (isset($q)) { echo stripslashes(escapeHtml($q)); } ?>" placeholder="Search IP, hostname or description">
-                                        <button class="btn btn-dark"><i class="fa fa-search"></i></button>
+                                        <button class="btn btn-dark" title="Search"><i class="fa fa-search"></i></button>
                                 </div>
                             </div>
 
@@ -279,7 +279,7 @@ if (mysqli_num_rows($sql) == 0) {
                                     <td><?= $ip_description ?></td>
                                     <td>
                                         <div class="dropdown dropstart text-center">
-                                            <button class="btn btn-secondary btn-sm" type="button" data-bs-toggle="dropdown">
+                                            <button class="btn btn-secondary btn-sm" title="More actions" type="button" data-bs-toggle="dropdown">
                                                 <i class="fas fa-ellipsis-h"></i>
                                             </button>
                                             <div class="dropdown-menu">

@@ -226,7 +226,7 @@ ob_start();
                                     <span class="input-group-text"><i class="fa fa-fw fa-lock"></i></span>
                                 <input type="password" class="form-control" data-toggle="password" id="password" name="contact_password" placeholder="Password" autocomplete="new-password">
                                     <span class="input-group-text"><i class="fa fa-fw fa-eye"></i></span>
-                                    <button type="button" class="btn btn-default" onclick="generatePassword()">
+                                    <button type="button" class="btn btn-default" title="Generate password" onclick="generatePassword()">
                                         <i class="fa fa-fw fa-question"></i>
                                     </button>
                             </div>
@@ -316,7 +316,7 @@ ob_start();
                             <?php } ?>
 
                         </select>
-                            <button class="btn btn-secondary ajax-modal" type="button"
+                            <button class="btn btn-secondary ajax-modal" title="New tag" type="button"
                                 data-modal-url="../admin/modals/tag/tag_add.php?type=3">
                                 <i class="fas fa-plus"></i>
                             </button>

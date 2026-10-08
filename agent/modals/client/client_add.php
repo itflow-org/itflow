@@ -102,7 +102,7 @@ ob_start();
                             <?php } ?>
 
                         </select>
-                            <button class="btn btn-secondary ajax-modal" type="button"
+                            <button class="btn btn-secondary ajax-modal" title="New category" type="button"
                                 data-modal-url="../admin/modals/category/category_add.php?category=Referral">
                                 <i class="fas fa-fw fa-plus"></i>
                             </button>
@@ -132,7 +132,7 @@ ob_start();
                             <?php } ?>
 
                         </select>
-                            <button class="btn btn-secondary ajax-modal" type="button"
+                            <button class="btn btn-secondary ajax-modal" title="New tag" type="button"
                                 data-modal-url="../admin/modals/tag/tag_add.php?type=1">
                                 <i class="fas fa-fw fa-plus"></i>
                             </button>

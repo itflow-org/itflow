@@ -671,7 +671,7 @@ if (isset($_GET['ticket_id'])) {
                     <div class="card-header px-3 py-2">
                         <h5 class="card-title mt-1"><i class="fas fa-fw fa-align-left me-2"></i>Description</h5>
                         <div class="card-tools">
-                            <button type="button" class="btn btn-tool" data-lte-toggle="card-collapse">
+                            <button type="button" class="btn btn-tool" title="Show/hide" data-lte-toggle="card-collapse">
                                 <i class="fas fa-chevron-down"></i>
                             </button>
                         </div>
@@ -928,7 +928,7 @@ if (isset($_GET['ticket_id'])) {
                                 <?php if ($can_edit_ticket) { ?>
                                     <div class="card-tools d-print-none">
                                         <div class="dropdown dropstart">
-                                            <button class="btn btn-sm btn-tool" type="button" data-bs-toggle="dropdown">
+                                            <button class="btn btn-sm btn-tool" title="More actions" type="button" data-bs-toggle="dropdown">
                                                 <i class="fas fa-fw fa-ellipsis-v"></i>
                                             </button>
                                             <div class="dropdown-menu">
@@ -999,7 +999,7 @@ if (isset($_GET['ticket_id'])) {
                             <div class="card-tools">
                                 <?php if (!$ticket_is_resolved && $can_edit_ticket && $task_count) { ?>
                                     <div class="dropdown dropstart d-inline-block">
-                                        <button class="btn btn-tool" type="button" data-bs-toggle="dropdown">
+                                        <button class="btn btn-tool" title="More actions" type="button" data-bs-toggle="dropdown">
                                             <i class="fas fa-ellipsis-v"></i>
                                         </button>
                                         <div class="dropdown-menu">
@@ -1012,7 +1012,7 @@ if (isset($_GET['ticket_id'])) {
                                         </div>
                                     </div>
                                 <?php } ?>
-                                <button type="button" class="btn btn-tool" data-lte-toggle="card-collapse">
+                                <button type="button" class="btn btn-tool" title="Show/hide" data-lte-toggle="card-collapse">
                                     <i class="fas fa-chevron-down"></i>
                                 </button>
                             </div>
@@ -1026,7 +1026,7 @@ if (isset($_GET['ticket_id'])) {
                                     <div class="mb-3 px-3 pt-3 mb-2">
                                         <div class="input-group input-group-sm">
                                             <input type="text" class="form-control" name="name" placeholder="Add a task" required maxlength="255">
-                                                <button type="submit" name="add_task" class="btn btn-outline-primary">
+                                                <button type="submit" name="add_task" class="btn btn-outline-primary" title="Add task">
                                                     <i class="fas fa-plus"></i>
                                                 </button>
                                         </div>
@@ -1110,7 +1110,7 @@ if (isset($_GET['ticket_id'])) {
 
                                                 <?php if (!$ticket_is_resolved && $can_edit_ticket) { ?>
                                                     <div class="dropdown dropstart text-center">
-                                                        <button class="btn btn-light text-secondary btn-sm" type="button" data-bs-toggle="dropdown">
+                                                        <button class="btn btn-light text-secondary btn-sm" title="More actions" type="button" data-bs-toggle="dropdown">
                                                             <i class="fas fa-ellipsis-v"></i>
                                                         </button>
                                                         <div class="dropdown-menu">
@@ -1251,7 +1251,7 @@ if (isset($_GET['ticket_id'])) {
                                         </div>
                                     </div>
                                 <?php } ?>
-                                <button type="button" class="btn btn-tool" data-lte-toggle="card-collapse">
+                                <button type="button" class="btn btn-tool" title="Show/hide" data-lte-toggle="card-collapse">
                                     <i class="fas fa-chevron-down"></i>
                                 </button>
                             </div>
@@ -1345,7 +1345,7 @@ if (isset($_GET['ticket_id'])) {
                     <div class="card-header px-3 py-2">
                         <h5 class="card-title mt-1"><i class="fas fa-fw fa-history me-2"></i>History</h5>
                         <div class="card-tools">
-                            <button type="button" class="btn btn-tool" data-lte-toggle="card-collapse">
+                            <button type="button" class="btn btn-tool" title="Show/hide" data-lte-toggle="card-collapse">
                                 <i class="fas fa-chevron-up"></i>
                             </button>
                         </div>

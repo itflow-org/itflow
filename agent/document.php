@@ -186,17 +186,17 @@ $page_title = $row['document_name'];
     <div class="col-md-3 d-print-none">
         <div class="row">
             <div class="col-12 mb-3">
-                <button type="button" class="btn btn-primary ajax-modal me-1"
+                <button type="button" class="btn btn-primary ajax-modal me-1" title="Edit document"
                     data-modal-size="lg"
                     data-modal-url="modals/document/document_edit.php?id=<?= $document_id ?>">
-                    <i class="fas fa-fw fa-edit" title="Edit"></i>
+                    <i class="fas fa-fw fa-edit"></i>
                 </button>
-                <button type="button" class="btn btn-secondary me-1" data-bs-toggle="modal" data-bs-target="#shareModal"
+                <button type="button" class="btn btn-secondary me-1" title="Share" data-bs-toggle="modal" data-bs-target="#shareModal"
                     onclick="populateShareModal(<?= "$client_id, 'Document', $document_id"; ?>)">
-                    <i class="fas fa-fw fa-share" title="Share"></i>
+                    <i class="fas fa-fw fa-share"></i>
                 </button>
-                <a class="btn btn-success me-1" href="post.php?export_document=<?= $document_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>"><i class='fas fa-fw fa-file-pdf' title="PDF Export"></i></a>
-                <button type="button" class="btn btn-secondary me-4" onclick="window.print();"><i class="fas fa-fw fa-print" title="Print"></i></button>
+                <a class="btn btn-success me-1" title="Export PDF" href="post.php?export_document=<?= $document_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>"><i class='fas fa-fw fa-file-pdf'></i></a>
+                <button type="button" class="btn btn-secondary me-4" title="Print" onclick="window.print();"><i class="fas fa-fw fa-print"></i></button>
                 <a class="btn btn-warning me-1 confirm-link" href="post.php?archive_document=<?= $document_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>" title="Archive"><i class='fas fa-fw fa-archive'></i></a>
                 <a class="btn btn-danger confirm-link" href="post.php?delete_document=<?= $document_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>&from=document_details" title="Delete"><i class='fas fa-fw fa-trash-alt'></i></a>
             </div>
@@ -205,7 +205,7 @@ $page_title = $row['document_name'];
             <h5 class="mb-3"><i class="fas fa-tags me-2"></i>Related Items</h5>
             <h6>
                 <i class="fas fa-fw fa-paperclip text-secondary me-2"></i>Files
-                <button type="button" class="btn btn-link btn-sm ajax-modal"
+                <button type="button" class="btn btn-link btn-sm ajax-modal" title="Link file"
                     data-modal-url="modals/document/document_link_file.php?document_id=<?= $document_id ?>">
                     <i class="fas fa-fw fa-plus"></i>
                 </button>
@@ -238,7 +238,7 @@ $page_title = $row['document_name'];
                 ?>
             <h6>
                 <i class="fas fa-fw fa-users text-secondary mt-3 me-2"></i>Contacts
-                <button type="button" class="btn btn-link btn-sm ajax-modal"
+                <button type="button" class="btn btn-link btn-sm ajax-modal" title="Link contact"
                     data-modal-url="modals/document/document_link_contact.php?document_id=<?= $document_id ?>">
                     <i class="fas fa-fw fa-plus"></i>
                 </button>
@@ -273,7 +273,7 @@ $page_title = $row['document_name'];
                 ?>
             <h6>
                 <i class="fas fa-fw fa-laptop text-secondary me-2 mt-3"></i>Assets
-                <button type="button" class="btn btn-link btn-sm ajax-modal" data-modal-url="modals/document/document_link_asset.php?document_id=<?= $document_id ?>">
+                <button type="button" class="btn btn-link btn-sm ajax-modal" title="Link asset" data-modal-url="modals/document/document_link_asset.php?document_id=<?= $document_id ?>">
                     <i class="fas fa-fw fa-plus"></i>
                 </button>
             </h6>
@@ -308,7 +308,7 @@ $page_title = $row['document_name'];
             ?>
             <h6>
                 <i class="fas fa-fw fa-cube text-secondary me-2 mt-3"></i>Licenses
-                <button type="button" class="btn btn-link btn-sm ajax-modal"
+                <button type="button" class="btn btn-link btn-sm ajax-modal" title="Link software"
                     data-modal-url="modals/document/document_link_software.php?document_id=<?= $document_id ?>">
                     <i class="fas fa-fw fa-plus"></i>
                 </button>
@@ -340,7 +340,7 @@ $page_title = $row['document_name'];
                 ?>
             <h6>
                 <i class="fas fa-fw fa-building text-secondary me-2 mt-3"></i>Vendors
-                <button type="button" class="btn btn-link btn-sm ajax-modal"
+                <button type="button" class="btn btn-link btn-sm ajax-modal" title="Link vendor"
                     data-modal-url="modals/document/document_link_vendor.php?document_id=<?= $document_id ?>">
                     <i class="fas fa-fw fa-plus"></i>
                 </button>

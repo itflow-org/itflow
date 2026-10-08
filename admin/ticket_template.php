@@ -58,7 +58,7 @@ $sql_task_templates = mysqli_query($mysqli, "SELECT task_template_completion_est
             <div class="card-header">
                 <h3 class="card-title mt-1"><?= $ticket_template_name ?></h3>
                 <div class="card-tools">
-                    <button type="button" class="btn btn-tool btn-sm" data-bs-toggle="modal" data-bs-target="#editTicketTemplateModal">
+                    <button type="button" class="btn btn-tool btn-sm" title="Edit template" data-bs-toggle="modal" data-bs-target="#editTicketTemplateModal">
                         <i class="fas fa-edit"></i>
                     </button>
                 </div>
@@ -83,7 +83,7 @@ $sql_task_templates = mysqli_query($mysqli, "SELECT task_template_completion_est
                     <div class="mb-3">
                         <div class="input-group input-group-sm">
                             <input type="text" class="form-control" name="task_name" placeholder="Create a task" required maxlength="200">
-                                <button type="submit" name="add_ticket_template_task" class="btn btn-primary"><i class="fas fa-fw fa-check"></i></button>
+                                <button type="submit" name="add_ticket_template_task" class="btn btn-primary" title="Add task"><i class="fas fa-fw fa-check"></i></button>
                         </div>
                     </div>
                 </form>
@@ -103,7 +103,7 @@ $sql_task_templates = mysqli_query($mysqli, "SELECT task_template_completion_est
                             <td class="text-end">
                                 <div class="float-end">
                                     <div class="dropdown dropstart text-center">
-                                        <button class="btn btn-light text-secondary btn-sm" type="button" data-bs-toggle="dropdown">
+                                        <button class="btn btn-light text-secondary btn-sm" title="More actions" type="button" data-bs-toggle="dropdown">
                                             <i class="fas fa-ellipsis-v"></i>
                                         </button>
                                         <div class="dropdown-menu">

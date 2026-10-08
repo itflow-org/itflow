@@ -235,7 +235,7 @@ if ($account_filter) {
                             <label class="form-label">Search</label>
                             <div class="input-group">
                                 <input type="search" class="form-control" name="q" value="<?php if (isset($q)) { echo stripslashes(escapeHtml($q)); } ?>" placeholder="Search Transactions">
-                                    <button class="btn btn-primary"><i class="fa fa-search"></i></button>
+                                    <button class="btn btn-primary" title="Search"><i class="fa fa-search"></i></button>
                             </div>
                         </div>
                     </div>
