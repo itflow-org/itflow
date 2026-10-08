@@ -1358,13 +1358,21 @@ if (isset($_POST['set_recurring_payment'])) {
 
     validateCSRFToken();
 
+    enforceContactCan('accounting');
+
     $recurring_invoice_id = intval($_POST['recurring_invoice_id']);
     $saved_payment_id = intval($_POST['saved_payment_id']);
 
-    // Get Recurring Invoice Info for logging and alerting
+    // Get Recurring Invoice Info - scoped to the logged-in client, so this is also the ownership check
     $sql = mysqli_query($mysqli, "SELECT recurring_invoice_amount, recurring_invoice_currency_code, recurring_invoice_number,
         recurring_invoice_prefix FROM recurring_invoices WHERE recurring_invoice_id = $recurring_invoice_id AND recurring_invoice_client_id = $session_client_id");
     $row = mysqli_fetch_assoc($sql);
+
+    if (!$row) {
+        flashAlert("Recurring invoice not found.", 'danger');
+        redirect("recurring_invoices.php");
+    }
+
     $recurring_invoice_prefix = escapeSql($row['recurring_invoice_prefix']);
     $recurring_invoice_number = intval($row['recurring_invoice_number']);
     $recurring_invoice_currency_code = escapeSql($row['recurring_invoice_currency_code']);
@@ -1383,6 +1391,11 @@ if (isset($_POST['set_recurring_payment'])) {
         ");
 
         $row = mysqli_fetch_assoc($sql);
+
+        if (!$row) {
+            flashAlert("Payment method not found or does not belong to you.", 'danger');
+            redirect("recurring_invoices.php");
+        }
 
         $provider_id = intval($row['payment_provider_id']);
         $provider_name = escapeSql($row['payment_provider_name']);

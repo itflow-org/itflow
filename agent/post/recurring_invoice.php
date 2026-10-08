@@ -567,9 +567,15 @@ if (isset($_POST['set_recurring_payment'])) {
                 saved_payment_description FROM payment_providers
             LEFT JOIN client_saved_payment_methods ON saved_payment_provider_id = payment_provider_id
             WHERE saved_payment_id = $saved_payment_id
+            AND saved_payment_client_id = $client_id
         ");
 
         $row = mysqli_fetch_assoc($sql);
+
+        if (!$row) {
+            flashAlert("Payment method not found for this client.", 'error');
+            redirect();
+        }
 
         $provider_id = intval($row['payment_provider_id']);
         $provider_name = escapeSql($row['payment_provider_name']);
