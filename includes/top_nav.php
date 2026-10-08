@@ -8,16 +8,19 @@
         </li>
     </ul>
 
-    <!-- SEARCH FORM -->
+    <!-- SEARCH - js/global_search.js turns this box into the opener for the
+         search palette (also on / and Ctrl+K). Without the script it is still
+         a plain form posting to the full results page. -->
     <form class="navbar-search ms-auto" role="search" action="/agent/global_search.php">
         <label for="navbar-search-input" class="visually-hidden">Search everywhere</label>
         <div class="navbar-search-field">
             <input class="form-control" type="search" id="navbar-search-input" name="query"
-                placeholder="Search everywhere" autocomplete="off"
+                placeholder="Search everywhere" autocomplete="off" aria-keyshortcuts="/ Control+K"
                 value="<?php if (isset($_GET['query'])) { echo escapeHtml($_GET['query']); } ?>">
             <button class="navbar-search-submit" type="submit" aria-label="Submit search">
                 <i class="fas fa-search" aria-hidden="true"></i>
             </button>
+            <kbd class="navbar-search-kbd d-none d-lg-inline" aria-hidden="true">/</kbd>
         </div>
     </form>
 

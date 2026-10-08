@@ -1365,7 +1365,6 @@ if (isset($_GET['asset_id'])) {
                 syncAuthForm(select);
             });
         });
-        });
     </script>
 
     <!-- Include scripts to fetch TOTP codes and passwords via the credential ID -->

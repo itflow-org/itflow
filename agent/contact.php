@@ -1241,7 +1241,6 @@ if (isset($_GET['contact_id'])) {
                 syncAuthForm(select);
             });
         });
-        });
     </script>
 
     <!-- Include scripts to fetch TOTP codes and passwords via the credential ID -->

@@ -383,6 +383,37 @@ if (isset($_GET['get_active_clients'])) {
 }
 
 /*
+ * Live results for the search palette in the top bar (js/global_search.js).
+ *
+ * Same search as the full results page - functions/search.php - so the two can
+ * never disagree about what this user may see. Five per group plus any app page
+ * whose name matches; with nothing typed yet, the recently opened clients.
+ * Values are raw: the palette renders them as text, never as HTML.
+ */
+if (isset($_GET['global_search'])) {
+
+    $global_search_query = (string) ($_GET['q'] ?? '');
+
+    $response = [
+        'query' => $global_search_query,
+        'pages' => [],
+        'groups' => [],
+        'recent' => [],
+    ];
+
+    if (trim($global_search_query) === '') {
+        $response['recent'] = globalSearchRecentClients();
+    } else {
+        $response['pages'] = globalSearchPages($global_search_query);
+        $response['groups'] = globalSearch($global_search_query, 5);
+    }
+
+    header('Content-Type: application/json');
+    echo json_encode($response, JSON_INVALID_UTF8_SUBSTITUTE);
+    exit;
+}
+
+/*
  * Returns the body of one canned response, for the picker on the ticket reply form.
  * Fetched on demand rather than rendered into every ticket page, because the bodies are
  * full HTML replies and an install can have a lot of them.

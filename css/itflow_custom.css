@@ -1568,3 +1568,228 @@ html {
 .client-header-toggle:hover .client-header-chevron {
     color: var(--bs-body-color);
 }
+
+/* Search palette - js/global_search.js
+
+   Opens over the page on / or Ctrl+K. Sits high rather than centred, so the
+   results grow downwards from the box instead of the box jumping as they
+   arrive. Everything takes its colour from the Bootstrap variables, so dark
+   mode needs nothing extra; the highlighted row uses the theme accent. */
+.itflow-search .modal-dialog {
+    max-width: 44rem;
+    margin-top: 8vh;
+}
+.itflow-search .modal-content {
+    overflow: hidden;
+    border: 0;
+    box-shadow: 0 1rem 3rem rgba(0, 0, 0, .35);
+}
+.itflow-search-bar {
+    display: flex;
+    align-items: center;
+    gap: .75rem;
+    padding: .75rem 1rem;
+    border-bottom: 1px solid var(--bs-border-color);
+}
+.itflow-search-icon,
+.itflow-search-spinner {
+    flex: 0 0 auto;
+    color: var(--bs-secondary-color);
+}
+.itflow-search-input {
+    flex: 1 1 auto;
+    min-width: 0;
+    padding: .25rem 0;
+    border: 0;
+    outline: 0;
+    background: transparent;
+    color: var(--bs-body-color);
+    font-size: 1.15rem;
+}
+.itflow-search-input::placeholder {
+    color: var(--bs-secondary-color);
+}
+.itflow-search-results {
+    max-height: min(60vh, 34rem);
+    overflow-y: auto;
+    padding: .25rem 0 .5rem;
+}
+.itflow-search-group {
+    padding: .65rem 1rem .25rem;
+    font-size: .7rem;
+    font-weight: 600;
+    letter-spacing: .06em;
+    text-transform: uppercase;
+    color: var(--bs-secondary-color);
+}
+.itflow-search-group .fa-fw {
+    margin-right: .35rem;
+}
+.itflow-search-item {
+    display: flex;
+    align-items: center;
+    gap: .75rem;
+    padding: .45rem 1rem .45rem calc(1rem - 3px);
+    border-left: 3px solid transparent;
+    color: var(--bs-body-color);
+    text-decoration: none;
+    cursor: pointer;
+}
+.itflow-search-item:hover,
+.itflow-search-item:focus {
+    color: var(--bs-body-color);
+    text-decoration: none;
+}
+.itflow-search-item.active {
+    border-left-color: var(--itflow-accent, #007bff);
+    background-color: rgba(var(--bs-emphasis-color-rgb), .06);
+}
+.itflow-search-item-icon {
+    flex: 0 0 auto;
+    color: var(--bs-secondary-color);
+}
+.itflow-search-item.active .itflow-search-item-icon {
+    color: var(--itflow-accent, #007bff);
+}
+.itflow-search-item-body {
+    display: flex;
+    flex: 1 1 auto;
+    flex-direction: column;
+    min-width: 0;
+}
+.itflow-search-item-title,
+.itflow-search-item-sub,
+.itflow-search-item-context {
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}
+.itflow-search-item-sub,
+.itflow-search-item-context {
+    font-size: .8rem;
+    color: var(--bs-secondary-color);
+}
+.itflow-search-item-aside {
+    display: flex;
+    flex: 0 1 auto;
+    align-items: center;
+    gap: .5rem;
+    max-width: 40%;
+}
+.itflow-search-ref {
+    margin-right: .5rem;
+    font-family: var(--bs-font-monospace);
+    font-size: .8rem;
+    color: var(--bs-secondary-color);
+}
+.itflow-search mark {
+    padding: 0;
+    background: transparent;
+    color: inherit;
+    font-weight: 700;
+}
+.itflow-search-more .itflow-search-item-title,
+.itflow-search-all .itflow-search-item-title {
+    color: var(--bs-secondary-color);
+}
+.itflow-search-more.active .itflow-search-item-title,
+.itflow-search-all.active .itflow-search-item-title {
+    color: var(--bs-body-color);
+}
+.itflow-search-all {
+    margin-top: .25rem;
+    border-top: 1px solid var(--bs-border-color-translucent);
+    padding-top: .6rem;
+}
+.itflow-search-empty,
+.itflow-search-hint {
+    padding: 1.25rem 1rem;
+    text-align: center;
+    color: var(--bs-secondary-color);
+}
+.itflow-search-empty .fa-fw {
+    font-size: 1.5rem;
+    margin-bottom: .5rem;
+}
+.itflow-search-hint {
+    padding: .75rem 1rem;
+    font-size: .85rem;
+}
+.itflow-search-footer {
+    gap: 1rem;
+    align-items: center;
+    padding: .45rem 1rem;
+    border-top: 1px solid var(--bs-border-color);
+    background-color: var(--bs-tertiary-bg);
+    font-size: .75rem;
+    color: var(--bs-secondary-color);
+}
+.itflow-search kbd,
+.navbar-search-kbd {
+    padding: .05rem .35rem;
+    border: 1px solid var(--bs-border-color);
+    border-radius: .25rem;
+    background-color: var(--bs-body-bg);
+    color: var(--bs-secondary-color);
+    font-family: inherit;
+    font-size: .7rem;
+    box-shadow: none;
+}
+@media (max-width: 575.98px) {
+    .itflow-search .modal-dialog {
+        margin-top: 0;
+    }
+    .itflow-search .modal-content {
+        display: flex;
+        flex-direction: column;
+    }
+    .itflow-search-results {
+        flex: 1 1 auto;
+        max-height: none;
+    }
+    /* No room beside the title on a phone: client and status drop under it */
+    .itflow-search-item {
+        flex-wrap: wrap;
+        row-gap: .15rem;
+    }
+    .itflow-search-item-body {
+        flex: 1 1 0;
+    }
+    .itflow-search-item-aside {
+        order: 3;
+        max-width: none;
+        width: 100%;
+        padding-left: calc(1.25em + .75rem);
+    }
+}
+
+/* The / hint inside the top bar search box. Pointer events off so a click on
+   it still lands on the box underneath and opens the palette. */
+.navbar-search .navbar-search-field .navbar-search-kbd {
+    position: absolute;
+    top: 50%;
+    right: .6rem;
+    transform: translateY(-50%);
+    pointer-events: none;
+    background-color: transparent;
+    border-color: rgba(var(--bs-emphasis-color-rgb), .25);
+}
+.navbar-search .navbar-search-field .form-control {
+    cursor: pointer;
+}
+
+/* Full search results - agent/global_search.php. Same bold-not-yellow match
+   marking as the palette, and the client column capped so a long client name
+   cannot push the title off the row. */
+.global-search-group mark {
+    padding: 0;
+    background: transparent;
+    color: inherit;
+    font-weight: 700;
+}
+.global-search-context {
+    max-width: 14rem;
+}
+.global-search-group {
+    scroll-margin-top: 4rem;
+}
