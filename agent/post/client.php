@@ -140,6 +140,8 @@ if (isset($_POST['edit_client'])) {
 
     $client_id = intval($_POST['client_id']);
 
+    enforceClientAccess();
+
     // Update client
     mysqli_query($mysqli, "UPDATE clients SET client_name = '$name', client_type = '$type', client_website = '$website', client_referral = '$referral', client_rate = $rate, client_net_terms = $net_terms, client_tax_id_number = '$tax_id_number', client_lead = $lead, client_abbreviation = '$abbreviation', client_notes = '$notes' WHERE client_id = $client_id");
 
@@ -212,6 +214,8 @@ if (isset($_GET['archive_client'])) {
 
     $client_id = intval($_GET['archive_client']);
 
+    enforceClientAccess();
+
     // Archive client
     mysqli_query($mysqli, "UPDATE clients SET client_archived_at = NOW() WHERE client_id = $client_id");
 
@@ -242,6 +246,8 @@ if (isset($_GET['restore_client'])) {
 
     $client_id = intval($_GET['restore_client']);
 
+    enforceClientAccess();
+
     // Get Client Name
     $client_name = escapeSql(getFieldById('clients', $client_id, 'client_name'));
 
@@ -262,6 +268,8 @@ if (isset($_GET['delete_client'])) {
     enforceUserPermission('module_client', 3);
 
     $client_id = intval($_GET['delete_client']);
+
+    enforceClientAccess();
 
     // Get Client Name
     $client_name = escapeSql(getFieldById('clients', $client_id, 'client_name'));
@@ -761,6 +769,11 @@ if (isset($_POST['bulk_add_client_ticket'])) {
     // Create ticket for each selected asset
     if (isset($_POST['client_ids'])) {
 
+        // Check every selected client before creating any tickets
+        foreach ($_POST['client_ids'] as $client_id) {
+            enforceClientAccess(intval($client_id));
+        }
+
         // Get a Asset Count
         $client_count = count($_POST['client_ids']);
 
@@ -844,6 +857,11 @@ if (isset($_POST['bulk_edit_client_industry'])) {
 
     if (isset($_POST['client_ids'])) {
 
+        // Check every selected client before changing any of them
+        foreach ($_POST['client_ids'] as $client_id) {
+            enforceClientAccess(intval($client_id));
+        }
+
         $count = count($_POST['client_ids']);
 
         foreach($_POST['client_ids'] as $client_id) {
@@ -877,6 +895,11 @@ if (isset($_POST['bulk_edit_client_referral'])) {
     $referral = escapeSql($_POST['bulk_referral']);
 
     if (isset($_POST['client_ids'])) {
+
+        // Check every selected client before changing any of them
+        foreach ($_POST['client_ids'] as $client_id) {
+            enforceClientAccess(intval($client_id));
+        }
 
         $count = count($_POST['client_ids']);
 
@@ -912,6 +935,11 @@ if (isset($_POST['bulk_edit_client_hourly_rate'])) {
 
     if (isset($_POST['client_ids'])) {
 
+        // Check every selected client before changing any of them
+        foreach ($_POST['client_ids'] as $client_id) {
+            enforceClientAccess(intval($client_id));
+        }
+
         $count = count($_POST['client_ids']);
 
         foreach($_POST['client_ids'] as $client_id) {
@@ -946,6 +974,11 @@ if (isset($_POST['bulk_edit_client_net_terms'])) {
 
     if (isset($_POST['client_ids'])) {
 
+        // Check every selected client before changing any of them
+        foreach ($_POST['client_ids'] as $client_id) {
+            enforceClientAccess(intval($client_id));
+        }
+
         $count = count($_POST['client_ids']);
 
         foreach($_POST['client_ids'] as $client_id) {
@@ -977,6 +1010,11 @@ if (isset($_POST['bulk_assign_client_tags'])) {
     enforceUserPermission('module_client', 2);
 
     if (isset($_POST['client_ids'])) {
+
+        // Check every selected client before changing any of them
+        foreach ($_POST['client_ids'] as $client_id) {
+            enforceClientAccess(intval($client_id));
+        }
 
         $count = count($_POST['client_ids']);
 
@@ -1023,6 +1061,11 @@ if (isset($_POST['bulk_send_client_email']) && isset($_POST['client_ids'])) {
 
     $client_ids = array_map('intval', $_POST['client_ids']);
     $count = count($client_ids);
+
+    // Check every selected client before queuing anything
+    foreach ($client_ids as $client_id) {
+        enforceClientAccess($client_id);
+    }
 
     // Email metadata
     $mail_from = escapeSql($_POST['mail_from']);
@@ -1112,6 +1155,11 @@ if (isset($_POST['bulk_archive_clients'])) {
 
     if (isset($_POST['client_ids'])) {
 
+        // Check every selected client before changing any of them
+        foreach ($_POST['client_ids'] as $client_id) {
+            enforceClientAccess(intval($client_id));
+        }
+
         $count = 0;
 
         foreach ($_POST['client_ids'] as $client_id) {
@@ -1147,6 +1195,11 @@ if (isset($_POST['bulk_unarchive_clients'])) {
     enforceUserPermission('module_client', 2);
 
     if (isset($_POST['client_ids'])) {
+
+        // Check every selected client before changing any of them
+        foreach ($_POST['client_ids'] as $client_id) {
+            enforceClientAccess(intval($client_id));
+        }
 
         $count = count($_POST['client_ids']);
 

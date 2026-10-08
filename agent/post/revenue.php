@@ -39,6 +39,12 @@ if (isset($_POST['edit_revenue'])) {
     enforceUserPermission('module_sales', 2);
 
     $revenue_id = intval($_POST['revenue_id']);
+
+    $client_id = intval(getFieldById('revenues', $revenue_id, 'revenue_client_id'));
+    if ($client_id) {
+        enforceClientAccess();
+    }
+
     $date = escapeSql($_POST['date']);
     $amount = floatval($_POST['amount']);
     $account = intval($_POST['account']);
@@ -64,6 +70,11 @@ if (isset($_GET['delete_revenue'])) {
     enforceUserPermission('module_sales', 3);
 
     $revenue_id = intval($_GET['delete_revenue']);
+
+    $client_id = intval(getFieldById('revenues', $revenue_id, 'revenue_client_id'));
+    if ($client_id) {
+        enforceClientAccess();
+    }
 
     // Get Revenue Details
     $revenue_description = escapeSql(getFieldById('revenues', $revenue_id, 'revenue_description'));

@@ -63,6 +63,12 @@ if (isset($_POST['edit_recurring_expense'])) {
     $description = escapeSql($_POST['description']);
     $reference = escapeSql($_POST['reference']);
 
+    // Check the client the recurring expense belongs to now, not just the one submitted
+    $existing_client_id = intval(getFieldById('recurring_expenses', $recurring_expense_id, 'recurring_expense_client_id'));
+    if ($existing_client_id) {
+        enforceClientAccess($existing_client_id);
+    }
+
     if ($client_id) {
         enforceClientAccess();
     }
@@ -96,6 +102,10 @@ if (isset($_GET['delete_recurring_expense'])) {
     $row = mysqli_fetch_assoc($sql);
     $recurring_expense_description = escapeSql($row['recurring_expense_description']);
     $client_id = intval($row['recurring_expense_client_id']);
+
+    if ($client_id) {
+        enforceClientAccess();
+    }
 
     mysqli_query($mysqli,"DELETE FROM recurring_expenses WHERE recurring_expense_id = $recurring_expense_id");
 

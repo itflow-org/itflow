@@ -38,6 +38,7 @@ enforceUserPermission('module_financial');
                  GROUP BY payment_invoice_id) as payments
             ON
                 invoices.invoice_id = payments.payment_invoice_id
+            WHERE 1=1 " . clientScopeSql('clients.client_id') . "
             GROUP BY
                 clients.client_id,
                 clients.client_name

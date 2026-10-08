@@ -11,6 +11,7 @@ $sql = mysqli_query($mysqli, "
     FROM clients
     LEFT JOIN recurring_invoices ON client_id = recurring_invoice_client_id
     WHERE recurring_invoice_status = 1
+    " . clientScopeSql('clients.client_id') . "
     GROUP BY clients.client_id
     HAVING recurring_monthly_total > 0
     ORDER BY recurring_monthly_total DESC

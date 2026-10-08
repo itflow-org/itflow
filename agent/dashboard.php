@@ -123,6 +123,7 @@ if ($user_config_dashboard_financial_enable == 1) {
         SELECT client_name, invoice_number, invoice_prefix, payment_amount, payment_date FROM payments
         JOIN invoices ON payment_invoice_id = invoice_id
         JOIN clients ON invoice_client_id = client_id
+        WHERE 1=1 " . clientScopeSql('invoice_client_id') . "
         ORDER BY payment_id DESC LIMIT 5
     ");
 
@@ -607,6 +608,7 @@ if ($user_config_dashboard_technical_enable == 1) {
         LEFT JOIN contacts ON ticket_contact_id = contact_id
         WHERE ticket_assigned_to = $session_user_id
         AND ticket_closed_at IS NULL
+        " . clientScopeSql('ticket_client_id') . "
         ORDER BY ticket_number DESC
     ");
 ?>

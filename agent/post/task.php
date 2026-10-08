@@ -364,6 +364,9 @@ if (isset($_GET['approve_ticket_task'])) {
         exit;
     }
 
+    $client_id = intval(getFieldById('tickets', $ticket_id, 'ticket_client_id'));
+    enforceClientAccess();
+
     // Validate approver (deny)
     if ($required_user > 0 && $required_user !== $session_user_id) {
         flashAlert("You cannot approve that task", 'error');
@@ -398,6 +401,11 @@ if (isset($_GET['delete_ticket_task_approver'])) {
     enforceUserPermission('module_support', 3);
 
     $approval_id = intval($_GET['delete_ticket_task_approver']);
+
+    $sql = mysqli_query($mysqli, "SELECT ticket_client_id FROM task_approvals LEFT JOIN tasks ON task_id = approval_task_id LEFT JOIN tickets ON ticket_id = task_ticket_id WHERE approval_id = $approval_id");
+    $row = mysqli_fetch_assoc($sql);
+    $client_id = intval($row['ticket_client_id'] ?? 0);
+    enforceClientAccess();
 
     mysqli_query($mysqli, "DELETE FROM task_approvals WHERE approval_id = $approval_id");
 

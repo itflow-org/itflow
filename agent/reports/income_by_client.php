@@ -48,9 +48,10 @@ $sql_payment_years = mysqli_query($mysqli, "SELECT DISTINCT YEAR(payment_date) A
         $sql_clients = "SELECT c.client_id, c.client_name, SUM(p.payment_amount) AS amount_paid
             FROM clients AS c
             JOIN invoices AS i ON c.client_id = i.invoice_client_id
-            JOIN payments AS p ON i.invoice_id = p.payment_invoice_id";
+            JOIN payments AS p ON i.invoice_id = p.payment_invoice_id
+            WHERE 1=1" . clientScopeSql('c.client_id');
             if ($year != 'all') {
-                $sql_clients .= " WHERE YEAR(p.payment_date) = $year";
+                $sql_clients .= " AND YEAR(p.payment_date) = $year";
             }
         $sql_clients .= " GROUP BY c.client_id
             HAVING amount_paid > 599

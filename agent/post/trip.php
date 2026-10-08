@@ -40,6 +40,12 @@ if (isset($_POST['edit_trip'])) {
 
     $trip_id = intval($_POST['trip_id']);
 
+    // Check the client the trip belongs to now, not just the one submitted
+    $existing_client_id = intval(getFieldById('trips', $trip_id, 'trip_client_id'));
+    if ($existing_client_id) {
+        enforceClientAccess($existing_client_id);
+    }
+
     $client_id = intval($_POST['client_id']);
 
     if ($client_id) {
