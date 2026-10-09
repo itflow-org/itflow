@@ -182,12 +182,16 @@
     height: 1.6rem;
     margin-top: 0;
 }
-/* .navbar-badge positions itself (top:9px/right:5px) for a taller bar; the
-   markup used to override that inline, which is why it drifted when the bar
-   was tightened. Positioned against the flex-centred link instead. */
+/* .navbar-badge positions itself (top:9px/right:5px) for a taller bar. Pinned
+   to the link's edge, it slid over the icon whenever the link got narrower -
+   on phones the link is 28px wide and the badge covered the bell completely.
+   The icon is centred in the link, so anchoring to the centre puts the badge
+   on the icon's top-right corner at every width. */
 .app-header .navbar-badge {
-    top: .15rem;
-    right: .15rem;
+    top: 50%;
+    right: auto;
+    left: calc(50% + .2rem);
+    margin-top: -.9rem;
     font-size: .65rem;
 }
 
@@ -1950,6 +1954,19 @@ html {
 @media (hover: none) {
     .itflow-notify-toggle {
         opacity: 1;
+    }
+}
+/* A finger needs a bigger target than a pointer: 44px on touch screens, with
+   the row's text kept clear of it */
+@media (pointer: coarse) {
+    .itflow-notify-toggle {
+        top: .3rem;
+        right: .25rem;
+        width: 2.75rem;
+        height: 2.75rem;
+    }
+    .itflow-notify-item .itflow-notify-link {
+        padding-right: 3.25rem;
     }
 }
 .itflow-notify-empty {

@@ -102,12 +102,12 @@ $empty_state_skip = true;
                         <?php } ?>
                     </select>
                 </div>
-                <div class="col-md-4">
-                    <div class="btn-group float-end" role="group" aria-label="Show">
-                        <a href="<?= escapeHtml(notificationsPageUrl(['view' => null])) ?>" class="btn <?= $view === 'unread' ? 'btn-primary' : 'btn-outline-primary' ?>">
+                <div class="col-md-4 text-md-end">
+                    <div class="btn-group d-flex d-md-inline-flex" role="group" aria-label="Show">
+                        <a href="<?= escapeHtml(notificationsPageUrl(['view' => null])) ?>" class="btn flex-fill <?= $view === 'unread' ? 'btn-primary' : 'btn-outline-primary' ?>">
                             Unread <span class="badge rounded-pill text-bg-light ms-1" data-notify-count <?= $unread_count ? '' : 'hidden' ?>><?= $unread_count > 99 ? '99+' : $unread_count ?></span>
                         </a>
-                        <a href="<?= escapeHtml(notificationsPageUrl(['view' => 'all'])) ?>" class="btn <?= $view === 'all' ? 'btn-primary' : 'btn-outline-primary' ?>">All</a>
+                        <a href="<?= escapeHtml(notificationsPageUrl(['view' => 'all'])) ?>" class="btn flex-fill <?= $view === 'all' ? 'btn-primary' : 'btn-outline-primary' ?>">All</a>
                     </div>
                 </div>
             </div>
