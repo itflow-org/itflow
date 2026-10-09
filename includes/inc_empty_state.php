@@ -23,7 +23,8 @@
  * with nothing to maintain.
  */
 
-if (!isset($num_rows) || intval($num_rows[0]) > 0) {
+// A page that draws its own empty state sets $empty_state_skip
+if (!isset($num_rows) || intval($num_rows[0]) > 0 || !empty($empty_state_skip)) {
     return;
 }
 

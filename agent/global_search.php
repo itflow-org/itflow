@@ -112,7 +112,7 @@ function searchResultBadge($badge) {
                 <p class="mb-0">
                     Names, emails, phone numbers, IP and MAC addresses, serials, ticket, invoice and quote numbers -
                     plus ticket conversations and document text.<br>
-                    Press <kbd>/</kbd> on any page to search without leaving it.
+                    Press <kbd>Ctrl</kbd> + <kbd>K</kbd> on any page to search without leaving it.
                 </p>
             </div>
 

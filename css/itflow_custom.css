@@ -1571,7 +1571,7 @@ html {
 
 /* Search palette - js/global_search.js
 
-   Opens over the page on / or Ctrl+K. Sits high rather than centred, so the
+   Opens over the page on Ctrl+K. Sits high rather than centred, so the
    results grow downwards from the box instead of the box jumping as they
    arrive. Everything takes its colour from the Bootstrap variables, so dark
    mode needs nothing extra; the highlighted row uses the theme accent. */
@@ -1763,7 +1763,7 @@ html {
     }
 }
 
-/* The / hint inside the top bar search box. Pointer events off so a click on
+/* The Ctrl K hint inside the top bar search box. Pointer events off so a click on
    it still lands on the box underneath and opens the palette. */
 .navbar-search .navbar-search-field .navbar-search-kbd {
     position: absolute;
@@ -1792,4 +1792,208 @@ html {
 }
 .global-search-group {
     scroll-margin-top: 4rem;
+}
+
+/* Notifications - js/notifications.js, the bell panel and agent/notifications.php
+
+   One row design for both. The icon tile takes Bootstrap's subtle colour
+   utilities (bg-*-subtle / text-*-emphasis), so each tone already has a dark
+   mode version. Unread rows carry a dot and a heavier title; read rows step
+   back. The read / unread button shows on hover and keyboard focus, and
+   always on touch screens, where there is no hover. */
+.itflow-notify-panel {
+    width: min(25rem, calc(100vw - 1rem));
+    overflow: hidden;
+    box-shadow: 0 .75rem 2rem rgba(0, 0, 0, .25);
+}
+.itflow-notify-head {
+    display: flex;
+    align-items: center;
+    padding: .75rem 1rem .25rem;
+}
+.itflow-notify-tabs {
+    gap: 1rem;
+    padding: 0 1rem;
+    border-bottom: 1px solid var(--bs-border-color);
+    font-size: .875rem;
+}
+.itflow-notify-tabs .nav-link {
+    padding: .4rem 0;
+    color: var(--bs-secondary-color);
+}
+.itflow-notify-tabs .nav-link.active {
+    color: var(--bs-emphasis-color);
+    border-bottom-color: var(--itflow-accent, #007bff);
+}
+.itflow-notify-list {
+    max-height: min(65vh, 32rem);
+    overflow-y: auto;
+}
+.itflow-notify-group {
+    padding: .6rem 1rem .2rem;
+    font-size: .7rem;
+    font-weight: 600;
+    letter-spacing: .06em;
+    text-transform: uppercase;
+    color: var(--bs-secondary-color);
+}
+.itflow-notify-item {
+    position: relative;
+}
+.itflow-notify-item .itflow-notify-link {
+    display: flex;
+    align-items: flex-start;
+    gap: .75rem;
+    padding: .6rem 2.75rem .6rem 1.75rem;
+    white-space: normal;
+    color: var(--bs-body-color);
+    text-decoration: none;
+}
+.itflow-notify-item .itflow-notify-link:hover,
+.itflow-notify-item .itflow-notify-link:focus {
+    color: var(--bs-body-color);
+    background-color: rgba(var(--bs-emphasis-color-rgb), .05);
+}
+.itflow-notify-icon {
+    display: flex;
+    flex: 0 0 auto;
+    align-items: center;
+    justify-content: center;
+    width: 2rem;
+    height: 2rem;
+    border-radius: 50%;
+    font-size: .85rem;
+}
+.itflow-notify-body {
+    display: flex;
+    flex: 1 1 0;
+    flex-direction: column;
+    min-width: 0;
+}
+.itflow-notify-top {
+    display: flex;
+    align-items: baseline;
+    gap: .5rem;
+}
+.itflow-notify-type {
+    flex: 1 1 auto;
+    min-width: 0;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    font-size: .875rem;
+}
+.itflow-notify-time {
+    flex: 0 0 auto;
+    font-size: .75rem;
+    color: var(--bs-secondary-color);
+}
+.itflow-notify-text {
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+    overflow: hidden;
+    font-size: .8125rem;
+    color: var(--bs-secondary-color);
+    overflow-wrap: anywhere;
+}
+.itflow-notify-client {
+    margin-top: .15rem;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    font-size: .75rem;
+    color: var(--bs-secondary-color);
+}
+.itflow-notify-client .fa-fw {
+    margin-right: .25rem;
+    opacity: .7;
+}
+.itflow-notify-item.is-unread .itflow-notify-type {
+    font-weight: 600;
+    color: var(--bs-emphasis-color);
+}
+.itflow-notify-item.is-unread::before {
+    content: "";
+    position: absolute;
+    top: 1.35rem;
+    left: .7rem;
+    width: .5rem;
+    height: .5rem;
+    border-radius: 50%;
+    background-color: var(--itflow-accent, #007bff);
+}
+.itflow-notify-item:not(.is-unread) .itflow-notify-icon {
+    opacity: .6;
+}
+.itflow-notify-toggle {
+    position: absolute;
+    top: .55rem;
+    right: .5rem;
+    width: 1.9rem;
+    height: 1.9rem;
+    padding: 0;
+    border: 0;
+    border-radius: 50%;
+    color: var(--bs-secondary-color);
+    opacity: 0;
+}
+.itflow-notify-toggle:hover,
+.itflow-notify-toggle:focus-visible {
+    color: var(--bs-emphasis-color);
+    background-color: rgba(var(--bs-emphasis-color-rgb), .1);
+}
+.itflow-notify-item:hover .itflow-notify-toggle,
+.itflow-notify-item:focus-within .itflow-notify-toggle {
+    opacity: 1;
+}
+@media (hover: none) {
+    .itflow-notify-toggle {
+        opacity: 1;
+    }
+}
+.itflow-notify-empty {
+    padding: 2rem 1rem;
+    text-align: center;
+    color: var(--bs-secondary-color);
+}
+.itflow-notify-foot {
+    display: block;
+    padding: .6rem 1rem;
+    border-top: 1px solid var(--bs-border-color);
+    font-size: .875rem;
+    text-align: center;
+    text-decoration: none;
+}
+.itflow-notify-foot:hover {
+    background-color: rgba(var(--bs-emphasis-color-rgb), .05);
+}
+
+/* The full page lists the same rows inside a card */
+.itflow-notify-page .itflow-notify-item + .itflow-notify-item {
+    border-top: 1px solid var(--bs-border-color-translucent);
+}
+.itflow-notify-page .itflow-notify-link {
+    padding-top: .75rem;
+    padding-bottom: .75rem;
+}
+.itflow-notify-page .itflow-notify-text {
+    -webkit-line-clamp: 3;
+}
+.itflow-notify-page .itflow-notify-group {
+    background-color: var(--bs-tertiary-bg);
+    border-top: 1px solid var(--bs-border-color-translucent);
+}
+/* Bootstrap does not use Popper for dropdowns inside a navbar, so the panel is
+   pinned to the bell's right edge and a phone screen cuts off its left side.
+   On narrow screens it spans the width under the top bar instead. */
+@media (max-width: 575.98px) {
+    .app-header .navbar-nav .itflow-notify-panel[data-bs-popper] {
+        position: fixed;
+        top: 3rem;
+        right: .5rem;
+        left: .5rem;
+        width: auto;
+        margin-top: .25rem;
+    }
 }

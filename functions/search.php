@@ -4,7 +4,7 @@
  * Global search.
  *
  * One search behind two surfaces:
- *   - the live search palette in the top bar (press / or Ctrl+K), which asks
+ *   - the live search palette in the top bar (press Ctrl+K), which asks
  *     agent/ajax.php?global_search as you type
  *   - the full results page, agent/global_search.php, reached by pressing Enter
  *

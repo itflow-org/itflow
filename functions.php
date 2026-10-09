@@ -28,3 +28,4 @@ require_once __DIR__ . '/functions/export.php';
 require_once __DIR__ . '/functions/calendar.php';
 require_once __DIR__ . '/functions/backup.php';
 require_once __DIR__ . '/functions/search.php';
+require_once __DIR__ . '/functions/notifications.php';

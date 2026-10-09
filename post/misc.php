@@ -16,50 +16,6 @@ if(isset($_POST['change_records_per_page'])){
 
 }
 
-// In app notifications
-
-if (isset($_GET['dismiss_notification'])) {
-
-    validateCSRFToken();
-
-    $notification_id = intval($_GET['dismiss_notification']);
-
-    mysqli_query($mysqli,"UPDATE notifications SET notification_dismissed_at = NOW(), notification_dismissed_by = $session_user_id WHERE notification_user_id = $session_user_id AND notification_id = $notification_id");
-
-    // Logging
-    logAudit("Notification", "Dismiss", "$session_name dismissed notification");
-
-    $_SESSION['alert_message'] = "Notification Dismissed";
-
-    redirect();
-
-}
-
-if (isset($_GET['dismiss_all_notifications'])) {
-
-    validateCSRFToken();
-
-    $sql = mysqli_query($mysqli,"SELECT notification_dismissed_at, notification_id FROM notifications WHERE notification_user_id = $session_user_id AND notification_dismissed_at IS NULL");
-
-    $num_notifications = mysqli_num_rows($sql);
-
-    while($row = mysqli_fetch_assoc($sql)) {
-        $notification_id = intval($row['notification_id']);
-        $notification_dismissed_at = escapeSql($row['notification_dismissed_at']);
-
-        mysqli_query($mysqli,"UPDATE notifications SET notification_dismissed_at = NOW(), notification_dismissed_by = $session_user_id WHERE notification_id = $notification_id");
-
-    }
-
-    // Logging
-    logAudit("Notification", "Dismiss", "$session_name dismissed $num_notifications notifications");
-
-    $_SESSION['alert_message'] = "<strong>$num_notifications</strong> Notifications Dismissed";
-
-    redirect();
-
-}
-
 // Revoke sharing (sharing itself is done via ajax.php)
 if (isset($_GET['deactivate_shared_item'])) {
 

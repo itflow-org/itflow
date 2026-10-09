@@ -383,6 +383,52 @@ if (isset($_GET['get_active_clients'])) {
 }
 
 /*
+ * The bell panel in the top bar (js/notifications.js).
+ *
+ * notifications_feed  - the latest notifications for the panel, and the unread count
+ * notifications_count - just the count, polled for the badge
+ * notifications_mark  - POST: mark ids read or unread, or all=1 for everything
+ *
+ * All of it goes through functions/notifications.php, which only ever reads or
+ * changes the current user's own rows. Reading one is not audited; marking all
+ * read is, as the old "Dismiss all" was.
+ */
+if (isset($_GET['notifications_feed'])) {
+    $notifications_view = ($_GET['view'] ?? '') === 'all' ? 'all' : 'unread';
+
+    header('Content-Type: application/json');
+    echo json_encode([
+        'unread_count' => notificationUnreadCount(),
+        'items' => notificationsFetch($notifications_view, 20),
+    ], JSON_INVALID_UTF8_SUBSTITUTE);
+    exit;
+}
+
+if (isset($_GET['notifications_count'])) {
+    header('Content-Type: application/json');
+    echo json_encode(['unread_count' => notificationUnreadCount()]);
+    exit;
+}
+
+if (isset($_POST['notifications_mark'])) {
+
+    validateCSRFToken();
+
+    if (!empty($_POST['all'])) {
+        $notifications_changed = notificationsMarkAllRead();
+        if ($notifications_changed) {
+            logAudit("Notification", "Dismiss", "$session_name marked $notifications_changed notifications as read");
+        }
+    } else {
+        notificationsMark($_POST['ids'] ?? [], ($_POST['state'] ?? 'read') !== 'unread');
+    }
+
+    header('Content-Type: application/json');
+    echo json_encode(['unread_count' => notificationUnreadCount()]);
+    exit;
+}
+
+/*
  * Live results for the search palette in the top bar (js/global_search.js).
  *
  * Same search as the full results page - functions/search.php - so the two can

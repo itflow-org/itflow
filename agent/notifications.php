@@ -1,160 +1,192 @@
 <?php
 
-// Default Column Sortby Filter
-$sort = "notification_timestamp";
+/*
+ * All notifications - where "View all notifications" in the bell panel lands.
+ *
+ * Same rows, same rules and same row behaviour as the panel (functions/
+ * notifications.php, js/notifications.js), with paging, search, a type filter
+ * and a date range on top. Unread by default; "All" includes the read ones,
+ * which nightly_tasks.php clears after 90 days.
+ */
+
+// Newest first, always - filter_header.php reads this before the include
+$sort = "notification_id";
 $order = "DESC";
 
 require_once "includes/inc_all.php";
 
-// Dismissed Filter
-if (isset($_GET['dismissed'])) {
-    $dismissed_query = 'AND notification_dismissed_at IS NOT NULL';
-    $dismissed_filter = 1;
-} else {
-    // Default - any
-    $dismissed_query = 'AND notification_dismissed_at IS NULL';
-    $dismissed_filter = 0;
-}
+// ?dismissed is the old "Dismissed notifications" link; those are the read ones now
+$view = (($_GET['view'] ?? '') === 'all' || isset($_GET['dismissed'])) ? 'all' : 'unread';
+
+$type_filter = trim((string) ($_GET['type'] ?? ''));
+$type_query = $type_filter !== '' ? "AND notification_type = '" . escapeSql($type_filter) . "'" : '';
+$unread_query = $view === 'unread' ? 'AND notification_dismissed_at IS NULL' : '';
 
 $sql = mysqli_query(
     $mysqli,
-    "SELECT SQL_CALC_FOUND_ROWS client_id, client_name, notification, notification_dismissed_at, notification_id,
-        notification_timestamp, notification_type FROM notifications
+    "SELECT SQL_CALC_FOUND_ROWS notification_id, notification_type, notification, notification_action,
+        notification_timestamp, notification_dismissed_at, notification_client_id, client_name
+    FROM notifications
     LEFT JOIN clients ON notification_client_id = client_id
-    WHERE (notification_type LIKE '%$q%' OR notification LIKE '%$q%')
+    WHERE " . notificationVisibilitySql() . "
+    $unread_query
+    $type_query
+    AND (notification_type LIKE '%$q%' OR notification LIKE '%$q%' OR client_name LIKE '%$q%')
     AND DATE(notification_timestamp) BETWEEN '$dtf' AND '$dtt'
-    AND notification_user_id = $session_user_id
-    $dismissed_query
-    ORDER BY $sort $order
-    LIMIT $record_from, $record_to
-");
+    ORDER BY notification_id DESC
+    LIMIT $record_from, $record_to"
+);
 
 $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
+
+$unread_count = notificationUnreadCount();
+
+$sql_types = mysqli_query($mysqli, "SELECT DISTINCT notification_type FROM notifications WHERE " . notificationVisibilitySql() . " ORDER BY notification_type");
+
+// Links that keep every other filter and change one thing
+function notificationsPageUrl($changes) {
+    $params = array_merge($_GET, $changes);
+    unset($params['page'], $params['dismissed']);
+    $params = array_filter($params, function ($value) {
+        return $value !== null && $value !== '';
+    });
+    return 'notifications.php' . ($params ? '?' . http_build_query($params) : '');
+}
+
+function notificationsDayLabel($timestamp) {
+    $day = date('Y-m-d', $timestamp);
+    if ($day === date('Y-m-d')) {
+        return 'Today';
+    }
+    if ($day === date('Y-m-d', strtotime('-1 day'))) {
+        return 'Yesterday';
+    }
+    return date('l, F j' . (date('Y', $timestamp) === date('Y') ? '' : ', Y'), $timestamp);
+}
+
+$notifications_date_filtered = $dtf !== '1970-01-01' || $dtt !== '2099-12-31';
+$notifications_filtered = $q !== '' || $type_filter !== '' || $notifications_date_filtered;
+
+// This page draws its own empty state - "all caught up" is not "nothing added yet"
+$empty_state_skip = true;
 
 ?>
 
 <div class="card">
     <div class="card-header bg-dark py-2">
-        <h3 class="card-title mt-2">
-            <i class="fas fa-fw fa-bell me-2"></i><?php if($dismissed_filter) { echo "Dismissed "; } ?>Notifications
-        </h3>
+        <h3 class="card-title mt-2"><i class="fas fa-fw fa-bell me-2"></i>Notifications</h3>
         <div class="card-tools">
-            <?php if($dismissed_filter) { ?>
-            <a href="notifications.php" class="btn btn-primary"><i class="fas fa-fw fa-history me-2"></i>Dismissed</a>
-            <?php } else { ?>
-            <a href="notifications.php?dismissed" class="btn btn-outline-secondary"><i class="fas fa-fw fa-history me-2"></i>Dismissed</a>
-            <?php } ?>
+            <button type="button" class="btn btn-light" data-notify-all data-notify-reload <?= $unread_count ? '' : 'disabled' ?>>
+                <i class="fas fa-check-double me-2"></i>Mark all as read
+            </button>
         </div>
     </div>
 
     <div class="card-header py-3">
         <form autocomplete="off">
-            <?php if ($dismissed_filter) { ?>
-                <input type="hidden" name="dismissed" value="">
-            <?php } ?>
-            <div class="row g-2 align-items-end">
-                <div class="col-sm-4">
+            <input type="hidden" name="view" value="<?= $view ?>">
+            <div class="row g-2 align-items-center">
+                <div class="col-md-5">
                     <div class="input-group">
-                        <input type="search" class="form-control" name="q" value="<?php if (isset($q)) { echo stripslashes(escapeHtml($q)); } ?>" placeholder="Search <?php if($dismissed_filter) { echo "Dismissed "; } ?>Notifications">
-                            <button class="btn btn-primary text-strong" title="Search"><i class="fa fa-search"></i></button>
-                            <button class="btn btn-secondary" title="More filters" type="button" data-bs-toggle="collapse" data-bs-target="#advancedFilter"><i class="fas fa-filter"></i></button>
+                        <input type="search" class="form-control" name="q" value="<?= escapeHtml(stripslashes($q)) ?>" placeholder="Search notifications">
+                        <button class="btn btn-primary" title="Search"><i class="fa fa-search"></i></button>
+                        <button class="btn btn-secondary" title="More filters" type="button" data-bs-toggle="collapse" data-bs-target="#advancedFilter"><i class="fas fa-filter"></i></button>
                     </div>
                 </div>
-                <div class="col-sm-8">
-
-
+                <div class="col-md-3">
+                    <select class="form-select" name="type" onchange="this.form.submit()" aria-label="Notification type">
+                        <option value="">All types</option>
+                        <?php while ($row = mysqli_fetch_assoc($sql_types)) {
+                            $type_option = escapeHtml($row['notification_type']); ?>
+                            <option <?php if ($type_filter === $row['notification_type']) { echo "selected"; } ?>><?= $type_option ?></option>
+                        <?php } ?>
+                    </select>
+                </div>
+                <div class="col-md-4">
+                    <div class="btn-group float-end" role="group" aria-label="Show">
+                        <a href="<?= escapeHtml(notificationsPageUrl(['view' => null])) ?>" class="btn <?= $view === 'unread' ? 'btn-primary' : 'btn-outline-primary' ?>">
+                            Unread <span class="badge rounded-pill text-bg-light ms-1" data-notify-count <?= $unread_count ? '' : 'hidden' ?>><?= $unread_count > 99 ? '99+' : $unread_count ?></span>
+                        </a>
+                        <a href="<?= escapeHtml(notificationsPageUrl(['view' => 'all'])) ?>" class="btn <?= $view === 'all' ? 'btn-primary' : 'btn-outline-primary' ?>">All</a>
+                    </div>
                 </div>
             </div>
-            <div class="collapse mt-3 <?php if (!empty($_GET['dtf'])) { echo "show"; } ?>" id="advancedFilter">
-                <div class="row">
-                    <div class="col-md-2">
-                        <div class="mb-3">
-                            <label>Date From</label>
-                            <input type="date" class="form-control" name="dtf" max="2999-12-31" value="<?= escapeHtml($dtf) ?>">
-                        </div>
-                    </div>
-                    <div class="col-md-2">
-                        <div class="mb-3">
-                            <label>Date To</label>
-                            <input type="date" class="form-control" name="dtt" max="2999-12-31" value="<?= escapeHtml($dtt) ?>">
-                        </div>
+            <div class="collapse mt-3 <?php if ($notifications_date_filtered) { echo "show"; } ?>" id="advancedFilter">
+                <div class="row g-3">
+                    <div class="col-md-3">
+                        <label class="form-label">Date range</label>
+                        <input type="text" id="dateFilter" class="form-control" autocomplete="off">
+                        <input type="hidden" name="canned_date" id="canned_date" value="<?= escapeHtml($_GET['canned_date'] ?? '') ?>">
+                        <input type="hidden" name="dtf" id="dtf" value="<?= escapeHtml($dtf ?? '') ?>">
+                        <input type="hidden" name="dtt" id="dtt" value="<?= escapeHtml($dtt ?? '') ?>">
                     </div>
                 </div>
             </div>
         </form>
     </div>
 
-    <div class="table-responsive-sm">
-        <table class="table table-striped table-borderless table-hover mb-0">
-            <thead class="text-dark <?php if ($num_rows[0] == 0) { echo "d-none"; } ?>">
-            <tr>
-                <th class="ps-3">
-                    <a class="text-dark" href="?<?= $url_query_strings_sort ?>&sort=notification_timestamp&order=<?= $disp ?>">
-                        Timestamp <?php if ($sort == 'notification_timestamp') { echo $order_icon; } ?>
-                    </a>
-                </th>
-                <th>
-                    <a class="text-dark" href="?<?= $url_query_strings_sort ?>&sort=notification_type&order=<?= $disp ?>">
-                        Type <?php if ($sort == 'notification_type') { echo $order_icon; } ?>
-                    </a>
-                </th>
-                <th>
-                    <a class="text-dark" href="?<?= $url_query_strings_sort ?>&sort=notification&order=<?= $disp ?>">
-                        Notification <?php if ($sort == 'notification') { echo $order_icon; } ?>
-                    </a>
-                </th>
-                <?php if($dismissed_filter) { ?>
-                <th>
-                    <a class="text-dark" href="?<?= $url_query_strings_sort ?>&sort=notification_dismissed_at&order=<?= $disp ?>">
-                        Dismissed At <?php if ($sort == 'notification_dismissed_at') { echo $order_icon; } ?>
-                    </a>
-                </th>
-                <?php } ?>
-                <?php if(!$dismissed_filter) { ?>
-                <th class="text-center p-0">
-                    <?php if (mysqli_num_rows($sql) > 0) { ?>
-                    <a href="post.php?dismiss_all_notifications&csrf_token=<?= $_SESSION["csrf_token"] ?>"
-                        class="btn btn-sm btn-dark mb-2" title="Dismiss All">
-                        <i class="fas fa-fw fa-check-double"></i>
-                    </a>
-                    <?php } ?>
-                </th>
-                <?php } ?>
-            </tr>
-            </thead>
-            <tbody>
+    <?php if ($num_rows[0] == 0) { ?>
+
+        <div class="itflow-notify-empty py-5">
+            <?php if ($notifications_filtered) { ?>
+                <i class="fas fa-filter fa-3x mb-3 d-block" aria-hidden="true"></i>
+                <h5>No notifications match the current filters</h5>
+                <a href="<?= escapeHtml('notifications.php' . ($view === 'all' ? '?view=all' : '')) ?>" class="btn btn-sm btn-outline-secondary mt-2">
+                    <i class="fas fa-times me-2"></i>Clear filters
+                </a>
+            <?php } elseif ($view === 'unread') { ?>
+                <i class="fas fa-check-circle fa-3x mb-3 d-block text-success" aria-hidden="true"></i>
+                <h5>You're all caught up</h5>
+                <p class="mb-2">Nothing new since you last looked.</p>
+                <a href="notifications.php?view=all" class="btn btn-sm btn-outline-secondary">See all notifications</a>
+            <?php } else { ?>
+                <i class="fas fa-bell-slash fa-3x mb-3 d-block" aria-hidden="true"></i>
+                <h5>No notifications yet</h5>
+            <?php } ?>
+        </div>
+
+    <?php } else { ?>
+
+        <div class="itflow-notify-page" role="list" aria-label="Notifications">
             <?php
-
+            $notification_day = null;
             while ($row = mysqli_fetch_assoc($sql)) {
-            $notification_id = intval($row['notification_id']);
-            $notification_timestamp = escapeHtml($row['notification_timestamp']);
-            $notification_type = escapeHtml($row['notification_type']);
-            $notification = escapeHtml($row['notification']);
-            $notification_dismissed_at = escapeHtml($row['notification_dismissed_at']);
-            $client_name = escapeHtml($row['client_name']);
-            $client_id = intval($row['client_id']);
+                $item = notificationItem($row);
+                $item_timestamp = strtotime($row['notification_timestamp']);
+                $item_day = notificationsDayLabel($item_timestamp);
+                $item_tone = in_array($item['tone'], ['primary', 'secondary', 'success', 'danger', 'warning', 'info'], true) ? $item['tone'] : 'secondary';
 
-            ?>
-            <tr>
-                <td class="font-monospace ps-3"><?= $notification_timestamp ?></td>
-                <td><?= $notification_type ?></td>
-                <td><?= $notification ?></td>
-                <?php if($dismissed_filter) { ?>
-                <td class="font-monospace"><?= $notification_dismissed_at ?></td>
+                if ($item_day !== $notification_day) {
+                    $notification_day = $item_day; ?>
+                    <div class="itflow-notify-group" role="presentation"><?= escapeHtml($item_day) ?></div>
                 <?php } ?>
-                <?php if(!$dismissed_filter) { ?>
-                <td class="text-center"><a class="btn btn-secondary btn-sm" href="post.php?dismiss_notification=<?= $notification_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>" title="Dismiss"><i class="fas fa-check"></i></a></td>
-                <?php } ?>
-            </tr>
+
+                <div class="itflow-notify-item <?= $item['unread'] ? 'is-unread' : '' ?>" role="listitem" data-id="<?= $item['id'] ?>">
+                    <a class="itflow-notify-link" href="<?= $item['url'] ? escapeHtml($item['url']) : '#' ?>"<?= $item['url'] ? '' : ' data-no-link="1"' ?>>
+                        <span class="itflow-notify-icon bg-<?= $item_tone ?>-subtle text-<?= $item_tone ?>-emphasis"><i class="fas fa-fw fa-<?= escapeHtml($item['icon']) ?>" aria-hidden="true"></i></span>
+                        <span class="itflow-notify-body">
+                            <span class="itflow-notify-top">
+                                <span class="itflow-notify-type"><?= escapeHtml($item['type']) ?></span>
+                                <time class="itflow-notify-time" datetime="<?= escapeHtml($item['time']) ?>" title="<?= escapeHtml($item['time_full']) ?>"><?= date('g:i A', $item_timestamp) ?></time>
+                            </span>
+                            <span class="itflow-notify-text"><?= escapeHtml($item['text']) ?></span>
+                            <?php if ($item['client']) { ?>
+                                <span class="itflow-notify-client"><i class="fas fa-fw fa-building" aria-hidden="true"></i><?= escapeHtml($item['client']) ?></span>
+                            <?php } ?>
+                        </span>
+                    </a>
+                    <button type="button" class="btn btn-sm itflow-notify-toggle" title="<?= $item['unread'] ? 'Mark as read' : 'Mark as unread' ?>" aria-label="<?= $item['unread'] ? 'Mark as read' : 'Mark as unread' ?>">
+                        <i class="fas fa-fw fa-<?= $item['unread'] ? 'check' : 'undo' ?>" aria-hidden="true"></i>
+                    </button>
+                </div>
 
             <?php } ?>
+        </div>
 
-            </tbody>
-        </table>
-    </div>
+    <?php } ?>
+
     <?php require_once "../includes/filter_footer.php"; ?>
 </div>
 
 <?php
-
 require_once "../includes/footer.php";

@@ -9,18 +9,18 @@
     </ul>
 
     <!-- SEARCH - js/global_search.js turns this box into the opener for the
-         search palette (also on / and Ctrl+K). Without the script it is still
+         search palette (also on Ctrl+K). Without the script it is still
          a plain form posting to the full results page. -->
     <form class="navbar-search ms-auto" role="search" action="/agent/global_search.php">
         <label for="navbar-search-input" class="visually-hidden">Search everywhere</label>
         <div class="navbar-search-field">
             <input class="form-control" type="search" id="navbar-search-input" name="query"
-                placeholder="Search everywhere" autocomplete="off" aria-keyshortcuts="/ Control+K"
+                placeholder="Search everywhere" autocomplete="off" aria-keyshortcuts="Control+K Meta+K"
                 value="<?php if (isset($_GET['query'])) { echo escapeHtml($_GET['query']); } ?>">
             <button class="navbar-search-submit" type="submit" aria-label="Submit search">
                 <i class="fas fa-search" aria-hidden="true"></i>
             </button>
-            <kbd class="navbar-search-kbd d-none d-lg-inline" aria-hidden="true">/</kbd>
+            <kbd class="navbar-search-kbd d-none d-lg-inline" aria-hidden="true">Ctrl K</kbd>
         </div>
     </form>
 
@@ -55,22 +55,20 @@
         <?php } ?>
         <!-- End Custom Nav Links -->
 
-        <!-- New Notifications Dropdown -->
-        <?php
-        $row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT COUNT('notification_id') AS num FROM notifications WHERE notification_user_id = $session_user_id AND notification_dismissed_at IS NULL"));
-        $num_notifications = $row['num'];
+        <!-- Notifications - js/notifications.js fills the panel when the bell is
+             opened and keeps the badge current. Without the script the bell is a
+             plain link to the full page. The panel follows the page theme, not
+             the always-dark navbar it sits in. -->
+        <?php $num_notifications = notificationUnreadCount(); ?>
 
-        ?>
-
-        <li class="nav-item">
-            <a class="nav-link ajax-modal" href="#" data-modal-url="/modals/notifications.php">
-                <i class="fas fa-bell"></i>
-                <?php if ($num_notifications) { ?>
-                <span class="badge bg-light text-dark rounded-pill navbar-badge">
-                    <?= $num_notifications ?>
-                </span>
-                <?php } ?>
+        <li class="nav-item dropdown" id="itflowNotify" data-csrf="<?= $_SESSION['csrf_token'] ?>">
+            <a class="nav-link" href="/agent/notifications.php" role="button" data-bs-toggle="dropdown" data-bs-auto-close="outside"
+                aria-expanded="false" title="Notifications"
+                aria-label="Notifications<?= $num_notifications ? ", $num_notifications unread" : '' ?>">
+                <i class="fas fa-bell" aria-hidden="true"></i>
+                <span class="badge bg-light text-dark rounded-pill navbar-badge" data-notify-badge <?= $num_notifications ? '' : 'hidden' ?>><?= $num_notifications > 99 ? '99+' : $num_notifications ?></span>
             </a>
+            <div class="dropdown-menu dropdown-menu-end p-0 itflow-notify-panel" data-bs-theme="<?= $user_config_theme_dark ? 'dark' : 'light' ?>"></div>
         </li>
 
         <li class="nav-item dropdown user-menu">

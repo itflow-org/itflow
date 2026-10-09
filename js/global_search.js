@@ -1,7 +1,7 @@
 /*
  * ITFlow - the search palette.
  *
- * Press / (or Ctrl+K / Cmd+K) anywhere, or click the search box in the top bar,
+ * Press Ctrl+K (Cmd+K on a Mac) anywhere, or click the search box in the top bar,
  * and a search window opens over the page. Results arrive as you type, grouped by
  * record type, from agent/ajax.php?global_search - the same search the full
  * results page runs (functions/search.php), so neither can show a record the
@@ -211,7 +211,7 @@
                         '<span><kbd>&uarr;</kbd> <kbd>&darr;</kbd> to move</span>' +
                         '<span><kbd>&crarr;</kbd> to open</span>' +
                         '<span><kbd class="itflow-search-mod"></kbd> + <kbd>&crarr;</kbd> new tab</span>' +
-                        '<span class="ms-auto"><kbd>/</kbd> or <kbd class="itflow-search-mod"></kbd> + <kbd>K</kbd> from any page</span>' +
+                        '<span class="ms-auto"><kbd class="itflow-search-mod"></kbd> + <kbd>K</kbd> from any page</span>' +
                     '</div>' +
                     '<div class="visually-hidden" aria-live="polite"></div>' +
                 '</div>' +
@@ -243,9 +243,8 @@
         });
 
         modalEl.addEventListener('hidden.bs.modal', function () {
-            // Chrome can leave focus on the now-hidden box for a moment, and the
-            // next / would count as typing in it. Hand focus back to where it was -
-            // except the top bar box, which would just open the palette again.
+            // Hand focus back to where it was rather than leave it on the now-hidden
+            // box - except the top bar box, which would just open the palette again.
             input.blur();
             if (returnFocus && returnFocus !== navbarBox && document.contains(returnFocus) && typeof returnFocus.focus === 'function') {
                 returnFocus.focus({ preventScroll: true });
@@ -370,22 +369,6 @@
         }
     }
 
-    function isTyping(target) {
-        if (!target || !(target instanceof Element) || (modalEl && modalEl.contains(target))) {
-            return false;
-        }
-        if (target.isContentEditable || target.closest('.tox, [contenteditable="true"], [contenteditable=""]')) {
-            return true;
-        }
-        if (target.tagName === 'TEXTAREA' || target.tagName === 'SELECT') {
-            return true;
-        }
-        if (target.tagName === 'INPUT') {
-            return ['checkbox', 'radio', 'button', 'submit', 'reset', 'range', 'color', 'file'].indexOf(target.type) === -1;
-        }
-        return false;
-    }
-
     function anotherModalOpen() {
         return !!document.querySelector('.modal.show:not(#itflowSearch)');
     }
@@ -404,12 +387,6 @@
                 e.preventDefault();
                 open();
             }
-            return;
-        }
-
-        if (e.key === '/' && !e.ctrlKey && !e.metaKey && !e.altKey && !isOpen() && !anotherModalOpen() && !isTyping(e.target)) {
-            e.preventDefault();
-            open();
         }
     });
 
@@ -613,6 +590,12 @@
         }
         navbarBox = box;
         const form = box.form;
+
+        // The shortcut hint in the box: the markup says Ctrl K, a Mac gets Cmd
+        const hint = form ? form.querySelector('.navbar-search-kbd') : null;
+        if (hint) {
+            hint.textContent = MOD_KEY + ' K';
+        }
 
         box.addEventListener('mousedown', function (e) {
             e.preventDefault();
