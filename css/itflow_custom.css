@@ -2014,3 +2014,323 @@ html {
         margin-top: .25rem;
     }
 }
+
+/* Dashboard - agent/dashboard.php
+
+   Built on cards, list-groups and Bootstrap's subtle colour utilities; this is
+   only what those do not cover: the greeting and section headings, quieter
+   card headers, the "Needs attention" rail, the money strip, the priority dot
+   and chart heights. Every number on the page uses tabular figures so columns
+   of amounts line up without a monospace font. */
+.itflow-dash {
+    font-variant-numeric: tabular-nums;
+}
+.itflow-dash-greeting {
+    font-size: 1.6rem;
+    font-weight: 600;
+    letter-spacing: -.01em;
+}
+.itflow-dash-section {
+    font-size: 1.125rem;
+    font-weight: 600;
+}
+.itflow-dash .card-header {
+    background: transparent;
+    border-bottom: 0;
+    padding-bottom: .25rem;
+}
+.itflow-dash .card-title {
+    font-size: 1rem;
+    font-weight: 600;
+}
+.itflow-dash .card > .list-group-flush {
+    border-top: var(--bs-border-width) solid var(--bs-border-color-translucent);
+}
+.itflow-dash .card-header + .list-group {
+    margin-top: .5rem;
+}
+/* Clickable rows read as normal text, not the greyed default */
+.itflow-dash .list-group {
+    --bs-list-group-action-color: var(--bs-body-color);
+}
+
+/* Needs attention: one card split into cells, each with a severity bar on top.
+   The -1px margins tuck every cell's left/top hairline under the card edge, so
+   only the lines between cells show however the row wraps. */
+.itflow-dash-rail {
+    display: flex;
+    flex-wrap: wrap;
+    margin: -1px 0 0 -1px;
+}
+.itflow-dash-rail-item {
+    display: flex;
+    flex: 1 1 10rem;
+    flex-direction: column;
+    gap: .15rem;
+    min-width: 0;
+    padding: 1rem 1.1rem .9rem;
+    border-top: var(--bs-border-width) solid var(--bs-border-color-translucent);
+    border-left: var(--bs-border-width) solid var(--bs-border-color-translucent);
+    box-shadow: inset 0 3px 0 var(--itflow-dash-tone, var(--bs-secondary));
+    color: inherit;
+    text-decoration: none;
+}
+a.itflow-dash-rail-item:hover,
+a.itflow-dash-rail-item:focus-visible {
+    background-color: var(--bs-tertiary-bg);
+    color: inherit;
+}
+.itflow-dash-rail-count {
+    font-size: 1.75rem;
+    font-weight: 600;
+    line-height: 1.1;
+}
+.itflow-dash-rail-label {
+    font-size: .875rem;
+    font-weight: 500;
+}
+.itflow-dash-rail-label .fas {
+    margin-right: .35rem;
+}
+.itflow-dash-rail-detail {
+    font-size: .8rem;
+    color: var(--bs-secondary-color);
+}
+.itflow-dash-rail-clear {
+    flex-basis: 100%;
+}
+
+/* Finance: the period figures side by side, then "Right now" beside them */
+.itflow-dash-money + .itflow-dash-money {
+    border-top: var(--bs-border-width) solid var(--bs-border-color-translucent);
+}
+.itflow-dash-money a:hover,
+.itflow-dash-money a:focus-visible {
+    background-color: var(--bs-tertiary-bg);
+}
+.itflow-dash-money-value {
+    margin: .1rem 0 .15rem;
+    font-size: 1.5rem;
+    font-weight: 600;
+    line-height: 1.2;
+}
+.itflow-dash-now {
+    border-top: var(--bs-border-width) solid var(--bs-border-color-translucent);
+    background-color: var(--bs-tertiary-bg);
+}
+.itflow-dash-now .list-group {
+    --bs-list-group-bg: transparent;
+}
+@media (min-width: 768px) {
+    .itflow-dash-money + .itflow-dash-money {
+        border-top: 0;
+        border-left: var(--bs-border-width) solid var(--bs-border-color-translucent);
+    }
+}
+@media (min-width: 992px) {
+    .itflow-dash-now {
+        border-top: 0;
+        border-left: var(--bs-border-width) solid var(--bs-border-color-translucent);
+    }
+}
+
+/* Your schedule: day headings, then time | colour mark | what */
+.itflow-dash-schedule {
+    border-top: var(--bs-border-width) solid var(--bs-border-color-translucent);
+    margin-top: .5rem;
+    padding-bottom: .4rem;
+}
+/* Beside the ticket list it takes that card's height and scrolls the rest;
+   stacked on smaller screens it stops at a sensible height */
+@media (max-width: 1199.98px) {
+    .itflow-dash-schedule {
+        max-height: 26rem;
+        overflow-y: auto;
+    }
+}
+@media (min-width: 1200px) {
+    .itflow-dash-schedule {
+        flex: 1 1 0;
+        min-height: 14rem;
+        overflow-y: auto;
+    }
+}
+.itflow-dash-schedule-day {
+    padding: .6rem 1rem .2rem;
+    font-size: .8rem;
+    font-weight: 600;
+    color: var(--bs-secondary-color);
+}
+.itflow-dash-schedule-item {
+    display: flex;
+    align-items: center;
+    gap: .75rem;
+    padding: .4rem 1rem;
+    color: var(--bs-body-color);
+    text-decoration: none;
+}
+.itflow-dash-schedule-item:hover,
+.itflow-dash-schedule-item:focus-visible {
+    background-color: var(--bs-tertiary-bg);
+    color: var(--bs-body-color);
+}
+/* Earlier today - still listed, but stepped back */
+.itflow-dash-schedule-item.is-past {
+    opacity: .55;
+}
+.itflow-dash-schedule-time {
+    flex: 0 0 4.25rem;
+    font-size: .8rem;
+    color: var(--bs-secondary-color);
+    white-space: nowrap;
+}
+.itflow-dash-schedule-mark {
+    flex: 0 0 auto;
+    align-self: stretch;
+    width: 3px;
+    border-radius: 2px;
+}
+
+/* Ranked rows with a bar underneath: open tickets by tech, top clients */
+.itflow-dash-bars {
+    display: flex;
+    flex-direction: column;
+    gap: .35rem;
+    margin-inline: -.5rem;
+}
+.itflow-dash-bar {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    column-gap: .75rem;
+    row-gap: .3rem;
+    padding: .35rem .5rem;
+    border-radius: var(--bs-border-radius-sm);
+    color: var(--bs-body-color);
+    text-decoration: none;
+}
+.itflow-dash-bar:hover,
+.itflow-dash-bar:focus-visible {
+    background-color: var(--bs-tertiary-bg);
+    color: var(--bs-body-color);
+}
+.itflow-dash-bar-label {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+.itflow-dash-bar-value {
+    font-weight: 600;
+    white-space: nowrap;
+}
+.itflow-dash-bar-track {
+    display: flex;
+    grid-column: 1 / -1;
+    height: .375rem;
+    overflow: hidden;
+    border-radius: 1rem;
+    background-color: var(--bs-secondary-bg);
+}
+.itflow-dash-bar-fill {
+    height: 100%;
+    background-color: var(--itflow-accent);
+}
+
+/* Receivables aging: one bar split by lateness, green through to deep red */
+.itflow-dash-aging {
+    display: flex;
+    gap: 2px;
+    height: .75rem;
+    overflow: hidden;
+    border-radius: 1rem;
+    background-color: var(--bs-secondary-bg);
+}
+.itflow-dash-age-current {
+    background-color: var(--bs-success);
+}
+.itflow-dash-age-1-30 {
+    background-color: var(--bs-warning);
+}
+.itflow-dash-age-31-60 {
+    background-color: var(--bs-orange);
+}
+.itflow-dash-age-61-90 {
+    background-color: var(--bs-danger);
+}
+.itflow-dash-age-90plus {
+    background-color: #842029;
+}
+[data-bs-theme=dark] .itflow-dash-age-90plus {
+    background-color: #a52834;
+}
+
+.itflow-dash-dot {
+    flex: 0 0 auto;
+    width: .55rem;
+    height: .55rem;
+    border-radius: 50%;
+}
+/* Urgent is "dark" everywhere else in the ticket lists - invisible on a dark page */
+[data-bs-theme=dark] .itflow-dash-dot.bg-dark {
+    background-color: var(--bs-emphasis-color) !important;
+}
+.itflow-dash-chart {
+    position: relative;
+    height: 240px;
+}
+.itflow-dash-chart-donut {
+    height: 180px;
+}
+.itflow-dash-donut-total {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    line-height: 1.25;
+    pointer-events: none;
+}
+.itflow-dash-donut-total [data-donut-total] {
+    font-size: 1.2rem;
+}
+.itflow-dash-legend {
+    margin-inline: -.4rem;
+    font-size: .85rem;
+}
+.itflow-dash-legend li {
+    display: flex;
+    align-items: center;
+    gap: .5rem;
+    padding: .2rem .4rem;
+    border-radius: var(--bs-border-radius-sm);
+}
+.itflow-dash-legend li:hover {
+    background-color: var(--bs-tertiary-bg);
+}
+.itflow-dash-legend-swatch {
+    flex: 0 0 auto;
+    width: .6rem;
+    height: .6rem;
+    border-radius: 50%;
+}
+.itflow-dash-legend-label {
+    flex: 1 1 auto;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+.itflow-dash-legend-value {
+    white-space: nowrap;
+}
+.itflow-dash-legend-share {
+    flex: 0 0 2.5rem;
+    text-align: right;
+    color: var(--bs-secondary-color);
+}
+.itflow-dash-chart-lg {
+    height: 300px;
+}
+.itflow-dash-chart-sm {
+    min-height: 150px;
+}

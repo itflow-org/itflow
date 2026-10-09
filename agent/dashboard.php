@@ -1,1242 +1,628 @@
 <?php
+
+/*
+ * Dashboard.
+ *
+ * Today's work first: what needs attention right now, then my open tickets,
+ * then the money for the chosen period. Each section shows to anyone whose
+ * role can read its module - there are no per-user switches any more.
+ *
+ * The numbers come from functions/dashboard.php; the charts are drawn by
+ * js/dashboard.js from the data handed over at the bottom of this page.
+ */
+
 require_once "includes/inc_all.php";
 
-// Get current year or the selected year
-$year = isset($_GET['year']) ? intval($_GET['year']) : date('Y');
+$access = dashboardAccess();
+$show_money = $access['financial'] || $access['sales'];
 
-// Update user settings based on GET parameters
-if (isset($_GET['enable_financial'])) {
-    $enable_financial = intval($_GET['enable_financial']);
-    mysqli_query($mysqli, "UPDATE user_settings SET user_config_dashboard_financial_enable = $enable_financial WHERE user_id = $session_user_id");
+// ?year=2025 is how the old dashboard picked a year
+$period_options = dashboardPeriodOptions();
+$period_key = $_GET['period'] ?? (isset($_GET['year']) ? 'year-' . intval($_GET['year']) : 'ytd');
+if (!isset($period_options[$period_key])) {
+    $period_key = 'ytd';
+}
+$period = dashboardPeriod($period_key);
+
+$attention = ($access['tickets'] || $access['sales'] || $access['support']) ? dashboardAttention($access) : null;
+$my_tickets = $access['tickets'] ? dashboardMyTickets(8) : null;
+$money_cards = $show_money ? dashboardMoneyCards($access, $period) : [];
+$schedule = $access['tickets'] ? dashboardSchedule() : null;
+$time_week = $access['tickets'] ? dashboardTimeThisWeek() : null;
+$team = ($access['tickets'] && $session_is_admin) ? dashboardTeamWorkload() : null;
+$aging = $access['sales'] ? dashboardReceivablesAging() : null;
+$top_clients = $access['financial'] ? dashboardTopClients($period) : null;
+
+$chart_data = [];
+if ($access['tickets']) {
+    $chart_data['ticket_trend'] = dashboardTicketTrend();
+    $chart_data['time_week'] = $time_week['days'];
+}
+if ($access['financial']) {
+    $chart_data['cash_flow'] = dashboardCashFlow($period);
+    $chart_data['breakdowns'] = dashboardBreakdowns($period);
+    $chart_data['trips'] = dashboardTrips($period);
+    $chart_data['currency'] = $session_company_currency;
+    $accounts = dashboardAccountBalances();
+    $latest_income = dashboardLatestIncome(5);
+    $latest_expenses = dashboardLatestExpenses(5);
 }
 
-if (isset($_GET['enable_technical'])) {
-    $enable_technical = intval($_GET['enable_technical']);
-    mysqli_query($mysqli, "UPDATE user_settings SET user_config_dashboard_technical_enable = $enable_technical WHERE user_id = $session_user_id");
+$hour = intval(date('G'));
+$greeting = $hour < 12 ? 'Good morning' : ($hour < 18 ? 'Good afternoon' : 'Good evening');
+$first_name = explode(' ', trim(stripslashes($session_name)))[0];
+
+$priority_colors = ['Urgent' => 'dark', 'High' => 'danger', 'Medium' => 'warning', 'Low' => 'info'];
+
+// One plain sentence on the state of the day, under the greeting
+$summary = 'It\'s ' . date('l, F j') . '.';
+if ($my_tickets !== null) {
+    $open = $my_tickets['total'];
+    if ($open === 0) {
+        $summary .= ' No open tickets are assigned to you.';
+    } else {
+        $summary .= " You have $open open ticket" . ($open === 1 ? '' : 's');
+        $breached = $my_tickets['breached'];
+        $summary .= $breached ? ', ' . ($breached === $open ? ($open === 1 ? 'and it is' : 'all') : "$breached of them") . ' past SLA.' : '.';
+    }
 }
 
-// Fetch User Dashboard Settings
-$sql_user_dashboard_settings = mysqli_query($mysqli, "SELECT user_config_dashboard_financial_enable, user_config_dashboard_technical_enable FROM user_settings WHERE user_id = $session_user_id");
-$row = mysqli_fetch_assoc($sql_user_dashboard_settings);
-$user_config_dashboard_financial_enable = intval($row['user_config_dashboard_financial_enable']);
-$user_config_dashboard_technical_enable = intval($row['user_config_dashboard_technical_enable']);
+// Light text colours for the severity of each attention item
+$tone_text = ['danger' => 'text-danger-emphasis', 'warning' => 'text-warning-emphasis', 'info' => 'text-info-emphasis', 'secondary' => 'text-body', 'success' => 'text-success-emphasis'];
 
-// Get unique years from expenses, payments, invoices, revenues, tickets, clients, and users
-$sql_years_select = mysqli_query($mysqli, "
-    SELECT YEAR(expense_date) AS all_years FROM expenses
-    UNION DISTINCT SELECT YEAR(payment_date) FROM payments
-    UNION DISTINCT SELECT YEAR(revenue_date) FROM revenues
-    UNION DISTINCT SELECT YEAR(invoice_date) FROM invoices
-    UNION DISTINCT SELECT YEAR(ticket_created_at) FROM tickets
-    UNION DISTINCT SELECT YEAR(client_created_at) FROM clients
-    UNION DISTINCT SELECT YEAR(user_created_at) FROM users
-    ORDER BY all_years DESC
-");
 ?>
 
-<!-- Responsive chart helpers -->
-<style>
-  .chart-h-320 { position: relative; height: 320px; }
-  .chart-h-240 { position: relative; height: 240px; }
-  /* If you want charts to shrink on very small screens, you can tweak with media queries:
-  @media (max-width: 576px) {
-    .chart-h-320 { height: 240px; }
-    .chart-h-240 { height: 200px; }
-  } */
-</style>
+<div class="itflow-dash">
 
-<div class="card card-body mb-3">
-    <form class="d-flex flex-wrap align-items-center gap-2">
-        <input type="hidden" name="enable_financial" value="0">
-        <input type="hidden" name="enable_technical" value="0">
-
-        <label for="year" class="me-sm-2">Select Year:</label>
-        <select id="year" onchange="this.form.submit()" class="form-select w-auto me-sm-3" name="year">
-            <?php while ($row = mysqli_fetch_assoc($sql_years_select)) {
-                $year_select = $row['all_years'];
-                if (empty($year_select)) {
-                    $year_select = date('Y');
-                }
-            ?>
-                <option value="<?= $year_select ?>" <?php if ($year == $year_select) { echo "selected"; } ?>>
-                    <?= $year_select ?>
-                </option>
-            <?php } ?>
-        </select>
-
-        <?php if ($session_user_role == 1 || ($session_user_role == 3 && $config_module_enable_accounting == 1)) { ?>
-            <div class="form-check form-switch me-3">
-                <input type="checkbox" onchange="this.form.submit()" class="form-check-input" id="customSwitch1" name="enable_financial" value="1" <?php if ($user_config_dashboard_financial_enable == 1) { echo "checked"; } ?>>
-                <label class="form-check-label" for="customSwitch1">Financial</label>
-            </div>
-        <?php } ?>
-
-        <?php if ($session_user_role >= 2 && $config_module_enable_ticketing == 1) { ?>
-            <div class="form-check form-switch">
-                <input type="checkbox" onchange="this.form.submit()" class="form-check-input" id="customSwitch2" name="enable_technical" value="1" <?php if ($user_config_dashboard_technical_enable == 1) { echo "checked"; } ?>>
-                <label class="form-check-label" for="customSwitch2">Technical</label>
-            </div>
-        <?php } ?>
-    </form>
+<div class="d-flex flex-wrap align-items-end gap-3 mb-4">
+    <div class="me-auto">
+        <h1 class="itflow-dash-greeting mb-1"><?= escapeHtml("$greeting, $first_name") ?></h1>
+        <p class="text-body-secondary mb-0"><?= escapeHtml($summary) ?></p>
+    </div>
+    <?php if ($access['financial']) { ?>
+        <form class="d-flex align-items-center gap-2">
+            <label for="dashboardPeriod" class="small text-body-secondary mb-0">Period</label>
+            <select id="dashboardPeriod" name="period" class="form-select form-select-sm w-auto" onchange="this.form.submit()">
+                <?php foreach ($period_options as $option_key => $option_label) { ?>
+                    <option value="<?= escapeHtml($option_key) ?>" <?php if ($option_key === $period['key']) { echo 'selected'; } ?>><?= escapeHtml($option_label) ?></option>
+                <?php } ?>
+            </select>
+        </form>
+    <?php } ?>
 </div>
 
-<?php
-if ($user_config_dashboard_financial_enable == 1) {
+<?php if ($attention !== null) { ?>
 
-    // Fetch financial data for the dashboard
-    // Define variables to avoid errors in logs
-    $largest_income_month = 0;
-
-    $sql_total_payments_to_invoices = mysqli_query($mysqli, "SELECT SUM(payment_amount) AS total_payments_to_invoices FROM payments WHERE YEAR(payment_date) = $year");
-    $row = mysqli_fetch_assoc($sql_total_payments_to_invoices);
-    $total_payments_to_invoices = floatval($row['total_payments_to_invoices']);
-
-    $sql_total_revenues = mysqli_query($mysqli, "SELECT SUM(revenue_amount) AS total_revenues FROM revenues WHERE YEAR(revenue_date) = $year AND revenue_category_id > 0");
-    $row = mysqli_fetch_assoc($sql_total_revenues);
-    $total_revenues = floatval($row['total_revenues']);
-
-    $total_income = $total_payments_to_invoices + $total_revenues;
-
-    $sql_total_expenses = mysqli_query($mysqli, "SELECT SUM(expense_amount) AS total_expenses FROM expenses WHERE expense_vendor_id > 0 AND YEAR(expense_date) = $year");
-    $row = mysqli_fetch_assoc($sql_total_expenses);
-    $total_expenses = floatval($row['total_expenses']);
-
-    $sql_invoice_totals = mysqli_query($mysqli, "SELECT SUM(invoice_amount) AS invoice_totals FROM invoices WHERE invoice_status != 'Draft' AND invoice_status != 'Cancelled' AND invoice_status != 'Non-Billable' AND YEAR(invoice_date) = $year");
-    $row = mysqli_fetch_assoc($sql_invoice_totals);
-    $invoice_totals = floatval($row['invoice_totals']);
-
-    $sql_total_payments_to_invoices_all_years = mysqli_query($mysqli, "SELECT SUM(payment_amount) AS total_payments_to_invoices_all_years FROM payments");
-    $row = mysqli_fetch_assoc($sql_total_payments_to_invoices_all_years);
-    $total_payments_to_invoices_all_years = floatval($row['total_payments_to_invoices_all_years']);
-
-    $sql_invoice_totals_all_years = mysqli_query($mysqli, "SELECT SUM(invoice_amount) AS invoice_totals_all_years FROM invoices WHERE invoice_status != 'Draft' AND invoice_status != 'Cancelled' AND invoice_status != 'Non-Billable'");
-    $row = mysqli_fetch_assoc($sql_invoice_totals_all_years);
-    $invoice_totals_all_years = floatval($row['invoice_totals_all_years']);
-
-    $receivables = $invoice_totals_all_years - $total_payments_to_invoices_all_years;
-
-    $profit = $total_income - $total_expenses;
-
-    $sql_accounts = mysqli_query($mysqli, "SELECT account_id, account_name, opening_balance FROM accounts WHERE account_archived_at IS NULL ORDER BY account_name ASC");
-
-    $sql_latest_invoice_payments = mysqli_query($mysqli, "
-        SELECT client_name, invoice_number, invoice_prefix, payment_amount, payment_date FROM payments
-        JOIN invoices ON payment_invoice_id = invoice_id
-        JOIN clients ON invoice_client_id = client_id
-        WHERE 1=1 " . clientScopeSql('invoice_client_id') . "
-        ORDER BY payment_id DESC LIMIT 5
-    ");
-
-    $sql_latest_expenses = mysqli_query($mysqli, "
-        SELECT category_name, expense_amount, expense_date, vendor_name FROM expenses
-        JOIN vendors ON expense_vendor_id = vendor_id
-        JOIN categories ON expense_category_id = category_id
-        ORDER BY expense_id DESC LIMIT 5
-    ");
-
-    // Get recurring invoice totals
-    $sql_recurring_yearly_total = mysqli_query($mysqli, "SELECT SUM(recurring_invoice_amount) AS recurring_yearly_total FROM recurring_invoices WHERE recurring_invoice_status = 1 AND recurring_invoice_frequency = 'year' AND YEAR(recurring_invoice_created_at) <= $year");
-    $row = mysqli_fetch_assoc($sql_recurring_yearly_total);
-    $recurring_yearly_total = floatval($row['recurring_yearly_total']);
-
-    $sql_recurring_monthly_total = mysqli_query($mysqli, "SELECT SUM(recurring_invoice_amount) AS recurring_monthly_total FROM recurring_invoices WHERE recurring_invoice_status = 1 AND recurring_invoice_frequency = 'month' AND YEAR(recurring_invoice_created_at) <= $year");
-    $row = mysqli_fetch_assoc($sql_recurring_monthly_total);
-    $recurring_monthly_total = floatval($row['recurring_monthly_total']) + ($recurring_yearly_total / 12);
-
-    // Recurring expenses totals
-    $sql_recurring_expense_yearly_total = mysqli_query($mysqli, "SELECT SUM(recurring_expense_amount) AS recurring_expense_yearly_total FROM recurring_expenses WHERE recurring_expense_status = 1 AND recurring_expense_frequency = 2 AND YEAR(recurring_expense_created_at) <= $year");
-    $row = mysqli_fetch_assoc($sql_recurring_expense_yearly_total);
-    $recurring_expense_yearly_total = floatval($row['recurring_expense_yearly_total']);
-
-    $sql_recurring_expense_monthly_total = mysqli_query($mysqli, "SELECT SUM(recurring_expense_amount) AS recurring_expense_monthly_total FROM recurring_expenses WHERE recurring_expense_status = 1 AND recurring_expense_frequency = 1 AND YEAR(recurring_expense_created_at) <= $year");
-    $row = mysqli_fetch_assoc($sql_recurring_expense_monthly_total);
-    $recurring_expense_monthly_total = floatval($row['recurring_expense_monthly_total']) + ($recurring_expense_yearly_total / 12);
-
-    // Get miles driven
-    $sql_miles_driven = mysqli_query($mysqli, "SELECT SUM(trip_miles) AS total_miles FROM trips WHERE YEAR(trip_date) = $year");
-    $row = mysqli_fetch_assoc($sql_miles_driven);
-    $total_miles = floatval($row['total_miles']);
-
-    if ($config_module_enable_ticketing && $config_module_enable_accounting) {
-        $sql_unbilled_tickets = mysqli_query($mysqli, "SELECT COUNT(ticket_id) AS unbilled_tickets FROM tickets WHERE ticket_closed_at IS NOT NULL AND ticket_billable = 1 AND ticket_invoice_id = 0 AND YEAR(ticket_created_at) = $year");
-        $row = mysqli_fetch_assoc($sql_unbilled_tickets);
-        $unbilled_tickets = intval($row['unbilled_tickets']);
-    } else {
-        $row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT COUNT(recurring_invoice_id) AS recurring_invoices_added FROM recurring_invoices WHERE YEAR(recurring_invoice_created_at) = $year"));
-        $recurring_invoices_added = intval($row['recurring_invoices_added']);
-    }
-
-    $row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT COUNT(client_id) AS clients_added FROM clients WHERE YEAR(client_created_at) = $year AND client_lead = 0 AND client_archived_at IS NULL"));
-    $clients_added = intval($row['clients_added']);
-
-    $row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT COUNT(client_id) AS leads_added FROM clients WHERE YEAR(client_created_at) = $year AND client_lead = 1 AND client_archived_at IS NULL"));
-    $leads_added = intval($row['leads_added']);
-
-    $row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT COUNT(vendor_id) AS vendors_added FROM vendors WHERE YEAR(vendor_created_at) = $year AND vendor_client_id = 0 AND vendor_archived_at IS NULL"));
-    $vendors_added = intval($row['vendors_added']);
-?>
-<div class="card card-body mb-3">
-    <!-- Icon Cards-->
-    <div class="row">
-        <div class="col-lg-4 col-md-6 col-sm-12">
-            <!-- small box -->
-            <a class="small-box bg-blue text-white" href="income.php?dtf=<?= $year ?>-01-01&dtt=<?= $year ?>-12-31">
-                <div class="inner">
-                    <h3><?= numfmt_format_currency($currency_format, $total_income, "$session_company_currency") ?></h3>
-                    <p>Income</p>
-                    <hr>
-                    <small>Receivables: <?= numfmt_format_currency($currency_format, $receivables, "$session_company_currency") ?></small>
-                </div>
-                <div class="icon">
-                    <i class="fa fa-hand-holding-usd"></i>
-                </div>
-            </a>
-        </div>
-        <!-- ./col -->
-
-        <div class="col-lg-4 col-md-6 col-sm-12">
-            <!-- small box -->
-            <a class="small-box bg-danger" href="expenses.php?dtf=<?= $year ?>-01-01&dtt=<?= $year ?>-12-31">
-                <div class="inner">
-                    <h3><?= numfmt_format_currency($currency_format, $total_expenses, "$session_company_currency") ?></h3>
-                    <p>Expenses</p>
-                </div>
-                <div class="icon">
-                    <i class="fa fa-shopping-cart"></i>
-                </div>
-            </a>
-        </div>
-        <!-- ./col -->
-
-        <div class="col-lg-4 col-md-6 col-sm-12">
-            <!-- small box -->
-            <a class="small-box bg-success" href="reports/profit_loss.php">
-                <div class="inner">
-                    <h3><?= numfmt_format_currency($currency_format, $profit, "$session_company_currency") ?></h3>
-                    <p>Profit</p>
-                </div>
-                <div class="icon">
-                    <i class="fa fa-balance-scale"></i>
-                </div>
-            </a>
-        </div>
-        <!-- ./col -->
-
-        <div class="col-lg-6 col-md-6 col-sm-12">
-            <!-- small box -->
-            <a class="small-box bg-info text-white" href="reports/recurring_by_client.php">
-                <div class="inner">
-                    <h3><?= numfmt_format_currency($currency_format, $recurring_monthly_total, "$session_company_currency") ?></h3>
-                    <p>Monthly Recurring Income</p>
-                </div>
-                <div class="icon">
-                    <i class="fa fa-sync-alt"></i>
-                </div>
-            </a>
-        </div>
-        <!-- ./col -->
-
-        <div class="col-lg-6 col-md-6 col-sm-12">
-            <!-- small box -->
-            <a class="small-box bg-pink text-white" href="recurring_expenses.php">
-                <div class="inner">
-                    <h3><?= numfmt_format_currency($currency_format, $recurring_expense_monthly_total, "$session_company_currency") ?></h3>
-                    <p>Monthly Recurring Expense</p>
-                </div>
-                <div class="icon">
-                    <i class="fa fa-clock"></i>
-                </div>
-            </a>
-        </div>
-        <!-- ./col -->
-
-        <?php if ($config_module_enable_ticketing && $config_module_enable_accounting) { ?>
-            <div class="col-lg-2 col-md-6 col-sm-12">
-                <!-- small box -->
-                <a class="small-box bg-secondary" href="reports/tickets_unbilled.php">
-                    <div class="inner">
-                        <h3><?= $unbilled_tickets ?></h3>
-                        <p>Unbilled Ticket<?php if ($unbilled_tickets > 1 || $unbilled_tickets == 0) { echo "s"; } ?></p>
+    <section class="mb-4" aria-labelledby="dashAttentionHeading">
+        <h2 id="dashAttentionHeading" class="itflow-dash-section mb-2">Needs attention</h2>
+        <div class="card mb-0 overflow-hidden">
+            <div class="itflow-dash-rail">
+                <?php if ($attention) { ?>
+                    <?php foreach ($attention as $item) {
+                        $tone = $item['tone']; ?>
+                        <a href="<?= escapeHtml($item['url']) ?>" class="itflow-dash-rail-item" style="--itflow-dash-tone: var(--bs-<?= $tone ?>)">
+                            <span class="itflow-dash-rail-count <?= $tone_text[$tone] ?? 'text-body' ?>"><?= number_format(intval($item['count'])) ?></span>
+                            <span class="itflow-dash-rail-label">
+                                <i class="fas fa-fw fa-<?= $item['icon'] ?> <?= $tone_text[$tone] ?? '' ?>" aria-hidden="true"></i><?= escapeHtml($item['label']) ?>
+                            </span>
+                            <?php if (!empty($item['detail'])) { ?>
+                                <span class="itflow-dash-rail-detail"><?= escapeHtml($item['detail']) ?></span>
+                            <?php } ?>
+                        </a>
+                    <?php } ?>
+                <?php } else { ?>
+                    <div class="itflow-dash-rail-item itflow-dash-rail-clear" style="--itflow-dash-tone: var(--bs-success)">
+                        <span class="itflow-dash-rail-label text-body fw-semibold">
+                            <i class="fas fa-fw fa-check-circle text-success-emphasis" aria-hidden="true"></i>Nothing needs attention
+                        </span>
+                        <span class="itflow-dash-rail-detail">No breached SLAs, unassigned tickets, overdue invoices, or anything expiring in the next 30 days.</span>
                     </div>
-                    <div class="icon">
-                        <i class="fa fa-ticket-alt"></i>
-                    </div>
-                </a>
+                <?php } ?>
             </div>
-        <?php } else { ?>
-            <div class="col-lg-3 col-md-6 col-sm-12">
-                <!-- small box -->
-                <a class="small-box bg-secondary" href="recurring_invoices.php?dtf=<?= $year ?>-01-01&dtt=<?= $year ?>-12-31">
-                    <div class="inner">
-                        <h3><?= $recurring_invoices_added ?></h3>
-                        <p>Recurring Invoices Added</p>
+        </div>
+    </section>
+
+<?php } ?>
+
+<?php if ($my_tickets !== null) { ?>
+
+    <h2 class="itflow-dash-section mb-2">Your day</h2>
+
+    <div class="row g-3 mb-3">
+        <div class="col-xl-8">
+            <div class="card h-100 mb-0">
+                <div class="card-header d-flex align-items-center">
+                    <h3 class="card-title mb-0 me-auto">Open and assigned to you</h3>
+                    <?php if ($my_tickets['total']) { ?>
+                        <a class="small" href="/agent/tickets.php?assigned=<?= intval($session_user_id) ?>">View all <?= $my_tickets['total'] ?></a>
+                    <?php } ?>
+                </div>
+
+                <?php if ($my_tickets['tickets']) { ?>
+                    <div class="list-group list-group-flush">
+                        <?php foreach ($my_tickets['tickets'] as $ticket) {
+                            $ticket_priority = $ticket['ticket_priority'];
+                            $ticket_url = '/agent/ticket.php?' . http_build_query(array_filter([
+                                'client_id' => intval($ticket['ticket_client_id']) ?: null,
+                                'ticket_id' => intval($ticket['ticket_id']),
+                            ]));
+                            $status_color = preg_match('/^#[0-9a-f]{3,8}$/i', (string) $ticket['ticket_status_color']) ? $ticket['ticket_status_color'] : '#6c757d';
+                            $last_activity = $ticket['ticket_updated_at'] ?: $ticket['ticket_created_at'];
+                            ?>
+                            <a href="<?= escapeHtml($ticket_url) ?>" class="list-group-item list-group-item-action d-flex align-items-center gap-3 py-2">
+                                <span class="itflow-dash-dot bg-<?= $priority_colors[$ticket_priority] ?? 'secondary' ?>" title="<?= escapeHtml($ticket_priority) ?> priority"></span>
+                                <span class="flex-grow-1 overflow-hidden">
+                                    <span class="d-block text-truncate">
+                                        <span class="small text-body-secondary me-2"><?= escapeHtml($ticket['ticket_prefix'] . $ticket['ticket_number']) ?></span><?= escapeHtml($ticket['ticket_subject']) ?>
+                                    </span>
+                                    <span class="d-block small text-body-secondary text-truncate"><?= escapeHtml($ticket['client_name'] ?: 'No client') ?></span>
+                                </span>
+                                <?php if ($ticket['sla_breached']) { ?>
+                                    <span class="badge rounded-pill text-bg-danger" title="SLA breached"><i class="fas fa-stopwatch me-1" aria-hidden="true"></i>SLA</span>
+                                <?php } ?>
+                                <span class="badge rounded-pill text-white d-none d-sm-inline" style="background-color: <?= $status_color ?>"><?= escapeHtml($ticket['ticket_status_name']) ?></span>
+                                <span class="small text-body-secondary text-nowrap d-none d-md-inline" title="Last activity <?= escapeHtml($last_activity) ?>"><?= escapeHtml(timeAgo($last_activity)) ?></span>
+                            </a>
+                        <?php } ?>
                     </div>
-                    <div class="icon">
-                        <i class="fa fa-file-invoice"></i>
+                <?php } else { ?>
+                    <div class="card-body text-center text-body-secondary py-5">
+                        <i class="fas fa-mug-hot fa-2x mb-2 d-block" aria-hidden="true"></i>
+                        No open tickets assigned to you.
                     </div>
-                </a>
+                <?php } ?>
+            </div>
+        </div>
+
+        <div class="col-xl-4">
+            <div class="card h-100 mb-0">
+                <div class="card-header d-flex align-items-center">
+                    <h3 class="card-title mb-0 me-auto">Your schedule</h3>
+                    <a class="small" href="/agent/calendar.php">Open calendar</a>
+                </div>
+                <?php if ($schedule['items']) { ?>
+                    <div class="itflow-dash-schedule" tabindex="0" aria-label="Your schedule for the next 7 days">
+                        <?php
+                        $schedule_day = null;
+                        foreach ($schedule['items'] as $item) {
+                            $item_day = dashboardDayLabel($item['when']);
+                            if ($item_day !== $schedule_day) {
+                                $schedule_day = $item_day; ?>
+                                <div class="itflow-dash-schedule-day"><?= escapeHtml($item_day) ?></div>
+                            <?php } ?>
+                            <a class="itflow-dash-schedule-item<?= (!$item['all_day'] && !$item['ongoing'] && strtotime($item['when']) < time()) ? ' is-past' : '' ?>" href="<?= escapeHtml($item['url']) ?>">
+                                <span class="itflow-dash-schedule-time">
+                                    <?= $item['ongoing'] ? 'Ongoing' : ($item['all_day'] ? 'All day' : escapeHtml(date('g:i A', strtotime($item['when'])))) ?>
+                                </span>
+                                <span class="itflow-dash-schedule-mark" style="background-color: <?= $item['color'] ? escapeHtml($item['color']) : 'var(--itflow-accent)' ?>"></span>
+                                <span class="flex-grow-1 overflow-hidden">
+                                    <span class="d-block text-truncate">
+                                        <?php if ($item['ref']) { ?><span class="small text-body-secondary me-2"><?= escapeHtml($item['ref']) ?></span><?php } ?><?= escapeHtml($item['title']) ?>
+                                    </span>
+                                    <?php if ($item['detail'] || $item['onsite']) { ?>
+                                        <span class="d-block small text-body-secondary text-truncate">
+                                            <?php if ($item['onsite']) { ?><span class="badge rounded-pill text-bg-secondary me-1">Onsite</span><?php } ?><?= escapeHtml($item['detail']) ?>
+                                        </span>
+                                    <?php } ?>
+                                </span>
+                            </a>
+                        <?php } ?>
+                    </div>
+                    <?php if ($schedule['total'] > count($schedule['items'])) { ?>
+                        <a class="card-footer small text-decoration-none py-2" href="/agent/calendar.php"><?= $schedule['total'] - count($schedule['items']) ?> more this week</a>
+                    <?php } ?>
+                <?php } else { ?>
+                    <div class="card-body text-center text-body-secondary py-5">
+                        <i class="far fa-calendar-check fa-2x mb-2 d-block" aria-hidden="true"></i>
+                        Nothing scheduled in the next 7 days.
+                    </div>
+                <?php } ?>
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-3 mb-4">
+        <div class="col-md-6 col-xl-4">
+            <div class="card h-100 mb-0">
+                <div class="card-header d-flex align-items-center">
+                    <h3 class="card-title mb-0 me-auto">Your time this week</h3>
+                    <span class="small text-body-secondary">Last week <?= dashboardDuration($time_week['last_week']) ?></span>
+                </div>
+                <?php if ($time_week['total'] > 0) { ?>
+                <div class="card-body pt-2 d-flex flex-column">
+                    <span class="d-block itflow-dash-money-value mb-0"><?= dashboardDuration($time_week['total']) ?></span>
+                    <span class="d-flex flex-wrap column-gap-3 small text-body-secondary mb-2">
+                        <span><span class="itflow-dash-legend-swatch d-inline-block me-1" style="background-color: var(--itflow-accent)"></span>Billable <?= dashboardDuration($time_week['billable']) ?></span>
+                        <span><span class="itflow-dash-legend-swatch d-inline-block me-1" style="background-color: var(--bs-tertiary-color)"></span>Not billable <?= dashboardDuration($time_week['total'] - $time_week['billable']) ?></span>
+                    </span>
+                    <div class="itflow-dash-chart itflow-dash-chart-sm flex-grow-1"><canvas id="dashTimeWeek" aria-label="Hours logged per day this week"></canvas></div>
+                </div>
+                <?php } else { ?>
+                    <div class="card-body text-center text-body-secondary py-5">
+                        <i class="far fa-clock fa-2x mb-2 d-block" aria-hidden="true"></i>
+                        No time logged on tickets yet this week.
+                    </div>
+                <?php } ?>
+            </div>
+        </div>
+
+        <?php if ($team !== null) {
+            $team_max = max(1, intval($team['unassigned']), ...array_map('intval', array_column($team['techs'], 'open') ?: [0])); ?>
+            <div class="col-md-6 col-xl-4">
+                <div class="card h-100 mb-0">
+                    <div class="card-header d-flex align-items-center">
+                        <h3 class="card-title mb-0 me-auto">Open tickets by tech</h3>
+                    </div>
+                    <div class="card-body pt-2">
+                        <?php if ($team['techs'] || $team['unassigned']) { ?>
+                            <div class="itflow-dash-bars">
+                                <?php foreach ($team['techs'] as $tech) {
+                                    $tech_open = intval($tech['open']);
+                                    $tech_breached = intval($tech['breached']); ?>
+                                    <a class="itflow-dash-bar" href="/agent/tickets.php?assigned=<?= intval($tech['user_id']) ?>">
+                                        <span class="itflow-dash-bar-label"><?= escapeHtml($tech['user_name']) ?></span>
+                                        <span class="itflow-dash-bar-value">
+                                            <?php if ($tech_breached) { ?><span class="small fw-normal text-danger-emphasis me-2"><?= $tech_breached ?> past SLA</span><?php } ?><?= $tech_open ?>
+                                        </span>
+                                        <span class="itflow-dash-bar-track">
+                                            <span class="itflow-dash-bar-fill" style="width: <?= round(($tech_open - $tech_breached) / $team_max * 100, 1) ?>%"></span><?php if ($tech_breached) { ?><span class="itflow-dash-bar-fill bg-danger" style="width: <?= round($tech_breached / $team_max * 100, 1) ?>%"></span><?php } ?>
+                                        </span>
+                                    </a>
+                                <?php } ?>
+                                <?php if ($team['unassigned']) { ?>
+                                    <a class="itflow-dash-bar" href="/agent/tickets.php?assigned=unassigned">
+                                        <span class="itflow-dash-bar-label fst-italic">Unassigned</span>
+                                        <span class="itflow-dash-bar-value"><?= intval($team['unassigned']) ?></span>
+                                        <span class="itflow-dash-bar-track"><span class="itflow-dash-bar-fill bg-warning" style="width: <?= round($team['unassigned'] / $team_max * 100, 1) ?>%"></span></span>
+                                    </a>
+                                <?php } ?>
+                            </div>
+                        <?php } else { ?>
+                            <div class="text-center text-body-secondary py-5">No open tickets.</div>
+                        <?php } ?>
+                    </div>
+                </div>
             </div>
         <?php } ?>
 
-        <div class="col-lg-2 col-6">
-            <!-- small box -->
-            <a class="small-box bg-secondary" href="clients.php?leads=1&dtf=<?= $year ?>-01-01&dtt=<?= $year ?>-12-31">
-                <div class="inner">
-                    <h3><?= $leads_added ?></h3>
-                    <p>New Leads</p>
+        <div class="<?= $team !== null ? 'col-xl-4' : 'col-md-6 col-xl-8' ?>">
+            <div class="card h-100 mb-0">
+                <div class="card-header d-flex align-items-center">
+                    <h3 class="card-title mb-0 me-auto">Opened and resolved</h3>
+                    <span class="small text-body-secondary">Last 12 weeks</span>
                 </div>
-                <div class="icon">
-                    <i class="fa fa-users"></i>
-                </div>
-            </a>
-        </div>
-        <!-- ./col -->
-
-        <div class="col-lg-2 col-6">
-            <!-- small box -->
-            <a class="small-box bg-secondary" href="clients.php?dtf=<?= $year ?>-01-01&dtt=<?= $year ?>-12-31">
-                <div class="inner">
-                    <h3><?= $clients_added ?></h3>
-                    <p>New Clients</p>
-                </div>
-                <div class="icon">
-                    <i class="fa fa-users"></i>
-                </div>
-            </a>
-        </div>
-        <!-- ./col -->
-
-        <div class="col-lg-2 col-6">
-            <!-- small box -->
-            <a class="small-box bg-secondary" href="vendors.php?dtf=<?= $year ?>-01-01&dtt=<?= $year ?>-12-31">
-                <div class="inner">
-                    <h3><?= $vendors_added ?></h3>
-                    <p>New Vendors</p>
-                </div>
-                <div class="icon">
-                    <i class="fa fa-building"></i>
-                </div>
-            </a>
-        </div>
-        <!-- ./col -->
-
-        <div class="col-lg-3 col-md-6 col-sm-12">
-            <!-- small box -->
-            <a class="small-box bg-secondary" href="trips.php?dtf=<?= $year ?>-01-01&dtt=<?= $year ?>-12-31">
-                <div class="inner">
-                    <h3><?= number_format($total_miles, 2) ?></h3>
-                    <p>Miles Traveled</p>
-                </div>
-                <div class="icon">
-                    <i class="fa fa-route"></i>
-                </div>
-            </a>
-        </div>
-        <!-- ./col -->
-
-        <div class="col-md-12">
-            <div class="card card-dark mb-3">
-                <div class="card-header">
-                    <h3 class="card-title"><i class="fas fa-fw fa-chart-area me-2"></i>Cash Flow</h3>
-                    <div class="card-tools">
-                        <a href="reports/income_summary.php" class="btn btn-tool" title="View report">
-                            <i class="fas fa-eye"></i>
-                        </a>
-                        <button type="button" class="btn btn-tool" title="Hide" data-lte-toggle="card-remove">
-                            <i class="fas fa-times"></i>
-                        </button>
-                    </div>
-                </div>
-                <div class="card-body">
-                    <div class="chart-h-320">
-                        <canvas id="cashFlow"></canvas>
-                    </div>
+                <div class="card-body d-flex flex-column">
+                    <div class="itflow-dash-chart flex-grow-1"><canvas id="dashTicketTrend" aria-label="Tickets opened and resolved per week"></canvas></div>
                 </div>
             </div>
         </div>
-
-        <div class="col-lg-4">
-            <div class="card card-dark mb-3">
-                <div class="card-header">
-                    <h3 class="card-title"><i class="fas fa-fw fa-chart-pie me-2"></i>Income by Category <small>(Top 5)</small></h3>
-                    <div class="card-tools">
-                        <button type="button" class="btn btn-tool" title="Hide" data-lte-toggle="card-remove">
-                            <i class="fas fa-times"></i>
-                        </button>
-                    </div>
-                </div>
-                <div class="card-body">
-                    <div class="chart-h-240">
-                        <canvas id="incomeByCategoryPieChart"></canvas>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div class="col-lg-4">
-            <div class="card card-dark mb-3">
-                <div class="card-header">
-                    <h3 class="card-title"><i class="fa fa-fw fa-shopping-cart me-2"></i>Expenses by Category <small>(Top 5)</small></h3>
-                    <div class="card-tools">
-                        <button type="button" class="btn btn-tool" title="Hide" data-lte-toggle="card-remove">
-                            <i class="fas fa-times"></i>
-                        </button>
-                    </div>
-                </div>
-                <div class="card-body">
-                    <div class="chart-h-240">
-                        <canvas id="expenseByCategoryPieChart"></canvas>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div class="col-lg-4">
-            <div class="card card-dark mb-3">
-                <div class="card-header">
-                    <h3 class="card-title"><i class="fa fa-fw fa-building me-2"></i>Expenses by Vendor <small>(Top 5)</small></h3>
-                    <div class="card-tools">
-                        <button type="button" class="btn btn-tool" title="Hide" data-lte-toggle="card-remove">
-                            <i class="fas fa-times"></i>
-                        </button>
-                    </div>
-                </div>
-                <div class="card-body">
-                    <div class="chart-h-240">
-                        <canvas id="expenseByVendorPieChart"></canvas>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div class="col-md-4">
-            <div class="card card-dark mb-3">
-                <div class="card-header">
-                    <h3 class="card-title"><i class="fa fa-fw fa-piggy-bank me-2"></i>Account Balances</h3>
-                    <div class="card-tools">
-                        <button type="button" class="btn btn-tool" title="Hide" data-lte-toggle="card-remove">
-                            <i class="fas fa-times"></i>
-                        </button>
-                    </div>
-                </div>
-                <div class="table-responsive">
-                    <table class="table">
-                        <tbody>
-                            <?php while ($row = mysqli_fetch_assoc($sql_accounts)) {
-                                $account_id = intval($row['account_id']);
-                                $account_name = escapeHtml($row['account_name']);
-                                $opening_balance = floatval($row['opening_balance']);
-                            ?>
-                                <tr>
-                                    <td><?= $account_name ?></td>
-                                    <?php
-                                    $sql_payments = mysqli_query($mysqli, "SELECT SUM(payment_amount) AS total_payments FROM payments WHERE payment_account_id = $account_id");
-                                    $row = mysqli_fetch_assoc($sql_payments);
-                                    $total_payments = floatval($row['total_payments']);
-
-                                    $sql_revenues = mysqli_query($mysqli, "SELECT SUM(revenue_amount) AS total_revenues FROM revenues WHERE revenue_account_id = $account_id");
-                                    $row = mysqli_fetch_assoc($sql_revenues);
-                                    $total_revenues = floatval($row['total_revenues']);
-
-                                    $sql_expenses = mysqli_query($mysqli, "SELECT SUM(expense_amount) AS total_expenses FROM expenses WHERE expense_account_id = $account_id");
-                                    $row = mysqli_fetch_assoc($sql_expenses);
-                                    $total_expenses = floatval($row['total_expenses']);
-
-                                    $balance = $opening_balance + $total_payments + $total_revenues - $total_expenses;
-
-                                    if ($balance == '') {
-                                        $balance = '0.00';
-                                    }
-                                    ?>
-                                    <td class="text-end font-monospace"><?= numfmt_format_currency($currency_format, $balance, "$session_company_currency") ?></td>
-                                </tr>
-                            <?php } ?>
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        </div> <!-- .col -->
-
-        <div class="col-md-4">
-            <div class="card card-dark mb-3">
-                <div class="card-header">
-                    <h3 class="card-title"><i class="fas fa-fw fa-credit-card me-2"></i>Latest Income</h3>
-                    <div class="card-tools">
-                        <button type="button" class="btn btn-tool" title="Hide" data-lte-toggle="card-remove">
-                            <i class="fas fa-times"></i>
-                        </button>
-                    </div>
-                </div>
-                <div class="table-responsive">
-                    <table class="table table-borderless table-sm">
-                        <thead>
-                            <tr>
-                                <th>Date</th>
-                                <th>Customer</th>
-                                <th>Invoice</th>
-                                <th class="text-end">Amount</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <?php while ($row = mysqli_fetch_assoc($sql_latest_invoice_payments)) {
-                                $payment_date = escapeHtml($row['payment_date']);
-                                $payment_amount = floatval($row['payment_amount']);
-                                $invoice_prefix = escapeHtml($row['invoice_prefix']);
-                                $invoice_number = intval($row['invoice_number']);
-                                $client_name = escapeHtml($row['client_name']);
-                            ?>
-                                <tr>
-                                    <td><?= $payment_date ?></td>
-                                    <td><?= $client_name ?></td>
-                                    <td><?= "$invoice_prefix$invoice_number" ?></td>
-                                    <td class="text-end font-monospace"><?= numfmt_format_currency($currency_format, $payment_amount, "$session_company_currency") ?></td>
-                                </tr>
-                            <?php } ?>
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        </div> <!-- .col -->
-
-        <div class="col-md-4">
-            <div class="card card-dark mb-3">
-                <div class="card-header">
-                    <h3 class="card-title"><i class="fas fa-fw fa-shopping-cart me-2"></i>Latest Expenses</h3>
-                    <div class="card-tools">
-                        <button type="button" class="btn btn-tool" title="Hide" data-lte-toggle="card-remove">
-                            <i class="fas fa-times"></i>
-                        </button>
-                    </div>
-                </div>
-                <div class="table-responsive">
-                    <table class="table table-sm table-borderless">
-                        <thead>
-                            <tr>
-                                <th>Date</th>
-                                <th>Vendor</th>
-                                <th>Category</th>
-                                <th class="text-end">Amount</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <?php while ($row = mysqli_fetch_assoc($sql_latest_expenses)) {
-                                $expense_date = escapeHtml($row['expense_date']);
-                                $expense_amount = floatval($row['expense_amount']);
-                                $vendor_name = escapeHtml($row['vendor_name']);
-                                $category_name = escapeHtml($row['category_name']);
-                            ?>
-                                <tr>
-                                    <td><?= $expense_date ?></td>
-                                    <td><?= $vendor_name ?></td>
-                                    <td><?= $category_name ?></td>
-                                    <td class="text-end font-monospace"><?= numfmt_format_currency($currency_format, $expense_amount, "$session_company_currency") ?></td>
-                                </tr>
-                            <?php } ?>
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        </div> <!-- .col -->
-
-        <div class="col-md-12">
-            <div class="card card-dark mb-3">
-                <div class="card-header">
-                    <h3 class="card-title"><i class="fas fa-fw fa-route me-2"></i>Trip Flow</h3>
-                    <div class="card-tools">
-                        <a href="trips.php" class="btn btn-tool" title="View trips">
-                            <i class="fas fa-eye"></i>
-                        </a>
-                        <button type="button" class="btn btn-tool" title="Hide" data-lte-toggle="card-remove">
-                            <i class="fas fa-times"></i>
-                        </button>
-                    </div>
-                </div>
-                <div class="card-body">
-                    <div class="chart-h-320">
-                        <canvas id="tripFlow"></canvas>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div> <!-- row -->
-</div> <!-- card -->
+    </div>
 
 <?php } ?>
 
-<!-- Technical Dashboard -->
+<?php if ($show_money) { ?>
 
-<?php
-if ($user_config_dashboard_technical_enable == 1) {
+    <div class="d-flex flex-wrap align-items-baseline gap-2 mb-2">
+        <h2 class="itflow-dash-section mb-0"><?= $access['financial'] ? 'Finance' : 'Billing' ?></h2>
+        <?php if ($access['financial']) { ?>
+            <span class="small text-body-secondary"><?= escapeHtml($period['label']) ?>, <?= escapeHtml($period['compare_long']) ?></span>
+        <?php } ?>
+    </div>
 
-    // Fetch technical data for the dashboard
-    $sql_clients = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT COUNT(client_id) AS clients_added FROM clients WHERE YEAR(client_created_at) = $year"));
-    $clients_added = $sql_clients['clients_added'];
+    <?php
+    $period_cards = array_values(array_filter($money_cards, function ($card) { return isset($card['good']); }));
+    $now_cards = array_values(array_filter($money_cards, function ($card) { return !isset($card['good']); }));
+    ?>
 
-    $sql_contacts = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT COUNT(contact_id) AS contacts_added FROM contacts WHERE YEAR(contact_created_at) = $year"));
-    $contacts_added = $sql_contacts['contacts_added'];
-
-    $sql_assets = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT COUNT(asset_id) AS assets_added FROM assets WHERE YEAR(asset_created_at) = $year"));
-    $assets_added = $sql_assets['assets_added'];
-
-    $sql_tickets = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT COUNT(ticket_id) AS active_tickets FROM tickets WHERE ticket_closed_at IS NULL"));
-    $active_tickets = $sql_tickets['active_tickets'];
-
-    $sql_your_tickets = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT COUNT(ticket_id) AS your_tickets FROM tickets WHERE ticket_closed_at IS NULL AND ticket_assigned_to = $session_user_id"));
-    $your_tickets = $sql_your_tickets['your_tickets'];
-
-    $sql_domains_expiring = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT COUNT(domain_id) AS expiring_domains FROM domains WHERE domain_expire IS NOT NULL AND domain_expire > CURRENT_DATE AND domain_expire < CURRENT_DATE + INTERVAL 30 DAY AND domain_archived_at IS NULL"));
-    $expiring_domains = $sql_domains_expiring['expiring_domains'];
-
-    $sql_certs_expiring = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT COUNT(certificate_id) AS expiring_certs FROM certificates WHERE certificate_expire IS NOT NULL AND certificate_expire > CURRENT_DATE AND certificate_expire < CURRENT_DATE + INTERVAL 30 DAY AND certificate_archived_at IS NULL"));
-    $expiring_certificates = $sql_certs_expiring['expiring_certs'];
-
-    $sql_licenses_expiring = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT COUNT(software_id) AS expiring_licenses FROM software WHERE software_expire IS NOT NULL AND software_expire > CURRENT_DATE AND software_expire < CURRENT_DATE + INTERVAL 30 DAY AND software_archived_at IS NULL"));
-    $expiring_licenses = $sql_licenses_expiring['expiring_licenses'];
-
-    $sql_licenses_expiring = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT COUNT(software_id) AS expiring_licenses FROM software WHERE software_expire IS NOT NULL AND software_expire > CURRENT_DATE AND software_expire < CURRENT_DATE + INTERVAL 30 DAY AND software_archived_at IS NULL"));
-    $expiring_licenses = $sql_licenses_expiring['expiring_licenses'];
-
-    $sql_asset_warranty_expiring = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT COUNT(asset_id) AS expiring_asset_warranties FROM assets WHERE asset_warranty_expire IS NOT NULL AND asset_warranty_expire > CURRENT_DATE AND asset_warranty_expire < CURRENT_DATE + INTERVAL 30 DAY AND asset_archived_at IS NULL"));
-    $expiring_asset_warranties = $sql_asset_warranty_expiring['expiring_asset_warranties'];
-
-    $sql_your_tickets = mysqli_query($mysqli, "
-        SELECT client_name, contact_name, ticket_client_id, ticket_contact_id, ticket_created_at,
-            ticket_id, ticket_number, ticket_prefix, ticket_priority, ticket_status,
-            ticket_status_color, ticket_status_name, ticket_subject, ticket_updated_at FROM tickets
-        LEFT JOIN ticket_statuses ON ticket_status = ticket_status_id
-        LEFT JOIN clients ON ticket_client_id = client_id
-        LEFT JOIN contacts ON ticket_contact_id = contact_id
-        WHERE ticket_assigned_to = $session_user_id
-        AND ticket_closed_at IS NULL
-        " . clientScopeSql('ticket_client_id') . "
-        ORDER BY ticket_number DESC
-    ");
-?>
-
-<div class="card card-body">
-    <!-- Icon Cards-->
-    <div class="row">
-        <div class="col-lg-3 col-6">
-            <!-- small box -->
-            <a class="small-box bg-secondary" href="clients.php?dtf=<?= $year ?>-01-01&dtt=<?= $year ?>-12-31">
-                <div class="inner">
-                    <h3><?= $clients_added ?></h3>
-                    <p>New Clients</p>
+    <div class="card mb-3 overflow-hidden">
+        <div class="row g-0">
+            <?php if ($period_cards) { ?>
+                <div class="<?= $now_cards ? 'col-lg-8' : 'col-12' ?>">
+                    <div class="row g-0 h-100">
+                        <?php foreach ($period_cards as $card) {
+                            $change = $card['change'];
+                            $better = $change !== null && ($card['good'] === 'up' ? $change >= 0 : $change <= 0);
+                            ?>
+                            <div class="col-md-4 itflow-dash-money">
+                                <a href="<?= escapeHtml($card['url']) ?>" class="d-flex flex-column justify-content-center h-100 p-3 text-decoration-none">
+                                    <span class="d-block small text-body-secondary"><?= escapeHtml($card['label']) ?></span>
+                                    <span class="d-block itflow-dash-money-value text-body text-truncate" title="<?= escapeHtml(dashboardMoney($card['value'])) ?>"><?= escapeHtml(dashboardMoney($card['value'])) ?></span>
+                                    <?php if ($change !== null) { ?>
+                                        <span class="d-block small text-truncate">
+                                            <span class="<?= $better ? 'text-success-emphasis' : 'text-danger-emphasis' ?> fw-semibold">
+                                                <i class="fas fa-arrow-<?= $change >= 0 ? 'up' : 'down' ?> me-1" aria-hidden="true"></i><?= abs($change) ?>%
+                                            </span>
+                                            <span class="text-body-tertiary"><?= escapeHtml($period['compare']) ?></span>
+                                        </span>
+                                    <?php } else { ?>
+                                        <span class="d-block small text-body-tertiary text-truncate">No earlier data to compare</span>
+                                    <?php } ?>
+                                </a>
+                            </div>
+                        <?php } ?>
+                    </div>
                 </div>
-                <div class="icon">
-                    <i class="fa fa-users"></i>
+            <?php } ?>
+            <?php if ($now_cards && !$period_cards) {
+                // Billing only (no finance access): the "right now" figures get the big cells to themselves
+                foreach ($now_cards as $card) { ?>
+                    <div class="col-md itflow-dash-money">
+                        <a href="<?= escapeHtml($card['url']) ?>" class="d-flex flex-column justify-content-center h-100 p-3 text-decoration-none">
+                            <span class="d-block small text-body-secondary"><?= escapeHtml($card['label']) ?></span>
+                            <span class="d-block itflow-dash-money-value text-body text-truncate"><?= escapeHtml(dashboardMoney($card['value'])) ?></span>
+                            <span class="d-block small text-body-tertiary text-truncate"><?= escapeHtml(ucfirst($card['note'] ?? '')) ?></span>
+                        </a>
+                    </div>
+                <?php }
+            } elseif ($now_cards) { ?>
+                <div class="col-lg-4 itflow-dash-now">
+                    <div class="px-3 pt-3 pb-1 small fw-semibold text-body-secondary">Right now</div>
+                    <div class="list-group list-group-flush">
+                        <?php foreach ($now_cards as $card) { ?>
+                            <a href="<?= escapeHtml($card['url']) ?>" class="list-group-item list-group-item-action border-0 d-flex justify-content-between align-items-baseline gap-3 py-1">
+                                <span class="text-truncate"><?= escapeHtml($card['label']) ?> <span class="small text-body-tertiary"><?= escapeHtml(strtolower($card['note'] ?? '')) ?></span></span>
+                                <span class="fw-semibold text-nowrap"><?= escapeHtml(dashboardMoney($card['value'])) ?></span>
+                            </a>
+                        <?php } ?>
+                    </div>
                 </div>
-            </a>
+            <?php } ?>
         </div>
-        <!-- ./col -->
+    </div>
 
-        <div class="col-lg-3 col-6">
-            <a class="small-box bg-success" href="contacts.php">
-                <div class="inner">
-                    <h3><?= $contacts_added ?></h3>
-                    <p>New Contacts</p>
+    <?php if ($access['financial']) { ?>
+
+        <div class="row g-3 mb-3">
+            <div class="col-xl-8">
+                <div class="card h-100 mb-0">
+                    <div class="card-header d-flex align-items-center">
+                        <h3 class="card-title mb-0 me-auto">Cash flow</h3>
+                        <span class="small text-body-secondary"><?= escapeHtml($chart_data['cash_flow']['extended'] ? 'Last 12 months and next 3' : $period['chart_label']) ?></span>
+                    </div>
+                    <div class="card-body">
+                        <div class="itflow-dash-chart itflow-dash-chart-lg"><canvas id="dashCashFlow" aria-label="Income and expenses per month, with what is expected in the months ahead"></canvas></div>
+                        <?php if (array_sum($chart_data['cash_flow']['expected_income']) + array_sum($chart_data['cash_flow']['expected_expenses']) > 0) { ?>
+                            <p class="small text-body-tertiary mt-2 mb-0">
+                                Lighter bars are expected: what's still owed on unpaid invoices, by due date, plus recurring invoices and expenses in the month they next run. Overdue invoices aren't counted.
+                            </p>
+                        <?php } ?>
+                    </div>
                 </div>
-                <div class="icon">
-                    <i class="fa fa-user"></i>
+            </div>
+            <div class="col-xl-4">
+                <div class="card h-100 mb-0">
+                    <div class="card-header d-flex align-items-center">
+                        <h3 class="card-title mb-0 me-auto">Accounts</h3>
+                        <a class="small" href="/agent/accounts.php">View accounts</a>
+                    </div>
+                    <?php if ($accounts) {
+                        $accounts_total = array_sum(array_map('floatval', array_column($accounts, 'balance'))); ?>
+                        <div class="card-body flex-grow-0 pt-2 pb-3">
+                            <span class="d-block small text-body-secondary">Total balance</span>
+                            <span class="d-block itflow-dash-money-value mb-0 <?= $accounts_total < 0 ? 'text-danger' : '' ?>"><?= escapeHtml(dashboardMoney($accounts_total)) ?></span>
+                        </div>
+                        <ul class="list-group list-group-flush">
+                            <?php foreach ($accounts as $account) { ?>
+                                <li class="list-group-item d-flex justify-content-between gap-3">
+                                    <span class="text-truncate"><?= escapeHtml($account['account_name']) ?></span>
+                                    <span class="text-nowrap <?= floatval($account['balance']) < 0 ? 'text-danger' : '' ?>"><?= escapeHtml(dashboardMoney($account['balance'])) ?></span>
+                                </li>
+                            <?php } ?>
+                        </ul>
+                    <?php } else { ?>
+                        <div class="card-body text-center text-body-secondary">No accounts yet.</div>
+                    <?php } ?>
                 </div>
-            </a>
+            </div>
         </div>
-        <!-- ./col -->
 
-        <div class="col-lg-3 col-6">
-            <a class="small-box bg-info" href="assets.php">
-                <div class="inner">
-                    <h3><?= $assets_added ?></h3>
-                    <p>New Assets</p>
-                </div>
-                <div class="icon">
-                    <i class="fa fa-desktop"></i>
-                </div>
-            </a>
-        </div>
-        <!-- ./col -->
+    <?php } ?>
 
-        <div class="col-lg-3 col-6">
-            <a class="small-box bg-danger" href="tickets.php">
-                <div class="inner">
-                    <h3><?= $active_tickets ?></h3>
-                    <p>Active Tickets</p>
-                </div>
-                <div class="icon">
-                    <i class="fa fa-ticket-alt"></i>
-                </div>
-            </a>
-        </div>
-        <!-- ./col -->
+    <?php if ($aging !== null || $top_clients !== null) { ?>
 
-        <div class="col-lg-3 col-6">
-            <a class="small-box bg-warning" href="domains.php?expire_days=30&sort=domain_expire&order=ASC">
-                <div class="inner">
-                    <h3><?= $expiring_domains ?></h3>
-                    <p>Expiring Domains <small>30 Day</small></p>
+        <div class="row g-3 mb-3">
+            <?php if ($aging !== null) { ?>
+                <div class="<?= $top_clients !== null ? 'col-lg-6' : 'col-12' ?>">
+                    <div class="card h-100 mb-0">
+                        <div class="card-header d-flex align-items-center">
+                            <h3 class="card-title mb-0 me-auto">Receivables aging</h3>
+                            <a class="small" href="/agent/invoices.php?status=Unpaid">View unpaid invoices</a>
+                        </div>
+                        <?php if ($aging['total'] > 0) { ?>
+                            <div class="card-body flex-grow-0 pt-2">
+                                <div class="d-flex flex-wrap align-items-baseline column-gap-2 mb-2">
+                                    <span class="itflow-dash-money-value mb-0"><?= escapeHtml(dashboardMoney($aging['total'])) ?></span>
+                                    <span class="small text-body-secondary">owed on <?= $aging['count'] ?> invoice<?= $aging['count'] === 1 ? '' : 's' ?></span>
+                                </div>
+                                <div class="itflow-dash-aging mb-3" role="img" aria-label="Receivables by days past due">
+                                    <?php foreach ($aging['buckets'] as $bucket_key => $bucket) {
+                                        if ($bucket['amount'] > 0) { ?>
+                                            <span class="itflow-dash-age-<?= str_replace('+', 'plus', $bucket_key) ?>" style="width: <?= round($bucket['amount'] / $aging['total'] * 100, 2) ?>%"
+                                                title="<?= escapeHtml($bucket['label'] . ': ' . dashboardMoney($bucket['amount'])) ?>"></span>
+                                        <?php }
+                                    } ?>
+                                </div>
+                                <div class="row row-cols-2 row-cols-sm-5 g-2 small">
+                                    <?php foreach ($aging['buckets'] as $bucket_key => $bucket) { ?>
+                                        <div>
+                                            <span class="d-block text-body-secondary text-nowrap"><span class="itflow-dash-legend-swatch d-inline-block me-1 itflow-dash-age-<?= str_replace('+', 'plus', $bucket_key) ?>"></span><?= escapeHtml($bucket['label']) ?></span>
+                                            <span class="d-block fw-semibold <?= $bucket['amount'] > 0 ? '' : 'text-body-tertiary' ?>"><?= escapeHtml(dashboardMoney($bucket['amount'])) ?></span>
+                                        </div>
+                                    <?php } ?>
+                                </div>
+                            </div>
+                            <div class="px-3 pb-1 small fw-semibold text-body-secondary">Owe the most</div>
+                            <div class="list-group list-group-flush">
+                                <?php foreach ($aging['clients'] as $row) {
+                                    $days_late = intval($row['days_late']); ?>
+                                    <a class="list-group-item list-group-item-action d-flex justify-content-between align-items-center gap-3"
+                                        href="/agent/invoices.php?client_id=<?= intval($row['client_id']) ?>&status=Unpaid">
+                                        <span class="overflow-hidden">
+                                            <span class="d-block text-truncate"><?= escapeHtml($row['client_name']) ?></span>
+                                            <span class="d-block small <?= $days_late > 0 ? 'text-danger-emphasis' : 'text-body-secondary' ?>">
+                                                <?= intval($row['n']) ?> invoice<?= intval($row['n']) === 1 ? '' : 's' ?>,
+                                                <?= $days_late > 0 ? "oldest $days_late day" . ($days_late === 1 ? '' : 's') . ' late' : 'none late' ?>
+                                            </span>
+                                        </span>
+                                        <span class="text-nowrap fw-semibold"><?= escapeHtml(dashboardMoney($row['v'])) ?></span>
+                                    </a>
+                                <?php } ?>
+                            </div>
+                        <?php } else { ?>
+                            <div class="card-body text-center text-body-secondary py-5">
+                                <i class="fas fa-check-circle fa-2x mb-2 d-block text-success" aria-hidden="true"></i>
+                                Nothing is owed on unpaid invoices.
+                            </div>
+                        <?php } ?>
+                    </div>
                 </div>
-                <div class="icon">
-                    <i class="fa fa-globe"></i>
-                </div>
-            </a>
-        </div>
-        <!-- ./col -->
+            <?php } ?>
 
-        <div class="col-lg-3 col-6">
-            <a class="small-box bg-primary" href="certificates.php?expire_days=30&sort=certificate_expire&order=ASC">
-                <div class="inner">
-                    <h3><?= $expiring_certificates ?></h3>
-                    <p>Expiring Certificates<small>30 Day</small></p>
-                </div>
-                <div class="icon">
-                    <i class="fa fa-lock"></i>
-                </div>
-            </a>
-        </div>
-        <!-- ./col -->
-
-        <div class="col-lg-3 col-6">
-            <a class="small-box bg-purple" href="software.php?expire_days=30&sort=software_expire&order=ASC">
-                <div class="inner">
-                    <h3><?= $expiring_licenses ?></h3>
-                    <p>Expiring Licenses<small>30 Day</small></p>
-                </div>
-                <div class="icon">
-                    <i class="fa fa-cube"></i>
-                </div>
-            </a>
-        </div>
-        <!-- ./col -->
-
-        <div class="col-lg-3 col-6">
-            <a class="small-box bg-olive" href="assets.php?expire_days=30&sort=asset_warranty_expire&order=ASC&show_column[]=Warranty_Expire">
-                <div class="inner">
-                    <h3><?= $expiring_asset_warranties ?></h3>
-                    <p>Expiring Asset Warranties<small>30 Day</small></p>
-                </div>
-                <div class="icon">
-                    <i class="fa fa-desktop"></i>
-                </div>
-            </a>
-        </div>
-        <!-- ./col -->
-    </div> <!-- row -->
-
-    <?php if ($your_tickets) { ?>
-        <div class="row">
-            <div class="col-12">
-                <div class="card card-dark mb-3">
-                    <div class="card-header">
-                        <h3 class="card-title"><i class="fa fa-fw fa-life-ring me-2"></i>Your Open Tickets</h3>
-                        <div class="card-tools">
-                            <button type="button" class="btn btn-tool" title="Hide" data-lte-toggle="card-remove">
-                                <i class="fas fa-times"></i>
-                            </button>
+            <?php if ($top_clients !== null) {
+                $top_max = max(1, floatval($top_clients['clients'][0]['v'] ?? 0)); ?>
+                <div class="<?= $aging !== null ? 'col-lg-6' : 'col-12' ?>">
+                    <div class="card h-100 mb-0">
+                        <div class="card-header d-flex align-items-center">
+                            <h3 class="card-title mb-0 me-auto">Top clients</h3>
+                            <span class="small text-body-secondary">Paid, <?= escapeHtml(strtolower($period['label'])) ?></span>
+                        </div>
+                        <div class="card-body pt-2">
+                            <?php if ($top_clients['clients']) { ?>
+                                <div class="itflow-dash-bars">
+                                    <?php foreach ($top_clients['clients'] as $row) {
+                                        $client_paid = floatval($row['v']); ?>
+                                        <a class="itflow-dash-bar" href="/agent/client_overview.php?client_id=<?= intval($row['client_id']) ?>">
+                                            <span class="itflow-dash-bar-label"><?= escapeHtml($row['client_name']) ?></span>
+                                            <span class="itflow-dash-bar-value">
+                                                <?php if ($top_clients['income'] > 0) { ?><span class="text-body-tertiary me-2"><?= round($client_paid / $top_clients['income'] * 100) ?>%</span><?php } ?><?= escapeHtml(dashboardMoney($client_paid)) ?>
+                                            </span>
+                                            <span class="itflow-dash-bar-track"><span class="itflow-dash-bar-fill" style="width: <?= round($client_paid / $top_max * 100, 1) ?>%"></span></span>
+                                        </a>
+                                    <?php } ?>
+                                </div>
+                            <?php } else { ?>
+                                <div class="text-center text-body-secondary py-5">No client payments in this period.</div>
+                            <?php } ?>
                         </div>
                     </div>
-                    <div class="table-responsive-sm">
-                        <table class="table table-sm">
-                            <thead>
-                                <tr>
-                                    <th>Number</th>
-                                    <th>Subject</th>
-                                    <th>Client</th>
-                                    <th>Contact</th>
-                                    <th>Priority</th>
-                                    <th>Status</th>
-                                    <th>Last Response</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <?php while ($row = mysqli_fetch_assoc($sql_your_tickets)) {
-                                    $ticket_id = intval($row['ticket_id']);
-                                    $ticket_prefix = escapeHtml($row['ticket_prefix']);
-                                    $ticket_number = intval($row['ticket_number']);
-                                    $ticket_subject = escapeHtml($row['ticket_subject']);
-                                    $ticket_priority = escapeHtml($row['ticket_priority']);
-                                    $ticket_status_id = intval($row['ticket_status']);
-                                    $ticket_status_name = escapeHtml($row['ticket_status_name']);
-                                    $ticket_status_color = escapeHtml($row['ticket_status_color']);
-                                    $ticket_created_at = escapeHtml($row['ticket_created_at']);
-                                    $ticket_created_at_time_ago = timeAgo($row['ticket_created_at']);
-                                    $ticket_updated_at = escapeHtml($row['ticket_updated_at']);
-                                    $ticket_updated_at_time_ago = timeAgo($row['ticket_updated_at']);
+                </div>
+            <?php } ?>
+        </div>
 
-                                    $ticket_updated_at_display = empty($ticket_updated_at) ? (empty($ticket_closed_at) ? "<p class='text-danger'>Never</p>" : "<p>Never</p>") : $ticket_updated_at_time_ago;
+    <?php } ?>
 
-                                    $client_id = intval($row['ticket_client_id']);
-                                    $client_name = escapeHtml($row['client_name']);
-                                    $contact_id = intval($row['ticket_contact_id']);
-                                    $contact_name = escapeHtml($row['contact_name']);
-                                    if ($client_id) {
-                                        $has_client = "&client_id=$client_id";
-                                    } else {
-                                        $has_client = "";
-                                    }
+    <?php if ($access['financial']) { ?>
 
-                                    $ticket_priority_color = $ticket_priority == "Urgent" ? "dark" : ($ticket_priority == "High" ? "danger" : ($ticket_priority == "Medium" ? "warning" : "info"));
-                                    $contact_display = empty($contact_name) ? "-" : "<a href='contact.php?client_id=$client_id&contact_id=$contact_id'>$contact_name</a>";
-                                ?>
-                                    <tr class="<?= empty($ticket_updated_at) ? 'text-bold' : '' ?>">
-                                        <td>
-                                            <a class="text-dark"
-                                                href="ticket.php?ticket_id=<?= "$ticket_id$has_client" ?>"><?= "$ticket_prefix$ticket_number" ?>
-                                            </a>
-                                        </td>
-                                        <td><a href="ticket.php?ticket_id=<?= "$ticket_id$has_client" ?>"><?= $ticket_subject ?></a></td>
-                                        <td><a href="tickets.php?client_id=<?= $client_id ?>"><strong><?= $client_name ?></strong></a></td>
-                                        <td><?= $contact_display ?></td>
-                                        <td><span class='p-2 badge rounded-pill text-bg-<?= $ticket_priority_color ?>'><?= $ticket_priority ?></span></td>
-                                        <td><span class='badge rounded-pill text-light p-2' style="background-color: <?= $ticket_status_color ?>"><?= $ticket_status_name ?></span></td>
-                                        <td><?= $ticket_updated_at_display ?></td>
-                                    </tr>
-                                <?php } ?>
-                            </tbody>
-                        </table>
+        <div class="row g-3 mb-3">
+            <?php foreach ([
+                ['dashIncomeByCategory', 'Income by category', 'income_by_category'],
+                ['dashExpensesByCategory', 'Expenses by category', 'expenses_by_category'],
+                ['dashExpensesByVendor', 'Expenses by vendor', 'expenses_by_vendor'],
+            ] as [$canvas_id, $title, $key]) { ?>
+                <div class="col-lg-4">
+                    <div class="card h-100 mb-0">
+                        <div class="card-header d-flex align-items-center">
+                            <h3 class="card-title mb-0 me-auto"><?= $title ?></h3>
+                            <span class="small text-body-secondary">Top 5</span>
+                        </div>
+                        <div class="card-body">
+                            <?php if ($chart_data['breakdowns'][$key]['values']) { ?>
+                                <div class="itflow-dash-chart itflow-dash-chart-donut">
+                                    <canvas id="<?= $canvas_id ?>" aria-label="<?= $title ?>"></canvas>
+                                    <div class="itflow-dash-donut-total" aria-hidden="true">
+                                        <span class="small text-body-secondary">Total</span>
+                                        <span class="fw-semibold" data-donut-total="<?= $canvas_id ?>"></span>
+                                    </div>
+                                </div>
+                                <ul class="itflow-dash-legend list-unstyled mb-0 mt-3" data-donut-legend="<?= $canvas_id ?>"></ul>
+                            <?php } else { ?>
+                                <div class="text-center text-body-secondary py-5">Nothing in this period.</div>
+                            <?php } ?>
+                        </div>
+                    </div>
+                </div>
+            <?php } ?>
+        </div>
+
+        <div class="row g-3 mb-4">
+            <div class="col-lg-4">
+                <div class="card h-100 mb-0">
+                    <div class="card-header d-flex align-items-center">
+                        <h3 class="card-title mb-0 me-auto">Latest income</h3>
+                        <a class="small" href="/agent/income.php">View all income</a>
+                    </div>
+                    <?php if ($latest_income) { ?>
+                        <div class="list-group list-group-flush">
+                            <?php foreach ($latest_income as $row) { ?>
+                                <a class="list-group-item list-group-item-action d-flex justify-content-between align-items-center gap-3"
+                                    href="/agent/invoice.php?client_id=<?= intval($row['invoice_client_id']) ?>&invoice_id=<?= intval($row['invoice_id']) ?>">
+                                    <span class="overflow-hidden">
+                                        <span class="d-block text-truncate"><?= escapeHtml($row['client_name']) ?></span>
+                                        <span class="d-block small text-body-secondary"><?= escapeHtml($row['invoice_prefix'] . $row['invoice_number']) ?> · <?= escapeHtml(date('M j', strtotime($row['payment_date']))) ?></span>
+                                    </span>
+                                    <span class="text-nowrap text-success"><?= escapeHtml(dashboardMoney($row['payment_amount'])) ?></span>
+                                </a>
+                            <?php } ?>
+                        </div>
+                    <?php } else { ?>
+                        <div class="card-body text-center text-body-secondary">No payments yet.</div>
+                    <?php } ?>
+                </div>
+            </div>
+            <div class="col-lg-4">
+                <div class="card h-100 mb-0">
+                    <div class="card-header d-flex align-items-center">
+                        <h3 class="card-title mb-0 me-auto">Latest expenses</h3>
+                        <a class="small" href="/agent/expenses.php">View all expenses</a>
+                    </div>
+                    <?php if ($latest_expenses) { ?>
+                        <ul class="list-group list-group-flush">
+                            <?php foreach ($latest_expenses as $row) { ?>
+                                <li class="list-group-item d-flex justify-content-between align-items-center gap-3">
+                                    <span class="overflow-hidden">
+                                        <span class="d-block text-truncate"><?= escapeHtml($row['vendor_name']) ?></span>
+                                        <span class="d-block small text-body-secondary text-truncate"><?= escapeHtml($row['category_name'] ?: 'Uncategorised') ?> · <?= escapeHtml(date('M j', strtotime($row['expense_date']))) ?></span>
+                                    </span>
+                                    <span class="text-nowrap"><?= escapeHtml(dashboardMoney($row['expense_amount'])) ?></span>
+                                </li>
+                            <?php } ?>
+                        </ul>
+                    <?php } else { ?>
+                        <div class="card-body text-center text-body-secondary">No expenses yet.</div>
+                    <?php } ?>
+                </div>
+            </div>
+            <div class="col-lg-4">
+                <div class="card h-100 mb-0">
+                    <div class="card-header d-flex align-items-center">
+                        <h3 class="card-title mb-0 me-auto">Trips</h3>
+                        <span class="small text-body-secondary"><?= number_format($chart_data['trips']['period_total'], 1) ?> mi <?= escapeHtml(strtolower($period['label'])) ?></span>
+                    </div>
+                    <div class="card-body">
+                        <div class="itflow-dash-chart"><canvas id="dashTrips" aria-label="Miles per month"></canvas></div>
                     </div>
                 </div>
             </div>
         </div>
+
     <?php } ?>
-</div> <!-- card -->
 
 <?php } ?>
+
+<?php if ($attention === null && $my_tickets === null && !$show_money) { ?>
+    <div class="card">
+        <div class="card-body text-center text-body-secondary py-5">
+            <i class="fas fa-compass fa-3x mb-3 d-block" aria-hidden="true"></i>
+            Your role has no dashboard sections. Use the menu or <kbd>Ctrl</kbd> + <kbd>K</kbd> to find what you need.
+        </div>
+    </div>
+<?php } ?>
+
+</div>
 
 <?php require_once "../includes/footer.php"; ?>
 
-<?php if ($user_config_dashboard_financial_enable == 1) { ?>
-
-<script>
-    // Bootstrap-like defaults for Chart.js v4
-    var itflowChart = itflowChartDefaults();
-
-    // CASH FLOW
-    (function () {
-        var ctx = document.getElementById("cashFlow");
-        if (!ctx) return;
-
-        var myLineChart = new Chart(ctx, {
-            type: 'line',
-            data: {
-                labels: ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"],
-                datasets: [
-                    {
-                        label: "Income",
-                        fill: false,
-                        borderColor: "#007bff",
-                        pointBackgroundColor: "#007bff",
-                        pointBorderColor: "#007bff",
-                        pointHoverRadius: 5,
-                        pointHoverBackgroundColor: "#007bff",
-                        pointBorderWidth: 2,
-                        data: [
-                            <?php
-                            for ($month = 1; $month <= 12; $month++) {
-                                $sql_payments = mysqli_query($mysqli, "SELECT SUM(payment_amount) AS payment_amount_for_month FROM payments, invoices WHERE payment_invoice_id = invoice_id AND YEAR(payment_date) = $year AND MONTH(payment_date) = $month");
-                                $row = mysqli_fetch_assoc($sql_payments);
-                                $payments_for_month = floatval($row['payment_amount_for_month']);
-
-                                $sql_revenues = mysqli_query($mysqli, "SELECT SUM(revenue_amount) AS revenue_amount_for_month FROM revenues WHERE revenue_category_id > 0 AND YEAR(revenue_date) = $year AND MONTH(revenue_date) = $month");
-                                $row = mysqli_fetch_assoc($sql_revenues);
-                                $revenues_for_month = floatval($row['revenue_amount_for_month']);
-
-                                $income_for_month = $payments_for_month + $revenues_for_month;
-
-                                if ($income_for_month > 0 && $income_for_month > $largest_income_month) {
-                                    $largest_income_month = $income_for_month;
-                                }
-                                echo "$income_for_month,";
-                            }
-                            ?>
-                        ],
-                    },
-                    {
-                        label: "LY Income",
-                        fill: false,
-                        borderColor: "#9932CC",
-                        pointBackgroundColor: "#9932CC",
-                        pointBorderColor: "#9932CC",
-                        pointHoverRadius: 5,
-                        pointHoverBackgroundColor: "#9932CC",
-                        pointBorderWidth: 2,
-                        data: [
-                            <?php
-                            for ($month = 1; $month <= 12; $month++) {
-                                $sql_payments = mysqli_query($mysqli, "SELECT SUM(payment_amount) AS payment_amount_for_month FROM payments, invoices WHERE payment_invoice_id = invoice_id AND YEAR(payment_date) = $year-1 AND MONTH(payment_date) = $month");
-                                $row = mysqli_fetch_assoc($sql_payments);
-                                $payments_for_month = floatval($row['payment_amount_for_month']);
-
-                                $sql_revenues = mysqli_query($mysqli, "SELECT SUM(revenue_amount) AS revenue_amount_for_month FROM revenues WHERE revenue_category_id > 0 AND YEAR(revenue_date) = $year-1 AND MONTH(revenue_date) = $month");
-                                $row = mysqli_fetch_assoc($sql_revenues);
-                                $revenues_for_month = floatval($row['revenue_amount_for_month']);
-
-                                $income_for_month = $payments_for_month + $revenues_for_month;
-
-                                if ($income_for_month > 0 && $income_for_month > $largest_income_month) {
-                                    $largest_income_month = $income_for_month;
-                                }
-                                echo "$income_for_month,";
-                            }
-                            ?>
-                        ],
-                    },
-                    {
-                        label: "Projected",
-                        fill: false,
-                        borderColor: itflowChart.text,
-                        pointBackgroundColor: itflowChart.text,
-                        pointBorderColor: itflowChart.text,
-                        pointHoverRadius: 5,
-                        pointHoverBackgroundColor: itflowChart.text,
-                        pointBorderWidth: 2,
-                        data: [
-                            <?php
-                            $largest_invoice_month = 0;
-                            for ($month = 1; $month <= 12; $month++) {
-                                $sql_projected = mysqli_query($mysqli, "SELECT SUM(invoice_amount) AS invoice_amount_for_month FROM invoices WHERE YEAR(invoice_due) = $year AND MONTH(invoice_due) = $month AND invoice_status != 'Cancelled' AND invoice_status != 'Draft' AND invoice_status != 'Non-Billable'");
-                                $row = mysqli_fetch_assoc($sql_projected);
-                                $invoice_for_month = floatval($row['invoice_amount_for_month']);
-
-                                if ($invoice_for_month > 0 && $invoice_for_month > $largest_invoice_month) {
-                                    $largest_invoice_month = $invoice_for_month;
-                                }
-                                echo "$invoice_for_month,";
-                            }
-                            ?>
-                        ],
-                    },
-                    {
-                        label: "Expense",
-                        tension: 0.3, // v4 name; v2 used lineTension
-                        fill: false,
-                        borderColor: "#dc3545",
-                        pointBackgroundColor: "#dc3545",
-                        pointBorderColor: "#dc3545",
-                        pointHoverRadius: 5,
-                        pointHoverBackgroundColor: "#dc3545",
-                        pointBorderWidth: 2,
-                        data: [
-                            <?php
-                            $largest_expense_month = 0;
-                            for ($month = 1; $month <= 12; $month++) {
-                                $sql_expenses = mysqli_query($mysqli, "SELECT SUM(expense_amount) AS expense_amount_for_month FROM expenses WHERE YEAR(expense_date) = $year AND MONTH(expense_date) = $month AND expense_vendor_id > 0");
-                                $row = mysqli_fetch_assoc($sql_expenses);
-                                $expenses_for_month = floatval($row['expense_amount_for_month']);
-
-                                if ($expenses_for_month > 0 && $expenses_for_month > $largest_expense_month) {
-                                    $largest_expense_month = $expenses_for_month;
-                                }
-                                echo "$expenses_for_month,";
-                            }
-                            ?>
-                        ],
-                    }
-                ],
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                scales: {
-                    x: {
-                        grid: { display: false },
-                        ticks: { maxTicksLimit: 12 }
-                    },
-                    y: {
-                        beginAtZero: true,
-                        min: 0,
-                        max: <?php $max = max(1000, $largest_expense_month, $largest_income_month, $largest_invoice_month); echo roundUpToNearestMultiple($max); ?>,
-                        ticks: { maxTicksLimit: 5 },
-                        grid: { color: itflowChart.grid }
-                    }
-                },
-                plugins: {
-                    legend: { display: true }
-                }
-            }
-        });
-    })();
-
-    // TRIP FLOW
-    (function () {
-        var ctx = document.getElementById("tripFlow");
-        if (!ctx) return;
-
-        var myLineChart = new Chart(ctx, {
-            type: 'line',
-            data: {
-                labels: ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"],
-                datasets: [{
-                    label: "Trip",
-                    tension: 0.3,
-                    fill: false,
-                    backgroundColor: "red",
-                    borderColor: "darkred",
-                    pointRadius: 5,
-                    pointBackgroundColor: "red",
-                    pointBorderColor: "red",
-                    pointHoverRadius: 5,
-                    pointHoverBackgroundColor: "darkred",
-                    pointBorderWidth: 2,
-                    data: [
-                        <?php
-                        $largest_trip_miles_month = 0;
-                        for ($month = 1; $month <= 12; $month++) {
-                            $sql_trips = mysqli_query($mysqli, "SELECT SUM(trip_miles) AS trip_miles_for_month FROM trips WHERE YEAR(trip_date) = $year AND MONTH(trip_date) = $month");
-                            $row = mysqli_fetch_assoc($sql_trips);
-                            $trip_miles_for_month = floatval($row['trip_miles_for_month']);
-
-                            if ($trip_miles_for_month > 0 && $trip_miles_for_month > $largest_trip_miles_month) {
-                                $largest_trip_miles_month = $trip_miles_for_month;
-                            }
-                            echo "$trip_miles_for_month,";
-                        }
-                        ?>
-                    ],
-                }],
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                scales: {
-                    x: {
-                        grid: { display: false },
-                        ticks: { maxTicksLimit: 12 }
-                    },
-                    y: {
-                        beginAtZero: true,
-                        min: 0,
-                        max: <?php $max = max(1000, $largest_trip_miles_month); echo roundUpToNearestMultiple($max); ?>,
-                        ticks: { maxTicksLimit: 5 },
-                        grid: { color: itflowChart.grid }
-                    },
-                },
-                plugins: {
-                    legend: { display: false }
-                }
-            }
-        });
-    })();
-
-    // INCOME BY CATEGORY (Doughnut)
-    (function () {
-        var ctx = document.getElementById("incomeByCategoryPieChart");
-        if (!ctx) return;
-
-        var myPieChart = new Chart(ctx, {
-            type: 'doughnut',
-            data: {
-                labels: [
-                    <?php
-                    // Cash basis, matching the Cash Flow chart above and the Income Summary
-                    // report - payments carry their invoice's category, and standalone
-                    // revenues count too. Keying off invoice_status = 'Paid' instead would
-                    // drop every partially paid invoice and every revenue from the chart.
-                    mysqli_query($mysqli, "CREATE TEMPORARY TABLE TopCategories
-                        SELECT category_name, category_id, SUM(income.amount) AS total_income
-                        FROM (SELECT invoice_category_id AS income_category_id, payment_amount AS amount
-                              FROM payments
-                              INNER JOIN invoices ON invoice_id = payment_invoice_id
-                              WHERE YEAR(payment_date) = $year AND invoice_category_id > 0
-                              UNION ALL
-                              SELECT revenue_category_id AS income_category_id, revenue_amount AS amount
-                              FROM revenues
-                              WHERE YEAR(revenue_date) = $year AND revenue_category_id > 0) AS income
-                        INNER JOIN categories ON category_id = income.income_category_id
-                        GROUP BY category_name, category_id
-                        ORDER BY total_income DESC LIMIT 5");
-                    $sql_categories = mysqli_query($mysqli, "SELECT category_name FROM TopCategories");
-                    while ($row = mysqli_fetch_assoc($sql_categories)) {
-                        $category_name = json_encode($row['category_name']);
-                        echo "$category_name,";
-                    }
-
-                    $sql_other_categories = mysqli_query($mysqli, "SELECT SUM(income.amount) AS other_income
-                        FROM (SELECT invoice_category_id AS income_category_id, payment_amount AS amount
-                              FROM payments
-                              INNER JOIN invoices ON invoice_id = payment_invoice_id
-                              WHERE YEAR(payment_date) = $year AND invoice_category_id > 0
-                              UNION ALL
-                              SELECT revenue_category_id AS income_category_id, revenue_amount AS amount
-                              FROM revenues
-                              WHERE YEAR(revenue_date) = $year AND revenue_category_id > 0) AS income
-                        LEFT JOIN TopCategories ON TopCategories.category_id = income.income_category_id
-                        WHERE TopCategories.category_id IS NULL");
-                    $row = mysqli_fetch_assoc($sql_other_categories);
-                    $other_income = floatval($row['other_income']);
-                    if ($other_income > 0) {
-                        echo "'Others',";
-                    }
-                    ?>
-                ],
-                datasets: [{
-                    data: [
-                        <?php
-                        $sql_categories = mysqli_query($mysqli, "SELECT total_income FROM TopCategories");
-                        while ($row = mysqli_fetch_assoc($sql_categories)) {
-                            $total_income = floatval($row['total_income']);
-                            echo "$total_income,";
-                        }
-                        if ($other_income > 0) {
-                            echo "$other_income,";
-                        }
-                        ?>
-                    ],
-                    backgroundColor: [
-                        <?php
-                        $sql_categories = mysqli_query($mysqli, "SELECT category_color FROM TopCategories JOIN categories ON TopCategories.category_id = categories.category_id");
-                        while ($row = mysqli_fetch_assoc($sql_categories)) {
-                            $category_color = json_encode($row['category_color']);
-                            echo "$category_color,";
-                        }
-                        if ($other_income > 0) {
-                            echo "'#999999',"; // color for 'Others'
-                        }
-                        ?>
-                    ],
-                }],
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                    legend: {
-                        display: true,
-                        position: 'right'
-                    }
-                }
-            }
-        });
-    })();
-
-    // EXPENSE BY CATEGORY (Doughnut)
-    (function () {
-        var ctx = document.getElementById("expenseByCategoryPieChart");
-        if (!ctx) return;
-
-        var myPieChart = new Chart(ctx, {
-            type: 'doughnut',
-            data: {
-                labels: [
-                    <?php
-                    mysqli_query($mysqli, "CREATE TEMPORARY TABLE TopExpenseCategories SELECT category_name, category_id, SUM(expense_amount) AS total_expense FROM categories, expenses WHERE expense_category_id = category_id AND expense_vendor_id > 0 AND YEAR(expense_date) = $year GROUP BY category_name, category_id ORDER BY total_expense DESC LIMIT 5");
-                    $sql_categories = mysqli_query($mysqli, "SELECT category_name FROM TopExpenseCategories");
-                    while ($row = mysqli_fetch_assoc($sql_categories)) {
-                        $category_name = json_encode($row['category_name']);
-                        echo "$category_name,";
-                    }
-
-                    $sql_other_categories = mysqli_query($mysqli, "SELECT SUM(expenses.expense_amount) AS other_expense FROM categories LEFT JOIN TopExpenseCategories ON categories.category_id = TopExpenseCategories.category_id INNER JOIN expenses ON categories.category_id = expenses.expense_category_id WHERE TopExpenseCategories.category_id IS NULL AND expense_vendor_id > 0 AND YEAR(expense_date) = $year");
-                    $row = mysqli_fetch_assoc($sql_other_categories);
-                    $other_expense = floatval($row['other_expense']);
-                    if ($other_expense > 0) {
-                        echo "'Others',";
-                    }
-                    ?>
-                ],
-                datasets: [{
-                    data: [
-                        <?php
-                        $sql_categories = mysqli_query($mysqli, "SELECT total_expense FROM TopExpenseCategories");
-                        while ($row = mysqli_fetch_assoc($sql_categories)) {
-                            $total_expense = floatval($row['total_expense']);
-                            echo "$total_expense,";
-                        }
-                        if ($other_expense > 0) {
-                            echo "$other_expense,";
-                        }
-                        ?>
-                    ],
-                    backgroundColor: [
-                        <?php
-                        $sql_categories = mysqli_query($mysqli, "SELECT category_color FROM TopExpenseCategories JOIN categories ON TopExpenseCategories.category_id = categories.category_id");
-                        while ($row = mysqli_fetch_assoc($sql_categories)) {
-                            $category_color = json_encode($row['category_color']);
-                            echo "$category_color,";
-                        }
-                        if ($other_expense > 0) {
-                            echo "'#999999',"; // color for 'Others'
-                        }
-                        ?>
-                    ],
-                }],
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                    legend: {
-                        display: true,
-                        position: 'right'
-                    }
-                }
-            }
-        });
-    })();
-
-    // EXPENSE BY VENDOR (Doughnut)
-    (function () {
-        var ctx = document.getElementById("expenseByVendorPieChart");
-        if (!ctx) return;
-
-        var myPieChart = new Chart(ctx, {
-            type: 'doughnut',
-            data: {
-                labels: [
-                    <?php
-                    mysqli_query($mysqli, "CREATE TEMPORARY TABLE TopVendors SELECT vendor_name, vendor_id, SUM(expense_amount) AS total_expense FROM vendors, expenses WHERE expense_vendor_id = vendor_id AND YEAR(expense_date) = $year GROUP BY vendor_name, vendor_id ORDER BY total_expense DESC LIMIT 5");
-                    $sql_vendors = mysqli_query($mysqli, "SELECT vendor_name FROM TopVendors");
-                    while ($row = mysqli_fetch_assoc($sql_vendors)) {
-                        $vendor_name = json_encode($row['vendor_name']);
-                        echo "$vendor_name,";
-                    }
-
-                    $sql_other_vendors = mysqli_query($mysqli, "SELECT SUM(expenses.expense_amount) AS other_expense FROM vendors LEFT JOIN TopVendors ON vendors.vendor_id = TopVendors.vendor_id INNER JOIN expenses ON vendors.vendor_id = expenses.expense_vendor_id WHERE TopVendors.vendor_id IS NULL AND YEAR(expense_date) = $year");
-                    $row = mysqli_fetch_assoc($sql_other_vendors);
-                    $other_expense = floatval($row['other_expense']);
-                    if ($other_expense > 0) {
-                        echo "'Others',";
-                    }
-                    ?>
-                ],
-                datasets: [{
-                    data: [
-                        <?php
-                        $sql_vendors = mysqli_query($mysqli, "SELECT total_expense FROM TopVendors");
-                        while ($row = mysqli_fetch_assoc($sql_vendors)) {
-                            $total_expense = floatval($row['total_expense']);
-                            echo "$total_expense,";
-                        }
-                        if ($other_expense > 0) {
-                            echo "$other_expense,";
-                        }
-                        ?>
-                    ],
-                    backgroundColor: [
-                        <?php
-                        $sql_vendors = mysqli_query($mysqli, "SELECT vendor_id FROM TopVendors");
-                        while ($row = mysqli_fetch_assoc($sql_vendors)) {
-                            // Generate random color for each vendor
-                            echo "'#" . substr(md5(rand()), 0, 6) . "',";
-                        }
-                        if ($other_expense > 0) {
-                            echo "'#999999',"; // color for 'Others'
-                        }
-                        ?>
-                    ],
-                }],
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                    legend: {
-                        display: true,
-                        position: 'right'
-                    }
-                }
-            }
-        });
-    })();
-</script>
-
+<?php if ($chart_data) { ?>
+    <script>window.itflowDashboardData = <?= json_encode($chart_data, JSON_HEX_TAG | JSON_HEX_AMP | JSON_INVALID_UTF8_SUBSTITUTE) ?>;</script>
+    <script src="/js/dashboard.js"></script>
 <?php } ?>
