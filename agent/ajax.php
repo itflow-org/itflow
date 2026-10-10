@@ -364,22 +364,33 @@ if (isset($_GET['share_generate_link'])) {
 /*
  * Returns sorted list of active clients
  */
+/*
+ * Every active client this agent can open, most recently opened first - the
+ * client switcher in the client side nav (js/client_switcher.js) loads it once
+ * and filters it as you type. Names are raw; the script renders them as text.
+ */
 if (isset($_GET['get_active_clients'])) {
     enforceUserPermission('module_client');
 
     $client_sql = mysqli_query(
         $mysqli,
-        "SELECT client_id, client_name FROM clients
+        "SELECT client_id, client_name, client_abbreviation FROM clients
         WHERE client_archived_at IS NULL
         " . clientScopeSql('clients.client_id') . "
         ORDER BY client_accessed_at DESC"
     );
 
+    $response = ['clients' => []];
     while ($row = mysqli_fetch_assoc($client_sql)) {
-        $response['clients'][] = $row;
+        $response['clients'][] = [
+            'client_id' => intval($row['client_id']),
+            'client_name' => $row['client_name'],
+            'client_initials' => clientInitials($row['client_abbreviation'], $row['client_name']),
+            'client_tone' => clientInitialsTone($row['client_id']),
+        ];
     }
 
-    echo json_encode($response);
+    echo json_encode($response, JSON_INVALID_UTF8_SUBSTITUTE);
 }
 
 /*

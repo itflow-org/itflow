@@ -39,7 +39,6 @@ if (isset($_GET['client_id'])) {
 
         $row = mysqli_fetch_assoc($sql);
         $client_name = escapeHtml($row['client_name']);
-        $client_name_truncated = escapeHtml(truncate($row['client_name'], 7));
         $client_is_lead = intval($row['client_lead']);
         $client_type = escapeHtml($row['client_type']);
         $client_website = escapeHtml($row['client_website']);
@@ -48,6 +47,8 @@ if (isset($_GET['client_id'])) {
         $client_net_terms = intval($row['client_net_terms']);
         $client_tax_id_number = escapeHtml($row['client_tax_id_number']);
         $client_abbreviation = escapeHtml($row['client_abbreviation']);
+        $client_initials = escapeHtml(clientInitials($row['client_abbreviation'], $row['client_name']));
+        $client_initials_tone = clientInitialsTone($client_id);
         $client_rate = floatval($row['client_rate']);
         $client_notes = escapeHtml($row['client_notes']);
         $client_created_at = escapeHtml($row['client_created_at']);

@@ -2338,8 +2338,8 @@ a.itflow-dash-rail-item:focus-visible {
 /* Clients list - agent/clients.php
 
    Rows are a table with Bootstrap's own utilities; this is only the initials
-   tile beside each name, the small tag pills under it, and a tint on rows
-   ticked for a bulk action. */
+   tile beside each name (also used at the top of the client side nav), the
+   small tag pills under it, and a tint on rows ticked for a bulk action. */
 .itflow-client-avatar {
     display: inline-flex;
     flex: 0 0 auto;
@@ -2375,4 +2375,98 @@ a.itflow-dash-rail-item:focus-visible {
 }
 .itflow-clients tbody tr:has(.bulk-select:checked) > * {
     --bs-table-bg-state: var(--bs-primary-bg-subtle);
+}
+
+/* Client side nav - agent/includes/client_side_nav.php: the client's initials
+   and name at the top, under the "All clients" link */
+/* Same width, corners and left padding as the menu links below it, so the
+   tile lines up with their icons; sits right under the "All clients" bar */
+.itflow-client-nav-identity {
+    display: flex;
+    align-items: center;
+    gap: .6rem;
+    margin: 0;
+    padding: .35rem .8rem;
+    border: 1px solid rgba(255, 255, 255, .08);
+    border-radius: var(--bs-border-radius);
+    background-color: rgba(255, 255, 255, .05);
+}
+.itflow-client-avatar-sm {
+    width: 2rem;
+    height: 2rem;
+    border-radius: var(--bs-border-radius);
+    font-size: .7rem;
+}
+.itflow-client-nav-identity-label {
+    font-size: .65rem;
+    font-weight: 600;
+    letter-spacing: .05em;
+    line-height: 1.2;
+    text-transform: uppercase;
+    color: rgba(255, 255, 255, .55);
+}
+/* The card is the client switcher's button (js/client_switcher.js) */
+button.itflow-client-nav-identity {
+    width: 100%;
+    text-align: left;
+    color: inherit;
+    font: inherit;
+    cursor: pointer;
+}
+button.itflow-client-nav-identity:hover,
+button.itflow-client-nav-identity[aria-expanded="true"] {
+    background-color: rgba(255, 255, 255, .1);
+}
+button.itflow-client-nav-identity:focus-visible {
+    outline: 2px solid var(--itflow-accent, var(--bs-primary));
+    outline-offset: 1px;
+}
+.itflow-client-switcher-caret {
+    flex: 0 0 auto;
+    margin-left: auto;
+    font-size: .75rem;
+    color: rgba(255, 255, 255, .45);
+}
+.itflow-client-switcher {
+    margin-bottom: .5rem;
+}
+.itflow-client-switcher-menu {
+    width: 100%;
+    margin-top: .25rem !important;
+    padding: .5rem 0 .25rem;
+}
+.itflow-client-switcher-list {
+    max-height: min(22rem, 60vh);
+    overflow-y: auto;
+}
+.itflow-client-switcher-item {
+    display: flex;
+    align-items: center;
+    gap: .5rem;
+    padding-top: .3rem;
+    padding-bottom: .3rem;
+    font-size: .875rem;
+}
+.itflow-client-avatar-xs {
+    width: 1.5rem;
+    height: 1.5rem;
+    border-radius: var(--bs-border-radius-sm);
+    font-size: .6rem;
+}
+.itflow-client-switcher-empty {
+    padding: .4rem 1rem;
+    font-size: .8rem;
+    color: var(--bs-secondary-color);
+}
+/* Long names get two lines, then an ellipsis - the full name is in the tooltip */
+.itflow-client-nav-identity-name {
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+    overflow: hidden;
+    font-size: .875rem;
+    font-weight: 600;
+    line-height: 1.25;
+    color: #fff;
+    overflow-wrap: anywhere;
 }

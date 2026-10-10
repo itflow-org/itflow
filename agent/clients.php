@@ -268,9 +268,6 @@ $row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT COALESCE(SUM(client_lead
 $total_clients = intval($row['clients']);
 $total_leads = intval($row['leads']);
 
-// Initials tile colours - picked by id, so a client keeps its colour from page to page
-$avatar_tones = ['primary', 'success', 'info', 'warning', 'secondary'];
-
 ?>
 
 <div class="card mb-3">
@@ -479,10 +476,8 @@ $avatar_tones = ['primary', 'success', 'info', 'warning', 'secondary'];
                     $client_currency_code = escapeHtml($row['client_currency_code'] ?: $session_company_currency);
                     $client_rate = floatval($row['client_rate']);
 
-                    // Initials tile: the client's own abbreviation when it has one
-                    $client_abbreviation = trim($row['client_abbreviation']) ?: shortenClientName($row['client_name']);
-                    $client_initials = escapeHtml(mb_strtoupper(mb_substr($client_abbreviation, 0, 3)));
-                    $client_tone = $avatar_tones[$client_id % count($avatar_tones)];
+                    $client_initials = escapeHtml(clientInitials($row['client_abbreviation'], $row['client_name']));
+                    $client_tone = clientInitialsTone($client_id);
 
                     $contact_id = intval($row['contact_id']);
                     $contact_name = escapeHtml($row['contact_name']);

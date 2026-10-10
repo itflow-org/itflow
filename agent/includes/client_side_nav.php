@@ -2,21 +2,67 @@
 <aside class="app-sidebar shadow d-print-none" data-bs-theme="dark">
 
     <div class="sidebar-brand">
-        <a class="brand-link" href="/agent/clients.php">
+        <a class="brand-link" href="/agent/clients.php<?= $client_is_lead ? '?leads=1' : '' ?>">
             <i class="fas fa-arrow-left me-2"></i>
-            <span class="brand-text h5 mb-0">Back | <strong><?= $client_name_truncated ?></strong></span>
+            <span class="brand-text fs-6 text-body-secondary"><?= $client_is_lead ? 'All leads' : 'All clients' ?></span>
         </a>
     </div>
 
     <!-- Sidebar -->
     <div class="sidebar-wrapper">
 
+        <?php
+        /*
+         * Which client this is - same initials and colour as on the clients
+         * list - and a click opens a switcher to jump to another one
+         * (js/client_switcher.js). Switching keeps you on the same kind of
+         * page: a list stays that list, and a single record (a ticket, an
+         * invoice) goes to its list, since that record belongs to this client.
+         */
+        $client_switch_pages = [
+            'asset.php' => 'assets.php',
+            'contact.php' => 'contacts.php',
+            'document.php' => 'files.php',
+            'invoice.php' => 'invoices.php',
+            'network.php' => 'networks.php',
+            'project.php' => 'projects.php',
+            'quote.php' => 'quotes.php',
+            'recurring_invoice.php' => 'recurring_invoices.php',
+            'ticket.php' => 'tickets.php',
+        ];
+        $client_switch_page = basename($_SERVER['PHP_SELF']);
+        $client_switch_page = $client_switch_pages[$client_switch_page] ?? $client_switch_page;
+        if (!preg_match('/^[a-z_]+\.php$/', $client_switch_page) || !is_file(__DIR__ . "/../$client_switch_page")) {
+            $client_switch_page = 'client_overview.php';
+        }
+        ?>
+        <div class="dropdown itflow-client-switcher" data-client-switcher data-client-id="<?= $client_id ?>" data-switch-url="/agent/<?= $client_switch_page ?>?client_id=">
+            <button type="button" class="itflow-client-nav-identity" data-bs-toggle="dropdown" data-bs-auto-close="outside" data-bs-display="static" aria-expanded="false" title="<?= $client_name ?>">
+                <span class="itflow-client-avatar itflow-client-avatar-sm text-bg-<?= $client_initials_tone ?>" aria-hidden="true"><?= $client_initials ?></span>
+                <span class="overflow-hidden flex-grow-1">
+                    <?php if ($client_is_lead || $client_archived_at) { ?>
+                        <span class="d-block itflow-client-nav-identity-label"><?= ($client_archived_at ? 'Archived ' : '') . ($client_is_lead ? 'lead' : 'client') ?></span>
+                    <?php } ?>
+                    <span class="d-block itflow-client-nav-identity-name"><?= $client_name ?></span>
+                </span>
+                <i class="fas fa-fw fa-sort itflow-client-switcher-caret" aria-hidden="true"></i>
+                <span class="visually-hidden">Switch client</span>
+            </button>
+            <div class="dropdown-menu itflow-client-switcher-menu">
+                <div class="px-2 pb-2">
+                    <input type="search" class="form-control form-control-sm" placeholder="Switch to client" aria-label="Find a client" autocomplete="off" data-client-switcher-search>
+                </div>
+                <div class="itflow-client-switcher-list" data-client-switcher-list></div>
+            </div>
+        </div>
+        <script src="/js/client_switcher.js" defer></script>
+
         <!-- Sidebar Menu -->
         <nav>
 
             <ul class="nav nav-pills sidebar-menu flex-column" data-lte-toggle="treeview" role="menu" data-accordion="false">
 
-                <li class="nav-item mt-3">
+                <li class="nav-item">
                     <a href="/agent/client_overview.php?client_id=<?= $client_id ?>" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "client_overview.php") { echo "active"; } ?>">
                         <i class="nav-icon fas fa-tachometer-alt"></i>
                         <p>Overview</p>

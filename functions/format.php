@@ -330,6 +330,21 @@ function shortenClientName($client) {
     return strtoupper(substr($shortened, 0, 3));
 }
 
+/**
+ * Up to three letters for a client's initials tile - their abbreviation when
+ * they have one, otherwise one made from the name. Raw: escape at output.
+ */
+function clientInitials($abbreviation, $name) {
+    $source = trim((string) $abbreviation) ?: shortenClientName((string) $name);
+    return mb_strtoupper(mb_substr($source, 0, 3));
+}
+
+/** The colour of a client's initials tile, picked by id so it is the same on every page. */
+function clientInitialsTone($client_id) {
+    $tones = ['primary', 'success', 'info', 'warning', 'secondary'];
+    return $tones[intval($client_id) % count($tones)];
+}
+
 
 function roundUpToNearestMultiple($n, $increment = 1000) {
     return (int) ($increment * ceil($n / $increment));
