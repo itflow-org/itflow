@@ -27,7 +27,7 @@ ob_start();
 ?>
 
 <div class="modal-header bg-dark">
-    <h5 class="modal-title"><i class="fas fa-fw fa-project-diagram me-2"></i>Project: <strong><?= "$ticket_prefix$ticket_number" ?></strong> - <?= $client_name ?></h5>
+    <h5 class="modal-title"><i class="fas fa-fw fa-project-diagram me-2"></i>Project <small class="ms-1 opacity-75"><?= "$ticket_prefix$ticket_number" ?></small></h5>
     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
 </div>
 <form action="post.php" method="post" autocomplete="off">
@@ -40,7 +40,7 @@ ob_start();
             <div class="input-group">
                     <span class="input-group-text"><i class="fa fa-fw fa-project-diagram"></i></span>
                 <select class="form-select select2" name="project">
-                    <option value="0">- None -</option>
+                    <option value="0">No project</option>
                     <?php
                     while ($row = mysqli_fetch_assoc($sql_projects)) {
                         $project_id = intval($row['project_id']);

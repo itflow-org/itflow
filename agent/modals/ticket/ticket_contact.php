@@ -26,7 +26,7 @@ ob_start();
 ?>
 
 <div class="modal-header bg-dark">
-    <h5 class="modal-title"><i class="fa fa-fw fa-user me-2"></i>Changing contact: <strong><?= "$ticket_prefix$ticket_number" ?></strong> - <?= $client_name ?></h5>
+    <h5 class="modal-title"><i class="fa fa-fw fa-user me-2"></i>Change contact <small class="ms-1 opacity-75"><?= "$ticket_prefix$ticket_number" ?></small></h5>
     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
 </div>
 <form action="post.php" method="post" autocomplete="off">
@@ -39,7 +39,7 @@ ob_start();
             <div class="input-group">
                     <span class="input-group-text"><i class="fa fa-fw fa-user"></i></span>
                 <select class="form-select select2" name="contact">
-                    <option value="">No One</option>
+                    <option value="">No contact</option>
                     <?php
                     $sql_client_contacts_select = mysqli_query($mysqli, "SELECT contact_id, contact_name, contact_title, contact_primary, contact_technical FROM contacts WHERE contact_client_id = $client_id AND contact_archived_at IS NULL ORDER BY contact_primary DESC, contact_technical DESC, contact_name ASC");
                     while ($row = mysqli_fetch_assoc($sql_client_contacts_select)) {
@@ -76,12 +76,12 @@ ob_start();
             </div>
         </div>
 
-        <?php if (!empty($config_smtp_host)) { ?>
+        <?php if (!empty($config_smtp_provider)) { ?>
             <div class="mb-3">
                 <div class="form-check">
                     <input class="form-check-input" type="checkbox" name="contact_notify" value="1" id="checkNotifyContact" <?php if ($config_ticket_client_general_notifications) { echo "checked"; } ?>>
                     <label class="form-check-label" for="checkNotifyContact">
-                        Send email notification
+                        Email the new contact a link to this ticket
                     </label>
                 </div>
             </div>

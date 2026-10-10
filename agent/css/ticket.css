@@ -1,53 +1,80 @@
 /* Ticket detail page */
 
 /*
- * Header property fields.
+ * Page layout.
  *
- * These used to be a run of inline label/value pairs separated only by a right
- * margin, which read as one crunched line and collided outright when it wrapped.
- * A fixed minimum width and a shared gutter give the row a rhythm, so each
- * value reads as its own field and a wrapped row keeps its spacing.
+ * Desktop: two columns that both start at the top - the header and the
+ * conversation on the left, the sidebar (Details, Contact, Tasks, Linked,
+ * History) on the right, so the ticket's properties sit beside its title
+ * instead of in a strip that wrapped onto a second row.
+ *
+ * Phone: one column. Left alone, the whole sidebar would land under the
+ * conversation and put status and priority at the bottom of a long page. The
+ * sidebar wrapper steps aside (display: contents) so its cards become items of
+ * the column, and `order` lifts Details up between the header and the
+ * conversation while the other sidebar cards stay below it.
  */
-.ticket-fields {
+.ticket-layout {
     display: flex;
-    flex-wrap: wrap;
-    margin: 0 -0.85rem;
+    flex-direction: column;
 }
 
-.ticket-field {
-    flex: 0 0 auto;
-    min-width: 150px;
-    max-width: 100%;
-    padding: 0 0.85rem;
-    margin-top: 0.85rem;
+.ticket-layout-header {
+    order: 0;
 }
 
-.ticket-field-label {
-    font-size: 0.72rem;
-    font-weight: 600;
-    letter-spacing: 0.04em;
-    text-transform: uppercase;
-    color: #8a94a0;
-    margin-bottom: 0.2rem;
-    white-space: nowrap;
+.ticket-layout-main {
+    order: 2;
+    min-width: 0;
 }
 
-.ticket-field-value {
-    font-size: 0.95rem;
-    line-height: 1.4;
+.ticket-layout-side {
+    display: contents;
 }
 
-/*
- * Task progress. A slim track sitting beside the count rather than a chart
- * with text floating on top of it. The count is real text, so the flex cell
- * can size itself - the old bar's only children were a percentage-width div
- * and an absolutely-positioned label, neither of which contributes intrinsic
- * width, so the Tasks cell was pinned at min-width whatever it contained.
- */
-.ticket-task-progress {
-    flex: 0 0 56px;
-    height: 6px;
+.ticket-layout-side > * {
+    order: 3;
 }
+
+.ticket-layout-side > .ticket-details {
+    order: 1;
+}
+
+@media (min-width: 992px) {
+    .ticket-layout {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) 300px;
+        /* The second row soaks up the height, so the header row is only as tall as the header */
+        grid-template-rows: auto 1fr;
+        grid-template-areas:
+            "header side"
+            "main   side";
+        column-gap: 1rem;
+        align-items: start;
+    }
+
+    .ticket-layout-header {
+        grid-area: header;
+    }
+
+    .ticket-layout-main {
+        grid-area: main;
+    }
+
+    .ticket-layout-side {
+        display: block;
+        grid-area: side;
+        min-width: 0;
+    }
+}
+
+@media (min-width: 1400px) {
+    .ticket-layout {
+        grid-template-columns: minmax(0, 1fr) 340px;
+    }
+}
+
+/* Header */
 
 /* The subject is the page's real heading, so let it breathe */
 .ticket-subject {
@@ -63,14 +90,195 @@
 
 .ticket-meta {
     font-size: 0.85rem;
-    color: #6c757d;
+    color: var(--bs-secondary-color);
     word-break: break-word;
 }
 
-@media (max-width: 575px) {
-    .ticket-field {
-        min-width: 45%;
+/*
+ * Details panel - one property per row, label on the left, value on the right.
+ *
+ * A value that can be changed is a full-width button: it highlights on hover and
+ * shows a small pencil, which is how the page says "click to change" without a
+ * column of blue links. Values that can't be changed get the same box with no
+ * hover, so every row lines up whether it is editable or not.
+ */
+.ticket-prop {
+    display: grid;
+    grid-template-columns: 6.25rem minmax(0, 1fr);
+    align-items: center;
+    min-height: 2.4rem;
+}
+
+.ticket-prop + .ticket-prop {
+    border-top: 1px solid var(--bs-border-color-translucent);
+}
+
+.ticket-prop dt {
+    margin: 0;
+    padding-left: 0.5rem;
+    font-size: 0.8rem;
+    font-weight: 500;
+    color: var(--bs-secondary-color);
+}
+
+.ticket-prop dd {
+    margin: 0;
+    min-width: 0;
+}
+
+.ticket-prop-edit,
+.ticket-prop-static {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.5rem;
+    width: 100%;
+    min-width: 0;
+    padding: 0.3rem 0.5rem;
+    border: 0;
+    border-radius: var(--bs-border-radius);
+    background: transparent;
+    color: var(--bs-body-color);
+    font: inherit;
+    text-align: left;
+    text-decoration: none;
+}
+
+.ticket-prop-edit:hover,
+.ticket-prop-edit:focus-visible,
+.ticket-prop-edit[aria-expanded="true"] {
+    background-color: var(--bs-tertiary-bg);
+    color: var(--bs-body-color);
+}
+
+.ticket-prop-edit-icon {
+    flex: 0 0 auto;
+    font-size: 0.7rem;
+    color: var(--bs-secondary-color);
+    opacity: 0;
+    transition: opacity 0.15s;
+}
+
+.ticket-prop-edit:hover .ticket-prop-edit-icon,
+.ticket-prop-edit:focus-visible .ticket-prop-edit-icon,
+.ticket-prop-edit[aria-expanded="true"] .ticket-prop-edit-icon {
+    opacity: 1;
+}
+
+/* Touch screens have no hover, so the pencil stays faintly visible there */
+@media (hover: none) {
+    .ticket-prop-edit-icon {
+        opacity: 0.6;
     }
+}
+
+/* A second line under a value - the SLA plan name, Onsite/Remote */
+.ticket-prop-sub {
+    display: block;
+    font-size: 0.8rem;
+    color: var(--bs-secondary-color);
+}
+
+.ticket-prop .badge {
+    font-size: 0.78rem;
+    font-weight: 600;
+    /* Badges never wrap by default, and an SLA countdown can be wider than a narrow column */
+    white-space: normal;
+    text-align: left;
+}
+
+/* Small uppercase headings inside the Linked and History cards */
+.ticket-link-heading {
+    font-size: 0.72rem;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: var(--bs-secondary-color);
+}
+
+/* Tasks - the progress count lives in the card heading, the one place it is shown */
+.ticket-task-count {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    font-size: 0.8rem;
+    font-weight: 400;
+    color: var(--bs-secondary-color);
+    vertical-align: middle;
+}
+
+.ticket-task-progress {
+    width: 48px;
+    height: 5px;
+}
+
+.ticket-task-table td {
+    vertical-align: top;
+    padding-top: 0.45rem;
+    padding-bottom: 0.45rem;
+}
+
+.ticket-task-check {
+    width: 1.75rem;
+}
+
+.ticket-task-table .drag-handle {
+    cursor: grab;
+    opacity: 0.4;
+}
+
+.ticket-task-table tr:hover .drag-handle {
+    opacity: 1;
+}
+
+/* History - label/value pairs in two columns */
+.ticket-history-facts {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
+    column-gap: 0.75rem;
+    row-gap: 0.4rem;
+    font-size: 0.875rem;
+}
+
+.ticket-history-facts dt {
+    font-weight: 500;
+    color: var(--bs-secondary-color);
+}
+
+.ticket-history-facts dd {
+    margin: 0;
+}
+
+/* Conversation - the coloured edge says who wrote it and who can see it */
+.ticket-reply.border-start {
+    border-left-width: 4px !important;
+}
+
+/*
+ * Dark mode: Bootstrap's "dark" is the page colour there, so the ticket reference,
+ * the Internal badge and an internal note's edge would all vanish into the card.
+ * Lift them to a mid grey that still reads as the dark/neutral one.
+ */
+[data-bs-theme="dark"] .ticket-ref,
+[data-bs-theme="dark"] .ticket-badge-internal {
+    background-color: #495057 !important;
+    color: #fff !important;
+}
+
+[data-bs-theme="dark"] .ticket-reply.border-dark {
+    border-left-color: #6c757d !important;
+}
+
+/* The "who will see this" line under the reply type buttons */
+.ticket-reply-audience {
+    padding: 0.5rem 0.75rem;
+    border-radius: var(--bs-border-radius);
+    background-color: var(--bs-tertiary-bg);
+    color: var(--bs-secondary-color);
+}
+
+.ticket-reply-audience strong {
+    color: var(--bs-body-color);
 }
 
 /*
@@ -86,4 +294,15 @@
  */
 #replyTypePicker .btn-check:not(:checked) + .btn:hover {
     background-color: var(--bs-secondary-bg);
+}
+
+/* Paper gets one column, conversation first */
+@media print {
+    .ticket-layout {
+        display: block;
+    }
+
+    .ticket-layout-side {
+        display: block;
+    }
 }

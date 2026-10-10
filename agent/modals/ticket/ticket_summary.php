@@ -9,7 +9,7 @@ ob_start();
 ?>
 
 <div class="modal-header bg-dark">
-    <h5 class="modal-title" id="summaryModalTitle">Ticket Summary</h5>
+    <h5 class="modal-title" id="summaryModalTitle"><i class="fas fa-fw fa-magic me-2"></i>AI summary</h5>
     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
 </div>
 <div class="modal-body">

@@ -23,8 +23,7 @@ ob_start();
 
 <div class="modal-header bg-dark">
     <h5 class="modal-title">
-        <i class="fa fa-fw fa-people-carry me-2"></i>
-        Change <?= "$ticket_prefix$ticket_number" ?> to another client
+        <i class="fa fa-fw fa-people-carry me-2"></i>Move to another client <small class="ms-1 opacity-75"><?= "$ticket_prefix$ticket_number" ?></small>
     </h5>
     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
 </div>
@@ -34,8 +33,14 @@ ob_start();
     <input type="hidden" name="ticket_id" value="<?= $ticket_id ?>">
 
     <div class="modal-body">
+
+        <!-- change_client_ticket turns every reply internal - the agent should know before, not after -->
+        <div class="alert alert-info small">
+            Every reply already on this ticket becomes an internal note, so the new client never sees the old conversation.
+        </div>
+
         <div class="mb-3">
-            <label>New Client <strong class="text-danger">*</strong></label>
+            <label>Client <strong class="text-danger">*</strong></label>
             <div class="input-group">
                     <span class="input-group-text"><i class="fa fa-fw fa-users"></i></span>
                 <select class="form-select select2" name="new_client_id" id="client_select" required>
@@ -54,7 +59,7 @@ ob_start();
         </div>
 
         <div class="mb-3">
-            <label>New Contact</label>
+            <label>Contact</label>
             <div class="input-group">
                     <span class="input-group-text"><i class="fa fa-fw fa-user"></i></span>
                 <select class="form-select select2" name="new_contact_id" id="contact_select">
@@ -66,7 +71,7 @@ ob_start();
 
     <div class="modal-footer">
         <button type="submit" name="change_client_ticket" class="btn btn-primary text-bold">
-            <i class="fa fa-check me-2"></i>Change
+            <i class="fa fa-check me-2"></i>Move ticket
         </button>
         <button type="button" class="btn btn-light" data-bs-dismiss="modal">
             <i class="fa fa-times me-2"></i>Cancel

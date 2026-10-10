@@ -32,7 +32,7 @@ ob_start();
 ?>
 
 <div class="modal-header bg-dark">
-    <h5 class="modal-title"><i class="fa fa-fw fa-desktop me-2"></i>Editing ticket Asset: <strong><?= "$ticket_prefix$ticket_number" ?></strong> - <?= $client_name ?></h5>
+    <h5 class="modal-title"><i class="fa fa-fw fa-desktop me-2"></i>Assets <small class="ms-1 opacity-75"><?= "$ticket_prefix$ticket_number" ?></small></h5>
     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
 </div>
 <form action="post.php" method="post" autocomplete="off">
@@ -41,11 +41,11 @@ ob_start();
     <div class="modal-body">
 
         <div class="mb-3">
-            <label>Asset</label>
+            <label>Primary asset</label>
             <div class="input-group">
                     <span class="input-group-text"><i class="fa fa-fw fa-desktop"></i></span>
                 <select class="form-select select2" name="asset">
-                    <option value="0">- None -</option>
+                    <option value="0">No asset</option>
                     <?php
 
                     $sql_assets = mysqli_query($mysqli, "SELECT asset_id, asset_name, contact_name FROM assets LEFT JOIN contacts ON contact_id = asset_contact_id WHERE asset_client_id = $client_id AND asset_archived_at IS NULL ORDER BY asset_name ASC");
@@ -54,7 +54,7 @@ ob_start();
                         $asset_name_select = escapeHtml($row['asset_name']);
                         $asset_contact_name_select = escapeHtml($row['contact_name']);
                         ?>
-                        <option <?php if ($asset_id == $asset_id_select) { echo "selected"; } ?> value="<?= $asset_id_select ?>"><?= "$asset_name_select - $asset_contact_name_select" ?></option>
+                        <option <?php if ($asset_id == $asset_id_select) { echo "selected"; } ?> value="<?= $asset_id_select ?>"><?= $asset_contact_name_select ? "$asset_name_select ($asset_contact_name_select)" : $asset_name_select ?></option>
 
                         <?php
                     }
@@ -64,10 +64,10 @@ ob_start();
         </div>
 
         <div class="mb-3">
-            <label>Additional Assets</label>
+            <label>Other assets</label>
             <div class="input-group">
                     <span class="input-group-text"><i class="fa fa-fw fa-desktop"></i></span>
-                <select class="form-select select2" name="additional_assets[]" data-placeholder="- Select Additional Assets -" multiple>
+                <select class="form-select select2" name="additional_assets[]" data-placeholder="- Any other assets involved -" multiple>
                     <option value=""></option>
                     <?php
 
@@ -79,7 +79,7 @@ ob_start();
                     ?>
                         <option value="<?= $asset_id_select ?>"
                             <?php if (in_array($asset_id_select, $additional_assets_array)) { echo "selected"; } ?>
-                            ><?= "$asset_name_select - $asset_contact_name_select" ?></option>
+                            ><?= $asset_contact_name_select ? "$asset_name_select ($asset_contact_name_select)" : $asset_name_select ?></option>
 
                     <?php } ?>
                 </select>

@@ -94,7 +94,7 @@ ob_start();
 ?>
 
 <div class="modal-header bg-dark">
-    <h5 class="modal-title"><i class="fa fa-fw fa-file-invoice-dollar me-2"></i>Invoice ticket</h5>
+    <h5 class="modal-title"><i class="fa fa-fw fa-file-invoice-dollar me-2"></i>Invoice this ticket</h5>
     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
 </div>
 <form action="post.php" method="post" autocomplete="off">

@@ -25,7 +25,7 @@ ob_start();
 ?>
 
 <div class="modal-header bg-dark">
-    <h5 class="modal-title"><i class="fa fa-fw fa-shield-alt me-2"></i>New approver for task <?=$task_name?></h5>
+    <h5 class="modal-title"><i class="fa fa-fw fa-shield-alt me-2"></i>Require approval <small class="ms-1 opacity-75"><?= $task_name ?></small></h5>
     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
 </div>
 <form action="post.php" method="post" autocomplete="off">
@@ -35,13 +35,13 @@ ob_start();
     <div class="modal-body">
 
         <div class="mb-3">
-            <label>Approval scope <strong class="text-danger">*</strong></label>
+            <label>Approval comes from <strong class="text-danger">*</strong></label>
             <div class="input-group">
                     <span class="input-group-text"><i class="fa fa-fw fa-layer-group"></i></span>
                 <select class="form-select" name="approval_scope" id="approval_scope" required>
-                    <option value="">Select scope...</option>
-                    <option value="internal">Internal</option>
-                    <option value="client">Client</option>
+                    <option value="">- Pick one -</option>
+                    <option value="internal">Our team</option>
+                    <option value="client">The client</option>
                 </select>
             </div>
         </div>
@@ -59,7 +59,7 @@ ob_start();
 
 
         <div class="mb-3 d-none" id="specific_user_wrapper">
-            <label>Select specific internal approver <strong class="text-danger">*</strong></label>
+            <label>Technician <strong class="text-danger">*</strong></label>
             <div class="input-group">
                     <span class="input-group-text"><i class="fa fa-fw fa-user-circle"></i></span>
                 <select class="form-select select2" name="approval_required_user_id" id="specific_user_select">
@@ -72,7 +72,7 @@ ob_start();
     </div>
 
     <div class="modal-footer">
-        <button type="submit" name="add_ticket_task_approver" class="btn btn-primary text-bold"><i class="fa fa-check me-2"></i>Save</button>
+        <button type="submit" name="add_ticket_task_approver" class="btn btn-primary text-bold"><i class="fa fa-check me-2"></i>Require approval</button>
         <button type="button" class="btn btn-light" data-bs-dismiss="modal"><i class="fa fa-times me-2"></i>Cancel</button>
     </div>
 
@@ -118,8 +118,8 @@ ob_start();
             if (scope === 'internal') {
                 setOptions(typeSelect, [
                     ['', 'Select...'],
-                    ['any', 'Any internal reviewer'],
-                    ['specific', 'Specific agent']
+                    ['any', 'Any other technician'],
+                    ['specific', 'A specific technician']
                 ]);
             }
 

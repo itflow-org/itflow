@@ -31,7 +31,7 @@ ob_start();
 
 <div class="modal-header bg-dark">
     <h5 class="modal-title">
-        <i class="fa fa-fw fa-calendar-check me-2"></i>Scheduling Ticket: <strong><?= "$ticket_prefix$ticket_number" ?></strong>
+        <i class="fa fa-fw fa-calendar-check me-2"></i>Schedule <small class="ms-1 opacity-75"><?= "$ticket_prefix$ticket_number" ?></small>
     </h5>
     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
 </div>
@@ -41,7 +41,7 @@ ob_start();
         <input type="hidden" name="ticket_id" value="<?= $ticket_id ?>">
 
         <div class="mb-3">
-            <label>Date / Time</label>
+            <label>Date and time</label>
             <div class="input-group">
                     <span class="input-group-text"><i class="fa fa-fw fa-calendar-day"></i></span>
                 <input type="datetime-local" class="form-control" name="scheduled_date_time" placeholder="Scheduled Date & Time" min="<?= date('Y-m-d\TH:i') ?>" <?php if ($ticket_scheduled_for) { echo "value='$ticket_scheduled_for'"; } ?>>
@@ -49,12 +49,12 @@ ob_start();
         </div>
 
         <div class="mb-3">
-            <label>Onsite?</label>
+            <label>Visit</label>
             <div class="input-group">
                     <span class="input-group-text"><i class="fa fa-fw fa-map-marker-alt"></i></span>
                 <select class="form-select" name="onsite" required>
-                    <option value="0" <?php if ($ticket_onsite == 0) echo "selected"; ?>>No</option>
-                    <option value="1" <?php if ($ticket_onsite == 1) echo "selected"; ?>>Yes</option>
+                    <option value="0" <?php if ($ticket_onsite == 0) echo "selected"; ?>>Remote</option>
+                    <option value="1" <?php if ($ticket_onsite == 1) echo "selected"; ?>>Onsite</option>
                 </select>
             </div>
         </div>
@@ -62,8 +62,8 @@ ob_start();
 
     <div class="modal-footer">
     <?php if ($ticket_scheduled_for) { ?>
-        <a href="post.php?cancel_ticket_schedule=<?= $ticket_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>" class="btn btn-danger text-bold confirm-link" data-confirm-text="A cancellation email goes to the assigned agent, and to the contact and watchers if client notifications are on." data-confirm-button="Cancel scheduled time">
-            <i class="fa fa-trash me-2"></i>Cancel Scheduled Time
+        <a href="post.php?cancel_ticket_schedule=<?= $ticket_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>" class="btn btn-outline-danger confirm-link me-auto" data-confirm-title="Remove from the schedule?" data-confirm-text="A cancellation email goes to the assigned agent, and to the contact and watchers if client notifications are on." data-confirm-button="Remove from schedule">
+            <i class="fa fa-calendar-times me-2"></i>Remove from schedule
         </a>
     <?php } ?>
         <button type="submit" name="edit_ticket_schedule" class="btn btn-primary text-bold"><i class="fa fa-check me-2"></i>Save</button>

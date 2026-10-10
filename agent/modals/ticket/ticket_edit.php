@@ -51,7 +51,7 @@ ob_start();
 ?>
 
 <div class="modal-header bg-dark">
-    <h5 class="modal-title"><i class="fa fa-fw fa-life-ring me-2"></i>Ticket: <strong><?= "$ticket_prefix$ticket_number" ?></strong> - <?= $client_name ?></h5>
+    <h5 class="modal-title"><i class="fa fa-fw fa-life-ring me-2"></i>Edit ticket <small class="ms-1 opacity-75"><?= "$ticket_prefix$ticket_number" ?></small></h5>
     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
 </div>
 <form action="post.php" method="post" autocomplete="off">
@@ -66,10 +66,10 @@ ob_start();
             </li>
 
             <li class="nav-item">
-                <a class="nav-link" data-bs-toggle="pill" href="#pills-contacts"><i class="fa fa-fw fa-users me-2"></i>Contact</a>
+                <a class="nav-link" data-bs-toggle="pill" href="#pills-contacts"><i class="fa fa-fw fa-user me-2"></i>Contact</a>
             </li>
             <li class="nav-item">
-                <a class="nav-link" data-bs-toggle="pill" href="#pills-assignment"><i class="fa fa-fw fa-desktop me-2"></i>Assignment</a>
+                <a class="nav-link" data-bs-toggle="pill" href="#pills-assignment"><i class="fa fa-fw fa-link me-2"></i>Related</a>
             </li>
 
         </ul>
@@ -138,11 +138,11 @@ ob_start();
                 <div class="row">
                     <div class="col">
                         <div class="mb-3">
-                            <label>Assign to</label>
+                            <label>Assigned to</label>
                             <div class="input-group">
                                     <span class="input-group-text"><i class="fa fa-fw fa-user-check"></i></span>
                                 <select class="form-select select2" name="assigned_to">
-                                    <option value="0">Not Assigned</option>
+                                    <option value="0">Unassigned</option>
                                     <?php
 
                                     $sql = mysqli_query(
@@ -165,7 +165,7 @@ ob_start();
                     </div>
                     <div class="col">
                         <div class="mb-3">
-                            <label>Due</label>
+                            <label>Due date</label>
                             <div class="input-group">
                                     <span class="input-group-text"><i class="fa fa-fw fa-calendar-check"></i></span>
                                 <input type="datetime-local" class="form-control" name="due" value="<?= $ticket_due_at ?>">
@@ -178,9 +178,12 @@ ob_start();
                 <div class="mb-3">
                     <div class="form-check form-switch">
                         <input type="checkbox" class="form-check-input" name="billable" <?php if ($ticket_billable == 1) { echo "checked"; } ?> value="1" id="billableSwitch<?= $ticket_id ?>">
-                        <label class="form-check-label" for="billableSwitch<?= $ticket_id ?>">Mark Billable</label>
+                        <label class="form-check-label" for="billableSwitch<?= $ticket_id ?>">Billable</label>
                     </div>
                 </div>
+                <?php } else { ?>
+                    <!-- No switch for this user, so carry the current value through untouched -->
+                    <input type="hidden" name="billable" value="<?= $ticket_billable ?>">
                 <?php } ?>
 
             </div>
@@ -194,7 +197,7 @@ ob_start();
                     <div class="input-group">
                             <span class="input-group-text"><i class="fa fa-fw fa-user"></i></span>
                         <select class="form-select select2" name="contact_id">
-                            <option value="0">No One</option>
+                            <option value="0">No contact</option>
                             <?php
                             $sql_client_contacts_select = mysqli_query($mysqli, "SELECT contact_id, contact_name, contact_title, contact_primary, contact_technical FROM contacts WHERE contact_client_id = $client_id AND contact_archived_at IS NULL ORDER BY contact_primary DESC, contact_technical DESC, contact_name ASC");
                             while ($row = mysqli_fetch_assoc($sql_client_contacts_select)) {
@@ -226,12 +229,12 @@ ob_start();
                     </div>
                 </div>
 
-                <?php if (!empty($config_smtp_host)) { ?>
+                <?php if (!empty($config_smtp_provider)) { ?>
                     <div class="mb-3">
                         <div class="form-check">
                             <input class="form-check-input" type="checkbox" name="contact_notify" value="1" id="checkNotifyContact">
                             <label class="form-check-label" for="checkNotifyContact">
-                                Send email notification
+                                Email the contact a link to this ticket
                             </label>
                         </div>
                     </div>
@@ -242,7 +245,7 @@ ob_start();
             <div class="tab-pane fade" id="pills-assignment">
 
                 <div class="mb-3">
-                    <label>Asset</label>
+                    <label>Primary asset</label>
                     <div class="input-group">
                             <span class="input-group-text"><i class="fa fa-fw fa-desktop"></i></span>
                         <select class="form-select select2" name="asset_id">
@@ -255,7 +258,7 @@ ob_start();
                                 $asset_name_select = escapeHtml($row['asset_name']);
                                 $asset_contact_name_select = escapeHtml($row['contact_name']);
                                 ?>
-                                <option <?php if ($asset_id == $asset_id_select) { echo "selected"; } ?> value="<?= $asset_id_select ?>"><?= "$asset_name_select - $asset_contact_name_select" ?></option>
+                                <option <?php if ($asset_id == $asset_id_select) { echo "selected"; } ?> value="<?= $asset_id_select ?>"><?= $asset_contact_name_select ? "$asset_name_select ($asset_contact_name_select)" : $asset_name_select ?></option>
 
                                 <?php
                             }
@@ -265,10 +268,10 @@ ob_start();
                 </div>
 
                 <div class="mb-3">
-                    <label>Additional Assets</label>
+                    <label>Other assets</label>
                     <div class="input-group">
                             <span class="input-group-text"><i class="fa fa-fw fa-desktop"></i></span>
-                        <select class="form-select select2" name="additional_assets[]" data-placeholder="- Select Additional Assets -" multiple>
+                        <select class="form-select select2" name="additional_assets[]" data-placeholder="- Any other assets involved -" multiple>
                             <option value=""></option>
                             <?php
 
@@ -280,7 +283,7 @@ ob_start();
                             ?>
                                 <option value="<?= $asset_id_select ?>"
                                     <?php if (in_array($asset_id_select, $additional_assets_array)) { echo "selected"; } ?>
-                                    ><?= "$asset_name_select - $asset_contact_name_select" ?></option>
+                                    ><?= $asset_contact_name_select ? "$asset_name_select ($asset_contact_name_select)" : $asset_name_select ?></option>
 
                             <?php } ?>
                         </select>
@@ -340,10 +343,10 @@ ob_start();
                     <div class="col">
 
                         <div class="mb-3">
-                            <label>Vendor Ticket Number</label>
+                            <label>Vendor's ticket number</label>
                             <div class="input-group">
                                     <span class="input-group-text"><i class="fa fa-fw fa-tag"></i></span>
-                                <input type="text" class="form-control" name="vendor_ticket_number" placeholder="Vendor ticket number" maxlength="255" value="<?= $ticket_vendor_ticket_number ?>">
+                                <input type="text" class="form-control" name="vendor_ticket_number" placeholder="Their reference for this issue" maxlength="255" value="<?= $ticket_vendor_ticket_number ?>">
                             </div>
                         </div>
 

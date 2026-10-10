@@ -31,7 +31,7 @@ ob_start();
 ?>
 
 <div class="modal-header bg-dark">
-    <h5 class="modal-title"><i class='fa fa-fw fa-user-check me-2'></i>Assigning Ticket: <strong><?= "$ticket_prefix$ticket_number" ?></strong> - <?= $client_name ?></h5>
+    <h5 class="modal-title"><i class='fa fa-fw fa-user-check me-2'></i>Assign ticket <small class="ms-1 opacity-75"><?= "$ticket_prefix$ticket_number" ?></small></h5>
     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
 </div>
 
@@ -42,7 +42,7 @@ ob_start();
     <div class="modal-body">
 
         <div class="mb-3">
-            <label>Assign to</label>
+            <label>Technician</label>
             <div class="input-group">
                     <span class="input-group-text"><i class="fa fa-fw fa-user-check"></i></span>
                 <select class="form-select select2" name="assigned_to">

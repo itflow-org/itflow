@@ -73,7 +73,7 @@ ob_start();
 ?>
 
     <div class="modal-header bg-dark">
-        <h5 class="modal-title"><i class="fa fa-fw fa-comment-dollar me-2"></i>Quote ticket</h5>
+        <h5 class="modal-title"><i class="fa fa-fw fa-comment-dollar me-2"></i>Create quote from ticket</h5>
         <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
     </div>
 

@@ -815,6 +815,13 @@ if (isset($_POST['edit_ticket_vendor'])) {
 
     mysqli_query($mysqli, "UPDATE tickets SET ticket_vendor_id = $vendor_id WHERE ticket_id = $ticket_id");
 
+    // The vendor modal now carries the vendor's own ticket number too. Only touched when the
+    // field was posted, so anything else that submits this action cannot blank it by omission
+    if (isset($_POST['vendor_ticket_number'])) {
+        $vendor_ticket_number = escapeSql($_POST['vendor_ticket_number']);
+        mysqli_query($mysqli, "UPDATE tickets SET ticket_vendor_ticket_number = '$vendor_ticket_number' WHERE ticket_id = $ticket_id");
+    }
+
     // Get ticket / vendor details for logging
     $sql = mysqli_query($mysqli, "SELECT vendor_name, ticket_prefix, ticket_number, ticket_status_name, ticket_client_id FROM vendors
         LEFT JOIN tickets ON ticket_vendor_id = $vendor_id

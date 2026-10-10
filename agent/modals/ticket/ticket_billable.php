@@ -22,7 +22,7 @@ ob_start();
 
 <div class="modal-header bg-dark">
     <h5 class="modal-title">
-        <i class="fa fa-fw fa-money-bill me-2"></i>Editing Billable Status: <strong><?= "$ticket_prefix$ticket_number" ?></strong>
+        <i class="fa fa-fw fa-money-bill me-2"></i>Billing <small class="ms-1 opacity-75"><?= "$ticket_prefix$ticket_number" ?></small>
     </h5>
     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
 </div>
@@ -31,14 +31,15 @@ ob_start();
         <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
         <input type="hidden" name="ticket_id" value="<?= $ticket_id ?>">
         <div class="mb-3">
-            <label>Billable?</label>
+            <label>This ticket is</label>
             <div class="input-group">
                     <span class="input-group-text"><i class="fa fa-fw fa-money-bill"></i></span>
                 <select class="form-select" name="billable_status">
-                    <option <?php if ($ticket_billable == 1) { echo "selected"; } ?> value="1">Yes</option>
-                    <option <?php if ($ticket_billable == 0) { echo "selected"; } ?> value="0">No</option>
+                    <option <?php if ($ticket_billable == 1) { echo "selected"; } ?> value="1">Billable</option>
+                    <option <?php if ($ticket_billable == 0) { echo "selected"; } ?> value="0">Not billable</option>
                 </select>
             </div>
+            <small class="text-muted">Billable tickets show in the Unbilled Tickets report until they are invoiced.</small>
         </div>
 
     </div>
