@@ -2334,3 +2334,45 @@ a.itflow-dash-rail-item:focus-visible {
 .itflow-dash-chart-sm {
     min-height: 150px;
 }
+
+/* Clients list - agent/clients.php
+
+   Rows are a table with Bootstrap's own utilities; this is only the initials
+   tile beside each name, the small tag pills under it, and a tint on rows
+   ticked for a bulk action. */
+.itflow-client-avatar {
+    display: inline-flex;
+    flex: 0 0 auto;
+    align-items: center;
+    justify-content: center;
+    width: 2.5rem;
+    height: 2.5rem;
+    border-radius: var(--bs-border-radius-lg);
+    font-size: .8rem;
+    font-weight: 600;
+    letter-spacing: .02em;
+}
+.itflow-client-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: .2rem;
+    padding: .05rem .45rem;
+    border-radius: 1rem;
+    font-size: .75rem;
+    line-height: 1.4;
+    color: #fff;
+    background-color: var(--itflow-tag-color, var(--bs-secondary));
+    text-decoration: none;
+    white-space: nowrap;
+}
+.itflow-client-tag:hover,
+.itflow-client-tag:focus-visible {
+    color: #fff;
+    filter: brightness(1.1);
+}
+.itflow-clients-street {
+    max-width: 16rem;
+}
+.itflow-clients tbody tr:has(.bulk-select:checked) > * {
+    --bs-table-bg-state: var(--bs-primary-bg-subtle);
+}
