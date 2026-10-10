@@ -1552,25 +1552,70 @@ html {
     max-width: 100%;
 }
 
-/* Client header disclosure - agent/includes/inc_client_top_head.php
+/* Client header - agent/includes/inc_client_top_head.php
 
-   The client name is the collapse trigger for #clientHeader, but links carry no
-   underline in this app and the h4 is text-dark, so nothing said the heading was
-   clickable or that a panel was folded behind it.
-
-   Size and colour only. Which way it points is carried by the icon class itself
-   (fa-chevron-right / fa-chevron-down) - emitted by PHP for the first paint, swapped
-   by the include's own script after that. Not a CSS rotation, so the direction cannot
-   go stale behind a cached stylesheet. */
-.client-header-chevron {
-    font-size: .7em;
-    margin-right: .25rem;
-    vertical-align: middle;
+   Initials, name and tags in one row; the name opens the panel underneath
+   (#clientHeader), which holds the same columns as the overview's header. Which way the chevron points is carried by the icon class
+   itself (fa-chevron-right / fa-chevron-down) - emitted by PHP for the first
+   paint, swapped by the include's own script after that. Not a CSS rotation,
+   so the direction cannot go stale behind a cached stylesheet. */
+.itflow-client-head-main,
+.itflow-client-head-toggle {
+    min-width: 0;
+}
+.itflow-client-head-toggle {
+    display: inline-flex;
+    align-items: center;
+    gap: .5rem;
+    color: var(--bs-body-color);
+    text-decoration: none;
+}
+.itflow-client-head-toggle:hover,
+.itflow-client-head-toggle:focus-visible {
+    color: var(--bs-body-color);
+}
+/* Name with the client type under it, together no taller than the 2rem
+   initials tile beside them, so the row stays the same height */
+.itflow-client-head-title {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+}
+.itflow-client-head-name {
+    font-size: 1.125rem;
+    font-weight: 600;
+    line-height: 1.25rem;
+    overflow-wrap: anywhere;
+}
+.itflow-client-head-type {
+    font-size: .75rem;
+    line-height: .75rem;
     color: var(--bs-secondary-color);
 }
-
+.client-header-chevron {
+    font-size: .7rem;
+    color: var(--bs-secondary-color);
+}
 .client-header-toggle:hover .client-header-chevron {
     color: var(--bs-body-color);
+}
+/* Open tickets and balance due beside the menu */
+.itflow-client-head-glance {
+    font-size: .875rem;
+    white-space: nowrap;
+}
+.itflow-client-head-glance a {
+    text-decoration: none;
+}
+/* Phone: a smaller name so most fit on one line beside the menu button, the
+   tags under it, then open tickets and balance due on their own line */
+@media (max-width: 767.98px) {
+    .itflow-client-head-name {
+        font-size: 1rem;
+    }
+    .itflow-client-head-glance {
+        flex-basis: 100%;
+    }
 }
 
 /* Search palette - js/global_search.js
@@ -2486,4 +2531,50 @@ button.itflow-client-nav-identity:focus-visible {
     line-height: 1.25;
     color: #fff;
     overflow-wrap: anywhere;
+}
+
+/* Client overview - agent/client_overview.php
+
+   Reuses the dashboard's pieces (quiet card headers, the attention rail, the
+   schedule list, money figures); this adds the large initials tile, the small
+   labels in the header, contact avatars, the notes box and the money strip. */
+.itflow-client-avatar-lg {
+    width: 3.5rem;
+    height: 3.5rem;
+    border-radius: var(--bs-border-radius-lg);
+    font-size: 1.1rem;
+}
+/* Phone: the name stays beside the initials and the buttons drop under them */
+@media (max-width: 767.98px) {
+    .itflow-ov-hero-name {
+        flex: 1 1 0;
+    }
+    .itflow-ov-hero-actions {
+        flex-basis: 100%;
+    }
+}
+.itflow-ov-label {
+    margin-bottom: .25rem;
+    font-size: .8rem;
+    color: var(--bs-secondary-color);
+}
+.itflow-ov-person {
+    display: inline-flex;
+    flex: 0 0 auto;
+    align-items: center;
+    justify-content: center;
+    width: 2.25rem;
+    height: 2.25rem;
+    font-size: .8rem;
+    font-weight: 600;
+    object-fit: cover;
+}
+.itflow-ov-notes {
+    min-height: 12rem;
+    resize: vertical;
+}
+/* The money strip is the attention rail's layout without the coloured bar */
+.itflow-ov-stats .itflow-dash-rail-item {
+    --itflow-dash-tone: transparent;
+    flex-basis: 12rem;
 }

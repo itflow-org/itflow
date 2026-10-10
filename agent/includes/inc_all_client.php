@@ -78,28 +78,12 @@ if (isset($_GET['client_id'])) {
         // Tab Title // No Sanitizing needed
         $tab_title = $row['client_name'];
 
-        // Client Tags
-
-        $client_tag_name_display_array = array();
-        $client_tag_id_array = array();
-        $sql_client_tags = mysqli_query($mysqli, "SELECT tag_color, tag_icon, client_tags.tag_id, tag_name FROM client_tags LEFT JOIN tags ON client_tags.tag_id = tags.tag_id WHERE client_id = $client_id ORDER BY tag_name ASC");
+        // Client Tags - raw rows, drawn by includes/client_tags.php
+        $client_tags = [];
+        $sql_client_tags = mysqli_query($mysqli, "SELECT tags.tag_id, tag_name, tag_color, tag_icon FROM client_tags JOIN tags ON client_tags.tag_id = tags.tag_id WHERE client_id = $client_id ORDER BY tag_name ASC");
         while ($row = mysqli_fetch_assoc($sql_client_tags)) {
-
-            $client_tag_id = intval($row['tag_id']);
-            $client_tag_name = escapeHtml($row['tag_name']);
-            $client_tag_color = escapeHtml($row['tag_color']);
-            if (empty($client_tag_color)) {
-                $client_tag_color = "dark";
-            }
-            $client_tag_icon = escapeHtml($row['tag_icon']);
-            if (empty($client_tag_icon)) {
-                $client_tag_icon = "tag";
-            }
-
-            $client_tag_id_array[] = $client_tag_id;
-            $client_tag_name_display_array[] = "<span class='badge text-light p-1 me-1' style='background-color: $client_tag_color;'><i class='fa fa-fw fa-$client_tag_icon me-2'></i>$client_tag_name</span>";
+            $client_tags[] = $row;
         }
-        $client_tags_display = implode('', $client_tag_name_display_array);
 
         /*
          * Client badge counts and money totals.
