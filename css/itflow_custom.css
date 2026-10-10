@@ -2370,6 +2370,23 @@ a.itflow-dash-rail-item:focus-visible {
     color: #fff;
     filter: brightness(1.1);
 }
+/* The whole client cell is a link (stretched-link); the pills stay clickable on top of it */
+.itflow-clients-client .itflow-client-tag {
+    position: relative;
+    z-index: 2;
+}
+/* "+ Tag" / "+" at the end of the tags - opens Add Tags for that client */
+.itflow-client-tag-add {
+    color: var(--bs-secondary-color);
+    background-color: transparent;
+    border: 1px dashed var(--bs-border-color);
+}
+.itflow-client-tag-add:hover,
+.itflow-client-tag-add:focus-visible {
+    color: var(--itflow-accent, var(--bs-primary));
+    border-color: currentColor;
+    filter: none;
+}
 .itflow-clients-street {
     max-width: 16rem;
 }

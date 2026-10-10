@@ -1044,9 +1044,13 @@ if (isset($_POST['bulk_assign_client_tags'])) {
 
         }
 
-        logAudit("Client", "Bulk Edit", "$session_name added tags for $count clients", $client_id);
+        if ($count === 1) {
+            flashAlert("Tags added to <strong>" . escapeHtml($row['client_name']) . "</strong>");
+        } else {
+            logAudit("Client", "Bulk Edit", "$session_name added tags for $count clients", $client_id);
 
-        flashAlert("Assigned tags for <strong>$count</strong> clients");
+            flashAlert("Assigned tags for <strong>$count</strong> clients");
+        }
     }
 
     redirect();

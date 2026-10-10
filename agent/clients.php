@@ -446,9 +446,9 @@ $total_leads = intval($row['leads']);
         <!-- position-relative keeps the visually-hidden labels inside the scroll box on narrow screens -->
         <div class="table-responsive position-relative">
             <table class="table table-hover align-middle mb-0 itflow-clients">
-                <thead class="<?php if ($num_rows[0] == 0) { echo "d-none"; } ?>">
+                <thead class="<?php if ($num_rows[0] == 0) { echo "d-none"; } ?> table-light">
                 <tr>
-                    <th class="checkbox-column">
+                    <th class="checkbox-column border-end">
                         <div class="form-check">
                             <input class="form-check-input" id="selectAllCheckbox" type="checkbox" title="Select all on this page">
                         </div>
@@ -502,22 +502,23 @@ $total_leads = intval($row['leads']);
                     }
                     ?>
                     <tr>
-                        <td class="checkbox-column">
+                        <td class="checkbox-column bg-light border-end">
                             <div class="form-check">
                                 <input class="form-check-input bulk-select" type="checkbox" name="client_ids[]" value="<?= $client_id ?>" aria-label="Select <?= $client_name ?>">
                             </div>
                         </td>
 
-                        <td>
+                        <!-- The whole cell opens the client (stretched-link); the tag pills and + sit above it -->
+                        <td class="position-relative itflow-clients-client">
                             <div class="d-flex align-items-center gap-3">
                                 <span class="itflow-client-avatar d-none d-sm-inline-flex bg-<?= $client_tone ?>-subtle text-<?= $client_tone ?>-emphasis" aria-hidden="true"><?= $client_initials ?></span>
                                 <div class="overflow-hidden">
-                                    <a class="fw-semibold" href="client_overview.php?client_id=<?= $client_id ?>"><?= $client_name ?></a>
-                                    <?php if ($client_type || !empty($client_tags[$client_id])) { ?>
-                                        <div class="d-flex flex-wrap align-items-center column-gap-2 row-gap-1 small text-body-secondary mt-1">
-                                            <?php if ($client_type) { ?>
-                                                <span><?= $client_type ?></span>
-                                            <?php } ?>
+                                    <a class="fw-semibold stretched-link" href="client_overview.php?client_id=<?= $client_id ?>"><?= $client_name ?></a>
+                                    <?php if ($client_type) { ?>
+                                        <div class="small text-body-secondary"><?= $client_type ?></div>
+                                    <?php } ?>
+                                    <?php if (!empty($client_tags[$client_id]) || $can_edit) { ?>
+                                        <div class="d-flex flex-wrap align-items-center gap-1 mt-1">
                                             <?php foreach ($client_tags[$client_id] ?? [] as $tag) {
                                                 $tag_id = intval($tag['tag_id']);
                                                 $tag_name = escapeHtml($tag['tag_name']);
@@ -526,6 +527,11 @@ $total_leads = intval($row['leads']);
                                                 ?>
                                                 <a href="<?= clientsFilterUrl(['tags' => [$tag_id]]) ?>" class="itflow-client-tag" style="--itflow-tag-color: <?= $tag_color ?>" title="Show clients tagged <?= $tag_name ?>">
                                                     <i class="fas fa-fw fa-<?= $tag_icon ?>" aria-hidden="true"></i><?= $tag_name ?>
+                                                </a>
+                                            <?php } ?>
+                                            <?php if ($can_edit) { ?>
+                                                <a href="#" class="itflow-client-tag itflow-client-tag-add ajax-modal" data-modal-url="modals/client/client_bulk_assign_tags.php?client_ids[]=<?= $client_id ?>" title="Add tags to <?= $client_name ?>">
+                                                    <i class="fas fa-fw fa-plus" aria-hidden="true"></i><?php if (empty($client_tags[$client_id])) { ?>Tag<?php } else { ?><span class="visually-hidden">Add tags</span><?php } ?>
                                                 </a>
                                             <?php } ?>
                                         </div>
