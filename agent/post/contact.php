@@ -511,59 +511,6 @@ if (isset($_POST['bulk_edit_contact_role'])) {
 
 }
 
-if (isset($_POST['bulk_assign_contact_tags'])) {
-
-    validateCSRFToken();
-
-    enforceUserPermission('module_client', 2);
-
-    // Assign Location to Selected Contacts
-    if (isset($_POST['contact_ids'])) {
-
-        // Get Selected Contacts Count
-        $count = count($_POST['contact_ids']);
-
-        foreach($_POST['contact_ids'] as $contact_id) {
-            $contact_id = intval($contact_id);
-
-            // Get Contact Details for Logging
-            $sql = mysqli_query($mysqli,"SELECT contact_name, contact_client_id FROM contacts WHERE contact_id = $contact_id");
-            $row = mysqli_fetch_assoc($sql);
-            $contact_name = escapeSql($row['contact_name']);
-            $client_id = intval($row['contact_client_id']);
-
-            enforceClientAccess();
-
-            if($_POST['bulk_remove_tags']) {
-                // Delete tags if chosed to do so
-                mysqli_query($mysqli, "DELETE FROM contact_tags WHERE contact_id = $contact_id");
-            }
-
-            // Add new tags
-            if (isset($_POST['bulk_tags'])) {
-                foreach($_POST['bulk_tags'] as $tag) {
-                    $tag = intval($tag);
-
-                    $sql = mysqli_query($mysqli,"SELECT 1 FROM contact_tags WHERE contact_id = $contact_id AND tag_id = $tag");
-                    if (mysqli_num_rows($sql) == 0) {
-                        mysqli_query($mysqli, "INSERT INTO contact_tags SET contact_id = $contact_id, tag_id = $tag");
-                    }
-                }
-            }
-
-            logAudit("Contact", "Edit", "$session_name added tags to $contact_name", $client_id, $contact_id);
-
-        } // End Assign Location Loop
-
-        logAudit("Contact", "Bulk Edit", "$session_name added tags for $contact_count contacts", $client_id);
-
-        flashAlert("You assigned tags for <strong>$count</strong> contacts");
-    }
-
-    redirect();
-
-}
-
 if (isset($_POST['send_bulk_mail_now'])) {
 
     validateCSRFToken();

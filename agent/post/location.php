@@ -209,60 +209,6 @@ if(isset($_GET['delete_location'])){
 
 }
 
-if (isset($_POST['bulk_assign_location_tags'])) {
-
-    validateCSRFToken();
-
-    enforceUserPermission('module_client', 2);
-
-    // Assign Tags to Selected
-    if (isset($_POST['location_ids'])) {
-
-        // Get Selected Count
-        $count = count($_POST['location_ids']);
-
-        foreach($_POST['location_ids'] as $location_id) {
-            $location_id = intval($location_id);
-
-            // Get Contact Details for Logging
-            $sql = mysqli_query($mysqli,"SELECT location_name, location_client_id FROM locations WHERE location_id = $location_id");
-            $row = mysqli_fetch_assoc($sql);
-            $location_name = escapeSql($row['location_name']);
-            $client_id = intval($row['location_client_id']);
-
-            enforceClientAccess();
-
-            if($_POST['bulk_remove_tags']) {
-                // Delete tags if chosed to do so
-                mysqli_query($mysqli, "DELETE FROM location_tags WHERE location_id = $location_id");
-            }
-
-            // Add new tags
-            if (isset($_POST['bulk_tags'])) {
-                foreach($_POST['bulk_tags'] as $tag) {
-                    $tag = intval($tag);
-
-                    $sql = mysqli_query($mysqli,"SELECT 1 FROM location_tags WHERE location_id = $location_id AND tag_id = $tag");
-                    if (mysqli_num_rows($sql) == 0) {
-                        mysqli_query($mysqli, "INSERT INTO location_tags SET location_id = $location_id, tag_id = $tag");
-                    }
-                }
-            }
-
-            logAudit("Location", "Edit", "$session_name assigned tags to location $location_name", $client_id, $location_id);
-
-        } // End Assign Location Loop
-
-        logAudit("Location", "Bulk Edit", "$session_name assigned tags to $count location(s)", $client_id);
-
-        flashAlert("Assigned tags for <strong>$count</strong> locations");
-
-    }
-
-    redirect();
-
-}
-
 if (isset($_POST['bulk_archive_locations'])) {
 
     validateCSRFToken();

@@ -400,10 +400,8 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                 </a>
                                 <div class="dropdown-divider"></div>
                                 <?php } ?>
-                                <a class="dropdown-item ajax-modal" href="#"
-                                    data-modal-url="modals/asset/asset_bulk_assign_tags.php"
-                                    data-bulk="true">
-                                    <i class="fas fa-fw fa-tags me-2"></i>Assign Tags
+                                <a class="dropdown-item" href="#" data-tag-picker data-tag-entity="asset" data-tag-bulk data-csrf="<?= $_SESSION['csrf_token'] ?>">
+                                    <i class="fas fa-fw fa-tags me-2"></i>Tags
                                 </a>
                                 <div class="dropdown-divider"></div>
                                 <a class="dropdown-item ajax-modal" href="#"
@@ -638,26 +636,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                     $credential_count = mysqli_num_rows($sql_credentials);
 
                     // Tags
-                    $asset_tag_name_display_array = array();
-                    $asset_tag_id_array = array();
-                    $sql_asset_tags = mysqli_query($mysqli, "SELECT tag_color, tag_icon, tag_id, tag_name FROM asset_tags LEFT JOIN tags ON asset_tag_tag_id = tag_id WHERE asset_tag_asset_id = $asset_id ORDER BY tag_name ASC");
-                    while ($row = mysqli_fetch_assoc($sql_asset_tags)) {
-
-                        $asset_tag_id = intval($row['tag_id']);
-                        $asset_tag_name = escapeHtml($row['tag_name']);
-                        $asset_tag_color = escapeHtml($row['tag_color']);
-                        if (empty($asset_tag_color)) {
-                            $asset_tag_color = "dark";
-                        }
-                        $asset_tag_icon = escapeHtml($row['tag_icon']);
-                        if (empty($asset_tag_icon)) {
-                            $asset_tag_icon = "tag";
-                        }
-
-                        $asset_tag_id_array[] = $asset_tag_id;
-                        $asset_tag_name_display_array[] = "<a href='assets.php?$client_url tags[]=$asset_tag_id'><span class='badge text-light p-1 me-1' style='background-color: $asset_tag_color;'><i class='fa fa-fw fa-$asset_tag_icon me-1'></i>$asset_tag_name</span></a>";
-                    }
-                    $asset_tags_display = implode('', $asset_tag_name_display_array);
+                    $asset_tags = tagsForRecord('asset', $asset_id);
 
                     ?>
                     <tr>
@@ -666,20 +645,18 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                 <input class="form-check-input bulk-select" type="checkbox" name="asset_ids[]" value="<?= $asset_id ?>">
                             </div>
                         </td>
-                        <td>
-                            <a class="text-dark" href="asset.php?client_id=<?= $client_id ?>&asset_id=<?= $asset_id ?>">
-                                <div class="d-flex">
-                                    <i class="fa fa-fw fa-2x fa-<?= $device_icon ?> me-3 mt-1"></i>
-                                    <div class="flex-grow-1">
-                                        <div>
-                                            <?= $asset_name ?>
-
-                                            <?php if ($asset_favorite) { echo "<i class='fas fa-fw fa-star text-warning' title='Favorite'></i>"; } ?></div>
-                                        <div><small class="text-secondary"><?= $asset_description ?></small></div>
-                                        <?php if ($asset_tags_display) { echo $asset_tags_display; } ?>
-                                    </div>
+                        <!-- The whole cell opens the asset (stretched-link); the tag pills sit above it -->
+                        <td class="position-relative">
+                            <div class="d-flex">
+                                <i class="fa fa-fw fa-2x fa-<?= $device_icon ?> me-3 mt-1"></i>
+                                <div class="flex-grow-1">
+                                    <a class="text-dark stretched-link" href="asset.php?client_id=<?= $client_id ?>&asset_id=<?= $asset_id ?>"><?= $asset_name ?> <?php if ($asset_favorite) { echo "<i class='fas fa-fw fa-star text-warning' title='Favorite'></i>"; } ?></a>
+                                    <div><small class="text-secondary"><?= $asset_description ?></small></div>
+                                    <?php if ($asset_tags || lookupUserPermission('module_client') >= 2) { ?>
+                                        <div class="mt-1"><?= tagPills('asset', $asset_id, $asset_tags, "assets.php?$client_url") ?></div>
+                                    <?php } ?>
                                 </div>
-                            </a>
+                            </div>
                         </td>
 
                         <td>

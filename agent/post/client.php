@@ -1003,60 +1003,6 @@ if (isset($_POST['bulk_edit_client_net_terms'])) {
 
 }
 
-if (isset($_POST['bulk_assign_client_tags'])) {
-
-    validateCSRFToken();
-
-    enforceUserPermission('module_client', 2);
-
-    if (isset($_POST['client_ids'])) {
-
-        // Check every selected client before changing any of them
-        foreach ($_POST['client_ids'] as $client_id) {
-            enforceClientAccess(intval($client_id));
-        }
-
-        $count = count($_POST['client_ids']);
-
-        foreach($_POST['client_ids'] as $client_id) {
-            $client_id = intval($client_id);
-
-            $sql = mysqli_query($mysqli,"SELECT client_name FROM clients WHERE client_id = $client_id");
-            $row = mysqli_fetch_assoc($sql);
-            $client_name = escapeSql($row['client_name']);
-
-            if ($_POST['bulk_remove_tags']) {
-                mysqli_query($mysqli, "DELETE FROM client_tags WHERE client_id = $client_id");
-            }
-
-            if (isset($_POST['bulk_tags'])) {
-                foreach($_POST['bulk_tags'] as $tag) {
-                    $tag = intval($tag);
-
-                    $sql = mysqli_query($mysqli,"SELECT 1 FROM client_tags WHERE client_id = $client_id AND tag_id = $tag");
-                    if (mysqli_num_rows($sql) == 0) {
-                        mysqli_query($mysqli, "INSERT INTO client_tags SET client_id = $client_id, tag_id = $tag");
-                    }
-                }
-            }
-
-            logAudit("Client", "Edit", "$session_name added tags to $client_name", $client_id, $client_id);
-
-        }
-
-        if ($count === 1) {
-            flashAlert("Tags added to <strong>" . escapeHtml($row['client_name']) . "</strong>");
-        } else {
-            logAudit("Client", "Bulk Edit", "$session_name added tags for $count clients", $client_id);
-
-            flashAlert("Assigned tags for <strong>$count</strong> clients");
-        }
-    }
-
-    redirect();
-
-}
-
 if (isset($_POST['bulk_send_client_email']) && isset($_POST['client_ids'])) {
 
     validateCSRFToken();

@@ -161,60 +161,6 @@ if (isset($_GET['delete_credential'])) {
 
 }
 
-if (isset($_POST['bulk_assign_credential_tags'])) {
-
-    validateCSRFToken();
-
-    enforceUserPermission('module_credential', 2);
-
-    // Assign tags to Selected Credentials
-    if (isset($_POST['credential_ids'])) {
-
-        // Get Selected Credential Count
-        $count = count($_POST['credential_ids']);
-
-        foreach($_POST['credential_ids'] as $credential_id) {
-            $credential_id = intval($credential_id);
-
-            // Get Contact Details for Logging
-            $sql = mysqli_query($mysqli,"SELECT credential_name, credential_client_id FROM credentials WHERE credential_id = $credential_id");
-            $row = mysqli_fetch_assoc($sql);
-            $credential_name = escapeSql($row['credential_name']);
-            $client_id = intval($row['credential_client_id']);
-
-            enforceClientAccess();
-
-            if($_POST['bulk_remove_tags']) {
-                // Delete tags if chosed to do so
-                mysqli_query($mysqli, "DELETE FROM credential_tags WHERE credential_id = $credential_id");
-            }
-
-            // Add new tags
-            if (isset($_POST['bulk_tags'])) {
-                foreach($_POST['bulk_tags'] as $tag) {
-                    $tag = intval($tag);
-
-                    $sql = mysqli_query($mysqli,"SELECT 1 FROM credential_tags WHERE credential_id = $credential_id AND tag_id = $tag");
-                    if (mysqli_num_rows($sql) == 0) {
-                        mysqli_query($mysqli, "INSERT INTO credential_tags SET credential_id = $credential_id, tag_id = $tag");
-                    }
-                }
-            }
-
-            logAudit("Credential", "Edit", "$session_name added tags to $credential_name", $client_id, $credential_id);
-
-            flashAlert("Assigned tags for <strong>$count</strong> credentials");
-
-        } // End Assign Loop
-
-        logAudit("Credential", "Bulk Edit", "$session_name added tags to $count credentials", $client_id);
-
-    }
-
-    redirect();
-
-}
-
 if (isset($_POST['bulk_favorite_credentials'])) {
 
     validateCSRFToken();

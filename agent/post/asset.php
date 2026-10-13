@@ -359,54 +359,6 @@ if (isset($_GET['delete_asset_note'])) {
 
 }
 
-if (isset($_POST['bulk_assign_asset_tags'])) {
-
-    validateCSRFToken();
-
-    enforceUserPermission('module_client', 2);
-
-    if (isset($_POST['asset_ids'])) {
-
-        $count = count($_POST['asset_ids']);
-
-        foreach($_POST['asset_ids'] as $asset_id) {
-            $asset_id = intval($asset_id);
-
-            $sql = mysqli_query($mysqli,"SELECT asset_name, asset_client_id FROM assets WHERE asset_id = $asset_id");
-            $row = mysqli_fetch_assoc($sql);
-            $asset_name = escapeSql($row['asset_name']);
-            $client_id = intval($row['asset_client_id']);
-
-            enforceClientAccess();
-
-            if($_POST['remove_tags']) {
-                mysqli_query($mysqli, "DELETE FROM asset_tags WHERE asset_tag_asset_id = $asset_id");
-            }
-
-            if (isset($_POST['tags'])) {
-                foreach($_POST['tags'] as $tag) {
-                    $tag = intval($tag);
-
-                    $sql = mysqli_query($mysqli,"SELECT 1 FROM asset_tags WHERE asset_tag_asset_id = $asset_id AND asset_tag_tag_id = $tag");
-                    if (mysqli_num_rows($sql) == 0) {
-                        mysqli_query($mysqli, "INSERT INTO asset_tags SET asset_tag_asset_id = $asset_id, asset_tag_tag_id = $tag");
-                    }
-                }
-            }
-
-            logAudit("Asset", "Edit", "$session_name added tags to asset $asset_name", $client_id, $asset_id);
-
-        }
-
-        logAudit("Asset", "Bulk Edit", "$session_name added tags for $asset_count assets", $client_id);
-
-        flashAlert("Assigned tags for <strong>$count</strong> assets");
-    }
-
-    redirect();
-
-}
-
 if (isset($_POST['bulk_assign_asset_location'])) {
 
     validateCSRFToken();

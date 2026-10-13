@@ -248,10 +248,8 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                     <i class="fas fa-fw fa-user-shield me-2"></i>Set Roles
                                 </a>
                                 <div class="dropdown-divider"></div>
-                                <a class="dropdown-item ajax-modal" href="#"
-                                    data-modal-url="modals/contact/contact_bulk_assign_tags.php"
-                                    data-bulk="true">
-                                    <i class="fas fa-fw fa-tags me-2"></i>Assign Tags
+                                <a class="dropdown-item" href="#" data-tag-picker data-tag-entity="contact" data-tag-bulk data-csrf="<?= $_SESSION['csrf_token'] ?>">
+                                    <i class="fas fa-fw fa-tags me-2"></i>Tags
                                 </a>
                                 <div class="dropdown-divider"></div>
                                 <a class="dropdown-item ajax-modal" href="#"
@@ -443,26 +441,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                     }
 
                     // Tags
-                    $contact_tag_name_display_array = array();
-                    $contact_tag_id_array = array();
-                    $sql_contact_tags = mysqli_query($mysqli, "SELECT tag_color, tag_icon, contact_tags.tag_id, tag_name FROM contact_tags LEFT JOIN tags ON contact_tags.tag_id = tags.tag_id WHERE contact_id = $contact_id ORDER BY tag_name ASC");
-                    while ($row = mysqli_fetch_assoc($sql_contact_tags)) {
-
-                        $contact_tag_id = intval($row['tag_id']);
-                        $contact_tag_name = escapeHtml($row['tag_name']);
-                        $contact_tag_color = escapeHtml($row['tag_color']);
-                        if (empty($contact_tag_color)) {
-                            $contact_tag_color = "dark";
-                        }
-                        $contact_tag_icon = escapeHtml($row['tag_icon']);
-                        if (empty($contact_tag_icon)) {
-                            $contact_tag_icon = "tag";
-                        }
-
-                        $contact_tag_id_array[] = $contact_tag_id;
-                        $contact_tag_name_display_array[] = "<a href='contacts.php?$client_url tags[]=$contact_tag_id'><span class='badge text-light p-1 me-1' style='background-color: $contact_tag_color;'><i class='fa fa-fw fa-$contact_tag_icon me-2'></i>$contact_tag_name</span></a>";
-                    }
-                    $contact_tags_display = implode('', $contact_tag_name_display_array);
+                    $contact_tags = tagsForRecord('contact', $contact_id);
 
                     ?>
                     <tr>
@@ -471,34 +450,29 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                 <input class="form-check-input bulk-select" type="checkbox" name="contact_ids[]" value="<?= $contact_id ?>">
                             </div>
                         </td>
-                        <td>
-                            <a class="text-dark" href="contact.php?client_id=<?= $client_id ?>&contact_id=<?= $contact_id ?>">
-                                <div class="d-flex">
-                                    <?php if ($contact_photo) { ?>
-                                        <span class="fa-stack fa-2x me-3 text-center">
-                                            <img class="img-size-50 rounded-circle" src="<?= "../uploads/clients/$client_id/$contact_photo" ?>">
-                                        </span>
-                                    <?php } else { ?>
-                                        <span class="fa-stack fa-2x me-3">
-                                            <i class="fa fa-circle fa-stack-2x text-secondary"></i>
-                                            <span class="fa fa-stack-1x text-white"><?= $contact_initials ?></span>
-                                        </span>
+                        <!-- The whole cell opens the contact (stretched-link); the tag pills sit above it -->
+                        <td class="position-relative">
+                            <div class="d-flex">
+                                <?php if ($contact_photo) { ?>
+                                    <span class="fa-stack fa-2x me-3 text-center">
+                                        <img class="img-size-50 rounded-circle" src="<?= "../uploads/clients/$client_id/$contact_photo" ?>">
+                                    </span>
+                                <?php } else { ?>
+                                    <span class="fa-stack fa-2x me-3">
+                                        <i class="fa fa-circle fa-stack-2x text-secondary"></i>
+                                        <span class="fa fa-stack-1x text-white"><?= $contact_initials ?></span>
+                                    </span>
+                                <?php } ?>
+
+                                <div class="flex-grow-1">
+                                    <a class="text-dark stretched-link <?php if($contact_important) { echo "text-bold"; } ?>" href="contact.php?client_id=<?= $client_id ?>&contact_id=<?= $contact_id ?>"><?= $contact_name ?> <?= $user_exists_display ?></a>
+                                    <?= $contact_title_display ?>
+                                    <div><?= $contact_primary_display ?></div>
+                                    <?php if ($contact_tags || lookupUserPermission('module_client') >= 2) { ?>
+                                        <div class="mt-1"><?= tagPills('contact', $contact_id, $contact_tags, "contacts.php?$client_url") ?></div>
                                     <?php } ?>
-
-                                    <div class="flex-grow-1">
-                                        <div class="<?php if($contact_important) { echo "text-bold"; } ?>"><?= $contact_name ?> <?= $user_exists_display ?></div>
-                                        <?= $contact_title_display ?>
-                                        <div><?= $contact_primary_display ?></div>
-                                        <?php
-                                        if (!empty($contact_tags_display)) { ?>
-                                            <div class="mt-1">
-                                                <?= $contact_tags_display ?>
-                                            </div>
-                                        <?php } ?>
-                                    </div>
                                 </div>
-                            </a>
-
+                            </div>
                         </td>
                         <td><?= $contact_department ?></td>
                         <td><?= $contact_info_display ?></td>

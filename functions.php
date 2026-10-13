@@ -31,3 +31,4 @@ require_once __DIR__ . '/functions/search.php';
 require_once __DIR__ . '/functions/notifications.php';
 require_once __DIR__ . '/functions/dashboard.php';
 require_once __DIR__ . '/functions/client_overview.php';
+require_once __DIR__ . '/functions/tags.php';

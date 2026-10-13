@@ -252,10 +252,8 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                 </button>
                                 <?php } else { ?>
                                 <div class="dropdown-divider"></div>
-                                <a class="dropdown-item ajax-modal" href="#"
-                                    data-modal-url="modals/credential/credential_bulk_assign_tags.php"
-                                    data-bulk="true">
-                                    <i class="fas fa-fw fa-tags me-2"></i>Assign Tags
+                                <a class="dropdown-item" href="#" data-tag-picker data-tag-entity="credential" data-tag-bulk data-csrf="<?= $_SESSION['csrf_token'] ?>">
+                                    <i class="fas fa-fw fa-tags me-2"></i>Tags
                                 </a>
                                     <div class="dropdown-divider"></div>
                                 <button class="dropdown-item text-danger confirm-link"
@@ -345,26 +343,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                         $asset_name = escapeHtml($row['asset_name']);
 
                         // Tags
-                        $credential_tag_name_display_array = array();
-                        $credential_tag_id_array = array();
-                        $sql_credential_tags = mysqli_query($mysqli, "SELECT tag_color, tag_icon, credential_tags.tag_id, tag_name FROM credential_tags LEFT JOIN tags ON credential_tags.tag_id = tags.tag_id WHERE credential_id = $credential_id ORDER BY tag_name ASC");
-                        while ($row = mysqli_fetch_assoc($sql_credential_tags)) {
-
-                            $credential_tag_id = intval($row['tag_id']);
-                            $credential_tag_name = escapeHtml($row['tag_name']);
-                            $credential_tag_color = escapeHtml($row['tag_color']);
-                            if (empty($credential_tag_color)) {
-                                $credential_tag_color = "dark";
-                            }
-                            $credential_tag_icon = escapeHtml($row['tag_icon']);
-                            if (empty($credential_tag_icon)) {
-                                $credential_tag_icon = "tag";
-                            }
-
-                            $credential_tag_id_array[] = $credential_tag_id;
-                            $credential_tag_name_display_array[] = "<a href='credentials.php?$client_url tags[]=$credential_tag_id'><span class='badge text-light p-1 me-1' style='background-color: $credential_tag_color;'><i class='fa fa-fw fa-$credential_tag_icon me-2'></i>$credential_tag_name</span></a>";
-                        }
-                        $credential_tags_display = implode('', $credential_tag_name_display_array);
+                        $credential_tags = tagsForRecord('credential', $credential_id);
 
                         if ($credential_contact_id) {
                             $credential_contact_display = "<a href='#' class='me-2 mb-1 badge rounded-pill bg-dark p-2 ajax-modal' title='$contact_name'
@@ -421,23 +400,18 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                     <input class="form-check-input bulk-select" type="checkbox" name="credential_ids[]" value="<?= $credential_id ?>">
                                 </div>
                             </td>
-                            <td>
-                                <a class="text-dark ajax-modal" href="#"
-                                    data-modal-url="modals/credential/credential_edit.php?id=<?= $credential_id ?>">
-                                    <div class="d-flex">
-                                        <i class="fa fa-fw fa-2x fa-key me-3"></i>
-                                        <div class="flex-grow-1">
-                                            <div><?= $credential_name ?> <?php if ($credential_favorite) { echo "<i class='fas fa-fw fa-star text-warning' title='Favorite'></i>"; } ?></div>
-                                            <div><small class="text-secondary"><?= $credential_description ?></small></div>
-                                            <?php
-                                            if (!empty($credential_tags_display)) { ?>
-                                                <div class="mt-1">
-                                                    <?= $credential_tags_display ?>
-                                                </div>
-                                            <?php } ?>
-                                        </div>
+                            <!-- The whole cell opens the credential (stretched-link); the tag pills sit above it -->
+                            <td class="position-relative">
+                                <div class="d-flex">
+                                    <i class="fa fa-fw fa-2x fa-key me-3"></i>
+                                    <div class="flex-grow-1">
+                                        <a class="text-dark stretched-link ajax-modal" href="#" data-modal-url="modals/credential/credential_edit.php?id=<?= $credential_id ?>"><?= $credential_name ?> <?php if ($credential_favorite) { echo "<i class='fas fa-fw fa-star text-warning' title='Favorite'></i>"; } ?></a>
+                                        <div><small class="text-secondary"><?= $credential_description ?></small></div>
+                                        <?php if ($credential_tags || lookupUserPermission('module_credential') >= 2) { ?>
+                                            <div class="mt-1"><?= tagPills('credential', $credential_id, $credential_tags, "credentials.php?$client_url") ?></div>
+                                        <?php } ?>
                                     </div>
-                                </a>
+                                </div>
                             </td>
                             <td class="text-nowrap"><?= $credential_username_display ?></td>
                             <td class="text-nowrap">

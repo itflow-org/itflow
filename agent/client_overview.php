@@ -62,7 +62,7 @@ $money_format = function ($amount) use ($currency_format, $client_currency_code,
                         <?php if ($client_type) { ?>
                             <span class="text-body-secondary me-2"><?= $client_type ?></span>
                         <?php } ?>
-                        <?php require 'includes/client_tags.php'; ?>
+                        <?= tagPills('client', $client_id, $client_tags) ?>
                     </div>
                 </div>
                 <div class="d-flex gap-2 ms-auto itflow-ov-hero-actions">

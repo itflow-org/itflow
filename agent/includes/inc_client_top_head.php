@@ -44,9 +44,7 @@ if (empty($client_top_head_skip)) {
             </a>
             <?php if ($client_is_lead) { ?><span class="badge rounded-pill text-bg-info fw-normal">Lead</span><?php } ?>
             <?php if ($client_archived_at) { ?><span class="badge rounded-pill text-bg-secondary fw-normal">Archived</span><?php } ?>
-            <div class="d-flex flex-wrap align-items-center gap-1">
-                <?php require 'includes/client_tags.php'; ?>
-            </div>
+            <?= tagPills('client', $client_id, $client_tags) ?>
 
             <?php /* Open tickets and balance due, always in sight */ ?>
             <?php if ($client_head_glance_tickets || $client_head_glance_due) { ?>

@@ -40,6 +40,145 @@ if (isset($_GET['certificate_fetch_parse_json_details'])) {
 
 }
 
+/*
+ * Tag picker (js/tag_picker.js) - replaces the "Assign Tags" modals.
+ *
+ * GET lists the tags one record, or a bulk selection of records, can have and
+ * how many of them have each. POST ticks a tag on or off for all of them -
+ * or, for an admin, makes a new tag and ticks it on - and sends back the
+ * redrawn pills for every record, so the page updates in place.
+ *
+ * Same checks the modals' post handlers made: edit rights on the module and
+ * access to each record's client. tagRecordsEditable() does both.
+ */
+if (isset($_GET['tag_picker'])) {
+
+    header('Content-Type: application/json');
+
+    $entity = (string) ($_GET['entity'] ?? '');
+    $config = tagEntity($entity);
+    $records = $config ? tagRecordsEditable($entity, (array) ($_GET['ids'] ?? [])) : false;
+
+    if ($records === false) {
+        http_response_code(403);
+        echo json_encode(['error' => 'You cannot change the tags on these.']);
+        exit();
+    }
+
+    $ids = implode(',', array_keys($records));
+    $response = [
+        'records' => count($records),
+        'type' => $config['type'],
+        'create' => (bool) $session_is_admin,
+        'manage' => $session_is_admin ? "/admin/tags.php?type={$config['type']}" : '',
+        'tags' => []
+    ];
+
+    $sql = mysqli_query($mysqli,
+        "SELECT tag_id, tag_name, tag_color, tag_icon,
+            (SELECT COUNT(*) FROM {$config['link_table']}
+                WHERE {$config['link_tag']} = tags.tag_id AND {$config['link_record']} IN ($ids)) AS chosen
+        FROM tags
+        WHERE tag_type = {$config['type']}
+        ORDER BY tag_name ASC"
+    );
+    while ($row = mysqli_fetch_assoc($sql)) {
+        $response['tags'][] = [
+            'id' => intval($row['tag_id']),
+            'name' => $row['tag_name'],
+            'color' => preg_match('/^(#[0-9a-f]{3,8}|[a-z]{3,24})$/i', trim((string) $row['tag_color'])) ? trim($row['tag_color']) : '',
+            'icon' => preg_replace('/[^a-z0-9-]/', '', strtolower((string) $row['tag_icon'])) ?: 'tag',
+            'chosen' => intval($row['chosen'])
+        ];
+    }
+
+    echo json_encode($response);
+    exit();
+}
+
+if (isset($_POST['tag_picker_set']) || isset($_POST['tag_picker_create'])) {
+
+    validateCSRFToken();
+
+    header('Content-Type: application/json');
+
+    $entity = (string) ($_POST['entity'] ?? '');
+    $config = tagEntity($entity);
+    $records = $config ? tagRecordsEditable($entity, (array) ($_POST['ids'] ?? [])) : false;
+
+    if ($records === false) {
+        http_response_code(403);
+        echo json_encode(['error' => 'You cannot change the tags on these.']);
+        exit();
+    }
+
+    $type = $config['type'];
+    $link = $config['link_table'];
+    $link_record = $config['link_record'];
+    $link_tag = $config['link_tag'];
+
+    if (isset($_POST['tag_picker_create'])) {
+
+        // Making tags is an admin job everywhere else (Admin > Tags), so it is here too
+        $name = trim((string) ($_POST['name'] ?? ''));
+        if (!$session_is_admin || $name === '' || mb_strlen($name) > 200) {
+            http_response_code(403);
+            echo json_encode(['error' => 'That tag cannot be made here.']);
+            exit();
+        }
+        $name_sql = escapeSql($name);
+
+        // Typing the name of a tag that already exists just picks it
+        $row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT tag_id FROM tags WHERE tag_type = $type AND tag_name = '$name_sql' LIMIT 1"));
+        if ($row) {
+            $tag_id = intval($row['tag_id']);
+        } else {
+            $color = tagNextColor($type);
+            mysqli_query($mysqli, "INSERT INTO tags SET tag_name = '$name_sql', tag_type = $type, tag_color = '$color', tag_icon = 'tag'");
+            $tag_id = mysqli_insert_id($mysqli);
+            logAudit("Tag", "Create", "$session_name created tag $name_sql", 0, $tag_id);
+        }
+        $on = true;
+
+    } else {
+        $tag_id = intval($_POST['tag_id'] ?? 0);
+        $on = !empty($_POST['on']);
+    }
+
+    // The tag has to be one of this kind of record's tags
+    $tag = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT tag_name FROM tags WHERE tag_id = $tag_id AND tag_type = $type"));
+    if (!$tag) {
+        http_response_code(404);
+        echo json_encode(['error' => 'That tag no longer exists.']);
+        exit();
+    }
+    $tag_name = escapeSql($tag['tag_name']);
+
+    $changed = 0;
+    foreach ($records as $record_id => $record) {
+        $has = mysqli_num_rows(mysqli_query($mysqli, "SELECT 1 FROM $link WHERE $link_record = $record_id AND $link_tag = $tag_id")) > 0;
+        $record_name = escapeSql($record['name']);
+        if ($on && !$has) {
+            mysqli_query($mysqli, "INSERT INTO $link SET $link_record = $record_id, $link_tag = $tag_id");
+            logAudit($config['log'], "Edit", "$session_name added tag $tag_name to $record_name", $record['client_id'], $record_id);
+            $changed++;
+        } elseif (!$on && $has) {
+            mysqli_query($mysqli, "DELETE FROM $link WHERE $link_record = $record_id AND $link_tag = $tag_id");
+            logAudit($config['log'], "Edit", "$session_name removed tag $tag_name from $record_name", $record['client_id'], $record_id);
+            $changed++;
+        }
+    }
+
+    $filter = (string) ($_POST['filter'] ?? '');
+    $pills = [];
+    foreach (tagsForRecords($entity, array_keys($records)) as $record_id => $tags) {
+        $pills[$record_id] = tagPills($entity, $record_id, $tags, $filter);
+    }
+
+    echo json_encode(['tag_id' => $tag_id, 'changed' => $changed, 'pills' => $pills]);
+    exit();
+}
+
 if (isset($_POST['client_set_notes'])) {
 
     validateCSRFToken();

@@ -183,10 +183,8 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                 <i class="fas fa-fw fa-layer-group me-2"></i>Bulk Action (<span id="selectedCount">0</span>)
                             </button>
                             <div class="dropdown-menu">
-                                <a class="dropdown-item ajax-modal" href="#"
-                                    data-modal-url="modals/location/location_bulk_assign_tags.php"
-                                    data-bulk="true">
-                                    <i class="fas fa-fw fa-tags me-2"></i>Assign Tags
+                                <a class="dropdown-item" href="#" data-tag-picker data-tag-entity="location" data-tag-bulk data-csrf="<?= $_SESSION['csrf_token'] ?>">
+                                    <i class="fas fa-fw fa-tags me-2"></i>Tags
                                 </a>
                                 <?php if ($archived) { ?>
                                 <div class="dropdown-divider"></div>
@@ -304,27 +302,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                     }
 
                     // Tags
-
-                    $location_tag_name_display_array = array();
-                    $location_tag_id_array = array();
-                    $sql_location_tags = mysqli_query($mysqli, "SELECT tag_color, tag_icon, location_tags.tag_id, tag_name FROM location_tags LEFT JOIN tags ON location_tags.tag_id = tags.tag_id WHERE location_tags.location_id = $location_id ORDER BY tag_name ASC");
-                    while ($row = mysqli_fetch_assoc($sql_location_tags)) {
-
-                        $location_tag_id = intval($row['tag_id']);
-                        $location_tag_name = escapeHtml($row['tag_name']);
-                        $location_tag_color = escapeHtml($row['tag_color']);
-                        if (empty($location_tag_color)) {
-                            $location_tag_color = "dark";
-                        }
-                        $location_tag_icon = escapeHtml($row['tag_icon']);
-                        if (empty($location_tag_icon)) {
-                            $location_tag_icon = "tag";
-                        }
-
-                        $location_tag_id_array[] = $location_tag_id;
-                        $location_tag_name_display_array[] = "<a href='locations.php?$client_url tags[]=$location_tag_id'><span class='badge text-light p-1 me-1' style='background-color: $location_tag_color;'><i class='fa fa-fw fa-$location_tag_icon me-2'></i>$location_tag_name</span></a>";
-                    }
-                    $location_tags_display = implode('', $location_tag_name_display_array);
+                    $location_tags = tagsForRecord('location', $location_id);
 
                     ?>
                     <tr>
@@ -333,23 +311,19 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                 <input class="form-check-input bulk-select" type="checkbox" name="location_ids[]" value="<?= $location_id ?>">
                             </div>
                         </td>
-                        <td>
-                            <a class="text-dark ajax-modal" href="#" data-modal-url="modals/location/location_edit.php?id=<?= $location_id ?>">
-                                <div class="d-flex">
-                                    <i class="fa fa-fw fa-2x fa-map-marker-alt me-2"></i>
-                                    <div class="flex-grow-1">
-                                        <div <?php if($location_primary) { echo "class='text-bold'"; } ?>><?= $location_name ?></div>
-                                        <div><small class="text-secondary"><?= $location_description ?></small></div>
-                                        <div><?= $location_primary_display ?></div>
-                                         <?php
-                                        if (!empty($location_tags_display)) { ?>
-                                            <div class="mt-1">
-                                                <?= $location_tags_display ?>
-                                            </div>
-                                        <?php } ?>
-                                    </div>
+                        <!-- The whole cell opens the location (stretched-link); the tag pills sit above it -->
+                        <td class="position-relative">
+                            <div class="d-flex">
+                                <i class="fa fa-fw fa-2x fa-map-marker-alt me-2"></i>
+                                <div class="flex-grow-1">
+                                    <a class="text-dark stretched-link ajax-modal <?php if($location_primary) { echo "text-bold"; } ?>" href="#" data-modal-url="modals/location/location_edit.php?id=<?= $location_id ?>"><?= $location_name ?></a>
+                                    <div><small class="text-secondary"><?= $location_description ?></small></div>
+                                    <div><?= $location_primary_display ?></div>
+                                    <?php if ($location_tags || lookupUserPermission('module_client') >= 2) { ?>
+                                        <div class="mt-1"><?= tagPills('location', $location_id, $location_tags, "locations.php?$client_url") ?></div>
+                                    <?php } ?>
                                 </div>
-                            </a>
+                            </div>
                         </td>
                         <td>
                             <a href="//maps.<?= $session_map_source ?>.com?q=<?= "$location_address $location_zip" ?>"

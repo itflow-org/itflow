@@ -2785,40 +2785,77 @@ a.itflow-dash-rail-item:focus-visible {
     font-weight: 600;
     letter-spacing: .02em;
 }
-.itflow-client-tag {
+/* Tags - functions/tags.php tagPills(), on every list and detail page that has
+   them. A pill opens the list filtered to that tag; the dashed "+" at the end
+   opens the tag picker (js/tag_picker.js). The group sits above stretched-link
+   row and cell links so the pills stay clickable on top of them. */
+.itflow-tags {
+    position: relative;
+    z-index: 2;
+    display: inline-flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: .25rem;
+    max-width: 100%;
+    vertical-align: middle;
+}
+.itflow-tag {
     display: inline-flex;
     align-items: center;
     gap: .2rem;
     padding: .05rem .45rem;
+    border: 1px solid transparent;
     border-radius: 1rem;
     font-size: .75rem;
+    font-weight: normal;
     line-height: 1.4;
     color: #fff;
     background-color: var(--itflow-tag-color, var(--bs-secondary));
     text-decoration: none;
     white-space: nowrap;
 }
-.itflow-client-tag:hover,
-.itflow-client-tag:focus-visible {
+.itflow-tag:hover,
+.itflow-tag:focus-visible {
     color: #fff;
     filter: brightness(1.1);
 }
-/* The whole client cell is a link (stretched-link); the pills stay clickable on top of it */
-.itflow-clients-client .itflow-client-tag {
-    position: relative;
-    z-index: 2;
-}
-/* "+ Tag" / "+" at the end of the tags - opens Add Tags for that client */
-.itflow-client-tag-add {
+.itflow-tag-add {
     color: var(--bs-secondary-color);
     background-color: transparent;
-    border: 1px dashed var(--bs-border-color);
+    border-color: var(--bs-border-color);
+    border-style: dashed;
+    cursor: pointer;
 }
-.itflow-client-tag-add:hover,
-.itflow-client-tag-add:focus-visible {
+.itflow-tag-add:hover,
+.itflow-tag-add:focus-visible,
+.itflow-tag-add[aria-expanded="true"] {
     color: var(--itflow-accent, var(--bs-primary));
     border-color: currentColor;
     filter: none;
+}
+/* The picker - the select picker's panel, plus the bulk note and the dash for
+   a tag only some of the selected records have */
+.itflow-tag-panel-note {
+    padding: .5rem .75rem;
+    border-bottom: 1px solid var(--bs-border-color-translucent);
+    font-size: .8125rem;
+    color: var(--bs-secondary-color);
+}
+.itflow-tag-panel .itflow-select-footer {
+    gap: .25rem;
+    padding-top: .375rem;
+    padding-bottom: .375rem;
+}
+.itflow-tag-done {
+    --bs-btn-padding-x: .75rem;
+}
+/* On a phone the sheet's own header has the Done */
+.itflow-select-panel.is-sheet .itflow-tag-done {
+    display: none;
+}
+.itflow-select-option.is-mixed .itflow-select-checkbox {
+    border-color: var(--itflow-accent, var(--bs-primary));
+    color: var(--itflow-accent, var(--bs-primary));
 }
 .itflow-clients-street {
     max-width: 16rem;

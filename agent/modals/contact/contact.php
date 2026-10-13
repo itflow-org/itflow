@@ -116,30 +116,8 @@ $sql_related_recurring_tickets = mysqli_query($mysqli, "SELECT recurring_ticket_
 $recurring_ticket_count = mysqli_num_rows($sql_related_recurring_tickets);
 
 // Tags - many to many relationship
-$contact_tag_name_display_array = array();
-$contact_tag_id_array = array();
-$sql_contact_tags = mysqli_query($mysqli, "SELECT tag_color, tag_icon, contact_tags.tag_id, tag_name FROM contact_tags
-    LEFT JOIN tags ON contact_tags.tag_id = tags.tag_id
-    WHERE contact_id = $contact_id
-    ORDER BY tag_name ASC
-");
-while ($row = mysqli_fetch_assoc($sql_contact_tags)) {
-
-    $contact_tag_id = intval($row['tag_id']);
-    $contact_tag_name = escapeHtml($row['tag_name']);
-    $contact_tag_color = escapeHtml($row['tag_color']);
-    if (empty($contact_tag_color)) {
-        $contact_tag_color = "dark";
-    }
-    $contact_tag_icon = escapeHtml($row['tag_icon']);
-    if (empty($contact_tag_icon)) {
-        $contact_tag_icon = "tag";
-    }
-
-    $contact_tag_id_array[] = $contact_tag_id;
-    $contact_tag_name_display_array[] = "<a href='client_contacts.php?client_id=$client_id&q=$contact_tag_name'><span class='badge text-light p-1 me-1' style='background-color: $contact_tag_color;'><i class='fa fa-fw fa-$contact_tag_icon me-2'></i>$contact_tag_name</span></a>";
-}
-$contact_tags_display = implode('', $contact_tag_name_display_array);
+// Tags - functions/tags.php
+$contact_tags_display = tagPills('contact', $contact_id, tagsForRecord('contact', $contact_id), "contacts.php?client_id=$client_id&");
 
 // Notes - 1 to 1 relationship
 $sql_related_notes = mysqli_query($mysqli, "SELECT contact_note, contact_note_created_at, contact_note_type, user_name FROM contact_notes
@@ -483,24 +461,8 @@ ob_start();
 
                                 $device_icon = getAssetIcon($asset_type);
 
-                                // Tags
-                                $asset_tag_name_display_array = array();
-                                $sql_asset_tags = mysqli_query($mysqli, "SELECT tag_color, tag_icon, tag_id, tag_name FROM asset_tags LEFT JOIN tags ON asset_tag_tag_id = tag_id WHERE asset_tag_asset_id = $asset_id ORDER BY tag_name ASC");
-                                while ($row2 = mysqli_fetch_assoc($sql_asset_tags)) {
-                                    $asset_tag_id = intval($row2['tag_id']);
-                                    $asset_tag_name = escapeHtml($row2['tag_name']);
-                                    $asset_tag_color = escapeHtml($row2['tag_color']);
-                                    if (empty($asset_tag_color)) {
-                                        $asset_tag_color = "dark";
-                                    }
-                                    $asset_tag_icon = escapeHtml($row2['tag_icon']);
-                                    if (empty($asset_tag_icon)) {
-                                        $asset_tag_icon = "tag";
-                                    }
-
-                                    $asset_tag_name_display_array[] = "<a href='assets.php?$client_url tags[]=$asset_tag_id'><span class='badge text-light p-1 me-1' style='background-color: $asset_tag_color;'><i class='fa fa-fw fa-$asset_tag_icon me-2'></i>$asset_tag_name</span></a>";
-                                }
-                                $asset_tags_display = implode('', $asset_tag_name_display_array);
+                                // Tags - functions/tags.php
+                                $asset_tags_display = tagPills('asset', $asset_id, tagsForRecord('asset', $asset_id), "assets.php?client_id=$client_id&");
                                 $asset_favorite = intval($row['asset_favorite']);
 
                                 ?>

@@ -331,8 +331,8 @@ $total_leads = intval($row['leads']);
                                     <i class="fas fa-fw fa-paper-plane me-2"></i>Send Email
                                 </a>
                                 <div class="dropdown-divider"></div>
-                                <a class="dropdown-item ajax-modal" href="#" data-modal-url="modals/client/client_bulk_assign_tags.php" data-bulk="true">
-                                    <i class="fas fa-fw fa-tags me-2"></i>Assign Tags
+                                <a class="dropdown-item" href="#" data-tag-picker data-tag-entity="client" data-tag-bulk data-csrf="<?= $_SESSION['csrf_token'] ?>">
+                                    <i class="fas fa-fw fa-tags me-2"></i>Tags
                                 </a>
                                 <a class="dropdown-item ajax-modal" href="#" data-modal-url="modals/client/client_bulk_edit_industry.php" data-bulk="true">
                                     <i class="fas fa-fw fa-briefcase me-2"></i>Set Industry
@@ -516,23 +516,7 @@ $total_leads = intval($row['leads']);
                                         <div class="small text-body-secondary"><?= $client_type ?></div>
                                     <?php } ?>
                                     <?php if (!empty($client_tags[$client_id]) || $can_edit) { ?>
-                                        <div class="d-flex flex-wrap align-items-center gap-1 mt-1">
-                                            <?php foreach ($client_tags[$client_id] ?? [] as $tag) {
-                                                $tag_id = intval($tag['tag_id']);
-                                                $tag_name = escapeHtml($tag['tag_name']);
-                                                $tag_color = preg_match('/^#[0-9a-f]{3,8}$/i', (string) $tag['tag_color']) ? $tag['tag_color'] : 'var(--bs-secondary)';
-                                                $tag_icon = preg_replace('/[^a-z0-9-]/', '', strtolower((string) $tag['tag_icon'])) ?: 'tag';
-                                                ?>
-                                                <a href="<?= clientsFilterUrl(['tags' => [$tag_id]]) ?>" class="itflow-client-tag" style="--itflow-tag-color: <?= $tag_color ?>" title="Show clients tagged <?= $tag_name ?>">
-                                                    <i class="fas fa-fw fa-<?= $tag_icon ?>" aria-hidden="true"></i><?= $tag_name ?>
-                                                </a>
-                                            <?php } ?>
-                                            <?php if ($can_edit) { ?>
-                                                <a href="#" class="itflow-client-tag itflow-client-tag-add ajax-modal" data-modal-url="modals/client/client_bulk_assign_tags.php?client_ids[]=<?= $client_id ?>" title="Add tags to <?= $client_name ?>">
-                                                    <i class="fas fa-fw fa-plus" aria-hidden="true"></i><?php if (empty($client_tags[$client_id])) { ?>Tag<?php } else { ?><span class="visually-hidden">Add tags</span><?php } ?>
-                                                </a>
-                                            <?php } ?>
-                                        </div>
+                                        <div class="mt-1"><?= tagPills('client', $client_id, $client_tags[$client_id] ?? [], $leads_filter ? 'clients.php?leads=1&' : 'clients.php?') ?></div>
                                     <?php } ?>
                                 </div>
                             </div>
