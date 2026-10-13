@@ -20,16 +20,33 @@ $sql = mysqli_query(
 
 $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 
+// Agent user limit (set in config.php, 0 / unset = unlimited)
+$agent_user_limit = getAgentUserLimit();
+$agent_user_count = getActiveAgentUserCount();
+$agent_user_limit_reached = $agent_user_limit > 0 && $agent_user_count >= $agent_user_limit;
+
 ?>
 
 <div class="card">
     <div class="card-header bg-dark py-2">
-        <h3 class="card-title mt-2"><i class="fas fa-fw fa-users me-2"></i>Users</h3>
+        <h3 class="card-title mt-2"><i class="fas fa-fw fa-users me-2"></i>Users
+            <?php if ($agent_user_limit > 0) { ?>
+                <span class="badge text-bg-<?= $agent_user_limit_reached ? 'danger' : 'secondary' ?> ms-2" title="Active agent users / agent user limit">
+                    <?= $agent_user_count ?> of <?= $agent_user_limit ?> agent users
+                </span>
+            <?php } ?>
+        </h3>
         <div class="card-tools">
             <div class="btn-group">
-                <button type="button" class="btn btn-primary ajax-modal" data-modal-url="modals/user/user_add.php">
-                    <i class="fas fa-fw fa-user-plus me-2"></i>New User
-                </button>
+                <?php if ($agent_user_limit_reached) { ?>
+                    <button type="button" class="btn btn-primary" disabled title="Agent user limit reached">
+                        <i class="fas fa-fw fa-user-plus me-2"></i>New User
+                    </button>
+                <?php } else { ?>
+                    <button type="button" class="btn btn-primary ajax-modal" data-modal-url="modals/user/user_add.php">
+                        <i class="fas fa-fw fa-user-plus me-2"></i>New User
+                    </button>
+                <?php } ?>
                 <button type="button" class="btn btn-primary dropdown-toggle dropdown-toggle-split" data-bs-toggle="dropdown"></button>
                 <div class="dropdown-menu">
                     <!--<a class="dropdown-item text-dark ajax-modal" href="#" data-modal-url="modals/user/user_invite.php"><i class="fas fa-paper-plane me-2"></i>Invite User</a>-->

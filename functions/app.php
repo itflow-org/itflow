@@ -914,3 +914,46 @@ function getProductsForAutocomplete($mysqli): string
 
     return json_encode($products) ?: '[]';
 }
+
+/*
+ * Agent user limit
+ *
+ * Optional cap on the number of active agent users, set in config.php:
+ *     $config_agent_user_limit = 5;
+ * Unset or 0 means unlimited, which is the default for every self-hosted install.
+ * It lives in config.php rather than the settings table on purpose: on a hosted
+ * instance the provider controls config.php and the customer's admins do not, so
+ * nobody inside the app can raise their own limit.
+ *
+ * An active agent is user_type 1, enabled and not archived. Disabled and archived
+ * users do not use a seat.
+ */
+function getAgentUserLimit(): int
+{
+    global $config_agent_user_limit;
+
+    return max(0, intval($config_agent_user_limit ?? 0));
+}
+
+function getActiveAgentUserCount(): int
+{
+    global $mysqli;
+
+    $row = mysqli_fetch_row(mysqli_query($mysqli, "SELECT COUNT(user_id) FROM users WHERE user_type = 1 AND user_status = 1 AND user_archived_at IS NULL"));
+
+    return intval($row[0]);
+}
+
+function agentUserLimitReached(): bool
+{
+    $limit = getAgentUserLimit();
+
+    return $limit > 0 && getActiveAgentUserCount() >= $limit;
+}
+
+function agentUserLimitMessage(): string
+{
+    $limit = getAgentUserLimit();
+
+    return "Agent user limit reached - this installation allows <strong>$limit</strong> active agent " . ($limit == 1 ? "user" : "users") . ". Archive or disable a user first, or contact your provider to add more.";
+}

@@ -10,6 +10,11 @@ if (isset($_POST['add_user'])) {
 
     validateCSRFToken();
 
+    if (agentUserLimitReached()) {
+        flashAlert(agentUserLimitMessage(), 'error');
+        redirect();
+    }
+
     require_once 'user_model.php';
 
     $password = password_hash(trim($_POST['password']), PASSWORD_DEFAULT);
@@ -113,6 +118,7 @@ if (isset($_POST['edit_user'])) {
     require_once 'user_model.php';
 
     $user_id = intval($_POST['user_id']);
+
     $new_password = trim($_POST['new_password']);
 
     // Update Client Access (allow / deny per client)
@@ -193,6 +199,13 @@ if (isset($_GET['activate_user'])) {
     validateCSRFToken();
 
     $user_id = intval($_GET['activate_user']);
+
+    // Only a user who isn't already using a seat can push the count over the limit
+    $seat_row = mysqli_fetch_row(mysqli_query($mysqli, "SELECT COUNT(user_id) FROM users WHERE user_id = $user_id AND user_type = 1 AND user_status = 1 AND user_archived_at IS NULL"));
+    if (intval($seat_row[0]) === 0 && agentUserLimitReached()) {
+        flashAlert(agentUserLimitMessage(), 'error');
+        redirect();
+    }
 
     $user_name = escapeSql(getFieldById('users', $user_id, 'user_name'));
 
@@ -303,6 +316,13 @@ if (isset($_POST['restore_user'])) {
     validateCSRFToken();
 
     $user_id = intval($_POST['user_id']);
+
+    // Only a user who isn't already using a seat can push the count over the limit
+    $seat_row = mysqli_fetch_row(mysqli_query($mysqli, "SELECT COUNT(user_id) FROM users WHERE user_id = $user_id AND user_type = 1 AND user_status = 1 AND user_archived_at IS NULL"));
+    if (intval($seat_row[0]) === 0 && agentUserLimitReached()) {
+        flashAlert(agentUserLimitMessage(), 'error');
+        redirect();
+    }
     $new_password = trim($_POST['new_password']);
     $role = intval($_POST['role']);
 
