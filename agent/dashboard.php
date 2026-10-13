@@ -130,11 +130,11 @@ $tone_text = ['danger' => 'text-danger-emphasis', 'warning' => 'text-warning-emp
 
     <div class="row g-3 mb-3">
         <div class="col-xl-8">
-            <div class="card h-100 mb-0">
+            <div class="card h-100 mb-0 bg-dark">
                 <div class="card-header d-flex align-items-center">
                     <h3 class="card-title mb-0 me-auto">Open and assigned to you</h3>
                     <?php if ($my_tickets['total']) { ?>
-                        <a class="small" href="/agent/tickets.php?assigned=<?= intval($session_user_id) ?>">View all <?= $my_tickets['total'] ?></a>
+                        <a class="small text-light" href="/agent/tickets.php?assigned=<?= intval($session_user_id) ?>">View all <?= $my_tickets['total'] ?></a>
                     <?php } ?>
                 </div>
 
