@@ -2238,7 +2238,20 @@ html {
    mode version. Unread rows carry a dot and a heavier title; read rows step
    back. The read / unread button shows on hover and keyboard focus, and
    always on touch screens, where there is no hover. */
+/* data-bs-theme on the panel (to escape the dark navbar) also puts Bootstrap's
+   default blue links back. Carry the page's themed link colours in instead -
+   resolved on body, where the theme colour and the page's mode both apply. */
+body {
+    --itflow-link-color: var(--bs-link-color);
+    --itflow-link-color-rgb: var(--bs-link-color-rgb);
+    --itflow-link-hover-color: var(--bs-link-hover-color);
+    --itflow-link-hover-color-rgb: var(--bs-link-hover-color-rgb);
+}
 .itflow-notify-panel {
+    --bs-link-color: var(--itflow-link-color);
+    --bs-link-color-rgb: var(--itflow-link-color-rgb);
+    --bs-link-hover-color: var(--itflow-link-hover-color);
+    --bs-link-hover-color-rgb: var(--itflow-link-hover-color-rgb);
     width: min(25rem, calc(100vw - 1rem));
     overflow: hidden;
     box-shadow: 0 .75rem 2rem rgba(0, 0, 0, .25);
