@@ -270,7 +270,7 @@ $total_leads = intval($row['leads']);
 
 ?>
 
-<div class="card mb-3">
+<div class="card">
     <div class="card-header bg-dark py-2">
         <h3 class="card-title mt-2"><i class="fa fa-fw fa-user-friends me-2"></i>Clients
             <small class="ms-3">
@@ -438,9 +438,7 @@ $total_leads = intval($row['leads']);
             </div>
         <?php } ?>
     </div>
-</div>
 
-<div class="card">
     <form id="bulkActions" action="post.php" method="post">
         <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
         <!-- position-relative keeps the visually-hidden labels inside the scroll box on narrow screens -->
