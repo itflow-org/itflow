@@ -179,6 +179,176 @@ if (isset($_POST['tag_picker_set']) || isset($_POST['tag_picker_create'])) {
     exit();
 }
 
+/*
+ * Quick pickers (js/quick_pick.js) - a ticket's status, priority, assignee
+ * and billable, a project's manager and a recurring ticket's assignee,
+ * changed in place instead of through a modal. GET lists the choices; POST makes the change through the same
+ * functions the post.php handlers use (functions/ticket_fields.php) and sends
+ * back the redrawn values.
+ */
+if (isset($_GET['quick_pick_options'])) {
+
+    header('Content-Type: application/json');
+    enforceUserPermission('module_support', 2);
+
+    $field = (string) ($_GET['field'] ?? '');
+    $options = [];
+
+    if ($field === 'priority') {
+        $colors = ['Urgent' => 'var(--bs-emphasis-color)', 'High' => 'var(--bs-danger)', 'Medium' => 'var(--bs-warning)', 'Low' => 'var(--bs-info)'];
+        foreach (TICKET_PRIORITIES as $priority) {
+            $options[] = ['value' => $priority, 'label' => $priority, 'color' => $colors[$priority]];
+        }
+    } elseif ($field === 'status') {
+        foreach (ticketPickableStatuses() as $status_id => $status) {
+            $options[] = ['value' => (string) $status_id, 'label' => $status['ticket_status_name'], 'color' => preg_match('/^(#[0-9a-f]{3,8}|[a-z]{3,24})$/i', (string) $status['ticket_status_color']) ? $status['ticket_status_color'] : ''];
+        }
+    } elseif ($field === 'billable') {
+        $options[] = ['value' => '1', 'label' => 'Billable', 'icon' => 'fas fa-dollar-sign', 'description' => 'Shows on the Unbilled Tickets report until invoiced'];
+        $options[] = ['value' => '0', 'label' => 'Not billable', 'icon' => 'fas fa-minus'];
+    } elseif ($field === 'assignee' || $field === 'recurring_assignee') {
+        $options = quickPickAgents();
+    } elseif ($field === 'project_manager') {
+        $options = quickPickAgents('No manager');
+    } else {
+        http_response_code(400);
+        echo json_encode(['error' => 'Unknown field']);
+        exit();
+    }
+
+    echo json_encode(['options' => $options]);
+    exit();
+}
+
+if (isset($_POST['quick_pick_set'])) {
+
+    validateCSRFToken();
+
+    header('Content-Type: application/json');
+
+    $field = (string) ($_POST['field'] ?? '');
+    $value = (string) ($_POST['value'] ?? '');
+    $ticket_ids = array_values(array_unique(array_filter(array_map('intval', (array) ($_POST['ids'] ?? [])))));
+
+    // A project's manager or a recurring ticket's assignee - open projects
+    // and recurring tickets of clients this agent can reach, like their edit modals
+    if ($field === 'project_manager' || $field === 'recurring_assignee') {
+        $is_project = $field === 'project_manager';
+        $allowed = lookupUserPermission('module_support') >= 2 && $ticket_ids;
+        foreach ($allowed ? $ticket_ids : [] as $id) {
+            $row = mysqli_fetch_assoc(mysqli_query($mysqli, $is_project
+                ? "SELECT project_client_id AS client_id, project_completed_at IS NULL AND project_archived_at IS NULL AS is_open FROM projects WHERE project_id = $id"
+                : "SELECT recurring_ticket_client_id AS client_id, 1 AS is_open FROM recurring_tickets WHERE recurring_ticket_id = $id"
+            ));
+            if (!$row || !$row['is_open'] || (intval($row['client_id']) && !hasClientAccess($row['client_id']))) {
+                $allowed = false;
+                break;
+            }
+        }
+        if (!$allowed) {
+            http_response_code(403);
+            echo json_encode(['error' => 'You cannot change that here.']);
+            exit();
+        }
+
+        $response = ['records' => []];
+        foreach ($ticket_ids as $id) {
+            [$ok, $message] = $is_project ? projectChangeManager($id, intval($value)) : recurringTicketChangeAssignee($id, intval($value));
+            if (!$ok) {
+                http_response_code(422);
+                echo json_encode(['error' => $message]);
+                exit();
+            }
+            $row = mysqli_fetch_assoc(mysqli_query($mysqli, $is_project
+                ? "SELECT project_manager AS user_id, user_name, user_avatar FROM projects LEFT JOIN users ON user_id = project_manager WHERE project_id = $id"
+                : "SELECT recurring_ticket_assigned_to AS user_id, user_name, user_avatar FROM recurring_tickets LEFT JOIN users ON user_id = recurring_ticket_assigned_to WHERE recurring_ticket_id = $id"
+            ));
+            $html = formatAssignee($row['user_id'], $row['user_name'], $row['user_avatar'], false, $is_project ? 'No manager' : 'Unassigned');
+            $response['records'][$id] = ['current' => (string) intval($row['user_id']), 'html' => ['list' => $html, 'detail' => $html]];
+        }
+        $response['message'] = $message;
+        echo json_encode($response);
+        exit();
+    }
+
+    $allowed = lookupUserPermission('module_support') >= 2
+        && in_array($field, ['priority', 'assignee', 'billable', 'status'], true)
+        && ($field !== 'billable' || lookupUserPermission('module_sales') >= 2)
+        && $ticket_ids;
+
+    // Every ticket has to be one this agent can reach, and still open
+    // for priority and assignee - the same tickets the pickers are shown on
+    if ($allowed) {
+        foreach ($ticket_ids as $ticket_id) {
+            $row = ticketFieldsRow($ticket_id);
+            if (!$row || (intval($row['ticket_client_id']) && !hasClientAccess($row['ticket_client_id']))
+                || ($field !== 'billable' && $row['ticket_closed_at'])) {
+                $allowed = false;
+                break;
+            }
+        }
+    }
+    if (!$allowed) {
+        http_response_code(403);
+        echo json_encode(['error' => 'You cannot change that on these tickets.']);
+        exit();
+    }
+
+    $message = '';
+    $response = ['records' => []];
+    foreach ($ticket_ids as $ticket_id) {
+        if ($field === 'priority') {
+            [$ok, $message] = ticketChangePriority($ticket_id, $value);
+        } elseif ($field === 'assignee') {
+            [$ok, $message] = ticketChangeAssignee($ticket_id, intval($value));
+        } elseif ($field === 'status') {
+            [$ok, $message] = ticketChangeStatus($ticket_id, intval($value));
+        } else {
+            [$ok, $message] = ticketChangeBillable($ticket_id, intval($value));
+        }
+        if (!$ok) {
+            http_response_code(422);
+            echo json_encode(['error' => strip_tags($message)]);
+            exit();
+        }
+
+        // Redraw what changed, in both looks, plus the status (assigning a New ticket opens it)
+        $row = mysqli_fetch_assoc(mysqli_query($mysqli,
+            "SELECT ticket_priority, ticket_assigned_to, ticket_billable, ticket_closed_at, ticket_resolved_at, ticket_status,
+                ticket_status_name, ticket_status_color, user_name, user_avatar
+            FROM tickets
+            LEFT JOIN ticket_statuses ON ticket_status = ticket_status_id
+            LEFT JOIN users ON user_id = ticket_assigned_to
+            WHERE ticket_id = $ticket_id"
+        ));
+        $is_open = empty($row['ticket_resolved_at']) && empty($row['ticket_closed_at']);
+        if ($field === 'priority') {
+            $current = $row['ticket_priority'];
+            $html = ['list' => ticketPriorityHtml($current, 'list'), 'detail' => ticketPriorityHtml($current, 'detail')];
+        } elseif ($field === 'assignee') {
+            $current = (string) intval($row['ticket_assigned_to']);
+            $assignee = formatAssignee($row['ticket_assigned_to'], $row['user_name'], $row['user_avatar'], $is_open);
+            $html = ['list' => $assignee, 'detail' => $assignee];
+        } elseif ($field === 'status') {
+            $current = (string) intval($row['ticket_status']);
+            $html = ['list' => ticketStatusHtml($row['ticket_status_name'], $row['ticket_status_color'], 'list'), 'detail' => ticketStatusHtml($row['ticket_status_name'], $row['ticket_status_color'], 'detail')];
+        } else {
+            $current = (string) intval($row['ticket_billable']);
+            $html = ['list' => ticketBillableHtml($current, 'list'), 'detail' => ticketBillableHtml($current, 'detail')];
+        }
+        $response['records'][$ticket_id] = [
+            'current' => $current,
+            'html' => $html,
+            'status_id' => intval($row['ticket_status']),
+            'status' => ['list' => ticketStatusHtml($row['ticket_status_name'], $row['ticket_status_color'], 'list'), 'detail' => ticketStatusHtml($row['ticket_status_name'], $row['ticket_status_color'], 'detail')]
+        ];
+    }
+
+    $response['message'] = count($ticket_ids) === 1 ? strip_tags($message) : 'Updated ' . count($ticket_ids) . ' tickets';
+    echo json_encode($response);
+    exit();
+}
+
 if (isset($_POST['client_set_notes'])) {
 
     validateCSRFToken();

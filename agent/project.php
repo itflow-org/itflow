@@ -28,7 +28,7 @@ if (isset($_GET['project_id'])) {
         $mysqli,
         "SELECT client_id, client_name, project_archived_at, project_completed_at, project_created_at,
             project_description, project_due, project_id, project_name, project_number, project_prefix,
-            project_updated_at, user_id, user_name FROM projects
+            project_updated_at, user_id, user_name, user_avatar FROM projects
         LEFT JOIN clients ON project_client_id = client_id
         LEFT JOIN users ON project_manager = user_id
         WHERE project_id = $project_id
@@ -64,12 +64,11 @@ if (isset($_GET['project_id'])) {
     }
 
     $project_manager = intval($row['user_id']);
-    $project_manager_name = escapeHtml($row['user_name']);
-    if ($project_manager) {
-        $project_manager_display = "<div class='text-secondary'><i class='fas fa-fw fa-user-tie me-2'></i>$project_manager_name</div>";
-    } else {
-        $project_manager_display = "-";
+    $project_manager_display = formatAssignee($project_manager, $row['user_name'], $row['user_avatar'], false, 'No manager');
+    if (lookupUserPermission('module_support') >= 2 && !$project_completed_at && !$project_archived_at) {
+        $project_manager_display = quickPick('project_manager', $project_id, $project_manager, $project_manager_display);
     }
+    $project_manager_display = "<div class='d-flex align-items-center text-secondary my-1' title='Project manager'><i class='fas fa-fw fa-user-tie me-2'></i>$project_manager_display</div>";
 
     if ($project_completed_at) {
         $project_status_display = "<span class='badge rounded-pill bg-dark ms-2'>Closed</span>";

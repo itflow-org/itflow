@@ -367,33 +367,29 @@ if ($tickets) {
                                     <?php } elseif ($ticket_quote_id) { ?>
                                         <a href="quote.php?client_id=<?= $client_id ?>&quote_id=<?= $ticket_quote_id ?>"><span class="badge rounded-pill bg-primary p-2">Quoted</span></a>
                                     <?php } else { ?>
-                                        <a href="#" class="ajax-modal" data-modal-url="modals/ticket/ticket_billable.php?id=<?= $ticket_id ?>"
-                                            title="<?= $ticket_billable ? 'Billable - click to change' : 'Not billable - click to change' ?>">
-                                            <?php if ($ticket_billable) { ?>
-                                                <span class="badge rounded-pill bg-success p-2"><i class="fas fa-fw fa-dollar-sign"></i></span>
-                                            <?php } else { ?>
-                                                <span class="badge rounded-pill bg-secondary p-2"><i class="fas fa-fw fa-minus"></i></span>
-                                            <?php } ?>
-                                        </a>
+                                        <?= quickPick('billable', $ticket_id, $ticket_billable ? '1' : '0', ticketBillableHtml($ticket_billable, 'list')) ?>
                                     <?php } ?>
                                 </td>
                             <?php } ?>
 
                             <!-- Ticket Priority -->
                             <td>
-                                <a href="#"
-                                    <?php if (lookupUserPermission("module_support") >= 2 && empty($ticket_closed_at)) { ?>
-                                    class="ajax-modal"
-                                    data-modal-url="modals/ticket/ticket_priority.php?id=<?= $ticket_id ?>"
-                                    <?php } ?>
-                                    >
-                                    <span class="p-2 badge rounded-pill text-bg-<?= $ticket_priority_color ?>"><?= $ticket_priority ?></span>
-                                </a>
+                                <?php if (lookupUserPermission("module_support") >= 2 && empty($ticket_closed_at)) { ?>
+                                    <?= quickPick('priority', $ticket_id, $ticket_priority, ticketPriorityHtml($ticket_priority, 'list')) ?>
+                                <?php } else { ?>
+                                    <?= ticketPriorityHtml($ticket_priority, 'list') ?>
+                                <?php } ?>
                             </td>
 
                             <!-- Ticket Status -->
                             <td>
-                                <span class="badge rounded-pill text-light p-2" style="background-color: <?= $ticket_status_color ?>"><?= $ticket_status_name ?></span>
+                                <span data-ticket-status-for="<?= $ticket_id ?>" data-status-id="<?= intval($row['ticket_status']) ?>">
+                                    <?php if (lookupUserPermission("module_support") >= 2 && $ticket_is_open) { ?>
+                                        <?= quickPick('status', $ticket_id, (string) intval($row['ticket_status']), ticketStatusHtml($row['ticket_status_name'], $row['ticket_status_color'], 'list')) ?>
+                                    <?php } else { ?>
+                                        <?= ticketStatusHtml($row['ticket_status_name'], $row['ticket_status_color'], 'list') ?>
+                                    <?php } ?>
+                                </span>
                                 <?php if (!empty($ticket_scheduled_for)) { ?>
                                     <div class="mt-1"><small class="text-secondary"><i class="fas fa-fw fa-calendar-check me-1"></i><?= $ticket_scheduled_for ?></small></div>
                                 <?php } ?>
@@ -430,14 +426,11 @@ if ($tickets) {
 
                             <!-- Ticket Assigned agent -->
                             <td>
-                                <a href="#"
-                                    <?php if (lookupUserPermission("module_support") >= 2 && empty($ticket_closed_at)) { ?>
-                                    class="ajax-modal"
-                                    data-modal-url="modals/ticket/ticket_assign.php?id=<?= $ticket_id ?>"
-                                    <?php } ?>
-                                    >
+                                <?php if (lookupUserPermission("module_support") >= 2 && empty($ticket_closed_at)) { ?>
+                                    <?= quickPick('assignee', $ticket_id, (string) intval($row['ticket_assigned_to']), $ticket_assigned_to_display) ?>
+                                <?php } else { ?>
                                     <?= $ticket_assigned_to_display ?>
-                                </a>
+                                <?php } ?>
                             </td>
 
                             <!-- Ticket Last Response -->

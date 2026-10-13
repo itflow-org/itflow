@@ -232,14 +232,14 @@ function formatAddress($address, $city, $state, $zip, $country = '', $separator 
  * doesn't. Takes the RAW user columns and escapes them itself.
  * Bootstrap 5.3 utilities and Font Awesome only - no custom CSS.
  */
-function formatAssignee($user_id, $user_name, $user_avatar, $highlight_unassigned = true) {
+function formatAssignee($user_id, $user_name, $user_avatar, $highlight_unassigned = true, $none_label = 'Unassigned') {
     $pill = "badge rounded-pill d-inline-flex align-items-center align-middle gap-1 p-1 pe-2";
     $user_id = intval($user_id);
 
     if (!$user_id) {
         $tone = $highlight_unassigned ? 'danger' : 'secondary';
         $colors = $highlight_unassigned ? 'text-danger-emphasis bg-danger-subtle' : 'text-body-secondary bg-body-secondary';
-        return "<span class='$pill $colors'><span class='position-relative d-inline-flex' aria-hidden='true'><i class='fas fa-circle fs-5 text-$tone'></i><i class='fas fa-user-slash position-absolute top-50 start-50 translate-middle small text-white'></i></span>Unassigned</span>";
+        return "<span class='$pill $colors'><span class='position-relative d-inline-flex' aria-hidden='true'><i class='fas fa-circle fs-5 text-$tone'></i><i class='fas fa-user-slash position-absolute top-50 start-50 translate-middle small text-white'></i></span>" . escapeHtml($none_label) . "</span>";
     }
 
     $user_avatar = escapeHtml($user_avatar);

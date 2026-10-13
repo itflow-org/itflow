@@ -78,6 +78,7 @@
 <script src="/js/autocomplete.js"></script>
 <script src="/js/app.js"></script>
 <script src="/js/tag_picker.js"></script>
+<script src="/js/quick_pick.js"></script>
 <script src="/js/ajax_modal.js"></script>
 <script src="/js/confirm_modal.js"></script>
 <script src="/js/date_filter.js"></script>

@@ -967,38 +967,10 @@ if (isset($_GET['ticket_id'])) {
                                 <dt>Status</dt>
                                 <dd>
                                     <?php if ($ticket_status_options) { ?>
-                                        <!--
-                                            Changing status without writing a reply. Posts the same
-                                            handler the reply form uses with no reply text, which is
-                                            already its status-only path. Resolved is left out - the
-                                            Resolve button does that, and it also emails the client.
-                                        -->
-                                        <form action="post.php" method="post" class="dropdown">
-                                            <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
-                                            <input type="hidden" name="ticket_id" value="<?= $ticket_id ?>">
-                                            <input type="hidden" name="add_ticket_reply" value="1">
-                                            <input type="hidden" name="public_reply_type" value="0">
-                                            <input type="hidden" name="ticket_reply" value="">
-                                            <input type="hidden" name="hours" value="0">
-                                            <input type="hidden" name="minutes" value="0">
-                                            <input type="hidden" name="seconds" value="0">
-                                            <button type="button" class="ticket-prop-edit" data-bs-toggle="dropdown" aria-expanded="false" title="Change status">
-                                                <span class="badge rounded-pill text-light" style="background-color: <?= $ticket_status_color ?>"><?= $ticket_status_name ?></span>
-                                                <i class="fas fa-caret-down ticket-prop-edit-icon"></i>
-                                            </button>
-                                            <div class="dropdown-menu">
-                                                <?php foreach ($ticket_status_options as $status_option) {
-                                                    $status_option_id = intval($status_option['ticket_status_id']);
-                                                    if ($status_option_id == 4) {
-                                                        continue;
-                                                    }
-                                                    ?>
-                                                    <button type="submit" name="status" value="<?= $status_option_id ?>" class="dropdown-item<?= $status_option_id == $ticket_status ? ' active' : '' ?>">
-                                                        <i class="fas fa-fw fa-circle me-2" style="color: <?= escapeHtml($status_option['ticket_status_color']) ?>"></i><?= escapeHtml($status_option['ticket_status_name']) ?>
-                                                    </button>
-                                                <?php } ?>
-                                            </div>
-                                        </form>
+                                        <?php /* Resolved is not offered - the Resolve button does that, and it also emails the client */ ?>
+                                        <span class="d-block" data-ticket-status-for="<?= $ticket_id ?>" data-quick-style="detail" data-status-id="<?= intval($ticket_status) ?>">
+                                            <?= quickPick('status', $ticket_id, (string) intval($ticket_status), ticketStatusHtml($ticket['ticket_status_name'], $ticket['ticket_status_color'], 'detail'), 'detail') ?>
+                                        </span>
                                     <?php } else { ?>
                                         <span class="ticket-prop-static">
                                             <span class="badge rounded-pill text-light" style="background-color: <?= $ticket_status_color ?>"><?= $ticket_status_name ?></span>
@@ -1011,10 +983,7 @@ if (isset($_GET['ticket_id'])) {
                                 <dt>Priority</dt>
                                 <dd>
                                     <?php if ($can_change_fields) { ?>
-                                        <a href="#" class="ticket-prop-edit ajax-modal" data-modal-url="modals/ticket/ticket_priority.php?id=<?= $ticket_id ?>" title="Change priority">
-                                            <span class="badge rounded-pill text-bg-<?= $ticket_priority_color ?>"><?= $ticket_priority ?></span>
-                                            <i class="fas fa-pen ticket-prop-edit-icon"></i>
-                                        </a>
+                                        <?= quickPick('priority', $ticket_id, $ticket_priority, ticketPriorityHtml($ticket_priority, 'detail'), 'detail') ?>
                                     <?php } else { ?>
                                         <span class="ticket-prop-static"><span class="badge rounded-pill text-bg-<?= $ticket_priority_color ?>"><?= $ticket_priority ?></span></span>
                                     <?php } ?>
@@ -1025,10 +994,7 @@ if (isset($_GET['ticket_id'])) {
                                 <dt>Assigned to</dt>
                                 <dd>
                                     <?php if ($can_change_fields) { ?>
-                                        <a href="#" class="ticket-prop-edit ajax-modal" data-modal-url="modals/ticket/ticket_assign.php?id=<?= $ticket_id ?>" title="Change who it is assigned to">
-                                            <?= $ticket_assigned_to_display ?>
-                                            <i class="fas fa-pen ticket-prop-edit-icon"></i>
-                                        </a>
+                                        <?= quickPick('assignee', $ticket_id, (string) intval($ticket['ticket_assigned_to']), $ticket_assigned_to_display, 'detail', $ticket['ticket_status']) ?>
                                     <?php } else { ?>
                                         <span class="ticket-prop-static"><?= $ticket_assigned_to_display ?></span>
                                     <?php } ?>
@@ -1128,11 +1094,8 @@ if (isset($_GET['ticket_id'])) {
                                             <a href="quote.php?quote_id=<?= $quote_id ?>" class="ticket-prop-edit" title="Open the quote">
                                                 <span><i class="fa fa-fw fa-comment-dollar text-secondary me-1"></i>Quoted on <?= $quote_reference ?></span>
                                             </a>
-                                        <?php } elseif ($can_edit_ticket) { ?>
-                                            <a href="#" class="ticket-prop-edit ajax-modal" data-modal-url="modals/ticket/ticket_billable.php?id=<?= $ticket_id ?>" title="Change billing">
-                                                <span><?= $ticket_billable ? 'Billable' : "<span class='text-muted'>Not billable</span>" ?></span>
-                                                <i class="fas fa-pen ticket-prop-edit-icon"></i>
-                                            </a>
+                                        <?php } elseif ($can_edit_ticket && lookupUserPermission("module_sales") >= 2) { ?>
+                                            <?= quickPick('billable', $ticket_id, $ticket_billable ? '1' : '0', ticketBillableHtml($ticket_billable, 'detail'), 'detail') ?>
                                         <?php } else { ?>
                                             <span class="ticket-prop-static"><?= $ticket_billable ? 'Billable' : "<span class='text-muted'>Not billable</span>" ?></span>
                                         <?php } ?>

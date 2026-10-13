@@ -33,7 +33,7 @@ $sql_projects = mysqli_query(
     $mysqli,
     "SELECT SQL_CALC_FOUND_ROWS client_id, client_name, project_archived_at, project_completed_at, project_created_at,
         project_description, project_due, project_id, project_name, project_number, project_prefix,
-        project_updated_at, user_id, user_name FROM projects
+        project_updated_at, user_id, user_name, user_avatar FROM projects
     LEFT JOIN clients ON client_id = project_client_id
     LEFT JOIN users ON user_id = project_manager
     WHERE DATE(project_created_at) BETWEEN '$dtf' AND '$dtt'
@@ -179,10 +179,9 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                 }
 
                 $project_manager = intval($row['user_id']);
-                if ($project_manager) {
-                    $project_manager_display = escapeHtml($row['user_name']);
-                } else {
-                    $project_manager_display = "-";
+                $project_manager_display = formatAssignee($project_manager, $row['user_name'], $row['user_avatar'], false, 'No manager');
+                if (lookupUserPermission('module_support') >= 2 && !$project_completed_at && !$project_archived_at) {
+                    $project_manager_display = quickPick('project_manager', $project_id, $project_manager, $project_manager_display);
                 }
 
 

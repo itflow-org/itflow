@@ -2864,6 +2864,49 @@ a.itflow-dash-rail-item:focus-visible {
     --bs-table-bg-state: var(--bs-primary-bg-subtle);
 }
 
+/* Quick pickers - js/quick_pick.js. A ticket's priority, assignee or billing
+   badge is a button that opens a small menu under it; the menu itself is the
+   select picker's panel. On the ticket page the button also carries
+   .ticket-prop-edit, so it looks like the other properties there. */
+.itflow-quick-pick {
+    padding: 0;
+    border: 0;
+    border-radius: 2rem;
+    font: inherit;
+    color: inherit;
+    background: none;
+    cursor: pointer;
+    transition: opacity .15s;
+}
+.itflow-quick-pick-list:hover .badge,
+.itflow-quick-pick-list:focus-visible .badge,
+.itflow-quick-pick-list[aria-expanded="true"] .badge {
+    box-shadow: 0 0 0 .2rem color-mix(in srgb, var(--itflow-accent, #0d6efd) 30%, transparent);
+}
+.itflow-quick-pick:focus-visible {
+    outline: 0;
+}
+.itflow-quick-pick-detail {
+    border-radius: var(--bs-border-radius);
+}
+.itflow-quick-pick.is-saving {
+    opacity: .5;
+    pointer-events: none;
+}
+/* A brief ring on the value that just changed */
+.itflow-quick-pick.is-saved .badge {
+    animation: itflowQuickSaved .9s ease-out;
+}
+@keyframes itflowQuickSaved {
+    from { box-shadow: 0 0 0 .3rem color-mix(in srgb, var(--bs-success) 45%, transparent); }
+    to { box-shadow: 0 0 0 .3rem transparent; }
+}
+@media (prefers-reduced-motion: reduce) {
+    .itflow-quick-pick.is-saved .badge {
+        animation: none;
+    }
+}
+
 /* Client side nav - agent/includes/client_side_nav.php: the client's initials
    and name at the top, under the "All clients" link */
 /* Same width, corners and left padding as the menu links below it, so the
