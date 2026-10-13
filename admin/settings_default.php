@@ -162,12 +162,12 @@ $net_terms_array = array (
                         <option value="">- None -</option>
                         <?php
 
-                        $sql = mysqli_query($mysqli, "SELECT category_name FROM categories WHERE category_type = 'Payment Method' ORDER BY category_name ASC");
+                        $sql = mysqli_query($mysqli, "SELECT category_name, category_color, category_icon FROM categories WHERE category_type = 'Payment Method' ORDER BY category_name ASC");
                         while ($row = mysqli_fetch_assoc($sql)) {
                             $payment_method = escapeHtml($row['category_name']); ?>
                             <option <?php if ($config_default_payment_method == $payment_method) {
                                         echo "selected";
-                                    } ?>><?= $payment_method ?></option>
+                                    } ?><?= selectOptionColor($row['category_color'] ?? '', $row['category_icon'] ?? '') ?>><?= $payment_method ?></option>
                         <?php } ?>
 
                     </select>
@@ -182,12 +182,12 @@ $net_terms_array = array (
                         <option value="">- None -</option>
                         <?php
 
-                        $sql = mysqli_query($mysqli, "SELECT category_name FROM categories WHERE category_type = 'Payment Method' ORDER BY category_name ASC");
+                        $sql = mysqli_query($mysqli, "SELECT category_name, category_color, category_icon FROM categories WHERE category_type = 'Payment Method' ORDER BY category_name ASC");
                         while ($row = mysqli_fetch_assoc($sql)) {
                             $payment_method = escapeHtml($row['category_name']); ?>
                             <option <?php if ($config_default_expense_payment_method == $payment_method) {
                                         echo "selected";
-                                    } ?>><?= $payment_method ?></option>
+                                    } ?><?= selectOptionColor($row['category_color'] ?? '', $row['category_icon'] ?? '') ?>><?= $payment_method ?></option>
                         <?php } ?>
 
                     </select>

@@ -127,7 +127,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 
                                 <?php
                                     $sql_clients_filter = mysqli_query($mysqli, "
-                                    SELECT DISTINCT client_id, client_name
+                                    SELECT DISTINCT client_id, client_name, client_abbreviation
                                     FROM clients
                                     JOIN software ON software_client_id = client_id
                                     WHERE $archive_query
@@ -138,7 +138,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                     $client_id = intval($row['client_id']);
                                     $client_name = escapeHtml($row['client_name']);
                                 ?>
-                                    <option <?php if ($client == $client_id) { echo "selected"; } ?> value="<?= $client_id ?>"><?= $client_name ?></option>
+                                    <option <?php if ($client == $client_id) { echo "selected"; } ?> value="<?= $client_id ?>"<?= selectOptionClient($row['client_id'], $row['client_name'], $row['client_abbreviation'] ?? '') ?>><?= $client_name ?></option>
                                 <?php
                                 }
                                 ?>

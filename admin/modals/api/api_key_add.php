@@ -56,11 +56,11 @@ ob_start();
                         <select class="form-select select2" name="run_as_user" required>
                             <option value="">- Select a user -</option>
                             <?php
-                            $sql_run_users = mysqli_query($mysqli, "SELECT user_id, user_name FROM users WHERE user_type = 1 AND user_status = 1 AND user_archived_at IS NULL ORDER BY user_name ASC");
+                            $sql_run_users = mysqli_query($mysqli, "SELECT user_id, user_name, user_avatar FROM users WHERE user_type = 1 AND user_status = 1 AND user_archived_at IS NULL ORDER BY user_name ASC");
                             while ($run_user = mysqli_fetch_assoc($sql_run_users)) {
                                 $run_user_id = intval($run_user['user_id']);
                                 $run_user_name = escapeHtml($run_user['user_name']); ?>
-                                <option value="<?= $run_user_id ?>"><?= $run_user_name ?></option>
+                                <option value="<?= $run_user_id ?>"<?= selectOptionUser($run_user['user_id'], $run_user['user_name'], $run_user['user_avatar'] ?? '') ?>><?= $run_user_name ?></option>
                             <?php } ?>
                         </select>
                     </div>

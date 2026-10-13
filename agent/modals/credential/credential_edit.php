@@ -158,12 +158,12 @@ ob_start();
                             <option value="">- Select Contact -</option>
                             <?php
 
-                            $sql_contacts = mysqli_query($mysqli, "SELECT contact_id, contact_name FROM contacts WHERE contact_client_id = $client_id ORDER BY contact_name ASC");
+                            $sql_contacts = mysqli_query($mysqli, "SELECT contact_id, contact_name, contact_client_id, contact_photo, contact_title FROM contacts WHERE contact_client_id = $client_id ORDER BY contact_name ASC");
                             while ($row = mysqli_fetch_assoc($sql_contacts)) {
                                 $contact_id_select = intval($row['contact_id']);
                                 $contact_name_select = escapeHtml($row['contact_name']);
                                 ?>
-                                <option <?php if ($credential_contact_id == $contact_id_select) { echo "selected"; } ?> value="<?= $contact_id_select ?>"><?= $contact_name_select ?></option>
+                                <option <?php if ($credential_contact_id == $contact_id_select) { echo "selected"; } ?> value="<?= $contact_id_select ?>"<?= selectOptionContact($row['contact_client_id'] ?? 0, $row['contact_name'], $row['contact_photo'] ?? '', $row['contact_title'] ?? '') ?>><?= $contact_name_select ?></option>
                             <?php } ?>
                         </select>
                     </div>
@@ -177,7 +177,7 @@ ob_start();
                             <option value="0">- Select Asset -</option>
                             <?php
 
-                            $sql_assets = mysqli_query($mysqli, "SELECT asset_id, asset_name, location_name  FROM assets LEFT JOIN locations on asset_location_id = location_id WHERE asset_client_id = $client_id AND asset_archived_at IS NULL ORDER BY asset_name ASC");
+                            $sql_assets = mysqli_query($mysqli, "SELECT asset_id, asset_name, asset_type, asset_make, asset_model, location_name  FROM assets LEFT JOIN locations on asset_location_id = location_id WHERE asset_client_id = $client_id AND asset_archived_at IS NULL ORDER BY asset_name ASC");
                             while ($row = mysqli_fetch_assoc($sql_assets)) {
                                 $asset_id_select = intval($row['asset_id']);
                                 $asset_name_select = escapeHtml($row['asset_name']);
@@ -189,7 +189,7 @@ ob_start();
                                 }
 
                                 ?>
-                                <option <?php if ($credential_asset_id == $asset_id_select) { echo "selected"; } ?> value="<?= $asset_id_select ?>"><?= $asset_select_display_string ?></option>
+                                <option <?php if ($credential_asset_id == $asset_id_select) { echo "selected"; } ?> value="<?= $asset_id_select ?>"<?= selectOptionAsset($row['asset_type'] ?? '', trim(($row['asset_make'] ?? '') . ' ' . ($row['asset_model'] ?? ''))) ?>><?= $asset_select_display_string ?></option>
 
                             <?php } ?>
                         </select>
@@ -211,12 +211,12 @@ ob_start();
                         <select class="form-select select2" name="tags[]" data-placeholder="Add some tags" multiple>
                             <?php
 
-                            $sql_tags_select = mysqli_query($mysqli, "SELECT tag_id, tag_name FROM tags WHERE tag_type = 4 ORDER BY tag_name ASC");
+                            $sql_tags_select = mysqli_query($mysqli, "SELECT tag_id, tag_name, tag_color, tag_icon FROM tags WHERE tag_type = 4 ORDER BY tag_name ASC");
                             while ($row = mysqli_fetch_assoc($sql_tags_select)) {
                                 $tag_id_select = intval($row['tag_id']);
                                 $tag_name_select = escapeHtml($row['tag_name']);
                                 ?>
-                                <option value="<?= $tag_id_select ?>" <?php if (in_array($tag_id_select, $credential_tag_id_array)) { echo "selected"; } ?>><?= $tag_name_select ?></option>
+                                <option value="<?= $tag_id_select ?>" <?php if (in_array($tag_id_select, $credential_tag_id_array)) { echo "selected"; } ?><?= selectOptionColor($row['tag_color'] ?? '', $row['tag_icon'] ?? '') ?>><?= $tag_name_select ?></option>
                             <?php } ?>
 
                         </select>

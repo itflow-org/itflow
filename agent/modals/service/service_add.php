@@ -53,11 +53,11 @@ ob_start();
                                 <option value="">- Select Client -</option>
                                 <?php
 
-                                $sql = mysqli_query($mysqli, "SELECT client_id, client_name FROM clients WHERE client_archived_at IS NULL " . clientScopeSql('clients.client_id') . " ORDER BY client_name ASC");
+                                $sql = mysqli_query($mysqli, "SELECT client_id, client_name, client_abbreviation FROM clients WHERE client_archived_at IS NULL " . clientScopeSql('clients.client_id') . " ORDER BY client_name ASC");
                                 while ($row = mysqli_fetch_assoc($sql)) {
                                     $client_id = intval($row['client_id']);
                                     $client_name = escapeHtml($row['client_name']); ?>
-                                    <option <?php if ($client_id == isset($_GET['client'])) { echo "selected"; } ?> value="<?= $client_id ?>"><?= $client_name ?></option>
+                                    <option <?php if ($client_id == isset($_GET['client'])) { echo "selected"; } ?> value="<?= $client_id ?>"<?= selectOptionClient($row['client_id'], $row['client_name'], $row['client_abbreviation'] ?? '') ?>><?= $client_name ?></option>
 
                                 <?php } ?>
                             </select>
@@ -124,11 +124,11 @@ ob_start();
                     <label for="contacts">Select related Contacts</label>
                     <select class="form-select select2" id="contacts" name="contacts[]" multiple>
                         <?php
-                        $sql = mysqli_query($mysqli, "SELECT contact_id, contact_name FROM contacts WHERE contact_archived_at IS NULL AND contact_client_id = $client_id");
+                        $sql = mysqli_query($mysqli, "SELECT contact_id, contact_name, contact_client_id, contact_photo, contact_title FROM contacts WHERE contact_archived_at IS NULL AND contact_client_id = $client_id");
                         while ($row = mysqli_fetch_assoc($sql)) {
                             $contact_id = intval($row['contact_id']);
                             $contact_name = escapeHtml($row['contact_name']);
-                            echo "<option value=\"$contact_id\">$contact_name</option>";
+                            echo "<option value=\"$contact_id\"" . selectOptionContact($row['contact_client_id'] ?? 0, $row['contact_name'], $row['contact_photo'] ?? '', $row['contact_title'] ?? '') . ">$contact_name</option>";
                         }
                         ?>
                     </select>
@@ -172,11 +172,11 @@ ob_start();
                     <label for="assets">Select related assets</label>
                     <select class="form-select select2" id="assets" name="assets[]" multiple>
                         <?php
-                        $sql = mysqli_query($mysqli, "SELECT asset_id, asset_name FROM assets WHERE asset_archived_at IS NULL AND asset_client_id = $client_id");
+                        $sql = mysqli_query($mysqli, "SELECT asset_id, asset_name, asset_type, asset_make, asset_model FROM assets WHERE asset_archived_at IS NULL AND asset_client_id = $client_id");
                         while ($row = mysqli_fetch_assoc($sql)) {
                             $asset_id = intval($row['asset_id']);
                             $asset_name = escapeHtml($row['asset_name']);
-                            echo "<option value=\"$asset_id\">$asset_name</option>";
+                            echo "<option value=\"$asset_id\"" . selectOptionAsset($row['asset_type'] ?? '', trim(($row['asset_make'] ?? '') . ' ' . ($row['asset_model'] ?? ''))) . ">$asset_name</option>";
                         }
                         ?>
                     </select>

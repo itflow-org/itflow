@@ -94,12 +94,12 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                 <option value="">- All Clients -</option>
 
                                 <?php
-                                $sql_clients_filter = mysqli_query($mysqli, "SELECT client_id, client_name FROM clients ORDER BY client_name ASC");
+                                $sql_clients_filter = mysqli_query($mysqli, "SELECT client_id, client_name, client_abbreviation FROM clients ORDER BY client_name ASC");
                                 while ($row = mysqli_fetch_assoc($sql_clients_filter)) {
                                     $client_id = intval($row['client_id']);
                                     $client_name = escapeHtml($row['client_name']);
                                 ?>
-                                    <option <?php if ($client_filter == $client_id) { echo "selected"; } ?> value="<?= $client_id ?>"><?= $client_name ?></option>
+                                    <option <?php if ($client_filter == $client_id) { echo "selected"; } ?> value="<?= $client_id ?>"<?= selectOptionClient($row['client_id'], $row['client_name'], $row['client_abbreviation'] ?? '') ?>><?= $client_name ?></option>
                                 <?php
                                 }
                                 ?>
@@ -114,12 +114,12 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                 <option value="">- All Users -</option>
 
                                 <?php
-                                $sql_users_filter = mysqli_query($mysqli, "SELECT user_id, user_name FROM users ORDER BY user_name ASC");
+                                $sql_users_filter = mysqli_query($mysqli, "SELECT user_id, user_name, user_avatar FROM users ORDER BY user_name ASC");
                                 while ($row = mysqli_fetch_assoc($sql_users_filter)) {
                                     $user_id = intval($row['user_id']);
                                     $user_name = escapeHtml($row['user_name']);
                                 ?>
-                                    <option <?php if ($user_filter == $user_id) { echo "selected"; } ?> value="<?= $user_id ?>"><?= $user_name ?></option>
+                                    <option <?php if ($user_filter == $user_id) { echo "selected"; } ?> value="<?= $user_id ?>"<?= selectOptionUser($row['user_id'], $row['user_name'], $row['user_avatar'] ?? '') ?>><?= $user_name ?></option>
                                 <?php
                                 }
                                 ?>

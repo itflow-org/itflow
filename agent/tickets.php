@@ -402,12 +402,12 @@ if ($date_filter_active) {
                             <label>Status</label>
                             <select onchange="this.form.submit()" class="form-select select2" name="status[]" data-placeholder="Any status" multiple>
                                 <?php
-                                $sql_ticket_status = mysqli_query($mysqli, "SELECT ticket_status_id, ticket_status_name FROM ticket_statuses WHERE ticket_status_active = 1 ORDER BY ticket_status_order");
+                                $sql_ticket_status = mysqli_query($mysqli, "SELECT ticket_status_id, ticket_status_name, ticket_status_color FROM ticket_statuses WHERE ticket_status_active = 1 ORDER BY ticket_status_order");
                                 while ($row = mysqli_fetch_assoc($sql_ticket_status)) {
                                     $filter_status_id = intval($row['ticket_status_id']);
                                     $filter_status_name = escapeHtml($row['ticket_status_name']);
                                     ?>
-                                    <option value="<?= $filter_status_id ?>" <?php if (in_array($filter_status_id, $status_filter, true)) { echo 'selected'; } ?>><?= $filter_status_name ?></option>
+                                    <option value="<?= $filter_status_id ?>" <?php if (in_array($filter_status_id, $status_filter, true)) { echo 'selected'; } ?><?= selectOptionColor($row['ticket_status_color'] ?? '') ?>><?= $filter_status_name ?></option>
                                     <?php
                                 }
                                 ?>
@@ -423,12 +423,12 @@ if ($date_filter_active) {
                                 <option value="unassigned" <?php if ($ticket_assigned_filter_id === 0) { echo "selected"; } ?>>Unassigned</option>
 
                                 <?php
-                                $sql_assign_to = mysqli_query($mysqli, "SELECT user_id, user_name FROM users WHERE user_type = 1 AND user_archived_at IS NULL ORDER BY user_name ASC");
+                                $sql_assign_to = mysqli_query($mysqli, "SELECT user_id, user_name, user_avatar FROM users WHERE user_type = 1 AND user_archived_at IS NULL ORDER BY user_name ASC");
                                 while ($row = mysqli_fetch_assoc($sql_assign_to)) {
                                     $filter_user_id = intval($row['user_id']);
                                     $filter_user_name = escapeHtml($row['user_name']);
                                     ?>
-                                    <option value="<?= $filter_user_id ?>" <?php if ($ticket_assigned_filter_id === $filter_user_id) { echo "selected"; } ?>><?= $filter_user_name ?><?php if ($filter_user_id === intval($session_user_id)) { echo ' (me)'; } ?></option>
+                                    <option value="<?= $filter_user_id ?>" <?php if ($ticket_assigned_filter_id === $filter_user_id) { echo "selected"; } ?><?= selectOptionUser($row['user_id'], $row['user_name'], $row['user_avatar'] ?? '') ?>><?= $filter_user_name ?><?php if ($filter_user_id === intval($session_user_id)) { echo ' (me)'; } ?></option>
                                     <?php
                                 }
                                 ?>
@@ -455,12 +455,12 @@ if ($date_filter_active) {
                                 <option value="">Any category</option>
 
                                 <?php
-                                $sql_categories_filter = mysqli_query($mysqli, "SELECT category_id, category_name FROM categories WHERE category_type = 'Ticket' AND category_archived_at IS NULL ORDER BY category_name");
+                                $sql_categories_filter = mysqli_query($mysqli, "SELECT category_id, category_name, category_color, category_icon FROM categories WHERE category_type = 'Ticket' AND category_archived_at IS NULL ORDER BY category_name");
                                 while ($row = mysqli_fetch_assoc($sql_categories_filter)) {
                                     $filter_category_id = intval($row['category_id']);
                                     $filter_category_name = escapeHtml($row['category_name']);
                                     ?>
-                                    <option value="<?= $filter_category_id ?>" <?php if ($category_filter === $filter_category_id) { echo "selected"; } ?>><?= $filter_category_name ?></option>
+                                    <option value="<?= $filter_category_id ?>" <?php if ($category_filter === $filter_category_id) { echo "selected"; } ?><?= selectOptionColor($row['category_color'] ?? '', $row['category_icon'] ?? '') ?>><?= $filter_category_name ?></option>
                                     <?php
                                 }
                                 ?>

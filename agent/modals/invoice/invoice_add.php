@@ -28,12 +28,12 @@ ob_start();
                         <option value="">- Select a Client -</option>
                         <?php
                         //select unarchived clients
-                        $sql = mysqli_query($mysqli, "SELECT client_id, client_name FROM clients WHERE client_archived_at IS NULL " . clientScopeSql('clients.client_id') . " ORDER BY client_name ASC");
+                        $sql = mysqli_query($mysqli, "SELECT client_id, client_name, client_abbreviation FROM clients WHERE client_archived_at IS NULL " . clientScopeSql('clients.client_id') . " ORDER BY client_name ASC");
                         while ($row = mysqli_fetch_assoc($sql)) {
                             $client_id_select = intval($row['client_id']);
                             $client_name = escapeHtml($row['client_name']);
                             ?>
-                            <option value="<?= $client_id_select ?>"><?= "$client_name" ?></option>
+                            <option value="<?= $client_id_select ?>"<?= selectOptionClient($row['client_id'], $row['client_name'], $row['client_abbreviation'] ?? '') ?>><?= "$client_name" ?></option>
 
                             <?php
                         }
@@ -60,12 +60,12 @@ ob_start();
                     <option value="">- Category -</option>
                     <?php
 
-                    $sql = mysqli_query($mysqli, "SELECT category_id, category_name FROM categories WHERE category_type = 'Income' AND category_archived_at IS NULL ORDER BY category_name ASC");
+                    $sql = mysqli_query($mysqli, "SELECT category_id, category_name, category_color, category_icon FROM categories WHERE category_type = 'Income' AND category_archived_at IS NULL ORDER BY category_name ASC");
                     while ($row = mysqli_fetch_assoc($sql)) {
                         $category_id = intval($row['category_id']);
                         $category_name = escapeHtml($row['category_name']);
                         ?>
-                        <option value="<?= $category_id ?>"><?= $category_name ?></option>
+                        <option value="<?= $category_id ?>"<?= selectOptionColor($row['category_color'] ?? '', $row['category_icon'] ?? '') ?>><?= $category_name ?></option>
 
                         <?php
                     }

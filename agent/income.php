@@ -216,7 +216,7 @@ $summary_total_income = floatval($row['total_income']);
                                 <option value="">- All Categories -</option>
 
                                 <?php
-                                $sql_categories_filter = mysqli_query($mysqli, "SELECT category_id, category_name FROM categories
+                                $sql_categories_filter = mysqli_query($mysqli, "SELECT category_id, category_name, category_color, category_icon FROM categories
                                     WHERE category_type = 'Income'
                                     AND (EXISTS (SELECT 1 FROM revenues WHERE revenue_category_id = category_id)
                                         OR EXISTS (SELECT 1 FROM payments JOIN invoices ON payment_invoice_id = invoice_id WHERE invoice_category_id = category_id))
@@ -225,7 +225,7 @@ $summary_total_income = floatval($row['total_income']);
                                     $filter_category_id = intval($row['category_id']);
                                     $filter_category_name = escapeHtml($row['category_name']);
                                 ?>
-                                    <option <?php if ($category_filter == $filter_category_id) { echo "selected"; } ?> value="<?= $filter_category_id ?>"><?= $filter_category_name ?></option>
+                                    <option <?php if ($category_filter == $filter_category_id) { echo "selected"; } ?> value="<?= $filter_category_id ?>"<?= selectOptionColor($row['category_color'] ?? '', $row['category_icon'] ?? '') ?>><?= $filter_category_name ?></option>
                                 <?php
                                 }
                                 ?>

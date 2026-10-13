@@ -196,12 +196,12 @@ ob_start();
                             <option value="">- Select Contact -</option>
                             <?php
 
-                            $sql_contacts = mysqli_query($mysqli, "SELECT contact_id, contact_name FROM contacts WHERE contact_archived_at IS NULL AND contact_client_id = $client_id ORDER BY contact_name ASC");
+                            $sql_contacts = mysqli_query($mysqli, "SELECT contact_id, contact_name, contact_client_id, contact_photo, contact_title FROM contacts WHERE contact_archived_at IS NULL AND contact_client_id = $client_id ORDER BY contact_name ASC");
                             while ($row = mysqli_fetch_assoc($sql_contacts)) {
                                 $contact_id_select = intval($row['contact_id']);
                                 $contact_name_select = escapeHtml($row['contact_name']);
                                 ?>
-                                <option value="<?= $contact_id_select ?>"><?= $contact_name_select ?></option>
+                                <option value="<?= $contact_id_select ?>"<?= selectOptionContact($row['contact_client_id'] ?? 0, $row['contact_name'], $row['contact_photo'] ?? '', $row['contact_title'] ?? '') ?>><?= $contact_name_select ?></option>
                             <?php } ?>
 
                         </select>
@@ -216,7 +216,7 @@ ob_start();
                             <option value="">- Select Status -</option>
                             <?php
                             $sql_interface_types_select = mysqli_query($mysqli, "
-                                SELECT category_name FROM categories
+                                SELECT category_name, category_color, category_icon FROM categories
                                 WHERE category_type = 'asset_status'
                                 AND category_archived_at IS NULL
                                 ORDER BY category_order ASC, category_name ASC
@@ -224,7 +224,7 @@ ob_start();
                             while ($row = mysqli_fetch_assoc($sql_interface_types_select)) {
                                 $asset_status_select = escapeHtml($row['category_name']);
                                 ?>
-                                <option <?php if ($asset_status_select == $asset_status) { echo "selected"; } ?>>
+                                <option <?php if ($asset_status_select == $asset_status) { echo "selected"; } ?><?= selectOptionColor($row['category_color'] ?? '', $row['category_icon'] ?? '') ?>>
                                     <?= $asset_status_select ?>
                                 </option>
                             <?php } ?>

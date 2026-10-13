@@ -28,7 +28,7 @@ ob_start();
                     <option value="">- Select Status -</option>
                     <?php
                     $sql_interface_types_select = mysqli_query($mysqli, "
-                        SELECT category_name FROM categories
+                        SELECT category_name, category_color, category_icon FROM categories
                         WHERE category_type = 'asset_status'
                         AND category_archived_at IS NULL
                         ORDER BY category_order ASC, category_name ASC
@@ -36,7 +36,7 @@ ob_start();
                     while ($row = mysqli_fetch_assoc($sql_interface_types_select)) {
                         $asset_status_select = escapeHtml($row['category_name']);
                         ?>
-                        <option><?= $asset_status_select ?></option>
+                        <option<?= selectOptionColor($row['category_color'] ?? '', $row['category_icon'] ?? '') ?>><?= $asset_status_select ?></option>
                     <?php } ?>
                 </select>
             </div>

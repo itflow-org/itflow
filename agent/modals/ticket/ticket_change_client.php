@@ -45,12 +45,12 @@ ob_start();
                     <span class="input-group-text"><i class="fa fa-fw fa-users"></i></span>
                 <select class="form-select select2" name="new_client_id" id="client_select" required>
                     <?php
-                    $sql_clients = mysqli_query($mysqli, "SELECT client_id, client_name FROM clients WHERE client_lead = 0 AND client_archived_at IS NULL " . clientScopeSql('clients.client_id') . " ORDER BY client_name ASC");
+                    $sql_clients = mysqli_query($mysqli, "SELECT client_id, client_name, client_abbreviation FROM clients WHERE client_lead = 0 AND client_archived_at IS NULL " . clientScopeSql('clients.client_id') . " ORDER BY client_name ASC");
                     while ($row = mysqli_fetch_assoc($sql_clients)) {
                         $client_id_select = intval($row['client_id']);
                         $client_name = escapeHtml($row['client_name']);
                         ?>
-                        <option value="<?= $client_id_select ?>" <?php if ($client_id == $client_id_select) echo 'selected'; ?>>
+                        <option value="<?= $client_id_select ?>" <?php if ($client_id == $client_id_select) echo 'selected'; ?><?= selectOptionClient($row['client_id'], $row['client_name'], $row['client_abbreviation'] ?? '') ?>>
                             <?= $client_name ?>
                         </option>
                     <?php } ?>

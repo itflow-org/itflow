@@ -289,7 +289,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 
                             <?php
                             $sql_clients_filter = mysqli_query($mysqli, "
-                                SELECT DISTINCT client_id, client_name
+                                SELECT DISTINCT client_id, client_name, client_abbreviation
                                 FROM clients
                                 JOIN assets ON asset_client_id = client_id
                                 WHERE $archive_query
@@ -300,7 +300,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                 $client_id = intval($row['client_id']);
                                 $client_name = escapeHtml($row['client_name']);
                             ?>
-                                <option <?php if ($client == $client_id) { echo "selected"; } ?> value="<?= $client_id ?>"><?= $client_name ?></option>
+                                <option <?php if ($client == $client_id) { echo "selected"; } ?> value="<?= $client_id ?>"<?= selectOptionClient($row['client_id'], $row['client_name'], $row['client_abbreviation'] ?? '') ?>><?= $client_name ?></option>
                             <?php
                             }
                             ?>
@@ -315,7 +315,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 
                             <?php
                             $sql_tags_filter = mysqli_query($mysqli, "
-                                SELECT tag_id, tag_name
+                                SELECT tag_id, tag_name, MAX(tag_color) AS tag_color, MAX(tag_icon) AS tag_icon
                                 FROM tags
                                 LEFT JOIN asset_tags ON asset_tag_tag_id = tag_id
                                 LEFT JOIN assets ON asset_tag_asset_id = asset_id
@@ -328,7 +328,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                 $tag_id = intval($row['tag_id']);
                                 $tag_name = escapeHtml($row['tag_name']); ?>
 
-                                <option value="<?= $tag_id ?>" <?php if (isset($_GET['tags']) && in_array($tag_id, $_GET['tags'])) { echo 'selected'; } ?>> <?= $tag_name ?> </option>
+                                <option value="<?= $tag_id ?>" <?php if (isset($_GET['tags']) && in_array($tag_id, $_GET['tags'])) { echo 'selected'; } ?><?= selectOptionColor($row['tag_color'] ?? '', $row['tag_icon'] ?? '') ?>> <?= $tag_name ?> </option>
 
                             <?php } ?>
                         </select>

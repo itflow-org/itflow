@@ -12,12 +12,6 @@ function populateShareModal(client_id, item_type, item_ref_id) {
     // Show form and generate button
     document.getElementById("div_share_link_form").hidden = false;
     document.getElementById("div_share_link_generate").hidden = false;
-
-    initTomSelect(document.getElementById('share_email'), {
-        create: true,
-        placeholder: 'Select or type a value',
-        allowEmptyOption: true
-    });
 }
 
 function generateShareLink() {

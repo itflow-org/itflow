@@ -108,7 +108,7 @@ ob_start();
                     <option value="">- Driver -</option>
                     <?php
 
-                    $sql_users = mysqli_query($mysqli, "SELECT users.user_id, user_name FROM users
+                    $sql_users = mysqli_query($mysqli, "SELECT users.user_id, user_name, user_avatar FROM users
                         LEFT JOIN user_settings on users.user_id = user_settings.user_id
                         WHERE (users.user_id = $trip_user_id) OR (user_archived_at IS NULL AND user_status = 1) ORDER BY user_name ASC"
                     );
@@ -116,7 +116,7 @@ ob_start();
                         $user_id_select = intval($row['user_id']);
                         $user_name_select = escapeHtml($row['user_name']);
                         ?>
-                        <option <?php if ($trip_user_id == $user_id_select) { echo "selected"; } ?> value="<?= $user_id_select ?>"><?= $user_name_select ?></option>
+                        <option <?php if ($trip_user_id == $user_id_select) { echo "selected"; } ?> value="<?= $user_id_select ?>"<?= selectOptionUser($row['user_id'], $row['user_name'], $row['user_avatar'] ?? '') ?>><?= $user_name_select ?></option>
 
                     <?php } ?>
 
@@ -136,12 +136,12 @@ ob_start();
                         <option value="">- Client (Optional) -</option>
                         <?php
 
-                        $sql_clients = mysqli_query($mysqli, "SELECT client_id, client_name FROM clients WHERE client_archived_at IS NULL " . clientScopeSql('clients.client_id') . " ORDER BY client_name ASC");
+                        $sql_clients = mysqli_query($mysqli, "SELECT client_id, client_name, client_abbreviation FROM clients WHERE client_archived_at IS NULL " . clientScopeSql('clients.client_id') . " ORDER BY client_name ASC");
                         while ($row = mysqli_fetch_assoc($sql_clients)) {
                             $client_id_select = intval($row['client_id']);
                             $client_name_select = escapeHtml($row['client_name']);
                             ?>
-                            <option <?php if ($client_id == $client_id_select) { echo "selected"; } ?> value="<?= $client_id_select ?>"><?= $client_name_select ?></option>
+                            <option <?php if ($client_id == $client_id_select) { echo "selected"; } ?> value="<?= $client_id_select ?>"<?= selectOptionClient($row['client_id'], $row['client_name'], $row['client_abbreviation'] ?? '') ?>><?= $client_name_select ?></option>
 
                         <?php } ?>
                     </select>

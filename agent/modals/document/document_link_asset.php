@@ -35,7 +35,7 @@ ob_start();
                     <option value="">- Select an Asset -</option>
                     <?php
                     $sql_assets_select = mysqli_query($mysqli, "
-                        SELECT assets.asset_id, asset_name
+                        SELECT assets.asset_id, asset_name, asset_type, asset_make, asset_model
                         FROM assets
                         LEFT JOIN asset_documents
                             ON assets.asset_id = asset_documents.asset_id
@@ -50,7 +50,7 @@ ob_start();
                         $asset_name = escapeHtml($row['asset_name']);
 
                         ?>
-                        <option value="<?= $asset_id ?>"><?= $asset_name ?></option>
+                        <option value="<?= $asset_id ?>"<?= selectOptionAsset($row['asset_type'] ?? '', trim(($row['asset_make'] ?? '') . ' ' . ($row['asset_model'] ?? ''))) ?>><?= $asset_name ?></option>
                         <?php
                     }
                     ?>

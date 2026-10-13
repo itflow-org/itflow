@@ -35,7 +35,7 @@ ob_start();
                 <select class="form-select select2" name="type">
                     <?php
                     $sql_asset_note_types_select = mysqli_query($mysqli, "
-                        SELECT category_name FROM categories
+                        SELECT category_name, category_color, category_icon FROM categories
                         WHERE category_type = 'asset_note_type'
                         AND category_archived_at IS NULL
                         ORDER BY category_order ASC, category_name ASC
@@ -43,7 +43,7 @@ ob_start();
                     while ($row = mysqli_fetch_assoc($sql_asset_note_types_select)) {
                         $asset_note_type_select = escapeHtml($row['category_name']);
                         ?>
-                        <option><?= $asset_note_type_select ?></option>
+                        <option<?= selectOptionColor($row['category_color'] ?? '', $row['category_icon'] ?? '') ?>><?= $asset_note_type_select ?></option>
                     <?php } ?>
                 </select>
             </div>

@@ -48,12 +48,12 @@ ob_start();
                 <select class="form-select select2" name="category" required>
                     <?php
 
-                    $sql_select = mysqli_query($mysqli, "SELECT category_id, category_name FROM categories WHERE category_type = 'Income' AND (category_archived_at > '$product_created_at' OR category_archived_at IS NULL)");
+                    $sql_select = mysqli_query($mysqli, "SELECT category_id, category_name, category_color, category_icon FROM categories WHERE category_type = 'Income' AND (category_archived_at > '$product_created_at' OR category_archived_at IS NULL)");
                     while ($row = mysqli_fetch_assoc($sql_select)) {
                         $category_id_select = intval($row['category_id']);
                         $category_name_select = escapeHtml($row['category_name']);
                         ?>
-                        <option <?php if ($category_id == $category_id_select) { echo "selected"; } ?> value="<?= $category_id_select ?>"><?= $category_name_select ?></option>
+                        <option <?php if ($category_id == $category_id_select) { echo "selected"; } ?> value="<?= $category_id_select ?>"<?= selectOptionColor($row['category_color'] ?? '', $row['category_icon'] ?? '') ?>><?= $category_name_select ?></option>
                         <?php
                     }
 

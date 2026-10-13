@@ -1053,42 +1053,18 @@ a:focus {
     color: #fff !important;
 }
 
-/* --- Tom Select ----------------------------------------------------------
-   Pre-init sizing. js/app.js runs at the end of the body, so the browser
-   paints the native <select> first and Tom Select swaps in its own markup a
-   moment later. For a SINGLE select that swap is invisible: Bootstrap's
-   .form-select is `1.5em + .75rem + 2 borders` tall and Tom Select's
-   .ts-wrapper declares min-height with that exact same calc, and because Tom
-   Select copies the original element's classes onto its wrapper, the
-   `.text-sm .form-select` font-size applies to both - so the two measure
-   identically.
+/* --- Select picker - js/itflow_select.js ---------------------------------
+   Every <select class="select2">. The field is a .form-select, so height,
+   border, chevron, focus ring and dark mode all come from Bootstrap; this
+   adds what goes inside it and the panel that opens under it.
 
-   A MULTIPLE select is the one that jumps. With no size attribute the
-   browser renders it as a listbox - four rows in Chrome and Firefox, ~100px -
-   which collapses to the ~35px control the instant Tom Select takes over,
-   yanking the rest of the form up with it. All 49 of them are tag pickers,
-   including the filter row on clients / contacts / assets / credentials /
-   locations / tickets, i.e. the first thing on the page.
-
-   Sizing the raw control to the height it is about to become removes the jump
-   without hiding anything and without touching JS. The calc is deliberately
-   the same expression Tom Select uses rather than a fixed pixel value, so it
-   tracks the .text-sm font-size and --bs-border-width. Tom Select stamps
-   .tomselected onto the original element when it takes over, so this stops
-   applying at exactly the right moment and can never fight the live widget.
-
-   visibility hides the native option text, which would otherwise flash in the
-   box before Tom Select replaces it with the data-placeholder. It reserves
-   layout space (unlike display:none, which would also break Tom Select's
-   width measurement at init), so the box holds its place and nothing moves.
-
-   The delayed reveal is a safety net, not decoration. app.js has no typeof
-   guards, so if anything above the tom-select step throws, .tomselected is
-   never stamped and these pickers would stay invisible with no clue why.
-   Normal init lands in well under a second and the rule stops matching before
-   the delay elapses, so the animation only ever fires when init did not
-   happen - at which point the native control comes back and stays usable. */
-select.select2[multiple]:not(.tomselected) {
+   Before the script runs the browser paints the raw <select>. A single select
+   looks the same either way, but a multiple one renders as a four-row listbox
+   (~100px) that would collapse to a one-line field and yank the form up. So
+   it is held at field height with its text hidden until the picker takes
+   over (.itflow-select-native). If the script never runs, the delayed reveal
+   brings the plain control back after 3s so the form stays usable. */
+select.select2[multiple]:not(.itflow-select-native) {
     height: calc(1.5em + .75rem + calc(var(--bs-border-width) * 2));
     overflow-y: auto;
     visibility: hidden;
@@ -1098,56 +1074,461 @@ select.select2[multiple]:not(.tomselected) {
     to { visibility: visible; }
 }
 
-/* --- Tom Select theming ---------------------------------------------------
-   The bootstrap5 theme uses --bs-* variables for borders and radii but
-   hardcodes the focus state (#86b7fe border, rgba(13,110,253,.25) glow) and
-   the selected multi-value chips (#0d6efd), so a themed app still focused
-   Bootstrap blue. Matched to .form-control:focus. */
-.ts-wrapper.focus .ts-control,
-.focus .ts-control {
-    border-color: var(--itflow-accent, #007bff);
-    box-shadow: 0 0 0 .25rem color-mix(in srgb, var(--itflow-accent, #007bff) 25%, transparent);
+.itflow-select {
+    position: relative;
+    display: block;
+    width: 100%;
+    min-width: 0;
 }
-/* the resting multi-select chip is a fixed #efefef with #343a40 text, so it
-   goes near-white in dark mode */
-.ts-wrapper.multi .ts-control > div {
-    background: var(--bs-secondary-bg);
-    color: var(--bs-body-color);
+/* The real <select> stays in the form, under the field, for posting and for
+   the browser's "please select an item" bubble - just not seen or clicked */
+.itflow-select > select.itflow-select-native {
+    position: absolute;
+    left: 0;
+    bottom: 0;
+    width: 100%;
+    height: 1px;
+    min-height: 0;
+    padding: 0;
+    border: 0;
+    opacity: 0;
+    pointer-events: none;
 }
-/* selected values in a multi-select */
-.ts-wrapper.multi .ts-control > div.active {
-    background: var(--itflow-accent, #007bff);
-    color: #fff;
+.itflow-select-control {
+    display: flex;
+    align-items: center;
+    gap: .375rem;
+    min-height: calc(1.5em + .75rem + calc(var(--bs-border-width) * 2));
+    cursor: pointer;
+    user-select: none;
+    text-align: start;
 }
-/* highlighted option in the dropdown, to match .dropdown-item.active */
-.ts-dropdown .active,
-.ts-dropdown .active.create {
-    background-color: var(--itflow-accent, #007bff);
-    color: #fff;
+.itflow-select-control:focus,
+.itflow-select.is-open > .itflow-select-control {
+    border-color: var(--itflow-accent, #86b7fe);
+    outline: 0;
+    box-shadow: 0 0 0 .25rem color-mix(in srgb, var(--itflow-accent, #0d6efd) 25%, transparent);
 }
-.ts-dropdown .option:hover {
+.itflow-select.is-disabled > .itflow-select-control {
+    cursor: default;
+    color: var(--bs-secondary-color);
     background-color: var(--bs-secondary-bg);
+}
+.itflow-select.is-invalid > .itflow-select-control,
+.itflow-select.is-invalid-class > .itflow-select-control,
+.was-validated .itflow-select:has(> select:invalid) > .itflow-select-control {
+    border-color: var(--bs-form-invalid-border-color);
+}
+.itflow-select-value {
+    display: flex;
+    align-items: center;
+    gap: .5rem;
+    min-width: 0;
+    flex: 1 1 auto;
+}
+.itflow-select-value .itflow-select-label {
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}
+.itflow-select-placeholder,
+.itflow-select-label.is-none {
+    color: var(--bs-secondary-color);
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}
+/* × to put the field back to its "nothing" option - only on optional fields */
+.itflow-select.is-clearable > .itflow-select-control {
+    padding-right: 3.5rem;
+}
+.itflow-select-clear {
+    position: absolute;
+    top: 50%;
+    right: 2.25rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 1.25rem;
+    height: 1.25rem;
+    padding: 0;
+    border: 0;
+    border-radius: 50%;
+    font-size: .7rem;
+    color: var(--bs-secondary-color);
+    background: transparent;
+    transform: translateY(-50%);
+    opacity: 0;
+}
+.itflow-select:hover .itflow-select-clear,
+.itflow-select-control:focus .itflow-select-clear,
+.itflow-select.is-open .itflow-select-clear {
+    opacity: 1;
+}
+.itflow-select-clear:hover {
     color: var(--bs-body-color);
-}
-/* the dropdown border and the disabled chips are fixed light greys - #d0d0d0
-   and #fff - so they glare in dark mode */
-.ts-dropdown {
-    border-color: var(--bs-border-color);
-}
-.ts-wrapper.multi.disabled .ts-control > div,
-.ts-wrapper.multi.disabled .ts-control > div.active {
     background: var(--bs-secondary-bg);
-    border-color: var(--bs-border-color);
+}
+
+/* Multiple: chips in the field */
+.itflow-select.is-multiple > .itflow-select-control {
+    flex-wrap: wrap;
+    gap: .25rem;
+    padding-top: .25rem;
+    padding-bottom: .25rem;
+    padding-left: .375rem;
+}
+.itflow-select.is-multiple .itflow-select-placeholder {
+    padding-left: .375rem;
+}
+.itflow-select-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: .3rem;
+    max-width: 100%;
+    height: 1.625rem;
+    padding: 0 .25rem 0 .55rem;
+    border: 1px solid var(--bs-border-color-translucent);
+    border-radius: 2rem;
+    font-size: .8125rem;
+    color: var(--bs-body-color);
+    background: var(--bs-tertiary-bg);
+}
+.itflow-select-chip.has-lead {
+    padding-left: .2rem;
+}
+.itflow-select-chip.is-more {
+    padding-right: .55rem;
     color: var(--bs-secondary-color);
 }
-/* light accents need dark text - same L>0.335 cut as everywhere else */
-.theme-yellow .ts-wrapper.multi .ts-control > div.active,
-.theme-orange .ts-wrapper.multi .ts-control > div.active,
-.theme-teal .ts-wrapper.multi .ts-control > div.active,
-.theme-yellow .ts-dropdown .active,
-.theme-orange .ts-dropdown .active,
-.theme-teal .ts-dropdown .active {
+.itflow-select-chip-label {
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}
+.itflow-select-chip .itflow-select-avatar,
+.itflow-select-chip .itflow-select-badge {
+    width: 1.25rem;
+    height: 1.25rem;
+    font-size: .55rem;
+}
+.itflow-select-chip .itflow-select-dot {
+    margin: 0 .15rem 0 .3rem;
+}
+.itflow-select-chip-remove {
+    display: inline-flex;
+    flex: 0 0 auto;
+    align-items: center;
+    justify-content: center;
+    width: 1.125rem;
+    height: 1.125rem;
+    padding: 0;
+    border: 0;
+    border-radius: 50%;
+    font-size: .6rem;
+    color: var(--bs-secondary-color);
+    background: transparent;
+}
+.itflow-select-chip-remove:hover {
+    color: var(--bs-body-color);
+    background: var(--bs-secondary-bg);
+}
+
+/* In an .input-group the picker is the flexible middle piece */
+.input-group > .itflow-select {
+    flex: 1 1 auto;
+    width: 1%;
+}
+.input-group > .itflow-select:focus-within,
+.input-group > .itflow-select.is-open {
+    z-index: 5;
+}
+.input-group > .itflow-select:not(:first-child) > .itflow-select-control {
+    border-top-left-radius: 0;
+    border-bottom-left-radius: 0;
+}
+.input-group > .itflow-select:not(:last-child) > .itflow-select-control {
+    border-top-right-radius: 0;
+    border-bottom-right-radius: 0;
+}
+
+/* Pictures, tiles, dots and icons in front of a label */
+.itflow-select-avatar {
+    display: inline-flex;
+    flex: 0 0 auto;
+    align-items: center;
+    justify-content: center;
+    width: 1.5rem;
+    height: 1.5rem;
+    border-radius: 50%;
+    font-size: .6rem;
+    font-weight: 600;
+    letter-spacing: .02em;
+    object-fit: cover;
+}
+.itflow-select-avatar.is-tile {
+    border-radius: var(--bs-border-radius-sm);
+}
+.itflow-select-control .itflow-select-avatar,
+.itflow-select-control .itflow-select-badge {
+    width: 1.375rem;
+    height: 1.375rem;
+}
+.itflow-select-dot {
+    flex: 0 0 auto;
+    width: .625rem;
+    height: .625rem;
+    margin: 0 .3125rem;
+    border-radius: 50%;
+    background-color: var(--itflow-select-color, var(--bs-secondary));
+    box-shadow: 0 0 0 1px rgba(0, 0, 0, .08);
+}
+.itflow-select-badge {
+    display: inline-flex;
+    flex: 0 0 auto;
+    align-items: center;
+    justify-content: center;
+    width: 1.5rem;
+    height: 1.5rem;
+    border-radius: var(--bs-border-radius);
+    font-size: .65rem;
+    color: #fff;
+    background-color: var(--itflow-select-color, var(--bs-secondary));
+}
+.itflow-select-icon {
+    display: inline-flex;
+    flex: 0 0 auto;
+    align-items: center;
+    justify-content: center;
+    width: 1.25rem;
+    color: var(--bs-secondary-color);
+}
+
+/* The panel */
+.itflow-select-panel {
+    position: fixed;
+    z-index: 1075;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    font-size: .9375rem;
+    color: var(--bs-body-color);
+    background: var(--bs-body-bg);
+    border: 1px solid var(--bs-border-color-translucent);
+    border-radius: var(--bs-border-radius-lg);
+    box-shadow: 0 .75rem 2rem rgba(0, 0, 0, .14), 0 .125rem .375rem rgba(0, 0, 0, .06);
+    animation: itflowSelectIn .12s ease-out;
+}
+[data-bs-theme="dark"] .itflow-select-panel {
+    background: var(--bs-tertiary-bg);
+    box-shadow: 0 .75rem 2rem rgba(0, 0, 0, .5);
+}
+.itflow-select-panel.is-above {
+    animation-name: itflowSelectInAbove;
+}
+@keyframes itflowSelectIn {
+    from { opacity: 0; transform: translateY(-4px); }
+}
+@keyframes itflowSelectInAbove {
+    from { opacity: 0; transform: translateY(4px); }
+}
+.itflow-select-sheet-head {
+    display: none;
+}
+.itflow-select-search {
+    display: flex;
+    align-items: center;
+    gap: .5rem;
+    padding: .5rem .75rem;
+    border-bottom: 1px solid var(--bs-border-color-translucent);
+    color: var(--bs-secondary-color);
+    font-size: .875rem;
+}
+.itflow-select-search[hidden] {
+    display: none;
+}
+.itflow-select-search input {
+    flex: 1 1 auto;
+    min-width: 0;
+    padding: .125rem 0;
+    border: 0;
+    outline: 0;
+    font-size: .9375rem;
+    color: var(--bs-body-color);
+    background: transparent;
+}
+.itflow-select-search input::placeholder {
+    color: var(--bs-secondary-color);
+}
+.itflow-select-list {
+    max-height: 18rem;
+    padding: .25rem;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+}
+.itflow-select-option {
+    display: flex;
+    align-items: center;
+    gap: .625rem;
+    min-height: 2.25rem;
+    padding: .375rem .625rem;
+    border-radius: var(--bs-border-radius);
+    cursor: pointer;
+    user-select: none;
+}
+.itflow-select-option.is-active {
+    background: var(--bs-secondary-bg);
+}
+.itflow-select-option.is-disabled {
+    cursor: default;
+    opacity: .5;
+}
+.itflow-select-option.is-none .itflow-select-label {
+    color: var(--bs-secondary-color);
+}
+.itflow-select-text {
+    display: flex;
+    flex: 1 1 auto;
+    flex-direction: column;
+    min-width: 0;
+    line-height: 1.3;
+}
+.itflow-select-text .itflow-select-label {
+    overflow-wrap: anywhere;
+}
+.itflow-select-description {
+    font-size: .8125rem;
+    color: var(--bs-secondary-color);
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}
+.itflow-select-option mark {
+    padding: 0;
+    color: inherit;
+    font-weight: 600;
+    background: color-mix(in srgb, var(--itflow-accent, #0d6efd) 16%, transparent);
+    border-radius: 2px;
+}
+.itflow-select-option.is-selected .itflow-select-label {
+    font-weight: 600;
+}
+.itflow-select-tick {
+    flex: 0 0 auto;
+    font-size: .8rem;
+    color: var(--itflow-accent, var(--bs-primary));
+    visibility: hidden;
+}
+.itflow-select-option.is-selected .itflow-select-tick {
+    visibility: visible;
+}
+/* Multiple: a checklist */
+.itflow-select-checkbox {
+    display: inline-flex;
+    flex: 0 0 auto;
+    align-items: center;
+    justify-content: center;
+    width: 1rem;
+    height: 1rem;
+    border: 1px solid var(--bs-border-color);
+    border-radius: .3rem;
+    font-size: .6rem;
+    color: transparent;
+    background: var(--bs-body-bg);
+}
+.itflow-select-option.is-selected .itflow-select-checkbox {
+    border-color: var(--itflow-accent, var(--bs-primary));
+    color: #fff;
+    background: var(--itflow-accent, var(--bs-primary));
+}
+.theme-yellow .itflow-select-option.is-selected .itflow-select-checkbox,
+.theme-orange .itflow-select-option.is-selected .itflow-select-checkbox,
+.theme-teal .itflow-select-option.is-selected .itflow-select-checkbox {
     color: #000;
+}
+.itflow-select-create .itflow-select-icon {
+    color: var(--itflow-accent, var(--bs-primary));
+}
+.itflow-select-group {
+    padding: .5rem .625rem .25rem;
+    font-size: .75rem;
+    font-weight: 600;
+    color: var(--bs-secondary-color);
+}
+.itflow-select-empty,
+.itflow-select-more {
+    padding: .75rem .625rem;
+    font-size: .875rem;
+    color: var(--bs-secondary-color);
+}
+.itflow-select-more {
+    padding-top: .375rem;
+    font-size: .8125rem;
+}
+.itflow-select-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: .25rem .375rem .25rem .875rem;
+    border-top: 1px solid var(--bs-border-color-translucent);
+    font-size: .8125rem;
+    color: var(--bs-secondary-color);
+}
+.itflow-select-footer .btn,
+.itflow-select-done {
+    --bs-btn-padding-y: .125rem;
+    text-decoration: none;
+}
+
+/* Phones: the panel comes up from the bottom of the screen */
+.itflow-select-backdrop {
+    position: fixed;
+    inset: 0;
+    z-index: 1074;
+    background: rgba(0, 0, 0, .35);
+    animation: itflowSelectFade .15s ease-out;
+}
+.itflow-select-panel.is-sheet {
+    top: auto !important;
+    right: 0;
+    bottom: 0;
+    left: 0 !important;
+    width: auto !important;
+    max-height: 80vh;
+    padding-bottom: env(safe-area-inset-bottom);
+    border-width: 1px 0 0;
+    border-radius: 1rem 1rem 0 0;
+    font-size: 1rem;
+    animation: itflowSelectUp .2s ease-out;
+}
+.itflow-select-panel.is-sheet .itflow-select-sheet-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: .75rem .75rem .5rem 1rem;
+    font-weight: 600;
+}
+.itflow-select-panel.is-sheet .itflow-select-list {
+    flex: 1 1 auto;
+    max-height: none;
+}
+.itflow-select-panel.is-sheet .itflow-select-option {
+    min-height: 2.75rem;
+}
+.itflow-select-panel.is-sheet .itflow-select-search input {
+    font-size: 1rem;
+}
+@keyframes itflowSelectUp {
+    from { transform: translateY(100%); }
+}
+@keyframes itflowSelectFade {
+    from { opacity: 0; }
+}
+@media (prefers-reduced-motion: reduce) {
+    .itflow-select-panel,
+    .itflow-select-backdrop {
+        animation: none;
+    }
 }
 
 /* --- Muted contextual palette for dark mode ------------------------------
@@ -1361,7 +1742,7 @@ select.select2[multiple]:not(.tomselected) {
    `data-lte-primary` on <body> now drives buttons, links, pagination, pills,
    dropdowns, list groups, progress, accordions and every form focus state
    from AdminLTE's own palette. --itflow-accent is still ours and still drives
-   the navbar, sidebar, nav-tabs, TinyMCE, Tom Select, FullCalendar and the
+   the navbar, sidebar, nav-tabs, TinyMCE, the select picker, FullCalendar and the
    theme picker.
 
    1. There is no `black` in AdminLTE's palette - its darkest neutral is

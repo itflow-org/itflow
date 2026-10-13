@@ -98,8 +98,6 @@ ob_start();
                 // new Option() assigns text, so nothing here is parsed as markup
                 select.appendChild(new Option(pair[1], pair[0]));
             });
-            // the selects are Tom Select enhanced, so it has to re-read them
-            refreshTomSelect(select);
         }
 
         scopeSelect.addEventListener('change', function () {

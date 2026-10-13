@@ -35,7 +35,7 @@ ob_start();
                     <option value="">- Select a Contact -</option>
                     <?php
                     $sql_contacts_select = mysqli_query($mysqli, "
-                        SELECT contacts.contact_id, contact_name
+                        SELECT contacts.contact_id, contact_name, contact_client_id, contact_photo, contact_title
                         FROM contacts
                         LEFT JOIN contact_documents
                             ON contacts.contact_id = contact_documents.contact_id
@@ -50,7 +50,7 @@ ob_start();
                         $contact_name = escapeHtml($row['contact_name']);
 
                         ?>
-                        <option value="<?= $contact_id ?>"><?= $contact_name ?></option>
+                        <option value="<?= $contact_id ?>"<?= selectOptionContact($row['contact_client_id'] ?? 0, $row['contact_name'], $row['contact_photo'] ?? '', $row['contact_title'] ?? '') ?>><?= $contact_name ?></option>
                         <?php
                     }
                     ?>

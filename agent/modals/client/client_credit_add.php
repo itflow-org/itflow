@@ -58,12 +58,12 @@
                                     <option value="0">- Client (Optional) -</option>
                                     <?php
 
-                                    $sql = mysqli_query($mysqli, "SELECT client_id, client_name FROM clients ORDER BY client_name ASC");
+                                    $sql = mysqli_query($mysqli, "SELECT client_id, client_name, client_abbreviation FROM clients ORDER BY client_name ASC");
                                     while ($row = mysqli_fetch_assoc($sql)) {
                                         $client_id = intval($row['client_id']);
                                         $client_name = escapeHtml($row['client_name']);
                                         ?>
-                                        <option value="<?= $client_id ?>"><?= $client_name ?></option>
+                                        <option value="<?= $client_id ?>"<?= selectOptionClient($row['client_id'], $row['client_name'], $row['client_abbreviation'] ?? '') ?>><?= $client_name ?></option>
 
                                         <?php
                                     }

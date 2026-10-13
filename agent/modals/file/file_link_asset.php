@@ -17,7 +17,7 @@
                                 <option value="">- Select an Asset -</option>
                                 <?php
 
-                                $sql_assets_select = mysqli_query($mysqli, "SELECT asset_id, asset_name FROM assets
+                                $sql_assets_select = mysqli_query($mysqli, "SELECT asset_id, asset_name, asset_type, asset_make, asset_model FROM assets
                                     WHERE asset_client_id = $client_id
                                     AND asset_archived_at IS NULL
                                     ORDER BY asset_name ASC"
@@ -27,7 +27,7 @@
                                     $asset_name = escapeHtml($row['asset_name']);
 
                                     ?>
-                                    <option value="<?= $asset_id ?>"><?= $asset_name ?></option>
+                                    <option value="<?= $asset_id ?>"<?= selectOptionAsset($row['asset_type'] ?? '', trim(($row['asset_make'] ?? '') . ' ' . ($row['asset_model'] ?? ''))) ?>><?= $asset_name ?></option>
                                     <?php
                                 }
                                 ?>

@@ -37,6 +37,7 @@
 <!-- jQuery -->
 
 <!-- Bootstrap 4 -->
+<script src="/js/itflow_select.js"></script>
 <script src="/libs/bootstrap/js/bootstrap.bundle.min.js"></script>
 <script src="/js/http.js"></script>
 

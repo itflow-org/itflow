@@ -122,13 +122,13 @@ ob_start();
                             <option value="">- Select Referral -</option>
                             <?php
 
-                            $referral_sql = mysqli_query($mysqli, "SELECT category_name FROM categories WHERE category_type = 'Referral' AND (category_archived_at > '$client_created_at' OR category_archived_at IS NULL) ORDER BY category_name ASC");
+                            $referral_sql = mysqli_query($mysqli, "SELECT category_name, category_color, category_icon FROM categories WHERE category_type = 'Referral' AND (category_archived_at > '$client_created_at' OR category_archived_at IS NULL) ORDER BY category_name ASC");
                             while ($row = mysqli_fetch_assoc($referral_sql)) {
                                 $referral = escapeHtml($row['category_name']);
                                 ?>
                                 <option <?php if ($client_referral == $referral) {
                                     echo "selected";
-                                } ?>>
+                                } ?><?= selectOptionColor($row['category_color'] ?? '', $row['category_icon'] ?? '') ?>>
                                     <?= $referral ?>
                                 </option>
 
@@ -159,12 +159,12 @@ ob_start();
                         <select class="form-select select2" name="tags[]" data-placeholder="Add some tags" multiple>
                             <?php
 
-                            $sql_tags_select = mysqli_query($mysqli, "SELECT tag_id, tag_name FROM tags WHERE tag_type = 1 ORDER BY tag_name ASC");
+                            $sql_tags_select = mysqli_query($mysqli, "SELECT tag_id, tag_name, tag_color, tag_icon FROM tags WHERE tag_type = 1 ORDER BY tag_name ASC");
                             while ($row = mysqli_fetch_assoc($sql_tags_select)) {
                                 $tag_id_select = intval($row['tag_id']);
                                 $tag_name_select = escapeHtml($row['tag_name']);
                                 ?>
-                                <option value="<?= $tag_id_select ?>" <?php if (in_array($tag_id_select, $client_tag_id_array)) { echo "selected"; } ?>><?= $tag_name_select ?></option>
+                                <option value="<?= $tag_id_select ?>" <?php if (in_array($tag_id_select, $client_tag_id_array)) { echo "selected"; } ?><?= selectOptionColor($row['tag_color'] ?? '', $row['tag_icon'] ?? '') ?>><?= $tag_name_select ?></option>
                             <?php } ?>
 
                         </select>

@@ -20,17 +20,17 @@
                             <label>Share with</label>
                             <div class="input-group">
                                     <span class="input-group-text"><i class="fa fa-fw fa-user"></i></span>
-                                <select class="form-select select2" name="contact_email" id="share_email" data-placeholder="Select or enter an Email">
+                                <select class="form-select select2" name="contact_email" id="share_email" data-placeholder="Select or enter an Email" data-tags="true">
                                     <option value=""></option>
                                     <?php
 
-                                    $sql_client_contacts_select = mysqli_query($mysqli, "SELECT contact_email, contact_id, contact_name FROM contacts WHERE contact_client_id = $client_id AND contact_email <> '' AND contact_archived_at IS NULL ORDER BY contact_name ASC");
+                                    $sql_client_contacts_select = mysqli_query($mysqli, "SELECT contact_email, contact_id, contact_name, contact_client_id, contact_photo, contact_title FROM contacts WHERE contact_client_id = $client_id AND contact_email <> '' AND contact_archived_at IS NULL ORDER BY contact_name ASC");
                                     while ($row = mysqli_fetch_assoc($sql_client_contacts_select)) {
                                         $contact_id_select = intval($row['contact_id']);
                                         $contact_name_select = escapeHtml($row['contact_name']);
                                         $contact_email_select = escapeHtml($row['contact_email']);
                                         ?>
-                                        <option value="<?= $contact_email_select ?>"><?= "$contact_name_select - $contact_email_select" ?></option>
+                                        <option value="<?= $contact_email_select ?>"<?= selectOptionContact($row['contact_client_id'] ?? 0, $row['contact_name'], $row['contact_photo'] ?? '', $row['contact_title'] ?? '') ?>><?= "$contact_name_select - $contact_email_select" ?></option>
 
                                         <?php
                                     }

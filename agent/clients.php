@@ -372,7 +372,7 @@ $total_leads = intval($row['leads']);
                         <select onchange="this.form.submit()" class="form-select select2" name="tags[]" data-placeholder="Any tag" multiple>
                             <?php
                             $sql_tags_filter = mysqli_query($mysqli, "
-                                SELECT tags.tag_id, tags.tag_name
+                                SELECT tags.tag_id, tags.tag_name, MAX(tags.tag_color) AS tag_color, MAX(tags.tag_icon) AS tag_icon
                                 FROM tags
                                 LEFT JOIN client_tags ON client_tags.tag_id = tags.tag_id
                                 WHERE tag_type = 1
@@ -383,7 +383,7 @@ $total_leads = intval($row['leads']);
                             while ($row = mysqli_fetch_assoc($sql_tags_filter)) {
                                 $filter_tag_id = intval($row['tag_id']);
                                 $filter_tag_name = escapeHtml($row['tag_name']); ?>
-                                <option value="<?= $filter_tag_id ?>" <?php if (isset($_GET['tags']) && is_array($_GET['tags']) && in_array($filter_tag_id, array_map('intval', $_GET['tags']), true)) { echo 'selected'; } ?>><?= $filter_tag_name ?></option>
+                                <option value="<?= $filter_tag_id ?>" <?php if (isset($_GET['tags']) && is_array($_GET['tags']) && in_array($filter_tag_id, array_map('intval', $_GET['tags']), true)) { echo 'selected'; } ?><?= selectOptionColor($row['tag_color'] ?? '', $row['tag_icon'] ?? '') ?>><?= $filter_tag_name ?></option>
                             <?php } ?>
                         </select>
                     </div>

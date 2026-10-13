@@ -159,18 +159,11 @@ function itflowInit() {
         }, 5000);
     })();
 
-    // Enhance any select that is not enhanced yet. On a normal page load
-    // js/tom_select.js has already done the work and every element here is
-    // guarded, so this is a no-op; it earns its place on ajax modals, whose
-    // markup does not exist until includes/modal_footer.php re-executes this
-    // file. Scoped to `select.select2` deliberately - a bare '.select2' also
-    // matches the .ts-wrapper divs left by earlier enhancement, because Tom
-    // Select copies the source element's classes onto them. See
-    // js/tom_select.js.
-    itflowStep('tom-select', function () {
-        document.querySelectorAll('select.select2').forEach(function (el) {
-            initTomSelect(el);
-        });
+    // Any select2 field not picked up yet. js/itflow_select.js has normally
+    // done them all already and enhances new ones as they arrive, so this is
+    // a belt-and-braces pass that finds nothing to do.
+    itflowStep('select', function () {
+        itflowSelectAll(document);
     });
 
     // Initialize TinyMCE
@@ -942,13 +935,6 @@ function itflowCopyFeedbackTarget(trigger) {
     const menu = trigger.closest('.dropdown-menu');
     return (menu && menu.parentElement) || trigger;
 }
-
-/*
- * The Tom Select layer (initTomSelect / refreshTomSelect / clearTomSelect /
- * setTomSelectValue) lives in js/tom_select.js, which footer.php loads right
- * after the library so the enhancement happens before the page's heavy libs
- * are parsed. Those functions are global; this file only calls them.
- */
 
 /**
  * Show a Bootstrap toast from JavaScript.

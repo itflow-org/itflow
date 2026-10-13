@@ -26,12 +26,12 @@ ob_start();
                     <select class="form-select select2" name="client_id">
                         <option value="0">- No Client -</option>
                         <?php
-                        $sql = mysqli_query($mysqli, "SELECT client_id, client_name FROM clients WHERE client_archived_at IS NULL " . clientScopeSql('clients.client_id') . " ORDER BY client_name ASC");
+                        $sql = mysqli_query($mysqli, "SELECT client_id, client_name, client_abbreviation FROM clients WHERE client_archived_at IS NULL " . clientScopeSql('clients.client_id') . " ORDER BY client_name ASC");
                         while ($row = mysqli_fetch_assoc($sql)) {
                             $client_id_select = intval($row['client_id']);
                             $client_name = escapeHtml($row['client_name']);
                         ?>
-                        <option value="<?= $client_id_select ?>"><?= $client_name ?></option>
+                        <option value="<?= $client_id_select ?>"<?= selectOptionClient($row['client_id'], $row['client_name'], $row['client_abbreviation'] ?? '') ?>><?= $client_name ?></option>
                         <?php } ?>
                     </select>
                 </div>
@@ -91,13 +91,13 @@ ob_start();
 
                     $sql = mysqli_query(
                         $mysqli,
-                        "SELECT user_id, user_name FROM users
+                        "SELECT user_id, user_name, user_avatar FROM users
                         WHERE user_role_id > 1 AND user_status = 1 AND user_archived_at IS NULL ORDER BY user_name ASC"
                     );
                     while ($row = mysqli_fetch_assoc($sql)) {
                         $user_id = intval($row['user_id']);
                         $user_name = escapeHtml($row['user_name']); ?>
-                        <option value="<?= $user_id ?>"><?= $user_name ?></option>
+                        <option value="<?= $user_id ?>"<?= selectOptionUser($row['user_id'], $row['user_name'], $row['user_avatar'] ?? '') ?>><?= $user_name ?></option>
                     <?php } ?>
                 </select>
             </div>

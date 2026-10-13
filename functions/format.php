@@ -346,6 +346,86 @@ function clientInitialsTone($client_id) {
 }
 
 
+/*
+ * Option extras for the select picker (js/itflow_select.js): data-*
+ * attributes that put a picture, initials, a colour or an icon in front of
+ * an <option>, and an optional second line under it.
+ *
+ *     <option value="<?= $id ?>"<?= selectOptionClient($id, $name, $abbr) ?>><?= $name ?></option>
+ *
+ * Takes values raw or already escaped - they are decoded and escaped again
+ * here, so either way the attribute comes out right.
+ */
+function selectOptionData(array $data) {
+    $html = '';
+    foreach ($data as $name => $value) {
+        $value = html_entity_decode((string) $value, ENT_QUOTES, 'UTF-8');
+        if ($value !== '') {
+            $html .= ' data-' . $name . '="' . escapeHtml($value) . '"';
+        }
+    }
+    return $html;
+}
+
+/** Up to two initials for a person's name - "Marla Whitfield" is MW. */
+function personInitials($name) {
+    $words = preg_split('/\s+/u', trim(html_entity_decode((string) $name, ENT_QUOTES, 'UTF-8')), -1, PREG_SPLIT_NO_EMPTY);
+    $initials = '';
+    foreach (array_slice($words, 0, 2) as $word) {
+        $initials .= mb_strtoupper(mb_substr($word, 0, 1));
+    }
+    return $initials;
+}
+
+/** A client - its coloured initials tile, the same as the client list and side nav. */
+function selectOptionClient($client_id, $client_name, $client_abbreviation = '') {
+    return selectOptionData([
+        'initials' => clientInitials(html_entity_decode((string) $client_abbreviation, ENT_QUOTES, 'UTF-8'), html_entity_decode((string) $client_name, ENT_QUOTES, 'UTF-8')),
+        'tone' => clientInitialsTone($client_id)
+    ]);
+}
+
+/** An agent - their avatar, or their initials in a circle. */
+function selectOptionUser($user_id, $user_name, $user_avatar = '') {
+    $user_avatar = html_entity_decode((string) $user_avatar, ENT_QUOTES, 'UTF-8');
+    if ($user_avatar !== '') {
+        return selectOptionData(['image' => '/uploads/users/' . intval($user_id) . '/' . rawurlencode($user_avatar)]);
+    }
+    return selectOptionData(['initials' => personInitials($user_name), 'shape' => 'circle', 'tone' => 'secondary']);
+}
+
+/** A contact - their photo or initials, with their title underneath. */
+function selectOptionContact($client_id, $contact_name, $contact_photo = '', $contact_title = '') {
+    $contact_photo = html_entity_decode((string) $contact_photo, ENT_QUOTES, 'UTF-8');
+    $data = $contact_photo !== ''
+        ? ['image' => '/uploads/clients/' . intval($client_id) . '/' . rawurlencode($contact_photo)]
+        : ['initials' => personInitials($contact_name), 'shape' => 'circle', 'tone' => 'secondary'];
+    $data['description'] = $contact_title;
+    return selectOptionData($data);
+}
+
+/** A tag, category or status - its colour, and its icon if it has one. */
+function selectOptionColor($color, $icon = '') {
+    // A hex value, or a CSS colour name - categories store names like "lightblue"
+    $color = preg_match('/^(#[0-9a-f]{3,8}|[a-z]{3,24})$/i', trim((string) $color)) ? trim($color) : '';
+    $icon = trim(preg_replace('/[^a-z0-9 -]/', '', strtolower((string) $icon)));
+    if ($icon !== '' && strpos($icon, 'fa-') === false) {
+        $icon = "fas fa-$icon";
+    }
+    return selectOptionData(['color' => $color, 'icon' => $icon]);
+}
+
+/** A ticket priority - the colour its badge has in the ticket lists. */
+function selectOptionPriority($priority) {
+    $colors = ['Urgent' => 'var(--bs-emphasis-color)', 'High' => 'var(--bs-danger)', 'Medium' => 'var(--bs-warning)', 'Low' => 'var(--bs-info)'];
+    return selectOptionData(['color' => $colors[html_entity_decode((string) $priority)] ?? '']);
+}
+
+/** An asset - the icon for its type, with make and model underneath. */
+function selectOptionAsset($asset_type, $description = '') {
+    return selectOptionData(['icon' => 'fas fa-' . getAssetIcon(html_entity_decode((string) $asset_type, ENT_QUOTES, 'UTF-8')), 'description' => $description]);
+}
+
 function roundUpToNearestMultiple($n, $increment = 1000) {
     return (int) ($increment * ceil($n / $increment));
 }

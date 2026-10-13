@@ -59,7 +59,11 @@ function initProductAutocomplete(availableProducts) {
             document.getElementById('desc').value = item.description;
             document.getElementById('qty').value = 1;
             document.getElementById('price').value = item.price;
-            setTomSelectValue(document.getElementById('tax'), item.tax);
+            const tax = document.getElementById('tax');
+            if (tax) {
+                tax.value = item.tax;
+                tax.dispatchEvent(new Event('change', { bubbles: true }));
+            }
             if (productIdInput) {
                 productIdInput.value = item.prod_id;
             }

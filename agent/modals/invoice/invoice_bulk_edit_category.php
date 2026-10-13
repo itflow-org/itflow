@@ -28,12 +28,12 @@ ob_start();
                 <select class="form-select select2" name="bulk_category_id">
                     <?php
 
-                    $sql = mysqli_query($mysqli, "SELECT category_id, category_name FROM categories WHERE category_type = 'Income' AND category_archived_at IS NULL ORDER BY category_name ASC");
+                    $sql = mysqli_query($mysqli, "SELECT category_id, category_name, category_color, category_icon FROM categories WHERE category_type = 'Income' AND category_archived_at IS NULL ORDER BY category_name ASC");
                     while ($row = mysqli_fetch_assoc($sql)) {
                         $category_id = intval($row['category_id']);
                         $category_name = escapeHtml($row['category_name']);
                         ?>
-                        <option value="<?= $category_id ?>"><?= $category_name ?></option>
+                        <option value="<?= $category_id ?>"<?= selectOptionColor($row['category_color'] ?? '', $row['category_icon'] ?? '') ?>><?= $category_name ?></option>
 
                         <?php
                     }

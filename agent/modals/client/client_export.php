@@ -114,12 +114,12 @@ ob_start();
                     <span class="input-group-text"><i class="fa fa-fw fa-tags"></i></span>
                 <select class="form-select select2" name="tags[]" data-placeholder="- All Tags -" multiple>
                     <?php
-                    $sql_tags_filter = mysqli_query($mysqli, "SELECT tag_id, tag_name FROM tags WHERE tag_type = 1 ORDER BY tag_name ASC");
+                    $sql_tags_filter = mysqli_query($mysqli, "SELECT tag_id, tag_name, tag_color, tag_icon FROM tags WHERE tag_type = 1 ORDER BY tag_name ASC");
                     while ($row = mysqli_fetch_assoc($sql_tags_filter)) {
                         $filter_tag_id = intval($row['tag_id']);
                         $filter_tag_name = escapeHtml($row['tag_name']);
                     ?>
-                        <option <?php if (in_array($filter_tag_id, $tag_filter, true)) { echo "selected"; } ?> value="<?= $filter_tag_id ?>"><?= $filter_tag_name ?></option>
+                        <option <?php if (in_array($filter_tag_id, $tag_filter, true)) { echo "selected"; } ?> value="<?= $filter_tag_id ?>"<?= selectOptionColor($row['tag_color'] ?? '', $row['tag_icon'] ?? '') ?>><?= $filter_tag_name ?></option>
                     <?php
                     }
                     ?>

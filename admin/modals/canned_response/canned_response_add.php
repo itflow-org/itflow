@@ -30,11 +30,11 @@ ob_start();
                     <option value="0">- All ticket categories -</option>
                     <?php
 
-                    $sql_categories = mysqli_query($mysqli, "SELECT category_id, category_name FROM categories WHERE category_type = 'Ticket' AND category_archived_at IS NULL ORDER BY category_name ASC");
+                    $sql_categories = mysqli_query($mysqli, "SELECT category_id, category_name, category_color, category_icon FROM categories WHERE category_type = 'Ticket' AND category_archived_at IS NULL ORDER BY category_name ASC");
                     while ($row = mysqli_fetch_assoc($sql_categories)) {
                         $category_id_select = intval($row['category_id']);
                         $category_name_select = escapeHtml($row['category_name']); ?>
-                        <option value="<?= $category_id_select ?>"><?= $category_name_select ?></option>
+                        <option value="<?= $category_id_select ?>"<?= selectOptionColor($row['category_color'] ?? '', $row['category_icon'] ?? '') ?>><?= $category_name_select ?></option>
 
                     <?php } ?>
                 </select>

@@ -48,13 +48,13 @@ ob_start();
                     <option value="0">No asset</option>
                     <?php
 
-                    $sql_assets = mysqli_query($mysqli, "SELECT asset_id, asset_name, contact_name FROM assets LEFT JOIN contacts ON contact_id = asset_contact_id WHERE asset_client_id = $client_id AND asset_archived_at IS NULL ORDER BY asset_name ASC");
+                    $sql_assets = mysqli_query($mysqli, "SELECT asset_id, asset_name, asset_type, asset_make, asset_model, contact_name FROM assets LEFT JOIN contacts ON contact_id = asset_contact_id WHERE asset_client_id = $client_id AND asset_archived_at IS NULL ORDER BY asset_name ASC");
                     while ($row = mysqli_fetch_assoc($sql_assets)) {
                         $asset_id_select = intval($row['asset_id']);
                         $asset_name_select = escapeHtml($row['asset_name']);
                         $asset_contact_name_select = escapeHtml($row['contact_name']);
                         ?>
-                        <option <?php if ($asset_id == $asset_id_select) { echo "selected"; } ?> value="<?= $asset_id_select ?>"><?= $asset_contact_name_select ? "$asset_name_select ($asset_contact_name_select)" : $asset_name_select ?></option>
+                        <option <?php if ($asset_id == $asset_id_select) { echo "selected"; } ?> value="<?= $asset_id_select ?>"<?= selectOptionAsset($row['asset_type'] ?? '', trim(($row['asset_make'] ?? '') . ' ' . ($row['asset_model'] ?? ''))) ?>><?= $asset_contact_name_select ? "$asset_name_select ($asset_contact_name_select)" : $asset_name_select ?></option>
 
                         <?php
                     }
@@ -71,7 +71,7 @@ ob_start();
                     <option value=""></option>
                     <?php
 
-                    $sql_assets = mysqli_query($mysqli, "SELECT asset_id, asset_name, contact_name FROM assets LEFT JOIN contacts ON contact_id = asset_contact_id WHERE asset_client_id = $client_id AND asset_id != $asset_id AND asset_archived_at IS NULL ORDER BY asset_name ASC");
+                    $sql_assets = mysqli_query($mysqli, "SELECT asset_id, asset_name, asset_type, asset_make, asset_model, contact_name FROM assets LEFT JOIN contacts ON contact_id = asset_contact_id WHERE asset_client_id = $client_id AND asset_id != $asset_id AND asset_archived_at IS NULL ORDER BY asset_name ASC");
                     while ($row = mysqli_fetch_assoc($sql_assets)) {
                         $asset_id_select = intval($row['asset_id']);
                         $asset_name_select = escapeHtml($row['asset_name']);
@@ -79,7 +79,7 @@ ob_start();
                     ?>
                         <option value="<?= $asset_id_select ?>"
                             <?php if (in_array($asset_id_select, $additional_assets_array)) { echo "selected"; } ?>
-                            ><?= $asset_contact_name_select ? "$asset_name_select ($asset_contact_name_select)" : $asset_name_select ?></option>
+                            <?= selectOptionAsset($row['asset_type'] ?? '', trim(($row['asset_make'] ?? '') . ' ' . ($row['asset_model'] ?? ''))) ?>><?= $asset_contact_name_select ? "$asset_name_select ($asset_contact_name_select)" : $asset_name_select ?></option>
 
                     <?php } ?>
                 </select>

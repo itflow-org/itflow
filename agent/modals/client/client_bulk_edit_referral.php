@@ -27,10 +27,10 @@ ob_start();
                 <select class="form-select select2" name="bulk_referral">
                     <option value="">- Select a Referral -</option>
                     <?php
-                    $referral_sql = mysqli_query($mysqli, "SELECT category_name FROM categories WHERE category_type = 'Referral' AND category_archived_at IS NULL ORDER BY category_name ASC");
+                    $referral_sql = mysqli_query($mysqli, "SELECT category_name, category_color, category_icon FROM categories WHERE category_type = 'Referral' AND category_archived_at IS NULL ORDER BY category_name ASC");
                     while ($row = mysqli_fetch_assoc($referral_sql)) {
                         $referral = escapeHtml($row['category_name']); ?>
-                        <option><?= $referral ?></option>
+                        <option<?= selectOptionColor($row['category_color'] ?? '', $row['category_icon'] ?? '') ?>><?= $referral ?></option>
                     <?php } ?>
 
                 </select>

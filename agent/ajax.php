@@ -561,7 +561,7 @@ if (isset($_GET['get_client_contacts'])) {
 
     $contact_sql = mysqli_query(
         $mysqli,
-        "SELECT contact_id, contact_name, contact_title, contact_email, contact_primary, contact_important, contact_technical FROM contacts
+        "SELECT contact_id, contact_name, contact_title, contact_email, contact_photo, contact_primary, contact_important, contact_technical FROM contacts
         LEFT JOIN clients on contact_client_id = client_id
         WHERE contacts.contact_archived_at IS NULL AND contact_client_id = $client_id
         " . clientScopeSql('contact_client_id') . "
@@ -572,6 +572,10 @@ if (isset($_GET['get_client_contacts'])) {
     $response['contacts'] = [];
 
     while ($row = mysqli_fetch_assoc($contact_sql)) {
+        // For the picker: initials, or the photo when there is one
+        $row['contact_initials'] = personInitials($row['contact_name']);
+        $row['contact_photo_url'] = $row['contact_photo'] ? "/uploads/clients/$client_id/" . rawurlencode($row['contact_photo']) : '';
+        unset($row['contact_photo']);
         $response['contacts'][] = $row;
     }
 
@@ -602,6 +606,7 @@ if (isset($_GET['get_client_assets'])) {
     $response['assets'] = [];
 
     while ($row = mysqli_fetch_assoc($asset_sql)) {
+        $row['asset_icon'] = getAssetIcon($row['asset_type']);
         $response['assets'][] = $row;
     }
 

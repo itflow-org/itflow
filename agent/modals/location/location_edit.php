@@ -170,7 +170,7 @@ ob_start();
                             <option value="">- Contact -</option>
                             <?php
 
-                            $sql_contacts = mysqli_query($mysqli, "SELECT contact_archived_at, contact_id, contact_name FROM contacts WHERE (contact_archived_at > '$location_created_at' OR contact_archived_at IS NULL) AND contact_client_id = $client_id ORDER BY contact_archived_at ASC, contact_name ASC");
+                            $sql_contacts = mysqli_query($mysqli, "SELECT contact_archived_at, contact_id, contact_name, contact_client_id, contact_photo, contact_title FROM contacts WHERE (contact_archived_at > '$location_created_at' OR contact_archived_at IS NULL) AND contact_client_id = $client_id ORDER BY contact_archived_at ASC, contact_name ASC");
                             while ($row = mysqli_fetch_assoc($sql_contacts)) {
                                 $contact_id_select = intval($row['contact_id']);
                                 $contact_name_select = escapeHtml($row['contact_name']);
@@ -182,7 +182,7 @@ ob_start();
                                 }
 
                                 ?>
-                                <option <?php if ($location_contact_id == $contact_id_select) { echo "selected"; } ?> value="<?= $contact_id_select ?>"><?= "$contact_archived_display$contact_name_select" ?></option>
+                                <option <?php if ($location_contact_id == $contact_id_select) { echo "selected"; } ?> value="<?= $contact_id_select ?>"<?= selectOptionContact($row['contact_client_id'] ?? 0, $row['contact_name'], $row['contact_photo'] ?? '', $row['contact_title'] ?? '') ?>><?= "$contact_archived_display$contact_name_select" ?></option>
                             <?php } ?>
 
                         </select>
@@ -243,12 +243,12 @@ ob_start();
                         <select class="form-select select2" name="tags[]" data-placeholder="Add some tags" multiple>
                             <?php
 
-                            $sql_tags_select = mysqli_query($mysqli, "SELECT tag_id, tag_name FROM tags WHERE tag_type = 2 ORDER BY tag_name ASC");
+                            $sql_tags_select = mysqli_query($mysqli, "SELECT tag_id, tag_name, tag_color, tag_icon FROM tags WHERE tag_type = 2 ORDER BY tag_name ASC");
                             while ($row = mysqli_fetch_assoc($sql_tags_select)) {
                                 $tag_id_select = intval($row['tag_id']);
                                 $tag_name_select = escapeHtml($row['tag_name']);
                                 ?>
-                                <option value="<?= $tag_id_select ?>" <?php if (in_array($tag_id_select, $location_tag_id_array)) { echo "selected"; } ?>><?= $tag_name_select ?></option>
+                                <option value="<?= $tag_id_select ?>" <?php if (in_array($tag_id_select, $location_tag_id_array)) { echo "selected"; } ?><?= selectOptionColor($row['tag_color'] ?? '', $row['tag_icon'] ?? '') ?>><?= $tag_name_select ?></option>
                             <?php } ?>
 
                         </select>

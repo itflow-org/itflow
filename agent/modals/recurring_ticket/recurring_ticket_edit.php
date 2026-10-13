@@ -114,10 +114,10 @@ ob_start();
                             <div class="input-group">
                                     <span class="input-group-text"><i class="fa fa-fw fa-thermometer-half"></i></span>
                                 <select class="form-select select2" name="priority" required>
-                                    <option <?php if ($recurring_ticket_priority == "Low") { echo "selected"; } ?> >Low</option>
-                                    <option <?php if ($recurring_ticket_priority == "Medium") { echo "selected"; } ?> >Medium</option>
-                                    <option <?php if ($recurring_ticket_priority == "High") { echo "selected"; } ?> >High</option>
-                                    <option <?php if ($recurring_ticket_priority == "Urgent") { echo "selected"; } ?> >Urgent</option>
+                                    <option <?php if ($recurring_ticket_priority == "Low") { echo "selected"; } ?>  data-color="var(--bs-info)">Low</option>
+                                    <option <?php if ($recurring_ticket_priority == "Medium") { echo "selected"; } ?>  data-color="var(--bs-warning)">Medium</option>
+                                    <option <?php if ($recurring_ticket_priority == "High") { echo "selected"; } ?>  data-color="var(--bs-danger)">High</option>
+                                    <option <?php if ($recurring_ticket_priority == "Urgent") { echo "selected"; } ?>  data-color="var(--bs-emphasis-color)">Urgent</option>
                                 </select>
                             </div>
                         </div>
@@ -131,13 +131,13 @@ ob_start();
                                 <select class="form-select select2" name="category_id">
                                     <option value="0">- Uncategorized -</option>
                                     <?php
-                                    $sql_categories = mysqli_query($mysqli, "SELECT category_id, category_name FROM categories WHERE category_type = 'Ticket' AND category_archived_at IS NULL ORDER BY category_name ASC");
+                                    $sql_categories = mysqli_query($mysqli, "SELECT category_id, category_name, category_color, category_icon FROM categories WHERE category_type = 'Ticket' AND category_archived_at IS NULL ORDER BY category_name ASC");
                                     while ($row = mysqli_fetch_assoc($sql_categories)) {
                                         $category_id = intval($row['category_id']);
                                         $category_name = escapeHtml($row['category_name']);
 
                                         ?>
-                                        <option <?php if ($recurring_ticket_category == $category_id) {echo "selected";} ?> value="<?= $category_id ?>"><?= $category_name ?></option>
+                                        <option <?php if ($recurring_ticket_category == $category_id) {echo "selected";} ?> value="<?= $category_id ?>"<?= selectOptionColor($row['category_color'] ?? '', $row['category_icon'] ?? '') ?>><?= $category_name ?></option>
                                     <?php } ?>
 
                                 </select>
@@ -157,7 +157,7 @@ ob_start();
                         <select class="form-select select2" name="assigned_to">
                             <option value="0">- Select Agent -</option>
                             <?php
-                            $sql_users_select = mysqli_query($mysqli, "SELECT user_id, user_name FROM users
+                            $sql_users_select = mysqli_query($mysqli, "SELECT user_id, user_name, user_avatar FROM users
                                 WHERE user_type = 1
                                 AND user_archived_at IS NULL
                                 ORDER BY user_name ASC"
@@ -167,7 +167,7 @@ ob_start();
                                 $user_name_select = escapeHtml($row['user_name']);
 
                                 ?>
-                                <option value="<?= $user_id_select ?>" <?php if ($recurring_ticket_assigned_to == $user_id_select) { echo "selected"; } ?>><?= $user_name_select ?></option>
+                                <option value="<?= $user_id_select ?>" <?php if ($recurring_ticket_assigned_to == $user_id_select) { echo "selected"; } ?><?= selectOptionUser($row['user_id'], $row['user_name'], $row['user_avatar'] ?? '') ?>><?= $user_name_select ?></option>
                             <?php } ?>
                         </select>
                     </div>
@@ -199,7 +199,7 @@ ob_start();
                         <select class="form-select select2" name="contact_id">
                             <option value="0">- Select Contact -</option>
                             <?php
-                            $sql_client_contacts_select = mysqli_query($mysqli, "SELECT contact_id, contact_name, contact_title, contact_primary, contact_technical FROM contacts WHERE contact_client_id = $client_id AND contact_archived_at IS NULL ORDER BY contact_primary DESC, contact_technical DESC, contact_name ASC");
+                            $sql_client_contacts_select = mysqli_query($mysqli, "SELECT contact_id, contact_name, contact_client_id, contact_photo, contact_title, contact_primary, contact_technical FROM contacts WHERE contact_client_id = $client_id AND contact_archived_at IS NULL ORDER BY contact_primary DESC, contact_technical DESC, contact_name ASC");
                             while ($row = mysqli_fetch_assoc($sql_client_contacts_select)) {
                                 $contact_id_select = intval($row['contact_id']);
                                 $contact_name_select = escapeHtml($row['contact_name']);
@@ -223,7 +223,7 @@ ob_start();
                                 }
 
                                 ?>
-                                <option value="<?= $contact_id_select ?>" <?php if ($contact_id_select  == $recurring_ticket_contact_id) { echo "selected"; } ?>><?= "$contact_name_select$contact_title_display_select$contact_primary_display_select$contact_technical_display_select" ?></option>
+                                <option value="<?= $contact_id_select ?>" <?php if ($contact_id_select  == $recurring_ticket_contact_id) { echo "selected"; } ?><?= selectOptionContact($row['contact_client_id'] ?? 0, $row['contact_name'], $row['contact_photo'] ?? '', $row['contact_title'] ?? '') ?>><?= "$contact_name_select$contact_title_display_select$contact_primary_display_select$contact_technical_display_select" ?></option>
                             <?php } ?>
                         </select>
                     </div>
@@ -269,13 +269,13 @@ ob_start();
                             <option value="0">- Select Asset -</option>
                             <?php
 
-                            $sql_assets = mysqli_query($mysqli, "SELECT asset_id, asset_name, contact_name FROM assets LEFT JOIN contacts ON contact_id = asset_contact_id WHERE asset_client_id = $client_id AND asset_archived_at IS NULL ORDER BY asset_name ASC");
+                            $sql_assets = mysqli_query($mysqli, "SELECT asset_id, asset_name, asset_type, asset_make, asset_model, contact_name FROM assets LEFT JOIN contacts ON contact_id = asset_contact_id WHERE asset_client_id = $client_id AND asset_archived_at IS NULL ORDER BY asset_name ASC");
                             while ($row = mysqli_fetch_assoc($sql_assets)) {
                                 $asset_id_select = intval($row['asset_id']);
                                 $asset_name_select = escapeHtml($row['asset_name']);
                                 $asset_contact_name_select = escapeHtml($row['contact_name']);
                                 ?>
-                                <option <?php if ($recurring_ticket_asset_id == $asset_id_select) { echo "selected"; } ?> value="<?= $asset_id_select ?>"><?= "$asset_name_select - $asset_contact_name_select" ?></option>
+                                <option <?php if ($recurring_ticket_asset_id == $asset_id_select) { echo "selected"; } ?> value="<?= $asset_id_select ?>"<?= selectOptionAsset($row['asset_type'] ?? '', trim(($row['asset_make'] ?? '') . ' ' . ($row['asset_model'] ?? ''))) ?>><?= "$asset_name_select - $asset_contact_name_select" ?></option>
 
                                 <?php
                             }
@@ -292,7 +292,7 @@ ob_start();
                             <option value=""></option>
                             <?php
 
-                            $sql_assets = mysqli_query($mysqli, "SELECT asset_id, asset_name, contact_name FROM assets LEFT JOIN contacts ON contact_id = asset_contact_id WHERE asset_client_id = $client_id AND asset_id != $recurring_ticket_asset_id AND asset_archived_at IS NULL ORDER BY asset_name ASC");
+                            $sql_assets = mysqli_query($mysqli, "SELECT asset_id, asset_name, asset_type, asset_make, asset_model, contact_name FROM assets LEFT JOIN contacts ON contact_id = asset_contact_id WHERE asset_client_id = $client_id AND asset_id != $recurring_ticket_asset_id AND asset_archived_at IS NULL ORDER BY asset_name ASC");
                             while ($row = mysqli_fetch_assoc($sql_assets)) {
                                 $asset_id_select = intval($row['asset_id']);
                                 $asset_name_select = escapeHtml($row['asset_name']);
@@ -300,7 +300,7 @@ ob_start();
                             ?>
                                 <option value="<?= $asset_id_select ?>"
                                     <?php if (in_array($asset_id_select, $additional_assets_array)) { echo "selected"; } ?>
-                                    ><?= "$asset_name_select - $asset_contact_name_select" ?></option>
+                                    <?= selectOptionAsset($row['asset_type'] ?? '', trim(($row['asset_make'] ?? '') . ' ' . ($row['asset_model'] ?? ''))) ?>><?= "$asset_name_select - $asset_contact_name_select" ?></option>
 
                             <?php } ?>
                         </select>

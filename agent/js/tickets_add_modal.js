@@ -6,7 +6,6 @@
 // touching it, rather than assuming the full set is present.
 
 // Client selected listener
-//  We seem to have to use jQuery to listen for events, as the client input is a select2 component?
 
 // Wrapped in an IIFE because a modal can be opened, closed and opened again in one
 // page load, which re-runs this file - a top-level const would throw on the second
@@ -73,24 +72,15 @@
             return null;
         }
 
-        // innerHTML rather than removing options one by one, which leaves empty optgroups behind
+        // innerHTML rather than removing options one by one, which leaves empty
+        // optgroups behind. The picker (js/itflow_select.js) redraws by itself.
         dropdown.innerHTML = '';
-
-        // A multi-select keeps showing its old selections until select2 is told the value changed
-        clearTomSelect(dropdown);
 
         if (placeholderLabel !== null) {
             dropdown[dropdown.length] = new Option(placeholderLabel, placeholderValue);
         }
 
         return dropdown;
-    }
-
-    // Redraws a select2 component after its options have been replaced
-    function refreshDropdown(dropdown) {
-        if (dropdown) {
-            refreshTomSelect(dropdown);
-        }
     }
 
     // Re-applies the value the modal was opened with (e.g. ticket_add.php?project_id=4),
@@ -126,13 +116,17 @@
     }
 
     // Adds an option to an optgroup
-    function appendGroupedOption(group, label, value) {
+    function appendGroupedOption(group, label, value, icon) {
 
         if (!group) {
             return;
         }
 
-        group.appendChild(new Option(label, value));
+        const option = new Option(label, value);
+        if (icon) {
+            option.dataset.icon = 'fas fa-fw fa-' + icon;
+        }
+        group.appendChild(option);
     }
 
     // Builds the asset label as "Name - Make Model - (Contact)", matching how assets read elsewhere
@@ -181,20 +175,28 @@
                 // Watchers is a tags field - any address can be typed in, these are just the handy ones
                 const watchersDropdown = resetDropdown("watchersSelect", null, null);
 
-                // Populate dropdown
+                // Populate dropdown - the name, with title and role on the line under it
                 contacts.forEach(contact => {
-                    var appendText = "";
+                    const details = [];
                     if (contact.contact_title) {
-                        appendText = " - " + contact.contact_title;
+                        details.push(contact.contact_title);
                     }
                     if (contact.contact_primary == "1") {
-                        appendText = appendText + " (Primary)";
+                        details.push("Primary");
                     } else if (contact.contact_technical == "1") {
-                        appendText = appendText + " (Technical)";
+                        details.push("Technical");
                     }
 
                     if (contactSelectDropdown) {
-                        contactSelectDropdown[contactSelectDropdown.length] = new Option(contact.contact_name + appendText, contact.contact_id);
+                        const option = new Option(contact.contact_name, contact.contact_id);
+                        option.dataset.description = details.join(', ');
+                        option.dataset.initials = contact.contact_initials;
+                        option.dataset.shape = 'circle';
+                        option.dataset.tone = 'secondary';
+                        if (contact.contact_photo_url) {
+                            option.dataset.image = contact.contact_photo_url;
+                        }
+                        contactSelectDropdown[contactSelectDropdown.length] = option;
                     }
 
                     if (watchersDropdown && contact.contact_email) {
@@ -213,9 +215,6 @@
                 }
 
                 applyPreselection(contactSelectDropdown);
-
-                refreshDropdown(contactSelectDropdown);
-                refreshDropdown(watchersDropdown);
 
             }
         );
@@ -259,14 +258,11 @@
 
                     const assetLabel = buildAssetLabel(asset);
 
-                    appendGroupedOption(assetGroup, assetLabel, asset.asset_id);
-                    appendGroupedOption(additionalAssetGroup, assetLabel, asset.asset_id);
+                    appendGroupedOption(assetGroup, assetLabel, asset.asset_id, asset.asset_icon);
+                    appendGroupedOption(additionalAssetGroup, assetLabel, asset.asset_id, asset.asset_icon);
                 });
 
                 applyPreselection(assetSelectDropdown);
-
-                refreshDropdown(assetSelectDropdown);
-                refreshDropdown(additionalAssetsDropdown);
 
             }
         );
@@ -300,8 +296,6 @@
 
                 applyPreselection(locationSelectDropdown);
 
-                refreshDropdown(locationSelectDropdown);
-
             }
         );
     }
@@ -334,8 +328,6 @@
 
                 applyPreselection(vendorSelectDropdown);
 
-                refreshDropdown(vendorSelectDropdown);
-
             }
         );
     }
@@ -367,8 +359,6 @@
                 });
 
                 applyPreselection(projectSelectDropdown);
-
-                refreshDropdown(projectSelectDropdown);
 
             }
         );

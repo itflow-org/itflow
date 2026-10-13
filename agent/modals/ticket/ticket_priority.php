@@ -42,10 +42,10 @@ ob_start();
             <div class="input-group">
                     <span class="input-group-text"><i class="fa fa-fw fa-thermometer-half"></i></span>
                 <select class="form-select select2" name="priority" required>
-                    <option <?php if ($ticket_priority == 'Low') { echo "selected"; } ?> >Low</option>
-                    <option <?php if ($ticket_priority == 'Medium') { echo "selected"; } ?> >Medium</option>
-                    <option <?php if ($ticket_priority == 'High') { echo "selected"; } ?> >High</option>
-                    <option <?php if ($ticket_priority == 'Urgent') { echo "selected"; } ?> >Urgent</option>
+                    <option <?php if ($ticket_priority == 'Low') { echo "selected"; } ?>  data-color="var(--bs-info)">Low</option>
+                    <option <?php if ($ticket_priority == 'Medium') { echo "selected"; } ?>  data-color="var(--bs-warning)">Medium</option>
+                    <option <?php if ($ticket_priority == 'High') { echo "selected"; } ?>  data-color="var(--bs-danger)">High</option>
+                    <option <?php if ($ticket_priority == 'Urgent') { echo "selected"; } ?>  data-color="var(--bs-emphasis-color)">Urgent</option>
                 </select>
             </div>
         </div>

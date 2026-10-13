@@ -42,9 +42,6 @@ itflowReady(function () {
                 } else {
                     contactSelect.appendChild(new Option('No contacts found', ''));
                 }
-
-                // Let Tom Select re-read the replaced option list
-                refreshTomSelect(contactSelect);
             })
             .catch(function (error) {
                 console.error('AJAX Error:', error);

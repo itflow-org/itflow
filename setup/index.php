@@ -546,7 +546,6 @@ if (isset($_POST['add_telemetry'])) {
     <!-- Theme style -->
     <link rel="stylesheet" href="/libs/adminlte/css/adminlte.min.css">
     <!-- Custom Style Sheet -->
-    <link href="/libs/tom-select/css/tom-select.bootstrap5.min.css" rel="stylesheet" type="text/css">
     <link rel="stylesheet" href="/css/itflow_custom.css">
 
 </head>
@@ -1452,8 +1451,7 @@ if (isset($_POST['add_telemetry'])) {
 <!-- jQuery -->
 <!-- Bootstrap 5 -->
 <!-- Custom js-->
-<script src='/libs/tom-select/js/tom-select.complete.min.js'></script>
-<script src="/js/tom_select.js"></script>
+<script src="/js/itflow_select.js"></script>
 <script src="/libs/bootstrap/js/bootstrap.bundle.min.js"></script>
 <!-- AdminLTE App -->
 <script src="/libs/adminlte/js/adminlte.min.js"></script>

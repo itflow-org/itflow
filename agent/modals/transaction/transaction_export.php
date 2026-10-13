@@ -141,12 +141,12 @@ ob_start();
                     <option value="">- All Categories -</option>
 
                     <?php
-                    $sql_categories_filter = mysqli_query($mysqli, "SELECT category_id, category_name FROM categories WHERE category_type IN ('Income', 'Expense') ORDER BY category_name ASC");
+                    $sql_categories_filter = mysqli_query($mysqli, "SELECT category_id, category_name, category_color, category_icon FROM categories WHERE category_type IN ('Income', 'Expense') ORDER BY category_name ASC");
                     while ($row = mysqli_fetch_assoc($sql_categories_filter)) {
                         $category_id = intval($row['category_id']);
                         $category_name = escapeHtml($row['category_name']);
                     ?>
-                        <option <?php if ($category_filter == $category_id) { echo "selected"; } ?> value="<?= $category_id ?>"><?= $category_name ?></option>
+                        <option <?php if ($category_filter == $category_id) { echo "selected"; } ?> value="<?= $category_id ?>"<?= selectOptionColor($row['category_color'] ?? '', $row['category_icon'] ?? '') ?>><?= $category_name ?></option>
                     <?php
                     }
                     ?>
@@ -163,12 +163,12 @@ ob_start();
                     <option value="">- All Clients -</option>
 
                     <?php
-                    $sql_clients_filter = mysqli_query($mysqli, "SELECT client_id, client_name FROM clients WHERE client_archived_at IS NULL AND (EXISTS (SELECT 1 FROM revenues WHERE revenue_client_id = client_id) OR EXISTS (SELECT 1 FROM expenses WHERE expense_client_id = client_id) OR EXISTS (SELECT 1 FROM invoices WHERE invoice_client_id = client_id)) ORDER BY client_name ASC");
+                    $sql_clients_filter = mysqli_query($mysqli, "SELECT client_id, client_name, client_abbreviation FROM clients WHERE client_archived_at IS NULL AND (EXISTS (SELECT 1 FROM revenues WHERE revenue_client_id = client_id) OR EXISTS (SELECT 1 FROM expenses WHERE expense_client_id = client_id) OR EXISTS (SELECT 1 FROM invoices WHERE invoice_client_id = client_id)) ORDER BY client_name ASC");
                     while ($row = mysqli_fetch_assoc($sql_clients_filter)) {
                         $client_id = intval($row['client_id']);
                         $client_name = escapeHtml($row['client_name']);
                     ?>
-                        <option <?php if ($client_filter == $client_id) { echo "selected"; } ?> value="<?= $client_id ?>"><?= $client_name ?></option>
+                        <option <?php if ($client_filter == $client_id) { echo "selected"; } ?> value="<?= $client_id ?>"<?= selectOptionClient($row['client_id'], $row['client_name'], $row['client_abbreviation'] ?? '') ?>><?= $client_name ?></option>
                     <?php
                     }
                     ?>

@@ -73,13 +73,13 @@ ob_start();
                     <?php
                     $sql_project_managers_select = mysqli_query(
                         $mysqli,
-                        "SELECT user_id, user_name FROM users
+                        "SELECT user_id, user_name, user_avatar FROM users
                         WHERE user_role_id > 1 AND user_status = 1 AND user_archived_at IS NULL ORDER BY user_name ASC"
                     );
                     while ($row = mysqli_fetch_assoc($sql_project_managers_select)) {
                         $user_id_select = intval($row['user_id']);
                         $user_name_select = escapeHtml($row['user_name']); ?>
-                        <option <?php if ($project_manager == $user_id_select) { echo "selected"; } ?> value="<?= $user_id_select ?>"><?= $user_name_select ?></option>
+                        <option <?php if ($project_manager == $user_id_select) { echo "selected"; } ?> value="<?= $user_id_select ?>"<?= selectOptionUser($row['user_id'], $row['user_name'], $row['user_avatar'] ?? '') ?>><?= $user_name_select ?></option>
                     <?php } ?>
                 </select>
             </div>

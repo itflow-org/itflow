@@ -55,13 +55,13 @@ ob_start();
                 <select class="form-select select2" name="ticket_assign" required>
                     <option value="0">No one</option>
                     <?php
-                    $sql_users = mysqli_query($mysqli, "SELECT user_id, user_name FROM users WHERE user_type = 1 AND user_archived_at IS NULL");
+                    $sql_users = mysqli_query($mysqli, "SELECT user_id, user_name, user_avatar FROM users WHERE user_type = 1 AND user_archived_at IS NULL");
                     while ($row = mysqli_fetch_assoc($sql_users)) {
                         $user_id_select = intval($row['user_id']);
                         $user_name_select = escapeHtml($row['user_name']);
 
                         ?>
-                        <option value="<?= $user_id_select ?>"><?= $user_name_select ?></option>
+                        <option value="<?= $user_id_select ?>"<?= selectOptionUser($row['user_id'], $row['user_name'], $row['user_avatar'] ?? '') ?>><?= $user_name_select ?></option>
                     <?php } ?>
 
                 </select>

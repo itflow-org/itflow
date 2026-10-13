@@ -183,14 +183,14 @@ ob_start();
                         // Get all contacts
                         // NOTE: These are called $sql_all and $row_all for a reason - anything overwriting $sql or $row will break the current while loop we are in from client_services.php
 
-                        $sql_all = mysqli_query($mysqli, "SELECT contact_id, contact_name FROM contacts WHERE (contact_archived_at > '$service_created_at' OR contact_archived_at IS NULL) AND contact_client_id = $client_id");
+                        $sql_all = mysqli_query($mysqli, "SELECT contact_id, contact_name, contact_client_id, contact_photo, contact_title FROM contacts WHERE (contact_archived_at > '$service_created_at' OR contact_archived_at IS NULL) AND contact_client_id = $client_id");
 
                         while ($row_all = mysqli_fetch_assoc($sql_all)) {
                             $contact_id = intval($row_all['contact_id']);
                             $contact_name = escapeHtml($row_all['contact_name']);
 
                             if (in_array($contact_id, $selected_ids)) {
-                                echo "<option value=\"$contact_id\" selected>$contact_name</option>";
+                                echo "<option value=\"$contact_id\" selected" . selectOptionContact($row_all['contact_client_id'] ?? 0, $row_all['contact_name'], $row_all['contact_photo'] ?? '', $row_all['contact_title'] ?? '') . ">$contact_name</option>";
                             }
                             else{
                                 echo "<option value=\"$contact_id\">$contact_name</option>";
@@ -258,13 +258,13 @@ ob_start();
                         <?php
                         $selected_ids = array_column(mysqli_fetch_all($sql_assets, MYSQLI_ASSOC), "asset_id");
 
-                        $sql_all = mysqli_query($mysqli, "SELECT asset_id, asset_name FROM assets WHERE (asset_archived_at > '$service_created_at' OR asset_archived_at IS NULL) AND asset_client_id = $client_id");
+                        $sql_all = mysqli_query($mysqli, "SELECT asset_id, asset_name, asset_type, asset_make, asset_model FROM assets WHERE (asset_archived_at > '$service_created_at' OR asset_archived_at IS NULL) AND asset_client_id = $client_id");
                         while ($row_all = mysqli_fetch_assoc($sql_all)) {
                             $asset_id = intval($row_all['asset_id']);
                             $asset_name = escapeHtml($row_all['asset_name']);
 
                             if (in_array($asset_id, $selected_ids)) {
-                                echo "<option value=\"$asset_id\" selected>$asset_name</option>";
+                                echo "<option value=\"$asset_id\" selected" . selectOptionAsset($row_all['asset_type'] ?? '', trim(($row_all['asset_make'] ?? '') . ' ' . ($row_all['asset_model'] ?? ''))) . ">$asset_name</option>";
                             }
                             else{
                                 echo "<option value=\"$asset_id\">$asset_name</option>";
