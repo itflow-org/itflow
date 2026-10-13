@@ -18,7 +18,7 @@ if (isset($_GET['client_id'])) {
 $sql = mysqli_query(
     $mysqli,
     "SELECT SQL_CALC_FOUND_ROWS client_id, client_name, round_trip, trip_archived_at, trip_created_at, trip_date,
-        trip_destination, trip_id, trip_miles, trip_purpose, trip_source, trip_user_id, user_name FROM trips
+        trip_destination, trip_id, trip_miles, trip_purpose, trip_source, trip_user_id, user_name, user_avatar FROM trips
     LEFT JOIN clients ON trip_client_id = client_id
     LEFT JOIN users ON trip_user_id = user_id
     WHERE (trip_purpose LIKE '%$q%' OR trip_source LIKE '%$q%' OR trip_destination LIKE '%$q%' OR trip_miles LIKE '%$q%' OR client_name LIKE '%$q%' OR user_name LIKE '%$q%')
@@ -155,12 +155,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                     } else {
                         $round_trip_display = "";
                     }
-                    $user_name = escapeHtml($row['user_name']);
-                    if (empty($user_name)) {
-                        $user_name_display = "-";
-                    } else {
-                        $user_name_display = $user_name;
-                    }
+                    $user_name_display = formatAssignee($trip_user_id, $row['user_name'], $row['user_avatar'], false, 'No driver');
 
                     ?>
                     <tr>
