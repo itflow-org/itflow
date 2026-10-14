@@ -1940,6 +1940,18 @@ html {
     max-width: 100%;
 }
 
+/* AdminLTE puts a clearfix ::after on every card header, body and footer. On a
+   flex container that pseudo-element becomes an empty last flex item, and any
+   gap-* utility then adds a gap after it - so the last real item (the client
+   header's actions button, the overview's "View all" link) sits a gap short of
+   the padding. Floats don't apply inside flex anyway, so the clearfix only
+   ever does harm there. */
+.card-header.d-flex::after,
+.card-body.d-flex::after,
+.card-footer.d-flex::after {
+    content: none;
+}
+
 /* Client header - agent/includes/inc_client_top_head.php
 
    Initials, name and tags in one row; the name opens the panel underneath
