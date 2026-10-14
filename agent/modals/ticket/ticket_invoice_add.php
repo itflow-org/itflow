@@ -39,6 +39,7 @@ $ticket_onsite = intval($row['ticket_onsite']);
 $ticket_created_at = escapeHtml($row['ticket_created_at']);
 $ticket_created_by = intval($row['ticket_created_by']);
 $ticket_date = date('Y-m-d g:i A', strtotime($ticket_created_at));
+$ticket_date_description = date('m/d/Y', strtotime($ticket_created_at));
 $ticket_first_response_at = escapeHtml($row['ticket_first_response_at']);
 if ($ticket_first_response_at) {
     $ticket_first_response_date_time = date('Y-m-d g:i A', strtotime($ticket_first_response_at));
@@ -227,33 +228,7 @@ ob_start();
             <div class="input-group">
                 <textarea class="form-control" rows="10" name="item_description"><?php
                     // Build description text cleanly in PHP, not mixed with HTML
-                    $description = "Ticket: {$ticket_prefix}{$ticket_number} - $ticket_subject\n";
-                    $description .= "Work Performed: Support (see ticket notes)\n";
-                    $description .= "\n";
-                    $description .= "Opened: {$ticket_date}\n";
-                    if ($ticket_first_response_date_time) {
-                        $description .= "Initial Response: {$ticket_first_response_date_time}\n";
-                    }
-                    if ($ticket_resolved_date) {
-                        $description .= "Resolved: {$ticket_resolved_date}\n";
-                    }
-                    $description .= "\n";
-                    if ($ticket_assigned_agent) {
-                        $description .= "Agent: {$ticket_assigned_agent}\n";
-                    }
-                    if ($location_id) {
-                        $description .= "Location: {$location_name}\n";
-                    }
-                    if ($contact_id) {
-                        $description .= "Contact: {$contact_name}\n";
-                    }
-                    if ($asset_id) {
-                        $description .= "Asset: {$asset_name}\n";
-                    }
-                    if ($ticket_total_reply_time) {
-                        $description .= "Time Spent: {$ticket_total_reply_time_display}";
-                    }
-
+                    $description = "Ticket {$ticket_prefix}{$ticket_number} - $ticket_subject - $ticket_date_description";
                     echo trim($description); // Trim any leading/trailing spaces/newlines
                 ?></textarea>
             </div>
