@@ -181,8 +181,8 @@ if (isset($_POST['tag_picker_set']) || isset($_POST['tag_picker_create'])) {
 
 /*
  * Quick pickers (js/quick_pick.js) - a ticket's status, priority, assignee
- * and billable, a project's manager and a recurring ticket's assignee,
- * changed in place instead of through a modal. GET lists the choices; POST makes the change through the same
+ * and billable, a project's manager, a recurring ticket's assignee and an
+ * asset's status, location and contact, changed in place instead of through a modal. GET lists the choices; POST makes the change through the same
  * functions the post.php handlers use (functions/ticket_fields.php) and sends
  * back the redrawn values.
  */
@@ -210,6 +210,14 @@ if (isset($_GET['quick_pick_options'])) {
         $options = quickPickAgents();
     } elseif ($field === 'project_manager') {
         $options = quickPickAgents('No manager');
+    } elseif (in_array($field, ASSET_QUICK_FIELDS, true)) {
+        // Locations and contacts are the asset's client's own - functions/asset.php
+        $options = assetQuickOptions($field, intval($_GET['scope'] ?? 0));
+        if ($options === null) {
+            http_response_code(403);
+            echo json_encode(['error' => 'You cannot see that client.']);
+            exit();
+        }
     } else {
         http_response_code(400);
         echo json_encode(['error' => 'Unknown field']);
@@ -229,6 +237,40 @@ if (isset($_POST['quick_pick_set'])) {
     $field = (string) ($_POST['field'] ?? '');
     $value = (string) ($_POST['value'] ?? '');
     $ticket_ids = array_values(array_unique(array_filter(array_map('intval', (array) ($_POST['ids'] ?? [])))));
+
+    // An asset's status, location or contact - assets of clients this agent
+    // can reach, with the same permission as Edit Asset (functions/asset.php)
+    if (in_array($field, ASSET_QUICK_FIELDS, true)) {
+        $asset_ids = $ticket_ids;
+        $allowed = lookupUserPermission('module_support') >= 2 && $asset_ids;
+        foreach ($allowed ? $asset_ids : [] as $id) {
+            $row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT asset_client_id FROM assets WHERE asset_id = $id"));
+            if (!$row || !hasClientAccess($row['asset_client_id'])) {
+                $allowed = false;
+                break;
+            }
+        }
+        if (!$allowed) {
+            http_response_code(403);
+            echo json_encode(['error' => 'You cannot change that on these assets.']);
+            exit();
+        }
+
+        $message = '';
+        $response = ['records' => []];
+        foreach ($asset_ids as $id) {
+            [$ok, $message] = assetQuickSet($id, $field, $value);
+            if (!$ok) {
+                http_response_code(422);
+                echo json_encode(['error' => $message]);
+                exit();
+            }
+            $response['records'][$id] = assetQuickRecord($id, $field);
+        }
+        $response['message'] = count($asset_ids) === 1 ? $message : 'Updated ' . count($asset_ids) . ' assets';
+        echo json_encode($response);
+        exit();
+    }
 
     // A project's manager or a recurring ticket's assignee - open projects
     // and recurring tickets of clients this agent can reach, like their edit modals

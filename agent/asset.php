@@ -29,13 +29,13 @@ enforceUserPermission('module_support');
 
 $asset_id = intval($_GET['asset_id'] ?? 0);
 
-$sql = mysqli_query($mysqli, "SELECT asset_archived_at, asset_contact_id, asset_created_at, asset_description, asset_favorite, asset_id,
+$sql = mysqli_query($mysqli, "SELECT asset_archived_at, asset_client_id, asset_contact_id, asset_created_at, asset_description, asset_favorite, asset_id,
     asset_install_date, asset_location_id, asset_make, asset_model, asset_name, asset_notes,
     asset_os, asset_photo, asset_physical_location, asset_purchase_date,
     asset_purchase_reference, asset_serial, asset_status, asset_type, asset_uri, asset_uri_2,
     asset_uri_client, asset_vendor_id, asset_warranty_expire, client_id, client_name,
     contact_archived_at, contact_email, contact_extension, contact_mobile,
-    contact_mobile_country_code, contact_name, contact_phone, contact_phone_country_code,
+    contact_mobile_country_code, contact_name, contact_phone, contact_phone_country_code, contact_photo,
     interface_ip, interface_ipv6, interface_mac, interface_nat_ip, interface_network_id,
     location_archived_at, location_name, network_name, vendor_name FROM assets
     LEFT JOIN clients ON client_id = asset_client_id
@@ -57,6 +57,7 @@ if (mysqli_num_rows($sql) == 0) {
 } else {
 
     $row = mysqli_fetch_assoc($sql);
+    $asset_row = $row; // raw, for the quick pickers - $row gets reused below
     $client_id = intval($row['client_id']);
     $client_name = escapeHtml($row['client_name']);
     $asset_id = intval($row['asset_id']);
@@ -95,10 +96,6 @@ if (mysqli_num_rows($sql) == 0) {
     $vendor_name = escapeHtml($row['vendor_name']);
 
     $contact_name = escapeHtml($row['contact_name']);
-    $contact_email = escapeHtml($row['contact_email']);
-    $contact_phone = escapeHtml(formatPhoneNumber($row['contact_phone'], $row['contact_phone_country_code']));
-    $contact_extension = escapeHtml($row['contact_extension']);
-    $contact_mobile = escapeHtml(formatPhoneNumber($row['contact_mobile'], $row['contact_mobile_country_code']));
     $contact_archived = !empty($row['contact_archived_at']);
     $location_name = escapeHtml($row['location_name']);
     $location_archived = !empty($row['location_archived_at']);
@@ -312,7 +309,11 @@ if (mysqli_num_rows($sql) == 0) {
                     <span><?= $asset_name ?></span>
                     <?php if ($asset_favorite) { ?><i class="fas fa-star text-warning fs-6" title="Favorite"></i><?php } ?>
                     <?php if ($asset_archived_at) { ?><span class="badge rounded-pill text-bg-secondary fw-normal fs-6">Archived</span><?php } ?>
-                    <span class="fs-6"><?= $asset_status_pill ?></span>
+                    <?php if ($can_edit) { ?>
+                        <span class="fs-6"><?= quickPick('asset_status', $asset_id, (string) $asset_row['asset_status'], assetQuickHtml('asset_status', $asset_row), 'list', 0, $client_id) ?></span>
+                    <?php } else { ?>
+                        <span class="fs-6"><?= $asset_status_pill ?></span>
+                    <?php } ?>
                 </h1>
                 <div class="text-body-secondary small d-flex flex-wrap column-gap-3 row-gap-1">
                     <span><i class="fas fa-fw fa-<?= $device_icon ?> me-1"></i><?= $asset_type ?></span>
@@ -511,7 +512,9 @@ if (mysqli_num_rows($sql) == 0) {
                     <dl class="itflow-asset-dl mb-0">
                         <dt>Location</dt>
                         <dd>
-                            <?php if ($location_name) { ?>
+                            <?php if ($can_edit) { ?>
+                                <?= quickPick('asset_location', $asset_id, (string) intval($asset_row['asset_location_id']), assetQuickHtml('asset_location', $asset_row, 'detail'), 'detail', 0, $client_id) ?>
+                            <?php } elseif ($location_name) { ?>
                                 <span class="<?= $location_archived ? 'text-danger text-decoration-line-through' : '' ?>" <?= $location_archived ? 'title="Archived location"' : '' ?>><?= $location_name ?></span>
                             <?php } else { ?>
                                 <span class="text-body-secondary">-</span>
@@ -526,20 +529,15 @@ if (mysqli_num_rows($sql) == 0) {
                         <?php } ?>
                         <dt>Assigned</dt>
                         <dd>
-                            <?php if ($contact_name) { ?>
+                            <?php if ($can_edit) { ?>
+                                <?= quickPick('asset_contact', $asset_id, (string) $asset_contact_id, assetQuickHtml('asset_contact', $asset_row, 'detail'), 'detail', 0, $client_id) ?>
+                            <?php } elseif ($contact_name) { ?>
                                 <a class="<?= $contact_archived ? 'text-decoration-line-through text-body-secondary' : '' ?>" href="contact.php?client_id=<?= $client_id ?>&contact_id=<?= $asset_contact_id ?>" <?= $contact_archived ? 'title="Archived contact"' : '' ?>><?= $contact_name ?></a>
-                                <?php if ($contact_email) { ?>
-                                    <div class="small text-truncate itflow-copy-always"><a href="mailto:<?= $contact_email ?>"><?= $contact_email ?></a><button type="button" class="itflow-copy clipboardjs" title="Copy email" data-clipboard-text="<?= $contact_email ?>"><i class="far fa-copy"></i></button></div>
-                                <?php } ?>
-                                <?php if ($contact_phone) { ?>
-                                    <div class="small"><i class="fas fa-fw fa-phone text-secondary me-1"></i><?= $contact_phone ?><?= $contact_extension ? " x$contact_extension" : '' ?></div>
-                                <?php } ?>
-                                <?php if ($contact_mobile) { ?>
-                                    <div class="small"><i class="fas fa-fw fa-mobile-alt text-secondary me-1"></i><?= $contact_mobile ?></div>
-                                <?php } ?>
                             <?php } else { ?>
                                 <span class="text-body-secondary">Nobody</span>
                             <?php } ?>
+                            <!-- How to reach them - redrawn when the contact changes -->
+                            <div class="itflow-copy-always" data-quick-related="asset-contact-<?= $asset_id ?>"><?= assetContactDetails($asset_row) ?></div>
                         </dd>
                     </dl>
                 </div>

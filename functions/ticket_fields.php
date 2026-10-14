@@ -268,18 +268,21 @@ function ticketStatusHtml($status_name, $status_color, $style = 'list') {
 
 /*
  * The button that opens a quick picker (js/quick_pick.js) for one record's
- * field, wrapped round how the value looks now. $id is the ticket, project
- * or recurring ticket, depending on the field.
+ * field, wrapped round how the value looks now. $id is the ticket, project,
+ * recurring ticket or asset, depending on the field. $scope is the client
+ * whose choices it offers, for fields where those are per client (an asset's
+ * location and contact).
  */
-function quickPick($field, $id, $current, $inner, $style = 'list', $status_id = 0) {
+function quickPick($field, $id, $current, $inner, $style = 'list', $status_id = 0, $scope = 0) {
     $labels = [
         'priority' => 'Change priority', 'assignee' => 'Change who it is assigned to', 'billable' => 'Change billing', 'status' => 'Change status',
-        'project_manager' => 'Change the project manager', 'recurring_assignee' => 'Change who it is assigned to'
+        'project_manager' => 'Change the project manager', 'recurring_assignee' => 'Change who it is assigned to',
+        'asset_status' => 'Change status', 'asset_location' => 'Change location', 'asset_contact' => 'Change who it is assigned to'
     ];
     // On the ticket page it looks like the other editable properties there (agent/css/ticket.css)
     $class = 'itflow-quick-pick itflow-quick-pick-' . $style . ($style === 'detail' ? ' ticket-prop-edit' : '');
     return '<button type="button" class="' . $class . '" data-quick-pick="' . $field . '" data-quick-id="' . intval($id) . '"'
-        . ' data-quick-current="' . escapeHtml($current) . '" data-quick-style="' . $style . '"' . ($status_id ? ' data-status-id="' . intval($status_id) . '"' : '') . ' data-csrf="' . escapeHtml($_SESSION['csrf_token'] ?? '') . '"'
+        . ' data-quick-current="' . escapeHtml($current) . '" data-quick-style="' . $style . '"' . ($status_id ? ' data-status-id="' . intval($status_id) . '"' : '') . ($scope ? ' data-quick-scope="' . intval($scope) . '"' : '') . ' data-csrf="' . escapeHtml($_SESSION['csrf_token'] ?? '') . '"'
         . ' title="' . $labels[$field] . '" aria-haspopup="listbox" aria-expanded="false">'
         . '<span class="itflow-quick-pick-value">' . $inner . '</span>'
         . ($style === 'detail' ? '<i class="fas fa-chevron-down ticket-prop-edit-icon" aria-hidden="true"></i>' : '')

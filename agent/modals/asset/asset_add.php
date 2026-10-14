@@ -10,7 +10,7 @@ if ($client_id) {
 }
 
 // The assets list passes the tab it was on - start on that kind of asset
-$type_presets = ['workstation' => 'Desktop', 'server' => 'Server', 'virtual' => 'Virtual Machine', 'network' => 'Switch'];
+$type_presets = ['workstation' => 'Desktop', 'server' => 'Server', 'virtual' => 'Virtual Machine', 'network' => 'Switch', 'printer' => 'Printer'];
 $type_param = strtolower((string) ($_GET['type'] ?? ''));
 
 $asset_form_mode = 'add';

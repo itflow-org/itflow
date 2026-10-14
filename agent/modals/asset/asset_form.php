@@ -6,10 +6,12 @@
  * empty for a new asset) before including this. Posts the field set
  * agent/post/asset_model.php reads.
  *
- * One page of sections instead of six tabs. Every field is always in the
- * form: fields that came and went with the asset type used to drop out of the
- * POST entirely, and the handler then saved them as empty - editing an access
- * point wiped its firmware version.
+ * Tabs like the other add / edit modals: Details, Assignment, Network,
+ * Purchase, then Login on a new asset or History on an existing one, and
+ * Notes. Every field is always in the form, whatever the asset type: fields
+ * that came and went with the type used to drop out of the POST entirely,
+ * and the handler then saved them as empty - editing an access point wiped
+ * its firmware version.
  *
  * Should not be accessed directly.
  */
@@ -76,22 +78,40 @@ $asset_ip_is_dhcp = $asset_ip === 'DHCP';
 
 ?>
 
-<?php if ($asset_form_mode === 'edit') { ?>
-    <ul class="nav nav-pills mb-3">
+<!-- Tabs, like the other add / edit modals - Login on a new asset, History on an existing one -->
+<ul class="nav nav-pills nav-fill flex-nowrap overflow-auto mb-3 itflow-asset-form-tabs" role="tablist">
+    <li class="nav-item">
+        <a class="nav-link active" data-bs-toggle="pill" href="#assetFormDetails"><i class="fas fa-fw fa-desktop me-2 d-none d-lg-inline"></i>Details</a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link" data-bs-toggle="pill" href="#assetFormAssignment"><i class="fas fa-fw fa-map-marker-alt me-2 d-none d-lg-inline"></i>Assignment</a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link" data-bs-toggle="pill" href="#assetFormNetwork"><i class="fas fa-fw fa-network-wired me-2 d-none d-lg-inline"></i>Network</a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link" data-bs-toggle="pill" href="#assetFormPurchase"><i class="fas fa-fw fa-receipt me-2 d-none d-lg-inline"></i>Purchase</a>
+    </li>
+    <?php if ($asset_form_mode !== 'edit') { ?>
         <li class="nav-item">
-            <a class="nav-link active" data-bs-toggle="pill" href="#assetFormDetails">Details</a>
+            <a class="nav-link" data-bs-toggle="pill" href="#assetFormLogin"><i class="fas fa-fw fa-key me-2 d-none d-lg-inline"></i>Login</a>
         </li>
+    <?php } ?>
+    <li class="nav-item">
+        <a class="nav-link" data-bs-toggle="pill" href="#assetFormNotes"><i class="fas fa-fw fa-sticky-note me-2 d-none d-lg-inline"></i>Notes</a>
+    </li>
+    <?php if ($asset_form_mode === 'edit') { ?>
         <li class="nav-item">
-            <a class="nav-link" data-bs-toggle="pill" href="#assetFormHistory">History</a>
+            <a class="nav-link" data-bs-toggle="pill" href="#assetFormHistory"><i class="fas fa-fw fa-history me-2 d-none d-lg-inline"></i>History</a>
         </li>
-    </ul>
-<?php } ?>
+    <?php } ?>
+</ul>
 
 <div class="tab-content">
-<div class="tab-pane fade show active" id="assetFormDetails">
 
-    <div class="itflow-form-section">Basics</div>
-    <div class="row g-3 mb-4">
+<!-- What it is -->
+<div class="tab-pane fade show active" id="assetFormDetails">
+    <div class="row g-3">
         <?php if (!$client_id) { ?>
             <div class="col-12">
                 <label class="form-label">Client <strong class="text-danger">*</strong></label>
@@ -101,7 +121,7 @@ $asset_ip_is_dhcp = $asset_ip === 'DHCP';
                         <option value="<?= intval($client_option['client_id']) ?>"<?= selectOptionClient($client_option['client_id'], $client_option['client_name'], $client_option['client_abbreviation'] ?? '') ?>><?= escapeHtml($client_option['client_name']) ?></option>
                     <?php } ?>
                 </select>
-                <div class="form-text">Pick the asset's location, contact, network and vendor from its page once it's saved.</div>
+                <div class="form-text">Pick the asset's location, contact, network and vendor once it's saved.</div>
             </div>
         <?php } ?>
         <div class="col-md-4">
@@ -153,8 +173,8 @@ $asset_ip_is_dhcp = $asset_ip === 'DHCP';
         </div>
     </div>
 
-    <div class="itflow-form-section">Hardware</div>
-    <div class="row g-3 mb-4">
+    <div class="itflow-form-section mt-4">Hardware</div>
+    <div class="row g-3">
         <div class="col-md-3">
             <label class="form-label">Make</label>
             <input type="text" class="form-control" name="make" placeholder="Dell" maxlength="200" value="<?= $asset_make ?>">
@@ -176,8 +196,55 @@ $asset_ip_is_dhcp = $asset_ip === 'DHCP';
         </div>
     </div>
 
-    <div class="itflow-form-section">Network <span class="fw-normal text-body-secondary text-lowercase">&middot; the primary interface</span></div>
-    <div class="row g-3 mb-4">
+    <?php if ($asset_form_mode === 'edit') { ?>
+        <p class="text-body-secondary small text-end mt-3 mb-0">Asset ID <span class="font-monospace"><?= $asset_id ?></span></p>
+    <?php } ?>
+</div>
+
+<!-- Where it is and who has it -->
+<div class="tab-pane fade" id="assetFormAssignment">
+    <?php if ($client_id) { ?>
+        <div class="row g-3">
+            <div class="col-md-6">
+                <label class="form-label">Location</label>
+                <select class="form-select select2" name="location">
+                    <option value="">- Select Location -</option>
+                    <?php foreach ($location_options as $location_option) {
+                        $location_option_id = intval($location_option['location_id']); ?>
+                        <option value="<?= $location_option_id ?>" <?php if ($asset_location_id === $location_option_id) { echo "selected"; } ?>><?= escapeHtml($location_option['location_name']) ?><?= $location_option['location_archived_at'] ? ' (archived)' : '' ?></option>
+                    <?php } ?>
+                </select>
+            </div>
+            <div class="col-md-6">
+                <label class="form-label">Where in the building</label>
+                <input type="text" class="form-control" name="physical_location" placeholder="Floor 2, comms closet B" maxlength="200" value="<?= $asset_physical_location ?>">
+            </div>
+            <div class="col-12">
+                <label class="form-label">Assigned to</label>
+                <select class="form-select select2" name="contact">
+                    <option value="">- Nobody -</option>
+                    <?php foreach ($contact_options as $contact_option) {
+                        $contact_option_id = intval($contact_option['contact_id']); ?>
+                        <option value="<?= $contact_option_id ?>" <?php if ($asset_contact_id === $contact_option_id) { echo "selected"; } ?><?= selectOptionContact($contact_option['contact_client_id'] ?? 0, $contact_option['contact_name'], $contact_option['contact_photo'] ?? '', $contact_option['contact_title'] ?? '') ?>><?= escapeHtml($contact_option['contact_name']) ?><?= $contact_option['contact_archived_at'] ? ' (archived)' : '' ?></option>
+                    <?php } ?>
+                </select>
+            </div>
+        </div>
+    <?php } else { ?>
+        <div class="row g-3">
+            <div class="col-12">
+                <label class="form-label">Where in the building</label>
+                <input type="text" class="form-control" name="physical_location" placeholder="Floor 2, comms closet B" maxlength="200" value="<?= $asset_physical_location ?>">
+                <div class="form-text">The location and who it's assigned to come from the client - pick them once it's saved.</div>
+            </div>
+        </div>
+    <?php } ?>
+</div>
+
+<!-- How to reach it -->
+<div class="tab-pane fade" id="assetFormNetwork">
+    <p class="text-body-secondary small">The primary interface. Add more ports from the asset's Interfaces tab.</p>
+    <div class="row g-3">
         <?php if ($client_id) { ?>
             <div class="col-md-6">
                 <label class="form-label">Network</label>
@@ -214,6 +281,10 @@ $asset_ip_is_dhcp = $asset_ip === 'DHCP';
             <label class="form-label">IPv6 address</label>
             <input type="text" class="form-control font-monospace" name="ipv6" placeholder="2001:db8::1" maxlength="200" value="<?= $asset_ipv6 ?>">
         </div>
+    </div>
+
+    <div class="itflow-form-section mt-4">Links</div>
+    <div class="row g-3">
         <div class="col-md-6">
             <label class="form-label">Link</label>
             <input type="text" class="form-control" name="uri" placeholder="https://, ssh://, rdp://" maxlength="500" value="<?= $asset_uri ?>">
@@ -228,47 +299,11 @@ $asset_ip_is_dhcp = $asset_ip === 'DHCP';
             <div class="form-text">Shown to the client in their portal.</div>
         </div>
     </div>
+</div>
 
-    <?php if ($client_id) { ?>
-        <div class="itflow-form-section">Where &amp; who</div>
-        <div class="row g-3 mb-4">
-            <div class="col-md-6">
-                <label class="form-label">Location</label>
-                <select class="form-select select2" name="location">
-                    <option value="">- Select Location -</option>
-                    <?php foreach ($location_options as $location_option) {
-                        $location_option_id = intval($location_option['location_id']); ?>
-                        <option value="<?= $location_option_id ?>" <?php if ($asset_location_id === $location_option_id) { echo "selected"; } ?>><?= escapeHtml($location_option['location_name']) ?><?= $location_option['location_archived_at'] ? ' (archived)' : '' ?></option>
-                    <?php } ?>
-                </select>
-            </div>
-            <div class="col-md-6">
-                <label class="form-label">Where in the building</label>
-                <input type="text" class="form-control" name="physical_location" placeholder="Floor 2, comms closet B" maxlength="200" value="<?= $asset_physical_location ?>">
-            </div>
-            <div class="col-12">
-                <label class="form-label">Assigned to</label>
-                <select class="form-select select2" name="contact">
-                    <option value="">- Nobody -</option>
-                    <?php foreach ($contact_options as $contact_option) {
-                        $contact_option_id = intval($contact_option['contact_id']); ?>
-                        <option value="<?= $contact_option_id ?>" <?php if ($asset_contact_id === $contact_option_id) { echo "selected"; } ?><?= selectOptionContact($contact_option['contact_client_id'] ?? 0, $contact_option['contact_name'], $contact_option['contact_photo'] ?? '', $contact_option['contact_title'] ?? '') ?>><?= escapeHtml($contact_option['contact_name']) ?><?= $contact_option['contact_archived_at'] ? ' (archived)' : '' ?></option>
-                    <?php } ?>
-                </select>
-            </div>
-        </div>
-    <?php } else { ?>
-        <div class="itflow-form-section">Where</div>
-        <div class="row g-3 mb-4">
-            <div class="col-12">
-                <label class="form-label">Where in the building</label>
-                <input type="text" class="form-control" name="physical_location" placeholder="Floor 2, comms closet B" maxlength="200" value="<?= $asset_physical_location ?>">
-            </div>
-        </div>
-    <?php } ?>
-
-    <div class="itflow-form-section">Purchase &amp; warranty</div>
-    <div class="row g-3 mb-4">
+<!-- Where it came from -->
+<div class="tab-pane fade" id="assetFormPurchase">
+    <div class="row g-3">
         <?php if ($client_id) { ?>
             <div class="col-md-6">
                 <label class="form-label">Vendor</label>
@@ -298,10 +333,13 @@ $asset_ip_is_dhcp = $asset_ip === 'DHCP';
             <input type="date" class="form-control" name="warranty_expire" max="2999-12-31" value="<?= $asset_warranty_expire ?>">
         </div>
     </div>
+</div>
 
-    <?php if ($asset_form_mode !== 'edit') { ?>
-        <div class="itflow-form-section">Login <span class="fw-normal text-body-secondary text-lowercase">&middot; saved as a credential on the asset</span></div>
-        <div class="row g-3 mb-4">
+<?php if ($asset_form_mode !== 'edit') { ?>
+    <!-- A login to keep with it -->
+    <div class="tab-pane fade" id="assetFormLogin">
+        <p class="text-body-secondary small">Saved as a credential on the asset. Leave it empty to skip.</p>
+        <div class="row g-3">
             <div class="col-md-6">
                 <label class="form-label">Username</label>
                 <input type="text" class="form-control" name="username" placeholder="admin" maxlength="350" autocomplete="off">
@@ -311,11 +349,17 @@ $asset_ip_is_dhcp = $asset_ip === 'DHCP';
                 <input type="text" class="form-control" name="password" placeholder="Leave empty to skip" maxlength="350" autocomplete="off">
             </div>
         </div>
-    <?php } ?>
+    </div>
+<?php } ?>
 
-    <div class="itflow-form-section">Photo &amp; notes</div>
+<!-- Notes and a photo -->
+<div class="tab-pane fade" id="assetFormNotes">
     <div class="row g-3">
-        <div class="col-md-5">
+        <div class="col-12">
+            <label class="form-label">Notes</label>
+            <textarea class="form-control" rows="7" placeholder="Configuration details, quirks, anything worth knowing" name="notes"><?= $asset_notes ?></textarea>
+        </div>
+        <div class="col-md-6">
             <label class="form-label">Photo</label>
             <?php if ($asset_photo) { ?>
                 <div class="mb-2"><img class="img-thumbnail" style="max-height: 7rem" alt="Current photo" src="<?= "../uploads/clients/$client_id/$asset_photo" ?>"></div>
@@ -328,16 +372,7 @@ $asset_ip_is_dhcp = $asset_ip === 'DHCP';
                 </div>
             <?php } ?>
         </div>
-        <div class="col-md-7">
-            <label class="form-label">Notes</label>
-            <textarea class="form-control" rows="4" placeholder="Configuration details, quirks, anything worth knowing" name="notes"><?= $asset_notes ?></textarea>
-        </div>
     </div>
-
-    <?php if ($asset_form_mode === 'edit') { ?>
-        <p class="text-body-secondary small text-end mt-3 mb-0">Asset ID <span class="font-monospace"><?= $asset_id ?></span></p>
-    <?php } ?>
-
 </div>
 
 <?php if ($asset_form_mode === 'edit') { ?>
@@ -376,6 +411,23 @@ $asset_ip_is_dhcp = $asset_ip === 'DHCP';
                 osInput.value = item.label;
             }
         });
+
+        // A required field on a tab that isn't showing: show that tab and point
+        // at the field - otherwise the browser just quietly refuses to send
+        var reported = false;
+        form.addEventListener('invalid', function (e) {
+            var pane = e.target.closest('.tab-pane');
+            var tab = pane && form.querySelector('[data-bs-toggle="pill"][href="#' + pane.id + '"]');
+            if (!tab || pane.classList.contains('active') || reported) {
+                return;
+            }
+            reported = true;
+            tab.addEventListener('shown.bs.tab', function () {
+                reported = false;
+                e.target.reportValidity();
+            }, { once: true });
+            bootstrap.Tab.getOrCreateInstance(tab).show();
+        }, true);
 
         // DHCP means no fixed address to type
         var dhcp = form.querySelector('#assetFormDhcp');

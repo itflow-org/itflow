@@ -239,3 +239,246 @@ function assetClientOwnedId($kind, $id, $client_id) {
     $sql = mysqli_query($mysqli, "SELECT 1 FROM $table WHERE $id_column = $id AND $client_column = $client_id LIMIT 1");
     return mysqli_num_rows($sql) ? $id : 0;
 }
+
+/*
+ * Quick pickers (js/quick_pick.js) for an asset's status, location and who it
+ * is assigned to - changed where they show on the assets list and the asset
+ * page instead of through Edit. Wrapped in quickPick() (functions/ticket_fields.php)
+ * with the asset's client as the scope, since locations and contacts are per client.
+ */
+
+/** The asset fields a quick picker can change. */
+const ASSET_QUICK_FIELDS = ['asset_status', 'asset_location', 'asset_contact'];
+
+/** The asset and what its pickers show, by id - the row assetQuickHtml() and assetContactDetails() draw from. */
+function assetQuickRow($asset_id) {
+    global $mysqli;
+    return mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT asset_id, asset_name, asset_status, asset_client_id,
+            asset_location_id, location_name, location_archived_at,
+            asset_contact_id, contact_name, contact_photo, contact_archived_at, contact_email,
+            contact_phone, contact_phone_country_code, contact_extension, contact_mobile, contact_mobile_country_code
+        FROM assets
+        LEFT JOIN locations ON location_id = asset_location_id
+        LEFT JOIN contacts ON contact_id = asset_contact_id
+        WHERE asset_id = " . intval($asset_id))) ?: null;
+}
+
+/** A contact's picture, or their initials in a circle. 20px, for pills and the picker button. */
+function assetContactAvatar($client_id, $contact_name, $contact_photo) {
+    $contact_photo = (string) $contact_photo;
+    if ($contact_photo !== '') {
+        return '<img src="/uploads/clients/' . intval($client_id) . '/' . escapeHtml(rawurlencode($contact_photo)) . '" alt="" width="20" height="20" class="rounded-circle object-fit-cover flex-shrink-0">';
+    }
+    return '<span class="itflow-asset-avatar" aria-hidden="true">' . escapeHtml(personInitials($contact_name)) . '</span>';
+}
+
+/**
+ * What a picker shows for the value it holds now. $style is 'list' (a pill,
+ * on the assets list and in the asset page header) or 'detail' (a line in the
+ * asset page's Where & who card). $row is raw, as assetQuickRow() returns it.
+ */
+function assetQuickHtml($field, $row, $style = 'list') {
+    $client_id = intval($row['asset_client_id'] ?? 0);
+    $pill = 'badge rounded-pill fw-normal d-inline-flex align-items-center gap-1 itflow-asset-pill';
+    $empty = "$pill itflow-asset-pill-empty";
+
+    if ($field === 'asset_status') {
+        return assetStatusPill($row['asset_status'] ?? '') ?: "<span class=\"$empty\">No status</span>";
+    }
+
+    if ($field === 'asset_location') {
+        if (!intval($row['asset_location_id'] ?? 0) || (string) ($row['location_name'] ?? '') === '') {
+            return $style === 'detail'
+                ? '<span class="text-body-secondary">No location</span>'
+                : "<span class=\"$empty\"><i class=\"fas fa-map-marker-alt\"></i>No location</span>";
+        }
+        $archived = !empty($row['location_archived_at']);
+        $name = '<span class="text-truncate' . ($archived ? ' text-decoration-line-through' : '') . '"' . ($archived ? ' title="Archived location"' : '') . '>' . escapeHtml($row['location_name']) . '</span>';
+        return $style === 'detail'
+            ? '<span class="d-inline-flex align-items-center gap-2 min-w-0' . ($archived ? ' text-danger' : '') . "\">$name</span>"
+            : "<span class=\"$pill " . ($archived ? 'text-danger-emphasis bg-danger-subtle' : 'text-body-emphasis bg-body-secondary') . "\"><i class=\"fas fa-map-marker-alt text-body-secondary\"></i>$name</span>";
+    }
+
+    if ($field === 'asset_contact') {
+        if (!intval($row['asset_contact_id'] ?? 0) || (string) ($row['contact_name'] ?? '') === '') {
+            return $style === 'detail'
+                ? '<span class="text-body-secondary">Nobody</span>'
+                : "<span class=\"$empty\"><i class=\"fas fa-user-slash\"></i>Nobody</span>";
+        }
+        $archived = !empty($row['contact_archived_at']);
+        $avatar = assetContactAvatar($client_id, $row['contact_name'], $row['contact_photo'] ?? '');
+        $name = '<span class="text-truncate' . ($archived ? ' text-decoration-line-through' : '') . '"' . ($archived ? ' title="Archived contact"' : '') . '>' . escapeHtml($row['contact_name']) . '</span>';
+        return $style === 'detail'
+            ? "<span class=\"d-inline-flex align-items-center gap-2 min-w-0\">$avatar$name</span>"
+            : "<span class=\"$pill itflow-asset-pill-person " . ($archived ? 'text-body-secondary' : 'text-body-emphasis') . " bg-body-secondary\">$avatar$name</span>";
+    }
+
+    return '';
+}
+
+/** Under the asset page's Assigned picker: how to reach that person, and a link to them. Redrawn when the contact changes. */
+function assetContactDetails($row) {
+    $contact_id = intval($row['asset_contact_id'] ?? 0);
+    if (!$contact_id || (string) ($row['contact_name'] ?? '') === '') {
+        return '';
+    }
+    $client_id = intval($row['asset_client_id']);
+    $email = escapeHtml($row['contact_email'] ?? '');
+    $phone = escapeHtml(formatPhoneNumber($row['contact_phone'] ?? '', $row['contact_phone_country_code'] ?? ''));
+    $extension = escapeHtml($row['contact_extension'] ?? '');
+    $mobile = escapeHtml(formatPhoneNumber($row['contact_mobile'] ?? '', $row['contact_mobile_country_code'] ?? ''));
+
+    $html = '';
+    if ($email) {
+        $html .= "<div class=\"small text-truncate\"><a href=\"mailto:$email\">$email</a><button type=\"button\" class=\"itflow-copy clipboardjs\" title=\"Copy email\" data-clipboard-text=\"$email\"><i class=\"far fa-copy\"></i></button></div>";
+    }
+    if ($phone) {
+        $html .= "<div class=\"small\"><i class=\"fas fa-fw fa-phone text-secondary me-1\"></i>$phone" . ($extension ? " x$extension" : '') . '</div>';
+    }
+    if ($mobile) {
+        $html .= "<div class=\"small\"><i class=\"fas fa-fw fa-mobile-alt text-secondary me-1\"></i>$mobile</div>";
+    }
+    $html .= "<div class=\"small\"><a href=\"contact.php?client_id=$client_id&contact_id=$contact_id\">Open contact<i class=\"fas fa-arrow-right ms-1\"></i></a></div>";
+
+    return $html;
+}
+
+/**
+ * The choices a picker offers, in js/quick_pick.js's option shape. Locations
+ * and contacts are the client's own (null if the agent can't reach that client).
+ */
+function assetQuickOptions($field, $client_id) {
+    global $mysqli;
+    $client_id = intval($client_id);
+
+    if ($field === 'asset_status') {
+        $options = [['value' => '', 'label' => 'No status', 'icon' => 'fas fa-minus', 'none' => true]];
+        $sql = mysqli_query($mysqli, "SELECT category_name, category_color FROM categories
+            WHERE category_type = 'asset_status' AND category_archived_at IS NULL
+            ORDER BY category_order ASC, category_name ASC");
+        while ($row = mysqli_fetch_assoc($sql)) {
+            $badge = assetStatusBadge($row['category_name'], $row['category_color']);
+            $color = $badge['style'] ? trim(substr($badge['style'], strlen('background-color:'))) : "var(--bs-{$badge['class']})";
+            $options[] = ['value' => $row['category_name'], 'label' => $row['category_name'], 'color' => $color];
+        }
+        return $options;
+    }
+
+    if (!$client_id || !hasClientAccess($client_id)) {
+        return null;
+    }
+
+    if ($field === 'asset_location') {
+        $options = [['value' => '0', 'label' => 'No location', 'icon' => 'fas fa-ban', 'none' => true]];
+        $sql = mysqli_query($mysqli, "SELECT location_id, location_name, location_primary, location_city, location_state FROM locations
+            WHERE location_client_id = $client_id AND location_archived_at IS NULL
+            ORDER BY location_primary DESC, location_name ASC");
+        while ($row = mysqli_fetch_assoc($sql)) {
+            $place = implode(', ', array_filter([trim((string) $row['location_city']), trim((string) $row['location_state'])]));
+            $description = implode(' · ', array_filter([intval($row['location_primary']) ? 'Primary' : '', $place]));
+            $options[] = ['value' => (string) intval($row['location_id']), 'label' => $row['location_name'], 'icon' => 'fas fa-map-marker-alt', 'description' => $description];
+        }
+        return $options;
+    }
+
+    if ($field === 'asset_contact') {
+        $options = [['value' => '0', 'label' => 'Nobody', 'icon' => 'fas fa-user-slash', 'none' => true]];
+        $sql = mysqli_query($mysqli, "SELECT contact_id, contact_name, contact_title, contact_photo FROM contacts
+            WHERE contact_client_id = $client_id AND contact_archived_at IS NULL
+            ORDER BY contact_name ASC");
+        while ($row = mysqli_fetch_assoc($sql)) {
+            $option = ['value' => (string) intval($row['contact_id']), 'label' => $row['contact_name'], 'description' => (string) $row['contact_title']];
+            if ($row['contact_photo']) {
+                $option['image'] = "/uploads/clients/$client_id/" . rawurlencode($row['contact_photo']);
+            } else {
+                $option['initials'] = personInitials($row['contact_name']);
+            }
+            $options[] = $option;
+        }
+        return $options;
+    }
+
+    return null;
+}
+
+/**
+ * Change one field on one asset, as Edit Asset would - audit log and asset
+ * history included. The caller checks the agent may edit assets of its
+ * client. Returns [ok, plain-text message].
+ */
+function assetQuickSet($asset_id, $field, $value) {
+    global $mysqli, $session_name;
+
+    $asset_id = intval($asset_id);
+    $row = assetQuickRow($asset_id);
+    if (!$row) {
+        return [false, 'That asset no longer exists.'];
+    }
+    $client_id = intval($row['asset_client_id']);
+    $asset_name = escapeSql($row['asset_name']);
+    $value = trim((string) $value);
+
+    if ($field === 'asset_status') {
+        if ($value !== '' && !isset(assetStatusColors()[$value])) {
+            return [false, 'Pick one of the asset statuses.'];
+        }
+        if ($value === (string) $row['asset_status']) {
+            return [true, ''];
+        }
+        $status = escapeSql($value);
+        mysqli_query($mysqli, "UPDATE assets SET asset_status = '$status' WHERE asset_id = $asset_id");
+        $what = $value === '' ? "cleared the status on $asset_name" : "set status to $status on $asset_name";
+        $message = $value === '' ? 'Status cleared' : "Status set to $value";
+
+    } elseif ($field === 'asset_location') {
+        $location_id = assetClientOwnedId('location', $value, $client_id);
+        if (intval($value) && !$location_id) {
+            return [false, 'That location is not one of this client\'s.'];
+        }
+        if ($location_id === intval($row['asset_location_id'])) {
+            return [true, ''];
+        }
+        $location_name = $location_id ? (string) mysqli_fetch_row(mysqli_query($mysqli, "SELECT location_name FROM locations WHERE location_id = $location_id"))[0] : '';
+        $status = escapeSql($row['asset_status']);
+        mysqli_query($mysqli, "UPDATE assets SET asset_location_id = $location_id WHERE asset_id = $asset_id");
+        $what = $location_id ? "assigned asset $asset_name to location " . escapeSql($location_name) : "removed asset $asset_name from its location";
+        $message = $location_id ? "Moved to $location_name" : 'Location removed';
+
+    } elseif ($field === 'asset_contact') {
+        $contact_id = assetClientOwnedId('contact', $value, $client_id);
+        if (intval($value) && !$contact_id) {
+            return [false, 'That contact is not one of this client\'s.'];
+        }
+        if ($contact_id === intval($row['asset_contact_id'])) {
+            return [true, ''];
+        }
+        $contact_name = $contact_id ? (string) mysqli_fetch_row(mysqli_query($mysqli, "SELECT contact_name FROM contacts WHERE contact_id = $contact_id"))[0] : '';
+        $status = escapeSql($row['asset_status']);
+        mysqli_query($mysqli, "UPDATE assets SET asset_contact_id = $contact_id WHERE asset_id = $asset_id");
+        $what = $contact_id ? "assigned asset $asset_name to contact " . escapeSql($contact_name) : "unassigned asset $asset_name";
+        $message = $contact_id ? "Assigned to $contact_name" : 'Unassigned';
+
+    } else {
+        return [false, 'Unknown field.'];
+    }
+
+    logAudit("Asset", "Edit", "$session_name $what", $client_id, $asset_id);
+    mysqli_query($mysqli, "INSERT INTO asset_history SET asset_history_status = '$status', asset_history_description = '$session_name $what', asset_history_asset_id = $asset_id");
+
+    return [true, $message];
+}
+
+/** What quick_pick.js redraws after a change: the value in both looks, plus the contact details on the asset page. */
+function assetQuickRecord($asset_id, $field) {
+    $row = assetQuickRow($asset_id);
+    $current = [
+        'asset_status' => (string) $row['asset_status'],
+        'asset_location' => (string) intval($row['asset_location_id']),
+        'asset_contact' => (string) intval($row['asset_contact_id']),
+    ][$field];
+    $record = ['current' => $current, 'html' => ['list' => assetQuickHtml($field, $row, 'list'), 'detail' => assetQuickHtml($field, $row, 'detail')]];
+    if ($field === 'asset_contact') {
+        $record['related'] = ['asset-contact-' . intval($asset_id) => assetContactDetails($row)];
+    }
+    return $record;
+}

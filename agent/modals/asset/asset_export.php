@@ -69,6 +69,7 @@ ob_start();
                     <option <?php if ($type_filter === 'server') { echo "selected"; } ?> value="server">Servers</option>
                     <option <?php if ($type_filter === 'virtual') { echo "selected"; } ?> value="virtual">Virtual Machines</option>
                     <option <?php if ($type_filter === 'network') { echo "selected"; } ?> value="network">Network Devices</option>
+                    <option <?php if ($type_filter === 'printer') { echo "selected"; } ?> value="printer">Printers</option>
                     <option <?php if ($type_filter === 'other') { echo "selected"; } ?> value="other">Other</option>
                 </select>
             </div>

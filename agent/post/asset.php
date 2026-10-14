@@ -392,14 +392,15 @@ if (isset($_POST['bulk_assign_asset_location'])) {
     $row = mysqli_fetch_assoc($sql);
     $location_name = escapeSql($row['location_name']);
     $client_id = intval($row['location_client_id']);
+    $location_client_id = $client_id;
 
     enforceClientAccess();
 
     // Assign Location to Selected Assets
     if (isset($_POST['asset_ids'])) {
 
-        // Get Selected Asset Count
-        $asset_count = count($_POST['asset_ids']);
+        // Only the assets of the location's client are moved
+        $asset_count = 0;
 
         foreach($_POST['asset_ids'] as $asset_id) {
             $asset_id = intval($asset_id);
@@ -407,10 +408,16 @@ if (isset($_POST['bulk_assign_asset_location'])) {
             // Get Asset Details for Logging
             $sql = mysqli_query($mysqli,"SELECT asset_name, asset_client_id FROM assets WHERE asset_id = $asset_id");
             $row = mysqli_fetch_assoc($sql);
-            $asset_name = escapeSql($row['asset_name']);
-            $client_id = intval($row['asset_client_id']);
+            $asset_name = escapeSql($row['asset_name'] ?? '');
+            $client_id = intval($row['asset_client_id'] ?? 0);
+
+            if (!$row || $client_id !== $location_client_id) {
+                continue;
+            }
 
             enforceClientAccess();
+
+            $asset_count++;
 
             mysqli_query($mysqli,"UPDATE assets SET asset_location_id = $location_id WHERE asset_id = $asset_id");
 
@@ -418,7 +425,7 @@ if (isset($_POST['bulk_assign_asset_location'])) {
 
         } // End Assign Location Loop
 
-        logAudit("Asset", "Bulk Edit", "$session_name assigned $asset_count assets to location $location_name", $client_id);
+        logAudit("Asset", "Bulk Edit", "$session_name assigned $asset_count assets to location $location_name", $location_client_id);
 
         flashAlert("You assigned <strong>$asset_count</strong> assets to location <strong>$location_name</strong>");
     }
@@ -578,16 +585,22 @@ if (isset($_POST['bulk_assign_asset_contact'])) {
     // Assign Contact to Selected Assets
     if (isset($_POST['asset_ids'])) {
 
-        // Get Selected Contacts Count
-        $asset_count = count($_POST['asset_ids']);
+        // Only the assets of the contact's client are assigned
+        $asset_count = 0;
 
         foreach($_POST['asset_ids'] as $asset_id) {
             $asset_id = intval($asset_id);
 
             // Get Asset Details for Logging
-            $sql = mysqli_query($mysqli,"SELECT asset_name FROM assets WHERE asset_id = $asset_id");
+            $sql = mysqli_query($mysqli,"SELECT asset_name, asset_client_id FROM assets WHERE asset_id = $asset_id");
             $row = mysqli_fetch_assoc($sql);
-            $asset_name = escapeSql($row['asset_name']);
+            $asset_name = escapeSql($row['asset_name'] ?? '');
+
+            if (!$row || intval($row['asset_client_id']) !== $client_id) {
+                continue;
+            }
+
+            $asset_count++;
 
             mysqli_query($mysqli,"UPDATE assets SET asset_contact_id = $contact_id WHERE asset_id = $asset_id");
 
@@ -1344,8 +1357,10 @@ if (isExportRequest('export_assets')) {
         $type_query = "asset_type = 'Virtual Machine'";
     } elseif ($type == 'network') {
         $type_query = "asset_type = 'Firewall/Router' OR asset_type = 'Switch' OR asset_type = 'Access Point'";
+    } elseif ($type == 'printer') {
+        $type_query = "asset_type = 'Printer'";
     } elseif ($type == 'other') {
-        $type_query = "asset_type NOT LIKE 'laptop' AND asset_type NOT LIKE 'desktop' AND asset_type NOT LIKE 'server' AND asset_type NOT LIKE 'virtual machine' AND asset_type NOT LIKE 'firewall/router' AND asset_type NOT LIKE 'switch' AND asset_type NOT LIKE 'access point'";
+        $type_query = "asset_type NOT LIKE 'laptop' AND asset_type NOT LIKE 'desktop' AND asset_type NOT LIKE 'server' AND asset_type NOT LIKE 'virtual machine' AND asset_type NOT LIKE 'firewall/router' AND asset_type NOT LIKE 'switch' AND asset_type NOT LIKE 'access point' AND asset_type NOT LIKE 'printer'";
     } else {
         // Default - any
         $type = '';

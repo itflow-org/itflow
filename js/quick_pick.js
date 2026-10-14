@@ -1,7 +1,8 @@
 /*
  * Quick pickers - a ticket's status, priority, assignee and billable, a
- * project's manager and a recurring ticket's assignee, changed where you see
- * them (ticket list and page, projects and project page, recurring tickets)
+ * project's manager, a recurring ticket's assignee and an asset's status,
+ * location and contact, changed where you see them (ticket list and page,
+ * projects and project page, recurring tickets, assets list and asset page)
  * instead of in a modal.
  *
  * Click the value and a small menu opens under it (a sheet from the bottom
@@ -12,6 +13,12 @@
  * sends back the redrawn value. Assigning a New ticket opens it, so the
  * ticket's status redraws too, wherever it is marked with
  * data-ticket-status-for="<ticket id>".
+ *
+ * Where the choices depend on the client (an asset's location and contact)
+ * the button carries data-quick-scope="<client id>", and the choices are
+ * fetched and kept per client. Anything else on the page that shows the
+ * value comes back as "related" HTML for [data-quick-related="<key>"] - the
+ * asset page's contact details under its Assigned picker.
  *
  * Markup comes from quickPick() in functions/ticket_fields.php. Styled
  * with the select picker's panel classes, like the tag picker.
@@ -25,8 +32,12 @@
 
     var sheetMedia = window.matchMedia('(max-width: 575.98px)');
     var finePointer = window.matchMedia('(pointer: fine)');
-    var titles = { priority: 'Priority', assignee: 'Assign to', billable: 'Billing', status: 'Status', project_manager: 'Project manager', recurring_assignee: 'Assign to' };
-    var agentFields = ['assignee', 'project_manager', 'recurring_assignee'];
+    var titles = {
+        priority: 'Priority', assignee: 'Assign to', billable: 'Billing', status: 'Status', project_manager: 'Project manager', recurring_assignee: 'Assign to',
+        asset_status: 'Status', asset_location: 'Location', asset_contact: 'Assign to'
+    };
+    // People and places get a wider menu
+    var wideFields = ['assignee', 'project_manager', 'recurring_assignee', 'asset_location', 'asset_contact'];
     var cache = {};
     var open = null;
 
@@ -66,19 +77,29 @@
         return node;
     }
 
-    function options(field, done, failed) {
-        if (cache[field]) {
-            done(cache[field]);
+    function options(field, scope, done, failed) {
+        var key = field + '|' + scope;
+        if (cache[key]) {
+            done(cache[key]);
             return;
         }
-        itflowGet('ajax.php', { quick_pick_options: 1, field: field }, function (text) {
+        var query = { quick_pick_options: 1, field: field };
+        if (scope) {
+            query.scope = scope;
+        }
+        itflowGet('ajax.php', query, function (text) {
+            var list;
             try {
-                cache[field] = JSON.parse(text).options;
+                list = JSON.parse(text).options;
             } catch (e) {
+                list = null;
+            }
+            if (!Array.isArray(list)) {
                 failed();
                 return;
             }
-            done(cache[field]);
+            cache[key] = list;
+            done(list);
         }, failed);
     }
 
@@ -87,6 +108,7 @@
         this.field = button.dataset.quickPick;
         this.ids = [button.dataset.quickId];
         this.current = button.dataset.quickCurrent;
+        this.scope = button.dataset.quickScope || '';
         this.csrf = button.dataset.csrf || '';
         this.query = '';
         this.rows = [];
@@ -170,7 +192,7 @@
         this.button.setAttribute('aria-expanded', 'true');
         this.place();
 
-        options(this.field, function (list) {
+        options(this.field, this.scope, function (list) {
             if (open !== self) {
                 return;
             }
@@ -217,7 +239,7 @@
         var rect = this.button.getBoundingClientRect();
         var viewWidth = document.documentElement.clientWidth;
         var viewHeight = window.innerHeight;
-        var width = Math.min(agentFields.indexOf(this.field) !== -1 ? 264 : 224, viewWidth - 16);
+        var width = Math.min(wideFields.indexOf(this.field) !== -1 ? 264 : 224, viewWidth - 16);
         var panel = this.panel;
         panel.style.width = width + 'px';
         panel.style.left = Math.min(Math.max(8, rect.left), viewWidth - width - 8) + 'px';
@@ -380,6 +402,11 @@
                     setTimeout(function () {
                         spot.classList.remove('is-saved');
                     }, 900);
+                });
+                Object.keys(record.related || {}).forEach(function (key) {
+                    document.querySelectorAll('[data-quick-related="' + key + '"]').forEach(function (spot) {
+                        spot.innerHTML = record.related[key];
+                    });
                 });
                 if (record.status_id === undefined) {
                     return; // not a ticket

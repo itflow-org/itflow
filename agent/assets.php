@@ -51,7 +51,8 @@ $asset_type_tabs = [
     'server' => ['label' => 'Servers', 'icon' => 'fa-server', 'query' => "asset_type = 'Server'"],
     'virtual' => ['label' => 'Virtual', 'icon' => 'fa-cloud', 'query' => "asset_type = 'Virtual Machine'"],
     'network' => ['label' => 'Network', 'icon' => 'fa-network-wired', 'query' => "asset_type IN ('Firewall/Router', 'Switch', 'Access Point')"],
-    'other' => ['label' => 'Other', 'icon' => 'fa-tag', 'query' => "asset_type NOT IN ('Desktop', 'Laptop', 'Server', 'Virtual Machine', 'Firewall/Router', 'Switch', 'Access Point')"],
+    'printer' => ['label' => 'Printers', 'icon' => 'fa-print', 'query' => "asset_type = 'Printer'"],
+    'other' => ['label' => 'Other', 'icon' => 'fa-tag', 'query' => "asset_type NOT IN ('Desktop', 'Laptop', 'Server', 'Virtual Machine', 'Firewall/Router', 'Switch', 'Access Point', 'Printer')"],
 ];
 $type_filter = (isset($_GET['type']) && isset($asset_type_tabs[$_GET['type']])) ? $_GET['type'] : '';
 $_GET['type'] = $type_filter;
@@ -113,8 +114,8 @@ $show_purchase = in_array('Purchase_Date', $extra_columns, true);
 $show_install = in_array('Install_Date', $extra_columns, true);
 $show_warranty = in_array('Warranty_Expire', $extra_columns, true);
 
-// Assigned To only means something for workstations and the like
-$show_contact = !in_array($type_filter, ['network', 'server', 'other'], true);
+// Assigned To only means something for workstations and the like - printers are shared
+$show_contact = !in_array($type_filter, ['network', 'server', 'printer', 'other'], true);
 $show_model = $type_filter !== 'virtual';
 
 // Only these sort - filter_header.php will hand through any lowercase word, and
@@ -138,7 +139,8 @@ $row = mysqli_fetch_assoc(mysqli_query($mysqli, "
         SUM(asset_type = 'Server') AS server_count,
         SUM(asset_type = 'Virtual Machine') AS virtual_count,
         SUM(asset_type IN ('Firewall/Router', 'Switch', 'Access Point')) AS network_count,
-        SUM(asset_type NOT IN ('Laptop', 'Desktop', 'Server', 'Virtual Machine', 'Firewall/Router', 'Switch', 'Access Point')) AS other_count
+        SUM(asset_type = 'Printer') AS printer_count,
+        SUM(asset_type NOT IN ('Laptop', 'Desktop', 'Server', 'Virtual Machine', 'Firewall/Router', 'Switch', 'Access Point', 'Printer')) AS other_count
     FROM assets
     LEFT JOIN clients ON client_id = asset_client_id
     WHERE $archive_query
@@ -152,16 +154,17 @@ $tab_counts = [
     'server' => intval($row['server_count']),
     'virtual' => intval($row['virtual_count']),
     'network' => intval($row['network_count']),
+    'printer' => intval($row['printer_count']),
     'other' => intval($row['other_count']),
 ];
 
 $sql = mysqli_query(
     $mysqli,
-    "SELECT SQL_CALC_FOUND_ROWS asset_archived_at, asset_contact_id, asset_description, asset_favorite,
-        asset_id, asset_install_date, asset_make, asset_model, asset_name, asset_os, asset_physical_location,
+    "SELECT SQL_CALC_FOUND_ROWS asset_archived_at, asset_client_id, asset_contact_id, asset_description, asset_favorite,
+        asset_id, asset_install_date, asset_location_id, asset_make, asset_model, asset_name, asset_os, asset_physical_location,
         asset_purchase_date, asset_serial, asset_status, asset_type, asset_uri, asset_uri_2,
         asset_uri_client, asset_warranty_expire, client_id, client_name,
-        contact_archived_at, contact_name, interface_ip, interface_ipv6, interface_mac,
+        contact_archived_at, contact_name, contact_photo, interface_ip, interface_ipv6, interface_mac,
         location_archived_at, location_name FROM assets
     LEFT JOIN clients ON asset_client_id = client_id
     LEFT JOIN contacts ON asset_contact_id = contact_id
@@ -653,7 +656,9 @@ $search_noun = $type_filter ? $asset_type_tabs[$type_filter]['label'] : 'assets'
                         <?php } ?>
                         <?php if ($show_contact) { ?>
                             <td>
-                                <?php if ($contact_name) { ?>
+                                <?php if ($can_edit) { ?>
+                                    <?= quickPick('asset_contact', $asset_id, (string) $asset_contact_id, assetQuickHtml('asset_contact', $row), 'list', 0, $client_id) ?>
+                                <?php } elseif ($contact_name) { ?>
                                     <a class="ajax-modal <?= $contact_archived ? 'text-decoration-line-through text-body-secondary' : '' ?>" href="#" data-modal-url="modals/contact/contact.php?id=<?= $asset_contact_id ?>" data-modal-size="lg" <?= $contact_archived ? 'title="Archived contact"' : '' ?>><?= $contact_name ?></a>
                                 <?php } else { ?>
                                     <span class="text-body-secondary">-</span>
@@ -661,21 +666,29 @@ $search_noun = $type_filter ? $asset_type_tabs[$type_filter]['label'] : 'assets'
                             </td>
                         <?php } ?>
                         <td>
-                            <?php if ($location_name) { ?>
+                            <?php if ($can_edit) { ?>
+                                <?= quickPick('asset_location', $asset_id, (string) intval($row['asset_location_id']), assetQuickHtml('asset_location', $row), 'list', 0, $client_id) ?>
+                            <?php } elseif ($location_name) { ?>
                                 <div class="<?= $location_archived ? 'text-danger text-decoration-line-through' : '' ?>" <?= $location_archived ? 'title="Archived location"' : '' ?>><?= $location_name ?></div>
                             <?php } elseif (!$asset_physical_location && !$asset_rack) { ?>
                                 <span class="text-body-secondary">-</span>
                             <?php } ?>
                             <?php if ($asset_physical_location) { ?>
-                                <div class="small text-body-secondary"><?= $asset_physical_location ?></div>
+                                <div class="small text-body-secondary <?= $can_edit ? 'mt-1' : '' ?>"><?= $asset_physical_location ?></div>
                             <?php } ?>
                             <?php if ($asset_rack) { ?>
-                                <a class="small text-nowrap" href="rack.php?client_id=<?= $client_id ?>&rack_id=<?= intval($asset_rack['rack_id']) ?>" title="Racked">
+                                <a class="small text-nowrap d-inline-block <?= $can_edit && !$asset_physical_location ? 'mt-1' : '' ?>" href="rack.php?client_id=<?= $client_id ?>&rack_id=<?= intval($asset_rack['rack_id']) ?>" title="Racked">
                                     <i class="fas fa-server me-1"></i><?= escapeHtml($asset_rack['rack_name']) ?> &middot; <?= rackPositionLabel($asset_rack['unit_start_number'], $asset_rack['unit_end_number']) ?>
                                 </a>
                             <?php } ?>
                         </td>
-                        <td><?= $asset_status_pill ?: '<span class="text-body-secondary">-</span>' ?></td>
+                        <td>
+                            <?php if ($can_edit) { ?>
+                                <?= quickPick('asset_status', $asset_id, (string) $row['asset_status'], assetQuickHtml('asset_status', $row), 'list', 0, $client_id) ?>
+                            <?php } else { ?>
+                                <?= $asset_status_pill ?: '<span class="text-body-secondary">-</span>' ?>
+                            <?php } ?>
+                        </td>
                         <?php if (!$client_url) { ?>
                         <td><a href="assets.php?client_id=<?= $client_id ?>"><?= $client_name ?></a></td>
                         <?php } ?>
