@@ -18,6 +18,12 @@ if (isset($_POST['add_asset'])) {
 
     enforceClientAccess();
 
+    // The picks have to be this client's own
+    $location = assetClientOwnedId('location', $location, $client_id);
+    $contact = assetClientOwnedId('contact', $contact, $client_id);
+    $vendor = assetClientOwnedId('vendor', $vendor, $client_id);
+    $network = assetClientOwnedId('network', $network, $client_id);
+
     // Only the two credential fields this handler writes - name/description/uri here
     // belong to the asset, not the credential, and have their own column widths.
     // Checked before the asset is created, so an overlong credential can't leave a
@@ -74,7 +80,7 @@ if (isset($_POST['add_asset'])) {
 
         $credential_id = mysqli_insert_id($mysqli);
 
-        logAudit("Credential", "Create", "$session_name created login credential for asset $asset_name", $client_id, $credential_id);
+        logAudit("Credential", "Create", "$session_name created login credential for asset $name", $client_id, $credential_id);
 
         $alert_extended = " along with login credentials";
 
@@ -104,10 +110,16 @@ if (isset($_POST['edit_asset'])) {
     // Get Existing Photo and assigned client_id
     $sql = mysqli_query($mysqli,"SELECT asset_photo, asset_client_id FROM assets WHERE asset_id = $asset_id");
     $row = mysqli_fetch_assoc($sql);
-    $existing_file_name = escapeSql($row['asset_photo']);
+    $existing_file_name = $row['asset_photo'] ?? '';
     $client_id = intval($row['asset_client_id']);
 
     enforceClientAccess();
+
+    // The picks have to be this client's own
+    $location = assetClientOwnedId('location', $location, $client_id);
+    $contact = assetClientOwnedId('contact', $contact, $client_id);
+    $vendor = assetClientOwnedId('vendor', $vendor, $client_id);
+    $network = assetClientOwnedId('network', $network, $client_id);
 
     mysqli_query($mysqli,"UPDATE assets SET asset_name = '$name', asset_description = '$description', asset_type = '$type', asset_make = '$make', asset_model = '$model', asset_serial = '$serial', asset_os = '$os', asset_uri = '$uri', asset_uri_2 = '$uri_2', asset_uri_client = '$uri_client', asset_location_id = $location, asset_vendor_id = $vendor, asset_contact_id = $contact, asset_status = '$status', asset_purchase_reference = '$purchase_reference', asset_purchase_date = $purchase_date, asset_warranty_expire = $warranty_expire, asset_install_date = $install_date, asset_physical_location = '$physical_location', asset_notes = '$notes', asset_favorite = $favorite WHERE asset_id = $asset_id");
 
@@ -121,20 +133,25 @@ if (isset($_POST['edit_asset'])) {
         mysqli_query($mysqli,"UPDATE asset_interfaces SET interface_mac = '$mac', interface_ip = '$ip', interface_nat_ip = '$nat_ip', interface_ipv6 = '$ipv6', interface_network_id = $network WHERE interface_asset_id = $asset_id AND interface_primary = 1");
     }
 
-    // Update Photo
-    if ($new_file_name = checkFileUpload($_FILES['file'], array('jpg', 'jpeg', 'gif', 'png', 'webp'))) {
+    // Photo - a new upload replaces the old file; Remove only counts when nothing new came in
+    $existing_photo_path = $existing_file_name !== '' ? "../uploads/clients/$client_id/" . basename($existing_file_name) : '';
+    if (isset($_FILES['file']) && $new_file_name = checkFileUpload($_FILES['file'], array('jpg', 'jpeg', 'gif', 'png', 'webp'))) {
 
-        // Set directory in which the uploaded file will be moved
-        $file_tmp_path = $_FILES['file']['tmp_name'];
-        $upload_file_dir = "../uploads/clients/$client_id/";
-        $dest_path = $upload_file_dir . $new_file_name;
+        if (!is_dir("../uploads/clients/$client_id")) {
+            mkdir("../uploads/clients/$client_id", 0755, true);
+        }
+        move_uploaded_file($_FILES['file']['tmp_name'], "../uploads/clients/$client_id/$new_file_name");
 
-        move_uploaded_file($file_tmp_path, $dest_path);
-
-        //Delete old file
-        unlink("../uploads/clients/$client_id/$existing_file_name");
+        if ($existing_photo_path && is_file($existing_photo_path)) {
+            unlink($existing_photo_path);
+        }
 
         mysqli_query($mysqli,"UPDATE assets SET asset_photo = '$new_file_name' WHERE asset_id = $asset_id");
+    } elseif (!empty($_POST['remove_photo']) && $existing_photo_path) {
+        if (is_file($existing_photo_path)) {
+            unlink($existing_photo_path);
+        }
+        mysqli_query($mysqli,"UPDATE assets SET asset_photo = NULL WHERE asset_id = $asset_id");
     }
 
     // Tags

@@ -3542,3 +3542,206 @@ button.itflow-rack-item-body:hover {
         break-inside: avoid;
     }
 }
+
+/* Assets - agent/assets.php, agent/asset.php, agent/modals/asset/
+
+   Each kind of asset has a colour (functions/asset.php assetTypeTone()), used
+   for the icon tile on the list, the asset page header and the related-asset
+   chips. The tile is the colour at low strength with the icon at full, so it
+   reads in light and dark alike. */
+.itflow-asset-tone-workstation { --itflow-asset-tone: #3d72bb; }
+.itflow-asset-tone-server { --itflow-asset-tone: #6d5fc4; }
+.itflow-asset-tone-virtual { --itflow-asset-tone: #9a5cc6; }
+.itflow-asset-tone-network { --itflow-asset-tone: #23897a; }
+.itflow-asset-tone-firewall { --itflow-asset-tone: #c04e4e; }
+.itflow-asset-tone-wireless { --itflow-asset-tone: #1b8fc2; }
+.itflow-asset-tone-phone { --itflow-asset-tone: #b8862f; }
+.itflow-asset-tone-peripheral { --itflow-asset-tone: #5b6f8a; }
+.itflow-asset-tone-other { --itflow-asset-tone: #6c757d; }
+[data-bs-theme="dark"] .itflow-asset-tone-workstation { --itflow-asset-tone: #6f9fe0; }
+[data-bs-theme="dark"] .itflow-asset-tone-server { --itflow-asset-tone: #a197ee; }
+[data-bs-theme="dark"] .itflow-asset-tone-virtual { --itflow-asset-tone: #c595ea; }
+[data-bs-theme="dark"] .itflow-asset-tone-network { --itflow-asset-tone: #4fc4b0; }
+[data-bs-theme="dark"] .itflow-asset-tone-firewall { --itflow-asset-tone: #ec8585; }
+[data-bs-theme="dark"] .itflow-asset-tone-wireless { --itflow-asset-tone: #5cc0ec; }
+[data-bs-theme="dark"] .itflow-asset-tone-phone { --itflow-asset-tone: #e3b35c; }
+[data-bs-theme="dark"] .itflow-asset-tone-peripheral { --itflow-asset-tone: #9fb2cc; }
+[data-bs-theme="dark"] .itflow-asset-tone-other { --itflow-asset-tone: #adb5bd; }
+.itflow-asset-icon {
+    display: inline-flex;
+    flex: 0 0 auto;
+    align-items: center;
+    justify-content: center;
+    width: 2.5rem;
+    height: 2.5rem;
+    border-radius: var(--bs-border-radius-lg);
+    background-color: color-mix(in srgb, var(--itflow-asset-tone) 14%, transparent);
+    color: var(--itflow-asset-tone);
+    font-size: 1.05rem;
+}
+.itflow-asset-icon-lg {
+    width: 3.5rem;
+    height: 3.5rem;
+    font-size: 1.5rem;
+}
+.itflow-asset-icon-sm {
+    width: 1.75rem;
+    height: 1.75rem;
+    border-radius: var(--bs-border-radius);
+    font-size: .8rem;
+}
+img.itflow-asset-icon {
+    object-fit: cover;
+    background: none;
+}
+
+/* Kind-of-asset tabs above the filter bar */
+.itflow-asset-tabs .nav-link {
+    padding: .3rem .75rem;
+    color: var(--bs-secondary-color);
+}
+.itflow-asset-tabs .nav-link .badge {
+    background-color: var(--bs-secondary-bg);
+    color: var(--bs-secondary-color);
+    font-weight: 500;
+}
+.itflow-asset-tabs .nav-link.active .badge {
+    background-color: rgba(255, 255, 255, .25);
+    color: inherit;
+}
+
+/* List rows */
+.itflow-asset-table td {
+    padding-top: .6rem;
+    padding-bottom: .6rem;
+}
+.itflow-asset-name-cell {
+    min-width: 15rem;
+}
+.itflow-asset-desc {
+    max-width: 18rem;
+}
+.itflow-asset-model-cell {
+    min-width: 9rem;
+}
+/* Tag pills and other controls inside a cell with a stretched-link stay clickable */
+.itflow-above-stretch {
+    position: relative;
+    z-index: 2;
+}
+.btn.btn-xs {
+    --bs-btn-padding-y: 0;
+    --bs-btn-padding-x: .4rem;
+    --bs-btn-font-size: .7rem;
+    --bs-btn-border-radius: var(--bs-border-radius-sm);
+    font-size: .7rem;
+    line-height: 1.4;
+}
+
+/* Copy button beside an IP / MAC / serial - quiet until the row is pointed at */
+.itflow-copy {
+    margin-left: .3rem;
+    padding: 0 .15rem;
+    border: 0;
+    background: none;
+    font-size: .8em;
+    color: var(--bs-secondary-color);
+    opacity: 0;
+    transition: opacity .12s ease-in-out;
+}
+tr:hover .itflow-copy,
+.itflow-copy-always .itflow-copy,
+.itflow-copy:focus-visible {
+    opacity: 1;
+}
+.itflow-copy:hover {
+    color: var(--bs-emphasis-color);
+}
+@media (hover: none) {
+    .itflow-copy {
+        opacity: 1;
+    }
+}
+
+/* Asset page */
+.itflow-asset-dl {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
+    gap: .45rem 1rem;
+    font-size: .875rem;
+}
+.itflow-asset-dl dt {
+    font-weight: 500;
+    color: var(--bs-secondary-color);
+}
+.itflow-asset-dl dd {
+    margin: 0;
+    overflow-wrap: anywhere;
+}
+.itflow-asset-pills {
+    gap: .25rem;
+}
+.itflow-asset-related .itflow-asset-pills .nav-link {
+    padding: .3rem .7rem;
+    font-size: .875rem;
+}
+.itflow-asset-related .itflow-asset-pills .nav-link:not(.active) {
+    color: var(--bs-body-color);
+}
+.itflow-asset-related .itflow-asset-pills .nav-link.is-empty:not(.active) {
+    color: var(--bs-secondary-color);
+}
+.itflow-asset-pills .nav-link .badge {
+    background-color: var(--bs-secondary-bg);
+    color: var(--bs-secondary-color);
+    font-weight: 500;
+}
+.itflow-asset-pills .nav-link .badge.text-bg-danger {
+    background-color: var(--bs-danger) !important;
+    color: #fff !important;
+}
+.itflow-asset-pills .nav-link.active .badge {
+    background-color: rgba(255, 255, 255, .25);
+    color: inherit;
+}
+.itflow-asset-pane-bar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: .5rem;
+    padding: .75rem 1rem;
+    border-bottom: 1px solid var(--bs-border-color-translucent);
+}
+.itflow-asset-related .table > :not(caption) > * > :first-child {
+    padding-left: 1rem;
+}
+.itflow-asset-related .table > :not(caption) > * > :last-child {
+    padding-right: 1rem;
+}
+.itflow-asset-related .table td:first-child {
+    min-width: 11rem;
+}
+.itflow-asset-related .table td.checkbox-column {
+    min-width: 0;
+}
+.itflow-asset-empty {
+    padding: 2.5rem 1rem;
+    text-align: center;
+    color: var(--bs-secondary-color);
+}
+.itflow-asset-dl .font-monospace {
+    font-size: .82rem;
+}
+
+/* Section heading inside a long form (asset add/edit) */
+.itflow-form-section {
+    margin-bottom: .75rem;
+    padding-bottom: .35rem;
+    border-bottom: 1px solid var(--bs-border-color-translucent);
+    font-size: .75rem;
+    font-weight: 600;
+    letter-spacing: .06em;
+    text-transform: uppercase;
+    color: var(--bs-secondary-color);
+}

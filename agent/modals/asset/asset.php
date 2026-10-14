@@ -154,18 +154,19 @@ $sql_related_credentials = mysqli_query($mysqli, "
         credentials.credential_contact_id,
         credentials.credential_asset_id
     FROM credentials
-    LEFT JOIN credential_tags ON credential_tags.credential_id = credentials.credential_id
-    LEFT JOIN tags ON tags.tag_id = credential_tags.tag_id
     WHERE credential_asset_id = $asset_id
       AND credential_archived_at IS NULL
     GROUP BY credentials.credential_id
     ORDER BY credential_name DESC
 ");
-$credential_count = mysqli_num_rows($sql_related_credentials);
+// No module_credential, no Credentials tab - the pane below was already gated, the tab wasn't
+$credential_count = lookupUserPermission('module_credential') ? mysqli_num_rows($sql_related_credentials) : 0;
 
 // Related Tickets Query
 $sql_related_tickets = mysqli_query($mysqli, "
-    SELECT tickets.*, users.*, ticket_statuses.*
+    SELECT tickets.ticket_id, ticket_prefix, ticket_number, ticket_subject, ticket_priority, ticket_created_at,
+        ticket_updated_at, ticket_closed_at, ticket_assigned_to, user_name, user_avatar,
+        ticket_status_id, ticket_status_name, ticket_status_color
     FROM tickets
     LEFT JOIN users ON ticket_assigned_to = user_id
     LEFT JOIN ticket_statuses ON ticket_status_id = ticket_status
@@ -249,6 +250,7 @@ ob_start();
 <div class="modal-header bg-dark">
     <h5 class="modal-title"><i class="fa fa-fw fa-<?= $device_icon ?> me-2"></i><strong><?= $asset_name ?></strong>
         <?php if ($asset_favorite) { ?><i class="fas fa-fw text-warning fa-star" title="Favorite"></i><?php } ?>
+        <span class="fs-6 ms-1 align-middle"><?= assetStatusPill(html_entity_decode($asset_status)) ?></span>
     </h5>
     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
 </div>
@@ -348,10 +350,10 @@ ob_start();
                         <div class="mt-2"><i class="fa fa-fw fa-circle text-secondary me-2"></i><?= "$asset_make $asset_model" ?></div>
                     <?php }
                     if ($asset_os) { ?>
-                        <div class="mt-2"><i class="fab fa-fw fa-windows text-secondary me-2"></i><?= "$asset_os" ?></div>
+                        <div class="mt-2"><i class="<?= assetOsIcon(html_entity_decode($asset_os)) ?> fa-fw text-secondary me-2"></i><?= $asset_os ?></div>
                     <?php }
                     if ($asset_serial) { ?>
-                        <div class="mt-2"><i class="fa fa-fw fa-barcode text-secondary me-2"></i><span class="font-monospace"><?= $asset_serial ?></span></div>
+                        <div class="mt-2 itflow-copy-always"><i class="fa fa-fw fa-barcode text-secondary me-2"></i><span class="font-monospace"><?= $asset_serial ?></span><button type="button" class="itflow-copy clipboardjs" title="Copy serial" data-clipboard-text="<?= $asset_serial ?>"><i class="far fa-copy"></i></button></div>
                     <?php }
                     if ($asset_purchase_date) { ?>
                         <div class="mt-2"><i class="fa fa-fw fa-shopping-cart text-secondary me-2"></i><?= date('Y-m-d', strtotime($asset_purchase_date)) ?></div>
@@ -359,8 +361,8 @@ ob_start();
                     if ($asset_install_date) { ?>
                         <div class="mt-2"><i class="fa fa-fw fa-calendar-check text-secondary me-2"></i><?= date('Y-m-d', strtotime($asset_install_date)) ?></div>
                     <?php }
-                    if ($asset_warranty_expire) { ?>
-                        <div class="mt-2"><i class="fa fa-fw fa-exclamation-triangle text-secondary me-2"></i><?= date('Y-m-d', strtotime($asset_warranty_expire)) ?></div>
+                    if ($asset_warranty = assetWarranty(html_entity_decode($asset_warranty_expire))) { ?>
+                        <div class="mt-2"><i class="fa fa-fw fa-shield-alt text-secondary me-2"></i><span class="text-<?= $asset_warranty['tone'] ?>-emphasis">Warranty <?= strtolower(escapeHtml($asset_warranty['text'])) ?></span><?= $asset_warranty['tone'] !== 'success' ? ' <span class="text-secondary">(' . escapeHtml($asset_warranty['date']) . ')</span>' : '' ?></div>
                     <?php } ?>
                 </div>
             </div>
@@ -371,13 +373,13 @@ ob_start();
                 </div>
                 <div class="card-body">
                     <?php if ($asset_ip) { ?>
-                        <div><i class="fa fa-fw fa-globe text-secondary me-2"></i><span class="font-monospace"><?= $asset_ip ?></span></div>
+                        <div class="itflow-copy-always"><i class="fa fa-fw fa-globe text-secondary me-2"></i><span class="font-monospace"><?= $asset_ip ?></span><?php if ($asset_ip !== 'DHCP') { ?><button type="button" class="itflow-copy clipboardjs" title="Copy IP" data-clipboard-text="<?= $asset_ip ?>"><i class="far fa-copy"></i></button><?php } ?></div>
                     <?php } ?>
                     <?php if ($asset_nat_ip) { ?>
-                        <div class="mt-2"><i class="fa fa-fw fa-random text-secondary me-2"></i><span class="font-monospace"><?= $asset_nat_ip ?></span></div>
+                        <div class="mt-2 itflow-copy-always"><i class="fa fa-fw fa-random text-secondary me-2"></i><span class="font-monospace"><?= $asset_nat_ip ?></span><button type="button" class="itflow-copy clipboardjs" title="Copy NAT IP" data-clipboard-text="<?= $asset_nat_ip ?>"><i class="far fa-copy"></i></button></div>
                     <?php }
                     if ($asset_mac) { ?>
-                        <div class="mt-2"><i class="fa fa-fw fa-ethernet text-secondary me-2"></i><span class="font-monospace"><?= $asset_mac ?></span></div>
+                        <div class="mt-2 itflow-copy-always"><i class="fa fa-fw fa-ethernet text-secondary me-2"></i><span class="font-monospace"><?= $asset_mac ?></span><button type="button" class="itflow-copy clipboardjs" title="Copy MAC" data-clipboard-text="<?= $asset_mac ?>"><i class="far fa-copy"></i></button></div>
                     <?php }
                     if ($asset_uri) { ?>
                         <div class="mt-2"><i class="fa fa-fw fa-link text-secondary me-2"></i><a href="<?= $asset_uri ?>" target="_blank" title="<?= $asset_uri ?>"><?= truncate($asset_uri, 20) ?></a></div>
@@ -966,9 +968,11 @@ ob_start();
     <a href="asset.php?client_id=<?= $client_id ?>&asset_id=<?= $asset_id ?>"
         class="btn btn-primary text-bold"><span class="text-white"><i class="fas fa-info-circle me-2"></i>More Details</span>
     </a>
-    <a href="#" class="btn btn-secondary ajax-modal" data-modal-url="modals/asset/asset_edit.php?id=<?= $asset_id ?>">
-        <span class="text-white"><i class="fas fa-edit me-2"></i>Edit</span>
-    </a>
+    <?php if (lookupUserPermission('module_support') >= 2) { ?>
+        <a href="#" class="btn btn-secondary ajax-modal" data-modal-size="lg" data-modal-url="modals/asset/asset_edit.php?id=<?= $asset_id ?>">
+            <span class="text-white"><i class="fas fa-edit me-2"></i>Edit</span>
+        </a>
+    <?php } ?>
     <button type="button" class="btn btn-light" data-bs-dismiss="modal"><i class="fa fa-times me-2"></i>Close</button>
 </div>
 

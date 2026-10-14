@@ -286,7 +286,7 @@ if (isset($_GET['contact_id'])) {
                             <i class="fa fa-fw fa-recycle me-2"></i>New Recurring Ticket
                         </a>
                         <div class="dropdown-divider"></div>
-                        <a class="dropdown-item text-dark ajax-modal" href="#" data-modal-url="modals/asset/asset_add.php?<?= $client_url ?>&contact_id=<?= $contact_id ?>">
+                        <a class="dropdown-item text-dark ajax-modal" href="#" data-modal-size="lg" data-modal-url="modals/asset/asset_add.php?<?= $client_url ?>&contact_id=<?= $contact_id ?>">
                             <i class="fa fa-fw fa-desktop me-2"></i>New Asset
                         </a>
                         <div class="dropdown-divider"></div>
@@ -457,11 +457,11 @@ if (isset($_GET['contact_id'])) {
                                             <button class="btn btn-secondary btn-sm" title="More actions" type="button" data-bs-toggle="dropdown"><i class="fas fa-ellipsis-h"></i></button>
                                             <div class="dropdown-menu">
                                                 <a class="dropdown-item ajax-modal" href="#"
-                                                    data-modal-url="modals/asset/asset_edit.php?id=<?= $asset_id ?>">
+                                                    data-modal-size="lg" data-modal-url="modals/asset/asset_edit.php?id=<?= $asset_id ?>">
                                                     <i class="fas fa-fw fa-edit me-2"></i>Edit
                                                 </a>
                                                 <a class="dropdown-item ajax-modal" href="#"
-                                                    data-modal-url="modals/asset/asset_copy.php?id=<?= $asset_id ?>">
+                                                    data-modal-size="lg" data-modal-url="modals/asset/asset_copy.php?id=<?= $asset_id ?>">
                                                     <i class="fas fa-fw fa-copy me-2"></i>Copy
                                                 </a>
                                                 <div class="dropdown-divider"></div>
