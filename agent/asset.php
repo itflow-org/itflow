@@ -628,13 +628,13 @@ if (mysqli_num_rows($sql) == 0) {
                             <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
                             <div class="table-responsive">
                                 <table class="table table-hover align-middle mb-0">
-                                    <thead class="text-nowrap <?php if ($interface_count == 0) { echo "d-none"; } ?>">
+                                    <thead class="text-nowrap table-light <?php if ($interface_count == 0) { echo "d-none"; } ?>">
                                         <tr>
-                                            <td class="checkbox-column">
+                                            <th class="checkbox-column border-end">
                                                 <div class="form-check">
-                                                    <input class="form-check-input" id="selectAllCheckbox" type="checkbox" onclick="checkAll(this)" onkeydown="checkAll(this)">
+                                                    <input class="form-check-input" id="selectAllCheckbox" type="checkbox" onclick="checkAll(this)" onkeydown="checkAll(this)" title="Select all">
                                                 </div>
-                                            </td>
+                                            </th>
                                             <th>Name / Port</th>
                                             <th>Type</th>
                                             <th>Network</th>
@@ -663,9 +663,9 @@ if (mysqli_num_rows($sql) == 0) {
                                         $connected_interface_name = escapeHtml($row['connected_interface_name']);
                                         ?>
                                         <tr>
-                                            <td class="checkbox-column">
+                                            <td class="checkbox-column bg-light border-end">
                                                 <div class="form-check">
-                                                    <input class="form-check-input bulk-select" type="checkbox" name="interface_ids[]" value="<?= $interface_id ?>">
+                                                    <input class="form-check-input bulk-select" type="checkbox" name="interface_ids[]" value="<?= $interface_id ?>" aria-label="Select <?= $interface_name ?>">
                                                 </div>
                                             </td>
                                             <td>
@@ -756,7 +756,7 @@ if (mysqli_num_rows($sql) == 0) {
                         <?php if ($credential_count) { ?>
                             <div class="table-responsive">
                                 <table class="table table-hover align-middle mb-0">
-                                    <thead class="text-nowrap">
+                                    <thead class="text-nowrap table-light">
                                     <tr>
                                         <th>Name</th>
                                         <th>Username</th>
@@ -853,7 +853,7 @@ if (mysqli_num_rows($sql) == 0) {
                         <?php if ($related_tickets) { ?>
                             <div class="table-responsive">
                                 <table class="table table-hover align-middle mb-0">
-                                    <thead class="text-nowrap">
+                                    <thead class="text-nowrap table-light">
                                     <tr>
                                         <th>Ticket</th>
                                         <th>Subject</th>
@@ -909,7 +909,7 @@ if (mysqli_num_rows($sql) == 0) {
                         <?php if ($recurring_ticket_count) { ?>
                             <div class="table-responsive">
                                 <table class="table table-hover align-middle mb-0">
-                                    <thead class="text-nowrap">
+                                    <thead class="text-nowrap table-light">
                                     <tr>
                                         <th>Subject</th>
                                         <th>Priority</th>
@@ -979,7 +979,7 @@ if (mysqli_num_rows($sql) == 0) {
                         <?php if ($software_count) { ?>
                             <div class="table-responsive">
                                 <table class="table table-hover align-middle mb-0">
-                                    <thead class="text-nowrap">
+                                    <thead class="text-nowrap table-light">
                                     <tr>
                                         <th>Software</th>
                                         <th>Type</th>
@@ -1048,7 +1048,7 @@ if (mysqli_num_rows($sql) == 0) {
                         <?php if ($document_count) { ?>
                             <div class="table-responsive">
                                 <table class="table table-hover align-middle mb-0">
-                                    <thead class="text-nowrap">
+                                    <thead class="text-nowrap table-light">
                                     <tr>
                                         <th>Document</th>
                                         <th>By</th>
@@ -1113,7 +1113,7 @@ if (mysqli_num_rows($sql) == 0) {
                             ?>
                             <div class="table-responsive">
                                 <table class="table table-hover align-middle mb-0">
-                                    <thead class="text-nowrap">
+                                    <thead class="text-nowrap table-light">
                                     <tr>
                                         <th>Name</th>
                                         <th>Uploaded</th>
@@ -1162,7 +1162,7 @@ if (mysqli_num_rows($sql) == 0) {
                         <?php if ($service_count) { ?>
                             <div class="table-responsive">
                                 <table class="table table-hover align-middle mb-0">
-                                    <thead class="text-nowrap">
+                                    <thead class="text-nowrap table-light">
                                     <tr>
                                         <th>Service</th>
                                         <th>Category</th>

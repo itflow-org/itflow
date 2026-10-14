@@ -2964,7 +2964,9 @@ a.itflow-dash-rail-item:focus-visible {
 .itflow-clients-street {
     max-width: 16rem;
 }
-.itflow-clients tbody tr:has(.bulk-select:checked) > * {
+/* A row ticked for a bulk action takes a subtle theme tint - every list with
+   bulk checkboxes (clients, assets, contacts, tickets...), not just clients */
+.table > tbody > tr:has(.bulk-select:checked) > * {
     --bs-table-bg-state: var(--bs-primary-bg-subtle);
 }
 
