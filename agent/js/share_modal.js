@@ -43,8 +43,14 @@ function generateShareLink() {
                 document.getElementById("div_share_link_output").hidden = false;
                 document.getElementById("share_link").value = response;
 
-                // Copy link to clipboard
-                navigator.clipboard.writeText(response);
+                // Copy it straight away - itflowCopyText (js/app.js) also works
+                // on a plain-HTTP install, where navigator.clipboard is missing
+                // and this used to throw
+                const copyButton = document.getElementById("share_link_copy");
+                itflowCopyText(response, copyButton).then(
+                    function () { flashTooltip(copyButton, 'Copied!'); },
+                    function () {}
+                );
             }
         );
     }

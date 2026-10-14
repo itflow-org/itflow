@@ -26,8 +26,8 @@ $data = "otpauth://totp/ITFlow:$session_email?secret=$token";
 
                     <div class="text-center">
                         <img src='../../libs/barcode/barcode.php?f=png&s=qr&d=<?= $data ?>'>
-                        <p><span class='text-secondary'>Secret:</span> <?= $token ?>
-                            <button type="button" class='btn btn-sm btn-link clipboardjs' title='Copy secret' data-clipboard-text='<?= $token ?>'><i class='far fa-copy text-secondary'></i></button>
+                        <p class="itflow-copy-always"><span class='text-secondary'>Secret:</span> <?= $token ?>
+                            <button type='button' class='itflow-copy clipboardjs' title='Copy secret' data-clipboard-text='<?= $token ?>'><i class='far fa-copy'></i></button>
                         </p>
                     </div>
 

@@ -184,11 +184,11 @@ function searchResultBadge($badge) {
                                     ?>
                                     <div class="text-nowrap d-none d-md-block">
                                         <?php if ($credential_username !== '') { ?>
-                                            <span class="small"><?= $credential_username ?></span><button class="btn btn-sm btn-link clipboardjs" title="Copy username" type="button" data-clipboard-text="<?= $credential_username ?>"><i class="far fa-copy text-secondary"></i></button>
+                                            <span class="small"><?= $credential_username ?></span><button type="button" class="itflow-copy clipboardjs" title="Copy username" data-clipboard-text="<?= $credential_username ?>"><i class="far fa-copy"></i></button>
                                         <?php } ?>
                                     </div>
                                     <div class="text-nowrap">
-                                        <button class="btn p-0" aria-label="Show password" type="button" onclick="showPasswordViaCredentialID(this, <?= $credential_id ?>)"><i class="fas fa-ellipsis-h text-secondary"></i><i class="fas fa-ellipsis-h text-secondary"></i></button><button class="btn btn-sm" title="Copy password" type="button" onclick="copyPasswordViaCredentialID(this, <?= $credential_id ?>)"><i class="far fa-copy text-secondary"></i></button>
+                                        <button class="btn p-0" aria-label="Show password" type="button" onclick="showPasswordViaCredentialID(this, <?= $credential_id ?>)"><i class="fas fa-ellipsis-h text-secondary"></i><i class="fas fa-ellipsis-h text-secondary"></i></button><button type="button" class="itflow-copy" title="Copy password" onclick="copyPasswordViaCredentialID(this, <?= $credential_id ?>)"><i class="far fa-copy"></i></button>
                                     </div>
                                 <?php } ?>
 

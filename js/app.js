@@ -607,8 +607,11 @@ function itflowInit() {
     });
 
     // Copy buttons: any element with class="clipboardjs" and its text in
-    // data-clipboard-text. That is ClipboardJS's markup contract, kept so none of
-    // the call sites change - the library itself is no longer used here.
+    // data-clipboard-text, or the field to copy from in data-clipboard-target.
+    // That is ClipboardJS's markup contract, kept so none of the call sites
+    // change - the library itself is no longer used here. Beside a value they
+    // are the small .itflow-copy icon that shows when its row is pointed at
+    // (css/itflow_custom.css); beside an input, an input-group button.
     //
     // ClipboardJS copies by selecting a hidden textarea. Under Bootstrap 5 that
     // textarea has to be inside the open modal or the focus trap pulls focus
@@ -632,7 +635,12 @@ function itflowInit() {
 
             const trigger = this;
             const target = itflowCopyFeedbackTarget(trigger);
-            const text = trigger.getAttribute('data-clipboard-text') || '';
+            // data-clipboard-target="input[name=uri]" copies what is in that
+            // field now - in its own input group first - rather than the value
+            // the page was drawn with, so an edited field copies the edit
+            const source = trigger.getAttribute('data-clipboard-target');
+            const field = source ? ((trigger.closest('.input-group') || document).querySelector(source) || document.querySelector(source)) : null;
+            const text = field ? (field.value || '') : (trigger.getAttribute('data-clipboard-text') || '');
 
             // An empty field would otherwise wipe whatever is on the clipboard
             if (text === '') {

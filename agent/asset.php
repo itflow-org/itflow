@@ -432,7 +432,7 @@ if (mysqli_num_rows($sql) == 0) {
                     <div class="card-header">
                         <h3 class="card-title mb-0"><i class="fas fa-fw fa-network-wired text-secondary me-2"></i>Network</h3>
                     </div>
-                    <div class="card-body itflow-copy-always">
+                    <div class="card-body">
                         <dl class="itflow-asset-dl mb-0">
                             <?php if ($asset_ip) { ?>
                                 <dt>IP</dt>
@@ -463,7 +463,7 @@ if (mysqli_num_rows($sql) == 0) {
                 <div class="card-header">
                     <h3 class="card-title mb-0"><i class="fas fa-fw fa-microchip text-secondary me-2"></i>Hardware</h3>
                 </div>
-                <div class="card-body itflow-copy-always">
+                <div class="card-body">
                     <dl class="itflow-asset-dl mb-0">
                         <?php if ($asset_make_model) { ?>
                             <dt>Model</dt><dd><?= $asset_make_model ?></dd>
@@ -537,7 +537,7 @@ if (mysqli_num_rows($sql) == 0) {
                                 <span class="text-body-secondary">Nobody</span>
                             <?php } ?>
                             <!-- How to reach them - redrawn when the contact changes -->
-                            <div class="itflow-copy-always" data-quick-related="asset-contact-<?= $asset_id ?>"><?= assetContactDetails($asset_row) ?></div>
+                            <div data-quick-related="asset-contact-<?= $asset_id ?>"><?= assetContactDetails($asset_row) ?></div>
                         </dd>
                     </dl>
                 </div>
@@ -789,7 +789,7 @@ if (mysqli_num_rows($sql) == 0) {
                                             </td>
                                             <td class="text-nowrap">
                                                 <button class="btn btn-sm btn-light" aria-label="Show password" title="Show password" type="button" onclick="showPasswordViaCredentialID(this, <?= $credential_id ?>)"><i class="fas fa-ellipsis-h"></i><i class="fas fa-ellipsis-h"></i></button>
-                                                <button class="btn btn-sm btn-link text-secondary" title="Copy password" type="button" onclick="copyPasswordViaCredentialID(this, <?= $credential_id ?>)"><i class="far fa-copy"></i></button>
+                                                <button type="button" class="itflow-copy" title="Copy password" onclick="copyPasswordViaCredentialID(this, <?= $credential_id ?>)"><i class="far fa-copy"></i></button>
                                             </td>
                                             <td class="text-nowrap">
                                                 <?php if ($credential_has_otp) { ?>

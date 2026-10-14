@@ -187,8 +187,8 @@ if (!empty($_SESSION['backup_master_key_reveal'])) {
         <?php if ($backup_key !== '') { ?>
             <div class="input-group">
                 <input type="text" class="form-control font-monospace" value="<?= escapeHtml($backup_key) ?>" readonly onclick="this.select();">
-                    <button class="btn btn-secondary" title="Copy backup key" type="button" onclick="navigator.clipboard.writeText('<?= escapeHtml($backup_key) ?>');">
-                        <i class="fas fa-fw fa-copy"></i>
+                    <button class="btn btn-secondary clipboardjs" title="Copy backup key" type="button" data-clipboard-text="<?= escapeHtml($backup_key) ?>">
+                        <i class="far fa-fw fa-copy"></i>
                     </button>
             </div>
         <?php } ?>

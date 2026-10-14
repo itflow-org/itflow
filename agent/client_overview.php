@@ -198,7 +198,7 @@ $money_format = function ($amount) use ($currency_format, $client_currency_code,
                                     <?php if ($person_email) { ?>
                                         <div class="small d-flex align-items-center">
                                             <a class="text-reset text-decoration-none text-truncate" href="mailto:<?= $person_email ?>"><i class="far fa-fw fa-envelope text-body-secondary me-1" aria-hidden="true"></i><?= $person_email ?></a>
-                                            <button class="btn btn-link btn-sm p-0 ms-1 text-body-secondary clipboardjs" type="button" title="Copy email" data-clipboard-text="<?= $person_email ?>"><i class="far fa-fw fa-copy" aria-hidden="true"></i></button>
+                                            <button type="button" class="itflow-copy clipboardjs" title="Copy email" data-clipboard-text="<?= $person_email ?>"><i class="far fa-copy"></i></button>
                                         </div>
                                     <?php } ?>
                                 </div>
@@ -230,7 +230,7 @@ $money_format = function ($amount) use ($currency_format, $client_currency_code,
                                     <span class="d-block small text-body-secondary text-truncate"><?= escapeHtml(trim($asset['asset_make'] . ' ' . $asset['asset_model'])) ?></span>
                                 </span>
                                 <?php if ($asset_ip) { ?>
-                                    <span class="small text-nowrap"><?= $asset_ip ?><button class="btn btn-link btn-sm p-0 ms-1 text-body-secondary clipboardjs" type="button" title="Copy IP" data-clipboard-text="<?= $asset_ip ?>"><i class="far fa-fw fa-copy" aria-hidden="true"></i></button></span>
+                                    <span class="small text-nowrap"><?= $asset_ip ?><button type="button" class="itflow-copy clipboardjs" title="Copy IP" data-clipboard-text="<?= $asset_ip ?>"><i class="far fa-copy"></i></button></span>
                                 <?php } ?>
                             </div>
                         <?php } ?>
@@ -245,7 +245,7 @@ $money_format = function ($amount) use ($currency_format, $client_currency_code,
                                     <?php if ($credential_username) { ?>
                                         <span class="d-flex align-items-center small text-body-secondary">
                                             <span class="text-truncate"><?= $credential_username ?></span>
-                                            <button class="btn btn-link btn-sm p-0 ms-1 text-body-secondary clipboardjs" type="button" title="Copy username" data-clipboard-text="<?= $credential_username ?>"><i class="far fa-fw fa-copy" aria-hidden="true"></i></button>
+                                            <button type="button" class="itflow-copy clipboardjs" title="Copy username" data-clipboard-text="<?= $credential_username ?>"><i class="far fa-copy"></i></button>
                                         </span>
                                     <?php } ?>
                                 </span>
@@ -253,7 +253,7 @@ $money_format = function ($amount) use ($currency_format, $client_currency_code,
                                     <span class="small text-body-secondary text-nowrap" onmouseenter="showOTPViaCredentialID(<?= $credential_id ?>)" title="Hover for the current code"><i class="far fa-clock me-1" aria-hidden="true"></i><span id="otp_<?= $credential_id ?>">OTP</span></span>
                                 <?php } ?>
                                 <span class="text-nowrap">
-                                    <button class="btn btn-sm btn-link text-body-secondary p-1" type="button" title="Show password" onclick="showPasswordViaCredentialID(this, <?= $credential_id ?>)"><i class="fas fa-fw fa-eye" aria-hidden="true"></i></button><button class="btn btn-sm btn-link text-body-secondary p-1" type="button" title="Copy password" onclick="copyPasswordViaCredentialID(this, <?= $credential_id ?>)"><i class="far fa-fw fa-copy" aria-hidden="true"></i></button>
+                                    <button class="btn btn-sm btn-link text-body-secondary p-1" type="button" title="Show password" onclick="showPasswordViaCredentialID(this, <?= $credential_id ?>)"><i class="fas fa-fw fa-eye" aria-hidden="true"></i></button><button type="button" class="itflow-copy" title="Copy password" onclick="copyPasswordViaCredentialID(this, <?= $credential_id ?>)"><i class="far fa-copy"></i></button>
                                 </span>
                             </div>
                         <?php } ?>

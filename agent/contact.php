@@ -222,7 +222,7 @@ if (isset($_GET['contact_id'])) {
                         <div><i class="fa fa-fw fa-map-marker-alt text-secondary me-2"></i><?= $location_name ?></div>
                     <?php }
                     if ($contact_email) { ?>
-                        <div class="mt-2"><i class="fa fa-fw fa-envelope text-secondary me-2"></i><a href='mailto:<?= $contact_email ?>'><?= $contact_email ?></a><button class='btn btn-sm btn-link clipboardjs' title='Copy email' data-clipboard-text='<?= $contact_email ?>'><i class='far fa-copy text-secondary'></i></button></div>
+                        <div class="mt-2"><i class="fa fa-fw fa-envelope text-secondary me-2"></i><a href='mailto:<?= $contact_email ?>'><?= $contact_email ?></a><button type='button' class='itflow-copy clipboardjs' title='Copy email' data-clipboard-text='<?= $contact_email ?>'><i class='far fa-copy'></i></button></div>
                     <?php }
                     if ($contact_phone) { ?>
                         <div class="mt-2"><i class="fa fa-fw fa-phone text-secondary me-2"></i><a href="tel:<?= "$contact_phone" ?>"><?= $contact_phone ?></a></div>
@@ -395,7 +395,7 @@ if (isset($_GET['contact_id'])) {
                                 if (empty($asset_ip)) {
                                     $asset_ip_display = "-";
                                 } else {
-                                    $asset_ip_display = "$asset_ip<button class='btn btn-sm btn-link clipboardjs' title='Copy IP' type='button' data-clipboard-text='$asset_ip'><i class='far fa-copy text-secondary'></i></button>";
+                                    $asset_ip_display = "$asset_ip<button type='button' class='itflow-copy clipboardjs' title='Copy IP' data-clipboard-text='$asset_ip'><i class='far fa-copy'></i></button>";
                                 }
                                 $asset_nat_ip = escapeHtml($row['interface_nat_ip']);
                                 $asset_ipv6 = escapeHtml($row['interface_ipv6']);
@@ -533,14 +533,14 @@ if (isset($_GET['contact_id'])) {
                                 if (empty($credential_uri)) {
                                     $credential_uri_display = "-";
                                 } else {
-                                    $credential_uri_display = "$credential_uri<button class='btn btn-sm btn-link clipboardjs' title='Copy URI' data-clipboard-text='$credential_uri'><i class='far fa-copy text-secondary'></i></button><a href='$credential_uri' target='_blank'><i class='fa fa-external-link-alt text-secondary'></i></a>";
+                                    $credential_uri_display = "$credential_uri<button type='button' class='itflow-copy clipboardjs' title='Copy URI' data-clipboard-text='$credential_uri'><i class='far fa-copy'></i></button><a href='$credential_uri' target='_blank'><i class='fa fa-external-link-alt text-secondary'></i></a>";
                                 }
                                 $credential_uri_2 = escapeHtml($row['credential_uri_2']);
                                 $credential_username = escapeHtml(decryptCredentialEntry($row['credential_username']));
                                 if (empty($credential_username)) {
                                     $credential_username_display = "-";
                                 } else {
-                                    $credential_username_display = "$credential_username<button class='btn btn-sm btn-link clipboardjs' title='Copy username' data-clipboard-text='$credential_username'><i class='far fa-copy text-secondary'></i></button>";
+                                    $credential_username_display = "$credential_username<button type='button' class='itflow-copy clipboardjs' title='Copy username' data-clipboard-text='$credential_username'><i class='far fa-copy'></i></button>";
                                 }
                                 $credential_otp_secret = escapeHtml($row['credential_otp_secret']);
                                 if (empty($credential_otp_secret)) {
@@ -566,7 +566,7 @@ if (isset($_GET['contact_id'])) {
                                     <td><?= $credential_description ?></td>
                                     <td><?= $credential_username_display ?></td>
                                     <td>
-                                        <button class="btn p-0" aria-label="Show password" type="button" onclick="showPasswordViaCredentialID(this, <?= $credential_id ?>)"><i class="fas fa-2x fa-ellipsis-h text-secondary"></i><i class="fas fa-2x fa-ellipsis-h text-secondary"></i></button><button class="btn btn-sm" title="Copy password" type="button" onclick="copyPasswordViaCredentialID(this, <?= $credential_id ?>)"><i class="far fa-copy text-secondary"></i></button>
+                                        <button class="btn p-0" aria-label="Show password" type="button" onclick="showPasswordViaCredentialID(this, <?= $credential_id ?>)"><i class="fas fa-2x fa-ellipsis-h text-secondary"></i><i class="fas fa-2x fa-ellipsis-h text-secondary"></i></button><button type="button" class="itflow-copy" title="Copy password" onclick="copyPasswordViaCredentialID(this, <?= $credential_id ?>)"><i class="far fa-copy"></i></button>
                                     </td>
                                     <td><?= $otp_display ?></td>
                                     <td><?= $credential_uri_display ?></td>

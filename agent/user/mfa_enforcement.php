@@ -72,9 +72,9 @@ $data = "otpauth://totp/ITFlow:$session_email?secret=$token";
 
                     <img src='../../libs/barcode/barcode.php?f=png&s=qr&d=<?= $data ?>' data-bs-toggle="tooltip" title="Scan QR code into your MFA App">
 
-                    <p>
+                    <p class="itflow-copy-always">
                         <small data-bs-toggle="tooltip" title="Can't Scan? Copy and paste this code into your app"><?= $token ?></small>
-                        <button type="button" class='btn btn-sm btn-link clipboardjs' title='Copy secret' data-clipboard-text='<?= $token ?>'><i class='far fa-copy text-secondary'></i></button>
+                        <button type='button' class='itflow-copy clipboardjs' title='Copy secret' data-clipboard-text='<?= $token ?>'><i class='far fa-copy'></i></button>
                     </p>
 
                     <div class="input-group mb-3">

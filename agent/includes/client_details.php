@@ -27,7 +27,7 @@ $location_map_query = rawurlencode(html_entity_decode(trim("$location_address $l
             <?php if ($contact_email) { ?>
                 <span class="d-flex align-items-center">
                     <a class="text-reset text-decoration-none text-truncate" href="mailto:<?= $contact_email ?>"><i class="far fa-fw fa-envelope text-body-secondary me-2" aria-hidden="true"></i><?= $contact_email ?></a>
-                    <button class="btn btn-link btn-sm p-0 ms-1 text-body-secondary clipboardjs" type="button" title="Copy email" data-clipboard-text="<?= $contact_email ?>"><i class="far fa-fw fa-copy" aria-hidden="true"></i></button>
+                    <button type="button" class="itflow-copy clipboardjs" title="Copy email" data-clipboard-text="<?= $contact_email ?>"><i class="far fa-copy"></i></button>
                 </span>
             <?php } ?>
         </div>

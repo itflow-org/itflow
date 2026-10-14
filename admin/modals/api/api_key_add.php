@@ -74,7 +74,7 @@ ob_start();
                     <div class="input-group">
                             <span class="input-group-text"><i class="fa fa-fw fa-key"></i></span>
                         <input type="text" class="form-control" value="<?= $key ?>" required disabled>
-                            <button class="btn btn-default clipboardjs" title="Copy API key" type="button" data-clipboard-text="<?= $key ?>"><i class="fa fa-fw fa-copy"></i></button>
+                            <button class="btn btn-outline-secondary clipboardjs" title="Copy API key" type="button" data-clipboard-text="<?= $key ?>"><i class="far fa-fw fa-copy"></i></button>
                     </div>
                 </div>
 
@@ -83,7 +83,7 @@ ob_start();
                     <div class="input-group">
                             <span class="input-group-text"><i class="fa fa-fw fa-unlock-alt"></i></span>
                         <input type="text" class="form-control" value="<?= $decryptPW ?>" required disabled>
-                            <button class="btn btn-default clipboardjs" title="Copy decryption password" type="button" data-clipboard-text="<?= $decryptPW ?>"><i class="fa fa-fw fa-copy"></i></button>
+                            <button class="btn btn-outline-secondary clipboardjs" title="Copy decryption password" type="button" data-clipboard-text="<?= $decryptPW ?>"><i class="far fa-fw fa-copy"></i></button>
                     </div>
                 </div>
                 <br>

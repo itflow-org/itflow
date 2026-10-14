@@ -537,7 +537,7 @@ $total_leads = intval($row['leads']);
                                         <?php } else { ?>
                                             <a class="text-reset" href="mailto:<?= $contact_email ?>" title="Email <?= $contact_email ?>"><i class="far fa-fw fa-envelope" aria-hidden="true"></i><span class="visually-hidden">Email <?= $contact_email ?></span></a>
                                         <?php } ?>
-                                        <button class="btn btn-link btn-sm p-0 text-reset clipboardjs" type="button" title="Copy <?= $contact_email ?>" data-clipboard-text="<?= $contact_email ?>"><i class="far fa-fw fa-copy" aria-hidden="true"></i><span class="visually-hidden">Copy email</span></button>
+                                        <button type="button" class="itflow-copy clipboardjs" title="Copy email" data-clipboard-text="<?= $contact_email ?>"><i class="far fa-copy"></i></button>
                                     <?php } ?>
                                 </div>
                             <?php } elseif ($can_edit) { ?>

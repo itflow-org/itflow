@@ -3638,7 +3638,13 @@ img.itflow-asset-icon {
     line-height: 1.4;
 }
 
-/* Copy button beside an IP / MAC / serial - quiet until the row is pointed at */
+/* Copy button beside a value - an IP, MAC, serial, email, username, URI or a
+   password. Quiet until the row or line it sits in is pointed at: a table row,
+   a list-group row, a quick-look line, or just its own parent element.
+   .itflow-copy-always keeps it showing where copying is the point (an MFA
+   secret). Markup:
+   <button type="button" class="itflow-copy clipboardjs" title="Copy IP" data-clipboard-text="..."><i class="far fa-copy"></i></button>
+   Copy buttons attached to an input stay input-group buttons. */
 .itflow-copy {
     margin-left: .3rem;
     padding: 0 .15rem;
@@ -3650,6 +3656,9 @@ img.itflow-asset-icon {
     transition: opacity .12s ease-in-out;
 }
 tr:hover .itflow-copy,
+.list-group-item:hover .itflow-copy,
+.itflow-glance-item:hover .itflow-copy,
+:hover > .itflow-copy,
 .itflow-copy-always .itflow-copy,
 .itflow-copy:focus-visible {
     opacity: 1;

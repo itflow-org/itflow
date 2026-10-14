@@ -70,7 +70,10 @@
 
                     <div id="div_share_link_output" hidden>
                         <h3 id="share_link_header">Share URL</h3>
-                        <input type="text" class="form-control" disabled id="share_link" value="">
+                        <div class="input-group">
+                            <input type="text" class="form-control" readonly id="share_link" value="" onclick="this.select();">
+                            <button class="btn btn-outline-secondary clipboardjs" type="button" id="share_link_copy" title="Copy link" data-clipboard-target="#share_link"><i class="far fa-fw fa-copy"></i></button>
+                        </div>
                     </div>
 
                 </div>

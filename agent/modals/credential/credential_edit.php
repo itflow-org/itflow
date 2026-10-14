@@ -112,7 +112,7 @@ ob_start();
                             <span class="input-group-text"><i class="fa fa-fw fa-lock"></i></span>
                         <input type="password" class="form-control" data-toggle="password" name="password" placeholder="Password or Key" maxlength="350" value="<?= $credential_password ?>" required autocomplete="new-password">
                             <span class="input-group-text"><i class="fa fa-fw fa-eye"></i></span>
-                            <button class="btn btn-default clipboardjs" title="Copy password" type="button" data-clipboard-text="<?= $credential_password ?>"><i class="fa fa-fw fa-copy"></i></button>
+                            <button class="input-group-text clipboardjs" title="Copy password" type="button" data-clipboard-target="input[name=password]"><i class="far fa-fw fa-copy"></i></button>
                     </div>
                 </div>
 
@@ -132,7 +132,7 @@ ob_start();
                         <input type="text" class="form-control" name="uri" placeholder="ex. http://192.168.1.1" maxlength="500" value="<?= $credential_uri ?>">
 
                             <a href="<?= $credential_uri_link ?>" target="_blank" class="input-group-text"><i class="fa fa-fw fa-link"></i></a>
-                            <button class="input-group-text clipboardjs" title="Copy URI" type="button" data-clipboard-text="<?= $credential_uri ?>"><i class="fa fa-fw fa-copy"></i></button>
+                            <button class="input-group-text clipboardjs" title="Copy URI" type="button" data-clipboard-target="input[name=uri]"><i class="far fa-fw fa-copy"></i></button>
                     </div>
                 </div>
 
@@ -142,7 +142,7 @@ ob_start();
                             <span class="input-group-text"><i class="fa fa-fw fa-link"></i></span>
                         <input type="text" class="form-control" name="uri_2" placeholder="ex. https://server.company.com:5001" maxlength="500" value="<?= $credential_uri_2 ?>">
                             <a href="<?= $credential_uri_2_link ?>" target="_blank" class="input-group-text"><i class="fa fa-fw fa-link"></i></a>
-                            <button class="input-group-text clipboardjs" title="Copy URI" type="button" data-clipboard-text="<?= $credential_uri_2 ?>"><i class="fa fa-fw fa-copy"></i></button>
+                            <button class="input-group-text clipboardjs" title="Copy URI 2" type="button" data-clipboard-target="input[name=uri_2]"><i class="far fa-fw fa-copy"></i></button>
                     </div>
                 </div>
 

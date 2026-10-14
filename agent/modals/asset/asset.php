@@ -264,7 +264,7 @@ ob_start();
     <?php if ($has_left || $has_right) { ?>
         <div class="row g-2 itflow-asset-glance">
             <?php if ($has_left) { ?>
-                <div class="col-sm-6 itflow-copy-always">
+                <div class="col-sm-6">
                     <?php if ($asset_ip) { ?>
                         <div class="itflow-glance-item" title="IP address">
                             <i class="fas fa-fw fa-globe"></i>
@@ -401,7 +401,7 @@ ob_start();
                                         <td class="text-nowrap"><?php if ($credential_username) { ?><?= $credential_username ?><button type="button" class="itflow-copy clipboardjs" title="Copy username" data-clipboard-text="<?= $credential_username ?>"><i class="far fa-copy"></i></button><?php } else { ?><span class="text-body-secondary">-</span><?php } ?></td>
                                         <td class="text-nowrap">
                                             <button class="btn btn-sm btn-light" aria-label="Show password" title="Show password" type="button" onclick="showPasswordViaCredentialID(this, <?= $credential_id ?>)"><i class="fas fa-ellipsis-h"></i><i class="fas fa-ellipsis-h"></i></button>
-                                            <button class="btn btn-sm btn-link text-secondary" title="Copy password" type="button" onclick="copyPasswordViaCredentialID(this, <?= $credential_id ?>)"><i class="far fa-copy"></i></button>
+                                            <button type="button" class="itflow-copy" title="Copy password" onclick="copyPasswordViaCredentialID(this, <?= $credential_id ?>)"><i class="far fa-copy"></i></button>
                                         </td>
                                         <td class="text-nowrap">
                                             <?php if (!empty($row['credential_otp_secret'])) { ?>
