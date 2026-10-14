@@ -66,7 +66,7 @@ $url_query_strings_sort = http_build_query($get_copy);
 $sortable_columns = array(
     'ticket_number', 'ticket_subject', 'client_name', 'contact_name',
     'ticket_billable', 'ticket_priority', 'ticket_status', 'user_name',
-    'ticket_updated_at', 'ticket_created_at'
+    'ticket_updated_at', 'ticket_created_at', 'ticket_sla'
 );
 if (!in_array($sort, $sortable_columns, true)) {
     $sort = 'ticket_number';

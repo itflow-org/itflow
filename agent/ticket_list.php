@@ -8,24 +8,60 @@
 
 isset($mysqli) || die("Direct file access is not allowed");
 
+/*
+ * ORDER BY for the selected column. Priority and SLA aren't plain columns -
+ * both sort on a rank built from the row. $sort is whitelisted in tickets.php
+ * and $order is ASC|DESC from filter_header.php, so neither is raw input here.
+ */
+if ($sort == 'ticket_priority') {
+    $ticket_order_by =
+        "CASE ticket_priority
+            WHEN 'Urgent' THEN 0
+            WHEN 'High' THEN 1
+            WHEN 'Medium' THEN 2
+            WHEN 'Low' THEN 3
+            ELSE 4
+        END $order,
+        ticket_number DESC";
+} elseif ($sort == 'ticket_sla') {
+    /*
+     * SLA sorts by urgency, in the same buckets the SLA column shows, so the
+     * badges group together. ASC (the first click) puts the most urgent first:
+     *
+     *   0 Breached  1 At risk  2 Running (by due)  3 Paused
+     *   4 Open, no clock running (response-only plan, already responded)
+     *   5 Resolved / Closed
+     *
+     * A paused ticket ranks as Paused even if it had already breached - that
+     * is the badge the column shows for it. Within a bucket, the clock that's
+     * still running decides: response due until the first response, then
+     * resolution due. Tickets without an SLA always sink to the bottom - DESC
+     * flips the urgency order, not the "has an SLA at all" split.
+     */
+    $ticket_sla_is_open = "ticket_resolved_at IS NULL AND ticket_closed_at IS NULL";
+    $ticket_sla_due = "CASE WHEN ticket_first_response_at IS NULL THEN ticket_response_due_at ELSE ticket_resolution_due_at END";
+    $ticket_order_by =
+        "ticket_sla_id = 0 ASC,
+        CASE
+            WHEN NOT ($ticket_sla_is_open) THEN 5
+            WHEN COALESCE(ticket_status_pauses_sla, 0) = 1 THEN 3
+            WHEN GREATEST(ticket_response_sla_alert_stage, ticket_resolution_sla_alert_stage) = 2 THEN 0
+            WHEN GREATEST(ticket_response_sla_alert_stage, ticket_resolution_sla_alert_stage) = 1 THEN 1
+            WHEN ($ticket_sla_due) IS NULL THEN 4
+            ELSE 2
+        END $order,
+        ($ticket_sla_due) $order,
+        ticket_number DESC";
+} else {
+    $ticket_order_by = "$sort $order";
+}
+
 $query =
     "SELECT SQL_CALC_FOUND_ROWS $ticket_select_columns
     FROM tickets
     $ticket_joins
     $ticket_where
-    ORDER BY
-        CASE
-            WHEN '$sort' = 'ticket_priority' THEN
-                CASE ticket_priority
-                    WHEN 'Urgent' THEN 0
-                    WHEN 'High' THEN 1
-                    WHEN 'Medium' THEN 2
-                    WHEN 'Low' THEN 3
-                    ELSE 4
-                END
-            ELSE NULL
-        END $order,
-        $sort $order
+    ORDER BY $ticket_order_by
     LIMIT $record_from, $record_to";
 
 $sql = mysqli_query($mysqli, $query);
@@ -191,7 +227,11 @@ if ($tickets) {
                             </a>
                         </th>
                         <?php if ($sla_filter_in_use) { ?>
-                        <th>SLA</th>
+                        <th>
+                            <a class="text-dark" href="?<?= $url_query_strings_sort ?>&sort=ticket_sla&order=<?= $disp ?>">
+                                SLA <?php if ($sort == 'ticket_sla') { echo $order_icon; } ?>
+                            </a>
+                        </th>
                         <?php } ?>
                         <th>
                             <a class="text-dark" href="?<?= $url_query_strings_sort ?>&sort=user_name&order=<?= $disp ?>">
