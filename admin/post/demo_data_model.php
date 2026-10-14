@@ -1678,45 +1678,58 @@ function demoBuildRack($mysqli, $profile, $client_id, $location_id, $assets, $mo
     $rack_id = starterInsert($mysqli, 'racks', [
         'rack_name' => $profile['abbreviation'] . '-RACK-01',
         'rack_description' => 'Main comms rack',
-        'rack_model' => 'StarTech 12U Wall Mount',
-        'rack_depth' => 'Full',
-        'rack_type' => 'Wall Mount',
+        'rack_model' => 'StarTech 12U Wall Mount Enclosure',
+        'rack_depth' => '18 in',
+        'rack_type' => 'Wall-Mount Enclosed',
         'rack_units' => 12,
+        'rack_power_capacity' => 1000,
         'rack_physical_location' => 'Server room',
-        'rack_notes' => 'Keyed alike with the comms cupboard. Spare key is held by the onsite point of contact.',
+        'rack_notes' => 'Keyed alike with the comms cupboard. Spare key is held by the onsite point of contact. Fed from the 1500VA UPS at the bottom of the rack.',
         'rack_location_id' => $location_id,
         'rack_client_id' => $client_id,
         'rack_created_at' => demoMonthDateTime($months, 6, 15, 0),
     ]);
     $counts['documentation']++;
 
-    // Patch panel at the top, then the kit under it
-    $unit = 12;
-    starterInsert($mysqli, 'rack_units', [
-        'unit_start_number' => $unit,
-        'unit_end_number' => $unit,
-        'unit_device' => 'Patch panel - 24 port',
-        'unit_rack_id' => $rack_id,
-        'unit_created_at' => demoMonthDateTime($months, 6, 15, 5),
-    ]);
+    $racked_at = demoMonthDateTime($months, 6, 15, 5);
+    $rack_item = function ($start, $end, $fields) use ($mysqli, $rack_id, $racked_at) {
+        starterInsert($mysqli, 'rack_units', $fields + [
+            'unit_start_number' => $start,
+            'unit_end_number' => $end,
+            'unit_face' => 'front',
+            'unit_full_depth' => 1,
+            'unit_rack_id' => $rack_id,
+            'unit_created_at' => $racked_at,
+        ]);
+    };
 
+    // Patching at the top, front only - the PDU shares those units at the back
+    $rack_item(12, 12, ['unit_device' => 'Patch panel - 24 port Cat6', 'unit_type' => 'Patch Panel', 'unit_full_depth' => 0]);
+    $rack_item(11, 11, ['unit_device' => 'Horizontal cable manager', 'unit_type' => 'Cable Management', 'unit_full_depth' => 0]);
+    $rack_item(11, 12, ['unit_device' => 'Switched PDU - 8 outlet', 'unit_type' => 'PDU', 'unit_face' => 'rear', 'unit_full_depth' => 0]);
+
+    // Then the kit, top down. Firewalls and switches are short-depth; servers are not.
+    $unit = 11;
     foreach ($rackable as $asset) {
-        $unit--;
-        if ($unit < 1) {
+        $height = $asset['type'] === 'Server' ? 2 : 1;
+        $end = $unit - 1;
+        $start = $end - ($height - 1);
+        if ($start < 3) {
             break;
         }
-        $height = $asset['type'] === 'Server' ? 2 : 1;
-        $start = max(1, $unit - ($height - 1));
-        starterInsert($mysqli, 'rack_units', [
-            'unit_start_number' => $start,
-            'unit_end_number' => $unit,
-            'unit_device' => $asset['name'] . ' - ' . $asset['make'] . ' ' . $asset['model'],
+        $is_server = $asset['type'] === 'Server';
+        $is_poe = stripos($asset['model'], 'poe') !== false;
+        $rack_item($start, $end, [
+            'unit_device' => '',
             'unit_asset_id' => $asset['id'],
-            'unit_rack_id' => $rack_id,
-            'unit_created_at' => demoMonthDateTime($months, 6, 15, 5),
+            'unit_full_depth' => $is_server ? 1 : 0,
+            'unit_power_watts' => $is_server ? 220 : ($is_poe ? 150 : 35),
         ]);
         $unit = $start;
     }
+
+    // The UPS everything runs on, at the bottom where the weight belongs
+    $rack_item(1, 2, ['unit_device' => 'APC Smart-UPS 1500VA 2U', 'unit_type' => 'UPS', 'unit_notes' => 'Battery replaced at install']);
 
 }
 

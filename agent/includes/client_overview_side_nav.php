@@ -19,6 +19,9 @@ $num_credentials = $row['num'];
 $row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT COUNT('network_id') AS num FROM networks LEFT JOIN clients ON network_client_id = client_id WHERE network_archived_at IS NULL AND client_archived_at IS NULL " . clientScopeSql('network_client_id') . ""));
 $num_networks = $row['num'];
 
+$row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT COUNT('rack_id') AS num FROM racks LEFT JOIN clients ON rack_client_id = client_id WHERE rack_archived_at IS NULL AND client_archived_at IS NULL " . clientScopeSql('rack_client_id') . ""));
+$num_racks = $row['num'];
+
 $row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT COUNT('domain_id') AS num FROM domains LEFT JOIN clients ON domain_client_id = client_id WHERE domain_archived_at IS NULL AND client_archived_at IS NULL " . clientScopeSql('domain_client_id') . ""));
 $num_domains = $row['num'];
 
@@ -97,6 +100,19 @@ $num_software = $row['num'];
                                 <?php
                                 if ($num_networks > 0) { ?>
                                     <span class="right badge text-light"><?= $num_networks ?></span>
+                                <?php } ?>
+                            </p>
+                        </a>
+                    </li>
+
+                    <li class="nav-item">
+                        <a href="racks.php" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "racks.php") { echo "active"; } ?>">
+                            <i class="nav-icon fas fa-server"></i>
+                            <p>
+                                Racks
+                                <?php
+                                if ($num_racks > 0) { ?>
+                                    <span class="right badge text-light"><?= $num_racks ?></span>
                                 <?php } ?>
                             </p>
                         </a>

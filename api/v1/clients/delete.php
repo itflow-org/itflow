@@ -17,6 +17,7 @@ if (!empty($client_id)) {
         mysqli_query($mysqli, "DELETE FROM documents WHERE document_client_id = $client_id");
         mysqli_query($mysqli, "DELETE FROM contacts WHERE contact_client_id = $client_id");
         mysqli_query($mysqli, "DELETE FROM assets WHERE asset_client_id = $client_id");
+        mysqli_query($mysqli, "DELETE FROM racks WHERE rack_client_id = $client_id");
         mysqli_query($mysqli, "DELETE FROM domains WHERE domain_client_id = $client_id");
         mysqli_query($mysqli, "DELETE FROM calendar_events WHERE event_client_id = $client_id");
         mysqli_query($mysqli, "DELETE FROM files WHERE file_client_id = $client_id");

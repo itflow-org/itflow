@@ -87,6 +87,14 @@ if ($location_archived_at) {
     $location_name_display = $location_name;
 }
 
+// The rack it sits in, if any
+$asset_rack = rackPositionForAsset($asset_id);
+if ($asset_rack) {
+    $asset_rack_id = intval($asset_rack['rack_id']);
+    $asset_rack_name = escapeHtml($asset_rack['rack_name']);
+    $asset_rack_position = rackPositionLabel($asset_rack['unit_start_number'], $asset_rack['unit_end_number']) . ', ' . ($asset_rack['unit_face'] === 'rear' ? 'rear' : 'front');
+}
+
 // Tags - many to many relationship
 // Tags - functions/tags.php
 $asset_tags_display = tagPills('asset', $asset_id, tagsForRecord('asset', $asset_id), "assets.php?client_id=$client_id&");
@@ -392,6 +400,9 @@ ob_start();
                 <div class="card-body">
                     <?php if ($location_name) { ?>
                         <div><i class="fa fa-fw fa-map-marker-alt text-secondary me-2"></i><?= $location_name_display ?></div>
+                    <?php }
+                    if ($asset_rack) { ?>
+                        <div class="mt-2"><i class="fa fa-fw fa-server text-secondary me-2"></i><a href="rack.php?client_id=<?= $client_id ?>&rack_id=<?= $asset_rack_id ?>"><?= $asset_rack_name ?></a> <span class="text-secondary">&middot; <?= $asset_rack_position ?></span></div>
                     <?php }
                     if ($contact_name) { ?>
                         <div class="mt-2"><i class="fa fa-fw fa-user text-secondary me-2"></i><?= $contact_name_display ?></div>

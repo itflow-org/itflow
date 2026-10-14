@@ -236,6 +236,9 @@ if (isset($_GET['delete_asset'])) {
 
     mysqli_query($mysqli,"DELETE FROM assets WHERE asset_id = $asset_id");
 
+    // Out of whatever rack it was in - an item pointing at a deleted asset draws as nothing
+    mysqli_query($mysqli,"DELETE FROM rack_units WHERE unit_asset_id = $asset_id");
+
     logAudit("Asset", "Delete", "$session_name deleted asset $asset_name", $client_id);
 
     flashAlert("Asset <strong>$asset_name</strong> deleted");
@@ -508,6 +511,8 @@ if (isset($_POST['bulk_transfer_client_asset'])) {
             // Archive/log the current asset
             $notes = $asset_notes . "\r\n\r\n---\r\n* " . date('Y-m-d H:i:s') . ": Transferred asset $asset_name (old asset ID: $current_asset_id) from $current_client_name to $new_client_name (new asset ID: $new_asset_id)";
             mysqli_query($mysqli,"UPDATE assets SET asset_archived_at = NOW() WHERE asset_id = $current_asset_id");
+            // It belongs to another client now, so it is no longer in this client's rack
+            mysqli_query($mysqli,"DELETE FROM rack_units WHERE unit_asset_id = $current_asset_id");
             mysqli_query($mysqli,"INSERT INTO asset_history SET asset_history_status = 'Transferred', asset_history_description = '$session_name transferred $asset_name to $new_client_name', asset_history_asset_id = $current_asset_id");
 
             // Log Archive
@@ -805,6 +810,7 @@ if (isset($_POST['bulk_delete_assets'])) {
             enforceClientAccess();
 
             mysqli_query($mysqli,"DELETE FROM assets WHERE asset_id = $asset_id");
+            mysqli_query($mysqli,"DELETE FROM rack_units WHERE unit_asset_id = $asset_id");
 
             logAudit("Asset", "Delete", "$session_name deleted asset $asset_name", $client_id, $asset_id);
         }

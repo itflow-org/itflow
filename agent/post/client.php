@@ -285,6 +285,9 @@ if (isset($_GET['delete_client'])) {
     // Delete Assets
     mysqli_query($mysqli, "DELETE FROM assets WHERE asset_client_id = $client_id");
 
+    // Delete Racks (their items go with them)
+    mysqli_query($mysqli, "DELETE FROM racks WHERE rack_client_id = $client_id");
+
     // Delete Domains and associated records
     mysqli_query($mysqli, "DELETE FROM domains WHERE domain_client_id = $client_id");
 

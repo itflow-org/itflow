@@ -6,25 +6,34 @@ enforceUserPermission('module_support', 2);
 
 $rack_id = intval($_GET['id']);
 
-$sql = mysqli_query($mysqli, "SELECT rack_client_id, rack_created_at, rack_depth, rack_description, rack_location_id,
-    rack_model, rack_name, rack_notes, rack_photo, rack_physical_location, rack_type,
-    rack_units FROM racks WHERE rack_id = $rack_id LIMIT 1");
+$sql = mysqli_query($mysqli, "SELECT rack_client_id, rack_depth, rack_description, rack_location_id,
+    rack_model, rack_name, rack_notes, rack_photo, rack_photo_rear, rack_physical_location, rack_power_capacity,
+    rack_type, rack_units, rack_units_descending FROM racks WHERE rack_id = $rack_id LIMIT 1");
 
 $row = mysqli_fetch_assoc($sql);
+if (!$row) {
+    echo json_encode(['error' => 'That rack no longer exists.']);
+    exit;
+}
 $rack_name = escapeHtml($row['rack_name']);
 $rack_description = escapeHtml($row['rack_description']);
 $rack_model = escapeHtml($row['rack_model']);
 $rack_depth = escapeHtml($row['rack_depth']);
 $rack_type = escapeHtml($row['rack_type']);
 $rack_units = intval($row['rack_units']);
+$rack_units_descending = intval($row['rack_units_descending']);
+$rack_power_capacity = intval($row['rack_power_capacity']);
 $rack_photo = escapeHtml($row['rack_photo']);
+$rack_photo_rear = escapeHtml($row['rack_photo_rear']);
 $rack_physical_location = escapeHtml($row['rack_physical_location']);
 $rack_notes = escapeHtml($row['rack_notes']);
-$rack_location_id = escapeHtml($row['rack_location_id']);
-$rack_created_at = escapeHtml($row['rack_created_at']);
+$rack_location_id = intval($row['rack_location_id']);
 $client_id = intval($row['rack_client_id']);
 
 enforceClientAccess();
+
+// The rack can't shrink below what's mounted in it - the field's minimum says so
+$rack_highest_used_unit = intval(mysqli_fetch_row(mysqli_query($mysqli, "SELECT MAX(unit_end_number) FROM rack_units WHERE unit_rack_id = $rack_id"))[0]);
 
 ob_start();
 
@@ -40,134 +49,7 @@ ob_start();
     <input type="hidden" name="rack_id" value="<?= $rack_id ?>">
 
     <div class="modal-body">
-
-        <ul class="nav nav-pills nav-justified mb-3">
-            <li class="nav-item">
-                <a class="nav-link active" data-bs-toggle="pill" href="#pills-rack-details<?= $rack_id ?>">Details</a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" data-bs-toggle="pill" href="#pills-rack-notes<?= $rack_id ?>">Notes</a>
-            </li>
-        </ul>
-
-        <hr>
-
-        <div class="tab-content" <?php if (lookupUserPermission('module_support') <= 1) { echo 'inert'; } ?>>
-
-            <div class="tab-pane fade show active" id="pills-rack-details<?= $rack_id ?>">
-
-                <div class="mb-3">
-                    <label>Type <strong class="text-danger">*</strong></label>
-                    <div class="input-group">
-                            <span class="input-group-text"><i class="fa fa-fw fa-server"></i></span>
-                        <select class="form-select select2" name="type" required>
-                            <option value="">- Type -</option>
-                            <?php
-                            $sql_rack_types_select = mysqli_query($mysqli, "
-                                SELECT category_name, category_color, category_icon FROM categories
-                                WHERE category_type = 'rack_type'
-                                AND category_archived_at IS NULL
-                                ORDER BY category_order ASC, category_name ASC
-                            ");
-                            while ($row = mysqli_fetch_assoc($sql_rack_types_select)) {
-                                $rack_type_select = escapeHtml($row['category_name']);
-                                ?>
-                                <option <?php if ($rack_type == $rack_type_select) { echo "selected"; } ?><?= selectOptionColor($row['category_color'] ?? '', $row['category_icon'] ?? '') ?>>
-                                    <?= $rack_type_select ?>
-                                </option>
-                            <?php } ?>
-                        </select>
-                    </div>
-                </div>
-
-                <div class="mb-3">
-                    <label>Name <strong class="text-danger">*</strong></label>
-                    <div class="input-group">
-                            <span class="input-group-text"><i class="fa fa-fw fa-server"></i></span>
-                        <input type="text" class="form-control" name="name" placeholder="Rack name" maxlength="200" value="<?= $rack_name ?>" required autofocus>
-                    </div>
-                </div>
-
-                <div class="mb-3">
-                    <label>Number of Units <strong class="text-danger">*</strong></label>
-                    <div class="input-group">
-                            <span class="input-group-text"><i class="fa fa-fw fa-sort-numeric-up-alt"></i></span>
-                        <input type="number" class="form-control" name="units" placeholder="Number of Units" min="1" max="70" value="<?= $rack_units ?>" required>
-                    </div>
-                </div>
-
-                <div class="mb-3">
-                    <label>Model</label>
-                    <div class="input-group">
-                            <span class="input-group-text"><i class="fa fa-fw fa-tag"></i></span>
-                        <input type="text" class="form-control" name="make" placeholder="ex StarTech 12U Open Frame" maxlength="200" value="<?= $rack_model ?>">
-                    </div>
-                </div>
-
-                <div class="mb-3">
-                    <label>Depth</label>
-                    <div class="input-group">
-                            <span class="input-group-text"><i class="fa fa-fw fa-ruler"></i></span>
-                        <input type="text" class="form-control" name="depth" placeholder="Rack Depth eg 800 mm or 31.5 Inches" maxlength="50" value="<?= $rack_depth ?>">
-                    </div>
-                </div>
-
-                <div class="mb-3">
-                    <label>Location</label>
-                    <div class="input-group">
-                            <span class="input-group-text"><i class="fa fa-fw fa-map-marker-alt"></i></span>
-                        <select class="form-select select2" name="location">
-                            <option value="">- Location -</option>
-                            <?php
-
-                            $sql_location_select = mysqli_query($mysqli, "SELECT location_id, location_name FROM locations WHERE location_archived_at IS NULL AND location_client_id = $client_id ORDER BY location_name ASC");
-                            while ($row = mysqli_fetch_assoc($sql_location_select)) {
-                                $location_id_select = intval($row['location_id']);
-                                $location_name_select = escapeHtml($row['location_name']);
-                                ?>
-                                <option <?php if ($rack_location_id == $location_id_select) { echo "selected"; } ?> value="<?= $location_id_select ?>"><?= $location_name_select ?></option>
-                            <?php } ?>
-
-                        </select>
-                    </div>
-                </div>
-
-                <div class="mb-3">
-                    <label>Physical Location</label>
-                    <div class="input-group">
-                            <span class="input-group-text"><i class="fa fa-fw fa-map-marker-alt"></i></span>
-                        <input type="text" class="form-control" name="physical_location" placeholder="Physical location eg. Floor 2, Closet B" maxlength="200" value="<?= $rack_physical_location ?>">
-                    </div>
-                </div>
-
-                <div class="mb-3">
-                    <label>Description</label>
-                    <div class="input-group">
-                            <span class="input-group-text"><i class="fa fa-fw fa-align-left"></i></span>
-                        <input type="text" class="form-control" name="description" placeholder="Description of the rack" value="<?= $rack_description ?>">
-                    </div>
-                </div>
-
-            </div>
-
-            <div class="tab-pane fade" id="pills-rack-notes<?= $rack_id ?>">
-
-                <?php if ($rack_photo) { ?>
-                    <img class="img-fluid p-3" alt="rack_photo" src="<?= "uploads/clients/$client_id/$rack_photo" ?>">
-                <?php } ?>
-
-                <div class="mb-3">
-                    <label>Upload Photo</label>
-                    <input type="file" class="form-control" name="file" accept="image/*">
-                </div>
-
-                <div class="mb-3">
-                    <textarea class="form-control" rows="8" placeholder="Enter some notes" name="notes"><?= $rack_notes ?></textarea>
-                </div>
-
-            </div>
-
-        </div>
+        <?php require 'rack_form.php'; ?>
     </div>
     <div class="modal-footer">
         <button type="submit" name="edit_rack" class="btn btn-primary text-bold"><i class="fa fa-check me-2"></i>Save</button>

@@ -3150,3 +3150,395 @@ button.itflow-client-nav-identity:focus-visible {
     --itflow-dash-tone: transparent;
     flex-basis: 12rem;
 }
+
+/* Racks - agent/racks.php, agent/rack.php, agent/includes/rack_elevation.php
+
+   A rack is drawn as a cabinet: dark frame, numbered rails either side and a
+   bay with one CSS grid row per U. Items are placed by grid-row (PHP works out
+   the row from the U and which way the rack is numbered), empty U are buttons
+   that open "add here". The frame stays dark in both themes - it is a picture
+   of a rack, not page chrome - so its colours are fixed rather than taken from
+   the Bootstrap variables.
+
+   The row height shrinks for tall racks so a 42U rack still fits a screen. */
+.min-w-0 {
+    min-width: 0;
+}
+.itflow-rack-pair {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 1.5rem;
+}
+.itflow-rack {
+    --rack-u: clamp(1.3rem, calc(60rem / var(--rack-rows)), 1.75rem);
+    flex: 1 1 19rem;
+    max-width: 30rem;
+}
+.itflow-rack-cap {
+    margin-bottom: .35rem;
+    font-size: .7rem;
+    font-weight: 600;
+    letter-spacing: .08em;
+    text-align: center;
+    text-transform: uppercase;
+    color: var(--bs-secondary-color);
+}
+.itflow-rack-frame {
+    display: flex;
+    padding: .5rem .3rem;
+    border-radius: .75rem;
+    background: linear-gradient(180deg, #2b3035, #212529);
+    box-shadow: inset 0 0 0 1px rgba(255, 255, 255, .06), 0 .25rem .75rem rgba(0, 0, 0, .18);
+}
+.itflow-rack-rail {
+    display: grid;
+    flex: 0 0 1.75rem;
+    grid-template-rows: repeat(var(--rack-rows), var(--rack-u));
+}
+.itflow-rack-rail span {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: var(--bs-font-monospace);
+    font-size: .62rem;
+    color: rgba(255, 255, 255, .42);
+}
+.itflow-rack-bay {
+    position: relative;
+    display: grid;
+    flex: 1 1 auto;
+    min-width: 0;
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: repeat(var(--rack-rows), var(--rack-u));
+    border-right: 2px solid #3a4148;
+    border-left: 2px solid #3a4148;
+    background-color: #15181b;
+    background-image: repeating-linear-gradient(to bottom, transparent 0, transparent calc(var(--rack-u) - 1px), rgba(255, 255, 255, .05) calc(var(--rack-u) - 1px), rgba(255, 255, 255, .05) var(--rack-u));
+}
+.itflow-rack-slot {
+    grid-column: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 1px 2px;
+    padding: 0;
+    border: 1px dashed transparent;
+    border-radius: .3rem;
+    background: transparent;
+    font-size: .7rem;
+    color: rgba(255, 255, 255, .85);
+}
+.itflow-rack-slot span {
+    opacity: 0;
+    transition: opacity .12s ease-in-out;
+}
+button.itflow-rack-slot:hover,
+button.itflow-rack-slot:focus-visible {
+    border-color: rgba(255, 255, 255, .35);
+    background-color: rgba(255, 255, 255, .07);
+    outline: 0;
+}
+button.itflow-rack-slot:hover span,
+button.itflow-rack-slot:focus-visible span {
+    opacity: 1;
+}
+
+/* Items */
+.itflow-rack-item {
+    position: relative;
+    grid-column: 1;
+    margin: 1px 2px;
+    overflow: hidden;
+    border-radius: .3rem;
+    color: #fff;
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, .14), inset 0 -1px 0 rgba(0, 0, 0, .25), 0 1px 2px rgba(0, 0, 0, .45);
+}
+.itflow-rack-item-body {
+    display: flex;
+    align-items: center;
+    gap: .5rem;
+    width: 100%;
+    height: 100%;
+    padding: 0 .5rem;
+    border: 0;
+    background: transparent;
+    font: inherit;
+    text-align: left;
+    color: inherit;
+    text-decoration: none;
+}
+a.itflow-rack-item-body:hover,
+button.itflow-rack-item-body:hover {
+    color: inherit;
+    background-color: rgba(255, 255, 255, .08);
+}
+.itflow-rack-item-body:focus-visible {
+    outline: 2px solid #fff;
+    outline-offset: -2px;
+}
+.itflow-rack-item-icon {
+    flex: 0 0 auto;
+    font-size: .8rem;
+    opacity: .9;
+}
+.itflow-rack-item-text {
+    display: flex;
+    flex: 1 1 auto;
+    flex-direction: column;
+    min-width: 0;
+    line-height: 1.15;
+}
+.itflow-rack-item-name,
+.itflow-rack-item-meta {
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}
+.itflow-rack-item-name {
+    font-size: .78rem;
+    font-weight: 600;
+}
+.itflow-rack-item-meta {
+    font-size: .68rem;
+    opacity: .78;
+}
+/* One U is one line: the name, then the quieter text beside it - which gives
+   way first when the line is short */
+.itflow-rack-h1 .itflow-rack-item-text {
+    flex-direction: row;
+    align-items: baseline;
+    gap: .5rem;
+}
+.itflow-rack-h1 .itflow-rack-item-name {
+    flex: 0 1 auto;
+    max-width: 75%;
+}
+.itflow-rack-h1 .itflow-rack-item-meta {
+    flex: 1 1 0;
+    min-width: 0;
+}
+.itflow-rack-item-pos {
+    flex: 0 0 auto;
+    margin-left: auto;
+    font-family: var(--bs-font-monospace);
+    font-size: .62rem;
+    opacity: .6;
+}
+.itflow-rack-item-edit {
+    position: absolute;
+    top: 50%;
+    right: .3rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 1.35rem;
+    height: 1.2rem;
+    margin-top: -.6rem;
+    padding: 0;
+    border: 0;
+    border-radius: .25rem;
+    background-color: rgba(0, 0, 0, .35);
+    font-size: .6rem;
+    color: #fff;
+    opacity: 0;
+    transition: opacity .12s ease-in-out;
+}
+.itflow-rack-item:hover .itflow-rack-item-edit,
+.itflow-rack-item:focus-within .itflow-rack-item-edit {
+    opacity: 1;
+}
+.itflow-rack-item:has(.itflow-rack-item-edit):hover .itflow-rack-item-pos {
+    visibility: hidden;
+}
+.itflow-rack-item-edit:hover {
+    background-color: rgba(0, 0, 0, .55);
+}
+.itflow-rack-item.is-archived {
+    opacity: .55;
+}
+.itflow-rack-item.is-archived .itflow-rack-item-name {
+    text-decoration: line-through;
+}
+/* A full-depth item seen from its other side: it fills this face too */
+.itflow-rack-item.is-ghost {
+    border: 1px dashed rgba(255, 255, 255, .16);
+    background: repeating-linear-gradient(45deg, rgba(255, 255, 255, .06) 0, rgba(255, 255, 255, .06) 5px, transparent 5px, transparent 10px), #1c2024;
+    color: rgba(255, 255, 255, .55);
+    box-shadow: none;
+}
+.itflow-rack-item.is-ghost .itflow-rack-item-body {
+    cursor: default;
+}
+
+/* Tones - the faceplate colour of each kind of kit, shared by the elevation,
+   the mini racks on the listing, the list chips and the legend */
+.itflow-rack-tone-server { background: linear-gradient(180deg, #3d72bb, #2c5891); }
+.itflow-rack-tone-network { background: linear-gradient(180deg, #27907f, #1b6c60); }
+.itflow-rack-tone-firewall { background: linear-gradient(180deg, #c04e4e, #963838); }
+.itflow-rack-tone-power { background: linear-gradient(180deg, #b8862f, #8e6420); }
+.itflow-rack-tone-device { background: linear-gradient(180deg, #6d5fc4, #5447a1); }
+.itflow-rack-tone-shelf { background: linear-gradient(180deg, #6b7682, #57616c); }
+.itflow-rack-tone-patch {
+    background: radial-gradient(rgba(0, 0, 0, .38) 1.2px, transparent 1.7px) 0 0 / 7px 7px, linear-gradient(180deg, #4d5864, #3b444e);
+}
+.itflow-rack-tone-cable {
+    background: repeating-linear-gradient(90deg, rgba(255, 255, 255, .08) 0, rgba(255, 255, 255, .08) 2px, transparent 2px, transparent 9px), linear-gradient(180deg, #31373d, #262b30);
+}
+.itflow-rack-tone-blank {
+    background: repeating-linear-gradient(90deg, rgba(255, 255, 255, .05) 0, rgba(255, 255, 255, .05) 10px, transparent 10px, transparent 13px), #1f2327;
+    color: rgba(255, 255, 255, .7);
+}
+
+/* Small coloured tile with the item's icon - item list, "not racked yet" */
+.itflow-rack-chip {
+    display: inline-flex;
+    flex: 0 0 auto;
+    align-items: center;
+    justify-content: center;
+    width: 1.9rem;
+    height: 1.9rem;
+    border-radius: var(--bs-border-radius);
+    font-size: .8rem;
+    color: #fff;
+}
+.itflow-rack-legend {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: .35rem 1.1rem;
+}
+.itflow-rack-swatch {
+    display: inline-block;
+    width: .75rem;
+    height: .75rem;
+    margin-right: .35rem;
+    border-radius: .2rem;
+    vertical-align: -.1rem;
+}
+.itflow-rack-swatch-ghost {
+    border: 1px dashed var(--bs-secondary-color);
+    background: repeating-linear-gradient(45deg, var(--bs-secondary-bg) 0, var(--bs-secondary-bg) 2px, transparent 2px, transparent 4px);
+}
+
+/* Rack page header and side cards */
+.itflow-rack-head-icon {
+    display: inline-flex;
+    flex: 0 0 auto;
+    align-items: center;
+    justify-content: center;
+    width: 3rem;
+    height: 3rem;
+    border-radius: var(--bs-border-radius-lg);
+    background: linear-gradient(180deg, #2b3035, #1c1f23);
+    font-size: 1.2rem;
+    color: #fff;
+    box-shadow: inset 0 0 0 1px rgba(255, 255, 255, .08);
+}
+.itflow-rack-dl {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
+    gap: .4rem 1rem;
+    font-size: .875rem;
+}
+.itflow-rack-dl dt {
+    font-weight: 500;
+    color: var(--bs-secondary-color);
+}
+.itflow-rack-dl dd {
+    margin: 0;
+    overflow-wrap: anywhere;
+}
+.itflow-rack-stats .fw-semibold {
+    font-size: 1.1rem;
+}
+.itflow-rack-photo {
+    position: relative;
+    display: block;
+    overflow: hidden;
+    border-radius: var(--bs-border-radius);
+}
+.itflow-rack-photo img {
+    display: block;
+    width: 100%;
+    aspect-ratio: 4 / 3;
+    object-fit: cover;
+    transition: transform .2s ease-in-out;
+}
+.itflow-rack-photo:hover img {
+    transform: scale(1.04);
+}
+.itflow-rack-photo span {
+    position: absolute;
+    bottom: .35rem;
+    left: .35rem;
+    padding: .05rem .5rem;
+    border-radius: 50rem;
+    background-color: rgba(0, 0, 0, .6);
+    font-size: .7rem;
+    color: #fff;
+}
+.itflow-rack-form-photo img {
+    max-width: 100%;
+    max-height: 8rem;
+    border-radius: var(--bs-border-radius);
+}
+.itflow-rack-fit:empty {
+    display: none;
+}
+
+/* Listing cards: the whole card opens the rack, the menu sits above that link */
+.itflow-rack-card {
+    transition: box-shadow .15s ease-in-out, border-color .15s ease-in-out;
+}
+.itflow-rack-card:hover {
+    border-color: var(--itflow-accent, var(--bs-primary));
+    box-shadow: 0 .25rem .9rem rgba(0, 0, 0, .1);
+}
+.itflow-rack-card-menu {
+    position: relative;
+    z-index: 2;
+}
+.itflow-rack-mini {
+    display: grid;
+    flex: 0 0 2.4rem;
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: repeat(var(--rack-rows), minmax(0, 1fr));
+    align-self: flex-start;
+    height: clamp(5.5rem, calc(var(--rack-rows) * .32rem), 9rem);
+    padding: 2px;
+    border: 3px solid #2b3035;
+    border-radius: .4rem;
+    background-color: #15181b;
+}
+.itflow-rack-mini span {
+    grid-column: 1;
+    margin: .5px 0;
+    border-radius: 1px;
+}
+.itflow-rack-mini span.is-ghost {
+    opacity: .45;
+}
+
+@media print {
+    .itflow-rack-frame,
+    .itflow-rack-bay,
+    .itflow-rack-item,
+    .itflow-rack-chip,
+    .itflow-rack-swatch,
+    .itflow-rack-head-icon {
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+    }
+    .itflow-rack-slot span,
+    .itflow-rack-item-edit {
+        display: none;
+    }
+    .itflow-rack {
+        --rack-u: clamp(1rem, calc(48rem / var(--rack-rows)), 1.5rem);
+    }
+    .itflow-rack-items,
+    .itflow-rack-pair {
+        break-inside: avoid;
+    }
+}

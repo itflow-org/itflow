@@ -27,6 +27,7 @@
             'network.php' => 'networks.php',
             'project.php' => 'projects.php',
             'quote.php' => 'quotes.php',
+            'rack.php' => 'racks.php',
             'recurring_invoice.php' => 'recurring_invoices.php',
             'ticket.php' => 'tickets.php',
         ];
@@ -198,7 +199,7 @@
                         </li>
 
                         <li class="nav-item">
-                            <a href="/agent/racks.php?client_id=<?= $client_id ?>" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "racks.php") { echo "active"; } ?>">
+                            <a href="/agent/racks.php?client_id=<?= $client_id ?>" class="nav-link <?php if (in_array(basename($_SERVER["PHP_SELF"]), ["racks.php", "rack.php"])) { echo "active"; } ?>">
                                 <i class="nav-icon fas fa-server"></i>
                                 <p>
                                     Racks

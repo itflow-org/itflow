@@ -24,6 +24,9 @@ if (!empty($asset_id)) {
         // Delete Interfaces
         mysqli_query($mysqli,"DELETE FROM asset_interfaces WHERE interface_asset_id = $asset_id");
 
+        // And take it out of any rack
+        mysqli_query($mysqli,"DELETE FROM rack_units WHERE unit_asset_id = $asset_id");
+
         // Logging
         logAudit("Asset", "Delete", "$asset_name via API ($api_key_name)", $client_id);
     }

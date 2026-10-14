@@ -1862,6 +1862,11 @@ CREATE TABLE `rack_units` (
   `unit_start_number` int(11) NOT NULL,
   `unit_end_number` int(11) NOT NULL,
   `unit_device` varchar(200) DEFAULT NULL,
+  `unit_face` varchar(10) NOT NULL DEFAULT 'front',
+  `unit_full_depth` tinyint(1) NOT NULL DEFAULT 1,
+  `unit_type` varchar(50) DEFAULT NULL,
+  `unit_power_watts` int(11) DEFAULT NULL,
+  `unit_notes` varchar(255) DEFAULT NULL,
   `unit_created_at` datetime NOT NULL DEFAULT current_timestamp(),
   `unit_updated_at` datetime DEFAULT NULL ON UPDATE current_timestamp(),
   `unit_archived_at` datetime DEFAULT NULL,
@@ -1869,6 +1874,7 @@ CREATE TABLE `rack_units` (
   `unit_rack_id` int(11) NOT NULL,
   PRIMARY KEY (`unit_id`),
   KEY `unit_rack_id` (`unit_rack_id`),
+  KEY `unit_asset_id` (`unit_asset_id`),
   CONSTRAINT `rack_units_ibfk_1` FOREIGN KEY (`unit_rack_id`) REFERENCES `racks` (`rack_id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -1888,7 +1894,10 @@ CREATE TABLE `racks` (
   `rack_depth` varchar(50) DEFAULT NULL,
   `rack_type` varchar(50) DEFAULT NULL,
   `rack_units` int(11) NOT NULL,
+  `rack_units_descending` tinyint(1) NOT NULL DEFAULT 0,
+  `rack_power_capacity` int(11) DEFAULT NULL,
   `rack_photo` varchar(200) DEFAULT NULL,
+  `rack_photo_rear` varchar(200) DEFAULT NULL,
   `rack_physical_location` varchar(200) DEFAULT NULL,
   `rack_notes` text DEFAULT NULL,
   `rack_favorite` tinyint(1) NOT NULL DEFAULT 0,

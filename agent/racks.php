@@ -1,344 +1,328 @@
 <?php
 
+/*
+ * Racks - every rack a client has (or, from All Client Docs, every rack the
+ * agent can see), each as a card with a scale drawing of its front, how full it
+ * is and what it draws. A card opens the rack (rack.php).
+ */
+
 // Default Column Sortby Filter
 $sort = "rack_name";
 $order = "ASC";
 
-require_once "includes/inc_all_client.php";
+// If client_id is in URI then show client Side Bar and client header
+if (isset($_GET['client_id'])) {
+    require_once "includes/inc_all_client.php";
+    $client_query = "AND rack_client_id = $client_id";
+    $client_url = "client_id=$client_id&";
+} else {
+    require_once "includes/inc_client_overview_all.php";
+    $client_query = '';
+    $client_url = '';
+}
 
 // Perms
 enforceUserPermission('module_support');
 
+$can_edit = lookupUserPermission('module_support') >= 2;
+$can_delete = lookupUserPermission('module_support') >= 3;
+
+// Archived - from All Client Docs, an archived client's racks count as archived too
+$archived = (isset($_GET['archived']) && $_GET['archived'] == 1) ? 1 : 0;
+if ($client_url) {
+    $archive_query = $archived ? "rack_archived_at IS NOT NULL" : "rack_archived_at IS NULL";
+} else {
+    $archive_query = $archived
+        ? "(rack_archived_at IS NOT NULL OR client_archived_at IS NOT NULL)"
+        : "(rack_archived_at IS NULL AND client_archived_at IS NULL)";
+}
+
+// Client filter (All Client Docs only)
+$client_filter = 0;
+if (!$client_url && !empty($_GET['client'])) {
+    $client_filter = intval($_GET['client']);
+    $client_query = "AND rack_client_id = $client_filter";
+}
+
+// Location filter (one client only)
+$location_filter = 0;
+$location_query = '';
+if ($client_url && !empty($_GET['location'])) {
+    $location_filter = intval($_GET['location']);
+    $location_query = "AND rack_location_id = $location_filter";
+}
+
+// Only these sort - filter_header.php will hand through any lowercase word
+if (!in_array($sort, ['rack_name', 'rack_units', 'client_name', 'location_name', 'rack_created_at'], true)) {
+    $sort = 'rack_name';
+}
+
 $sql = mysqli_query(
     $mysqli,
-    "SELECT SQL_CALC_FOUND_ROWS location_name, rack_created_at, rack_depth, rack_description, rack_id, rack_location_id,
-        rack_model, rack_name, rack_notes, rack_photo, rack_physical_location, rack_type,
-        rack_units FROM racks
+    "SELECT SQL_CALC_FOUND_ROWS client_id, client_name, location_name, rack_id, rack_client_id, rack_name, rack_type,
+        rack_model, rack_units, rack_units_descending, rack_power_capacity, rack_physical_location, rack_archived_at
+    FROM racks
+    LEFT JOIN clients ON client_id = rack_client_id
     LEFT JOIN locations ON location_id = rack_location_id
-    WHERE rack_client_id = $client_id
-    AND rack_$archive_query
-    AND (rack_name LIKE '%$q%' OR rack_type LIKE '%$q%' OR rack_units LIKE '%$q%')
+    WHERE $archive_query
+    AND (rack_name LIKE '%$q%' OR rack_type LIKE '%$q%' OR rack_model LIKE '%$q%' OR rack_description LIKE '%$q%'
+        OR rack_physical_location LIKE '%$q%' OR location_name LIKE '%$q%' OR client_name LIKE '%$q%'
+        OR EXISTS (SELECT 1 FROM rack_units LEFT JOIN assets ON asset_id = unit_asset_id
+            WHERE unit_rack_id = rack_id AND (unit_device LIKE '%$q%' OR asset_name LIKE '%$q%' OR asset_serial LIKE '%$q%')))
+    " . clientScopeSql('rack_client_id') . "
+    $client_query
+    $location_query
     ORDER BY $sort $order LIMIT $record_from, $record_to"
 );
 
 $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 
+$racks = [];
+while ($row = mysqli_fetch_assoc($sql)) {
+    $racks[intval($row['rack_id'])] = $row;
+}
+
+// Every item on the page in one query, not one per rack
+$racks_units = rackLoadUnits(array_keys($racks));
+
+// Totals across what's listed, for the summary line
+$total_units = 0;
+$total_used = 0;
+$total_items = 0;
+foreach ($racks as $rack_id => $row) {
+    $racks[$rack_id]['occupancy'] = rackOccupancy($racks_units[$rack_id], max(1, intval($row['rack_units'])));
+    $total_units += max(1, intval($row['rack_units']));
+    $total_used += $racks[$rack_id]['occupancy']['any'];
+    $total_items += count($racks_units[$rack_id]);
+}
+
 ?>
 
-<div class="card card-dark">
-    <div class="card-header py-2">
-        <h3 class="card-title mt-2"><i class="fas fa-fw fa-server me-2"></i>Network Racks</h3>
-        <div class="card-tools">
-            <button type="button" class="btn btn-primary ajax-modal" data-modal-url="modals/rack/rack_add.php?client_id=<?= $client_id ?>">
-                <i class="fas fa-plus me-2"></i>New Rack
-            </button>
-        </div>
+<div class="card">
+    <div class="card-header bg-dark py-2">
+        <h3 class="card-title mt-2"><i class="fas fa-fw fa-server me-2"></i>Racks</h3>
+        <?php if ($client_url && $can_edit) { ?>
+            <div class="card-tools">
+                <button type="button" class="btn btn-primary ajax-modal" data-modal-size="lg" data-modal-url="modals/rack/rack_add.php?client_id=<?= $client_id ?>">
+                    <i class="fas fa-plus me-2"></i>New Rack
+                </button>
+            </div>
+        <?php } ?>
     </div>
-    <div class="card-body">
+    <div class="card-header py-3">
         <form autocomplete="off">
-            <input type="hidden" name="client_id" value="<?= $client_id ?>">
+            <?php if ($client_url) { ?>
+                <input type="hidden" name="client_id" value="<?= $client_id ?>">
+            <?php } ?>
             <input type="hidden" name="archived" value="<?= $archived ?>">
-            <div class="row">
+            <div class="row g-2 align-items-center">
 
                 <div class="col-md-4">
-                    <div class="input-group mb-3 mb-md-0">
-                        <input type="search" class="form-control" name="q" value="<?php if (isset($q)) { echo stripslashes(escapeHtml($q)); } ?>" placeholder="Search Racks">
-                            <button class="btn btn-dark" title="Search"><i class="fa fa-search"></i></button>
+                    <div class="input-group">
+                        <input type="search" class="form-control" name="q" value="<?php if (isset($q)) { echo stripslashes(escapeHtml($q)); } ?>" placeholder="Search racks and what's in them">
+                        <button class="btn btn-dark" title="Search"><i class="fa fa-search"></i></button>
                     </div>
                 </div>
 
-                <div class="col-md-8">
-                    <div class="float-end">
-                        <a href="?client_id=<?= $client_id ?>&archived=<?php if($archived == 1){ echo 0; } else { echo 1; } ?>"
-                            class="btn btn-<?php if($archived == 1){ echo "primary"; } else { echo "default"; } ?>">
-                            <i class="fa fa-fw fa-archive me-2"></i>Archived
-                        </a>
+                <?php if ($client_url) { ?>
+                    <div class="col-md-3">
+                        <select class="form-select select2" name="location" onchange="this.form.submit()">
+                            <option value="">- All Locations -</option>
+                            <?php
+                            $sql_locations_filter = mysqli_query($mysqli, "SELECT location_id, location_name FROM locations
+                                WHERE location_client_id = $client_id
+                                AND (EXISTS (SELECT 1 FROM racks WHERE rack_location_id = location_id) OR location_id = $location_filter)
+                                ORDER BY location_name ASC");
+                            while ($row = mysqli_fetch_assoc($sql_locations_filter)) {
+                                $location_id_filter = intval($row['location_id']);
+                                ?>
+                                <option value="<?= $location_id_filter ?>" <?php if ($location_filter === $location_id_filter) { echo "selected"; } ?>><?= escapeHtml($row['location_name']) ?></option>
+                            <?php } ?>
+                        </select>
                     </div>
+                <?php } else { ?>
+                    <div class="col-md-3">
+                        <select class="form-select select2" name="client" onchange="this.form.submit()">
+                            <option value="">- All Clients -</option>
+                            <?php
+                            $sql_clients_filter = mysqli_query($mysqli, "SELECT DISTINCT client_id, client_name, client_abbreviation FROM clients
+                                JOIN racks ON rack_client_id = client_id
+                                WHERE 1 = 1
+                                " . clientScopeSql('clients.client_id') . "
+                                ORDER BY client_name ASC");
+                            while ($row = mysqli_fetch_assoc($sql_clients_filter)) {
+                                $client_id_filter = intval($row['client_id']);
+                                ?>
+                                <option value="<?= $client_id_filter ?>" <?php if ($client_filter === $client_id_filter) { echo "selected"; } ?><?= selectOptionClient($row['client_id'], $row['client_name'], $row['client_abbreviation'] ?? '') ?>><?= escapeHtml($row['client_name']) ?></option>
+                            <?php } ?>
+                        </select>
+                    </div>
+                <?php } ?>
+
+                <div class="col-md-5 d-flex align-items-center justify-content-md-end gap-3">
+                    <?php if ($racks) { ?>
+                        <span class="small text-body-secondary d-none d-lg-inline">
+                            <?= number_format($total_used) ?> of <?= number_format($total_units) ?>U in use &middot; <?= number_format($total_items) ?> items<?= intval($num_rows[0]) > count($racks) ? ' on this page' : '' ?>
+                        </span>
+                    <?php } ?>
+                    <a href="?<?= $client_url ?>archived=<?= $archived ? 0 : 1 ?>" class="btn btn-<?= $archived ? 'primary' : 'default' ?>">
+                        <i class="fa fa-fw fa-archive me-2"></i>Archived
+                    </a>
                 </div>
 
             </div>
         </form>
-        <hr>
+    </div>
 
-        <div class="row">
+    <div class="card-body">
 
-            <?php
-            while ($row = mysqli_fetch_assoc($sql)) {
-                $rack_id = intval($row['rack_id']);
-                $rack_name = escapeHtml($row['rack_name']);
-                $rack_description = escapeHtml($row['rack_description']);
-                $rack_model = escapeHtml($row['rack_model']);
-                $rack_depth = escapeHtml($row['rack_depth']);
-                $rack_type = escapeHtml($row['rack_type']);
-                $rack_units = intval($row['rack_units']);
-                $rack_photo = escapeHtml($row['rack_photo']);
-                $rack_physical_location = escapeHtml($row['rack_physical_location']);
-                $rack_notes = escapeHtml($row['rack_notes']);
-                $rack_location_id = escapeHtml($row['rack_location_id']);
-                $rack_location_name = escapeHtml($row['location_name']);
-                $rack_created_at = escapeHtml($row['rack_created_at']);
+        <?php if (!$racks) { ?>
 
-                // Fetch rack units
-                $unit_sql = mysqli_query($mysqli, "SELECT * FROM rack_units LEFT JOIN assets ON unit_asset_id = asset_id WHERE unit_rack_id = $rack_id ORDER BY unit_start_number ASC");
-                $rack_units_data = [];
-                while ($unit_row = mysqli_fetch_assoc($unit_sql)) {
-                    $rack_units_data[] = $unit_row;
-                }
+            <div class="text-center text-body-secondary py-5">
+                <i class="fas fa-server fa-3x mb-3 opacity-25"></i>
+                <?php if ($q || $location_filter || $client_filter) { ?>
+                    <div class="fs-5">No racks match that</div>
+                <?php } elseif ($archived) { ?>
+                    <div class="fs-5">No archived racks</div>
+                <?php } else { ?>
+                    <div class="fs-5 mb-1">No racks yet</div>
+                    <div class="mb-3">Document the comms closet: what's racked where, front and rear, and how much room and power is left.</div>
+                    <?php if ($client_url && $can_edit) { ?>
+                        <button type="button" class="btn btn-primary ajax-modal" data-modal-size="lg" data-modal-url="modals/rack/rack_add.php?client_id=<?= $client_id ?>">
+                            <i class="fas fa-plus me-2"></i>New Rack
+                        </button>
+                    <?php } ?>
+                <?php } ?>
+            </div>
 
-                ?>
-                <div class="col-md-6">
+        <?php } else { ?>
 
-                    <div class="card card-dark">
-                        <div class="card-header">
-                            <h3 class="card-title"><i class="fas fa-fw fa-server me-2"></i><?= "$rack_name - $rack_units" ?>U</h3>
+            <div class="row g-3">
+                <?php foreach ($racks as $rack_id => $row) {
+                    $rack_client_id = intval($row['rack_client_id']);
+                    $rack_name = escapeHtml($row['rack_name']);
+                    $rack_type = escapeHtml($row['rack_type']);
+                    $rack_units = max(1, intval($row['rack_units']));
+                    $rack_units_descending = intval($row['rack_units_descending']);
+                    $rack_power_capacity = intval($row['rack_power_capacity']);
+                    $rack_physical_location = escapeHtml($row['rack_physical_location']);
+                    $rack_location_name = escapeHtml($row['location_name']);
+                    $rack_client_name = escapeHtml($row['client_name']);
+                    $rack_archived_at = $row['rack_archived_at'];
+                    $occupancy = $row['occupancy'];
+                    $used_percent = (int) round($occupancy['any'] / $rack_units * 100);
+                    $usage_tone = $used_percent >= 90 ? 'danger' : ($used_percent >= 75 ? 'warning' : 'primary');
+                    $rack_items = array_map('rackUnitView', $racks_units[$rack_id]);
+                    $power_used = array_sum(array_column($rack_items, 'power'));
+                    $rack_url = "rack.php?client_id=$rack_client_id&rack_id=$rack_id";
+                    ?>
+                    <div class="col-md-6 col-xl-4 col-xxl-3">
+                        <div class="card h-100 mb-0 itflow-rack-card">
+                            <div class="card-body d-flex gap-3">
 
-                            <div class="card-tools">
-                                <div class="dropdown dropstart">
-                                    <button class="btn btn-tool" title="More actions" type="button" data-bs-toggle="dropdown">
-                                        <i class="fas fa-fw fa-ellipsis-v"></i>
-                                    </button>
-                                    <div class="dropdown-menu">
-                                        <a class="dropdown-item text-dark ajax-modal" href="#"
-                                            data-modal-url="modals/rack/rack_device_add.php?id=<?= $rack_id ?>">
-                                            <i class="fas fa-fw fa-plus text-secondary me-2"></i>Add Device
-                                        </a>
-                                        <div class="dropdown-divider"></div>
-                                        <a class="dropdown-item text-dark ajax-modal" href="#"
-                                            data-modal-url="modals/rack/rack_edit.php?id=<?= $rack_id ?>">
-                                            <i class="fas fa-fw fa-edit text-secondary me-2"></i>Edit
-                                        </a>
-                                        <?php if ($session_user_role == 3) { ?>
-                                            <div class="dropdown-divider"></div>
-                                            <a class="dropdown-item text-danger confirm-link" href="post.php?archive_rack=<?= $rack_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>">
-                                                <i class="fas fa-fw fa-archive me-2"></i>Archive
+                                <?php /* The front, to scale: a full-depth item from the rear fills it too */ ?>
+                                <div class="itflow-rack-mini" style="--rack-rows: <?= $rack_units ?>" aria-hidden="true">
+                                    <?php foreach ($rack_items as $item) {
+                                        if (!rackUnitOnFace($item['face'], $item['full_depth'], 'front')) {
+                                            continue;
+                                        } ?>
+                                        <span class="itflow-rack-tone-<?= $item['tone'] ?><?= $item['face'] !== 'front' ? ' is-ghost' : '' ?>" style="grid-row: <?= rackGridRow($item['start'], $item['end'], $rack_units, $rack_units_descending) ?> / span <?= $item['height'] ?>"></span>
+                                    <?php } ?>
+                                </div>
+
+                                <div class="flex-grow-1 min-w-0 d-flex flex-column">
+                                    <div class="d-flex align-items-start gap-2">
+                                        <div class="min-w-0 flex-grow-1">
+                                            <a class="stretched-link text-reset text-decoration-none" href="<?= $rack_url ?>">
+                                                <h3 class="h6 fw-semibold mb-0 text-truncate" title="<?= $rack_name ?>"><?= $rack_name ?></h3>
                                             </a>
-                                            <div class="dropdown-divider"></div>
-                                            <a class="dropdown-item text-danger text-bold confirm-link" href="post.php?delete_rack=<?= $rack_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>">
-                                                <i class="fas fa-fw fa-trash me-2"></i>Delete
-                                            </a>
+                                            <?php if (!$client_url) { ?>
+                                                <div class="small text-truncate"><?= $rack_client_name ?></div>
+                                            <?php } ?>
+                                            <div class="small text-body-secondary text-truncate">
+                                                <?= $rack_units ?>U<?= $rack_type ? " &middot; $rack_type" : '' ?>
+                                            </div>
+                                        </div>
+                                        <?php if ($rack_archived_at) { ?>
+                                            <span class="badge rounded-pill text-bg-secondary fw-normal">Archived</span>
+                                        <?php } ?>
+                                        <?php if ($can_edit) { ?>
+                                            <div class="dropdown dropstart itflow-rack-card-menu">
+                                                <button class="btn btn-sm btn-link text-body-secondary px-1" title="More actions" type="button" data-bs-toggle="dropdown">
+                                                    <i class="fas fa-fw fa-ellipsis-v"></i>
+                                                </button>
+                                                <div class="dropdown-menu">
+                                                    <?php if (!$rack_archived_at) { ?>
+                                                        <a class="dropdown-item ajax-modal" href="#" data-modal-url="modals/rack/rack_device_add.php?id=<?= $rack_id ?>">
+                                                            <i class="fas fa-fw fa-plus text-secondary me-2"></i>Add Item
+                                                        </a>
+                                                    <?php } ?>
+                                                    <a class="dropdown-item ajax-modal" href="#" data-modal-size="lg" data-modal-url="modals/rack/rack_edit.php?id=<?= $rack_id ?>">
+                                                        <i class="fas fa-fw fa-edit text-secondary me-2"></i>Edit
+                                                    </a>
+                                                    <div class="dropdown-divider"></div>
+                                                    <?php if ($rack_archived_at) { ?>
+                                                        <a class="dropdown-item confirm-link" href="post.php?restore_rack=<?= $rack_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>">
+                                                            <i class="fas fa-fw fa-redo text-secondary me-2"></i>Restore
+                                                        </a>
+                                                    <?php } else { ?>
+                                                        <a class="dropdown-item text-danger confirm-link" href="post.php?archive_rack=<?= $rack_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>">
+                                                            <i class="fas fa-fw fa-archive me-2"></i>Archive
+                                                        </a>
+                                                    <?php } ?>
+                                                    <?php if ($can_delete) { ?>
+                                                        <a class="dropdown-item text-danger text-bold confirm-link" href="post.php?delete_rack=<?= $rack_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>">
+                                                            <i class="fas fa-fw fa-trash me-2"></i>Delete
+                                                        </a>
+                                                    <?php } ?>
+                                                </div>
+                                            </div>
                                         <?php } ?>
                                     </div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="card-body">
-                            <div class="row">
-                                <div class="col-md-6">
-                                    <?php if ($rack_photo) { ?>
-                                        <img class="img-thumbnail mb-3" alt="rack_photo" src="<?= "../uploads/clients/$client_id/$rack_photo" ?>">
+
+                                    <?php if ($rack_location_name || $rack_physical_location) { ?>
+                                        <div class="small text-body-secondary text-truncate mt-1">
+                                            <i class="fas fa-fw fa-map-marker-alt me-1"></i><?= $rack_location_name ?><?= $rack_location_name && $rack_physical_location ? ' &rsaquo; ' : '' ?><?= $rack_physical_location ?>
+                                        </div>
                                     <?php } ?>
-                                    <table class="table table-sm table-borderless border">
-                                        <tbody>
-                                            <?php if ($rack_description) { ?>
-                                                <tr>
-                                                    <th colspan="2">Description</th>
-                                                </tr>
-                                                <tr>
-                                                    <td colspan="2"><?= $rack_description ?></td>
-                                                </tr>
+
+                                    <div class="mt-auto pt-3">
+                                        <div class="d-flex justify-content-between small mb-1">
+                                            <span><span class="fw-semibold"><?= $occupancy['any'] ?></span><span class="text-body-secondary"> / <?= $rack_units ?>U used</span></span>
+                                            <span class="text-<?= $usage_tone ?>-emphasis fw-semibold"><?= $used_percent ?>%</span>
+                                        </div>
+                                        <div class="progress" style="height: .375rem" role="progressbar" aria-label="Units used" aria-valuenow="<?= $used_percent ?>" aria-valuemin="0" aria-valuemax="100">
+                                            <div class="progress-bar bg-<?= $usage_tone ?>" style="width: <?= $used_percent ?>%"></div>
+                                        </div>
+                                        <div class="d-flex flex-wrap column-gap-3 small text-body-secondary mt-2">
+                                            <span><i class="fas fa-fw fa-cubes me-1"></i><?= count($rack_items) ?> item<?= count($rack_items) === 1 ? '' : 's' ?></span>
+                                            <?php if ($occupancy['largest_gap']['size']) { ?>
+                                                <span title="The tallest full-depth item that still fits"><i class="fas fa-fw fa-arrows-alt-v me-1"></i><?= $occupancy['largest_gap']['size'] ?>U gap</span>
                                             <?php } ?>
-                                            <?php if ($rack_type) { ?>
-                                                <tr>
-                                                    <th>Type</th>
-                                                    <td><?= $rack_type ?></td>
-                                                </tr>
+                                            <?php if ($power_used || $rack_power_capacity) { ?>
+                                                <span class="<?= $rack_power_capacity && $power_used > $rack_power_capacity ? 'text-danger' : '' ?>">
+                                                    <i class="fas fa-fw fa-bolt me-1"></i><?= number_format($power_used) ?><?= $rack_power_capacity ? ' / ' . number_format($rack_power_capacity) : '' ?> W
+                                                </span>
                                             <?php } ?>
-                                            <?php if ($rack_model) { ?>
-                                                <tr>
-                                                    <th>Model</th>
-                                                    <td><?= $rack_model ?></td>
-                                                </tr>
-                                            <?php } ?>
-                                            <?php if ($rack_depth) { ?>
-                                                <tr>
-                                                    <th>Depth</th>
-                                                    <td><?= $rack_depth ?></td>
-                                                </tr>
-                                            <?php } ?>
-                                            <?php if ($rack_location_name) { ?>
-                                                <tr>
-                                                    <th>Location</th>
-                                                    <td><?= $rack_location_name ?></td>
-                                                </tr>
-                                            <?php } ?>
-                                            <?php if ($rack_physical_location) { ?>
-                                                <tr>
-                                                    <th>Physical Location</th>
-                                                    <td><?= $rack_physical_location ?></td>
-                                                </tr>
-                                            <?php } ?>
-                                            <?php if ($rack_notes) { ?>
-                                                <tr>
-                                                    <th colspan="2">Notes</th>
-                                                </tr>
-                                                <tr>
-                                                    <td><?= $rack_notes ?></td>
-                                                </tr>
-                                            <?php } ?>
-                                        </tbody>
-                                    </table>
+                                        </div>
+                                    </div>
                                 </div>
-                                <div class="col-md-6">
-                                    <table class="table table-sm border">
-                                        <thead class="table-dark">
-                                            <tr>
-                                                <th class="text-center px-0">U</th>
-                                                <th class="text-center">Device</th>
-                                                <th class=""></th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                        <?php
-                                        // Keep track of which device_ids we've already printed
-                                        $printedDevices = [];
 
-                                        for ($i = $rack_units; $i >= 1; $i--) {
-
-                                            // Find all devices that occupy the current unit $i
-                                            $unit_devices = [];
-                                            foreach ($rack_units_data as $unit_data) {
-                                                $start = (int) $unit_data['unit_start_number'];
-                                                $end   = (int) $unit_data['unit_end_number'];
-
-                                                // If $i is between start and end, device occupies this unit
-                                                if ($i >= $start && $i <= $end) {
-                                                    $unit_devices[] = [
-                                                        'unit_id'          => (int) $unit_data['unit_id'],
-                                                        'unit_device'      => escapeHtml($unit_data['unit_device']),
-                                                        'unit_start_number'=> $start,
-                                                        'unit_end_number'  => $end,
-                                                        'asset_id'         => (int) $unit_data['asset_id'],
-                                                        'asset_name'       => escapeHtml($unit_data['asset_name']),
-                                                        'asset_type'       => escapeHtml($unit_data['asset_type']),
-                                                        'icon'             => getAssetIcon($unit_data['asset_type'])
-                                                    ];
-                                                }
-                                            }
-
-                                            ?>
-                                            <tr>
-                                                <!-- Always print the left-hand U #, for reference -->
-                                                <td class="px-0 text-center bg-light border">
-                                                    <?= sprintf('%02d', $i) ?>
-                                                </td>
-
-                                                <?php
-                                                // If there's exactly one device in this row, attempt to rowSpan it.
-                                                // (If you can have multiple overlapping devices, you'll need more logic.)
-                                                if (count($unit_devices) === 1) {
-
-                                                    $d = $unit_devices[0];
-                                                    $deviceId = $d['unit_id'];
-
-                                                    // If not already printed, this is the *first* row of the device
-                                                    if (!in_array($deviceId, $printedDevices)) {
-
-                                                        // Mark it printed so it won't appear in later rows
-                                                        $printedDevices[] = $deviceId;
-
-                                                        // Calculate how many rows (U's) it spans
-                                                        $span = $d['unit_end_number'] - $d['unit_start_number'] + 1;
-                                                        if ($span < 1) {
-                                                            $span = 1; // safety check
-                                                        }
-
-                                                        // Print the device cell and action cell with rowSpan
-                                                        ?>
-                                                        <td class="text-center align-middle" rowspan="<?= $span ?>">
-                                                            <!-- DEVICE INFO HERE -->
-                                                            <?php
-                                                            echo $d['unit_device'];
-                                                            if (!empty($d['asset_name'])) {
-                                                                $icon = $d['icon']; // already from getAssetIcon
-                                                                ?>
-                                                                <i class="fa fa-<?= $icon ?>"></i>
-                                                                <a href="asset.php?client_id=<?= $client_id ?>&asset_id=<?= $d['asset_id'] ?>"
-                                                                   target="_blank">
-                                                                   <?= $d['asset_name'] ?>
-                                                                   <i class="fas fa-external-link-alt ms-1"></i>
-                                                                </a>
-                                                                <?php
-                                                            }
-                                                            ?>
-                                                        </td>
-
-                                                        <td class="px-0 text-end align-middle" rowspan="<?= $span ?>">
-                                                            <!-- ACTION ICON / DROPDOWN -->
-                                                            <div class="dropdown dropstart">
-                                                                <button class="btn btn-tool" title="More actions" type="button" data-bs-toggle="dropdown">
-                                                                    <i class="fas fa-fw fa-ellipsis-v"></i>
-                                                                </button>
-                                                                <div class="dropdown-menu">
-                                                                    <a class="dropdown-item text-danger text-bold confirm-link"
-                                                                       href="post.php?remove_rack_unit=<?= $d['unit_id'] ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>">
-                                                                       <i class="fas fa-fw fa-minus me-2"></i>Remove
-                                                                    </a>
-                                                                </div>
-                                                            </div>
-                                                        </td>
-                                                        <?php
-                                                    } else {
-                                                        // This device was already spanned from a higher row, so skip printing device cell
-                                                        // but we still have the left column (U #).
-                                                    }
-
-                                                } elseif (count($unit_devices) > 1) {
-                                                    // If your data might have multiple devices in the same row,
-                                                    // you have to decide how to handle them.
-                                                    // For now, we can fallback to older logic or display them all in one cell, etc.
-                                                    ?>
-                                                    <td class="text-center">
-                                                        <?php foreach ($unit_devices as $d) { ?>
-                                                            <?= $d['unit_device'] ?><br>
-                                                            <?php // Could also show asset_name, etc. ?>
-                                                        <?php } ?>
-                                                    </td>
-
-                                                    <td class="text-end">
-                                                        <div class="dropdown dropstart">
-                                                            <button class="btn btn-tool" title="More actions" type="button" data-bs-toggle="dropdown">
-                                                                <i class="fas fa-fw fa-ellipsis-v"></i>
-                                                            </button>
-                                                            <div class="dropdown-menu">
-                                                                <?php foreach ($unit_devices as $d) { ?>
-                                                                    <a class="dropdown-item text-danger text-bold confirm-link"
-                                                                       href="post.php?remove_rack_unit=<?= $d['unit_id'] ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>">
-                                                                       <i class="fas fa-fw fa-minus me-2"></i>Remove
-                                                                    </a>
-                                                                <?php } ?>
-                                                            </div>
-                                                        </div>
-                                                    </td>
-                                                    <?php
-
-                                                } else {
-                                                    // No device in this row
-                                                    ?>
-                                                    <td class="text-center text-secondary">--</td>
-                                                    <td></td>
-                                                    <?php
-                                                }
-                                                ?>
-                                            </tr>
-                                            <?php
-                                        }
-                                        ?>
-                                    </tbody>
-                                    </table>
-
-                                </div>
                             </div>
                         </div>
                     </div>
+                <?php } ?>
+            </div>
 
-                </div>
-
-            <?php } ?>
-
-        </div>
+        <?php } ?>
 
     </div>
-
+    <?php
+    // Paging only - the empty state above is this page's own
+    if (intval($num_rows[0]) > 0) {
+        require_once "../includes/filter_footer.php";
+    }
+    ?>
 </div>
 
 <?php
