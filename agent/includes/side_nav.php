@@ -1,7 +1,3 @@
-<!-- Custom fix for scaling the brand text (MSP name) in the sidebar -->
-<link rel="stylesheet" href="css/sidebar_brand_fix.css">
-<script src="js/sidebar_brand_fix.js" defer></script>
-
 <!-- Main Sidebar Container -->
 <aside class="app-sidebar shadow d-print-none" data-bs-theme="dark">
 
@@ -16,11 +12,31 @@
     if (!empty($config_internal_client_id) && lookupUserPermission("module_client") >= 1 && hasClientAccess($config_internal_client_id)) {
         $brand_link = "/agent/client_overview.php?client_id=" . intval($config_internal_client_id);
     }
+
+    /*
+     * The company's mark: the logo from Admin > Settings > Company Details on a light
+     * tile, or the company's initials on the theme colour when there is none (or the
+     * file has gone missing). The tile grows sideways for a wide logo rather than
+     * shrinking it to a postage stamp. The name wraps to two lines, then ellipses -
+     * the full name is in the tooltip.
+     */
+    $brand_logo = basename((string) ($session_company_logo ?? ''));
+    if ($brand_logo === '' || !is_file(__DIR__ . "/../../uploads/settings/$brand_logo")) {
+        $brand_logo = '';
+    }
+    $brand_name = escapeHtml($session_company_name);
     ?>
 
-    <div class="sidebar-brand">
-        <a class="brand-link" href="<?= $brand_link ?>">
-            <span class="brand-text h4 mb-0" id="sidebar-brand-text"><?= escapeHtml($session_company_name) ?></span>
+    <div class="sidebar-brand itflow-brand">
+        <a class="brand-link itflow-brand-link" href="<?= $brand_link ?>" title="<?= $brand_name ?>">
+            <?php if ($brand_logo) { ?>
+                <span class="itflow-brand-mark itflow-brand-mark-logo">
+                    <img src="/uploads/settings/<?= escapeHtml(rawurlencode($brand_logo)) ?>" alt="" decoding="async">
+                </span>
+            <?php } else { ?>
+                <span class="itflow-brand-mark itflow-brand-mark-initials" aria-hidden="true"><?= escapeHtml(clientInitials('', $session_company_name)) ?></span>
+            <?php } ?>
+            <span class="itflow-brand-name"><?= $brand_name ?></span>
         </a>
     </div>
 

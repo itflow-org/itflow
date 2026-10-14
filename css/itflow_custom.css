@@ -305,6 +305,85 @@ a:focus {
 .app-sidebar .sidebar-brand h4.brand-text {
     font-size: min(1.6rem, calc(1.275rem + .3vw));
 }
+
+/* Company brand - agent/includes/side_nav.php (main nav only; the client,
+   admin and reports navs keep their "Back | ..." headers above).
+
+   The logo or initials tile with the company name beside it, the whole row one
+   rounded hover target like a workspace switcher. Sized to sit inside the 3rem
+   header that lines up with the top bar. */
+.app-sidebar .itflow-brand-link {
+    gap: .6rem;
+    height: 100%;
+    padding: .2rem .4rem;
+    border-radius: var(--bs-border-radius);
+    color: #fff;
+    transition: background-color .15s ease-in-out;
+}
+.app-sidebar .itflow-brand-link:hover {
+    background-color: rgba(255, 255, 255, .07);
+    color: #fff;
+}
+.app-sidebar .itflow-brand-link:focus-visible {
+    outline: 2px solid var(--itflow-accent, var(--bs-primary));
+    outline-offset: -2px;
+}
+.itflow-brand-mark {
+    display: inline-flex;
+    flex: 0 0 auto;
+    align-items: center;
+    justify-content: center;
+    height: 2rem;
+    border-radius: var(--bs-border-radius);
+    overflow: hidden;
+}
+/* Logos are drawn for a light page, so they get a light tile. A wide logo
+   widens the tile (up to a point) instead of shrinking to fit a square. */
+.itflow-brand-mark-logo {
+    min-width: 2rem;
+    max-width: 5.5rem;
+    padding: .2rem .3rem;
+    background-color: #fff;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, .35);
+}
+.itflow-brand-mark-logo img {
+    display: block;
+    width: auto;
+    height: 100%;
+    max-width: 100%;
+    object-fit: contain;
+}
+/* No logo: the company's initials on the theme colour. The inner ring keeps
+   the tile visible when the theme colour is close to the sidebar's (black,
+   navy, gray). */
+.itflow-brand-mark-initials {
+    width: 2rem;
+    font-size: .7rem;
+    font-weight: 700;
+    letter-spacing: .03em;
+    color: #fff;
+    background-color: var(--itflow-accent, #007bff);
+    background-image: linear-gradient(135deg, rgba(255, 255, 255, .18), rgba(0, 0, 0, .18));
+    box-shadow: inset 0 0 0 1px rgba(255, 255, 255, .18), 0 1px 2px rgba(0, 0, 0, .35);
+}
+.theme-yellow .itflow-brand-mark-initials {
+    color: #1f2d3d;
+}
+/* Two lines, then an ellipsis. v4's .sidebar-brand is nowrap, so wrapping
+   has to be switched back on here. */
+.itflow-brand-name {
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+    min-width: 0;
+    overflow: hidden;
+    font-size: .95rem;
+    font-weight: 600;
+    line-height: 1.15;
+    letter-spacing: -.01em;
+    white-space: normal;
+    overflow-wrap: anywhere;
+}
 .app-sidebar .sidebar-menu .nav-link,
 .app-sidebar .nav-header {
     color: #c2c7d0;
