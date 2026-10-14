@@ -146,7 +146,7 @@ ob_start();
                                 ?>
                                 <option
                                     <?php if ($contact_id == $contact_id_select) { echo "selected"; } ?>
-                                    value="<?= $contact_id_select ?>"<?= selectOptionContact($row['contact_client_id'] ?? 0, $row['contact_name'], $row['contact_photo'] ?? '', $row['contact_title'] ?? '') ?>><?= $contact_name ?>
+                                    value="<?= $contact_id_select ?>"<?= selectOptionContact($row['contact_client_id'] ?? 0, $row['contact_name'], $row['contact_photo'] ?? '', $row['contact_title'] ?? '', $row['contact_id'] ?? 0) ?>><?= $contact_name ?>
                                 </option>
 
                                 <?php

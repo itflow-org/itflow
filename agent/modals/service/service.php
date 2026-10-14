@@ -81,7 +81,7 @@ $sql_vendors = mysqli_query(
 // Associated Contacts
 $sql_contacts = mysqli_query(
     $mysqli,
-    "SELECT service_contacts.contact_id, contact_name FROM service_contacts
+    "SELECT service_contacts.contact_id, contact_client_id, contact_name, contact_photo FROM service_contacts
     LEFT JOIN contacts ON service_contacts.contact_id = contacts.contact_id
     WHERE service_id = $service_id"
 );
@@ -234,12 +234,11 @@ ob_start();
                 <!-- Contacts -->
                 <?php
                 if (mysqli_num_rows($sql_contacts) > 0) {
-                    echo "<h5><i class='fas fa-fw fa-users me-2'></i>Contacts</h5><ul>";
+                    // No bullets - each contact leads with their avatar instead
+                    echo "<h5><i class='fas fa-fw fa-users me-2'></i>Contacts</h5><ul class='list-unstyled ms-1'>";
                     mysqli_data_seek($sql_contacts, 0);
                     while ($row = mysqli_fetch_assoc($sql_contacts)) {
-                        $contact_id = intval($row['contact_id']);
-                        $contact_name = escapeHtml($row['contact_name']);
-                        echo "<li><a href='#' class='ajax-modal' data-modal-size='lg' data-modal-url='modals/contact/contact.php?id=$contact_id'>$contact_name</a></li>";
+                        echo '<li class="mb-1">' . contactLink($row['contact_client_id'], $row['contact_id'], $row['contact_name'], $row['contact_photo']) . '</li>';
                     }
                     echo "</ul>";
                 }

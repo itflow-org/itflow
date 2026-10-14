@@ -163,6 +163,15 @@ function searchResultBadge($badge) {
                             $item_url = escapeHtml($item['url']);
                             ?>
                             <div class="list-group-item d-flex align-items-center gap-3 py-2">
+                                <?php if (!empty($item['avatar'])) {
+                                    // A contact - their avatar, as everywhere else they appear
+                                    $avatar = $item['avatar'];
+                                    if (!empty($avatar['image'])) { ?>
+                                        <img class="itflow-contact-avatar itflow-contact-avatar-sm" src="<?= escapeHtml($avatar['image']) ?>" alt="" loading="lazy">
+                                    <?php } else { ?>
+                                        <span class="itflow-contact-avatar itflow-contact-avatar-sm bg-<?= escapeHtml($avatar['tone']) ?>-subtle text-<?= escapeHtml($avatar['tone']) ?>-emphasis" aria-hidden="true"><?= escapeHtml($avatar['initials']) ?></span>
+                                    <?php }
+                                } ?>
                                 <div class="flex-grow-1 text-truncate">
                                     <a href="<?= $item_url ?>">
                                         <?php if (!empty($item['ref'])) { ?>

@@ -15,7 +15,7 @@ $location_map_query = rawurlencode(html_entity_decode(trim("$location_address $l
 <div class="col-md-4">
     <div class="itflow-ov-label">Primary contact</div>
     <?php if ($contact_id) { ?>
-        <a class="ajax-modal fw-semibold" href="#" data-modal-url="modals/contact/contact.php?client_id=<?= $client_id ?>&id=<?= $contact_id ?>" data-modal-size="lg"><?= $contact_name ?: 'Unnamed contact' ?></a>
+        <?= contactLink($client_id, $contact_id, $contact_name, $contact_photo, ['class' => 'fw-semibold']) ?>
         <?php if ($contact_title) { ?><span class="text-body-secondary small ms-1"><?= $contact_title ?></span><?php } ?>
         <div class="small mt-1 d-flex flex-column gap-1">
             <?php if ($contact_phone) { ?>
@@ -32,7 +32,7 @@ $location_map_query = rawurlencode(html_entity_decode(trim("$location_address $l
             <?php } ?>
         </div>
     <?php } elseif ($client_details_edit) { ?>
-        <a class="ajax-modal small" href="#" data-modal-url="modals/contact/contact_add.php?client_id=<?= $client_id ?>&primary=1"><i class="fas fa-fw fa-plus me-1"></i>Add primary contact</a>
+        <a class="ajax-modal small" href="#" data-modal-size="lg" data-modal-url="modals/contact/contact_add.php?client_id=<?= $client_id ?>&primary=1"><i class="fas fa-fw fa-plus me-1"></i>Add primary contact</a>
     <?php } else { ?>
         <span class="text-body-tertiary">None</span>
     <?php } ?>

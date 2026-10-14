@@ -34,10 +34,20 @@ itflowReady(function () {
                     contactSelect.appendChild(new Option('Select a contact', ''));
                     response.contacts.forEach(function (contact) {
                         // new Option() sets text content, so contact names are
-                        // never parsed as markup
-                        contactSelect.appendChild(
-                            new Option(contact.contact_name, contact.contact_id)
-                        );
+                        // never parsed as markup. The picker draws their avatar
+                        // from the data-* extras, as on every other contact field.
+                        const option = new Option(contact.contact_name, contact.contact_id);
+                        // Title, then Primary or Technical - contactOptionDescription() server side
+                        const role = contact.contact_primary == '1' ? 'Primary' : (contact.contact_technical == '1' ? 'Technical' : '');
+                        option.dataset.description = [contact.contact_title, role].filter(Boolean).join(' · ');
+                        option.dataset.initials = contact.contact_initials || '';
+                        option.dataset.shape = 'circle';
+                        option.dataset.tone = contact.contact_tone || 'secondary';
+                        option.dataset.soft = '1';
+                        if (contact.contact_photo_url) {
+                            option.dataset.image = contact.contact_photo_url;
+                        }
+                        contactSelect.appendChild(option);
                     });
                 } else {
                     contactSelect.appendChild(new Option('No contacts found', ''));

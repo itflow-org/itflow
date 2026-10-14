@@ -22,7 +22,7 @@ if (isset($_GET['client_id'])) {
             client_lead, client_name, client_net_terms, client_notes, client_rate, client_referral,
             client_tax_id_number, client_type, client_website, contact_email, contact_extension,
             contact_id, contact_mobile, contact_mobile_country_code, contact_name, contact_phone,
-            contact_phone_country_code, contact_primary, contact_title, location_address,
+            contact_phone_country_code, contact_photo, contact_primary, contact_title, location_address,
             location_city, location_country, location_id, location_name, location_phone,
             location_phone_country_code, location_primary, location_state, location_zip FROM clients
         LEFT JOIN locations ON client_id = location_client_id AND location_primary = 1
@@ -55,6 +55,7 @@ if (isset($_GET['client_id'])) {
         $client_archived_at = escapeHtml($row['client_archived_at']);
         $contact_id = intval($row['contact_id']);
         $contact_name = escapeHtml($row['contact_name']);
+        $contact_photo = escapeHtml($row['contact_photo']);
         $contact_title = escapeHtml($row['contact_title']);
         $contact_email = escapeHtml($row['contact_email']);
         $contact_phone_country_code = escapeHtml($row['contact_phone_country_code']);

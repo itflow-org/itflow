@@ -354,7 +354,7 @@ $search_noun = $type_filter ? $asset_type_tabs[$type_filter]['label'] : 'assets'
                 <div class="col-lg-1 col-md-12">
                     <div class="d-flex justify-content-end gap-2">
                         <a href="?<?= $client_url ?>archived=<?= $archived ? 0 : 1 ?>"
-                            class="btn btn-<?= $archived ? 'primary' : 'default' ?>" title="Archived">
+                            class="btn <?= $archived ? 'btn-dark' : 'btn-outline-dark' ?>" title="<?= $archived ? 'Back to active assets' : 'Show archived assets' ?>">
                             <i class="fa fa-fw fa-archive"></i><span class="d-lg-none ms-2">Archived</span>
                         </a>
                         <div class="dropdown" id="bulkActionButton" hidden>
@@ -659,7 +659,7 @@ $search_noun = $type_filter ? $asset_type_tabs[$type_filter]['label'] : 'assets'
                                 <?php if ($can_edit) { ?>
                                     <?= quickPick('asset_contact', $asset_id, (string) $asset_contact_id, assetQuickHtml('asset_contact', $row), 'list', 0, $client_id) ?>
                                 <?php } elseif ($contact_name) { ?>
-                                    <a class="ajax-modal <?= $contact_archived ? 'text-decoration-line-through text-body-secondary' : '' ?>" href="#" data-modal-url="modals/contact/contact.php?id=<?= $asset_contact_id ?>" data-modal-size="lg" <?= $contact_archived ? 'title="Archived contact"' : '' ?>><?= $contact_name ?></a>
+                                    <?= contactLink($client_id, $asset_contact_id, $row['contact_name'], $row['contact_photo'], ['archived' => $contact_archived]) ?>
                                 <?php } else { ?>
                                     <span class="text-body-secondary">-</span>
                                 <?php } ?>

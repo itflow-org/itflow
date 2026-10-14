@@ -45,31 +45,13 @@ ob_start();
                     while ($row = mysqli_fetch_assoc($sql_client_contacts_select)) {
                         $contact_id_select = intval($row['contact_id']);
                         $contact_name_select = escapeHtml($row['contact_name']);
-                        $contact_primary_select = intval($row['contact_primary']);
-                        if($contact_primary_select == 1) {
-                            $contact_primary_display_select = " (Primary)";
-                        } else {
-                            $contact_primary_display_select = "";
-                        }
-                        $contact_technical_select = intval($row['contact_technical']);
-                        if($contact_technical_select == 1) {
-                            $contact_technical_display_select = " (Technical)";
-                        } else {
-                            $contact_technical_display_select = "";
-                        }
-                        $contact_title_select = escapeHtml($row['contact_title']);
-                        if(!empty($contact_title_select)) {
-                            $contact_title_display_select = " - $contact_title_select";
-                        } else {
-                            $contact_title_display_select = "";
-                        }
 
                         ?>
                         <option
                             value="<?= $contact_id_select ?>"
                             <?php if ($contact_id_select  == $contact_id) { echo "selected"; } ?>
-                            <?= selectOptionContact($row['contact_client_id'] ?? 0, $row['contact_name'], $row['contact_photo'] ?? '', $row['contact_title'] ?? '') ?>>
-                            <?= "$contact_name_select$contact_title_display_select$contact_primary_display_select$contact_technical_display_select" ?>
+                            <?= selectOptionContact($row['contact_client_id'] ?? 0, $row['contact_name'], $row['contact_photo'] ?? '', contactOptionDescription($row), $row['contact_id'] ?? 0) ?>>
+                            <?= $contact_name_select ?>
                         </option>
                     <?php } ?>
                 </select>

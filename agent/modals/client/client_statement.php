@@ -38,7 +38,7 @@ $outstanding_balance = floatval($row['balance']);
 // document, so the same people who would get the invoice get the statement.
 $sql_contacts = mysqli_query(
     $mysqli,
-    "SELECT contact_billing, contact_email, contact_id, contact_name, contact_primary, contact_title
+    "SELECT contact_billing, contact_email, contact_id, contact_photo, contact_name, contact_primary, contact_title
     FROM contacts
     WHERE contact_client_id = $client_id
     AND contact_archived_at IS NULL
@@ -140,29 +140,24 @@ ob_start();
                     $contact_name = escapeHtml($row['contact_name']);
                     $contact_email = escapeHtml($row['contact_email']);
                     $contact_title = escapeHtml($row['contact_title']);
-                    $contact_primary = intval($row['contact_primary']);
-                    $contact_billing = intval($row['contact_billing']);
 
                     $contact_checked = in_array($contact_id, $default_contact_ids, true);
 
                     ?>
 
-                    <label class="list-group-item" for="statementContact<?= $contact_id ?>">
-                        <input type="checkbox" class="form-check-input me-2" name="contacts[]"
+                    <label class="list-group-item d-flex align-items-center gap-2" for="statementContact<?= $contact_id ?>">
+                        <input type="checkbox" class="form-check-input flex-shrink-0 m-0" name="contacts[]"
                             id="statementContact<?= $contact_id ?>" value="<?= $contact_id ?>"
                             <?php if ($contact_checked) { echo "checked"; } ?>>
-                        <strong><?= $contact_name ?></strong>
-                        <?php if ($contact_primary == 1) { ?>
-                            <span class="badge text-bg-primary ms-1">Primary</span>
-                        <?php } ?>
-                        <?php if ($contact_billing == 1) { ?>
-                            <span class="badge text-bg-success ms-1">Billing</span>
-                        <?php } ?>
-                        <?php if (!empty($contact_title)) { ?>
-                            <span class="text-muted ms-1"><?= $contact_title ?></span>
-                        <?php } ?>
-                        <br>
-                        <span class="text-muted ms-4"><?= $contact_email ?></span>
+                        <?= contactAvatar($client_id, $contact_id, $row['contact_name'], $row['contact_photo'], 'sm') ?>
+                        <span class="min-w-0">
+                            <span class="d-flex flex-wrap align-items-center column-gap-1">
+                                <strong><?= $contact_name ?></strong>
+                                <?= contactFlagPills($row, false) ?>
+                                <?php if ($contact_title) { ?><span class="text-body-secondary small"><?= $contact_title ?></span><?php } ?>
+                            </span>
+                            <span class="d-block small text-body-secondary text-truncate"><?= $contact_email ?></span>
+                        </span>
                     </label>
 
                     <?php

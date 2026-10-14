@@ -489,12 +489,3 @@ function clientOverviewMonthly($client_id) {
     ];
 }
 
-/** Up to two initials for a person's name, for a contact without a photo. */
-function clientOverviewPersonInitials($name) {
-    $words = preg_split('/\s+/u', trim((string) $name), -1, PREG_SPLIT_NO_EMPTY);
-    $initials = '';
-    foreach (array_slice($words, 0, 2) as $word) {
-        $initials .= mb_strtoupper(mb_substr($word, 0, 1));
-    }
-    return $initials ?: '?';
-}

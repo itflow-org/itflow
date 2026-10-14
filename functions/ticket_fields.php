@@ -277,7 +277,8 @@ function quickPick($field, $id, $current, $inner, $style = 'list', $status_id = 
     $labels = [
         'priority' => 'Change priority', 'assignee' => 'Change who it is assigned to', 'billable' => 'Change billing', 'status' => 'Change status',
         'project_manager' => 'Change the project manager', 'recurring_assignee' => 'Change who it is assigned to',
-        'asset_status' => 'Change status', 'asset_location' => 'Change location', 'asset_contact' => 'Change who it is assigned to'
+        'asset_status' => 'Change status', 'asset_location' => 'Change location', 'asset_contact' => 'Change who it is assigned to',
+        'contact_location' => 'Change location'
     ];
     // On the ticket page it looks like the other editable properties there (agent/css/ticket.css)
     $class = 'itflow-quick-pick itflow-quick-pick-' . $style . ($style === 'detail' ? ' ticket-prop-edit' : '');

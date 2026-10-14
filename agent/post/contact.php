@@ -14,17 +14,20 @@ if (isset($_POST['add_contact'])) {
 
     require_once 'contact_model.php';
 
-    $client_id = intval($_POST['client_id']);
+    $client_id = intval($_POST['client_id'] ?? 0);
 
     enforceClientAccess($client_id);
+
+    // Only one of the client's own locations
+    $location_id = assetClientOwnedId('location', $location_id, $client_id);
 
     // Create User Account
     $user_id = 0;
     if ($name && $email && $auth_method) {
 
         // Set password
-        if (!empty($_POST['contact_password'])) {
-            $password_hash = password_hash(trim($_POST['contact_password']), PASSWORD_DEFAULT);
+        if ($contact_password !== '') {
+            $password_hash = password_hash($contact_password, PASSWORD_DEFAULT);
         } else {
             // Set a random password
             $password_hash = password_hash(randomString(), PASSWORD_DEFAULT);
@@ -54,14 +57,14 @@ if (isset($_POST['add_contact'])) {
     }
 
     // Check for and process image/photo
-    if (isset($_FILES['file']['tmp_name'])) {
+    if (!empty($_FILES['file']['tmp_name'])) {
         if ($new_file_name = checkFileUpload($_FILES['file'], array('jpg', 'jpeg', 'gif', 'png', 'webp'))) {
 
             $file_tmp_path = $_FILES['file']['tmp_name'];
 
             // directory in which the uploaded file will be moved
             if (!file_exists("../uploads/clients/$client_id")) {
-                mkdir("../uploads/clients/$client_id");
+                mkdir("../uploads/clients/$client_id", 0755, true);
             }
             $upload_file_dir = "../uploads/clients/$client_id/";
             $dest_path = $upload_file_dir . $new_file_name;
@@ -96,31 +99,41 @@ if (isset($_POST['edit_contact'])) {
     // Get Contact Info
     $sql = mysqli_query($mysqli,"SELECT contact_photo, contact_user_id, contact_client_id FROM contacts WHERE contact_id = $contact_id");
     $row = mysqli_fetch_assoc($sql);
-    $existing_file_name = escapeSql($row['contact_photo']);
+    if (!$row) {
+        flashAlert("That contact no longer exists", 'error');
+        redirect();
+    }
+    $existing_file_name = basename((string) $row['contact_photo']);
     $contact_user_id = intval($row['contact_user_id']);
     $client_id = intval($row['contact_client_id']);
 
     enforceClientAccess();
 
+    // Only one of the client's own locations
+    $location_id = assetClientOwnedId('location', $location_id, $client_id);
+
     if (!file_exists("../uploads/clients/$client_id")) {
-        mkdir("../uploads/clients/$client_id");
+        mkdir("../uploads/clients/$client_id", 0755, true);
     }
 
-    // Update Existing User
+    // Update Existing User - their portal access only when the form had it
     if ($contact_user_id > 0) {
-        mysqli_query($mysqli, "UPDATE users SET user_name = '$name', user_email = '$email', user_auth_method = '$auth_method' WHERE user_id = $contact_user_id");
+        mysqli_query($mysqli, "UPDATE users SET user_name = '$name', user_email = '$email' WHERE user_id = $contact_user_id");
+        if ($auth_method_posted) {
+            mysqli_query($mysqli, "UPDATE users SET user_auth_method = '$auth_method' WHERE user_id = $contact_user_id");
+        }
 
         // Set password
-        if ($_POST['contact_password']) {
-            $password_hash = password_hash(trim($_POST['contact_password']), PASSWORD_DEFAULT);
+        if ($contact_password !== '') {
+            $password_hash = password_hash($contact_password, PASSWORD_DEFAULT);
             mysqli_query($mysqli, "UPDATE users SET user_password = '$password_hash' WHERE user_id = $contact_user_id");
         }
     // Create New User
     } elseif ($contact_user_id == 0 && $name && $email && $auth_method) {
 
         // Set password
-        if ($_POST['contact_password']) {
-            $password_hash = password_hash(trim($_POST['contact_password']), PASSWORD_DEFAULT);
+        if ($contact_password !== '') {
+            $password_hash = password_hash($contact_password, PASSWORD_DEFAULT);
         } else {
             // Set a random password
             $password_hash = password_hash(randomString(), PASSWORD_DEFAULT);
@@ -134,8 +147,9 @@ if (isset($_POST['edit_contact'])) {
 
     mysqli_query($mysqli,"UPDATE contacts SET contact_name = '$name', contact_title = '$title', contact_phone_country_code = '$phone_country_code', contact_phone = '$phone', contact_extension = '$extension', contact_mobile_country_code = '$mobile_country_code', contact_mobile = '$mobile', contact_email = '$email', contact_pin = '$pin', contact_notes = '$notes', contact_important = $contact_important, contact_billing = $contact_billing, contact_technical = $contact_technical, contact_department = '$department', contact_location_id = $location_id, contact_user_id = $contact_user_id WHERE contact_id = $contact_id");
 
-    // Upload Photo
-    if (isset($_FILES['file']['tmp_name'])) {
+    // Upload Photo - replacing the old one, if there was one
+    $old_photo_path = $existing_file_name !== '' ? "../uploads/clients/$client_id/$existing_file_name" : '';
+    if (!empty($_FILES['file']['tmp_name'])) {
         if ($new_file_name = checkFileUpload($_FILES['file'], array('jpg', 'jpeg', 'gif', 'png', 'webp'))) {
 
             // Set directory in which the uploaded file will be moved
@@ -145,12 +159,19 @@ if (isset($_POST['edit_contact'])) {
 
             move_uploaded_file($file_tmp_path, $dest_path);
 
-            //Delete old file
-            unlink("../uploads/clients/$client_id/$existing_file_name");
+            // Delete old file
+            if ($old_photo_path && is_file($old_photo_path)) {
+                unlink($old_photo_path);
+            }
 
             mysqli_query($mysqli,"UPDATE contacts SET contact_photo = '$new_file_name' WHERE contact_id = $contact_id");
 
         }
+    } elseif (!empty($_POST['remove_photo'])) {
+        if ($old_photo_path && is_file($old_photo_path)) {
+            unlink($old_photo_path);
+        }
+        mysqli_query($mysqli,"UPDATE contacts SET contact_photo = NULL WHERE contact_id = $contact_id");
     }
 
     // Tags
@@ -191,10 +212,10 @@ if (isset($_POST['edit_contact'])) {
 
         if ($auth_method == 'azure') {
             $password_info = "Login with your Microsoft (Azure AD) account.";
-        } elseif (empty($_POST['contact_password'])) {
+        } elseif ($contact_password === '') {
             $password_info = "Request a password reset at https://$config_base_url/client/login_reset.php";
         } else {
-            $password_info = mysqli_real_escape_string($mysqli, $_POST['contact_password'] . " -- Please change on first login");
+            $password_info = mysqli_real_escape_string($mysqli, $contact_password . " -- Please change on first login");
         }
 
         $subject = "Your new $company_name portal account";
@@ -353,24 +374,28 @@ if (isset($_POST['bulk_assign_contact_location'])) {
     // Get Location name for logging and Notification
     $sql = mysqli_query($mysqli,"SELECT location_name, location_client_id FROM locations WHERE location_id = $location_id");
     $row = mysqli_fetch_assoc($sql);
-    $location_name = escapeSql($row['location_name']);
-    $client_id = intval($row['location_client_id']);
+    $location_name = escapeSql($row['location_name'] ?? '');
+    $client_id = intval($row['location_client_id'] ?? 0);
 
     enforceClientAccess();
 
     // Assign Location to Selected Contacts
     if (isset($_POST['contact_ids'])) {
 
-        // Get Selected Contacts Count
-        $contact_count = count($_POST['contact_ids']);
+        // Only the contacts of the location's client are moved
+        $contact_count = 0;
 
         foreach($_POST['contact_ids'] as $contact_id) {
             $contact_id = intval($contact_id);
 
             // Get Contact Details for Logging
-            $sql = mysqli_query($mysqli,"SELECT contact_name FROM contacts WHERE contact_id = $contact_id");
+            $sql = mysqli_query($mysqli,"SELECT contact_name, contact_client_id FROM contacts WHERE contact_id = $contact_id");
             $row = mysqli_fetch_assoc($sql);
+            if (!$row || intval($row['contact_client_id']) !== $client_id) {
+                continue;
+            }
             $contact_name = escapeSql($row['contact_name']);
+            $contact_count++;
 
             mysqli_query($mysqli,"UPDATE contacts SET contact_location_id = $location_id WHERE contact_id = $contact_id");
 

@@ -162,7 +162,7 @@ function globalSearchGroups($terms, $deep) {
         : '';
     $groups[] = [
         'key' => 'contacts', 'label' => 'Contacts', 'icon' => 'address-book', 'module' => 'module_client',
-        'select' => 'contact_id, contact_name, contact_title, contact_email, contact_client_id, client_name',
+        'select' => 'contact_id, contact_name, contact_title, contact_email, contact_photo, contact_client_id, client_name',
         'from' => 'contacts LEFT JOIN clients ON contact_client_id = client_id',
         'where' => "contact_archived_at IS NULL
             AND (contact_name LIKE '%$like%' OR contact_email LIKE '%$like%' OR contact_title LIKE '%$like%' $contact_phone_match)",
@@ -175,6 +175,8 @@ function globalSearchGroups($terms, $deep) {
                 'subtitle' => implode(' · ', array_filter([$row['contact_title'], $row['contact_email']])),
                 'context' => $row['client_name'],
                 'url' => globalSearchClientUrl('contact.php', $row['contact_client_id'], ['contact_id' => intval($row['contact_id'])]),
+                // Drawn in place of the group icon - the person's avatar, as everywhere else
+                'avatar' => contactAvatarData($row['contact_client_id'], $row['contact_id'], $row['contact_name'], $row['contact_photo']),
             ];
         },
     ];

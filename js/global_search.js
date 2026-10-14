@@ -35,6 +35,7 @@
     const MIN_LENGTH = 2;
     const CACHE_SIZE = 50;
     const BADGE_VARIANTS = ['primary', 'secondary', 'success', 'danger', 'warning', 'info', 'light', 'dark'];
+    const AVATAR_TONES = ['primary', 'success', 'info', 'warning', 'secondary'];
     const MOD_KEY = /Mac|iPhone|iPad/.test(navigator.platform || navigator.userAgent || '') ? '⌘' : 'Ctrl';
 
     let modalEl = null;
@@ -116,6 +117,27 @@
         return frag;
     }
 
+    // A contact's picture, or their initials on their colour - contactAvatar() in
+    // functions/contact.php draws the same thing server side
+    function avatar(spec) {
+        if (!spec) {
+            return null;
+        }
+        let node;
+        if (spec.image) {
+            node = el('img', 'itflow-contact-avatar itflow-contact-avatar-xs');
+            node.src = safeUrl(spec.image);
+            node.alt = '';
+        } else if (spec.initials) {
+            const tone = AVATAR_TONES.indexOf(spec.tone) !== -1 ? spec.tone : 'secondary';
+            node = el('span', 'itflow-contact-avatar itflow-contact-avatar-xs bg-' + tone + '-subtle text-' + tone + '-emphasis', spec.initials);
+        } else {
+            return null;
+        }
+        node.setAttribute('aria-hidden', 'true');
+        return node;
+    }
+
     function badge(spec) {
         if (!spec || !spec.text) {
             return null;
@@ -156,7 +178,7 @@
             body.append(sub);
         }
 
-        link.append(icon(iconName, 'itflow-search-item-icon'), body);
+        link.append(avatar(parts.avatar) || icon(iconName, 'itflow-search-item-icon'), body);
 
         const status = badge(parts.badge);
         if (status || parts.context) {

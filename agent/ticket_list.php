@@ -301,7 +301,7 @@ if ($tickets) {
                         if (empty($contact_name)) {
                             $contact_display = "<span class='text-muted'>-</span>";
                         } else {
-                            $contact_display = "<a href='contact.php?client_id=$client_id&contact_id=$contact_id'>$contact_name</a>";
+                            $contact_display = contactLink($client_id, $contact_id, $row['contact_name'], $row['contact_photo'], ['page' => true]);
                         }
 
                         $ticket_invoice_id = intval($row['ticket_invoice_id']);

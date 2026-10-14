@@ -173,23 +173,15 @@ $money_format = function ($amount) use ($currency_format, $client_currency_code,
                         <?php foreach ($overview_contacts as $person) {
                             $person_id = intval($person['contact_id']);
                             $person_name = escapeHtml($person['contact_name']);
-                            $person_photo = escapeHtml($person['contact_photo']);
                             $person_phone = escapeHtml(formatPhoneNumber($person['contact_phone'], $person['contact_phone_country_code']));
                             $person_mobile = escapeHtml(formatPhoneNumber($person['contact_mobile'], $person['contact_mobile_country_code']));
                             $person_email = escapeHtml($person['contact_email']);
-                            $person_flags = array_keys(array_filter(['Primary' => $person['contact_primary'], 'Billing' => $person['contact_billing'], 'Technical' => $person['contact_technical'], 'Important' => $person['contact_important']]));
                             ?>
                             <div class="list-group-item d-flex gap-3 py-2">
-                                <?php if ($person_photo) { ?>
-                                    <img class="itflow-ov-person rounded-circle" src="../uploads/clients/<?= $client_id ?>/<?= $person_photo ?>" alt="">
-                                <?php } else { ?>
-                                    <span class="itflow-ov-person rounded-circle bg-secondary-subtle text-secondary-emphasis" aria-hidden="true"><?= escapeHtml(clientOverviewPersonInitials($person['contact_name'])) ?></span>
-                                <?php } ?>
+                                <?= contactAvatar($client_id, $person_id, $person['contact_name'], $person['contact_photo']) ?>
                                 <div class="overflow-hidden flex-grow-1">
                                     <a class="ajax-modal fw-semibold" href="#" data-modal-url="modals/contact/contact.php?client_id=<?= $client_id ?>&id=<?= $person_id ?>" data-modal-size="lg"><?= $person_name ?></a>
-                                    <?php foreach ($person_flags as $flag) { ?>
-                                        <span class="badge rounded-pill <?= $flag === 'Primary' ? 'text-bg-success' : 'bg-secondary-subtle text-secondary-emphasis' ?> fw-normal ms-1"><?= $flag ?></span>
-                                    <?php } ?>
+                                    <span class="ms-1"><?= contactFlagPills($person, false) ?></span>
                                     <?php if ($person['contact_title']) { ?><div class="small text-body-secondary text-truncate"><?= escapeHtml($person['contact_title']) ?></div><?php } ?>
                                     <div class="small d-flex flex-wrap column-gap-3">
                                         <?php if ($person_phone) { ?><a class="text-reset text-decoration-none text-nowrap" href="tel:<?= escapeHtml(preg_replace('/[^0-9+]/', '', (string) $person['contact_phone'])) ?>"><i class="fas fa-fw fa-phone text-body-secondary me-1" aria-hidden="true"></i><?= $person_phone ?><?= $person['contact_extension'] ? ' x' . escapeHtml($person['contact_extension']) : '' ?></a><?php } ?>

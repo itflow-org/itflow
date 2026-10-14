@@ -2,33 +2,37 @@
 
 require_once '../../../includes/modal_header.php';
 
+enforceUserPermission('module_client', 2);
+
 $client_id = intval($_GET['client_id'] ?? 0);
-
-// Opened from an "Add Primary Contact" link, so the box below starts ticked.
-// A default, not a lock - it is still a normal checkbox.
-$contact_primary_default = !empty($_GET['primary']);
-
 if ($client_id) {
-     $sql_location_select = mysqli_query($mysqli, "SELECT location_id, location_name FROM locations WHERE location_archived_at IS NULL AND location_client_id = $client_id ORDER BY location_name ASC");
-} else {
-    $sql_client_select = mysqli_query($mysqli, "SELECT client_id, client_name FROM clients WHERE client_archived_at IS NULL " . clientScopeSql('clients.client_id') . " ORDER BY client_name ASC");
+    enforceClientAccess();
 }
 
-$sql_tags_select = mysqli_query($mysqli, "SELECT tag_id, tag_name FROM tags WHERE tag_type = 3 ORDER BY tag_name ASC");
+// Opened from an "Add Primary Contact" link, so the Primary switch starts on.
+// A default, not a lock - it is still a normal switch.
+$contact_primary_default = !empty($_GET['primary']);
 
 // A contact's phone belongs to the CLIENT's country, not the company's. The
 // client's country lives on its primary location; falls through to the
 // company default when the client has none.
 $client_phone_iso2 = '';
 if ($client_id) {
-    $sql_client_country = mysqli_query($mysqli, "SELECT location_country FROM locations
-        WHERE location_client_id = $client_id AND location_primary = 1 LIMIT 1");
-    $row_client_country = mysqli_fetch_assoc($sql_client_country);
+    $row_client_country = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT location_country FROM locations
+        WHERE location_client_id = $client_id AND location_primary = 1 LIMIT 1"));
     if ($row_client_country) {
         $client_phone_iso2 = $country_iso2_array[$row_client_country['location_country']] ?? '';
     }
 }
 
+$contact_form_mode = 'add';
+$contact_id = 0;
+$contact_name = $contact_title = $contact_department = $contact_email = $contact_pin = $contact_notes = $contact_photo = '';
+$contact_phone = $contact_phone_country_code = $contact_extension = $contact_mobile = $contact_mobile_country_code = '';
+$contact_primary = $contact_important = $contact_billing = $contact_technical = 0;
+$contact_location_id = 0;
+$auth_method = '';
+$contact_tag_id_array = [];
 
 ob_start();
 
@@ -41,316 +45,18 @@ ob_start();
 <form action="post.php" method="post" enctype="multipart/form-data" autocomplete="off"
       data-itflow-phone-country="<?= escapeHtml($client_phone_iso2) ?>">
     <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
+    <?php if ($client_id) { ?>
+        <input type="hidden" name="client_id" value="<?= $client_id ?>">
+    <?php } ?>
 
     <div class="modal-body">
-
-        <ul class="nav nav-pills nav-justified mb-3">
-            <li class="nav-item">
-                <a class="nav-link active" data-bs-toggle="pill" href="#pills-details"><i class="fas fa-fw fa-user me-2"></i>Details</a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" data-bs-toggle="pill" href="#pills-photo"><i class="fas fa-fw fa-image me-2"></i>Photo</a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" data-bs-toggle="pill" href="#pills-access"><i class="fas fa-fw fa-lock me-2"></i>Access</a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" data-bs-toggle="pill" href="#pills-notes"><i class="fas fa-fw fa-edit me-2"></i>Notes</a>
-            </li>
-        </ul>
-
-        <hr>
-
-        <div class="tab-content">
-
-            <div class="tab-pane fade show active" id="pills-details">
-
-                <?php if ($client_id) { ?>
-                    <input type="hidden" name="client_id" value="<?= $client_id ?>">
-                <?php } else { ?>
-
-                    <div class="mb-3">
-                        <label>Client <strong class="text-danger">*</strong></label>
-                        <div class="input-group">
-                                <span class="input-group-text"><i class="fa fa-fw fa-user"></i></span>
-                            <select class="form-select select2" name="client_id" required>
-                                <option value="">- Select Client -</option>
-                                <?php
-
-                                while ($row = mysqli_fetch_assoc($sql_client_select)) {
-                                    $client_id_select = intval($row['client_id']);
-                                    $client_name = escapeHtml($row['client_name']); ?>
-                                    <option <?php if ($client_id_select == $client_id) { echo "selected"; } ?> value="<?= $client_id_select ?>"><?= $client_name ?></option>
-
-                                <?php } ?>
-                            </select>
-                        </div>
-                    </div>
-
-                <?php } ?>
-
-                <div class="mb-3">
-                    <label>Name <strong class="text-danger">*</strong> / <span class="text-secondary">Primary Contact</span></label>
-                    <div class="input-group">
-                            <span class="input-group-text"><i class="fa fa-fw fa-user"></i></span>
-                        <input type="text" class="form-control" name="name" placeholder="Full Name" maxlength="200" required autofocus>
-                            <div class="input-group-text">
-                                <input class="form-check-input" type="checkbox" name="contact_primary" value="1"<?= $contact_primary_default ? ' checked' : '' ?>>
-                            </div>
-                    </div>
-                </div>
-
-                <div class="mb-3">
-                    <label>Title</label>
-                    <div class="input-group">
-                            <span class="input-group-text"><i class="fa fa-fw fa-id-badge"></i></span>
-                        <input type="text" class="form-control" name="title" placeholder="Job Title" maxlength="200">
-                    </div>
-                </div>
-
-                <div class="mb-3">
-                    <label>Department / Group</label>
-                    <div class="input-group">
-                            <span class="input-group-text"><i class="fa fa-fw fa-users"></i></span>
-                        <input type="text" class="form-control" name="department" placeholder="Department or group" maxlength="200">
-                    </div>
-                </div>
-
-                <label>Phone / <span class="text-secondary">Extension</span></label>
-                <div class="row g-2">
-                    <div class="col-9">
-                        <div class="mb-3">
-                            <div class="input-group">
-                                    <span class="input-group-text"><i class="fa fa-fw fa-phone"></i></span>
-                                <input type="hidden" name="phone_country_code">
-                                <input type="tel" class="form-control" name="phone" placeholder="Phone Number" maxlength="200" data-itflow-phone="phone_country_code">
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-3">
-                        <div class="mb-3">
-                            <input type="text" class="form-control" name="extension" placeholder="ext." maxlength="200">
-                        </div>
-                    </div>
-                </div>
-
-                <label>Mobile</label>
-                <div class="row g-2">
-                    <div class="col-9">
-                        <div class="mb-3">
-                            <div class="input-group">
-                                    <span class="input-group-text"><i class="fa fa-fw fa-mobile-alt"></i></span>
-                                <input type="hidden" name="mobile_country_code">
-                                <input type="tel" class="form-control" name="mobile" placeholder="Mobile Phone Number" maxlength="200" data-itflow-phone="mobile_country_code">
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="mb-3">
-                    <label>Email</label>
-                    <div class="input-group">
-                            <span class="input-group-text"><i class="fa fa-fw fa-envelope"></i></span>
-                        <input type="email" class="form-control" name="email" id="contact_email" placeholder="Email Address" maxlength="200" onfocusout="checkContactEmail()">
-                    </div>
-                    <div class="mt-2">
-                        <span class="text-info" id="contact_check_info"></span>
-                    </div>
-                </div>
-
-                <?php if($client_id) { ?>
-                <div class="mb-3">
-                    <label>Location</label>
-                    <div class="input-group">
-                            <span class="input-group-text"><i class="fa fa-fw fa-map-marker-alt"></i></span>
-                        <select class="form-select select2" name="location">
-                            <option value="">- Select Location -</option>
-                            <?php
-
-                            while ($row = mysqli_fetch_assoc($sql_location_select)) {
-                                $location_id = intval($row['location_id']);
-                                $location_name = escapeHtml($row['location_name']);
-                            ?>
-                                <option value="<?= $location_id ?>"><?= $location_name ?></option>
-                            <?php } ?>
-
-                        </select>
-                    </div>
-                </div>
-                <?php } ?>
-
-            </div>
-
-            <div class="tab-pane fade" id="pills-photo">
-
-                <div class="mb-3">
-                    <label>Upload Photo</label>
-                    <input type="file" class="form-control" name="file" accept="image/*">
-                </div>
-
-            </div>
-
-            <div class="tab-pane fade" id="pills-access">
-
-                <div class="mb-3">
-                    <label>Pin</label>
-                    <div class="input-group">
-                            <span class="input-group-text"><i class="fa fa-fw fa-key"></i></span>
-                        <input type="text" class="form-control" name="pin" placeholder="Security code or pin" maxlength="255">
-                    </div>
-                </div>
-                <?php if ($config_client_portal_enable == 1) { ?>
-                    <div class="authForm">
-                        <div class="mb-3">
-                            <label>Client Portal</label>
-                            <div class="input-group">
-                                    <span class="input-group-text"><i class="fa fa-fw fa-user-circle"></i></span>
-                                <select class="form-select select2 authMethod" name="auth_method">
-                                    <option value="">- No Access -</option>
-                                    <option value="local">Using Set Password</option>
-                                    <option value="azure">Using Azure Credentials</option>
-                                </select>
-                            </div>
-                        </div>
-
-                        <div class="mb-3 passwordGroup" style="display: none;">
-                            <label>Password</label>
-                            <div class="input-group">
-                                    <span class="input-group-text"><i class="fa fa-fw fa-lock"></i></span>
-                                <input type="password" class="form-control" data-toggle="password" id="password" name="contact_password" placeholder="Password" autocomplete="new-password">
-                                    <span class="input-group-text"><i class="fa fa-fw fa-eye"></i></span>
-                                    <button type="button" class="btn btn-default" title="Generate password" onclick="generatePassword()">
-                                        <i class="fa fa-fw fa-question"></i>
-                                    </button>
-                            </div>
-                        </div>
-                    </div>
-                <?php } ?>
-
-                <label>Roles:</label>
-                <div class="row g-2">
-
-                    <div class="col-md-4">
-                        <div class="mb-3">
-                            <div class="form-check">
-                                <input type="checkbox" class="form-check-input" id="contactImportantCheckbox" name="contact_important" value="1">
-                                <label class="form-check-label" for="contactImportantCheckbox">Important</label>
-                                <p class="text-secondary"><small>Pin Top</small></p>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-md-4">
-                        <div class="mb-3">
-                            <div class="form-check">
-                                <input type="checkbox" class="form-check-input" id="contactBillingCheckbox" name="contact_billing" value="1">
-                                <label class="form-check-label" for="contactBillingCheckbox">Billing</label>
-                                <p class="text-secondary"><small>Receives Invoices</small></p>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-md-4">
-                        <div class="mb-3">
-                            <div class="form-check">
-                                <input type="checkbox" class="form-check-input" id="contactTechnicalCheckbox" name="contact_technical" value="1">
-                                <label class="form-check-label" for="contactTechnicalCheckbox">Technical</label>
-                                <p class="text-secondary"><small>Access </small></p>
-                            </div>
-                        </div>
-                    </div>
-
-                </div>
-
-            </div>
-
-            <div class="tab-pane fade" id="pills-notes">
-
-                <div class="mb-3">
-                    <textarea class="form-control" rows="8" name="notes" placeholder="Enter some notes"></textarea>
-                </div>
-
-                <div class="mb-3">
-                    <label>Tags</label>
-                    <div class="input-group">
-                            <span class="input-group-text"><i class="fa fa-fw fa-tags"></i></span>
-                        <select class="form-select select2" name="tags[]" data-placeholder="Add some tags" multiple>
-                            <?php
-
-                            while ($row = mysqli_fetch_assoc($sql_tags_select)) {
-                                $tag_id = intval($row['tag_id']);
-                                $tag_name = escapeHtml($row['tag_name']);
-                                ?>
-                                <option value="<?= $tag_id ?>"><?= $tag_name ?></option>
-                            <?php } ?>
-
-                        </select>
-                            <button class="btn btn-secondary ajax-modal" title="New tag" type="button"
-                                data-modal-url="../admin/modals/tag/tag_add.php?type=3">
-                                <i class="fas fa-plus"></i>
-                            </button>
-                    </div>
-                </div>
-
-            </div>
-
-        </div>
-
+        <?php require 'contact_form.php'; ?>
     </div>
     <div class="modal-footer">
         <button type="submit" name="add_contact" class="btn btn-primary text-bold"><i class="fas fa-check me-2"></i>Create</button>
         <button type="button" class="btn btn-light" data-bs-dismiss="modal"><i class="fa fa-times me-2"></i>Cancel</button>
     </div>
 </form>
-<!-- JavaScript to Show/Hide Password Form Group -->
-<script>
-
-function generatePassword() {
-    itflowGet(
-        "ajax.php", {
-            get_readable_pass: 'true'
-        },
-        function(data) {
-            const password = JSON.parse(data);
-            document.getElementById("password").value = password;
-        }
-    );
-}
-
-itflowReady(function () {
-    function syncAuthForm(select) {
-        var form = select.closest('.authForm');
-        if (!form) {
-            return;
-        }
-        form.querySelectorAll('.passwordGroup').forEach(function (group) {
-            group.style.display = select.value === 'local' ? '' : 'none';
-        });
-    }
-
-    document.querySelectorAll('.authMethod').forEach(function (select) {
-        select.addEventListener('change', function () {
-            syncAuthForm(this);
-        });
-        syncAuthForm(select);
-    });
-});
-</script>
-
-<script>
-    // Checks contact emails
-    function checkContactEmail() {
-        var email = document.getElementById("contact_email").value;
-        //Send a GET request to ajax.php as ajax.php?contact_email_check=true&email=email
-        itflowGet(
-            "ajax.php",
-            {contact_email_check: 'true', email: email},
-            function(data) {
-                //If we get a response from ajax.php, parse it as JSON
-                const contact_check_data = JSON.parse(data);
-                document.getElementById("contact_check_info").innerHTML = contact_check_data.message;
-            }
-        );
-    }
-</script>
 
 <?php
 

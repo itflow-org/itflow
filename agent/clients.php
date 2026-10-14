@@ -154,7 +154,7 @@ $sql = mysqli_query(
         clients.client_id, client_name, client_type, client_abbreviation, client_rate, client_currency_code,
         client_lead, client_archived_at,
         contact_id, contact_name, contact_phone, contact_phone_country_code, contact_extension,
-        contact_mobile, contact_mobile_country_code, contact_email,
+        contact_mobile, contact_mobile_country_code, contact_email, contact_photo,
         location_id, location_address, location_city, location_state, location_zip, location_country
     FROM clients
     LEFT JOIN contacts ON contact_id = (
@@ -524,7 +524,7 @@ $total_leads = intval($row['leads']);
 
                         <td class="d-none d-md-table-cell">
                             <?php if ($contact_id) { ?>
-                                <a class="ajax-modal text-reset" href="#" data-modal-url="modals/contact/contact.php?client_id=<?= $client_id ?>&id=<?= $contact_id ?>" data-modal-size="lg"><?= $contact_name ?: 'Unnamed contact' ?></a>
+                                <?= contactLink($client_id, $contact_id, $row['contact_name'], $row['contact_photo'], ['class' => 'text-reset']) ?>
                                 <div class="d-flex align-items-center gap-2 small text-body-secondary mt-1">
                                     <?php if ($contact_phone) { ?>
                                         <a class="text-reset text-decoration-none text-nowrap" href="tel:<?= escapeHtml($contact_phone_digits) ?>"><i class="fas fa-fw fa-phone me-1" aria-hidden="true"></i><?= $contact_phone ?><?php if ($contact_extension) { echo " x$contact_extension"; } ?></a>
@@ -541,7 +541,7 @@ $total_leads = intval($row['leads']);
                                     <?php } ?>
                                 </div>
                             <?php } elseif ($can_edit) { ?>
-                                <a class="ajax-modal small text-body-secondary" href="#" data-modal-url="modals/contact/contact_add.php?client_id=<?= $client_id ?>&primary=1">
+                                <a class="ajax-modal small text-body-secondary" href="#" data-modal-size="lg" data-modal-url="modals/contact/contact_add.php?client_id=<?= $client_id ?>&primary=1">
                                     <i class="fas fa-fw fa-plus me-1" aria-hidden="true"></i>Add primary contact
                                 </a>
                             <?php } else { ?>

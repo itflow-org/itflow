@@ -3132,17 +3132,6 @@ button.itflow-client-nav-identity:focus-visible {
     font-size: .8rem;
     color: var(--bs-secondary-color);
 }
-.itflow-ov-person {
-    display: inline-flex;
-    flex: 0 0 auto;
-    align-items: center;
-    justify-content: center;
-    width: 2.25rem;
-    height: 2.25rem;
-    font-size: .8rem;
-    font-weight: 600;
-    object-fit: cover;
-}
 .itflow-ov-notes {
     min-height: 12rem;
     resize: vertical;
@@ -3777,19 +3766,6 @@ tr:hover .itflow-copy,
     color: var(--bs-secondary-color);
     background: transparent;
 }
-.itflow-asset-avatar {
-    display: inline-flex;
-    flex-shrink: 0;
-    align-items: center;
-    justify-content: center;
-    width: 20px;
-    height: 20px;
-    border-radius: 50%;
-    font-size: .6rem;
-    font-weight: 600;
-    color: #fff;
-    background-color: var(--bs-secondary);
-}
 /* In the Where & who card, and the quick look's glance lines, the picker is
    the whole line: it lights up on hover with a chevron, like the ticket
    page's properties. The negative margin keeps its text in line with the
@@ -3885,7 +3861,8 @@ tr:hover .itflow-copy,
 .itflow-glance-item .font-monospace {
     font-size: .82rem;
 }
-.itflow-asset-quicknote {
+.itflow-asset-quicknote,
+.itflow-contact-quicknote {
     min-height: 2.6rem;
     max-height: 12rem;
     field-sizing: content;
@@ -3893,7 +3870,8 @@ tr:hover .itflow-copy,
     background-color: var(--bs-tertiary-bg);
     resize: vertical;
 }
-.itflow-asset-quicknote:focus {
+.itflow-asset-quicknote:focus,
+.itflow-contact-quicknote:focus {
     background-color: var(--bs-body-bg);
 }
 .itflow-asset-quick-related {
@@ -3921,4 +3899,95 @@ tr:hover .itflow-copy,
 }
 .itflow-asset-quick-related .itflow-asset-pills .nav-link {
     padding: .25rem .55rem;
+}
+
+/* Contacts - functions/contact.php contactAvatar(): a photo, or initials on a
+   soft colour that stays the same for the person (like the client avatars) */
+.itflow-contact-avatar {
+    display: inline-flex;
+    flex: 0 0 auto;
+    align-items: center;
+    justify-content: center;
+    width: 2.5rem;
+    height: 2.5rem;
+    border-radius: 50%;
+    font-size: .8rem;
+    font-weight: 600;
+    letter-spacing: .02em;
+}
+img.itflow-contact-avatar {
+    object-fit: cover;
+}
+/* contactLink(): the avatar, then the name - in a table cell, a card or a line of text */
+.itflow-contact-ref {
+    display: inline-flex;
+    align-items: center;
+    gap: .4rem;
+    min-width: 0;
+    max-width: 100%;
+    vertical-align: middle;
+}
+.itflow-contact-avatar-xs {
+    width: 1.25rem;
+    height: 1.25rem;
+    font-size: .5rem;
+    letter-spacing: 0;
+}
+.itflow-contact-avatar-sm {
+    width: 1.75rem;
+    height: 1.75rem;
+    font-size: .65rem;
+}
+.itflow-contact-avatar-md {
+    width: 2rem;
+    height: 2rem;
+    font-size: .7rem;
+}
+.itflow-contact-avatar-lg {
+    width: 3.5rem;
+    height: 3.5rem;
+    font-size: 1.1rem;
+}
+/* Contacts list */
+.itflow-contact-table td {
+    padding-top: .6rem;
+    padding-bottom: .6rem;
+}
+.itflow-contact-name-cell {
+    min-width: 16rem;
+}
+.itflow-contact-role {
+    max-width: 20rem;
+}
+.itflow-contact-reach > div + div {
+    margin-top: .15rem;
+}
+/* What is linked to a contact - a small count that opens that tab on their page */
+.itflow-contact-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: .3rem;
+    padding: .1rem .5rem;
+    border-radius: 2rem;
+    font-size: .75rem;
+    color: var(--bs-body-color);
+    background-color: var(--bs-secondary-bg);
+    text-decoration: none;
+    white-space: nowrap;
+}
+.itflow-contact-chip i {
+    color: var(--bs-secondary-color);
+    font-size: .7rem;
+}
+.itflow-contact-chip:hover {
+    color: var(--bs-emphasis-color);
+    background-color: var(--bs-tertiary-bg);
+    box-shadow: inset 0 0 0 1px var(--bs-border-color);
+}
+.itflow-contact-chip.is-alert {
+    color: var(--bs-danger-text-emphasis);
+    background-color: var(--bs-danger-bg-subtle);
+}
+.itflow-contact-chip.is-alert i {
+    color: inherit;
 }

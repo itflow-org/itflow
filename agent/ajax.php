@@ -189,7 +189,8 @@ if (isset($_POST['tag_picker_set']) || isset($_POST['tag_picker_create'])) {
 if (isset($_GET['quick_pick_options'])) {
 
     header('Content-Type: application/json');
-    enforceUserPermission('module_support', 2);
+    // A contact's location is the clients module's; everything else here is support's
+    enforceUserPermission(($_GET['field'] ?? '') === 'contact_location' ? 'module_client' : 'module_support', 2);
 
     $field = (string) ($_GET['field'] ?? '');
     $options = [];
@@ -210,9 +211,9 @@ if (isset($_GET['quick_pick_options'])) {
         $options = quickPickAgents();
     } elseif ($field === 'project_manager') {
         $options = quickPickAgents('No manager');
-    } elseif (in_array($field, ASSET_QUICK_FIELDS, true)) {
-        // Locations and contacts are the asset's client's own - functions/asset.php
-        $options = assetQuickOptions($field, intval($_GET['scope'] ?? 0));
+    } elseif (in_array($field, ASSET_QUICK_FIELDS, true) || $field === 'contact_location') {
+        // Locations and contacts are the client's own - functions/asset.php
+        $options = assetQuickOptions($field === 'contact_location' ? 'asset_location' : $field, intval($_GET['scope'] ?? 0));
         if ($options === null) {
             http_response_code(403);
             echo json_encode(['error' => 'You cannot see that client.']);
@@ -268,6 +269,40 @@ if (isset($_POST['quick_pick_set'])) {
             $response['records'][$id] = assetQuickRecord($id, $field);
         }
         $response['message'] = count($asset_ids) === 1 ? $message : 'Updated ' . count($asset_ids) . ' assets';
+        echo json_encode($response);
+        exit();
+    }
+
+    // A contact's location - contacts of clients this agent can reach, with
+    // the same permission as Edit Contact (functions/contact.php)
+    if ($field === 'contact_location') {
+        $contact_ids = $ticket_ids;
+        $allowed = lookupUserPermission('module_client') >= 2 && $contact_ids;
+        foreach ($allowed ? $contact_ids : [] as $id) {
+            $row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT contact_client_id FROM contacts WHERE contact_id = $id"));
+            if (!$row || !hasClientAccess($row['contact_client_id'])) {
+                $allowed = false;
+                break;
+            }
+        }
+        if (!$allowed) {
+            http_response_code(403);
+            echo json_encode(['error' => 'You cannot change that on these contacts.']);
+            exit();
+        }
+
+        $message = '';
+        $response = ['records' => []];
+        foreach ($contact_ids as $id) {
+            [$ok, $message] = contactQuickSetLocation($id, $value);
+            if (!$ok) {
+                http_response_code(422);
+                echo json_encode(['error' => $message]);
+                exit();
+            }
+            $response['records'][$id] = contactQuickRecord($id);
+        }
+        $response['message'] = count($contact_ids) === 1 ? $message : 'Updated ' . count($contact_ids) . ' contacts';
         echo json_encode($response);
         exit();
     }
@@ -923,8 +958,9 @@ if (isset($_GET['get_client_contacts'])) {
     $response['contacts'] = [];
 
     while ($row = mysqli_fetch_assoc($contact_sql)) {
-        // For the picker: initials, or the photo when there is one
+        // For the picker: initials on their own colour, or the photo when there is one
         $row['contact_initials'] = personInitials($row['contact_name']);
+        $row['contact_tone'] = contactAvatarTone($row['contact_id']);
         $row['contact_photo_url'] = $row['contact_photo'] ? "/uploads/clients/$client_id/" . rawurlencode($row['contact_photo']) : '';
         unset($row['contact_photo']);
         $response['contacts'][] = $row;

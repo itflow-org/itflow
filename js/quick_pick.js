@@ -1,13 +1,15 @@
 /*
  * Quick pickers - a ticket's status, priority, assignee and billable, a
- * project's manager, a recurring ticket's assignee and an asset's status,
- * location and contact, changed where you see them (ticket list and page,
- * projects and project page, recurring tickets, assets list and asset page)
- * instead of in a modal.
+ * project's manager, a recurring ticket's assignee, an asset's status,
+ * location and contact, and a contact's location, changed where you see them
+ * (ticket list and page, projects and project page, recurring tickets, the
+ * assets and contacts lists and their pages and quick looks) instead of in a modal.
  *
  * Click the value and a small menu opens under it (a sheet from the bottom
- * on a phone): statuses and priorities with their colours, agents with their
- * pictures and a search box, or Billable / Not billable. Pick one and it saves straight
+ * on a phone): statuses and priorities with their colours, agents and
+ * contacts with their pictures (contacts' initials on their own colour, as
+ * contactAvatar() draws them) and a search box, or Billable / Not billable.
+ * Pick one and it saves straight
  * away through agent/ajax.php, which runs the same code as the old modals
  * (functions/ticket_fields.php - history, audit log, SLA, notifications) and
  * sends back the redrawn value. Assigning a New ticket opens it, so the
@@ -34,12 +36,13 @@
     var finePointer = window.matchMedia('(pointer: fine)');
     var titles = {
         priority: 'Priority', assignee: 'Assign to', billable: 'Billing', status: 'Status', project_manager: 'Project manager', recurring_assignee: 'Assign to',
-        asset_status: 'Status', asset_location: 'Location', asset_contact: 'Assign to'
+        asset_status: 'Status', asset_location: 'Location', asset_contact: 'Assign to', contact_location: 'Location'
     };
     // People and places get a wider menu
-    var wideFields = ['assignee', 'project_manager', 'recurring_assignee', 'asset_location', 'asset_contact'];
+    var wideFields = ['assignee', 'project_manager', 'recurring_assignee', 'asset_location', 'asset_contact', 'contact_location'];
     var cache = {};
     var open = null;
+    var tones = ['primary', 'success', 'info', 'warning', 'secondary'];
 
     function make(tag, className, text) {
         var node = document.createElement(tag);
@@ -63,7 +66,8 @@
             node.src = option.image;
             node.alt = '';
         } else if (option.initials) {
-            node = make('span', 'itflow-select-avatar text-bg-secondary', option.initials);
+            // A contact carries their own colour, on its soft shade like their avatar
+            node = make('span', 'itflow-select-avatar ' + (tones.indexOf(option.tone) !== -1 ? 'bg-' + option.tone + '-subtle text-' + option.tone + '-emphasis' : 'text-bg-secondary'), option.initials);
         } else if (option.color) {
             node = make('span', 'itflow-select-dot');
             node.style.setProperty('--itflow-select-color', option.color);

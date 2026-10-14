@@ -70,6 +70,12 @@ function assetStatusColors() {
     return $colors;
 }
 
+/** The colour a status is drawn in, as a CSS value - the same as its badge. */
+function assetStatusColor($status, $category_color = '') {
+    $badge = assetStatusBadge($status, $category_color);
+    return $badge['style'] ? trim(substr($badge['style'], strlen('background-color:'))) : "var(--bs-{$badge['class']})";
+}
+
 /** The status badge, ready to echo. */
 function assetStatusPill($status) {
     $status = (string) $status;
@@ -82,10 +88,9 @@ function assetStatusPill($status) {
     return "<span class=\"badge rounded-pill fw-normal $class\"$style>" . escapeHtml($status) . "</span>";
 }
 
-/** A brand icon for the operating system, where one is recognisable (Font Awesome 5 class). */
-function assetOsIcon($os) {
-    $os = strtolower((string) $os);
-    $icons = [
+/** OS name fragments and their brand icons (Font Awesome 5), first match wins. Also drives the asset form's OS icon. */
+function assetOsIconMap() {
+    return [
         'windows' => 'fab fa-windows',
         'macos' => 'fab fa-apple',
         'mac os' => 'fab fa-apple',
@@ -111,7 +116,12 @@ function assetOsIcon($os) {
         'firmware' => 'fas fa-microchip',
         'routeros' => 'fas fa-microchip',
     ];
-    foreach ($icons as $needle => $icon) {
+}
+
+/** A brand icon for the operating system, where one is recognisable (Font Awesome 5 class). */
+function assetOsIcon($os) {
+    $os = strtolower((string) $os);
+    foreach (assetOsIconMap() as $needle => $icon) {
         if (strpos($os, $needle) !== false) {
             return $icon;
         }
@@ -199,10 +209,9 @@ function assetLinkLabel($url) {
     return $labels[$scheme] ?? ($scheme !== '' ? strtoupper($scheme) : 'Link');
 }
 
-/** Icon for a link by its scheme. */
-function assetLinkIcon($url) {
-    $scheme = strtolower((string) parse_url((string) $url, PHP_URL_SCHEME));
-    $icons = [
+/** Link schemes and their icons. Also drives the asset form's link icons. */
+function assetLinkIconMap() {
+    return [
         'ssh' => 'fas fa-terminal',
         'telnet' => 'fas fa-terminal',
         'rdp' => 'fas fa-desktop',
@@ -213,7 +222,12 @@ function assetLinkIcon($url) {
         'http' => 'fas fa-globe',
         'https' => 'fas fa-globe',
     ];
-    return $icons[$scheme] ?? 'fas fa-external-link-alt';
+}
+
+/** Icon for a link by its scheme. */
+function assetLinkIcon($url) {
+    $scheme = strtolower((string) parse_url((string) $url, PHP_URL_SCHEME));
+    return assetLinkIconMap()[$scheme] ?? 'fas fa-external-link-alt';
 }
 
 /**
@@ -263,15 +277,6 @@ function assetQuickRow($asset_id) {
         WHERE asset_id = " . intval($asset_id))) ?: null;
 }
 
-/** A contact's picture, or their initials in a circle. 20px, for pills and the picker button. */
-function assetContactAvatar($client_id, $contact_name, $contact_photo) {
-    $contact_photo = (string) $contact_photo;
-    if ($contact_photo !== '') {
-        return '<img src="/uploads/clients/' . intval($client_id) . '/' . escapeHtml(rawurlencode($contact_photo)) . '" alt="" width="20" height="20" class="rounded-circle object-fit-cover flex-shrink-0">';
-    }
-    return '<span class="itflow-asset-avatar" aria-hidden="true">' . escapeHtml(personInitials($contact_name)) . '</span>';
-}
-
 /**
  * What a picker shows for the value it holds now. $style is 'list' (a pill,
  * on the assets list and in the asset page header) or 'detail' (a line in the
@@ -306,7 +311,7 @@ function assetQuickHtml($field, $row, $style = 'list') {
                 : "<span class=\"$empty\"><i class=\"fas fa-user-slash\"></i>Nobody</span>";
         }
         $archived = !empty($row['contact_archived_at']);
-        $avatar = assetContactAvatar($client_id, $row['contact_name'], $row['contact_photo'] ?? '');
+        $avatar = contactAvatar($client_id, $row['asset_contact_id'], $row['contact_name'], $row['contact_photo'] ?? '', 'xs');
         $name = '<span class="text-truncate' . ($archived ? ' text-decoration-line-through' : '') . '"' . ($archived ? ' title="Archived contact"' : '') . '>' . escapeHtml($row['contact_name']) . '</span>';
         return $style === 'detail'
             ? "<span class=\"d-inline-flex align-items-center gap-2 min-w-0\">$avatar$name</span>"
@@ -357,9 +362,7 @@ function assetQuickOptions($field, $client_id) {
             WHERE category_type = 'asset_status' AND category_archived_at IS NULL
             ORDER BY category_order ASC, category_name ASC");
         while ($row = mysqli_fetch_assoc($sql)) {
-            $badge = assetStatusBadge($row['category_name'], $row['category_color']);
-            $color = $badge['style'] ? trim(substr($badge['style'], strlen('background-color:'))) : "var(--bs-{$badge['class']})";
-            $options[] = ['value' => $row['category_name'], 'label' => $row['category_name'], 'color' => $color];
+            $options[] = ['value' => $row['category_name'], 'label' => $row['category_name'], 'color' => assetStatusColor($row['category_name'], $row['category_color'])];
         }
         return $options;
     }
@@ -387,13 +390,8 @@ function assetQuickOptions($field, $client_id) {
             WHERE contact_client_id = $client_id AND contact_archived_at IS NULL
             ORDER BY contact_name ASC");
         while ($row = mysqli_fetch_assoc($sql)) {
-            $option = ['value' => (string) intval($row['contact_id']), 'label' => $row['contact_name'], 'description' => (string) $row['contact_title']];
-            if ($row['contact_photo']) {
-                $option['image'] = "/uploads/clients/$client_id/" . rawurlencode($row['contact_photo']);
-            } else {
-                $option['initials'] = personInitials($row['contact_name']);
-            }
-            $options[] = $option;
+            $options[] = ['value' => (string) intval($row['contact_id']), 'label' => $row['contact_name'], 'description' => (string) $row['contact_title']]
+                + contactAvatarData($client_id, $row['contact_id'], $row['contact_name'], $row['contact_photo']);
         }
         return $options;
     }

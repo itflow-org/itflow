@@ -244,7 +244,7 @@ $page_title = $row['document_name'];
                 </button>
             </h6>
             <?php
-            $sql_contacts = mysqli_query($mysqli, "SELECT contacts.contact_id, contact_name FROM contacts, contact_documents
+            $sql_contacts = mysqli_query($mysqli, "SELECT contacts.contact_id, contact_client_id, contact_name, contact_photo FROM contacts, contact_documents
                 WHERE contacts.contact_id = contact_documents.contact_id
                 AND contact_documents.document_id = $document_id
                 ORDER BY contact_name ASC"
@@ -254,17 +254,13 @@ $page_title = $row['document_name'];
 
             while ($row = mysqli_fetch_assoc($sql_contacts)) {
                 $contact_id = intval($row['contact_id']);
-                $contact_name = escapeHtml($row['contact_name']);
 
                 $linked_contacts[] = $contact_id;
 
                 ?>
-                <div class="ms-2">
-                    <a class="ajax-modal" href="#"
-                        data-modal-size="lg"
-                        data-modal-url="modals/contact/contact.php?id=<?= $contact_id ?>">
-                        <?= $contact_name ?></a>
-                    <a class="confirm-link float-end" href="post.php?unlink_contact_from_document&contact_id=<?= $contact_id ?>&document_id=<?= $document_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>">
+                <div class="ms-2 mb-1 d-flex align-items-center">
+                    <span class="flex-grow-1 min-w-0"><?= contactLink($row['contact_client_id'], $contact_id, $row['contact_name'], $row['contact_photo']) ?></span>
+                    <a class="confirm-link ms-2" href="post.php?unlink_contact_from_document&contact_id=<?= $contact_id ?>&document_id=<?= $document_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>">
                         <i class="fas fa-fw fa-unlink text-secondary" title="Unlink Contact"></i>
                     </a>
                 </div>

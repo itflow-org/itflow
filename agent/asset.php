@@ -532,7 +532,7 @@ if (mysqli_num_rows($sql) == 0) {
                             <?php if ($can_edit) { ?>
                                 <?= quickPick('asset_contact', $asset_id, (string) $asset_contact_id, assetQuickHtml('asset_contact', $asset_row, 'detail'), 'detail', 0, $client_id) ?>
                             <?php } elseif ($contact_name) { ?>
-                                <a class="<?= $contact_archived ? 'text-decoration-line-through text-body-secondary' : '' ?>" href="contact.php?client_id=<?= $client_id ?>&contact_id=<?= $asset_contact_id ?>" <?= $contact_archived ? 'title="Archived contact"' : '' ?>><?= $contact_name ?></a>
+                                <?= contactLink($client_id, $asset_contact_id, $asset_row['contact_name'], $asset_row['contact_photo'], ['page' => true, 'archived' => $contact_archived]) ?>
                             <?php } else { ?>
                                 <span class="text-body-secondary">Nobody</span>
                             <?php } ?>

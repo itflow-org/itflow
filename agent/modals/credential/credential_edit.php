@@ -163,7 +163,7 @@ ob_start();
                                 $contact_id_select = intval($row['contact_id']);
                                 $contact_name_select = escapeHtml($row['contact_name']);
                                 ?>
-                                <option <?php if ($credential_contact_id == $contact_id_select) { echo "selected"; } ?> value="<?= $contact_id_select ?>"<?= selectOptionContact($row['contact_client_id'] ?? 0, $row['contact_name'], $row['contact_photo'] ?? '', $row['contact_title'] ?? '') ?>><?= $contact_name_select ?></option>
+                                <option <?php if ($credential_contact_id == $contact_id_select) { echo "selected"; } ?> value="<?= $contact_id_select ?>"<?= selectOptionContact($row['contact_client_id'] ?? 0, $row['contact_name'], $row['contact_photo'] ?? '', $row['contact_title'] ?? '', $row['contact_id'] ?? 0) ?>><?= $contact_name_select ?></option>
                             <?php } ?>
                         </select>
                     </div>

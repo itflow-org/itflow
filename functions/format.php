@@ -394,12 +394,16 @@ function selectOptionUser($user_id, $user_name, $user_avatar = '') {
     return selectOptionData(['initials' => personInitials($user_name), 'shape' => 'circle', 'tone' => 'secondary']);
 }
 
-/** A contact - their photo or initials, with their title underneath. */
-function selectOptionContact($client_id, $contact_name, $contact_photo = '', $contact_title = '') {
+/**
+ * A contact - their photo, or their initials on the same soft colour as their
+ * avatar everywhere else (contactAvatar() in functions/contact.php), with
+ * their title underneath. Without $contact_id the initials are grey.
+ */
+function selectOptionContact($client_id, $contact_name, $contact_photo = '', $contact_title = '', $contact_id = 0) {
     $contact_photo = html_entity_decode((string) $contact_photo, ENT_QUOTES, 'UTF-8');
     $data = $contact_photo !== ''
         ? ['image' => '/uploads/clients/' . intval($client_id) . '/' . rawurlencode($contact_photo)]
-        : ['initials' => personInitials($contact_name), 'shape' => 'circle', 'tone' => 'secondary'];
+        : ['initials' => personInitials($contact_name), 'shape' => 'circle', 'tone' => intval($contact_id) ? contactAvatarTone($contact_id) : 'secondary', 'soft' => '1'];
     $data['description'] = $contact_title;
     return selectOptionData($data);
 }

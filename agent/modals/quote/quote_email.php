@@ -20,7 +20,7 @@ enforceClientAccess();
 // read by whoever scoped the work as often as by whoever signs it.
 $sql_contacts = mysqli_query(
     $mysqli,
-    "SELECT contact_billing, contact_email, contact_id, contact_important, contact_name,
+    "SELECT contact_billing, contact_email, contact_id, contact_photo, contact_important, contact_name,
         contact_primary, contact_technical, contact_title
     FROM contacts
     WHERE contact_client_id = $client_id
@@ -86,37 +86,24 @@ ob_start();
                     $contact_name = escapeHtml($row['contact_name']);
                     $contact_email = escapeHtml($row['contact_email']);
                     $contact_title = escapeHtml($row['contact_title']);
-                    $contact_primary = intval($row['contact_primary']);
-                    $contact_billing = intval($row['contact_billing']);
-                    $contact_technical = intval($row['contact_technical']);
-                    $contact_important = intval($row['contact_important']);
 
                     $contact_checked = in_array($contact_id, $default_contact_ids, true);
 
                     ?>
 
-                    <label class="list-group-item" for="quoteEmailContact<?= $contact_id ?>">
-                        <input type="checkbox" class="form-check-input me-2" name="contacts[]"
+                    <label class="list-group-item d-flex align-items-center gap-2" for="quoteEmailContact<?= $contact_id ?>">
+                        <input type="checkbox" class="form-check-input flex-shrink-0 m-0" name="contacts[]"
                             id="quoteEmailContact<?= $contact_id ?>" value="<?= $contact_id ?>"
                             <?php if ($contact_checked) { echo "checked"; } ?>>
-                        <strong><?= $contact_name ?></strong>
-                        <?php if ($contact_primary == 1) { ?>
-                            <span class="badge text-bg-primary ms-1">Primary</span>
-                        <?php } ?>
-                        <?php if ($contact_billing == 1) { ?>
-                            <span class="badge text-bg-success ms-1">Billing</span>
-                        <?php } ?>
-                        <?php if ($contact_technical == 1) { ?>
-                            <span class="badge text-bg-info ms-1">Technical</span>
-                        <?php } ?>
-                        <?php if ($contact_important == 1) { ?>
-                            <span class="badge text-bg-warning ms-1">Important</span>
-                        <?php } ?>
-                        <?php if (!empty($contact_title)) { ?>
-                            <span class="text-muted ms-1"><?= $contact_title ?></span>
-                        <?php } ?>
-                        <br>
-                        <span class="text-muted ms-4"><?= $contact_email ?></span>
+                        <?= contactAvatar($client_id, $contact_id, $row['contact_name'], $row['contact_photo'], 'sm') ?>
+                        <span class="min-w-0">
+                            <span class="d-flex flex-wrap align-items-center column-gap-1">
+                                <strong><?= $contact_name ?></strong>
+                                <?= contactFlagPills($row, false) ?>
+                                <?php if ($contact_title) { ?><span class="text-body-secondary small"><?= $contact_title ?></span><?php } ?>
+                            </span>
+                            <span class="d-block small text-body-secondary text-truncate"><?= $contact_email ?></span>
+                        </span>
                     </label>
 
                     <?php

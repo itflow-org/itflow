@@ -173,13 +173,16 @@ $kanban = array_values($statuses);
 
                         <div class="kanban-card-client">
                             <?php
+                            // The contact with their avatar, as everywhere else they appear
+                            $item_contact = empty($item['contact_name']) ? ''
+                                : '<span class="itflow-contact-ref">' . contactAvatar($item['ticket_client_id'], $item['contact_id'], $item['contact_name'], $item['contact_photo'] ?? '', 'xs') . '<span class="text-truncate">' . escapeHtml($item['contact_name']) . '</span></span>';
                             if (!$client_url) {
                                 echo escapeHtml($item['client_name']);
-                                if (!empty($item['contact_name'])) {
-                                    echo ' <span class="text-secondary">&middot; ' . escapeHtml($item['contact_name']) . '</span>';
+                                if ($item_contact) {
+                                    echo ' <span class="text-secondary">&middot; ' . $item_contact . '</span>';
                                 }
                             } else {
-                                echo escapeHtml($item['contact_name']);
+                                echo $item_contact;
                             }
                             ?>
                         </div>

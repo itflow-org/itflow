@@ -346,10 +346,11 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                         $credential_tags = tagsForRecord('credential', $credential_id);
 
                         if ($credential_contact_id) {
-                            $credential_contact_display = "<a href='#' class='me-2 mb-1 badge rounded-pill bg-dark p-2 ajax-modal' title='$contact_name'
+                            // Their avatar, the size of the asset pill beside it
+                            $credential_contact_display = "<a href='#' class='me-2 mb-1 d-inline-flex align-middle ajax-modal' title='$contact_name'
                                 data-modal-size='lg'
-                                data-modal-url='modals/contact/contact.php?id=$credential_contact_id'>
-                                <i class='fas fa-fw fa-user'></i></a>";
+                                data-modal-url='modals/contact/contact.php?id=$credential_contact_id'>"
+                                . contactAvatar($row['credential_client_id'], $credential_contact_id, $row['contact_name'], $row['contact_photo'], 'md') . "</a>";
                         } else {
                             $credential_contact_display = '';
                         }

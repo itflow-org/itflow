@@ -34,7 +34,9 @@
  *
  *   data-image="/uploads/.."   round picture (users, contacts)
  *   data-initials="RDG"        initials tile; data-tone="primary" colours it,
- *                              data-shape="circle" makes it round (people)
+ *                              data-shape="circle" makes it round (people),
+ *                              data-soft="1" puts it on the soft shade of
+ *                              that colour (contacts - their avatar's look)
  *   data-color="#e74c3c"       colour dot (tags, categories, statuses)
  *   data-icon="fas fa-laptop"  icon; with data-color it sits on that colour
  *   data-description=".."      second, quieter line under the label
@@ -143,6 +145,7 @@
             initials: data.initials || '',
             tone: data.tone || '',
             shape: data.shape || '',
+            soft: data.soft === '1',
             disabled: option.disabled || !!(group && group.disabled),
             group: group ? group.label : ''
         };
@@ -157,14 +160,15 @@
 
     /* The picture, tile, dot or icon in front of a label - or nothing. */
     function lead(item) {
-        var node;
+        var node, tone;
         if (item.image) {
             node = make('img', 'itflow-select-avatar');
             node.src = item.image;
             node.alt = '';
             node.loading = 'lazy';
         } else if (item.initials) {
-            node = make('span', 'itflow-select-avatar text-bg-' + (TONES.indexOf(item.tone) === -1 ? 'secondary' : item.tone) + (item.shape === 'circle' ? '' : ' is-tile'), item.initials);
+            tone = TONES.indexOf(item.tone) === -1 ? 'secondary' : item.tone;
+            node = make('span', 'itflow-select-avatar ' + (item.soft ? 'bg-' + tone + '-subtle text-' + tone + '-emphasis' : 'text-bg-' + tone) + (item.shape === 'circle' ? '' : ' is-tile'), item.initials);
         } else if (item.icon && item.color) {
             node = make('span', 'itflow-select-badge');
             node.style.setProperty('--itflow-select-color', item.color);

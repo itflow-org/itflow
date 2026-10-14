@@ -189,10 +189,11 @@
 
                     if (contactSelectDropdown) {
                         const option = new Option(contact.contact_name, contact.contact_id);
-                        option.dataset.description = details.join(', ');
+                        option.dataset.description = details.join(' · ');
                         option.dataset.initials = contact.contact_initials;
                         option.dataset.shape = 'circle';
-                        option.dataset.tone = 'secondary';
+                        option.dataset.tone = contact.contact_tone || 'secondary';
+                        option.dataset.soft = '1';
                         if (contact.contact_photo_url) {
                             option.dataset.image = contact.contact_photo_url;
                         }

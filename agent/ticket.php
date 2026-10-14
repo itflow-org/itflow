@@ -137,7 +137,9 @@ if (isset($_GET['ticket_id'])) {
         $tab_title = "{$ticket['ticket_prefix']}{$ticket['ticket_number']}";
 
         $contact_id = intval($ticket['contact_id']);
+        $contact_client_id = intval($ticket['contact_client_id']);
         $contact_name = escapeHtml($ticket['contact_name']);
+        $contact_photo = escapeHtml($ticket['contact_photo']);
         $contact_title = escapeHtml($ticket['contact_title']);
         $contact_email = escapeHtml($ticket['contact_email']);
         $contact_phone_country_code = escapeHtml($ticket['contact_phone_country_code']);
@@ -259,7 +261,7 @@ if (isset($_GET['ticket_id'])) {
         ))['user_names']);
 
         // Get ticket replies
-        $sql_ticket_replies = mysqli_query($mysqli, "SELECT contact_name, contact_photo, ticket_reply, ticket_reply_created_at, ticket_reply_id,
+        $sql_ticket_replies = mysqli_query($mysqli, "SELECT contact_name, contact_photo, ticket_reply, ticket_reply_by, ticket_reply_created_at, ticket_reply_id,
             ticket_reply_time_worked, ticket_reply_type, ticket_reply_updated_at, user_avatar, user_id,
             user_name FROM ticket_replies
             LEFT JOIN users ON ticket_reply_by = user_id
@@ -492,7 +494,7 @@ if (isset($_GET['ticket_id'])) {
                                     No client
                                 <?php } ?>
                                 <?php if ($contact_id) { ?>
-                                    <i class="fas fa-fw fa-angle-right"></i><a href="#" class="ajax-modal" data-modal-size="lg" data-modal-url="modals/contact/contact.php?id=<?= $contact_id ?>"><?= $contact_name ?></a>
+                                    <i class="fas fa-fw fa-angle-right"></i><?= contactLink($contact_client_id, $contact_id, $contact_name, $contact_photo) ?>
                                 <?php } ?>
                             </div>
 
@@ -824,11 +826,12 @@ if (isset($_GET['ticket_id'])) {
                     $ticket_reply_updated_at = escapeHtml($reply_row['ticket_reply_updated_at']);
                     $ticket_reply_time_worked = '';
 
+                    // A client's reply wears their contact avatar - their own colour,
+                    // the same as everywhere else they appear
+                    $reply_contact_avatar = '';
                     if ($ticket_reply_type == "Client") {
                         $ticket_reply_by_display = escapeHtml($reply_row['contact_name']);
-                        $user_initials = initials($reply_row['contact_name']);
-                        $user_avatar = escapeHtml($reply_row['contact_photo']);
-                        $avatar_link = "../uploads/clients/$client_id/$user_avatar";
+                        $reply_contact_avatar = contactAvatar($client_id, $reply_row['ticket_reply_by'], $reply_row['contact_name'], $reply_row['contact_photo'], 'md');
                     } else {
                         $ticket_reply_by_display = escapeHtml($reply_row['user_name']);
                         $user_id = intval($reply_row['user_id']);
@@ -862,7 +865,9 @@ if (isset($_GET['ticket_id'])) {
                             <div class="d-flex justify-content-between align-items-start w-100">
 
                                 <div class="d-flex align-items-center">
-                                    <?php if (!empty($user_avatar)) { ?>
+                                    <?php if ($reply_contact_avatar) { ?>
+                                        <span class="me-2 d-inline-flex"><?= $reply_contact_avatar ?></span>
+                                    <?php } elseif (!empty($user_avatar)) { ?>
                                         <img src="<?= $avatar_link ?>" alt="" class="img-size-32 me-2 rounded-circle">
                                     <?php } else { ?>
                                         <span class="fa-stack me-2">
@@ -1138,9 +1143,12 @@ if (isset($_GET['ticket_id'])) {
                                 <div class="text-muted small">No contact on this ticket yet.</div>
                             <?php } else { ?>
 
-                                <div>
-                                    <a href="#" class="ajax-modal" data-modal-size="lg" data-modal-url="modals/contact/contact.php?id=<?= $contact_id ?>"><strong><?= $contact_name ?></strong></a>
-                                    <?php if ($contact_title) { ?><div class="text-muted small"><?= $contact_title ?></div><?php } ?>
+                                <div class="d-flex align-items-center gap-2">
+                                    <?= contactAvatar($contact_client_id, $contact_id, $contact_name, $contact_photo) ?>
+                                    <div class="min-w-0">
+                                        <a href="#" class="ajax-modal fw-bold text-break" data-modal-size="lg" data-modal-url="modals/contact/contact.php?id=<?= $contact_id ?>"><?= $contact_name ?></a>
+                                        <?php if ($contact_title) { ?><div class="text-muted small text-truncate"><?= $contact_title ?></div><?php } ?>
+                                    </div>
                                 </div>
 
                                 <?php if (!empty($contact_phone)) { ?>

@@ -38,7 +38,7 @@ ob_start();
                         $contact_id = intval($row['contact_id']);
                         $contact_name = escapeHtml($row['contact_name']);
                         ?>
-                        <option value="<?= $contact_id ?>"<?= selectOptionContact($row['contact_client_id'] ?? 0, $row['contact_name'], $row['contact_photo'] ?? '', $row['contact_title'] ?? '') ?>><?= $contact_name ?></option>
+                        <option value="<?= $contact_id ?>"<?= selectOptionContact($row['contact_client_id'] ?? 0, $row['contact_name'], $row['contact_photo'] ?? '', $row['contact_title'] ?? '', $row['contact_id'] ?? 0) ?>><?= $contact_name ?></option>
 
                     <?php } ?>
 

@@ -277,7 +277,7 @@ ob_start();
                     </li>
 
                     <?php
-                    $sql_contacts_select = mysqli_query($mysqli, "SELECT contact_archived_at, contact_email, contact_id, contact_name FROM contacts WHERE (contact_archived_at > '$software_created_at' OR contact_archived_at IS NULL) AND contact_client_id = $client_id ORDER BY contact_archived_at ASC, contact_name ASC");
+                    $sql_contacts_select = mysqli_query($mysqli, "SELECT contact_archived_at, contact_email, contact_id, contact_name, contact_photo FROM contacts WHERE (contact_archived_at > '$software_created_at' OR contact_archived_at IS NULL) AND contact_client_id = $client_id ORDER BY contact_archived_at ASC, contact_name ASC");
 
                     while ($row = mysqli_fetch_assoc($sql_contacts_select)) {
                         $contact_id_select = intval($row['contact_id']);
@@ -293,8 +293,11 @@ ob_start();
                         ?>
                         <li class="list-group-item">
                             <div class="form-check">
-                                <input type="checkbox" class="form-check-input user-checkbox" name="contacts[]" value="<?= $contact_id_select ?>" <?php if (in_array("$contact_id_select", $contact_licenses_array)) { echo "checked"; } ?>>
-                                <label class="form-check-label ms-2"><?= "$contact_archived_display$contact_name_select - $contact_email_select" ?></label>
+                                <input type="checkbox" class="form-check-input user-checkbox" name="contacts[]" id="softwareEditContact<?= $contact_id_select ?>" value="<?= $contact_id_select ?>" <?php if (in_array("$contact_id_select", $contact_licenses_array)) { echo "checked"; } ?>>
+                                <label class="form-check-label ms-2 d-inline-flex align-items-center gap-2" for="softwareEditContact<?= $contact_id_select ?>">
+                                    <?= contactAvatar($client_id, $contact_id_select, $row['contact_name'], $row['contact_photo'], 'xs') ?>
+                                    <span><?= "$contact_archived_display$contact_name_select" ?><?php if ($contact_email_select) { ?> <span class="small text-body-secondary"><?= $contact_email_select ?></span><?php } ?></span>
+                                </label>
                             </div>
                         </li>
 
