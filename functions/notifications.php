@@ -31,7 +31,7 @@ function notificationTypeModules() {
         ],
         'module_financial' => ['Expense', 'Expense Created'],
         'module_support' => [
-            'Ticket', 'Ticket SLA', 'Pending Tickets', 'Feedback', 'Recurring Ticket',
+            'Ticket', 'Ticket SLA', 'Pending Tickets', 'Feedback', 'Recurring Ticket', 'Project',
             'Domain Expiring', 'Certificate Expiring', 'Asset Warranty Expiring',
         ],
         'module_client' => ['Share Viewed'],
@@ -75,6 +75,7 @@ function notificationTypeStyle($type) {
         [['invoice', 'recurring sent', 'recurring generated'], 'file-invoice-dollar', 'primary'],
         [['expense'], 'receipt', 'secondary'],
         [['ticket'], 'life-ring', 'primary'],
+        [['project'], 'project-diagram', 'primary'],
         [['mail'], 'envelope', 'danger'],
         [['backup'], 'database', 'secondary'],
         [['master key'], 'key', 'warning'],

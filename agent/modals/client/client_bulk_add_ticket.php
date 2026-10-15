@@ -108,11 +108,13 @@ ob_start();
                             <option value="0">- None -</option>
                             <?php
 
-                            $sql_projects = mysqli_query($mysqli, "SELECT project_id, project_name FROM projects WHERE project_completed_at IS NULL AND project_archived_at IS NULL ORDER BY project_name ASC");
+                            // Tickets for several clients can only share an internal project
+                            $sql_projects = mysqli_query($mysqli, "SELECT project_id, project_prefix, project_number, project_name FROM projects
+                                WHERE project_completed_at IS NULL AND project_archived_at IS NULL AND project_client_id = 0 ORDER BY project_name ASC");
                             while ($row = mysqli_fetch_assoc($sql_projects)) {
                                 $project_id_select = intval($row['project_id']);
                                 $project_name_select = escapeHtml($row['project_name']); ?>
-                                <option value="<?= $project_id_select ?>"><?= $project_name_select ?></option>
+                                <option value="<?= $project_id_select ?>" data-icon="fas fa-project-diagram" data-description="<?= escapeHtml(projectReference($row)) ?> - internal"><?= $project_name_select ?></option>
 
                             <?php } ?>
                         </select>

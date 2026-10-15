@@ -1209,7 +1209,8 @@ if (isset($_GET['get_client_vendors'])) {
 }
 
 /*
- * Returns open projects for a specified client
+ * Returns the open projects a ticket of this client can go on - the client's
+ * own, then our internal ones
  */
 if (isset($_GET['get_client_projects'])) {
     enforceUserPermission('module_client');
@@ -1220,11 +1221,10 @@ if (isset($_GET['get_client_projects'])) {
 
     $projects_sql = mysqli_query(
         $mysqli,
-        "SELECT project_id, project_name FROM projects
-        LEFT JOIN clients on project_client_id = client_id
-        WHERE projects.project_archived_at IS NULL AND projects.project_completed_at IS NULL AND project_client_id = $client_id
+        "SELECT project_id, project_name, project_prefix, project_number, project_client_id = 0 AS project_internal FROM projects
+        WHERE projects.project_archived_at IS NULL AND projects.project_completed_at IS NULL AND project_client_id IN (0, $client_id)
         " . clientScopeSql('project_client_id') . "
-        ORDER BY project_name ASC"
+        ORDER BY project_client_id = 0, project_name ASC"
     );
 
     // Always return the key, so a client with none gives [] rather than null
@@ -1443,9 +1443,14 @@ if (isset($_POST['update_project_template_ticket_order'])) {
 
     validateCSRFToken();
 
-    enforceUserPermission('module_support', 2);
+    // Project templates are the admins' - admin/project_template.php
+    if (empty($session_is_admin)) {
+        http_response_code(403);
+        echo json_encode(['status' => 'error', 'message' => 'Only an admin can change a project template.']);
+        exit;
+    }
 
-    $positions = $_POST['positions'];
+    $positions = (array) ($_POST['positions'] ?? []);
     $project_template_id = intval($_POST['project_template_id']);
 
     foreach ($positions as $position) {

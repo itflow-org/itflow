@@ -21,6 +21,7 @@ $access = clientOverviewAccess();
 $renewals = $access['docs'] ? clientOverviewRenewals($client_id) : null;
 $attention = clientOverviewAttention($client_id, $access, $renewals);
 $open_tickets = $access['tickets'] ? clientOverviewOpenTickets($client_id) : null;
+$open_projects = $access['tickets'] ? clientOverviewProjects($client_id) : null;
 $overview_contacts = clientOverviewContacts($client_id);
 $favorites = clientOverviewFavorites($client_id, $access);
 $upcoming = clientOverviewUpcoming($client_id, $access);
@@ -280,11 +281,34 @@ $money_format = function ($amount) use ($currency_format, $client_currency_code,
                             <?php } ?>
                             <a class="itflow-dash-schedule-item" href="<?= escapeHtml($item['url']) ?>">
                                 <span class="itflow-dash-schedule-time"><?= $item['all_day'] ? 'All day' : escapeHtml(date('g:i A', strtotime($item['when']))) ?></span>
-                                <span class="itflow-dash-schedule-mark bg-<?= ['ticket' => 'primary', 'recurring' => 'info', 'event' => 'success'][$item['kind']] ?>"></span>
+                                <span class="itflow-dash-schedule-mark bg-<?= ['ticket' => 'primary', 'recurring' => 'info', 'event' => 'success', 'project' => 'warning'][$item['kind']] ?>"></span>
                                 <span class="flex-grow-1 overflow-hidden">
                                     <span class="d-block text-truncate"><?php if ($item['ref']) { ?><span class="small text-body-secondary me-2"><?= escapeHtml($item['ref']) ?></span><?php } ?><?= escapeHtml($item['title']) ?></span>
                                     <?php if ($item['detail']) { ?><span class="d-block small text-body-secondary text-truncate"><?= escapeHtml($item['detail']) ?></span><?php } ?>
                                 </span>
+                            </a>
+                        <?php } ?>
+                    </div>
+                </div>
+            </div>
+        <?php } ?>
+
+        <?php if ($open_projects && $open_projects['total']) { ?>
+            <div class="col-md-6 col-xl-4">
+                <div class="card h-100 mb-0">
+                    <div class="card-header d-flex align-items-center">
+                        <h3 class="card-title mb-0 me-auto">Projects</h3>
+                        <a class="small" href="projects.php?client_id=<?= $client_id ?>">View all <?= $open_projects['total'] ?></a>
+                    </div>
+                    <div class="list-group list-group-flush">
+                        <?php foreach ($open_projects['projects'] as $project_id => $project) {
+                            $project_stats = $open_projects['stats'][$project_id]; ?>
+                            <a href="<?= escapeHtml(projectUrl($project_id, $client_id)) ?>" class="list-group-item list-group-item-action py-2">
+                                <span class="d-flex align-items-center gap-2">
+                                    <span class="flex-grow-1 text-truncate"><span class="small text-body-secondary me-2"><?= escapeHtml(projectReference($project)) ?></span><?= escapeHtml($project['project_name']) ?></span>
+                                    <?= projectDuePill($project) ?>
+                                </span>
+                                <div class="mt-1 small text-body-secondary"><?= projectProgressHtml($project_stats) ?></div>
                             </a>
                         <?php } ?>
                     </div>

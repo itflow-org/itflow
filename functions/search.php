@@ -98,7 +98,7 @@ function globalSearchClientUrl($page, $client_id, $params = []) {
  * user cannot read, or whose feature is switched off, is left out entirely.
  */
 function globalSearchGroups($terms, $deep) {
-    global $config_ticket_prefix, $config_invoice_prefix, $config_quote_prefix;
+    global $config_ticket_prefix, $config_invoice_prefix, $config_quote_prefix, $config_project_prefix;
     global $config_module_enable_ticketing, $config_module_enable_accounting;
 
     $eq = $terms['eq'];
@@ -152,6 +152,30 @@ function globalSearchGroups($terms, $deep) {
                 'context' => $row['client_name'],
                 'badge' => $row['ticket_status_name'] ? ['text' => $row['ticket_status_name'], 'hex' => $row['ticket_status_color']] : null,
                 'url' => globalSearchClientUrl('ticket.php', $row['ticket_client_id'], ['ticket_id' => intval($row['ticket_id'])]),
+            ];
+        },
+    ];
+
+    $project_number = globalSearchNumber($q, $config_project_prefix);
+    $project_number_match = $project_number !== null ? "OR project_number = $project_number" : '';
+    $project_deep_match = $deep ? "OR project_description LIKE '%$like%'" : '';
+    $groups[] = [
+        'key' => 'projects', 'label' => 'Projects', 'icon' => 'project-diagram', 'module' => 'module_support', 'enabled' => $ticketing,
+        'select' => 'project_id, project_prefix, project_number, project_name, project_client_id, project_completed_at, project_archived_at, client_name',
+        'from' => 'projects LEFT JOIN clients ON project_client_id = client_id',
+        'where' => "(project_name LIKE '%$like%' OR CONCAT(project_prefix, project_number) LIKE '%$like%' $project_number_match $project_deep_match)",
+        'scope' => 'project_client_id',
+        'order' => ($project_number !== null ? "(project_number = $project_number) DESC, " : '') . "(project_completed_at IS NULL AND project_archived_at IS NULL) DESC, project_id DESC",
+        'exact' => $project_number !== null ? "project_number = $project_number" : null,
+        'list_url' => '/agent/projects.php?' . http_build_query(['show' => 'all', 'q' => $q]),
+        'item' => function ($row) {
+            $state = $row['project_archived_at'] ? 'Archived' : ($row['project_completed_at'] ? 'Completed' : 'Active');
+            return [
+                'ref' => $row['project_prefix'] . $row['project_number'],
+                'title' => $row['project_name'],
+                'context' => intval($row['project_client_id']) ? $row['client_name'] : 'Internal',
+                'badge' => ['text' => $state, 'variant' => ['Active' => 'primary', 'Completed' => 'success', 'Archived' => 'secondary'][$state]],
+                'url' => '/agent/' . projectUrl($row['project_id'], $row['project_client_id']),
             ];
         },
     ];

@@ -238,6 +238,12 @@ function dashboardAttention($access) {
             'label' => 'Unassigned tickets', 'icon' => 'user-slash', 'tone' => 'warning',
             'url' => '/agent/tickets.php?assigned=unassigned',
         ];
+        // The same rule as projects.php?show=overdue
+        $items[] = [
+            'count' => dashboardCount("SELECT COUNT(project_id) FROM projects WHERE " . projectViews()['overdue']['where'] . ' ' . clientScopeSql('project_client_id')),
+            'label' => 'Overdue projects', 'icon' => 'project-diagram', 'tone' => 'danger',
+            'url' => '/agent/projects.php?show=overdue',
+        ];
     }
 
     if ($access['sales']) {
@@ -333,7 +339,8 @@ function dashboardMyTickets($limit = 8) {
 }
 
 /**
- * The next 7 days for me: open tickets scheduled with me, and calendar events.
+ * The next 7 days for me: open tickets scheduled with me, the projects I
+ * manage starting or due, and calendar events.
  * The calendar is shared, so every event shows; repeating events are expanded
  * the way the calendar page does it. Soonest first, all-day items at the top
  * of their day.
@@ -368,6 +375,32 @@ function dashboardSchedule($days = 7, $limit = 30) {
                 'ticket_id' => intval($row['ticket_id']),
             ])),
         ];
+    }
+
+    // Projects I manage, starting or due - all day
+    $sql = mysqli_query($mysqli, "
+        SELECT project_id, project_prefix, project_number, project_name, project_start, project_due, project_client_id, client_name
+        FROM projects
+        LEFT JOIN clients ON project_client_id = client_id
+        WHERE project_manager = $user_id AND " . PROJECT_OPEN_SQL . "
+        AND (project_due BETWEEN '" . substr($from, 0, 10) . "' AND '" . substr($to, 0, 10) . "' OR project_start BETWEEN '" . substr($from, 0, 10) . "' AND '" . substr($to, 0, 10) . "') " . clientScopeSql('project_client_id')
+    );
+    while ($row = mysqli_fetch_assoc($sql)) {
+        foreach (['project_start' => 'Project starts', 'project_due' => 'Project due'] as $column => $what) {
+            if ($row[$column] && $row[$column] >= substr($from, 0, 10) && $row[$column] <= substr($to, 0, 10)) {
+                $items[] = [
+                    'when' => $row[$column] . ' 00:00:00',
+                    'all_day' => true,
+                    'ongoing' => false,
+                    'title' => $row['project_name'],
+                    'ref' => $row['project_prefix'] . $row['project_number'],
+                    'detail' => $what . ($row['client_name'] ? ' - ' . $row['client_name'] : ''),
+                    'onsite' => false,
+                    'color' => null,
+                    'url' => '/agent/' . projectUrl($row['project_id'], $row['project_client_id']),
+                ];
+            }
+        }
     }
 
     $sql = mysqli_query($mysqli, "

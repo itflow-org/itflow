@@ -1529,7 +1529,7 @@ function demoBuildClient($mysqli, $profile, $index, $context, &$counts) {
     }
 
     // Support and billing
-    $projects = demoBuildProjects($mysqli, $profile, $index, $client_id, $months, $counts);
+    $projects = demoBuildProjects($mysqli, $profile, $index, $client_id, $months, $counts, $primary_contact_id);
     demoBuildTickets($mysqli, $profile, $index, $client_id, $contact_ids, $assets, $primary_location_id, $projects, $vendor_ids, $months, $context, $counts);
     demoBuildBilling($mysqli, $profile, $index, $client_id, $primary_vendor_id, $months, $context, $counts);
 
@@ -2048,7 +2048,7 @@ function demoBuildNetworkIps($mysqli, $profile, $assets, $network_ids, &$counts)
 // actually arrives at an MSP, and it is what the per asset onboarding tickets
 // hang off. A refresh project sits behind them, and some have work running now.
 // ------------------------------
-function demoBuildProjects($mysqli, $profile, $index, $client_id, $months, &$counts) {
+function demoBuildProjects($mysqli, $profile, $index, $client_id, $months, &$counts, $contact_id = 0) {
 
     global $config_project_prefix;
 
@@ -2062,8 +2062,11 @@ function demoBuildProjects($mysqli, $profile, $index, $client_id, $months, &$cou
         'project_number' => demoNextNumber($mysqli, 'config_project_next_number'),
         'project_name' => 'Onboarding - ' . $profile['name'],
         'project_description' => 'Take on ' . $profile['name'] . ': document the environment, deploy monitoring and backup, capture credentials, standardise the endpoint build and hand over to the service desk.',
+        'project_start' => demoMonthDate($months, 3),
         'project_due' => demoMonthDate(max(0, $months - 1), 28),
+        'project_budget_hours' => 16 + ($index % 3) * 8,
         'project_manager' => $user_id,
+        'project_contact_id' => intval($contact_id),
         'project_client_id' => $client_id,
         'project_created_at' => demoMonthDateTime($months, 3, 9, 30),
         'project_completed_at' => demoMonthDateTime(max(0, $months - 1), 26, 16, 0),
@@ -2077,8 +2080,11 @@ function demoBuildProjects($mysqli, $profile, $index, $client_id, $months, &$cou
             'project_number' => demoNextNumber($mysqli, 'config_project_next_number'),
             'project_name' => 'Server and network refresh',
             'project_description' => 'Replaced end of life server hardware, rebuilt the switching and brought the site onto the standard build.',
+            'project_start' => demoMonthDate(15, 4),
             'project_due' => demoMonthDate(13, 20),
+            'project_budget_hours' => 40,
             'project_manager' => $user_id,
+            'project_contact_id' => intval($contact_id),
             'project_client_id' => $client_id,
             'project_created_at' => demoMonthDateTime(15, 4, 9, 30),
             'project_completed_at' => demoMonthDateTime(13, 18, 16, 45),
@@ -2086,15 +2092,25 @@ function demoBuildProjects($mysqli, $profile, $index, $client_id, $months, &$cou
         $counts['projects']++;
     }
 
-    // And whatever is running now
+    // And whatever is running now - one running late, one due soon, one not
+    // started yet and one with time in hand, so the projects list has some of each
     if (!empty($profile['project'])) {
+        $timing = [
+            ['start' => date('Y-m-d', strtotime('-45 days')), 'due' => date('Y-m-d', strtotime('-6 days'))],
+            ['start' => date('Y-m-d', strtotime('-30 days')), 'due' => date('Y-m-d', strtotime('+9 days'))],
+            ['start' => date('Y-m-d', strtotime('+14 days')), 'due' => date('Y-m-d', strtotime('+75 days'))],
+            ['start' => demoMonthDate(1, 8), 'due' => demoMonthDate(-2, 15)],
+        ][$index % 4];
         $projects['active'] = starterInsert($mysqli, 'projects', [
             'project_prefix' => $prefix,
             'project_number' => demoNextNumber($mysqli, 'config_project_next_number'),
             'project_name' => $profile['project'][0],
             'project_description' => $profile['project'][1],
-            'project_due' => demoMonthDate(-2, 15),
+            'project_start' => $timing['start'],
+            'project_due' => $timing['due'],
+            'project_budget_hours' => [12, 24, 32, 40][$index % 4],
             'project_manager' => $user_id,
+            'project_contact_id' => intval($contact_id),
             'project_client_id' => $client_id,
             'project_created_at' => demoMonthDateTime(1, 8, 10, 0),
         ]);

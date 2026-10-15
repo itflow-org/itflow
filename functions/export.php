@@ -262,6 +262,27 @@ function getExportColumns($export_type) {
             'ticket_billable'       => ['label' => 'Billable', 'default' => false],
         ],
 
+        // Projects - the handler adds the state, progress and hours (projectStats())
+        'projects' => [
+            'project_reference'   => ['label' => 'Number'],
+            'project_name'        => ['label' => 'Project', 'weight' => 3],
+            'client_name'         => ['label' => 'Client', 'weight' => 2],
+            'project_state'       => ['label' => 'State'],
+            'user_name'           => ['label' => 'Manager'],
+            'contact_name'        => ['label' => 'Client Contact', 'default' => false],
+            'project_start'       => ['label' => 'Start', 'default' => false],
+            'project_due'         => ['label' => 'Due'],
+            'project_completed'   => ['label' => 'Completed'],
+            'tickets_done'        => ['label' => 'Tickets Done', 'format' => 'number'],
+            'tickets_total'       => ['label' => 'Tickets', 'format' => 'number'],
+            'tasks_done'          => ['label' => 'Tasks Done', 'format' => 'number', 'default' => false],
+            'tasks_total'         => ['label' => 'Tasks', 'format' => 'number', 'default' => false],
+            'hours_logged'        => ['label' => 'Hours Logged', 'format' => 'number'],
+            'project_budget_hours' => ['label' => 'Budget Hours', 'format' => 'number'],
+            'hours_unbilled'      => ['label' => 'Hours Not Invoiced', 'format' => 'number', 'default' => false],
+            'project_description' => ['label' => 'Scope', 'weight' => 3, 'default' => false],
+        ],
+
         // invoice_number_display is prefix . number, built by the handler
         'invoices' => [
             'invoice_number_display' => ['label' => 'Invoice Number'],

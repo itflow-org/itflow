@@ -157,7 +157,7 @@ $sort_link = function ($column, $label, $class = '') use ($url_query_strings_sor
                                         <span class="text-nowrap text-truncate itflow-ticket-asset" title="Asset"><i class="fas fa-desktop me-1"></i><?= escapeHtml($row['asset_name']) ?></span>
                                     <?php } ?>
                                     <?php if (intval($row['ticket_project_id']) && $row['project_name'] !== null) { ?>
-                                        <a class="text-nowrap text-body-secondary" href="project.php?project_id=<?= intval($row['ticket_project_id']) ?>" title="Project <?= escapeHtml($row['project_prefix'] . intval($row['project_number'])) ?>"><i class="fas fa-project-diagram me-1"></i><?= escapeHtml($row['project_name']) ?></a>
+                                        <a class="text-nowrap text-body-secondary ajax-modal" href="#" data-modal-size="lg" data-modal-url="modals/project/project.php?id=<?= intval($row['ticket_project_id']) ?>" title="Project <?= escapeHtml($row['project_prefix'] . intval($row['project_number'])) ?> - quick look"><i class="fas fa-project-diagram me-1"></i><?= escapeHtml($row['project_name']) ?></a>
                                     <?php } ?>
                                     <?php if ($schedule && $is_open) { ?>
                                         <span class="text-nowrap <?= $scheduled_today ? 'text-warning-emphasis fw-semibold' : '' ?>" title="Scheduled<?= intval($row['ticket_onsite']) ? ' on site' : '' ?>">

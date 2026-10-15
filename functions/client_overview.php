@@ -58,6 +58,12 @@ function clientOverviewAttention($client_id, $access, $renewals) {
             'label' => 'No update in 7 days', 'icon' => 'hourglass-half', 'tone' => 'warning',
             'url' => "/agent/tickets.php?client_id=$client_id&sort=ticket_updated_at&order=ASC",
         ];
+        // The same rule as projects.php?show=overdue
+        $items[] = [
+            'count' => dashboardCount("SELECT COUNT(project_id) FROM projects WHERE project_client_id = $client_id AND " . projectViews()['overdue']['where']),
+            'label' => 'Overdue projects', 'icon' => 'project-diagram', 'tone' => 'danger',
+            'url' => "/agent/projects.php?client_id=$client_id&show=overdue",
+        ];
     }
 
     if ($access['sales']) {
@@ -213,9 +219,26 @@ function clientOverviewFavorites($client_id, $access) {
 }
 
 /**
+ * The client's open projects, the ones needing a look first (overdue, then
+ * soonest due), with their numbers - [rows, stats, total].
+ */
+function clientOverviewProjects($client_id, $limit = 5) {
+    global $mysqli;
+    $client_id = intval($client_id);
+    $where = "project_client_id = $client_id AND " . PROJECT_OPEN_SQL;
+    $sql = mysqli_query($mysqli, "SELECT projects.*, user_name, user_avatar FROM projects LEFT JOIN users ON user_id = project_manager
+        WHERE $where ORDER BY project_due IS NULL, project_due ASC, project_id DESC LIMIT " . intval($limit));
+    $rows = [];
+    while ($row = mysqli_fetch_assoc($sql)) {
+        $rows[intval($row['project_id'])] = $row;
+    }
+    return ['projects' => $rows, 'stats' => projectStats(array_keys($rows)), 'total' => dashboardCount("SELECT COUNT(project_id) FROM projects WHERE $where")];
+}
+
+/**
  * The next $days days for this client: scheduled tickets, calendar events
- * (repeating ones expanded the way the calendar does it) and recurring
- * tickets due to be raised. Soonest first.
+ * (repeating ones expanded the way the calendar does it), recurring
+ * tickets due to be raised, and projects starting or due. Soonest first.
  */
 function clientOverviewUpcoming($client_id, $access, $days = 14) {
     global $mysqli;
@@ -236,6 +259,24 @@ function clientOverviewUpcoming($client_id, $access, $days = 14) {
                 'detail' => trim(($row['ticket_onsite'] ? 'Onsite' : '') . ($row['user_name'] ? ($row['ticket_onsite'] ? ', ' : '') . $row['user_name'] : '')),
                 'url' => "/agent/ticket.php?client_id=$client_id&ticket_id=" . intval($row['ticket_id']),
             ];
+        }
+
+        // Projects starting or due - all day
+        $sql = mysqli_query($mysqli, "SELECT project_id, project_prefix, project_number, project_name, project_start, project_due
+            FROM projects
+            WHERE project_client_id = $client_id AND " . PROJECT_OPEN_SQL . "
+            AND (project_due BETWEEN '" . substr($from, 0, 10) . "' AND '" . substr($to, 0, 10) . "' OR project_start BETWEEN '" . substr($from, 0, 10) . "' AND '" . substr($to, 0, 10) . "')");
+        while ($row = mysqli_fetch_assoc($sql)) {
+            foreach (['project_start' => 'Project starts', 'project_due' => 'Project due'] as $column => $what) {
+                if ($row[$column] && $row[$column] >= substr($from, 0, 10) && $row[$column] <= substr($to, 0, 10)) {
+                    $items[] = [
+                        'when' => $row[$column] . ' 00:00:00', 'all_day' => true, 'kind' => 'project',
+                        'title' => $row['project_name'], 'ref' => $row['project_prefix'] . $row['project_number'],
+                        'detail' => $what,
+                        'url' => '/agent/' . projectUrl($row['project_id'], $client_id),
+                    ];
+                }
+            }
         }
 
         $sql = mysqli_query($mysqli, "SELECT recurring_ticket_id, recurring_ticket_subject, recurring_ticket_next_run, recurring_ticket_frequency

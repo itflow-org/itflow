@@ -4874,3 +4874,67 @@ img.itflow-contact-avatar {
 .itflow-ticket-glance-text p:last-child {
     margin-bottom: 0;
 }
+
+/* Projects - agent/projects.php, agent/project.php and the project quick look
+   (functions/project.php). Progress and time are a slim bar with the figure
+   beside it; the project page leads with four stat cards. */
+.itflow-project-progress {
+    display: flex;
+    align-items: center;
+    gap: .5rem;
+}
+.itflow-project-progress .progress {
+    flex: 0 0 3.5rem;
+    height: .4rem;
+}
+.itflow-project-progress-cell {
+    min-width: 7.5rem;
+}
+.itflow-project-main {
+    max-width: 20rem;
+}
+.itflow-project-list .itflow-ticket-who-cell > * {
+    max-width: 10.5rem;
+}
+@media (max-width: 1399.98px) {
+    .itflow-project-main {
+        max-width: 17rem;
+    }
+}
+.itflow-project-desc {
+    max-width: 20rem;
+}
+.itflow-project-icon {
+    --itflow-asset-tone: #5a61c9;
+}
+.itflow-project-icon.is-done {
+    --itflow-asset-tone: #2f8a57;
+}
+[data-bs-theme="dark"] .itflow-project-icon {
+    --itflow-asset-tone: #9ba1f2;
+}
+[data-bs-theme="dark"] .itflow-project-icon.is-done {
+    --itflow-asset-tone: #6fcf97;
+}
+.itflow-project-stat-label {
+    font-size: .75rem;
+    font-weight: 600;
+    letter-spacing: .02em;
+    text-transform: uppercase;
+    color: var(--bs-secondary-color);
+}
+.itflow-project-stat-value {
+    margin-top: .25rem;
+    font-size: 1.5rem;
+    font-weight: 600;
+    line-height: 1.2;
+}
+.itflow-project-stat .progress {
+    height: .45rem;
+}
+.itflow-project-scope {
+    overflow-wrap: anywhere;
+}
+.itflow-project-tasks li {
+    padding: .2rem 0;
+}

@@ -1823,8 +1823,11 @@ CREATE TABLE `projects` (
   `project_number` int(11) NOT NULL DEFAULT 1,
   `project_name` varchar(255) NOT NULL,
   `project_description` mediumtext DEFAULT NULL,
+  `project_start` date DEFAULT NULL,
   `project_due` date DEFAULT NULL,
+  `project_budget_hours` decimal(8,2) DEFAULT NULL,
   `project_manager` int(11) NOT NULL DEFAULT 0,
+  `project_contact_id` int(11) NOT NULL DEFAULT 0,
   `project_created_at` datetime NOT NULL DEFAULT current_timestamp(),
   `project_updated_at` datetime DEFAULT NULL ON UPDATE current_timestamp(),
   `project_completed_at` datetime DEFAULT NULL,
@@ -3045,7 +3048,8 @@ CREATE TABLE `tickets` (
   PRIMARY KEY (`ticket_id`),
   KEY `ticket_response_due_at` (`ticket_response_due_at`),
   KEY `ticket_resolution_due_at` (`ticket_resolution_due_at`),
-  KEY `ticket_client_id` (`ticket_client_id`,`ticket_archived_at`)
+  KEY `ticket_client_id` (`ticket_client_id`,`ticket_archived_at`),
+  KEY `ticket_project_id` (`ticket_project_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 

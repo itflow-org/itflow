@@ -22,8 +22,10 @@ if (isset($_POST['add_ticket_template'])) {
 
     $ticket_template_id = mysqli_insert_id($mysqli);
 
-    if($project_template_id) {
-        mysqli_query($mysqli, "INSERT INTO project_template_ticket_templates SET project_template_id = $project_template_id, ticket_template_id = $ticket_template_id");
+    // At the end of the project template's tickets
+    if ($project_template_id && mysqli_num_rows(mysqli_query($mysqli, "SELECT 1 FROM project_templates WHERE project_template_id = $project_template_id"))) {
+        $order = intval(mysqli_fetch_row(mysqli_query($mysqli, "SELECT COALESCE(MAX(ticket_template_order), 0) + 1 FROM project_template_ticket_templates WHERE project_template_id = $project_template_id"))[0]);
+        mysqli_query($mysqli, "INSERT INTO project_template_ticket_templates SET project_template_id = $project_template_id, ticket_template_id = $ticket_template_id, ticket_template_order = $order");
     }
 
     logAudit("Ticket Template", "Create", "$session_name created ticket template $name", 0, $ticket_template_id);

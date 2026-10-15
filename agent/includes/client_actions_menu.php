@@ -1,6 +1,6 @@
 <?php
 /*
- * The client actions menu - New Ticket, Edit, Export, Archive/Restore, Delete.
+ * The client actions menu - New Ticket, New Project, Edit, Export, Archive/Restore, Delete.
  * Shared by the client header (inc_client_top_head.php) and the client
  * overview, so both offer exactly the same actions behind the same
  * permissions. Include it inside a .dropdown, after its toggle button.
@@ -10,6 +10,9 @@
     <?php if (lookupUserPermission("module_support") >= 2) { ?>
         <a class="dropdown-item ajax-modal" href="#" data-modal-url="modals/ticket/ticket_add.php?client_id=<?= $client_id ?>" data-modal-size="lg">
             <i class="fas fa-fw fa-life-ring me-2"></i>New Ticket
+        </a>
+        <a class="dropdown-item ajax-modal" href="#" data-modal-url="modals/project/project_add.php?client_id=<?= $client_id ?>" data-modal-size="lg">
+            <i class="fas fa-fw fa-project-diagram me-2"></i>New Project
         </a>
     <?php } ?>
     <div class="dropdown-divider"></div>

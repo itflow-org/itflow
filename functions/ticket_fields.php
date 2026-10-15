@@ -330,7 +330,7 @@ function projectChangeManager($project_id, $manager_id) {
     $project_id = intval($project_id);
     $manager_id = intval($manager_id);
 
-    $row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT project_prefix, project_number, project_name, project_client_id FROM projects WHERE project_id = $project_id"));
+    $row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT project_id, project_prefix, project_number, project_name, project_client_id, project_manager FROM projects WHERE project_id = $project_id"));
     if (!$row) {
         return [false, 'Invalid project!'];
     }
@@ -349,6 +349,11 @@ function projectChangeManager($project_id, $manager_id) {
     mysqli_query($mysqli, "UPDATE projects SET project_manager = $manager_id WHERE project_id = $project_id");
 
     logAudit("Project", "Edit", "$session_name set the manager of project $project to $manager_name", intval($row['project_client_id']), $project_id);
+
+    // The new manager hears about it
+    if ($manager_id !== intval($row['project_manager'])) {
+        projectNotifyManager($row, $manager_id);
+    }
 
     return [true, $manager_id ? "Project manager set to $manager_name" : 'Project manager removed'];
 }

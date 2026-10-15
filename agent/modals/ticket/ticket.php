@@ -18,7 +18,7 @@ $ticket_id = intval($_GET['id'] ?? 0);
 $ticket = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT tickets.*, client_name, contact_name, contact_email, contact_photo, contact_title,
         contact_phone, contact_phone_country_code, contact_extension, contact_mobile, contact_mobile_country_code,
         ticket_status_name, ticket_status_color, ticket_status_pauses_sla, user_name, user_avatar, asset_name, location_name,
-        vendor_name, category_name, category_color, project_prefix, project_number, project_name, sla_name,
+        vendor_name, category_name, category_color, project_prefix, project_number, project_name, project_client_id, sla_name,
         " . ticketLastSpokeSql() . " AS ticket_last_spoke
     FROM tickets
     LEFT JOIN clients ON client_id = ticket_client_id
@@ -172,7 +172,7 @@ ob_start();
 
         <?php if (intval($ticket['ticket_project_id']) && $ticket['project_name'] !== null) { ?>
             <dt>Project</dt>
-            <dd><a href="project.php?project_id=<?= intval($ticket['ticket_project_id']) ?>"><?= escapeHtml($ticket['project_name']) ?></a> <span class="text-body-secondary small"><?= escapeHtml($ticket['project_prefix'] . intval($ticket['project_number'])) ?></span></dd>
+            <dd><a href="<?= escapeHtml(projectUrl($ticket['ticket_project_id'], $ticket['project_client_id'])) ?>"><?= escapeHtml($ticket['project_name']) ?></a> <span class="text-body-secondary small"><?= escapeHtml($ticket['project_prefix'] . intval($ticket['project_number'])) ?></span></dd>
         <?php } ?>
 
         <?php if (intval($ticket['ticket_vendor_id']) && $ticket['vendor_name'] !== null) { ?>

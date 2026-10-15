@@ -104,11 +104,18 @@ ob_start();
                     <option value="0">- None -</option>
                     <?php
 
-                    $sql_projects = mysqli_query($mysqli, "SELECT project_id, project_name FROM projects WHERE project_completed_at IS NULL AND project_archived_at IS NULL ORDER BY project_name ASC");
+                    // Open projects of the ticked assets' clients, and internal ones - the only ones their tickets can go on
+                    $bulk_asset_ids = implode(',', array_merge([0], $asset_ids));
+                    $sql_projects = mysqli_query($mysqli, "SELECT project_id, project_prefix, project_number, project_name, client_name FROM projects
+                        LEFT JOIN clients ON client_id = project_client_id
+                        WHERE project_completed_at IS NULL AND project_archived_at IS NULL
+                        AND (project_client_id = 0 OR project_client_id IN (SELECT asset_client_id FROM assets WHERE asset_id IN ($bulk_asset_ids)))
+                        " . clientScopeSql('project_client_id') . "
+                        ORDER BY project_client_id = 0, project_name ASC");
                     while ($row = mysqli_fetch_assoc($sql_projects)) {
                         $project_id_select = intval($row['project_id']);
                         $project_name_select = escapeHtml($row['project_name']); ?>
-                        <option value="<?= $project_id_select ?>"><?= $project_name_select ?></option>
+                        <option value="<?= $project_id_select ?>" data-icon="fas fa-project-diagram" data-description="<?= escapeHtml(projectReference($row) . ' - ' . ($row['client_name'] ?? 'internal')) ?>"><?= $project_name_select ?></option>
 
                     <?php } ?>
                 </select>

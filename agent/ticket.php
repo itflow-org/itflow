@@ -185,6 +185,9 @@ if (isset($_GET['ticket_id'])) {
             $project_manager_row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT user_name FROM users WHERE user_id = $project_manager"));
             $project_manager_name = escapeHtml($project_manager_row['user_name']);
         }
+        // How far along the project it is part of is - and where its page is
+        $project_stats = $project_id ? projectStats([$project_id])[$project_id] : null;
+        $project_url = $project_id ? escapeHtml(projectUrl($project_id, $ticket['project_client_id'])) : '';
 
         $ticket_created_by_display = '';
         if ($ticket_created_by) {
@@ -1497,9 +1500,13 @@ if (isset($_GET['ticket_id'])) {
 
                             <?php if ($project_id) { ?>
                                 <div class="ticket-link-heading <?= ($asset_id || $vendor_id) ? 'mt-3 pt-2 border-top' : '' ?>">Project</div>
-                                <div class="mt-1 text-truncate">
-                                    <a href="project.php?project_id=<?= $project_id ?>" title="<?= $project_name ?>"><i class="fa fa-fw fa-project-diagram text-secondary me-2"></i><?= $project_name ?></a>
+                                <div class="mt-1 d-flex align-items-center gap-1 min-w-0">
+                                    <a class="text-truncate" href="<?= $project_url ?>" title="<?= $project_name ?>"><i class="fa fa-fw fa-project-diagram text-secondary me-2"></i><?= $project_name ?></a>
+                                    <a class="ajax-modal ms-auto text-body-secondary" href="#" data-modal-size="lg" data-modal-url="modals/project/project.php?id=<?= $project_id ?>" title="Quick look"><i class="fas fa-fw fa-eye"></i></a>
                                 </div>
+                                <?php if ($project_stats && $project_stats['tickets']) { ?>
+                                    <div class="mt-1 small text-body-secondary"><?= projectProgressHtml($project_stats) ?></div>
+                                <?php } ?>
                                 <?php if ($project_manager_name) { ?>
                                     <div class="mt-1 text-truncate"><i class="fa fa-fw fa-user-tie text-secondary me-2"></i><?= $project_manager_name ?> <span class="text-muted small">(manager)</span></div>
                                 <?php } ?>

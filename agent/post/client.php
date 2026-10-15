@@ -271,6 +271,9 @@ if (isset($_GET['delete_client'])) {
     // Delete Racks (their items go with them)
     mysqli_query($mysqli, "DELETE FROM racks WHERE rack_client_id = $client_id");
 
+    // Delete Projects - their tickets are the client's, and go below
+    mysqli_query($mysqli, "DELETE FROM projects WHERE project_client_id = $client_id");
+
     // Delete Domains and associated records
     mysqli_query($mysqli, "DELETE FROM domains WHERE domain_client_id = $client_id");
 
@@ -791,7 +794,10 @@ if (isset($_POST['bulk_add_client_ticket'])) {
             //Generate a unique URL key for clients to access
             $url_key = randomString(32);
 
-            mysqli_query($mysqli, "INSERT INTO tickets SET ticket_prefix = '$config_ticket_prefix', ticket_number = $ticket_number, ticket_category = $category_id, ticket_subject = '$subject', ticket_details = '$details', ticket_priority = '$priority', ticket_billable = $billable, ticket_status = $ticket_status, ticket_created_by = $session_user_id, ticket_assigned_to = $assigned_to, ticket_url_key = '$url_key', ticket_client_id = $client_id, ticket_project_id = $project_id");
+            // Only a project of this client's, or an internal one
+            $ticket_project_id = ticketClientOwnedId('project', $project_id, $client_id);
+
+            mysqli_query($mysqli, "INSERT INTO tickets SET ticket_prefix = '$config_ticket_prefix', ticket_number = $ticket_number, ticket_category = $category_id, ticket_subject = '$subject', ticket_details = '$details', ticket_priority = '$priority', ticket_billable = $billable, ticket_status = $ticket_status, ticket_created_by = $session_user_id, ticket_assigned_to = $assigned_to, ticket_url_key = '$url_key', ticket_client_id = $client_id, ticket_project_id = $ticket_project_id");
 
             $ticket_id = mysqli_insert_id($mysqli);
             applyTicketSla($ticket_id);

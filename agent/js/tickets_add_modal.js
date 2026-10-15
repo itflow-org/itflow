@@ -495,9 +495,12 @@
                 // Projects dropdown
                 const projectSelectDropdown = resetDropdown("projectSelect", '- Select Project -', '0');
 
-                // Populate dropdown
+                // Populate dropdown - the client's own, then our internal ones
                 projects.forEach(project => {
-                    projectSelectDropdown[projectSelectDropdown.length] = new Option(project.project_name, project.project_id);
+                    const option = new Option(project.project_name, project.project_id);
+                    option.dataset.icon = 'fas fa-fw fa-project-diagram';
+                    option.dataset.description = (project.project_prefix || '') + project.project_number + (project.project_internal == '1' ? ' - internal' : '');
+                    projectSelectDropdown[projectSelectDropdown.length] = option;
                 });
 
                 applyPreselection(projectSelectDropdown);

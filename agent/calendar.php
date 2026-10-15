@@ -107,6 +107,10 @@ if (isset($_GET['calendar_id'])) {
                 </div>
 
                 <div class="mb-3">
+                    <i class="fas fa-fw fa-circle me-2" style="color:teal;"></i>Projects (Start and due)
+                </div>
+
+                <div class="mb-3">
                     <i class="fas fa-fw fa-circle me-2" style="color:brown;"></i>Vendors
                 </div>
 
@@ -459,6 +463,24 @@ while ($row = mysqli_fetch_assoc($sql)) {
 
 
                 echo "{ id: $event_id, title: $event_title, start: $event_start, color: '$event_color', url: 'ticket.php?ticket_id=$event_id$client_url' },";
+            }
+
+            // Open projects - the day they start and the day they are due
+            if (lookupUserPermission('module_support') >= 1) {
+                $sql = mysqli_query($mysqli, "SELECT project_id, project_prefix, project_number, project_name, project_start, project_due, project_client_id
+                    FROM projects
+                    WHERE " . PROJECT_OPEN_SQL . " AND (project_due IS NOT NULL OR project_start IS NOT NULL)
+                    " . (isset($_GET['client_id']) ? "AND project_client_id = " . intval($_GET['client_id']) : '') . " " . clientScopeSql('project_client_id'));
+                while ($row = mysqli_fetch_assoc($sql)) {
+                    $event_url = json_encode(projectUrl($row['project_id'], $row['project_client_id']));
+                    foreach (['project_start' => 'starts', 'project_due' => 'due'] as $column => $what) {
+                        if ($row[$column]) {
+                            $event_title = json_encode($row['project_prefix'] . $row['project_number'] . " $what - " . $row['project_name']);
+                            $event_start = json_encode($row[$column]);
+                            echo "{ title: $event_title, start: $event_start, allDay: true, color: 'teal', url: $event_url },";
+                        }
+                    }
+                }
             }
 
             // Vendors Added Created
