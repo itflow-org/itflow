@@ -900,7 +900,8 @@ if (isset($_GET['get_canned_response'])) {
  * and agent/document.php do it.
  */
 if (isset($_GET['get_document_content'])) {
-    enforceUserPermission('module_support');
+    // Whoever can open the files list can preview its documents in the grid
+    enforceUserPermission('module_client');
 
     $document_id = intval($_GET['get_document_content']);
 
@@ -917,15 +918,8 @@ if (isset($_GET['get_document_content'])) {
         $client_id = intval($document_row['document_client_id']);
         enforceClientAccess();
 
-        require_once "../libs/htmlpurifier/HTMLPurifier.standalone.php";
-
-        $document_purifier_config = HTMLPurifier_Config::createDefault();
-        $document_purifier_config->set('Cache.DefinitionImpl', null);
-        $document_purifier_config->set('URI.AllowedSchemes', ['data' => true, 'src' => true, 'http' => true, 'https' => true]);
-        $document_purifier = new HTMLPurifier($document_purifier_config);
-
         $response['name'] = $document_row['document_name'];
-        $response['content'] = $document_purifier->purify($document_row['document_content']);
+        $response['content'] = documentHtmlPurify($document_row['document_content']);
     } else {
         $response['name'] = '';
         $response['content'] = '';

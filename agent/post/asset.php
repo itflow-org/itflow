@@ -1037,69 +1037,7 @@ if (isset($_GET['unlink_service_from_asset'])) {
 
 }
 
-if (isset($_POST['link_asset_to_file'])) {
-
-    validateCSRFToken();
-
-    enforceUserPermission('module_support', 2);
-
-    $file_id = intval($_POST['file_id']);
-    $asset_id = intval($_POST['asset_id']);
-
-    // Get file Name and Client ID for logging
-    $sql_file = mysqli_query($mysqli,"SELECT file_name, file_client_id FROM files WHERE file_id = $file_id");
-    $row = mysqli_fetch_assoc($sql_file);
-    $file_name = escapeSql($row['file_name']);
-    $client_id = intval($row['file_client_id']);
-
-    enforceClientAccess();
-
-    // Get Asset Name for logging
-    $asset_name = escapeSql(getFieldById('assets', $asset_id, 'asset_name'));
-
-    // asset add query
-    mysqli_query($mysqli,"INSERT INTO asset_files SET asset_id = $asset_id, file_id = $file_id");
-
-    logAudit("File", "Link", "$session_name linked asset $asset_name to file $file_name", $client_id, $file_id);
-
-    flashAlert("Asset <strong>$asset_name</strong> linked with File <strong>$file_name</strong>");
-
-    redirect();
-
-}
-
-if (isset($_GET['unlink_asset_from_file'])) {
-
-    validateCSRFToken();
-
-    enforceUserPermission('module_support', 2);
-
-    $asset_id = intval($_GET['asset_id']);
-    $file_id = intval($_GET['file_id']);
-
-    // Get file Name and Client ID for logging
-    $sql_file = mysqli_query($mysqli,"SELECT file_name, file_client_id FROM files WHERE file_id = $file_id");
-    $row = mysqli_fetch_assoc($sql_file);
-    $file_name = escapeSql($row['file_name']);
-    $client_id = intval($row['file_client_id']);
-
-    enforceClientAccess();
-
-    // Get Asset Name for logging
-    $asset_name = escapeSql(getFieldById('assets', $asset_id, 'asset_name'));
-
-    mysqli_query($mysqli,"DELETE FROM asset_files WHERE asset_id = $asset_id AND file_id = $file_id");
-
-    logAudit("File", "Unlink", "$session_name unlinked asset $asset_name from file $file_name", $client_id, $file_id);
-
-    flashAlert("Asset <strong>$asset_name</strong> unlinked from file <strong>$file_name</strong>", 'error');
-
-    redirect();
-
-}
-
 // END LINKING
-
 
 if (isset($_POST["import_assets_csv"])) {
 

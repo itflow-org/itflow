@@ -1,49 +1,32 @@
 <?php
+
+/*
+ * Rename a file and change its description.
+ */
+
 require_once '../../../includes/modal_header.php';
 
 enforceUserPermission('module_support', 2);
 
-$file_id = intval($_GET['id']);
+$file_id = intval($_GET['id'] ?? 0);
 
-$sql = mysqli_query($mysqli, "SELECT file_client_id, file_description, file_name FROM files WHERE file_id = $file_id LIMIT 1");
-
-$row = mysqli_fetch_assoc($sql);
+$row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT file_client_id, file_description, file_ext, file_name FROM files WHERE file_id = $file_id LIMIT 1"));
+if (!$row) {
+    echo json_encode(['error' => 'That file no longer exists.']);
+    exit;
+}
 $client_id = intval($row['file_client_id']);
+enforceClientAccess();
+
 $file_name = escapeHtml($row['file_name']);
 $file_description = escapeHtml($row['file_description']);
-$file_ext = escapeHtml($row['file_description']);
-
-if ($file_ext == 'pdf') {
-    $file_icon = "file-pdf";
-} elseif ($file_ext == 'gz' || $file_ext == 'tar' || $file_ext == 'zip' || $file_ext == '7z' || $file_ext == 'rar') {
-    $file_icon = "file-archive";
-} elseif ($file_ext == 'txt' || $file_ext == 'md') {
-    $file_icon = "file-alt";
-} elseif ($file_ext == 'msg') {
-    $file_icon = "envelope";
-} elseif ($file_ext == 'doc' || $file_ext == 'docx' || $file_ext == 'odt') {
-    $file_icon = "file-word";
-} elseif ($file_ext == 'xls' || $file_ext == 'xlsx' || $file_ext == 'ods') {
-    $file_icon = "file-excel";
-} elseif ($file_ext == 'pptx' || $file_ext == 'odp') {
-    $file_icon = "file-powerpoint";
-} elseif ($file_ext == 'mp3' || $file_ext == 'wav' || $file_ext == 'ogg') {
-    $file_icon = "file-audio";
-} elseif ($file_ext == 'mov' || $file_ext == 'mp4' || $file_ext == 'av1') {
-    $file_icon = "file-video";
-} elseif ($file_ext == 'jpg' || $file_ext == 'jpeg' || $file_ext == 'png' || $file_ext == 'gif' || $file_ext == 'webp' || $file_ext == 'bmp' || $file_ext == 'tif') {
-    $file_icon = "file-image";
-} else {
-    $file_icon = "file";
-}
-
-enforceClientAccess();
+$file_info = fileTypeInfo($row['file_ext']);
 
 ob_start();
 
 ?>
 <div class="modal-header bg-dark">
-    <h5 class="modal-title"><i class="fa fa-fw fa-<?= $file_icon ?> me-2"></i>Renaming file: <strong><?= $file_name ?></strong></h5>
+    <h5 class="modal-title text-truncate"><i class="fas fa-fw fa-<?= $file_info['icon'] ?> me-2"></i>Rename <strong><?= $file_name ?></strong></h5>
     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
 </div>
 <form action="post.php" method="post" autocomplete="off">
@@ -52,24 +35,24 @@ ob_start();
     <div class="modal-body">
 
         <div class="mb-3">
-            <label>File Name <strong class="text-danger">*</strong></label>
+            <label class="form-label">Name <strong class="text-danger">*</strong></label>
             <div class="input-group">
-                    <span class="input-group-text"><i class="fa fa-fw fa-folder"></i></span>
-                <input type="text" class="form-control" name="file_name" placeholder="File Name" maxlength="200" value="<?= $file_name ?>" required>
+                <span class="input-group-text"><i class="fas fa-fw fa-<?= $file_info['icon'] ?>"></i></span>
+                <input type="text" class="form-control" name="file_name" placeholder="File name" maxlength="200" value="<?= $file_name ?>" required autofocus>
             </div>
         </div>
 
-        <div class="mb-3">
-            <label>Description</label>
+        <div class="mb-2">
+            <label class="form-label">Description</label>
             <div class="input-group">
-                    <span class="input-group-text"><i class="fa fa-fw fa-folder"></i></span>
-                <input type="text" class="form-control" name="file_description" placeholder="Description" maxlength="250" value="<?= $file_description ?>">
+                <span class="input-group-text"><i class="fas fa-fw fa-align-left"></i></span>
+                <input type="text" class="form-control" name="file_description" placeholder="What this is" maxlength="250" value="<?= $file_description ?>">
             </div>
         </div>
 
     </div>
     <div class="modal-footer">
-        <button type="submit" name="rename_file" class="btn btn-primary text-bold"><i class="fa fa-check me-2"></i>Rename</button>
+        <button type="submit" name="rename_file" class="btn btn-primary text-bold"><i class="fa fa-check me-2"></i>Save</button>
         <button type="button" class="btn btn-light" data-bs-dismiss="modal"><i class="fa fa-times me-2"></i>Cancel</button>
     </div>
 </form>

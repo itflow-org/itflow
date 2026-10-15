@@ -1,0 +1,331 @@
+<?php
+
+/*
+ * Links between documents, files and the things they are about - the assets,
+ * contacts, licenses and vendors a document covers, the files attached to a
+ * document, the assets and contacts a file belongs to.
+ *
+ * Every link is a row in a two-column table (asset_documents, document_files,
+ * contact_files...) and they all work the same way, so they are described once
+ * here and linked, unlinked, listed and offered by the same few functions -
+ * one link modal (agent/modals/link/link.php), one handler
+ * (agent/post/link.php) and one list (linkGroupsHtml()) on the document page
+ * and the file and document quick looks.
+ *
+ * A link only ever joins two records of the same client, and never to an
+ * archived one; linkAdd() checks both rather than trusting the form.
+ */
+
+/** The record types a link can join. */
+const LINK_ENTITIES = [
+    'asset' => ['table' => 'assets', 'id' => 'asset_id', 'name' => 'asset_name', 'client' => 'asset_client_id', 'archived' => 'asset_archived_at', 'label' => 'asset', 'plural' => 'Assets', 'icon' => 'fa-desktop'],
+    'contact' => ['table' => 'contacts', 'id' => 'contact_id', 'name' => 'contact_name', 'client' => 'contact_client_id', 'archived' => 'contact_archived_at', 'label' => 'contact', 'plural' => 'Contacts', 'icon' => 'fa-user'],
+    'document' => ['table' => 'documents', 'id' => 'document_id', 'name' => 'document_name', 'client' => 'document_client_id', 'archived' => 'document_archived_at', 'label' => 'document', 'plural' => 'Documents', 'icon' => 'fa-file-alt'],
+    'file' => ['table' => 'files', 'id' => 'file_id', 'name' => 'file_name', 'client' => 'file_client_id', 'archived' => 'file_archived_at', 'label' => 'file', 'plural' => 'Files', 'icon' => 'fa-paperclip'],
+    'software' => ['table' => 'software', 'id' => 'software_id', 'name' => 'software_name', 'client' => 'software_client_id', 'archived' => 'software_archived_at', 'label' => 'license', 'plural' => 'Licenses', 'icon' => 'fa-cube'],
+    'vendor' => ['table' => 'vendors', 'id' => 'vendor_id', 'name' => 'vendor_name', 'client' => 'vendor_client_id', 'archived' => 'vendor_archived_at', 'label' => 'vendor', 'plural' => 'Vendors', 'icon' => 'fa-building'],
+];
+
+/**
+ * Which pairs can be linked, keyed by the two types in alphabetical order, and
+ * the permission it takes. Linking a contact to a file has always been a
+ * contacts permission; everything else is documentation, a support one.
+ */
+const LINK_RELATIONS = [
+    'asset|document' => ['table' => 'asset_documents', 'module' => 'module_support'],
+    'contact|document' => ['table' => 'contact_documents', 'module' => 'module_support'],
+    'document|file' => ['table' => 'document_files', 'module' => 'module_support'],
+    'document|software' => ['table' => 'software_documents', 'module' => 'module_support'],
+    'document|vendor' => ['table' => 'vendor_documents', 'module' => 'module_support'],
+    'asset|file' => ['table' => 'asset_files', 'module' => 'module_support'],
+    'contact|file' => ['table' => 'contact_files', 'module' => 'module_client'],
+];
+
+/** The relation between two types, or null when they cannot be linked. */
+function linkRelation($a, $b) {
+    $pair = [(string) $a, (string) $b];
+    sort($pair);
+    return LINK_RELATIONS[implode('|', $pair)] ?? null;
+}
+
+/** What a $from record can be linked to, in the order the pages list them. */
+function linkTypesFor($from) {
+    $order = ['file', 'document', 'asset', 'contact', 'software', 'vendor'];
+    return array_values(array_filter($order, function ($to) use ($from) {
+        return $to !== $from && linkRelation($from, $to);
+    }));
+}
+
+/** May this agent change links between these two types? */
+function linkCanEdit($from, $to) {
+    $relation = linkRelation($from, $to);
+    return $relation && lookupUserPermission($relation['module']) >= 2;
+}
+
+/** One record's id, name, client and archived date - or null if it does not exist. */
+function linkRecord($type, $id) {
+    global $mysqli;
+    $entity = LINK_ENTITIES[$type] ?? null;
+    $id = intval($id);
+    if (!$entity || !$id) {
+        return null;
+    }
+    $row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT {$entity['id']} AS id, {$entity['name']} AS name,
+        {$entity['client']} AS client_id, {$entity['archived']} AS archived_at
+        FROM {$entity['table']} WHERE {$entity['id']} = $id LIMIT 1"));
+    return $row ?: null;
+}
+
+/** Extra columns each type brings to a linked row, beyond id and name. */
+function linkDisplayColumns($type) {
+    return [
+        'asset' => 'asset_type, asset_make, asset_model',
+        'contact' => 'contact_title, contact_photo, contact_client_id',
+        'document' => 'document_description, document_updated_at, document_created_at',
+        'file' => 'file_ext, file_size, file_mime_type, file_description',
+        'software' => 'software_type, software_version',
+        'vendor' => 'vendor_description',
+    ][$type] ?? '';
+}
+
+/**
+ * The $to records linked to one $from record, ready to draw: each row has id
+ * and name plus linkDisplayColumns(). Archived records are left out - they
+ * come back when they are restored.
+ */
+function linkedRecords($from, $id, $to) {
+    global $mysqli;
+    $relation = linkRelation($from, $to);
+    $from_entity = LINK_ENTITIES[$from] ?? null;
+    $to_entity = LINK_ENTITIES[$to] ?? null;
+    if (!$relation || !$from_entity || !$to_entity) {
+        return [];
+    }
+    $id = intval($id);
+    $extra = linkDisplayColumns($to);
+    $sql = mysqli_query($mysqli, "SELECT t.{$to_entity['id']} AS id, t.{$to_entity['name']} AS name" . ($extra ? ", $extra" : '') . "
+        FROM {$relation['table']} l
+        JOIN {$to_entity['table']} t ON t.{$to_entity['id']} = l.{$to_entity['id']}
+        WHERE l.{$from_entity['id']} = $id AND t.{$to_entity['archived']} IS NULL
+        ORDER BY t.{$to_entity['name']} ASC");
+    $rows = [];
+    while ($row = mysqli_fetch_assoc($sql)) {
+        $rows[] = $row;
+    }
+    return $rows;
+}
+
+/** The client's $to records not yet linked to this $from record, and not archived. */
+function linkCandidates($from, $id, $to, $client_id) {
+    global $mysqli;
+    $relation = linkRelation($from, $to);
+    $from_entity = LINK_ENTITIES[$from] ?? null;
+    $to_entity = LINK_ENTITIES[$to] ?? null;
+    if (!$relation || !$from_entity || !$to_entity) {
+        return [];
+    }
+    $id = intval($id);
+    $client_id = intval($client_id);
+    $extra = linkDisplayColumns($to);
+    // Files show their folder, so two files with the same name can be told apart
+    $folder_join = $to === 'file' ? 'LEFT JOIN folders ON folder_id = t.file_folder_id' : '';
+    $folder_column = $to === 'file' ? ', folder_name' : '';
+    $sql = mysqli_query($mysqli, "SELECT t.{$to_entity['id']} AS id, t.{$to_entity['name']} AS name" . ($extra ? ", $extra" : '') . "$folder_column
+        FROM {$to_entity['table']} t
+        $folder_join
+        LEFT JOIN {$relation['table']} l ON l.{$to_entity['id']} = t.{$to_entity['id']} AND l.{$from_entity['id']} = $id
+        WHERE t.{$to_entity['client']} = $client_id AND t.{$to_entity['archived']} IS NULL AND l.{$to_entity['id']} IS NULL
+        ORDER BY t.{$to_entity['name']} ASC");
+    $rows = [];
+    while ($row = mysqli_fetch_assoc($sql)) {
+        $rows[] = $row;
+    }
+    return $rows;
+}
+
+/** How many $to records each type has linked to this $from record - for tab and section counts. */
+function linkCounts($from, $id) {
+    $counts = [];
+    foreach (linkTypesFor($from) as $to) {
+        $counts[$to] = count(linkedRecords($from, $id, $to));
+    }
+    return $counts;
+}
+
+/** The audit log entry a link change is filed under - the document or file side of it. */
+function linkLogSide($from, $id, $to, $other_id) {
+    foreach (['document', 'file'] as $side) {
+        if ($from === $side) {
+            return [ucfirst($side), $id];
+        }
+        if ($to === $side) {
+            return [ucfirst($side), $other_id];
+        }
+    }
+    return [ucfirst($from), $id];
+}
+
+/**
+ * Link $ids ($to records) to one $from record. Only records of the same
+ * client that are not archived are linked; anything else in $ids is skipped,
+ * as is anything already linked. The caller has checked the permission and
+ * the client access of $from. Returns the names that were linked.
+ */
+function linkAdd($from, $id, $to, $ids) {
+    global $mysqli, $session_name;
+    $relation = linkRelation($from, $to);
+    $source = linkRecord($from, $id);
+    if (!$relation || !$source) {
+        return [];
+    }
+    $from_entity = LINK_ENTITIES[$from];
+    $to_entity = LINK_ENTITIES[$to];
+    $client_id = intval($source['client_id']);
+    $added = [];
+    foreach (array_unique(array_map('intval', (array) $ids)) as $other_id) {
+        $other = linkRecord($to, $other_id);
+        if (!$other || intval($other['client_id']) !== $client_id || $other['archived_at'] !== null) {
+            continue;
+        }
+        // The pair is the table's primary key, so a second link of the same two is a no-op rather than an error
+        mysqli_query($mysqli, "INSERT IGNORE INTO {$relation['table']} SET {$from_entity['id']} = " . intval($source['id']) . ", {$to_entity['id']} = $other_id");
+        if (mysqli_affected_rows($mysqli) < 1) {
+            continue;
+        }
+        $added[] = $other['name'];
+        [$log_type, $log_id] = linkLogSide($from, intval($source['id']), $to, $other_id);
+        $log_from = $log_type === ucfirst($from) ? $source['name'] : $other['name'];
+        $log_other = $log_type === ucfirst($from) ? $other['name'] : $source['name'];
+        $log_other_label = $log_type === ucfirst($from) ? $to_entity['label'] : $from_entity['label'];
+        logAudit($log_type, "Link", "$session_name linked $log_other_label " . escapeSql($log_other) . " to " . strtolower($log_type) . " " . escapeSql($log_from), $client_id, $log_id);
+    }
+    return $added;
+}
+
+/** Unlink one $to record from a $from record. Returns its name, or '' if there was no such link. */
+function linkRemove($from, $id, $to, $other_id) {
+    global $mysqli, $session_name;
+    $relation = linkRelation($from, $to);
+    $source = linkRecord($from, $id);
+    $other = linkRecord($to, $other_id);
+    if (!$relation || !$source || !$other) {
+        return '';
+    }
+    $from_entity = LINK_ENTITIES[$from];
+    $to_entity = LINK_ENTITIES[$to];
+    mysqli_query($mysqli, "DELETE FROM {$relation['table']} WHERE {$from_entity['id']} = " . intval($source['id']) . " AND {$to_entity['id']} = " . intval($other['id']));
+    if (mysqli_affected_rows($mysqli) < 1) {
+        return '';
+    }
+    [$log_type, $log_id] = linkLogSide($from, intval($source['id']), $to, intval($other['id']));
+    $log_from = $log_type === ucfirst($from) ? $source['name'] : $other['name'];
+    $log_other = $log_type === ucfirst($from) ? $other['name'] : $source['name'];
+    $log_other_label = $log_type === ucfirst($from) ? $to_entity['label'] : $from_entity['label'];
+    logAudit($log_type, "Unlink", "$session_name unlinked $log_other_label " . escapeSql($log_other) . " from " . strtolower($log_type) . " " . escapeSql($log_from), intval($source['client_id']), $log_id);
+    return $other['name'];
+}
+
+/** Drop every link a record has - for when it is deleted for good. */
+function linkRemoveAll($type, $id) {
+    global $mysqli;
+    $entity = LINK_ENTITIES[$type] ?? null;
+    if (!$entity) {
+        return;
+    }
+    $id = intval($id);
+    foreach (LINK_RELATIONS as $pair => $relation) {
+        if (in_array($type, explode('|', $pair), true)) {
+            mysqli_query($mysqli, "DELETE FROM {$relation['table']} WHERE {$entity['id']} = $id");
+        }
+    }
+    if ($type === 'document') {
+        mysqli_query($mysqli, "DELETE FROM service_documents WHERE document_id = $id");
+    }
+}
+
+/**
+ * How one linked record is drawn: its icon or avatar, its name linked to where
+ * it opens, and a quieter detail. Raw row in, HTML out.
+ */
+function linkRowHtml($to, $row, $client_id) {
+    $id = intval($row['id']);
+    $name = escapeHtml($row['name']);
+    switch ($to) {
+        case 'asset':
+            $lead = '<span class="itflow-asset-icon itflow-asset-icon-sm itflow-asset-tone-' . assetTypeTone($row['asset_type']) . '" aria-hidden="true"><i class="fas fa-fw fa-' . getAssetIcon($row['asset_type']) . '"></i></span>';
+            $link = "<a class=\"ajax-modal text-truncate\" href=\"#\" data-modal-size=\"lg\" data-modal-url=\"modals/asset/asset.php?id=$id\">$name</a>";
+            $detail = trim($row['asset_make'] . ' ' . $row['asset_model']);
+            break;
+        case 'contact':
+            $lead = contactAvatar($row['contact_client_id'], $id, $row['name'], $row['contact_photo'], 'sm');
+            $link = "<a class=\"ajax-modal text-truncate\" href=\"#\" data-modal-size=\"lg\" data-modal-url=\"modals/contact/contact.php?id=$id\">$name</a>";
+            $detail = $row['contact_title'];
+            break;
+        case 'file':
+            $lead = fileTypeTile($row['file_ext'], 'sm');
+            $link = "<a class=\"ajax-modal text-truncate\" href=\"#\" data-modal-size=\"lg\" data-modal-url=\"modals/file/file.php?id=$id\">$name</a>";
+            $detail = fileTypeInfo($row['file_ext'])['label'] . ($row['file_size'] ? ' · ' . formatBytes(intval($row['file_size'])) : '');
+            break;
+        case 'document':
+            $lead = documentTile('sm');
+            $link = "<a class=\"text-truncate\" href=\"document.php?client_id=" . intval($client_id) . "&amp;document_id=$id\">$name</a>";
+            $detail = 'Updated ' . timeAgo($row['document_updated_at'] ?: $row['document_created_at']);
+            break;
+        case 'software':
+            $lead = '<span class="itflow-link-icon" aria-hidden="true"><i class="fas fa-fw fa-cube"></i></span>';
+            $link = "<a class=\"ajax-modal text-truncate\" href=\"#\" data-modal-url=\"modals/software/software_edit.php?id=$id\">$name</a>";
+            $detail = trim($row['software_type'] . ' ' . $row['software_version']);
+            break;
+        case 'vendor':
+            $lead = '<span class="itflow-link-icon" aria-hidden="true"><i class="fas fa-fw fa-building"></i></span>';
+            $link = "<a class=\"ajax-modal text-truncate\" href=\"#\" data-modal-url=\"modals/vendor/vendor.php?id=$id\">$name</a>";
+            $detail = $row['vendor_description'];
+            break;
+        default:
+            return '';
+    }
+    $detail = (string) $detail !== '' ? '<div class="small text-body-secondary text-truncate">' . escapeHtml($detail) . '</div>' : '';
+    return "$lead<div class=\"min-w-0 flex-grow-1\"><div class=\"d-flex\">$link</div>$detail</div>";
+}
+
+/**
+ * Everything linked to one document or file, grouped by type - the "Linked"
+ * card on the document page and the section in the file and document quick
+ * looks. Each group has its count and, for an agent who may change it, a
+ * Link button and an unlink button on each row (shown on hover, like the copy
+ * buttons). Empty groups collapse to a single "Link a ..." line, so the card
+ * says what can be linked without a wall of empty headings.
+ */
+function linkGroupsHtml($from, $id, $client_id, $archived = false) {
+    $id = intval($id);
+    $groups = '';
+    $empty = [];
+    foreach (linkTypesFor($from) as $to) {
+        $entity = LINK_ENTITIES[$to];
+        $rows = linkedRecords($from, $id, $to);
+        $can_edit = !$archived && linkCanEdit($from, $to);
+        $link_url = "modals/link/link.php?from=$from&amp;id=$id&amp;to=$to";
+        if (!$rows) {
+            if ($can_edit) {
+                $empty[] = "<a class=\"ajax-modal btn btn-xs btn-outline-secondary\" href=\"#\" data-modal-url=\"$link_url\"><i class=\"fas {$entity['icon']} me-1\"></i>{$entity['plural']}</a>";
+            }
+            continue;
+        }
+        $items = '';
+        foreach ($rows as $row) {
+            $unlink = $can_edit
+                ? '<a class="itflow-link-remove confirm-link" href="post.php?unlink_item&amp;from=' . $from . '&amp;id=' . $id . '&amp;to=' . $to . '&amp;other=' . intval($row['id']) . '&amp;csrf_token=' . escapeHtml($_SESSION['csrf_token'] ?? '') . '" title="Unlink ' . $entity['label'] . '"><i class="fas fa-unlink"></i></a>'
+                : '';
+            $items .= '<li class="itflow-link-row">' . linkRowHtml($to, $row, $client_id) . $unlink . '</li>';
+        }
+        $add = $can_edit ? "<a class=\"ajax-modal ms-auto small\" href=\"#\" data-modal-url=\"$link_url\" title=\"Link {$entity['label']}\"><i class=\"fas fa-plus me-1\"></i>Link</a>" : '';
+        $groups .= "<div class=\"itflow-link-group\"><div class=\"itflow-link-group-head\"><i class=\"fas fa-fw {$entity['icon']} me-1\"></i>{$entity['plural']}<span class=\"badge rounded-pill ms-1\">" . count($rows) . "</span>$add</div><ul class=\"list-unstyled mb-0\">$items</ul></div>";
+    }
+    if ($empty) {
+        $groups .= '<div class="itflow-link-empty"><span class="small text-body-secondary me-1">Link</span>' . implode(' ', $empty) . '</div>';
+    }
+    if ($groups === '') {
+        $groups = '<div class="small text-body-secondary">Nothing linked.</div>';
+    }
+    return "<div class=\"itflow-links\">$groups</div>";
+}

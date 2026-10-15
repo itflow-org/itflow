@@ -617,7 +617,6 @@ if (isset($_POST['bulk_archive_contacts'])) {
                 mysqli_query($mysqli,"UPDATE users SET user_archived_at = NOW() WHERE user_id = $contact_user_id");
             }
 
-
             if($contact_primary == 0) {
                 mysqli_query($mysqli,"UPDATE contacts SET contact_important = 0, contact_billing = 0, contact_technical = 0, contact_archived_at = NOW() WHERE contact_id = $contact_id");
 
@@ -778,7 +777,6 @@ if (isset($_GET['anonymize_contact'])) {
         mysqli_query($mysqli,"UPDATE users SET user_name = 'Archived - $unix_timestamp', user_email = 'Archived - $unix_timestamp', user_archived_at = NOW() WHERE user_id = $contact_user_id");
     }
 
-
     // Redact audit logs
     $log_sql = mysqli_query($mysqli, "SELECT log_description, log_id FROM logs WHERE log_client_id =  $client_id");
     while ($log = mysqli_fetch_assoc($log_sql)) {
@@ -789,7 +787,6 @@ if (isset($_GET['anonymize_contact'])) {
 
         mysqli_query($mysqli,"UPDATE logs SET log_description = '$description' WHERE log_id = $log_id AND log_client_id = $client_id");
     }
-
 
     // Get all tickets this contact raised
     $contact_tickets_sql = mysqli_query($mysqli, "SELECT ticket_details, ticket_id, ticket_subject FROM tickets WHERE ticket_client_id = $client_id AND ticket_contact_id =  $contact_id");
@@ -1173,67 +1170,6 @@ if (isset($_GET['unlink_service_from_contact'])) {
 
 }
 
-if (isset($_POST['link_contact_to_file'])) {
-
-    validateCSRFToken();
-
-    enforceUserPermission('module_client', 2);
-
-    $file_id = intval($_POST['file_id']);
-    $contact_id = intval($_POST['contact_id']);
-
-    // Get file Name and Client ID for logging
-    $sql_file = mysqli_query($mysqli,"SELECT file_name, file_client_id FROM files WHERE file_id = $file_id");
-    $row = mysqli_fetch_assoc($sql_file);
-    $file_name = escapeSql($row['file_name']);
-    $client_id = intval($row['file_client_id']);
-
-    enforceClientAccess();
-
-    // Get Contact Name for logging
-    $contact_name = escapeSql(getFieldById('contacts', $contact_id, 'contact_name'));
-
-    // Contact add query
-    mysqli_query($mysqli,"INSERT INTO contact_files SET contact_id = $contact_id, file_id = $file_id");
-
-    logAudit("File", "Link", "$session_name linked contact $contact_name to file $file_name", $client_id, $file_id);
-
-    flashAlert("Contact <strong>$contact_name</strong> linked with File <strong>$file_name</strong>");
-
-    redirect();
-
-}
-
-if (isset($_GET['unlink_contact_from_file'])) {
-
-    validateCSRFToken();
-
-    enforceUserPermission('module_client', 2);
-
-    $contact_id = intval($_GET['contact_id']);
-    $file_id = intval($_GET['file_id']);
-
-    // Get file Name and Client ID for logging
-    $sql_file = mysqli_query($mysqli,"SELECT file_name, file_client_id FROM files WHERE file_id = $file_id");
-    $row = mysqli_fetch_assoc($sql_file);
-    $file_name = escapeSql($row['file_name']);
-    $client_id = intval($row['file_client_id']);
-
-    enforceClientAccess();
-
-    // Get Contact Name for logging
-    $contact_name = escapeSql(getFieldById('contacts', $contact_id, 'contact_name'));
-
-    mysqli_query($mysqli,"DELETE FROM contact_files WHERE contact_id = $contact_id AND file_id = $file_id");
-
-    logAudit("File", "Unlink", "$session_name unlinked contact $contact_name from file $file_name", $client_id, $file_id);
-
-    flashAlert("Contact <strong>$contact_name</strong> unlinked from file <strong>$file_name</strong>", 'error');
-
-    redirect();
-
-}
-
 if (isExportRequest('export_contacts')) {
 
     validateCSRFToken();
@@ -1429,7 +1365,6 @@ if (isset($_POST["import_contacts_csv"])) {
                 $location_id = intval($row['location_id']);
             }
             // Potentially import the rest in the future?
-
 
             // Check if duplicate was detected
             if ($duplicate_detect == 0) {

@@ -291,7 +291,7 @@ if (!$can_support) {
                             </a>
                         <?php } ?>
                         <?php if ($can_support_edit) { ?>
-                            <a class="dropdown-item ajax-modal" href="#" data-modal-url="modals/document/document_add.php?<?= $client_url ?>&contact_id=<?= $contact_id ?>" data-modal-size="lg">
+                            <a class="dropdown-item ajax-modal" href="#" data-modal-url="modals/document/document_add.php?<?= $client_url ?>&contact_id=<?= $contact_id ?>" data-modal-size="xl">
                                 <i class="fa fa-fw fa-file-alt text-secondary me-2"></i>Document
                             </a>
                             <a class="dropdown-item ajax-modal" href="#" data-modal-url="modals/file/file_upload.php?<?= $client_url ?>&contact_id=<?= $contact_id ?>">
@@ -767,7 +767,7 @@ if (!$can_support) {
                                     <i class="fas fa-link me-2"></i>Link
                                 </button>
                                 <?php if ($can_support_edit) { ?>
-                                    <button type="button" class="btn btn-sm btn-primary ajax-modal" data-modal-size="lg" data-modal-url="modals/document/document_add.php?<?= $client_url ?>&contact_id=<?= $contact_id ?>">
+                                    <button type="button" class="btn btn-sm btn-primary ajax-modal" data-modal-size="xl" data-modal-url="modals/document/document_add.php?<?= $client_url ?>&contact_id=<?= $contact_id ?>">
                                         <i class="fas fa-plus me-2"></i>New Document
                                     </button>
                                 <?php } ?>
@@ -780,7 +780,7 @@ if (!$can_support) {
                                 $document_id = intval($row['document_id']);
                                 $document_last = $row['document_updated_at'] ?: $row['document_created_at']; ?>
                                 <div class="list-group-item d-flex align-items-center gap-3 py-2">
-                                    <i class="fas fa-fw fa-file-alt text-secondary"></i>
+                                    <?= documentTile('sm') ?>
                                     <div class="flex-grow-1 min-w-0">
                                         <a class="fw-semibold" href="document.php?client_id=<?= $client_id ?>&document_id=<?= $document_id ?>"><?= escapeHtml($row['document_name']) ?></a>
                                         <?php if ($row['document_description']) { ?><div class="small text-body-secondary text-truncate"><?= escapeHtml($row['document_description']) ?></div><?php } ?>
@@ -820,9 +820,9 @@ if (!$can_support) {
                             <?php while ($row = mysqli_fetch_assoc($sql_linked_files)) {
                                 $file_id = intval($row['file_id']); ?>
                                 <div class="list-group-item d-flex align-items-center gap-3 py-2">
-                                    <i class="fas fa-fw fa-<?= getFileIcon((string) $row['file_ext']) ?> text-secondary"></i>
+                                    <?= fileTypeTile($row['file_ext'], 'sm') ?>
                                     <div class="flex-grow-1 min-w-0">
-                                        <a class="fw-semibold" href="file.php?file_id=<?= $file_id ?>&action=view" target="_blank" rel="noopener"><?= escapeHtml($row['file_name']) ?></a>
+                                        <a class="fw-semibold ajax-modal" href="#" data-modal-size="lg" data-modal-url="modals/file/file.php?id=<?= $file_id ?>"><?= escapeHtml($row['file_name']) ?></a>
                                         <?php if ($row['file_description']) { ?><div class="small text-body-secondary text-truncate"><?= escapeHtml($row['file_description']) ?></div><?php } ?>
                                     </div>
                                     <span class="small text-body-secondary text-nowrap" title="<?= escapeHtml($row['file_created_at']) ?>"><?= formatBytes($row['file_size']) ?> &middot; <?= timeAgo($row['file_created_at']) ?></span>

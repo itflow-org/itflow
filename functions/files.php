@@ -456,3 +456,224 @@ function getFileTextExcerpt($client_id, $file_reference_name, $length = 400) {
 
     return cleanTextExcerpt($raw, $length);
 }
+
+/*
+ * Files & documents section - how a file's type is shown, and the client's
+ * folder tree. Shared by agent/files.php, the document page, the file and
+ * document quick looks and the upload, move and link modals.
+ */
+
+/**
+ * What kind of file an extension is: its icon, a short label, and the colour
+ * family its tile is drawn in (.itflow-file-tone-* in itflow_custom.css).
+ * Leans on getFileIcon() for the icon where the two agree, so the portal and
+ * the agent side still read from one list of extensions.
+ */
+function fileTypeInfo($extension) {
+    $extension = strtolower(trim((string) $extension));
+    $kinds = [
+        ['pdf', ['pdf'], 'file-pdf', 'PDF'],
+        ['word', ['doc', 'docx', 'odt', 'rtf', 'pages'], 'file-word', 'Word'],
+        ['excel', ['xls', 'xlsx', 'ods', 'csv', 'numbers'], 'file-excel', 'Spreadsheet'],
+        ['slides', ['ppt', 'pptx', 'odp'], 'file-powerpoint', 'Presentation'],
+        ['image', ['jpg', 'jpeg', 'png', 'gif', 'webp', 'bmp', 'tif', 'tiff', 'heic', 'svg'], 'file-image', 'Image'],
+        ['media', ['mp4', 'mov', 'av1', 'avi', 'mkv', 'webm', 'wmv'], 'file-video', 'Video'],
+        ['media', ['mp3', 'wav', 'ogg', 'flac', 'm4a'], 'file-audio', 'Audio'],
+        ['archive', ['zip', 'tar', 'gz', 'tgz', '7z', 'rar'], 'file-archive', 'Archive'],
+        ['text', ['txt', 'md', 'log'], 'file-alt', 'Text'],
+        ['text', ['msg', 'eml'], 'envelope', 'Email'],
+        ['code', ['json', 'cfg', 'conf', 'ini', 'xml', 'yaml', 'yml', 'ovpn', 'ps1', 'bat', 'sh', 'unf', 'unifi', 'stk', 'swb'], 'file-code', 'Config / script'],
+        ['drawing', ['vsdx', 'drawio'], 'project-diagram', 'Diagram'],
+        ['cert', ['pfx', 'p12', 'cer', 'crt', 'pem', 'key'], 'certificate', 'Certificate / key'],
+    ];
+    foreach ($kinds as [$tone, $extensions, $icon, $label]) {
+        if (in_array($extension, $extensions, true)) {
+            return ['tone' => $tone, 'icon' => $icon, 'label' => $label];
+        }
+    }
+    return ['tone' => 'other', 'icon' => getFileIcon($extension), 'label' => $extension !== '' ? strtoupper($extension) . ' file' : 'File'];
+}
+
+/** A file's type as a coloured tile - the files list, linked items, the quick look. $size is '', 'sm' or 'lg'. */
+function fileTypeTile($extension, $size = '') {
+    $info = fileTypeInfo($extension);
+    return '<span class="itflow-file-icon itflow-file-tone-' . $info['tone'] . ($size ? " itflow-file-icon-$size" : '') . '" title="' . escapeHtml($info['label']) . '" aria-hidden="true"><i class="fas fa-fw fa-' . $info['icon'] . '"></i></span>';
+}
+
+/** A created document's tile, in the same family as fileTypeTile(). */
+function documentTile($size = '') {
+    return '<span class="itflow-file-icon itflow-file-tone-document' . ($size ? " itflow-file-icon-$size" : '') . '" title="Document" aria-hidden="true"><i class="fas fa-fw fa-file-alt"></i></span>';
+}
+
+/**
+ * Every folder a client has, in one query: id => [folder_id, folder_name,
+ * parent_folder, children => [ids]], with 0 standing in for the root.
+ * Folders whose parent no longer exists hang off the root, so nothing in
+ * them is ever out of reach.
+ */
+function folderTree($client_id) {
+    global $mysqli;
+    $client_id = intval($client_id);
+    $tree = [0 => ['folder_id' => 0, 'folder_name' => '/', 'parent_folder' => -1, 'children' => []]];
+    $sql = mysqli_query($mysqli, "SELECT folder_id, folder_name, parent_folder FROM folders WHERE folder_client_id = $client_id ORDER BY folder_name ASC");
+    while ($row = mysqli_fetch_assoc($sql)) {
+        $tree[intval($row['folder_id'])] = ['folder_id' => intval($row['folder_id']), 'folder_name' => $row['folder_name'], 'parent_folder' => intval($row['parent_folder']), 'children' => []];
+    }
+    foreach ($tree as $folder_id => $folder) {
+        if ($folder_id === 0) {
+            continue;
+        }
+        $parent = isset($tree[$folder['parent_folder']]) && $folder['parent_folder'] !== $folder_id ? $folder['parent_folder'] : 0;
+        $tree[$folder_id]['parent_folder'] = $parent;
+        $tree[$parent]['children'][] = $folder_id;
+    }
+    return $tree;
+}
+
+/** The folders from the root down to $folder_id, root left out: [[folder_id, folder_name], ...]. */
+function folderPath($tree, $folder_id) {
+    $path = [];
+    $seen = [];
+    $folder_id = intval($folder_id);
+    while ($folder_id && isset($tree[$folder_id]) && !isset($seen[$folder_id])) {
+        $seen[$folder_id] = true;
+        array_unshift($path, ['folder_id' => $folder_id, 'folder_name' => $tree[$folder_id]['folder_name']]);
+        $folder_id = $tree[$folder_id]['parent_folder'];
+    }
+    return $path;
+}
+
+/** $folder_id and every folder under it. */
+function folderSubtree($tree, $folder_id) {
+    $ids = [];
+    $stack = [intval($folder_id)];
+    while ($stack) {
+        $id = array_pop($stack);
+        if (!isset($tree[$id]) || isset($ids[$id])) {
+            continue;
+        }
+        $ids[$id] = true;
+        foreach ($tree[$id]['children'] as $child) {
+            $stack[] = $child;
+        }
+    }
+    return array_keys($ids);
+}
+
+/**
+ * <option>s for a folder picker: the root, then each folder indented under
+ * its parent, with $selected chosen. $exclude leaves out a folder and
+ * everything under it - a folder cannot be moved into itself.
+ */
+function folderOptionsHtml($client_id, $selected = 0, $exclude = 0) {
+    $tree = folderTree($client_id);
+    $skip = $exclude ? array_flip(folderSubtree($tree, $exclude)) : [];
+    $selected = intval($selected);
+    $html = '<option value="0"' . ($selected === 0 ? ' selected' : '') . selectOptionData(['icon' => 'fas fa-home']) . '>Top level</option>';
+    $walk = function ($parent_id, $depth) use (&$walk, $tree, $skip, $selected, &$html) {
+        foreach ($tree[$parent_id]['children'] as $folder_id) {
+            if (isset($skip[$folder_id])) {
+                continue;
+            }
+            $path = implode(' / ', array_column(folderPath($tree, $tree[$folder_id]['parent_folder']), 'folder_name'));
+            $html .= '<option value="' . $folder_id . '"' . ($folder_id === $selected ? ' selected' : '')
+                . selectOptionData(['icon' => 'fas fa-folder', 'description' => $path])
+                . '>' . str_repeat('&nbsp;&nbsp;&nbsp;', $depth) . escapeHtml($tree[$folder_id]['folder_name']) . '</option>';
+            $walk($folder_id, $depth + 1);
+        }
+    };
+    $walk(0, 0);
+    return $html;
+}
+
+/** $folder_id if it is one of the client's folders (0, the top level, always is), otherwise 0. */
+function folderOwnedId($folder_id, $client_id) {
+    global $mysqli;
+    $folder_id = intval($folder_id);
+    if (!$folder_id) {
+        return 0;
+    }
+    $sql = mysqli_query($mysqli, "SELECT 1 FROM folders WHERE folder_id = $folder_id AND folder_client_id = " . intval($client_id) . " LIMIT 1");
+    return mysqli_num_rows($sql) ? $folder_id : 0;
+}
+
+/** A folder's name for messages and logs - "Top level" for the root. Raw. */
+function folderDisplayName($folder_id) {
+    $folder_id = intval($folder_id);
+    return $folder_id ? (string) getFieldById('folders', $folder_id, 'folder_name') : 'Top level';
+}
+
+/*
+ * Deleting for good - shared by the single and bulk delete handlers in
+ * agent/post/file.php and agent/post/document.php. Each checks the agent's
+ * access to the record's client itself, and takes every link with it.
+ */
+
+/** Remove a stored file from disk - quietly, when it is already gone. */
+function fileRemoveFromDisk($client_id, $file_reference_name) {
+    $path = __DIR__ . "/../uploads/clients/" . intval($client_id) . "/" . basename((string) $file_reference_name);
+    if ((string) $file_reference_name !== '' && is_file($path)) {
+        unlink($path);
+    }
+}
+
+/** Delete one file for good: the file on disk, its links and its row. Returns its name, or null if it is not there. */
+function fileDeleteForGood($file_id) {
+    global $mysqli, $session_name, $client_id;
+    $file_id = intval($file_id);
+    $row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT file_client_id, file_name, file_reference_name FROM files WHERE file_id = $file_id"));
+    if (!$row) {
+        return null;
+    }
+    $client_id = intval($row['file_client_id']);
+    enforceClientAccess();
+    fileRemoveFromDisk($client_id, $row['file_reference_name']);
+    linkRemoveAll('file', $file_id);
+    mysqli_query($mysqli, "DELETE FROM files WHERE file_id = $file_id");
+    logAudit("File", "Delete", "$session_name deleted file " . escapeSql($row['file_name']), $client_id);
+    return $row['file_name'];
+}
+
+/** Delete one document for good, with its versions, images and links. Returns its name, or null. */
+function documentDeleteForGood($document_id) {
+    global $mysqli, $session_name, $client_id;
+    $document_id = intval($document_id);
+    $row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT document_client_id, document_name FROM documents WHERE document_id = $document_id"));
+    if (!$row) {
+        return null;
+    }
+    $client_id = intval($row['document_client_id']);
+    enforceClientAccess();
+    mysqli_query($mysqli, "DELETE FROM documents WHERE document_id = $document_id");
+    mysqli_query($mysqli, "DELETE FROM document_versions WHERE document_version_document_id = $document_id");
+    linkRemoveAll('document', $document_id);
+    removeDirectory($_SERVER['DOCUMENT_ROOT'] . "/uploads/documents/" . $document_id);
+    logAudit("Document", "Delete", "$session_name deleted document " . escapeSql($row['document_name']) . " and all versions", $client_id);
+    return $row['document_name'];
+}
+
+/**
+ * What a document's full-text search runs over (document_content_raw): its
+ * name and its text, tags stripped. A space goes in front of every tag first,
+ * so "<li>one</li><li>two</li>" reads "one two", not "onetwo". Raw - escape
+ * it for the query.
+ */
+function documentContentRaw($name, $html) {
+    return trim(trim((string) $name) . ' ' . trim(preg_replace('/\s+/u', ' ', strip_tags(str_replace('<', ' <', (string) $html)))));
+}
+
+/**
+ * A document's HTML made safe to show - the HTMLPurifier setup the document
+ * page, the document quick look and the version viewer all use.
+ */
+function documentHtmlPurify($html) {
+    static $purifier = null;
+    if ($purifier === null) {
+        require_once __DIR__ . '/../libs/htmlpurifier/HTMLPurifier.standalone.php';
+        $config = HTMLPurifier_Config::createDefault();
+        $config->set('Cache.DefinitionImpl', null);
+        $config->set('URI.AllowedSchemes', ['data' => true, 'src' => true, 'http' => true, 'https' => true]);
+        $purifier = new HTMLPurifier($config);
+    }
+    return $purifier->purify((string) $html);
+}

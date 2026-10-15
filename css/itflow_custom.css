@@ -3991,3 +3991,463 @@ img.itflow-contact-avatar {
 .itflow-contact-chip.is-alert i {
     color: inherit;
 }
+
+/* Files & documents - agent/files.php, agent/document.php, the file and
+   document quick looks, the upload and link modals.
+
+   A file's type is a tinted tile like an asset's type (fileTypeTile() in
+   functions/files.php): the colour family says what it is at a glance -
+   PDFs red, Word blue, spreadsheets green - and created documents take the
+   app's own blue. */
+.itflow-file-icon {
+    display: inline-flex;
+    flex: 0 0 auto;
+    align-items: center;
+    justify-content: center;
+    width: 2.5rem;
+    height: 2.5rem;
+    border-radius: var(--bs-border-radius-lg);
+    background-color: color-mix(in srgb, var(--itflow-file-tone) 14%, transparent);
+    color: var(--itflow-file-tone);
+    font-size: 1.1rem;
+}
+.itflow-file-icon-sm {
+    width: 1.75rem;
+    height: 1.75rem;
+    border-radius: var(--bs-border-radius);
+    font-size: .8rem;
+}
+.itflow-file-icon-lg {
+    width: 3.5rem;
+    height: 3.5rem;
+    font-size: 1.6rem;
+}
+.itflow-file-tone-pdf { --itflow-file-tone: #c8372d; }
+.itflow-file-tone-word { --itflow-file-tone: #2b5797; }
+.itflow-file-tone-excel { --itflow-file-tone: #1e7145; }
+.itflow-file-tone-slides { --itflow-file-tone: #c4501c; }
+.itflow-file-tone-image { --itflow-file-tone: #13857d; }
+.itflow-file-tone-media { --itflow-file-tone: #8e44ad; }
+.itflow-file-tone-archive { --itflow-file-tone: #8a6a2f; }
+.itflow-file-tone-text { --itflow-file-tone: #5c6773; }
+.itflow-file-tone-code { --itflow-file-tone: #4b5d8a; }
+.itflow-file-tone-drawing { --itflow-file-tone: #d97706; }
+.itflow-file-tone-cert { --itflow-file-tone: #a1781b; }
+.itflow-file-tone-other { --itflow-file-tone: #6c757d; }
+.itflow-file-tone-document { --itflow-file-tone: var(--itflow-accent, #0d6efd); }
+[data-bs-theme="dark"] .itflow-file-tone-pdf { --itflow-file-tone: #f08a80; }
+[data-bs-theme="dark"] .itflow-file-tone-word { --itflow-file-tone: #8ab4f0; }
+[data-bs-theme="dark"] .itflow-file-tone-excel { --itflow-file-tone: #6fcf9a; }
+[data-bs-theme="dark"] .itflow-file-tone-slides { --itflow-file-tone: #f2a072; }
+[data-bs-theme="dark"] .itflow-file-tone-image { --itflow-file-tone: #5fd1c6; }
+[data-bs-theme="dark"] .itflow-file-tone-media { --itflow-file-tone: #c99ae0; }
+[data-bs-theme="dark"] .itflow-file-tone-archive { --itflow-file-tone: #d9b878; }
+[data-bs-theme="dark"] .itflow-file-tone-text { --itflow-file-tone: #b4bec8; }
+[data-bs-theme="dark"] .itflow-file-tone-code { --itflow-file-tone: #a3b3dc; }
+[data-bs-theme="dark"] .itflow-file-tone-drawing { --itflow-file-tone: #f5b257; }
+[data-bs-theme="dark"] .itflow-file-tone-cert { --itflow-file-tone: #e3c46b; }
+[data-bs-theme="dark"] .itflow-file-tone-other { --itflow-file-tone: #adb5bd; }
+[data-bs-theme="dark"] .itflow-file-tone-document { --itflow-file-tone: #8ab4f8; }
+
+/* The folder tree beside the list */
+.itflow-files-tree {
+    background-color: var(--bs-tertiary-bg);
+}
+@media (min-width: 992px) {
+    .itflow-files-tree #filesFolderTree {
+        position: sticky;
+        top: 4rem;
+        max-height: calc(100vh - 5rem);
+        overflow-y: auto;
+    }
+}
+.itflow-folder > ul {
+    display: none;
+}
+.itflow-folder.is-open > ul {
+    display: block;
+}
+.itflow-folder-row {
+    display: flex;
+    align-items: center;
+    padding-left: calc(var(--itflow-folder-depth, 0) * .9rem);
+    border-radius: var(--bs-border-radius);
+}
+.itflow-folder-row:hover {
+    background-color: var(--bs-secondary-bg);
+}
+.itflow-folder-row.active {
+    background-color: var(--bs-primary-bg-subtle);
+}
+.itflow-folder-row.active .itflow-folder-link {
+    color: var(--bs-primary-text-emphasis);
+    font-weight: 600;
+}
+.itflow-folder-toggle {
+    flex: 0 0 1.25rem;
+    width: 1.25rem;
+    padding: 0;
+    border: 0;
+    background: none;
+    font-size: .65rem;
+    color: var(--bs-secondary-color);
+    transition: transform .12s ease-in-out;
+}
+.itflow-folder.is-open > .itflow-folder-row .itflow-folder-toggle {
+    transform: rotate(90deg);
+}
+.itflow-folder-link {
+    display: flex;
+    flex: 1 1 auto;
+    align-items: center;
+    min-width: 0;
+    padding: .3rem .4rem .3rem .1rem;
+    font-size: .875rem;
+    color: var(--bs-body-color);
+    text-decoration: none;
+}
+.itflow-folder-link .fa-folder,
+.itflow-folder-link .fa-folder-open,
+.itflow-folder-link .fa-home {
+    color: #d4a72c;
+}
+.itflow-folder-link .fa-home {
+    color: var(--bs-secondary-color);
+}
+.itflow-folder-link .badge {
+    background-color: var(--bs-secondary-bg);
+    color: var(--bs-secondary-color);
+    font-weight: 500;
+}
+.itflow-folder-menu .btn {
+    padding: 0 .4rem;
+    color: var(--bs-secondary-color);
+    opacity: 0;
+}
+.itflow-folder-row:hover .itflow-folder-menu .btn,
+.itflow-folder-menu .btn[aria-expanded="true"],
+.itflow-folder-menu .btn:focus-visible {
+    opacity: 1;
+}
+@media (hover: none) {
+    .itflow-folder-menu .btn {
+        opacity: 1;
+    }
+}
+
+/* The list */
+.itflow-files-main {
+    position: relative;
+}
+.itflow-files-path .breadcrumb {
+    font-size: .875rem;
+}
+.itflow-files-table td {
+    padding-top: .55rem;
+    padding-bottom: .55rem;
+}
+.itflow-files-name-cell {
+    min-width: 14rem;
+}
+.itflow-files-desc {
+    max-width: 32rem;
+}
+.itflow-files-linked {
+    min-width: 8.5rem;
+}
+.itflow-files-name-cell .itflow-above-stretch {
+    position: relative;
+    z-index: 2;
+}
+
+/* The grid */
+.itflow-file-card {
+    position: relative;
+    overflow: hidden;
+    transition: box-shadow .12s ease-in-out;
+}
+.itflow-file-card:hover {
+    box-shadow: 0 .25rem .75rem rgba(0, 0, 0, .08);
+}
+.itflow-file-card:has(.bulk-select:checked) {
+    outline: 2px solid var(--bs-primary);
+    background-color: var(--bs-primary-bg-subtle);
+}
+.itflow-file-card-check {
+    position: absolute;
+    top: .4rem;
+    left: .4rem;
+    z-index: 3;
+    display: flex;
+    min-height: 0;
+    margin: 0;
+    padding: .2rem;
+    border-radius: var(--bs-border-radius-sm);
+    background-color: var(--bs-body-bg);
+    box-shadow: 0 0 0 1px var(--bs-border-color-translucent);
+    /* Out of the way of the preview until the card is pointed at or ticked */
+    opacity: 0;
+    transition: opacity .12s ease-in-out;
+}
+.itflow-file-card:hover .itflow-file-card-check,
+.itflow-file-card-check:has(:checked),
+.itflow-file-card-check:has(:focus-visible),
+.itflow-files-grid:has(.bulk-select:checked) .itflow-file-card-check {
+    opacity: 1;
+}
+@media (hover: none) {
+    .itflow-file-card-check {
+        opacity: 1;
+    }
+}
+.itflow-file-card-check .form-check-input {
+    margin: 0;
+    background-color: var(--bs-body-bg);
+}
+.itflow-file-card-preview {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 9.5rem;
+    overflow: hidden;
+    border-bottom: 1px solid var(--bs-border-color-translucent);
+    background-color: var(--bs-tertiary-bg);
+    text-decoration: none;
+}
+.itflow-file-card-preview img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+.itflow-file-card-preview iframe {
+    width: 100%;
+    /* Taller than the box and pulled up, so a viewer's toolbar is clipped away */
+    height: calc(100% + 56px);
+    margin-top: -56px;
+    border: 0;
+    pointer-events: none;
+    background: #fff;
+}
+.itflow-file-card-preview pre {
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    padding: .6rem .7rem;
+    overflow: hidden;
+    font-size: .65rem;
+    line-height: 1.35;
+    white-space: pre-wrap;
+    word-break: break-word;
+    color: var(--bs-secondary-color);
+    background-color: var(--bs-body-bg);
+}
+.itflow-file-card.is-document .itflow-file-card-preview pre {
+    font-family: var(--bs-body-font-family);
+    font-size: .7rem;
+}
+
+/* Files dragged over the list */
+.itflow-files-dropzone {
+    position: absolute;
+    z-index: 20;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    border: 2px dashed var(--bs-primary);
+    border-radius: var(--bs-border-radius-lg);
+    background-color: color-mix(in srgb, var(--bs-body-bg) 82%, transparent);
+    color: var(--bs-primary-text-emphasis);
+    pointer-events: none;
+}
+.itflow-files-dropzone[hidden] {
+    display: none;
+}
+
+/* Upload modal */
+.itflow-upload-drop {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: .15rem;
+    padding: 1.6rem 1rem;
+    border: 2px dashed var(--bs-border-color);
+    border-radius: var(--bs-border-radius-lg);
+    color: var(--bs-secondary-color);
+    text-align: center;
+    cursor: pointer;
+    transition: border-color .12s, background-color .12s;
+}
+.itflow-upload-drop:hover,
+.itflow-upload-drop.is-over {
+    border-color: var(--bs-primary);
+    background-color: var(--bs-primary-bg-subtle);
+    color: var(--bs-primary-text-emphasis);
+}
+.itflow-upload-drop.has-files {
+    padding: .9rem 1rem;
+}
+.itflow-upload-drop:focus-within {
+    outline: 2px solid var(--bs-primary);
+    outline-offset: 2px;
+}
+.itflow-upload-list {
+    max-height: 12rem;
+    overflow-y: auto;
+}
+.itflow-upload-list li {
+    padding: .2rem .25rem;
+    border-bottom: 1px solid var(--bs-border-color-translucent);
+}
+
+/* File quick look preview */
+.itflow-file-preview {
+    overflow: hidden;
+    border: 1px solid var(--bs-border-color);
+    border-radius: var(--bs-border-radius-lg);
+    background-color: var(--bs-tertiary-bg);
+    text-align: center;
+}
+.itflow-file-preview img {
+    max-width: 100%;
+    max-height: 22rem;
+    object-fit: contain;
+}
+.itflow-file-preview iframe {
+    display: block;
+    width: 100%;
+    height: 26rem;
+    border: 0;
+    background: #fff;
+}
+.itflow-file-preview pre {
+    max-height: 20rem;
+    margin: 0;
+    padding: .75rem 1rem;
+    overflow: auto;
+    font-size: .75rem;
+    text-align: left;
+    white-space: pre-wrap;
+    word-break: break-word;
+}
+.itflow-file-preview .itflow-asset-empty {
+    border: 0;
+}
+
+/* Linked records - linkGroupsHtml() in functions/links.php */
+.itflow-link-group + .itflow-link-group,
+.itflow-link-group + .itflow-link-empty {
+    margin-top: .9rem;
+}
+.itflow-link-group-head {
+    display: flex;
+    align-items: center;
+    margin-bottom: .35rem;
+    font-size: .75rem;
+    font-weight: 600;
+    letter-spacing: .02em;
+    text-transform: uppercase;
+    color: var(--bs-secondary-color);
+}
+.itflow-link-group-head .badge {
+    background-color: var(--bs-secondary-bg);
+    color: var(--bs-secondary-color);
+    font-weight: 500;
+}
+.itflow-link-group-head a {
+    text-transform: none;
+    letter-spacing: 0;
+    font-weight: 500;
+}
+.itflow-link-row {
+    display: flex;
+    align-items: center;
+    gap: .6rem;
+    padding: .3rem .4rem;
+    margin: 0 -.4rem;
+    border-radius: var(--bs-border-radius);
+    font-size: .875rem;
+}
+.itflow-link-row:hover {
+    background-color: var(--bs-tertiary-bg);
+}
+.itflow-link-icon {
+    display: inline-flex;
+    flex: 0 0 auto;
+    align-items: center;
+    justify-content: center;
+    width: 1.75rem;
+    height: 1.75rem;
+    border-radius: var(--bs-border-radius);
+    background-color: var(--bs-secondary-bg);
+    color: var(--bs-secondary-color);
+    font-size: .8rem;
+}
+.itflow-link-remove {
+    flex: 0 0 auto;
+    padding: 0 .25rem;
+    font-size: .8rem;
+    color: var(--bs-secondary-color);
+    opacity: 0;
+    transition: opacity .12s ease-in-out;
+}
+.itflow-link-row:hover .itflow-link-remove,
+.itflow-link-remove:focus-visible {
+    opacity: 1;
+}
+.itflow-link-remove:hover {
+    color: var(--bs-danger);
+}
+@media (hover: none) {
+    .itflow-link-remove {
+        opacity: 1;
+    }
+}
+.itflow-link-empty {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: .35rem;
+}
+.itflow-link-types .nav-link {
+    padding: .3rem .7rem;
+    font-size: .875rem;
+}
+.itflow-link-types .nav-link:not(.active) {
+    color: var(--bs-body-color);
+}
+
+/* The document page and quick looks */
+.itflow-document-body {
+    min-height: 12rem;
+    overflow-wrap: anywhere;
+}
+.itflow-document-quick-content {
+    max-height: 55vh;
+    overflow: auto;
+    padding: 1rem 1.25rem;
+    border: 1px solid var(--bs-border-color);
+    border-radius: var(--bs-border-radius-lg);
+    overflow-wrap: anywhere;
+}
+.itflow-document-history .list-group-item {
+    padding-top: .5rem;
+    padding-bottom: .5rem;
+}
+.itflow-document-history .list-group-item:hover .itflow-copy {
+    opacity: 1;
+}
+.itflow-preview-nav {
+    z-index: 2;
+}
+@media print {
+    .itflow-document-head .card-body {
+        padding: 0;
+    }
+    .itflow-document-head,
+    .itflow-document-body {
+        border: 0;
+        box-shadow: none;
+    }
+}

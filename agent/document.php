@@ -1,427 +1,236 @@
 <?php
 
+/*
+ * A document - read it, edit it, share or print it, see what it is linked to
+ * and every earlier version of it. Laid out like the asset and contact pages:
+ * a header card with the actions, the content beside a column of what goes
+ * with it.
+ *
+ * Open to anyone with access to the client, like the files list; changing it
+ * takes support write access, like the handlers behind it.
+ */
+
 require_once "includes/inc_all_client.php";
 
+$document_id = intval($_GET['document_id'] ?? 0);
 
-//Initialize the HTML Purifier to prevent XSS
-require "../libs/htmlpurifier/HTMLPurifier.standalone.php";
-
-$purifier_config = HTMLPurifier_Config::createDefault();
-$purifier_config->set('Cache.DefinitionImpl', null); // Disable cache by setting a non-existent directory or an invalid one
-$purifier_config->set('URI.AllowedSchemes', ['data' => true, 'src' => true, 'http' => true, 'https' => true]);
-$purifier = new HTMLPurifier($purifier_config);
-
-if (isset($_GET['document_id'])) {
-    $document_id = intval($_GET['document_id']);
-}
-
-$folder_location = 0;
-
-$sql_document = mysqli_query($mysqli, "SELECT document_archived_at, document_client_visible, document_content, document_created_at,
-    document_created_by, document_description, document_folder_id, document_name,
-    document_updated_at, folder_name, user_name FROM documents
-    LEFT JOIN folders ON document_folder_id = folder_id
-    LEFT JOIN users ON document_created_by = user_id
+$row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT document_archived_at, document_client_visible, document_content, document_created_at,
+    document_description, document_folder_id, document_name, document_updated_at,
+    creator.user_name AS created_by_name, updater.user_name AS updated_by_name
+    FROM documents
+    LEFT JOIN users creator ON document_created_by = creator.user_id
+    LEFT JOIN users updater ON document_updated_by = updater.user_id
     WHERE document_client_id = $client_id AND document_id = $document_id
-    LIMIT 1"
-);
+    LIMIT 1"));
 
-if (mysqli_num_rows($sql_document) == 0) {
-    echo "<center><h1 class='text-secondary mt-5'>Nothing to see here</h1><a class='btn btn-lg btn-secondary mt-3' href='javascript:history.back()'><i class='fa fa-fw fa-arrow-left'></i> Go Back</a></center>";
+if (!$row) {
+    echo "<div class='text-center'><h1 class='text-secondary mt-5'>Nothing to see here</h1><a class='btn btn-lg btn-secondary mt-3' href='files.php?client_id=$client_id'><i class='fa fa-fw fa-arrow-left me-2'></i>Back to files</a></div>";
     require_once "../includes/footer.php";
     exit();
 }
 
-$row = mysqli_fetch_assoc($sql_document);
+$can_edit = lookupUserPermission('module_support') >= 2;
+$can_delete = lookupUserPermission('module_support') >= 3;
 
-$folder_name = escapeHtml($row['folder_name']);
 $document_name = escapeHtml($row['document_name']);
 $document_description = escapeHtml($row['document_description']);
-$document_content = $purifier->purify($row['document_content']);
-$document_created_by_id = intval($row['document_created_by']);
-$document_created_by_name = escapeHtml($row['user_name']);
-$document_created_at = escapeHtml($row['document_created_at']);
-$document_updated_at = escapeHtml($row['document_updated_at']);
-$document_archived_at = escapeHtml($row['document_archived_at']);
-$document_folder_id = intval($row['document_folder_id']);
-$document_client_visible = intval($row['document_client_visible']);
+$document_archived = !empty($row['document_archived_at']);
+$document_visible = intval($row['document_client_visible']);
+$document_updated_at = $row['document_updated_at'] ?: $row['document_created_at'];
+$document_updated_by = escapeHtml($row['updated_by_name'] ?: $row['created_by_name']);
 
-// Override Tab Title // No Sanitizing needed as this var will opnly be used in the tab title
+$folder_tree = folderTree($client_id);
+$document_folder_id = isset($folder_tree[intval($row['document_folder_id'])]) ? intval($row['document_folder_id']) : 0;
+$folder_path = folderPath($folder_tree, $document_folder_id);
+
+$versions = [];
+$sql_versions = mysqli_query($mysqli, "SELECT document_version_id, document_version_name, document_version_description, document_version_created_at, user_name
+    FROM document_versions LEFT JOIN users ON document_version_created_by = user_id
+    WHERE document_version_document_id = $document_id
+    ORDER BY document_version_created_at DESC, document_version_id DESC");
+while ($version = mysqli_fetch_assoc($sql_versions)) {
+    $versions[] = $version;
+}
+
+$csrf = $_SESSION['csrf_token'];
+
+// Tab title - used raw, the header escapes it
 $page_title = $row['document_name'];
 
 ?>
 
 <ol class="breadcrumb d-print-none">
-    <li class="breadcrumb-item">
-        <a href="client_overview.php?client_id=<?= $client_id ?>"><?= $client_name ?></a>
-    </li>
-    <li class="breadcrumb-item">
-        <a href="files.php?client_id=<?= $client_id ?>">Files</a>
-    </li>
-    <?php
-    // Build the full folder path
-    $folder_id = $document_folder_id;
-    $folder_path = array();
-
-    while ($folder_id > 0) {
-        $sql_folder = mysqli_query($mysqli, "SELECT folder_name, parent_folder FROM folders WHERE folder_id = $folder_id");
-        if ($row_folder = mysqli_fetch_assoc($sql_folder)) {
-            $folder_name = escapeHtml($row_folder['folder_name']);
-            $parent_folder = intval($row_folder['parent_folder']);
-
-            // Prepend the folder to the beginning of the array
-            array_unshift($folder_path, array('folder_id' => $folder_id, 'folder_name' => $folder_name));
-
-            // Move up to the parent folder
-            $folder_id = $parent_folder;
-        } else {
-            // If the folder is not found, break the loop
-            break;
-        }
-    }
-
-    // Output breadcrumb items for each folder in the path
-    foreach ($folder_path as $folder) {
-        $bread_crumb_folder_id = $folder['folder_id']; // Sanitized before put in array
-        $bread_crumb_folder_name = $folder['folder_name']; // Sanitized before put in array
-        ?>
-        <li class="breadcrumb-item">
-            <a href="files.php?client_id=<?= $client_id ?>&folder_id=<?= $bread_crumb_folder_id ?>">
-                <i class="fas fa-fw fa-folder-open me-2"></i><?= $bread_crumb_folder_name ?>
-            </a>
-        </li>
-        <?php
-    }
-    ?>
-    <li class="breadcrumb-item active">
-        <i class="fas fa-file"></i> <?= $document_name ?>
-        <?php if (!empty($document_archived_at)) {
-            echo "<span class='text-danger ms-2'>(ARCHIVED on $document_archived_at)</span>";
-        } ?>
-    </li>
+    <li class="breadcrumb-item"><a href="client_overview.php?client_id=<?= $client_id ?>"><?= $client_name ?></a></li>
+    <li class="breadcrumb-item"><a href="files.php?client_id=<?= $client_id ?>">Files</a></li>
+    <?php foreach ($folder_path as $crumb) { ?>
+        <li class="breadcrumb-item"><a href="files.php?client_id=<?= $client_id ?>&folder_id=<?= $crumb['folder_id'] ?>"><?= escapeHtml($crumb['folder_name']) ?></a></li>
+    <?php } ?>
+    <li class="breadcrumb-item active"><?= $document_name ?></li>
 </ol>
+
+<!-- What it is, and what you can do with it -->
+<div class="card mb-3 itflow-document-head">
+    <div class="card-body d-flex flex-wrap align-items-start gap-3">
+        <?= documentTile('lg') ?>
+        <div class="min-w-0 flex-grow-1">
+            <h1 class="h3 mb-1 d-flex flex-wrap align-items-center column-gap-2">
+                <span class="text-break"><?= $document_name ?></span>
+                <?php if ($document_archived) { ?><span class="badge rounded-pill text-bg-secondary fw-normal fs-6">Archived</span><?php } ?>
+                <?php if ($document_visible) { ?><span class="badge rounded-pill bg-info-subtle text-info-emphasis fw-normal fs-6" title="Technical contacts can read this in the client portal">Portal</span><?php } ?>
+            </h1>
+            <?php if ($document_description) { ?>
+                <div class="text-body-secondary"><?= $document_description ?></div>
+            <?php } ?>
+            <div class="small text-body-secondary mt-1">
+                <span title="<?= escapeHtml($document_updated_at) ?>">Updated <?= timeAgo($document_updated_at) ?></span><?= $document_updated_by ? " by $document_updated_by" : '' ?>
+                &middot; Created <?= date('M j, Y', strtotime($row['document_created_at'])) ?><?= $row['created_by_name'] ? ' by ' . escapeHtml($row['created_by_name']) : '' ?>
+                <?php if ($versions) { ?>&middot; <a class="text-reset" href="#documentHistory"><?= count($versions) ?> earlier version<?= count($versions) === 1 ? '' : 's' ?></a><?php } ?>
+            </div>
+        </div>
+        <div class="d-flex flex-wrap gap-2 d-print-none">
+            <?php if ($can_edit && !$document_archived) { ?>
+                <button type="button" class="btn btn-primary ajax-modal" data-modal-size="xl" data-modal-url="modals/document/document_edit.php?id=<?= $document_id ?>">
+                    <i class="fas fa-edit me-2"></i>Edit
+                </button>
+            <?php } ?>
+            <?php if (!$document_archived) { ?>
+                <button type="button" class="btn btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#shareModal" onclick="populateShareModal(<?= "$client_id, 'Document', $document_id" ?>)" title="Share a link to it">
+                    <i class="fas fa-share me-2"></i>Share
+                </button>
+            <?php } ?>
+            <a class="btn btn-outline-secondary" href="post.php?export_document=<?= $document_id ?>&csrf_token=<?= $csrf ?>" title="Export as PDF"><i class="fas fa-file-pdf"></i><span class="d-none d-md-inline ms-2">PDF</span></a>
+            <button type="button" class="btn btn-outline-secondary" onclick="window.print();" title="Print"><i class="fas fa-print"></i></button>
+            <?php if ($can_edit) { ?>
+                <div class="dropdown">
+                    <button type="button" class="btn btn-outline-secondary" data-bs-toggle="dropdown" title="More"><i class="fas fa-ellipsis-v"></i></button>
+                    <div class="dropdown-menu dropdown-menu-end">
+                        <?php if (!$document_archived) { ?>
+                            <a class="dropdown-item ajax-modal" href="#" data-modal-url="modals/document/document_rename.php?id=<?= $document_id ?>"><i class="fas fa-fw fa-pen me-2"></i>Rename</a>
+                            <a class="dropdown-item ajax-modal" href="#" data-modal-url="modals/document/document_move.php?id=<?= $document_id ?>"><i class="fas fa-fw fa-folder-open me-2"></i>Move</a>
+                            <a class="dropdown-item ajax-modal" href="#" data-modal-url="modals/link/link.php?from=document&id=<?= $document_id ?>"><i class="fas fa-fw fa-link me-2"></i>Link</a>
+                            <?php if ($config_client_portal_enable) { ?>
+                                <a class="dropdown-item ajax-modal" href="#" data-modal-url="modals/document/document_edit_visibility.php?document_id=<?= $document_id ?>"><i class="fas fa-fw fa-eye<?= $document_visible ? '-slash' : '' ?> me-2"></i><?= $document_visible ? 'Hide from' : 'Show in' ?> client portal</a>
+                            <?php } ?>
+                            <div class="dropdown-divider"></div>
+                            <a class="dropdown-item text-danger confirm-link" href="post.php?archive_document=<?= $document_id ?>&csrf_token=<?= $csrf ?>" data-confirm-text="Archiving unlinks it from everything it is linked to."><i class="fas fa-fw fa-archive me-2"></i>Archive</a>
+                        <?php } else { ?>
+                            <a class="dropdown-item" href="post.php?restore_document=<?= $document_id ?>&csrf_token=<?= $csrf ?>"><i class="fas fa-fw fa-redo me-2"></i>Restore</a>
+                        <?php } ?>
+                        <?php if ($can_delete) { ?>
+                            <div class="dropdown-divider"></div>
+                            <a class="dropdown-item text-danger confirm-link" href="post.php?delete_document=<?= $document_id ?>&csrf_token=<?= $csrf ?>&from=document_details" data-confirm-text="The document and all its versions are deleted for good."><i class="fas fa-fw fa-trash me-2"></i>Delete</a>
+                        <?php } ?>
+                    </div>
+                </div>
+            <?php } ?>
+        </div>
+    </div>
+</div>
 
 <div class="row">
 
-    <div class="col-md-9">
-        <div class="card">
-            <div class="card-header bg-dark">
-                <div class="row">
-                    <div class="col">
-                        <div class="h4 mb-0"><?= $document_name ?></div>
-                        <?php if ($document_description) { ?>
-                        <div class="text-light"><?= $document_description ?></div>
-                        <?php } ?>
-                    </div>
-                    <div class="col">
-                        <div class="float-end">
-                            <div>
-                                Date:
-                                <strong><?= date('Y-m-d', strtotime($document_updated_at)); ?></strong>
-                            </div>
-                            <?php if($document_created_by_name) { ?>
-                            <div>
-                                Prepared By:
-                                <strong><?= $document_created_by_name ?></strong>
-                            </div>
-                            <?php } ?>
-                        </div>
-                    </div>
-                </div>
+    <!-- The document -->
+    <div class="col-lg-8">
+        <div class="card mb-3">
+            <div class="card-body prettyContent itflow-document-body">
+                <?= documentHtmlPurify($row['document_content']) ?: '<p class="text-body-secondary">This document is empty.' . ($can_edit && !$document_archived ? ' <a class="ajax-modal" href="#" data-modal-size="xl" data-modal-url="modals/document/document_edit.php?id=' . $document_id . '">Start writing</a>' : '') . '</p>' ?>
             </div>
-            <div class="card-body prettyContent">
-                <?= $document_content ?>
-                <hr>
-                <h4>Documentation Revision History</h4>
+        </div>
 
+        <!-- On paper, the revision history goes at the end of the document -->
+        <?php if ($versions) { ?>
+            <div class="d-none d-print-block">
+                <h4>Revision history</h4>
                 <table class="table table-sm">
-                    <thead class="table-light">
-                        <th>Version</th>
-                        <th>Date</th>
-                        <th>Name</th>
-                        <th>Description</th>
-                        <th>Author</th>
-                    </thead>
+                    <thead><tr><th>Version</th><th>Date</th><th>Name</th><th>Summary</th><th>Author</th></tr></thead>
                     <tbody>
-                        <?php
-                        $sql_document_versions = mysqli_query($mysqli, "SELECT document_version_created_at, document_version_description, document_version_id,
-                            document_version_name, user_name FROM document_versions
-                            LEFT JOIN users ON document_version_created_by = user_id
-                            WHERE document_version_document_id = $document_id
-                            ORDER BY document_version_created_at ASC"
-                        );
-
-                        $document_version_count = 1; // Initialize the document version counter
-
-                        while ($row = mysqli_fetch_assoc($sql_document_versions)) {
-                            $document_version_id = intval($row['document_version_id']);
-                            $document_version_name = escapeHtml($row['document_version_name']);
-                            $document_version_description = escapeHtml($row['document_version_description']);
-                            if ($document_version_description ) {
-                                $document_version_description_display = $document_version_description;
-                            } else {
-                                $document_version_description_display = "-";
-                            }
-                            $document_version_author = escapeHtml($row['user_name']);
-                            $document_version_created_date = date('Y-m-d', strtotime($row['document_version_created_at']));
-
-                        ?>
+                    <?php foreach (array_reverse($versions) as $number => $version) { ?>
                         <tr>
-                            <td><?= $document_version_count ?></td>
-                            <td><?= $document_version_created_date ?></td>
-                            <td><?= $document_version_name ?></td>
-                            <td><?= $document_version_description_display ?></td>
-                            <td><?= $document_version_author ?></td>
+                            <td><?= $number + 1 ?></td>
+                            <td><?= date('Y-m-d', strtotime($version['document_version_created_at'])) ?></td>
+                            <td><?= escapeHtml($version['document_version_name']) ?></td>
+                            <td><?= escapeHtml($version['document_version_description']) ?: '-' ?></td>
+                            <td><?= escapeHtml($version['user_name']) ?></td>
                         </tr>
-                        <?php
-                        $document_version_count++; // Increment the counter
-                        }
-                        ?>
+                    <?php } ?>
                     </tbody>
                 </table>
             </div>
-        </div>
+        <?php } ?>
     </div>
 
-    <div class="col-md-3 d-print-none">
-        <div class="row">
-            <div class="col-12 mb-3">
-                <button type="button" class="btn btn-primary ajax-modal me-1" title="Edit document"
-                    data-modal-size="lg"
-                    data-modal-url="modals/document/document_edit.php?id=<?= $document_id ?>">
-                    <i class="fas fa-fw fa-edit"></i>
-                </button>
-                <button type="button" class="btn btn-secondary me-1" title="Share" data-bs-toggle="modal" data-bs-target="#shareModal"
-                    onclick="populateShareModal(<?= "$client_id, 'Document', $document_id"; ?>)">
-                    <i class="fas fa-fw fa-share"></i>
-                </button>
-                <a class="btn btn-success me-1" title="Export PDF" href="post.php?export_document=<?= $document_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>"><i class='fas fa-fw fa-file-pdf'></i></a>
-                <button type="button" class="btn btn-secondary me-4" title="Print" onclick="window.print();"><i class="fas fa-fw fa-print"></i></button>
-                <a class="btn btn-warning me-1 confirm-link" href="post.php?archive_document=<?= $document_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>" title="Archive"><i class='fas fa-fw fa-archive'></i></a>
-                <a class="btn btn-danger confirm-link" href="post.php?delete_document=<?= $document_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>&from=document_details" title="Delete"><i class='fas fa-fw fa-trash-alt'></i></a>
+    <div class="col-lg-4 d-print-none">
+
+        <!-- What goes with it -->
+        <div class="card mb-3">
+            <div class="card-header d-flex align-items-center">
+                <h3 class="card-title mb-0 me-auto"><i class="fas fa-fw fa-link me-2 text-body-secondary"></i>Linked</h3>
+                <?php if ($can_edit && !$document_archived) { ?>
+                    <a class="small ajax-modal" href="#" data-modal-url="modals/link/link.php?from=document&id=<?= $document_id ?>"><i class="fas fa-plus me-1"></i>Link</a>
+                <?php } ?>
+            </div>
+            <div class="card-body">
+                <?= linkGroupsHtml('document', $document_id, $client_id, $document_archived) ?>
             </div>
         </div>
-        <div class="card card-body bg-light mb-3">
-            <h5 class="mb-3"><i class="fas fa-tags me-2"></i>Related Items</h5>
-            <h6>
-                <i class="fas fa-fw fa-paperclip text-secondary me-2"></i>Files
-                <button type="button" class="btn btn-link btn-sm ajax-modal" title="Link file"
-                    data-modal-url="modals/document/document_link_file.php?document_id=<?= $document_id ?>">
-                    <i class="fas fa-fw fa-plus"></i>
-                </button>
-            </h6>
-            <?php
-            $sql_files = mysqli_query($mysqli, "SELECT file_folder_id, files.file_id, file_name FROM files, document_files
-                WHERE document_files.file_id = files.file_id
-                AND document_files.document_id = $document_id
-                ORDER BY file_name ASC"
-            );
 
-            $linked_files = array();
-
-            while ($row = mysqli_fetch_assoc($sql_files)) {
-                $file_id = intval($row['file_id']);
-                $folder_id = intval($row['file_folder_id']);
-                $file_name = escapeHtml($row['file_name']);
-
-                $linked_files[] = $file_id;
-
-                ?>
-                <div class="ms-2">
-                    <a href="file.php?file_id=<?= $file_id ?>&action=view" target="_blank"><?= $file_name ?></a>
-                    <a class="confirm-link" href="post.php?unlink_file_from_document&file_id=<?= $file_id ?>&document_id=<?= $document_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>">
-                        <i class="fas fa-fw fa-unlink text-secondary float-end" title="Unlink File"></i>
-                    </a>
+        <!-- Where it lives -->
+        <div class="card mb-3">
+            <div class="card-body">
+                <div class="itflow-glance-item" title="Folder">
+                    <i class="fas fa-fw fa-folder"></i>
+                    <span class="min-w-0 d-flex align-items-center">
+                        <a class="text-truncate" href="files.php?client_id=<?= $client_id ?>&folder_id=<?= $document_folder_id ?>"><?= escapeHtml($folder_path ? implode(' / ', array_column($folder_path, 'folder_name')) : 'Top level') ?></a>
+                        <?php if ($can_edit && !$document_archived) { ?>
+                            <a class="itflow-copy ajax-modal" href="#" data-modal-url="modals/document/document_move.php?id=<?= $document_id ?>" title="Move"><i class="fas fa-pen"></i></a>
+                        <?php } ?>
+                    </span>
                 </div>
-                <?php
-                }
-                ?>
-            <h6>
-                <i class="fas fa-fw fa-users text-secondary mt-3 me-2"></i>Contacts
-                <button type="button" class="btn btn-link btn-sm ajax-modal" title="Link contact"
-                    data-modal-url="modals/document/document_link_contact.php?document_id=<?= $document_id ?>">
-                    <i class="fas fa-fw fa-plus"></i>
-                </button>
-            </h6>
-            <?php
-            $sql_contacts = mysqli_query($mysqli, "SELECT contacts.contact_id, contact_client_id, contact_name, contact_photo FROM contacts, contact_documents
-                WHERE contacts.contact_id = contact_documents.contact_id
-                AND contact_documents.document_id = $document_id
-                ORDER BY contact_name ASC"
-            );
-
-            $linked_contacts = array();
-
-            while ($row = mysqli_fetch_assoc($sql_contacts)) {
-                $contact_id = intval($row['contact_id']);
-
-                $linked_contacts[] = $contact_id;
-
-                ?>
-                <div class="ms-2 mb-1 d-flex align-items-center">
-                    <span class="flex-grow-1 min-w-0"><?= contactLink($row['contact_client_id'], $contact_id, $row['contact_name'], $row['contact_photo']) ?></span>
-                    <a class="confirm-link ms-2" href="post.php?unlink_contact_from_document&contact_id=<?= $contact_id ?>&document_id=<?= $document_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>">
-                        <i class="fas fa-fw fa-unlink text-secondary" title="Unlink Contact"></i>
-                    </a>
-                </div>
-                <?php
-                }
-                ?>
-            <h6>
-                <i class="fas fa-fw fa-laptop text-secondary me-2 mt-3"></i>Assets
-                <button type="button" class="btn btn-link btn-sm ajax-modal" title="Link asset" data-modal-url="modals/document/document_link_asset.php?document_id=<?= $document_id ?>">
-                    <i class="fas fa-fw fa-plus"></i>
-                </button>
-            </h6>
-            <?php
-            $sql_assets = mysqli_query($mysqli, "SELECT assets.asset_id, asset_name FROM assets, asset_documents
-                WHERE assets.asset_id = asset_documents.asset_id
-                AND asset_documents.document_id = $document_id
-                ORDER BY asset_name ASC"
-            );
-
-            $linked_assets = array();
-
-            while ($row = mysqli_fetch_assoc($sql_assets)) {
-                $asset_id = intval($row['asset_id']);
-                $asset_name = escapeHtml($row['asset_name']);
-
-                $linked_assets[] = $asset_id;
-
-                ?>
-                <div class="ms-2">
-                    <a class="ajax-modal" href="#"
-                        data-modal-size="lg"
-                        data-modal-url="modals/asset/asset.php?id=<?= $asset_id ?>">
-                        <?= $asset_name ?>
-                    </a>
-                    <a class="confirm-link float-end" href="post.php?unlink_asset_from_document&asset_id=<?= $asset_id ?>&document_id=<?= $document_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>">
-                        <i class="fas fa-fw fa-unlink text-secondary" title="Unlink Asset"></i>
-                    </a>
-                </div>
-            <?php
-            }
-            ?>
-            <h6>
-                <i class="fas fa-fw fa-cube text-secondary me-2 mt-3"></i>Licenses
-                <button type="button" class="btn btn-link btn-sm ajax-modal" title="Link software"
-                    data-modal-url="modals/document/document_link_software.php?document_id=<?= $document_id ?>">
-                    <i class="fas fa-fw fa-plus"></i>
-                </button>
-            </h6>
-            <?php
-            $sql_software = mysqli_query($mysqli, "SELECT software.software_id, software_name FROM software, software_documents
-                WHERE software.software_id = software_documents.software_id
-                AND software_documents.document_id = $document_id
-                ORDER BY software_name ASC"
-            );
-
-            $linked_software = array();
-
-            while ($row = mysqli_fetch_assoc($sql_software)) {
-                $software_id = intval($row['software_id']);
-                $software_name = escapeHtml($row['software_name']);
-
-                $linked_software[] = $software_id;
-
-                ?>
-                <div class="ms-2">
-                    <a href="software.php?client_id=<?= $client_id ?>&q=<?= $software_name ?>" target="_blank"><?= $software_name ?></a>
-                    <a class="confirm-link float-end" href="post.php?unlink_software_from_document&software_id=<?= $software_id ?>&document_id=<?= $document_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>">
-                        <i class="fas fa-fw fa-unlink text-secondary" title="Unlink License"></i>
-                    </a>
-                </div>
-                <?php
-                }
-                ?>
-            <h6>
-                <i class="fas fa-fw fa-building text-secondary me-2 mt-3"></i>Vendors
-                <button type="button" class="btn btn-link btn-sm ajax-modal" title="Link vendor"
-                    data-modal-url="modals/document/document_link_vendor.php?document_id=<?= $document_id ?>">
-                    <i class="fas fa-fw fa-plus"></i>
-                </button>
-            </h6>
-            <?php
-            $sql_vendors = mysqli_query($mysqli, "SELECT vendors.vendor_id, vendor_name FROM vendors, vendor_documents
-                WHERE vendors.vendor_id = vendor_documents.vendor_id
-                AND vendor_documents.document_id = $document_id
-                ORDER BY vendor_name ASC"
-            );
-
-            $associated_vendors = array();
-
-            while ($row = mysqli_fetch_assoc($sql_vendors)) {
-                $vendor_id = intval($row['vendor_id']);
-                $vendor_name = escapeHtml($row['vendor_name']);
-
-                $associated_vendors[] = $vendor_id;
-
-                ?>
-                <div class="ms-2">
-                    <a class="ajax-modal" href="#" data-modal-url="modals/vendor/vendor.php?id=<?= $vendor_id ?>">
-                        <?= $vendor_name ?>
-                    </a>
-                    <a class="confirm-link float-end" href="post.php?unlink_vendor_from_document&vendor_id=<?= $vendor_id ?>&document_id=<?= $document_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>">
-                        <i class="fas fa-fw fa-unlink text-secondary" title="Unlink Vendor"></i>
-                    </a>
-                </div>
-            <?php
-            }
-            ?>
+                <?php if ($config_client_portal_enable) { ?>
+                    <div class="itflow-glance-item" title="Client portal">
+                        <i class="fas fa-fw fa-eye<?= $document_visible ? '' : '-slash' ?>"></i>
+                        <span class="d-flex align-items-center">
+                            <?= $document_visible ? 'Shown in the client portal' : 'Not in the client portal' ?>
+                            <?php if ($can_edit && !$document_archived) { ?>
+                                <a class="itflow-copy ajax-modal" href="#" data-modal-url="modals/document/document_edit_visibility.php?document_id=<?= $document_id ?>" title="Change"><i class="fas fa-pen"></i></a>
+                            <?php } ?>
+                        </span>
+                    </div>
+                <?php } ?>
+            </div>
         </div>
 
-        <?php if ($config_client_portal_enable) { ?>
-            <div class="card card-body bg-light mb-3">
-                <h6><i class="fas fa-handshake me-2"></i>Portal Collaboration</h6>
-                <div class="mt-1">
-                    <i class="fa fa-fw fa-eye<?php if (!$document_client_visible) { echo '-slash'; } ?> text-secondary me-2"></i>Document is
-                    <a class="ajax-modal" href="#"
-                        data-modal-url="modals/document/document_edit_visibility.php?document_id=<?= $document_id ?>">
-                        <?php
-                        if ($document_client_visible) {
-                            echo "<span class='text-bold text-dark'>visible</span>";
-                        } else {
-                            echo "<span class='text-muted'>not visible</span>";
-                        }
-                        ?>
-                    </a>
-                </div>
+        <!-- Every earlier version -->
+        <div class="card mb-3" id="documentHistory">
+            <div class="card-header">
+                <h3 class="card-title mb-0"><i class="fas fa-fw fa-history me-2 text-body-secondary"></i>History</h3>
             </div>
-        <?php } ?>
-
-        <div class="card card-body bg-light">
-            <h6><i class="fas fa-history me-2"></i>Revisions</h6>
-            <?php
-
-            $sql_document_versions = mysqli_query($mysqli, "SELECT document_version_created_at, document_version_description, document_version_id,
-                document_version_name, user_name FROM document_versions
-                LEFT JOIN users ON document_version_created_by = user_id
-                WHERE document_version_document_id = $document_id
-                ORDER BY document_version_created_at DESC"
-            );
-
-            while ($row = mysqli_fetch_assoc($sql_document_versions)) {
-                $document_version_id = intval($row['document_version_id']);
-                $document_version_name = escapeHtml($row['document_version_name']);
-                $document_version_description = escapeHtml($row['document_version_description']);
-                $document_version_author = escapeHtml($row['user_name']);
-                $document_version_created_date = escapeHtml($row['document_version_created_at']);
-
-                ?>
-                <div class="mt-1 <?php if($document_id === $document_version_id){ echo "text-bold"; } ?>">
-                    <i class="fas fa-fw fa-history text-secondary me-2"></i>
-                    <a class="ajax-modal" href="#"
-                        data-modal-size="lg"
-                        data-modal-url="modals/document/document_version_view.php?id=<?= $document_version_id ?>">
-                        <?= "$document_version_created_date | $document_version_author" ?>
-                    </a>
-                    <a class="confirm-link float-end" href="post.php?delete_document_version=<?= $document_version_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>">
-                        <i class="fas fa-fw fa-trash-alt text-secondary"></i>
-                    </a>
-                </div>
-                <?php
-                }
-                ?>
+            <ul class="list-group list-group-flush itflow-document-history">
+                <li class="list-group-item">
+                    <div class="fw-semibold small">Now</div>
+                    <div class="small text-body-secondary">Updated <?= timeAgo($document_updated_at) ?><?= $document_updated_by ? " by $document_updated_by" : '' ?></div>
+                </li>
+                <?php foreach ($versions as $version) {
+                    $version_id = intval($version['document_version_id']); ?>
+                    <li class="list-group-item d-flex align-items-center gap-2">
+                        <div class="min-w-0 flex-grow-1">
+                            <a class="small fw-semibold ajax-modal" href="#" data-modal-size="lg" data-modal-url="modals/document/document_version_view.php?id=<?= $version_id ?>" title="<?= escapeHtml($version['document_version_created_at']) ?>">
+                                <?= date('M j, Y g:ia', strtotime($version['document_version_created_at'])) ?>
+                            </a>
+                            <div class="small text-body-secondary text-truncate">
+                                <?= escapeHtml($version['user_name'] ?: 'Unknown') ?>
+                                <?php if ($version['document_version_name'] !== $row['document_name']) { ?> &middot; was "<?= escapeHtml($version['document_version_name']) ?>"<?php } ?>
+                            </div>
+                        </div>
+                        <?php if ($can_delete) { ?>
+                            <a class="itflow-copy confirm-link text-danger" href="post.php?delete_document_version=<?= $version_id ?>&csrf_token=<?= $csrf ?>" title="Delete this version" data-confirm-text="This version is removed from the history for good."><i class="fas fa-trash-alt"></i></a>
+                        <?php } ?>
+                    </li>
+                <?php } ?>
+                <?php if (!$versions) { ?>
+                    <li class="list-group-item small text-body-secondary">No earlier versions - each edit keeps the one before it here.</li>
+                <?php } ?>
+            </ul>
         </div>
 
     </div>

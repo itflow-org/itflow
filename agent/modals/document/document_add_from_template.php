@@ -1,22 +1,32 @@
 <?php
 
+/*
+ * New document from one of the admin's document templates - its content and
+ * its images, copied, in the folder it was opened from.
+ */
+
 require_once '../../../includes/modal_header.php';
 
 enforceUserPermission('module_support', 2);
 
 $client_id = intval($_GET['client_id'] ?? 0);
-
 enforceClientAccess();
-$contact_id = intval($_GET['contact_id'] ?? 0);
-$asset_id = intval($_GET['asset_id'] ?? 0);
-intval($_GET['folder_id'] ?? 0);
+
+$folder_id = folderOwnedId($_GET['folder_id'] ?? 0, $client_id);
+
+$templates = [];
+$sql = mysqli_query($mysqli, "SELECT document_template_id, document_template_name, document_template_description FROM document_templates
+    WHERE document_template_archived_at IS NULL ORDER BY document_template_name ASC");
+while ($row = mysqli_fetch_assoc($sql)) {
+    $templates[] = $row;
+}
 
 ob_start();
 
 ?>
 
 <div class="modal-header bg-dark">
-    <h5 class="modal-title"><i class="fa fa-fw fa-file-alt me-2"></i>New Document from Template</h5>
+    <h5 class="modal-title"><i class="fas fa-fw fa-puzzle-piece me-2"></i>New document from a template</h5>
     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
 </div>
 <form action="post.php" method="post" autocomplete="off">
@@ -24,67 +34,63 @@ ob_start();
     <input type="hidden" name="client_id" value="<?= $client_id ?>">
     <div class="modal-body">
 
-        <label>Template</label>
-        <div class="mb-3">
-            <div class="input-group">
-                    <span class="input-group-text"><i class="fa fa-fw fa-puzzle-piece"></i></span>
-                <select class="form-select" name="document_template_id" required>
-                    <option value="">- Select Template -</option>
-                    <?php
-                    $sql_document_templates = mysqli_query($mysqli, "SELECT document_template_id, document_template_name FROM document_templates WHERE document_template_archived_at IS NULL ORDER BY document_template_name ASC");
-                    while ($row = mysqli_fetch_assoc($sql_document_templates)) {
-                        $document_template_id = intval($row['document_template_id']);
-                        $document_template_name = escapeHtml($row['document_template_name']);
-                    ?>
-                        <option value="<?= $document_template_id ?>"><?= $document_template_name ?></option>
-                    <?php
-                    }
-                    ?>
-                </select>
+        <?php if (!$templates) { ?>
+            <div class="itflow-asset-empty py-4">
+                <i class="fas fa-puzzle-piece fa-2x mb-2"></i>
+                <div>No document templates yet.</div>
+                <?php if ($session_user_role == 3) { ?>
+                    <a class="small" href="/admin/document_templates.php">Add one in Admin &rsaquo; Document Templates</a>
+                <?php } ?>
             </div>
-        </div>
+        <?php } else { ?>
 
-        <label>Document name</label>
-        <div class="mb-3">
-            <div class="input-group">
-                    <span class="input-group-text"><i class="fa fa-fw fa-file"></i></span>
-                <input type="text" class="form-control" name="name" placeholder="Name" maxlength="200" required>
+            <div class="mb-3">
+                <label class="form-label">Template <strong class="text-danger">*</strong></label>
+                <div class="input-group">
+                    <span class="input-group-text"><i class="fas fa-fw fa-puzzle-piece"></i></span>
+                    <select class="form-select select2" name="document_template_id" required data-template-select>
+                        <option value="">- Pick a template -</option>
+                        <?php foreach ($templates as $template) { ?>
+                            <option value="<?= intval($template['document_template_id']) ?>"<?= selectOptionData(['icon' => 'fas fa-file-alt', 'description' => $template['document_template_description'] ?? '']) ?>><?= escapeHtml($template['document_template_name']) ?></option>
+                        <?php } ?>
+                    </select>
+                </div>
             </div>
-        </div>
 
-        <label>Description</label>
-        <div class="mb-3">
-            <div class="input-group">
-                    <span class="input-group-text"><i class="fa fa-fw fa-align-left"></i></span>
-                <input type="text" class="form-control" name="description" placeholder="Short summary of the document">
+            <div class="mb-3">
+                <label class="form-label">Name</label>
+                <div class="input-group">
+                    <span class="input-group-text"><i class="fas fa-fw fa-file-alt"></i></span>
+                    <input type="text" class="form-control" name="name" placeholder="The template's name, unless you give it another" maxlength="200">
+                </div>
             </div>
-        </div>
 
-        <label>Folder</label>
-        <div class="mb-3">
-            <div class="input-group">
-                    <span class="input-group-text"><i class="fa fa-fw fa-folder"></i></span>
-                <select class="form-select" name="folder">
-                    <option value="0">/</option>
-                    <?php
-                    $sql_folders = mysqli_query($mysqli, "SELECT folder_id, folder_name FROM folders WHERE folder_client_id = $client_id ORDER BY folder_name ASC");
-                    while ($row = mysqli_fetch_assoc($sql_folders)) {
-                        $folder_id = intval($row['folder_id']);
-                        $folder_name = escapeHtml($row['folder_name']);
-                    ?>
-                        <option <?php if (isset($_GET['folder_id']) && $_GET['folder_id'] == $folder_id) echo "selected"; ?> value="<?= $folder_id ?>"><?= $folder_name ?></option>
-                    <?php
-                    }
-                    ?>
-                </select>
+            <div class="mb-3">
+                <label class="form-label">Summary</label>
+                <div class="input-group">
+                    <span class="input-group-text"><i class="fas fa-fw fa-align-left"></i></span>
+                    <input type="text" class="form-control" name="description" placeholder="One line on what it covers">
+                </div>
             </div>
-        </div>
+
+            <div class="mb-2">
+                <label class="form-label">Folder</label>
+                <div class="input-group">
+                    <span class="input-group-text"><i class="fas fa-fw fa-folder"></i></span>
+                    <select class="form-select select2" name="folder">
+                        <?= folderOptionsHtml($client_id, $folder_id) ?>
+                    </select>
+                </div>
+            </div>
+
+        <?php } ?>
 
     </div>
-
     <div class="modal-footer">
-        <button type="submit" name="add_document_from_template" class="btn btn-primary text-bold"><i class="fa fa-check me-2"></i>Create</button>
-        <button type="button" class="btn btn-light" data-bs-dismiss="modal"><i class="fa fa-times me-2"></i>Cancel</button>
+        <?php if ($templates) { ?>
+            <button type="submit" name="add_document_from_template" class="btn btn-primary text-bold"><i class="fa fa-check me-2"></i>Create</button>
+        <?php } ?>
+        <button type="button" class="btn btn-light" data-bs-dismiss="modal"><i class="fa fa-times me-2"></i><?= $templates ? 'Cancel' : 'Close' ?></button>
     </div>
 </form>
 

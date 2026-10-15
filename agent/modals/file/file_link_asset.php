@@ -1,72 +1,12 @@
-<div class="modal" id="linkAssetToFileModal<?= $file_id ?>" tabindex="-1">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header bg-dark">
-                <h5 class="modal-title"><i class="fa fa-fw fa-desktop me-2"></i>Link Asset to <strong><?= $file_name ?></strong></h5>
-                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
-            </div>
-            <form action="post.php" method="post" autocomplete="off">
-                <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
-                <input type="hidden" name="file_id" value="<?= $file_id ?>">
-                <div class="modal-body">
+<?php
 
-                    <div class="mb-3">
-                        <div class="input-group">
-                                <span class="input-group-text"><i class="fa fa-fw fa-desktop"></i></span>
-                            <select class="form-select select2" name="asset_id">
-                                <option value="">- Select an Asset -</option>
-                                <?php
+/*
+ * Kept so existing links keep working. Every pair is linked in
+ * agent/modals/link/link.php, here opened on its Assets tab.
+ */
 
-                                $sql_assets_select = mysqli_query($mysqli, "SELECT asset_id, asset_name, asset_type, asset_make, asset_model FROM assets
-                                    WHERE asset_client_id = $client_id
-                                    AND asset_archived_at IS NULL
-                                    ORDER BY asset_name ASC"
-                                );
-                                while ($row = mysqli_fetch_assoc($sql_assets_select)) {
-                                    $asset_id = intval($row['asset_id']);
-                                    $asset_name = escapeHtml($row['asset_name']);
+$_GET['from'] = 'file';
+$_GET['id'] = intval($_GET['id'] ?? 0);
+$_GET['to'] = 'asset';
 
-                                    ?>
-                                    <option value="<?= $asset_id ?>"<?= selectOptionAsset($row['asset_type'] ?? '', trim(($row['asset_make'] ?? '') . ' ' . ($row['asset_model'] ?? ''))) ?>><?= $asset_name ?></option>
-                                    <?php
-                                }
-                                ?>
-
-                            </select>
-                        </div>
-                    </div>
-                        <?php
-                            $sql_assets = mysqli_query($mysqli, "SELECT assets.asset_id, asset_name FROM assets, asset_files
-                                WHERE assets.asset_id = asset_files.asset_id
-                                AND asset_files.file_id = $file_id
-                                ORDER BY asset_name ASC"
-                            );
-
-                            $linked_assets = array();
-
-                            while ($row = mysqli_fetch_assoc($sql_assets)) {
-                                $asset_id = intval($row['asset_id']);
-                                $asset_name = escapeHtml($row['asset_name']);
-
-                                $linked_assets[] = $asset_id;
-
-                        ?>
-                                <div class="ms-2">
-                                    <a href="asset.php?client_id=<?= $client_id ?>&asset_id=<?= $asset_id ?>" target="_blank"><?= $asset_name ?></a>
-                                    <a class="confirm-link float-end" href="post.php?unlink_asset_from_file&asset_id=<?= $asset_id ?>&file_id=<?= $file_id ?>">
-                                        <i class="fas fa-fw fa-trash-alt text-secondary"></i>
-                                    </a>
-                                </div>
-                        <?php
-                            }
-                        ?>
-
-                </div>
-                <div class="modal-footer">
-                    <button type="submit" name="link_asset_to_file" class="btn btn-primary text-bold"><i class="fa fa-check me-2"></i>Link</button>
-                    <button type="button" class="btn btn-light" data-bs-dismiss="modal"><i class="fa fa-times me-2"></i>Cancel</button>
-                </div>
-            </form>
-        </div>
-    </div>
-</div>
+require __DIR__ . '/../link/link.php';

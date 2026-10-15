@@ -2,9 +2,44 @@
 
 /*
  * ITFlow - GET/POST request handler for client documents
+ *
+ * Linking documents to files, assets, contacts, licenses and vendors lives in
+ * post/link.php.
  */
 
 defined('FROM_POST_HANDLER') || die("Direct file access is not allowed");
+
+/** The document row a handler works on, with its client checked - or a flash and back. */
+function documentForHandler($document_id) {
+    global $mysqli, $client_id;
+    $document_id = intval($document_id);
+    $row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT document_id, document_name, document_description, document_content,
+            document_client_id, document_folder_id, document_client_visible, document_archived_at,
+            document_created_at, document_created_by, document_updated_at, document_updated_by
+        FROM documents WHERE document_id = $document_id"));
+    if (!$row) {
+        flashAlert('That document no longer exists.', 'error');
+        redirect();
+    }
+    $client_id = intval($row['document_client_id']);
+    enforceClientAccess();
+    return $row;
+}
+
+/** Keep a document's current content as a version, before it is replaced. Returns the version id. */
+function documentKeepVersion($row) {
+    global $mysqli;
+    $by = intval($row['document_updated_by']) ?: intval($row['document_created_by']);
+    $at = escapeSql($row['document_updated_at'] ?: $row['document_created_at']);
+    mysqli_query($mysqli, "INSERT INTO document_versions SET
+        document_version_name = '" . escapeSql($row['document_name']) . "',
+        document_version_description = '" . escapeSql($row['document_description']) . "',
+        document_version_content = '" . mysqli_real_escape_string($mysqli, (string) $row['document_content']) . "',
+        document_version_created_by = $by,
+        document_version_created_at = '$at',
+        document_version_document_id = " . intval($row['document_id']));
+    return mysqli_insert_id($mysqli);
+}
 
 if (isset($_POST['add_document'])) {
 
@@ -14,42 +49,48 @@ if (isset($_POST['add_document'])) {
 
     require_once 'document_model.php';
     $client_id = intval($_POST['client_id']);
-    $contact_id = intval($_POST['contact'] ?? 0);
-    $asset_id = intval($_POST['asset'] ?? 0);
 
     enforceClientAccess();
 
-    // Document add query
-    mysqli_query($mysqli,"INSERT INTO documents SET document_name = '$name', document_description = '$description', document_content = '', document_content_raw = '$content_raw', document_folder_id = $folder, document_created_by = $session_user_id, document_client_id = $client_id");
+    // Only the client's own folder, contact and asset
+    $folder = folderOwnedId($folder, $client_id);
+    $contact_id = assetClientOwnedId('contact', $_POST['contact'] ?? 0, $client_id);
+    $asset = linkRecord('asset', $_POST['asset'] ?? 0);
+    $asset_id = $asset && intval($asset['client_id']) === $client_id ? intval($asset['id']) : 0;
+    $client_visible = intval($_POST['client_visible'] ?? 0) ? 1 : 0;
+
+    if ($name === '') {
+        flashAlert('A document needs a name.', 'error');
+        redirect();
+    }
+
+    mysqli_query($mysqli, "INSERT INTO documents SET document_name = '$name', document_description = '$description', document_content = '', document_content_raw = '$content_raw',
+        document_client_visible = $client_visible, document_folder_id = $folder, document_created_by = $session_user_id, document_client_id = $client_id");
 
     $document_id = mysqli_insert_id($mysqli);
 
-    $processed_content = mysqli_escape_string(
-        $mysqli,
-        saveBase64Images(
-            $_POST['content'],
-            $_SERVER['DOCUMENT_ROOT'] . "/uploads/documents/",
-            "uploads/documents/",
-            $document_id
-        )
-    );
-
-    // Document update content
-    mysqli_query($mysqli,"UPDATE documents SET document_content = '$processed_content' WHERE document_id = $document_id");
+    // Pasted images become files under uploads/documents/<id>/, so it needs its id first
+    $processed_content = mysqli_real_escape_string($mysqli, saveBase64Images(
+        $_POST['content'] ?? '',
+        $_SERVER['DOCUMENT_ROOT'] . "/uploads/documents/",
+        "uploads/documents/",
+        $document_id
+    ));
+    mysqli_query($mysqli, "UPDATE documents SET document_content = '$processed_content' WHERE document_id = $document_id");
 
     if ($contact_id) {
-        mysqli_query($mysqli,"INSERT INTO contact_documents SET contact_id = $contact_id, document_id = $document_id");
+        mysqli_query($mysqli, "INSERT IGNORE INTO contact_documents SET contact_id = $contact_id, document_id = $document_id");
     }
-
     if ($asset_id) {
-        mysqli_query($mysqli,"INSERT INTO asset_documents SET asset_id = $asset_id, document_id = $document_id");
+        mysqli_query($mysqli, "INSERT IGNORE INTO asset_documents SET asset_id = $asset_id, document_id = $document_id");
     }
 
     logAudit("Document", "Create", "$session_name created document $name", $client_id, $document_id);
 
-    flashAlert("Document <strong>$name</strong> created");
+    flashAlert("Document <strong>" . trim($_POST['name']) . "</strong> created");
 
-    redirect();
+    // From an asset or a contact, back to it; otherwise to the new document
+    redirect(($contact_id || $asset_id) ? null : "document.php?client_id=$client_id&document_id=$document_id");
 
 }
 
@@ -59,78 +100,49 @@ if (isset($_POST['add_document_from_template'])) {
 
     enforceUserPermission('module_support', 2);
 
-    $client_id             = intval($_POST['client_id']);
-    $document_name         = escapeSql($_POST['name']);
-    $document_description  = escapeSql($_POST['description']);
-    $document_template_id  = intval($_POST['document_template_id']);
-    $folder                = intval($_POST['folder']);
+    $client_id = intval($_POST['client_id']);
+    $document_name = trim($_POST['name'] ?? '');
+    $document_description = escapeSql($_POST['description'] ?? '');
+    $document_template_id = intval($_POST['document_template_id'] ?? 0);
 
     enforceClientAccess();
 
-    // Get template
-    $sql_document = mysqli_query(
-        $mysqli,
-        "SELECT document_template_content, document_template_name FROM document_templates
-         WHERE document_template_id = $document_template_id"
-    );
+    $folder = folderOwnedId($_POST['folder'] ?? 0, $client_id);
 
-    $row = mysqli_fetch_assoc($sql_document);
+    $row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT document_template_content, document_template_name FROM document_templates
+        WHERE document_template_id = $document_template_id AND document_template_archived_at IS NULL"));
+    if (!$row) {
+        flashAlert('That template no longer exists.', 'error');
+        redirect();
+    }
 
-    $document_template_name = escapeSql($row['document_template_name']);
-    $template_content_html  = $row['document_template_content']; // raw HTML from template
+    // No name given - the template's
+    if ($document_name === '') {
+        $document_name = $row['document_template_name'];
+    }
+    $document_name_sql = escapeSql($document_name);
 
-    // 1) Create the new document with placeholder content to get an ID
-    mysqli_query(
-        $mysqli,
-        "INSERT INTO documents SET
-            document_name        = '$document_name',
-            document_description = '$document_description',
-            document_content     = '',
-            document_content_raw = '',
-            document_folder_id   = $folder,
-            document_created_by  = $session_user_id,
-            document_client_id   = $client_id"
-    );
+    mysqli_query($mysqli, "INSERT INTO documents SET
+        document_name = '$document_name_sql',
+        document_description = '$document_description',
+        document_content = '',
+        document_content_raw = '',
+        document_folder_id = $folder,
+        document_created_by = $session_user_id,
+        document_client_id = $client_id");
 
     $document_id = mysqli_insert_id($mysqli);
 
-    // 2) Copy template images to the document's folder
-    $templateFsPath = $_SERVER['DOCUMENT_ROOT'] . "/uploads/document_templates/" . $document_template_id;
-    $documentFsPath = $_SERVER['DOCUMENT_ROOT'] . "/uploads/documents/" . $document_id;
+    // The template's images come along, and its HTML is pointed at the copies
+    copyDirectory($_SERVER['DOCUMENT_ROOT'] . "/uploads/document_templates/$document_template_id", $_SERVER['DOCUMENT_ROOT'] . "/uploads/documents/$document_id");
+    $processed_html = str_replace("/uploads/document_templates/$document_template_id/", "/uploads/documents/$document_id/", (string) $row['document_template_content']);
 
-    copyDirectory($templateFsPath, $documentFsPath);
-
-    // 3) Rewrite image paths in the HTML
-    //    /uploads/document_templates/{template_id}/ -> /uploads/documents/{document_id}/
-    $oldPath = "/uploads/document_templates/" . $document_template_id . "/";
-    $newPath = "/uploads/documents/" . $document_id . "/";
-
-    $processed_html = str_replace($oldPath, $newPath, $template_content_html);
-
-    // 4) Prepare content + content_raw
     $content = mysqli_real_escape_string($mysqli, $processed_html);
+    $content_raw = escapeSql(documentContentRaw($document_name, $processed_html));
 
-    $content_raw = escapeSql(
-        $document_name . " " . str_replace("<", " <", $processed_html)
-    );
-    $content_raw = mysqli_real_escape_string($mysqli, $content_raw);
+    mysqli_query($mysqli, "UPDATE documents SET document_content = '$content', document_content_raw = '$content_raw' WHERE document_id = $document_id");
 
-    // 5) Update the document with final content
-    mysqli_query(
-        $mysqli,
-        "UPDATE documents SET
-            document_content     = '$content',
-            document_content_raw = '$content_raw'
-         WHERE document_id = $document_id"
-    );
-
-    logAudit(
-        "Document",
-        "Create",
-        "$session_name created document $document_name from template $document_template_name",
-        $client_id,
-        $document_id
-    );
+    logAudit("Document", "Create", "$session_name created document $document_name_sql from template " . escapeSql($row['document_template_name']), $client_id, $document_id);
 
     flashAlert("Document <strong>$document_name</strong> created from template");
 
@@ -145,99 +157,41 @@ if (isset($_POST['edit_document'])) {
 
     require_once 'document_model.php';
 
-    $document_id = intval($_POST['document_id']);
+    $row = documentForHandler($_POST['document_id']);
+    $document_id = intval($row['document_id']);
 
-    $client_id = intval(getFieldById('documents', $document_id, 'document_client_id'));
-
-    enforceClientAccess();
-
-    // 1) Load the current document to create a version
-    $sql_original_document = mysqli_query(
-        $mysqli,
-        "SELECT document_content, document_created_at, document_created_by, document_description,
-            document_name, document_updated_at, document_updated_by FROM documents
-         WHERE document_client_id = $client_id
-           AND document_id = $document_id"
-    );
-
-    $row = mysqli_fetch_assoc($sql_original_document);
-
-    $original_document_name        = escapeSql($row['document_name']);
-    $original_document_description = escapeSql($row['document_description']);
-    $original_document_content     = mysqli_real_escape_string($mysqli, $row['document_content']);
-    $original_document_created_by  = intval($row['document_created_by']);
-    $original_document_updated_by  = intval($row['document_updated_by']);
-    $original_document_created_at  = escapeSql($row['document_created_at']);
-    $original_document_updated_at  = escapeSql($row['document_updated_at']);
-
-    if ($original_document_updated_at) {
-        $document_version_created_at = $original_document_updated_at;
-    } else {
-        $document_version_created_at = $original_document_created_at;
+    if ($name === '') {
+        flashAlert('A document needs a name.', 'error');
+        redirect();
     }
 
-    if ($original_document_updated_by) {
-        $document_version_created_by = $original_document_updated_by;
-    } else {
-        $document_version_created_by = $original_document_created_by;
-    }
-
-    // 2) Save the current version into document_versions
-    mysqli_query(
-        $mysqli,
-        "INSERT INTO document_versions SET
-            document_version_name        = '$original_document_name',
-            document_version_description = '$original_document_description',
-            document_version_content     = '$original_document_content',
-            document_version_created_by  = $document_version_created_by,
-            document_version_created_at  = '$document_version_created_at',
-            document_version_document_id = $document_id"
-    );
-
-    $document_version_id = mysqli_insert_id($mysqli);
-
-    // 3) Process the NEW content from the form:
-    //    - convert base64 <img> tags to files under /uploads/documents/<document_id>/
-    //    - rewrite <img src> to file URLs
-    $raw_post_content = $_POST['content'];
+    // What it said before, kept as a version
+    $document_version_id = documentKeepVersion($row);
 
     $processed_html = saveBase64Images(
-        $raw_post_content,
+        $_POST['content'] ?? '',
         $_SERVER['DOCUMENT_ROOT'] . "/uploads/documents/",
         "uploads/documents/",
         $document_id
     );
-
-    // Escape for DB
     $content = mysqli_real_escape_string($mysqli, $processed_html);
+    $content_raw = escapeSql(documentContentRaw($_POST['name'], $processed_html));
 
-    // Rebuild content_raw for full-text search
-    $content_raw = escapeSql(
-        $name . " " . str_replace("<", " <", $processed_html)
-    );
-    $content_raw = mysqli_real_escape_string($mysqli, $content_raw);
+    // The portal switch is only on the form when the portal is on - left alone otherwise
+    $visible_sql = isset($_POST['client_visible']) ? ', document_client_visible = ' . (intval($_POST['client_visible']) ? 1 : 0) : '';
 
-    // 4) Update the document with the new content + metadata
-    mysqli_query(
-        $mysqli,
-        "UPDATE documents SET
-            document_name        = '$name',
-            document_description = '$description',
-            document_content     = '$content',
-            document_content_raw = '$content_raw',
-            document_updated_by  = $session_user_id
-         WHERE document_id = $document_id"
-    );
+    mysqli_query($mysqli, "UPDATE documents SET
+        document_name = '$name',
+        document_description = '$description',
+        document_content = '$content',
+        document_content_raw = '$content_raw',
+        document_updated_by = $session_user_id
+        $visible_sql
+        WHERE document_id = $document_id");
 
-    logAudit(
-        "Document",
-        "Edit",
-        "$session_name edited document $name, previous version kept",
-        $client_id,
-        $document_version_id
-    );
+    logAudit("Document", "Edit", "$session_name edited document $name, previous version kept", $client_id, $document_id);
 
-    flashAlert("Document <strong>$name</strong> edited, previous version kept");
+    flashAlert("Document <strong>" . trim($_POST['name']) . "</strong> saved - the previous version is kept");
 
     redirect("document.php?client_id=$client_id&document_id=$document_id");
 
@@ -249,28 +203,18 @@ if (isset($_POST['move_document'])) {
 
     enforceUserPermission('module_support', 2);
 
-    $document_id = intval($_POST['document_id']);
-    $folder_id = intval($_POST['folder']);
+    $row = documentForHandler($_POST['document_id']);
+    $document_id = intval($row['document_id']);
 
-    // Get Document Name Client ID for logging
-    $sql_document = mysqli_query($mysqli,"SELECT document_name, document_client_id FROM documents WHERE document_id = $document_id");
-    $row = mysqli_fetch_assoc($sql_document);
-    $document_name = escapeSql($row['document_name']);
-    $client_id = intval($row['document_client_id']);
+    // Only into one of this client's folders
+    $folder_id = folderOwnedId($_POST['folder'] ?? 0, $client_id);
+    $folder_name = folderDisplayName($folder_id);
 
-    enforceClientAccess();
+    mysqli_query($mysqli, "UPDATE documents SET document_folder_id = $folder_id, document_updated_at = document_updated_at WHERE document_id = $document_id");
 
-    // Get Folder Name for logging
-    $sql_folder = mysqli_query($mysqli,"SELECT folder_name FROM folders WHERE folder_id = $folder_id");
-    $row = mysqli_fetch_assoc($sql_folder);
-    $folder_name = escapeSql($row['folder_name']);
+    logAudit("Document", "Move", "$session_name moved document " . escapeSql($row['document_name']) . " to folder " . escapeSql($folder_name), $client_id, $document_id);
 
-    // Document edit query
-    mysqli_query($mysqli,"UPDATE documents SET document_folder_id = $folder_id, document_updated_at = document_updated_at WHERE document_id = $document_id");
-
-    logAudit("Document", "Move", "$session_name moved document $document_name to folder $folder_name", $client_id, $document_id);
-
-    flashAlert("Document <strong>$document_name</strong> moved to folder <strong>$folder_name</strong>");
+    flashAlert("Document <strong>{$row['document_name']}</strong> moved to <strong>$folder_name</strong>");
 
     redirect();
 
@@ -282,372 +226,21 @@ if (isset($_POST['rename_document'])) {
 
     enforceUserPermission('module_support', 2);
 
-    $document_id = intval($_POST['document_id']);
-    $name = escapeSql($_POST['name']);
+    $row = documentForHandler($_POST['document_id']);
+    $document_id = intval($row['document_id']);
+    $name = escapeSql(trim($_POST['name'] ?? ''));
+    $description_sql = isset($_POST['description']) ? ", document_description = '" . escapeSql($_POST['description']) . "'" : '';
 
-    $client_id = intval(getFieldById('documents', $document_id, 'document_client_id'));
-
-    enforceClientAccess();
-
-    // Get Document Name before renaming for logging
-    $sql_document = mysqli_query($mysqli,"SELECT document_name FROM documents WHERE document_id = $document_id");
-    $row = mysqli_fetch_assoc($sql_document);
-    $old_document_name = escapeSql($row['document_name']);
-
-    // Document edit query
-    mysqli_query($mysqli,"UPDATE documents SET document_name = '$name', document_updated_at = document_updated_at WHERE document_id = $document_id");
-
-    logAudit("Document", "Edit", "$session_name renamed document $old_document_name to $name", $client_id, $document_id);
-
-
-    flashAlert("You renamed Document from <strong>$old_document_name</strong> to <strong>$name</strong>");
-
-    redirect();
-
-}
-
-if (isset($_POST['bulk_move_document'])) {
-
-    validateCSRFToken();
-
-    enforceUserPermission('module_support', 2);
-
-    $folder_id = intval($_POST['bulk_folder_id']);
-
-    // Get folder name for logging and Notification
-    $sql = mysqli_query($mysqli,"SELECT folder_name, folder_client_id FROM folders WHERE folder_id = $folder_id");
-    $row = mysqli_fetch_assoc($sql);
-    $folder_name = escapeSql($row['folder_name']);
-    $client_id = intval($row['folder_client_id']);
-
-    enforceClientAccess();
-
-    // Move Documents to Folder Loop
-    if (isset($_POST['document_ids'])) {
-
-        // Get Selected Count
-        $count = count($_POST['document_ids']);
-
-        foreach($_POST['document_ids'] as $document_id) {
-            $document_id = intval($document_id);
-            // Get document name for logging
-            $document_name = escapeSql(getFieldById('documents', $document_id, 'document_name'));
-
-            // Document move query
-            mysqli_query($mysqli,"UPDATE documents SET document_folder_id = $folder_id, document_updated_at = document_updated_at WHERE document_id = $document_id");
-
-            logAudit("Document", "Move", "$session_name moved document $document_name to folder $folder_name", $client_id, $document_id);
-        }
-
-        logAudit("Document", "Bulk Move", "$session_name moved $count document(s) to folder $folder_name", $client_id);
+    if ($name === '') {
+        flashAlert('A document needs a name.', 'error');
+        redirect();
     }
 
-    flashAlert("You moved <strong>$count</strong> document(s) to the folder <strong>$folder_name</strong>");
+    mysqli_query($mysqli, "UPDATE documents SET document_name = '$name' $description_sql, document_updated_at = document_updated_at WHERE document_id = $document_id");
 
-    redirect();
+    logAudit("Document", "Edit", "$session_name renamed document " . escapeSql($row['document_name']) . " to $name", $client_id, $document_id);
 
-}
-
-if (isset($_POST['link_file_to_document'])) {
-
-    validateCSRFToken();
-
-    enforceUserPermission('module_support', 2);
-
-    $document_id = intval($_POST['document_id']);
-    $file_id = intval($_POST['file_id']);
-
-    // Get Document Name and Client ID for logging
-    $sql_document = mysqli_query($mysqli,"SELECT document_name, document_client_id FROM documents WHERE document_id = $document_id");
-    $row = mysqli_fetch_assoc($sql_document);
-    $document_name = escapeSql($row['document_name']);
-    $client_id = intval($row['document_client_id']);
-
-    enforceClientAccess();
-
-    // Get File Name for logging
-    $file_name = escapeSql(getFieldById('files', $file_id, 'file_name'));
-
-    // Document add query
-    mysqli_query($mysqli,"INSERT INTO document_files SET file_id = $file_id, document_id = $document_id");
-
-    logAudit("Document", "Link", "$session_name linked file $file_name to document $document_name", $client_id, $document_id);
-
-    flashAlert("File <strong>$file_name</strong> linked with Document <strong>$document_name</strong>");
-
-    redirect();
-
-}
-
-if (isset($_GET['unlink_file_from_document'])) {
-
-    validateCSRFToken();
-
-    enforceUserPermission('module_support', 2);
-
-    $file_id = intval($_GET['file_id']);
-    $document_id = intval($_GET['document_id']);
-
-    // Get Document Name and Client ID for logging
-    $sql_document = mysqli_query($mysqli,"SELECT document_name, document_client_id FROM documents WHERE document_id = $document_id");
-    $row = mysqli_fetch_assoc($sql_document);
-    $document_name = escapeSql($row['document_name']);
-    $client_id = intval($row['document_client_id']);
-
-    enforceClientAccess();
-
-    // Get File Name for logging
-    $file_name = escapeSql(getFieldById('files', $file_id, 'file_name'));
-
-    mysqli_query($mysqli,"DELETE FROM document_files WHERE file_id = $file_id AND document_id = $document_id");
-
-    logAudit("Document", "Unlink", "$session_name unlinked file $file_name from document $document_name", $client_id, $document_id);
-
-    flashAlert("File <strong>$file_name</strong> unlinked from Document <strong>$document_name</strong>", 'error');
-
-    redirect();
-
-}
-
-if (isset($_POST['link_vendor_to_document'])) {
-
-    validateCSRFToken();
-
-    enforceUserPermission('module_support', 2);
-
-    $document_id = intval($_POST['document_id']);
-    $vendor_id = intval($_POST['vendor_id']);
-
-    // Get Document Name and Client ID for logging
-    $sql_document = mysqli_query($mysqli,"SELECT document_name, document_client_id FROM documents WHERE document_id = $document_id");
-    $row = mysqli_fetch_assoc($sql_document);
-    $document_name = escapeSql($row['document_name']);
-    $client_id = intval($row['document_client_id']);
-
-    enforceClientAccess();
-
-    // Get Vendor Name for logging
-    $vendor_name = escapeSql(getFieldById('vendors', $vendor_id, 'vendor_name'));
-
-    // Document add query
-    mysqli_query($mysqli,"INSERT INTO vendor_documents SET vendor_id = $vendor_id, document_id = $document_id");
-
-    logAudit("Document", "Link", "$session_name linked vendor $vendor_name to document $document_name", $client_id, $document_id);
-
-    flashAlert("Vendor <strong>$vendor_name</strong> linked with Document <strong>$document_name</strong>");
-
-    redirect();
-
-}
-
-if (isset($_GET['unlink_vendor_from_document'])) {
-
-    validateCSRFToken();
-
-    enforceUserPermission('module_support', 2);
-
-    $vendor_id = intval($_GET['vendor_id']);
-    $document_id = intval($_GET['document_id']);
-
-    // Get Document Name and Client ID for logging
-    $sql_document = mysqli_query($mysqli,"SELECT document_name, document_client_id FROM documents WHERE document_id = $document_id");
-    $row = mysqli_fetch_assoc($sql_document);
-    $document_name = escapeSql($row['document_name']);
-    $client_id = intval($row['document_client_id']);
-
-    enforceClientAccess();
-
-    // Get Vendor Name for logging
-    $vendor_name = escapeSql(getFieldById('vendors', $vendor_id, 'vendor_name'));
-
-    mysqli_query($mysqli,"DELETE FROM vendor_documents WHERE vendor_id = $vendor_id AND document_id = $document_id");
-
-    logAudit("Document", "Unlink", "$session_name unlinked vendor $vendor_name from document $document_name", $client_id, $document_id);
-
-    flashAlert("Vendor <strong>$vendor_name</strong> unlinked from Document <strong>$document_name</strong>", 'error');
-
-    redirect();
-
-}
-
-if (isset($_POST['link_contact_to_document'])) {
-
-    validateCSRFToken();
-
-    enforceUserPermission('module_support', 2);
-
-    $client_id = intval($_POST['client_id']);
-    $document_id = intval($_POST['document_id']);
-    $contact_id = intval($_POST['contact_id']);
-
-    // Get Document Name and Client ID for logging
-    $sql_document = mysqli_query($mysqli,"SELECT document_name, document_client_id FROM documents WHERE document_id = $document_id");
-    $row = mysqli_fetch_assoc($sql_document);
-    $document_name = escapeSql($row['document_name']);
-    $client_id = intval($row['document_client_id']);
-
-    enforceClientAccess();
-
-    // Get Contact Name for logging
-    $contact_name = escapeSql(getFieldById('contacts', $contact_id, 'contact_name'));
-
-    // Contact add query
-    mysqli_query($mysqli,"INSERT INTO contact_documents SET contact_id = $contact_id, document_id = $document_id");
-
-    logAudit("Document", "Link", "$session_name linked contact $contact_name to document $document_name", $client_id, $document_id);
-
-    flashAlert("Contact <strong>$contact_name</strong> linked with Document <strong>$document_name</strong>");
-
-    redirect();
-
-}
-
-if (isset($_GET['unlink_contact_from_document'])) {
-
-    validateCSRFToken();
-
-    enforceUserPermission('module_support', 2);
-
-    $contact_id = intval($_GET['contact_id']);
-    $document_id = intval($_GET['document_id']);
-
-    // Get Document Name and Client ID for logging
-    $sql_document = mysqli_query($mysqli,"SELECT document_name, document_client_id FROM documents WHERE document_id = $document_id");
-    $row = mysqli_fetch_assoc($sql_document);
-    $document_name = escapeSql($row['document_name']);
-    $client_id = intval($row['document_client_id']);
-
-    enforceClientAccess();
-
-    // Get Contact Name for logging
-    $contact_name = escapeSql(getFieldById('contacts', $contact_id, 'contact_name'));
-
-    mysqli_query($mysqli,"DELETE FROM contact_documents WHERE contact_id = $contact_id AND document_id = $document_id");
-
-    logAudit("Document", "Unlink", "$session_name unlinked contact $contact_name from document $document_name", $client_id, $document_id);
-
-    flashAlert("Contact <strong>$contact_name</strong> unlinked from Document <strong>$document_name</strong>", 'error');
-
-    redirect();
-
-}
-
-if (isset($_POST['link_asset_to_document'])) {
-
-    validateCSRFToken();
-
-    enforceUserPermission('module_support', 2);
-
-    $document_id = intval($_POST['document_id']);
-    $asset_id = intval($_POST['asset_id']);
-
-    // Get Document Name and Client ID for logging
-    $sql_document = mysqli_query($mysqli,"SELECT document_name, document_client_id FROM documents WHERE document_id = $document_id");
-    $row = mysqli_fetch_assoc($sql_document);
-    $document_name = escapeSql($row['document_name']);
-    $client_id = intval($row['document_client_id']);
-
-    enforceClientAccess();
-
-    // Get Asset Name for logging
-    $asset_name = escapeSql(getFieldById('assets', $asset_id, 'asset_name'));
-
-    mysqli_query($mysqli,"INSERT INTO asset_documents SET asset_id = $asset_id, document_id = $document_id");
-
-    logAudit("Document", "Link", "$session_name linked asset $asset_name to document $document_name", $client_id, $document_id);
-
-    flashAlert("Asset <strong>$asset_name</strong> linked with Document <strong>$document_name</strong>");
-
-    redirect();
-
-}
-
-if (isset($_GET['unlink_asset_from_document'])) {
-
-    validateCSRFToken();
-
-    enforceUserPermission('module_support', 2);
-
-    $asset_id = intval($_GET['asset_id']);
-    $document_id = intval($_GET['document_id']);
-
-    // Get Document Name and Client ID for logging
-    $sql_document = mysqli_query($mysqli,"SELECT document_name, document_client_id FROM documents WHERE document_id = $document_id");
-    $row = mysqli_fetch_assoc($sql_document);
-    $document_name = escapeSql($row['document_name']);
-    $client_id = intval($row['document_client_id']);
-
-    enforceClientAccess();
-
-    // Get Asset Name for logging
-    $asset_name = escapeSql(getFieldById('assets', $asset_id, 'asset_name'));
-
-    mysqli_query($mysqli,"DELETE FROM asset_documents WHERE asset_id = $asset_id AND document_id = $document_id");
-
-    logAudit("Document", "Unlink", "$session_name unlinked asset $asset_name from document $document_name", $client_id, $document_id);
-
-    flashAlert("Asset <strong>$asset_name</strong> unlinked from Document <strong>$document_name</strong>", 'error');
-
-    redirect();
-
-}
-
-if (isset($_POST['link_software_to_document'])) {
-
-    validateCSRFToken();
-
-    enforceUserPermission('module_support', 2);
-
-    $document_id = intval($_POST['document_id']);
-    $software_id = intval($_POST['software_id']);
-
-    // Get Document Name and Client ID for logging
-    $sql_document = mysqli_query($mysqli,"SELECT document_name, document_client_id FROM documents WHERE document_id = $document_id");
-    $row = mysqli_fetch_assoc($sql_document);
-    $document_name = escapeSql($row['document_name']);
-    $client_id = intval($row['document_client_id']);
-
-    enforceClientAccess();
-
-    // Get Software Name for logging
-    $software_name = escapeSql(getFieldById('software', $software_id, 'software_name'));
-
-    // Contact add query
-    mysqli_query($mysqli,"INSERT INTO software_documents SET software_id = $software_id, document_id = $document_id");
-
-    logAudit("Document", "Link", "$session_name linked software $software_name to document $document_name", $client_id, $document_id);
-
-    flashAlert("Software <strong>$software_name</strong> linked with Document <strong>$document_name</strong>");
-
-    redirect();
-
-}
-
-if (isset($_GET['unlink_software_from_document'])) {
-
-    validateCSRFToken();
-
-    enforceUserPermission('module_support', 2);
-
-    $software_id = intval($_GET['software_id']);
-    $document_id = intval($_GET['document_id']);
-
-    // Get Document Name and Client ID for logging
-    $sql_document = mysqli_query($mysqli,"SELECT document_name, document_client_id FROM documents WHERE document_id = $document_id");
-    $row = mysqli_fetch_assoc($sql_document);
-    $document_name = escapeSql($row['document_name']);
-    $client_id = intval($row['document_client_id']);
-
-    enforceClientAccess();
-
-    // Get Software Name for logging
-    $software_name = escapeSql(getFieldById('software', $software_id, 'software_name'));
-
-    mysqli_query($mysqli,"DELETE FROM software_documents WHERE software_id = $software_id AND document_id = $document_id");
-
-    logAudit("Document", "Unlink", "$session_name unlinked software $software_name from document $document_name", $client_id, $document_id);
-
-    flashAlert("Software <strong>$software_name</strong> unlinked from Document <strong>$document_name</strong>", 'error');
+    flashAlert("Document <strong>" . trim($_POST['name']) . "</strong> saved");
 
     redirect();
 
@@ -659,28 +252,16 @@ if (isset($_POST['toggle_document_visibility'])) {
 
     enforceUserPermission('module_support', 2);
 
-    $document_id = intval($_POST['document_id']);
-    $document_visible = intval($_POST['document_visible']);
+    $row = documentForHandler($_POST['document_id']);
+    $document_id = intval($row['document_id']);
+    $document_visible = intval($_POST['document_visible'] ?? 0) ? 1 : 0;
+    $wording = $document_visible ? 'visible' : 'hidden';
 
-    if ($document_visible == 0) {
-        $visable_wording = "Invisable";
-    } else {
-        $visable_wording = "Visable";
-    }
+    mysqli_query($mysqli, "UPDATE documents SET document_client_visible = $document_visible, document_updated_at = document_updated_at WHERE document_id = $document_id");
 
-    // Get Document Name and Client ID for logging
-    $sql_document = mysqli_query($mysqli,"SELECT document_name, document_client_id FROM documents WHERE document_id = $document_id");
-    $row = mysqli_fetch_assoc($sql_document);
-    $document_name = escapeSql($row['document_name']);
-    $client_id = intval($row['document_client_id']);
+    logAudit("Document", "Edit", "$session_name made document " . escapeSql($row['document_name']) . " $wording in the client portal", $client_id, $document_id);
 
-    enforceClientAccess();
-
-    mysqli_query($mysqli,"UPDATE documents SET document_client_visible = $document_visible, document_updated_at = document_updated_at WHERE document_id = $document_id");
-
-    logAudit("Document", "Edit", "$session_name changed document $document_name visibilty to $visable_wording in the client portal", $client_id, $document_id);
-
-    flashAlert("Document <strong>$document_name</strong> changed to <strong>$visable_wording</strong> in the client portal");
+    flashAlert("Document <strong>{$row['document_name']}</strong> is now <strong>$wording</strong> in the client portal");
 
     redirect();
 
@@ -690,47 +271,27 @@ if (isset($_GET['export_document'])) {
 
     validateCSRFToken();
 
-    enforceUserPermission('module_support', 2);
+    // Reading, not changing - anyone who can open the document can take a PDF of it
+    enforceUserPermission('module_client');
 
-    $document_id = intval($_GET['export_document']);
+    $row = documentForHandler($_GET['export_document']);
+    $document_id = intval($row['document_id']);
 
-    // Get Contact Name and Client ID for logging and alert message
-    $sql = mysqli_query($mysqli,"SELECT document_name, document_content, document_client_id FROM documents WHERE document_id = $document_id");
-    $row = mysqli_fetch_assoc($sql);
-    $document_name = escapeSql($row['document_name']);
-    $document_content = $row['document_content'];
-    $client_id = intval($row['document_client_id']);
+    logAudit("Document", "Export", "$session_name exported document " . escapeSql($row['document_name']), $client_id, $document_id);
 
-    enforceClientAccess();
-
-    // Include the TCPDF class
     require_once('../libs/TCPDF/tcpdf.php');
 
     $pdf = new TCPDF();
-
-    // Set document information
     $pdf->SetCreator(PDF_CREATOR);
-    $pdf->SetAuthor("$document_name");
-    $pdf->SetTitle("$document_name");
-
-    // Add a page
+    $pdf->SetAuthor($session_name);
+    $pdf->SetTitle($row['document_name']);
     $pdf->AddPage();
-
-    // Set font
     $pdf->SetFont('helvetica', '', 12);
+    $pdf->writeHTML('<h1>' . escapeHtml($row['document_name']) . '</h1>' . $row['document_content'], true, false, true, false, '');
 
-    // Write HTML content to the PDF
-    $pdf->writeHTML($document_content, true, false, true, false, '');
-
-    // Output PDF to browser
-    $pdf->Output("$document_name.pdf", 'I'); // 'I' for inline display, 'D' for download
-
-    // Logging
-    logAudit("Document", "Export", "$session_name exported document $document_name", $client_id, $document_id);
-
-    flashAlert("Document <strong>$document_name</strong> exported");
-
-    redirect();
+    // The PDF is the response - nothing may follow it
+    $pdf->Output(preg_replace('/[^A-Za-z0-9 ._-]/', '', $row['document_name']) . '.pdf', 'I');
+    exit;
 
 }
 
@@ -740,40 +301,17 @@ if (isset($_GET['archive_document'])) {
 
     enforceUserPermission('module_support', 2);
 
-    $document_id = intval($_GET['archive_document']);
+    $row = documentForHandler($_GET['archive_document']);
+    $document_id = intval($row['document_id']);
 
-    // Get Contact Name and Client ID for logging and alert message
-    $sql = mysqli_query($mysqli,"SELECT document_name, document_client_id FROM documents WHERE document_id = $document_id");
-    $row = mysqli_fetch_assoc($sql);
-    $document_name = escapeSql($row['document_name']);
-    $client_id = intval($row['document_client_id']);
+    mysqli_query($mysqli, "UPDATE documents SET document_archived_at = NOW(), document_updated_at = document_updated_at WHERE document_id = $document_id");
 
-    enforceClientAccess();
+    // An archived document drops its links, as it always has
+    linkRemoveAll('document', $document_id);
 
-    mysqli_query($mysqli,"UPDATE documents SET document_archived_at = NOW(), document_updated_at = document_updated_at WHERE document_id = $document_id");
+    logAudit("Document", "Archive", "$session_name archived document " . escapeSql($row['document_name']), $client_id, $document_id);
 
-    // Remove Associations
-    // File Association
-    mysqli_query($mysqli,"DELETE FROM document_files WHERE document_id = $document_id");
-
-    // Contact Associations
-    mysqli_query($mysqli,"DELETE FROM contact_documents WHERE document_id = $document_id");
-
-    // Asset Associations
-    mysqli_query($mysqli,"DELETE FROM asset_documents WHERE document_id = $document_id");
-
-    // Software Associations
-    mysqli_query($mysqli,"DELETE FROM software_documents WHERE document_id = $document_id");
-
-    // Vendor Associations
-    mysqli_query($mysqli,"DELETE FROM vendor_documents WHERE document_id = $document_id");
-
-    // Service Associations
-    mysqli_query($mysqli,"DELETE FROM service_documents WHERE document_id = $document_id");
-
-    logAudit("Document", "Archive", "$session_name archived document $document_name", $client_id, $document_id);
-
-    flashAlert("Document <strong>$document_name</strong> archived", 'error');
+    flashAlert("Document <strong>{$row['document_name']}</strong> archived", 'error');
 
     redirect();
 
@@ -785,23 +323,60 @@ if (isset($_GET['restore_document'])) {
 
     enforceUserPermission('module_support', 2);
 
-    $document_id = intval($_GET['restore_document']);
+    $row = documentForHandler($_GET['restore_document']);
+    $document_id = intval($row['document_id']);
 
-    // Get Document Name and Client ID for logging and alert message
-    $sql = mysqli_query($mysqli,"SELECT document_name, document_client_id FROM documents WHERE document_id = $document_id");
-    $row = mysqli_fetch_assoc($sql);
-    $document_name = escapeSql($row['document_name']);
-    $client_id = intval($row['document_client_id']);
+    mysqli_query($mysqli, "UPDATE documents SET document_archived_at = NULL, document_updated_at = document_updated_at WHERE document_id = $document_id");
 
-    enforceClientAccess();
+    logAudit("Document", "Restore", "$session_name restored document " . escapeSql($row['document_name']), $client_id, $document_id);
 
-    mysqli_query($mysqli,"UPDATE documents SET document_archived_at = NULL, document_updated_at = document_updated_at WHERE document_id = $document_id");
-
-    logAudit("Document", "Restore", "$session_name restored document $document_name", $client_id, $document_id);
-
-    flashAlert("Document <strong>$document_name</strong> Restored");
+    flashAlert("Document <strong>{$row['document_name']}</strong> restored");
 
     redirect();
+
+}
+
+/*
+ * Put an older version back. What the document says now is kept as a version
+ * first, so a restore can itself be undone.
+ */
+if (isset($_POST['restore_document_version'])) {
+
+    validateCSRFToken();
+
+    enforceUserPermission('module_support', 2);
+
+    $document_version_id = intval($_POST['document_version_id']);
+    $version = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT document_version_document_id, document_version_name, document_version_description,
+            document_version_content, document_version_created_at
+        FROM document_versions WHERE document_version_id = $document_version_id"));
+    if (!$version) {
+        flashAlert('That version no longer exists.', 'error');
+        redirect();
+    }
+
+    $row = documentForHandler($version['document_version_document_id']);
+    $document_id = intval($row['document_id']);
+
+    documentKeepVersion($row);
+
+    $name = escapeSql($version['document_version_name']);
+    $content = mysqli_real_escape_string($mysqli, (string) $version['document_version_content']);
+    $content_raw = escapeSql(documentContentRaw($version['document_version_name'], $version['document_version_content']));
+    mysqli_query($mysqli, "UPDATE documents SET
+        document_name = '$name',
+        document_description = '" . escapeSql($version['document_version_description']) . "',
+        document_content = '$content',
+        document_content_raw = '$content_raw',
+        document_updated_by = $session_user_id
+        WHERE document_id = $document_id");
+
+    $version_date = date('M j, Y g:ia', strtotime($version['document_version_created_at']));
+    logAudit("Document", "Edit", "$session_name restored document $name to its version of " . escapeSql($version_date) . ", the current one kept", $client_id, $document_id);
+
+    flashAlert("Document <strong>{$version['document_version_name']}</strong> restored to the version of $version_date - what it said before is kept as a version");
+
+    redirect("document.php?client_id=$client_id&document_id=$document_id");
 
 }
 
@@ -813,19 +388,21 @@ if (isset($_GET['delete_document_version'])) {
 
     $document_version_id = intval($_GET['delete_document_version']);
 
-    // Get Document
-    $sql = mysqli_query($mysqli,"SELECT document_version_name, document_client_id FROM documents, document_versions WHERE document_version_document_id = document_id AND document_version_id = $document_version_id");
-    $row = mysqli_fetch_assoc($sql);
+    $row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT document_version_name, document_client_id FROM documents, document_versions
+        WHERE document_version_document_id = document_id AND document_version_id = $document_version_id"));
+    if (!$row) {
+        flashAlert('That version no longer exists.', 'error');
+        redirect();
+    }
     $client_id = intval($row['document_client_id']);
-    $document_version_name = escapeSql($row['document_version_name']);
 
     enforceClientAccess();
 
-    mysqli_query($mysqli,"DELETE FROM document_versions WHERE document_version_id = $document_version_id");
+    mysqli_query($mysqli, "DELETE FROM document_versions WHERE document_version_id = $document_version_id");
 
-    logAudit("Document Version", "Delete", "$session_name deleted document version $document_version_name", $client_id);
+    logAudit("Document Version", "Delete", "$session_name deleted document version " . escapeSql($row['document_version_name']), $client_id);
 
-    flashAlert("Document $document_version_name version deleted", 'error');
+    flashAlert("A version of <strong>{$row['document_version_name']}</strong> deleted", 'error');
 
     redirect();
 
@@ -837,36 +414,19 @@ if (isset($_GET['delete_document'])) {
 
     enforceUserPermission('module_support', 3);
 
-    $document_id = intval($_GET['delete_document']);
+    $document_name = documentDeleteForGood(intval($_GET['delete_document']));
 
-    // Get Document Name and Client ID for logging
-    $sql = mysqli_query($mysqli,"SELECT document_name, document_client_id FROM documents WHERE document_id = $document_id");
-    $row = mysqli_fetch_assoc($sql);
-    $client_id = intval($row['document_client_id']);
-    $document_name = escapeSql($row['document_name']);
-
-    enforceClientAccess();
-
-    mysqli_query($mysqli,"DELETE FROM documents WHERE document_id = $document_id");
-
-    // Delete all versions associated with the master document
-    mysqli_query($mysqli,"DELETE FROM document_versions WHERE document_version_document_id = $document_id");
-
-    // Delete uploads/document/$document_id if exists
-    removeDirectory($_SERVER['DOCUMENT_ROOT'] . "/uploads/documents/" . $document_id);
-
-    logAudit("Document", "Delete", "$session_name deleted document $document_name and all versions", $client_id);
-
-    flashAlert("Document <strong>$document_name</strong> deleted and all versions", 'error');
-
-    // Determine redirect behavior
-    // If there's a "from" parameter, we can use it to decide where to go
-    if (isset($_GET['from']) && $_GET['from'] === 'document_details') {
-        // User deleted from document.php
-        redirect("files.php?client_id=$client_id");
-    } else {
-        // Default behavior — redirect back to previous page
+    if ($document_name === null) {
+        flashAlert('That document no longer exists.', 'error');
         redirect();
     }
+
+    flashAlert("Document <strong>$document_name</strong> and all its versions deleted", 'error');
+
+    // From the document's own page there is nothing to go back to
+    if (($_GET['from'] ?? '') === 'document_details') {
+        redirect("files.php?client_id=$client_id");
+    }
+    redirect();
 
 }

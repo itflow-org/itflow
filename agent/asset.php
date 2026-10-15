@@ -356,7 +356,7 @@ if (mysqli_num_rows($sql) == 0) {
                             <a class="dropdown-item ajax-modal" href="#" data-modal-url="modals/asset/asset_interface_add.php?&asset_id=<?= $asset_id ?>">
                                 <i class="fa fa-fw fa-ethernet text-secondary me-2"></i>Interface
                             </a>
-                            <a class="dropdown-item ajax-modal" href="#" data-modal-url="modals/document/document_add.php?<?= $client_url ?>&asset_id=<?= $asset_id ?>" data-modal-size="lg">
+                            <a class="dropdown-item ajax-modal" href="#" data-modal-url="modals/document/document_add.php?<?= $client_url ?>&asset_id=<?= $asset_id ?>" data-modal-size="xl">
                                 <i class="fa fa-fw fa-file-alt text-secondary me-2"></i>Document
                             </a>
                             <a class="dropdown-item ajax-modal" href="#" data-modal-url="modals/file/file_upload.php?<?= $client_url ?>&asset_id=<?= $asset_id ?>">
@@ -1039,7 +1039,7 @@ if (mysqli_num_rows($sql) == 0) {
                                     <button type="button" class="btn btn-sm btn-outline-secondary ajax-modal" data-modal-url="modals/asset/asset_link_document.php?id=<?= $asset_id ?>">
                                         <i class="fas fa-link me-2"></i>Link
                                     </button>
-                                    <button type="button" class="btn btn-sm btn-primary ajax-modal" data-modal-size="lg" data-modal-url="modals/document/document_add.php?<?= $client_url ?>&asset_id=<?= $asset_id ?>">
+                                    <button type="button" class="btn btn-sm btn-primary ajax-modal" data-modal-size="xl" data-modal-url="modals/document/document_add.php?<?= $client_url ?>&asset_id=<?= $asset_id ?>">
                                         <i class="fas fa-plus me-2"></i>New Document
                                     </button>
                                 </div>
@@ -1066,8 +1066,13 @@ if (mysqli_num_rows($sql) == 0) {
                                         ?>
                                         <tr>
                                             <td>
-                                                <a class="fw-semibold" href="document.php?client_id=<?= $client_id ?>&document_id=<?= $document_id ?>"><?= $document_name ?></a>
-                                                <?php if ($document_description) { ?><div class="small text-body-secondary"><?= $document_description ?></div><?php } ?>
+                                                <div class="d-flex align-items-center gap-2">
+                                                    <?= documentTile('sm') ?>
+                                                    <div class="min-w-0">
+                                                        <a class="fw-semibold" href="document.php?client_id=<?= $client_id ?>&document_id=<?= $document_id ?>"><?= $document_name ?></a>
+                                                        <?php if ($document_description) { ?><div class="small text-body-secondary"><?= $document_description ?></div><?php } ?>
+                                                    </div>
+                                                </div>
                                             </td>
                                             <td><?= $document_created_by ?></td>
                                             <td class="text-nowrap small" title="<?= $document_updated_at ?>"><?= timeAgo($document_updated_at) ?></td>
@@ -1103,13 +1108,6 @@ if (mysqli_num_rows($sql) == 0) {
                             <?php } ?>
                         </div>
                         <?php if ($files_count) {
-                            $file_icons = [
-                                'pdf' => 'file-pdf', 'gz' => 'file-archive', 'tar' => 'file-archive', 'zip' => 'file-archive', '7z' => 'file-archive', 'rar' => 'file-archive',
-                                'txt' => 'file-alt', 'md' => 'file-alt', 'msg' => 'envelope', 'doc' => 'file-word', 'docx' => 'file-word', 'odt' => 'file-word',
-                                'xls' => 'file-excel', 'xlsx' => 'file-excel', 'ods' => 'file-excel', 'csv' => 'file-csv', 'pptx' => 'file-powerpoint', 'odp' => 'file-powerpoint',
-                                'mp3' => 'file-audio', 'wav' => 'file-audio', 'ogg' => 'file-audio', 'mov' => 'file-video', 'mp4' => 'file-video', 'av1' => 'file-video',
-                                'jpg' => 'file-image', 'jpeg' => 'file-image', 'png' => 'file-image', 'gif' => 'file-image', 'webp' => 'file-image', 'bmp' => 'file-image', 'tif' => 'file-image',
-                            ];
                             ?>
                             <div class="table-responsive">
                                 <table class="table table-hover align-middle mb-0">
@@ -1125,13 +1123,17 @@ if (mysqli_num_rows($sql) == 0) {
                                         $file_id = intval($row['file_id']);
                                         $file_name = escapeHtml($row['file_name']);
                                         $file_description = escapeHtml($row['file_description']);
-                                        $file_icon = $file_icons[strtolower((string) $row['file_ext'])] ?? 'file';
                                         $file_created_at = escapeHtml($row['file_created_at']);
                                         ?>
                                         <tr>
                                             <td>
-                                                <i class="far fa-fw fa-<?= $file_icon ?> text-secondary me-2"></i><a class="fw-semibold" href="file.php?file_id=<?= $file_id ?>&action=view" target="_blank"><?= $file_name ?></a>
-                                                <?php if ($file_description) { ?><div class="small text-body-secondary"><?= $file_description ?></div><?php } ?>
+                                                <div class="d-flex align-items-center gap-2">
+                                                    <?= fileTypeTile($row['file_ext'], 'sm') ?>
+                                                    <div class="min-w-0">
+                                                        <a class="fw-semibold ajax-modal" href="#" data-modal-size="lg" data-modal-url="modals/file/file.php?id=<?= $file_id ?>"><?= $file_name ?></a>
+                                                        <?php if ($file_description) { ?><div class="small text-body-secondary"><?= $file_description ?></div><?php } ?>
+                                                    </div>
+                                                </div>
                                             </td>
                                             <td class="text-nowrap small" title="<?= $file_created_at ?>"><?= timeAgo($file_created_at) ?></td>
                                             <td class="text-end">
