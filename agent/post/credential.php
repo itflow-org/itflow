@@ -2,9 +2,47 @@
 
 /*
  * ITFlow - GET/POST request handler for client credentials
+ *
+ * Every handler checks the credential module and the credential's own client;
+ * anything a form names - the asset, the contact, the tags, a vendor to link
+ * to - must be that client's. Usernames and passwords are encrypted with the
+ * session's vault key (credentialFormSet() in functions/credential.php), and
+ * nothing is saved when the vault did not open, rather than writing an empty
+ * password over the real one. Vendors and licenses link through post/link.php.
  */
 
 defined('FROM_POST_HANDLER') || die("Direct file access is not allowed");
+
+/** The credential a request names, after the module and client checks - or back with an error if it is gone. */
+function credentialForRequest($credential_id, $level) {
+    global $client_id;
+    enforceUserPermission('module_credential', $level);
+    $row = credentialRow($credential_id);
+    if (!$row) {
+        flashAlert('That credential no longer exists.', 'error');
+        redirect();
+    }
+    $client_id = intval($row['credential_client_id']);
+    enforceClientAccess();
+    return $row;
+}
+
+/** The credentials a bulk action names that this agent may act on - [id => row]. */
+function credentialsForBulk($level) {
+    global $client_id;
+    enforceUserPermission('module_credential', $level);
+    $rows = [];
+    foreach (array_unique(array_map('intval', (array) ($_POST['credential_ids'] ?? []))) as $credential_id) {
+        $row = credentialRow($credential_id);
+        if (!$row) {
+            continue;
+        }
+        $client_id = intval($row['credential_client_id']);
+        enforceClientAccess();
+        $rows[$credential_id] = $row;
+    }
+    return $rows;
+}
 
 if (isset($_POST['add_credential'])) {
 
@@ -12,15 +50,25 @@ if (isset($_POST['add_credential'])) {
 
     enforceUserPermission('module_credential', 2);
 
-    require_once 'credential_model.php';
-
-    $client_id = intval($_POST['client_id']);
+    $client_id = intval($_POST['client_id'] ?? 0);
 
     enforceClientAccess();
 
-    mysqli_query($mysqli,"INSERT INTO credentials SET credential_name = '$name', credential_description = '$description', credential_uri = '$uri', credential_uri_2 = '$uri_2', credential_username = '$username', credential_password = '$password', credential_otp_secret = '$otp_secret', credential_note = '$note', credential_favorite = $favorite, credential_contact_id = $contact_id, credential_asset_id = $asset_id, credential_client_id = $client_id");
+    if (!$client_id || !getFieldById('clients', $client_id, 'client_name')) {
+        flashAlert('Pick the client this credential is for.', 'error');
+        redirect();
+    }
 
+    $set = credentialFormSet($_POST, $client_id, $error);
+    if ($set === null) {
+        flashAlert($error, 'error');
+        redirect();
+    }
+
+    mysqli_query($mysqli, "INSERT INTO credentials SET $set, credential_password_changed_at = NOW(), credential_client_id = $client_id");
     $credential_id = mysqli_insert_id($mysqli);
+
+    credentialSetTags($credential_id, $_POST['tags'] ?? []);
 
     // Made from a vendor's page - linked to that vendor, if it is the same client's
     $vendor_id = assetClientOwnedId('vendor', $_POST['vendor_id'] ?? 0, $client_id);
@@ -28,15 +76,8 @@ if (isset($_POST['add_credential'])) {
         mysqli_query($mysqli, "INSERT IGNORE INTO vendor_credentials SET vendor_id = $vendor_id, credential_id = $credential_id");
     }
 
-     // Add Tags
-    if (isset($_POST['tags'])) {
-        foreach($_POST['tags'] as $tag) {
-            $tag = intval($tag);
-            mysqli_query($mysqli, "INSERT INTO credential_tags SET credential_id = $credential_id, tag_id = $tag");
-        }
-    }
-
-    logAudit("Credential", "Create", "$session_name created credential $name", $client_id, $credential_id);
+    $name = trim($_POST['name']);
+    logAudit("Credential", "Create", "$session_name created credential " . escapeSql($name), $client_id, $credential_id);
 
     flashAlert("Credential <strong>$name</strong> created");
 
@@ -48,94 +89,112 @@ if (isset($_POST['edit_credential'])) {
 
     validateCSRFToken();
 
-    enforceUserPermission('module_credential', 2);
+    $row = credentialForRequest($_POST['credential_id'] ?? 0, 2);
+    $credential_id = intval($row['credential_id']);
 
-    require_once 'credential_model.php';
-
-    $credential_id = intval($_POST['credential_id']);
-
-    $client_id = intval(getFieldById('credentials', $credential_id, 'credential_client_id'));
-
-    enforceClientAccess();
-
-    // Determine if the password has actually changed (salt is rotated on all updates, so have to dencrypt both and compare)
-    $current_password = decryptCredentialEntry(mysqli_fetch_row(mysqli_query($mysqli, "SELECT credential_password FROM credentials WHERE credential_id = $credential_id"))[0]); // Get current credential password
-    $new_password = decryptCredentialEntry($password); // Get the new password being set (already encrypted by the credential model)
-    if ($current_password !== $new_password) {
-        // The password has been changed - update the DB to track
-        mysqli_query($mysqli, "UPDATE credentials SET credential_password_changed_at = NOW() WHERE credential_id = $credential_id");
+    $set = credentialFormSet($_POST, $client_id, $error);
+    if ($set === null) {
+        flashAlert($error, 'error');
+        redirect();
     }
 
-    // Update the credential entry with the new details
-    mysqli_query($mysqli,"UPDATE credentials SET credential_name = '$name', credential_description = '$description', credential_uri = '$uri', credential_uri_2 = '$uri_2', credential_username = '$username', credential_password = '$password', credential_otp_secret = '$otp_secret', credential_note = '$note', credential_favorite = $favorite, credential_contact_id = $contact_id, credential_asset_id = $asset_id WHERE credential_id = $credential_id");
+    // Changed password - record when, for the rotation report and the age shown everywhere
+    $password_changed = trim((string) ($_POST['password'] ?? '')) !== (string) decryptCredentialEntry($row['credential_password']);
 
-    // Tags
-    // Delete existing tags
-    mysqli_query($mysqli, "DELETE FROM credential_tags WHERE credential_id = $credential_id");
+    mysqli_query($mysqli, "UPDATE credentials SET $set" . ($password_changed ? ", credential_password_changed_at = NOW()" : '') . " WHERE credential_id = $credential_id");
 
-    // Add new tags
-    if(isset($_POST['tags'])) {
-        foreach($_POST['tags'] as $tag) {
-            $tag = intval($tag);
-            mysqli_query($mysqli, "INSERT INTO credential_tags SET credential_id = $credential_id, tag_id = $tag");
-        }
+    // Only a form that showed the tags changes them
+    if (isset($_POST['tags_form'])) {
+        credentialSetTags($credential_id, $_POST['tags'] ?? []);
     }
 
-    logAudit("Credential", "Edit", "$session_name edited credential $name", $client_id, $credential_id);
+    $name = trim($_POST['name']);
+    logAudit("Credential", "Edit", "$session_name edited credential " . escapeSql($name) . ($password_changed ? ' and changed its password' : ''), $client_id, $credential_id);
 
-    flashAlert("Credential <strong>$name</strong> edited");
+    flashAlert("Credential <strong>$name</strong> updated");
 
     redirect();
 
 }
 
-if(isset($_GET['archive_credential'])){
+// A new password and nothing else - the rotation
+if (isset($_POST['rotate_credential'])) {
 
     validateCSRFToken();
 
-    enforceUserPermission('module_credential', 2);
+    $row = credentialForRequest($_POST['credential_id'] ?? 0, 2);
+    $credential_id = intval($row['credential_id']);
 
-    $credential_id = intval($_GET['archive_credential']);
+    $password = trim((string) ($_POST['password'] ?? ''));
+    if ($password === '') {
+        flashAlert('Type or make up the new password.', 'error');
+        redirect();
+    }
+    if (checkCredentialLengths(['password' => $password])) {
+        flashAlert('That password is too long to store.', 'error');
+        redirect();
+    }
+    $encrypted = encryptCredentialEntry($password);
+    if ($encrypted === false) {
+        flashAlert('Your vault session has expired, so the password could not be encrypted - sign out and back in, then try again.', 'error');
+        redirect();
+    }
 
-    // Get Name and Client ID for logging and alert message
-    $sql = mysqli_query($mysqli,"SELECT credential_name, credential_client_id FROM credentials WHERE credential_id = $credential_id");
-    $row = mysqli_fetch_assoc($sql);
-    $credential_name = escapeSql($row['credential_name']);
-    $client_id = intval($row['credential_client_id']);
+    mysqli_query($mysqli, "UPDATE credentials SET credential_password = '" . escapeSql($encrypted) . "', credential_password_changed_at = NOW() WHERE credential_id = $credential_id");
 
-    enforceClientAccess();
+    logAudit("Credential", "Rotate", "$session_name changed the password on credential " . escapeSql($row['credential_name']), $client_id, $credential_id);
 
-    mysqli_query($mysqli,"UPDATE credentials SET credential_archived_at = NOW() WHERE credential_id = $credential_id");
-
-    logAudit("Credential", "Archive", "$session_name archived credential $credential_name", $client_id, $credential_id);
-
-    flashAlert("Credential <strong>$credential_name</strong> archived", 'error');
+    flashAlert("Password changed on <strong>{$row['credential_name']}</strong>");
 
     redirect();
 
 }
 
-if(isset($_GET['restore_credential'])){
+if (isset($_GET['favorite_credential']) || isset($_GET['unfavorite_credential'])) {
 
     validateCSRFToken();
 
-    enforceUserPermission('module_credential', 2);
+    $favorite = isset($_GET['favorite_credential']) ? 1 : 0;
+    $row = credentialForRequest($favorite ? $_GET['favorite_credential'] : $_GET['unfavorite_credential'], 2);
+    $credential_id = intval($row['credential_id']);
 
-    $credential_id = intval($_GET['restore_credential']);
+    mysqli_query($mysqli, "UPDATE credentials SET credential_favorite = $favorite WHERE credential_id = $credential_id");
 
-    // Get Name and Client ID for logging and alert message
-    $sql = mysqli_query($mysqli,"SELECT credential_name, credential_client_id FROM credentials WHERE credential_id = $credential_id");
-    $row = mysqli_fetch_assoc($sql);
-    $credential_name = escapeSql($row['credential_name']);
-    $client_id = intval($row['credential_client_id']);
+    logAudit("Credential", "Edit", "$session_name " . ($favorite ? 'starred' : 'unstarred') . " credential " . escapeSql($row['credential_name']), $client_id, $credential_id);
 
-    enforceClientAccess();
+    redirect();
 
-    mysqli_query($mysqli,"UPDATE credentials SET credential_archived_at = NULL WHERE credential_id = $credential_id");
+}
 
-    logAudit("Credential", "Restore", "$session_name restored credential $credential_name", $client_id, $credential_id);
+if (isset($_GET['archive_credential'])) {
 
-    flashAlert("Credential <strong>$credential_name</strong> restored");
+    validateCSRFToken();
+
+    $row = credentialForRequest($_GET['archive_credential'], 2);
+    $credential_id = intval($row['credential_id']);
+
+    mysqli_query($mysqli, "UPDATE credentials SET credential_archived_at = NOW() WHERE credential_id = $credential_id");
+
+    logAudit("Credential", "Archive", "$session_name archived credential " . escapeSql($row['credential_name']), $client_id, $credential_id);
+
+    flashAlert("Credential <strong>{$row['credential_name']}</strong> archived", 'error');
+
+    redirect();
+
+}
+
+if (isset($_GET['restore_credential'])) {
+
+    validateCSRFToken();
+
+    $row = credentialForRequest($_GET['restore_credential'], 2);
+    $credential_id = intval($row['credential_id']);
+
+    mysqli_query($mysqli, "UPDATE credentials SET credential_archived_at = NULL WHERE credential_id = $credential_id");
+
+    logAudit("Credential", "Restore", "$session_name restored credential " . escapeSql($row['credential_name']), $client_id, $credential_id);
+
+    flashAlert("Credential <strong>{$row['credential_name']}</strong> restored");
 
     redirect();
 
@@ -145,99 +204,31 @@ if (isset($_GET['delete_credential'])) {
 
     validateCSRFToken();
 
-    enforceUserPermission('module_credential', 3);
+    $row = credentialForRequest($_GET['delete_credential'], 3);
 
-    $credential_id = intval($_GET['delete_credential']);
+    credentialDeleteForGood($row['credential_id']);
 
-    // Get Credential Name and Client ID for logging and alert message
-    $sql = mysqli_query($mysqli,"SELECT credential_name, credential_client_id FROM credentials WHERE credential_id = $credential_id");
-    $row = mysqli_fetch_assoc($sql);
-    $credential_name = escapeSql($row['credential_name']);
-    $client_id = intval($row['credential_client_id']);
+    logAudit("Credential", "Delete", "$session_name deleted credential " . escapeSql($row['credential_name']), $client_id);
 
-    enforceClientAccess();
-
-    mysqli_query($mysqli,"DELETE FROM credentials WHERE credential_id = $credential_id");
-
-    logAudit("Credential", "Delete", "$session_name deleted credential $credential_name", $client_id);
-
-    flashAlert("Credential <strong>$credential_name</strong> deleted", 'error');
+    flashAlert("Credential <strong>{$row['credential_name']}</strong> deleted", 'error');
 
     redirect();
 
 }
 
-if (isset($_POST['bulk_favorite_credentials'])) {
+if (isset($_POST['bulk_favorite_credentials']) || isset($_POST['bulk_unfavorite_credentials'])) {
 
     validateCSRFToken();
 
-    enforceUserPermission('module_support', 2);
-
-    if (isset($_POST['credential_ids'])) {
-
-        $count = count($_POST['credential_ids']);
-
-        foreach ($_POST['credential_ids'] as $credential_id) {
-
-            $credential_id = intval($credential_id);
-
-            // Get Asset Name and Client ID for logging and alert message
-            $sql = mysqli_query($mysqli,"SELECT credential_name, credential_client_id FROM credentials WHERE credential_id = $credential_id");
-            $row = mysqli_fetch_assoc($sql);
-            $credential_name = escapeSql($row['credential_name']);
-            $client_id = intval($row['credential_client_id']);
-
-            enforceClientAccess();
-
-            mysqli_query($mysqli,"UPDATE credentials SET credential_favorite = 1 WHERE credential_id = $credential_id");
-
-            logAudit("Credential", "Edit", "$session_name marked credential $credential_name a favorite", $client_id, $credential_id);
-
-        }
-
-        logAudit("Credential", "Bulk Edit", "$session_name favorited $count credentials", $client_id);
-
-        flashAlert("Favorited <strong>$count</strong> credential(s)");
-
+    $favorite = isset($_POST['bulk_favorite_credentials']) ? 1 : 0;
+    $count = 0;
+    foreach (credentialsForBulk(2) as $credential_id => $row) {
+        mysqli_query($mysqli, "UPDATE credentials SET credential_favorite = $favorite WHERE credential_id = $credential_id");
+        logAudit("Credential", "Edit", "$session_name " . ($favorite ? 'starred' : 'unstarred') . " credential " . escapeSql($row['credential_name']), intval($row['credential_client_id']), $credential_id);
+        $count++;
     }
 
-    redirect();
-
-}
-
-if (isset($_POST['bulk_unfavorite_credentials'])) {
-
-    validateCSRFToken();
-
-    enforceUserPermission('module_support', 2);
-
-    if (isset($_POST['credential_ids'])) {
-
-        $count = count($_POST['credential_ids']);
-
-        foreach ($_POST['credential_ids'] as $credential_id) {
-
-            $credential_id = intval($credential_id);
-
-            // Get Asset Name and Client ID for logging and alert message
-            $sql = mysqli_query($mysqli,"SELECT credential_name, credential_client_id FROM credentials WHERE credential_id = $credential_id");
-            $row = mysqli_fetch_assoc($sql);
-            $credential_name = escapeSql($row['credential_name']);
-            $client_id = intval($row['credential_client_id']);
-
-            enforceClientAccess();
-
-            mysqli_query($mysqli,"UPDATE credentials SET credential_favorite = 0 WHERE credential_id = $credential_id");
-
-            logAudit("Credential", "Edit", "$session_name unfavorited credential $credential_name", $client_id, $credential_id);
-
-        }
-
-        logAudit("Crednetial", "Bulk Edit", "$session_name unfavorited $count credentials", $client_id);
-
-        flashAlert("Unfavorited <strong>$count</strong> credential(s)");
-
-    }
+    flashAlert(($favorite ? 'Starred' : 'Unstarred') . " <strong>$count</strong> credential" . ($count === 1 ? '' : 's'));
 
     redirect();
 
@@ -247,36 +238,14 @@ if (isset($_POST['bulk_archive_credentials'])) {
 
     validateCSRFToken();
 
-    enforceUserPermission('module_credential', 2);
-
-    if (isset($_POST['credential_ids'])) {
-
-        // Get Selected Credential Count
-        $count = count($_POST['credential_ids']);
-
-        // Cycle through array and archive each record
-        foreach ($_POST['credential_ids'] as $credential_id) {
-
-            $credential_id = intval($credential_id);
-
-            // Get Name and Client ID for logging and alert message
-            $sql = mysqli_query($mysqli,"SELECT credential_name, credential_client_id FROM credentials WHERE credential_id = $credential_id");
-            $row = mysqli_fetch_assoc($sql);
-            $credential_name = escapeSql($row['credential_name']);
-            $client_id = intval($row['credential_client_id']);
-
-            enforceClientAccess();
-
-            mysqli_query($mysqli,"UPDATE credentials SET credential_archived_at = NOW() WHERE credential_id = $credential_id");
-
-            logAudit("Credential", "Archive", "$session_name archived credential $credential_name", $client_id, $credential_id);
-        }
-
-        logAudit("Credential", "Bulk Archive", "$session_name archived $count credentials", $client_id);
-
-        flashAlert("Archived <strong>$count</strong> credential(s)", 'error');
-
+    $count = 0;
+    foreach (credentialsForBulk(2) as $credential_id => $row) {
+        mysqli_query($mysqli, "UPDATE credentials SET credential_archived_at = NOW() WHERE credential_id = $credential_id");
+        logAudit("Credential", "Archive", "$session_name archived credential " . escapeSql($row['credential_name']), intval($row['credential_client_id']), $credential_id);
+        $count++;
     }
+
+    flashAlert("Archived <strong>$count</strong> credential" . ($count === 1 ? '' : 's'), 'error');
 
     redirect();
 
@@ -286,37 +255,14 @@ if (isset($_POST['bulk_restore_credentials'])) {
 
     validateCSRFToken();
 
-    enforceUserPermission('module_credential', 2);
-
-    if (isset($_POST['credential_ids'])) {
-
-        // Get Selected Credential Count
-        $count = count($_POST['credential_ids']);
-
-        // Cycle through array and restore
-        foreach ($_POST['credential_ids'] as $credential_id) {
-
-            $credential_id = intval($credential_id);
-
-            // Get Name and Client ID for logging and alert message
-            $sql = mysqli_query($mysqli,"SELECT credential_name, credential_client_id FROM credentials WHERE credential_id = $credential_id");
-            $row = mysqli_fetch_assoc($sql);
-            $credential_name = escapeSql($row['credential_name']);
-            $client_id = intval($row['credential_client_id']);
-
-            enforceClientAccess();
-
-            mysqli_query($mysqli,"UPDATE credentials SET credential_archived_at = NULL WHERE credential_id = $credential_id");
-
-            logAudit("Credential", "Restore", "$session_name restored credential $credential_name", $client_id, $credential_id);
-
-        }
-
-        logAudit("Credential", "Bulk Restore", "$session_name restored $count credential(s)", $client_id);
-
-        flashAlert("Restored <strong>$count</strong> credential(s)");
-
+    $count = 0;
+    foreach (credentialsForBulk(2) as $credential_id => $row) {
+        mysqli_query($mysqli, "UPDATE credentials SET credential_archived_at = NULL WHERE credential_id = $credential_id");
+        logAudit("Credential", "Restore", "$session_name restored credential " . escapeSql($row['credential_name']), intval($row['credential_client_id']), $credential_id);
+        $count++;
     }
+
+    flashAlert("Restored <strong>$count</strong> credential" . ($count === 1 ? '' : 's'));
 
     redirect();
 
@@ -326,37 +272,14 @@ if (isset($_POST['bulk_delete_credentials'])) {
 
     validateCSRFToken();
 
-    enforceUserPermission('module_credential', 3);
-
-    if (isset($_POST['credential_ids'])) {
-
-        // Get Selected Credential Count
-        $count = count($_POST['credential_ids']);
-
-        // Cycle through array and delete each record
-        foreach ($_POST['credential_ids'] as $credential_id) {
-
-            $credential_id = intval($credential_id);
-
-            // Get Name and Client ID for logging and alert message
-            $sql = mysqli_query($mysqli,"SELECT credential_name, credential_client_id FROM credentials WHERE credential_id = $credential_id");
-            $row = mysqli_fetch_assoc($sql);
-            $credential_name = escapeSql($row['credential_name']);
-            $client_id = intval($row['credential_client_id']);
-
-            enforceClientAccess();
-
-            mysqli_query($mysqli, "DELETE FROM credentials WHERE credential_id = $credential_id AND credential_client_id = $client_id");
-
-            logAudit("Credential", "Delete", "$session_name deleted credential $credential_name", $client_id);
-
-        }
-
-        logAudit("Credential", "Bulk Delete", "$session_name deleted $count credential(s)", $client_id);
-
-        flashAlert("Deleted <strong>$count</strong> credential(s)", 'error');
-
+    $count = 0;
+    foreach (credentialsForBulk(3) as $credential_id => $row) {
+        credentialDeleteForGood($credential_id);
+        logAudit("Credential", "Delete", "$session_name deleted credential " . escapeSql($row['credential_name']), intval($row['credential_client_id']));
+        $count++;
     }
+
+    flashAlert("Deleted <strong>$count</strong> credential" . ($count === 1 ? '' : 's'), 'error');
 
     redirect();
 
@@ -405,10 +328,11 @@ if (isExportRequest('export_credentials')) {
         $archive_query = $archived ? "(client_archived_at IS NOT NULL OR credential_archived_at IS NOT NULL)" : "(client_archived_at IS NULL AND credential_archived_at IS NULL)";
     }
 
-    // Tags Filter
+    // Tags Filter - a credential with any of them
+    $tag_query = '';
     if (isset($_POST['tags']) && is_array($_POST['tags']) && !empty($_POST['tags'])) {
         $tag_filter = implode(",", array_map('intval', $_POST['tags']));
-        $tag_query = "AND tags.tag_id IN ($tag_filter)";
+        $tag_query = "AND c.credential_id IN (SELECT credential_id FROM credential_tags WHERE tag_id IN ($tag_filter))";
 
         $tag_names = [];
         $sql_tags = mysqli_query($mysqli, "SELECT tag_name FROM tags WHERE tag_id IN ($tag_filter) ORDER BY tag_name ASC");
@@ -416,9 +340,6 @@ if (isExportRequest('export_credentials')) {
             $tag_names[] = $tag_row['tag_name'];
         }
         $filter_summary['Tags'] = implode(', ', $tag_names);
-    } else {
-        // Default - any
-        $tag_query = '';
     }
 
     // Search Filter
@@ -429,20 +350,20 @@ if (isExportRequest('export_credentials')) {
 
     $sql = mysqli_query(
         $mysqli,
-        "SELECT c.*, clients.*, contacts.*, assets.*
+        "SELECT c.*, client_name, contact_name, asset_name,
+            (SELECT GROUP_CONCAT(tag_name ORDER BY tag_name SEPARATOR ', ') FROM credential_tags ct JOIN tags t ON t.tag_id = ct.tag_id WHERE ct.credential_id = c.credential_id) AS credential_tags,
+            DATE(c.credential_password_changed_at) AS credential_password_changed
         FROM credentials c
-        LEFT JOIN credential_tags ON credential_tags.credential_id = c.credential_id
-        LEFT JOIN tags ON tags.tag_id = credential_tags.tag_id
         LEFT JOIN clients ON client_id = credential_client_id
         LEFT JOIN contacts ON contact_id = credential_contact_id
         LEFT JOIN assets ON asset_id = credential_asset_id
         WHERE $archive_query
         $tag_query
-        AND (c.credential_name LIKE '%$q%' OR c.credential_description LIKE '%$q%' OR c.credential_uri LIKE '%$q%' OR tag_name LIKE '%$q%' OR client_name LIKE '%$q%')
+        AND (c.credential_name LIKE '%$q%' OR c.credential_description LIKE '%$q%' OR c.credential_uri LIKE '%$q%' OR c.credential_note LIKE '%$q%' OR client_name LIKE '%$q%'
+            OR c.credential_id IN (SELECT credential_id FROM credential_tags JOIN tags USING (tag_id) WHERE tag_name LIKE '%$q%'))
         " . clientScopeSql('credential_client_id') . "
         $client_query
-        GROUP BY c.credential_id
-        ORDER BY c.credential_name ASC"
+        ORDER BY client_name ASC, c.credential_name ASC"
     );
 
     $num_rows = mysqli_num_rows($sql);
@@ -478,110 +399,79 @@ if (isset($_POST["import_credentials_csv"])) {
 
     enforceClientAccess();
 
-    $error = false;
-
-    if (!empty($_FILES["file"]["tmp_name"])) {
-        $file_name = $_FILES["file"]["tmp_name"];
-    } else {
+    if (empty($_FILES["file"]["tmp_name"])) {
         flashAlert("Please select a file to upload.", 'error');
         redirect();
     }
+    $file_name = $_FILES["file"]["tmp_name"];
 
-    //Check file is CSV
-    $file_extension = strtolower(end(explode('.',$_FILES['file']['name'])));
-    $allowed_file_extensions = array('csv');
-    if (in_array($file_extension,$allowed_file_extensions) === false){
-        $error = true;
+    if (strtolower(pathinfo((string) $_FILES['file']['name'], PATHINFO_EXTENSION)) !== 'csv') {
         flashAlert("Bad file extension", 'error');
+        redirect();
     }
-
-    //Check file isn't empty
-    elseif ($_FILES["file"]["size"] < 1){
-        $error = true;
+    if ($_FILES["file"]["size"] < 1) {
         flashAlert("Bad file size (empty?)", 'error');
+        redirect();
     }
 
-    //(Else)Check column count
-    $f = fopen($file_name, "r");
-    $f_columns = fgetcsv($f, 1000, ",");
-    if (!$error & count($f_columns) != 6) {
-        $error = true;
-        flashAlert("Bad column count.", 'error');
-    }
-
-    //Else, parse the file
-    if (!$error){
-        $file = fopen($file_name, "r");
-        fgetcsv($file, 1000, ","); // Skip first line
-        $row_count = 0;
-        $duplicate_count = 0;
-        $too_long_count = 0;
-        while(($column = fgetcsv($file, 1000, ",")) !== false){
-            $duplicate_detect = 0;
-
-            // Nothing client-side guards an uploaded file, and an overlong value is a hard
-            // MySQL error - skip the row and report it rather than losing the whole import
-            if (checkCredentialLengths([
-                'name'        => $column[0] ?? null,
-                'description' => $column[1] ?? null,
-                'username'    => $column[2] ?? null,
-                'password'    => $column[3] ?? null,
-                'otp_secret'  => $column[4] ?? null,
-                'uri'         => $column[5] ?? null,
-            ])) {
-                $too_long_count = $too_long_count + 1;
-                continue;
-            }
-
-            // Name
-            if (isset($column[0])) {
-                $name = escapeSql($column[0]);
-                if (mysqli_num_rows(mysqli_query($mysqli,"SELECT 1 FROM credentials WHERE credential_name = '$name' AND credential_client_id = $client_id")) > 0){
-                    $duplicate_detect = 1;
-                }
-            }
-            // Desc
-            if (isset($column[1])) {
-                $description = escapeSql($column[1]);
-            }
-            // User
-            if (isset($column[2])) {
-                $username = escapeSql(encryptCredentialEntry($column[2]));
-            }
-            // Pass
-            if (isset($column[3])) {
-                $password = escapeSql(encryptCredentialEntry($column[3]));
-            }
-            // OTP
-            if (isset($column[4])) {
-                $totp = escapeSql($column[4]);
-            }
-            // URL
-            if (isset($column[5])) {
-                $uri = escapeSql($column[5]);
-            }
-
-            // Check if duplicate was detected
-            if ($duplicate_detect == 0){
-                //Add
-                mysqli_query($mysqli,"INSERT INTO credentials SET credential_name = '$name', credential_description = '$description', credential_uri = '$uri', credential_username = '$username', credential_password = '$password', credential_otp_secret = '$totp', credential_client_id = $client_id");
-                $row_count = $row_count + 1;
-            } else {
-                $duplicate_count = $duplicate_count + 1;
-            }
-        }
+    $file = fopen($file_name, "r");
+    $f_columns = fgetcsv($file, 1000, ",");
+    if (!is_array($f_columns) || count($f_columns) != 6) {
         fclose($file);
-
-        logAudit("Credential", "Import", "$session_name imported $row_count credential(s) via CSV file. $duplicate_count duplicate(s) found and not imported, $too_long_count row(s) skipped for over-length fields", $client_id);
-
-        flashAlert("<strong>$row_count</strong> credential(s) imported, <strong>$duplicate_count</strong> duplicate(s) detected and not imported, <strong>$too_long_count</strong> row(s) skipped for over-length fields", 'warning');
-
+        flashAlert("Bad column count.", 'error');
         redirect();
     }
-    //Check for any errors, if there are notify user and redirect
-    if ($error) {
+
+    // The vault must be open, or every imported password would be saved empty
+    if (encryptCredentialEntry('') === false) {
+        fclose($file);
+        flashAlert('Your vault session has expired, so nothing could be encrypted - sign out and back in, then import again.', 'error');
         redirect();
     }
+
+    $row_count = $duplicate_count = $too_long_count = $bad_otp_count = 0;
+    while (($column = fgetcsv($file, 1000, ",")) !== false) {
+        // Every row stands alone - a column missing on one row must not take the last row's value
+        $column = array_pad($column, 6, '');
+        [$name, $description, $username, $password, $totp, $uri] = array_map(function ($value) {
+            return trim((string) $value);
+        }, array_slice($column, 0, 6));
+
+        if ($name === '') {
+            continue;
+        }
+
+        // Nothing client-side guards an uploaded file, and an overlong value is a hard
+        // MySQL error - skip the row and report it rather than losing the whole import
+        if (checkCredentialLengths(['name' => $name, 'description' => $description, 'username' => $username, 'password' => $password, 'otp_secret' => $totp, 'uri' => $uri])) {
+            $too_long_count++;
+            continue;
+        }
+
+        $otp = credentialOtpSeed($totp);
+        if ($otp === false) {
+            $bad_otp_count++;
+            $otp = '';
+        }
+
+        $name_sql = escapeSql($name);
+        if (mysqli_num_rows(mysqli_query($mysqli, "SELECT 1 FROM credentials WHERE credential_name = '$name_sql' AND credential_client_id = $client_id"))) {
+            $duplicate_count++;
+            continue;
+        }
+
+        mysqli_query($mysqli, "INSERT INTO credentials SET credential_name = '$name_sql', credential_description = '" . escapeSql($description) . "', credential_uri = '" . escapeSql($uri) . "',
+            credential_username = '" . escapeSql(encryptCredentialEntry($username)) . "', credential_password = '" . escapeSql(encryptCredentialEntry($password)) . "',
+            credential_otp_secret = '" . escapeSql($otp) . "', credential_password_changed_at = NOW(), credential_client_id = $client_id");
+        $row_count++;
+    }
+    fclose($file);
+
+    logAudit("Credential", "Import", "$session_name imported $row_count credential(s) via CSV file. $duplicate_count duplicate(s) found and not imported, $too_long_count row(s) skipped for over-length fields", $client_id);
+
+    flashAlert("<strong>$row_count</strong> credential(s) imported, <strong>$duplicate_count</strong> duplicate(s) detected and not imported, <strong>$too_long_count</strong> row(s) skipped for over-length fields" . ($bad_otp_count ? ", <strong>$bad_otp_count</strong> 2FA secret(s) left off - they were not secrets" : ''), 'warning');
+
+    redirect();
 
 }
 

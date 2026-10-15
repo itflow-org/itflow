@@ -71,7 +71,7 @@ if (!$license || ($client_url && intval($license['software_client_id']) !== intv
     $keys_free = count(array_filter($keys, function ($key) {
         return !$key['assets'] && !$key['contacts'];
     }));
-    $credentials = $can_credentials ? linkedRecords('software', $software_id, 'credential') : [];
+    $credentials = $can_credentials ? credentialRows("credential_id IN (SELECT credential_id FROM software_credentials WHERE software_id = $software_id)") : [];
     $documents = linkedRecords('software', $software_id, 'document');
     $files = linkedRecords('software', $software_id, 'file');
     $history = softwareHistory($software_id, 100);
@@ -79,7 +79,7 @@ if (!$license || ($client_url && intval($license['software_client_id']) !== intv
     $license_tabs = [
         'seats' => ['label' => 'Seats', 'icon' => 'fa-users', 'count' => $seats['used']],
         'keys' => ['label' => 'Keys', 'icon' => 'fa-key', 'count' => count($keys) + ($software_key ? 1 : 0)],
-        'credentials' => ['label' => 'Credentials', 'icon' => 'fa-lock', 'count' => count($credentials)],
+        'credentials' => ['label' => 'Credentials', 'icon' => 'fa-key', 'count' => count($credentials)],
         'documents' => ['label' => 'Documents', 'icon' => 'fa-file-alt', 'count' => count($documents)],
         'files' => ['label' => 'Files', 'icon' => 'fa-paperclip', 'count' => count($files)],
         'history' => ['label' => 'History', 'icon' => 'fa-history', 'count' => count($history)],
@@ -510,50 +510,12 @@ if (!$license || ($client_url && intval($license['software_client_id']) !== intv
                             <?php } ?>
                         </div>
                         <?php if ($credentials) { ?>
-                            <div class="table-responsive">
-                                <table class="table table-hover align-middle mb-0">
-                                    <thead class="text-nowrap table-light">
-                                    <tr><th>Name</th><th>Username</th><th>Password</th><th>OTP</th><th></th></tr>
-                                    </thead>
-                                    <tbody>
-                                    <?php foreach ($credentials as $credential) {
-                                        $credential_id = intval($credential['id']);
-                                        $credential_uri = escapeHtml($credential['credential_uri']);
-                                        $credential_username = escapeHtml(decryptCredentialEntry($credential['credential_username'])); ?>
-                                        <tr>
-                                            <td>
-                                                <a class="text-body fw-semibold ajax-modal" href="#" data-modal-url="modals/credential/credential_edit.php?id=<?= $credential_id ?>"><?= escapeHtml($credential['name']) ?></a>
-                                                <?php if ($credential_uri) { ?><a class="ms-1 small" href="<?= escapeUrl($credential['credential_uri']) ?>" target="_blank" rel="noopener" title="<?= $credential_uri ?>"><i class="fas fa-external-link-alt"></i></a><?php } ?>
-                                                <?php if ($credential['credential_description']) { ?><div class="small text-body-secondary"><?= escapeHtml($credential['credential_description']) ?></div><?php } ?>
-                                            </td>
-                                            <td class="text-nowrap">
-                                                <?php if ($credential_username) { ?>
-                                                    <?= $credential_username ?><button type="button" class="itflow-copy clipboardjs" title="Copy username" data-clipboard-text="<?= $credential_username ?>"><i class="far fa-copy"></i></button>
-                                                <?php } else { ?>
-                                                    <span class="text-body-secondary">-</span>
-                                                <?php } ?>
-                                            </td>
-                                            <td class="text-nowrap">
-                                                <button class="btn btn-sm btn-light" aria-label="Show password" title="Show password" type="button" onclick="showPasswordViaCredentialID(this, <?= $credential_id ?>)"><i class="fas fa-ellipsis-h"></i><i class="fas fa-ellipsis-h"></i></button>
-                                                <button type="button" class="itflow-copy" title="Copy password" onclick="copyPasswordViaCredentialID(this, <?= $credential_id ?>)"><i class="far fa-copy"></i></button>
-                                            </td>
-                                            <td class="text-nowrap">
-                                                <?php if (!empty($credential['credential_otp_secret'])) { ?>
-                                                    <span onmouseenter="showOTPViaCredentialID(<?= $credential_id ?>)"><i class="far fa-clock text-secondary me-1"></i><span id="otp_<?= $credential_id ?>"><i>Hover...</i></span></span>
-                                                <?php } else { ?>
-                                                    <span class="text-body-secondary">-</span>
-                                                <?php } ?>
-                                            </td>
-                                            <td class="text-end">
-                                                <?php if ($can_link_credentials) { ?>
-                                                    <a href="<?= $unlink_url('credential', $credential_id) ?>" class="btn btn-sm btn-light" title="Unlink"><i class="fas fa-fw fa-unlink"></i></a>
-                                                <?php } ?>
-                                            </td>
-                                        </tr>
-                                    <?php } ?>
-                                    </tbody>
-                                </table>
-                            </div>
+                            <?= credentialTableHtml($credentials, [
+                                'for' => true,
+                                'unlink' => function ($row) use ($unlink_url, $can_link_credentials) {
+                                    return $can_link_credentials ? $unlink_url('credential', $row['credential_id']) : '';
+                                },
+                            ]) ?>
                         <?php } else { ?>
                             <div class="itflow-asset-empty">No credentials linked.</div>
                         <?php } ?>
@@ -684,11 +646,6 @@ if (!$license || ($client_url && intval($license['software_client_id']) !== intv
         });
     </script>
 
-    <?php if ($credentials) { ?>
-        <!-- Fetch TOTP codes and passwords only when asked for -->
-        <script src="js/credential_show_otp_via_id.js"></script>
-        <script src="js/credential_show_password_via_id.js"></script>
-    <?php } ?>
 
 <?php
 }

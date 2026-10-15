@@ -231,8 +231,8 @@ function assetLinkIcon($url) {
 }
 
 /**
- * $id if that location / contact / vendor / network belongs to the client,
- * else 0. The asset handlers run their picks through this so a hand-edited
+ * $id if that location / contact / vendor / network / asset belongs to the
+ * client, else 0. The handlers run their picks through this so a hand-edited
  * POST can't hang another client's contact or location off an asset.
  */
 function assetClientOwnedId($kind, $id, $client_id) {
@@ -243,6 +243,7 @@ function assetClientOwnedId($kind, $id, $client_id) {
         'contact' => ['contacts', 'contact_id', 'contact_client_id'],
         'vendor' => ['vendors', 'vendor_id', 'vendor_client_id'],
         'network' => ['networks', 'network_id', 'network_client_id'],
+        'asset' => ['assets', 'asset_id', 'asset_client_id'],
     ];
     $id = intval($id);
     $client_id = intval($client_id);

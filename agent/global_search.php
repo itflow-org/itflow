@@ -25,15 +25,15 @@ $search_total = array_sum(array_column($search_results, 'total'));
 
 // Usernames for the credentials shown - decrypted here, the same as the
 // credentials list does, and only for rows that already passed the search's gates
-$search_has_credentials = false;
 $credential_usernames = [];
+$credential_has_otp = [];
 foreach ($search_results as $search_group) {
     if ($search_group['key'] === 'credentials') {
-        $search_has_credentials = true;
         $credential_ids = implode(',', array_map('intval', array_column($search_group['items'], 'id')));
-        $sql_credential_usernames = mysqli_query($mysqli, "SELECT credential_id, credential_username FROM credentials WHERE credential_id IN ($credential_ids)");
+        $sql_credential_usernames = mysqli_query($mysqli, "SELECT credential_id, credential_username, credential_otp_secret FROM credentials WHERE credential_id IN ($credential_ids)");
         while ($row = mysqli_fetch_assoc($sql_credential_usernames)) {
-            $credential_usernames[intval($row['credential_id'])] = decryptCredentialEntry($row['credential_username']);
+            $credential_usernames[intval($row['credential_id'])] = credentialUsername($row);
+            $credential_has_otp[intval($row['credential_id'])] = trim((string) $row['credential_otp_secret']) !== '';
         }
     }
 }
@@ -192,15 +192,16 @@ function searchResultBadge($badge) {
 
                                 <?php if ($search_group['key'] === 'credentials') {
                                     $credential_id = intval($item['id']);
-                                    $credential_username = escapeHtml($credential_usernames[$credential_id] ?? '');
+                                    $credential_username = $credential_usernames[$credential_id] ?? '';
                                     ?>
-                                    <div class="text-nowrap d-none d-md-block">
+                                    <div class="text-nowrap d-none d-md-flex align-items-center small">
                                         <?php if ($credential_username !== '') { ?>
-                                            <span class="small"><?= $credential_username ?></span><button type="button" class="itflow-copy clipboardjs" title="Copy username" data-clipboard-text="<?= $credential_username ?>"><i class="far fa-copy"></i></button>
+                                            <?= credentialUsernameHtml($credential_username) ?>
                                         <?php } ?>
                                     </div>
-                                    <div class="text-nowrap">
-                                        <button class="btn p-0" aria-label="Show password" type="button" onclick="showPasswordViaCredentialID(this, <?= $credential_id ?>)"><i class="fas fa-ellipsis-h text-secondary"></i><i class="fas fa-ellipsis-h text-secondary"></i></button><button type="button" class="itflow-copy" title="Copy password" onclick="copyPasswordViaCredentialID(this, <?= $credential_id ?>)"><i class="far fa-copy"></i></button>
+                                    <div class="text-nowrap d-flex align-items-center gap-2 small">
+                                        <?= credentialPasswordHtml($credential_id) ?>
+                                        <?= credentialOtpHtml($credential_id, !empty($credential_has_otp[$credential_id])) ?>
                                     </div>
                                 <?php } ?>
 
@@ -233,10 +234,6 @@ function searchResultBadge($badge) {
 
     </div>
 </div>
-
-<?php if ($search_has_credentials) { ?>
-    <script src="js/credential_show_password_via_id.js"></script>
-<?php } ?>
 
 <?php
 require_once "../includes/footer.php";

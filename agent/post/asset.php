@@ -72,17 +72,26 @@ if (isset($_POST['add_asset'])) {
     // Add Primary Interface
     mysqli_query($mysqli,"INSERT INTO asset_interfaces SET interface_name = '01', interface_mac = '$mac', interface_ip = '$ip', interface_nat_ip = '$nat_ip', interface_ipv6 = '$ipv6', interface_primary = 1, interface_network_id = $network, interface_asset_id = $asset_id");
 
-    if (!empty($_POST['password'])) {
-        $username = trim(mysqli_real_escape_string($mysqli, encryptCredentialEntry($_POST['username'])));
-        $password = trim(mysqli_real_escape_string($mysqli, encryptCredentialEntry($_POST['password'])));
+    // A username or a password on its own is enough to keep
+    if (trim((string) ($_POST['username'] ?? '')) !== '' || trim((string) ($_POST['password'] ?? '')) !== '') {
+        $username = encryptCredentialEntry(trim((string) ($_POST['username'] ?? '')));
+        $password = encryptCredentialEntry(trim((string) ($_POST['password'] ?? '')));
 
-        mysqli_query($mysqli,"INSERT INTO credentials SET credential_name = '$name', credential_username = '$username', credential_password = '$password', credential_asset_id = $asset_id, credential_client_id = $client_id");
+        // A vault session that didn't open encrypts to nothing - better no login than one that can never be read
+        if ($username === false || $password === false) {
+            $alert_extended = ", but not its login - your vault session has expired, so sign in again and add it from the asset";
+        } else {
+            $username = escapeSql($username);
+            $password = escapeSql($password);
 
-        $credential_id = mysqli_insert_id($mysqli);
+            mysqli_query($mysqli,"INSERT INTO credentials SET credential_name = '$name', credential_username = '$username', credential_password = '$password', credential_password_changed_at = NOW(), credential_asset_id = $asset_id, credential_client_id = $client_id");
 
-        logAudit("Credential", "Create", "$session_name created login credential for asset $name", $client_id, $credential_id);
+            $credential_id = mysqli_insert_id($mysqli);
 
-        $alert_extended = " along with login credentials";
+            logAudit("Credential", "Create", "$session_name created login credential for asset $name", $client_id, $credential_id);
+
+            $alert_extended = " along with login credentials";
+        }
 
     }
 
@@ -91,7 +100,7 @@ if (isset($_POST['add_asset'])) {
 
     logAudit("Asset", "Create", "$session_name created asset $name", $client_id, $asset_id);
 
-    flashAlert("Asset <strong>$name</strong> created $alert_extended");
+    flashAlert("Asset <strong>$name</strong> created$alert_extended");
 
     redirect();
 
@@ -255,6 +264,9 @@ if (isset($_GET['delete_asset'])) {
 
     // Out of whatever rack it was in - an item pointing at a deleted asset draws as nothing
     mysqli_query($mysqli,"DELETE FROM rack_units WHERE unit_asset_id = $asset_id");
+
+    // Its logins stay with the client, no longer pointing at an asset that is gone
+    credentialsForget('asset', $asset_id);
 
     logAudit("Asset", "Delete", "$session_name deleted asset $asset_name", $client_id);
 
@@ -841,6 +853,7 @@ if (isset($_POST['bulk_delete_assets'])) {
 
             mysqli_query($mysqli,"DELETE FROM assets WHERE asset_id = $asset_id");
             mysqli_query($mysqli,"DELETE FROM rack_units WHERE unit_asset_id = $asset_id");
+            credentialsForget('asset', $asset_id);
 
             logAudit("Asset", "Delete", "$session_name deleted asset $asset_name", $client_id, $asset_id);
         }
@@ -864,6 +877,8 @@ if (isset($_POST['link_asset_to_credential'])) {
     validateCSRFToken();
 
     enforceUserPermission('module_support', 2);
+    // It changes the credential, so it takes credential edit rights too
+    enforceUserPermission('module_credential', 2);
 
     $credential_id = intval($_POST['credential_id']);
     $asset_id = intval($_POST['asset_id']);
@@ -871,10 +886,20 @@ if (isset($_POST['link_asset_to_credential'])) {
     // Get credential Name and Client ID for logging
     $sql_credential = mysqli_query($mysqli,"SELECT credential_name, credential_client_id FROM credentials WHERE credential_id = $credential_id");
     $row = mysqli_fetch_assoc($sql_credential);
+    if (!$row) {
+        flashAlert("That credential no longer exists", 'error');
+        redirect();
+    }
     $credential_name = escapeSql($row['credential_name']);
     $client_id = intval($row['credential_client_id']);
 
     enforceClientAccess();
+
+    // Only to one of the same client's assets
+    if (!assetClientOwnedId('asset', $asset_id, $client_id)) {
+        flashAlert("That asset isn't one of this client's", 'error');
+        redirect();
+    }
 
     // Get Asset Name for logging
     $asset_name = escapeSql(getFieldById('assets', $asset_id, 'asset_name'));
@@ -894,6 +919,7 @@ if (isset($_GET['unlink_credential_from_asset'])) {
     validateCSRFToken();
 
     enforceUserPermission('module_support', 2);
+    enforceUserPermission('module_credential', 2);
 
     $asset_id = intval($_GET['asset_id']);
     $credential_id = intval($_GET['credential_id']);
@@ -909,11 +935,12 @@ if (isset($_GET['unlink_credential_from_asset'])) {
     // Get Asset Name for logging
     $asset_name = escapeSql(getFieldById('assets', $asset_id, 'asset_name'));
 
-    mysqli_query($mysqli,"UPDATE credentials SET credential_asset_id = 0 WHERE credential_id = $credential_id");
+    // Only if it is this asset's - an old link can't unpick a newer one
+    mysqli_query($mysqli,"UPDATE credentials SET credential_asset_id = 0 WHERE credential_id = $credential_id AND credential_asset_id = $asset_id");
 
     logAudit("Credential", "Unlink", "$session_name unlinked asset $asset_name from credential $credential_name", $client_id, $credential_id);
 
-    flashAlert("Credential <strong>$credential_name</strong> unlinked from Asset <strong>$asset_name</strong>", 'errpr');
+    flashAlert("Credential <strong>$credential_name</strong> unlinked from Asset <strong>$asset_name</strong>");
 
     redirect();
 

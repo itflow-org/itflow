@@ -713,6 +713,7 @@ if (isset($_POST['bulk_delete_contacts'])) {
             }
 
             mysqli_query($mysqli, "DELETE FROM contacts WHERE contact_id = $contact_id AND contact_client_id = $client_id");
+            credentialsForget('contact', $contact_id);
 
             logAudit("Contact", "Delete", "$session_name deleted $contact_name", $client_id);
 
@@ -922,6 +923,9 @@ if (isset($_GET['delete_contact'])) {
 
     mysqli_query($mysqli,"DELETE FROM contacts WHERE contact_id = $contact_id");
 
+    // Their logins stay with the client, no longer pointing at a contact that is gone
+    credentialsForget('contact', $contact_id);
+
     logAudit("Contact", "Delete", "$session_name deleted contact $contact_name", $client_id);
 
     flashAlert("Contact <strong>$contact_name</strong> has been deleted.", 'error');
@@ -997,6 +1001,8 @@ if (isset($_POST['link_contact_to_credential'])) {
     validateCSRFToken();
 
     enforceUserPermission('module_client', 2);
+    // It changes the credential, so it takes credential edit rights too
+    enforceUserPermission('module_credential', 2);
 
     $credential_id = intval($_POST['credential_id']);
     $contact_id = intval($_POST['contact_id']);
@@ -1004,17 +1010,27 @@ if (isset($_POST['link_contact_to_credential'])) {
     // Get credential Name and Client ID for logging
     $sql_credential = mysqli_query($mysqli,"SELECT credential_name, credential_client_id FROM credentials WHERE credential_id = $credential_id");
     $row = mysqli_fetch_assoc($sql_credential);
+    if (!$row) {
+        flashAlert("That credential no longer exists", 'error');
+        redirect();
+    }
     $credential_name = escapeSql($row['credential_name']);
     $client_id = intval($row['credential_client_id']);
 
     enforceClientAccess();
+
+    // Only to one of the same client's people
+    if (!assetClientOwnedId('contact', $contact_id, $client_id)) {
+        flashAlert("That contact isn't one of this client's", 'error');
+        redirect();
+    }
 
     // Get Contact Name for logging
     $contact_name = escapeSql(getFieldById('contacts', $contact_id, 'contact_name'));
 
     mysqli_query($mysqli,"UPDATE credentials SET credential_contact_id = $contact_id WHERE credential_id = $credential_id");
 
-    logAudit("Asset", "Link", "$session_name linked credential $credential_name to contact $contact_name", $client_id, $credential_id);
+    logAudit("Credential", "Link", "$session_name linked credential $credential_name to contact $contact_name", $client_id, $credential_id);
 
     flashAlert("Contact <strong>$contact_name</strong> linked with credential <strong>$credential_name</strong>");
 
@@ -1027,6 +1043,7 @@ if (isset($_GET['unlink_credential_from_contact'])) {
     validateCSRFToken();
 
     enforceUserPermission('module_client', 2);
+    enforceUserPermission('module_credential', 2);
 
     $contact_id = intval($_GET['contact_id']);
     $credential_id = intval($_GET['credential_id']);
@@ -1042,11 +1059,12 @@ if (isset($_GET['unlink_credential_from_contact'])) {
     // Get Contact Name for logging
     $contact_name = escapeSql(getFieldById('contacts', $contact_id, 'contact_name'));
 
-    mysqli_query($mysqli,"UPDATE credentials SET credential_contact_id = 0 WHERE credential_id = $credential_id");
+    // Only if it is this contact's - an old link can't unpick a newer one
+    mysqli_query($mysqli,"UPDATE credentials SET credential_contact_id = 0 WHERE credential_id = $credential_id AND credential_contact_id = $contact_id");
 
     logAudit("Credential", "Unlink", "$session_name unlinked contact $contact_name from credential $credential_name", $client_id, $credential_id);
 
-    flashAlert("Credential <strong>$credential_name</strong> unlinked from Contact <strong>$contact_name</strong>", 'error');
+    flashAlert("Credential <strong>$credential_name</strong> unlinked from Contact <strong>$contact_name</strong>");
 
     redirect();
 

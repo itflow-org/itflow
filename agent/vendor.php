@@ -130,7 +130,8 @@ if (!$vendor || (isset($_GET['client_id']) && $vendor_client_id !== intval($clie
         }
     }
     if ($can_credentials && !$is_ours) {
-        $logins = linkedRecords('vendor', $vendor_id, 'credential');
+        // The whole credential, so the password and 2FA code are right there to use
+        $logins = credentialRows("credential_id IN (SELECT credential_id FROM vendor_credentials WHERE vendor_id = $vendor_id)");
     }
 
     // What we spend with one of ours
@@ -276,7 +277,7 @@ if (!$vendor || (isset($_GET['client_id']) && $vendor_client_id !== intval($clie
                                     </a>
                                 <?php } ?>
                                 <?php if ($can_credentials_edit) { ?>
-                                    <a class="dropdown-item ajax-modal" href="#" data-modal-url="modals/credential/credential_add.php?client_id=<?= $client_id ?>&vendor_id=<?= $vendor_id ?>">
+                                    <a class="dropdown-item ajax-modal" href="#" data-modal-size="lg" data-modal-url="modals/credential/credential_add.php?client_id=<?= $client_id ?>&vendor_id=<?= $vendor_id ?>">
                                         <i class="fa fa-fw fa-key text-secondary me-2"></i>Portal login
                                     </a>
                                 <?php } ?>
@@ -630,7 +631,7 @@ if (!$vendor || (isset($_GET['client_id']) && $vendor_client_id !== intval($clie
                                             <i class="fas fa-link me-2"></i>Link
                                         </button>
                                         <?php if ($to === 'credential') { ?>
-                                            <button type="button" class="btn btn-sm btn-primary ajax-modal" data-modal-url="modals/credential/credential_add.php?client_id=<?= $client_id ?>&vendor_id=<?= $vendor_id ?>">
+                                            <button type="button" class="btn btn-sm btn-primary ajax-modal" data-modal-size="lg" data-modal-url="modals/credential/credential_add.php?client_id=<?= $client_id ?>&vendor_id=<?= $vendor_id ?>">
                                                 <i class="fas fa-plus me-2"></i>New Login
                                             </button>
                                         <?php } elseif ($to === 'document') { ?>
@@ -645,7 +646,14 @@ if (!$vendor || (isset($_GET['client_id']) && $vendor_client_id !== intval($clie
                                     </div>
                                 <?php } ?>
                             </div>
-                            <?php if ($linked) { ?>
+                            <?php if ($linked && $to === 'credential') { ?>
+                                <?= credentialTableHtml($linked, [
+                                    'for' => true,
+                                    'unlink' => function ($row) use ($unlink_url, $can_link) {
+                                        return $can_link ? $unlink_url('credential', $row['credential_id']) : '';
+                                    },
+                                ]) ?>
+                            <?php } elseif ($linked) { ?>
                                 <ul class="list-unstyled mb-0 itflow-links itflow-license-links">
                                     <?php foreach ($linked as $linked_row) { ?>
                                         <li class="itflow-link-row">

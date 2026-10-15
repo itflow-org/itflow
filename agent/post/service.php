@@ -60,7 +60,8 @@ if (isset($_POST['add_service'])) {
     if (isset($_POST['credentials'])) {
         foreach($_POST['credentials'] as $credential_id) {
             $credential_id = intval($credential_id);
-            mysqli_query($mysqli, "INSERT INTO service_credentials SET service_id = $service_id, credential_id = $credential_id");
+            // Only the client's own credentials
+            mysqli_query($mysqli, "INSERT INTO service_credentials (service_id, credential_id) SELECT $service_id, credential_id FROM credentials WHERE credential_id = $credential_id AND credential_client_id = $client_id");
         }
     }
 
@@ -148,7 +149,8 @@ if (isset($_POST['edit_service'])) {
     if (isset($_POST['credentials'])) {
         foreach($_POST['credentials'] as $credential_id) {
             $credential_id = intval($credential_id);
-            mysqli_query($mysqli, "INSERT INTO service_credentials SET service_id = $service_id, credential_id = $credential_id");
+            // Only the client's own credentials
+            mysqli_query($mysqli, "INSERT INTO service_credentials (service_id, credential_id) SELECT $service_id, credential_id FROM credentials WHERE credential_id = $credential_id AND credential_client_id = $client_id");
         }
     }
 

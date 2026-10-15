@@ -40,7 +40,7 @@ $can_credentials = lookupUserPermission('module_credential') >= 1;
 
 $holders = softwareSeatHolders($software_id);
 $keys = softwareKeys($software_id);
-$credentials = $can_credentials ? linkedRecords('software', $software_id, 'credential') : [];
+$credentials = $can_credentials ? credentialRows("credential_id IN (SELECT credential_id FROM software_credentials WHERE software_id = $software_id)") : [];
 $documents = linkedRecords('software', $software_id, 'document');
 $files = linkedRecords('software', $software_id, 'file');
 
@@ -216,31 +216,8 @@ ob_start();
 
                 <?php if ($credentials) { ?>
                     <div class="tab-pane fade <?= $first_tab === 'credentials' ? 'show active' : '' ?>" id="<?= $quick_id ?>-credentials" role="tabpanel">
-                        <div class="table-responsive">
-                            <table class="table table-sm table-hover align-middle mb-0">
-                                <tbody>
-                                <?php foreach ($credentials as $credential) {
-                                    $credential_id = intval($credential['id']);
-                                    $credential_username = escapeHtml(decryptCredentialEntry($credential['credential_username'])); ?>
-                                    <tr>
-                                        <td>
-                                            <a class="ajax-modal" href="#" data-modal-url="modals/credential/credential_edit.php?id=<?= $credential_id ?>"><?= escapeHtml($credential['name']) ?></a>
-                                            <?php if ($credential['credential_uri']) { ?><a class="ms-1 small" href="<?= escapeUrl($credential['credential_uri']) ?>" target="_blank" rel="noopener" title="<?= escapeHtml($credential['credential_uri']) ?>"><i class="fas fa-external-link-alt"></i></a><?php } ?>
-                                        </td>
-                                        <td class="text-nowrap"><?php if ($credential_username) { ?><?= $credential_username ?><button type="button" class="itflow-copy clipboardjs" title="Copy username" data-clipboard-text="<?= $credential_username ?>"><i class="far fa-copy"></i></button><?php } else { ?><span class="text-body-secondary">-</span><?php } ?></td>
-                                        <td class="text-nowrap">
-                                            <button class="btn btn-sm btn-light" aria-label="Show password" title="Show password" type="button" onclick="showPasswordViaCredentialID(this, <?= $credential_id ?>)"><i class="fas fa-ellipsis-h"></i><i class="fas fa-ellipsis-h"></i></button>
-                                            <button type="button" class="itflow-copy" title="Copy password" onclick="copyPasswordViaCredentialID(this, <?= $credential_id ?>)"><i class="far fa-copy"></i></button>
-                                        </td>
-                                    </tr>
-                                <?php } ?>
-                                </tbody>
-                            </table>
-                        </div>
+                        <?= credentialListHtml($credentials) ?>
                     </div>
-                    <?php /* js/, not ../js/ - this file is injected by js/ajax_modal.js, so a
-                             relative src resolves against the host page's URL (/agent/...) */ ?>
-                    <script src="js/credential_show_password_via_id.js"></script>
                 <?php } ?>
 
                 <?php foreach (['documents' => ['document', $documents], 'files' => ['file', $files]] as $pane => [$to, $linked]) {

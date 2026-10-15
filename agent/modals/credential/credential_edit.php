@@ -4,49 +4,43 @@ require_once '../../../includes/modal_header.php';
 
 enforceUserPermission('module_credential', 2);
 
-$credential_id = intval($_GET['id']);
-
-$sql = mysqli_query($mysqli, "SELECT credential_archived_at, credential_asset_id, credential_client_id, credential_contact_id,
-    credential_created_at, credential_description, credential_favorite, credential_name,
-    credential_note, credential_otp_secret, credential_password, credential_uri,
-    credential_uri_2, credential_username FROM credentials WHERE credential_id = $credential_id LIMIT 1");
-
-$row = mysqli_fetch_assoc($sql);
-$client_id = intval($row['credential_client_id']);
-$credential_name = escapeHtml($row['credential_name']);
-$credential_description = escapeHtml($row['credential_description']);
-$credential_uri = escapeHtml($row['credential_uri']);
-$credential_uri_2 = escapeHtml($row['credential_uri_2']);
-$credential_uri_link = escapeUrl($row['credential_uri']);
-$credential_uri_2_link = escapeUrl($row['credential_uri_2']);
-$credential_username = escapeHtml(decryptCredentialEntry($row['credential_username']));
-$credential_password = escapeHtml(decryptCredentialEntry($row['credential_password']));
-$credential_otp_secret = escapeHtml($row['credential_otp_secret']);
-$credential_note = escapeHtml($row['credential_note']);
-$credential_created_at = escapeHtml($row['credential_created_at']);
-$credential_archived_at = escapeHtml($row['credential_archived_at']);
-$credential_favorite = intval($row['credential_favorite']);
-$credential_contact_id = intval($row['credential_contact_id']);
-$credential_asset_id = intval($row['credential_asset_id']);
-
-// Tags
-$credential_tag_id_array = array();
-$sql_credential_tags = mysqli_query($mysqli, "SELECT tag_id FROM credential_tags WHERE credential_id = $credential_id");
-while ($row = mysqli_fetch_assoc($sql_credential_tags)) {
-    $credential_tag_id = intval($row['tag_id']);
-    $credential_tag_id_array[] = $credential_tag_id;
+$credential_id = intval($_GET['id'] ?? 0);
+$credential = credentialRow($credential_id);
+if (!$credential) {
+    echo json_encode(['error' => 'That credential no longer exists.']);
+    exit;
 }
-
+$client_id = intval($credential['credential_client_id']);
 enforceClientAccess();
 
-logAudit("Credential", "View", "$session_name viewed credential $credential_name (edit)", $client_id, $credential_id);
+// The form shows the password, so opening it counts as a view
+logAudit("Credential", "View", "$session_name viewed credential " . escapeSql($credential['credential_name']) . " (edit)", $client_id, $credential_id);
+
+$credential_form_mode = 'edit';
+$credential_name = escapeHtml($credential['credential_name']);
+$credential_description = escapeHtml($credential['credential_description']);
+$credential_username = escapeHtml(credentialUsername($credential));
+$credential_password = escapeHtml((string) decryptCredentialEntry($credential['credential_password']));
+$credential_otp_secret = escapeHtml($credential['credential_otp_secret']);
+$credential_uri = escapeHtml($credential['credential_uri']);
+$credential_uri_2 = escapeHtml($credential['credential_uri_2']);
+$credential_note = escapeHtml($credential['credential_note']);
+$credential_favorite = intval($credential['credential_favorite']);
+$credential_contact_id = intval($credential['credential_contact_id']);
+$credential_asset_id = intval($credential['credential_asset_id']);
+$credential_tag_ids = array_map(function ($tag) {
+    return intval($tag['tag_id']);
+}, tagsForRecord('credential', $credential_id));
+
+// Without the vault open the password shows blank and would be saved back blank - stop that here
+$vault_open = encryptCredentialEntry('') !== false;
 
 ob_start();
 
 ?>
 
 <div class="modal-header bg-dark">
-    <h5 class="modal-title"><i class='fas fa-fw fa-key me-2'></i>Editing credential: <strong><?= $credential_name ?></strong></h5>
+    <h5 class="modal-title text-truncate"><i class="fas fa-fw fa-key me-2"></i>Editing credential: <strong><?= $credential_name ?></strong></h5>
     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
 </div>
 
@@ -54,185 +48,13 @@ ob_start();
     <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
     <input type="hidden" name="credential_id" value="<?= $credential_id ?>">
     <div class="modal-body">
-
-        <ul class="nav nav-pills nav-justified mb-3">
-            <li class="nav-item">
-                <a class="nav-link active" data-bs-toggle="pill" href="#pills-credential-details<?= $credential_id ?>">Details</a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" data-bs-toggle="pill" href="#pills-credential-relation<?= $credential_id ?>">Relation</a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" data-bs-toggle="pill" href="#pills-credential-notes<?= $credential_id ?>">Notes</a>
-            </li>
-        </ul>
-
-        <hr>
-
-        <div class="tab-content" <?php if (lookupUserPermission('module_credential') <= 1) { echo 'inert'; } ?>>
-
-            <div class="tab-pane fade show active" id="pills-credential-details<?= $credential_id ?>">
-
-                <div class="mb-3">
-                    <label>Name <strong class="text-danger">*</strong> / <span class="text-secondary">Important?</span></label>
-                    <div class="input-group">
-                            <span class="input-group-text"><i class="fa fa-fw fa-key"></i></span>
-                        <input type="text" class="form-control" name="name" placeholder="Name of Credential" maxlength="200" value="<?= $credential_name ?>" required>
-                            <div class="input-group-text">
-                                <label class="star-toggle mb-0" title="Favorite">
-                                    <input class="form-check-input" type="checkbox"
-                                            name="favorite"
-                                            value="1"
-                                            <?php if($credential_favorite) { echo 'checked'; } ?>>
-                                    <i class="far fa-star"></i>
-                                </label>
-                            </div>
-                    </div>
-                </div>
-
-                <div class="mb-3">
-                    <label>Description</label>
-                    <div class="input-group">
-                            <span class="input-group-text"><i class="fa fa-fw fa-align-left"></i></span>
-                        <input type="text" class="form-control" name="description" placeholder="Description" maxlength="500" value="<?= $credential_description ?>">
-                    </div>
-                </div>
-
-                <div class="mb-3">
-                    <label>Username / ID</label>
-                    <div class="input-group">
-                            <span class="input-group-text"><i class="fa fa-fw fa-user"></i></span>
-                        <input type="text" class="form-control" name="username" placeholder="Username or ID" maxlength="350" value="<?= $credential_username ?>">
-                    </div>
-                </div>
-
-                <div class="mb-3">
-                    <label>Password / Key <strong class="text-danger">*</strong></label>
-                    <div class="input-group">
-                            <span class="input-group-text"><i class="fa fa-fw fa-lock"></i></span>
-                        <input type="password" class="form-control" data-toggle="password" name="password" placeholder="Password or Key" maxlength="350" value="<?= $credential_password ?>" required autocomplete="new-password">
-                            <span class="input-group-text"><i class="fa fa-fw fa-eye"></i></span>
-                            <button class="input-group-text clipboardjs" title="Copy password" type="button" data-clipboard-target="input[name=password]"><i class="far fa-fw fa-copy"></i></button>
-                    </div>
-                </div>
-
-                <div class="mb-3">
-                    <label>OTP</label>
-                    <div class="input-group">
-                            <span class="input-group-text"><i class="fa fa-fw fa-key"></i></span>
-                        <input type="password" class="form-control" data-toggle="password" name="otp_secret" maxlength="200" value="<?= $credential_otp_secret ?>" placeholder="Insert secret key">
-                            <span class="input-group-text"><i class="fa fa-fw fa-eye"></i></span>
-                    </div>
-                </div>
-
-                <div class="mb-3">
-                    <label>URI</label>
-                    <div class="input-group">
-                            <span class="input-group-text"><i class="fa fa-fw fa-link"></i></span>
-                        <input type="text" class="form-control" name="uri" placeholder="ex. http://192.168.1.1" maxlength="500" value="<?= $credential_uri ?>">
-
-                            <a href="<?= $credential_uri_link ?>" target="_blank" class="input-group-text"><i class="fa fa-fw fa-link"></i></a>
-                            <button class="input-group-text clipboardjs" title="Copy URI" type="button" data-clipboard-target="input[name=uri]"><i class="far fa-fw fa-copy"></i></button>
-                    </div>
-                </div>
-
-                <div class="mb-3">
-                    <label>URI 2</label>
-                    <div class="input-group">
-                            <span class="input-group-text"><i class="fa fa-fw fa-link"></i></span>
-                        <input type="text" class="form-control" name="uri_2" placeholder="ex. https://server.company.com:5001" maxlength="500" value="<?= $credential_uri_2 ?>">
-                            <a href="<?= $credential_uri_2_link ?>" target="_blank" class="input-group-text"><i class="fa fa-fw fa-link"></i></a>
-                            <button class="input-group-text clipboardjs" title="Copy URI 2" type="button" data-clipboard-target="input[name=uri_2]"><i class="far fa-fw fa-copy"></i></button>
-                    </div>
-                </div>
-
-            </div>
-
-            <div class="tab-pane fade" id="pills-credential-relation<?= $credential_id ?>">
-
-                <div class="mb-3">
-                    <label>Contact</label>
-                    <div class="input-group">
-                            <span class="input-group-text"><i class="fa fa-fw fa-user"></i></span>
-                        <select class="form-select select2" name="contact">
-                            <option value="">- Select Contact -</option>
-                            <?php
-
-                            $sql_contacts = mysqli_query($mysqli, "SELECT contact_id, contact_name, contact_client_id, contact_photo, contact_title FROM contacts WHERE contact_client_id = $client_id ORDER BY contact_name ASC");
-                            while ($row = mysqli_fetch_assoc($sql_contacts)) {
-                                $contact_id_select = intval($row['contact_id']);
-                                $contact_name_select = escapeHtml($row['contact_name']);
-                                ?>
-                                <option <?php if ($credential_contact_id == $contact_id_select) { echo "selected"; } ?> value="<?= $contact_id_select ?>"<?= selectOptionContact($row['contact_client_id'] ?? 0, $row['contact_name'], $row['contact_photo'] ?? '', $row['contact_title'] ?? '', $row['contact_id'] ?? 0) ?>><?= $contact_name_select ?></option>
-                            <?php } ?>
-                        </select>
-                    </div>
-                </div>
-
-                <div class="mb-3">
-                    <label>Asset</label>
-                    <div class="input-group">
-                            <span class="input-group-text"><i class="fa fa-fw fa-tag"></i></span>
-                        <select class="form-select select2" name="asset">
-                            <option value="0">- Select Asset -</option>
-                            <?php
-
-                            $sql_assets = mysqli_query($mysqli, "SELECT asset_id, asset_name, asset_type, asset_make, asset_model, location_name  FROM assets LEFT JOIN locations on asset_location_id = location_id WHERE asset_client_id = $client_id AND asset_archived_at IS NULL ORDER BY asset_name ASC");
-                            while ($row = mysqli_fetch_assoc($sql_assets)) {
-                                $asset_id_select = intval($row['asset_id']);
-                                $asset_name_select = escapeHtml($row['asset_name']);
-                                $asset_location_select = escapeHtml($row['location_name']);
-
-                                $asset_select_display_string = $asset_name_select;
-                                if (!empty($asset_location_select)) {
-                                    $asset_select_display_string = "$asset_name_select ($asset_location_select)";
-                                }
-
-                                ?>
-                                <option <?php if ($credential_asset_id == $asset_id_select) { echo "selected"; } ?> value="<?= $asset_id_select ?>"<?= selectOptionAsset($row['asset_type'] ?? '', trim(($row['asset_make'] ?? '') . ' ' . ($row['asset_model'] ?? ''))) ?>><?= $asset_select_display_string ?></option>
-
-                            <?php } ?>
-                        </select>
-                    </div>
-                </div>
-
-            </div>
-
-            <div class="tab-pane fade" id="pills-credential-notes<?= $credential_id ?>">
-
-                <div class="mb-3">
-                    <textarea class="form-control" rows="12" placeholder="Enter some notes" name="note"><?= $credential_note ?></textarea>
-                </div>
-
-                <div class="mb-3">
-                    <label>Tags</label>
-                    <div class="input-group">
-                            <span class="input-group-text"><i class="fa fa-fw fa-tags"></i></span>
-                        <select class="form-select select2" name="tags[]" data-placeholder="Add some tags" multiple>
-                            <?php
-
-                            $sql_tags_select = mysqli_query($mysqli, "SELECT tag_id, tag_name, tag_color, tag_icon FROM tags WHERE tag_type = 4 ORDER BY tag_name ASC");
-                            while ($row = mysqli_fetch_assoc($sql_tags_select)) {
-                                $tag_id_select = intval($row['tag_id']);
-                                $tag_name_select = escapeHtml($row['tag_name']);
-                                ?>
-                                <option value="<?= $tag_id_select ?>" <?php if (in_array($tag_id_select, $credential_tag_id_array)) { echo "selected"; } ?><?= selectOptionColor($row['tag_color'] ?? '', $row['tag_icon'] ?? '') ?>><?= $tag_name_select ?></option>
-                            <?php } ?>
-
-                        </select>
-                            <button class="btn btn-secondary ajax-modal" title="New tag" type="button"
-                                data-modal-url="../admin/modals/tag/tag_add.php?type=4">
-                                <i class="fas fa-plus"></i>
-                            </button>
-                    </div>
-                </div>
-
-            </div>
-
-        </div>
+        <?php if (!$vault_open) { ?>
+            <div class="alert alert-warning small"><i class="fas fa-lock me-2"></i>Your vault session has expired, so this login cannot be read or saved. Sign out and back in first.</div>
+        <?php } ?>
+        <?php require 'credential_form.php'; ?>
     </div>
     <div class="modal-footer">
-        <button type="submit" name="edit_credential" class="btn btn-primary text-bold"><i class="fa fa-check me-2"></i>Save</button>
+        <button type="submit" name="edit_credential" class="btn btn-primary text-bold" <?= $vault_open ? '' : 'disabled' ?>><i class="fa fa-check me-2"></i>Save</button>
         <button type="button" class="btn btn-light" data-bs-dismiss="modal"><i class="fa fa-times me-2"></i>Cancel</button>
     </div>
 </form>

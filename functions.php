@@ -24,6 +24,7 @@ require_once __DIR__ . '/functions/contact.php';
 require_once __DIR__ . '/functions/software.php';
 require_once __DIR__ . '/functions/location.php';
 require_once __DIR__ . '/functions/vendor.php';
+require_once __DIR__ . '/functions/credential.php';
 require_once __DIR__ . '/functions/links.php';
 require_once __DIR__ . '/functions/auth.php';
 require_once __DIR__ . '/functions/logging.php';

@@ -85,7 +85,9 @@ if (isset($_POST['credential_password'])) {
 }
 
 if (isset($_POST['credential_otp_secret'])) {
-    $otp_secret = escapeSql($_POST['credential_otp_secret']);
+    // Stored the way the agent side stores it - spaces and dashes out, an otpauth:// link down to its secret
+    $otp_seed = credentialOtpSeed($_POST['credential_otp_secret']);
+    $otp_secret = escapeSql($otp_seed === false ? trim((string) $_POST['credential_otp_secret']) : $otp_seed);
 } elseif (isset($credential_row) && isset($credential_row['credential_otp_secret'])) {
     $otp_secret = mysqli_real_escape_string($mysqli, $credential_row['credential_otp_secret']);
 } else {

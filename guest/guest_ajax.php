@@ -146,14 +146,15 @@ if (isset($_GET['get_share_totp_token'])) {
         exit(json_encode(['error' => 'invalid']));
     }
 
-    $totp_secret = mysqli_fetch_assoc($credential_sql)['credential_otp_secret'];
+    // Tidied the same way as the agent side - seeds saved with spaces or as an otpauth:// link still work
+    $totp_secret = credentialOtpSeed(mysqli_fetch_assoc($credential_sql)['credential_otp_secret']);
 
     if (empty($totp_secret)) {
         exit(json_encode(['error' => 'invalid']));
     }
 
     echo json_encode([
-        'token' => TokenAuth6238::getTokenCode(strtoupper($totp_secret)),
+        'token' => TokenAuth6238::getTokenCode($totp_secret),
         'expires_in' => 30 - (time() % 30)
     ]);
     exit;

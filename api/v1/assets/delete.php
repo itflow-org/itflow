@@ -27,6 +27,9 @@ if (!empty($asset_id)) {
         // And take it out of any rack
         mysqli_query($mysqli,"DELETE FROM rack_units WHERE unit_asset_id = $asset_id");
 
+        // Its logins stay with the client, no longer pointing at it
+        credentialsForget('asset', $asset_id);
+
         // Logging
         logAudit("Asset", "Delete", "$asset_name via API ($api_key_name)", $client_id);
     }

@@ -21,6 +21,9 @@ if (!empty($credential_id)) {
 	if ($delete_sql && !empty($credential_name)) {
 		$delete_count = mysqli_affected_rows($mysqli);
 
+		// Any share links still open go with it
+		mysqli_query($mysqli, "DELETE FROM shared_items WHERE item_type = 'Credential' AND item_related_id = $credential_id");
+
 		// Logging
 		logAudit("Credential", "Delete", "$credential_name via API ($api_key_name)", $client_id, $credential_id);
 	}

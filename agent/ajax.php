@@ -817,6 +817,10 @@ if (isset($_GET['share_generate_link'])) {
 
     // Logging
     logAudit("Share", "Create", "$session_name created shared link for $item_type - $item_name", $client_id, $item_id);
+    // ...and on the credential itself, so its history says who it went out to
+    if ($item_type == "Credential") {
+        logAudit("Credential", "Share", "$session_name shared credential $item_name" . ($item_email ? " with $item_email" : '') . ", expiring in $item_expires_friendly", $client_id, $item_id);
+    }
 
 }
 
@@ -1167,13 +1171,19 @@ if (isset($_GET['get_totp_token_via_id'])) {
     $credential_id = intval($_GET['credential_id']);
 
     $sql = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT credential_name, credential_otp_secret, credential_client_id FROM credentials WHERE credential_id = $credential_id"));
+    if (!$sql) {
+        echo json_encode('');
+        exit;
+    }
     $name = escapeSql($sql['credential_name']);
     $totp_secret = $sql['credential_otp_secret'];
     $client_id = intval($sql['credential_client_id']);
 
     enforceClientAccess();
 
-    $otp = TokenAuth6238::getTokenCode(strtoupper($totp_secret));
+    // Seeds saved before they were tidied on save may still carry spaces, dashes or the whole otpauth:// link
+    $totp_seed = credentialOtpSeed($totp_secret);
+    $otp = $totp_seed ? TokenAuth6238::getTokenCode($totp_seed) : '';
     echo json_encode($otp);
 
     // Logging
@@ -1816,6 +1826,10 @@ if (isset($_GET['get_credential_via_id'])) {
     $credential_id = intval($_GET['credential_id']);
 
     $sql = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT credential_name, credential_username, credential_password, credential_client_id FROM credentials WHERE credential_id = $credential_id"));
+    if (!$sql) {
+        echo json_encode(['error' => 'That credential no longer exists.']);
+        exit;
+    }
     $name = escapeSql($sql['credential_name']);
     $client_id = intval($sql['credential_client_id']);
 
@@ -1826,6 +1840,9 @@ if (isset($_GET['get_credential_via_id'])) {
         'password' => decryptCredentialEntry($sql['credential_password'])
     );
     echo json_encode($response);
+
+    // When it was last used - the credentials list sorts by it. Kept off the updated date, which means an edit
+    mysqli_query($mysqli, "UPDATE credentials SET credential_accessed_at = NOW(), credential_updated_at = credential_updated_at WHERE credential_id = $credential_id");
 
     // Only log if this user hasn't viewed this credential recently (mirrors TOTP dedup)
     $check_recent_view = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT COUNT(log_id) AS recent_view FROM logs WHERE log_type = 'Credential' AND log_action = 'View' AND log_user_id = $session_user_id AND log_entity_id = $credential_id AND log_client_id = $client_id AND log_created_at > (NOW() - INTERVAL 5 MINUTE)"));

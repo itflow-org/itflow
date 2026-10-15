@@ -198,6 +198,13 @@ function getExportColumns($export_type) {
             'credential_password'    => ['label' => 'Password'],
             'credential_otp_secret'  => ['label' => 'TOTP'],
             'credential_uri'         => ['label' => 'URI', 'weight' => 2],
+            'credential_uri_2'       => ['label' => 'URI 2', 'default' => false],
+            'credential_tags'        => ['label' => 'Tags', 'default' => false],
+            'asset_name'             => ['label' => 'Asset', 'default' => false],
+            'contact_name'           => ['label' => 'Contact', 'default' => false],
+            'credential_password_changed' => ['label' => 'Password Changed', 'default' => false],
+            'credential_note'        => ['label' => 'Notes', 'weight' => 3, 'default' => false],
+            'client_name'            => ['label' => 'Client', 'default' => false],
         ],
 
         // seats_used, assigned_to_assets / assigned_to_contacts and software_keys_list are built by the handler's query

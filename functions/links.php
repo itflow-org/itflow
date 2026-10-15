@@ -112,7 +112,7 @@ function linkDisplayColumns($type) {
         'document' => 'document_description, document_updated_at, document_created_at',
         'file' => 'file_ext, file_size, file_mime_type, file_description',
         'software' => 'software_type, software_version, software_license_type, software_seats, software_expire, ' . softwareSeatsUsedSql('t.software_id') . ' AS seats_used',
-        'credential' => 'credential_description, credential_uri, credential_username, credential_otp_secret, credential_favorite',
+        'credential' => 'credential_description, credential_uri, credential_username, credential_otp_secret, credential_favorite, credential_password_changed_at',
         'vendor' => 'vendor_description, vendor_account_number, vendor_phone, vendor_phone_country_code, vendor_extension',
         'location' => 'location_address, location_city, location_state, location_zip, location_primary, location_photo, location_client_id',
     ][$type] ?? '';
@@ -288,6 +288,7 @@ function linkRemoveAll($type, $id) {
 function linkRowHtml($to, $row, $client_id) {
     $id = intval($row['id']);
     $name = escapeHtml($row['name']);
+    $extra = '';
     switch ($to) {
         case 'asset':
             $lead = '<span class="itflow-asset-icon itflow-asset-icon-sm itflow-asset-tone-' . assetTypeTone($row['asset_type']) . '" aria-hidden="true"><i class="fas fa-fw fa-' . getAssetIcon($row['asset_type']) . '"></i></span>';
@@ -321,9 +322,17 @@ function linkRowHtml($to, $row, $client_id) {
             ]));
             break;
         case 'credential':
-            $lead = '<span class="itflow-link-icon" aria-hidden="true"><i class="fas fa-fw fa-key"></i></span>';
-            $link = "<a class=\"ajax-modal text-truncate\" href=\"#\" data-modal-url=\"modals/credential/credential_edit.php?id=$id\">$name</a>";
+            $credential = ['credential_name' => $row['name'], 'credential_description' => $row['credential_description'] ?? '', 'credential_uri' => $row['credential_uri'] ?? '', 'credential_username' => $row['credential_username'] ?? ''];
+            $lead = credentialTile($credential, 'sm');
+            $link = "<a class=\"ajax-modal text-truncate\" href=\"#\" data-modal-url=\"modals/credential/credential.php?id=$id\">$name</a>"
+                . (intval($row['credential_favorite'] ?? 0) ? '<i class="fas fa-star text-warning small ms-1 align-self-center" title="Starred"></i>' : '');
             $detail = $row['credential_description'] ?: $row['credential_uri'];
+            // The login itself - username to copy, the password and 2FA code on asking
+            $username = credentialUsername($credential);
+            $extra = '<div class="small d-flex flex-wrap align-items-center column-gap-3 row-gap-1 mt-1">'
+                . ($username !== '' ? '<span class="d-inline-flex align-items-center min-w-0"><i class="fas fa-fw fa-user text-body-secondary me-1"></i>' . credentialUsernameHtml($username) . '</span>' : '')
+                . credentialPasswordHtml($id) . credentialOtpHtml($id, trim((string) ($row['credential_otp_secret'] ?? '')) !== '')
+                . '</div>';
             break;
         case 'location':
             $lead = locationTile($row, 'sm');
@@ -339,7 +348,7 @@ function linkRowHtml($to, $row, $client_id) {
             return '';
     }
     $detail = (string) $detail !== '' ? '<div class="small text-body-secondary text-truncate">' . escapeHtml($detail) . '</div>' : '';
-    return "$lead<div class=\"min-w-0 flex-grow-1\"><div class=\"d-flex\">$link</div>$detail</div>";
+    return "$lead<div class=\"min-w-0 flex-grow-1\"><div class=\"d-flex\">$link</div>$detail$extra</div>";
 }
 
 /**

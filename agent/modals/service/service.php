@@ -34,25 +34,22 @@ if ($service_importance == "High") {
     $service_importance_display = "-";
 }
 
-// Associated Assets (and their credentials/networks/locations)
+// Associated Assets (and their networks/locations) - one row each, their credentials come below
 $sql_assets = mysqli_query(
     $mysqli,
     "SELECT * FROM service_assets
     LEFT JOIN assets ON service_assets.asset_id = assets.asset_id
     LEFT JOIN asset_interfaces ON interface_asset_id = assets.asset_id AND interface_primary = 1
-    LEFT JOIN credentials ON service_assets.asset_id = credentials.credential_asset_id
     LEFT JOIN networks ON interface_network_id = networks.network_id
     LEFT JOIN locations ON assets.asset_location_id = locations.location_id
     WHERE service_id = $service_id"
 );
 
-// Associated credentials
-$sql_credentials = mysqli_query(
-    $mysqli,
-    "SELECT * FROM service_credentials
-    LEFT JOIN credentials ON service_credentials.credential_id = credentials.credential_id
-    WHERE service_id = $service_id"
-);
+// Its credentials - the ones linked to it and the ones on its assets - for those who may see credentials
+$service_credentials = lookupUserPermission('module_credential') >= 1
+    ? credentialRows("credential_client_id = $client_id AND (credential_id IN (SELECT credential_id FROM service_credentials WHERE service_id = $service_id)
+        OR credential_asset_id IN (SELECT asset_id FROM service_assets WHERE service_id = $service_id))")
+    : [];
 
 // Associated Domains
 $sql_domains = mysqli_query(
@@ -247,34 +244,15 @@ ob_start();
                 ?>
 
                 <!-- Credentials -->
-                <?php
-                if (mysqli_num_rows($sql_assets) > 0 || mysqli_num_rows($sql_credentials) > 0) {
-                    echo "<h5><i class='fas fa-fw fa-key me-2'></i>Credentials</h5><ul>";
-                    // Credentials linked to assets
-                    mysqli_data_seek($sql_assets, 0);
-                    while ($row = mysqli_fetch_assoc($sql_assets)) {
-                        $credential_name = escapeHtml($row['credential_name']);
-                        if (!empty($credential_name)) {
-                            echo "<li><a href='credentials.php?client_id=$client_id&q=$credential_name'>$credential_name</a></li>";
-                        }
-                    }
-                    // Explicitly linked credentials
-                    mysqli_data_seek($sql_credentials, 0);
-                    while ($row = mysqli_fetch_assoc($sql_credentials)) {
-                        $credential_name = escapeHtml($row['credential_name']);
-                        if (!empty($credential_name)) {
-                            echo "<li><a href='credentials.php?client_id=$client_id&q=$credential_name'>$credential_name</a></li>";
-                        }
-                    }
-                    echo "</ul>";
-                }
-                ?>
+                <?php if ($service_credentials) { ?>
+                    <h5><i class="fas fa-fw fa-key me-2"></i>Credentials</h5>
+                    <div class="mb-3"><?= credentialListHtml($service_credentials) ?></div>
+                <?php } ?>
 
                 <!-- URLs -->
                 <?php
                 $urls = [];
-                mysqli_data_seek($sql_credentials, 0);
-                while ($row = mysqli_fetch_assoc($sql_credentials)) {
+                foreach ($service_credentials as $row) {
                     if (!empty($row['credential_uri'])) {
                         $urls[] = escapeUrl($row['credential_uri']);
                     }

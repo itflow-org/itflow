@@ -269,7 +269,7 @@ function globalSearchGroups($terms, $deep) {
         'select' => 'credential_id, credential_name, credential_description, credential_client_id, client_name',
         'from' => 'credentials LEFT JOIN clients ON credential_client_id = client_id',
         'where' => "credential_archived_at IS NULL
-            AND (credential_name LIKE '%$like%' OR credential_description LIKE '%$like%' OR credential_uri LIKE '%$like%')",
+            AND (credential_name LIKE '%$like%' OR credential_description LIKE '%$like%' OR credential_uri LIKE '%$like%' OR credential_uri_2 LIKE '%$like%')",
         'scope' => 'credential_client_id',
         'order' => "(credential_name = '$eq') DESC, (credential_name LIKE '$like%') DESC, credential_name",
         'list_url' => '/agent/credentials.php?' . http_build_query(['q' => $q]),
@@ -279,7 +279,8 @@ function globalSearchGroups($terms, $deep) {
                 'title' => $row['credential_name'],
                 'subtitle' => $row['credential_description'],
                 'context' => $row['client_name'],
-                'url' => globalSearchClientUrl('credentials.php', $row['credential_client_id'], ['q' => $row['credential_name']]),
+                // Straight to its quick look on the client's credentials page
+                'url' => globalSearchClientUrl('credentials.php', $row['credential_client_id'], ['open' => intval($row['credential_id'])]),
             ];
         },
     ];

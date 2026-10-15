@@ -367,6 +367,17 @@ function demoFirstId($mysqli, $table, $id_column, $archived_column = '') {
 
 // Deterministic stand-in for a serial number - same input, same serial, so a
 // reload after a removal does not produce a whole new set of numbers
+/** A 2FA seed that comes out the same on every run - 32 base32 characters from the seed. */
+function demoTotpSeed($seed) {
+    $alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ234567';
+    $bytes = md5('itflow-demo-totp-' . $seed, true) . md5('itflow-demo-totp-2-' . $seed, true);
+    $out = '';
+    for ($i = 0; $i < 32; $i++) {
+        $out .= $alphabet[ord($bytes[$i]) % 32];
+    }
+    return $out;
+}
+
 function demoSerial($seed, $length = 10) {
     return strtoupper(substr(md5('itflow-demo-' . $seed), 0, $length));
 }
@@ -1342,9 +1353,12 @@ function demoBuildClient($mysqli, $profile, $index, $context, &$counts) {
                 'credential_password' => encryptCredentialEntry(demoSerial($profile['abbreviation'] . $credential[0], 14) . '!aA1'),
                 'credential_note' => $credential[4],
                 'credential_favorite' => $credential[6],
+                // A 2FA seed on the logins that have one, so the codes count down like the real thing
+                'credential_otp_secret' => !empty($credential[7]) ? demoTotpSeed($profile['abbreviation'] . $credential[0]) : '',
                 'credential_client_id' => $client_id,
                 'credential_created_at' => demoMonthDateTime($months, 8, 16, 10),
-                'credential_password_changed_at' => demoMonthDateTime(max(0, min(4, $months)), 8, 16, 10),
+                // Some changed lately, some due, one well over a year - never before the client was taken on
+                'credential_password_changed_at' => demoDateTime(min($credential[8] ?? 30, max(0, $months * 30 - 10)), 16, 10),
                 'credential_accessed_at' => demoDateTime(($index + 2) % 15, 11, 30),
             ]);
             $credential_ids[$credential[0]] = $credential_id;
@@ -1480,6 +1494,8 @@ function demoBuildClient($mysqli, $profile, $index, $context, &$counts) {
         foreach ($assets as $asset) {
             if (!empty($asset['credential']) && $asset['credential'] === $credential_name) {
                 demoLink($mysqli, 'asset_credentials', 'credential_id', $credential_id, 'asset_id', $asset['id']);
+                // The credential's own asset - what the asset's Credentials tab and the credential show
+                mysqli_query($mysqli, "UPDATE credentials SET credential_asset_id = " . intval($asset['id']) . " WHERE credential_id = " . intval($credential_id) . " AND credential_asset_id = 0");
             }
         }
     }
@@ -4500,13 +4516,14 @@ function demoExpandProfile($spec) {
     // Credentials - names line up with demoAssetCredentialName so the vault
     // entries attach to the kit they actually open
     $mail_admin_uri = $mail === 'Google Workspace' ? 'https://admin.google.com' : 'https://admin.microsoft.com';
+    // [name, description, uri, username, note, tags, starred, has 2FA, password last changed (days ago)]
     $credentials = [
-        ['Firewall Administrator', 'Edge firewall management interface', 'https://192.168.10.1', 'msp-admin', 'Local administrator on the edge firewall. Rotated at every quarterly review.', ['Firewall', 'Local Admin', 'Rotate Quarterly'], 1],
-        [$mail . ' Administrator', 'Tenant administration for mail and identity', $mail_admin_uri, 'msp-admin@' . $domain, 'Break glass administrator. MFA enforced - the token lives with the on call phone.', ['Microsoft 365', 'Domain Admin', 'Break Glass'], 1],
-        ['Hypervisor and Storage Administrator', $foss ? 'Proxmox VE and TrueNAS management' : 'Hypervisor and NAS management', 'https://192.168.20.10:8006', 'msp-admin', 'Root equivalent. Use the individual accounts for day to day work and this only for maintenance.', ['Hypervisor', 'Local Admin', 'Break Glass'], 0],
-        ['Network Controller', 'UniFi controller for switching and wireless', 'https://192.168.10.12', 'msp-' . strtolower($short), 'Controller runs on the management stack, not on site.', ['Switch', 'Wireless', 'Shared'], 0],
-        ['Backup Console', $foss ? 'Proxmox Backup Server and Synology Active Backup' : 'Backup platform for servers and endpoints', 'https://backup.example', 'msp-' . strtolower($short), 'Console login for restore requests and job monitoring.', ['Backup Console', 'Service Account'], 0],
-        ['Registrar and DNS', 'Domain registrar and DNS control panel', 'https://registrar.example', 'billing@' . $domain, 'Registrar account is in the client name with us as technical contact.', ['Registrar and DNS', 'Shared'], 0],
+        ['Firewall Administrator', 'Edge firewall management interface', 'https://192.168.10.1', 'msp-admin', 'Local administrator on the edge firewall. Rotated at every quarterly review.', ['Firewall', 'Local Admin', 'Rotate Quarterly'], 1, 0, 25],
+        [$mail . ' Administrator', 'Tenant administration for mail and identity', $mail_admin_uri, 'msp-admin@' . $domain, 'Break glass administrator. MFA enforced - the token lives with the on call phone.', ['Microsoft 365', 'Domain Admin', 'Break Glass'], 1, 1, 120],
+        ['Hypervisor and Storage Administrator', $foss ? 'Proxmox VE and TrueNAS management' : 'Hypervisor and NAS management', 'https://192.168.20.10:8006', 'msp-admin', 'Root equivalent. Use the individual accounts for day to day work and this only for maintenance.', ['Hypervisor', 'Local Admin', 'Break Glass'], 0, 0, 430],
+        ['Network Controller', 'UniFi controller for switching and wireless', 'https://192.168.10.12', 'msp-' . strtolower($short), 'Controller runs on the management stack, not on site.', ['Switch', 'Wireless', 'Shared'], 0, 0, 60],
+        ['Backup Console', $foss ? 'Proxmox Backup Server and Synology Active Backup' : 'Backup platform for servers and endpoints', 'https://backup.example', 'msp-' . strtolower($short), 'Console login for restore requests and job monitoring.', ['Backup Console', 'Service Account'], 0, 1, 210],
+        ['Registrar and DNS', 'Domain registrar and DNS control panel', 'https://registrar.example', 'billing@' . $domain, 'Registrar account is in the client name with us as technical contact.', ['Registrar and DNS', 'Shared'], 0, 1, 15],
     ];
 
     // Services - the last two entries say which asset types run it and which

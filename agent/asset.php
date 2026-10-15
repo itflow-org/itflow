@@ -103,6 +103,7 @@ if (mysqli_num_rows($sql) == 0) {
     $can_edit = lookupUserPermission('module_support') >= 2;
     $can_delete = lookupUserPermission('module_support') >= 3;
     $can_credentials = lookupUserPermission('module_credential') >= 1;
+    $can_credentials_edit = lookupUserPermission('module_credential') >= 2;
 
     // The rack it sits in, if any
     $asset_rack = rackPositionForAsset($asset_id);
@@ -211,18 +212,8 @@ if (mysqli_num_rows($sql) == 0) {
     $document_count = mysqli_num_rows($sql_related_documents);
 
     // Credentials
-    $credential_count = 0;
-    if ($can_credentials) {
-        $sql_related_credentials = mysqli_query($mysqli, "
-            SELECT credential_id, credential_name, credential_description, credential_uri,
-                credential_username, credential_otp_secret
-            FROM credentials
-            WHERE credential_asset_id = $asset_id
-              AND credential_archived_at IS NULL
-            ORDER BY credential_name ASC
-        ");
-        $credential_count = mysqli_num_rows($sql_related_credentials);
-    }
+    $related_credentials = $can_credentials ? credentialRows("credential_asset_id = $asset_id AND credential_client_id = $client_id") : [];
+    $credential_count = count($related_credentials);
 
     // Licenses it holds a seat on, with each one's seats in use and the key it was given
     $held_software = softwareHeldBy('asset', $asset_id);
@@ -337,8 +328,8 @@ if (mysqli_num_rows($sql) == 0) {
                             <a class="dropdown-item ajax-modal" href="#" data-modal-url="modals/recurring_ticket/recurring_ticket_add.php?<?= $client_url ?>&asset_id=<?= $asset_id ?>" data-modal-size="lg">
                                 <i class="fa fa-fw fa-redo-alt text-secondary me-2"></i>Recurring Ticket
                             </a>
-                            <?php if ($can_credentials) { ?>
-                                <a class="dropdown-item ajax-modal" href="#" data-modal-url="modals/credential/credential_add.php?<?= $client_url ?>asset_id=<?= $asset_id ?>">
+                            <?php if ($can_credentials_edit) { ?>
+                                <a class="dropdown-item ajax-modal" href="#" data-modal-size="lg" data-modal-url="modals/credential/credential_add.php?<?= $client_url ?>asset_id=<?= $asset_id ?>">
                                     <i class="fa fa-fw fa-key text-secondary me-2"></i>Credential
                                 </a>
                             <?php } ?>
@@ -365,7 +356,7 @@ if (mysqli_num_rows($sql) == 0) {
                             <a class="dropdown-item ajax-modal" href="#" data-modal-url="modals/link/link.php?from=asset&id=<?= $asset_id ?>&to=software">
                                 <i class="fa fa-fw fa-cube text-secondary me-2"></i>License
                             </a>
-                            <?php if ($can_credentials) { ?>
+                            <?php if ($can_credentials_edit) { ?>
                                 <a class="dropdown-item ajax-modal" href="#" data-modal-url="modals/asset/asset_link_credential.php?id=<?= $asset_id ?>">
                                     <i class="fa fa-fw fa-key text-secondary me-2"></i>Credential
                                 </a>
@@ -734,98 +725,24 @@ if (mysqli_num_rows($sql) == 0) {
                     <div class="tab-pane fade" id="asset-pane-credentials" role="tabpanel">
                         <div class="itflow-asset-pane-bar">
                             <span class="text-body-secondary small">Logins for this asset. Passwords and codes are fetched only when you ask for them.</span>
-                            <?php if ($can_edit) { ?>
+                            <?php if ($can_edit && $can_credentials_edit) { ?>
                                 <div class="d-flex gap-2">
                                     <button type="button" class="btn btn-sm btn-outline-secondary ajax-modal" data-modal-url="modals/asset/asset_link_credential.php?id=<?= $asset_id ?>">
                                         <i class="fas fa-link me-2"></i>Link
                                     </button>
-                                    <button type="button" class="btn btn-sm btn-primary ajax-modal" data-modal-url="modals/credential/credential_add.php?<?= $client_url ?>asset_id=<?= $asset_id ?>">
+                                    <button type="button" class="btn btn-sm btn-primary ajax-modal" data-modal-size="lg" data-modal-url="modals/credential/credential_add.php?<?= $client_url ?>asset_id=<?= $asset_id ?>">
                                         <i class="fas fa-plus me-2"></i>New Credential
                                     </button>
                                 </div>
                             <?php } ?>
                         </div>
-                        <?php if ($credential_count) { ?>
-                            <div class="table-responsive">
-                                <table class="table table-hover align-middle mb-0">
-                                    <thead class="text-nowrap table-light">
-                                    <tr>
-                                        <th>Name</th>
-                                        <th>Username</th>
-                                        <th>Password</th>
-                                        <th>OTP</th>
-                                        <th>URI</th>
-                                        <th></th>
-                                    </tr>
-                                    </thead>
-                                    <tbody>
-                                    <?php while ($row = mysqli_fetch_assoc($sql_related_credentials)) {
-                                        $credential_id = intval($row['credential_id']);
-                                        $credential_name = escapeHtml($row['credential_name']);
-                                        $credential_description = escapeHtml($row['credential_description']);
-                                        $credential_uri = escapeHtml($row['credential_uri']);
-                                        $credential_username = escapeHtml(decryptCredentialEntry($row['credential_username']));
-                                        $credential_has_otp = !empty($row['credential_otp_secret']);
-                                        ?>
-                                        <tr>
-                                            <td>
-                                                <a class="text-body fw-semibold ajax-modal" href="#" data-modal-url="modals/credential/credential_edit.php?id=<?= $credential_id ?>"><?= $credential_name ?></a>
-                                                <?php if ($credential_description) { ?><div class="small text-body-secondary"><?= $credential_description ?></div><?php } ?>
-                                            </td>
-                                            <td class="text-nowrap">
-                                                <?php if ($credential_username) { ?>
-                                                    <?= $credential_username ?><button type="button" class="itflow-copy clipboardjs" title="Copy username" data-clipboard-text="<?= $credential_username ?>"><i class="far fa-copy"></i></button>
-                                                <?php } else { ?>
-                                                    <span class="text-body-secondary">-</span>
-                                                <?php } ?>
-                                            </td>
-                                            <td class="text-nowrap">
-                                                <button class="btn btn-sm btn-light" aria-label="Show password" title="Show password" type="button" onclick="showPasswordViaCredentialID(this, <?= $credential_id ?>)"><i class="fas fa-ellipsis-h"></i><i class="fas fa-ellipsis-h"></i></button>
-                                                <button type="button" class="itflow-copy" title="Copy password" onclick="copyPasswordViaCredentialID(this, <?= $credential_id ?>)"><i class="far fa-copy"></i></button>
-                                            </td>
-                                            <td class="text-nowrap">
-                                                <?php if ($credential_has_otp) { ?>
-                                                    <span onmouseenter="showOTPViaCredentialID(<?= $credential_id ?>)"><i class="far fa-clock text-secondary me-1"></i><span id="otp_<?= $credential_id ?>"><i>Hover...</i></span></span>
-                                                <?php } else { ?>
-                                                    <span class="text-body-secondary">-</span>
-                                                <?php } ?>
-                                            </td>
-                                            <td class="text-nowrap">
-                                                <?php if ($credential_uri) { ?>
-                                                    <a href="<?= $credential_uri ?>" target="_blank" rel="noopener" title="<?= $credential_uri ?>"><?= truncate($credential_uri, 26) ?></a><button type="button" class="itflow-copy clipboardjs" title="Copy URI" data-clipboard-text="<?= $credential_uri ?>"><i class="far fa-copy"></i></button>
-                                                <?php } else { ?>
-                                                    <span class="text-body-secondary">-</span>
-                                                <?php } ?>
-                                            </td>
-                                            <td class="text-end">
-                                                <div class="dropdown dropstart">
-                                                    <button class="btn btn-sm btn-light" title="More actions" type="button" data-bs-toggle="dropdown">
-                                                        <i class="fas fa-fw fa-ellipsis-v"></i>
-                                                    </button>
-                                                    <div class="dropdown-menu">
-                                                        <a class="dropdown-item ajax-modal" href="#" data-modal-url="modals/credential/credential_edit.php?id=<?= $credential_id ?>">
-                                                            <i class="fas fa-fw fa-edit text-secondary me-2"></i>Edit
-                                                        </a>
-                                                        <a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#shareModal" onclick="populateShareModal(<?= "$client_id, 'Credential', $credential_id" ?>)">
-                                                            <i class="fas fa-fw fa-share-alt text-secondary me-2"></i>Share
-                                                        </a>
-                                                        <div class="dropdown-divider"></div>
-                                                        <a class="dropdown-item" href="post.php?unlink_credential_from_asset&asset_id=<?= $asset_id ?>&credential_id=<?= $credential_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>">
-                                                            <i class="fas fa-fw fa-unlink text-secondary me-2"></i>Unlink
-                                                        </a>
-                                                        <?php if (lookupUserPermission('module_credential') >= 3) { ?>
-                                                            <a class="dropdown-item text-danger text-bold confirm-link" href="post.php?delete_credential=<?= $credential_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>">
-                                                                <i class="fas fa-fw fa-trash me-2"></i>Delete
-                                                            </a>
-                                                        <?php } ?>
-                                                    </div>
-                                                </div>
-                                            </td>
-                                        </tr>
-                                    <?php } ?>
-                                    </tbody>
-                                </table>
-                            </div>
+                        <?php if ($related_credentials) { ?>
+                            <?= credentialTableHtml($related_credentials, [
+                                'for' => false,
+                                'unlink' => function ($row) use ($asset_id, $can_edit) {
+                                    return $can_edit && credentialCan(2) ? "post.php?unlink_credential_from_asset&asset_id=$asset_id&credential_id=" . intval($row['credential_id']) . "&csrf_token=" . $_SESSION['csrf_token'] : '';
+                                },
+                            ]) ?>
                         <?php } else { ?>
                             <div class="itflow-asset-empty">No credentials for this asset.</div>
                         <?php } ?>
@@ -1213,7 +1130,6 @@ if (mysqli_num_rows($sql) == 0) {
     </div>
 
     <?php
-    require_once "modals/share_modal.php";
     require_once "modals/asset/asset_interface_multiple_add.php";
     require_once "modals/asset/asset_interface_import.php";
     require_once "modals/asset/asset_interface_export.php";
@@ -1260,10 +1176,6 @@ if (mysqli_num_rows($sql) == 0) {
             });
         });
     </script>
-
-    <!-- Fetch TOTP codes and passwords only when asked for -->
-    <script src="js/credential_show_otp_via_id.js"></script>
-    <script src="js/credential_show_password_via_id.js"></script>
 
     <script src="../js/bulk_actions.js"></script>
 

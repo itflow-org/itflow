@@ -93,17 +93,8 @@ $sql_related_interfaces = mysqli_query($mysqli, "
 $interface_count = mysqli_num_rows($sql_related_interfaces);
 
 // Credentials - only for agents who may see them
-$credential_count = 0;
-if ($can_credentials) {
-    $sql_related_credentials = mysqli_query($mysqli, "
-        SELECT credential_id, credential_name, credential_uri, credential_username, credential_otp_secret
-        FROM credentials
-        WHERE credential_asset_id = $asset_id
-          AND credential_archived_at IS NULL
-        ORDER BY credential_name ASC
-    ");
-    $credential_count = mysqli_num_rows($sql_related_credentials);
-}
+$related_credentials = $can_credentials ? credentialRows("credential_asset_id = $asset_id AND credential_client_id = $client_id") : [];
+$credential_count = count($related_credentials);
 
 // Tickets - open ones first; the most recent few here, the rest on the asset page
 $quick_ticket_limit = 8;
@@ -365,41 +356,8 @@ ob_start();
 
                 <?php if ($credential_count) { ?>
                     <div class="tab-pane fade <?= $first_tab === 'credentials' ? 'show active' : '' ?>" id="asset-quick-<?= $asset_id ?>-credentials" role="tabpanel">
-                        <div class="table-responsive">
-                            <table class="table table-sm table-hover align-middle mb-0">
-                                <thead class="text-nowrap"><tr><th>Name</th><th>Username</th><th>Password</th><th>OTP</th></tr></thead>
-                                <tbody>
-                                <?php while ($row = mysqli_fetch_assoc($sql_related_credentials)) {
-                                    $credential_id = intval($row['credential_id']);
-                                    $credential_uri = escapeHtml($row['credential_uri']);
-                                    $credential_username = escapeHtml(decryptCredentialEntry($row['credential_username'])); ?>
-                                    <tr>
-                                        <td>
-                                            <?= escapeHtml($row['credential_name']) ?>
-                                            <?php if ($credential_uri) { ?><a class="ms-1 small" href="<?= escapeUrl($row['credential_uri']) ?>" target="_blank" rel="noopener" title="<?= $credential_uri ?>"><i class="fas fa-external-link-alt"></i></a><?php } ?>
-                                        </td>
-                                        <td class="text-nowrap"><?php if ($credential_username) { ?><?= $credential_username ?><button type="button" class="itflow-copy clipboardjs" title="Copy username" data-clipboard-text="<?= $credential_username ?>"><i class="far fa-copy"></i></button><?php } else { ?><span class="text-body-secondary">-</span><?php } ?></td>
-                                        <td class="text-nowrap">
-                                            <button class="btn btn-sm btn-light" aria-label="Show password" title="Show password" type="button" onclick="showPasswordViaCredentialID(this, <?= $credential_id ?>)"><i class="fas fa-ellipsis-h"></i><i class="fas fa-ellipsis-h"></i></button>
-                                            <button type="button" class="itflow-copy" title="Copy password" onclick="copyPasswordViaCredentialID(this, <?= $credential_id ?>)"><i class="far fa-copy"></i></button>
-                                        </td>
-                                        <td class="text-nowrap">
-                                            <?php if (!empty($row['credential_otp_secret'])) { ?>
-                                                <span onmouseenter="showOTPViaCredentialID(<?= $credential_id ?>)"><i class="far fa-clock text-secondary me-1"></i><span id="otp_<?= $credential_id ?>"><i>Hover...</i></span></span>
-                                            <?php } else { ?>
-                                                <span class="text-body-secondary">-</span>
-                                            <?php } ?>
-                                        </td>
-                                    </tr>
-                                <?php } ?>
-                                </tbody>
-                            </table>
-                        </div>
+                        <?= credentialListHtml($related_credentials) ?>
                     </div>
-                    <?php /* js/, not ../js/ - this file is injected by js/ajax_modal.js, so a
-                             relative src resolves against the host page's URL (/agent/...) */ ?>
-                    <script src="js/credential_show_otp_via_id.js"></script>
-                    <script src="js/credential_show_password_via_id.js"></script>
                 <?php } ?>
 
                 <?php if ($ticket_count) { ?>

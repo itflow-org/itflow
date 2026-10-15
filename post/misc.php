@@ -32,11 +32,20 @@ if (isset($_GET['deactivate_shared_item'])) {
 
     enforceClientAccess();
 
+    // A credential's link is turned off by someone who may see credentials
+    if ($item_type === 'Credential') {
+        enforceUserPermission('module_credential');
+    }
+
     // Deactivate item id
     mysqli_query($mysqli, "DELETE FROM shared_items WHERE item_id = $item_id");
 
     // Logging
     logAudit("Sharing", "Delete", "$session_name deactivated shared $item_type link Item ID: $item_related_id. Share ID $item_id", $client_id, $item_id);
+    if ($item_type === 'Credential') {
+        // In the credential's own history too
+        logAudit("Credential", "Unshare", "$session_name turned off a share link", $client_id, $item_related_id);
+    }
 
     $_SESSION['alert_message'] = "Share Link deactivated";
 

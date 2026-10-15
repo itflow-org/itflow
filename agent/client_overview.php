@@ -241,24 +241,19 @@ $money_format = function ($amount) use ($currency_format, $client_currency_code,
                         <?php } ?>
                         <?php foreach ($favorites['credentials'] as $credential) {
                             $credential_id = intval($credential['credential_id']);
-                            $credential_username = escapeHtml(decryptCredentialEntry($credential['credential_username']));
+                            $credential_username = credentialUsername($credential);
                             ?>
                             <div class="list-group-item d-flex align-items-center gap-2 py-2">
-                                <i class="fas fa-fw fa-key text-body-secondary" title="Credential"></i>
-                                <span class="flex-grow-1 overflow-hidden">
-                                    <a class="ajax-modal d-block text-truncate" href="#" data-modal-url="modals/credential/credential_edit.php?id=<?= $credential_id ?>"><?= escapeHtml($credential['credential_name']) ?></a>
-                                    <?php if ($credential_username) { ?>
-                                        <span class="d-flex align-items-center small text-body-secondary">
-                                            <span class="text-truncate"><?= $credential_username ?></span>
-                                            <button type="button" class="itflow-copy clipboardjs" title="Copy username" data-clipboard-text="<?= $credential_username ?>"><i class="far fa-copy"></i></button>
-                                        </span>
-                                    <?php } ?>
-                                </span>
-                                <?php if ($credential['credential_otp_secret']) { ?>
-                                    <span class="small text-body-secondary text-nowrap" onmouseenter="showOTPViaCredentialID(<?= $credential_id ?>)" title="Hover for the current code"><i class="far fa-clock me-1" aria-hidden="true"></i><span id="otp_<?= $credential_id ?>">OTP</span></span>
-                                <?php } ?>
-                                <span class="text-nowrap">
-                                    <button class="btn btn-sm btn-link text-body-secondary p-1" type="button" title="Show password" onclick="showPasswordViaCredentialID(this, <?= $credential_id ?>)"><i class="fas fa-fw fa-eye" aria-hidden="true"></i></button><button type="button" class="itflow-copy" title="Copy password" onclick="copyPasswordViaCredentialID(this, <?= $credential_id ?>)"><i class="far fa-copy"></i></button>
+                                <?= credentialTile($credential, 'sm') ?>
+                                <span class="flex-grow-1 min-w-0">
+                                    <a class="ajax-modal d-block text-truncate" href="#" data-modal-url="modals/credential/credential.php?id=<?= $credential_id ?>"><?= escapeHtml($credential['credential_name']) ?></a>
+                                    <span class="d-flex flex-wrap align-items-center column-gap-3 row-gap-1 small text-body-secondary">
+                                        <?php if ($credential_username !== '') { ?>
+                                            <span class="d-inline-flex align-items-center min-w-0"><?= credentialUsernameHtml($credential_username) ?></span>
+                                        <?php } ?>
+                                        <?= credentialPasswordHtml($credential_id) ?>
+                                        <?= credentialOtpHtml($credential_id, trim((string) $credential['credential_otp_secret']) !== '') ?>
+                                    </span>
                                 </span>
                             </div>
                         <?php } ?>
@@ -378,6 +373,10 @@ $money_format = function ($amount) use ($currency_format, $client_currency_code,
                             } elseif ($item['item_type'] === 'File') {
                                 $item_tile = fileTypeTile($item['file_ext'], 'sm');
                                 $item_label = "<a class=\"ajax-modal\" href=\"#\" data-modal-size=\"lg\" data-modal-url=\"modals/file/file.php?id=$item_related_id\">$item_label</a>";
+                            } elseif ($item['item_type'] === 'Credential' && $item['item_name']) {
+                                // Its tile, opening its quick look - with the password and 2FA there for whoever may see them
+                                $item_tile = credentialTile(['credential_name' => $item['item_name'], 'credential_uri' => $item['credential_uri'], 'credential_description' => $item['credential_description']], 'sm');
+                                $item_label = $access['credentials'] ? "<a class=\"ajax-modal\" href=\"#\" data-modal-url=\"modals/credential/credential.php?id=$item_related_id\">$item_label</a>" : $item_label;
                             } else {
                                 $item_tile = '<span class="itflow-link-icon" title="' . escapeHtml($item['item_type']) . '" aria-hidden="true"><i class="fas fa-fw fa-' . ($item['item_type'] === 'Credential' ? 'key' : 'share-square') . '"></i></span>';
                             }
@@ -547,8 +546,6 @@ $money_format = function ($amount) use ($currency_format, $client_currency_code,
 
 </div>
 
-<script src="js/credential_show_otp_via_id.js"></script>
-<script src="js/credential_show_password_via_id.js"></script>
 
 <?php require_once "../includes/footer.php"; ?>
 

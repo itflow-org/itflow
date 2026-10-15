@@ -91,6 +91,17 @@ function clientOverviewAttention($client_id, $access, $renewals) {
         ];
     }
 
+    if ($access['credentials']) {
+        // Logins nobody has changed in a while - the same rule as credentials.php?show=due
+        $items[] = [
+            'count' => dashboardCount("SELECT COUNT(credential_id) FROM credentials WHERE credential_client_id = $client_id AND credential_archived_at IS NULL
+                AND (credential_password_changed_at IS NULL OR credential_password_changed_at < NOW() - INTERVAL " . CREDENTIAL_ROTATE_DAYS . " DAY)"),
+            'label' => 'Passwords due for a change', 'icon' => 'history', 'tone' => 'warning',
+            'detail' => 'Not changed in ' . CREDENTIAL_ROTATE_DAYS . ' days',
+            'url' => "/agent/credentials.php?client_id=$client_id&show=due&sort=credential_password_changed_at&order=ASC",
+        ];
+    }
+
     if ($access['docs'] && $renewals) {
         $expired = count(array_filter($renewals['items'], function ($r) { return $r['days'] < 0; }));
         $soon = count($renewals['items']) - $expired;
@@ -181,7 +192,7 @@ function clientOverviewFavorites($client_id, $access) {
     }
 
     if ($access['credentials']) {
-        $sql = mysqli_query($mysqli, "SELECT credential_id, credential_name, credential_username, credential_otp_secret, credential_uri
+        $sql = mysqli_query($mysqli, "SELECT credential_id, credential_name, credential_description, credential_username, credential_otp_secret, credential_uri, credential_password_changed_at
             FROM credentials
             WHERE credential_client_id = $client_id AND credential_favorite = 1 AND credential_archived_at IS NULL
             ORDER BY credential_name");
@@ -358,12 +369,14 @@ function clientOverviewSharedItems($client_id) {
     global $mysqli;
 
     $sql = mysqli_query($mysqli, "SELECT item_id, item_type, item_related_id, item_recipient, item_views, item_view_limit, item_expire_at,
-            COALESCE(credential_name, document_name, file_name) AS item_name, file_ext
+            COALESCE(credential_name, document_name, file_name) AS item_name, file_ext, credential_uri, credential_description
         FROM shared_items
         LEFT JOIN credentials ON item_type = 'Credential' AND credential_id = item_related_id AND credential_client_id = $client_id
         LEFT JOIN documents ON item_type = 'Document' AND document_id = item_related_id AND document_client_id = $client_id
         LEFT JOIN files ON item_type = 'File' AND file_id = item_related_id AND file_client_id = $client_id
         WHERE item_client_id = $client_id AND item_active = 1
+        -- Still openable: not expired, views not used up (functions/credential.php credentialShares)
+        AND item_expire_at > NOW() AND (COALESCE(item_view_limit, 0) = 0 OR item_views < item_view_limit)
         ORDER BY item_created_at DESC
         LIMIT 10");
 
