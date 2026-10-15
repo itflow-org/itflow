@@ -103,6 +103,20 @@ function clientOverviewAttention($client_id, $access, $renewals) {
             'detail' => 'Name mismatch, untrusted, expired or unreachable',
             'url' => "/agent/certificates.php?client_id=$client_id&show=problems",
         ];
+        // Something a service depends on is expiring, out of action or archived - the same rule as services.php?show=attention
+        $service_views = serviceViews();
+        $items[] = [
+            'count' => dashboardCount("SELECT COUNT(service_id) FROM services WHERE service_client_id = $client_id AND " . $service_views['attention']['where']),
+            'label' => 'Services needing attention', 'icon' => 'stream', 'tone' => 'danger',
+            'detail' => 'What they run on needs a look',
+            'url' => "/agent/services.php?client_id=$client_id&show=attention",
+        ];
+        $items[] = [
+            'count' => dashboardCount("SELECT COUNT(service_id) FROM services WHERE service_client_id = $client_id AND " . $service_views['review']['where']),
+            'label' => 'Service reviews due', 'icon' => 'clipboard-check', 'tone' => 'warning',
+            'detail' => 'Next ' . SERVICE_REVIEW_SOON_DAYS . ' days or overdue',
+            'url' => "/agent/services.php?client_id=$client_id&show=review",
+        ];
     }
 
     if ($access['credentials']) {
@@ -219,6 +233,23 @@ function clientOverviewFavorites($client_id, $access) {
 }
 
 /**
+ * What the client runs on, most important first and the ones needing a look
+ * before the rest - [services, issues per service, total].
+ */
+function clientOverviewServices($client_id, $limit = 6) {
+    global $mysqli;
+    $client_id = intval($client_id);
+    $where = "service_client_id = $client_id AND services.service_archived_at IS NULL";
+    $sql = mysqli_query($mysqli, "SELECT services.* FROM services WHERE $where
+        ORDER BY " . serviceAttentionSql() . " DESC, FIELD(service_importance, 'High', 'Medium', 'Low'), service_name LIMIT " . intval($limit));
+    $rows = [];
+    while ($row = mysqli_fetch_assoc($sql)) {
+        $rows[intval($row['service_id'])] = $row;
+    }
+    return ['services' => $rows, 'issues' => serviceIssues(array_keys($rows)), 'total' => dashboardCount("SELECT COUNT(service_id) FROM services WHERE $where")];
+}
+
+/**
  * The client's open projects, the ones needing a look first (overdue, then
  * soonest due), with their numbers - [rows, stats, total].
  */
@@ -238,7 +269,8 @@ function clientOverviewProjects($client_id, $limit = 5) {
 /**
  * The next $days days for this client: scheduled tickets, calendar events
  * (repeating ones expanded the way the calendar does it), recurring
- * tickets due to be raised, and projects starting or due. Soonest first.
+ * tickets due to be raised, projects starting or due, and services due for
+ * review. Soonest first.
  */
 function clientOverviewUpcoming($client_id, $access, $days = 14) {
     global $mysqli;
@@ -288,6 +320,20 @@ function clientOverviewUpcoming($client_id, $access, $days = 14) {
                 'title' => $row['recurring_ticket_subject'], 'ref' => '',
                 'detail' => 'Recurring ticket, ' . strtolower($row['recurring_ticket_frequency']),
                 'url' => "/agent/recurring_tickets.php?client_id=$client_id",
+            ];
+        }
+    }
+
+    // Services due for review - all day
+    if ($access['docs']) {
+        $sql = mysqli_query($mysqli, "SELECT service_id, service_name, service_review_due FROM services
+            WHERE service_client_id = $client_id AND service_archived_at IS NULL
+            AND service_review_due BETWEEN '" . substr($from, 0, 10) . "' AND '" . substr($to, 0, 10) . "'");
+        while ($row = mysqli_fetch_assoc($sql)) {
+            $items[] = [
+                'when' => $row['service_review_due'] . ' 00:00:00', 'all_day' => true, 'kind' => 'service',
+                'title' => $row['service_name'], 'ref' => '', 'detail' => 'Service review due',
+                'url' => '/agent/' . serviceUrl($row['service_id'], $client_id),
             ];
         }
     }

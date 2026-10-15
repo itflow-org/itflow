@@ -283,6 +283,26 @@ function getExportColumns($export_type) {
             'project_description' => ['label' => 'Scope', 'weight' => 3, 'default' => false],
         ],
 
+        // Services - the counts, attention and review columns are built by the handler
+        'services' => [
+            'service_name'        => ['label' => 'Service', 'weight' => 2],
+            'client_name'         => ['label' => 'Client', 'weight' => 2],
+            'service_category'    => ['label' => 'Category'],
+            'service_importance'  => ['label' => 'Importance'],
+            'service_description' => ['label' => 'Description', 'weight' => 3],
+            'service_assets'      => ['label' => 'Runs On', 'weight' => 3],
+            'service_vendors'     => ['label' => 'Vendors', 'weight' => 2],
+            'service_contacts'    => ['label' => 'People', 'weight' => 2, 'default' => false],
+            'service_domains'     => ['label' => 'Domains', 'weight' => 2, 'default' => false],
+            'service_backup'      => ['label' => 'Backup and Recovery', 'weight' => 3],
+            'service_attention'   => ['label' => 'Needs Attention', 'weight' => 3],
+            'service_review'      => ['label' => 'Next Review'],
+            'service_reviewed'    => ['label' => 'Last Reviewed', 'default' => false],
+            'service_review_every' => ['label' => 'Review Every', 'default' => false],
+            'open_tickets'        => ['label' => 'Open Tickets', 'format' => 'number', 'default' => false],
+            'service_state'       => ['label' => 'State', 'default' => false],
+        ],
+
         // invoice_number_display is prefix . number, built by the handler
         'invoices' => [
             'invoice_number_display' => ['label' => 'Invoice Number'],
@@ -914,6 +934,7 @@ function getClientPackSections() {
         'contacts'     => ['label' => 'Contacts',            'icon' => 'fa-users',          'module' => 'module_client',     'default' => true],
         'locations'    => ['label' => 'Locations',           'icon' => 'fa-map-marker-alt', 'module' => 'module_client',     'default' => true],
         'vendors'      => ['label' => 'Vendors',             'icon' => 'fa-building',       'module' => 'module_client',     'default' => true],
+        'services'     => ['label' => 'Services',            'icon' => 'fa-stream',         'module' => 'module_support',    'default' => true],
         'credentials'  => ['label' => 'Credentials',         'icon' => 'fa-key',            'module' => 'module_credential', 'default' => false],
         'assets'       => ['label' => 'Assets',              'icon' => 'fa-desktop',        'module' => 'module_support',    'default' => true],
         'software'     => ['label' => 'Software / Licenses', 'icon' => 'fa-cube',           'module' => 'module_support',    'default' => true],

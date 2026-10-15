@@ -163,6 +163,15 @@ if (isset($_POST['add_ticket'])) {
     ticketAddWatchers($ticket_id, ticketWatcherEmails($_POST['watchers'] ?? []));
     ticketSetOtherAssets($ticket_id, $other_asset_ids);
 
+    // Raised about a service - from the service page's "Report a problem"
+    foreach (array_unique(array_map('intval', (array) ($_POST['service_ids'] ?? []))) as $service_id) {
+        $service = serviceRow($service_id);
+        if ($service && intval($service['service_client_id']) === $client_id && !$service['service_archived_at']) {
+            serviceLinkTickets($service_id, $client_id, [$ticket_id]);
+            logAudit("Service", "Link", "$session_name raised ticket $ticket_prefix$ticket_number about service " . escapeSql($service['service_name']), $client_id, $service_id);
+        }
+    }
+
     // E-mail the client and the watchers
     if (intval($config_ticket_client_general_notifications) === 1) {
         ticketMailCreated($ticket_id, 'Ticket Created', $emailable_attachments['send']);

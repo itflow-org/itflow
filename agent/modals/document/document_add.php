@@ -19,7 +19,9 @@ $software = linkRecord('software', $_GET['software_id'] ?? 0);
 $software_id = $software && intval($software['client_id']) === $client_id ? intval($software['id']) : 0;
 $location_id = assetClientOwnedId('location', $_GET['location_id'] ?? 0, $client_id);
 $vendor_id = assetClientOwnedId('vendor', $_GET['vendor_id'] ?? 0, $client_id);
-$link_name = $asset_id ? $asset['name'] : ($contact_id ? getFieldById('contacts', $contact_id, 'contact_name') : ($software_id ? $software['name'] : ($location_id ? getFieldById('locations', $location_id, 'location_name') : ($vendor_id ? getFieldById('vendors', $vendor_id, 'vendor_name') : ''))));
+$service = linkRecord('service', $_GET['service_id'] ?? 0);
+$service_id = $service && intval($service['client_id']) === $client_id && !$service['archived_at'] ? intval($service['id']) : 0;
+$link_name = $asset_id ? $asset['name'] : ($contact_id ? getFieldById('contacts', $contact_id, 'contact_name') : ($software_id ? $software['name'] : ($location_id ? getFieldById('locations', $location_id, 'location_name') : ($vendor_id ? getFieldById('vendors', $vendor_id, 'vendor_name') : ($service_id ? $service['name'] : '')))));
 
 $document_form_mode = 'add';
 $document_name = $document_description = $document_content = '';
@@ -41,6 +43,7 @@ ob_start();
     <input type="hidden" name="software" value="<?= $software_id ?>">
     <input type="hidden" name="location" value="<?= $location_id ?>">
     <input type="hidden" name="vendor" value="<?= $vendor_id ?>">
+    <input type="hidden" name="service" value="<?= $service_id ?>">
     <div class="modal-body">
         <?php require 'document_form.php'; ?>
     </div>

@@ -1070,66 +1070,6 @@ if (isset($_GET['unlink_credential_from_contact'])) {
 
 }
 
-if (isset($_POST['link_service_to_contact'])) {
-
-    validateCSRFToken();
-
-    enforceUserPermission('module_client', 2);
-
-    $service_id = intval($_POST['service_id']);
-    $contact_id = intval($_POST['contact_id']);
-
-    // Get service Name and Client ID for logging
-    $sql_service = mysqli_query($mysqli,"SELECT service_name, service_client_id FROM services WHERE service_id = $service_id");
-    $row = mysqli_fetch_assoc($sql_service);
-    $service_name = escapeSql($row['service_name']);
-    $client_id = intval($row['service_client_id']);
-
-    enforceClientAccess();
-
-    // Get Contact Name for logging
-    $contact_name = escapeSql(getFieldById('contacts', $contact_id, 'contact_name'));
-
-    mysqli_query($mysqli,"INSERT INTO service_contacts SET contact_id = $contact_id, service_id = $service_id");
-
-    logAudit("Service", "Link", "$session_name linked contact $contact_name to service $service_name", $client_id, $service_id);
-
-    flashAlert("service <strong>$service_name</strong> linked with contact <strong>$contact_name</strong>");
-
-    redirect();
-
-}
-
-if (isset($_GET['unlink_service_from_contact'])) {
-
-    validateCSRFToken();
-
-    enforceUserPermission('module_client', 2);
-
-    $contact_id = intval($_GET['contact_id']);
-    $service_id = intval($_GET['service_id']);
-
-    // Get service Name and Client ID for logging
-    $sql_service = mysqli_query($mysqli,"SELECT service_name, service_client_id FROM services WHERE service_id = $service_id");
-    $row = mysqli_fetch_assoc($sql_service);
-    $service_name = escapeSql($row['service_name']);
-    $client_id = intval($row['service_client_id']);
-
-    enforceClientAccess();
-
-    // Get Contact Name for logging
-    $contact_name = escapeSql(getFieldById('contacts', $contact_id, 'contact_name'));
-
-    mysqli_query($mysqli,"DELETE FROM service_contacts WHERE contact_id = $contact_id AND service_id = $service_id");
-
-    logAudit("service", "Unlink", "$session_name unlinked contact $contact_name from service $service_name", $client_id, $service_id);
-
-    flashAlert("Contact <strong>$contact_name</strong> unlinked from service <strong>$service_name</strong>", 'error');
-
-    redirect();
-
-}
-
 if (isExportRequest('export_contacts')) {
 
     validateCSRFToken();

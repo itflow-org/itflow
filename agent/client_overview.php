@@ -4,9 +4,10 @@
  * Client overview.
  *
  * Who the client is and how to reach them, what needs attention, then the
- * technical side (tickets, notes, contacts, favourites, schedule, renewals,
- * assets) and the financial side (balance, payments, recurring, unbilled
- * work, open invoices). Each part shows to agents whose role can read it.
+ * technical side (tickets, notes, contacts, favourites, schedule, projects,
+ * services, renewals, assets) and the financial side (balance, payments,
+ * recurring, unbilled work, open invoices). Each part shows to agents whose
+ * role can read it.
  *
  * The figures come from functions/client_overview.php; the chart is drawn by
  * js/client_overview.js, which also saves the quick notes.
@@ -22,6 +23,7 @@ $renewals = $access['docs'] ? clientOverviewRenewals($client_id) : null;
 $attention = clientOverviewAttention($client_id, $access, $renewals);
 $open_tickets = $access['tickets'] ? clientOverviewOpenTickets($client_id) : null;
 $open_projects = $access['tickets'] ? clientOverviewProjects($client_id) : null;
+$client_services = $access['docs'] ? clientOverviewServices($client_id) : null;
 $overview_contacts = clientOverviewContacts($client_id);
 $favorites = clientOverviewFavorites($client_id, $access);
 $upcoming = clientOverviewUpcoming($client_id, $access);
@@ -281,7 +283,7 @@ $money_format = function ($amount) use ($currency_format, $client_currency_code,
                             <?php } ?>
                             <a class="itflow-dash-schedule-item" href="<?= escapeHtml($item['url']) ?>">
                                 <span class="itflow-dash-schedule-time"><?= $item['all_day'] ? 'All day' : escapeHtml(date('g:i A', strtotime($item['when']))) ?></span>
-                                <span class="itflow-dash-schedule-mark bg-<?= ['ticket' => 'primary', 'recurring' => 'info', 'event' => 'success', 'project' => 'warning'][$item['kind']] ?>"></span>
+                                <span class="itflow-dash-schedule-mark bg-<?= ['ticket' => 'primary', 'recurring' => 'info', 'event' => 'success', 'project' => 'warning', 'service' => 'secondary'][$item['kind']] ?>"></span>
                                 <span class="flex-grow-1 overflow-hidden">
                                     <span class="d-block text-truncate"><?php if ($item['ref']) { ?><span class="small text-body-secondary me-2"><?= escapeHtml($item['ref']) ?></span><?php } ?><?= escapeHtml($item['title']) ?></span>
                                     <?php if ($item['detail']) { ?><span class="d-block small text-body-secondary text-truncate"><?= escapeHtml($item['detail']) ?></span><?php } ?>
@@ -309,6 +311,38 @@ $money_format = function ($amount) use ($currency_format, $client_currency_code,
                                     <?= projectDuePill($project) ?>
                                 </span>
                                 <div class="mt-1 small text-body-secondary"><?= projectProgressHtml($project_stats) ?></div>
+                            </a>
+                        <?php } ?>
+                    </div>
+                </div>
+            </div>
+        <?php } ?>
+
+        <?php if ($client_services && $client_services['total']) { ?>
+            <div class="col-md-6 col-xl-4">
+                <div class="card h-100 mb-0">
+                    <div class="card-header d-flex align-items-center">
+                        <h3 class="card-title mb-0 me-auto">Services</h3>
+                        <a class="small" href="services.php?client_id=<?= $client_id ?>">View all <?= $client_services['total'] ?></a>
+                    </div>
+                    <div class="list-group list-group-flush">
+                        <?php foreach ($client_services['services'] as $service_id => $service) {
+                            $service_issues = $client_services['issues'][$service_id];
+                            $service_review = serviceReview($service);
+                            $service_danger = in_array('danger', array_column($service_issues, 'tone'), true); ?>
+                            <a href="<?= escapeHtml(serviceUrl($service_id, $client_id)) ?>" class="list-group-item list-group-item-action d-flex align-items-center gap-2 py-2">
+                                <?= serviceTile($service['service_category'], 'sm') ?>
+                                <span class="flex-grow-1 overflow-hidden">
+                                    <span class="d-block text-truncate"><?= escapeHtml($service['service_name']) ?></span>
+                                    <span class="d-block small text-truncate <?= $service_issues ? ($service_danger ? 'text-danger-emphasis' : 'text-warning-emphasis') : 'text-body-secondary' ?>">
+                                        <?php if ($service_issues) { ?>
+                                            <i class="fas fa-exclamation-triangle me-1"></i><?= escapeHtml($service_issues[0]['text']) ?>
+                                        <?php } else { ?>
+                                            <?= escapeHtml($service['service_category'] ?: $service['service_importance'] . ' importance') ?><?= in_array($service_review['state'], ['overdue', 'soon'], true) ? ' · ' . escapeHtml(lcfirst($service_review['text'])) : '' ?>
+                                        <?php } ?>
+                                    </span>
+                                </span>
+                                <?php if ($service['service_importance'] === 'High') { ?><?= serviceImportancePill('High') ?><?php } ?>
                             </a>
                         <?php } ?>
                     </div>

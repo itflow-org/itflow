@@ -145,13 +145,9 @@ $sql_linked_files = mysqli_query($mysqli, "SELECT files.file_id, file_name, file
 $file_count = mysqli_num_rows($sql_linked_files);
 
 // Services
-$sql_linked_services = mysqli_query($mysqli, "SELECT services.service_id, service_name, service_description, service_category, service_importance
-    FROM service_contacts
-    JOIN services ON services.service_id = service_contacts.service_id
-    WHERE service_contacts.contact_id = $contact_id
-    ORDER BY service_name ASC"
-);
-$service_count = mysqli_num_rows($sql_linked_services);
+// The services they are a contact for - most important first
+$linked_services = servicesFor('contact', $contact_id);
+$service_count = count($linked_services);
 
 // Notes
 $sql_related_notes = mysqli_query($mysqli, "SELECT contact_note, contact_note_created_at, contact_note_id, contact_note_type, user_name
@@ -293,9 +289,11 @@ if (!$can_support) {
                                 <i class="fa fa-fw fa-cube text-secondary me-2"></i>License
                             </a>
                         <?php } ?>
-                        <a class="dropdown-item ajax-modal" href="#" data-modal-url="modals/contact/contact_link_service.php?id=<?= $contact_id ?>">
-                            <i class="fa fa-fw fa-stream text-secondary me-2"></i>Service
-                        </a>
+                        <?php if ($can_support_edit) { ?>
+                            <a class="dropdown-item ajax-modal" href="#" data-modal-url="modals/contact/contact_link_service.php?id=<?= $contact_id ?>">
+                                <i class="fa fa-fw fa-stream text-secondary me-2"></i>Service
+                            </a>
+                        <?php } ?>
                         <a class="dropdown-item ajax-modal" href="#" data-modal-url="modals/contact/contact_link_document.php?id=<?= $contact_id ?>">
                             <i class="fa fa-fw fa-file-alt text-secondary me-2"></i>Document
                         </a>
@@ -722,30 +720,17 @@ if (!$can_support) {
                 <!-- Services -->
                 <div class="tab-pane fade" id="contact-pane-services" role="tabpanel">
                     <div class="itflow-asset-pane-bar">
-                        <span class="text-body-secondary small">Services they are a contact for.</span>
-                        <?php if ($can_edit) { ?>
+                        <span class="text-body-secondary small">Services they own or are the contact for at the client.</span>
+                        <?php if ($can_support_edit) { ?>
                             <button type="button" class="btn btn-sm btn-outline-secondary ajax-modal" data-modal-url="modals/contact/contact_link_service.php?id=<?= $contact_id ?>">
                                 <i class="fas fa-link me-2"></i>Link Service
                             </button>
                         <?php } ?>
                     </div>
                     <?php if ($service_count) { ?>
-                        <div class="list-group list-group-flush">
-                            <?php while ($row = mysqli_fetch_assoc($sql_linked_services)) {
-                                $service_id = intval($row['service_id']); ?>
-                                <div class="list-group-item d-flex align-items-center gap-3 py-2">
-                                    <i class="fas fa-fw fa-stream text-secondary"></i>
-                                    <div class="flex-grow-1 min-w-0">
-                                        <a class="fw-semibold ajax-modal" href="#" data-modal-size="lg" data-modal-url="modals/service/service.php?id=<?= $service_id ?>"><?= escapeHtml($row['service_name']) ?></a>
-                                        <?php if ($row['service_description']) { ?><div class="small text-body-secondary text-truncate"><?= escapeHtml($row['service_description']) ?></div><?php } ?>
-                                    </div>
-                                    <span class="small text-body-secondary text-nowrap"><?= escapeHtml(implode(' · ', array_filter([$row['service_category'], $row['service_importance']]))) ?></span>
-                                    <?php if ($can_edit) { ?>
-                                        <a class="btn btn-sm btn-light" title="Unlink" href="post.php?unlink_service_from_contact&contact_id=<?= $contact_id ?>&service_id=<?= $service_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>"><i class="fas fa-fw fa-unlink"></i></a>
-                                    <?php } ?>
-                                </div>
-                            <?php } ?>
-                        </div>
+                        <?= serviceRowsHtml($linked_services, $can_support_edit ? function ($row) use ($contact_id) {
+                            return "post.php?unlink_item&from=contact&id=$contact_id&to=service&other=" . intval($row['service_id']) . "&csrf_token=" . $_SESSION['csrf_token'];
+                        } : null) ?>
                     <?php } else { ?>
                         <div class="itflow-asset-empty">Not a contact for any service.</div>
                     <?php } ?>

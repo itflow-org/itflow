@@ -4,9 +4,9 @@ require_once '../../../includes/modal_header.php';
 
 /*
  * New Ticket - who it is for and what it is about, what it is related to,
- * and its tasks. Opened from a client, contact, asset, site, vendor or
- * project, it starts with that filled in; picking an asset fills in the
- * person it is assigned to and its site. When the person or the asset
+ * and its tasks. Opened from a client, contact, asset, site, vendor,
+ * project or service, it starts with that filled in; picking an asset fills
+ * in the person it is assigned to and its site. When the person or the asset
  * already has open tickets, they show under the contact - so a second ticket
  * for the same problem gets noticed before it is raised.
  */
@@ -28,6 +28,28 @@ $prefill_details_html = $prefill_details !== '' ? '<p>' . nl2br(escapeHtml($pref
 
 if ($client_id) {
     enforceClientAccess();
+}
+
+// Raised about a service (its page's Report a problem) - one of this client's that is not archived
+$service = intval($_GET['service_id'] ?? 0) ? serviceRow($_GET['service_id']) : null;
+if ($service && (!$client_id || intval($service['service_client_id']) !== $client_id || $service['service_archived_at'])) {
+    $service = null;
+}
+// ...and starts with what whoever picks it up needs: what it runs on, who to call, how it comes back
+if ($service) {
+    if ($prefill_subject === '') {
+        $prefill_subject = $service['service_name'] . ': ';
+    }
+    $service_assets = serviceLinked($service['service_id'], 'asset');
+    if ($prefill_details === '') {
+        $prefill_details = serviceTicketDetails($service, $service_assets, serviceLinked($service['service_id'], 'vendor'));
+        $prefill_details_html = '<p>' . nl2br(escapeHtml($prefill_details)) . '</p>';
+    }
+    // Runs on one thing - that is the asset
+    $service_assets = array_values(array_filter($service_assets, function ($row) { return !$row['archived_at']; }));
+    if (!$asset_id && count($service_assets) === 1) {
+        $asset_id = intval($service_assets[0]['id']);
+    }
 }
 
 ob_start();
@@ -65,6 +87,19 @@ ob_start();
 
             <!-- Ticket details -->
             <div class="tab-pane fade show active" id="pills-add-details">
+
+                <?php if ($service) { ?>
+                    <!-- What it is about - it shows on the service's page -->
+                    <div class="d-flex align-items-center gap-2 border rounded px-2 py-2 mb-3 itflow-ticket-service">
+                        <input type="hidden" name="service_ids[]" value="<?= intval($service['service_id']) ?>">
+                        <?= serviceTile($service['service_category'], 'sm') ?>
+                        <div class="min-w-0 flex-grow-1">
+                            <div class="small text-body-secondary">About the service</div>
+                            <div class="fw-semibold text-truncate"><?= escapeHtml($service['service_name']) ?></div>
+                        </div>
+                        <?= serviceImportancePill($service['service_importance'], true) ?>
+                    </div>
+                <?php } ?>
 
                 <!-- Ticket client/contact -->
                 <div class="row">

@@ -295,6 +295,19 @@ function dashboardAttention($access) {
             'label' => 'Warranties expiring', 'icon' => 'shield-alt', 'tone' => 'warning', 'detail' => 'Next 30 days',
             'url' => '/agent/assets.php?expire_days=30&sort=asset_warranty_expire&order=ASC&show_column[]=Warranty_Expire',
         ];
+        // The same rules as services.php?show=attention and ?show=review
+        $service_views = serviceViews();
+        $service_scope = "FROM services JOIN clients ON client_id = service_client_id WHERE client_archived_at IS NULL " . clientScopeSql('service_client_id');
+        $items[] = [
+            'count' => dashboardCount("SELECT COUNT(service_id) $service_scope AND " . $service_views['attention']['where']),
+            'label' => 'Services needing attention', 'icon' => 'stream', 'tone' => 'danger', 'detail' => 'What they depend on',
+            'url' => '/agent/services.php?show=attention',
+        ];
+        $items[] = [
+            'count' => dashboardCount("SELECT COUNT(service_id) $service_scope AND " . $service_views['review']['where']),
+            'label' => 'Service reviews due', 'icon' => 'clipboard-check', 'tone' => 'warning', 'detail' => 'Next ' . SERVICE_REVIEW_SOON_DAYS . ' days',
+            'url' => '/agent/services.php?show=review&sort=service_review_due&order=ASC',
+        ];
     }
 
     return array_values(array_filter($items, function ($item) {

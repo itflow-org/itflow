@@ -319,7 +319,7 @@ function vendorCounts($vendors) {
         }
     }
     $joins = [
-        'service' => ['service_vendors', 'services', 'service_id', 'service_client_id IN (' . $client_in . ')'],
+        'service' => ['service_vendors', 'services', 'service_id', 'service_client_id IN (' . $client_in . ') AND service_archived_at IS NULL'],
         'credential' => ['vendor_credentials', 'credentials', 'credential_id', 'credential_archived_at IS NULL'],
         'document' => ['vendor_documents', 'documents', 'document_id', 'document_archived_at IS NULL'],
         'file' => ['vendor_files', 'files', 'file_id', 'file_archived_at IS NULL'],

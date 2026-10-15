@@ -7,7 +7,8 @@
  * license (the devices and users on it) and the credentials and files that
  * go with it, the documents and files about a location (a floor plan, a
  * site runbook), and a vendor's portal logins, documents and files (the
- * contract, the escalation sheet).
+ * contract, the escalation sheet), and what a service depends on - its
+ * assets, logins, domains, certificates, people, vendors and documents.
  *
  * Every link is a row in a two-column table (asset_documents, document_files,
  * contact_files...) and they all work the same way, so they are described once
@@ -33,6 +34,9 @@ const LINK_ENTITIES = [
     'location' => ['table' => 'locations', 'id' => 'location_id', 'name' => 'location_name', 'client' => 'location_client_id', 'archived' => 'location_archived_at', 'label' => 'location', 'plural' => 'Locations', 'icon' => 'fa-map-marker-alt', 'view' => 'module_client'],
     'credential' => ['table' => 'credentials', 'id' => 'credential_id', 'name' => 'credential_name', 'client' => 'credential_client_id', 'archived' => 'credential_archived_at', 'label' => 'credential', 'plural' => 'Credentials', 'icon' => 'fa-key', 'view' => 'module_credential'],
     'vendor' => ['table' => 'vendors', 'id' => 'vendor_id', 'name' => 'vendor_name', 'client' => 'vendor_client_id', 'archived' => 'vendor_archived_at', 'label' => 'vendor', 'plural' => 'Vendors', 'icon' => 'fa-building'],
+    'service' => ['table' => 'services', 'id' => 'service_id', 'name' => 'service_name', 'client' => 'service_client_id', 'archived' => 'service_archived_at', 'label' => 'service', 'plural' => 'Services', 'icon' => 'fa-stream'],
+    'domain' => ['table' => 'domains', 'id' => 'domain_id', 'name' => 'domain_name', 'client' => 'domain_client_id', 'archived' => 'domain_archived_at', 'label' => 'domain', 'plural' => 'Domains', 'icon' => 'fa-globe'],
+    'certificate' => ['table' => 'certificates', 'id' => 'certificate_id', 'name' => 'certificate_name', 'client' => 'certificate_client_id', 'archived' => 'certificate_archived_at', 'label' => 'certificate', 'plural' => 'Certificates', 'icon' => 'fa-lock'],
 ];
 
 /**
@@ -58,6 +62,14 @@ const LINK_RELATIONS = [
     'file|location' => ['table' => 'location_files', 'module' => 'module_support'],
     'credential|vendor' => ['table' => 'vendor_credentials', 'module' => 'module_credential'],
     'file|vendor' => ['table' => 'vendor_files', 'module' => 'module_support'],
+    // What a service depends on - support documentation, its logins a credentials permission
+    'asset|service' => ['table' => 'service_assets', 'module' => 'module_support'],
+    'certificate|service' => ['table' => 'service_certificates', 'module' => 'module_support'],
+    'contact|service' => ['table' => 'service_contacts', 'module' => 'module_support'],
+    'credential|service' => ['table' => 'service_credentials', 'module' => 'module_credential'],
+    'document|service' => ['table' => 'service_documents', 'module' => 'module_support'],
+    'domain|service' => ['table' => 'service_domains', 'module' => 'module_support'],
+    'service|vendor' => ['table' => 'service_vendors', 'module' => 'module_support'],
 ];
 
 /** The relation between two types, or null when they cannot be linked. */
@@ -75,9 +87,11 @@ function linkTypesFor($from) {
     $orders = [
         'software' => ['asset', 'contact', 'credential', 'document', 'file'],
         // A vendor's portal logins first - what is wanted on the phone to them
-        'vendor' => ['credential', 'document', 'file'],
+        'vendor' => ['credential', 'document', 'file', 'service'],
+        // What it runs on first, then what it needs to work, then who to call
+        'service' => SERVICE_LINK_TYPES,
     ];
-    $order = $orders[$from] ?? ['file', 'document', 'asset', 'contact', 'location', 'software', 'credential', 'vendor'];
+    $order = $orders[$from] ?? ['file', 'document', 'asset', 'contact', 'location', 'software', 'credential', 'vendor', 'service'];
     return array_values(array_filter($order, function ($to) use ($from) {
         $view = LINK_ENTITIES[$to]['view'] ?? null;
         return $to !== $from && linkRelation($from, $to) && (!$view || lookupUserPermission($view) >= 1);
@@ -115,6 +129,9 @@ function linkDisplayColumns($type) {
         'credential' => 'credential_description, credential_uri, credential_username, credential_otp_secret, credential_favorite, credential_password_changed_at',
         'vendor' => 'vendor_description, vendor_account_number, vendor_phone, vendor_phone_country_code, vendor_extension',
         'location' => 'location_address, location_city, location_state, location_zip, location_primary, location_photo, location_client_id',
+        'service' => 'service_description, service_category, service_importance, service_client_id',
+        'domain' => 'domain_description, domain_expire, domain_auto_renew',
+        'certificate' => 'certificate_domain, certificate_expire, certificate_issued_at, certificate_check_status, certificate_checked_at',
     ][$type] ?? '';
 }
 
@@ -182,9 +199,9 @@ function linkCounts($from, $id) {
     return $counts;
 }
 
-/** The audit log entry a link change is filed under - the document, file or license side of it. */
+/** The audit log entry a link change is filed under - the service, document, file or license side of it. */
 function linkLogSide($from, $id, $to, $other_id) {
-    foreach (['document', 'file', 'software'] as $side) {
+    foreach (['service', 'document', 'file', 'software'] as $side) {
         if ($from === $side) {
             return [ucfirst($side), $id];
         }
@@ -276,9 +293,42 @@ function linkRemoveAll($type, $id) {
             mysqli_query($mysqli, "DELETE FROM {$relation['table']} WHERE {$entity['id']} = $id");
         }
     }
-    if ($type === 'document') {
-        mysqli_query($mysqli, "DELETE FROM service_documents WHERE document_id = $id");
+}
+
+/** A candidate as an option in a picker (itflow_select.js) - its icon or avatar, and a line under it. Rows as linkCandidates() gives them. */
+function linkOptionData($to, $row, $client_id) {
+    switch ($to) {
+        case 'asset':
+            return selectOptionAsset($row['asset_type'], trim($row['asset_make'] . ' ' . $row['asset_model']));
+        case 'contact':
+            return selectOptionContact($row['contact_client_id'], $row['name'], $row['contact_photo'], $row['contact_title'], $row['id']);
+        case 'file':
+            $info = fileTypeInfo($row['file_ext']);
+            return selectOptionData(['icon' => 'fas fa-' . $info['icon'], 'description' => ($row['folder_name'] ?: 'Top level') . ' · ' . formatBytes(intval($row['file_size'])), 'keywords' => $row['file_description']]);
+        case 'document':
+            return selectOptionData(['icon' => 'fas fa-file-alt', 'description' => $row['document_description'] ?: 'Updated ' . timeAgo($row['document_updated_at'] ?: $row['document_created_at'])]);
+        case 'software':
+            // How many seats are left, so a full license is seen before it is picked
+            $seats = softwareSeats($row['seats_used'], $row['software_seats']);
+            $seat_text = $seats['state'] === 'unlimited' ? '' : ($seats['state'] === 'over' || $seats['state'] === 'full'
+                ? 'Full - ' . $seats['used'] . ' of ' . $seats['total'] . ' seats'
+                : $seats['free'] . ' of ' . $seats['total'] . ' seats free');
+            return selectOptionData(['icon' => 'fas ' . softwareTypeStyle($row['software_type'])['icon'], 'description' => implode(' · ', array_filter([$row['software_license_type'], $seat_text, $row['software_version']]))]);
+        case 'credential':
+            return selectOptionCredential(['credential_name' => $row['name'], 'credential_description' => $row['credential_description'], 'credential_uri' => $row['credential_uri']], $row['credential_description'] ?: $row['credential_uri']);
+        case 'location':
+            return selectOptionData(['icon' => 'fas fa-' . (intval($row['location_primary']) ? 'building' : 'map-marker-alt'), 'description' => implode(' · ', array_filter([intval($row['location_primary']) ? 'Primary' : '', locationAddressText($row)]))]);
+        case 'vendor':
+            return selectOptionVendor($row['name'], $row['vendor_description']);
+        case 'service':
+            return selectOptionService($row);
+        case 'domain':
+            $expiry = domainExpiry($row['domain_expire'], $row['domain_auto_renew']);
+            return selectOptionData(['icon' => 'fas fa-globe', 'description' => implode(' · ', array_filter([$row['domain_description'], $expiry ? $expiry['text'] : '']))]);
+        case 'certificate':
+            return selectOptionCertificate(['certificate_name' => $row['name']] + $row);
     }
+    return '';
 }
 
 /**
@@ -343,6 +393,25 @@ function linkRowHtml($to, $row, $client_id) {
             $lead = vendorTile($row['name'], 'sm');
             $link = "<a class=\"ajax-modal text-truncate\" href=\"#\" data-modal-size=\"lg\" data-modal-url=\"modals/vendor/vendor.php?id=$id\">$name</a>";
             $detail = implode(' · ', array_filter([$row['vendor_description'], $row['vendor_phone'] ? formatPhoneNumber($row['vendor_phone'], $row['vendor_phone_country_code']) : '']));
+            break;
+        case 'service':
+            $lead = serviceTile($row['service_category'] ?? '', 'sm');
+            $link = '<a class="text-truncate" href="' . escapeHtml(serviceUrl($id, $row['service_client_id'] ?? $client_id)) . "\">$name</a>";
+            $detail = implode(' · ', array_filter([$row['service_category'] ?? '', ($row['service_importance'] ?? '') ? $row['service_importance'] . ' importance' : '']));
+            break;
+        case 'domain':
+            $lead = domainTile('sm');
+            $link = "<a class=\"ajax-modal text-truncate\" href=\"#\" data-modal-size=\"lg\" data-modal-url=\"modals/domain/domain.php?id=$id\">$name</a>";
+            $expiry = domainExpiry($row['domain_expire'] ?? '', $row['domain_auto_renew'] ?? 0);
+            $detail = '';
+            $extra = '<div class="mt-1">' . domainExpiryPill($expiry, true) . '</div>';
+            break;
+        case 'certificate':
+            $lead = certificateTile('sm');
+            $link = "<a class=\"ajax-modal text-truncate\" href=\"#\" data-modal-size=\"lg\" data-modal-url=\"modals/certificate/certificate.php?id=$id\">$name</a>";
+            $detail = ($row['certificate_domain'] ?? '') !== $row['name'] ? ($row['certificate_domain'] ?? '') : '';
+            $problem = !in_array($row['certificate_check_status'] ?? '', [null, '', 'ok'], true);
+            $extra = '<div class="mt-1 d-flex flex-wrap gap-1">' . certificateExpiryPill(certificateExpiry($row), true) . ($problem ? certificateStatusPill($row) : '') . '</div>';
             break;
         default:
             return '';

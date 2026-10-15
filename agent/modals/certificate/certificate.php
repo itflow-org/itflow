@@ -32,7 +32,7 @@ $host = certificateHost($certificate['certificate_domain']);
 $expiry = certificateExpiry($certificate);
 $parsed = certificateParse($certificate['certificate_public_key']);
 $names = certificateNames($certificate);
-$services = certificateServices($certificate_id);
+$services = servicesFor('certificate', $certificate_id);
 $history = certificateHistory($certificate_id, 15);
 $pem = $parsed ? $parsed['pem'] : '';
 $fingerprint = trim((string) $certificate['certificate_fingerprint']);
@@ -172,19 +172,20 @@ ob_start();
         </div>
     </div>
 
-    <?php if ($services) { ?>
-        <div class="small text-body-secondary fw-semibold text-uppercase mt-1 mb-1">Services that use it</div>
-        <ul class="list-unstyled mb-0 itflow-links">
-            <?php foreach ($services as $service) { ?>
-                <li class="itflow-link-row">
-                    <span class="itflow-link-icon" aria-hidden="true"><i class="fas fa-fw fa-stream"></i></span>
-                    <div class="min-w-0 flex-grow-1">
-                        <div class="d-flex"><a class="ajax-modal text-truncate" href="#" data-modal-size="lg" data-modal-url="modals/service/service.php?id=<?= intval($service['service_id']) ?>"><?= escapeHtml($service['service_name']) ?></a></div>
-                        <div class="small text-body-secondary"><?= escapeHtml($service['service_importance']) ?> importance</div>
-                    </div>
-                </li>
+    <?php if ($services || $can_edit) { ?>
+        <div class="d-flex align-items-center mt-1 mb-1">
+            <span class="small text-body-secondary fw-semibold text-uppercase me-auto">Services that use it</span>
+            <?php if ($can_edit) { ?>
+                <a class="small ajax-modal" href="#" data-modal-url="modals/link/link.php?from=certificate&id=<?= $certificate_id ?>&to=service"><i class="fas fa-link me-1"></i>Link a service</a>
             <?php } ?>
-        </ul>
+        </div>
+        <?php if ($services) { ?>
+            <?= serviceRowsHtml($services, $can_edit ? function ($row) use ($certificate_id) {
+                return "post.php?unlink_item&from=certificate&id=$certificate_id&to=service&other=" . intval($row['service_id']) . "&csrf_token=" . $_SESSION['csrf_token'];
+            } : null) ?>
+        <?php } else { ?>
+            <p class="small text-body-secondary mb-0">No service is linked to it.</p>
+        <?php } ?>
     <?php } ?>
 
     <?php if (trim((string) $certificate['certificate_notes']) !== '') { ?>

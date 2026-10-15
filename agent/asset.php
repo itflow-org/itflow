@@ -201,14 +201,9 @@ if (mysqli_num_rows($sql) == 0) {
     $held_software = softwareHeldBy('asset', $asset_id);
     $software_count = count($held_software);
 
-    // Linked services
-    $sql_linked_services = mysqli_query($mysqli, "SELECT service_category, service_description, service_assets.service_id, service_importance,
-        service_name FROM service_assets, services
-        WHERE service_assets.asset_id = $asset_id
-        AND service_assets.service_id = services.service_id
-        ORDER BY service_name ASC"
-    );
-    $service_count = mysqli_num_rows($sql_linked_services);
+    // The services it is part of - most important first
+    $linked_services = servicesFor('asset', $asset_id);
+    $service_count = count($linked_services);
 
     // Notes - 1 to many relationship
     $sql_related_notes = mysqli_query($mysqli, "SELECT asset_note, asset_note_created_at, asset_note_id, asset_note_type, user_name FROM asset_notes
@@ -965,7 +960,7 @@ if (mysqli_num_rows($sql) == 0) {
                     <!-- Services -->
                     <div class="tab-pane fade" id="asset-pane-services" role="tabpanel">
                         <div class="itflow-asset-pane-bar">
-                            <span class="text-body-secondary small">Services that depend on this asset.</span>
+                            <span class="text-body-secondary small">Services that run on it - when it is down, so are they.</span>
                             <?php if ($can_edit) { ?>
                                 <button type="button" class="btn btn-sm btn-outline-secondary ajax-modal" data-modal-url="modals/asset/asset_link_service.php?id=<?= $asset_id ?>">
                                     <i class="fas fa-link me-2"></i>Link Service
@@ -973,41 +968,9 @@ if (mysqli_num_rows($sql) == 0) {
                             <?php } ?>
                         </div>
                         <?php if ($service_count) { ?>
-                            <div class="table-responsive">
-                                <table class="table table-hover align-middle mb-0">
-                                    <thead class="text-nowrap table-light">
-                                    <tr>
-                                        <th>Service</th>
-                                        <th>Category</th>
-                                        <th>Importance</th>
-                                        <th></th>
-                                    </tr>
-                                    </thead>
-                                    <tbody>
-                                    <?php while ($row = mysqli_fetch_assoc($sql_linked_services)) {
-                                        $service_id = intval($row['service_id']);
-                                        $service_name = escapeHtml($row['service_name']);
-                                        $service_description = escapeHtml($row['service_description']);
-                                        $service_category = escapeHtml($row['service_category']);
-                                        $service_importance = escapeHtml($row['service_importance']);
-                                        ?>
-                                        <tr>
-                                            <td>
-                                                <a class="fw-semibold ajax-modal" href="#" data-modal-size="lg" data-modal-url="modals/service/service.php?id=<?= $service_id ?>"><?= $service_name ?></a>
-                                                <?php if ($service_description) { ?><div class="small text-body-secondary"><?= $service_description ?></div><?php } ?>
-                                            </td>
-                                            <td><?= $service_category ?></td>
-                                            <td><?= $service_importance ?></td>
-                                            <td class="text-end">
-                                                <?php if ($can_edit) { ?>
-                                                    <a href="post.php?unlink_service_from_asset&asset_id=<?= $asset_id ?>&service_id=<?= $service_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>" class="btn btn-sm btn-light" title="Unlink"><i class="fas fa-fw fa-unlink"></i></a>
-                                                <?php } ?>
-                                            </td>
-                                        </tr>
-                                    <?php } ?>
-                                    </tbody>
-                                </table>
-                            </div>
+                            <?= serviceRowsHtml($linked_services, $can_edit ? function ($row) use ($asset_id) {
+                                return "post.php?unlink_item&from=asset&id=$asset_id&to=service&other=" . intval($row['service_id']) . "&csrf_token=" . $_SESSION['csrf_token'];
+                            } : null) ?>
                         <?php } else { ?>
                             <div class="itflow-asset-empty">Not part of any service.</div>
                         <?php } ?>

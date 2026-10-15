@@ -32,7 +32,7 @@ function notificationTypeModules() {
         'module_financial' => ['Expense', 'Expense Created'],
         'module_support' => [
             'Ticket', 'Ticket SLA', 'Pending Tickets', 'Feedback', 'Recurring Ticket', 'Project',
-            'Domain Expiring', 'Certificate Expiring', 'Asset Warranty Expiring',
+            'Domain Expiring', 'Certificate Expiring', 'Asset Warranty Expiring', 'Service Review',
         ],
         'module_client' => ['Share Viewed'],
     ];
@@ -76,6 +76,7 @@ function notificationTypeStyle($type) {
         [['expense'], 'receipt', 'secondary'],
         [['ticket'], 'life-ring', 'primary'],
         [['project'], 'project-diagram', 'primary'],
+        [['service'], 'clipboard-check', 'info'],
         [['mail'], 'envelope', 'danger'],
         [['backup'], 'database', 'secondary'],
         [['master key'], 'key', 'warning'],

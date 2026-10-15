@@ -4938,3 +4938,70 @@ img.itflow-contact-avatar {
 .itflow-project-tasks li {
     padding: .2rem 0;
 }
+
+/* Services - agent/services.php, agent/service.php and the service quick
+   look (functions/service.php). Each row says what it depends on as small
+   count chips, and the first thing that needs attention. */
+.itflow-service-main {
+    max-width: 20rem;
+}
+.itflow-service-desc {
+    max-width: 16rem;
+}
+.itflow-service-attention,
+.itflow-service-attention > div {
+    max-width: 15rem;
+}
+.itflow-service-list .itflow-ticket-who-cell > * {
+    max-width: 10rem;
+}
+.itflow-service-chips-cell {
+    min-width: 11rem;
+}
+@media (max-width: 1599.98px) {
+    .itflow-service-main {
+        max-width: 16rem;
+    }
+    .itflow-service-desc {
+        max-width: 12rem;
+    }
+    .itflow-service-attention,
+    .itflow-service-attention > div {
+        max-width: 12rem;
+    }
+}
+.itflow-service-chips {
+    max-width: 15.5rem;
+}
+.itflow-service-text {
+    white-space: pre-line;
+    overflow-wrap: anywhere;
+}
+.itflow-service-issues li {
+    padding: .1rem 0;
+    overflow-wrap: anywhere;
+}
+.itflow-service-notes-peek {
+    max-height: 9rem;
+    overflow: hidden;
+    -webkit-mask-image: linear-gradient(to bottom, #000 70%, transparent);
+    mask-image: linear-gradient(to bottom, #000 70%, transparent);
+}
+.itflow-service-importance .btn {
+    line-height: 1.25;
+}
+.itflow-service-callee .itflow-link-remove {
+    opacity: 0;
+}
+.itflow-service-callee:hover .itflow-link-remove,
+.itflow-service-callee .itflow-link-remove:focus-visible {
+    opacity: 1;
+}
+@media (hover: none) {
+    .itflow-service-callee .itflow-link-remove {
+        opacity: 1;
+    }
+}
+.itflow-service-alert ul {
+    font-size: .9rem;
+}

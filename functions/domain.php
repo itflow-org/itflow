@@ -910,19 +910,6 @@ function domainCertificates($row) {
     return $rows;
 }
 
-/** The services that use a domain. */
-function domainServices($domain_id) {
-    global $mysqli;
-    $domain_id = intval($domain_id);
-    $sql = mysqli_query($mysqli, "SELECT services.service_id, service_name, service_importance FROM service_domains
-        JOIN services ON services.service_id = service_domains.service_id WHERE service_domains.domain_id = $domain_id ORDER BY service_name");
-    $rows = [];
-    while ($service = mysqli_fetch_assoc($sql)) {
-        $rows[] = $service;
-    }
-    return $rows;
-}
-
 /** The client's logins for the domain's registrar and hosts - linked to those vendors - for those who may see credentials. */
 function domainLogins($row) {
     $vendor_ids = array_keys(domainVendors($row));

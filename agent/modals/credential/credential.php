@@ -93,7 +93,7 @@ ob_start();
         <div class="d-flex align-items-center mt-3 mb-1">
             <span class="small text-body-secondary fw-semibold text-uppercase me-auto">For</span>
             <?php if ($can_edit && $link_types) { ?>
-                <a class="small ajax-modal" href="#" data-modal-url="modals/link/link.php?from=credential&id=<?= $credential_id ?>&to=vendor"><i class="fas fa-link me-1"></i>Link a vendor or license</a>
+                <a class="small ajax-modal" href="#" data-modal-url="modals/link/link.php?from=credential&id=<?= $credential_id ?>&to=vendor"><i class="fas fa-link me-1"></i>Link a vendor, license or service</a>
             <?php } ?>
         </div>
         <ul class="list-unstyled mb-0 itflow-links">
@@ -119,9 +119,9 @@ ob_start();
                         <div class="min-w-0 flex-grow-1"><div class="d-flex"><a class="ajax-modal text-truncate" href="#" data-modal-size="lg" data-modal-url="modals/software/software.php?id=<?= $id ?>"><?= escapeHtml($name) ?></a></div><div class="small text-body-secondary">License</div></div>
                     <?php } else { ?>
                         <span class="itflow-link-icon" aria-hidden="true"><i class="fas fa-fw fa-stream"></i></span>
-                        <div class="min-w-0 flex-grow-1"><div class="d-flex"><a class="ajax-modal text-truncate" href="#" data-modal-size="lg" data-modal-url="modals/service/service.php?id=<?= $id ?>"><?= escapeHtml($name) ?></a></div><div class="small text-body-secondary">Service</div></div>
+                        <div class="min-w-0 flex-grow-1"><div class="d-flex"><a class="text-truncate" href="<?= escapeHtml(serviceUrl($id, $client_id)) ?>"><?= escapeHtml($name) ?></a></div><div class="small text-body-secondary">Service</div></div>
                     <?php } ?>
-                    <?php if ($can_edit && $type !== 'service') { ?>
+                    <?php if ($can_edit) { ?>
                         <a class="itflow-link-remove" href="post.php?unlink_item&from=credential&id=<?= $credential_id ?>&to=<?= $type ?>&other=<?= $id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>" title="Unlink"><i class="fas fa-unlink"></i></a>
                     <?php } ?>
                 </li>

@@ -483,6 +483,20 @@ while ($row = mysqli_fetch_assoc($sql)) {
                 }
             }
 
+            // Services due for review - the day it falls due
+            if (lookupUserPermission('module_support') >= 1) {
+                $sql = mysqli_query($mysqli, "SELECT service_id, service_name, service_review_due, service_client_id FROM services
+                    JOIN clients ON client_id = service_client_id
+                    WHERE service_archived_at IS NULL AND client_archived_at IS NULL AND service_review_due IS NOT NULL
+                    " . (isset($_GET['client_id']) ? "AND service_client_id = " . intval($_GET['client_id']) : '') . " " . clientScopeSql('service_client_id'));
+                while ($row = mysqli_fetch_assoc($sql)) {
+                    $event_title = json_encode("Review - " . $row['service_name']);
+                    $event_start = json_encode($row['service_review_due']);
+                    $event_url = json_encode(serviceUrl($row['service_id'], $row['service_client_id']));
+                    echo "{ title: $event_title, start: $event_start, allDay: true, color: 'slategray', url: $event_url },";
+                }
+            }
+
             // Vendors Added Created
             $sql = mysqli_query($mysqli, "SELECT client_id, vendor_created_at, vendor_id, vendor_name FROM clients LEFT JOIN vendors ON client_id = vendor_client_id $client_query " . clientScopeSql('clients.client_id') . "");
             while ($row = mysqli_fetch_assoc($sql)) {

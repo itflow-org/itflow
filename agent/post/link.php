@@ -2,8 +2,8 @@
 
 /*
  * ITFlow - links between documents, files and what they are about, the
- * devices, users, credentials and files on a license, and the documents and
- * files about a location.
+ * devices, users, credentials and files on a license, the documents and
+ * files about a location, and what a service depends on.
  *
  * One handler for every pair LINK_RELATIONS knows (functions/links.php):
  * link_items links any number of records at once, unlink_item drops one.
@@ -83,6 +83,8 @@ $legacy_links = [
     'contact_to_file' => ['file', 'file_id', 'contact', 'contact_id'],
     'software_to_asset' => ['asset', 'asset_id', 'software', 'software_id'],
     'software_to_contact' => ['contact', 'contact_id', 'software', 'software_id'],
+    'service_to_asset' => ['asset', 'asset_id', 'service', 'service_id'],
+    'service_to_contact' => ['contact', 'contact_id', 'service', 'service_id'],
 ];
 foreach ($legacy_links as $legacy => [$from, $from_field, $to, $to_field]) {
     if (isset($_POST["link_$legacy"])) {

@@ -2,7 +2,8 @@
 
 /*
  * Link things to a document or a file - or a document or file to an asset or
- * contact, devices, users and credentials to a license. One modal for every
+ * contact, devices, users and credentials to a license, what a service
+ * depends on to the service. One modal for every
  * pair in LINK_RELATIONS (functions/links.php):
  * ?from=document&id=81&to=asset opens on Assets; the pills along the top
  * switch to anything else this record can be linked to. Pick as many as you
@@ -37,35 +38,6 @@ $link_to = in_array($_GET['to'] ?? '', $link_types, true) ? $_GET['to'] : $link_
 
 $from_entity = LINK_ENTITIES[$link_from];
 $link_name = escapeHtml($link_source['name']);
-
-/** The option extras for one candidate - its icon or avatar, and a line under it. */
-function linkOptionData($to, $row, $client_id) {
-    switch ($to) {
-        case 'asset':
-            return selectOptionAsset($row['asset_type'], trim($row['asset_make'] . ' ' . $row['asset_model']));
-        case 'contact':
-            return selectOptionContact($row['contact_client_id'], $row['name'], $row['contact_photo'], $row['contact_title'], $row['id']);
-        case 'file':
-            $info = fileTypeInfo($row['file_ext']);
-            return selectOptionData(['icon' => 'fas fa-' . $info['icon'], 'description' => ($row['folder_name'] ?: 'Top level') . ' · ' . formatBytes(intval($row['file_size'])), 'keywords' => $row['file_description']]);
-        case 'document':
-            return selectOptionData(['icon' => 'fas fa-file-alt', 'description' => $row['document_description'] ?: 'Updated ' . timeAgo($row['document_updated_at'] ?: $row['document_created_at'])]);
-        case 'software':
-            // How many seats are left, so a full license is seen before it is picked
-            $seats = softwareSeats($row['seats_used'], $row['software_seats']);
-            $seat_text = $seats['state'] === 'unlimited' ? '' : ($seats['state'] === 'over' || $seats['state'] === 'full'
-                ? 'Full - ' . $seats['used'] . ' of ' . $seats['total'] . ' seats'
-                : $seats['free'] . ' of ' . $seats['total'] . ' seats free');
-            return selectOptionData(['icon' => 'fas ' . softwareTypeStyle($row['software_type'])['icon'], 'description' => implode(' · ', array_filter([$row['software_license_type'], $seat_text, $row['software_version']]))]);
-        case 'credential':
-            return selectOptionCredential(['credential_name' => $row['name'], 'credential_description' => $row['credential_description'], 'credential_uri' => $row['credential_uri']], $row['credential_description'] ?: $row['credential_uri']);
-        case 'location':
-            return selectOptionData(['icon' => 'fas fa-' . (intval($row['location_primary']) ? 'building' : 'map-marker-alt'), 'description' => implode(' · ', array_filter([intval($row['location_primary']) ? 'Primary' : '', locationAddressText($row)]))]);
-        case 'vendor':
-            return selectOptionVendor($row['name'], $row['vendor_description']);
-    }
-    return '';
-}
 
 $panes = [];
 foreach ($link_types as $to) {

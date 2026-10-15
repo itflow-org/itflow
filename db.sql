@@ -2229,6 +2229,7 @@ DROP TABLE IF EXISTS `service_assets`;
 CREATE TABLE `service_assets` (
   `service_id` int(11) NOT NULL,
   `asset_id` int(11) NOT NULL,
+  PRIMARY KEY (`service_id`,`asset_id`),
   KEY `service_id` (`service_id`),
   KEY `asset_id` (`asset_id`),
   CONSTRAINT `service_assets_ibfk_1` FOREIGN KEY (`service_id`) REFERENCES `services` (`service_id`) ON DELETE CASCADE,
@@ -2246,6 +2247,7 @@ DROP TABLE IF EXISTS `service_certificates`;
 CREATE TABLE `service_certificates` (
   `service_id` int(11) NOT NULL,
   `certificate_id` int(11) NOT NULL,
+  PRIMARY KEY (`service_id`,`certificate_id`),
   KEY `service_id` (`service_id`),
   KEY `certificate_id` (`certificate_id`),
   CONSTRAINT `service_certificates_ibfk_1` FOREIGN KEY (`service_id`) REFERENCES `services` (`service_id`) ON DELETE CASCADE,
@@ -2263,6 +2265,7 @@ DROP TABLE IF EXISTS `service_contacts`;
 CREATE TABLE `service_contacts` (
   `service_id` int(11) NOT NULL,
   `contact_id` int(11) NOT NULL,
+  PRIMARY KEY (`service_id`,`contact_id`),
   KEY `service_id` (`service_id`),
   KEY `contact_id` (`contact_id`),
   CONSTRAINT `service_contacts_ibfk_1` FOREIGN KEY (`service_id`) REFERENCES `services` (`service_id`) ON DELETE CASCADE,
@@ -2280,6 +2283,7 @@ DROP TABLE IF EXISTS `service_credentials`;
 CREATE TABLE `service_credentials` (
   `service_id` int(11) NOT NULL,
   `credential_id` int(11) NOT NULL,
+  PRIMARY KEY (`service_id`,`credential_id`),
   KEY `service_id` (`service_id`),
   KEY `credential_id` (`credential_id`),
   CONSTRAINT `service_credentials_ibfk_1` FOREIGN KEY (`service_id`) REFERENCES `services` (`service_id`) ON DELETE CASCADE,
@@ -2297,6 +2301,7 @@ DROP TABLE IF EXISTS `service_documents`;
 CREATE TABLE `service_documents` (
   `service_id` int(11) NOT NULL,
   `document_id` int(11) NOT NULL,
+  PRIMARY KEY (`service_id`,`document_id`),
   KEY `service_id` (`service_id`),
   KEY `document_id` (`document_id`),
   CONSTRAINT `service_documents_ibfk_1` FOREIGN KEY (`service_id`) REFERENCES `services` (`service_id`) ON DELETE CASCADE,
@@ -2314,8 +2319,28 @@ DROP TABLE IF EXISTS `service_domains`;
 CREATE TABLE `service_domains` (
   `service_id` int(11) NOT NULL,
   `domain_id` int(11) NOT NULL,
+  PRIMARY KEY (`service_id`,`domain_id`),
   KEY `service_id` (`service_id`),
-  KEY `domain_id` (`domain_id`)
+  KEY `domain_id` (`domain_id`),
+  CONSTRAINT `service_domains_ibfk_1` FOREIGN KEY (`service_id`) REFERENCES `services` (`service_id`) ON DELETE CASCADE,
+  CONSTRAINT `service_domains_ibfk_2` FOREIGN KEY (`domain_id`) REFERENCES `domains` (`domain_id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `service_tickets`
+--
+
+DROP TABLE IF EXISTS `service_tickets`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8mb4 */;
+CREATE TABLE `service_tickets` (
+  `service_id` int(11) NOT NULL,
+  `ticket_id` int(11) NOT NULL,
+  PRIMARY KEY (`service_id`,`ticket_id`),
+  KEY `ticket_id` (`ticket_id`),
+  CONSTRAINT `service_tickets_ibfk_1` FOREIGN KEY (`service_id`) REFERENCES `services` (`service_id`) ON DELETE CASCADE,
+  CONSTRAINT `service_tickets_ibfk_2` FOREIGN KEY (`ticket_id`) REFERENCES `tickets` (`ticket_id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -2329,6 +2354,7 @@ DROP TABLE IF EXISTS `service_vendors`;
 CREATE TABLE `service_vendors` (
   `service_id` int(11) NOT NULL,
   `vendor_id` int(11) NOT NULL,
+  PRIMARY KEY (`service_id`,`vendor_id`),
   KEY `service_id` (`service_id`),
   KEY `vendor_id` (`vendor_id`),
   CONSTRAINT `service_vendors_ibfk_1` FOREIGN KEY (`service_id`) REFERENCES `services` (`service_id`) ON DELETE CASCADE,
@@ -2346,19 +2372,23 @@ DROP TABLE IF EXISTS `services`;
 CREATE TABLE `services` (
   `service_id` int(11) NOT NULL AUTO_INCREMENT,
   `service_name` varchar(200) NOT NULL,
-  `service_description` varchar(200) NOT NULL,
-  `service_category` varchar(20) NOT NULL,
-  `service_importance` varchar(10) NOT NULL,
-  `service_backup` varchar(200) DEFAULT NULL,
-  `service_notes` mediumtext NOT NULL,
+  `service_description` varchar(200) NOT NULL DEFAULT '',
+  `service_category` varchar(50) NOT NULL DEFAULT '',
+  `service_importance` varchar(10) NOT NULL DEFAULT 'Medium',
+  `service_backup` varchar(500) DEFAULT NULL,
+  `service_notes` mediumtext DEFAULT NULL,
   `service_favorite` tinyint(1) NOT NULL DEFAULT 0,
   `service_created_at` datetime NOT NULL DEFAULT current_timestamp(),
   `service_updated_at` datetime DEFAULT NULL ON UPDATE current_timestamp(),
   `service_accessed_at` datetime DEFAULT NULL,
+  `service_archived_at` datetime DEFAULT NULL,
   `service_review_due` date DEFAULT NULL,
+  `service_reviewed_at` datetime DEFAULT NULL,
+  `service_review_interval` int(11) NOT NULL DEFAULT 0,
   `service_client_id` int(11) NOT NULL,
   PRIMARY KEY (`service_id`),
-  KEY `service_client_id` (`service_client_id`)
+  KEY `service_client_id` (`service_client_id`),
+  KEY `service_review_due` (`service_review_due`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 

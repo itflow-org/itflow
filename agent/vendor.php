@@ -68,6 +68,8 @@ if (!$vendor || (isset($_GET['client_id']) && $vendor_client_id !== intval($clie
     $can_credentials_edit = lookupUserPermission('module_credential') >= 2;
     $can_financial = lookupUserPermission('module_financial') >= 1;
     $can_financial_edit = lookupUserPermission('module_financial') >= 2;
+    // A client's vendor can be linked to that client's services
+    $can_link_services = !$is_ours && $can_support_edit && !$vendor_archived_at;
 
     // Override Tab Title // No Sanitizing needed as this var will only be used in the tab title
     $page_title = $vendor['vendor_name'];
@@ -99,13 +101,7 @@ if (!$vendor || (isset($_GET['client_id']) && $vendor_client_id !== intval($clie
             while ($row = mysqli_fetch_assoc($sql)) {
                 $assets[] = $row;
             }
-            $sql = mysqli_query($mysqli, "SELECT services.service_id, service_name, service_description, service_category, service_importance
-                FROM service_vendors JOIN services ON services.service_id = service_vendors.service_id
-                WHERE service_vendors.vendor_id = $vendor_id AND service_client_id = $client_id
-                ORDER BY service_name ASC");
-            while ($row = mysqli_fetch_assoc($sql)) {
-                $services[] = $row;
-            }
+            $services = servicesFor('vendor', $vendor_id);
             $documents = linkedRecords('vendor', $vendor_id, 'document');
             $files = linkedRecords('vendor', $vendor_id, 'file');
         }
@@ -584,21 +580,17 @@ if (!$vendor || (isset($_GET['client_id']) && $vendor_client_id !== intval($clie
                     <!-- Services they are part of -->
                     <div class="tab-pane fade" id="vendor-pane-services" role="tabpanel">
                         <div class="itflow-asset-pane-bar">
-                            <span class="text-body-secondary small">The client's services that depend on them.</span>
+                            <span class="text-body-secondary small">The client's services that depend on them - who gets the call when one breaks.</span>
+                            <?php if ($can_link_services) { ?>
+                                <button type="button" class="btn btn-sm btn-outline-secondary ajax-modal" data-modal-url="modals/link/link.php?from=vendor&id=<?= $vendor_id ?>&to=service">
+                                    <i class="fas fa-link me-2"></i>Link
+                                </button>
+                            <?php } ?>
                         </div>
                         <?php if ($services) { ?>
-                            <ul class="list-unstyled mb-0 itflow-links itflow-license-links">
-                                <?php foreach ($services as $service) { ?>
-                                    <li class="itflow-link-row">
-                                        <span class="itflow-link-icon" aria-hidden="true"><i class="fas fa-fw fa-stream"></i></span>
-                                        <div class="min-w-0 flex-grow-1">
-                                            <div class="d-flex"><a class="ajax-modal text-truncate" href="#" data-modal-size="lg" data-modal-url="modals/service/service.php?id=<?= intval($service['service_id']) ?>"><?= escapeHtml($service['service_name']) ?></a></div>
-                                            <div class="small text-body-secondary text-truncate"><?= escapeHtml(implode(' · ', array_filter([$service['service_category'], $service['service_description']]))) ?></div>
-                                        </div>
-                                        <?php if ($service['service_importance']) { ?><span class="badge rounded-pill bg-<?= $service['service_importance'] === 'High' ? 'danger' : ($service['service_importance'] === 'Medium' ? 'warning' : 'secondary') ?>-subtle text-body fw-normal"><?= escapeHtml($service['service_importance']) ?></span><?php } ?>
-                                    </li>
-                                <?php } ?>
-                            </ul>
+                            <?= serviceRowsHtml($services, $can_link_services ? function ($row) use ($vendor_id) {
+                                return "post.php?unlink_item&from=vendor&id=$vendor_id&to=service&other=" . intval($row['service_id']) . "&csrf_token=" . $_SESSION['csrf_token'];
+                            } : null) ?>
                         <?php } else { ?>
                             <div class="itflow-asset-empty">No services depend on them.</div>
                         <?php } ?>

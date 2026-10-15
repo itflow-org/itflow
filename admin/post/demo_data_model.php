@@ -1423,9 +1423,13 @@ function demoBuildClient($mysqli, $profile, $index, $context, &$counts) {
     // The site runbook belongs to the main site too
     demoLink($mysqli, 'location_documents', 'location_id', $primary_location_id, 'document_id', $runbook_id);
 
-    // Services, linked to the kit and credentials that actually run them
-    foreach ($profile['services'] as $service) {
+    // Services, linked to the kit and credentials that actually run them. The
+    // important ones are reviewed every six months, the rest yearly - last
+    // reviewed at different times, so a few are due and one or two are late
+    foreach ($profile['services'] as $service_index => $service) {
 
+        $review_months = $service[3] === 'High' ? 6 : 12;
+        $reviewed_days_ago = 20 + (($index * 37 + $service_index * 71) % ($review_months * 30));
         $service_id = starterInsert($mysqli, 'services', [
             'service_name' => $service[0],
             'service_description' => $service[1],
@@ -1433,7 +1437,9 @@ function demoBuildClient($mysqli, $profile, $index, $context, &$counts) {
             'service_importance' => $service[3],
             'service_backup' => $service[4],
             'service_notes' => $service[5],
-            'service_review_due' => demoDate(-1 * (90 + ($index * 5))),
+            'service_review_interval' => $review_months,
+            'service_reviewed_at' => demoDateTime($reviewed_days_ago, 14, 30),
+            'service_review_due' => demoDate($reviewed_days_ago - $review_months * 30),
             'service_client_id' => $client_id,
             'service_created_at' => demoMonthDateTime($months, 9, 10, 30),
             'service_accessed_at' => demoDateTime($index % 12, 16, 20),

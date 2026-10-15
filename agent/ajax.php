@@ -222,8 +222,8 @@ if (isset($_POST['tag_picker_set']) || isset($_POST['tag_picker_create'])) {
 
 /*
  * Quick pickers (js/quick_pick.js) - a ticket's status, priority, assignee
- * and billable, a project's manager, a recurring ticket's assignee and an
- * asset's status, location and contact, changed in place instead of through a modal. GET lists the choices; POST makes the change through the same
+ * and billable, a project's manager, a recurring ticket's assignee, a
+ * service's importance and an asset's status, location and contact, changed in place instead of through a modal. GET lists the choices; POST makes the change through the same
  * functions the post.php handlers use (functions/ticket_fields.php) and sends
  * back the redrawn values.
  */
@@ -252,6 +252,12 @@ if (isset($_GET['quick_pick_options'])) {
         $options = quickPickAgents();
     } elseif ($field === 'project_manager') {
         $options = quickPickAgents('No manager');
+    } elseif ($field === 'service_importance') {
+        $colors = ['High' => 'var(--bs-danger)', 'Medium' => 'var(--bs-warning)', 'Low' => 'var(--bs-secondary)'];
+        $descriptions = ['High' => 'Down means the client cannot work', 'Medium' => 'Down hurts, but there is a way round it', 'Low' => 'Down is an inconvenience'];
+        foreach (SERVICE_IMPORTANCE as $importance) {
+            $options[] = ['value' => $importance, 'label' => $importance, 'color' => $colors[$importance], 'description' => $descriptions[$importance]];
+        }
     } elseif (in_array($field, ASSET_QUICK_FIELDS, true) || $field === 'contact_location') {
         // Locations and contacts are the client's own - functions/asset.php
         $options = assetQuickOptions($field === 'contact_location' ? 'asset_location' : $field, intval($_GET['scope'] ?? 0));
@@ -344,6 +350,39 @@ if (isset($_POST['quick_pick_set'])) {
             $response['records'][$id] = contactQuickRecord($id);
         }
         $response['message'] = count($contact_ids) === 1 ? $message : 'Updated ' . count($contact_ids) . ' contacts';
+        echo json_encode($response);
+        exit();
+    }
+
+    // A service's importance - services of clients this agent can reach, not archived, like Edit Service
+    if ($field === 'service_importance') {
+        $service_ids = $ticket_ids;
+        $allowed = serviceCan(2) && $service_ids && in_array($value, SERVICE_IMPORTANCE, true);
+        $rows = [];
+        foreach ($allowed ? $service_ids : [] as $id) {
+            $row = serviceRow($id);
+            if (!$row || $row['service_archived_at'] || !hasClientAccess($row['service_client_id'])) {
+                $allowed = false;
+                break;
+            }
+            $rows[$id] = $row;
+        }
+        if (!$allowed) {
+            http_response_code(403);
+            echo json_encode(['error' => 'You cannot change that on these services.']);
+            exit();
+        }
+
+        $response = ['records' => []];
+        foreach ($rows as $id => $row) {
+            mysqli_query($mysqli, "UPDATE services SET service_importance = '$value' WHERE service_id = $id");
+            if ($row['service_importance'] !== $value) {
+                logAudit("Service", "Edit", "$session_name changed the importance of service " . escapeSql($row['service_name']) . " from {$row['service_importance']} to $value", intval($row['service_client_id']), $id);
+            }
+            $html = serviceImportancePill($value);
+            $response['records'][$id] = ['current' => $value, 'html' => ['list' => $html, 'detail' => $html]];
+        }
+        $response['message'] = count($rows) === 1 ? 'Importance set to ' . $value : 'Updated ' . count($rows) . ' services';
         echo json_encode($response);
         exit();
     }

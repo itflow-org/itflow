@@ -234,7 +234,7 @@ if (isset($_GET['client_id'])) {
         $row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT COUNT(project_id) AS num FROM projects WHERE project_archived_at IS NULL AND project_completed_at IS NULL AND project_client_id = $client_id"));
         $num_active_projects = intval($row['num']);
 
-        $row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT COUNT(service_id) AS num FROM services WHERE service_client_id = $client_id"));
+        $row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT COUNT(service_id) AS num FROM services WHERE service_client_id = $client_id AND service_archived_at IS NULL"));
         $num_services = intval($row['num']);
 
         $row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT COUNT(vendor_id) AS num FROM vendors WHERE vendor_archived_at IS NULL AND vendor_client_id = $client_id"));

@@ -527,19 +527,6 @@ function certificateHistory($certificate_id, $limit = 25) {
     return $rows;
 }
 
-/** The services that use a certificate. */
-function certificateServices($certificate_id) {
-    global $mysqli;
-    $certificate_id = intval($certificate_id);
-    $sql = mysqli_query($mysqli, "SELECT services.service_id, service_name, service_importance FROM service_certificates
-        JOIN services ON services.service_id = service_certificates.service_id WHERE service_certificates.certificate_id = $certificate_id ORDER BY service_name");
-    $rows = [];
-    while ($service = mysqli_fetch_assoc($sql)) {
-        $rows[] = $service;
-    }
-    return $rows;
-}
-
 /** The SQL for "expiring soon" - inside CERTIFICATE_SOON_DAYS, or 20 days for a short-lived one (see certificateExpiry()). */
 function certificateSoonSql($alias = 'certificates') {
     return "$alias.certificate_expire BETWEEN CURDATE() AND CURDATE() + INTERVAL IF($alias.certificate_issued_at IS NOT NULL

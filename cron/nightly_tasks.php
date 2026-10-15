@@ -326,6 +326,18 @@ foreach ($warranty_alert_array as $day) {
 // Logging
 // logAudit("Cron", "Task", "Cron created notifications for asset warranties expiring");
 
+// Services due for review - said once, the day it falls due
+$sql = mysqli_query($mysqli, "SELECT service_id, service_name, service_importance, client_id, client_name FROM services
+    JOIN clients ON service_client_id = client_id
+    WHERE service_review_due = CURDATE() AND service_archived_at IS NULL AND client_archived_at IS NULL");
+while ($row = mysqli_fetch_assoc($sql)) {
+    $service_id = intval($row['service_id']);
+    $service_name = escapeSql($row['service_name']);
+    $client_id = intval($row['client_id']);
+    $client_name = escapeSql($row['client_name']);
+    appNotify("Service Review", "Service $service_name for $client_name (" . escapeSql($row['service_importance']) . " importance) is due for review today", "/agent/" . serviceUrl($service_id, $client_id), $client_id);
+}
+
 // Notify of New Tickets
 // Get Ticket Pending Assignment
 $sql_tickets_pending_assignment = mysqli_query($mysqli,"SELECT ticket_id FROM tickets WHERE ticket_status = 1");

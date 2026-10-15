@@ -133,6 +133,7 @@ $resource_module = [
     'documents'     => 'module_support',
     'domains'       => 'module_support',
     'networks'      => 'module_support',
+    'services'      => 'module_support',
     'software'      => 'module_support',
     'tickets'       => 'module_support',
     'ticket_replies' => 'module_support',

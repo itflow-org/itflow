@@ -285,6 +285,28 @@ function globalSearchGroups($terms, $deep) {
         },
     ];
 
+    // What a client runs on - by name, category and description, and its notes in a deep search
+    $service_deep_match = $deep ? "OR service_notes LIKE '%$like%' OR service_backup LIKE '%$like%'" : '';
+    $groups[] = [
+        'key' => 'services', 'label' => 'Services', 'icon' => 'stream', 'module' => 'module_support',
+        'select' => 'service_id, service_name, service_description, service_category, service_importance, service_client_id, client_name',
+        'from' => 'services LEFT JOIN clients ON service_client_id = client_id',
+        'where' => "service_archived_at IS NULL
+            AND (service_name LIKE '%$like%' OR service_description LIKE '%$like%' OR service_category LIKE '%$like%' $service_deep_match)",
+        'scope' => 'service_client_id',
+        'order' => "(service_name = '$eq') DESC, (service_name LIKE '$like%') DESC, FIELD(service_importance, 'High', 'Medium', 'Low'), service_name",
+        'list_url' => '/agent/services.php?' . http_build_query(['q' => $q]),
+        'item' => function ($row) {
+            return [
+                'title' => $row['service_name'],
+                'subtitle' => implode(' · ', array_filter([$row['service_category'], $row['service_description']])),
+                'context' => $row['client_name'],
+                'badge' => $row['service_importance'] === 'High' ? ['text' => 'High', 'variant' => 'danger'] : null,
+                'url' => '/agent/' . serviceUrl($row['service_id'], $row['service_client_id']),
+            ];
+        },
+    ];
+
     // Name and description only. Usernames and passwords are encrypted at rest,
     // and the results page reveals passwords through the audited endpoint, never
     // in the markup.
@@ -669,6 +691,7 @@ function globalSearchPages($raw_query) {
         ['Dashboard', '/agent/dashboard.php', true],
         ['Clients', '/agent/clients.php', $client],
         ['All Client Docs', '/agent/contacts.php', $client],
+        ['Services', '/agent/services.php', $support],
         ['Vendors', '/agent/vendors.php', true],
         ['Calendar', '/agent/calendar.php', true],
         ['Tickets', '/agent/tickets.php', $support && $ticketing],

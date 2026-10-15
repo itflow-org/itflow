@@ -61,6 +61,8 @@ if (isset($_POST['add_document'])) {
     $software_id = $software && intval($software['client_id']) === $client_id ? intval($software['id']) : 0;
     $location_id = assetClientOwnedId('location', $_POST['location'] ?? 0, $client_id);
     $vendor_id = assetClientOwnedId('vendor', $_POST['vendor'] ?? 0, $client_id);
+    $service = linkRecord('service', $_POST['service'] ?? 0);
+    $service_id = $service && intval($service['client_id']) === $client_id && !$service['archived_at'] ? intval($service['id']) : 0;
     $client_visible = intval($_POST['client_visible'] ?? 0) ? 1 : 0;
 
     if ($name === '') {
@@ -97,13 +99,17 @@ if (isset($_POST['add_document'])) {
     if ($vendor_id) {
         mysqli_query($mysqli, "INSERT IGNORE INTO vendor_documents SET vendor_id = $vendor_id, document_id = $document_id");
     }
+    if ($service_id) {
+        mysqli_query($mysqli, "INSERT IGNORE INTO service_documents SET service_id = $service_id, document_id = $document_id");
+        logAudit("Service", "Link", "$session_name linked new document $name to service " . escapeSql($service['name']), $client_id, $service_id);
+    }
 
     logAudit("Document", "Create", "$session_name created document $name", $client_id, $document_id);
 
     flashAlert("Document <strong>" . trim($_POST['name']) . "</strong> created");
 
-    // From an asset, a contact, a license, a location or a vendor, back to it; otherwise to the new document
-    redirect(($contact_id || $asset_id || $software_id || $location_id || $vendor_id) ? null : "document.php?client_id=$client_id&document_id=$document_id");
+    // From an asset, a contact, a license, a location, a vendor or a service, back to it; otherwise to the new document
+    redirect(($contact_id || $asset_id || $software_id || $location_id || $vendor_id || $service_id) ? null : "document.php?client_id=$client_id&document_id=$document_id");
 
 }
 

@@ -116,6 +116,10 @@ $recurring_ticket_count = mysqli_num_rows($sql_related_recurring_tickets);
 $held_software = softwareHeldBy('asset', $asset_id);
 $software_count = count($held_software);
 
+// The services it runs - what goes down with it
+$asset_services = servicesFor('asset', $asset_id);
+$service_count = count($asset_services);
+
 // Documents
 $linked_documents = linkedRecords('asset', $asset_id, 'document');
 $document_count = count($linked_documents);
@@ -145,6 +149,7 @@ $quick_tabs = array_filter([
     'tickets' => ['label' => 'Tickets', 'count' => $ticket_count, 'badge' => $ticket_open_count],
     'recurring' => ['label' => 'Recurring', 'count' => $recurring_ticket_count],
     'licenses' => ['label' => 'Licenses', 'count' => $software_count],
+    'services' => ['label' => 'Services', 'count' => $service_count],
     'documents' => ['label' => 'Documents', 'count' => $document_count],
     'files' => ['label' => 'Files', 'count' => $file_count],
     'notes' => ['label' => 'Notes', 'count' => $note_count],
@@ -366,6 +371,13 @@ ob_start();
                     <div class="tab-pane fade <?= $first_tab === 'licenses' ? 'show active' : '' ?>" id="asset-quick-<?= $asset_id ?>-licenses" role="tabpanel">
                         <!-- Each opens its quick look - seats, renewal, the key to install -->
                         <?= softwareHeldList($held_software) ?>
+                    </div>
+                <?php } ?>
+
+                <?php if ($service_count) { ?>
+                    <div class="tab-pane fade <?= $first_tab === 'services' ? 'show active' : '' ?>" id="asset-quick-<?= $asset_id ?>-services" role="tabpanel">
+                        <!-- What goes down with it - most important first -->
+                        <?= serviceRowsHtml($asset_services) ?>
                     </div>
                 <?php } ?>
 

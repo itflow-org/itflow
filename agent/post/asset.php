@@ -946,66 +946,6 @@ if (isset($_GET['unlink_credential_from_asset'])) {
 
 }
 
-if (isset($_POST['link_service_to_asset'])) {
-
-    validateCSRFToken();
-
-    enforceUserPermission('module_support', 2);
-
-    $service_id = intval($_POST['service_id']);
-    $asset_id = intval($_POST['asset_id']);
-
-    // Get service Name and Client ID for logging
-    $sql_service = mysqli_query($mysqli,"SELECT service_name, service_client_id FROM services WHERE service_id = $service_id");
-    $row = mysqli_fetch_assoc($sql_service);
-    $service_name = escapeSql($row['service_name']);
-    $client_id = intval($row['service_client_id']);
-
-    enforceClientAccess();
-
-    // Get Asset Name for logging
-    $asset_name = escapeSql(getFieldById('assets', $asset_id, 'asset_name'));
-
-    mysqli_query($mysqli,"INSERT INTO service_assets SET asset_id = $asset_id, service_id = $service_id");
-
-    logAudit("Service", "Link", "$session_name linked asset $asset_name to service $service_name", $client_id, $service_id);
-
-    flashAlert("Service <strong>$service_name</strong> linked with asset <strong>$asset_name</strong>");
-
-    redirect();
-
-}
-
-if (isset($_GET['unlink_service_from_asset'])) {
-
-    validateCSRFToken();
-
-    enforceUserPermission('module_support', 2);
-
-    $asset_id = intval($_GET['asset_id']);
-    $service_id = intval($_GET['service_id']);
-
-    // Get service Name and Client ID for logging
-    $sql_service = mysqli_query($mysqli,"SELECT service_name, service_client_id FROM services WHERE service_id = $service_id");
-    $row = mysqli_fetch_assoc($sql_service);
-    $service_name = escapeSql($row['service_name']);
-    $client_id = intval($row['service_client_id']);
-
-    enforceClientAccess();
-
-    // Get Asset Name for logging
-    $asset_name = escapeSql(getFieldById('assets', $asset_id, 'asset_name'));
-
-    mysqli_query($mysqli,"DELETE FROM service_assets WHERE asset_id = $asset_id AND service_id = $service_id");
-
-    logAudit("Service", "Unlink", "$session_name unlinked asset $asset_name from service $service_name", $client_id, $service_id);
-
-    flashAlert("Asset <strong>$asset_name</strong> unlinked from service <strong>$service_name</strong>", 'error');
-
-    redirect();
-
-}
-
 // END LINKING
 
 if (isset($_POST["import_assets_csv"])) {

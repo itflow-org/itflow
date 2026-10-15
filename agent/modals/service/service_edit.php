@@ -1,331 +1,34 @@
 <?php
 
+/*
+ * Edit Service - what it is, how important, how it comes back, when it is
+ * next reviewed. What it depends on is linked and unlinked on its page.
+ */
+
 require_once '../../../includes/modal_header.php';
 
-enforceUserPermission('module_support', 2);
-
-$service_id = intval($_GET['id']);
-
-$sql = mysqli_query($mysqli, "SELECT service_backup, service_category, service_client_id, service_created_at,
-    service_description, service_importance, service_name, service_notes, service_review_due,
-    service_updated_at FROM services WHERE service_id = $service_id LIMIT 1");
-
-$row = mysqli_fetch_assoc($sql);
-$service_name = escapeHtml($row['service_name']);
-$service_description = escapeHtml($row['service_description']);
-$service_category = escapeHtml($row['service_category']);
-$service_importance = escapeHtml($row['service_importance']);
-$service_backup = escapeHtml($row['service_backup']);
-$service_notes = escapeHtml($row['service_notes']);
-$service_created_at = escapeHtml($row['service_created_at']);
-$service_updated_at = escapeHtml($row['service_updated_at']);
-$service_review_due = escapeHtml($row['service_review_due']);
-$client_id = intval($row['service_client_id']);
-
-enforceClientAccess();
-
-// Associated Assets (and their credentials/networks/locations)
-$sql_assets = mysqli_query(
-    $mysqli,
-    "SELECT * FROM service_assets
-    LEFT JOIN assets ON service_assets.asset_id = assets.asset_id
-    LEFT JOIN asset_interfaces ON interface_asset_id = assets.asset_id AND interface_primary = 1
-    LEFT JOIN credentials ON service_assets.asset_id = credentials.credential_asset_id
-    LEFT JOIN networks ON interface_network_id = networks.network_id
-    LEFT JOIN locations ON assets.asset_location_id = locations.location_id
-    WHERE service_id = $service_id"
-);
-
-// Associated credentials
-$sql_credentials = mysqli_query(
-    $mysqli,
-    "SELECT * FROM service_credentials
-    LEFT JOIN credentials ON service_credentials.credential_id = credentials.credential_id
-    WHERE service_id = $service_id"
-);
-
-// Associated Domains
-$sql_domains = mysqli_query(
-    $mysqli,
-    "SELECT * FROM service_domains
-    LEFT JOIN domains ON service_domains.domain_id = domains.domain_id
-    WHERE service_id = $service_id"
-);
-// Associated Certificates
-$sql_certificates = mysqli_query(
-    $mysqli,
-    "SELECT * FROM service_certificates
-    LEFT JOIN certificates ON service_certificates.certificate_id = certificates.certificate_id
-    WHERE service_id = $service_id"
-);
-
-// Associated URLs ---- REMOVED for now
-//$sql_urls = mysqli_query($mysqli, "SELECT * FROM service_urls
-//WHERE service_id = '$service_id'");
-
-// Associated Vendors
-$sql_vendors = mysqli_query(
-    $mysqli,
-    "SELECT * FROM service_vendors
-    LEFT JOIN vendors ON service_vendors.vendor_id = vendors.vendor_id
-    WHERE service_id = $service_id"
-);
-
-// Associated Contacts
-$sql_contacts = mysqli_query(
-    $mysqli,
-    "SELECT * FROM service_contacts
-    LEFT JOIN contacts ON service_contacts.contact_id = contacts.contact_id
-    WHERE service_id = $service_id"
-);
-
-// Associated Documents
-$sql_docs = mysqli_query(
-    $mysqli,
-    "SELECT * FROM service_documents
-    LEFT JOIN documents ON service_documents.document_id = documents.document_id
-    WHERE service_id = $service_id"
-);
+$form = serviceForModal($_GET['id'] ?? 0, 2, true);
+$service_id = intval($form['service_id']);
+$form_client_id = intval($form['service_client_id']);
+$is_new = false;
 
 ob_start();
 
 ?>
-
 <div class="modal-header bg-dark">
-    <h5 class="modal-title text-white"><i class="fa fa-fw fa-stream me-2"></i>Editing service: <strong><?= $service_name ?></strong></h5>
+    <h5 class="modal-title text-truncate"><i class="fas fa-fw fa-stream me-2"></i>Edit <strong><?= escapeHtml($form['service_name']) ?></strong></h5>
     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
 </div>
-
 <form action="post.php" method="post" autocomplete="off">
     <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
     <input type="hidden" name="service_id" value="<?= $service_id ?>">
 
     <div class="modal-body">
-
-        <ul class="nav nav-pills nav-justified mb-3">
-            <li class="nav-item">
-                <a class="nav-link active" data-bs-toggle="pill" href="#pills-overview<?= $service_id ?>">Overview</a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" data-bs-toggle="pill" href="#pills-general<?= $service_id ?>">General</a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" data-bs-toggle="pill" href="#pills-assets<?= $service_id ?>">Assets</a>
-            </li>
-        </ul>
-
-        <hr>
-
-        <div class="tab-content" <?php if (lookupUserPermission('module_support') <= 1) { echo 'inert'; } ?>>
-
-            <div class="tab-pane fade show active" id="pills-overview<?= $service_id ?>">
-
-                <div class="mb-3">
-                    <label>Name <strong class="text-danger">*</strong></label>
-                    <div class="input-group">
-                            <span class="input-group-text"><i class="fa fa-fw fa-stream"></i></span>
-                        <input type="text" class="form-control" name="name" placeholder="Name of Service" maxlength="200" value="<?= $service_name ?>" required>
-                    </div>
-                </div>
-
-                <div class="mb-3">
-                    <label>Description <strong class="text-danger">*</strong></label>
-                    <div class="input-group">
-                            <span class="input-group-text"><i class="fa fa-fw fa-align-left"></i></span>
-                        <input type="text" class="form-control" name="description" placeholder="Description of Service" maxlength="200" value="<?= $service_description ?>" required>
-                    </div>
-                </div>
-
-                <!--   //TODO: Integrate with company wide categories: /categories.php  -->
-                <div class="mb-3">
-                    <label>Category</label>
-                    <div class="input-group">
-                            <span class="input-group-text"><i class="fa fa-fw fa-info"></i></span>
-                        <input type="text" class="form-control" name="category" placeholder="Category" maxlength="20" value="<?= $service_category ?>">
-                    </div>
-                </div>
-
-                <div class="mb-3">
-                    <label>Importance</label>
-                    <div class="input-group">
-                            <span class="input-group-text"><i class="fa fa-fw fa-thermometer-half"></i></span>
-                        <select class="form-select select2" name="importance" required>
-                            <option <?php if ($service_importance == 'Low') { echo "selected"; } ?> >Low</option>
-                            <option <?php if ($service_importance == 'Medium') { echo "selected"; } ?> >Medium</option>
-                            <option <?php if ($service_importance == 'High') { echo "selected"; } ?> >High</option>
-                        </select>
-                    </div>
-                </div>
-
-                <div class="mb-3">
-                    <label>Backup</label>
-                    <div class="input-group">
-                            <span class="input-group-text"><i class="fa fa-fw fa-hdd"></i></span>
-                        <input type="text" class="form-control" name="backup" placeholder="Backup strategy" maxlength="200" value="<?= $service_backup ?>">
-                    </div>
-                </div>
-
-                <div class="mb-3">
-                    <label>Notes</label>
-                    <textarea class="form-control" rows="3" placeholder="Enter some notes" name="note"><?= $service_notes ?></textarea>
-                </div>
-            </div>
-
-            <div class="tab-pane fade" id="pills-general<?= $service_id ?>">
-
-                <div class="mb-3">
-                    <label for="contacts">Contacts</label>
-                    <select multiple class="form-select select2" id="contacts" name="contacts[]">
-                        <?php
-                        // Get just the currently selected contact IDs
-                        $selected_ids = array_column(mysqli_fetch_all($sql_contacts, MYSQLI_ASSOC), "contact_id");
-
-                        // Get all contacts
-                        // NOTE: These are called $sql_all and $row_all for a reason - anything overwriting $sql or $row will break the current while loop we are in from client_services.php
-
-                        $sql_all = mysqli_query($mysqli, "SELECT contact_id, contact_name, contact_client_id, contact_photo, contact_title FROM contacts WHERE (contact_archived_at > '$service_created_at' OR contact_archived_at IS NULL) AND contact_client_id = $client_id");
-
-                        while ($row_all = mysqli_fetch_assoc($sql_all)) {
-                            $contact_id = intval($row_all['contact_id']);
-                            $contact_name = escapeHtml($row_all['contact_name']);
-
-                            $contact_selected = in_array($contact_id, $selected_ids) ? ' selected' : '';
-                            echo "<option value=\"$contact_id\"$contact_selected" . selectOptionContact($row_all['contact_client_id'] ?? 0, $row_all['contact_name'], $row_all['contact_photo'] ?? '', $row_all['contact_title'] ?? '', $row_all['contact_id'] ?? 0) . ">$contact_name</option>";
-                        }
-                        ?>
-                    </select>
-                </div>
-
-                <div class="mb-3">
-                    <label for="vendors">Vendors</label>
-                    <select multiple class="form-select select2" id="vendors" name="vendors[]">
-                        <?php
-                        $selected_ids = array_column(mysqli_fetch_all($sql_vendors, MYSQLI_ASSOC), "vendor_id");
-
-                        $sql_all = mysqli_query($mysqli, "SELECT vendor_id, vendor_name, vendor_description FROM vendors WHERE (vendor_archived_at > '$service_created_at' OR vendor_archived_at IS NULL) AND vendor_client_id = $client_id ORDER BY vendor_favorite DESC, vendor_name ASC");
-                        while ($row_all = mysqli_fetch_assoc($sql_all)) {
-                            $vendor_id = intval($row_all['vendor_id']);
-                            $vendor_name = escapeHtml($row_all['vendor_name']);
-
-                            if (in_array($vendor_id, $selected_ids)) {
-                                echo "<option value=\"$vendor_id\" selected" . selectOptionVendor($row_all['vendor_name'], $row_all['vendor_description']) . ">$vendor_name</option>";
-                            }
-                            else{
-                                echo "<option value=\"$vendor_id\"" . selectOptionVendor($row_all['vendor_name'], $row_all['vendor_description']) . ">$vendor_name</option>";
-                            }
-                        }
-                        ?>
-                    </select>
-                </div>
-
-                <div class="mb-3">
-                    <label for="documents">Documents</label>
-                    <select multiple class="form-select select2" id="documents" name="documents[]">
-                        <?php
-                        $selected_ids = array_column(mysqli_fetch_all($sql_docs, MYSQLI_ASSOC), "document_id");
-
-                        $sql_all = mysqli_query($mysqli, "SELECT document_id, document_name, document_description FROM documents WHERE document_archived_at IS NULL AND document_client_id = $client_id ORDER BY document_name ASC");
-                        while ($row_all = mysqli_fetch_assoc($sql_all)) {
-                            $document_id = intval($row_all['document_id']);
-                            $document_name = escapeHtml($row_all['document_name']);
-                            $document_selected = in_array($document_id, $selected_ids) ? ' selected' : '';
-                            echo "<option value=\"$document_id\"$document_selected" . selectOptionData(['icon' => 'fas fa-file-alt', 'description' => $row_all['document_description']]) . ">$document_name</option>";
-                        }
-                        ?>
-                    </select>
-                </div>
-
-                <!-- TODO: Services related to other services -->
-
-            </div>
-
-
-            <div class="tab-pane fade" id="pills-assets<?= $service_id ?>">
-
-                <div class="mb-3">
-                    <label for="assets">Assets</label>
-                    <select multiple class="form-select select2" id="assets" name="assets[]">
-                        <?php
-                        $selected_ids = array_column(mysqli_fetch_all($sql_assets, MYSQLI_ASSOC), "asset_id");
-
-                        $sql_all = mysqli_query($mysqli, "SELECT asset_id, asset_name, asset_type, asset_make, asset_model FROM assets WHERE (asset_archived_at > '$service_created_at' OR asset_archived_at IS NULL) AND asset_client_id = $client_id");
-                        while ($row_all = mysqli_fetch_assoc($sql_all)) {
-                            $asset_id = intval($row_all['asset_id']);
-                            $asset_name = escapeHtml($row_all['asset_name']);
-
-                            $asset_selected = in_array($asset_id, $selected_ids) ? ' selected' : '';
-                            echo "<option value=\"$asset_id\"$asset_selected" . selectOptionAsset($row_all['asset_type'] ?? '', trim(($row_all['asset_make'] ?? '') . ' ' . ($row_all['asset_model'] ?? ''))) . ">$asset_name</option>";
-                        }
-                        ?>
-                    </select>
-                </div>
-
-                <div class="mb-3">
-                    <label for="credentials">Credentials</label>
-                    <select multiple class="form-select select2" id="credentials" name="credentials[]">
-                        <?php
-                        $selected_ids = array_column(mysqli_fetch_all($sql_credentials, MYSQLI_ASSOC), "credential_id");
-
-                        $sql_all = mysqli_query($mysqli, "SELECT credential_id, credential_name FROM credentials WHERE (credential_archived_at > '$service_created_at' OR credential_archived_at IS NULL) AND credential_client_id = $client_id");
-                        while ($row_all = mysqli_fetch_assoc($sql_all)) {
-                            $credential_id = intval($row_all['credential_id']);
-                            $credential_name = escapeHtml($row_all['credential_name']);
-
-                            if (in_array($credential_id, $selected_ids)) {
-                                echo "<option value=\"$credential_id\" selected>$credential_name</option>";
-                            }
-                            else{
-                                echo "<option value=\"$credential_id\">$credential_name</option>";
-                            }
-                        }
-                        ?>
-                    </select>
-                </div>
-
-                <div class="mb-3">
-                    <label for="domains">Domains</label>
-                    <select multiple class="form-select select2" id="domains" name="domains[]">
-                        <?php
-                        $selected_ids = array_column(mysqli_fetch_all($sql_domains, MYSQLI_ASSOC), "domain_id");
-
-                        $sql_all = mysqli_query($mysqli, "SELECT domain_id, domain_name FROM domains WHERE (domain_archived_at > '$service_created_at' OR domain_archived_at IS NULL) AND domain_client_id = $client_id");
-                        while ($row_all = mysqli_fetch_assoc($sql_all)) {
-                            $domain_id = intval($row_all['domain_id']);
-                            $domain_name = escapeHtml($row_all['domain_name']);
-
-                            if (in_array($domain_id, $selected_ids)) {
-                                echo "<option value=\"$domain_id\" selected>$domain_name</option>";
-                            }
-                            else{
-                                echo "<option value=\"$domain_id\">$domain_name</option>";
-                            }
-                        }
-                        ?>
-                    </select>
-                </div>
-
-                <div class="mb-3">
-                    <label for="certificates">Certificates</label>
-                    <select multiple class="form-select select2" id="certificates" name="certificates[]">
-                        <?php
-                        $selected_ids = array_column(mysqli_fetch_all($sql_certificates, MYSQLI_ASSOC), "certificate_id");
-
-                        $sql_all = mysqli_query($mysqli, "SELECT certificate_id, certificate_name, certificate_domain, certificate_issued_at, certificate_expire FROM certificates
-                            WHERE (certificate_archived_at > '$service_created_at' OR certificate_archived_at IS NULL) AND certificate_client_id = $client_id ORDER BY certificate_name ASC");
-                        while ($row_all = mysqli_fetch_assoc($sql_all)) {
-                            $cert_id = intval($row_all['certificate_id']);
-                            $cert_name = escapeHtml($row_all['certificate_name']);
-                            echo "<option value=\"$cert_id\"" . (in_array($cert_id, $selected_ids) ? ' selected' : '') . selectOptionCertificate($row_all) . ">$cert_name</option>";
-                        }
-                        ?>
-                    </select>
-                </div>
-            </div>
-
-        </div>
+        <?php require 'service_form.php'; ?>
     </div>
     <div class="modal-footer">
-        <button type="submit" name="edit_service" class="btn btn-primary text-bold"><i class="fa fa-check me-2"></i>Save</button>
+        <a class="me-auto small" href="<?= escapeHtml(serviceUrl($service_id, $form_client_id)) ?>"><i class="fas fa-link me-1"></i>Link what it depends on from its page</a>
+        <button type="submit" name="edit_service" class="btn btn-primary text-bold"><i class="fas fa-check me-2"></i>Save</button>
         <button type="button" class="btn btn-light" data-bs-dismiss="modal"><i class="fa fa-times me-2"></i>Cancel</button>
     </div>
 </form>

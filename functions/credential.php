@@ -12,8 +12,8 @@
  * carries the credential id, never the secret.
  *
  * A credential belongs to one asset and/or one contact (columns on the
- * credential), and is linked to vendors and licenses through link tables
- * (functions/links.php) and to services (service_credentials).
+ * credential), and is linked to vendors, licenses and services through link
+ * tables (functions/links.php).
  */
 
 /** How long a password can go unchanged before it is called stale - the same 90 days the rotation report uses. */
@@ -431,7 +431,7 @@ function credentialLinks(array $credential_ids) {
     $sources = [
         'vendor' => "SELECT l.credential_id, v.vendor_id, v.vendor_name FROM vendor_credentials l JOIN vendors v ON v.vendor_id = l.vendor_id AND v.vendor_archived_at IS NULL WHERE l.credential_id IN ($in) ORDER BY v.vendor_name",
         'software' => "SELECT l.credential_id, s.software_id, s.software_name FROM software_credentials l JOIN software s ON s.software_id = l.software_id AND s.software_archived_at IS NULL WHERE l.credential_id IN ($in) ORDER BY s.software_name",
-        'service' => "SELECT l.credential_id, s.service_id, s.service_name FROM service_credentials l JOIN services s ON s.service_id = l.service_id WHERE l.credential_id IN ($in) ORDER BY s.service_name",
+        'service' => "SELECT l.credential_id, s.service_id, s.service_name FROM service_credentials l JOIN services s ON s.service_id = l.service_id AND s.service_archived_at IS NULL WHERE l.credential_id IN ($in) ORDER BY s.service_name",
     ];
     foreach ($sources as $type => $query) {
         $sql = mysqli_query($mysqli, $query);

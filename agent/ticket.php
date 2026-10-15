@@ -1396,7 +1396,9 @@ if (isset($_GET['ticket_id'])) {
                 -->
                 <?php
                 $can_link = $can_edit_ticket && !$ticket_is_closed;
-                $has_links = $asset_id || $vendor_id || $project_id || $watcher_count;
+                // The services it is about - raised for them, or through its assets
+                $ticket_services = $client_id ? ticketServices($ticket_id) : [];
+                $has_links = $asset_id || $vendor_id || $project_id || $watcher_count || $ticket_services;
                 if ($has_links || $can_link) { ?>
                     <div class="card mb-3">
                         <div class="card-header px-3 py-2">
@@ -1418,6 +1420,9 @@ if (isset($_GET['ticket_id'])) {
                                                 <a class="dropdown-item ajax-modal" href="#" data-modal-url="modals/ticket/ticket_edit_project.php?id=<?= $ticket_id ?>">
                                                     <i class="fas fa-fw fa-project-diagram me-2"></i><?= $project_id ? 'Change project' : 'Add to a project' ?>
                                                 </a>
+                                                <a class="dropdown-item ajax-modal" href="#" data-modal-url="modals/ticket/ticket_link_service.php?id=<?= $ticket_id ?>">
+                                                    <i class="fas fa-fw fa-stream me-2"></i>Link a service
+                                                </a>
                                                 <div class="dropdown-divider"></div>
                                             <?php } ?>
                                             <a class="dropdown-item ajax-modal" href="#" data-modal-url="modals/ticket/ticket_add_watcher.php?ticket_id=<?= $ticket_id ?>">
@@ -1434,7 +1439,7 @@ if (isset($_GET['ticket_id'])) {
                         <div class="card-body p-3">
 
                             <?php if (!$has_links) { ?>
-                                <div class="text-muted small">Nothing linked yet. Use <i class="fas fa-fw fa-plus"></i> to add an asset, vendor, project or watcher.</div>
+                                <div class="text-muted small">Nothing linked yet. Use <i class="fas fa-fw fa-plus"></i> to add an asset, vendor, project, service or watcher.</div>
                             <?php } ?>
 
                             <?php if ($asset_id) { ?>
@@ -1512,8 +1517,26 @@ if (isset($_GET['ticket_id'])) {
                                 <?php } ?>
                             <?php } ?>
 
+                            <?php if ($ticket_services) { ?>
+                                <div class="ticket-link-heading <?= ($asset_id || $vendor_id || $project_id) ? 'mt-3 pt-2 border-top' : '' ?>">Services</div>
+                                <?php foreach ($ticket_services as $ticket_service) {
+                                    $ticket_service_id = intval($ticket_service['service_id']); ?>
+                                    <div class="mt-1 d-flex align-items-center gap-1 min-w-0">
+                                        <span class="d-flex min-w-0 flex-grow-1"><?= serviceLink($ticket_service_id, $ticket_service['service_name'], $client_id, ['category' => $ticket_service['service_category']]) ?></span>
+                                        <?php if ($ticket_service['service_importance'] === 'High') { ?><?= serviceImportancePill('High') ?><?php } ?>
+                                        <?php if (!$ticket_service['linked']) { ?>
+                                            <span class="small text-muted text-nowrap" title="One of its assets is on this ticket">via asset</span>
+                                        <?php } elseif ($can_link) { ?>
+                                            <a class="confirm-link ms-1" href="post.php?unlink_service_ticket=<?= $ticket_id ?>&service_id=<?= $ticket_service_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>" title="Not about this service">
+                                                <i class="fas fa-fw fa-times text-secondary"></i>
+                                            </a>
+                                        <?php } ?>
+                                    </div>
+                                <?php } ?>
+                            <?php } ?>
+
                             <?php if ($watcher_count) { ?>
-                                <div class="ticket-link-heading <?= ($asset_id || $vendor_id || $project_id) ? 'mt-3 pt-2 border-top' : '' ?>">
+                                <div class="ticket-link-heading <?= ($asset_id || $vendor_id || $project_id || $ticket_services) ? 'mt-3 pt-2 border-top' : '' ?>">
                                     Watchers <span class="text-muted text-lowercase fw-normal">&middot; copied on emailed replies</span>
                                 </div>
                                 <?php while ($watcher_row = mysqli_fetch_assoc($sql_ticket_watchers)) {
