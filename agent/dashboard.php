@@ -190,7 +190,7 @@ $tone_text = ['danger' => 'text-danger-emphasis', 'warning' => 'text-warning-emp
                                 $schedule_day = $item_day; ?>
                                 <div class="itflow-dash-schedule-day"><?= escapeHtml($item_day) ?></div>
                             <?php } ?>
-                            <a class="itflow-dash-schedule-item<?= (!$item['all_day'] && !$item['ongoing'] && strtotime($item['when']) < time()) ? ' is-past' : '' ?>" href="<?= escapeHtml($item['url']) ?>">
+                            <a class="itflow-dash-schedule-item<?= (!$item['all_day'] && !$item['ongoing'] && strtotime($item['when']) < time()) ? ' is-past' : '' ?><?= !empty($item['modal']) ? ' ajax-modal' : '' ?>" href="<?= escapeHtml($item['url']) ?>"<?php if (!empty($item['modal'])) { ?> data-modal-size="lg" data-modal-url="<?= escapeHtml($item['modal']) ?>"<?php } ?>>
                                 <span class="itflow-dash-schedule-time">
                                     <?= $item['ongoing'] ? 'Ongoing' : ($item['all_day'] ? 'All day' : escapeHtml(date('g:i A', strtotime($item['when'])))) ?>
                                 </span>

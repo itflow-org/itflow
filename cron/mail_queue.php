@@ -274,8 +274,18 @@ function sendQueueEmail(
     $mail->Subject = $subject;
     $mail->Body = $html_body;
 
+    // A calendar invitation or cancellation goes in as its own text/calendar part
+    // beside the HTML - the way calendar apps send them, and the only way Outlook
+    // shows one as a meeting rather than a file. PHPMailer only builds that part
+    // when there are no file attachments, so anything else (and a published
+    // event to add) travels as an attached invite.ics.
     if (!empty($ics_str)) {
-        $mail->addStringAttachment($ics_str, 'Scheduled_ticket.ics', 'base64', 'text/calendar');
+        if (preg_match('/^METHOD:(REQUEST|CANCEL)\r?$/m', $ics_str) && empty($attachments_json)) {
+            $mail->Ical = $ics_str;
+            $mail->AltBody = $mail->html2text($html_body);
+        } else {
+            $mail->addStringAttachment($ics_str, 'invite.ics', 'base64', 'text/calendar');
+        }
     }
 
     // File attachments arrive as a manifest of app-root-relative paths. Each one is

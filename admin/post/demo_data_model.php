@@ -1558,41 +1558,57 @@ function demoBuildClient($mysqli, $profile, $index, $context, &$counts) {
                 'event_client_id' => $client_id,
                 'event_location_id' => $primary_location_id,
                 'event_calendar_id' => $onsite_calendar_id,
+                'event_created_by' => $context['user_id'],
                 'event_created_at' => demoDateTime($days_ago + 10, 9, 0),
             ]);
 
-            // Whoever is meeting us on site
-            if ($technical_contact_id) {
-                // attendee_invitation_status is a tinyint nothing in the app
-                // reads or writes yet, so it is left on its default rather than
-                // guessing at a meaning for it
+            // The agent going, and whoever is meeting us on site - who was sent
+            // the invitation when the visit was booked
+            if ($context['user_id']) {
                 starterInsert($mysqli, 'calendar_event_attendees', [
-                    'attendee_name' => $profile['people'][2][0] ?? $profile['people'][0][0],
-                    'attendee_email' => demoContactEmail($profile['people'][2][0] ?? $profile['people'][0][0], $profile['domain']),
+                    'attendee_user_id' => $context['user_id'],
+                    'attendee_event_id' => $event_id,
+                    'attendee_created_at' => demoDateTime($days_ago + 10, 9, 0),
+                ]);
+            }
+            if ($technical_contact_id) {
+                starterInsert($mysqli, 'calendar_event_attendees', [
                     'attendee_contact_id' => $technical_contact_id,
                     'attendee_event_id' => $event_id,
                     'attendee_created_at' => demoDateTime($days_ago + 10, 9, 0),
+                    'attendee_invitation_status' => 1,
+                    'attendee_invited_at' => demoDateTime($days_ago + 10, 9, 5),
                 ]);
             }
 
         }
     }
 
-    // The quarterly review, for the clients who get one
+    // The quarterly review, for the clients who get one - every three months,
+    // the first a couple of quarters back
     $internal_calendar_id = $context['calendars']['Internal'] ?? 0;
     if ($internal_calendar_id && in_array('Key Account', $profile['tags'])) {
-        starterInsert($mysqli, 'calendar_events', [
+        $review_id = starterInsert($mysqli, 'calendar_events', [
             'event_title' => $profile['abbreviation'] . ' - quarterly business review',
             'event_location' => $profile['sites'][0]['city'] . ', ' . $profile['sites'][0]['state'],
             'event_description' => 'Spend to date, open projects, asset age and anything coming up in the next quarter.',
-            'event_start' => demoDateTime(-1 * (14 + ($index % 30)), 14, 0),
-            'event_end' => demoDateTime(-1 * (14 + ($index % 30)), 15, 30),
+            'event_start' => demoDateTime(166 - ($index % 30), 14, 0),
+            'event_end' => demoDateTime(166 - ($index % 30), 15, 30),
             'event_all_day' => 0,
+            'event_repeat' => 'Month',
+            'event_repeat_interval' => 3,
             'event_client_id' => $client_id,
             'event_location_id' => $primary_location_id,
             'event_calendar_id' => $internal_calendar_id,
-            'event_created_at' => demoDateTime(3, 9, 0),
+            'event_created_by' => $context['user_id'],
+            'event_created_at' => demoDateTime(170, 9, 0),
         ]);
+        foreach (array_filter([$context['user_id'] ? ['attendee_user_id' => $context['user_id']] : null, $primary_contact_id ? ['attendee_contact_id' => $primary_contact_id] : null]) as $attendee) {
+            starterInsert($mysqli, 'calendar_event_attendees', $attendee + [
+                'attendee_event_id' => $review_id,
+                'attendee_created_at' => demoDateTime(170, 9, 0),
+            ]);
+        }
     }
 
     for ($trip_month = min(6, $months); $trip_month >= 0; $trip_month = $trip_month - 3) {
@@ -3381,7 +3397,8 @@ function demoBuildInternalDiary($mysqli, $context, &$counts) {
         return;
     }
 
-    // Weekly and monthly fixtures, running back a quarter and forward a month
+    // The standing meetings and windows - each one repeating event, every N
+    // weeks from a quarter back, with us on it
     // title, calendar, description, weekday offset from Monday, start hour, length in hours, every N weeks
     $fixtures = [
         ['Team stand up', $internal_id, 'Fifteen minutes on the queue, anything stuck and who is out.', 0, 8, 1, 1],
@@ -3395,31 +3412,34 @@ function demoBuildInternalDiary($mysqli, $context, &$counts) {
     ];
 
     foreach ($fixtures as $fixture) {
-        for ($week = 13; $week >= -4; $week--) {
 
-            if ($week % $fixture[6] !== 0) {
-                continue;
-            }
+        // Monday a quarter back, then the weekday offset
+        $days_ago = (13 * 7) - $fixture[3] + (int)date('N') - 1;
+        $start = demoDateTime($days_ago, $fixture[4], 0);
+        $end = date('Y-m-d H:i:s', strtotime($start . ' +' . $fixture[5] . ' hours'));
 
-            // Monday of that week, then the weekday offset
-            $days_ago = ($week * 7) - $fixture[3] + (int)date('N') - 1;
-            $start = demoDateTime($days_ago, $fixture[4], 0);
-            $end = date('Y-m-d H:i:s', strtotime($start . ' +' . $fixture[5] . ' hours'));
-
-            starterInsert($mysqli, 'calendar_events', [
-                'event_title' => $fixture[0],
-                'event_location' => $fixture[0] === 'Monthly maintenance window' ? 'Remote' : 'Office',
-                'event_description' => $fixture[2],
-                'event_start' => $start,
-                'event_end' => $end,
-                'event_all_day' => 0,
-                'event_client_id' => 0,
-                'event_calendar_id' => $fixture[1],
-                'event_created_at' => demoDateTime($days_ago + 7, 9, 0),
+        $event_id = starterInsert($mysqli, 'calendar_events', [
+            'event_title' => $fixture[0],
+            'event_location' => $fixture[0] === 'Monthly maintenance window' ? 'Remote' : 'Office',
+            'event_description' => $fixture[2],
+            'event_start' => $start,
+            'event_end' => $end,
+            'event_all_day' => 0,
+            'event_repeat' => 'Week',
+            'event_repeat_interval' => $fixture[6],
+            'event_client_id' => 0,
+            'event_calendar_id' => $fixture[1],
+            'event_created_by' => $user_id,
+            'event_created_at' => demoDateTime($days_ago + 7, 9, 0),
+        ]);
+        if ($user_id) {
+            starterInsert($mysqli, 'calendar_event_attendees', [
+                'attendee_user_id' => $user_id,
+                'attendee_event_id' => $event_id,
+                'attendee_created_at' => demoDateTime($days_ago + 7, 9, 0),
             ]);
-            $counts['company']++;
-
         }
+        $counts['company']++;
     }
 
     // One off internal days

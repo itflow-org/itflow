@@ -427,13 +427,16 @@ CREATE TABLE `calendar_event_attendees` (
   `attendee_name` varchar(200) DEFAULT NULL,
   `attendee_email` varchar(200) DEFAULT NULL,
   `attendee_invitation_status` tinyint(1) NOT NULL DEFAULT 0,
+  `attendee_invited_at` datetime DEFAULT NULL,
   `attendee_created_at` datetime NOT NULL DEFAULT current_timestamp(),
   `attendee_updated_at` datetime DEFAULT NULL ON UPDATE current_timestamp(),
   `attendee_archived_at` datetime DEFAULT NULL,
   `attendee_contact_id` int(11) NOT NULL DEFAULT 0,
+  `attendee_user_id` int(11) NOT NULL DEFAULT 0,
   `attendee_event_id` int(11) NOT NULL,
   PRIMARY KEY (`attendee_id`),
   KEY `attendee_event_id` (`attendee_event_id`),
+  KEY `attendee_user_id` (`attendee_user_id`),
   CONSTRAINT `calendar_event_attendees_ibfk_1` FOREIGN KEY (`attendee_event_id`) REFERENCES `calendar_events` (`event_id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -454,15 +457,21 @@ CREATE TABLE `calendar_events` (
   `event_end` datetime DEFAULT NULL,
   `event_all_day` tinyint(1) NOT NULL DEFAULT 0,
   `event_repeat` varchar(200) DEFAULT NULL,
+  `event_repeat_interval` int(11) NOT NULL DEFAULT 1,
+  `event_repeat_until` date DEFAULT NULL,
+  `event_repeat_skip` text DEFAULT NULL,
+  `event_sequence` int(11) NOT NULL DEFAULT 0,
   `event_created_at` datetime NOT NULL DEFAULT current_timestamp(),
   `event_updated_at` datetime DEFAULT NULL ON UPDATE current_timestamp(),
   `event_archived_at` datetime DEFAULT NULL,
+  `event_created_by` int(11) NOT NULL DEFAULT 0,
   `event_client_id` int(11) NOT NULL DEFAULT 0,
   `event_location_id` int(11) NOT NULL DEFAULT 0,
   `event_calendar_id` int(11) NOT NULL DEFAULT 0,
   PRIMARY KEY (`event_id`),
   KEY `event_calendar_id` (`event_calendar_id`),
   KEY `event_client_id` (`event_client_id`),
+  KEY `event_start` (`event_start`),
   CONSTRAINT `calendar_events_ibfk_1` FOREIGN KEY (`event_calendar_id`) REFERENCES `calendars` (`calendar_id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -1302,7 +1311,7 @@ CREATE TABLE `email_queue` (
   `email_from_name` varchar(255) NOT NULL,
   `email_subject` varchar(255) NOT NULL,
   `email_content` longtext NOT NULL,
-  `email_cal_str` varchar(1024) DEFAULT NULL,
+  `email_cal_str` text DEFAULT NULL,
   `email_attachments` text DEFAULT NULL,
   `email_queued_at` datetime NOT NULL DEFAULT current_timestamp(),
   `email_failed_at` datetime DEFAULT NULL,
@@ -3128,6 +3137,29 @@ CREATE TABLE `trips` (
   `trip_client_id` int(11) NOT NULL DEFAULT 0,
   PRIMARY KEY (`trip_id`),
   KEY `trip_client_id` (`trip_client_id`,`trip_archived_at`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `user_calendar_feeds`
+--
+
+DROP TABLE IF EXISTS `user_calendar_feeds`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8mb4 */;
+CREATE TABLE `user_calendar_feeds` (
+  `feed_user_id` int(11) NOT NULL,
+  `feed_key` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL,
+  `feed_scope` varchar(20) NOT NULL DEFAULT 'mine',
+  `feed_tickets` tinyint(1) NOT NULL DEFAULT 1,
+  `feed_events` tinyint(1) NOT NULL DEFAULT 1,
+  `feed_projects` tinyint(1) NOT NULL DEFAULT 1,
+  `feed_busy_only` tinyint(1) NOT NULL DEFAULT 0,
+  `feed_created_at` datetime NOT NULL DEFAULT current_timestamp(),
+  `feed_accessed_at` datetime DEFAULT NULL,
+  PRIMARY KEY (`feed_user_id`),
+  UNIQUE KEY `feed_key` (`feed_key`),
+  CONSTRAINT `user_calendar_feeds_ibfk_1` FOREIGN KEY (`feed_user_id`) REFERENCES `users` (`user_id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 

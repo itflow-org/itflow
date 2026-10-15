@@ -1970,3 +1970,220 @@ if (isset($_GET['get_credential_via_id'])) {
         logAudit("Credential", "View", "$session_name viewed credential $name", $client_id, $credential_id);
     }
 }
+
+/*
+ * The calendar page's items between two days: the events on the calendars
+ * shown, and what the built-in sources shown have dated (calendarSources()),
+ * for one client or every client this agent can reach, everyone's or one
+ * agent's. Repeating events come back as their occurrences.
+ */
+if (isset($_GET['calendar_items'])) {
+
+    header('Content-Type: application/json');
+
+    $from = calendarIsDate($_GET['from'] ?? '') ? $_GET['from'] . ' 00:00:00' : date('Y-m-01 00:00:00');
+    $to = calendarIsDate($_GET['to'] ?? '') ? $_GET['to'] . ' 23:59:59' : date('Y-m-t 23:59:59');
+    // A window of more than a year is not something the page asks for
+    if (strtotime($to) - strtotime($from) > 86400 * 400) {
+        $to = date('Y-m-d 23:59:59', strtotime($from) + 86400 * 400);
+    }
+
+    $client_id = intval($_GET['client_id'] ?? 0);
+    if ($client_id && !hasClientAccess($client_id)) {
+        http_response_code(403);
+        echo json_encode(['error' => 'You do not have access to that client.']);
+        exit;
+    }
+    $opts = ['client_id' => $client_id, 'user_id' => intval($_GET['user_id'] ?? 0)];
+
+    $calendar_ids = array_filter(array_map('intval', explode(',', (string) ($_GET['calendars'] ?? ''))));
+    $items = calendarEventItems($calendar_ids, $from, $to, $opts);
+    foreach (array_filter(explode(',', (string) ($_GET['sources'] ?? ''))) as $key) {
+        $items = array_merge($items, calendarSourceItems($key, $from, $to, $opts));
+    }
+
+    echo json_encode($items);
+    exit;
+}
+
+/*
+ * Something dragged on the calendar: a scheduled ticket to a new time, a
+ * ticket from To schedule onto the calendar, or an event that does not repeat
+ * to a new day or length. A ticket is booked exactly as from the ticket - the
+ * agent, contact and watchers are emailed - and an event moved with notify
+ * sends the update to the people who have it in their calendar.
+ */
+if (isset($_POST['calendar_move'])) {
+
+    validateCSRFToken();
+
+    header('Content-Type: application/json');
+    $fail = function ($message, $code = 400) {
+        http_response_code($code);
+        echo json_encode(['error' => $message]);
+        exit;
+    };
+
+    $start = ticketScheduleValue($_POST['start'] ?? '');
+    if ($start === '') {
+        $fail('That is not a date and time.');
+    }
+
+    if (($_POST['kind'] ?? '') === 'ticket') {
+
+        if (!calendarCanScheduleTickets()) {
+            $fail('Your role cannot schedule tickets.', 403);
+        }
+        $row = ticketRow($_POST['id'] ?? 0);
+        if (!$row || !empty($row['ticket_archived_at'])) {
+            $fail('That ticket no longer exists.', 404);
+        }
+        if (intval($row['ticket_client_id']) && !hasClientAccess($row['ticket_client_id'])) {
+            $fail('You do not have access to that client.', 403);
+        }
+        if (!ticketIsOpen($row)) {
+            $fail('Ticket ' . ticketReference($row) . ' is resolved or closed - reopen it to schedule work.');
+        }
+        // Dropped on a whole day: the time it already had, or 9:00
+        if (!empty($_POST['all_day'])) {
+            $start = substr($start, 0, 10) . ' ' . ($row['ticket_schedule'] ? date('H:i:s', strtotime($row['ticket_schedule'])) : '09:00:00');
+        }
+        $onsite = isset($_POST['onsite']) ? intval($_POST['onsite']) : intval($row['ticket_onsite']);
+        $result = ticketSetSchedule($row, $start, $onsite);
+
+        echo json_encode(['ok' => true, 'message' => ticketReference($row) . ' scheduled for ' . $result['when_text'], 'conflicts' => $result['conflicts']]);
+        exit;
+    }
+
+    $event = calendarEventRow($_POST['id'] ?? 0);
+    if (!$event) {
+        $fail('That event no longer exists.', 404);
+    }
+    if (intval($event['event_client_id']) && !hasClientAccess($event['event_client_id'])) {
+        $fail('You do not have access to that client.', 403);
+    }
+    if (calendarEventRepeats($event)) {
+        $fail('A repeating event is moved from Edit, so the whole series moves together.');
+    }
+    $event_id = intval($event['event_id']);
+
+    if (!empty($_POST['all_day'])) {
+        // FullCalendar's all-day end is exclusive; event_end is the last day covered
+        $start = substr($start, 0, 10) . ' 00:00:00';
+        $end_value = ticketScheduleValue($_POST['end'] ?? '');
+        $end = $end_value !== '' ? date('Y-m-d 00:00:00', strtotime(substr($end_value, 0, 10) . ' -1 day')) : $start;
+        if ($end < $start) {
+            $end = $start;
+        }
+        $all_day = 1;
+    } else {
+        $end = ticketScheduleValue($_POST['end'] ?? '');
+        if ($end === '' || $end <= $start) {
+            // Keep its length - or an hour, coming off a whole day
+            $length = $event['event_all_day'] ? 3600 : max(900, strtotime($event['event_end'] ?: $event['event_start']) - strtotime($event['event_start']));
+            $end = date('Y-m-d H:i:s', strtotime($start) + $length);
+        }
+        $all_day = 0;
+    }
+
+    mysqli_query($mysqli, "UPDATE calendar_events SET event_start = '$start', event_end = '$end', event_all_day = $all_day, event_sequence = event_sequence + 1 WHERE event_id = $event_id");
+
+    $event = calendarEventRow($event_id);
+    $sent = !empty($_POST['notify']) ? calendarSendInvites($event, 'update', calendarInvitedAttendees($event_id)) : 0;
+
+    logAudit("Calendar Event", "Edit", "$session_name moved the event " . escapeSql($event['event_title']) . " to " . escapeSql(calendarWhenText($event)), intval($event['event_client_id']), $event_id);
+
+    echo json_encode(['ok' => true, 'message' => $event['event_title'] . ' moved to ' . calendarWhenText($event) . ($sent ? " - the update was emailed to $sent " . ($sent === 1 ? 'person' : 'people') : '')]);
+    exit;
+}
+
+/*
+ * The calendar's To schedule list: an agent's open tickets with no work booked
+ * (most urgent first), to drag onto the calendar - in one client, or all.
+ */
+if (isset($_GET['calendar_unscheduled'])) {
+
+    header('Content-Type: application/json');
+
+    if (!calendarCanScheduleTickets()) {
+        echo json_encode(['tickets' => []]);
+        exit;
+    }
+    $user_id = intval($_GET['user_id'] ?? 0) ?: $session_user_id;
+    $client_id = intval($_GET['client_id'] ?? 0);
+    if ($client_id && !hasClientAccess($client_id)) {
+        echo json_encode(['tickets' => []]);
+        exit;
+    }
+
+    $sql = mysqli_query($mysqli, "SELECT tickets.ticket_id, ticket_prefix, ticket_number, ticket_subject, ticket_priority, ticket_onsite, ticket_client_id, client_name
+        FROM tickets
+        LEFT JOIN clients ON client_id = ticket_client_id
+        WHERE ticket_schedule IS NULL AND ticket_resolved_at IS NULL AND ticket_closed_at IS NULL AND ticket_archived_at IS NULL
+        AND ticket_assigned_to = $user_id
+        " . ($client_id ? "AND ticket_client_id = $client_id" : '') . "
+        " . clientScopeSql('ticket_client_id') . "
+        ORDER BY FIELD(ticket_priority, 'Urgent', 'High', 'Medium', 'Low'), ticket_created_at ASC
+        LIMIT 25");
+    $tickets = [];
+    while ($row = mysqli_fetch_assoc($sql)) {
+        $tickets[] = [
+            'id' => intval($row['ticket_id']),
+            'reference' => ticketReference($row),
+            'subject' => $row['ticket_subject'],
+            'client' => $row['client_name'] ?: 'Internal',
+            'priority' => $row['ticket_priority'],
+            'onsite' => intval($row['ticket_onsite']),
+        ];
+    }
+
+    echo json_encode(['tickets' => $tickets]);
+    exit;
+}
+
+/*
+ * One agent's day - their scheduled tickets and the events they are on - for
+ * the ticket's Schedule dialog, so a visit is not booked on top of another.
+ * $_GET: date, user_id, ticket_id (the ticket being scheduled, left out).
+ */
+if (isset($_GET['calendar_day'])) {
+
+    header('Content-Type: application/json');
+
+    $date = calendarIsDate($_GET['date'] ?? '') ? $_GET['date'] : date('Y-m-d');
+    $user_id = intval($_GET['user_id'] ?? 0);
+    $skip_ticket = 'ticket-' . intval($_GET['ticket_id'] ?? 0);
+    if (!$user_id || lookupUserPermission('module_support') < 1) {
+        echo json_encode(['items' => []]);
+        exit;
+    }
+
+    $from = "$date 00:00:00";
+    $to = "$date 23:59:59";
+    $opts = ['user_id' => $user_id];
+    $items = array_merge(
+        calendarSourceItems('tickets', $from, $to, $opts),
+        calendarEventItems(array_keys(calendarList()), $from, $to, $opts)
+    );
+
+    $day = [];
+    foreach ($items as $item) {
+        if ($item['id'] === $skip_ticket) {
+            continue;
+        }
+        $all_day = !empty($item['allDay']);
+        $day[] = [
+            'start' => $all_day ? $date . ' 00:00:00' : $item['start'],
+            'time' => $all_day ? 'All day' : date('g:i A', strtotime($item['start'])) . (!empty($item['end']) ? ' - ' . date('g:i A', strtotime($item['end'])) : ''),
+            'title' => $item['title'],
+            'kind' => $item['extendedProps']['kind'] ?? '',
+            'color' => $item['color'] ?? '',
+        ];
+    }
+    usort($day, function ($a, $b) {
+        return strcmp($a['start'], $b['start']);
+    });
+
+    echo json_encode(['items' => $day]);
+    exit;
+}

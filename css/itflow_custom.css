@@ -1760,11 +1760,11 @@ select.select2[multiple]:not(.itflow-select-native) {
        to full height, shoving everything below it down. That jump is the
        flash.
 
-       90vh is not a guess: it is the exact `height: '90vh'` the calendar is
-       configured with in calendar.php, set outside the mobile branch so it
-       applies on both. Matching it here means the box is the right size from
-       first paint and nothing moves when the widget arrives. */
-    min-height: 90vh;
+       The height is not a guess: it is the exact `height` agent/js/calendar.js
+       gives the calendar on a wider screen. Matching it here means the box is
+       the right size from first paint and nothing moves when the widget
+       arrives. On a phone it sizes to its list instead. */
+    min-height: calc(100vh - 11rem);
 
     --fc-classic-background: var(--bs-body-bg);
     --fc-classic-foreground: var(--bs-body-color);
@@ -5004,4 +5004,151 @@ img.itflow-contact-avatar {
 }
 .itflow-service-alert ul {
     font-size: .9rem;
+}
+
+/* --- Calendar (agent/calendar.php, agent/js/calendar.js) ------------------- */
+@media (max-width: 767.98px) {
+    #calendar {
+        min-height: 50vh;
+    }
+}
+.itflow-calendar-page.is-loading #calendar {
+    opacity: .75;
+    transition: opacity .15s;
+}
+/* A calendar or source to show or hide: a checkbox in its own colour */
+.itflow-cal-toggle {
+    padding: .2rem 0;
+}
+.itflow-cal-toggle .form-check-input {
+    border-color: var(--itflow-cal-color);
+    flex-shrink: 0;
+}
+.itflow-cal-toggle .form-check-input:checked {
+    background-color: var(--itflow-cal-color);
+    border-color: var(--itflow-cal-color);
+}
+.itflow-cal-toggle .form-check-input:focus {
+    box-shadow: 0 0 0 .2rem color-mix(in srgb, var(--itflow-cal-color) 25%, transparent);
+}
+.itflow-cal-toggle label {
+    cursor: pointer;
+}
+.itflow-cal-toggle-icon {
+    color: var(--itflow-cal-color);
+}
+/* One item on the calendar: time, icon, title, and where / who when there is room */
+.itflow-cal-event {
+    overflow: hidden;
+    font-size: .8rem;
+    line-height: 1.3;
+    padding: 0 .15rem;
+}
+.itflow-cal-event.is-daygrid {
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}
+.itflow-cal-event.is-list {
+    font-size: .875rem;
+}
+.itflow-cal-event.is-list .itflow-cal-time {
+    display: inline-block;
+    min-width: 8.5rem;
+    font-weight: 400;
+    color: var(--bs-secondary-color);
+}
+.itflow-cal-event.is-list .itflow-cal-detail {
+    margin-left: 8.75rem;
+}
+@media (max-width: 575.98px) {
+    .itflow-cal-event.is-list .itflow-cal-time {
+        display: block;
+        min-width: 0;
+    }
+    .itflow-cal-event.is-list .itflow-cal-detail {
+        margin-left: 0;
+    }
+}
+/* The sidebar keeps its width; the calendar takes the rest */
+@media (min-width: 992px) {
+    .itflow-cal-side {
+        flex: 0 0 15.5rem;
+        max-width: 15.5rem;
+    }
+}
+.itflow-cal-time {
+    font-weight: 600;
+    margin-right: .25rem;
+}
+.itflow-cal-event.is-timegrid .itflow-cal-time {
+    display: block;
+    font-weight: 400;
+    opacity: .9;
+}
+.itflow-cal-event.is-timegrid .itflow-cal-title {
+    font-weight: 600;
+}
+.itflow-cal-icon {
+    font-size: .8em;
+    opacity: .85;
+    margin-right: .15rem;
+}
+.itflow-cal-detail {
+    font-size: .8em;
+    opacity: .85;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+.itflow-cal-done .itflow-cal-title {
+    text-decoration: line-through;
+}
+.itflow-cal-done {
+    opacity: .6;
+}
+/* To schedule - open tickets to drag onto the calendar */
+.itflow-cal-unscheduled {
+    display: flex;
+    align-items: center;
+    gap: .5rem;
+    padding: .35rem .5rem;
+    margin-bottom: .25rem;
+    border: 1px solid var(--bs-border-color);
+    border-radius: var(--bs-border-radius);
+    background: var(--bs-body-bg);
+    cursor: grab;
+    user-select: none;
+}
+.itflow-cal-unscheduled:hover {
+    background: var(--bs-tertiary-bg);
+}
+#calendarUnscheduled {
+    max-height: 22rem;
+    overflow-y: auto;
+}
+.itflow-cal-priority {
+    width: .5rem;
+    height: .5rem;
+    border-radius: 50%;
+    flex-shrink: 0;
+}
+/* The event quick look's tile, in its calendar's colour */
+.itflow-cal-tile {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    width: 2.5rem;
+    height: 2.5rem;
+    border-radius: .5rem;
+    background: var(--itflow-cal-color);
+    color: #fff;
+    font-size: 1.1rem;
+}
+.itflow-cal-help-tabs .nav-link {
+    white-space: nowrap;
+}
+.swal2-radio .itflow-cal-swal-input,
+.swal2-radio {
+    gap: 1rem;
 }

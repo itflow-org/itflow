@@ -34,7 +34,7 @@ ob_start();
             <label>Date and time</label>
             <div class="input-group">
                     <span class="input-group-text"><i class="fa fa-fw fa-calendar-day"></i></span>
-                <input type="datetime-local" class="form-control" name="scheduled_date_time" placeholder="Scheduled Date & Time" min="<?= date('Y-m-d\TH:i') ?>" <?php if ($ticket_scheduled_for) { echo "value='$ticket_scheduled_for'"; } ?>>
+                <input type="datetime-local" class="form-control" name="scheduled_date_time" id="scheduleDateTime" placeholder="Scheduled Date & Time" min="<?= date('Y-m-d\TH:i') ?>" <?php if ($ticket_scheduled_for) { echo "value='$ticket_scheduled_for'"; } ?>>
             </div>
         </div>
 
@@ -48,6 +48,17 @@ ob_start();
                 </select>
             </div>
         </div>
+
+        <?php if (intval($row['ticket_assigned_to'])) { ?>
+            <!-- What else the agent has that day, so it is not booked on top of something (agent/js/ticket_schedule_modal.js) -->
+            <div class="border rounded p-2 small" id="scheduleAgentDay" data-user="<?= intval($row['ticket_assigned_to']) ?>" data-ticket="<?= $ticket_id ?>" data-name="<?= escapeHtml($row['user_name']) ?>" hidden>
+                <div class="d-flex align-items-center mb-1">
+                    <span class="fw-semibold"><i class="far fa-calendar-alt fa-fw text-secondary me-1"></i><span class="js-day-title"></span></span>
+                    <a class="ms-auto js-day-open" href="calendar.php">Calendar</a>
+                </div>
+                <div class="js-day-items"></div>
+            </div>
+        <?php } ?>
     </div>
 
     <div class="modal-footer">
@@ -61,6 +72,8 @@ ob_start();
     </div>
 
 </form>
+
+<script src="/agent/js/ticket_schedule_modal.js"></script>
 
 <?php
 require_once '../../../includes/modal_footer.php';

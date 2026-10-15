@@ -258,7 +258,9 @@ if (isset($_GET['client_id'])) {
         $row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT COUNT(document_id) AS num FROM documents WHERE document_archived_at IS NULL AND document_client_id = $client_id"));
         $num_documents = intval($row['num']);
 
-        $row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT COUNT(event_id) AS num FROM calendar_events WHERE event_client_id = $client_id"));
+        // What is coming up - events still ahead, and series still running
+        $row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT COUNT(event_id) AS num FROM calendar_events WHERE event_client_id = $client_id AND event_archived_at IS NULL
+            AND (COALESCE(event_end, event_start) >= CURDATE() OR (event_repeat <> '' AND (event_repeat_until IS NULL OR event_repeat_until >= CURDATE())))"));
         $num_calendar_events = intval($row['num']);
 
         $row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT COUNT(trip_id) AS num FROM trips WHERE trip_archived_at IS NULL AND trip_client_id = $client_id"));

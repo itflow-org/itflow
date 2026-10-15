@@ -269,8 +269,8 @@ $money_format = function ($amount) use ($currency_format, $client_currency_code,
             <div class="col-md-6 col-xl-4">
                 <div class="card h-100 mb-0">
                     <div class="card-header d-flex align-items-center">
-                        <h3 class="card-title mb-0 me-auto">Coming up</h3>
-                        <span class="small text-body-secondary">Next 14 days</span>
+                        <h3 class="card-title mb-0 me-auto">Coming up <span class="small text-body-secondary fw-normal ms-1">14 days</span></h3>
+                        <a class="small" href="calendar.php?client_id=<?= $client_id ?>">Calendar</a>
                     </div>
                     <div class="itflow-dash-schedule">
                         <?php
@@ -281,7 +281,7 @@ $money_format = function ($amount) use ($currency_format, $client_currency_code,
                                 $upcoming_day = $item_day; ?>
                                 <div class="itflow-dash-schedule-day"><?= escapeHtml($item_day) ?></div>
                             <?php } ?>
-                            <a class="itflow-dash-schedule-item" href="<?= escapeHtml($item['url']) ?>">
+                            <a class="itflow-dash-schedule-item<?= !empty($item['modal']) ? ' ajax-modal' : '' ?>" href="<?= escapeHtml($item['url']) ?>"<?php if (!empty($item['modal'])) { ?> data-modal-size="lg" data-modal-url="<?= escapeHtml($item['modal']) ?>"<?php } ?>>
                                 <span class="itflow-dash-schedule-time"><?= $item['all_day'] ? 'All day' : escapeHtml(date('g:i A', strtotime($item['when']))) ?></span>
                                 <span class="itflow-dash-schedule-mark bg-<?= ['ticket' => 'primary', 'recurring' => 'info', 'event' => 'success', 'project' => 'warning', 'service' => 'secondary'][$item['kind']] ?>"></span>
                                 <span class="flex-grow-1 overflow-hidden">

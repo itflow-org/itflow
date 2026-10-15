@@ -791,26 +791,6 @@ itflowBindOnce('itflowSecret', 'click', '.itflow-secret-toggle', function (e) {
     this.setAttribute('aria-pressed', shown ? 'true' : 'false');
 });
 
-itflowBindOnce('itflowAllDay', 'change', '.event-all-day-toggle', function () {
-
-    const allDay = this.checked;
-    const timeFields = document.getElementById(this.id.replace(/_all_day$/, '_time_fields'));
-
-    if (!timeFields) {
-        return;
-    }
-
-    timeFields.classList.toggle('d-none', allDay);
-
-    timeFields.querySelectorAll('input').forEach(function (field) {
-        if (allDay) {
-            field.removeAttribute('required');
-        } else {
-            field.setAttribute('required', 'required');
-        }
-    });
-});
-
 /*
  * Keep the end date at or after the start date, without shortening a longer span
  * the user has already chosen.

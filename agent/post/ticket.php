@@ -1766,75 +1766,11 @@ if (isExportRequest('export_tickets')) {
 
 }
 
-/** Work out when a datetime-local value is - 'Y-m-d H:i:s', or '' when it isn't a date and time. */
-function ticketScheduleValue($input) {
-    $sql = ticketDueSql($input);
-    return $sql === 'NULL' ? '' : trim($sql, "'");
-}
-
-/** The scheduled-visit emails - the agent, the contact and the watchers - with the calendar invite (or its cancellation). */
-function ticketMailSchedule($row, $cal_str, $cancelled, $when_text) {
-    global $mysqli, $config_smtp_provider, $config_ticket_from_email, $config_ticket_from_name, $config_base_url, $config_ticket_client_general_notifications, $session_company_name;
-    if (empty($config_smtp_provider)) {
-        return;
-    }
-    // Built as plain text and HTML, then escaped once for the mail queue
-    $sql = function ($value) use ($mysqli) {
-        return mysqli_real_escape_string($mysqli, (string) $value);
-    };
-    $html = function ($value) {
-        return escapeHtml((string) $value);
-    };
-    $ticket_id = intval($row['ticket_id']);
-    $client_id = intval($row['ticket_client_id']);
-    $reference = ticketReference($row);
-    $subject = (string) $row['ticket_subject'];
-    $company_name = (string) $session_company_name;
-    $from_email = (string) $config_ticket_from_email;
-    $agent_link = "https://$config_base_url/agent/ticket.php?ticket_id=$ticket_id" . ($client_id ? "&client_id=$client_id" : '');
-    $client_link = "https://$config_base_url/client/ticket.php?id=$ticket_id";
-    $what = $cancelled ? 'Scheduled work for the ticket regarding ' . $html($subject) . ' has been cancelled.' : 'The ticket regarding ' . $html($subject) . ' has been scheduled for ' . $html($when_text) . '.';
-    $what_yours = $cancelled ? 'Scheduled work for your ticket regarding ' . $html($subject) . ' has been cancelled.' : 'Your ticket regarding ' . $html($subject) . ' has been scheduled for ' . $html($when_text) . '.';
-    $mail_subject = $sql(($cancelled ? 'Ticket Schedule Cancelled' : 'Ticket Scheduled') . " - [$reference] - $subject");
-    $footer = "<div class='footer'>~<br>" . $html($company_name) . "<br>Support Department<br>" . $html($from_email) . "<br></div><div class='no-reply'>This is an automated message. Please do not reply directly to this email.</div>";
-    $from = ['from' => $sql($from_email), 'from_name' => $sql($config_ticket_from_name), 'subject' => $mail_subject, 'cal_str' => $cal_str];
-    $data = [];
-
-    // The agent doing the work
-    if (filter_var($row['user_email'] ?? '', FILTER_VALIDATE_EMAIL)) {
-        $data[] = $from + ['recipient' => $sql($row['user_email']), 'recipient_name' => $sql($row['user_name']),
-            'body' => $sql('Hello, ' . $html($row['user_name']) . "<br><br>$what<br><br>--------------------------------<br><a href=\"$agent_link\">" . $html($reference) . "</a><br>--------------------------------<br><br>Please do not reply to this email. <br><br>Ticket: " . $html($reference) . "<br>Subject: " . $html($subject) . "<br>Portal: $agent_link<br><br>~<br>" . $html($company_name) . "<br>Support Department<br>" . $html($from_email))];
-    }
-
-    if (intval($config_ticket_client_general_notifications) === 1) {
-        // The contact
-        if (filter_var($row['contact_email'] ?? '', FILTER_VALIDATE_EMAIL)) {
-            $data[] = $from + ['recipient' => $sql($row['contact_email']), 'recipient_name' => $sql($row['contact_name']),
-                'body' => $sql("<div class='header'>Hello, " . $html($row['contact_name']) . "</div>$what_yours<br><br><a href='$client_link' class='link-button'>Access your ticket here</a><br><br>Please do not reply to this email.<br><br><strong>Ticket:</strong> " . $html($reference) . "<br><strong>Subject:</strong> " . $html($subject) . "<br><br><br>$footer")];
-        }
-        // And the watchers
-        $watchers = mysqli_query($mysqli, "SELECT watcher_email FROM ticket_watchers WHERE watcher_ticket_id = $ticket_id");
-        foreach (ticketWatcherEmails(array_column(mysqli_fetch_all($watchers, MYSQLI_ASSOC), 'watcher_email')) as $watcher_email) {
-            if (strcasecmp($watcher_email, (string) ($row['contact_email'] ?? '')) === 0) {
-                continue;
-            }
-            $data[] = $from + ['recipient' => $sql($watcher_email), 'recipient_name' => $sql($watcher_email),
-                'body' => $sql("<div class='header'>Hello,</div>$what<br><br><a href='$client_link' class='link-button'>" . $html($reference) . "</a><br><br>Please do not reply to this email.<br><br><strong>Ticket:</strong> " . $html($reference) . "<br><strong>Subject:</strong> " . $html($subject) . "<br><strong>Portal:</strong> <a href='$client_link'>Access the ticket here</a><br><br>$footer")];
-        }
-    }
-
-    if ($data) {
-        addToMailQueue($data);
-    }
-}
-
 if (isset($_POST['edit_ticket_schedule'])) {
 
     validateCSRFToken();
 
     $row = ticketForRequest($_POST['ticket_id'] ?? 0, 2);
-    $ticket_id = intval($row['ticket_id']);
-    $onsite = intval($_POST['onsite'] ?? 0) ? 1 : 0;
     $schedule = ticketScheduleValue($_POST['scheduled_date_time'] ?? '');
 
     if ($schedule === '') {
@@ -1846,50 +1782,11 @@ if (isset($_POST['edit_ticket_schedule'])) {
         redirect();
     }
 
-    mysqli_query($mysqli, "UPDATE tickets SET ticket_schedule = '$schedule', ticket_onsite = $onsite WHERE ticket_id = $ticket_id");
+    $result = ticketSetSchedule($row, $schedule, intval($_POST['onsite'] ?? 0) ? 1 : 0);
 
-    // The same agent's other open tickets within two hours of it
-    $conflicting_tickets = [];
-    $assigned_to = intval($row['ticket_assigned_to']);
-    if ($assigned_to) {
-        $start = date('Y-m-d H:i:s', strtotime($schedule) - 7200);
-        $end = date('Y-m-d H:i:s', strtotime($schedule) + 7200);
-        $sql = mysqli_query($mysqli, "SELECT ticket_prefix, ticket_number, ticket_schedule, ticket_subject FROM tickets
-            WHERE ticket_schedule BETWEEN '$start' AND '$end' AND ticket_id <> $ticket_id AND ticket_assigned_to = $assigned_to
-            AND ticket_resolved_at IS NULL AND ticket_closed_at IS NULL ORDER BY ticket_schedule");
-        while ($conflict = mysqli_fetch_assoc($sql)) {
-            $conflicting_tickets[] = escapeHtml(ticketReference($conflict) . ' - ' . $conflict['ticket_subject'] . ' @ ' . date('g:ia', strtotime($conflict['ticket_schedule'])));
-        }
-    }
-
-    // Who to tell, with the calendar invite
-    $mail_row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT tickets.ticket_id, ticket_prefix, ticket_number, ticket_subject, ticket_details, ticket_client_id, client_name,
-            contact_name, contact_email, user_name, user_email, location_address
-        FROM tickets
-        LEFT JOIN clients ON ticket_client_id = client_id
-        LEFT JOIN contacts ON ticket_contact_id = contact_id
-        LEFT JOIN locations ON location_id = IF(ticket_location_id > 0, ticket_location_id, contact_location_id)
-        LEFT JOIN users ON ticket_assigned_to = user_id
-        WHERE tickets.ticket_id = $ticket_id"));
-    $cal_subject = intval($mail_row['ticket_number']) . ": " . $mail_row['client_name'] . " - " . $mail_row['ticket_subject'];
-    $cal_description = mb_substr(strip_tags((string) $mail_row['ticket_details']), 0, 100) . " - https://$config_base_url/client/ticket.php?id=$ticket_id";
-    $cal_str = createiCalStr($schedule, $cal_subject, $cal_description, (string) $mail_row['location_address'], getTicketCalendarUid($ticket_id));
-    $when_text = date('l, F j, Y \a\t g:ia', strtotime($schedule));
-    ticketMailSchedule($mail_row, $cal_str, false, $when_text);
-
-    // Note it on the ticket
-    $note = escapeSql("Ticket scheduled for $when_text " . ($onsite ? '(onsite).' : '(remote).'));
-    mysqli_query($mysqli, "INSERT INTO ticket_replies SET ticket_reply = '$note', ticket_reply_type = 'Internal', ticket_reply_time_worked = '00:00:00', ticket_reply_by = $session_user_id, ticket_reply_ticket_id = $ticket_id");
-
-    logTicketHistory($ticket_id, "$session_name scheduled the work for " . escapeSql($when_text) . ($onsite ? ' (onsite)' : ' (remote)'));
-
-    logAudit("Ticket", "Edit", "$session_name scheduled ticket " . escapeSql(ticketReference($row)) . " for " . escapeSql($when_text), $client_id, $ticket_id);
-
-    triggerCustomAction('ticket_schedule', $ticket_id);
-
-    flashAlert("Ticket scheduled for " . escapeHtml($when_text));
-    if ($conflicting_tickets) {
-        flashAlert("The same agent has other work within two hours of it: <br>" . implode(", <br>", $conflicting_tickets), 'warning');
+    flashAlert("Ticket scheduled for " . escapeHtml($result['when_text']));
+    if ($result['conflicts']) {
+        flashAlert("The same agent has other work within two hours of it: <br>" . implode(", <br>", array_map('escapeHtml', $result['conflicts'])), 'warning');
     }
 
     redirect();
@@ -1901,35 +1798,13 @@ if (isset($_GET['cancel_ticket_schedule'])) {
     validateCSRFToken();
 
     $row = ticketForRequest($_GET['cancel_ticket_schedule'], 2);
-    $ticket_id = intval($row['ticket_id']);
 
     if (empty($row['ticket_schedule'])) {
         flashAlert("Ticket <strong>" . escapeHtml(ticketReference($row)) . "</strong> has no work scheduled.", 'error');
         redirect();
     }
-    $old_schedule = $row['ticket_schedule'];
 
-    mysqli_query($mysqli, "UPDATE tickets SET ticket_schedule = NULL WHERE ticket_id = $ticket_id");
-
-    // Tell everyone the visit is off, cancelling the invite they were sent
-    $mail_row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT tickets.ticket_id, ticket_prefix, ticket_number, ticket_subject, ticket_client_id, client_name,
-            contact_name, contact_email, user_name, user_email
-        FROM tickets
-        LEFT JOIN clients ON ticket_client_id = client_id
-        LEFT JOIN contacts ON ticket_contact_id = contact_id
-        LEFT JOIN users ON ticket_assigned_to = user_id
-        WHERE tickets.ticket_id = $ticket_id"));
-    $cal_subject = intval($mail_row['ticket_number']) . ": " . $mail_row['client_name'] . " - " . $mail_row['ticket_subject'];
-    $cal_str = createiCalStrCancel($old_schedule, $cal_subject, getTicketCalendarUid($ticket_id));
-    ticketMailSchedule($mail_row, $cal_str, true, '');
-
-    mysqli_query($mysqli, "INSERT INTO ticket_replies SET ticket_reply = 'Ticket schedule cancelled.', ticket_reply_type = 'Internal', ticket_reply_time_worked = '00:00:00', ticket_reply_by = $session_user_id, ticket_reply_ticket_id = $ticket_id");
-
-    logTicketHistory($ticket_id, "$session_name cancelled the scheduled work");
-
-    logAudit("Ticket", "Edit", "$session_name cancelled the schedule of ticket " . escapeSql(ticketReference($row)), $client_id, $ticket_id);
-
-    triggerCustomAction('ticket_unschedule', $ticket_id);
+    ticketCancelSchedule($row);
 
     flashAlert("Ticket schedule cancelled", 'error');
 

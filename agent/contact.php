@@ -248,6 +248,9 @@ if (!$can_support) {
                             <a class="dropdown-item ajax-modal" href="#" data-modal-url="modals/recurring_ticket/recurring_ticket_add.php?<?= $client_url ?>&contact_id=<?= $contact_id ?>" data-modal-size="lg">
                                 <i class="fa fa-fw fa-redo-alt text-secondary me-2"></i>Recurring Ticket
                             </a>
+                            <a class="dropdown-item ajax-modal" href="#" data-modal-url="modals/calendar/calendar_event_add.php?<?= $client_url ?>&contact_id=<?= $contact_id ?>&lock_client=1" data-modal-size="lg">
+                                <i class="far fa-fw fa-calendar-plus text-secondary me-2"></i>Meeting
+                            </a>
                             <a class="dropdown-item ajax-modal" href="#" data-modal-size="lg" data-modal-url="modals/asset/asset_add.php?<?= $client_url ?>&contact_id=<?= $contact_id ?>">
                                 <i class="fa fa-fw fa-desktop text-secondary me-2"></i>Asset
                             </a>

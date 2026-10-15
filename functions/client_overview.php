@@ -338,8 +338,11 @@ function clientOverviewUpcoming($client_id, $access, $days = 14) {
         }
     }
 
-    $sql = mysqli_query($mysqli, "SELECT event_id, event_title, event_start, event_end, event_all_day, event_repeat, event_location
+    $sql = mysqli_query($mysqli, "SELECT event_id, event_title, event_start, event_end, event_all_day, event_repeat, event_repeat_interval, event_repeat_until, event_repeat_skip,
+            event_location, location_name
         FROM calendar_events
+        JOIN calendars ON calendar_id = event_calendar_id AND calendar_archived_at IS NULL
+        LEFT JOIN locations ON location_id = event_location_id AND event_location_id > 0
         WHERE event_client_id = $client_id AND event_archived_at IS NULL AND event_start <= '$to'
         AND ((event_repeat IS NOT NULL AND event_repeat != '') OR event_start >= '$from' OR event_end >= '$from')");
     while ($row = mysqli_fetch_assoc($sql)) {
@@ -351,8 +354,9 @@ function clientOverviewUpcoming($client_id, $access, $days = 14) {
             }
             $items[] = [
                 'when' => max($start, $from), 'all_day' => !empty($row['event_all_day']) || $start < $from, 'kind' => 'event',
-                'title' => $row['event_title'], 'ref' => '', 'detail' => (string) $row['event_location'],
+                'title' => $row['event_title'], 'ref' => '', 'detail' => (string) ($row['location_name'] ?: $row['event_location']),
                 'url' => "/agent/calendar.php?client_id=$client_id",
+                'modal' => 'modals/calendar/calendar_event.php?id=' . intval($row['event_id']) . '&occurrence=' . substr($start, 0, 10),
             ];
         }
     }

@@ -416,13 +416,20 @@ function dashboardSchedule($days = 7, $limit = 30) {
         }
     }
 
+    // Events I am on or added - and the ones nobody owns (made before events had
+    // attendees, or with no agent on them), which are everyone's
     $sql = mysqli_query($mysqli, "
-        SELECT event_id, event_title, event_start, event_end, event_all_day, event_repeat, event_location, client_name, calendar_color
+        SELECT event_id, event_title, event_start, event_end, event_all_day, event_repeat, event_repeat_interval, event_repeat_until, event_repeat_skip,
+            event_location, client_name, calendar_color, location_name
         FROM calendar_events
-        LEFT JOIN calendars ON event_calendar_id = calendar_id
-        LEFT JOIN clients ON event_client_id = client_id
+        JOIN calendars ON event_calendar_id = calendar_id AND calendar_archived_at IS NULL
+        LEFT JOIN clients ON event_client_id = client_id AND event_client_id > 0
+        LEFT JOIN locations ON location_id = event_location_id AND event_location_id > 0
         WHERE event_archived_at IS NULL AND event_start <= '$to'
-        AND ((event_repeat IS NOT NULL AND event_repeat != '') OR event_start >= '$from' OR event_end >= '$from') " . clientScopeSql('event_client_id')
+        AND ((event_repeat IS NOT NULL AND event_repeat != '') OR event_start >= '$from' OR event_end >= '$from')
+        AND (event_created_by = $user_id
+            OR EXISTS (SELECT 1 FROM calendar_event_attendees a WHERE a.attendee_event_id = event_id AND a.attendee_user_id = $user_id)
+            OR (event_created_by = 0 AND NOT EXISTS (SELECT 1 FROM calendar_event_attendees a WHERE a.attendee_event_id = event_id AND a.attendee_user_id > 0))) " . clientScopeSql('event_client_id')
     );
     while ($row = mysqli_fetch_assoc($sql)) {
         foreach (expandRecurringEvent($row, $from, $to) as $occurrence) {
@@ -438,10 +445,11 @@ function dashboardSchedule($days = 7, $limit = 30) {
                 'ongoing' => $start < $from,
                 'title' => $row['event_title'],
                 'ref' => '',
-                'detail' => $row['client_name'] ?: ($row['event_location'] ?: ''),
+                'detail' => implode(' - ', array_filter([$row['client_name'] ?? '', $row['location_name'] ?: $row['event_location']])),
                 'onsite' => false,
-                'color' => preg_match('/^#[0-9a-f]{3,8}$/i', (string) $row['calendar_color']) ? $row['calendar_color'] : null,
+                'color' => calendarColor($row['calendar_color']),
                 'url' => '/agent/calendar.php',
+                'modal' => 'modals/calendar/calendar_event.php?id=' . intval($row['event_id']) . '&occurrence=' . substr($start, 0, 10),
             ];
         }
     }
