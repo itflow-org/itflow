@@ -2,7 +2,8 @@
 
 require_once '../../../includes/modal_header.php';
 
-$ticket_id = intval($_GET['ticket_id']);
+$ticket = ticketForModal($_GET['ticket_id'] ?? 0, 1);
+$ticket_id = intval($ticket['ticket_id']);
 
 ob_start();
 

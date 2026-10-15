@@ -2,21 +2,38 @@
 
 require_once '../../../includes/modal_header.php';
 
-$ticket_ids = array_map('intval', $_GET['ticket_ids'] ?? []);
+enforceUserPermission('module_support', 2);
+
+$ticket_ids = array_values(array_unique(array_filter(array_map('intval', (array) ($_GET['ticket_ids'] ?? [])))));
 
 $count = count($ticket_ids);
+if (!$count) {
+    echo json_encode(['error' => 'Tick the tickets to merge first.']);
+    exit;
+}
+$ids = implode(',', $ticket_ids);
 
-$whereNotIn = '';
-if (!empty($ticket_ids)) {
-    $ids = implode(',', $ticket_ids);
-    $whereNotIn = "AND ticket_id NOT IN ($ids)";
+// Tickets merge into one of their own client's, so they have to share one
+$merge_client_ids = [];
+$sql_clients = mysqli_query($mysqli, "SELECT DISTINCT ticket_client_id FROM tickets WHERE ticket_id IN ($ids)");
+while ($row = mysqli_fetch_row($sql_clients)) {
+    $merge_client_ids[] = intval($row[0]);
+}
+if (count($merge_client_ids) !== 1) {
+    echo json_encode(['error' => 'Those tickets are for different clients - tickets only merge into one of the same client\'s.']);
+    exit;
+}
+$client_id = $merge_client_ids[0];
+if ($client_id) {
+    enforceClientAccess();
 }
 
 $sql_merge = mysqli_query($mysqli, "SELECT client_name, ticket_id, ticket_number, ticket_prefix, ticket_status_name, ticket_subject FROM tickets
     LEFT JOIN ticket_statuses ON ticket_status = ticket_status_id
     LEFT JOIN clients ON client_id = ticket_client_id
     WHERE ticket_closed_at IS NULL
-    $whereNotIn
+    AND ticket_id NOT IN ($ids)
+    AND ticket_client_id = $client_id
     ORDER BY ticket_status ASC, ticket_id DESC"
 );
 

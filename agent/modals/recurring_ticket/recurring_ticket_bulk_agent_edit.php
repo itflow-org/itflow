@@ -2,6 +2,8 @@
 
 require_once '../../../includes/modal_header.php';
 
+enforceUserPermission('module_support', 2);
+
 $recurring_ticket_ids = array_map('intval', $_GET['recurring_ticket_ids'] ?? []);
 
 $count = count($recurring_ticket_ids);

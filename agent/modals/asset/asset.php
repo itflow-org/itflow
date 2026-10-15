@@ -98,32 +98,12 @@ $credential_count = count($related_credentials);
 
 // Tickets - open ones first; the most recent few here, the rest on the asset page
 $quick_ticket_limit = 8;
-$sql_related_tickets = mysqli_query($mysqli, "
-    SELECT tickets.ticket_id, ticket_prefix, ticket_number, ticket_subject, ticket_updated_at, ticket_created_at,
-        ticket_resolved_at, ticket_closed_at, ticket_assigned_to, user_name, user_avatar,
-        ticket_status_name, ticket_status_color
-    FROM tickets
-    LEFT JOIN users ON ticket_assigned_to = user_id
-    LEFT JOIN ticket_statuses ON ticket_status_id = ticket_status
-    LEFT JOIN ticket_assets ON tickets.ticket_id = ticket_assets.ticket_id
-    WHERE ticket_asset_id = $asset_id OR ticket_assets.asset_id = $asset_id
-    GROUP BY tickets.ticket_id
-    ORDER BY (ticket_resolved_at IS NULL AND ticket_closed_at IS NULL) DESC, ticket_number DESC
-");
-$ticket_count = mysqli_num_rows($sql_related_tickets);
-$ticket_open_count = 0;
-$related_tickets = [];
-while ($row = mysqli_fetch_assoc($sql_related_tickets)) {
-    $is_open = empty($row['ticket_resolved_at']) && empty($row['ticket_closed_at']);
-    $ticket_open_count += $is_open ? 1 : 0;
-    if (count($related_tickets) < $quick_ticket_limit) {
-        $related_tickets[] = $row + ['is_open' => $is_open];
-    }
-}
+[$ticket_count, $ticket_open_count] = ticketCounts(ticketAssetSql($asset_id));
+$related_tickets = ticketRows(ticketAssetSql($asset_id), $quick_ticket_limit);
 
 // Recurring tickets
 $sql_related_recurring_tickets = mysqli_query($mysqli, "SELECT recurring_tickets.recurring_ticket_id, recurring_ticket_subject,
-        recurring_ticket_frequency, recurring_ticket_next_run
+        recurring_ticket_frequency, recurring_ticket_next_run, recurring_ticket_paused_at
     FROM recurring_tickets
     LEFT JOIN recurring_ticket_assets ON recurring_tickets.recurring_ticket_id = recurring_ticket_assets.recurring_ticket_id
     WHERE recurring_ticket_asset_id = $asset_id OR recurring_ticket_assets.asset_id = $asset_id
@@ -362,23 +342,7 @@ ob_start();
 
                 <?php if ($ticket_count) { ?>
                     <div class="tab-pane fade <?= $first_tab === 'tickets' ? 'show active' : '' ?>" id="asset-quick-<?= $asset_id ?>-tickets" role="tabpanel">
-                        <div class="table-responsive">
-                            <table class="table table-sm table-hover align-middle mb-0">
-                                <tbody>
-                                <?php foreach ($related_tickets as $row) {
-                                    $ticket_id = intval($row['ticket_id']);
-                                    $ticket_last = $row['ticket_updated_at'] ?: $row['ticket_created_at']; ?>
-                                    <tr>
-                                        <td class="text-nowrap"><a href="ticket.php?client_id=<?= $client_id ?>&ticket_id=<?= $ticket_id ?>"><?= escapeHtml($row['ticket_prefix']) . intval($row['ticket_number']) ?></a></td>
-                                        <td class="w-100"><a class="text-body" href="ticket.php?client_id=<?= $client_id ?>&ticket_id=<?= $ticket_id ?>"><?= escapeHtml($row['ticket_subject']) ?></a></td>
-                                        <td class="text-nowrap"><?= ticketStatusHtml($row['ticket_status_name'], $row['ticket_status_color'], 'detail') ?></td>
-                                        <td class="text-nowrap"><?= formatAssignee($row['ticket_assigned_to'], $row['user_name'], $row['user_avatar'], $row['is_open']) ?></td>
-                                        <td class="text-nowrap small text-body-secondary" title="<?= escapeHtml($ticket_last) ?>"><?= timeAgo($ticket_last) ?></td>
-                                    </tr>
-                                <?php } ?>
-                                </tbody>
-                            </table>
-                        </div>
+                        <?= ticketTableHtml($related_tickets, ['compact' => true]) ?>
                         <?php if ($ticket_count > count($related_tickets)) { ?>
                             <div class="small mt-2"><a href="asset.php?client_id=<?= $client_id ?>&asset_id=<?= $asset_id ?>#tickets">All <?= $ticket_count ?> tickets on the asset page<i class="fas fa-arrow-right ms-1"></i></a></div>
                         <?php } ?>
@@ -391,7 +355,7 @@ ob_start();
                             <?php while ($row = mysqli_fetch_assoc($sql_related_recurring_tickets)) { ?>
                                 <li class="list-group-item px-0 d-flex justify-content-between gap-3">
                                     <span><?= escapeHtml($row['recurring_ticket_subject']) ?></span>
-                                    <span class="small text-body-secondary text-nowrap"><?= escapeHtml($row['recurring_ticket_frequency']) ?> &middot; next <?= escapeHtml($row['recurring_ticket_next_run']) ?></span>
+                                    <span class="small text-body-secondary text-nowrap"><?= escapeHtml($row['recurring_ticket_frequency']) ?> <?= recurringTicketNextRunPill($row) ?></span>
                                 </li>
                             <?php } ?>
                         </ul>

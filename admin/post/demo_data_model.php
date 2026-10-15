@@ -2540,6 +2540,28 @@ function demoBuildTickets($mysqli, $profile, $index, $client_id, $contact_ids, $
 
         $on_hold = $stage['status'] === $context['status_hold'];
 
+        // A live ticket is mid-conversation. The pool's last word is the fix, so it
+        // is left off; the newest has no replies yet; of the other two, one has the
+        // client chasing (our move) and one is with them, or on hold.
+        if (!$stage['resolved']) {
+            if ($stage['status'] === $context['status_new']) {
+                $replies = [];
+            } else {
+                if ($replies && end($replies)['type'] === 'Public') {
+                    array_pop($replies);
+                }
+                if ($slot === 3) {
+                    if (!$replies || end($replies)['type'] !== 'Client') {
+                        $replies[] = ['type' => 'Client', 'body' => '<p>Any update on this one? It is still happening.</p>', 'worked' => '', 'at' => demoDateTime(1, 9, 5)];
+                    }
+                } else {
+                    $replies[] = ['type' => 'Public', 'worked' => '00:20:00', 'at' => demoDateTime(1, 11, 20), 'body' => $on_hold
+                        ? '<p>Parts are on order - we will pick this back up as soon as they arrive.</p>'
+                        : '<p>Made a change on our side. Can you try again and let us know if it is still happening?</p>'];
+                }
+            }
+        }
+
         demoSeedTicket($mysqli, $fields, [
             'closed_at' => $stage['closed'] ? demoDateTime($stage['closed'], 15, 30) : '',
             'sla' => $sla_for($ticket['priority']),

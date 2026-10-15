@@ -73,23 +73,8 @@ $quick_ticket_limit = 8;
 $related_tickets = [];
 $ticket_count = $ticket_open_count = 0;
 if ($can_support) {
-    $sql_related_tickets = mysqli_query($mysqli, "SELECT ticket_id, ticket_prefix, ticket_number, ticket_subject, ticket_updated_at, ticket_created_at,
-            ticket_resolved_at, ticket_closed_at, ticket_assigned_to, user_name, user_avatar, ticket_status_name, ticket_status_color
-        FROM tickets
-        LEFT JOIN users ON ticket_assigned_to = user_id
-        LEFT JOIN ticket_statuses ON ticket_status_id = ticket_status
-        WHERE ticket_contact_id = $contact_id
-          AND ticket_archived_at IS NULL
-        ORDER BY (ticket_resolved_at IS NULL AND ticket_closed_at IS NULL) DESC, ticket_number DESC"
-    );
-    $ticket_count = mysqli_num_rows($sql_related_tickets);
-    while ($row = mysqli_fetch_assoc($sql_related_tickets)) {
-        $is_open = empty($row['ticket_resolved_at']) && empty($row['ticket_closed_at']);
-        $ticket_open_count += $is_open ? 1 : 0;
-        if (count($related_tickets) < $quick_ticket_limit) {
-            $related_tickets[] = $row + ['is_open' => $is_open];
-        }
-    }
+    [$ticket_count, $ticket_open_count] = ticketCounts("tickets.ticket_contact_id = $contact_id");
+    $related_tickets = ticketRows("tickets.ticket_contact_id = $contact_id", $quick_ticket_limit);
 }
 
 // Recurring tickets
@@ -289,23 +274,7 @@ ob_start();
 
                 <?php if ($ticket_count) { ?>
                     <div class="tab-pane fade <?= $first_tab === 'tickets' ? 'show active' : '' ?>" id="contact-quick-<?= $contact_id ?>-tickets" role="tabpanel">
-                        <div class="table-responsive">
-                            <table class="table table-sm table-hover align-middle mb-0">
-                                <tbody>
-                                <?php foreach ($related_tickets as $row) {
-                                    $ticket_id = intval($row['ticket_id']);
-                                    $ticket_last = $row['ticket_updated_at'] ?: $row['ticket_created_at']; ?>
-                                    <tr>
-                                        <td class="text-nowrap"><a href="ticket.php?client_id=<?= $client_id ?>&ticket_id=<?= $ticket_id ?>"><?= escapeHtml($row['ticket_prefix']) . intval($row['ticket_number']) ?></a></td>
-                                        <td class="w-100"><a class="text-body" href="ticket.php?client_id=<?= $client_id ?>&ticket_id=<?= $ticket_id ?>"><?= escapeHtml($row['ticket_subject']) ?></a></td>
-                                        <td class="text-nowrap"><?= ticketStatusHtml($row['ticket_status_name'], $row['ticket_status_color'], 'detail') ?></td>
-                                        <td class="text-nowrap"><?= formatAssignee($row['ticket_assigned_to'], $row['user_name'], $row['user_avatar'], $row['is_open']) ?></td>
-                                        <td class="text-nowrap small text-body-secondary" title="<?= escapeHtml($ticket_last) ?>"><?= timeAgo($ticket_last) ?></td>
-                                    </tr>
-                                <?php } ?>
-                                </tbody>
-                            </table>
-                        </div>
+                        <?= ticketTableHtml($related_tickets, ['compact' => true]) ?>
                         <?php if ($ticket_count > count($related_tickets)) { ?>
                             <div class="small mt-2"><a href="contact.php?client_id=<?= $client_id ?>&contact_id=<?= $contact_id ?>#tickets">All <?= $ticket_count ?> tickets on the contact page<i class="fas fa-arrow-right ms-1"></i></a></div>
                         <?php } ?>

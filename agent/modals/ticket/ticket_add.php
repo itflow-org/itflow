@@ -2,6 +2,17 @@
 
 require_once '../../../includes/modal_header.php';
 
+/*
+ * New Ticket - who it is for and what it is about, what it is related to,
+ * and its tasks. Opened from a client, contact, asset, site, vendor or
+ * project, it starts with that filled in; picking an asset fills in the
+ * person it is assigned to and its site. When the person or the asset
+ * already has open tickets, they show under the contact - so a second ticket
+ * for the same problem gets noticed before it is raised.
+ */
+
+enforceUserPermission('module_support', 2);
+
 $client_id = intval($_GET['client_id'] ?? 0);
 $contact_id = intval($_GET['contact_id'] ?? 0);
 $project_id = intval($_GET['project_id'] ?? 0);
@@ -42,10 +53,10 @@ ob_start();
                 <a class="nav-link active" data-bs-toggle="pill" href="#pills-add-details"><i class="fa fa-fw fa-life-ring me-2"></i>Details</a>
             </li>
             <li class="nav-item">
-                <a class="nav-link" data-bs-toggle="pill" href="#pills-add-tasks"><i class="fa fa-fw fa-tasks me-2"></i>Tasks</a>
+                <a class="nav-link" data-bs-toggle="pill" href="#pills-add-relationships"><i class="fa fa-fw fa-link me-2"></i>Related</a>
             </li>
             <li class="nav-item">
-                <a class="nav-link" data-bs-toggle="pill" href="#pills-add-relationships"><i class="fa fa-fw fa-desktop me-2"></i>Assignment</a>
+                <a class="nav-link" data-bs-toggle="pill" href="#pills-add-tasks"><i class="fa fa-fw fa-tasks me-2"></i>Tasks</a>
             </li>
         </ul>
 
@@ -92,6 +103,9 @@ ob_start();
                         </div>
                     </div>
                 </div>
+
+                <!-- Other open tickets for the contact or asset picked - js/tickets_add_modal.js -->
+                <div id="ticketAlsoOpen"></div>
 
                 <?php require_once '../../includes/inc_ticket_template_select.php'; ?>
 
@@ -224,7 +238,7 @@ ob_start();
                 </div>
 
                 <div class="mb-3">
-                    <label>Additional Assets</label>
+                    <label>Other assets</label>
                     <div class="input-group">
                             <span class="input-group-text"><i class="fa fa-fw fa-desktop"></i></span>
                         <select class="form-select select2" name="additional_assets[]" id="additionalAssetsSelect" data-placeholder="- Select Additional Assets -" multiple>
@@ -233,7 +247,7 @@ ob_start();
                 </div>
 
                 <div class="mb-3">
-                    <label>Location</label>
+                    <label>Site</label>
                     <div class="input-group">
                             <span class="input-group-text"><i class="fa fa-fw fa-map-marker-alt"></i></span>
                         <select class="form-select select2" name="location_id" id="locationSelect" data-selected="<?= $location_id ?>">
@@ -256,10 +270,10 @@ ob_start();
 
                     <div class="col">
                         <div class="mb-3">
-                            <label>Vendor Ticket Number</label>
+                            <label>Their reference</label>
                             <div class="input-group">
-                                    <span class="input-group-text"><i class="fa fa-fw fa-tag"></i></span>
-                                <input type="text" class="form-control" name="vendor_ticket_number" placeholder="Vendor ticket number" maxlength="255">
+                                    <span class="input-group-text"><i class="fa fa-fw fa-hashtag"></i></span>
+                                <input type="text" class="form-control" name="vendor_ticket_number" placeholder="The vendor's case number" maxlength="255">
                             </div>
                         </div>
                     </div>

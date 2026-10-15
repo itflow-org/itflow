@@ -42,14 +42,7 @@ $can_financial = lookupUserPermission('module_financial') >= 1;
 
 $cases = $licenses = $assets = $logins = [];
 if ($can_support) {
-    $sql = mysqli_query($mysqli, "SELECT ticket_id, ticket_prefix, ticket_number, ticket_subject, ticket_vendor_ticket_number, ticket_status_name, ticket_status_color
-        FROM tickets
-        LEFT JOIN ticket_statuses ON ticket_status_id = ticket_status
-        WHERE ticket_client_id = $client_id AND ticket_vendor_id = $vendor_id AND ticket_resolved_at IS NULL AND ticket_closed_at IS NULL
-        ORDER BY ticket_number DESC");
-    while ($row = mysqli_fetch_assoc($sql)) {
-        $cases[] = $row;
-    }
+    $cases = ticketRows("tickets.ticket_client_id = $client_id AND tickets.ticket_vendor_id = $vendor_id AND " . TICKET_OPEN_SQL);
     $sql = mysqli_query($mysqli, "SELECT software_id AS id, software_name AS name, software_type, software_version, software_license_type,
             software_seats, software_expire, " . softwareSeatsUsedSql('software.software_id') . " AS seats_used
         FROM software
@@ -201,22 +194,7 @@ ob_start();
             <div class="tab-content">
                 <?php if ($cases) { ?>
                     <div class="tab-pane fade <?= $first_tab === 'cases' ? 'show active' : '' ?>" id="<?= $quick_id ?>-cases" role="tabpanel">
-                        <div class="table-responsive">
-                            <table class="table table-sm table-hover align-middle mb-0">
-                                <tbody>
-                                <?php foreach ($cases as $case) {
-                                    $ticket_id = intval($case['ticket_id']);
-                                    $their_ref = escapeHtml($case['ticket_vendor_ticket_number']); ?>
-                                    <tr>
-                                        <td class="text-nowrap"><a href="ticket.php?client_id=<?= $client_id ?>&ticket_id=<?= $ticket_id ?>"><?= escapeHtml($case['ticket_prefix']) . intval($case['ticket_number']) ?></a></td>
-                                        <td class="w-100"><a class="text-body" href="ticket.php?client_id=<?= $client_id ?>&ticket_id=<?= $ticket_id ?>"><?= escapeHtml($case['ticket_subject']) ?></a></td>
-                                        <td class="text-nowrap small"><?php if ($their_ref) { ?><span class="text-body-secondary">Theirs</span> <span class="font-monospace"><?= $their_ref ?></span><button type="button" class="itflow-copy clipboardjs" title="Copy their reference" data-clipboard-text="<?= $their_ref ?>"><i class="far fa-copy"></i></button><?php } ?></td>
-                                        <td class="text-nowrap"><?= ticketStatusHtml($case['ticket_status_name'], $case['ticket_status_color'], 'detail') ?></td>
-                                    </tr>
-                                <?php } ?>
-                                </tbody>
-                            </table>
-                        </div>
+                        <?= ticketTableHtml($cases, ['compact' => true, 'vendor_ref' => true]) ?>
                     </div>
                 <?php } ?>
 

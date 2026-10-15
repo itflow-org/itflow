@@ -101,20 +101,8 @@ $credential_count = count($related_credentials);
 $related_tickets = [];
 $ticket_open_count = 0;
 if ($can_support) {
-    $sql_related_tickets = mysqli_query($mysqli, "SELECT ticket_id, ticket_prefix, ticket_number, ticket_subject, ticket_priority, ticket_created_at,
-            ticket_updated_at, ticket_resolved_at, ticket_closed_at, ticket_assigned_to, user_name, user_avatar, ticket_status_name, ticket_status_color
-        FROM tickets
-        LEFT JOIN users ON ticket_assigned_to = user_id
-        LEFT JOIN ticket_statuses ON ticket_status = ticket_status_id
-        WHERE ticket_contact_id = $contact_id
-          AND ticket_archived_at IS NULL
-        ORDER BY (ticket_resolved_at IS NULL AND ticket_closed_at IS NULL) DESC, ticket_number DESC"
-    );
-    while ($row = mysqli_fetch_assoc($sql_related_tickets)) {
-        $row['is_open'] = empty($row['ticket_resolved_at']) && empty($row['ticket_closed_at']);
-        $ticket_open_count += $row['is_open'] ? 1 : 0;
-        $related_tickets[] = $row;
-    }
+    $related_tickets = ticketRows("tickets.ticket_contact_id = $contact_id");
+    $ticket_open_count = count(array_filter(array_column($related_tickets, 'is_open')));
 }
 $ticket_count = count($related_tickets);
 
@@ -122,7 +110,7 @@ $ticket_count = count($related_tickets);
 $recurring_ticket_count = 0;
 if ($can_support) {
     $sql_related_recurring_tickets = mysqli_query($mysqli, "SELECT recurring_ticket_id, recurring_ticket_subject, recurring_ticket_priority,
-            recurring_ticket_frequency, recurring_ticket_next_run
+            recurring_ticket_frequency, recurring_ticket_next_run, recurring_ticket_paused_at
         FROM recurring_tickets
         WHERE recurring_ticket_contact_id = $contact_id
         ORDER BY recurring_ticket_next_run ASC"
@@ -558,27 +546,7 @@ if (!$can_support) {
                         <?php } ?>
                     </div>
                     <?php if ($related_tickets) { ?>
-                        <div class="table-responsive">
-                            <table class="table table-hover align-middle mb-0">
-                                <thead class="text-nowrap table-light">
-                                <tr><th>Ticket</th><th>Subject</th><th>Priority</th><th>Status</th><th>Assigned</th><th>Updated</th></tr>
-                                </thead>
-                                <tbody>
-                                <?php foreach ($related_tickets as $row) {
-                                    $ticket_id = intval($row['ticket_id']);
-                                    $ticket_last = $row['ticket_updated_at'] ?: $row['ticket_created_at']; ?>
-                                    <tr>
-                                        <td class="text-nowrap"><a href="ticket.php?client_id=<?= $client_id ?>&ticket_id=<?= $ticket_id ?>"><?= escapeHtml($row['ticket_prefix']) . intval($row['ticket_number']) ?></a></td>
-                                        <td><a class="text-body" href="ticket.php?client_id=<?= $client_id ?>&ticket_id=<?= $ticket_id ?>"><?= escapeHtml($row['ticket_subject']) ?></a></td>
-                                        <td><?= ticketPriorityHtml($row['ticket_priority'], 'detail') ?></td>
-                                        <td class="text-nowrap"><?= ticketStatusHtml($row['ticket_status_name'], $row['ticket_status_color'], 'detail') ?></td>
-                                        <td class="text-nowrap"><?= formatAssignee($row['ticket_assigned_to'], $row['user_name'], $row['user_avatar'], $row['is_open']) ?></td>
-                                        <td class="text-nowrap small text-body-secondary" title="<?= escapeHtml($ticket_last) ?>"><?= timeAgo($ticket_last) ?></td>
-                                    </tr>
-                                <?php } ?>
-                                </tbody>
-                            </table>
-                        </div>
+                        <?= ticketTableHtml($related_tickets) ?>
                     <?php } else { ?>
                         <div class="itflow-asset-empty">No tickets yet.</div>
                     <?php } ?>
@@ -613,7 +581,7 @@ if (!$can_support) {
                                         </td>
                                         <td><?= ticketPriorityHtml($row['recurring_ticket_priority'], 'detail') ?></td>
                                         <td><?= escapeHtml($row['recurring_ticket_frequency']) ?></td>
-                                        <td class="text-nowrap"><?= escapeHtml($row['recurring_ticket_next_run']) ?></td>
+                                        <td class="text-nowrap"><?= recurringTicketNextRunPill($row) ?> <span class="small text-body-secondary ms-1"><?= escapeHtml($row['recurring_ticket_next_run']) ?></span></td>
                                         <td class="text-end">
                                             <?php if ($can_support_edit) { ?>
                                                 <div class="dropdown dropstart">
@@ -622,8 +590,9 @@ if (!$can_support) {
                                                         <a class="dropdown-item ajax-modal" href="#" data-modal-size="lg" data-modal-url="modals/recurring_ticket/recurring_ticket_edit.php?id=<?= $recurring_ticket_id ?>">
                                                             <i class="fas fa-fw fa-edit text-secondary me-2"></i>Edit
                                                         </a>
-                                                        <a class="dropdown-item" href="post.php?force_recurring_ticket=<?= $recurring_ticket_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>">
-                                                            <i class="fas fa-fw fa-paper-plane text-secondary me-2"></i>Force Reoccur
+                                                        <a class="dropdown-item confirm-link" href="post.php?force_recurring_ticket=<?= $recurring_ticket_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>"
+                                                            data-confirm-text="A ticket is raised now, and the next run moves on a step - this takes its place.">
+                                                            <i class="fas fa-fw fa-paper-plane text-secondary me-2"></i>Raise now
                                                         </a>
                                                         <?php if (lookupUserPermission('module_support') >= 3) { ?>
                                                             <div class="dropdown-divider"></div>

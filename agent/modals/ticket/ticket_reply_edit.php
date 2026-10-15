@@ -13,6 +13,10 @@ $sql = mysqli_query($mysqli, "SELECT ticket_client_id, ticket_reply, ticket_repl
 );
 
 $row = mysqli_fetch_assoc($sql);
+if (!$row) {
+    echo json_encode(['error' => 'That reply no longer exists.']);
+    exit;
+}
 $ticket_reply_type = escapeHtml($row['ticket_reply_type']);
 $ticket_reply_time_worked = date_create($row['ticket_reply_time_worked']);
 $ticket_reply_time_worked_formatted = date_format($ticket_reply_time_worked, 'H:i:s');

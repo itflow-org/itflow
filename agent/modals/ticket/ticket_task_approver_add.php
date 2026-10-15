@@ -13,6 +13,10 @@ $sql = mysqli_query($mysqli, "SELECT task_name, ticket_client_id FROM tasks
 );
 
 $row = mysqli_fetch_assoc($sql);
+if (!$row) {
+    echo json_encode(['error' => 'That task no longer exists.']);
+    exit;
+}
 $task_name = escapeHtml($row['task_name']);
 $client_id = intval($row['ticket_client_id']);
 

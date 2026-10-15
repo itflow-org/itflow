@@ -4,22 +4,14 @@ require_once '../../../includes/modal_header.php';
 
 enforceUserPermission('module_support', 2);
 
-$ticket_id = intval($_GET['id']);
+// The ticket, after the module and client checks - or the modal's error
+$row = ticketForModal($_GET['id'] ?? 0, 2, true);
+$ticket_id = intval($row['ticket_id']);
 
-$sql = mysqli_query($mysqli, "SELECT ticket_client_id, ticket_number, ticket_prefix, ticket_sla_id FROM tickets
-    WHERE ticket_id = $ticket_id
-    LIMIT 1"
-);
-
-$row = mysqli_fetch_assoc($sql);
 $ticket_prefix = escapeHtml($row['ticket_prefix']);
 $ticket_number = intval($row['ticket_number']);
 $ticket_sla_id = intval($row['ticket_sla_id']);
 $client_id = intval($row['ticket_client_id']);
-
-if ($client_id) {
-    enforceClientAccess();
-}
 
 $sql_slas = mysqli_query($mysqli, "SELECT sla_id, sla_name FROM slas WHERE sla_archived_at IS NULL ORDER BY sla_name ASC");
 

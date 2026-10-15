@@ -4,26 +4,16 @@ require_once '../../../includes/modal_header.php';
 
 enforceUserPermission('module_support', 2);
 
-$ticket_id = intval($_GET['ticket_id']);
+// The ticket, after the module and client checks - or the modal's error
+$row = ticketForModal($_GET['ticket_id'] ?? 0, 2, true);
+$ticket_id = intval($row['ticket_id']);
 
-$sql = mysqli_query($mysqli, "SELECT client_name, ticket_client_id, ticket_number, ticket_onsite, ticket_prefix,
-    ticket_schedule FROM tickets
-    LEFT JOIN clients ON client_id = ticket_client_id
-    WHERE ticket_id = $ticket_id
-    LIMIT 1"
-);
-
-$row = mysqli_fetch_assoc($sql);
 $ticket_prefix = escapeHtml($row['ticket_prefix']);
 $ticket_number = intval($row['ticket_number']);
 $ticket_scheduled_for = escapeHtml($row['ticket_schedule']);
 $ticket_onsite = intval($row['ticket_onsite']);
 $client_name = escapeHtml($row['client_name']);
 $client_id = intval($row['ticket_client_id']);
-
-if ($client_id) {
-    enforceClientAccess();
-}
 
 ob_start();
 

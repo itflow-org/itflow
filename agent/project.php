@@ -82,27 +82,37 @@ if (isset($_GET['project_id'])) {
     $tab_title = "{$row['project_prefix']}{$row['project_number']}";
     $page_title = $row['project_name'];
 
-    // Get Tickets
-    $sql_tickets = mysqli_query($mysqli, "SELECT client_id, client_name, ticket_assigned_to, ticket_billable, ticket_closed_at,
-        ticket_created_at, ticket_id, ticket_number, ticket_prefix, ticket_priority,
-        ticket_project_id, ticket_status, ticket_status_color, ticket_status_name, ticket_subject,
-        ticket_updated_at, user_avatar, user_name FROM tickets
+    // Tickets on the project - the ones this agent may reach (an internal project can hold any client's)
+    $ticket_scope = clientScopeSql('ticket_client_id');
+    $project_ticket_sorts = [
+        'ticket_number' => "ticket_number $order",
+        'ticket_priority' => "CASE ticket_priority WHEN 'Urgent' THEN 0 WHEN 'High' THEN 1 WHEN 'Medium' THEN 2 WHEN 'Low' THEN 3 ELSE 4 END $order",
+        'ticket_status' => "ticket_status_order $order",
+        'user_name' => "ticket_assigned_to = 0 $order, user_name $order",
+        'ticket_updated_at' => "COALESCE(ticket_updated_at, ticket_created_at) $order",
+        'client_name' => "client_name $order",
+    ];
+    if (!isset($project_ticket_sorts[$sort])) {
+        $sort = 'ticket_number';
+    }
+    $sql_tickets = mysqli_query($mysqli, "SELECT tickets.ticket_id, ticket_prefix, ticket_number, ticket_subject, ticket_priority, ticket_status,
+            ticket_assigned_to, ticket_billable, ticket_created_at, ticket_updated_at, ticket_resolved_at, ticket_closed_at, ticket_client_id,
+            ticket_status_name, ticket_status_color, client_name, user_name, user_avatar
+        FROM tickets
         LEFT JOIN ticket_statuses ON ticket_status = ticket_status_id
         LEFT JOIN clients ON ticket_client_id = client_id
         LEFT JOIN users ON ticket_assigned_to = user_id
-        WHERE ticket_project_id = $project_id
-        ORDER BY $sort $order"
+        WHERE ticket_project_id = $project_id $ticket_scope
+        ORDER BY {$project_ticket_sorts[$sort]}, ticket_number DESC"
     );
-    $ticket_count = mysqli_num_rows($sql_tickets);
-
-    // Get Closed Ticket Count
-    $sql_closed_tickets = mysqli_query($mysqli, "SELECT 1 FROM tickets WHERE ticket_project_id = $project_id AND ticket_closed_at IS NOT NULL");
-    $closed_ticket_count = mysqli_num_rows($sql_closed_tickets);
-
-    // Get Resolved Ticket Count
-    $sql_resolved_tickets = mysqli_query($mysqli, "SELECT 1 FROM tickets WHERE ticket_project_id = $project_id AND ticket_resolved_at IS NOT NULL");
-
-    $resolved_ticket_count = mysqli_num_rows($sql_resolved_tickets);
+    $project_tickets = [];
+    while ($ticket_row = mysqli_fetch_assoc($sql_tickets)) {
+        $project_tickets[intval($ticket_row['ticket_id'])] = $ticket_row;
+    }
+    $project_ticket_replies = ticketLastReplies(array_keys($project_tickets));
+    $ticket_count = count($project_tickets);
+    $closed_ticket_count = count(array_filter(array_column($project_tickets, 'ticket_closed_at')));
+    $resolved_ticket_count = count(array_filter(array_column($project_tickets, 'ticket_resolved_at')));
 
     $tickets_closed_percent = 100; //Default
     if ($ticket_count) {
@@ -118,7 +128,7 @@ if (isset($_GET['project_id'])) {
     $sql_tasks = mysqli_query($mysqli,
         "SELECT task_completed_at, task_id, task_name FROM tickets, tasks
         WHERE ticket_id = task_ticket_id
-        AND ticket_project_id = $project_id
+        AND ticket_project_id = $project_id $ticket_scope
         ORDER BY task_created_at ASC"
     );
     $task_count = mysqli_num_rows($sql_tasks);
@@ -127,7 +137,7 @@ if (isset($_GET['project_id'])) {
     $sql_tasks_completed = mysqli_query($mysqli,
         "SELECT 1 FROM tickets, tasks
         WHERE ticket_id = task_ticket_id
-        AND ticket_project_id = $project_id
+        AND ticket_project_id = $project_id $ticket_scope
         AND task_completed_at IS NOT NULL"
     );
     $completed_task_count = mysqli_num_rows($sql_tasks_completed);
@@ -281,7 +291,7 @@ if (isset($_GET['project_id'])) {
     <div class="col-md-9">
 
         <!-- Tickets card -->
-        <?php if (mysqli_num_rows($sql_tickets) > 0) { ?>
+        <?php if ($project_tickets) { ?>
             <div class="card card-outline card-dark mb-3">
                 <div class="card-header py-2">
 
@@ -342,8 +352,8 @@ if (isset($_GET['project_id'])) {
                     <form id="bulkActions" action="post.php" method="post">
                         <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
                         <div class="table-responsive">
-                            <table class="table table-bordered table-hover">
-                                <thead class="table-light">
+                            <table class="table table-hover align-middle mb-0 itflow-ticket-table">
+                                <thead class="table-light text-nowrap">
                                 <tr>
                                     <td class="checkbox-column border-end">
                                         <div class="form-check">
@@ -372,7 +382,7 @@ if (isset($_GET['project_id'])) {
                                     </th>
                                     <th>
                                         <a class="text-secondary" href="?<?= $url_query_strings_sort ?>&sort=ticket_updated_at&order=<?= $disp ?>">
-                                            Last Response <?php if ($sort == 'ticket_updated_at') { echo $order_icon; } ?>
+                                            Activity <?php if ($sort == 'ticket_updated_at') { echo $order_icon; } ?>
                                         </a>
                                     </th>
                                     <th>
@@ -385,106 +395,27 @@ if (isset($_GET['project_id'])) {
                                 <tbody>
                                 <?php
 
-                                while ($row = mysqli_fetch_assoc($sql_tickets)) {
-                                    $ticket_id = intval($row['ticket_id']);
-                                    $ticket_prefix = escapeHtml($row['ticket_prefix']);
-                                    $ticket_number = escapeHtml($row['ticket_number']);
-                                    $ticket_subject = escapeHtml($row['ticket_subject']);
-                                    $ticket_priority = escapeHtml($row['ticket_priority']);
-                                    $ticket_status = intval($row['ticket_status']);
-                                    $ticket_status_name = escapeHtml($row['ticket_status_name']);
-                                    $ticket_status_color = escapeHtml($row['ticket_status_color']);
-                                    $ticket_billable = intval($row['ticket_billable']);
-                                    $ticket_created_at = escapeHtml($row['ticket_created_at']);
-                                    $ticket_created_at_time_ago = timeAgo($row['ticket_created_at']);
-                                    $ticket_updated_at = escapeHtml($row['ticket_updated_at']);
-                                    $ticket_updated_at_time_ago = timeAgo($row['ticket_updated_at']);
-                                    if (empty($ticket_updated_at)) {
-                                        if ($ticket_status == 5) {
-                                            $ticket_updated_at_display = "<p>Never</p>";
-                                        } else {
-                                            $ticket_updated_at_display = "<p class='text-danger'>Never</p>";
-                                        }
-                                    } else {
-                                        $ticket_updated_at_display = "$ticket_updated_at_time_ago<br><small class='text-secondary'>$ticket_updated_at</small>";
-                                    }
-                                    $ticket_closed_at = escapeHtml($row['ticket_closed_at']);
-
-                                    if ($ticket_priority == "Urgent") {
-                                        $ticket_priority_display = "<span class='p-2 badge bg-dark'>$ticket_priority</span>";
-                                    } elseif ($ticket_priority == "High") {
-                                        $ticket_priority_display = "<span class='p-2 badge bg-danger'>$ticket_priority</span>";
-                                    } elseif ($ticket_priority == "Medium") {
-                                        $ticket_priority_display = "<span class='p-2 badge bg-warning text-dark'>$ticket_priority</span>";
-                                    } elseif ($ticket_priority == "Low") {
-                                        $ticket_priority_display = "<span class='p-2 badge bg-info text-dark'>$ticket_priority</span>";
-                                    } else{
-                                        $ticket_priority_display = "-";
-                                    }
-
-                                    $ticket_assigned_to_display = formatAssignee($row['ticket_assigned_to'], $row['user_name'], $row['user_avatar'], !in_array($ticket_status, [4, 5]));
-
-                                    $project_id = intval($row['ticket_project_id']);
-
-                                    $client_id = intval($row['client_id']);
-                                    $client_name = escapeHtml($row['client_name']);
-
-                                    // Get who last updated the ticket - to be shown in the last Response column
-                                    $ticket_reply_type = "Client"; // Default to client for unreplied tickets
-                                    $ticket_reply_by_display = ""; // Default none
-                                    $sql_ticket_reply = mysqli_query($mysqli, "SELECT ticket_reply_type, contact_name, user_name FROM ticket_replies
-                                    LEFT JOIN users ON ticket_reply_by = user_id
-                                    LEFT JOIN contacts ON ticket_reply_by = contact_id
-                                    WHERE ticket_reply_ticket_id = $ticket_id
-                                    AND ticket_reply_archived_at IS NULL
-                                    ORDER BY ticket_reply_id DESC LIMIT 1"
-                                    );
-                                    $row = mysqli_fetch_assoc($sql_ticket_reply);
-
-                                    if ($row) {
-                                        $ticket_reply_type = escapeHtml($row['ticket_reply_type']);
-                                        if ($ticket_reply_type == "Client") {
-                                            $ticket_reply_by_display = escapeHtml($row['contact_name']);
-                                        } else {
-                                            $ticket_reply_by_display = escapeHtml($row['user_name']);
-                                        }
-                                    }
-
+                                foreach ($project_tickets as $ticket_id => $ticket_row) {
+                                    $ticket_is_open = ticketIsOpen($ticket_row);
+                                    $ticket_url = escapeHtml(ticketUrl($ticket_id, $ticket_row['ticket_client_id']));
                                     ?>
-
-                                    <tr>
+                                    <tr class="<?= $ticket_is_open ? '' : 'text-body-secondary' ?>">
                                         <td class="checkbox-column bg-light border-end">
-                                            <!-- Ticket Bulk Select (for open tickets) -->
-                                            <?php if (empty($ticket_closed_at)) { ?>
-                                            <div class="form-check">
-                                                <input class="form-check-input bulk-select" type="checkbox" name="ticket_ids[]" value="<?= $ticket_id ?>">
-                                            </div>
+                                            <?php if (empty($ticket_row['ticket_closed_at'])) { ?>
+                                                <div class="form-check">
+                                                    <input class="form-check-input bulk-select" type="checkbox" name="ticket_ids[]" value="<?= $ticket_id ?>">
+                                                </div>
                                             <?php } ?>
                                         </td>
-                                        <!-- Ticket Number / Subject -->
                                         <td>
-                                            <a href="ticket.php?ticket_id=<?= $ticket_id ?>">
-                                                <span class="badge rounded-pill bg-secondary p-3 me-2"><?= "$ticket_prefix$ticket_number" ?></span>
-                                                <?= $ticket_subject ?>
-                                            </a>
+                                            <a class="<?= $ticket_is_open ? 'fw-semibold text-body' : 'text-body-secondary' ?>" href="<?= $ticket_url ?>"><?= escapeHtml($ticket_row['ticket_subject']) ?></a>
+                                            <div class="small"><a class="font-monospace text-body-secondary" href="<?= $ticket_url ?>"><?= escapeHtml(ticketReference($ticket_row)) ?></a></div>
                                         </td>
-                                        <!-- Ticket Priority -->
-                                        <td><?= $ticket_priority_display ?></a></td>
-
-                                        <!-- Ticket Status -->
-                                        <td>
-                                            <span class='badge rounded-pill text-light p-2' style="background-color: <?= $ticket_status_color ?>"><?= $ticket_status_name ?></span>
-                                        </td>
-
-                                        <!-- Ticket Assigned agent -->
-                                        <td><?= $ticket_assigned_to_display ?></td>
-
-                                        <!-- Ticket Last Response -->
-                                        <td>
-                                            <div><?= $ticket_updated_at_display ?></div>
-                                            <div><?= $ticket_reply_by_display ?></div>
-                                        </td>
-                                        <td><?= $client_name ?></td>
+                                        <td class="text-nowrap"><?= ticketPriorityHtml($ticket_row['ticket_priority'], 'detail') ?></td>
+                                        <td class="text-nowrap"><?= ticketStatusHtml($ticket_row['ticket_status_name'], $ticket_row['ticket_status_color'], 'detail') ?></td>
+                                        <td class="text-nowrap"><?= formatAssignee($ticket_row['ticket_assigned_to'], $ticket_row['user_name'], $ticket_row['user_avatar'], $ticket_is_open) ?></td>
+                                        <td class="small"><?= ticketActivityHtml($project_ticket_replies[$ticket_id] ?? null, $ticket_row) ?></td>
+                                        <td class="small"><?= intval($ticket_row['ticket_client_id']) ? escapeHtml($ticket_row['client_name']) : '<span class="text-body-secondary">Internal</span>' ?></td>
                                     </tr>
 
                                 <?php } ?>

@@ -16,6 +16,10 @@ $update_count = false;
 if (!empty($ticket_id)) {
 
     $ticket_row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT ticket_first_response_at, ticket_id, ticket_number, ticket_prefix FROM tickets WHERE ticket_id = '$ticket_id' AND ticket_resolved_at IS NULL AND ticket_client_id = $client_id LIMIT 1"));
+}
+
+// Resolved already, another client's, or not there - nothing to do
+if (!empty($ticket_row)) {
 
     // Grab what we need, not using the model
     $ticket_id = intval($ticket_row['ticket_id']); // Override so things fail if this is bad

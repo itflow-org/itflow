@@ -22,7 +22,11 @@ if (!isset($_GET['status']) || ($_GET['status']) == 'Open') {
     $ticket_status_snippet = "ticket_status LIKE '%'";
 }
 
-$contact_tickets = mysqli_query($mysqli, "SELECT ticket_id, ticket_prefix, ticket_number, ticket_subject, ticket_status_name FROM tickets LEFT JOIN contacts ON ticket_contact_id = contact_id LEFT JOIN ticket_statuses ON ticket_status = ticket_status_id WHERE $ticket_status_snippet AND ticket_contact_id = $session_contact_id AND ticket_client_id = $session_client_id ORDER BY ticket_id DESC");
+// Their tickets, newest first - with who wrote last, for "Waiting on your reply"
+$contact_tickets = mysqli_query($mysqli, "SELECT tickets.ticket_id, ticket_prefix, ticket_number, ticket_subject, ticket_status_name, ticket_created_at, ticket_updated_at,
+        ticket_resolved_at, ticket_closed_at, " . ticketLastSpokeSql() . " AS ticket_last_spoke
+    FROM tickets LEFT JOIN ticket_statuses ON ticket_status = ticket_status_id
+    WHERE $ticket_status_snippet AND ticket_contact_id = $session_contact_id AND ticket_client_id = $session_client_id ORDER BY ticket_id DESC");
 
 //Get Total tickets closed
 $sql_total_tickets_closed = mysqli_query($mysqli, "SELECT COUNT(ticket_id) AS total_tickets_closed FROM tickets WHERE ticket_closed_at IS NOT NULL AND ticket_client_id = $session_client_id AND ticket_contact_id = $session_contact_id");
@@ -56,6 +60,7 @@ $total_tickets = intval($row['total_tickets']);
                     <th>#</th>
                     <th>Subject</th>
                     <th>Status</th>
+                    <th>Updated</th>
                 </tr>
             </thead>
             <tbody>
@@ -66,7 +71,7 @@ $total_tickets = intval($row['total_tickets']);
                 $ticket_prefix = escapeHtml($row['ticket_prefix']);
                 $ticket_number = intval($row['ticket_number']);
                 $ticket_subject = escapeHtml($row['ticket_subject']);
-                $ticket_status = escapeHtml($row['ticket_status_name']);
+                $ticket_updated = $row['ticket_updated_at'] ?: $row['ticket_created_at'];
             ?>
 
                 <tr>
@@ -76,7 +81,8 @@ $total_tickets = intval($row['total_tickets']);
                     <td>
                         <a href="ticket.php?id=<?= $ticket_id ?>"><?= $ticket_subject ?></a>
                     </td>
-                    <td><?= $ticket_status ?></td>
+                    <td><?= ticketPortalStatusHtml($row) ?></td>
+                    <td class="text-nowrap" title="<?= escapeHtml($ticket_updated) ?>"><?= timeAgo($ticket_updated) ?></td>
                 </tr>
             <?php
             }

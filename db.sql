@@ -2160,6 +2160,7 @@ CREATE TABLE `recurring_tickets` (
   `recurring_ticket_billable` tinyint(1) NOT NULL DEFAULT 0,
   `recurring_ticket_start_date` date NOT NULL,
   `recurring_ticket_next_run` date NOT NULL,
+  `recurring_ticket_paused_at` datetime DEFAULT NULL,
   `recurring_ticket_created_at` datetime NOT NULL DEFAULT current_timestamp(),
   `recurring_ticket_updated_at` datetime DEFAULT NULL ON UPDATE current_timestamp(),
   `recurring_ticket_created_by` int(11) NOT NULL DEFAULT 0,

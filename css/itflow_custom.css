@@ -4729,3 +4729,148 @@ img.itflow-contact-avatar {
     border-radius: var(--bs-border-radius);
     background: var(--bs-tertiary-bg);
 }
+
+/* Tickets - agent/tickets.php (ticket_list.php and the board, ticket_kanban.php
+   with agent/css/ticket_kanban.css), the ticket quick look, and the ticket
+   tables on other pages (functions/ticket.php). */
+.itflow-ticket-list > :not(caption) > * > * {
+    padding-left: .45rem;
+    padding-right: .45rem;
+}
+.itflow-ticket-list .itflow-ticket-main {
+    min-width: 16rem;
+}
+.itflow-ticket-subject {
+    overflow-wrap: anywhere;
+}
+.itflow-ticket-table .itflow-ticket-subject {
+    min-width: 12rem;
+}
+/* What it is about, under the subject: number, age, source, category, asset... */
+.itflow-ticket-meta {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    column-gap: .65rem;
+    row-gap: .2rem;
+    margin-top: .15rem;
+}
+.itflow-ticket-dot {
+    margin-right: .3rem;
+    font-size: .5rem;
+    vertical-align: middle;
+    color: var(--bs-secondary-color);
+}
+.itflow-ticket-asset {
+    display: inline-block;
+    max-width: 12rem;
+    vertical-align: bottom;
+}
+.itflow-ticket-who-cell > * {
+    max-width: 12rem;
+}
+.itflow-ticket-activity {
+    min-width: 7rem;
+}
+.itflow-ticket-who {
+    max-width: 8rem;
+}
+.itflow-ticket-tasks {
+    display: inline-flex;
+    align-items: center;
+    gap: .3rem;
+    white-space: nowrap;
+}
+.itflow-ticket-tasks .progress {
+    width: 2.5rem;
+    height: .3rem;
+}
+/* Our move - a dot before the subject, like an unread mail */
+.itflow-ticket-move {
+    flex: 0 0 auto;
+    width: .5rem;
+    height: .5rem;
+    margin-top: .45rem;
+    border-radius: 50%;
+}
+.itflow-ticket-move.is-ours {
+    background-color: var(--bs-primary);
+}
+/* Late, or close to it - an edge down the row or the card. The row keeps
+   Bootstrap's own shadow under it, which is what paints hover and selection. */
+.itflow-ticket-row.is-danger > td:first-child {
+    box-shadow: inset 3px 0 0 var(--bs-danger), inset 0 0 0 9999px var(--bs-table-bg-state, var(--bs-table-bg-type, var(--bs-table-accent-bg)));
+}
+.itflow-ticket-row.is-warning > td:first-child {
+    box-shadow: inset 3px 0 0 var(--bs-warning), inset 0 0 0 9999px var(--bs-table-bg-state, var(--bs-table-bg-type, var(--bs-table-accent-bg)));
+}
+/* Urgent is dark everywhere - on a dark page it needs to stand out the other way */
+[data-bs-theme=dark] .itflow-ticket-list .badge.text-bg-dark,
+[data-bs-theme=dark] .itflow-ticket-card .badge.text-bg-dark,
+[data-bs-theme=dark] .itflow-ticket-table .badge.text-bg-dark,
+[data-bs-theme=dark] .itflow-ticket-glance .badge.text-bg-dark {
+    background-color: var(--bs-emphasis-color) !important;
+    color: var(--bs-body-bg) !important;
+}
+
+/* A card on the board */
+.itflow-ticket-card {
+    position: relative;
+    padding: .6rem .7rem;
+    font-size: .875rem;
+    background-color: var(--bs-body-bg);
+    border: 1px solid var(--bs-border-color-translucent);
+    border-radius: var(--bs-border-radius);
+    box-shadow: var(--bs-box-shadow-sm);
+}
+.itflow-ticket-card:hover {
+    border-color: var(--bs-border-color);
+}
+.itflow-ticket-card.is-danger {
+    box-shadow: inset 3px 0 0 var(--bs-danger), var(--bs-box-shadow-sm);
+}
+.itflow-ticket-card.is-warning {
+    box-shadow: inset 3px 0 0 var(--bs-warning), var(--bs-box-shadow-sm);
+}
+.itflow-ticket-card .itflow-ticket-move {
+    margin-top: 0;
+}
+.itflow-ticket-card-subject {
+    display: -webkit-box;
+    margin: .3rem 0 .15rem;
+    overflow: hidden;
+    font-weight: 600;
+    color: var(--bs-body-color);
+    text-decoration: none;
+    overflow-wrap: anywhere;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+}
+.itflow-ticket-card-subject:hover {
+    color: var(--bs-link-hover-color);
+}
+.itflow-ticket-card .itflow-contact-avatar-xs {
+    margin-right: .25rem;
+}
+.itflow-ticket-card .itflow-ticket-meta {
+    column-gap: .5rem;
+}
+
+/* Ticket quick look - agent/modals/ticket/ticket.php. The details and replies
+   are whatever came in by email, so they scroll in their box and their
+   pictures and tables fit it. */
+.itflow-ticket-glance-text {
+    max-height: 14rem;
+    overflow: auto;
+    overflow-wrap: anywhere;
+}
+.itflow-ticket-glance-text img {
+    max-width: 100%;
+    height: auto;
+}
+.itflow-ticket-glance-text table {
+    max-width: 100%;
+}
+.itflow-ticket-glance-text p:last-child {
+    margin-bottom: 0;
+}

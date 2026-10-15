@@ -340,176 +340,22 @@ if ($tickets_pending_assignment > 0) {
     logApp("Cron", "info", "Cron created notifications for new tickets that are pending assignment");
 }
 
-// Recurring tickets
+// Recurring tickets - each one due today, or missed (a night the cron didn't
+// run), raises one ticket and moves on to its next run after today. Paused ones
+// raise nothing. recurringTicketRunNow() (functions/ticket.php) is the same code
+// the Raise now button runs.
+$sql_recurring_tickets = mysqli_query($mysqli, "SELECT recurring_ticket_id, recurring_ticket_next_run, recurring_ticket_frequency, recurring_ticket_start_date
+    FROM recurring_tickets WHERE recurring_ticket_next_run <= CURDATE() AND recurring_ticket_paused_at IS NULL");
 
-// Get recurring tickets for today
-$sql_recurring_tickets = mysqli_query($mysqli, "SELECT recurring_ticket_asset_id, recurring_ticket_assigned_to, recurring_ticket_billable,
-    recurring_ticket_category, recurring_ticket_client_id, recurring_ticket_contact_id,
-    recurring_ticket_created_by, recurring_ticket_details, recurring_ticket_frequency,
-    recurring_ticket_id, recurring_ticket_priority, recurring_ticket_subject FROM recurring_tickets WHERE recurring_ticket_next_run = CURDATE()");
-
-if (mysqli_num_rows($sql_recurring_tickets) > 0) {
-    while ($row = mysqli_fetch_assoc($sql_recurring_tickets)) {
-
-        $recurring_ticket_id = intval($row['recurring_ticket_id']);
-        $subject = escapeSql($row['recurring_ticket_subject']);
-        $details = mysqli_real_escape_string($mysqli, $row['recurring_ticket_details']);
-        $priority = escapeSql($row['recurring_ticket_priority']);
-        $frequency = escapeSql(strtolower($row['recurring_ticket_frequency']));
-        $billable = intval($row['recurring_ticket_billable']);
-        $created_id = intval($row['recurring_ticket_created_by']);
-        $assigned_id = intval($row['recurring_ticket_assigned_to']);
-        $client_id = intval($row['recurring_ticket_client_id']);
-        $contact_id = intval($row['recurring_ticket_contact_id']);
-        $asset_id = intval($row['recurring_ticket_asset_id']);
-        $category = intval($row['recurring_ticket_category']);
-        $url_key = randomString(32);
-
-        $ticket_status = 1; // Default
-        if ($assigned_id > 0) {
-            $ticket_status = 2; // Set to open if we've auto-assigned an agent
-        }
-
-        if ($client_id) {
-            $client_uri = "&client_id=$client_id";
-        } else {
-            $client_uri = '';
-        }
-
-        // Atomically increment and get the new ticket number
-        mysqli_query($mysqli, "
-            UPDATE settings
-            SET
-                config_ticket_next_number = LAST_INSERT_ID(config_ticket_next_number),
-                config_ticket_next_number = config_ticket_next_number + 1
-            WHERE company_id = 1
-        ");
-
-        $ticket_number = mysqli_insert_id($mysqli);
-
-        // Raise the ticket
-        mysqli_query($mysqli, "INSERT INTO tickets SET ticket_prefix = '$config_ticket_prefix', ticket_number = $ticket_number, ticket_source = 'Recurring', ticket_subject = '$subject', ticket_details = '$details', ticket_priority = '$priority', ticket_status = '$ticket_status', ticket_billable = $billable, ticket_url_key = '$url_key', ticket_created_by = $created_id, ticket_assigned_to = $assigned_id, ticket_contact_id = $contact_id, ticket_client_id = $client_id, ticket_asset_id = $asset_id, ticket_category = $category, ticket_recurring_ticket_id = $recurring_ticket_id");
-        $id = mysqli_insert_id($mysqli);
-        applyTicketSla($id);
-
-        // Copy Additional Assets from Recurring ticket to new ticket
-        mysqli_query($mysqli, "INSERT INTO ticket_assets (ticket_id, asset_id)
-        SELECT $id, asset_id
-        FROM recurring_ticket_assets
-        WHERE recurring_ticket_id = $recurring_ticket_id");
-
-        // Copy Tasks from the schedule's own task list
-        addTasksFromRecurringTicket($id, $recurring_ticket_id);
-
-        // Logging
-        logAudit("Ticket", "Create", "Cron created recurring scheduled $frequency ticket - $subject", $client_id, $id);
-
-        triggerCustomAction('ticket_create', $id);
-
-        // Notifications
-
-        // Get client/contact/ticket details
-        $sql = mysqli_query(
-            $mysqli,
-            "SELECT client_name, contact_name, contact_email, ticket_prefix, ticket_number, ticket_priority, ticket_subject, ticket_details FROM tickets
-                LEFT JOIN clients ON ticket_client_id = client_id
-                LEFT JOIN contacts ON ticket_contact_id = contact_id
-                WHERE ticket_id = $id"
-        );
-        $row = mysqli_fetch_assoc($sql);
-
-        $contact_name = escapeSql($row['contact_name']);
-        $contact_email = escapeSql($row['contact_email']);
-        $client_name = escapeSql($row['client_name']);
-        $contact_name = escapeSql($row['contact_name']);
-        $contact_email = escapeSql($row['contact_email']);
-        $ticket_prefix = escapeSql($row['ticket_prefix']);
-        $ticket_number = intval($row['ticket_number']);
-        $ticket_priority = escapeSql($row['ticket_priority']);
-        $ticket_subject = escapeSql($row['ticket_subject']);
-        $ticket_details = mysqli_real_escape_string($mysqli, $row['ticket_details']);
-
-        $data = [];
-
-        // Notify client by email their ticket has been raised, if general notifications are turned on & there is a valid contact email
-        if (!empty($config_smtp_provider) && $config_ticket_client_general_notifications == 1 && filter_var($contact_email, FILTER_VALIDATE_EMAIL)) {
-
-            $email_subject = "Ticket created - [$ticket_prefix$ticket_number] - $ticket_subject (scheduled)";
-            // SLA response commitment for this client + priority, empty when no SLA applies
-            $sla_notice = escapeSql(getTicketSlaEmailNotice($id, $company_phone));
-            $ticket_status_name = escapeSql(getTicketStatusName($ticket_status));
-            $email_body = "<i style=\'color: #808080\'>##- Please type your reply above this line -##</i><br><br>Hello $contact_name,<br><br>A ticket regarding \"$ticket_subject\" has been automatically created for you.<br><br>--------------------------------<br>$ticket_details--------------------------------<br><br>Ticket: $ticket_prefix$ticket_number<br>Subject: $ticket_subject<br>Status: $ticket_status_name<br>Portal: https://$config_base_url/client/ticket.php?id=$id$sla_notice<br><br>--<br>$company_name - Support<br>$config_ticket_from_email<br>$company_phone";
-
-            $email = [
-                    'from' => $config_ticket_from_email,
-                    'from_name' => $config_ticket_from_name,
-                    'recipient' => $contact_email,
-                    'recipient_name' => $contact_name,
-                    'subject' => $email_subject,
-                    'body' => $email_body
-            ];
-
-            $data[] = $email;
-
-        }
-
-        // Notify agent's via the DL address of the new ticket, if it's populated with a valid email
-        if (filter_var($config_ticket_new_ticket_notification_email, FILTER_VALIDATE_EMAIL)) {
-
-            $email_subject = "ITFlow - New Recurring Ticket - $client_name: $ticket_subject";
-            $email_body = "Hello, <br><br>This is a notification that a recurring (scheduled) ticket has been raised in ITFlow. <br>Ticket: $ticket_prefix$ticket_number<br>Client: $client_name<br>Priority: $priority<br>Link: https://$config_base_url/agent/ticket.php?ticket_id=$id$client_uri <br><br>--------------------------------<br><br><b>$ticket_subject</b><br>$ticket_details";
-
-            $email = [
-                    'from' => $config_ticket_from_email,
-                    'from_name' => $config_ticket_from_name,
-                    'recipient' => $config_ticket_new_ticket_notification_email,
-                    'recipient_name' => $config_ticket_from_name,
-                    'subject' => $email_subject,
-                    'body' => $email_body
-            ];
-
-            $data[] = $email;
-        }
-
-        // Add to the mail queue
-        addToMailQueue($data);
-
-        // Set the next run date
-        if ($frequency == "three days") {
-            $now = new DateTime();
-            $next_run = date_add($now, date_interval_create_from_date_string('3 days'));
-        } elseif ($frequency == "weekly") {
-            $now = new DateTime();
-            $next_run = date_add($now, date_interval_create_from_date_string('1 week'));
-        } elseif ($frequency == "biweekly") {
-            $now = new DateTime();
-            $next_run = date_add($now, date_interval_create_from_date_string('2 weeks'));
-        } elseif ($frequency == "monthly") {
-            $now = new DateTime();
-            $next_run = date_add($now, date_interval_create_from_date_string('1 month'));
-        } elseif ($frequency == "quarterly") {
-            $now = new DateTime();
-            $next_run = date_add($now, date_interval_create_from_date_string('3 months'));
-        } elseif ($frequency == "biannually") {
-            $now = new DateTime();
-            $next_run = date_add($now, date_interval_create_from_date_string('6 months'));
-        } elseif ($frequency == "annually") {
-            $now = new DateTime();
-            $next_run = date_add($now, date_interval_create_from_date_string('12 months'));
-        }
-
-        // Update the run date
-        $next_run = $next_run->format('Y-m-d');
-        $a = mysqli_query($mysqli, "UPDATE recurring_tickets SET recurring_ticket_next_run = '$next_run' WHERE recurring_ticket_id = $recurring_ticket_id");
-
+$recurring_tickets_raised = 0;
+while ($row = mysqli_fetch_assoc($sql_recurring_tickets)) {
+    if (recurringTicketRunNow($row, 'Cron')) {
+        $recurring_tickets_raised++;
     }
 }
 
-// Flag any active recurring "next run" dates that are in the past
-$sql_invalid_recurring_tickets = mysqli_query($mysqli, "SELECT recurring_ticket_subject FROM recurring_tickets WHERE recurring_ticket_next_run < CURDATE()");
-while ($row = mysqli_fetch_assoc($sql_invalid_recurring_tickets)) {
-    $subject = escapeSql($row['recurring_ticket_subject']);
-    appNotify("Ticket", "Recurring ticket $subject next run date is in the past!", "/agent/recurring_tickets.php");
+if ($recurring_tickets_raised) {
+    logApp("Cron", "info", "Cron raised $recurring_tickets_raised recurring ticket(s)");
 }
 
 // Logging

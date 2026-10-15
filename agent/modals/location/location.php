@@ -51,13 +51,7 @@ if ($can_support) {
     while ($row = mysqli_fetch_assoc($sql)) {
         $networks[] = $row;
     }
-    $sql = mysqli_query($mysqli, "SELECT ticket_id, ticket_prefix, ticket_number, ticket_subject, ticket_status_name, ticket_status_color FROM tickets
-        LEFT JOIN ticket_statuses ON ticket_status_id = ticket_status
-        WHERE ticket_location_id = $location_id AND ticket_resolved_at IS NULL AND ticket_closed_at IS NULL
-        ORDER BY ticket_number DESC");
-    while ($row = mysqli_fetch_assoc($sql)) {
-        $open_tickets[] = $row;
-    }
+    $open_tickets = ticketRows("tickets.ticket_location_id = $location_id AND " . TICKET_OPEN_SQL);
 }
 
 $quick_tabs = array_filter([
@@ -208,20 +202,7 @@ ob_start();
 
                 <?php if ($open_tickets) { ?>
                     <div class="tab-pane fade <?= $first_tab === 'tickets' ? 'show active' : '' ?>" id="<?= $quick_id ?>-tickets" role="tabpanel">
-                        <div class="table-responsive">
-                            <table class="table table-sm table-hover align-middle mb-0">
-                                <tbody>
-                                <?php foreach ($open_tickets as $ticket) {
-                                    $ticket_id = intval($ticket['ticket_id']); ?>
-                                    <tr>
-                                        <td class="text-nowrap"><a href="ticket.php?client_id=<?= $client_id ?>&ticket_id=<?= $ticket_id ?>"><?= escapeHtml($ticket['ticket_prefix']) . intval($ticket['ticket_number']) ?></a></td>
-                                        <td class="w-100"><a class="text-body" href="ticket.php?client_id=<?= $client_id ?>&ticket_id=<?= $ticket_id ?>"><?= escapeHtml($ticket['ticket_subject']) ?></a></td>
-                                        <td class="text-nowrap"><?= ticketStatusHtml($ticket['ticket_status_name'], $ticket['ticket_status_color'], 'detail') ?></td>
-                                    </tr>
-                                <?php } ?>
-                                </tbody>
-                            </table>
-                        </div>
+                        <?= ticketTableHtml($open_tickets, ['compact' => true]) ?>
                     </div>
                 <?php } ?>
             </div>

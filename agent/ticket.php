@@ -207,16 +207,10 @@ if (isset($_GET['ticket_id'])) {
          * casts to 0 - so "open" matched every ticket and "closed" matched none.
          * Resolution state lives in ticket_resolved_at, same as the ticket list.
          */
-        $contact_open_tickets = 0;
-        if ($contact_id) {
-            $contact_open_tickets = intval(mysqli_fetch_row(mysqli_query(
-                $mysqli,
-                "SELECT COUNT(ticket_id) FROM tickets
-                WHERE ticket_contact_id = $contact_id
-                AND ticket_id != $ticket_id
-                AND ticket_resolved_at IS NULL"
-            ))[0]);
-        }
+        // The other open tickets for the same person or device - a duplicate, or a
+        // problem with something bigger behind it, shows up while working this one
+        $also_open = empty($ticket['ticket_resolved_at']) && empty($ticket['ticket_closed_at'])
+            ? ticketAlsoOpen($contact_id, intval($ticket['ticket_asset_id']), $ticket_id, 6) : [];
 
         // Reply counts, one pass - these drive the conversation filter
         $reply_counts = array('total' => 0, 'public' => 0, 'internal' => 0);
@@ -415,7 +409,7 @@ if (isset($_GET['ticket_id'])) {
 
         // How the ticket arrived, in words rather than the raw source value ("via Agent")
         if ($ticket_source == 'Email') {
-            $ticket_opened_wording = "Emailed in $ticket_created_at_ago";
+            $ticket_opened_wording = "Came in by email $ticket_created_at_ago";
         } elseif ($ticket_source == 'Portal') {
             $ticket_opened_wording = "Submitted in the client portal $ticket_created_at_ago";
         } elseif ($ticket_source == 'Recurring') {
@@ -1170,15 +1164,29 @@ if (isset($_GET['ticket_id'])) {
                                     </div>
                                 <?php } ?>
 
-                                <?php if ($contact_open_tickets) { ?>
-                                    <!-- The count is this contact's, so the link goes to their tickets, not the whole client's -->
-                                    <div class="mt-2 pt-2 border-top small">
-                                        <i class="fa fa-fw fa-life-ring text-secondary me-2"></i><a href="#" class="ajax-modal" data-modal-size="lg" data-modal-url="modals/contact/contact.php?id=<?= $contact_id ?>"><?= $contact_open_tickets ?> other open ticket<?= $contact_open_tickets == 1 ? '' : 's' ?></a>
-                                    </div>
-                                <?php } ?>
-
                             <?php } ?>
 
+                        </div>
+                    </div>
+                <?php } ?>
+
+                <!-- Also open for the same contact or asset -->
+                <?php if ($also_open) { ?>
+                    <div class="card mb-3">
+                        <div class="card-header px-3 py-2">
+                            <h5 class="card-title mt-1"><i class="fas fa-fw fa-layer-group me-2"></i>Also open</h5>
+                        </div>
+                        <div class="list-group list-group-flush small">
+                            <?php foreach ($also_open as $other) { ?>
+                                <div class="list-group-item px-3 py-2">
+                                    <div class="text-truncate"><?= ticketLink($other) ?></div>
+                                    <div class="d-flex align-items-center gap-2 mt-1 text-body-secondary">
+                                        <?= ticketStatusHtml($other['ticket_status_name'], $other['ticket_status_color'], 'detail') ?>
+                                        <span>Same <?= implode(' and ', $other['shares']) ?></span>
+                                        <span class="ms-auto text-nowrap" title="<?= escapeHtml($other['ticket_created_at']) ?>"><?= timeAgo($other['ticket_created_at']) ?></span>
+                                    </div>
+                                </div>
+                            <?php } ?>
                         </div>
                     </div>
                 <?php } ?>

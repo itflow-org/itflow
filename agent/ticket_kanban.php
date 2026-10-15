@@ -1,220 +1,179 @@
 <?php
 /*
- * Ticket kanban view
+ * Ticket board
  *
- * Included by tickets.php, which owns the filters and sets the query parts
- * this page runs. Should not be accessed directly.
+ * Included by tickets.php, which owns the filters and the views and sets the
+ * query parts this runs - the board shows exactly what the list would. One
+ * column per active status (Closed has none), each card the ticket at a
+ * glance: whose move it is, when it is due, who it is for and who has it.
+ * Drag a card to change its status - into Resolved resolves it (and tells
+ * the client, as Resolve does), out of Resolved reopens it. js/tickets_kanban.js
+ * does the dragging, agent/ajax.php the saving.
  */
 
 isset($mysqli) || die("Direct file access is not allowed");
 
-/*
- * Columns are the active ticket statuses. Closed (5) is excluded - a board
- * column of every ticket ever closed is not something anyone drags between.
- */
-$status_sql = mysqli_query($mysqli, "SELECT ticket_status_id, ticket_status_name, ticket_status_color, ticket_status_order, ticket_status_pauses_sla FROM ticket_statuses WHERE ticket_status_active = 1 AND ticket_status_id != 5 ORDER BY ticket_status_order");
-
-$statuses = array();
-while ($row = mysqli_fetch_assoc($status_sql)) {
-    $status_id = intval($row['ticket_status_id']);
-    $statuses[$status_id] = array(
-        'id'         => $status_id,
-        'name'       => escapeHtml($row['ticket_status_name']),
-        'color'      => escapeHtml($row['ticket_status_color']),
-        'pauses_sla' => intval($row['ticket_status_pauses_sla']),
-        // Resolved pauses the clock by finishing the ticket rather than parking it, so
-        // the header marker would be noise on that column (Closed is not a column here)
-        'show_sla_pause' => intval($row['ticket_status_pauses_sla']) && $status_id != 4,
-        'tickets'    => array()
-    );
+$columns = [];
+$sql_columns = mysqli_query($mysqli, "SELECT ticket_status_id, ticket_status_name, ticket_status_color, ticket_status_pauses_sla FROM ticket_statuses
+    WHERE ticket_status_active = 1 AND ticket_status_id <> " . TICKET_STATUS_CLOSED . " ORDER BY ticket_status_order, ticket_status_id");
+while ($row = mysqli_fetch_assoc($sql_columns)) {
+    $columns[intval($row['ticket_status_id'])] = $row + ['tickets' => []];
 }
 
-$ordering_snippet = "ORDER BY
-    CASE
-        WHEN ticket_priority = 'Urgent' THEN 0
-        WHEN ticket_priority = 'High' THEN 1
-        WHEN ticket_priority = 'Medium' THEN 2
-        WHEN ticket_priority = 'Low' THEN 3
-        ELSE 4
-    END,
-    ticket_id DESC";
+$ordering_sql = intval($config_ticket_ordering) === 1
+    ? "ticket_order ASC, ticket_id DESC"
+    : "CASE ticket_priority WHEN 'Urgent' THEN 0 WHEN 'High' THEN 1 WHEN 'Medium' THEN 2 WHEN 'Low' THEN 3 ELSE 4 END, ticket_id DESC";
 
-if ($config_ticket_ordering == 1) {
-    $ordering_snippet = "ORDER BY ticket_order ASC";
-}
+$sql = mysqli_query($mysqli, "SELECT $ticket_select_columns FROM tickets $ticket_joins $ticket_where ORDER BY $ordering_sql");
 
-/*
- * Same WHERE clause the list view runs, so the filter bar means the same
- * thing in both views. The old kanban query built its own subset and quietly
- * ignored the SLA, priority and billing filters.
- */
-$sql = mysqli_query($mysqli,
-    "SELECT $ticket_select_columns
-    FROM tickets
-    $ticket_joins
-    $ticket_where
-    $ordering_snippet"
-);
-
-$kanban_ticket_count = 0;
-$kanban_offboard_count = 0;
+$board_count = 0;
+$off_board_count = 0;
 while ($row = mysqli_fetch_assoc($sql)) {
     $status_id = intval($row['ticket_status_id']);
-    if (isset($statuses[$status_id])) {
-        $statuses[$status_id]['tickets'][] = $row;
-        $kanban_ticket_count++;
+    if (isset($columns[$status_id])) {
+        $columns[$status_id]['tickets'][intval($row['ticket_id'])] = $row;
+        $board_count++;
     } else {
-        // Matched the filters but sits in a status with no column - Closed, or
-        // a status that has since been deactivated
-        $kanban_offboard_count++;
+        // In a status with no column - one that has since been switched off
+        $off_board_count++;
     }
 }
 
-$kanban = array_values($statuses);
+$board_ids = [];
+foreach ($columns as $column) {
+    $board_ids = array_merge($board_ids, array_keys($column['tickets']));
+}
+$last_replies = ticketLastReplies($board_ids);
+$task_counts = ticketTaskCounts($board_ids);
 
 ?>
 
 <link rel="stylesheet" href="css/ticket_kanban.css">
 
-<?php if (!$kanban_ticket_count) { ?>
-    <div class="card card-dark">
-        <div class="card-body text-center text-secondary py-5">
-            <i class="fas fa-fw fa-columns fa-2x mb-3"></i>
-            <?php if ($kanban_offboard_count) { ?>
-                <p class="mb-1">The board has no column for these tickets - closed tickets are not shown on the kanban.</p>
-                <a href="<?= ticketsFilterUrl(['view' => 'list']) ?>">Show them in the list</a>
-            <?php } else { ?>
-                <p class="mb-1">No tickets match these filters.</p>
-                <?php if ($active_filters) { ?>
-                    <a href="<?= escapeHtml('?' . http_build_query(array_filter(array('client_id' => $_GET['client_id'] ?? null, 'view' => 'kanban')))) ?>">Clear the filters</a>
-                <?php } ?>
-            <?php } ?>
-        </div>
-    </div>
-<?php } elseif ($kanban_offboard_count) { ?>
-    <div class="alert alert-secondary py-2">
+<?php if ($off_board_count) { ?>
+    <div class="alert alert-secondary py-2 mx-3 mt-3 mb-0 small">
         <i class="fas fa-fw fa-info-circle me-1"></i>
-        <?= $kanban_offboard_count ?> matching ticket<?= $kanban_offboard_count == 1 ? ' is' : 's are' ?> not shown - the board has no column for closed tickets.
-        <a href="<?= ticketsFilterUrl(['view' => 'list']) ?>">Show them in the list</a>
+        <?= $off_board_count ?> matching ticket<?= $off_board_count === 1 ? ' is' : 's are' ?> in a status that is switched off, so not on the board.
+        <a href="<?= escapeHtml($filter_url(['view' => 'list'])) ?>">See them in the list</a>
     </div>
 <?php } ?>
 
-<div class="kanban-board" id="kanban-board">
+<div class="kanban-board" id="kanban-board" data-csrf="<?= escapeHtml($_SESSION['csrf_token']) ?>"
+     data-can-edit="<?= $can_edit ? 1 : 0 ?>" data-moving-columns="<?= intval($config_ticket_moving_columns) ?>" data-ordering="<?= intval($config_ticket_ordering) ?>">
 
-    <?php foreach ($kanban as $column) { ?>
-
-        <div class="kanban-column" data-status-id="<?= $column['id'] ?>">
-
-            <div class="kanban-column-header" style="border-top-color: <?= $column['color'] ?>">
-                <span class="kanban-column-name"><?= $column['name'] ?></span>
-                <span class="badge rounded-pill bg-secondary ms-1"><?= count($column['tickets']) ?></span>
-                <?php if ($column['show_sla_pause']) { ?>
-                    <i class="fas fa-fw fa-pause text-secondary ms-1" title="The resolution SLA clock is paused in this status"></i>
+    <?php foreach ($columns as $status_id => $column) {
+        $color = preg_match('/^#[0-9a-f]{3,8}$/i', (string) $column['ticket_status_color']) ? $column['ticket_status_color'] : 'var(--bs-secondary)';
+        ?>
+        <section class="kanban-column" data-status-id="<?= $status_id ?>" style="--itflow-status-color: <?= $color ?>">
+            <header class="kanban-column-header" <?= intval($config_ticket_moving_columns) === 1 && $can_edit ? 'title="Drag to move this column"' : '' ?>>
+                <span class="kanban-column-dot" aria-hidden="true"></span>
+                <span class="kanban-column-name text-truncate"><?= escapeHtml($column['ticket_status_name']) ?></span>
+                <?php if (intval($column['ticket_status_pauses_sla']) && $status_id !== TICKET_STATUS_RESOLVED) { ?>
+                    <i class="fas fa-pause small text-body-secondary" title="The SLA clock is paused in this status"></i>
                 <?php } ?>
-            </div>
+                <span class="badge rounded-pill bg-body-secondary text-body-secondary ms-auto kanban-column-count"><?= count($column['tickets']) ?></span>
+            </header>
 
-            <div class="kanban-status" data-column-name="<?= $column['name'] ?>" data-status-id="<?= $column['id'] ?>">
-
-                <?php foreach ($column['tickets'] as $item) {
-
-                    $item_ticket_id = intval($item['ticket_id']);
-                    $item_priority = escapeHtml($item['ticket_priority']);
-
-                    if ($item_priority == "Urgent") {
-                        $ticket_priority_color = "dark";
-                    } elseif ($item_priority == "High") {
-                        $ticket_priority_color = "danger";
-                    } elseif ($item_priority == "Medium") {
-                        $ticket_priority_color = "warning";
-                    } else {
-                        $ticket_priority_color = "info";
-                    }
-
-                    // SLA state, same stages the ticket list colours on. A paused
-                    // ticket drops its at-risk flag but keeps a recorded breach.
-                    $ticket_sla_alert_stage = max(intval($item['ticket_response_sla_alert_stage']), intval($item['ticket_resolution_sla_alert_stage']));
-                    if (intval($item['ticket_status_pauses_sla']) && $ticket_sla_alert_stage < 2) {
-                        $ticket_sla_alert_stage = 0;
-                    }
-                    $ticket_sla_class = '';
-                    if ($ticket_sla_alert_stage == 2) {
-                        $ticket_sla_class = ' kanban-card-breached';
-                    } elseif ($ticket_sla_alert_stage == 1) {
-                        $ticket_sla_class = ' kanban-card-at-risk';
-                    }
-
-                    $item_client_id = intval($item['ticket_client_id']);
-                    $item_has_client = $item_client_id ? "&client_id=$item_client_id" : "";
+            <div class="kanban-status" data-status-id="<?= $status_id ?>" data-empty="<?= $status_id === TICKET_STATUS_RESOLVED ? 'Drop here to resolve' : 'Nothing here' ?>">
+                <?php foreach ($column['tickets'] as $ticket_id => $row) {
+                    $row_client_id = intval($row['ticket_client_id']);
+                    $reference = escapeHtml(ticketReference($row));
+                    $url = escapeHtml(ticketUrl($ticket_id, $row_client_id));
+                    $is_open = ticketIsOpen($row);
+                    $move = ticketWhoseMove($row);
+                    $sla = ticketSlaState($row);
+                    $due = ticketDueState($row);
+                    $attention = $is_open ? ticketAttention($sla, $due) : '';
+                    $schedule = $is_open ? $row['ticket_schedule'] : null;
+                    $scheduled_today = $schedule && substr($schedule, 0, 10) === date('Y-m-d');
+                    $reply = $last_replies[$ticket_id] ?? null;
+                    $mine = intval($row['ticket_assigned_to']) === intval($session_user_id);
+                    $flags = trim(ticketDuePill($due) . ' ' . (in_array($sla['key'], ['breached', 'at_risk', 'running'], true) ? ticketSlaPill($sla) : ''));
                     ?>
+                    <article class="kanban-card itflow-ticket-card <?= $attention ? "is-$attention" : '' ?>" data-ticket-id="<?= $ticket_id ?>" data-ticket-status-id="<?= intval($row['ticket_status']) ?>">
+                        <div class="d-flex align-items-center gap-2 small">
+                            <span class="itflow-ticket-move <?= $move === 'us' ? 'is-ours' : '' ?>" <?= $move === 'us' ? 'title="Needs a reply from us"' : 'aria-hidden="true"' ?>></span>
+                            <a class="font-monospace text-body-secondary" href="<?= $url ?>"><?= $reference ?></a>
+                            <span class="ms-auto"><?= ticketPriorityHtml($row['ticket_priority'], 'detail') ?></span>
+                            <div class="dropdown">
+                                <button class="btn btn-sm btn-link text-body-secondary p-0 px-1" type="button" data-bs-toggle="dropdown" title="More actions"><i class="fas fa-fw fa-ellipsis-v"></i></button>
+                                <div class="dropdown-menu dropdown-menu-end">
+                                    <a class="dropdown-item ajax-modal" href="#" data-modal-size="lg" data-modal-url="modals/ticket/ticket.php?id=<?= $ticket_id ?>">
+                                        <i class="fas fa-fw fa-eye text-secondary me-2"></i>Quick look
+                                    </a>
+                                    <a class="dropdown-item" href="<?= $url ?>" target="_blank">
+                                        <i class="fas fa-fw fa-external-link-alt text-secondary me-2"></i>Open in a new tab
+                                    </a>
+                                    <?php if ($can_edit) { ?>
+                                        <a class="dropdown-item ajax-modal" href="#" data-modal-size="lg" data-modal-url="modals/ticket/ticket_edit.php?id=<?= $ticket_id ?>">
+                                            <i class="fas fa-fw fa-edit text-secondary me-2"></i>Edit
+                                        </a>
+                                        <?php if (!$mine) { ?>
+                                            <a class="dropdown-item" href="post.php?assign_ticket_to_me=<?= $ticket_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>">
+                                                <i class="fas fa-fw fa-hand-paper text-secondary me-2"></i>Assign to me
+                                            </a>
+                                        <?php } ?>
+                                    <?php } ?>
+                                </div>
+                            </div>
+                        </div>
 
-                    <div class="task kanban-card<?= $ticket_sla_class ?>"
-                         data-ticket-id="<?= $item_ticket_id ?>"
-                         data-ticket-status-id="<?= intval($item['ticket_status_id']) ?>">
+                        <a class="itflow-ticket-card-subject" href="<?= $url ?>"><?= escapeHtml($row['ticket_subject']) ?></a>
 
-                        <div class="kanban-card-top">
-                            <a href="ticket.php?ticket_id=<?= $item_ticket_id . $item_has_client ?>" class="kanban-card-number">
-                                <?= escapeHtml($item['ticket_prefix']) . intval($item['ticket_number']) ?>
-                            </a>
-
-                            <span class="badge text-bg-<?= $ticket_priority_color ?>"><?= $item_priority ?></span>
-
-                            <?php if ($ticket_sla_alert_stage == 2) { ?>
-                                <span class="badge bg-danger" title="SLA breached"><i class="fas fa-fw fa-stopwatch"></i></span>
-                            <?php } elseif ($ticket_sla_alert_stage == 1) { ?>
-                                <span class="badge bg-warning text-dark" title="SLA at risk"><i class="fas fa-fw fa-stopwatch"></i></span>
+                        <div class="small text-body-secondary text-truncate">
+                            <?php if (!$client_url) { ?>
+                                <?= $row_client_id ? escapeHtml($row['client_name']) : '<i class="fas fa-building me-1"></i>Internal' ?>
+                                <?php if (intval($row['contact_id'])) { ?><span class="mx-1">&middot;</span><?php } ?>
                             <?php } ?>
-
-                            <span class="drag-handle-class" title="Drag to move"><i class="fas fa-grip-vertical"></i></span>
+                            <?php if (intval($row['contact_id'])) { ?>
+                                <?= contactAvatar($row_client_id, $row['contact_id'], $row['contact_name'], $row['contact_photo'] ?? '', 'xs') ?><?= escapeHtml($row['contact_name']) ?>
+                            <?php } ?>
                         </div>
 
-                        <a href="ticket.php?ticket_id=<?= $item_ticket_id . $item_has_client ?>" class="kanban-card-subject">
-                            <?= escapeHtml($item['ticket_subject']) ?>
-                        </a>
-
-                        <div class="kanban-card-client">
-                            <?php
-                            // The contact with their avatar, as everywhere else they appear
-                            $item_contact = empty($item['contact_name']) ? ''
-                                : '<span class="itflow-contact-ref">' . contactAvatar($item['ticket_client_id'], $item['contact_id'], $item['contact_name'], $item['contact_photo'] ?? '', 'xs') . '<span class="text-truncate">' . escapeHtml($item['contact_name']) . '</span></span>';
-                            if (!$client_url) {
-                                echo escapeHtml($item['client_name']);
-                                if ($item_contact) {
-                                    echo ' <span class="text-secondary">&middot; ' . $item_contact . '</span>';
-                                }
-                            } else {
-                                echo $item_contact;
-                            }
-                            ?>
-                        </div>
-
-                        <?php if (!empty($item['asset_name'])) { ?>
-                            <div class="kanban-card-meta"><i class="fa fa-fw fa-desktop me-1"></i><?= escapeHtml($item['asset_name']) ?></div>
+                        <?php if ($flags !== '' || $schedule || !empty($row['asset_name']) || isset($task_counts[$ticket_id])) { ?>
+                            <div class="itflow-ticket-meta small text-body-secondary mt-1">
+                                <?= $flags ?>
+                                <?php if ($schedule) { ?>
+                                    <span class="text-nowrap <?= $scheduled_today ? 'text-warning-emphasis fw-semibold' : '' ?>" title="Scheduled<?= intval($row['ticket_onsite']) ? ' on site' : '' ?>">
+                                        <i class="fas fa-<?= intval($row['ticket_onsite']) ? 'truck' : 'calendar-check' ?> me-1"></i><?= $scheduled_today ? 'Today ' . date($config_time_format, strtotime($schedule)) : date('M j', strtotime($schedule)) ?>
+                                    </span>
+                                <?php } ?>
+                                <?php if (!empty($row['asset_name'])) { ?>
+                                    <span class="text-nowrap text-truncate itflow-ticket-asset"><i class="fas fa-desktop me-1"></i><?= escapeHtml($row['asset_name']) ?></span>
+                                <?php } ?>
+                                <?= ticketTasksHtml($task_counts[$ticket_id] ?? null) ?>
+                            </div>
                         <?php } ?>
 
-                        <div class="kanban-card-footer">
-                            <span title="Assigned to"><?= formatAssignee($item['ticket_assigned_to'], $item['user_name'], $item['user_avatar'], empty($item['ticket_resolved_at']) && empty($item['ticket_closed_at'])) ?></span>
-                            <span title="Created <?= escapeHtml($item['ticket_created_at']) ?>"><?= timeAgo($item['ticket_created_at']) ?></span>
+                        <div class="d-flex align-items-center justify-content-between gap-2 mt-2">
+                            <?php $assignee = formatAssignee($row['ticket_assigned_to'], $row['user_name'], $row['user_avatar'], $is_open); ?>
+                            <span class="min-w-0 text-truncate"><?= $can_edit ? quickPick('assignee', $ticket_id, (string) intval($row['ticket_assigned_to']), $assignee) : $assignee ?></span>
+                            <span class="small text-body-secondary text-nowrap" title="<?= $reply ? escapeHtml(['Client' => 'The client replied', 'Public' => 'We replied', 'Internal' => 'Internal note'][$reply['ticket_reply_type']] ?? 'Last reply') . ' ' . escapeHtml($reply['ticket_reply_created_at']) : 'Opened ' . escapeHtml($row['ticket_created_at']) ?>">
+                                <?php if ($reply && $reply['ticket_reply_type'] === 'Client') { ?>
+                                    <i class="fas fa-reply text-warning me-1"></i>
+                                <?php } elseif ($reply) { ?>
+                                    <i class="fas fa-<?= $reply['ticket_reply_type'] === 'Public' ? 'paper-plane' : 'sticky-note' ?> me-1"></i>
+                                <?php } else { ?>
+                                    <i class="far fa-clock me-1"></i>
+                                <?php } ?>
+                                <?= timeAgo($reply ? $reply['ticket_reply_created_at'] : $row['ticket_created_at']) ?>
+                            </span>
                         </div>
-
-                        <?php if (!empty($item['ticket_schedule'])) { ?>
-                            <div class="kanban-card-meta"><i class="fa fa-fw fa-calendar-check me-1"></i><span class="badge bg-warning text-dark"><?= escapeHtml($item['ticket_schedule']) ?></span></div>
-                        <?php } ?>
-
-                    </div>
-
+                    </article>
                 <?php } ?>
-
             </div>
-        </div>
-
+        </section>
     <?php } ?>
 
 </div>
 
-<script>
-    const CONFIG_TICKET_MOVING_COLUMNS = <?= json_encode($config_ticket_moving_columns) ?>;
-    const CONFIG_TICKET_ORDERING = <?= json_encode($config_ticket_ordering) ?>;
-</script>
+<?php if (!$board_count && !$off_board_count) { ?>
+    <div class="itflow-asset-empty pt-0">
+        <div><?= $q !== '' || $active_filters || $assigned_filter !== '' || $client_filter ? 'No tickets match.' : 'Nothing on the board here.' ?></div>
+    </div>
+<?php } ?>
 
-<script src="../libs/SortableJS/Sortable.min.js"></script>
-<script src="js/tickets_kanban.js"></script>
+<?php if ($can_edit) { ?>
+    <script src="../libs/SortableJS/Sortable.min.js"></script>
+    <script src="js/tickets_kanban.js"></script>
+<?php } ?>

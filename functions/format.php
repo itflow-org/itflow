@@ -465,8 +465,8 @@ function roundToNearest15Min($time) {
 
 
 function formatDuration($time) {
-    // expects "HH:MM:SS"
-    [$h, $m, $s] = array_map('intval', explode(':', $time));
+    // expects "HH:MM:SS" - nothing logged (NULL, '') is 0s
+    [$h, $m, $s] = array_map('intval', array_pad(explode(':', (string) $time), 3, 0));
 
     $parts = [];
 

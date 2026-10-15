@@ -10,7 +10,7 @@ $row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT COUNT('ticket_id') AS nu
 $num_active_tickets = $row['num'];
 
 // Recurring Ticket Count
-$row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT COUNT('recurring_ticket_id') AS num FROM recurring_tickets WHERE 1 = 1 " . clientScopeSql('recurring_ticket_client_id') . ""));
+$row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT COUNT('recurring_ticket_id') AS num FROM recurring_tickets WHERE recurring_ticket_paused_at IS NULL " . clientScopeSql('recurring_ticket_client_id') . ""));
 $num_recurring_tickets = $row['num'];
 
 // Active Project Count

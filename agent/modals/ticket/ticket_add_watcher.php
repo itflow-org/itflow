@@ -4,12 +4,9 @@ require_once '../../../includes/modal_header.php';
 
 enforceUserPermission('module_support', 2);
 
-$ticket_id = intval($_GET['ticket_id']);
-$client_id = intval(getFieldById('tickets', $ticket_id, 'ticket_client_id'));
-
-if ($client_id) {
-    enforceClientAccess();
-}
+// The ticket, after the module and client checks - or the modal's error
+$row = ticketForModal($_GET['ticket_id'] ?? 0, 2, true);
+$ticket_id = intval($row['ticket_id']);
 
 ob_start();
 

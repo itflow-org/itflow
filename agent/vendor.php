@@ -80,19 +80,8 @@ if (!$vendor || (isset($_GET['client_id']) && $vendor_client_id !== intval($clie
     $case_count = $case_open_count = 0;
     $licenses = $assets = $domains = $services = $logins = $documents = $files = [];
     if ($can_support) {
-        $row = mysqli_fetch_row(mysqli_query($mysqli, "SELECT COUNT(*), COALESCE(SUM(ticket_resolved_at IS NULL AND ticket_closed_at IS NULL), 0) FROM tickets WHERE ticket_client_id = $client_id AND ticket_vendor_id = $vendor_id"));
-        [$case_count, $case_open_count] = [intval($row[0]), intval($row[1])];
-        $sql = mysqli_query($mysqli, "SELECT ticket_id, ticket_prefix, ticket_number, ticket_subject, ticket_vendor_ticket_number, ticket_created_at, ticket_updated_at,
-                ticket_resolved_at, ticket_closed_at, ticket_assigned_to, user_name, user_avatar, ticket_status_name, ticket_status_color
-            FROM tickets
-            LEFT JOIN users ON ticket_assigned_to = user_id
-            LEFT JOIN ticket_statuses ON ticket_status_id = ticket_status
-            WHERE ticket_client_id = $client_id AND ticket_vendor_id = $vendor_id
-            ORDER BY (ticket_resolved_at IS NULL AND ticket_closed_at IS NULL) DESC, ticket_number DESC
-            LIMIT " . max(25, $case_open_count));
-        while ($row = mysqli_fetch_assoc($sql)) {
-            $cases[] = $row;
-        }
+        [$case_count, $case_open_count] = ticketCounts("tickets.ticket_client_id = $client_id AND tickets.ticket_vendor_id = $vendor_id");
+        $cases = ticketRows("tickets.ticket_client_id = $client_id AND tickets.ticket_vendor_id = $vendor_id", max(25, $case_open_count));
 
         if (!$is_ours) {
             $sql = mysqli_query($mysqli, "SELECT software_id AS id, software_name AS name, software_type, software_version, software_license_type,
@@ -453,28 +442,7 @@ if (!$vendor || (isset($_GET['client_id']) && $vendor_client_id !== intval($clie
                             <?php } ?>
                         </div>
                         <?php if ($cases) { ?>
-                            <div class="table-responsive">
-                                <table class="table table-hover align-middle mb-0">
-                                    <thead class="text-nowrap table-light"><tr><th>Ticket</th><th>Subject</th><th>Their ref</th><th>Status</th><th>Assigned</th><th>Updated</th></tr></thead>
-                                    <tbody>
-                                    <?php foreach ($cases as $case) {
-                                        $ticket_id = intval($case['ticket_id']);
-                                        $ticket_is_open = empty($case['ticket_resolved_at']) && empty($case['ticket_closed_at']);
-                                        $ticket_last = $case['ticket_updated_at'] ?: $case['ticket_created_at'];
-                                        $their_ref = escapeHtml($case['ticket_vendor_ticket_number']);
-                                        $ticket_url = "ticket.php?" . ($client_id ? "client_id=$client_id&" : '') . "ticket_id=$ticket_id"; ?>
-                                        <tr class="<?= $ticket_is_open ? '' : 'text-body-secondary' ?>">
-                                            <td class="text-nowrap"><a class="font-monospace" href="<?= $ticket_url ?>"><?= escapeHtml($case['ticket_prefix']) . intval($case['ticket_number']) ?></a></td>
-                                            <td><a class="<?= $ticket_is_open ? 'text-body fw-semibold' : 'text-body-secondary' ?>" href="<?= $ticket_url ?>"><?= escapeHtml($case['ticket_subject']) ?></a></td>
-                                            <td class="text-nowrap"><?php if ($their_ref) { ?><span class="font-monospace"><?= $their_ref ?></span><button type="button" class="itflow-copy clipboardjs" title="Copy their reference" data-clipboard-text="<?= $their_ref ?>"><i class="far fa-copy"></i></button><?php } else { ?><span class="text-body-secondary">-</span><?php } ?></td>
-                                            <td class="text-nowrap"><?= ticketStatusHtml($case['ticket_status_name'], $case['ticket_status_color'], 'detail') ?></td>
-                                            <td class="text-nowrap"><?= formatAssignee($case['ticket_assigned_to'], $case['user_name'], $case['user_avatar'], $ticket_is_open) ?></td>
-                                            <td class="text-nowrap small" title="<?= escapeHtml($ticket_last) ?>"><?= timeAgo($ticket_last) ?></td>
-                                        </tr>
-                                    <?php } ?>
-                                    </tbody>
-                                </table>
-                            </div>
+                            <?= ticketTableHtml($cases, ['vendor_ref' => true]) ?>
                             <?php if ($case_count > count($cases)) { ?>
                                 <div class="small text-body-secondary px-3 py-2 border-top">Showing every open case and the <?= count($cases) - $case_open_count ?> most recent closed of <?= $case_count ?>.</div>
                             <?php } ?>

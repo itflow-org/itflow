@@ -12,6 +12,10 @@ $sql = mysqli_query($mysqli, "SELECT task_completed_at, task_completion_estimate
 );
 
 $row = mysqli_fetch_assoc($sql);
+if (!$row) {
+    echo json_encode(['error' => 'That task no longer exists.']);
+    exit;
+}
 $task_name = escapeHtml($row['task_name']);
 $task_completion_estimate = intval($row['task_completion_estimate']);
 $task_completed_at = escapeHtml($row['task_completed_at']);

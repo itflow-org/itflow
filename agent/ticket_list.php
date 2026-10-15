@@ -2,505 +2,319 @@
 /*
  * Ticket list view
  *
- * Included by tickets.php, which owns the filters and sets the query parts
- * this page runs. Should not be accessed directly.
+ * Included by tickets.php, which owns the filters and the views and sets the
+ * query parts this runs. Each row: the subject and what it is about, who it
+ * is for, its status, priority and agent (changed in place), when it is due,
+ * and who spoke last - with a dot before the subject when it is our move and
+ * a red or amber edge when it is late or close to it.
  */
 
 isset($mysqli) || die("Direct file access is not allowed");
 
 /*
- * ORDER BY for the selected column. Priority and SLA aren't plain columns -
- * both sort on a rank built from the row. $sort is whitelisted in tickets.php
- * and $order is ASC|DESC from filter_header.php, so neither is raw input here.
+ * ORDER BY for each column. $order is ASC|DESC from filter_header.php. Due
+ * sorts by urgency - late first (on the first click), then close to it, then
+ * by the nearest deadline, then parked - and tickets with nothing due always
+ * last, whichever way.
  */
-if ($sort == 'ticket_priority') {
-    $ticket_order_by =
-        "CASE ticket_priority
-            WHEN 'Urgent' THEN 0
-            WHEN 'High' THEN 1
-            WHEN 'Medium' THEN 2
-            WHEN 'Low' THEN 3
-            ELSE 4
-        END $order,
-        ticket_number DESC";
-} elseif ($sort == 'ticket_sla') {
-    /*
-     * SLA sorts by urgency, in the same buckets the SLA column shows, so the
-     * badges group together. ASC (the first click) puts the most urgent first:
-     *
-     *   0 Breached  1 At risk  2 Running (by due)  3 Paused
-     *   4 Open, no clock running (response-only plan, already responded)
-     *   5 Resolved / Closed
-     *
-     * A paused ticket ranks as Paused even if it had already breached - that
-     * is the badge the column shows for it. Within a bucket, the clock that's
-     * still running decides: response due until the first response, then
-     * resolution due. Tickets without an SLA always sink to the bottom - DESC
-     * flips the urgency order, not the "has an SLA at all" split.
-     */
-    $ticket_sla_is_open = "ticket_resolved_at IS NULL AND ticket_closed_at IS NULL";
-    $ticket_sla_due = "CASE WHEN ticket_first_response_at IS NULL THEN ticket_response_due_at ELSE ticket_resolution_due_at END";
-    $ticket_order_by =
-        "ticket_sla_id = 0 ASC,
-        CASE
-            WHEN NOT ($ticket_sla_is_open) THEN 5
+$ticket_stage_sql = "GREATEST(ticket_response_sla_alert_stage, ticket_resolution_sla_alert_stage)";
+$ticket_next_due_sql = "LEAST(COALESCE(ticket_due_at, '9999-12-31'),
+    COALESCE(IF(ticket_sla_id > 0, CASE WHEN ticket_first_response_at IS NULL THEN ticket_response_due_at ELSE ticket_resolution_due_at END, NULL), '9999-12-31'))";
+$sort_sql = [
+    'ticket_number' => "ticket_number $order",
+    'ticket_subject' => "ticket_subject $order, ticket_number DESC",
+    'client_name' => "client_name $order, ticket_number DESC",
+    'contact_name' => "contact_name $order, ticket_number DESC",
+    'ticket_billable' => "ticket_invoice_id > 0 $order, ticket_billable $order, ticket_number DESC",
+    'ticket_priority' => "CASE ticket_priority WHEN 'Urgent' THEN 0 WHEN 'High' THEN 1 WHEN 'Medium' THEN 2 WHEN 'Low' THEN 3 ELSE 4 END $order, ticket_number DESC",
+    'ticket_status' => "ticket_status_order $order, ticket_status $order, ticket_number DESC",
+    'user_name' => "ticket_assigned_to = 0 $order, user_name $order, ticket_number DESC",
+    'ticket_updated_at' => "COALESCE(ticket_updated_at, ticket_created_at) $order",
+    'ticket_created_at' => "ticket_created_at $order",
+    'ticket_sla' => "(NOT " . TICKET_OPEN_SQL . " OR (ticket_due_at IS NULL AND ticket_sla_id = 0)) ASC,
+        CASE WHEN (ticket_sla_id > 0 AND $ticket_stage_sql = 2) OR ticket_due_at < NOW() THEN 0
             WHEN COALESCE(ticket_status_pauses_sla, 0) = 1 THEN 3
-            WHEN GREATEST(ticket_response_sla_alert_stage, ticket_resolution_sla_alert_stage) = 2 THEN 0
-            WHEN GREATEST(ticket_response_sla_alert_stage, ticket_resolution_sla_alert_stage) = 1 THEN 1
-            WHEN ($ticket_sla_due) IS NULL THEN 4
-            ELSE 2
-        END $order,
-        ($ticket_sla_due) $order,
-        ticket_number DESC";
-} else {
-    $ticket_order_by = "$sort $order";
+            WHEN ticket_sla_id > 0 AND $ticket_stage_sql = 1 THEN 1
+            ELSE 2 END $order,
+        $ticket_next_due_sql $order, ticket_number DESC",
+];
+if (!isset($sort_sql[$sort])) {
+    $sort = 'ticket_number';
 }
 
-$query =
+$sql = mysqli_query($mysqli,
     "SELECT SQL_CALC_FOUND_ROWS $ticket_select_columns
     FROM tickets
     $ticket_joins
     $ticket_where
-    ORDER BY $ticket_order_by
-    LIMIT $record_from, $record_to";
-
-$sql = mysqli_query($mysqli, $query);
+    ORDER BY {$sort_sql[$sort]}
+    LIMIT $record_from, $record_to"
+);
 
 $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 
-/*
- * Collect the page before rendering so the per-row lookups can be done as two
- * grouped queries instead of three per ticket. A 100-row page used to fire
- * 300 extra queries to fill in the last reply and the task progress bar.
- */
-$tickets = array();
+// The page first, then the last reply and the tasks for all of it in two queries
+$tickets = [];
 while ($row = mysqli_fetch_assoc($sql)) {
     $tickets[intval($row['ticket_id'])] = $row;
 }
+$last_replies = ticketLastReplies(array_keys($tickets));
+$task_counts = ticketTaskCounts(array_keys($tickets));
 
-$ticket_replies = array();
-$ticket_tasks = array();
+// A Due column only when there is something to put in it
+$show_due = $sla_in_use || mysqli_num_rows(mysqli_query($mysqli, "SELECT 1 FROM tickets WHERE ticket_due_at IS NOT NULL AND ticket_closed_at IS NULL LIMIT 1"));
 
-if ($tickets) {
-    $page_ticket_ids = implode(',', array_keys($tickets));
-
-    // Latest non-archived reply per ticket, for the Last Response column
-    $sql_ticket_replies = mysqli_query($mysqli,
-        "SELECT ticket_reply_ticket_id, ticket_reply_type, ticket_reply_created_at, contact_name, user_name
-        FROM ticket_replies
-        LEFT JOIN users ON ticket_reply_by = user_id
-        LEFT JOIN contacts ON ticket_reply_by = contact_id
-        WHERE ticket_reply_ticket_id IN ($page_ticket_ids)
-        AND ticket_reply_archived_at IS NULL
-        AND ticket_reply_id IN (
-            SELECT MAX(ticket_reply_id) FROM ticket_replies
-            WHERE ticket_reply_ticket_id IN ($page_ticket_ids)
-            AND ticket_reply_archived_at IS NULL
-            GROUP BY ticket_reply_ticket_id
-        )"
-    );
-    while ($row = mysqli_fetch_assoc($sql_ticket_replies)) {
-        $ticket_replies[intval($row['ticket_reply_ticket_id'])] = $row;
-    }
-
-    // Task counts per ticket
-    $sql_ticket_tasks = mysqli_query($mysqli,
-        "SELECT task_ticket_id, COUNT(task_id) AS task_count,
-            SUM(CASE WHEN task_completed_at IS NOT NULL THEN 1 ELSE 0 END) AS completed_count
-        FROM tasks
-        WHERE task_ticket_id IN ($page_ticket_ids)
-        GROUP BY task_ticket_id"
-    );
-    while ($row = mysqli_fetch_assoc($sql_ticket_tasks)) {
-        $ticket_tasks[intval($row['task_ticket_id'])] = $row;
-    }
-}
+$sort_link = function ($column, $label, $class = '') use ($url_query_strings_sort, $sort, $disp, $order_icon) {
+    return '<a class="text-reset text-decoration-none ' . $class . '" href="?' . escapeHtml($url_query_strings_sort) . '&amp;sort=' . $column . '&amp;order=' . $disp . '">'
+        . $label . ($sort === $column ? " $order_icon" : '') . '</a>';
+};
 
 ?>
 
-<div class="card">
+<form id="bulkActions" action="post.php" method="post">
+    <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
 
-    <?php if (!$tickets) { ?>
+    <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0 itflow-asset-table itflow-ticket-list">
+            <thead class="<?php if (!$tickets) { echo "d-none"; } ?> text-nowrap table-light">
+            <tr>
+                <?php if ($can_edit) { ?>
+                    <th class="checkbox-column border-end">
+                        <div class="form-check">
+                            <input class="form-check-input" id="selectAllCheckbox" type="checkbox" onclick="checkAll(this)" title="Select all on this page">
+                        </div>
+                    </th>
+                <?php } ?>
+                <th><?= $sort_link('ticket_number', 'Ticket') ?></th>
+                <th>
+                    <?php if (!$client_url) { ?>
+                        <?= $sort_link('client_name', 'Client') ?> <span class="text-body-secondary">/</span>
+                    <?php } ?>
+                    <?= $sort_link('contact_name', 'Contact', $client_url ? '' : 'text-body-secondary') ?>
+                </th>
+                <th><?= $sort_link('ticket_status', 'Status') ?></th>
+                <th><?= $sort_link('ticket_priority', 'Priority') ?></th>
+                <th><?= $sort_link('user_name', 'Assigned') ?></th>
+                <?php if ($show_due) { ?>
+                    <th><?= $sort_link('ticket_sla', 'Due') ?></th>
+                <?php } ?>
+                <th><?= $sort_link('ticket_updated_at', 'Activity') ?></th>
+                <?php if ($show_billing) { ?>
+                    <th class="text-center"><?= $sort_link('ticket_billable', 'Billing') ?></th>
+                <?php } ?>
+                <th></th>
+            </tr>
+            </thead>
+            <tbody>
+            <?php
 
-        <div class="text-center text-secondary py-5">
-            <i class="fas fa-fw fa-life-ring fa-2x mb-3"></i>
-            <p class="mb-1">No tickets match these filters.</p>
-            <?php if ($active_filters) { ?>
-                <a href="<?= escapeHtml('?' . http_build_query(array_filter(array('client_id' => $_GET['client_id'] ?? null, 'view' => 'list')))) ?>">Clear the filters</a>
+            foreach ($tickets as $ticket_id => $row) {
+                $row_client_id = intval($row['ticket_client_id']);
+                $reference = escapeHtml(ticketReference($row));
+                $subject = escapeHtml($row['ticket_subject']);
+                $url = escapeHtml(ticketUrl($ticket_id, $row_client_id));
+                $is_open = ticketIsOpen($row);
+                $is_closed = !empty($row['ticket_closed_at']);
+                $mine = intval($row['ticket_assigned_to']) === intval($session_user_id);
+                $move = ticketWhoseMove($row);
+                $sla = ticketSlaState($row);
+                $due = ticketDueState($row);
+                $attention = $is_open ? ticketAttention($sla, $due) : '';
+                $schedule = $row['ticket_schedule'];
+                $scheduled_today = $schedule && substr($schedule, 0, 10) === date('Y-m-d');
+                $category_color = preg_match('/^#[0-9a-f]{3,8}$/i', (string) $row['category_color']) ? $row['category_color'] : '';
+                $ticket_invoice_id = intval($row['ticket_invoice_id']);
+                $ticket_quote_id = intval($row['ticket_quote_id']);
+
+                $row_title = ['danger' => $sla['key'] === 'breached' ? 'SLA breached' : 'Past its due date', 'warning' => $sla['key'] === 'at_risk' ? 'SLA at risk' : 'Due within a day'][$attention] ?? '';
+
+                ?>
+                <tr class="itflow-ticket-row <?= $attention ? "is-$attention" : '' ?> <?= $is_open ? '' : 'is-done' ?>"<?= $row_title ? ' title="' . $row_title . '"' : '' ?>>
+                    <?php if ($can_edit) { ?>
+                        <td class="checkbox-column bg-light border-end">
+                            <?php if (!$is_closed) { ?>
+                                <div class="form-check">
+                                    <input class="form-check-input bulk-select" type="checkbox" name="ticket_ids[]" value="<?= $ticket_id ?>" aria-label="Select <?= $reference ?>">
+                                </div>
+                            <?php } ?>
+                        </td>
+                    <?php } ?>
+
+                    <!-- What it is -->
+                    <td class="itflow-ticket-main">
+                        <div class="d-flex align-items-start gap-2">
+                            <span class="itflow-ticket-move <?= $move === 'us' ? 'is-ours' : '' ?>" <?= $move === 'us' ? 'title="Needs a reply from us"' : 'aria-hidden="true"' ?>></span>
+                            <div class="min-w-0">
+                                <a class="<?= $is_open ? 'fw-semibold text-body' : 'text-body-secondary' ?> itflow-ticket-subject" href="<?= $url ?>"><?= $subject ?></a>
+                                <div class="itflow-ticket-meta small text-body-secondary">
+                                    <a class="font-monospace text-body-secondary" href="<?= $url ?>"><?= $reference ?></a>
+                                    <span title="Opened <?= escapeHtml($row['ticket_created_at']) ?>"><?= timeAgo($row['ticket_created_at']) ?></span>
+                                    <?= ticketSourceIcon($row['ticket_source']) ?>
+                                    <?php if ($row['category_name'] !== null && $row['category_name'] !== '') { ?>
+                                        <span class="text-nowrap"><i class="fas fa-circle itflow-ticket-dot" <?= $category_color ? 'style="color: ' . $category_color . '"' : '' ?>></i><?= escapeHtml($row['category_name']) ?></span>
+                                    <?php } ?>
+                                    <?php if (!empty($row['asset_name'])) { ?>
+                                        <span class="text-nowrap text-truncate itflow-ticket-asset" title="Asset"><i class="fas fa-desktop me-1"></i><?= escapeHtml($row['asset_name']) ?></span>
+                                    <?php } ?>
+                                    <?php if (intval($row['ticket_project_id']) && $row['project_name'] !== null) { ?>
+                                        <a class="text-nowrap text-body-secondary" href="project.php?project_id=<?= intval($row['ticket_project_id']) ?>" title="Project <?= escapeHtml($row['project_prefix'] . intval($row['project_number'])) ?>"><i class="fas fa-project-diagram me-1"></i><?= escapeHtml($row['project_name']) ?></a>
+                                    <?php } ?>
+                                    <?php if ($schedule && $is_open) { ?>
+                                        <span class="text-nowrap <?= $scheduled_today ? 'text-warning-emphasis fw-semibold' : '' ?>" title="Scheduled<?= intval($row['ticket_onsite']) ? ' on site' : '' ?>">
+                                            <i class="fas fa-<?= intval($row['ticket_onsite']) ? 'truck' : 'calendar-check' ?> me-1"></i><?= $scheduled_today ? 'Today ' . date($config_time_format, strtotime($schedule)) : date('M j, ' . $config_time_format, strtotime($schedule)) ?>
+                                        </span>
+                                    <?php } ?>
+                                    <?= ticketTasksHtml($task_counts[$ticket_id] ?? null) ?>
+                                </div>
+                                <!-- On a phone the other columns are off to the side - the essentials come along -->
+                                <div class="d-md-none d-flex flex-wrap align-items-center gap-1 mt-1 small">
+                                    <?= ticketStatusHtml($row['ticket_status_name'], $row['ticket_status_color'], 'detail') ?>
+                                    <?= ticketPriorityHtml($row['ticket_priority'], 'detail') ?>
+                                    <?php if (!$client_url && $row_client_id) { ?><span class="text-body-secondary text-truncate"><?= escapeHtml($row['client_name']) ?></span><?php } ?>
+                                </div>
+                            </div>
+                        </div>
+                    </td>
+
+                    <!-- Who it is for -->
+                    <td class="itflow-ticket-who-cell">
+                        <?php if (!$client_url) { ?>
+                            <?php if ($row_client_id) { ?>
+                                <a class="d-block text-truncate text-body fw-semibold small" href="tickets.php?client_id=<?= $row_client_id ?>"><?= escapeHtml($row['client_name']) ?></a>
+                            <?php } else { ?>
+                                <div class="small text-body-secondary"><i class="fas fa-building me-1"></i>Internal</div>
+                            <?php } ?>
+                        <?php } ?>
+                        <?php if (intval($row['contact_id'])) { ?>
+                            <div class="small text-truncate"><?= contactLink($row_client_id, $row['contact_id'], $row['contact_name'], $row['contact_photo'] ?? '') ?></div>
+                        <?php } elseif ($client_url) { ?>
+                            <span class="small text-body-secondary">-</span>
+                        <?php } ?>
+                    </td>
+
+                    <!-- Status -->
+                    <td class="text-nowrap">
+                        <span data-ticket-status-for="<?= $ticket_id ?>" data-status-id="<?= intval($row['ticket_status']) ?>">
+                            <?php if ($can_edit && $is_open) { ?>
+                                <?= quickPick('status', $ticket_id, (string) intval($row['ticket_status']), ticketStatusHtml($row['ticket_status_name'], $row['ticket_status_color'], 'detail')) ?>
+                            <?php } else { ?>
+                                <?= ticketStatusHtml($row['ticket_status_name'], $row['ticket_status_color'], 'detail') ?>
+                            <?php } ?>
+                        </span>
+                        <?php if ($move === 'client') { ?>
+                            <div class="small text-body-secondary mt-1"><i class="fas fa-hourglass-half me-1"></i>With client</div>
+                        <?php } ?>
+                    </td>
+
+                    <!-- Priority -->
+                    <td class="text-nowrap">
+                        <?php if ($can_edit && !$is_closed) { ?>
+                            <?= quickPick('priority', $ticket_id, $row['ticket_priority'], ticketPriorityHtml($row['ticket_priority'], 'detail')) ?>
+                        <?php } else { ?>
+                            <?= ticketPriorityHtml($row['ticket_priority'], 'detail') ?>
+                        <?php } ?>
+                    </td>
+
+                    <!-- Agent -->
+                    <td class="text-nowrap">
+                        <?php $assignee = formatAssignee($row['ticket_assigned_to'], $row['user_name'], $row['user_avatar'], $is_open); ?>
+                        <?php if ($can_edit && !$is_closed) { ?>
+                            <?= quickPick('assignee', $ticket_id, (string) intval($row['ticket_assigned_to']), $assignee) ?>
+                        <?php } else { ?>
+                            <?= $assignee ?>
+                        <?php } ?>
+                    </td>
+
+                    <!-- Due - its own date and its SLA -->
+                    <?php if ($show_due) { ?>
+                        <td class="text-nowrap">
+                            <?php $due_html = trim(ticketDuePill($due) . ' ' . ticketSlaPill($sla)); ?>
+                            <?= $due_html !== '' ? '<div class="d-flex flex-column align-items-start gap-1">' . $due_html . '</div>' : '<span class="text-body-secondary">-</span>' ?>
+                        </td>
+                    <?php } ?>
+
+                    <!-- Who spoke last -->
+                    <td class="small itflow-ticket-activity">
+                        <?= ticketActivityHtml($last_replies[$ticket_id] ?? null, $row) ?>
+                    </td>
+
+                    <!-- Billing -->
+                    <?php if ($show_billing) { ?>
+                        <td class="text-center text-nowrap">
+                            <?php if ($ticket_invoice_id) { ?>
+                                <a href="invoice.php?invoice_id=<?= $ticket_invoice_id ?>"><span class="badge rounded-pill text-bg-success">Invoiced</span></a>
+                            <?php } elseif ($ticket_quote_id) { ?>
+                                <a href="quote.php?quote_id=<?= $ticket_quote_id ?>"><span class="badge rounded-pill text-bg-primary">Quoted</span></a>
+                            <?php } else { ?>
+                                <?= quickPick('billable', $ticket_id, intval($row['ticket_billable']) ? '1' : '0', ticketBillableHtml(intval($row['ticket_billable']), 'list')) ?>
+                            <?php } ?>
+                        </td>
+                    <?php } ?>
+
+                    <td class="text-end">
+                        <div class="dropdown dropstart">
+                            <button class="btn btn-sm btn-light" title="More actions" type="button" data-bs-toggle="dropdown"><i class="fas fa-fw fa-ellipsis-v"></i></button>
+                            <div class="dropdown-menu">
+                                <a class="dropdown-item ajax-modal" href="#" data-modal-size="lg" data-modal-url="modals/ticket/ticket.php?id=<?= $ticket_id ?>">
+                                    <i class="fas fa-fw fa-eye text-secondary me-2"></i>Quick look
+                                </a>
+                                <a class="dropdown-item" href="<?= $url ?>" target="_blank">
+                                    <i class="fas fa-fw fa-external-link-alt text-secondary me-2"></i>Open in a new tab
+                                </a>
+                                <?php if ($can_edit && !$is_closed) { ?>
+                                    <a class="dropdown-item ajax-modal" href="#" data-modal-size="lg" data-modal-url="modals/ticket/ticket_edit.php?id=<?= $ticket_id ?>">
+                                        <i class="fas fa-fw fa-edit text-secondary me-2"></i>Edit
+                                    </a>
+                                    <?php if (!$mine) { ?>
+                                        <a class="dropdown-item" href="post.php?assign_ticket_to_me=<?= $ticket_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>">
+                                            <i class="fas fa-fw fa-hand-paper text-secondary me-2"></i>Assign to me
+                                        </a>
+                                    <?php } ?>
+                                    <a class="dropdown-item ajax-modal" href="#" data-modal-url="modals/ticket/ticket_merge.php?ticket_id=<?= $ticket_id ?>">
+                                        <i class="fas fa-fw fa-clone text-secondary me-2"></i>Merge into a ticket
+                                    </a>
+                                    <?php if ($is_open) { ?>
+                                        <div class="dropdown-divider"></div>
+                                        <a class="dropdown-item confirm-link" href="post.php?resolve_ticket=<?= $ticket_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>"
+                                            data-confirm-text="<?= $reference ?> is marked resolved<?= intval($config_ticket_client_general_notifications) === 1 && intval($row['contact_id']) ? ' and the contact is told' : '' ?>.">
+                                            <i class="fas fa-fw fa-check text-success me-2"></i>Resolve
+                                        </a>
+                                    <?php } ?>
+                                    <?php if ($can_delete) { ?>
+                                        <div class="dropdown-divider"></div>
+                                        <a class="dropdown-item text-danger text-bold confirm-link" href="post.php?delete_ticket=<?= $ticket_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>"
+                                            data-confirm-text="<?= $reference ?> goes for good, with its replies, tasks and attachments.">
+                                            <i class="fas fa-fw fa-trash me-2"></i>Delete
+                                        </a>
+                                    <?php } ?>
+                                <?php } ?>
+                            </div>
+                        </div>
+                    </td>
+                </tr>
+
+            <?php } ?>
+
+            </tbody>
+        </table>
+    </div>
+</form>
+<?php if (!$tickets) { ?>
+    <div class="itflow-asset-empty">
+        <i class="fas fa-life-ring fa-2x mb-2 opacity-50"></i>
+        <div>
+            <?php if ($q !== '' || $active_filters || $assigned_filter !== '' || $client_filter) { ?>
+                No tickets match.
+            <?php } elseif ($show === 'reply') { ?>
+                Nothing waiting on a reply from us.
+            <?php } elseif ($show === 'overdue') { ?>
+                Nothing overdue.
+            <?php } elseif ($show === 'open' || $show === 'mine') { ?>
+                No open tickets<?= $show === 'mine' ? ' for you' : '' ?>.
+            <?php } else { ?>
+                No tickets here.
             <?php } ?>
         </div>
-
-    <?php } else { ?>
-
-        <form id="bulkActions" action="post.php" method="post">
-            <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
-
-            <?php if (lookupUserPermission("module_support") >= 2) { ?>
-                <!-- Bulk actions - sits with the rows it acts on, and only appears once something is ticked -->
-                <div class="mb-2" id="bulkActionButton" hidden>
-                    <div class="dropdown d-inline-block">
-                        <button class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown">
-                            <i class="fas fa-fw fa-layer-group me-2"></i><span id="selectedCount">0</span> selected
-                        </button>
-                        <div class="dropdown-menu">
-                            <a class="dropdown-item ajax-modal" href="#" data-modal-url="modals/ticket/ticket_bulk_assign.php" data-bulk="true">
-                                <i class="fas fa-fw fa-user-check me-2"></i>Assign Agent
-                            </a>
-                            <a class="dropdown-item ajax-modal" href="#" data-modal-url="modals/ticket/ticket_bulk_edit_priority.php" data-bulk="true">
-                                <i class="fas fa-fw fa-thermometer-half me-2"></i>Set Priority
-                            </a>
-                            <a class="dropdown-item ajax-modal" href="#" data-modal-url="modals/ticket/ticket_bulk_edit_category.php" data-bulk="true">
-                                <i class="fas fa-fw fa-layer-group me-2"></i>Set Category
-                            </a>
-                            <a class="dropdown-item ajax-modal" href="#" data-modal-url="modals/ticket/ticket_bulk_add_project.php" data-bulk="true">
-                                <i class="fas fa-fw fa-project-diagram me-2"></i>Set Project
-                            </a>
-                            <div class="dropdown-divider"></div>
-                            <a class="dropdown-item ajax-modal" href="#" data-modal-url="modals/ticket/ticket_bulk_reply.php" data-modal-size="lg" data-bulk="true">
-                                <i class="fas fa-fw fa-paper-plane me-2"></i>Update/Reply
-                            </a>
-                            <a class="dropdown-item ajax-modal" href="#" data-modal-url="modals/ticket/ticket_bulk_merge.php" data-bulk="true">
-                                <i class="fas fa-fw fa-clone me-2"></i>Merge
-                            </a>
-                            <a class="dropdown-item ajax-modal" href="#" data-modal-url="modals/ticket/ticket_bulk_resolve.php" data-modal-size="lg" data-bulk="true">
-                                <i class="fas fa-fw fa-check me-2"></i>Resolve
-                            </a>
-                            <?php if (lookupUserPermission("module_support") === 3) { ?>
-                                <div class="dropdown-divider"></div>
-                                <button class="dropdown-item text-danger text-bold confirm-link" type="submit" form="bulkActions" name="bulk_delete_tickets">
-                                    <i class="fas fa-fw fa-trash me-2"></i>Delete
-                                </button>
-                            <?php } ?>
-                        </div>
-                    </div>
-                </div>
-            <?php } ?>
-
-            <div class="table-responsive">
-                <table class="table table-striped table-borderless table-hover mb-0">
-                    <thead class="text-dark text-nowrap <?php if (!$num_rows[0]) { echo "d-none"; } ?>">
-                    <tr>
-                        <td class="checkbox-column border-end">
-                            <div class="form-check">
-                                <input class="form-check-input" id="selectAllCheckbox" type="checkbox" title="Select all on this page">
-                            </div>
-                        </td>
-
-                        <th>
-                            <a class="text-dark" href="?<?= $url_query_strings_sort ?>&sort=ticket_number&order=<?= $disp ?>">
-                                Ticket <?php if ($sort == 'ticket_number') { echo $order_icon; } ?>
-                            </a>
-                        </th>
-                        <th>
-                            <a class="text-dark" href="?<?= $url_query_strings_sort ?>&sort=ticket_subject&order=<?= $disp ?>">
-                                Subject <?php if ($sort == 'ticket_subject') { echo $order_icon; } ?>
-                            </a>
-                        </th>
-
-                        <th>
-                            <?php if (!$client_url) { ?>
-                            <a class="text-dark" href="?<?= $url_query_strings_sort ?>&sort=client_name&order=<?= $disp ?>">
-                                Client <?php if ($sort == 'client_name') { echo $order_icon; } ?> /
-                            </a>
-                            <?php } ?>
-                            <a class="text-secondary <?php if ($client_url) { echo "text-dark"; } ?>" href="?<?= $url_query_strings_sort ?>&sort=contact_name&order=<?= $disp ?>">
-                                Contact <?php if ($sort == 'contact_name') { echo $order_icon; } ?>
-                            </a>
-                        </th>
-
-                        <?php if ($show_billing_column) { ?>
-                        <th class="text-center">
-                            <a class="text-secondary" href="?<?= $url_query_strings_sort ?>&sort=ticket_billable&order=<?= $disp ?>">
-                                Billing <?php if ($sort == 'ticket_billable') { echo $order_icon; } ?>
-                            </a>
-                        </th>
-                        <?php } ?>
-
-                        <th>
-                            <a class="text-dark" href="?<?= $url_query_strings_sort ?>&sort=ticket_priority&order=<?= $disp ?>">
-                                Priority <?php if ($sort == 'ticket_priority') { echo $order_icon; } ?>
-                            </a>
-                        </th>
-                        <th>
-                            <a class="text-dark" href="?<?= $url_query_strings_sort ?>&sort=ticket_status&order=<?= $disp ?>">
-                                Status <?php if ($sort == 'ticket_status') { echo $order_icon; } ?>
-                            </a>
-                        </th>
-                        <?php if ($sla_filter_in_use) { ?>
-                        <th>
-                            <a class="text-dark" href="?<?= $url_query_strings_sort ?>&sort=ticket_sla&order=<?= $disp ?>">
-                                SLA <?php if ($sort == 'ticket_sla') { echo $order_icon; } ?>
-                            </a>
-                        </th>
-                        <?php } ?>
-                        <th>
-                            <a class="text-dark" href="?<?= $url_query_strings_sort ?>&sort=user_name&order=<?= $disp ?>">
-                                Assigned <?php if ($sort == 'user_name') { echo $order_icon; } ?>
-                            </a>
-                        </th>
-                        <th>
-                            <a class="text-dark" href="?<?= $url_query_strings_sort ?>&sort=ticket_updated_at&order=<?= $disp ?>">
-                                Last Response <?php if ($sort == 'ticket_updated_at') { echo $order_icon; } ?>
-                            </a>
-                        </th>
-                        <th>
-                            <a class="text-dark" href="?<?= $url_query_strings_sort ?>&sort=ticket_created_at&order=<?= $disp ?>">
-                                Created <?php if ($sort == 'ticket_created_at') { echo $order_icon; } ?>
-                            </a>
-                        </th>
-                    </tr>
-                    </thead>
-                    <tbody>
-                    <?php
-
-                    foreach ($tickets as $ticket_id => $row) {
-                        $ticket_prefix = escapeHtml($row['ticket_prefix']);
-                        $ticket_number = intval($row['ticket_number']);
-                        $ticket_subject = escapeHtml($row['ticket_subject']);
-                        $ticket_priority = escapeHtml($row['ticket_priority']);
-                        $ticket_status_name = escapeHtml($row['ticket_status_name']);
-                        $ticket_status_color = escapeHtml($row['ticket_status_color']);
-                        $ticket_billable = intval($row['ticket_billable']);
-                        $ticket_scheduled_for = escapeHtml($row['ticket_schedule']);
-                        $ticket_created_at = escapeHtml($row['ticket_created_at']);
-                        $ticket_created_at_time_ago = timeAgo($row['ticket_created_at']);
-                        $ticket_closed_at = escapeHtml($row['ticket_closed_at']);
-                        $ticket_resolved_at = escapeHtml($row['ticket_resolved_at']);
-                        $ticket_is_open = empty($ticket_resolved_at) && empty($ticket_closed_at);
-
-                        // SLA alert stages are maintained by cron/ticket_sla.php (1 = warned, 2 = breached)
-                        $ticket_sla_alert_stage = max(intval($row['ticket_response_sla_alert_stage']), intval($row['ticket_resolution_sla_alert_stage']));
-                        // Only an open ticket can be paused - Resolved and Closed pause the
-                        // clock too, but what those tickets have is a verdict, not a pause
-                        $ticket_sla_paused = $ticket_is_open && intval($row['ticket_status_pauses_sla']);
-                        // A paused ticket isn't running down its clock, so drop the
-                        // at-risk warning - a breach already recorded still stands
-                        if ($ticket_sla_paused && $ticket_sla_alert_stage < 2) {
-                            $ticket_sla_alert_stage = 0;
-                        }
-
-                        $project_id = intval($row['ticket_project_id']);
-                        $client_id = intval($row['ticket_client_id']);
-                        $client_name = escapeHtml($row['client_name']);
-                        $contact_id = intval($row['contact_id']);
-                        $contact_name = escapeHtml($row['contact_name']);
-                        $has_client = $client_id ? "&client_id=$client_id" : "";
-
-                        if ($ticket_priority == "Urgent") {
-                            $ticket_priority_color = "dark";
-                        } elseif ($ticket_priority == "High") {
-                            $ticket_priority_color = "danger";
-                        } elseif ($ticket_priority == "Medium") {
-                            $ticket_priority_color = "warning";
-                        } else {
-                            $ticket_priority_color = "info";
-                        }
-
-                        $ticket_assigned_to_display = formatAssignee($row['ticket_assigned_to'], $row['user_name'], $row['user_avatar'], $ticket_is_open);
-
-                        if (empty($contact_name)) {
-                            $contact_display = "<span class='text-muted'>-</span>";
-                        } else {
-                            $contact_display = contactLink($client_id, $contact_id, $row['contact_name'], $row['contact_photo'], ['page' => true]);
-                        }
-
-                        $ticket_invoice_id = intval($row['ticket_invoice_id']);
-                        $ticket_quote_id = intval($row['ticket_quote_id']);
-
-                        // Last reply, from the batched lookup above
-                        $ticket_reply_created_at = "";
-                        $ticket_reply_created_at_time_ago = "Never";
-                        $ticket_reply_by_display = "";
-                        $ticket_reply_type = "Client"; // Un-replied tickets are waiting on us
-
-                        if (isset($ticket_replies[$ticket_id])) {
-                            $reply = $ticket_replies[$ticket_id];
-                            $ticket_reply_type = escapeHtml($reply['ticket_reply_type']);
-                            if ($ticket_reply_type == "Client") {
-                                $ticket_reply_by_display = escapeHtml($reply['contact_name']);
-                            } else {
-                                $ticket_reply_by_display = escapeHtml($reply['user_name']);
-                            }
-                            $ticket_reply_created_at = escapeHtml($reply['ticket_reply_created_at']);
-                            $ticket_reply_created_at_time_ago = timeAgo($reply['ticket_reply_created_at']);
-                        }
-
-                        // Task progress, from the batched lookup above
-                        $task_count = isset($ticket_tasks[$ticket_id]) ? intval($ticket_tasks[$ticket_id]['task_count']) : 0;
-                        $completed_task_count = isset($ticket_tasks[$ticket_id]) ? intval($ticket_tasks[$ticket_id]['completed_count']) : 0;
-                        $tasks_completed_percent = $task_count ? round(($completed_task_count / $task_count) * 100) : 0;
-
-                        /*
-                         * Row highlighting, in priority order. The title explains why the
-                         * row is coloured - previously you just got a red row with no
-                         * indication of which of several rules had fired.
-                         */
-                        $row_class = '';
-                        $row_title = '';
-                        if ($ticket_is_open && $ticket_sla_alert_stage == 2) {
-                            $row_class = 'table-danger';
-                            $row_title = 'SLA breached';
-                        } elseif ($ticket_is_open && $ticket_sla_alert_stage == 1) {
-                            $row_class = 'table-warning';
-                            $row_title = 'SLA at risk';
-                        } elseif ($ticket_is_open && $ticket_reply_type == "Client") {
-                            $row_class = 'table-warning';
-                            $row_title = 'Waiting on a reply from us';
-                        }
-                        if ($ticket_is_open && $ticket_reply_created_at_time_ago == "Never") {
-                            $row_class .= ' fw-bold';
-                            $row_title = $row_title ? $row_title . ', not yet replied to' : 'Not yet replied to';
-                        }
-
-                        ?>
-
-                        <tr class="<?= trim($row_class) ?>" <?php if ($row_title) { ?>title="<?= $row_title ?>"<?php } ?>>
-
-                            <td class="checkbox-column bg-light border-end">
-                                <!-- Ticket Bulk Select (for open tickets) -->
-                                <?php if (empty($ticket_closed_at)) { ?>
-                                <div class="form-check">
-                                    <input class="form-check-input bulk-select" type="checkbox" name="ticket_ids[]" value="<?= $ticket_id ?>">
-                                </div>
-                                <?php } ?>
-                            </td>
-
-                            <!-- Ticket Number -->
-                            <td>
-                                <a href="ticket.php?ticket_id=<?= "$ticket_id$has_client" ?>">
-                                    <span class="badge rounded-pill bg-dark p-2"><?= "$ticket_prefix$ticket_number" ?></span>
-                                </a>
-                            </td>
-
-                            <!-- Ticket Subject -->
-                            <td>
-                                <a href="ticket.php?ticket_id=<?= "$ticket_id$has_client" ?>"><?= $ticket_subject ?></a>
-
-                                <?php if ($task_count) { ?>
-                                    <div class="d-flex align-items-center mt-1">
-                                        <div class="progress me-2" style="flex: 0 0 48px; height: 5px;" role="progressbar" aria-valuenow="<?= $tasks_completed_percent ?>" aria-valuemin="0" aria-valuemax="100">
-                                            <div class="progress-bar <?= $completed_task_count == $task_count ? 'bg-success' : 'bg-secondary' ?>" style="width: <?= $tasks_completed_percent ?>%;"></div>
-                                        </div>
-                                        <small class="text-muted"><?= "$completed_task_count / $task_count tasks" ?></small>
-                                    </div>
-                                <?php } ?>
-                            </td>
-
-                            <!-- Ticket Client / Contact -->
-                            <td>
-                                <?php if (!$client_url) { ?>
-                                    <?php if ($client_id) { ?>
-                                        <div><a href="tickets.php?client_id=<?= $client_id ?>"><strong><?= $client_name ?></strong></a></div>
-                                    <?php } else { ?>
-                                        <!-- Tickets with no client rendered an empty bold link to client_id=0 -->
-                                        <div class="text-muted">No client</div>
-                                    <?php } ?>
-                                <?php } ?>
-                                <div><?= $contact_display ?></div>
-                            </td>
-
-                            <!-- Ticket Billing (if accounting enabled) -->
-                            <?php if ($show_billing_column) { ?>
-                                <td class="text-center">
-                                    <?php if ($ticket_invoice_id) { ?>
-                                        <a href="invoice.php?client_id=<?= $client_id ?>&invoice_id=<?= $ticket_invoice_id ?>"><span class="badge rounded-pill bg-success p-2">Invoiced</span></a>
-                                    <?php } elseif ($ticket_quote_id) { ?>
-                                        <a href="quote.php?client_id=<?= $client_id ?>&quote_id=<?= $ticket_quote_id ?>"><span class="badge rounded-pill bg-primary p-2">Quoted</span></a>
-                                    <?php } else { ?>
-                                        <?= quickPick('billable', $ticket_id, $ticket_billable ? '1' : '0', ticketBillableHtml($ticket_billable, 'list')) ?>
-                                    <?php } ?>
-                                </td>
-                            <?php } ?>
-
-                            <!-- Ticket Priority -->
-                            <td>
-                                <?php if (lookupUserPermission("module_support") >= 2 && empty($ticket_closed_at)) { ?>
-                                    <?= quickPick('priority', $ticket_id, $ticket_priority, ticketPriorityHtml($ticket_priority, 'list')) ?>
-                                <?php } else { ?>
-                                    <?= ticketPriorityHtml($ticket_priority, 'list') ?>
-                                <?php } ?>
-                            </td>
-
-                            <!-- Ticket Status -->
-                            <td>
-                                <span data-ticket-status-for="<?= $ticket_id ?>" data-status-id="<?= intval($row['ticket_status']) ?>">
-                                    <?php if (lookupUserPermission("module_support") >= 2 && $ticket_is_open) { ?>
-                                        <?= quickPick('status', $ticket_id, (string) intval($row['ticket_status']), ticketStatusHtml($row['ticket_status_name'], $row['ticket_status_color'], 'list')) ?>
-                                    <?php } else { ?>
-                                        <?= ticketStatusHtml($row['ticket_status_name'], $row['ticket_status_color'], 'list') ?>
-                                    <?php } ?>
-                                </span>
-                                <?php if (!empty($ticket_scheduled_for)) { ?>
-                                    <div class="mt-1"><small class="text-secondary"><i class="fas fa-fw fa-calendar-check me-1"></i><?= $ticket_scheduled_for ?></small></div>
-                                <?php } ?>
-                            </td>
-
-                            <!-- Ticket SLA state (only when SLAs are in use) -->
-                            <?php if ($sla_filter_in_use) { ?>
-                                <td class="text-nowrap">
-                                    <?php
-                                    if (!intval($row['ticket_sla_id'])) {
-                                        echo "<span class='text-muted'>-</span>";
-                                    } elseif ($ticket_sla_paused) {
-                                        echo "<span class='badge rounded-pill bg-secondary p-2' title='The resolution clock is paused in this status'><i class='fas fa-fw fa-pause'></i> Paused</span>";
-                                    } elseif ($ticket_sla_alert_stage == 2) {
-                                        echo "<span class='badge rounded-pill bg-danger p-2'><i class='fas fa-fw fa-stopwatch'></i> Breached</span>";
-                                    } elseif ($ticket_sla_alert_stage == 1) {
-                                        echo "<span class='badge rounded-pill bg-warning p-2'><i class='fas fa-fw fa-stopwatch'></i> At risk</span>";
-                                    } elseif (!$ticket_is_open) {
-                                        $sla_met = intval($row['ticket_response_sla_met'] ?? 0) && (is_null($row['ticket_resolution_due_at']) || intval($row['ticket_resolution_sla_met'] ?? 0));
-                                        echo $sla_met ? "<span class='badge rounded-pill bg-success p-2'>Met</span>" : "<span class='text-muted'>-</span>";
-                                    } else {
-                                        // Whichever clock is still running is the one worth showing
-                                        $sla_due_at = empty($row['ticket_first_response_at']) ? $row['ticket_response_due_at'] : $row['ticket_resolution_due_at'];
-                                        $sla_due_label = empty($row['ticket_first_response_at']) ? 'First response due' : 'Resolution due';
-                                        if (!empty($sla_due_at)) {
-                                            echo "<small class='text-secondary' title='" . escapeHtml($sla_due_label) . " " . escapeHtml($sla_due_at) . "'>" . timeAgo($sla_due_at) . "</small>";
-                                        } else {
-                                            echo "<span class='text-muted'>-</span>";
-                                        }
-                                    }
-                                    ?>
-                                </td>
-                            <?php } ?>
-
-                            <!-- Ticket Assigned agent -->
-                            <td>
-                                <?php if (lookupUserPermission("module_support") >= 2 && empty($ticket_closed_at)) { ?>
-                                    <?= quickPick('assignee', $ticket_id, (string) intval($row['ticket_assigned_to']), $ticket_assigned_to_display) ?>
-                                <?php } else { ?>
-                                    <?= $ticket_assigned_to_display ?>
-                                <?php } ?>
-                            </td>
-
-                            <!-- Ticket Last Response -->
-                            <td>
-                                <div title="<?= $ticket_reply_created_at ?>"><?= $ticket_reply_created_at_time_ago ?></div>
-                                <?php if ($ticket_reply_by_display) { ?>
-                                    <small class="text-secondary"><?= $ticket_reply_by_display ?><?php if ($ticket_reply_type == "Client") { echo " <i class='fas fa-fw fa-reply text-warning' title='Client replied last'></i>"; } ?></small>
-                                <?php } ?>
-                            </td>
-
-                            <!-- Ticket Created At -->
-                            <td>
-                                <?= $ticket_created_at_time_ago ?>
-                                <br>
-                                <small class="text-secondary"><?= date("$config_date_format $config_time_format", strtotime($ticket_created_at)) ?></small>
-                            </td>
-
-                        </tr>
-
-                        <?php
-                    }
-
-                    ?>
-
-                    </tbody>
-                </table>
-            </div>
-        </form>
-        <?php require_once "../includes/filter_footer.php"; ?>
-
-        <?php } ?>
-
-</div>
+    </div>
+<?php } ?>
+<?php require_once "../includes/filter_footer.php"; ?>

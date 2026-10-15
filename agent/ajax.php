@@ -696,9 +696,13 @@ if (isset($_POST['software_set_notes'])) {
  * Is used in conjunction with ticket_query_views to show who is currently viewing a ticket
  */
 if (isset($_GET['ticket_add_view'])) {
-    $ticket_id = intval($_GET['ticket_id']);
+    $ticket_id = intval($_GET['ticket_id'] ?? 0);
+    $view_ticket = ticketRow($ticket_id);
 
-    mysqli_query($mysqli, "INSERT INTO ticket_views SET view_ticket_id = $ticket_id, view_user_id = $session_user_id, view_timestamp = NOW()");
+    // Only a ticket this agent may open - the list of who is looking is no one else's business
+    if (lookupUserPermission('module_support') >= 1 && $view_ticket && (!intval($view_ticket['ticket_client_id']) || hasClientAccess($view_ticket['ticket_client_id']))) {
+        mysqli_query($mysqli, "INSERT INTO ticket_views SET view_ticket_id = $ticket_id, view_user_id = $session_user_id, view_timestamp = NOW()");
+    }
 }
 
 /*
@@ -707,25 +711,23 @@ if (isset($_GET['ticket_add_view'])) {
  * Called upon loading a ticket, and every 2 mins thereafter
  */
 if (isset($_GET['ticket_query_views'])) {
-    $ticket_id = intval($_GET['ticket_id']);
+    $ticket_id = intval($_GET['ticket_id'] ?? 0);
+    $view_ticket = ticketRow($ticket_id);
+    $users = [];
 
-    $query = mysqli_query($mysqli, "SELECT user_name FROM ticket_views LEFT JOIN users ON view_user_id = user_id WHERE view_ticket_id = $ticket_id AND view_user_id != $session_user_id AND view_timestamp > DATE_SUB(NOW(), INTERVAL 2 MINUTE)");
-    while ($row = mysqli_fetch_assoc($query)) {
-        $users[] = $row['user_name'];
+    if (lookupUserPermission('module_support') >= 1 && $view_ticket && (!intval($view_ticket['ticket_client_id']) || hasClientAccess($view_ticket['ticket_client_id']))) {
+        $query = mysqli_query($mysqli, "SELECT user_name FROM ticket_views LEFT JOIN users ON view_user_id = user_id WHERE view_ticket_id = $ticket_id AND view_user_id != $session_user_id AND view_timestamp > DATE_SUB(NOW(), INTERVAL 2 MINUTE)");
+        while ($row = mysqli_fetch_assoc($query)) {
+            $users[] = $row['user_name'];
+        }
     }
 
-    if (!empty($users)) {
-        $users = array_unique($users);
-        if (count($users) > 1) {
-            // Multiple viewers
-            $response['message'] = "<i class='fas fa-fw fa-eye me-2'></i>" . escapeHtml(implode(", ", $users) . " are viewing this ticket.");
-        } else {
-            // Single viewer
-            $response['message'] = "<i class='fas fa-fw fa-eye me-2'></i>" . escapeHtml(implode("", $users) . " is viewing this ticket.");
-        }
-    } else {
-        // No viewers
-        $response['message'] = "";
+    $users = array_values(array_unique($users));
+    $response = ['message' => ''];
+    if (count($users) > 1) {
+        $response['message'] = "<i class='fas fa-fw fa-eye me-2'></i>" . escapeHtml(implode(", ", $users) . " are viewing this ticket.");
+    } elseif ($users) {
+        $response['message'] = "<i class='fas fa-fw fa-eye me-2'></i>" . escapeHtml($users[0] . " is viewing this ticket.");
     }
 
     echo json_encode($response);
@@ -1059,7 +1061,7 @@ if (isset($_GET['get_client_contacts'])) {
 
     $contact_sql = mysqli_query(
         $mysqli,
-        "SELECT contact_id, contact_name, contact_title, contact_email, contact_photo, contact_primary, contact_important, contact_technical FROM contacts
+        "SELECT contact_id, contact_name, contact_title, contact_email, contact_photo, contact_primary, contact_important, contact_technical, contact_location_id FROM contacts
         LEFT JOIN clients on contact_client_id = client_id
         WHERE contacts.contact_archived_at IS NULL AND contact_client_id = $client_id
         " . clientScopeSql('contact_client_id') . "
@@ -1082,6 +1084,39 @@ if (isset($_GET['get_client_contacts'])) {
 }
 
 /*
+ * New Ticket - the other open tickets for the contact or asset picked, so a
+ * second ticket for the same problem shows up before it is raised.
+ */
+if (isset($_GET['ticket_also_open'])) {
+    enforceUserPermission('module_support', 2);
+
+    header('Content-Type: application/json');
+
+    $client_id = intval($_GET['client_id'] ?? 0);
+    if (!$client_id || !hasClientAccess($client_id)) {
+        echo json_encode(['html' => '']);
+        exit;
+    }
+    $also_contact_id = ticketClientOwnedId('contact', $_GET['contact_id'] ?? 0, $client_id);
+    $also_asset_id = ticketClientOwnedId('asset', $_GET['asset_id'] ?? 0, $client_id);
+    $rows = ticketAlsoOpen($also_contact_id, $also_asset_id, 0, 5);
+
+    $html = '';
+    if ($rows) {
+        $html = '<div class="alert alert-warning small py-2 mb-3"><div class="fw-semibold mb-1"><i class="fas fa-layer-group me-1"></i>Already open for '
+            . ($also_contact_id && $also_asset_id ? 'this contact or asset' : ($also_contact_id ? 'this contact' : 'this asset')) . '</div>';
+        foreach ($rows as $row) {
+            $html .= '<div class="d-flex align-items-center gap-2 text-truncate">' . ticketLink($row)
+                . ' <span class="ms-auto flex-shrink-0">' . ticketStatusHtml($row['ticket_status_name'], $row['ticket_status_color'], 'detail') . '</span></div>';
+        }
+        $html .= '<div class="text-body-secondary mt-1">Add to one of these instead, if it is the same problem.</div></div>';
+    }
+
+    echo json_encode(['html' => $html]);
+    exit;
+}
+
+/*
  * Returns ordered list of active assets for a specified client
  */
 if (isset($_GET['get_client_assets'])) {
@@ -1093,7 +1128,7 @@ if (isset($_GET['get_client_assets'])) {
 
     $asset_sql = mysqli_query(
         $mysqli,
-        "SELECT asset_id, asset_name, asset_type, asset_make, asset_model, contact_name FROM assets
+        "SELECT asset_id, asset_name, asset_type, asset_make, asset_model, asset_contact_id, asset_location_id, contact_name FROM assets
         LEFT JOIN clients on asset_client_id = client_id
         LEFT JOIN contacts ON contact_id = asset_contact_id
         WHERE assets.asset_archived_at IS NULL AND asset_client_id = $client_id
@@ -1246,164 +1281,109 @@ if (isset($_GET['get_readable_pass'])) {
 /*
  * ITFlow - POST request handler for client tickets
  */
+/*
+ * The ticket board (agent/ticket_kanban.php, js/tickets_kanban.js).
+ *
+ * Moving a column reorders the statuses - only when the admin allows it.
+ * Moving a card changes its status the way the ticket page does: into
+ * Resolved resolves it (open tasks first, and the client is told), out of
+ * Resolved reopens it, anything else is a status change. New is set when a
+ * ticket comes in and Closed by closing it, so neither is a place to drop
+ * one. With ticket ordering on, the column's order is kept too.
+ */
 if (isset($_POST['update_kanban_status_position'])) {
-    // Update multiple ticket status kanban orders
-    enforceUserPermission('module_support', 2);
 
-    $positions = $_POST['positions'];
+    validateCSRFToken();
 
-    foreach ($positions as $position) {
-        $status_id = intval($position['status_id']);
-        $kanban = intval($position['status_kanban']);
+    header('Content-Type: application/json');
 
+    if (lookupUserPermission('module_support') < 2 || intval($config_ticket_moving_columns) !== 1) {
+        http_response_code(403);
+        echo json_encode(['error' => 'Columns cannot be moved here.']);
+        exit;
+    }
+
+    foreach ((array) ($_POST['positions'] ?? []) as $position) {
+        $status_id = intval($position['status_id'] ?? 0);
+        $kanban = intval($position['status_kanban'] ?? 0);
         mysqli_query($mysqli, "UPDATE ticket_statuses SET ticket_status_order = $kanban WHERE ticket_status_id = $status_id");
     }
 
-    // return a response
-    echo json_encode(['status' => 'success']);
+    echo json_encode(['ok' => true]);
     exit;
 }
 
 if (isset($_POST['update_kanban_ticket'])) {
-    // Update ticket kanban order and status
-    enforceUserPermission('module_support', 2);
 
-    // all tickets on the column
-    $positions = $_POST['positions'];
+    validateCSRFToken();
 
-    foreach ($positions as $position) {
-        $ticket_id = intval($position['ticket_id']);
+    header('Content-Type: application/json');
 
-        // Client perms check
-        $client_query = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT ticket_client_id FROM tickets WHERE ticket_id = $ticket_id"));
-        $client_id = intval($client_query['ticket_client_id']);
-        enforceClientAccess();
+    $kanban_error = function ($message, $code = 422) {
+        http_response_code($code);
+        echo json_encode(['error' => $message]);
+        exit;
+    };
 
-        $kanban = intval($position['ticket_order']); // ticket kanban position
-        $status = intval($position['ticket_status']); // ticket statuses
-        $oldStatus = intval($position['ticket_oldStatus']); // ticket old status if moved
-
-        $statuses['Closed'] = 5;
-        $statuses['Resolved'] = 4;
-
-        // Continue if status is null / Closed
-        if ($status === null || $status === $statuses['Closed']) {
-            continue;
-        }
-
-
-        if ($oldStatus === false) {
-            // if ticket was not moved, just uptdate the order on kanban
-            mysqli_query($mysqli, "UPDATE tickets SET ticket_order = $kanban WHERE ticket_id = $ticket_id");
-            triggerCustomAction('ticket_update', $ticket_id);
-        } else {
-            // If the ticket was moved from a resolved status to another status, we need to update ticket_resolved_at
-            if ($oldStatus === $statuses['Resolved']) {
-                mysqli_query($mysqli, "UPDATE tickets SET ticket_order = $kanban, ticket_status = $status, ticket_resolved_at = NULL WHERE ticket_id = $ticket_id");
-                resetTicketResolutionSla($ticket_id);
-                syncTicketSlaClock($ticket_id);
-                $new_status_name = escapeSql(getTicketStatusName($status));
-                logTicketHistory($ticket_id, "$session_name reopened the ticket to $new_status_name from the kanban");
-                triggerCustomAction('ticket_update', $ticket_id);
-            } elseif ($status === $statuses['Resolved']) {
-                // If the ticket was moved to a resolved status, we need to update ticket_resolved_at
-                mysqli_query($mysqli, "UPDATE tickets SET ticket_order = $kanban, ticket_status = $status, ticket_resolved_at = NOW() WHERE ticket_id = $ticket_id");
-                // An agent resolving the ticket counts as a response, same as
-                // resolving from the ticket itself does
-                setTicketFirstResponse($ticket_id);
-                setTicketResolutionSlaMet($ticket_id);
-                syncTicketSlaClock($ticket_id);
-                logTicketHistory($ticket_id, "$session_name resolved the ticket from the kanban");
-                triggerCustomAction('ticket_update', $ticket_id);
-
-                // Client notification email
-                if (!empty($config_smtp_host) && $config_ticket_client_general_notifications == 1) {
-
-                    // Get details
-                    $ticket_sql = mysqli_query($mysqli, "SELECT contact_name, contact_email, ticket_prefix, ticket_number, ticket_subject, ticket_status_name, ticket_assigned_to, ticket_url_key, ticket_client_id FROM tickets
-                        LEFT JOIN contacts ON ticket_contact_id = contact_id
-                        LEFT JOIN ticket_statuses ON ticket_status = ticket_status_id
-                        WHERE ticket_id = $ticket_id
-                    ");
-                    $row = mysqli_fetch_assoc($ticket_sql);
-
-                    $contact_name = escapeSql($row['contact_name']);
-                    $contact_email = escapeSql($row['contact_email']);
-                    $ticket_prefix = escapeSql($row['ticket_prefix']);
-                    $ticket_number = intval($row['ticket_number']);
-                    $ticket_subject = escapeSql($row['ticket_subject']);
-                    $client_id = intval($row['ticket_client_id']);
-                    $ticket_assigned_to = intval($row['ticket_assigned_to']);
-                    $ticket_status = escapeSql($row['ticket_status_name']);
-                    $url_key = escapeSql($row['ticket_url_key']);
-
-                    // Sanitize Config vars from get_settings.php
-                    $config_ticket_from_name = escapeSql($config_ticket_from_name);
-                    $config_ticket_from_email = escapeSql($config_ticket_from_email);
-                    $config_base_url = escapeSql($config_base_url);
-
-                    // Get Company Info
-                    $sql = mysqli_query($mysqli, "SELECT company_name, company_phone, company_phone_country_code FROM companies WHERE company_id = 1");
-                    $row = mysqli_fetch_assoc($sql);
-                    $company_name = escapeSql($row['company_name']);
-                    $company_phone = escapeSql(formatPhoneNumber($row['company_phone'], $row['company_phone_country_code']));
-
-                    // EMAIL
-                    $subject = "Ticket resolved - [$ticket_prefix$ticket_number] - $ticket_subject | (pending closure)";
-                    $body = "<i style=\'color: #808080\'>##- Please type your reply above this line -##</i><br><br>Hello $contact_name,<br><br>Your ticket regarding $ticket_subject has been marked as solved and is pending closure.<br><br>If your request/issue is resolved, you can simply ignore this email. If you need further assistance, please reply or <a href=\'https://$config_base_url/guest/guest_view_ticket.php?ticket_id=$ticket_id&url_key=$url_key\'>re-open</a> to let us know! <br><br>Ticket: $ticket_prefix$ticket_number<br>Subject: $ticket_subject<br>Status: $ticket_status<br>Portal: <a href=\'https://$config_base_url/guest/guest_view_ticket.php?ticket_id=$ticket_id&url_key=$url_key\'>View ticket</a><br><br>--<br>$company_name - Support<br>$config_ticket_from_email<br>$company_phone";
-
-                    // Check email valid
-                    if (filter_var($contact_email, FILTER_VALIDATE_EMAIL)) {
-
-                        $data = [];
-
-                        // Email Ticket Contact
-                        // Queue Mail
-
-                        $data[] = [
-                            'from' => $config_ticket_from_email,
-                            'from_name' => $config_ticket_from_name,
-                            'recipient' => $contact_email,
-                            'recipient_name' => $contact_name,
-                            'subject' => $subject,
-                            'body' => $body
-                        ];
-                    }
-
-                    // Also Email all the watchers
-                    $sql_watchers = mysqli_query($mysqli, "SELECT watcher_email FROM ticket_watchers WHERE watcher_ticket_id = $ticket_id");
-                    $body .= "<br><br>----------------------------------------<br>YOU ARE A COLLABORATOR ON THIS TICKET";
-                    while ($row = mysqli_fetch_assoc($sql_watchers)) {
-                        $watcher_email = escapeSql($row['watcher_email']);
-
-                        // Queue Mail
-                        $data[] = [
-                            'from' => $config_ticket_from_email,
-                            'from_name' => $config_ticket_from_name,
-                            'recipient' => $watcher_email,
-                            'recipient_name' => $watcher_email,
-                            'subject' => $subject,
-                            'body' => $body
-                        ];
-                    }
-                    addToMailQueue($data);
-                }
-                //End Mail IF
-
-            } else {
-                // If the ticket was moved from any status to another status
-                mysqli_query($mysqli, "UPDATE tickets SET ticket_order = $kanban, ticket_status = $status WHERE ticket_id = $ticket_id");
-                syncTicketSlaClock($ticket_id);
-                $new_status_name = escapeSql(getTicketStatusName($status));
-                logTicketHistory($ticket_id, "$session_name set the status to $new_status_name from the kanban");
-                triggerCustomAction('ticket_update', $ticket_id);
-            }
-        }
-
+    if (lookupUserPermission('module_support') < 2) {
+        $kanban_error('You cannot change tickets.', 403);
     }
 
-    // return a response
-    echo json_encode(['status' => 'success','payload' => $positions]);
+    $row = ticketRow($_POST['ticket_id'] ?? 0);
+    if (!$row || (intval($row['ticket_client_id']) && !hasClientAccess($row['ticket_client_id']))) {
+        $kanban_error('That ticket is not there any more - reload the board.', 404);
+    }
+    $ticket_id = intval($row['ticket_id']);
+    $reference = ticketReference($row);
+    if (!empty($row['ticket_closed_at'])) {
+        $kanban_error("$reference is closed.");
+    }
+
+    $status_id = intval($_POST['status_id'] ?? 0);
+    $current_status = intval($row['ticket_status']);
+    $message = '';
+
+    if ($status_id !== $current_status) {
+        $pickable = ticketPickableStatuses();
+        if ($status_id === TICKET_STATUS_RESOLVED) {
+            $open_tasks = ticketOpenTaskCount($ticket_id);
+            if ($open_tasks) {
+                $kanban_error("Finish the $open_tasks open task" . ($open_tasks === 1 ? '' : 's') . " on $reference before resolving it.");
+            }
+            ticketResolve($row, ' from the board');
+            if (intval($config_ticket_client_general_notifications) === 1) {
+                ticketMailResolved($ticket_id);
+            }
+            $message = "$reference resolved";
+        } elseif (isset($pickable[$status_id])) {
+            if (!empty($row['ticket_resolved_at'])) {
+                ticketReopen($row, $status_id, ' from the board');
+                $message = "$reference reopened";
+            } else {
+                [$ok, $message] = ticketChangeStatus($ticket_id, $status_id);
+                if (!$ok) {
+                    $kanban_error(strip_tags($message));
+                }
+                $message = "$reference: " . strip_tags($message);
+            }
+        } elseif ($status_id === TICKET_STATUS_NEW) {
+            $kanban_error('New is for tickets nobody has picked up yet - a ticket can only move on from there.');
+        } else {
+            $kanban_error('A ticket cannot be moved to that status.');
+        }
+    }
+
+    // The column's order, when the admin keeps one. Setting ticket_updated_at to
+    // itself stops ON UPDATE moving it - reordering a board is not activity.
+    if (intval($config_ticket_ordering) === 1) {
+        $scope = clientScopeSql('ticket_client_id');
+        foreach (array_values((array) ($_POST['order'] ?? [])) as $position => $order_ticket_id) {
+            $order_ticket_id = intval($order_ticket_id);
+            mysqli_query($mysqli, "UPDATE tickets SET ticket_order = $position, ticket_updated_at = ticket_updated_at WHERE ticket_id = $order_ticket_id $scope");
+        }
+    }
+
+    echo json_encode(['ok' => true, 'message' => $message, 'status_id' => $status_id]);
     exit;
 }
 
@@ -1414,12 +1394,20 @@ if (isset($_POST['update_ticket_tasks_order'])) {
 
     enforceUserPermission('module_support', 2);
 
-    $positions = $_POST['positions'];
-    $ticket_id = intval($_POST['ticket_id']);
+    $positions = (array) ($_POST['positions'] ?? []);
+    $ticket_id = intval($_POST['ticket_id'] ?? 0);
+
+    // A ticket this agent can reach - one with no client is internal work anyone can
+    $task_ticket = ticketRow($ticket_id);
+    if (!$task_ticket || (intval($task_ticket['ticket_client_id']) && !hasClientAccess($task_ticket['ticket_client_id']))) {
+        http_response_code(403);
+        echo json_encode(['status' => 'error']);
+        exit;
+    }
 
     foreach ($positions as $position) {
-        $id = intval($position['id']);
-        $order = intval($position['order']);
+        $id = intval($position['id'] ?? 0);
+        $order = intval($position['order'] ?? 0);
 
         mysqli_query($mysqli, "UPDATE tasks SET task_order = $order WHERE task_ticket_id = $ticket_id AND task_id = $id");
     }
@@ -1745,6 +1733,10 @@ if (isset($_GET['ai_ticket_summary'])) {
         LIMIT 1
     ");
     $row = mysqli_fetch_assoc($sql);
+    if (!$row) {
+        echo 'That ticket no longer exists.';
+        exit;
+    }
     $ticket_subject = $row['ticket_subject'];
     $ticket_details = strip_tags($row['ticket_details']); // strip HTML for cleaner prompt
     $ticket_status = $row['ticket_status_name'];
@@ -1753,7 +1745,10 @@ if (isset($_GET['ai_ticket_summary'])) {
     $ticket_priority = $row['ticket_priority'];
     $client_id = intval($row['ticket_client_id']);
 
-    enforceClientAccess();
+    // A ticket with no client is internal work any agent may read
+    if ($client_id) {
+        enforceClientAccess();
+    }
 
     // Get ticket replies
     $sql_replies = mysqli_query($mysqli, "

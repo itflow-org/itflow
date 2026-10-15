@@ -99,19 +99,8 @@ if (!$location || ($client_url && intval($location['location_client_id']) !== in
         }
 
         // Tickets for this site - every open one, then the most recent closed ones
-        $row = mysqli_fetch_row(mysqli_query($mysqli, "SELECT COUNT(*), COALESCE(SUM(ticket_resolved_at IS NULL AND ticket_closed_at IS NULL), 0) FROM tickets WHERE ticket_location_id = $location_id"));
-        [$ticket_count, $ticket_open_count] = [intval($row[0]), intval($row[1])];
-        $sql = mysqli_query($mysqli, "SELECT ticket_id, ticket_prefix, ticket_number, ticket_subject, ticket_priority, ticket_created_at, ticket_updated_at,
-                ticket_resolved_at, ticket_closed_at, ticket_assigned_to, user_name, user_avatar, ticket_status_id, ticket_status_name, ticket_status_color
-            FROM tickets
-            LEFT JOIN users ON ticket_assigned_to = user_id
-            LEFT JOIN ticket_statuses ON ticket_status_id = ticket_status
-            WHERE ticket_location_id = $location_id
-            ORDER BY (ticket_resolved_at IS NULL AND ticket_closed_at IS NULL) DESC, ticket_number DESC
-            LIMIT " . max(25, $ticket_open_count));
-        while ($row = mysqli_fetch_assoc($sql)) {
-            $tickets[] = $row;
-        }
+        [$ticket_count, $ticket_open_count] = ticketCounts("tickets.ticket_location_id = $location_id");
+        $tickets = ticketRows("tickets.ticket_location_id = $location_id", max(25, $ticket_open_count));
     }
 
     $documents = $can_support ? linkedRecords('location', $location_id, 'document') : [];
@@ -560,25 +549,7 @@ if (!$location || ($client_url && intval($location['location_client_id']) !== in
                             <?php } ?>
                         </div>
                         <?php if ($tickets) { ?>
-                            <div class="table-responsive">
-                                <table class="table table-hover align-middle mb-0">
-                                    <thead class="text-nowrap table-light"><tr><th>Ticket</th><th>Subject</th><th>Status</th><th>Assigned</th><th>Updated</th></tr></thead>
-                                    <tbody>
-                                    <?php foreach ($tickets as $ticket) {
-                                        $ticket_id = intval($ticket['ticket_id']);
-                                        $ticket_is_open = empty($ticket['ticket_resolved_at']) && empty($ticket['ticket_closed_at']);
-                                        $ticket_last = $ticket['ticket_updated_at'] ?: $ticket['ticket_created_at']; ?>
-                                        <tr class="<?= $ticket_is_open ? '' : 'text-body-secondary' ?>">
-                                            <td class="text-nowrap"><a class="font-monospace" href="ticket.php?client_id=<?= $client_id ?>&ticket_id=<?= $ticket_id ?>"><?= escapeHtml($ticket['ticket_prefix']) . intval($ticket['ticket_number']) ?></a></td>
-                                            <td><a class="<?= $ticket_is_open ? 'text-body fw-semibold' : 'text-body-secondary' ?>" href="ticket.php?client_id=<?= $client_id ?>&ticket_id=<?= $ticket_id ?>"><?= escapeHtml($ticket['ticket_subject']) ?></a></td>
-                                            <td class="text-nowrap"><?= ticketStatusHtml($ticket['ticket_status_name'], $ticket['ticket_status_color'], 'detail') ?></td>
-                                            <td class="text-nowrap"><?= formatAssignee($ticket['ticket_assigned_to'], $ticket['user_name'], $ticket['user_avatar'], $ticket_is_open) ?></td>
-                                            <td class="text-nowrap small" title="<?= escapeHtml($ticket_last) ?>"><?= timeAgo($ticket_last) ?></td>
-                                        </tr>
-                                    <?php } ?>
-                                    </tbody>
-                                </table>
-                            </div>
+                            <?= ticketTableHtml($tickets) ?>
                             <?php if ($ticket_count > count($tickets)) { ?>
                                 <div class="small text-body-secondary px-3 py-2 border-top">Showing every open ticket and the <?= count($tickets) - $ticket_open_count ?> most recent closed of <?= $ticket_count ?>.</div>
                             <?php } ?>

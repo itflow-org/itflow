@@ -12,7 +12,8 @@ $update_count = false;
 
 if (!empty($ticket_id)) {
 
-    $ticket_row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT * FROM tickets WHERE ticket_id = '$ticket_id' AND ticket_client_id = $client_id LIMIT 1"));
+    // A closed ticket stays as it was
+    $ticket_row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT * FROM tickets WHERE ticket_id = '$ticket_id' AND ticket_client_id = $client_id AND ticket_closed_at IS NULL LIMIT 1"));
 
     if ($ticket_row) {
         // Assign model values from POST, falling back to the current ticket values.

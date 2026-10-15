@@ -25,7 +25,10 @@ if (!isset($_GET['status']) || ($_GET['status']) == 'Open') {
     $ticket_status_snippet = "ticket_status LIKE '%'";
 }
 
-$all_tickets = mysqli_query($mysqli, "SELECT ticket_id, ticket_prefix, ticket_number, ticket_subject, ticket_status_name, contact_name FROM tickets LEFT JOIN contacts ON ticket_contact_id = contact_id LEFT JOIN ticket_statuses ON ticket_status = ticket_status_id WHERE $ticket_status_snippet AND ticket_client_id = $session_client_id ORDER BY ticket_id DESC");
+$all_tickets = mysqli_query($mysqli, "SELECT tickets.ticket_id, ticket_prefix, ticket_number, ticket_subject, ticket_status_name, contact_name, ticket_created_at, ticket_updated_at,
+        ticket_resolved_at, ticket_closed_at, " . ticketLastSpokeSql() . " AS ticket_last_spoke
+    FROM tickets LEFT JOIN contacts ON ticket_contact_id = contact_id LEFT JOIN ticket_statuses ON ticket_status = ticket_status_id
+    WHERE $ticket_status_snippet AND ticket_client_id = $session_client_id ORDER BY ticket_id DESC");
 ?>
 
     <h2>All tickets</h2>
@@ -51,6 +54,7 @@ $all_tickets = mysqli_query($mysqli, "SELECT ticket_id, ticket_prefix, ticket_nu
             <th scope="col">Subject</th>
             <th scope="col">Contact</th>
             <th scope="col">Status</th>
+            <th scope="col">Updated</th>
         </tr>
         </thead>
         <tbody>
@@ -68,7 +72,9 @@ $all_tickets = mysqli_query($mysqli, "SELECT ticket_id, ticket_prefix, ticket_nu
             echo "<td> <a href='ticket.php?id=$ticket_id'> $ticket_prefix$ticket_number</a></td>";
             echo "<td> <a href='ticket.php?id=$ticket_id'> $ticket_subject</a></td>";
             echo "<td>$ticket_contact_name</td>";
-            echo "<td>$ticket_status</td>";
+            $ticket_updated = $row['ticket_updated_at'] ?: $row['ticket_created_at'];
+            echo "<td>" . ticketPortalStatusHtml($row) . "</td>";
+            echo "<td class='text-nowrap' title='" . escapeHtml($ticket_updated) . "'>" . timeAgo($ticket_updated) . "</td>";
             echo "</tr>";
         }
         ?>

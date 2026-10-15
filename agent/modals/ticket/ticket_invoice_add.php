@@ -2,7 +2,15 @@
 
 require_once '../../../includes/modal_header.php';
 
-$ticket_id = intval($_GET['ticket_id']);
+enforceUserPermission('module_sales', 2);
+
+// The ticket, after the module and client checks - or the modal's error
+$ticket = ticketForModal($_GET['ticket_id'] ?? 0, 2);
+$ticket_id = intval($ticket['ticket_id']);
+if (!intval($ticket['ticket_client_id'])) {
+    echo json_encode(['error' => 'Move the ticket to a client before invoicing it.']);
+    exit;
+}
 
 $ticket_sql = mysqli_query(
     $mysqli,

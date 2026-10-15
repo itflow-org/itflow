@@ -228,7 +228,7 @@ if (isset($_GET['client_id'])) {
         $row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT COUNT(asset_id) AS num FROM assets WHERE asset_archived_at IS NULL AND asset_client_id = $client_id"));
         $num_assets = intval($row['num']);
 
-        $row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT COUNT(recurring_ticket_id) AS num FROM recurring_tickets WHERE recurring_ticket_client_id = $client_id"));
+        $row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT COUNT(recurring_ticket_id) AS num FROM recurring_tickets WHERE recurring_ticket_client_id = $client_id AND recurring_ticket_paused_at IS NULL"));
         $num_recurring_tickets = intval($row['num']);
 
         $row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT COUNT(project_id) AS num FROM projects WHERE project_archived_at IS NULL AND project_completed_at IS NULL AND project_client_id = $client_id"));

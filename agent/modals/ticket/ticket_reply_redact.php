@@ -13,6 +13,10 @@ $sql = mysqli_query($mysqli, "SELECT ticket_client_id, ticket_reply FROM ticket_
 );
 
 $row = mysqli_fetch_assoc($sql);
+if (!$row) {
+    echo json_encode(['error' => 'That reply no longer exists.']);
+    exit;
+}
 $ticket_reply = escapeHtml($row['ticket_reply']);
 $client_id = intval($row['ticket_client_id']);
 
