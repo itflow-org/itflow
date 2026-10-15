@@ -752,6 +752,8 @@ function demoDataRemove($mysqli) {
         while ($row = mysqli_fetch_assoc($sql)) {
             $location_id = intval($row['location_id']);
             mysqli_query($mysqli, "DELETE FROM location_tags WHERE location_id = $location_id");
+            mysqli_query($mysqli, "DELETE FROM location_documents WHERE location_id = $location_id");
+            mysqli_query($mysqli, "DELETE FROM location_files WHERE location_id = $location_id");
         }
         mysqli_query($mysqli, "DELETE FROM locations WHERE location_client_id = $client_id");
 
@@ -1135,6 +1137,11 @@ function demoBuildClient($mysqli, $profile, $index, $context, &$counts) {
     $primary_contact_id = $contact_ids[0] ?? 0;
     $technical_contact_id = $contact_ids[2] ?? $primary_contact_id;
 
+    // Who to ask for at the main site - the technical contact
+    if ($primary_location_id && $technical_contact_id) {
+        mysqli_query($mysqli, "UPDATE locations SET location_contact_id = " . intval($technical_contact_id) . " WHERE location_id = " . intval($primary_location_id));
+    }
+
     // Notes on the account and on the technical contact
     starterInsert($mysqli, 'client_notes', [
         'client_note_type' => 'General',
@@ -1326,6 +1333,9 @@ function demoBuildClient($mysqli, $profile, $index, $context, &$counts) {
         }
     }
     $runbook_id = $document_ids[0] ?? 0;
+
+    // The site runbook belongs to the main site too
+    demoLink($mysqli, 'location_documents', 'location_id', $primary_location_id, 'document_id', $runbook_id);
 
     // Services, linked to the kit and credentials that actually run them
     foreach ($profile['services'] as $service) {

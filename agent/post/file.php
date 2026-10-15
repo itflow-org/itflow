@@ -28,13 +28,14 @@ if (isset($_POST['upload_files'])) {
 
     enforceClientAccess();
 
-    // Only the client's own folder, contact, asset and license
+    // Only the client's own folder, contact, asset, license and location
     $folder_id = folderOwnedId($_POST['folder_id'] ?? 0, $client_id);
     $contact_id = assetClientOwnedId('contact', $_POST['contact_id'] ?? 0, $client_id);
     $asset = linkRecord('asset', $_POST['asset_id'] ?? 0);
     $asset_id = $asset && intval($asset['client_id']) === $client_id ? intval($asset['id']) : 0;
     $software = linkRecord('software', $_POST['software_id'] ?? 0);
     $software_id = $software && intval($software['client_id']) === $client_id ? intval($software['id']) : 0;
+    $location_id = assetClientOwnedId('location', $_POST['location_id'] ?? 0, $client_id);
 
     if (!is_dir($client_dir)) {
         mkdir($client_dir, 0755, true);
@@ -101,6 +102,9 @@ if (isset($_POST['upload_files'])) {
         }
         if ($software_id) {
             mysqli_query($mysqli, "INSERT IGNORE INTO software_files SET software_id = $software_id, file_id = $file_id");
+        }
+        if ($location_id) {
+            mysqli_query($mysqli, "INSERT IGNORE INTO location_files SET location_id = $location_id, file_id = $file_id");
         }
 
         logAudit("File", "Upload", "$session_name uploaded file $file_name", $client_id, $file_id);

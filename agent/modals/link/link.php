@@ -59,6 +59,8 @@ function linkOptionData($to, $row, $client_id) {
             return selectOptionData(['icon' => 'fas ' . softwareTypeStyle($row['software_type'])['icon'], 'description' => implode(' · ', array_filter([$row['software_license_type'], $seat_text, $row['software_version']]))]);
         case 'credential':
             return selectOptionData(['icon' => 'fas fa-key', 'description' => $row['credential_description'] ?: $row['credential_uri']]);
+        case 'location':
+            return selectOptionData(['icon' => 'fas fa-' . (intval($row['location_primary']) ? 'building' : 'map-marker-alt'), 'description' => implode(' · ', array_filter([intval($row['location_primary']) ? 'Primary' : '', locationAddressText($row)]))]);
         case 'vendor':
             return selectOptionData(['icon' => 'fas fa-building', 'description' => $row['vendor_description']]);
     }

@@ -74,6 +74,9 @@ if (isset($_POST['add_ticket'])) {
     //Generate a unique URL key for clients to access
     $url_key = randomString(32);
 
+    // Only one of the ticket's own client's locations
+    $location_id = assetClientOwnedId('location', $location_id, $client_id);
+
     mysqli_query($mysqli, "INSERT INTO tickets SET ticket_prefix = '$config_ticket_prefix', ticket_number = $ticket_number, ticket_source = 'Agent', ticket_category = $category_id, ticket_subject = '$subject', ticket_details = '$details', ticket_priority = '$priority', ticket_billable = '$billable', ticket_status = '$ticket_status', ticket_vendor_ticket_number = '$vendor_ticket_number', ticket_vendor_id = $vendor_id, ticket_location_id = $location_id, ticket_asset_id = $asset_id, ticket_created_by = $session_user_id, ticket_assigned_to = $assigned_to, ticket_contact_id = $contact_id, ticket_url_key = '$url_key', ticket_due_at = $due, ticket_client_id = $client_id, ticket_invoice_id = 0, ticket_project_id = $project_id");
 
     $ticket_id = mysqli_insert_id($mysqli);
@@ -255,6 +258,9 @@ if (isset($_POST['edit_ticket'])) {
      * priority and assign handlers record - so read the originals first and
      * record the same changes when they come through here instead
      */
+    // Only one of the ticket's own client's locations
+    $location_id = assetClientOwnedId('location', $location_id, $client_id);
+
     $original_row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT ticket_priority, ticket_assigned_to FROM tickets WHERE ticket_id = $ticket_id"));
     $original_priority = escapeSql($original_row['ticket_priority']);
     $original_assigned_to = intval($original_row['ticket_assigned_to']);

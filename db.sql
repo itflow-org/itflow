@@ -1441,6 +1441,40 @@ CREATE TABLE `invoices` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
+-- Table structure for table `location_documents`
+--
+
+DROP TABLE IF EXISTS `location_documents`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8mb4 */;
+CREATE TABLE `location_documents` (
+  `location_id` int(11) NOT NULL,
+  `document_id` int(11) NOT NULL,
+  PRIMARY KEY (`location_id`,`document_id`),
+  KEY `document_id` (`document_id`),
+  CONSTRAINT `location_documents_ibfk_1` FOREIGN KEY (`location_id`) REFERENCES `locations` (`location_id`) ON DELETE CASCADE,
+  CONSTRAINT `location_documents_ibfk_2` FOREIGN KEY (`document_id`) REFERENCES `documents` (`document_id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `location_files`
+--
+
+DROP TABLE IF EXISTS `location_files`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8mb4 */;
+CREATE TABLE `location_files` (
+  `location_id` int(11) NOT NULL,
+  `file_id` int(11) NOT NULL,
+  PRIMARY KEY (`location_id`,`file_id`),
+  KEY `file_id` (`file_id`),
+  CONSTRAINT `location_files_ibfk_1` FOREIGN KEY (`location_id`) REFERENCES `locations` (`location_id`) ON DELETE CASCADE,
+  CONSTRAINT `location_files_ibfk_2` FOREIGN KEY (`file_id`) REFERENCES `files` (`file_id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
 -- Table structure for table `location_tags`
 --
 

@@ -80,15 +80,23 @@ function getExportColumns($export_type) {
             'location_name'      => ['label' => 'Location'],
         ],
 
+        // location_primary_text, contact_name and the counts are built by the handler's query
         'locations' => [
             'location_name'        => ['label' => 'Name', 'weight' => 2],
+            'location_primary_text' => ['label' => 'Primary'],
             'location_description' => ['label' => 'Description', 'weight' => 3],
             'location_address'     => ['label' => 'Address', 'weight' => 2],
             'location_city'        => ['label' => 'City'],
             'location_state'       => ['label' => 'State'],
             'location_zip'         => ['label' => 'Postal Code'],
+            'location_country'     => ['label' => 'Country', 'default' => false],
             'location_phone'       => ['label' => 'Phone', 'format' => 'phone'],
             'location_hours'       => ['label' => 'Hours'],
+            'contact_name'         => ['label' => 'On-site Contact'],
+            'contact_count'        => ['label' => 'People', 'format' => 'number', 'default' => false],
+            'asset_count'          => ['label' => 'Assets', 'format' => 'number', 'default' => false],
+            'location_notes'       => ['label' => 'Access Notes', 'weight' => 3, 'default' => false],
+            'client_name'          => ['label' => 'Client', 'default' => false],
         ],
 
         'vendors' => [

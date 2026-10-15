@@ -1,8 +1,9 @@
 <?php
 
 /*
- * ITFlow - links between documents, files and what they are about, and the
- * devices, users, credentials and files on a license.
+ * ITFlow - links between documents, files and what they are about, the
+ * devices, users, credentials and files on a license, and the documents and
+ * files about a location.
  *
  * One handler for every pair LINK_RELATIONS knows (functions/links.php):
  * link_items links any number of records at once, unlink_item drops one.

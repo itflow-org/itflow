@@ -287,7 +287,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                     if (empty($location_name)) {
                         $location_name_display = "-";
                     } else {
-                        $location_name_display = $location_name;
+                        $location_name_display = "<a class=\"ajax-modal\" href=\"#\" data-modal-size=\"lg\" data-modal-url=\"modals/location/location.php?id=$network_location_id\">$location_name</a>";
                     }
                     $network_archived_at = escapeHtml($row['network_archived_at']);
                     $ip_count = intval($row['ip_count']);

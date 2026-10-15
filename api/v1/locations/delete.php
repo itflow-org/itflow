@@ -15,6 +15,11 @@ if (!empty($location_id)) {
     $row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT location_name FROM locations WHERE location_id = $location_id AND location_client_id = $client_id AND location_archived_at IS NOT NULL LIMIT 1"));
     $location_name = escapeSql($row['location_name'] ?? '');
 
+    // What pointed at it - people, assets, networks, racks, tickets - points at no location instead of a missing one
+    if ($row) {
+        locationClearReferences($location_id);
+    }
+
     $delete_sql = mysqli_query($mysqli, "DELETE FROM locations WHERE location_id = $location_id AND location_client_id = $client_id AND location_archived_at IS NOT NULL LIMIT 1");
 
     // Check delete & get affected rows

@@ -5,7 +5,8 @@
  * contacts, licenses and vendors a document covers, the files attached to a
  * document, the assets and contacts a file belongs to - and the seats on a
  * license (the devices and users on it) and the credentials and files that
- * go with it.
+ * go with it, and the documents and files about a location (a floor plan, a
+ * site runbook).
  *
  * Every link is a row in a two-column table (asset_documents, document_files,
  * contact_files...) and they all work the same way, so they are described once
@@ -28,6 +29,7 @@ const LINK_ENTITIES = [
     'document' => ['table' => 'documents', 'id' => 'document_id', 'name' => 'document_name', 'client' => 'document_client_id', 'archived' => 'document_archived_at', 'label' => 'document', 'plural' => 'Documents', 'icon' => 'fa-file-alt'],
     'file' => ['table' => 'files', 'id' => 'file_id', 'name' => 'file_name', 'client' => 'file_client_id', 'archived' => 'file_archived_at', 'label' => 'file', 'plural' => 'Files', 'icon' => 'fa-paperclip'],
     'software' => ['table' => 'software', 'id' => 'software_id', 'name' => 'software_name', 'client' => 'software_client_id', 'archived' => 'software_archived_at', 'label' => 'license', 'plural' => 'Licenses', 'icon' => 'fa-cube'],
+    'location' => ['table' => 'locations', 'id' => 'location_id', 'name' => 'location_name', 'client' => 'location_client_id', 'archived' => 'location_archived_at', 'label' => 'location', 'plural' => 'Locations', 'icon' => 'fa-map-marker-alt', 'view' => 'module_client'],
     'credential' => ['table' => 'credentials', 'id' => 'credential_id', 'name' => 'credential_name', 'client' => 'credential_client_id', 'archived' => 'credential_archived_at', 'label' => 'credential', 'plural' => 'Credentials', 'icon' => 'fa-key', 'view' => 'module_credential'],
     'vendor' => ['table' => 'vendors', 'id' => 'vendor_id', 'name' => 'vendor_name', 'client' => 'vendor_client_id', 'archived' => 'vendor_archived_at', 'label' => 'vendor', 'plural' => 'Vendors', 'icon' => 'fa-building'],
 ];
@@ -51,6 +53,8 @@ const LINK_RELATIONS = [
     'contact|software' => ['table' => 'software_contacts', 'module' => 'module_support'],
     'credential|software' => ['table' => 'software_credentials', 'module' => 'module_credential'],
     'file|software' => ['table' => 'software_files', 'module' => 'module_support'],
+    'document|location' => ['table' => 'location_documents', 'module' => 'module_support'],
+    'file|location' => ['table' => 'location_files', 'module' => 'module_support'],
 ];
 
 /** The relation between two types, or null when they cannot be linked. */
@@ -67,7 +71,7 @@ function linkRelation($a, $b) {
 function linkTypesFor($from) {
     $order = $from === 'software'
         ? ['asset', 'contact', 'credential', 'document', 'file']
-        : ['file', 'document', 'asset', 'contact', 'software', 'credential', 'vendor'];
+        : ['file', 'document', 'asset', 'contact', 'location', 'software', 'credential', 'vendor'];
     return array_values(array_filter($order, function ($to) use ($from) {
         $view = LINK_ENTITIES[$to]['view'] ?? null;
         return $to !== $from && linkRelation($from, $to) && (!$view || lookupUserPermission($view) >= 1);
@@ -104,6 +108,7 @@ function linkDisplayColumns($type) {
         'software' => 'software_type, software_version, software_license_type, software_seats, software_expire, ' . softwareSeatsUsedSql('t.software_id') . ' AS seats_used',
         'credential' => 'credential_description, credential_uri, credential_username, credential_otp_secret, credential_favorite',
         'vendor' => 'vendor_description',
+        'location' => 'location_address, location_city, location_state, location_zip, location_primary, location_photo, location_client_id',
     ][$type] ?? '';
 }
 
@@ -313,6 +318,11 @@ function linkRowHtml($to, $row, $client_id) {
             $lead = '<span class="itflow-link-icon" aria-hidden="true"><i class="fas fa-fw fa-key"></i></span>';
             $link = "<a class=\"ajax-modal text-truncate\" href=\"#\" data-modal-url=\"modals/credential/credential_edit.php?id=$id\">$name</a>";
             $detail = $row['credential_description'] ?: $row['credential_uri'];
+            break;
+        case 'location':
+            $lead = locationTile($row, 'sm');
+            $link = "<a class=\"ajax-modal text-truncate\" href=\"#\" data-modal-size=\"lg\" data-modal-url=\"modals/location/location.php?id=$id\">$name</a>";
+            $detail = locationAddressText($row);
             break;
         case 'vendor':
             $lead = '<span class="itflow-link-icon" aria-hidden="true"><i class="fas fa-fw fa-building"></i></span>';

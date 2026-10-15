@@ -16,7 +16,8 @@ $rack_units_descending = 0;
 $rack_highest_used_unit = 0;
 $rack_model = '';
 $rack_depth = '';
-$rack_location_id = 0;
+// Opened from a location's page - start at that location
+$rack_location_id = $client_id ? assetClientOwnedId('location', $_GET['location_id'] ?? 0, $client_id) : 0;
 $rack_physical_location = '';
 $rack_power_capacity = 0;
 $rack_description = '';

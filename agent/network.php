@@ -22,7 +22,7 @@ $network_id = intval($_GET['network_id'] ?? 0);
 
 $sql = mysqli_query(
     $mysqli,
-    "SELECT client_id, client_name, location_name, network, network_client_id, network_description,
+    "SELECT client_id, client_name, location_name, network_location_id, network, network_client_id, network_description,
         network_dhcp_range, network_gateway, network_id, network_name, network_notes,
         network_primary_dns, network_secondary_dns, network_vlan, network_archived_at FROM networks
     LEFT JOIN clients ON client_id = network_client_id
@@ -53,6 +53,7 @@ if (mysqli_num_rows($sql) == 0) {
     $network_archived_at = escapeHtml($row['network_archived_at']);
     $network_notes = escapeHtml($row['network_notes']);
     $location_name = escapeHtml($row['location_name']);
+    $network_location_id = intval($row['network_location_id']);
 
     // Belt and braces - the query above is already scoped, but the no-client_id
     // entry point relies entirely on clientScopeSql()
@@ -140,7 +141,7 @@ if (mysqli_num_rows($sql) == 0) {
                     <?php }
                     if ($location_name) { ?>
                         <div class="text-secondary small text-uppercase">Location</div>
-                        <div class="mb-3"><i class="fa fa-fw fa-map-marker-alt text-secondary me-2"></i><?= $location_name ?></div>
+                        <div class="mb-3"><i class="fa fa-fw fa-map-marker-alt text-secondary me-2"></i><a class="ajax-modal" href="#" data-modal-size="lg" data-modal-url="modals/location/location.php?id=<?= $network_location_id ?>"><?= $location_name ?></a></div>
                     <?php } ?>
 
                     <div class="text-secondary small text-uppercase">Documented IPs</div>

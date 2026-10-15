@@ -3,8 +3,8 @@
 /*
  * Upload files into a folder - dropped onto the box, picked with the button,
  * or dropped straight onto the files list (agent/js/files.js opens this and
- * hands them over). Opened from an asset, a contact or a license, the uploads
- * are also linked to it.
+ * hands them over). Opened from an asset, a contact, a license or a location,
+ * the uploads are also linked to it.
  */
 
 require_once '../../../includes/modal_header.php';
@@ -20,7 +20,8 @@ $asset = linkRecord('asset', $_GET['asset_id'] ?? 0);
 $asset_id = $asset && intval($asset['client_id']) === $client_id ? intval($asset['id']) : 0;
 $software = linkRecord('software', $_GET['software_id'] ?? 0);
 $software_id = $software && intval($software['client_id']) === $client_id ? intval($software['id']) : 0;
-$link_name = $asset_id ? $asset['name'] : ($contact_id ? getFieldById('contacts', $contact_id, 'contact_name') : ($software_id ? $software['name'] : ''));
+$location_id = assetClientOwnedId('location', $_GET['location_id'] ?? 0, $client_id);
+$link_name = $asset_id ? $asset['name'] : ($contact_id ? getFieldById('contacts', $contact_id, 'contact_name') : ($software_id ? $software['name'] : ($location_id ? getFieldById('locations', $location_id, 'location_name') : '')));
 
 // The extensions agent/post/file.php accepts - offered to the picker so the wrong kind is never chosen
 $upload_extensions = ['jpg', 'jpeg', 'gif', 'png', 'webp', 'pdf', 'txt', 'md', 'doc', 'docx', 'odt', 'csv', 'xls', 'xlsx', 'ods',
@@ -41,6 +42,7 @@ ob_start();
     <input type="hidden" name="contact_id" value="<?= $contact_id ?>">
     <input type="hidden" name="asset_id" value="<?= $asset_id ?>">
     <input type="hidden" name="software_id" value="<?= $software_id ?>">
+    <input type="hidden" name="location_id" value="<?= $location_id ?>">
     <div class="modal-body">
 
         <label class="itflow-upload-drop" data-upload-drop>

@@ -1,245 +1,48 @@
 <?php
 
+/*
+ * New location - for the client it was opened from, or pick the client here.
+ * Opened from an "Add primary location" link (?primary=1) it starts as the
+ * primary; a client's first location is made primary either way.
+ */
+
 require_once '../../../includes/modal_header.php';
 
-$client_id = intval($_GET['client_id'] ?? 0);
+enforceUserPermission('module_client', 2);
 
-// Opened from an "Add Primary Location" link, so the box below starts ticked.
-// A default, not a lock - it is still a normal checkbox.
-$location_primary_default = !empty($_GET['primary']);
+$client_id = intval($_GET['client_id'] ?? 0);
+if ($client_id) {
+    enforceClientAccess();
+}
+
+$location_form_mode = 'add';
+$location_id = 0;
+$location_name = $location_description = $location_address = $location_city = $location_state = $location_zip = '';
+$location_country = escapeHtml($session_company_country ?? '');
+$location_phone = $location_phone_country_code = $location_extension = $location_fax = $location_fax_country_code = '';
+$location_hours = $location_notes = $location_photo = '';
+$location_contact_id = 0;
+$location_tag_ids = [];
+
+// The first location a client has is its primary
+$client_has_location = $client_id ? intval(mysqli_fetch_row(mysqli_query($mysqli, "SELECT COUNT(*) FROM locations WHERE location_client_id = $client_id AND location_archived_at IS NULL"))[0]) : 1;
+$location_primary = !empty($_GET['primary']) || !$client_has_location ? 1 : 0;
 
 ob_start();
 
 ?>
-
 <div class="modal-header bg-dark">
-    <h5 class="modal-title"><i class="fa fa-fw fa-map-marker-alt me-2"></i>Creating location</h5>
+    <h5 class="modal-title"><i class="fa fa-fw fa-map-marker-alt me-2"></i>New Location</h5>
     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
 </div>
 <form action="post.php" method="post" enctype="multipart/form-data" autocomplete="off">
     <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
+    <?php if ($client_id) { ?>
+        <input type="hidden" name="client_id" value="<?= $client_id ?>">
+    <?php } ?>
 
     <div class="modal-body">
-
-        <ul class="nav nav-pills nav-justified mb-3">
-            <li class="nav-item">
-                <a class="nav-link active" data-bs-toggle="pill" href="#pills-details">Details</a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" data-bs-toggle="pill" href="#pills-address">Address</a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" data-bs-toggle="pill" href="#pills-contact">Contact</a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" data-bs-toggle="pill" href="#pills-notes">Notes</a>
-            </li>
-
-        </ul>
-
-        <hr>
-
-        <div class="tab-content">
-
-            <div class="tab-pane fade show active" id="pills-details">
-
-                <?php if ($client_id) { ?>
-                    <input type="hidden" name="client_id" value="<?= $client_id ?>">
-                <?php } else { ?>
-
-                    <div class="mb-3">
-                        <label>Client <strong class="text-danger">*</strong></label>
-                        <div class="input-group">
-                                <span class="input-group-text"><i class="fa fa-fw fa-user"></i></span>
-                            <select class="form-select select2" name="client_id" required>
-                                <option value="">- Select Client -</option>
-                                <?php
-
-                                $sql = mysqli_query($mysqli, "SELECT client_id, client_name, client_abbreviation FROM clients WHERE client_archived_at IS NULL " . clientScopeSql('clients.client_id') . " ORDER BY client_name ASC");
-                                while ($row = mysqli_fetch_assoc($sql)) {
-                                    $client_id_select = intval($row['client_id']);
-                                    $client_name = escapeHtml($row['client_name']); ?>
-                                    <option <?php if ($client_id == $client_id_select) { echo "selected"; } ?> value="<?= $client_id_select ?>"<?= selectOptionClient($row['client_id'], $row['client_name'], $row['client_abbreviation'] ?? '') ?>><?= $client_name ?></option>
-
-                                <?php } ?>
-                            </select>
-                        </div>
-                    </div>
-
-                <?php } ?>
-
-                <div class="mb-3">
-                    <label>Location Name <strong class="text-danger">*</strong> / <span class="text-secondary">Primary</span></label>
-                    <div class="input-group">
-                            <span class="input-group-text"><i class="fa fa-fw fa-map-marker"></i></span>
-                        <input type="text" class="form-control" name="name" placeholder="Name of location" maxlength="200" required autofocus>
-                            <div class="input-group-text">
-                                <input class="form-check-input" type="checkbox" name="location_primary" value="1"<?= $location_primary_default ? ' checked' : '' ?>>
-                            </div>
-                    </div>
-                </div>
-
-                <div class="mb-3">
-                    <label>Description</label>
-                    <div class="input-group">
-                            <span class="input-group-text"><i class="fa fa-fw fa-align-left"></i></span>
-                        <input type="text" class="form-control" name="description" placeholder="Short Description">
-                    </div>
-                </div>
-
-                <div class="mb-3">
-                    <label>Photo</label>
-                    <input type="file" class="form-control" name="file" accept="image/*">
-                </div>
-
-            </div>
-
-            <div class="tab-pane fade" id="pills-address">
-
-                <div class="mb-3">
-                    <label>Address</label>
-                    <div class="input-group">
-                            <span class="input-group-text"><i class="fa fa-fw fa-map-marker-alt"></i></span>
-                        <input type="text" class="form-control" name="address" placeholder="Street Address" maxlength="200">
-                    </div>
-                </div>
-
-                <div class="mb-3">
-                    <label>City</label>
-                    <div class="input-group">
-                            <span class="input-group-text"><i class="fa fa-fw fa-city"></i></span>
-                        <input type="text" class="form-control" name="city" placeholder="City" maxlength="200">
-                    </div>
-                </div>
-
-                <div class="mb-3">
-                    <label>State / Province</label>
-                    <div class="input-group">
-                            <span class="input-group-text"><i class="fa fa-fw fa-flag"></i></span>
-                        <input type="text" class="form-control" name="state" placeholder="State or Province" maxlength="200">
-                    </div>
-                </div>
-
-                <div class="mb-3">
-                    <label>Postal Code</label>
-                    <div class="input-group">
-                            <span class="input-group-text"><i class="fab fa-fw fa-usps"></i></span>
-                        <input type="text" class="form-control" name="zip" placeholder="Zip or Postal Code" maxlength="200">
-                    </div>
-                </div>
-
-                <div class="mb-3">
-                    <label>Country</label>
-                    <div class="input-group">
-                            <span class="input-group-text"><i class="fa fa-fw fa-globe-americas"></i></span>
-                        <select class="form-select select2" name="country">
-                            <option value="">- Country -</option>
-                            <?php foreach($countries_array as $country_name) { ?>
-                                <option <?php if ($session_company_country == $country_name) { echo "selected"; } ?>  data-iso2="<?= $country_iso2_array[$country_name] ?? '' ?>"><?= $country_name ?></option>
-                            <?php } ?>
-                        </select>
-                    </div>
-                </div>
-
-            </div>
-
-            <div class="tab-pane fade" id="pills-contact">
-                <?php if ($client_id) { ?>
-                <div class="mb-3">
-                    <label>Contact</label>
-                    <div class="input-group">
-                            <span class="input-group-text"><i class="fa fa-fw fa-user"></i></span>
-                        <select class="form-select select2" name="contact">
-                            <option value="">- Contact -</option>
-                            <?php
-
-                            $sql_contacts = mysqli_query($mysqli, "SELECT contact_id, contact_name, contact_client_id, contact_photo, contact_title FROM contacts WHERE contact_archived_at IS NULL AND contact_client_id = $client_id ORDER BY contact_name ASC");
-                            while ($row = mysqli_fetch_assoc($sql_contacts)) {
-                                $contact_id = $row['contact_id'];
-                                $contact_name = escapeHtml($row['contact_name']);
-                                ?>
-                                <option value="<?= $contact_id ?>"<?= selectOptionContact($row['contact_client_id'] ?? 0, $row['contact_name'], $row['contact_photo'] ?? '', $row['contact_title'] ?? '', $row['contact_id'] ?? 0) ?>><?= $contact_name ?></option>
-                            <?php } ?>
-
-                        </select>
-                    </div>
-                </div>
-                <?php } ?>
-
-                <label>Phone / <span class="text-secondary">Extension</span></label>
-                <div class="row g-2">
-                    <div class="col-9">
-                        <div class="mb-3">
-                            <div class="input-group">
-                                    <span class="input-group-text"><i class="fa fa-fw fa-phone"></i></span>
-                                <input type="hidden" name="phone_country_code">
-                                <input type="tel" class="form-control" name="phone" placeholder="Phone Number" maxlength="200" data-itflow-phone="phone_country_code" data-itflow-phone-country-select="country">
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-3">
-                        <div class="mb-3">
-                            <input type="text" class="form-control" name="extension" placeholder="ext." maxlength="200">
-                        </div>
-                    </div>
-                </div>
-
-                <label>Fax</label>
-                <div class="row g-2">
-                    <div class="col-9">
-                        <div class="mb-3">
-                            <div class="input-group">
-                                    <span class="input-group-text"><i class="fa fa-fw fa-fax"></i></span>
-                                <input type="hidden" name="fax_country_code">
-                                <input type="tel" class="form-control" name="fax" placeholder="Fax Number" maxlength="200" data-itflow-phone="fax_country_code" data-itflow-phone-country-select="country">
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="mb-3">
-                    <label>Hours</label>
-                    <div class="input-group">
-                            <span class="input-group-text"><i class="fa fa-fw fa-clock"></i></span>
-                        <input type="text" class="form-control" name="hours" placeholder="Hours of operation" maxlength="200">
-                    </div>
-                </div>
-
-            </div>
-
-            <div class="tab-pane fade" id="pills-notes">
-
-                <div class="mb-3">
-                    <textarea class="form-control" rows="12" name="notes" placeholder="Notes, eg Parking Info, Building Access etc"></textarea>
-                </div>
-
-                <div class="mb-3">
-                    <label>Tags</label>
-                    <div class="input-group">
-                            <span class="input-group-text"><i class="fa fa-fw fa-tags"></i></span>
-                        <select class="form-select select2" name="tags[]" data-placeholder="Add some tags" multiple>
-                            <?php
-
-                            $sql_tags_select = mysqli_query($mysqli, "SELECT tag_id, tag_name, tag_color, tag_icon FROM tags WHERE tag_type = 2 ORDER BY tag_name ASC");
-                            while ($row = mysqli_fetch_assoc($sql_tags_select)) {
-                                $tag_id_select = intval($row['tag_id']);
-                                $tag_name_select = escapeHtml($row['tag_name']);
-                                ?>
-                                <option value="<?= $tag_id_select ?>"<?= selectOptionColor($row['tag_color'] ?? '', $row['tag_icon'] ?? '') ?>><?= $tag_name_select ?></option>
-                            <?php } ?>
-
-                        </select>
-                            <button class="btn btn-secondary ajax-modal" title="New tag" type="button"
-                                data-modal-url="../admin/modals/tag/tag_add.php?type=2">
-                                <i class="fas fa-plus"></i>
-                            </button>
-                    </div>
-                </div>
-
-            </div>
-
-        </div>
-
+        <?php require 'location_form.php'; ?>
     </div>
     <div class="modal-footer">
         <button type="submit" name="add_location" class="btn btn-primary text-bold"><i class="fa fa-check me-2"></i>Create</button>
@@ -248,5 +51,4 @@ ob_start();
 </form>
 
 <?php
-
 require_once '../../../includes/modal_footer.php';

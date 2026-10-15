@@ -30,7 +30,8 @@ $contact_id = 0;
 $contact_name = $contact_title = $contact_department = $contact_email = $contact_pin = $contact_notes = $contact_photo = '';
 $contact_phone = $contact_phone_country_code = $contact_extension = $contact_mobile = $contact_mobile_country_code = '';
 $contact_primary = $contact_important = $contact_billing = $contact_technical = 0;
-$contact_location_id = 0;
+// Opened from a location's page - start at that location
+$contact_location_id = $client_id ? assetClientOwnedId('location', $_GET['location_id'] ?? 0, $client_id) : 0;
 $auth_method = '';
 $contact_tag_id_array = [];
 

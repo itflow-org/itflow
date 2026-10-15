@@ -372,7 +372,7 @@ if (mysqli_num_rows($sql) == 0) {
                         <?php } ?>
                         <dt>Numbering</dt><dd>U1 at the <?= $rack_units_descending ? 'top' : 'bottom' ?></dd>
                         <?php if ($location_name) { ?>
-                            <dt>Location</dt><dd><a href="locations.php?client_id=<?= $client_id ?>&q=<?= urlencode(html_entity_decode($location_name)) ?>"><?= $location_name ?></a></dd>
+                            <dt>Location</dt><dd><a href="location.php?client_id=<?= $client_id ?>&location_id=<?= $location_id ?>"><?= $location_name ?></a></dd>
                         <?php } ?>
                         <?php if ($rack_physical_location) { ?>
                             <dt>In the building</dt><dd><?= $rack_physical_location ?></dd>

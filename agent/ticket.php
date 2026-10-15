@@ -1170,12 +1170,6 @@ if (isset($_GET['ticket_id'])) {
                                     </div>
                                 <?php } ?>
 
-                                <?php if (!empty($location_name)) { ?>
-                                    <div class="mt-2 text-truncate" title="Ticket location">
-                                        <i class="fa fa-fw fa-map-marker-alt text-secondary me-2"></i><?= $location_name ?>
-                                    </div>
-                                <?php } ?>
-
                                 <?php if ($contact_open_tickets) { ?>
                                     <!-- The count is this contact's, so the link goes to their tickets, not the whole client's -->
                                     <div class="mt-2 pt-2 border-top small">
@@ -1185,6 +1179,41 @@ if (isset($_GET['ticket_id'])) {
 
                             <?php } ?>
 
+                        </div>
+                    </div>
+                <?php } ?>
+
+                <!-- Site - where the work is: getting there and getting in -->
+                <?php if ($location_id && $location_name) {
+                    $ticket_location_address = locationAddressText($ticket, true);
+                    $ticket_location_directions = locationDirectionsUrl($ticket);
+                    $ticket_location_phone = contactPhoneLink($ticket['location_phone'], $ticket['location_phone_country_code'], $ticket['location_phone_extension']);
+                    $ticket_location_notes = trim((string) $ticket['location_notes']); ?>
+                    <div class="card mb-3">
+                        <div class="card-header px-3 py-2">
+                            <h5 class="card-title mt-1"><i class="fas fa-fw fa-map-marker-alt me-2"></i>Site</h5>
+                            <?php if ($ticket_location_directions) { ?>
+                                <div class="card-tools">
+                                    <a class="btn btn-tool" href="<?= escapeHtml($ticket_location_directions) ?>" target="_blank" rel="noopener" title="Directions"><i class="fas fa-directions"></i></a>
+                                </div>
+                            <?php } ?>
+                        </div>
+                        <div class="card-body p-3">
+                            <a class="fw-semibold ajax-modal" href="#" data-modal-size="lg" data-modal-url="modals/location/location.php?id=<?= $location_id ?>"><?= $location_name ?></a>
+                            <?php if ($ticket_location_address !== '') { ?>
+                                <div class="small mt-1">
+                                    <a class="text-reset" href="<?= escapeHtml(locationMapUrl($ticket)) ?>" target="_blank" rel="noopener" title="Open in maps"><?= escapeHtml($ticket_location_address) ?></a><button type="button" class="itflow-copy clipboardjs" title="Copy address" data-clipboard-text="<?= escapeHtml($ticket_location_address) ?>"><i class="far fa-copy"></i></button>
+                                </div>
+                            <?php } ?>
+                            <?php if ($ticket_location_phone) { ?>
+                                <div class="small mt-1"><i class="fa fa-fw fa-phone text-secondary me-1"></i><?= $ticket_location_phone ?></div>
+                            <?php } ?>
+                            <?php if ($ticket['location_hours']) { ?>
+                                <div class="small mt-1 text-body-secondary"><i class="fa fa-fw fa-clock me-1"></i><?= escapeHtml($ticket['location_hours']) ?></div>
+                            <?php } ?>
+                            <?php if ($ticket_location_notes !== '') { ?>
+                                <div class="small mt-2 pt-2 border-top text-body-secondary itflow-ticket-site-notes" title="Access notes"><i class="fa fa-fw fa-door-open me-1"></i><?= nl2br(escapeHtml($ticket_location_notes)) ?></div>
+                            <?php } ?>
                         </div>
                     </div>
                 <?php } ?>

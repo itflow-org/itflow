@@ -21,7 +21,9 @@ $asset_ip = $asset_ipv6 = $asset_nat_ip = $asset_mac = $asset_uri = $asset_uri_2
 $asset_status = $asset_purchase_reference = $asset_purchase_date = $asset_install_date = $asset_warranty_expire = '';
 $asset_physical_location = $asset_notes = $asset_photo = '';
 $asset_favorite = 0;
-$asset_location_id = $asset_vendor_id = $asset_network_id = 0;
+$asset_vendor_id = $asset_network_id = 0;
+// Opened from a location's page - start at that location
+$asset_location_id = $client_id ? assetClientOwnedId('location', $_GET['location_id'] ?? 0, $client_id) : 0;
 $asset_contact_id = intval($_GET['contact_id'] ?? 0);
 $asset_tag_id_array = [];
 

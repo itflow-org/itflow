@@ -39,7 +39,7 @@ $location_map_query = rawurlencode(html_entity_decode(trim("$location_address $l
 </div>
 
 <div class="col-md-4">
-    <div class="itflow-ov-label">Primary location</div>
+    <div class="itflow-ov-label">Primary location<?php if ($location_id) { ?> &middot; <a class="text-reset" href="location.php?client_id=<?= $client_id ?>&location_id=<?= $location_id ?>" title="Open the location"><?= $location_name ?></a><?php } ?></div>
     <?php if ($location_id) { ?>
         <?php if ($location_address || $location_city) { ?>
             <a class="text-reset text-decoration-none" href="//maps.<?= $session_map_source ?>.com/?q=<?= $location_map_query ?>" target="_blank" rel="noopener" title="Open in maps">

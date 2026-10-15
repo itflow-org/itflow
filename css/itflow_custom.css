@@ -4532,3 +4532,21 @@ img.itflow-contact-avatar {
 .itflow-license-links .itflow-link-row {
     margin: 0 -.4rem;
 }
+
+/* Locations - agent/locations.php, agent/location.php, agent/modals/location/
+
+   A location's tile is its photo, or a pin (a building for the primary) on
+   the location tone (functions/location.php locationTile()). */
+.itflow-asset-tone-location { --itflow-asset-tone: #c2410c; }
+[data-bs-theme="dark"] .itflow-asset-tone-location { --itflow-asset-tone: #f59e72; }
+.itflow-location-address-cell {
+    min-width: 12rem;
+}
+.itflow-location-email {
+    max-width: 18rem;
+}
+/* The access notes on a ticket's Site card - a few lines, then it scrolls */
+.itflow-ticket-site-notes {
+    max-height: 7.5rem;
+    overflow-y: auto;
+}

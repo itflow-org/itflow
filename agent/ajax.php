@@ -577,6 +577,31 @@ if (isset($_POST['asset_set_notes'])) {
 }
 
 /*
+ * Location notes (access, parking, alarm) - the location page and quick look save on blur
+ */
+if (isset($_POST['location_set_notes'])) {
+
+    validateCSRFToken();
+
+    enforceUserPermission('module_client', 2);
+
+    $row = locationRow($_POST['location_id'] ?? 0);
+    if (!$row) {
+        exit;
+    }
+    $client_id = intval($row['location_client_id']);
+
+    enforceClientAccess();
+
+    $location_id = intval($row['location_id']);
+    $notes = escapeSql($_POST['notes'] ?? '');
+    mysqli_query($mysqli, "UPDATE locations SET location_notes = '$notes' WHERE location_id = $location_id");
+
+    logAudit("Location", "Edit", "$session_name edited the notes on location " . escapeSql($row['location_name']), $client_id, $location_id);
+
+}
+
+/*
  * License quick notes - the license page and quick look save on blur
  */
 if (isset($_POST['software_set_notes'])) {

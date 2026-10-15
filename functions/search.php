@@ -181,6 +181,27 @@ function globalSearchGroups($terms, $deep) {
         },
     ];
 
+    // Sites - by name, street, town or postcode, or the site's phone number
+    $location_phone_match = $phone ? "OR location_phone LIKE '%$phone%'" : '';
+    $groups[] = [
+        'key' => 'locations', 'label' => 'Locations', 'icon' => 'map-marker-alt', 'module' => 'module_client',
+        'select' => 'location_id, location_name, location_address, location_city, location_state, location_zip, location_primary, location_client_id, client_name',
+        'from' => 'locations LEFT JOIN clients ON location_client_id = client_id',
+        'where' => "location_archived_at IS NULL
+            AND (location_name LIKE '%$like%' OR location_address LIKE '%$like%' OR location_city LIKE '%$like%' OR location_zip LIKE '%$like%' $location_phone_match)",
+        'scope' => 'location_client_id',
+        'order' => "(location_name = '$eq') DESC, (location_name LIKE '$like%') DESC, location_primary DESC, location_name",
+        'list_url' => '/agent/locations.php?' . http_build_query(['q' => $q]),
+        'item' => function ($row) {
+            return [
+                'title' => $row['location_name'],
+                'subtitle' => implode(' · ', array_filter([intval($row['location_primary']) ? 'Primary' : '', locationAddressText($row)])),
+                'context' => $row['client_name'],
+                'url' => globalSearchClientUrl('location.php', $row['location_client_id'], ['location_id' => intval($row['location_id'])]),
+            ];
+        },
+    ];
+
     // Any interface counts, not just the primary one - the address someone has
     // in hand is as likely to be the iDRAC as the OS NIC.
     $groups[] = [
