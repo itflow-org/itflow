@@ -141,17 +141,9 @@ $sql_related_recurring_tickets = mysqli_query($mysqli, "SELECT recurring_tickets
 );
 $recurring_ticket_count = mysqli_num_rows($sql_related_recurring_tickets);
 
-// Licenses, with seats in use counted in the same query
-$sql_related_software = mysqli_query($mysqli, "SELECT software_assets.software_id, software_name, software_version, software_seats,
-        (SELECT COUNT(*) FROM software_assets AS sa WHERE sa.software_id = software.software_id)
-        + (SELECT COUNT(*) FROM software_contacts AS sc WHERE sc.software_id = software.software_id) AS seats_used
-    FROM software_assets
-    LEFT JOIN software ON software_assets.software_id = software.software_id
-    WHERE software_assets.asset_id = $asset_id
-      AND software_archived_at IS NULL
-    ORDER BY software_name ASC"
-);
-$software_count = mysqli_num_rows($sql_related_software);
+// Licenses it holds a seat on, with the key it was given
+$held_software = softwareHeldBy('asset', $asset_id);
+$software_count = count($held_software);
 
 // Documents
 $linked_documents = linkedRecords('asset', $asset_id, 'document');
@@ -450,15 +442,8 @@ ob_start();
 
                 <?php if ($software_count) { ?>
                     <div class="tab-pane fade <?= $first_tab === 'licenses' ? 'show active' : '' ?>" id="asset-quick-<?= $asset_id ?>-licenses" role="tabpanel">
-                        <ul class="list-group list-group-flush">
-                            <?php while ($row = mysqli_fetch_assoc($sql_related_software)) {
-                                $seats = intval($row['software_seats']); ?>
-                                <li class="list-group-item px-0 d-flex justify-content-between gap-3">
-                                    <span><?= escapeHtml($row['software_name']) ?> <span class="text-body-secondary"><?= escapeHtml($row['software_version']) ?></span></span>
-                                    <span class="small text-nowrap <?= $seats && intval($row['seats_used']) > $seats ? 'text-danger-emphasis' : 'text-body-secondary' ?>"><?= intval($row['seats_used']) ?><?= $seats ? " / $seats" : '' ?> seats</span>
-                                </li>
-                            <?php } ?>
-                        </ul>
+                        <!-- Each opens its quick look - seats, renewal, the key to install -->
+                        <?= softwareHeldList($held_software) ?>
                     </div>
                 <?php } ?>
 

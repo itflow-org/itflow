@@ -1,7 +1,8 @@
 <?php
 
 /*
- * ITFlow - links between documents, files and what they are about.
+ * ITFlow - links between documents, files and what they are about, and the
+ * devices, users, credentials and files on a license.
  *
  * One handler for every pair LINK_RELATIONS knows (functions/links.php):
  * link_items links any number of records at once, unlink_item drops one.
@@ -35,12 +36,21 @@ function linkHandle($action, $from, $id, $to, $ids) {
 
     if ($action === 'link') {
         $added = linkAdd($from, $source['id'], $to, $ids);
+
+        // A license that has just gone over its seats says so
+        $seat_warning = '';
+        if ($added && in_array($relation['table'], ['software_assets', 'software_contacts'], true)) {
+            foreach ($from === 'software' ? [$source['id']] : (array) $ids as $software_id) {
+                $seat_warning .= softwareSeatWarning($software_id);
+            }
+        }
+
         if (!$added) {
             flashAlert("Nothing new to link to <strong>{$source['name']}</strong>.", 'warning');
         } elseif (count($added) === 1) {
-            flashAlert(ucfirst($to_entity['label']) . " <strong>{$added[0]}</strong> linked to <strong>{$source['name']}</strong>");
+            flashAlert(ucfirst($to_entity['label']) . " <strong>{$added[0]}</strong> linked to <strong>{$source['name']}</strong>$seat_warning", $seat_warning ? 'warning' : 'success');
         } else {
-            flashAlert("Linked <strong>" . count($added) . "</strong> " . strtolower($to_entity['plural']) . " to <strong>{$source['name']}</strong>");
+            flashAlert("Linked <strong>" . count($added) . "</strong> " . strtolower($to_entity['plural']) . " to <strong>{$source['name']}</strong>$seat_warning", $seat_warning ? 'warning' : 'success');
         }
     } else {
         $removed = linkRemove($from, $source['id'], $to, intval($ids[0] ?? 0));
@@ -70,6 +80,8 @@ $legacy_links = [
     'vendor_to_document' => ['document', 'document_id', 'vendor', 'vendor_id'],
     'asset_to_file' => ['file', 'file_id', 'asset', 'asset_id'],
     'contact_to_file' => ['file', 'file_id', 'contact', 'contact_id'],
+    'software_to_asset' => ['asset', 'asset_id', 'software', 'software_id'],
+    'software_to_contact' => ['contact', 'contact_id', 'software', 'software_id'],
 ];
 foreach ($legacy_links as $legacy => [$from, $from_field, $to, $to_field]) {
     if (isset($_POST["link_$legacy"])) {

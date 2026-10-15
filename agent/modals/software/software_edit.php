@@ -1,320 +1,56 @@
 <?php
 
+/*
+ * Edit a license - the same form as New License (software_form.php), with
+ * its devices and users already picked.
+ */
+
 require_once '../../../includes/modal_header.php';
 
 enforceUserPermission('module_support', 2);
 
-$software_id = intval($_GET['id']);
+$software_id = intval($_GET['id'] ?? 0);
+$row = softwareRow($software_id);
+if (!$row) {
+    echo json_encode(['error' => 'That license no longer exists.']);
+    exit;
+}
 
-$sql = mysqli_query($mysqli, "SELECT software_client_id, software_created_at, software_description, software_expire,
-    software_key, software_license_type, software_name, software_notes, software_purchase,
-    software_purchase_reference, software_seats, software_type, software_vendor_id,
-    software_version FROM software WHERE software_id = $software_id LIMIT 1");
+$client_id = intval($row['software_client_id']);
+enforceClientAccess();
 
-$row = mysqli_fetch_assoc($sql);
+$software_form_mode = 'edit';
 $software_name = escapeHtml($row['software_name']);
-$software_description = escapeHtml($row['software_description']);
 $software_version = escapeHtml($row['software_version']);
 $software_type = escapeHtml($row['software_type']);
+$software_description = escapeHtml($row['software_description']);
 $software_license_type = escapeHtml($row['software_license_type']);
+$software_seats = $row['software_seats'] !== null && intval($row['software_seats']) > 0 ? intval($row['software_seats']) : '';
 $software_key = escapeHtml($row['software_key']);
-$software_seats = escapeHtml($row['software_seats']);
 $software_purchase_reference = escapeHtml($row['software_purchase_reference']);
 $software_purchase = escapeHtml($row['software_purchase']);
 $software_expire = escapeHtml($row['software_expire']);
 $software_notes = escapeHtml($row['software_notes']);
-$software_created_at = escapeHtml($row['software_created_at']);
 $software_vendor_id = intval($row['software_vendor_id']);
-$client_id = intval($row['software_client_id']);
-$seat_count = 0;
+$software_favorite = intval($row['software_favorite']);
 
-// Device Licenses
-$asset_licenses_sql = mysqli_query($mysqli, "SELECT asset_id FROM software_assets WHERE software_id = $software_id");
-$asset_licenses_array = array();
-while ($row = mysqli_fetch_assoc($asset_licenses_sql)) {
-    $asset_licenses_array[] = intval($row['asset_id']);
-    $seat_count = $seat_count + 1;
-}
-$asset_licenses = implode(',', $asset_licenses_array);
-
-// User Licenses
-$contact_licenses_sql = mysqli_query($mysqli, "SELECT contact_id FROM software_contacts WHERE software_id = $software_id");
-$contact_licenses_array = array();
-while ($row = mysqli_fetch_assoc($contact_licenses_sql)) {
-    $contact_licenses_array[] = intval($row['contact_id']);
-    $seat_count = $seat_count + 1;
-}
-$contact_licenses = implode(',', $contact_licenses_array);
-
-$license_types_array = array (
-    'Device',
-    'User',
-    'Site',
-    'Concurrent',
-    'Trial',
-    'Perpetual',
-    'Usage-based'
-);
-
-enforceClientAccess();
+$holders = softwareSeatHolders($software_id);
+$software_asset_ids = array_map('intval', array_column($holders['assets'], 'asset_id'));
+$software_contact_ids = array_map('intval', array_column($holders['contacts'], 'contact_id'));
 
 ob_start();
 
 ?>
-
 <div class="modal-header bg-dark">
-    <h5 class="modal-title"><i class="fa fa-fw fa-cube me-2"></i>Editing license: <strong><?= $software_name ?></strong></h5>
+    <h5 class="modal-title text-truncate"><i class="fa fa-fw fa-cube me-2"></i>Editing license: <strong><?= $software_name ?></strong></h5>
     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
 </div>
 <form action="post.php" method="post" autocomplete="off">
     <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
     <input type="hidden" name="software_id" value="<?= $software_id ?>">
+
     <div class="modal-body">
-
-        <ul class="nav nav-pills nav-justified mb-3">
-            <li class="nav-item">
-                <a class="nav-link active" data-bs-toggle="pill" href="#pills-details<?= $software_id ?>">Details</a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" data-bs-toggle="pill" href="#pills-license<?= $software_id ?>">License</a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" data-bs-toggle="pill" href="#pills-device-licenses<?= $software_id ?>">Devices</a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" data-bs-toggle="pill" href="#pills-user-licenses<?= $software_id ?>">Users</a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" data-bs-toggle="pill" href="#pills-notes<?= $software_id ?>">Notes</a>
-            </li>
-        </ul>
-
-        <hr>
-
-        <div class="tab-content" <?php if (lookupUserPermission('module_support') <= 1) { echo 'inert'; } ?>>
-
-            <div class="tab-pane fade show active" id="pills-details<?= $software_id ?>">
-
-                <div class="mb-3">
-                    <label>Type <strong class="text-danger">*</strong></label>
-                    <div class="input-group">
-                            <span class="input-group-text"><i class="fa fa-fw fa-tag"></i></span>
-                        <select class="form-select select2" name="type" required>
-                            <option value="">- Select Type -</option>
-                            <<?php
-                            $sql_software_types_select = mysqli_query($mysqli, "
-                                SELECT category_name, category_color, category_icon FROM categories
-                                WHERE category_type = 'software_type'
-                                AND category_archived_at IS NULL
-                                ORDER BY category_order ASC, category_name ASC
-                            ");
-                            while ($row = mysqli_fetch_assoc($sql_software_types_select)) {
-                                $software_type_select = escapeHtml($row['category_name']);
-                                ?>
-                                <option <?php if ($software_type == $software_type_select) { echo "selected"; } ?><?= selectOptionColor($row['category_color'] ?? '', $row['category_icon'] ?? '') ?>>
-                                    <?= $software_type_select ?>
-                                </option>
-                            <?php } ?>
-                        </select>
-                    </div>
-                </div>
-
-                <div class="mb-3">
-                    <label>Software Name <strong class="text-danger">*</strong></label>
-                    <div class="input-group">
-                            <span class="input-group-text"><i class="fa fa-fw fa-cube"></i></span>
-                        <input type="text" class="form-control" name="name" placeholder="Software name" maxlength="200" value="<?= $software_name ?>" required>
-                    </div>
-                </div>
-
-                <div class="mb-3">
-                    <label>Version</label>
-                    <div class="input-group">
-                            <span class="input-group-text"><i class="fa fa-fw fa-cube"></i></span>
-                        <input type="text" class="form-control" name="version" placeholder="Software version" maxlength="200" value="<?= $software_version ?>">
-                    </div>
-                </div>
-
-                <div class="mb-3">
-                    <label>Vendor</label>
-                    <div class="input-group">
-                            <span class="input-group-text"><i class="fa fa-fw fa-building"></i></span>
-                        <select class="form-select select2" name="vendor">
-                            <option value="">- Select Vendor -</option>
-                            <?php
-                            $vendor_sql = mysqli_query($mysqli, "SELECT vendor_id, vendor_name FROM vendors WHERE vendor_client_id = $client_id AND vendor_archived_at IS NULL ORDER BY vendor_name ASC");
-                                while ($row = mysqli_fetch_assoc($vendor_sql)) {
-                                    $vendor_id = $row['vendor_id'];
-                                    $vendor_name = $row['vendor_name'];
-                                ?>
-                                <option <?php if ($software_vendor_id == $vendor_id) { echo "selected"; } ?> value="<?= $vendor_id ?>"><?= $vendor_name ?></option>
-                            <?php
-                            }
-                            ?>
-                        </select>
-                    </div>
-                </div>
-
-                <div class="mb-3">
-                    <label>Description</label>
-                    <div class="input-group">
-                            <span class="input-group-text"><i class="fa fa-fw fa-align-left"></i></span>
-                        <input type="text" class="form-control" name="description" placeholder="Short description" value="<?= $software_description ?>">
-                    </div>
-                </div>
-
-            </div>
-
-             <div class="tab-pane fade" id="pills-license<?= $software_id ?>">
-
-                <div class="mb-3">
-                    <label>License Type</label>
-                    <div class="input-group">
-                            <span class="input-group-text"><i class="fa fa-fw fa-cube"></i></span>
-                        <select class="form-select select2" name="license_type">
-                            <option value="">- Select a License Type -</option>
-                            <?php foreach($license_types_array as $license_type_select) { ?>
-                                <option <?php if ($license_type_select == $software_license_type) { echo "selected"; } ?>><?= $license_type_select ?></option>
-                            <?php } ?>
-                        </select>
-                    </div>
-                </div>
-
-                <div class="mb-3">
-                    <label>Seats</label>
-                    <div class="input-group">
-                            <span class="input-group-text"><i class="fa fa-fw fa-cube"></i></span>
-                        <input type="text" class="form-control" inputmode="numeric" pattern="[0-9]*" name="seats" placeholder="Number of seats" value="<?= $software_seats ?>">
-                    </div>
-                </div>
-
-                <div class="mb-3">
-                    <label>License Key</label>
-                    <div class="input-group">
-                            <span class="input-group-text"><i class="fa fa-fw fa-key"></i></span>
-                        <input type="text" class="form-control" name="key" placeholder="License key" maxlength="200" value="<?= $software_key ?>">
-                    </div>
-                </div>
-
-                <div class="mb-3">
-                    <label>Purchase Reference</label>
-                    <div class="input-group">
-                            <span class="input-group-text"><i class="fa fa-fw fa-shopping-cart"></i></span>
-                        <input type="text" class="form-control" name="purchase_reference" placeholder="eg. Invoice, PO Number" maxlength="200" value="<?= $software_purchase_reference ?>">
-                    </div>
-                </div>
-
-                <div class="mb-3">
-                    <label>Purchase Date</label>
-                    <div class="input-group">
-                            <span class="input-group-text"><i class="fa fa-fw fa-calendar-check"></i></span>
-                        <input type="date" class="form-control" name="purchase" max="2999-12-31" value="<?= $software_purchase ?>">
-                    </div>
-                </div>
-
-                <div class="mb-3">
-                    <label>Expire</label>
-                    <div class="input-group">
-                            <span class="input-group-text"><i class="fa fa-fw fa-calendar-times"></i></span>
-                        <input type="date" class="form-control" name="expire" max="2999-12-31" value="<?= $software_expire ?>">
-                    </div>
-                </div>
-
-            </div>
-
-            <div class="tab-pane fade" id="pills-device-licenses<?= $software_id ?>">
-
-                <ul class="list-group">
-
-                    <li class="list-group-item bg-dark">
-                        <div class="form-check">
-                            <input type="checkbox" class="form-check-input"
-                                onclick="this.closest('.tab-pane').querySelectorAll('.asset-checkbox').forEach(checkbox => checkbox.checked = this.checked);"
-                            >
-                            <label class="form-check-label ms-3"><strong>Licensed Devices</strong></label>
-                        </div>
-                    </li>
-
-
-                    <?php
-                    $sql_assets_select = mysqli_query($mysqli, "SELECT asset_archived_at, asset_id, asset_name, asset_type, contact_name FROM assets LEFT JOIN contacts ON asset_contact_id = contact_id WHERE (asset_archived_at > '$software_created_at' OR asset_archived_at IS NULL) AND asset_client_id = $client_id ORDER BY asset_archived_at ASC, asset_name ASC");
-
-                    while ($row = mysqli_fetch_assoc($sql_assets_select)) {
-                        $asset_id_select = intval($row['asset_id']);
-                        $asset_name_select = escapeHtml($row['asset_name']);
-                        $asset_type_select = escapeHtml($row['asset_type']);
-                        $asset_archived_at = escapeHtml($row['asset_archived_at']);
-                        if (empty($asset_archived_at)) {
-                            $asset_archived_display = "";
-                        } else {
-                            $asset_archived_display = "Archived - ";
-                        }
-                        $contact_name_select = escapeHtml($row['contact_name']);
-
-                        ?>
-                        <li class="list-group-item">
-                            <div class="form-check">
-                                <input type="checkbox" class="form-check-input asset-checkbox" name="assets[]" value="<?= $asset_id_select ?>" <?php if (in_array($asset_id_select, $asset_licenses_array)) { echo "checked"; } ?>>
-                                <label class="form-check-label ms-2"><?= "$asset_archived_display$asset_name_select - $contact_name_select" ?></label>
-                            </div>
-                        </li>
-
-                    <?php } ?>
-
-                </ul>
-
-            </div>
-
-            <div class="tab-pane fade" id="pills-user-licenses<?= $software_id ?>">
-
-                <ul class="list-group">
-
-                    <li class="list-group-item bg-dark">
-                        <div class="form-check">
-                            <input type="checkbox" class="form-check-input" onclick="this.closest('.tab-pane').querySelectorAll('.user-checkbox').forEach(checkbox => checkbox.checked = this.checked);">
-                            <label class="form-check-label ms-3"><strong>Licensed Users</strong></label>
-                        </div>
-                    </li>
-
-                    <?php
-                    $sql_contacts_select = mysqli_query($mysqli, "SELECT contact_archived_at, contact_email, contact_id, contact_name, contact_photo FROM contacts WHERE (contact_archived_at > '$software_created_at' OR contact_archived_at IS NULL) AND contact_client_id = $client_id ORDER BY contact_archived_at ASC, contact_name ASC");
-
-                    while ($row = mysqli_fetch_assoc($sql_contacts_select)) {
-                        $contact_id_select = intval($row['contact_id']);
-                        $contact_name_select = escapeHtml($row['contact_name']);
-                        $contact_email_select = escapeHtml($row['contact_email']);
-                        $contact_archived_at = escapeHtml($row['contact_archived_at']);
-                        if (empty($contact_archived_at)) {
-                            $contact_archived_display = "";
-                        } else {
-                            $contact_archived_display = "Archived - ";
-                        }
-
-                        ?>
-                        <li class="list-group-item">
-                            <div class="form-check">
-                                <input type="checkbox" class="form-check-input user-checkbox" name="contacts[]" id="softwareEditContact<?= $contact_id_select ?>" value="<?= $contact_id_select ?>" <?php if (in_array("$contact_id_select", $contact_licenses_array)) { echo "checked"; } ?>>
-                                <label class="form-check-label ms-2 d-inline-flex align-items-center gap-2" for="softwareEditContact<?= $contact_id_select ?>">
-                                    <?= contactAvatar($client_id, $contact_id_select, $row['contact_name'], $row['contact_photo'], 'xs') ?>
-                                    <span><?= "$contact_archived_display$contact_name_select" ?><?php if ($contact_email_select) { ?> <span class="small text-body-secondary"><?= $contact_email_select ?></span><?php } ?></span>
-                                </label>
-                            </div>
-                        </li>
-
-                    <?php } ?>
-
-                </ul>
-
-            </div>
-
-            <div class="tab-pane fade" id="pills-notes<?= $software_id ?>">
-
-                <textarea class="form-control" rows="12" placeholder="Enter some notes" name="notes"><?= $software_notes ?></textarea>
-
-            </div>
-
-        </div>
-
+        <?php require 'software_form.php'; ?>
     </div>
     <div class="modal-footer">
         <button type="submit" name="edit_software" class="btn btn-primary text-bold"><i class="fa fa-check me-2"></i>Save</button>

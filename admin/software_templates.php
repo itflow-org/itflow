@@ -44,7 +44,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
         </form>
     </div>
     <div class="table-responsive-sm">
-        <table class="table table-striped table-borderless table-hover mb-0">
+        <table class="table table-striped table-borderless table-hover align-middle mb-0">
             <thead class="text-dark <?php if($num_rows[0] == 0){ echo "d-none"; } ?>">
             <tr>
                 <th class="ps-3">
@@ -80,18 +80,18 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                 ?>
                 <tr>
                     <td class="ps-3">
-                        <a class="text-dark ajax-modal" href="#" data-modal-url="modals/software_template/software_template_edit.php?id=<?= $software_template_id ?>">
-                            <div class="d-flex">
-                                <i class="fa fa-fw fa-2x fa-cube me-3"></i>
-                                <div class="flex-grow-1">
-                                    <div><?= "$software_template_name <span>$software_template_version</span>" ?></div>
+                        <a class="text-reset ajax-modal" href="#" data-modal-url="modals/software_template/software_template_edit.php?id=<?= $software_template_id ?>">
+                            <div class="d-flex align-items-center gap-3">
+                                <?= softwareTile($row['software_template_type']) ?>
+                                <div class="flex-grow-1 min-w-0">
+                                    <div><span class="fw-semibold"><?= $software_template_name ?></span> <span class="text-body-secondary"><?= $software_template_version ?></span></div>
                                     <div><small class="text-secondary"><?= $software_template_description ?></small></div>
                                 </div>
                             </div>
                         </a>
                     </td>
                     <td><?= $software_template_type ?></td>
-                    <td><?= $software_template_license_type ?></td>
+                    <td class="text-nowrap"><?php if ($software_template_license_type) { ?><i class="fas fa-fw <?= softwareLicenseTypeIcon($row['software_template_license_type']) ?> text-secondary me-1"></i><?= $software_template_license_type ?><?php } else { ?><span class="text-body-secondary">-</span><?php } ?></td>
                     <td>
                         <div class="dropdown dropstart text-center">
                             <button class="btn btn-secondary btn-sm" title="More actions" data-bs-toggle="dropdown">

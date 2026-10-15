@@ -1,46 +1,48 @@
 <?php
 
 /*
- * ITFlow - GET/POST request handler for client software & licenses
+ * ITFlow - GET/POST request handler for client licenses (the software table)
+ *
+ * The license itself, its seats (the devices and users on it), its individual
+ * keys and who each is handed to, renewals one at a time or in bulk, and the
+ * export. Every handler checks the license's own client, and every device,
+ * user and vendor a form names must be that client's - a form posting another
+ * client's asset id gets nothing. Links to documents, files and credentials,
+ * and single seats from the asset and contact pages, go through post/link.php.
  */
 
 defined('FROM_POST_HANDLER') || die("Direct file access is not allowed");
 
-if (isset($_POST['add_software_from_template'])) {
-
-    validateCSRFToken();
-
-    enforceUserPermission('module_support', 2);
-
-    // GET POST Data
-    $client_id = intval($_POST['client_id']);
-    $software_template_id = intval($_POST['software_template_id']);
-
+/**
+ * The license a request names, after the client access check - or back to
+ * the page with an error if it is gone.
+ */
+function softwareForRequest($software_id) {
+    global $client_id;
+    $row = softwareRow($software_id);
+    if (!$row) {
+        flashAlert('That license no longer exists.', 'error');
+        redirect();
+    }
+    $client_id = intval($row['software_client_id']);
     enforceClientAccess();
+    return $row;
+}
 
-    // GET Software Template Info
-    $sql_software_templates = mysqli_query($mysqli,"SELECT software_template_description, software_template_license_type, software_template_name,
-        software_template_notes, software_template_type, software_template_version FROM software_templates WHERE software_template_id = $software_template_id");
-    $row = mysqli_fetch_assoc($sql_software_templates);
-    $name = escapeSql($row['software_template_name']);
-    $version = escapeSql($row['software_template_version']);
-    $description = escapeSql($row['software_template_description']);
-    $type = escapeSql($row['software_template_type']);
-    $license_type = escapeSql($row['software_template_license_type']);
-    $notes = escapeSql($row['software_template_notes']);
-    $vendor = intval($_POST['vendor'] ?? 0);
-
-    // Software add query
-    mysqli_query($mysqli,"INSERT INTO software SET software_name = '$name', software_version = '$version', software_description = '$description', software_type = '$type', software_license_type = '$license_type', software_notes = '$notes', software_vendor_id = $vendor, software_client_id = $client_id");
-
-    $software_id = mysqli_insert_id($mysqli);
-
-    logAudit("Software", "Create", "$session_name created software $name using template", $client_id, $software_id);
-
-    flashAlert("Software <strong>$name</strong> created from template");
-
-    redirect();
-
+/** The license ids a bulk form posted, each checked for client access. Returns [id => row]. */
+function softwareBulkRows($ids) {
+    global $client_id;
+    $rows = [];
+    foreach (array_unique(array_map('intval', (array) $ids)) as $software_id) {
+        $row = softwareRow($software_id);
+        if (!$row) {
+            continue;
+        }
+        $client_id = intval($row['software_client_id']);
+        enforceClientAccess();
+        $rows[$software_id] = $row;
+    }
+    return $rows;
 }
 
 if (isset($_POST['add_software'])) {
@@ -49,58 +51,66 @@ if (isset($_POST['add_software'])) {
 
     enforceUserPermission('module_support', 2);
 
-    $client_id = intval($_POST['client_id']);
-    $name = escapeSql($_POST['name']);
-    $version = escapeSql($_POST['version']);
-    $description = escapeSql($_POST['description']);
-    $type = escapeSql($_POST['type']);
-    $license_type = escapeSql($_POST['license_type']);
-    $notes = escapeSql($_POST['notes']);
-    $key = escapeSql($_POST['key']);
-    $seats = intval($_POST['seats']);
-    $purchase_reference = escapeSql($_POST['purchase_reference']);
-    $purchase = escapeSql($_POST['purchase']);
-    if (empty($purchase)) {
-        $purchase = "NULL";
-    } else {
-        $purchase = "'" . $purchase . "'";
-    }
-    $expire = escapeSql($_POST['expire']);
-    if (empty($expire)) {
-        $expire = "NULL";
-    } else {
-        $expire = "'" . $expire . "'";
-    }
-    $notes = escapeSql($_POST['notes']);
-    $vendor = intval($_POST['vendor'] ?? 0);
+    $client_id = intval($_POST['client_id'] ?? 0);
 
     enforceClientAccess();
 
-    mysqli_query($mysqli,"INSERT INTO software SET software_name = '$name', software_version = '$version', software_description = '$description', software_type = '$type', software_key = '$key', software_license_type = '$license_type', software_seats = $seats, software_purchase_reference = '$purchase_reference', software_purchase = $purchase, software_expire = $expire, software_notes = '$notes', software_vendor_id = $vendor, software_client_id = $client_id");
+    $set = softwareFormSet($_POST, $client_id);
+    if ($set === null) {
+        flashAlert('A license needs a name.', 'error');
+        redirect();
+    }
+
+    mysqli_query($mysqli, "INSERT INTO software SET $set, software_client_id = $client_id");
+    $software_id = mysqli_insert_id($mysqli);
+
+    $changes = softwareSyncSeats($software_id, $client_id, $_POST['assets'] ?? [], $_POST['contacts'] ?? []);
+    $keys_added = softwareAddKeys($software_id, $_POST['keys'] ?? '');
+
+    $name = trim($_POST['name']);
+    logAudit("Software", "Create", "$session_name created license " . escapeSql($name . softwareSeatChangeText($changes)), $client_id, $software_id);
+
+    $warning = softwareSeatWarning($software_id);
+    flashAlert("License <strong>$name</strong> created" . ($keys_added ? " with $keys_added key" . ($keys_added === 1 ? '' : 's') : '') . $warning, $warning ? 'warning' : 'success');
+
+    redirect();
+
+}
+
+if (isset($_POST['add_software_from_template'])) {
+
+    validateCSRFToken();
+
+    enforceUserPermission('module_support', 2);
+
+    $client_id = intval($_POST['client_id'] ?? 0);
+    $software_template_id = intval($_POST['software_template_id'] ?? 0);
+
+    enforceClientAccess();
+
+    $row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT software_template_description, software_template_license_type, software_template_name,
+        software_template_notes, software_template_type, software_template_version FROM software_templates
+        WHERE software_template_id = $software_template_id AND software_template_archived_at IS NULL"));
+    if (!$row) {
+        flashAlert('That template no longer exists.', 'error');
+        redirect();
+    }
+
+    $name = escapeSql($row['software_template_name']);
+    $version = escapeSql($row['software_template_version']);
+    $description = escapeSql($row['software_template_description']);
+    $type = escapeSql($row['software_template_type']);
+    $license_type = escapeSql($row['software_template_license_type']);
+    $notes = escapeSql($row['software_template_notes']);
+    $vendor = assetClientOwnedId('vendor', $_POST['vendor'] ?? 0, $client_id);
+
+    mysqli_query($mysqli, "INSERT INTO software SET software_name = '$name', software_version = '$version', software_description = '$description', software_type = '$type', software_license_type = '$license_type', software_notes = '$notes', software_vendor_id = $vendor, software_client_id = $client_id");
 
     $software_id = mysqli_insert_id($mysqli);
 
-    $alert_extended = "";
+    logAudit("Software", "Create", "$session_name created license $name from a template", $client_id, $software_id);
 
-    // Add Asset Licenses
-    if (isset($_POST['assets'])) {
-        foreach($_POST['assets'] as $asset) {
-            $asset_id = intval($asset);
-            mysqli_query($mysqli,"INSERT INTO software_assets SET software_id = $software_id, asset_id = $asset_id");
-        }
-    }
-
-    // Add Contact Licenses
-    if (isset($_POST['contacts'])) {
-        foreach($_POST['contacts'] as $contact) {
-            $contact = intval($contact);
-            mysqli_query($mysqli,"INSERT INTO software_contacts SET software_id = $software_id, contact_id = $contact");
-        }
-    }
-
-    logAudit("Software", "Create", "$session_name created software $name", $client_id, $software_id);
-
-    flashAlert("Software <strong>$name</strong> created $alert_extended");
+    flashAlert("License <strong>{$row['software_template_name']}</strong> created from template");
 
     redirect();
 
@@ -112,59 +122,191 @@ if (isset($_POST['edit_software'])) {
 
     enforceUserPermission('module_support', 2);
 
-    $software_id = intval($_POST['software_id']);
-    $name = escapeSql($_POST['name']);
-    $version = escapeSql($_POST['version']);
-    $description = escapeSql($_POST['description']);
-    $type = escapeSql($_POST['type']);
-    $license_type = escapeSql($_POST['license_type']);
-    $notes = escapeSql($_POST['notes']);
-    $key = escapeSql($_POST['key']);
-    $seats = intval($_POST['seats']);
-    $purchase_reference = escapeSql($_POST['purchase_reference']);
-    $purchase = escapeSql($_POST['purchase']);
-    if (empty($purchase)) {
-        $purchase = "NULL";
+    $row = softwareForRequest($_POST['software_id'] ?? 0);
+    $software_id = intval($row['software_id']);
+
+    $set = softwareFormSet($_POST, $client_id);
+    if ($set === null) {
+        flashAlert('A license needs a name.', 'error');
+        redirect();
+    }
+
+    mysqli_query($mysqli, "UPDATE software SET $set WHERE software_id = $software_id");
+
+    // Only a form that showed the seats changes them
+    $changes = ['added' => [], 'removed' => []];
+    if (isset($_POST['seats_form'])) {
+        $changes = softwareSyncSeats($software_id, $client_id, $_POST['assets'] ?? [], $_POST['contacts'] ?? []);
+    }
+
+    $name = trim($_POST['name']);
+    logAudit("Software", "Edit", "$session_name edited license " . escapeSql($name . softwareSeatChangeText($changes)), $client_id, $software_id);
+
+    $warning = softwareSeatWarning($software_id);
+    flashAlert("License <strong>$name</strong> updated$warning", $warning ? 'warning' : 'success');
+
+    redirect();
+
+}
+
+if (isset($_POST['set_software_seats'])) {
+
+    validateCSRFToken();
+
+    enforceUserPermission('module_support', 2);
+
+    $row = softwareForRequest($_POST['software_id'] ?? 0);
+    $software_id = intval($row['software_id']);
+
+    $changes = softwareSyncSeats($software_id, $client_id, $_POST['assets'] ?? [], $_POST['contacts'] ?? []);
+
+    if ($changes['added'] || $changes['removed']) {
+        logAudit("Software", "Seats", "$session_name changed seats on license " . escapeSql($row['software_name'] . softwareSeatChangeText($changes)), $client_id, $software_id);
+    }
+
+    $warning = softwareSeatWarning($software_id);
+    $summary = [];
+    if ($changes['added']) {
+        $summary[] = count($changes['added']) . ' added';
+    }
+    if ($changes['removed']) {
+        $summary[] = count($changes['removed']) . ' removed';
+    }
+    flashAlert("Seats on <strong>{$row['software_name']}</strong> " . ($summary ? 'updated - ' . implode(', ', $summary) : 'unchanged') . $warning, $warning ? 'warning' : 'success');
+
+    redirect();
+
+}
+
+if (isset($_POST['renew_software'])) {
+
+    validateCSRFToken();
+
+    enforceUserPermission('module_support', 2);
+
+    $rows = softwareBulkRows($_POST['software_ids'] ?? []);
+    $mode = ($_POST['renew_mode'] ?? '') === 'date' ? 'date' : 'extend';
+    $term = (string) ($_POST['renew_term'] ?? '');
+    $new_date = softwareFormDate($_POST['renew_date'] ?? '');
+    $reference = trim((string) ($_POST['purchase_reference'] ?? ''));
+
+    if (!$rows || ($mode === 'extend' && !isset(SOFTWARE_RENEWAL_TERMS[$term])) || ($mode === 'date' && !$new_date)) {
+        flashAlert('Pick a term or a new renewal date.', 'error');
+        redirect();
+    }
+
+    $renewed = [];
+    foreach ($rows as $software_id => $row) {
+        $client_id = intval($row['software_client_id']);
+        $until = $mode === 'date' ? $new_date : softwareRenewalExtended($row['software_expire'], $term);
+        $reference_sql = $reference !== '' ? ", software_purchase_reference = '" . escapeSql(mb_substr($reference, 0, 200)) . "'" : '';
+
+        mysqli_query($mysqli, "UPDATE software SET software_expire = '$until' $reference_sql WHERE software_id = $software_id");
+
+        $was = $row['software_expire'] ?: 'no date';
+        logAudit("Software", "Renew", "$session_name renewed license " . escapeSql($row['software_name']) . " until $until (was $was)" . ($reference !== '' ? ', reference ' . escapeSql($reference) : ''), $client_id, $software_id);
+        $renewed[] = [$row['software_name'], $until];
+    }
+
+    if (count($renewed) === 1) {
+        flashAlert("License <strong>{$renewed[0][0]}</strong> renewed until <strong>{$renewed[0][1]}</strong>");
     } else {
-        $purchase = "'" . $purchase . "'";
+        flashAlert("Renewed <strong>" . count($renewed) . "</strong> licenses");
     }
-    $expire = escapeSql($_POST['expire']);
-    if (empty($expire)) {
-        $expire = "NULL";
+
+    redirect();
+
+}
+
+if (isset($_POST['add_software_keys'])) {
+
+    validateCSRFToken();
+
+    enforceUserPermission('module_support', 2);
+
+    $row = softwareForRequest($_POST['software_id'] ?? 0);
+    $software_id = intval($row['software_id']);
+
+    $added = softwareAddKeys($software_id, $_POST['keys'] ?? '');
+
+    if ($added) {
+        logAudit("Software", "Keys", "$session_name added $added key" . ($added === 1 ? '' : 's') . " to license " . escapeSql($row['software_name']), $client_id, $software_id);
+        flashAlert("Added <strong>$added</strong> key" . ($added === 1 ? '' : 's') . " to <strong>{$row['software_name']}</strong>");
     } else {
-        $expire = "'" . $expire . "'";
-    }
-    $notes = escapeSql($_POST['notes']);
-    $vendor = intval($_POST['vendor'] ?? 0);
-
-    $client_id = intval(getFieldById('software', $software_id, 'software_client_id'));
-
-    enforceClientAccess();
-
-    mysqli_query($mysqli,"UPDATE software SET software_name = '$name', software_version = '$version', software_description = '$description', software_type = '$type', software_key = '$key', software_license_type = '$license_type', software_seats = $seats, software_purchase_reference = '$purchase_reference', software_purchase = $purchase, software_expire = $expire, software_notes = '$notes', software_vendor_id = $vendor WHERE software_id = $software_id");
-
-
-    // Update Asset Licenses
-    mysqli_query($mysqli,"DELETE FROM software_assets WHERE software_id = $software_id");
-    if (isset($_POST['assets'])) {
-        foreach($_POST['assets'] as $asset) {
-            $asset = intval($asset);
-            mysqli_query($mysqli,"INSERT INTO software_assets SET software_id = $software_id, asset_id = $asset");
-        }
+        flashAlert("No new keys to add - blank, or <strong>{$row['software_name']}</strong> already has them.", 'warning');
     }
 
-    // Update Contact Licenses
-    mysqli_query($mysqli,"DELETE FROM software_contacts WHERE software_id = $software_id");
-    if (isset($_POST['contacts'])) {
-        foreach($_POST['contacts'] as $contact) {
-            $contact = intval($contact);
-            mysqli_query($mysqli,"INSERT INTO software_contacts SET software_id = $software_id, contact_id = $contact");
-        }
+    redirect();
+
+}
+
+if (isset($_POST['edit_software_key'])) {
+
+    validateCSRFToken();
+
+    enforceUserPermission('module_support', 2);
+
+    $software_key_id = intval($_POST['software_key_id'] ?? 0);
+    $key_row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT software_key, software_key_software_id FROM software_keys WHERE software_key_id = $software_key_id"));
+    if (!$key_row) {
+        flashAlert('That key no longer exists.', 'error');
+        redirect();
+    }
+    $row = softwareForRequest($key_row['software_key_software_id']);
+    $software_id = intval($row['software_id']);
+
+    $key = mb_substr(trim((string) ($_POST['key'] ?? '')), 0, 400);
+    if ($key === '') {
+        flashAlert('A key cannot be blank - delete it instead.', 'error');
+        redirect();
+    }
+    mysqli_query($mysqli, "UPDATE software_keys SET software_key = '" . escapeSql($key) . "' WHERE software_key_id = $software_key_id");
+
+    // Who it is handed to - only the client's own, and each one gets a seat if they had none
+    $assets = softwareClientIds('asset', $_POST['assets'] ?? [], $client_id);
+    $contacts = softwareClientIds('contact', $_POST['contacts'] ?? [], $client_id);
+    mysqli_query($mysqli, "DELETE FROM software_key_asset_assignments WHERE software_key_id = $software_key_id");
+    mysqli_query($mysqli, "DELETE FROM software_key_contact_assignments WHERE software_key_id = $software_key_id");
+    $holders = [];
+    foreach ($assets as $asset_id) {
+        mysqli_query($mysqli, "INSERT IGNORE INTO software_key_asset_assignments SET software_key_id = $software_key_id, asset_id = $asset_id");
+        mysqli_query($mysqli, "INSERT IGNORE INTO software_assets SET software_id = $software_id, asset_id = $asset_id");
+        $holders[] = getFieldById('assets', $asset_id, 'asset_name');
+    }
+    foreach ($contacts as $contact_id) {
+        mysqli_query($mysqli, "INSERT IGNORE INTO software_key_contact_assignments SET software_key_id = $software_key_id, contact_id = $contact_id");
+        mysqli_query($mysqli, "INSERT IGNORE INTO software_contacts SET software_id = $software_id, contact_id = $contact_id");
+        $holders[] = getFieldById('contacts', $contact_id, 'contact_name');
     }
 
-    logAudit("Software", "Edit", "$session_name edited software $name", $client_id, $software_id);
+    logAudit("Software", "Keys", "$session_name updated a key on license " . escapeSql($row['software_name']) . ($holders ? ', handed to ' . escapeSql(implode(', ', $holders)) : ', not handed to anyone'), $client_id, $software_id);
 
-    flashAlert("Software <strong>$name</strong> updated");
+    $warning = softwareSeatWarning($software_id);
+    flashAlert("Key on <strong>{$row['software_name']}</strong> saved" . ($holders ? ' - handed to <strong>' . implode(', ', $holders) . '</strong>' : '') . $warning, $warning ? 'warning' : 'success');
+
+    redirect();
+
+}
+
+if (isset($_GET['delete_software_key'])) {
+
+    validateCSRFToken();
+
+    enforceUserPermission('module_support', 2);
+
+    $software_key_id = intval($_GET['delete_software_key']);
+    $key_row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT software_key_software_id FROM software_keys WHERE software_key_id = $software_key_id"));
+    if (!$key_row) {
+        flashAlert('That key no longer exists.', 'error');
+        redirect();
+    }
+    $row = softwareForRequest($key_row['software_key_software_id']);
+
+    mysqli_query($mysqli, "DELETE FROM software_keys WHERE software_key_id = $software_key_id");
+
+    logAudit("Software", "Keys", "$session_name deleted a key from license " . escapeSql($row['software_name']), $client_id, intval($row['software_id']));
+
+    flashAlert("Key deleted from <strong>{$row['software_name']}</strong>", 'error');
 
     redirect();
 
@@ -176,51 +318,35 @@ if (isset($_GET['archive_software'])) {
 
     enforceUserPermission('module_support', 2);
 
-    $software_id = intval($_GET['archive_software']);
+    $row = softwareForRequest($_GET['archive_software']);
+    $software_id = intval($row['software_id']);
 
-    // Get Software Name and Client ID for logging and alert message
-    $sql = mysqli_query($mysqli,"SELECT software_name, software_client_id FROM software WHERE software_id = $software_id");
-    $row = mysqli_fetch_assoc($sql);
-    $software_name = escapeSql($row['software_name']);
-    $client_id = intval($row['software_client_id']);
+    // Seats stay put - an archived license drops off every device and user
+    // anyway, and comes back with them if it is restored
+    mysqli_query($mysqli, "UPDATE software SET software_archived_at = NOW() WHERE software_id = $software_id");
 
-    enforceClientAccess();
+    logAudit("Software", "Archive", "$session_name archived license " . escapeSql($row['software_name']), $client_id, $software_id);
 
-    mysqli_query($mysqli,"UPDATE software SET software_archived_at = NOW() WHERE software_id = $software_id");
-
-    // Remove Software Relations
-    mysqli_query($mysqli,"DELETE FROM software_contacts WHERE software_id = $software_id");
-    mysqli_query($mysqli,"DELETE FROM software_assets WHERE software_id = $software_id");
-
-    logAudit("Software", "Archive", "$session_name archived software $software_name and removed all device/user license associations", $client_id, $software_id);
-
-    flashAlert("Software <strong>$software_name</strong> archived and removed all device/user license associations", 'error');
+    flashAlert("License <strong>{$row['software_name']}</strong> archived", 'error');
 
     redirect();
 
 }
 
-if(isset($_GET['restore_software'])){
+if (isset($_GET['restore_software'])) {
 
     validateCSRFToken();
 
     enforceUserPermission('module_support', 2);
 
-    $software_id = intval($_GET['restore_software']);
+    $row = softwareForRequest($_GET['restore_software']);
+    $software_id = intval($row['software_id']);
 
-    // Get Software Name and Client ID for logging and alert message
-    $sql = mysqli_query($mysqli,"SELECT software_name, software_client_id FROM software WHERE software_id = $software_id");
-    $row = mysqli_fetch_assoc($sql);
-    $software_name = escapeSql($row['software_name']);
-    $client_id = intval($row['software_client_id']);
+    mysqli_query($mysqli, "UPDATE software SET software_archived_at = NULL WHERE software_id = $software_id");
 
-    enforceClientAccess();
+    logAudit("Software", "Restore", "$session_name restored license " . escapeSql($row['software_name']), $client_id, $software_id);
 
-    mysqli_query($mysqli,"UPDATE software SET software_archived_at = NULL WHERE software_id = $software_id");
-
-    logAudit("Software", "Restore", "$session_name restored software $software_name", $client_id, $software_id);
-
-    flashAlert("Software <strong>$software_name</strong> restored");
+    flashAlert("License <strong>{$row['software_name']}</strong> restored");
 
     redirect();
 
@@ -232,21 +358,76 @@ if (isset($_GET['delete_software'])) {
 
     enforceUserPermission('module_support', 3);
 
-    $software_id = intval($_GET['delete_software']);
+    $row = softwareForRequest($_GET['delete_software']);
+    $software_id = intval($row['software_id']);
 
-    // Get Software Name and Client ID for logging and alert message
-    $sql = mysqli_query($mysqli,"SELECT software_name, software_client_id FROM software WHERE software_id = $software_id");
-    $row = mysqli_fetch_assoc($sql);
-    $software_name = escapeSql($row['software_name']);
-    $client_id = intval($row['software_client_id']);
+    // Seats, keys and links go with it (foreign keys cascade)
+    mysqli_query($mysqli, "DELETE FROM software WHERE software_id = $software_id");
 
-    enforceClientAccess();
+    logAudit("Software", "Delete", "$session_name deleted license " . escapeSql($row['software_name']) . " with its seats and keys", $client_id);
 
-    mysqli_query($mysqli,"DELETE FROM software WHERE software_id = $software_id");
+    flashAlert("License <strong>{$row['software_name']}</strong> deleted", 'error');
 
-    logAudit("Software", "Delete", "$session_name deleted software $software_name and removed all device/user license associations", $client_id);
+    // From its own page, back to the client's licenses - that page is gone
+    if (strpos($_SERVER['HTTP_REFERER'] ?? '', '/license.php') !== false) {
+        redirect("software.php?client_id=$client_id&archived=1");
+    }
+    redirect();
 
-    flashAlert("Software <strong>$software_name</strong> deleted and removed all device/user license associations", 'error');
+}
+
+if (isset($_POST['bulk_archive_software'])) {
+
+    validateCSRFToken();
+
+    enforceUserPermission('module_support', 2);
+
+    $rows = softwareBulkRows($_POST['software_ids'] ?? []);
+    foreach ($rows as $software_id => $row) {
+        $client_id = intval($row['software_client_id']);
+        mysqli_query($mysqli, "UPDATE software SET software_archived_at = NOW() WHERE software_id = $software_id AND software_archived_at IS NULL");
+        logAudit("Software", "Archive", "$session_name archived license " . escapeSql($row['software_name']), $client_id, $software_id);
+    }
+
+    flashAlert("Archived <strong>" . count($rows) . "</strong> license" . (count($rows) === 1 ? '' : 's'), 'error');
+
+    redirect();
+
+}
+
+if (isset($_POST['bulk_restore_software'])) {
+
+    validateCSRFToken();
+
+    enforceUserPermission('module_support', 2);
+
+    $rows = softwareBulkRows($_POST['software_ids'] ?? []);
+    foreach ($rows as $software_id => $row) {
+        $client_id = intval($row['software_client_id']);
+        mysqli_query($mysqli, "UPDATE software SET software_archived_at = NULL WHERE software_id = $software_id");
+        logAudit("Software", "Restore", "$session_name restored license " . escapeSql($row['software_name']), $client_id, $software_id);
+    }
+
+    flashAlert("Restored <strong>" . count($rows) . "</strong> license" . (count($rows) === 1 ? '' : 's'));
+
+    redirect();
+
+}
+
+if (isset($_POST['bulk_delete_software'])) {
+
+    validateCSRFToken();
+
+    enforceUserPermission('module_support', 3);
+
+    $rows = softwareBulkRows($_POST['software_ids'] ?? []);
+    foreach ($rows as $software_id => $row) {
+        $client_id = intval($row['software_client_id']);
+        mysqli_query($mysqli, "DELETE FROM software WHERE software_id = $software_id");
+        logAudit("Software", "Delete", "$session_name deleted license " . escapeSql($row['software_name']) . " with its seats and keys", $client_id);
+    }
+
+    flashAlert("Deleted <strong>" . count($rows) . "</strong> license" . (count($rows) === 1 ? '' : 's'), 'error');
 
     redirect();
 
@@ -310,24 +491,52 @@ if (isExportRequest('export_software')) {
         $expire_query = '';
     }
 
+    // Attention tab
+    $status_filters = softwareStatusFilters();
+    $status = (string) ($_POST['status'] ?? '');
+    $status_query = '';
+    if (isset($status_filters[$status])) {
+        $status_query = "AND ({$status_filters[$status]['sql']})";
+        $filter_summary['Showing'] = $status_filters[$status]['label'];
+    }
+
+    // License type
+    $license_type_query = '';
+    if (!empty($_POST['license_type'])) {
+        $license_type_query = "AND software_license_type = '" . escapeSql($_POST['license_type']) . "'";
+        $filter_summary['License Type'] = $_POST['license_type'];
+    }
+
     // Search Filter
     $q = escapeSql($_POST['q'] ?? '');
     if (!empty($q)) {
         $filter_summary['Search'] = $_POST['q'];
     }
 
+    // Who is on each license, in the same query - not two more queries per row
+    mysqli_query($mysqli, "SET SESSION group_concat_max_len = 65535");
     $sql = mysqli_query(
         $mysqli,
         "SELECT software_description, software_expire, software_id, software_key, software_license_type,
-        software_name, software_notes, software_purchase, software_seats, software_type,
-        software_version FROM software
+        software_name, software_notes, software_purchase, software_purchase_reference, software_seats, software_type,
+        software_version, client_name, vendor_name,
+        " . softwareSeatsUsedSql('software.software_id') . " AS seats_used,
+        (SELECT GROUP_CONCAT(asset_name ORDER BY asset_name SEPARATOR ', ') FROM software_assets AS sa
+            JOIN assets ON assets.asset_id = sa.asset_id AND asset_archived_at IS NULL WHERE sa.software_id = software.software_id) AS assigned_to_assets,
+        (SELECT GROUP_CONCAT(contact_name ORDER BY contact_name SEPARATOR ', ') FROM software_contacts AS sc
+            JOIN contacts ON contacts.contact_id = sc.contact_id AND contact_archived_at IS NULL WHERE sc.software_id = software.software_id) AS assigned_to_contacts,
+        (SELECT GROUP_CONCAT(sk.software_key ORDER BY sk.software_key_id SEPARATOR ', ') FROM software_keys AS sk WHERE sk.software_key_software_id = software.software_id) AS software_keys_list
+        FROM software
         LEFT JOIN clients ON client_id = software_client_id
         LEFT JOIN vendors ON vendor_id = software_vendor_id
-        WHERE (software_name LIKE '%$q%' OR software_type LIKE '%$q%' OR software_key LIKE '%$q%' OR client_name LIKE '%$q%')
+        WHERE (software_name LIKE '%$q%' OR software_type LIKE '%$q%' OR software_key LIKE '%$q%' OR client_name LIKE '%$q%' OR vendor_name LIKE '%$q%'
+            OR software.software_id IN (SELECT software_key_software_id FROM software_keys WHERE software_key LIKE '%$q%'))
         AND $archive_query
         " . clientScopeSql('software_client_id') . "
         $client_query
         $expire_query
+        $status_query
+        $license_type_query
         ORDER BY software_name ASC"
     );
 
@@ -337,35 +546,19 @@ if (isExportRequest('export_software')) {
 
         guardExportPdfRowCount($format, $num_rows);
 
-        $export = beginExport('software', $format, $file_name_prepend . 'Software', 'Software', summarizeExportFilters($filter_summary));
+        $export = beginExport('software', $format, $file_name_prepend . 'Licenses', 'Licenses', summarizeExportFilters($filter_summary));
 
         while ($row = mysqli_fetch_assoc($sql)) {
-            // Asset and contact licence lists, only when those columns are wanted
-            if (isset($export['columns']['assigned_to_assets'])) {
-                $software_id = intval($row['software_id']);
-                $assigned_to_assets = [];
-                $asset_licenses_sql = mysqli_query($mysqli, "SELECT asset_name FROM software_assets LEFT JOIN assets ON software_assets.asset_id = assets.asset_id WHERE software_id = $software_id");
-                while ($asset_row = mysqli_fetch_assoc($asset_licenses_sql)) {
-                    $assigned_to_assets[] = $asset_row['asset_name'];
-                }
-                $row['assigned_to_assets'] = implode(', ', $assigned_to_assets);
-            }
-            if (isset($export['columns']['assigned_to_contacts'])) {
-                $software_id = intval($row['software_id']);
-                $assigned_to_contacts = [];
-                $contact_licenses_sql = mysqli_query($mysqli, "SELECT contact_name FROM software_contacts LEFT JOIN contacts ON software_contacts.contact_id = contacts.contact_id WHERE software_id = $software_id");
-                while ($contact_row = mysqli_fetch_assoc($contact_licenses_sql)) {
-                    $assigned_to_contacts[] = $contact_row['contact_name'];
-                }
-                $row['assigned_to_contacts'] = implode(', ', $assigned_to_contacts);
-            }
+            $row['assigned_to_assets'] = (string) $row['assigned_to_assets'];
+            $row['assigned_to_contacts'] = (string) $row['assigned_to_contacts'];
+            $row['software_keys_list'] = (string) $row['software_keys_list'];
             addExportRow($export, $row);
         }
 
         finishExport($export);
     }
 
-    logAudit("Software", "Export", "$session_name exported $num_rows software(s) to a " . strtoupper($format) . " file", $client_id);
+    logAudit("Software", "Export", "$session_name exported $num_rows license(s) to a " . strtoupper($format) . " file", $client_id);
 
     exit;
 

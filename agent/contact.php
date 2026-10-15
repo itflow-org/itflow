@@ -138,18 +138,9 @@ if ($can_support) {
     $recurring_ticket_count = mysqli_num_rows($sql_related_recurring_tickets);
 }
 
-// Licenses, with seats in use counted in the same query instead of two queries per license
-$sql_linked_software = mysqli_query($mysqli, "SELECT software.software_id, software_name, software_version, software_type, software_license_type,
-        software_seats, software_expire,
-        (SELECT COUNT(*) FROM software_assets AS sa WHERE sa.software_id = software.software_id)
-        + (SELECT COUNT(*) FROM software_contacts AS sc WHERE sc.software_id = software.software_id) AS seats_used
-    FROM software_contacts
-    JOIN software ON software.software_id = software_contacts.software_id
-    WHERE software_contacts.contact_id = $contact_id
-      AND software_archived_at IS NULL
-    ORDER BY software_name ASC"
-);
-$software_count = mysqli_num_rows($sql_linked_software);
+// Licenses they hold a seat on, with each one's seats in use and the key they were given
+$held_software = $can_support ? softwareHeldBy('contact', $contact_id) : [];
+$software_count = count($held_software);
 
 // Documents
 $sql_linked_documents = mysqli_query($mysqli, "SELECT documents.document_id, document_name, document_description, document_created_at,
@@ -215,7 +206,7 @@ if (!$can_credentials) {
     unset($contact_tabs['credentials']);
 }
 if (!$can_support) {
-    unset($contact_tabs['tickets'], $contact_tabs['recurring']);
+    unset($contact_tabs['tickets'], $contact_tabs['recurring'], $contact_tabs['licenses']);
 }
 
 ?>
@@ -297,6 +288,9 @@ if (!$can_support) {
                             <a class="dropdown-item ajax-modal" href="#" data-modal-url="modals/file/file_upload.php?<?= $client_url ?>&contact_id=<?= $contact_id ?>">
                                 <i class="fa fa-fw fa-upload text-secondary me-2"></i>Upload File(s)
                             </a>
+                            <a class="dropdown-item ajax-modal" href="#" data-modal-size="lg" data-modal-url="modals/software/software_add.php?client_id=<?= $client_id ?>&contact_id=<?= $contact_id ?>">
+                                <i class="fa fa-fw fa-cube text-secondary me-2"></i>License
+                            </a>
                         <?php } ?>
                         <a class="dropdown-item ajax-modal" href="#" data-modal-url="modals/contact/contact_note_add.php?id=<?= $contact_id ?>">
                             <i class="fas fa-fw fa-sticky-note text-secondary me-2"></i>Note
@@ -314,9 +308,11 @@ if (!$can_support) {
                                 <i class="fa fa-fw fa-key text-secondary me-2"></i>Credential
                             </a>
                         <?php } ?>
-                        <a class="dropdown-item ajax-modal" href="#" data-modal-url="modals/contact/contact_link_software.php?id=<?= $contact_id ?>">
-                            <i class="fa fa-fw fa-cube text-secondary me-2"></i>License
-                        </a>
+                        <?php if ($can_support_edit) { ?>
+                            <a class="dropdown-item ajax-modal" href="#" data-modal-url="modals/link/link.php?from=contact&id=<?= $contact_id ?>&to=software">
+                                <i class="fa fa-fw fa-cube text-secondary me-2"></i>License
+                            </a>
+                        <?php } ?>
                         <a class="dropdown-item ajax-modal" href="#" data-modal-url="modals/contact/contact_link_service.php?id=<?= $contact_id ?>">
                             <i class="fa fa-fw fa-stream text-secondary me-2"></i>Service
                         </a>
@@ -710,52 +706,29 @@ if (!$can_support) {
                 </div>
                 <?php } ?>
 
+                <?php if ($can_support) { ?>
                 <!-- Licenses -->
                 <div class="tab-pane fade" id="contact-pane-licenses" role="tabpanel">
                     <div class="itflow-asset-pane-bar">
-                        <span class="text-body-secondary small">Software licensed to them. Seats count every asset and contact on the license.</span>
-                        <?php if ($can_edit) { ?>
-                            <button type="button" class="btn btn-sm btn-outline-secondary ajax-modal" data-modal-url="modals/contact/contact_link_software.php?id=<?= $contact_id ?>">
-                                <i class="fas fa-link me-2"></i>Link License
-                            </button>
+                        <span class="text-body-secondary small">Licenses they hold a seat on, and the key they were given.</span>
+                        <?php if ($can_support_edit) { ?>
+                            <div class="d-flex gap-2">
+                                <button type="button" class="btn btn-sm btn-outline-secondary ajax-modal" data-modal-url="modals/link/link.php?from=contact&id=<?= $contact_id ?>&to=software">
+                                    <i class="fas fa-link me-2"></i>Link
+                                </button>
+                                <button type="button" class="btn btn-sm btn-primary ajax-modal" data-modal-size="lg" data-modal-url="modals/software/software_add.php?client_id=<?= $client_id ?>&contact_id=<?= $contact_id ?>">
+                                    <i class="fas fa-plus me-2"></i>New License
+                                </button>
+                            </div>
                         <?php } ?>
                     </div>
                     <?php if ($software_count) { ?>
-                        <div class="table-responsive">
-                            <table class="table table-hover align-middle mb-0">
-                                <thead class="text-nowrap table-light">
-                                <tr><th>License</th><th>Type</th><th>Seats</th><th>Expires</th><th></th></tr>
-                                </thead>
-                                <tbody>
-                                <?php while ($row = mysqli_fetch_assoc($sql_linked_software)) {
-                                    $software_id = intval($row['software_id']);
-                                    $seats = intval($row['software_seats']);
-                                    $seats_used = intval($row['seats_used']); ?>
-                                    <tr>
-                                        <td>
-                                            <span class="fw-semibold"><?= escapeHtml($row['software_name']) ?></span>
-                                            <?php if ($row['software_version']) { ?><span class="text-body-secondary ms-1"><?= escapeHtml($row['software_version']) ?></span><?php } ?>
-                                        </td>
-                                        <td>
-                                            <?= escapeHtml($row['software_type']) ?: '<span class="text-body-secondary">-</span>' ?>
-                                            <?php if ($row['software_license_type']) { ?><div class="small text-body-secondary"><?= escapeHtml($row['software_license_type']) ?></div><?php } ?>
-                                        </td>
-                                        <td class="text-nowrap <?= $seats && $seats_used > $seats ? 'text-danger-emphasis' : '' ?>"><?= $seats_used ?><?= $seats ? " / $seats" : '' ?></td>
-                                        <td class="text-nowrap"><?= escapeHtml($row['software_expire']) ?: '<span class="text-body-secondary">-</span>' ?></td>
-                                        <td class="text-end">
-                                            <?php if ($can_edit) { ?>
-                                                <a class="btn btn-sm btn-light" title="Unlink" href="post.php?unlink_software_from_contact&contact_id=<?= $contact_id ?>&software_id=<?= $software_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>"><i class="fas fa-fw fa-unlink"></i></a>
-                                            <?php } ?>
-                                        </td>
-                                    </tr>
-                                <?php } ?>
-                                </tbody>
-                            </table>
-                        </div>
+                        <?= softwareHeldTable($held_software, 'contact', $contact_id, $can_support_edit) ?>
                     <?php } else { ?>
                         <div class="itflow-asset-empty">No licenses.</div>
                     <?php } ?>
                 </div>
+                <?php } ?>
 
                 <!-- Documents -->
                 <div class="tab-pane fade" id="contact-pane-documents" role="tabpanel">

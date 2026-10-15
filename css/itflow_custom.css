@@ -4463,3 +4463,72 @@ img.itflow-contact-avatar {
     padding-left: 0;
     padding-right: 0;
 }
+
+/* Licenses - agent/software.php, agent/license.php, agent/modals/software/
+
+   A license's tile is its software type's icon on that type's colour - the
+   asset tones (functions/software.php softwareTypeStyle()). Seats are a
+   count over a thin bar: blue with seats free, amber full, red over, grey
+   with none in use (softwareSeatBar()). */
+.itflow-seats {
+    min-width: 6.5rem;
+    max-width: 11rem;
+    font-size: .875rem;
+    line-height: 1.3;
+}
+.itflow-seats-bar {
+    height: .3rem;
+    margin: .25rem 0 .2rem;
+    background-color: var(--bs-secondary-bg);
+}
+.itflow-seats-glance .itflow-seats {
+    max-width: 14rem;
+}
+.itflow-seats-glance .itflow-seats-bar {
+    margin-top: .3rem;
+}
+/* Keys - monospace, cut short on screen, copied whole */
+.itflow-license-key {
+    max-width: 16rem;
+    font-size: .82rem;
+}
+.itflow-license-key-cell {
+    min-width: 0;
+    max-width: 20rem;
+}
+.itflow-license-main-key {
+    background-color: var(--bs-tertiary-bg);
+}
+.itflow-license-main-key .itflow-license-key {
+    max-width: 28rem;
+}
+/* Devices / Users headings inside the Seats tab */
+.itflow-license-section {
+    padding: .6rem 1rem .4rem;
+    border-bottom: 1px solid var(--bs-border-color-translucent);
+    font-size: .75rem;
+    font-weight: 600;
+    letter-spacing: .06em;
+    text-transform: uppercase;
+    color: var(--bs-secondary-color);
+}
+.itflow-license-section .badge {
+    background-color: var(--bs-secondary-bg);
+    color: var(--bs-secondary-color);
+    font-weight: 500;
+    letter-spacing: 0;
+}
+.itflow-asset-related .table + .itflow-license-section,
+.table-responsive + .itflow-license-section {
+    margin-top: .5rem;
+}
+.itflow-license-holder-sub {
+    padding-left: 1.85rem;
+}
+/* Linked documents and files on the license page sit in the pane's padding */
+.itflow-license-links {
+    padding: .5rem 1rem;
+}
+.itflow-license-links .itflow-link-row {
+    margin: 0 -.4rem;
+}

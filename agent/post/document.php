@@ -52,11 +52,13 @@ if (isset($_POST['add_document'])) {
 
     enforceClientAccess();
 
-    // Only the client's own folder, contact and asset
+    // Only the client's own folder, contact, asset and license
     $folder = folderOwnedId($folder, $client_id);
     $contact_id = assetClientOwnedId('contact', $_POST['contact'] ?? 0, $client_id);
     $asset = linkRecord('asset', $_POST['asset'] ?? 0);
     $asset_id = $asset && intval($asset['client_id']) === $client_id ? intval($asset['id']) : 0;
+    $software = linkRecord('software', $_POST['software'] ?? 0);
+    $software_id = $software && intval($software['client_id']) === $client_id ? intval($software['id']) : 0;
     $client_visible = intval($_POST['client_visible'] ?? 0) ? 1 : 0;
 
     if ($name === '') {
@@ -84,13 +86,16 @@ if (isset($_POST['add_document'])) {
     if ($asset_id) {
         mysqli_query($mysqli, "INSERT IGNORE INTO asset_documents SET asset_id = $asset_id, document_id = $document_id");
     }
+    if ($software_id) {
+        mysqli_query($mysqli, "INSERT IGNORE INTO software_documents SET software_id = $software_id, document_id = $document_id");
+    }
 
     logAudit("Document", "Create", "$session_name created document $name", $client_id, $document_id);
 
     flashAlert("Document <strong>" . trim($_POST['name']) . "</strong> created");
 
-    // From an asset or a contact, back to it; otherwise to the new document
-    redirect(($contact_id || $asset_id) ? null : "document.php?client_id=$client_id&document_id=$document_id");
+    // From an asset, a contact or a license, back to it; otherwise to the new document
+    redirect(($contact_id || $asset_id || $software_id) ? null : "document.php?client_id=$client_id&document_id=$document_id");
 
 }
 

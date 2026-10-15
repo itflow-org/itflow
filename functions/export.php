@@ -182,7 +182,7 @@ function getExportColumns($export_type) {
             'credential_uri'         => ['label' => 'URI', 'weight' => 2],
         ],
 
-        // assigned_to_assets / assigned_to_contacts are built by the handler
+        // seats_used, assigned_to_assets / assigned_to_contacts and software_keys_list are built by the handler's query
         'software' => [
             'software_name'         => ['label' => 'Name', 'weight' => 2],
             'software_version'      => ['label' => 'Version'],
@@ -190,11 +190,16 @@ function getExportColumns($export_type) {
             'software_type'         => ['label' => 'Type'],
             'software_license_type' => ['label' => 'License Type'],
             'software_seats'        => ['label' => 'Seats', 'format' => 'number'],
+            'seats_used'            => ['label' => 'Seats Used', 'format' => 'number'],
             'software_key'          => ['label' => 'Key', 'weight' => 2],
+            'software_keys_list'    => ['label' => 'Individual Keys', 'weight' => 3, 'default' => false],
             'assigned_to_assets'    => ['label' => 'Assets', 'weight' => 2],
             'assigned_to_contacts'  => ['label' => 'Contacts', 'weight' => 2],
+            'vendor_name'           => ['label' => 'Vendor', 'default' => false],
+            'software_purchase_reference' => ['label' => 'Order Ref', 'default' => false],
             'software_purchase'     => ['label' => 'Purchased'],
             'software_expire'       => ['label' => 'Expires'],
+            'client_name'           => ['label' => 'Client', 'default' => false],
             'software_notes'        => ['label' => 'Notes', 'weight' => 3],
         ],
 

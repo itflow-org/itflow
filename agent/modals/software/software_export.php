@@ -23,12 +23,17 @@ $expire_filter = $_GET['expire_days'] ?? '';
 // Archived Filter
 $archived_filter = (isset($_GET['archived']) && $_GET['archived'] == 1) ? 1 : 0;
 
+// Attention tab and license type
+$status_filters = softwareStatusFilters();
+$status_filter = isset($status_filters[$_GET['status'] ?? '']) ? $_GET['status'] : '';
+$license_type_filter = (string) ($_GET['license_type'] ?? '');
+
 ob_start();
 
 ?>
 
 <div class="modal-header bg-dark">
-    <h5 class="modal-title"><i class="fas fa-fw fa-download me-2"></i>Export Software</h5>
+    <h5 class="modal-title"><i class="fas fa-fw fa-download me-2"></i>Export Licenses</h5>
     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
 </div>
 
@@ -46,7 +51,7 @@ ob_start();
             <label>Search</label>
             <div class="input-group">
                     <span class="input-group-text"><i class="fa fa-fw fa-search"></i></span>
-                <input type="text" class="form-control" name="q" value="<?= stripslashes(escapeHtml($q_filter)) ?>" placeholder="Name, type, key">
+                <input type="text" class="form-control" name="q" value="<?= stripslashes(escapeHtml($q_filter)) ?>" placeholder="Name, type, key, vendor">
             </div>
         </div>
 
@@ -81,6 +86,32 @@ ob_start();
                     <option <?php if ($expire_filter === 'expired') { echo "selected"; } ?> value="expired">Expired</option>
                     <?php foreach ([7, 30, 45, 60, 90] as $expire_option) { ?>
                         <option <?php if ($expire_filter !== '' && $expire_filter == $expire_option) { echo "selected"; } ?> value="<?= $expire_option ?>"><?= $expire_option ?> Days</option>
+                    <?php } ?>
+                </select>
+            </div>
+        </div>
+
+        <div class="mb-3">
+            <label>Showing</label>
+            <div class="input-group">
+                <span class="input-group-text"><i class="fa fa-fw fa-filter"></i></span>
+                <select class="form-select select2" name="status">
+                    <option value="">- All -</option>
+                    <?php foreach ($status_filters as $status_key => $status_option) { ?>
+                        <option <?php if ($status_filter === $status_key) { echo "selected"; } ?> value="<?= $status_key ?>"<?= selectOptionData(['icon' => 'fas ' . $status_option['icon']]) ?>><?= $status_option['label'] ?></option>
+                    <?php } ?>
+                </select>
+            </div>
+        </div>
+
+        <div class="mb-3">
+            <label>License Type</label>
+            <div class="input-group">
+                <span class="input-group-text"><i class="fa fa-fw fa-certificate"></i></span>
+                <select class="form-select select2" name="license_type">
+                    <option value="">- Any -</option>
+                    <?php foreach (array_unique(array_merge(array_keys(SOFTWARE_LICENSE_TYPES), $license_type_filter !== '' ? [$license_type_filter] : [])) as $license_type_option) { ?>
+                        <option <?php if ($license_type_filter === $license_type_option) { echo "selected"; } ?><?= selectOptionData(['icon' => 'fas ' . softwareLicenseTypeIcon($license_type_option)]) ?>><?= escapeHtml($license_type_option) ?></option>
                     <?php } ?>
                 </select>
             </div>

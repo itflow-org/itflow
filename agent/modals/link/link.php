@@ -2,7 +2,8 @@
 
 /*
  * Link things to a document or a file - or a document or file to an asset or
- * contact. One modal for every pair in LINK_RELATIONS (functions/links.php):
+ * contact, devices, users and credentials to a license. One modal for every
+ * pair in LINK_RELATIONS (functions/links.php):
  * ?from=document&id=81&to=asset opens on Assets; the pills along the top
  * switch to anything else this record can be linked to. Pick as many as you
  * like; only the client's own, unarchived, not-yet-linked records are offered.
@@ -50,7 +51,14 @@ function linkOptionData($to, $row, $client_id) {
         case 'document':
             return selectOptionData(['icon' => 'fas fa-file-alt', 'description' => $row['document_description'] ?: 'Updated ' . timeAgo($row['document_updated_at'] ?: $row['document_created_at'])]);
         case 'software':
-            return selectOptionData(['icon' => 'fas fa-cube', 'description' => trim($row['software_type'] . ' ' . $row['software_version'])]);
+            // How many seats are left, so a full license is seen before it is picked
+            $seats = softwareSeats($row['seats_used'], $row['software_seats']);
+            $seat_text = $seats['state'] === 'unlimited' ? '' : ($seats['state'] === 'over' || $seats['state'] === 'full'
+                ? 'Full - ' . $seats['used'] . ' of ' . $seats['total'] . ' seats'
+                : $seats['free'] . ' of ' . $seats['total'] . ' seats free');
+            return selectOptionData(['icon' => 'fas ' . softwareTypeStyle($row['software_type'])['icon'], 'description' => implode(' · ', array_filter([$row['software_license_type'], $seat_text, $row['software_version']]))]);
+        case 'credential':
+            return selectOptionData(['icon' => 'fas fa-key', 'description' => $row['credential_description'] ?: $row['credential_uri']]);
         case 'vendor':
             return selectOptionData(['icon' => 'fas fa-building', 'description' => $row['vendor_description']]);
     }

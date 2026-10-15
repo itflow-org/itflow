@@ -1,8 +1,8 @@
 <?php
 
 /*
- * New document - in the folder it was opened from, or linked to the asset or
- * contact it was opened from.
+ * New document - in the folder it was opened from, or linked to the asset,
+ * contact or license it was opened from.
  */
 
 require_once '../../../includes/modal_header.php';
@@ -15,7 +15,9 @@ enforceClientAccess();
 $contact_id = assetClientOwnedId('contact', $_GET['contact_id'] ?? 0, $client_id);
 $asset = linkRecord('asset', $_GET['asset_id'] ?? 0);
 $asset_id = $asset && intval($asset['client_id']) === $client_id ? intval($asset['id']) : 0;
-$link_name = $asset_id ? $asset['name'] : ($contact_id ? getFieldById('contacts', $contact_id, 'contact_name') : '');
+$software = linkRecord('software', $_GET['software_id'] ?? 0);
+$software_id = $software && intval($software['client_id']) === $client_id ? intval($software['id']) : 0;
+$link_name = $asset_id ? $asset['name'] : ($contact_id ? getFieldById('contacts', $contact_id, 'contact_name') : ($software_id ? $software['name'] : ''));
 
 $document_form_mode = 'add';
 $document_name = $document_description = $document_content = '';
@@ -34,6 +36,7 @@ ob_start();
     <input type="hidden" name="client_id" value="<?= $client_id ?>">
     <input type="hidden" name="contact" value="<?= $contact_id ?>">
     <input type="hidden" name="asset" value="<?= $asset_id ?>">
+    <input type="hidden" name="software" value="<?= $software_id ?>">
     <div class="modal-body">
         <?php require 'document_form.php'; ?>
     </div>

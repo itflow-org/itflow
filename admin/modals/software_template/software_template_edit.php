@@ -14,15 +14,11 @@ $software_type = escapeHtml($row['software_template_type']);
 $software_license_type = escapeHtml($row['software_template_license_type']);
 $software_notes = escapeHtml($row['software_template_notes']);
 
-$license_types_array = array (
-    'Device',
-    'User',
-    'Site',
-    'Concurrent',
-    'Trial',
-    'Perpetual',
-    'Usage-based'
-);
+// The license types the license form offers (functions/software.php), keeping one this template already has
+$license_types_array = array_keys(SOFTWARE_LICENSE_TYPES);
+if ($row['software_template_license_type'] && !in_array($row['software_template_license_type'], $license_types_array, true)) {
+    $license_types_array[] = $row['software_template_license_type'];
+}
 
 ob_start();
 
@@ -93,7 +89,7 @@ ob_start();
                 <select class="form-select select2" name="license_type">
                     <option value="">- Select a License Type -</option>
                     <?php foreach($license_types_array as $license_type_select) { ?>
-                        <option <?php if($license_type_select == $software_license_type){ echo "selected"; } ?>><?= $license_type_select ?></option>
+                        <option <?php if (escapeHtml($license_type_select) === $software_license_type) { echo "selected"; } ?><?= selectOptionData(['icon' => 'fas ' . softwareLicenseTypeIcon($license_type_select)]) ?>><?= escapeHtml($license_type_select) ?></option>
                     <?php } ?>
                 </select>
             </div>

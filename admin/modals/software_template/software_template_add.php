@@ -2,15 +2,8 @@
 
 require_once '../../includes/modal_header.php';
 
-$license_types_array = array (
-    'Device',
-    'User',
-    'Site',
-    'Concurrent',
-    'Trial',
-    'Perpetual',
-    'Usage-based'
-);
+// The license types the license form offers (functions/software.php)
+$license_types_array = array_keys(SOFTWARE_LICENSE_TYPES);
 
 ob_start();
 
@@ -78,7 +71,7 @@ ob_start();
                 <select class="form-select select2" name="license_type">
                     <option value="">- Select a License Type -</option>
                     <?php foreach($license_types_array as $license_type) { ?>
-                        <option><?= $license_type ?></option>
+                        <option<?= selectOptionData(['icon' => 'fas ' . softwareLicenseTypeIcon($license_type)]) ?>><?= escapeHtml($license_type) ?></option>
                     <?php } ?>
                 </select>
             </div>

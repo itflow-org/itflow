@@ -3,7 +3,9 @@
 /*
  * Links between documents, files and the things they are about - the assets,
  * contacts, licenses and vendors a document covers, the files attached to a
- * document, the assets and contacts a file belongs to.
+ * document, the assets and contacts a file belongs to - and the seats on a
+ * license (the devices and users on it) and the credentials and files that
+ * go with it.
  *
  * Every link is a row in a two-column table (asset_documents, document_files,
  * contact_files...) and they all work the same way, so they are described once
@@ -11,6 +13,9 @@
  * one link modal (agent/modals/link/link.php), one handler
  * (agent/post/link.php) and one list (linkGroupsHtml()) on the document page
  * and the file and document quick looks.
+ *
+ * A type with a 'view' module (credentials) is only offered, listed or
+ * linked for an agent who may see that module.
  *
  * A link only ever joins two records of the same client, and never to an
  * archived one; linkAdd() checks both rather than trusting the form.
@@ -23,13 +28,16 @@ const LINK_ENTITIES = [
     'document' => ['table' => 'documents', 'id' => 'document_id', 'name' => 'document_name', 'client' => 'document_client_id', 'archived' => 'document_archived_at', 'label' => 'document', 'plural' => 'Documents', 'icon' => 'fa-file-alt'],
     'file' => ['table' => 'files', 'id' => 'file_id', 'name' => 'file_name', 'client' => 'file_client_id', 'archived' => 'file_archived_at', 'label' => 'file', 'plural' => 'Files', 'icon' => 'fa-paperclip'],
     'software' => ['table' => 'software', 'id' => 'software_id', 'name' => 'software_name', 'client' => 'software_client_id', 'archived' => 'software_archived_at', 'label' => 'license', 'plural' => 'Licenses', 'icon' => 'fa-cube'],
+    'credential' => ['table' => 'credentials', 'id' => 'credential_id', 'name' => 'credential_name', 'client' => 'credential_client_id', 'archived' => 'credential_archived_at', 'label' => 'credential', 'plural' => 'Credentials', 'icon' => 'fa-key', 'view' => 'module_credential'],
     'vendor' => ['table' => 'vendors', 'id' => 'vendor_id', 'name' => 'vendor_name', 'client' => 'vendor_client_id', 'archived' => 'vendor_archived_at', 'label' => 'vendor', 'plural' => 'Vendors', 'icon' => 'fa-building'],
 ];
 
 /**
  * Which pairs can be linked, keyed by the two types in alphabetical order, and
  * the permission it takes. Linking a contact to a file has always been a
- * contacts permission; everything else is documentation, a support one.
+ * contacts permission, a credential to a license a credentials one;
+ * everything else is documentation, a support one. A device or user linked
+ * to a license holds a seat on it.
  */
 const LINK_RELATIONS = [
     'asset|document' => ['table' => 'asset_documents', 'module' => 'module_support'],
@@ -39,6 +47,10 @@ const LINK_RELATIONS = [
     'document|vendor' => ['table' => 'vendor_documents', 'module' => 'module_support'],
     'asset|file' => ['table' => 'asset_files', 'module' => 'module_support'],
     'contact|file' => ['table' => 'contact_files', 'module' => 'module_client'],
+    'asset|software' => ['table' => 'software_assets', 'module' => 'module_support'],
+    'contact|software' => ['table' => 'software_contacts', 'module' => 'module_support'],
+    'credential|software' => ['table' => 'software_credentials', 'module' => 'module_credential'],
+    'file|software' => ['table' => 'software_files', 'module' => 'module_support'],
 ];
 
 /** The relation between two types, or null when they cannot be linked. */
@@ -48,11 +60,17 @@ function linkRelation($a, $b) {
     return LINK_RELATIONS[implode('|', $pair)] ?? null;
 }
 
-/** What a $from record can be linked to, in the order the pages list them. */
+/**
+ * What a $from record can be linked to, in the order the pages list them -
+ * a license's seats first - leaving out types this agent may not see.
+ */
 function linkTypesFor($from) {
-    $order = ['file', 'document', 'asset', 'contact', 'software', 'vendor'];
+    $order = $from === 'software'
+        ? ['asset', 'contact', 'credential', 'document', 'file']
+        : ['file', 'document', 'asset', 'contact', 'software', 'credential', 'vendor'];
     return array_values(array_filter($order, function ($to) use ($from) {
-        return $to !== $from && linkRelation($from, $to);
+        $view = LINK_ENTITIES[$to]['view'] ?? null;
+        return $to !== $from && linkRelation($from, $to) && (!$view || lookupUserPermission($view) >= 1);
     }));
 }
 
@@ -83,7 +101,8 @@ function linkDisplayColumns($type) {
         'contact' => 'contact_title, contact_photo, contact_client_id',
         'document' => 'document_description, document_updated_at, document_created_at',
         'file' => 'file_ext, file_size, file_mime_type, file_description',
-        'software' => 'software_type, software_version',
+        'software' => 'software_type, software_version, software_license_type, software_seats, software_expire, ' . softwareSeatsUsedSql('t.software_id') . ' AS seats_used',
+        'credential' => 'credential_description, credential_uri, credential_username, credential_otp_secret, credential_favorite',
         'vendor' => 'vendor_description',
     ][$type] ?? '';
 }
@@ -152,9 +171,9 @@ function linkCounts($from, $id) {
     return $counts;
 }
 
-/** The audit log entry a link change is filed under - the document or file side of it. */
+/** The audit log entry a link change is filed under - the document, file or license side of it. */
 function linkLogSide($from, $id, $to, $other_id) {
-    foreach (['document', 'file'] as $side) {
+    foreach (['document', 'file', 'software'] as $side) {
         if ($from === $side) {
             return [ucfirst($side), $id];
         }
@@ -217,6 +236,14 @@ function linkRemove($from, $id, $to, $other_id) {
     if (mysqli_affected_rows($mysqli) < 1) {
         return '';
     }
+    // A device or user off a license gives back any of its keys they had
+    foreach (['asset', 'contact'] as $holder) {
+        if ([$from, $to] === ['software', $holder]) {
+            softwareFreeKeys($source['id'], $holder, $other['id']);
+        } elseif ([$from, $to] === [$holder, 'software']) {
+            softwareFreeKeys($other['id'], $holder, $source['id']);
+        }
+    }
     [$log_type, $log_id] = linkLogSide($from, intval($source['id']), $to, intval($other['id']));
     $log_from = $log_type === ucfirst($from) ? $source['name'] : $other['name'];
     $log_other = $log_type === ucfirst($from) ? $other['name'] : $source['name'];
@@ -272,9 +299,20 @@ function linkRowHtml($to, $row, $client_id) {
             $detail = 'Updated ' . timeAgo($row['document_updated_at'] ?: $row['document_created_at']);
             break;
         case 'software':
-            $lead = '<span class="itflow-link-icon" aria-hidden="true"><i class="fas fa-fw fa-cube"></i></span>';
-            $link = "<a class=\"ajax-modal text-truncate\" href=\"#\" data-modal-url=\"modals/software/software_edit.php?id=$id\">$name</a>";
-            $detail = trim($row['software_type'] . ' ' . $row['software_version']);
+            $lead = softwareTile($row['software_type'], 'sm');
+            $link = "<a class=\"ajax-modal text-truncate\" href=\"#\" data-modal-size=\"lg\" data-modal-url=\"modals/software/software.php?id=$id\">$name</a>";
+            $seats = softwareSeats($row['seats_used'] ?? 0, $row['software_seats'] ?? 0);
+            $renewal = softwareRenewal($row['software_expire'] ?? '');
+            $detail = implode(' · ', array_filter([
+                $row['software_license_type'] ?? '',
+                $seats['state'] === 'unlimited' ? '' : $seats['used'] . ' / ' . $seats['total'] . ' seats',
+                $renewal && $renewal['state'] !== 'active' ? $renewal['text'] : '',
+            ]));
+            break;
+        case 'credential':
+            $lead = '<span class="itflow-link-icon" aria-hidden="true"><i class="fas fa-fw fa-key"></i></span>';
+            $link = "<a class=\"ajax-modal text-truncate\" href=\"#\" data-modal-url=\"modals/credential/credential_edit.php?id=$id\">$name</a>";
+            $detail = $row['credential_description'] ?: $row['credential_uri'];
             break;
         case 'vendor':
             $lead = '<span class="itflow-link-icon" aria-hidden="true"><i class="fas fa-fw fa-building"></i></span>';

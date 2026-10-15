@@ -7,6 +7,12 @@ $contact_id = intval($_GET['contact_id'] ?? 0);
 $project_id = intval($_GET['project_id'] ?? 0);
 $asset_id = intval($_GET['asset_id'] ?? 0);
 
+// A ticket started from somewhere that knows what it is about (a license's
+// Renewal Ticket) - plain text in, escaped here
+$prefill_subject = mb_substr(trim((string) ($_GET['subject'] ?? '')), 0, 500);
+$prefill_details = trim((string) ($_GET['details'] ?? ''));
+$prefill_details_html = $prefill_details !== '' ? '<p>' . nl2br(escapeHtml($prefill_details)) . '</p>' : '';
+
 if ($client_id) {
     enforceClientAccess();
 }
@@ -91,12 +97,12 @@ ob_start();
                     <label>Subject <strong class="text-danger">*</strong></label>
                     <div class="input-group">
                             <span class="input-group-text"><i class="fa fa-fw fa-tag"></i></span>
-                        <input type="text" class="form-control" id="subjectInput" name="subject" placeholder="Subject" maxlength="500" required>
+                        <input type="text" class="form-control" id="subjectInput" name="subject" placeholder="Subject" maxlength="500" value="<?= escapeHtml($prefill_subject) ?>" required>
                     </div>
                 </div>
 
                 <div class="mb-3">
-                    <textarea class="form-control tinymceTicket" id="detailsInput" name="details"></textarea>
+                    <textarea class="form-control tinymceTicket" id="detailsInput" name="details"><?= escapeHtml($prefill_details_html) ?></textarea>
                 </div>
 
                 <div class="row">

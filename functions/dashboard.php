@@ -282,7 +282,7 @@ function dashboardAttention($access) {
         $items[] = [
             'count' => dashboardCount("SELECT COUNT(software_id) FROM software WHERE software_archived_at IS NULL AND software_expire $soon " . clientScopeSql('software_client_id')),
             'label' => 'Licenses expiring', 'icon' => 'cube', 'tone' => 'warning', 'detail' => 'Next 30 days',
-            'url' => '/agent/software.php?expire_days=30&sort=software_expire&order=ASC',
+            'url' => '/agent/software.php?status=renewing&sort=software_expire&order=ASC',
         ];
         $items[] = [
             'count' => dashboardCount("SELECT COUNT(asset_id) FROM assets WHERE asset_archived_at IS NULL AND asset_warranty_expire $soon " . clientScopeSql('asset_client_id')),

@@ -205,7 +205,7 @@ $money_format = function ($amount) use ($currency_format, $client_currency_code,
             </div>
         </div>
 
-        <?php if ($favorites['assets'] || $favorites['credentials']) { ?>
+        <?php if ($favorites['assets'] || $favorites['licenses'] || $favorites['credentials']) { ?>
             <div class="col-md-6 col-xl-4">
                 <div class="card h-100 mb-0">
                     <div class="card-header d-flex align-items-center">
@@ -223,6 +223,19 @@ $money_format = function ($amount) use ($currency_format, $client_currency_code,
                                 </span>
                                 <?php if ($asset_ip) { ?>
                                     <span class="small text-nowrap"><?= $asset_ip ?><button type="button" class="itflow-copy clipboardjs" title="Copy IP" data-clipboard-text="<?= $asset_ip ?>"><i class="far fa-copy"></i></button></span>
+                                <?php } ?>
+                            </div>
+                        <?php } ?>
+                        <?php foreach ($favorites['licenses'] as $favorite_license) {
+                            $favorite_renewal = softwareRenewal($favorite_license['software_expire']); ?>
+                            <div class="list-group-item d-flex align-items-center gap-2 py-2">
+                                <i class="fas fa-fw <?= softwareTypeStyle($favorite_license['software_type'])['icon'] ?> text-body-secondary" title="License"></i>
+                                <span class="flex-grow-1 overflow-hidden">
+                                    <a class="ajax-modal d-block text-truncate" href="#" data-modal-url="modals/software/software.php?id=<?= intval($favorite_license['software_id']) ?>" data-modal-size="lg"><?= escapeHtml($favorite_license['software_name']) ?></a>
+                                    <span class="d-block small text-truncate text-<?= $favorite_renewal && $favorite_renewal['state'] !== 'active' ? $favorite_renewal['tone'] . '-emphasis' : 'body-secondary' ?>"><?= escapeHtml(implode(' · ', array_filter([$favorite_license['software_license_type'], $favorite_renewal ? $favorite_renewal['text'] : '']))) ?></span>
+                                </span>
+                                <?php if ($favorite_license['software_key']) { ?>
+                                    <span class="small text-nowrap"><?= softwareKeyHtml($favorite_license['software_key']) ?></span>
                                 <?php } ?>
                             </div>
                         <?php } ?>

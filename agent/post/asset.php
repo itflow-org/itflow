@@ -856,65 +856,7 @@ if (isset($_POST['bulk_delete_assets'])) {
 
 // BEGIN LINKING
 
-if (isset($_POST['link_software_to_asset'])) {
-
-    validateCSRFToken();
-
-    enforceUserPermission('module_support', 2);
-
-    $software_id = intval($_POST['software_id']);
-    $asset_id = intval($_POST['asset_id']);
-
-    // Get software Name and Client ID for logging
-    $sql_software = mysqli_query($mysqli,"SELECT software_name, software_client_id FROM software WHERE software_id = $software_id");
-    $row = mysqli_fetch_assoc($sql_software);
-    $software_name = escapeSql($row['software_name']);
-    $client_id = intval($row['software_client_id']);
-
-    enforceClientAccess();
-
-    // Get Asset Name for logging
-    $asset_name = escapeSql(getFieldById('assets', $asset_id, 'asset_name'));
-
-    mysqli_query($mysqli,"INSERT INTO software_assets SET asset_id = $asset_id, software_id = $software_id");
-
-    logAudit("Software", "Link", "$session_name added software license $software_name to asset $asset_name", $client_id, $software_id);
-
-    flashAlert("Software <strong>$software_name</strong> licensed for asset <strong>$asset_name</strong>");
-
-    redirect();
-
-}
-
-if (isset($_GET['unlink_software_from_asset'])) {
-
-    validateCSRFToken();
-
-    enforceUserPermission('module_support', 2);
-
-    $asset_id = intval($_GET['asset_id']);
-    $software_id = intval($_GET['software_id']);
-
-    // Get software Name and Client ID for logging
-    $sql_software = mysqli_query($mysqli,"SELECT software_name, software_client_id FROM software WHERE software_id = $software_id");
-    $row = mysqli_fetch_assoc($sql_software);
-    $software_name = escapeSql($row['software_name']);
-    $client_id = intval($row['software_client_id']);
-
-    enforceClientAccess();
-
-    // Get Asset Name for logging
-    $asset_name = escapeSql(getFieldById('assets', $asset_id, 'asset_name'));
-
-    mysqli_query($mysqli,"DELETE FROM software_assets WHERE asset_id = $asset_id AND software_id = $software_id");
-
-    logAudit("software", "Unlink", "$session_name removed software license $software_name from asset $asset_name", $client_id, $software_id);
-
-    flashAlert("Removed Software License <strong>$software_name</strong> for Asset <strong>$asset_name</strong>", 'error');
-
-    redirect();
-
-}
+// Licenses are linked in post/link.php (link_software_to_asset)
 
 // Right now 1 login and have many assets but not many to many
 if (isset($_POST['link_asset_to_credential'])) {

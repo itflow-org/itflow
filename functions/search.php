@@ -214,6 +214,32 @@ function globalSearchGroups($terms, $deep) {
         },
     ];
 
+    // Licenses by name, vendor and order reference - and by key, so a key read
+    // off a sticker or a screen finds the license it belongs to
+    $groups[] = [
+        'key' => 'licenses', 'label' => 'Licenses', 'icon' => 'cube', 'module' => 'module_support',
+        'select' => 'software.software_id, software_name, software_version, software_license_type, software_expire, software_client_id, client_name, vendor_name',
+        'from' => 'software
+            LEFT JOIN clients ON software_client_id = client_id
+            LEFT JOIN vendors ON vendor_id = software_vendor_id',
+        'where' => "software_archived_at IS NULL
+            AND (software_name LIKE '%$like%' OR software_description LIKE '%$like%' OR software_key LIKE '%$like%'
+                OR software_purchase_reference LIKE '%$like%' OR vendor_name LIKE '%$like%'
+                OR software.software_id IN (SELECT software_key_software_id FROM software_keys WHERE software_key LIKE '%$like%'))",
+        'scope' => 'software_client_id',
+        'order' => "(software_key = '$eq') DESC, (software_name = '$eq') DESC, (software_name LIKE '$like%') DESC, software_name",
+        'list_url' => '/agent/software.php?' . http_build_query(['q' => $q]),
+        'item' => function ($row) {
+            $renewal = softwareRenewal($row['software_expire']);
+            return [
+                'title' => trim($row['software_name'] . ' ' . $row['software_version']),
+                'subtitle' => implode(' · ', array_filter([$row['software_license_type'], $row['vendor_name'], $renewal && $renewal['state'] !== 'active' ? $renewal['text'] : ''])),
+                'context' => $row['client_name'],
+                'url' => globalSearchClientUrl('license.php', $row['software_client_id'], ['software_id' => intval($row['software_id'])]),
+            ];
+        },
+    ];
+
     // Name and description only. Usernames and passwords are encrypted at rest,
     // and the results page reveals passwords through the audited endpoint, never
     // in the markup.

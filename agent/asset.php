@@ -224,20 +224,9 @@ if (mysqli_num_rows($sql) == 0) {
         $credential_count = mysqli_num_rows($sql_related_credentials);
     }
 
-    // Licenses, with seats in use counted in the same query instead of two queries per license
-    $sql_related_software = mysqli_query(
-        $mysqli,
-        "SELECT software_expire, software_assets.software_id, software_license_type,
-            software_name, software_seats, software_type, software_version,
-            (SELECT COUNT(*) FROM software_assets AS sa WHERE sa.software_id = software.software_id)
-            + (SELECT COUNT(*) FROM software_contacts AS sc WHERE sc.software_id = software.software_id) AS seats_used
-        FROM software_assets
-        LEFT JOIN software ON software_assets.software_id = software.software_id
-        WHERE software_assets.asset_id = $asset_id
-        AND software_archived_at IS NULL
-        ORDER BY software_name ASC"
-    );
-    $software_count = mysqli_num_rows($sql_related_software);
+    // Licenses it holds a seat on, with each one's seats in use and the key it was given
+    $held_software = softwareHeldBy('asset', $asset_id);
+    $software_count = count($held_software);
 
     // Linked services
     $sql_linked_services = mysqli_query($mysqli, "SELECT service_category, service_description, service_assets.service_id, service_importance,
@@ -356,6 +345,9 @@ if (mysqli_num_rows($sql) == 0) {
                             <a class="dropdown-item ajax-modal" href="#" data-modal-url="modals/asset/asset_interface_add.php?&asset_id=<?= $asset_id ?>">
                                 <i class="fa fa-fw fa-ethernet text-secondary me-2"></i>Interface
                             </a>
+                            <a class="dropdown-item ajax-modal" href="#" data-modal-size="lg" data-modal-url="modals/software/software_add.php?client_id=<?= $client_id ?>&asset_id=<?= $asset_id ?>">
+                                <i class="fa fa-fw fa-cube text-secondary me-2"></i>License
+                            </a>
                             <a class="dropdown-item ajax-modal" href="#" data-modal-url="modals/document/document_add.php?<?= $client_url ?>&asset_id=<?= $asset_id ?>" data-modal-size="xl">
                                 <i class="fa fa-fw fa-file-alt text-secondary me-2"></i>Document
                             </a>
@@ -370,7 +362,7 @@ if (mysqli_num_rows($sql) == 0) {
                     <div class="dropdown">
                         <button type="button" class="btn btn-outline-secondary dropdown-toggle" data-bs-toggle="dropdown"><i class="fas fa-link me-2"></i>Link</button>
                         <div class="dropdown-menu dropdown-menu-end">
-                            <a class="dropdown-item ajax-modal" href="#" data-modal-url="modals/asset/asset_link_software.php?id=<?= $asset_id ?>">
+                            <a class="dropdown-item ajax-modal" href="#" data-modal-url="modals/link/link.php?from=asset&id=<?= $asset_id ?>&to=software">
                                 <i class="fa fa-fw fa-cube text-secondary me-2"></i>License
                             </a>
                             <?php if ($can_credentials) { ?>
@@ -969,62 +961,20 @@ if (mysqli_num_rows($sql) == 0) {
                     <!-- Licenses -->
                     <div class="tab-pane fade" id="asset-pane-licenses" role="tabpanel">
                         <div class="itflow-asset-pane-bar">
-                            <span class="text-body-secondary small">Software licensed to this asset.</span>
+                            <span class="text-body-secondary small">Licenses this asset holds a seat on, and the key to install.</span>
                             <?php if ($can_edit) { ?>
-                                <button type="button" class="btn btn-sm btn-outline-secondary ajax-modal" data-modal-url="modals/asset/asset_link_software.php?id=<?= $asset_id ?>">
-                                    <i class="fas fa-link me-2"></i>Link License
-                                </button>
+                                <div class="d-flex gap-2">
+                                    <button type="button" class="btn btn-sm btn-outline-secondary ajax-modal" data-modal-url="modals/link/link.php?from=asset&id=<?= $asset_id ?>&to=software">
+                                        <i class="fas fa-link me-2"></i>Link
+                                    </button>
+                                    <button type="button" class="btn btn-sm btn-primary ajax-modal" data-modal-size="lg" data-modal-url="modals/software/software_add.php?client_id=<?= $client_id ?>&asset_id=<?= $asset_id ?>">
+                                        <i class="fas fa-plus me-2"></i>New License
+                                    </button>
+                                </div>
                             <?php } ?>
                         </div>
                         <?php if ($software_count) { ?>
-                            <div class="table-responsive">
-                                <table class="table table-hover align-middle mb-0">
-                                    <thead class="text-nowrap table-light">
-                                    <tr>
-                                        <th>Software</th>
-                                        <th>Type</th>
-                                        <th>License</th>
-                                        <th>Seats</th>
-                                        <th>Expires</th>
-                                        <th></th>
-                                    </tr>
-                                    </thead>
-                                    <tbody>
-                                    <?php while ($row = mysqli_fetch_assoc($sql_related_software)) {
-                                        $software_id = intval($row['software_id']);
-                                        $software_name = escapeHtml($row['software_name']);
-                                        $software_version = escapeHtml($row['software_version']);
-                                        $software_type = escapeHtml($row['software_type']);
-                                        $software_license_type = escapeHtml($row['software_license_type']);
-                                        $software_seats = escapeHtml($row['software_seats']);
-                                        $software_seats_used = intval($row['seats_used']);
-                                        $software_expire = assetWarranty($row['software_expire'], 30);
-                                        ?>
-                                        <tr>
-                                            <td>
-                                                <a class="text-body fw-semibold ajax-modal" href="#" data-modal-url="modals/software/software_edit.php?id=<?= $software_id ?>"><?= $software_name ?></a>
-                                                <?php if ($software_version) { ?><div class="small text-body-secondary"><?= $software_version ?></div><?php } ?>
-                                            </td>
-                                            <td><?= $software_type ?></td>
-                                            <td><?= $software_license_type ?></td>
-                                            <td class="text-nowrap <?= $software_seats !== '' && $software_seats_used > intval($software_seats) ? 'text-danger' : '' ?>"><?= $software_seats_used ?> / <?= $software_seats !== '' ? $software_seats : '&infin;' ?></td>
-                                            <td class="text-nowrap">
-                                                <?php if ($software_expire) { ?>
-                                                    <span class="text-<?= $software_expire['tone'] === 'success' ? 'body' : $software_expire['tone'] . '-emphasis' ?>" title="<?= escapeHtml($software_expire['text']) ?>"><?= escapeHtml($software_expire['date']) ?></span>
-                                                <?php } else { ?>
-                                                    <span class="text-body-secondary">-</span>
-                                                <?php } ?>
-                                            </td>
-                                            <td class="text-end">
-                                                <?php if ($can_edit) { ?>
-                                                    <a href="post.php?unlink_software_from_asset&asset_id=<?= $asset_id ?>&software_id=<?= $software_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>" class="btn btn-sm btn-light" title="Unlink"><i class="fas fa-fw fa-unlink"></i></a>
-                                                <?php } ?>
-                                            </td>
-                                        </tr>
-                                    <?php } ?>
-                                    </tbody>
-                                </table>
-                            </div>
+                            <?= softwareHeldTable($held_software, 'asset', $asset_id, $can_edit) ?>
                         <?php } else { ?>
                             <div class="itflow-asset-empty">No licenses linked.</div>
                         <?php } ?>

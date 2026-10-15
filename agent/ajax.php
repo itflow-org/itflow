@@ -577,6 +577,31 @@ if (isset($_POST['asset_set_notes'])) {
 }
 
 /*
+ * License quick notes - the license page and quick look save on blur
+ */
+if (isset($_POST['software_set_notes'])) {
+
+    validateCSRFToken();
+
+    enforceUserPermission('module_support', 2);
+
+    $software_id = intval($_POST['software_id'] ?? 0);
+    $row = softwareRow($software_id);
+    if (!$row) {
+        exit;
+    }
+    $client_id = intval($row['software_client_id']);
+
+    enforceClientAccess();
+
+    $notes = escapeSql($_POST['notes'] ?? '');
+    mysqli_query($mysqli, "UPDATE software SET software_notes = '$notes' WHERE software_id = $software_id");
+
+    logAudit("Software", "Edit", "$session_name edited the notes on license " . escapeSql($row['software_name']), $client_id, $software_id);
+
+}
+
+/*
  * Ticketing Collision Detection/Avoidance
  * Called upon loading a ticket, and every 2 mins thereafter
  * Is used in conjunction with ticket_query_views to show who is currently viewing a ticket

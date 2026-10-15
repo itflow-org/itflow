@@ -81,6 +81,16 @@ function clientOverviewAttention($client_id, $access, $renewals) {
         }
     }
 
+    if ($access['docs']) {
+        // More devices and users on a license than seats bought - a true-up to bill, or seats to free
+        $items[] = [
+            'count' => dashboardCount("SELECT COUNT(software_id) FROM software WHERE software_client_id = $client_id AND software_archived_at IS NULL
+                AND " . softwareStatusFilters()['over']['sql']),
+            'label' => 'Licenses over seats', 'icon' => 'cube', 'tone' => 'danger',
+            'url' => "/agent/software.php?client_id=$client_id&status=over",
+        ];
+    }
+
     if ($access['docs'] && $renewals) {
         $expired = count(array_filter($renewals['items'], function ($r) { return $r['days'] < 0; }));
         $soon = count($renewals['items']) - $expired;
@@ -145,11 +155,11 @@ function clientOverviewContacts($client_id, $limit = 6) {
     return $contacts;
 }
 
-/** Starred assets and credentials. */
+/** Starred assets, licenses and credentials. */
 function clientOverviewFavorites($client_id, $access) {
     global $mysqli;
 
-    $favorites = ['assets' => [], 'credentials' => []];
+    $favorites = ['assets' => [], 'licenses' => [], 'credentials' => []];
 
     if ($access['docs']) {
         $sql = mysqli_query($mysqli, "SELECT asset_id, asset_name, asset_type, asset_make, asset_model, interface_ip
@@ -159,6 +169,14 @@ function clientOverviewFavorites($client_id, $access) {
             ORDER BY asset_type, asset_name");
         while ($row = mysqli_fetch_assoc($sql)) {
             $favorites['assets'][] = $row;
+        }
+
+        $sql = mysqli_query($mysqli, "SELECT software_id, software_name, software_type, software_license_type, software_key, software_expire
+            FROM software
+            WHERE software_client_id = $client_id AND software_favorite = 1 AND software_archived_at IS NULL
+            ORDER BY software_name");
+        while ($row = mysqli_fetch_assoc($sql)) {
+            $favorites['licenses'][] = $row;
         }
     }
 
@@ -260,7 +278,7 @@ function clientOverviewRenewals($client_id, $days = 45) {
             'Certificate', "/agent/certificates.php?client_id=$client_id&q="],
         ['software', 'cube', "SELECT software_id AS id, software_name AS name, software_expire AS d FROM software
             WHERE software_client_id = $client_id AND software_archived_at IS NULL AND software_expire IS NOT NULL AND software_expire <= $window",
-            'License', "/agent/software.php?client_id=$client_id&q="],
+            'License', "/agent/license.php?client_id=$client_id&software_id="],
         ['warranty', 'shield-alt', "SELECT asset_id AS id, asset_name AS name, asset_warranty_expire AS d FROM assets
             WHERE asset_client_id = $client_id AND asset_archived_at IS NULL AND asset_warranty_expire IS NOT NULL AND asset_warranty_expire <= $window",
             'Warranty', "/agent/asset.php?client_id=$client_id&asset_id="],
@@ -279,7 +297,7 @@ function clientOverviewRenewals($client_id, $days = 45) {
                 'kind' => $kind, 'icon' => $icon, 'label' => $label,
                 'name' => $row['name'], 'date' => $row['d'],
                 'days' => (int) $today->diff($date)->format('%r%a'),
-                'url' => in_array($kind, ['warranty', 'retire'], true) ? $url . intval($row['id']) : $url . rawurlencode($row['name']),
+                'url' => in_array($kind, ['warranty', 'retire', 'software'], true) ? $url . intval($row['id']) : $url . rawurlencode($row['name']),
             ];
         }
     }

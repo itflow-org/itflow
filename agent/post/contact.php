@@ -990,65 +990,7 @@ if (isset($_GET['unlink_asset_from_contact'])) {
 
 }
 
-if (isset($_POST['link_software_to_contact'])) {
-
-    validateCSRFToken();
-
-    enforceUserPermission('module_client', 2);
-
-    $software_id = intval($_POST['software_id']);
-    $contact_id = intval($_POST['contact_id']);
-
-    // Get software Name and Client ID for logging
-    $sql_software = mysqli_query($mysqli,"SELECT software_name, software_client_id FROM software WHERE software_id = $software_id");
-    $row = mysqli_fetch_assoc($sql_software);
-    $software_name = escapeSql($row['software_name']);
-    $client_id = intval($row['software_client_id']);
-
-    enforceClientAccess();
-
-    // Get Contact Name for logging
-    $contact_name = escapeSql(getFieldById('contacts', $contact_id, 'contact_name'));
-
-    mysqli_query($mysqli,"INSERT INTO software_contacts SET contact_id = $contact_id, software_id = $software_id");
-
-    logAudit("Software", "Link", "$session_name added software license $software_name to contact $contact_name", $client_id, $software_id);
-
-    flashAlert("Software <strong>$software_name</strong> licensed for contact <strong>$contact_name</strong>");
-
-    redirect();
-
-}
-
-if (isset($_GET['unlink_software_from_contact'])) {
-
-    validateCSRFToken();
-
-    enforceUserPermission('module_client', 2);
-
-    $contact_id = intval($_GET['contact_id']);
-    $software_id = intval($_GET['software_id']);
-
-    // Get software Name and Client ID for logging
-    $sql_software = mysqli_query($mysqli,"SELECT software_name, software_client_id FROM software WHERE software_id = $software_id");
-    $row = mysqli_fetch_assoc($sql_software);
-    $software_name = escapeSql($row['software_name']);
-    $client_id = intval($row['software_client_id']);
-
-    enforceClientAccess();
-
-    // Get Contact Name for logging
-    $contact_name = escapeSql(getFieldById('contacts', $contact_id, 'contact_name'));
-
-    mysqli_query($mysqli,"DELETE FROM software_contacts WHERE contact_id = $contact_id AND software_id = $software_id");
-
-    logAudit("software", "Unlink", "$session_name removed software license $software_name from contact $contact_name", $client_id, $software_id);
-
-    flashAlert("Removed Software License <strong>$software_name</strong> for Contact <strong>$contact_name</strong>", 'error');
-
-    redirect();
-
-}
+// Licenses are linked in post/link.php (link_software_to_contact)
 
 if (isset($_POST['link_contact_to_credential'])) {
 
