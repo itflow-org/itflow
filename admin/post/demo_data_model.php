@@ -1283,27 +1283,62 @@ function demoBuildClient($mysqli, $profile, $index, $context, &$counts) {
     demoBuildNetworkIps($mysqli, $profile, $assets, $network_ids, $counts);
     demoBuildPatchPanel($mysqli, $profile, $assets, $network_ids, $months, $counts);
 
-    // Domain, DNS and the certificate on it
+    // Domain, DNS and the certificate on it. Half renew by themselves; the
+    // email records vary so the Email checks have something to say - DMARC
+    // enforced, monitoring only, or missing
+    $domain_auto_renew = $index % 2;
+    $domain_m365 = strpos($profile['mail_servers'], 'google') === false;
     $domain_id = starterInsert($mysqli, 'domains', [
         'domain_name' => $profile['domain'],
         'domain_description' => 'Primary domain - website and email',
         'domain_expire' => demoDate(-1 * (60 + ($index * 21))),
+        'domain_auto_renew' => $domain_auto_renew,
         'domain_ip' => '203.0.113.' . (10 + $index),
-        'domain_name_servers' => 'ns1.' . $profile['dns_host'] . ', ns2.' . $profile['dns_host'],
-        'domain_raw_whois' => 'Registrar: Harbour Registrar Services. Status: clientTransferProhibited. Registrant: ' . $profile['name'] . '.',
-        'domain_mail_servers' => $profile['mail_servers'],
+        'domain_name_servers' => 'ns1.' . $profile['dns_host'] . "\nns2." . $profile['dns_host'],
+        'domain_raw_whois' => "Registrar: Harbour Registrar Services\nRegistered: " . demoDate(365 * (6 + $index % 9) + $index * 11) . "\nExpires: " . demoDate(-1 * (60 + ($index * 21))) . "\nStatus: client transfer prohibited\nNameservers: ns1." . $profile['dns_host'] . ', ns2.' . $profile['dns_host'],
+        'domain_mail_servers' => '0 ' . $profile['mail_servers'],
+        'domain_dmarc' => [0 => 'v=DMARC1; p=reject; rua=mailto:dmarc@' . $profile['domain'], 1 => 'v=DMARC1; p=none; rua=mailto:dmarc@' . $profile['domain'], 2 => ''][$index % 3],
+        'domain_dkim' => $index % 4 === 3 ? '' : ($domain_m365 ? "selector1\nselector2" : 'google'),
+        'domain_refreshed_at' => demoDateTime(1 + $index % 6, 4, 0),
         // These three are vendor IDs, not names - who hosts the site, who runs
         // DNS, and who the mail lands with
         'domain_webhost' => intval($profile['build'] === 1 ? ($context['org_vendors']['Nextcloud Hosting Partner'] ?? 0) : $primary_vendor_id),
         'domain_dnshost' => intval($primary_vendor_id),
         'domain_mailhost' => intval($context['org_vendors']['Cascade Cloud Licensing'] ?? 0),
-        'domain_txt' => 'v=spf1 include:' . $profile['dns_host'] . ' -all',
-        'domain_notes' => 'Registrar login is held in the credential vault. Renewal is set to manual so it cannot lapse without a ticket.',
+        'domain_txt' => 'v=spf1 include:' . $profile['dns_host'] . ' -all' . ($domain_m365 ? "\nMS=ms" . substr(demoSerial($profile['domain'], 8), 0, 8) : "\ngoogle-site-verification=" . strtolower(demoSerial($profile['domain'], 20))),
+        'domain_notes' => 'Registrar login is held in the credential vault. ' . ($domain_auto_renew ? 'Auto-renew is on and charged to the card on file - check it before the card expires.' : 'Renewal is set to manual so it cannot lapse without a ticket.'),
         'domain_registrar' => $primary_vendor_id,
         'domain_client_id' => $client_id,
         'domain_created_at' => demoMonthDateTime($months, 7, 9, 45),
         'domain_accessed_at' => demoDateTime($index % 13, 15, 5),
     ]);
+
+    demoAttachTags($mysqli, 'domain_tags', 'domain_id', 'tag_id', $domain_id, 7, ['Primary', 'Managed DNS']);
+
+    // Every third client also keeps a campaign domain nobody remembers - parked,
+    // no mail, and close to lapsing or already lapsed
+    if ($index % 3 === 0) {
+        $campaign_days = $index % 2 ? -12 : 20;
+        $campaign_domain_id = starterInsert($mysqli, 'domains', [
+            'domain_name' => 'get' . $profile['domain'],
+            'domain_description' => 'Old campaign domain - forwards to the main site',
+            'domain_expire' => demoDate(-1 * $campaign_days),
+            'domain_auto_renew' => 0,
+            'domain_ip' => '203.0.113.' . (10 + $index),
+            'domain_name_servers' => 'ns1.' . $profile['dns_host'] . "\nns2." . $profile['dns_host'],
+            'domain_txt' => 'v=spf1 -all',
+            'domain_dmarc' => 'v=DMARC1; p=reject',
+            'domain_raw_whois' => "Registrar: Harbour Registrar Services\nRegistered: " . demoDate(365 * 3 + $index) . "\nStatus: client transfer prohibited",
+            'domain_notes' => 'Ask the client whether to keep it before it renews.',
+            'domain_registrar' => $primary_vendor_id,
+            'domain_dnshost' => intval($primary_vendor_id),
+            'domain_client_id' => $client_id,
+            'domain_created_at' => demoMonthDateTime($months, 7, 10, 5),
+            'domain_refreshed_at' => demoDateTime(2 + $index % 5, 4, 0),
+        ]);
+        demoAttachTags($mysqli, 'domain_tags', 'domain_id', 'tag_id', $campaign_domain_id, 7, ['Parked', 'Marketing']);
+        $counts['documentation']++;
+    }
 
     $certificate_id = starterInsert($mysqli, 'certificates', [
         'certificate_name' => 'www.' . $profile['domain'],

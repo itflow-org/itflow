@@ -19,6 +19,8 @@ if (isset($_GET['type'])) {
         $type_display = "Asset";
     } elseif ($type === 6) {
         $type_display = "Vendor";
+    } elseif ($type === 7) {
+        $type_display = "Domain";
     }
 }
 ob_start();

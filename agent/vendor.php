@@ -110,14 +110,6 @@ if (!$vendor || (isset($_GET['client_id']) && $vendor_client_id !== intval($clie
             while ($row = mysqli_fetch_assoc($sql)) {
                 $assets[] = $row;
             }
-            $sql = mysqli_query($mysqli, "SELECT domain_id, domain_name, domain_description, domain_expire, domain_registrar, domain_webhost, domain_dnshost, domain_mailhost
-                FROM domains
-                WHERE domain_client_id = $client_id AND domain_archived_at IS NULL
-                AND $vendor_id IN (domain_registrar, domain_webhost, domain_dnshost, domain_mailhost)
-                ORDER BY domain_name ASC");
-            while ($row = mysqli_fetch_assoc($sql)) {
-                $domains[] = $row;
-            }
             $sql = mysqli_query($mysqli, "SELECT services.service_id, service_name, service_description, service_category, service_importance
                 FROM service_vendors JOIN services ON services.service_id = service_vendors.service_id
                 WHERE service_vendors.vendor_id = $vendor_id AND service_client_id = $client_id
@@ -127,6 +119,19 @@ if (!$vendor || (isset($_GET['client_id']) && $vendor_client_id !== intval($clie
             }
             $documents = linkedRecords('vendor', $vendor_id, 'document');
             $files = linkedRecords('vendor', $vendor_id, 'file');
+        }
+
+        // Domains they register or host - the client's, or for one of ours (DNS or
+        // mail we run for clients), every client's that the agent can see
+        $sql = mysqli_query($mysqli, "SELECT domain_id, domain_name, domain_description, domain_expire, domain_auto_renew, domain_registrar, domain_webhost, domain_dnshost, domain_mailhost,
+                domain_client_id, client_name
+            FROM domains
+            LEFT JOIN clients ON client_id = domain_client_id
+            WHERE domain_archived_at IS NULL AND $vendor_id IN (domain_registrar, domain_webhost, domain_dnshost, domain_mailhost)
+            " . ($is_ours ? "AND client_archived_at IS NULL " . clientScopeSql('domain_client_id') : "AND domain_client_id = $client_id") . "
+            ORDER BY client_name ASC, domain_name ASC");
+        while ($row = mysqli_fetch_assoc($sql)) {
+            $domains[] = $row;
         }
     }
     if ($can_credentials && !$is_ours) {
@@ -168,8 +173,12 @@ if (!$vendor || (isset($_GET['client_id']) && $vendor_client_id !== intval($clie
             'expenses' => ['label' => 'Expenses', 'icon' => 'fa-receipt', 'count' => $spend ? $spend['count'] : 0],
             'recurring' => ['label' => 'Recurring', 'icon' => 'fa-redo-alt', 'count' => count($recurring)],
             'cases' => ['label' => 'Cases', 'icon' => 'fa-life-ring', 'count' => $case_count, 'badge' => $case_open_count],
+            'domains' => ['label' => 'Client domains', 'icon' => 'fa-globe', 'count' => count($domains)],
             'history' => ['label' => 'History', 'icon' => 'fa-history', 'count' => count($history)],
         ];
+        if (!$domains) {
+            unset($vendor_tabs['domains']);
+        }
         if (!$can_financial) {
             unset($vendor_tabs['expenses'], $vendor_tabs['recurring']);
         }
@@ -557,12 +566,17 @@ if (!$vendor || (isset($_GET['client_id']) && $vendor_client_id !== intval($clie
                     <!-- Domains they register or host -->
                     <div class="tab-pane fade" id="vendor-pane-domains" role="tabpanel">
                         <div class="itflow-asset-pane-bar">
-                            <span class="text-body-secondary small">Domains they register or host, and for what.</span>
+                            <span class="text-body-secondary small"><?= $is_ours ? "Clients' domains we register or host with them, and for what." : 'Domains they register or host, and for what.' ?></span>
+                            <?php if (!$is_ours && $can_support_edit && !$vendor_archived_at) { ?>
+                                <button type="button" class="btn btn-sm btn-primary ajax-modal" data-modal-size="lg" data-modal-url="modals/domain/domain_add.php?client_id=<?= $client_id ?>&vendor_id=<?= $vendor_id ?>">
+                                    <i class="fas fa-plus me-2"></i>New Domain
+                                </button>
+                            <?php } ?>
                         </div>
                         <?php if ($domains) { ?>
                             <div class="table-responsive">
                                 <table class="table table-hover align-middle mb-0">
-                                    <thead class="text-nowrap table-light"><tr><th>Domain</th><th>They are</th><th>Expires</th></tr></thead>
+                                    <thead class="text-nowrap table-light"><tr><th>Domain</th><th>They are</th><th>Expires</th><?= $is_ours ? '<th>Client</th>' : '' ?></tr></thead>
                                     <tbody>
                                     <?php foreach ($domains as $domain) {
                                         $roles = [];
@@ -571,14 +585,22 @@ if (!$vendor || (isset($_GET['client_id']) && $vendor_client_id !== intval($clie
                                                 $roles[] = $role;
                                             }
                                         }
-                                        $expiry = softwareRenewal($domain['domain_expire']); ?>
+                                        $expiry = domainExpiry($domain['domain_expire'], $domain['domain_auto_renew']); ?>
                                         <tr>
                                             <td>
-                                                <a class="fw-semibold ajax-modal" href="#" data-modal-size="lg" data-modal-url="modals/domain/domain_edit.php?client_id=<?= $client_id ?>&id=<?= intval($domain['domain_id']) ?>"><?= escapeHtml($domain['domain_name']) ?></a>
-                                                <?php if ($domain['domain_description']) { ?><div class="small text-body-secondary"><?= escapeHtml($domain['domain_description']) ?></div><?php } ?>
+                                                <div class="d-flex align-items-center gap-2">
+                                                    <?= domainTile('sm') ?>
+                                                    <div class="min-w-0">
+                                                        <a class="fw-semibold ajax-modal" href="#" data-modal-size="lg" data-modal-url="modals/domain/domain.php?id=<?= intval($domain['domain_id']) ?>"><?= escapeHtml($domain['domain_name']) ?></a>
+                                                        <?php if ($domain['domain_description']) { ?><div class="small text-body-secondary"><?= escapeHtml($domain['domain_description']) ?></div><?php } ?>
+                                                    </div>
+                                                </div>
                                             </td>
                                             <td><?php foreach ($roles as $role) { ?><span class="badge rounded-pill bg-secondary-subtle text-secondary-emphasis fw-normal me-1"><?= $role ?></span><?php } ?></td>
-                                            <td class="text-nowrap"><?= $expiry ? softwareRenewalPill($expiry) : '<span class="text-body-secondary">-</span>' ?></td>
+                                            <td class="text-nowrap"><?= domainExpiryPill($expiry, true) ?></td>
+                                            <?php if ($is_ours) { ?>
+                                                <td><a href="domains.php?client_id=<?= intval($domain['domain_client_id']) ?>&vendor=<?= $vendor_id ?>"><?= escapeHtml($domain['client_name']) ?></a></td>
+                                            <?php } ?>
                                         </tr>
                                     <?php } ?>
                                     </tbody>

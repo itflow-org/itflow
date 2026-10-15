@@ -2,9 +2,59 @@
 
 /*
  * ITFlow - GET/POST request handler for client domains
+ *
+ * Every handler checks the support module and the domain's own client; the
+ * registrar and hosts a form names must be the client's vendors or ours.
+ * Lookups (DNS, registration data, expiry) go through domainLookup() in
+ * functions/domain.php, and a lookup that finds nothing changes nothing -
+ * a network blip must not wipe a domain's records or its expiry date.
  */
 
 defined('FROM_POST_HANDLER') || die("Direct file access is not allowed");
+
+/** The domain a request names, after the module and client checks - or back with an error if it is gone. */
+function domainForRequest($domain_id, $level) {
+    global $client_id;
+    enforceUserPermission('module_support', $level);
+    $row = domainRow($domain_id);
+    if (!$row) {
+        flashAlert('That domain no longer exists.', 'error');
+        redirect();
+    }
+    $client_id = intval($row['domain_client_id']);
+    enforceClientAccess();
+    return $row;
+}
+
+/** The domains a bulk action names that this agent may act on - [id => row]. */
+function domainsForBulk($level) {
+    global $client_id;
+    enforceUserPermission('module_support', $level);
+    $rows = [];
+    foreach (array_unique(array_map('intval', (array) ($_POST['domain_ids'] ?? []))) as $domain_id) {
+        $row = domainRow($domain_id);
+        if (!$row) {
+            continue;
+        }
+        $client_id = intval($row['domain_client_id']);
+        enforceClientAccess();
+        $rows[$domain_id] = $row;
+    }
+    return $rows;
+}
+
+/** Look a domain up and save what came back, with its history. True when something answered. */
+function domainRefresh($row) {
+    $domain_id = intval($row['domain_id']);
+    $lookup = domainLookup($row['domain_name']);
+    if (!$lookup) {
+        return false;
+    }
+    $before = domainHistorySnapshot($domain_id);
+    domainApplyLookup($domain_id, $lookup);
+    domainWriteHistory($domain_id, $before, domainHistorySnapshot($domain_id));
+    return true;
+}
 
 if (isset($_POST['add_domain'])) {
 
@@ -12,53 +62,93 @@ if (isset($_POST['add_domain'])) {
 
     enforceUserPermission('module_support', 2);
 
-    require_once 'domain_model.php';
-    $extended_log_description = '';
-    $client_id = intval($_POST['client_id']);
+    $client_id = intval($_POST['client_id'] ?? 0);
 
     enforceClientAccess();
 
-    // Set/check/lookup expiry date
-    if (strtotime($expire)) {
-        $expire = "'" . $expire . "'";
+    if (!$client_id || !getFieldById('clients', $client_id, 'client_name')) {
+        flashAlert('Pick the client this domain is for.', 'error');
+        redirect();
     }
-    else {
-        $expire = getDomainExpirationDate($name);
-        if (strtotime($expire)) {
-            $expire = "'" . $expire . "'";
-        } else {
-            $expire = 'NULL';
+
+    // Several at once - a pasted list, one per line (or separated by spaces or commas)
+    $names_input = trim((string) ($_POST['names'] ?? ''));
+    if ($names_input !== '') {
+
+        set_time_limit(0);
+
+        $added = [];
+        $skipped_invalid = $skipped_existing = 0;
+        foreach (array_unique(array_filter(preg_split('/[\s,;]+/', $names_input), 'strlen')) as $input) {
+            $post = $_POST;
+            $post['name'] = $input;
+            $post['expire'] = '';
+            $form = domainFormSet($post, $client_id, 0, $error);
+            if ($form === null) {
+                if (domainNormalizeName($input) === '') {
+                    $skipped_invalid++;
+                } else {
+                    $skipped_existing++;
+                }
+                continue;
+            }
+            if (isset($added[$form['name']])) {
+                continue;
+            }
+            mysqli_query($mysqli, "INSERT INTO domains SET {$form['set']}, domain_client_id = $client_id");
+            $domain_id = mysqli_insert_id($mysqli);
+            domainSetTags($domain_id, $_POST['tags'] ?? []);
+            $added[$form['name']] = $domain_id;
+            logAudit("Domain", "Create", "$session_name created domain " . escapeSql($form['name']), $client_id, $domain_id);
         }
+
+        // Look up what there is time for now; the refresher takes the rest first on its next run
+        $looked_up = 0;
+        $started = time();
+        foreach ($added as $name => $domain_id) {
+            if (time() - $started > 20) {
+                break;
+            }
+            if (domainApplyLookup($domain_id, domainLookup($name))) {
+                $looked_up++;
+            }
+        }
+
+        $count = count($added);
+        $message = "<strong>$count</strong> domain" . ($count === 1 ? '' : 's') . " added";
+        if ($count) {
+            $message .= $looked_up === $count ? ' and looked up' : ", <strong>$looked_up</strong> looked up now - the rest are checked on the refresher's next run";
+        }
+        if ($skipped_existing) {
+            $message .= ", <strong>$skipped_existing</strong> already on this client";
+        }
+        if ($skipped_invalid) {
+            $message .= ", <strong>$skipped_invalid</strong> not domain names";
+        }
+        logAudit("Domain", "Bulk Create", "$session_name added $count domain(s)", $client_id);
+        flashAlert($message, $count ? 'success' : 'error');
+        redirect();
     }
 
-    // NS, MX, A and WHOIS records/data
-    $records = getDnsRecords($name);
-    $a = escapeSql($records['a']);
-    $ns = escapeSql($records['ns']);
-    $mx = escapeSql($records['mx']);
-    $txt = escapeSql($records['txt']);
-    $whois = escapeSql($records['whois']);
+    $form = domainFormSet($_POST, $client_id, 0, $error);
+    if ($form === null) {
+        flashAlert($error, 'error');
+        redirect();
+    }
 
-    // Add domain record
-    mysqli_query($mysqli,"INSERT INTO domains SET domain_name = '$name', domain_description = '$description', domain_registrar = $registrar,  domain_webhost = $webhost, domain_dnshost = $dnshost, domain_mailhost = $mailhost, domain_expire = $expire, domain_ip = '$a', domain_name_servers = '$ns', domain_mail_servers = '$mx', domain_txt = '$txt', domain_raw_whois = '$whois', domain_notes = '$notes', domain_client_id = $client_id");
-
-    // Get inserted ID (for linking certificate, if exists)
+    mysqli_query($mysqli, "INSERT INTO domains SET {$form['set']}, domain_client_id = $client_id");
     $domain_id = mysqli_insert_id($mysqli);
 
-    // Get SSL cert for domain (if exists)
-    $certificate = getSslCertificate($name);
-    if ($certificate['success'] == "TRUE") {
-        $expire = escapeSql($certificate['expire']);
-        $issued_by = escapeSql($certificate['issued_by']);
-        $public_key = escapeSql($certificate['public_key']);
+    domainSetTags($domain_id, $_POST['tags'] ?? []);
 
-        mysqli_query($mysqli,"INSERT INTO certificates SET certificate_name = '$name', certificate_domain = '$name', certificate_issued_by = '$issued_by', certificate_expire = '$expire', certificate_public_key = '$public_key', certificate_domain_id = $domain_id, certificate_client_id = $client_id");
-        $extended_log_description = ', with associated SSL cert';
-    }
+    // Its records, registration and expiry - and the certificate on its website
+    $found = domainApplyLookup($domain_id, domainLookup($form['name']));
+    $with_certificate = $found && domainAddCertificate($domain_id, $form['name'], $client_id);
 
-    logAudit("Domain", "Create", "$session_name created domain $name$extended_log_description", $client_id, $domain_id);
+    $name = $form['name'];
+    logAudit("Domain", "Create", "$session_name created domain " . escapeSql($name) . ($with_certificate ? ', with its SSL certificate' : ''), $client_id, $domain_id);
 
-    flashAlert("Domain <strong>$name</strong> created");
+    flashAlert("Domain <strong>$name</strong> created" . ($found ? ($with_certificate ? ', with its SSL certificate' : '') : ' - nothing answered for it in DNS, so check the name'), $found ? 'success' : 'warning');
 
     redirect();
 
@@ -68,89 +158,35 @@ if (isset($_POST['edit_domain'])) {
 
     validateCSRFToken();
 
-    enforceUserPermission('module_support', 2);
+    $row = domainForRequest($_POST['domain_id'] ?? 0, 2);
+    $domain_id = intval($row['domain_id']);
 
-    require_once 'domain_model.php';
-
-    $domain_id = intval($_POST['domain_id']);
-
-    $client_id = intval(getFieldById('domains', $domain_id, 'domain_client_id'));
-
-    enforceClientAccess();
-
-    // Set/check/lookup expiry date
-    if (strtotime($expire) && (new DateTime($expire)) > (new DateTime())) {
-        $expire = "'" . $expire . "'";
-
-    } else {
-        $expire = getDomainExpirationDate($name);
-        if (strtotime($expire)) {
-            $expire = "'" . $expire . "'";
-        } else {
-            $expire = 'NULL';
-        }
+    $form = domainFormSet($_POST, $client_id, $domain_id, $error);
+    if ($form === null) {
+        flashAlert($error, 'error');
+        redirect();
     }
 
-    $client_id = intval($_POST['client_id']);
+    $before = domainHistorySnapshot($domain_id);
 
-    // Update NS, MX, A and WHOIS records/data
-    $records = getDnsRecords($name);
-    $a = escapeSql($records['a']);
-    $ns = escapeSql($records['ns']);
-    $mx = escapeSql($records['mx']);
-    $txt = escapeSql($records['txt']);
-    $whois = escapeSql($records['whois']);
+    mysqli_query($mysqli, "UPDATE domains SET {$form['set']} WHERE domain_id = $domain_id");
 
-    // Current domain info
-    $original_domain_info = mysqli_fetch_assoc(mysqli_query($mysqli,"
-        SELECT
-            domains.*,
-            registrar.vendor_name AS registrar_name,
-            dnshost.vendor_name AS dnshost_name,
-            mailhost.vendor_name AS mailhost_name,
-            webhost.vendor_name AS webhost_name
-        FROM domains
-        LEFT JOIN vendors AS registrar ON domains.domain_registrar = registrar.vendor_id
-        LEFT JOIN vendors AS dnshost ON domains.domain_dnshost = dnshost.vendor_id
-        LEFT JOIN vendors AS mailhost ON domains.domain_mailhost = mailhost.vendor_id
-        LEFT JOIN vendors AS webhost ON domains.domain_webhost = webhost.vendor_id
-        WHERE domain_id = $domain_id
-    "));
-
-    // Update domain
-    mysqli_query($mysqli,"UPDATE domains SET domain_name = '$name', domain_description = '$description', domain_registrar = $registrar,  domain_webhost = $webhost, domain_dnshost = $dnshost, domain_mailhost = $mailhost, domain_expire = $expire, domain_ip = '$a', domain_name_servers = '$ns', domain_mail_servers = '$mx', domain_txt = '$txt', domain_raw_whois = '$whois', domain_notes = '$notes' WHERE domain_id = $domain_id");
-
-    // Fetch updated info
-    $new_domain_info = mysqli_fetch_assoc(mysqli_query($mysqli,"
-        SELECT
-            domains.*,
-            registrar.vendor_name AS registrar_name,
-            dnshost.vendor_name AS dnshost_name,
-            mailhost.vendor_name AS mailhost_name,
-            webhost.vendor_name AS webhost_name
-        FROM domains
-        LEFT JOIN vendors AS registrar ON domains.domain_registrar = registrar.vendor_id
-        LEFT JOIN vendors AS dnshost ON domains.domain_dnshost = dnshost.vendor_id
-        LEFT JOIN vendors AS mailhost ON domains.domain_mailhost = mailhost.vendor_id
-        LEFT JOIN vendors AS webhost ON domains.domain_webhost = webhost.vendor_id
-        WHERE domain_id = $domain_id
-    "));
-
-    // Compare/log changes
-    $ignored_columns = ["domain_updated_at", "domain_accessed_at", "domain_registrar", "domain_webhost", "domain_dnshost", "domain_mailhost"];
-    foreach ($original_domain_info as $column => $old_value) {
-        $new_value = $new_domain_info[$column];
-        if ($old_value != $new_value && !in_array($column, $ignored_columns)) {
-            $column = escapeSql($column);
-            $old_value = escapeSql($old_value);
-            $new_value = escapeSql($new_value);
-            mysqli_query($mysqli,"INSERT INTO domain_history SET domain_history_column = '$column', domain_history_old_value = '$old_value', domain_history_new_value = '$new_value', domain_history_domain_id = $domain_id");
-        }
+    // Only a form that showed the tags changes them
+    if (isset($_POST['tags_form'])) {
+        domainSetTags($domain_id, $_POST['tags'] ?? []);
     }
 
-    logAudit("Domain", "Edit", "$session_name edited domain $name", $client_id, $domain_id);
+    // A new name is a new domain to look up; otherwise saving stays quick
+    if ($form['name'] !== $row['domain_name']) {
+        domainApplyLookup($domain_id, domainLookup($form['name']));
+    }
 
-    flashAlert("Domain <strong>$name</strong> edited");
+    domainWriteHistory($domain_id, $before, domainHistorySnapshot($domain_id));
+
+    $name = $form['name'];
+    logAudit("Domain", "Edit", "$session_name edited domain " . escapeSql($name), $client_id, $domain_id);
+
+    flashAlert("Domain <strong>$name</strong> updated");
 
     redirect();
 
@@ -160,39 +196,34 @@ if (isset($_GET['refresh_domain'])) {
 
     validateCSRFToken();
 
-    enforceUserPermission('module_support', 2);
+    $row = domainForRequest($_GET['refresh_domain'], 2);
+    $domain_id = intval($row['domain_id']);
+    $name = $row['domain_name'];
 
-    $domain_id = intval($_GET['refresh_domain']);
-
-    // Get Name and Client ID for logging and alert message
-    $sql = mysqli_query($mysqli,"SELECT domain_name, domain_client_id FROM domains WHERE domain_id = $domain_id");
-    $row = mysqli_fetch_assoc($sql);
-    $domain_name = escapeSql($row['domain_name']);
-    $client_id = intval($row['domain_client_id']);
-
-    enforceClientAccess();
-
-    // Lookup expiry date
-    $expire = getDomainExpirationDate($domain_name);
-    if (strtotime($expire)) {
-        $expire = "'" . $expire . "'";
-    } else {
-        $expire = 'NULL';
+    if (!domainRefresh($row)) {
+        flashAlert("Nothing answered for <strong>$name</strong> in DNS - nothing was changed. Check the name, or whether it has lapsed.", 'error');
+        redirect();
     }
 
-    // NS, MX, A and WHOIS records/data
-    $records = getDnsRecords($domain_name);
-    $a = escapeSql($records['a']);
-    $ns = escapeSql($records['ns']);
-    $mx = escapeSql($records['mx']);
-    $txt = escapeSql($records['txt']);
-    $whois = escapeSql($records['whois']);
+    logAudit("Domain", "Refresh", "$session_name looked up domain " . escapeSql($name), $client_id, $domain_id);
 
-    mysqli_query($mysqli,"UPDATE domains SET domain_expire = $expire, domain_ip = '$a', domain_name_servers = '$ns', domain_mail_servers = '$mx', domain_txt = '$txt', domain_raw_whois = '$whois' WHERE domain_id = $domain_id");
+    flashAlert("Looked up <strong>$name</strong>");
 
-    logAudit("Domain", "Refresh", "$session_name refreshed records for domain $domain_name", $client_id, $domain_id);
+    redirect();
 
-    flashAlert("Refreshed records for <strong>$domain_name</strong>");
+}
+
+if (isset($_GET['favorite_domain']) || isset($_GET['unfavorite_domain'])) {
+
+    validateCSRFToken();
+
+    $favorite = isset($_GET['favorite_domain']) ? 1 : 0;
+    $row = domainForRequest($favorite ? $_GET['favorite_domain'] : $_GET['unfavorite_domain'], 2);
+    $domain_id = intval($row['domain_id']);
+
+    mysqli_query($mysqli, "UPDATE domains SET domain_favorite = $favorite WHERE domain_id = $domain_id");
+
+    logAudit("Domain", "Edit", "$session_name " . ($favorite ? 'starred' : 'unstarred') . " domain " . escapeSql($row['domain_name']), $client_id, $domain_id);
 
     redirect();
 
@@ -202,49 +233,31 @@ if (isset($_GET['archive_domain'])) {
 
     validateCSRFToken();
 
-    enforceUserPermission('module_support', 2);
+    $row = domainForRequest($_GET['archive_domain'], 2);
+    $domain_id = intval($row['domain_id']);
 
-    $domain_id = intval($_GET['archive_domain']);
+    mysqli_query($mysqli, "UPDATE domains SET domain_archived_at = NOW() WHERE domain_id = $domain_id");
 
-    //Get domain Name
-    $sql = mysqli_query($mysqli,"SELECT domain_client_id, domain_name FROM domains WHERE domain_id = $domain_id");
-    $row = mysqli_fetch_assoc($sql);
-    $domain_name = escapeSql($row['domain_name']);
-    $client_id = intval($row['domain_client_id']);
+    logAudit("Domain", "Archive", "$session_name archived domain " . escapeSql($row['domain_name']), $client_id, $domain_id);
 
-    enforceClientAccess();
-
-    mysqli_query($mysqli,"UPDATE domains SET domain_archived_at = NOW() WHERE domain_id = $domain_id");
-
-    logAudit("Domain", "Archive", "$session_name archived domain $domain_name", $client_id, $domain_id);
-
-    flashAlert("Domain <strong>$domain_name archived", 'error');
+    flashAlert("Domain <strong>{$row['domain_name']}</strong> archived", 'error');
 
     redirect();
 
 }
 
-if(isset($_GET['restore_domain'])){
+if (isset($_GET['restore_domain'])) {
 
     validateCSRFToken();
 
-    enforceUserPermission('module_support', 2);
+    $row = domainForRequest($_GET['restore_domain'], 2);
+    $domain_id = intval($row['domain_id']);
 
-    $domain_id = intval($_GET['restore_domain']);
+    mysqli_query($mysqli, "UPDATE domains SET domain_archived_at = NULL WHERE domain_id = $domain_id");
 
-    // Get Name and Client ID for logging and alert message
-    $sql = mysqli_query($mysqli,"SELECT domain_name, domain_client_id FROM domains WHERE domain_id = $domain_id");
-    $row = mysqli_fetch_assoc($sql);
-    $domain_name = escapeSql($row['domain_name']);
-    $client_id = intval($row['domain_client_id']);
+    logAudit("Domain", "Restore", "$session_name restored domain " . escapeSql($row['domain_name']), $client_id, $domain_id);
 
-    enforceClientAccess();
-
-    mysqli_query($mysqli,"UPDATE domains SET domain_archived_at = NULL WHERE domain_id = $domain_id");
-
-    logAudit("Domain", "Restore", "$session_name restored domain $domain_name", $client_id, $domain_id);
-
-    flashAlert("Domain <strong>$domain_name</strong> restored");
+    flashAlert("Domain <strong>{$row['domain_name']}</strong> restored");
 
     redirect();
 
@@ -254,141 +267,65 @@ if (isset($_GET['delete_domain'])) {
 
     validateCSRFToken();
 
-    enforceUserPermission('module_support', 3);
+    $row = domainForRequest($_GET['delete_domain'], 3);
 
-    $domain_id = intval($_GET['delete_domain']);
+    domainDeleteForGood($row['domain_id']);
 
-    // Get Domain Name and Client ID for logging and alert message
-    $sql = mysqli_query($mysqli,"SELECT domain_name, domain_client_id FROM domains WHERE domain_id = $domain_id");
-    $row = mysqli_fetch_assoc($sql);
-    $domain_name = escapeSql($row['domain_name']);
-    $client_id = intval($row['domain_client_id']);
+    logAudit("Domain", "Delete", "$session_name deleted domain " . escapeSql($row['domain_name']), $client_id);
 
-    enforceClientAccess();
-
-    mysqli_query($mysqli,"DELETE FROM domains WHERE domain_id = $domain_id");
-
-    logAudit("Domain", "Delete", "$session_name deleted domain $domain_name", $client_id);
-
-    flashAlert("Domain <strong>$domain_name</strong> deleted", 'error');
+    flashAlert("Domain <strong>{$row['domain_name']}</strong> deleted", 'error');
 
     redirect();
 
 }
 
-if (isset($_POST['bulk_archive_domains'])) {
+if (isset($_POST['bulk_favorite_domains']) || isset($_POST['bulk_unfavorite_domains'])) {
 
     validateCSRFToken();
 
-    enforceUserPermission('module_support', 3);
-
-    if (isset($_POST['domain_ids'])) {
-
-        // Get Selected Count
-        $count = count($_POST['domain_ids']);
-
-        // Cycle through array and archive each record
-        foreach ($_POST['domain_ids'] as $domain_id) {
-
-            $domain_id = intval($domain_id);
-
-            // Get Name and Client ID for logging and alert message
-            $sql = mysqli_query($mysqli,"SELECT domain_name, domain_client_id FROM domains WHERE domain_id = $domain_id");
-            $row = mysqli_fetch_assoc($sql);
-            $domain_name = escapeSql($row['domain_name']);
-            $client_id = intval($row['domain_client_id']);
-
-            enforceClientAccess();
-
-            mysqli_query($mysqli,"UPDATE domains SET domain_archived_at = NOW() WHERE domain_id = $domain_id");
-
-            logAudit("Domain", "Archive", "$session_name archived domain $domain_name", $client_id, $domain_id);
-        }
-
-        logAudit("Domain", "Bulk Archive", "$session_name archived $count domain(s)", $client_id);
-
-        flashAlert("Archived <strong>$count</strong> domain(s)", 'error');
-
+    $favorite = isset($_POST['bulk_favorite_domains']) ? 1 : 0;
+    $count = 0;
+    foreach (domainsForBulk(2) as $domain_id => $row) {
+        mysqli_query($mysqli, "UPDATE domains SET domain_favorite = $favorite WHERE domain_id = $domain_id");
+        logAudit("Domain", "Edit", "$session_name " . ($favorite ? 'starred' : 'unstarred') . " domain " . escapeSql($row['domain_name']), intval($row['domain_client_id']), $domain_id);
+        $count++;
     }
+
+    flashAlert(($favorite ? 'Starred' : 'Unstarred') . " <strong>$count</strong> domain" . ($count === 1 ? '' : 's'));
 
     redirect();
 
 }
 
-if (isset($_POST['bulk_restore_domains'])) {
+// Who registers or hosts them - one vendor into one role for several domains at once
+if (isset($_POST['bulk_set_domain_vendor'])) {
 
     validateCSRFToken();
 
-    enforceUserPermission('module_support', 2);
+    $role = $_POST['role'] ?? '';
+    if (!isset(DOMAIN_ROLES[$role])) {
+        flashAlert('Pick what the vendor does for them.', 'error');
+        redirect();
+    }
+    $column = DOMAIN_ROLES[$role]['column'];
+    $vendor_input = intval($_POST['vendor_id'] ?? 0);
 
-    if (isset($_POST['domain_ids'])) {
-
-        // Get Selected Count
-        $count = count($_POST['domain_ids']);
-
-        // Cycle through array and restore
-        foreach ($_POST['domain_ids'] as $domain_id) {
-
-            $domain_id = intval($domain_id);
-
-            // Get Name and Client ID for logging and alert message
-            $sql = mysqli_query($mysqli,"SELECT domain_name, domain_client_id FROM domains WHERE domain_id = $domain_id");
-            $row = mysqli_fetch_assoc($sql);
-            $domain_name = escapeSql($row['domain_name']);
-            $client_id = intval($row['domain_client_id']);
-
-            enforceClientAccess();
-
-            mysqli_query($mysqli,"UPDATE domains SET domain_archived_at = NULL WHERE domain_id = $domain_id");
-
-            logAudit("Domain", "Restore", "$session_name restored domain $domain_name", $client_id, $domain_id);
-
+    $count = $skipped = 0;
+    foreach (domainsForBulk(2) as $domain_id => $row) {
+        $vendor_id = domainVendorId($vendor_input, $row['domain_client_id']);
+        if ($vendor_input && !$vendor_id) {
+            // That vendor is another client's
+            $skipped++;
+            continue;
         }
-
-        logAudit("Domain", "Bulk Restore", "$session_name restored $count domain(s)", $client_id);
-
-        flashAlert("Restored <strong>$count</strong> domain(s)");
-
+        $before = domainHistorySnapshot($domain_id);
+        mysqli_query($mysqli, "UPDATE domains SET $column = $vendor_id WHERE domain_id = $domain_id");
+        domainWriteHistory($domain_id, $before, domainHistorySnapshot($domain_id));
+        logAudit("Domain", "Edit", "$session_name set the " . strtolower(DOMAIN_ROLES[$role]['label']) . " vendor on domain " . escapeSql($row['domain_name']), intval($row['domain_client_id']), $domain_id);
+        $count++;
     }
 
-    redirect();
-
-}
-
-if (isset($_POST['bulk_delete_domains'])) {
-
-    validateCSRFToken();
-
-    enforceUserPermission('module_support', 3);
-
-    if (isset($_POST['domain_ids'])) {
-
-        // Get Selected Count
-        $count = count($_POST['domain_ids']);
-
-        // Cycle through array and delete each domain
-        foreach ($_POST['domain_ids'] as $domain_id) {
-
-            $domain_id = intval($domain_id);
-
-            // Get Name and Client ID for logging and alert message
-            $sql = mysqli_query($mysqli,"SELECT domain_name, domain_client_id FROM domains WHERE domain_id = $domain_id");
-            $row = mysqli_fetch_assoc($sql);
-            $domain_name = escapeSql($row['domain_name']);
-            $client_id = intval($row['domain_client_id']);
-
-            enforceClientAccess();
-
-            mysqli_query($mysqli, "DELETE FROM domains WHERE domain_id = $domain_id AND domain_client_id = $client_id");
-
-            logAudit("Domain", "Delete", "$session_name deleted domain $domain_name", $client_id);
-        }
-
-        logAudit("Domain", "Bulk Delete", "$session_name deleted $count domain(s)", $client_id);
-
-        flashAlert("Deleted <strong>$count</strong> domain(s)", 'error');
-
-    }
+    flashAlert("Set the " . strtolower(DOMAIN_ROLES[$role]['label']) . ($role === 'registrar' ? '' : ' host') . " on <strong>$count</strong> domain" . ($count === 1 ? '' : 's') . ($skipped ? ", <strong>$skipped</strong> skipped - that vendor is another client's" : ''));
 
     redirect();
 
@@ -398,58 +335,73 @@ if (isset($_POST['bulk_refresh_domains'])) {
 
     validateCSRFToken();
 
-    enforceUserPermission('module_support', 2);
+    // Lookups are slow - don't time out mid-batch
+    set_time_limit(0);
 
-    if (isset($_POST['domain_ids'])) {
-
-        // WHOIS lookups are slow - don't time out mid-batch
-        set_time_limit(0);
-
-        // Get Selected Count
-        $count = count($_POST['domain_ids']);
-
-        // Cycle through array and refresh each record
-        foreach ($_POST['domain_ids'] as $domain_id) {
-
-            $domain_id = intval($domain_id);
-
-            // Get Name and Client ID for logging and alert message
-            $sql = mysqli_query($mysqli,"SELECT domain_name, domain_client_id FROM domains WHERE domain_id = $domain_id");
-            $row = mysqli_fetch_assoc($sql);
-            $domain_name = escapeSql($row['domain_name']);
-            $client_id = intval($row['domain_client_id']);
-
-            enforceClientAccess();
-
-            // Lookup expiry date
-            $expire = getDomainExpirationDate($domain_name);
-            if (strtotime($expire)) {
-                $expire = "'" . $expire . "'";
-            } else {
-                $expire = 'NULL';
-            }
-
-            // NS, MX, A and WHOIS records/data
-            $records = getDnsRecords($domain_name);
-            $a = escapeSql($records['a']);
-            $ns = escapeSql($records['ns']);
-            $mx = escapeSql($records['mx']);
-            $txt = escapeSql($records['txt']);
-            $whois = escapeSql($records['whois']);
-
-            mysqli_query($mysqli,"UPDATE domains SET domain_expire = $expire, domain_ip = '$a', domain_name_servers = '$ns', domain_mail_servers = '$mx', domain_txt = '$txt', domain_raw_whois = '$whois' WHERE domain_id = $domain_id");
-
-            logAudit("Domain", "Refresh", "$session_name refreshed records for domain $domain_name", $client_id, $domain_id);
-
-            // Be gentle on WHOIS servers
-            sleep(1);
+    $count = $found = 0;
+    foreach (domainsForBulk(2) as $domain_id => $row) {
+        $count++;
+        if (domainRefresh($row)) {
+            $found++;
+            logAudit("Domain", "Refresh", "$session_name looked up domain " . escapeSql($row['domain_name']), intval($row['domain_client_id']), $domain_id);
         }
-
-        logAudit("Domain", "Bulk Refresh", "$session_name refreshed records for $count domain(s)", $client_id);
-
-        flashAlert("Refreshed records for <strong>$count</strong> domain(s)");
-
+        // Be gentle on the registries
+        usleep(500000);
     }
+
+    $missed = $count - $found;
+    flashAlert("Looked up <strong>$found</strong> domain" . ($found === 1 ? '' : 's') . ($missed ? ", nothing answered for <strong>$missed</strong> - left as they were" : ''), $missed ? 'warning' : 'success');
+
+    redirect();
+
+}
+
+if (isset($_POST['bulk_archive_domains'])) {
+
+    validateCSRFToken();
+
+    $count = 0;
+    foreach (domainsForBulk(2) as $domain_id => $row) {
+        mysqli_query($mysqli, "UPDATE domains SET domain_archived_at = NOW() WHERE domain_id = $domain_id");
+        logAudit("Domain", "Archive", "$session_name archived domain " . escapeSql($row['domain_name']), intval($row['domain_client_id']), $domain_id);
+        $count++;
+    }
+
+    flashAlert("Archived <strong>$count</strong> domain" . ($count === 1 ? '' : 's'), 'error');
+
+    redirect();
+
+}
+
+if (isset($_POST['bulk_restore_domains'])) {
+
+    validateCSRFToken();
+
+    $count = 0;
+    foreach (domainsForBulk(2) as $domain_id => $row) {
+        mysqli_query($mysqli, "UPDATE domains SET domain_archived_at = NULL WHERE domain_id = $domain_id");
+        logAudit("Domain", "Restore", "$session_name restored domain " . escapeSql($row['domain_name']), intval($row['domain_client_id']), $domain_id);
+        $count++;
+    }
+
+    flashAlert("Restored <strong>$count</strong> domain" . ($count === 1 ? '' : 's'));
+
+    redirect();
+
+}
+
+if (isset($_POST['bulk_delete_domains'])) {
+
+    validateCSRFToken();
+
+    $count = 0;
+    foreach (domainsForBulk(3) as $domain_id => $row) {
+        domainDeleteForGood($domain_id);
+        logAudit("Domain", "Delete", "$session_name deleted domain " . escapeSql($row['domain_name']), intval($row['domain_client_id']));
+        $count++;
+    }
+
+    flashAlert("Deleted <strong>$count</strong> domain" . ($count === 1 ? '' : 's'), 'error');
 
     redirect();
 
@@ -499,18 +451,31 @@ if (isExportRequest('export_domains')) {
     }
 
     // Expiring In Filter
+    $expire_query = '';
     if (!empty($_POST['expire_days'])) {
         if ($_POST['expire_days'] == "expired") {
-            $expire_query = "AND (domain_expire IS NOT NULL AND domain_expire != '0000-00-00' AND domain_expire < CURDATE())";
+            $expire_query = "AND (domain_expire IS NOT NULL AND domain_expire < CURDATE())";
             $filter_summary['Expiry'] = 'Expired';
         } else {
             $expire_days = intval($_POST['expire_days']);
-            $expire_query = "AND (domain_expire IS NOT NULL AND domain_expire != '0000-00-00' AND domain_expire BETWEEN CURDATE() AND DATE_ADD(CURDATE(), INTERVAL $expire_days DAY))";
+            $expire_query = "AND (domain_expire IS NOT NULL AND domain_expire BETWEEN CURDATE() AND DATE_ADD(CURDATE(), INTERVAL $expire_days DAY))";
             $filter_summary['Expiry'] = "Expiring within $expire_days days";
         }
-    } else {
-        // Default - any
-        $expire_query = '';
+    }
+
+    // Tags Filter - a domain with any of them
+    $tag_query = '';
+    if (isset($_POST['tags']) && is_array($_POST['tags']) && !empty($_POST['tags'])) {
+        $tag_filter = implode(",", array_map('intval', $_POST['tags']));
+        $tag_query = "AND domains.domain_id IN (SELECT domain_id FROM domain_tags WHERE tag_id IN ($tag_filter))";
+    }
+
+    // Vendor Filter - registrar or any host
+    $vendor_query = '';
+    if (!empty($_POST['vendor'])) {
+        $vendor_filter = intval($_POST['vendor']);
+        $vendor_query = "AND $vendor_filter IN (domain_registrar, domain_dnshost, domain_webhost, domain_mailhost)";
+        $filter_summary['Vendor'] = getFieldById('vendors', $vendor_filter, 'vendor_name');
     }
 
     // Search Filter
@@ -519,21 +484,25 @@ if (isExportRequest('export_domains')) {
         $filter_summary['Search'] = $_POST['q'];
     }
 
+    [$domain_columns, $domain_joins] = domainSelectSql();
     $sql = mysqli_query(
         $mysqli,
-        "SELECT domains.*, clients.*,
-        registrar.vendor_name AS domain_registrar_name,
-        webhost.vendor_name AS domain_webhost_name
-        FROM domains
-        LEFT JOIN clients ON client_id = domain_client_id
-        LEFT JOIN vendors AS registrar ON domains.domain_registrar = registrar.vendor_id
-        LEFT JOIN vendors AS webhost ON domains.domain_webhost = webhost.vendor_id
-        WHERE (domains.domain_name LIKE '%$q%' OR domains.domain_description LIKE '%$q%' OR registrar.vendor_name LIKE '%$q%' OR webhost.vendor_name LIKE '%$q%' OR client_name LIKE '%$q%')
+        "SELECT $domain_columns,
+            registrar.vendor_name AS domain_registrar_name, webhost.vendor_name AS domain_webhost_name,
+            dnshost.vendor_name AS domain_dnshost_name, mailhost.vendor_name AS domain_mailhost_name,
+            IF(domain_auto_renew = 1, 'Yes', 'No') AS domain_auto_renew_label,
+            (SELECT GROUP_CONCAT(tag_name ORDER BY tag_name SEPARATOR ', ') FROM domain_tags dt JOIN tags t ON t.tag_id = dt.tag_id WHERE dt.domain_id = domains.domain_id) AS domain_tags
+        FROM domains $domain_joins
+        WHERE (domains.domain_name LIKE '%$q%' OR domains.domain_description LIKE '%$q%' OR domains.domain_notes LIKE '%$q%'
+            OR registrar.vendor_name LIKE '%$q%' OR dnshost.vendor_name LIKE '%$q%' OR webhost.vendor_name LIKE '%$q%' OR mailhost.vendor_name LIKE '%$q%' OR client_name LIKE '%$q%'
+            OR domains.domain_id IN (SELECT domain_id FROM domain_tags JOIN tags USING (tag_id) WHERE tag_name LIKE '%$q%'))
         AND $archive_query
         " . clientScopeSql('domain_client_id') . "
         $client_query
         $expire_query
-        ORDER BY domains.domain_name ASC"
+        $tag_query
+        $vendor_query
+        ORDER BY client_name ASC, domains.domain_name ASC"
     );
 
     $num_rows = mysqli_num_rows($sql);

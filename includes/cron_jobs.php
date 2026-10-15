@@ -71,7 +71,7 @@ function cronJobRegistry(): array
             'name' => 'domain_refresher',
             'label' => 'Domain Refresher',
             'script' => 'domain_refresher.php',
-            'description' => 'Refreshes WHOIS and DNS for the domain that was checked longest ago. One domain per run.',
+            'description' => 'Looks up DNS, registration and expiry for domains that are due - never looked up, not in a week, or expiring within 60 days. Up to 50 a run.',
             'schedule' => 'Daily',
             'daily_at' => '04:00',
         ],

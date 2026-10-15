@@ -1228,6 +1228,23 @@ CREATE TABLE `domain_history` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
+-- Table structure for table `domain_tags`
+--
+
+DROP TABLE IF EXISTS `domain_tags`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8mb4 */;
+CREATE TABLE `domain_tags` (
+  `domain_id` int(11) NOT NULL,
+  `tag_id` int(11) NOT NULL,
+  PRIMARY KEY (`domain_id`,`tag_id`),
+  KEY `tag_id` (`tag_id`),
+  CONSTRAINT `domain_tags_ibfk_1` FOREIGN KEY (`domain_id`) REFERENCES `domains` (`domain_id`) ON DELETE CASCADE,
+  CONSTRAINT `domain_tags_ibfk_2` FOREIGN KEY (`tag_id`) REFERENCES `tags` (`tag_id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
 -- Table structure for table `domains`
 --
 
@@ -1239,10 +1256,13 @@ CREATE TABLE `domains` (
   `domain_name` varchar(200) NOT NULL,
   `domain_description` text DEFAULT NULL,
   `domain_expire` date DEFAULT NULL,
+  `domain_auto_renew` tinyint(1) NOT NULL DEFAULT 0,
   `domain_ip` varchar(255) DEFAULT NULL,
   `domain_name_servers` varchar(255) DEFAULT NULL,
   `domain_mail_servers` varchar(255) DEFAULT NULL,
   `domain_txt` text DEFAULT NULL,
+  `domain_dmarc` text DEFAULT NULL,
+  `domain_dkim` varchar(255) DEFAULT NULL,
   `domain_raw_whois` text DEFAULT NULL,
   `domain_notes` text DEFAULT NULL,
   `domain_favorite` tinyint(1) NOT NULL DEFAULT 0,
@@ -1250,6 +1270,7 @@ CREATE TABLE `domains` (
   `domain_updated_at` datetime DEFAULT NULL ON UPDATE current_timestamp(),
   `domain_archived_at` datetime DEFAULT NULL,
   `domain_accessed_at` datetime DEFAULT NULL,
+  `domain_refreshed_at` datetime DEFAULT NULL,
   `domain_registrar` int(11) NOT NULL DEFAULT 0,
   `domain_webhost` int(11) NOT NULL DEFAULT 0,
   `domain_dnshost` int(11) NOT NULL DEFAULT 0,

@@ -287,18 +287,19 @@ function globalSearchGroups($terms, $deep) {
 
     $groups[] = [
         'key' => 'domains', 'label' => 'Domains', 'icon' => 'globe', 'module' => 'module_support',
-        'select' => 'domain_id, domain_name, domain_expire, domain_client_id, client_name',
+        'select' => 'domain_id, domain_name, domain_description, domain_expire, domain_auto_renew, domain_client_id, client_name',
         'from' => 'domains LEFT JOIN clients ON domain_client_id = client_id',
-        'where' => "domain_archived_at IS NULL AND domain_name LIKE '%$like%'",
+        'where' => "domain_archived_at IS NULL AND (domain_name LIKE '%$like%' OR domain_description LIKE '%$like%')",
         'scope' => 'domain_client_id',
         'order' => "(domain_name = '$eq') DESC, (domain_name LIKE '$like%') DESC, domain_name",
         'list_url' => '/agent/domains.php?' . http_build_query(['q' => $q]),
         'item' => function ($row) {
             return [
                 'title' => $row['domain_name'],
-                'subtitle' => $row['domain_expire'] ? 'Expires ' . $row['domain_expire'] : '',
+                'subtitle' => implode(' · ', array_filter([($expiry = domainExpiry($row['domain_expire'], $row['domain_auto_renew'])) ? $expiry['text'] : '', $row['domain_description']])),
                 'context' => $row['client_name'],
-                'url' => globalSearchClientUrl('domains.php', $row['domain_client_id'], ['q' => $row['domain_name']]),
+                // Straight to its quick look on the client's domains page
+                'url' => globalSearchClientUrl('domains.php', $row['domain_client_id'], ['open' => intval($row['domain_id'])]),
             ];
         },
     ];

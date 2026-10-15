@@ -231,9 +231,10 @@ if ($config_enable_alert_domain_expire == 1) {
         //Get Domains Expiring
         $sql = mysqli_query(
             $mysqli,
-            "SELECT client_id, client_name, domain_expire, domain_id, domain_name FROM domains
+            "SELECT client_id, client_name, domain_expire, domain_auto_renew, domain_id, domain_name FROM domains
             LEFT JOIN clients ON domain_client_id = client_id
-            WHERE domain_expire IS NOT NULL AND domain_expire = CURDATE() + INTERVAL $day DAY"
+            WHERE domain_expire IS NOT NULL AND domain_expire = CURDATE() + INTERVAL $day DAY
+            AND domain_archived_at IS NULL AND client_archived_at IS NULL"
         );
 
         while ($row = mysqli_fetch_assoc($sql)) {
@@ -243,7 +244,9 @@ if ($config_enable_alert_domain_expire == 1) {
             $client_id = intval($row['client_id']);
             $client_name = escapeSql($row['client_name']);
 
-            appNotify("Domain Expiring", "Domain $domain_name for $client_name will expire in $day Days on $domain_expire", "/agent/domains.php?client_id=$client_id", $client_id);
+            // Auto-renew still fails on an expired card, so it is said rather than skipped
+            $domain_renewal = intval($row['domain_auto_renew']) ? ' - set to auto-renew, check it goes through' : '';
+            appNotify("Domain Expiring", "Domain $domain_name for $client_name will expire in $day Days on $domain_expire$domain_renewal", "/agent/domains.php?client_id=$client_id&open=$domain_id", $client_id);
 
         }
 

@@ -24,6 +24,8 @@ if ($tag_type == 1) {
     $tag_type_display = "Asset";
 } elseif ($tag_type == 6) {
     $tag_type_display = "Vendor";
+} elseif ($tag_type == 7) {
+    $tag_type_display = "Domain";
 } else {
     $tag_type_display = "Unknown";
 }

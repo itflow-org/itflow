@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Tags on clients, locations, contacts, credentials, assets and vendors.
+ * Tags on clients, locations, contacts, credentials, assets, vendors and domains.
  *
  * Every list and detail page draws a record's tags with tagPills(): coloured
  * pills that open the list filtered to that tag, then a "+" pill that opens
@@ -10,7 +10,7 @@
  * returns, so the page never reloads and nothing goes through a modal.
  */
 
-/* What differs between the six kinds of tagged record. */
+/* What differs between the seven kinds of tagged record. */
 function tagEntity($entity) {
     $entities = [
         'client' => [
@@ -49,6 +49,12 @@ function tagEntity($entity) {
             'link_table' => 'vendor_tags', 'link_record' => 'vendor_id', 'link_tag' => 'tag_id',
             'table' => 'vendors', 'id' => 'vendor_id', 'client' => 'vendor_client_id', 'name' => 'vendor_name',
             'log' => 'Vendor', 'list' => 'vendors.php'
+        ],
+        'domain' => [
+            'type' => 7, 'label' => 'domain', 'module' => 'module_support',
+            'link_table' => 'domain_tags', 'link_record' => 'domain_id', 'link_tag' => 'tag_id',
+            'table' => 'domains', 'id' => 'domain_id', 'client' => 'domain_client_id', 'name' => 'domain_name',
+            'log' => 'Domain', 'list' => 'domains.php'
         ],
     ];
 

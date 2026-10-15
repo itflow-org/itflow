@@ -30,7 +30,7 @@ function starterContentPacks() {
         'tags' => [
             'label' => 'Tags',
             'icon' => 'fa-tags',
-            'description' => 'Client, location, contact, credential, asset and vendor tags.',
+            'description' => 'Client, location, contact, credential, asset, vendor and domain tags.',
         ],
         'ticket_templates' => [
             'label' => 'Ticket Templates',
@@ -675,6 +675,14 @@ function starterContentTags() {
         [6, 'Hosting', '#17a2b8', 'globe'],
         [6, 'Professional Services', '#343a40', 'briefcase'],
         [6, 'Authorised Contacts Only', '#d81b60', 'user-lock'],
+
+        // Domain
+        [7, 'Primary', '#007bff', 'star'],
+        [7, 'Client-owned', '#6f42c1', 'user-tie'],
+        [7, 'Managed DNS', '#20c997', 'sitemap'],
+        [7, 'Parked', '#adb5bd', 'parking'],
+        [7, 'Marketing', '#fd7e14', 'bullhorn'],
+        [7, 'Do Not Renew', '#dc3545', 'ban'],
     ];
 
     return $tags;

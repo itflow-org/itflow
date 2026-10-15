@@ -283,7 +283,7 @@ function clientOverviewRenewals($client_id, $days = 45) {
     $sources = [
         ['domain', 'globe', "SELECT domain_id AS id, domain_name AS name, domain_expire AS d FROM domains
             WHERE domain_client_id = $client_id AND domain_archived_at IS NULL AND domain_expire IS NOT NULL AND domain_expire <= $window",
-            'Domain', "/agent/domains.php?client_id=$client_id&q="],
+            'Domain', "/agent/domains.php?client_id=$client_id&open="],
         ['certificate', 'lock', "SELECT certificate_id AS id, certificate_name AS name, certificate_expire AS d FROM certificates
             WHERE certificate_client_id = $client_id AND certificate_archived_at IS NULL AND certificate_expire IS NOT NULL AND certificate_expire <= $window",
             'Certificate', "/agent/certificates.php?client_id=$client_id&q="],
@@ -308,7 +308,7 @@ function clientOverviewRenewals($client_id, $days = 45) {
                 'kind' => $kind, 'icon' => $icon, 'label' => $label,
                 'name' => $row['name'], 'date' => $row['d'],
                 'days' => (int) $today->diff($date)->format('%r%a'),
-                'url' => in_array($kind, ['warranty', 'retire', 'software'], true) ? $url . intval($row['id']) : $url . rawurlencode($row['name']),
+                'url' => in_array($kind, ['domain', 'warranty', 'retire', 'software'], true) ? $url . intval($row['id']) : $url . rawurlencode($row['name']),
             ];
         }
     }

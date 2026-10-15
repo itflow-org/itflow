@@ -187,6 +187,15 @@ function getExportColumns($export_type) {
             'domain_registrar'   => ['label' => 'Registrar', 'field' => 'domain_registrar_name'],
             'domain_webhost'     => ['label' => 'Web Host', 'field' => 'domain_webhost_name'],
             'domain_expire'      => ['label' => 'Expiration Date'],
+            'domain_dnshost'     => ['label' => 'DNS Host', 'field' => 'domain_dnshost_name', 'default' => false],
+            'domain_mailhost'    => ['label' => 'Mail Host', 'field' => 'domain_mailhost_name', 'default' => false],
+            'domain_auto_renew'  => ['label' => 'Auto-renew', 'field' => 'domain_auto_renew_label', 'default' => false],
+            'domain_name_servers' => ['label' => 'Name Servers', 'weight' => 2, 'default' => false],
+            'domain_mail_servers' => ['label' => 'MX Records', 'weight' => 2, 'default' => false],
+            'domain_dmarc'       => ['label' => 'DMARC', 'weight' => 2, 'default' => false],
+            'domain_tags'        => ['label' => 'Tags', 'weight' => 2, 'default' => false],
+            'domain_notes'       => ['label' => 'Notes', 'weight' => 3, 'default' => false],
+            'client_name'        => ['label' => 'Client', 'weight' => 2, 'default' => false],
         ],
 
         // Defaults match what this export has always emitted, secrets included.

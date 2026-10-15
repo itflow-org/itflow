@@ -10,7 +10,7 @@ require_once "includes/inc_all.php";
 
 enforceContactCan('itdoc');
 
-$domains_sql = mysqli_query($mysqli, "SELECT domain_id, domain_name, domain_expire FROM domains WHERE domain_client_id = $session_client_id AND domain_archived_at IS NULL ORDER BY domain_expire ASC");
+$domains_sql = mysqli_query($mysqli, "SELECT domain_id, domain_name, domain_expire, domain_auto_renew FROM domains WHERE domain_client_id = $session_client_id AND domain_archived_at IS NULL ORDER BY domain_expire IS NULL, domain_expire ASC");
 ?>
 
     <h3>Domains</h3>
@@ -26,6 +26,7 @@ $domains_sql = mysqli_query($mysqli, "SELECT domain_id, domain_name, domain_expi
                 <tr>
                     <th>Domain Name</th>
                     <th>Expiry</th>
+                    <th>Renews automatically</th>
                 </tr>
                 </thead>
                 <tbody>
@@ -34,12 +35,19 @@ $domains_sql = mysqli_query($mysqli, "SELECT domain_id, domain_name, domain_expi
                 while ($row = mysqli_fetch_assoc($domains_sql)) {
                     $domain_name = escapeHtml($row['domain_name']);
                     $domain_expire = escapeHtml($row['domain_expire']);
+                    $expiry = domainExpiry($row['domain_expire'], $row['domain_auto_renew']);
 
                     ?>
 
                     <tr>
                         <td><?= $domain_name ?></td>
-                        <td><?= $domain_expire ?></td>
+                        <td>
+                            <?= $domain_expire ?: '-' ?>
+                            <?php if ($expiry && $expiry['state'] !== 'active') { ?>
+                                <span class="badge text-bg-<?= $expiry['state'] === 'expired' ? 'danger' : ($expiry['auto'] ? 'info' : 'warning') ?> ms-1"><?= escapeHtml($expiry['text']) ?></span>
+                            <?php } ?>
+                        </td>
+                        <td><?= intval($row['domain_auto_renew']) ? 'Yes' : 'No' ?></td>
                     </tr>
 
                 <?php } ?>

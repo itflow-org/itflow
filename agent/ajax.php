@@ -1780,24 +1780,63 @@ if (isset($_GET['ai_ticket_summary'])) {
 }
 
 // Stops people trying to use sub-domains in the domains tracker
-if (isset($_GET['apex_domain_check'])) {
+/*
+ * The domain name in a New / Edit Domain form, checked as it is typed: what it
+ * is saved as, whether DNS answers for it, whether it looks like a subdomain
+ * of one that does, and whether the client has it already.
+ */
+if (isset($_GET['domain_check'])) {
     enforceUserPermission('module_support', 2);
 
-    $domain = escapeSql($_GET['domain']);
+    $input = (string) ($_GET['domain'] ?? '');
+    $name = domainNormalizeName($input);
+    $check_client_id = intval($_GET['client_id'] ?? 0);
+    $check_domain_id = intval($_GET['domain_id'] ?? 0);
+    $response = ['state' => '', 'message' => '', 'name' => $name];
 
-    $response['message'] = ""; // default
+    if (trim($input) === '') {
+        echo json_encode($response);
+        exit;
+    }
+    if ($name === '') {
+        echo json_encode(['state' => 'bad', 'message' => "That isn't a domain name - something like example.com.", 'name' => '']);
+        exit;
+    }
 
-    if (strlen($domain) >= 4) {
+    $saved_as = strcasecmp(trim($input), $name) !== 0 ? "Saved as $name. " : '';
 
-        // SOA record check
-        //  This isn't 100%, as sub-domains can have their own SOA but will capture 99%
-        if (!checkdnsrr($domain, 'SOA')) {
-            $response['message'] = "<i class='fas fa-fw fa-exclamation-triangle me-2'></i> Domain name is invalid.";
+    // Already on this client?
+    if ($check_client_id) {
+        $client_id = $check_client_id;
+        enforceClientAccess();
+        $name_sql = escapeSql($name);
+        if (mysqli_num_rows(mysqli_query($mysqli, "SELECT 1 FROM domains WHERE domain_name = '$name_sql' AND domain_client_id = $check_client_id AND domain_id <> $check_domain_id LIMIT 1"))) {
+            echo json_encode(['state' => 'bad', 'message' => $saved_as . "$name is already on this client.", 'name' => $name]);
+            exit;
         }
+    }
 
+    if (@checkdnsrr($name, 'SOA')) {
+        $response = ['state' => 'ok', 'message' => $saved_as . 'Found in DNS - its records and expiry are looked up when it is saved.', 'name' => $name];
+    } else {
+        // Nothing for the name itself - is it a subdomain of one that does answer?
+        $parts = explode('.', $name);
+        $parent = '';
+        while (count($parts) > 2) {
+            array_shift($parts);
+            $candidate = implode('.', $parts);
+            if (@checkdnsrr($candidate, 'SOA')) {
+                $parent = $candidate;
+                break;
+            }
+        }
+        $response = $parent
+            ? ['state' => 'warn', 'message' => $saved_as . "That looks like a subdomain of $parent - add $parent instead, unless it is registered on its own.", 'name' => $name]
+            : ['state' => 'warn', 'message' => $saved_as . "Nothing answers for it in DNS yet - check the spelling. It can still be saved.", 'name' => $name];
     }
 
     echo json_encode($response);
+    exit;
 }
 
 // Get internal users/techs

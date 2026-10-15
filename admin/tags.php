@@ -20,6 +20,7 @@ $tag_types = [
     4 => ['label' => 'Credential', 'icon' => 'fa-key'],
     5 => ['label' => 'Asset',      'icon' => 'fa-desktop'],
     6 => ['label' => 'Vendor',     'icon' => 'fa-building'],
+    7 => ['label' => 'Domain',     'icon' => 'fa-globe'],
 ];
 
 // Label for the selected type

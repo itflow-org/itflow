@@ -54,9 +54,10 @@ $service_credentials = lookupUserPermission('module_credential') >= 1
 // Associated Domains
 $sql_domains = mysqli_query(
     $mysqli,
-    "SELECT domain_name FROM service_domains
-    LEFT JOIN domains ON service_domains.domain_id = domains.domain_id
-    WHERE service_id = $service_id"
+    "SELECT domains.domain_id, domain_name, domain_expire, domain_auto_renew, domain_archived_at FROM service_domains
+    JOIN domains ON service_domains.domain_id = domains.domain_id
+    WHERE service_id = $service_id
+    ORDER BY domain_name"
 );
 
 // Associated Certificates
@@ -179,13 +180,12 @@ ob_start();
                 <!-- Domains -->
                 <?php
                 if (mysqli_num_rows($sql_domains) > 0) {
-                    echo "<h5><i class='fas fa-fw fa-globe me-2'></i>Domains</h5><ul>";
+                    echo "<h5><i class='fas fa-fw fa-globe me-2'></i>Domains</h5><ul class='list-unstyled ms-1'>";
                     mysqli_data_seek($sql_domains, 0);
                     while ($row = mysqli_fetch_assoc($sql_domains)) {
-                        if (!empty($row['domain_name'])) {
-                            $domain_name = escapeHtml($row['domain_name']);
-                            echo "<li><a href='domains.php?client_id=$client_id&q=$domain_name'>$domain_name</a></li>";
-                        }
+                        // Each opens its quick look, with when it expires
+                        echo '<li class="mb-1 d-flex align-items-center gap-2">' . domainLink($row['domain_id'], $row['domain_name'], ['archived' => !empty($row['domain_archived_at'])])
+                            . domainExpiryPill(domainExpiry($row['domain_expire'], $row['domain_auto_renew']), true) . '</li>';
                     }
                     echo "</ul>";
                 }

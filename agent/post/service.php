@@ -68,7 +68,8 @@ if (isset($_POST['add_service'])) {
     if (isset($_POST['domains'])) {
         foreach($_POST['domains'] as $domain_id) {
             $domain_id = intval($domain_id);
-            mysqli_query($mysqli, "INSERT INTO service_domains SET service_id = $service_id, domain_id = $domain_id");
+            // Only the client's own domains
+            mysqli_query($mysqli, "INSERT INTO service_domains (service_id, domain_id) SELECT $service_id, domain_id FROM domains WHERE domain_id = $domain_id AND domain_client_id = $client_id");
         }
     }
 
@@ -157,7 +158,8 @@ if (isset($_POST['edit_service'])) {
     if (isset($_POST['domains'])) {
         foreach($_POST['domains'] as $domain_id) {
             $domain_id = intval($domain_id);
-            mysqli_query($mysqli, "INSERT INTO service_domains SET service_id = $service_id, domain_id = $domain_id");
+            // Only the client's own domains
+            mysqli_query($mysqli, "INSERT INTO service_domains (service_id, domain_id) SELECT $service_id, domain_id FROM domains WHERE domain_id = $domain_id AND domain_client_id = $client_id");
         }
     }
 

@@ -4686,3 +4686,23 @@ img.itflow-contact-avatar {
     min-width: 12rem;
     max-width: 22rem;
 }
+
+/* Domains - agent/domains.php and agent/modals/domain/ (functions/domain.php).
+   Records are monospace, one per line with a copy button; the registrar and
+   hosts column keeps to one width. */
+.itflow-domain-dl dt {
+    white-space: nowrap;
+}
+.itflow-domain-dl dd {
+    min-height: 1.5rem;
+    min-width: 0;
+}
+.itflow-domain-who {
+    max-width: 18rem;
+}
+.itflow-domain-checks li + li {
+    margin-top: .25rem;
+}
+.itflow-domain-mail > .d-inline-flex {
+    flex-wrap: nowrap !important;
+}

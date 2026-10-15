@@ -23,6 +23,10 @@ $expire_filter = $_GET['expire_days'] ?? '';
 // Archived Filter
 $archived_filter = (isset($_GET['archived']) && $_GET['archived'] == 1) ? 1 : 0;
 
+// Tags and Vendor Filters
+$tags_filter = array_map('intval', (array) ($_GET['tags'] ?? []));
+$vendor_filter = intval($_GET['vendor'] ?? 0);
+
 ob_start();
 
 ?>
@@ -46,7 +50,7 @@ ob_start();
             <label>Search</label>
             <div class="input-group">
                     <span class="input-group-text"><i class="fa fa-fw fa-search"></i></span>
-                <input type="text" class="form-control" name="q" value="<?= stripslashes(escapeHtml($q_filter)) ?>" placeholder="Domain, registrar, web host">
+                <input type="text" class="form-control" name="q" value="<?= stripslashes(escapeHtml($q_filter)) ?>" placeholder="Domain, registrar, host, notes, tag">
             </div>
         </div>
 
@@ -85,6 +89,26 @@ ob_start();
                 </select>
             </div>
         </div>
+
+        <div class="mb-3">
+            <label>Tags</label>
+            <div class="input-group">
+                <span class="input-group-text"><i class="fa fa-fw fa-tags"></i></span>
+                <select class="form-select select2" name="tags[]" data-placeholder="- Any -" multiple>
+                    <?php
+                    $sql_tags_filter = mysqli_query($mysqli, "SELECT tag_id, tag_name, tag_color, tag_icon FROM tags WHERE tag_type = 7 ORDER BY tag_name ASC");
+                    while ($row = mysqli_fetch_assoc($sql_tags_filter)) {
+                        $filter_tag_id = intval($row['tag_id']); ?>
+                        <option value="<?= $filter_tag_id ?>" <?= in_array($filter_tag_id, $tags_filter, true) ? 'selected' : '' ?><?= selectOptionColor($row['tag_color'] ?? '', $row['tag_icon'] ?? '') ?>><?= escapeHtml($row['tag_name']) ?></option>
+                    <?php } ?>
+                </select>
+            </div>
+        </div>
+
+        <?php if ($vendor_filter) { ?>
+            <input type="hidden" name="vendor" value="<?= $vendor_filter ?>">
+            <p class="small text-body-secondary"><i class="fas fa-building me-1"></i>Only domains registered or hosted with <strong><?= escapeHtml(getFieldById('vendors', $vendor_filter, 'vendor_name')) ?></strong></p>
+        <?php } ?>
 
         <div class="mb-3">
             <label>Archived</label>

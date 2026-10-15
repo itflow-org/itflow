@@ -80,34 +80,17 @@ if (isset($_POST['add_client'])) {
         }
     }
 
-    // Create domain and SSL certificate
-    if (!empty($website) && filter_var($website, FILTER_VALIDATE_DOMAIN, FILTER_FLAG_HOSTNAME)) {
-        $expire = getDomainExpirationDate($website);
-        $records = getDnsRecords($website);
-        $a = escapeSql($records['a']);
-        $ns = escapeSql($records['ns']);
-        $mx = escapeSql($records['mx']);
-        $whois = escapeSql($records['whois']);
-
-        try {
-            mysqli_query($mysqli, "INSERT INTO domains SET domain_name = '$website', domain_registrar = 0, domain_webhost = 0, domain_expire = '$expire', domain_ip = '$a', domain_name_servers = '$ns', domain_mail_servers = '$mx', domain_raw_whois = '$whois', domain_client_id = $client_id");
-            $extended_log_description .= ", domain $website added";
-        } catch (Exception $e) {
-            $extended_log_description .= ", domain not added";
-            logApp("Client", "warning", "Failed to add domain $website during client creation");
-        }
-
+    // Create domain and SSL certificate - the website's domain, tidied, looked up
+    // like any other; one whose lookup finds nothing is still added, without records
+    $website_domain = domainNormalizeName($website);
+    if ($website_domain !== '') {
+        $website_domain_sql = escapeSql($website_domain);
+        mysqli_query($mysqli, "INSERT INTO domains SET domain_name = '$website_domain_sql', domain_description = 'Website', domain_client_id = $client_id");
         $domain_id = mysqli_insert_id($mysqli);
-        $certificate = getSslCertificate($website);
+        $extended_log_description .= ", domain $website_domain_sql added";
 
-        if ($certificate['success'] == "TRUE") {
-            $expire = escapeSql($certificate['expire']);
-            $issued_by = escapeSql($certificate['issued_by']);
-            $public_key = escapeSql($certificate['public_key']);
-
-            mysqli_query($mysqli, "INSERT INTO certificates SET certificate_name = '$website', certificate_domain = '$website', certificate_issued_by = '$issued_by', certificate_expire = '$expire', certificate_public_key = '$public_key', certificate_domain_id = $domain_id, certificate_client_id = $client_id");
-
-            $extended_log_description .= ", SSL certificate $website added";
+        if (domainApplyLookup($domain_id, domainLookup($website_domain)) && domainAddCertificate($domain_id, $website_domain, $client_id)) {
+            $extended_log_description .= ", SSL certificate $website_domain_sql added";
         }
     }
 
