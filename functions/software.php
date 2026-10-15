@@ -218,7 +218,7 @@ function softwareRow($software_id) {
     }
     $row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT software.*, client_id, client_name,
             vendor_id, vendor_name, vendor_description, vendor_account_number, vendor_phone, vendor_phone_country_code, vendor_extension,
-            vendor_email, vendor_website, vendor_hours, vendor_sla, vendor_archived_at,
+            vendor_email, vendor_website, vendor_hours, vendor_sla, vendor_code, vendor_archived_at,
             " . softwareSeatsUsedSql('software.software_id') . " AS seats_used
         FROM software
         LEFT JOIN clients ON client_id = software_client_id

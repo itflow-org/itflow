@@ -1,149 +1,66 @@
 <?php
 
+/*
+ * New vendor - the client's it was opened from (?client_id=), one of ours
+ * (no client), or for a client picked here (?view=clients, the all-clients
+ * list). ?template_id= starts it from that template; ?from_template=1 (New
+ * from Template) opens on the template picker.
+ */
+
 require_once '../../../includes/modal_header.php';
 
 $client_id = intval($_GET['client_id'] ?? 0);
+$vendor_pick_client = !$client_id && ($_GET['view'] ?? '') === 'clients';
+if ($vendor_pick_client) {
+    enforceUserPermission('module_client', 2);
+} else {
+    vendorEnforce($client_id, 2);
+}
 
-if ($client_id) {
-    enforceClientAccess();
+$vendor_form_mode = 'add';
+$vendor_id = 0;
+$vendor_name = $vendor_description = $vendor_account_number = $vendor_code = '';
+$vendor_contact_name = $vendor_contact_phone_country_code = $vendor_contact_phone = $vendor_contact_email = '';
+$vendor_phone_country_code = $vendor_phone = $vendor_extension = $vendor_email = $vendor_website = '';
+$vendor_hours = $vendor_sla = $vendor_notes = '';
+$vendor_favorite = 0;
+$vendor_template_id = 0;
+$vendor_tag_ids = [];
+$vendor_template_focus = !empty($_GET['from_template']);
+
+// Started from a template - its fields, escaped like the rest
+$template = vendorTemplateRow($_GET['template_id'] ?? 0);
+if ($template) {
+    foreach (vendorTemplateFormFields($template) as $field => $value) {
+        if ($field === 'vendor_template_id') {
+            $vendor_template_id = intval($value);
+        } else {
+            ${"vendor_$field"} = escapeHtml($value);
+        }
+    }
 }
 
 ob_start();
 
 ?>
 <div class="modal-header bg-dark">
-    <h5 class="modal-title"><i class="fas fa-fw fa-building me-2"></i>New Vendor</h5>
+    <h5 class="modal-title"><i class="fa fa-fw fa-building me-2"></i>New <?= $client_id || $vendor_pick_client ? '' : 'Company ' ?>Vendor</h5>
     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
 </div>
 <form action="post.php" method="post" autocomplete="off">
     <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
-    <input type="hidden" name="client_id" value="<?= $client_id ?>">
+    <?php if (!$vendor_pick_client) { ?>
+        <input type="hidden" name="client_id" value="<?= $client_id ?>">
+    <?php } ?>
 
     <div class="modal-body">
-        <ul class="nav nav-pills nav-justified mb-3">
-            <li class="nav-item">
-                <a class="nav-link active" data-bs-toggle="pill" href="#pills-details">Details</a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" data-bs-toggle="pill" href="#pills-support">Support</a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" data-bs-toggle="pill" href="#pills-notes">Notes</a>
-            </li>
-        </ul>
-
-        <hr>
-
-        <div class="tab-content">
-            <div class="tab-pane fade show active" id="pills-details">
-                <div class="mb-3">
-                    <label>Vendor Name <strong class="text-danger">*</strong></label>
-                    <div class="input-group">
-                            <span class="input-group-text"><i class="fa fa-fw fa-building"></i></span>
-                        <input type="text" class="form-control" name="name" placeholder="Vendor Name" maxlength="200" required autofocus>
-                    </div>
-                </div>
-
-                <div class="mb-3">
-                    <label>Description</label>
-                    <div class="input-group">
-                            <span class="input-group-text"><i class="fa fa-fw fa-align-left"></i></span>
-                        <input type="text" class="form-control" name="description" placeholder="Description" maxlength="200">
-                    </div>
-                </div>
-
-                <div class="mb-3">
-                    <label>Account Number</label>
-                    <div class="input-group">
-                            <span class="input-group-text"><i class="fa fa-fw fa-fingerprint"></i></span>
-                        <input type="text" class="form-control" name="account_number" placeholder="Account number" maxlength="200">
-                    </div>
-                </div>
-
-                <div class="mb-3">
-                    <label>Account Manager</label>
-                    <div class="input-group">
-                            <span class="input-group-text"><i class="fa fa-fw fa-user"></i></span>
-                        <input type="text" class="form-control" name="contact_name" placeholder="Account manager's name" maxlength="200">
-                    </div>
-                </div>
-            </div>
-
-            <div class="tab-pane fade" id="pills-support">
-                <label>Support Phone / <span class="text-secondary">Extension</span></label>
-                <div class="row g-2">
-                    <div class="col-9">
-                        <div class="mb-3">
-                            <div class="input-group">
-                                    <span class="input-group-text"><i class="fa fa-fw fa-phone"></i></span>
-                                <input type="hidden" name="phone_country_code">
-                                <input type="tel" class="form-control" name="phone" placeholder="Phone Number" maxlength="200" data-itflow-phone="phone_country_code">
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-3">
-                        <div class="mb-3">
-                            <input type="text" class="form-control" name="extension" placeholder="ext." maxlength="200">
-                        </div>
-                    </div>
-                </div>
-
-                <div class="mb-3">
-                    <label>Support Hours</label>
-                    <div class="input-group">
-                            <span class="input-group-text"><i class="fa fa-fw fa-calendar"></i></span>
-                        <input type="text" class="form-control" name="hours" placeholder="Support Hours" maxlength="200">
-                    </div>
-                </div>
-
-                <div class="mb-3">
-                    <label>Support Email</label>
-                    <div class="input-group">
-                            <span class="input-group-text"><i class="fa fa-fw fa-envelope"></i></span>
-                        <input type="email" class="form-control" name="email" placeholder="Support Email" maxlength="200">
-                    </div>
-                </div>
-
-                <div class="mb-3">
-                    <label>Support Website URL</label>
-                    <div class="input-group">
-                            <span class="input-group-text"><i class="fa fa-fw fa-globe"></i></span>
-                        <input type="text" class="form-control" name="website" placeholder="Do not include http(s)://" maxlength="200">
-                    </div>
-                </div>
-
-                <div class="mb-3">
-                    <label>Pin/Code</label>
-                    <div class="input-group">
-                            <span class="input-group-text"><i class="fa fa-fw fa-key"></i></span>
-                        <input type="text" class="form-control" name="code" placeholder="Access Code or Pin" maxlength="200">
-                    </div>
-                </div>
-
-                <div class="mb-3">
-                    <label>SLA</label>
-                    <div class="input-group">
-                            <span class="input-group-text"><i class="fa fa-fw fa-handshake"></i></span>
-                        <input type="text" class="form-control" name="sla" placeholder="SLA Response Time" maxlength="200">
-                    </div>
-                </div>
-            </div>
-
-            <div class="tab-pane fade" id="pills-notes">
-                <div class="mb-3">
-                    <textarea class="form-control" rows="12" placeholder="Enter some notes" name="notes"></textarea>
-                </div>
-            </div>
-
-        </div>
-
+        <?php require 'vendor_form.php'; ?>
     </div>
     <div class="modal-footer">
-        <button type="submit" name="add_vendor" class="btn btn-primary text-bold"><i class="fas fa-check me-2"></i>Create</button>
+        <button type="submit" name="add_vendor" class="btn btn-primary text-bold"><i class="fa fa-check me-2"></i>Create</button>
         <button type="button" class="btn btn-light" data-bs-dismiss="modal"><i class="fa fa-times me-2"></i>Cancel</button>
     </div>
 </form>
 
 <?php
-
 require_once '../../../includes/modal_footer.php';

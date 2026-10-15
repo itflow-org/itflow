@@ -156,12 +156,12 @@ ob_start();
                     <select class="form-select select2" name="vendor" required>
                         <?php
 
-                        $sql_select = mysqli_query($mysqli, "SELECT vendor_id, vendor_name FROM vendors WHERE vendor_client_id = 0 AND (vendor_archived_at > '$recurring_expense_created_at' OR vendor_archived_at IS NULL) ORDER BY vendor_name ASC");
+                        $sql_select = mysqli_query($mysqli, "SELECT vendor_id, vendor_name, vendor_description FROM vendors WHERE vendor_client_id = 0 AND (vendor_archived_at > '$recurring_expense_created_at' OR vendor_archived_at IS NULL OR vendor_id = $recurring_expense_vendor_id) ORDER BY vendor_favorite DESC, vendor_name ASC");
                         while ($row = mysqli_fetch_assoc($sql_select)) {
                             $vendor_id_select = intval($row['vendor_id']);
                             $vendor_name_select = escapeHtml($row['vendor_name']);
                             ?>
-                            <option <?php if ($recurring_expense_vendor_id == $vendor_id_select) { ?> selected <?php } ?> value="<?= $vendor_id_select ?>"><?= $vendor_name_select ?></option>
+                            <option <?php if ($recurring_expense_vendor_id == $vendor_id_select) { ?> selected <?php } ?> value="<?= $vendor_id_select ?>"<?= selectOptionVendor($row['vendor_name'], $row['vendor_description']) ?>><?= $vendor_name_select ?></option>
                             <?php
                         }
 

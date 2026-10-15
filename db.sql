@@ -3221,6 +3221,23 @@ CREATE TABLE `vendor_files` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
+-- Table structure for table `vendor_tags`
+--
+
+DROP TABLE IF EXISTS `vendor_tags`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8mb4 */;
+CREATE TABLE `vendor_tags` (
+  `vendor_id` int(11) NOT NULL,
+  `tag_id` int(11) NOT NULL,
+  PRIMARY KEY (`vendor_id`,`tag_id`),
+  KEY `tag_id` (`tag_id`),
+  CONSTRAINT `vendor_tags_ibfk_1` FOREIGN KEY (`vendor_id`) REFERENCES `vendors` (`vendor_id`) ON DELETE CASCADE,
+  CONSTRAINT `vendor_tags_ibfk_2` FOREIGN KEY (`tag_id`) REFERENCES `tags` (`tag_id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
 -- Table structure for table `vendor_templates`
 --
 
@@ -3261,6 +3278,9 @@ CREATE TABLE `vendors` (
   `vendor_name` varchar(200) NOT NULL,
   `vendor_description` varchar(200) DEFAULT NULL,
   `vendor_contact_name` varchar(200) DEFAULT NULL,
+  `vendor_contact_phone_country_code` varchar(10) DEFAULT NULL,
+  `vendor_contact_phone` varchar(200) DEFAULT NULL,
+  `vendor_contact_email` varchar(200) DEFAULT NULL,
   `vendor_phone_country_code` varchar(10) DEFAULT NULL,
   `vendor_phone` varchar(200) DEFAULT NULL,
   `vendor_extension` varchar(200) DEFAULT NULL,

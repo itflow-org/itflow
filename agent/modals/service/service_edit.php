@@ -202,16 +202,16 @@ ob_start();
                         <?php
                         $selected_ids = array_column(mysqli_fetch_all($sql_vendors, MYSQLI_ASSOC), "vendor_id");
 
-                        $sql_all = mysqli_query($mysqli, "SELECT vendor_id, vendor_name FROM vendors WHERE (vendor_archived_at > '$service_created_at' OR vendor_archived_at IS NULL) AND vendor_client_id = $client_id");
+                        $sql_all = mysqli_query($mysqli, "SELECT vendor_id, vendor_name, vendor_description FROM vendors WHERE (vendor_archived_at > '$service_created_at' OR vendor_archived_at IS NULL) AND vendor_client_id = $client_id ORDER BY vendor_favorite DESC, vendor_name ASC");
                         while ($row_all = mysqli_fetch_assoc($sql_all)) {
                             $vendor_id = intval($row_all['vendor_id']);
                             $vendor_name = escapeHtml($row_all['vendor_name']);
 
                             if (in_array($vendor_id, $selected_ids)) {
-                                echo "<option value=\"$vendor_id\" selected>$vendor_name</option>";
+                                echo "<option value=\"$vendor_id\" selected" . selectOptionVendor($row_all['vendor_name'], $row_all['vendor_description']) . ">$vendor_name</option>";
                             }
                             else{
-                                echo "<option value=\"$vendor_id\">$vendor_name</option>";
+                                echo "<option value=\"$vendor_id\"" . selectOptionVendor($row_all['vendor_name'], $row_all['vendor_description']) . ">$vendor_name</option>";
                             }
                         }
                         ?>

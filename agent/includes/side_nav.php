@@ -74,7 +74,7 @@
                 <?php } ?>
 
                 <li class="nav-item">
-                    <a href="/agent/vendors.php" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "vendors.php") { echo "active"; } ?>">
+                    <a href="/agent/vendors.php" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "vendors.php" || basename($_SERVER["PHP_SELF"]) == "vendor.php") { echo "active"; } ?>">
                         <i class="nav-icon fas fa-building"></i>
                         <p>Vendors</p>
                     </a>

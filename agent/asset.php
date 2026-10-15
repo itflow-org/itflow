@@ -486,7 +486,7 @@ if (mysqli_num_rows($sql) == 0) {
                         <?php } ?>
                         <?php if ($vendor_name) { ?>
                             <dt>Vendor</dt>
-                            <dd><a class="ajax-modal" href="#" data-modal-url="modals/vendor/vendor.php?id=<?= $asset_vendor_id ?>"><?= $vendor_name ?></a></dd>
+                            <dd><?= vendorLink($asset_vendor_id, $vendor_name) ?></dd>
                         <?php } ?>
                         <?php if ($asset_purchase_reference) { ?>
                             <dt>Order ref</dt><dd><?= $asset_purchase_reference ?></dd>

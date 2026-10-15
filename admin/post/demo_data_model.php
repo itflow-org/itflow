@@ -411,6 +411,57 @@ function demoAttachTags($mysqli, $join_table, $join_column, $tag_column, $row_id
 }
 
 // ------------------------------
+// demoVendorTags / demoVendorManager
+// What kind of vendor each demo vendor is, as Tags starter pack vendor tags,
+// and the account manager who looks after the account - a name, a direct
+// line and an email at the vendor's domain, the same every time it is seeded.
+// ------------------------------
+function demoVendorTags($name, $description, $notes = '', $ours = false) {
+    if ($ours) {
+        $map = [
+            'Distribution' => ['Distributor', 'Hardware'], 'Netgate' => ['Hardware', 'Security'], 'Ubiquiti' => ['Hardware'],
+            'Synology' => ['Hardware'], 'Proxmox' => ['Software'], 'Nextcloud' => ['Cloud', 'Hosting'], 'Licensing' => ['Cloud', 'Distributor'],
+            'Colocation' => ['Hosting'], 'Bank' => ['Professional Services'], 'CPA' => ['Professional Services'],
+            'Insurance' => ['Professional Services'], 'Property' => ['Professional Services'],
+        ];
+        foreach ($map as $match => $tags) {
+            if (stripos($name, $match) !== false) {
+                return $tags;
+            }
+        }
+        return [];
+    }
+    $text = "$name $description";
+    $tags = [];
+    if (preg_match('/internet|fibre|fiber|circuit|broadband|connect|wireless|cable/i', $text)) {
+        $tags[] = 'ISP';
+    }
+    if (preg_match('/phone|telecom|voice/i', $text)) {
+        $tags[] = 'Telecom';
+    }
+    if (!$tags) {
+        $tags[] = 'Line of Business';
+    }
+    if (stripos($notes, 'authorised list') !== false) {
+        $tags[] = 'Authorised Contacts Only';
+    }
+    return $tags;
+}
+
+function demoVendorManager($name, $phone, $domain) {
+    $people = ['Dana Whitlock', 'Marcus Feld', 'Priya Raman', 'Owen Castell', 'Jolene Avery', 'Theo Marsh', 'Rosa Delgado', 'Ian Kowalski', 'Hannah Pryce', 'Victor Lund'];
+    $person = $people[crc32($name) % count($people)];
+    $digits = preg_replace('/[^0-9]/', '', (string) $phone);
+    $direct = $digits !== '' ? substr($digits, 0, -2) . str_pad((string) ((intval(substr($digits, -2)) + 37) % 100), 2, '0', STR_PAD_LEFT) : '';
+    return [
+        'vendor_contact_name' => $person,
+        'vendor_contact_phone_country_code' => '1',
+        'vendor_contact_phone' => $direct,
+        'vendor_contact_email' => strtolower(str_replace(' ', '.', $person)) . '@' . $domain,
+    ];
+}
+
+// ------------------------------
 // demoLink
 // The relationship joins are all two integer columns. Linking assets to the
 // credentials that open them, services to the kit they run on, contacts to the
@@ -475,10 +526,9 @@ function demoEnsureOrgVendors($mysqli) {
             $vendors[$vendor[0]] = intval($row['vendor_id']);
             continue;
         }
-        $vendors[$vendor[0]] = starterInsert($mysqli, 'vendors', [
+        $vendors[$vendor[0]] = starterInsert($mysqli, 'vendors', demoVendorManager($vendor[0], $vendor[2], $vendor[3]) + [
             'vendor_name' => $vendor[0],
             'vendor_description' => $vendor[1],
-            'vendor_contact_name' => 'Account Manager',
             'vendor_phone_country_code' => '1',
             'vendor_phone' => $vendor[2],
             'vendor_extension' => (string)(200 + (crc32($vendor[0]) % 90)),
@@ -492,6 +542,7 @@ function demoEnsureOrgVendors($mysqli) {
             'vendor_client_id' => 0,
             'vendor_created_at' => demoMonthDateTime(24, 2, 9, 0),
         ]);
+        demoAttachTags($mysqli, 'vendor_tags', 'vendor_id', 'tag_id', $vendors[$vendor[0]], 6, demoVendorTags($vendor[0], $vendor[1], '', true));
     }
 
     return $vendors;
@@ -1170,10 +1221,9 @@ function demoBuildClient($mysqli, $profile, $index, $context, &$counts) {
     // The client's own vendors - who they buy their line of business kit from
     $vendor_ids = [];
     foreach ($profile['vendors'] as $vendor_index => $vendor) {
-        $vendor_ids[] = starterInsert($mysqli, 'vendors', [
+        $vendor_id = starterInsert($mysqli, 'vendors', demoVendorManager($vendor[0], $vendor[2], $vendor[3]) + [
             'vendor_name' => $vendor[0],
             'vendor_description' => $vendor[1],
-            'vendor_contact_name' => 'Business Support',
             'vendor_phone_country_code' => '1',
             'vendor_phone' => $vendor[2],
             'vendor_email' => 'support@' . $vendor[3],
@@ -1183,9 +1233,12 @@ function demoBuildClient($mysqli, $profile, $index, $context, &$counts) {
             'vendor_code' => demoSerial($profile['abbreviation'] . $vendor[0], 6),
             'vendor_account_number' => demoSerial($profile['abbreviation'] . 'acct' . $vendor_index, 8),
             'vendor_notes' => $vendor[5],
+            'vendor_favorite' => $vendor_index === 0 ? 1 : 0,
             'vendor_client_id' => $client_id,
             'vendor_created_at' => demoMonthDateTime($months, 5, 13, 0),
         ]);
+        demoAttachTags($mysqli, 'vendor_tags', 'vendor_id', 'tag_id', $vendor_id, 6, demoVendorTags($vendor[0], $vendor[1], $vendor[5]));
+        $vendor_ids[] = $vendor_id;
         $counts['documentation']++;
     }
     $primary_vendor_id = $vendor_ids[0] ?? 0;

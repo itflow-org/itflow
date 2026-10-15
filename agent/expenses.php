@@ -299,7 +299,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                             <?= $category_name ?>
                             <div class="text-secondary"><small><?= truncate($expense_description, 60) ?></small></div>
                         </td>
-                        <td><?= $vendor_name ?></td>
+                        <td><?= $expense_vendor_id ? vendorLink($expense_vendor_id, $vendor_name, ['page' => true]) : '-' ?></td>
                         <td class="text-end font-monospace"><?= numfmt_format_currency($currency_format, $expense_amount, $expense_currency_code) ?></td>
                         <td><?= $account_name ?></td>
                         <td><?= $client_name ?></td>

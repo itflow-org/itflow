@@ -18,7 +18,7 @@ if (!empty($vendor_id)) {
     require_once 'vendor_model.php';
 
     if ($vendor_row) {
-        $update_sql = mysqli_query($mysqli, "UPDATE vendors SET vendor_name = '$name', vendor_description = '$description', vendor_contact_name = '$contact_name', vendor_phone_country_code = '$phone_country_code', vendor_phone = '$phone', vendor_extension = '$extension', vendor_email = '$email', vendor_website = '$website', vendor_hours = '$hours', vendor_sla = '$sla', vendor_code = '$code', vendor_account_number = '$account_number', vendor_notes = '$notes' WHERE vendor_id = $vendor_id AND vendor_client_id = $client_id AND vendor_archived_at IS NULL LIMIT 1");
+        $update_sql = mysqli_query($mysqli, "UPDATE vendors SET vendor_name = '$name', vendor_description = '$description', vendor_contact_name = '$contact_name', vendor_contact_phone_country_code = '$contact_phone_country_code', vendor_contact_phone = '$contact_phone', vendor_contact_email = '$contact_email', vendor_phone_country_code = '$phone_country_code', vendor_phone = '$phone', vendor_extension = '$extension', vendor_email = '$email', vendor_website = '$website', vendor_hours = '$hours', vendor_sla = '$sla', vendor_code = '$code', vendor_account_number = '$account_number', vendor_notes = '$notes' WHERE vendor_id = $vendor_id AND vendor_client_id = $client_id AND vendor_archived_at IS NULL LIMIT 1");
 
         // Check update & get affected rows
         if ($update_sql) {

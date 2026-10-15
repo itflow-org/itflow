@@ -17,6 +17,13 @@ $sql = mysqli_query(
 
 $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
 
+// How many clients have a vendor made from each template
+$template_use = [];
+$sql_template_use = mysqli_query($mysqli, "SELECT vendor_template_id, COUNT(DISTINCT vendor_client_id) FROM vendors WHERE vendor_template_id > 0 AND vendor_client_id > 0 AND vendor_archived_at IS NULL GROUP BY vendor_template_id");
+while ($use_row = mysqli_fetch_row($sql_template_use)) {
+    $template_use[intval($use_row[0])] = intval($use_row[1]);
+}
+
 ?>
 
 <div class="card">
@@ -59,6 +66,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                     </a>
                 </th>
                 <th>Contact</th>
+                <th>Used by</th>
                 <th class="text-center">Action</th>
             </tr>
             </thead>
@@ -95,7 +103,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                     <th class="ps-3">
                         <a class="text-dark ajax-modal" href="#"
                             data-modal-url="modals/vendor_template/vendor_template_edit.php?id=<?= $vendor_template_id ?>">
-                            <i class="fa fa-fw fa-building text-secondary me-2"></i><?= $vendor_template_name ?>
+                            <span class="d-inline-flex align-items-center gap-2"><?= vendorTile($row['vendor_template_name'], 'sm') ?><?= $vendor_template_name ?></span>
                         </a>
                         <?php
                         if (!empty($vendor_template_account_number)) {
@@ -129,6 +137,14 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                         <?php } ?>
 
                     </td>
+                    <td class="text-nowrap">
+                        <?php $used_by = $template_use[$vendor_template_id] ?? 0; ?>
+                        <?php if ($used_by) { ?>
+                            <a href="/agent/vendors.php?view=clients&q=<?= urlencode($row['vendor_template_name']) ?>"><?= $used_by ?> client<?= $used_by === 1 ? '' : 's' ?></a>
+                        <?php } else { ?>
+                            <span class="text-secondary">-</span>
+                        <?php } ?>
+                    </td>
                     <td>
                         <div class="dropdown dropstart text-center">
                             <button class="btn btn-secondary btn-sm" title="More actions" type="button" data-bs-toggle="dropdown">
@@ -138,6 +154,10 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                 <a class="dropdown-item ajax-modal" href="#"
                                     data-modal-url="modals/vendor_template/vendor_template_edit.php?id=<?= $vendor_template_id ?>">
                                     <i class="fas fa-fw fa-edit me-2"></i>Edit
+                                </a>
+                                <a class="dropdown-item ajax-modal" href="#"
+                                    data-modal-url="/agent/modals/vendor/vendor_template_clients.php?template_id=<?= $vendor_template_id ?>">
+                                    <i class="fas fa-fw fa-users me-2"></i>Add to clients
                                 </a>
                                 <?php if ($session_user_role == 3) { ?>
                                     <div class="dropdown-divider"></div>

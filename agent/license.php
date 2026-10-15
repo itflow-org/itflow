@@ -265,17 +265,21 @@ if (!$license || ($client_url && intval($license['software_client_id']) !== intv
                 $vendor_phone = contactPhoneLink($license['vendor_phone'], $license['vendor_phone_country_code'], $license['vendor_extension']);
                 $vendor_email = escapeHtml($license['vendor_email']);
                 $vendor_website = escapeHtml($license['vendor_website']);
-                $vendor_account = escapeHtml($license['vendor_account_number']); ?>
+                $vendor_account = escapeHtml($license['vendor_account_number']);
+                $vendor_pin = vendorSecretHtml($license['vendor_code']); ?>
                 <div class="card mb-3">
                     <div class="card-header d-flex align-items-center">
                         <h3 class="card-title mb-0 me-auto"><i class="fas fa-fw fa-building text-secondary me-2"></i>Vendor</h3>
-                        <a class="small ajax-modal" href="#" data-modal-url="modals/vendor/vendor.php?id=<?= $vendor_id ?>"><?= $vendor_name ?></a>
+                        <span class="small"><?= vendorLink($vendor_id, $license['vendor_name'], ['page' => true, 'client_id' => $client_id]) ?></span>
                     </div>
                     <div class="card-body">
                         <dl class="itflow-asset-dl mb-0">
                             <?php if ($vendor_account) { ?>
                                 <dt>Account</dt>
                                 <dd><span class="font-monospace"><?= $vendor_account ?></span><button type="button" class="itflow-copy clipboardjs" title="Copy account number" data-clipboard-text="<?= $vendor_account ?>"><i class="far fa-copy"></i></button></dd>
+                            <?php } ?>
+                            <?php if ($vendor_pin) { ?>
+                                <dt>PIN</dt><dd><?= $vendor_pin ?></dd>
                             <?php } ?>
                             <?php if ($vendor_phone) { ?>
                                 <dt>Phone</dt><dd><?= $vendor_phone ?></dd>
@@ -285,7 +289,7 @@ if (!$license || ($client_url && intval($license['software_client_id']) !== intv
                                 <dd><a href="mailto:<?= $vendor_email ?>"><?= $vendor_email ?></a><button type="button" class="itflow-copy clipboardjs" title="Copy email" data-clipboard-text="<?= $vendor_email ?>"><i class="far fa-copy"></i></button></dd>
                             <?php } ?>
                             <?php if ($vendor_website) { ?>
-                                <dt>Website</dt><dd><a href="<?= escapeUrl($license['vendor_website']) ?>" target="_blank" rel="noopener"><?= $vendor_website ?><i class="fas fa-external-link-alt ms-1 small"></i></a></dd>
+                                <dt>Website</dt><dd><a href="<?= escapeHtml(vendorWebsiteUrl($license['vendor_website'])) ?>" target="_blank" rel="noopener"><?= escapeHtml(vendorWebsiteLabel($license['vendor_website'])) ?><i class="fas fa-external-link-alt ms-1 small"></i></a></dd>
                             <?php } ?>
                             <?php if ($license['vendor_hours']) { ?>
                                 <dt>Hours</dt><dd><?= escapeHtml($license['vendor_hours']) ?></dd>

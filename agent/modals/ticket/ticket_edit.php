@@ -306,12 +306,14 @@ ob_start();
                                     <option value="0">- None -</option>
                                     <?php
 
-                                    $sql_vendors = mysqli_query($mysqli, "SELECT vendor_id, vendor_name FROM vendors WHERE vendor_client_id = $client_id AND vendor_archived_at IS NULL ORDER BY vendor_name ASC");
+                                    $sql_vendors = mysqli_query($mysqli, "SELECT vendor_id, vendor_name, vendor_description, vendor_archived_at FROM vendors
+                                        WHERE vendor_client_id = $client_id AND (vendor_archived_at IS NULL OR vendor_id = $vendor_id)
+                                        ORDER BY vendor_favorite DESC, vendor_name ASC");
                                     while ($row = mysqli_fetch_assoc($sql_vendors)) {
                                         $vendor_id_select = intval($row['vendor_id']);
-                                        $vendor_name_select = escapeHtml($row['vendor_name']);
+                                        $vendor_name_select = escapeHtml($row['vendor_name']) . ($row['vendor_archived_at'] ? ' (archived)' : '');
                                         ?>
-                                        <option <?php if ($vendor_id == $vendor_id_select) { echo "selected"; } ?> value="<?= $vendor_id_select ?>"><?= $vendor_name_select ?></option>
+                                        <option <?php if ($vendor_id == $vendor_id_select) { echo "selected"; } ?> value="<?= $vendor_id_select ?>"<?= selectOptionVendor($row['vendor_name'], $row['vendor_description']) ?>><?= $vendor_name_select ?></option>
 
                                         <?php
                                     }

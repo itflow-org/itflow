@@ -7,6 +7,7 @@ $contact_id = intval($_GET['contact_id'] ?? 0);
 $project_id = intval($_GET['project_id'] ?? 0);
 $asset_id = intval($_GET['asset_id'] ?? 0);
 $location_id = intval($_GET['location_id'] ?? 0);
+$vendor_id = intval($_GET['vendor_id'] ?? 0);
 
 // A ticket started from somewhere that knows what it is about (a license's
 // Renewal Ticket) - plain text in, escaped here
@@ -247,7 +248,7 @@ ob_start();
                             <label>Vendor</label>
                             <div class="input-group">
                                     <span class="input-group-text"><i class="fa fa-fw fa-building"></i></span>
-                                <select class="form-select select2" name="vendor_id" id="vendorSelect">
+                                <select class="form-select select2" name="vendor_id" id="vendorSelect" data-selected="<?= $vendor_id ?>">
                                 </select>
                             </div>
                         </div>

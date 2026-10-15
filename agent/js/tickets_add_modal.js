@@ -324,7 +324,15 @@
 
                 // Populate dropdown
                 vendors.forEach(vendor => {
-                    vendorSelectDropdown[vendorSelectDropdown.length] = new Option(vendor.vendor_name, vendor.vendor_id);
+                    const option = new Option(vendor.vendor_name, vendor.vendor_id);
+                    // The vendor's tile and what they are, as on the vendor pages
+                    option.dataset.initials = vendor.vendor_initials || '';
+                    option.dataset.tone = vendor.vendor_tone || 'secondary';
+                    option.dataset.soft = '1';
+                    if (vendor.vendor_description) {
+                        option.dataset.description = vendor.vendor_description;
+                    }
+                    vendorSelectDropdown[vendorSelectDropdown.length] = option;
                 });
 
                 applyPreselection(vendorSelectDropdown);

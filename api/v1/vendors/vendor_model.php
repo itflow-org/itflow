@@ -34,6 +34,30 @@ if (isset($_POST['vendor_contact_name'])) {
     $contact_name = '';
 }
 
+if (isset($_POST['vendor_contact_phone_country_code'])) {
+    $contact_phone_country_code = preg_replace("/[^0-9]/", '', $_POST['vendor_contact_phone_country_code']);
+} elseif ($vendor_row) {
+    $contact_phone_country_code = mysqli_real_escape_string($mysqli, (string) $vendor_row['vendor_contact_phone_country_code']);
+} else {
+    $contact_phone_country_code = '';
+}
+
+if (isset($_POST['vendor_contact_phone'])) {
+    $contact_phone = preg_replace("/[^0-9]/", '', $_POST['vendor_contact_phone']);
+} elseif ($vendor_row) {
+    $contact_phone = mysqli_real_escape_string($mysqli, (string) $vendor_row['vendor_contact_phone']);
+} else {
+    $contact_phone = '';
+}
+
+if (isset($_POST['vendor_contact_email'])) {
+    $contact_email = escapeSql($_POST['vendor_contact_email']);
+} elseif ($vendor_row) {
+    $contact_email = mysqli_real_escape_string($mysqli, (string) $vendor_row['vendor_contact_email']);
+} else {
+    $contact_email = '';
+}
+
 if (isset($_POST['vendor_phone_country_code'])) {
     $phone_country_code = preg_replace("/[^0-9]/", '', $_POST['vendor_phone_country_code']);
 } elseif ($vendor_row) {

@@ -5,16 +5,20 @@ require_once '../../../includes/modal_header.php';
 $client_id = intval($_GET['client_id'] ?? 0);
 $contact_id = intval($_GET['contact_id'] ?? 0);
 $asset_id = intval($_GET['asset_id'] ?? 0);
+// Opened from a vendor's page - their portal login, linked to them
+$vendor_id = $client_id ? assetClientOwnedId('vendor', $_GET['vendor_id'] ?? 0, $client_id) : 0;
+$vendor_name = $vendor_id ? getFieldById('vendors', $vendor_id, 'vendor_name') : '';
 
 ob_start();
 
 ?>
 <div class="modal-header bg-dark">
-    <h5 class="modal-title"><i class="fa fa-fw fa-key me-2"></i>New Credential</h5>
+    <h5 class="modal-title"><i class="fa fa-fw fa-key me-2"></i>New Credential<?php if ($vendor_name) { ?> <small class="opacity-75 ms-1">for <?= escapeHtml($vendor_name) ?></small><?php } ?></h5>
     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
 </div>
 <form action="post.php" method="post" autocomplete="off">
     <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
+    <input type="hidden" name="vendor_id" value="<?= $vendor_id ?>">
 
     <div class="modal-body">
 

@@ -774,6 +774,23 @@ itflowBindOnce('itflowTinyMceFocus', 'focusin', '.tox-tinymce-aux', function (e)
     e.stopImmediatePropagation();
 });
 
+// A PIN or code shown as dots (.itflow-secret) - the eye beside it shows it, and again hides it
+itflowBindOnce('itflowSecret', 'click', '.itflow-secret-toggle', function (e) {
+    e.preventDefault();
+    const secret = this.closest('.itflow-secret');
+    if (!secret) {
+        return;
+    }
+    const shown = secret.classList.toggle('is-shown');
+    const icon = this.querySelector('i');
+    if (icon) {
+        icon.classList.toggle('fa-eye', !shown);
+        icon.classList.toggle('fa-eye-slash', shown);
+    }
+    this.setAttribute('title', shown ? 'Hide' : 'Show');
+    this.setAttribute('aria-pressed', shown ? 'true' : 'false');
+});
+
 itflowBindOnce('itflowAllDay', 'change', '.event-all-day-toggle', function () {
 
     const allDay = this.checked;

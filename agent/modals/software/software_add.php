@@ -19,7 +19,8 @@ $software_form_mode = 'add';
 $software_id = 0;
 $software_name = $software_version = $software_type = $software_description = $software_license_type = '';
 $software_seats = $software_key = $software_purchase_reference = $software_purchase = $software_expire = $software_notes = '';
-$software_vendor_id = 0;
+// Opened from a vendor's page - bought through them
+$software_vendor_id = $client_id ? assetClientOwnedId('vendor', $_GET['vendor_id'] ?? 0, $client_id) : 0;
 $software_favorite = 0;
 
 // Opened from a device or a user - they get the first seat

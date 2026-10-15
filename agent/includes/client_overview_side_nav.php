@@ -31,6 +31,9 @@ $num_certificates = $row['num'];
 $row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT COUNT('software_id') AS num FROM software LEFT JOIN clients ON software_client_id = client_id WHERE software_archived_at IS NULL AND client_archived_at IS NULL " . clientScopeSql('software_client_id') . ""));
 $num_software = $row['num'];
 
+$row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT COUNT('vendor_id') AS num FROM vendors JOIN clients ON vendor_client_id = client_id WHERE vendor_archived_at IS NULL AND client_archived_at IS NULL " . clientScopeSql('vendor_client_id') . ""));
+$num_vendors = $row['num'];
+
 ?>
 
 <!-- Main Sidebar Container -->
@@ -168,6 +171,19 @@ $num_software = $row['num'];
                                 <?php
                                 if ($num_software > 0) { ?>
                                     <span class="right badge text-light"><?= $num_software ?></span>
+                                <?php } ?>
+                            </p>
+                        </a>
+                    </li>
+
+                    <li class="nav-item">
+                        <a href="vendors.php?view=clients" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "vendors.php" || basename($_SERVER["PHP_SELF"]) == "vendor.php") { echo "active"; } ?>">
+                            <i class="nav-icon fas fa-building"></i>
+                            <p>
+                                Vendors
+                                <?php
+                                if ($num_vendors > 0) { ?>
+                                    <span class="right badge text-light"><?= $num_vendors ?></span>
                                 <?php } ?>
                             </p>
                         </a>

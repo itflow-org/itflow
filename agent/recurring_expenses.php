@@ -175,7 +175,7 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                             <?= $category_name ?>
                             <div class="text-secondary"><small><?= truncate($recurring_expense_description, 60) ?></small></div>
                         </td>
-                        <td><?= $vendor_name ?></td>
+                        <td><?= $recurring_expense_vendor_id ? vendorLink($recurring_expense_vendor_id, $vendor_name, ['page' => true]) : '-' ?></td>
                         <td class="text-end font-monospace"><?= numfmt_format_currency($currency_format, $recurring_expense_amount, $recurring_expense_currency_code) ?></td>
                         <td><?= $recurring_expense_frequency_display ?></td>
                         <td><?= $recurring_expense_last_sent_display ?></td>

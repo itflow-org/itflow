@@ -469,7 +469,7 @@ while ($row = mysqli_fetch_assoc($sql)) {
                 $event_title = json_encode("Vendor : '" . $row['vendor_name'] . "' created");
                 $event_start = json_encode($row['vendor_created_at']);
 
-                echo "{ id: $event_id, title: $event_title, start: $event_start, color: 'brown', url: 'vendors.php?$client_url' },";
+                echo "{ id: $event_id, title: $event_title, start: $event_start, color: 'brown', url: 'vendor.php?client_id=$client_id&vendor_id=$event_id' },";
             }
 
             if (!isset($_GET['client_id'])) {

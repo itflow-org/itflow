@@ -463,7 +463,7 @@ while ($license_type_row = mysqli_fetch_row($sql_license_types)) {
                         <?php } ?>
                         <td>
                             <?php if ($vendor_name) { ?>
-                                <a class="ajax-modal" href="#" data-modal-url="modals/vendor/vendor.php?id=<?= $vendor_id ?>"><?= $vendor_name ?></a>
+                                <?= vendorLink($vendor_id, $row['vendor_name']) ?>
                             <?php } else { ?>
                                 <span class="text-body-secondary">-</span>
                             <?php } ?>

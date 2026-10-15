@@ -22,6 +22,8 @@ if ($tag_type == 1) {
     $tag_type_display = "Credential";
  } elseif ( $tag_type == 5) {
     $tag_type_display = "Asset";
+} elseif ($tag_type == 6) {
+    $tag_type_display = "Vendor";
 } else {
     $tag_type_display = "Unknown";
 }

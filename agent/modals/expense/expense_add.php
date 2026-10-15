@@ -3,6 +3,8 @@
 require_once '../../../includes/modal_header.php';
 
 $client_id = intval($_GET['client_id'] ?? 0);
+// Opened from one of our vendors' pages - that vendor
+$prefill_vendor_id = intval($_GET['vendor_id'] ?? 0);
 
 ob_start();
 
@@ -80,12 +82,12 @@ ob_start();
                         <option value="">- Select a Vendor -</option>
                         <?php
 
-                        $sql = mysqli_query($mysqli, "SELECT vendor_id, vendor_name FROM vendors WHERE vendor_client_id = 0 AND vendor_archived_at IS NULL ORDER BY vendor_name ASC");
+                        $sql = mysqli_query($mysqli, "SELECT vendor_id, vendor_name, vendor_description FROM vendors WHERE vendor_client_id = 0 AND vendor_archived_at IS NULL ORDER BY vendor_favorite DESC, vendor_name ASC");
                         while ($row = mysqli_fetch_assoc($sql)) {
                             $vendor_id = intval($row['vendor_id']);
                             $vendor_name = escapeHtml($row['vendor_name']);
                             ?>
-                            <option value="<?= $vendor_id ?>"><?= $vendor_name ?></option>
+                            <option value="<?= $vendor_id ?>" <?= $vendor_id === $prefill_vendor_id ? 'selected' : '' ?><?= selectOptionVendor($row['vendor_name'], $row['vendor_description']) ?>><?= $vendor_name ?></option>
 
                             <?php
                         }

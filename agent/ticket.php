@@ -1452,28 +1452,38 @@ if (isset($_GET['ticket_id'])) {
                             <?php } ?>
 
                             <?php if ($vendor_id) {
-                                // Stored websites may or may not carry a scheme - only add one when missing
-                                $vendor_website_href = preg_match('#^https?://#i', $ticket['vendor_website']) ? $vendor_website : "https://$vendor_website";
+                                // Everything for the call to them: the line, their reference, and what they will ask for
+                                $vendor_phone_link = contactPhoneLink($ticket['vendor_phone'], $ticket['vendor_phone_country_code'], $ticket['vendor_extension']);
+                                $vendor_account = escapeHtml($ticket['vendor_account_number']);
+                                $vendor_pin = vendorSecretHtml($ticket['vendor_code']);
+                                $vendor_website_url = vendorWebsiteUrl($ticket['vendor_website']);
+                                $vendor_when = escapeHtml(implode(' · ', array_filter([$ticket['vendor_hours'], $ticket['vendor_sla']])));
                                 ?>
                                 <div class="ticket-link-heading <?= $asset_id ? 'mt-3 pt-2 border-top' : '' ?>">Vendor</div>
-                                <div class="mt-1 text-truncate">
-                                    <i class="fa fa-fw fa-building text-secondary me-2"></i><?= $vendor_name ?>
+                                <div class="mt-1 d-flex min-w-0">
+                                    <?= vendorLink($vendor_id, $ticket['vendor_name'], ['archived' => !empty($ticket['vendor_archived_at'])]) ?>
                                 </div>
                                 <?php if ($ticket_vendor_ticket_number) { ?>
                                     <!-- Labelled - a bare reference beside a tag icon read as nothing in particular -->
-                                    <div class="mt-1 text-truncate"><i class="fa fa-fw fa-hashtag text-secondary me-2"></i><span class="text-muted">Their ticket</span> <?= $ticket_vendor_ticket_number ?></div>
+                                    <div class="mt-1 text-truncate"><i class="fa fa-fw fa-hashtag text-secondary me-2"></i><span class="text-muted">Their ticket</span> <span class="font-monospace"><?= $ticket_vendor_ticket_number ?></span><button type="button" class="itflow-copy clipboardjs" title="Copy their ticket number" data-clipboard-text="<?= $ticket_vendor_ticket_number ?>"><i class="far fa-copy"></i></button></div>
                                 <?php } ?>
-                                <?php if ($vendor_contact_name) { ?>
-                                    <div class="mt-1 text-truncate"><i class="fa fa-fw fa-user text-secondary me-2"></i><?= $vendor_contact_name ?></div>
+                                <?php if ($vendor_phone_link) { ?>
+                                    <div class="mt-1"><i class="fa fa-fw fa-phone text-secondary me-2"></i><?= $vendor_phone_link ?></div>
                                 <?php } ?>
-                                <?php if ($vendor_phone) { ?>
-                                    <div class="mt-1"><i class="fa fa-fw fa-phone text-secondary me-2"></i><a href="tel:<?= $vendor_phone ?>"><?= $vendor_phone ?></a></div>
+                                <?php if ($vendor_when) { ?>
+                                    <div class="mt-1 small text-muted text-truncate" title="<?= $vendor_when ?>"><i class="fa fa-fw fa-clock text-secondary me-2"></i><?= $vendor_when ?></div>
+                                <?php } ?>
+                                <?php if ($vendor_account || $vendor_pin) { ?>
+                                    <div class="mt-1 small" title="What they will ask for">
+                                        <i class="fa fa-fw fa-fingerprint text-secondary me-2"></i><?php if ($vendor_account) { ?><span class="font-monospace"><?= $vendor_account ?></span><button type="button" class="itflow-copy clipboardjs" title="Copy account number" data-clipboard-text="<?= $vendor_account ?>"><i class="far fa-copy"></i></button><?php } ?>
+                                        <?php if ($vendor_pin) { ?><span class="text-muted ms-1">PIN</span> <?= $vendor_pin ?><?php } ?>
+                                    </div>
                                 <?php } ?>
                                 <?php if ($vendor_email) { ?>
                                     <div class="mt-1 text-truncate"><i class="fa fa-fw fa-envelope text-secondary me-2"></i><a href="mailto:<?= $vendor_email ?>" title="<?= $vendor_email ?>"><?= $vendor_email ?></a></div>
                                 <?php } ?>
-                                <?php if ($vendor_website) { ?>
-                                    <div class="mt-1 text-truncate"><i class="fa fa-fw fa-globe text-secondary me-2"></i><a href="<?= $vendor_website_href ?>" target="_blank" rel="noopener noreferrer" title="<?= $vendor_website ?>"><?= $vendor_website ?></a></div>
+                                <?php if ($vendor_website_url) { ?>
+                                    <div class="mt-1 text-truncate"><i class="fa fa-fw fa-globe text-secondary me-2"></i><a href="<?= escapeHtml($vendor_website_url) ?>" target="_blank" rel="noopener noreferrer" title="<?= $vendor_website ?>"><?= escapeHtml(vendorWebsiteLabel($ticket['vendor_website'])) ?></a></div>
                                 <?php } ?>
                             <?php } ?>
 

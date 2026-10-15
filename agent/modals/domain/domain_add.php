@@ -85,12 +85,12 @@ ob_start();
                             <option value="">- Vendor -</option>
                             <?php
 
-                            $sql = mysqli_query($mysqli, "SELECT vendor_id, vendor_name FROM vendors WHERE vendor_archived_at IS NULL AND vendor_client_id = $client_id ORDER BY vendor_name ASC");
+                            $sql = mysqli_query($mysqli, "SELECT vendor_id, vendor_name, vendor_description FROM vendors WHERE vendor_archived_at IS NULL AND vendor_client_id = $client_id ORDER BY vendor_favorite DESC, vendor_name ASC");
                             while ($row = mysqli_fetch_assoc($sql)) {
                                 $vendor_id = intval($row['vendor_id']);
                                 $vendor_name = escapeHtml($row['vendor_name']);
                                 ?>
-                                <option value="<?= $vendor_id ?>"><?= $vendor_name ?></option>
+                                <option value="<?= $vendor_id ?>"<?= selectOptionVendor($row['vendor_name'], $row['vendor_description']) ?>><?= $vendor_name ?></option>
                             <?php } ?>
                         </select>
                     </div>
@@ -104,12 +104,12 @@ ob_start();
                             <option value="">- Vendor -</option>
                             <?php
 
-                            $sql = mysqli_query($mysqli, "SELECT vendor_id, vendor_name FROM vendors WHERE vendor_archived_at IS NULL AND vendor_client_id = $client_id ORDER BY vendor_name ASC");
+                            $sql = mysqli_query($mysqli, "SELECT vendor_id, vendor_name, vendor_description FROM vendors WHERE vendor_archived_at IS NULL AND vendor_client_id = $client_id ORDER BY vendor_favorite DESC, vendor_name ASC");
                             while ($row = mysqli_fetch_assoc($sql)) {
                                 $vendor_id = intval($row['vendor_id']);
                                 $vendor_name = escapeHtml($row['vendor_name']);
                                 ?>
-                                <option value="<?= $vendor_id ?>"><?= $vendor_name ?></option>
+                                <option value="<?= $vendor_id ?>"<?= selectOptionVendor($row['vendor_name'], $row['vendor_description']) ?>><?= $vendor_name ?></option>
                             <?php } ?>
                         </select>
                     </div>
@@ -123,12 +123,12 @@ ob_start();
                             <option value="">- Vendor -</option>
                             <?php
 
-                            $sql = mysqli_query($mysqli, "SELECT vendor_id, vendor_name FROM vendors WHERE vendor_archived_at IS NULL AND vendor_client_id = $client_id ORDER BY vendor_name ASC");
+                            $sql = mysqli_query($mysqli, "SELECT vendor_id, vendor_name, vendor_description FROM vendors WHERE vendor_archived_at IS NULL AND vendor_client_id = $client_id ORDER BY vendor_favorite DESC, vendor_name ASC");
                             while ($row = mysqli_fetch_assoc($sql)) {
                                 $vendor_id = intval($row['vendor_id']);
                                 $vendor_name = escapeHtml($row['vendor_name']);
                                 ?>
-                                <option value="<?= $vendor_id ?>"><?= $vendor_name ?></option>
+                                <option value="<?= $vendor_id ?>"<?= selectOptionVendor($row['vendor_name'], $row['vendor_description']) ?>><?= $vendor_name ?></option>
                             <?php } ?>
                         </select>
                     </div>
@@ -142,12 +142,12 @@ ob_start();
                             <option value="">- Vendor -</option>
                             <?php
 
-                            $sql = mysqli_query($mysqli, "SELECT vendor_id, vendor_name FROM vendors WHERE vendor_archived_at IS NULL AND vendor_client_id = $client_id ORDER BY vendor_name ASC");
+                            $sql = mysqli_query($mysqli, "SELECT vendor_id, vendor_name, vendor_description FROM vendors WHERE vendor_archived_at IS NULL AND vendor_client_id = $client_id ORDER BY vendor_favorite DESC, vendor_name ASC");
                             while ($row = mysqli_fetch_assoc($sql)) {
                                 $vendor_id = intval($row['vendor_id']);
                                 $vendor_name = escapeHtml($row['vendor_name']);
                                 ?>
-                                <option value="<?= $vendor_id ?>"><?= $vendor_name ?></option>
+                                <option value="<?= $vendor_id ?>"<?= selectOptionVendor($row['vendor_name'], $row['vendor_description']) ?>><?= $vendor_name ?></option>
                             <?php } ?>
                         </select>
                     </div>

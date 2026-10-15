@@ -62,7 +62,7 @@ function linkOptionData($to, $row, $client_id) {
         case 'location':
             return selectOptionData(['icon' => 'fas fa-' . (intval($row['location_primary']) ? 'building' : 'map-marker-alt'), 'description' => implode(' · ', array_filter([intval($row['location_primary']) ? 'Primary' : '', locationAddressText($row)]))]);
         case 'vendor':
-            return selectOptionData(['icon' => 'fas fa-building', 'description' => $row['vendor_description']]);
+            return selectOptionVendor($row['name'], $row['vendor_description']);
     }
     return '';
 }

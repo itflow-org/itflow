@@ -40,7 +40,7 @@ $vendor_options = $asset_options = $contact_options = [];
 if ($client_id) {
     $sql = mysqli_query($mysqli, "SELECT vendor_archived_at, vendor_id, vendor_name, vendor_description FROM vendors
         WHERE vendor_client_id = $client_id AND (vendor_archived_at IS NULL OR vendor_id = $software_vendor_id)
-        ORDER BY vendor_name ASC");
+        ORDER BY vendor_favorite DESC, vendor_name ASC");
     while ($row = mysqli_fetch_assoc($sql)) {
         $vendor_options[] = $row;
     }
@@ -180,7 +180,7 @@ $form_id = 'softwareForm' . ($software_form_mode === 'edit' ? $software_id : 'Ne
                         <option value="">- Select Vendor -</option>
                         <?php foreach ($vendor_options as $vendor_option) {
                             $vendor_option_id = intval($vendor_option['vendor_id']); ?>
-                            <option value="<?= $vendor_option_id ?>" <?= $software_vendor_id === $vendor_option_id ? 'selected' : '' ?><?= selectOptionData(['icon' => 'fas fa-building', 'description' => $vendor_option['vendor_description']]) ?>><?= escapeHtml($vendor_option['vendor_name']) ?><?= $vendor_option['vendor_archived_at'] ? ' (archived)' : '' ?></option>
+                            <option value="<?= $vendor_option_id ?>" <?= $software_vendor_id === $vendor_option_id ? 'selected' : '' ?><?= selectOptionVendor($vendor_option['vendor_name'], $vendor_option['vendor_description']) ?>><?= escapeHtml($vendor_option['vendor_name']) ?><?= $vendor_option['vendor_archived_at'] ? ' (archived)' : '' ?></option>
                         <?php } ?>
                     </select>
                 </div>

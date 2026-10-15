@@ -129,7 +129,7 @@ ob_start();
                 <div class="itflow-glance-item" title="Vendor">
                     <i class="fas fa-fw fa-building"></i>
                     <span class="min-w-0">
-                        <a class="ajax-modal" href="#" data-modal-url="modals/vendor/vendor.php?id=<?= $vendor_id ?>"><?= $vendor_name ?></a>
+                        <?= vendorLink($vendor_id, $license['vendor_name']) ?>
                         <?php if ($vendor_phone) { ?><span class="text-body-secondary">&middot;</span> <?= $vendor_phone ?><?php } ?>
                     </span>
                 </div>

@@ -2,89 +2,135 @@
 
 /*
  * ITFlow - GET/POST request handler for vendors
+ *
+ * A client's vendors are the client module's; ours (no client) are the
+ * financial module's - vendorEnforce() (functions/vendor.php) checks the right
+ * one, and the client access, for the vendor a request names rather than for
+ * whatever the form says. Documents, files and portal logins are linked to a
+ * vendor through post/link.php; the notes save through ajax.php.
  */
-
- // Todo: 2026-03-02 JQ - Need Permssions reworked as we have client vendors and Global Vendors basically check the referral url if it has client_id then Perm check client else perm check financial.
 
 defined('FROM_POST_HANDLER') || die("Direct file access is not allowed");
 
-if (isset($_POST['add_vendor_from_template'])) {
-
-    validateCSRFToken();
-
-    // GET POST Data
-    $client_id = intval($_POST['client_id']); //Used if this vendor is under a contact otherwise its 0 for under company and or template
-
-    // Permission check
-    if ($client_id) {
-        enforceUserPermission('module_client', 2);
-        enforceClientAccess();
-    } else {
-        enforceUserPermission('module_financial', 2);
+/** The vendor a request names, once the agent may do this to it - or back with an error if it is gone. */
+function vendorForRequest($vendor_id, $level) {
+    global $client_id;
+    $row = vendorRow($vendor_id);
+    if (!$row) {
+        flashAlert('That vendor no longer exists.', 'error');
+        redirect();
     }
-
-    $vendor_template_id = intval($_POST['vendor_template_id']);
-
-    //GET Vendor Info
-    $sql_vendor_templates = mysqli_query($mysqli,"SELECT vendor_template_account_number, vendor_template_code, vendor_template_contact_name,
-        vendor_template_description, vendor_template_email, vendor_template_extension,
-        vendor_template_hours, vendor_template_name, vendor_template_notes, vendor_template_phone,
-        vendor_template_phone_country_code, vendor_template_sla, vendor_template_website FROM vendor_templates WHERE vendor_template_id = $vendor_template_id");
-
-    $row = mysqli_fetch_assoc($sql_vendor_templates);
-
-    $name = escapeSql($row['vendor_template_name']);
-    $description = escapeSql($row['vendor_template_description']);
-    $account_number = escapeSql($row['vendor_template_account_number']);
-    $contact_name = escapeSql($row['vendor_template_contact_name']);
-    $phone_country_code = preg_replace("/[^0-9]/", '',$row['vendor_template_phone_country_code']);
-    $phone = preg_replace("/[^0-9]/", '',$row['vendor_template_phone']);
-    $extension = preg_replace("/[^0-9]/", '',$row['vendor_template_extension']);
-    $email = escapeSql($row['vendor_template_email']);
-    $website = escapeSql($row['vendor_template_website']);
-    $hours = escapeSql($row['vendor_template_hours']);
-    $sla = escapeSql($row['vendor_template_sla']);
-    $code = escapeSql($row['vendor_template_code']);
-    $notes = escapeSql($row['vendor_template_notes']);
-
-    // Vendor add query
-    mysqli_query($mysqli,"INSERT INTO vendors SET vendor_name = '$name', vendor_description = '$description', vendor_contact_name = '$contact_name', vendor_phone_country_code = '$phone_country_code', vendor_phone = '$phone', vendor_extension = '$extension', vendor_email = '$email', vendor_website = '$website', vendor_hours = '$hours', vendor_sla = '$sla', vendor_code = '$code', vendor_account_number = '$account_number', vendor_notes = '$notes', vendor_client_id = $client_id, vendor_template_id = $vendor_template_id");
-
-    $vendor_id = mysqli_insert_id($mysqli);
-
-    logAudit("Vendor", "Create", "$session_name created vendor $name using a template", $client_id, $vendor_id);
-
-    flashAlert("Vendor <strong>$name</strong> created from template");
-
-    redirect();
-
+    $client_id = intval($row['vendor_client_id']);
+    vendorEnforce($client_id, $level);
+    return $row;
 }
 
-// Vendors
+/** Back to the list a vendor was on - its own page is gone once it is deleted. */
+function vendorRedirectAfterDelete($client_id) {
+    if (strpos($_SERVER['HTTP_REFERER'] ?? '', '/vendor.php') !== false) {
+        redirect($client_id ? "vendors.php?client_id=$client_id&archived=1" : 'vendors.php?archived=1');
+    }
+    redirect();
+}
+
+/** Insert a vendor from a form's fields for this client - the new id, or 0 without a name. */
+function vendorCreate($fields, $client_id) {
+    global $mysqli;
+    $set = vendorFormSet($fields);
+    if ($set === null) {
+        return 0;
+    }
+    mysqli_query($mysqli, "INSERT INTO vendors SET $set, vendor_client_id = " . intval($client_id));
+    return mysqli_insert_id($mysqli);
+}
 
 if (isset($_POST['add_vendor'])) {
 
     validateCSRFToken();
 
-    require_once 'vendor_model.php';
-
-    $client_id = intval($_POST['client_id']); // Used if this vendor is under a contact otherwise its 0 for under company
-
-    // Permission check
-    if ($client_id) {
-        enforceUserPermission('module_client', 2);
-        enforceClientAccess();
-    } else {
-        enforceUserPermission('module_financial', 2);
+    $client_id = intval($_POST['client_id'] ?? 0);
+    vendorEnforce($client_id, 2);
+    if ($client_id && !getFieldById('clients', $client_id, 'client_name')) {
+        flashAlert('That client no longer exists.', 'error');
+        redirect();
     }
 
-    mysqli_query($mysqli,"INSERT INTO vendors SET vendor_name = '$name', vendor_description = '$description', vendor_contact_name = '$contact_name', vendor_phone_country_code = '$phone_country_code', vendor_phone = '$phone', vendor_extension = '$extension', vendor_email = '$email', vendor_website = '$website', vendor_hours = '$hours', vendor_sla = '$sla', vendor_code = '$code', vendor_account_number = '$account_number', vendor_notes = '$notes', vendor_client_id = $client_id");
+    $vendor_id = vendorCreate($_POST, $client_id);
+    if (!$vendor_id) {
+        flashAlert('A vendor needs a name.', 'error');
+        redirect();
+    }
 
-    $vendor_id = mysqli_insert_id($mysqli);
+    vendorSetTags($vendor_id, $_POST['tags'] ?? []);
 
-    logAudit("Vendor", "Create", "$session_name created vendor $name", $client_id, $vendor_id);
+    $name = trim($_POST['name']);
+    $template_note = intval($_POST['vendor_template_id'] ?? 0) ? ' from a template' : '';
+    logAudit("Vendor", "Create", "$session_name created vendor " . escapeSql($name) . $template_note, $client_id, $vendor_id);
 
     flashAlert("Vendor <strong>$name</strong> created");
+
+    redirect();
+
+}
+
+// Kept for anything still posting the old New from Template form - the vendor form now does both
+if (isset($_POST['add_vendor_from_template'])) {
+
+    validateCSRFToken();
+
+    $client_id = intval($_POST['client_id'] ?? 0);
+    vendorEnforce($client_id, 2);
+
+    $template = vendorTemplateRow($_POST['vendor_template_id'] ?? 0);
+    if (!$template) {
+        flashAlert('That template no longer exists.', 'error');
+        redirect();
+    }
+
+    $vendor_id = vendorCreate(vendorTemplateFormFields($template), $client_id);
+
+    logAudit("Vendor", "Create", "$session_name created vendor " . escapeSql($template['vendor_template_name']) . " from a template", $client_id, $vendor_id);
+
+    flashAlert("Vendor <strong>{$template['vendor_template_name']}</strong> created from template");
+
+    redirect();
+
+}
+
+/*
+ * One template, added as a vendor to several clients at once - a new standard
+ * vendor rolled out everywhere. A client that already has a vendor made from
+ * this template is left alone.
+ */
+if (isset($_POST['add_vendor_template_to_clients'])) {
+
+    validateCSRFToken();
+
+    enforceUserPermission('module_client', 2);
+
+    $template = vendorTemplateRow($_POST['vendor_template_id'] ?? 0);
+    if (!$template) {
+        flashAlert('That template no longer exists.', 'error');
+        redirect();
+    }
+    $template_id = intval($template['vendor_template_id']);
+    $fields = vendorTemplateFormFields($template);
+
+    $added = $already = 0;
+    foreach (array_unique(array_filter(array_map('intval', (array) ($_POST['client_ids'] ?? [])))) as $target_client_id) {
+        if (!hasClientAccess($target_client_id) || !getFieldById('clients', $target_client_id, 'client_name')) {
+            continue;
+        }
+        if (mysqli_num_rows(mysqli_query($mysqli, "SELECT 1 FROM vendors WHERE vendor_client_id = $target_client_id AND vendor_template_id = $template_id LIMIT 1"))) {
+            $already++;
+            continue;
+        }
+        $vendor_id = vendorCreate($fields, $target_client_id);
+        logAudit("Vendor", "Create", "$session_name created vendor " . escapeSql($template['vendor_template_name']) . " from a template", $target_client_id, $vendor_id);
+        $added++;
+    }
+
+    flashAlert("Added <strong>{$template['vendor_template_name']}</strong> to <strong>$added</strong> client" . ($added === 1 ? '' : 's') . ($already ? " - $already already had it" : ''));
 
     redirect();
 
@@ -94,27 +140,42 @@ if (isset($_POST['edit_vendor'])) {
 
     validateCSRFToken();
 
-    require_once 'vendor_model.php';
+    $row = vendorForRequest($_POST['vendor_id'] ?? 0, 2);
+    $vendor_id = intval($row['vendor_id']);
 
-    $vendor_id = intval($_POST['vendor_id']);
-    $vendor_template_id = intval($_POST['vendor_template_id']);
-
-    // Get Client ID
-    $client_id = intval(getFieldById('vendors', $vendor_id, 'vendor_client_id'));
-
-    // Permission check
-    if ($client_id) {
-        enforceUserPermission('module_client', 2);
-        enforceClientAccess();
-    } else {
-        enforceUserPermission('module_financial', 2);
+    $set = vendorFormSet($_POST);
+    if ($set === null) {
+        flashAlert('A vendor needs a name.', 'error');
+        redirect();
     }
 
-    mysqli_query($mysqli,"UPDATE vendors SET vendor_name = '$name', vendor_description = '$description', vendor_contact_name = '$contact_name', vendor_phone_country_code = '$phone_country_code', vendor_phone = '$phone', vendor_extension = '$extension', vendor_email = '$email', vendor_website = '$website', vendor_hours = '$hours', vendor_sla = '$sla', vendor_code = '$code',vendor_account_number = '$account_number', vendor_notes = '$notes', vendor_template_id = $vendor_template_id WHERE vendor_id = $vendor_id");
+    mysqli_query($mysqli, "UPDATE vendors SET $set WHERE vendor_id = $vendor_id");
 
-    logAudit("Vendor", "Edit", "$session_name edited vendor $name", $client_id, $vendor_id);
+    // Only a form that showed the tags changes them
+    if (isset($_POST['tags_form'])) {
+        vendorSetTags($vendor_id, $_POST['tags'] ?? []);
+    }
 
-    flashAlert("Vendor <strong>$name</strong> edited");
+    $name = trim($_POST['name']);
+    logAudit("Vendor", "Edit", "$session_name edited vendor " . escapeSql($name), $client_id, $vendor_id);
+
+    flashAlert("Vendor <strong>$name</strong> updated");
+
+    redirect();
+
+}
+
+if (isset($_GET['favorite_vendor']) || isset($_GET['unfavorite_vendor'])) {
+
+    validateCSRFToken();
+
+    $favorite = isset($_GET['favorite_vendor']) ? 1 : 0;
+    $row = vendorForRequest($favorite ? $_GET['favorite_vendor'] : $_GET['unfavorite_vendor'], 2);
+    $vendor_id = intval($row['vendor_id']);
+
+    mysqli_query($mysqli, "UPDATE vendors SET vendor_favorite = $favorite WHERE vendor_id = $vendor_id");
+
+    logAudit("Vendor", "Edit", "$session_name " . ($favorite ? 'starred' : 'unstarred') . " vendor " . escapeSql($row['vendor_name']), $client_id, $vendor_id);
 
     redirect();
 
@@ -124,57 +185,31 @@ if (isset($_GET['archive_vendor'])) {
 
     validateCSRFToken();
 
-    $vendor_id = intval($_GET['archive_vendor']);
+    $row = vendorForRequest($_GET['archive_vendor'], 2);
+    $vendor_id = intval($row['vendor_id']);
 
-    //Get Vendor Name
-    $sql = mysqli_query($mysqli,"SELECT vendor_client_id, vendor_name FROM vendors WHERE vendor_id = $vendor_id");
-    $row = mysqli_fetch_assoc($sql);
-    $vendor_name = escapeSql($row['vendor_name']);
-    $client_id = intval($row['vendor_client_id']);
+    mysqli_query($mysqli, "UPDATE vendors SET vendor_archived_at = NOW() WHERE vendor_id = $vendor_id");
 
-    // Permission check
-    if ($client_id) {
-        enforceUserPermission('module_client', 2);
-        enforceClientAccess();
-    } else {
-        enforceUserPermission('module_financial', 2);
-    }
+    logAudit("Vendor", "Archive", "$session_name archived vendor " . escapeSql($row['vendor_name']), $client_id, $vendor_id);
 
-    mysqli_query($mysqli,"UPDATE vendors SET vendor_archived_at = NOW() WHERE vendor_id = $vendor_id");
-
-    logAudit("Vendor", "Archive", "$session_name archived vendor $vendor_name", $client_id, $vendor_id);
-
-    flashAlert("Vendor <strong>$vendor_name</strong> archived", 'error');
+    flashAlert("Vendor <strong>{$row['vendor_name']}</strong> archived", 'error');
 
     redirect();
 
 }
 
-if(isset($_GET['restore_vendor'])){
+if (isset($_GET['restore_vendor'])) {
 
     validateCSRFToken();
 
-    $vendor_id = intval($_GET['restore_vendor']);
+    $row = vendorForRequest($_GET['restore_vendor'], 2);
+    $vendor_id = intval($row['vendor_id']);
 
-    // Get Name and Client ID for logging and alert message
-    $sql = mysqli_query($mysqli,"SELECT vendor_name, vendor_client_id FROM vendors WHERE vendor_id = $vendor_id");
-    $row = mysqli_fetch_assoc($sql);
-    $vendor_name = escapeSql($row['vendor_name']);
-    $client_id = intval($row['vendor_client_id']);
+    mysqli_query($mysqli, "UPDATE vendors SET vendor_archived_at = NULL WHERE vendor_id = $vendor_id");
 
-    // Permission check
-    if ($client_id) {
-        enforceUserPermission('module_client', 2);
-        enforceClientAccess();
-    } else {
-        enforceUserPermission('module_financial', 2);
-    }
+    logAudit("Vendor", "Restore", "$session_name restored vendor " . escapeSql($row['vendor_name']), $client_id, $vendor_id);
 
-    mysqli_query($mysqli,"UPDATE vendors SET vendor_archived_at = NULL WHERE vendor_id = $vendor_id");
-
-    logAudit("Vendor", "Restore", "$session_name restored vendor $vendor_name", $client_id, $vendor_id);
-
-    flashAlert("Vendor <strong>$vendor_name</strong> restored");
+    flashAlert("Vendor <strong>{$row['vendor_name']}</strong> restored");
 
     redirect();
 
@@ -184,35 +219,24 @@ if (isset($_GET['delete_vendor'])) {
 
     validateCSRFToken();
 
-    $vendor_id = intval($_GET['delete_vendor']);
+    $row = vendorForRequest($_GET['delete_vendor'], 3);
+    $vendor_id = intval($row['vendor_id']);
 
-    //Get Vendor Name
-    $sql = mysqli_query($mysqli,"SELECT vendor_client_id, vendor_name, vendor_template_id FROM vendors WHERE vendor_id = $vendor_id");
-    $row = mysqli_fetch_assoc($sql);
-    $vendor_name = escapeSql($row['vendor_name']);
-    $client_id = intval($row['vendor_client_id']);
-    $vendor_template_id = intval($row['vendor_template_id']);
-
-    // Permission check
-    if ($client_id) {
-        enforceUserPermission('module_client', 3);
-        enforceClientAccess();
-    } else {
-        enforceUserPermission('module_financial', 3);
+    $blocker = vendorDeleteBlocker($vendor_id);
+    if ($blocker) {
+        flashAlert("<strong>{$row['vendor_name']}</strong> was not deleted - $blocker.", 'error');
+        redirect();
     }
 
-    // If its a template reset all vendors based off this template to no template base
-    if ($vendor_template_id > 0) {
-        mysqli_query($mysqli,"UPDATE vendors SET vendor_template_id = 0 WHERE vendor_template_id = $vendor_template_id");
-    }
+    // What came from them stays, from no vendor; tags and links go with it
+    vendorClearReferences($vendor_id);
+    mysqli_query($mysqli, "DELETE FROM vendors WHERE vendor_id = $vendor_id");
 
-    mysqli_query($mysqli,"DELETE FROM vendors WHERE vendor_id = $vendor_id");
+    logAudit("Vendor", "Delete", "$session_name deleted vendor " . escapeSql($row['vendor_name']), $client_id);
 
-    logAudit("Vendor", "Delete", "$session_name deleted vendor $vendor_name", $client_id);
+    flashAlert("Vendor <strong>{$row['vendor_name']}</strong> deleted", 'error');
 
-    flashAlert("Vendor <strong>$vendor_name</strong> deleted", 'error');
-
-    redirect();
+    vendorRedirectAfterDelete($client_id);
 
 }
 
@@ -220,40 +244,20 @@ if (isset($_POST['bulk_archive_vendors'])) {
 
     validateCSRFToken();
 
-    if (isset($_POST['vendor_ids'])) {
-
-        // Get Selected Count
-        $count = count($_POST['vendor_ids']);
-
-        // Cycle through array and archive each record
-        foreach ($_POST['vendor_ids'] as $vendor_id) {
-
-            $vendor_id = intval($vendor_id);
-
-            // Get Name and Client ID for logging and alert message
-            $sql = mysqli_query($mysqli,"SELECT vendor_name, vendor_client_id FROM vendors WHERE vendor_id = $vendor_id");
-            $row = mysqli_fetch_assoc($sql);
-            $vendor_name = escapeSql($row['vendor_name']);
-            $client_id = intval($row['vendor_client_id']);
-
-            // Permission check
-            if ($client_id) {
-                enforceUserPermission('module_client', 2);
-                enforceClientAccess();
-            } else {
-                enforceUserPermission('module_financial', 2);
-            }
-
-            mysqli_query($mysqli,"UPDATE vendors SET vendor_archived_at = NOW() WHERE vendor_id = $vendor_id");
-
-            logAudit("Vendor", "Archive", "$session_name archived vendor $vendor_name", $client_id, $vendor_id);
+    $count = 0;
+    foreach (array_unique(array_map('intval', (array) ($_POST['vendor_ids'] ?? []))) as $vendor_id) {
+        $row = vendorRow($vendor_id);
+        if (!$row || $row['vendor_archived_at']) {
+            continue;
         }
-
-        logAudit("Vendor", "Bulk Archive", "$session_name archived $count vendor(s)");
-
-        flashAlert("Archived <strong>$count</strong> vendor(s)", 'error');
-
+        $client_id = intval($row['vendor_client_id']);
+        vendorEnforce($client_id, 2);
+        mysqli_query($mysqli, "UPDATE vendors SET vendor_archived_at = NOW() WHERE vendor_id = $vendor_id");
+        logAudit("Vendor", "Archive", "$session_name archived vendor " . escapeSql($row['vendor_name']), $client_id, $vendor_id);
+        $count++;
     }
+
+    flashAlert("Archived <strong>$count</strong> vendor" . ($count === 1 ? '' : 's'), 'error');
 
     redirect();
 
@@ -263,41 +267,20 @@ if (isset($_POST['bulk_restore_vendors'])) {
 
     validateCSRFToken();
 
-    if (isset($_POST['vendor_ids'])) {
-
-        // Get Selected Count
-        $count = count($_POST['vendor_ids']);
-
-        // Cycle through array and unarchive each record
-        foreach ($_POST['vendor_ids'] as $vendor_id) {
-
-            $vendor_id = intval($vendor_id);
-
-            // Get Name and Client ID for logging and alert message
-            $sql = mysqli_query($mysqli,"SELECT vendor_name, vendor_client_id FROM vendors WHERE vendor_id = $vendor_id");
-            $row = mysqli_fetch_assoc($sql);
-            $vendor_name = escapeSql($row['vendor_name']);
-            $client_id = intval($row['vendor_client_id']);
-
-            // Permission check
-            if ($client_id) {
-                enforceUserPermission('module_client', 2);
-                enforceClientAccess();
-            } else {
-                enforceUserPermission('module_financial', 2);
-            }
-
-            mysqli_query($mysqli,"UPDATE vendors SET vendor_archived_at = NULL WHERE vendor_id = $vendor_id");
-
-            logAudit("Vendor", "Restore", "$session_name restored vendor $vendor_name", $client_id, $vendor_id);
-
+    $count = 0;
+    foreach (array_unique(array_map('intval', (array) ($_POST['vendor_ids'] ?? []))) as $vendor_id) {
+        $row = vendorRow($vendor_id);
+        if (!$row || !$row['vendor_archived_at']) {
+            continue;
         }
-
-        logAudit("Vendor", "Bulk Restore", "$session_name restored $count vendor(s)");
-
-        flashAlert("Restored <strong>$count</strong> vendor(s)");
-
+        $client_id = intval($row['vendor_client_id']);
+        vendorEnforce($client_id, 2);
+        mysqli_query($mysqli, "UPDATE vendors SET vendor_archived_at = NULL WHERE vendor_id = $vendor_id");
+        logAudit("Vendor", "Restore", "$session_name restored vendor " . escapeSql($row['vendor_name']), $client_id, $vendor_id);
+        $count++;
     }
+
+    flashAlert("Restored <strong>$count</strong> vendor" . ($count === 1 ? '' : 's'));
 
     redirect();
 
@@ -307,47 +290,26 @@ if (isset($_POST['bulk_delete_vendors'])) {
 
     validateCSRFToken();
 
-    if (isset($_POST['vendor_ids'])) {
-
-        // Get Selected Count
-        $count = count($_POST['vendor_ids']);
-
-        // Cycle through array and delete each record
-        foreach ($_POST['vendor_ids'] as $vendor_id) {
-
-            $vendor_id = intval($vendor_id);
-
-            // Get Name and Client ID for logging and alert message
-            $sql = mysqli_query($mysqli,"SELECT vendor_name, vendor_client_id, vendor_template_id FROM vendors WHERE vendor_id = $vendor_id");
-            $row = mysqli_fetch_assoc($sql);
-            $vendor_name = escapeSql($row['vendor_name']);
-            $client_id = intval($row['vendor_client_id']);
-            $vendor_template_id = intval($row['vendor_template_id']);
-
-            // Permission check
-            if ($client_id) {
-                enforceUserPermission('module_client', 3);
-                enforceClientAccess();
-            } else {
-                enforceUserPermission('module_financial', 3);
-            }
-
-            // If its a template reset all vendors based off this template to no template base
-            if ($vendor_template_id > 0) {
-                mysqli_query($mysqli,"UPDATE vendors SET vendor_template_id = 0 WHERE vendor_template_id = $vendor_template_id");
-            }
-
-            mysqli_query($mysqli, "DELETE FROM vendors WHERE vendor_id = $vendor_id AND vendor_client_id = $client_id");
-
-            logAudit("Vendor", "Delete", "$session_name deleted vendor $vendor_name", $client_id);
-
+    $count = 0;
+    $kept = [];
+    foreach (array_unique(array_map('intval', (array) ($_POST['vendor_ids'] ?? []))) as $vendor_id) {
+        $row = vendorRow($vendor_id);
+        if (!$row) {
+            continue;
         }
-
-        logAudit("Vendor", "Bulk Delete", "$session_name deleted $count vendor(s)");
-
-        flashAlert("Deleted <strong>$count</strong> vendor(s)", 'error');
-
+        $client_id = intval($row['vendor_client_id']);
+        vendorEnforce($client_id, 3);
+        if (vendorDeleteBlocker($vendor_id)) {
+            $kept[] = $row['vendor_name'];
+            continue;
+        }
+        vendorClearReferences($vendor_id);
+        mysqli_query($mysqli, "DELETE FROM vendors WHERE vendor_id = $vendor_id");
+        logAudit("Vendor", "Delete", "$session_name deleted vendor " . escapeSql($row['vendor_name']), $client_id);
+        $count++;
     }
+
+    flashAlert("Deleted <strong>$count</strong> vendor" . ($count === 1 ? '' : 's') . ($kept ? ' - kept <strong>' . implode(', ', $kept) . '</strong>, which have expenses booked to them' : ''), 'error');
 
     redirect();
 
@@ -356,9 +318,6 @@ if (isset($_POST['bulk_delete_vendors'])) {
 if (isExportRequest('export_vendors')) {
 
     validateCSRFToken();
-
-    // Exports are reads - see CONTRIBUTING.md
-    enforceUserPermission('module_client');
 
     $format = resolveExportFormat($_POST['export_vendors']);
 
@@ -370,23 +329,50 @@ if (isExportRequest('export_vendors')) {
     if ($archived) {
         $filter_summary['Archived'] = 'Archived only';
     }
+    $archive_query = $archived ? "vendor_archived_at IS NOT NULL" : "vendor_archived_at IS NULL";
 
     if (!empty($_POST['client_id'])) {
+        // One client's vendors
         $client_id = intval($_POST['client_id']);
+        enforceUserPermission('module_client');
+        enforceClientAccess();
         $client_query = "AND vendor_client_id = $client_id";
         $client_name = getFieldById('clients', $client_id, 'client_name');
         $file_name_prepend = "$client_name-";
         $filter_summary['Client'] = $client_name;
-
-        enforceClientAccess();
-    } else {
-        // Global vendors only, same as the vendors page
-        $client_query = "AND vendor_client_id = 0";
+    } elseif (($_POST['view'] ?? '') === 'clients') {
+        // Every client's vendors this agent may see
+        enforceUserPermission('module_client');
         $client_id = 0; // for Logging
+        $client_query = "AND vendor_client_id > 0";
+        $file_name_prepend = "$session_company_name-Client-";
+        $filter_summary['Vendors'] = 'Client vendors';
+        if (!empty($_POST['client'])) {
+            $filter_client_id = intval($_POST['client']);
+            $client_query = "AND vendor_client_id = $filter_client_id";
+            $filter_summary['Client'] = getFieldById('clients', $filter_client_id, 'client_name');
+        }
+        $archive_query = $archived ? "(client_archived_at IS NOT NULL OR vendor_archived_at IS NOT NULL)" : "(client_archived_at IS NULL AND vendor_archived_at IS NULL)";
+    } else {
+        // Ours, same as the vendors page
+        $client_id = 0; // for Logging
+        $client_query = "AND vendor_client_id = 0";
         $file_name_prepend = "$session_company_name-";
     }
 
-    $archive_query = $archived ? "vendor_archived_at IS NOT NULL" : "vendor_archived_at IS NULL";
+    // Tags Filter - a vendor with any of them
+    $tag_query = '';
+    if (isset($_POST['tags']) && is_array($_POST['tags']) && !empty($_POST['tags'])) {
+        $tag_filter = implode(",", array_map('intval', $_POST['tags']));
+        $tag_query = "AND vendors.vendor_id IN (SELECT vendor_id FROM vendor_tags WHERE tag_id IN ($tag_filter))";
+
+        $tag_names = [];
+        $sql_tags = mysqli_query($mysqli, "SELECT tag_name FROM tags WHERE tag_id IN ($tag_filter) ORDER BY tag_name ASC");
+        while ($tag_row = mysqli_fetch_assoc($sql_tags)) {
+            $tag_names[] = $tag_row['tag_name'];
+        }
+        $filter_summary['Tags'] = implode(', ', $tag_names);
+    }
 
     // Search Filter
     $q = escapeSql($_POST['q'] ?? '');
@@ -396,13 +382,18 @@ if (isExportRequest('export_vendors')) {
 
     $sql = mysqli_query(
         $mysqli,
-        "SELECT * FROM vendors
+        "SELECT vendors.*, client_name,
+            (SELECT GROUP_CONCAT(tag_name ORDER BY tag_name SEPARATOR ', ') FROM vendor_tags JOIN tags ON tags.tag_id = vendor_tags.tag_id WHERE vendor_tags.vendor_id = vendors.vendor_id) AS vendor_tags,
+            (SELECT COUNT(*) FROM tickets WHERE ticket_client_id = vendor_client_id AND ticket_vendor_id = vendors.vendor_id AND ticket_resolved_at IS NULL AND ticket_closed_at IS NULL) AS open_case_count
+        FROM vendors
         LEFT JOIN clients ON client_id = vendor_client_id
         WHERE $archive_query
-        AND (vendor_name LIKE '%$q%' OR vendor_description LIKE '%$q%' OR vendor_account_number LIKE '%$q%' OR vendor_website LIKE '%$q%' OR vendor_contact_name LIKE '%$q%' OR vendor_email LIKE '%$q%' OR vendor_phone LIKE '%$q%')
+        AND (vendor_name LIKE '%$q%' OR vendor_description LIKE '%$q%' OR vendor_account_number LIKE '%$q%' OR vendor_website LIKE '%$q%'
+            OR vendor_contact_name LIKE '%$q%' OR vendor_email LIKE '%$q%' OR vendor_contact_email LIKE '%$q%' OR vendor_phone LIKE '%$q%' OR vendor_notes LIKE '%$q%')
         $client_query
+        $tag_query
         " . clientScopeSql('vendor_client_id') . "
-        ORDER BY vendor_name ASC"
+        ORDER BY client_name ASC, vendor_name ASC"
     );
 
     $num_rows = mysqli_num_rows($sql);

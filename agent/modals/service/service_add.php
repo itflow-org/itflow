@@ -138,11 +138,11 @@ ob_start();
                     <label for="vendors">Select related vendors</label>
                     <select class="form-select select2" id="vendors" name="vendors[]" multiple>
                         <?php
-                        $sql = mysqli_query($mysqli, "SELECT vendor_id, vendor_name FROM vendors WHERE vendor_archived_at IS NULL AND vendor_client_id = $client_id");
+                        $sql = mysqli_query($mysqli, "SELECT vendor_id, vendor_name, vendor_description FROM vendors WHERE vendor_archived_at IS NULL AND vendor_client_id = $client_id ORDER BY vendor_favorite DESC, vendor_name ASC");
                         while ($row = mysqli_fetch_assoc($sql)) {
                             $vendor_id = intval($row['vendor_id']);
                             $vendor_name = escapeHtml($row['vendor_name']);
-                            echo "<option value=\"$vendor_id\">$vendor_name</option>";
+                            echo "<option value=\"$vendor_id\"" . selectOptionVendor($row['vendor_name'], $row['vendor_description']) . ">$vendor_name</option>";
                         }
                         ?>
                     </select>

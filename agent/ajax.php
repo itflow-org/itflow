@@ -602,6 +602,29 @@ if (isset($_POST['location_set_notes'])) {
 }
 
 /*
+ * Vendor notes (escalation path, who is authorised to call) - the vendor page saves on blur
+ */
+if (isset($_POST['vendor_set_notes'])) {
+
+    validateCSRFToken();
+
+    $row = vendorRow($_POST['vendor_id'] ?? 0);
+    if (!$row) {
+        exit;
+    }
+    $client_id = intval($row['vendor_client_id']);
+
+    vendorEnforce($client_id, 2);
+
+    $vendor_id = intval($row['vendor_id']);
+    $notes = escapeSql($_POST['notes'] ?? '');
+    mysqli_query($mysqli, "UPDATE vendors SET vendor_notes = '$notes' WHERE vendor_id = $vendor_id");
+
+    logAudit("Vendor", "Edit", "$session_name edited the notes on vendor " . escapeSql($row['vendor_name']), $client_id, $vendor_id);
+
+}
+
+/*
  * License quick notes - the license page and quick look save on blur
  */
 if (isset($_POST['software_set_notes'])) {
@@ -1085,17 +1108,20 @@ if (isset($_GET['get_client_vendors'])) {
 
     $vendors_sql = mysqli_query(
         $mysqli,
-        "SELECT vendor_id, vendor_name FROM vendors
+        "SELECT vendor_id, vendor_name, vendor_description FROM vendors
         LEFT JOIN clients on vendor_client_id = client_id
         WHERE vendors.vendor_archived_at IS NULL AND vendor_client_id = $client_id
         " . clientScopeSql('vendor_client_id') . "
-        ORDER BY vendor_name ASC"
+        ORDER BY vendor_favorite DESC, vendor_name ASC"
     );
 
     // Always return the key, so a client with none gives [] rather than null
     $response['vendors'] = [];
 
     while ($row = mysqli_fetch_assoc($vendors_sql)) {
+        // The vendor's tile in the picker, the same as everywhere else
+        $row['vendor_initials'] = vendorInitials($row['vendor_name']);
+        $row['vendor_tone'] = vendorTone($row['vendor_name']);
         $response['vendors'][] = $row;
     }
 

@@ -92,12 +92,12 @@ ob_start();
                         <select class="form-select select2" name="registrar">
                             <option value="">- Select Vendor -</option>
                             <?php
-                            $vendor_sql = mysqli_query($mysqli, "SELECT vendor_id, vendor_name FROM vendors WHERE vendor_client_id = $client_id AND vendor_archived_at IS NULL ORDER BY vendor_name ASC");
+                            $vendor_sql = mysqli_query($mysqli, "SELECT vendor_id, vendor_name, vendor_description FROM vendors WHERE vendor_client_id = $client_id AND vendor_archived_at IS NULL ORDER BY vendor_favorite DESC, vendor_name ASC");
                                 while ($row = mysqli_fetch_assoc($vendor_sql)) {
                                     $vendor_id = $row['vendor_id'];
-                                    $vendor_name = $row['vendor_name'];
+                                    $vendor_name = escapeHtml($row['vendor_name']);
                                 ?>
-                                <option <?php if ($domain_registrar == $vendor_id) { echo "selected"; } ?> value="<?= $vendor_id ?>"><?= $vendor_name ?></option>
+                                <option <?php if ($domain_registrar == $vendor_id) { echo "selected"; } ?> value="<?= $vendor_id ?>"<?= selectOptionVendor($row['vendor_name'], $row['vendor_description']) ?>><?= $vendor_name ?></option>
                             <?php
                             }
                             ?>
@@ -112,12 +112,12 @@ ob_start();
                         <select class="form-select select2" name="webhost">
                             <option value="">- Select Vendor -</option>
                             <?php
-                            $vendor_sql = mysqli_query($mysqli, "SELECT vendor_id, vendor_name FROM vendors WHERE vendor_client_id = $client_id AND vendor_archived_at IS NULL ORDER BY vendor_name ASC");
+                            $vendor_sql = mysqli_query($mysqli, "SELECT vendor_id, vendor_name, vendor_description FROM vendors WHERE vendor_client_id = $client_id AND vendor_archived_at IS NULL ORDER BY vendor_favorite DESC, vendor_name ASC");
                                 while ($row = mysqli_fetch_assoc($vendor_sql)) {
                                     $vendor_id = $row['vendor_id'];
-                                    $vendor_name = $row['vendor_name'];
+                                    $vendor_name = escapeHtml($row['vendor_name']);
                                 ?>
-                                <option <?php if ($domain_webhost == $vendor_id) { echo "selected"; } ?> value="<?= $vendor_id ?>"><?= $vendor_name ?></option>
+                                <option <?php if ($domain_webhost == $vendor_id) { echo "selected"; } ?> value="<?= $vendor_id ?>"<?= selectOptionVendor($row['vendor_name'], $row['vendor_description']) ?>><?= $vendor_name ?></option>
                             <?php
                             }
                             ?>
@@ -132,12 +132,12 @@ ob_start();
                         <select class="form-select select2" name="dnshost">
                             <option value="">- Select Vendor -</option>
                             <?php
-                            $vendor_sql = mysqli_query($mysqli, "SELECT vendor_id, vendor_name FROM vendors WHERE vendor_client_id = $client_id AND vendor_archived_at IS NULL ORDER BY vendor_name ASC");
+                            $vendor_sql = mysqli_query($mysqli, "SELECT vendor_id, vendor_name, vendor_description FROM vendors WHERE vendor_client_id = $client_id AND vendor_archived_at IS NULL ORDER BY vendor_favorite DESC, vendor_name ASC");
                                 while ($row = mysqli_fetch_assoc($vendor_sql)) {
                                     $vendor_id = $row['vendor_id'];
-                                    $vendor_name = $row['vendor_name'];
+                                    $vendor_name = escapeHtml($row['vendor_name']);
                                 ?>
-                                <option <?php if ($domain_dnshost == $vendor_id) { echo "selected"; } ?> value="<?= $vendor_id ?>"><?= $vendor_name ?></option>
+                                <option <?php if ($domain_dnshost == $vendor_id) { echo "selected"; } ?> value="<?= $vendor_id ?>"<?= selectOptionVendor($row['vendor_name'], $row['vendor_description']) ?>><?= $vendor_name ?></option>
                             <?php
                             }
                             ?>
@@ -152,12 +152,12 @@ ob_start();
                         <select class="form-select select2" name="mailhost">
                             <option value="">- Select Vendor -</option>
                             <?php
-                            $vendor_sql = mysqli_query($mysqli, "SELECT vendor_id, vendor_name FROM vendors WHERE vendor_client_id = $client_id AND vendor_archived_at IS NULL ORDER BY vendor_name ASC");
+                            $vendor_sql = mysqli_query($mysqli, "SELECT vendor_id, vendor_name, vendor_description FROM vendors WHERE vendor_client_id = $client_id AND vendor_archived_at IS NULL ORDER BY vendor_favorite DESC, vendor_name ASC");
                                 while ($row = mysqli_fetch_assoc($vendor_sql)) {
                                     $vendor_id = $row['vendor_id'];
-                                    $vendor_name = $row['vendor_name'];
+                                    $vendor_name = escapeHtml($row['vendor_name']);
                                 ?>
-                                <option <?php if ($domain_mailhost == $vendor_id) { echo "selected"; } ?> value="<?= $vendor_id ?>"><?= $vendor_name ?></option>
+                                <option <?php if ($domain_mailhost == $vendor_id) { echo "selected"; } ?> value="<?= $vendor_id ?>"<?= selectOptionVendor($row['vendor_name'], $row['vendor_description']) ?>><?= $vendor_name ?></option>
                             <?php
                             }
                             ?>

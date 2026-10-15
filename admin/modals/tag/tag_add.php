@@ -17,6 +17,8 @@ if (isset($_GET['type'])) {
         $type_display = "Credential";
     } elseif ($type === 5) {
         $type_display = "Asset";
+    } elseif ($type === 6) {
+        $type_display = "Vendor";
     }
 }
 ob_start();

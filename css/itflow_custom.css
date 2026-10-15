@@ -4550,3 +4550,55 @@ img.itflow-contact-avatar {
     max-height: 7.5rem;
     overflow-y: auto;
 }
+
+/* Vendors - agent/vendors.php, agent/vendor.php, agent/modals/vendor/
+
+   A vendor's tile is its initials on a colour picked by its name
+   (functions/vendor.php vendorTile()), square like the asset and license
+   tiles, so one vendor is the same colour at every client. */
+.itflow-vendor-tile {
+    font-weight: 600;
+    font-size: .85rem;
+    letter-spacing: .02em;
+}
+.itflow-vendor-tile-lg {
+    font-size: 1.2rem;
+}
+.itflow-vendor-tile-sm {
+    font-size: .65rem;
+    letter-spacing: 0;
+}
+.itflow-vendor-tile-xs {
+    width: 1.25rem;
+    height: 1.25rem;
+    border-radius: .3rem;
+    font-size: .5rem;
+    letter-spacing: 0;
+}
+/* A PIN or code shown as dots until it is asked for */
+.itflow-secret {
+    font-family: var(--bs-font-monospace);
+}
+.itflow-secret:not(.is-shown) .itflow-secret-value {
+    display: none;
+}
+.itflow-secret.is-shown .itflow-secret-mask {
+    display: none;
+}
+.itflow-secret-toggle {
+    border: 0;
+    background: none;
+    padding: 0 .25rem;
+    color: var(--bs-secondary-color);
+    font-size: .8em;
+}
+.itflow-secret-toggle:hover {
+    color: var(--bs-emphasis-color);
+}
+/* The vendor list's support and account cells */
+.itflow-vendor-support-cell {
+    min-width: 13rem;
+}
+.itflow-vendor-email {
+    max-width: 16rem;
+}

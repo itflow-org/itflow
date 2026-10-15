@@ -5,8 +5,9 @@
  * contacts, licenses and vendors a document covers, the files attached to a
  * document, the assets and contacts a file belongs to - and the seats on a
  * license (the devices and users on it) and the credentials and files that
- * go with it, and the documents and files about a location (a floor plan, a
- * site runbook).
+ * go with it, the documents and files about a location (a floor plan, a
+ * site runbook), and a vendor's portal logins, documents and files (the
+ * contract, the escalation sheet).
  *
  * Every link is a row in a two-column table (asset_documents, document_files,
  * contact_files...) and they all work the same way, so they are described once
@@ -55,6 +56,8 @@ const LINK_RELATIONS = [
     'file|software' => ['table' => 'software_files', 'module' => 'module_support'],
     'document|location' => ['table' => 'location_documents', 'module' => 'module_support'],
     'file|location' => ['table' => 'location_files', 'module' => 'module_support'],
+    'credential|vendor' => ['table' => 'vendor_credentials', 'module' => 'module_credential'],
+    'file|vendor' => ['table' => 'vendor_files', 'module' => 'module_support'],
 ];
 
 /** The relation between two types, or null when they cannot be linked. */
@@ -69,9 +72,12 @@ function linkRelation($a, $b) {
  * a license's seats first - leaving out types this agent may not see.
  */
 function linkTypesFor($from) {
-    $order = $from === 'software'
-        ? ['asset', 'contact', 'credential', 'document', 'file']
-        : ['file', 'document', 'asset', 'contact', 'location', 'software', 'credential', 'vendor'];
+    $orders = [
+        'software' => ['asset', 'contact', 'credential', 'document', 'file'],
+        // A vendor's portal logins first - what is wanted on the phone to them
+        'vendor' => ['credential', 'document', 'file'],
+    ];
+    $order = $orders[$from] ?? ['file', 'document', 'asset', 'contact', 'location', 'software', 'credential', 'vendor'];
     return array_values(array_filter($order, function ($to) use ($from) {
         $view = LINK_ENTITIES[$to]['view'] ?? null;
         return $to !== $from && linkRelation($from, $to) && (!$view || lookupUserPermission($view) >= 1);
@@ -107,7 +113,7 @@ function linkDisplayColumns($type) {
         'file' => 'file_ext, file_size, file_mime_type, file_description',
         'software' => 'software_type, software_version, software_license_type, software_seats, software_expire, ' . softwareSeatsUsedSql('t.software_id') . ' AS seats_used',
         'credential' => 'credential_description, credential_uri, credential_username, credential_otp_secret, credential_favorite',
-        'vendor' => 'vendor_description',
+        'vendor' => 'vendor_description, vendor_account_number, vendor_phone, vendor_phone_country_code, vendor_extension',
         'location' => 'location_address, location_city, location_state, location_zip, location_primary, location_photo, location_client_id',
     ][$type] ?? '';
 }
@@ -325,9 +331,9 @@ function linkRowHtml($to, $row, $client_id) {
             $detail = locationAddressText($row);
             break;
         case 'vendor':
-            $lead = '<span class="itflow-link-icon" aria-hidden="true"><i class="fas fa-fw fa-building"></i></span>';
-            $link = "<a class=\"ajax-modal text-truncate\" href=\"#\" data-modal-url=\"modals/vendor/vendor.php?id=$id\">$name</a>";
-            $detail = $row['vendor_description'];
+            $lead = vendorTile($row['name'], 'sm');
+            $link = "<a class=\"ajax-modal text-truncate\" href=\"#\" data-modal-size=\"lg\" data-modal-url=\"modals/vendor/vendor.php?id=$id\">$name</a>";
+            $detail = implode(' · ', array_filter([$row['vendor_description'], $row['vendor_phone'] ? formatPhoneNumber($row['vendor_phone'], $row['vendor_phone_country_code']) : '']));
             break;
         default:
             return '';

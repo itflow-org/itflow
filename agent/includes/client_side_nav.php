@@ -84,7 +84,7 @@
                 </li>
 
                 <li class="nav-item">
-                    <a href="/agent/locations.php?client_id=<?= $client_id ?>" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "locations.php") { echo "active"; } ?>">
+                    <a href="/agent/locations.php?client_id=<?= $client_id ?>" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "locations.php" || basename($_SERVER["PHP_SELF"]) == "location.php") { echo "active"; } ?>">
                         <i class="nav-icon fas fa-map-marker-alt"></i>
                         <p>
                             Locations
@@ -97,7 +97,7 @@
                 </li>
 
                 <li class="nav-item">
-                    <a href="/agent/vendors.php?client_id=<?= $client_id ?>" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "vendors.php") { echo "active"; } ?>">
+                    <a href="/agent/vendors.php?client_id=<?= $client_id ?>" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "vendors.php" || basename($_SERVER["PHP_SELF"]) == "vendor.php") { echo "active"; } ?>">
                         <i class="nav-icon fas fa-building"></i>
                         <p>
                             Vendors

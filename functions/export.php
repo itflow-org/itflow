@@ -102,11 +102,21 @@ function getExportColumns($export_type) {
         'vendors' => [
             'vendor_name'           => ['label' => 'Name', 'weight' => 2],
             'vendor_description'    => ['label' => 'Description', 'weight' => 3],
-            'vendor_contact_name'   => ['label' => 'Contact Name'],
-            'vendor_phone'          => ['label' => 'Phone', 'format' => 'phone'],
+            'vendor_tags'           => ['label' => 'Tags', 'default' => false],
+            'vendor_phone'          => ['label' => 'Support Phone', 'format' => 'phone'],
+            'vendor_extension'      => ['label' => 'Extension', 'default' => false],
+            'vendor_email'          => ['label' => 'Support Email', 'weight' => 2],
             'vendor_website'        => ['label' => 'Website', 'weight' => 2],
+            'vendor_hours'          => ['label' => 'Hours'],
+            'vendor_sla'            => ['label' => 'SLA', 'default' => false],
             'vendor_account_number' => ['label' => 'Account Number'],
+            'vendor_code'           => ['label' => 'PIN / Code', 'default' => false],
+            'vendor_contact_name'   => ['label' => 'Account Manager'],
+            'vendor_contact_phone'  => ['label' => 'Account Manager Phone', 'format' => 'phone', 'default' => false],
+            'vendor_contact_email'  => ['label' => 'Account Manager Email', 'default' => false],
+            'open_case_count'       => ['label' => 'Open Cases', 'format' => 'number', 'default' => false],
             'vendor_notes'          => ['label' => 'Notes', 'weight' => 3],
+            'client_name'           => ['label' => 'Client', 'default' => false],
         ],
 
         'assets' => [

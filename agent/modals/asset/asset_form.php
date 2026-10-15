@@ -53,9 +53,9 @@ if ($client_id) {
     while ($row = mysqli_fetch_assoc($sql)) {
         $network_options[] = $row;
     }
-    $sql = mysqli_query($mysqli, "SELECT vendor_archived_at, vendor_id, vendor_name FROM vendors
+    $sql = mysqli_query($mysqli, "SELECT vendor_archived_at, vendor_id, vendor_name, vendor_description FROM vendors
         WHERE vendor_client_id = $client_id AND (vendor_archived_at IS NULL OR vendor_id = $asset_vendor_id)
-        ORDER BY vendor_name ASC");
+        ORDER BY vendor_favorite DESC, vendor_name ASC");
     while ($row = mysqli_fetch_assoc($sql)) {
         $vendor_options[] = $row;
     }
@@ -384,7 +384,7 @@ $asset_form_icons = [
                         <option value="">- Select Vendor -</option>
                         <?php foreach ($vendor_options as $vendor_option) {
                             $vendor_option_id = intval($vendor_option['vendor_id']); ?>
-                            <option value="<?= $vendor_option_id ?>" <?php if ($asset_vendor_id === $vendor_option_id) { echo "selected"; } ?>><?= escapeHtml($vendor_option['vendor_name']) ?><?= $vendor_option['vendor_archived_at'] ? ' (archived)' : '' ?></option>
+                            <option value="<?= $vendor_option_id ?>" <?php if ($asset_vendor_id === $vendor_option_id) { echo "selected"; } ?><?= selectOptionVendor($vendor_option['vendor_name'], $vendor_option['vendor_description']) ?>><?= escapeHtml($vendor_option['vendor_name']) ?><?= $vendor_option['vendor_archived_at'] ? ' (archived)' : '' ?></option>
                         <?php } ?>
                     </select>
                 </div>

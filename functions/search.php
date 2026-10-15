@@ -399,19 +399,20 @@ function globalSearchGroups($terms, $deep) {
     $vendor_phone_match = $phone ? "OR REGEXP_REPLACE(vendor_phone, '[^0-9]', '') LIKE '%$phone%'" : '';
     $groups[] = [
         'key' => 'vendors', 'label' => 'Vendors', 'icon' => 'building', 'module' => 'module_client',
-        'select' => 'vendor_id, vendor_name, vendor_description, vendor_client_id, client_name',
+        'select' => 'vendor_id, vendor_name, vendor_description, vendor_phone, vendor_phone_country_code, vendor_client_id, client_name',
         'from' => 'vendors LEFT JOIN clients ON vendor_client_id = client_id',
         'where' => "vendor_archived_at IS NULL
-            AND (vendor_name LIKE '%$like%' OR vendor_description LIKE '%$like%' OR vendor_account_number LIKE '%$like%' $vendor_phone_match)",
+            AND (vendor_name LIKE '%$like%' OR vendor_description LIKE '%$like%' OR vendor_account_number LIKE '%$like%'
+                OR vendor_contact_name LIKE '%$like%' OR vendor_email LIKE '%$like%' OR vendor_contact_email LIKE '%$like%' $vendor_phone_match)",
         'scope' => 'vendor_client_id',
-        'order' => "(vendor_name = '$eq') DESC, (vendor_name LIKE '$like%') DESC, vendor_name",
+        'order' => "(vendor_name = '$eq') DESC, (vendor_name LIKE '$like%') DESC, vendor_favorite DESC, vendor_name",
         'list_url' => '/agent/vendors.php?' . http_build_query(['q' => $q]),
         'item' => function ($row) {
             return [
                 'title' => $row['vendor_name'],
-                'subtitle' => $row['vendor_description'],
-                'context' => $row['client_name'],
-                'url' => globalSearchClientUrl('vendors.php', $row['vendor_client_id'], ['q' => $row['vendor_name']]),
+                'subtitle' => implode(' · ', array_filter([$row['vendor_description'], $row['vendor_phone'] ? formatPhoneNumber($row['vendor_phone'], $row['vendor_phone_country_code']) : ''])),
+                'context' => intval($row['vendor_client_id']) ? $row['client_name'] : 'Our vendor',
+                'url' => globalSearchClientUrl('vendor.php', $row['vendor_client_id'], ['vendor_id' => intval($row['vendor_id'])]),
             ];
         },
     ];

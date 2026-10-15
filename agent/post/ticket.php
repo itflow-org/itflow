@@ -74,8 +74,9 @@ if (isset($_POST['add_ticket'])) {
     //Generate a unique URL key for clients to access
     $url_key = randomString(32);
 
-    // Only one of the ticket's own client's locations
+    // Only the ticket's own client's location and vendor
     $location_id = assetClientOwnedId('location', $location_id, $client_id);
+    $vendor_id = assetClientOwnedId('vendor', $vendor_id, $client_id);
 
     mysqli_query($mysqli, "INSERT INTO tickets SET ticket_prefix = '$config_ticket_prefix', ticket_number = $ticket_number, ticket_source = 'Agent', ticket_category = $category_id, ticket_subject = '$subject', ticket_details = '$details', ticket_priority = '$priority', ticket_billable = '$billable', ticket_status = '$ticket_status', ticket_vendor_ticket_number = '$vendor_ticket_number', ticket_vendor_id = $vendor_id, ticket_location_id = $location_id, ticket_asset_id = $asset_id, ticket_created_by = $session_user_id, ticket_assigned_to = $assigned_to, ticket_contact_id = $contact_id, ticket_url_key = '$url_key', ticket_due_at = $due, ticket_client_id = $client_id, ticket_invoice_id = 0, ticket_project_id = $project_id");
 
@@ -258,8 +259,9 @@ if (isset($_POST['edit_ticket'])) {
      * priority and assign handlers record - so read the originals first and
      * record the same changes when they come through here instead
      */
-    // Only one of the ticket's own client's locations
+    // Only the ticket's own client's location and vendor
     $location_id = assetClientOwnedId('location', $location_id, $client_id);
+    $vendor_id = assetClientOwnedId('vendor', $vendor_id, $client_id);
 
     $original_row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT ticket_priority, ticket_assigned_to FROM tickets WHERE ticket_id = $ticket_id"));
     $original_priority = escapeSql($original_row['ticket_priority']);
@@ -775,6 +777,9 @@ if (isset($_POST['edit_ticket_vendor'])) {
         enforceClientAccess();
     }
 
+    // Only the ticket's own client's vendors
+    $vendor_id = assetClientOwnedId('vendor', $vendor_id, $client_id);
+
     mysqli_query($mysqli, "UPDATE tickets SET ticket_vendor_id = $vendor_id WHERE ticket_id = $ticket_id");
 
     // The vendor modal now carries the vendor's own ticket number too. Only touched when the
@@ -785,22 +790,21 @@ if (isset($_POST['edit_ticket_vendor'])) {
     }
 
     // Get ticket / vendor details for logging
-    $sql = mysqli_query($mysqli, "SELECT vendor_name, ticket_prefix, ticket_number, ticket_status_name, ticket_client_id FROM vendors
-        LEFT JOIN tickets ON ticket_vendor_id = $vendor_id
-        LEFT JOIN ticket_statuses ON ticket_status = ticket_status_id
-        WHERE ticket_id = $ticket_id"
-    );
-    $row = mysqli_fetch_assoc($sql);
+    $row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT ticket_prefix, ticket_number, vendor_name FROM tickets
+        LEFT JOIN vendors ON vendor_id = ticket_vendor_id
+        WHERE ticket_id = $ticket_id"));
 
     $ticket_prefix = escapeSql($row['ticket_prefix']);
     $ticket_number = intval($row['ticket_number']);
-    $ticket_status_name = escapeSql($row['ticket_status_name']);
-    $vendor_name = escapeSql($row['vendor_name']);
-    $client_id = intval($row['ticket_client_id']);
+    $vendor_name = (string) $row['vendor_name'];
 
-    logAudit("Ticket", "Edit", "$session_name set vendor to $vendor_name for ticket $ticket_prefix$ticket_number", $client_id, $ticket_id);
-
-    flashAlert("Set vendor to <strong>$vendor_name</strong> for ticket <strong>$ticket_prefix$ticket_number</strong>");
+    if ($vendor_id) {
+        logAudit("Ticket", "Edit", "$session_name set vendor to " . escapeSql($vendor_name) . " for ticket $ticket_prefix$ticket_number", $client_id, $ticket_id);
+        flashAlert("Set vendor to <strong>$vendor_name</strong> for ticket <strong>$ticket_prefix$ticket_number</strong>");
+    } else {
+        logAudit("Ticket", "Edit", "$session_name removed the vendor from ticket $ticket_prefix$ticket_number", $client_id, $ticket_id);
+        flashAlert("Removed the vendor from ticket <strong>$ticket_prefix$ticket_number</strong>");
+    }
 
     redirect();
 

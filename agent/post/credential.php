@@ -22,6 +22,12 @@ if (isset($_POST['add_credential'])) {
 
     $credential_id = mysqli_insert_id($mysqli);
 
+    // Made from a vendor's page - linked to that vendor, if it is the same client's
+    $vendor_id = assetClientOwnedId('vendor', $_POST['vendor_id'] ?? 0, $client_id);
+    if ($vendor_id) {
+        mysqli_query($mysqli, "INSERT IGNORE INTO vendor_credentials SET vendor_id = $vendor_id, credential_id = $credential_id");
+    }
+
      // Add Tags
     if (isset($_POST['tags'])) {
         foreach($_POST['tags'] as $tag) {

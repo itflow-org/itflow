@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Tags on clients, locations, contacts, credentials and assets.
+ * Tags on clients, locations, contacts, credentials, assets and vendors.
  *
  * Every list and detail page draws a record's tags with tagPills(): coloured
  * pills that open the list filtered to that tag, then a "+" pill that opens
@@ -10,7 +10,7 @@
  * returns, so the page never reloads and nothing goes through a modal.
  */
 
-/* What differs between the five kinds of tagged record. */
+/* What differs between the six kinds of tagged record. */
 function tagEntity($entity) {
     $entities = [
         'client' => [
@@ -42,6 +42,13 @@ function tagEntity($entity) {
             'link_table' => 'asset_tags', 'link_record' => 'asset_tag_asset_id', 'link_tag' => 'asset_tag_tag_id',
             'table' => 'assets', 'id' => 'asset_id', 'client' => 'asset_client_id', 'name' => 'asset_name',
             'log' => 'Asset', 'list' => 'assets.php'
+        ],
+        // A vendor of no client is one of ours - a supplier, which is the financial module's
+        'vendor' => [
+            'type' => 6, 'label' => 'vendor', 'module' => 'module_client', 'module_ours' => 'module_financial',
+            'link_table' => 'vendor_tags', 'link_record' => 'vendor_id', 'link_tag' => 'tag_id',
+            'table' => 'vendors', 'id' => 'vendor_id', 'client' => 'vendor_client_id', 'name' => 'vendor_name',
+            'log' => 'Vendor', 'list' => 'vendors.php'
         ],
     ];
 
@@ -87,14 +94,15 @@ function tagsForRecord($entity, $record_id) {
  * this kind of record across all clients. Nothing at all comes back for a
  * record with no tags when the agent cannot add any.
  */
-function tagPills($entity, $record_id, array $tags, $filter = '') {
+function tagPills($entity, $record_id, array $tags, $filter = '', $can_edit = null) {
     $config = tagEntity($entity);
     if (!$config) {
         return '';
     }
     $record_id = intval($record_id);
     $filter = tagFilterBase($entity, $filter);
-    $can_edit = lookupUserPermission($config['module']) >= 2;
+    // The caller can say who may edit when the module alone does not (one of our own vendors)
+    $can_edit = $can_edit === null ? lookupUserPermission($config['module']) >= 2 : (bool) $can_edit;
     if (!$tags && !$can_edit) {
         return '';
     }
@@ -138,7 +146,12 @@ function tagRecordsEditable($entity, array $record_ids) {
 
     $config = tagEntity($entity);
     $record_ids = array_values(array_unique(array_filter(array_map('intval', $record_ids))));
-    if (!$config || !$record_ids || lookupUserPermission($config['module']) < 2) {
+    if (!$config || !$record_ids) {
+        return false;
+    }
+    $can_module = lookupUserPermission($config['module']) >= 2;
+    $can_ours = isset($config['module_ours']) && lookupUserPermission($config['module_ours']) >= 2;
+    if (!$can_module && !$can_ours) {
         return false;
     }
 
@@ -148,7 +161,11 @@ function tagRecordsEditable($entity, array $record_ids) {
         FROM {$config['table']} WHERE {$config['id']} IN (" . implode(',', $record_ids) . ")"
     );
     while ($row = mysqli_fetch_assoc($sql)) {
-        if (!hasClientAccess(intval($row['client_id']))) {
+        if (intval($row['client_id']) === 0 && isset($config['module_ours'])) {
+            if (!$can_ours) {
+                return false;
+            }
+        } elseif (!$can_module || !hasClientAccess(intval($row['client_id']))) {
             return false;
         }
         $records[intval($row['record_id'])] = ['name' => $row['record_name'], 'client_id' => intval($row['client_id'])];
