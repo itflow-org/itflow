@@ -1960,9 +1960,10 @@ if (isset($_POST["export_client_pdf"])) {
           <thead>
             <tr>
               <th>Certificate Name</th>
-              <th>Domain Name</th>
+              <th>Host</th>
               <th>Issuer</th>
               <th>Expiration Date</th>
+              <th>Last Check</th>
             </tr>
           </thead>
           <tbody>";
@@ -1971,12 +1972,14 @@ if (isset($_POST["export_client_pdf"])) {
             $certificate_domain = escapeHtml($row["certificate_domain"]);
             $certificate_issued_by = escapeHtml($row["certificate_issued_by"]);
             $certificate_expire = escapeHtml($row["certificate_expire"]);
+            $certificate_check = escapeHtml(CERTIFICATE_CHECK_STATES[$row["certificate_check_status"] ?? '']['label'] ?? '');
             $html .= "
             <tr style='page-break-inside: avoid;'>
               <td>$certificate_name</td>
               <td>$certificate_domain</td>
               <td>$certificate_issued_by</td>
               <td>$certificate_expire</td>
+              <td>$certificate_check</td>
             </tr>";
         }
         $html .= "

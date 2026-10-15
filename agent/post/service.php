@@ -76,7 +76,8 @@ if (isset($_POST['add_service'])) {
     if (isset($_POST['certificates'])) {
         foreach($_POST['certificates'] as $cert_id) {
             $cert_id = intval($cert_id);
-            mysqli_query($mysqli, "INSERT INTO service_certificates SET service_id = $service_id, certificate_id = $cert_id");
+            // Only the client's own certificates
+            mysqli_query($mysqli, "INSERT INTO service_certificates (service_id, certificate_id) SELECT $service_id, certificate_id FROM certificates WHERE certificate_id = $cert_id AND certificate_client_id = $client_id");
         }
     }
 
@@ -165,8 +166,9 @@ if (isset($_POST['edit_service'])) {
 
     if (isset($_POST['certificates'])) {
         foreach($_POST['certificates'] as $cert_id) {
-        $cert_id = intval($cert_id);
-            mysqli_query($mysqli, "INSERT INTO service_certificates SET service_id = $service_id, certificate_id = $cert_id");
+            $cert_id = intval($cert_id);
+            // Only the client's own certificates
+            mysqli_query($mysqli, "INSERT INTO service_certificates (service_id, certificate_id) SELECT $service_id, certificate_id FROM certificates WHERE certificate_id = $cert_id AND certificate_client_id = $client_id");
         }
     }
 

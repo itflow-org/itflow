@@ -1,51 +1,16 @@
 <?php
 
 
-// Used to automatically attempt to get SSL certificates as part of adding domains
-// The logic for the fetch (sync) button on the client_certificates page is in ajax.php, and allows ports other than 443
+// The certificate a host serves - kept for the callers that only want its
+// expiry, issuer and PEM. certificateCheck() (functions/certificate.php) does
+// the work, and also says whether it is trusted and covers the name.
 function getSslCertificate($full_name)
 {
-
-    // Parse host and port
-    $name = parse_url("//$full_name", PHP_URL_HOST);
-    $port = parse_url("//$full_name", PHP_URL_PORT);
-
-    // Default port
-    if (!$port) {
-        $port = "443";
+    $check = certificateCheck($full_name);
+    if (empty($check['reachable'])) {
+        return ['success' => false, 'expire' => '', 'issued_by' => '', 'public_key' => ''];
     }
-
-    $certificate = array();
-    $certificate['success'] = false;
-
-    // Only run if we think the domain is valid
-    if (!filter_var($name, FILTER_VALIDATE_DOMAIN, FILTER_FLAG_HOSTNAME)) {
-        $certificate['expire'] = '';
-        $certificate['issued_by'] = '';
-        $certificate['public_key'] = '';
-        return $certificate;
-    }
-
-    // Get SSL/TSL certificate (using verify peer false to allow for self-signed certs) for domain on default port
-    $socket = "ssl://$name:$port";
-    $get = stream_context_create(array("ssl" => array("capture_peer_cert" => true, "verify_peer" => false,)));
-    $read = stream_socket_client($socket, $errno, $errstr, 5, STREAM_CLIENT_CONNECT, $get);
-
-    // If the socket connected
-    if ($read) {
-        $cert = stream_context_get_params($read);
-        $cert_public_key_obj = openssl_x509_parse($cert['options']['ssl']['peer_certificate']);
-        openssl_x509_export($cert['options']['ssl']['peer_certificate'], $export);
-
-        if ($cert_public_key_obj) {
-            $certificate['success'] = true;
-            $certificate['expire'] = date('Y-m-d', $cert_public_key_obj['validTo_time_t']);
-            $certificate['issued_by'] = strip_tags($cert_public_key_obj['issuer']['O']);
-            $certificate['public_key'] = $export;
-        }
-    }
-
-    return $certificate;
+    return ['success' => true, 'expire' => $check['expire'], 'issued_by' => $check['issuer'], 'public_key' => $check['pem']];
 }
 
 // ============================================================
@@ -933,7 +898,8 @@ function domainCertificates($row) {
     $client_id = intval($row['domain_client_id']);
     $name = escapeSql($row['domain_name']);
     $name_like = escapeSql(str_replace(['\\', '%', '_'], ['\\\\', '\%', '\_'], $row['domain_name']));
-    $sql = mysqli_query($mysqli, "SELECT certificate_id, certificate_name, certificate_domain, certificate_issued_by, certificate_expire FROM certificates
+    $sql = mysqli_query($mysqli, "SELECT certificate_id, certificate_name, certificate_domain, certificate_issued_by, certificate_issued_at, certificate_expire,
+        certificate_check_status, certificate_checked_at FROM certificates
         WHERE certificate_archived_at IS NULL AND certificate_client_id = $client_id
         AND (certificate_domain_id = $domain_id OR certificate_domain = '$name' OR certificate_domain LIKE '%.$name_like')
         ORDER BY certificate_expire IS NULL, certificate_expire ASC");
@@ -988,12 +954,12 @@ function domainAddCertificate($domain_id, $name, $client_id) {
     if (mysqli_num_rows(mysqli_query($mysqli, "SELECT 1 FROM certificates WHERE certificate_client_id = $client_id AND certificate_domain IN ('$name_sql', 'www.$name_sql') LIMIT 1"))) {
         return false;
     }
-    $certificate = getSslCertificate($name);
-    if (empty($certificate['success'])) {
+    $check = certificateCheck($name);
+    if (empty($check['reachable'])) {
         return false;
     }
-    mysqli_query($mysqli, "INSERT INTO certificates SET certificate_name = '$name_sql', certificate_domain = '$name_sql',
-        certificate_issued_by = '" . escapeSql($certificate['issued_by']) . "', certificate_expire = '" . escapeSql($certificate['expire']) . "',
-        certificate_public_key = '" . escapeSql($certificate['public_key']) . "', certificate_domain_id = $domain_id, certificate_client_id = $client_id");
+    mysqli_query($mysqli, "INSERT INTO certificates SET certificate_name = '$name_sql', certificate_domain = '$name_sql', certificate_issued_by = '',
+        certificate_domain_id = $domain_id, certificate_client_id = $client_id");
+    certificateApplyCheck(mysqli_insert_id($mysqli), $check);
     return true;
 }

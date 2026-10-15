@@ -98,7 +98,7 @@ function cronJobRegistry(): array
             'name' => 'certificate_refresher',
             'label' => 'Certificate Refresher',
             'script' => 'certificate_refresher.php',
-            'description' => 'Re-reads the expiry date and issuer of every SSL certificate on file.',
+            'description' => 'Checks the host of every certificate once a day - what it serves now, its expiry and issuer, and whether it is OK, for another name, untrusted, expired or unreachable.',
             'schedule' => 'Daily',
             'daily_at' => '03:30',
         ],

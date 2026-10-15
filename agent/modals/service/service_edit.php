@@ -310,17 +310,12 @@ ob_start();
                         <?php
                         $selected_ids = array_column(mysqli_fetch_all($sql_certificates, MYSQLI_ASSOC), "certificate_id");
 
-                        $sql_all = mysqli_query($mysqli, "SELECT certificate_id, certificate_name FROM certificates WHERE (certificate_archived_at > '$service_created_at' OR certificate_archived_at IS NULL) AND certificate_client_id = $client_id");
+                        $sql_all = mysqli_query($mysqli, "SELECT certificate_id, certificate_name, certificate_domain, certificate_issued_at, certificate_expire FROM certificates
+                            WHERE (certificate_archived_at > '$service_created_at' OR certificate_archived_at IS NULL) AND certificate_client_id = $client_id ORDER BY certificate_name ASC");
                         while ($row_all = mysqli_fetch_assoc($sql_all)) {
                             $cert_id = intval($row_all['certificate_id']);
                             $cert_name = escapeHtml($row_all['certificate_name']);
-
-                            if (in_array($cert_id, $selected_ids)) {
-                                echo "<option value=\"$cert_id\" selected>$cert_name</option>";
-                            }
-                            else{
-                                echo "<option value=\"$cert_id\">$cert_name</option>";
-                            }
+                            echo "<option value=\"$cert_id\"" . (in_array($cert_id, $selected_ids) ? ' selected' : '') . selectOptionCertificate($row_all) . ">$cert_name</option>";
                         }
                         ?>
                     </select>

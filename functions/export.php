@@ -175,9 +175,18 @@ function getExportColumns($export_type) {
         'certificates' => [
             'certificate_name'        => ['label' => 'Name', 'weight' => 2],
             'certificate_description' => ['label' => 'Description', 'weight' => 3],
-            'certificate_domain'      => ['label' => 'Domain', 'weight' => 2],
+            'certificate_domain'      => ['label' => 'Host', 'weight' => 2],
             'certificate_issued_by'   => ['label' => 'Issuer', 'weight' => 2],
             'certificate_expire'      => ['label' => 'Expiration Date'],
+            // The status column holds a key; the handler aliases its label
+            'certificate_check_status' => ['label' => 'Last Check', 'field' => 'certificate_check_label'],
+            'certificate_issued_at'   => ['label' => 'Issued', 'default' => false],
+            'certificate_names'       => ['label' => 'Names Covered', 'field' => 'certificate_names_list', 'weight' => 3, 'default' => false],
+            'certificate_fingerprint' => ['label' => 'SHA-256 Fingerprint', 'weight' => 3, 'default' => false],
+            'certificate_checked_at'  => ['label' => 'Checked At', 'default' => false],
+            'domain_name'             => ['label' => 'Domain', 'default' => false],
+            'certificate_notes'       => ['label' => 'Notes', 'weight' => 3, 'default' => false],
+            'client_name'             => ['label' => 'Client', 'weight' => 2, 'default' => false],
         ],
 
         'domains' => [

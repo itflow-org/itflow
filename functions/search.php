@@ -304,6 +304,33 @@ function globalSearchGroups($terms, $deep) {
         },
     ];
 
+    $groups[] = [
+        'key' => 'certificates', 'label' => 'Certificates', 'icon' => 'lock', 'module' => 'module_support',
+        'select' => 'certificate_id, certificate_name, certificate_description, certificate_domain, certificate_expire, certificate_issued_at, certificate_check_status, certificate_client_id, client_name',
+        'from' => 'certificates LEFT JOIN clients ON certificate_client_id = client_id',
+        'where' => "certificate_archived_at IS NULL AND (certificate_name LIKE '%$like%' OR certificate_domain LIKE '%$like%' OR certificate_names LIKE '%$like%'
+            OR certificate_description LIKE '%$like%' OR certificate_fingerprint LIKE '%$like%')",
+        'scope' => 'certificate_client_id',
+        'order' => "(certificate_name = '$eq' OR certificate_domain = '$eq') DESC, (certificate_name LIKE '$like%') DESC, certificate_name",
+        'list_url' => '/agent/certificates.php?' . http_build_query(['q' => $q]),
+        'item' => function ($row) {
+            $expiry = certificateExpiry($row);
+            $status = CERTIFICATE_CHECK_STATES[$row['certificate_check_status'] ?? ''] ?? null;
+            return [
+                'title' => $row['certificate_name'],
+                'subtitle' => implode(' · ', array_filter([
+                    $row['certificate_domain'] !== $row['certificate_name'] ? $row['certificate_domain'] : '',
+                    $status && $row['certificate_check_status'] !== 'ok' ? $status['label'] : '',
+                    $expiry ? $expiry['text'] : '',
+                    $row['certificate_description'],
+                ])),
+                'context' => $row['client_name'],
+                // Straight to its quick look on the client's certificates page
+                'url' => globalSearchClientUrl('certificates.php', $row['certificate_client_id'], ['open' => intval($row['certificate_id'])]),
+            ];
+        },
+    ];
+
     $document_deep_match = $deep ? "OR MATCH(document_content_raw) AGAINST ('$eq')" : '';
     $groups[] = [
         'key' => 'documents', 'label' => 'Documents', 'icon' => 'file-alt', 'module' => 'module_support',

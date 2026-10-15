@@ -275,9 +275,9 @@ function dashboardAttention($access) {
             'url' => '/agent/domains.php?expire_days=30&sort=domain_expire&order=ASC',
         ];
         $items[] = [
-            'count' => dashboardCount("SELECT COUNT(certificate_id) FROM certificates WHERE certificate_archived_at IS NULL AND certificate_expire $soon " . clientScopeSql('certificate_client_id')),
+            'count' => dashboardCount("SELECT COUNT(certificate_id) FROM certificates WHERE certificate_archived_at IS NULL AND " . certificateSoonSql() . ' ' . clientScopeSql('certificate_client_id')),
             'label' => 'Certificates expiring', 'icon' => 'lock', 'tone' => 'warning', 'detail' => 'Next 30 days',
-            'url' => '/agent/certificates.php?expire_days=30&sort=certificate_expire&order=ASC',
+            'url' => '/agent/certificates.php?show=soon&sort=certificate_expire&order=ASC',
         ];
         $items[] = [
             'count' => dashboardCount("SELECT COUNT(software_id) FROM software WHERE software_archived_at IS NULL AND software_expire $soon " . clientScopeSql('software_client_id')),

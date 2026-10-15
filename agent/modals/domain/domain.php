@@ -134,20 +134,31 @@ ob_start();
         </div>
     </div>
 
-    <?php if ($certificates) { ?>
-        <div class="small text-body-secondary fw-semibold text-uppercase mt-3 mb-1">Certificates</div>
-        <ul class="list-unstyled mb-0 itflow-links">
-            <?php foreach ($certificates as $certificate) { ?>
-                <li class="itflow-link-row">
-                    <span class="itflow-link-icon" aria-hidden="true"><i class="fas fa-fw fa-lock"></i></span>
-                    <div class="min-w-0 flex-grow-1">
-                        <div class="d-flex"><a class="ajax-modal text-truncate" href="#" data-modal-url="modals/certificate/certificate_edit.php?id=<?= intval($certificate['certificate_id']) ?>"><?= escapeHtml($certificate['certificate_domain'] ?: $certificate['certificate_name']) ?></a></div>
-                        <div class="small text-body-secondary text-truncate"><?= escapeHtml($certificate['certificate_issued_by'] ?: 'Issuer unknown') ?></div>
-                    </div>
-                    <?= softwareRenewalPill(softwareRenewal($certificate['certificate_expire']), true) ?>
-                </li>
+    <?php if ($certificates || $can_edit) { ?>
+        <div class="d-flex align-items-center mt-3 mb-1">
+            <div class="small text-body-secondary fw-semibold text-uppercase me-auto">Certificates</div>
+            <?php if ($can_edit) { ?>
+                <a class="small ajax-modal" href="#" data-modal-size="lg" data-modal-url="modals/certificate/certificate_add.php?domain_id=<?= $domain_id ?>"><i class="fas fa-plus me-1"></i>New certificate</a>
             <?php } ?>
-        </ul>
+        </div>
+        <?php if ($certificates) { ?>
+            <ul class="list-unstyled mb-0 itflow-links">
+                <?php foreach ($certificates as $certificate) { ?>
+                    <li class="itflow-link-row">
+                        <div class="min-w-0 flex-grow-1">
+                            <div class="d-flex min-w-0"><?= certificateLink($certificate['certificate_id'], $certificate['certificate_name']) ?></div>
+                            <div class="small text-body-secondary text-truncate"><?= escapeHtml(implode(' · ', array_filter([$certificate['certificate_domain'] !== $certificate['certificate_name'] ? $certificate['certificate_domain'] : '', $certificate['certificate_issued_by'] ?: 'Issuer unknown']))) ?></div>
+                        </div>
+                        <div class="d-flex flex-wrap justify-content-end gap-1">
+                            <?php if (!in_array($certificate['certificate_check_status'], [null, '', 'ok'], true)) { ?><?= certificateStatusPill($certificate) ?><?php } ?>
+                            <?= certificateExpiryPill(certificateExpiry($certificate)) ?>
+                        </div>
+                    </li>
+                <?php } ?>
+            </ul>
+        <?php } else { ?>
+            <p class="small text-body-secondary mb-0">None on this domain yet.</p>
+        <?php } ?>
     <?php } ?>
 
     <?php if ($services) { ?>

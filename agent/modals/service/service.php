@@ -63,9 +63,11 @@ $sql_domains = mysqli_query(
 // Associated Certificates
 $sql_certificates = mysqli_query(
     $mysqli,
-    "SELECT certificate_domain, certificate_name FROM service_certificates
-    LEFT JOIN certificates ON service_certificates.certificate_id = certificates.certificate_id
-    WHERE service_id = $service_id"
+    "SELECT certificates.certificate_id, certificate_domain, certificate_name, certificate_issued_at, certificate_expire, certificate_check_status,
+        certificate_checked_at, certificate_archived_at FROM service_certificates
+    JOIN certificates ON service_certificates.certificate_id = certificates.certificate_id
+    WHERE service_id = $service_id
+    ORDER BY certificate_name"
 );
 
 // Associated Vendors
@@ -194,14 +196,13 @@ ob_start();
                 <!-- Certificates -->
                 <?php
                 if (mysqli_num_rows($sql_certificates) > 0) {
-                    echo "<h5><i class='fas fa-fw fa-lock me-2'></i>Certificates</h5><ul>";
+                    echo "<h5><i class='fas fa-fw fa-lock me-2'></i>Certificates</h5><ul class='list-unstyled ms-1'>";
                     mysqli_data_seek($sql_certificates, 0);
                     while ($row = mysqli_fetch_assoc($sql_certificates)) {
-                        if (!empty($row['certificate_name'])) {
-                            $certificate_name = escapeHtml($row['certificate_name']);
-                            $certificate_domain = escapeHtml($row['certificate_domain']);
-                            echo "<li><a href='certificates.php?client_id=$client_id&q=$certificate_name'>$certificate_name ($certificate_domain)</a></li>";
-                        }
+                        // Each opens its quick look, with when it expires and anything the last check found wrong
+                        $certificate_problem = !in_array($row['certificate_check_status'], [null, '', 'ok'], true);
+                        echo '<li class="mb-1 d-flex flex-wrap align-items-center gap-2">' . certificateLink($row['certificate_id'], $row['certificate_name'], ['archived' => !empty($row['certificate_archived_at'])])
+                            . ($certificate_problem ? certificateStatusPill($row) : '') . certificateExpiryPill(certificateExpiry($row)) . '</li>';
                     }
                     echo "</ul>";
                 }

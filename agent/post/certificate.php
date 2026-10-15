@@ -2,9 +2,63 @@
 
 /*
  * ITFlow - GET/POST request handler for client SSL certificates
+ *
+ * Every handler checks the support module and the certificate's own client;
+ * the domain a certificate links to must be one of that client's. Checks of
+ * the host go through certificateCheck() in functions/certificate.php, and a
+ * check that reaches nothing records only that - the certificate on file,
+ * its dates and its issuer stay as they were.
  */
 
 defined('FROM_POST_HANDLER') || die("Direct file access is not allowed");
+
+/** The certificate a request names, after the module and client checks - or back with an error if it is gone. */
+function certificateForRequest($certificate_id, $level) {
+    global $client_id;
+    enforceUserPermission('module_support', $level);
+    $row = certificateRow($certificate_id);
+    if (!$row) {
+        flashAlert('That certificate no longer exists.', 'error');
+        redirect();
+    }
+    $client_id = intval($row['certificate_client_id']);
+    enforceClientAccess();
+    return $row;
+}
+
+/** The certificates a bulk action names that this agent may act on - [id => row]. */
+function certificatesForBulk($level) {
+    global $client_id;
+    enforceUserPermission('module_support', $level);
+    $rows = [];
+    foreach (array_unique(array_map('intval', (array) ($_POST['certificate_ids'] ?? []))) as $certificate_id) {
+        $row = certificateRow($certificate_id);
+        if (!$row) {
+            continue;
+        }
+        $client_id = intval($row['certificate_client_id']);
+        enforceClientAccess();
+        $rows[$certificate_id] = $row;
+    }
+    return $rows;
+}
+
+/** What a check found, for a flash message - [message, type]. $name is shown as given. */
+function certificateCheckMessage($check, $name, $host_display) {
+    $name = escapeHtml($name);
+    if ($check === null) {
+        return ["<strong>$name</strong> has no host to check - Edit it to add the host it is served on, or paste the certificate.", 'error'];
+    }
+    if (empty($check['reachable'])) {
+        return ["Nothing answered on <strong>" . escapeHtml($host_display) . "</strong> - the certificate on file was left as it was. Check the host and port, or paste the certificate if ITFlow can't reach it.", 'error'];
+    }
+    $state = CERTIFICATE_CHECK_STATES[$check['status']];
+    if ($check['status'] === 'ok') {
+        $expiry = certificateExpiry(['certificate_expire' => $check['expire'], 'certificate_issued_at' => $check['issued_at']]);
+        return ["Checked <strong>$name</strong> - OK" . ($expiry ? ', ' . lcfirst($expiry['text']) : ''), $expiry && $expiry['state'] === 'soon' ? 'warning' : 'success'];
+    }
+    return ["Checked <strong>$name</strong> - " . escapeHtml($state['label']) . ': ' . escapeHtml(lcfirst($state['text'])), $check['status'] === 'expired' ? 'error' : 'warning'];
+}
 
 if (isset($_POST['add_certificate'])) {
 
@@ -12,35 +66,39 @@ if (isset($_POST['add_certificate'])) {
 
     enforceUserPermission('module_support', 2);
 
-    require_once 'certificate_model.php';
-
-    $client_id = intval($_POST['client_id']);
+    $client_id = intval($_POST['client_id'] ?? 0);
 
     enforceClientAccess();
 
-    // Parse public key data for a manually provided public key
-    if (!empty($public_key) && (empty($expire) && empty($issued_by))) {
-        // Parse the public certificate key. If successful, set attributes from the certificate
-        $public_key_obj = openssl_x509_parse($_POST['public_key']);
-        if ($public_key_obj) {
-            $expire = date('Y-m-d', $public_key_obj['validTo_time_t']);
-            $issued_by = escapeSql($public_key_obj['issuer']['O']);
-        }
+    if (!$client_id || !getFieldById('clients', $client_id, 'client_name')) {
+        flashAlert('Pick the client this certificate is for.', 'error');
+        redirect();
     }
 
-    if (empty($expire)) {
-        $expire = "NULL";
-    } else {
-        $expire = "'" . $expire . "'";
+    $form = certificateFormSet($_POST, $client_id, $error);
+    if ($form === null) {
+        flashAlert($error, 'error');
+        redirect();
     }
 
-    mysqli_query($mysqli,"INSERT INTO certificates SET certificate_name = '$name', certificate_description = '$description', certificate_domain = '$domain', certificate_issued_by = '$issued_by', certificate_expire = $expire, certificate_public_key = '$public_key', certificate_notes = '$notes', certificate_domain_id = $domain_id, certificate_client_id = $client_id");
-
+    mysqli_query($mysqli, "INSERT INTO certificates SET {$form['set']}, certificate_client_id = $client_id");
     $certificate_id = mysqli_insert_id($mysqli);
 
-    logAudit("Certificate", "Create", "$session_name created certificate $name", $client_id, $certificate_id);
+    // What the host serves - unless a different certificate was pasted, which is kept
+    $check = $form['host'] ? certificateCheckAndSave($certificate_id, $form['parsed']['pem'] ?? '', false) : null;
 
-    flashAlert("Certificate <strong>$name</strong> created");
+    $name = $form['name'];
+    $name_html = escapeHtml($name);
+    logAudit("Certificate", "Create", "$session_name created certificate " . escapeSql($name), $client_id, $certificate_id);
+
+    if ($check !== null && empty($check['reachable'])) {
+        flashAlert("Certificate <strong>$name_html</strong> created - nothing answered on <strong>" . escapeHtml($form['host']['display']) . "</strong>, so " . ($form['parsed'] ? 'what you pasted is what is on file' : 'paste the certificate, or set the expiry by hand'), 'warning');
+    } elseif ($check !== null) {
+        [$message, $type] = certificateCheckMessage($check, $name, $form['host']['display']);
+        flashAlert("Certificate <strong>$name_html</strong> created and " . lcfirst(str_replace("<strong>$name_html</strong> ", '', $message)), $type);
+    } else {
+        flashAlert("Certificate <strong>$name_html</strong> created");
+    }
 
     redirect();
 
@@ -50,110 +108,73 @@ if (isset($_POST['edit_certificate'])) {
 
     validateCSRFToken();
 
-    enforceUserPermission('module_support', 2);
+    $row = certificateForRequest($_POST['certificate_id'] ?? 0, 2);
+    $certificate_id = intval($row['certificate_id']);
 
-    require_once 'certificate_model.php';
-
-    $certificate_id = intval($_POST['certificate_id']);
-
-    $client_id = intval(getFieldById('certificates', $certificate_id, 'certificate_client_id'));
-
-    enforceClientAccess();
-
-    // Parse public key data for a manually provided public key
-    if (!empty($public_key) && (empty($expire) && empty($issued_by))) {
-        // Parse the public certificate key. If successful, set attributes from the certificate
-        $public_key_obj = openssl_x509_parse($_POST['public_key']);
-        if ($public_key_obj) {
-            $expire = date('Y-m-d', $public_key_obj['validTo_time_t']);
-            $issued_by = escapeSql($public_key_obj['issuer']['O']);
-        }
+    $form = certificateFormSet($_POST, $client_id, $error);
+    if ($form === null) {
+        flashAlert($error, 'error');
+        redirect();
     }
 
-    if (empty($expire)) {
-        $expire = "NULL";
-    } else {
-        $expire = "'" . $expire . "'";
+    $before = certificateHistorySnapshot($certificate_id);
+
+    mysqli_query($mysqli, "UPDATE certificates SET {$form['set']} WHERE certificate_id = $certificate_id");
+
+    certificateWriteHistory($certificate_id, $before, certificateHistorySnapshot($certificate_id));
+
+    // A new host is a new place to check; otherwise saving stays quick. A
+    // certificate newly pasted here is kept over what the host serves.
+    $host_changed = $form['host'] && $form['host']['display'] !== (string) $row['certificate_domain'];
+    $pasted_new = $form['parsed'] && $form['parsed']['fingerprint'] !== (string) $row['certificate_fingerprint'];
+    if (!$form['host']) {
+        // No host - nothing to check, so no result from one
+        mysqli_query($mysqli, "UPDATE certificates SET certificate_check_status = NULL, certificate_checked_at = NULL WHERE certificate_id = $certificate_id");
+    } elseif ($host_changed) {
+        certificateCheckAndSave($certificate_id, $pasted_new ? $form['parsed']['pem'] : '');
     }
 
-    // Get current certificate info
-    $original_certificate_info = mysqli_fetch_assoc(mysqli_query($mysqli,"
-        SELECT
-            certificates.*,
-            domains.domain_name
-        FROM certificates
-        LEFT JOIN domains ON certificate_domain_id = domain_id
-        WHERE certificate_id = $certificate_id
-    "));
+    $name = $form['name'];
+    logAudit("Certificate", "Edit", "$session_name edited certificate " . escapeSql($name), $client_id, $certificate_id);
 
-    // Update certificate
-    mysqli_query($mysqli,"UPDATE certificates SET certificate_name = '$name', certificate_description = '$description', certificate_domain = '$domain', certificate_issued_by = '$issued_by', certificate_expire = $expire, certificate_public_key = '$public_key', certificate_notes = '$notes', certificate_domain_id = '$domain_id' WHERE certificate_id = $certificate_id");
-
-    // Fetch the updated info
-    $new_certificate_info = mysqli_fetch_assoc(mysqli_query($mysqli,"
-        SELECT
-            certificates.*,
-            domains.domain_name
-        FROM certificates
-        LEFT JOIN domains ON certificate_domain_id = domain_id
-        WHERE certificate_id = $certificate_id
-    "));
-
-    // Compare/log changes between old/new info
-    $ignored_columns = ["certificate_public_key", "certificate_updated_at", "certificate_accessed_at", "certificate_domain_id"];
-    foreach ($original_certificate_info as $column => $old_value) {
-        $new_value = $new_certificate_info[$column];
-        if ($old_value != $new_value && !in_array($column, $ignored_columns)) {
-            $column = escapeSql($column);
-            $old_value = escapeSql($old_value);
-            $new_value = escapeSql($new_value);
-            mysqli_query($mysqli,"INSERT INTO certificate_history SET certificate_history_column = '$column', certificate_history_old_value = '$old_value', certificate_history_new_value = '$new_value', certificate_history_certificate_id = $certificate_id");
-        }
-    }
-
-    logAudit("Certificate", "Edit", "$session_name edited certificate $name", $client_id, $certificate_id);
-
-    flashAlert("Certificate <strong>$name</strong> updated");
+    flashAlert("Certificate <strong>" . escapeHtml($name) . "</strong> updated");
 
     redirect();
 
 }
 
-if (isset($_GET['refresh_certificate'])) {
+// Check now - connect to the host and save what it serves
+if (isset($_GET['check_certificate']) || isset($_GET['refresh_certificate'])) {
 
     validateCSRFToken();
 
-    enforceUserPermission('module_support', 2);
+    $row = certificateForRequest($_GET['check_certificate'] ?? $_GET['refresh_certificate'], 2);
+    $certificate_id = intval($row['certificate_id']);
 
-    $certificate_id = intval($_GET['refresh_certificate']);
+    $check = certificateCheckAndSave($certificate_id);
+    [$message, $type] = certificateCheckMessage($check, $row['certificate_name'], $row['certificate_domain']);
 
-    // Get Name, Domain and Client ID for lookup, logging and alert message
-    $sql = mysqli_query($mysqli,"SELECT certificate_name, certificate_domain, certificate_client_id FROM certificates WHERE certificate_id = $certificate_id");
-    $row = mysqli_fetch_assoc($sql);
-    $certificate_name = escapeSql($row['certificate_name']);
-    $certificate_domain = escapeSql($row['certificate_domain']);
-    $client_id = intval($row['certificate_client_id']);
-
-    enforceClientAccess();
-
-    // Get fresh certificate from the live host
-    $certificate = getSslCertificate($certificate_domain);
-
-    if ($certificate_domain && $certificate['success']) {
-
-        $expire = escapeSql($certificate['expire']);
-        $issued_by = escapeSql($certificate['issued_by']);
-        $public_key = escapeSql($certificate['public_key']);
-
-        mysqli_query($mysqli,"UPDATE certificates SET certificate_issued_by = '$issued_by', certificate_expire = '$expire', certificate_public_key = '$public_key' WHERE certificate_id = $certificate_id");
-
-        logAudit("Certificate", "Refresh", "$session_name refreshed certificate $certificate_name", $client_id, $certificate_id);
-
-        flashAlert("Refreshed certificate <strong>$certificate_name</strong>");
-
-    } else {
-        flashAlert("Could not retrieve a certificate for <strong>$certificate_name</strong>", 'error');
+    if ($check !== null) {
+        logAudit("Certificate", "Check", "$session_name checked certificate " . escapeSql($row['certificate_name']) . ' - ' . (empty($check['reachable']) ? 'unreachable' : $check['status']), $client_id, $certificate_id);
     }
+
+    flashAlert($message, $type);
+
+    redirect();
+
+}
+
+if (isset($_GET['favorite_certificate']) || isset($_GET['unfavorite_certificate'])) {
+
+    validateCSRFToken();
+
+    $favorite = isset($_GET['favorite_certificate']) ? 1 : 0;
+    $row = certificateForRequest($favorite ? $_GET['favorite_certificate'] : $_GET['unfavorite_certificate'], 2);
+    $certificate_id = intval($row['certificate_id']);
+
+    mysqli_query($mysqli, "UPDATE certificates SET certificate_favorite = $favorite WHERE certificate_id = $certificate_id");
+
+    logAudit("Certificate", "Edit", "$session_name " . ($favorite ? 'starred' : 'unstarred') . " certificate " . escapeSql($row['certificate_name']), $client_id, $certificate_id);
 
     redirect();
 
@@ -163,23 +184,14 @@ if (isset($_GET['archive_certificate'])) {
 
     validateCSRFToken();
 
-    enforceUserPermission('module_support', 2);
+    $row = certificateForRequest($_GET['archive_certificate'], 2);
+    $certificate_id = intval($row['certificate_id']);
 
-    $certificate_id = intval($_GET['archive_certificate']);
+    mysqli_query($mysqli, "UPDATE certificates SET certificate_archived_at = NOW() WHERE certificate_id = $certificate_id");
 
-    // Get Certificate Name and Client ID for logging and alert message
-    $sql = mysqli_query($mysqli,"SELECT certificate_name, certificate_client_id FROM certificates WHERE certificate_id = $certificate_id");
-    $row = mysqli_fetch_assoc($sql);
-    $certificate_name = escapeSql($row['certificate_name']);
-    $client_id = intval($row['certificate_client_id']);
+    logAudit("Certificate", "Archive", "$session_name archived certificate " . escapeSql($row['certificate_name']), $client_id, $certificate_id);
 
-    enforceClientAccess();
-
-    mysqli_query($mysqli,"UPDATE certificates SET certificate_archived_at = NOW() WHERE certificate_id = $certificate_id");
-
-    logAudit("Certificate", "Archive", "$session_name archived certificate $certificate_name", $client_id, $certificate_id);
-
-    flashAlert("Certificate <strong>$certificate_name</strong> archived", 'alert');
+    flashAlert("Certificate <strong>" . escapeHtml($row['certificate_name']) . "</strong> archived", 'error');
 
     redirect();
 
@@ -189,23 +201,14 @@ if (isset($_GET['restore_certificate'])) {
 
     validateCSRFToken();
 
-    enforceUserPermission('module_support', 2);
+    $row = certificateForRequest($_GET['restore_certificate'], 2);
+    $certificate_id = intval($row['certificate_id']);
 
-    $certificate_id = intval($_GET['restore_certificate']);
+    mysqli_query($mysqli, "UPDATE certificates SET certificate_archived_at = NULL WHERE certificate_id = $certificate_id");
 
-    // Get Certificate Name and Client ID for logging and alert message
-    $sql = mysqli_query($mysqli,"SELECT certificate_name, certificate_client_id FROM certificates WHERE certificate_id = $certificate_id");
-    $row = mysqli_fetch_assoc($sql);
-    $certificate_name = escapeSql($row['certificate_name']);
-    $client_id = intval($row['certificate_client_id']);
+    logAudit("Certificate", "Restore", "$session_name restored certificate " . escapeSql($row['certificate_name']), $client_id, $certificate_id);
 
-    enforceClientAccess();
-
-    mysqli_query($mysqli,"UPDATE certificates SET certificate_archived_at = NULL WHERE certificate_id = $certificate_id");
-
-    logAudit("Certificate", "Restore", "$session_name restored certificate $certificate_name", $client_id, $certificate_id);
-
-    flashAlert("Certificate <strong>$certificate_name</strong> restored");
+    flashAlert("Certificate <strong>" . escapeHtml($row['certificate_name']) . "</strong> restored");
 
     redirect();
 
@@ -215,84 +218,101 @@ if (isset($_GET['delete_certificate'])) {
 
     validateCSRFToken();
 
-    enforceUserPermission('module_support', 3);
+    $row = certificateForRequest($_GET['delete_certificate'], 3);
+    $certificate_id = intval($row['certificate_id']);
 
-    $certificate_id = intval($_GET['delete_certificate']);
+    // Its history and its links to services go with it (ON DELETE CASCADE)
+    mysqli_query($mysqli, "DELETE FROM certificates WHERE certificate_id = $certificate_id");
 
-    // Get Certificate Name and Client ID for logging and alert message
-    $sql = mysqli_query($mysqli,"SELECT certificate_name, certificate_client_id FROM certificates WHERE certificate_id = $certificate_id");
-    $row = mysqli_fetch_assoc($sql);
-    $certificate_name = escapeSql($row['certificate_name']);
-    $client_id = intval($row['certificate_client_id']);
+    logAudit("Certificate", "Delete", "$session_name deleted certificate " . escapeSql($row['certificate_name']), $client_id);
 
-    enforceClientAccess();
-
-    mysqli_query($mysqli,"DELETE FROM certificates WHERE certificate_id = $certificate_id");
-
-    logAudit("Certificate", "Delete", "$session_name deleted certificate $name", $client_id);
-
-    flashAlert("Certificate <strong>$certificate_name</strong> deleted");
+    flashAlert("Certificate <strong>" . escapeHtml($row['certificate_name']) . "</strong> deleted", 'error');
 
     redirect();
 
 }
 
-if (isset($_POST['bulk_refresh_certificates'])) {
+if (isset($_POST['bulk_favorite_certificates']) || isset($_POST['bulk_unfavorite_certificates'])) {
 
     validateCSRFToken();
 
-    enforceUserPermission('module_support', 2);
-
-    if (isset($_POST['certificate_ids'])) {
-
-        // TLS lookups on dead hosts wait out a 5 sec timeout each - don't time out mid-batch
-        set_time_limit(0);
-
-        // Get Selected Count
-        $count = count($_POST['certificate_ids']);
-        $refreshed_count = 0;
-
-        // Cycle through array and refresh each record
-        foreach ($_POST['certificate_ids'] as $certificate_id) {
-
-            $certificate_id = intval($certificate_id);
-
-            // Get Name, Domain and Client ID for lookup, logging and alert message
-            $sql = mysqli_query($mysqli,"SELECT certificate_name, certificate_domain, certificate_client_id FROM certificates WHERE certificate_id = $certificate_id");
-            $row = mysqli_fetch_assoc($sql);
-            $certificate_name = escapeSql($row['certificate_name']);
-            $certificate_domain = escapeSql($row['certificate_domain']);
-            $client_id = intval($row['certificate_client_id']);
-
-            enforceClientAccess();
-
-            // Skip certificates without a domain to query (eg manually pasted keys)
-            if (!$certificate_domain) {
-                continue;
-            }
-
-            // Get fresh certificate from the live host
-            $certificate = getSslCertificate($certificate_domain);
-
-            if ($certificate['success']) {
-
-                $expire = escapeSql($certificate['expire']);
-                $issued_by = escapeSql($certificate['issued_by']);
-                $public_key = escapeSql($certificate['public_key']);
-
-                mysqli_query($mysqli,"UPDATE certificates SET certificate_issued_by = '$issued_by', certificate_expire = '$expire', certificate_public_key = '$public_key' WHERE certificate_id = $certificate_id");
-
-                logAudit("Certificate", "Refresh", "$session_name refreshed certificate $certificate_name", $client_id, $certificate_id);
-
-                $refreshed_count++;
-            }
-        }
-
-        logAudit("Certificate", "Bulk Refresh", "$session_name refreshed $refreshed_count certificate(s)", $client_id);
-
-        flashAlert("Refreshed <strong>$refreshed_count</strong> of <strong>$count</strong> certificate(s)");
-
+    $favorite = isset($_POST['bulk_favorite_certificates']) ? 1 : 0;
+    $count = 0;
+    foreach (certificatesForBulk(2) as $certificate_id => $row) {
+        mysqli_query($mysqli, "UPDATE certificates SET certificate_favorite = $favorite WHERE certificate_id = $certificate_id");
+        logAudit("Certificate", "Edit", "$session_name " . ($favorite ? 'starred' : 'unstarred') . " certificate " . escapeSql($row['certificate_name']), intval($row['certificate_client_id']), $certificate_id);
+        $count++;
     }
+
+    flashAlert(($favorite ? 'Starred' : 'Unstarred') . " <strong>$count</strong> certificate" . ($count === 1 ? '' : 's'));
+
+    redirect();
+
+}
+
+if (isset($_POST['bulk_check_certificates']) || isset($_POST['bulk_refresh_certificates'])) {
+
+    validateCSRFToken();
+
+    // A host that doesn't answer waits out a timeout - don't time out mid-batch
+    set_time_limit(0);
+
+    $tally = array_fill_keys(array_keys(CERTIFICATE_CHECK_STATES), 0);
+    $no_host = 0;
+    foreach (certificatesForBulk(2) as $certificate_id => $row) {
+        $check = certificateCheckAndSave($certificate_id);
+        if ($check === null) {
+            $no_host++;
+            continue;
+        }
+        $status = empty($check['reachable']) ? 'unreachable' : $check['status'];
+        $tally[$status]++;
+        logAudit("Certificate", "Check", "$session_name checked certificate " . escapeSql($row['certificate_name']) . " - $status", intval($row['certificate_client_id']), $certificate_id);
+    }
+
+    $checked = array_sum($tally);
+    $parts = [];
+    foreach ($tally as $status => $count) {
+        if ($count) {
+            $parts[] = "<strong>$count</strong> " . (in_array($status, ['ok', 'mismatch'], true) ? CERTIFICATE_CHECK_STATES[$status]['label'] : strtolower(CERTIFICATE_CHECK_STATES[$status]['label']));
+        }
+    }
+    $problems = $checked - $tally['ok'];
+    flashAlert("Checked <strong>$checked</strong> certificate" . ($checked === 1 ? '' : 's') . ($parts ? ' - ' . implode(', ', $parts) : '') . ($no_host ? "; <strong>$no_host</strong> with no host to check" : ''), $problems || $no_host ? 'warning' : 'success');
+
+    redirect();
+
+}
+
+if (isset($_POST['bulk_archive_certificates'])) {
+
+    validateCSRFToken();
+
+    $count = 0;
+    foreach (certificatesForBulk(2) as $certificate_id => $row) {
+        mysqli_query($mysqli, "UPDATE certificates SET certificate_archived_at = NOW() WHERE certificate_id = $certificate_id");
+        logAudit("Certificate", "Archive", "$session_name archived certificate " . escapeSql($row['certificate_name']), intval($row['certificate_client_id']), $certificate_id);
+        $count++;
+    }
+
+    flashAlert("Archived <strong>$count</strong> certificate" . ($count === 1 ? '' : 's'), 'error');
+
+    redirect();
+
+}
+
+if (isset($_POST['bulk_restore_certificates'])) {
+
+    validateCSRFToken();
+
+    $count = 0;
+    foreach (certificatesForBulk(2) as $certificate_id => $row) {
+        mysqli_query($mysqli, "UPDATE certificates SET certificate_archived_at = NULL WHERE certificate_id = $certificate_id");
+        logAudit("Certificate", "Restore", "$session_name restored certificate " . escapeSql($row['certificate_name']), intval($row['certificate_client_id']), $certificate_id);
+        $count++;
+    }
+
+    flashAlert("Restored <strong>$count</strong> certificate" . ($count === 1 ? '' : 's'));
 
     redirect();
 
@@ -302,37 +322,14 @@ if (isset($_POST['bulk_delete_certificates'])) {
 
     validateCSRFToken();
 
-    enforceUserPermission('module_support', 3);
-
-    if (isset($_POST['certificate_ids'])) {
-
-        // Get selected count
-        $count = count($_POST['certificate_ids']);
-
-        // Cycle through array and delete each certificate
-        foreach ($_POST['certificate_ids'] as $certificate_id) {
-
-            $certificate_id = intval($certificate_id);
-
-            // Get Certificate Name and Client ID for logging and alert message
-            $sql = mysqli_query($mysqli,"SELECT certificate_name, certificate_client_id FROM certificates WHERE certificate_id = $certificate_id");
-            $row = mysqli_fetch_assoc($sql);
-            $certificate_name = escapeSql($row['certificate_name']);
-            $client_id = intval($row['certificate_client_id']);
-
-            enforceClientAccess();
-
-            mysqli_query($mysqli, "DELETE FROM certificates WHERE certificate_id = $certificate_id AND certificate_client_id = $client_id");
-
-            logAudit("Certificate", "Delete", "$session_name deleted certificate $certificate_name", $client_id);
-
-        }
-
-        logAudit("Certificate", "Bulk Delete", "$session_name deleted $count certificates", $client_id);
-
-        flashAlert("Deleted <strong>$count</strong> certificate(s)", 'error');
-
+    $count = 0;
+    foreach (certificatesForBulk(3) as $certificate_id => $row) {
+        mysqli_query($mysqli, "DELETE FROM certificates WHERE certificate_id = $certificate_id");
+        logAudit("Certificate", "Delete", "$session_name deleted certificate " . escapeSql($row['certificate_name']), intval($row['certificate_client_id']));
+        $count++;
     }
+
+    flashAlert("Deleted <strong>$count</strong> certificate" . ($count === 1 ? '' : 's'), 'error');
 
     redirect();
 
@@ -382,18 +379,23 @@ if (isExportRequest('export_certificates')) {
     }
 
     // Expiring In Filter
+    $expire_query = '';
     if (!empty($_POST['expire_days'])) {
         if ($_POST['expire_days'] == "expired") {
-            $expire_query = "AND (certificate_expire IS NOT NULL AND certificate_expire != '0000-00-00' AND certificate_expire < CURDATE())";
+            $expire_query = "AND (certificate_expire IS NOT NULL AND certificate_expire < CURDATE())";
             $filter_summary['Expiry'] = 'Expired';
         } else {
             $expire_days = intval($_POST['expire_days']);
-            $expire_query = "AND (certificate_expire IS NOT NULL AND certificate_expire != '0000-00-00' AND certificate_expire BETWEEN CURDATE() AND DATE_ADD(CURDATE(), INTERVAL $expire_days DAY))";
+            $expire_query = "AND (certificate_expire IS NOT NULL AND certificate_expire BETWEEN CURDATE() AND DATE_ADD(CURDATE(), INTERVAL $expire_days DAY))";
             $filter_summary['Expiry'] = "Expiring within $expire_days days";
         }
-    } else {
-        // Default - any
-        $expire_query = '';
+    }
+
+    // Problems Filter - the last check of the host found something wrong
+    $problem_query = '';
+    if (!empty($_POST['problems'])) {
+        $problem_query = 'AND ' . certificateProblemSql();
+        $filter_summary['Check'] = 'Problems found';
     }
 
     // Search Filter
@@ -402,16 +404,25 @@ if (isExportRequest('export_certificates')) {
         $filter_summary['Search'] = $_POST['q'];
     }
 
+    [$certificate_columns, $certificate_joins] = certificateSelectSql();
+    $status_labels = [];
+    foreach (CERTIFICATE_CHECK_STATES as $status => $state) {
+        $status_labels[] = "WHEN '$status' THEN '" . escapeSql($state['label']) . "'";
+    }
     $sql = mysqli_query(
         $mysqli,
-        "SELECT * FROM certificates
-        LEFT JOIN clients ON client_id = certificate_client_id
+        "SELECT $certificate_columns,
+            CASE certificate_check_status " . implode(' ', $status_labels) . " ELSE '' END AS certificate_check_label,
+            REPLACE(certificate_names, '\\n', ', ') AS certificate_names_list
+        FROM certificates $certificate_joins
         WHERE $archive_query
-        AND (certificate_name LIKE '%$q%' OR certificate_domain LIKE '%$q%' OR certificate_description LIKE '%$q%' OR certificate_issued_by LIKE '%$q%' OR client_name LIKE '%$q%')
+        AND (certificate_name LIKE '%$q%' OR certificate_domain LIKE '%$q%' OR certificate_description LIKE '%$q%' OR certificate_issued_by LIKE '%$q%'
+            OR certificate_names LIKE '%$q%' OR certificate_fingerprint LIKE '%$q%' OR client_name LIKE '%$q%')
         " . clientScopeSql('certificate_client_id') . "
         $client_query
         $expire_query
-        ORDER BY certificate_name ASC"
+        $problem_query
+        ORDER BY client_name ASC, certificate_name ASC"
     );
 
     $num_rows = mysqli_num_rows($sql);

@@ -1340,17 +1340,8 @@ function demoBuildClient($mysqli, $profile, $index, $context, &$counts) {
         $counts['documentation']++;
     }
 
-    $certificate_id = starterInsert($mysqli, 'certificates', [
-        'certificate_name' => 'www.' . $profile['domain'],
-        'certificate_description' => $profile['cert_issuer'] === "Let's Encrypt" ? 'Public website certificate, renewed automatically by the reverse proxy' : 'Public website certificate, renewed manually at expiry',
-        'certificate_domain' => 'www.' . $profile['domain'],
-        'certificate_issued_by' => $profile['cert_issuer'],
-        'certificate_expire' => demoDate(-1 * (20 + ($index * 9))),
-        'certificate_domain_id' => $domain_id,
-        'certificate_client_id' => $client_id,
-        'certificate_created_at' => demoMonthDateTime($months, 7, 9, 50),
-    ]);
-    $counts['documentation'] += 2;
+    $certificate_id = demoBuildCertificates($mysqli, $profile, $index, $client_id, $domain_id, $months, $counts);
+    $counts['documentation']++;
 
     // The renewals behind them. Both tables cascade off their parent, so the
     // client purge takes these with the domain and the certificate.
@@ -1367,13 +1358,6 @@ function demoBuildClient($mysqli, $profile, $index, $context, &$counts) {
         'domain_history_new_value' => '203.0.113.' . (10 + $index),
         'domain_history_domain_id' => $domain_id,
         'domain_history_modified_at' => demoMonthDateTime(max(1, min(9, $months)), 6, 15, 40),
-    ]);
-    starterInsert($mysqli, 'certificate_history', [
-        'certificate_history_column' => 'certificate_expire',
-        'certificate_history_old_value' => demoMonthDate(3, 20),
-        'certificate_history_new_value' => demoDate(-1 * (20 + ($index * 9))),
-        'certificate_history_certificate_id' => $certificate_id,
-        'certificate_history_modified_at' => demoMonthDateTime(3, 20, 4, 15),
     ]);
 
     // Credentials - only when the vault actually opened for this session
@@ -1623,6 +1607,110 @@ function demoBuildClient($mysqli, $profile, $index, $context, &$counts) {
     }
 
 }
+
+/**
+ * The client's certificates: the one on their website (checked, OK - the
+ * Let's Encrypt ones short-lived, one of them overdue to renew), and for some
+ * clients the firewall's factory self-signed admin certificate, a remote
+ * access portal still serving the certificate for its old name, and a RADIUS
+ * certificate from their own CA that has no host to check. Returns the
+ * website certificate's id, for the services that use it.
+ */
+function demoBuildCertificates($mysqli, $profile, $index, $client_id, $domain_id, $months, &$counts) {
+    $domain = $profile['domain'];
+    $fingerprint = function ($seed) {
+        return implode(':', str_split(strtoupper(hash('sha256', 'itflow-demo-' . $seed)), 2));
+    };
+    $short_lived = $profile['cert_issuer'] === "Let's Encrypt";
+    // Let's Encrypt certificates last 90 days and renew with 30 left; one is stuck
+    $expire_days = $short_lived ? ($index % 7 === 4 ? 12 : 31 + ($index * 13) % 58) : 20 + ($index * 9);
+    $expire = demoDate(-1 * $expire_days);
+    $issued = date('Y-m-d', strtotime($expire . ($short_lived ? ' -90 days' : ' -397 days')));
+
+    $website_id = starterInsert($mysqli, 'certificates', [
+        'certificate_name' => 'www.' . $domain,
+        'certificate_description' => $short_lived ? 'Public website certificate, renewed automatically by the reverse proxy' : 'Public website certificate, renewed manually at expiry',
+        'certificate_domain' => 'www.' . $domain,
+        'certificate_names' => 'www.' . $domain . "\n" . $domain,
+        'certificate_issued_by' => $profile['cert_issuer'],
+        'certificate_issued_at' => $issued,
+        'certificate_expire' => $expire,
+        'certificate_fingerprint' => $fingerprint('www.' . $domain . $issued),
+        'certificate_check_status' => 'ok',
+        'certificate_checked_at' => demoDateTime(1 + $index % 3, 3, 30),
+        'certificate_notes' => $short_lived ? 'Issued and renewed by the reverse proxy over HTTP-01 - port 80 has to stay open to it.' : 'Renewed by us at expiry - the CSR is generated on the web server and the key never leaves it.',
+        'certificate_domain_id' => $domain_id,
+        'certificate_client_id' => $client_id,
+        'certificate_created_at' => demoMonthDateTime($months, 7, 9, 50),
+    ]);
+    starterInsert($mysqli, 'certificate_history', [
+        'certificate_history_column' => 'certificate_expire',
+        'certificate_history_old_value' => date('Y-m-d', strtotime($expire . ($short_lived ? ' -60 days' : ' -365 days'))),
+        'certificate_history_new_value' => $expire,
+        'certificate_history_certificate_id' => $website_id,
+        'certificate_history_modified_at' => $issued . ' 04:15:00',
+    ]);
+    $counts['documentation']++;
+
+    // The firewall's admin page - the factory certificate, which browsers don't trust
+    $gateway = $profile['networks'][0][4] ?? '';
+    if ($index % 3 === 1 && $gateway !== '') {
+        starterInsert($mysqli, 'certificates', [
+            'certificate_name' => 'Firewall admin',
+            'certificate_description' => 'Management page on the LAN - still the factory self-signed certificate',
+            'certificate_domain' => $gateway . ':8443',
+            'certificate_names' => $gateway,
+            'certificate_issued_by' => 'Self-signed (factory)',
+            'certificate_issued_at' => demoDate(365 * 3 + $index * 17),
+            'certificate_expire' => demoDate(-1 * (365 * 7 - $index * 17)),
+            'certificate_fingerprint' => $fingerprint('fw-' . $domain),
+            'certificate_check_status' => 'untrusted',
+            'certificate_checked_at' => demoDateTime(1 + $index % 3, 3, 35),
+            'certificate_notes' => 'Replace with one from the internal CA at the next firmware upgrade, so the browser warning stops training people to click through.',
+            'certificate_client_id' => $client_id,
+            'certificate_created_at' => demoMonthDateTime($months, 7, 10, 10),
+        ]);
+        $counts['documentation']++;
+    }
+
+    // A remote access portal renamed in the spring, still serving the old name's certificate
+    if ($index % 4 === 2) {
+        starterInsert($mysqli, 'certificates', [
+            'certificate_name' => 'Remote access portal',
+            'certificate_description' => 'SSL VPN portal for staff working from home',
+            'certificate_domain' => 'remote.' . $domain,
+            'certificate_names' => 'vpn.' . $domain,
+            'certificate_issued_by' => 'Sectigo',
+            'certificate_issued_at' => demoDate(200 + $index),
+            'certificate_expire' => demoDate(-1 * (165 - $index)),
+            'certificate_fingerprint' => $fingerprint('vpn-' . $domain),
+            'certificate_check_status' => 'mismatch',
+            'certificate_checked_at' => demoDateTime(1 + $index % 3, 3, 40),
+            'certificate_notes' => 'The portal moved from vpn. to remote. - the new certificate is bought but not installed yet.',
+            'certificate_domain_id' => $domain_id,
+            'certificate_client_id' => $client_id,
+            'certificate_created_at' => demoMonthDateTime($months, 7, 10, 20),
+        ]);
+        $counts['documentation']++;
+    }
+
+    // From the client's own CA, for Wi-Fi - nothing to connect to, so nobody checks it
+    if ($index % 5 === 3) {
+        starterInsert($mysqli, 'certificates', [
+            'certificate_name' => 'Wi-Fi RADIUS (NPS)',
+            'certificate_description' => 'Server certificate the laptops check before joining the staff Wi-Fi',
+            'certificate_issued_by' => strtoupper($profile['abbreviation'] ?: substr($domain, 0, 4)) . '-DC01-CA',
+            'certificate_expire' => demoDate(-1 * (40 + $index * 3)),
+            'certificate_notes' => 'Renew from the internal CA before it expires - when it lapses, every laptop drops off the staff Wi-Fi at once.',
+            'certificate_client_id' => $client_id,
+            'certificate_created_at' => demoMonthDateTime($months, 7, 10, 30),
+        ]);
+        $counts['documentation']++;
+    }
+
+    return $website_id;
+}
+
 
 // ------------------------------
 // demoBuildAssets

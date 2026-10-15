@@ -4706,3 +4706,26 @@ img.itflow-contact-avatar {
 .itflow-domain-mail > .d-inline-flex {
     flex-wrap: nowrap !important;
 }
+
+/* Certificates - agent/certificates.php and agent/modals/certificate/
+   (functions/certificate.php). The host column and the issuer keep to one
+   width; the fingerprint breaks anywhere rather than widen the quick look. */
+.itflow-certificate-host {
+    max-width: 15rem;
+}
+.itflow-certificate-table .itflow-asset-desc {
+    max-width: 14rem;
+}
+.itflow-certificate-issuer {
+    max-width: 10rem;
+}
+.itflow-certificate-fingerprint {
+    overflow-wrap: anywhere;
+    line-height: 1.35;
+}
+.itflow-certificate-check-result {
+    padding: .75rem;
+    border: 1px solid var(--bs-border-color);
+    border-radius: var(--bs-border-radius);
+    background: var(--bs-tertiary-bg);
+}

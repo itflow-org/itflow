@@ -12,32 +12,73 @@ require_once "../includes/check_login.php";
 require_once "../libs/totp/totp.php";
 
 /*
- * Fetches SSL certificates from remote hosts & returns the relevant info (issuer, expiry, public key)
+ * The host in a New / Edit Certificate form, checked when asked: connect,
+ * take the certificate it serves and say what it is - OK, for another name,
+ * untrusted, expired, or nothing answering - with what will be saved, the
+ * client's domain it belongs to, and whether the client has it already.
  */
-if (isset($_GET['certificate_fetch_parse_json_details'])) {
-    enforceUserPermission('module_support');
+if (isset($_GET['certificate_check'])) {
+    enforceUserPermission('module_support', 2);
 
-    // PHP doesn't appreciate attempting SSL sockets to non-existent domains
-    if (empty($_GET['domain'])) {
-        exit();
+    header('Content-Type: application/json');
+
+    $input = trim((string) ($_GET['host'] ?? ''));
+    $check_client_id = intval($_GET['client_id'] ?? 0);
+    $check_certificate_id = intval($_GET['certificate_id'] ?? 0);
+
+    if ($input === '') {
+        echo json_encode(['state' => '', 'message' => '', 'html' => '']);
+        exit;
+    }
+    $host = certificateHost($input);
+    if (!$host) {
+        echo json_encode(['state' => 'bad', 'message' => "That isn't a host - something like www.example.com, or portal.example.com:8443.", 'html' => '']);
+        exit;
     }
 
-    $name = $_GET['domain'];
-
-    // Get SSL cert for domain (if exists)
-    $certificate = getSslCertificate($name);
-
-    if ($certificate['success'] == "TRUE") {
-        $response['success'] = "TRUE";
-        $response['expire'] = $certificate['expire'];
-        $response['issued_by'] = $certificate['issued_by'];
-        $response['public_key'] = $certificate['public_key'];
-    } else {
-        $response['success'] = "FALSE";
+    $response = ['host' => $host['display'], 'domain_id' => 0, 'html' => ''];
+    $notes = [];
+    if (strcasecmp($input, $host['display']) !== 0) {
+        $notes[] = "Saved as {$host['display']}.";
     }
+
+    // Already on this client? Which of its domains is it under?
+    if ($check_client_id) {
+        $client_id = $check_client_id;
+        enforceClientAccess();
+        $host_sql = escapeSql($host['display']);
+        $existing = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT certificate_name FROM certificates WHERE certificate_domain = '$host_sql' AND certificate_client_id = $check_client_id AND certificate_id <> $check_certificate_id AND certificate_archived_at IS NULL LIMIT 1"));
+        if ($existing) {
+            $notes[] = 'This client already has it, as ' . $existing['certificate_name'] . '.';
+        }
+        $response['domain_id'] = certificateDomainFor($host['host'], $check_client_id);
+    }
+
+    $check = certificateCheck($host);
+    if (empty($check['reachable'])) {
+        $response['state'] = 'bad';
+        $response['message'] = trim(implode(' ', $notes) . " Nothing answered on {$host['display']} - check the host and port. If ITFlow can't reach it, paste the certificate instead.");
+        echo json_encode($response);
+        exit;
+    }
+
+    $state = CERTIFICATE_CHECK_STATES[$check['status']];
+    $response['state'] = $check['status'] === 'ok' ? 'ok' : 'warn';
+    $response['message'] = trim(implode(' ', $notes) . ' ' . $state['text'] . '.');
+
+    $expiry = certificateExpiry(['certificate_expire' => $check['expire'], 'certificate_issued_at' => $check['issued_at']]);
+    $names = $check['names'];
+    $response['html'] = '<div class="d-flex flex-wrap gap-2 mb-2">'
+        . certificateStatusPill(['certificate_check_status' => $check['status'], 'certificate_domain' => $host['display']])
+        . certificateExpiryPill($expiry, true) . '</div>'
+        . '<dl class="itflow-asset-dl mb-0">'
+        . '<dt>Issuer</dt><dd class="text-break">' . escapeHtml($check['issuer'] ?: 'Unknown') . ($check['self_signed'] ? ' <span class="text-body-secondary">(self-signed)</span>' : '') . '</dd>'
+        . '<dt>Valid</dt><dd>' . escapeHtml($check['issued_at']) . ' to ' . escapeHtml($check['expire']) . ' <span class="text-body-secondary">(' . $check['days'] . ' days)</span></dd>'
+        . '<dt>Covers</dt><dd class="text-break">' . escapeHtml(implode(', ', array_slice($names, 0, 6))) . (count($names) > 6 ? ' <span class="text-body-secondary">and ' . (count($names) - 6) . ' more</span>' : '') . '</dd>'
+        . '</dl>';
 
     echo json_encode($response);
-
+    exit;
 }
 
 /*

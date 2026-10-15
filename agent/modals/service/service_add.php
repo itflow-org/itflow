@@ -214,12 +214,12 @@ ob_start();
                     <label for="certificates">Select related certificates</label>
                     <select class="form-select select2" id="certificates" name="certificates[]" multiple>
                         <?php
-                        $sql = mysqli_query($mysqli, "SELECT certificate_domain, certificate_id, certificate_name FROM certificates WHERE certificate_archived_at IS NULL AND certificate_client_id = $client_id");
+                        $sql = mysqli_query($mysqli, "SELECT certificate_domain, certificate_id, certificate_name, certificate_issued_at, certificate_expire FROM certificates
+                            WHERE certificate_archived_at IS NULL AND certificate_client_id = $client_id ORDER BY certificate_name ASC");
                         while ($row = mysqli_fetch_assoc($sql)) {
                             $cert_id = intval($row['certificate_id']);
                             $cert_name = escapeHtml($row['certificate_name']);
-                            $cert_domain = escapeHtml($row['certificate_domain']);
-                            echo "<option value=\"$cert_id\">$cert_name ($cert_domain)</option>";
+                            echo "<option value=\"$cert_id\"" . selectOptionCertificate($row) . ">$cert_name</option>";
                         }
                         ?>
                     </select>

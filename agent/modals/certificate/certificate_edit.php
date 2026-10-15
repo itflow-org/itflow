@@ -1,189 +1,57 @@
 <?php
 
+/*
+ * Edit a certificate - the host it is served on, its name, what it is for,
+ * the star, the domain it belongs to, the certificate itself (or its issuer
+ * and expiry by hand) and notes. Saving doesn't check the host again unless
+ * it changed; Check now does that. Its history is in the quick look.
+ */
+
 require_once '../../../includes/modal_header.php';
 
 enforceUserPermission('module_support', 2);
 
-$certificate_id = intval($_GET['id']);
-
-$sql = mysqli_query($mysqli, "SELECT certificate_client_id, certificate_created_at, certificate_description, certificate_domain,
-    certificate_domain_id, certificate_expire, certificate_issued_by, certificate_name,
-    certificate_notes, certificate_public_key FROM certificates WHERE certificate_id = $certificate_id LIMIT 1");
-
-$row = mysqli_fetch_assoc($sql);
-$certificate_name = escapeHtml($row['certificate_name']);
-$certificate_description = escapeHtml($row['certificate_description']);
-$certificate_domain = escapeHtml($row['certificate_domain']);
-$certificate_domain_id = intval($row['certificate_domain_id']);
-$certificate_issued_by = escapeHtml($row['certificate_issued_by']);
-$certificate_public_key = escapeHtml($row['certificate_public_key']);
-$certificate_notes = escapeHtml($row['certificate_notes']);
-$certificate_expire = escapeHtml($row['certificate_expire']);
-$certificate_created_at = escapeHtml($row['certificate_created_at']);
-$client_id = intval($row['certificate_client_id']);
-
-$history_sql = mysqli_query($mysqli, "SELECT certificate_history_column, certificate_history_modified_at, certificate_history_new_value,
-    certificate_history_old_value FROM certificate_history WHERE certificate_history_certificate_id = $certificate_id");
-
+$certificate_id = intval($_GET['id'] ?? 0);
+$certificate = certificateRow($certificate_id);
+if (!$certificate) {
+    echo json_encode(['error' => 'That certificate no longer exists.']);
+    exit;
+}
+$client_id = intval($certificate['certificate_client_id']);
 enforceClientAccess();
+
+$certificate_form_mode = 'edit';
+$certificate_name = escapeHtml($certificate['certificate_name']);
+$certificate_description = escapeHtml($certificate['certificate_description']);
+$certificate_domain = escapeHtml($certificate['certificate_domain']);
+$certificate_domain_id = intval($certificate['certificate_domain_id']);
+$certificate_issued_by = escapeHtml($certificate['certificate_issued_by']);
+$certificate_expire = escapeHtml($certificate['certificate_expire']);
+$certificate_notes = escapeHtml($certificate['certificate_notes']);
+$certificate_favorite = intval($certificate['certificate_favorite']);
+// Only a real certificate is shown to keep - anything else on file is cleared on save
+$certificate_public_key = certificateParse($certificate['certificate_public_key']) ? escapeHtml(trim($certificate['certificate_public_key'])) : '';
 
 ob_start();
 
 ?>
-
 <div class="modal-header bg-dark">
-    <h5 class="modal-title"><i class="fa fa-fw fa-lock me-2"></i>Editing certificate: <span class="text-bold"><?= $certificate_name ?></span></h5>
+    <h5 class="modal-title text-truncate"><i class="fa fa-fw fa-lock me-2"></i>Editing certificate: <strong><?= $certificate_name ?></strong></h5>
     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
 </div>
 <form action="post.php" method="post" autocomplete="off">
     <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
     <input type="hidden" name="certificate_id" value="<?= $certificate_id ?>">
+    <input type="hidden" name="client_id" value="<?= $client_id ?>">
 
     <div class="modal-body">
-
-        <ul class="nav nav-pills nav-justified mb-3">
-            <li class="nav-item">
-                <a class="nav-link active" data-bs-toggle="pill" href="#pillsEditDetails<?= $certificate_id ?>">Details</a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" data-bs-toggle="pill" href="#pillsEditCertificate<?= $certificate_id ?>">Certificate</a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" data-bs-toggle="pill" href="#pillsEditNotes<?= $certificate_id ?>">Notes</a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" data-bs-toggle="pill" href="#pillsEditHistory<?= $certificate_id ?>">History</a>
-            </li>
-        </ul>
-
-        <hr>
-
-        <div class="tab-content" <?php if (lookupUserPermission('module_support') <= 1) { echo 'inert'; } ?>>
-
-            <div class="tab-pane fade show active" id="pillsEditDetails<?= $certificate_id ?>">
-
-                <div class="mb-3">
-                    <label>Certificate Name <strong class="text-danger">*</strong></label>
-                    <div class="input-group">
-                            <span class="input-group-text"><i class="fa fa-fw fa-lock"></i></span>
-                        <input type="text" class="form-control" name="name" placeholder="Certificate name" maxlength="200" value="<?= $certificate_name ?>" required>
-                    </div>
-                </div>
-
-                <div class="mb-3">
-                    <label>Description</label>
-                    <div class="input-group">
-                            <span class="input-group-text"><i class="fa fa-fw fa-align-left"></i></span>
-                        <input type="text" class="form-control" name="description" placeholder="Short Description" value="<?= $certificate_description ?>">
-                    </div>
-                </div>
-
-                <div class="mb-3">
-                    <label>Domain</label>
-                    <div class="input-group">
-                            <span class="input-group-text"><i class="fa fa-fw fa-globe"></i></span>
-                        <select class="form-select select2" name="domain_id">
-                            <option value="">- Select Domain -</option>
-                            <?php
-                            $domains_sql = mysqli_query($mysqli, "SELECT domain_id, domain_name FROM domains WHERE domain_client_id = $client_id");
-                            while ($row = mysqli_fetch_assoc($domains_sql)) {
-                                $domain_id = intval($row['domain_id']);
-                                $domain_name = escapeHtml($row['domain_name']);
-                            ?>
-                            <option value="<?= $domain_id ?>" <?php if ($certificate_domain_id == $domain_id) { echo "selected"; } ?>><?= $domain_name ?></option>
-
-                            <?php } ?>
-                        </select>
-                    </div>
-                </div>
-
-            </div>
-
-            <div class="tab-pane fade" id="pillsEditCertificate<?= $certificate_id ?>">
-
-                <div class="mb-3">
-                    <label>Domain <strong class="text-danger">*</strong></label>
-                    <div class="input-group">
-                            <span class="input-group-text"><i class="fa fa-fw fa-globe"></i>&nbsp;https://</span>
-                        <input type="text" class="form-control" name="domain" id="editCertificateDomain" placeholder="Domain" maxlength="200" value="<?= $certificate_domain ?>" required>
-                            <button type="button" class="btn btn-secondary" title="Fetch certificate" onclick="fetchSSL('edit')"><i class="fas fa-fw fa-sync-alt"></i></button>
-                    </div>
-                </div>
-
-                <div class="mb-3">
-                    <label>Issued By</label>
-                    <div class="input-group">
-                            <span class="input-group-text"><i class="fa fa-fw fa-building"></i></span>
-                        <input type="text" class="form-control" name="issued_by" id="editCertificateIssuedBy" maxlength="200" placeholder="Issued By" value="<?= $certificate_issued_by ?>">
-                    </div>
-                </div>
-
-                <div class="mb-3">
-                    <label>Expire Date</label>
-                    <div class="input-group">
-                            <span class="input-group-text"><i class="fa fa-fw fa-calendar-times"></i></span>
-                        <input type="date" class="form-control" name="expire" id="editCertificateExpire" max="2999-12-31" value="<?= $certificate_expire ?>">
-                    </div>
-                </div>
-
-                <div class="mb-3">
-                    <label>Public Key </label>
-                    <div class="input-group">
-                            <span class="input-group-text"><i class="fa fa-fw fa-key"></i></span>
-                        <textarea class="form-control" rows="8" name="public_key" id="editCertificatePublicKey"><?= $certificate_public_key ?></textarea>
-                    </div>
-                </div>
-
-            </div>
-
-            <div class="tab-pane fade" id="pillsEditNotes<?= $certificate_id ?>">
-                <div class="mb-3">
-                    <textarea class="form-control" name="notes" rows="12" placeholder="Enter some notes"><?= $certificate_notes ?></textarea>
-                </div>
-            </div>
-
-            <div class="tab-pane fade" id="pillsEditHistory<?= $certificate_id ?>">
-                <div class="table-responsive">
-                    <table class='table table-sm table-striped border table-hover'>
-                        <thead class='table-dark'>
-                        <tr>
-                            <th>Date</th>
-                            <th>Field</th>
-                            <th>Before</th>
-                            <th>After</th>
-                        </tr>
-                        </thead>
-                        <tbody>
-                        <?php
-                        while ($row = mysqli_fetch_assoc($history_sql)) {
-                            $certificate_modified_at = escapeHtml($row['certificate_history_modified_at']);
-                            $certificate_field = escapeHtml($row['certificate_history_column']);
-                            $certificate_before_value = escapeHtml($row['certificate_history_old_value']);
-                            $certificate_after_value = escapeHtml($row['certificate_history_new_value']);
-                            ?>
-                            <tr>
-                                <td><?= $certificate_modified_at ?></td>
-                                <td><?= $certificate_field ?></td>
-                                <td><?= $certificate_before_value ?></td>
-                                <td><?= $certificate_after_value ?></td>
-                            </tr>
-                        <?php } ?>
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-
-        </div>
-
+        <?php require 'certificate_form.php'; ?>
     </div>
-
     <div class="modal-footer">
         <button type="submit" name="edit_certificate" class="btn btn-primary text-bold"><i class="fa fa-check me-2"></i>Save</button>
         <button type="button" class="btn btn-light" data-bs-dismiss="modal"><i class="fa fa-times me-2"></i>Cancel</button>
     </div>
 </form>
-
-<script src="/agent/js/certificate_fetch_ssl.js"></script>
 
 <?php
 require_once '../../../includes/modal_footer.php';

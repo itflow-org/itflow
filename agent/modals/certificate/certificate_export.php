@@ -20,6 +20,9 @@ $client_filter = intval($_GET['client'] ?? 0);
 // Expiring In Filter
 $expire_filter = $_GET['expire_days'] ?? '';
 
+// Problems Filter
+$problems_filter = !empty($_GET['problems']) ? 1 : 0;
+
 // Archived Filter
 $archived_filter = (isset($_GET['archived']) && $_GET['archived'] == 1) ? 1 : 0;
 
@@ -46,7 +49,7 @@ ob_start();
             <label>Search</label>
             <div class="input-group">
                     <span class="input-group-text"><i class="fa fa-fw fa-search"></i></span>
-                <input type="text" class="form-control" name="q" value="<?= stripslashes(escapeHtml($q_filter)) ?>" placeholder="Name, domain, issuer">
+                <input type="text" class="form-control" name="q" value="<?= stripslashes(escapeHtml($q_filter)) ?>" placeholder="Name, host, names covered, issuer, fingerprint">
             </div>
         </div>
 
@@ -82,6 +85,17 @@ ob_start();
                     <?php foreach ([7, 30, 45, 60, 90] as $expire_option) { ?>
                         <option <?php if ($expire_filter !== '' && $expire_filter == $expire_option) { echo "selected"; } ?> value="<?= $expire_option ?>"><?= $expire_option ?> Days</option>
                     <?php } ?>
+                </select>
+            </div>
+        </div>
+
+        <div class="mb-3">
+            <label>Last Check</label>
+            <div class="input-group">
+                    <span class="input-group-text"><i class="fa fa-fw fa-shield-alt"></i></span>
+                <select class="form-select select2" name="problems">
+                    <option <?php if (!$problems_filter) { echo "selected"; } ?> value="0">- Any -</option>
+                    <option <?php if ($problems_filter) { echo "selected"; } ?> value="1">Problems found - mismatch, untrusted, expired or unreachable</option>
                 </select>
             </div>
         </div>

@@ -3,54 +3,39 @@
 require_once '../validate_api_key.php';
 require_once '../require_post_method.php';
 
-// Parse Info
-require_once 'certificate_model.php';
+/*
+ * Create a certificate - a name and/or the host it is served on
+ * (certificate_domain, as host or host:port). The same rules as the New
+ * Certificate form (certificateFormSet()): the host is tidied, a PEM in
+ * certificate_public_key is the last word on the issuer, dates, names and
+ * fingerprint, the domain must be one of the client's (matched from the host
+ * when none is given), and a host is checked as it is saved.
+ */
 
-// Default
 $insert_id = false;
 
-// Require name and domain_name
-if (!empty($name) && !empty($domain) && !empty($client_id)) {
+if (!empty($client_id) && is_array($_POST)) {
+    $post = [];
+    foreach (['name', 'description', 'domain', 'issued_by', 'expire', 'public_key', 'notes', 'domain_id', 'favorite'] as $field) {
+        $post[$field] = $_POST["certificate_$field"] ?? '';
+    }
 
-    // TODO: Doesn't work. Making this work seems tricky. Think we need to be json-encoding the pubkey on POST and then decoding & parsing it here?
-    //   For now, just let the certificate refresher catch this
-    // Parse public key data if provided and expire/issued_by are missing
-    if (!empty($public_key) && (empty($expire) && empty($issued_by))) {
-        $public_key_obj = openssl_x509_parse($_POST['certificate_public_key']);
-        if ($public_key_obj) {
-            $expire = date('Y-m-d', $public_key_obj['validTo_time_t']);
-            $issued_by = escapeSql($public_key_obj['issuer']['O']);
+    $form = certificateFormSet($post, $client_id, $error);
+    if ($form !== null) {
+        $insert_sql = mysqli_query($mysqli, "INSERT INTO certificates SET {$form['set']}, certificate_client_id = " . intval($client_id));
+
+        if ($insert_sql) {
+            $insert_id = mysqli_insert_id($mysqli);
+
+            // What the host serves - unless a different certificate was posted, which is kept
+            if ($form['host']) {
+                certificateCheckAndSave($insert_id, $form['parsed']['pem'] ?? '', false);
+            }
+
+            $name = escapeSql($form['name']);
+            logAudit("Certificate", "Create", "$name via API ($api_key_name)", $client_id, $insert_id);
+            logAudit("API", "Success", "Created certificate $name via API ($api_key_name)", $client_id, $insert_id);
         }
-    }
-
-    // Normalize expire value
-    if (empty($expire)) {
-        $expire = "NULL";
-    } else {
-        $expire = "'" . $expire . "'";
-    }
-
-    // Insert certificate
-    $insert_sql = mysqli_query($mysqli, "
-        INSERT INTO certificates SET
-        certificate_name = '$name',
-        certificate_description = '$description',
-        certificate_domain = '$domain',
-        certificate_issued_by = '$issued_by',
-        certificate_expire = $expire,
-        certificate_public_key = '$public_key',
-        certificate_notes = '$notes',
-        certificate_domain_id = $domain_id,
-        certificate_client_id = $client_id
-    ");
-
-    // Check insert & get insert ID
-    if ($insert_sql) {
-        $insert_id = mysqli_insert_id($mysqli);
-
-        // Logging
-        logAudit("Certificate", "Create", "$name via API ($api_key_name)", $client_id, $insert_id);
-        logAudit("API", "Success", "Created certificate $name via API ($api_key_name)", $client_id, $insert_id);
     }
 }
 

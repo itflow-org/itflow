@@ -89,6 +89,14 @@ function clientOverviewAttention($client_id, $access, $renewals) {
             'label' => 'Licenses over seats', 'icon' => 'cube', 'tone' => 'danger',
             'url' => "/agent/software.php?client_id=$client_id&status=over",
         ];
+        // What the last check of a host found wrong - the same rule as certificates.php?show=problems
+        $items[] = [
+            'count' => dashboardCount("SELECT COUNT(certificate_id) FROM certificates WHERE certificate_client_id = $client_id AND certificate_archived_at IS NULL
+                AND " . certificateProblemSql()),
+            'label' => 'Certificate problems', 'icon' => 'lock', 'tone' => 'warning',
+            'detail' => 'Name mismatch, untrusted, expired or unreachable',
+            'url' => "/agent/certificates.php?client_id=$client_id&show=problems",
+        ];
     }
 
     if ($access['credentials']) {
@@ -286,7 +294,7 @@ function clientOverviewRenewals($client_id, $days = 45) {
             'Domain', "/agent/domains.php?client_id=$client_id&open="],
         ['certificate', 'lock', "SELECT certificate_id AS id, certificate_name AS name, certificate_expire AS d FROM certificates
             WHERE certificate_client_id = $client_id AND certificate_archived_at IS NULL AND certificate_expire IS NOT NULL AND certificate_expire <= $window",
-            'Certificate', "/agent/certificates.php?client_id=$client_id&q="],
+            'Certificate', "/agent/certificates.php?client_id=$client_id&open="],
         ['software', 'cube', "SELECT software_id AS id, software_name AS name, software_expire AS d FROM software
             WHERE software_client_id = $client_id AND software_archived_at IS NULL AND software_expire IS NOT NULL AND software_expire <= $window",
             'License', "/agent/license.php?client_id=$client_id&software_id="],
@@ -308,7 +316,7 @@ function clientOverviewRenewals($client_id, $days = 45) {
                 'kind' => $kind, 'icon' => $icon, 'label' => $label,
                 'name' => $row['name'], 'date' => $row['d'],
                 'days' => (int) $today->diff($date)->format('%r%a'),
-                'url' => in_array($kind, ['domain', 'warranty', 'retire', 'software'], true) ? $url . intval($row['id']) : $url . rawurlencode($row['name']),
+                'url' => in_array($kind, ['domain', 'certificate', 'warranty', 'retire', 'software'], true) ? $url . intval($row['id']) : $url . rawurlencode($row['name']),
             ];
         }
     }
