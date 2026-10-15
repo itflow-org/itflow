@@ -340,7 +340,7 @@ function clientOverviewSharedItems($client_id) {
     global $mysqli;
 
     $sql = mysqli_query($mysqli, "SELECT item_id, item_type, item_related_id, item_recipient, item_views, item_view_limit, item_expire_at,
-            COALESCE(credential_name, document_name, file_name) AS item_name
+            COALESCE(credential_name, document_name, file_name) AS item_name, file_ext
         FROM shared_items
         LEFT JOIN credentials ON item_type = 'Credential' AND credential_id = item_related_id AND credential_client_id = $client_id
         LEFT JOIN documents ON item_type = 'Document' AND document_id = item_related_id AND document_client_id = $client_id

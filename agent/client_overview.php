@@ -354,14 +354,25 @@ $money_format = function ($amount) use ($currency_format, $client_currency_code,
                     </div>
                     <div class="list-group list-group-flush">
                         <?php foreach ($shared_items as $item) {
-                            $item_icon = ['Credential' => 'key', 'Document' => 'file-alt', 'File' => 'paperclip'][$item['item_type']] ?? 'share-square';
                             $item_views = intval($item['item_views']);
                             $item_limit = intval($item['item_view_limit']);
+                            $item_related_id = intval($item['item_related_id']);
+                            $item_label = escapeHtml($item['item_name'] ?: $item['item_type']);
+                            // Documents and files look and open as they do everywhere else
+                            if ($item['item_type'] === 'Document') {
+                                $item_tile = documentTile('sm');
+                                $item_label = "<a href=\"document.php?client_id=$client_id&amp;document_id=$item_related_id\">$item_label</a>";
+                            } elseif ($item['item_type'] === 'File') {
+                                $item_tile = fileTypeTile($item['file_ext'], 'sm');
+                                $item_label = "<a class=\"ajax-modal\" href=\"#\" data-modal-size=\"lg\" data-modal-url=\"modals/file/file.php?id=$item_related_id\">$item_label</a>";
+                            } else {
+                                $item_tile = '<span class="itflow-link-icon" title="' . escapeHtml($item['item_type']) . '" aria-hidden="true"><i class="fas fa-fw fa-' . ($item['item_type'] === 'Credential' ? 'key' : 'share-square') . '"></i></span>';
+                            }
                             ?>
                             <div class="list-group-item d-flex align-items-center gap-2 py-2">
-                                <i class="fas fa-fw fa-<?= $item_icon ?> text-body-secondary" title="<?= escapeHtml($item['item_type']) ?>"></i>
+                                <?= $item_tile ?>
                                 <span class="flex-grow-1 overflow-hidden">
-                                    <span class="d-block text-truncate"><?= escapeHtml($item['item_name'] ?: $item['item_type']) ?></span>
+                                    <span class="d-block text-truncate"><?= $item_label ?></span>
                                     <span class="d-block small text-body-secondary text-truncate">
                                         <?= $item['item_recipient'] ? escapeHtml($item['item_recipient']) . ', ' : '' ?><?= $item_views ?><?= $item_limit ? " of $item_limit" : '' ?> view<?= ($item_limit ?: $item_views) === 1 ? '' : 's' ?>, expires <?= escapeHtml(timeAgo($item['item_expire_at'])) ?>
                                     </span>

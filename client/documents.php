@@ -10,7 +10,7 @@ require_once "includes/inc_all.php";
 
 enforceContactCan('itdoc');
 
-$documents_sql = mysqli_query($mysqli, "SELECT document_id, document_name, document_created_at, folder_name FROM documents LEFT JOIN folders ON document_folder_id = folder_id WHERE document_client_visible = 1 AND document_client_id = $session_client_id AND document_archived_at IS NULL ORDER BY folder_id, document_name DESC");
+$documents_sql = mysqli_query($mysqli, "SELECT document_id, document_name, document_description, document_created_at, document_updated_at, folder_name FROM documents LEFT JOIN folders ON document_folder_id = folder_id WHERE document_client_visible = 1 AND document_client_id = $session_client_id AND document_archived_at IS NULL ORDER BY folder_id, document_name DESC");
 ?>
 
 <div class="row">
@@ -34,11 +34,11 @@ $documents_sql = mysqli_query($mysqli, "SELECT document_id, document_name, docum
         <?php if (mysqli_num_rows($documents_sql) == 0) { ?>
             <?= portalEmptyState('There are no documents shared with you yet.') ?>
         <?php } else { ?>
-        <table class="table table-bordered border border-dark">
+        <table class="table table-hover align-middle border">
             <thead class="table-dark">
             <tr>
                 <th>Name</th>
-                <th>Created</th>
+                <th>Updated</th>
                 <th class="text-center">Actions</th>
             </tr>
             </thead>
@@ -49,23 +49,25 @@ $documents_sql = mysqli_query($mysqli, "SELECT document_id, document_name, docum
                 $document_id = intval($row['document_id']);
                 $folder_name = escapeHtml($row['folder_name']);
                 $document_name = escapeHtml($row['document_name']);
-                $document_created_at = escapeHtml($row['document_created_at']);
+                $document_updated_at = $row['document_updated_at'] ?: $row['document_created_at'];
 
                 ?>
 
                 <tr>
                     <td>
-                        <a href="document.php?id=<?= $document_id ?>">
-                            <i class="fas fa-file-alt me-2"></i>
-                            <?php
-                            if (!empty($folder_name)) {
-                                echo "$folder_name / ";
-                            }
-                            echo $document_name;
-                            ?>
-                        </a>
+                        <div class="d-flex align-items-center gap-3">
+                            <?= documentTile() ?>
+                            <div class="min-w-0">
+                                <a class="fw-semibold" href="document.php?id=<?= $document_id ?>"><?= $document_name ?></a>
+                                <div class="small text-body-secondary">
+                                    <?php if ($folder_name) { ?><i class="fas fa-folder me-1"></i><?= $folder_name ?><?php } ?>
+                                    <?php if ($folder_name && $row['document_description']) { ?> &middot; <?php } ?>
+                                    <?= escapeHtml($row['document_description']) ?>
+                                </div>
+                            </div>
+                        </div>
                     </td>
-                    <td><?= date('M j, Y', strtotime($document_created_at)) ?></td>
+                    <td class="text-nowrap"><?= date('M j, Y', strtotime($document_updated_at)) ?></td>
                     <td class="text-center">
                         <a href="document.php?id=<?= $document_id ?>" class="btn btn-sm btn-outline-primary" title="View document">
                             <i class="fas fa-eye"></i>

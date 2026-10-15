@@ -224,18 +224,12 @@ ob_start();
                         <?php
                         $selected_ids = array_column(mysqli_fetch_all($sql_docs, MYSQLI_ASSOC), "document_id");
 
-                        $sql_all = mysqli_query($mysqli, "SELECT document_id, document_name FROM documents WHERE document_archived_at IS NULL AND document_client_id = $client_id");
+                        $sql_all = mysqli_query($mysqli, "SELECT document_id, document_name, document_description FROM documents WHERE document_archived_at IS NULL AND document_client_id = $client_id ORDER BY document_name ASC");
                         while ($row_all = mysqli_fetch_assoc($sql_all)) {
                             $document_id = intval($row_all['document_id']);
                             $document_name = escapeHtml($row_all['document_name']);
-
-                            if (in_array($document_id, $selected_ids)) {
-                                echo "<option value=\"$document_id\" selected>$document_name</option>";
-                            }
-                            else{
-                                echo "<option value=\"$document_id\">$document_name</option>";
-                            }
-
+                            $document_selected = in_array($document_id, $selected_ids) ? ' selected' : '';
+                            echo "<option value=\"$document_id\"$document_selected" . selectOptionData(['icon' => 'fas fa-file-alt', 'description' => $row_all['document_description']]) . ">$document_name</option>";
                         }
                         ?>
                     </select>

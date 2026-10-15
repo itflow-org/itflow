@@ -271,13 +271,14 @@ function globalSearchGroups($terms, $deep) {
                 'subtitle' => $row['document_description'],
                 'context' => $row['client_name'],
                 'url' => globalSearchClientUrl('document.php', $row['document_client_id'], ['document_id' => intval($row['document_id'])]),
+                'tile' => ['tone' => 'document', 'icon' => 'file-alt', 'label' => 'Document'],
             ];
         },
     ];
 
     $groups[] = [
         'key' => 'files', 'label' => 'Files', 'icon' => 'paperclip', 'module' => 'module_support',
-        'select' => 'file_id, file_name, file_description, file_client_id, file_folder_id, client_name, folder_name',
+        'select' => 'file_id, file_name, file_ext, file_description, file_client_id, file_folder_id, client_name, folder_name',
         'from' => 'files
             LEFT JOIN clients ON file_client_id = client_id
             LEFT JOIN folders ON file_folder_id = folder_id',
@@ -290,7 +291,9 @@ function globalSearchGroups($terms, $deep) {
                 'title' => $row['file_name'],
                 'subtitle' => implode(' · ', array_filter([$row['folder_name'], $row['file_description']])),
                 'context' => $row['client_name'],
-                'url' => globalSearchClientUrl('files.php', $row['file_client_id'], ['folder_id' => intval($row['file_folder_id'])]),
+                // Its folder, narrowed to it - one click from its quick look
+                'url' => globalSearchClientUrl('files.php', $row['file_client_id'], ['folder_id' => intval($row['file_folder_id']), 'q' => $row['file_name']]),
+                'tile' => ['tone' => fileTypeInfo($row['file_ext'])['tone'], 'icon' => fileTypeInfo($row['file_ext'])['icon'], 'label' => fileTypeInfo($row['file_ext'])['label']],
             ];
         },
     ];

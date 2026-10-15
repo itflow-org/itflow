@@ -4017,6 +4017,12 @@ img.itflow-contact-avatar {
     border-radius: var(--bs-border-radius);
     font-size: .8rem;
 }
+.itflow-file-icon-xs {
+    width: 1.25rem;
+    height: 1.25rem;
+    border-radius: var(--bs-border-radius-sm);
+    font-size: .65rem;
+}
 .itflow-file-icon-lg {
     width: 3.5rem;
     height: 3.5rem;
@@ -4450,4 +4456,10 @@ img.itflow-contact-avatar {
         border: 0;
         box-shadow: none;
     }
+}
+/* In a quick look's tabs the rows sit flush with the pane, like its other lists */
+.itflow-asset-quick-related .itflow-link-row {
+    margin: 0;
+    padding-left: 0;
+    padding-right: 0;
 }

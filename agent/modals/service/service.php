@@ -89,9 +89,11 @@ $sql_contacts = mysqli_query(
 // Associated Documents
 $sql_docs = mysqli_query(
     $mysqli,
-    "SELECT documents.document_id, document_name FROM service_documents
-    LEFT JOIN documents ON service_documents.document_id = documents.document_id
-    WHERE service_id = $service_id"
+    "SELECT documents.document_id AS id, document_name AS name, document_description, document_created_at, document_updated_at
+    FROM service_documents
+    JOIN documents ON service_documents.document_id = documents.document_id
+    WHERE service_id = $service_id AND document_archived_at IS NULL
+    ORDER BY document_name ASC"
 );
 
 ob_start();
@@ -297,12 +299,11 @@ ob_start();
                 <!-- Documents -->
                 <?php
                 if (mysqli_num_rows($sql_docs) > 0) {
-                    echo "<h5><i class='fas fa-fw fa-file-alt me-2'></i>Documents</h5><ul>";
+                    // The same rows as a document's Linked card
+                    echo "<h5><i class='fas fa-fw fa-file-alt me-2'></i>Documents</h5><ul class='list-unstyled itflow-links'>";
                     mysqli_data_seek($sql_docs, 0);
                     while ($row = mysqli_fetch_assoc($sql_docs)) {
-                        $document_id = intval($row['document_id']);
-                        $document_name = escapeHtml($row['document_name']);
-                        echo "<li><a class='ajax-modal' href='#' data-modal-size='lg' data-modal-url='modals/document/document_view.php?id=$document_id'>$document_name</a></li>";
+                        echo '<li class="itflow-link-row">' . linkRowHtml('document', $row, $client_id) . '</li>';
                     }
                     echo "</ul>";
                 }

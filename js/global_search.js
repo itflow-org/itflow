@@ -36,6 +36,7 @@
     const CACHE_SIZE = 50;
     const BADGE_VARIANTS = ['primary', 'secondary', 'success', 'danger', 'warning', 'info', 'light', 'dark'];
     const AVATAR_TONES = ['primary', 'success', 'info', 'warning', 'secondary'];
+    const FILE_TONES = ['pdf', 'word', 'excel', 'slides', 'image', 'media', 'archive', 'text', 'code', 'drawing', 'cert', 'other', 'document'];
     const MOD_KEY = /Mac|iPhone|iPad/.test(navigator.platform || navigator.userAgent || '') ? '⌘' : 'Ctrl';
 
     let modalEl = null;
@@ -138,6 +139,18 @@
         return node;
     }
 
+    // A file's type tile, or a document's - fileTypeTile() draws the same server side
+    function tile(spec) {
+        if (!spec || FILE_TONES.indexOf(spec.tone) === -1 || !/^[a-z0-9-]+$/.test(spec.icon || '')) {
+            return null;
+        }
+        const node = el('span', 'itflow-file-icon itflow-file-icon-xs itflow-file-tone-' + spec.tone);
+        node.title = spec.label || '';
+        node.setAttribute('aria-hidden', 'true');
+        node.appendChild(el('i', 'fas fa-fw fa-' + spec.icon));
+        return node;
+    }
+
     function badge(spec) {
         if (!spec || !spec.text) {
             return null;
@@ -178,7 +191,7 @@
             body.append(sub);
         }
 
-        link.append(avatar(parts.avatar) || icon(iconName, 'itflow-search-item-icon'), body);
+        link.append(avatar(parts.avatar) || tile(parts.tile) || icon(iconName, 'itflow-search-item-icon'), body);
 
         const status = badge(parts.badge);
         if (status || parts.context) {

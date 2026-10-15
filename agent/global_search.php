@@ -163,6 +163,9 @@ function searchResultBadge($badge) {
                             $item_url = escapeHtml($item['url']);
                             ?>
                             <div class="list-group-item d-flex align-items-center gap-3 py-2">
+                                <?php if (!empty($item['tile']) && preg_match('/^[a-z]+$/', $item['tile']['tone']) && preg_match('/^[a-z0-9-]+$/', $item['tile']['icon'])) { ?>
+                                    <span class="itflow-file-icon itflow-file-icon-sm itflow-file-tone-<?= $item['tile']['tone'] ?>" title="<?= escapeHtml($item['tile']['label']) ?>" aria-hidden="true"><i class="fas fa-fw fa-<?= $item['tile']['icon'] ?>"></i></span>
+                                <?php } ?>
                                 <?php if (!empty($item['avatar'])) {
                                     // A contact - their avatar, as everywhere else they appear
                                     $avatar = $item['avatar'];

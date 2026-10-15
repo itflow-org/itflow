@@ -639,7 +639,7 @@ if (isset($_GET['ticket_id'])) {
                                     $ticket_attachment_name = escapeHtml($ticket_attachment['ticket_attachment_name']);
                                     ?>
                                     <div class="mt-1">
-                                        <i class="fas fa-fw fa-paperclip text-secondary me-1"></i><?= $ticket_attachment_name ?>
+                                        <span class="me-1 align-middle"><?= fileTypeTile(pathinfo($ticket_attachment['ticket_attachment_name'], PATHINFO_EXTENSION), 'xs') ?></span><?= $ticket_attachment_name ?>
                                         <a target="_blank" class="ms-2 small" href="ticket_attachment.php?attachment_id=<?= $ticket_attachment_id ?>&action=view">View</a>
                                         <a class="ms-2 small" href="ticket_attachment.php?attachment_id=<?= $ticket_attachment_id ?>">Download</a>
                                         <?php if (lookupUserPermission("module_support") >= 3) { ?>
@@ -932,7 +932,7 @@ if (isset($_GET['ticket_id'])) {
                                         $ticket_attachment_name = escapeHtml($ticket_attachment['ticket_attachment_name']);
                                         ?>
                                         <div class="mt-1">
-                                            <i class="fas fa-fw fa-paperclip text-secondary me-1"></i><?= $ticket_attachment_name ?>
+                                            <span class="me-1 align-middle"><?= fileTypeTile(pathinfo($ticket_attachment['ticket_attachment_name'], PATHINFO_EXTENSION), 'xs') ?></span><?= $ticket_attachment_name ?>
                                             <a target="_blank" class="ms-2 small" href="ticket_attachment.php?attachment_id=<?= $ticket_attachment_id ?>&action=view">View</a>
                                             <a class="ms-2 small" href="ticket_attachment.php?attachment_id=<?= $ticket_attachment_id ?>">Download</a>
                                             <?php if (lookupUserPermission("module_support") >= 3) { ?>

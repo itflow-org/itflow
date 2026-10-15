@@ -152,11 +152,11 @@ ob_start();
                     <label for="documents">Select related documents</label>
                     <select class="form-select select2" id="documents" name="documents[]" multiple>
                         <?php
-                        $sql = mysqli_query($mysqli, "SELECT document_id, document_name FROM documents WHERE document_archived_at IS NULL AND document_client_id = $client_id");
+                        $sql = mysqli_query($mysqli, "SELECT document_id, document_name, document_description FROM documents WHERE document_archived_at IS NULL AND document_client_id = $client_id ORDER BY document_name ASC");
                         while ($row = mysqli_fetch_assoc($sql)) {
                             $document_id = intval($row['document_id']);
                             $document_name = escapeHtml($row['document_name']);
-                            echo "<option value=\"$document_id\">$document_name</option>";
+                            echo "<option value=\"$document_id\"" . selectOptionData(['icon' => 'fas fa-file-alt', 'description' => $row['document_description']]) . ">$document_name</option>";
                         }
                         ?>
                     </select>

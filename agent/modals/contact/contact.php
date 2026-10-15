@@ -124,24 +124,12 @@ $sql_linked_software = mysqli_query($mysqli, "SELECT software.software_id, softw
 $software_count = mysqli_num_rows($sql_linked_software);
 
 // Documents
-$sql_linked_documents = mysqli_query($mysqli, "SELECT documents.document_id, document_name, document_created_at, document_updated_at
-    FROM contact_documents
-    JOIN documents ON documents.document_id = contact_documents.document_id
-    WHERE contact_documents.contact_id = $contact_id
-      AND document_archived_at IS NULL
-    ORDER BY document_name ASC"
-);
-$document_count = mysqli_num_rows($sql_linked_documents);
+$linked_documents = linkedRecords('contact', $contact_id, 'document');
+$document_count = count($linked_documents);
 
 // Files
-$sql_linked_files = mysqli_query($mysqli, "SELECT files.file_id, file_name, file_ext, file_created_at
-    FROM contact_files
-    JOIN files ON files.file_id = contact_files.file_id
-    WHERE contact_files.contact_id = $contact_id
-      AND file_archived_at IS NULL
-    ORDER BY file_name ASC"
-);
-$file_count = mysqli_num_rows($sql_linked_files);
+$linked_files = linkedRecords('contact', $contact_id, 'file');
+$file_count = count($linked_files);
 
 // Notes
 $sql_related_notes = mysqli_query($mysqli, "SELECT contact_note, contact_note_created_at, contact_note_type, user_name FROM contact_notes
@@ -399,13 +387,10 @@ ob_start();
 
                 <?php if ($document_count) { ?>
                     <div class="tab-pane fade <?= $first_tab === 'documents' ? 'show active' : '' ?>" id="contact-quick-<?= $contact_id ?>-documents" role="tabpanel">
-                        <ul class="list-group list-group-flush">
-                            <?php while ($row = mysqli_fetch_assoc($sql_linked_documents)) {
-                                $document_last = $row['document_updated_at'] ?: $row['document_created_at']; ?>
-                                <li class="list-group-item px-0 d-flex justify-content-between gap-3">
-                                    <a class="ajax-modal" href="#" data-modal-size="lg" data-modal-url="modals/document/document_view.php?id=<?= intval($row['document_id']) ?>"><i class="fas fa-fw fa-file-alt text-secondary me-2"></i><?= escapeHtml($row['document_name']) ?></a>
-                                    <span class="small text-body-secondary text-nowrap" title="<?= escapeHtml($document_last) ?>"><?= timeAgo($document_last) ?></span>
-                                </li>
+                        <!-- The same rows as a document's Linked card - tile, name, when it changed -->
+                        <ul class="list-unstyled mb-0 itflow-links">
+                            <?php foreach ($linked_documents as $row) { ?>
+                                <li class="itflow-link-row"><?= linkRowHtml('document', $row, $client_id) ?></li>
                             <?php } ?>
                         </ul>
                     </div>
@@ -413,12 +398,10 @@ ob_start();
 
                 <?php if ($file_count) { ?>
                     <div class="tab-pane fade <?= $first_tab === 'files' ? 'show active' : '' ?>" id="contact-quick-<?= $contact_id ?>-files" role="tabpanel">
-                        <ul class="list-group list-group-flush">
-                            <?php while ($row = mysqli_fetch_assoc($sql_linked_files)) { ?>
-                                <li class="list-group-item px-0 d-flex justify-content-between gap-3">
-                                    <a href="file.php?file_id=<?= intval($row['file_id']) ?>&action=view" target="_blank" rel="noopener"><i class="fas fa-fw fa-<?= getFileIcon((string) $row['file_ext']) ?> text-secondary me-2"></i><?= escapeHtml($row['file_name']) ?></a>
-                                    <span class="small text-body-secondary text-nowrap" title="<?= escapeHtml($row['file_created_at']) ?>"><?= timeAgo($row['file_created_at']) ?></span>
-                                </li>
+                        <!-- Each opens its quick look - preview, details, what else it is linked to -->
+                        <ul class="list-unstyled mb-0 itflow-links">
+                            <?php foreach ($linked_files as $row) { ?>
+                                <li class="itflow-link-row"><?= linkRowHtml('file', $row, $client_id) ?></li>
                             <?php } ?>
                         </ul>
                     </div>
