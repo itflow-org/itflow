@@ -26,7 +26,7 @@ if (isExportRequest('export_transactions')) {
     $category = intval($_POST['category']);
 
     // Type Filter
-    $transaction_types_array = ['Revenue', 'Payment', 'Expense', 'Transfer In', 'Transfer Out'];
+    $transaction_types_array = ['Revenue', 'Payment', 'Expense', 'Transfer In', 'Transfer Out', 'Reimbursement'];
     if (!empty($_POST['type']) && in_array($_POST['type'], $transaction_types_array)) {
         $type_query = "AND (transaction_type = '" . escapeSql($_POST['type']) . "')";
         $filter_summary['Type'] = $_POST['type'];
@@ -138,12 +138,12 @@ if (isExportRequest('export_transactions')) {
                     UNION ALL
 
                     SELECT
-                        CASE WHEN transfer_id IS NOT NULL THEN 'Transfer Out' ELSE 'Expense' END,
+                        CASE WHEN transfer_id IS NOT NULL THEN 'Transfer Out' WHEN reimbursement_id IS NOT NULL THEN 'Reimbursement' ELSE 'Expense' END,
                         expense_id,
                         expense_date,
                         expense_created_at,
                         CASE WHEN transfer_id IS NOT NULL THEN transfer_notes ELSE expense_description END,
-                        to_account.account_name,
+                        CASE WHEN reimbursement_id IS NOT NULL THEN payee.user_name ELSE to_account.account_name END,
                         expense_reference,
                         expense_client_id,
                         CASE WHEN transfer_id IS NOT NULL THEN transfer_method ELSE expense_payment_method END,
@@ -155,6 +155,8 @@ if (isExportRequest('export_transactions')) {
                     LEFT JOIN transfers ON transfer_expense_id = expense_id
                     LEFT JOIN revenues AS transfer_revenue ON transfer_revenue_id = transfer_revenue.revenue_id
                     LEFT JOIN accounts AS to_account ON transfer_revenue.revenue_account_id = to_account.account_id
+                    LEFT JOIN reimbursements ON reimbursement_expense_id = expense_id
+                    LEFT JOIN users AS payee ON payee.user_id = reimbursement_user_id
                     WHERE expense_account_id = $account
                     AND expense_archived_at IS NULL
 

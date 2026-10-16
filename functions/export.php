@@ -387,6 +387,7 @@ function getExportColumns($export_type) {
             'expense_payment_method' => ['label' => 'Paid By', 'default' => false],
             'expense_reference'   => ['label' => 'Reference', 'default' => false],
             'expense_receipt_display' => ['label' => 'Receipt', 'default' => false],
+            'expense_paid_by_display' => ['label' => 'Paid Personally', 'default' => false],
             'expense_billing_display' => ['label' => 'Billing', 'default' => false],
             'expense_billed_on'   => ['label' => 'Billed On', 'default' => false],
             'user_name'           => ['label' => 'Entered By', 'default' => false],

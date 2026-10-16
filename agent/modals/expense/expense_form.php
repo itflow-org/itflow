@@ -9,9 +9,10 @@
  *   $form_vendor_id  the vendor a new one starts with (0 to pick)
  *   $form_client_id  the client a new one starts with (0 for none)
  *
- * Posts date, amount, vendor, category, account, payment_method, client_id,
- * reference, description, the receipt as `file`, and refund_of (refund) or
- * receipt_remove (edit). Picking a vendor on a new expense fills in the
+ * Posts date, amount, vendor, category, account ('personal' with paid_by
+ * when an agent paid it themselves), payment_method, client_id, reference,
+ * description, billable and markup, the receipt as `file`, and refund_of
+ * (refund) or receipt_remove (edit). Picking a vendor on a new expense fills in the
  * category, account and payment method of the last expense with them,
  * unless those were changed by hand.
  *
@@ -67,6 +68,14 @@ while ($row = mysqli_fetch_assoc($sql)) {
     $form_clients[] = $row;
 }
 $form_receipt = $form_edit ? $form_value('expense_receipt') : '';
+
+// Paid personally by an agent, to be paid back - not a refund. Once paid back, who paid stays.
+$form_paid_by = $form_row && !$form_refund ? intval($form_row['expense_paid_by']) : 0;
+$form_reimbursed = $form_edit && !empty($form_row['expense_reimbursement_id']);
+$form_payers = $form_refund ? [] : expensePayers($form_paid_by);
+if ($form_refund && !$form_account) {
+    $form_account = intval($config_default_expense_account);
+}
 
 // Billed on to the client - not for a refund. One already on an invoice stays billed to that client.
 $form_billed = $form_edit && !empty($form_row['expense_invoice_id']);
@@ -157,13 +166,19 @@ $form_markup = $form_row && !$form_refund ? floatval($form_row['expense_markup']
         <label class="form-label">Paid from <strong class="text-danger">*</strong></label>
         <div class="input-group">
             <span class="input-group-text"><i class="fa fa-fw fa-piggy-bank"></i></span>
-            <select class="form-select select2" name="account" required data-expense-account>
+            <select class="form-select select2" name="account" required data-expense-account <?= $form_reimbursed ? 'disabled' : '' ?>>
                 <option value="">- Which account -</option>
                 <?php foreach ($form_accounts as $account_id => $account) { ?>
-                    <option value="<?= $account_id ?>" <?= $form_account === $account_id ? 'selected' : '' ?> data-icon="fas fa-piggy-bank"
+                    <option value="<?= $account_id ?>" <?= !$form_paid_by && $form_account === $account_id ? 'selected' : '' ?> data-icon="fas fa-piggy-bank"
                         data-description="<?= escapeHtml(billingMoney($account['balance'], $account['account_currency_code'])) ?><?= $account['account_archived_at'] ? ' - archived' : '' ?>"><?= escapeHtml($account['account_name']) ?></option>
                 <?php } ?>
+                <?php if (!$form_refund) { ?>
+                    <option value="personal" <?= $form_paid_by ? 'selected' : '' ?> data-icon="fas fa-hand-holding-usd" data-description="An agent paid it - to pay them back">Paid personally</option>
+                <?php } ?>
             </select>
+            <?php if ($form_reimbursed) { ?>
+                <input type="hidden" name="account" value="personal">
+            <?php } ?>
         </div>
     </div>
 
@@ -179,6 +194,32 @@ $form_markup = $form_row && !$form_refund ? floatval($form_row['expense_markup']
             </select>
         </div>
     </div>
+
+    <?php if (!$form_refund) { ?>
+        <div class="col-md-7" data-expense-payer <?= $form_paid_by ? '' : 'hidden' ?>>
+            <label class="form-label">Paid personally by <strong class="text-danger">*</strong></label>
+            <div class="input-group">
+                <span class="input-group-text"><i class="fa fa-fw fa-hand-holding-usd"></i></span>
+                <select class="form-select select2" name="paid_by" data-expense-paid-by <?= $form_reimbursed ? 'disabled' : '' ?>>
+                    <option value="">- Who paid it -</option>
+                    <?php foreach ($form_payers as $payer_id => $payer_name) { ?>
+                        <option value="<?= $payer_id ?>" <?= ($form_paid_by ?: intval($session_user_id)) === $payer_id ? 'selected' : '' ?>><?= escapeHtml($payer_name) ?><?= $payer_id === intval($session_user_id) ? ' (me)' : '' ?></option>
+                    <?php } ?>
+                </select>
+                <?php if ($form_reimbursed) { ?>
+                    <input type="hidden" name="paid_by" value="<?= $form_paid_by ?>">
+                <?php } ?>
+            </div>
+            <div class="form-text">
+                <?php if ($form_reimbursed) { ?>
+                    Paid back on <?= escapeHtml(date('M j, Y', strtotime($form_row['reimbursement_date']))) ?> from <?= escapeHtml($form_row['reimbursed_account_name'] ?: 'an account') ?> - undo that reimbursement to change who paid it.
+                <?php } else { ?>
+                    It counts as spent on its date, and comes out of an account when they are paid back - from To reimburse on the expenses list.
+                <?php } ?>
+            </div>
+        </div>
+        <div class="col-md-5 d-none d-md-block" data-expense-payer <?= $form_paid_by ? '' : 'hidden' ?>></div>
+    <?php } ?>
 
     <div class="col-md-7">
         <label class="form-label">Client</label>
@@ -262,6 +303,27 @@ $form_markup = $form_row && !$form_refund ? floatval($form_row['expense_markup']
 </div>
 
 <?php if (!$form_refund) { ?>
+<script>
+(function () {
+    // Paid personally: who paid it, instead of an account
+    var root = document.getElementById(<?= json_encode($form_id) ?>);
+    if (!root || root.dataset.payerWired) {
+        return;
+    }
+    root.dataset.payerWired = '1';
+    var account = root.querySelector('[data-expense-account]');
+    var paidBy = root.querySelector('[data-expense-paid-by]');
+    function update() {
+        var personal = account.value === 'personal';
+        root.querySelectorAll('[data-expense-payer]').forEach(function (el) {
+            el.hidden = !personal;
+        });
+        paidBy.required = personal;
+    }
+    account.addEventListener('change', update);
+    update();
+})();
+</script>
 <script>
 (function () {
     // Billing shows once there is a client; what it bills follows the amount and markup

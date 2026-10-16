@@ -18,7 +18,7 @@ if (isset($_GET['account']) & !empty($_GET['account'])) {
 }
 
 // Type Filter
-$transaction_types_array = ['Revenue', 'Payment', 'Expense', 'Transfer In', 'Transfer Out'];
+$transaction_types_array = ['Revenue', 'Payment', 'Expense', 'Transfer In', 'Transfer Out', 'Reimbursement'];
 if (isset($_GET['type']) & !empty($_GET['type']) && in_array($_GET['type'], $transaction_types_array)) {
     $type_query = "AND (transaction_type = '" . escapeSql($_GET['type']) . "')";
     $type_filter = escapeSql($_GET['type']);
@@ -126,14 +126,14 @@ if ($account_filter) {
             UNION ALL
 
             SELECT
-                CASE WHEN transfer_id IS NOT NULL THEN 'Transfer Out' ELSE 'Expense' END,
-                expense_id,
+                CASE WHEN transfer_id IS NOT NULL THEN 'Transfer Out' WHEN reimbursement_id IS NOT NULL THEN 'Reimbursement' ELSE 'Expense' END,
+                CASE WHEN reimbursement_id IS NOT NULL THEN reimbursement_id ELSE expense_id END,
                 transfer_id,
                 0,
                 expense_date,
                 expense_created_at,
                 CASE WHEN transfer_id IS NOT NULL THEN transfer_notes ELSE expense_description END,
-                to_account.account_name,
+                CASE WHEN reimbursement_id IS NOT NULL THEN payee.user_name ELSE to_account.account_name END,
                 expense_reference,
                 expense_client_id,
                 CASE WHEN transfer_id IS NOT NULL THEN transfer_method ELSE expense_payment_method END,
@@ -146,6 +146,8 @@ if ($account_filter) {
             LEFT JOIN transfers ON transfer_expense_id = expense_id
             LEFT JOIN revenues AS transfer_revenue ON transfer_revenue_id = transfer_revenue.revenue_id
             LEFT JOIN accounts AS to_account ON transfer_revenue.revenue_account_id = to_account.account_id
+            LEFT JOIN reimbursements ON reimbursement_expense_id = expense_id
+            LEFT JOIN users AS payee ON payee.user_id = reimbursement_user_id
             WHERE expense_account_id = $account_filter
             AND expense_archived_at IS NULL
 
@@ -465,6 +467,8 @@ if ($account_filter) {
                         $transaction_category_display = "<i class='fas fa-fw fa-arrow-left text-secondary me-1'></i>From $transaction_other_account";
                     } elseif ($transaction_type == 'Transfer Out') {
                         $transaction_category_display = "<i class='fas fa-fw fa-arrow-right text-secondary me-1'></i>To $transaction_other_account";
+                    } elseif ($transaction_type == 'Reimbursement') {
+                        $transaction_category_display = "<i class='fas fa-fw fa-hand-holding-usd text-secondary me-1'></i>To $transaction_other_account";
                     } else {
                         $transaction_category_display = $transaction_category;
                     }
@@ -497,6 +501,8 @@ if ($account_filter) {
                         $transaction_modal_url = "modals/transfer/transfer_edit.php?id=$transaction_transfer_id";
                     } elseif ($transaction_type == 'Expense') {
                         $transaction_modal_url = "modals/expense/expense.php?id=$transaction_id";
+                    } elseif ($transaction_type == 'Reimbursement') {
+                        $transaction_modal_url = "modals/expense/expense_reimbursement.php?id=$transaction_id";
                     } elseif ($transaction_type == 'Revenue') {
                         $transaction_modal_url = "modals/revenue/revenue_edit.php?id=$transaction_id";
                     } else {

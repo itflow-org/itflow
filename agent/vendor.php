@@ -129,7 +129,8 @@ if (!$vendor || (isset($_GET['client_id']) && $vendor_client_id !== intval($clie
     $spend = null;
     if ($is_ours && $can_financial) {
         $spend = vendorSpend($vendor_id);
-        $sql = mysqli_query($mysqli, "SELECT expense_id, expense_date, expense_amount, expense_currency_code, expense_description, expense_reference, expense_receipt, category_name, account_name
+        $sql = mysqli_query($mysqli, "SELECT expense_id, expense_date, expense_amount, expense_currency_code, expense_description, expense_reference, expense_receipt, category_name, account_name,
+                expense_paid_by, (SELECT payer.user_name FROM users AS payer WHERE payer.user_id = expense_paid_by) AS paid_by_name
             FROM expenses
             LEFT JOIN categories ON category_id = expense_category_id
             LEFT JOIN accounts ON account_id = expense_account_id
@@ -698,7 +699,7 @@ if (!$vendor || (isset($_GET['client_id']) && $vendor_client_id !== intval($clie
                                                 <div><?= escapeHtml(truncate((string) $expense['expense_description'], 90)) ?: '<span class="text-body-secondary">-</span>' ?></div>
                                                 <div class="small text-body-secondary"><?= escapeHtml(implode(' · ', array_filter([$expense['category_name'], $expense['expense_reference']]))) ?></div>
                                             </td>
-                                            <td class="text-nowrap small"><?= escapeHtml($expense['account_name']) ?></td>
+                                            <td class="text-nowrap small"><?= intval($expense['expense_paid_by']) ? '<i class="fas fa-hand-holding-usd text-body-secondary me-1" title="Paid personally"></i>' . escapeHtml($expense['paid_by_name'] ?: 'An agent') : escapeHtml($expense['account_name']) ?></td>
                                             <td class="text-end text-nowrap font-monospace"><?= numfmt_format_currency($currency_format, floatval($expense['expense_amount']), $expense['expense_currency_code']) ?></td>
                                         </tr>
                                     <?php } ?>

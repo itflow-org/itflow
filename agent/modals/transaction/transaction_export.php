@@ -12,7 +12,7 @@ if (isset($_GET['account']) & !empty($_GET['account'])) {
 }
 
 // Type Filter
-$transaction_types_array = ['Revenue', 'Payment', 'Expense', 'Transfer In', 'Transfer Out'];
+$transaction_types_array = ['Revenue', 'Payment', 'Expense', 'Transfer In', 'Transfer Out', 'Reimbursement'];
 if (isset($_GET['type']) & !empty($_GET['type']) && in_array($_GET['type'], $transaction_types_array)) {
     $type_filter = $_GET['type'];
 } else {

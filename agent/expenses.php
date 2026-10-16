@@ -36,6 +36,7 @@ $client_filter = intval($_GET['client'] ?? 0);
 $method_filter = trim((string) ($_GET['method'] ?? ''));
 $recurring_filter = intval($_GET['recurring_expense_id'] ?? 0);
 $recurring_filter_row = $recurring_filter ? recurringExpenseRow($recurring_filter) : null;
+$paid_by_filter = intval($_GET['paid_by'] ?? 0);
 $shows = expenseShows();
 $show = isset($shows[$_GET['show'] ?? '']) ? (string) ($_GET['show'] ?? '') : '';
 
@@ -53,7 +54,7 @@ $show_query = $shows[$show]['where'] ? "AND {$shows[$show]['where']}" : '';
 $joins = expenseJoinsSql();
 
 $sql = mysqli_query($mysqli, "SELECT SQL_CALC_FOUND_ROWS expenses.*, vendor_name, vendor_archived_at, category_name, category_color, account_name, client_name, user_name,
-        invoice_prefix, invoice_number
+        invoice_prefix, invoice_number, (SELECT payer.user_name FROM users AS payer WHERE payer.user_id = expense_paid_by) AS paid_by_name
     FROM expenses $joins
     LEFT JOIN invoices ON invoice_id = expense_invoice_id
     WHERE $where $show_query
@@ -96,7 +97,10 @@ $stat_money = function ($amount) use ($session_company_currency) {
 
 // More filters open when one of them is set
 $more_filters = $account_filter || $method_filter !== '';
-$any_filter = $q || $vendor_filter || $category_filter || $account_filter || $client_filter || $method_filter !== '' || $recurring_filter || $show !== '' || $dtf !== '1970-01-01';
+$any_filter = $q || $vendor_filter || $category_filter || $account_filter || $client_filter || $method_filter !== '' || $recurring_filter || $paid_by_filter || $show !== '' || $dtf !== '1970-01-01';
+
+// Who is owed for what they paid personally - above the list on To reimburse
+$owed = $show === 'to_reimburse' ? expenseToReimburse($paid_by_filter) : [];
 
 // This month against the same days of last month
 $month_change = $stats['last_to_date'] > 0 ? round(($stats['month'] - $stats['last_to_date']) / $stats['last_to_date'] * 100) : null;
@@ -152,8 +156,12 @@ $month_change = $stats['last_to_date'] > 0 ? round(($stats['month'] - $stats['la
                 <?php } ?>
                 <button type="button" class="btn btn-primary dropdown-toggle <?= $can_edit ? 'dropdown-toggle-split' : '' ?>" data-bs-toggle="dropdown"><?= $can_edit ? '' : '<i class="fas fa-ellipsis-h"></i>' ?></button>
                 <div class="dropdown-menu dropdown-menu-end">
+                    <?php if ($can_edit) { ?>
+                        <a class="dropdown-item" href="expense_import.php"><i class="fa fa-fw fa-file-import text-secondary me-2"></i>Import Statement</a>
+                        <div class="dropdown-divider"></div>
+                    <?php } ?>
                     <a class="dropdown-item ajax-modal" href="#"
-                        data-modal-url="<?= buildExportModalUrl('modals/expense/expense_export.php', ['account', 'vendor', 'category', 'client', 'method', 'recurring_expense_id', 'show', 'q'], ['dtf' => $dtf, 'dtt' => $dtt]) ?>">
+                        data-modal-url="<?= buildExportModalUrl('modals/expense/expense_export.php', ['account', 'vendor', 'category', 'client', 'method', 'paid_by', 'recurring_expense_id', 'show', 'q'], ['dtf' => $dtf, 'dtt' => $dtt]) ?>">
                         <i class="fa fa-fw fa-download text-secondary me-2"></i>Export
                     </a>
                     <a class="dropdown-item" href="recurring_expenses.php"><i class="fa fa-fw fa-redo-alt text-secondary me-2"></i>Recurring Expenses</a>
@@ -168,6 +176,9 @@ $month_change = $stats['last_to_date'] > 0 ? round(($stats['month'] - $stats['la
             <input type="hidden" name="show" value="<?= escapeHtml($show) ?>">
             <?php if ($recurring_filter) { ?>
                 <input type="hidden" name="recurring_expense_id" value="<?= $recurring_filter ?>">
+            <?php } ?>
+            <?php if ($paid_by_filter) { ?>
+                <input type="hidden" name="paid_by" value="<?= $paid_by_filter ?>">
             <?php } ?>
             <div class="row g-2 align-items-center">
                 <div class="col-lg-3 col-md-6">
@@ -232,6 +243,7 @@ $month_change = $stats['last_to_date'] > 0 ? round(($stats['month'] - $stats['la
                                     <a class="dropdown-item ajax-modal" href="#" data-modal-url="modals/expense/expense_bulk_edit.php?field=method" data-bulk="true"><i class="fas fa-fw fa-credit-card text-secondary me-2"></i>Set Payment Method</a>
                                     <a class="dropdown-item ajax-modal" href="#" data-modal-url="modals/expense/expense_bulk_edit.php?field=client" data-bulk="true"><i class="fas fa-fw fa-user text-secondary me-2"></i>Set Client</a>
                                     <a class="dropdown-item ajax-modal" href="#" data-modal-url="modals/expense/expense_bulk_edit.php?field=billable" data-bulk="true"><i class="fas fa-fw fa-file-invoice-dollar text-secondary me-2"></i>Set Billable</a>
+                                    <a class="dropdown-item ajax-modal" href="#" data-modal-size="lg" data-modal-url="modals/expense/expense_reimburse.php" data-bulk="true"><i class="fas fa-fw fa-hand-holding-usd text-secondary me-2"></i>Reimburse</a>
                                     <?php if ($can_delete) { ?>
                                         <div class="dropdown-divider"></div>
                                         <a class="dropdown-item text-danger text-bold ajax-modal" href="#" data-modal-url="modals/expense/expense_bulk_delete.php" data-bulk="true"><i class="fas fa-fw fa-trash me-2"></i>Delete</a>
@@ -277,7 +289,7 @@ $month_change = $stats['last_to_date'] > 0 ? round(($stats['month'] - $stats['la
         <!-- Cut the list - counted over what the filters above leave -->
         <nav class="nav nav-pills itflow-asset-tabs mt-2 flex-nowrap overflow-auto">
             <?php foreach ($shows as $key => $s) {
-                $alarm = $key === 'no_receipt' && $counts[$key]; ?>
+                $alarm = in_array($key, ['no_receipt', 'to_reimburse'], true) && $counts[$key]; ?>
                 <a class="nav-link text-nowrap <?= $show === $key ? 'active' : '' ?>" href="<?= escapeHtml($filter_url(['show' => $key])) ?>"<?= !empty($s['title']) ? ' title="' . escapeHtml($s['title']) . '"' : '' ?>>
                     <?php if (!empty($s['icon'])) { ?><i class="fas fa-fw <?= $s['icon'] ?> me-1"></i><?php } ?><?= $s['label'] ?>
                     <span class="badge rounded-pill ms-1 <?= $alarm ? 'text-bg-warning' : '' ?>"><?= $counts[$key] ?></span>
@@ -290,7 +302,29 @@ $month_change = $stats['last_to_date'] > 0 ? round(($stats['month'] - $stats['la
                 <a class="ms-2" href="<?= escapeHtml($filter_url(['recurring_expense_id' => ''])) ?>">Clear</a>
             </div>
         <?php } ?>
+        <?php if ($paid_by_filter) { ?>
+            <div class="small text-body-secondary mt-2">
+                <i class="fas fa-filter me-1"></i>Paid personally by <?= escapeHtml((string) getFieldById('users', $paid_by_filter, 'user_name')) ?>
+                <a class="ms-2" href="<?= escapeHtml($filter_url(['paid_by' => ''])) ?>">Clear</a>
+            </div>
+        <?php } ?>
     </div>
+
+    <?php if ($owed) { ?>
+        <!-- Who is owed, to pay back -->
+        <div class="list-group list-group-flush border-bottom">
+            <?php foreach ($owed as $owed_id => $agent) { ?>
+                <div class="list-group-item d-flex flex-wrap align-items-center gap-2 bg-warning-subtle">
+                    <i class="fas fa-hand-holding-usd text-warning-emphasis"></i>
+                    <span class="flex-grow-1"><strong><?= escapeHtml($agent['user_name']) ?></strong> is owed <strong class="itflow-money"><?= $stat_money($agent['total']) ?></strong>
+                        <span class="text-body-secondary">for <?= $agent['count'] ?> expense<?= $agent['count'] === 1 ? '' : 's' ?><?= $agent['oldest'] > 1 ? ', the oldest ' . $agent['oldest'] . ' days ago' : ($agent['oldest'] === 1 ? ', the oldest yesterday' : ' from today') ?></span></span>
+                    <?php if ($can_edit) { ?>
+                        <button type="button" class="btn btn-sm btn-success ajax-modal" data-modal-size="lg" data-modal-url="modals/expense/expense_reimburse.php?user_id=<?= $owed_id ?>"><i class="fas fa-hand-holding-usd me-1"></i>Reimburse</button>
+                    <?php } ?>
+                </div>
+            <?php } ?>
+        </div>
+    <?php } ?>
 
     <div class="table-responsive">
         <table class="table table-hover align-middle mb-0 itflow-billing-table">
@@ -357,8 +391,17 @@ $month_change = $stats['last_to_date'] > 0 ? round(($stats['month'] - $stats['la
                         <?php } ?>
                     </td>
                     <td class="text-nowrap">
-                        <?= escapeHtml($row['account_name'] ?: '-') ?>
-                        <?php if ($row['expense_payment_method']) { ?><div class="small text-body-secondary"><?= escapeHtml($row['expense_payment_method']) ?></div><?php } ?>
+                        <?php if (intval($row['expense_paid_by'])) { ?>
+                            <a class="text-reset" href="<?= escapeHtml($filter_url(['paid_by' => intval($row['expense_paid_by'])])) ?>" title="Paid personally - their expenses"><i class="fas fa-hand-holding-usd text-body-secondary me-1"></i><?= escapeHtml($row['paid_by_name'] ?: 'An agent') ?></a>
+                            <?php if ($row['expense_reimbursement_id']) { ?>
+                                <div class="small"><a class="text-success-emphasis ajax-modal" href="#" data-modal-size="lg" data-modal-url="modals/expense/expense_reimbursement.php?id=<?= intval($row['expense_reimbursement_id']) ?>"><i class="fas fa-check-circle me-1"></i>Paid back</a></div>
+                            <?php } elseif ($row_amount > 0) { ?>
+                                <div class="small text-warning-emphasis">To reimburse</div>
+                            <?php } ?>
+                        <?php } else { ?>
+                            <?= escapeHtml($row['account_name'] ?: '-') ?>
+                            <?php if ($row['expense_payment_method']) { ?><div class="small text-body-secondary"><?= escapeHtml($row['expense_payment_method']) ?></div><?php } ?>
+                        <?php } ?>
                     </td>
                     <td class="text-end itflow-money text-nowrap">
                         <span class="fw-semibold <?= $row_amount < 0 ? 'text-success-emphasis' : '' ?>"><?= escapeHtml(billingMoney($row_amount, $row_currency)) ?></span>

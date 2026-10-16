@@ -6345,3 +6345,20 @@ a.itflow-billing-stat:hover {
         min-width: 4.5rem;
     }
 }
+/* Import Statement's review - the statement text keeps to a width, the picks stay usable, the Import bar stays in view */
+.itflow-import-table tbody tr[data-import-row] {
+    cursor: pointer;
+}
+.itflow-import-table .itflow-import-text {
+    max-width: 22rem;
+    min-width: 12rem;
+}
+.itflow-import-table .itflow-import-pick {
+    min-width: 10.5rem;
+}
+.itflow-import-footer {
+    position: sticky;
+    bottom: 0;
+    z-index: 3;
+    background-color: var(--bs-tertiary-bg);
+}

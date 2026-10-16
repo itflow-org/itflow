@@ -3,7 +3,8 @@
 /*
  * An expense's quick look - the receipt (shown right in the window when it
  * is a photo or a PDF, or attached here when there isn't one), who it was
- * paid to and for what, the account and how it was paid, the client, who
+ * paid to and for what, the account and how it was paid (or the agent who
+ * paid it personally, and whether they are paid back), the client, who
  * entered it, the refund it is or the refunds against it, billing it on to
  * the client (the invoice it is on, with the margin, or what it will bill
  * at), and the stock deliveries it paid for. Opened from the expenses list, the vendor's page,
@@ -24,7 +25,10 @@ $expense_id = intval($row['expense_id']);
 $client_id = intval($row['expense_client_id']);
 $can_edit = lookupUserPermission('module_financial') >= 2;
 $can_delete = lookupUserPermission('module_financial') >= 3;
-$is_transfer = !empty($row['transfer_id']);
+$is_transfer = !empty($row['transfer_id']) || !empty($row['reimbursement_out_id']);
+$is_payback = !empty($row['reimbursement_out_id']);
+$paid_by = intval($row['expense_paid_by']);
+$to_reimburse = $paid_by && !$row['expense_reimbursement_id'] && floatval($row['expense_amount']) > 0;
 $amount = floatval($row['expense_amount']);
 $currency = (string) $row['expense_currency_code'];
 $receipt_kind = $row['expense_receipt'] && expenseReceiptPath($row['expense_receipt']) !== '' ? expenseReceiptKind($row['expense_receipt']) : '';
@@ -62,7 +66,7 @@ ob_start();
         <?= vendorTile($row['vendor_name'] ?: 'Transfer', 'lg') ?>
         <div class="min-w-0 flex-grow-1">
             <h5 class="modal-title d-flex flex-wrap align-items-center column-gap-2">
-                <span class="fw-semibold text-break"><?= escapeHtml($is_transfer ? 'Transfer out' : ($row['vendor_name'] ?: 'No vendor')) ?></span>
+                <span class="fw-semibold text-break"><?= escapeHtml($is_payback ? 'Paid back to ' . ($row['reimbursed_to_name'] ?: 'an agent') : ($is_transfer ? 'Transfer out' : ($row['vendor_name'] ?: 'No vendor'))) ?></span>
                 <?php if ($amount < 0) { ?><span class="badge rounded-pill text-bg-success fw-normal fs-6">Refund</span><?php } ?>
             </h5>
             <div class="small text-body-secondary mt-1"><?= escapeHtml(implode(' · ', array_filter([date('M j, Y', strtotime($row['expense_date'])), $row['category_name']]))) ?></div>
@@ -76,7 +80,10 @@ ob_start();
 
 <div class="modal-body">
 
-    <?php if ($is_transfer) { ?>
+    <?php if ($is_payback) { ?>
+        <div class="alert alert-info small mb-3"><i class="fas fa-hand-holding-usd me-2"></i>This is money paid back to <?= escapeHtml($row['reimbursed_to_name'] ?: 'an agent') ?> for what they paid personally -
+            <a href="#" class="ajax-modal" data-modal-size="lg" data-modal-url="modals/expense/expense_reimbursement.php?id=<?= intval($row['reimbursement_out_id']) ?>">open the reimbursement</a> to see or undo it.</div>
+    <?php } elseif ($is_transfer) { ?>
         <div class="alert alert-info small mb-3"><i class="fas fa-exchange-alt me-2"></i>This is the out side of a transfer between accounts - it is changed or deleted from <a href="transfers.php">Transfers</a>.</div>
     <?php } ?>
 
@@ -120,10 +127,24 @@ ob_start();
                 <i class="fas fa-fw fa-list"></i>
                 <span><?= expenseCategoryDot($row['category_color']) ?><?= escapeHtml($row['category_name'] ?: 'No category') ?></span>
             </div>
-            <div class="itflow-glance-item" title="Paid from">
-                <i class="fas fa-fw fa-piggy-bank"></i>
-                <span><?= escapeHtml($row['account_name'] ?: 'No account') ?><?= $row['expense_payment_method'] ? ' <span class="text-body-secondary">&middot; ' . escapeHtml($row['expense_payment_method']) . '</span>' : '' ?></span>
-            </div>
+            <?php if ($paid_by) { ?>
+                <div class="itflow-glance-item" title="Paid personally">
+                    <i class="fas fa-fw fa-hand-holding-usd"></i>
+                    <span>
+                        Paid personally by <?= escapeHtml($row['paid_by_name'] ?: 'an agent since deleted') ?><?= $row['expense_payment_method'] ? ' <span class="text-body-secondary">&middot; ' . escapeHtml($row['expense_payment_method']) . '</span>' : '' ?>
+                        <?php if ($row['expense_reimbursement_id']) { ?>
+                            <span class="d-block small"><a href="#" class="ajax-modal text-success-emphasis" data-modal-size="lg" data-modal-url="modals/expense/expense_reimbursement.php?id=<?= intval($row['expense_reimbursement_id']) ?>"><i class="fas fa-check-circle me-1"></i>Paid back <?= escapeHtml(date('M j, Y', strtotime($row['reimbursement_date']))) ?><?= $row['reimbursed_account_name'] ? ' from ' . escapeHtml($row['reimbursed_account_name']) : '' ?></a></span>
+                        <?php } elseif ($to_reimburse) { ?>
+                            <span class="d-block small text-warning-emphasis fw-semibold">To reimburse</span>
+                        <?php } ?>
+                    </span>
+                </div>
+            <?php } else { ?>
+                <div class="itflow-glance-item" title="Paid from">
+                    <i class="fas fa-fw fa-piggy-bank"></i>
+                    <span><?= escapeHtml($row['account_name'] ?: 'No account') ?><?= $row['expense_payment_method'] ? ' <span class="text-body-secondary">&middot; ' . escapeHtml($row['expense_payment_method']) . '</span>' : '' ?></span>
+                </div>
+            <?php } ?>
             <?php if ($row['expense_reference']) { ?>
                 <div class="itflow-glance-item" title="Reference">
                     <i class="fas fa-fw fa-hashtag"></i>
@@ -236,6 +257,9 @@ ob_start();
                 <button type="button" class="btn btn-outline-secondary ajax-modal" data-modal-size="lg" data-modal-url="modals/expense/expense_refund.php?id=<?= $expense_id ?>"><i class="fas fa-undo-alt me-2"></i>Refund</button>
             <?php } ?>
         </div>
+    <?php } ?>
+    <?php if ($to_reimburse && $can_edit) { ?>
+        <button type="button" class="btn btn-outline-success ajax-modal" data-modal-size="lg" data-modal-url="modals/expense/expense_reimburse.php?expense_ids[]=<?= $expense_id ?>"><i class="fas fa-hand-holding-usd"></i><span class="d-none d-sm-inline ms-2">Reimburse</span></button>
     <?php } ?>
     <?php if ($can_unbill) { ?>
         <a class="btn btn-outline-secondary confirm-link" href="post.php?expense_unbill=<?= $expense_id ?>&amp;csrf_token=<?= $_SESSION['csrf_token'] ?>"

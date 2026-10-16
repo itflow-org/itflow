@@ -30,6 +30,7 @@ CREATE TABLE `accounts` (
   `opening_balance` decimal(15,2) NOT NULL DEFAULT 0.00,
   `account_currency_code` varchar(200) NOT NULL,
   `account_notes` text DEFAULT NULL,
+  `account_import_map` text DEFAULT NULL,
   `account_type` int(6) DEFAULT NULL,
   `account_created_at` datetime NOT NULL DEFAULT current_timestamp(),
   `account_updated_at` datetime DEFAULT NULL ON UPDATE current_timestamp(),
@@ -1331,6 +1332,28 @@ CREATE TABLE `email_queue` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
+-- Table structure for table `expense_import_rules`
+--
+
+DROP TABLE IF EXISTS `expense_import_rules`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8mb4 */;
+CREATE TABLE `expense_import_rules` (
+  `import_rule_id` int(11) NOT NULL AUTO_INCREMENT,
+  `import_rule_match` varchar(200) NOT NULL,
+  `import_rule_vendor_id` int(11) NOT NULL,
+  `import_rule_category_id` int(11) NOT NULL DEFAULT 0,
+  `import_rule_client_id` int(11) NOT NULL DEFAULT 0,
+  `import_rule_billable` tinyint(1) NOT NULL DEFAULT 0,
+  `import_rule_used_count` int(11) NOT NULL DEFAULT 0,
+  `import_rule_created_at` datetime NOT NULL DEFAULT current_timestamp(),
+  `import_rule_updated_at` datetime DEFAULT NULL ON UPDATE current_timestamp(),
+  PRIMARY KEY (`import_rule_id`),
+  UNIQUE KEY `import_rule_match` (`import_rule_match`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
 -- Table structure for table `expenses`
 --
 
@@ -1360,8 +1383,13 @@ CREATE TABLE `expenses` (
   `expense_markup` decimal(7,2) NOT NULL DEFAULT 0.00,
   `expense_invoice_id` int(11) DEFAULT NULL,
   `expense_invoice_item_id` int(11) DEFAULT NULL,
+  `expense_import_key` varchar(64) DEFAULT NULL,
+  `expense_paid_by` int(11) NOT NULL DEFAULT 0,
+  `expense_reimbursement_id` int(11) DEFAULT NULL,
   PRIMARY KEY (`expense_id`),
-  KEY `expense_invoice_id` (`expense_invoice_id`)
+  KEY `expense_invoice_id` (`expense_invoice_id`),
+  KEY `expense_import_key` (`expense_import_key`),
+  KEY `expense_reimbursement_id` (`expense_reimbursement_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -2259,6 +2287,31 @@ CREATE TABLE `recurring_tickets` (
   `recurring_ticket_ticket_template_id` int(11) NOT NULL DEFAULT 0,
   PRIMARY KEY (`recurring_ticket_id`),
   KEY `recurring_ticket_client_id` (`recurring_ticket_client_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `reimbursements`
+--
+
+DROP TABLE IF EXISTS `reimbursements`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8mb4 */;
+CREATE TABLE `reimbursements` (
+  `reimbursement_id` int(11) NOT NULL AUTO_INCREMENT,
+  `reimbursement_user_id` int(11) NOT NULL,
+  `reimbursement_date` date NOT NULL,
+  `reimbursement_amount` decimal(15,2) NOT NULL,
+  `reimbursement_currency_code` varchar(200) NOT NULL,
+  `reimbursement_account_id` int(11) NOT NULL,
+  `reimbursement_payment_method` varchar(200) DEFAULT NULL,
+  `reimbursement_reference` varchar(200) DEFAULT NULL,
+  `reimbursement_expense_id` int(11) NOT NULL,
+  `reimbursement_created_by` int(11) NOT NULL DEFAULT 0,
+  `reimbursement_created_at` datetime NOT NULL DEFAULT current_timestamp(),
+  PRIMARY KEY (`reimbursement_id`),
+  KEY `reimbursement_user_id` (`reimbursement_user_id`),
+  KEY `reimbursement_expense_id` (`reimbursement_expense_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 

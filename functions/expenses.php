@@ -35,24 +35,30 @@ function expenseRow($expense_id, $scoped = true) {
     }
     $scope = $scoped ? clientScopeSql('expenses.expense_client_id') : '';
     $row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT expenses.*, vendor_name, vendor_description, vendor_archived_at,
-            category_name, category_color, category_icon, category_archived_at, account_name, account_archived_at, account_currency_code,
-            client_name, client_abbreviation, user_name AS created_by_name, transfer_id,
+            category_name, category_color, category_icon, category_archived_at, accounts.account_name, accounts.account_archived_at, accounts.account_currency_code,
+            client_name, client_abbreviation, creator.user_name AS created_by_name, transfer_id,
             recurring_expense_frequency, recurring_expense_amount, recurring_expense_currency_code,
             invoice_prefix, invoice_number, invoice_status, item_subtotal AS billed_subtotal,
             refunded.expense_date AS refund_of_date, refunded.expense_amount AS refund_of_amount, refunded.expense_description AS refund_of_description,
+            payer.user_name AS paid_by_name, paid_back.reimbursement_date, paid_back_account.account_name AS reimbursed_account_name,
+            paying_out.reimbursement_id AS reimbursement_out_id, (SELECT u.user_name FROM users AS u WHERE u.user_id = paying_out.reimbursement_user_id) AS reimbursed_to_name,
             (SELECT COALESCE(SUM(-r.expense_amount), 0) FROM expenses AS r WHERE r.expense_refund_of_id = expenses.expense_id) AS refunded_amount,
             (SELECT COUNT(*) FROM expenses AS r WHERE r.expense_refund_of_id = expenses.expense_id) AS refund_count
         FROM expenses
         LEFT JOIN vendors ON vendor_id = expenses.expense_vendor_id
         LEFT JOIN categories ON category_id = expenses.expense_category_id
-        LEFT JOIN accounts ON account_id = expenses.expense_account_id
+        LEFT JOIN accounts ON accounts.account_id = expenses.expense_account_id
         LEFT JOIN clients ON client_id = expenses.expense_client_id
-        LEFT JOIN users ON user_id = expenses.expense_created_by
+        LEFT JOIN users AS creator ON creator.user_id = expenses.expense_created_by
+        LEFT JOIN users AS payer ON payer.user_id = expenses.expense_paid_by
         LEFT JOIN transfers ON transfer_expense_id = expenses.expense_id
         LEFT JOIN expenses AS refunded ON refunded.expense_id = expenses.expense_refund_of_id
         LEFT JOIN recurring_expenses ON recurring_expense_id = expenses.expense_recurring_expense_id
         LEFT JOIN invoices ON invoice_id = expenses.expense_invoice_id
         LEFT JOIN invoice_items ON item_id = expenses.expense_invoice_item_id
+        LEFT JOIN reimbursements AS paid_back ON paid_back.reimbursement_id = expenses.expense_reimbursement_id
+        LEFT JOIN accounts AS paid_back_account ON paid_back_account.account_id = paid_back.reimbursement_account_id
+        LEFT JOIN reimbursements AS paying_out ON paying_out.reimbursement_expense_id = expenses.expense_id
         WHERE expenses.expense_id = $expense_id $scope
         LIMIT 1"));
     return $row ?: null;
@@ -75,6 +81,7 @@ function expenseShows() {
         'no_receipt' => ['label' => 'No receipt', 'icon' => 'fa-paperclip', 'where' => "COALESCE(expense_receipt, '') = '' AND expense_amount > 0", 'title' => 'No receipt attached yet'],
         'to_bill' => ['label' => 'To bill', 'icon' => 'fa-file-invoice-dollar', 'where' => expenseUnbilledSql(), 'title' => 'Billable to a client, and on no invoice yet'],
         'billed' => ['label' => 'Billed', 'icon' => 'fa-check-circle', 'where' => 'expense_invoice_id IS NOT NULL', 'title' => 'Billed on to a client on an invoice'],
+        'to_reimburse' => ['label' => 'To reimburse', 'icon' => 'fa-hand-holding-usd', 'where' => expenseToReimburseSql(), 'title' => 'Paid personally by an agent, not paid back yet'],
         'refunds' => ['label' => 'Refunds', 'icon' => 'fa-undo-alt', 'where' => 'expense_amount < 0', 'title' => 'Money that came back - refunds and credits'],
     ];
 }
@@ -82,7 +89,7 @@ function expenseShows() {
 /**
  * The WHERE for a set of filters, as the list and the export take them
  * from the query string or the form: q, vendor, category, account, client,
- * method, recurring_expense_id, show, dtf and dtt. Starts with the vendor-expenses-only rule and
+ * method, paid_by, recurring_expense_id, show, dtf and dtt. Starts with the vendor-expenses-only rule and
  * the agent's client scope. $summary is filled with what each filter is,
  * by name, for the export's heading.
  */
@@ -110,6 +117,11 @@ function expenseFiltersSql(array $src, &$summary = []) {
     if ($method !== '') {
         $sql .= " AND expense_payment_method = '" . escapeSql($method) . "'";
         $summary['Paid by'] = $method;
+    }
+    $paid_by = intval($src['paid_by'] ?? 0);
+    if ($paid_by) {
+        $sql .= " AND expense_paid_by = $paid_by";
+        $summary['Paid personally by'] = (string) getFieldById('users', $paid_by, 'user_name');
     }
     $recurring_id = intval($src['recurring_expense_id'] ?? 0);
     if ($recurring_id) {
@@ -261,6 +273,10 @@ function expenseSave(array $in, $expense_id = 0, &$error = '') {
         $error = 'That is the out side of a transfer between accounts - change it from Transfers';
         return 0;
     }
+    if ($existing && $existing['reimbursement_out_id']) {
+        $error = 'That is money paid back to ' . $existing['reimbursed_to_name'] . ' - undo the reimbursement to change it';
+        return 0;
+    }
 
     $date = trim((string) ($in['date'] ?? ''));
     if (!preg_match('/^\d{4}-\d{2}-\d{2}$/', $date) || !checkdate(intval(substr($date, 5, 2)), intval(substr($date, 8, 2)), intval(substr($date, 0, 4)))) {
@@ -300,9 +316,26 @@ function expenseSave(array $in, $expense_id = 0, &$error = '') {
         $error = 'Pick an expense category';
         return 0;
     }
-    $account = intval($in['account'] ?? 0);
+    // From one of our accounts, or paid personally by an agent - on no account
+    // until they are paid back. Once paid back, who paid stays as it was.
+    $personal = (string) ($in['account'] ?? '') === 'personal';
+    $account = $personal ? 0 : intval($in['account'] ?? 0);
     $accounts = paymentAccounts($existing ? $existing['expense_account_id'] : 0);
-    if (!isset($accounts[$account])) {
+    $paid_by = $personal ? intval($in['paid_by'] ?? 0) : 0;
+    if ($existing && $existing['expense_reimbursement_id'] && $paid_by !== intval($existing['expense_paid_by'])) {
+        $error = 'It was paid back to ' . $existing['paid_by_name'] . ' - undo that reimbursement before changing who paid it';
+        return 0;
+    }
+    if ($personal) {
+        if ($amount < 0) {
+            $error = 'Money back goes to one of your accounts - pick which';
+            return 0;
+        }
+        if (!isset(expensePayers($existing ? $existing['expense_paid_by'] : 0)[$paid_by])) {
+            $error = 'Pick who paid it';
+            return 0;
+        }
+    } elseif (!isset($accounts[$account])) {
         $error = 'Pick the account it was paid from';
         return 0;
     }
@@ -336,7 +369,7 @@ function expenseSave(array $in, $expense_id = 0, &$error = '') {
     $markup = round(max(0, min(1000, $markup)), 2);
 
     $set = "expense_date = '$date', expense_amount = $amount, expense_vendor_id = $vendor, expense_category_id = $category,
-        expense_account_id = $account, expense_client_id = $client_id, expense_payment_method = " . ($method === '' ? 'NULL' : "'" . escapeSql($method) . "'") . ",
+        expense_account_id = $account, expense_paid_by = $paid_by, expense_client_id = $client_id, expense_payment_method = " . ($method === '' ? 'NULL' : "'" . escapeSql($method) . "'") . ",
         expense_reference = '" . escapeSql($reference) . "', expense_description = '" . escapeSql($description) . "',
         expense_billable = $billable, expense_markup = $markup";
 
@@ -344,7 +377,7 @@ function expenseSave(array $in, $expense_id = 0, &$error = '') {
         mysqli_query($mysqli, "UPDATE expenses SET $set WHERE expense_id = $expense_id");
         return $expense_id;
     }
-    $currency = escapeSql((string) ($accounts[$account]['account_currency_code'] ?: $session_company_currency));
+    $currency = escapeSql((string) ($personal ? $session_company_currency : ($accounts[$account]['account_currency_code'] ?: $session_company_currency)));
     mysqli_query($mysqli, "INSERT INTO expenses SET $set, expense_currency_code = '$currency', expense_created_by = " . intval($session_user_id)
         . ($refund_of ? ", expense_refund_of_id = $refund_of" : ''));
     return mysqli_insert_id($mysqli);
@@ -365,6 +398,10 @@ function expenseDelete($expense_id, &$error = '') {
     }
     if ($row['transfer_id']) {
         $error = 'That is the out side of a transfer between accounts - delete the transfer instead';
+        return null;
+    }
+    if ($row['reimbursement_out_id']) {
+        $error = 'That is money paid back to ' . $row['reimbursed_to_name'] . ' - undo the reimbursement instead';
         return null;
     }
     $expense_id = intval($row['expense_id']);
@@ -1333,4 +1370,184 @@ function expenseWriteOff($client_id, array $expense_ids, $by) {
         }
     }
     return $done;
+}
+
+/* ------------------------------------------------------- Paid personally */
+
+/*
+ * An agent can pay for something themselves - a cable run to the store, a
+ * hotel - and be paid back. Such an expense (expense_paid_by) counts as
+ * spending on its date like any other, but is on none of our accounts, so
+ * no balance moves, until a reimbursement pays the agent back: one payment
+ * from an account, on its own date, for one or more of their expenses. That
+ * payment is an expense with no vendor (reimbursement_expense_id), the way
+ * the out side of a transfer is, so it moves the balance and stays out of
+ * the spending totals.
+ */
+
+/** The SQL that makes an expense to reimburse: paid personally, not paid back yet. */
+function expenseToReimburseSql() {
+    return "expense_paid_by > 0 AND expense_reimbursement_id IS NULL AND expense_vendor_id > 0 AND expense_archived_at IS NULL";
+}
+
+/** Who can have paid for an expense personally - active agents, and $keep_id - id => name. */
+function expensePayers($keep_id = 0) {
+    global $mysqli;
+    $keep_id = intval($keep_id);
+    $payers = [];
+    $sql = mysqli_query($mysqli, "SELECT user_id, user_name FROM users WHERE (user_type = 1 AND user_archived_at IS NULL) OR user_id = $keep_id ORDER BY user_name ASC");
+    while ($row = mysqli_fetch_row($sql)) {
+        $payers[intval($row[0])] = $row[1];
+    }
+    return $payers;
+}
+
+/**
+ * Expenses waiting to be paid back - one agent's ($user_id) or everyone's,
+ * optionally only $ids, in the agent's client scope - by agent: user_id =>
+ * [user_id, user_name, expenses (id => row), total, count, oldest (days)].
+ */
+function expenseToReimburse($user_id = 0, array $ids = []) {
+    global $mysqli;
+    $user_id = intval($user_id);
+    $ids = array_filter(array_map('intval', $ids));
+    $sql = mysqli_query($mysqli, "SELECT expenses.*, vendor_name, category_name, client_name, user_name, DATEDIFF(CURDATE(), expense_date) AS waiting
+        FROM expenses
+        JOIN users ON user_id = expense_paid_by
+        LEFT JOIN vendors ON vendor_id = expense_vendor_id
+        LEFT JOIN categories ON category_id = expense_category_id
+        LEFT JOIN clients ON client_id = expense_client_id
+        WHERE " . expenseToReimburseSql() . ($user_id ? " AND expense_paid_by = $user_id" : '') . ($ids ? ' AND expense_id IN (' . implode(',', $ids) . ')' : '')
+        . ' ' . clientScopeSql('expense_client_id') . "
+        ORDER BY user_name ASC, expense_date ASC, expense_id ASC");
+    $agents = [];
+    while ($row = mysqli_fetch_assoc($sql)) {
+        $uid = intval($row['expense_paid_by']);
+        if (!isset($agents[$uid])) {
+            $agents[$uid] = ['user_id' => $uid, 'user_name' => $row['user_name'], 'expenses' => [], 'total' => 0.0, 'count' => 0, 'oldest' => 0];
+        }
+        $agents[$uid]['expenses'][intval($row['expense_id'])] = $row;
+        $agents[$uid]['total'] = round($agents[$uid]['total'] + floatval($row['expense_amount']), 2);
+        $agents[$uid]['count']++;
+        $agents[$uid]['oldest'] = max($agents[$uid]['oldest'], intval($row['waiting']));
+    }
+    return $agents;
+}
+
+/** How many expenses are waiting to be paid back, and what they come to - for the list and the dashboard. */
+function expenseToReimburseCount() {
+    global $mysqli;
+    $row = mysqli_fetch_row(mysqli_query($mysqli, "SELECT COUNT(*), COALESCE(SUM(expense_amount), 0), COUNT(DISTINCT expense_paid_by) FROM expenses
+        WHERE " . expenseToReimburseSql() . ' ' . clientScopeSql('expense_client_id')));
+    return ['count' => intval($row[0]), 'total' => round(floatval($row[1]), 2), 'agents' => intval($row[2])];
+}
+
+/**
+ * Pay an agent back for their ticked expenses, from one of our accounts.
+ * $opts: account_id, date, payment_method, reference, by (who, for the log).
+ * The expenses are claimed first, so two agents can't pay one back twice.
+ * Returns [reimbursement_id, amount, count, user_name, currency], or null
+ * with $error.
+ */
+function expenseReimburse($user_id, array $expense_ids, array $opts, &$error = '') {
+    global $mysqli, $session_user_id, $session_company_currency;
+    $error = '';
+    $user_id = intval($user_id);
+    $waiting = expenseToReimburse($user_id, $expense_ids)[$user_id] ?? null;
+    if (!$user_id || !$expense_ids || !$waiting) {
+        $error = 'Nothing to pay back - those expenses are already paid back, or not paid personally.';
+        return null;
+    }
+    $account = intval($opts['account_id'] ?? 0);
+    $accounts = paymentAccounts();
+    if (!isset($accounts[$account])) {
+        $error = 'Pick the account the money comes from';
+        return null;
+    }
+    $date = (string) ($opts['date'] ?? '');
+    if (!preg_match('/^\d{4}-\d{2}-\d{2}$/', $date) || !checkdate(intval(substr($date, 5, 2)), intval(substr($date, 8, 2)), intval(substr($date, 0, 4)))) {
+        $error = 'Enter the date they were paid back';
+        return null;
+    }
+    $method = trim((string) ($opts['payment_method'] ?? ''));
+    if ($method !== '' && !in_array($method, paymentMethods(), true)) {
+        $error = 'Pick how they were paid back';
+        return null;
+    }
+    $reference = mb_substr(trim((string) ($opts['reference'] ?? '')), 0, 200);
+    $by = (string) ($opts['by'] ?? 'ITFlow');
+    $currency = (string) ($accounts[$account]['account_currency_code'] ?: $session_company_currency);
+
+    // Claim them, then pay back what was claimed
+    mysqli_query($mysqli, "INSERT INTO reimbursements SET reimbursement_user_id = $user_id, reimbursement_date = '$date', reimbursement_amount = 0,
+        reimbursement_currency_code = '" . escapeSql($currency) . "', reimbursement_account_id = $account,
+        reimbursement_payment_method = " . ($method === '' ? 'NULL' : "'" . escapeSql($method) . "'") . ", reimbursement_reference = '" . escapeSql($reference) . "',
+        reimbursement_expense_id = 0, reimbursement_created_by = " . intval($session_user_id));
+    $reimbursement_id = mysqli_insert_id($mysqli);
+    mysqli_query($mysqli, "UPDATE expenses SET expense_reimbursement_id = $reimbursement_id
+        WHERE expense_id IN (" . implode(',', array_keys($waiting['expenses'])) . ") AND expense_paid_by = $user_id AND " . expenseToReimburseSql());
+    $claimed = mysqli_fetch_row(mysqli_query($mysqli, "SELECT COUNT(*), COALESCE(SUM(expense_amount), 0) FROM expenses WHERE expense_reimbursement_id = $reimbursement_id"));
+    $count = intval($claimed[0]);
+    $amount = round(floatval($claimed[1]), 2);
+    if (!$count) {
+        mysqli_query($mysqli, "DELETE FROM reimbursements WHERE reimbursement_id = $reimbursement_id");
+        $error = 'Nothing to pay back - someone else paid those back just now.';
+        return null;
+    }
+
+    // The money out of the account - an expense with no vendor, like a transfer's
+    $description = "Reimbursement to {$waiting['user_name']} - " . ($count === 1 ? '1 expense' : "$count expenses");
+    mysqli_query($mysqli, "INSERT INTO expenses SET expense_date = '$date', expense_amount = $amount, expense_currency_code = '" . escapeSql($currency) . "',
+        expense_vendor_id = 0, expense_category_id = 0, expense_account_id = $account, expense_client_id = 0,
+        expense_payment_method = " . ($method === '' ? 'NULL' : "'" . escapeSql($method) . "'") . ", expense_reference = '" . escapeSql($reference) . "',
+        expense_description = '" . escapeSql($description) . "', expense_created_by = " . intval($session_user_id));
+    $cash_id = mysqli_insert_id($mysqli);
+    mysqli_query($mysqli, "UPDATE reimbursements SET reimbursement_amount = $amount, reimbursement_expense_id = $cash_id WHERE reimbursement_id = $reimbursement_id");
+
+    logAudit('Expense', 'Reimburse', escapeSql("$by paid {$waiting['user_name']} back " . billingMoney($amount, $currency) . ' for ' . ($count === 1 ? '1 expense' : "$count expenses")
+        . " from {$accounts[$account]['account_name']}"), 0, $reimbursement_id);
+
+    return ['reimbursement_id' => $reimbursement_id, 'amount' => $amount, 'count' => $count, 'user_name' => $waiting['user_name'], 'currency' => $currency];
+}
+
+/** A reimbursement with who was paid back, the account and who entered it - or null. */
+function reimbursementRow($reimbursement_id) {
+    global $mysqli;
+    $id = intval($reimbursement_id);
+    return mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT reimbursements.*, payee.user_name, account_name, creator.user_name AS created_by_name
+        FROM reimbursements
+        LEFT JOIN users AS payee ON payee.user_id = reimbursement_user_id
+        LEFT JOIN users AS creator ON creator.user_id = reimbursement_created_by
+        LEFT JOIN accounts ON account_id = reimbursement_account_id
+        WHERE reimbursement_id = $id")) ?: null;
+}
+
+/** The expenses a reimbursement paid back, oldest first. */
+function reimbursementExpenses($reimbursement_id) {
+    global $mysqli;
+    $id = intval($reimbursement_id);
+    $rows = [];
+    $sql = mysqli_query($mysqli, "SELECT expenses.*, vendor_name, category_name, client_name FROM expenses
+        LEFT JOIN vendors ON vendor_id = expense_vendor_id
+        LEFT JOIN categories ON category_id = expense_category_id
+        LEFT JOIN clients ON client_id = expense_client_id
+        WHERE expense_reimbursement_id = $id ORDER BY expense_date ASC, expense_id ASC");
+    while ($row = mysqli_fetch_assoc($sql)) {
+        $rows[] = $row;
+    }
+    return $rows;
+}
+
+/** Undo a reimbursement - the money out of the account goes, and its expenses are to reimburse again. The row it undid, or null. */
+function reimbursementDelete($reimbursement_id) {
+    global $mysqli;
+    $row = reimbursementRow($reimbursement_id);
+    if (!$row) {
+        return null;
+    }
+    $id = intval($row['reimbursement_id']);
+    mysqli_query($mysqli, "UPDATE expenses SET expense_reimbursement_id = NULL WHERE expense_reimbursement_id = $id");
+    mysqli_query($mysqli, "DELETE FROM expenses WHERE expense_id = " . intval($row['reimbursement_expense_id']) . " AND expense_vendor_id = 0");
+    mysqli_query($mysqli, "DELETE FROM reimbursements WHERE reimbursement_id = $id");
+    return $row;
 }

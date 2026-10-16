@@ -303,6 +303,14 @@ function dashboardAttention($access) {
                 'detail' => $to_bill['count'] ? dashboardMoney($to_bill['value']) . ' to bill on' : null,
                 'url' => '/agent/expenses.php?show=to_bill',
             ];
+            // What agents paid personally and haven't been paid back for
+            $owed = expenseToReimburseCount();
+            $items[] = [
+                'count' => $owed['count'],
+                'label' => 'Expenses to reimburse', 'icon' => 'hand-holding-usd', 'tone' => 'warning',
+                'detail' => $owed['count'] ? dashboardMoney($owed['total']) . ' owed to ' . ($owed['agents'] === 1 ? '1 agent' : $owed['agents'] . ' agents') : null,
+                'url' => '/agent/expenses.php?show=to_reimburse',
+            ];
         }
     }
 

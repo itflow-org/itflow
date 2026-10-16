@@ -153,7 +153,7 @@ if (isset($_POST['bulk_edit_expenses'])) {
     } elseif ($field === 'account') {
         $accounts = paymentAccounts();
         if (isset($accounts[intval($value)])) {
-            $set = "expense_account_id = " . intval($value);
+            $set = "expense_account_id = " . intval($value) . ", expense_paid_by = 0";
             $label = "the account to " . $accounts[intval($value)]['account_name'];
         }
     } elseif ($field === 'client') {
@@ -203,6 +203,7 @@ if (isset($_POST['bulk_edit_expenses'])) {
         }
         // Billed ones keep their client and stay billed; only a client's expenses can be billed on
         if (($row['expense_invoice_id'] && in_array($field, ['client', 'billable'], true))
+            || ($row['expense_reimbursement_id'] && $field === 'account')
             || ($field === 'billable' && $value === 'yes' && (!intval($row['expense_client_id']) || floatval($row['expense_amount']) <= 0))) {
             $skipped++;
             continue;
@@ -215,7 +216,7 @@ if (isset($_POST['bulk_edit_expenses'])) {
     logAudit("Expense", "Bulk Edit", "$session_name set " . escapeSql($label) . " on $count expense" . ($count === 1 ? '' : 's'));
 
     flashAlert("Set " . escapeHtml($label) . " on <strong>$count</strong> expense" . ($count === 1 ? '' : 's')
-        . ($skipped ? " - $skipped left as " . ($skipped === 1 ? 'it was' : 'they were') . ($field === 'billable' && $value === 'yes' ? ' (on an invoice already, or not for a client)' : ' (on an invoice already)') : ''),
+        . ($skipped ? " - $skipped left as " . ($skipped === 1 ? 'it was' : 'they were') . ($field === 'billable' && $value === 'yes' ? ' (on an invoice already, or not for a client)' : ($field === 'account' ? ' (paid back to an agent already)' : ' (on an invoice already)')) : ''),
         $count ? 'success' : 'warning');
 
     redirect();
@@ -276,6 +277,58 @@ if (isset($_POST['bulk_delete_expenses'])) {
 
 }
 
+/*
+ * Pay an agent back for what they paid personally - the ticked expenses
+ * (expense_ids[]) of one agent (user_id), from an account, on a date.
+ */
+if (isset($_POST['expense_reimburse'])) {
+
+    validateCSRFToken();
+
+    enforceUserPermission('module_financial', 2);
+
+    $user_id = intval($_POST['user_id'] ?? 0);
+    $result = expenseReimburse($user_id, array_unique(array_filter(array_map('intval', (array) ($_POST['expense_ids'] ?? [])))), [
+        'account_id' => intval($_POST['account'] ?? 0),
+        'date' => (string) ($_POST['date'] ?? ''),
+        'payment_method' => (string) ($_POST['payment_method'] ?? ''),
+        'reference' => (string) ($_POST['reference'] ?? ''),
+        'by' => stripslashes($session_name),
+    ], $error);
+    if (!$result) {
+        flashAlert(escapeHtml($error), 'error');
+        redirect();
+    }
+
+    flashAlert('<strong>' . escapeHtml($result['user_name']) . '</strong> paid back ' . escapeHtml(billingMoney($result['amount'], $result['currency']))
+        . ' for ' . ($result['count'] === 1 ? '1 expense' : $result['count'] . ' expenses'));
+
+    redirect();
+
+}
+
+/* Undo a reimbursement - its money out of the account goes, and the expenses are to reimburse again. */
+if (isset($_GET['expense_reimbursement_delete'])) {
+
+    validateCSRFToken();
+
+    enforceUserPermission('module_financial', 3);
+
+    $row = reimbursementDelete(intval($_GET['expense_reimbursement_delete']));
+    if (!$row) {
+        flashAlert('That reimbursement no longer exists', 'error');
+        redirect();
+    }
+
+    $what = billingMoney($row['reimbursement_amount'], $row['reimbursement_currency_code']) . ' paid back to ' . $row['user_name'] . ' on ' . $row['reimbursement_date'];
+    logAudit("Expense", "Reimbursement Undo", "$session_name undid the " . escapeSql($what), 0, intval($row['reimbursement_id']));
+
+    flashAlert('Undone: <strong>' . escapeHtml($what) . '</strong> - its expenses are to reimburse again', 'error');
+
+    redirect();
+
+}
+
 if (isExportRequest('export_expenses')) {
 
     validateCSRFToken();
@@ -288,7 +341,9 @@ if (isExportRequest('export_expenses')) {
     // The same filters as the expenses list (functions/expenses.php)
     $where = expenseFiltersSql($_POST, $filter_summary);
 
-    $sql = mysqli_query($mysqli, "SELECT expenses.*, vendor_name, category_name, account_name, client_name, user_name, invoice_prefix, invoice_number
+    $sql = mysqli_query($mysqli, "SELECT expenses.*, vendor_name, category_name, account_name, client_name, user_name, invoice_prefix, invoice_number,
+            (SELECT payer.user_name FROM users AS payer WHERE payer.user_id = expense_paid_by) AS paid_by_name,
+            (SELECT reimbursement_date FROM reimbursements WHERE reimbursement_id = expense_reimbursement_id) AS reimbursement_date
         FROM expenses " . expenseJoinsSql() . "
         LEFT JOIN invoices ON invoice_id = expense_invoice_id
         WHERE $where
@@ -307,6 +362,7 @@ if (isExportRequest('export_expenses')) {
             $markup = rtrim(rtrim(number_format(floatval($row['expense_markup']), 2, '.', ''), '0'), '.') . '%';
             $row['expense_billing_display'] = $row['expense_invoice_id'] ? "Billed, $markup markup" : (intval($row['expense_billable']) ? "To bill, $markup markup" : '');
             $row['expense_billed_on'] = $row['expense_invoice_id'] && $row['invoice_number'] !== null ? $row['invoice_prefix'] . $row['invoice_number'] : '';
+            $row['expense_paid_by_display'] = intval($row['expense_paid_by']) ? ($row['paid_by_name'] ?: 'An agent') . ($row['reimbursement_date'] ? ', paid back ' . $row['reimbursement_date'] : ', to reimburse') : '';
             addExportRow($export, $row);
         }
 
