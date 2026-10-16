@@ -496,7 +496,7 @@ if ($account_filter) {
                     if ($transaction_type == 'Transfer In' || $transaction_type == 'Transfer Out') {
                         $transaction_modal_url = "modals/transfer/transfer_edit.php?id=$transaction_transfer_id";
                     } elseif ($transaction_type == 'Expense') {
-                        $transaction_modal_url = "modals/expense/expense_edit.php?id=$transaction_id";
+                        $transaction_modal_url = "modals/expense/expense.php?id=$transaction_id";
                     } elseif ($transaction_type == 'Revenue') {
                         $transaction_modal_url = "modals/revenue/revenue_edit.php?id=$transaction_id";
                     } else {

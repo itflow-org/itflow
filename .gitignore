@@ -12,6 +12,7 @@ uploads/document_templates/*
 !uploads/document_templates/index.php
 uploads/expenses/*
 !uploads/expenses/index.php
+!uploads/expenses/.htaccess
 uploads/recurring_tickets/*
 !uploads/recurring_tickets/index.php
 uploads/settings/*

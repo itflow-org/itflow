@@ -2,6 +2,11 @@
 
 /*
  * ITFlow - GET/POST request handler for expenses
+ *
+ * New, Edit, Copy and Refund all post through expenseSave() in
+ * functions/expenses.php, with the receipt as `file`. The checks there keep
+ * an expense to one of our vendors, an expense category, an account and a
+ * client the agent can see.
  */
 
 defined('FROM_POST_HANDLER') || die("Direct file access is not allowed");
@@ -12,38 +17,26 @@ if (isset($_POST['add_expense'])) {
 
     enforceUserPermission('module_financial', 2);
 
-    require_once 'expense_model.php';
-
-    if ($client_id) {
-        enforceClientAccess();
-    }
-    
-    mysqli_query($mysqli,"INSERT INTO expenses SET expense_date = '$date', expense_amount = $amount, expense_currency_code = '$session_company_currency', expense_account_id = $account, expense_vendor_id = $vendor, expense_client_id = $client_id, expense_category_id = $category, expense_description = '$description', expense_reference = '$reference'");
-
-    $expense_id = mysqli_insert_id($mysqli);
-
-    // Check for and process attachment
-    $extended_alert_description = '';
-
-    if (isset($_FILES['file']['tmp_name'])) {
-
-        if ($new_file_name = checkFileUpload($_FILES['file'], array('jpg', 'jpeg', 'gif', 'png', 'webp', 'pdf'))) {
-
-            $file_tmp_path = $_FILES['file']['tmp_name'];
-
-            // directory in which the uploaded file will be moved
-            $upload_file_dir = "../uploads/expenses/";
-            $dest_path = $upload_file_dir . $new_file_name;
-            move_uploaded_file($file_tmp_path, $dest_path);
-
-            mysqli_query($mysqli,"UPDATE expenses SET expense_receipt = '$new_file_name' WHERE expense_id = $expense_id");
-            $extended_alert_description = '. File successfully uploaded.';
-        }
+    $expense_id = expenseSave($_POST, 0, $error);
+    if (!$expense_id) {
+        flashAlert($error, 'error');
+        redirect();
     }
 
-    logAudit("Expense", "Create", "$session_name created expense $description", $client_id, $expense_id);
+    $receipt_error = '';
+    expenseReceiptStore($expense_id, $_FILES['file'] ?? null, $receipt_error);
 
-    flashAlert("Expense added" . $extended_alert_description);
+    $row = expenseRow($expense_id, false);
+    $label = expenseLabel($row);
+    $refund = intval($row['expense_refund_of_id']) > 0;
+
+    logAudit("Expense", $refund ? "Refund" : "Create", "$session_name " . ($refund ? 'recorded a refund from ' : 'added the expense ') . escapeSql($label), intval($row['expense_client_id']), $expense_id);
+
+    if ($receipt_error) {
+        flashAlert(($refund ? 'Refund' : 'Expense') . " <strong>" . escapeHtml($label) . "</strong> added, but " . lcfirst(escapeHtml($receipt_error)), 'warning');
+    } else {
+        flashAlert(($refund ? 'Refund' : 'Expense') . " <strong>" . escapeHtml($label) . "</strong> added" . ($row['expense_receipt'] ? ' with its receipt' : ''));
+    }
 
     redirect();
 
@@ -55,48 +48,58 @@ if (isset($_POST['edit_expense'])) {
 
     enforceUserPermission('module_financial', 2);
 
-    require_once 'expense_model.php';
+    $expense_id = intval($_POST['expense_id'] ?? 0);
 
-    $expense_id = intval($_POST['expense_id']);
-
-    // Check the client the expense belongs to now, not just the one submitted
-    $existing_client_id = intval(getFieldById('expenses', $expense_id, 'expense_client_id'));
-    if ($existing_client_id) {
-        enforceClientAccess($existing_client_id);
+    if (!expenseSave($_POST, $expense_id, $error)) {
+        flashAlert($error, 'error');
+        redirect();
     }
 
-    if ($client_id) {
-        enforceClientAccess();
+    $receipt_error = '';
+    if (!empty($_POST['receipt_remove'])) {
+        expenseReceiptRemove($expense_id);
+    } else {
+        expenseReceiptStore($expense_id, $_FILES['file'] ?? null, $receipt_error);
     }
 
-    // Get old receipt
-    $existing_file_name = escapeSql(getFieldById('expenses', $expense_id, 'expense_receipt'));
+    $row = expenseRow($expense_id, false);
+    $label = expenseLabel($row);
 
-    // Check for and process attachment
-    $extended_alert_description = '';
-    if (isset($_FILES['file']['tmp_name'])) {
-        if ($new_file_name = checkFileUpload($_FILES['file'], array('jpg', 'jpeg', 'gif', 'png', 'webp', 'pdf'))) {
+    logAudit("Expense", "Edit", "$session_name edited the expense " . escapeSql($label), intval($row['expense_client_id']), $expense_id);
 
-            $file_tmp_path = $_FILES['file']['tmp_name'];
-
-            // directory in which the uploaded file will be moved
-            $upload_file_dir = "../uploads/expenses/";
-            $dest_path = $upload_file_dir . $new_file_name;
-            move_uploaded_file($file_tmp_path, $dest_path);
-
-            //Delete old file
-            unlink("../uploads/expenses/$existing_file_name");
-
-            mysqli_query($mysqli,"UPDATE expenses SET expense_receipt = '$new_file_name' WHERE expense_id = $expense_id");
-            $extended_alert_description = '. File successfully uploaded.';
-        }
+    if ($receipt_error) {
+        flashAlert("Expense <strong>" . escapeHtml($label) . "</strong> saved, but " . lcfirst(escapeHtml($receipt_error)), 'warning');
+    } else {
+        flashAlert("Expense <strong>" . escapeHtml($label) . "</strong> saved");
     }
 
-    mysqli_query($mysqli,"UPDATE expenses SET expense_date = '$date', expense_amount = $amount, expense_account_id = $account, expense_vendor_id = $vendor, expense_client_id = $client_id, expense_category_id = $category, expense_description = '$description', expense_reference = '$reference' WHERE expense_id = $expense_id");
+    redirect();
 
-    logAudit("Expense", "Edit", "$session_name edited expense $description", $client_id, $expense_id);
+}
 
-    flashAlert("Expense modified" . $extended_alert_description);
+// A receipt added from the expense's quick look
+if (isset($_POST['expense_receipt_save'])) {
+
+    validateCSRFToken();
+
+    enforceUserPermission('module_financial', 2);
+
+    $row = expenseRow(intval($_POST['expense_id'] ?? 0));
+    if (!$row || $row['transfer_id']) {
+        flashAlert('That expense no longer exists', 'error');
+        redirect();
+    }
+    $expense_id = intval($row['expense_id']);
+
+    $receipt_error = '';
+    if (!expenseReceiptStore($expense_id, $_FILES['file'] ?? null, $receipt_error)) {
+        flashAlert($receipt_error ?: 'Choose the receipt to attach', 'error');
+        redirect();
+    }
+
+    logAudit("Expense", "Receipt", "$session_name attached a receipt to the expense " . escapeSql(expenseLabel($row)), intval($row['expense_client_id']), $expense_id);
+
+    flashAlert("Receipt attached to <strong>" . escapeHtml(expenseLabel($row)) . "</strong>");
 
     redirect();
 
@@ -108,153 +111,86 @@ if (isset($_GET['delete_expense'])) {
 
     enforceUserPermission('module_financial', 3);
 
-    $expense_id = intval($_GET['delete_expense']);
-
-    $sql = mysqli_query($mysqli,"SELECT expense_client_id, expense_description, expense_receipt FROM expenses WHERE expense_id = $expense_id");
-    $row = mysqli_fetch_assoc($sql);
-    $expense_receipt = escapeSql($row['expense_receipt']);
-    $expense_description = escapeSql($row['expense_description']);
-    $client_id = intval($row['expense_client_id']);
-
-    if ($client_id) {
-        enforceClientAccess();
+    $row = expenseDelete(intval($_GET['delete_expense']), $error);
+    if (!$row) {
+        flashAlert($error, 'error');
+        redirect();
     }
 
-    unlink("../uploads/expenses/$expense_receipt");
+    logAudit("Expense", "Delete", "$session_name deleted the expense " . escapeSql(expenseLabel($row)), intval($row['expense_client_id']));
 
-    mysqli_query($mysqli,"DELETE FROM expenses WHERE expense_id = $expense_id");
-
-    logAudit("Expense", "Delete", "$session_name deleted expense $expense_description", $client_id);
-
-    flashAlert("Expense deleted", 'error');
+    flashAlert("Expense <strong>" . escapeHtml(expenseLabel($row)) . "</strong> deleted", 'error');
 
     redirect();
 
 }
 
-if (isset($_POST['bulk_edit_expense_category'])) {
+/*
+ * Set one thing on the ticked expenses: field = category, account, client
+ * (0 takes the client off) or method ('' clears it), to value.
+ */
+if (isset($_POST['bulk_edit_expenses'])) {
 
     validateCSRFToken();
 
     enforceUserPermission('module_financial', 2);
 
-    $category_id = intval($_POST['bulk_category_id']);
+    $field = (string) ($_POST['field'] ?? '');
+    $value = trim((string) ($_POST['value'] ?? ''));
+    $expense_ids = array_unique(array_filter(array_map('intval', (array) ($_POST['expense_ids'] ?? []))));
 
-    // Get Category name for logging and Notification
-    $category_name = escapeSql(getFieldById('categories', $category_id, 'category_name'));
-
-    // Assign category to Selected Expenses
-    if (isset($_POST['expense_ids'])) {
-
-        // Get Selected Count
-        $count = count($_POST['expense_ids']);
-
-        foreach($_POST['expense_ids'] as $expense_id) {
-            $expense_id = intval($expense_id);
-
-            // Get Expense Details for Logging
-            $sql = mysqli_query($mysqli,"SELECT expense_description, expense_client_id FROM expenses WHERE expense_id = $expense_id");
-            $row = mysqli_fetch_assoc($sql);
-            $expense_description = escapeSql($row['expense_description']);
-            $client_id = intval($row['expense_client_id']);
-
-            if ($client_id) {
-                enforceClientAccess();
-            }
-
-            mysqli_query($mysqli,"UPDATE expenses SET expense_category_id = $category_id WHERE expense_id = $expense_id");
-
-            logAudit("Expense", "Edit", "$session_name assigned expense $expense_description to category $category_name", $client_id, $expense_id);
-
-        } // End Assign Loop
-
-        logAudit("Expense", "Bulk Edit", "$session_name assigned $count expenses to category $category_name");
-
-        flashAlert("You assigned expense category <strong>$category_name</strong> to <strong>$count</strong> expense(s)");
+    // What the value is, and that it can be picked
+    $set = '';
+    $label = '';
+    if ($field === 'category') {
+        $categories = expenseCategories();
+        if (isset($categories[intval($value)])) {
+            $set = "expense_category_id = " . intval($value);
+            $label = "the category to " . $categories[intval($value)]['category_name'];
+        }
+    } elseif ($field === 'account') {
+        $accounts = paymentAccounts();
+        if (isset($accounts[intval($value)])) {
+            $set = "expense_account_id = " . intval($value);
+            $label = "the account to " . $accounts[intval($value)]['account_name'];
+        }
+    } elseif ($field === 'client') {
+        $client_name = intval($value) ? getFieldById('clients', intval($value), 'client_name') : '';
+        if (!intval($value)) {
+            $set = "expense_client_id = 0";
+            $label = "no client";
+        } elseif ($client_name !== null && mysqli_num_rows(mysqli_query($mysqli, "SELECT client_id FROM clients WHERE client_id = " . intval($value) . " " . clientScopeSql('client_id')))) {
+            $set = "expense_client_id = " . intval($value);
+            $label = "the client to $client_name";
+        }
+    } elseif ($field === 'method') {
+        if ($value === '') {
+            $set = "expense_payment_method = NULL";
+            $label = "no payment method";
+        } elseif (in_array($value, paymentMethods(), true)) {
+            $set = "expense_payment_method = '" . escapeSql($value) . "'";
+            $label = "the payment method to $value";
+        }
+    }
+    if ($set === '' || !$expense_ids) {
+        flashAlert($expense_ids ? 'Pick what to set them to' : 'Tick the expenses to change first', 'error');
+        redirect();
     }
 
-    redirect();
-
-}
-
-if (isset($_POST['bulk_edit_expense_account'])) {
-
-    validateCSRFToken();
-
-    enforceUserPermission('module_financial', 2);
-
-    $account_id = intval($_POST['bulk_account_id']);
-
-    // Get Account name for logging and Notification
-    $account_name = escapeSql(getFieldById('accounts', $account_id, 'account_name'));
-
-    // Assign account to Selected Expenses
-    if (isset($_POST['expense_ids'])) {
-
-        // Get Selected Contacts Count
-        $count = count($_POST['expense_ids']);
-
-        foreach($_POST['expense_ids'] as $expense_id) {
-            $expense_id = intval($expense_id);
-
-            // Get Expense Details for Logging
-            $sql = mysqli_query($mysqli,"SELECT expense_description, expense_client_id FROM expenses WHERE expense_id = $expense_id");
-            $row = mysqli_fetch_assoc($sql);
-            $expense_description = escapeSql($row['expense_description']);
-            $client_id = intval($row['expense_client_id']);
-
-            if ($client_id) {
-                enforceClientAccess();
-            }
-
-            mysqli_query($mysqli,"UPDATE expenses SET expense_account_id = $account_id WHERE expense_id = $expense_id");
-
-            logAudit("Expense", "Edit", "$session_name assigned expense $expense_description to account $account_name", $client_id, $expense_id);
-
-        } // End Assign Loop
-
-        logAudit("Expense", "Bulk Edit", "$session_name assigned $count expense(s) to account $account_name");
-
-        flashAlert("You assigned account <strong>$account_name</strong> to <strong>$count</strong> expense(s)");
+    $count = 0;
+    foreach ($expense_ids as $expense_id) {
+        $row = expenseRow($expense_id);
+        if (!$row || $row['transfer_id'] || !intval($row['expense_vendor_id'])) {
+            continue;
+        }
+        mysqli_query($mysqli, "UPDATE expenses SET $set WHERE expense_id = $expense_id");
+        logAudit("Expense", "Edit", "$session_name set " . escapeSql($label) . " on the expense " . escapeSql(expenseLabel($row)), intval($row['expense_client_id']), $expense_id);
+        $count++;
     }
 
-    redirect();
+    logAudit("Expense", "Bulk Edit", "$session_name set " . escapeSql($label) . " on $count expense" . ($count === 1 ? '' : 's'));
 
-}
-
-if (isset($_POST['bulk_edit_expense_client'])) {
-
-    validateCSRFToken();
-
-    enforceUserPermission('module_financial', 2);
-
-    $client_id = intval($_POST['bulk_client_id']);
-
-    enforceClientAccess();
-
-    // Get Client name for logging and Notification
-    $client_name = escapeSql(getFieldById('clients', $client_id, 'client_name'));
-
-    // Assign Client to Selected Expenses
-    if (isset($_POST['expense_ids'])) {
-
-        // Get Selected Count
-        $count = count($_POST['expense_ids']);
-
-        foreach($_POST['expense_ids'] as $expense_id) {
-            $expense_id = intval($expense_id);
-
-            // Get Expense Details for Logging
-            $expense_description = escapeSql(getFieldById('expenses', $expense_id, 'expense_description'));
-
-            mysqli_query($mysqli,"UPDATE expenses SET expense_client_id = $client_id WHERE expense_id = $expense_id");
-
-            logAudit("Expense", "Edit", "$session_name assigned expense $expense_description to client $client_name", $client_id, $expense_id);
-
-        } // End Assign Loop
-
-       flashAlert("You assigned client <strong>$client_name</strong> to <strong>$count</strong> expense(s)");
-    }
+    flashAlert("Set " . escapeHtml($label) . " on <strong>$count</strong> expense" . ($count === 1 ? '' : 's'));
 
     redirect();
 
@@ -266,39 +202,19 @@ if (isset($_POST['bulk_delete_expenses'])) {
 
     enforceUserPermission('module_financial', 3);
 
-    if (isset($_POST['expense_ids'])) {
-
-        // Get Selected Count
-        $count = count($_POST['expense_ids']);
-
-        // Cycle through array and delete each expense
-        foreach ($_POST['expense_ids'] as $expense_id) {
-
-            $expense_id = intval($expense_id);
-
-            $sql = mysqli_query($mysqli,"SELECT expense_client_id, expense_description, expense_receipt FROM expenses WHERE expense_id = $expense_id");
-            $row = mysqli_fetch_assoc($sql);
-            $expense_description = escapeSql($row['expense_description']);
-            $expense_receipt = escapeSql($row['expense_receipt']);
-            $client_id = intval($row['expense_client_id']);
-
-            if ($client_id) {
-                enforceClientAccess();
-            }
-
-            unlink("../uploads/expenses/$expense_receipt");
-
-            mysqli_query($mysqli, "DELETE FROM expenses WHERE expense_id = $expense_id");
-
-            logAudit("Expense", "Delete", "$session_name deleted expense $expense_description", $client_id);
-
+    $count = 0;
+    foreach (array_unique(array_filter(array_map('intval', (array) ($_POST['expense_ids'] ?? [])))) as $expense_id) {
+        $row = expenseDelete($expense_id);
+        if (!$row) {
+            continue;
         }
-
-        logAudit("Expense", "Bulk Delete", "$session_name deleted $count expense(s)");
-
-        flashAlert("Deleted <strong>$count</strong> expense(s)", 'error');
-
+        logAudit("Expense", "Delete", "$session_name deleted the expense " . escapeSql(expenseLabel($row)), intval($row['expense_client_id']));
+        $count++;
     }
+
+    logAudit("Expense", "Bulk Delete", "$session_name deleted $count expense" . ($count === 1 ? '' : 's'));
+
+    flashAlert("Deleted <strong>$count</strong> expense" . ($count === 1 ? '' : 's'), 'error');
 
     redirect();
 
@@ -313,72 +229,13 @@ if (isExportRequest('export_expenses')) {
 
     $format = resolveExportFormat($_POST['export_expenses']);
 
-    // Filters inherited from the expenses page - mirrors agent/expenses.php
-    $filter_summary = [];
+    // The same filters as the expenses list (functions/expenses.php)
+    $where = expenseFiltersSql($_POST, $filter_summary);
 
-    $client_id = 0; // for Logging
-    $file_name_prepend = "$session_company_name-";
-
-    // Account Filter
-    if (!empty($_POST['account'])) {
-        $filter_account_id = intval($_POST['account']);
-        $account_query = "AND (expense_account_id = $filter_account_id)";
-        $filter_summary['Account'] = getFieldById('accounts', $filter_account_id, 'account_name');
-    } else {
-        // Default - any
-        $account_query = '';
-    }
-
-    // Vendor Filter
-    if (!empty($_POST['vendor'])) {
-        $filter_vendor_id = intval($_POST['vendor']);
-        $vendor_query = "AND (vendor_id = $filter_vendor_id)";
-        $filter_summary['Vendor'] = getFieldById('vendors', $filter_vendor_id, 'vendor_name');
-    } else {
-        // Default - any
-        $vendor_query = '';
-    }
-
-    // Category Filter
-    if (!empty($_POST['category'])) {
-        $filter_category_id = intval($_POST['category']);
-        $category_query = "AND (category_id = $filter_category_id)";
-        $filter_summary['Category'] = getFieldById('categories', $filter_category_id, 'category_name');
-    } else {
-        // Default - any
-        $category_query = '';
-    }
-
-    // Date Filter
-    $dtf = escapeSql(!empty($_POST['dtf']) ? $_POST['dtf'] : '1970-01-01');
-    $dtt = escapeSql(!empty($_POST['dtt']) ? $_POST['dtt'] : '2099-12-31');
-    $date_range = formatExportDateRange($dtf, $dtt);
-    if ($date_range) {
-        $filter_summary['Dated'] = $date_range;
-    }
-
-    // Search Filter
-    $q = escapeSql($_POST['q'] ?? '');
-    if (!empty($q)) {
-        $filter_summary['Search'] = $_POST['q'];
-    }
-
-    $sql = mysqli_query(
-        $mysqli,
-        "SELECT * FROM expenses
-        LEFT JOIN categories ON expense_category_id = category_id
-        LEFT JOIN vendors ON expense_vendor_id = vendor_id
-        LEFT JOIN accounts ON expense_account_id = account_id
-        LEFT JOIN clients ON expense_client_id = client_id
-        WHERE expense_vendor_id > 0
-        AND DATE(expense_date) BETWEEN '$dtf' AND '$dtt'
-        $vendor_query
-        $category_query
-        AND (vendor_name LIKE '%$q%' OR client_name LIKE '%$q%' OR category_name LIKE '%$q%' OR account_name LIKE '%$q%' OR expense_description LIKE '%$q%' OR expense_amount LIKE '%$q%')
-        $account_query
-        " . clientScopeSql('expense_client_id') . "
-        ORDER BY expense_date ASC"
-    );
+    $sql = mysqli_query($mysqli, "SELECT expenses.*, vendor_name, category_name, account_name, client_name, user_name
+        FROM expenses " . expenseJoinsSql() . "
+        WHERE $where
+        ORDER BY expense_date ASC, expense_id ASC");
 
     $num_rows = mysqli_num_rows($sql);
 
@@ -386,16 +243,17 @@ if (isExportRequest('export_expenses')) {
 
         guardExportPdfRowCount($format, $num_rows);
 
-        $export = beginExport('expenses', $format, $file_name_prepend . 'Expenses', 'Expenses', summarizeExportFilters($filter_summary));
+        $export = beginExport('expenses', $format, "$session_company_name-Expenses", 'Expenses', summarizeExportFilters($filter_summary));
 
         while ($row = mysqli_fetch_assoc($sql)) {
+            $row['expense_receipt_display'] = $row['expense_receipt'] ? 'Yes' : 'No';
             addExportRow($export, $row);
         }
 
         finishExport($export);
     }
 
-    logAudit("Expense", "Export", "$session_name exported $num_rows expense(s) to a " . strtoupper($format) . " file", $client_id);
+    logAudit("Expense", "Export", "$session_name exported $num_rows expense(s) to a " . strtoupper($format) . " file");
 
     exit;
 

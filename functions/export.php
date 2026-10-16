@@ -384,7 +384,10 @@ function getExportColumns($export_type) {
             'category_name'       => ['label' => 'Category'],
             'account_name'        => ['label' => 'Account'],
             'client_name'         => ['label' => 'Client', 'weight' => 2, 'default' => false],
+            'expense_payment_method' => ['label' => 'Paid By', 'default' => false],
             'expense_reference'   => ['label' => 'Reference', 'default' => false],
+            'expense_receipt_display' => ['label' => 'Receipt', 'default' => false],
+            'user_name'           => ['label' => 'Entered By', 'default' => false],
         ],
 
         'income' => [

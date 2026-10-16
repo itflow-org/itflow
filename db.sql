@@ -1349,10 +1349,12 @@ CREATE TABLE `expenses` (
   `expense_created_at` datetime NOT NULL DEFAULT current_timestamp(),
   `expense_updated_at` datetime DEFAULT NULL ON UPDATE current_timestamp(),
   `expense_archived_at` datetime DEFAULT NULL,
+  `expense_created_by` int(11) NOT NULL DEFAULT 0,
   `expense_vendor_id` int(11) NOT NULL DEFAULT 0,
   `expense_client_id` int(11) NOT NULL DEFAULT 0,
   `expense_category_id` int(11) NOT NULL DEFAULT 0,
   `expense_account_id` int(11) DEFAULT NULL,
+  `expense_refund_of_id` int(11) DEFAULT NULL,
   PRIMARY KEY (`expense_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;

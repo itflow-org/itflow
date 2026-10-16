@@ -118,8 +118,8 @@ $columns = [
         return reportClientCell($row['client_id'], $row['client'], $row['abbr']);
     }],
     'income' => ['label' => 'Income', 'type' => 'money'],
-    'costs' => ['label' => 'Direct costs', 'type' => 'money', 'title' => 'Expenses filed against the client', 'html' => function ($row) {
-        return $row['costs'] > 0 ? reportMoney($row['costs']) : '<span class="itflow-report-zero">–</span>';
+    'costs' => ['label' => 'Direct costs', 'type' => 'money', 'title' => 'Expenses filed against the client', 'html' => function ($row) use ($period) {
+        return $row['costs'] > 0 ? '<a class="itflow-report-amount" href="/agent/expenses.php?client=' . intval($row['client_id']) . '&amp;canned_date=custom&amp;dtf=' . $period['start'] . '&amp;dtt=' . $period['end'] . '">' . reportMoney($row['costs']) . '</a>' : '<span class="itflow-report-zero">–</span>';
     }],
     'net' => ['label' => 'Net', 'type' => 'money', 'class' => 'fw-semibold'],
 ];

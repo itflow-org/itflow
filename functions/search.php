@@ -533,6 +533,31 @@ function globalSearchGroups($terms, $deep) {
         },
     ];
 
+    // Expenses by what they were for, their reference, or the amount ("149.99", "$1,250")
+    $expense_amount_text = str_replace([',', '$'], '', $q);
+    $expense_amount = preg_match('/^-?\d+(\.\d{1,2})?$/', $expense_amount_text) ? abs(round(floatval($expense_amount_text), 2)) : 0;
+    $expense_amount_match = $expense_amount > 0 ? "OR ABS(expense_amount) = $expense_amount" : '';
+    $groups[] = [
+        'key' => 'expenses', 'label' => 'Expenses', 'icon' => 'shopping-cart', 'module' => 'module_financial', 'enabled' => $accounting,
+        'select' => 'expense_id, expense_date, expense_amount, expense_currency_code, expense_description, expense_reference, vendor_name, client_name',
+        'from' => 'expenses LEFT JOIN vendors ON expense_vendor_id = vendor_id LEFT JOIN clients ON expense_client_id = client_id',
+        'where' => "expense_vendor_id > 0
+            AND (expense_description LIKE '%$like%' OR expense_reference LIKE '%$like%' $expense_amount_match)",
+        'scope' => 'expense_client_id',
+        'order' => ($expense_amount > 0 ? "(ABS(expense_amount) = $expense_amount) DESC, " : '') . 'expense_date DESC, expense_id DESC',
+        'list_url' => '/agent/expenses.php?' . http_build_query(['q' => $q]),
+        'item' => function ($row) {
+            $description = trim((string) $row['expense_description']);
+            return [
+                'title' => $description !== '' ? mb_strimwidth($description, 0, 80, '...') : ($row['vendor_name'] ?: 'Expense'),
+                'subtitle' => globalSearchMoney($row['expense_amount'], $row['expense_currency_code']) . ' · ' . $row['expense_date']
+                    . ($row['expense_reference'] ? ' · #' . $row['expense_reference'] : ''),
+                'context' => implode(' · ', array_filter([$row['vendor_name'], $row['client_name']])),
+                'url' => '/agent/expenses.php?open=' . intval($row['expense_id']),
+            ];
+        },
+    ];
+
     $vendor_phone_match = $phone ? "OR REGEXP_REPLACE(vendor_phone, '[^0-9]', '') LIKE '%$phone%'" : '';
     $groups[] = [
         'key' => 'vendors', 'label' => 'Vendors', 'icon' => 'building', 'module' => 'module_client',

@@ -129,7 +129,7 @@ if (!$vendor || (isset($_GET['client_id']) && $vendor_client_id !== intval($clie
     $spend = null;
     if ($is_ours && $can_financial) {
         $spend = vendorSpend($vendor_id);
-        $sql = mysqli_query($mysqli, "SELECT expense_id, expense_date, expense_amount, expense_currency_code, expense_description, expense_reference, category_name, account_name
+        $sql = mysqli_query($mysqli, "SELECT expense_id, expense_date, expense_amount, expense_currency_code, expense_description, expense_reference, expense_receipt, category_name, account_name
             FROM expenses
             LEFT JOIN categories ON category_id = expense_category_id
             LEFT JOIN accounts ON account_id = expense_account_id
@@ -270,7 +270,7 @@ if (!$vendor || (isset($_GET['client_id']) && $vendor_client_id !== intval($clie
                         <button type="button" class="btn btn-primary dropdown-toggle" data-bs-toggle="dropdown"><i class="fas fa-plus me-2"></i>New</button>
                         <div class="dropdown-menu dropdown-menu-end">
                             <?php if ($is_ours) { ?>
-                                <a class="dropdown-item ajax-modal" href="#" data-modal-url="modals/expense/expense_add.php?vendor_id=<?= $vendor_id ?>">
+                                <a class="dropdown-item ajax-modal" href="#" data-modal-size="lg" data-modal-url="modals/expense/expense_add.php?vendor_id=<?= $vendor_id ?>">
                                     <i class="fa fa-fw fa-receipt text-secondary me-2"></i>Expense
                                 </a>
                                 <a class="dropdown-item ajax-modal" href="#" data-modal-size="lg" data-modal-url="modals/recurring_expense/recurring_expense_add.php?vendor_id=<?= $vendor_id ?>">
@@ -682,7 +682,7 @@ if (!$vendor || (isset($_GET['client_id']) && $vendor_client_id !== intval($clie
                             <div class="d-flex gap-2">
                                 <a class="btn btn-sm btn-outline-secondary" href="expenses.php?vendor=<?= $vendor_id ?>"><i class="fas fa-list me-2"></i>All</a>
                                 <?php if ($can_financial_edit && !$vendor_archived_at) { ?>
-                                    <button type="button" class="btn btn-sm btn-primary ajax-modal" data-modal-url="modals/expense/expense_add.php?vendor_id=<?= $vendor_id ?>"><i class="fas fa-plus me-2"></i>New Expense</button>
+                                    <button type="button" class="btn btn-sm btn-primary ajax-modal" data-modal-size="lg" data-modal-url="modals/expense/expense_add.php?vendor_id=<?= $vendor_id ?>"><i class="fas fa-plus me-2"></i>New Expense</button>
                                 <?php } ?>
                             </div>
                         </div>
@@ -693,7 +693,7 @@ if (!$vendor || (isset($_GET['client_id']) && $vendor_client_id !== intval($clie
                                     <tbody>
                                     <?php foreach ($expenses as $expense) { ?>
                                         <tr>
-                                            <td class="text-nowrap"><a class="ajax-modal" href="#" data-modal-url="modals/expense/expense_edit.php?id=<?= intval($expense['expense_id']) ?>"><?= escapeHtml($expense['expense_date']) ?></a></td>
+                                            <td class="text-nowrap"><a class="ajax-modal" href="#" data-modal-size="lg" data-modal-url="modals/expense/expense.php?id=<?= intval($expense['expense_id']) ?>"><?= escapeHtml($expense['expense_date']) ?></a><?php if ($expense['expense_receipt']) { ?><i class="fas fa-paperclip text-success small ms-1" title="Receipt attached"></i><?php } ?></td>
                                             <td class="w-100">
                                                 <div><?= escapeHtml(truncate((string) $expense['expense_description'], 90)) ?: '<span class="text-body-secondary">-</span>' ?></div>
                                                 <div class="small text-body-secondary"><?= escapeHtml(implode(' · ', array_filter([$expense['category_name'], $expense['expense_reference']]))) ?></div>

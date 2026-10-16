@@ -576,7 +576,7 @@ if (!$product) {
                                                     <a href="invoice.php?invoice_id=<?= intval($move['stock_invoice_id']) ?>"><?= escapeHtml($move['invoice_prefix'] . $move['invoice_number']) ?></a>
                                                 <?php } ?>
                                                 <?php if ($move['expense_description'] !== null) { ?>
-                                                    <div class="text-body-secondary"><i class="fas fa-receipt me-1"></i><?= escapeHtml($move['expense_date'] . ' - ' . mb_strimwidth((string) $move['expense_description'], 0, 60, '...')) ?></div>
+                                                    <div class="text-body-secondary"><i class="fas fa-receipt me-1"></i><?php if (lookupUserPermission('module_financial') >= 1) { ?><a class="text-reset ajax-modal" href="#" data-modal-size="lg" data-modal-url="modals/expense/expense.php?id=<?= intval($move['stock_expense_id']) ?>"><?= escapeHtml($move['expense_date'] . ' - ' . mb_strimwidth((string) $move['expense_description'], 0, 60, '...')) ?></a><?php } else { ?><?= escapeHtml($move['expense_date'] . ' - ' . mb_strimwidth((string) $move['expense_description'], 0, 60, '...')) ?><?php } ?></div>
                                                 <?php } ?>
                                                 <?php if (trim((string) $move['stock_note']) !== '' && !($move['invoice_open'] && trim((string) $move['stock_note']) === $move['invoice_prefix'] . $move['invoice_number'])) { ?>
                                                     <div class="text-body-secondary"><?= escapeHtml($move['stock_note']) ?></div>
