@@ -133,38 +133,65 @@ function demoCategoryId($mysqli, $name, $type) {
 // whatever the Products starter pack put in. Deliberately a mix - the open
 // source stack is sold as hosting and support rather than licences, which is
 // where the margin on it comes from.
-// name, type, code, price, income category, description
+// name, type, code, price, income category, description, billed (frequency, or
+// frequency:per user), cost, vendor (one of ours), vendor part number, track stock
 // ------------------------------
 function demoDataProducts() {
     return [
         // Hosting - the open source side of the business
-        ['Nextcloud Hosting - Per User', 'service', 'HOST-NC', '6.50', 'Web and Hosting', 'Per user, per month. Managed Nextcloud instance with sync, sharing and mobile access, backed up nightly.'],
-        ['Nextcloud Hosting - Instance', 'service', 'HOST-NCI', '95.00', 'Web and Hosting', 'Per instance, per month. Dedicated Nextcloud instance, updates, monitoring and support.'],
-        ['Web Hosting - Standard', 'service', 'HOST-WEB', '25.00', 'Web and Hosting', 'Per site, per month. Managed hosting with TLS, nightly backup and uptime monitoring.'],
-        ['Web Hosting - Business', 'service', 'HOST-WEBB', '65.00', 'Web and Hosting', 'Per site, per month. Higher resource allocation, staging site and priority restore.'],
-        ['Email Hosting - Per Mailbox', 'service', 'HOST-MAIL', '4.50', 'Web and Hosting', 'Per mailbox, per month. Mail hosting with spam filtering, webmail and mobile sync.'],
-        ['Mail Relay and Filtering', 'service', 'HOST-RELAY', '2.00', 'Web and Hosting', 'Per mailbox, per month. Inbound filtering and outbound relay with reputation monitoring.'],
-        ['Offsite Backup Storage - Self Hosted', 'service', 'HOST-BKP', '0.09', 'Backup', 'Per GB, per month. Encrypted offsite backup storage on our own infrastructure rather than a third party cloud.'],
-        ['Virtual Server Hosting', 'service', 'HOST-VPS', '55.00', 'Cloud Services', 'Per guest, per month. Proxmox hosted virtual server with backup and monitoring.'],
+        ['Nextcloud Hosting - Per User', 'service', 'HOST-NC', '6.50', 'Web and Hosting', 'Per user, per month. Managed Nextcloud instance with sync, sharing and mobile access, backed up nightly.', 'month:contacts', '2.40', 'Nextcloud Hosting Partner', '', 0],
+        ['Nextcloud Hosting - Instance', 'service', 'HOST-NCI', '95.00', 'Web and Hosting', 'Per instance, per month. Dedicated Nextcloud instance, updates, monitoring and support.', 'month', '38.00', 'Nextcloud Hosting Partner', '', 0],
+        ['Web Hosting - Standard', 'service', 'HOST-WEB', '25.00', 'Web and Hosting', 'Per site, per month. Managed hosting with TLS, nightly backup and uptime monitoring.', 'month', '6.00', '', '', 0],
+        ['Web Hosting - Business', 'service', 'HOST-WEBB', '65.00', 'Web and Hosting', 'Per site, per month. Higher resource allocation, staging site and priority restore.', 'month', '14.00', '', '', 0],
+        ['Email Hosting - Per Mailbox', 'service', 'HOST-MAIL', '4.50', 'Web and Hosting', 'Per mailbox, per month. Mail hosting with spam filtering, webmail and mobile sync.', 'month', '1.10', '', '', 0],
+        ['Mail Relay and Filtering', 'service', 'HOST-RELAY', '2.00', 'Web and Hosting', 'Per mailbox, per month. Inbound filtering and outbound relay with reputation monitoring.', 'month', '0.45', '', '', 0],
+        ['Offsite Backup Storage - Self Hosted', 'service', 'HOST-BKP', '0.09', 'Backup', 'Per GB, per month. Encrypted offsite backup storage on our own infrastructure rather than a third party cloud.', 'month', '0.03', '', '', 0],
+        ['Virtual Server Hosting', 'service', 'HOST-VPS', '55.00', 'Cloud Services', 'Per guest, per month. Proxmox hosted virtual server with backup and monitoring.', 'month', '18.00', '', '', 0],
 
         // Open source support and migration work
-        ['Proxmox VE Support', 'service', 'FOSS-PVE', '145.00', 'Managed Services', 'Per host, per month. Proxmox VE monitoring, updates and enterprise repository access.'],
-        ['pfSense Plus Support', 'service', 'FOSS-PF', '65.00', 'Managed Services', 'Per firewall, per month. pfSense Plus subscription, firmware and rule management.'],
-        ['OPNsense Support', 'service', 'FOSS-OPN', '65.00', 'Managed Services', 'Per firewall, per month. OPNsense updates, firmware and rule management.'],
-        ['TrueNAS Support', 'service', 'FOSS-TN', '95.00', 'Managed Services', 'Per array, per month. TrueNAS monitoring, pool health, snapshots and replication.'],
-        ['LibreOffice Migration', 'service', 'FOSS-LO', '145.00', 'Projects', 'Per hour. Template conversion, macro rework and user training when moving off a proprietary office suite.'],
-        ['Linux Desktop Build', 'service', 'FOSS-DSK', '125.00', 'Projects', 'Per machine. Standard Linux desktop build, data migration and handover.'],
-        ['Open Source Stack Review', 'service', 'FOSS-REV', '850.00', 'Consulting', 'Fixed fee. Review of a self hosted stack with a written report and a costed roadmap.'],
+        ['Proxmox VE Support', 'service', 'FOSS-PVE', '145.00', 'Managed Services', 'Per host, per month. Proxmox VE monitoring, updates and enterprise repository access.', 'month', '32.00', 'Proxmox Server Solutions', 'PVE-BASIC-1S', 0],
+        ['pfSense Plus Support', 'service', 'FOSS-PF', '65.00', 'Managed Services', 'Per firewall, per month. pfSense Plus subscription, firmware and rule management.', 'month', '12.00', 'Netgate', 'PFS-PLUS-TAC', 0],
+        ['OPNsense Support', 'service', 'FOSS-OPN', '65.00', 'Managed Services', 'Per firewall, per month. OPNsense updates, firmware and rule management.', 'month', '0.00', '', '', 0],
+        ['TrueNAS Support', 'service', 'FOSS-TN', '95.00', 'Managed Services', 'Per array, per month. TrueNAS monitoring, pool health, snapshots and replication.', 'month', '0.00', '', '', 0],
+        ['LibreOffice Migration', 'service', 'FOSS-LO', '145.00', 'Projects', 'Per hour. Template conversion, macro rework and user training when moving off a proprietary office suite.', '', '0.00', '', '', 0],
+        ['Linux Desktop Build', 'service', 'FOSS-DSK', '125.00', 'Projects', 'Per machine. Standard Linux desktop build, data migration and handover.', '', '0.00', '', '', 0],
+        ['Open Source Stack Review', 'service', 'FOSS-REV', '850.00', 'Consulting', 'Fixed fee. Review of a self hosted stack with a written report and a costed roadmap.', '', '0.00', '', '', 0],
 
         // Corporate licensing and hardware, resold
-        ['Google Workspace Business Standard', 'service', 'LIC-GWBS', '14.00', 'Managed Services', 'Per user, per month. Licence resold and managed.'],
-        ['Synology Active Backup Licence', 'product', 'LIC-SYNAB', '0.00', 'Hardware Sales', 'Included with Synology hardware. Listed so it appears on the quote.'],
-        ['Netgate 6100 MAX Firewall', 'product', 'HW-NG6100', '1245.00', 'Hardware Sales', 'pfSense Plus appliance with three years of support included.'],
-        ['Ubiquiti U6-Pro Access Point', 'product', 'HW-U6PRO', '245.00', 'Hardware Sales', 'Wi-Fi 6 ceiling mounted access point, PoE powered.'],
-        ['Ubiquiti USW-Pro-24-PoE Switch', 'product', 'HW-USW24', '785.00', 'Hardware Sales', '24 port managed PoE switch with SFP+ uplinks.'],
-        ['Synology RS1221+ with Drives', 'product', 'HW-RS1221', '2850.00', 'Hardware Sales', 'Rack NAS populated with NAS rated drives, running Active Backup for Business.'],
-        ['Rack Mount UPS 1500VA', 'product', 'HW-UPS15', '685.00', 'Hardware Sales', 'Rack mount UPS with network management card and graceful shutdown.'],
+        ['Google Workspace Business Standard', 'service', 'LIC-GWBS', '14.00', 'Managed Services', 'Per user, per month. Licence resold and managed.', 'month:contacts', '11.20', 'Cascade Cloud Licensing', 'GWS-BSTD-FLEX', 0],
+        ['Synology Active Backup Licence', 'product', 'LIC-SYNAB', '0.00', 'Hardware Sales', 'Included with Synology hardware. Listed so it appears on the quote.', '', '0.00', 'Synology Direct', '', 0],
+        ['Netgate 6100 MAX Firewall', 'product', 'HW-NG6100', '1245.00', 'Hardware Sales', 'pfSense Plus appliance with three years of support included.', '', '935.00', 'Netgate', '6100-MAX', 0],
+        ['Ubiquiti U6-Pro Access Point', 'product', 'HW-U6PRO', '245.00', 'Hardware Sales', 'Wi-Fi 6 ceiling mounted access point, PoE powered.', '', '179.00', 'Ubiquiti Store', 'U6-Pro', 1],
+        ['Ubiquiti USW-Pro-24-PoE Switch', 'product', 'HW-USW24', '785.00', 'Hardware Sales', '24 port managed PoE switch with SFP+ uplinks.', '', '599.00', 'Ubiquiti Store', 'USW-Pro-24-PoE', 0],
+        ['Synology RS1221+ with Drives', 'product', 'HW-RS1221', '2850.00', 'Hardware Sales', 'Rack NAS populated with NAS rated drives, running Active Backup for Business.', '', '2140.00', 'Synology Direct', 'RS1221+', 0],
+        ['Rack Mount UPS 1500VA', 'product', 'HW-UPS15', '685.00', 'Hardware Sales', 'Rack mount UPS with network management card and graceful shutdown.', '', '498.00', 'Ridgeline Technology Distribution', 'SMT1500RM2UNC', 1],
     ];
+}
+
+// ------------------------------
+// demoProductExtras
+// How a demo product is billed, what it costs, who it comes from and whether
+// its stock is tracked - the columns past the description.
+// ------------------------------
+function demoProductExtras($product, $vendors) {
+    [$frequency, $seat] = array_pad(explode(':', (string) ($product[6] ?? '')), 2, '');
+    $extras = [
+        'product_cost' => $product[7] ?? '0.00',
+        'product_track_stock' => intval($product[10] ?? 0),
+    ];
+    if ($frequency !== '') {
+        $extras['product_frequency'] = $frequency;
+    }
+    if ($seat !== '') {
+        $extras['product_seat_source'] = $seat;
+    }
+    if (!empty($product[8]) && isset($vendors[$product[8]])) {
+        $extras['product_vendor_id'] = $vendors[$product[8]];
+    }
+    if (!empty($product[9])) {
+        $extras['product_vendor_part'] = $product[9];
+    }
+    return $extras;
 }
 
 // ------------------------------
@@ -172,7 +199,7 @@ function demoDataProducts() {
 // Matched on the product code, which is what makes a catalogue line ours - a
 // name on its own could easily be something the install already sells.
 // ------------------------------
-function demoEnsureProducts($mysqli, $currency) {
+function demoEnsureProducts($mysqli, $currency, $vendors = []) {
 
     $products = [];
 
@@ -199,7 +226,7 @@ function demoEnsureProducts($mysqli, $currency) {
             'product_description' => $product[5],
             'product_category_id' => demoCategoryId($mysqli, $product[4], 'Income'),
             'product_tax_id' => 0,
-        ]);
+        ] + demoProductExtras($product, $vendors));
     }
 
     return $products;
@@ -638,8 +665,8 @@ function demoDataLoad($mysqli) {
         'currency' => $currency,
         'accounts' => demoEnsureAccounts($mysqli, $currency),
         'cash_account_id' => demoCashAccountId($mysqli),
-        'org_vendors' => demoEnsureOrgVendors($mysqli),
-        'products' => demoEnsureProducts($mysqli, $currency),
+        'org_vendors' => $org_vendors = demoEnsureOrgVendors($mysqli),
+        'products' => demoEnsureProducts($mysqli, $currency, $org_vendors),
         'calendars' => demoEnsureCalendars($mysqli),
         'slas' => demoEnsureSlas($mysqli),
         'taxes' => demoEnsureTaxes($mysqli),

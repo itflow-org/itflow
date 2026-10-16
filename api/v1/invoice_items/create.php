@@ -23,7 +23,7 @@
  *   - The parent invoice is loaded through apiClientScopeSql(), so a restricted
  *     key cannot modify another client's invoice.
  *   - The supplied client_id must match the invoice's client.
- *   - Inventory is only adjusted for tangible products.
+ *   - Inventory is only adjusted for products whose stock is tracked.
  *   - Invoice totals are automatically recalculated.
  */
 
@@ -79,9 +79,8 @@ if (
         // Product inventory
         if ($product_id) {
 
-            $product_type = escapeSql(getFieldById('products', $product_id, 'product_type'));
-
-            if ($product_type === 'product') {
+            // Only products whose stock is tracked move stock
+            if (intval(getFieldById('products', $product_id, 'product_track_stock')) === 1) {
 
                 $stock_sql = mysqli_query(
                     $mysqli,

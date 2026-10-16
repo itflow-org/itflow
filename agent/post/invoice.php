@@ -846,7 +846,7 @@ if (isset($_POST['add_ticket_to_invoice'])) {
         'tax_id' => intval($_POST['tax_id'] ?? 0),
         'combine' => ($_POST['lines'] ?? '') === 'one',
         'lines' => $bill_time,
-        'by' => $session_name,
+        'by' => stripslashes($session_name),
     ], $error);
     if (!$result) {
         flashAlert(escapeHtml($error), 'error');

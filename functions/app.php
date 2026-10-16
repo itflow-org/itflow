@@ -895,12 +895,13 @@ function getProductsForAutocomplete($mysqli): string
             product_tax_id AS tax,
             tax_percent,
             product_id AS prod_id,
-            COALESCE(SUM(product_stock.stock_qty), 0) AS available_stock
+            product_frequency AS frequency,
+            product_seat_source AS seat_source,
+            product_track_stock AS track_stock,
+            " . productStockSql() . " AS available_stock
         FROM products
-        LEFT JOIN product_stock ON product_id = stock_product_id
         LEFT JOIN taxes ON product_tax_id = tax_id
         WHERE product_archived_at IS NULL
-        GROUP BY product_id
         ORDER BY product_name ASC
     ");
 

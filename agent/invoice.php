@@ -274,6 +274,9 @@ $paper = [
                         <?php } ?>
                     </dd>
                     <dt>Terms</dt><dd><?= intval($invoice['client_net_terms']) ?: intval($config_default_net_terms) ?> days</dd>
+                    <?php $margin_html = billingMarginHtml('invoice', $items, $currency); if ($margin_html) { ?>
+                        <dt>Margin</dt><dd><?= $margin_html ?></dd>
+                    <?php } ?>
                     <?php if ($status === 'Draft') { ?>
                         <dt>Client</dt><dd class="text-body-secondary">Not sent yet - the client can't see it</dd>
                     <?php } ?>

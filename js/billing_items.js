@@ -32,6 +32,27 @@ function itflowBillingNumber(value) {
     return text === '' ? NaN : Number(text);
 }
 
+/* A product's default billing in words - "Monthly, per user" - or '' for one time */
+function itflowBillingBilledText(frequency, seat) {
+    var label = { month: 'Monthly', quarter: 'Quarterly', year: 'Yearly' }[frequency || ''];
+    if (!label) {
+        return '';
+    }
+    var per = { contacts: 'per user', assets: 'per device' }[seat || ''];
+    return label + (per ? ', ' + per : '');
+}
+
+/* Choose an option by value, when the select has it, and let the select's own handlers know */
+function itflowBillingPick(select, value) {
+    var has = Array.prototype.some.call(select.options, function (option) {
+        return option.value === value && !option.disabled;
+    });
+    if (has && select.value !== value) {
+        select.value = value;
+        select.dispatchEvent(new Event('change', { bubbles: true }));
+    }
+}
+
 function itflowBillingLineForm(root, options) {
     if (!root) {
         return;
@@ -98,7 +119,9 @@ function itflowBillingLineForm(root, options) {
         render: function (item) {
             var esc = itflowEscapeHtml;
             var isService = String(item.type || '').toLowerCase() === 'service';
+            var tracked = String(item.track_stock) === '1';
             var stock = Number(item.available_stock || 0);
+            var billed = itflowBillingBilledText(item.frequency, item.seat_source);
             return "<div class='d-flex justify-content-between align-items-start gap-3'>" +
                 "<div class='min-w-0'>" +
                     "<div class='fw-semibold'>" + esc(item.label) + "</div>" +
@@ -106,7 +129,8 @@ function itflowBillingLineForm(root, options) {
                     "<div class='small mt-1'>" +
                         "<span class='badge rounded-pill bg-secondary-subtle text-secondary-emphasis fw-normal me-1'>" + (isService ? 'Service' : 'Product') + "</span>" +
                         (item.tax_percent != null ? "<span class='badge rounded-pill bg-secondary-subtle text-secondary-emphasis fw-normal me-1'>Tax " + esc(parseFloat(item.tax_percent)) + "%</span>" : "") +
-                        (!isService ? "<span class='badge rounded-pill fw-normal " + (stock > 0 ? "bg-success-subtle text-success-emphasis" : "bg-danger-subtle text-danger-emphasis") + "'>" + esc(stock) + " in stock</span>" : "") +
+                        (billed ? "<span class='badge rounded-pill bg-info-subtle text-info-emphasis fw-normal me-1'><i class='fas fa-redo-alt me-1'></i>" + esc(billed) + "</span>" : "") +
+                        (tracked ? "<span class='badge rounded-pill fw-normal " + (stock > 0 ? "bg-success-subtle text-success-emphasis" : "bg-danger-subtle text-danger-emphasis") + "'>" + esc(stock) + " in stock</span>" : "") +
                     "</div>" +
                 "</div>" +
                 "<div class='fw-semibold text-nowrap'>" + esc(item.price != null && item.price !== '' ? itflowBillingMoney(Number(item.price), opts.currency, opts.locale) : '') + "</div>" +
@@ -133,6 +157,15 @@ function itflowBillingLineForm(root, options) {
             }
             if (product) {
                 product.value = item.prod_id;
+            }
+            // How it is billed by default - Billed on a quote, Counted on a recurring invoice
+            var billedSelect = root.querySelector('select[name="frequency"]');
+            if (billedSelect) {
+                itflowBillingPick(billedSelect, item.frequency || '');
+            }
+            var seatSelect = root.querySelector('select[name="seat_source"]');
+            if (seatSelect) {
+                itflowBillingPick(seatSelect, item.seat_source || '');
             }
             update();
             if (price) {

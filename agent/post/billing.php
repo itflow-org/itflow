@@ -202,7 +202,7 @@ if (isset($_GET['recurring_invoice_sync'])) {
     $client_id = intval($row['client_id']);
     enforceClientAccess();
 
-    $changes = recurringInvoiceRefresh($recurring_invoice_id, $session_name);
+    $changes = recurringInvoiceRefresh($recurring_invoice_id, stripslashes($session_name));
     $number = billingNumber('recurring', $row);
     if ($changes) {
         logAudit('Recurring Invoice', 'Edit', escapeSql("$session_name updated the seats on recurring invoice $number: " . implode('; ', $changes)), $client_id, $recurring_invoice_id);
@@ -241,7 +241,7 @@ if (isset($_POST['unbilled_invoice'])) {
         'price' => (string) ($_POST['price'] ?? ''),
         'tax_id' => intval($_POST['tax_id'] ?? 0),
         'combine' => ($_POST['lines'] ?? '') === 'one',
-        'by' => $session_name,
+        'by' => stripslashes($session_name),
     ], $error);
     if (!$result) {
         flashAlert(escapeHtml($error), 'error');
@@ -281,7 +281,7 @@ if (isset($_POST['unbilled_invoice_clients'])) {
             'item_name' => (string) ($_POST['item_name'] ?? ''),
             'tax_id' => intval($_POST['tax_id'] ?? 0),
             'combine' => ($_POST['lines'] ?? '') === 'one',
-            'by' => $session_name,
+            'by' => stripslashes($session_name),
         ], $error);
         if ($result) {
             $made[] = $result;
@@ -315,7 +315,7 @@ if (isset($_POST['unbilled_write_off'])) {
     $client_id = intval($_POST['client_id'] ?? 0);
     enforceClientAccess();
 
-    $done = billingTimeWriteOff($client_id, array_map('intval', (array) ($_POST['ticket_ids'] ?? [])), $session_name);
+    $done = billingTimeWriteOff($client_id, array_map('intval', (array) ($_POST['ticket_ids'] ?? [])), stripslashes($session_name));
     if (!$done) {
         flashAlert('Nothing changed - tick the tickets that are not billable.', 'error');
         redirect();

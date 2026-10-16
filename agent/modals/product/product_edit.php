@@ -1,130 +1,33 @@
 <?php
 
+/*
+ * Edit a product or service. ?id=
+ */
+
 require_once '../../../includes/modal_header.php';
 
 enforceUserPermission('module_sales', 2);
 
-$product_id = intval($_GET['id']);
+$form_product = productRow(intval($_GET['id'] ?? 0));
+if (!$form_product) {
+    exit(json_encode(['error' => 'That product no longer exists.']));
+}
+$form_type = $form_product['product_type'];
+$product_id = intval($form_product['product_id']);
 
-$sql = mysqli_query($mysqli, "SELECT product_category_id, product_code, product_created_at, product_description,
-    product_location, product_name, product_price, product_tax_id, product_type FROM products WHERE product_id = $product_id LIMIT 1");
-
-$row = mysqli_fetch_assoc($sql);
-$product_name = escapeHtml($row['product_name']);
-$product_type = escapeHtml($row['product_type']);
-$product_description = escapeHtml($row['product_description']);
-$product_code = escapeHtml($row['product_code']);
-$product_location = escapeHtml($row['product_location']);
-$product_price = floatval($row['product_price']);
-$product_created_at = escapeHtml($row['product_created_at']);
-$category_id = intval($row['product_category_id']);
-$product_tax_id = intval($row['product_tax_id']);
-
-// Generate the HTML form content using output buffering.
 ob_start();
-?>
 
+?>
 <div class="modal-header bg-dark">
-    <h5 class="modal-title"><i class="fas fa-fw fa-box-open me-2"></i>Editing <?= ucwords($product_type) ?>: <strong><?= $product_name ?></strong></h5>
+    <h5 class="modal-title"><i class="fas fa-fw fa-edit me-2"></i>Edit <span class="fw-normal text-white-50 ms-1"><?= escapeHtml($form_product['product_name']) ?></span></h5>
     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
 </div>
 <form action="post.php" method="post" autocomplete="off">
     <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
     <input type="hidden" name="product_id" value="<?= $product_id ?>">
+
     <div class="modal-body">
-
-        <div class="mb-3">
-            <label>Name <strong class="text-danger">*</strong></label>
-            <div class="input-group">
-                    <span class="input-group-text"><i class="fas fa-fw fa-box"></i></span>
-                <input type="text" class="form-control" name="name" maxlength="200" value="<?= $product_name ?>" required>
-            </div>
-        </div>
-
-        <div class="mb-3">
-            <label>Category <strong class="text-danger">*</strong></label>
-            <div class="input-group">
-                    <span class="input-group-text"><i class="fa fa-fw fa-list"></i></span>
-                <select class="form-select select2" name="category" required>
-                    <?php
-
-                    $sql_select = mysqli_query($mysqli, "SELECT category_id, category_name, category_color, category_icon FROM categories WHERE category_type = 'Income' AND (category_archived_at > '$product_created_at' OR category_archived_at IS NULL)");
-                    while ($row = mysqli_fetch_assoc($sql_select)) {
-                        $category_id_select = intval($row['category_id']);
-                        $category_name_select = escapeHtml($row['category_name']);
-                        ?>
-                        <option <?php if ($category_id == $category_id_select) { echo "selected"; } ?> value="<?= $category_id_select ?>"<?= selectOptionColor($row['category_color'] ?? '', $row['category_icon'] ?? '') ?>><?= $category_name_select ?></option>
-                        <?php
-                    }
-
-                    ?>
-                </select>
-                    <button class="btn btn-secondary ajax-modal" title="New category" type="button"
-                        data-modal-url="../admin/modals/category/category_add.php?category=Income">
-                        <i class="fas fa-fw fa-plus"></i>
-                    </button>
-            </div>
-        </div>
-
-        <div class="row g-2">
-            <div class="col">
-                <div class="mb-3">
-                    <label>Price <strong class="text-danger">*</strong></label>
-                    <div class="input-group">
-                            <span class="input-group-text"><i class="fa fa-fw fa-dollar-sign"></i></span>
-                        <input type="text" inputmode="decimal" pattern="[0-9]*\.?[0-9]{0,2}" class="form-control" name="price" value="<?= number_format($product_price, 2, '.', '') ?>" placeholder="0.00" required>
-                    </div>
-                </div>
-            </div>
-            <div class="col">
-                <div class="mb-3">
-                    <label>Tax</label>
-                    <div class="input-group">
-                            <span class="input-group-text"><i class="fa fa-fw fa-balance-scale"></i></span>
-                        <select class="form-select select2" name="tax">
-                            <option value="0">None</option>
-                            <?php
-
-                            $taxes_sql = mysqli_query($mysqli, "SELECT tax_id, tax_name, tax_percent FROM taxes WHERE (tax_archived_at > '$product_created_at' OR tax_archived_at IS NULL) ORDER BY tax_name ASC");
-                            while ($row = mysqli_fetch_assoc($taxes_sql)) {
-                                $tax_id_select = intval($row['tax_id']);
-                                $tax_name = escapeHtml($row['tax_name']);
-                                $tax_percent = floatval($row['tax_percent']);
-                                ?>
-                                <option <?php if ($tax_id_select == $product_tax_id) { echo "selected"; } ?> value="<?= $tax_id_select ?>"><?= "$tax_name $tax_percent%" ?></option>
-
-                                <?php
-                            }
-                            ?>
-                        </select>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <?php if ($product_type == 'product') { ?>
-        <div class="mb-3">
-            <label>Location</label>
-            <div class="input-group">
-                    <span class="input-group-text"><i class="fa fa-fw fa-map-marker-alt"></i></span>
-                <input type="text" class="form-control" name="location" placeholder="Enter a location" maxlength="250" value="<?= $product_location ?>">
-            </div>
-        </div>
-        <?php } ?>
-
-        <div class="mb-3">
-            <label>Description</label>
-            <textarea class="form-control" rows="4" name="description"><?= $product_description ?></textarea>
-        </div>
-
-        <div class="mb-3">
-            <label>Code</label>
-            <div class="input-group">
-                    <span class="input-group-text"><i class="fa fa-fw fa-barcode"></i></span>
-                <input type="text" class="form-control" name="code" placeholder="Enter product code eg. SKU #" maxlength="200" value="<?= $product_code ?>">
-            </div>
-        </div>
-
+        <?php require __DIR__ . '/product_form.php'; ?>
     </div>
 
     <div class="modal-footer">
@@ -134,5 +37,4 @@ ob_start();
 </form>
 
 <?php
-
 require_once '../../../includes/modal_footer.php';

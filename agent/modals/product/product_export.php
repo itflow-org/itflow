@@ -20,6 +20,9 @@ $type_filter = $_GET['type'] ?? '';
 // Category Filter
 $category_filter = intval($_GET['category'] ?? 0);
 
+// Vendor Filter
+$vendor_filter = intval($_GET['vendor'] ?? 0);
+
 // Archived Filter
 $archived_filter = (isset($_GET['archived']) && $_GET['archived'] == 1) ? 1 : 0;
 
@@ -54,9 +57,11 @@ ob_start();
             <div class="input-group">
                     <span class="input-group-text"><i class="fa fa-fw fa-box"></i></span>
                 <select class="form-select select2" name="type">
-                    <option value="">- All Types -</option>
-                    <option <?php if ($type_filter === 'product') { echo "selected"; } ?> value="product">Products</option>
+                    <option value="">- Everything -</option>
                     <option <?php if ($type_filter === 'service') { echo "selected"; } ?> value="service">Services</option>
+                    <option <?php if ($type_filter === 'product') { echo "selected"; } ?> value="product">Products</option>
+                    <option <?php if ($type_filter === 'recurring') { echo "selected"; } ?> value="recurring">Billed each month, quarter or year</option>
+                    <option <?php if ($type_filter === 'stocked') { echo "selected"; } ?> value="stocked">Stock tracked</option>
                 </select>
             </div>
         </div>
@@ -77,6 +82,19 @@ ob_start();
                     <?php
                     }
                     ?>
+                </select>
+            </div>
+        </div>
+
+        <div class="mb-3">
+            <label>Vendor</label>
+            <div class="input-group">
+                <span class="input-group-text"><i class="fa fa-fw fa-building"></i></span>
+                <select class="form-select select2" name="vendor">
+                    <option value="">- All Vendors -</option>
+                    <?php foreach (productVendors() as $filter_vendor_id => $filter_vendor_name) { ?>
+                        <option <?php if ($vendor_filter === $filter_vendor_id) { echo "selected"; } ?> value="<?= $filter_vendor_id ?>"><?= escapeHtml($filter_vendor_name) ?></option>
+                    <?php } ?>
                 </select>
             </div>
         </div>

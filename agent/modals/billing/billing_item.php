@@ -43,8 +43,9 @@ if (!$item) {
 $t = billingType($type);
 $currency = (string) $doc["{$t['col']}_currency_code"];
 $taxes = billingTaxes($item['item_created_at']);
-$product_name = intval($item['item_product_id']) ? getFieldById('products', intval($item['item_product_id']), 'product_name') : '';
-$product_type = intval($item['item_product_id']) ? getFieldById('products', intval($item['item_product_id']), 'product_type') : '';
+$line_product = intval($item['item_product_id']) ? productRow($item['item_product_id']) : null;
+$product_name = $line_product ? $line_product['product_name'] : '';
+$product_type = $line_product ? $line_product['product_type'] : '';
 $quantity = billingQuantity($item['item_quantity']);
 $price = number_format(floatval($item['item_price']), 2, '.', '');
 
@@ -71,7 +72,7 @@ ob_start();
                     <input type="text" class="form-control" name="name" maxlength="200" value="<?= escapeHtml($item['item_name']) ?>" required data-line-name>
                 </div>
                 <?php if ($product_name !== '' && $product_name !== null) { ?>
-                    <div class="form-text"><i class="fas fa-link me-1"></i>From the <?= $product_type === 'product' ? 'product' : 'service' ?> <strong><?= escapeHtml($product_name) ?></strong><?= $type === 'invoice' && $product_type === 'product' ? ' - changing the quantity moves its stock' : '' ?>.</div>
+                    <div class="form-text"><i class="fas fa-link me-1"></i>From the <?= $product_type === 'product' ? 'product' : 'service' ?> <a href="product.php?product_id=<?= intval($item['item_product_id']) ?>"><strong><?= escapeHtml($product_name) ?></strong></a><?= $type === 'invoice' && intval($line_product['product_track_stock']) ? ' - changing the quantity moves its stock (' . escapeHtml(billingQuantity($line_product['product_stock'])) . ' on the shelf)' : '' ?>.</div>
                 <?php } ?>
             </div>
             <div class="col-12">

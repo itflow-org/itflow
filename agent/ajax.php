@@ -615,6 +615,25 @@ if (isset($_POST['quote_set_notes'])) {
 
 }
 
+if (isset($_POST['product_set_notes'])) {
+
+    validateCSRFToken();
+
+    enforceUserPermission('module_sales', 2);
+
+    // A product's internal notes, from its page
+    $product_id = intval($_POST['product_id'] ?? 0);
+    $product = productRow($product_id);
+    if (!$product) {
+        http_response_code(404);
+        exit;
+    }
+    productSave(['notes' => (string) ($_POST['note'] ?? '')], $product_id);
+
+    logAudit("Product", "Edit", "$session_name edited notes on product " . escapeSql($product['product_name']), 0, $product_id);
+
+}
+
 if (isset($_POST['recurring_invoice_set_notes'])) {
 
     validateCSRFToken();

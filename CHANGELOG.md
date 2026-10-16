@@ -6,9 +6,9 @@ This file documents all notable changes made to ITFlow.
 
 ### Upgrading to 26.11
 
-Update from Maintenance > Update — Queue Update hands the job to cron, which updates the files and applies this release's database changes (2.7.9 to 2.9.3) in the same pass. Nothing else is required.
+Update from Maintenance > Update — Queue Update hands the job to cron, which updates the files and applies this release's database changes (2.7.9 to 2.9.4) in the same pass. Nothing else is required.
 
-This is a big release, with fourteen database steps in one go, so take a backup before you update.
+This is a big release, with fifteen database steps in one go, so take a backup before you update.
 
 The update also clears out data that deletes in older versions left behind, all of it pointing at something that no longer exists:
 
@@ -17,7 +17,7 @@ The update also clears out data that deletes in older versions left behind, all 
 - the tasks, approvals and history of deleted tickets, the projects of deleted clients, and tickets still pointing at a deleted project
 - project template entries whose ticket template is gone, and the same service link saved twice
 
-It also gives every existing network a type (LAN, WAN, Guest and so on) guessed from its name or description, which you can change afterwards, and fills in the issue date, names covered and fingerprint of every certificate already on file. Invoices made from a quote before the update are linked to that quote, so each one shows where it came from.
+It also gives every existing network a type (LAN, WAN, Guest and so on) guessed from its name or description, which you can change afterwards, and fills in the issue date, names covered and fingerprint of every certificate already on file. Invoices made from a quote before the update are linked to that quote, so each one shows where it came from. Products that ever had stock added keep tracking their stock, and the rest are set to ordered as needed (see Breaking Changes, Products).
 
 If you are coming from 26.08 or earlier, the database update still has to be run from the command line one time, exactly as described under Upgrading to 26.09 below.
 
@@ -56,6 +56,11 @@ If you are coming from 26.08 or earlier, the database update still has to be run
   - Make Invoice only works on an accepted quote, and only once. The quote is then Invoiced. It used to invoice a quote in any status, as many times as it was pressed. When the client says yes by phone or email, mark the quote Accepted first.
   - The quote email says "Cost: $1,540.00 up front and $2,034.76 a month" when the quote has recurring lines. A quote with only one-time lines still says "Total Cost".
   - Quotes Pipeline values a quote at what it bills up front plus a year of its recurring lines, so a quote with monthly lines counts for more than its up-front amount in quoted, won, lost and open. The open quotes table shows that first-year value with the breakdown under it, and its CSV has Up front, Monthly and First year columns.
+- Products:
+  - Only a product with Track stock on moves stock when it is invoiced, and it still can't be invoiced past what is on the shelf. After the update, a product that ever had stock added keeps tracking it. One that never did is ordered as needed and can now be invoiced - it used to be refused as not enough in stock. Turn on Track stock in Edit for anything else you count.
+  - The Products page shows everything, with tabs for Services, Products, Recurring and Stocked. It used to open on Services. Old links to `products.php?type=service` and `?type=product` still open those tabs.
+  - Clicking a product opens its new page instead of the Edit window.
+  - Import finds columns by their heading, so a file can have any of the fields in any order. The old three column file (Product Name, Description, Price) still works. A row whose code is already in the catalog is skipped unless Update products with the same code is on.
 - Notifications now follow access too. An agent only sees notifications for clients and areas they can open, so someone without sales access no longer sees invoice and quote notifications.
 - Drop-downs: Tom Select is gone, replaced by ITFlow's own picker. It works the way you are used to: type to search, tick several in a multi-select, and type a new value in fields that allow it, such as ticket watchers. See Developer Updates if you have custom pages that used Tom Select.
 - Several small windows are gone because the change is now made where the value is shown:
@@ -233,6 +238,27 @@ If you are coming from 26.08 or earlier, the database update still has to be run
     - Start Billing on an accepted quote: the one-time lines go on a draft invoice, dated as you choose and due on the client's terms. Each month, quarter or year part goes on a new recurring invoice from the date you pick (the first of next month to start), with its invoices emailed as they are made or left as drafts, or is added to one of the client's recurring invoices billed as often. Switch on Bill the first month on the invoice now to put the first period on the invoice too. A quote with only one-time lines keeps Make Invoice.
     - The quote shows what it was invoiced as, with a link to each invoice and recurring invoice, including any it added lines to. The invoice and the recurring invoices link back to the quote, and each history says what happened.
     - The quotes list adds the monthly part to each row and to its totals. Search, the client portal's quotes, the Send and Copy windows, the quote email and the client's Accept all show the amounts by part. The quotes export has a Monthly column, and the client export a monthly amount on quotes and how each quote line is billed.
+- **Products** (rebuilt)
+  - Each product or service records what it costs you, so its margin shows, along with the vendor you buy it from, their part number and notes for agents only.
+  - How it is billed by default: one time, monthly, quarterly or yearly, and per user or per device. Picking it on a quote fills in Billed. On a recurring invoice, per user or per device takes the quantity from the client's count.
+  - Track stock, for products: a tracked product comes off the shelf as it is invoiced and can't be sold past what is there. The rest are ordered as needed, such as drop-shipped hardware.
+  - The list:
+    - The top shows what catalog lines bring in each month on recurring invoices, what was sold over the last 90 days with the top seller, and what the stock on the shelf is worth at cost.
+    - Tabs for Services, Products, Recurring and Stocked, a vendor filter, and search by part number and vendor too.
+    - Each row shows how it is billed, the stock and where it is kept, the vendor and part number, and the price with its cost and margin.
+  - Each product has a page:
+    - Its price and margin, what it sold over 12 months, and what it brings in a month on recurring invoices.
+    - Its stock, where it is kept, what that is worth and the last moves, each with the expense it came in on.
+    - Where it is used: the recurring invoices it is on, open quotes, the invoices it was sold on, and its history.
+    - Notes save as you click away. Copy makes a new one to start from.
+  - New and Edit are one window, with Service or Product at the top and the margin worked out as you type the price and cost.
+  - Add Stock shows what will be on the shelf, and links the purchase to an expense from the last year, the vendor's first.
+  - Import takes every field. Categories, taxes and vendors are matched by name. A new price list can update products by their code, and a file with only Code and Price will do. Download the template for the layout.
+  - Export adds cost, margin, how it is billed, vendor, part number and stock.
+  - Invoices, quotes and recurring invoices show agents their margin on lines from products with a cost, at today's cost. A quote shows it up front and each month.
+  - Our vendors' pages have a Products tab listing what we buy from them.
+  - Search finds products by part number and opens their page.
+  - The starter catalog in Starter Content comes with how each item is billed. The demo data's products have costs, vendors and part numbers.
 - **Tickets**
   - The ticket list has views for Open, Mine, Unassigned, Needs reply, Waiting, Overdue, Scheduled, Closed and All.
     - Each row shows whose move it is (yours or the client's) along with SLA and due badges, and status, priority and agent change right in the row.
@@ -406,6 +432,8 @@ If you are coming from 26.08 or earlier, the database update still has to be run
 - Billing: an invoice made from a quote was due counting from today instead of the invoice date, and with no terms when the client had none set.
 - Billing: the client's view of a quote offered Accept on a viewed quote that had run out, and the invoice and quote views put the browser's HTML into the history.
 - Billing: copying an invoice logged its old number with the prefix twice.
+- Products: Restore in the archived list's bulk actions did nothing. Deleting a product left its stock records behind.
+- Products: Add Stock could record zero units, or link an expense that no longer existed.
 - Billing: Make Invoice on a quote could make a second invoice when pressed twice or from two tabs, and could invoice a quote that was never accepted or had been declined. Its audit log entry named the quote with the current quote prefix instead of the quote's own.
 - Recurring invoices: if cron missed a night, that recurring invoice stopped billing until someone moved its date. The missed run is now billed the next night, up to 7 days late.
 - Invoicing a ticket: on an invoice that already had lines, its line went in near the top instead of at the end. A ticket already on an invoice could be billed again from a second window, and a ticket with 100 hours or more logged had no hours filled in.
@@ -442,7 +470,7 @@ If you are coming from 26.08 or earlier, the database update still has to be run
 
 ### Developer Updates
 
-- Database 2.8.0 to 2.9.3, one file per step under `admin/database_updates/`, with `db.sql` matching 2.9.3:
+- Database 2.8.0 to 2.9.4, one file per step under `admin/database_updates/`, with `db.sql` matching 2.9.4:
   - 2.8.0: `racks.rack_units_descending`, `rack_power_capacity` and `rack_photo_rear`. On `rack_units`: `unit_face`, `unit_full_depth`, `unit_type`, `unit_power_watts`, `unit_notes` and a `unit_asset_id` key. Unlinked items move from asset id 0 to NULL.
   - 2.8.1: `location_documents` and `location_files`.
   - 2.8.2: `vendor_tags` (tag type 6), and `vendor_contact_phone_country_code`, `vendor_contact_phone` and `vendor_contact_email`.
@@ -469,6 +497,7 @@ If you are coming from 26.08 or earlier, the database update still has to be run
   - 2.9.1: `recurring_invoice_items.item_seat_source`, `item_seat_filter` (JSON) and `item_seat_minimum`, and `recurring_invoices.recurring_invoice_anchor_day`, backfilled from the day of each next date.
   - 2.9.2: `settings.config_time_increment` (15), `config_time_rounding` ('nearest'), `config_time_minimum` (0) and `config_time_item_name` ('Support [Hourly]').
   - 2.9.3: `quote_items.item_frequency` (NULL for one time, or `month`, `quarter` or `year`), `quotes.quote_monthly_amount`, `invoices.invoice_quote_id` and `recurring_invoices.recurring_invoice_quote_id`. Invoices are linked to their quote from the "Invoice created from quote QUO-n" history the old Make Invoice wrote, matched on the client too.
+  - 2.9.4: `products.product_cost`, `product_vendor_id`, `product_vendor_part`, `product_notes`, `product_frequency` (NULL once, or `month`, `quarter`, `year`), `product_seat_source` (NULL, `contacts` or `assets`) and `product_track_stock`, set for products with any `product_stock` rows. Keys on `item_product_id` in `invoice_items`, `quote_items` and `recurring_invoice_items`, and on `product_stock.stock_product_id`.
 - New shared function files, loaded by `functions.php`: `functions/asset.php`, `asset_interface.php`, `certificate.php`, `client_overview.php`, `contact.php`, `credential.php`, `dashboard.php`, `links.php`, `location.php`, `notifications.php`, `project.php`, `rack.php`, `search.php`, `service.php`, `software.php`, `tags.php`, `ticket.php`, `ticket_fields.php`, `user.php` and `vendor.php`. They hold the queries and rules, so the pages, the API and cron share one definition.
 - Removed post models: `agent/post/{asset_interface,certificate,credential,domain,event,location,network_ip,network,recurring_ticket,vendor}_model.php`, `admin/post/user_model.php` and `api/v1/certificates/certificate_model.php`. Their handlers call the shared functions above. Interface handlers moved to `agent/post/asset_interface.php`.
 - New scripts: `js/itflow_select.js`, `quick_pick.js`, `tag_picker.js`, `global_search.js`, `notifications.js`, `dashboard.js`, `client_overview.js`, `client_switcher.js`, `credentials.js` and `autosubmit.js`, and `agent/js/calendar.js`, `calendar_event_modal.js`, `files.js`, `interface_form.js`, `network_form.js`, `project_modal.js` and `ticket_schedule_modal.js`.
@@ -575,6 +604,16 @@ If you are coming from 26.08 or earlier, the database update still has to be run
   - `agent/modals/quote/quote_to_invoice.php` posts those fields. Quote lines carry `data-group`, with `tr.itflow-paper-group` headings in `includes/billing_paper.php`, and the Sortable in `js/billing_items.js` drags only `tr[data-item-id]`, within its group when the table is grouped.
   - `reportCsv()` writes a totals row as given, without the column's `csv` function, which read fields a totals row doesn't have. The quotes export takes `quote_monthly_amount`.
   - Removed: `add_invoice_item`, `edit_invoice_item`, `delete_invoice_item`, `add_quote_item`, `edit_quote_item`, `delete_quote_item`, `add_recurring_invoice_item`, `edit_recurring_invoice_item`, `delete_recurring_invoice_item` and `link_invoice_to_ticket` (it wrote a column that does not exist), `update_invoice_items_order`, `update_quote_items_order` and `update_recurring_invoice_items_order` in `agent/ajax.php`, `agent/modals/invoice/invoice_item_edit.php`, `agent/modals/quote/quote_item_edit.php`, `agent/modals/recurring_invoice/recurring_invoice_item_edit.php`, `guest/guest_quote_upload_file_modal.php` and `js/product_autocomplete.js`.
+- Products:
+  - `functions/products.php` (loaded by `functions.php`): `productTypes()`, `productSeatSources()`, `productBilledText()`, `productMargin()` (percent of the price, null without a cost), `productMarginPill()`, `productStockSql()`, `productTile()`, `productRow()` (with category, tax, vendor and stock), `productVendors()`, `productCopy()`, `productDelete()` (with its stock), `productUsage()` (recurring, open quotes, invoice lines, sold over 12 months and a month's recurring, scoped with `clientScopeSql()`), `productHistory()` and `productStockMoves()`.
+  - `productSave($in, $product_id, &$error)` is the one path that writes a product - New, Edit, Copy, Import and notes. On an existing product only the keys given change. It validates the type, numbers, an Income category, the tax and one of our vendors, clears Counted when billed once and Track stock for a service.
+  - Stock moves only when `product_track_stock = 1`, in `billingItemSave()`, `billingItemDelete()` and `api/v1/invoice_items/create.php`, where it used to follow `product_type = 'product'`.
+  - `getProductsForAutocomplete()` adds `frequency`, `seat_source` and `track_stock`, and `js/billing_items.js` uses `itflowBillingBilledText()` and `itflowBillingPick()` to fill in Billed and Counted on the add-a-line row.
+  - `billingMargin($type, $items)` and `billingMarginHtml()` work out the margin at today's product cost, by frequency for a quote, for the invoice, quote and recurring invoice pages.
+  - New page `agent/product.php?product_id=`. `agent/modals/product/product_form.php` holds the fields of `product_add.php` and `product_edit.php`. Handlers: `copy_product` (GET), and `product_set_notes` in `agent/ajax.php` for the page's notes. `import_products_csv` maps columns by heading and takes `update_existing`. `agent/post/product_model.php` is removed. The list's bulk Restore posts `bulk_restore_products`.
+  - Export columns for products: type, code, cost, margin, billed, vendor, part number, stock, location and notes. The products export takes `vendor` and the list's `type` tabs.
+  - Seeds: `demoEnsureProducts($mysqli, $currency, $vendors)` with `demoProductExtras()`, and a seventh column on `starterContentProducts()` for how each is billed (`month`, `month:contacts`).
+- The billing helpers (`billingTimeInvoice()`, `quoteConvert()`, `recurringInvoiceGenerate()` and the rest) take the agent's name as plain text. Their handlers now pass `stripslashes($session_name)`, so a name with an apostrophe no longer shows a backslash in history and the audit log.
 - Sidebar brand: `agent/css/sidebar_brand_fix.css` and `agent/js/sidebar_brand_fix.js` from 26.10 are replaced by CSS in `css/itflow_custom.css`. `includes/load_company_settings.php` now sets `$session_company_logo`.
 - `alertMessageHtml()` no longer double-encodes, and save messages built from `escapeSql()` values use `stripslashes()` at the flash.
 - CSS: `[hidden] { display: none !important; }` at the top of `css/itflow_custom.css`, so the `hidden` attribute wins over `d-flex` and the other display utilities. `.pagination` wraps.

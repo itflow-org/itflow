@@ -6161,6 +6161,23 @@ a.itflow-report-stat:focus-visible {
 [data-bs-theme="dark"] .itflow-billing-tile-invoice { --itflow-asset-tone: #6f9fe0; }
 [data-bs-theme="dark"] .itflow-billing-tile-quote { --itflow-asset-tone: #b08ae8; }
 [data-bs-theme="dark"] .itflow-billing-tile-recurring { --itflow-asset-tone: #4fc4b0; }
+
+/* Products - a tile by type, and the type choice in New and Edit */
+.itflow-product-tile-service { --itflow-asset-tone: #0f8a9d; }
+.itflow-product-tile-product { --itflow-asset-tone: #c4720f; }
+[data-bs-theme="dark"] .itflow-product-tile-service { --itflow-asset-tone: #4cc3d4; }
+[data-bs-theme="dark"] .itflow-product-tile-product { --itflow-asset-tone: #f0a24a; }
+.itflow-product-type .btn {
+    flex: 1 1 0;
+    padding-top: .55rem;
+    padding-bottom: .55rem;
+    line-height: 1.25;
+}
+.itflow-product-type .btn-check:checked + .btn {
+    color: var(--bs-primary-text-emphasis);
+    background-color: var(--bs-primary-bg-subtle);
+    border-color: var(--bs-primary-border-subtle);
+}
 .itflow-money {
     font-variant-numeric: tabular-nums;
     white-space: nowrap;

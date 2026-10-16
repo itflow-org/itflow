@@ -352,11 +352,21 @@ function getExportColumns($export_type) {
 
         'products' => [
             'product_name'          => ['label' => 'Product', 'weight' => 2],
+            'product_type_label'    => ['label' => 'Type', 'default' => false],
+            'product_code'          => ['label' => 'Code'],
             'product_description'   => ['label' => 'Description', 'weight' => 3],
             'product_price'         => ['label' => 'Price', 'format' => 'money'],
-            'product_currency_code' => ['label' => 'Currency'],
+            'product_cost'          => ['label' => 'Cost', 'format' => 'money', 'default' => false],
+            'product_margin'        => ['label' => 'Margin', 'default' => false],
+            'product_billed'        => ['label' => 'Billed'],
+            'product_currency_code' => ['label' => 'Currency', 'default' => false],
             'category_name'         => ['label' => 'Category'],
-            'tax_name'              => ['label' => 'Tax'],
+            'product_tax'           => ['label' => 'Tax'],
+            'vendor_name'           => ['label' => 'Vendor', 'default' => false],
+            'product_vendor_part'   => ['label' => 'Part Number', 'default' => false],
+            'product_stock_display' => ['label' => 'In Stock', 'format' => 'number', 'default' => false],
+            'product_location'      => ['label' => 'Location', 'default' => false],
+            'product_notes'         => ['label' => 'Notes', 'weight' => 3, 'default' => false],
         ],
 
         'expenses' => [

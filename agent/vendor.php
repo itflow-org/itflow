@@ -10,7 +10,7 @@
  * from them in tabs with counts: cases (tickets with their reference, open
  * first), licenses, assets bought from them, domains they host, services,
  * portal logins, documents, files and history. For one of ours: what we spend
- * with them and the recurring expenses. "Also used by" lists the agent's
+ * with them, the recurring expenses and the catalog items bought from them. "Also used by" lists the agent's
  * other clients with the same vendor - who else an outage hits.
  *
  * The open tab follows the URL hash (#cases) and is remembered between visits.
@@ -150,6 +150,20 @@ if (!$vendor || (isset($_GET['client_id']) && $vendor_client_id !== intval($clie
         }
     }
 
+    // What we buy from one of ours - the catalog items they supply
+    $vendor_products = [];
+    $can_sales = lookupUserPermission('module_sales') >= 1;
+    if ($is_ours && $can_sales) {
+        $sql = mysqli_query($mysqli, "SELECT product_id, product_name, product_type, product_code, product_vendor_part, product_price, product_cost, product_currency_code,
+                product_track_stock, product_frequency, product_seat_source, " . productStockSql() . " AS product_stock
+            FROM products
+            WHERE product_vendor_id = $vendor_id AND product_archived_at IS NULL
+            ORDER BY product_name ASC");
+        while ($row = mysqli_fetch_assoc($sql)) {
+            $vendor_products[] = $row;
+        }
+    }
+
     $elsewhere = lookupUserPermission('module_client') >= 1 ? vendorElsewhere($vendor) : [];
     $history = vendorHistory($vendor_id, 100);
 
@@ -157,6 +171,7 @@ if (!$vendor || (isset($_GET['client_id']) && $vendor_client_id !== intval($clie
         $vendor_tabs = [
             'expenses' => ['label' => 'Expenses', 'icon' => 'fa-receipt', 'count' => $spend ? $spend['count'] : 0],
             'recurring' => ['label' => 'Recurring', 'icon' => 'fa-redo-alt', 'count' => count($recurring)],
+            'products' => ['label' => 'Products', 'icon' => 'fa-box-open', 'count' => count($vendor_products)],
             'cases' => ['label' => 'Cases', 'icon' => 'fa-life-ring', 'count' => $case_count, 'badge' => $case_open_count],
             'domains' => ['label' => 'Client domains', 'icon' => 'fa-globe', 'count' => count($domains)],
             'history' => ['label' => 'History', 'icon' => 'fa-history', 'count' => count($history)],
@@ -166,6 +181,9 @@ if (!$vendor || (isset($_GET['client_id']) && $vendor_client_id !== intval($clie
         }
         if (!$can_financial) {
             unset($vendor_tabs['expenses'], $vendor_tabs['recurring']);
+        }
+        if (!$can_sales) {
+            unset($vendor_tabs['products']);
         }
         if (!$case_count) {
             unset($vendor_tabs['cases']);
@@ -725,6 +743,47 @@ if (!$vendor || (isset($_GET['client_id']) && $vendor_client_id !== intval($clie
                             </div>
                         <?php } else { ?>
                             <div class="itflow-asset-empty">Nothing recurring with them.</div>
+                        <?php } ?>
+                    </div>
+                    <?php } ?>
+
+                    <?php if (isset($vendor_tabs['products'])) { ?>
+                    <!-- What we buy from them - catalog items -->
+                    <div class="tab-pane fade" id="vendor-pane-products" role="tabpanel">
+                        <div class="itflow-asset-pane-bar">
+                            <span class="text-body-secondary small">Products and services in the catalog bought from them, with their part number.</span>
+                            <a class="btn btn-sm btn-outline-secondary" href="products.php?vendor=<?= $vendor_id ?>"><i class="fas fa-box-open me-2"></i>In Products</a>
+                        </div>
+                        <?php if ($vendor_products) { ?>
+                            <div class="table-responsive">
+                                <table class="table table-hover align-middle mb-0">
+                                    <thead class="text-nowrap table-light"><tr><th>Item</th><th class="d-none d-md-table-cell">Part #</th><th class="text-end">Cost</th><th class="text-end">Price</th><th class="text-end d-none d-sm-table-cell">Stock</th></tr></thead>
+                                    <tbody>
+                                    <?php foreach ($vendor_products as $vendor_product) { ?>
+                                        <tr>
+                                            <td>
+                                                <div class="d-flex align-items-center gap-2">
+                                                    <?= productTile($vendor_product['product_type'], 'sm') ?>
+                                                    <div class="min-w-0">
+                                                        <a class="fw-semibold" href="product.php?product_id=<?= intval($vendor_product['product_id']) ?>"><?= escapeHtml($vendor_product['product_name']) ?></a>
+                                                        <div class="small text-body-secondary"><?= escapeHtml(implode(' · ', array_filter([$vendor_product['product_code'], $vendor_product['product_frequency'] ? productBilledText($vendor_product['product_frequency'], $vendor_product['product_seat_source']) : '']))) ?: '&nbsp;' ?></div>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <td class="d-none d-md-table-cell font-monospace small"><?= $vendor_product['product_vendor_part'] ? escapeHtml($vendor_product['product_vendor_part']) : '<span class="text-body-secondary">-</span>' ?></td>
+                                            <td class="text-end itflow-money"><?= floatval($vendor_product['product_cost']) > 0 ? escapeHtml(billingMoney($vendor_product['product_cost'], $vendor_product['product_currency_code'])) : '<span class="text-body-secondary">-</span>' ?></td>
+                                            <td class="text-end itflow-money">
+                                                <?= escapeHtml(billingMoney($vendor_product['product_price'], $vendor_product['product_currency_code'])) ?>
+                                                <div><?= productMarginPill(productMargin($vendor_product['product_price'], $vendor_product['product_cost'])) ?></div>
+                                            </td>
+                                            <td class="text-end d-none d-sm-table-cell"><?= intval($vendor_product['product_track_stock']) ? intval($vendor_product['product_stock']) : '<span class="text-body-secondary">-</span>' ?></td>
+                                        </tr>
+                                    <?php } ?>
+                                    </tbody>
+                                </table>
+                            </div>
+                        <?php } else { ?>
+                            <div class="itflow-asset-empty">Nothing in the catalog comes from them. Pick them as the vendor on a product to list it here.</div>
                         <?php } ?>
                     </div>
                     <?php } ?>

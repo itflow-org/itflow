@@ -258,6 +258,9 @@ $paper = [
                         <?= escapeHtml($quote['quote_expire']) ?>
                         <?php if ($awaiting || $status === 'Draft') { ?><div class="mt-1"><?= quoteExpiryPill($quote) ?></div><?php } ?>
                     </dd>
+                    <?php $margin_html = billingMarginHtml('quote', $items, $currency); if ($margin_html) { ?>
+                        <dt>Margin</dt><dd><?= $margin_html ?></dd>
+                    <?php } ?>
                     <?php if ($status === 'Draft') { ?>
                         <dt>Client</dt><dd class="text-body-secondary">Not sent yet - the client can't see it</dd>
                     <?php } elseif ($awaiting) { ?>

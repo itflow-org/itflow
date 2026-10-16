@@ -223,7 +223,7 @@ if (isset($_GET['force_recurring'])) {
     // The run the page showed - a second press (or a second tab) finds it
     // already billed instead of billing the one after
     $run = (string) ($_GET['run'] ?? '');
-    $invoice_id = recurringInvoiceGenerate($recurring_invoice_id, $session_name, true, $run !== '' ? $run : null);
+    $invoice_id = recurringInvoiceGenerate($recurring_invoice_id, stripslashes($session_name), true, $run !== '' ? $run : null);
     if (!$invoice_id) {
         flashAlert('The run on ' . escapeHtml($run !== '' ? $run : $recurring['recurring_invoice_next_date']) . ' was already billed - nothing more was made. It next runs on ' . escapeHtml(getFieldById('recurring_invoices', $recurring_invoice_id, 'recurring_invoice_next_date')) . '.', 'warning');
         redirect();

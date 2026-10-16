@@ -189,7 +189,7 @@ function billingCanEditItems($type, $row) {
 
 /**
  * Add a line to a document, or change one. $in: name, description, qty,
- * price, tax_id, product_id. For an invoice, a stocked product's stock goes
+ * price, tax_id, product_id. For an invoice, a tracked product's stock goes
  * down by what the line takes (and back up if the quantity drops). The
  * document's total follows. The line's id, or null with $error.
  */
@@ -283,8 +283,8 @@ function billingItemSave($type, $doc_id, array $in, $item_id = 0, &$error = '') 
         $product_id = 0;
     }
 
-    // Stock moves only with invoices, and only for things on a shelf
-    if ($type === 'invoice' && $product_id && getFieldById('products', $product_id, 'product_type') === 'product') {
+    // Stock moves only with invoices, and only for products whose stock is tracked
+    if ($type === 'invoice' && $product_id && intval(getFieldById('products', $product_id, 'product_track_stock')) === 1) {
         $change = round($quantity - ($old ? floatval($old['item_quantity']) : 0), 2);
         if ($change > 0) {
             $available = floatval(mysqli_fetch_row(mysqli_query($mysqli, "SELECT COALESCE(SUM(stock_qty), 0) FROM product_stock WHERE stock_product_id = $product_id"))[0]);
@@ -313,7 +313,7 @@ function billingItemSave($type, $doc_id, array $in, $item_id = 0, &$error = '') 
     return $item_id;
 }
 
-/** Take a line off a document - a stocked product goes back on the shelf. The line, or null. */
+/** Take a line off a document - a tracked product goes back on the shelf. The line, or null. */
 function billingItemDelete($type, $doc_id, $item_id) {
     global $mysqli;
     $t = billingType($type);
@@ -325,7 +325,7 @@ function billingItemDelete($type, $doc_id, $item_id) {
     }
     mysqli_query($mysqli, "DELETE FROM {$t['items']} WHERE item_id = $item_id");
     $product_id = intval($item['item_product_id']);
-    if ($type === 'invoice' && $product_id && getFieldById('products', $product_id, 'product_type') === 'product' && floatval($item['item_quantity']) > 0) {
+    if ($type === 'invoice' && $product_id && intval(getFieldById('products', $product_id, 'product_track_stock')) === 1 && floatval($item['item_quantity']) > 0) {
         $quantity = floatval($item['item_quantity']);
         mysqli_query($mysqli, "INSERT INTO product_stock SET stock_qty = $quantity, stock_note = 'Returned QTY " . billingQuantity($quantity) . " back to stock from Invoice $doc_id', stock_product_id = $product_id");
     }

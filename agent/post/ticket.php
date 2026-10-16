@@ -1458,7 +1458,7 @@ if (isset($_POST['add_invoice_from_ticket'])) {
         'price' => (string) ($_POST['price'] ?? ''),
         'tax_id' => intval($_POST['tax_id'] ?? 0),
         'include_open' => true,
-        'by' => $session_name,
+        'by' => stripslashes($session_name),
     ], $error);
     if (!$result) {
         flashAlert(escapeHtml($error), 'error');

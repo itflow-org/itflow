@@ -1441,7 +1441,8 @@ CREATE TABLE `invoice_items` (
   `item_product_id` int(11) NOT NULL DEFAULT 0,
   `item_invoice_id` int(11) NOT NULL DEFAULT 0,
   PRIMARY KEY (`item_id`),
-  KEY `item_invoice_id` (`item_invoice_id`)
+  KEY `item_invoice_id` (`item_invoice_id`),
+  KEY `item_product_id` (`item_product_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -1765,7 +1766,8 @@ CREATE TABLE `product_stock` (
   `stock_expense_id` int(11) DEFAULT NULL,
   `stock_item_id` int(11) DEFAULT NULL,
   `stock_product_id` int(11) NOT NULL,
-  PRIMARY KEY (`stock_id`)
+  PRIMARY KEY (`stock_id`),
+  KEY `stock_product_id` (`stock_product_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -1781,15 +1783,22 @@ CREATE TABLE `products` (
   `product_name` varchar(200) NOT NULL,
   `product_type` enum('service','product') NOT NULL DEFAULT 'service',
   `product_description` text DEFAULT NULL,
+  `product_notes` text DEFAULT NULL,
   `product_code` varchar(200) DEFAULT NULL,
+  `product_vendor_part` varchar(200) DEFAULT NULL,
   `product_location` varchar(250) DEFAULT NULL,
   `product_price` decimal(15,2) NOT NULL,
+  `product_cost` decimal(15,2) NOT NULL DEFAULT 0.00,
   `product_currency_code` varchar(200) NOT NULL,
+  `product_frequency` varchar(10) DEFAULT NULL,
+  `product_seat_source` varchar(20) DEFAULT NULL,
+  `product_track_stock` tinyint(1) NOT NULL DEFAULT 0,
   `product_created_at` datetime NOT NULL DEFAULT current_timestamp(),
   `product_updated_at` datetime DEFAULT NULL ON UPDATE current_timestamp(),
   `product_archived_at` datetime DEFAULT NULL,
   `product_tax_id` int(11) NOT NULL DEFAULT 0,
   `product_category_id` int(11) NOT NULL,
+  `product_vendor_id` int(11) NOT NULL DEFAULT 0,
   PRIMARY KEY (`product_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -1897,7 +1906,8 @@ CREATE TABLE `quote_items` (
   `item_product_id` int(11) NOT NULL DEFAULT 0,
   `item_quote_id` int(11) NOT NULL,
   PRIMARY KEY (`item_id`),
-  KEY `item_quote_id` (`item_quote_id`)
+  KEY `item_quote_id` (`item_quote_id`),
+  KEY `item_product_id` (`item_product_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -2072,7 +2082,8 @@ CREATE TABLE `recurring_invoice_items` (
   `item_seat_filter` varchar(1000) DEFAULT NULL,
   `item_seat_minimum` decimal(15,2) NOT NULL DEFAULT 0.00,
   `item_recurring_invoice_id` int(11) NOT NULL,
-  PRIMARY KEY (`item_id`)
+  PRIMARY KEY (`item_id`),
+  KEY `item_product_id` (`item_product_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 

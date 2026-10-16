@@ -413,6 +413,8 @@ function starterLoadProducts($mysqli, $dry_run = false) {
             $category_ids[$product[4]] = starterCategoryId($mysqli, $product[4], 'Income');
         }
 
+        // How it is billed by default - "month", or "month:contacts" for per user
+        [$frequency, $seat] = array_pad(explode(':', (string) ($product[6] ?? '')), 2, '');
         starterInsert($mysqli, 'products', [
             'product_name' => $product[0],
             'product_type' => $product[1],
@@ -422,7 +424,7 @@ function starterLoadProducts($mysqli, $dry_run = false) {
             'product_description' => $product[5],
             'product_currency_code' => $session_company_currency ?? '',
             'product_tax_id' => 0,
-        ]);
+        ] + ($frequency !== '' ? ['product_frequency' => $frequency] : []) + ($seat !== '' ? ['product_seat_source' => $seat] : []));
     }
 
     return $added;
@@ -1143,7 +1145,8 @@ function starterContentDocumentTemplates() {
 
 // ------------------------------
 // starterContentProducts
-// name, type, code, price, income category, description.
+// name, type, code, price, income category, description, billed (a frequency,
+// or frequency:contacts per user / frequency:assets per device, empty once).
 // Hardware and resold SKUs come in at zero - they are quoted per deal or move
 // with the vendor price list.
 // ------------------------------
@@ -1152,97 +1155,97 @@ function starterContentProducts() {
     $products = [
 
         // Recurring managed services
-        ['Managed Workstation', 'service', 'MS-WKS', '65.00', 'Managed Services', 'Per workstation, per month. Monitoring, patching, endpoint protection and unlimited remote support.'],
-        ['Managed Server', 'service', 'MS-SRV', '195.00', 'Managed Services', 'Per server, per month. Monitoring, patching, maintenance and support.'],
-        ['Managed Network Device', 'service', 'MS-NET', '45.00', 'Managed Services', 'Per switch or access point, per month. Monitoring, firmware and configuration management.'],
-        ['Managed Firewall', 'service', 'MS-FW', '65.00', 'Managed Services', 'Per firewall, per month. Monitoring, firmware, rule management and subscription renewal.'],
-        ['Co-Managed IT', 'service', 'MS-COMG', '35.00', 'Managed Services', 'Per seat, per month. Tooling and escalation support alongside an internal IT team.'],
-        ['Help Desk Support', 'service', 'MS-HD', '45.00', 'Support', 'Per user, per month. Unlimited remote help desk during business hours.'],
-        ['Virtual CIO', 'service', 'MS-VCIO', '500.00', 'Consulting', 'Per month. Strategic planning, budgeting and quarterly business reviews.'],
-        ['Remote Monitoring', 'service', 'MS-RMM', '15.00', 'Monitoring', 'Per device, per month. Agent based monitoring and alerting.'],
-        ['Patch Management', 'service', 'MS-PATCH', '8.00', 'Monitoring', 'Per endpoint, per month. Operating system and third party patching.'],
+        ['Managed Workstation', 'service', 'MS-WKS', '65.00', 'Managed Services', 'Per workstation, per month. Monitoring, patching, endpoint protection and unlimited remote support.', 'month'],
+        ['Managed Server', 'service', 'MS-SRV', '195.00', 'Managed Services', 'Per server, per month. Monitoring, patching, maintenance and support.', 'month'],
+        ['Managed Network Device', 'service', 'MS-NET', '45.00', 'Managed Services', 'Per switch or access point, per month. Monitoring, firmware and configuration management.', 'month'],
+        ['Managed Firewall', 'service', 'MS-FW', '65.00', 'Managed Services', 'Per firewall, per month. Monitoring, firmware, rule management and subscription renewal.', 'month'],
+        ['Co-Managed IT', 'service', 'MS-COMG', '35.00', 'Managed Services', 'Per seat, per month. Tooling and escalation support alongside an internal IT team.', 'month'],
+        ['Help Desk Support', 'service', 'MS-HD', '45.00', 'Support', 'Per user, per month. Unlimited remote help desk during business hours.', 'month:contacts'],
+        ['Virtual CIO', 'service', 'MS-VCIO', '500.00', 'Consulting', 'Per month. Strategic planning, budgeting and quarterly business reviews.', 'month'],
+        ['Remote Monitoring', 'service', 'MS-RMM', '15.00', 'Monitoring', 'Per device, per month. Agent based monitoring and alerting.', 'month:assets'],
+        ['Patch Management', 'service', 'MS-PATCH', '8.00', 'Monitoring', 'Per endpoint, per month. Operating system and third party patching.', 'month:assets'],
 
         // Security
-        ['Endpoint Protection', 'service', 'SEC-EDR', '7.00', 'Security', 'Per endpoint, per month. Managed endpoint detection and response.'],
-        ['DNS Filtering', 'service', 'SEC-DNS', '3.00', 'Security', 'Per endpoint, per month. Malicious and category based web filtering.'],
-        ['Email Security', 'service', 'SEC-MAIL', '4.00', 'Security', 'Per mailbox, per month. Spam, phishing and malware filtering.'],
-        ['Security Awareness Training', 'service', 'SEC-SAT', '4.00', 'Security', 'Per user, per month. Training campaigns and simulated phishing.'],
-        ['Password Manager', 'service', 'SEC-PWD', '4.00', 'Security', 'Per user, per month. Managed password vault.'],
-        ['Dark Web Monitoring', 'service', 'SEC-DWM', '25.00', 'Security', 'Per client, per month. Credential exposure monitoring for client domains.'],
+        ['Endpoint Protection', 'service', 'SEC-EDR', '7.00', 'Security', 'Per endpoint, per month. Managed endpoint detection and response.', 'month:assets'],
+        ['DNS Filtering', 'service', 'SEC-DNS', '3.00', 'Security', 'Per endpoint, per month. Malicious and category based web filtering.', 'month:assets'],
+        ['Email Security', 'service', 'SEC-MAIL', '4.00', 'Security', 'Per mailbox, per month. Spam, phishing and malware filtering.', 'month'],
+        ['Security Awareness Training', 'service', 'SEC-SAT', '4.00', 'Security', 'Per user, per month. Training campaigns and simulated phishing.', 'month:contacts'],
+        ['Password Manager', 'service', 'SEC-PWD', '4.00', 'Security', 'Per user, per month. Managed password vault.', 'month:contacts'],
+        ['Dark Web Monitoring', 'service', 'SEC-DWM', '25.00', 'Security', 'Per client, per month. Credential exposure monitoring for client domains.', 'month'],
 
         // Backup
-        ['Managed Backup - Workstation', 'service', 'BU-WKS', '15.00', 'Backup', 'Per workstation, per month. Image based backup with offsite copy.'],
-        ['Managed Backup - Server', 'service', 'BU-SRV', '75.00', 'Backup', 'Per server, per month. Image based backup with offsite copy and restore testing.'],
-        ['Microsoft 365 Backup', 'service', 'BU-M365', '4.00', 'Backup', 'Per user, per month. Mail, calendar, contacts, OneDrive and SharePoint.'],
-        ['Offsite Backup Storage', 'service', 'BU-STOR', '25.00', 'Backup', 'Per terabyte, per month. Offsite retention beyond the included allowance.'],
+        ['Managed Backup - Workstation', 'service', 'BU-WKS', '15.00', 'Backup', 'Per workstation, per month. Image based backup with offsite copy.', 'month'],
+        ['Managed Backup - Server', 'service', 'BU-SRV', '75.00', 'Backup', 'Per server, per month. Image based backup with offsite copy and restore testing.', 'month'],
+        ['Microsoft 365 Backup', 'service', 'BU-M365', '4.00', 'Backup', 'Per user, per month. Mail, calendar, contacts, OneDrive and SharePoint.', 'month:contacts'],
+        ['Offsite Backup Storage', 'service', 'BU-STOR', '25.00', 'Backup', 'Per terabyte, per month. Offsite retention beyond the included allowance.', 'month'],
 
         // Cloud, web and telecom
-        ['Cloud Server Hosting', 'service', 'CLD-SRV', '150.00', 'Cloud Services', 'Per virtual server, per month. Compute, storage and backup included.'],
-        ['Web Hosting', 'service', 'WEB-HOST', '25.00', 'Web and Hosting', 'Per site, per month. Hosting, updates and monitoring.'],
-        ['Email Hosting', 'service', 'WEB-MAIL', '5.00', 'Web and Hosting', 'Per mailbox, per month.'],
-        ['Domain Registration', 'service', 'WEB-DOM', '25.00', 'Web and Hosting', 'Per domain, per year. Registration and DNS management.'],
-        ['SSL Certificate', 'service', 'WEB-SSL', '95.00', 'Web and Hosting', 'Per certificate, per year. Issue, installation and renewal.'],
-        ['VoIP Seat', 'service', 'TEL-SEAT', '25.00', 'Telecom Services', 'Per extension, per month. Hosted voice seat with unlimited domestic calling.'],
-        ['VoIP Direct Dial Number', 'service', 'TEL-DID', '3.00', 'Telecom Services', 'Per number, per month.'],
-        ['SIP Trunk Channel', 'service', 'TEL-SIP', '20.00', 'Telecom Services', 'Per concurrent call path, per month.'],
+        ['Cloud Server Hosting', 'service', 'CLD-SRV', '150.00', 'Cloud Services', 'Per virtual server, per month. Compute, storage and backup included.', 'month'],
+        ['Web Hosting', 'service', 'WEB-HOST', '25.00', 'Web and Hosting', 'Per site, per month. Hosting, updates and monitoring.', 'month'],
+        ['Email Hosting', 'service', 'WEB-MAIL', '5.00', 'Web and Hosting', 'Per mailbox, per month.', 'month'],
+        ['Domain Registration', 'service', 'WEB-DOM', '25.00', 'Web and Hosting', 'Per domain, per year. Registration and DNS management.', 'year'],
+        ['SSL Certificate', 'service', 'WEB-SSL', '95.00', 'Web and Hosting', 'Per certificate, per year. Issue, installation and renewal.', 'year'],
+        ['VoIP Seat', 'service', 'TEL-SEAT', '25.00', 'Telecom Services', 'Per extension, per month. Hosted voice seat with unlimited domestic calling.', 'month'],
+        ['VoIP Direct Dial Number', 'service', 'TEL-DID', '3.00', 'Telecom Services', 'Per number, per month.', 'month'],
+        ['SIP Trunk Channel', 'service', 'TEL-SIP', '20.00', 'Telecom Services', 'Per concurrent call path, per month.', 'month'],
 
         // Licensing - priced at zero, these move with the vendor price list
-        ['Microsoft 365 Business Basic', 'service', 'LIC-M365BB', '0.00', 'Licensing', 'Per user, per month. Set the price from the current vendor price list.'],
-        ['Microsoft 365 Business Standard', 'service', 'LIC-M365BS', '0.00', 'Licensing', 'Per user, per month. Set the price from the current vendor price list.'],
-        ['Microsoft 365 Business Premium', 'service', 'LIC-M365BP', '0.00', 'Licensing', 'Per user, per month. Set the price from the current vendor price list.'],
-        ['Microsoft 365 Exchange Online Plan 1', 'service', 'LIC-M365EX', '0.00', 'Licensing', 'Per mailbox, per month. Set the price from the current vendor price list.'],
-        ['Third Party Software Subscription', 'service', 'LIC-3P', '0.00', 'Software Sales', 'Generic resold subscription. Set the name and price per client.'],
+        ['Microsoft 365 Business Basic', 'service', 'LIC-M365BB', '0.00', 'Licensing', 'Per user, per month. Set the price from the current vendor price list.', 'month:contacts'],
+        ['Microsoft 365 Business Standard', 'service', 'LIC-M365BS', '0.00', 'Licensing', 'Per user, per month. Set the price from the current vendor price list.', 'month:contacts'],
+        ['Microsoft 365 Business Premium', 'service', 'LIC-M365BP', '0.00', 'Licensing', 'Per user, per month. Set the price from the current vendor price list.', 'month:contacts'],
+        ['Microsoft 365 Exchange Online Plan 1', 'service', 'LIC-M365EX', '0.00', 'Licensing', 'Per mailbox, per month. Set the price from the current vendor price list.', 'month'],
+        ['Third Party Software Subscription', 'service', 'LIC-3P', '0.00', 'Software Sales', 'Generic resold subscription. Set the name and price per client.', ''],
 
         // Labor
-        ['Remote Support', 'service', 'LAB-REM', '125.00', 'Labor', 'Per hour. Remote support outside of an agreement, billed in 15 minute increments.'],
-        ['Onsite Support', 'service', 'LAB-ONS', '150.00', 'Labor', 'Per hour. Onsite support, one hour minimum.'],
-        ['After Hours Support', 'service', 'LAB-AH', '225.00', 'Labor', 'Per hour. Outside business hours, one and a half times the standard rate.'],
-        ['Weekend and Holiday Support', 'service', 'LAB-WKD', '300.00', 'Labor', 'Per hour. Weekends and public holidays, twice the standard rate.'],
-        ['Project Engineering', 'service', 'LAB-PRJ', '165.00', 'Labor', 'Per hour. Project delivery and implementation work.'],
-        ['Network Engineering', 'service', 'LAB-NET', '175.00', 'Labor', 'Per hour. Network, firewall and server engineering.'],
-        ['Consulting', 'service', 'LAB-CON', '200.00', 'Consulting', 'Per hour. Advisory, design and assessment work.'],
-        ['Data Recovery', 'service', 'LAB-REC', '175.00', 'Labor', 'Per hour. Best effort recovery, no guarantee of success.'],
-        ['End User Training', 'service', 'LAB-TRN', '125.00', 'Training', 'Per hour. Group or one to one training.'],
-        ['Web Development', 'service', 'LAB-WEB', '125.00', 'Web and Hosting', 'Per hour. Website build and maintenance work.'],
-        ['Block Hours - 10 Hours', 'service', 'LAB-BLK10', '1150.00', 'Labor', 'Prepaid block of ten support hours, valid twelve months.'],
-        ['Block Hours - 20 Hours', 'service', 'LAB-BLK20', '2200.00', 'Labor', 'Prepaid block of twenty support hours, valid twelve months.'],
-        ['Trip Charge', 'service', 'LAB-TRIP', '45.00', 'Reimbursable Expenses', 'Per visit. Applied to onsite work outside the included travel radius.'],
-        ['Mileage', 'service', 'LAB-MILE', '0.70', 'Reimbursable Expenses', 'Per mile beyond the included travel radius.'],
+        ['Remote Support', 'service', 'LAB-REM', '125.00', 'Labor', 'Per hour. Remote support outside of an agreement, billed in 15 minute increments.', ''],
+        ['Onsite Support', 'service', 'LAB-ONS', '150.00', 'Labor', 'Per hour. Onsite support, one hour minimum.', ''],
+        ['After Hours Support', 'service', 'LAB-AH', '225.00', 'Labor', 'Per hour. Outside business hours, one and a half times the standard rate.', ''],
+        ['Weekend and Holiday Support', 'service', 'LAB-WKD', '300.00', 'Labor', 'Per hour. Weekends and public holidays, twice the standard rate.', ''],
+        ['Project Engineering', 'service', 'LAB-PRJ', '165.00', 'Labor', 'Per hour. Project delivery and implementation work.', ''],
+        ['Network Engineering', 'service', 'LAB-NET', '175.00', 'Labor', 'Per hour. Network, firewall and server engineering.', ''],
+        ['Consulting', 'service', 'LAB-CON', '200.00', 'Consulting', 'Per hour. Advisory, design and assessment work.', ''],
+        ['Data Recovery', 'service', 'LAB-REC', '175.00', 'Labor', 'Per hour. Best effort recovery, no guarantee of success.', ''],
+        ['End User Training', 'service', 'LAB-TRN', '125.00', 'Training', 'Per hour. Group or one to one training.', ''],
+        ['Web Development', 'service', 'LAB-WEB', '125.00', 'Web and Hosting', 'Per hour. Website build and maintenance work.', ''],
+        ['Block Hours - 10 Hours', 'service', 'LAB-BLK10', '1150.00', 'Labor', 'Prepaid block of ten support hours, valid twelve months.', ''],
+        ['Block Hours - 20 Hours', 'service', 'LAB-BLK20', '2200.00', 'Labor', 'Prepaid block of twenty support hours, valid twelve months.', ''],
+        ['Trip Charge', 'service', 'LAB-TRIP', '45.00', 'Reimbursable Expenses', 'Per visit. Applied to onsite work outside the included travel radius.', ''],
+        ['Mileage', 'service', 'LAB-MILE', '0.70', 'Reimbursable Expenses', 'Per mile beyond the included travel radius.', ''],
 
         // One off project and setup work
-        ['Client Onboarding', 'service', 'ONB-CLIENT', '1500.00', 'Onboarding', 'One off. Discovery, documentation, tooling deployment and security baseline.'],
-        ['Workstation Setup', 'service', 'PRJ-WKS', '150.00', 'Projects', 'Per workstation. Build, data migration and deployment.'],
-        ['Server Deployment', 'service', 'PRJ-SRV', '1200.00', 'Projects', 'Per server. Build, configuration, migration and documentation.'],
-        ['Firewall Deployment', 'service', 'PRJ-FW', '850.00', 'Projects', 'Per firewall. Configuration, cutover and documentation.'],
-        ['Wireless Survey and Deployment', 'service', 'PRJ-WIFI', '950.00', 'Projects', 'Per site. Survey, installation and tuning.'],
-        ['Email Migration', 'service', 'PRJ-MAIL', '45.00', 'Projects', 'Per mailbox. Migration, cutover and client reconfiguration.'],
-        ['Data Migration', 'service', 'PRJ-DATA', '500.00', 'Projects', 'Per migration. File share and data platform moves.'],
-        ['Website Build', 'service', 'PRJ-WEB', '2500.00', 'Web and Hosting', 'Per site. Design, build and launch.'],
-        ['Equipment Disposal', 'service', 'PRJ-DISP', '25.00', 'Projects', 'Per device. Secure data destruction and certified recycling.'],
+        ['Client Onboarding', 'service', 'ONB-CLIENT', '1500.00', 'Onboarding', 'One off. Discovery, documentation, tooling deployment and security baseline.', ''],
+        ['Workstation Setup', 'service', 'PRJ-WKS', '150.00', 'Projects', 'Per workstation. Build, data migration and deployment.', ''],
+        ['Server Deployment', 'service', 'PRJ-SRV', '1200.00', 'Projects', 'Per server. Build, configuration, migration and documentation.', ''],
+        ['Firewall Deployment', 'service', 'PRJ-FW', '850.00', 'Projects', 'Per firewall. Configuration, cutover and documentation.', ''],
+        ['Wireless Survey and Deployment', 'service', 'PRJ-WIFI', '950.00', 'Projects', 'Per site. Survey, installation and tuning.', ''],
+        ['Email Migration', 'service', 'PRJ-MAIL', '45.00', 'Projects', 'Per mailbox. Migration, cutover and client reconfiguration.', ''],
+        ['Data Migration', 'service', 'PRJ-DATA', '500.00', 'Projects', 'Per migration. File share and data platform moves.', ''],
+        ['Website Build', 'service', 'PRJ-WEB', '2500.00', 'Web and Hosting', 'Per site. Design, build and launch.', ''],
+        ['Equipment Disposal', 'service', 'PRJ-DISP', '25.00', 'Projects', 'Per device. Secure data destruction and certified recycling.', ''],
 
         // Hardware - quoted per deal, seeded at zero
-        ['Desktop', 'product', 'HW-DSK', '0.00', 'Hardware Sales', 'Business class desktop. Priced per quote.'],
-        ['Laptop', 'product', 'HW-LAP', '0.00', 'Hardware Sales', 'Business class laptop. Priced per quote.'],
-        ['Docking Station', 'product', 'HW-DOCK', '0.00', 'Hardware Sales', 'Priced per quote.'],
-        ['Monitor', 'product', 'HW-MON', '0.00', 'Hardware Sales', 'Priced per quote.'],
-        ['Server', 'product', 'HW-SRV', '0.00', 'Hardware Sales', 'Rack or tower server. Priced per quote.'],
-        ['Network Attached Storage', 'product', 'HW-NAS', '0.00', 'Hardware Sales', 'Priced per quote.'],
-        ['Firewall Appliance', 'product', 'HW-FW', '0.00', 'Hardware Sales', 'Priced per quote, excludes subscription.'],
-        ['Switch - 24 Port', 'product', 'HW-SW24', '0.00', 'Hardware Sales', 'Priced per quote.'],
-        ['Switch - 48 Port', 'product', 'HW-SW48', '0.00', 'Hardware Sales', 'Priced per quote.'],
-        ['Wireless Access Point', 'product', 'HW-AP', '0.00', 'Hardware Sales', 'Priced per quote.'],
-        ['Uninterruptible Power Supply', 'product', 'HW-UPS', '0.00', 'Hardware Sales', 'Priced per quote.'],
-        ['Solid State Drive', 'product', 'HW-SSD', '0.00', 'Hardware Sales', 'Priced per quote.'],
-        ['Memory Upgrade', 'product', 'HW-RAM', '0.00', 'Hardware Sales', 'Priced per quote.'],
-        ['Keyboard and Mouse', 'product', 'HW-KBM', '0.00', 'Hardware Sales', 'Priced per quote.'],
-        ['Headset', 'product', 'HW-HS', '0.00', 'Hardware Sales', 'Priced per quote.'],
-        ['Webcam', 'product', 'HW-CAM', '0.00', 'Hardware Sales', 'Priced per quote.'],
-        ['Printer', 'product', 'HW-PRT', '0.00', 'Hardware Sales', 'Priced per quote.'],
-        ['Toner Cartridge', 'product', 'HW-TON', '0.00', 'Hardware Sales', 'Priced per quote.'],
-        ['VoIP Handset', 'product', 'HW-PHONE', '0.00', 'Hardware Sales', 'Priced per quote.'],
-        ['Patch Cable', 'product', 'HW-CBL', '0.00', 'Hardware Sales', 'Priced per quote.'],
-        ['Rack Cabinet', 'product', 'HW-RACK', '0.00', 'Hardware Sales', 'Priced per quote.'],
-        ['Power Distribution Unit', 'product', 'HW-PDU', '0.00', 'Hardware Sales', 'Priced per quote.'],
+        ['Desktop', 'product', 'HW-DSK', '0.00', 'Hardware Sales', 'Business class desktop. Priced per quote.', ''],
+        ['Laptop', 'product', 'HW-LAP', '0.00', 'Hardware Sales', 'Business class laptop. Priced per quote.', ''],
+        ['Docking Station', 'product', 'HW-DOCK', '0.00', 'Hardware Sales', 'Priced per quote.', ''],
+        ['Monitor', 'product', 'HW-MON', '0.00', 'Hardware Sales', 'Priced per quote.', ''],
+        ['Server', 'product', 'HW-SRV', '0.00', 'Hardware Sales', 'Rack or tower server. Priced per quote.', ''],
+        ['Network Attached Storage', 'product', 'HW-NAS', '0.00', 'Hardware Sales', 'Priced per quote.', ''],
+        ['Firewall Appliance', 'product', 'HW-FW', '0.00', 'Hardware Sales', 'Priced per quote, excludes subscription.', ''],
+        ['Switch - 24 Port', 'product', 'HW-SW24', '0.00', 'Hardware Sales', 'Priced per quote.', ''],
+        ['Switch - 48 Port', 'product', 'HW-SW48', '0.00', 'Hardware Sales', 'Priced per quote.', ''],
+        ['Wireless Access Point', 'product', 'HW-AP', '0.00', 'Hardware Sales', 'Priced per quote.', ''],
+        ['Uninterruptible Power Supply', 'product', 'HW-UPS', '0.00', 'Hardware Sales', 'Priced per quote.', ''],
+        ['Solid State Drive', 'product', 'HW-SSD', '0.00', 'Hardware Sales', 'Priced per quote.', ''],
+        ['Memory Upgrade', 'product', 'HW-RAM', '0.00', 'Hardware Sales', 'Priced per quote.', ''],
+        ['Keyboard and Mouse', 'product', 'HW-KBM', '0.00', 'Hardware Sales', 'Priced per quote.', ''],
+        ['Headset', 'product', 'HW-HS', '0.00', 'Hardware Sales', 'Priced per quote.', ''],
+        ['Webcam', 'product', 'HW-CAM', '0.00', 'Hardware Sales', 'Priced per quote.', ''],
+        ['Printer', 'product', 'HW-PRT', '0.00', 'Hardware Sales', 'Priced per quote.', ''],
+        ['Toner Cartridge', 'product', 'HW-TON', '0.00', 'Hardware Sales', 'Priced per quote.', ''],
+        ['VoIP Handset', 'product', 'HW-PHONE', '0.00', 'Hardware Sales', 'Priced per quote.', ''],
+        ['Patch Cable', 'product', 'HW-CBL', '0.00', 'Hardware Sales', 'Priced per quote.', ''],
+        ['Rack Cabinet', 'product', 'HW-RACK', '0.00', 'Hardware Sales', 'Priced per quote.', ''],
+        ['Power Distribution Unit', 'product', 'HW-PDU', '0.00', 'Hardware Sales', 'Priced per quote.', ''],
 
     ];
 

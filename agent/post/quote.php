@@ -163,7 +163,7 @@ if (isset($_POST['add_quote_to_invoice'])) {
         'date' => (string) ($_POST['date'] ?? ''),
         'first_period' => !empty($_POST['first_period']),
         'recurring' => $recurring,
-        'by' => $session_name,
+        'by' => stripslashes($session_name),
     ], $error);
     if (!$result) {
         flashAlert(escapeHtml($error), 'error');

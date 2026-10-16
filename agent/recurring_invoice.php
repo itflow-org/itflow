@@ -231,6 +231,9 @@ $paper = [
                         <?php } ?>
                     </dd>
                     <dt>Last</dt><dd><?= $recurring['recurring_invoice_last_sent'] ? escapeHtml($recurring['recurring_invoice_last_sent']) : '<span class="text-body-secondary">Not yet</span>' ?></dd>
+                    <?php $margin_html = billingMarginHtml('recurring', $items, $currency, $period_word); if ($margin_html) { ?>
+                        <dt>Margin</dt><dd><?= $margin_html ?></dd>
+                    <?php } ?>
                     <dt>Sending</dt>
                     <dd>
                         <?php if (!$auto_send) { ?>

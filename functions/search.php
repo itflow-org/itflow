@@ -576,18 +576,19 @@ function globalSearchGroups($terms, $deep) {
 
     $groups[] = [
         'key' => 'products', 'label' => 'Products', 'icon' => 'box-open', 'module' => 'module_sales', 'enabled' => $accounting,
-        'select' => 'product_id, product_name, product_code, product_price, product_currency_code',
+        'select' => 'product_id, product_name, product_type, product_code, product_vendor_part, product_price, product_currency_code, product_frequency, product_seat_source',
         'from' => 'products',
         'where' => "product_archived_at IS NULL
-            AND (product_name LIKE '%$like%' OR product_code LIKE '%$like%' OR product_description LIKE '%$like%')",
+            AND (product_name LIKE '%$like%' OR product_code LIKE '%$like%' OR product_vendor_part LIKE '%$like%' OR product_description LIKE '%$like%')",
         'scope' => null,
         'order' => "(product_name = '$eq') DESC, (product_name LIKE '$like%') DESC, product_name",
         'list_url' => '/agent/products.php?' . http_build_query(['q' => $q]),
         'item' => function ($row) {
             return [
                 'title' => $row['product_name'],
-                'subtitle' => implode(' · ', array_filter([$row['product_code'], globalSearchMoney($row['product_price'], $row['product_currency_code'])])),
-                'url' => '/agent/products.php?' . http_build_query(['q' => $row['product_name']]),
+                'subtitle' => implode(' · ', array_filter([$row['product_code'], globalSearchMoney($row['product_price'], $row['product_currency_code'])
+                    . ($row['product_frequency'] ? ' ' . strtolower(productBilledText($row['product_frequency'], $row['product_seat_source'])) : '')])),
+                'url' => '/agent/product.php?' . http_build_query(['product_id' => intval($row['product_id'])]),
             ];
         },
     ];
