@@ -25,6 +25,10 @@ If you are coming from 26.08 or earlier, the database update still has to be run
 
 - Client restrictions: if you limit agents to certain clients, that limit is now applied in places it used to slip through. This covers editing, archiving or deleting the client itself, the client list's bulk actions, credits, expenses, trips, recurring expenses, revenues, task approvals, the dashboard lists and the per-client reports. A restricted agent will lose access there. Company-wide report totals are unchanged.
 - Dashboard: the Financial and Technical switches at the top of the dashboard are gone. Each part of the new dashboard shows to anyone whose role can open that part of ITFlow. If you used the switches to keep figures off someone's screen, take that module out of their role instead.
+- Reports: each report now checks access on the page itself, not only in the menu, and is hidden when its part of ITFlow (accounting, ticketing or IT documentation) is turned off. Every report still needs the Reporting permission, plus:
+  - Sales for Receivables Aging and Recurring Revenue, which used to need Financial, as they show invoices. Unbilled Work also needs Sales now, in the menu as well as on the page.
+  - Financial for Mileage, which used to open with Reporting alone.
+- Reports have new names that say what they show: Outstanding Balances is now Receivables Aging, Recurring Income by Client is Recurring Revenue, Expense by Vendor is Spend by Vendor, Tax Summary is Tax Collected, Unbilled Tickets is Unbilled Work, Time by Technician is Technician Performance, Tickets is Ticket Overview and SLA Summary is SLA Performance. The addresses are the same, so bookmarks still work, though the filters saved in an old bookmark may be ignored and the report opens on its default period.
 - Notifications now follow access too. An agent only sees notifications for clients and areas they can open, so someone without sales access no longer sees invoice and quote notifications.
 - Drop-downs: Tom Select is gone, replaced by ITFlow's own picker. It works the way you are used to: type to search, tick several in a multi-select, and type a new value in fields that allow it, such as ticket watchers. See Developer Updates if you have custom pages that used Tom Select.
 - Several small windows are gone because the change is now made where the value is shown:
@@ -89,6 +93,38 @@ If you are coming from 26.08 or earlier, the database update still has to be run
     - receivables, and recurring revenue and expenses per month
     - a cash flow chart that looks ahead using unpaid invoices, recurring invoices and recurring expenses
     - receivables aging, top clients, account balances, the latest income and expenses, and trips
+- **Reports** (rebuilt)
+  - Every report works the same way:
+    - pick a period (this or last month, this or last quarter, this or last year, the last 30 days, 90 days or 12 months, a past year, or your own dates), and narrow it to one client or one agent where that makes sense
+    - read the headline figures, compared with the period before, then the chart and the tables
+    - click a column heading to sort, and click a figure to open the tickets, invoices, income or expenses behind it
+    - Export downloads any table as a CSV with every row, and is recorded in the audit log. Print gives a clean page with your company name and the date.
+  - The Reports page lists every report you can open, grouped into Finance, Sales & Billing, Service Desk, and Clients & Documentation, with a search box. The menu on the left uses the same groups.
+  - New reports:
+    - Client Review: one client's quarter on a page, made to print for a business review (QBR). It covers their tickets and how fast they were handled, SLA and ratings, what the tickets were about, who raised them and which devices keep coming back, urgent tickets, projects, hardware to plan for, renewals, services needing a look, documentation gaps and billing. It opens with recommendations to talk through, and is also in the client's menu.
+    - Renewals & Expirations: domains, certificates, licenses and warranties due in the next 30 days to 12 months, or lapsed in the last 90 days, by month and by client. Ones that renew themselves show in blue and can be hidden.
+    - Asset Lifecycle: how old the hardware is, its warranty, and whether its operating system is still supported (Windows 10, Windows Server 2012 and older, macOS 13 and older and so on are flagged). It shows what reaches replacement age each quarter for the next two years, for budgeting, and lists the replacement candidates.
+    - Documentation Coverage: for each client, whether the basics are documented: primary and billing contacts, a primary location, assets with a location and an owner, networks, credentials, documents, domains, services and licenses. Each client gets a score, and what is missing links to the page to add it.
+    - Customer Satisfaction: the share of closed tickets rated good, how many get rated, by agent and by client, how ratings follow a late first reply or a slow fix, and every bad rating to follow up.
+    - Open Ticket Aging: the open tickets right now by how long they have been open, per agent and per client, with whose move it is, their SLA and when anything last happened.
+    - Client Profitability: income, direct costs and time per client, what you earn per hour against your target rate, and recurring revenue.
+    - Quotes Pipeline: quotes won, lost and open, the win rate by count and by value, and open quotes about to expire.
+    - Mileage: trips by agent and by client, valued at your rate per mile.
+    - Budget vs Actual: set a monthly budget for each expense category right on the report, or copy last year's, and see spending against it by month and category.
+  - Reworked reports:
+    - Profit & Loss: monthly or quarterly, with last year and the change beside each line, and the margin.
+    - Income and Expenses: by category across the year, with last year drawn as a dashed line.
+    - Spend by Vendor and Income by Client: the period against the one before, with a switch for those paid 600 or more for 1099s. Spend by Vendor adds each vendor's main category and recurring spend. Income by Client adds recurring revenue and the share of your top five clients.
+    - Receivables Aging: what each client owes, split into not due yet, 1 to 30, 31 to 60, 61 to 90 and over 90 days late, and the overdue invoices, longest overdue first.
+    - Recurring Revenue: monthly and yearly recurring revenue by client and category, and every recurring invoice with its next date. With Financial access, what is left after recurring expenses.
+    - Tax Collected: tax and the sales it was charged on, per tax, by quarter or by month.
+    - Unbilled Work: billable tickets that are done but not invoiced, with the hours to bill (to the nearest 15 minutes, as the Invoice window does) and what they are worth at the client's rate.
+    - Time Detail by Client: per client, each ticket and the time on every reply, with the hours to bill.
+    - Ticket Overview: tickets opened against resolved, the typical first reply and time to resolve, sources, priorities, categories, top clients and contacts, and a weekday by hour chart of when tickets come in.
+    - Tickets by Client: volume and its change, urgent tickets, time logged, reply and resolution times, SLA and satisfaction for each client.
+    - Technician Performance: hours logged and billable, utilization against the working days in the period, replies, tickets worked and resolved, SLA and satisfaction for each agent.
+    - SLA Performance and SLA by Client: targets met over time, by priority, by agent and by client, and the tickets past their SLA right now.
+    - Credential Rotation: how old every password is, the clients with the most due, which ones have 2FA, and every password due for a change.
 - **Clients**
   - The clients list has compact rows, filter chips you can remove one at a time, open ticket and balance columns, and tags under the industry with a + to add one. Clicking anywhere in the client's cell opens it.
   - The client side menu shows the client's initials and name under an All clients link. Click it to switch to another client and stay on the same page.
@@ -276,6 +312,8 @@ If you are coming from 26.08 or earlier, the database update still has to be run
 - Records of one client can no longer be linked to another client's records: locations, contacts, vendors, assets, networks, domains, certificates, credentials, documents, files and projects.
 - Users: Your account > Activity showed other agents' sign-ins. A password with a space at the start or end was saved inconsistently, so the agent either could not sign in or could sign in but not open credentials. Passwords are now saved exactly as typed.
 - Users: disabling a user left a blank name in the audit log.
+- Income on the dashboard and in the reports counted money moved between your own accounts as income when the transfer had been given a category.
+- Client Portal: a ticket rating could be saved as any value. Only Good and Bad, the two buttons the portal shows, are accepted now. The demo data rated tickets Great and Ok, which the portal never offers, and now uses Good and Bad.
 - Notifications that linked to a page did not open correctly from Admin pages.
 - Messages showed a backslash before apostrophes and quotes in names, or showed `&amp;` instead of `&`.
 - The empty password strength meter showed on the credential form, and page numbers ran off the screen on phones.
@@ -346,6 +384,23 @@ If you are coming from 26.08 or earlier, the database update still has to be run
   - `admin/modals/user/user_invite.php` is removed.
   - Saving preferences no longer touches `users.user_extension_key`. The form had no extension field, so every save cleared it, and nothing else reads the key.
 - Dashboard: `user_settings.user_config_dashboard_financial_enable` and `user_config_dashboard_technical_enable` are no longer read. The columns are left in place.
+- Reports:
+  - `functions/reports.php` (loaded by `functions.php`) holds everything the report pages share:
+    - the catalogue, `reportCatalog()`, which drives the side menu and the Reports page, and access through `reportEnforce()`, `reportCan()` and `reportCatalogForUser()`
+    - periods (`reportPeriod()`, `reportRangeSql()`, `reportBuckets()`, `reportPeriodQuery()`) and request filters (`reportClientId()`, `reportAgentId()`, `reportClientSql()`)
+    - the page parts: `reportHeader()`, `reportStats()`, `reportChart()`, `reportTable()` and `reportSectionOpen()`
+    - CSV export with `reportExporting()` and `reportCsv()`, which guards against formulas and writes an audit log entry
+    - shared queries: `reportRenewals()`, `reportLifecycleAssets()`, `reportOsEndOfLife()` (the `REPORT_OS_END_OF_LIFE` list), `reportCoverage()` and `reportSlaCompliance()`
+  - A report page starts with `agent/reports/includes/inc_report.php` and `reportEnforce('key')`, works out its figures, sends a CSV if asked (`if (reportExporting()) reportCsv(...)`), and only then includes `inc_report_layout.php` to draw the page. To add a report, add it to `reportCatalog()` under the file name, and it shows in the menu and on the Reports page for whoever may open it.
+  - `reportTable()` columns take `label`, `type` (money, count, hours, duration, decimal, percent, date), `html`, `csv`, `csv_label`, `screen => false` (export only), `sort` and `title`. A row of `['_heading' => ...]` draws a heading row. Times export as decimal hours and the heading says so.
+  - Charts are drawn by `js/reports.js` from the JSON in `canvas[data-report-chart]`, with Chart.js. It also sorts `table[data-report-sort]`, submits `[data-report-autosubmit]` filters and runs the budget editor.
+  - `agent/reports/includes/inc_all_reports.php` is kept for custom report pages and now loads the two new includes.
+  - Tax Collected works out every tax for the period in one query (`taxCollected()` in the page), with the same figures as `getMonthlyTax()`.
+  - Budgets: `agent/post/budget.php` handles `save_budget` and `copy_budget`, needing Financial at level 2 and a CSRF token. A blank or zero amount removes that month's budget rather than storing 0.
+  - `dashboardRevenueSql()` in `functions/dashboard.php` is the one rule for which revenues count as income, used by the dashboard and the reports. It leaves out the incoming side of transfers.
+  - CSS: the `.itflow-report-*` classes in `css/itflow_custom.css`, with print rules that keep side-by-side cards together.
+  - Client portal: `add_ticket_feedback` stores only `Good` or `Bad`. Demo data rates some closed tickets and leaves a few older Windows machines on Windows 10, so the satisfaction and lifecycle reports have something to show.
+  - The client actions menu links to the Client Review for that client, and the credentials list's rotation report link keeps the client.
 - Sidebar brand: `agent/css/sidebar_brand_fix.css` and `agent/js/sidebar_brand_fix.js` from 26.10 are replaced by CSS in `css/itflow_custom.css`. `includes/load_company_settings.php` now sets `$session_company_logo`.
 - `alertMessageHtml()` no longer double-encodes, and save messages built from `escapeSql()` values use `stripslashes()` at the flash.
 - CSS: `[hidden] { display: none !important; }` at the top of `css/itflow_custom.css`, so the `hidden` attribute wins over `d-flex` and the other display utilities. `.pagination` wraps.

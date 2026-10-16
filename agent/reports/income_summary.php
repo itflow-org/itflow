@@ -1,200 +1,97 @@
 <?php
 
-require_once "includes/inc_all_reports.php";
+/*
+ * Income - a year of money received, by income category and month. Invoice
+ * payments are filed under the category of the invoice they paid; revenues
+ * entered on their own count when they have a category and are not one side
+ * of a transfer between accounts - the same income the dashboard and the
+ * Profit & Loss count. Compared with last year to the same date.
+ */
 
-enforceUserPermission('module_financial');
+require_once "includes/inc_report.php";
+reportEnforce('income_summary');
 
-if (isset($_GET['year'])) {
-    $year = intval($_GET['year']);
-} else {
-    $year = date('Y');
+[$year, $years] = reportYear("SELECT YEAR(payment_date) AS y FROM payments UNION SELECT YEAR(revenue_date) FROM revenues");
+$current_year = $year === intval(date('Y'));
+$from = "$year-01-01";
+$to = $current_year ? date('Y-m-d') : "$year-12-31";
+$prev_from = ($year - 1) . '-01-01';
+$prev_to = $current_year ? dashboardShiftMonths(date('Y-m-d'), -12) : ($year - 1) . '-12-31';
+$compare = $current_year ? 'the same time last year' : (string) ($year - 1);
+
+$grid = reportIncomeByCategory($from, $to);
+$categories = reportCategoryRows('Income', $grid);
+$categories = reportCategoriesWithAmounts($categories, $grid);
+$totals = reportGridTotals($grid);
+
+$prev_grid = reportIncomeByCategory($prev_from, $prev_to);
+$prev_total = reportGridTotals($prev_grid)['total'];
+
+if (reportExporting()) {
+    reportCategoryYearCsv($categories, $grid, $year, "Income $year", 'Total income');
 }
 
-$sql_payment_years = mysqli_query($mysqli, "SELECT DISTINCT YEAR(payment_date) AS payment_year FROM payments
-    UNION SELECT DISTINCT YEAR(revenue_date) AS payment_year FROM revenues
-    ORDER BY payment_year DESC");
+// Where it came from: invoices paid, or revenue entered on its own
+$from_invoices = dashboardSum("SELECT SUM(payment_amount) FROM payments WHERE " . reportRangeSql('payment_date', ['start' => $from, 'end' => $to]));
+$from_other = $totals['total'] - $from_invoices;
 
-$sql_categories = mysqli_query($mysqli, "SELECT category_id, category_name FROM categories WHERE category_type = 'Income' ORDER BY category_name ASC");
+$months_elapsed = reportMonthsElapsed($year);
+$average = $months_elapsed ? $totals['total'] / $months_elapsed : 0;
+$best_month = 0;
+foreach ($totals['months'] as $m => $v) {
+    if ($v > ($totals['months'][$best_month] ?? 0)) {
+        $best_month = $m;
+    }
+}
 
-// Used for chart y-axis max calculation
-$largest_income_month = 0;
+// Last year month by month, as a line behind this year's bars
+$prev_full = reportGridTotals(reportIncomeByCategory(($year - 1) . '-01-01', ($year - 1) . '-12-31'))['months'];
+
+require_once "includes/inc_report_layout.php";
 
 ?>
 
-<!-- Responsive chart helpers -->
-<style>
-  .chart-h-320 { position: relative; height: 320px; }
-  @media (max-width: 576px) { .chart-h-320 { height: 260px; } }
-</style>
+<div class="itflow-report">
 
-<div class="card card-dark">
-    <div class="card-header py-2">
-        <h3 class="card-title mt-2"><i class="fas fa-fw fa-coins me-2"></i>Income Summary</h3>
-        <div class="card-tools">
-            <button type="button" class="btn btn-primary d-print-none" onclick="window.print();"><i class="fas fa-fw fa-print me-2"></i>Print</button>
+    <?php reportHeader('income_summary', [
+        'year' => [$year, $years],
+        'subtitle' => $current_year ? "$year to date" : (string) $year,
+    ]); ?>
+
+    <?= reportStats([
+        ['label' => 'Income', 'value' => reportMoney($totals['total']), 'sub' => reportChangeHtml($totals['total'], $prev_total, 'up', $compare),
+            'url' => "/agent/income.php?canned_date=custom&dtf=$from&dtt=$to"],
+        ['label' => 'Invoice payments', 'value' => reportMoney($from_invoices), 'sub' => escapeHtml(reportPercent(reportShare($from_invoices, $totals['total']))) . ' <span class="text-body-tertiary">of income</span>',
+            'url' => "/agent/income.php?type=payment&canned_date=custom&dtf=$from&dtt=$to"],
+        ['label' => 'Other revenue', 'value' => reportMoney($from_other), 'sub' => escapeHtml(reportPercent(reportShare($from_other, $totals['total']))) . ' <span class="text-body-tertiary">of income</span>',
+            'url' => "/agent/income.php?type=revenue&canned_date=custom&dtf=$from&dtt=$to"],
+        ['label' => 'Monthly average', 'value' => reportMoney($average), 'sub' => $best_month ? 'Best month <span class="text-body">' . date('F', mktime(0, 0, 0, $best_month, 1)) . '</span>' : ''],
+    ]) ?>
+
+    <?= reportSectionOpen('Income by month', escapeHtml("$year, with " . ($year - 1) . ' as a line')) ?>
+        <div class="card-body">
+            <?php
+            $series = reportCategoryChartSeries($categories, $grid, $current_year ? intval(date('n')) : 12);
+            $series[] = ['label' => (string) ($year - 1), 'data' => array_map(function ($v) { return round($v, 2); }, array_values($prev_full)), 'tone' => 'muted', 'type' => 'line', 'dashed' => true];
+            echo reportChart([
+                'type' => 'bar',
+                'labels' => array_map(function ($m) { return date('M', mktime(0, 0, 0, $m, 1)); }, range(1, 12)),
+                'series' => $series,
+                'stacked' => true,
+                'format' => 'money',
+            ], 'lg', 'Income per month by category, with last year as a line');
+            ?>
         </div>
     </div>
-    <div class="card-body p-0">
-        <form class="p-3">
-            <select onchange="this.form.submit()" class="form-select" name="year">
-                <?php while ($row = mysqli_fetch_assoc($sql_payment_years)) {
-                    $payment_year = intval($row['payment_year']); ?>
-                    <option <?php if ($year == $payment_year) { ?> selected <?php } ?>><?= $payment_year ?></option>
-                <?php } ?>
-            </select>
-        </form>
 
-        <div class="px-3 pb-3">
-            <div class="chart-h-320">
-                <canvas id="cashFlow"></canvas>
-            </div>
-        </div>
-
-        <div class="table-responsive-sm">
-            <table class="table table-striped">
-                <thead>
-                <tr>
-                    <th>Category</th>
-                    <th class="text-end">January</th>
-                    <th class="text-end">February</th>
-                    <th class="text-end">March</th>
-                    <th class="text-end">April</th>
-                    <th class="text-end">May</th>
-                    <th class="text-end">June</th>
-                    <th class="text-end">July</th>
-                    <th class="text-end">August</th>
-                    <th class="text-end">September</th>
-                    <th class="text-end">October</th>
-                    <th class="text-end">November</th>
-                    <th class="text-end">December</th>
-                    <th class="text-end">Total</th>
-                </tr>
-                </thead>
-                <tbody>
-                <?php while ($row = mysqli_fetch_assoc($sql_categories)) {
-                    $category_id = intval($row['category_id']);
-                    $category_name = escapeHtml($row['category_name']); ?>
-                    <tr>
-                        <td><?= $category_name ?></td>
-                        <?php
-                        $total_payment_for_all_months = 0;
-                        for ($month = 1; $month <= 12; $month++) {
-                            // Payments to Invoices
-                            $sql_payments = mysqli_query($mysqli, "SELECT SUM(payment_amount) AS payment_amount_for_month FROM payments, invoices WHERE payment_invoice_id = invoice_id AND invoice_category_id = $category_id AND YEAR(payment_date) = $year AND MONTH(payment_date) = $month");
-                            $row2 = mysqli_fetch_assoc($sql_payments);
-                            $payment_amount_for_month = floatval($row2['payment_amount_for_month']);
-
-                            // Revenues
-                            $sql_revenues = mysqli_query($mysqli, "SELECT SUM(revenue_amount) AS revenue_amount_for_month FROM revenues WHERE revenue_category_id = $category_id AND YEAR(revenue_date) = $year AND MONTH(revenue_date) = $month");
-                            $row3 = mysqli_fetch_assoc($sql_revenues);
-                            $revenues_amount_for_month = floatval($row3['revenue_amount_for_month']);
-
-                            $payment_amount_for_month = $payment_amount_for_month + $revenues_amount_for_month;
-                            $total_payment_for_all_months += $payment_amount_for_month;
-                            ?>
-                            <td class="text-end"><?= numfmt_format_currency($currency_format, $payment_amount_for_month, $session_company_currency) ?></td>
-                        <?php } ?>
-                        <td class="text-end text-bold"><?= numfmt_format_currency($currency_format, $total_payment_for_all_months, $session_company_currency) ?></td>
-                    </tr>
-                <?php } ?>
-
-                <tr>
-                    <th>Total</th>
-                    <?php
-                    $grand_total_all_months = 0;
-                    for ($month = 1; $month <= 12; $month++) {
-                        $sql_payments = mysqli_query($mysqli, "SELECT SUM(payment_amount) AS payment_total_amount_for_month FROM payments, invoices WHERE payment_invoice_id = invoice_id AND YEAR(payment_date) = $year AND MONTH(payment_date) = $month");
-                        $row4 = mysqli_fetch_assoc($sql_payments);
-                        $payment_total_amount_for_month = floatval($row4['payment_total_amount_for_month']);
-
-                        $sql_revenues = mysqli_query($mysqli, "SELECT SUM(revenue_amount) AS revenue_amount_for_month FROM revenues WHERE revenue_category_id > 0 AND YEAR(revenue_date) = $year AND MONTH(revenue_date) = $month");
-                        $row5 = mysqli_fetch_assoc($sql_revenues);
-                        $revenues_total_amount_for_month = floatval($row5['revenue_amount_for_month']);
-
-                        $payment_total_amount_for_month += $revenues_total_amount_for_month;
-                        $grand_total_all_months += $payment_total_amount_for_month;
-                        ?>
-                        <th class="text-end"><?= numfmt_format_currency($currency_format, $payment_total_amount_for_month, $session_company_currency) ?></th>
-                    <?php } ?>
-                    <th class="text-end"><?= numfmt_format_currency($currency_format, $grand_total_all_months, $session_company_currency) ?></th>
-                </tr>
-                </tbody>
-            </table>
+    <?= reportSectionOpen('By category', 'Click an amount to see the payments and revenue behind it', 'itflow-report-long') ?>
+        <?= reportCategoryYearTable($categories, $grid, $year, 'income.php', 'Total income') ?>
+        <div class="card-footer small text-body-secondary">
+            Payments are filed under the category of the invoice they paid. Revenue counts when it has a category; transfers between your own accounts are left out.
         </div>
     </div>
+
 </div>
 
 <?php require_once "../../includes/footer.php"; ?>
-
-<script>
-    // Bootstrap-like defaults for Chart.js v4
-    var itflowChart = itflowChartDefaults();
-
-    // INCOME (Line)
-    (function () {
-        var ctx = document.getElementById("cashFlow");
-        if (!ctx) return;
-
-        var myLineChart = new Chart(ctx, {
-            type: 'line',
-            data: {
-                labels: ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"],
-                datasets: [{
-                    label: "Income",
-                    fill: false,
-                    borderColor: "#007bff",
-                    pointBackgroundColor: "#007bff",
-                    pointBorderColor: "#007bff",
-                    pointHoverRadius: 5,
-                    pointHoverBackgroundColor: "#007bff",
-                    pointBorderWidth: 2,
-                    data: [
-                        <?php
-                        // Build series and track the largest month for axis max
-                        for ($month = 1; $month <= 12; $month++) {
-                            $sql_payments = mysqli_query($mysqli, "SELECT SUM(payment_amount) AS payment_amount_for_month FROM payments, invoices WHERE payment_invoice_id = invoice_id AND YEAR(payment_date) = $year AND MONTH(payment_date) = $month");
-                            $r1 = mysqli_fetch_assoc($sql_payments);
-                            $payments_for_month = floatval($r1['payment_amount_for_month']);
-
-                            $sql_revenues = mysqli_query($mysqli, "SELECT SUM(revenue_amount) AS revenue_amount_for_month FROM revenues WHERE revenue_category_id > 0 AND YEAR(revenue_date) = $year AND MONTH(revenue_date) = $month");
-                            $r2 = mysqli_fetch_assoc($sql_revenues);
-                            $revenues_for_month = floatval($r2['revenue_amount_for_month']);
-
-                            $income_for_month = $payments_for_month + $revenues_for_month;
-
-                            if ($income_for_month > 0 && $income_for_month > $largest_income_month) {
-                                $largest_income_month = $income_for_month;
-                            }
-
-                            echo "$income_for_month,";
-                        }
-                        ?>
-                    ],
-                }],
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                scales: {
-                    x: {
-                        grid: { display: false },
-                        ticks: { maxTicksLimit: 12 }
-                    },
-                    y: {
-                        beginAtZero: true,
-                        min: 0,
-                        max: <?php
-                            $max = max(1000, $largest_income_month);
-                            echo roundUpToNearestMultiple($max);
-                        ?>,
-                        ticks: { maxTicksLimit: 5 },
-                        grid: { color: itflowChart.grid }
-                    }
-                },
-                plugins: {
-                    legend: { display: false }
-                }
-            }
-        });
-    })();
-</script>
+<script src="/js/reports.js"></script>

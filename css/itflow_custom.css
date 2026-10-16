@@ -5443,3 +5443,333 @@ img.itflow-contact-avatar {
     flex-wrap: wrap;
     row-gap: .25rem;
 }
+
+/* Reports - agent/reports/, functions/reports.php
+
+   The report header (title and dates on the dark bar, the filters under it),
+   a strip of figures, then cards of charts and tables. Section cards have the
+   dashboard's quiet headers, and every figure uses tabular numbers so columns
+   of amounts line up. Charts are drawn by js/reports.js. Printed, the menu,
+   the filters and the buttons drop away and the company, the date printed and
+   who printed it appear under the title instead. */
+.itflow-report {
+    font-variant-numeric: tabular-nums;
+}
+.itflow-report > .card,
+.itflow-report > .row {
+    margin-bottom: 1rem;
+}
+.itflow-report-subtitle {
+    margin-left: .6rem;
+    font-size: .875rem;
+    font-weight: 400;
+    opacity: .75;
+}
+.itflow-report-print-meta {
+    display: none;
+}
+.itflow-report-group-title {
+    font-size: 1.125rem;
+    font-weight: 600;
+}
+/* Sections: a heading and its chart or table, without the heavy header bar */
+.itflow-report-section > .card-header {
+    background: transparent;
+    border-bottom: 0;
+    padding-bottom: .25rem;
+}
+.itflow-report-section .card-title {
+    font-size: 1rem;
+    font-weight: 600;
+}
+.itflow-report-section > .table-responsive,
+.itflow-report-section > .list-group {
+    border-top: var(--bs-border-width) solid var(--bs-border-color-translucent);
+    margin-top: .5rem;
+}
+.itflow-report-section .list-group {
+    --bs-list-group-action-color: var(--bs-body-color);
+}
+
+/* The figures along the top: cells that wrap onto as many rows as they need,
+   with hairlines between them drawn by the 1px gap over the border colour */
+.itflow-report-stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(11rem, 1fr));
+    gap: 1px;
+    overflow: hidden;
+    background-color: var(--bs-border-color-translucent);
+}
+.itflow-report-stat {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    min-width: 0;
+    padding: .9rem 1rem;
+    background-color: var(--bs-card-bg, var(--bs-body-bg));
+    color: inherit;
+    text-decoration: none;
+}
+a.itflow-report-stat:hover,
+a.itflow-report-stat:focus-visible {
+    background-color: var(--bs-tertiary-bg);
+    color: inherit;
+}
+.itflow-report-stat-label {
+    font-size: .8rem;
+    color: var(--bs-secondary-color);
+}
+.itflow-report-stat-value {
+    margin: .1rem 0;
+    overflow: hidden;
+    font-size: 1.45rem;
+    font-weight: 600;
+    line-height: 1.2;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+.itflow-report-stat-sub {
+    font-size: .8rem;
+    color: var(--bs-secondary-color);
+}
+
+.itflow-report-chart {
+    position: relative;
+    height: 260px;
+}
+.itflow-report-chart-sm {
+    height: 200px;
+}
+.itflow-report-chart-lg {
+    height: 320px;
+}
+.itflow-report-chart-donut {
+    height: 190px;
+}
+@media (max-width: 575.98px) {
+    .itflow-report-chart,
+    .itflow-report-chart-lg {
+        height: 240px;
+    }
+}
+
+/* Tables: sortable headings, and a totals row that reads as one */
+.itflow-report-table > tfoot > tr > td {
+    border-top: 2px solid var(--bs-border-color);
+    border-bottom: 0;
+    background-color: var(--bs-tertiary-bg);
+}
+.itflow-report-sortable {
+    cursor: pointer;
+    user-select: none;
+}
+.itflow-report-sortable::after {
+    content: "\f0dc";
+    margin-left: .35rem;
+    font-family: "Font Awesome 5 Free";
+    font-weight: 900;
+    font-size: .7rem;
+    opacity: .25;
+}
+.itflow-report-sortable[aria-sort=ascending]::after {
+    content: "\f0de";
+    opacity: .8;
+}
+.itflow-report-sortable[aria-sort=descending]::after {
+    content: "\f0dd";
+    opacity: .8;
+}
+.itflow-report-table td.itflow-report-sub {
+    padding-left: 1.75rem;
+}
+.itflow-report-table tr.itflow-report-group-row > td {
+    background-color: var(--bs-tertiary-bg);
+    font-weight: 600;
+}
+/* A year of months is wide - the first column stays put while it scrolls */
+.itflow-report-grid > :not(caption) > tr > :first-child {
+    position: sticky;
+    left: 0;
+    z-index: 1;
+    min-width: 11rem;
+    background-color: var(--bs-card-bg, var(--bs-body-bg));
+}
+.itflow-report-grid > thead > tr > :first-child {
+    background-color: var(--bs-tertiary-bg);
+}
+.itflow-report-grid > tfoot > tr > :first-child,
+.itflow-report-grid tr.itflow-report-group-row > :first-child {
+    background-color: var(--bs-tertiary-bg);
+}
+.itflow-report-grid {
+    font-size: .875rem;
+}
+.itflow-report-grid td,
+.itflow-report-grid th {
+    white-space: nowrap;
+}
+.itflow-report a.itflow-report-amount {
+    color: inherit;
+    text-decoration: none;
+}
+.itflow-report a.itflow-report-amount:hover,
+.itflow-report a.itflow-report-amount:focus-visible {
+    color: var(--bs-link-hover-color);
+    text-decoration: underline;
+}
+.itflow-report-table .font-monospace {
+    white-space: nowrap;
+}
+/* A tight table wraps its headings and long client names before it scrolls */
+.itflow-report-table > thead > tr > th {
+    vertical-align: bottom;
+}
+.itflow-report-table:not(.itflow-report-grid) > thead > tr > th:not(:first-child) {
+    min-width: 4.5rem;
+}
+.itflow-report-client-name {
+    min-width: 9rem;
+}
+/* A column of free text (a scope, a purpose) gets room before the numbers do */
+.itflow-report-text {
+    min-width: 14rem;
+}
+.itflow-report-zero {
+    color: var(--bs-tertiary-color);
+}
+
+/* A share of something as a thin bar under or beside a figure */
+.itflow-report-meter {
+    display: flex;
+    height: .375rem;
+    min-width: 4rem;
+    overflow: hidden;
+    border-radius: 1rem;
+    background-color: var(--bs-secondary-bg);
+}
+.itflow-report-meter > span {
+    height: 100%;
+    background-color: var(--itflow-accent);
+}
+
+/* When tickets come in: weekday by hour, darker for more */
+.itflow-report-heat {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 2px;
+    font-size: .7rem;
+}
+.itflow-report-heat th {
+    padding: 0 .25rem;
+    font-weight: 500;
+    color: var(--bs-secondary-color);
+    text-align: center;
+    white-space: nowrap;
+}
+.itflow-report-heat th[scope=row] {
+    text-align: right;
+}
+.itflow-report-heat td {
+    height: 1.4rem;
+    min-width: .7rem;
+    border-radius: 3px;
+    background-color: color-mix(in srgb, var(--itflow-accent) calc(var(--heat, 0) * 100%), var(--bs-secondary-bg));
+}
+
+/* The Reports page: a card per report */
+.itflow-report-card {
+    transition: border-color .12s ease-in-out, background-color .12s ease-in-out;
+}
+.itflow-report-card:hover,
+.itflow-report-card:focus-visible {
+    border-color: var(--itflow-accent);
+    background-color: var(--bs-tertiary-bg);
+}
+.itflow-report-card-icon {
+    display: inline-flex;
+    flex: 0 0 auto;
+    align-items: center;
+    justify-content: center;
+    width: 2.5rem;
+    height: 2.5rem;
+    border-radius: var(--bs-border-radius-lg);
+    font-size: 1.05rem;
+}
+
+/* Client review: notes on what to do next */
+.itflow-report-advice {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+.itflow-report-advice li {
+    display: flex;
+    gap: .75rem;
+    padding: .55rem 0;
+    border-top: var(--bs-border-width) solid var(--bs-border-color-translucent);
+}
+.itflow-report-advice li:first-child {
+    border-top: 0;
+}
+.itflow-report-advice i {
+    margin-top: .2rem;
+}
+
+@media print {
+    .itflow-report-print-meta {
+        display: block;
+        padding: 0 1rem .5rem;
+        font-size: .8rem;
+        color: var(--bs-secondary-color);
+    }
+    .itflow-report-head .card-header {
+        background-color: transparent !important;
+        color: var(--bs-body-color) !important;
+    }
+    .itflow-report-head .card-title {
+        font-size: 1.4rem;
+    }
+    .itflow-report .card {
+        break-inside: avoid;
+    }
+    .itflow-report .card.itflow-report-long {
+        break-inside: auto;
+    }
+    .itflow-report-stats,
+    .itflow-report-heat td,
+    .itflow-report-meter,
+    .itflow-report-meter > span,
+    .itflow-dash-aging > span,
+    .itflow-dash-legend-swatch {
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+    }
+    .itflow-report-sortable::after {
+        display: none;
+    }
+    .itflow-report-grid > :not(caption) > tr > :first-child {
+        position: static;
+    }
+    .itflow-report .table-responsive {
+        overflow: visible;
+    }
+    /* A printed page is narrower than the large breakpoint - keep side-by-side cards side by side */
+    .itflow-report .row > .col-lg-4 { flex: 0 0 auto; width: 33.333%; }
+    .itflow-report .row > .col-lg-5 { flex: 0 0 auto; width: 41.667%; }
+    .itflow-report .row > .col-lg-6 { flex: 0 0 auto; width: 50%; }
+    .itflow-report .row > .col-lg-7 { flex: 0 0 auto; width: 58.333%; }
+    .itflow-report .row > .col-lg-8 { flex: 0 0 auto; width: 66.667%; }
+    /* Chrome drops what a stretched card holds when it splits a row of them across pages */
+    .itflow-report .row {
+        break-inside: avoid;
+    }
+    .itflow-report .row .card.h-100 {
+        height: auto !important;
+    }
+    .itflow-report .badge,
+    .itflow-report .itflow-dash-dot,
+    .itflow-report .progress-bar {
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+    }
+}

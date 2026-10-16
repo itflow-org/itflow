@@ -252,7 +252,7 @@ ob_start();
                         <input type="text" class="form-control" inputmode="decimal" pattern="-?[0-9]*\.?[0-9]{0,2}" name="qty" value="<?= roundToNearest15Min($ticket_total_reply_time) ?>" required>
                     </div>
                     <small class="form-text text-muted">
-                        From the <strong><?= $ticket_total_reply_time ?></strong> worked on the ticket, rounded up to the next 15 minutes.
+                        From the <strong><?= $ticket_total_reply_time ?></strong> worked on the ticket, rounded to the nearest 15 minutes.
                     </small>
                 </div>
 

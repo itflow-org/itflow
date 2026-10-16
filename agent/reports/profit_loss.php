@@ -1,436 +1,228 @@
 <?php
 
-require_once "includes/inc_all_reports.php";
+/*
+ * Profit & Loss - a year of income and spending by category, by month or by
+ * quarter, with the net profit and margin under it and last year beside it.
+ *
+ * Cash basis, as the dashboard: income is invoice payments (filed under the
+ * invoice's category) and revenues with a category; spending is vendor
+ * expenses. Transfers between accounts are neither. In the current year it
+ * runs to today and is compared with the same stretch of last year.
+ */
 
-enforceUserPermission('module_financial');
+require_once "includes/inc_report.php";
+reportEnforce('profit_loss');
 
-if (isset($_GET['year'])) {
-    $year = intval($_GET['year']);
-} else {
-    $year = date('Y');
+[$year, $years] = reportYear("SELECT YEAR(payment_date) AS y FROM payments
+    UNION SELECT YEAR(revenue_date) FROM revenues
+    UNION SELECT YEAR(expense_date) FROM expenses");
+$view = ($_GET['view'] ?? 'month') === 'quarter' ? 'quarter' : 'month';
+$current_year = $year === intval(date('Y'));
+
+$from = "$year-01-01";
+$to = $current_year ? date('Y-m-d') : "$year-12-31";
+$prev_from = ($year - 1) . '-01-01';
+$prev_to = $current_year ? dashboardShiftMonths(date('Y-m-d'), -12) : ($year - 1) . '-12-31';
+$compare = $current_year ? 'the same time last year' : (string) ($year - 1);
+
+$income = reportIncomeByCategory($from, $to);
+$expenses = reportExpensesByCategory($from, $to);
+$income_categories = reportCategoryRows('Income', $income);
+$expense_categories = reportCategoryRows('Expense', $expenses);
+
+$income_prev = reportIncomeByCategory($prev_from, $prev_to);
+$expenses_prev = reportExpensesByCategory($prev_from, $prev_to);
+reportCategoryRows('Income', $income_prev);
+reportCategoryRows('Expense', $expenses_prev);
+
+$income_total = reportGridTotals($income);
+$expense_total = reportGridTotals($expenses);
+$income_prev_total = reportGridTotals($income_prev)['total'];
+$expense_prev_total = reportGridTotals($expenses_prev)['total'];
+
+$profit = $income_total['total'] - $expense_total['total'];
+$profit_prev = $income_prev_total - $expense_prev_total;
+$margin = reportShare($profit, $income_total['total'], 1);
+$margin_prev = reportShare($profit_prev, $income_prev_total, 1);
+
+$columns = reportYearColumns($view);
+
+// The statement's lines, for the table and the CSV alike
+$category_lines = function ($categories, $grid, $prev_grid, $kind) use ($columns) {
+    $lines = [];
+    foreach ($categories as $cat => $category) {
+        $row = reportGridRow($grid, $cat);
+        $lines[] = [
+            'kind' => $kind, 'cat' => $cat, 'name' => $category['category_name'],
+            'archived' => !empty($category['category_archived_at']),
+            'cells' => reportSumColumns($row['months'], $columns), 'total' => $row['total'],
+            'prev' => reportGridRow($prev_grid, $cat)['total'],
+        ];
+    }
+    return $lines;
+};
+// A category with nothing in either year is left off - a statement lists what happened
+$active = function ($line) {
+    return abs($line['total']) >= 0.005 || abs($line['prev']) >= 0.005;
+};
+$income_lines = array_values(array_filter($category_lines($income_categories, $income, $income_prev, 'income'), $active));
+$expense_lines = array_values(array_filter($category_lines($expense_categories, $expenses, $expenses_prev, 'expense'), $active));
+$income_line = ['kind' => 'income_total', 'name' => 'Total income', 'cells' => reportSumColumns($income_total['months'], $columns), 'total' => $income_total['total'], 'prev' => $income_prev_total];
+$expense_line = ['kind' => 'expense_total', 'name' => 'Total expenses', 'cells' => reportSumColumns($expense_total['months'], $columns), 'total' => $expense_total['total'], 'prev' => $expense_prev_total];
+$profit_cells = [];
+foreach ($columns as $i => $column) {
+    $profit_cells[$i] = $income_line['cells'][$i] - $expense_line['cells'][$i];
+}
+$profit_line = ['kind' => 'profit', 'name' => 'Net profit', 'cells' => $profit_cells, 'total' => $profit, 'prev' => $profit_prev];
+
+if (reportExporting()) {
+    $csv_columns = ['section' => ['label' => 'Section'], 'name' => ['label' => 'Category']];
+    foreach ($columns as $i => [$label]) {
+        $csv_columns["c$i"] = ['label' => $label, 'type' => 'money'];
+    }
+    $csv_columns['total'] = ['label' => $current_year ? "$year to date" : "$year total", 'type' => 'money'];
+    $csv_columns['prev'] = ['label' => $current_year ? 'Same time last year' : (string) ($year - 1), 'type' => 'money'];
+    $flatten = function ($line, $section) use ($columns) {
+        $row = ['section' => $section, 'name' => $line['name'], 'total' => $line['total'], 'prev' => $line['prev']];
+        foreach ($columns as $i => $column) {
+            $row["c$i"] = $line['cells'][$i];
+        }
+        return $row;
+    };
+    $csv_rows = [];
+    foreach ($income_lines as $line) {
+        $csv_rows[] = $flatten($line, 'Income');
+    }
+    $csv_rows[] = $flatten($income_line, 'Income');
+    foreach ($expense_lines as $line) {
+        $csv_rows[] = $flatten($line, 'Expenses');
+    }
+    $csv_rows[] = $flatten($expense_line, 'Expenses');
+    $csv_rows[] = $flatten($profit_line, 'Net profit');
+    reportCsv("Profit and Loss $year", $csv_columns, $csv_rows);
 }
 
-//GET unique years from expenses, payments and revenues
-$sql_all_years = mysqli_query($mysqli, "SELECT YEAR(expense_date) AS all_years FROM expenses
-    UNION DISTINCT SELECT YEAR(payment_date) FROM payments
-    UNION DISTINCT SELECT YEAR(revenue_date) FROM revenues
-    ORDER BY all_years DESC"
-);
+// The chart goes a month at a time, whichever way the table is split
+$months_shown = $current_year ? intval(date('n')) : 12;
+$chart = ['income' => [], 'expenses' => [], 'profit' => []];
+for ($m = 1; $m <= 12; $m++) {
+    $in = round($income_total['months'][$m], 2);
+    $out = round($expense_total['months'][$m], 2);
+    $chart['income'][] = $m <= $months_shown ? $in : null;
+    $chart['expenses'][] = $m <= $months_shown ? $out : null;
+    $chart['profit'][] = $m <= $months_shown ? round($in - $out, 2) : null;
+}
 
-$sql_categories_income = mysqli_query($mysqli, "SELECT category_id, category_name FROM categories WHERE category_type = 'Income' ORDER BY category_name ASC");
+require_once "includes/inc_report_layout.php";
 
-$sql_categories_expense = mysqli_query($mysqli, "SELECT category_id, category_name FROM categories WHERE category_type = 'Expense' ORDER BY category_name ASC");
-
+// One line of the statement
+$render = function ($line, $class = '') use ($columns, $year) {
+    $kind = $line['kind'];
+    $cat = $line['cat'] ?? 0;
+    $list = $kind === 'income' ? 'income.php' : ($kind === 'expense' ? 'expenses.php' : '');
+    $html = '<tr' . ($class !== '' ? ' class="' . $class . '"' : '') . '><td' . ($list ? ' class="itflow-report-sub"' : '') . '>'
+        . escapeHtml($line['name']) . (!empty($line['archived']) ? ' <span class="badge bg-secondary-subtle text-secondary-emphasis fw-normal">Archived</span>' : '') . '</td>';
+    foreach ($columns as $i => [$label, $first, $last]) {
+        $url = '';
+        if ($list && $cat) {
+            [$dtf, $dtt] = reportColumnDates($year, $first, $last);
+            $url = "/agent/$list?category=$cat&canned_date=custom&dtf=$dtf&dtt=$dtt";
+        }
+        $amount = $line['cells'][$i];
+        $html .= '<td class="text-end' . ($kind === 'profit' && $amount < 0 ? ' text-danger' : '') . '">' . reportGridAmount($amount, $url) . '</td>';
+    }
+    // Spending going up is not good news
+    $good = in_array($kind, ['expense', 'expense_total'], true) ? 'down' : 'up';
+    $html .= '<td class="text-end fw-semibold' . ($kind === 'profit' && $line['total'] < 0 ? ' text-danger' : '') . '">' . reportGridAmount($line['total']) . '</td>'
+        . '<td class="text-end text-body-secondary">' . reportGridAmount($line['prev']) . '</td>'
+        . '<td class="text-end small">' . (reportChange($line['total'], $line['prev']) === null ? '<span class="itflow-report-zero">–</span>' : reportChangeHtml($line['total'], $line['prev'], $good)) . '</td>'
+        . '</tr>';
+    return $html;
+};
+$span = count($columns) + 4;
 
 ?>
 
-    <div class="card card-dark">
-        <div class="card-header py-2">
-            <h3 class="card-title mt-2"><i class="fas fa-fw fa-balance-scale me-2"></i>Profit & Loss</h3>
-            <div class="card-tools">
-                <button type="button" class="btn btn-primary d-print-none" onclick="window.print();"><i class="fas fa-fw fa-print me-2"></i>Print</button>
-            </div>
-        </div>
-        <div class="card-body p-0">
-            <form class="p-3">
-                <select onchange="this.form.submit()" class="form-select" name="year">
-                    <?php
-
-                    while ($row = mysqli_fetch_assoc($sql_all_years)) {
-                        $all_years = intval($row['all_years']);
-                        ?>
-                        <option <?php if ($year == $all_years) { ?> selected <?php } ?> > <?= $all_years ?></option>
-
-                        <?php
-                    }
-                    ?>
-
-                </select>
-            </form>
-            <div class="table-responsive-sm">
-                <table class="table table-sm">
-                    <thead class="text-dark">
-                    <tr>
-                        <th></th>
-                        <th class="text-end">Jan-Mar</th>
-                        <th class="text-end">Apr-Jun</th>
-                        <th class="text-end">Jul-Sep</th>
-                        <th class="text-end">Oct-Dec</th>
-                        <th class="text-end">Total</th>
-                    </tr>
-                    <tr>
-                        <th><br><br>Income</th>
-                        <th colspan="5"></th>
-                    </tr>
-                    </thead>
-                    <tbody>
-                    <?php
-                    while ($row = mysqli_fetch_assoc($sql_categories_income)) {
-                        $category_id = intval($row['category_id']);
-                        $category_name = escapeHtml($row['category_name']);
-                        ?>
-
-                        <tr>
-                            <td><?= $category_name ?></td>
-
-                            <?php
-
-                            $payment_amount_for_quarter_one = 0;
-
-                            for($month = 1; $month<=3; $month++) {
-                                $sql_payments = mysqli_query($mysqli, "SELECT SUM(payment_amount) AS payment_amount_for_month FROM payments, invoices WHERE payment_invoice_id = invoice_id AND invoice_category_id = $category_id AND YEAR(payment_date) = $year AND MONTH(payment_date) = $month");
-                                $row = mysqli_fetch_assoc($sql_payments);
-                                $payment_amount_for_month = floatval($row['payment_amount_for_month']);
-
-                                $sql_revenues = mysqli_query($mysqli, "SELECT SUM(revenue_amount) AS revenue_amount_for_month FROM revenues WHERE revenue_category_id = $category_id AND YEAR(revenue_date) = $year AND MONTH(revenue_date) = $month");
-                                $row = mysqli_fetch_assoc($sql_revenues);
-                                $revenue_amount_for_month = floatval($row['revenue_amount_for_month']);
-
-                                $payment_amount_for_month = $payment_amount_for_month + $revenue_amount_for_month;
-
-                                $payment_amount_for_quarter_one = $payment_amount_for_quarter_one + $payment_amount_for_month;
-                            }
-
-                            ?>
-
-                            <td class="text-end"><?= numfmt_format_currency($currency_format, $payment_amount_for_quarter_one, $session_company_currency) ?></td>
-
-                            <?php
-
-                            $payment_amount_for_quarter_two = 0;
-
-                            for($month = 4; $month<=6; $month++) {
-                                $sql_payments = mysqli_query($mysqli, "SELECT SUM(payment_amount) AS payment_amount_for_month FROM payments, invoices WHERE payment_invoice_id = invoice_id AND invoice_category_id = $category_id AND YEAR(payment_date) = $year AND MONTH(payment_date) = $month");
-                                $row = mysqli_fetch_assoc($sql_payments);
-                                $payment_amount_for_month = floatval($row['payment_amount_for_month']);
-
-                                $sql_revenues = mysqli_query($mysqli, "SELECT SUM(revenue_amount) AS revenue_amount_for_month FROM revenues WHERE revenue_category_id = $category_id AND YEAR(revenue_date) = $year AND MONTH(revenue_date) = $month");
-                                $row = mysqli_fetch_assoc($sql_revenues);
-                                $revenue_amount_for_month = floatval($row['revenue_amount_for_month']);
-
-                                $payment_amount_for_month = $payment_amount_for_month + $revenue_amount_for_month;
-
-                                $payment_amount_for_quarter_two = $payment_amount_for_quarter_two + $payment_amount_for_month;
-                            }
-
-                            ?>
-
-                            <td class="text-end"><?= numfmt_format_currency($currency_format, $payment_amount_for_quarter_two, $session_company_currency) ?></td>
-
-                            <?php
-
-                            $payment_amount_for_quarter_three = 0;
-
-                            for($month = 7; $month<=9; $month++) {
-                                $sql_payments = mysqli_query($mysqli, "SELECT SUM(payment_amount) AS payment_amount_for_month FROM payments, invoices WHERE payment_invoice_id = invoice_id AND invoice_category_id = $category_id AND YEAR(payment_date) = $year AND MONTH(payment_date) = $month");
-                                $row = mysqli_fetch_assoc($sql_payments);
-                                $payment_amount_for_month = floatval($row['payment_amount_for_month']);
-
-                                $sql_revenues = mysqli_query($mysqli, "SELECT SUM(revenue_amount) AS revenue_amount_for_month FROM revenues WHERE revenue_category_id = $category_id AND YEAR(revenue_date) = $year AND MONTH(revenue_date) = $month");
-                                $row = mysqli_fetch_assoc($sql_revenues);
-                                $revenue_amount_for_month = floatval($row['revenue_amount_for_month']);
-
-                                $payment_amount_for_month = $payment_amount_for_month + $revenue_amount_for_month;
-                                $payment_amount_for_quarter_three = $payment_amount_for_quarter_three + $payment_amount_for_month;
-                            }
-
-                            ?>
-
-                            <td class="text-end"><?= numfmt_format_currency($currency_format, $payment_amount_for_quarter_three, $session_company_currency) ?></td>
-
-                            <?php
-
-                            $payment_amount_for_quarter_four = 0;
-
-                            for($month = 10; $month<=12; $month++) {
-                                $sql_payments = mysqli_query($mysqli, "SELECT SUM(payment_amount) AS payment_amount_for_month FROM payments, invoices WHERE payment_invoice_id = invoice_id AND invoice_category_id = $category_id AND YEAR(payment_date) = $year AND MONTH(payment_date) = $month");
-                                $row = mysqli_fetch_assoc($sql_payments);
-                                $payment_amount_for_month = floatval($row['payment_amount_for_month']);
-
-                                $sql_revenues = mysqli_query($mysqli, "SELECT SUM(revenue_amount) AS revenue_amount_for_month FROM revenues WHERE revenue_category_id = $category_id AND YEAR(revenue_date) = $year AND MONTH(revenue_date) = $month");
-                                $row = mysqli_fetch_assoc($sql_revenues);
-                                $revenue_amount_for_month = floatval($row['revenue_amount_for_month']);
-
-                                $payment_amount_for_month = $payment_amount_for_month + $revenue_amount_for_month;
-                                $payment_amount_for_quarter_four = $payment_amount_for_quarter_four + $payment_amount_for_month;
-                            }
-
-                            $total_payments_for_all_four_quarters = $payment_amount_for_quarter_one + $payment_amount_for_quarter_two + $payment_amount_for_quarter_three + $payment_amount_for_quarter_four;
-
-                            ?>
-
-                            <td class="text-end"><?= numfmt_format_currency($currency_format, $payment_amount_for_quarter_four, $session_company_currency) ?></td>
-
-                            <td class="text-end"><?= numfmt_format_currency($currency_format, $total_payments_for_all_four_quarters, $session_company_currency) ?></td>
-                        </tr>
-
-                        <?php
-
-                        $total_payment_for_all_months = 0;
-
-                    }
-
-                    ?>
-
-                    <tr>
-                        <th>Gross Revenue</th>
-                        <?php
-
-                        $payment_total_amount_for_quarter_one = 0;
-
-                        for($month = 1; $month<=3; $month++) {
-                            $sql_payments = mysqli_query($mysqli, "SELECT SUM(payment_amount) AS payment_total_amount_for_month FROM payments, invoices WHERE payment_invoice_id = invoice_id AND YEAR(payment_date) = $year AND MONTH(payment_date) = $month");
-                            $row = mysqli_fetch_assoc($sql_payments);
-                            $payment_total_amount_for_month = floatval($row['payment_total_amount_for_month']);
-
-                            $sql_revenues = mysqli_query($mysqli, "SELECT SUM(revenue_amount) AS revenue_total_amount_for_month FROM revenues WHERE revenue_category_id > 0 AND YEAR(revenue_date) = $year AND MONTH(revenue_date) = $month");
-                            $row = mysqli_fetch_assoc($sql_revenues);
-                            $revenue_total_amount_for_month = floatval($row['revenue_total_amount_for_month']);
-
-                            $payment_total_amount_for_month = $payment_total_amount_for_month + $revenue_total_amount_for_month;
-
-                            $payment_total_amount_for_quarter_one = $payment_total_amount_for_quarter_one + $payment_total_amount_for_month;
-                        }
-
-                        ?>
-
-                        <th class="text-end"><?= numfmt_format_currency($currency_format, $payment_total_amount_for_quarter_one, $session_company_currency) ?></th>
-
-                        <?php
-
-                        $payment_total_amount_for_quarter_two = 0;
-
-                        for($month = 4; $month<=6; $month++) {
-                            $sql_payments = mysqli_query($mysqli, "SELECT SUM(payment_amount) AS payment_total_amount_for_month FROM payments, invoices WHERE payment_invoice_id = invoice_id AND YEAR(payment_date) = $year AND MONTH(payment_date) = $month");
-                            $row = mysqli_fetch_assoc($sql_payments);
-                            $payment_total_amount_for_month = floatval($row['payment_total_amount_for_month']);
-
-                            $sql_revenues = mysqli_query($mysqli, "SELECT SUM(revenue_amount) AS revenue_total_amount_for_month FROM revenues WHERE revenue_category_id > 0 AND YEAR(revenue_date) = $year AND MONTH(revenue_date) = $month");
-                            $row = mysqli_fetch_assoc($sql_revenues);
-                            $revenue_total_amount_for_month = floatval($row['revenue_total_amount_for_month']);
-
-                            $payment_total_amount_for_month = $payment_total_amount_for_month + $revenue_total_amount_for_month;
-
-                            $payment_total_amount_for_quarter_two = $payment_total_amount_for_quarter_two + $payment_total_amount_for_month;
-                        }
-
-                        ?>
-
-                        <th class="text-end"><?= numfmt_format_currency($currency_format, $payment_total_amount_for_quarter_two, $session_company_currency) ?></th>
-
-                        <?php
-
-                        $payment_total_amount_for_quarter_three = 0;
-
-                        for($month = 7; $month<=9; $month++) {
-                            $sql_payments = mysqli_query($mysqli, "SELECT SUM(payment_amount) AS payment_total_amount_for_month FROM payments, invoices WHERE payment_invoice_id = invoice_id AND YEAR(payment_date) = $year AND MONTH(payment_date) = $month");
-                            $row = mysqli_fetch_assoc($sql_payments);
-                            $payment_total_amount_for_month = floatval($row['payment_total_amount_for_month']);
-
-                            $sql_revenues = mysqli_query($mysqli, "SELECT SUM(revenue_amount) AS revenue_total_amount_for_month FROM revenues WHERE revenue_category_id > 0 AND YEAR(revenue_date) = $year AND MONTH(revenue_date) = $month");
-                            $row = mysqli_fetch_assoc($sql_revenues);
-                            $revenue_total_amount_for_month = floatval($row['revenue_total_amount_for_month']);
-
-                            $payment_total_amount_for_month = $payment_total_amount_for_month + $revenue_total_amount_for_month;
-
-                            $payment_total_amount_for_quarter_three = $payment_total_amount_for_quarter_three + $payment_total_amount_for_month;
-                        }
-
-                        ?>
-
-                        <th class="text-end"><?= numfmt_format_currency($currency_format, $payment_total_amount_for_quarter_three, $session_company_currency) ?></th>
-
-                        <?php
-
-                        $payment_total_amount_for_quarter_four = 0;
-
-                        for($month = 10; $month<=12; $month++) {
-                            $sql_payments = mysqli_query($mysqli, "SELECT SUM(payment_amount) AS payment_total_amount_for_month FROM payments, invoices WHERE payment_invoice_id = invoice_id AND YEAR(payment_date) = $year AND MONTH(payment_date) = $month");
-                            $row = mysqli_fetch_assoc($sql_payments);
-                            $payment_total_amount_for_month = floatval($row['payment_total_amount_for_month']);
-
-                            $sql_revenues = mysqli_query($mysqli, "SELECT SUM(revenue_amount) AS revenue_total_amount_for_month FROM revenues WHERE revenue_category_id > 0 AND YEAR(revenue_date) = $year AND MONTH(revenue_date) = $month");
-                            $row = mysqli_fetch_assoc($sql_revenues);
-                            $revenue_total_amount_for_month = floatval($row['revenue_total_amount_for_month']);
-
-                            $payment_total_amount_for_month = $payment_total_amount_for_month + $revenue_total_amount_for_month;
-
-                            $payment_total_amount_for_quarter_four = $payment_total_amount_for_quarter_four + $payment_total_amount_for_month;
-                        }
-
-                        $total_payments_for_all_four_quarters = $payment_total_amount_for_quarter_one + $payment_total_amount_for_quarter_two + $payment_total_amount_for_quarter_three + $payment_total_amount_for_quarter_four;
-
-                        ?>
-
-                        <th class="text-end"><?= numfmt_format_currency($currency_format, $payment_total_amount_for_quarter_four, $session_company_currency) ?></th>
-
-                        <th class="text-end"><?= numfmt_format_currency($currency_format, $total_payments_for_all_four_quarters, $session_company_currency) ?></th>
-                    </tr>
-
-                    <tr>
-                        <th><br><br>Expenses</th>
-                        <th colspan="5"></th>
-                    </tr>
-                    <?php
-                    while ($row = mysqli_fetch_assoc($sql_categories_expense)) {
-                        $category_id = intval($row['category_id']);
-                        $category_name = escapeHtml($row['category_name']);
-                        ?>
-
-                        <tr>
-                            <td><?= $category_name ?></td>
-
-                            <?php
-
-                            $expense_amount_for_quarter_one = 0;
-
-                            for($month = 1; $month<=3; $month++) {
-                                $sql_expenses = mysqli_query($mysqli, "SELECT SUM(expense_amount) AS expense_amount_for_month FROM expenses WHERE expense_category_id = $category_id AND YEAR(expense_date) = $year AND MONTH(expense_date) = $month");
-                                $row = mysqli_fetch_assoc($sql_expenses);
-                                $expense_amount_for_quarter_one = $expense_amount_for_quarter_one + floatval($row['expense_amount_for_month']);
-                            }
-
-                            ?>
-
-                            <td class="text-end"><?= numfmt_format_currency($currency_format, $expense_amount_for_quarter_one, $session_company_currency) ?></td>
-
-                            <?php
-
-                            $expense_amount_for_quarter_two = 0;
-
-                            for($month = 4; $month<=6; $month++) {
-                                $sql_expenses = mysqli_query($mysqli, "SELECT SUM(expense_amount) AS expense_amount_for_month FROM expenses WHERE expense_category_id = $category_id AND YEAR(expense_date) = $year AND MONTH(expense_date) = $month");
-                                $row = mysqli_fetch_assoc($sql_expenses);
-                                $expense_amount_for_quarter_two = $expense_amount_for_quarter_two + floatval($row['expense_amount_for_month']);
-                            }
-
-                            ?>
-
-                            <td class="text-end"><?= numfmt_format_currency($currency_format, $expense_amount_for_quarter_two, $session_company_currency) ?></td>
-
-                            <?php
-
-                            $expense_amount_for_quarter_three = 0;
-
-                            for($month = 7; $month<=9; $month++) {
-                                $sql_expenses = mysqli_query($mysqli, "SELECT SUM(expense_amount) AS expense_amount_for_month FROM expenses WHERE expense_category_id = $category_id AND YEAR(expense_date) = $year AND MONTH(expense_date) = $month");
-                                $row = mysqli_fetch_assoc($sql_expenses);
-                                $expense_amount_for_quarter_three = $expense_amount_for_quarter_three + floatval($row['expense_amount_for_month']);
-                            }
-
-                            ?>
-
-                            <td class="text-end"><?= numfmt_format_currency($currency_format, $expense_amount_for_quarter_three, $session_company_currency) ?></td>
-
-                            <?php
-
-                            $expense_amount_for_quarter_four = 0;
-
-                            for($month = 10; $month<=12; $month++) {
-                                $sql_expenses = mysqli_query($mysqli, "SELECT SUM(expense_amount) AS expense_amount_for_month FROM expenses WHERE expense_category_id = $category_id AND YEAR(expense_date) = $year AND MONTH(expense_date) = $month");
-                                $row = mysqli_fetch_assoc($sql_expenses);
-                                $expense_amount_for_quarter_four = $expense_amount_for_quarter_four + floatval($row['expense_amount_for_month']);
-                            }
-
-                            $total_expenses_for_all_four_quarters = $expense_amount_for_quarter_one + $expense_amount_for_quarter_two + $expense_amount_for_quarter_three + $expense_amount_for_quarter_four;
-
-                            ?>
-
-                            <td class="text-end"><?= numfmt_format_currency($currency_format, $expense_amount_for_quarter_four, $session_company_currency) ?></td>
-
-                            <td class="text-end"><?= numfmt_format_currency($currency_format, $total_expenses_for_all_four_quarters, $session_company_currency) ?></td>
-                        </tr>
-
-                        <?php
-
-                        $total_expense_for_all_months = 0;
-
-                    }
-
-                    ?>
-
-                    <tr>
-                        <th>Total Expenses<br><br><br></th>
-                        <?php
-
-                        $expense_total_amount_for_quarter_one = 0;
-
-                        for($month = 1; $month<=3; $month++) {
-                            $sql_expenses = mysqli_query($mysqli, "SELECT SUM(expense_amount) AS expense_total_amount_for_month FROM expenses WHERE expense_category_id > 0 AND YEAR(expense_date) = $year AND MONTH(expense_date) = $month AND expense_vendor_id > 0");
-                            $row = mysqli_fetch_assoc($sql_expenses);
-                            $expense_total_amount_for_quarter_one = $expense_total_amount_for_quarter_one + floatval($row['expense_total_amount_for_month']);
-                        }
-
-                        ?>
-
-                        <th class="text-end"><?= numfmt_format_currency($currency_format, $expense_total_amount_for_quarter_one, $session_company_currency) ?></th>
-
-                        <?php
-
-                        $expense_total_amount_for_quarter_two = 0;
-
-                        for($month = 4; $month<=6; $month++) {
-                            $sql_expenses = mysqli_query($mysqli, "SELECT SUM(expense_amount) AS expense_total_amount_for_month FROM expenses WHERE expense_category_id > 0 AND YEAR(expense_date) = $year AND MONTH(expense_date) = $month AND expense_vendor_id > 0");
-                            $row = mysqli_fetch_assoc($sql_expenses);
-                            $expense_total_amount_for_quarter_two = $expense_total_amount_for_quarter_two + floatval($row['expense_total_amount_for_month']);
-                        }
-
-                        ?>
-
-                        <th class="text-end"><?= numfmt_format_currency($currency_format, $expense_total_amount_for_quarter_two, $session_company_currency) ?></th>
-
-                        <?php
-
-                        $expense_total_amount_for_quarter_three = 0;
-
-                        for($month = 7; $month<=9; $month++) {
-                            $sql_expenses = mysqli_query($mysqli, "SELECT SUM(expense_amount) AS expense_total_amount_for_month FROM expenses WHERE expense_category_id > 0 AND YEAR(expense_date) = $year AND MONTH(expense_date) = $month AND expense_vendor_id > 0");
-                            $row = mysqli_fetch_assoc($sql_expenses);
-                            $expense_total_amount_for_quarter_three = $expense_total_amount_for_quarter_three + floatval($row['expense_total_amount_for_month']);
-                        }
-
-                        ?>
-
-                        <th class="text-end"><?= numfmt_format_currency($currency_format, $expense_total_amount_for_quarter_three, $session_company_currency) ?></th>
-
-                        <?php
-
-                        $expense_total_amount_for_quarter_four = 0;
-
-                        for($month = 10; $month<=12; $month++) {
-                            $sql_expenses = mysqli_query($mysqli, "SELECT SUM(expense_amount) AS expense_total_amount_for_month FROM expenses WHERE expense_category_id > 0 AND YEAR(expense_date) = $year AND MONTH(expense_date) = $month AND expense_vendor_id > 0");
-                            $row = mysqli_fetch_assoc($sql_expenses);
-                            $expense_total_amount_for_quarter_four = $expense_total_amount_for_quarter_four + floatval($row['expense_total_amount_for_month']);
-                        }
-
-                        $total_expenses_for_all_four_quarters = $expense_total_amount_for_quarter_one + $expense_total_amount_for_quarter_two + $expense_total_amount_for_quarter_three + $expense_total_amount_for_quarter_four;
-
-                        ?>
-
-                        <th class="text-end"><?= numfmt_format_currency($currency_format, $expense_total_amount_for_quarter_four, $session_company_currency) ?></th>
-
-                        <th class="text-end"><?= numfmt_format_currency($currency_format, $total_expenses_for_all_four_quarters, $session_company_currency) ?></th>
-                    </tr>
-                    <tr>
-                        <?php
-                        $net_profit_quarter_one = $payment_total_amount_for_quarter_one - $expense_total_amount_for_quarter_one;
-                        $net_profit_quarter_two = $payment_total_amount_for_quarter_two - $expense_total_amount_for_quarter_two;
-                        $net_profit_quarter_three = $payment_total_amount_for_quarter_three - $expense_total_amount_for_quarter_three;
-                        $net_profit_quarter_four = $payment_total_amount_for_quarter_four - $expense_total_amount_for_quarter_four;
-                        $net_profit_year = $total_payments_for_all_four_quarters - $total_expenses_for_all_four_quarters;
-                        ?>
-
-                        <th>Net Profit</th>
-                        <th class="text-end"><?= numfmt_format_currency($currency_format, $net_profit_quarter_one, $session_company_currency) ?></th>
-                        <th class="text-end"><?= numfmt_format_currency($currency_format, $net_profit_quarter_two, $session_company_currency) ?></th>
-                        <th class="text-end"><?= numfmt_format_currency($currency_format, $net_profit_quarter_three, $session_company_currency) ?></th>
-                        <th class="text-end"><?= numfmt_format_currency($currency_format, $net_profit_quarter_four, $session_company_currency) ?></th>
-                        <th class="text-end"><?= numfmt_format_currency($currency_format, $net_profit_year, $session_company_currency) ?></th>
-                    </tr>
-                    </tbody>
-                </table>
-            </div>
+<div class="itflow-report">
+
+    <?php reportHeader('profit_loss', [
+        'year' => [$year, $years],
+        'controls' => reportSegmentControl('view', $view, ['month' => 'Monthly', 'quarter' => 'Quarterly']),
+        'subtitle' => $current_year ? "$year to date" : (string) $year,
+        'print_meta' => $current_year ? "January 1 to " . date('F j, Y') : "Year $year",
+    ]); ?>
+
+    <?= reportStats([
+        ['label' => 'Income', 'value' => reportMoney($income_total['total']), 'sub' => reportChangeHtml($income_total['total'], $income_prev_total, 'up', $compare),
+            'url' => "/agent/income.php?canned_date=custom&dtf=$from&dtt=$to"],
+        ['label' => 'Expenses', 'value' => reportMoney($expense_total['total']), 'sub' => reportChangeHtml($expense_total['total'], $expense_prev_total, 'down', $compare),
+            'url' => "/agent/expenses.php?canned_date=custom&dtf=$from&dtt=$to"],
+        ['label' => 'Net profit', 'value' => reportMoney($profit), 'tone' => $profit < 0 ? 'danger' : '', 'sub' => reportChangeHtml($profit, $profit_prev, 'up', $compare)],
+        ['label' => 'Profit margin', 'value' => reportPercent($margin), 'tone' => $margin !== null && $margin < 0 ? 'danger' : '',
+            'sub' => $margin_prev === null ? '<span class="text-body-tertiary">Nothing before to compare</span>' : escapeHtml(reportPercent($margin_prev)) . ' <span class="text-body-tertiary">' . escapeHtml($current_year ? 'same time last year' : 'in ' . ($year - 1)) . '</span>'],
+    ]) ?>
+
+    <?= reportSectionOpen('Income, expenses and profit by month', escapeHtml((string) $year)) ?>
+        <div class="card-body">
+            <?= reportChart([
+                'type' => 'bar',
+                'labels' => array_map(function ($m) { return date('M', mktime(0, 0, 0, $m, 1)); }, range(1, 12)),
+                'series' => [
+                    ['label' => 'Income', 'data' => $chart['income'], 'tone' => 'success'],
+                    ['label' => 'Expenses', 'data' => $chart['expenses'], 'tone' => 'danger'],
+                    ['label' => 'Net profit', 'data' => $chart['profit'], 'tone' => 'accent', 'type' => 'line'],
+                ],
+                'format' => 'money',
+            ], 'lg', 'Income, expenses and net profit per month') ?>
         </div>
     </div>
 
-<?php require_once "../../includes/footer.php";
+    <?= reportSectionOpen('Statement', escapeHtml($current_year ? 'Last year is ' . ($year - 1) . ' to ' . date('M j', strtotime($prev_to)) : 'Last year is ' . ($year - 1)), 'itflow-report-long') ?>
+        <div class="table-responsive">
+            <table class="table table-sm table-hover align-middle mb-0 itflow-report-table itflow-report-grid">
+                <thead class="table-light">
+                <tr>
+                    <th>Category</th>
+                    <?php foreach ($columns as [$label, $first, $last]) { ?>
+                        <th class="text-end"<?php if ($view === 'quarter') { ?> title="<?= date('M', mktime(0, 0, 0, $first, 1)) ?> – <?= date('M', mktime(0, 0, 0, $last, 1)) ?>"<?php } ?>><?= $label ?></th>
+                    <?php } ?>
+                    <th class="text-end"><?= $year ?></th>
+                    <th class="text-end">Last year</th>
+                    <th class="text-end">Change</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr class="itflow-report-group-row"><td colspan="<?= $span ?>">Income</td></tr>
+                <?php foreach ($income_lines as $line) { echo $render($line); } ?>
+                <?php if (!$income_lines) { ?><tr><td colspan="<?= $span ?>" class="itflow-report-sub text-body-secondary">No income this year or last.</td></tr><?php } ?>
+                <?= $render($income_line, 'fw-semibold') ?>
+                <tr class="itflow-report-group-row"><td colspan="<?= $span ?>">Expenses</td></tr>
+                <?php foreach ($expense_lines as $line) { echo $render($line); } ?>
+                <?php if (!$expense_lines) { ?><tr><td colspan="<?= $span ?>" class="itflow-report-sub text-body-secondary">No spending this year or last.</td></tr><?php } ?>
+                <?= $render($expense_line, 'fw-semibold') ?>
+                </tbody>
+                <tfoot>
+                <?= $render($profit_line, 'fw-semibold') ?>
+                <tr>
+                    <td>Margin</td>
+                    <?php foreach ($columns as $i => $column) {
+                        $cell_margin = reportShare($profit_line['cells'][$i], $income_line['cells'][$i], 1); ?>
+                        <td class="text-end<?= $cell_margin !== null && $cell_margin < 0 ? ' text-danger' : '' ?>"><?= $cell_margin === null ? '<span class="itflow-report-zero">–</span>' : reportPercent($cell_margin) ?></td>
+                    <?php } ?>
+                    <td class="text-end fw-semibold<?= $margin !== null && $margin < 0 ? ' text-danger' : '' ?>"><?= reportPercent($margin) ?></td>
+                    <td class="text-end text-body-secondary"><?= reportPercent($margin_prev) ?></td>
+                    <td></td>
+                </tr>
+                </tfoot>
+            </table>
+        </div>
+        <div class="card-footer small text-body-secondary">
+            Cash basis - money counts when it arrives or leaves. Payments are filed under the category of the invoice they paid,
+            and transfers between your own accounts are left out of both sides. Click an amount to see what makes it up.
+        </div>
+    </div>
+
+</div>
+
+<?php require_once "../../includes/footer.php"; ?>
+<script src="/js/reports.js"></script>

@@ -1,316 +1,193 @@
 <?php
 
-require_once "includes/inc_all_reports.php";
+/*
+ * Tickets by Client - for each client in the period: tickets opened (and how
+ * many were urgent or high), resolved, still open now, time logged, how
+ * quickly they typically got a first reply and a resolution, SLA response
+ * compliance and how they rated their tickets. Busiest first; one agent's
+ * tickets only when an agent is picked.
+ */
 
-enforceUserPermission('module_support');
+require_once "includes/inc_report.php";
+reportEnforce('ticket_by_client');
 
-if (isset($_GET['year'])) {
-    $year = intval($_GET['year']);
-} else {
-    $year = date('Y');
+$period = reportPeriod('last_90');
+$agent_id = reportAgentId();
+$filter = reportTicketSql(0, $agent_id);
+$opened_in = reportRangeSql('ticket_created_at', $period);
+
+$clients = [];
+$client = function ($row) use (&$clients) {
+    $id = intval($row['client_id']);
+    $clients[$id] = $clients[$id] ?? ['client_id' => $id, 'client' => $row['client_name'], 'abbr' => $row['client_abbreviation'],
+        'opened' => 0, 'urgent' => 0, 'resolved' => 0, 'open_now' => 0, 'seconds' => 0, 'response' => null, 'resolve' => null,
+        'sla_met' => 0, 'sla_missed' => 0, 'good' => 0, 'bad' => 0, 'prev' => 0];
+    return $id;
+};
+
+$sql = mysqli_query($mysqli, "SELECT client_id, client_name, client_abbreviation, COUNT(ticket_id) AS opened,
+        SUM(ticket_priority IN ('Urgent', 'High')) AS urgent,
+        SUM(ticket_response_sla_met = 1) AS sla_met, SUM(ticket_response_sla_met = 0) AS sla_missed
+    FROM tickets JOIN clients ON ticket_client_id = client_id
+    WHERE $filter AND $opened_in GROUP BY client_id, client_name, client_abbreviation");
+while ($row = mysqli_fetch_assoc($sql)) {
+    $id = $client($row);
+    $clients[$id]['opened'] = intval($row['opened']);
+    $clients[$id]['urgent'] = intval($row['urgent']);
+    $clients[$id]['sla_met'] = intval($row['sla_met']);
+    $clients[$id]['sla_missed'] = intval($row['sla_missed']);
+}
+$sql = mysqli_query($mysqli, "SELECT client_id, client_name, client_abbreviation, COUNT(ticket_id) AS n
+    FROM tickets JOIN clients ON ticket_client_id = client_id
+    WHERE $filter AND " . reportRangeSql('ticket_resolved_at', $period) . " GROUP BY client_id, client_name, client_abbreviation");
+while ($row = mysqli_fetch_assoc($sql)) {
+    $clients[$client($row)]['resolved'] = intval($row['n']);
+}
+$sql = mysqli_query($mysqli, "SELECT client_id, client_name, client_abbreviation, COUNT(ticket_id) AS n
+    FROM tickets JOIN clients ON ticket_client_id = client_id
+    WHERE $filter AND " . TICKET_OPEN_SQL . " GROUP BY client_id, client_name, client_abbreviation");
+while ($row = mysqli_fetch_assoc($sql)) {
+    $clients[$client($row)]['open_now'] = intval($row['n']);
+}
+$sql = mysqli_query($mysqli, "SELECT client_id, client_name, client_abbreviation, SUM(TIME_TO_SEC(ticket_reply_time_worked)) AS s
+    FROM ticket_replies JOIN tickets ON ticket_reply_ticket_id = ticket_id JOIN clients ON ticket_client_id = client_id
+    WHERE $filter AND ticket_reply_archived_at IS NULL AND " . reportRangeSql('ticket_reply_created_at', $period) . " GROUP BY client_id, client_name, client_abbreviation");
+while ($row = mysqli_fetch_assoc($sql)) {
+    $clients[$client($row)]['seconds'] = intval($row['s']);
+}
+$sql = mysqli_query($mysqli, "SELECT ticket_client_id AS client_id, SUM(ticket_feedback = 'Good') AS good, SUM(ticket_feedback = 'Bad') AS bad
+    FROM tickets WHERE $filter AND " . reportRangeSql('ticket_closed_at', $period) . " GROUP BY ticket_client_id");
+while ($row = mysqli_fetch_assoc($sql)) {
+    if (isset($clients[intval($row['client_id'])])) {
+        $clients[intval($row['client_id'])]['good'] = intval($row['good']);
+        $clients[intval($row['client_id'])]['bad'] = intval($row['bad']);
+    }
+}
+$sql = mysqli_query($mysqli, "SELECT ticket_client_id AS client_id, COUNT(ticket_id) AS n FROM tickets WHERE $filter AND " . reportRangeSql('ticket_created_at', $period, true) . " GROUP BY ticket_client_id");
+while ($row = mysqli_fetch_assoc($sql)) {
+    if (isset($clients[intval($row['client_id'])])) {
+        $clients[intval($row['client_id'])]['prev'] = intval($row['n']);
+    }
 }
 
-if (isset($_GET['month'])) {
-    $month = intval($_GET['month']);
-} else {
-    $month = date('m');
+// The typical (middle) first reply and resolution, per client
+$times = ['response' => [], 'resolve' => []];
+$sql = mysqli_query($mysqli, "SELECT ticket_client_id AS client_id, TIMESTAMPDIFF(SECOND, ticket_created_at, ticket_first_response_at) AS s
+    FROM tickets WHERE $filter AND $opened_in AND ticket_first_response_at IS NOT NULL");
+while ($row = mysqli_fetch_assoc($sql)) {
+    $times['response'][intval($row['client_id'])][] = floatval($row['s']);
+}
+$sql = mysqli_query($mysqli, "SELECT ticket_client_id AS client_id, TIMESTAMPDIFF(SECOND, ticket_created_at, ticket_resolved_at) AS s
+    FROM tickets WHERE $filter AND " . reportRangeSql('ticket_resolved_at', $period));
+while ($row = mysqli_fetch_assoc($sql)) {
+    $times['resolve'][intval($row['client_id'])][] = floatval($row['s']);
+}
+foreach ($clients as $id => &$row) {
+    $row['response'] = reportMedian($times['response'][$id] ?? []);
+    $row['resolve'] = reportMedian($times['resolve'][$id] ?? []);
+    $row['sla'] = reportShare($row['sla_met'], $row['sla_met'] + $row['sla_missed']);
+    $row['csat'] = reportShare($row['good'], $row['good'] + $row['bad']);
+    $row['change'] = reportChange($row['opened'], $row['prev']);
+}
+unset($row);
+uasort($clients, function ($a, $b) { return $b['opened'] <=> $a['opened'] ?: $b['open_now'] <=> $a['open_now']; });
+$clients = array_values($clients);
+
+$columns = [
+    'client' => ['label' => 'Client', 'html' => function ($row) {
+        return reportClientCell($row['client_id'], $row['client'], $row['abbr'], 'tickets.php');
+    }],
+    'opened' => ['label' => 'Opened', 'type' => 'count', 'class' => 'fw-semibold'],
+    'change' => ['label' => 'Change', 'type' => 'percent', 'csv' => false, 'html' => function ($row) {
+        return $row['change'] === null ? '<span class="itflow-report-zero">–</span>' : '<span class="small">' . reportChangeHtml($row['opened'], $row['prev'], 'down') . '</span>';
+    }],
+    'urgent' => ['label' => 'Urgent or high', 'type' => 'count', 'html' => function ($row) {
+        return $row['urgent'] ? '<span class="text-danger-emphasis">' . $row['urgent'] . '</span>' : '<span class="itflow-report-zero">–</span>';
+    }],
+    'resolved' => ['label' => 'Resolved', 'type' => 'count'],
+    'open_now' => ['label' => 'Open now', 'type' => 'count', 'html' => function ($row) {
+        return $row['open_now'] ? '<a class="itflow-report-amount" href="/agent/tickets.php?client_id=' . $row['client_id'] . '">' . $row['open_now'] . '</a>' : '<span class="itflow-report-zero">–</span>';
+    }],
+    'seconds' => ['label' => 'Time logged', 'type' => 'hours'],
+    'response' => ['label' => 'First reply', 'type' => 'duration', 'title' => 'Typical (middle) time to the first reply'],
+    'resolve' => ['label' => 'To resolve', 'type' => 'duration', 'title' => 'Typical (middle) time to resolve'],
+    'sla' => ['label' => 'SLA response', 'type' => 'percent', 'html' => function ($row) {
+        return reportRateHtml($row['sla']);
+    }],
+    'csat' => ['label' => 'Satisfaction', 'type' => 'percent', 'title' => 'Good ratings out of all good and bad', 'html' => function ($row) {
+        return $row['csat'] === null ? '<span class="itflow-report-zero">–</span>' : reportRateHtml($row['csat'], 90, 75) . ' <span class="small text-body-tertiary">' . ($row['good'] + $row['bad']) . '</span>';
+    }],
+];
+
+$totals = ['client' => 'Total'];
+foreach (['opened', 'urgent', 'resolved', 'open_now', 'seconds'] as $key) {
+    $totals[$key] = array_sum(array_column($clients, $key));
+}
+$all_response = reportMedian(array_merge(...array_values($times['response'] ?: [[]])));
+$all_resolve = reportMedian(array_merge(...array_values($times['resolve'] ?: [[]])));
+$totals['response'] = $all_response;
+$totals['resolve'] = $all_resolve;
+$totals['sla'] = reportShare(array_sum(array_column($clients, 'sla_met')), array_sum(array_column($clients, 'sla_met')) + array_sum(array_column($clients, 'sla_missed')));
+$totals['csat'] = reportShare(array_sum(array_column($clients, 'good')), array_sum(array_column($clients, 'good')) + array_sum(array_column($clients, 'bad')));
+
+if (reportExporting()) {
+    reportCsv('Tickets by Client ' . $period['start'] . ' to ' . $period['end'], $columns, $clients, $totals);
 }
 
-$sql_ticket_years = mysqli_query($mysqli, "SELECT DISTINCT YEAR(ticket_created_at) AS ticket_year FROM tickets ORDER BY ticket_year DESC");
+require_once "includes/inc_report_layout.php";
 
-$sql_clients = mysqli_query($mysqli, "SELECT client_id, client_name FROM clients WHERE client_archived_at IS NULL " . clientScopeSql('client_id') . " ORDER BY client_name ASC");
+$top = array_slice(array_filter($clients, function ($c) { return $c['opened'] > 0; }), 0, 12);
+$busiest = $clients[0] ?? null;
+$with_tickets = count(array_filter($clients, function ($c) { return $c['opened'] > 0; }));
 
 ?>
 
-    <div class="card card-dark">
-        <div class="card-header py-2">
-            <h3 class="card-title mt-2"><i class="fas fa-fw fa-life-ring me-2"></i>Tickets By Client</h3>
-            <div class="card-tools">
-                <button type="button" class="btn btn-primary d-print-none" onclick="window.print();"><i class="fas fa-fw fa-print me-2"></i>Print</button>
+<div class="itflow-report">
+
+    <?php reportHeader('ticket_by_client', [
+        'period' => $period,
+        'years' => reportPastYears("SELECT DISTINCT YEAR(ticket_created_at) AS y FROM tickets"),
+        'agent' => $agent_id,
+    ]); ?>
+
+    <?= reportStats([
+        ['label' => 'Tickets opened', 'value' => reportCount($totals['opened']), 'sub' => reportCount($with_tickets) . ' <span class="text-body-tertiary">clients raised them</span>'],
+        ['label' => 'Average per client', 'value' => $with_tickets ? number_format($totals['opened'] / $with_tickets, 1) : '-', 'sub' => '<span class="text-body-tertiary">Of those who raised any</span>'],
+        ['label' => 'Busiest', 'value' => $busiest && $busiest['opened'] ? $busiest['client'] : '-', 'sub' => $busiest && $busiest['opened'] ? $busiest['opened'] . ' <span class="text-body-tertiary">tickets · ' . reportPercent(reportShare($busiest['opened'], $totals['opened'])) . ' of all</span>' : ''],
+        ['label' => 'Time logged', 'value' => reportHours($totals['seconds']) . ' h', 'sub' => $with_tickets ? reportHours($totals['seconds'] / $with_tickets) . ' h <span class="text-body-tertiary">per client</span>' : ''],
+    ]) ?>
+
+    <?php if ($top) { ?>
+        <?= reportSectionOpen('Clients raising the most', 'By priority') ?>
+            <div class="card-body">
+                <?php
+                // Each client's tickets split by priority
+                $ids = array_column($top, 'client_id');
+                $split = [];
+                $sql = mysqli_query($mysqli, "SELECT ticket_client_id AS client_id, ticket_priority AS p, COUNT(ticket_id) AS n FROM tickets
+                    WHERE $filter AND $opened_in AND ticket_client_id IN (" . implode(',', array_map('intval', $ids)) . ") GROUP BY ticket_client_id, ticket_priority");
+                while ($row = mysqli_fetch_assoc($sql)) {
+                    $split[$row['p']][intval($row['client_id'])] = intval($row['n']);
+                }
+                $series = [];
+                foreach (['Urgent' => 'dark', 'High' => 'danger', 'Medium' => 'warning', 'Low' => 'info'] as $priority => $tone) {
+                    $series[] = ['label' => $priority, 'tone' => $tone, 'stack' => 'p', 'data' => array_map(function ($id) use ($split, $priority) { return $split[$priority][$id] ?? 0; }, $ids)];
+                }
+                echo reportChart(['type' => 'bar', 'horizontal' => true, 'stacked' => true, 'labels' => array_column($top, 'client'), 'series' => $series, 'format' => 'count'], '', 'Tickets opened per client, by priority');
+                ?>
             </div>
         </div>
-        <div class="card-body">
-            <form class="mb-3">
-                <select onchange="this.form.submit()" class="form-select" name="year">
-                    <?php
-                    while ($row = mysqli_fetch_assoc($sql_ticket_years)) {
-                        $ticket_year = intval($row['ticket_year']); ?>
-                        <option <?php if ($year == $ticket_year) { ?> selected <?php } ?> > <?= $ticket_year ?></option>
-                    <?php } ?>
-                </select>
-                <select onchange="this.form.submit()" class="form-select" name="month">
-                    <option <?php if ($month == 1) { echo 'selected'; } ?> value="1">January</option>
-                    <option <?php if ($month == 2) { echo 'selected'; } ?> value="2">February</option>
-                    <option <?php if ($month == 3) { echo 'selected'; } ?> value="3">March</option>
-                    <option <?php if ($month == 4) { echo 'selected'; } ?> value="4">April</option>
-                    <option <?php if ($month == 5) { echo 'selected'; } ?> value="5">May</option>
-                    <option <?php if ($month == 6) { echo 'selected'; } ?> value="6">June</option>
-                    <option <?php if ($month == 7) { echo 'selected'; } ?> value="7">July</option>
-                    <option <?php if ($month == 8) { echo 'selected'; } ?> value="8">August</option>
-                    <option <?php if ($month == 9) { echo 'selected'; } ?> value="9">September</option>
-                    <option <?php if ($month == 10) { echo 'selected'; } ?> value="10">October</option>
-                    <option <?php if ($month == 11) { echo 'selected'; } ?> value="11">November</option>
-                    <option <?php if ($month == 12) { echo 'selected'; } ?> value="12">December</option>
-                </select>
-            </form>
+    <?php } ?>
 
-            <div class="card card-dark mb-3">
-                <div class="card-header">
-                    <h3 class="card-title"><i class="fas fa-fw fa-chart-area me-2"></i>Yearly (<?= $year ?>)</h3>
-                </div>
-                <div class="card-body">
-                    <div class="table-responsive-sm">
-                        <table class="table table-striped">
-                            <thead>
-                            <tr>
-                                <th>Client</th>
-                                <th class="text-end">Raised</th>
-                                <th class="text-end">Priority: Low</th>
-                                <th class="text-end">Priority: Med</th>
-                                <th class="text-end">Priority: High</th>
-                                <th class="text-end">Priority: Urgent</th>
-                                <th class="text-end">Resolved</th>
-                                <th class="text-end">Total Time worked <i>(H:M:S)</i></th>
-                                <th class="text-end">Avg time to respond</th>
-                                <th class="text-end">Avg time to resolve</th>
-                            </tr>
-                            </thead>
-                            <tbody>
-                            <?php
-                            while ($row = mysqli_fetch_assoc($sql_clients)) {
-                                $client_id = intval($row['client_id']);
-                                $client_name = escapeHtml($row['client_name']);
-
-                                // Calculate total tickets raised in period
-                                $sql_ticket_raised_count = mysqli_query($mysqli, "SELECT COUNT(ticket_id) AS ticket_raised_count FROM tickets WHERE YEAR(ticket_created_at) = $year AND ticket_client_id = $client_id");
-                                $row = mysqli_fetch_assoc($sql_ticket_raised_count);
-                                $ticket_raised_count = intval($row['ticket_raised_count']);
-
-                                // Calculate total tickets raised in period that are resolved
-                                $sql_ticket_resolved_count = mysqli_query($mysqli, "SELECT COUNT(ticket_id) AS ticket_resolved_count FROM tickets WHERE YEAR(ticket_created_at) = $year AND ticket_client_id = $client_id AND ticket_resolved_at IS NOT NULL");
-                                $row = mysqli_fetch_assoc($sql_ticket_resolved_count);
-                                $ticket_resolved_count = intval($row['ticket_resolved_count']);
-
-                                // Breakdown tickets for each priority - Low
-                                $sql_low_ticket_count = mysqli_query($mysqli, "SELECT COUNT(ticket_id) AS low_ticket_count FROM tickets WHERE YEAR(ticket_created_at) = $year AND ticket_client_id = $client_id AND ticket_priority = 'Low'");
-                                $row = mysqli_fetch_assoc($sql_low_ticket_count);
-                                $low_ticket_count = intval($row['low_ticket_count']);
-
-                                // Breakdown tickets for each priority - Low
-                                $sql_med_ticket_count = mysqli_query($mysqli, "SELECT COUNT(ticket_id) AS med_ticket_count FROM tickets WHERE YEAR(ticket_created_at) = $year AND ticket_client_id = $client_id AND ticket_priority = 'Medium'");
-                                $row = mysqli_fetch_assoc($sql_med_ticket_count);
-                                $med_ticket_count = intval($row['med_ticket_count']);
-
-                                // Breakdown tickets for each priority - Low
-                                $sql_high_ticket_count = mysqli_query($mysqli, "SELECT COUNT(ticket_id) AS high_ticket_count FROM tickets WHERE YEAR(ticket_created_at) = $year AND ticket_client_id = $client_id AND ticket_priority = 'High'");
-                                $row = mysqli_fetch_assoc($sql_high_ticket_count);
-                                $high_ticket_count = intval($row['high_ticket_count']);
-
-                                // Breakdown tickets for each priority - Urgent
-                                $sql_urgent_ticket_count = mysqli_query($mysqli, "SELECT COUNT(ticket_id) AS urgent_ticket_count FROM tickets WHERE YEAR(ticket_created_at) = $year AND ticket_client_id = $client_id AND ticket_priority = 'Urgent'");
-                                $row = mysqli_fetch_assoc($sql_urgent_ticket_count);
-                                $urgent_ticket_count = intval($row['urgent_ticket_count']);
-
-                                // Used to calculate average time to respond to tickets that were raised in period specified
-                                $sql_tickets_respond = mysqli_query($mysqli, "SELECT ticket_created_at, ticket_first_response_at FROM tickets WHERE YEAR(ticket_created_at) = $year AND ticket_client_id = $client_id");
-
-                                // Used to calculate average time to resolve tickets that were raised in period specified
-                                $sql_tickets_resolved = mysqli_query($mysqli, "SELECT ticket_created_at, ticket_resolved_at FROM tickets WHERE YEAR(ticket_created_at) = $year AND ticket_client_id = $client_id AND ticket_resolved_at IS NOT NULL");
-
-                                // Calculate total time tracked towards tickets in the period
-                                $sql_time = mysqli_query($mysqli, "SELECT SEC_TO_TIME(SUM(TIME_TO_SEC(ticket_reply_time_worked))) as total_time FROM ticket_replies LEFT JOIN tickets ON tickets.ticket_id = ticket_replies.ticket_reply_ticket_id WHERE YEAR(ticket_created_at) = $year AND ticket_client_id = $client_id AND ticket_reply_time_worked IS NOT NULL");
-                                $row = mysqli_fetch_assoc($sql_time);
-                                $ticket_total_time_worked = escapeHtml($row['total_time']);
-
-                                if ($ticket_raised_count > 0 || $ticket_resolved_count > 0) {
-
-                                    // Calculate average time to respond
-                                    $avg_time_to_respond = '-';
-                                    $count = 0;
-                                    $total = 0;
-                                    while ($row = mysqli_fetch_assoc($sql_tickets_respond)) {
-                                        if (!empty($row['ticket_first_response_at'])) {
-                                            $openedTime = new DateTime($row['ticket_created_at']);
-                                            $respondTime = new DateTime($row['ticket_first_response_at']);
-                                            $total += ($respondTime->getTimestamp() - $openedTime->getTimestamp());
-                                            $count++;
-                                        }
-                                    }
-                                    if ($count > 0) {
-                                        $avg_time_to_respond = secondsToTime($total / $count); // Avoids DivisionByZeroError
-                                    }
-
-                                    // Calculate average time to solve
-                                    $avg_time_to_resolve = '-';
-                                    if ($ticket_resolved_count > 0) {
-                                        $count = 0;
-                                        $total = 0;
-                                        while ($row = mysqli_fetch_assoc($sql_tickets_resolved)) {
-                                            $openedTime = new DateTime($row['ticket_created_at']);
-                                            $resolvedTime = new DateTime($row['ticket_resolved_at']);
-
-                                            $total += ($resolvedTime->getTimestamp() - $openedTime->getTimestamp());
-                                            $count++;
-                                        }
-                                        $avg_time_to_resolve = secondsToTime($total / $count);
-
-                                    }
-
-                                    ?>
-
-                                    <tr>
-                                        <td><?= $client_name ?></td>
-                                        <td class="text-end"><?= $ticket_raised_count ?></td>
-                                        <td class="text-end"><?= $low_ticket_count ?></td>
-                                        <td class="text-end"><?= $med_ticket_count ?></td>
-                                        <td class="text-end"><?= $high_ticket_count ?></td>
-                                        <td class="text-end"><?= $urgent_ticket_count ?></td>
-                                        <td class="text-end"><?= $ticket_resolved_count ?></td>
-                                        <td class="text-end"><?= $ticket_total_time_worked ?></td>
-                                        <td class="text-end"><?= $avg_time_to_respond ?></td>
-                                        <td class="text-end"><?= $avg_time_to_resolve ?></td>
-                                    </tr>
-                                    <?php
-                                }
-                            }
-                            ?>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
-
-
-
-            <div class="card card-dark mb-3">
-                <div class="card-header">
-                    <h3 class="card-title"><i class="fas fa-fw fa-chart-area me-2"></i>Monthly (<?= date("F", mktime(1, 1, 1, $month, 1)) . ' ' . $year ?>)</h3>
-                </div>
-                <div class="card-body">
-                    <div class="table-responsive-sm">
-                        <table class="table table-striped">
-                            <thead>
-                            <tr>
-                                <th>Client</th>
-                                <th class="text-end">Raised</th>
-                                <th class="text-end">Priority: Low</th>
-                                <th class="text-end">Priority: Med</th>
-                                <th class="text-end">Priority: High</th>
-                                <th class="text-end">Priority: Urgent</th>
-                                <th class="text-end">Resolved</th>
-                                <th class="text-end">Total Time worked <i>(H:M:S)</i></th>
-                                <th class="text-end">Avg time to respond</th>
-                                <th class="text-end">Avg time to resolve</th>
-                            </tr>
-                            </thead>
-                            <tbody>
-                            <?php
-                            mysqli_data_seek($sql_clients, 0); // Reset
-                            while ($row = mysqli_fetch_assoc($sql_clients)) {
-                                $client_id = intval($row['client_id']);
-                                $client_name = escapeHtml($row['client_name']);
-
-                                // Calculate total tickets raised in period
-                                $sql_ticket_raised_count = mysqli_query($mysqli, "SELECT COUNT(ticket_id) AS ticket_raised_count FROM tickets WHERE YEAR(ticket_created_at) = $year AND MONTH(ticket_created_at) = $month AND ticket_client_id = $client_id");
-                                $row = mysqli_fetch_assoc($sql_ticket_raised_count);
-                                $ticket_raised_count = intval($row['ticket_raised_count']);
-
-                                // Calculate total tickets raised in period that are resolved
-                                $sql_ticket_resolved_count = mysqli_query($mysqli, "SELECT COUNT(ticket_id) AS ticket_resolved_count FROM tickets WHERE YEAR(ticket_created_at) = $year AND MONTH(ticket_created_at) = $month AND ticket_client_id = $client_id AND ticket_resolved_at IS NOT NULL");
-                                $row = mysqli_fetch_assoc($sql_ticket_resolved_count);
-                                $ticket_resolved_count = intval($row['ticket_resolved_count']);
-
-                                // Breakdown tickets for each priority - Low
-                                $sql_low_ticket_count = mysqli_query($mysqli, "SELECT COUNT(ticket_id) AS low_ticket_count FROM tickets WHERE YEAR(ticket_created_at) = $year AND MONTH(ticket_created_at) = $month AND ticket_client_id = $client_id AND ticket_priority = 'Low'");
-                                $row = mysqli_fetch_assoc($sql_low_ticket_count);
-                                $low_ticket_count = intval($row['low_ticket_count']);
-
-                                // Breakdown tickets for each priority - Low
-                                $sql_med_ticket_count = mysqli_query($mysqli, "SELECT COUNT(ticket_id) AS med_ticket_count FROM tickets WHERE YEAR(ticket_created_at) = $year AND MONTH(ticket_created_at) = $month AND ticket_client_id = $client_id AND ticket_priority = 'Medium'");
-                                $row = mysqli_fetch_assoc($sql_med_ticket_count);
-                                $med_ticket_count = intval($row['med_ticket_count']);
-
-                                // Breakdown tickets for each priority - Low
-                                $sql_high_ticket_count = mysqli_query($mysqli, "SELECT COUNT(ticket_id) AS high_ticket_count FROM tickets WHERE YEAR(ticket_created_at) = $year AND MONTH(ticket_created_at) = $month AND ticket_client_id = $client_id AND ticket_priority = 'High'");
-                                $row = mysqli_fetch_assoc($sql_high_ticket_count);
-                                $high_ticket_count = intval($row['high_ticket_count']);
-
-                                // Breakdown tickets for each priority - Urgent
-                                $sql_urgent_ticket_count = mysqli_query($mysqli, "SELECT COUNT(ticket_id) AS urgent_ticket_count FROM tickets WHERE YEAR(ticket_created_at) = $year AND MONTH(ticket_created_at) = $month AND ticket_client_id = $client_id AND ticket_priority = 'Urgent'");
-                                $row = mysqli_fetch_assoc($sql_urgent_ticket_count);
-                                $urgent_ticket_count = intval($row['urgent_ticket_count']);
-
-                                // Used to calculate average time to respond to tickets that were raised in period specified
-                                $sql_tickets_respond = mysqli_query($mysqli, "SELECT ticket_created_at, ticket_first_response_at FROM tickets WHERE YEAR(ticket_created_at) = $year AND MONTH(ticket_created_at) = $month AND ticket_client_id = $client_id");
-
-                                // Used to calculate average time to resolve tickets that were raised in period specified
-                                $sql_tickets_resolved = mysqli_query($mysqli, "SELECT ticket_created_at, ticket_resolved_at FROM tickets WHERE YEAR(ticket_created_at) = $year AND MONTH(ticket_created_at) = $month AND ticket_client_id = $client_id AND ticket_resolved_at IS NOT NULL");
-
-                                // Calculate total time tracked towards tickets in the period
-                                $sql_time = mysqli_query($mysqli, "SELECT SEC_TO_TIME(SUM(TIME_TO_SEC(ticket_reply_time_worked))) as total_time FROM ticket_replies LEFT JOIN tickets ON tickets.ticket_id = ticket_replies.ticket_reply_ticket_id WHERE YEAR(ticket_created_at) = $year AND MONTH(ticket_created_at) = $month AND ticket_client_id = $client_id AND ticket_reply_time_worked IS NOT NULL");
-                                $row = mysqli_fetch_assoc($sql_time);
-                                $ticket_total_time_worked = escapeHtml($row['total_time']);
-
-                                if ($ticket_raised_count > 0 || $ticket_resolved_count > 0) {
-
-                                    // Calculate average time to respond
-                                    $avg_time_to_respond = '-';
-                                    $count = 0;
-                                    $total = 0;
-                                    while ($row = mysqli_fetch_assoc($sql_tickets_respond)) {
-                                        if (!empty($row['ticket_first_response_at'])) {
-                                            $openedTime = new DateTime($row['ticket_created_at']);
-                                            $respondTime = new DateTime($row['ticket_first_response_at']);
-                                            $total += ($respondTime->getTimestamp() - $openedTime->getTimestamp());
-                                            $count++;
-                                        }
-                                    }
-                                    if ($count > 0) {
-                                        $avg_time_to_respond = secondsToTime($total / $count); // Avoids DivisionByZeroError
-                                    }
-
-                                    // Calculate average time to solve
-                                    $avg_time_to_resolve = '-';
-                                    if ($ticket_resolved_count > 0) {
-                                        $count = 0;
-                                        $total = 0;
-                                        while ($row = mysqli_fetch_assoc($sql_tickets_resolved)) {
-                                            $openedTime = new DateTime($row['ticket_created_at']);
-                                            $resolvedTime = new DateTime($row['ticket_resolved_at']);
-
-                                            $total += ($resolvedTime->getTimestamp() - $openedTime->getTimestamp());
-                                            $count++;
-                                        }
-                                        $avg_time_to_resolve = secondsToTime($total / $count);
-                                    }
-
-                                    ?>
-
-                                    <tr>
-                                        <td><?= $client_name ?></td>
-                                        <td class="text-end"><?= $ticket_raised_count ?></td>
-                                        <td class="text-end"><?= $low_ticket_count ?></td>
-                                        <td class="text-end"><?= $med_ticket_count ?></td>
-                                        <td class="text-end"><?= $high_ticket_count ?></td>
-                                        <td class="text-end"><?= $urgent_ticket_count ?></td>
-                                        <td class="text-end"><?= $ticket_resolved_count ?></td>
-                                        <td class="text-end"><?= $ticket_total_time_worked ?></td>
-                                        <td class="text-end"><?= $avg_time_to_respond ?></td>
-                                        <td class="text-end"><?= $avg_time_to_resolve ?></td>
-                                    </tr>
-                                    <?php
-                                }
-                            }
-                            ?>
-                            </tbody>
-                        </table>
-                    </div>
-
-                </div>
-            </div>
-
+    <?= reportSectionOpen('By client', 'Busiest first', 'itflow-report-long') ?>
+        <?= reportTable($columns, $clients, ['empty' => 'No tickets in this period.', 'totals' => $totals, 'totals_html' => ['sla' => reportRateHtml($totals['sla']), 'csat' => $totals['csat'] === null ? '' : reportRateHtml($totals['csat'], 90, 75)]]) ?>
+        <div class="card-footer small text-body-secondary">
+            Opened counts tickets raised in the period; resolved counts those resolved in it, whenever raised. Times run on the clock and are the middle ticket's, so a few long ones do not skew them.
+            SLA response is the share of first-reply targets met. Satisfaction is from client ratings on tickets closed in the period.
         </div>
     </div>
 
-<?php
-require_once "../../includes/footer.php";
+</div>
+
+<?php require_once "../../includes/footer.php"; ?>
+<script src="/js/reports.js"></script>

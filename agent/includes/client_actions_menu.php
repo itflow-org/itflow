@@ -1,6 +1,6 @@
 <?php
 /*
- * The client actions menu - New Ticket, New Project, Edit, Export, Archive/Restore, Delete.
+ * The client actions menu - New Ticket, New Project, Edit, Export, Client Review, Archive/Restore, Delete.
  * Shared by the client header (inc_client_top_head.php) and the client
  * overview, so both offer exactly the same actions behind the same
  * permissions. Include it inside a .dropdown, after its toggle button.
@@ -32,6 +32,11 @@
         <div class="dropdown-divider"></div>
         <a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#exportClientPDFModal">
             <i class="fas fa-fw fa-file-pdf me-2"></i>Export Data
+        </a>
+    <?php } ?>
+    <?php if (reportCan(reportFind('client_review'))) { ?>
+        <a class="dropdown-item" href="/agent/reports/client_review.php?client_id=<?= $client_id ?>">
+            <i class="fas fa-fw fa-clipboard-list me-2"></i>Client Review
         </a>
     <?php } ?>
 

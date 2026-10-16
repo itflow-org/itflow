@@ -583,10 +583,21 @@ function dashboardMoney($amount) {
     return numfmt_format_currency($currency_format, floatval($amount), $session_company_currency);
 }
 
+/**
+ * SQL: a revenue that is income - it has a category, and it is not the in
+ * side of a transfer between accounts. The transfer handler leaves both
+ * halves without a category; one that has been given one since (the demo data
+ * files them as "Account Transfer") is still only money moving between
+ * accounts. The out side is never spending: it has no vendor.
+ */
+function dashboardRevenueSql() {
+    return "revenue_category_id > 0 AND revenue_id NOT IN (SELECT transfer_revenue_id FROM transfers)";
+}
+
 /** Cash basis, as the Income reports: invoice payments plus categorised revenues. */
 function dashboardIncome($start, $end) {
     return dashboardSum("SELECT SUM(payment_amount) FROM payments WHERE payment_date BETWEEN '$start' AND '$end'")
-        + dashboardSum("SELECT SUM(revenue_amount) FROM revenues WHERE revenue_category_id > 0 AND revenue_date BETWEEN '$start' AND '$end'");
+        + dashboardSum("SELECT SUM(revenue_amount) FROM revenues WHERE " . dashboardRevenueSql() . " AND revenue_date BETWEEN '$start' AND '$end'");
 }
 
 /** Vendor expenses - expenses with no vendor are transfers between accounts. */
@@ -689,7 +700,7 @@ function dashboardCashFlow($period) {
             dashboardMonthly("SELECT DATE_FORMAT(payment_date, '%Y-%m') AS m, SUM(payment_amount) AS v FROM payments
                 WHERE payment_date BETWEEN '$from' AND '$to' GROUP BY m", $range),
             dashboardMonthly("SELECT DATE_FORMAT(revenue_date, '%Y-%m') AS m, SUM(revenue_amount) AS v FROM revenues
-                WHERE revenue_category_id > 0 AND revenue_date BETWEEN '$from' AND '$to' GROUP BY m", $range)
+                WHERE " . dashboardRevenueSql() . " AND revenue_date BETWEEN '$from' AND '$to' GROUP BY m", $range)
         );
     };
     $round = function ($values) {
@@ -942,7 +953,7 @@ function dashboardBreakdowns($period) {
                     WHERE payment_date BETWEEN '$start' AND '$end' AND invoice_category_id > 0
                 UNION ALL
                 SELECT revenue_category_id, revenue_amount FROM revenues
-                    WHERE revenue_date BETWEEN '$start' AND '$end' AND revenue_category_id > 0
+                    WHERE revenue_date BETWEEN '$start' AND '$end' AND " . dashboardRevenueSql() . "
             ) AS income
             JOIN categories USING (category_id)
             GROUP BY category_id, category_name, category_color ORDER BY v DESC"),

@@ -170,7 +170,7 @@ $filter_url = function ($changes) use ($client_url) {
                             <i class="fa fa-fw fa-download me-2"></i>Export
                         </a>
                     <?php } ?>
-                    <a class="dropdown-item text-dark" href="reports/credential_rotation.php">
+                    <a class="dropdown-item text-dark" href="reports/credential_rotation.php<?= $client_url ? '?client_id=' . intval($client_id) : '' ?>">
                         <i class="fa fa-fw fa-history me-2"></i>Rotation report
                     </a>
                 </div>

@@ -1817,6 +1817,11 @@ function demoBuildAssets($mysqli, $profile, $index, $client_id, $location_id, $c
             // fleet anyone recognises.
             $batch = (int)floor(($number - 1) / 4);
             $purchase_months = min(70, 3 + ($batch * 12) + (($seed + $index) % 7) + (int)floor($profile['age_days'] / 120));
+            // A few of the oldest Windows machines never made the move to Windows 11
+            $os = $model[2];
+            if (strpos($os, 'Windows 11') === 0 && $purchase_months >= 50 && ($seed + $index) % 3 === 0) {
+                $os = 'Windows 10 Pro 22H2';
+            }
             $status = 'Deployed';
             if ($number === $quantity && $quantity > 3) {
                 $status = 'Ready to Deploy';
@@ -1832,7 +1837,7 @@ function demoBuildAssets($mysqli, $profile, $index, $client_id, $location_id, $c
                 'asset_make' => $model[0],
                 'asset_model' => $model[1],
                 'asset_serial' => demoSerial($profile['abbreviation'] . $asset_type . $number),
-                'asset_os' => $model[2],
+                'asset_os' => $os,
                 'asset_uri' => $ip ? demoAssetUri($asset_type, $ip) : '',
                 'asset_status' => $status,
                 'asset_purchase_reference' => 'PO-' . demoSerial($profile['abbreviation'] . 'po' . $seed, 6),
@@ -2596,6 +2601,12 @@ function demoBuildTickets($mysqli, $profile, $index, $client_id, $contact_ids, $
                 'ticket_onsite' => !empty($ticket['onsite']) ? 1 : 0,
             ];
 
+            // Some contacts rate their closed tickets from the portal - a slow
+            // first reply is what earns most of the bad ratings
+            if (($sequence + $index) % 5 < 2) {
+                $fields['ticket_feedback'] = $slow || ($sequence + $index) % 23 === 0 ? 'Bad' : 'Good';
+            }
+
             if (!empty($ticket['vendor']) && $vendor_ids) {
                 $fields['ticket_vendor_id'] = $vendor_ids[0];
                 $fields['ticket_vendor_ticket_number'] = 'V' . demoSerial($profile['abbreviation'] . 'vt' . $sequence, 7);
@@ -2675,7 +2686,7 @@ function demoBuildTickets($mysqli, $profile, $index, $client_id, $contact_ids, $
         if ($stage['closed']) {
             $fields['ticket_closed_at'] = demoDateTime($stage['closed'], 15, 30);
             $fields['ticket_closed_by'] = $user_id;
-            $fields['ticket_feedback'] = $slot === 0 ? 'Great' : 'Ok';
+            $fields['ticket_feedback'] = 'Good';
         }
         if ($stage['status'] === $context['status_open'] && !empty($ticket['onsite'])) {
             $fields['ticket_schedule'] = demoDateTime(-2, 10, 0);

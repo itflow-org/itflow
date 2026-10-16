@@ -311,7 +311,8 @@ if (isset($_POST['add_ticket_feedback'])) {
     validateCSRFToken();
 
     $ticket_id = intval($_POST['ticket_id']);
-    $feedback = escapeSql($_POST['add_ticket_feedback']);
+    // Only the two ratings the portal offers - the reports count Good against Bad
+    $feedback = $_POST['add_ticket_feedback'] === 'Bad' ? 'Bad' : 'Good';
 
     // Verify the contact has access to the provided ticket ID
     if (verifyContactTicketAccess($ticket_id, "Closed")) {

@@ -1,194 +1,92 @@
 <?php
 
-require_once "includes/inc_all_reports.php";
+/*
+ * Expenses - a year of spending by expense category and month: expenses with
+ * a vendor, the same as the Expenses list and the dashboard (an expense with
+ * no vendor is the out side of a transfer between accounts). Compared with
+ * last year to the same date; every amount opens the expenses behind it.
+ */
 
-enforceUserPermission('module_financial');
+require_once "includes/inc_report.php";
+reportEnforce('expense_summary');
 
-if (isset($_GET['year'])) {
-    $year = intval($_GET['year']);
-} else {
-    $year = date('Y');
+[$year, $years] = reportYear("SELECT YEAR(expense_date) AS y FROM expenses WHERE expense_vendor_id > 0");
+$current_year = $year === intval(date('Y'));
+$from = "$year-01-01";
+$to = $current_year ? date('Y-m-d') : "$year-12-31";
+$prev_from = ($year - 1) . '-01-01';
+$prev_to = $current_year ? dashboardShiftMonths(date('Y-m-d'), -12) : ($year - 1) . '-12-31';
+$compare = $current_year ? 'the same time last year' : (string) ($year - 1);
+
+$grid = reportExpensesByCategory($from, $to);
+$categories = reportCategoriesWithAmounts(reportCategoryRows('Expense', $grid), $grid);
+$totals = reportGridTotals($grid);
+$prev_total = reportGridTotals(reportExpensesByCategory($prev_from, $prev_to))['total'];
+
+if (reportExporting()) {
+    reportCategoryYearCsv($categories, $grid, $year, "Expenses $year", 'Total expenses');
 }
 
-$sql_expense_years = mysqli_query($mysqli, "SELECT DISTINCT YEAR(expense_date) AS expense_year FROM expenses WHERE expense_category_id > 0 ORDER BY expense_year DESC");
+$months_elapsed = reportMonthsElapsed($year);
+$average = $months_elapsed ? $totals['total'] / $months_elapsed : 0;
 
-$sql_categories = mysqli_query($mysqli, "SELECT category_id, category_name FROM categories WHERE category_type = 'Expense' ORDER BY category_name ASC");
+$biggest = null;
+foreach ($categories as $cat => $category) {
+    if (!$biggest || $grid[$cat]['total'] > $grid[$biggest]['total']) {
+        $biggest = $cat;
+    }
+}
 
-// For chart Y-axis max
-$largest_expense_month = 0;
+// What is already committed every month
+$recurring = dashboardSum("SELECT SUM(recurring_expense_amount) FROM recurring_expenses WHERE recurring_expense_status = 1 AND recurring_expense_archived_at IS NULL AND recurring_expense_vendor_id > 0 AND recurring_expense_frequency = 1")
+    + dashboardSum("SELECT SUM(recurring_expense_amount) FROM recurring_expenses WHERE recurring_expense_status = 1 AND recurring_expense_archived_at IS NULL AND recurring_expense_vendor_id > 0 AND recurring_expense_frequency = 2") / 12;
+
+$prev_full = reportGridTotals(reportExpensesByCategory(($year - 1) . '-01-01', ($year - 1) . '-12-31'))['months'];
+
+require_once "includes/inc_report_layout.php";
 
 ?>
 
-<!-- Responsive chart helpers -->
-<style>
-  .chart-h-320 { position: relative; height: 320px; }
-  @media (max-width: 576px) { .chart-h-320 { height: 260px; } }
-</style>
+<div class="itflow-report">
 
-<div class="card card-dark">
-    <div class="card-header py-2">
-        <h3 class="card-title mt-2"><i class="fas fa-fw fa-coins me-2"></i>Expense Summary</h3>
-        <div class="card-tools">
-            <button type="button" class="btn btn-primary d-print-none" onclick="window.print();"><i class="fas fa-fw fa-print me-2"></i>Print</button>
+    <?php reportHeader('expense_summary', [
+        'year' => [$year, $years],
+        'subtitle' => $current_year ? "$year to date" : (string) $year,
+    ]); ?>
+
+    <?= reportStats([
+        ['label' => 'Spending', 'value' => reportMoney($totals['total']), 'sub' => reportChangeHtml($totals['total'], $prev_total, 'down', $compare),
+            'url' => "/agent/expenses.php?canned_date=custom&dtf=$from&dtt=$to"],
+        ['label' => 'Monthly average', 'value' => reportMoney($average), 'sub' => escapeHtml("Over $months_elapsed month" . ($months_elapsed === 1 ? '' : 's'))],
+        ['label' => 'Biggest category', 'value' => $biggest !== null ? $categories[$biggest]['category_name'] : '-',
+            'sub' => $biggest !== null ? reportMoney($grid[$biggest]['total']) . ' <span class="text-body-tertiary">· ' . reportPercent(reportShare($grid[$biggest]['total'], $totals['total'])) . '</span>' : ''],
+        ['label' => 'Recurring', 'value' => reportMoney($recurring), 'sub' => '<span class="text-body-tertiary">Per month, committed now</span>', 'url' => '/agent/recurring_expenses.php'],
+    ]) ?>
+
+    <?= reportSectionOpen('Spending by month', escapeHtml("$year, with " . ($year - 1) . ' as a line')) ?>
+        <div class="card-body">
+            <?php
+            $series = reportCategoryChartSeries($categories, $grid, $current_year ? intval(date('n')) : 12);
+            $series[] = ['label' => (string) ($year - 1), 'data' => array_map(function ($v) { return round($v, 2); }, array_values($prev_full)), 'tone' => 'muted', 'type' => 'line', 'dashed' => true];
+            echo reportChart([
+                'type' => 'bar',
+                'labels' => array_map(function ($m) { return date('M', mktime(0, 0, 0, $m, 1)); }, range(1, 12)),
+                'series' => $series,
+                'stacked' => true,
+                'format' => 'money',
+            ], 'lg', 'Spending per month by category, with last year as a line');
+            ?>
         </div>
     </div>
-    <div class="card-body">
-        <form class="mb-3">
-            <select onchange="this.form.submit()" class="form-select" name="year">
-                <?php while ($row = mysqli_fetch_assoc($sql_expense_years)) {
-                    $expense_year = intval($row['expense_year']); ?>
-                    <option <?php if ($year == $expense_year) { ?> selected <?php } ?>><?= $expense_year ?></option>
-                <?php } ?>
-            </select>
-        </form>
 
-        <div class="chart-h-320 mb-3">
-            <canvas id="cashFlow"></canvas>
-        </div>
-
-        <div class="table-responsive-sm">
-            <table class="table table-striped">
-                <thead class="text-dark">
-                <tr>
-                    <th>Category</th>
-                    <th class="text-end">January</th>
-                    <th class="text-end">February</th>
-                    <th class="text-end">March</th>
-                    <th class="text-end">April</th>
-                    <th class="text-end">May</th>
-                    <th class="text-end">June</th>
-                    <th class="text-end">July</th>
-                    <th class="text-end">August</th>
-                    <th class="text-end">September</th>
-                    <th class="text-end">October</th>
-                    <th class="text-end">November</th>
-                    <th class="text-end">December</th>
-                    <th class="text-end">Total</th>
-                </tr>
-                </thead>
-                <tbody>
-                <?php while ($row = mysqli_fetch_assoc($sql_categories)) {
-                    $category_id = intval($row['category_id']);
-                    $category_name = escapeHtml($row['category_name']); ?>
-                    <tr>
-                        <td><?= $category_name ?></td>
-                        <?php
-                        $total_expense_for_all_months = 0;
-                        for ($month = 1; $month <= 12; $month++) {
-                            $sql_expenses = mysqli_query($mysqli, "SELECT SUM(expense_amount) AS expense_amount_for_month FROM expenses WHERE expense_category_id = $category_id AND YEAR(expense_date) = $year AND MONTH(expense_date) = $month");
-                            $rowm = mysqli_fetch_assoc($sql_expenses);
-                            $expense_amount_for_month = floatval($rowm['expense_amount_for_month']);
-                            $total_expense_for_all_months += $expense_amount_for_month;
-                            ?>
-                            <td class="text-end">
-                                <a class="text-dark" href="expenses.php?q=<?= $category_name ?>&dtf=<?= "$year-$month" ?>-01&dtt=<?= "$year-$month" ?>-31">
-                                    <?= numfmt_format_currency($currency_format, $expense_amount_for_month, $session_company_currency) ?>
-                                </a>
-                            </td>
-                        <?php } ?>
-                        <th class="text-end">
-                            <a class="text-dark" href="expenses.php?q=<?= $category_name ?>&dtf=<?= $year ?>-01-01&dtt=<?= $year ?>-12-31">
-                                <?= numfmt_format_currency($currency_format, $total_expense_for_all_months, $session_company_currency) ?>
-                            </a>
-                        </th>
-                    </tr>
-                <?php } ?>
-
-                <tr>
-                    <th>Total</th>
-                    <?php
-                    $grand_total_all_months = 0;
-                    for ($month = 1; $month <= 12; $month++) {
-                        $sql_expenses = mysqli_query($mysqli, "SELECT SUM(expense_amount) AS expense_total_amount_for_month FROM expenses WHERE YEAR(expense_date) = $year AND MONTH(expense_date) = $month AND expense_vendor_id > 0");
-                        $rowt = mysqli_fetch_assoc($sql_expenses);
-                        $expense_total_amount_for_month = floatval($rowt['expense_total_amount_for_month']);
-                        $grand_total_all_months += $expense_total_amount_for_month;
-                        ?>
-                        <th class="text-end">
-                            <a class="text-dark" href="expenses.php?dtf=<?= "$year-$month" ?>-01&dtt=<?= "$year-$month" ?>-31">
-                                <?= numfmt_format_currency($currency_format, $expense_total_amount_for_month, $session_company_currency) ?>
-                            </a>
-                        </th>
-                    <?php } ?>
-                    <th class="text-end">
-                        <a class="text-dark" href="expenses.php?dtf=<?= $year ?>-01-01&dtt=<?= $year ?>-12-31">
-                            <?= numfmt_format_currency($currency_format, $grand_total_all_months, $session_company_currency) ?>
-                        </a>
-                    </th>
-                </tr>
-                </tbody>
-            </table>
+    <?= reportSectionOpen('By category', 'Click an amount to see the expenses behind it', 'itflow-report-long') ?>
+        <?= reportCategoryYearTable($categories, $grid, $year, 'expenses.php', 'Total expenses') ?>
+        <div class="card-footer small text-body-secondary">
+            Expenses with a vendor, by the date they were paid. Transfers between your own accounts are left out.
         </div>
     </div>
+
 </div>
 
 <?php require_once "../../includes/footer.php"; ?>
-
-<script>
-    // Bootstrap-like defaults for Chart.js v4
-    var itflowChart = itflowChartDefaults();
-
-    // EXPENSES LINE CHART
-    (function () {
-        var ctx = document.getElementById("cashFlow");
-        if (!ctx) return;
-
-        var dataPoints = [
-            <?php
-            // Build series and track the largest month for axis max
-            for ($month = 1; $month <= 12; $month++) {
-                $sql_expenses = mysqli_query($mysqli, "SELECT SUM(expense_amount) AS expense_amount_for_month FROM expenses WHERE YEAR(expense_date) = $year AND MONTH(expense_date) = $month AND expense_vendor_id > 0");
-                $rowm = mysqli_fetch_assoc($sql_expenses);
-                $expenses_for_month = floatval($rowm['expense_amount_for_month']);
-
-                if ($expenses_for_month > 0 && $expenses_for_month > $largest_expense_month) {
-                    $largest_expense_month = $expenses_for_month;
-                }
-                echo "$expenses_for_month,";
-            }
-            ?>
-        ];
-
-        new Chart(ctx, {
-            type: 'line',
-            data: {
-                labels: ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"],
-                datasets: [{
-                    label: "Expense",
-                    tension: 0.3, // v4 name (v2: lineTension)
-                    fill: false,
-                    borderColor: "#dc3545",
-                    pointBackgroundColor: "#dc3545",
-                    pointBorderColor: "#dc3545",
-                    pointHoverRadius: 5,
-                    pointHoverBackgroundColor: "#dc3545",
-                    pointBorderWidth: 2,
-                    data: dataPoints
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                scales: {
-                    x: {
-                        grid: { display: false },
-                        ticks: { maxTicksLimit: 12 }
-                    },
-                    y: {
-                        beginAtZero: true,
-                        min: 0,
-                        max: <?php
-                            $max = max(1000, $largest_expense_month);
-                            echo roundUpToNearestMultiple($max);
-                        ?>,
-                        ticks: { maxTicksLimit: 5 },
-                        grid: { color: itflowChart.grid }
-                    }
-                },
-                plugins: {
-                    legend: { display: false }
-                }
-            }
-        });
-    })();
-</script>
+<script src="/js/reports.js"></script>

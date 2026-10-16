@@ -1,3 +1,12 @@
+<?php
+/*
+ * The Reports menu - drawn from reportCatalog() (functions/reports.php), so it
+ * lists exactly the reports this user may open, in the same groups as the
+ * Reports home page. Custom links placed in Reports come last.
+ */
+$reports_menu = reportCatalogForUser();
+$reports_current = basename($_SERVER['PHP_SELF'], '.php');
+?>
 <!-- Main Sidebar Container -->
 <aside class="app-sidebar shadow d-print-none" data-bs-theme="dark">
 
@@ -16,127 +25,23 @@
 
             <ul class="nav nav-pills sidebar-menu flex-column mt-2" data-lte-toggle="treeview" data-accordion="false">
 
-                <?php if ($config_module_enable_accounting == 1 && lookupUserPermission("module_financial") >= 1) { ?>
-                    <li class="nav-header">INCOME</li>
-                    <li class="nav-item">
-                        <a href="/agent/reports/income_summary.php" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "income_summary.php") { echo "active"; } ?>">
-                            <i class="fas fa-hand-holding-usd nav-icon"></i>
-                            <p>Income</p>
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a href="/agent/reports/income_by_client.php" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "income_by_client.php") { echo "active"; } ?>">
-                            <i class="far fa-user nav-icon"></i>
-                            <p>Income by Client</p>
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a href="/agent/reports/recurring_by_client.php" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "recurring_by_client.php") { echo "active"; } ?>">
-                            <i class="fa fa-sync nav-icon"></i>
-                            <p>Recurring Income by Client</p>
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a href="/agent/reports/outstanding_balances.php" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "outstanding_balances.php") { echo "active"; } ?>">
-                            <i class="fa fa-exclamation-triangle nav-icon"></i>
-                            <p>Outstanding Balances</p>
-                        </a>
-                    </li>
+                <li class="nav-item">
+                    <a href="/agent/reports/index.php" class="nav-link <?php if ($reports_current === 'index') { echo "active"; } ?>">
+                        <i class="nav-icon fas fa-th-large"></i>
+                        <p>All Reports</p>
+                    </a>
+                </li>
 
-                    <li class="nav-header">EXPENSES</li>
-                    <li class="nav-item">
-                        <a href="/agent/reports/expense_summary.php" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "expense_summary.php") { echo "active"; } ?>">
-                            <i class="fas fa-shopping-cart nav-icon"></i>
-                            <p>Expense</p>
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a href="/agent/reports/expense_by_vendor.php" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "expense_by_vendor.php") { echo "active"; } ?>">
-                            <i class="far fa-building nav-icon"></i>
-                            <p>Expense by Vendor</p>
-                        </a>
-                    </li>
-
-                    <li class="nav-header">STATEMENTS</li>
-                    <li class="nav-item">
-                        <a href="/agent/reports/tax_summary.php" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "tax_summary.php") { echo "active"; } ?>">
-                            <i class="fas fa-percent nav-icon"></i>
-                            <p>Tax Summary</p>
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a href="/agent/reports/profit_loss.php" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "profit_loss.php") { echo "active"; } ?>">
-                            <i class="fas fa-file-invoice-dollar nav-icon"></i>
-                            <p>Profit & Loss</p>
-                        </a>
-                    </li>
-                <?php } // End financial reports IF statement ?>
-
-                <?php if (($config_module_enable_accounting == 1 && lookupUserPermission("module_financial") >= 1) || ($config_module_enable_ticketing && lookupUserPermission("module_support") >= 1)) { ?>
-                    <li class="nav-header">TIME</li>
-                <?php } ?>
-                <?php if ($config_module_enable_accounting == 1 && lookupUserPermission("module_financial") >= 1) { ?>
-                    <li class="nav-item">
-                        <a href="/agent/reports/tickets_unbilled.php" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "tickets_unbilled.php") { echo "active"; } ?>">
-                            <i class="nav-icon fas fa-hourglass-half"></i>
-                            <p>Unbilled Tickets</p>
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a href="/agent/reports/client_ticket_time_detail.php" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "client_ticket_time_detail.php") { echo "active"; } ?>">
-                            <i class="nav-icon fas fa-stopwatch"></i>
-                            <p>Time Detail by Client</p>
-                        </a>
-                    </li>
-                <?php } ?>
-                <?php if ($config_module_enable_ticketing && lookupUserPermission("module_support") >= 1) { ?>
-                    <li class="nav-item">
-                        <a href="/agent/reports/time_by_tech.php" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "time_by_tech.php") { echo "active"; } ?>">
-                            <i class="nav-icon fas fa-user-clock"></i>
-                            <p>Time by Technician</p>
-                        </a>
-                    </li>
-                <?php } ?>
-
-                <?php if (($config_module_enable_ticketing && lookupUserPermission("module_support") >= 1) || lookupUserPermission("module_credential") >= 1) { ?>
-                    <li class="nav-header">TECHNICAL</li>
-                <?php } ?>
-                <?php  if ($config_module_enable_ticketing && lookupUserPermission("module_support") >= 1) { ?>
-                    <li class="nav-item">
-                        <a href="/agent/reports/ticket_summary.php" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "ticket_summary.php") { echo "active"; } ?>">
-                            <i class="nav-icon fas fa-life-ring"></i>
-                            <p>Tickets</p>
-                        </a>
-                    </li>
-
-                    <li class="nav-item">
-                        <a href="/agent/reports/ticket_by_client.php" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "ticket_by_client.php") { echo "active"; } ?>">
-                            <i class="nav-icon fas fa-life-ring"></i>
-                            <p>Tickets by Client</p>
-                        </a>
-                    </li>
-
-                    <li class="nav-item">
-                        <a href="/agent/reports/sla_summary.php" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "sla_summary.php") { echo "active"; } ?>">
-                            <i class="nav-icon fas fa-stopwatch"></i>
-                            <p>SLA Summary</p>
-                        </a>
-                    </li>
-
-                    <li class="nav-item">
-                        <a href="/agent/reports/sla_by_client.php" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "sla_by_client.php") { echo "active"; } ?>">
-                            <i class="nav-icon fas fa-stopwatch"></i>
-                            <p>SLA by Client</p>
-                        </a>
-                    </li>
-                <?php } ?>
-                <?php if (lookupUserPermission("module_credential") >= 1) { ?>
-                    <li class="nav-item">
-                        <a href="/agent/reports/credential_rotation.php" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "credential_rotation.php") { echo "active"; } ?>">
-                            <i class="nav-icon fas fa-key"></i>
-                            <p>Credential Rotation</p>
-                        </a>
-                    </li>
+                <?php foreach ($reports_menu as $group) { ?>
+                    <li class="nav-header"><?= escapeHtml(strtoupper($group['label'])) ?></li>
+                    <?php foreach ($group['reports'] as $menu_key => $menu_report) { ?>
+                        <li class="nav-item">
+                            <a href="/agent/reports/<?= $menu_key ?>.php" class="nav-link <?php if ($reports_current === $menu_key) { echo "active"; } ?>">
+                                <i class="nav-icon fas <?= escapeHtml($menu_report['icon']) ?>"></i>
+                                <p><?= escapeHtml($menu_report['title']) ?></p>
+                            </a>
+                        </li>
+                    <?php } ?>
                 <?php } ?>
 
                 <?php
@@ -144,6 +49,10 @@
                     WHERE custom_link_location = 5 AND custom_link_archived_at IS NULL
                     ORDER BY custom_link_order ASC, custom_link_name ASC"
                 );
+
+                if (mysqli_num_rows($sql_custom_links)) { ?>
+                    <li class="nav-header">MORE</li>
+                <?php }
 
                 while ($row = mysqli_fetch_assoc($sql_custom_links)) {
                     $custom_link_name = escapeHtml($row['custom_link_name']);
@@ -172,10 +81,6 @@
 
         </nav>
         <!-- /.sidebar-menu -->
-
-        <div class="sidebar-custom mb-3">
-
-        </div>
 
     </div>
     <!-- /.sidebar -->

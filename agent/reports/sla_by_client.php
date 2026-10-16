@@ -1,177 +1,149 @@
 <?php
 
-require_once "includes/inc_all_reports.php";
+/*
+ * SLA by Client - for each client, how their tickets with an SLA did in the
+ * period: first replies and resolutions in time, the typical first reply,
+ * and the average SLA clock to resolve - business hours with the clock
+ * running, so paused time does not count, which is what the SLA itself
+ * judged. Worst first, so the clients to talk to are at the top. One
+ * agent's tickets only when an agent is picked.
+ */
 
-enforceUserPermission('module_support');
+require_once "includes/inc_report.php";
+reportEnforce('sla_by_client');
 
-if (isset($_GET['year'])) {
-    $year = intval($_GET['year']);
-} else {
-    $year = date('Y');
+$period = reportPeriod('last_90');
+$agent_id = reportAgentId();
+$filter = reportTicketSql(0, $agent_id) . " AND ticket_sla_id > 0 AND " . reportRangeSql('ticket_created_at', $period);
+
+$clients = [];
+$sql = mysqli_query($mysqli, "SELECT client_id, client_name, client_abbreviation, " . REPORT_SLA_COLUMNS . "
+    FROM tickets JOIN clients ON ticket_client_id = client_id WHERE $filter GROUP BY client_id, client_name, client_abbreviation");
+while ($row = mysqli_fetch_assoc($sql)) {
+    $clients[intval($row['client_id'])] = ['client_id' => intval($row['client_id']), 'client' => $row['client_name'], 'abbr' => $row['client_abbreviation'],
+        'response' => null, 'resolve_clock' => null, 'breached_open' => 0] + reportSlaFigures($row);
 }
 
-if (isset($_GET['month'])) {
-    $month = intval($_GET['month']);
-} else {
-    $month = 0; // 0 = whole year
+$responses = [];
+$sql = mysqli_query($mysqli, "SELECT ticket_client_id AS client_id, TIMESTAMPDIFF(SECOND, ticket_created_at, ticket_first_response_at) AS s FROM tickets WHERE $filter AND ticket_first_response_at IS NOT NULL");
+while ($row = mysqli_fetch_assoc($sql)) {
+    $responses[intval($row['client_id'])][] = floatval($row['s']);
 }
 
-$period_query = "YEAR(ticket_created_at) = $year";
-$period_label = $year;
-if ($month) {
-    $period_query .= " AND MONTH(ticket_created_at) = $month";
-    $period_label = date("F", mktime(1, 1, 1, $month, 1)) . " $year";
+// The SLA clock spent on resolved tickets - logged business minutes, or for a
+// ticket with none logged (a response-only plan, or one resolved before
+// pausing existed) the business time between being raised and resolved
+$clock = [];
+$sql = mysqli_query($mysqli, "SELECT ticket_client_id AS client_id, ticket_created_at, ticket_resolved_at, SUM(sla_history_minutes) AS logged
+    FROM tickets LEFT JOIN sla_history ON sla_history_ticket_id = ticket_id
+    WHERE $filter AND ticket_resolved_at IS NOT NULL
+    GROUP BY ticket_id, ticket_client_id, ticket_created_at, ticket_resolved_at");
+while ($row = mysqli_fetch_assoc($sql)) {
+    $minutes = $row['logged'] === null ? businessMinutesBetween($row['ticket_created_at'], $row['ticket_resolved_at']) : intval($row['logged']);
+    $clock[intval($row['client_id'])][] = $minutes * 60;
 }
 
-$sql_ticket_years = mysqli_query($mysqli, "SELECT DISTINCT YEAR(ticket_created_at) AS ticket_year FROM tickets ORDER BY ticket_year DESC");
-
-$sql_clients = mysqli_query($mysqli, "SELECT client_id, client_name FROM clients WHERE client_archived_at IS NULL " . clientScopeSql('client_id') . " ORDER BY client_name ASC");
-
-
-// Clock time spent on resolved tickets, gathered for every client at once
-// rather than per ticket. Tickets with no interval rows - response-only plans,
-// or anything resolved before SLA pausing existed - fall back to the business
-// time that elapsed between being raised and resolved.
-$resolve_totals = [];
-$sql_resolve_times = mysqli_query($mysqli, "SELECT ticket_client_id, ticket_id, ticket_created_at, ticket_resolved_at, SUM(sla_history_minutes) AS logged_minutes
-    FROM tickets
-    LEFT JOIN sla_history ON sla_history_ticket_id = ticket_id
-    WHERE ticket_sla_id > 0
-    AND ticket_resolved_at IS NOT NULL
-    AND $period_query
-    GROUP BY ticket_id, ticket_client_id, ticket_created_at, ticket_resolved_at"
-);
-while ($resolve_row = mysqli_fetch_assoc($sql_resolve_times)) {
-    $resolve_client_id = intval($resolve_row['ticket_client_id']);
-    $resolve_minutes = is_null($resolve_row['logged_minutes'])
-        ? businessMinutesBetween($resolve_row['ticket_created_at'], $resolve_row['ticket_resolved_at'])
-        : intval($resolve_row['logged_minutes']);
-
-    if (!isset($resolve_totals[$resolve_client_id])) {
-        $resolve_totals[$resolve_client_id] = ['minutes' => 0, 'count' => 0];
+$sql = mysqli_query($mysqli, "SELECT ticket_client_id AS client_id, COUNT(ticket_id) AS n FROM tickets
+    WHERE " . reportTicketSql(0, $agent_id) . " AND " . TICKET_OPEN_SQL . " AND " . dashboardSlaBreachedSql() . " GROUP BY ticket_client_id");
+while ($row = mysqli_fetch_assoc($sql)) {
+    if (isset($clients[intval($row['client_id'])])) {
+        $clients[intval($row['client_id'])]['breached_open'] = intval($row['n']);
     }
-    $resolve_totals[$resolve_client_id]['minutes'] += $resolve_minutes;
-    $resolve_totals[$resolve_client_id]['count']++;
 }
+
+foreach ($clients as $id => &$row) {
+    $row['response'] = reportMedian($responses[$id] ?? []);
+    $row['resolve_clock'] = !empty($clock[$id]) ? array_sum($clock[$id]) / count($clock[$id]) : null;
+    $row['worst'] = min($row['response_percent'] ?? 101, $row['resolution_percent'] ?? 101);
+}
+unset($row);
+uasort($clients, function ($a, $b) { return $a['worst'] <=> $b['worst'] ?: $b['tickets'] <=> $a['tickets']; });
+$clients = array_values($clients);
+
+// tickets.php's assigned= filter, so a click keeps to the same agent
+$agent_link = $agent_id ? "&assigned=$agent_id" : '';
+
+$columns = [
+    'client' => ['label' => 'Client', 'html' => function ($row) {
+        return reportClientCell($row['client_id'], $row['client'], $row['abbr'], 'tickets.php');
+    }],
+    'tickets' => ['label' => 'Tickets', 'type' => 'count'],
+    // The late counts sit beside their share on screen; the export keeps them apart
+    'response_missed' => ['label' => 'Replied late', 'type' => 'count', 'screen' => false],
+    'response_percent' => ['label' => 'Response', 'type' => 'percent', 'title' => 'First replies in time, of those judged', 'html' => function ($row) {
+        return reportRateHtml($row['response_percent']) . reportLateHtml($row['response_missed']);
+    }],
+    'resolution_missed' => ['label' => 'Resolved late', 'type' => 'count', 'screen' => false],
+    'resolution_percent' => ['label' => 'Resolution', 'type' => 'percent', 'title' => 'Resolved in time, of those judged', 'html' => function ($row) {
+        return reportRateHtml($row['resolution_percent']) . reportLateHtml($row['resolution_missed']);
+    }],
+    'response' => ['label' => 'First reply', 'type' => 'duration', 'title' => 'Typical (middle) time to the first reply, on the clock'],
+    'resolve_clock' => ['label' => 'Clock to resolve', 'type' => 'duration', 'title' => 'Average business time with the SLA clock running, to resolve'],
+    'breached_open' => ['label' => 'Breached now', 'type' => 'count', 'csv_label' => 'Breached and still open', 'title' => 'Open tickets that have missed a target, whenever they were raised', 'html' => function ($row) use ($agent_link) {
+        return $row['breached_open'] ? '<a class="text-danger-emphasis fw-semibold" href="/agent/tickets.php?client_id=' . $row['client_id'] . '&sla=breached' . $agent_link . '">' . $row['breached_open'] . '</a>' : '<span class="itflow-report-zero">–</span>';
+    }],
+];
+
+$overall = reportSlaCompliance($filter);
+$totals = ['client' => 'Total', 'tickets' => $overall['tickets'], 'response_missed' => $overall['response_missed'], 'response_percent' => $overall['response_percent'],
+    'resolution_missed' => $overall['resolution_missed'], 'resolution_percent' => $overall['resolution_percent'],
+    'breached_open' => array_sum(array_column($clients, 'breached_open'))];
+
+if (reportExporting()) {
+    reportCsv('SLA by Client ' . $period['start'] . ' to ' . $period['end'], $columns, $clients, $totals);
+}
+
+require_once "includes/inc_report_layout.php";
+
+$below = array_filter($clients, function ($c) { return $c['worst'] < 80; });
+$chart_rows = array_slice($clients, 0, 15);
 
 ?>
 
-    <div class="card card-dark">
-        <div class="card-header py-2">
-            <h3 class="card-title mt-2"><i class="fas fa-fw fa-stopwatch me-2"></i>SLA by Client</h3>
-            <div class="card-tools">
-                <button type="button" class="btn btn-primary d-print-none" onclick="window.print();"><i class="fas fa-fw fa-print me-2"></i>Print</button>
+<div class="itflow-report">
+
+    <?php reportHeader('sla_by_client', [
+        'period' => $period,
+        'years' => reportPastYears("SELECT DISTINCT YEAR(ticket_created_at) AS y FROM tickets WHERE ticket_sla_id > 0"),
+        'agent' => $agent_id,
+    ]); ?>
+
+    <?= reportStats([
+        ['label' => 'Clients with SLA tickets', 'value' => reportCount(count($clients)), 'sub' => reportCount($overall['tickets']) . ' <span class="text-body-tertiary">tickets</span>'],
+        ['label' => 'First reply in time', 'value_html' => reportRateHtml($overall['response_percent']), 'sub' => '<span class="text-body-tertiary">Across all clients</span>'],
+        ['label' => 'Resolved in time', 'value_html' => reportRateHtml($overall['resolution_percent']), 'sub' => '<span class="text-body-tertiary">Across all clients</span>'],
+        ['label' => 'Clients under 80%', 'value' => reportCount(count($below)), 'tone' => $below ? 'danger' : 'success', 'sub' => '<span class="text-body-tertiary">On response or resolution</span>'],
+    ]) ?>
+
+    <?php if ($chart_rows) { ?>
+        <?= reportSectionOpen('Targets met', 'Worst first') ?>
+            <div class="card-body">
+                <?= reportChart([
+                    'type' => 'bar',
+                    'horizontal' => true,
+                    'labels' => array_column($chart_rows, 'client'),
+                    'series' => [
+                        ['label' => 'First reply in time', 'data' => array_column($chart_rows, 'response_percent'), 'tone' => 'accent'],
+                        ['label' => 'Resolved in time', 'data' => array_column($chart_rows, 'resolution_percent'), 'tone' => 'success'],
+                    ],
+                    'format' => 'percent',
+                    'max' => 100,
+                ], '', 'The share of SLA targets met for each client') ?>
             </div>
         </div>
-        <div class="card-body">
-            <form class="mb-3">
-                <select onchange="this.form.submit()" class="form-select" name="year">
-                    <?php
-                    while ($row = mysqli_fetch_assoc($sql_ticket_years)) {
-                        $ticket_year = intval($row['ticket_year']); ?>
-                        <option <?php if ($year == $ticket_year) { ?> selected <?php } ?> > <?= $ticket_year ?></option>
-                    <?php } ?>
-                </select>
-                <select onchange="this.form.submit()" class="form-select" name="month">
-                    <option <?php if ($month == 0) { echo 'selected'; } ?> value="0">Whole year</option>
-                    <?php for ($m = 1; $m <= 12; $m++) { ?>
-                        <option <?php if ($month == $m) { echo 'selected'; } ?> value="<?= $m ?>"><?= date("F", mktime(1, 1, 1, $m, 1)) ?></option>
-                    <?php } ?>
-                </select>
-            </form>
+    <?php } ?>
 
-            <div class="card card-dark mb-3">
-                <div class="card-header">
-                    <h3 class="card-title"><i class="fas fa-fw fa-chart-area me-2"></i><?= $period_label ?></h3>
-                </div>
-                <div class="card-body">
-                    <div class="table-responsive-sm">
-                        <table class="table table-striped">
-                            <thead>
-                            <tr>
-                                <th>Client</th>
-                                <th class="text-end">Tickets</th>
-                                <th class="text-end">Response met</th>
-                                <th class="text-end">Response missed</th>
-                                <th class="text-end">Response %</th>
-                                <th class="text-end">Resolution met</th>
-                                <th class="text-end">Resolution missed</th>
-                                <th class="text-end">Resolution %</th>
-                                <th class="text-end">Avg time to respond</th>
-                                <th class="text-end">Avg clock to resolve</th>
-                            </tr>
-                            </thead>
-                            <tbody>
-                            <?php
-                            $any_rows = false;
-                            while ($row = mysqli_fetch_assoc($sql_clients)) {
-                                $client_id = intval($row['client_id']);
-                                $client_name = escapeHtml($row['client_name']);
-
-                                $stats = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT
-                                    COUNT(ticket_id) AS ticket_count,
-                                    SUM(ticket_response_sla_met = 1) AS response_met,
-                                    SUM(ticket_response_sla_met = 0) AS response_missed,
-                                    SUM(ticket_resolution_sla_met = 1) AS resolution_met,
-                                    SUM(ticket_resolution_sla_met = 0) AS resolution_missed,
-                                    AVG(CASE WHEN ticket_first_response_at IS NOT NULL THEN TIMESTAMPDIFF(SECOND, ticket_created_at, ticket_first_response_at) END) AS avg_response_seconds
-                                    FROM tickets
-                                    WHERE ticket_sla_id > 0 AND ticket_client_id = $client_id AND $period_query"
-                                ));
-
-                                $ticket_count = intval($stats['ticket_count']);
-                                if ($ticket_count == 0) {
-                                    continue;
-                                }
-                                $any_rows = true;
-
-                                $response_met = intval($stats['response_met']);
-                                $response_missed = intval($stats['response_missed']);
-                                $resolution_met = intval($stats['resolution_met']);
-                                $resolution_missed = intval($stats['resolution_missed']);
-
-                                $response_judged = $response_met + $response_missed;
-                                $response_percent = $response_judged ? round($response_met / $response_judged * 100, 1) : null;
-
-                                $resolution_judged = $resolution_met + $resolution_missed;
-                                $resolution_percent = $resolution_judged ? round($resolution_met / $resolution_judged * 100, 1) : null;
-
-                                $avg_time_to_respond = is_null($stats['avg_response_seconds']) ? '-' : secondsToTime($stats['avg_response_seconds']);
-
-                                // Clock time actually spent - paused spells excluded, which is
-                                // what the SLA itself judged on
-                                $avg_time_to_resolve = '-';
-                                if (!empty($resolve_totals[$client_id]['count'])) {
-                                    $avg_time_to_resolve = secondsToTime(($resolve_totals[$client_id]['minutes'] / $resolve_totals[$client_id]['count']) * 60);
-                                }
-                                ?>
-                                <tr>
-                                    <td><?= $client_name ?></td>
-                                    <td class="text-end"><?= $ticket_count ?></td>
-                                    <td class="text-end"><?= $response_met ?></td>
-                                    <td class="text-end"><?= $response_missed ?></td>
-                                    <td class="text-end"><?= slaPercentDisplay($response_percent) ?></td>
-                                    <td class="text-end"><?= $resolution_met ?></td>
-                                    <td class="text-end"><?= $resolution_missed ?></td>
-                                    <td class="text-end"><?= slaPercentDisplay($resolution_percent) ?></td>
-                                    <td class="text-end"><?= $avg_time_to_respond ?></td>
-                                    <td class="text-end"><?= $avg_time_to_resolve ?></td>
-                                </tr>
-                            <?php }
-                            if (!$any_rows) { ?>
-                                <tr><td colspan="10" class="text-secondary">No tickets with an SLA in this period.</td></tr>
-                            <?php } ?>
-                            </tbody>
-                        </table>
-                    </div>
-
-                    <small class="text-muted">Time to respond is wall-clock from ticket creation. Time to resolve counts only business hours with the SLA clock running, so paused time is excluded.</small>
-
-                </div>
-            </div>
-
+    <?= reportSectionOpen('By client', 'Worst first') ?>
+        <?= reportTable($columns, $clients, ['empty' => reportEmpty('No ticket raised in this period carried an SLA.', 'fa-stopwatch', 'secondary'), 'totals' => $totals,
+            'totals_html' => ['response_percent' => reportRateHtml($overall['response_percent']) . reportLateHtml($overall['response_missed']),
+                'resolution_percent' => reportRateHtml($overall['resolution_percent']) . reportLateHtml($overall['resolution_missed'])]]) ?>
+        <div class="card-footer small text-body-secondary">
+            Tickets raised in the period that carry an SLA. Percentages count only targets already judged. The first reply runs on the clock;
+            the SLA clock to resolve counts business hours with the clock running, so time paused (On Hold) is left out.
         </div>
     </div>
 
-<?php
-require_once "../../includes/footer.php";
+</div>
+
+<?php require_once "../../includes/footer.php"; ?>
+<script src="/js/reports.js"></script>
