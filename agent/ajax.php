@@ -1470,68 +1470,29 @@ if (isset($_POST['update_project_template_ticket_order'])) {
     exit;
 }
 
-if (isset($_POST['update_quote_items_order'])) {
-    // Update multiple quote items order
+/*
+ * The order of the lines on an invoice, quote or recurring invoice, after a
+ * drag - "items" is the line ids top to bottom, comma separated.
+ */
+if (isset($_POST['billing_items_order'])) {
 
     validateCSRFToken();
 
     enforceUserPermission('module_sales', 2);
 
-    $positions = $_POST['positions'];
-    $quote_id = intval($_POST['quote_id']);
+    header('Content-Type: application/json');
 
-    foreach ($positions as $position) {
-        $id = intval($position['id']);
-        $order = intval($position['order']);
-
-        mysqli_query($mysqli, "UPDATE quote_items SET item_order = $order WHERE item_quote_id = $quote_id AND item_id = $id");
+    $type = (string) ($_POST['type'] ?? '');
+    $doc = billingType($type) ? billingRow($type, intval($_POST['doc_id'] ?? 0)) : null;
+    if (!$doc || !hasClientAccess(intval($doc['client_id'])) || !billingCanEditItems($type, $doc)) {
+        http_response_code(403);
+        echo json_encode(['status' => 'error', 'message' => "Those lines can't be moved now."]);
+        exit;
     }
 
-    // return a response
-    echo json_encode(['status' => 'success']);
-    exit;
-}
+    $item_ids = array_filter(array_map('intval', explode(',', (string) ($_POST['items'] ?? ''))));
+    billingItemsOrder($type, intval($doc[billingType($type)['col'] . '_id']), $item_ids);
 
-if (isset($_POST['update_invoice_items_order'])) {
-    // Update multiple invoice items order
-
-    validateCSRFToken();
-
-    enforceUserPermission('module_sales', 2);
-
-    $positions = $_POST['positions'];
-    $invoice_id = intval($_POST['invoice_id']);
-
-    foreach ($positions as $position) {
-        $id = intval($position['id']);
-        $order = intval($position['order']);
-
-        mysqli_query($mysqli, "UPDATE invoice_items SET item_order = $order WHERE item_invoice_id = $invoice_id AND item_id = $id");
-    }
-
-    // return a response
-    echo json_encode(['status' => 'success']);
-    exit;
-}
-
-if (isset($_POST['update_recurring_invoice_items_order'])) {
-    // Update multiple recurring invoice items order
-
-    validateCSRFToken();
-
-    enforceUserPermission('module_sales', 2);
-
-    $positions = $_POST['positions'];
-    $recurring_invoice_id = intval($_POST['recurring_invoice_id']);
-
-    foreach ($positions as $position) {
-        $id = intval($position['id']);
-        $order = intval($position['order']);
-
-        mysqli_query($mysqli, "UPDATE recurring_invoice_items SET item_order = $order WHERE item_recurring_invoice_id = $recurring_invoice_id AND item_id = $id");
-    }
-
-    // return a response
     echo json_encode(['status' => 'success']);
     exit;
 }

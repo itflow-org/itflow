@@ -1,154 +1,79 @@
 <?php
 
+/*
+ * An invoice's payments at a glance, from the invoices list - each payment,
+ * what has been paid and what is left. ?invoice_id=
+ */
+
 require_once '../../../includes/modal_header.php';
 
 enforceUserPermission('module_sales');
 
-$invoice_id = intval($_GET['invoice_id']);
-
-$sql = mysqli_query($mysqli, "SELECT invoice_amount, invoice_client_id, invoice_currency_code, invoice_number, invoice_prefix,
-    invoice_status FROM invoices WHERE invoice_id = $invoice_id LIMIT 1");
-$row = mysqli_fetch_assoc($sql);
-$invoice_prefix = escapeHtml($row['invoice_prefix']);
-$invoice_number = escapeHtml($row['invoice_number']);
-$invoice_status = escapeHtml($row['invoice_status']);
-$invoice_amount = floatval($row['invoice_amount']);
-$invoice_currency_code = escapeHtml($row['invoice_currency_code']);
-$client_id = intval($row['invoice_client_id']);
-
+$invoice_id = intval($_GET['invoice_id'] ?? 0);
+$invoice = billingRow('invoice', $invoice_id);
+if (!$invoice) {
+    exit(json_encode(['error' => 'That invoice no longer exists.']));
+}
+$client_id = intval($invoice['client_id']);
 enforceClientAccess();
 
-$invoice_badge_color = getInvoiceBadgeColor($invoice_status);
-
-$sql_payments = mysqli_query(
-    $mysqli,
-    "SELECT account_archived_at, account_name, payment_amount, payment_currency_code, payment_date,
-        payment_id, payment_method, payment_reference FROM payments
-    LEFT JOIN accounts ON payment_account_id = account_id
-    WHERE payment_invoice_id = $invoice_id
-    AND payment_archived_at IS NULL
-    ORDER BY payment_date ASC, payment_id ASC"
-);
-
-// Amount paid, so the modal shows what is still outstanding alongside the payments
-$row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT SUM(payment_amount) AS amount_paid FROM payments WHERE payment_invoice_id = $invoice_id AND payment_archived_at IS NULL"));
-$amount_paid = floatval($row['amount_paid']);
-
-$balance = $invoice_amount - $amount_paid;
+$payments = invoicePayments($invoice_id);
+$state = invoiceState($invoice, invoicePaid($invoice_id));
+$currency = (string) $invoice['invoice_currency_code'];
+$total = floatval($invoice['invoice_amount']);
+$progress = $state['paid'] > 0 && $total > 0 ? min(100, round($state['paid'] / $total * 100)) : 0;
+$can_edit = lookupUserPermission('module_sales') >= 2 && lookupUserPermission('module_financial') >= 2;
+$can_manage = lookupUserPermission('module_sales') >= 3 && lookupUserPermission('module_financial') >= 3;
+$can_pay = $can_edit && invoiceCanPay($invoice, $state);
 
 ob_start();
 
 ?>
-
 <div class="modal-header bg-dark">
-    <h5 class="modal-title text-white">
-        <i class="fa fa-fw fa-credit-card me-2"></i>Payments for <?= "$invoice_prefix$invoice_number" ?>
-        <span class="p-2 ms-2 badge text-bg-<?= $invoice_badge_color ?>"><?= $invoice_status ?></span>
-    </h5>
+    <h5 class="modal-title"><i class="fas fa-fw fa-credit-card me-2"></i>Payments <span class="fw-normal text-white-50 ms-1"><?= escapeHtml(billingNumber('invoice', $invoice)) ?> &middot; <?= escapeHtml($invoice['client_name']) ?></span></h5>
     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
 </div>
 <div class="modal-body">
-
-    <?php if (mysqli_num_rows($sql_payments) == 0) { ?>
-
-        <p class="text-muted mb-0">No payments have been recorded against this invoice.</p>
-
-    <?php } else { ?>
-
-        <div class="table-responsive">
-            <table class="table table-striped table-borderless mb-0">
-                <thead class="text-dark text-nowrap">
-                <tr>
-                    <th>Date</th>
-                    <th class="text-end">Amount</th>
-                    <th>Method</th>
-                    <th>Reference</th>
-                    <th>Account</th>
-                </tr>
-                </thead>
-                <tbody>
-
-                <?php
-
-                while ($row = mysqli_fetch_assoc($sql_payments)) {
-                    $payment_id = intval($row['payment_id']);
-                    $payment_date = escapeHtml($row['payment_date']);
-                    $payment_amount = floatval($row['payment_amount']);
-                    $payment_currency_code = escapeHtml($row['payment_currency_code']);
-                    $payment_method = escapeHtml($row['payment_method']);
-                    $payment_reference = escapeHtml($row['payment_reference']);
-                    if (empty($payment_reference)) {
-                        $payment_reference_display = "-";
-                    } else {
-                        $payment_reference_display = $payment_reference;
-                    }
-                    $account_name = escapeHtml($row['account_name']);
-                    $account_archived_at = escapeHtml($row['account_archived_at']);
-                    if (empty($account_archived_at)) {
-                        $account_archived_display = "";
-                    } else {
-                        $account_archived_display = "Archived - ";
-                    }
-
-                    ?>
-
-                    <tr>
-                        <td>
-                            <?php if (lookupUserPermission("module_sales") >= 2) { ?>
-                                <a class="ajax-modal" href="#"
-                                    data-modal-size = "lg"
-                                    data-modal-url = "modals/payment/payment_edit.php?id=<?= $payment_id ?>">
-                                    <?= $payment_date ?>
-                                </a>
-                            <?php } else { ?>
-                                <?= $payment_date ?>
-                            <?php } ?>
-                        </td>
-                        <td class="text-end font-monospace"><?= numfmt_format_currency($currency_format, $payment_amount, $payment_currency_code) ?></td>
-                        <td><?= $payment_method ?></td>
-                        <td><?= $payment_reference_display ?></td>
-                        <td><?= "$account_archived_display$account_name" ?></td>
-                    </tr>
-
-                <?php
-
-                }
-
-                ?>
-
-                </tbody>
-            </table>
+    <div class="d-flex justify-content-between align-items-end mb-2">
+        <div>
+            <div class="itflow-billing-stat-label"><?= $state['balance'] > 0 ? 'Still owed' : 'Paid in full' ?></div>
+            <div class="itflow-billing-stat-value <?= $state['state'] === 'overdue' ? 'text-danger-emphasis' : '' ?>"><?= escapeHtml(billingMoney($state['balance'] > 0 ? $state['balance'] : $state['paid'], $currency)) ?></div>
         </div>
-
-    <?php } ?>
-
-    <hr>
-
-    <div class="row">
-        <div class="col-6 text-end ms-auto">
-            <table class="table table-sm table-borderless mb-0">
-                <tr>
-                    <td>Invoice Total:</td>
-                    <td class="text-end font-monospace"><?= numfmt_format_currency($currency_format, $invoice_amount, $invoice_currency_code) ?></td>
-                </tr>
-                <tr>
-                    <td>Amount Paid:</td>
-                    <td class="text-end font-monospace"><?= numfmt_format_currency($currency_format, $amount_paid, $invoice_currency_code) ?></td>
-                </tr>
-                <tr class="text-bold">
-                    <td>Balance:</td>
-                    <td class="text-end font-monospace"><?= numfmt_format_currency($currency_format, $balance, $invoice_currency_code) ?></td>
-                </tr>
-            </table>
+        <div class="text-end small text-body-secondary">
+            <?= escapeHtml(billingMoney($state['paid'], $currency)) ?> paid of <?= escapeHtml(billingMoney($total, $currency)) ?>
+            <div><?= invoiceStatusBadge($invoice['invoice_status'], $state['state'] === 'overdue') ?></div>
         </div>
     </div>
+    <div class="progress itflow-billing-progress mb-3" role="progressbar" aria-label="Paid" aria-valuenow="<?= $progress ?>" aria-valuemin="0" aria-valuemax="100">
+        <div class="progress-bar bg-success" style="width: <?= $progress ?>%"></div>
+    </div>
 
+    <?php if ($payments) { ?>
+        <div class="list-group">
+            <?php foreach ($payments as $payment) { ?>
+                <div class="list-group-item d-flex align-items-center gap-3">
+                    <span class="itflow-asset-icon itflow-asset-icon-sm bg-success-subtle text-success-emphasis" aria-hidden="true"><i class="fas fa-fw fa-check"></i></span>
+                    <div class="flex-grow-1 min-w-0">
+                        <div class="fw-semibold itflow-money"><?= escapeHtml(billingMoney($payment['payment_amount'], $payment['payment_currency_code'])) ?></div>
+                        <div class="small text-body-secondary text-truncate"><?= escapeHtml(implode(' · ', array_filter([$payment['payment_method'], $payment['payment_reference'], $payment['account_name']]))) ?></div>
+                    </div>
+                    <div class="small text-body-secondary text-nowrap"><?= escapeHtml($payment['payment_date']) ?></div>
+                    <?php if ($can_manage) { ?>
+                        <a class="btn btn-sm btn-link text-body-secondary ajax-modal" href="#" data-modal-url="modals/payment/payment_edit.php?id=<?= intval($payment['payment_id']) ?>" title="Edit payment"><i class="fas fa-fw fa-edit"></i></a>
+                    <?php } ?>
+                </div>
+            <?php } ?>
+        </div>
+    <?php } else { ?>
+        <div class="text-body-secondary">No payments yet.</div>
+    <?php } ?>
 </div>
 <div class="modal-footer">
-    <a href="invoice.php?client_id=<?= $client_id ?>&invoice_id=<?= $invoice_id ?>" class="btn btn-primary text-bold">
-        <i class="fa fa-fw fa-file-invoice-dollar me-2"></i>Open Invoice
-    </a>
-    <button type="button" class="btn btn-light" data-bs-dismiss="modal"><i class="fa fa-times me-2"></i>Close</button>
+    <?php if ($can_pay) { ?>
+        <button type="button" class="btn btn-success ajax-modal me-auto" data-modal-url="modals/payment/payment_add.php?id=<?= $invoice_id ?>"><i class="fas fa-plus me-2"></i>Add Payment</button>
+    <?php } ?>
+    <a href="invoice.php?invoice_id=<?= $invoice_id ?>" class="btn btn-primary text-bold"><i class="fas fa-file-invoice-dollar me-2"></i>Open Invoice</a>
+    <button type="button" class="btn btn-light" data-bs-dismiss="modal"><i class="fas fa-times me-2"></i>Close</button>
 </div>
 
 <?php

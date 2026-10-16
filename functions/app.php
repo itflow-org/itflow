@@ -873,8 +873,8 @@ function getSentMethods() {
  * Products for the line-item autocomplete on invoices, quotes and recurring
  * invoices.
  *
- * All three pages share js/product_autocomplete.js, so they must all be handed
- * the same shape. They used to carry a SELECT each and they drifted: quote and
+ * All three pages share js/billing_items.js, so they must all be handed the
+ * same shape. They used to carry a SELECT each and they drifted: quote and
  * recurring invoice only selected label/description/price/tax, so the shared
  * onSelect wrote item.product_name - undefined - into the item name field.
  *

@@ -9,12 +9,17 @@ $invoice_id = intval($_GET['invoice_id']);
 $sql = mysqli_query($mysqli, "SELECT invoice_client_id, invoice_number, invoice_prefix, invoice_status
     FROM invoices WHERE invoice_id = $invoice_id LIMIT 1");
 $row = mysqli_fetch_assoc($sql);
+if (!$row) {
+    exit(json_encode(['error' => 'That invoice no longer exists.']));
+}
 $invoice_prefix = escapeHtml($row['invoice_prefix']);
 $invoice_number = intval($row['invoice_number']);
 $invoice_status = escapeHtml($row['invoice_status']);
 $client_id = intval($row['invoice_client_id']);
 
 enforceClientAccess();
+
+$doc = billingRow('invoice', $invoice_id);
 
 // Billing-facing contacts only - see documentContactFilterSql(). Everyone
 // shown is also checked by default, which is the behaviour the old one-click
@@ -55,9 +60,7 @@ ob_start();
 ?>
 
 <div class="modal-header bg-dark">
-    <h5 class="modal-title text-white">
-        <i class="fa fa-fw fa-paper-plane me-2"></i>Email Invoice <?= "$invoice_prefix$invoice_number" ?>
-    </h5>
+    <h5 class="modal-title"><i class="fas fa-fw fa-paper-plane me-2"></i>Send Invoice <span class="fw-normal text-white-50 ms-1"><?= escapeHtml(billingNumber('invoice', $doc)) ?> &middot; <?= escapeHtml($doc['client_name']) ?></span></h5>
     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
 </div>
 <form action="post.php" method="post" autocomplete="off">
@@ -68,7 +71,7 @@ ob_start();
 
         <?php if ($contact_count == 0) { ?>
 
-            <p class="text-muted mb-0">
+            <p class="text-body-secondary mb-0">
                 This client has no primary or billing contact with an email address, so there is
                 nobody to send an invoice to. Flag a contact as billing, or use Mark Sent to record
                 that the invoice went out some other way.
@@ -76,7 +79,21 @@ ob_start();
 
         <?php } else { ?>
 
-            <label class="mb-2">Send to <strong class="text-danger">*</strong></label>
+            <!-- What goes out -->
+            <?php $doc_state = invoiceState($doc, invoicePaid($invoice_id)); ?>
+            <div class="d-flex align-items-center gap-3 p-3 mb-3 rounded bg-body-tertiary">
+                <?= billingTile('invoice') ?>
+                <div class="flex-grow-1 min-w-0">
+                    <div class="fw-semibold"><?= escapeHtml(billingNumber('invoice', $doc)) ?><?= trim((string) $doc['invoice_scope']) !== '' ? ' - ' . escapeHtml($doc['invoice_scope']) : '' ?></div>
+                    <div class="small text-body-secondary">An email with a link to view<?= billingOnlinePayments() && !in_array($doc['invoice_status'], ['Paid', 'Cancelled', 'Non-Billable'], true) ? ', pay' : '' ?> and download it as a PDF.</div>
+                </div>
+                <div class="text-end">
+                    <div class="fw-semibold itflow-money"><?= escapeHtml(billingMoney($doc_state['balance'] > 0 ? $doc_state['balance'] : $doc['invoice_amount'], $doc['invoice_currency_code'])) ?></div>
+                    <div class="small text-body-secondary"><?= $doc_state['balance'] > 0 ? 'due ' . escapeHtml($doc['invoice_due']) : 'total' ?></div>
+                </div>
+            </div>
+
+            <label class="form-label">Send to <strong class="text-danger">*</strong></label>
 
             <div class="list-group mb-3">
 
@@ -116,7 +133,7 @@ ob_start();
             </div>
 
             <?php if ($invoice_status !== 'Draft') { ?>
-                <p class="text-muted mb-0">
+                <p class="text-body-secondary small mb-0">
                     <i class="fa fa-fw fa-info-circle me-1"></i>This invoice is
                     <strong><?= $invoice_status ?></strong>, so sending it will not change its status.
                 </p>

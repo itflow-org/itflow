@@ -5850,3 +5850,358 @@ a.itflow-report-stat:focus-visible {
         box-shadow: none !important;
     }
 }
+
+/* Billing - invoices, quotes and recurring invoices (includes/billing_paper.php,
+   the agent billing pages and the guest invoice and quote pages) */
+.itflow-paper {
+    position: relative;
+    padding: 2rem 2.25rem;
+    background-color: var(--bs-body-bg);
+    border: 1px solid var(--bs-border-color-translucent);
+    border-radius: var(--bs-border-radius-lg);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, .06);
+    overflow: hidden;
+}
+.itflow-paper::before {
+    content: "";
+    position: absolute;
+    inset: 0 0 auto 0;
+    height: 4px;
+    background-color: var(--bs-primary);
+}
+.itflow-paper-head,
+.itflow-paper-parties,
+.itflow-paper-bottom {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: 1.25rem 2rem;
+}
+.itflow-paper-head {
+    padding-bottom: 1.5rem;
+    border-bottom: 1px solid var(--bs-border-color-translucent);
+}
+.itflow-paper-from {
+    max-width: 24rem;
+}
+.itflow-paper-logo {
+    display: block;
+    max-width: 11rem;
+    max-height: 4.5rem;
+    margin-bottom: .75rem;
+    object-fit: contain;
+}
+.itflow-paper-title {
+    font-size: .8rem;
+    font-weight: 600;
+    letter-spacing: .14em;
+    text-transform: uppercase;
+    color: var(--bs-primary-text-emphasis);
+}
+.itflow-paper-dates {
+    display: grid;
+    grid-template-columns: auto auto;
+    justify-content: end;
+    gap: .15rem 1rem;
+    margin: .5rem 0 0;
+    font-size: .875rem;
+}
+.itflow-paper-dates dt {
+    font-weight: 500;
+    color: var(--bs-secondary-color);
+}
+.itflow-paper-dates dd {
+    margin: 0;
+}
+.itflow-paper-parties {
+    padding: 1.25rem 0;
+}
+.itflow-paper-label {
+    margin-bottom: .2rem;
+    font-size: .72rem;
+    font-weight: 600;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+    color: var(--bs-secondary-color);
+}
+.itflow-paper-label .text-transform-none {
+    text-transform: none;
+    letter-spacing: normal;
+}
+.itflow-paper-amount {
+    font-size: 1.6rem;
+    font-weight: 600;
+    line-height: 1.2;
+    font-variant-numeric: tabular-nums;
+}
+.itflow-paper-scope {
+    margin-bottom: 1rem;
+    padding: .55rem .85rem;
+    border-radius: var(--bs-border-radius);
+    background-color: var(--bs-tertiary-bg);
+}
+.itflow-paper-items {
+    --bs-table-bg: transparent;
+    font-variant-numeric: tabular-nums;
+}
+.itflow-paper-items thead th {
+    font-size: .72rem;
+    font-weight: 600;
+    letter-spacing: .06em;
+    text-transform: uppercase;
+    color: var(--bs-secondary-color);
+    border-bottom-width: 2px;
+}
+.itflow-paper-items td {
+    padding-top: .7rem;
+    padding-bottom: .7rem;
+}
+.itflow-paper-item {
+    min-width: 12rem;
+    width: 55%;
+}
+.itflow-paper-handle {
+    width: 1.5rem;
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+}
+.itflow-paper-handle .drag-handle {
+    display: inline-block;
+    padding: .1rem .25rem;
+    color: var(--bs-secondary-color);
+    cursor: grab;
+    opacity: .5;
+}
+.itflow-paper-items tbody tr:hover .drag-handle {
+    opacity: 1;
+}
+.itflow-paper-actions {
+    width: 2.5rem;
+}
+.itflow-paper-actions .btn {
+    padding-top: 0;
+    padding-bottom: 0;
+}
+.itflow-paper-items tr.sortable-ghost {
+    background-color: var(--bs-primary-bg-subtle);
+}
+.itflow-paper-items tr.itflow-paper-flash {
+    animation: itflow-paper-flash 2s ease-out;
+}
+@keyframes itflow-paper-flash {
+    from { background-color: var(--bs-warning-bg-subtle); }
+    to { background-color: transparent; }
+}
+.itflow-paper-add > td {
+    padding: .75rem !important;
+    border-bottom: 0;
+    background-color: var(--bs-tertiary-bg);
+    border-radius: var(--bs-border-radius);
+}
+.itflow-paper-add-grid {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-end;
+    gap: .5rem;
+}
+.itflow-paper-add-item {
+    flex: 1 1 15rem;
+}
+.itflow-paper-add-qty {
+    flex: 0 0 4.5rem;
+}
+.itflow-paper-add-price {
+    flex: 0 0 7rem;
+}
+.itflow-paper-add-tax {
+    flex: 0 1 9rem;
+}
+.itflow-paper-add-go {
+    display: flex;
+    align-items: center;
+    gap: .5rem;
+    margin-left: auto;
+}
+.itflow-paper-bottom {
+    align-items: flex-start;
+    padding-top: 1.25rem;
+}
+.itflow-paper-notes {
+    flex: 1 1 18rem;
+    max-width: 32rem;
+}
+.itflow-paper-totals {
+    flex: 0 1 19rem;
+    margin-left: auto;
+    font-size: .9rem;
+    font-variant-numeric: tabular-nums;
+}
+.itflow-paper-totals th {
+    padding: .25rem 1.5rem .25rem 0;
+    font-weight: 500;
+    color: var(--bs-secondary-color);
+}
+.itflow-paper-totals td {
+    padding: .25rem 0;
+    text-align: right;
+    white-space: nowrap;
+}
+.itflow-paper-totals tr.text-success th,
+.itflow-paper-totals tr.text-success td {
+    color: var(--bs-success-text-emphasis);
+}
+.itflow-paper-totals .itflow-paper-total th,
+.itflow-paper-totals .itflow-paper-total td {
+    padding-top: .5rem;
+    border-top: 1px solid var(--bs-border-color);
+    font-size: 1.05rem;
+    font-weight: 600;
+    color: var(--bs-emphasis-color);
+}
+.itflow-paper-footer {
+    margin-top: 2rem;
+    padding-top: 1rem;
+    border-top: 1px solid var(--bs-border-color-translucent);
+    font-size: .8rem;
+    text-align: center;
+    color: var(--bs-secondary-color);
+}
+.itflow-paper-stamp {
+    position: absolute;
+    top: 2.75rem;
+    left: 50%;
+    margin-left: -4rem;
+    padding: .2rem .9rem;
+    border: 3px solid currentColor;
+    border-radius: var(--bs-border-radius);
+    font-size: 1.35rem;
+    font-weight: 700;
+    letter-spacing: .14em;
+    text-transform: uppercase;
+    opacity: .3;
+    transform: rotate(-12deg);
+    pointer-events: none;
+}
+@media (max-width: 767.98px) {
+    .itflow-paper {
+        padding: 1.25rem 1rem;
+    }
+    .itflow-paper-dates {
+        justify-content: start;
+    }
+    .itflow-paper-totals {
+        flex-basis: 100%;
+    }
+    .itflow-paper-stamp {
+        display: none;
+    }
+}
+
+/* Header tile and money on the billing pages and lists */
+.itflow-billing-tile {
+    --itflow-asset-tone: var(--bs-primary);
+}
+.itflow-billing-tile-invoice { --itflow-asset-tone: #2f6fd8; }
+.itflow-billing-tile-quote { --itflow-asset-tone: #8a55d6; }
+.itflow-billing-tile-recurring { --itflow-asset-tone: #1f9d83; }
+[data-bs-theme="dark"] .itflow-billing-tile-invoice { --itflow-asset-tone: #6f9fe0; }
+[data-bs-theme="dark"] .itflow-billing-tile-quote { --itflow-asset-tone: #b08ae8; }
+[data-bs-theme="dark"] .itflow-billing-tile-recurring { --itflow-asset-tone: #4fc4b0; }
+.itflow-money {
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+}
+.itflow-billing-stat {
+    display: block;
+    height: 100%;
+    padding: .9rem 1.1rem;
+    border: 1px solid var(--bs-border-color-translucent);
+    border-radius: var(--bs-border-radius-lg);
+    background-color: var(--bs-body-bg);
+    color: inherit;
+    text-decoration: none;
+    transition: border-color .12s ease-in-out, box-shadow .12s ease-in-out;
+}
+a.itflow-billing-stat:hover {
+    border-color: var(--bs-primary-border-subtle);
+    box-shadow: 0 1px 4px rgba(0, 0, 0, .06);
+    color: inherit;
+}
+.itflow-billing-stat.active {
+    border-color: var(--bs-primary);
+    box-shadow: inset 0 0 0 1px var(--bs-primary);
+}
+.itflow-billing-stat-label {
+    font-size: .75rem;
+    font-weight: 600;
+    letter-spacing: .06em;
+    text-transform: uppercase;
+    color: var(--bs-secondary-color);
+}
+.itflow-billing-stat-value {
+    margin-top: .15rem;
+    font-size: 1.45rem;
+    font-weight: 600;
+    line-height: 1.25;
+    font-variant-numeric: tabular-nums;
+}
+.itflow-billing-stat-note {
+    font-size: .8rem;
+    color: var(--bs-secondary-color);
+}
+.itflow-billing-progress {
+    height: .45rem;
+}
+.itflow-billing-table td {
+    padding-top: .65rem;
+    padding-bottom: .65rem;
+}
+.itflow-billing-number {
+    min-width: 13rem;
+}
+.itflow-billing-history {
+    max-height: 26rem;
+    overflow-y: auto;
+}
+.itflow-billing-history li {
+    position: relative;
+    padding: 0 0 .85rem 1.35rem;
+    font-size: .875rem;
+}
+.itflow-billing-history li::before {
+    content: "";
+    position: absolute;
+    left: .3rem;
+    top: .45rem;
+    width: .5rem;
+    height: .5rem;
+    border-radius: 50%;
+    background-color: var(--bs-secondary-color);
+}
+.itflow-billing-history li::after {
+    content: "";
+    position: absolute;
+    left: .52rem;
+    top: 1.1rem;
+    bottom: .1rem;
+    width: 1px;
+    background-color: var(--bs-border-color);
+}
+.itflow-billing-history li:last-child::after {
+    display: none;
+}
+@media print {
+    .itflow-paper-col {
+        flex: 0 0 100% !important;
+        width: 100% !important;
+        max-width: 100% !important;
+    }
+    .itflow-paper {
+        border: 0;
+        box-shadow: none;
+        padding: 0;
+    }
+    .itflow-paper::before {
+        display: none;
+    }
+}

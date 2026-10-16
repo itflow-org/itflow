@@ -1,670 +1,309 @@
 <?php
 
+/*
+ * Quote - one quote, from draft to answer to invoice.
+ *
+ * The header says where it stands - its status, and how long it has left
+ * (or that it ran out) while it waits for an answer - with the next thing
+ * to do: send a draft, record the client's answer, turn an accepted quote
+ * into an invoice. The quote itself is on the left as the client sees it,
+ * its lines edited in place until it is answered. On the right: what it
+ * comes to, the ticket it was raised from, files the client sent back with
+ * their answer, and its history.
+ */
+
 // If client_id is in URI then show client Side Bar and client header
 if (isset($_GET['client_id'])) {
     require_once "includes/inc_all_client.php";
+    $client_url = "client_id=$client_id&";
 } else {
     require_once "includes/inc_all.php";
+    $client_url = '';
 }
 
 // Perms
 enforceUserPermission('module_sales');
 
-if (isset($_GET['quote_id'])) {
+$quote_id = intval($_GET['quote_id'] ?? 0);
+$quote = billingRow('quote', $quote_id);
 
-    $quote_id = intval($_GET['quote_id']);
-
-    $sql = mysqli_query(
-        $mysqli,
-        "SELECT client_currency_code, client_id, client_name, client_net_terms, client_website,
-            contact_email, contact_extension, contact_mobile, contact_mobile_country_code,
-            contact_phone, contact_phone_country_code, location_address, location_city,
-            location_country, location_state, location_zip, quote_amount, quote_category_id,
-            quote_created_at, quote_currency_code, quote_date, quote_discount_amount, quote_expire,
-            quote_id, quote_note, quote_number, quote_prefix, quote_scope, quote_status, quote_url_key FROM quotes
-        LEFT JOIN clients ON quote_client_id = client_id
-        LEFT JOIN contacts ON clients.client_id = contacts.contact_client_id AND contact_primary = 1
-        LEFT JOIN locations ON clients.client_id = locations.location_client_id AND location_primary = 1
-        WHERE quote_id = $quote_id
-        " . clientScopeSql('quote_client_id') . "
-        LIMIT 1"
-    );
-
-    if (mysqli_num_rows($sql) == 0) {
-        if (isset($_GET['client_id'])) {
-            $backlink_append = "?client_id=$client_id";
-        } else {
-            $backlink_append = '';
-        }
-        echo "<h1 class='text-secondary pt-5' style='text-align: center'>There is no Quote here<br><small><a href='quotes.php$backlink_append'><i class='fas fa-arrow-left me-2'></i>Back to Quotes</a></small></h1>";
-        require_once "../includes/footer.php";
-
-        exit();
-    }
-
-    $row = mysqli_fetch_assoc($sql);
-    $quote_id = intval($row['quote_id']);
-    $quote_prefix = escapeHtml($row['quote_prefix']);
-    $quote_number = intval($row['quote_number']);
-    $quote_scope = escapeHtml($row['quote_scope']);
-    $quote_status = escapeHtml($row['quote_status']);
-    $quote_date = escapeHtml($row['quote_date']);
-    $quote_expire = escapeHtml($row['quote_expire']);
-    $quote_amount = floatval($row['quote_amount']);
-    $quote_discount = floatval($row['quote_discount_amount']);
-    $quote_currency_code = escapeHtml($row['quote_currency_code']);
-    $quote_note = escapeHtml($row['quote_note']);
-    $quote_url_key = escapeHtml($row['quote_url_key']);
-    $quote_created_at = escapeHtml($row['quote_created_at']);
-    $category_id = intval($row['quote_category_id']);
-    $client_id = intval($row['client_id']);
-    $client_name = escapeHtml($row['client_name']);
-    $location_address = escapeHtml($row['location_address']);
-    $location_city = escapeHtml($row['location_city']);
-    $location_state = escapeHtml($row['location_state']);
-    $location_zip = escapeHtml($row['location_zip']);
-    $location_country = escapeHtml($row['location_country']);
-    $contact_email = escapeHtml($row['contact_email']);
-    $contact_phone_country_code = escapeHtml($row['contact_phone_country_code']);
-    $contact_phone = escapeHtml(formatPhoneNumber($row['contact_phone'], $contact_phone_country_code));
-    $contact_extension = escapeHtml($row['contact_extension']);
-    $contact_mobile_country_code = escapeHtml($row['contact_mobile_country_code']);
-    $contact_mobile = escapeHtml(formatPhoneNumber($row['contact_mobile'], $contact_mobile_country_code));
-    $client_website = escapeHtml($row['client_website']);
-    $client_currency_code = escapeHtml($row['client_currency_code']);
-    $client_net_terms = intval($row['client_net_terms']);
-    if ($client_net_terms == 0) {
-        $client_net_terms = $config_default_net_terms;
-    }
-
-    // Override Tab Title // No Sanitizing needed as this var will only be used in the tab title
-    $tab_title = $row['client_name'];
-    $page_title = "{$row['quote_prefix']}{$row['quote_number']}";
-
-    $sql = mysqli_query($mysqli, "SELECT company_address, company_city, company_country, company_email, settings.company_id,
-        company_logo, company_name, company_phone, company_phone_country_code, company_state,
-        company_website, company_zip FROM companies, settings WHERE companies.company_id = settings.company_id AND companies.company_id = 1");
-    $row = mysqli_fetch_assoc($sql);
-
-    $company_id = intval($row['company_id']);
-    $company_name = escapeHtml($row['company_name']);
-    $company_country = escapeHtml($row['company_country']);
-    $company_address = escapeHtml($row['company_address']);
-    $company_city = escapeHtml($row['company_city']);
-    $company_state = escapeHtml($row['company_state']);
-    $company_zip = escapeHtml($row['company_zip']);
-    $company_phone_country_code = escapeHtml($row['company_phone_country_code']);
-    $company_phone = escapeHtml(formatPhoneNumber($row['company_phone'], $company_phone_country_code));
-    $company_email = escapeHtml($row['company_email']);
-    $company_website = escapeHtml($row['company_website']);
-    $company_logo = escapeHtml($row['company_logo']);
-
-    // Must use the same rule as the Send Email picker in
-    // modals/quote/quote_email.php, or the button offers a modal that then
-    // reports there is nobody to send to.
-    $row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT COUNT(contact_id) AS emailable_contacts FROM contacts
-        WHERE contact_client_id = $client_id
-        AND contact_archived_at IS NULL
-        AND contact_email IS NOT NULL
-        AND contact_email != ''
-        " . documentContactFilterSql('quote')));
-    $emailable_contacts = intval($row['emailable_contacts']);
-
-    $sql_history = mysqli_query($mysqli, "SELECT history_created_at, history_description, history_status FROM history WHERE history_quote_id = $quote_id ORDER BY history_id DESC");
-
-    //Set Badge color based off of quote status
-    if ($quote_status == "Sent") {
-        $quote_badge_color = "warning";
-    } elseif ($quote_status == "Viewed") {
-        $quote_badge_color = "primary";
-    } elseif ($quote_status == "Accepted") {
-        $quote_badge_color = "success";
-    } elseif ($quote_status == "Declined") {
-        $quote_badge_color = "danger";
-    } elseif ($quote_status == "Invoiced") {
-        $quote_badge_color = "info";
-    } else {
-        $quote_badge_color = "secondary";
-    }
-
-    //Product autocomplete
-    $json_products = getProductsForAutocomplete($mysqli);
-
-    // Quote File Attachments
-    $sql_quote_files = mysqli_query(
-        $mysqli,
-        "SELECT files.file_id, file_name, file_ext, file_size, file_created_at FROM quote_files JOIN files ON quote_files.file_id = files.file_id WHERE quote_id = $quote_id AND file_archived_at IS NULL ORDER BY file_name ASC"
-    );
-
-?>
-
-    <ol class="breadcrumb d-print-none">
-        <li class="breadcrumb-item">
-            <a href="quotes.php">All Quotes</a>
-        </li>
-        <li class="breadcrumb-item">
-            <a href="quotes.php?client_id=<?= $client_id ?>"><?= $client_name ?> Quotes</a>
-        </li>
-        <li class="breadcrumb-item active"><?= "$quote_prefix$quote_number" ?></li>
-    </ol>
-
-    <div class="card mb-3">
-        <div class="card-header d-print-none">
-
-            <?php if (lookupUserPermission("module_sales") >= 2) { ?>
-                <div class="row">
-
-                <div class="col-8">
-                <?php if ($quote_status == 'Draft') { ?>
-                    <button class="btn btn-primary dropdown-toggle" type="button" data-bs-toggle="dropdown">
-                        <i class="fas fa-fw fa-paper-plane me-2"></i>Send
-                    </button>
-                    <div class="dropdown-menu">
-                        <?php if (!empty($config_smtp_provider) && $emailable_contacts > 0) { ?>
-                            <button type="submit" class="dropdown-item confirm-link" form="quickSendQuote"
-                                data-confirm-title="Send this quote now?"
-                                data-confirm-text="It goes to the default contacts without opening the picker."
-                                data-confirm-button="Send"
-                                name="quote_id" value="<?= $quote_id ?>">
-                                <i class="fas fa-fw fa-bolt me-2"></i>Quick Send
-                            </button>
-                            <a class="dropdown-item ajax-modal" href="#"
-                                data-modal-url="modals/quote/quote_email.php?quote_id=<?= $quote_id ?>">
-                                <i class="fas fa-fw fa-paper-plane me-2"></i>Send Email<span class="text-muted">...</span>
-                            </a>
-                            <div class="dropdown-divider"></div>
-                        <?php } ?>
-                        <a class="dropdown-item ajax-modal" href="#"
-                            data-modal-url="modals/quote/quote_mark_sent.php?quote_id=<?= $quote_id ?>">
-                            <i class="fas fa-fw fa-check me-2"></i>Mark Sent
-                        </a>
-                    </div>
-                <?php } ?>
-
-                <?php if ($quote_status == 'Sent' || $quote_status == 'Viewed') { ?>
-                    <a class="btn btn-primary confirm-link" href="post.php?accept_quote=<?= $quote_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>">
-                        <i class="fas fa-thumbs-up me-2"></i>Accept
-                    </a>
-                    <a class="btn btn-default confirm-link" href="post.php?decline_quote=<?= $quote_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>">
-                        <i class="fas fa-thumbs-down me-2"></i>Decline
-                    </a>
-                <?php } ?>
-
-                <?php if ($quote_status == 'Accepted') { ?>
-                    <div class="btn-group fix-quote-dropdown">
-                        <button type="button" class="btn btn-primary ajax-modal"
-                            data-modal-url="modals/quote/quote_to_invoice.php?quote_id=<?= $quote_id ?>">
-                            <i class="fas fa-check me-2"></i>Invoice
-                        </button>
-                        <button type="button" class="btn btn-primary dropdown-toggle dropdown-icon" data-bs-toggle="dropdown" aria-expanded="false">
-                            <span class="visually-hidden">Toggle Dropdown</span>
-                        </button>
-                        <div class="dropdown-menu dropdown-menu-end">
-                            <a class="dropdown-item" href="post.php?mark_quote_invoiced=<?= $quote_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>">
-                                <i class="fas fa-fw fa-check me-2"></i>Mark Invoiced
-                            </a>
-                        </div>
-                    </div>
-                <?php } ?>
-
-                </div>
-
-                <div class="col-4">
-                    <div class="dropdown dropstart text-center float-end">
-                        <button class="btn btn-secondary" title="More actions" type="button" data-bs-toggle="dropdown">
-                            <i class="fas fa-ellipsis-v"></i>
-                        </button>
-                        <div class="dropdown-menu">
-                            <a class="dropdown-item ajax-modal" href="#"
-                                data-modal-url="modals/quote/quote_edit.php?id=<?= $quote_id ?>">
-                                <i class="fa fa-fw fa-edit text-secondary me-2"></i>Edit
-                            </a>
-                            <?php if (lookupUserPermission("module_sales") >= 2) { ?>
-                                <a class="dropdown-item ajax-modal" href="#"
-                                    data-modal-url="modals/quote/quote_copy.php?id=<?= $quote_id ?>">
-                                    <i class="fa fa-fw fa-copy text-secondary me-2"></i>Copy
-                                </a>
-                            <?php } ?>
-                            <div class="dropdown-divider"></div>
-                            <a class="dropdown-item" href="#" onclick="window.print();">
-                                <i class="fa fa-fw fa-print text-secondary me-2"></i>Print
-                            </a>
-                            <a class="dropdown-item" href="post.php?export_quote_pdf=<?= $quote_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>" target="_blank">
-                                <i class="fa fa-fw fa-download text-secondary me-2"></i>Download PDF
-                            </a>
-                            <?php if (!empty($config_smtp_provider) && $emailable_contacts > 0) { ?>
-                                <button type="submit" class="dropdown-item confirm-link" form="quickSendQuote"
-                                    data-confirm-title="Send this quote now?"
-                                    data-confirm-text="It goes to the default contacts without opening the picker."
-                                    data-confirm-button="Send"
-                                    name="quote_id" value="<?= $quote_id ?>">
-                                    <i class="fa fa-fw fa-bolt text-secondary me-2"></i>Quick Send
-                                </button>
-                                <a class="dropdown-item ajax-modal" href="#"
-                                    data-modal-url="modals/quote/quote_email.php?quote_id=<?= $quote_id ?>">
-                                    <i class="fa fa-fw fa-paper-plane text-secondary me-2"></i>Send Email<span class="text-muted">...</span>
-                                </a>
-                            <?php } ?>
-                            <a class="dropdown-item clipboardjs" href="#" data-clipboard-text="https://<?= $config_base_url ?>/guest/guest_view_quote.php?quote_id=<?= "$quote_id&url_key=$quote_url_key" ?>">
-                                <i class="fa fa-fw fa-copy text-secondary me-2"></i>Copy Guest URL
-                            </a>
-                            <?php if (lookupUserPermission("module_sales") >= 3) { ?>
-                                <div class="dropdown-divider"></div>
-                                <a class="dropdown-item text-danger text-bold confirm-link" href="post.php?delete_quote=<?= $quote_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>">
-                                    <i class="fa fa-fw fa-times me-2"></i>Delete
-                                </a>
-                            <?php } ?>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <?php } ?>
-        </div>
-
-        <div class="card-body">
-
-            <div class="row mb-3">
-                <?php if (file_exists("../uploads/settings/$company_logo")) { ?>
-                <div class="col-sm-2">
-                    <img class="img-fluid" src="<?= "../uploads/settings/$company_logo" ?>" alt="Company logo">
-                </div>
-                <?php } ?>
-                <div class="col-sm-6 <?php if (!file_exists("../uploads/settings/$company_logo")) { echo "col-sm-8"; } ?>">
-                    <ul class="list-unstyled">
-                        <li><h4><strong><?= $company_name ?></strong></h4></li>
-                        <li><?= formatAddress($company_address, $company_city, $company_state, $company_zip, $company_country, '<br>') ?></li>
-                        <li><?= "$company_email | $company_phone" ?></li>
-                        <li><?= $company_website ?></li>
-                    </ul>
-                </div>
-
-                <div class="col-sm-4">
-                    <h3 class="text-end"><strong>QUOTE</strong></h3>
-                    <h5 class="badge text-bg-<?= $quote_badge_color ?> p-2 float-end">
-                        <?= "$quote_status" ?>
-                    </h5>
-                    <table class="table table-sm table-borderless">
-                        <tr>
-                            <th>Quote #:</th>
-                            <td class="text-end"><?= "$quote_prefix$quote_number" ?></td>
-                        </tr>
-                        <tr>
-                            <th>Date:</th>
-                            <td class="text-end"><?= $quote_date ?></td>
-                        </tr>
-                        <tr>
-                            <th>Expires:</th>
-                            <td class="text-end"><?= $quote_expire ?></td>
-                        </tr>
-                    </table>
-                </div>
-
-            </div>
-            <div class="row mb-3 bg-light p-3">
-                <div class="col">
-                    <h6><strong>To:</strong></h6>
-                    <ul class="list-unstyled mb-0">
-                        <li><?= $client_name ?></li>
-                        <li><?= formatAddress($location_address, $location_city, $location_state, $location_zip, $location_country, '<br>') ?></li>
-                        <li><?= "$contact_email | $contact_phone $contact_extension" ?></li>
-                    </ul>
-                </div>
-            </div>
-
-            <?php $sql_items = mysqli_query($mysqli, "SELECT item_created_at, item_description, item_id, item_name, item_price, item_quantity, item_tax,
-                item_tax_id, item_total FROM quote_items WHERE item_quote_id = $quote_id ORDER BY item_order ASC"); ?>
-
-            <div class="row mb-3">
-                <div class="col-md-12">
-                    <div class="card">
-                        <div class="table-responsive">
-                            <table class="table table-hover mb-0" id="items">
-                                <thead class="bg-light">
-                                    <tr>
-                                        <th class="d-print-none"></th>
-                                        <th>Item</th>
-                                        <th>Description</th>
-                                        <th class="text-center">Qty</th>
-                                        <th class="text-end">Unit Price</th>
-                                        <th class="text-end">Tax</th>
-                                        <th class="text-end">Amount</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <?php
-
-                                    $total_tax = 0.00;
-                                    $sub_total = 0.00;
-
-                                    while ($row = mysqli_fetch_assoc($sql_items)) {
-                                        $item_id = intval($row['item_id']);
-                                        $item_name = escapeHtml($row['item_name']);
-                                        $item_description = escapeHtml($row['item_description']);
-                                        $item_quantity = floatval($row['item_quantity']);
-                                        $item_price = floatval($row['item_price']);
-                                        $item_tax = floatval($row['item_tax']);
-                                        $item_total = floatval($row['item_total']);
-                                        $item_created_at = escapeHtml($row['item_created_at']);
-                                        $tax_id = intval($row['item_tax_id']);
-                                        $total_tax = $item_tax + $total_tax;
-                                        $sub_total = $item_price * $item_quantity + $sub_total;
-                                        ?>
-
-                                        <tr data-item-id="<?= $item_id ?>">
-                                            <td class="d-print-none">
-                                                <?php if ($quote_status !== "Invoiced" && $quote_status !== "Accepted" && $quote_status !== "Declined" && lookupUserPermission("module_sales") >= 2) { ?>
-                                                    <div class="btn-group">
-                                                        <button type="button" class="btn btn-sm btn-link drag-handle" title="Drag to reorder">
-                                                            <i class="fas fa-bars text-muted"></i>
-                                                        </button>
-
-                                                        <div class="dropdown">
-                                                            <button class="btn btn-sm btn-light" title="More actions" type="button" data-bs-toggle="dropdown">
-                                                                <i class="fas fa-ellipsis-v"></i>
-                                                            </button>
-                                                            <div class="dropdown-menu">
-                                                                <a class="dropdown-item ajax-modal" href="#"
-                                                                    data-modal-url="modals/quote/quote_item_edit.php?id=<?= $item_id ?>">
-                                                                    <i class="fa fa-fw fa-edit me-2"></i>Edit
-                                                                </a>
-                                                                <div class="dropdown-divider"></div>
-                                                                <a class="dropdown-item text-danger confirm-link" href="post.php?delete_quote_item=<?= $item_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>">
-                                                                    <i class="fa fa-fw fa-trash me-2"></i>Delete
-                                                                </a>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                <?php } ?>
-                                            </td>
-                                            <td><?= $item_name ?></td>
-                                            <td><?= nl2br($item_description) ?></td>
-                                            <td class="text-center"><?= number_format($item_quantity, 2) ?></td>
-                                            <td class="text-end"><?= numfmt_format_currency($currency_format, $item_price, $quote_currency_code) ?></td>
-                                            <td class="text-end"><?= numfmt_format_currency($currency_format, $item_tax, $quote_currency_code) ?></td>
-                                            <td class="text-end"><?= numfmt_format_currency($currency_format, $item_total, $quote_currency_code) ?></td>
-                                        </tr>
-
-                                    <?php
-
-                                    }
-
-                                    ?>
-
-                                    <tr class="d-print-none" <?php if ($quote_status == "Invoiced" || $quote_status == "Accepted" || $quote_status == "Declined" || lookupUserPermission("module_sales") <= 1) {
-                                                                    echo "hidden";
-                                                                } ?>>
-                                        <form action="post.php" method="post" autocomplete="off">
-                                            <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
-                                            <input type="hidden" name="quote_id" value="<?= $quote_id ?>">
-                                            <input type="hidden" id="product_id" name="product_id" value="0">
-                                            <input type="hidden" name="item_order" value="<?php
-                                            //find largest order number and add 1
-                                            $sql = mysqli_query($mysqli, "SELECT MAX(item_order) AS item_order FROM quote_items WHERE item_quote_id = $quote_id");
-                                            $row = mysqli_fetch_assoc($sql);
-                                            $item_order = intval($row['item_order']) + 1;
-                                            echo $item_order;
-                                            ?>">
-                                            <td></td>
-                                            <td>
-                                                <input type="text" class="form-control" name="name" id="name" placeholder="Item" maxlength="200" required>
-                                            </td>
-                                            <td>
-                                                <textarea class="form-control" rows="2" name="description" id="desc" placeholder="Enter a Description"></textarea>
-                                            </td>
-                                            <td>
-                                                <input type="text" class="form-control" inputmode="decimal" pattern="-?[0-9]*\.?[0-9]{0,2}" id="qty" style="text-align: center;" name="qty" placeholder="Qty">
-                                            </td>
-                                            <td>
-                                                <input type="text" class="form-control" inputmode="decimal" pattern="-?[0-9]*\.?[0-9]{0,2}" id="price" style="text-align: right;" name="price" placeholder="Price (<?= $quote_currency_code ?>)">
-                                            </td>
-                                            <td>
-                                                <select class="form-select select2" id="tax" name="tax_id" required>
-                                                    <option value="0">No Tax</option>
-                                                    <?php
-
-                                                    $taxes_sql = mysqli_query($mysqli, "SELECT tax_id, tax_name, tax_percent FROM taxes WHERE tax_archived_at IS NULL ORDER BY tax_name ASC");
-                                                    while ($row = mysqli_fetch_assoc($taxes_sql)) {
-                                                        $tax_id = intval($row['tax_id']);
-                                                        $tax_name = escapeHtml($row['tax_name']);
-                                                        $tax_percent = floatval($row['tax_percent']);
-                                                    ?>
-                                                        <option value="<?= $tax_id ?>"><?= "$tax_name $tax_percent%" ?></option>
-
-                                                    <?php
-                                                    }
-                                                    ?>
-                                                </select>
-                                            </td>
-                                            <td class="text-center">
-                                                <button class="btn btn-light text-success" title="Add item" type="submit" name="add_quote_item">
-                                                    <i class="fa fa-check"></i>
-                                                </button>
-                                            </td>
-                                        </form>
-                                    </tr>
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="row mb-3">
-                <div class="col-sm-7">
-                    <div class="card">
-                        <div class="card-header text-bold">
-                            Notes:
-                            <span class="d-print-none" data-note-status-for="quoteNotes"></span>
-                        </div>
-                        <div class="card-body p-2">
-<?php if (lookupUserPermission("module_sales") >= 2) { ?>
-                            <textarea class="form-control itflow-inline-note d-print-none" rows="6"
-                                id="quoteNotes"
-                                placeholder="Enter some notes"
-                                data-endpoint="quote_set_notes"
-                                data-id-field="quote_id"
-                                data-id="<?= $quote_id ?>"
-                                data-csrf="<?= $_SESSION['csrf_token'] ?>"><?= $quote_note ?></textarea>
-<?php } else { ?>
-                            <div class="d-print-none"><?= nl2br($quote_note) ?></div>
-<?php } ?>
-                            <!-- Printed output must be plain text, not a form control -->
-                            <div class="d-none d-print-block"><?= nl2br($quote_note) ?></div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="col-sm-3 offset-sm-2">
-
-                    <table class="table table-hover mb-0">
-                        <tbody>
-                            <tr>
-                                <td>Subtotal:</td>
-                                <td class="text-end"><?= numfmt_format_currency($currency_format, $sub_total, $quote_currency_code) ?></td>
-                            </tr>
-                            <?php if ($quote_discount > 0) { ?>
-                                <tr>
-                                    <td>Discount:</td>
-                                    <td class="text-end">-<?= numfmt_format_currency($currency_format, $quote_discount, $quote_currency_code) ?></td>
-                                </tr>
-                            <?php } ?>
-                            <?php if ($total_tax > 0) { ?>
-                                <tr>
-                                    <td>Tax:</td>
-                                    <td class="text-end"><?= numfmt_format_currency($currency_format, $total_tax, $quote_currency_code) ?></td>
-                                </tr>
-                            <?php } ?>
-                            <tr class="h5 text-bold">
-                                <td>Total:</td>
-                                <td class="text-end"><?= numfmt_format_currency($currency_format, $quote_amount, $quote_currency_code) ?></td>
-                            </tr>
-                        </tbody>
-                    </table>
-
-                </div>
-            </div>
-
-            <hr class="d-none d-print-block mt-5">
-
-            <div class="d-none d-print-block text-center"><?= nl2br(escapeHtml($config_quote_footer)) ?></div>
-        </div>
-    </div>
-
-    <?php if (mysqli_num_rows($sql_quote_files) > 0) { ?>
-        <div class="row mb-3">
-        <div class="col-sm d-print-none">
-            <div class="card">
-                <div class="card-header text-bold">
-                    <i class="fa fa-paperclip me-2"></i>Attachments
-                    <div class="card-tools">
-                        <button type="button" class="btn btn-tool" title="Show/hide" data-lte-toggle="card-collapse">
-                            <i class="fas fa-minus"></i>
-                        </button>
-                        <button type="button" class="btn btn-tool" title="Hide" data-lte-toggle="card-remove">
-                            <i class="fas fa-times"></i>
-                        </button>
-                    </div>
-                </div>
-                <div class="card-body">
-                    <?php /* Through the file quick look and agent/file.php, which check access -
-                             not a link straight into the uploads folder */ ?>
-                    <table class="table table-hover align-middle mb-0">
-                        <thead class="table-light">
-                        <tr>
-                            <th>File</th>
-                            <th>Uploaded</th>
-                            <th></th>
-                        </tr>
-                        </thead>
-                        <tbody>
-                        <?php while ($quote_file = mysqli_fetch_assoc($sql_quote_files)) {
-                            $quote_file_id = intval($quote_file['file_id']); ?>
-                            <tr>
-                                <td>
-                                    <div class="d-flex align-items-center gap-2">
-                                        <?= fileTypeTile($quote_file['file_ext'], 'sm') ?>
-                                        <a class="ajax-modal text-break" href="#" data-modal-size="lg" data-modal-url="modals/file/file.php?id=<?= $quote_file_id ?>"><?= escapeHtml($quote_file['file_name']) ?></a>
-                                        <span class="small text-body-secondary text-nowrap"><?= formatBytes(intval($quote_file['file_size'])) ?></span>
-                                    </div>
-                                </td>
-                                <td class="small text-nowrap" title="<?= escapeHtml($quote_file['file_created_at']) ?>"><?= timeAgo($quote_file['file_created_at']) ?></td>
-                                <td class="text-end"><a class="btn btn-sm btn-light" href="file.php?file_id=<?= $quote_file_id ?>" title="Download"><i class="fas fa-fw fa-download"></i></a></td>
-                            </tr>
-                        <?php } ?>
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        </div>
-    </div>
-    <?php } ?>
-
-    <div class="row mb-3">
-        <div class="col-sm d-print-none">
-            <div class="card">
-                <div class="card-header text-bold">
-                    <i class="fa fa-history me-2"></i>History
-                    <div class="card-tools">
-                        <button type="button" class="btn btn-tool" title="Show/hide" data-lte-toggle="card-collapse">
-                            <i class="fas fa-minus"></i>
-                        </button>
-                        <button type="button" class="btn btn-tool" title="Hide" data-lte-toggle="card-remove">
-                            <i class="fas fa-times"></i>
-                        </button>
-                    </div>
-                </div>
-                <div class="card-body">
-                    <table class="table">
-                        <thead>
-                            <tr>
-                                <th>Date</th>
-                                <th>Status</th>
-                                <th>Description</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <?php
-
-                            while ($row = mysqli_fetch_assoc($sql_history)) {
-                                $history_created_at = escapeHtml($row['history_created_at']);
-                                $history_status = escapeHtml($row['history_status']);
-                                $history_description = nl2br(escapeHtml($row['history_description']));
-
-                            ?>
-                                <tr>
-                                    <td><?= $history_created_at ?></td>
-                                    <td><?= $history_status ?></td>
-                                    <td><?= $history_description ?></td>
-                                </tr>
-                            <?php
-                            }
-                            ?>
-
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        </div>
-    </div>
-
-        <?php if (lookupUserPermission("module_sales") >= 2 && !empty($config_smtp_provider) && $emailable_contacts > 0) { ?>
-            <?php
-            /*
-             * One hidden form for the page, targeted by the Quick Send buttons via
-             * their form="" attribute, so a button can sit inside a dropdown
-             * without needing a form of its own. The button carries the id as its
-             * own name/value, which a submit button contributes to the submission.
-             *
-             * Must stay inside this block - $emailable_contacts is only set on the
-             * path where the document was found.
-             */
-            ?>
-            <form id="quickSendQuote" action="post.php" method="post" class="d-none">
-                <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
-                <input type="hidden" name="email_quote" value="1">
-                <input type="hidden" name="quick_send" value="1">
-            </form>
-        <?php } ?>
-
-<?php
+if (!$quote || ($client_url && intval($quote['client_id']) !== intval($client_id))) {
+    billingNotFound('quote', $client_url);
+    require_once "../includes/footer.php";
+    exit;
 }
 
+$client_id = intval($quote['client_id']);
+enforceClientAccess();
+
+$number = billingNumber('quote', $quote);
+$status = (string) $quote['quote_status'];
+$currency = (string) $quote['quote_currency_code'];
+$money = function ($amount) use ($currency) {
+    return escapeHtml(billingMoney($amount, $currency));
+};
+
+$items = billingItems('quote', $quote_id);
+$totals = billingTotals('quote', $quote, $items);
+$history = billingHistory('quote', $quote_id);
+$expired = quoteExpired($quote);
+$awaiting = in_array($status, ['Sent', 'Viewed'], true);
+
+$can_edit = lookupUserPermission('module_sales') >= 2;
+$can_delete = lookupUserPermission('module_sales') >= 3;
+$can_edit_lines = billingCanEditItems('quote', $quote);
+$mail_ready = !empty($config_smtp_provider) && billingEmailableContacts('quote', $client_id) > 0;
+$guest_url = billingGuestUrl('quote', $quote);
+$csrf = $_SESSION['csrf_token'];
+
+// The ticket it was raised from, and what the client sent back with their answer
+$ticket = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT ticket_id, ticket_prefix, ticket_number, ticket_subject FROM tickets WHERE ticket_quote_id = $quote_id LIMIT 1"));
+$files = [];
+$sql = mysqli_query($mysqli, "SELECT files.file_id, file_name, file_ext, file_size, file_created_at FROM quote_files JOIN files ON quote_files.file_id = files.file_id
+    WHERE quote_id = $quote_id AND file_archived_at IS NULL ORDER BY file_name ASC");
+while ($row = mysqli_fetch_assoc($sql)) {
+    $files[] = $row;
+}
+
+// Override Tab Title // No Sanitizing needed as this var will only be used in the tab title
+$tab_title = $quote['client_name'];
+$page_title = $number;
+
+$paper = [
+    'type' => 'quote',
+    'row' => $quote,
+    'items' => $items,
+    'totals' => $totals,
+    'edit' => $can_edit_lines,
+    'notes_edit' => $can_edit,
+    'taxes' => $can_edit_lines ? billingTaxes($quote['quote_created_at']) : [],
+    'logo_url' => billingCompany()['logo_url'],
+    'csrf' => $csrf,
+];
+
 ?>
+
+<ol class="breadcrumb d-print-none">
+    <li class="breadcrumb-item"><a href="client_overview.php?client_id=<?= $client_id ?>"><?= escapeHtml($quote['client_name']) ?></a></li>
+    <li class="breadcrumb-item"><a href="quotes.php?client_id=<?= $client_id ?>">Quotes</a></li>
+    <li class="breadcrumb-item active"><?= escapeHtml($number) ?></li>
+</ol>
+
+<!-- What it is, where it stands, and the next thing to do -->
+<div class="card mb-3 d-print-none">
+    <div class="card-body d-flex flex-wrap align-items-center gap-3">
+        <?= billingTile('quote', 'lg') ?>
+
+        <div class="flex-grow-1 min-w-0">
+            <h1 class="h4 fw-semibold mb-1 d-flex flex-wrap align-items-center gap-2">
+                <span>Quote <?= escapeHtml($number) ?></span>
+                <span class="fs-6"><?= quoteStatusBadge($quote) ?></span>
+                <?php if (!$expired) { ?><span class="fs-6"><?= quoteExpiryPill($quote) ?></span><?php } ?>
+            </h1>
+            <div class="text-body-secondary small d-flex flex-wrap column-gap-3 row-gap-1">
+                <span><i class="fas fa-fw fa-building me-1"></i><a class="text-reset" href="quotes.php?client_id=<?= $client_id ?>"><?= escapeHtml($quote['client_name']) ?></a></span>
+                <?php if (trim((string) $quote['quote_scope']) !== '') { ?><span><i class="fas fa-fw fa-comment me-1"></i><?= escapeHtml($quote['quote_scope']) ?></span><?php } ?>
+                <?php if ($quote['category_name']) { ?><span><i class="fas fa-fw fa-tag me-1"></i><?= escapeHtml($quote['category_name']) ?></span><?php } ?>
+                <?php if ($ticket) { ?>
+                    <span><i class="fas fa-fw fa-life-ring me-1"></i>For <a class="text-reset" href="ticket.php?ticket_id=<?= intval($ticket['ticket_id']) ?>"><?= escapeHtml($ticket['ticket_prefix'] . $ticket['ticket_number']) ?></a></span>
+                <?php } ?>
+                <span title="<?= escapeHtml($quote['quote_created_at']) ?>"><i class="far fa-fw fa-clock me-1"></i>Created <?= escapeHtml(timeAgo($quote['quote_created_at'])) ?></span>
+            </div>
+        </div>
+
+        <div class="d-flex flex-wrap gap-2">
+            <?php if ($can_edit && $status === 'Draft') { ?>
+                <div class="btn-group">
+                    <?php if ($mail_ready) { ?>
+                        <button type="button" class="btn btn-primary ajax-modal" data-modal-size="lg" data-modal-url="modals/quote/quote_email.php?quote_id=<?= $quote_id ?>">
+                            <i class="fas fa-paper-plane me-2"></i>Send
+                        </button>
+                        <button type="button" class="btn btn-primary dropdown-toggle dropdown-toggle-split" data-bs-toggle="dropdown" aria-label="More ways to send"></button>
+                        <div class="dropdown-menu dropdown-menu-end">
+                            <button type="submit" class="dropdown-item confirm-link" form="quickSendQuote" name="quote_id" value="<?= $quote_id ?>"
+                                data-confirm-title="Send <?= escapeHtml($number) ?> now?" data-confirm-text="It goes to the client's primary contact." data-confirm-button="Send">
+                                <i class="fas fa-fw fa-bolt text-secondary me-2"></i>Quick Send
+                            </button>
+                            <a class="dropdown-item ajax-modal" href="#" data-modal-url="modals/quote/quote_mark_sent.php?quote_id=<?= $quote_id ?>">
+                                <i class="fas fa-fw fa-check text-secondary me-2"></i>Mark Sent<span class="text-body-secondary">...</span>
+                            </a>
+                        </div>
+                    <?php } else { ?>
+                        <button type="button" class="btn btn-primary ajax-modal" data-modal-url="modals/quote/quote_mark_sent.php?quote_id=<?= $quote_id ?>">
+                            <i class="fas fa-check me-2"></i>Mark Sent
+                        </button>
+                    <?php } ?>
+                </div>
+            <?php } ?>
+
+            <?php if ($can_edit && $awaiting) { ?>
+                <a class="btn btn-success confirm-link" href="post.php?accept_quote=<?= $quote_id ?>&csrf_token=<?= $csrf ?>"
+                    data-confirm-title="Mark <?= escapeHtml($number) ?> accepted?" data-confirm-text="For when the client said yes by phone or email - its lines are locked and it can be invoiced." data-confirm-button="Accepted">
+                    <i class="fas fa-thumbs-up me-2"></i>Accepted
+                </a>
+                <a class="btn btn-outline-danger confirm-link" href="post.php?decline_quote=<?= $quote_id ?>&csrf_token=<?= $csrf ?>"
+                    data-confirm-title="Mark <?= escapeHtml($number) ?> declined?" data-confirm-text="The client said no - its lines are locked." data-confirm-button="Declined">
+                    <i class="fas fa-thumbs-down me-2"></i>Declined
+                </a>
+            <?php } ?>
+
+            <?php if ($can_edit && $status === 'Accepted') { ?>
+                <div class="btn-group">
+                    <button type="button" class="btn btn-primary ajax-modal" data-modal-url="modals/quote/quote_to_invoice.php?quote_id=<?= $quote_id ?>">
+                        <i class="fas fa-file-invoice-dollar me-2"></i>Make Invoice
+                    </button>
+                    <button type="button" class="btn btn-primary dropdown-toggle dropdown-toggle-split" data-bs-toggle="dropdown" aria-label="More"></button>
+                    <div class="dropdown-menu dropdown-menu-end">
+                        <a class="dropdown-item confirm-link" href="post.php?mark_quote_invoiced=<?= $quote_id ?>&csrf_token=<?= $csrf ?>"
+                            data-confirm-text="For a quote billed some other way - it is marked invoiced without making an invoice.">
+                            <i class="fas fa-fw fa-check-double text-secondary me-2"></i>Mark Invoiced
+                        </a>
+                    </div>
+                </div>
+            <?php } ?>
+
+            <?php if ($can_edit) { ?>
+                <button type="button" class="btn btn-outline-secondary ajax-modal" data-modal-url="modals/quote/quote_edit.php?id=<?= $quote_id ?>">
+                    <i class="fas fa-edit me-2"></i>Edit
+                </button>
+            <?php } ?>
+
+            <div class="dropdown dropstart">
+                <button class="btn btn-outline-secondary" title="More actions" type="button" data-bs-toggle="dropdown">
+                    <i class="fas fa-fw fa-ellipsis-v"></i>
+                </button>
+                <div class="dropdown-menu">
+                    <a class="dropdown-item" href="post.php?export_quote_pdf=<?= $quote_id ?>&csrf_token=<?= $csrf ?>" target="_blank">
+                        <i class="fas fa-fw fa-file-pdf text-secondary me-2"></i>Download PDF
+                    </a>
+                    <a class="dropdown-item" href="#" onclick="window.print(); return false;">
+                        <i class="fas fa-fw fa-print text-secondary me-2"></i>Print
+                    </a>
+                    <div class="dropdown-divider"></div>
+                    <a class="dropdown-item clipboardjs" href="#" data-clipboard-text="<?= escapeHtml($guest_url) ?>">
+                        <i class="fas fa-fw fa-link text-secondary me-2"></i>Copy Client Link
+                    </a>
+                    <a class="dropdown-item" href="<?= escapeHtml($guest_url) ?>" target="_blank" rel="noopener">
+                        <i class="fas fa-fw fa-external-link-alt text-secondary me-2"></i>View as Client
+                    </a>
+                    <?php if ($can_edit) { ?>
+                        <?php if ($status !== 'Draft' && $mail_ready) { ?>
+                            <a class="dropdown-item ajax-modal" href="#" data-modal-size="lg" data-modal-url="modals/quote/quote_email.php?quote_id=<?= $quote_id ?>">
+                                <i class="fas fa-fw fa-paper-plane text-secondary me-2"></i>Send Again<span class="text-body-secondary">...</span>
+                            </a>
+                        <?php } ?>
+                        <div class="dropdown-divider"></div>
+                        <a class="dropdown-item ajax-modal" href="#" data-modal-url="modals/quote/quote_copy.php?id=<?= $quote_id ?>">
+                            <i class="fas fa-fw fa-copy text-secondary me-2"></i>Copy
+                        </a>
+                    <?php } ?>
+                    <?php if ($can_delete) { ?>
+                        <div class="dropdown-divider"></div>
+                        <a class="dropdown-item text-danger text-bold confirm-link" href="post.php?delete_quote=<?= $quote_id ?>&csrf_token=<?= $csrf ?>"
+                            data-confirm-text="<?= escapeHtml($number) ?> goes for good, with its lines and history.">
+                            <i class="fas fa-fw fa-trash me-2"></i>Delete
+                        </a>
+                    <?php } ?>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<?php if ($expired && $can_edit) { ?>
+    <div class="alert alert-warning d-flex flex-wrap align-items-center gap-2 d-print-none">
+        <i class="fas fa-hourglass-end"></i>
+        <span class="me-auto">It ran out on <?= escapeHtml($quote['quote_expire']) ?> without an answer - the client can still see it but can't accept it.</span>
+        <button type="button" class="btn btn-sm btn-warning ajax-modal" data-modal-url="modals/quote/quote_edit.php?id=<?= $quote_id ?>"><i class="fas fa-calendar-plus me-1"></i>Extend</button>
+    </div>
+<?php } ?>
+
+<div class="row g-3">
+
+    <!-- The quote, as the client sees it -->
+    <div class="col-xl-8 itflow-paper-col">
+        <?php require "../includes/billing_paper.php"; ?>
+    </div>
+
+    <div class="col-xl-4 d-print-none">
+
+        <div class="card mb-3">
+            <div class="card-header">
+                <h3 class="card-title mb-0"><i class="fas fa-fw fa-comment-dollar text-secondary me-2"></i>Quote</h3>
+            </div>
+            <div class="card-body">
+                <div class="itflow-billing-stat-label">Total</div>
+                <div class="itflow-billing-stat-value mb-3"><?= $money($totals['total']) ?></div>
+                <dl class="itflow-asset-dl mb-0">
+                    <dt>Status</dt><dd><?= quoteStatusBadge($quote) ?></dd>
+                    <dt>Dated</dt><dd><?= escapeHtml($quote['quote_date']) ?></dd>
+                    <dt>Valid until</dt>
+                    <dd>
+                        <?= escapeHtml($quote['quote_expire']) ?>
+                        <?php if ($awaiting || $status === 'Draft') { ?><div class="mt-1"><?= quoteExpiryPill($quote) ?></div><?php } ?>
+                    </dd>
+                    <?php if ($status === 'Draft') { ?>
+                        <dt>Client</dt><dd class="text-body-secondary">Not sent yet - the client can't see it</dd>
+                    <?php } elseif ($awaiting) { ?>
+                        <dt>Client</dt><dd class="text-body-secondary"><?= $status === 'Viewed' ? 'Has opened it' : "Hasn't opened it yet" ?> - they can accept or decline it from the link</dd>
+                    <?php } ?>
+                </dl>
+            </div>
+        </div>
+
+        <?php if ($files) { ?>
+            <div class="card mb-3">
+                <div class="card-header">
+                    <h3 class="card-title mb-0"><i class="fas fa-fw fa-paperclip text-secondary me-2"></i>From the client <span class="badge rounded-pill bg-secondary-subtle text-secondary-emphasis fw-normal ms-1"><?= count($files) ?></span></h3>
+                </div>
+                <div class="list-group list-group-flush">
+                    <?php /* Through the file quick look and agent/file.php, which check access - not a link straight into the uploads folder */ ?>
+                    <?php foreach ($files as $file) {
+                        $file_id = intval($file['file_id']); ?>
+                        <div class="list-group-item d-flex align-items-center gap-2">
+                            <?= fileTypeTile($file['file_ext'], 'sm') ?>
+                            <div class="flex-grow-1 min-w-0">
+                                <a class="ajax-modal text-break" href="#" data-modal-size="lg" data-modal-url="modals/file/file.php?id=<?= $file_id ?>"><?= escapeHtml($file['file_name']) ?></a>
+                                <div class="small text-body-secondary"><?= formatBytes(intval($file['file_size'])) ?> &middot; <span title="<?= escapeHtml($file['file_created_at']) ?>"><?= escapeHtml(timeAgo($file['file_created_at'])) ?></span></div>
+                            </div>
+                            <a class="btn btn-sm btn-link text-body-secondary" href="file.php?file_id=<?= $file_id ?>" title="Download"><i class="fas fa-fw fa-download"></i></a>
+                        </div>
+                    <?php } ?>
+                </div>
+            </div>
+        <?php } ?>
+
+        <div class="card mb-3">
+            <div class="card-header">
+                <h3 class="card-title mb-0"><i class="fas fa-fw fa-history text-secondary me-2"></i>History</h3>
+            </div>
+            <?= billingHistoryHtml($history) ?>
+        </div>
+
+    </div>
+</div>
+
+<?php if ($can_edit && $mail_ready) { ?>
+    <!-- Quick Send posts this, the button carrying the quote id as its own name/value -->
+    <form id="quickSendQuote" action="post.php" method="post" class="d-none">
+        <input type="hidden" name="csrf_token" value="<?= $csrf ?>">
+        <input type="hidden" name="email_quote" value="1">
+        <input type="hidden" name="quick_send" value="1">
+    </form>
+<?php } ?>
 
 <script src="/js/inline_notes.js"></script>
-
-<?php
-require_once "../includes/footer.php";
-
-?>
-
-<!-- Product autocomplete for the add-item row -->
-<script src="/js/product_autocomplete.js"></script>
+<script src="/libs/SortableJS/Sortable.min.js"></script>
+<script src="/js/billing_items.js"></script>
 <script>
 document.addEventListener('DOMContentLoaded', function () {
-    initProductAutocomplete(<?= $json_products ?? '[]' ?>);
+    itflowBillingItems({
+        products: <?= $can_edit_lines ? getProductsForAutocomplete($mysqli) : '[]' ?>,
+        csrf: <?= json_encode($csrf) ?>,
+        currency: <?= json_encode($currency) ?>,
+        locale: <?= json_encode(str_replace('_', '-', (string) $session_company_locale)) ?>
+    });
 });
 </script>
 
-<script src="../libs/SortableJS/Sortable.min.js"></script>
-<script>
-new Sortable(document.querySelector('table#items tbody'), {
-    handle: '.drag-handle',
-    animation: 150,
-    onEnd: function (evt) {
-        const rows = document.querySelectorAll('table#items tbody tr');
-        const positions = Array.from(rows).map((row, index) => ({
-            id: row.dataset.itemId,
-            order: index
-        }));
-
-        itflowPostForm('ajax.php', {
-            update_quote_items_order: true,
-            csrf_token: '<?= $_SESSION['csrf_token'] ?>',
-            quote_id: <?= $quote_id ?>,
-            positions: positions
-        });
-    }
-});
-</script>
-<link rel="stylesheet" href="css/quote_dropdowns_fix.css">
+<?php require_once "../includes/footer.php";

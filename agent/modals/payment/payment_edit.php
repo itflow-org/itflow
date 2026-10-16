@@ -1,142 +1,57 @@
 <?php
 
+/*
+ * Edit a payment - its amount, date, method, reference and account. The
+ * invoice it is on follows: paid, part paid or owing again. ?id=
+ */
+
 require_once '../../../includes/modal_header.php';
 
-enforceUserPermission('module_sales', 2);
+enforceUserPermission('module_sales', 3);
+enforceUserPermission('module_financial', 3);
 
-$payment_id = intval($_GET['id']);
-
-$sql = mysqli_query($mysqli, "SELECT invoice_client_id, payment_account_id, payment_amount, payment_date, payment_method,
-    payment_reference FROM payments LEFT JOIN invoices ON invoice_id = payment_invoice_id WHERE payment_id = $payment_id LIMIT 1");
-
-$row = mysqli_fetch_assoc($sql);
-$payment_date = escapeHtml($row['payment_date']);
-$payment_method = escapeHtml($row['payment_method']);
-$payment_amount = floatval($row['payment_amount']);
-$payment_reference = escapeHtml($row['payment_reference']);
-$payment_account_id = intval($row['payment_account_id']);
-$client_id = intval($row['invoice_client_id']);
-
+$payment_id = intval($_GET['id'] ?? 0);
+$payment = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT payments.*, invoice_id FROM payments LEFT JOIN invoices ON invoice_id = payment_invoice_id WHERE payment_id = $payment_id LIMIT 1"));
+$invoice = $payment ? billingRow('invoice', intval($payment['payment_invoice_id'])) : null;
+if (!$payment || !$invoice) {
+    exit(json_encode(['error' => 'That payment no longer exists.']));
+}
+$client_id = intval($invoice['client_id']);
 enforceClientAccess();
+
+$paid_elsewhere = invoicePaid($invoice['invoice_id']) - floatval($payment['payment_amount']);
+
+$pay = [
+    'id' => 'payEdit' . $payment_id,
+    'amount' => $payment['payment_amount'],
+    'owed' => round(floatval($invoice['invoice_amount']) - $paid_elsewhere, 2),
+    'currency' => $payment['payment_currency_code'] ?: $invoice['invoice_currency_code'],
+    'date' => $payment['payment_date'],
+    'account_id' => intval($payment['payment_account_id']),
+    'method' => $payment['payment_method'],
+    'reference' => $payment['payment_reference'],
+    'email' => '',
+];
 
 ob_start();
 
 ?>
-
 <div class="modal-header bg-dark">
-    <h5 class="modal-title"><i class="fa fa-fw fa-credit-card me-2"></i>Edit Payment</h5>
+    <h5 class="modal-title"><i class="fas fa-fw fa-credit-card me-2"></i>Edit Payment <span class="fw-normal text-white-50 ms-1"><?= escapeHtml(billingNumber('invoice', $invoice)) ?> &middot; <?= escapeHtml($invoice['client_name']) ?></span></h5>
     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
 </div>
 <form action="post.php" method="post" autocomplete="off">
     <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
     <input type="hidden" name="payment_id" value="<?= $payment_id ?>">
+
     <div class="modal-body">
-
-        <div class="row g-2">
-            <div class="col-md">
-
-                <div class="mb-3">
-                    <label>Date <strong class="text-danger">*</strong></label>
-                    <div class="input-group">
-                            <span class="input-group-text"><i class="fa fa-fw fa-calendar"></i></span>
-                        <input type="date" class="form-control" name="date" max="2999-12-31" value="<?= $payment_date ?>" required>
-                    </div>
-                </div>
-
-            </div>
-
-            <div class="col-md">
-
-                <div class="mb-3">
-                    <label>Amount <strong class="text-danger">*</strong></label>
-                    <div class="input-group">
-                            <span class="input-group-text"><i class="fa fa-fw fa-dollar-sign"></i></span>
-                        <input type="text" class="form-control" inputmode="decimal" pattern="[0-9]*\.?[0-9]{0,2}" name="amount" value="<?= $payment_amount ?>" placeholder="0.00" required>
-                    </div>
-                </div>
-
-            </div>
-
-        </div>
-
-        <div class="mb-3">
-            <label>Account <strong class="text-danger">*</strong></label>
-            <div class="input-group">
-                    <span class="input-group-text"><i class="fa fa-fw fa-piggy-bank"></i></span>
-                <select class="form-select select2" name="account" required>
-                    <option value="">- Select an Account -</option>
-                    <?php
-
-                    $sql = mysqli_query($mysqli, "SELECT account_id, account_name, opening_balance FROM accounts WHERE account_archived_at IS NULL ORDER BY account_name ASC");
-                    while ($row = mysqli_fetch_assoc($sql)) {
-                        $account_id = intval($row['account_id']);
-                        $account_name = escapeHtml($row['account_name']);
-                        $opening_balance = floatval($row['opening_balance']);
-
-                        $sql_payments = mysqli_query($mysqli, "SELECT SUM(payment_amount) AS total_payments FROM payments WHERE payment_account_id = $account_id");
-                        $row = mysqli_fetch_assoc($sql_payments);
-                        $total_payments = floatval($row['total_payments']);
-
-                        $sql_revenues = mysqli_query($mysqli, "SELECT SUM(revenue_amount) AS total_revenues FROM revenues WHERE revenue_account_id = $account_id");
-                        $row = mysqli_fetch_assoc($sql_revenues);
-                        $total_revenues = floatval($row['total_revenues']);
-
-                        $sql_expenses = mysqli_query($mysqli, "SELECT SUM(expense_amount) AS total_expenses FROM expenses WHERE expense_account_id = $account_id");
-                        $row = mysqli_fetch_assoc($sql_expenses);
-                        $total_expenses = floatval($row['total_expenses']);
-
-                        $account_balance = $opening_balance + $total_payments + $total_revenues - $total_expenses;
-
-                    ?>
-                        <option <?php if ($payment_account_id == $account_id) { echo "selected"; } ?>
-                            value="<?= $account_id ?>">
-                            <?= $account_name ?> [$<?= number_format($account_balance, 2) ?>]
-                        </option>
-
-                    <?php
-                    }
-                    ?>
-                </select>
-            </div>
-        </div>
-
-        <div class="mb-3">
-            <label>Payment Method <strong class="text-danger">*</strong></label>
-            <div class="input-group">
-                    <span class="input-group-text"><i class="fa fa-fw fa-money-check-alt"></i></span>
-                <select class="form-select select2" name="payment_method" required>
-                    <option value="">- Method of Payment -</option>
-                    <?php
-
-                    $sql = mysqli_query($mysqli, "SELECT payment_method_name FROM payment_methods ORDER BY payment_method_name ASC");
-                    while ($row = mysqli_fetch_assoc($sql)) {
-                        $payment_method_name = escapeHtml($row['payment_method_name']);
-                    ?>
-                        <option <?php if ($payment_method == $payment_method_name) { echo "selected"; } ?>><?= $payment_method_name ?></option>
-
-                    <?php
-                    }
-                    ?>
-                </select>
-            </div>
-        </div>
-
-        <div class="mb-3">
-            <label>Reference</label>
-            <div class="input-group">
-                    <span class="input-group-text"><i class="fa fa-fw fa-file-alt"></i></span>
-                <input type="text" class="form-control" name="reference" value="<?= $payment_reference ?>" placeholder="Check #, Trans #, etc" maxlength="200">
-            </div>
-        </div>
-
+        <?php require __DIR__ . '/payment_form.php'; ?>
     </div>
-
     <div class="modal-footer">
-        <button type="submit" name="edit_payment" class="btn btn-primary text-bold"><i class="fas fa-check me-2"></i>Save Changes</button>
+        <button type="submit" name="edit_payment" class="btn btn-primary text-bold"><i class="fas fa-check me-2"></i>Save</button>
         <button type="button" class="btn btn-light" data-bs-dismiss="modal"><i class="fas fa-times me-2"></i>Cancel</button>
     </div>
 </form>
 
 <?php
-
 require_once '../../../includes/modal_footer.php';

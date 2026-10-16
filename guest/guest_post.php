@@ -29,14 +29,16 @@ if (isset($_GET['accept_quote'], $_GET['url_key'])) {
 
         // Claim the response - only a quote still awaiting one can be accepted,
         // and only the first request through wins
-        mysqli_query($mysqli, "UPDATE quotes SET quote_status = 'Accepted' WHERE quote_id = $quote_id AND quote_status IN ('Sent', 'Viewed')");
+        // ...and not once it has run out - a price that has expired is asked for again
+        mysqli_query($mysqli, "UPDATE quotes SET quote_status = 'Accepted' WHERE quote_id = $quote_id AND quote_status IN ('Sent', 'Viewed') AND quote_expire >= CURDATE()");
 
         if (mysqli_affected_rows($mysqli) !== 1) {
-            flashAlert("This quote is no longer awaiting a response", 'error');
+            $expired = mysqli_fetch_row(mysqli_query($mysqli, "SELECT quote_expire FROM quotes WHERE quote_id = $quote_id AND quote_status IN ('Sent', 'Viewed') AND quote_expire < CURDATE()"));
+            flashAlert($expired ? "This quote ran out on " . escapeHtml($expired[0]) . " - ask for an updated one" : "This quote is no longer awaiting a response", 'error');
             redirect();
         }
 
-        mysqli_query($mysqli, "INSERT INTO history SET history_status = 'Accepted', history_description = 'Client accepted Quote!', history_quote_id = $quote_id");
+        mysqli_query($mysqli, "INSERT INTO history SET history_status = 'Accepted', history_description = 'Accepted by the client', history_quote_id = $quote_id");
 
         // Notification
         appNotify("Quote Accepted", "Quote $quote_prefix$quote_number has been accepted by $client_name", "/agent/quote.php?quote_id=$quote_id", $client_id);
@@ -111,7 +113,7 @@ if (isset($_GET['decline_quote'], $_GET['url_key'])) {
             redirect();
         }
 
-        mysqli_query($mysqli, "INSERT INTO history SET history_status = 'Declined', history_description = 'Client declined Quote!', history_quote_id = $quote_id");
+        mysqli_query($mysqli, "INSERT INTO history SET history_status = 'Declined', history_description = 'Declined by the client', history_quote_id = $quote_id");
 
         // Notification
         appNotify("Quote Declined", "Quote $quote_prefix$quote_number has been declined by $client_name", "/agent/quote.php?quote_id=$quote_id", $client_id);
@@ -287,446 +289,27 @@ if (isset($_GET['approve_ticket_task'])) {
 
 if (isset($_GET['export_quote_pdf'])) {
 
-    $quote_id = intval($_GET['export_quote_pdf']);
-    $url_key = escapeSql($_GET['url_key']);
-
-    $sql = mysqli_query(
-        $mysqli,
-        "SELECT client_currency_code, client_id, client_name, client_net_terms, client_website,
-            contact_email, contact_extension, contact_mobile, contact_mobile_country_code,
-            contact_phone, contact_phone_country_code, location_address, location_city,
-            location_country, location_state, location_zip, quote_amount, quote_category_id,
-            quote_created_at, quote_currency_code, quote_date, quote_discount_amount, quote_expire,
-            quote_id, quote_note, quote_number, quote_prefix, quote_scope, quote_status, quote_url_key FROM quotes
-        LEFT JOIN clients ON quote_client_id = client_id
-        LEFT JOIN contacts ON clients.client_id = contacts.contact_client_id AND contact_primary = 1
-        LEFT JOIN locations ON clients.client_id = locations.location_client_id AND location_primary = 1
-        WHERE quote_id = $quote_id AND quote_url_key = '$url_key'
-        LIMIT 1"
-    );
-
-    if (mysqli_num_rows($sql) == 1) {
-
-        $row = mysqli_fetch_assoc($sql);
-        $quote_id = intval($row['quote_id']);
-        $quote_prefix = escapeHtml($row['quote_prefix']);
-        $quote_number = intval($row['quote_number']);
-        $quote_scope = escapeHtml($row['quote_scope']);
-        $quote_status = escapeHtml($row['quote_status']);
-        $quote_date = escapeHtml($row['quote_date']);
-        $quote_expire = escapeHtml($row['quote_expire']);
-        $quote_amount = floatval($row['quote_amount']);
-        $quote_discount = floatval($row['quote_discount_amount']);
-        $quote_currency_code = escapeHtml($row['quote_currency_code']);
-        $quote_note = escapeHtml($row['quote_note']);
-        $quote_url_key = escapeHtml($row['quote_url_key']);
-        $quote_created_at = escapeHtml($row['quote_created_at']);
-        $category_id = intval($row['quote_category_id']);
-        $client_id = intval($row['client_id']);
-        $client_name = escapeHtml($row['client_name']);
-        $location_address = escapeHtml($row['location_address']);
-        $location_city = escapeHtml($row['location_city']);
-        $location_state = escapeHtml($row['location_state']);
-        $location_zip = escapeHtml($row['location_zip']);
-        $location_country = escapeHtml($row['location_country']);
-        $contact_email = escapeHtml($row['contact_email']);
-        $contact_phone_country_code = escapeHtml($row['contact_phone_country_code']);
-        $contact_phone = escapeHtml(formatPhoneNumber($row['contact_phone'], $contact_phone_country_code));
-        $contact_extension = escapeHtml($row['contact_extension']);
-        $contact_mobile_country_code = escapeHtml($row['contact_mobile_country_code']);
-        $contact_mobile = escapeHtml(formatPhoneNumber($row['contact_mobile'], $contact_mobile_country_code));
-        $client_website = escapeHtml($row['client_website']);
-        $client_currency_code = escapeHtml($row['client_currency_code']);
-        $client_net_terms = intval($row['client_net_terms']);
-        if ($client_net_terms == 0) {
-            $client_net_terms = $config_default_net_terms;
-        }
-
-        $sql = mysqli_query($mysqli, "SELECT company_address, company_city, company_country, company_email, settings.company_id,
-            company_locale, company_logo, company_name, company_phone, company_phone_country_code,
-            company_state, company_website, company_zip FROM companies, settings WHERE companies.company_id = settings.company_id AND companies.company_id = 1");
-        $row = mysqli_fetch_assoc($sql);
-
-        $company_id = intval($row['company_id']);
-        $company_name = escapeHtml($row['company_name']);
-        $company_country = escapeHtml($row['company_country']);
-        $company_address = escapeHtml($row['company_address']);
-        $company_city = escapeHtml($row['company_city']);
-        $company_state = escapeHtml($row['company_state']);
-        $company_zip = escapeHtml($row['company_zip']);
-        $company_phone_country_code = escapeHtml($row['company_phone_country_code']);
-        $company_phone = escapeHtml(formatPhoneNumber($row['company_phone'], $company_phone_country_code));
-        $company_email = escapeHtml($row['company_email']);
-        $company_website = escapeHtml($row['company_website']);
-        $company_logo = escapeHtml($row['company_logo']);
-        $company_locale = escapeHtml($row['company_locale']);
-        //Set Currency Format
-        $currency_format = numfmt_create($company_locale, NumberFormatter::CURRENCY);
-
-        require_once("../libs/TCPDF/tcpdf.php");
-
-        // Start TCPDF
-        $pdf = new TCPDF('P', 'mm', 'A4', true, 'UTF-8', false);
-        $pdf->SetMargins(10, 10, 10);
-        $pdf->setPrintHeader(false);
-        $pdf->setPrintFooter(false);
-        $pdf->AddPage();
-        $pdf->SetFont('helvetica', '', 10);
-
-        // Logo + Right Columns
-        $html = '<table width="100%" cellspacing="0" cellpadding="3">
-        <tr>
-            <td width="40%">';
-        if (!empty($company_logo) && file_exists("../uploads/settings/$company_logo")) {
-            $html .= '<img src="/uploads/settings/' . $company_logo . '" width="120">';
-        }
-        $html .= '</td>
-            <td width="60%" align="right">
-                <span style="font-size:18pt; font-weight:bold;">QUOTE</span><br>
-                <span style="font-size:14pt;">' . $quote_prefix . $quote_number . '</span><br>';
-        if (strtolower($quote_status) === 'accepted') {
-            $html .= '<span style="color:green; font-weight:bold;">ACCEPTED</span><br>';
-        }
-        if (strtolower($quote_status) === 'declined') {
-            $html .= '<span style="color:red; font-weight:bold;">DECLINED</span><br>';
-        }
-        $html .= '</td>
-        </tr>
-        </table><br>';
-
-        // Billing titles
-        $html .= '<table width="100%" cellspacing="0" cellpadding="2">
-        <tr>
-            <td width="50%" style="font-size:14pt; font-weight:bold;">' . $company_name . '</td>
-            <td width="50%" align="right" style="font-size:14pt; font-weight:bold;">' . $client_name . '</td>
-        </tr>
-        <tr>
-            <td style="font-size:10pt; line-height:1.4;">' . nl2br(formatAddress($company_address, $company_city, $company_state, $company_zip, $company_country) . "\n$company_phone\n$company_website") . '</td>
-            <td style="font-size:10pt; line-height:1.4;" align="right">' . nl2br(formatAddress($location_address, $location_city, $location_state, $location_zip, $location_country) . "\n$contact_email\n$contact_phone") . '</td>
-        </tr>
-        </table><br>';
-
-        // Date table
-        $html .= '<table border="0" cellpadding="2" cellspacing="0" width="100%">
-        <tr>
-            <td width="60%"></td>
-            <td width="20%" style="font-size:10pt;"><strong>Date:</strong></td>
-            <td width="20%" style="font-size:10pt;" align="right">' . $quote_date . '</td>
-        </tr>
-        <tr>
-            <td></td>
-            <td style="font-size:10pt;"><strong>Expires:</strong></td>
-            <td style="font-size:10pt;" align="right">' . $quote_expire . '</td>
-        </tr>
-        </table><br><br>';
-
-        // Items header
-        $html .= '
-        <table border="0" cellpadding="5" cellspacing="0" width="100%">
-        <tr style="background-color:#f0f0f0;">
-            <th align="left" width="40%"><strong>Item</strong></th>
-            <th align="center" width="10%"><strong>Qty</strong></th>
-            <th align="right" width="15%"><strong>Price</strong></th>
-            <th align="right" width="15%"><strong>Tax</strong></th>
-            <th align="right" width="20%"><strong>Amount</strong></th>
-        </tr>';
-
-        // Load items
-        $sub_total = 0;
-        $total_tax = 0;
-
-        $sql_items = mysqli_query($mysqli, "SELECT item_description, item_name, item_price, item_quantity, item_tax, item_total FROM quote_items WHERE item_quote_id = $quote_id ORDER BY item_order ASC");
-        while ($item = mysqli_fetch_assoc($sql_items)) {
-            $name = $item['item_name'];
-            $desc = $item['item_description'];
-            $qty = $item['item_quantity'];
-            $price = $item['item_price'];
-            $tax = $item['item_tax'];
-            $total = $item['item_total'];
-
-            $sub_total += $price * $qty;
-            $total_tax += $tax;
-
-            $html .= '
-            <tr>
-                <td><strong>' . $name . '</strong>
-                    <br><span style="font-style:italic; font-size:9pt;">' . nl2br($desc) . '</span>
-                </td>
-                <td align="center">' . number_format($qty, 2) . '</td>
-                <td align="right">' . numfmt_format_currency($currency_format, $price, $quote_currency_code) . '</td>
-                <td align="right">' . numfmt_format_currency($currency_format, $tax, $quote_currency_code) . '</td>
-                <td align="right">' . numfmt_format_currency($currency_format, $total, $quote_currency_code) . '</td>
-            </tr>';
-        }
-
-        $html .= '</table><br><hr><br><br>';
-
-        // Totals
-        $html .= '<table width="100%" cellspacing="0" cellpadding="4">
-        <tr>
-            <td width="60%"><i style="font-size:9pt;">' . nl2br($quote_note) . '</i></td>
-            <td width="40%">
-                <table width="100%" cellpadding="3" cellspacing="0">
-                    <tr><td>Subtotal:</td><td align="right">' . numfmt_format_currency($currency_format, $sub_total, $quote_currency_code) . '</td></tr>';
-        if ($quote_discount > 0) {
-            $html .= '<tr><td>Discount:</td><td align="right">-' . numfmt_format_currency($currency_format, $quote_discount, $quote_currency_code) . '</td></tr>';
-        }
-        if ($total_tax > 0) {
-            $html .= '<tr><td>Tax:</td><td align="right">' . numfmt_format_currency($currency_format, $total_tax, $quote_currency_code) . '</td></tr>';
-        }
-        $html .= '
-        <tr><td><h3><strong>Total:</strong></h3></td><td align="right"><h3><strong>' . numfmt_format_currency($currency_format, $quote_amount, $quote_currency_code) . '</strong></h3></td></tr>
-        </table>
-            </td>
-        </tr>
-        </table><br><br>';
-
-        // Footer
-        $html .= '<div style="text-align:center; font-size:9pt; color:gray;">' . nl2br($config_quote_footer) . '</div>';
-
-        $pdf->writeHTML($html, true, false, true, false, '');
-
-        $filename = preg_replace('/[^A-Za-z0-9_\-]/', '_', "{$quote_date}_{$company_name}_{$client_name}_Quote_{$quote_prefix}{$quote_number}");
-        $pdf->Output("$filename.pdf", 'I');
+    // The quote's own link key is the only way in - the same one its guest page checks
+    $quote = billingRow('quote', intval($_GET['export_quote_pdf']), false);
+    if (!$quote || (string) $quote['quote_url_key'] === '' || !hash_equals((string) $quote['quote_url_key'], (string) ($_GET['url_key'] ?? ''))) {
+        http_response_code(404);
+        exit('That quote is not available.');
     }
-    exit;
+
+    billingPdfSend(billingPdf('quote', $quote));
 
 }
 
 if (isset($_GET['export_invoice_pdf'])) {
 
-    $invoice_id = intval($_GET['export_invoice_pdf']);
-    $url_key = escapeSql($_GET['url_key']);
-
-    $sql = mysqli_query(
-        $mysqli,
-        "SELECT client_currency_code, client_id, client_name, client_net_terms, client_website,
-            contact_email, contact_extension, contact_mobile, contact_mobile_country_code,
-            contact_phone, contact_phone_country_code, invoice_amount, invoice_category_id,
-            invoice_created_at, invoice_currency_code, invoice_date, invoice_discount_amount,
-            invoice_due, invoice_id, invoice_note, invoice_number, invoice_prefix, invoice_scope,
-            invoice_status, invoice_url_key, location_address, location_city, location_country,
-            location_state, location_zip FROM invoices
-        LEFT JOIN clients ON invoice_client_id = client_id
-        LEFT JOIN contacts ON clients.client_id = contacts.contact_client_id AND contact_primary = 1
-        LEFT JOIN locations ON clients.client_id = locations.location_client_id AND location_primary = 1
-        WHERE invoice_id = $invoice_id AND invoice_url_key = '$url_key'
-        LIMIT 1"
-    );
-
-    if (mysqli_num_rows($sql) == 1) {
-
-        $row = mysqli_fetch_assoc($sql);
-        $invoice_id = intval($row['invoice_id']);
-        $invoice_prefix = escapeHtml($row['invoice_prefix']);
-        $invoice_number = intval($row['invoice_number']);
-        $invoice_scope = escapeHtml($row['invoice_scope']);
-        $invoice_status = escapeHtml($row['invoice_status']);
-        $invoice_date = escapeHtml($row['invoice_date']);
-        $invoice_due = escapeHtml($row['invoice_due']);
-        $invoice_amount = floatval($row['invoice_amount']);
-        $invoice_discount = floatval($row['invoice_discount_amount']);
-        $invoice_currency_code = escapeHtml($row['invoice_currency_code']);
-        $invoice_note = escapeHtml($row['invoice_note']);
-        $invoice_url_key = escapeHtml($row['invoice_url_key']);
-        $invoice_created_at = escapeHtml($row['invoice_created_at']);
-        $category_id = intval($row['invoice_category_id']);
-        $client_id = intval($row['client_id']);
-        $client_name = escapeHtml($row['client_name']);
-        $location_address = escapeHtml($row['location_address']);
-        $location_city = escapeHtml($row['location_city']);
-        $location_state = escapeHtml($row['location_state']);
-        $location_zip = escapeHtml($row['location_zip']);
-        $location_country = escapeHtml($row['location_country']);
-        $contact_email = escapeHtml($row['contact_email']);
-        $contact_phone_country_code = escapeHtml($row['contact_phone_country_code']);
-        $contact_phone = escapeHtml(formatPhoneNumber($row['contact_phone'], $contact_phone_country_code));
-        $contact_extension = escapeHtml($row['contact_extension']);
-        $contact_mobile_country_code = escapeHtml($row['contact_mobile_country_code']);
-        $contact_mobile = escapeHtml(formatPhoneNumber($row['contact_mobile'], $contact_mobile_country_code));
-        $client_website = escapeHtml($row['client_website']);
-        $client_currency_code = escapeHtml($row['client_currency_code']);
-        $client_net_terms = intval($row['client_net_terms']);
-        if ($client_net_terms == 0) {
-            $client_net_terms = $config_default_net_terms;
-        }
-
-        $sql = mysqli_query($mysqli, "SELECT company_address, company_city, company_country, company_email, company_id, company_locale,
-            company_logo, company_name, company_phone, company_phone_country_code, company_state,
-            company_tax_id, company_website, company_zip FROM companies WHERE company_id = 1");
-        $row = mysqli_fetch_assoc($sql);
-        $company_id = intval($row['company_id']);
-        $company_name = escapeHtml($row['company_name']);
-        $company_country = escapeHtml($row['company_country']);
-        $company_address = escapeHtml($row['company_address']);
-        $company_city = escapeHtml($row['company_city']);
-        $company_state = escapeHtml($row['company_state']);
-        $company_zip = escapeHtml($row['company_zip']);
-        $company_phone_country_code = escapeHtml($row['company_phone_country_code']);
-        $company_phone = escapeHtml(formatPhoneNumber($row['company_phone'], $company_phone_country_code));
-        $company_email = escapeHtml($row['company_email']);
-        $company_website = escapeHtml($row['company_website']);
-        $company_tax_id = escapeHtml($row['company_tax_id']);
-        if ($config_invoice_show_tax_id && !empty($company_tax_id)) {
-            $company_tax_id_display = "Tax ID: $company_tax_id";
-        } else {
-            $company_tax_id_display = "";
-        }
-        $company_logo = escapeHtml($row['company_logo']);
-        $company_locale = escapeHtml($row['company_locale']);
-        //Set Currency Format
-        $currency_format = numfmt_create($company_locale, NumberFormatter::CURRENCY);
-
-        $sql_payments = mysqli_query($mysqli, "SELECT * FROM payments, accounts WHERE payment_account_id = account_id AND payment_invoice_id = $invoice_id ORDER BY payments.payment_id DESC");
-
-        //Add up all the payments for the invoice and get the total amount paid to the invoice
-        $sql_amount_paid = mysqli_query($mysqli, "SELECT SUM(payment_amount) AS amount_paid FROM payments WHERE payment_invoice_id = $invoice_id");
-        $row = mysqli_fetch_assoc($sql_amount_paid);
-        $amount_paid = floatval($row['amount_paid']);
-
-        $balance = $invoice_amount - $amount_paid;
-
-        //check to see if overdue
-        if ($invoice_status !== "Paid" && $invoice_status !== "Draft" && $invoice_status !== "Cancelled" && $invoice_status !== "Non-Billable") {
-            $unixtime_invoice_due = strtotime($invoice_due) + 86400;
-            if ($unixtime_invoice_due < time()) {
-                $invoice_overdue = "Overdue";
-            }
-        }
-
-        //Set Badge color based off of invoice status
-        $invoice_badge_color = getInvoiceBadgeColor($invoice_status);
-
-        require_once("../libs/TCPDF/tcpdf.php");
-
-        // Start TCPDF
-        $pdf = new TCPDF('P', 'mm', 'A4', true, 'UTF-8', false);
-        $pdf->SetMargins(10, 10, 10);
-        $pdf->setPrintHeader(false);
-        $pdf->setPrintFooter(false);
-        $pdf->AddPage();
-        $pdf->SetFont('helvetica', '', 10);
-
-        // Logo + Right Columns
-        $html = '<table width="100%" cellspacing="0" cellpadding="3">
-        <tr>
-            <td width="40%">';
-        if (!empty($company_logo) && file_exists("../uploads/settings/$company_logo")) {
-            $html .= '<img src="/uploads/settings/' . $company_logo . '" width="120">';
-        }
-        $html .= '</td>
-            <td width="60%" align="right">
-                <span style="font-size:18pt; font-weight:bold;">Invoice</span><br>
-                <span style="font-size:14pt;">' . $invoice_prefix . $invoice_number . '</span><br>';
-        if (strtolower($invoice_status) === 'paid') {
-            $html .= '<span style="color:green; font-weight:bold;">PAID</span><br>';
-        }
-        $html .= '</td>
-        </tr>
-        </table><br>';
-
-        // Billing titles
-        $html .= '<table width="100%" cellspacing="0" cellpadding="2">
-        <tr>
-            <td width="50%" style="font-size:14pt; font-weight:bold;">' . $company_name . '</td>
-            <td width="50%" align="right" style="font-size:14pt; font-weight:bold;">' . $client_name . '</td>
-        </tr>
-        <tr>
-            <td style="font-size:10pt; line-height:1.4;">' . nl2br(formatAddress($company_address, $company_city, $company_state, $company_zip, $company_country) . "\n$company_phone\n$company_website\n$company_tax_id_display") . '</td>
-            <td style="font-size:10pt; line-height:1.4;" align="right">' . nl2br(formatAddress($location_address, $location_city, $location_state, $location_zip, $location_country) . "\n$contact_email\n$contact_phone") . '</td>
-        </tr>
-        </table><br>';
-
-        // Date table
-        $html .= '<table border="0" cellpadding="2" cellspacing="0" width="100%">
-        <tr>
-            <td width="60%"></td>
-            <td width="20%" style="font-size:10pt;"><strong>Date:</strong></td>
-            <td width="20%" style="font-size:10pt;" align="right">' . $invoice_date . '</td>
-        </tr>
-        <tr>
-            <td></td>
-            <td style="font-size:10pt;"><strong>Due:</strong></td>
-            <td style="font-size:10pt;" align="right">' . $invoice_due . '</td>
-        </tr>
-        </table><br><br>';
-
-        // Items header
-        $html .= '
-        <table border="0" cellpadding="5" cellspacing="0" width="100%">
-        <tr style="background-color:#f0f0f0;">
-            <th align="left" width="40%"><strong>Item</strong></th>
-            <th align="center" width="10%"><strong>Qty</strong></th>
-            <th align="right" width="15%"><strong>Price</strong></th>
-            <th align="right" width="15%"><strong>Tax</strong></th>
-            <th align="right" width="20%"><strong>Amount</strong></th>
-        </tr>';
-
-        // Load items
-        $sub_total = 0;
-        $total_tax = 0;
-
-        $sql_items = mysqli_query($mysqli, "SELECT item_description, item_name, item_price, item_quantity, item_tax, item_total FROM invoice_items WHERE item_invoice_id = $invoice_id ORDER BY item_order ASC");
-        while ($item = mysqli_fetch_assoc($sql_items)) {
-            $name = $item['item_name'];
-            $desc = $item['item_description'];
-            $qty = $item['item_quantity'];
-            $price = $item['item_price'];
-            $tax = $item['item_tax'];
-            $total = $item['item_total'];
-
-            $sub_total += $price * $qty;
-            $total_tax += $tax;
-
-            $html .= '
-            <tr>
-                <td><strong>' . $name . '</strong>
-                    <br><span style="font-style:italic; font-size:9pt;">' . nl2br($desc) . '</span>
-                </td>
-                <td align="center">' . number_format($qty, 2) . '</td>
-                <td align="right">' . numfmt_format_currency($currency_format, $price, $invoice_currency_code) . '</td>
-                <td align="right">' . numfmt_format_currency($currency_format, $tax, $invoice_currency_code) . '</td>
-                <td align="right">' . numfmt_format_currency($currency_format, $total, $invoice_currency_code) . '</td>
-            </tr>';
-        }
-
-        $html .= '</table><br><hr><br><br>';
-
-        // Totals
-        $html .= '<table width="100%" cellspacing="0" cellpadding="4">
-        <tr>
-            <td width="60%"><i style="font-size:9pt;">' . nl2br($invoice_note) . '</i></td>
-            <td width="40%">
-                <table width="100%" cellpadding="3" cellspacing="0">
-                    <tr><td>Subtotal:</td><td align="right">' . numfmt_format_currency($currency_format, $sub_total, $invoice_currency_code) . '</td></tr>';
-        if ($invoice_discount > 0) {
-            $html .= '<tr><td>Discount:</td><td align="right">-' . numfmt_format_currency($currency_format, $invoice_discount, $invoice_currency_code) . '</td></tr>';
-        }
-        if ($total_tax > 0) {
-            $html .= '<tr><td>Tax:</td><td align="right">' . numfmt_format_currency($currency_format, $total_tax, $invoice_currency_code) . '</td></tr>';
-        }
-        $html .= '
-        <tr><td>Total:</td><td align="right">' . numfmt_format_currency($currency_format, $invoice_amount, $invoice_currency_code) . '</td></tr>';
-        if ($amount_paid > 0) {
-            $html .= '<tr><td>Paid:</td><td align="right">' . numfmt_format_currency($currency_format, $amount_paid, $invoice_currency_code) . '</td></tr>';
-        }
-        $html .= '
-        <tr><td><h3><strong>Balance:</strong></h3></td><td align="right"><h3><strong>' . numfmt_format_currency($currency_format, $balance, $invoice_currency_code) . '</strong></h3></td></tr>
-        </table>
-            </td>
-        </tr>
-        </table><br><br>';
-
-        // Footer
-        $html .= '<div style="text-align:center; font-size:9pt; color:gray;">' . nl2br($config_invoice_footer) . '</div>';
-
-        $pdf->writeHTML($html, true, false, true, false, '');
-
-        $filename = preg_replace('/[^A-Za-z0-9_\-]/', '_', "{$invoice_date}_{$company_name}_{$client_name}_Invoice_{$invoice_prefix}{$invoice_number}");
-        $pdf->Output("$filename.pdf", 'I');
+    // The invoice's own link key is the only way in - the same one its guest page checks
+    $invoice = billingRow('invoice', intval($_GET['export_invoice_pdf']), false);
+    if (!$invoice || (string) $invoice['invoice_url_key'] === '' || !hash_equals((string) $invoice['invoice_url_key'], (string) ($_GET['url_key'] ?? ''))) {
+        http_response_code(404);
+        exit('That invoice is not available.');
     }
 
-    exit;
+    billingPdfSend(billingPdf('invoice', $invoice));
 
 }
 

@@ -200,6 +200,9 @@ if (isset($_POST['edit_payment'])) {
 
     mysqli_query($mysqli,"UPDATE payments SET payment_date = '$date', payment_amount = $amount, payment_account_id = $account, payment_method = '$payment_method', payment_reference = '$reference' WHERE payment_id = $payment_id");
 
+    // A changed amount can leave the invoice paid, part paid or owing again
+    updateInvoiceStatusFromPayments(intval(getFieldById('payments', $payment_id, 'payment_invoice_id')));
+
     logAudit("Payment", "Edit", "Payment edited amount of " . numfmt_format_currency($currency_format, $amount, $session_company_currency));
 
     flashAlert("Payment edited to amount <strong>" . numfmt_format_currency($currency_format, $amount, $session_company_currency) . "</strong> added");
@@ -540,10 +543,9 @@ if (isset($_POST['add_bulk_payment'])) {
     }
 
     // Get Invoices
+    // Only invoices still waiting on money - not drafts, not paid, not cancelled or non-billable
     $sql_invoices = "SELECT * FROM invoices
-        WHERE invoice_status != 'Draft'
-        AND invoice_status != 'Paid'
-        AND invoice_status != 'Cancelled'
+        WHERE invoice_status IN ('Sent', 'Viewed', 'Partial')
         AND invoice_client_id = $client_id
         ORDER BY invoice_number ASC";
     $result_invoices = mysqli_query($mysqli, $sql_invoices);
@@ -563,6 +565,11 @@ if (isset($_POST['add_bulk_payment'])) {
 
         if ($bulk_payment_amount <= 0) {
             break; // Exit the loop if no payment amount is left
+        }
+
+        // Nothing owed on this one - a zero-value invoice, or one paid without its status catching up
+        if ($invoice_balance <= 0) {
+            continue;
         }
 
         if ($bulk_payment_amount >= $invoice_balance) {

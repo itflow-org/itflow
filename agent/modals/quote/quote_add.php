@@ -1,101 +1,40 @@
 <?php
 
+/*
+ * New quote - who it is for, what it is for, its category, date, how long
+ * it is good for and any discount. It starts as a draft; the lines go on
+ * the quote page.
+ * ?client_id= starts it for that client; without one, pick the client here.
+ */
+
 require_once '../../../includes/modal_header.php';
 
-$client_id = intval($_GET['client_id'] ?? 0);
+enforceUserPermission('module_sales', 2);
+
+$form_type = 'quote';
+$form_row = null;
+$form_client_id = intval($_GET['client_id'] ?? 0);
+if ($form_client_id) {
+    $client_id = $form_client_id;
+    enforceClientAccess();
+}
 
 ob_start();
 
 ?>
 <div class="modal-header bg-dark">
-    <h5 class="modal-title"><i class="fas fa-fw fa-comment-dollar me-2"></i>New Quote</h5>
+    <h5 class="modal-title"><i class="fas fa-fw fa-comment-dollar me-2"></i>New Quote<?php if ($form_client_id) { ?> <span class="fw-normal text-white-50 ms-1"><?= escapeHtml(getFieldById('clients', $form_client_id, 'client_name')) ?></span><?php } ?></h5>
     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
 </div>
 <form action="post.php" method="post" autocomplete="off">
     <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
 
     <div class="modal-body">
-
-        <?php if ($client_id) { ?>
-            <input type="hidden" name="client_id" value="<?= $client_id ?>">
-        <?php } else { ?>
-
-            <div class="mb-3">
-                <label>Client <strong class="text-danger">*</strong></label>
-                <div class="input-group">
-                        <span class="input-group-text"><i class="fa fa-fw fa-user"></i></span>
-                    <select class="form-select select2" name="client_id" required>
-                        <option value="">- Select a Client -</option>
-                        <?php
-
-                        //select unarchived clients
-                        $sql = mysqli_query($mysqli, "SELECT client_id, client_name, client_abbreviation FROM clients WHERE client_archived_at IS NULL " . clientScopeSql('clients.client_id') . " ORDER BY client_name ASC");
-                        while ($row = mysqli_fetch_assoc($sql)) {
-                            $client_id_select = intval($row['client_id']);
-                            $client_name = escapeHtml($row['client_name']);
-                            ?>
-                            <option value="<?= $client_id_select ?>"<?= selectOptionClient($row['client_id'], $row['client_name'], $row['client_abbreviation'] ?? '') ?>><?= $client_name ?></option>
-                        <?php } ?>
-
-                    </select>
-                </div>
-            </div>
-
-        <?php } ?>
-
-        <div class="mb-3">
-            <label>Scope</label>
-            <div class="input-group">
-                    <span class="input-group-text"><i class="fa fa-fw fa-comment"></i></span>
-                <input type="text" class="form-control" name="scope" placeholder="Quick description" maxlength="255">
-            </div>
-        </div>
-
-        <div class="mb-3">
-            <label>Category <strong class="text-danger">*</strong></label>
-            <div class="input-group">
-                    <span class="input-group-text"><i class="fa fa-fw fa-tag"></i></span>
-                <select class="form-select select2" name="category" required>
-                    <option value="">- Category -</option>
-                    <?php
-
-                    $sql = mysqli_query($mysqli, "SELECT category_id, category_name, category_color, category_icon FROM categories WHERE category_type = 'Income' AND category_archived_at IS NULL ORDER BY category_name ASC");
-                    while ($row = mysqli_fetch_assoc($sql)) {
-                        $category_id = intval($row['category_id']);
-                        $category_name = escapeHtml($row['category_name']);
-                        ?>
-                        <option value="<?= $category_id ?>"<?= selectOptionColor($row['category_color'] ?? '', $row['category_icon'] ?? '') ?>><?= $category_name ?></option>
-
-                    <?php } ?>
-
-                </select>
-                    <button class="btn btn-secondary ajax-modal" title="New category" type="button"
-                        data-modal-url="../admin/modals/category/category_add.php?category=Income">
-                        <i class="fas fa-fw fa-plus"></i>
-                    </button>
-            </div>
-        </div>
-
-        <div class="mb-3">
-            <label>Date <strong class="text-danger">*</strong></label>
-            <div class="input-group">
-                    <span class="input-group-text"><i class="fa fa-fw fa-calendar"></i></span>
-                <input type="date" class="form-control" name="date" max="2999-12-31" value="<?= date("Y-m-d") ?>" required>
-            </div>
-        </div>
-
-        <div class="mb-3">
-            <label>Expire <strong class="text-danger">*</strong></label>
-            <div class="input-group">
-                    <span class="input-group-text"><i class="fa fa-fw fa-calendar"></i></span>
-                <input type="date" class="form-control" name="expire" min="<?= date("Y-m-d") ?>" max="2999-12-31" value="<?= date("Y-m-d", strtotime("+30 days")) ?>" required>
-            </div>
-        </div>
-
+        <?php require __DIR__ . '/../billing/billing_form.php'; ?>
     </div>
     <div class="modal-footer">
         <button type="submit" name="add_quote" class="btn btn-primary text-bold"><i class="fas fa-check me-2"></i>Create</button>
-        <button type="button" class="btn btn-light" data-bs-dismiss="modal"><i class="fa fa-times me-2"></i>Cancel</button>
+        <button type="button" class="btn btn-light" data-bs-dismiss="modal"><i class="fas fa-times me-2"></i>Cancel</button>
     </div>
 </form>
 

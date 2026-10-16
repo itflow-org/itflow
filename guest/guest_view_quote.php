@@ -1,305 +1,156 @@
 <?php
 
+/*
+ * A quote as the client opens it from its link - the quote on the left, as
+ * it prints; on the right what it comes to, how long it is good for, and
+ * Accept and Decline while it waits for an answer. Once accepted, the
+ * client can send back a signed copy or a purchase order. Opening it marks
+ * a sent quote viewed and tells the agents.
+ */
+
 require_once $_SERVER['DOCUMENT_ROOT'] . '/guest/includes/inc_all_guest.php';
 
+$quote = billingRow('quote', intval($_GET['quote_id'] ?? 0), false);
+$url_key = (string) ($_GET['url_key'] ?? '');
 
-if (!isset($_GET['quote_id'], $_GET['url_key'])) {
-    echo "<br><h2>Oops, something went wrong! Please raise a ticket if you believe this is an error.</h2>";
+if (!$quote || (string) $quote['quote_url_key'] === '' || !hash_equals((string) $quote['quote_url_key'], $url_key)) {
+    echo '<div class="itflow-asset-empty mt-5"><i class="fas fa-comment-dollar fa-3x mb-3 opacity-50"></i><h1 class="h4">This quote link isn\'t working</h1><p>It may have been mistyped or replaced. Ask whoever sent it for a new link.</p></div>';
     require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/footer.php';
-
     exit();
 }
 
+$quote_id = intval($quote['quote_id']);
+$number = billingNumber('quote', $quote);
+$status = (string) $quote['quote_status'];
+$currency = (string) $quote['quote_currency_code'];
 
-$url_key = escapeSql($_GET['url_key']);
-$quote_id = intval($_GET['quote_id']);
+billingGuestViewed('quote', $quote);
 
-$sql = mysqli_query(
-    $mysqli,
-    "SELECT client_currency_code, client_id, client_name, client_website, contact_email,
-        contact_extension, contact_mobile, contact_mobile_country_code, contact_phone,
-        contact_phone_country_code, location_address, location_city, location_country,
-        location_state, location_zip, quote_amount, quote_currency_code, quote_date,
-        quote_discount_amount, quote_expire, quote_id, quote_note, quote_number, quote_prefix,
-        quote_status FROM quotes
-    LEFT JOIN clients ON quote_client_id = client_id
-    LEFT JOIN contacts ON clients.client_id = contacts.contact_client_id AND contact_primary = 1
-    LEFT JOIN locations ON clients.client_id = locations.location_client_id AND location_primary = 1
-    WHERE quote_id = $quote_id
-    AND quote_url_key = '$url_key'"
-);
+$items = billingItems('quote', $quote_id);
+$totals = billingTotals('quote', $quote, $items);
+$company = billingCompany();
+$expired = quoteExpired($quote);
+$awaiting = in_array($status, ['Sent', 'Viewed'], true) && !$expired;
+$query_key = rawurlencode($url_key);
+$days_left = intval(round((strtotime((string) $quote['quote_expire']) - strtotime(date('Y-m-d'))) / 86400));
 
-if (mysqli_num_rows($sql) !== 1) {
-    // Invalid quote/key
-    echo "<br><h2>Oops, something went wrong! Please raise a ticket if you believe this is an error.</h2>";
-    require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/footer.php';
-
-    exit();
-}
-
-$row = mysqli_fetch_assoc($sql);
-
-$quote_id = intval($row['quote_id']);
-$quote_prefix = escapeHtml($row['quote_prefix']);
-$quote_number = intval($row['quote_number']);
-$quote_status = escapeHtml($row['quote_status']);
-$quote_date = escapeHtml($row['quote_date']);
-$quote_expire = escapeHtml($row['quote_expire']);
-$quote_discount = floatval($row['quote_discount_amount']);
-$quote_amount = floatval($row['quote_amount']);
-$quote_currency_code = escapeHtml($row['quote_currency_code']);
-$quote_note = escapeHtml($row['quote_note']);
-$client_id = intval($row['client_id']);
-$client_name = escapeHtml($row['client_name']);
-$client_name_escaped = escapeSql($row['client_name']);
-$location_address = escapeHtml($row['location_address']);
-$location_city = escapeHtml($row['location_city']);
-$location_state = escapeHtml($row['location_state']);
-$location_zip = escapeHtml($row['location_zip']);
-$location_country = escapeHtml($row['location_country']);
-$contact_email = escapeHtml($row['contact_email']);
-$contact_phone_country_code = escapeHtml($row['contact_phone_country_code']);
-$contact_phone = escapeHtml(formatPhoneNumber($row['contact_phone'], $contact_phone_country_code));
-$contact_extension = escapeHtml($row['contact_extension']);
-$contact_mobile_country_code = escapeHtml($row['contact_mobile_country_code']);
-$contact_mobile = escapeHtml(formatPhoneNumber($row['contact_mobile'], $contact_mobile_country_code));
-$client_website = escapeHtml($row['client_website']);
-$client_currency_code = escapeHtml($row['client_currency_code']);
-
-$sql = mysqli_query($mysqli, "SELECT company_address, company_city, company_country, company_email, company_locale,
-    company_logo, company_name, company_phone, company_phone_country_code, company_state,
-    company_website, company_zip, config_quote_footer FROM companies, settings WHERE companies.company_id = settings.company_id AND companies.company_id = 1");
-$row = mysqli_fetch_assoc($sql);
-$company_name = escapeHtml($row['company_name']);
-$company_address = escapeHtml($row['company_address']);
-$company_city = escapeHtml($row['company_city']);
-$company_state = escapeHtml($row['company_state']);
-$company_zip = escapeHtml($row['company_zip']);
-$company_country = escapeHtml($row['company_country']);
-$company_phone_country_code = escapeHtml($row['company_phone_country_code']);
-$company_phone = escapeHtml(formatPhoneNumber($row['company_phone'], $company_phone_country_code));
-$company_email = escapeHtml($row['company_email']);
-$company_website = escapeHtml($row['company_website']);
-$company_logo = escapeHtml($row['company_logo']);
-if (!empty($company_logo)) {
-    $company_logo_base64 = base64_encode(file_get_contents("../uploads/settings/$company_logo"));
-}
-$company_locale = escapeHtml($row['company_locale']);
-$config_quote_footer = escapeHtml($row['config_quote_footer']);
-
-//Set Currency Format
-$currency_format = numfmt_create($company_locale, NumberFormatter::CURRENCY);
-
-//Set Badge color based off of quote status
-if ($quote_status == "Sent") {
-    $quote_badge_color = "warning";
-} elseif ($quote_status == "Viewed") {
-    $quote_badge_color = "primary";
-} elseif ($quote_status == "Accepted") {
-    $quote_badge_color = "success";
-} elseif ($quote_status == "Declined") {
-    $quote_badge_color = "danger";
-} elseif ($quote_status == "Invoiced") {
-    $quote_badge_color = "info";
-} else {
-    $quote_badge_color = "secondary";
-}
-
-//Update status to Viewed only if invoice_status = "Sent"
-if ($quote_status == 'Sent') {
-    mysqli_query($mysqli, "UPDATE quotes SET quote_status = 'Viewed' WHERE quote_id = $quote_id");
-}
-
-//Mark viewed in history
-mysqli_query($mysqli, "INSERT INTO history SET history_status = '$quote_status', history_description = 'Quote viewed - $ip - $os - $browser', history_quote_id = $quote_id");
-
-if ($quote_status == "Draft" || $quote_status == "Sent" || $quote_status == "Viewed") {
-
-    appNotify("Quote Viewed", "Quote $quote_prefix$quote_number has been viewed by $client_name_escaped - $ip - $os - $browser", "/agent/quote.php?quote_id=$quote_id", $client_id);
-}
+$paper = [
+    'type' => 'quote',
+    'row' => $quote,
+    'items' => $items,
+    'totals' => $totals,
+    'logo_url' => $company['logo_url'],
+];
 
 ?>
 
-<div class="card my-3">
+<div class="row g-3 my-1">
 
-    <div class="card-header d-print-none">
-
-        <div class="float-end">
-            <a class="btn btn-primary" href="#" onclick="window.print();"><i class="fas fa-fw fa-print me-2"></i>Print</a>
-            <a class="btn btn-primary" href="guest_post.php?export_quote_pdf=<?= $quote_id ?>&url_key=<?= $url_key ?>">
-                <i class="fa fa-fw fa-download me-2"></i>Download
-            </a>
-        </div>
+    <div class="col-lg-8 itflow-paper-col">
+        <?php require $_SERVER['DOCUMENT_ROOT'] . '/includes/billing_paper.php'; ?>
     </div>
-    <div class="card-body">
 
-        <div class="row mb-3">
-            <?php if (file_exists("../uploads/settings/$company_logo")) { ?>
-            <div class="col-sm-2">
-                <img class="img-fluid" src="<?= "/uploads/settings/$company_logo" ?>" alt="Company logo">
-            </div>
-            <?php } ?>
-            <div class="col-sm-6 <?php if (!file_exists("../uploads/settings/$company_logo")) { echo "col-sm-8"; } ?>">
-                <ul class="list-unstyled">
-                    <li><h4><strong><?= $company_name ?></strong></h4></li>
-                    <li><?= formatAddress($company_address, $company_city, $company_state, $company_zip, $company_country, '<br>') ?></li>
-                    <li><?= "$company_email | $company_phone" ?></li>
-                    <li><?= $company_website ?></li>
-                </ul>
-            </div>
+    <div class="col-lg-4 d-print-none">
 
-            <div class="col-sm-4">
-                <h3 class="text-end"><strong>QUOTE</strong></h3>
-                <h5 class="badge text-bg-<?= $quote_badge_color ?> p-2 float-end">
-                    <?= "$quote_status" ?>
-                </h5>
-                <table class="table table-sm table-borderless">
-                    <tr>
-                        <th>Quote #:</th>
-                        <td class="text-end"><?= "$quote_prefix$quote_number" ?></td>
-                    </tr>
-                    <tr>
-                        <th>Date:</th>
-                        <td class="text-end"><?= $quote_date ?></td>
-                    </tr>
-                    <tr>
-                        <th>Expires:</th>
-                        <td class="text-end"><?= $quote_expire ?></td>
-                    </tr>
-                </table>
-            </div>
+        <div class="card mb-3">
+            <div class="card-body">
+                <div class="itflow-billing-stat-label">Quote total</div>
+                <div class="itflow-billing-stat-value mb-3"><?= escapeHtml(billingMoney($totals['total'], $currency)) ?></div>
 
-        </div>
-        <div class="row mb-3 bg-light p-3">
-            <div class="col">
-                <h6><strong>To:</strong></h6>
-                <ul class="list-unstyled mb-0">
-                    <li><?= $client_name ?></li>
-                    <li><?= formatAddress($location_address, $location_city, $location_state, $location_zip, $location_country, '<br>') ?></li>
-                    <li><?= "$contact_email | $contact_phone $contact_extension" ?></li>
-                </ul>
-            </div>
-        </div>
-
-        <?php $sql_items = mysqli_query($mysqli, "SELECT item_description, item_id, item_name, item_price, item_quantity, item_tax, item_total FROM quote_items WHERE item_quote_id = $quote_id ORDER BY item_order ASC"); ?>
-
-        <div class="row mb-3">
-            <div class="col-md-12">
-                <div class="card">
-                    <div class="table-responsive">
-                        <table class="table table-hover mb-0">
-                            <thead class="bg-light">
-                            <tr>
-                                <th>Item</th>
-                                <th>Description</th>
-                                <th class="text-center">Qty</th>
-                                <th class="text-end">Unit Price</th>
-                                <th class="text-end">Tax</th>
-                                <th class="text-end">Amount</th>
-                            </tr>
-                            </thead>
-                            <tbody>
-                            <?php
-
-                            $total_tax = $sub_total = 0; // Default 0
-
-                            while ($row = mysqli_fetch_assoc($sql_items)) {
-                                $item_id = intval($row['item_id']);
-                                $item_name = escapeHtml($row['item_name']);
-                                $item_description = escapeHtml($row['item_description']);
-                                $item_quantity = floatval($row['item_quantity']);
-                                $item_price = floatval($row['item_price']);
-                                $item_tax = floatval($row['item_tax']);
-                                $item_total = floatval($row['item_total']);
-                                $total_tax = $item_tax + $total_tax;
-                                $sub_total = $item_price * $item_quantity + $sub_total;
-
-                                ?>
-
-                                <tr>
-                                    <td><?= $item_name ?></td>
-                                    <td><?= nl2br($item_description) ?></td>
-                                    <td class="text-center"><?= $item_quantity ?></td>
-                                    <td class="text-end"><?= numfmt_format_currency($currency_format, $item_price, $quote_currency_code) ?></td>
-                                    <td class="text-end"><?= numfmt_format_currency($currency_format, $item_tax, $quote_currency_code) ?></td>
-                                    <td class="text-end"><?= numfmt_format_currency($currency_format, $item_total, $quote_currency_code) ?></td>
-                                </tr>
-
-                                <?php
-
-                            }
-
-                            ?>
-
-                            </tbody>
-                        </table>
+                <?php if ($awaiting) { ?>
+                    <p class="small text-body-secondary mb-3">
+                        Good until <?= escapeHtml($quote['quote_expire']) ?><?= $days_left === 0 ? ' - today is the last day' : ' - ' . $days_left . ' day' . ($days_left === 1 ? '' : 's') . ' left' ?>.
+                        Let us know whether to go ahead.
+                    </p>
+                    <div class="d-grid gap-2 mb-3">
+                        <a class="btn btn-success btn-lg confirm-link" href="guest_post.php?accept_quote=<?= $quote_id ?>&url_key=<?= $query_key ?>"
+                            data-confirm-title="Accept <?= escapeHtml($number) ?>?" data-confirm-text="We'll be told straight away and be in touch to get started." data-confirm-button="Accept">
+                            <i class="fas fa-thumbs-up me-2"></i>Accept
+                        </a>
+                        <a class="btn btn-outline-danger confirm-link" href="guest_post.php?decline_quote=<?= $quote_id ?>&url_key=<?= $query_key ?>"
+                            data-confirm-title="Decline <?= escapeHtml($number) ?>?" data-confirm-text="We'll be told. If something needs changing, a reply to our email gets you a new quote." data-confirm-button="Decline">
+                            <i class="fas fa-thumbs-down me-2"></i>Decline
+                        </a>
                     </div>
+                <?php } elseif ($expired) { ?>
+                    <div class="d-flex align-items-center gap-3 mb-3">
+                        <span class="itflow-asset-icon bg-warning-subtle text-warning-emphasis" aria-hidden="true"><i class="fas fa-hourglass-end"></i></span>
+                        <div>
+                            <div class="fw-semibold">This quote has run out</div>
+                            <div class="small text-body-secondary">It was good until <?= escapeHtml($quote['quote_expire']) ?> - ask us for an updated one.</div>
+                        </div>
+                    </div>
+                <?php } elseif (in_array($status, ['Accepted', 'Invoiced'], true)) { ?>
+                    <div class="d-flex align-items-center gap-3 mb-3">
+                        <span class="itflow-asset-icon bg-success-subtle text-success-emphasis" aria-hidden="true"><i class="fas fa-check"></i></span>
+                        <div>
+                            <div class="fw-semibold">Accepted - thank you</div>
+                            <div class="small text-body-secondary">We'll be in touch to get started.</div>
+                        </div>
+                    </div>
+                    <?php if ($status === 'Accepted') { ?>
+                        <button type="button" class="btn btn-outline-success w-100 mb-3" data-bs-toggle="modal" data-bs-target="#uploadFileModal">
+                            <i class="fas fa-file-upload me-2"></i>Send a Signed Copy or PO
+                        </button>
+                    <?php } ?>
+                <?php } elseif ($status === 'Declined') { ?>
+                    <div class="d-flex align-items-center gap-3 mb-3">
+                        <span class="itflow-asset-icon bg-secondary-subtle text-secondary-emphasis" aria-hidden="true"><i class="fas fa-times"></i></span>
+                        <div>
+                            <div class="fw-semibold">Declined</div>
+                            <div class="small text-body-secondary">If something needs changing, let us know and we'll send a new one.</div>
+                        </div>
+                    </div>
+                <?php } else { ?>
+                    <p class="small text-body-secondary mb-3">This quote is still being put together and may change.</p>
+                <?php } ?>
+
+                <div class="d-flex gap-2">
+                    <a class="btn btn-outline-primary flex-fill" href="guest_post.php?export_quote_pdf=<?= $quote_id ?>&url_key=<?= $query_key ?>"><i class="fas fa-file-pdf me-2"></i>Download PDF</a>
+                    <button type="button" class="btn btn-outline-secondary" onclick="window.print();" title="Print"><i class="fas fa-print"></i></button>
                 </div>
             </div>
         </div>
 
-        <div class="row mb-3">
-            <div class="col-sm-7">
-                <?php if (!empty($quote_note)) { ?>
-                    <div class="card">
-                        <div class="card-body">
-                            <?= nl2br($quote_note) ?>
-                        </div>
-                    </div>
-                <?php } ?>
+        <?php if (!empty($company['company_email']) || !empty($company['phone_display'])) { ?>
+            <div class="small text-body-secondary px-1">
+                Questions about this quote? Contact <?= escapeHtml($company['company_name']) ?>
+                <?php if (!empty($company['company_email'])) { ?> at <a href="mailto:<?= escapeHtml($company['company_email']) ?>?subject=<?= rawurlencode("Quote $number") ?>"><?= escapeHtml($company['company_email']) ?></a><?php } ?>
+                <?php if (!empty($company['phone_display'])) { ?> or <?= escapeHtml($company['phone_display']) ?><?php } ?>.
             </div>
-
-            <div class="col-sm-3 offset-sm-2">
-                <table class="table table-hover mb-0">
-                    <tbody>
-                    <tr>
-                        <td>Subtotal:</td>
-                        <td class="text-end"><?= numfmt_format_currency($currency_format, $sub_total, $quote_currency_code) ?></td>
-                    </tr>
-                    <?php if ($quote_discount > 0) { ?>
-                        <tr>
-                            <td>Discount:</td>
-                            <td class="text-end"><?= numfmt_format_currency($currency_format, -$quote_discount, $quote_currency_code) ?></td>
-                        </tr>
-                    <?php } ?>
-                    <?php if ($total_tax > 0) { ?>
-                        <tr>
-                            <td>Tax:</td>
-                            <td class="text-end"><?= numfmt_format_currency($currency_format, $total_tax, $quote_currency_code) ?></td>
-                        </tr>
-                    <?php } ?>
-                    <tr class="border-top h5 text-bold">
-                        <td><strong>Total:</strong></td>
-                        <td class="text-end"><strong><?= numfmt_format_currency($currency_format, $quote_amount, $quote_currency_code) ?></strong></td>
-                    </tr>
-                    </tbody>
-                </table>
-            </div>
-        </div>
-
-        <hr class="mt-5">
-
-        <div class="text-center"><?= nl2br($config_quote_footer) ?></div>
-        <div class="">
-            <?php
-                if ($quote_status == "Sent" || $quote_status == "Viewed" && strtotime($quote_expire) > strtotime("now")) { ?>
-                    <a class="btn btn-success confirm-link" href="guest_post.php?accept_quote=<?= $quote_id ?>&url_key=<?= $url_key ?>">
-                        <i class="fas fa-fw fa-thumbs-up me-2"></i>Accept
-                    </a>
-                    <a class="btn btn-danger confirm-link" href="guest_post.php?decline_quote=<?= $quote_id ?>&url_key=<?= $url_key ?>">
-                        <i class="fas fa-fw fa-thumbs-down me-2"></i>Decline
-                    </a>
-                <?php } ?>
-                <?php if ($quote_status == "Accepted") { ?>
-                    <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#uploadFileModal">
-                        <i class="fas fa-fw fa-cloud-upload-alt me-2"></i>Upload File
-                    </button>
-                <?php } ?>
-        </div>
+        <?php } ?>
 
     </div>
 </div>
 
-<?php
-require_once "guest_quote_upload_file_modal.php";
-require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/footer.php';
+<?php if ($status === 'Accepted') { ?>
+    <!-- A signed copy or purchase order, back to us -->
+    <div class="modal fade" id="uploadFileModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header bg-dark">
+                    <h5 class="modal-title"><i class="fas fa-fw fa-file-upload me-2"></i>Send a Signed Copy or PO</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <form action="guest_post.php" method="post" enctype="multipart/form-data" autocomplete="off">
+                    <input type="hidden" name="quote_id" value="<?= $quote_id ?>">
+                    <input type="hidden" name="url_key" value="<?= escapeHtml($url_key) ?>">
+                    <div class="modal-body">
+                        <label class="form-label" for="quoteUploadFile">PDF file</label>
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="fas fa-fw fa-file-pdf"></i></span>
+                            <input type="file" class="form-control" name="file[]" id="quoteUploadFile" accept=".pdf" required>
+                        </div>
+                        <div class="form-text">The signed quote, a purchase order - goes straight to us with <?= escapeHtml($number) ?>.</div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="submit" name="guest_quote_upload_file" class="btn btn-primary text-bold"><i class="fas fa-upload me-2"></i>Send</button>
+                        <button type="button" class="btn btn-light" data-bs-dismiss="modal"><i class="fas fa-times me-2"></i>Cancel</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+<?php } ?>
+
+<?php require_once $_SERVER['DOCUMENT_ROOT'] . '/includes/footer.php';

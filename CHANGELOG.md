@@ -36,6 +36,14 @@ If you are coming from 26.08 or earlier, the database update still has to be run
   - Opening a link now takes a click on Reveal. This is so mail filters and chat apps that open every link cannot use up a one-time link.
   - Ended links stay listed for 90 days, with who opened them. They used to be deleted overnight.
   - Only the agent who made a link is told when it is opened. It used to notify every agent.
+- Billing:
+  - Line amounts are rounded to the cent when a line is saved. Tax used to be stored unrounded, so a total could be a cent off what was printed. Lines already on file keep their amounts until they are edited.
+  - Taking a service line off an invoice no longer adds stock to the service. Only products kept in stock move stock, as before when they were added.
+  - A quote that has run out can no longer be accepted from its link. Extend its date, or send a new one.
+  - Batch Payment only pays invoices that are still owed (sent, viewed or part paid). It used to include non-billable invoices too, and marked them paid.
+  - Invoice and quote PDFs have a new layout, and print on Letter paper in the United States and Canada and A4 elsewhere. They were always A4.
+  - The recurring invoices list no longer has a date filter. It filtered by the date each one was created.
+  - Links to the invoices list with `?status=Draft`, `Unpaid` or `Overdue` still work, and `Paid` and `Cancelled` are new.
 - Notifications now follow access too. An agent only sees notifications for clients and areas they can open, so someone without sales access no longer sees invoice and quote notifications.
 - Drop-downs: Tom Select is gone, replaced by ITFlow's own picker. It works the way you are used to: type to search, tick several in a multi-select, and type a new value in fields that allow it, such as ticket watchers. See Developer Updates if you have custom pages that used Tom Select.
 - Several small windows are gone because the change is now made where the value is shown:
@@ -164,6 +172,27 @@ If you are coming from 26.08 or earlier, the database update still has to be run
   - You are notified when a link you made is opened (you can switch this off per link), and always when one locks.
   - The key is the part of the link after the #, which browsers never send to the server, so it stays out of web server and proxy logs. Logins, notes and what clients send back are encrypted with that key, which is not stored, so the database alone cannot open them.
   - Admin > Settings > Security sets the longest a link may last, up to 90 days, and whether shared passwords and secure notes must have a passphrase or a code.
+- **Billing** (rebuilt)
+  - Invoices, quotes and recurring invoices have new lists and pages, and every billing window is redone.
+  - Lists:
+    - Invoices: what you are owed, what of that is overdue, what is sitting in drafts and what came in over the last 30 days, each opening the invoices behind it. Filter by Draft, Unpaid, Overdue, Paid or Cancelled, by category, client and date. Each row shows what is still owed and how long until it is due, or how many days late it is.
+    - Quotes: what is out waiting for an answer, what has been accepted and not invoiced yet, what you won over the last 90 days and your win rate. Filter by Draft, Awaiting answer, Expired, Accepted, Invoiced or Declined. Each row shows how long a quote has left.
+    - Recurring invoices: your monthly recurring revenue (yearly ones count as a twelfth), what bills in the next 30 days, how many are running, and any that need a look. Filter by Active, Next 7 days, Late, Paused or All. Each row shows the amount, what it brings in a month, when it next bills, and whether it is on autopay.
+  - Pages: the invoice, quote or recurring invoice is shown the way the client sees it, with the next thing to do at the top:
+    - Invoice: Send (or Mark Sent) a draft, Add Payment on one that is owed, with Charge Saved Card when the client has a card on file. On the side: what has been paid and what is left with a progress bar, the payments (edit, refund through Stripe or delete them there), the tickets billed on it, and its history as a timeline.
+    - Quote: Send, then Accepted or Declined when the client answers by phone or email, then Make Invoice. A quote that ran out without an answer says so, with an Extend button. On the side: the files the client sent back, and its history.
+    - Recurring invoice: Invoice Now, Pause and Resume. On the side: the schedule with the next few dates and whether invoices go out by themselves, autopay, the invoices it has made and whether they were paid, and its history. When its next date has passed it won't bill until that moves on, so the page says so and offers to move it on to the next date without billing the missed ones.
+  - Lines are edited on the page:
+    - Type a product's name or code to fill in its description, price and tax. What the line comes to shows as you type, and Enter adds it. The page comes back ready for the next line.
+    - Drag a line to move it. Edit or remove it from its menu. An invoice's lines are locked once it is paid, cancelled or non-billable, and a quote's once it is answered.
+    - Taxes show by name on the totals, such as PA Sales Tax 6%, instead of one Tax line.
+  - Windows: New and Edit have the same fields for all three, with the discount on both. A new invoice shows its due date from the client's terms, and a quote's valid-until date has 15, 30, 60 and 90 day shortcuts.
+    - Add Payment starts at what is owed, says what is left after the payment as you type, and shows each account's balance. Batch Payment lists the invoices it will pay, oldest first.
+    - Send, Copy, Make Recurring, Make Invoice, Mark Sent and Add Tickets (any number at once) say what they will do before you do it.
+  - PDFs: one new look for invoices, quotes and packing slips, with your logo, taxes by name and page numbers. An invoice still owed carries a QR code to open it online and pay, and a quote waiting for an answer one to accept it. Paid, cancelled, accepted and declined ones are stamped.
+  - The client's view of an invoice: what is owed and by when, with Pay Now, the PDF, the payments made, and everything else they owe with a link to each.
+  - The client's view of a quote: Accept and Decline, with how long it is good for. Once accepted, they can send back a signed copy or a purchase order.
+  - A new recurring invoice can be set to leave a draft to check, and take a discount, from the start.
 - **Tickets**
   - The ticket list has views for Open, Mine, Unassigned, Needs reply, Waiting, Overdue, Scheduled, Closed and All.
     - Each row shows whose move it is (yours or the client's) along with SLA and due badges, and status, priority and agent change right in the row.
@@ -330,6 +359,13 @@ If you are coming from 26.08 or earlier, the database update still has to be run
 - Shared links: a mail filter or chat preview opening a one-time link used it up before the person it was for could open it.
 - Shared links: anyone holding a login link could keep getting its 2FA codes until the link expired, even after its one view was used. Codes now go only to the browser that opened it, for 30 minutes.
 - Shared links: the link's key, and for a login the key that decrypts it, were in the address, so they ended up in web server logs.
+- Billing: editing an invoice or a quote set its discount to zero, and a discount given on a new quote was ignored.
+- Billing: changing the quantity of a stocked product on an invoice did not move its stock.
+- Billing: editing a payment's amount did not update the invoice, so it could stay Partial when paid in full or Paid when not.
+- Billing: deleting a recurring invoice left its autopay behind.
+- Billing: an invoice made from a quote was due counting from today instead of the invoice date, and with no terms when the client had none set.
+- Billing: the client's view of a quote offered Accept on a viewed quote that had run out, and the invoice and quote views put the browser's HTML into the history.
+- Billing: copying an invoice logged its old number with the prefix twice.
 - Copy buttons in many places, such as pages that already had a window open, showed Copied! but copied nothing. Copy guest URL on invoices and quotes jumped the page to the top, and copying an empty field wiped your clipboard.
 - Tickets: an agent without sales access who edited a ticket turned billable off. Email reply was offered when no mail server was set up. The timer threw an error on resolved tickets, and the due date was not shown.
 - Assets: editing some asset types wiped the OS, firmware, purchase and warranty fields. The add form broke when there were no OS values, and bulk assigning a contact or location could change assets of another client.
@@ -466,6 +502,18 @@ If you are coming from 26.08 or earlier, the database update still has to be run
     - `agent/post/share.php` handles `share_revoke`, `share_revoke_all`, `share_bulk_revoke`, `share_request_save` (`credentialFormSet()`) and `share_request_discard`.
   - Notifications go to `item_created_by` only. Links with no owner fall back to `appNotify()`.
   - Removed: `agent/modals/share_modal.php`, `agent/js/share_modal.js`, `agent/modals/credential/credential_share.php`, `share_generate_link` in `agent/ajax.php`, `get_share_totp_token` in `guest/guest_ajax.php`, and `deactivate_shared_item` in `post/misc.php`.
+- Billing:
+  - `functions/billing.php` (loaded by `functions.php`) serves invoices, quotes and recurring invoices through one map, `billingTypes()`: each kind's table, column prefix, items table and key, history column, page, list and URL parameter. `billingRow()` reads one with its client and category (scoped to the agent's clients unless told otherwise), and `billingItems()`, `billingTotals()`, `billingNumber()`, `billingMoney()` and `billingHistory()` work on any of the three.
+  - Lines: `billingItemSave()` adds or edits a line (amounts rounded by `billingLineAmounts()`, stock moved by the difference for invoice lines of `product_type` product), `billingItemDelete()` removes one, `billingItemsOrder()` reorders, and `billingRecalc()` sets the total from the lines less the discount and, for an invoice already paid against, runs `updateInvoiceStatusFromPayments()`. `billingCanEditItems()` is the lock. The edit handlers for all three kinds now use `billingRecalc()`.
+  - State and pills: `invoiceState()` (open, overdue, draft, paid, cancelled or non-billable, with balance and days), `invoiceDuePill()`, `invoiceStatusBadge()`, `invoiceCanPay()`, `quoteExpired()`, `quoteStatusBadge()`, `quoteExpiryPill()`, `getQuoteBadgeColor()`, `recurringInvoiceNextPill()`, `recurringInvoiceStep()` (a period on, month-end clamped the way MySQL's `DATE_ADD` is), `recurringInvoiceUpcoming()` and `recurringInvoiceCatchUp()`. `paymentAccounts()` returns every account with its balance in one query.
+  - `includes/billing_paper.php` draws the document for the agent pages and the guest pages from a `$paper` array, with the line controls when `edit` is set. The add-a-line inputs post through `form="billingAddLine"`.
+  - `agent/post/billing.php` handles `billing_item_save` (POST `type`, `doc_id`, optional `item_id`, `name`, `description`, `qty`, `price`, `tax_id`, `product_id`), `billing_item_delete` (GET), `recurring_invoice_set_status` and `recurring_invoice_catch_up`. `billing_items_order` in `agent/ajax.php` takes `type`, `doc_id` and `items` (ids, comma separated) and checks client access.
+  - `js/billing_items.js`: `itflowBillingItems()` on the pages and `itflowBillingLineForm()` for any line form (the Edit Line window).
+  - Windows: `agent/modals/billing/billing_item.php` (Edit Line), `agent/modals/billing/billing_form.php` (the fields shared by New and Edit for all three kinds, posting the names the existing handlers read) and `agent/modals/payment/payment_form.php` (shared by Add Payment, Batch Payment and Edit Payment). `agent/modals/invoice/invoice_add_ticket.php` is now an ajax window, and `add_ticket_to_invoice` takes `ticket_ids[]`.
+  - PDFs: `billingPdf($type, $row, $variant)` returns the file name and data, and `billingPdfSend()` sends it. The drawing is in `functions/billing_pdf.php` (the `BillingPdf` TCPDF class and `billingPdfRender()`), loaded only when a PDF is made. `export_invoice_pdf`, `export_invoice_packing_slip`, `export_quote_pdf` and the guest downloads use it. The guest downloads compare the URL key with `hash_equals()` and return 404 when it is wrong.
+  - Guest pages: `billingGuestViewed()` marks a sent document viewed, logs the view in plain text and notifies. `billingClientOpenInvoices()` is the client's statement.
+  - CSS: the `.itflow-paper-*` and `.itflow-billing-*` classes in `css/itflow_custom.css`, with print rules that print only the document.
+  - Removed: `add_invoice_item`, `edit_invoice_item`, `delete_invoice_item`, `add_quote_item`, `edit_quote_item`, `delete_quote_item`, `add_recurring_invoice_item`, `edit_recurring_invoice_item`, `delete_recurring_invoice_item` and `link_invoice_to_ticket` (it wrote a column that does not exist), `update_invoice_items_order`, `update_quote_items_order` and `update_recurring_invoice_items_order` in `agent/ajax.php`, `agent/modals/invoice/invoice_item_edit.php`, `agent/modals/quote/quote_item_edit.php`, `agent/modals/recurring_invoice/recurring_invoice_item_edit.php`, `guest/guest_quote_upload_file_modal.php` and `js/product_autocomplete.js`.
 - Sidebar brand: `agent/css/sidebar_brand_fix.css` and `agent/js/sidebar_brand_fix.js` from 26.10 are replaced by CSS in `css/itflow_custom.css`. `includes/load_company_settings.php` now sets `$session_company_logo`.
 - `alertMessageHtml()` no longer double-encodes, and save messages built from `escapeSql()` values use `stripslashes()` at the flash.
 - CSS: `[hidden] { display: none !important; }` at the top of `css/itflow_custom.css`, so the `hidden` attribute wins over `d-flex` and the other display utilities. `.pagination` wraps.

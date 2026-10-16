@@ -1,103 +1,37 @@
 <?php
 
+/*
+ * New recurring invoice - an agreement billed every month or year: who it
+ * is for, what it is for, how often, the first date it bills, any discount
+ * and whether the invoices it makes go out by themselves. The lines go on
+ * the recurring invoice page.
+ * ?client_id= starts it for that client; without one, pick the client here.
+ */
+
 require_once '../../../includes/modal_header.php';
 
-$client_id = intval($_GET['client_id'] ?? 0);
+enforceUserPermission('module_sales', 2);
+
+$form_type = 'recurring';
+$form_row = null;
+$form_client_id = intval($_GET['client_id'] ?? 0);
+if ($form_client_id) {
+    $client_id = $form_client_id;
+    enforceClientAccess();
+}
 
 ob_start();
 
 ?>
 <div class="modal-header bg-dark">
-    <h5 class="modal-title"><i class="fa fa-fw fa-redo-alt me-2"></i>New Recurring Invoice</h5>
+    <h5 class="modal-title"><i class="fas fa-fw fa-redo-alt me-2"></i>New Recurring Invoice<?php if ($form_client_id) { ?> <span class="fw-normal text-white-50 ms-1"><?= escapeHtml(getFieldById('clients', $form_client_id, 'client_name')) ?></span><?php } ?></h5>
     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
 </div>
 <form action="post.php" method="post" autocomplete="off">
     <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
 
     <div class="modal-body">
-
-        <?php if ($client_id) { ?>
-            <input type="hidden" name="client_id" value="<?= $client_id ?>">
-        <?php } else { ?>
-
-            <div class="mb-3">
-                <label>Client <strong class="text-danger">*</strong></label>
-                <div class="input-group">
-                        <span class="input-group-text"><i class="fa fa-fw fa-user"></i></span>
-                    <select class="form-select select2" name="client_id" required>
-                        <option value="">- Select a Client -</option>
-                        <?php
-                        //select unarchived clients
-                        $sql = mysqli_query($mysqli, "SELECT client_id, client_name, client_abbreviation FROM clients WHERE client_archived_at IS NULL " . clientScopeSql('clients.client_id') . " ORDER BY client_name ASC");
-                        while ($row = mysqli_fetch_assoc($sql)) {
-                            $client_id = intval($row['client_id']);
-                            $client_name = escapeHtml($row['client_name']);
-                        ?>
-                            <option value="<?= $client_id ?>"<?= selectOptionClient($row['client_id'], $row['client_name'], $row['client_abbreviation'] ?? '') ?>><?= "$client_name" ?></option>
-
-                        <?php
-                        }
-                        ?>
-                    </select>
-                </div>
-            </div>
-
-        <?php } ?>
-
-        <div class="mb-3">
-            <label>Scope</label>
-            <div class="input-group">
-                    <span class="input-group-text"><i class="fa fa-fw fa-comment"></i></span>
-                <input type="text" class="form-control" name="scope" placeholder="Quick description" maxlength="255">
-            </div>
-        </div>
-
-        <div class="mb-3">
-            <label>Start Date <strong class="text-danger">*</strong></label>
-            <div class="input-group">
-                    <span class="input-group-text"><i class="fa fa-fw fa-calendar"></i></span>
-                <input type="date" class="form-control" name="start_date" max="2999-12-31" value="<?= date("Y-m-d") ?>" required>
-            </div>
-        </div>
-
-        <div class="mb-3">
-            <label>Frequency <strong class="text-danger">*</strong></label>
-            <div class="input-group">
-                    <span class="input-group-text"><i class="fa fa-fw fa-clock"></i></span>
-                <select class="form-select select2" name="frequency" required>
-                    <option value="">- Frequency -</option>
-                    <option value="month">Monthly</option>
-                    <option value="year">Yearly</option>
-                </select>
-            </div>
-        </div>
-
-        <div class="mb-3">
-            <label>Category <strong class="text-danger">*</strong></label>
-            <div class="input-group">
-                    <span class="input-group-text"><i class="fa fa-fw fa-tag"></i></span>
-                <select class="form-select select2" name="category" required>
-                    <option value="">- Category -</option>
-                    <?php
-
-                    $sql = mysqli_query($mysqli, "SELECT category_id, category_name, category_color, category_icon FROM categories WHERE category_type = 'Income' AND category_archived_at IS NULL ORDER BY category_name ASC");
-                    while ($row = mysqli_fetch_assoc($sql)) {
-                        $category_id = intval($row['category_id']);
-                        $category_name = escapeHtml($row['category_name']);
-                    ?>
-                        <option value="<?= $category_id ?>"<?= selectOptionColor($row['category_color'] ?? '', $row['category_icon'] ?? '') ?>><?= $category_name ?></option>
-
-                    <?php
-                    }
-                    ?>
-                </select>
-                    <button class="btn btn-secondary ajax-modal" title="New category" type="button"
-                        data-modal-url="../admin/modals/category/category_add.php?category=Income">
-                        <i class="fas fa-fw fa-plus"></i>
-                    </button>
-            </div>
-        </div>
-
+        <?php require __DIR__ . '/../billing/billing_form.php'; ?>
     </div>
     <div class="modal-footer">
         <button type="submit" name="add_recurring_invoice" class="btn btn-primary text-bold"><i class="fas fa-check me-2"></i>Create</button>

@@ -60,6 +60,8 @@ ob_start();
                     <option <?php if ($status_filter === 'Draft') { echo "selected"; } ?> value="Draft">Draft</option>
                     <option <?php if ($status_filter === 'Unpaid') { echo "selected"; } ?> value="Unpaid">Unpaid</option>
                     <option <?php if ($status_filter === 'Overdue') { echo "selected"; } ?> value="Overdue">Overdue</option>
+                    <option <?php if ($status_filter === 'Paid') { echo "selected"; } ?> value="Paid">Paid</option>
+                    <option <?php if ($status_filter === 'Cancelled') { echo "selected"; } ?> value="Cancelled">Cancelled or non-billable</option>
                 </select>
             </div>
         </div>

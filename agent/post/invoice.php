@@ -73,17 +73,10 @@ if (isset($_POST['edit_invoice'])) {
 
     enforceClientAccess();
 
-    // Calculate new total
-    $sql = mysqli_query($mysqli,"SELECT item_total FROM invoice_items WHERE item_invoice_id = $invoice_id");
-    $invoice_amount = 0;
-    while($row = mysqli_fetch_assoc($sql)) {
-        $item_total = floatval($row['item_total']);
-        $invoice_amount = $invoice_amount + $item_total;
-    }
-    $invoice_amount = $invoice_amount - $invoice_discount;
+    mysqli_query($mysqli,"UPDATE invoices SET invoice_scope = '$scope', invoice_date = '$date', invoice_due = '$due', invoice_category_id = $category, invoice_discount_amount = $invoice_discount WHERE invoice_id = $invoice_id");
 
-
-    mysqli_query($mysqli,"UPDATE invoices SET invoice_scope = '$scope', invoice_date = '$date', invoice_due = '$due', invoice_category_id = $category, invoice_discount_amount = '$invoice_discount', invoice_amount = '$invoice_amount' WHERE invoice_id = $invoice_id");
+    // The total from the lines less the new discount - and the status, if it has been paid against
+    billingRecalc('invoice', $invoice_id);
 
     logAudit("Invoice", "Edit", "$session_name edited Invoice $invoice_prefix$invoice_number - $scope", $client_id, $invoice_id);
 
@@ -107,7 +100,7 @@ if (isset($_POST['add_invoice_copy'])) {
         invoice_currency_code, invoice_discount_amount, invoice_note, invoice_number,
         invoice_prefix, invoice_scope FROM clients, invoices WHERE client_id = invoice_client_id AND invoice_id = $invoice_id");
     $row = mysqli_fetch_assoc($sql);
-    $client_net_terms = intval($row['client_net_terms']);
+    $client_net_terms = intval($row['client_net_terms']) ?: intval($config_default_net_terms);
     $invoice_scope = escapeSql($row['invoice_scope']);
     $invoice_discount_amount = floatval($row['invoice_discount_amount']);
     $invoice_amount = floatval($row['invoice_amount']);
@@ -138,7 +131,7 @@ if (isset($_POST['add_invoice_copy'])) {
 
     $new_invoice_id = mysqli_insert_id($mysqli);
 
-    mysqli_query($mysqli,"INSERT INTO history SET history_status = 'Draft', history_description = 'Copied INVOICE!', history_invoice_id = $new_invoice_id");
+    mysqli_query($mysqli,"INSERT INTO history SET history_status = 'Draft', history_description = 'Copied from $old_invoice_prefix$old_invoice_number by $session_name', history_invoice_id = $new_invoice_id");
 
     $sql_items = mysqli_query($mysqli,"SELECT item_description, item_id, item_name, item_order, item_price, item_quantity, item_subtotal,
         item_tax, item_tax_id, item_total FROM invoice_items WHERE item_invoice_id = $invoice_id");
@@ -157,11 +150,11 @@ if (isset($_POST['add_invoice_copy'])) {
         mysqli_query($mysqli,"INSERT INTO invoice_items SET item_name = '$item_name', item_description = '$item_description', item_quantity = $item_quantity, item_price = $item_price, item_subtotal = $item_subtotal, item_tax = $item_tax, item_total = $item_total, item_order = $item_order, item_tax_id = $tax_id, item_invoice_id = $new_invoice_id");
     }
 
-    logAudit("Invoice", "Create", "$session_name created new Invoice $config_invoice_prefix$new_invoice_number from $old_invoice_prefix$old_invoice_prefix", $client_id, $new_invoice_id);
+    logAudit("Invoice", "Create", "$session_name created new Invoice $config_invoice_prefix$new_invoice_number from $old_invoice_prefix$old_invoice_number", $client_id, $new_invoice_id);
 
     triggerCustomAction('invoice_create', $new_invoice_id);
 
-    flashAlert("Created new Invoice <strong>$config_invoice_prefix$new_invoice_number</strong> from <strong>$old_invoice_prefix$old_invoice_prefix</strong>");
+    flashAlert("Created new Invoice <strong>$config_invoice_prefix$new_invoice_number</strong> from <strong>$old_invoice_prefix$old_invoice_number</strong>");
 
     redirect("invoice.php?invoice_id=$new_invoice_id");
 
@@ -315,199 +308,6 @@ if (isset($_GET['delete_invoice'])) {
     logAudit("Invoice", "Delete", "$session_name deleted invoice $invoice_prefix$invoice_number", $client_id);
 
     flashAlert("Invoice <strong>$invoice_prefix$invoice_number</strong> deleted", 'error');
-
-    redirect();
-
-}
-
-if (isset($_POST['add_invoice_item'])) {
-
-    validateCSRFToken();
-
-    enforceUserPermission('module_sales', 2);
-
-    $invoice_id = intval($_POST['invoice_id']);
-    $name = escapeSql($_POST['name']);
-    $description = escapeSql($_POST['description']);
-    $qty = floatval($_POST['qty']);
-    $price = floatval($_POST['price']);
-    $tax_id = intval($_POST['tax_id']);
-    $item_order = intval($_POST['item_order']);
-    $product_id = intval($_POST['product_id']);
-
-    $client_id = intval(getFieldById('invoices', $invoice_id, 'invoice_client_id'));
-
-    enforceClientAccess();
-
-    $subtotal = $price * $qty;
-
-    // Update Product Inventory
-    if ($product_id) {
-         // Only enforce stock for tangible products
-        $product_type = escapeSql(getFieldById('products', $product_id, 'product_type'));
-        if ($product_type === 'product') {
-
-            // Current available stock
-            $sql = mysqli_query(
-                $mysqli,
-                "SELECT COALESCE(SUM(stock_qty), 0) AS available_stock
-                 FROM product_stock
-                 WHERE stock_product_id = $product_id"
-            );
-            $row = mysqli_fetch_assoc($sql);
-            $available_stock = floatval($row['available_stock']);
-
-            // Enough in stock?
-            if ($available_stock >= $qty) {
-                mysqli_query($mysqli,"INSERT INTO product_stock SET stock_qty = -$qty, stock_note = 'QTY $qty - Invoice $invoice_id', stock_product_id = $product_id");
-            } else {
-                // Not enough in stock: stop and notify
-                flashAlert("Not Enough <strong>$name</strong> in stock", 'error');
-                redirect();
-            }
-        }
-    }
-
-    // Tax
-    if ($tax_id > 0) {
-        $sql = mysqli_query($mysqli,"SELECT tax_percent FROM taxes WHERE tax_id = $tax_id");
-        $row = mysqli_fetch_assoc($sql);
-        $tax_percent = floatval($row['tax_percent']);
-        $tax_amount = $subtotal * $tax_percent / 100;
-    } else {
-        $tax_amount = 0;
-    }
-
-    $total = $subtotal + $tax_amount;
-
-    mysqli_query($mysqli,"INSERT INTO invoice_items SET item_name = '$name', item_description = '$description', item_quantity = $qty, item_price = $price, item_subtotal = $subtotal, item_tax = $tax_amount, item_total = $total, item_order = $item_order, item_tax_id = $tax_id, item_product_id = $product_id, item_invoice_id = $invoice_id");
-
-    // Get Discount and Invoice Details
-    $sql = mysqli_query($mysqli,"SELECT invoice_discount_amount, invoice_number, invoice_prefix FROM invoices WHERE invoice_id = $invoice_id");
-    $row = mysqli_fetch_assoc($sql);
-    $invoice_prefix = escapeSql($row['invoice_prefix']);
-    $invoice_number = intval($row['invoice_number']);
-    $invoice_discount = floatval($row['invoice_discount_amount']);
-
-    //add up all line items
-    $sql = mysqli_query($mysqli,"SELECT item_total FROM invoice_items WHERE item_invoice_id = $invoice_id");
-    $invoice_total = 0;
-    while($row = mysqli_fetch_assoc($sql)) {
-        $item_total = floatval($row['item_total']);
-        $invoice_total = $invoice_total + $item_total;
-    }
-    $new_invoice_amount = $invoice_total - $invoice_discount;
-
-    mysqli_query($mysqli,"UPDATE invoices SET invoice_amount = $new_invoice_amount WHERE invoice_id = $invoice_id");
-
-    logAudit("Invoice", "Edit", "$session_name added item $name to invoice $invoice_prefix$invoice_number", $client_id, $invoice_id);
-
-    flashAlert("Item <strong>$name</strong> added to invoice");
-
-    redirect();
-
-}
-
-if (isset($_POST['edit_invoice_item'])) {
-
-    validateCSRFToken();
-
-    enforceUserPermission('module_sales', 2);
-
-    $item_id = intval($_POST['item_id']);
-    $name = escapeSql($_POST['name']);
-    $description = escapeSql($_POST['description']);
-    $qty = floatval($_POST['qty']);
-    $price = floatval($_POST['price']);
-    $tax_id = intval($_POST['tax_id']);
-    $product_id = intval($_POST['product_id']);
-
-    $subtotal = $price * $qty;
-
-    if ($tax_id > 0) {
-        $sql = mysqli_query($mysqli,"SELECT tax_percent FROM taxes WHERE tax_id = $tax_id");
-        $row = mysqli_fetch_assoc($sql);
-        $tax_percent = floatval($row['tax_percent']);
-        $tax_amount = $subtotal * $tax_percent / 100;
-    } else {
-        $tax_amount = 0;
-    }
-
-    $total = $subtotal + $tax_amount;
-
-    // Determine what type of line item
-    $sql = mysqli_query($mysqli,"SELECT item_invoice_id FROM invoice_items WHERE item_id = $item_id");
-    $row = mysqli_fetch_assoc($sql);
-    $invoice_id = intval($row['item_invoice_id']);
-
-    //Get Discount Amount
-    $sql = mysqli_query($mysqli,"SELECT invoice_client_id, invoice_discount_amount, invoice_number, invoice_prefix FROM invoices WHERE invoice_id = $invoice_id");
-    $row = mysqli_fetch_assoc($sql);
-    $invoice_prefix = escapeSql($row['invoice_prefix']);
-    $invoice_number = intval($row['invoice_number']);
-    $client_id = intval($row['invoice_client_id']);
-    $invoice_discount = floatval($row['invoice_discount_amount']);
-
-    enforceClientAccess();
-
-    mysqli_query($mysqli,"UPDATE invoice_items SET item_name = '$name', item_description = '$description', item_quantity = $qty, item_price = $price, item_subtotal = $subtotal, item_tax = $tax_amount, item_total = $total, item_tax_id = $tax_id WHERE item_id = $item_id");
-
-    //Update Invoice Balances by tallying up invoice items
-    $sql_invoice_total = mysqli_query($mysqli,"SELECT SUM(item_total) AS invoice_total FROM invoice_items WHERE item_invoice_id = $invoice_id");
-    $row = mysqli_fetch_assoc($sql_invoice_total);
-    $new_invoice_amount = floatval($row['invoice_total']) - $invoice_discount;
-
-    mysqli_query($mysqli,"UPDATE invoices SET invoice_amount = $new_invoice_amount WHERE invoice_id = $invoice_id");
-
-    logAudit("Invoice", "Edit", "$session_name edited item $name on invoice $invoice_prefix$invoice_number", $client_id, $invoice_id);
-
-    flashAlert("Item <strong>$name</strong> updated");
-
-    redirect();
-
-}
-
-if (isset($_GET['delete_invoice_item'])) {
-
-    validateCSRFToken();
-
-    enforceUserPermission('module_sales', 2);
-
-    $item_id = intval($_GET['delete_invoice_item']);
-
-    $sql = mysqli_query($mysqli,"SELECT item_invoice_id, item_name, item_product_id, item_quantity, item_subtotal, item_tax,
-        item_total FROM invoice_items WHERE item_id = $item_id");
-    $row = mysqli_fetch_assoc($sql);
-    $invoice_id = intval($row['item_invoice_id']);
-    $item_name = escapeSql($row['item_name']);
-    $item_quantity = floatval($row['item_quantity']);
-    $item_product_id = intval($row['item_product_id']);
-    $item_subtotal = floatval($row['item_subtotal']);
-    $item_tax = floatval($row['item_tax']);
-    $item_total = floatval($row['item_total']);
-
-    $sql = mysqli_query($mysqli,"SELECT invoice_amount, invoice_client_id, invoice_number, invoice_prefix FROM invoices WHERE invoice_id = $invoice_id");
-    $row = mysqli_fetch_assoc($sql);
-    $invoice_prefix = escapeSql($row['invoice_prefix']);
-    $invoice_number = intval($row['invoice_number']);
-    $client_id = intval($row['invoice_client_id']);
-
-    enforceClientAccess();
-
-    $new_invoice_amount = floatval($row['invoice_amount']) - $item_total;
-
-    mysqli_query($mysqli,"UPDATE invoices SET invoice_amount = $new_invoice_amount WHERE invoice_id = $invoice_id");
-
-    mysqli_query($mysqli,"DELETE FROM invoice_items WHERE item_id = $item_id");
-
-    // Return Product Inventory
-    if ($item_product_id) {
-        mysqli_query($mysqli,"INSERT INTO product_stock SET stock_qty = $item_quantity, stock_note = 'Returned QTY $item_quantity back to stock from Invoice $invoice_id', stock_product_id = $item_product_id");
-    }
-
-    logAudit("Invoice", "Delete", "$session_name removed item $item_name from invoice $invoice_prefix$invoice_number", $client_id, $invoice_id);
-
-    flashAlert("Item <strong>$item_name</strong> removed from invoice", 'error');
 
     redirect();
 
@@ -924,6 +724,12 @@ if (isExportRequest('export_invoices')) {
         $status_query = "invoice_status = 'Sent' OR invoice_status = 'Viewed' OR invoice_status = 'Partial'";
         $overdue_query = "AND (invoice_due < CURDATE())";
         $filter_summary['Status'] = 'Overdue';
+    } elseif (!empty($_POST['status']) && $_POST['status'] == 'Paid') {
+        $status_query = "invoice_status = 'Paid'";
+        $filter_summary['Status'] = 'Paid';
+    } elseif (!empty($_POST['status']) && $_POST['status'] == 'Cancelled') {
+        $status_query = "invoice_status IN ('Cancelled', 'Non-Billable')";
+        $filter_summary['Status'] = 'Cancelled or non-billable';
     } else {
         // Default - any
         $status_query = "invoice_status LIKE '%'";
@@ -1003,28 +809,10 @@ if (isExportRequest('export_invoices')) {
 
 }
 
-// TODO: This should probably be removed as we now allow multiple invoices to be linked to a single ticket
-if (isset($_POST['link_invoice_to_ticket'])) {
-
-    validateCSRFToken();
-
-    enforceUserPermission('module_sales', 2);
-
-    $invoice_id = intval($_POST['invoice_id']);
-    $ticket_id = intval($_POST['ticket_id']);
-
-    $client_id = intval(getFieldById('invoices', $invoice_id, 'invoice_client_id'));
-
-    enforceClientAccess();
-
-    mysqli_query($mysqli,"UPDATE invoices SET invoice_ticket_id = $ticket_id WHERE invoice_id = $invoice_id");
-
-    flashAlert("Invoice linked to ticket");
-
-    redirect();
-
-}
-
+/*
+ * Put tickets on an invoice - billable ones of the same client that are
+ * resolved or closed and not on an invoice yet. ticket_ids[] (or ticket_id).
+ */
 if (isset($_POST['add_ticket_to_invoice'])) {
 
     validateCSRFToken();
@@ -1032,15 +820,34 @@ if (isset($_POST['add_ticket_to_invoice'])) {
     enforceUserPermission('module_sales', 2);
 
     $invoice_id = intval($_POST['invoice_id']);
-    $ticket_id = intval($_POST['ticket_id']);
-
-    $client_id = intval(getFieldById('tickets', $ticket_id, 'ticket_client_id'));
+    $invoice = billingRow('invoice', $invoice_id);
+    if (!$invoice) {
+        flashAlert('That invoice no longer exists.', 'error');
+        redirect();
+    }
+    $client_id = intval($invoice['client_id']);
 
     enforceClientAccess();
 
-    mysqli_query($mysqli,"UPDATE tickets SET ticket_invoice_id = $invoice_id WHERE ticket_id = $ticket_id");
+    $ticket_ids = array_filter(array_map('intval', (array) ($_POST['ticket_ids'] ?? [$_POST['ticket_id'] ?? 0])));
+    $added = [];
+    foreach (invoiceUnbilledTickets($client_id) as $ticket) {
+        if (in_array(intval($ticket['ticket_id']), $ticket_ids, true)) {
+            mysqli_query($mysqli, "UPDATE tickets SET ticket_invoice_id = $invoice_id WHERE ticket_id = " . intval($ticket['ticket_id']) . " AND ticket_invoice_id = 0");
+            $added[] = $ticket['ticket_prefix'] . $ticket['ticket_number'];
+        }
+    }
 
-    flashAlert("Ticket linked to invoice");
+    if (!$added) {
+        flashAlert('Nothing added - those tickets are already billed, or not billable.', 'error');
+        redirect("invoice.php?invoice_id=$invoice_id");
+    }
+
+    $number = billingNumber('invoice', $invoice);
+    billingLog('invoice', $invoice_id, $invoice['invoice_status'], 'Ticket' . (count($added) === 1 ? ' ' : 's ') . implode(', ', $added) . " added by $session_name");
+    logAudit("Invoice", "Edit", escapeSql("$session_name added ticket" . (count($added) === 1 ? ' ' : 's ') . implode(', ', $added) . " to invoice $number"), $client_id, $invoice_id);
+
+    flashAlert(count($added) === 1 ? "Ticket <strong>" . escapeHtml($added[0]) . "</strong> added to the invoice" : count($added) . " tickets added to the invoice");
 
     redirect("invoice.php?invoice_id=$invoice_id");
 
@@ -1055,13 +862,23 @@ if (isset($_GET['remove_ticket_from_invoice'])) {
     $invoice_id = intval($_GET['invoice_id']);
     $ticket_id = intval($_GET['ticket_id']);
 
-    $client_id = intval(getFieldById('tickets', $ticket_id, 'ticket_client_id'));
+    $invoice = billingRow('invoice', $invoice_id);
+    $ticket = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT ticket_prefix, ticket_number, ticket_client_id FROM tickets WHERE ticket_id = $ticket_id AND ticket_invoice_id = $invoice_id"));
+    if (!$invoice || !$ticket) {
+        flashAlert('That ticket is not on this invoice.', 'error');
+        redirect();
+    }
+    $client_id = intval($invoice['client_id']);
 
     enforceClientAccess();
 
     mysqli_query($mysqli,"UPDATE tickets SET ticket_invoice_id = 0 WHERE ticket_id = $ticket_id");
 
-    flashAlert("Ticket unlinked from invoice");
+    $ticket_number = $ticket['ticket_prefix'] . $ticket['ticket_number'];
+    billingLog('invoice', $invoice_id, $invoice['invoice_status'], "Ticket $ticket_number taken off by $session_name");
+    logAudit("Invoice", "Edit", escapeSql("$session_name took ticket $ticket_number off invoice " . billingNumber('invoice', $invoice)), $client_id, $invoice_id);
+
+    flashAlert("Ticket <strong>" . escapeHtml($ticket_number) . "</strong> taken off the invoice - it is unbilled again");
 
     redirect("invoice.php?invoice_id=$invoice_id");
 
@@ -1073,234 +890,16 @@ if (isset($_GET['export_invoice_pdf'])) {
 
     enforceUserPermission('module_sales');
 
-    $invoice_id = intval($_GET['export_invoice_pdf']);
-
-    $sql = mysqli_query(
-        $mysqli,
-        "SELECT client_currency_code, client_id, client_name, client_net_terms, client_website,
-            contact_email, contact_extension, contact_mobile, contact_mobile_country_code,
-            contact_phone, contact_phone_country_code, invoice_amount, invoice_category_id,
-            invoice_created_at, invoice_currency_code, invoice_date, invoice_discount_amount,
-            invoice_due, invoice_id, invoice_note, invoice_number, invoice_prefix, invoice_scope,
-            invoice_status, invoice_url_key, location_address, location_city, location_country,
-            location_state, location_zip FROM invoices
-        LEFT JOIN clients ON invoice_client_id = client_id
-        LEFT JOIN contacts ON clients.client_id = contacts.contact_client_id AND contact_primary = 1
-        LEFT JOIN locations ON clients.client_id = locations.location_client_id AND location_primary = 1
-        WHERE invoice_id = $invoice_id
-        " . clientScopeSql('invoice_client_id') . "
-        LIMIT 1"
-    );
-
-    $row = mysqli_fetch_assoc($sql);
-    $invoice_id = intval($row['invoice_id']);
-    $invoice_prefix = escapeHtml($row['invoice_prefix']);
-    $invoice_number = intval($row['invoice_number']);
-    $invoice_scope = escapeHtml($row['invoice_scope']);
-    $invoice_status = escapeHtml($row['invoice_status']);
-    $invoice_date = escapeHtml($row['invoice_date']);
-    $invoice_due = escapeHtml($row['invoice_due']);
-    $invoice_amount = floatval($row['invoice_amount']);
-    $invoice_discount = floatval($row['invoice_discount_amount']);
-    $invoice_currency_code = escapeHtml($row['invoice_currency_code']);
-    $invoice_note = escapeHtml($row['invoice_note']);
-    $invoice_url_key = escapeHtml($row['invoice_url_key']);
-    $invoice_created_at = escapeHtml($row['invoice_created_at']);
-    $category_id = intval($row['invoice_category_id']);
-    $client_id = intval($row['client_id']);
-    $client_name = escapeHtml($row['client_name']);
-    $location_address = escapeHtml($row['location_address']);
-    $location_city = escapeHtml($row['location_city']);
-    $location_state = escapeHtml($row['location_state']);
-    $location_zip = escapeHtml($row['location_zip']);
-    $location_country = escapeHtml($row['location_country']);
-    $contact_email = escapeHtml($row['contact_email']);
-    $contact_phone_country_code = escapeHtml($row['contact_phone_country_code']);
-    $contact_phone = escapeHtml(formatPhoneNumber($row['contact_phone'], $contact_phone_country_code));
-    $contact_extension = escapeHtml($row['contact_extension']);
-    $contact_mobile_country_code = escapeHtml($row['contact_mobile_country_code']);
-    $contact_mobile = escapeHtml(formatPhoneNumber($row['contact_mobile'], $contact_mobile_country_code));
-    $client_website = escapeHtml($row['client_website']);
-    $client_currency_code = escapeHtml($row['client_currency_code']);
-    $client_net_terms = intval($row['client_net_terms']);
-    if ($client_net_terms == 0) {
-        $client_net_terms = $config_default_net_terms;
+    $invoice = billingRow('invoice', intval($_GET['export_invoice_pdf']));
+    if (!$invoice) {
+        flashAlert('That invoice no longer exists.', 'error');
+        redirect('invoices.php');
     }
+    $client_id = intval($invoice['client_id']);
 
     enforceClientAccess();
 
-    $sql = mysqli_query($mysqli, "SELECT company_address, company_city, company_country, company_email, company_id, company_logo,
-        company_name, company_phone, company_phone_country_code, company_state, company_tax_id,
-        company_website, company_zip FROM companies WHERE company_id = 1");
-    $row = mysqli_fetch_assoc($sql);
-    $company_id = intval($row['company_id']);
-    $company_name = escapeHtml($row['company_name']);
-    $company_country = escapeHtml($row['company_country']);
-    $company_address = escapeHtml($row['company_address']);
-    $company_city = escapeHtml($row['company_city']);
-    $company_state = escapeHtml($row['company_state']);
-    $company_zip = escapeHtml($row['company_zip']);
-    $company_phone_country_code = escapeHtml($row['company_phone_country_code']);
-    $company_phone = escapeHtml(formatPhoneNumber($row['company_phone'], $company_phone_country_code));
-    $company_email = escapeHtml($row['company_email']);
-    $company_website = escapeHtml($row['company_website']);
-    $company_tax_id = escapeHtml($row['company_tax_id']);
-    if ($config_invoice_show_tax_id && !empty($company_tax_id)) {
-        $company_tax_id_display = "Tax ID: $company_tax_id";
-    } else {
-        $company_tax_id_display = "";
-    }
-    $company_logo = escapeHtml($row['company_logo']);
-
-    $sql_payments = mysqli_query($mysqli, "SELECT * FROM payments, accounts WHERE payment_account_id = account_id AND payment_invoice_id = $invoice_id ORDER BY payments.payment_id DESC");
-
-    //Add up all the payments for the invoice and get the total amount paid to the invoice
-    $sql_amount_paid = mysqli_query($mysqli, "SELECT SUM(payment_amount) AS amount_paid FROM payments WHERE payment_invoice_id = $invoice_id");
-    $row = mysqli_fetch_assoc($sql_amount_paid);
-    $amount_paid = floatval($row['amount_paid']);
-
-    $balance = $invoice_amount - $amount_paid;
-
-    //check to see if overdue
-    if ($invoice_status !== "Paid" && $invoice_status !== "Draft" && $invoice_status !== "Cancelled" && $invoice_status !== "Non-Billable") {
-        $unixtime_invoice_due = strtotime($invoice_due) + 86400;
-        if ($unixtime_invoice_due < time()) {
-            $invoice_overdue = "Overdue";
-        }
-    }
-
-    //Set Badge color based off of invoice status
-    $invoice_badge_color = getInvoiceBadgeColor($invoice_status);
-
-    require_once("../libs/TCPDF/tcpdf.php");
-
-    // Start TCPDF
-    $pdf = new TCPDF('P', 'mm', 'A4', true, 'UTF-8', false);
-    $pdf->SetMargins(10, 10, 10);
-    $pdf->setPrintHeader(false);
-    $pdf->setPrintFooter(false);
-    $pdf->AddPage();
-    $pdf->SetFont('helvetica', '', 10);
-
-    // Logo + Right Columns
-    $html = '<table width="100%" cellspacing="0" cellpadding="3">
-    <tr>
-        <td width="40%">';
-    if (!empty($company_logo) && file_exists("../uploads/settings/$company_logo")) {
-        $html .= '<img src="/uploads/settings/' . $company_logo . '" width="120">';
-    }
-    $html .= '</td>
-        <td width="60%" align="right">
-            <span style="font-size:18pt; font-weight:bold;">Invoice</span><br>
-            <span style="font-size:14pt;">' . $invoice_prefix . $invoice_number . '</span><br>';
-    if (strtolower($invoice_status) === 'paid') {
-        $html .= '<span style="color:green; font-weight:bold;">PAID</span><br>';
-    }
-    $html .= '</td>
-    </tr>
-    </table><br>';
-
-    // Billing titles
-    $html .= '<table width="100%" cellspacing="0" cellpadding="2">
-    <tr>
-        <td width="50%" style="font-size:14pt; font-weight:bold;">' . $company_name . '</td>
-        <td width="50%" align="right" style="font-size:14pt; font-weight:bold;">' . $client_name . '</td>
-    </tr>
-    <tr>
-        <td style="font-size:10pt; line-height:1.4;">' . nl2br(formatAddress($company_address, $company_city, $company_state, $company_zip, $company_country) . "\n$company_phone\n$company_website\n$company_tax_id_display") . '</td>
-        <td style="font-size:10pt; line-height:1.4;" align="right">' . nl2br(formatAddress($location_address, $location_city, $location_state, $location_zip, $location_country) . "\n$contact_email\n$contact_phone") . '</td>
-    </tr>
-    </table><br>';
-
-    // Date table
-    $html .= '<table border="0" cellpadding="2" cellspacing="0" width="100%">
-    <tr>
-        <td width="60%"></td>
-        <td width="20%" style="font-size:10pt;"><strong>Date:</strong></td>
-        <td width="20%" style="font-size:10pt;" align="right">' . $invoice_date . '</td>
-    </tr>
-    <tr>
-        <td></td>
-        <td style="font-size:10pt;"><strong>Due:</strong></td>
-        <td style="font-size:10pt;" align="right">' . $invoice_due . '</td>
-    </tr>
-    </table><br><br>';
-
-    // Items header
-    $html .= '
-    <table border="0" cellpadding="5" cellspacing="0" width="100%">
-    <tr style="background-color:#f0f0f0;">
-        <th align="left" width="40%"><strong>Item</strong></th>
-        <th align="center" width="10%"><strong>Qty</strong></th>
-        <th align="right" width="15%"><strong>Price</strong></th>
-        <th align="right" width="15%"><strong>Tax</strong></th>
-        <th align="right" width="20%"><strong>Amount</strong></th>
-    </tr>';
-
-    // Load items
-    $sub_total = 0;
-    $total_tax = 0;
-
-    $sql_items = mysqli_query($mysqli, "SELECT item_description, item_name, item_price, item_quantity, item_tax, item_total FROM invoice_items WHERE item_invoice_id = $invoice_id ORDER BY item_order ASC");
-    while ($item = mysqli_fetch_assoc($sql_items)) {
-        $name = $item['item_name'];
-        $desc = $item['item_description'];
-        $qty = $item['item_quantity'];
-        $price = $item['item_price'];
-        $tax = $item['item_tax'];
-        $total = $item['item_total'];
-
-        $sub_total += $price * $qty;
-        $total_tax += $tax;
-
-        $html .= '
-        <tr>
-            <td><strong>' . $name . '</strong>
-            <br><span style="font-style:italic; font-size:9pt;">' . nl2br($desc) . '</span>
-            </td>
-            <td align="center">' . number_format($qty, 2) . '</td>
-            <td align="right">' . numfmt_format_currency($currency_format, $price, $invoice_currency_code) . '</td>
-            <td align="right">' . numfmt_format_currency($currency_format, $tax, $invoice_currency_code) . '</td>
-            <td align="right">' . numfmt_format_currency($currency_format, $total, $invoice_currency_code) . '</td>
-        </tr>';
-    }
-
-    $html .= '</table><br><hr><br><br>';
-
-    // Totals
-    $html .= '<table width="100%" cellspacing="0" cellpadding="4">
-    <tr>
-        <td width="60%"><i style="font-size:9pt;">' . nl2br($invoice_note) . '</i></td>
-        <td width="40%">
-            <table width="100%" cellpadding="3" cellspacing="0">
-                <tr><td>Subtotal:</td><td align="right">' . numfmt_format_currency($currency_format, $sub_total, $invoice_currency_code) . '</td></tr>';
-    if ($invoice_discount > 0) {
-        $html .= '<tr><td>Discount:</td><td align="right">-' . numfmt_format_currency($currency_format, $invoice_discount, $invoice_currency_code) . '</td></tr>';
-    }
-    if ($total_tax > 0) {
-        $html .= '<tr><td>Tax:</td><td align="right">' . numfmt_format_currency($currency_format, $total_tax, $invoice_currency_code) . '</td></tr>';
-    }
-    $html .= '
-    <tr><td>Total:</td><td align="right">' . numfmt_format_currency($currency_format, $invoice_amount, $invoice_currency_code) . '</td></tr>';
-    if ($amount_paid > 0) {
-        $html .= '<tr><td>Paid:</td><td align="right">' . numfmt_format_currency($currency_format, $amount_paid, $invoice_currency_code) . '</td></tr>';
-    }
-    $html .= '
-    <tr><td><h3><strong>Balance:</strong></h3></td><td align="right"><h3><strong>' . numfmt_format_currency($currency_format, $balance, $invoice_currency_code) . '</strong></h3></td></tr>
-    </table>
-        </td>
-    </tr>
-    </table><br><br>';
-
-    // Footer
-    $html .= '<div style="text-align:center; font-size:9pt; color:gray;">' . nl2br($config_invoice_footer) . '</div>';
-
-    $pdf->writeHTML($html, true, false, true, false, '');
-
-    $filename = preg_replace('/[^A-Za-z0-9_\-]/', '_', "{$invoice_date}_{$company_name}_{$client_name}_Invoice_{$invoice_prefix}{$invoice_number}");
-    $pdf->Output("$filename.pdf", 'I');
-
-    exit;
+    billingPdfSend(billingPdf('invoice', $invoice));
 
 }
 
@@ -1310,148 +909,16 @@ if (isset($_GET['export_invoice_packing_slip'])) {
 
     enforceUserPermission('module_sales');
 
-    $invoice_id = intval($_GET['export_invoice_packing_slip']);
-
-    $sql = mysqli_query(
-        $mysqli,
-        "SELECT client_id, client_name, contact_email, contact_extension, contact_phone,
-            contact_phone_country_code, invoice_date, invoice_id, invoice_number, invoice_prefix,
-            location_address, location_city, location_country, location_state, location_zip FROM invoices
-        LEFT JOIN clients ON invoice_client_id = client_id
-        LEFT JOIN contacts ON clients.client_id = contacts.contact_client_id AND contact_primary = 1
-        LEFT JOIN locations ON clients.client_id = locations.location_client_id AND location_primary = 1
-        WHERE invoice_id = $invoice_id
-        " . clientScopeSql('invoice_client_id') . "
-        LIMIT 1"
-    );
-
-    $row = mysqli_fetch_assoc($sql);
-    $invoice_id = intval($row['invoice_id']);
-    $invoice_prefix = escapeHtml($row['invoice_prefix']);
-    $invoice_number = intval($row['invoice_number']);
-    $invoice_date = escapeHtml($row['invoice_date']);
-    $client_id = intval($row['client_id']);
-    $client_name = escapeHtml($row['client_name']);
-    $location_address = escapeHtml($row['location_address']);
-    $location_city = escapeHtml($row['location_city']);
-    $location_state = escapeHtml($row['location_state']);
-    $location_zip = escapeHtml($row['location_zip']);
-    $location_country = escapeHtml($row['location_country']);
-    $contact_email = escapeHtml($row['contact_email']);
-    $contact_phone_country_code = escapeHtml($row['contact_phone_country_code']);
-    $contact_phone = escapeHtml(formatPhoneNumber($row['contact_phone'], $contact_phone_country_code));
-    $contact_extension = escapeHtml($row['contact_extension']);
+    $invoice = billingRow('invoice', intval($_GET['export_invoice_packing_slip']));
+    if (!$invoice) {
+        flashAlert('That invoice no longer exists.', 'error');
+        redirect('invoices.php');
+    }
+    $client_id = intval($invoice['client_id']);
 
     enforceClientAccess();
 
-    $sql = mysqli_query($mysqli, "SELECT company_address, company_city, company_country, company_email, company_id, company_logo,
-        company_name, company_phone, company_phone_country_code, company_state, company_website,
-        company_zip FROM companies WHERE company_id = 1");
-    $row = mysqli_fetch_assoc($sql);
-    $company_id = intval($row['company_id']);
-    $company_name = escapeHtml($row['company_name']);
-    $company_country = escapeHtml($row['company_country']);
-    $company_address = escapeHtml($row['company_address']);
-    $company_city = escapeHtml($row['company_city']);
-    $company_state = escapeHtml($row['company_state']);
-    $company_zip = escapeHtml($row['company_zip']);
-    $company_phone_country_code = escapeHtml($row['company_phone_country_code']);
-    $company_phone = escapeHtml(formatPhoneNumber($row['company_phone'], $company_phone_country_code));
-    $company_email = escapeHtml($row['company_email']);
-    $company_website = escapeHtml($row['company_website']);
-    $company_logo = escapeHtml($row['company_logo']);
-
-    require_once("../libs/TCPDF/tcpdf.php");
-
-    // Start TCPDF
-    $pdf = new TCPDF('P', 'mm', 'A4', true, 'UTF-8', false);
-    $pdf->SetMargins(10, 10, 10);
-    $pdf->setPrintHeader(false);
-    $pdf->setPrintFooter(false);
-    $pdf->AddPage();
-    $pdf->SetFont('helvetica', '', 10);
-
-    // Logo + Right Columns
-    $html = '<table width="100%" cellspacing="0" cellpadding="3">
-    <tr>
-        <td width="40%">';
-    if (!empty($company_logo) && file_exists("../uploads/settings/$company_logo")) {
-        $html .= '<img src="/uploads/settings/' . $company_logo . '" width="120">';
-    }
-    $html .= '</td>
-        <td width="60%" align="right">
-            <span style="font-size:18pt; font-weight:bold;">Packing Slip</span><br>
-            <span style="font-size:14pt;">' . $invoice_prefix . $invoice_number . '</span><br>';
-    $html .= '</td>
-    </tr>
-    </table><br>';
-
-    // Billing titles
-    $html .= '<table width="100%" cellspacing="0" cellpadding="2">
-    <tr>
-        <td width="50%" style="font-size:14pt; font-weight:bold;">' . $company_name . '</td>
-        <td width="50%" align="right" style="font-size:14pt; font-weight:bold;">' . $client_name . '</td>
-    </tr>
-    <tr>
-        <td style="font-size:10pt; line-height:1.4;">' . nl2br(formatAddress($company_address, $company_city, $company_state, $company_zip, $company_country) . "\n$company_phone\n$company_website") . '</td>
-        <td style="font-size:10pt; line-height:1.4;" align="right">' . nl2br(formatAddress($location_address, $location_city, $location_state, $location_zip, $location_country) . "\n$contact_email\n$contact_phone") . '</td>
-    </tr>
-    </table><br>';
-
-    // Items header
-    $html .= '
-    <table border="0" cellpadding="5" cellspacing="0" width="100%">
-    <tr style="background-color:#f0f0f0;">
-        <th align="left" width="50%"><strong>Item</strong></th>
-        <th align="center" width="40%"><strong>Qty</strong></th>
-        <th align="right" width="10%"><strong>Picked?</strong></th>
-    </tr>';
-
-    // Load items
-    $sub_total = 0;
-    $total_tax = 0;
-
-    $sql_items = mysqli_query($mysqli, "SELECT item_name, item_quantity FROM invoice_items WHERE item_invoice_id = $invoice_id ORDER BY item_order ASC");
-    while ($item = mysqli_fetch_assoc($sql_items)) {
-        $name = $item['item_name'];
-        $qty = $item['item_quantity'];
-
-        $html .= '
-        <tr>
-            <td><strong>' . $name . '</strong></td>
-            <td align="center">' . number_format($qty, 2) . '</td>
-            <td align="right">
-                <table cellpadding="0" cellspacing="0">
-                    <tr>
-                        <td style="border:0.5px solid #000; width:12px; height:5px; margin-top:2px"></td>
-                    </tr>
-                </table>
-            </td>
-        </tr>';
-    }
-    $html .= '</table><br><br><br>';
-
-
-    // Picked/Checked by
-    $html .= '
-    <table width="100%" cellspacing="0" cellpadding="8" style="font-size:10pt; margin-top:20px;">
-        <tr>
-            <td width="50%" style="border:1px solid #000; height:60px;">
-                <strong>Picked By:</strong><br><br>
-            </td>
-            <td width="50%" style="border:1px solid #000; height:60px;">
-                <strong>Checked By:</strong><br><br>
-            </td>
-        </tr>
-    </table>
-    <br><br>';
-
-    $pdf->writeHTML($html, true, false, true, false, '');
-
-    $filename = preg_replace('/[^A-Za-z0-9_\-]/', '_', "{$invoice_date}_{$company_name}_{$client_name}_Invoice_{$invoice_prefix}{$invoice_number}");
-    $pdf->Output("$filename.pdf", 'I');
-
-    exit;
+    billingPdfSend(billingPdf('invoice', $invoice, 'packing'));
 
 }
 
