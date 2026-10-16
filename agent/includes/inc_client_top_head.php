@@ -123,4 +123,3 @@ if (empty($client_top_head_skip)) {
 <?php
 // require_once "modals/client/client_credit_add.php"; --Credit Not Ready 2025-08-27
 require_once "modals/client/client_delete.php";
-require_once "modals/client/client_download_pdf.php";

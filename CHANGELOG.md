@@ -29,6 +29,7 @@ If you are coming from 26.08 or earlier, the database update still has to be run
   - Sales for Receivables Aging and Recurring Revenue, which used to need Financial, as they show invoices. Unbilled Work also needs Sales now, in the menu as well as on the page.
   - Financial for Mileage, which used to open with Reporting alone.
 - Reports have new names that say what they show: Outstanding Balances is now Receivables Aging, Recurring Income by Client is Recurring Revenue, Expense by Vendor is Spend by Vendor, Tax Summary is Tax Collected, Unbilled Tickets is Unbilled Work, Time by Technician is Technician Performance, Tickets is Ticket Overview and SLA Summary is SLA Performance. The addresses are the same, so bookmarks still work, though the filters saved in an old bookmark may be ignored and the report opens on its default period.
+- Client export: the client PDF no longer prints passwords and 2FA secrets unless you ask for them, and then it needs a password to open. The old PDF always printed them in plain text, archived credentials included.
 - Notifications now follow access too. An agent only sees notifications for clients and areas they can open, so someone without sales access no longer sees invoice and quote notifications.
 - Drop-downs: Tom Select is gone, replaced by ITFlow's own picker. It works the way you are used to: type to search, tick several in a multi-select, and type a new value in fields that allow it, such as ticket watchers. See Developer Updates if you have custom pages that used Tom Select.
 - Several small windows are gone because the change is now made where the value is shown:
@@ -132,6 +133,12 @@ If you are coming from 26.08 or earlier, the database update still has to be run
   - The client overview is redesigned in two parts:
     - Technical: needs attention (such as licenses over seats, passwords due for a change, certificate problems and services needing attention), open tickets, quick notes that save when you click away, key contacts, favorites, the next 14 days, projects, services, renewals, assets, active share links and recent activity.
     - Financial: unpaid invoices, recurring invoices, and invoiced against paid.
+  - Export Data, in the client's menu, is rebuilt with two choices:
+    - Documentation PDF: a printable runbook to hand over or keep on file. It has a cover, contents with page numbers, and an overview with the key contacts, service levels and how to reach you. Then comes a chapter for each part you pick: contacts, locations, networks with their IP addresses, assets by type, racks, licenses with their keys and who holds them, domains and DNS, certificates, services with what they run on and depend on, vendors, credentials, files, and every document in full with its images.
+    - Full export: one zip with everything held for the client, for a handover, an offboarding or your own records. Every record comes as a CSV spreadsheet and as JSON for moving to another system. Documents come as web pages in their folders, files in their folders under their own names, and ticket conversations with their attachments, alongside projects, invoices, quotes and payments, photos and the PDF. A README.html links it all together.
+  - Each part shows how many records it holds. Archived records and internal ticket notes go in only if you tick them.
+  - Passwords and 2FA secrets go in only if you ask, and the PDF or zip is then locked with a password you set (AES-256). An encrypted zip opens with 7-Zip, WinRAR, Keka or The Unarchiver, but not with the zip tools built into Windows and macOS.
+  - Each export is recorded in the client's audit log, including whether passwords went out.
 - **Tickets**
   - The ticket list has views for Open, Mine, Unassigned, Needs reply, Waiting, Overdue, Scheduled, Closed and All.
     - Each row shows whose move it is (yours or the client's) along with SLA and due badges, and status, priority and agent change right in the row.
@@ -401,6 +408,13 @@ If you are coming from 26.08 or earlier, the database update still has to be run
   - CSS: the `.itflow-report-*` classes in `css/itflow_custom.css`, with print rules that keep side-by-side cards together.
   - Client portal: `add_ticket_feedback` stores only `Good` or `Bad`. Demo data rates some closed tickets and leaves a few older Windows machines on Windows 10, so the satisfaction and lifecycle reports have something to show.
   - The client actions menu links to the Client Review for that client, and the credentials list's rotation report link keeps the client.
+- Client export:
+  - `functions/client_export.php` (loaded by `functions.php`) holds both outputs. `clientExportSections()` lists the sections with the module and the part of ITFlow each needs, and `clientExportOptions()` keeps only what the agent may read, whatever is posted.
+  - `clientExportDatasets()` and `clientExportRows()` define every table once, and the PDF and the zip both read from them. The CSV headings and JSON keys come from the same column list.
+  - `clientExportPdf()` builds the PDF with TCPDF through the `ClientExportPdf` class in `functions/client_export_pdf.php`, which adds the header, the footer with "Page x of y", and an `Error()` that throws, so a document TCPDF cannot draw falls back to plain text instead of ending the PDF. Document images are inlined from `uploads/documents/<id>/` only, and other image URLs are never fetched.
+  - `clientExportArchive()` builds the zip in `uploads/tmp`, stores already-compressed files without recompressing them, encrypts every entry with `ZipArchive::EM_AES_256` when passwords are included, and removes the file when the request ends, however it ends. Files and attachments are only read from the client's own upload folders.
+  - The window is `agent/modals/client/client_export_data.php` with `agent/js/client_export.js`, and the handler takes `export_client_pdf` or `export_client_archive` in `agent/post/client.php`. The `itflow_download` cookie tells the window the download has started.
+  - Removed: `agent/modals/client/client_download_pdf.php`, `getClientPackSections()`, `getClientPackSectionAccess()`, `resolveClientPackSections()` and `renderClientPackSections()`.
 - Sidebar brand: `agent/css/sidebar_brand_fix.css` and `agent/js/sidebar_brand_fix.js` from 26.10 are replaced by CSS in `css/itflow_custom.css`. `includes/load_company_settings.php` now sets `$session_company_logo`.
 - `alertMessageHtml()` no longer double-encodes, and save messages built from `escapeSql()` values use `stripslashes()` at the flash.
 - CSS: `[hidden] { display: none !important; }` at the top of `css/itflow_custom.css`, so the `hidden` attribute wins over `d-flex` and the other display utilities. `.pagination` wraps.

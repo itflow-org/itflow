@@ -30,8 +30,8 @@
     <?php } ?>
     <?php if (lookupUserPermission("module_client") >= 1) { ?>
         <div class="dropdown-divider"></div>
-        <a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#exportClientPDFModal">
-            <i class="fas fa-fw fa-file-pdf me-2"></i>Export Data
+        <a class="dropdown-item ajax-modal" href="#" data-modal-url="modals/client/client_export_data.php?client_id=<?= $client_id ?>" data-modal-size="lg">
+            <i class="fas fa-fw fa-file-export me-2"></i>Export Data
         </a>
     <?php } ?>
     <?php if (reportCan(reportFind('client_review'))) { ?>
