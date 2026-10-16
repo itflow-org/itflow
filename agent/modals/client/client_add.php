@@ -313,6 +313,15 @@ ob_start();
                         </div>
                     </div>
 
+                    <div class="mb-3">
+                        <input type="hidden" name="reminders_field" value="1">
+                        <div class="form-check form-switch">
+                            <input type="checkbox" class="form-check-input" name="reminders" value="1" id="clientRemindersNew" checked>
+                            <label class="form-check-label" for="clientRemindersNew">Payment reminders and statements</label>
+                        </div>
+                        <small class="text-secondary">Emailed as set in Invoice Settings. Off, this client gets neither - invoices can still be sent by hand.</small>
+                    </div>
+
 
                 </div>
 

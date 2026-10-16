@@ -6,9 +6,9 @@ This file documents all notable changes made to ITFlow.
 
 ### Upgrading to 26.11
 
-Update from Maintenance > Update — Queue Update hands the job to cron, which updates the files and applies this release's database changes (2.7.9 to 2.9.7) in the same pass. Nothing else is required.
+Update from Maintenance > Update — Queue Update hands the job to cron, which updates the files and applies this release's database changes (2.7.9 to 2.9.8) in the same pass. Nothing else is required.
 
-This is a big release, with eighteen database steps in one go, so take a backup before you update.
+This is a big release, with nineteen database steps in one go, so take a backup before you update.
 
 The update also clears out data that deletes in older versions left behind, all of it pointing at something that no longer exists:
 
@@ -18,6 +18,8 @@ The update also clears out data that deletes in older versions left behind, all 
 - project template entries whose ticket template is gone, and the same service link saved twice
 
 It also gives every existing network a type (LAN, WAN, Guest and so on) guessed from its name or description, which you can change afterwards, and fills in the issue date, names covered and fingerprint of every certificate already on file. Invoices made from a quote before the update are linked to that quote, so each one shows where it came from. Products that ever had stock added keep tracking their stock, and the rest are set to ordered as needed (see Breaking Changes, Products). Their past stock changes are sorted into received, sold and returned from their notes, and linked to the invoice they name. No product becomes a client asset when it is sold until you give it an asset type (see New Features, Products). Each product's price history starts with the update, so lines on recurring invoices are only flagged as behind once their product's price changes.
+
+Payment reminders keep the schedule they had: 1 and 30 days late, then every 30 days until the invoice is paid. If reminders were on, they stay on, and every client is included. The schedule can now be changed in Admin > Settings > Invoice (see Breaking Changes, Billing emails). Monthly statements start switched off.
 
 If you are coming from 26.08 or earlier, the database update still has to be run from the command line one time, exactly as described under Upgrading to 26.09 below.
 
@@ -44,6 +46,12 @@ If you are coming from 26.08 or earlier, the database update still has to be run
   - Invoice and quote PDFs have a new layout, and print on Letter paper in the United States and Canada and A4 elsewhere. They were always A4.
   - The recurring invoices list no longer has a date filter. It filtered by the date each one was created.
   - Links to the invoices list with `?status=Draft`, `Unpaid` or `Overdue` still work, and `Paid` and `Cancelled` are new.
+- Billing emails:
+  - Payment reminders moved from Admin > Settings > Notifications to Admin > Settings > Invoice, under Reminders and Statements. Saving the Notifications page no longer changes them.
+  - Reminders and payment receipts go to the client's primary and billing contacts, once per address. They used to go to the primary contact only.
+  - An invoice on a recurring invoice with autopay is not reminded before or on its due date, as the card is charged that day. It is reminded once it is late.
+  - Invoice, quote, reminder, receipt and statement emails have a new look, with the invoice, quote or statement attached as a PDF. Attaching can be turned off in Invoice Settings, or for one email in its Send window. The subjects changed too, such as "Invoice INV-12 from PittPC", "Overdue: invoice INV-12 is 30 days past due" and "Payment received for invoice INV-12". If you filter mail on the old subjects ("Overdue Invoice INV-12", "Quote [scope]", "Account Statement - Client"), update the filters.
+  - The late fee is now a line on the invoice like any other, and the total is worked out from the lines. It still comes every 30 days late, while reminders are on.
 - Recurring invoices:
   - The nightly run also bills a run it missed by up to 7 days, for nights the cron didn't run. It used to bill only on the day itself. A recurring invoice further behind than that is still left for you to look at.
   - Invoice Now bills the next run early, and the schedule moves one period on from that run, so the invoice takes its place. It used to restart the schedule from today: pressing it on the 16th for a run due on the 1st moved every later invoice to the 16th.
@@ -244,6 +252,18 @@ If you are coming from 26.08 or earlier, the database update still has to be run
     - Start Billing on an accepted quote: the one-time lines go on a draft invoice, dated as you choose and due on the client's terms. Each month, quarter or year part goes on a new recurring invoice from the date you pick (the first of next month to start), with its invoices emailed as they are made or left as drafts, or is added to one of the client's recurring invoices billed as often. Switch on Bill the first month on the invoice now to put the first period on the invoice too. A quote with only one-time lines keeps Make Invoice.
     - The quote shows what it was invoiced as, with a link to each invoice and recurring invoice, including any it added lines to. The invoice and the recurring invoices link back to the quote, and each history says what happened.
     - The quotes list adds the monthly part to each row and to its totals. Search, the client portal's quotes, the Send and Copy windows, the quote email and the client's Accept all show the amounts by part. The quotes export has a Monthly column, and the client export a monthly amount on quotes and how each quote line is billed.
+  - **Reminders and statements**, in Admin > Settings > Invoice under Reminders and Statements:
+    - Set when reminders go: any days before the due date, on the due date, any days late, then every so many days until the invoice is paid. The schedule is shown in words as you type, such as "3 days before it is due, on the due date, 7 and 14 days late, then every 30 days until it is paid".
+    - A reminder before the due date is a friendly one. Once the invoice is late it is firmer, and says how many days late it is.
+    - A client can be left out of reminders and monthly statements with the switch on the Billing tab of its Edit window.
+    - The invoice page's payment card shows how many reminders have gone and when the last one went, and when the next one goes, or why none will. Send Reminder in the More menu sends one now.
+    - Monthly statements: switch them on and pick the day of the month (the 1st to the 28th). Each client with a balance gets one, unless left out of reminders.
+    - The nightly run sends at most one reminder a day for each invoice and one statement a day for each client, however often it runs. The invoice's history says who each reminder went to and how late the invoice was.
+  - **Statements**: Send Statement attaches the statement as a PDF. It shows what is owed by age (current, 1-30, 31-60, 61-90 and over 90 days) and every invoice in the period with what was paid and what is left. Download PDF in the window follows the dates and options you pick, and Statement PDF is in the invoice list's menu when it is showing one client.
+  - **Send windows**: the invoice, quote and statement windows take a message of your own, which goes in the email above the document, and a switch to attach the PDF. On an invoice that is still owed, the invoice window can send the invoice or a reminder.
+  - **Billing emails** have a new look: your logo, what is owed and by when in a summary, the message if there is one, and a button to view and pay the invoice or accept the quote. This covers invoices, quotes, reminders, payment receipts and statements, and the notices to your team when a quote is accepted or declined or a payment is made online.
+    - Receipts show the amount, method, reference and what is still to pay. A batch payment's receipt lists each invoice it was applied to.
+    - Each email's entry in the history says who it went to and whether the PDF went with it.
 - **Products** (rebuilt)
   - Each product or service records what it costs you, so its margin shows, along with the vendor you buy it from, their part number and notes for agents only.
   - How it is billed by default: one time, monthly, quarterly or yearly, and per user or per device. Picking it on a quote fills in Billed. On a recurring invoice, per user or per device takes the quantity from the client's count.
@@ -457,6 +477,9 @@ If you are coming from 26.08 or earlier, the database update still has to be run
 - Billing: an invoice made from a quote was due counting from today instead of the invoice date, and with no terms when the client had none set.
 - Billing: the client's view of a quote offered Accept on a viewed quote that had run out, and the invoice and quote views put the browser's HTML into the history.
 - Billing: copying an invoice logged its old number with the prefix twice.
+- Billing: the nightly late fee line was saved without its subtotal, and the invoice total was raised by hand instead of from its lines.
+- Billing: the email telling your team a quote was accepted or declined linked to a page that doesn't exist. It now opens the quote.
+- Billing: a batch payment's receipt went to the primary contact only, and sending it wrote a PHP warning.
 - Products: Restore in the archived list's bulk actions did nothing. Deleting a product left its stock records behind.
 - Products: Add Stock could record zero units, or link an expense that no longer existed.
 - Products: deleting an invoice did not put its stock back. Copying an invoice or making one from a quote lost the link to the product, so the copy took no stock and the product did not count it as sold.
@@ -497,7 +520,7 @@ If you are coming from 26.08 or earlier, the database update still has to be run
 
 ### Developer Updates
 
-- Database 2.8.0 to 2.9.4, one file per step under `admin/database_updates/`, with `db.sql` matching 2.9.4:
+- Database 2.8.0 to 2.9.8, one file per step under `admin/database_updates/`, with `db.sql` matching 2.9.8:
   - 2.8.0: `racks.rack_units_descending`, `rack_power_capacity` and `rack_photo_rear`. On `rack_units`: `unit_face`, `unit_full_depth`, `unit_type`, `unit_power_watts`, `unit_notes` and a `unit_asset_id` key. Unlinked items move from asset id 0 to NULL.
   - 2.8.1: `location_documents` and `location_files`.
   - 2.8.2: `vendor_tags` (tag type 6), and `vendor_contact_phone_country_code`, `vendor_contact_phone` and `vendor_contact_email`.
@@ -528,6 +551,7 @@ If you are coming from 26.08 or earlier, the database update still has to be run
   - 2.9.5: `product_stock.stock_qty` becomes `decimal(15,2)`, with `stock_type` (`received`, `sold`, `returned`, `adjusted` or `written_off`, default `adjusted`), `stock_unit_cost`, `stock_invoice_id` (keyed) and `stock_user_id`. Existing rows take their invoice from a note ending "Invoice n" and their type from the sign and the note. `products.product_reorder_level` and `product_reorder_qty`.
   - 2.9.6: `products.product_asset_type` (one of the asset types, NULL for none), `product_make`, `product_model` and `product_warranty_months`. `assets.asset_product_id`, `asset_invoice_id` and `asset_invoice_item_id`, keyed on the product and the invoice.
   - 2.9.7: `product_prices` - a product's price and cost history: `price_old`, `price_new`, `price_cost_old`, `price_cost_new`, `price_source` (`edit`, `import` or `receive`), `price_user_id` and `price_product_id`, keyed.
+  - 2.9.8: `settings.config_invoice_reminder_days` ('1,30' - days from the due date, negative before it), `config_invoice_reminder_repeat` (30), `config_statement_monthly` (0), `config_statement_day` (1) and `config_billing_email_attach_pdf` (1), and `clients.client_reminders` (1).
 - New shared function files, loaded by `functions.php`: `functions/asset.php`, `asset_interface.php`, `certificate.php`, `client_overview.php`, `contact.php`, `credential.php`, `dashboard.php`, `links.php`, `location.php`, `notifications.php`, `project.php`, `rack.php`, `search.php`, `service.php`, `software.php`, `tags.php`, `ticket.php`, `ticket_fields.php`, `user.php` and `vendor.php`. They hold the queries and rules, so the pages, the API and cron share one definition.
 - Removed post models: `agent/post/{asset_interface,certificate,credential,domain,event,location,network_ip,network,recurring_ticket,vendor}_model.php`, `admin/post/user_model.php` and `api/v1/certificates/certificate_model.php`. Their handlers call the shared functions above. Interface handlers moved to `agent/post/asset_interface.php`.
 - New scripts: `js/itflow_select.js`, `quick_pick.js`, `tag_picker.js`, `global_search.js`, `notifications.js`, `dashboard.js`, `client_overview.js`, `client_switcher.js`, `credentials.js` and `autosubmit.js`, and `agent/js/calendar.js`, `calendar_event_modal.js`, `files.js`, `interface_form.js`, `network_form.js`, `project_modal.js` and `ticket_schedule_modal.js`.
@@ -634,6 +658,15 @@ If you are coming from 26.08 or earlier, the database update still has to be run
   - `agent/modals/quote/quote_to_invoice.php` posts those fields. Quote lines carry `data-group`, with `tr.itflow-paper-group` headings in `includes/billing_paper.php`, and the Sortable in `js/billing_items.js` drags only `tr[data-item-id]`, within its group when the table is grouped.
   - `reportCsv()` writes a totals row as given, without the column's `csv` function, which read fields a totals row doesn't have. The quotes export takes `quote_monthly_amount`.
   - Removed: `add_invoice_item`, `edit_invoice_item`, `delete_invoice_item`, `add_quote_item`, `edit_quote_item`, `delete_quote_item`, `add_recurring_invoice_item`, `edit_recurring_invoice_item`, `delete_recurring_invoice_item` and `link_invoice_to_ticket` (it wrote a column that does not exist), `update_invoice_items_order`, `update_quote_items_order` and `update_recurring_invoice_items_order` in `agent/ajax.php`, `agent/modals/invoice/invoice_item_edit.php`, `agent/modals/quote/quote_item_edit.php`, `agent/modals/recurring_invoice/recurring_invoice_item_edit.php`, `guest/guest_quote_upload_file_modal.php` and `js/product_autocomplete.js`.
+- Billing emails, in `functions/billing_email.php` (loaded by `functions.php`):
+  - Schedule: `billingReminderRules($fresh)` reads the 2.9.8 settings once a request, falling back to 1 and 30 days late before 2.9.8 is applied, so they are not in `load_global_settings.php`. Also `billingReminderDaysParse()`, `billingReminderOnDay($days, $rules)` (days late, negative before the due date: a listed day, or every `repeat` days after the last listed day), `billingReminderScheduleText()` (the settings page's script mirrors it), `billingReminderNext($invoice, $rules, $late_only)`, `billingReminderAutopay()` and `billingReminderWhen()`.
+  - Layout: `billingEmailHtml($email)` draws every billing email from one array (`kind`, `tone`, `title`, `greeting`, `intro`, `note`, `summary`, `lines`, `button`, `after`, `footnote`) as inline-styled tables, for mail clients. The templates return `[$subject, $email]`: `billingInvoiceEmail($invoice, $opts)` (`kind` invoice or reminder, and `note`; a paid invoice gets the receipt), `billingQuoteEmail()`, `billingPaymentEmail($applied, $payment)`, `billingStatementEmail()` and `billingNotifyEmail()`.
+  - Sending: `billingEmailRecipients($client_id, $contact_ids, $type)` returns the client's own contacts with an address, once each, or the defaults from `documentDefaultContactFilterSql()` when `$contact_ids` is null. `billingEmailQueue($recipients, $subject, $email, $opts)` (`from` and `attach`) queues one row each and returns "Name (email)" labels for the history. Also `billingEmailFrom()` and `billingEmailReady()`.
+  - Attachments: `billingEmailPdf($pdf)` writes the PDF under `uploads/tmp/billing_mail/<random>/` for the queue's attachment manifest, and `billingEmailPdfCleanup($days)` removes folders older than that. The nightly run calls it with 7.
+  - Receipts and notices: `billingPaymentSend($invoice_id, $amount, $payment, $notify)` is used by `add_payment`, saved-card and guest Stripe payments and cron autopay. With `$notify` it also emails `config_invoice_paid_notification_email` through `billingPaymentNotify()`. `guest/guest_post.php` calls `billingQuoteAnsweredNotify($quote_id, $accepted)`.
+  - Statements: `billingStatement($client_id, $from, $to, $include_paid)` returns the invoices with paid, balance and days late, the total, what is overdue and the `aging` buckets. Also `billingStatementPeriod()`, `billingStatementPdf()` and `billingStatementSend($statement, $contact_ids, $opts)`. The drawing is `billingStatementPdfRender()` in `functions/billing_pdf.php`, where `billingPdfConfig()` now loads the footer settings when the globals are not set, as in cron.
+  - Handlers: `email_invoice` takes `kind` (`invoice` or `reminder`), `note` (up to 2000 characters) and `attach_pdf`, and `email_quote` and `send_statement` take `note` and `attach_pdf`. New GET `export_client_statement_pdf=client_id`, with `dtf`, `dtt` and `include_paid`. `edit_invoice_settings` takes `config_send_invoice_reminders`, `reminder_before`, `reminder_on_due`, `reminder_after`, `reminder_repeat`, `config_statement_monthly`, `config_statement_day` and `config_billing_email_attach_pdf`. `edit_notification_settings` no longer writes `config_send_invoice_reminders`. Client add and edit take `reminders` with a hidden `reminders_field`, and a form without the field leaves `client_reminders` alone.
+  - `agent/modals/invoice/invoice_email.php?kind=reminder` opens on the reminder. Recurring auto-send, the batch payment receipt and the nightly reminders use the same functions. The nightly late fee goes through `billingItemSave()`. Reminders write "Reminder emailed to ..." history, and today's "Cron Emailed Overdue Invoice" entries from before the update still count as sent. Monthly statements are logged with `logAudit("Client", "Statement", ...)`, which is also what stops a second one the same day.
 - Products:
   - `functions/products.php` (loaded by `functions.php`): `productTypes()`, `productSeatSources()`, `productBilledText()`, `productMargin()` (percent of the price, null without a cost), `productMarginPill()`, `productStockSql()`, `productTile()`, `productRow()` (with category, tax, vendor and stock), `productVendors()`, `productCopy()`, `productDelete()` (with its stock), `productUsage()` (recurring, open quotes, invoice lines, sold over 12 months and a month's recurring, scoped with `clientScopeSql()`), `productHistory()` and `productStockMoves()`.
   - `productSave($in, $product_id, &$error)` is the one path that writes a product - New, Edit, Copy, Import and notes. On an existing product only the keys given change. It validates the type, numbers, an Income category, the tax and one of our vendors, clears Counted when billed once and Track stock for a service.

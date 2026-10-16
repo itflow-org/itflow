@@ -366,141 +366,54 @@ if (isset($_POST['email_quote'])) {
 
     enforceUserPermission('module_sales', 2);
 
-    $quote_id = intval($_POST['quote_id']);
-
-    $sql = mysqli_query($mysqli,"SELECT client_id, client_name, quote_amount, quote_currency_code,
-        quote_date, quote_expire, quote_number, quote_prefix, quote_scope, quote_status,
-        quote_url_key FROM quotes
-    LEFT JOIN clients ON quote_client_id = client_id
-    WHERE quote_id = $quote_id"
-    );
-
-    $row = mysqli_fetch_assoc($sql);
-    $quote_prefix = escapeSql($row['quote_prefix']);
-    $quote_number = intval($row['quote_number']);
-    $quote_scope = escapeSql($row['quote_scope']);
-    $quote_status = escapeSql($row['quote_status']);
-    $quote_date = escapeSql($row['quote_date']);
-    $quote_expire = escapeSql($row['quote_expire']);
-    $quote_amount = floatval($row['quote_amount']);
-    $quote_url_key = escapeSql($row['quote_url_key']);
-    $quote_currency_code = escapeSql($row['quote_currency_code']);
-    $client_id = intval($row['client_id']);
-    $client_name = escapeSql($row['client_name']);
+    $quote = billingRow('quote', intval($_POST['quote_id'] ?? 0));
+    if (!$quote) {
+        flashAlert('That quote no longer exists.', 'error');
+        redirect('quotes.php');
+    }
+    $quote_id = intval($quote['quote_id']);
+    $client_id = intval($quote['client_id']);
+    $number = billingNumber('quote', $quote);
 
     enforceClientAccess();
 
-    // What it comes to - up front, and each month, quarter or year
-    $quote_groups = quoteGroups(billingRow('quote', $quote_id, false));
-    $quote_groups_recurring = quoteHasRecurring($quote_groups);
-    $quote_cost_text = quoteAmountText($quote_groups, $row['quote_currency_code'] ?? $quote_currency_code);
-
-    // Two ways in. Quick Send skips the modal and resolves the default
-    // recipients server-side; the modal posts an explicit contacts[] list.
-    // Scoping either lookup to this quote's client is what makes a tampered
-    // contact_id harmless - it simply matches nothing.
+    // Two ways in. Quick Send skips the window and goes to the primary
+    // contact; the window posts the contacts picked. Either way only this
+    // client's contacts can match, so a tampered id finds nobody.
     if (!empty($_POST['quick_send'])) {
-
-        $recipient_filter = documentDefaultContactFilterSql('quote');
-
-    } else {
-
-        $selected_contacts = $_POST['contacts'] ?? [];
-        if (!is_array($selected_contacts)) {
-            $selected_contacts = [];
-        }
-        $selected_contact_ids = array_filter(array_unique(array_map('intval', $selected_contacts)));
-
-        if (empty($selected_contact_ids)) {
-            flashAlert("Select at least one contact to send to", 'error');
+        $recipients = billingEmailRecipients($client_id, null, 'quote');
+        if (!$recipients) {
+            flashAlert("No default contacts to quick send to - use Send to choose recipients", 'error');
             redirect();
         }
-
-        $selected_contact_id_list = implode(',', $selected_contact_ids);
-        $recipient_filter = "AND contact_id IN ($selected_contact_id_list)";
-
-    }
-
-    $sql_recipients = mysqli_query(
-        $mysqli,
-        "SELECT contact_email, contact_name FROM contacts
-        WHERE contact_client_id = $client_id
-        AND contact_archived_at IS NULL
-        AND contact_email IS NOT NULL
-        AND contact_email != ''
-        $recipient_filter
-        ORDER BY contact_primary DESC, contact_billing DESC, contact_name ASC"
-    );
-
-    if (mysqli_num_rows($sql_recipients) == 0) {
-        if (!empty($_POST['quick_send'])) {
-            flashAlert("No default contacts to quick send to - use Send Email to choose recipients", 'error');
-        } else {
-            flashAlert("None of the selected contacts have a usable email address", 'error');
+    } else {
+        $recipients = billingEmailRecipients($client_id, (array) ($_POST['contacts'] ?? []));
+        if (!$recipients) {
+            flashAlert(empty($_POST['contacts']) ? "Select at least one contact to send to" : "None of the selected contacts have a usable email address", 'error');
+            redirect();
         }
-        redirect();
     }
 
-    $sql = mysqli_query($mysqli,"SELECT company_address, company_city, company_country, company_email, company_logo, company_name,
-        company_phone, company_phone_country_code, company_state, company_website, company_zip FROM companies WHERE company_id = 1");
-    $row = mysqli_fetch_assoc($sql);
+    // functions/billing_email.php - the quote, with the agent's note and the PDF
+    [$subject, $email] = billingQuoteEmail($quote, ['note' => trim(mb_substr((string) ($_POST['note'] ?? ''), 0, 2000))]);
+    $attach_pdf = !empty($_POST['quick_send']) ? billingReminderRules()['attach_pdf'] : !empty($_POST['attach_pdf']);
+    $attach = [];
+    if ($attach_pdf && ($file = billingEmailPdf(billingPdf('quote', $quote)))) {
+        $attach[] = $file;
+    }
+    $sent = billingEmailQueue($recipients, $subject, $email, ['from' => 'quote', 'attach' => $attach]);
 
-    $company_name = escapeSql($row['company_name']);
-    $company_country = escapeSql($row['company_country']);
-    $company_address = escapeSql($row['company_address']);
-    $company_city = escapeSql($row['company_city']);
-    $company_state = escapeSql($row['company_state']);
-    $company_zip = escapeSql($row['company_zip']);
-    $company_phone = escapeSql(formatPhoneNumber($row['company_phone'], $row['company_phone_country_code']));
-    $company_email = escapeSql($row['company_email']);
-    $company_website = escapeSql($row['company_website']);
-    $company_logo = escapeSql($row['company_logo']);
-
-    // Sanitize Config vars from get_settings.php
-    $config_quote_from_name = escapeSql($config_quote_from_name);
-    $config_quote_from_email = escapeSql($config_quote_from_email);
-    $config_base_url = escapeSql($config_base_url);
-
-    $subject = "Quote [$quote_scope]";
-
-    // One queue row per selected contact, each greeting its own recipient
-    $data = [];
-    $recipient_labels = [];
-
-    while ($recipient = mysqli_fetch_assoc($sql_recipients)) {
-        $contact_name = escapeSql($recipient['contact_name']);
-        $contact_email = escapeSql($recipient['contact_email']);
-
-        $body = "Hello $contact_name,<br><br>Thank you for your inquiry, we are pleased to provide you with the following estimate.<br><br><br>$quote_scope<br>" . ($quote_groups_recurring ? 'Cost: ' : 'Total Cost: ') . escapeSql(htmlspecialchars($quote_cost_text)) . "<br><br><br>View and accept your estimate online <a href=\'https://$config_base_url/guest/guest_view_quote.php?quote_id=$quote_id&url_key=$quote_url_key\'>here</a><br><br><br>--<br>$company_name - Sales<br>$config_quote_from_email<br>$company_phone";
-
-        $data[] = [
-            'from' => $config_quote_from_email,
-            'from_name' => $config_quote_from_name,
-            'recipient' => $contact_email,
-            'recipient_name' => $contact_name,
-            'subject' => $subject,
-            'body' => $body,
-        ];
-
-        $recipient_labels[] = "$contact_name <$contact_email>";
-
-        logAudit("Quote", "Email", "$session_name emailed quote $quote_prefix$quote_number to $contact_email", $client_id, $quote_id);
+    billingLog('quote', $quote_id, $quote['quote_status'] === 'Draft' ? 'Sent' : $quote['quote_status'], 'Quote emailed by ' . stripslashes($session_name) . ' to ' . implode(', ', $sent) . ($attach ? ' with the PDF' : ''));
+    foreach ($recipients as $recipient) {
+        logAudit("Quote", "Email", "$session_name emailed quote " . escapeSql($number) . " to " . escapeSql($recipient['email']), $client_id, $quote_id);
     }
 
-    addToMailQueue($data);
-
-    $recipient_list = implode(', ', $recipient_labels);
-    $recipient_count = count($recipient_labels);
-
-    // Update History
-    logHistory('Sent', "Quote emailed by $session_name to $recipient_list", 0, $quote_id);
-
-    //Don't change the status to sent if the status is anything but draft
-    if ($quote_status == 'Draft') {
-        mysqli_query($mysqli,"UPDATE quotes SET quote_status = 'Sent' WHERE quote_id = $quote_id");
+    // Sending a draft sends it - anything further along keeps its status
+    if ($quote['quote_status'] === 'Draft') {
+        mysqli_query($mysqli, "UPDATE quotes SET quote_status = 'Sent' WHERE quote_id = $quote_id");
     }
 
-    flashAlert("Quote queued to $recipient_count " . ($recipient_count == 1 ? "recipient" : "recipients"));
+    flashAlert("Quote queued to " . count($sent) . " " . (count($sent) === 1 ? "recipient" : "recipients"));
 
     redirect();
 

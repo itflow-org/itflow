@@ -1,5 +1,10 @@
 <?php
 
+/*
+ * Send a quote to the client's contacts picked, with a note and the PDF.
+ * ?quote_id=. Posts email_quote.
+ */
+
 require_once '../../../includes/modal_header.php';
 
 enforceUserPermission('module_sales', 2);
@@ -128,6 +133,17 @@ ob_start();
 
                 ?>
 
+            </div>
+
+            <label class="form-label">Message <span class="text-body-secondary fw-normal small">in the email, above the quote</span></label>
+            <div class="input-group mb-3">
+                <span class="input-group-text align-items-start pt-2"><i class="fas fa-fw fa-comment"></i></span>
+                <textarea class="form-control" name="note" rows="3" maxlength="2000" placeholder="Optional - a word of your own: what it covers, what happens next"></textarea>
+            </div>
+
+            <div class="form-check form-switch mb-3">
+                <input class="form-check-input" type="checkbox" role="switch" name="attach_pdf" value="1" id="quoteEmailPdf<?= $quote_id ?>" <?= billingReminderRules()['attach_pdf'] ? 'checked' : '' ?>>
+                <label class="form-check-label" for="quoteEmailPdf<?= $quote_id ?>">Attach the PDF</label>
             </div>
 
             <?php if ($quote_status !== 'Draft') { ?>

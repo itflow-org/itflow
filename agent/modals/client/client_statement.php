@@ -1,5 +1,11 @@
 <?php
 
+/*
+ * Send a client's statement - their invoices for a period, open ones only or
+ * paid too - to the contacts picked, with a note and the PDF, or download
+ * it. ?client_id=. Posts send_statement.
+ */
+
 require_once '../../../includes/modal_header.php';
 
 enforceUserPermission('module_sales', 2);
@@ -75,7 +81,7 @@ ob_start();
     </h5>
     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
 </div>
-<form action="post.php" method="post" autocomplete="off">
+<form action="post.php" method="post" autocomplete="off" id="clientStatement<?= $client_id ?>">
     <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
     <input type="hidden" name="client_id" value="<?= $client_id ?>">
 
@@ -102,7 +108,7 @@ ob_start();
                     <label>From</label>
                     <div class="input-group">
                         <span class="input-group-text"><i class="fa fa-fw fa-calendar"></i></span>
-                        <input type="date" class="form-control" name="dtf" max="2999-12-31">
+                        <input type="date" class="form-control" name="dtf" max="2999-12-31" data-statement-option>
                     </div>
                     <small class="text-muted">Leave blank for all history</small>
                 </div>
@@ -110,20 +116,24 @@ ob_start();
                     <label>To</label>
                     <div class="input-group">
                         <span class="input-group-text"><i class="fa fa-fw fa-calendar"></i></span>
-                        <input type="date" class="form-control" name="dtt" max="2999-12-31" value="<?= date("Y-m-d") ?>">
+                        <input type="date" class="form-control" name="dtt" max="2999-12-31" value="<?= date("Y-m-d") ?>" data-statement-option>
                     </div>
                 </div>
             </div>
 
             <div class="mb-3">
                 <div class="form-check">
-                    <input type="checkbox" class="form-check-input" id="statementIncludePaid" name="include_paid" value="1">
+                    <input type="checkbox" class="form-check-input" id="statementIncludePaid" name="include_paid" value="1" data-statement-option>
                     <label class="form-check-label" for="statementIncludePaid">
                         Include paid invoices
                         <span class="text-muted">- off means outstanding items only</span>
                     </label>
                 </div>
             </div>
+
+            <a class="btn btn-sm btn-outline-secondary mb-1" href="post.php?export_client_statement_pdf=<?= $client_id ?>&amp;csrf_token=<?= $_SESSION['csrf_token'] ?>" target="_blank" data-statement-pdf>
+                <i class="fas fa-fw fa-file-pdf me-1"></i>Download PDF
+            </a>
 
             <hr>
 
@@ -168,6 +178,17 @@ ob_start();
 
             </div>
 
+            <label class="form-label mt-3">Message <span class="text-body-secondary fw-normal small">in the email, above the statement</span></label>
+            <div class="input-group mb-3">
+                <span class="input-group-text align-items-start pt-2"><i class="fas fa-fw fa-comment"></i></span>
+                <textarea class="form-control" name="note" rows="2" maxlength="2000" placeholder="Optional - a word of your own"></textarea>
+            </div>
+
+            <div class="form-check form-switch mb-0">
+                <input class="form-check-input" type="checkbox" role="switch" name="attach_pdf" value="1" id="statementPdf<?= $client_id ?>" <?= billingReminderRules()['attach_pdf'] ? 'checked' : '' ?>>
+                <label class="form-check-label" for="statementPdf<?= $client_id ?>">Attach the statement as a PDF</label>
+            </div>
+
         <?php } ?>
 
     </div>
@@ -182,6 +203,33 @@ ob_start();
         </button>
     </div>
 </form>
+
+<script>
+(function () {
+    // Download PDF follows the period and options picked
+    var form = document.getElementById('clientStatement<?= $client_id ?>');
+    if (!form || form.dataset.wired) {
+        return;
+    }
+    form.dataset.wired = '1';
+    var link = form.querySelector('[data-statement-pdf]');
+    if (!link) {
+        return;
+    }
+    var base = link.getAttribute('href');
+    function update() {
+        var url = base;
+        form.querySelectorAll('[data-statement-option]').forEach(function (input) {
+            if (input.type === 'checkbox' ? input.checked : input.value) {
+                url += '&' + encodeURIComponent(input.name) + '=' + encodeURIComponent(input.type === 'checkbox' ? '1' : input.value);
+            }
+        });
+        link.setAttribute('href', url);
+    }
+    form.addEventListener('change', update);
+    update();
+})();
+</script>
 
 <?php
 require_once '../../../includes/modal_footer.php';

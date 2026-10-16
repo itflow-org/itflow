@@ -64,19 +64,9 @@ if (isset($_GET['accept_quote'], $_GET['url_key'])) {
         $config_quote_notification_email = escapeSql($row['config_quote_notification_email']);
         $config_base_url = escapeSql($config_base_url);
 
+        // Our team hears - functions/billing_email.php
         if (!empty($config_smtp_host) && !empty($config_quote_notification_email)) {
-            $subject = "Quote Accepted - $client_name - Quote $quote_prefix$quote_number";
-            $body = "Hello, <br><br>This is a notification that a quote has been accepted in ITFlow. <br><br>Client: $client_name<br>Quote: <a href=\'https://$config_base_url/quote.php?quote_id=$quote_id\'>$quote_prefix$quote_number</a><br><br>~<br>$company_name - Billing<br>$config_quote_from_email";
-
-            $data[] = [
-                'from' => $config_quote_from_email,
-                'from_name' => $config_quote_from_name,
-                'recipient' => $config_quote_notification_email,
-                'subject' => $subject,
-                'body' => $body,
-            ];
-
-            $mail = addToMailQueue($data);
+            billingQuoteAnsweredNotify($quote_id, true);
         }
 
         flashAlert("Quote Accepted");
@@ -139,19 +129,9 @@ if (isset($_GET['decline_quote'], $_GET['url_key'])) {
         $config_quote_notification_email = escapeSql($row['config_quote_notification_email']);
         $config_base_url = escapeSql($config_base_url);
 
+        // Our team hears - functions/billing_email.php
         if (!empty($config_smtp_host) && !empty($config_quote_notification_email)) {
-            $subject = "Quote Declined - $client_name - Quote $quote_prefix$quote_number";
-            $body = "Hello, <br><br>This is a notification that a quote has been declined in ITFlow. <br><br>Client: $client_name<br>Quote: <a href=\'https://$config_base_url/quote.php?quote_id=$quote_id\'>$quote_prefix$quote_number</a><br><br>~<br>$company_name - Billing<br>$config_quote_from_email";
-
-            $data[] = [
-                'from' => $config_quote_from_email,
-                'from_name' => $config_quote_from_name,
-                'recipient' => $config_quote_notification_email,
-                'subject' => $subject,
-                'body' => $body,
-            ];
-
-            $mail = addToMailQueue($data);
+            billingQuoteAnsweredNotify($quote_id, false);
         }
         flashAlert("Quote Declined", 'danger');
 

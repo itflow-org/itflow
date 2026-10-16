@@ -38,12 +38,25 @@ class BillingPdf extends TCPDF {
     }
 }
 
+/** The footers and the tax ID setting - a page has them loaded, the nightly run reads them here. */
+function billingPdfConfig() {
+    global $mysqli, $config_invoice_footer, $config_quote_footer, $config_invoice_show_tax_id;
+    if (isset($config_invoice_footer, $config_quote_footer, $config_invoice_show_tax_id)) {
+        return;
+    }
+    $row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT config_invoice_footer, config_quote_footer, config_invoice_show_tax_id FROM settings WHERE company_id = 1")) ?: [];
+    $config_invoice_footer = $config_invoice_footer ?? (string) ($row['config_invoice_footer'] ?? '');
+    $config_quote_footer = $config_quote_footer ?? (string) ($row['config_quote_footer'] ?? '');
+    $config_invoice_show_tax_id = $config_invoice_show_tax_id ?? intval($row['config_invoice_show_tax_id'] ?? 0);
+}
+
 /**
  * Draw an invoice, quote or recurring invoice - or an invoice's packing slip
  * ($variant 'packing') - and return ['name' => file name, 'data' => the PDF].
  */
 function billingPdfRender($type, array $row, $variant = 'document') {
     global $mysqli, $config_invoice_footer, $config_quote_footer, $config_invoice_show_tax_id;
+    billingPdfConfig();
 
     $t = billingType($type);
     $c = $t['col'];
@@ -349,5 +362,128 @@ function billingPdfRender($type, array $row, $variant = 'document') {
 
     $date = $type === 'recurring' ? date('Y-m-d') : (string) $row["{$c}_date"];
     $name = preg_replace('/[^A-Za-z0-9_\-]+/', '_', trim("{$date}_{$row['client_name']}_" . str_replace(' ', '_', $title) . "_$number", '_')) . '.pdf';
+    return ['name' => $name, 'data' => $pdf->Output($name, 'S')];
+}
+
+/**
+ * A client's statement as a PDF - billingStatement() - in the same look:
+ * who it is from and for, the date and period, what is owed and how late,
+ * then each invoice with what was billed, paid and is left. ['name', 'data'].
+ */
+function billingStatementPdfRender(array $statement) {
+    global $config_invoice_footer;
+    billingPdfConfig();
+
+    $company = billingCompany();
+    $client = $statement['client'];
+    $bill_to = billingBillTo($client['client_id']);
+    $currency = $statement['currency'];
+    $e = function ($value) {
+        return htmlspecialchars((string) $value, ENT_QUOTES, 'UTF-8');
+    };
+    $money = function ($amount) use ($currency, $e) {
+        return $e(billingMoney($amount, $currency));
+    };
+    $grey = '#6c757d';
+    $red = '#c42b37';
+    $label = function ($text) use ($grey, $e) {
+        return '<span style="font-size:6.5pt; color:' . $grey . '; font-weight:bold;">' . $e(strtoupper($text)) . '</span>';
+    };
+
+    $format = in_array($company['company_country'] ?? '', ['United States', 'USA', 'US', 'Canada'], true) ? 'LETTER' : 'A4';
+    $pdf = new BillingPdf('P', 'mm', $format, true, 'UTF-8', false);
+    $pdf->SetCreator('ITFlow');
+    $pdf->SetAuthor((string) ($company['company_name'] ?? ''));
+    $pdf->SetTitle('Statement ' . $client['client_name']);
+    $pdf->SetMargins(16, 14, 16);
+    $pdf->SetHeaderMargin(0);
+    $pdf->SetFooterMargin(12);
+    $pdf->SetAutoPageBreak(true, 20);
+    $pdf->setFontSubsetting(true);
+    $pdf->setImageScale(1.5);
+    $pdf->footer_label = trim(($company['company_name'] ?? '') . ' · Statement · ' . $client['client_name'], ' ·');
+    $pdf->AddPage();
+    $margins = $pdf->getMargins();
+    $width = $pdf->getPageWidth() - $margins['left'] - $margins['right'];
+
+    // Who it is from, and what it is
+    $from_lines = array_filter([
+        formatAddress($company['company_address'] ?? '', $company['company_city'] ?? '', $company['company_state'] ?? '', $company['company_zip'] ?? '', $company['company_country'] ?? '', "\n"),
+        implode('  ·  ', array_filter([$company['company_email'] ?? '', $company['phone_display'] ?? ''])),
+        $company['company_website'] ?? '',
+    ]);
+    $logo = !empty($company['logo_path']) ? '<img src="' . $e($company['logo_path']) . '" height="42"><br>' : '';
+    $dates = ['Statement date' => date('Y-m-d'), 'Period' => $statement['from'] !== '' ? $statement['from'] . ' to ' . $statement['to'] : 'Up to ' . $statement['to']];
+    $dates_html = '';
+    foreach ($dates as $date_label => $value) {
+        $dates_html .= '<tr><td align="right" style="color:' . $grey . ';">' . $e($date_label) . '</td><td align="right" width="42mm">' . $e($value) . '</td></tr>';
+    }
+    $html = '<table cellpadding="0" cellspacing="0" width="100%"><tr>
+        <td width="52%">' . $logo . '<span style="font-size:12pt; font-weight:bold;">' . $e($company['company_name'] ?? '') . '</span><br><span style="font-size:7.5pt; color:' . $grey . '; line-height:1.4;">' . nl2br($e(implode("\n", $from_lines))) . '</span></td>
+        <td width="48%" align="right"><span style="font-size:8pt; color:#0a58ca; font-weight:bold; letter-spacing:2px;">STATEMENT</span><br><span style="font-size:15pt; font-weight:bold;">' . $e($client['client_name']) . '</span><br>
+            <table cellpadding="1.2" cellspacing="0" width="100%" style="font-size:8pt;">' . $dates_html . '</table></td>
+    </tr></table>';
+    $pdf->SetFont('dejavusans', '', 8.5);
+    $pdf->SetTextColor(33, 37, 41);
+    $pdf->writeHTML($html, true, false, true, false, '');
+    $pdf->SetDrawColor(222, 226, 230);
+    $pdf->SetLineWidth(0.2);
+    $pdf->Ln(1);
+    $pdf->Line($margins['left'], $pdf->GetY(), $margins['left'] + $width, $pdf->GetY());
+    $pdf->Ln(4);
+
+    // Who it is for, and what is owed
+    $to_lines = array_filter([
+        formatAddress($bill_to['location_address'] ?? '', $bill_to['location_city'] ?? '', $bill_to['location_state'] ?? '', $bill_to['location_zip'] ?? '', $bill_to['location_country'] ?? '', "\n"),
+        $bill_to['contact_name'] ?? '',
+        implode('  ·  ', array_filter([$bill_to['contact_email'] ?? '', $bill_to['contact_phone'] ?? ''])),
+    ]);
+    $html = '<table cellpadding="0" cellspacing="0" width="100%"><tr>
+        <td width="60%">' . $label('Statement for') . '<br><span style="font-size:10pt; font-weight:bold;">' . $e($bill_to['client_name'] ?? $client['client_name']) . '</span><br><span style="font-size:7.5pt; color:' . $grey . '; line-height:1.4;">' . nl2br($e(implode("\n", $to_lines))) . '</span></td>
+        <td width="40%" align="right">' . $label('Total due') . '<br><span style="font-size:17pt; font-weight:bold;">' . $money($statement['total']) . '</span>'
+        . ($statement['overdue'] > 0 ? '<br><span style="font-size:7.5pt; color:' . $red . ';">' . $money($statement['overdue']) . ' of it overdue</span>' : '') . '</td>
+    </tr></table>';
+    $pdf->writeHTML($html, true, false, true, false, '');
+    $pdf->Ln(2);
+
+    // How late it is
+    $cells = '';
+    foreach ($statement['aging'] as $bucket => $amount) {
+        $late = $bucket !== 'Current' && $amount > 0;
+        $cells .= '<td align="center" style="border:0.3px solid #dee2e6; background-color:#f8f9fa;">' . $label($bucket) . '<br><span style="font-size:9.5pt; font-weight:bold;' . ($late ? ' color:' . $red . ';' : '') . '">' . $money($amount) . '</span></td>';
+    }
+    $pdf->writeHTML('<table cellpadding="4" cellspacing="0" width="100%"><tr>' . $cells . '</tr></table>', true, false, true, false, '');
+    $pdf->Ln(3);
+
+    // Each invoice
+    $th = 'font-size:6.5pt; color:' . $grey . '; font-weight:bold; border-bottom:0.6px solid #adb5bd;';
+    $td = 'border-bottom:0.3px solid #dee2e6;';
+    $html = '<table cellpadding="4" cellspacing="0" width="100%"><thead><tr>
+        <td width="14%" style="' . $th . '">DATE</td><td width="30%" style="' . $th . '">INVOICE</td><td width="14%" style="' . $th . '">DUE</td>
+        <td width="14%" align="right" style="' . $th . '">TOTAL</td><td width="14%" align="right" style="' . $th . '">PAID</td><td width="14%" align="right" style="' . $th . '">BALANCE</td></tr></thead>';
+    foreach ($statement['invoices'] as $invoice) {
+        $late = $invoice['balance'] > 0 && $invoice['days'] > 0;
+        $html .= '<tr nobr="true"><td width="14%" style="' . $td . '">' . $e($invoice['invoice_date']) . '</td>
+            <td width="30%" style="' . $td . '"><b>' . $e(billingNumber('invoice', $invoice)) . '</b>' . (trim((string) $invoice['invoice_scope']) !== '' ? '<br><span style="font-size:7pt; color:' . $grey . ';">' . $e($invoice['invoice_scope']) . '</span>' : '') . '</td>
+            <td width="14%" style="' . $td . ($late ? ' color:' . $red . ';' : '') . '">' . $e($invoice['invoice_due']) . ($late ? '<br><span style="font-size:7pt;">' . intval($invoice['days']) . ' days late</span>' : '') . '</td>
+            <td width="14%" align="right" style="' . $td . '">' . $money($invoice['invoice_amount']) . '</td>
+            <td width="14%" align="right" style="' . $td . '">' . (floatval($invoice['paid']) > 0 ? $money($invoice['paid']) : '<span style="color:' . $grey . ';">-</span>') . '</td>
+            <td width="14%" align="right" style="' . $td . '"><b>' . ($invoice['balance'] > 0 ? $money($invoice['balance']) : '<span style="color:#198754;">Paid</span>') . '</b></td></tr>';
+    }
+    if (!$statement['invoices']) {
+        $html .= '<tr><td colspan="6" align="center" style="color:' . $grey . ';">Nothing owed in this period.</td></tr>';
+    }
+    $html .= '<tr><td colspan="5" align="right" style="border-top:0.6px solid #adb5bd; font-size:10pt;"><b>Total due</b></td><td align="right" style="border-top:0.6px solid #adb5bd; font-size:10pt;"><b>' . $money($statement['total']) . '</b></td></tr></table>';
+    $pdf->writeHTML($html, true, false, true, false, '');
+
+    $footer = trim((string) $config_invoice_footer);
+    if ($footer !== '') {
+        $pdf->Ln(4);
+        $pdf->SetFont('dejavusans', '', 7.5);
+        $pdf->SetTextColor(108, 117, 125);
+        $pdf->MultiCell($width, 4, $footer, 0, 'C', false, 1);
+    }
+
+    $name = preg_replace('/[^A-Za-z0-9_\-]+/', '_', trim($statement['to'] . '_' . $client['client_name'] . '_Statement', '_')) . '.pdf';
     return ['name' => $name, 'data' => $pdf->Output($name, 'S')];
 }

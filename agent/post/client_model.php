@@ -14,3 +14,5 @@ if (empty($abbreviation)) {
 }
 $notes = escapeSql($_POST['notes'] ?? '');
 $lead = intval($_POST['lead'] ?? 0);
+// Reminders and statements - only when the Billing tab was on the form
+$reminders = isset($_POST['reminders_field']) ? intval(!empty($_POST['reminders'])) : null;

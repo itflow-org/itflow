@@ -66,6 +66,13 @@ $hardware = $can_see_assets ? productInvoiceHardware($invoice_id) : [];
 $hardware_units = array_sum(array_column($hardware, 'units'));
 $hardware_to_add = $status === 'Cancelled' ? 0 : array_sum(array_column($hardware, 'to_add'));
 $can_add_assets = $hardware_to_add > 0 && lookupUserPermission('module_support') >= 2;
+// Payment reminders - how many have gone, and when the next one goes (functions/billing_email.php)
+$owed = in_array($state['state'], ['open', 'overdue'], true) && $status !== 'Draft';
+$reminder_rules = billingReminderRules();
+$reminders_sent = $owed ? mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT COUNT(*) AS sent, MAX(history_created_at) AS last FROM history
+    WHERE history_invoice_id = $invoice_id AND (history_description LIKE 'Reminder emailed%' OR history_description LIKE 'Cron Emailed Overdue Invoice%')")) : null;
+$client_reminders = intval(getFieldById('clients', $client_id, 'client_reminders') ?? 1);
+$reminder_next = $owed && $client_reminders ? billingReminderNext($invoice, $reminder_rules, billingReminderAutopay($invoice)) : null;
 $csrf = $_SESSION['csrf_token'];
 
 // Made by a recurring invoice?
@@ -212,6 +219,11 @@ $paper = [
                         <i class="fas fa-fw fa-external-link-alt text-secondary me-2"></i>View as Client
                     </a>
                     <?php if ($can_edit) { ?>
+                        <?php if ($mail_ready && $owed && $state['balance'] > 0) { ?>
+                            <a class="dropdown-item ajax-modal" href="#" data-modal-size="lg" data-modal-url="modals/invoice/invoice_email.php?invoice_id=<?= $invoice_id ?>&amp;kind=reminder">
+                                <i class="fas fa-fw fa-bell text-secondary me-2"></i>Send Reminder<span class="text-body-secondary">...</span>
+                            </a>
+                        <?php } ?>
                         <?php if ($status !== 'Draft' && $mail_ready && !in_array($status, invoiceOpenStatuses(), true)) { ?>
                             <a class="dropdown-item ajax-modal" href="#" data-modal-size="lg" data-modal-url="modals/invoice/invoice_email.php?invoice_id=<?= $invoice_id ?>">
                                 <i class="fas fa-fw fa-paper-plane text-secondary me-2"></i>Send Again<span class="text-body-secondary">...</span>
@@ -281,6 +293,23 @@ $paper = [
                         <?php } ?>
                     </dd>
                     <dt>Terms</dt><dd><?= intval($invoice['client_net_terms']) ?: intval($config_default_net_terms) ?> days</dd>
+                    <?php if ($owed) { ?>
+                        <dt>Reminders</dt>
+                        <dd>
+                            <?= intval($reminders_sent['sent']) ? intval($reminders_sent['sent']) . ' sent, the last ' . escapeHtml(billingEmailDate($reminders_sent['last'])) : 'None sent yet' ?>
+                            <div class="small text-body-secondary">
+                                <?php if (!$reminder_rules['enabled']) { ?>
+                                    Off - set in Invoice Settings
+                                <?php } elseif (!$client_reminders) { ?>
+                                    Off for <?= escapeHtml($invoice['client_name']) ?>
+                                <?php } elseif ($reminder_next) { ?>
+                                    Next <?= escapeHtml(billingEmailDate($reminder_next['date'])) ?> - <?= escapeHtml(billingReminderWhen($reminder_next['days'])) ?>
+                                <?php } else { ?>
+                                    No more on the schedule
+                                <?php } ?>
+                            </div>
+                        </dd>
+                    <?php } ?>
                     <?php $margin_html = billingMarginHtml('invoice', $items, $currency); if ($margin_html) { ?>
                         <dt>Margin</dt><dd><?= $margin_html ?></dd>
                     <?php } ?>

@@ -1,5 +1,11 @@
 <?php
 
+/*
+ * Send an invoice - or, for one still owed, a payment reminder - to the
+ * client's contacts picked, with a note and the PDF. ?invoice_id= and
+ * ?kind=reminder to open on the reminder. Posts email_invoice.
+ */
+
 require_once '../../../includes/modal_header.php';
 
 enforceUserPermission('module_sales', 2);
@@ -80,7 +86,24 @@ ob_start();
         <?php } else { ?>
 
             <!-- What goes out -->
-            <?php $doc_state = invoiceState($doc, invoicePaid($invoice_id)); ?>
+            <?php $doc_state = invoiceState($doc, invoicePaid($invoice_id));
+            $can_remind = $doc_state['balance'] > 0 && in_array($doc['invoice_status'], invoiceOpenStatuses(), true);
+            $kind = $can_remind && ($_GET['kind'] ?? '') === 'reminder' ? 'reminder' : 'invoice';
+            $reminder_when = $can_remind ? billingReminderWhen(-$doc_state['days']) : ''; ?>
+            <?php if ($can_remind) { ?>
+                <div class="btn-group w-100 itflow-product-type mb-3" role="group" aria-label="What to send">
+                    <input type="radio" class="btn-check" name="kind" value="invoice" id="invoiceEmailKindInvoice<?= $invoice_id ?>" autocomplete="off" <?= $kind === 'invoice' ? 'checked' : '' ?>>
+                    <label class="btn btn-outline-secondary text-start d-flex align-items-center gap-2" for="invoiceEmailKindInvoice<?= $invoice_id ?>">
+                        <i class="fas fa-fw fa-file-invoice-dollar fa-lg"></i>
+                        <span><span class="fw-semibold d-block">The invoice</span><span class="small opacity-75 d-none d-sm-block">Here is your invoice</span></span>
+                    </label>
+                    <input type="radio" class="btn-check" name="kind" value="reminder" id="invoiceEmailKindReminder<?= $invoice_id ?>" autocomplete="off" <?= $kind === 'reminder' ? 'checked' : '' ?>>
+                    <label class="btn btn-outline-secondary text-start d-flex align-items-center gap-2" for="invoiceEmailKindReminder<?= $invoice_id ?>">
+                        <i class="fas fa-fw fa-bell fa-lg"></i>
+                        <span><span class="fw-semibold d-block">A reminder</span><span class="small opacity-75 d-none d-sm-block">It is <?= escapeHtml($reminder_when) ?></span></span>
+                    </label>
+                </div>
+            <?php } ?>
             <div class="d-flex align-items-center gap-3 p-3 mb-3 rounded bg-body-tertiary">
                 <?= billingTile('invoice') ?>
                 <div class="flex-grow-1 min-w-0">
@@ -130,6 +153,17 @@ ob_start();
 
                 ?>
 
+            </div>
+
+            <label class="form-label">Message <span class="text-body-secondary fw-normal small">in the email, above the invoice</span></label>
+            <div class="input-group mb-3">
+                <span class="input-group-text align-items-start pt-2"><i class="fas fa-fw fa-comment"></i></span>
+                <textarea class="form-control" name="note" rows="3" maxlength="2000" placeholder="Optional - a word of your own: what it covers, a thank you, how to pay"></textarea>
+            </div>
+
+            <div class="form-check form-switch mb-3">
+                <input class="form-check-input" type="checkbox" role="switch" name="attach_pdf" value="1" id="invoiceEmailPdf<?= $invoice_id ?>" <?= billingReminderRules()['attach_pdf'] ? 'checked' : '' ?>>
+                <label class="form-check-label" for="invoiceEmailPdf<?= $invoice_id ?>">Attach the PDF</label>
             </div>
 
             <?php if ($invoice_status !== 'Draft') { ?>

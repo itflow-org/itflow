@@ -199,6 +199,11 @@ $stat_money = function ($amount) use ($session_company_currency) {
                             <i class="fa fa-fw fa-file-alt text-secondary me-2"></i>Send Statement
                         </a>
                     <?php } ?>
+                    <?php if ($client_url) { ?>
+                        <a class="dropdown-item" href="post.php?export_client_statement_pdf=<?= $client_id ?>&amp;csrf_token=<?= $_SESSION['csrf_token'] ?>" target="_blank">
+                            <i class="fa fa-fw fa-file-pdf text-secondary me-2"></i>Statement PDF
+                        </a>
+                    <?php } ?>
                     <?php if ($client_url && $can_pay && $money['owed'] > 0) { ?>
                         <div class="dropdown-divider"></div>
                         <a class="dropdown-item ajax-modal" href="#" data-modal-url="modals/payment/payment_bulk_add.php?client_id=<?= $client_id ?>">

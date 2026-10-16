@@ -166,6 +166,9 @@ mysqli_query($mysqli, "DELETE FROM notifications WHERE notification_dismissed_at
 // Clean-up mail queue
 mysqli_query($mysqli, "DELETE FROM email_queue WHERE email_queued_at < CURDATE() - INTERVAL 90 DAY");
 
+// Clean-up the PDFs made to go with billing emails - sent or given up on by now
+billingEmailPdfCleanup(7);
+
 // Clean-up old remember me tokens
 mysqli_query($mysqli, "DELETE FROM remember_tokens WHERE remember_token_created_at < CURDATE() - INTERVAL $config_login_remember_me_expire DAY");
 
@@ -406,123 +409,100 @@ while ($row = mysqli_fetch_assoc($sql_resolved_tickets_to_close)) {
     //TODO: Add client notifs if $config_ticket_client_general_notifications is on
 }
 
-if ($config_send_invoice_reminders == 1) {
+/*
+ * Payment reminders, on the schedule in the invoice settings (functions/billing_email.php,
+ * billingReminderRules()): each open invoice whose day it is - before, on or after its due
+ * date - gets one, to the client's primary and billing contacts, unless the client is left
+ * out of reminders. One a recurring autopay will charge on its due date isn't reminded
+ * before then. Agents hear about each one late, on its reminder days, and the late fee
+ * still comes every 30 days late. At most one of each a day, however often this runs.
+ */
+$reminder_rules = billingReminderRules(true);
+if ($reminder_rules['enabled']) {
 
-    // PAST DUE INVOICE Notifications
-    $invoiceAlertArray = [1,30,60,90,120,150,180,210,240,270,300,330,360,390,420,450,480,510,540,570,590,620,650,680,710,740];
+    $earliest = min(0, $reminder_rules['days'] ? min($reminder_rules['days']) : 0);
+    $sql_reminders = mysqli_query($mysqli, "SELECT invoice_id, DATEDIFF(CURDATE(), invoice_due) AS days_late, client_reminders,
+            invoice_recurring_invoice_id > 0 AND EXISTS (SELECT 1 FROM recurring_payments WHERE recurring_payment_recurring_invoice_id = invoice_recurring_invoice_id) AS autopay
+        FROM invoices
+        JOIN clients ON client_id = invoice_client_id
+        WHERE invoice_status IN ('Sent', 'Viewed', 'Partial') AND invoice_due IS NOT NULL AND DATEDIFF(CURDATE(), invoice_due) >= $earliest
+        ORDER BY invoice_due ASC, invoice_id ASC");
 
-    foreach ($invoiceAlertArray as $day) {
+    while ($row = mysqli_fetch_assoc($sql_reminders)) {
+        $invoice_id = intval($row['invoice_id']);
+        $days = intval($row['days_late']);
+        $invoice = billingRow('invoice', $invoice_id, false);
+        if (!$invoice) {
+            continue;
+        }
+        $balance = invoiceState($invoice, invoicePaid($invoice_id))['balance'];
+        $number = billingNumber('invoice', $invoice);
 
-        $sql = mysqli_query(
-            $mysqli,
-            "SELECT client_id, client_name, contact_email, contact_name, invoice_amount, invoice_currency_code,
-                invoice_date, invoice_due, invoice_id, invoice_number, invoice_prefix, invoice_status,
-                invoice_url_key FROM invoices
-            LEFT JOIN clients ON invoice_client_id = client_id
-            LEFT JOIN contacts ON clients.client_id = contacts.contact_client_id AND contact_primary = 1
-            WHERE invoice_status != 'Draft'
-            AND invoice_status != 'Paid'
-            AND invoice_status != 'Cancelled'
-            AND invoice_status != 'Non-Billable'
-            AND DATE_ADD(invoice_due, INTERVAL $day DAY) = CURDATE()
-            ORDER BY invoice_number DESC"
-        );
-
-        while ($row = mysqli_fetch_assoc($sql)) {
-            $invoice_id = intval($row['invoice_id']);
-            $invoice_prefix = escapeSql($row['invoice_prefix']);
-            $invoice_number = intval($row['invoice_number']);
-            $invoice_status = escapeSql($row['invoice_status']);
-            $invoice_date = escapeSql($row['invoice_date']);
-            $invoice_due = escapeSql($row['invoice_due']);
-            $invoice_url_key = escapeSql($row['invoice_url_key']);
-            $invoice_amount = floatval($row['invoice_amount']);
-            $invoice_currency_code = escapeSql($row['invoice_currency_code']);
-            $client_id = intval($row['client_id']);
-            $client_name = escapeSql($row['client_name']);
-            $contact_name = escapeSql($row['contact_name']);
-            $contact_email = escapeSql($row['contact_email']);
-
-            // Sum payments already applied, derive the real balance owed
-            $sql_paid = mysqli_query($mysqli, "SELECT SUM(payment_amount) AS amount_paid FROM payments WHERE payment_invoice_id = $invoice_id");
-            $paid_row = mysqli_fetch_assoc($sql_paid);
-            $amount_paid = floatval($paid_row['amount_paid']);
-
-            $invoice_balance = $invoice_amount - $amount_paid;
-
-            // Nothing actually owed (e.g. paid in full but status lagging) - skip
-            if ($invoice_balance <= 0) {
-                continue;
-            }
-
-            // Late Charges - at most one per invoice per day, or a second run of this
-            // script stacks another fee on the already-inflated balance
-            if ($config_invoice_late_fee_enable == 1 && $day > 1 && !cronInvoiceHistoryToday($invoice_id, 'Cron applied a late fee')) {
-
-                $todays_date = date('Y-m-d');
-                $late_fee_amount = ($invoice_balance * $config_invoice_late_fee_percent) / 100;
-                $new_invoice_amount = $invoice_amount + $late_fee_amount;
-
-                mysqli_query($mysqli, "UPDATE invoices SET invoice_amount = $new_invoice_amount WHERE invoice_id = $invoice_id");
-
-                //Insert Items into New Invoice
-                mysqli_query($mysqli, "INSERT INTO invoice_items SET item_name = 'Late Fee', item_description = '$config_invoice_late_fee_percent% late fee applied on $todays_date', item_quantity = 1, item_price = $late_fee_amount, item_total = $late_fee_amount, item_order = 998, item_invoice_id = $invoice_id");
-
-                mysqli_query($mysqli, "INSERT INTO history SET history_status = 'Sent', history_description = 'Cron applied a late fee of $late_fee_amount', history_invoice_id = $invoice_id");
-
-                appNotify("Invoice Late Charge", "Invoice $invoice_prefix$invoice_number for $client_name in the amount of $invoice_amount was charged a late fee of $late_fee_amount", "/agent/invoice.php?invoice_id=$invoice_id", $client_id);
-
-                // Roll the fee into the balance and total we report below
-                $invoice_amount = $new_invoice_amount;
-                $invoice_balance = $invoice_balance + $late_fee_amount;
-
-            }
-
-            appNotify("Invoice Overdue", "Invoice $invoice_prefix$invoice_number for $client_name with a balance of " . numfmt_format_currency($currency_format, $invoice_balance, $invoice_currency_code) . " is overdue by $day days", "/agent/invoice.php?invoice_id=$invoice_id", $client_id);
-
-            // One client email per invoice per day - the 3am run and a Run Now the same
-            // afternoon must not both mail them
-            if (cronInvoiceHistoryToday($invoice_id, 'Cron Emailed Overdue Invoice')) {
-                continue;
-            }
-
-            $subject = "Overdue Invoice $invoice_prefix$invoice_number";
-
-            // Only show the paid line if a payment has actually been applied
-            $paid_line = $amount_paid > 0 ? "Amount Paid: " . numfmt_format_currency($currency_format, $amount_paid, $invoice_currency_code) . "<br>" : "";
-
-            $body = "Hello $contact_name,<br><br>Our records indicate that we have not yet received payment in full for the invoice $invoice_prefix$invoice_number. We kindly request that you submit your payment as soon as possible. If you have any questions or concerns, please do not hesitate to contact us at $company_email or $company_phone.
-                <br>
-                Kindly review the invoice details mentioned below.<br><br>Invoice: $invoice_prefix$invoice_number<br>Issue Date: $invoice_date<br>Invoice Total: " . numfmt_format_currency($currency_format, $invoice_amount, $invoice_currency_code) . "<br>$paid_line" . "Balance Due: " . numfmt_format_currency($currency_format, $invoice_balance, $invoice_currency_code) . "<br>Due Date: $invoice_due<br>Over Due By: $day Days<br><br><br>To view your invoice, please click <a href=\'https://$config_base_url/guest/guest_view_invoice.php?invoice_id=$invoice_id&url_key=$invoice_url_key\'>here</a>.<br><br><br>--<br>$company_name - Billing<br>$config_invoice_from_email<br>$company_phone";
-
-            $mail = addToMailQueue([
-                [
-                    'from' => $config_invoice_from_email,
-                    'from_name' => $config_invoice_from_name,
-                    'recipient' => $contact_email,
-                    'recipient_name' => $contact_name,
-                    'subject' => $subject,
-                    'body' => $body
-                ]
-            ]);
-
-            if ($mail === true) {
-                mysqli_query($mysqli, "INSERT INTO history SET history_status = 'Sent', history_description = 'Cron Emailed Overdue Invoice', history_invoice_id = $invoice_id");
-            } else {
-                mysqli_query($mysqli, "INSERT INTO history SET history_status = 'Sent', history_description = 'Cron Failed to send Overdue Invoice', history_invoice_id = $invoice_id");
-
-                appNotify("Mail", "Failed to send email to $contact_email");
-
-                // Logging
-                logApp("Mail", "error", "Failed to send email to $contact_email regarding $subject. $mail");
-            }
-
+        // Nothing actually owed (paid in full but status lagging) - skip
+        if ($balance <= 0) {
+            continue;
         }
 
+        // Late fee - every 30 days late, as a line of its own, at most once a day
+        if ($config_invoice_late_fee_enable == 1 && $days > 0 && $days % 30 === 0 && !cronInvoiceHistoryToday($invoice_id, 'Cron applied a late fee')) {
+            $late_fee = round($balance * $config_invoice_late_fee_percent / 100, 2);
+            if ($late_fee > 0) {
+                billingItemSave('invoice', $invoice_id, ['name' => 'Late Fee', 'description' => floatval($config_invoice_late_fee_percent) . '% late fee applied on ' . date('Y-m-d'), 'qty' => 1, 'price' => $late_fee, 'tax_id' => 0]);
+                billingLog('invoice', $invoice_id, $invoice['invoice_status'], 'Cron applied a late fee of ' . billingMoney($late_fee, $invoice['invoice_currency_code']));
+                appNotify("Invoice Late Charge", escapeSql("Invoice $number for {$invoice['client_name']} with a balance of " . billingMoney($balance, $invoice['invoice_currency_code']) . " was charged a late fee of " . billingMoney($late_fee, $invoice['invoice_currency_code'])), "/agent/invoice.php?invoice_id=$invoice_id", intval($invoice['client_id']));
+                $invoice = billingRow('invoice', $invoice_id, false);
+                $balance = invoiceState($invoice, invoicePaid($invoice_id))['balance'];
+            }
+        }
+
+        if (!billingReminderOnDay($days, $reminder_rules)) {
+            continue;
+        }
+
+        if ($days > 0) {
+            appNotify("Invoice Overdue", escapeSql("Invoice $number for {$invoice['client_name']} with a balance of " . billingMoney($balance, $invoice['invoice_currency_code']) . " is overdue by $days days"), "/agent/invoice.php?invoice_id=$invoice_id", intval($invoice['client_id']));
+        }
+
+        // Left out, charged by autopay on the day, already reminded today, or no mail
+        if (!intval($row['client_reminders']) || ($days <= 0 && intval($row['autopay'])) || empty($config_smtp_provider)
+            || cronInvoiceHistoryToday($invoice_id, 'Reminder emailed') || cronInvoiceHistoryToday($invoice_id, 'Reminder not sent') || cronInvoiceHistoryToday($invoice_id, 'Cron Emailed Overdue Invoice')) {
+            continue;
+        }
+
+        $recipients = billingEmailRecipients($invoice['client_id']);
+        if (!$recipients) {
+            billingLog('invoice', $invoice_id, $invoice['invoice_status'], 'Reminder not sent - no primary or billing contact with an email address');
+            continue;
+        }
+        [$subject, $email] = billingInvoiceEmail($invoice, ['kind' => 'reminder']);
+        $attach = [];
+        if ($reminder_rules['attach_pdf'] && ($file = billingEmailPdf(billingPdf('invoice', $invoice)))) {
+            $attach[] = $file;
+        }
+        $sent = billingEmailQueue($recipients, $subject, $email, ['attach' => $attach]);
+        billingLog('invoice', $invoice_id, $invoice['invoice_status'], 'Reminder emailed to ' . implode(', ', $sent) . ' - ' . billingReminderWhen($days));
+    }
+
+    // Statements each month, on the day in the invoice settings, to every client with a balance
+    if ($reminder_rules['statement_monthly'] && intval(date('j')) === $reminder_rules['statement_day'] && !empty($config_smtp_provider)) {
+        $sql_statements = mysqli_query($mysqli, "SELECT DISTINCT client_id FROM invoices
+            JOIN clients ON client_id = invoice_client_id
+            WHERE invoice_status IN ('Sent', 'Viewed', 'Partial') AND client_reminders = 1 AND client_archived_at IS NULL");
+        while ($row = mysqli_fetch_assoc($sql_statements)) {
+            $client_id = intval($row['client_id']);
+            $already = mysqli_num_rows(mysqli_query($mysqli, "SELECT 1 FROM logs WHERE log_type = 'Client' AND log_action = 'Statement' AND log_client_id = $client_id AND log_created_at >= CURDATE() LIMIT 1"));
+            $statement = billingStatement($client_id);
+            if ($already || $statement['total'] <= 0) {
+                continue;
+            }
+            $sent = billingStatementSend($statement, null, ['attach' => $reminder_rules['attach_pdf']]);
+            if ($sent) {
+                logAudit("Client", "Statement", escapeSql("Cron emailed the monthly statement (" . count($statement['invoices']) . " invoices, " . billingMoney($statement['total'], $statement['currency']) . " due) to " . implode(', ', $sent)), $client_id);
+            }
+        }
     }
 }
-// Logging
-// logAudit("Cron", "Task", "Cron created notifications for past due invoices and sent out notifications to the primary and billing contacts email");
+
 
 // Recurring invoices - each one due today, or missed by up to
 // RECURRING_INVOICE_GRACE_DAYS (a night or a few the cron didn't run), makes
@@ -692,37 +672,12 @@ while ($row = mysqli_fetch_assoc($sql_recurring_payments)) {
                     mysqli_query($mysqli, "INSERT INTO payments SET payment_date = '$pi_date', payment_amount = $pi_amount_paid, payment_currency_code = '$pi_currency', payment_account_id = $account_id, payment_method = 'Stripe', payment_reference = 'Stripe - $pi_id', payment_invoice_id = $invoice_id");
                     mysqli_query($mysqli, "INSERT INTO history SET history_status = 'Paid', history_description = 'Online Payment added (autopay)', history_invoice_id = $invoice_id");
 
-                    // RECEIPT EMAIL
+                    // The client's receipt, and the paid notification address - functions/billing_email.php
                     if (!empty($config_smtp_provider)) {
-                        $subject = "Payment Received - Invoice $invoice_prefix$invoice_number";
-                        $body = "Hello $contact_name<br><br>We have received online payment for the amount of " . numfmt_format_currency($currency_format, $invoice_amount, $recurring_payment_currency_code) . " for invoice <a href=\\'https://$config_base_url/guest/guest_view_invoice.php?invoice_id=$invoice_id&url_key=$invoice_url_key\\'>$invoice_prefix$invoice_number</a>. Please keep this email as a receipt for your records.<br><br>Amount Paid: " . numfmt_format_currency($currency_format, $invoice_amount, $recurring_payment_currency_code) . "<br><br>Thank you for your business!<br><br><br>--<br>$company_name - Billing Department<br>$config_invoice_from_email<br>$company_phone";
-
-                        $data = [[
-                            'from' => $config_invoice_from_email,
-                            'from_name' => $config_invoice_from_name,
-                            'recipient' => $contact_email,
-                            'recipient_name' => $contact_name,
-                            'subject' => $subject,
-                            'body' => $body,
-                        ]];
-
-                        // Internal notification
-                        if (!empty($config_invoice_paid_notification_email)) {
-                            $subject_int = "Payment Received - $client_name - Invoice $invoice_prefix$invoice_number";
-                            $body_int = "This is a notification that an invoice has been paid in ITFlow. Below is a copy of the receipt sent to the client:-<br><br>--------<br><br>$body";
-                            $data[] = [
-                                'from' => $config_invoice_from_email,
-                                'from_name' => $config_invoice_from_name,
-                                'recipient' => $config_invoice_paid_notification_email,
-                                'recipient_name' => $contact_name,
-                                'subject' => $subject_int,
-                                'body' => $body_int,
-                            ];
+                        $receipt_to = billingPaymentSend($invoice_id, $pi_amount_paid, ['date' => $pi_date, 'method' => 'Card', 'reference' => "Stripe - $pi_id", 'how' => 'Automatic card'], true);
+                        if ($receipt_to) {
+                            logAudit("Invoice", "Payment", "Payment receipt for invoice $invoice_prefix$invoice_number queued to " . escapeSql(implode(', ', $receipt_to)), $client_id, $invoice_id);
                         }
-                        $mail = addToMailQueue($data);
-                        $email_id = mysqli_insert_id($mysqli);
-                        mysqli_query($mysqli,"INSERT INTO history SET history_status = 'Sent', history_description = 'Payment Receipt sent to mail queue ID: $email_id!', history_invoice_id = $invoice_id");
-                        logAudit("Invoice", "Payment", "Payment receipt for invoice $invoice_prefix$invoice_number queued to $contact_email Email ID: $email_id", $client_id, $invoice_id);
                     }
 
                     // LOGGING

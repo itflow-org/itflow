@@ -252,46 +252,10 @@ if (isset($_GET['invoice_id'], $_GET['url_key']) && !isset($_GET['payment_intent
     }
     mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'Payment', log_action = 'Create', log_description = 'Stripe payment of $pi_currency $pi_amount_paid against invoice $invoice_prefix$invoice_number - $pi_id $extended_log_desc', log_ip = '$ip', log_user_agent = '$user_agent', log_client_id = $pi_client_id");
 
-    // Email Receipt
-    $sql_settings = mysqli_query($mysqli, "SELECT config_invoice_from_email, config_invoice_from_name,
-        config_invoice_paid_notification_email, config_smtp_host FROM settings WHERE company_id = 1");
-    $settings = mysqli_fetch_assoc($sql_settings);
-
-    $config_smtp_host = $settings['config_smtp_host'];
-    $config_invoice_from_name = escapeSql($settings['config_invoice_from_name']);
-    $config_invoice_from_email = escapeSql($settings['config_invoice_from_email']);
-    $config_invoice_paid_notification_email = escapeSql($settings['config_invoice_paid_notification_email']);
-
+    // The client's receipt, and the paid notification address - functions/billing_email.php
+    $config_smtp_host = mysqli_fetch_row(mysqli_query($mysqli, "SELECT config_smtp_host FROM settings WHERE company_id = 1"))[0] ?? '';
     if (!empty($config_smtp_host)) {
-        $subject = "Payment Received - Invoice $invoice_prefix$invoice_number";
-        $body = "Hello $contact_name,<br><br>We have received online payment for the amount of " . $pi_currency . $pi_amount_paid . " for invoice <a href=\'https://$config_base_url/guest/guest_view_invoice.php?invoice_id=$invoice_id&url_key=$invoice_url_key\'>$invoice_prefix$invoice_number</a>. Please keep this email as a receipt for your records.<br><br>Amount: " . numfmt_format_currency($currency_format, $pi_amount_paid, $invoice_currency_code) . "<br><br>Thank you for your business!<br><br><br>~<br>$company_name - Billing<br>$config_invoice_from_email<br>$company_phone";
-
-        $data = [
-            [
-                'from' => $config_invoice_from_email,
-                'from_name' => $config_invoice_from_name,
-                'recipient' => $contact_email,
-                'recipient_name' => $contact_name,
-                'subject' => $subject,
-                'body' => $body,
-            ]
-        ];
-        // Internal notification
-        if (!empty($config_invoice_paid_notification_email)) {
-            $subject_internal = "Payment Received - $client_name - Invoice $invoice_prefix$invoice_number";
-            $body_internal = "This is a notification that an invoice has been paid in ITFlow. Below is a copy of the receipt sent to the client:-<br><br>--------<br><br>$body";
-            $data[] = [
-                'from' => $config_invoice_from_email,
-                'from_name' => $config_invoice_from_name,
-                'recipient' => $config_invoice_paid_notification_email,
-                'recipient_name' => $contact_name,
-                'subject' => $subject_internal,
-                'body' => $body_internal,
-            ];
-        }
-        $mail = addToMailQueue($data);
-        // Email logging
-        mysqli_query($mysqli, "INSERT INTO history SET history_status = 'Sent', history_description = 'Emailed Receipt!', history_invoice_id = $invoice_id");
+        billingPaymentSend($invoice_id, $pi_amount_paid, ['date' => $pi_date, 'method' => 'Card', 'reference' => "Stripe - $pi_id", 'how' => 'Online card'], true);
     }
 
     // Redirect user to invoice

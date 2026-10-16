@@ -49,20 +49,17 @@ require_once "includes/inc_all_admin.php";
                             </tr>
                             <tr>
                                 <th>
-                                    <div><i class="fas fa-fw fa-file-invoice me-2"></i>Invoice Reminders</div>
+                                    <div><i class="fas fa-fw fa-file-invoice me-2"></i>Invoice Reminders and Statements</div>
                                     <small class="text-muted">
-                                        (This will automatically dispatch a reminder email for the invoice to the primary contact's email every 30 days following the invoice's due date.)
+                                        (Reminders before and after an invoice's due date, and monthly statements, are set in <a href="settings_invoice.php#reminders">Invoice Settings</a>.)
                                     </small>
                                 </th>
                                 <td>
                                     
                                 </td>
                                 <td></td>
-                                <td>
-                                    <div class="form-check text-center">
-                                        <input type="checkbox" class="form-check-input" name="config_send_invoice_reminders" <?php if ($config_send_invoice_reminders == 1) { echo "checked"; } ?> value="1" id="sendInvoiceRemindersSwitch">
-                                        <label class="form-check-label" for="sendInvoiceRemindersSwitch"></label>
-                                    </div>
+                                <td class="text-center small">
+                                    <a href="settings_invoice.php#reminders"><?= $config_send_invoice_reminders == 1 ? 'On' : 'Off' ?></a>
                                 </td>
                                 <td></td>
                             </tr>

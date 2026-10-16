@@ -9,7 +9,7 @@ $client_id = intval($_GET['id']);
 enforceClientAccess();
 
 $sql = mysqli_query($mysqli, "SELECT client_abbreviation, client_archived_at, client_created_at, client_lead, client_name,
-    client_net_terms, client_notes, client_rate, client_referral, client_tax_id_number,
+    client_net_terms, client_notes, client_rate, client_reminders, client_referral, client_tax_id_number,
     client_type, client_website FROM clients WHERE client_id = $client_id LIMIT 1");
 
 $row = mysqli_fetch_assoc($sql);
@@ -19,6 +19,7 @@ $client_type = escapeHtml($row['client_type']);
 $client_website = escapeHtml($row['client_website']);
 $client_referral = escapeHtml($row['client_referral']);
 $client_net_terms = intval($row['client_net_terms']);
+$client_reminders = intval($row['client_reminders'] ?? 1);
 $client_tax_id_number = escapeHtml($row['client_tax_id_number']);
 $client_abbreviation = escapeHtml($row['client_abbreviation']);
 $client_rate = floatval($row['client_rate']);
@@ -215,6 +216,15 @@ ob_start();
                             <input type="text" class="form-control" name="tax_id_number" maxlength="255"
                                    placeholder="Tax ID Number" value="<?= $client_tax_id_number ?>">
                         </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <input type="hidden" name="reminders_field" value="1">
+                        <div class="form-check form-switch">
+                            <input type="checkbox" class="form-check-input" name="reminders" value="1" id="clientReminders<?= $client_id ?>" <?= $client_reminders ? 'checked' : '' ?>>
+                            <label class="form-check-label" for="clientReminders<?= $client_id ?>">Payment reminders and statements</label>
+                        </div>
+                        <small class="text-secondary">Emailed as set in Invoice Settings. Off, this client gets neither - invoices can still be sent by hand.</small>
                     </div>
 
 

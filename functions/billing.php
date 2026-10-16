@@ -1776,41 +1776,24 @@ function recurringInvoiceGenerate($recurring_invoice_id, $by = 'Cron', $early = 
     billingLog('invoice', $invoice_id, 'Draft', "Made from $recurring_number by $by, for {$period['{period}']}" . ($seat_changes ? ' - seats updated' : ''));
     billingLog('recurring', $recurring_invoice_id, 'Invoiced', "$invoice_number made by $by, for {$period['{period}']} - next on $next");
 
-    // Send it, when it sends itself
+    // Send it, when it sends itself - to the primary and billing contacts, on the billing email (functions/billing_email.php)
     $sent_to = [];
     if (intval($row['recurring_invoice_auto_send']) === 1 && intval($row['recurring_invoice_email_notify']) === 1
         && intval($settings['config_recurring_auto_send_invoice'] ?? 0) === 1 && !empty($settings['config_smtp_provider'])) {
-        $company = billingCompany();
-        $money = billingMoney($invoice['invoice_amount'], $invoice['invoice_currency_code']);
-        $link = 'https://' . $config_base_url . '/guest/guest_view_invoice.php?invoice_id=' . $invoice_id . '&url_key=' . $url_key;
-        $subject = "Invoice $invoice_number";
-        $contacts = mysqli_query($mysqli, "SELECT contact_name, contact_email FROM contacts WHERE contact_client_id = $client_id AND contact_archived_at IS NULL
-            AND (contact_primary = 1 OR contact_billing = 1) AND contact_email IS NOT NULL AND contact_email <> '' ORDER BY contact_primary DESC, contact_name ASC");
-        $data = [];
-        while ($contact = mysqli_fetch_assoc($contacts)) {
-            if (!filter_var($contact['contact_email'], FILTER_VALIDATE_EMAIL) || isset($sent_to[strtolower($contact['contact_email'])])) {
-                continue;
+        $recipients = billingEmailRecipients($client_id);
+        if ($recipients) {
+            [$subject, $email] = billingInvoiceEmail($invoice);
+            $attach = [];
+            if (billingReminderRules()['attach_pdf'] && ($file = billingEmailPdf(billingPdf('invoice', $invoice)))) {
+                $attach[] = $file;
             }
-            $sent_to[strtolower($contact['contact_email'])] = $contact['contact_email'];
-            $body = 'Hello ' . htmlspecialchars($contact['contact_name']) . ',<br><br>An invoice regarding "' . htmlspecialchars($invoice['invoice_scope']) . '" has been generated. Please view the details below.'
-                . "<br><br>Invoice: $invoice_number<br>Issue Date: {$invoice['invoice_date']}<br>Total: " . htmlspecialchars($money) . "<br>Due Date: {$invoice['invoice_due']}"
-                . '<br><br><br>To view your invoice, please click <a href="' . htmlspecialchars($link) . '">here</a>.<br><br><br>--<br>' . htmlspecialchars($company['company_name'] ?? '') . ' - Billing<br>'
-                . htmlspecialchars($settings['config_invoice_from_email'] ?? '') . '<br>' . htmlspecialchars($company['phone_display'] ?? '');
-            $data[] = [
-                'from' => escapeSql($settings['config_invoice_from_email'] ?? ''),
-                'from_name' => escapeSql($settings['config_invoice_from_name'] ?? ''),
-                'recipient' => escapeSql($contact['contact_email']),
-                'recipient_name' => escapeSql($contact['contact_name']),
-                'subject' => escapeSql($subject),
-                'body' => mysqli_real_escape_string($mysqli, $body),
-            ];
+            $sent_to = billingEmailQueue($recipients, $subject, $email, ['attach' => $attach]);
         }
-        if ($data && addToMailQueue($data) === true) {
+        if ($sent_to) {
             mysqli_query($mysqli, "UPDATE invoices SET invoice_status = 'Sent' WHERE invoice_id = $invoice_id");
-            billingLog('invoice', $invoice_id, 'Sent', 'Emailed to ' . implode(', ', $sent_to));
+            billingLog('invoice', $invoice_id, 'Sent', 'Emailed to ' . implode(', ', $sent_to) . ($attach ? ' with the PDF' : ''));
         } else {
-            $sent_to = [];
-            billingLog('invoice', $invoice_id, 'Draft', $data ? 'Could not be queued to email - left as a draft' : 'Nobody to email it to - no primary or billing contact with an email address');
+            billingLog('invoice', $invoice_id, 'Draft', 'Nobody to email it to - no primary or billing contact with an email address');
         }
     }
 
