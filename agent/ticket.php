@@ -458,6 +458,11 @@ if (isset($_GET['ticket_id'])) {
         $show_quote_button = $can_edit_ticket && $config_module_enable_accounting && $ticket_billable == 1 && empty($quote_id) && empty($invoice_id) && lookupUserPermission("module_sales") >= 2;
         $show_invoice_button = $can_edit_ticket && $config_module_enable_accounting && $ticket_billable == 1 && empty($invoice_id) && lookupUserPermission("module_sales") >= 2;
 
+        // Trips - the driving done for it: anyone working it can log theirs (functions/trips.php)
+        $show_trips = $config_module_enable_accounting && $client_id > 0;
+        $ticket_trips = $show_trips ? tripsFor('trip_ticket_id', $ticket_id, 5) : [];
+        [$ticket_trip_count, $ticket_trip_miles] = $show_trips ? tripTotalsFor('trip_ticket_id', $ticket_id) : [0, 0.0];
+
         // Values in the Details panel are links only when they can actually be changed
         $can_change_fields = $can_edit_ticket && !$ticket_is_closed;
 
@@ -519,7 +524,7 @@ if (isset($_GET['ticket_id'])) {
                             the rarer actions live in the menu; Invoice comes out of it once
                             the work is done, which is when it is actually wanted.
                         -->
-                        <?php if ($can_edit_ticket || $ai_summary_available) { ?>
+                        <?php if ($can_edit_ticket || $ai_summary_available || $show_trips) { ?>
                             <div class="ticket-actions d-flex flex-wrap align-items-center gap-2 d-print-none">
 
                                 <?php if ($can_edit_ticket && $ticket_is_open) { ?>
@@ -571,6 +576,14 @@ if (isset($_GET['ticket_id'])) {
                                             <a class="dropdown-item ajax-modal" href="#" data-modal-url="modals/ticket/ticket_summary.php?ticket_id=<?= $ticket_id ?>" data-modal-size="lg">
                                                 <i class="fas fa-fw fa-magic me-2"></i>Summarize with AI
                                             </a>
+                                        <?php } ?>
+                                        <?php if ($show_trips) { ?>
+                                            <a class="dropdown-item ajax-modal" href="#" data-modal-url="modals/trip/trip_add.php?ticket_id=<?= $ticket_id ?>" data-modal-size="lg">
+                                                <i class="fas fa-fw fa-route me-2"></i>Log a trip
+                                            </a>
+                                            <?php if ($can_edit_ticket) { ?>
+                                                <div class="dropdown-divider"></div>
+                                            <?php } ?>
                                         <?php } ?>
                                         <?php if ($can_edit_ticket) { ?>
                                             <a class="dropdown-item ajax-modal" href="#" data-modal-url="modals/ticket/ticket_merge.php?ticket_id=<?= $ticket_id ?>">
@@ -1226,6 +1239,43 @@ if (isset($_GET['ticket_id'])) {
                                 <div class="small mt-2 pt-2 border-top text-body-secondary itflow-ticket-site-notes" title="Access notes"><i class="fa fa-fw fa-door-open me-1"></i><?= nl2br(escapeHtml($ticket_location_notes)) ?></div>
                             <?php } ?>
                         </div>
+                    </div>
+                <?php } ?>
+
+                <!-- Trips - the driving done for it, for an onsite ticket or once there is some -->
+                <?php if ($show_trips && ($ticket_trip_count || $ticket_onsite)) { ?>
+                    <div class="card mb-3 itflow-ticket-trips">
+                        <div class="card-header px-3 py-2">
+                            <h5 class="card-title mt-1"><i class="fas fa-fw fa-route me-2"></i>Trips<?php if ($ticket_trip_count) { ?> <span class="badge text-bg-secondary ms-1"><?= $ticket_trip_count ?></span><?php } ?></h5>
+                            <div class="card-tools">
+                                <a class="btn btn-tool ajax-modal" href="#" data-modal-size="lg" data-modal-url="modals/trip/trip_add.php?ticket_id=<?= $ticket_id ?>" title="Log a trip"><i class="fas fa-plus"></i></a>
+                            </div>
+                        </div>
+                        <?php if ($ticket_trips) { ?>
+                            <div class="list-group list-group-flush">
+                                <?php foreach ($ticket_trips as $trip) { ?>
+                                    <a href="#" class="list-group-item list-group-item-action px-3 py-2 ajax-modal" data-modal-size="lg" data-modal-url="modals/trip/trip.php?id=<?= intval($trip['trip_id']) ?>">
+                                        <div class="d-flex justify-content-between gap-2">
+                                            <span class="small text-truncate"><?= escapeHtml(date('M j', strtotime($trip['trip_date']))) ?> &middot; <?= escapeHtml($trip['driver_name'] ?? 'Unknown') ?></span>
+                                            <span class="small fw-semibold text-nowrap"><?= escapeHtml(tripMilesText($trip['trip_miles'])) ?><?php if (intval($trip['round_trip'])) { ?><i class="fas fa-sync-alt text-body-secondary ms-1" title="Round trip"></i><?php } ?></span>
+                                        </div>
+                                        <div class="small text-body-secondary text-truncate"><?= escapeHtml($trip['trip_source']) ?> &rarr; <?= escapeHtml($trip['trip_destination']) ?></div>
+                                    </a>
+                                <?php } ?>
+                            </div>
+                            <div class="card-footer px-3 py-2 small d-flex justify-content-between">
+                                <span class="text-body-secondary"><?= escapeHtml(tripMilesText($ticket_trip_miles)) ?> driven</span>
+                                <?php if ($ticket_trip_count > count($ticket_trips)) { ?>
+                                    <a href="trips.php?client_id=<?= $client_id ?>&amp;ticket_id=<?= $ticket_id ?>">All <?= $ticket_trip_count ?></a>
+                                <?php } else { ?>
+                                    <a href="trips.php?client_id=<?= $client_id ?>&amp;ticket_id=<?= $ticket_id ?>">Open in Trips</a>
+                                <?php } ?>
+                            </div>
+                        <?php } else { ?>
+                            <div class="card-body p-3 small text-body-secondary">
+                                An onsite ticket - drove out for it? <a href="#" class="ajax-modal" data-modal-size="lg" data-modal-url="modals/trip/trip_add.php?ticket_id=<?= $ticket_id ?>">Log the trip</a> to keep the miles with the ticket.
+                            </div>
+                        <?php } ?>
                     </div>
                 <?php } ?>
 

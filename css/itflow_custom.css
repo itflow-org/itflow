@@ -6362,3 +6362,9 @@ a.itflow-billing-stat:hover {
     z-index: 3;
     background-color: var(--bs-tertiary-bg);
 }
+/* Trips - the route and what for take the room left and cut short, rather than push the miles off the side (agent/trips.php, a site's Trips tab) */
+.itflow-trip-route {
+    width: 100%;
+    max-width: 0;
+    min-width: 14rem;
+}

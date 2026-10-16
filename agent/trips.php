@@ -1,5 +1,23 @@
 <?php
 
+/*
+ * Trips - the driving the business does, for clients and for itself.
+ *
+ * Along the top: the miles this month against the same days of last month,
+ * the year so far, your own this month, and how much of the year's driving
+ * was for clients. Pills cut the list to yours, for a client, for a ticket
+ * or our own errands; filters by driver, client and date. A row opens the
+ * trip's quick look - where it went, the client's site and ticket, the
+ * route on a map - with Return Trip to log the way back.
+ *
+ * Agents with Financial access see every trip; anyone else sees the trips
+ * they drove or logged, and logs their own.
+ *
+ * Takes ?driver=, ?client= (or the client pages' ?client_id=), ?location_id=,
+ * ?ticket_id=, ?show= (mine, client, ticket, own), the date filter and
+ * ?open= to open a trip.
+ */
+
 // Default Column Sortby/Order Filter
 $sort = "trip_date";
 $order = "DESC";
@@ -7,209 +25,348 @@ $order = "DESC";
 // If client_id is in URI then show client Side Bar and client header
 if (isset($_GET['client_id'])) {
     require_once "includes/inc_all_client.php";
-    $client_query = "AND trip_client_id = $client_id";
-    $client_url = "client_id=$client_id&";
+    $client_page = true;
 } else {
     require_once "includes/inc_all.php";
-    $client_query = '';
-    $client_url = '';
+    $client_page = false;
+    $client_id = 0;
 }
 
-$sql = mysqli_query(
-    $mysqli,
-    "SELECT SQL_CALC_FOUND_ROWS client_id, client_name, round_trip, trip_archived_at, trip_created_at, trip_date,
-        trip_destination, trip_id, trip_miles, trip_purpose, trip_source, trip_user_id, user_name, user_avatar FROM trips
-    LEFT JOIN clients ON trip_client_id = client_id
-    LEFT JOIN users ON trip_user_id = user_id
-    WHERE (trip_purpose LIKE '%$q%' OR trip_source LIKE '%$q%' OR trip_destination LIKE '%$q%' OR trip_miles LIKE '%$q%' OR client_name LIKE '%$q%' OR user_name LIKE '%$q%')
-    AND DATE(trip_date) BETWEEN '$dtf' AND '$dtt'
-    AND trip_archived_at IS NULL
-    $client_query
-    " . clientScopeSql('trip_client_id') . "
-    ORDER BY $sort $order LIMIT $record_from, $record_to"
-);
+$can_manage = tripCanManage();
+$sees_all = tripCanSeeAll();
 
+$driver_filter = intval($_GET['driver'] ?? 0);
+$client_filter = $client_page ? intval($client_id) : intval($_GET['client'] ?? 0);
+$location_filter = intval($_GET['location_id'] ?? 0);
+$ticket_filter = intval($_GET['ticket_id'] ?? 0);
+$shows = tripShows();
+$show = (string) ($_GET['show'] ?? '');
+$show = isset($shows[$show]) ? $show : '';
+
+// Only these sort - filter_header.php hands through any lowercase word
+$sortable_columns = ['trip_date' => 'trips.trip_date', 'user_name' => 'driver.user_name', 'trip_destination' => 'trips.trip_destination', 'client_name' => 'client_name', 'trip_miles' => 'trips.trip_miles'];
+if (!isset($sortable_columns[$sort])) {
+    $sort = 'trip_date';
+}
+
+// Everything but the pill, then the pill - the pill counts are over what the rest leave
+$filter_src = array_merge($_GET, ['dtf' => $dtf, 'dtt' => $dtt, 'show' => '', 'client' => $client_filter]);
+$where = tripFiltersSql($filter_src);
+$show_query = $shows[$show]['where'] ? "AND {$shows[$show]['where']}" : '';
+$joins = tripJoinsSql();
+
+$sql = mysqli_query($mysqli, "SELECT SQL_CALC_FOUND_ROWS trips.*, client_name, driver.user_name AS driver_name, driver.user_avatar AS driver_avatar,
+        location_name, ticket_prefix, ticket_number, ticket_subject, ticket_resolved_at, ticket_closed_at
+    FROM trips $joins
+    WHERE $where $show_query
+    ORDER BY {$sortable_columns[$sort]} $order, trips.trip_id DESC LIMIT $record_from, $record_to");
 $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
+$trips = [];
+while ($row = mysqli_fetch_assoc($sql)) {
+    $trips[] = $row;
+}
+
+// The pills, and the miles of what is listed
+$count_sql = [];
+foreach ($shows as $key => $s) {
+    $count_sql[] = $key === '' ? 'COUNT(*)' : "COALESCE(SUM({$s['where']}), 0)";
+}
+$row = mysqli_fetch_row(mysqli_query($mysqli, "SELECT " . implode(', ', $count_sql) . ", COALESCE(SUM(CASE WHEN 1 $show_query THEN trips.trip_miles END), 0)
+    FROM trips $joins WHERE $where"));
+$counts = [];
+foreach (array_keys($shows) as $i => $key) {
+    $counts[$key] = intval($row[$i]);
+}
+$listed_miles = floatval($row[count($shows)]);
+
+$stats = tripStats();
+$filter_url = function ($changes) use ($client_page, $client_id) {
+    $params = array_merge($_GET, $changes);
+    unset($params['page']);
+    if ($client_page) {
+        $params['client_id'] = $client_id;
+    }
+    return '?' . http_build_query(array_filter($params, function ($v) { return $v !== '' && $v !== null; }));
+};
+$date_url = function ($from, $to, $changes = []) use ($filter_url) {
+    return $filter_url(array_merge(['canned_date' => 'custom', 'dtf' => $from, 'dtt' => $to], $changes));
+};
+$any_filter = $q || $driver_filter || ($client_filter && !$client_page) || $location_filter || $ticket_filter || $show !== '' || $dtf !== '1970-01-01';
+$add_url = 'modals/trip/trip_add.php' . ($client_page ? "?client_id=$client_id" : '');
 
 ?>
 
-    <div class="card">
-        <div class="card-header bg-dark py-2">
-            <h3 class="card-title mt-2"><i class="fa fa-route me-2"></i>Trips</h3>
-            <div class="card-tools">
-                <div class="btn-group">
-                    <button type="button" class="btn btn-primary ajax-modal" data-modal-url="modals/trip/trip_add.php?<?= $client_url ?>"><i class="fas fa-plus me-2"></i>New Trip</button>
-                    <?php if ($num_rows[0] > 0) { ?>
-                    <button type="button" class="btn btn-primary dropdown-toggle dropdown-toggle-split" data-bs-toggle="dropdown"></button>
-                    <div class="dropdown-menu">
-                        <a class="dropdown-item text-dark ajax-modal" href="#"
-                            data-modal-url="<?= buildExportModalUrl('modals/trip/trip_export.php', ['client_id', 'q'], ['dtf' => $dtf, 'dtt' => $dtt]) ?>">
-                            <i class="fa fa-fw fa-download me-2"></i>Export
-                        </a>
-                    </div>
+<!-- The driving -->
+<div class="row g-3 mb-3">
+    <div class="col-sm-6 col-xl-3">
+        <a class="itflow-billing-stat <?= $dtf === $stats['month_start'] && $show === '' ? 'active' : '' ?>" href="<?= escapeHtml($date_url($stats['month_start'], date('Y-m-t'), ['show' => ''])) ?>">
+            <div class="itflow-billing-stat-label"><i class="fas fa-calendar-alt me-1"></i>This month</div>
+            <div class="itflow-billing-stat-value"><?= escapeHtml(tripMilesText($stats['month_miles'])) ?></div>
+            <div class="itflow-billing-stat-note">
+                <?= intval($stats['month_trips']) ?> trip<?= intval($stats['month_trips']) === 1 ? '' : 's' ?>
+                <?php if ($stats['change'] !== null) { ?>
+                    &middot; <span class="<?= $stats['change'] > 0 ? 'text-warning-emphasis' : 'text-success-emphasis' ?>"><i class="fas fa-arrow-<?= $stats['change'] > 0 ? 'up' : 'down' ?> me-1"></i><?= abs($stats['change']) ?>%</span> on the same days of <?= date('F', strtotime($stats['last_start'])) ?>
+                <?php } ?>
+            </div>
+        </a>
+    </div>
+    <div class="col-sm-6 col-xl-3">
+        <a class="itflow-billing-stat <?= $dtf === $stats['year_start'] && $show === '' ? 'active' : '' ?>" href="<?= escapeHtml($date_url($stats['year_start'], date('Y-12-31'), ['show' => ''])) ?>">
+            <div class="itflow-billing-stat-label"><i class="fas fa-chart-line me-1"></i><?= date('Y') ?> so far</div>
+            <div class="itflow-billing-stat-value"><?= escapeHtml(tripMilesText($stats['year_miles'])) ?></div>
+            <div class="itflow-billing-stat-note"><?= intval($stats['year_trips']) ?> trip<?= intval($stats['year_trips']) === 1 ? '' : 's' ?></div>
+        </a>
+    </div>
+    <div class="col-sm-6 col-xl-3">
+        <a class="itflow-billing-stat <?= $show === 'mine' && $dtf === $stats['month_start'] ? 'active' : '' ?>" href="<?= escapeHtml($date_url($stats['month_start'], date('Y-m-t'), ['show' => 'mine'])) ?>">
+            <div class="itflow-billing-stat-label"><i class="fas fa-user me-1"></i>Yours this month</div>
+            <div class="itflow-billing-stat-value"><?= escapeHtml(tripMilesText($stats['my_month_miles'])) ?></div>
+            <div class="itflow-billing-stat-note"><?= intval($stats['my_month_trips']) ?> trip<?= intval($stats['my_month_trips']) === 1 ? '' : 's' ?> you drove</div>
+        </a>
+    </div>
+    <div class="col-sm-6 col-xl-3">
+        <a class="itflow-billing-stat <?= $show === 'client' && $dtf === $stats['year_start'] ? 'active' : '' ?>" href="<?= escapeHtml($date_url($stats['year_start'], date('Y-12-31'), ['show' => 'client'])) ?>">
+            <div class="itflow-billing-stat-label"><i class="fas fa-building me-1"></i>For clients this year</div>
+            <div class="itflow-billing-stat-value"><?= escapeHtml(tripMilesText($stats['year_client_miles'])) ?></div>
+            <div class="itflow-billing-stat-note"><?= $stats['year_miles'] > 0 ? round($stats['year_client_miles'] / $stats['year_miles'] * 100) . '% of the driving' : 'No driving yet this year' ?></div>
+        </a>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-header bg-dark py-2">
+        <h3 class="card-title mt-2"><i class="fas fa-fw fa-route me-2"></i>Trips<?= $sees_all ? '' : ' <span class="fw-normal text-white-50 small ms-1">yours</span>' ?></h3>
+        <div class="card-tools">
+            <div class="btn-group">
+                <button type="button" class="btn btn-primary ajax-modal" data-modal-size="lg" data-modal-url="<?= $add_url ?>"><i class="fas fa-plus me-2"></i>New Trip</button>
+                <button type="button" class="btn btn-primary dropdown-toggle dropdown-toggle-split" data-bs-toggle="dropdown" aria-label="More"></button>
+                <div class="dropdown-menu dropdown-menu-end">
+                    <a class="dropdown-item ajax-modal" href="#"
+                        data-modal-url="<?= buildExportModalUrl('modals/trip/trip_export.php', ['client_id', 'client', 'driver', 'location_id', 'ticket_id', 'show', 'q'], ['dtf' => $dtf, 'dtt' => $dtt]) ?>">
+                        <i class="fa fa-fw fa-download text-secondary me-2"></i>Export
+                    </a>
+                    <?php if (lookupUserPermission('module_reporting') >= 1 && lookupUserPermission('module_financial') >= 1) { ?>
+                        <a class="dropdown-item" href="reports/mileage.php"><i class="fa fa-fw fa-chart-bar text-secondary me-2"></i>Mileage Report</a>
                     <?php } ?>
                 </div>
             </div>
         </div>
-
-        <div class="card-header py-3">
-            <form autocomplete="off">
-                <?php if ($client_url) { ?>
-                    <input type="hidden" name="client_id" value="<?= $client_id ?>">
-                <?php } ?>
-                <div class="row g-2 align-items-end">
-                    <div class="col-sm-4">
-                        <div class="input-group">
-                            <input type="search" class="form-control" name="q" value="<?php if (isset($q)) { echo stripslashes(escapeHtml($q)); } ?>" placeholder="Search Trips">
-                                <button class="btn btn-secondary" title="More filters" type="button" data-bs-toggle="collapse" data-bs-target="#advancedFilter"><i class="fas fa-filter"></i></button>
-                                <button class="btn btn-primary" title="Search"><i class="fa fa-search"></i></button>
-                        </div>
-                    </div>
-                    <div class="col-sm-8">
-                        <div class="float-end">
-                        </div>
-                    </div>
-                </div>
-                <div class="collapse mt-3 <?php if (isset($_GET['dtf']) && $_GET['dtf'] !== '1970-01-01') { echo"show"; } ?>" id="advancedFilter">
-                    <div class="row g-3">
-                        <div class="col-md-3">
-                            <div>
-                                <label class="form-label">Date range</label>
-                                <input type="text" id="dateFilter" class="form-control" autocomplete="off">
-                                <input type="hidden" name="canned_date" id="canned_date" value="<?= escapeHtml($_GET['canned_date']) ?? '' ?>">
-                                <input type="hidden" name="dtf" id="dtf" value="<?= escapeHtml($dtf ?? '') ?>">
-                                <input type="hidden" name="dtt" id="dtt" value="<?= escapeHtml($dtt ?? '') ?>">
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </form>
-        </div>
-        <div class="table-responsive">
-            <table class="table table-striped table-borderless table-hover mb-0">
-                <thead class="text-dark <?php if ($num_rows[0] == 0) { echo "d-none"; } ?>">
-                <tr>
-                    <th class="ps-3">
-                        <a class="text-dark" href="?<?= $url_query_strings_sort ?>&sort=trip_date&order=<?= $disp ?>">
-                            Date <?php if ($sort == 'trip_date') { echo $order_icon; } ?>
-                        </a>
-                    </th>
-                    <th>
-                        <a class="text-dark" href="?<?= $url_query_strings_sort ?>&sort=user_name&order=<?= $disp ?>">
-                            Driver <?php if ($sort == 'user_name') { echo $order_icon; } ?>
-                        </a>
-                    </th>
-                    <th>
-                        <a class="text-dark" href="?<?= $url_query_strings_sort ?>&sort=trip_purpose&order=<?= $disp ?>">
-                            Purpose <?php if ($sort == 'trip_purpose') { echo $order_icon; } ?>
-                        </a>
-                    </th>
-                    <th>
-                        <a class="text-dark" href="?<?= $url_query_strings_sort ?>&sort=trip_source&order=<?= $disp ?>">
-                            Source <?php if ($sort == 'trip_source') { echo $order_icon; } ?>
-                        </a>
-                    </th>
-                    <th>
-                        <a class="text-dark" href="?<?= $url_query_strings_sort ?>&sort=trip_destination&order=<?= $disp ?>">
-                            Destination <?php if ($sort == 'trip_destination') { echo $order_icon; } ?>
-                        </a>
-                    </th>
-                    <th>
-                        <a class="text-dark" href="?<?= $url_query_strings_sort ?>&sort=trip_miles&order=<?= $disp ?>">
-                            Miles <?php if ($sort == 'trip_miles') { echo $order_icon; } ?>
-                        </a>
-                    </th>
-                    <?php if (!$client_url) { ?>
-                    <th>
-                        <a class="text-dark" href="?<?= $url_query_strings_sort ?>&sort=client_name&order=<?= $disp ?>">
-                            Client <?php if ($sort == 'client_name') { echo $order_icon; } ?>
-                        </a>
-                    </th>
-                    <?php } ?>
-                    <th class="text-center">Action</th>
-                </tr>
-                </thead>
-                <tbody>
-                <?php
-
-                while ($row = mysqli_fetch_assoc($sql)) {
-                    $trip_id = intval($row['trip_id']);
-                    $trip_date = escapeHtml($row['trip_date']);
-                    $trip_purpose = escapeHtml($row['trip_purpose']);
-                    $trip_source = escapeHtml($row['trip_source']);
-                    $trip_destination = escapeHtml($row['trip_destination']);
-                    $trip_miles = number_format(floatval($row['trip_miles']),1);
-                    $trip_user_id = intval($row['trip_user_id']);
-                    $trip_created_at = escapeHtml($row['trip_created_at']);
-                    $trip_archived_at = escapeHtml($row['trip_archived_at']);
-                    $round_trip = escapeHtml($row['round_trip']);
-                    $client_id = intval($row['client_id']);
-                    $client_name = escapeHtml($row['client_name']);
-                    if (empty($client_name)) {
-                        $client_name_display = "-";
-                    } else {
-                        $client_name_display = "<a href='trips.php?client_id=$client_id'>$client_name</a>";
-                    }
-                    if ($round_trip == 1) {
-                        $round_trip_display = "<i class='fa fa-fw fa-sync-alt text-secondary'></i>";
-                    } else {
-                        $round_trip_display = "";
-                    }
-                    $user_name_display = formatAssignee($trip_user_id, $row['user_name'], $row['user_avatar'], false, 'No driver');
-
-                    ?>
-                    <tr>
-                        <td class="ps-3">
-                            <a class="text-dark ajax-modal" href="#"
-                                data-modal-url="modals/trip/trip_edit.php?<?= $client_url ?>&id=<?= $trip_id ?>">
-                                <?= $trip_date ?>
-                            </a>
-                        </td>
-                        <td><?= $user_name_display ?></td>
-                        <td><?= $trip_purpose ?></td>
-                        <td><?= $trip_source ?></td>
-                        <td><?= $trip_destination ?></td>
-                        <td><?= "<span class='text-end font-monospace'>$trip_miles</span> $round_trip_display" ?></td>
-                        <?php if (!$client_url) { ?>
-                        <td><?= $client_name_display ?></td>
-                        <?php } ?>
-                        <td>
-                            <div class="dropdown dropstart text-center">
-                                <button class="btn btn-secondary btn-sm" title="More actions" type="button" data-bs-toggle="dropdown">
-                                    <i class="fas fa-ellipsis-h"></i>
-                                </button>
-                                <div class="dropdown-menu">
-                                    <a class="dropdown-item" href="//maps.google.com?q=<?= $trip_source ?> to <?= $trip_destination ?>" target="_blank">
-                                        <i class="fa fa-fw fa-map-marker-alt me-2"></i>Map it<i class="fa fa-fw fa-external-link-alt ms-2"></i>
-                                    </a>
-                                    <div class="dropdown-divider"></div>
-                                    <a class="dropdown-item ajax-modal" href="#"
-                                        data-modal-url="modals/trip/trip_edit.php?<?= $client_url ?>&id=<?= $trip_id ?>">
-                                        <i class="fa fa-fw fa-edit me-2"></i>Edit
-                                    </a>
-                                    <a class="dropdown-item ajax-modal" href="#"
-                                        data-modal-url="modals/trip/trip_copy.php?<?= $client_url ?>&id=<?= $trip_id ?>">
-                                        <i class="fa fa-fw fa-copy me-2"></i>Copy
-                                    </a>
-                                    <div class="dropdown-divider"></div>
-                                    <a class="dropdown-item text-danger text-bold confirm-link" href="post.php?delete_trip=<?= $trip_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>">
-                                        <i class="fa fa-fw fa-trash me-2"></i>Delete
-                                    </a>
-                                </div>
-                            </div>
-                        </td>
-                    </tr>
-
-                    <?php
-                }
-                ?>
-
-                </tbody>
-            </table>
-        </div>
-        <?php require_once "../includes/filter_footer.php";
- ?>
     </div>
 
-<?php
-require_once "../includes/footer.php";
+    <div class="card-header py-3">
+        <form autocomplete="off">
+            <input type="hidden" name="show" value="<?= escapeHtml($show) ?>">
+            <?php if ($client_page) { ?>
+                <input type="hidden" name="client_id" value="<?= $client_id ?>">
+            <?php } ?>
+            <?php foreach (['location_id' => $location_filter, 'ticket_id' => $ticket_filter] as $key => $value) {
+                if ($value) { ?>
+                    <input type="hidden" name="<?= $key ?>" value="<?= $value ?>">
+                <?php }
+            } ?>
+            <div class="row g-2 align-items-center">
+                <div class="col-lg-4 col-md-6">
+                    <div class="input-group">
+                        <input type="search" class="form-control" name="q" value="<?php if (isset($q)) { echo stripslashes(escapeHtml($q)); } ?>" placeholder="Search trips" title="Purpose, from, to, client, site, driver, ticket">
+                        <button class="btn btn-dark" title="Search"><i class="fa fa-search"></i></button>
+                    </div>
+                </div>
+                <div class="col-lg-2 col-md-6">
+                    <input type="text" id="dateFilter" class="form-control" autocomplete="off" title="Date of the trip" aria-label="Date of the trip">
+                    <input type="hidden" name="canned_date" id="canned_date" value="<?= escapeHtml($_GET['canned_date'] ?? '') ?>">
+                    <input type="hidden" name="dtf" id="dtf" value="<?= escapeHtml($dtf ?? '') ?>">
+                    <input type="hidden" name="dtt" id="dtt" value="<?= escapeHtml($dtt ?? '') ?>">
+                </div>
+                <div class="col-lg-<?= $client_page ? 6 : 3 ?> col-md-6">
+                    <div class="d-flex gap-2">
+                        <div class="flex-grow-1 min-w-0">
+                            <select class="form-select select2" name="driver" onchange="this.form.submit()" aria-label="Driver">
+                                <option value="">- Any driver -</option>
+                                <?php
+                                $sql_filter = mysqli_query($mysqli, "SELECT user_id, user_name, user_avatar FROM users WHERE EXISTS (SELECT 1 FROM trips WHERE trip_user_id = user_id) ORDER BY user_name ASC");
+                                while ($row = mysqli_fetch_assoc($sql_filter)) {
+                                    $option_id = intval($row['user_id']); ?>
+                                    <option <?= $driver_filter === $option_id ? 'selected' : '' ?> value="<?= $option_id ?>"<?= selectOptionUser($row['user_id'], $row['user_name'], $row['user_avatar'] ?? '') ?>><?= escapeHtml($row['user_name']) ?></option>
+                                <?php } ?>
+                            </select>
+                        </div>
+                        <?php if ($client_page && $can_manage) { ?>
+                            <?php require __DIR__ . '/includes/trip_bulk_menu.php'; ?>
+                        <?php } ?>
+                    </div>
+                </div>
+                <?php if (!$client_page) { ?>
+                    <div class="col-lg-3 col-md-6">
+                        <div class="d-flex gap-2">
+                            <div class="flex-grow-1 min-w-0">
+                                <select class="form-select select2" name="client" onchange="this.form.submit()" aria-label="Client">
+                                    <option value="">- Any client -</option>
+                                    <?php
+                                    $sql_filter = mysqli_query($mysqli, "SELECT client_id, client_name, client_abbreviation FROM clients
+                                        WHERE EXISTS (SELECT 1 FROM trips WHERE trip_client_id = client_id) " . clientScopeSql('clients.client_id') . " ORDER BY client_name ASC");
+                                    while ($row = mysqli_fetch_assoc($sql_filter)) {
+                                        $option_id = intval($row['client_id']); ?>
+                                        <option <?= $client_filter === $option_id ? 'selected' : '' ?> value="<?= $option_id ?>"<?= selectOptionClient($row['client_id'], $row['client_name'], $row['client_abbreviation'] ?? '') ?>><?= escapeHtml($row['client_name']) ?></option>
+                                    <?php } ?>
+                                </select>
+                            </div>
+                            <?php if ($can_manage) { ?>
+                                <?php require __DIR__ . '/includes/trip_bulk_menu.php'; ?>
+                            <?php } ?>
+                        </div>
+                    </div>
+                <?php } ?>
+            </div>
+        </form>
+        <!-- Cut the list - counted over what the filters above leave -->
+        <nav class="nav nav-pills itflow-asset-tabs mt-2 flex-nowrap overflow-auto">
+            <?php foreach ($shows as $key => $s) { ?>
+                <a class="nav-link text-nowrap <?= $show === $key ? 'active' : '' ?>" href="<?= escapeHtml($filter_url(['show' => $key])) ?>"<?= !empty($s['title']) ? ' title="' . escapeHtml($s['title']) . '"' : '' ?>>
+                    <?php if (!empty($s['icon'])) { ?><i class="fas fa-fw <?= $s['icon'] ?> me-1"></i><?php } ?><?= $s['label'] ?>
+                    <span class="badge rounded-pill ms-1"><?= $counts[$key] ?></span>
+                </a>
+            <?php } ?>
+        </nav>
+        <?php if ($location_filter || $ticket_filter) { ?>
+            <div class="small text-body-secondary mt-2">
+                <i class="fas fa-filter me-1"></i><?= $location_filter ? 'To the site ' . escapeHtml((string) getFieldById('locations', $location_filter, 'location_name')) : 'For the ticket ' . escapeHtml((string) getFieldById('tickets', $ticket_filter, 'ticket_subject')) ?>
+                <a class="ms-2" href="<?= escapeHtml($filter_url(['location_id' => '', 'ticket_id' => ''])) ?>">Clear</a>
+            </div>
+        <?php } ?>
+    </div>
+
+    <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0 itflow-billing-table">
+            <thead class="<?= $num_rows[0] ? '' : 'd-none' ?> text-nowrap table-light">
+            <tr>
+                <?php if ($can_manage) { ?>
+                    <th class="checkbox-column border-end">
+                        <div class="form-check">
+                            <input class="form-check-input" id="selectAllCheckbox" type="checkbox" onclick="checkAll(this)" title="Select all on this page">
+                        </div>
+                    </th>
+                <?php } ?>
+                <th><a class="text-reset text-decoration-none" href="?<?= $url_query_strings_sort ?>&sort=trip_date&order=<?= $disp ?>">Date <?php if ($sort == 'trip_date') { echo $order_icon; } ?></a></th>
+                <th><a class="text-reset text-decoration-none" href="?<?= $url_query_strings_sort ?>&sort=trip_destination&order=<?= $disp ?>">Trip <?php if ($sort == 'trip_destination') { echo $order_icon; } ?></a></th>
+                <?php if (!$client_page) { ?>
+                    <th><a class="text-reset text-decoration-none" href="?<?= $url_query_strings_sort ?>&sort=client_name&order=<?= $disp ?>">Client <?php if ($sort == 'client_name') { echo $order_icon; } ?></a></th>
+                <?php } else { ?>
+                    <th>Site</th>
+                <?php } ?>
+                <th><a class="text-reset text-decoration-none" href="?<?= $url_query_strings_sort ?>&sort=user_name&order=<?= $disp ?>">Driver <?php if ($sort == 'user_name') { echo $order_icon; } ?></a></th>
+                <th class="text-end"><a class="text-reset text-decoration-none" href="?<?= $url_query_strings_sort ?>&sort=trip_miles&order=<?= $disp ?>"><?= ucfirst(tripUnit()) ?> <?php if ($sort == 'trip_miles') { echo $order_icon; } ?></a></th>
+                <th></th>
+            </tr>
+            </thead>
+            <tbody>
+            <?php foreach ($trips as $row) {
+                $trip_id = intval($row['trip_id']);
+                $row_open = 'data-modal-size="lg" data-modal-url="modals/trip/trip.php?id=' . $trip_id . '"';
+                ?>
+                <tr>
+                    <?php if ($can_manage) { ?>
+                        <td class="checkbox-column bg-light border-end">
+                            <div class="form-check">
+                                <input class="form-check-input bulk-select" type="checkbox" name="trip_ids[]" value="<?= $trip_id ?>" aria-label="Select this trip">
+                            </div>
+                        </td>
+                    <?php } ?>
+                    <td class="text-nowrap"><a class="fw-semibold ajax-modal" href="#" <?= $row_open ?>><?= escapeHtml($row['trip_date']) ?></a></td>
+                    <td class="itflow-trip-route">
+                        <div class="text-truncate" title="<?= escapeHtml($row['trip_source'] . ' → ' . $row['trip_destination']) ?>">
+                            <span class="text-body-secondary"><?= escapeHtml($row['trip_source']) ?></span>
+                            <i class="fas fa-long-arrow-alt-right text-body-tertiary mx-1"></i><?= escapeHtml($row['trip_destination']) ?>
+                        </div>
+                        <div class="small text-body-secondary text-truncate" title="<?= escapeHtml($row['trip_purpose']) ?>">
+                            <?php if (intval($row['trip_ticket_id']) && $row['ticket_number'] !== null) { ?>
+                                <a class="font-monospace" href="<?= escapeHtml(ticketUrl($row['trip_ticket_id'], $row['trip_client_id'])) ?>" title="<?= escapeHtml($row['ticket_subject']) ?>"><?= escapeHtml(ticketReference($row)) ?></a> &middot;
+                            <?php } ?>
+                            <?= escapeHtml($row['trip_purpose']) ?>
+                        </div>
+                    </td>
+                    <?php if (!$client_page) { ?>
+                        <td>
+                            <?php if (intval($row['trip_client_id'])) { ?>
+                                <div class="text-truncate" style="max-width: 12rem;"><a class="text-reset" href="<?= escapeHtml($filter_url(['client' => intval($row['trip_client_id'])])) ?>" title="<?= escapeHtml((string) $row['client_name']) ?> - their trips"><?= escapeHtml($row['client_name']) ?></a></div>
+                                <?php if ($row['location_name'] !== null) { ?><div class="small text-body-secondary text-truncate" style="max-width: 12rem;"><i class="fas fa-map-marker-alt me-1"></i><?= escapeHtml($row['location_name']) ?></div><?php } ?>
+                            <?php } else { ?>
+                                <span class="text-body-secondary small">Our own</span>
+                            <?php } ?>
+                        </td>
+                    <?php } else { ?>
+                        <td class="small"><?= $row['location_name'] !== null ? '<a class="text-reset" href="' . escapeHtml($filter_url(['location_id' => intval($row['trip_location_id'])])) . '"><i class="fas fa-map-marker-alt text-body-secondary me-1"></i>' . escapeHtml($row['location_name']) . '</a>' : '<span class="text-body-secondary">-</span>' ?></td>
+                    <?php } ?>
+                    <td class="text-nowrap"><?= formatAssignee($row['trip_user_id'], $row['driver_name'] ?? '', $row['driver_avatar'] ?? '', false, 'No driver') ?></td>
+                    <td class="text-end text-nowrap">
+                        <span class="fw-semibold"><?= number_format(floatval($row['trip_miles']), 1) ?></span>
+                        <?php if (intval($row['round_trip'])) { ?><i class="fas fa-sync-alt text-body-tertiary small ms-1" title="Round trip - <?= escapeHtml(tripMilesText(tripOneWay($row))) ?> each way"></i><?php } ?>
+                    </td>
+                    <td class="text-end">
+                        <div class="dropdown dropstart">
+                            <button class="btn btn-sm btn-light" title="More actions" type="button" data-bs-toggle="dropdown"><i class="fas fa-fw fa-ellipsis-v"></i></button>
+                            <div class="dropdown-menu">
+                                <a class="dropdown-item ajax-modal" href="#" <?= $row_open ?>><i class="fas fa-fw fa-eye text-secondary me-2"></i>Open</a>
+                                <a class="dropdown-item" href="<?= escapeHtml(tripMapUrl($row)) ?>" target="_blank" rel="noopener"><i class="fas fa-fw fa-map-marked-alt text-secondary me-2"></i>Directions<i class="fas fa-external-link-alt small text-secondary ms-2"></i></a>
+                                <div class="dropdown-divider"></div>
+                                <?php if (tripCanEdit($row)) { ?>
+                                    <a class="dropdown-item ajax-modal" href="#" data-modal-size="lg" data-modal-url="modals/trip/trip_edit.php?id=<?= $trip_id ?>"><i class="fas fa-fw fa-edit text-secondary me-2"></i>Edit</a>
+                                <?php } ?>
+                                <a class="dropdown-item ajax-modal" href="#" data-modal-size="lg" data-modal-url="modals/trip/trip_copy.php?id=<?= $trip_id ?>"><i class="fas fa-fw fa-copy text-secondary me-2"></i>Copy</a>
+                                <a class="dropdown-item ajax-modal" href="#" data-modal-size="lg" data-modal-url="modals/trip/trip_copy.php?id=<?= $trip_id ?>&amp;return=1"><i class="fas fa-fw fa-undo-alt text-secondary me-2"></i>Return Trip</a>
+                                <?php if (tripCanDelete($row)) { ?>
+                                    <div class="dropdown-divider"></div>
+                                    <a class="dropdown-item text-danger text-bold confirm-link" href="post.php?delete_trip=<?= $trip_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>"
+                                        data-confirm-text="<?= escapeHtml(tripLabel($row)) ?> goes for good.">
+                                        <i class="fas fa-fw fa-trash me-2"></i>Delete
+                                    </a>
+                                <?php } ?>
+                            </div>
+                        </div>
+                    </td>
+                </tr>
+            <?php } ?>
+            </tbody>
+            <?php if ($num_rows[0]) { ?>
+                <tfoot>
+                <tr class="table-light">
+                    <td colspan="<?= $can_manage ? 5 : 4 ?>" class="text-body-secondary small">
+                        <?= intval($num_rows[0]) ?> trip<?= intval($num_rows[0]) === 1 ? '' : 's' ?><?= $any_filter ? ' match' . (intval($num_rows[0]) === 1 ? 'es' : '') : '' ?><?= $num_rows[0] > count($trips) ? ' - the total is for all of them, not just this page' : '' ?>
+                    </td>
+                    <td class="text-end fw-semibold text-nowrap"><?= escapeHtml(tripMilesText($listed_miles)) ?></td>
+                    <td></td>
+                </tr>
+                </tfoot>
+            <?php } ?>
+        </table>
+    </div>
+    <?php if (!$num_rows[0]) { ?>
+        <div class="itflow-asset-empty">
+            <i class="fas fa-route fa-2x mb-2 opacity-50"></i>
+            <div><?= $any_filter ? 'No trips match.' : 'No trips yet.' ?></div>
+            <?php if (!$any_filter) { ?>
+                <div class="small mt-1">Log the drive out to a client from their ticket - Log a trip, in its menu - or with New Trip here.</div>
+            <?php } ?>
+        </div>
+    <?php } ?>
+    <?php require_once "../includes/filter_footer.php"; ?>
+</div>
+
+<?php if (!empty($_GET['open'])) { ?>
+    <script>
+        // Opened from elsewhere - straight to that trip's quick look
+        document.addEventListener('DOMContentLoaded', function () {
+            var open = document.createElement('a');
+            open.className = 'ajax-modal';
+            open.href = '#';
+            open.dataset.modalSize = 'lg';
+            open.dataset.modalUrl = 'modals/trip/trip.php?id=<?= intval($_GET['open']) ?>';
+            document.body.appendChild(open);
+            open.click();
+            open.remove();
+        });
+    </script>
+<?php } ?>
+
+<script src="../js/bulk_actions.js"></script>
+
+<?php require_once "../includes/footer.php";

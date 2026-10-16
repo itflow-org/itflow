@@ -4,7 +4,9 @@
  * Mileage - the trips logged in the period: miles by agent and by client,
  * every trip listed, and what it comes to at a rate per mile you enter (your
  * reimbursement or tax-deduction rate - nothing is assumed). Miles count as
- * entered on each trip, the same as the Trips list and the dashboard.
+ * entered on each trip (the whole trip - both ways for a round trip), the
+ * same as the Trips list and the dashboard. A trip's date opens it on the
+ * Trips list; its ticket and site show under the purpose.
  */
 
 require_once "includes/inc_report.php";
@@ -21,10 +23,13 @@ $where = "trip_archived_at IS NULL AND " . reportRangeSql('trip_date', $period)
 
 $trips = [];
 $sql = mysqli_query($mysqli, "SELECT trip_id, trip_date, trip_purpose, trip_source, trip_destination, trip_miles, round_trip,
-        trip_user_id, user_name, user_avatar, trip_client_id, client_name, client_abbreviation
+        trip_user_id, user_name, user_avatar, trip_client_id, client_name, client_abbreviation,
+        trip_location_id, location_name, trip_ticket_id, ticket_prefix, ticket_number
     FROM trips
     LEFT JOIN users ON trip_user_id = user_id
     LEFT JOIN clients ON trip_client_id = client_id
+    LEFT JOIN locations ON location_id = trip_location_id
+    LEFT JOIN tickets ON ticket_id = trip_ticket_id
     WHERE $where
     ORDER BY trip_date DESC, trip_id DESC");
 while ($row = mysqli_fetch_assoc($sql)) {
@@ -64,14 +69,27 @@ usort($by_client, function ($a, $b) { return $b['miles'] <=> $a['miles']; });
 $value_column = ['label' => 'At ' . ($rate ? reportMoney($rate) . ' a mile' : 'your rate'), 'type' => 'money', 'csv_label' => 'Amount'];
 
 $trip_columns = [
-    'trip_date' => ['label' => 'Date', 'type' => 'date', 'class' => 'text-nowrap'],
+    'trip_date' => ['label' => 'Date', 'type' => 'date', 'class' => 'text-nowrap', 'html' => function ($row) {
+        // Opens the trip's quick look on the Trips list
+        return '<a href="/agent/trips.php?open=' . intval($row['trip_id']) . '">' . escapeHtml(date('M j, Y', strtotime($row['trip_date']))) . '</a>';
+    }],
     'user_name' => ['label' => 'Agent', 'html' => function ($row) {
         return reportAgentCell($row['trip_user_id'], $row['user_name'] ?? '', $row['user_avatar'] ?? '', 'No one');
     }],
     'client_name' => ['label' => 'Client', 'html' => function ($row) {
         return reportClientCell($row['trip_client_id'], $row['client_name'] ?? '', $row['client_abbreviation'] ?? '');
     }],
-    'trip_purpose' => ['label' => 'Purpose', 'class' => 'itflow-report-text'],
+    'trip_purpose' => ['label' => 'Purpose', 'class' => 'itflow-report-text', 'html' => function ($row) {
+        $for = [];
+        if ($row['ticket_number'] !== null && intval($row['trip_ticket_id'])) {
+            $for[] = '<span class="font-monospace">' . escapeHtml(ticketReference($row)) . '</span>';
+        }
+        if ($row['location_name'] !== null && intval($row['trip_location_id'])) {
+            $for[] = '<i class="fas fa-map-marker-alt me-1"></i>' . escapeHtml($row['location_name']);
+        }
+        return escapeHtml($row['trip_purpose']) . ($for ? '<div class="small text-body-secondary">' . implode(' &middot; ', $for) . '</div>' : '');
+    }],
+
     'route' => ['label' => 'From → to', 'class' => 'small text-body-secondary', 'csv' => function ($row) {
         return $row['trip_source'] . ' → ' . $row['trip_destination'];
     }, 'html' => function ($row) {
@@ -87,6 +105,15 @@ $trip_columns = [
 if ($rate) {
     $trip_columns['value'] = $value_column;
 }
+// The CSV has the site and ticket in columns of their own
+$trip_csv_columns = array_slice($trip_columns, 0, 4, true) + [
+    'location_name' => ['label' => 'Site', 'csv' => function ($row) {
+        return intval($row['trip_location_id']) ? (string) $row['location_name'] : '';
+    }],
+    'ticket' => ['label' => 'Ticket', 'csv' => function ($row) {
+        return $row['ticket_number'] !== null && intval($row['trip_ticket_id']) ? ticketReference($row) : '';
+    }],
+] + array_slice($trip_columns, 4, null, true);
 
 $agent_columns = [
     'agent' => ['label' => 'Agent', 'html' => function ($row) {
@@ -116,7 +143,7 @@ if (reportExporting('clients')) {
     reportCsv("$name by client", $client_columns, $by_client, ['client' => 'Total'] + $totals);
 }
 if (reportExporting()) {
-    reportCsv($name, $trip_columns, $trips, ['trip_date' => 'Total', 'miles' => $miles, 'value' => $totals['value']]);
+    reportCsv($name, $trip_csv_columns, $trips, ['trip_date' => 'Total', 'miles' => $miles, 'value' => $totals['value']]);
 }
 
 $buckets = reportBuckets($period);

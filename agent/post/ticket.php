@@ -61,6 +61,8 @@ function ticketMergeInto($child, $parent, $comment, $move_replies = false) {
 
     if ($move_replies) {
         mysqli_query($mysqli, "UPDATE ticket_replies SET ticket_reply_ticket_id = $parent_id WHERE ticket_reply_ticket_id = $ticket_id");
+        // The work goes over, and the driving for it with it
+        mysqli_query($mysqli, "UPDATE trips SET trip_ticket_id = $parent_id WHERE trip_ticket_id = $ticket_id");
     }
     if (empty($child['ticket_first_response_at'])) {
         setTicketFirstResponse($ticket_id);
@@ -1294,6 +1296,8 @@ if (isset($_POST['change_client_ticket'])) {
     mysqli_query($mysqli, "UPDATE tickets SET ticket_client_id = $client_id, ticket_contact_id = $contact_id, ticket_asset_id = 0, ticket_location_id = 0,
         ticket_vendor_id = $vendor_id, ticket_project_id = $project_id WHERE ticket_id = $ticket_id LIMIT 1");
     mysqli_query($mysqli, "DELETE FROM ticket_assets WHERE ticket_id = $ticket_id");
+    // The driving for it goes with it - not to the old client's site
+    mysqli_query($mysqli, "UPDATE trips SET trip_client_id = $client_id, trip_location_id = 0 WHERE trip_ticket_id = $ticket_id");
     applyTicketSla($ticket_id);
 
     $old_client_name = $old_client_id ? (string) getFieldById('clients', $old_client_id, 'client_name') : 'no client';

@@ -6,9 +6,9 @@ This file documents all notable changes made to ITFlow.
 
 ### Upgrading to 26.11
 
-Update from Maintenance > Update — Queue Update hands the job to cron, which updates the files and applies this release's database changes (2.7.9 to 3.0.2) in the same pass. Nothing else is required.
+Update from Maintenance > Update — Queue Update hands the job to cron, which updates the files and applies this release's database changes (2.7.9 to 3.0.3) in the same pass. Nothing else is required.
 
-This is a big release, with twenty-three database steps in one go, so take a backup before you update.
+This is a big release, with twenty-four database steps in one go, so take a backup before you update.
 
 The update also clears out data that deletes in older versions left behind, all of it pointing at something that no longer exists:
 
@@ -24,6 +24,8 @@ Payment reminders keep the schedule they had: 1 and 30 days late, then every 30 
 Expenses already entered take who entered them from the audit log, where it has a record of it. Expense receipts are no longer opened straight from the uploads folder - see Breaking Changes, Expenses.
 
 Recurring expenses keep their next date and from then on run on that day of the month - monthly ones stay monthly and yearly ones yearly. Look over their next dates once after the update (see Breaking Changes, Expenses). The expenses they recorded before are linked to them, matched on the vendor, category, client and description. No expense or recurring expense becomes billable to a client by itself - they stay your cost until you mark them (see New Features, Expenses).
+
+Trips already logged keep the miles they were entered with (see Breaking Changes, Trips). Each takes who logged it from the audit log, or its driver where the log has no record. A trip for a client whose destination is one of that client's locations, by name or by address, is linked to that location.
 
 If you are coming from 26.08 or earlier, the database update still has to be run from the command line one time, exactly as described under Upgrading to 26.09 below.
 
@@ -88,6 +90,10 @@ If you are coming from 26.08 or earlier, the database update still has to be run
   - Deleting a recurring expense needs full Financial access, the same as deleting an expense. It used to need write access.
   - Unbilled Time also lists expenses to bill for agents with Financial access, and its count in the menu adds them. For those agents it shows in the menu even with ticketing turned off.
   - Transactions has a Reimbursement type for money paid back to an agent. A Transactions export filtered to Expense leaves those out.
+- Trips:
+  - Every agent can open Trips when accounting is on, and log their own driving. An agent without Financial access sees only the trips they drove or logged, and can change or delete only those. Logging a trip for someone else, or changing theirs, needs write access to Financial, and deleting theirs needs full access. Before, any agent who opened the page saw every trip of their clients and could change any of them.
+  - A trip's miles are the whole trip. The form asks for the miles one way and doubles them for a round trip. The old form saved the number as typed, whether Round Trip was ticked or not, so an older round trip entered as the miles one way still counts once. Edit those to correct them.
+  - The database column `trips.trip_end_odmeter` is now `trip_end_odometer`. Anything of your own that reads it, such as a custom report, needs the new name.
 - Notifications now follow access too. An agent only sees notifications for clients and areas they can open, so someone without sales access no longer sees invoice and quote notifications.
 - Drop-downs: Tom Select is gone, replaced by ITFlow's own picker. It works the way you are used to: type to search, tick several in a multi-select, and type a new value in fields that allow it, such as ticket watchers. See Developer Updates if you have custom pages that used Tom Select.
 - Several small windows are gone because the change is now made where the value is shown:
@@ -529,7 +535,29 @@ If you are coming from 26.08 or earlier, the database update still has to be run
     - The MFA QR code is drawn on the page itself.
     - You can see your remembered browsers and forget one or all of them.
     - You can set how many rows a list shows per page.
-- **Trips**: the driver shows as an agent pill, like ticket assignees.
+- **Trips** (rebuilt)
+  - Along the top of the list: the miles this month against the same days of last month, the year so far, your own this month, and how much of the year's driving was for clients.
+  - Pills cut the list to your own trips, trips for a client, trips for a ticket and our own errands, each with a count. Filter by driver, client and date. Search finds what it was for, where from and to, the client, site, driver and ticket number. The total of everything the filters leave sits under the list.
+  - Each row shows the route with the ticket and what it was for, the client and their site, the driver as an agent pill, and the miles with a mark for a round trip.
+  - Clicking a trip opens its quick look:
+    - the route, with Directions in Google Maps from where it started, and the miles each way for a round trip
+    - the driver, the client, their site and the ticket, each linked
+    - the odometer readings, and who logged it and when
+    - how many trips have gone to that site, opening them
+  - From the quick look or a row's menu: Edit, Copy (dated today), Return Trip and Delete. Return Trip is the way back, from there to where it started, one way and on the same day.
+  - New Trip, Edit, Copy and Return Trip are one form with an icon on every field:
+    - Pick the client to choose from their sites and their tickets (open ones, and those done in the last 60 days). A site fills in its address as where to. A ticket fills in what the trip was for, and its site.
+    - From starts where your last trip started, and offers the places you start from most.
+    - Enter the miles one way and switch Round trip on or off. The form shows what the whole trip comes to.
+    - A route you have driven before fills in its miles.
+    - Odometer readings are optional. With both, the trip is what the odometer says.
+  - Tickets: Log a trip in the ticket's menu starts with its client, site and subject. An onsite ticket, or one with trips, has a Trips card listing them with the miles driven for it.
+  - Locations: the location page has a Trips tab with the trips out to it and Log Trip.
+  - The Mileage report shows each trip's ticket and site under its purpose, a trip's date opens it, and the CSV has Site and Ticket columns.
+  - Bulk actions set the driver or the client of the ticked trips, or delete them. Changing the client takes off the old client's site and ticket.
+  - Export takes the same filters as the list, with Driver, Round Trip, One Way, Site, Ticket and the odometer readings as columns.
+  - Trips follow their ticket. Merging a ticket with its replies moves its trips to the ticket it goes into, and moving it to another client takes its trips along. Deleting a ticket or a location keeps the trips, without the link.
+  - The demo data logs a trip to the site for each onsite ticket fixed in the last six months.
 
 ### Bug Fixes
 
@@ -597,7 +625,7 @@ If you are coming from 26.08 or earlier, the database update still has to be run
 
 ### Developer Updates
 
-- Database 2.8.0 to 2.9.8, one file per step under `admin/database_updates/`, with `db.sql` matching 2.9.8:
+- Database 2.8.0 to 3.0.3, one file per step under `admin/database_updates/`, with `db.sql` matching 3.0.3:
   - 2.8.0: `racks.rack_units_descending`, `rack_power_capacity` and `rack_photo_rear`. On `rack_units`: `unit_face`, `unit_full_depth`, `unit_type`, `unit_power_watts`, `unit_notes` and a `unit_asset_id` key. Unlinked items move from asset id 0 to NULL.
   - 2.8.1: `location_documents` and `location_files`.
   - 2.8.2: `vendor_tags` (tag type 6), and `vendor_contact_phone_country_code`, `vendor_contact_phone` and `vendor_contact_email`.
@@ -633,6 +661,7 @@ If you are coming from 26.08 or earlier, the database update still has to be run
   - 3.0.0 (after 2.9.9, the way 2.0.0 followed 1.9.9): `recurring_expenses.recurring_expense_frequency` becomes `varchar(10)` (`month`, `quarter` or `year`, from 1 and 2), with `recurring_expense_anchor_day` (backfilled from the next date) and `recurring_expense_end_date`. `recurring_expense_day` and `recurring_expense_month` are dropped. `expenses.expense_recurring_expense_id`, backfilled by vendor, category, client and description from the day each recurring expense was set up.
   - 3.0.1: `expenses.expense_billable` (0), `expense_markup` (`decimal(7,2)`, 0.00), `expense_invoice_id` (keyed) and `expense_invoice_item_id`. `recurring_expenses.recurring_expense_billable` (0), `recurring_expense_markup` and `recurring_expense_recurring_invoice_id`. `settings.config_expense_markup` (0.00).
   - 3.0.2: `expenses.expense_import_key` (keyed), `expense_paid_by` (0) and `expense_reimbursement_id` (keyed). `expense_import_rules` (`import_rule_match` unique, `import_rule_vendor_id`, `import_rule_category_id`, `import_rule_client_id`, `import_rule_billable`, `import_rule_used_count`). `reimbursements` (`reimbursement_user_id`, `reimbursement_date`, `reimbursement_amount`, `reimbursement_currency_code`, `reimbursement_account_id`, `reimbursement_payment_method`, `reimbursement_reference`, `reimbursement_expense_id`, `reimbursement_created_by`). `accounts.account_import_map`.
+  - 3.0.3: `trips.trip_end_odmeter` renamed `trip_end_odometer`, and `trip_miles` from `float(15,1)` to `decimal(10,1)` (0.0). New `trip_location_id`, `trip_ticket_id` and `trip_created_by` (0), keyed with `trip_user_id` (`trip_user_id`, `trip_date`). `trip_created_by` is backfilled from the audit log's Trip Create entries, else the driver, and `trip_location_id` where the destination matches one of the client's locations by name or by `formatAddress()` of its address, case and spacing aside.
 - New shared function files, loaded by `functions.php`: `functions/asset.php`, `asset_interface.php`, `certificate.php`, `client_overview.php`, `contact.php`, `credential.php`, `dashboard.php`, `links.php`, `location.php`, `notifications.php`, `project.php`, `rack.php`, `search.php`, `service.php`, `software.php`, `tags.php`, `ticket.php`, `ticket_fields.php`, `user.php` and `vendor.php`. They hold the queries and rules, so the pages, the API and cron share one definition.
 - Removed post models: `agent/post/{asset_interface,certificate,credential,domain,event,location,network_ip,network,recurring_ticket,vendor}_model.php`, `admin/post/user_model.php` and `api/v1/certificates/certificate_model.php`. Their handlers call the shared functions above. Interface handlers moved to `agent/post/asset_interface.php`.
 - New scripts: `js/itflow_select.js`, `quick_pick.js`, `tag_picker.js`, `global_search.js`, `notifications.js`, `dashboard.js`, `client_overview.js`, `client_switcher.js`, `credentials.js` and `autosubmit.js`, and `agent/js/calendar.js`, `calendar_event_modal.js`, `files.js`, `interface_form.js`, `network_form.js`, `project_modal.js` and `ticket_schedule_modal.js`.
@@ -813,6 +842,19 @@ If you are coming from 26.08 or earlier, the database update still has to be run
     - `expenseRow()` adds `paid_by_name`, `reimbursement_date`, `reimbursed_account_name`, `reimbursement_out_id` and `reimbursed_to_name` (its joins on `accounts` and `users` are aliased now). `expenseShows()` adds `to_reimburse`, and `expenseFiltersSql()` takes `paid_by`.
     - Handlers: POST `expense_reimburse` (`user_id`, `expense_ids[]`, `account`, `date`, `payment_method`, `reference`) and GET `expense_reimbursement_delete` (Financial at 3). `bulk_edit_expenses` with `field=account` clears `expense_paid_by` and skips paid back ones. The export adds `expense_paid_by_display`.
     - New windows `agent/modals/expense/expense_reimburse.php` (`?user_id=` or `?expense_ids[]=`) and `expense_reimbursement.php?id=`. `agent/transactions.php`, its export and `agent/post/transaction.php` give the payment the type Reimbursement, with the agent as the other side. `dashboardAttention()` adds Expenses to reimburse.
+- Trips, in the new `functions/trips.php` (loaded by `functions.php`):
+  - Access: `tripCanSeeAll()` (Financial at 1), `tripCanManage()` (Financial at 2), `tripIsMine($row)` (drove or logged it), `tripCanEdit($row)`, `tripCanDelete($row)` (theirs, or Financial at 3) and `tripScopeSql()` - `clientScopeSql('trips.trip_client_id')`, plus their own trips only without Financial access. Every read below goes through it.
+  - `tripRow($id, $scoped = true)` reads a trip with its client, driver (`driver_name`, `driver_avatar`), `created_by_name`, location and ticket, through `tripJoinsSql()` (`users` aliased `driver`). `tripsFor($column, $id, $limit)` and `tripTotalsFor($column, $id)` read the trips of a ticket, location or client, and `tripTableHtml($rows)` draws them for a location's Trips tab.
+  - `tripSave($in, $id, &$error)` is the one path that writes a trip from a form - New, Edit, Copy and Return. It takes `date`, `driver`, `client_id`, `ticket_id`, `location_id`, `source`, `destination`, `miles` (one way), `round_trip`, `odometer_start`, `odometer_end` and `purpose`. `trip_miles` is the whole trip: both odometer readings make it, otherwise the miles one way, doubled for a round trip. A ticket brings its client (and needs Support access), a location and ticket must be the client's, and without `tripCanManage()` the driver is the agent. It sets `trip_created_by` on insert. `tripDelete($id, &$error)` checks `tripCanDelete()`.
+  - The list and export share `tripFiltersSql($src, &$summary)` (q, driver, client, location_id, ticket_id, show, dtf and dtt) and `tripShows()`, the pills (`mine`, `client`, `ticket` and `own`). Also `tripStats()`, `tripDrivers()`, `tripClientSites()`, `tripClientTickets()`, `tripKnownRoutes()` (one way miles by lowercased `from|to`, both directions, the latest first), `tripStartPlaces()`, `tripLastStart()`, `tripOfficeAddress()`, `tripLocationAddress()`, `tripOneWay()`, `tripLabel()`, `tripMapUrl()`, `tripUnit()` and `tripMilesText()`.
+  - New windows: the quick look `agent/modals/trip/trip.php?id=`, `trip_form.php` (the fields of `trip_add.php`, `trip_edit.php` and `trip_copy.php`), `trip_bulk_edit.php?field=` (driver or client) and `trip_bulk_delete.php`, with the menu in `agent/includes/trip_bulk_menu.php`. `trip_add.php` takes `?client_id=`, `?location_id=` and `?ticket_id=`, and `trip_copy.php` takes `?return=1`.
+  - Handlers in `agent/post/trip.php`: `add_trip` and `edit_trip` (with `trip_id`) post the fields above through `tripSave()`. GET `delete_trip`. New are `bulk_edit_trips` (`field`, `value`, `trip_ids[]`; Financial at 2) and `bulk_delete_trips` (Financial at 3). `export_trips` takes the list's filters and adds the `user_name`, `round_trip_display`, `trip_one_way`, `location_name`, `ticket_display`, `trip_start_odometer` and `trip_end_odometer` columns. The old fields `roundtrip` and `user` are gone.
+  - `agent/trips.php` takes `?driver=`, `?client=`, `?location_id=`, `?ticket_id=`, `?show=` and `?open=`, and is open to every agent. `side_nav.php` lists Trips under Finance for everyone, `globalSearchPages()` offers it with accounting on, and `inc_all_client.php` counts `$num_trips` through `tripTotalsFor()`.
+  - `agent/ticket.php` has the Trips card and Log a trip. `agent/location.php` has the Trips tab. `agent/reports/mileage.php` joins the location and ticket and links each date to `trips.php?open=`.
+  - Kept in step: `ticketDeleteForGood()` and `locationClearReferences()` clear `trip_ticket_id` and `trip_location_id`. `ticketMergeInto()` with `$move_replies` moves the trips. `change_client_ticket` moves the ticket's trips to the new client, without a location.
+  - Seeds: `demoBuildClient()` gives the quarterly visits the primary location's address and id, and adds a trip for each onsite ticket resolved in the last six months. Every seeded trip has `trip_created_by`.
+  - CSS: `.itflow-trip-route`.
+  - Removed: `agent/post/trip_model.php`.
 - The billing helpers (`billingTimeInvoice()`, `quoteConvert()`, `recurringInvoiceGenerate()` and the rest) take the agent's name as plain text. Their handlers now pass `stripslashes($session_name)`, so a name with an apostrophe no longer shows a backslash in history and the audit log.
 - Sidebar brand: `agent/css/sidebar_brand_fix.css` and `agent/js/sidebar_brand_fix.js` from 26.10 are replaced by CSS in `css/itflow_custom.css`. `includes/load_company_settings.php` now sets `$session_company_logo`.
 - `alertMessageHtml()` no longer double-encodes, and save messages built from `escapeSql()` values use `stripslashes()` at the flash.

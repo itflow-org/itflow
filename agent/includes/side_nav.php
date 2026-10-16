@@ -213,12 +213,15 @@
                                 </p>
                             </a>
                         </li>
-                        <li class="nav-item">
-                            <a href="/agent/trips.php" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "trips.php") { echo "active"; } ?>">
-                                <i class="nav-icon fas fa-route"></i>
-                                <p>Trips</p>
-                            </a>
-                        </li>
+                    <?php } ?>
+                    <?php // Everyone logs their driving - without Financial access, their own trips ?>
+                    <li class="nav-item">
+                        <a href="/agent/trips.php" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "trips.php") { echo "active"; } ?>">
+                            <i class="nav-icon fas fa-route"></i>
+                            <p>Trips</p>
+                        </a>
+                    </li>
+                    <?php if (lookupUserPermission("module_financial") >= 1) { ?>
                         <li class="nav-item">
                             <a href="/agent/accounts.php" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "accounts.php") { echo "active"; } ?>">
                                 <i class="nav-icon fas fa-piggy-bank"></i>

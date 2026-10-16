@@ -283,6 +283,8 @@ function ticketDeleteForGood($ticket_id) {
     mysqli_query($mysqli, "DELETE FROM ticket_history WHERE ticket_history_ticket_id = $ticket_id");
     mysqli_query($mysqli, "DELETE FROM sla_history WHERE sla_history_ticket_id = $ticket_id");
     mysqli_query($mysqli, "DELETE FROM tickets WHERE ticket_id = $ticket_id");
+    // The driving for it still happened - the trips stay, without the ticket
+    mysqli_query($mysqli, "UPDATE trips SET trip_ticket_id = 0 WHERE trip_ticket_id = $ticket_id");
     removeDirectory(__DIR__ . "/../uploads/tickets/$ticket_id");
 }
 

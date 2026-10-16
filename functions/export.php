@@ -420,11 +420,18 @@ function getExportColumns($export_type) {
 
         'trips' => [
             'trip_date'        => ['label' => 'Date'],
+            'user_name'        => ['label' => 'Driver', 'weight' => 2],
             'trip_purpose'     => ['label' => 'Purpose', 'weight' => 3],
-            'trip_source'      => ['label' => 'Source', 'weight' => 2],
-            'trip_destination' => ['label' => 'Destination', 'weight' => 2],
+            'trip_source'      => ['label' => 'From', 'weight' => 2],
+            'trip_destination' => ['label' => 'To', 'weight' => 2],
             'trip_miles'       => ['label' => 'Miles', 'format' => 'number'],
+            'round_trip_display' => ['label' => 'Round Trip', 'default' => false],
+            'trip_one_way'     => ['label' => 'One Way', 'format' => 'number', 'default' => false],
             'client_name'      => ['label' => 'Client', 'weight' => 2, 'default' => false],
+            'location_name'    => ['label' => 'Site', 'weight' => 2, 'default' => false],
+            'ticket_display'   => ['label' => 'Ticket', 'weight' => 2, 'default' => false],
+            'trip_start_odometer' => ['label' => 'Odometer Start', 'default' => false],
+            'trip_end_odometer' => ['label' => 'Odometer End', 'default' => false],
         ],
 
         // user_status_display is the status word, built by the handler

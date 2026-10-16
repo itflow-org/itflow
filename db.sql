@@ -3287,16 +3287,22 @@ CREATE TABLE `trips` (
   `trip_source` varchar(200) NOT NULL,
   `trip_destination` varchar(200) NOT NULL,
   `trip_start_odometer` int(11) DEFAULT NULL,
-  `trip_end_odmeter` int(11) DEFAULT NULL,
-  `trip_miles` float(15,1) NOT NULL,
+  `trip_end_odometer` int(11) DEFAULT NULL,
+  `trip_miles` decimal(10,1) NOT NULL DEFAULT 0.0,
   `round_trip` int(1) NOT NULL,
   `trip_created_at` datetime NOT NULL DEFAULT current_timestamp(),
   `trip_updated_at` datetime DEFAULT NULL ON UPDATE current_timestamp(),
   `trip_archived_at` datetime DEFAULT NULL,
   `trip_user_id` int(11) NOT NULL DEFAULT 0,
   `trip_client_id` int(11) NOT NULL DEFAULT 0,
+  `trip_location_id` int(11) NOT NULL DEFAULT 0,
+  `trip_ticket_id` int(11) NOT NULL DEFAULT 0,
+  `trip_created_by` int(11) NOT NULL DEFAULT 0,
   PRIMARY KEY (`trip_id`),
-  KEY `trip_client_id` (`trip_client_id`,`trip_archived_at`)
+  KEY `trip_client_id` (`trip_client_id`,`trip_archived_at`),
+  KEY `trip_user_id` (`trip_user_id`,`trip_date`),
+  KEY `trip_ticket_id` (`trip_ticket_id`),
+  KEY `trip_location_id` (`trip_location_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 

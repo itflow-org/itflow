@@ -271,8 +271,8 @@ if (isset($_GET['client_id'])) {
             AND (COALESCE(event_end, event_start) >= CURDATE() OR (event_repeat <> '' AND (event_repeat_until IS NULL OR event_repeat_until >= CURDATE())))"));
         $num_calendar_events = intval($row['num']);
 
-        $row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT COUNT(trip_id) AS num FROM trips WHERE trip_archived_at IS NULL AND trip_client_id = $client_id"));
-        $num_trips = intval($row['num']);
+        // The trips this agent may see - all of them with Financial access, else their own
+        [$num_trips] = tripTotalsFor('trip_client_id', $client_id);
 
     }
 }

@@ -216,6 +216,7 @@ function locationClearReferences($location_id) {
     }
     mysqli_query($mysqli, "UPDATE tickets SET ticket_location_id = 0 WHERE ticket_location_id = $location_id");
     mysqli_query($mysqli, "UPDATE calendar_events SET event_location_id = 0 WHERE event_location_id = $location_id");
+    mysqli_query($mysqli, "UPDATE trips SET trip_location_id = 0 WHERE trip_location_id = $location_id");
 }
 
 /**

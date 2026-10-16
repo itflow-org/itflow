@@ -104,6 +104,11 @@ if (!$location || ($client_url && intval($location['location_client_id']) !== in
         $tickets = ticketRows("tickets.ticket_location_id = $location_id", max(25, $ticket_open_count));
     }
 
+    // The driving out to it - functions/trips.php, so an agent without Financial access sees their own
+    $show_trips = !empty($config_module_enable_accounting);
+    $trips = $show_trips ? tripsFor('trip_location_id', $location_id, 25) : [];
+    [$trip_count, $trip_miles] = $show_trips ? tripTotalsFor('trip_location_id', $location_id) : [0, 0.0];
+
     $documents = $can_support ? linkedRecords('location', $location_id, 'document') : [];
     $files = $can_support ? linkedRecords('location', $location_id, 'file') : [];
     $history = locationHistory($location_id, 100);
@@ -114,10 +119,14 @@ if (!$location || ($client_url && intval($location['location_client_id']) !== in
         'networks' => ['label' => 'Networks', 'icon' => 'fa-network-wired', 'count' => count($networks)],
         'racks' => ['label' => 'Racks', 'icon' => 'fa-server', 'count' => count($racks)],
         'tickets' => ['label' => 'Tickets', 'icon' => 'fa-life-ring', 'count' => $ticket_count, 'badge' => $ticket_open_count],
+        'trips' => ['label' => 'Trips', 'icon' => 'fa-route', 'count' => $trip_count],
         'documents' => ['label' => 'Documents', 'icon' => 'fa-file-alt', 'count' => count($documents)],
         'files' => ['label' => 'Files', 'icon' => 'fa-paperclip', 'count' => count($files)],
         'history' => ['label' => 'History', 'icon' => 'fa-history', 'count' => count($history)],
     ];
+    if (!$show_trips) {
+        unset($location_tabs['trips']);
+    }
     if (!$can_support) {
         unset($location_tabs['assets'], $location_tabs['networks'], $location_tabs['racks'], $location_tabs['tickets'], $location_tabs['documents'], $location_tabs['files']);
     }
@@ -211,7 +220,7 @@ if (!$location || ($client_url && intval($location['location_client_id']) !== in
                             <?php } ?>
                             <?php if (!empty($config_module_enable_accounting)) { ?>
                                 <div class="dropdown-divider"></div>
-                                <a class="dropdown-item ajax-modal" href="#" data-modal-url="modals/trip/trip_add.php?client_id=<?= $client_id ?>&location_id=<?= $location_id ?>">
+                                <a class="dropdown-item ajax-modal" href="#" data-modal-size="lg" data-modal-url="modals/trip/trip_add.php?client_id=<?= $client_id ?>&location_id=<?= $location_id ?>">
                                     <i class="fa fa-fw fa-route text-secondary me-2"></i>Trip here
                                 </a>
                             <?php } ?>
@@ -605,6 +614,26 @@ if (!$location || ($client_url && intval($location['location_client_id']) !== in
                             <?php } ?>
                         </div>
                     <?php } ?>
+                    <?php } ?>
+
+                    <!-- Trips out to it -->
+                    <?php if ($show_trips) { ?>
+                        <div class="tab-pane fade" id="location-pane-trips" role="tabpanel">
+                            <div class="itflow-asset-pane-bar">
+                                <span class="text-body-secondary small"><?= $trip_count ? escapeHtml(tripMilesText($trip_miles)) . ' driven out here, newest first.' : 'The driving out here, once it is logged.' ?></span>
+                                <?php if (!$location_archived_at) { ?>
+                                    <button type="button" class="btn btn-sm btn-primary ajax-modal" data-modal-size="lg" data-modal-url="modals/trip/trip_add.php?client_id=<?= $client_id ?>&location_id=<?= $location_id ?>"><i class="fas fa-plus me-2"></i>Log Trip</button>
+                                <?php } ?>
+                            </div>
+                            <?php if ($trips) { ?>
+                                <?= tripTableHtml($trips) ?>
+                                <?php if ($trip_count > count($trips)) { ?>
+                                    <div class="small text-body-secondary px-3 py-2 border-top">The <?= count($trips) ?> most recent of <?= $trip_count ?> - <a href="trips.php?client_id=<?= $client_id ?>&amp;location_id=<?= $location_id ?>">all of them in Trips</a>.</div>
+                                <?php } ?>
+                            <?php } else { ?>
+                                <div class="itflow-asset-empty">No trips to this site.</div>
+                            <?php } ?>
+                        </div>
                     <?php } ?>
 
                     <!-- History, from the audit log -->

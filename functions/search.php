@@ -792,7 +792,7 @@ function globalSearchPages($raw_query) {
         ['Income', '/agent/income.php', $financial && $accounting],
         ['Expenses', '/agent/expenses.php', $financial && $accounting],
         ['Recurring Expenses', '/agent/recurring_expenses.php', $financial && $accounting],
-        ['Trips', '/agent/trips.php', $financial && $accounting],
+        ['Trips', '/agent/trips.php', $accounting],
         ['Accounts', '/agent/accounts.php', $financial && $accounting],
         ['Transactions', '/agent/transactions.php', $financial && $accounting],
         ['Transfers', '/agent/transfers.php', $financial && $accounting],

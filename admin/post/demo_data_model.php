@@ -1676,6 +1676,11 @@ function demoBuildClient($mysqli, $profile, $index, $context, &$counts) {
         }
     }
 
+    // The driving out to them (functions/trips.php): the quarterly visit to
+    // their main site, and a trip for each onsite ticket fixed in the last six
+    // months - to the ticket's site, on the day it was fixed, by who fixed it
+    $trip_miles = 8.5 + ($index * 2.5);
+    $main_site = $profile['sites'][0];
     for ($trip_month = min(6, $months); $trip_month >= 0; $trip_month = $trip_month - 3) {
         if (demoIsFuture(demoMonthDate($trip_month, 17))) {
             continue;
@@ -1684,12 +1689,36 @@ function demoBuildClient($mysqli, $profile, $index, $context, &$counts) {
             'trip_date' => demoMonthDate($trip_month, 17),
             'trip_purpose' => 'Onsite - ' . $profile['onsite_visit'],
             'trip_source' => 'Office',
-            'trip_destination' => $profile['sites'][0]['city'] . ', ' . $profile['sites'][0]['state'],
-            'trip_miles' => 8.5 + ($index * 2.5),
+            'trip_destination' => formatAddress($main_site['address'], $main_site['city'], $main_site['state'], $main_site['zip'], '', ' '),
+            'trip_miles' => $trip_miles,
             'round_trip' => 1,
             'trip_user_id' => $user_id,
+            'trip_created_by' => $user_id,
             'trip_client_id' => $client_id,
+            'trip_location_id' => $primary_location_id,
             'trip_created_at' => demoMonthDateTime($trip_month, 17, 17, 30),
+        ]);
+    }
+    $sql = mysqli_query($mysqli, "SELECT ticket_id, ticket_subject, ticket_assigned_to, ticket_resolved_at, location_id, location_name, location_address, location_city, location_state, location_zip
+        FROM tickets LEFT JOIN locations ON location_id = ticket_location_id
+        WHERE ticket_client_id = " . intval($client_id) . " AND ticket_onsite = 1 AND ticket_resolved_at IS NOT NULL
+            AND ticket_resolved_at >= NOW() - INTERVAL 6 MONTH AND ticket_resolved_at <= NOW()
+        ORDER BY ticket_resolved_at ASC");
+    while ($ticket = mysqli_fetch_assoc($sql)) {
+        $driver_id = intval($ticket['ticket_assigned_to']) ?: $user_id;
+        starterInsert($mysqli, 'trips', [
+            'trip_date' => substr($ticket['ticket_resolved_at'], 0, 10),
+            'trip_purpose' => mb_substr('Onsite - ' . $ticket['ticket_subject'], 0, 200),
+            'trip_source' => 'Office',
+            'trip_destination' => $ticket['location_id'] !== null ? tripLocationAddress($ticket) : formatAddress($main_site['address'], $main_site['city'], $main_site['state'], $main_site['zip'], '', ' '),
+            'trip_miles' => $trip_miles,
+            'round_trip' => 1,
+            'trip_user_id' => $driver_id,
+            'trip_created_by' => $driver_id,
+            'trip_client_id' => $client_id,
+            'trip_location_id' => intval($ticket['location_id']),
+            'trip_ticket_id' => intval($ticket['ticket_id']),
+            'trip_created_at' => $ticket['ticket_resolved_at'],
         ]);
     }
 
@@ -3655,6 +3684,7 @@ function demoBuildInternalDiary($mysqli, $context, &$counts) {
                 'trip_miles' => $errand[2],
                 'round_trip' => 1,
                 'trip_user_id' => $user_id,
+                'trip_created_by' => $user_id,
                 'trip_client_id' => 0,
                 'trip_created_at' => demoDateTime($days_ago, 17, 45),
             ]);
