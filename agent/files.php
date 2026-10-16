@@ -165,8 +165,7 @@ foreach (['file' => 'File', 'document' => 'Document'] as $kind => $share_type) {
         continue;
     }
     $sql = mysqli_query($mysqli, "SELECT item_related_id, item_recipient, item_expire_at FROM shared_items
-        WHERE item_client_id = $client_id AND item_type = '$share_type' AND item_active = 1
-        AND (COALESCE(item_view_limit, 0) = 0 OR item_views < item_view_limit) AND item_expire_at > NOW()
+        WHERE item_client_id = $client_id AND item_type = '$share_type' AND " . shareOpenSql() . "
         AND item_related_id IN (" . implode(',', $page_ids[$kind]) . ")");
     while ($row = mysqli_fetch_assoc($sql)) {
         $shared[$kind][intval($row['item_related_id'])] = $row;
@@ -211,8 +210,8 @@ function filesItemMenu($item) {
     if ($item['kind'] === 'file') {
         $html .= "<a class=\"dropdown-item ajax-modal\" href=\"#\" data-modal-size=\"lg\" data-modal-url=\"modals/file/file.php?id=$id\"><i class=\"fas fa-fw fa-info-circle me-2\"></i>Details</a>";
         $html .= "<a class=\"dropdown-item\" href=\"file.php?file_id=$id\"><i class=\"fas fa-fw fa-download me-2\"></i>Download</a>";
-        if (!$archived) {
-            $html .= "<a class=\"dropdown-item\" href=\"#\" data-bs-toggle=\"modal\" data-bs-target=\"#shareModal\" onclick=\"populateShareModal($client_id, 'File', $id)\"><i class=\"fas fa-fw fa-share me-2\"></i>Share</a>";
+        if (!$archived && shareCanMake('File')) {
+            $html .= "<a class=\"dropdown-item ajax-modal\" href=\"#\" data-modal-url=\"modals/share/share_add.php?type=File&amp;id=$id\"><i class=\"fas fa-fw fa-share-alt me-2\"></i>Share</a>";
         }
         if ($can_edit && !$archived) {
             $html .= '<div class="dropdown-divider"></div>';
@@ -224,8 +223,8 @@ function filesItemMenu($item) {
     } else {
         $html .= "<a class=\"dropdown-item\" href=\"document.php?client_id=$client_id&amp;document_id=$id\"><i class=\"fas fa-fw fa-arrow-right me-2\"></i>Open</a>";
         $html .= "<a class=\"dropdown-item ajax-modal\" href=\"#\" data-modal-size=\"lg\" data-modal-url=\"modals/document/document_view.php?id=$id\"><i class=\"fas fa-fw fa-eye me-2\"></i>Quick view</a>";
-        if (!$archived) {
-            $html .= "<a class=\"dropdown-item\" href=\"#\" data-bs-toggle=\"modal\" data-bs-target=\"#shareModal\" onclick=\"populateShareModal($client_id, 'Document', $id)\"><i class=\"fas fa-fw fa-share me-2\"></i>Share</a>";
+        if (!$archived && shareCanMake('Document')) {
+            $html .= "<a class=\"dropdown-item ajax-modal\" href=\"#\" data-modal-url=\"modals/share/share_add.php?type=Document&amp;id=$id\"><i class=\"fas fa-fw fa-share-alt me-2\"></i>Share</a>";
         }
         if ($can_edit && !$archived) {
             $html .= '<div class="dropdown-divider"></div>';
@@ -683,5 +682,4 @@ $preview = []; // the grid's previewer payload
 <script src="../js/pretty_content.js"></script>
 
 <?php
-require_once "modals/share_modal.php";
 require_once "../includes/footer.php";

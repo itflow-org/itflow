@@ -47,6 +47,27 @@ require_once "includes/inc_all_admin.php";
                 </div>
             </div>
 
+            <h5 class="mt-4 mb-3"><i class="fas fa-fw fa-share-alt me-2"></i>Shared links</h5>
+
+            <div class="mb-3">
+                <label>Longest a shared link can last <small class="text-secondary">(The longest choice agents get when they share a login, note, document or file)</small></label>
+                <div class="input-group">
+                    <span class="input-group-text"><i class="fa fa-fw fa-clock"></i></span>
+                    <select class="form-select" name="config_share_max_hours">
+                        <?php foreach (shareMaxOptions() as $hours => $label) { ?>
+                            <option value="<?= $hours ?>" <?= intval($config_share_max_hours) === $hours ? 'selected' : '' ?>><?= $label ?></option>
+                        <?php } ?>
+                    </select>
+                </div>
+            </div>
+
+            <div class="mb-3">
+                <div class="form-check form-switch">
+                    <input type="checkbox" class="form-check-input" name="config_share_require_protection" <?php if ($config_share_require_protection == 1) { echo "checked"; } ?> value="1" id="shareRequireProtection">
+                    <label class="form-check-label" for="shareRequireProtection">Shared passwords and secure notes need a passphrase or an emailed code to open</label>
+                </div>
+            </div>
+
             <hr>
 
             <button type="submit" name="edit_security_settings" class="btn btn-primary text-bold"><i class="fas fa-check me-2"></i>Save</button>

@@ -32,7 +32,7 @@ $sql_settings = mysqli_query($mysqli, "SELECT config_azure_client_id, config_azu
     config_ticket_from_name, config_ticket_moving_columns,
     config_ticket_new_ticket_notification_email, config_ticket_next_number,
     config_ticket_ordering, config_ticket_prefix, config_ticket_timer_autostart,
-    config_timezone, config_whitelabel_enabled, config_whitelabel_key FROM settings WHERE company_id = 1");
+    config_share_max_hours, config_share_require_protection, config_timezone, config_whitelabel_enabled, config_whitelabel_key FROM settings WHERE company_id = 1");
 $row = mysqli_fetch_assoc($sql_settings);
 
 // Database version
@@ -146,6 +146,11 @@ $config_login_key_required = $row['config_login_key_required'];
 $config_login_key_secret = $row['config_login_key_secret'];
 $config_login_remember_me_expire = intval($row['config_login_remember_me_expire']);
 $config_log_retention = intval($row['config_log_retention']);
+
+// Shared links - the longest one may last, and whether a password or secure
+// note has to have a passphrase or an emailed code (functions/share.php)
+$config_share_max_hours = intval($row['config_share_max_hours']) ?: 720;
+$config_share_require_protection = intval($row['config_share_require_protection']);
 
 // Locale
 $config_currency_format = "US_en";

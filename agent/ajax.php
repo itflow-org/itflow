@@ -809,137 +809,67 @@ if (isset($_GET['ticket_query_views'])) {
 }
 
 /*
- * Generates public/guest links for sharing credentials/docs
+ * Make a shared link (agent/modals/share/share_add.php, functions/share.php)
+ * - a login, a document, a file, a secure note, or a request for a login.
+ * The link comes back once, with a QR code of it; its secret is not kept.
  */
-if (isset($_GET['share_generate_link'])) {
+if (isset($_POST['share_create'])) {
 
     validateCSRFToken();
 
-    enforceUserPermission('module_support', 2);
+    header('Content-Type: application/json');
 
-    $item_encrypted_username = '';  // Default empty
-    $item_encrypted_credential = '';  // Default empty
-
-    $client_id = intval($_GET['client_id']);
-    $item_type = escapeSql($_GET['type']);
-    $item_id = intval($_GET['id']);
-    $item_email = escapeSql($_GET['contact_email']);
-    $item_note = escapeSql($_GET['note']);
-    $item_view_limit = intval($_GET['views']);
-    $item_view_limit_wording = "";
-    if ($item_view_limit == 1) {
-        $item_view_limit_wording = " and may only be viewed <strong>once</strong>, before the link is destroyed.";
+    $type = (string) ($_POST['type'] ?? '');
+    if (!shareCanMake($type)) {
+        exit(json_encode(['error' => "You don't have access to share that."]));
     }
-    $item_expires = intval($_GET['expires']);
-    $item_expires_friendly = "never"; // default never
-    if ($item_expires == 1) {
-        $item_expires_friendly = "1 hour";
-    } elseif ($item_expires == 24) {
-        $item_expires_friendly = "1 day";
-    } elseif ($item_expires == 168) {
-        $item_expires_friendly = "1 week";
-    } elseif ($item_expires == 730) {
-        $item_expires_friendly = "1 month";
+    $client_id = intval($_POST['client_id'] ?? 0);
+    if (!$client_id || !hasClientAccess($client_id)) {
+        exit(json_encode(['error' => "You don't have access to that client."]));
     }
 
-    enforceClientAccess($client_id);
+    $result = shareCreate([
+        'client_id' => $client_id,
+        'type' => $type,
+        'related_id' => intval($_POST['id'] ?? 0),
+        'name' => (string) ($_POST['name'] ?? ''),
+        'text' => (string) ($_POST['text'] ?? ''),
+        'recipient' => (string) ($_POST['recipient'] ?? ''),
+        'send' => !empty($_POST['send']),
+        'expires' => intval($_POST['expires'] ?? 0),
+        'views' => intval($_POST['views'] ?? 1),
+        'protect' => (string) ($_POST['protect'] ?? ''),
+        'passphrase' => (string) ($_POST['passphrase'] ?? ''),
+        'otp' => !empty($_POST['otp']),
+        'notify' => !empty($_POST['notify']),
+        'note' => (string) ($_POST['note'] ?? ''),
+    ], $error);
 
-    $item_key = randomString(32);
-
-    if ($item_type == "Document") {
-        $row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT document_name FROM documents WHERE document_id = $item_id AND document_client_id = $client_id LIMIT 1"));
-        $item_name = escapeSql($row['document_name']);
+    if (!$result) {
+        exit(json_encode(['error' => $error]));
     }
 
-    if ($item_type == "File") {
-        $row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT file_name FROM files WHERE file_id = $item_id AND file_client_id = $client_id LIMIT 1"));
-        $item_name = escapeSql($row['file_name']);
+    // "Works until Oct 17 at 9:00 AM, opens once, needs a passphrase, emailed to bob@example.com"
+    $summary = ['Works until ' . date('M j \a\t g:i A', strtotime($result['expire_at']))];
+    if ($type !== 'Request') {
+        $summary[] = $result['views'] ? 'opens ' . strtolower(shareViewOptions()[$result['views']]) : 'opens any number of times';
+    }
+    if ($result['protect'] === 'passphrase') {
+        $summary[] = 'needs the passphrase';
+    } elseif ($result['protect'] === 'code') {
+        $summary[] = 'needs a code emailed to ' . $result['recipient'];
+    }
+    if ($result['emailed']) {
+        $summary[] = 'emailed to ' . $result['recipient'];
     }
 
-    if ($item_type == "Credential") {
-
-        // Sharing a credential hands out the plaintext, so it needs the same
-        // module access as reading one anywhere else in the app
-        enforceUserPermission('module_credential');
-
-        $credential = mysqli_query($mysqli, "SELECT credential_name, credential_username, credential_password FROM credentials WHERE credential_id = $item_id AND credential_client_id = $client_id LIMIT 1");
-        $row = mysqli_fetch_assoc($credential);
-
-        $item_name = escapeSql($row['credential_name']);
-
-        // Decrypt & re-encrypt username/password for sharing
-        $credential_encryption_key = randomString();
-
-        $credential_username_cleartext = decryptCredentialEntry($row['credential_username']);
-        $iv = randomString();
-        $username_ciphertext = openssl_encrypt($credential_username_cleartext, 'aes-128-cbc', $credential_encryption_key, 0, $iv);
-        $item_encrypted_username = $iv . $username_ciphertext;
-
-        $credential_password_cleartext = decryptCredentialEntry($row['credential_password']);
-        $iv = randomString();
-        $password_ciphertext = openssl_encrypt($credential_password_cleartext, 'aes-128-cbc', $credential_encryption_key, 0, $iv);
-        $item_encrypted_credential = $iv . $password_ciphertext;
-    }
-
-    // Insert entry into DB
-    $sql = mysqli_query($mysqli, "INSERT INTO shared_items SET item_active = 1, item_key = '$item_key', item_type = '$item_type', item_related_id = $item_id, item_encrypted_username = '$item_encrypted_username', item_encrypted_credential = '$item_encrypted_credential', item_note = '$item_note', item_recipient = '$item_email', item_views = 0, item_view_limit = $item_view_limit, item_expire_at = NOW() + INTERVAL + $item_expires HOUR, item_client_id = $client_id");
-    $share_id = $mysqli->insert_id;
-
-    // Return URL
-    if ($item_type == "Credential") {
-        $url = "https://$config_base_url/guest/guest_view_item.php?id=$share_id&key=$item_key&ek=$credential_encryption_key";
-    }
-    else {
-        $url = "https://$config_base_url/guest/guest_view_item.php?id=$share_id&key=$item_key";
-    }
-
-    $sql = mysqli_query($mysqli,"SELECT company_name, company_phone, company_phone_country_code FROM companies WHERE company_id = 1");
-    $row = mysqli_fetch_assoc($sql);
-    $company_name = escapeSql($row['company_name']);
-    $company_phone = escapeSql(formatPhoneNumber($row['company_phone'], $row['company_phone_country_code']));
-
-    // Sanitize Config vars from get_settings.php
-    $config_ticket_from_name = escapeSql($config_ticket_from_name);
-    $config_ticket_from_email = escapeSql($config_ticket_from_email);
-    $config_mail_from_name = escapeSql($config_mail_from_name);
-    $config_mail_from_email = escapeSql($config_mail_from_email);
-
-    // Send user e-mail, if specified
-    if(!empty($config_smtp_host) && filter_var($item_email, FILTER_VALIDATE_EMAIL)){
-
-        $subject = "Time sensitive - $company_name secure link enclosed";
-        if ($item_expires_friendly == "never") {
-            $subject = "$company_name secure link enclosed";
-        }
-        $body = "Hello,<br><br>$session_name from $company_name sent you a time sensitive secure link regarding \"$item_name\".<br><br>The link will expire in <strong>$item_expires_friendly</strong>$item_view_limit_wording.<br><br><strong><a href=\'$url\'>Click here to access your secure content</a></strong><br><br>--<br>$company_name - Support<br>$config_ticket_from_email<br>$company_phone";
-
-        // Add the intended recipient disclosure
-        $body .= "<br><br><em>This email and any attachments are confidential and intended for the specified recipient(s) only. If you are not the intended recipient, please notify the sender and delete this email. Unauthorized use, disclosure, or distribution is prohibited.</em>";
-
-        $data = [
-            [
-                'from' => $config_mail_from_email,
-                'from_name' => $config_mail_from_name,
-                'recipient' => $item_email,
-                'recipient_name' => $item_email,
-                'subject' => $subject,
-                'body' => $body
-            ]
-        ];
-
-        addToMailQueue($data);
-
-    }
-
-    echo json_encode($url);
-
-    // Logging
-    logAudit("Share", "Create", "$session_name created shared link for $item_type - $item_name", $client_id, $item_id);
-    // ...and on the credential itself, so its history says who it went out to
-    if ($item_type == "Credential") {
-        logAudit("Credential", "Share", "$session_name shared credential $item_name" . ($item_email ? " with $item_email" : '') . ", expiring in $item_expires_friendly", $client_id, $item_id);
-    }
-
+    echo json_encode([
+        'url' => $result['url'],
+        'passphrase' => $result['passphrase'],
+        'summary' => implode(', ', $summary),
+        'qr' => shareQrSvg($result['url']),
+    ]);
+    exit;
 }
 
 /*

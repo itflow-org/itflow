@@ -93,9 +93,9 @@ $page_title = $row['document_name'];
                     <i class="fas fa-edit me-2"></i>Edit
                 </button>
             <?php } ?>
-            <?php if (!$document_archived) { ?>
-                <button type="button" class="btn btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#shareModal" onclick="populateShareModal(<?= "$client_id, 'Document', $document_id" ?>)" title="Share a link to it">
-                    <i class="fas fa-share me-2"></i>Share
+            <?php if (!$document_archived && shareCanMake('Document')) { ?>
+                <button type="button" class="btn btn-outline-secondary ajax-modal" data-modal-url="modals/share/share_add.php?type=Document&amp;id=<?= $document_id ?>" title="Share a link to it">
+                    <i class="fas fa-share-alt me-2"></i>Share
                 </button>
             <?php } ?>
             <a class="btn btn-outline-secondary" href="post.php?export_document=<?= $document_id ?>&csrf_token=<?= $csrf ?>" title="Export as PDF"><i class="fas fa-file-pdf"></i><span class="d-none d-md-inline ms-2">PDF</span></a>
@@ -241,5 +241,4 @@ $page_title = $row['document_name'];
 
 <?php
 
-require_once "modals/share_modal.php";
 require_once "../includes/footer.php";

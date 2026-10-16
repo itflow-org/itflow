@@ -161,6 +161,13 @@ $num_vendors = $row['num'];
                         </a>
                     </li>
 
+                    <li class="nav-item">
+                        <a href="shares.php" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "shares.php") { echo "active"; } ?>">
+                            <i class="nav-icon fas fa-share-alt"></i>
+                            <p>Shared Links</p>
+                        </a>
+                    </li>
+
                     <li class="nav-header mt-3">DOCUMENTATION</li>
 
                     <li class="nav-item">

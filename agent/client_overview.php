@@ -416,38 +416,39 @@ $money_format = function ($amount) use ($currency_format, $client_currency_code,
             <div class="col-md-6 col-xl-4">
                 <div class="card h-100 mb-0">
                     <div class="card-header d-flex align-items-center">
-                        <h3 class="card-title mb-0 me-auto">Active share links</h3>
+                        <h3 class="card-title mb-0 me-auto">Shared links</h3>
+                        <a class="small" href="shares.php?client_id=<?= $client_id ?>">All shared links</a>
                     </div>
                     <div class="list-group list-group-flush">
                         <?php foreach ($shared_items as $item) {
-                            $item_views = intval($item['item_views']);
-                            $item_limit = intval($item['item_view_limit']);
                             $item_related_id = intval($item['item_related_id']);
-                            $item_label = escapeHtml($item['item_name'] ?: $item['item_type']);
+                            $item_label = escapeHtml(shareName($item));
+                            $item_type_info = shareTypes()[$item['item_type']] ?? ['label' => $item['item_type'], 'icon' => 'fa-share-alt'];
                             // Documents and files look and open as they do everywhere else
-                            if ($item['item_type'] === 'Document') {
+                            if ($item['item_type'] === 'Document' && $item['item_name']) {
                                 $item_tile = documentTile('sm');
-                                $item_label = "<a href=\"document.php?client_id=$client_id&amp;document_id=$item_related_id\">$item_label</a>";
-                            } elseif ($item['item_type'] === 'File') {
+                            } elseif ($item['item_type'] === 'File' && $item['file_ext']) {
                                 $item_tile = fileTypeTile($item['file_ext'], 'sm');
-                                $item_label = "<a class=\"ajax-modal\" href=\"#\" data-modal-size=\"lg\" data-modal-url=\"modals/file/file.php?id=$item_related_id\">$item_label</a>";
-                            } elseif ($item['item_type'] === 'Credential' && $item['item_name']) {
-                                // Its tile, opening its quick look - with the password and 2FA there for whoever may see them
+                            } elseif ($item['item_type'] === 'Credential' && $item['credential_uri'] !== null) {
                                 $item_tile = credentialTile(['credential_name' => $item['item_name'], 'credential_uri' => $item['credential_uri'], 'credential_description' => $item['credential_description']], 'sm');
-                                $item_label = $access['credentials'] ? "<a class=\"ajax-modal\" href=\"#\" data-modal-url=\"modals/credential/credential.php?id=$item_related_id\">$item_label</a>" : $item_label;
                             } else {
-                                $item_tile = '<span class="itflow-link-icon" title="' . escapeHtml($item['item_type']) . '" aria-hidden="true"><i class="fas fa-fw fa-' . ($item['item_type'] === 'Credential' ? 'key' : 'share-square') . '"></i></span>';
+                                $item_tile = '<span class="itflow-link-icon" title="' . escapeHtml($item_type_info['label']) . '" aria-hidden="true"><i class="fas fa-fw ' . $item_type_info['icon'] . '"></i></span>';
                             }
+                            $item_received = $item['item_type'] === 'Request' && $item['item_received_at'];
                             ?>
                             <div class="list-group-item d-flex align-items-center gap-2 py-2">
                                 <?= $item_tile ?>
                                 <span class="flex-grow-1 overflow-hidden">
-                                    <span class="d-block text-truncate"><?= $item_label ?></span>
+                                    <a class="d-block text-truncate ajax-modal" href="#" data-modal-url="modals/share/share.php?id=<?= intval($item['item_id']) ?>"><?= $item_label ?></a>
                                     <span class="d-block small text-body-secondary text-truncate">
-                                        <?= $item['item_recipient'] ? escapeHtml($item['item_recipient']) . ', ' : '' ?><?= $item_views ?><?= $item_limit ? " of $item_limit" : '' ?> view<?= ($item_limit ?: $item_views) === 1 ? '' : 's' ?>, expires <?= escapeHtml(timeAgo($item['item_expire_at'])) ?>
+                                        <?php if ($item_received) { ?>
+                                            <span class="text-warning-emphasis"><i class="fas fa-inbox me-1"></i>Sent back <?= escapeHtml(timeAgo($item['item_received_at'])) ?> - save it</span>
+                                        <?php } else { ?>
+                                            <?= escapeHtml(ucfirst(($item['item_recipient'] ? $item['item_recipient'] . ', ' : '') . strtolower(shareViewsText($item)) . ', expires ' . timeAgo($item['item_expire_at']))) ?>
+                                        <?php } ?>
                                     </span>
                                 </span>
-                                <a class="btn btn-sm btn-link text-danger confirm-link" href="post.php?deactivate_shared_item=<?= intval($item['item_id']) ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>" title="Turn off this link"><i class="fas fa-fw fa-unlink" aria-hidden="true"></i></a>
+                                <?php if (!$item_received && shareCanMake($item['item_type'])) { ?><a class="btn btn-sm btn-link text-danger confirm-link" href="post.php?share_revoke=<?= intval($item['item_id']) ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>" title="Turn off this link"><i class="fas fa-fw fa-unlink" aria-hidden="true"></i></a><?php } ?>
                             </div>
                         <?php } ?>
                     </div>

@@ -2516,6 +2516,8 @@ CREATE TABLE `settings` (
   `config_update_latest_commit` varchar(40) DEFAULT NULL,
   `config_update_pending_commits` text DEFAULT NULL,
   `config_update_checked_at` datetime DEFAULT NULL,
+  `config_share_max_hours` int(11) NOT NULL DEFAULT 720,
+  `config_share_require_protection` tinyint(1) NOT NULL DEFAULT 0,
   PRIMARY KEY (`company_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -2531,18 +2533,37 @@ CREATE TABLE `shared_items` (
   `item_id` int(11) NOT NULL AUTO_INCREMENT,
   `item_active` int(1) NOT NULL,
   `item_key` varchar(255) NOT NULL,
+  `item_version` tinyint(1) NOT NULL DEFAULT 1,
   `item_type` varchar(255) NOT NULL,
   `item_related_id` int(11) NOT NULL,
+  `item_name` varchar(255) DEFAULT NULL,
   `item_encrypted_username` varchar(255) DEFAULT NULL,
   `item_encrypted_credential` varchar(255) DEFAULT NULL,
-  `item_note` varchar(255) DEFAULT NULL,
+  `item_payload` mediumtext DEFAULT NULL,
+  `item_vault_key` varchar(255) DEFAULT NULL,
+  `item_passphrase` varchar(255) DEFAULT NULL,
+  `item_verify_email` tinyint(1) NOT NULL DEFAULT 0,
+  `item_code` varchar(255) DEFAULT NULL,
+  `item_code_sent_at` datetime DEFAULT NULL,
+  `item_failed_attempts` int(11) NOT NULL DEFAULT 0,
+  `item_note` varchar(1000) DEFAULT NULL,
   `item_recipient` varchar(250) DEFAULT NULL,
-  `item_views` int(11) NOT NULL,
-  `item_view_limit` int(11) DEFAULT NULL,
+  `item_notify` tinyint(1) NOT NULL DEFAULT 1,
+  `item_views` int(11) NOT NULL DEFAULT 0,
+  `item_view_limit` int(11) NOT NULL DEFAULT 0,
+  `item_last_viewed_at` datetime DEFAULT NULL,
   `item_created_at` datetime NOT NULL DEFAULT current_timestamp(),
+  `item_created_by` int(11) NOT NULL DEFAULT 0,
   `item_expire_at` datetime DEFAULT NULL,
+  `item_received_at` datetime DEFAULT NULL,
+  `item_ended_at` datetime DEFAULT NULL,
+  `item_ended_by` int(11) NOT NULL DEFAULT 0,
+  `item_end_reason` varchar(50) DEFAULT NULL,
   `item_client_id` int(11) NOT NULL,
-  PRIMARY KEY (`item_id`)
+  PRIMARY KEY (`item_id`),
+  KEY `item_client_id` (`item_client_id`),
+  KEY `item_type_related` (`item_type`,`item_related_id`),
+  KEY `item_expire_at` (`item_expire_at`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 

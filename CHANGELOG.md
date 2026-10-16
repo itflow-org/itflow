@@ -6,9 +6,9 @@ This file documents all notable changes made to ITFlow.
 
 ### Upgrading to 26.11
 
-Update from Maintenance > Update — Queue Update hands the job to cron, which updates the files and applies this release's database changes (2.7.9 to 2.8.9) in the same pass. Nothing else is required.
+Update from Maintenance > Update — Queue Update hands the job to cron, which updates the files and applies this release's database changes (2.7.9 to 2.9.0) in the same pass. Nothing else is required.
 
-This is a big release, with ten database steps in one go, so take a backup before you update.
+This is a big release, with eleven database steps in one go, so take a backup before you update.
 
 The update also clears out data that deletes in older versions left behind, all of it pointing at something that no longer exists:
 
@@ -30,6 +30,12 @@ If you are coming from 26.08 or earlier, the database update still has to be run
   - Financial for Mileage, which used to open with Reporting alone.
 - Reports have new names that say what they show: Outstanding Balances is now Receivables Aging, Recurring Income by Client is Recurring Revenue, Expense by Vendor is Spend by Vendor, Tax Summary is Tax Collected, Unbilled Tickets is Unbilled Work, Time by Technician is Technician Performance, Tickets is Ticket Overview and SLA Summary is SLA Performance. The addresses are the same, so bookmarks still work, though the filters saved in an old bookmark may be ignored and the report opens on its default period.
 - Client export: the client PDF no longer prints passwords and 2FA secrets unless you ask for them, and then it needs a password to open. The old PDF always printed them in plain text, archived credentials included.
+- Shared links:
+  - Links you sent before the update keep working until they expire.
+  - New links keep their key after a # at the end of the address, so the whole link has to be copied. A system that cuts off everything after the # breaks the link.
+  - Opening a link now takes a click on Reveal. This is so mail filters and chat apps that open every link cannot use up a one-time link.
+  - Ended links stay listed for 90 days, with who opened them. They used to be deleted overnight.
+  - Only the agent who made a link is told when it is opened. It used to notify every agent.
 - Notifications now follow access too. An agent only sees notifications for clients and areas they can open, so someone without sales access no longer sees invoice and quote notifications.
 - Drop-downs: Tom Select is gone, replaced by ITFlow's own picker. It works the way you are used to: type to search, tick several in a multi-select, and type a new value in fields that allow it, such as ticket watchers. See Developer Updates if you have custom pages that used Tom Select.
 - Several small windows are gone because the change is now made where the value is shown:
@@ -139,6 +145,25 @@ If you are coming from 26.08 or earlier, the database update still has to be run
   - Each part shows how many records it holds. Archived records and internal ticket notes go in only if you tick them.
   - Passwords and 2FA secrets go in only if you ask, and the PDF or zip is then locked with a password you set (AES-256). An encrypted zip opens with 7-Zip, WinRAR, Keka or The Unarchiver, but not with the zip tools built into Windows and macOS.
   - Each export is recorded in the client's audit log, including whether passwords went out.
+- **Shared links** (rebuilt)
+  - One Share window for logins, documents and files, from their lists, quick looks and pages, plus two new kinds of link:
+    - Secure note: type a password, a Wi-Fi key or a recovery code and send it as a link. It is not saved anywhere else.
+    - Ask for a login: the client gets a form to send you a login safely instead of by email. You get a notification and an email when it arrives. It then waits in Shared Links until you save it to their credentials or discard it.
+  - Choose:
+    - how long the link works, from 1 hour to 30 days
+    - how many times it opens: once, 2, 3, 5 or 10 times, or until it expires
+    - what it asks for first: nothing, a passphrase you give them by phone or text (one is made up for you), or a 6-digit code emailed to the recipient, so a forwarded link is no use to anyone else. Five wrong tries lock the link.
+  - The link can be emailed to a contact, copied, or shown as a QR code. It is shown once, and nobody can look it up again later.
+  - For a login, you can include the 2FA code: they see the current code, never the secret. What they get is fixed when you make the link.
+  - The page they open shows your logo and who sent it, then a Reveal button. It has copy buttons, the 2FA code with a countdown, and a button to destroy the link once they have what they need. Documents can be printed, and files download.
+  - Shared Links, in each client's menu and under All Client Docs, lists every link:
+    - what went out, to whom, who made it, until when, how often it was opened, and where it is now
+    - filters for Open, Sent back and Ended
+    - turn off one link, the ticked ones, or every open link the client has, when an engineer leaves or a mailbox is compromised
+  - Each link's quick look has its history: when it was opened, from which address and browser, wrong passphrases, codes sent, and when it was turned off.
+  - You are notified when a link you made is opened (you can switch this off per link), and always when one locks.
+  - The key is the part of the link after the #, which browsers never send to the server, so it stays out of web server and proxy logs. Logins, notes and what clients send back are encrypted with that key, which is not stored, so the database alone cannot open them.
+  - Admin > Settings > Security sets the longest a link may last, up to 90 days, and whether shared passwords and secure notes must have a passphrase or a code.
 - **Tickets**
   - The ticket list has views for Open, Mine, Unassigned, Needs reply, Waiting, Overdue, Scheduled, Closed and All.
     - Each row shows whose move it is (yours or the client's) along with SLA and due badges, and status, priority and agent change right in the row.
@@ -234,7 +259,7 @@ If you are coming from 26.08 or earlier, the database update still has to be run
     - where each one opens and what it is for, plus password age and when it was last used
     - filters for Starred, With 2FA, No 2FA, Not changed in 90 days and Shared
   - The form has a password generator (passphrase or random) and a strength meter. The 2FA secret takes spaces or an otpauth:// link, and shows the current code so you can check it.
-  - Change password dates and logs the change. Share works from anywhere: pick a contact or an email address and a time from 1 hour to 1 month. The link stops working after one view by default.
+  - Change password dates and logs the change. Share is in each row's menu and the quick look (see Shared links), and Ask the client for a login is in the list's top menu.
   - The client overview lists passwords due for a change, and the rotation report lets you pick the time span.
 - **Domains**
   - The domain list has:
@@ -302,6 +327,9 @@ If you are coming from 26.08 or earlier, the database update still has to be run
 - Credentials: saving a credential after your vault session had timed out wiped its password. That no longer happens.
 - Credentials: saved 2FA secrets with spaces or lowercase letters produced no code. Imports carried values from one row into the next and accepted any file type. Share links stayed open after their credential was deleted.
 - Credentials: a credential entered on the asset form with only a username was not saved.
+- Shared links: a mail filter or chat preview opening a one-time link used it up before the person it was for could open it.
+- Shared links: anyone holding a login link could keep getting its 2FA codes until the link expired, even after its one view was used. Codes now go only to the browser that opened it, for 30 minutes.
+- Shared links: the link's key, and for a login the key that decrypts it, were in the address, so they ended up in web server logs.
 - Copy buttons in many places, such as pages that already had a window open, showed Copied! but copied nothing. Copy guest URL on invoices and quotes jumped the page to the top, and copying an empty field wiped your clipboard.
 - Tickets: an agent without sales access who edited a ticket turned billable off. Email reply was offered when no mail server was set up. The timer threw an error on resolved tickets, and the due date was not shown.
 - Assets: editing some asset types wiped the OS, firmware, purchase and warranty fields. The add form broke when there were no OS values, and bulk assigning a contact or location could change assets of another client.
@@ -332,7 +360,7 @@ If you are coming from 26.08 or earlier, the database update still has to be run
 
 ### Developer Updates
 
-- Database 2.8.0 to 2.8.9, one file per step under `admin/database_updates/`, with `db.sql` matching 2.8.9:
+- Database 2.8.0 to 2.9.0, one file per step under `admin/database_updates/`, with `db.sql` matching 2.9.0:
   - 2.8.0: `racks.rack_units_descending`, `rack_power_capacity` and `rack_photo_rear`. On `rack_units`: `unit_face`, `unit_full_depth`, `unit_type`, `unit_power_watts`, `unit_notes` and a `unit_asset_id` key. Unlinked items move from asset id 0 to NULL.
   - 2.8.1: `location_documents` and `location_files`.
   - 2.8.2: `vendor_tags` (tag type 6), and `vendor_contact_phone_country_code`, `vendor_contact_phone` and `vendor_contact_email`.
@@ -352,6 +380,10 @@ If you are coming from 26.08 or earlier, the database update still has to be run
     - `network_type` and `network_vendor_id`, with types backfilled from the name and the CIDR prefix moved into the address
     - `ip_type` and `ip_mac`, and `interface_vlans`
     - `interface_network_id` and `network_location_id` indexes
+  - 2.9.0:
+    - on `shared_items`: `item_version`, `item_name`, `item_payload`, `item_vault_key`, `item_passphrase`, `item_verify_email`, `item_code`, `item_code_sent_at`, `item_failed_attempts`, `item_notify`, `item_last_viewed_at`, `item_created_by`, `item_received_at`, `item_ended_at`, `item_ended_by` and `item_end_reason`, with keys on the client, the type and record, and the expiry
+    - `item_note` widened to 1000, `item_view_limit` made `NOT NULL DEFAULT 0` (NULL was unlimited), existing `item_key` values replaced by their SHA-256, and `item_name` filled from the shared record
+    - `settings.config_share_max_hours` (720) and `config_share_require_protection` (0)
 - New shared function files, loaded by `functions.php`: `functions/asset.php`, `asset_interface.php`, `certificate.php`, `client_overview.php`, `contact.php`, `credential.php`, `dashboard.php`, `links.php`, `location.php`, `notifications.php`, `project.php`, `rack.php`, `search.php`, `service.php`, `software.php`, `tags.php`, `ticket.php`, `ticket_fields.php`, `user.php` and `vendor.php`. They hold the queries and rules, so the pages, the API and cron share one definition.
 - Removed post models: `agent/post/{asset_interface,certificate,credential,domain,event,location,network_ip,network,recurring_ticket,vendor}_model.php`, `admin/post/user_model.php` and `api/v1/certificates/certificate_model.php`. Their handlers call the shared functions above. Interface handlers moved to `agent/post/asset_interface.php`.
 - New scripts: `js/itflow_select.js`, `quick_pick.js`, `tag_picker.js`, `global_search.js`, `notifications.js`, `dashboard.js`, `client_overview.js`, `client_switcher.js`, `credentials.js` and `autosubmit.js`, and `agent/js/calendar.js`, `calendar_event_modal.js`, `files.js`, `interface_form.js`, `network_form.js`, `project_modal.js` and `ticket_schedule_modal.js`.
@@ -415,6 +447,25 @@ If you are coming from 26.08 or earlier, the database update still has to be run
   - `clientExportArchive()` builds the zip in `uploads/tmp`, stores already-compressed files without recompressing them, encrypts every entry with `ZipArchive::EM_AES_256` when passwords are included, and removes the file when the request ends, however it ends. Files and attachments are only read from the client's own upload folders.
   - The window is `agent/modals/client/client_export_data.php` with `agent/js/client_export.js`, and the handler takes `export_client_pdf` or `export_client_archive` in `agent/post/client.php`. The `itflow_download` cookie tells the window the download has started.
   - Removed: `agent/modals/client/client_download_pdf.php`, `getClientPackSections()`, `getClientPackSectionAccess()`, `resolveClientPackSections()` and `renderClientPackSections()`.
+- Shared links:
+  - `functions/share.php` (loaded by `functions.php`). A link's secret is 32 random bytes, base64url, after the # (`shareUrl()`). `item_key` is its SHA-256 (`shareKeyHash()`), and the content key is an HMAC-SHA256 of it (`shareContentKey()`), never stored.
+  - Logins, secure notes and request answers are sealed with AES-256-GCM (`shareSeal()` / `shareUnseal()`) in `item_payload`. A request also keeps its content key under the vault (`item_vault_key`, `encryptCredentialEntry()`), so only an agent whose vault is open can read the answer.
+  - `shareCreate()` makes a link, `shareState()` says where it is (active, waiting, received, used, expired, revoked, locked, destroyed, saved or discarded), `shareClaim()` takes a view through `claimSharedItemView()`, and `shareEnd()` ends it and wipes its secrets.
+  - `shareSweep()` wipes secrets once a link ends or expires, and `SHARE_GRACE_MINUTES` (30) after its last view. It runs on every guest request and on the list. `sharePrune()` runs nightly and forgets links `SHARE_KEEP_DAYS` (90) after they end. Unsaved answers go after `SHARE_RECEIVED_KEEP_DAYS` (30).
+  - Passphrases and codes are kept with `password_hash()`. `shareTakeAttempt()` takes each try with a conditional UPDATE, so a burst of guesses cannot pass `SHARE_ATTEMPTS` (5).
+  - Permissions: `shareCanSee()` needs Support, plus Credential for login links and requests. `shareCanMake()` needs Support at level 2, plus Credential to share a login and Credential at level 2 to ask for one.
+  - Guest side:
+    - `guest/share.php` with `js/guest_share.js`, and `guest/share_ajax.php`, which takes JSON POSTs: `open`, `passphrase`, `send_code`, `code`, `reveal`, `totp`, `destroy` and `submit`.
+    - What a browser has passed and opened is kept in its session for the grace time.
+    - `guest/guest_download_file.php` takes a JSON POST and serves only from the client's upload folder.
+    - `guest/guest_view_item.php` serves links made before 2.9.0 (`item_version` 1, `key` and `ek` in the query string, the login under aes-128-cbc).
+    - The page sends `Referrer-Policy: no-referrer`, `X-Robots-Tag: noindex`, `frame-ancestors 'none'` and `no-store`.
+  - Agent side:
+    - `agent/modals/share/share_add.php` with `agent/js/share_add.js`, posting `share_create` to `agent/ajax.php`.
+    - `agent/shares.php`, for one client or All Client Docs. `?share=ID` opens a link's quick look, `agent/modals/share/share.php`, whose history comes from the audit log (`log_type` Share, `log_entity_id` the link).
+    - `agent/post/share.php` handles `share_revoke`, `share_revoke_all`, `share_bulk_revoke`, `share_request_save` (`credentialFormSet()`) and `share_request_discard`.
+  - Notifications go to `item_created_by` only. Links with no owner fall back to `appNotify()`.
+  - Removed: `agent/modals/share_modal.php`, `agent/js/share_modal.js`, `agent/modals/credential/credential_share.php`, `share_generate_link` in `agent/ajax.php`, `get_share_totp_token` in `guest/guest_ajax.php`, and `deactivate_shared_item` in `post/misc.php`.
 - Sidebar brand: `agent/css/sidebar_brand_fix.css` and `agent/js/sidebar_brand_fix.js` from 26.10 are replaced by CSS in `css/itflow_custom.css`. `includes/load_company_settings.php` now sets `$session_company_logo`.
 - `alertMessageHtml()` no longer double-encodes, and save messages built from `escapeSql()` values use `stripslashes()` at the flash.
 - CSS: `[hidden] { display: none !important; }` at the top of `css/itflow_custom.css`, so the `hidden` attribute wins over `d-flex` and the other display utilities. `.pagination` wraps.

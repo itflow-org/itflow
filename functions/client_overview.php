@@ -463,20 +463,23 @@ function clientOverviewAssets($client_id) {
     ];
 }
 
-/** Active share links for this client's items. */
+/**
+ * This client's shared links still to do something about - open, or a
+ * request answered and waiting to be saved - newest first, only the kinds
+ * this agent may see (functions/share.php).
+ */
 function clientOverviewSharedItems($client_id) {
     global $mysqli;
 
-    $sql = mysqli_query($mysqli, "SELECT item_id, item_type, item_related_id, item_recipient, item_views, item_view_limit, item_expire_at,
-            COALESCE(credential_name, document_name, file_name) AS item_name, file_ext, credential_uri, credential_description
+    $sql = mysqli_query($mysqli, "SELECT item_id, item_type, item_related_id, item_recipient, item_views, item_view_limit, item_expire_at, item_received_at,
+            item_end_reason, item_ended_at, item_active,
+            COALESCE(credential_name, document_name, file_name, item_name) AS item_name, file_ext, credential_uri, credential_description
         FROM shared_items
         LEFT JOIN credentials ON item_type = 'Credential' AND credential_id = item_related_id AND credential_client_id = $client_id
         LEFT JOIN documents ON item_type = 'Document' AND document_id = item_related_id AND document_client_id = $client_id
         LEFT JOIN files ON item_type = 'File' AND file_id = item_related_id AND file_client_id = $client_id
-        WHERE item_client_id = $client_id AND item_active = 1
-        -- Still openable: not expired, views not used up (functions/credential.php credentialShares)
-        AND item_expire_at > NOW() AND (COALESCE(item_view_limit, 0) = 0 OR item_views < item_view_limit)
-        ORDER BY item_created_at DESC
+        WHERE item_client_id = $client_id AND item_type IN (" . shareVisibleTypesSql() . ") AND " . shareLiveSql() . "
+        ORDER BY item_received_at IS NULL, item_created_at DESC
         LIMIT 10");
 
     $items = [];

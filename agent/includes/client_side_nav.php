@@ -254,6 +254,18 @@
                             </a>
                         </li>
 
+                        <li class="nav-item">
+                            <a href="/agent/shares.php?client_id=<?= $client_id ?>" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "shares.php") { echo "active"; } ?>">
+                                <i class="nav-icon fas fa-share-alt"></i>
+                                <p>
+                                    Shared Links
+                                    <?php if (!empty($num_shares)) { ?>
+                                        <span class="right badge <?= !empty($num_shares_received) ? 'bg-warning text-dark' : 'text-light' ?>" <?= !empty($num_shares_received) ? 'title="A login was sent back - save it"' : '' ?>><?= $num_shares ?></span>
+                                    <?php } ?>
+                                </p>
+                            </a>
+                        </li>
+
                         <li class="nav-header mt-3">DOCUMENTATION</li>
 
                         <li class="nav-item">

@@ -258,6 +258,12 @@ if (isset($_GET['client_id'])) {
         $row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT COUNT(document_id) AS num FROM documents WHERE document_archived_at IS NULL AND document_client_id = $client_id"));
         $num_documents = intval($row['num']);
 
+        // Shared links still to do something about - open, or a login sent back and not saved yet
+        $row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT COUNT(*) AS num, COALESCE(SUM(item_type = 'Request' AND item_received_at IS NOT NULL), 0) AS received
+            FROM shared_items WHERE item_client_id = $client_id AND item_type IN (" . shareVisibleTypesSql() . ") AND " . shareLiveSql()));
+        $num_shares = intval($row['num']);
+        $num_shares_received = intval($row['received']);
+
         // What is coming up - events still ahead, and series still running
         $row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT COUNT(event_id) AS num FROM calendar_events WHERE event_client_id = $client_id AND event_archived_at IS NULL
             AND (COALESCE(event_end, event_start) >= CURDATE() OR (event_repeat <> '' AND (event_repeat_until IS NULL OR event_repeat_until >= CURDATE())))"));

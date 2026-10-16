@@ -43,7 +43,8 @@ enforceUserPermission('module_credential');
 
 $can_edit = credentialCan(2);
 $can_delete = credentialCan(3) && !empty($config_destructive_deletes_enable);
-$can_share = lookupUserPermission('module_support') >= 2;
+$can_share = shareCanMake('Credential');
+$can_request = $client_url && shareCanMake('Request');
 
 // Client Filter (all clients)
 $client = '';
@@ -73,7 +74,7 @@ $shows = [
     'otp' => ['label' => 'With 2FA', 'icon' => 'fa-clock', 'where' => "c.credential_otp_secret <> ''"],
     'nootp' => ['label' => 'No 2FA', 'icon' => 'fa-unlock', 'where' => "(c.credential_otp_secret IS NULL OR c.credential_otp_secret = '')"],
     'due' => ['label' => "Not changed in $rotate_days days", 'icon' => 'fa-history', 'where' => "(c.credential_password_changed_at IS NULL OR c.credential_password_changed_at < NOW() - INTERVAL $rotate_days DAY)"],
-    'shared' => ['label' => 'Shared', 'icon' => 'fa-share-alt', 'where' => "c.credential_id IN (SELECT item_related_id FROM shared_items WHERE item_type = 'Credential' AND item_active = 1 AND item_expire_at > NOW() AND (COALESCE(item_view_limit, 0) = 0 OR item_views < item_view_limit))"],
+    'shared' => ['label' => 'Shared', 'icon' => 'fa-share-alt', 'where' => "c.credential_id IN (SELECT item_related_id FROM shared_items WHERE item_type = 'Credential' AND " . shareOpenSql() . ")"],
 ];
 $show = isset($shows[$_GET['show'] ?? '']) ? ($_GET['show'] ?? '') : '';
 $show_query = $shows[$show]['where'] ? 'AND ' . $shows[$show]['where'] : '';
@@ -159,6 +160,11 @@ $filter_url = function ($changes) use ($client_url) {
                 <?php } ?>
                 <button type="button" class="btn btn-primary dropdown-toggle <?= $can_edit ? 'dropdown-toggle-split' : '' ?>" data-bs-toggle="dropdown"><?= $can_edit ? '' : '<i class="fas fa-ellipsis-h"></i>' ?></button>
                 <div class="dropdown-menu dropdown-menu-end">
+                    <?php if ($can_request) { ?>
+                        <a class="dropdown-item text-dark ajax-modal" href="#" data-modal-url="modals/share/share_add.php?type=Request&amp;client_id=<?= intval($client_id) ?>">
+                            <i class="fa fa-fw fa-inbox me-2"></i>Ask the client for a login
+                        </a>
+                    <?php } ?>
                     <?php if ($client_url && $can_edit) { ?>
                         <a class="dropdown-item text-dark ajax-modal" href="#" data-modal-url="modals/credential/credential_import.php?<?= $client_url ?>">
                             <i class="fa fa-fw fa-upload me-2"></i>Import
@@ -423,7 +429,7 @@ $filter_url = function ($changes) use ($client_url) {
                                         </a>
                                     <?php } ?>
                                     <?php if ($can_share && !$credential_archived_at) { ?>
-                                        <a class="dropdown-item ajax-modal" href="#" data-modal-url="modals/credential/credential_share.php?id=<?= $credential_id ?>">
+                                        <a class="dropdown-item ajax-modal" href="#" data-modal-url="modals/share/share_add.php?type=Credential&amp;id=<?= $credential_id ?>">
                                             <i class="fas fa-fw fa-share-alt text-secondary me-2"></i>Share
                                         </a>
                                     <?php } ?>

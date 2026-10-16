@@ -5773,3 +5773,80 @@ a.itflow-report-stat:focus-visible {
         print-color-adjust: exact;
     }
 }
+
+/* Shared links (functions/share.php) - the page the person it was sent to
+   sees (guest/share.php), the QR code in the share window, and the list */
+.itflow-share-page {
+    max-width: 560px;
+}
+.itflow-share-page-wide {
+    max-width: 960px;
+}
+.itflow-share-logo {
+    max-height: 56px;
+    max-width: 220px;
+}
+.itflow-share-icon {
+    width: 3.5rem;
+    height: 3.5rem;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.4rem;
+}
+.itflow-share-icon-sm {
+    width: 2.5rem;
+    height: 2.5rem;
+    font-size: 1rem;
+    flex-shrink: 0;
+}
+.itflow-share-note {
+    background: var(--bs-tertiary-bg);
+    border-left: 3px solid var(--bs-primary);
+    border-radius: .25rem;
+    padding: .6rem .8rem;
+    white-space: pre-line;
+    overflow-wrap: anywhere;
+}
+.itflow-share-secret {
+    background: var(--bs-tertiary-bg);
+    border: 1px solid var(--bs-border-color);
+    border-radius: .375rem;
+    padding: 1rem 3.25rem 1rem 1rem;
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+    font-size: .95rem;
+    max-height: 60vh;
+    overflow: auto;
+}
+.itflow-share-otp {
+    letter-spacing: .15em;
+}
+.itflow-share-otp-bar {
+    height: .25rem;
+}
+.itflow-share-otp-bar .progress-bar {
+    transition: width .25s linear;
+}
+.itflow-share-document {
+    overflow-wrap: anywhere;
+}
+.itflow-share-qr {
+    width: 180px;
+    height: 180px;
+    max-width: 100%;
+}
+.itflow-share-recipient {
+    max-width: 220px;
+}
+@media print {
+    .itflow-share-page {
+        max-width: none;
+        padding: 0 !important;
+    }
+    .itflow-share-page .card {
+        border: 0;
+        box-shadow: none !important;
+    }
+}

@@ -152,11 +152,9 @@ logApp("Cron", "info", "Cron Started");
 // Clean-up ticket views table used for collision detection
 mysqli_query($mysqli, "TRUNCATE TABLE ticket_views");
 
-// Clean-up shared items that have been used
-mysqli_query($mysqli, "DELETE FROM shared_items WHERE item_view_limit > 0 AND item_views >= item_view_limit");
-
-// Clean-up shared items that have expired
-mysqli_query($mysqli, "DELETE FROM shared_items WHERE item_expire_at < NOW()");
+// Shared links: wipe the secrets of the ones that ended, and forget them
+// after SHARE_KEEP_DAYS - until then they stay listed, with who opened them
+sharePrune();
 
 // Invalidate any password reset links
 mysqli_query($mysqli, "UPDATE users SET user_password_reset_token = NULL WHERE user_archived_at IS NULL");

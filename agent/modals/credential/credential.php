@@ -25,8 +25,8 @@ enforceClientAccess();
 $credential_name = escapeHtml($credential['credential_name']);
 $credential_archived = !empty($credential['credential_archived_at']);
 $can_edit = credentialCan(2) && !$credential_archived;
-// Making a share link is a support action as well as a credential one (agent/ajax.php share_generate_link)
-$can_share = !$credential_archived && lookupUserPermission('module_support') >= 2;
+// Sharing a login: credential access and support write access (shareCanMake() in functions/share.php)
+$can_share = !$credential_archived && shareCanMake('Credential');
 $age = credentialAge($credential['credential_password_changed_at']);
 $last_viewed = credentialLastViewed($credential_id);
 $links = credentialLinks([$credential_id])[$credential_id];
@@ -147,10 +147,12 @@ ob_start();
                 <li class="itflow-link-row">
                     <span class="itflow-link-icon" aria-hidden="true"><i class="fas fa-fw fa-share-alt"></i></span>
                     <div class="min-w-0 flex-grow-1">
-                        <div class="text-truncate"><?= escapeHtml($share['item_recipient'] ?: 'A share link') ?></div>
+                        <a class="d-block text-truncate ajax-modal" href="#" data-modal-url="modals/share/share.php?id=<?= intval($share['item_id']) ?>" title="Details and history"><?= escapeHtml($share['item_recipient'] ?: 'Anyone with the link') ?></a>
                         <div class="small text-body-secondary"><?= $views ?><?= $limit ? " of $limit" : '' ?> view<?= ($limit ?: $views) === 1 ? '' : 's' ?>, expires <?= timeAgo($share['item_expire_at']) ?></div>
                     </div>
-                    <a class="btn btn-sm btn-link text-danger confirm-link" href="post.php?deactivate_shared_item=<?= intval($share['item_id']) ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>" title="Turn off this link"><i class="fas fa-fw fa-unlink"></i></a>
+                    <?php if ($can_share) { ?>
+                        <a class="btn btn-sm btn-link text-danger confirm-link" href="post.php?share_revoke=<?= intval($share['item_id']) ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>" title="Turn off this link"><i class="fas fa-fw fa-unlink"></i></a>
+                    <?php } ?>
                 </li>
             <?php } ?>
         </ul>
@@ -175,7 +177,7 @@ ob_start();
 
 <div class="modal-footer">
     <?php if ($can_share) { ?>
-        <button type="button" class="btn btn-outline-secondary ajax-modal me-auto" data-modal-url="modals/credential/credential_share.php?id=<?= $credential_id ?>"><i class="fas fa-share-alt me-2"></i>Share</button>
+        <button type="button" class="btn btn-outline-secondary ajax-modal me-auto" data-modal-url="modals/share/share_add.php?type=Credential&amp;id=<?= $credential_id ?>"><i class="fas fa-share-alt me-2"></i>Share</button>
     <?php } ?>
     <?php if ($can_edit) { ?>
         <button type="button" class="btn btn-outline-secondary ajax-modal" data-modal-url="modals/credential/credential_rotate.php?id=<?= $credential_id ?>"><i class="fas fa-sync-alt me-2"></i>Change password</button>

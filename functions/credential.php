@@ -329,7 +329,7 @@ function credentialOwnersHtml($row) {
  */
 function credentialTableHtml(array $rows, array $options = []) {
     $can_edit = credentialCan(2);
-    $can_share = lookupUserPermission('module_support') >= 2;
+    $can_share = shareCanMake('Credential');
     $show_for = !empty($options['for']);
     $unlink = $options['unlink'] ?? null;
     $csrf = $_SESSION['csrf_token'] ?? '';
@@ -368,7 +368,7 @@ function credentialTableHtml(array $rows, array $options = []) {
                 . '<a class="dropdown-item ajax-modal" href="#" data-modal-url="modals/credential/credential_rotate.php?id=' . $id . '"><i class="fas fa-fw fa-sync-alt text-secondary me-2"></i>Change password</a>';
         }
         if ($can_share && !$archived) {
-            $actions .= '<a class="dropdown-item ajax-modal" href="#" data-modal-url="modals/credential/credential_share.php?id=' . $id . '"><i class="fas fa-fw fa-share-alt text-secondary me-2"></i>Share</a>';
+            $actions .= '<a class="dropdown-item ajax-modal" href="#" data-modal-url="modals/share/share_add.php?type=Credential&amp;id=' . $id . '"><i class="fas fa-fw fa-share-alt text-secondary me-2"></i>Share</a>';
         }
         $unlink_url = $unlink ? (string) $unlink($row) : '';
         if ($unlink_url !== '' || ($can_edit && !$archived)) {
@@ -439,8 +439,7 @@ function credentialShares(array $credential_ids) {
     }
     $sql = mysqli_query($mysqli, "SELECT item_id, item_related_id, item_recipient, item_note, item_views, item_view_limit, item_created_at, item_expire_at
         FROM shared_items
-        WHERE item_type = 'Credential' AND item_active = 1 AND item_expire_at > NOW()
-        AND (COALESCE(item_view_limit, 0) = 0 OR item_views < item_view_limit)
+        WHERE item_type = 'Credential' AND " . shareOpenSql() . "
         AND item_related_id IN (" . implode(',', $credential_ids) . ")
         ORDER BY item_expire_at ASC");
     while ($row = mysqli_fetch_assoc($sql)) {

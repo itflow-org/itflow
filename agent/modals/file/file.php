@@ -50,8 +50,7 @@ $folder_id = isset($folder_tree[intval($row['file_folder_id'])]) ? intval($row['
 $folder_label = $folder_id ? implode(' / ', array_column(folderPath($folder_tree, $folder_id), 'folder_name')) : 'Top level';
 
 $share = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT item_recipient, item_expire_at FROM shared_items
-    WHERE item_client_id = $client_id AND item_type = 'File' AND item_related_id = $file_id AND item_active = 1
-    AND (COALESCE(item_view_limit, 0) = 0 OR item_views < item_view_limit) AND item_expire_at > NOW()
+    WHERE item_client_id = $client_id AND item_type = 'File' AND item_related_id = $file_id AND " . shareOpenSql() . "
     ORDER BY item_expire_at DESC LIMIT 1"));
 
 ob_start();
@@ -128,6 +127,9 @@ ob_start();
 
 <div class="modal-footer">
     <a class="btn btn-primary text-bold" href="file.php?file_id=<?= $file_id ?>"><i class="fas fa-download me-2"></i>Download</a>
+    <?php if (!$file_archived && shareCanMake('File')) { ?>
+        <button type="button" class="btn btn-outline-secondary ajax-modal" data-modal-url="modals/share/share_add.php?type=File&amp;id=<?= $file_id ?>"><i class="fas fa-share-alt me-2"></i>Share</button>
+    <?php } ?>
     <?php if ($can_edit && !$file_archived) { ?>
         <button type="button" class="btn btn-outline-secondary ajax-modal" data-modal-url="modals/file/file_rename.php?id=<?= $file_id ?>"><i class="fas fa-pen me-2"></i>Rename</button>
         <button type="button" class="btn btn-outline-secondary ajax-modal" data-modal-url="modals/file/file_move.php?id=<?= $file_id ?>"><i class="fas fa-folder-open me-2"></i>Move</button>
