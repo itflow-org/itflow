@@ -175,9 +175,14 @@
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a href="/agent/products.php" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "products.php") { echo "active"; } ?>">
+                        <a href="/agent/products.php" class="nav-link <?php if (in_array(basename($_SERVER["PHP_SELF"]), ['products.php', 'product.php', 'products_count.php'], true)) { echo "active"; } ?>">
                             <i class="nav-icon fas fa-box-open"></i>
-                            <p>Products</p>
+                            <p>
+                                Products
+                                <?php if (!empty($num_products_reorder)) { ?>
+                                    <span class="right badge text-bg-warning" data-bs-toggle="tooltip" title="To reorder"><?= intval($num_products_reorder) ?></span>
+                                <?php } ?>
+                            </p>
                         </a>
                     </li>
                 <?php } ?>

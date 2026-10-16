@@ -21,7 +21,7 @@ ob_start();
         <p class="mb-2">A CSV with a heading row. Columns can be in any order, and only <strong>Name</strong> is needed:</p>
         <p class="small text-body-secondary mb-3">
             Name, Type (Service or Product), Code, Category, Description, Price, Cost, Tax, Billed (One time, Monthly, Quarterly, Yearly),
-            Counted (Per user, Per device), Vendor, Part Number, Track Stock (Yes or No), Location, Notes.
+            Counted (Per user, Per device), Vendor, Part Number, Track Stock (Yes or No), Reorder At, Order, Location, Notes.
             Categories, taxes and vendors are matched by name to the ones you have.
         </p>
 

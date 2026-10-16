@@ -75,6 +75,7 @@ if (
         $invoice_discount = floatval($invoice_row['invoice_discount_amount']);
 
         $subtotal = $price * $qty;
+        $take_stock = false;
 
         // Product inventory
         if ($product_id) {
@@ -94,13 +95,8 @@ if (
 
                 if ($available_stock >= $qty) {
 
-                    mysqli_query(
-                        $mysqli,
-                        "INSERT INTO product_stock
-                         SET stock_qty = -$qty,
-                             stock_note = 'QTY $qty - Invoice $invoice_id',
-                             stock_product_id = $product_id"
-                    );
+                    // Taken off the shelf once the line is in
+                    $take_stock = true;
 
                 } else {
 
@@ -156,6 +152,10 @@ if (
         if ($insert_sql) {
 
             $insert_id = mysqli_insert_id($mysqli);
+
+            if ($take_stock) {
+                productStockMove($product_id, -$qty, 'sold', ['invoice_id' => $invoice_id, 'item_id' => $insert_id, 'note' => stripslashes($invoice_prefix) . "$invoice_number - API"]);
+            }
 
             // Recalculate invoice total
             $items_sql = mysqli_query(

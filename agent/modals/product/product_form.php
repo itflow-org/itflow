@@ -29,7 +29,9 @@ $form_frequency = quoteFrequency($form_value('product_frequency'));
 $form_seat = $form_value('product_seat_source');
 // A new product tracks its stock unless told otherwise
 $form_track = $form_edit ? intval($form_product['product_track_stock']) === 1 : true;
-$form_stock = $form_edit ? intval($form_product['product_stock']) : 0;
+$form_stock = $form_edit ? floatval($form_product['product_stock']) : 0;
+$form_reorder_level = $form_edit && floatval($form_product['product_reorder_level']) > 0 ? billingQuantity($form_product['product_reorder_level']) : '';
+$form_reorder_qty = $form_edit && floatval($form_product['product_reorder_qty']) > 0 ? billingQuantity($form_product['product_reorder_qty']) : '';
 $form_price = $form_edit ? number_format(floatval($form_product['product_price']), 2, '.', '') : '';
 $form_cost = $form_edit && floatval($form_product['product_cost']) > 0 ? number_format(floatval($form_product['product_cost']), 2, '.', '') : '';
 $form_currency = $form_edit ? (string) $form_product['product_currency_code'] : (string) $session_company_currency;
@@ -186,9 +188,26 @@ if ($form_vendor_id && !isset($form_vendors[$form_vendor_id]) && $form_value('ve
             <label class="form-check-label" for="<?= $form_id ?>Track">Track stock</label>
         </div>
         <div class="form-text" data-product-track-on>Invoicing it takes it off the shelf, and it can't be sold past what is there. Add stock as it comes in.</div>
-        <div class="form-text" data-product-track-off>Ordered as needed - invoicing it doesn't touch stock.<?= $form_edit && $form_track && $form_stock ? ' The ' . $form_stock . ' on the shelf stay on record but stop moving.' : '' ?></div>
+        <div class="form-text" data-product-track-off>Ordered as needed - invoicing it doesn't touch stock.<?= $form_edit && $form_track && $form_stock ? ' The ' . billingQuantity($form_stock) . ' on the shelf stay on record but stop moving.' : '' ?></div>
     </div>
-    <div class="col-12" data-product-only data-product-location>
+    <div class="col-sm-6" data-product-only data-product-tracked>
+        <label class="form-label">Reorder at</label>
+        <div class="input-group">
+            <span class="input-group-text"><i class="fas fa-fw fa-bell"></i></span>
+            <input type="text" class="form-control text-end" name="reorder_level" inputmode="decimal" value="<?= $form_reorder_level ?>" placeholder="When it is out">
+        </div>
+    </div>
+    <div class="col-sm-6" data-product-only data-product-tracked>
+        <label class="form-label">Order</label>
+        <div class="input-group">
+            <span class="input-group-text"><i class="fas fa-fw fa-shopping-basket"></i></span>
+            <input type="text" class="form-control text-end" name="reorder_qty" inputmode="decimal" value="<?= $form_reorder_qty ?>" placeholder="How many to buy">
+        </div>
+    </div>
+    <div class="col-12 mt-1" data-product-only data-product-tracked>
+        <div class="form-text">Agents are told when it gets down to this, and it is listed under Reorder with the vendor and part number.</div>
+    </div>
+    <div class="col-12" data-product-only data-product-tracked data-product-location>
         <label class="form-label">Location</label>
         <div class="input-group">
             <span class="input-group-text"><i class="fas fa-fw fa-map-marker-alt"></i></span>
@@ -245,7 +264,9 @@ if ($form_vendor_id && !isset($form_vendors[$form_vendor_id]) && $form_value('ve
             el.hidden = type !== 'product';
         });
         if (type === 'product') {
-            form.querySelector('[data-product-location]').hidden = !track.checked;
+            form.querySelectorAll('[data-product-tracked]').forEach(function (el) {
+                el.hidden = !track.checked;
+            });
             form.querySelector('[data-product-track-on]').hidden = !track.checked;
             form.querySelector('[data-product-track-off]').hidden = track.checked;
         }

@@ -776,7 +776,7 @@ if (!$vendor || (isset($_GET['client_id']) && $vendor_client_id !== intval($clie
                                                 <?= escapeHtml(billingMoney($vendor_product['product_price'], $vendor_product['product_currency_code'])) ?>
                                                 <div><?= productMarginPill(productMargin($vendor_product['product_price'], $vendor_product['product_cost'])) ?></div>
                                             </td>
-                                            <td class="text-end d-none d-sm-table-cell"><?= intval($vendor_product['product_track_stock']) ? intval($vendor_product['product_stock']) : '<span class="text-body-secondary">-</span>' ?></td>
+                                            <td class="text-end d-none d-sm-table-cell"><?= intval($vendor_product['product_track_stock']) ? escapeHtml(billingQuantity($vendor_product['product_stock'])) : '<span class="text-body-secondary">-</span>' ?></td>
                                         </tr>
                                     <?php } ?>
                                     </tbody>

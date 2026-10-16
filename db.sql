@@ -1760,14 +1760,19 @@ DROP TABLE IF EXISTS `product_stock`;
 /*!40101 SET character_set_client = utf8mb4 */;
 CREATE TABLE `product_stock` (
   `stock_id` int(11) NOT NULL AUTO_INCREMENT,
-  `stock_qty` int(11) NOT NULL,
+  `stock_qty` decimal(15,2) NOT NULL,
+  `stock_type` varchar(20) NOT NULL DEFAULT 'adjusted',
+  `stock_unit_cost` decimal(15,2) DEFAULT NULL,
   `stock_note` text DEFAULT NULL,
   `stock_created_at` datetime NOT NULL DEFAULT current_timestamp(),
   `stock_expense_id` int(11) DEFAULT NULL,
+  `stock_invoice_id` int(11) NOT NULL DEFAULT 0,
   `stock_item_id` int(11) DEFAULT NULL,
+  `stock_user_id` int(11) NOT NULL DEFAULT 0,
   `stock_product_id` int(11) NOT NULL,
   PRIMARY KEY (`stock_id`),
-  KEY `stock_product_id` (`stock_product_id`)
+  KEY `stock_product_id` (`stock_product_id`),
+  KEY `stock_invoice_id` (`stock_invoice_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -1793,6 +1798,8 @@ CREATE TABLE `products` (
   `product_frequency` varchar(10) DEFAULT NULL,
   `product_seat_source` varchar(20) DEFAULT NULL,
   `product_track_stock` tinyint(1) NOT NULL DEFAULT 0,
+  `product_reorder_level` decimal(15,2) NOT NULL DEFAULT 0.00,
+  `product_reorder_qty` decimal(15,2) NOT NULL DEFAULT 0.00,
   `product_created_at` datetime NOT NULL DEFAULT current_timestamp(),
   `product_updated_at` datetime DEFAULT NULL ON UPDATE current_timestamp(),
   `product_archived_at` datetime DEFAULT NULL,

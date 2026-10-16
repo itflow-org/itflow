@@ -12,7 +12,7 @@ defined('FROM_POST_HANDLER') || die("Direct file access is not allowed");
 /** The product fields from a posted form, raw. */
 function productFormInput() {
     $in = [];
-    foreach (['name', 'type', 'category', 'price', 'cost', 'tax', 'frequency', 'seat_source', 'code', 'vendor', 'vendor_part', 'location', 'description', 'notes'] as $key) {
+    foreach (['name', 'type', 'category', 'price', 'cost', 'tax', 'frequency', 'seat_source', 'code', 'vendor', 'vendor_part', 'reorder_level', 'reorder_qty', 'location', 'description', 'notes'] as $key) {
         if (array_key_exists($key, $_POST)) {
             $in[$key] = (string) $_POST[$key];
         }
@@ -316,6 +316,7 @@ if (isExportRequest('export_products')) {
         'product' => ["AND product_type = 'product'", 'Products'],
         'recurring' => ["AND product_frequency IS NOT NULL", 'Billed each month, quarter or year'],
         'stocked' => ["AND product_track_stock = 1", 'Stock tracked'],
+        'reorder' => ["AND " . productReorderSql(), 'To reorder'],
     ];
     $type_query = '';
     if (isset($type_queries[$type_filter])) {
@@ -378,7 +379,10 @@ if (isExportRequest('export_products')) {
             $row['product_billed'] = productBilledText($row['product_frequency'], $row['product_seat_source']);
             $row['product_margin'] = $margin ? $margin['percent'] . '%' : '';
             $row['product_tax'] = $row['tax_name'] ? $row['tax_name'] . ' ' . floatval($row['tax_percent']) . '%' : '';
-            $row['product_stock_display'] = intval($row['product_track_stock']) ? $row['product_stock'] : '';
+            $row['product_stock_display'] = intval($row['product_track_stock']) ? billingQuantity($row['product_stock']) : '';
+            $row['product_reorder_display'] = intval($row['product_track_stock']) && floatval($row['product_reorder_level']) > 0 ? billingQuantity($row['product_reorder_level']) : '';
+            $row['product_order_display'] = intval($row['product_track_stock']) && floatval($row['product_reorder_qty']) > 0 ? billingQuantity($row['product_reorder_qty']) : '';
+            $row['product_stock_value'] = intval($row['product_track_stock']) && floatval($row['product_stock']) > 0 ? round(floatval($row['product_stock']) * floatval($row['product_cost']), 2) : '';
             addExportRow($export, $row);
         }
 
@@ -391,42 +395,151 @@ if (isExportRequest('export_products')) {
 
 }
 
-if (isset($_POST['add_product_stock'])) {
+/** A stock quantity from a form - a number above zero (zero or more with $zero), up to 2 places, or null. */
+function productStockInput($value, $zero = false) {
+    $raw = trim(str_replace([',', ' '], '', (string) $value));
+    if ($raw === '' || !is_numeric($raw) || floatval($raw) >= 1e9 || round(floatval($raw), 2) != floatval($raw)) {
+        return null;
+    }
+    $qty = round(floatval($raw), 2);
+    return $qty > 0 || ($zero && $qty == 0) ? $qty : null;
+}
+
+/*
+ * The Stock window - mode receive (it came in, at a unit cost, on an
+ * expense), count (what is on the shelf now, the difference recorded) or
+ * write_off (damaged, lost, used by us, sent back).
+ */
+if (isset($_POST['product_stock_save'])) {
 
     validateCSRFToken();
 
     enforceUserPermission('module_sales', 2);
 
-    $product_id = intval($_POST['product_id'] ?? 0);
-    $product = productRow($product_id);
-    $qty = intval($_POST['qty'] ?? 0);
-    $expense = intval($_POST['expense'] ?? 0);
-    $note = escapeSql(trim((string) ($_POST['note'] ?? '')));
-
+    $product = productRow(intval($_POST['product_id'] ?? 0));
     if (!$product) {
         flashAlert('That product no longer exists.', 'error');
         redirect('products.php');
     }
+    $product_id = intval($product['product_id']);
+    $name_html = '<strong>' . escapeHtml($product['product_name']) . '</strong>';
     if (!intval($product['product_track_stock'])) {
-        flashAlert(escapeHtml($product['product_name']) . " doesn't track stock - turn on Track stock in Edit first.", 'error');
+        flashAlert("$name_html doesn't track stock - turn on Track stock in Edit first.", 'error');
         redirect();
     }
-    if ($qty <= 0) {
-        flashAlert('Enter how many came in - a whole number above zero.', 'error');
-        redirect();
-    }
-    if ($expense && !getFieldById('expenses', $expense, 'expense_id')) {
-        $expense = 0;
-    }
+    $mode = (string) ($_POST['mode'] ?? 'receive');
+    $on_hand = productOnHand($product_id);
+    $note = trim((string) ($_POST['note'] ?? ''));
     $product_name = escapeSql($product['product_name']);
 
-    mysqli_query($mysqli,"INSERT INTO product_stock SET stock_qty = $qty, stock_expense_id = " . ($expense ?: 'NULL') . ", stock_note = '$note', stock_product_id = $product_id");
+    if ($mode === 'receive') {
+        $qty = productStockInput($_POST['qty'] ?? '');
+        if ($qty === null) {
+            flashAlert('Enter how many came in - a number above zero.', 'error');
+            redirect();
+        }
+        $unit_cost = trim(str_replace([',', '$', ' '], '', (string) ($_POST['unit_cost'] ?? '')));
+        if ($unit_cost !== '' && (!is_numeric($unit_cost) || floatval($unit_cost) < 0 || floatval($unit_cost) >= 1e13)) {
+            flashAlert('The unit cost has to be a number, zero or more.', 'error');
+            redirect();
+        }
+        $expense = intval($_POST['expense'] ?? 0);
+        if ($expense && !getFieldById('expenses', $expense, 'expense_id')) {
+            $expense = 0;
+        }
+        productStockMove($product_id, $qty, 'received', ['unit_cost' => $unit_cost === '' ? null : $unit_cost, 'expense_id' => $expense, 'note' => $note]);
+        $cost_note = '';
+        if ($unit_cost !== '' && !empty($_POST['update_cost']) && round(floatval($unit_cost), 2) != round(floatval($product['product_cost']), 2)) {
+            productSave(['cost' => $unit_cost], $product_id);
+            $cost_note = ', and its cost is now ' . billingMoney($unit_cost, $product['product_currency_code']);
+            logAudit("Product", "Edit", "$session_name changed the cost of product $product_name to " . escapeSql(billingMoney($unit_cost, $product['product_currency_code'])) . " from a delivery", 0, $product_id);
+        }
+        logAudit("Product", "Stock", "$session_name received " . billingQuantity($qty) . " of product $product_name", 0, $product_id);
+        flashAlert(billingQuantity($qty) . " of $name_html received - " . billingQuantity($on_hand + $qty) . " on the shelf" . escapeHtml($cost_note));
 
-    logAudit("Product", "Stock", "$session_name added $qty units to stock for product $product_name", 0, $product_id);
+    } elseif ($mode === 'count') {
+        $counted = productStockInput($_POST['counted'] ?? '', true);
+        if ($counted === null) {
+            flashAlert('Enter what is on the shelf - zero or more.', 'error');
+            redirect();
+        }
+        $difference = round($counted - $on_hand, 2);
+        if ($difference == 0) {
+            flashAlert(billingQuantity($counted) . " of $name_html on the shelf - that is what ITFlow had, nothing to change");
+            redirect();
+        }
+        productStockMove($product_id, $difference, 'adjusted', ['note' => 'Counted ' . billingQuantity($counted) . ($note !== '' ? " - $note" : '')]);
+        logAudit("Product", "Stock", "$session_name counted product $product_name - " . billingQuantity($counted) . ' on the shelf, ' . productStockQty($difference), 0, $product_id);
+        flashAlert("$name_html counted - " . billingQuantity($counted) . ' on the shelf, ' . productStockQty($difference) . ' from what ITFlow had');
 
-    flashAlert("Added $qty to <strong>" . escapeHtml($product['product_name']) . "</strong> - " . (intval($product['product_stock']) + $qty) . " on the shelf");
+    } elseif ($mode === 'write_off') {
+        $qty = productStockInput($_POST['qty'] ?? '');
+        if ($qty === null) {
+            flashAlert('Enter how many to write off - a number above zero.', 'error');
+            redirect();
+        }
+        if ($qty > $on_hand) {
+            flashAlert("Only " . billingQuantity($on_hand) . " of $name_html on the shelf - count it first if there are more.", 'error');
+            redirect();
+        }
+        $reason = in_array($_POST['reason'] ?? '', productWriteOffReasons(), true) ? $_POST['reason'] : 'Other';
+        productStockMove($product_id, -$qty, 'written_off', ['note' => $reason . ($note !== '' ? " - $note" : '')]);
+        logAudit("Product", "Stock", "$session_name wrote off " . billingQuantity($qty) . " of product $product_name - " . escapeSql($reason), 0, $product_id);
+        flashAlert(billingQuantity($qty) . " of $name_html written off - " . billingQuantity($on_hand - $qty) . ' on the shelf');
+
+    } else {
+        flashAlert('That is not something the Stock window does.', 'error');
+    }
 
     redirect();
+
+}
+
+/*
+ * Count Stock - what is on the shelf for each product counted (counted[id]),
+ * the differences recorded together. Blank ones are left alone.
+ */
+if (isset($_POST['product_stock_count'])) {
+
+    validateCSRFToken();
+
+    enforceUserPermission('module_sales', 2);
+
+    $note = trim((string) ($_POST['note'] ?? ''));
+    $changed = $same = 0;
+    $bad = [];
+    foreach ((array) ($_POST['counted'] ?? []) as $product_id => $value) {
+        if (trim((string) $value) === '') {
+            continue;
+        }
+        $product = productRow(intval($product_id));
+        if (!$product || !intval($product['product_track_stock'])) {
+            continue;
+        }
+        $counted = productStockInput($value, true);
+        if ($counted === null) {
+            $bad[] = $product['product_name'];
+            continue;
+        }
+        $difference = round($counted - productOnHand($product['product_id']), 2);
+        if ($difference == 0) {
+            $same++;
+            continue;
+        }
+        productStockMove($product['product_id'], $difference, 'adjusted', ['note' => 'Stock count - ' . billingQuantity($counted) . ($note !== '' ? " - $note" : '')]);
+        logAudit("Product", "Stock", "$session_name counted product " . escapeSql($product['product_name']) . ' - ' . billingQuantity($counted) . ' on the shelf, ' . productStockQty($difference), 0, intval($product['product_id']));
+        $changed++;
+    }
+
+    logAudit("Product", "Stock", "$session_name saved a stock count - $changed changed, $same as expected");
+
+    $message = "Stock count saved - <strong>$changed</strong> changed, <strong>$same</strong> as expected";
+    if ($bad) {
+        $message .= '. Not a number, left alone: ' . escapeHtml(implode(', ', $bad));
+    }
+    flashAlert($message, $bad && !$changed ? 'error' : 'success');
+
+    redirect('products.php?type=stocked');
 
 }
 
@@ -434,7 +547,7 @@ if (isset($_POST['add_product_stock'])) {
  * Import from a CSV with a header row. Columns are found by their heading,
  * in any order - only Name is needed:
  *   Name, Type, Code, Category, Description, Price, Cost, Tax, Billed, Counted,
- *   Vendor, Part Number, Track Stock, Location, Notes
+ *   Vendor, Part Number, Track Stock, Reorder At, Order, Location, Notes
  * The old three column file (Product Name, Description, Price) still works.
  * A row whose code matches a product already here updates it when asked to.
  */
@@ -476,6 +589,8 @@ if (isset($_POST["import_products_csv"])) {
         'vendor' => ['vendor', 'supplier'],
         'vendor_part' => ['part number', 'vendor part', 'mpn', 'part'],
         'track_stock' => ['track stock', 'tracked', 'stock tracked'],
+        'reorder_level' => ['reorder at', 'reorder level', 'reorder point', 'minimum stock'],
+        'reorder_qty' => ['order', 'order qty', 'reorder qty', 'reorder quantity'],
         'location' => ['location'],
         'notes' => ['notes', 'internal notes'],
     ];
@@ -593,9 +708,9 @@ if (isset($_POST["import_products_csv"])) {
 if (isset($_GET['download_products_csv_template'])) {
 
     $f = fopen('php://memory', 'w');
-    fputcsv($f, ['Name', 'Type', 'Code', 'Category', 'Description', 'Price', 'Cost', 'Tax', 'Billed', 'Counted', 'Vendor', 'Part Number', 'Track Stock', 'Location', 'Notes'], ',', '"', '\\');
-    fputcsv($f, ['Managed Workstation', 'Service', 'MS-WKS', 'Managed Services', 'Per workstation, per month. Monitoring, patching and support.', '65.00', '18.00', '', 'Monthly', 'Per device', '', '', '', '', ''], ',', '"', '\\');
-    fputcsv($f, ['24 Port PoE Switch', 'Product', 'HW-SW24', 'Hardware Sales', '24 port managed PoE switch.', '785.00', '520.00', '', 'One time', '', '', 'USW-PRO-24-POE', 'Yes', 'Shelf B2', 'Order from the distributor, 2 day lead time'], ',', '"', '\\');
+    fputcsv($f, ['Name', 'Type', 'Code', 'Category', 'Description', 'Price', 'Cost', 'Tax', 'Billed', 'Counted', 'Vendor', 'Part Number', 'Track Stock', 'Reorder At', 'Order', 'Location', 'Notes'], ',', '"', '\\');
+    fputcsv($f, ['Managed Workstation', 'Service', 'MS-WKS', 'Managed Services', 'Per workstation, per month. Monitoring, patching and support.', '65.00', '18.00', '', 'Monthly', 'Per device', '', '', '', '', '', '', ''], ',', '"', '\\');
+    fputcsv($f, ['24 Port PoE Switch', 'Product', 'HW-SW24', 'Hardware Sales', '24 port managed PoE switch.', '785.00', '520.00', '', 'One time', '', '', 'USW-PRO-24-POE', 'Yes', '2', '5', 'Shelf B2', 'Order from the distributor, 2 day lead time'], ',', '"', '\\');
     fseek($f, 0);
 
     header('Content-Type: text/csv');

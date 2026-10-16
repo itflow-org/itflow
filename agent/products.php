@@ -7,7 +7,7 @@
  * At the top: what the catalog bills each month on recurring invoices, what
  * it sold over the last 90 days, and what the stock on the shelf is worth.
  * Tabs for services, products, what is billed each month, quarter or year,
- * and what has its stock tracked (?type=, which old links to ?type=service
+ * what has its stock tracked and what needs reordering (?type=, which old links to ?type=service
  * and ?type=product still use). Each row: what it is and its code, how it is
  * billed by default, the stock on the shelf, who we buy it from, and the
  * price with its margin. The name opens the product's page.
@@ -31,6 +31,7 @@ $views = [
     'product' => ['label' => 'Products', 'icon' => 'fa-box-open', 'sql' => "AND product_type = 'product'"],
     'recurring' => ['label' => 'Recurring', 'icon' => 'fa-redo-alt', 'sql' => "AND product_frequency IS NOT NULL", 'title' => 'Billed each month, quarter or year by default'],
     'stocked' => ['label' => 'Stocked', 'icon' => 'fa-warehouse', 'sql' => "AND product_track_stock = 1", 'title' => 'Stock tracked'],
+    'reorder' => ['label' => 'Reorder', 'icon' => 'fa-shopping-basket', 'sql' => "AND " . productReorderSql(), 'title' => 'Stock at or under its reorder level, or out'],
 ];
 $view = (string) ($_GET['type'] ?? 'all');
 if (!isset($views[$view])) {
@@ -77,7 +78,8 @@ while ($row = mysqli_fetch_assoc($sql)) {
 // Each tab's count, with the same search and filters
 $counts = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT COUNT(*) AS `all`,
         COALESCE(SUM(product_type = 'service'), 0) AS service, COALESCE(SUM(product_type = 'product'), 0) AS product,
-        COALESCE(SUM(product_frequency IS NOT NULL), 0) AS recurring, COALESCE(SUM(product_track_stock = 1), 0) AS stocked
+        COALESCE(SUM(product_frequency IS NOT NULL), 0) AS recurring, COALESCE(SUM(product_track_stock = 1), 0) AS stocked,
+        COALESCE(SUM(" . productReorderSql() . "), 0) AS reorder
     $from $where"));
 
 // The catalog at work - recurring, sold, on the shelf
@@ -104,6 +106,7 @@ $stock_stat = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT COALESCE(SUM(GREA
     JOIN (SELECT stock_product_id, SUM(stock_qty) AS on_hand FROM product_stock GROUP BY stock_product_id) s ON s.stock_product_id = product_id
     WHERE product_track_stock = 1 AND product_archived_at IS NULL"));
 $tracked_count = intval(mysqli_fetch_row(mysqli_query($mysqli, "SELECT COUNT(*) FROM products WHERE product_track_stock = 1 AND product_archived_at IS NULL"))[0]);
+$reorder_count = productReorderCount();
 $catalog_count = intval(mysqli_fetch_row(mysqli_query($mysqli, "SELECT COUNT(*) FROM products"))[0]);
 
 $filter_url = function ($changes) {
@@ -114,7 +117,7 @@ $filter_url = function ($changes) {
 $money = function ($amount, $currency = null) use ($session_company_currency) {
     return escapeHtml(billingMoney($amount, $currency ?: $session_company_currency));
 };
-$add_type = $view === 'product' || $view === 'stocked' ? 'product' : 'service';
+$add_type = in_array($view, ['product', 'stocked', 'reorder'], true) ? 'product' : 'service';
 
 ?>
 
@@ -148,22 +151,22 @@ $add_type = $view === 'product' || $view === 'stocked' ? 'product' : 'service';
         </div>
     </div>
     <div class="col-sm-6 col-xl-3">
-        <a class="itflow-billing-stat <?= $view === 'stocked' ? 'active' : '' ?>" href="<?= escapeHtml($filter_url(['type' => 'stocked'])) ?>" title="What is on the shelf, at each product's cost">
+        <a class="itflow-billing-stat <?= in_array($view, ['stocked', 'reorder'], true) ? 'active' : '' ?>" href="<?= escapeHtml($filter_url(['type' => $reorder_count ? 'reorder' : 'stocked'])) ?>" title="What is on the shelf, at each product's cost">
             <div class="itflow-billing-stat-label"><i class="fas fa-warehouse me-1"></i>On the shelf</div>
             <?php if ($tracked_count && floatval($stock_stat['value']) <= 0) { ?>
-                <div class="itflow-billing-stat-value"><?= intval($stock_stat['units']) ?> <span class="fs-6 fw-normal text-body-secondary">unit<?= intval($stock_stat['units']) === 1 ? '' : 's' ?></span></div>
+                <div class="itflow-billing-stat-value"><?= escapeHtml(billingQuantity($stock_stat['units'])) ?> <span class="fs-6 fw-normal text-body-secondary">unit<?= floatval($stock_stat['units']) == 1 ? '' : 's' ?></span></div>
                 <div class="itflow-billing-stat-note">
                     On <?= $tracked_count ?> product<?= $tracked_count === 1 ? '' : 's' ?> - add a cost to value them
-                    <?php $out = $tracked_count - intval($stock_stat['tracked']) + intval($stock_stat['out_of_stock']); if ($out) { ?>
-                        &middot; <span class="text-danger-emphasis"><?= $out ?> out</span>
+                    <?php if ($reorder_count) { ?>
+                        &middot; <span class="text-warning-emphasis"><?= $reorder_count ?> to reorder</span>
                     <?php } ?>
                 </div>
             <?php } elseif ($tracked_count) { ?>
                 <div class="itflow-billing-stat-value"><?= $money($stock_stat['value']) ?></div>
                 <div class="itflow-billing-stat-note">
-                    <?= intval($stock_stat['units']) ?> unit<?= intval($stock_stat['units']) === 1 ? '' : 's' ?> on <?= $tracked_count ?> product<?= $tracked_count === 1 ? '' : 's' ?>
-                    <?php $out = $tracked_count - intval($stock_stat['tracked']) + intval($stock_stat['out_of_stock']); if ($out) { ?>
-                        &middot; <span class="text-danger-emphasis"><?= $out ?> out</span>
+                    <?= escapeHtml(billingQuantity($stock_stat['units'])) ?> unit<?= floatval($stock_stat['units']) == 1 ? '' : 's' ?> on <?= $tracked_count ?> product<?= $tracked_count === 1 ? '' : 's' ?>
+                    <?php if ($reorder_count) { ?>
+                        &middot; <span class="text-warning-emphasis"><?= $reorder_count ?> to reorder</span>
                     <?php } ?>
                 </div>
             <?php } else { ?>
@@ -193,6 +196,11 @@ $add_type = $view === 'product' || $view === 'stocked' ? 'product' : 'service';
                         <a class="dropdown-item ajax-modal" href="#" data-modal-size="lg" data-modal-url="modals/product/product_add.php?type=product">
                             <i class="fas fa-fw fa-box-open text-secondary me-2"></i>New Product
                         </a>
+                        <?php if ($tracked_count) { ?>
+                            <a class="dropdown-item" href="products_count.php">
+                                <i class="fas fa-fw fa-clipboard-check text-secondary me-2"></i>Count Stock
+                            </a>
+                        <?php } ?>
                         <div class="dropdown-divider"></div>
                         <a class="dropdown-item ajax-modal" href="#" data-modal-url="modals/product/product_import.php">
                             <i class="fas fa-fw fa-upload text-secondary me-2"></i>Import
@@ -317,7 +325,9 @@ $add_type = $view === 'product' || $view === 'stocked' ? 'product' : 'service';
                     $product_id = intval($row['product_id']);
                     $row_type = $row['product_type'];
                     $row_tracked = intval($row['product_track_stock']) === 1;
-                    $row_stock = intval($row['product_stock']);
+                    $row_stock = floatval($row['product_stock']);
+                    $row_level = floatval($row['product_reorder_level']);
+                    $row_reorder = $row_tracked && !$row['product_archived_at'] && $row_stock <= max($row_level, 0);
                     $row_margin = productMargin($row['product_price'], $row['product_cost']);
                     $row_currency = (string) $row['product_currency_code'];
                     $row_url = "product.php?product_id=$product_id";
@@ -350,8 +360,13 @@ $add_type = $view === 'product' || $view === 'stocked' ? 'product' : 'service';
                         </td>
                         <td class="d-none d-lg-table-cell text-end text-nowrap">
                             <?php if ($row_tracked) { ?>
-                                <span class="badge rounded-pill fw-normal <?= $row_stock > 0 ? 'bg-success-subtle text-success-emphasis' : 'bg-danger-subtle text-danger-emphasis' ?>"><?= $row_stock ?> in stock</span>
-                                <?php if ($row['product_location']) { ?><div class="small text-body-secondary"><?= escapeHtml($row['product_location']) ?></div><?php } ?>
+                                <span class="badge rounded-pill fw-normal <?= $row_stock <= 0 ? 'bg-danger-subtle text-danger-emphasis' : ($row_reorder ? 'bg-warning-subtle text-warning-emphasis' : 'bg-success-subtle text-success-emphasis') ?>"
+                                    title="<?= $row_level > 0 ? 'Reorder at ' . escapeHtml(billingQuantity($row_level)) : 'Reorder when it is out' ?>"><?= escapeHtml(billingQuantity($row_stock)) ?> in stock</span>
+                                <?php if ($row_reorder) { ?>
+                                    <div class="small text-warning-emphasis">Reorder<?= floatval($row['product_reorder_qty']) > 0 ? ' ' . escapeHtml(billingQuantity($row['product_reorder_qty'])) : '' ?></div>
+                                <?php } elseif ($row['product_location']) { ?>
+                                    <div class="small text-body-secondary"><?= escapeHtml($row['product_location']) ?></div>
+                                <?php } ?>
                             <?php } elseif ($row_type === 'product') { ?>
                                 <span class="small text-body-secondary" title="Stock isn't tracked - it is ordered for each job">As needed</span>
                             <?php } else { ?>
@@ -383,8 +398,11 @@ $add_type = $view === 'product' || $view === 'stocked' ? 'product' : 'service';
                                             <i class="fas fa-fw fa-edit text-secondary me-2"></i>Edit
                                         </a>
                                         <?php if ($row_tracked && !$row['product_archived_at']) { ?>
-                                            <a class="dropdown-item ajax-modal" href="#" data-modal-url="modals/product/product_stock_add.php?id=<?= $product_id ?>">
-                                                <i class="fas fa-fw fa-dolly text-secondary me-2"></i>Add Stock
+                                            <a class="dropdown-item ajax-modal" href="#" data-modal-url="modals/product/product_stock.php?id=<?= $product_id ?>&mode=receive">
+                                                <i class="fas fa-fw fa-dolly text-secondary me-2"></i>Receive
+                                            </a>
+                                            <a class="dropdown-item ajax-modal" href="#" data-modal-url="modals/product/product_stock.php?id=<?= $product_id ?>&mode=count">
+                                                <i class="fas fa-fw fa-clipboard-check text-secondary me-2"></i>Count
                                             </a>
                                         <?php } ?>
                                         <a class="dropdown-item" href="post.php?copy_product=<?= $product_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>">

@@ -6,9 +6,9 @@ This file documents all notable changes made to ITFlow.
 
 ### Upgrading to 26.11
 
-Update from Maintenance > Update — Queue Update hands the job to cron, which updates the files and applies this release's database changes (2.7.9 to 2.9.4) in the same pass. Nothing else is required.
+Update from Maintenance > Update — Queue Update hands the job to cron, which updates the files and applies this release's database changes (2.7.9 to 2.9.5) in the same pass. Nothing else is required.
 
-This is a big release, with fifteen database steps in one go, so take a backup before you update.
+This is a big release, with sixteen database steps in one go, so take a backup before you update.
 
 The update also clears out data that deletes in older versions left behind, all of it pointing at something that no longer exists:
 
@@ -17,7 +17,7 @@ The update also clears out data that deletes in older versions left behind, all 
 - the tasks, approvals and history of deleted tickets, the projects of deleted clients, and tickets still pointing at a deleted project
 - project template entries whose ticket template is gone, and the same service link saved twice
 
-It also gives every existing network a type (LAN, WAN, Guest and so on) guessed from its name or description, which you can change afterwards, and fills in the issue date, names covered and fingerprint of every certificate already on file. Invoices made from a quote before the update are linked to that quote, so each one shows where it came from. Products that ever had stock added keep tracking their stock, and the rest are set to ordered as needed (see Breaking Changes, Products).
+It also gives every existing network a type (LAN, WAN, Guest and so on) guessed from its name or description, which you can change afterwards, and fills in the issue date, names covered and fingerprint of every certificate already on file. Invoices made from a quote before the update are linked to that quote, so each one shows where it came from. Products that ever had stock added keep tracking their stock, and the rest are set to ordered as needed (see Breaking Changes, Products). Their past stock changes are sorted into received, sold and returned from their notes, and linked to the invoice they name.
 
 If you are coming from 26.08 or earlier, the database update still has to be run from the command line one time, exactly as described under Upgrading to 26.09 below.
 
@@ -61,6 +61,11 @@ If you are coming from 26.08 or earlier, the database update still has to be run
   - The Products page shows everything, with tabs for Services, Products, Recurring and Stocked. It used to open on Services. Old links to `products.php?type=service` and `?type=product` still open those tabs.
   - Clicking a product opens its new page instead of the Edit window.
   - Import finds columns by their heading, so a file can have any of the fields in any order. The old three column file (Product Name, Description, Price) still works. A row whose code is already in the catalog is skipped unless Update products with the same code is on.
+  - Add Stock is replaced by one Stock window with Receive, Count and Write off, on the product's page and in the list's menu. Count records the difference from what you counted, and Write off asks why.
+  - Cancelling or deleting an invoice puts its tracked products back on the shelf. Deleting one used to leave the stock gone for good.
+  - Copying an invoice, or making an invoice from a quote, is refused when a tracked product on it is short, the same as adding the line by hand. Add the stock first.
+  - Invoices made from recurring invoices are now linked to their products, so they count as sold on the product's page and in the reports. They don't move stock.
+  - Stock can be counted in fractions (up to two decimal places), such as cable by the metre.
 - Notifications now follow access too. An agent only sees notifications for clients and areas they can open, so someone without sales access no longer sees invoice and quote notifications.
 - Drop-downs: Tom Select is gone, replaced by ITFlow's own picker. It works the way you are used to: type to search, tick several in a multi-select, and type a new value in fields that allow it, such as ticket watchers. See Developer Updates if you have custom pages that used Tom Select.
 - Several small windows are gone because the change is now made where the value is shown:
@@ -119,7 +124,7 @@ If you are coming from 26.08 or earlier, the database update still has to be run
 - **Dashboard** (rebuilt)
   - Needs attention along the top:
     - tickets past their SLA, unassigned tickets and overdue projects
-    - overdue and draft invoices, and resolved tickets not invoiced yet
+    - overdue and draft invoices, resolved tickets not invoiced yet, and stock to reorder
     - domains, certificates, licenses and warranties expiring in the next 30 days
     - services needing attention and service reviews due
 
@@ -148,6 +153,7 @@ If you are coming from 26.08 or earlier, the database update still has to be run
     - Quotes Pipeline: quotes won, lost and open, the win rate by count and by value, and open quotes about to expire.
     - Mileage: trips by agent and by client, valued at your rate per mile.
     - Budget vs Actual: set a monthly budget for each expense category right on the report, or copy last year's, and see spending against it by month and category.
+    - Inventory: what is on the shelf and what it is worth at cost, what came in, and the cost of what was sold and written off, by month. Every tracked product with its stock, value and reorder level, and every stock move in the period.
   - Reworked reports:
     - Profit & Loss: monthly or quarterly, with last year and the change beside each line, and the margin.
     - Income and Expenses: by category across the year, with last year drawn as a dashed line.
@@ -244,17 +250,21 @@ If you are coming from 26.08 or earlier, the database update still has to be run
   - Track stock, for products: a tracked product comes off the shelf as it is invoiced and can't be sold past what is there. The rest are ordered as needed, such as drop-shipped hardware.
   - The list:
     - The top shows what catalog lines bring in each month on recurring invoices, what was sold over the last 90 days with the top seller, and what the stock on the shelf is worth at cost.
-    - Tabs for Services, Products, Recurring and Stocked, a vendor filter, and search by part number and vendor too.
+    - Tabs for Services, Products, Recurring, Stocked and To reorder, a vendor filter, and search by part number and vendor too.
     - Each row shows how it is billed, the stock and where it is kept, the vendor and part number, and the price with its cost and margin.
   - Each product has a page:
     - Its price and margin, what it sold over 12 months, and what it brings in a month on recurring invoices.
-    - Its stock, where it is kept, what that is worth and the last moves, each with the expense it came in on.
+    - Its stock, where it is kept and what that is worth, and a Stock tab with every move and what was on the shelf after it.
     - Where it is used: the recurring invoices it is on, open quotes, the invoices it was sold on, and its history.
     - Notes save as you click away. Copy makes a new one to start from.
   - New and Edit are one window, with Service or Product at the top and the margin worked out as you type the price and cost.
-  - Add Stock shows what will be on the shelf, and links the purchase to an expense from the last year, the vendor's first.
-  - Import takes every field. Categories, taxes and vendors are matched by name. A new price list can update products by their code, and a file with only Code and Price will do. Download the template for the layout.
-  - Export adds cost, margin, how it is billed, vendor, part number and stock.
+  - Stock, for products that track it:
+    - Every change is recorded as Received, Sold, Returned, Counted or Written off, with the unit cost, the invoice or expense behind it, a note and who made it.
+    - One Stock window to Receive (at a unit cost, which can become the product's cost, linked to an expense from the last year, the vendor's first), Count (type what is on the shelf and the difference is recorded) or Write off (damaged, lost or stolen, used by us, or sent back to the vendor). It shows what will be on the shelf as you type.
+    - Reorder at and Order on each product. Products at or under their level show on the To reorder tab, with a badge on the list, on Products in the menu and in Needs attention on the dashboard. A Low Stock notification goes out when stock drops to the level or runs out, saying how many to order and from whom.
+    - Count Stock lists every tracked product, or one location's, with what ITFlow has and a box for what you counted. The difference shows as you type, Enter moves to the next box, and blank ones are left alone. Print it as a count sheet to take to the shelf.
+  - Import takes every field, including Reorder At and Order. Categories, taxes and vendors are matched by name. A new price list can update products by their code, and a file with only Code and Price will do. Download the template for the layout.
+  - Export adds cost, margin, how it is billed, vendor, part number, stock and its value, and the reorder level, and can export just what is to reorder.
   - Invoices, quotes and recurring invoices show agents their margin on lines from products with a cost, at today's cost. A quote shows it up front and each month.
   - Our vendors' pages have a Products tab listing what we buy from them.
   - Search finds products by part number and opens their page.
@@ -434,6 +444,8 @@ If you are coming from 26.08 or earlier, the database update still has to be run
 - Billing: copying an invoice logged its old number with the prefix twice.
 - Products: Restore in the archived list's bulk actions did nothing. Deleting a product left its stock records behind.
 - Products: Add Stock could record zero units, or link an expense that no longer existed.
+- Products: deleting an invoice did not put its stock back. Copying an invoice or making one from a quote lost the link to the product, so the copy took no stock and the product did not count it as sold.
+- Products: a stock change for a fraction of a unit, such as 1.5, was rounded to a whole number.
 - Billing: Make Invoice on a quote could make a second invoice when pressed twice or from two tabs, and could invoice a quote that was never accepted or had been declined. Its audit log entry named the quote with the current quote prefix instead of the quote's own.
 - Recurring invoices: if cron missed a night, that recurring invoice stopped billing until someone moved its date. The missed run is now billed the next night, up to 7 days late.
 - Invoicing a ticket: on an invoice that already had lines, its line went in near the top instead of at the end. A ticket already on an invoice could be billed again from a second window, and a ticket with 100 hours or more logged had no hours filled in.
@@ -498,6 +510,7 @@ If you are coming from 26.08 or earlier, the database update still has to be run
   - 2.9.2: `settings.config_time_increment` (15), `config_time_rounding` ('nearest'), `config_time_minimum` (0) and `config_time_item_name` ('Support [Hourly]').
   - 2.9.3: `quote_items.item_frequency` (NULL for one time, or `month`, `quarter` or `year`), `quotes.quote_monthly_amount`, `invoices.invoice_quote_id` and `recurring_invoices.recurring_invoice_quote_id`. Invoices are linked to their quote from the "Invoice created from quote QUO-n" history the old Make Invoice wrote, matched on the client too.
   - 2.9.4: `products.product_cost`, `product_vendor_id`, `product_vendor_part`, `product_notes`, `product_frequency` (NULL once, or `month`, `quarter`, `year`), `product_seat_source` (NULL, `contacts` or `assets`) and `product_track_stock`, set for products with any `product_stock` rows. Keys on `item_product_id` in `invoice_items`, `quote_items` and `recurring_invoice_items`, and on `product_stock.stock_product_id`.
+  - 2.9.5: `product_stock.stock_qty` becomes `decimal(15,2)`, with `stock_type` (`received`, `sold`, `returned`, `adjusted` or `written_off`, default `adjusted`), `stock_unit_cost`, `stock_invoice_id` (keyed) and `stock_user_id`. Existing rows take their invoice from a note ending "Invoice n" and their type from the sign and the note. `products.product_reorder_level` and `product_reorder_qty`.
 - New shared function files, loaded by `functions.php`: `functions/asset.php`, `asset_interface.php`, `certificate.php`, `client_overview.php`, `contact.php`, `credential.php`, `dashboard.php`, `links.php`, `location.php`, `notifications.php`, `project.php`, `rack.php`, `search.php`, `service.php`, `software.php`, `tags.php`, `ticket.php`, `ticket_fields.php`, `user.php` and `vendor.php`. They hold the queries and rules, so the pages, the API and cron share one definition.
 - Removed post models: `agent/post/{asset_interface,certificate,credential,domain,event,location,network_ip,network,recurring_ticket,vendor}_model.php`, `admin/post/user_model.php` and `api/v1/certificates/certificate_model.php`. Their handlers call the shared functions above. Interface handlers moved to `agent/post/asset_interface.php`.
 - New scripts: `js/itflow_select.js`, `quick_pick.js`, `tag_picker.js`, `global_search.js`, `notifications.js`, `dashboard.js`, `client_overview.js`, `client_switcher.js`, `credentials.js` and `autosubmit.js`, and `agent/js/calendar.js`, `calendar_event_modal.js`, `files.js`, `interface_form.js`, `network_form.js`, `project_modal.js` and `ticket_schedule_modal.js`.
@@ -591,7 +604,7 @@ If you are coming from 26.08 or earlier, the database update still has to be run
   - PDFs: `billingPdf($type, $row, $variant)` returns the file name and data, and `billingPdfSend()` sends it. The drawing is in `functions/billing_pdf.php` (the `BillingPdf` TCPDF class and `billingPdfRender()`), loaded only when a PDF is made. `export_invoice_pdf`, `export_invoice_packing_slip`, `export_quote_pdf` and the guest downloads use it. The guest downloads compare the URL key with `hash_equals()` and return 404 when it is wrong.
   - Guest pages: `billingGuestViewed()` marks a sent document viewed, logs the view in plain text and notifies. `billingClientOpenInvoices()` is the client's statement.
   - CSS: the `.itflow-paper-*` and `.itflow-billing-*` classes in `css/itflow_custom.css`, with print rules that print only the document.
-  - Making invoices from recurring: `recurringInvoiceGenerate($id, $by, $early, $run)` is the one path, used by `cron/nightly_tasks.php` and `force_recurring`. It refuses when `$run` (the run date the caller means) is no longer the next date, or, without `$early`, when that date is still to come. It claims the run with a conditional `UPDATE` on the next date, then refreshes the lines, applies the period words, copies the lines (without `item_product_id`), logs history on both documents and emails when set to. It returns the new invoice id, or 0.
+  - Making invoices from recurring: `recurringInvoiceGenerate($id, $by, $early, $run)` is the one path, used by `cron/nightly_tasks.php` and `force_recurring`. It refuses when `$run` (the run date the caller means) is no longer the next date, or, without `$early`, when that date is still to come. It claims the run with a conditional `UPDATE` on the next date, then refreshes the lines, applies the period words, copies the lines (with `item_product_id`, but no stock moves), logs history on both documents and emails when set to. It returns the new invoice id, or 0.
   - Cron bills active, unarchived recurring invoices due from `RECURRING_INVOICE_GRACE_DAYS` (7) ago up to today, passing each one's next date as `$run`. `force_recurring` takes `run` from the page's link, and a link without it bills the current next date.
   - Schedules: `recurringInvoiceFrequencies()` (month, quarter, year), `recurringInvoiceMonths()`, `recurringInvoicePeriodWord()`, `recurringInvoiceMonthly()` and `recurringInvoiceMonthlySql()` (use it in SQL sums), `recurringInvoiceAfter()`, `recurringInvoicePeriod()` and `recurringInvoiceTokens()`. `validateRecurringFrequency()` accepts `quarter`. The edit handler keeps `recurring_invoice_anchor_day` unless the next date changes, and the add and edit handlers run their dates through `validateDate()`.
   - Seats: `recurringSeatSources()`, `recurringSeatFilter()`, `recurringSeatCount()` (null when a license is gone or isn't the client's), `recurringSeatDescribe()`, `recurringSeatOptions()`, `recurringSeatLines()` and `recurringInvoiceRefresh()`, which syncs the seat quantities and takes each line's tax at its current rate. `billing_item_save` takes `seat_source` (empty for typed), `seat_tag`, `seat_types[]`, `seat_software_id`, `seat_count` (`used` or `total`) and `seat_minimum` on recurring lines. A form without `seat_source` leaves the seat settings alone.
@@ -613,6 +626,11 @@ If you are coming from 26.08 or earlier, the database update still has to be run
   - New page `agent/product.php?product_id=`. `agent/modals/product/product_form.php` holds the fields of `product_add.php` and `product_edit.php`. Handlers: `copy_product` (GET), and `product_set_notes` in `agent/ajax.php` for the page's notes. `import_products_csv` maps columns by heading and takes `update_existing`. `agent/post/product_model.php` is removed. The list's bulk Restore posts `bulk_restore_products`.
   - Export columns for products: type, code, cost, margin, billed, vendor, part number, stock, location and notes. The products export takes `vendor` and the list's `type` tabs.
   - Seeds: `demoEnsureProducts($mysqli, $currency, $vendors)` with `demoProductExtras()`, and a seventh column on `starterContentProducts()` for how each is billed (`month`, `month:contacts`).
+  - Stock ledger, in `functions/products.php`: `productStockMove($product_id, $qty, $type, $opts)` is the one path that writes `product_stock` (`$opts`: `note`, `unit_cost`, `invoice_id`, `item_id`, `expense_id`). The unit cost defaults to the product's cost for every type but `received`, and it records `stock_user_id` and calls `productReorderCheck()`, which raises a `Low Stock` notification (a `module_sales` type) when a move takes stock down to the reorder level or out. Also `productStockTypes()`, `productWriteOffReasons()`, `productOnHand()`, `productReorderSql()` (the one definition of to reorder), `productReorderCount()`, `productStockQty()`, `productStockShortfall($items)` (a message for the first short product, or '') and `productStockReturnInvoice($invoice_id, $why)`, which returns what an invoice still has out from the net of its moves, so it can't return twice. `productStockMoves($id, $limit)` adds the running balance, the invoice, expense and agent.
+  - Callers: `billingItemSave()` and `billingItemDelete()` record `sold` and `returned` with the invoice and line. `billingCopyLines()` carries `item_product_id` (dropped when the product is gone) and records `sold` when copying onto an invoice. `quoteConvert()` and `add_invoice_copy` check `productStockShortfall()` before creating anything. `cancel_invoice` and `delete_invoice` call `productStockReturnInvoice()`, and `api/v1/invoice_items/create.php` links its move to the invoice and line.
+  - Handlers: `product_stock_save` (POST `product_id`, `mode` and `note`, with `qty`, `unit_cost`, `update_cost` and `expense` to receive, `counted` to count, or `qty` and `reason` to write off) from `agent/modals/product/product_stock.php?id=&mode=`, and `product_stock_count` (POST `counted[product_id]` and `note`) from the new page `agent/products_count.php`. Removed: `agent/modals/product/product_stock_add.php` and `add_product_stock`.
+  - `productSave()` and `productCopy()` take `reorder_level` and `reorder_qty`, with import aliases and export columns for them and the stock value. The products list and export take `type=reorder`.
+  - `$num_products_reorder` in `agent/includes/get_side_nav_counts.php`, `Stock to reorder` in `dashboardAttention()`, and `inventory` in `reportCatalog()` (Sales & Billing, `module_sales`, accounting) for `agent/reports/inventory.php`.
 - The billing helpers (`billingTimeInvoice()`, `quoteConvert()`, `recurringInvoiceGenerate()` and the rest) take the agent's name as plain text. Their handlers now pass `stripslashes($session_name)`, so a name with an apostrophe no longer shows a backslash in history and the audit log.
 - Sidebar brand: `agent/css/sidebar_brand_fix.css` and `agent/js/sidebar_brand_fix.js` from 26.10 are replaced by CSS in `css/itflow_custom.css`. `includes/load_company_settings.php` now sets `$session_company_logo`.
 - `alertMessageHtml()` no longer double-encodes, and save messages built from `escapeSql()` values use `stripslashes()` at the flash.

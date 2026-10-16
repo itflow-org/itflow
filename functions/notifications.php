@@ -27,7 +27,7 @@ function notificationTypeModules() {
         'module_sales' => [
             'Invoice', 'Invoice Paid', 'Invoice Viewed', 'Invoice Overdue', 'Invoice Late Charge',
             'Draft Invoices', 'Recurring Sent', 'Recurring Generated',
-            'Quote Viewed', 'Quote Accepted', 'Quote Declined', 'Quote File',
+            'Quote Viewed', 'Quote Accepted', 'Quote Declined', 'Quote File', 'Low Stock',
         ],
         'module_financial' => ['Expense', 'Expense Created'],
         'module_support' => [
@@ -70,6 +70,7 @@ function notificationTypeStyle($type) {
         [['accepted'], 'check-circle', 'success'],
         [['overdue', 'late charge'], 'exclamation-triangle', 'warning'],
         [['expiring'], 'hourglass-half', 'warning'],
+        [['stock'], 'boxes', 'warning'],
         [['viewed'], 'eye', 'info'],
         [['quote'], 'comment-dollar', 'primary'],
         [['invoice', 'recurring sent', 'recurring generated'], 'file-invoice-dollar', 'primary'],

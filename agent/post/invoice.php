@@ -113,6 +113,14 @@ if (isset($_POST['add_invoice_copy'])) {
 
     enforceClientAccess();
 
+    // Its products that track stock come off the shelf again - there has to be enough
+    $copy_items = billingItems('invoice', $invoice_id);
+    $shortfall = productStockShortfall($copy_items);
+    if ($shortfall !== '') {
+        flashAlert(escapeHtml($shortfall) . ' Add stock before copying it.', 'error');
+        redirect();
+    }
+
     // Atomically increment and get the new invoice number
     mysqli_query($mysqli, "
         UPDATE settings
@@ -133,22 +141,8 @@ if (isset($_POST['add_invoice_copy'])) {
 
     mysqli_query($mysqli,"INSERT INTO history SET history_status = 'Draft', history_description = 'Copied from $old_invoice_prefix$old_invoice_number by $session_name', history_invoice_id = $new_invoice_id");
 
-    $sql_items = mysqli_query($mysqli,"SELECT item_description, item_id, item_name, item_order, item_price, item_quantity, item_subtotal,
-        item_tax, item_tax_id, item_total FROM invoice_items WHERE item_invoice_id = $invoice_id");
-    while($row = mysqli_fetch_assoc($sql_items)) {
-        $item_id = intval($row['item_id']);
-        $item_name = escapeSql($row['item_name']);
-        $item_description = escapeSql($row['item_description']);
-        $item_quantity = floatval($row['item_quantity']);
-        $item_price = floatval($row['item_price']);
-        $item_subtotal = floatval($row['item_subtotal']);
-        $item_tax = floatval($row['item_tax']);
-        $item_total = floatval($row['item_total']);
-        $item_order = intval($row['item_order']);
-        $tax_id = intval($row['item_tax_id']);
-
-        mysqli_query($mysqli,"INSERT INTO invoice_items SET item_name = '$item_name', item_description = '$item_description', item_quantity = $item_quantity, item_price = $item_price, item_subtotal = $item_subtotal, item_tax = $item_tax, item_total = $item_total, item_order = $item_order, item_tax_id = $tax_id, item_invoice_id = $new_invoice_id");
-    }
+    // The same lines, linked to the same products
+    billingCopyLines($copy_items, 'invoice', $new_invoice_id);
 
     logAudit("Invoice", "Create", "$session_name created new Invoice $config_invoice_prefix$new_invoice_number from $old_invoice_prefix$old_invoice_number", $client_id, $new_invoice_id);
 
@@ -254,6 +248,9 @@ if (isset($_GET['cancel_invoice'])) {
 
     mysqli_query($mysqli,"INSERT INTO history SET history_status = 'Cancelled', history_description = 'Invoice cancelled by $session_name', history_invoice_id = $invoice_id");
 
+    // What it took off the shelf goes back
+    productStockReturnInvoice($invoice_id, stripslashes("$invoice_prefix$invoice_number cancelled"));
+
     logAudit("Invoice", "Edit", "$session_name cancelled invoice $invoice_prefix$invoice_number", $client_id, $invoice_id);
 
     flashAlert("Invoice <strong>$invoice_prefix$invoice_number</strong> cancelled", 'error');
@@ -278,6 +275,9 @@ if (isset($_GET['delete_invoice'])) {
     $client_id = intval($row['invoice_client_id']);
 
     enforceClientAccess();
+
+    // What it took off the shelf goes back before its lines go
+    productStockReturnInvoice($invoice_id, stripslashes("$invoice_prefix$invoice_number deleted"));
 
     mysqli_query($mysqli,"DELETE FROM invoices WHERE invoice_id = $invoice_id");
 

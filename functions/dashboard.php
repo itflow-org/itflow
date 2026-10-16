@@ -263,6 +263,12 @@ function dashboardAttention($access) {
             'label' => 'Draft invoices', 'icon' => 'pen', 'tone' => 'secondary',
             'url' => '/agent/invoices.php?status=Draft',
         ];
+        // The same rule as products.php?type=reorder
+        $items[] = [
+            'count' => productReorderCount(),
+            'label' => 'Stock to reorder', 'icon' => 'shopping-basket', 'tone' => 'warning', 'detail' => 'At or under the reorder level',
+            'url' => '/agent/products.php?type=reorder',
+        ];
         if ($access['tickets']) {
             $items[] = [
                 'count' => dashboardCount("SELECT COUNT(ticket_id) FROM tickets WHERE " . billingUnbilledSql() . " $ticket_scope"),

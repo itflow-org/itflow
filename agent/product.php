@@ -5,12 +5,12 @@
  *
  * What it sells for and costs us, so its margin; how it is billed by default;
  * who we buy it from and their part number; for a product, its stock - on the
- * shelf, where, what that is worth and the last moves - or that it is ordered
- * as needed. Internal notes save as you click away.
+ * shelf, where, what that is worth and when to reorder - or that it is
+ * ordered as needed. Internal notes save as you click away.
  *
- * Then where it is used, in tabs with counts: the recurring invoices it is on
- * (what that brings in a month), open quotes, the invoices it was sold on,
- * and its history. Figures are for the clients the agent can see.
+ * Then in tabs with counts: its stock moves with what was on the shelf after
+ * each, the recurring invoices it is on (what that brings in a month), open
+ * quotes, the invoices it was sold on, and its history. Figures are for the clients the agent can see.
  */
 
 require_once "includes/inc_all.php";
@@ -35,7 +35,10 @@ if (!$product) {
     };
     $archived_at = $product['product_archived_at'];
     $tracked = intval($product['product_track_stock']) === 1;
-    $on_hand = intval($product['product_stock']);
+    $on_hand = floatval($product['product_stock']);
+    $reorder_level = floatval($product['product_reorder_level']);
+    $reorder_qty = floatval($product['product_reorder_qty']);
+    $needs_reorder = $tracked && !$archived_at && $on_hand <= max($reorder_level, 0);
     $margin = productMargin($product['product_price'], $product['product_cost']);
     $billed = productBilledText($product['product_frequency'], $product['product_seat_source']);
     $period = $product['product_frequency'] ? ' a ' . recurringInvoicePeriodWord($product['product_frequency']) : '';
@@ -44,7 +47,7 @@ if (!$product) {
     $csrf = $_SESSION['csrf_token'];
 
     $usage = productUsage($product_id);
-    $moves = $type === 'product' ? productStockMoves($product_id, 15) : [];
+    $moves = $type === 'product' ? productStockMoves($product_id, 200) : [];
     $history = productHistory($product_id, 100);
     $sold = $usage['sold'];
 
@@ -58,6 +61,14 @@ if (!$product) {
     if (!$product['product_frequency']) {
         $tabs = ['invoices' => $tabs['invoices'], 'quotes' => $tabs['quotes'], 'recurring' => $tabs['recurring'], 'history' => $tabs['history']];
     }
+    // Its stock moves - first for a product that tracks stock
+    if ($tracked || $moves) {
+        $stock_tab = ['stock' => ['label' => 'Stock', 'icon' => 'fa-warehouse', 'count' => count($moves)]];
+        $tabs = $tracked ? $stock_tab + $tabs : $tabs + $stock_tab;
+    }
+    $stock_url = function ($mode) use ($product_id) {
+        return "modals/product/product_stock.php?id=$product_id&mode=$mode";
+    };
 
     // Override Tab Title // No Sanitizing needed as this var will only be used in the tab title
     $page_title = $product['product_name'];
@@ -92,9 +103,16 @@ if (!$product) {
             <?php if ($can_edit) { ?>
                 <div class="d-flex flex-wrap gap-2 d-print-none">
                     <?php if ($tracked && !$archived_at) { ?>
-                        <button type="button" class="btn btn-primary ajax-modal" data-modal-url="modals/product/product_stock_add.php?id=<?= $product_id ?>">
-                            <i class="fas fa-dolly me-2"></i>Add Stock
-                        </button>
+                        <div class="btn-group">
+                            <button type="button" class="btn btn-primary ajax-modal" data-modal-url="<?= $stock_url('receive') ?>">
+                                <i class="fas fa-dolly me-2"></i>Receive
+                            </button>
+                            <button type="button" class="btn btn-primary dropdown-toggle dropdown-toggle-split" data-bs-toggle="dropdown" aria-label="More stock actions"></button>
+                            <div class="dropdown-menu dropdown-menu-end">
+                                <a class="dropdown-item ajax-modal" href="#" data-modal-url="<?= $stock_url('count') ?>"><i class="fas fa-fw fa-clipboard-check text-secondary me-2"></i>Count</a>
+                                <a class="dropdown-item ajax-modal" href="#" data-modal-url="<?= $stock_url('write_off') ?>"><i class="fas fa-fw fa-minus-circle text-secondary me-2"></i>Write off</a>
+                            </div>
+                        </div>
                     <?php } ?>
                     <button type="button" class="btn btn-outline-secondary ajax-modal" data-modal-size="lg" data-modal-url="modals/product/product_edit.php?id=<?= $product_id ?>">
                         <i class="fas fa-edit me-2"></i>Edit
@@ -162,11 +180,14 @@ if (!$product) {
         </div>
         <div class="col-sm-6 col-xl-3">
             <?php if ($type === 'product' && $tracked) { ?>
-                <div class="itflow-billing-stat">
+                <a class="itflow-billing-stat" href="#product-pane-stock" data-product-tab-link="stock">
                     <div class="itflow-billing-stat-label"><i class="fas fa-warehouse me-1"></i>On the shelf</div>
-                    <div class="itflow-billing-stat-value <?= $on_hand <= 0 ? 'text-danger-emphasis' : '' ?>"><?= $on_hand ?></div>
-                    <div class="itflow-billing-stat-note"><?= floatval($product['product_cost']) > 0 && $on_hand > 0 ? $money($on_hand * floatval($product['product_cost'])) . ' at cost' : ($product['product_location'] ? escapeHtml($product['product_location']) : 'Stock tracked') ?></div>
-                </div>
+                    <div class="itflow-billing-stat-value <?= $on_hand <= 0 ? 'text-danger-emphasis' : ($needs_reorder ? 'text-warning-emphasis' : '') ?>">
+                        <?= escapeHtml(billingQuantity($on_hand)) ?>
+                        <?php if ($needs_reorder) { ?><span class="badge rounded-pill bg-warning-subtle text-warning-emphasis fw-normal fs-6 align-middle">Reorder<?= $reorder_qty > 0 ? ' ' . escapeHtml(billingQuantity($reorder_qty)) : '' ?></span><?php } ?>
+                    </div>
+                    <div class="itflow-billing-stat-note"><?= floatval($product['product_cost']) > 0 && $on_hand > 0 ? $money($on_hand * floatval($product['product_cost'])) . ' at cost' : ($product['product_location'] ? escapeHtml($product['product_location']) : 'Stock tracked') ?><?= $reorder_level > 0 ? ' &middot; reorder at ' . escapeHtml(billingQuantity($reorder_level)) : '' ?></div>
+                </a>
             <?php } else { ?>
                 <a class="itflow-billing-stat" href="#product-pane-quotes" data-product-tab-link="quotes">
                     <div class="itflow-billing-stat-label"><i class="fas fa-comment-dollar me-1"></i>Open quotes</div>
@@ -234,42 +255,38 @@ if (!$product) {
                 <div class="card mb-3">
                     <div class="card-header d-flex align-items-center">
                         <h3 class="card-title mb-0 flex-grow-1"><i class="fas fa-fw fa-warehouse text-secondary me-2"></i>Stock</h3>
-                        <?php if ($tracked && $can_edit && !$archived_at) { ?>
-                            <button type="button" class="btn btn-sm btn-outline-primary ajax-modal" data-modal-url="modals/product/product_stock_add.php?id=<?= $product_id ?>"><i class="fas fa-plus me-1"></i>Add</button>
-                        <?php } ?>
+                        <?php if ($needs_reorder) { ?><span class="badge rounded-pill bg-warning-subtle text-warning-emphasis fw-normal">To reorder</span><?php } ?>
                     </div>
                     <?php if ($tracked) { ?>
-                        <div class="card-body pb-2">
+                        <div class="card-body">
                             <dl class="itflow-asset-dl mb-0">
-                                <dt>On shelf</dt><dd class="fw-semibold <?= $on_hand <= 0 ? 'text-danger-emphasis' : '' ?>"><?= $on_hand ?></dd>
+                                <dt>On shelf</dt><dd class="fw-semibold <?= $on_hand <= 0 ? 'text-danger-emphasis' : '' ?>"><?= escapeHtml(billingQuantity($on_hand)) ?></dd>
+                                <dt>Reorder</dt>
+                                <dd>
+                                    <?php if ($reorder_level > 0) { ?>
+                                        At <?= escapeHtml(billingQuantity($reorder_level)) ?><?= $reorder_qty > 0 ? ', order ' . escapeHtml(billingQuantity($reorder_qty)) : '' ?>
+                                    <?php } else { ?>
+                                        <span class="text-body-secondary">When it is out</span>
+                                    <?php } ?>
+                                </dd>
                                 <dt>Location</dt><dd><?= $product['product_location'] ? escapeHtml($product['product_location']) : '<span class="text-body-secondary">Not set</span>' ?></dd>
                                 <?php if (floatval($product['product_cost']) > 0) { ?>
                                     <dt>Worth</dt><dd><?= $money(max(0, $on_hand) * floatval($product['product_cost'])) ?> <span class="text-body-secondary small">at cost</span></dd>
                                 <?php } ?>
                             </dl>
                         </div>
+                        <?php if ($can_edit && !$archived_at) { ?>
+                            <div class="card-footer d-flex flex-wrap gap-2 d-print-none">
+                                <button type="button" class="btn btn-sm btn-outline-primary ajax-modal" data-modal-url="<?= $stock_url('receive') ?>"><i class="fas fa-dolly me-1"></i>Receive</button>
+                                <button type="button" class="btn btn-sm btn-outline-secondary ajax-modal" data-modal-url="<?= $stock_url('count') ?>"><i class="fas fa-clipboard-check me-1"></i>Count</button>
+                                <button type="button" class="btn btn-sm btn-outline-secondary ajax-modal" data-modal-url="<?= $stock_url('write_off') ?>"><i class="fas fa-minus-circle me-1"></i>Write off</button>
+                            </div>
+                        <?php } ?>
                     <?php } else { ?>
                         <div class="card-body small text-body-secondary">
-                            Ordered as needed - invoicing it doesn't touch stock.<?= $on_hand ? " $on_hand on record from when it was tracked." : '' ?>
+                            Ordered as needed - invoicing it doesn't touch stock.<?= $on_hand ? ' ' . escapeHtml(billingQuantity($on_hand)) . ' on record from when it was tracked.' : '' ?>
                             <?php if ($can_edit) { ?>Turn on Track stock in Edit to count it.<?php } ?>
                         </div>
-                    <?php } ?>
-                    <?php if ($moves) { ?>
-                        <ul class="list-group list-group-flush small">
-                            <?php foreach ($moves as $move) {
-                                $qty = intval($move['stock_qty']); ?>
-                                <li class="list-group-item d-flex gap-2 align-items-start">
-                                    <span class="fw-semibold text-nowrap <?= $qty < 0 ? 'text-danger-emphasis' : 'text-success-emphasis' ?>" style="min-width: 2.5rem;"><?= $qty > 0 ? '+' . $qty : $qty ?></span>
-                                    <div class="flex-grow-1 min-w-0">
-                                        <div class="text-truncate" title="<?= escapeHtml($move['stock_note']) ?>"><?= $move['stock_note'] !== null && $move['stock_note'] !== '' ? escapeHtml($move['stock_note']) : ($qty > 0 ? 'Added' : 'Taken') ?></div>
-                                        <?php if ($move['expense_description'] !== null) { ?>
-                                            <div class="text-body-secondary text-truncate"><i class="fas fa-receipt me-1"></i><?= escapeHtml($move['expense_date'] . ' - ' . $move['expense_description']) ?></div>
-                                        <?php } ?>
-                                    </div>
-                                    <span class="text-body-secondary text-nowrap" title="<?= escapeHtml($move['stock_created_at']) ?>"><?= escapeHtml(date('M j', strtotime($move['stock_created_at']))) ?></span>
-                                </li>
-                            <?php } ?>
-                        </ul>
                     <?php } ?>
                 </div>
             <?php } ?>
@@ -404,6 +421,52 @@ if (!$product) {
                             <div class="itflow-asset-empty"><i class="fas fa-file-invoice-dollar fa-2x mb-2 opacity-50"></i><div>Not sold on an invoice yet.</div></div>
                         <?php } ?>
                     </div>
+
+                    <?php if (isset($tabs['stock'])) { ?>
+                    <!-- Every stock move, newest first, with what was on the shelf after it -->
+                    <div class="tab-pane fade" id="product-pane-stock" role="tabpanel">
+                        <?php if ($moves) {
+                            $stock_types = productStockTypes(); ?>
+                            <div class="table-responsive">
+                                <table class="table table-hover align-middle mb-0 itflow-stock-ledger">
+                                    <thead class="text-nowrap small">
+                                    <tr><th>When</th><th>What</th><th class="text-end">Qty</th><th class="text-end" title="On the shelf after it">After</th><th class="text-end d-none d-md-table-cell">Unit cost</th><th>For</th><th class="d-none d-lg-table-cell">By</th></tr>
+                                    </thead>
+                                    <tbody>
+                                    <?php foreach ($moves as $move) {
+                                        $move_type = $stock_types[$move['stock_type']] ?? $stock_types['adjusted'];
+                                        $qty = floatval($move['stock_qty']); ?>
+                                        <tr>
+                                            <td class="text-nowrap small" title="<?= escapeHtml($move['stock_created_at']) ?>"><?= escapeHtml(date('M j, Y', strtotime($move['stock_created_at']))) ?></td>
+                                            <td class="text-nowrap"><span class="badge rounded-pill bg-<?= $move_type['tone'] ?>-subtle text-<?= $move_type['tone'] ?>-emphasis fw-normal"><i class="fas <?= $move_type['icon'] ?> me-1"></i><?= $move_type['label'] ?></span></td>
+                                            <td class="text-end fw-semibold text-nowrap <?= $qty < 0 ? 'text-danger-emphasis' : 'text-success-emphasis' ?>"><?= escapeHtml(productStockQty($qty)) ?></td>
+                                            <td class="text-end text-nowrap"><?= escapeHtml(billingQuantity($move['balance'])) ?></td>
+                                            <td class="text-end itflow-money d-none d-md-table-cell"><?= $move['stock_unit_cost'] !== null ? $money($move['stock_unit_cost']) : '<span class="text-body-secondary">-</span>' ?></td>
+                                            <td class="small" style="min-width: 12rem;">
+                                                <?php if ($move['invoice_open']) { ?>
+                                                    <a href="invoice.php?invoice_id=<?= intval($move['stock_invoice_id']) ?>"><?= escapeHtml($move['invoice_prefix'] . $move['invoice_number']) ?></a>
+                                                <?php } ?>
+                                                <?php if ($move['expense_description'] !== null) { ?>
+                                                    <div class="text-body-secondary"><i class="fas fa-receipt me-1"></i><?= escapeHtml($move['expense_date'] . ' - ' . mb_strimwidth((string) $move['expense_description'], 0, 60, '...')) ?></div>
+                                                <?php } ?>
+                                                <?php if (trim((string) $move['stock_note']) !== '' && !($move['invoice_open'] && trim((string) $move['stock_note']) === $move['invoice_prefix'] . $move['invoice_number'])) { ?>
+                                                    <div class="text-body-secondary"><?= escapeHtml($move['stock_note']) ?></div>
+                                                <?php } ?>
+                                            </td>
+                                            <td class="small text-nowrap d-none d-lg-table-cell"><?= $move['user_name'] !== null ? escapeHtml($move['user_name']) : '<span class="text-body-secondary">-</span>' ?></td>
+                                        </tr>
+                                    <?php } ?>
+                                    </tbody>
+                                </table>
+                            </div>
+                            <?php if (count($moves) >= 200) { ?>
+                                <div class="small text-body-secondary px-3 py-2 border-top">The last 200 moves - the Inventory report has them all.</div>
+                            <?php } ?>
+                        <?php } else { ?>
+                            <div class="itflow-asset-empty"><i class="fas fa-warehouse fa-2x mb-2 opacity-50"></i><div>Nothing in or out yet. Receive stock as it comes in.</div></div>
+                        <?php } ?>
+                    </div>
+                    <?php } ?>
 
                     <!-- History -->
                     <div class="tab-pane fade" id="product-pane-history" role="tabpanel">

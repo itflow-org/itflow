@@ -284,18 +284,15 @@ function billingItemSave($type, $doc_id, array $in, $item_id = 0, &$error = '') 
     }
 
     // Stock moves only with invoices, and only for products whose stock is tracked
+    $stock_change = 0;
     if ($type === 'invoice' && $product_id && intval(getFieldById('products', $product_id, 'product_track_stock')) === 1) {
-        $change = round($quantity - ($old ? floatval($old['item_quantity']) : 0), 2);
-        if ($change > 0) {
-            $available = floatval(mysqli_fetch_row(mysqli_query($mysqli, "SELECT COALESCE(SUM(stock_qty), 0) FROM product_stock WHERE stock_product_id = $product_id"))[0]);
-            if ($available < $change) {
+        $stock_change = round($quantity - ($old ? floatval($old['item_quantity']) : 0), 2);
+        if ($stock_change > 0) {
+            $available = productOnHand($product_id);
+            if ($available < $stock_change) {
                 $error = 'Not enough ' . $name . ' in stock - ' . billingQuantity($available) . ' left.';
                 return null;
             }
-        }
-        if ($change != 0) {
-            $note = escapeSql(($change > 0 ? 'QTY ' . billingQuantity($change) . ' to' : 'Returned QTY ' . billingQuantity(-$change) . ' from') . " Invoice $doc_id");
-            mysqli_query($mysqli, "INSERT INTO product_stock SET stock_qty = " . (-$change) . ", stock_note = '$note', stock_product_id = $product_id");
         }
     }
 
@@ -307,6 +304,11 @@ function billingItemSave($type, $doc_id, array $in, $item_id = 0, &$error = '') 
         $order = intval(mysqli_fetch_row(mysqli_query($mysqli, "SELECT COALESCE(MAX(item_order), 0) + 1 FROM {$t['items']} WHERE {$t['item_fk']} = $doc_id"))[0]);
         mysqli_query($mysqli, "INSERT INTO {$t['items']} SET $set, item_order = $order, item_product_id = $product_id, {$t['item_fk']} = $doc_id");
         $item_id = mysqli_insert_id($mysqli);
+    }
+    if ($stock_change != 0) {
+        productStockMove($product_id, -$stock_change, $stock_change > 0 ? 'sold' : 'returned', [
+            'invoice_id' => $doc_id, 'item_id' => $item_id, 'note' => billingNumber('invoice', billingRow('invoice', $doc_id, false)) . ($old ? ' - quantity changed' : ''),
+        ]);
     }
 
     billingRecalc($type, $doc_id);
@@ -326,8 +328,9 @@ function billingItemDelete($type, $doc_id, $item_id) {
     mysqli_query($mysqli, "DELETE FROM {$t['items']} WHERE item_id = $item_id");
     $product_id = intval($item['item_product_id']);
     if ($type === 'invoice' && $product_id && intval(getFieldById('products', $product_id, 'product_track_stock')) === 1 && floatval($item['item_quantity']) > 0) {
-        $quantity = floatval($item['item_quantity']);
-        mysqli_query($mysqli, "INSERT INTO product_stock SET stock_qty = $quantity, stock_note = 'Returned QTY " . billingQuantity($quantity) . " back to stock from Invoice $doc_id', stock_product_id = $product_id");
+        productStockMove($product_id, floatval($item['item_quantity']), 'returned', [
+            'invoice_id' => $doc_id, 'item_id' => $item_id, 'note' => billingNumber('invoice', billingRow('invoice', $doc_id, false)) . ' - line taken off',
+        ]);
     }
     billingRecalc($type, $doc_id);
     return $item;
@@ -1109,20 +1112,32 @@ function quoteGroups(array $quote) {
 
 /**
  * Put lines on a document after the ones already there - their stored
- * amounts as they are. $suffix goes on the end of each description.
+ * amounts as they are, linked to the same products. $suffix goes on the end
+ * of each description. On an invoice, tracked products come off the shelf;
+ * check productStockShortfall() first.
  */
 function billingCopyLines(array $items, $to_type, $to_id, $suffix = '') {
     global $mysqli;
     $t = billingType($to_type);
     $to_id = intval($to_id);
     $order = intval(mysqli_fetch_row(mysqli_query($mysqli, "SELECT COALESCE(MAX(item_order), 0) FROM {$t['items']} WHERE {$t['item_fk']} = $to_id"))[0]);
+    $number = $to_type === 'invoice' ? billingNumber('invoice', billingRow('invoice', $to_id, false)) : '';
     foreach ($items as $item) {
         $order++;
         $name = escapeSql($item['item_name']);
         $description = escapeSql(trim(trim((string) $item['item_description']) . ($suffix !== '' ? "\n$suffix" : '')));
+        $product_id = intval($item['item_product_id'] ?? 0);
+        if ($product_id && !getFieldById('products', $product_id, 'product_id')) {
+            $product_id = 0;
+        }
         mysqli_query($mysqli, "INSERT INTO {$t['items']} SET item_name = '$name', item_description = '$description', item_quantity = " . floatval($item['item_quantity']) . ",
             item_price = " . floatval($item['item_price']) . ", item_subtotal = " . floatval($item['item_subtotal']) . ", item_tax = " . floatval($item['item_tax']) . ",
-            item_total = " . floatval($item['item_total']) . ", item_order = $order, item_tax_id = " . intval($item['item_tax_id']) . ", {$t['item_fk']} = $to_id");
+            item_total = " . floatval($item['item_total']) . ", item_order = $order, item_tax_id = " . intval($item['item_tax_id']) . ", item_product_id = $product_id, {$t['item_fk']} = $to_id");
+        $new_item_id = intval(mysqli_insert_id($mysqli));
+        // On an invoice, a tracked product comes off the shelf - check first with productStockShortfall()
+        if ($to_type === 'invoice' && $product_id && floatval($item['item_quantity']) > 0 && intval(getFieldById('products', $product_id, 'product_track_stock')) === 1) {
+            productStockMove($product_id, -floatval($item['item_quantity']), 'sold', ['invoice_id' => $to_id, 'item_id' => $new_item_id, 'note' => $number]);
+        }
     }
 }
 
@@ -1191,6 +1206,21 @@ function quoteConvert($quote_id, array $opts, &$error = '') {
             $start = $valid_date($choice['start'] ?? '') ?: quoteRecurringStart();
             $plans[$frequency] = ['to' => 0, 'start' => $start, 'auto_send' => intval($choice['auto_send'] ?? 1) ? 1 : 0];
         }
+    }
+
+    // What goes on the invoice has to be on the shelf, for products that track stock
+    $invoice_lines = $groups['']['items'] ?? [];
+    if ($first_period) {
+        foreach ($groups as $frequency => $group) {
+            if ($frequency !== '') {
+                $invoice_lines = array_merge($invoice_lines, $group['items']);
+            }
+        }
+    }
+    $shortfall = productStockShortfall($invoice_lines);
+    if ($shortfall !== '') {
+        $error = "$shortfall Add stock before invoicing $number.";
+        return null;
     }
 
     mysqli_begin_transaction($mysqli);
@@ -1706,9 +1736,11 @@ function recurringInvoiceGenerate($recurring_invoice_id, $by = 'Cron', $early = 
     foreach (billingItems('recurring', $recurring_invoice_id) as $item) {
         $name = escapeSql(recurringInvoiceTokens($item['item_name'], $period));
         $description = escapeSql(recurringInvoiceTokens($item['item_description'], $period));
+        // Linked to its product, so it counts as sold - recurring invoices never move stock
         mysqli_query($mysqli, "INSERT INTO invoice_items SET item_name = '$name', item_description = '$description', item_quantity = " . floatval($item['item_quantity']) . ",
             item_price = " . floatval($item['item_price']) . ", item_subtotal = " . floatval($item['item_subtotal']) . ", item_tax = " . floatval($item['item_tax']) . ",
-            item_total = " . floatval($item['item_total']) . ", item_order = " . intval($item['item_order']) . ", item_tax_id = " . intval($item['item_tax_id']) . ", item_invoice_id = $invoice_id");
+            item_total = " . floatval($item['item_total']) . ", item_order = " . intval($item['item_order']) . ", item_tax_id = " . intval($item['item_tax_id']) . ",
+            item_product_id = " . intval($item['item_product_id']) . ", item_invoice_id = $invoice_id");
     }
     billingRecalc('invoice', $invoice_id);
 

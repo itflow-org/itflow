@@ -108,7 +108,8 @@ function productVendors() {
  *   cost, tax (a tax id), frequency ('' once, month, quarter, year),
  *   seat_source ('' as typed, contacts, assets - only when billed recurring),
  *   code, vendor (one of our vendors), vendor_part, track_stock (products
- *   only), location, description, notes.
+ *   only), reorder_level and reorder_qty (when to buy more, how many),
+ *   location, description, notes.
  * Returns the product id, or 0 with $error.
  */
 function productSave(array $in, $product_id = 0, &$error = '') {
@@ -207,6 +208,22 @@ function productSave(array $in, $product_id = 0, &$error = '') {
         $set[] = 'product_track_stock = ' . ($type === 'product' && $track ? 1 : 0);
     }
 
+    // When to buy more, and how many
+    foreach (['reorder_level' => 'product_reorder_level', 'reorder_qty' => 'product_reorder_qty'] as $key => $column) {
+        if (!$has($key)) {
+            continue;
+        }
+        $raw = trim(str_replace([',', ' '], '', (string) ($in[$key] ?? '')));
+        if ($raw === '') {
+            $raw = '0';
+        }
+        if (!is_numeric($raw) || floatval($raw) < 0 || floatval($raw) >= 1e9) {
+            $error = ($key === 'reorder_level' ? 'Reorder at' : 'Order') . ' has to be a number, zero or more.';
+            return 0;
+        }
+        $set[] = "$column = " . round(floatval($raw), 2);
+    }
+
     foreach (['code' => ['product_code', 200], 'vendor_part' => ['product_vendor_part', 200], 'location' => ['product_location', 250]] as $key => [$column, $length]) {
         if ($has($key)) {
             $value = trim((string) ($in[$key] ?? ''));
@@ -245,6 +262,7 @@ function productCopy($product_id) {
         'price' => $product['product_price'], 'cost' => $product['product_cost'], 'tax' => $product['product_tax_id'],
         'frequency' => $product['product_frequency'], 'seat_source' => $product['product_seat_source'], 'code' => '',
         'vendor' => $product['product_vendor_id'], 'vendor_part' => $product['product_vendor_part'], 'track_stock' => $product['product_track_stock'],
+        'reorder_level' => $product['product_reorder_level'], 'reorder_qty' => $product['product_reorder_qty'],
         'location' => $product['product_location'], 'description' => $product['product_description'], 'notes' => $product['product_notes'],
     ], 0, $error);
 }
@@ -342,21 +360,179 @@ function productHistory($product_id, $limit = 100) {
     return $rows;
 }
 
-/** A product's recent stock moves, newest first, with the expense each came in on. */
+/* ------------------------------------------------------------- Stock ledger */
+
+/** Kinds of stock move => label, icon and tone. */
+function productStockTypes() {
+    return [
+        'received' => ['label' => 'Received', 'icon' => 'fa-dolly', 'tone' => 'success'],
+        'sold' => ['label' => 'Sold', 'icon' => 'fa-file-invoice-dollar', 'tone' => 'primary'],
+        'returned' => ['label' => 'Returned', 'icon' => 'fa-undo', 'tone' => 'info'],
+        'adjusted' => ['label' => 'Counted', 'icon' => 'fa-clipboard-check', 'tone' => 'secondary'],
+        'written_off' => ['label' => 'Written off', 'icon' => 'fa-minus-circle', 'tone' => 'danger'],
+    ];
+}
+
+/** Why stock is written off. */
+function productWriteOffReasons() {
+    return ['Damaged', 'Lost or stolen', 'Used by us', 'Sent back to the vendor', 'Other'];
+}
+
+/** What is on the shelf now. */
+function productOnHand($product_id) {
+    global $mysqli;
+    return round(floatval(mysqli_fetch_row(mysqli_query($mysqli, "SELECT COALESCE(SUM(stock_qty), 0) FROM product_stock WHERE stock_product_id = " . intval($product_id)))[0]), 2);
+}
+
+/** Tracked products at or under their reorder level, or out - in SQL, with products in the FROM. */
+function productReorderSql() {
+    return "(products.product_track_stock = 1 AND products.product_archived_at IS NULL AND " . productStockSql() . " <= GREATEST(products.product_reorder_level, 0))";
+}
+
+/** How many tracked products need ordering. */
+function productReorderCount() {
+    global $mysqli;
+    return intval(mysqli_fetch_row(mysqli_query($mysqli, "SELECT COUNT(*) FROM products WHERE " . productReorderSql()))[0]);
+}
+
+/**
+ * Record a stock move. $qty is signed - in above zero, out below. $type is one
+ * of productStockTypes(). $opts: note (raw), unit_cost (anything but a
+ * delivery takes the product's cost when not given), invoice_id, item_id,
+ * expense_id. Tells
+ * agents when it takes the product to its reorder level or out. The move's id,
+ * or 0 when there is nothing to record.
+ */
+function productStockMove($product_id, $qty, $type, array $opts = []) {
+    global $mysqli, $session_user_id;
+    $product_id = intval($product_id);
+    $qty = round(floatval($qty), 2);
+    if (!$product_id || $qty == 0 || !isset(productStockTypes()[$type])) {
+        return 0;
+    }
+    $before = productOnHand($product_id);
+    $unit_cost = $opts['unit_cost'] ?? null;
+    // What it cost - given for a delivery; anything else is at the product's cost now
+    if (($unit_cost === null || $unit_cost === '') && $type !== 'received') {
+        $unit_cost = getFieldById('products', $product_id, 'product_cost');
+    }
+    $unit_cost = $unit_cost === null || $unit_cost === '' ? 'NULL' : round(floatval($unit_cost), 2);
+    $note = escapeSql(mb_substr(trim((string) ($opts['note'] ?? '')), 0, 1000));
+    $invoice_id = intval($opts['invoice_id'] ?? 0);
+    $item_id = intval($opts['item_id'] ?? 0);
+    $expense_id = intval($opts['expense_id'] ?? 0);
+    $user_id = intval($session_user_id ?? 0);
+    mysqli_query($mysqli, "INSERT INTO product_stock SET stock_qty = $qty, stock_type = '$type', stock_unit_cost = $unit_cost, stock_note = '$note',
+        stock_expense_id = " . ($expense_id ?: 'NULL') . ", stock_invoice_id = $invoice_id, stock_item_id = " . ($item_id ?: 'NULL') . ",
+        stock_user_id = $user_id, stock_product_id = $product_id");
+    $stock_id = intval(mysqli_insert_id($mysqli));
+    productReorderCheck($product_id, $before, round($before + $qty, 2));
+    return $stock_id;
+}
+
+/** Tell agents when stock going out reaches the reorder level, or runs out. */
+function productReorderCheck($product_id, $before, $after) {
+    if ($after >= $before) {
+        return;
+    }
+    $product = productRow($product_id);
+    if (!$product || !intval($product['product_track_stock'])) {
+        return;
+    }
+    $level = floatval($product['product_reorder_level']);
+    $name = $product['product_name'];
+    if ($after <= 0 && $before > 0) {
+        $text = "$name is out of stock";
+    } elseif ($level > 0 && $before > $level && $after <= $level) {
+        $text = "$name is down to " . billingQuantity($after) . " - reorder at " . billingQuantity($level);
+    } else {
+        return;
+    }
+    if (floatval($product['product_reorder_qty']) > 0) {
+        $text .= ', order ' . billingQuantity($product['product_reorder_qty']);
+    }
+    if ($product['vendor_name']) {
+        $text .= ' from ' . $product['vendor_name'];
+    }
+    appNotify('Low Stock', escapeSql($text), 'product.php?product_id=' . intval($product['product_id']), 0, intval($product['product_id']));
+}
+
+/**
+ * Put back what an invoice took off the shelf and still has - when it is
+ * cancelled or deleted. $why is the note, raw. The number of products returned.
+ */
+function productStockReturnInvoice($invoice_id, $why) {
+    global $mysqli;
+    $invoice_id = intval($invoice_id);
+    $returned = 0;
+    $sql = mysqli_query($mysqli, "SELECT stock_product_id, SUM(stock_qty) AS net FROM product_stock WHERE stock_invoice_id = $invoice_id GROUP BY stock_product_id HAVING net < 0");
+    while ($row = mysqli_fetch_assoc($sql)) {
+        if (productStockMove($row['stock_product_id'], -floatval($row['net']), 'returned', ['invoice_id' => $invoice_id, 'note' => $why])) {
+            $returned++;
+        }
+    }
+    return $returned;
+}
+
+/**
+ * Lines about to go on an invoice that take tracked products past what is on
+ * the shelf - the first one as a message, or '' when there is enough of all.
+ */
+function productStockShortfall(array $items) {
+    global $mysqli;
+    $needed = [];
+    foreach ($items as $item) {
+        $id = intval($item['item_product_id'] ?? 0);
+        if ($id && floatval($item['item_quantity']) > 0) {
+            $needed[$id] = ($needed[$id] ?? 0) + floatval($item['item_quantity']);
+        }
+    }
+    if (!$needed) {
+        return '';
+    }
+    $sql = mysqli_query($mysqli, "SELECT product_id, product_name, " . productStockSql() . " AS on_hand FROM products
+        WHERE product_track_stock = 1 AND product_id IN (" . implode(',', array_keys($needed)) . ")");
+    while ($row = mysqli_fetch_assoc($sql)) {
+        $want = round($needed[intval($row['product_id'])], 2);
+        if (floatval($row['on_hand']) < $want) {
+            return 'Not enough ' . $row['product_name'] . ' in stock - ' . billingQuantity($row['on_hand']) . ' left, ' . billingQuantity($want) . ' needed.';
+        }
+    }
+    return '';
+}
+
+/**
+ * A product's stock moves, newest first, with the balance after each, the
+ * invoice or expense behind it and who made it. Invoices of clients the agent
+ * can't open have no link ('invoice_open' 0).
+ */
 function productStockMoves($product_id, $limit = 25) {
     global $mysqli;
     $product_id = intval($product_id);
     $limit = max(1, intval($limit));
+    $balance = productOnHand($product_id);
     $rows = [];
-    $sql = mysqli_query($mysqli, "SELECT stock_id, stock_qty, stock_note, stock_created_at, stock_expense_id, expense_description, expense_date, expense_amount, expense_currency_code
+    $sql = mysqli_query($mysqli, "SELECT stock_id, stock_qty, stock_type, stock_unit_cost, stock_note, stock_created_at, stock_expense_id, stock_invoice_id,
+            expense_description, expense_date, expense_amount, expense_currency_code, invoice_prefix, invoice_number, invoice_client_id, user_name
         FROM product_stock
         LEFT JOIN expenses ON expense_id = stock_expense_id
+        LEFT JOIN invoices ON invoice_id = stock_invoice_id AND stock_invoice_id > 0
+        LEFT JOIN users ON user_id = stock_user_id AND stock_user_id > 0
         WHERE stock_product_id = $product_id
         ORDER BY stock_id DESC LIMIT $limit");
     while ($row = mysqli_fetch_assoc($sql)) {
+        $row['balance'] = $balance;
+        $balance = round($balance - floatval($row['stock_qty']), 2);
+        $row['invoice_open'] = $row['invoice_number'] !== null && hasClientAccess(intval($row['invoice_client_id'])) ? 1 : 0;
         $rows[] = $row;
     }
     return $rows;
+}
+
+/** A move's quantity with its sign - "+4", "-2", "+1.5". */
+function productStockQty($qty) {
+    $qty = floatval($qty);
+    return ($qty > 0 ? '+' : '') . billingQuantity($qty);
 }
 
 /**

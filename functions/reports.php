@@ -101,6 +101,10 @@ function reportCatalog() {
                     'title' => 'Quotes Pipeline', 'icon' => 'fa-comment-dollar', 'module' => 'module_sales', 'feature' => ['accounting'],
                     'description' => 'Open quotes, your win rate, and the value won and lost.',
                 ],
+                'inventory' => [
+                    'title' => 'Inventory', 'icon' => 'fa-warehouse', 'module' => 'module_sales', 'feature' => ['accounting'],
+                    'description' => 'Stock on the shelf and what it is worth, what came in and went out at cost, and what to reorder.',
+                ],
                 'tickets_unbilled' => [
                     'title' => 'Unbilled Work', 'icon' => 'fa-receipt', 'module' => 'module_sales', 'feature' => ['accounting', 'ticketing'],
                     'description' => 'Billable tickets that are done but not invoiced yet, with the time and value on them.',

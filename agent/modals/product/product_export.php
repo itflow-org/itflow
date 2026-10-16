@@ -62,6 +62,7 @@ ob_start();
                     <option <?php if ($type_filter === 'product') { echo "selected"; } ?> value="product">Products</option>
                     <option <?php if ($type_filter === 'recurring') { echo "selected"; } ?> value="recurring">Billed each month, quarter or year</option>
                     <option <?php if ($type_filter === 'stocked') { echo "selected"; } ?> value="stocked">Stock tracked</option>
+                    <option <?php if ($type_filter === 'reorder') { echo "selected"; } ?> value="reorder">To reorder</option>
                 </select>
             </div>
         </div>
