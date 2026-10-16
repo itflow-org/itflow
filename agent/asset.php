@@ -37,7 +37,7 @@ $sql = mysqli_query($mysqli, "SELECT asset_archived_at, asset_client_id, asset_c
     contact_archived_at, contact_email, contact_extension, contact_mobile,
     contact_mobile_country_code, contact_name, contact_phone, contact_phone_country_code, contact_photo,
     interface_ip, interface_ipv6, interface_mac, interface_nat_ip, interface_network_id,
-    location_archived_at, location_name, network_name, vendor_name FROM assets
+    location_archived_at, location_name, network_name, network_type, network_description, vendor_name FROM assets
     LEFT JOIN clients ON client_id = asset_client_id
     LEFT JOIN contacts ON asset_contact_id = contact_id
     LEFT JOIN locations ON asset_location_id = location_id
@@ -92,6 +92,7 @@ if (mysqli_num_rows($sql) == 0) {
     $asset_nat_ip = escapeHtml($row['interface_nat_ip']);
     $asset_mac = escapeHtml($row['interface_mac']);
     $asset_network_id = intval($row['interface_network_id']);
+    $asset_network_type = networkType($row);
     $network_name = escapeHtml($row['network_name']);
     $vendor_name = escapeHtml($row['vendor_name']);
 
@@ -135,43 +136,20 @@ if (mysqli_num_rows($sql) == 0) {
     );
     $recurring_ticket_count = mysqli_num_rows($sql_related_recurring_tickets);
 
-    // Network interfaces, and what each one is plugged into
-    $sql_related_interfaces = mysqli_query($mysqli, "
-        SELECT
-            ai.interface_id,
-            ai.interface_name,
-            ai.interface_description,
-            ai.interface_type,
-            ai.interface_mac,
-            ai.interface_ip,
-            ai.interface_nat_ip,
-            ai.interface_ipv6,
-            ai.interface_primary,
-            n.network_name,
-            n.network_id,
-            connected_interfaces.interface_name AS connected_interface_name,
-            connected_assets.asset_name AS connected_asset_name,
-            connected_assets.asset_id AS connected_asset_id,
-            connected_assets.asset_type AS connected_asset_type
-        FROM asset_interfaces AS ai
-        LEFT JOIN networks AS n
-          ON n.network_id = ai.interface_network_id
-        LEFT JOIN asset_interface_links AS ail
-          ON (ail.interface_a_id = ai.interface_id OR ail.interface_b_id = ai.interface_id)
-        LEFT JOIN asset_interfaces AS connected_interfaces
-          ON (
-              (ail.interface_a_id = ai.interface_id AND ail.interface_b_id = connected_interfaces.interface_id)
-              OR
-              (ail.interface_b_id = ai.interface_id AND ail.interface_a_id = connected_interfaces.interface_id)
-          )
-        LEFT JOIN assets AS connected_assets
-          ON connected_assets.asset_id = connected_interfaces.interface_asset_id
-        WHERE
-            ai.interface_asset_id = $asset_id
-            AND ai.interface_archived_at IS NULL
-        ORDER BY ai.interface_primary DESC, ai.interface_name ASC
-    ");
-    $interface_count = mysqli_num_rows($sql_related_interfaces);
+    // Network interfaces, in port order, and what each one is plugged into (functions/asset_interface.php)
+    $interfaces = [];
+    $sql_related_interfaces = mysqli_query($mysqli, "SELECT asset_interfaces.*, network_name, network, network_type, network_description, network_archived_at
+        FROM asset_interfaces
+        LEFT JOIN networks ON network_id = interface_network_id AND interface_network_id > 0
+        WHERE interface_asset_id = $asset_id AND interface_archived_at IS NULL");
+    while ($row = mysqli_fetch_assoc($sql_related_interfaces)) {
+        $interfaces[intval($row['interface_id'])] = $row;
+    }
+    $interface_links = interfaceLinks(array_keys($interfaces));
+    interfaceSort($interfaces);
+    $interface_count = count($interfaces);
+    // A switch, firewall or access point with a few ports is drawn as its ports too
+    $interface_port_map = in_array(html_entity_decode($asset_type, ENT_QUOTES, 'UTF-8'), INTERFACE_PORT_MAP_TYPES, true) && $interface_count >= 4;
 
     // Files
     $sql_related_files = mysqli_query($mysqli, "SELECT file_created_at, file_description, file_ext, files.file_id, file_name FROM asset_files
@@ -310,7 +288,7 @@ if (mysqli_num_rows($sql) == 0) {
                                     <i class="fa fa-fw fa-key text-secondary me-2"></i>Credential
                                 </a>
                             <?php } ?>
-                            <a class="dropdown-item ajax-modal" href="#" data-modal-url="modals/asset/asset_interface_add.php?&asset_id=<?= $asset_id ?>">
+                            <a class="dropdown-item ajax-modal" href="#" data-modal-size="lg" data-modal-url="modals/asset/asset_interface_add.php?asset_id=<?= $asset_id ?>">
                                 <i class="fa fa-fw fa-ethernet text-secondary me-2"></i>Interface
                             </a>
                             <a class="dropdown-item ajax-modal" href="#" data-modal-size="lg" data-modal-url="modals/software/software_add.php?client_id=<?= $client_id ?>&asset_id=<?= $asset_id ?>">
@@ -412,7 +390,7 @@ if (mysqli_num_rows($sql) == 0) {
                             <?php } ?>
                             <?php if ($network_name) { ?>
                                 <dt>Network</dt>
-                                <dd><a href="network.php?client_id=<?= $client_id ?>&network_id=<?= $asset_network_id ?>"><?= $network_name ?></a></dd>
+                                <dd><?= networkLink($asset_network_id, $network_name, $client_id, ['type' => $asset_network_type]) ?></dd>
                             <?php } ?>
                         </dl>
                     </div>
@@ -532,136 +510,170 @@ if (mysqli_num_rows($sql) == 0) {
                 </div>
                 <div class="tab-content">
 
-                    <!-- Interfaces -->
+                    <!-- Interfaces - a table, and for a switch, firewall or access point its ports drawn as a row -->
                     <div class="tab-pane fade" id="asset-pane-interfaces" role="tabpanel">
                         <div class="itflow-asset-pane-bar">
-                            <span class="text-body-secondary small">Ports and addresses. The primary interface is the one shown on the left.</span>
-                            <?php if ($can_edit) { ?>
-                                <div class="d-flex gap-2">
+                            <span class="text-body-secondary small">Ports, addresses and what each is plugged into. The primary is the address shown on the left.</span>
+                            <div class="d-flex flex-wrap gap-2">
+                                <?php if ($interface_port_map) { ?>
+                                    <div class="btn-group btn-group-sm" role="group" aria-label="Show as">
+                                        <input type="radio" class="btn-check" name="interfaceView" id="interfaceViewPorts" value="ports" autocomplete="off" checked>
+                                        <label class="btn btn-outline-secondary" for="interfaceViewPorts" title="Ports"><i class="fas fa-fw fa-th"></i></label>
+                                        <input type="radio" class="btn-check" name="interfaceView" id="interfaceViewTable" value="table" autocomplete="off">
+                                        <label class="btn btn-outline-secondary" for="interfaceViewTable" title="Table"><i class="fas fa-fw fa-list"></i></label>
+                                    </div>
+                                <?php } ?>
+                                <?php if ($can_edit) { ?>
                                     <div class="dropdown" id="bulkActionButton" hidden>
                                         <button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown">
                                             <i class="fas fa-fw fa-layer-group me-2"></i>Bulk Action (<span id="selectedCount">0</span>)
                                         </button>
                                         <div class="dropdown-menu dropdown-menu-end">
-                                            <a class="dropdown-item ajax-modal" href="#"
-                                                data-modal-url="modals/asset/asset_interface_bulk_edit_network.php?client_id=<?= $client_id ?>"
-                                                data-bulk="true">
-                                                <i class="fas fa-fw fa-network-wired me-2"></i>Assign Network
+                                            <a class="dropdown-item ajax-modal" href="#" data-modal-url="modals/asset/asset_interface_bulk_edit_network.php?client_id=<?= $client_id ?>" data-bulk="true">
+                                                <i class="fas fa-fw fa-network-wired me-2"></i>Network
                                             </a>
-                                            <a class="dropdown-item ajax-modal" href="#"
-                                                data-modal-url="modals/asset/asset_interface_bulk_edit_type.php?client_id=<?= $client_id ?>"
-                                                data-bulk="true">
-                                                <i class="fas fa-fw fa-ethernet me-2"></i>Set Type
+                                            <a class="dropdown-item ajax-modal" href="#" data-modal-url="modals/asset/asset_interface_bulk_edit_vlans.php" data-bulk="true">
+                                                <i class="fas fa-fw fa-layer-group me-2"></i>VLANs
+                                            </a>
+                                            <a class="dropdown-item ajax-modal" href="#" data-modal-url="modals/asset/asset_interface_bulk_edit_type.php?client_id=<?= $client_id ?>" data-bulk="true">
+                                                <i class="fas fa-fw fa-plug me-2"></i>Type
                                             </a>
                                             <button class="dropdown-item" type="submit" form="bulkActions" name="bulk_edit_asset_interface_ip_dhcp">
-                                                <i class="fas fa-fw fa-list-ul me-2"></i>Set to DHCP
+                                                <i class="fas fa-fw fa-random me-2"></i>Set to DHCP
+                                            </button>
+                                            <button class="dropdown-item" type="submit" form="bulkActions" name="bulk_disconnect_asset_interfaces">
+                                                <i class="fas fa-fw fa-unlink me-2"></i>Disconnect
                                             </button>
                                             <?php if ($can_delete) { ?>
                                                 <div class="dropdown-divider"></div>
-                                                <button class="dropdown-item text-danger text-bold confirm-link" type="submit" form="bulkActions" name="bulk_delete_asset_interfaces">
+                                                <button class="dropdown-item text-danger text-bold confirm-link" type="submit" form="bulkActions" name="bulk_delete_asset_interfaces"
+                                                    data-confirm-text="The interfaces go for good, and their connections with them.">
                                                     <i class="fas fa-fw fa-trash me-2"></i>Delete
                                                 </button>
                                             <?php } ?>
                                         </div>
                                     </div>
                                     <div class="btn-group">
-                                        <button type="button" class="btn btn-sm btn-primary ajax-modal" data-modal-url="modals/asset/asset_interface_add.php?&asset_id=<?= $asset_id ?>">
+                                        <button type="button" class="btn btn-sm btn-primary ajax-modal" data-modal-size="lg" data-modal-url="modals/asset/asset_interface_add.php?asset_id=<?= $asset_id ?>">
                                             <i class="fas fa-plus me-2"></i>New Interface
                                         </button>
                                         <button type="button" class="btn btn-sm btn-primary dropdown-toggle dropdown-toggle-split" data-bs-toggle="dropdown"></button>
                                         <div class="dropdown-menu dropdown-menu-end">
-                                            <a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#addMultipleAssetInterfacesModal">
-                                                <i class="fa fa-fw fa-check-double me-2"></i>Add Multiple
+                                            <a class="dropdown-item ajax-modal" href="#" data-modal-url="modals/asset/asset_interface_multiple_add.php?asset_id=<?= $asset_id ?>">
+                                                <i class="fa fa-fw fa-th me-2"></i>Add a run of ports
                                             </a>
-                                            <a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#importAssetInterfaceModal">
+                                            <a class="dropdown-item ajax-modal" href="#" data-modal-url="modals/asset/asset_interface_import.php?asset_id=<?= $asset_id ?>">
                                                 <i class="fa fa-fw fa-upload me-2"></i>Import
                                             </a>
-                                            <a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#exportAssetInterfaceModal">
-                                                <i class="fa fa-fw fa-download me-2"></i>Export
-                                            </a>
+                                            <?php if ($interface_count) { ?>
+                                                <a class="dropdown-item ajax-modal" href="#" data-modal-url="modals/asset/asset_interface_export.php?asset_id=<?= $asset_id ?>">
+                                                    <i class="fa fa-fw fa-download me-2"></i>Export
+                                                </a>
+                                            <?php } ?>
                                         </div>
                                     </div>
-                                </div>
-                            <?php } ?>
+                                <?php } ?>
+                            </div>
                         </div>
-                        <form id="bulkActions" action="post.php" method="post">
+
+                        <?php if ($interface_port_map) { ?>
+                            <!-- The ports as they sit on the front of the box: green is plugged in, blue has an address -->
+                            <div data-interface-view="ports">
+                                <div class="itflow-port-map">
+                                    <?php foreach ($interfaces as $interface_id => $row) {
+                                        $link = $interface_links[$interface_id] ?? null;
+                                        $states = array_filter([$link ? 'is-connected' : '', trim((string) $row['interface_ip']) !== '' ? 'is-addressed' : '', intval($row['interface_primary']) ? 'is-primary' : '']);
+                                        $tip = implode("\n", array_filter([
+                                            $row['interface_name'] . ($row['interface_description'] ? ' - ' . $row['interface_description'] : ''),
+                                            $link ? 'To ' . $link['asset_name'] . ' ' . $link['interface_name'] : 'Not connected',
+                                            $row['network_name'] ? $row['network_name'] . ($row['interface_vlans'] ? ' · VLAN ' . $row['interface_vlans'] : '') : ($row['interface_vlans'] ? 'VLAN ' . $row['interface_vlans'] : ''),
+                                            $row['interface_ip'],
+                                        ])); ?>
+                                        <a href="#" class="itflow-port <?= implode(' ', $states) ?> <?= $can_edit ? 'ajax-modal' : '' ?>" title="<?= escapeHtml($tip) ?>" data-modal-size="lg" data-modal-url="modals/asset/asset_interface_edit.php?id=<?= $interface_id ?>">
+                                            <span class="itflow-port-lamp"></span>
+                                            <span class="itflow-port-name"><?= escapeHtml(preg_match('/(\d+)$/', $row['interface_name'], $m) && strlen($row['interface_name']) > 5 ? $m[1] : $row['interface_name']) ?></span>
+                                        </a>
+                                    <?php } ?>
+                                </div>
+                                <div class="itflow-port-legend">
+                                    <span><span class="itflow-port-lamp" style="background: var(--bs-success); border-color: var(--bs-success)"></span>Connected</span>
+                                    <span><span class="itflow-port-lamp" style="background: var(--bs-info); border-color: var(--bs-info)"></span>Has an address</span>
+                                    <span><span class="itflow-port-lamp"></span>Free</span>
+                                    <span><?= count($interface_links) ?> of <?= $interface_count ?> connected</span>
+                                </div>
+                            </div>
+                        <?php } ?>
+
+                        <form id="bulkActions" action="post.php" method="post" <?= $interface_port_map ? 'data-interface-view="table" hidden' : '' ?>>
                             <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
                             <div class="table-responsive">
                                 <table class="table table-hover align-middle mb-0">
                                     <thead class="text-nowrap table-light <?php if ($interface_count == 0) { echo "d-none"; } ?>">
                                         <tr>
-                                            <th class="checkbox-column border-end">
-                                                <div class="form-check">
-                                                    <input class="form-check-input" id="selectAllCheckbox" type="checkbox" onclick="checkAll(this)" onkeydown="checkAll(this)" title="Select all">
-                                                </div>
-                                            </th>
-                                            <th>Name / Port</th>
-                                            <th>Type</th>
+                                            <?php if ($can_edit) { ?>
+                                                <th class="checkbox-column border-end">
+                                                    <div class="form-check">
+                                                        <input class="form-check-input" id="selectAllCheckbox" type="checkbox" onclick="checkAll(this)" title="Select all">
+                                                    </div>
+                                                </th>
+                                            <?php } ?>
+                                            <th>Interface</th>
                                             <th>Network</th>
-                                            <th>IP</th>
-                                            <th>MAC</th>
-                                            <th>Connected To</th>
+                                            <th>Address</th>
+                                            <th class="d-none d-xl-table-cell">MAC</th>
+                                            <th>Connected to</th>
                                             <th></th>
                                         </tr>
                                     </thead>
                                     <tbody>
-                                    <?php while ($row = mysqli_fetch_assoc($sql_related_interfaces)) {
-                                        $interface_id = intval($row['interface_id']);
-                                        $interface_name = escapeHtml($row['interface_name']);
-                                        $interface_description = escapeHtml($row['interface_description']);
-                                        $interface_type = escapeHtml($row['interface_type']);
-                                        $interface_mac = escapeHtml($row['interface_mac']);
-                                        $interface_ip = escapeHtml($row['interface_ip']);
-                                        $interface_nat_ip = escapeHtml($row['interface_nat_ip']);
-                                        $interface_ipv6 = escapeHtml($row['interface_ipv6']);
+                                    <?php foreach ($interfaces as $interface_id => $row) {
+                                        $link = $interface_links[$interface_id] ?? null;
                                         $interface_primary = intval($row['interface_primary']);
-                                        $interface_network_id = intval($row['network_id']);
-                                        $interface_network_name = escapeHtml($row['network_name']);
-                                        $connected_asset_id = intval($row['connected_asset_id']);
-                                        $connected_asset_name = escapeHtml($row['connected_asset_name']);
-                                        $connected_asset_icon = getAssetIcon($row['connected_asset_type']);
-                                        $connected_interface_name = escapeHtml($row['connected_interface_name']);
-                                        ?>
+                                        $ip = normalizeIpAddress((string) $row['interface_ip']);
+                                        $outside = $ip !== false && $row['network'] && networkSubnetInfo($row['network']) && !isIpInSubnet($ip, $row['network']);
+                                        $details = implode(' · ', array_filter([$row['interface_type'], $row['interface_description']])); ?>
                                         <tr>
-                                            <td class="checkbox-column bg-light border-end">
-                                                <div class="form-check">
-                                                    <input class="form-check-input bulk-select" type="checkbox" name="interface_ids[]" value="<?= $interface_id ?>" aria-label="Select <?= $interface_name ?>">
-                                                </div>
-                                            </td>
-                                            <td>
-                                                <a class="text-body fw-semibold ajax-modal" href="#" data-modal-url="modals/asset/asset_interface_edit.php?id=<?= $interface_id ?>"><?= $interface_name ?></a>
+                                            <?php if ($can_edit) { ?>
+                                                <td class="checkbox-column bg-light border-end">
+                                                    <div class="form-check">
+                                                        <input class="form-check-input bulk-select" type="checkbox" name="interface_ids[]" value="<?= $interface_id ?>" aria-label="Select <?= escapeHtml($row['interface_name']) ?>">
+                                                    </div>
+                                                </td>
+                                            <?php } ?>
+                                            <td class="itflow-iface-cell">
+                                                <?php if ($can_edit) { ?>
+                                                    <a class="text-body fw-semibold ajax-modal" href="#" data-modal-size="lg" data-modal-url="modals/asset/asset_interface_edit.php?id=<?= $interface_id ?>"><?= escapeHtml($row['interface_name']) ?></a>
+                                                <?php } else { ?>
+                                                    <span class="fw-semibold"><?= escapeHtml($row['interface_name']) ?></span>
+                                                <?php } ?>
                                                 <?php if ($interface_primary) { ?><span class="badge rounded-pill text-bg-primary fw-normal ms-1">Primary</span><?php } ?>
-                                                <?php if ($interface_description) { ?><div class="small text-body-secondary"><?= $interface_description ?></div><?php } ?>
-                                            </td>
-                                            <td><?= $interface_type ?: '<span class="text-body-secondary">-</span>' ?></td>
-                                            <td>
-                                                <?php if ($interface_network_name) { ?>
-                                                    <a href="network.php?client_id=<?= $client_id ?>&network_id=<?= $interface_network_id ?>"><?= $interface_network_name ?></a>
-                                                <?php } else { ?>
-                                                    <span class="text-body-secondary">-</span>
-                                                <?php } ?>
-                                            </td>
-                                            <td class="text-nowrap">
-                                                <?php if ($interface_ip) { ?>
-                                                    <span class="font-monospace"><?= $interface_ip ?></span><?php if ($interface_ip !== 'DHCP') { ?><button type="button" class="itflow-copy clipboardjs" title="Copy IP" data-clipboard-text="<?= $interface_ip ?>"><i class="far fa-copy"></i></button><?php } ?>
-                                                <?php } else { ?>
-                                                    <span class="text-body-secondary">-</span>
-                                                <?php } ?>
-                                                <?php if ($interface_nat_ip) { ?><div class="small text-body-secondary font-monospace">NAT <?= $interface_nat_ip ?></div><?php } ?>
-                                                <?php if ($interface_ipv6) { ?><div class="small text-body-secondary font-monospace"><?= $interface_ipv6 ?></div><?php } ?>
-                                            </td>
-                                            <td class="text-nowrap">
-                                                <?php if ($interface_mac) { ?>
-                                                    <span class="font-monospace"><?= $interface_mac ?></span><button type="button" class="itflow-copy clipboardjs" title="Copy MAC" data-clipboard-text="<?= $interface_mac ?>"><i class="far fa-copy"></i></button>
-                                                <?php } else { ?>
-                                                    <span class="text-body-secondary">-</span>
-                                                <?php } ?>
+                                                <?php if ($details !== '') { ?><div class="small text-body-secondary"><?= escapeHtml($details) ?></div><?php } ?>
                                             </td>
                                             <td>
-                                                <?php if ($connected_asset_name) { ?>
-                                                    <a class="ajax-modal" href="#" data-modal-size="lg" data-modal-url="modals/asset/asset.php?id=<?= $connected_asset_id ?>">
-                                                        <i class="fas fa-fw fa-<?= $connected_asset_icon ?> me-1"></i><?= $connected_asset_name ?></a>
-                                                    <span class="text-body-secondary">&middot; <?= $connected_interface_name ?></span>
+                                                <?php if ($row['network_name']) { ?>
+                                                    <?= networkLink($row['interface_network_id'], $row['network_name'], $client_id, ['type' => networkType($row), 'archived' => !empty($row['network_archived_at'])]) ?>
+                                                <?php } elseif (!$row['interface_vlans']) { ?>
+                                                    <span class="text-body-secondary">-</span>
+                                                <?php } ?>
+                                                <?php if ($row['interface_vlans']) { ?><div><span class="itflow-net-vlan" title="VLANs">VLAN <?= escapeHtml($row['interface_vlans']) ?></span></div><?php } ?>
+                                            </td>
+                                            <td class="text-nowrap">
+                                                <?= interfaceIpHtml($row['interface_ip']) ?><?php if ($ip !== false) { ?><button type="button" class="itflow-copy clipboardjs" title="Copy IP" data-clipboard-text="<?= escapeHtml($ip) ?>"><i class="far fa-copy"></i></button><?php } ?>
+                                                <?php if ($outside) { ?><div class="small text-warning-emphasis"><i class="fas fa-exclamation-triangle me-1"></i>Outside <?= escapeHtml($row['network']) ?></div><?php } ?>
+                                                <?php if ($row['interface_nat_ip']) { ?><div class="small text-body-secondary font-monospace">NAT <?= escapeHtml($row['interface_nat_ip']) ?></div><?php } ?>
+                                                <?php if ($row['interface_ipv6']) { ?><div class="small text-body-secondary font-monospace"><?= escapeHtml($row['interface_ipv6']) ?></div><?php } ?>
+                                            </td>
+                                            <td class="text-nowrap d-none d-xl-table-cell">
+                                                <?php if ($row['interface_mac']) { ?>
+                                                    <span class="font-monospace small"><?= escapeHtml($row['interface_mac']) ?></span><button type="button" class="itflow-copy clipboardjs" title="Copy MAC" data-clipboard-text="<?= escapeHtml($row['interface_mac']) ?>"><i class="far fa-copy"></i></button>
+                                                <?php } else { ?>
+                                                    <span class="text-body-secondary">-</span>
+                                                <?php } ?>
+                                            </td>
+                                            <td class="small">
+                                                <?php if ($link) { ?>
+                                                    <?= interfaceAssetRef($link['asset_id'], $link['asset_name'], $link['asset_type'], !empty($link['asset_archived_at'])) ?>
+                                                    <span class="text-body-secondary text-nowrap"><i class="fas fa-ethernet fa-fw opacity-75"></i><?= escapeHtml($link['interface_name']) ?></span>
                                                 <?php } else { ?>
                                                     <span class="text-body-secondary">-</span>
                                                 <?php } ?>
@@ -673,12 +685,30 @@ if (mysqli_num_rows($sql) == 0) {
                                                             <i class="fas fa-fw fa-ellipsis-v"></i>
                                                         </button>
                                                         <div class="dropdown-menu">
-                                                            <a class="dropdown-item ajax-modal" href="#" data-modal-url="modals/asset/asset_interface_edit.php?id=<?= $interface_id ?>">
+                                                            <a class="dropdown-item ajax-modal" href="#" data-modal-size="lg" data-modal-url="modals/asset/asset_interface_edit.php?id=<?= $interface_id ?>">
                                                                 <i class="fas fa-fw fa-edit text-secondary me-2"></i>Edit
                                                             </a>
+                                                            <?php if (!$interface_primary) { ?>
+                                                                <a class="dropdown-item" href="post.php?primary_asset_interface=<?= $interface_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>">
+                                                                    <i class="fas fa-fw fa-star text-secondary me-2"></i>Make primary
+                                                                </a>
+                                                            <?php } ?>
+                                                            <?php if ($link) { ?>
+                                                                <a class="dropdown-item confirm-link" href="post.php?disconnect_asset_interface=<?= $interface_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>"
+                                                                    data-confirm-title="Disconnect <?= escapeHtml($row['interface_name']) ?>?" data-confirm-button="Disconnect"
+                                                                    data-confirm-text="It is no longer shown as plugged into <?= escapeHtml($link['asset_name'] . ' ' . $link['interface_name']) ?>.">
+                                                                    <i class="fas fa-fw fa-unlink text-secondary me-2"></i>Disconnect
+                                                                </a>
+                                                            <?php } ?>
+                                                            <?php if ($row['interface_network_id'] && $ip !== false) { ?>
+                                                                <a class="dropdown-item" href="<?= escapeHtml(networkUrl($row['interface_network_id'], $client_id)) ?>#addresses">
+                                                                    <i class="fas fa-fw fa-list-ol text-secondary me-2"></i>On the address plan
+                                                                </a>
+                                                            <?php } ?>
                                                             <?php if ($can_delete && !$interface_primary) { ?>
                                                                 <div class="dropdown-divider"></div>
-                                                                <a class="dropdown-item text-danger text-bold confirm-link" href="post.php?delete_asset_interface=<?= $interface_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>">
+                                                                <a class="dropdown-item text-danger text-bold confirm-link" href="post.php?delete_asset_interface=<?= $interface_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>"
+                                                                    data-confirm-text="<?= escapeHtml($row['interface_name']) ?> goes for good<?= $link ? ', and its connection with it' : '' ?>.">
                                                                     <i class="fas fa-fw fa-trash me-2"></i>Delete
                                                                 </a>
                                                             <?php } ?>
@@ -693,7 +723,7 @@ if (mysqli_num_rows($sql) == 0) {
                             </div>
                         </form>
                         <?php if (!$interface_count) { ?>
-                            <div class="itflow-asset-empty">No interfaces yet.</div>
+                            <div class="itflow-asset-empty">No interfaces yet<?= $can_edit ? ' - add its ports, or one for its network card' : '' ?>.</div>
                         <?php } ?>
                     </div>
 
@@ -1036,13 +1066,31 @@ if (mysqli_num_rows($sql) == 0) {
 
     </div>
 
-    <?php
-    require_once "modals/asset/asset_interface_multiple_add.php";
-    require_once "modals/asset/asset_interface_import.php";
-    require_once "modals/asset/asset_interface_export.php";
-    ?>
 
     <script>
+        // Interfaces as ports or as a table - remembered between visits
+        (function () {
+            var radios = document.querySelectorAll('input[name="interfaceView"]');
+            if (!radios.length) {
+                return;
+            }
+            function show(view) {
+                document.querySelectorAll('[data-interface-view]').forEach(function (box) {
+                    box.hidden = box.getAttribute('data-interface-view') !== view;
+                });
+                document.getElementById(view === 'table' ? 'interfaceViewTable' : 'interfaceViewPorts').checked = true;
+            }
+            var saved = '';
+            try { saved = localStorage.getItem('itflow.interfaceView') || ''; } catch (e) {}
+            show(saved === 'table' ? 'table' : 'ports');
+            radios.forEach(function (radio) {
+                radio.addEventListener('change', function () {
+                    show(radio.value);
+                    try { localStorage.setItem('itflow.interfaceView', radio.value); } catch (e) {}
+                });
+            });
+        })();
+
         function updateAssetNotes(asset_id) {
             itflowPost("ajax.php", {
                 asset_set_notes: 'TRUE',

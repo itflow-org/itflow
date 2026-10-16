@@ -241,6 +241,7 @@ CREATE TABLE `asset_interfaces` (
   `interface_ip` varchar(200) DEFAULT NULL,
   `interface_nat_ip` varchar(200) DEFAULT NULL,
   `interface_ipv6` varchar(200) DEFAULT NULL,
+  `interface_vlans` varchar(200) DEFAULT NULL,
   `interface_notes` text DEFAULT NULL,
   `interface_primary` tinyint(1) DEFAULT 0,
   `interface_created_at` datetime NOT NULL DEFAULT current_timestamp(),
@@ -250,6 +251,7 @@ CREATE TABLE `asset_interfaces` (
   `interface_asset_id` int(11) NOT NULL,
   PRIMARY KEY (`interface_id`),
   KEY `interface_asset_id` (`interface_asset_id`),
+  KEY `interface_network_id` (`interface_network_id`),
   CONSTRAINT `asset_interfaces_ibfk_1` FOREIGN KEY (`interface_asset_id`) REFERENCES `assets` (`asset_id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -1612,7 +1614,9 @@ DROP TABLE IF EXISTS `network_ips`;
 CREATE TABLE `network_ips` (
   `ip_id` int(11) NOT NULL AUTO_INCREMENT,
   `ip_address` varchar(45) NOT NULL,
+  `ip_type` varchar(30) NOT NULL DEFAULT 'Static',
   `ip_hostname` varchar(200) DEFAULT NULL,
+  `ip_mac` varchar(200) DEFAULT NULL,
   `ip_description` varchar(200) DEFAULT NULL,
   `ip_created_at` datetime NOT NULL DEFAULT current_timestamp(),
   `ip_updated_at` datetime DEFAULT NULL ON UPDATE current_timestamp(),
@@ -1634,6 +1638,7 @@ CREATE TABLE `networks` (
   `network_id` int(11) NOT NULL AUTO_INCREMENT,
   `network_name` varchar(200) NOT NULL,
   `network_description` text DEFAULT NULL,
+  `network_type` varchar(50) DEFAULT NULL,
   `network_vlan` int(11) DEFAULT NULL,
   `network` varchar(200) NOT NULL,
   `network_subnet` varchar(200) DEFAULT NULL,
@@ -1648,9 +1653,11 @@ CREATE TABLE `networks` (
   `network_archived_at` datetime DEFAULT NULL,
   `network_accessed_at` datetime DEFAULT NULL,
   `network_location_id` int(11) NOT NULL DEFAULT 0,
+  `network_vendor_id` int(11) NOT NULL DEFAULT 0,
   `network_client_id` int(11) NOT NULL DEFAULT 0,
   PRIMARY KEY (`network_id`),
-  KEY `network_client_id` (`network_client_id`,`network_archived_at`)
+  KEY `network_client_id` (`network_client_id`,`network_archived_at`),
+  KEY `network_location_id` (`network_location_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 

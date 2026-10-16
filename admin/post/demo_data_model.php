@@ -1260,9 +1260,9 @@ function demoBuildClient($mysqli, $profile, $index, $context, &$counts) {
         $network_ids[$network[0]] = starterInsert($mysqli, 'networks', [
             'network_name' => $network[0],
             'network_description' => $network[1],
+            'network_type' => $network[9] ?? networkGuessType($network[0], $network[1]),
             'network_vlan' => $network[2],
             'network' => $network[3],
-            'network_subnet' => '24',
             'network_gateway' => $network[4],
             'network_primary_dns' => $network[5],
             'network_secondary_dns' => $network[6],
@@ -1277,11 +1277,41 @@ function demoBuildClient($mysqli, $profile, $index, $context, &$counts) {
     }
     $primary_network_id = reset($network_ids) ?: 0;
 
+    // The internet connection, from the client's ISP - a /29 of public
+    // addresses (documentation range), the provider's router on the first
+    $wan = null;
+    $fleet = $profile['fleet'] ?? [];
+    foreach ($profile['vendors'] as $vendor_index => $vendor) {
+        if (!empty($fleet['Firewall/Router']) && preg_match('/internet|fibre|fiber|circuit|broadband|connect|cable/i', $vendor[0] . ' ' . $vendor[1])) {
+            $block = '203.0.113.' . (($index % 32) * 8);
+            $wan = ['base' => substr($block, 0, strrpos($block, '.')), 'first' => ($index % 32) * 8 + 1, 'vendor' => $vendor[0]];
+            $network_ids['Internet'] = starterInsert($mysqli, 'networks', [
+                'network_name' => 'Internet - ' . $vendor[0],
+                'network_description' => $vendor[1],
+                'network_type' => 'WAN',
+                'network' => $block . '/29',
+                'network_gateway' => $wan['base'] . '.' . $wan['first'],
+                'network_primary_dns' => '1.1.1.1',
+                'network_secondary_dns' => '8.8.8.8',
+                'network_dhcp_range' => '',
+                'network_notes' => 'Five usable static addresses. The first is the provider\'s router; the firewall WAN has the next one. Call the provider with the account number before touching the router.',
+                'network_location_id' => $primary_location_id,
+                'network_vendor_id' => $vendor_ids[$vendor_index] ?? 0,
+                'network_client_id' => $client_id,
+                'network_created_at' => demoMonthDateTime($months, 6, 14, 20),
+                'network_accessed_at' => demoDateTime($index % 13, 10, 5),
+            ]);
+            $counts['documentation']++;
+            break;
+        }
+    }
+
     // Assets, and the rack the infrastructure sits in
     $assets = demoBuildAssets($mysqli, $profile, $index, $client_id, $primary_location_id, $contact_ids, $primary_vendor_id, $network_ids, $months, $user_id, $counts);
     demoBuildRack($mysqli, $profile, $client_id, $primary_location_id, $assets, $months, $counts);
     demoBuildNetworkIps($mysqli, $profile, $assets, $network_ids, $counts);
     demoBuildPatchPanel($mysqli, $profile, $assets, $network_ids, $months, $counts);
+    demoBuildWan($mysqli, $profile, $assets, $network_ids, $wan, $months, $counts);
 
     // Domain, DNS and the certificate on it. Half renew by themselves; the
     // email records vary so the Email checks have something to say - DMARC
@@ -1870,6 +1900,7 @@ function demoBuildAssets($mysqli, $profile, $index, $client_id, $location_id, $c
                 'os' => $model[2],
                 'contact_id' => $contact_id,
                 'ip' => $ip,
+                'mac' => $interface_id ? demoMacAddress($profile['abbreviation'] . $asset_type . $number . 'mgmt') : null,
                 'interface_id' => $interface_id,
                 'install_months_ago' => $purchase_months,
                 'credential' => demoAssetCredentialName($asset_type),
@@ -1989,10 +2020,15 @@ function demoBuildPatchPanel($mysqli, $profile, $assets, $network_ids, $months, 
     $ports = [];
 
     for ($port = 1; $port <= $port_count; $port++) {
+        // Access ports on the office VLAN; the uplink carries every VLAN to the firewall
+        $trunk = array_unique(array_merge([1], array_filter(array_column($profile['networks'], 2))));
+        sort($trunk);
+        $vlans = $port === $port_count ? 'Trunk ' . implode(', ', $trunk) : (string) ($profile['networks'][0][2] ?? '');
         $ports[$port] = starterInsert($mysqli, 'asset_interfaces', [
             'interface_name' => 'Gi1/0/' . $port,
             'interface_description' => $port === $port_count ? 'Uplink to the edge firewall' : 'Access port',
             'interface_type' => 'Ethernet',
+            'interface_vlans' => $vlans,
             'interface_primary' => 0,
             'interface_network_id' => $network_id,
             'interface_asset_id' => $switch['id'],
@@ -2019,6 +2055,65 @@ function demoBuildPatchPanel($mysqli, $profile, $assets, $network_ids, $months, 
 }
 
 // ------------------------------
+// demoBuildWan
+// The edge firewall's WAN port on the internet connection, with the two
+// public addresses written down - the provider's router and the firewall.
+// ------------------------------
+function demoBuildWan($mysqli, $profile, $assets, $network_ids, $wan, $months, &$counts) {
+
+    $network_id = $network_ids['Internet'] ?? 0;
+    if (!$network_id || !$wan) {
+        return;
+    }
+    $firewall = null;
+    foreach ($assets as $asset) {
+        if ($asset['type'] === 'Firewall/Router') {
+            $firewall = $asset;
+            break;
+        }
+    }
+
+    $router_ip = $wan['base'] . '.' . $wan['first'];
+    $wan_ip = $wan['base'] . '.' . ($wan['first'] + 1);
+
+    starterInsert($mysqli, 'network_ips', [
+        'ip_address' => $router_ip,
+        'ip_type' => 'Static',
+        'ip_hostname' => 'isp-router',
+        'ip_description' => $wan['vendor'] . ' router - theirs, not ours',
+        'ip_network_id' => $network_id,
+    ]);
+    $counts['documentation']++;
+
+    if (!$firewall) {
+        return;
+    }
+
+    $mac = demoMacAddress($profile['abbreviation'] . 'wan' . $firewall['name']);
+    starterInsert($mysqli, 'asset_interfaces', [
+        'interface_name' => 'WAN',
+        'interface_description' => 'Internet - ' . $wan['vendor'],
+        'interface_type' => 'Ethernet',
+        'interface_mac' => $mac,
+        'interface_ip' => $wan_ip,
+        'interface_primary' => 0,
+        'interface_network_id' => $network_id,
+        'interface_asset_id' => $firewall['id'],
+        'interface_created_at' => demoMonthDateTime(min($months, $firewall['install_months_ago']), 15, 12, 6),
+    ]);
+    starterInsert($mysqli, 'network_ips', [
+        'ip_address' => $wan_ip,
+        'ip_type' => 'Static',
+        'ip_hostname' => $firewall['name'],
+        'ip_mac' => $mac,
+        'ip_description' => 'Firewall WAN - VPN and published services land here',
+        'ip_network_id' => $network_id,
+    ]);
+    $counts['documentation'] += 2;
+
+}
+
+// ------------------------------
 // demoBuildNetworkIps
 // Static IP documentation for the kit on the office network, plus the reserved
 // addresses at the top of the range an MSP would write down.
@@ -2035,6 +2130,7 @@ function demoBuildNetworkIps($mysqli, $profile, $assets, $network_ids, &$counts)
 
     starterInsert($mysqli, 'network_ips', [
         'ip_address' => $base . '.1',
+        'ip_type' => 'Static',
         'ip_hostname' => $profile['abbreviation'] . '-FW-01',
         'ip_description' => 'Default gateway',
         'ip_network_id' => $network_id,
@@ -2047,17 +2143,38 @@ function demoBuildNetworkIps($mysqli, $profile, $assets, $network_ids, &$counts)
         }
         starterInsert($mysqli, 'network_ips', [
             'ip_address' => $asset['ip'],
+            'ip_type' => 'Static',
             'ip_hostname' => $asset['name'],
+            'ip_mac' => $asset['mac'] ?? null,
             'ip_description' => $asset['make'] . ' ' . $asset['model'],
             'ip_network_id' => $network_id,
         ]);
         $counts['documentation']++;
     }
 
+    // The printers get their addresses from DHCP, pinned by reservation
+    $printer_number = 0;
+    foreach ($assets as $asset) {
+        if ($asset['type'] !== 'Printer' || $printer_number >= 3) {
+            continue;
+        }
+        starterInsert($mysqli, 'network_ips', [
+            'ip_address' => $base . '.' . (60 + $printer_number),
+            'ip_type' => 'Reservation',
+            'ip_hostname' => $asset['name'],
+            'ip_mac' => demoMacAddress($profile['abbreviation'] . $asset['name'] . 'dhcp'),
+            'ip_description' => $asset['make'] . ' ' . $asset['model'],
+            'ip_network_id' => $network_id,
+        ]);
+        $printer_number++;
+        $counts['documentation']++;
+    }
+
     starterInsert($mysqli, 'network_ips', [
         'ip_address' => $base . '.240',
+        'ip_type' => 'Reserved',
         'ip_hostname' => 'reserved-printers',
-        'ip_description' => 'Static reservations for printers and label writers',
+        'ip_description' => 'Held back for printers and label writers set by hand',
         'ip_network_id' => $network_id,
     ]);
     $counts['documentation']++;
@@ -4689,15 +4806,17 @@ function demoExpandProfile($spec) {
     }
 
     // Networks
+    // Name, description, VLAN, subnet, gateway, DNS, DNS, DHCP range, notes, type -
+    // the internet connection is added per client from its ISP (demoBuildClient)
     $networks = [
-        ['Office LAN', 'Staff workstations, printers and handsets', 10, '192.168.10.0', '192.168.10.1', '192.168.10.1', '1.1.1.1', '192.168.10.50 - 192.168.10.220', 'Static addressing above .240 is reserved and documented in the IP list.'],
-        ['Guest Wireless', 'Isolated guest access - no route to the office LAN', 40, '192.168.40.0', '192.168.40.1', '1.1.1.1', '9.9.9.9', '192.168.40.20 - 192.168.40.200', 'Client isolation is on. Password is rotated at each quarterly visit.'],
+        ['Office LAN', 'Staff workstations, printers and handsets', 10, '192.168.10.0/24', '192.168.10.1', '192.168.10.1', '1.1.1.1', '192.168.10.50 - 192.168.10.220', 'Static addressing above .240 is reserved and documented in the IP list.', 'LAN'],
+        ['Guest Wireless', 'Isolated guest access - no route to the office LAN', 40, '192.168.40.0/24', '192.168.40.1', '1.1.1.1', '9.9.9.9', '192.168.40.20 - 192.168.40.200', 'Client isolation is on. Password is rotated at each quarterly visit.', 'Guest'],
     ];
     if ($servers > 1) {
-        $networks[] = ['Server VLAN', 'Hypervisors, storage and management interfaces', 20, '192.168.20.0', '192.168.20.1', '192.168.20.1', '1.1.1.1', 'Static addressing only', 'No DHCP. Every address here is recorded against the asset.'];
+        $networks[] = ['Server VLAN', 'Hypervisors, storage and management interfaces', 20, '192.168.20.0/24', '192.168.20.1', '192.168.20.1', '1.1.1.1', 'Static addressing only', 'No DHCP. Every address here is recorded against the asset.', 'Servers'];
     }
     if (in_array($spec['type'], ['Manufacturing', 'Logistics'])) {
-        $networks[] = ['Equipment VLAN', 'Shop floor and warehouse equipment - no internet access', 30, '192.168.30.0', '192.168.30.1', '192.168.30.1', '1.1.1.1', '192.168.30.40 - 192.168.30.240', 'Outbound internet is blocked at the firewall by design. Do not "fix" this.'];
+        $networks[] = ['Equipment VLAN', 'Shop floor and warehouse equipment - no internet access', 30, '192.168.30.0/24', '192.168.30.1', '192.168.30.1', '1.1.1.1', '192.168.30.40 - 192.168.30.240', 'Outbound internet is blocked at the firewall by design. Do not "fix" this.', 'IoT'];
     }
 
     // Credentials - names line up with demoAssetCredentialName so the vault

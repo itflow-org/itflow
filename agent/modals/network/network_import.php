@@ -17,7 +17,8 @@ ob_start();
     <input type="hidden" name="client_id" value="<?= $client_id ?>">
 
     <div class="modal-body">
-        <p><strong>Format csv file with headings &amp; data:</strong><br>Name, Description, VLAN, Network (CIDR), Gateway, IP Range, Primary DNS, Secondary DNS</p>
+        <p><strong>Format csv file with headings &amp; data:</strong><br>Name, Description, VLAN, Network (CIDR), Gateway, IP Range, Primary DNS, Secondary DNS, Type</p>
+        <p class="text-secondary mb-0">An export opens straight back in. Type may be left off - it is taken from the name ("Guest Wireless" is Guest). Each row is checked like New Network: a real subnet, the gateway and range inside it.</p>
         <hr>
         <div class="mb-3 my-4">
             <input type="file" class="form-control" name="file" accept=".csv" required>

@@ -60,11 +60,11 @@ if (!$service || ($client_url && intval($service['service_client_id']) !== intva
     // What it runs on - each with its address, network, site and warranty
     $assets = [];
     $sql = mysqli_query($mysqli, "SELECT assets.asset_id, asset_name, asset_type, asset_make, asset_model, asset_status, asset_warranty_expire, asset_archived_at,
-            asset_contact_id, asset_location_id, interface_ip, network_name, network_vlan, location_name, contact_name, contact_photo
+            asset_contact_id, asset_location_id, interface_ip, interface_network_id, network_name, network_type, network_vlan, location_name, contact_name, contact_photo
         FROM service_assets
         JOIN assets ON assets.asset_id = service_assets.asset_id
         LEFT JOIN asset_interfaces ON interface_asset_id = assets.asset_id AND interface_primary = 1
-        LEFT JOIN networks ON network_id = interface_network_id
+        LEFT JOIN networks ON network_id = interface_network_id AND interface_network_id > 0
         LEFT JOIN locations ON location_id = asset_location_id
         LEFT JOIN contacts ON contact_id = asset_contact_id
         WHERE service_assets.service_id = $service_id
@@ -72,7 +72,13 @@ if (!$service || ($client_url && intval($service['service_client_id']) !== intva
     while ($row = mysqli_fetch_assoc($sql)) {
         $assets[] = $row;
     }
-    $networks = array_unique(array_filter(array_column(array_filter($assets, function ($a) { return !$a['asset_archived_at']; }), 'network_name')));
+    // The networks it is on, each once - linked to their pages
+    $networks = [];
+    foreach ($assets as $asset_row) {
+        if (!$asset_row['asset_archived_at'] && $asset_row['network_name']) {
+            $networks[intval($asset_row['interface_network_id'])] = networkLink($asset_row['interface_network_id'], $asset_row['network_name'], $client_id, ['type' => networkType($asset_row)]);
+        }
+    }
     $sites = array_unique(array_filter(array_column(array_filter($assets, function ($a) { return !$a['asset_archived_at']; }), 'location_name')));
 
     // Its logins, and the ones on the assets it runs on
@@ -285,7 +291,7 @@ if (!$service || ($client_url && intval($service['service_client_id']) !== intva
                             <dt>Where</dt>
                             <dd>
                                 <?php if ($sites) { ?><div><i class="fas fa-fw fa-map-marker-alt text-secondary me-1"></i><?= escapeHtml(implode(', ', $sites)) ?></div><?php } ?>
-                                <?php if ($networks) { ?><div><i class="fas fa-fw fa-network-wired text-secondary me-1"></i><?= escapeHtml(implode(', ', $networks)) ?></div><?php } ?>
+                                <?php if ($networks) { ?><div class="d-flex flex-wrap column-gap-3"><?= implode('', $networks) ?></div><?php } ?>
                             </dd>
                         <?php } ?>
                         <dt>Added</dt><dd title="<?= escapeHtml($service['service_created_at']) ?>"><?= timeAgo($service['service_created_at']) ?></dd>
@@ -449,7 +455,7 @@ if (!$service || ($client_url && intval($service['service_client_id']) !== intva
                                                 <?php if ($asset['interface_ip']) { ?>
                                                     <span class="font-monospace"><?= escapeHtml($asset['interface_ip']) ?></span><button type="button" class="itflow-copy clipboardjs" title="Copy address" data-clipboard-text="<?= escapeHtml($asset['interface_ip']) ?>"><i class="far fa-copy"></i></button>
                                                 <?php } ?>
-                                                <?php if ($asset['network_name']) { ?><div class="text-body-secondary"><?= escapeHtml($asset['network_name']) ?><?= $asset['network_vlan'] ? ' · VLAN ' . escapeHtml($asset['network_vlan']) : '' ?></div><?php } ?>
+                                                <?php if ($asset['network_name']) { ?><div class="text-body-secondary"><?= networkLink($asset['interface_network_id'], $asset['network_name'], $client_id, ['type' => networkType($asset), 'class' => 'text-reset']) ?><?= $asset['network_vlan'] ? ' · VLAN ' . escapeHtml($asset['network_vlan']) : '' ?></div><?php } ?>
                                                 <?php if (!$asset['interface_ip'] && !$asset['network_name']) { ?><span class="text-body-secondary">-</span><?php } ?>
                                             </td>
                                             <td class="small"><?= $asset['location_name'] ? escapeHtml($asset['location_name']) : '<span class="text-body-secondary">-</span>' ?></td>

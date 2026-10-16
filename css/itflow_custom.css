@@ -5152,3 +5152,184 @@ img.itflow-contact-avatar {
 .swal2-radio {
     gap: 1rem;
 }
+
+/* ---------- Networks and asset interfaces ---------- */
+
+/* A tile small enough for a line of text - networkLink(), interfaceAssetRef() (a vendor's has its own, .itflow-vendor-tile-xs) */
+.itflow-asset-icon-xs:not(.itflow-vendor-tile) {
+    width: 1.25rem;
+    height: 1.25rem;
+    border-radius: .3rem;
+    font-size: .6rem;
+}
+/* A network's type - its icon in its colour, then the name (the type picker on lists) */
+.itflow-net-type {
+    display: inline-flex;
+    align-items: center;
+    gap: .3rem;
+    white-space: nowrap;
+}
+.itflow-net-type i {
+    color: var(--itflow-asset-tone);
+}
+.itflow-net-vlan {
+    display: inline-block;
+    padding: 0 .4rem;
+    border-radius: 999px;
+    background: var(--bs-secondary-bg);
+    color: var(--bs-secondary-color);
+    font-size: .75em;
+    font-weight: 600;
+    letter-spacing: .02em;
+    line-height: 1.5;
+    white-space: nowrap;
+}
+/* How full a network is - networkUsageBar() */
+.itflow-net-usage {
+    display: flex;
+    align-items: center;
+    gap: .5rem;
+    min-width: 8rem;
+}
+.itflow-net-usage .progress {
+    flex: 1 1 auto;
+    height: .4rem;
+    min-width: 3rem;
+}
+.itflow-net-usage-cell {
+    min-width: 10rem;
+}
+.itflow-net-main .itflow-service-desc {
+    max-width: 18rem;
+}
+
+/* The address plan on the network page */
+.itflow-net-plan-search {
+    max-width: 22rem;
+    flex: 1 1 14rem;
+}
+.itflow-net-plan td {
+    vertical-align: middle;
+}
+.itflow-net-plan .itflow-net-free td {
+    color: var(--bs-secondary-color);
+    background: repeating-linear-gradient(-45deg, transparent 0 .5rem, color-mix(in srgb, var(--bs-success) 5%, transparent) .5rem 1rem);
+    padding-top: .15rem;
+    padding-bottom: .15rem;
+}
+.itflow-net-plan .itflow-net-pool td {
+    background: color-mix(in srgb, var(--bs-info) 10%, transparent);
+    color: var(--bs-info-text-emphasis);
+    border-top: 2px solid color-mix(in srgb, var(--bs-info) 45%, transparent);
+}
+/* Addresses inside the DHCP range sit under its band, set in */
+.itflow-net-plan tr.is-in-pool > td.itflow-net-plan-ip {
+    box-shadow: inset 3px 0 0 color-mix(in srgb, var(--bs-info) 45%, transparent);
+}
+.itflow-net-plan tr.itflow-net-flagged > td {
+    background: color-mix(in srgb, var(--bs-warning) 8%, transparent);
+}
+.itflow-net-unplaced .itflow-contact-ref {
+    max-width: 14rem;
+}
+/* The four kinds of documented address, as one choice */
+.itflow-net-ip-types .btn {
+    flex: 1 1 auto;
+    white-space: nowrap;
+}
+.itflow-net-cidr-info {
+    min-height: 1.25rem;
+}
+
+/* An asset's Interfaces tab - the name and what it is kept readable */
+.itflow-iface-cell {
+    min-width: 11rem;
+}
+
+/* An asset's interfaces as a row of ports - switches, firewalls, access points */
+.itflow-port-map {
+    display: flex;
+    flex-wrap: wrap;
+    gap: .35rem;
+    padding: 1rem;
+}
+.itflow-port {
+    position: relative;
+    display: inline-flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 3.25rem;
+    height: 3rem;
+    padding: .15rem;
+    border: 1px solid var(--bs-border-color);
+    border-radius: .4rem;
+    background: var(--bs-tertiary-bg);
+    color: var(--bs-secondary-color);
+    font-size: .65rem;
+    line-height: 1.15;
+    text-decoration: none;
+    overflow: hidden;
+}
+.itflow-port:hover,
+.itflow-port:focus-visible {
+    border-color: var(--bs-primary);
+    color: var(--bs-body-color);
+}
+.itflow-port .itflow-port-name {
+    font-family: var(--bs-font-monospace);
+    font-weight: 600;
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+.itflow-port .itflow-port-lamp {
+    width: .55rem;
+    height: .55rem;
+    border-radius: 50%;
+    background: var(--bs-secondary-bg);
+    border: 1px solid var(--bs-border-color);
+    margin-bottom: .2rem;
+}
+.itflow-port.is-connected {
+    border-color: color-mix(in srgb, var(--bs-success) 55%, transparent);
+    background: color-mix(in srgb, var(--bs-success) 10%, var(--bs-body-bg));
+    color: var(--bs-body-color);
+}
+.itflow-port.is-connected .itflow-port-lamp {
+    background: var(--bs-success);
+    border-color: var(--bs-success);
+}
+.itflow-port.is-addressed:not(.is-connected) .itflow-port-lamp {
+    background: var(--bs-info);
+    border-color: var(--bs-info);
+}
+.itflow-port.is-primary::after {
+    content: "";
+    position: absolute;
+    top: .2rem;
+    right: .2rem;
+    width: .35rem;
+    height: .35rem;
+    border-radius: 50%;
+    background: var(--bs-primary);
+}
+.itflow-port-legend {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    padding: 0 1rem .75rem;
+    font-size: .8rem;
+    color: var(--bs-secondary-color);
+}
+.itflow-port-legend .itflow-port-lamp {
+    display: inline-block;
+    width: .55rem;
+    height: .55rem;
+    border-radius: 50%;
+    margin-right: .3rem;
+    border: 1px solid var(--bs-border-color);
+    background: var(--bs-secondary-bg);
+    vertical-align: middle;
+}

@@ -227,7 +227,10 @@ function globalSearchGroups($terms, $deep) {
     ];
 
     // Any interface counts, not just the primary one - the address someone has
-    // in hand is as likely to be the iDRAC as the OS NIC.
+    // in hand is as likely to be the iDRAC as the OS NIC. A MAC typed as
+    // aabb.ccdd.eeff finds 00:AA:BB... however it was saved.
+    $asset_mac = normalizeMacAddress($q);
+    $asset_mac_match = $asset_mac ? "OR REPLACE(REPLACE(REPLACE(UPPER(interface_mac), ':', ''), '-', ''), '.', '') = '" . str_replace(':', '', $asset_mac) . "'" : '';
     $groups[] = [
         'key' => 'assets', 'label' => 'Assets', 'icon' => 'desktop', 'module' => 'module_support',
         'select' => 'asset_id, asset_name, asset_type, asset_make, asset_model, asset_client_id, client_name,
@@ -242,7 +245,7 @@ function globalSearchGroups($terms, $deep) {
                 OR asset_description LIKE '%$like%'
                 OR EXISTS (SELECT 1 FROM asset_interfaces
                     WHERE interface_asset_id = asset_id AND interface_archived_at IS NULL
-                    AND (interface_ip LIKE '%$like%' OR interface_nat_ip LIKE '%$like%' OR interface_ipv6 LIKE '%$like%' OR interface_mac LIKE '%$like%')))",
+                    AND (interface_ip LIKE '%$like%' OR interface_nat_ip LIKE '%$like%' OR interface_ipv6 LIKE '%$like%' OR interface_mac LIKE '%$like%' $asset_mac_match)))",
         'scope' => 'asset_client_id',
         // An exact address beats every partial one: 192.168.10.1 before 192.168.10.14
         'order' => "EXISTS (SELECT 1 FROM asset_interfaces WHERE interface_asset_id = asset_id
@@ -255,6 +258,64 @@ function globalSearchGroups($terms, $deep) {
                 'subtitle' => implode(' · ', array_filter([$row['asset_type'], trim($row['asset_make'] . ' ' . $row['asset_model']), $row['asset_ip']])),
                 'context' => $row['client_name'],
                 'url' => globalSearchClientUrl('asset.php', $row['asset_client_id'], ['asset_id' => intval($row['asset_id'])]),
+            ];
+        },
+    ];
+
+    // Networks by name, subnet, VLAN, gateway, DNS and site - and an IPv4
+    // address finds the networks it is inside (192.168.10.57 finds
+    // 192.168.10.0/24), the smallest first
+    $ip = normalizeIpAddress($q);
+    $ip_eq = $ip !== false && strpos($ip, ':') === false ? escapeSql($ip) : '';
+    $contains = $ip_eq === '' ? '(1 = 0)' : "(network REGEXP '^[0-9.]+/[0-9]+$'
+        AND (INET_ATON('$ip_eq') >> (32 - CAST(SUBSTRING_INDEX(network, '/', -1) AS UNSIGNED)))
+            = (INET_ATON(SUBSTRING_INDEX(network, '/', 1)) >> (32 - CAST(SUBSTRING_INDEX(network, '/', -1) AS UNSIGNED))))";
+    $vlan_match = ctype_digit($q) ? "OR network_vlan = " . intval($q) : '';
+    $groups[] = [
+        'key' => 'networks', 'label' => 'Networks', 'icon' => 'network-wired', 'module' => 'module_support',
+        'select' => "network_id, network_name, network_description, network_type, network, network_vlan, network_client_id, client_name, location_name, $contains AS q_contains",
+        'from' => 'networks
+            LEFT JOIN clients ON network_client_id = client_id
+            LEFT JOIN locations ON location_id = network_location_id AND network_location_id > 0',
+        'where' => "network_archived_at IS NULL
+            AND (network_name LIKE '%$like%' OR network_description LIKE '%$like%' OR network_type LIKE '%$like%' OR network LIKE '%$like%'
+                OR network_gateway LIKE '%$like%' OR network_primary_dns LIKE '%$like%' OR network_secondary_dns LIKE '%$like%'
+                OR network_dhcp_range LIKE '%$like%' $vlan_match OR $contains)",
+        'scope' => 'network_client_id',
+        'order' => "(network_name = '$eq') DESC, $contains DESC, CAST(SUBSTRING_INDEX(network, '/', -1) AS UNSIGNED) DESC, (network_name LIKE '$like%') DESC, network_name",
+        'list_url' => '/agent/networks.php?' . http_build_query(['q' => $q]),
+        'item' => function ($row) {
+            return [
+                'title' => $row['network_name'],
+                'subtitle' => implode(' · ', array_filter([$row['network'], $row['network_vlan'] ? 'VLAN ' . $row['network_vlan'] : '', networkType($row), $row['location_name']])),
+                'context' => $row['client_name'],
+                'badge' => intval($row['q_contains']) ? ['text' => 'In this subnet', 'variant' => 'info'] : null,
+                'url' => '/agent/' . networkUrl($row['network_id'], $row['network_client_id']),
+            ];
+        },
+    ];
+
+    // Documented addresses - by address, hostname, MAC (in any of its usual
+    // forms) and description - opening the network's address plan on it
+    $mac = normalizeMacAddress($q);
+    $mac_match = $mac ? "OR ip_mac = '$mac'" : '';
+    $groups[] = [
+        'key' => 'network_ips', 'label' => 'IP Addresses', 'icon' => 'map-pin', 'module' => 'module_support',
+        'select' => 'ip_id, ip_address, ip_type, ip_hostname, ip_description, network_id, network_name, network_client_id, client_name',
+        'from' => 'network_ips
+            JOIN networks ON network_id = ip_network_id
+            LEFT JOIN clients ON network_client_id = client_id',
+        'where' => "network_archived_at IS NULL
+            AND (ip_address LIKE '%$like%' OR ip_hostname LIKE '%$like%' OR ip_mac LIKE '%$like%' OR ip_description LIKE '%$like%' $mac_match)",
+        'scope' => 'network_client_id',
+        'order' => "(ip_address = '$eq') DESC, (ip_hostname = '$eq') DESC, INET6_ATON(ip_address)",
+        'list_url' => '/agent/networks.php?' . http_build_query(['q' => $q]),
+        'item' => function ($row) {
+            return [
+                'title' => $row['ip_address'] . ($row['ip_hostname'] ? ' - ' . $row['ip_hostname'] : ''),
+                'subtitle' => implode(' · ', array_filter([(NETWORK_IP_TYPES[$row['ip_type']] ?? NETWORK_IP_TYPES['Static'])[3], $row['ip_description'], $row['network_name']])),
+                'context' => $row['client_name'],
+                'url' => '/agent/' . networkUrl($row['network_id'], $row['network_client_id']) . '&' . http_build_query(['q' => $row['ip_address']]) . '#addresses',
             ];
         },
     ];

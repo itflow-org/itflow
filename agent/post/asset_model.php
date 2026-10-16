@@ -8,14 +8,18 @@ $make = escapeSql($_POST['make'] ?? '');
 $model = escapeSql($_POST['model'] ?? '');
 $serial = escapeSql($_POST['serial'] ?? '');
 $os = escapeSql($_POST['os'] ?? '');
-$ip = escapeSql($_POST['ip'] ?? '');
+// The address and MAC in one form when they are one (functions/network.php) -
+// kept as typed when not, so the asset still saves
+$ip = trim((string) ($_POST['ip'] ?? ''));
+$ip = escapeSql(normalizeIpAddress($ip) ?: $ip);
 $dhcp = intval($_POST['dhcp'] ?? 0);
 if ($dhcp == 1) {
     $ip = 'DHCP';
 }
 $ipv6 = escapeSql($_POST['ipv6'] ?? '');
 $nat_ip = escapeSql($_POST['nat_ip'] ?? '');
-$mac = escapeSql($_POST['mac'] ?? '');
+$mac = trim((string) ($_POST['mac'] ?? ''));
+$mac = escapeSql(normalizeMacAddress($mac) ?: $mac);
 $uri = escapeSql($_POST['uri'] ?? '');
 $uri_2 = escapeSql($_POST['uri_2'] ?? '');
 $uri_client = escapeSql($_POST['uri_client'] ?? '');

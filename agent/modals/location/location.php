@@ -46,7 +46,7 @@ if ($can_support) {
     while ($row = mysqli_fetch_assoc($sql)) {
         $assets[] = $row;
     }
-    $sql = mysqli_query($mysqli, "SELECT network_id, network_name, network, network_vlan, network_gateway FROM networks
+    $sql = mysqli_query($mysqli, "SELECT network_id, network_name, network_type, network, network_vlan, network_gateway FROM networks
         WHERE network_location_id = $location_id AND network_archived_at IS NULL ORDER BY network_name ASC");
     while ($row = mysqli_fetch_assoc($sql)) {
         $networks[] = $row;
@@ -192,7 +192,7 @@ ob_start();
                         <ul class="list-group list-group-flush">
                             <?php foreach ($networks as $network) { ?>
                                 <li class="list-group-item px-0 d-flex justify-content-between gap-3">
-                                    <a href="network.php?client_id=<?= $client_id ?>&network_id=<?= intval($network['network_id']) ?>"><?= escapeHtml($network['network_name']) ?></a>
+                                    <?= networkLink($network['network_id'], $network['network_name'], $client_id, ['type' => networkType($network)]) ?>
                                     <span class="small text-body-secondary text-nowrap font-monospace"><?= escapeHtml($network['network']) ?><?= intval($network['network_vlan']) ? ' · VLAN ' . intval($network['network_vlan']) : '' ?><?= $network['network_gateway'] ? ' · gw ' . escapeHtml($network['network_gateway']) : '' ?></span>
                                 </li>
                             <?php } ?>

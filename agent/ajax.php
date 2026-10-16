@@ -258,6 +258,10 @@ if (isset($_GET['quick_pick_options'])) {
         foreach (SERVICE_IMPORTANCE as $importance) {
             $options[] = ['value' => $importance, 'label' => $importance, 'color' => $colors[$importance], 'description' => $descriptions[$importance]];
         }
+    } elseif ($field === 'network_type') {
+        foreach (NETWORK_TYPES as $type => [$icon, $tone, $hint]) {
+            $options[] = ['value' => $type, 'label' => $type, 'icon' => "fas $icon", 'color' => networkToneColor($tone), 'description' => $hint];
+        }
     } elseif (in_array($field, ASSET_QUICK_FIELDS, true) || $field === 'contact_location') {
         // Locations and contacts are the client's own - functions/asset.php
         $options = assetQuickOptions($field === 'contact_location' ? 'asset_location' : $field, intval($_GET['scope'] ?? 0));
@@ -355,6 +359,38 @@ if (isset($_POST['quick_pick_set'])) {
     }
 
     // A service's importance - services of clients this agent can reach, not archived, like Edit Service
+    // A network's type - networks of clients this agent can reach, like Edit Network
+    if ($field === 'network_type') {
+        $allowed = networkCan(2) && $ticket_ids && isset(NETWORK_TYPES[$value]);
+        $rows = [];
+        foreach ($allowed ? $ticket_ids : [] as $id) {
+            $row = networkRow($id);
+            if (!$row || !hasClientAccess($row['network_client_id'])) {
+                $allowed = false;
+                break;
+            }
+            $rows[$id] = $row;
+        }
+        if (!$allowed) {
+            http_response_code(403);
+            echo json_encode(['error' => 'You cannot change that on these networks.']);
+            exit();
+        }
+
+        $response = ['records' => []];
+        foreach ($rows as $id => $row) {
+            mysqli_query($mysqli, "UPDATE networks SET network_type = '$value' WHERE network_id = $id");
+            if ($row['network_type'] !== $value) {
+                logAudit("Network", "Edit", "$session_name changed the type of network " . escapeSql($row['network_name']) . " from " . escapeSql(networkType($row)) . " to $value", intval($row['network_client_id']), $id);
+            }
+            $html = networkTypeLabel($value);
+            $response['records'][$id] = ['current' => $value, 'html' => ['list' => $html, 'detail' => $html]];
+        }
+        $response['message'] = count($rows) === 1 ? 'Type set to ' . $value : 'Updated ' . count($rows) . ' networks';
+        echo json_encode($response);
+        exit();
+    }
+
     if ($field === 'service_importance') {
         $service_ids = $ticket_ids;
         $allowed = serviceCan(2) && $service_ids && in_array($value, SERVICE_IMPORTANCE, true);
@@ -1622,7 +1658,23 @@ if (isset($_GET['network_ip_check'])) {
         if ($ip_error === '') {
             $response['ok'] = true;
             $response['ip'] = $ip;
-            $response['message'] = "<i class='fas fa-fw fa-check me-2'></i>" . escapeHtml($ip) . " is available";
+            // Worth knowing, not wrong - a device has it already, or DHCP hands it out
+            $notes = [];
+            $network = networkRow($network_id);
+            $device = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT asset_name, interface_name FROM asset_interfaces JOIN assets ON asset_id = interface_asset_id
+                WHERE interface_network_id = $network_id AND interface_ip = '" . escapeSql($ip) . "' AND interface_archived_at IS NULL AND asset_archived_at IS NULL LIMIT 1"));
+            if ($device) {
+                $notes[] = 'on ' . escapeHtml($device['asset_name'] . ' ' . $device['interface_name']);
+            }
+            $pool = networkParseRange($network['network_dhcp_range'] ?? '', networkSubnetInfo($network['network'] ?? ''));
+            $int = ipv4ToInt($ip);
+            if ($pool && $int !== null && $int >= $pool[0] && $int <= $pool[1]) {
+                $notes[] = 'inside the DHCP range - right for a reservation, not a fixed address';
+            }
+            if ($ip === normalizeIpAddress((string) ($network['network_gateway'] ?? ''))) {
+                $notes[] = 'the gateway';
+            }
+            $response['message'] = "<i class='fas fa-fw fa-check me-2'></i>" . escapeHtml($ip) . ($notes ? ' - ' . implode('; ', $notes) : ' is free');
         } else {
             // checkIpForNetwork() builds its message for flashAlert(), which
             // escapes at render - this lands in innerHTML instead, so it has
@@ -1633,6 +1685,140 @@ if (isset($_GET['network_ip_check'])) {
     }
 
     echo json_encode($response);
+}
+
+/*
+ * What a subnet typed into New / Edit Network is - its size, mask, first and
+ * last host, a gateway and DHCP range to suggest, and the client's networks it
+ * overlaps (agent/js/network_form.js).
+ */
+if (isset($_GET['network_subnet_info'])) {
+
+    header('Content-Type: application/json');
+    enforceUserPermission('module_support', 2);
+
+    $client_id = intval($_GET['client_id'] ?? 0);
+    if ($client_id) {
+        enforceClientAccess();
+    }
+
+    $info = networkSubnetInfo((string) ($_GET['cidr'] ?? ''));
+    if (!$info) {
+        echo json_encode(['ok' => false]);
+        exit();
+    }
+
+    $response = ['ok' => true, 'cidr' => $info['cidr'], 'family' => $info['family'], 'size' => networkSizeText($info), 'first' => $info['first_host'], 'last' => $info['last_host'], 'gateway' => '', 'range' => '', 'overlaps' => []];
+    if ($info['family'] === 4 && $info['prefix'] <= 30) {
+        $first = ipv4ToInt($info['first_host']);
+        $last = ipv4ToInt($info['last_host']);
+        $response['gateway'] = $info['first_host'];
+        // Room at the bottom for fixed addresses and some at the top, the middle to DHCP: .100 to .199 of a /24;
+        // the second /24 of a /23; the second /24 to the second-last of anything bigger
+        $hosts = $last - $first + 1;
+        $base = ipv4ToInt($info['network']);
+        if ($info['prefix'] === 24) {
+            [$start, $end] = [$first + 99, $first + 198];
+        } elseif ($info['prefix'] === 23) {
+            [$start, $end] = [$base + 257, $base + 510];
+        } elseif ($info['prefix'] < 23) {
+            [$start, $end] = [$base + 257, $last - 256];
+        } elseif ($hosts >= 30) {
+            [$start, $end] = [$first + intdiv($hosts * 2, 5), $first + intdiv($hosts * 4, 5)];
+        }
+        if (isset($start) && $start < $end) {
+            $response['range'] = intToIpv4($start) . ' - ' . intToIpv4($end);
+        }
+    }
+    if ($client_id) {
+        foreach (networkOverlaps(['network' => $info['cidr'], 'network_client_id' => $client_id, 'network_id' => intval($_GET['network_id'] ?? 0)]) as $overlap) {
+            $response['overlaps'][] = $overlap['network_name'] . ' (' . $overlap['network'] . ')' . ($overlap['location_name'] ? ' at ' . $overlap['location_name'] : '');
+        }
+    }
+
+    echo json_encode($response);
+    exit();
+}
+
+// The first address on a network nothing has - not documented, on no device, not the gateway, outside the DHCP range
+if (isset($_GET['network_next_free_ip'])) {
+
+    header('Content-Type: application/json');
+    enforceUserPermission('module_support', 2);
+
+    $network = networkRow($_GET['network_id'] ?? 0);
+    if (!$network || !hasClientAccess($network['network_client_id'])) {
+        echo json_encode(['ip' => '', 'message' => 'That network no longer exists.']);
+        exit();
+    }
+
+    $plan = networkAddressPlan($network);
+    echo json_encode([
+        'ip' => $plan['next_free'],
+        'message' => $plan['next_free'] ? '' : ($plan['info'] && $plan['info']['family'] === 4 && $plan['info']['prefix'] >= 20 ? 'Every address outside the DHCP range is taken.' : 'Next free works on IPv4 networks up to a /20.'),
+    ]);
+    exit();
+}
+
+/*
+ * The address typed on New / Edit Interface - whether it is one, inside the
+ * network picked, and who else has it (agent/js/interface_form.js). The same
+ * checks interfaceFormSet() makes on saving.
+ */
+if (isset($_GET['interface_ip_check'])) {
+
+    header('Content-Type: application/json');
+    enforceUserPermission('module_support', 2);
+
+    $ip_typed = trim((string) ($_GET['ip'] ?? ''));
+    $network = intval($_GET['network_id'] ?? 0) ? networkRow($_GET['network_id']) : null;
+    if ($network && !hasClientAccess($network['network_client_id'])) {
+        $network = null;
+    }
+
+    $reply = function ($state, $message) {
+        echo json_encode(['state' => $state, 'message' => $message]);
+        exit();
+    };
+
+    if ($ip_typed === '') {
+        $reply('', '');
+    }
+    $ip = normalizeIpAddress($ip_typed);
+    if ($ip === false) {
+        $reply('error', escapeHtml($ip_typed) . ' is not an IP address');
+    }
+    if (!$network) {
+        $reply('ok', escapeHtml($ip) . ' - pick its network to check it against the others there');
+    }
+    if (networkSubnetInfo($network['network']) && !isIpInSubnet($ip, $network['network'])) {
+        $reply('error', escapeHtml($ip) . ' is outside ' . escapeHtml($network['network_name']) . ' (' . escapeHtml($network['network']) . ')');
+    }
+    $info = networkSubnetInfo($network['network']);
+    if ($info && $info['family'] === 4 && $info['prefix'] <= 30 && ($ip === $info['network'] || $ip === $info['last'])) {
+        $reply('error', escapeHtml($ip) . ' is the ' . ($ip === $info['network'] ? 'network' : 'broadcast') . ' address of ' . escapeHtml($network['network']) . ' - no device can use it');
+    }
+    $clash = interfaceIpClash($ip, $network['network_id'], intval($_GET['interface_id'] ?? 0), intval($_GET['asset_id'] ?? 0));
+    if ($clash) {
+        $reply('warning', escapeHtml($ip) . ' is on ' . escapeHtml($clash) . ' too');
+    }
+    $documented = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT ip_type, ip_hostname, ip_mac FROM network_ips WHERE ip_network_id = " . intval($network['network_id']) . " AND ip_address = '" . escapeSql($ip) . "' LIMIT 1"));
+    $mac = normalizeMacAddress($_GET['mac'] ?? '');
+    if ($documented && $documented['ip_type'] === 'Reservation' && $mac && normalizeMacAddress($documented['ip_mac']) && normalizeMacAddress($documented['ip_mac']) !== $mac) {
+        $reply('warning', escapeHtml($ip) . ' is reserved for ' . escapeHtml($documented['ip_mac']) . ($documented['ip_hostname'] ? ' (' . escapeHtml($documented['ip_hostname']) . ')' : ''));
+    }
+    if ($documented && $documented['ip_type'] === 'Reserved') {
+        $reply('warning', escapeHtml($ip) . ' is held back' . ($documented['ip_hostname'] ? ' for ' . escapeHtml($documented['ip_hostname']) : '') . ' - not to be used');
+    }
+    $pool = networkParseRange($network['network_dhcp_range'], $info);
+    $int = ipv4ToInt($ip);
+    if ($pool && $int !== null && $int >= $pool[0] && $int <= $pool[1]) {
+        $reply('warning', escapeHtml($ip) . ' is inside the DHCP range (' . escapeHtml($network['network_dhcp_range']) . ') - fixed there, DHCP can hand it to something else');
+    }
+    if ($ip === normalizeIpAddress((string) $network['network_gateway'])) {
+        $reply('warning', escapeHtml($ip) . ' is the gateway of ' . escapeHtml($network['network_name']));
+    }
+    $reply('ok', escapeHtml($ip) . ($documented ? ' - documented' . ($documented['ip_hostname'] ? ' as ' . escapeHtml($documented['ip_hostname']) : '') : ' is free on ' . escapeHtml($network['network_name'])));
 }
 
 if (isset($_GET['contact_email_check'])) {

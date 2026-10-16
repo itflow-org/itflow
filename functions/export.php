@@ -141,6 +141,7 @@ function getExportColumns($export_type) {
         ],
 
         'asset_interfaces' => [
+            // The first eight are the import's columns, in its order - VLANs ninth and optional
             'interface_name'        => ['label' => 'Name'],
             'interface_description' => ['label' => 'Description', 'weight' => 3],
             'interface_type'        => ['label' => 'Type'],
@@ -149,9 +150,14 @@ function getExportColumns($export_type) {
             'interface_nat_ip'      => ['label' => 'NAT IP'],
             'interface_ipv6'        => ['label' => 'IPv6', 'weight' => 2],
             'network_name'          => ['label' => 'Network'],
+            'interface_vlans'       => ['label' => 'VLANs'],
+            'network'               => ['label' => 'Subnet', 'default' => false],
+            'connected_to'          => ['label' => 'Connected To', 'weight' => 2, 'default' => false],
+            'interface_notes'       => ['label' => 'Notes', 'weight' => 3, 'default' => false],
         ],
 
         'networks' => [
+            // The first nine are the import's columns, in its order
             'network_name'          => ['label' => 'Name', 'weight' => 2],
             'network_description'   => ['label' => 'Description', 'weight' => 3],
             'network_vlan'          => ['label' => 'VLAN'],
@@ -160,12 +166,20 @@ function getExportColumns($export_type) {
             'network_dhcp_range'    => ['label' => 'IP Range'],
             'network_primary_dns'   => ['label' => 'Primary DNS'],
             'network_secondary_dns' => ['label' => 'Secondary DNS'],
+            'network_type'          => ['label' => 'Type'],
+            'location_name'         => ['label' => 'Site', 'default' => false],
+            'vendor_name'           => ['label' => 'Provider', 'default' => false],
+            'network_notes'         => ['label' => 'Notes', 'weight' => 3, 'default' => false],
+            'client_name'           => ['label' => 'Client', 'weight' => 2, 'default' => false],
         ],
 
         'network_ips' => [
+            // The import's columns, in its order - Type and MAC after the original three
             'ip_address'     => ['label' => 'IP Address'],
             'ip_hostname'    => ['label' => 'Hostname', 'weight' => 2],
             'ip_description' => ['label' => 'Description', 'weight' => 3],
+            'ip_type'        => ['label' => 'Type'],
+            'ip_mac'         => ['label' => 'MAC'],
             // Available from the handler's join but not exported by default -
             // the export is always scoped to one network of one client
             'network_name'   => ['label' => 'Network', 'default' => false],

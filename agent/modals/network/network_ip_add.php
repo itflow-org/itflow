@@ -1,30 +1,34 @@
 <?php
 
+/*
+ * Document an address on a network. Opened with ?ip= (a free run's Use, a
+ * device's Document) it starts on that address, with ?hostname= ?mac=
+ * ?description= ?type= filled in; ?next=1 starts on the next free one.
+ */
+
 require_once '../../../includes/modal_header.php';
 
-enforceUserPermission('module_support', 2);
+$network = networkForModal($_GET['network_id'] ?? 0, 2);
+$network_id = intval($network['network_id']);
+$is_new = true;
 
-$network_id = intval($_GET['network_id'] ?? 0);
-
-$sql = mysqli_query($mysqli, "SELECT network, network_client_id, network_name FROM networks WHERE network_id = $network_id LIMIT 1");
-
-$row = mysqli_fetch_assoc($sql);
-$network_name = escapeHtml($row['network_name']);
-$network = escapeHtml($row['network']);
-$client_id = intval($row['network_client_id']);
-
-enforceClientAccess();
-
-// The part of the address this subnet fixes. Empty for IPv6, a prefix under
-// /8, or a subnet that won't parse - then the field takes a whole address.
-$ip_fixed_octets = ipSubnetFixedOctets($row['network']);
-$ip_host_octets = $ip_fixed_octets ? 4 - substr_count($ip_fixed_octets, '.') : 0;
+$ip = normalizeIpAddress((string) ($_GET['ip'] ?? ''));
+if ($ip === false && !empty($_GET['next'])) {
+    $ip = networkAddressPlan($network)['next_free'] ?: false;
+}
+$form = [
+    'ip_address' => $ip === false ? '' : $ip,
+    'ip_type' => $_GET['type'] ?? '',
+    'ip_hostname' => (string) ($_GET['hostname'] ?? ''),
+    'ip_mac' => (string) ($_GET['mac'] ?? ''),
+    'ip_description' => (string) ($_GET['description'] ?? ''),
+];
 
 ob_start();
 
 ?>
 <div class="modal-header bg-dark">
-    <h5 class="modal-title"><i class="fa fa-fw fa-map-pin me-2"></i>New IP Address</h5>
+    <h5 class="modal-title"><i class="fa fa-fw fa-map-pin me-2"></i>Document an address</h5>
     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
 </div>
 <form action="post.php" method="post" autocomplete="off">
@@ -32,45 +36,10 @@ ob_start();
     <input type="hidden" name="network_id" value="<?= $network_id ?>">
 
     <div class="modal-body">
-
-        <div class="mb-3">
-            <label>IP Address <strong class="text-danger">*</strong></label>
-            <div class="input-group">
-                <?php if ($ip_fixed_octets) { ?>
-                    <span class="input-group-text font-monospace text-bold"><?= escapeHtml($ip_fixed_octets) ?></span>
-                    <input type="text" class="form-control font-monospace" name="ip_address" id="networkIpAddress"
-                        placeholder="<?= $ip_host_octets === 1 ? '10' : str_repeat('0.', $ip_host_octets - 1) . '10' ?>"
-                        <?= $ip_host_octets === 1 ? 'inputmode="numeric"' : '' ?>
-                        maxlength="<?= ($ip_host_octets * 4) - 1 ?>" required autofocus>
-                <?php } else { ?>
-                    <span class="input-group-text"><i class="fa fa-fw fa-map-pin"></i></span>
-                    <input type="text" class="form-control font-monospace" name="ip_address" id="networkIpAddress"
-                        placeholder="Must be inside <?= $network ?>" maxlength="45" required autofocus>
-                <?php } ?>
-            </div>
-            <div class="small mt-1" id="networkIpFeedback"></div>
-            <small class="text-secondary"><?= $network_name ?> &mdash; <span class="font-monospace"><?= $network ?></span></small>
-        </div>
-
-        <div class="mb-3">
-            <label>Hostname</label>
-            <div class="input-group">
-                    <span class="input-group-text"><i class="fa fa-fw fa-server"></i></span>
-                <input type="text" class="form-control" name="hostname" placeholder="dc01, printer-hr, ap-lobby" maxlength="200">
-            </div>
-        </div>
-
-        <div class="mb-3">
-            <label>Description</label>
-            <div class="input-group">
-                    <span class="input-group-text"><i class="fas fa-fw fa-align-left"></i></span>
-                <input type="text" class="form-control" name="description" placeholder="Domain controller, HR floor printer" maxlength="200">
-            </div>
-        </div>
-
+        <?php require 'network_ip_form.php'; ?>
     </div>
     <div class="modal-footer">
-        <button type="submit" name="add_network_ip" class="btn btn-primary text-bold"><i class="fa fa-check me-2"></i>Create</button>
+        <button type="submit" name="add_network_ip" class="btn btn-primary text-bold"><i class="fa fa-check me-2"></i>Save</button>
         <button type="button" class="btn btn-light" data-bs-dismiss="modal"><i class="fa fa-times me-2"></i>Cancel</button>
     </div>
 </form>
@@ -79,8 +48,11 @@ ob_start();
     // Live version of the duplicate / inside-the-subnet checks. Advisory only -
     // agent/post/network_ip.php runs the same checks again on submit.
     itflowWatchNetworkIp(<?= $network_id ?>, 0);
+    // An address it was opened with is checked straight away
+    if (document.getElementById('networkIpAddress').value.trim() !== '') {
+        document.getElementById('networkIpAddress').dispatchEvent(new Event('blur'));
+    }
 </script>
 
 <?php
-
 require_once '../../../includes/modal_footer.php';

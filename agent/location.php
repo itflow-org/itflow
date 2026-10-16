@@ -87,11 +87,12 @@ if (!$location || ($client_url && intval($location['location_client_id']) !== in
         while ($row = mysqli_fetch_assoc($sql)) {
             $assets[] = $row;
         }
-        $sql = mysqli_query($mysqli, "SELECT network_id, network_name, network_description, network, network_vlan, network_gateway, network_dhcp_range
+        $sql = mysqli_query($mysqli, "SELECT network_id, network_name, network_description, network_type, network, network_vlan, network_gateway, network_dhcp_range
             FROM networks WHERE network_location_id = $location_id AND network_archived_at IS NULL ORDER BY network_name ASC");
         while ($row = mysqli_fetch_assoc($sql)) {
-            $networks[] = $row;
+            $networks[intval($row['network_id'])] = $row;
         }
+        $network_usage = networkUsage($networks);
         $sql = mysqli_query($mysqli, "SELECT rack_id, rack_name, rack_type, rack_model, rack_units, rack_physical_location
             FROM racks WHERE rack_location_id = $location_id AND rack_archived_at IS NULL ORDER BY rack_name ASC");
         while ($row = mysqli_fetch_assoc($sql)) {
@@ -481,21 +482,25 @@ if (!$location || ($client_url && intval($location['location_client_id']) !== in
                         <?php if ($networks) { ?>
                             <div class="table-responsive">
                                 <table class="table table-hover align-middle mb-0">
-                                    <thead class="text-nowrap table-light"><tr><th>Network</th><th>Subnet</th><th>Gateway</th><th>DHCP</th><th></th></tr></thead>
+                                    <thead class="text-nowrap table-light"><tr><th>Network</th><th>Subnet</th><th class="d-none d-md-table-cell">Gateway</th><th>In use</th><th></th></tr></thead>
                                     <tbody>
-                                    <?php foreach ($networks as $network) {
-                                        $network_id = intval($network['network_id']);
+                                    <?php foreach ($networks as $network_id => $network) {
                                         $network_subnet = escapeHtml($network['network']);
                                         $network_gateway = escapeHtml($network['network_gateway']); ?>
                                         <tr>
                                             <td>
-                                                <a class="fw-semibold" href="network.php?client_id=<?= $client_id ?>&network_id=<?= $network_id ?>"><?= escapeHtml($network['network_name']) ?></a>
-                                                <?php if (intval($network['network_vlan'])) { ?><span class="badge rounded-pill bg-secondary-subtle text-secondary-emphasis fw-normal ms-1">VLAN <?= intval($network['network_vlan']) ?></span><?php } ?>
-                                                <?php if ($network['network_description']) { ?><div class="small text-body-secondary"><?= escapeHtml($network['network_description']) ?></div><?php } ?>
+                                                <div class="d-flex align-items-center gap-2">
+                                                    <?= networkTile(networkType($network), 'sm') ?>
+                                                    <div class="min-w-0">
+                                                        <a class="fw-semibold" href="<?= escapeHtml(networkUrl($network_id, $client_id)) ?>"><?= escapeHtml($network['network_name']) ?></a>
+                                                        <?php if (intval($network['network_vlan'])) { ?><span class="itflow-net-vlan ms-1">VLAN <?= intval($network['network_vlan']) ?></span><?php } ?>
+                                                        <?php if ($network['network_description']) { ?><div class="small text-body-secondary"><?= escapeHtml($network['network_description']) ?></div><?php } ?>
+                                                    </div>
+                                                </div>
                                             </td>
                                             <td class="text-nowrap"><span class="font-monospace"><?= $network_subnet ?></span><?php if ($network_subnet) { ?><button type="button" class="itflow-copy clipboardjs" title="Copy subnet" data-clipboard-text="<?= $network_subnet ?>"><i class="far fa-copy"></i></button><?php } ?></td>
-                                            <td class="text-nowrap"><?php if ($network_gateway) { ?><span class="font-monospace"><?= $network_gateway ?></span><button type="button" class="itflow-copy clipboardjs" title="Copy gateway" data-clipboard-text="<?= $network_gateway ?>"><i class="far fa-copy"></i></button><?php } else { ?><span class="text-body-secondary">-</span><?php } ?></td>
-                                            <td class="text-nowrap small font-monospace"><?= escapeHtml($network['network_dhcp_range']) ?: '<span class="text-body-secondary font-sans-serif">-</span>' ?></td>
+                                            <td class="text-nowrap d-none d-md-table-cell"><?php if ($network_gateway) { ?><span class="font-monospace"><?= $network_gateway ?></span><button type="button" class="itflow-copy clipboardjs" title="Copy gateway" data-clipboard-text="<?= $network_gateway ?>"><i class="far fa-copy"></i></button><?php } else { ?><span class="text-body-secondary">-</span><?php } ?></td>
+                                            <td><?= networkUsageBar($network_usage[$network_id]) ?></td>
                                             <td class="text-end">
                                                 <?php if ($can_support_edit) { ?>
                                                     <a href="<?= $unset_url('network', $network_id) ?>" class="btn btn-sm btn-light" title="Not at this location"><i class="fas fa-fw fa-unlink"></i></a>

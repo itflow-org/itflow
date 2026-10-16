@@ -20,6 +20,9 @@ $client_filter = intval($_GET['client'] ?? 0);
 // Location Filter
 $location_filter = intval($_GET['location'] ?? 0);
 
+// Type Filter
+$type_filter = isset(NETWORK_TYPES[$_GET['type'] ?? '']) ? $_GET['type'] : '';
+
 // Archived Filter
 $archived_filter = (isset($_GET['archived']) && $_GET['archived'] == 1) ? 1 : 0;
 
@@ -46,7 +49,7 @@ ob_start();
             <label>Search</label>
             <div class="input-group">
                     <span class="input-group-text"><i class="fa fa-fw fa-search"></i></span>
-                <input type="text" class="form-control" name="q" value="<?= stripslashes(escapeHtml($q_filter)) ?>" placeholder="Name, CIDR, gateway, DNS">
+                <input type="text" class="form-control" name="q" value="<?= stripslashes(escapeHtml($q_filter)) ?>" placeholder="Name, CIDR, gateway, DNS, site">
             </div>
         </div>
 
@@ -58,7 +61,7 @@ ob_start();
                 <select class="form-select select2" name="client">
                     <option value="">- All Clients -</option>
                     <?php
-                    $sql_clients_filter = mysqli_query($mysqli, "SELECT client_id, client_name, client_abbreviation FROM clients WHERE EXISTS (SELECT 1 FROM networks WHERE network_client_id = client_id) ORDER BY client_name ASC");
+                    $sql_clients_filter = mysqli_query($mysqli, "SELECT client_id, client_name, client_abbreviation FROM clients WHERE EXISTS (SELECT 1 FROM networks WHERE network_client_id = client_id) " . clientScopeSql('clients.client_id') . " ORDER BY client_name ASC");
                     while ($row = mysqli_fetch_assoc($sql_clients_filter)) {
                         $filter_client_id = intval($row['client_id']);
                         $filter_client_name = escapeHtml($row['client_name']);
@@ -74,11 +77,11 @@ ob_start();
 
         <?php if ($client_id) { ?>
         <div class="mb-3">
-            <label>Location</label>
+            <label>Site</label>
             <div class="input-group">
                     <span class="input-group-text"><i class="fa fa-fw fa-map-marker-alt"></i></span>
                 <select class="form-select select2" name="location">
-                    <option value="">- All Locations -</option>
+                    <option value="">- Any site -</option>
                     <?php
                     $sql_locations_filter = mysqli_query($mysqli, "SELECT location_id, location_name FROM locations WHERE location_client_id = $client_id AND location_archived_at IS NULL ORDER BY location_name ASC");
                     while ($row = mysqli_fetch_assoc($sql_locations_filter)) {
@@ -93,6 +96,19 @@ ob_start();
             </div>
         </div>
         <?php } ?>
+
+        <div class="mb-3">
+            <label>Type</label>
+            <div class="input-group">
+                <span class="input-group-text"><i class="fa fa-fw fa-shapes"></i></span>
+                <select class="form-select select2" name="type">
+                    <option value="">- Any type -</option>
+                    <?php foreach (NETWORK_TYPES as $type => [$icon]) { ?>
+                        <option value="<?= $type ?>" <?= $type_filter === $type ? 'selected' : '' ?> data-icon="fas <?= $icon ?>"><?= $type ?></option>
+                    <?php } ?>
+                </select>
+            </div>
+        </div>
 
         <div class="mb-3">
             <label>Archived</label>
