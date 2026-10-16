@@ -265,10 +265,9 @@ function dashboardAttention($access) {
         ];
         if ($access['tickets']) {
             $items[] = [
-                'count' => dashboardCount("SELECT COUNT(ticket_id) FROM tickets WHERE ticket_resolved_at IS NOT NULL
-                    AND ticket_billable = 1 AND ticket_invoice_id = 0 $ticket_scope"),
+                'count' => dashboardCount("SELECT COUNT(ticket_id) FROM tickets WHERE " . billingUnbilledSql() . " $ticket_scope"),
                 'label' => 'Resolved, not invoiced', 'icon' => 'receipt', 'tone' => 'info',
-                'url' => '/agent/tickets.php?billing=unbilled&state=closed',
+                'url' => '/agent/unbilled_time.php',
             ];
         }
     }

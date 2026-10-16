@@ -2,45 +2,28 @@
 
 /*
  * Unbilled Work - billable tickets that are resolved or closed but on no
- * invoice yet: money left on the table. Each ticket's time is rounded to the
- * nearest 15 minutes and priced at the client's hourly rate - the same
- * quantity and price Invoice fills in on the ticket - so the value
- * here is what invoicing them would come to. Per client, then every ticket,
- * the longest waiting first.
+ * invoice yet: money left on the table. Each ticket's time is rounded the
+ * way Admin > Settings > Invoice says and priced at the client's hourly rate
+ * - the same hours and rate Unbilled Time and a ticket's Invoice window fill
+ * in - so the value here is what invoicing them would come to. Per client,
+ * then every ticket, the longest waiting first.
  */
 
 require_once "includes/inc_report.php";
 reportEnforce('tickets_unbilled');
 
 $client_id = reportClientId();
-$default_rate = floatval($config_default_hourly_rate);
 
+// The same tickets, hours and rates Unbilled Time bills - functions/billing.php
+$time_rules = billingTimeRules();
 $tickets = [];
-$sql = mysqli_query($mysqli, "
-    SELECT ticket_id, ticket_prefix, ticket_number, ticket_subject, ticket_client_id, ticket_resolved_at, ticket_closed_at, ticket_assigned_to,
-        user_name, user_avatar, client_name, client_abbreviation, client_rate,
-        COALESCE((SELECT SUM(TIME_TO_SEC(ticket_reply_time_worked)) FROM ticket_replies WHERE ticket_reply_ticket_id = ticket_id AND ticket_reply_archived_at IS NULL), 0) AS seconds,
-        DATEDIFF(CURDATE(), COALESCE(ticket_resolved_at, ticket_closed_at)) AS waiting
-    FROM tickets
-    JOIN clients ON ticket_client_id = client_id
-    LEFT JOIN users ON ticket_assigned_to = user_id
-    WHERE ticket_billable = 1 AND ticket_invoice_id = 0 AND ticket_archived_at IS NULL
-    AND (ticket_resolved_at IS NOT NULL OR ticket_closed_at IS NOT NULL)
-    " . reportClientSql('ticket_client_id', $client_id) . "
-    ORDER BY waiting DESC, ticket_number ASC");
-while ($row = mysqli_fetch_assoc($sql)) {
-    $seconds = intval($row['seconds']);
-    // To the nearest quarter hour, as roundToNearest15Min() does for the invoice line
-    $quarters = intdiv($seconds, 900) + ($seconds % 900 > 450 ? 1 : 0);
-    $row['billable_hours'] = $quarters * 0.25;
-    $rate = floatval($row['client_rate']) > 0 ? floatval($row['client_rate']) : $default_rate;
-    $row['rate'] = $rate;
-    $row['default_rate'] = floatval($row['client_rate']) <= 0;
-    $row['value'] = $row['billable_hours'] * $rate;
-    $row['seconds'] = $seconds;
-    $row['waiting'] = intval($row['waiting']);
+foreach (billingUnbilledTickets($client_id) as $row) {
+    $row['billable_hours'] = $row['hours'];
     $tickets[] = $row;
 }
+usort($tickets, function ($a, $b) {
+    return $b['waiting'] <=> $a['waiting'] ?: intval($a['ticket_number']) <=> intval($b['ticket_number']);
+});
 
 $clients = [];
 foreach ($tickets as $ticket) {
@@ -74,11 +57,11 @@ $client_columns = [
         return reportClientCell($row['client_id'], $row['client'], $row['abbr']);
     }],
     'tickets' => ['label' => 'Tickets', 'type' => 'count', 'html' => function ($row) {
-        return '<a class="itflow-report-amount" href="/agent/tickets.php?client_id=' . $row['client_id'] . '&billing=unbilled&state=closed">' . reportCount($row['tickets']) . '</a>'
-            . ($row['no_time'] ? ' <span class="small text-warning-emphasis" title="Tickets with under 8 minutes logged - nothing to bill unless you add time">(' . $row['no_time'] . ' with no time)</span>' : '');
+        return '<a class="itflow-report-amount" href="/agent/unbilled_time.php?client_id=' . $row['client_id'] . '">' . reportCount($row['tickets']) . '</a>'
+            . ($row['no_time'] ? ' <span class="small text-warning-emphasis" title="Tickets with too little time logged to bill">(' . $row['no_time'] . ' with no time)</span>' : '');
     }],
     'seconds' => ['label' => 'Time logged', 'type' => 'hours', 'decimals' => 2],
-    'billable_hours' => ['label' => 'To bill', 'type' => 'decimal', 'decimals' => 2, 'title' => 'Hours rounded to the nearest 15 minutes, ticket by ticket'],
+    'billable_hours' => ['label' => 'To bill', 'type' => 'decimal', 'decimals' => 2, 'title' => 'Hours rounded ' . billingTimeRulesText($time_rules) . ', ticket by ticket'],
     'rate' => ['label' => 'Rate', 'type' => 'money', 'html' => $rate_html],
     'value' => ['label' => 'Value', 'type' => 'money', 'class' => 'fw-semibold'],
     'oldest' => ['label' => 'Oldest waiting', 'type' => 'count', 'csv_label' => 'Oldest days waiting', 'html' => function ($row) use ($waiting_html) {
@@ -143,9 +126,9 @@ $over_30 = array_filter($tickets, function ($t) { return $t['waiting'] > 30; });
     <?= reportStats([
         ['label' => 'Not invoiced yet', 'value' => reportMoney($totals['value']), 'tone' => $totals['value'] > 0 ? 'warning' : '',
             'sub' => '<span class="text-body-tertiary">At each client\'s rate</span>'],
-        ['label' => 'Tickets', 'value' => reportCount(count($tickets)), 'url' => '/agent/tickets.php?billing=unbilled&state=closed',
+        ['label' => 'Tickets', 'value' => reportCount(count($tickets)), 'url' => '/agent/unbilled_time.php' . ($client_id ? "?client_id=$client_id" : ''),
             'sub' => reportCount(count($clients)) . ' <span class="text-body-tertiary">client' . (count($clients) === 1 ? '' : 's') . '</span>'],
-        ['label' => 'Hours to bill', 'value' => number_format($totals['billable_hours'], 2), 'sub' => escapeHtml(reportHours($totals['seconds'], 2)) . ' <span class="text-body-tertiary">logged</span>', 'title' => 'Each ticket\'s time rounded to the nearest 15 minutes'],
+        ['label' => 'Hours to bill', 'value' => number_format($totals['billable_hours'], 2), 'sub' => escapeHtml(reportHours($totals['seconds'], 2)) . ' <span class="text-body-tertiary">logged</span>', 'title' => 'Each ticket\'s time rounded ' . billingTimeRulesText($time_rules)],
         ['label' => 'Waiting over 30 days', 'value' => reportCount(count($over_30)), 'tone' => $over_30 ? 'danger' : 'success',
             'sub' => $over_30 ? escapeHtml(reportMoney(array_sum(array_column($over_30, 'value')))) . ' <span class="text-body-tertiary">of it</span>' : '<span class="text-body-tertiary">Nothing left that long</span>'],
     ]) ?>
@@ -154,7 +137,7 @@ $over_30 = array_filter($tickets, function ($t) { return $t['waiting'] > 30; });
         <div class="alert alert-warning d-flex gap-2 align-items-start">
             <i class="fas fa-exclamation-triangle mt-1"></i>
             <div>
-                <?php if ($no_time) { ?><div><?= $no_time ?> billable ticket<?= $no_time === 1 ? ' has' : 's have' ?> under 8 minutes logged, so <?= $no_time === 1 ? 'it adds' : 'they add' ?> nothing here - log the time, or mark <?= $no_time === 1 ? 'it' : 'them' ?> not billable.</div><?php } ?>
+                <?php if ($no_time) { ?><div><?= $no_time ?> billable ticket<?= $no_time === 1 ? ' has' : 's have' ?> too little time logged to bill, so <?= $no_time === 1 ? 'it adds' : 'they add' ?> nothing here - log the time, type the hours in <a href="/agent/unbilled_time.php">Unbilled Time</a>, or mark <?= $no_time === 1 ? 'it' : 'them' ?> not billable there.</div><?php } ?>
                 <?php if ($no_rate) { ?><div><?= $no_rate ?> ticket<?= $no_rate === 1 ? ' is' : 's are' ?> for a client with no hourly rate - set one on the client, or a default hourly rate in Admin > Settings.</div><?php } ?>
             </div>
         </div>
@@ -171,7 +154,7 @@ $over_30 = array_filter($tickets, function ($t) { return $t['waiting'] > 30; });
         <?= reportSectionOpen('Every ticket', 'Longest waiting first', 'itflow-report-long') ?>
             <?= reportTable($ticket_columns, $tickets, ['limit' => 300, 'export_table' => 'tickets', 'totals' => ['ticket' => 'Total'] + $totals]) ?>
             <div class="card-footer small text-body-secondary">
-                Billable tickets that are resolved or closed and on no invoice. To bill one, open it and choose Invoice - the hours and rate here are what it fills in.
+                Billable tickets that are resolved or closed and on no invoice. Bill them in <a href="/agent/unbilled_time.php<?= $client_id ? "?client_id=$client_id" : '' ?>">Unbilled Time</a> - the hours and rates here are what it fills in.
             </div>
         </div>
     <?php } ?>

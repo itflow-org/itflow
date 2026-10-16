@@ -57,7 +57,7 @@ $can_manage_payments = lookupUserPermission('module_sales') >= 3 && lookupUserPe
 $can_edit_lines = billingCanEditItems('invoice', $invoice);
 $mail_ready = !empty($config_smtp_provider) && billingEmailableContacts('invoice', $client_id) > 0;
 $saved_card = $can_take_payment && in_array($status, ['Sent', 'Viewed'], true) && invoiceHasSavedCard($client_id);
-$unbilled_tickets = $can_edit ? count(invoiceUnbilledTickets($client_id)) : 0;
+$unbilled_tickets = $can_edit && $can_edit_lines && $config_module_enable_ticketing ? count(billingUnbilledTickets($client_id)) : 0;
 $guest_url = billingGuestUrl('invoice', $invoice);
 $csrf = $_SESSION['csrf_token'];
 

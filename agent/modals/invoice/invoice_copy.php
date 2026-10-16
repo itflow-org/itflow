@@ -19,7 +19,7 @@ $client_id = intval($doc['client_id']);
 enforceClientAccess();
 $doc_number = billingNumber($doc_type, $doc);
 $lines = count(billingItems('invoice', intval($doc['invoice_id'])));
-$terms = intval($doc['client_net_terms']) ?: intval($config_default_net_terms);
+$terms = intval($doc['client_net_terms']); // 0 is On Receipt
 
 ob_start();
 
@@ -39,7 +39,7 @@ ob_start();
             <span class="input-group-text"><i class="fa fa-fw fa-calendar"></i></span>
             <input type="date" class="form-control" name="date" max="2999-12-31" value="<?= date('Y-m-d') ?>" required>
         </div>
-        <div class="form-text">Due <?= $terms ?> days after it - the client's terms.</div>
+        <div class="form-text"><?= $terms ? "Due $terms days after it" : 'Due on receipt' ?> - the client's terms.</div>
     </div>
     <div class="modal-footer">
         <button type="submit" name="add_invoice_copy" class="btn btn-primary text-bold"><i class="fas fa-copy me-2"></i>Copy</button>

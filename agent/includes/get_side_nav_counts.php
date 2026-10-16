@@ -25,6 +25,9 @@ $num_open_invoices = $row['num'];
 $row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT COUNT('recurring_invoice_id') AS num FROM recurring_invoices WHERE recurring_invoice_archived_at IS NULL " . clientScopeSql('recurring_invoice_client_id') . ""));
 $num_recurring_invoices = $row['num'];
 
+// Unbilled tickets - billable, done and on no invoice (Billing > Unbilled Time)
+$num_unbilled_tickets = $config_module_enable_accounting == 1 && $config_module_enable_ticketing == 1 && lookupUserPermission('module_sales') >= 1 ? billingUnbilledCount() : 0;
+
 // Open Quotes Count
 $row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT COUNT('quote_id') AS num FROM quotes WHERE (quote_status = 'Sent' OR quote_status = 'Viewed') AND quote_archived_at IS NULL " . clientScopeSql('quote_client_id') . ""));
 $num_open_quotes = $row['num'];

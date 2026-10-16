@@ -150,6 +150,19 @@
                             </p>
                         </a>
                     </li>
+                    <?php if ($config_module_enable_ticketing == 1) { ?>
+                        <li class="nav-item">
+                            <a href="/agent/unbilled_time.php" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "unbilled_time.php") { echo "active"; } ?>">
+                                <i class="nav-icon fas fa-user-clock"></i>
+                                <p>
+                                    Unbilled Time
+                                    <?php if ($num_unbilled_tickets) { ?>
+                                        <span class="right badge text-light" data-bs-toggle="tooltip" title="Billable tickets done, not invoiced"><?= $num_unbilled_tickets ?></span>
+                                    <?php } ?>
+                                </p>
+                            </a>
+                        </li>
+                    <?php } ?>
                     <li class="nav-item">
                         <a href="/agent/recurring_invoices.php" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "recurring_invoices.php" || basename($_SERVER["PHP_SELF"]) == "recurring_invoice.php") { echo "active"; } ?>">
                             <i class="nav-icon fas fa-redo-alt"></i>

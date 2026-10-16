@@ -246,7 +246,7 @@ if (isset($_GET['quick_pick_options'])) {
             $options[] = ['value' => (string) $status_id, 'label' => $status['ticket_status_name'], 'color' => preg_match('/^(#[0-9a-f]{3,8}|[a-z]{3,24})$/i', (string) $status['ticket_status_color']) ? $status['ticket_status_color'] : ''];
         }
     } elseif ($field === 'billable') {
-        $options[] = ['value' => '1', 'label' => 'Billable', 'icon' => 'fas fa-dollar-sign', 'description' => 'Shows on the Unbilled Tickets report until invoiced'];
+        $options[] = ['value' => '1', 'label' => 'Billable', 'icon' => 'fas fa-dollar-sign', 'description' => 'Shows under Unbilled Time once done, until invoiced'];
         $options[] = ['value' => '0', 'label' => 'Not billable', 'icon' => 'fas fa-minus'];
     } elseif ($field === 'assignee' || $field === 'recurring_assignee') {
         $options = quickPickAgents();

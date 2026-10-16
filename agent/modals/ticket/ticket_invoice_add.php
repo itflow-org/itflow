@@ -1,307 +1,249 @@
 <?php
 
+/*
+ * Invoice a ticket - its time as a line on a new draft invoice or one of the
+ * client's drafts. The time logged on it (by agent), the hours that makes
+ * (rounded the way Admin > Settings > Invoice says) and the client's rate
+ * are filled in, ready to change. A ticket still open can be billed from
+ * here too - time logged after that isn't billed. ?ticket_id=
+ */
+
 require_once '../../../includes/modal_header.php';
 
 enforceUserPermission('module_sales', 2);
 
-// The ticket, after the module and client checks - or the modal's error
 $ticket = ticketForModal($_GET['ticket_id'] ?? 0, 2);
 $ticket_id = intval($ticket['ticket_id']);
-if (!intval($ticket['ticket_client_id'])) {
-    echo json_encode(['error' => 'Move the ticket to a client before invoicing it.']);
-    exit;
+$reference = ticketReference($ticket);
+if (!$client_id) {
+    exit(json_encode(['error' => 'Move the ticket to a client before invoicing it.']));
+}
+if (intval($ticket['ticket_invoice_id'])) {
+    $on = billingRow('invoice', intval($ticket['ticket_invoice_id']));
+    exit(json_encode(['error' => "$reference is already billed" . ($on ? ' on ' . billingNumber('invoice', $on) : '') . '.']));
+}
+if (!intval($ticket['ticket_billable'])) {
+    exit(json_encode(['error' => "$reference isn't billable - mark it billable first."]));
 }
 
-$ticket_sql = mysqli_query(
-    $mysqli,
-    "SELECT asset_id, asset_name, asset_type, category_name, client_id, client_rate, contact_id,
-        contact_name, location_address, location_city, location_id, location_name, location_phone,
-        location_state, location_zip, ticket_assigned_to, ticket_billable, ticket_category,
-        ticket_created_at, ticket_created_by, ticket_first_response_at, ticket_number,
-        ticket_onsite, ticket_prefix, ticket_priority, ticket_quote_id, ticket_resolved_at,
-        ticket_subject, user_name FROM tickets
-    LEFT JOIN clients ON ticket_client_id = client_id
-    LEFT JOIN contacts ON ticket_contact_id = contact_id
-    LEFT JOIN users ON ticket_assigned_to = user_id
-    LEFT JOIN locations ON ticket_location_id = location_id
-    LEFT JOIN assets ON ticket_asset_id = asset_id
-    LEFT JOIN ticket_statuses ON ticket_status = ticket_status_id
-    LEFT JOIN categories ON ticket_category = category_id
-    WHERE ticket_id = $ticket_id
-    " . clientScopeSql('ticket_client_id') . "
-    LIMIT 1"
-);
-
-$row = mysqli_fetch_assoc($ticket_sql);
-$client_id = intval($row['client_id']);
-$client_rate = floatval($row['client_rate']);
-$ticket_prefix = escapeHtml($row['ticket_prefix']);
-$ticket_number = intval($row['ticket_number']);
-$ticket_category = intval($row['ticket_category']);
-$ticket_category_display = escapeHtml($row['category_name']);
-$ticket_subject = escapeHtml($row['ticket_subject']);
-$ticket_priority = escapeHtml($row['ticket_priority']);
-$ticket_billable = intval($row['ticket_billable']);
-$ticket_onsite = intval($row['ticket_onsite']);
-
-$ticket_created_at = escapeHtml($row['ticket_created_at']);
-$ticket_created_by = intval($row['ticket_created_by']);
-$ticket_date = date('Y-m-d g:i A', strtotime($ticket_created_at));
-$ticket_date_description = date('m/d/Y', strtotime($ticket_created_at));
-$ticket_first_response_at = escapeHtml($row['ticket_first_response_at']);
-if ($ticket_first_response_at) {
-    $ticket_first_response_date_time = date('Y-m-d g:i A', strtotime($ticket_first_response_at));
-} else {
-    $ticket_first_response_date_time = '';
+$unbilled = billingUnbilledTickets($client_id, [$ticket_id], true);
+$row = $unbilled[$ticket_id] ?? null;
+if (!$row) {
+    exit(json_encode(['error' => "$reference can't be billed - it is archived."]));
 }
-$ticket_resolved_at = escapeHtml($row['ticket_resolved_at']);
-if ($ticket_resolved_at) {
-    $ticket_resolved_date = date('Y-m-d g:i A', strtotime($ticket_resolved_at));
-} else {
-    $ticket_resolved_date = '';
+$rules = billingTimeRules();
+$open = !in_array(intval($row['ticket_status']), [TICKET_STATUS_RESOLVED, TICKET_STATUS_CLOSED], true);
+$currency = (string) $session_company_currency;
+
+// The time on it, by who logged it
+$agents = [];
+$sql = mysqli_query($mysqli, "SELECT user_name, COUNT(*) AS entries, SUM(TIME_TO_SEC(ticket_reply_time_worked)) AS seconds FROM ticket_replies
+    LEFT JOIN users ON user_id = ticket_reply_by
+    WHERE ticket_reply_ticket_id = $ticket_id AND ticket_reply_archived_at IS NULL AND ticket_reply_time_worked > '00:00:00'
+    GROUP BY ticket_reply_by ORDER BY seconds DESC");
+while ($agent = mysqli_fetch_assoc($sql)) {
+    $agents[] = $agent;
 }
 
-$ticket_assigned_to = intval($row['ticket_assigned_to']);
-if ($ticket_assigned_to) {
-    $ticket_assigned_agent = escapeHtml($row['user_name']);
-} else {
-    $ticket_assigned_agent = '';
+$drafts = [];
+$sql = mysqli_query($mysqli, "SELECT invoice_id, invoice_prefix, invoice_number, invoice_scope, invoice_amount FROM invoices
+    WHERE invoice_client_id = $client_id AND invoice_status = 'Draft' AND invoice_archived_at IS NULL ORDER BY invoice_date DESC, invoice_id DESC");
+while ($draft = mysqli_fetch_assoc($sql)) {
+    $drafts[intval($draft['invoice_id'])] = $draft;
 }
-
-$ticket_quote_id = intval($row['ticket_quote_id']);
-
-$contact_id = intval($row['contact_id']);
-$contact_name = escapeHtml($row['contact_name']);
-
-$asset_id = intval($row['asset_id']);
-$asset_name = escapeHtml($row['asset_name']);
-$asset_type = escapeHtml($row['asset_type']);
-
-$location_id = intval($row['location_id']);
-$location_name = escapeHtml($row['location_name']);
-$location_address = escapeHtml($row['location_address']);
-$location_city = escapeHtml($row['location_city']);
-$location_state = escapeHtml($row['location_state']);
-$location_zip = escapeHtml($row['location_zip']);
-$location_phone = formatPhoneNumber($row['location_phone']);
-
-if ($client_id) {
-    enforceClientAccess();
-}
-
-//Get Total Ticket Time
-$ticket_total_reply_time = mysqli_query($mysqli, "SELECT SEC_TO_TIME(SUM(TIME_TO_SEC(ticket_reply_time_worked))) AS ticket_total_reply_time FROM ticket_replies WHERE ticket_reply_archived_at IS NULL AND ticket_reply_ticket_id = $ticket_id");
-$row = mysqli_fetch_assoc($ticket_total_reply_time);
-$ticket_total_reply_time = escapeHtml($row['ticket_total_reply_time']);
-$ticket_total_reply_time_display = formatDuration($ticket_total_reply_time);
-
-$sql_invoices = mysqli_query($mysqli, "SELECT invoice_amount, invoice_date, invoice_due, invoice_id, invoice_number, invoice_prefix,
-    invoice_scope, invoice_status FROM invoices WHERE invoice_status LIKE 'Draft' AND invoice_client_id = $client_id ORDER BY invoice_number ASC");
+$categories = billingCategories();
+$taxes = billingTaxes();
+$scopes = ["Ticket $reference - " . $row['ticket_subject'], 'Support - ' . date('F Y')];
 
 ob_start();
 
 ?>
-
 <div class="modal-header bg-dark">
-    <h5 class="modal-title"><i class="fa fa-fw fa-file-invoice-dollar me-2"></i>Invoice this ticket</h5>
+    <h5 class="modal-title"><i class="fas fa-fw fa-file-invoice-dollar me-2"></i>Invoice <?= escapeHtml($reference) ?></h5>
     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
 </div>
-<form action="post.php" method="post" autocomplete="off">
+<form action="post.php" method="post" autocomplete="off" id="ticketInvoiceForm">
     <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
     <input type="hidden" name="ticket_id" value="<?= $ticket_id ?>">
+
     <div class="modal-body">
-        <?php if ($ticket_quote_id > 0) { ?>
-            <div class="alert alert-warning" role="alert">
-                <a href="quote.php?quote_id=<?=$ticket_quote_id?>">View quote?</a>
+        <?php if ($open) { ?>
+            <div class="alert alert-warning small py-2">
+                <i class="fas fa-exclamation-triangle me-1"></i><?= escapeHtml($reference) ?> is still open. It is billed once - time logged on it after this isn't billed.
+            </div>
+        <?php } ?>
+        <?php if (intval($ticket['ticket_quote_id'] ?? 0)) { ?>
+            <div class="alert alert-info small py-2">
+                <i class="fas fa-comment-dollar me-1"></i>It has a quote - <a href="quote.php?quote_id=<?= intval($ticket['ticket_quote_id']) ?>">check it</a> before billing the time as well.
             </div>
         <?php } ?>
 
-        <?php if (mysqli_num_rows($sql_invoices) > 0) { ?>
-
-        <ul class="nav nav-pills nav-justified mb-3">
-            <li class="nav-item">
-                <a class="nav-link active" data-bs-toggle="pill" href="#pills-add-to-invoice"><i class="fa fa-fw fa-plus me-2"></i>Add to Existing Invoice</a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" data-bs-toggle="pill" href="#pills-create-invoice"><i class="fa fa-fw fa-check me-2"></i>Create New Invoice</a>
-            </li>
-
-        </ul>
-
-        <hr>
-
-        <?php } ?>
-
-        <div class="tab-content">
-
-                <?php
-
-                if (mysqli_num_rows($sql_invoices) > 0) { ?>
-
-                <div class="tab-pane fade <?php if (mysqli_num_rows($sql_invoices) > 0) { echo "active show"; } ?>" id="pills-add-to-invoice">
-                    <div class="mb-3">
-                        <label>Existing Invoice</label>
-                        <div class="input-group">
-                                <span class="input-group-text"><i class="fa fa-fw fa-file-invoice-dollar"></i></span>
-                            <select class="form-select" name="invoice_id">
-                                <option value="0">- Select an Existing Invoice -</option>
-                                <?php
-
-                                while ($row = mysqli_fetch_assoc($sql_invoices)) {
-                                    $invoice_id = intval($row['invoice_id']);
-                                    $invoice_prefix = escapeHtml($row['invoice_prefix']);
-                                    $invoice_number = intval($row['invoice_number']);
-                                    $invoice_scope = escapeHtml($row['invoice_scope']);
-                                    $invoice_status = escapeHtml($row['invoice_status']);
-                                    $invoice_date = escapeHtml($row['invoice_date']);
-                                    $invoice_due = escapeHtml($row['invoice_due']);
-                                    $invoice_amount = floatval($row['invoice_amount']);
-                                    ?>
-                                    <option value="<?= $invoice_id ?>"><?= "$invoice_prefix$invoice_number | $invoice_scope" ?></option>
-                                <?php } ?>
-
-                            </select>
-                        </div>
-                    </div>
-                </div>
-
+        <!-- The time on it -->
+        <div class="d-flex flex-wrap align-items-center gap-3 p-3 mb-3 rounded bg-body-tertiary">
+            <div class="me-auto">
+                <div class="small text-body-secondary">Time logged</div>
+                <div class="fs-5 fw-semibold"><?= $row['seconds'] ? billingDuration($row['seconds']) : 'None' ?></div>
+            </div>
+            <div class="small text-body-secondary flex-grow-1">
+                <?php if ($agents) {
+                    foreach ($agents as $agent) { ?>
+                        <div><?= escapeHtml($agent['user_name'] ?: 'Someone removed') ?> - <?= billingDuration($agent['seconds']) ?> in <?= intval($agent['entries']) ?> <?= intval($agent['entries']) === 1 ? 'reply' : 'replies' ?></div>
+                    <?php }
+                } else { ?>
+                    <div class="text-warning-emphasis">No time logged on it - type the hours to bill.</div>
                 <?php } ?>
+            </div>
+            <div class="text-end">
+                <div class="small text-body-secondary">To bill</div>
+                <div class="fs-5 fw-semibold"><?= billingQuantity($row['hours']) ?> h</div>
+            </div>
+        </div>
 
-                <div class="tab-pane fade <?php if (mysqli_num_rows($sql_invoices) == 0) { echo "active show"; } ?>" id="pills-create-invoice">
-
-                <div class="row">
-                    <div class="col-sm-6">
-
-                        <div class="mb-3">
-                            <label>Invoice Date <strong class="text-danger">*</strong></label>
-                            <div class="input-group">
-                                    <span class="input-group-text"><i class="fa fa-fw fa-calendar"></i></span>
-                                <input type="date" class="form-control" name="date" max="2999-12-31" value="<?= date("Y-m-d") ?>">
-                            </div>
-                        </div>
-
-                    </div>
-                    <div class="col-sm-6">
-                        <div class="mb-3">
-                            <label>Invoice Category <strong class="text-danger">*</strong></label>
-                            <div class="input-group">
-                                    <span class="input-group-text"><i class="fa fa-fw fa-list"></i></span>
-                                <select class="form-select select2" name="category">
-                                    <option value="">- Select a Category -</option>
-                                    <?php
-
-                                    $sql = mysqli_query($mysqli, "SELECT category_id, category_name, category_color, category_icon FROM categories WHERE category_type = 'Income' AND category_archived_at IS NULL ORDER BY category_name ASC");
-                                    while ($row = mysqli_fetch_assoc($sql)) {
-                                        $category_id = intval($row['category_id']);
-                                        $category_name = escapeHtml($row['category_name']);
-                                        ?>
-                                        <option value="<?= $category_id ?>"<?= selectOptionColor($row['category_color'] ?? '', $row['category_icon'] ?? '') ?>><?= $category_name ?></option>
-
-                                        <?php
-                                    }
-                                    ?>
-                                </select>
-                                    <button type="button" class="btn btn-secondary ajax-modal" title="New category" data-modal-url="/admin/modals/category/category_add.php?category=Expense"><i class="fas fa-fw fa-plus"></i></button>
-                            </div>
-                        </div>
-                    </div>
+        <div class="row g-3">
+            <div class="col-12">
+                <label class="form-label">Invoice</label>
+                <div class="input-group">
+                    <span class="input-group-text"><i class="fa fa-fw fa-file-invoice"></i></span>
+                    <select class="form-select" name="invoice_id" data-ticket-invoice-target>
+                        <option value="0">A new draft invoice</option>
+                        <?php foreach ($drafts as $draft_id => $draft) { ?>
+                            <option value="<?= $draft_id ?>">Add to <?= escapeHtml(billingNumber('invoice', $draft)) ?><?= trim((string) $draft['invoice_scope']) !== '' ? ' - ' . escapeHtml($draft['invoice_scope']) : '' ?> (<?= escapeHtml(billingMoney($draft['invoice_amount'], $currency)) ?>)</option>
+                        <?php } ?>
+                    </select>
                 </div>
-
-                <div class="mb-3">
-                    <label>Invoice Title</label>
-                    <div class="input-group">
-                            <span class="input-group-text"><i class="fa fa-fw fa-comment"></i></span>
-                        <select class="form-select select2" name="scope" data-tags="true" data-placeholder="- Enter or Select an Invoice Title -">
-                            <option value=""></option>
-                            <option><?= date('F Y'); ?> Tickets</option>
-                            <option><?= "Ticket $ticket_prefix$ticket_number - $ticket_subject" ?></option>
-                        </select>
-                    </div>
+            </div>
+            <div class="col-sm-6" data-ticket-invoice-new>
+                <label class="form-label">Invoice date <strong class="text-danger">*</strong></label>
+                <div class="input-group">
+                    <span class="input-group-text"><i class="fa fa-fw fa-calendar"></i></span>
+                    <input type="date" class="form-control" name="date" max="2999-12-31" value="<?= date('Y-m-d') ?>" required>
                 </div>
-
             </div>
-
-        </div>
-
-        <div class="mb-3">
-            <label>Item <strong class="text-danger">*</strong></label>
-            <div class="input-group">
-                    <span class="input-group-text"><i class="fa fa-fw fa-box"></i></span>
-                <input type="text" class="form-control" name="item_name" placeholder="Item" maxlength="200" value="Support [Hourly]" required>
-            </div>
-        </div>
-
-        <div class="mb-3">
-            <label>Item Description</label>
-            <div class="input-group">
-                <textarea class="form-control" rows="10" name="item_description"><?php
-                    // Build description text cleanly in PHP, not mixed with HTML
-                    $description = "Ticket {$ticket_prefix}{$ticket_number} - $ticket_subject - $ticket_date_description";
-                    echo trim($description); // Trim any leading/trailing spaces/newlines
-                ?></textarea>
-            </div>
-        </div>
-
-        <div class="row g-2">
-            <div class="col">
-
-                <div class="mb-3">
-                    <label>QTY <strong class="text-danger">*</strong></label>
-                    <div class="input-group">
-                            <span class="input-group-text"><i class="fa fa-fw fa-balance-scale"></i></span>
-                        <input type="text" class="form-control" inputmode="decimal" pattern="-?[0-9]*\.?[0-9]{0,2}" name="qty" value="<?= roundToNearest15Min($ticket_total_reply_time) ?>" required>
-                    </div>
-                    <small class="form-text text-muted">
-                        From the <strong><?= $ticket_total_reply_time ?></strong> worked on the ticket, rounded to the nearest 15 minutes.
-                    </small>
+            <div class="col-sm-6" data-ticket-invoice-new>
+                <label class="form-label">Category <strong class="text-danger">*</strong></label>
+                <div class="input-group">
+                    <span class="input-group-text"><i class="fa fa-fw fa-tag"></i></span>
+                    <select class="form-select" name="category" required>
+                        <option value="">- Category -</option>
+                        <?php foreach ($categories as $category_id => $category) { ?>
+                            <option value="<?= intval($category_id) ?>"<?= selectOptionColor($category['category_color'] ?? '', $category['category_icon'] ?? '') ?>><?= escapeHtml($category['category_name']) ?></option>
+                        <?php } ?>
+                    </select>
                 </div>
-
             </div>
-
-            <div class="col">
-
-                <div class="mb-3">
-                    <label>Price <strong class="text-danger">*</strong></label>
-                    <div class="input-group">
-                            <span class="input-group-text"><i class="fa fa-fw fa-dollar-sign"></i></span>
-                        <input type="text" class="form-control" inputmode="decimal" pattern="-?[0-9]*\.?[0-9]{0,2}" name="price" value="<?= number_format($client_rate, 2, '.', '') ?>" required>
-                    </div>
-                    <small class="form-text text-muted">
-                        The client's hourly rate is <strong><?= numfmt_format_currency($currency_format, $client_rate, $session_company_currency); ?></strong>
-                    </small>
+            <div class="col-12" data-ticket-invoice-new>
+                <label class="form-label">Scope</label>
+                <div class="input-group">
+                    <span class="input-group-text"><i class="fa fa-fw fa-comment"></i></span>
+                    <input type="text" class="form-control" name="scope" maxlength="255" value="<?= escapeHtml($scopes[0]) ?>" list="ticketInvoiceScopes">
+                    <datalist id="ticketInvoiceScopes">
+                        <?php foreach ($scopes as $scope) { ?>
+                            <option value="<?= escapeHtml($scope) ?>"></option>
+                        <?php } ?>
+                    </datalist>
                 </div>
-
             </div>
-
-        </div>
-
-        <div class="mb-3">
-            <label>Tax <strong class="text-danger">*</strong></label>
-            <div class="input-group">
-                    <span class="input-group-text"><i class="fa fa-fw fa-piggy-bank"></i></span>
-                <select class="form-select select2" name="tax_id" required>
-                    <option value="0">None</option>
-                    <?php
-
-                    $taxes_sql = mysqli_query($mysqli, "SELECT tax_id, tax_name, tax_percent FROM taxes WHERE tax_archived_at IS NULL ORDER BY tax_name ASC");
-                    while ($row = mysqli_fetch_assoc($taxes_sql)) {
-                        $tax_id_select = intval($row['tax_id']);
-                        $tax_name = escapeHtml($row['tax_name']);
-                        $tax_percent = floatval($row['tax_percent']);
-                        ?>
-                        <option value="<?= $tax_id_select ?>"><?= "$tax_name $tax_percent%" ?></option>
-                    <?php } ?>
-                </select>
-
+            <div class="col-12">
+                <label class="form-label">Line <strong class="text-danger">*</strong></label>
+                <div class="input-group">
+                    <span class="input-group-text"><i class="fa fa-fw fa-cube"></i></span>
+                    <input type="text" class="form-control" name="item_name" maxlength="200" value="<?= escapeHtml($rules['item_name']) ?>" required>
+                </div>
+            </div>
+            <div class="col-12">
+                <label class="form-label">Description</label>
+                <div class="input-group">
+                    <span class="input-group-text align-items-start pt-2"><i class="fa fa-fw fa-align-left"></i></span>
+                    <textarea class="form-control" name="item_description" rows="2"><?= escapeHtml(billingTimeDescription($row)) ?></textarea>
+                </div>
+            </div>
+            <div class="col-sm-4">
+                <label class="form-label">Hours <strong class="text-danger">*</strong></label>
+                <div class="input-group">
+                    <span class="input-group-text"><i class="fa fa-fw fa-clock"></i></span>
+                    <input type="text" class="form-control text-end" name="qty" inputmode="decimal" value="<?= billingQuantity($row['hours']) ?>" required data-ticket-invoice-hours>
+                </div>
+                <div class="form-text">Rounded <?= escapeHtml(billingTimeRulesText($rules)) ?>.</div>
+            </div>
+            <div class="col-sm-4">
+                <label class="form-label">Rate <strong class="text-danger">*</strong></label>
+                <div class="input-group">
+                    <span class="input-group-text"><i class="fa fa-fw fa-dollar-sign"></i></span>
+                    <input type="text" class="form-control text-end" name="price" inputmode="decimal" value="<?= number_format($row['rate'], 2, '.', '') ?>" required data-ticket-invoice-rate>
+                </div>
+                <div class="form-text"><?= $row['rate'] > 0 ? ($row['default_rate'] ? 'The default rate - the client has none.' : "The client's hourly rate.") : 'No rate is set for the client, or as a default.' ?></div>
+            </div>
+            <div class="col-sm-4">
+                <label class="form-label">Tax</label>
+                <div class="input-group">
+                    <span class="input-group-text"><i class="fa fa-fw fa-percent"></i></span>
+                    <select class="form-select" name="tax_id" data-ticket-invoice-tax>
+                        <option value="0" data-percent="0">No tax</option>
+                        <?php foreach ($taxes as $tax_id => $tax) { ?>
+                            <option value="<?= intval($tax_id) ?>" data-percent="<?= floatval($tax['tax_percent']) ?>"><?= escapeHtml($tax['tax_name'] . ' ' . billingQuantity($tax['tax_percent']) . '%') ?></option>
+                        <?php } ?>
+                    </select>
+                </div>
             </div>
         </div>
-
+        <div class="d-flex justify-content-between align-items-center mt-3 pt-3 border-top">
+            <span class="text-body-secondary">The line comes to</span>
+            <span class="fs-5 fw-semibold itflow-money" data-ticket-invoice-total></span>
+        </div>
     </div>
     <div class="modal-footer">
-        <button type="submit" name="add_invoice_from_ticket" class="btn btn-primary text-bold"><i class="fa fa-check me-2"></i>Invoice</button>
-        <button type="button" class="btn btn-light" data-bs-dismiss="modal"><i class="fa fa-times me-2"></i>Cancel</button>
+        <button type="submit" name="add_invoice_from_ticket" class="btn btn-primary text-bold"><i class="fas fa-check me-2"></i><span data-ticket-invoice-label>Make Invoice</span></button>
+        <button type="button" class="btn btn-light" data-bs-dismiss="modal"><i class="fas fa-times me-2"></i>Cancel</button>
     </div>
 </form>
+
+<script>
+(function () {
+    var form = document.getElementById('ticketInvoiceForm');
+    if (!form || form.dataset.wired) {
+        return;
+    }
+    form.dataset.wired = '1';
+    var currency = <?= json_encode($currency) ?>;
+    var target = form.querySelector('[data-ticket-invoice-target]');
+    var hours = form.querySelector('[data-ticket-invoice-hours]');
+    var rate = form.querySelector('[data-ticket-invoice-rate]');
+    var tax = form.querySelector('[data-ticket-invoice-tax]');
+    var total = form.querySelector('[data-ticket-invoice-total]');
+    var label = form.querySelector('[data-ticket-invoice-label]');
+    function number(value) {
+        var text = String(value || '').replace(/[\s,$]/g, '');
+        return text === '' ? NaN : Number(text);
+    }
+    function update() {
+        var making = target.value === '0';
+        form.querySelectorAll('[data-ticket-invoice-new]').forEach(function (section) {
+            section.hidden = !making;
+            section.querySelectorAll('input, select').forEach(function (input) {
+                input.disabled = !making;
+            });
+        });
+        label.textContent = making ? 'Make Invoice' : 'Add to Invoice';
+        var h = number(hours.value);
+        var r = number(rate.value);
+        if (isNaN(h) || isNaN(r)) {
+            total.textContent = 'Not a number';
+            return;
+        }
+        var option = tax.options[tax.selectedIndex];
+        var amount = Math.round(h * r * 100) / 100;
+        amount += Math.round(amount * Number(option ? option.getAttribute('data-percent') || 0 : 0)) / 100;
+        try {
+            total.textContent = new Intl.NumberFormat(undefined, { style: 'currency', currency: currency || 'USD' }).format(amount);
+        } catch (e) {
+            total.textContent = amount.toFixed(2);
+        }
+    }
+    form.addEventListener('input', update);
+    form.addEventListener('change', update);
+    update();
+})();
+</script>
 
 <?php
 require_once '../../../includes/modal_footer.php';

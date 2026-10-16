@@ -1429,6 +1429,11 @@ if (isset($_GET['reopen_ticket'])) {
 
 }
 
+/*
+ * Invoice a ticket - its time, at the hours and rate in the window, on a new
+ * draft or one of the client's drafts. billingTimeInvoice() does it, the same
+ * as Unbilled Time; a ticket that isn't done yet can be billed from here.
+ */
 if (isset($_POST['add_invoice_from_ticket'])) {
 
     validateCSRFToken();
@@ -1437,75 +1442,33 @@ if (isset($_POST['add_invoice_from_ticket'])) {
 
     $row = ticketForRequest($_POST['ticket_id'] ?? 0, 2);
     $ticket_id = intval($row['ticket_id']);
-    $reference = escapeSql(ticketReference($row));
 
     if (!$client_id) {
         flashAlert('Move the ticket to a client before invoicing it.', 'error');
         redirect();
     }
 
-    $invoice_id = intval($_POST['invoice_id'] ?? 0);
-    $date_input = (string) ($_POST['date'] ?? '');
-    $date = ($parsed_date = DateTime::createFromFormat('!Y-m-d', $date_input)) && $parsed_date->format('Y-m-d') === $date_input ? $date_input : date('Y-m-d');
-    $category = intval($_POST['category'] ?? 0);
-    $scope = escapeSql($_POST['scope'] ?? '');
-
-    $client_net_terms = intval(getFieldById('clients', $client_id, 'client_net_terms')) ?: intval($config_default_net_terms);
-
-    if ($invoice_id === 0) {
-
-        $invoice_prefix = escapeSql($config_invoice_prefix);
-
-        // Atomically increment and get the new invoice number
-        mysqli_query($mysqli, "UPDATE settings SET config_invoice_next_number = LAST_INSERT_ID(config_invoice_next_number), config_invoice_next_number = config_invoice_next_number + 1 WHERE company_id = 1");
-        $invoice_number = mysqli_insert_id($mysqli);
-
-        // A key for the client's guest link to it
-        $url_key = randomString(32);
-
-        mysqli_query($mysqli, "INSERT INTO invoices SET invoice_prefix = '$invoice_prefix', invoice_number = $invoice_number, invoice_scope = '$scope', invoice_date = '$date', invoice_due = DATE_ADD('$date', INTERVAL $client_net_terms day), invoice_currency_code = '$session_company_currency', invoice_category_id = $category, invoice_status = 'Draft', invoice_url_key = '$url_key', invoice_client_id = $client_id");
-        $invoice_id = mysqli_insert_id($mysqli);
-    } else {
-        // Only one of the ticket's client's draft invoices
-        $invoice = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT invoice_prefix, invoice_number FROM invoices WHERE invoice_id = $invoice_id AND invoice_client_id = $client_id AND invoice_status = 'Draft'"));
-        if (!$invoice) {
-            flashAlert("That invoice isn't one of this client's drafts.", 'error');
-            redirect();
-        }
-        $invoice_prefix = escapeSql($invoice['invoice_prefix']);
-        $invoice_number = intval($invoice['invoice_number']);
+    $result = billingTimeInvoice($client_id, [$ticket_id => (string) ($_POST['qty'] ?? '')], [
+        'invoice_id' => intval($_POST['invoice_id'] ?? 0),
+        'date' => (string) ($_POST['date'] ?? ''),
+        'category_id' => intval($_POST['category'] ?? 0),
+        'scope' => (string) ($_POST['scope'] ?? ''),
+        'item_name' => (string) ($_POST['item_name'] ?? ''),
+        'description' => isset($_POST['item_description']) ? (string) $_POST['item_description'] : null,
+        'price' => (string) ($_POST['price'] ?? ''),
+        'tax_id' => intval($_POST['tax_id'] ?? 0),
+        'include_open' => true,
+        'by' => $session_name,
+    ], $error);
+    if (!$result) {
+        flashAlert(escapeHtml($error), 'error');
+        redirect();
     }
 
-    // The line for the work
-    $item_name = escapeSql($_POST['item_name'] ?? '');
-    $item_description = escapeSql($_POST['item_description'] ?? '');
-    $qty = floatval($_POST['qty'] ?? 0);
-    $price = floatval($_POST['price'] ?? 0);
-    $tax_id = intval($_POST['tax_id'] ?? 0);
-    $subtotal = $price * $qty;
-    $tax_amount = 0;
-    if ($tax_id > 0) {
-        $tax_percent = floatval(getFieldById('taxes', $tax_id, 'tax_percent'));
-        $tax_amount = $subtotal * $tax_percent / 100;
-    }
-    $total = $subtotal + $tax_amount;
+    flashAlert('<strong>' . escapeHtml(ticketReference($row)) . '</strong> billed on <strong>' . escapeHtml($result['number']) . '</strong> - ' . billingQuantity($result['hours']) . ' h'
+        . ($result['lines'] ? '' : ', with no charge'));
 
-    mysqli_query($mysqli, "INSERT INTO invoice_items SET item_name = '$item_name', item_description = '$item_description', item_quantity = $qty, item_price = $price, item_subtotal = $subtotal, item_tax = $tax_amount, item_total = $total, item_order = 1, item_tax_id = $tax_id, item_invoice_id = $invoice_id");
-
-    mysqli_query($mysqli, "UPDATE invoices SET invoice_amount = invoice_amount + $total WHERE invoice_id = $invoice_id");
-
-    mysqli_query($mysqli, "INSERT INTO history SET history_status = 'Draft', history_description = 'Invoice created from Ticket $reference', history_invoice_id = $invoice_id");
-
-    // Add internal note to ticket, and link to invoice in database
-    mysqli_query($mysqli, "INSERT INTO ticket_replies SET ticket_reply = 'Created invoice <a href=\"invoice.php?invoice_id=$invoice_id\">$invoice_prefix$invoice_number</a> for this ticket.', ticket_reply_type = 'Internal', ticket_reply_time_worked = '00:00:00', ticket_reply_by = $session_user_id, ticket_reply_ticket_id = $ticket_id");
-
-    mysqli_query($mysqli, "UPDATE tickets SET ticket_invoice_id = $invoice_id WHERE ticket_id = $ticket_id");
-
-    logAudit("Invoice", "Create", "$session_name created invoice $invoice_prefix$invoice_number from Ticket $reference", $client_id, $invoice_id);
-
-    flashAlert("Invoice <strong>" . escapeHtml($invoice_prefix . $invoice_number) . "</strong> created from ticket");
-
-    redirect("invoice.php?invoice_id=$invoice_id");
+    redirect("invoice.php?invoice_id={$result['invoice_id']}");
 
 }
 

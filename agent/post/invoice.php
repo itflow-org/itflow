@@ -100,7 +100,7 @@ if (isset($_POST['add_invoice_copy'])) {
         invoice_currency_code, invoice_discount_amount, invoice_note, invoice_number,
         invoice_prefix, invoice_scope FROM clients, invoices WHERE client_id = invoice_client_id AND invoice_id = $invoice_id");
     $row = mysqli_fetch_assoc($sql);
-    $client_net_terms = intval($row['client_net_terms']) ?: intval($config_default_net_terms);
+    $client_net_terms = intval($row['client_net_terms']); // 0 is On Receipt
     $invoice_scope = escapeSql($row['invoice_scope']);
     $invoice_discount_amount = floatval($row['invoice_discount_amount']);
     $invoice_amount = floatval($row['invoice_amount']);
@@ -813,6 +813,11 @@ if (isExportRequest('export_invoices')) {
  * Put tickets on an invoice - billable ones of the same client that are
  * resolved or closed and not on an invoice yet. ticket_ids[] (or ticket_id).
  */
+/*
+ * Add Tickets: put the client's unbilled tickets on this invoice - with a
+ * line for each one's time (or one for all), or, with bill_time off, without
+ * lines when the work is already on the invoice some other way.
+ */
 if (isset($_POST['add_ticket_to_invoice'])) {
 
     validateCSRFToken();
@@ -829,27 +834,32 @@ if (isset($_POST['add_ticket_to_invoice'])) {
 
     enforceClientAccess();
 
-    $ticket_ids = array_filter(array_map('intval', (array) ($_POST['ticket_ids'] ?? [$_POST['ticket_id'] ?? 0])));
-    $added = [];
-    foreach (invoiceUnbilledTickets($client_id) as $ticket) {
-        if (in_array(intval($ticket['ticket_id']), $ticket_ids, true)) {
-            mysqli_query($mysqli, "UPDATE tickets SET ticket_invoice_id = $invoice_id WHERE ticket_id = " . intval($ticket['ticket_id']) . " AND ticket_invoice_id = 0");
-            $added[] = $ticket['ticket_prefix'] . $ticket['ticket_number'];
-        }
+    $hours = [];
+    foreach (array_unique(array_filter(array_map('intval', (array) ($_POST['ticket_ids'] ?? [$_POST['ticket_id'] ?? 0])))) as $ticket_id) {
+        $hours[$ticket_id] = $_POST['hours'][$ticket_id] ?? null;
     }
-
-    if (!$added) {
-        flashAlert('Nothing added - those tickets are already billed, or not billable.', 'error');
+    $bill_time = !empty($_POST['bill_time']);
+    $result = billingTimeInvoice($client_id, $hours, [
+        'invoice_id' => $invoice_id,
+        'item_name' => (string) ($_POST['item_name'] ?? ''),
+        'price' => (string) ($_POST['price'] ?? ''),
+        'tax_id' => intval($_POST['tax_id'] ?? 0),
+        'combine' => ($_POST['lines'] ?? '') === 'one',
+        'lines' => $bill_time,
+        'by' => $session_name,
+    ], $error);
+    if (!$result) {
+        flashAlert(escapeHtml($error), 'error');
         redirect("invoice.php?invoice_id=$invoice_id");
     }
 
-    $number = billingNumber('invoice', $invoice);
-    billingLog('invoice', $invoice_id, $invoice['invoice_status'], 'Ticket' . (count($added) === 1 ? ' ' : 's ') . implode(', ', $added) . " added by $session_name");
-    logAudit("Invoice", "Edit", escapeSql("$session_name added ticket" . (count($added) === 1 ? ' ' : 's ') . implode(', ', $added) . " to invoice $number"), $client_id, $invoice_id);
+    $count = count($result['tickets']);
+    $what = $count === 1 ? 'Ticket <strong>' . escapeHtml($result['tickets'][0]) . '</strong>' : "<strong>$count tickets</strong>";
+    flashAlert($bill_time
+        ? "$what billed - " . billingQuantity($result['hours']) . ' h' . ($result['lines'] ? ' on ' . $result['lines'] . ' line' . ($result['lines'] === 1 ? '' : 's') : ', with no charge')
+        : "$what added to the invoice, without lines");
 
-    flashAlert(count($added) === 1 ? "Ticket <strong>" . escapeHtml($added[0]) . "</strong> added to the invoice" : count($added) . " tickets added to the invoice");
-
-    redirect("invoice.php?invoice_id=$invoice_id");
+    redirect("invoice.php?invoice_id=$invoice_id" . ($bill_time && $result['lines'] ? '#items' : ''));
 
 }
 
@@ -875,6 +885,7 @@ if (isset($_GET['remove_ticket_from_invoice'])) {
     mysqli_query($mysqli,"UPDATE tickets SET ticket_invoice_id = 0 WHERE ticket_id = $ticket_id");
 
     $ticket_number = $ticket['ticket_prefix'] . $ticket['ticket_number'];
+    logTicketHistory($ticket_id, escapeSql('Taken off invoice ' . billingNumber('invoice', $invoice) . " by $session_name - unbilled again"));
     billingLog('invoice', $invoice_id, $invoice['invoice_status'], "Ticket $ticket_number taken off by $session_name");
     logAudit("Invoice", "Edit", escapeSql("$session_name took ticket $ticket_number off invoice " . billingNumber('invoice', $invoice)), $client_id, $invoice_id);
 

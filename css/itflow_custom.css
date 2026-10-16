@@ -6016,6 +6016,33 @@ a.itflow-report-stat:focus-visible {
 .itflow-paper-add-seat {
     flex: 0 0 7.5rem;
 }
+/* Unbilled Time - an unticked row fades, the hours box is narrow, and the billing panel stays in view on wide screens */
+.itflow-unbilled-table tr.itflow-unbilled-off > td:not(.checkbox-column) {
+    opacity: .45;
+}
+.itflow-unbilled-table tbody tr[data-unbilled-row] {
+    cursor: pointer;
+}
+.itflow-unbilled-hours {
+    width: 6.5rem;
+}
+.itflow-unbilled-hours .form-control {
+    min-width: 4.5rem;
+}
+@media (max-width: 575.98px) {
+    .itflow-unbilled-hours {
+        width: 4.75rem;
+    }
+    .itflow-unbilled-hours .form-control {
+        min-width: 3.5rem;
+    }
+}
+@media (min-width: 1200px) {
+    .itflow-unbilled-panel {
+        position: sticky;
+        top: 4.5rem;
+    }
+}
 /* A recurring invoice's add row has one more box - the item takes the top row, the numbers the one under it */
 .itflow-paper-add-grid-seats .itflow-paper-add-item {
     flex-basis: 100%;

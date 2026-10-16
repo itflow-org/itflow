@@ -505,10 +505,10 @@ $money_format = function ($amount) use ($currency_format, $client_currency_code,
                         <span class="small text-body-tertiary"><?= $num_recurring_invoices ?> recurring invoice<?= $num_recurring_invoices === 1 ? '' : 's' ?></span>
                     </a>
                     <?php if ($access['tickets']) { ?>
-                        <a href="tickets.php?client_id=<?= $client_id ?>&billing=unbilled&state=closed" class="itflow-dash-rail-item">
+                        <a href="unbilled_time.php?client_id=<?= $client_id ?>" class="itflow-dash-rail-item">
                             <span class="small text-body-secondary">Not yet invoiced</span>
-                            <span class="itflow-dash-money-value <?= $money['unbilled_tickets'] ? 'text-info-emphasis' : '' ?>"><?= $money['unbilled_tickets'] ?> <span class="fs-6 fw-normal text-body-secondary">ticket<?= $money['unbilled_tickets'] === 1 ? '' : 's' ?></span></span>
-                            <span class="small text-body-tertiary"><?= $money['unbilled_seconds'] ? dashboardDuration($money['unbilled_seconds']) . ' logged' : 'Resolved and billable' ?></span>
+                            <span class="itflow-dash-money-value <?= $money['unbilled_value'] > 0 ? 'text-info-emphasis' : '' ?>"><?= $money_format($money['unbilled_value']) ?></span>
+                            <span class="small text-body-tertiary"><?= $money['unbilled_tickets'] ?> ticket<?= $money['unbilled_tickets'] === 1 ? '' : 's' ?><?= $money['unbilled_seconds'] ? ', ' . dashboardDuration($money['unbilled_seconds']) . ' logged' : '' ?></span>
                         </a>
                     <?php } ?>
                     <div class="itflow-dash-rail-item">

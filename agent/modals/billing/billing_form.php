@@ -30,10 +30,11 @@ $form_category_id = intval($form_value('category_id', '0'));
 $form_categories = billingCategories($form_edit ? $form_value('created_at') : null);
 $form_discount = floatval($form_value('discount_amount', '0'));
 
-// Net terms - the client's, or the default - for a new invoice's due date
+// Net terms for a new invoice's due date - the client's (0 is On Receipt), as
+// the invoice is saved with; the default until a client is picked
 $form_terms = intval($config_default_net_terms);
 if ($form_client_id) {
-    $form_terms = intval(getFieldById('clients', $form_client_id, 'client_net_terms')) ?: $form_terms;
+    $form_terms = intval(getFieldById('clients', $form_client_id, 'client_net_terms'));
 }
 
 $form_clients = [];
@@ -61,7 +62,7 @@ $form_scope_placeholder = [
                 <select class="form-select select2" name="client_id" required data-billing-client>
                     <option value="">- Select a client -</option>
                     <?php foreach ($form_clients as $form_client) { ?>
-                        <option value="<?= intval($form_client['client_id']) ?>" data-terms="<?= intval($form_client['client_net_terms']) ?: intval($config_default_net_terms) ?>"<?= selectOptionClient($form_client['client_id'], $form_client['client_name'], $form_client['client_abbreviation'] ?? '') ?>><?= escapeHtml($form_client['client_name']) ?></option>
+                        <option value="<?= intval($form_client['client_id']) ?>" data-terms="<?= intval($form_client['client_net_terms']) ?>"<?= selectOptionClient($form_client['client_id'], $form_client['client_name'], $form_client['client_abbreviation'] ?? '') ?>><?= escapeHtml($form_client['client_name']) ?></option>
                     <?php } ?>
                 </select>
             </div>
@@ -119,7 +120,7 @@ $form_scope_placeholder = [
                 <?php } ?>
             </div>
             <?php if (!$form_edit) { ?>
-                <div class="form-text" data-billing-terms-note><?= $form_terms ?> days from the invoice date - <?= $form_client_id ? "the client's" : 'the default' ?> terms.</div>
+                <div class="form-text" data-billing-terms-note><?= $form_terms ? "$form_terms days from the invoice date" : 'Due on receipt' ?> - <?= $form_client_id ? "the client's" : 'the default' ?> terms.</div>
             <?php } ?>
         </div>
     <?php } elseif ($form_type === 'quote') { ?>
@@ -235,7 +236,7 @@ $form_scope_placeholder = [
         if (due && date) {
             due.value = plus(date.value, terms());
             if (note) {
-                note.textContent = terms() + ' days from the invoice date - ' + (client && client.value ? "the client's" : 'the default') + ' terms.';
+                note.textContent = (terms() ? terms() + ' days from the invoice date' : 'Due on receipt') + ' - ' + (client && client.value ? "the client's" : 'the default') + ' terms.';
             }
         }
     }

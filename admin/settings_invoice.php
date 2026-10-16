@@ -88,7 +88,55 @@ require_once "includes/inc_all_admin.php";
                     </div>
                 </div>
 
+                <hr>
 
+                <?php $time_rules = billingTimeRules(); ?>
+                <h4 id="billing-time">Billing Time</h4>
+                <p class="text-secondary small">How the time logged on a billable ticket becomes hours on an invoice - in Unbilled Time, a ticket's Invoice window and Add Tickets. Each ticket's time is rounded once, as a whole. It is billed at the client's hourly rate, or the default rate in Defaults when the client has none.</p>
+
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label>Round to</label>
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="fa fa-fw fa-stopwatch"></i></span>
+                            <select class="form-select" name="config_time_increment">
+                                <?php foreach (billingTimeIncrements() as $minutes => $label) { ?>
+                                    <option value="<?= $minutes ?>" <?= $time_rules['increment'] === $minutes ? 'selected' : '' ?>><?= escapeHtml($label) ?></option>
+                                <?php } ?>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label>Rounding</label>
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="fa fa-fw fa-sort-amount-up"></i></span>
+                            <select class="form-select" name="config_time_rounding">
+                                <option value="nearest" <?= $time_rules['rounding'] === 'nearest' ? 'selected' : '' ?>>To the nearest - under half a step rounds down</option>
+                                <option value="up" <?= $time_rules['rounding'] === 'up' ? 'selected' : '' ?>>Always up - any part of a step bills the whole step</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label>Least a ticket bills</label>
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="fa fa-fw fa-arrow-down"></i></span>
+                            <select class="form-select" name="config_time_minimum">
+                                <?php foreach ([0 => 'No minimum', 15 => '15 minutes', 30 => '30 minutes', 60 => '1 hour', 120 => '2 hours'] as $minutes => $label) { ?>
+                                    <option value="<?= $minutes ?>" <?= $time_rules['minimum'] === $minutes ? 'selected' : '' ?>><?= $label ?></option>
+                                <?php } ?>
+                            </select>
+                        </div>
+                        <small class="text-secondary">Once it has any time logged. A ticket with none bills nothing unless the hours are typed.</small>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label>Invoice line</label>
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="fa fa-fw fa-cube"></i></span>
+                            <input type="text" class="form-control" name="config_time_item_name" maxlength="200" value="<?= escapeHtml($time_rules['item_name']) ?>" placeholder="Support [Hourly]" required>
+                        </div>
+                        <small class="text-secondary">The name of the line the time goes on. The ticket number, subject and date go in its description.</small>
+                    </div>
+                </div>
 
                 <hr>
 

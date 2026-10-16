@@ -562,7 +562,7 @@ function invoiceTickets($invoice_id) {
     $rows = [];
     $sql = mysqli_query($mysqli, "SELECT ticket_id, ticket_prefix, ticket_number, ticket_subject, ticket_created_at, ticket_closed_at,
             COALESCE(SUM(TIME_TO_SEC(ticket_reply_time_worked)), 0) AS seconds
-        FROM tickets LEFT JOIN ticket_replies ON ticket_reply_ticket_id = ticket_id
+        FROM tickets LEFT JOIN ticket_replies ON ticket_reply_ticket_id = ticket_id AND ticket_reply_archived_at IS NULL
         WHERE ticket_invoice_id = $invoice_id
         GROUP BY ticket_id ORDER BY ticket_id DESC");
     while ($row = mysqli_fetch_assoc($sql)) {
@@ -571,20 +571,367 @@ function invoiceTickets($invoice_id) {
     return $rows;
 }
 
-/** A client's billable tickets, resolved or closed, not on an invoice yet. */
-function invoiceUnbilledTickets($client_id) {
+/* ------------------------------------------------------------ Billing time */
+
+/*
+ * Time is billed by the ticket: a billable ticket that is resolved or closed
+ * is billed once, with all the time worked on it, onto an invoice line at the
+ * client's hourly rate (or the default rate when the client has none). The
+ * time is rounded the way Admin > Settings > Invoice says - to a step of
+ * minutes, to the nearest step or always up, never under a minimum - and
+ * ticket_invoice_id marks it billed. Unbilled Time, the ticket's Invoice
+ * window, Add Tickets on an invoice and the Unbilled Work report all count
+ * and price it with the functions here.
+ */
+
+/**
+ * The steps time can be rounded to, in minutes => label - each a whole
+ * number of hundredths of an hour, so the hours on a line are exact.
+ */
+function billingTimeIncrements() {
+    return [6 => '6 minutes (a tenth of an hour)', 12 => '12 minutes', 15 => '15 minutes (a quarter hour)', 30 => '30 minutes', 60 => 'An hour'];
+}
+
+/**
+ * How time is billed: increment (minutes), rounding ('nearest' or 'up'),
+ * minimum (minutes a ticket bills at least, once it has any time) and
+ * item_name (the line's name). Read once a request; until the database has
+ * the settings (2.9.2) it is the old way - the nearest 15 minutes.
+ */
+function billingTimeRules($fresh = false) {
+    global $mysqli;
+    static $rules = null;
+    if ($rules !== null && !$fresh) {
+        return $rules;
+    }
+    $rules = ['increment' => 15, 'rounding' => 'nearest', 'minimum' => 0, 'item_name' => 'Support [Hourly]'];
+    try {
+        $row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT config_time_increment, config_time_rounding, config_time_minimum, config_time_item_name FROM settings WHERE company_id = 1"));
+    } catch (mysqli_sql_exception $e) {
+        $row = null;
+    }
+    if ($row) {
+        $increment = intval($row['config_time_increment']);
+        $rules['increment'] = isset(billingTimeIncrements()[$increment]) ? $increment : 15;
+        $rules['rounding'] = $row['config_time_rounding'] === 'up' ? 'up' : 'nearest';
+        $rules['minimum'] = max(0, min(1440, intval($row['config_time_minimum'])));
+        $rules['item_name'] = trim((string) $row['config_time_item_name']) !== '' ? (string) $row['config_time_item_name'] : 'Support [Hourly]';
+    }
+    return $rules;
+}
+
+/** The rules in words - "to the nearest 15 minutes", "up to the next 6 minutes, at least 1 hour". */
+function billingTimeRulesText(?array $rules = null) {
+    $rules = $rules ?? billingTimeRules();
+    $step = $rules['increment'] === 60 ? 'hour' : $rules['increment'] . ' minutes';
+    $text = $rules['rounding'] === 'up' ? "up to the next $step" : "to the nearest $step";
+    if ($rules['minimum'] > 0) {
+        $text .= ', at least ' . billingDuration($rules['minimum'] * 60);
+    }
+    return $text;
+}
+
+/**
+ * The hours to bill for some seconds of work: rounded to the step, then
+ * never under the minimum. No time logged bills nothing.
+ */
+function billingTimeHours($seconds, ?array $rules = null) {
+    $rules = $rules ?? billingTimeRules();
+    $seconds = max(0, intval($seconds));
+    if ($seconds === 0) {
+        return 0.0;
+    }
+    $step = $rules['increment'] * 60;
+    $steps = $rules['rounding'] === 'up' ? intdiv($seconds + $step - 1, $step) : intdiv($seconds, $step) + ($seconds % $step > $step / 2 ? 1 : 0);
+    return round(max($steps * $step, $rules['minimum'] * 60) / 3600, 2);
+}
+
+/** The hourly rate a client's time is billed at - its own, or the default. */
+function billingTimeRate($client_rate) {
+    global $config_default_hourly_rate;
+    return floatval($client_rate) > 0 ? floatval($client_rate) : floatval($config_default_hourly_rate);
+}
+
+/**
+ * The SQL that makes a ticket unbilled: billable, resolved or closed, not
+ * archived, on no invoice. $include_open takes open ones too - the ticket's
+ * own Invoice window can bill a ticket before it is done.
+ */
+function billingUnbilledSql($include_open = false) {
+    return "ticket_billable = 1 AND ticket_invoice_id = 0 AND ticket_archived_at IS NULL AND ticket_client_id > 0"
+        . ($include_open ? '' : " AND ticket_status IN (" . TICKET_STATUS_RESOLVED . ", " . TICKET_STATUS_CLOSED . ")");
+}
+
+/**
+ * Unbilled tickets - one client's ($client_id), or every client the agent
+ * can open (0), optionally only $ticket_ids - longest waiting first. Each
+ * with its client, its assignee, the seconds worked (archived replies left
+ * out), the hours that bills, the rate and what that comes to, and the days
+ * since it was done.
+ */
+function billingUnbilledTickets($client_id = 0, array $ticket_ids = [], $include_open = false) {
     global $mysqli;
     $client_id = intval($client_id);
+    $ids = array_filter(array_map('intval', $ticket_ids));
+    $where = billingUnbilledSql($include_open && $ids) . ($client_id ? " AND ticket_client_id = $client_id" : '') . ($ids ? ' AND ticket_id IN (' . implode(',', $ids) . ')' : '')
+        . ' ' . clientScopeSql('ticket_client_id');
+    $rules = billingTimeRules();
     $rows = [];
-    $sql = mysqli_query($mysqli, "SELECT ticket_id, ticket_prefix, ticket_number, ticket_subject, ticket_created_at,
-            COALESCE(SUM(TIME_TO_SEC(ticket_reply_time_worked)), 0) AS seconds
-        FROM tickets LEFT JOIN ticket_replies ON ticket_reply_ticket_id = ticket_id
-        WHERE ticket_client_id = $client_id AND ticket_billable = 1 AND ticket_invoice_id = 0 AND ticket_status IN (4, 5)
-        GROUP BY ticket_id ORDER BY ticket_id DESC");
+    $sql = mysqli_query($mysqli, "SELECT ticket_id, ticket_prefix, ticket_number, ticket_subject, ticket_status, ticket_onsite, ticket_created_at, ticket_resolved_at, ticket_closed_at,
+            ticket_client_id, ticket_assigned_to, client_name, client_abbreviation, client_rate, user_name, user_avatar,
+            COALESCE((SELECT SUM(TIME_TO_SEC(ticket_reply_time_worked)) FROM ticket_replies WHERE ticket_reply_ticket_id = ticket_id AND ticket_reply_archived_at IS NULL), 0) AS seconds,
+            DATEDIFF(CURDATE(), COALESCE(ticket_resolved_at, ticket_closed_at, ticket_created_at)) AS waiting
+        FROM tickets
+        JOIN clients ON client_id = ticket_client_id
+        LEFT JOIN users ON user_id = ticket_assigned_to
+        WHERE $where
+        ORDER BY client_name ASC, waiting DESC, ticket_number ASC");
     while ($row = mysqli_fetch_assoc($sql)) {
-        $rows[] = $row;
+        $row['seconds'] = intval($row['seconds']);
+        $row['waiting'] = max(0, intval($row['waiting']));
+        $row['hours'] = billingTimeHours($row['seconds'], $rules);
+        $row['rate'] = billingTimeRate($row['client_rate']);
+        $row['default_rate'] = floatval($row['client_rate']) <= 0;
+        $row['value'] = round($row['hours'] * $row['rate'], 2);
+        $rows[intval($row['ticket_id'])] = $row;
     }
     return $rows;
+}
+
+/**
+ * The same, by client - each client with its tickets, time, hours, value,
+ * how long the oldest has waited, how many have no time logged, and its
+ * draft invoices. Biggest value first.
+ */
+function billingUnbilledByClient($client_id = 0) {
+    global $mysqli;
+    $clients = [];
+    foreach (billingUnbilledTickets($client_id) as $ticket) {
+        $id = intval($ticket['ticket_client_id']);
+        if (!isset($clients[$id])) {
+            $clients[$id] = ['client_id' => $id, 'client_name' => $ticket['client_name'], 'client_abbreviation' => $ticket['client_abbreviation'],
+                'rate' => $ticket['rate'], 'default_rate' => $ticket['default_rate'], 'tickets' => [], 'seconds' => 0, 'hours' => 0.0, 'value' => 0.0,
+                'oldest' => 0, 'no_time' => 0, 'drafts' => []];
+        }
+        $clients[$id]['tickets'][intval($ticket['ticket_id'])] = $ticket;
+        $clients[$id]['seconds'] += $ticket['seconds'];
+        $clients[$id]['hours'] += $ticket['hours'];
+        $clients[$id]['value'] += $ticket['value'];
+        $clients[$id]['oldest'] = max($clients[$id]['oldest'], $ticket['waiting']);
+        $clients[$id]['no_time'] += $ticket['seconds'] === 0 ? 1 : 0;
+    }
+    if ($clients) {
+        $sql = mysqli_query($mysqli, "SELECT invoice_id, invoice_prefix, invoice_number, invoice_scope, invoice_date, invoice_amount, invoice_client_id FROM invoices
+            WHERE invoice_status = 'Draft' AND invoice_archived_at IS NULL AND invoice_client_id IN (" . implode(',', array_keys($clients)) . ")
+            ORDER BY invoice_date DESC, invoice_id DESC");
+        while ($row = mysqli_fetch_assoc($sql)) {
+            $clients[intval($row['invoice_client_id'])]['drafts'][intval($row['invoice_id'])] = $row;
+        }
+    }
+    uasort($clients, function ($a, $b) {
+        return $b['value'] <=> $a['value'] ?: count($b['tickets']) <=> count($a['tickets']);
+    });
+    return $clients;
+}
+
+/** How many unbilled tickets the agent can see - for the menu. */
+function billingUnbilledCount() {
+    global $mysqli;
+    return intval(mysqli_fetch_row(mysqli_query($mysqli, "SELECT COUNT(*) FROM tickets WHERE " . billingUnbilledSql() . ' ' . clientScopeSql('ticket_client_id')))[0]);
+}
+
+/** A ticket's invoice line description - "Ticket TCK-123 - Subject - 10/14/2026". */
+function billingTimeDescription(array $ticket) {
+    return 'Ticket ' . $ticket['ticket_prefix'] . $ticket['ticket_number'] . ' - ' . $ticket['ticket_subject'] . ' - ' . date('m/d/Y', strtotime((string) $ticket['ticket_created_at']));
+}
+
+/**
+ * A new draft invoice for a client, as New Invoice makes one: the next
+ * number, due on the client's terms, in the company's currency. Its id.
+ */
+function billingInvoiceCreate($client_id, $date, $category_id, $scope, $by) {
+    global $mysqli, $config_invoice_prefix, $session_company_currency;
+    $client_id = intval($client_id);
+    $date = ($parsed = DateTime::createFromFormat('!Y-m-d', (string) $date)) && $parsed->format('Y-m-d') === (string) $date ? (string) $date : date('Y-m-d');
+    $terms = intval(getFieldById('clients', $client_id, 'client_net_terms'));
+    $number = billingNextNumber('invoice');
+    $prefix = escapeSql($config_invoice_prefix);
+    $scope = escapeSql(mb_substr(trim((string) $scope), 0, 255));
+    $currency = escapeSql($session_company_currency);
+    $category_id = intval($category_id);
+    $url_key = randomString(32);
+    mysqli_query($mysqli, "INSERT INTO invoices SET invoice_prefix = '$prefix', invoice_number = $number, invoice_scope = '$scope', invoice_date = '$date',
+        invoice_due = DATE_ADD('$date', INTERVAL $terms DAY), invoice_amount = 0, invoice_currency_code = '$currency', invoice_category_id = $category_id,
+        invoice_status = 'Draft', invoice_url_key = '$url_key', invoice_client_id = $client_id");
+    $invoice_id = intval(mysqli_insert_id($mysqli));
+    if ($invoice_id) {
+        billingLog('invoice', $invoice_id, 'Draft', "Invoice created by $by");
+    }
+    return $invoice_id;
+}
+
+/**
+ * Bill tickets' time on an invoice. $hours is ticket id => hours to bill
+ * (null: what the rules make of the time logged). Only the client's
+ * unbilled tickets are taken, and each is claimed on the way so two agents
+ * can't bill one twice. $opts:
+ *   invoice_id   one of the client's invoices whose lines can change, or 0 for a new draft
+ *   date, category_id, scope   for a new draft
+ *   tax_id, item_name, price (null: the client's rate), description (one ticket only)
+ *   combine      one line for all of them instead of one each
+ *   lines        false to put the tickets on without adding lines (billed by hand)
+ *   include_open take tickets that aren't done yet too
+ *   by           who, for the history
+ * A ticket with no hours goes on the invoice without a line. Returns
+ * [invoice_id, number, new, tickets (references), hours, lines, no_charge]
+ * or null with $error.
+ */
+function billingTimeInvoice($client_id, array $hours, array $opts, &$error = '') {
+    global $mysqli;
+    $error = '';
+    $client_id = intval($client_id);
+    $by = (string) ($opts['by'] ?? 'ITFlow');
+    $tickets = $hours ? billingUnbilledTickets($client_id, array_keys($hours), !empty($opts['include_open'])) : [];
+    $add_lines = !isset($opts['lines']) || $opts['lines'];
+    if (!$client_id || !$tickets) {
+        $error = 'Nothing to bill - those tickets are already on an invoice, or no longer billable.';
+        return null;
+    }
+
+    // What each one bills
+    $bill = [];
+    foreach ($tickets as $ticket_id => $ticket) {
+        $value = $hours[$ticket_id] ?? null;
+        $h = ($value === null || $value === '') ? $ticket['hours'] : billingNumberInput($value);
+        if ($h === null || $h < 0 || $h >= 10000) {
+            $error = 'The hours for ' . $ticket['ticket_prefix'] . $ticket['ticket_number'] . ' have to be a number, zero or more.';
+            return null;
+        }
+        $bill[$ticket_id] = round($h, 2);
+    }
+    $price = isset($opts['price']) && $opts['price'] !== '' && $opts['price'] !== null ? billingNumberInput($opts['price']) : billingTimeRate(reset($tickets)['client_rate']);
+    if ($price === null || abs($price) >= 1e9) {
+        $error = 'The rate has to be a number.';
+        return null;
+    }
+    $tax_id = intval($opts['tax_id'] ?? 0);
+    if ($tax_id && !mysqli_num_rows(mysqli_query($mysqli, "SELECT tax_id FROM taxes WHERE tax_id = $tax_id"))) {
+        $error = 'That tax no longer exists.';
+        return null;
+    }
+    $item_name = trim((string) ($opts['item_name'] ?? ''));
+    $item_name = $item_name !== '' ? $item_name : billingTimeRules()['item_name'];
+    if (mb_strlen($item_name) > 200) {
+        $error = 'That line name is too long - keep it under 200 characters.';
+        return null;
+    }
+
+    // The invoice
+    $invoice_id = intval($opts['invoice_id'] ?? 0);
+    $new = false;
+    if ($invoice_id) {
+        $invoice = billingRow('invoice', $invoice_id);
+        if (!$invoice || intval($invoice['client_id']) !== $client_id || !billingCanEditItems('invoice', $invoice)) {
+            $error = "That invoice isn't one of the client's you can still add to.";
+            return null;
+        }
+    } else {
+        $invoice_id = billingInvoiceCreate($client_id, $opts['date'] ?? '', $opts['category_id'] ?? 0, $opts['scope'] ?? '', $by);
+        if (!$invoice_id) {
+            $error = "The invoice couldn't be made.";
+            return null;
+        }
+        $new = true;
+    }
+    $number = billingNumber('invoice', billingRow('invoice', $invoice_id, false));
+
+    // Claim them - only those still unbilled go on
+    mysqli_query($mysqli, "UPDATE tickets SET ticket_invoice_id = $invoice_id WHERE ticket_id IN (" . implode(',', array_keys($bill)) . ") AND ticket_client_id = $client_id
+        AND ticket_invoice_id = 0 AND ticket_billable = 1");
+    $claimed = [];
+    $sql = mysqli_query($mysqli, "SELECT ticket_id FROM tickets WHERE ticket_invoice_id = $invoice_id AND ticket_id IN (" . implode(',', array_keys($bill)) . ")");
+    while ($row = mysqli_fetch_row($sql)) {
+        $claimed[intval($row[0])] = true;
+    }
+    if (!$claimed) {
+        if ($new) {
+            mysqli_query($mysqli, "DELETE FROM history WHERE history_invoice_id = $invoice_id");
+            mysqli_query($mysqli, "DELETE FROM invoices WHERE invoice_id = $invoice_id");
+        }
+        $error = 'Nothing to bill - someone else billed those tickets just now.';
+        return null;
+    }
+
+    // The lines
+    $lines = 0;
+    $no_charge = [];
+    $references = [];
+    $total_hours = 0.0;
+    $combined = [];
+    foreach ($bill as $ticket_id => $h) {
+        if (!isset($claimed[$ticket_id])) {
+            continue;
+        }
+        $ticket = $tickets[$ticket_id];
+        $reference = $ticket['ticket_prefix'] . $ticket['ticket_number'];
+        $references[] = $reference;
+        $total_hours += $h;
+        if (!$add_lines) {
+            logTicketHistory($ticket_id, escapeSql("Put on invoice $number by $by - no line added"));
+            continue;
+        }
+        if ($h <= 0) {
+            $no_charge[] = $reference;
+        } elseif (!empty($opts['combine'])) {
+            $combined[] = billingTimeDescription($ticket) . ' (' . billingQuantity($h) . ' h)';
+        } else {
+            $description = count($bill) === 1 && isset($opts['description']) ? (string) $opts['description'] : billingTimeDescription($ticket);
+            if (billingItemSave('invoice', $invoice_id, ['name' => $item_name, 'description' => $description, 'qty' => $h, 'price' => $price, 'tax_id' => $tax_id])) {
+                $lines++;
+            }
+        }
+        logTicketHistory($ticket_id, escapeSql("Billed on invoice $number by $by - " . ($h > 0 ? billingQuantity($h) . ' h' : 'no charge')));
+    }
+    if ($combined) {
+        $combined_hours = round(array_sum(array_intersect_key($bill, $claimed)), 2);
+        if (billingItemSave('invoice', $invoice_id, ['name' => $item_name, 'description' => implode("\n", $combined), 'qty' => $combined_hours, 'price' => $price, 'tax_id' => $tax_id])) {
+            $lines++;
+        }
+    }
+    billingRecalc('invoice', $invoice_id);
+
+    $invoice = billingRow('invoice', $invoice_id, false);
+    $what = (count($references) === 1 ? 'ticket ' : count($references) . ' tickets ') . implode(', ', array_slice($references, 0, 20)) . (count($references) > 20 ? ' and more' : '');
+    if ($add_lines) {
+        billingLog('invoice', $invoice_id, $invoice['invoice_status'], ucfirst($what) . " billed by $by - " . billingQuantity($total_hours) . ' h');
+        logAudit('Invoice', $new ? 'Create' : 'Edit', escapeSql("$by billed $what on invoice $number - " . billingQuantity($total_hours) . ' h'), $client_id, $invoice_id);
+    } else {
+        billingLog('invoice', $invoice_id, $invoice['invoice_status'], ucfirst($what) . " added by $by, without lines");
+        logAudit('Invoice', 'Edit', escapeSql("$by added $what to invoice $number, without lines"), $client_id, $invoice_id);
+    }
+    if ($new) {
+        triggerCustomAction('invoice_create', $invoice_id);
+    }
+
+    return ['invoice_id' => $invoice_id, 'number' => $number, 'new' => $new, 'tickets' => $references, 'hours' => round($total_hours, 2), 'lines' => $lines, 'no_charge' => $no_charge];
+}
+
+/**
+ * Mark unbilled tickets not billable - written off, so they leave Unbilled
+ * Time. Each gets it in its history. The references it changed.
+ */
+function billingTimeWriteOff($client_id, array $ticket_ids, $by) {
+    global $mysqli;
+    $tickets = $ticket_ids ? billingUnbilledTickets($client_id, $ticket_ids) : [];
+    $done = [];
+    foreach ($tickets as $ticket_id => $ticket) {
+        mysqli_query($mysqli, "UPDATE tickets SET ticket_billable = 0 WHERE ticket_id = $ticket_id AND ticket_invoice_id = 0 AND ticket_billable = 1");
+        if (mysqli_affected_rows($mysqli) === 1) {
+            logTicketHistory($ticket_id, escapeSql("Marked not billable by $by - " . billingDuration($ticket['seconds']) . ' logged was not billed'));
+            $done[] = $ticket['ticket_prefix'] . $ticket['ticket_number'];
+        }
+    }
+    return $done;
 }
 
 /** Seconds as "1h 30m". */

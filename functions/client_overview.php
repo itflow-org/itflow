@@ -79,10 +79,9 @@ function clientOverviewAttention($client_id, $access, $renewals) {
         ];
         if ($access['tickets']) {
             $items[] = [
-                'count' => dashboardCount("SELECT COUNT(ticket_id) FROM tickets WHERE ticket_client_id = $client_id
-                    AND ticket_resolved_at IS NOT NULL AND ticket_billable = 1 AND ticket_invoice_id = 0"),
+                'count' => dashboardCount("SELECT COUNT(ticket_id) FROM tickets WHERE " . billingUnbilledSql() . " AND ticket_client_id = $client_id"),
                 'label' => 'Resolved, not invoiced', 'icon' => 'receipt', 'tone' => 'info',
-                'url' => "/agent/tickets.php?client_id=$client_id&billing=unbilled&state=closed",
+                'url' => "/agent/unbilled_time.php?client_id=$client_id",
             ];
         }
     }
@@ -514,8 +513,8 @@ function clientOverviewActivity($client_id, $limit = 6) {
  * The money figures. Balance is invoiced minus paid, all time - the same as
  * the clients list and the old client header. Paid this year is cash in
  * (invoice payments plus client revenues), compared with the same days last
- * year. Unbilled is resolved billable tickets with no invoice, and the time
- * logged on them.
+ * year. Unbilled is what Unbilled Time has for the client - billable tickets
+ * done and on no invoice, the time logged on them and what it comes to.
  */
 function clientOverviewMoney($client_id, $balance, $recurring_monthly) {
     $year_start = date('Y-01-01');
@@ -536,7 +535,7 @@ function clientOverviewMoney($client_id, $balance, $recurring_monthly) {
     $overdue = dashboardSum("SELECT SUM(invoice_amount) FROM invoices WHERE $overdue_where")
         - dashboardSum("SELECT SUM(payment_amount) FROM payments JOIN invoices ON payment_invoice_id = invoice_id WHERE $overdue_where");
 
-    $unbilled_where = "ticket_client_id = $client_id AND ticket_resolved_at IS NOT NULL AND ticket_billable = 1 AND ticket_invoice_id = 0";
+    $unbilled = billingUnbilledByClient($client_id)[intval($client_id)] ?? null;
 
     return [
         'balance' => $balance,
@@ -544,10 +543,9 @@ function clientOverviewMoney($client_id, $balance, $recurring_monthly) {
         'paid_ytd' => $paid_ytd,
         'paid_change' => dashboardChange($paid_ytd, $paid_last_ytd),
         'recurring' => $recurring_monthly,
-        'unbilled_tickets' => dashboardCount("SELECT COUNT(ticket_id) FROM tickets WHERE $unbilled_where"),
-        'unbilled_seconds' => intval(dashboardSum("SELECT SUM(TIME_TO_SEC(ticket_reply_time_worked)) FROM ticket_replies
-            JOIN tickets ON ticket_reply_ticket_id = ticket_id
-            WHERE ticket_reply_archived_at IS NULL AND $unbilled_where")),
+        'unbilled_tickets' => $unbilled ? count($unbilled['tickets']) : 0,
+        'unbilled_seconds' => $unbilled ? intval($unbilled['seconds']) : 0,
+        'unbilled_value' => $unbilled ? floatval($unbilled['value']) : 0.0,
     ];
 }
 

@@ -6,9 +6,9 @@ This file documents all notable changes made to ITFlow.
 
 ### Upgrading to 26.11
 
-Update from Maintenance > Update — Queue Update hands the job to cron, which updates the files and applies this release's database changes (2.7.9 to 2.9.1) in the same pass. Nothing else is required.
+Update from Maintenance > Update — Queue Update hands the job to cron, which updates the files and applies this release's database changes (2.7.9 to 2.9.2) in the same pass. Nothing else is required.
 
-This is a big release, with twelve database steps in one go, so take a backup before you update.
+This is a big release, with thirteen database steps in one go, so take a backup before you update.
 
 The update also clears out data that deletes in older versions left behind, all of it pointing at something that no longer exists:
 
@@ -59,7 +59,12 @@ If you are coming from 26.08 or earlier, the database update still has to be run
 
   Click the value and pick a new one, or use the + at the end of a record's tags. Each change saves straight away.
 - Tickets: a closed ticket can no longer be changed, either from the ticket's windows or through the API. Merging is only offered between tickets of the same client.
-- Invoicing a ticket: the invoice line now reads `Ticket TCK-123 - Subject - 10/14/2026`. It used to be a block of text with the agent, dates, contact, asset and time spent. You can still edit it before adding the line.
+- Invoicing a ticket:
+  - The invoice line now reads `Ticket TCK-123 - Subject - 10/14/2026`. It used to be a block of text with the agent, dates, contact, asset and time spent. You can still edit it before adding the line.
+  - Billing a ticket goes in the ticket's history ("Billed on invoice INV-45"). It used to add an internal note to the conversation.
+  - An invoice made from a ticket is due on the client's terms, the same as New Invoice. A client set to On Receipt is due on receipt, where it used to get the default terms.
+  - Add Tickets on an invoice now adds a line for each ticket's time. To only put the tickets on the invoice, as before, switch off Bill their time.
+  - A ticket's time is counted the same way everywhere: Unbilled Time, the Invoice window, Add Tickets and the Unbilled Work report. A ticket counts once it is resolved or closed, and archived tickets and archived replies are left out.
 - Calendars: only admins can add, edit or delete calendars now. Agents can still add and edit events.
 - Licenses: archiving a license keeps its seats (the devices and users on it), so restoring it brings everything back. In 26.10, archiving took the seats off.
 - Vendors: deleting a vendor that has expenses, recurring expenses or payment provider fees archives it instead, so your books keep it. Deleting any vendor now also clears it from the assets, licenses, tickets and domains that named it.
@@ -139,7 +144,7 @@ If you are coming from 26.08 or earlier, the database update still has to be run
     - Receivables Aging: what each client owes, split into not due yet, 1 to 30, 31 to 60, 61 to 90 and over 90 days late, and the overdue invoices, longest overdue first.
     - Recurring Revenue: monthly and yearly recurring revenue by client and category, and every recurring invoice with its next date. With Financial access, what is left after recurring expenses.
     - Tax Collected: tax and the sales it was charged on, per tax, by quarter or by month.
-    - Unbilled Work: billable tickets that are done but not invoiced, with the hours to bill (to the nearest 15 minutes, as the Invoice window does) and what they are worth at the client's rate.
+    - Unbilled Work: billable tickets that are done but not invoiced, with the hours to bill (rounded the way Billing Time in Admin > Settings > Invoice says, as Unbilled Time does) and what they are worth at the client's rate.
     - Time Detail by Client: per client, each ticket and the time on every reply, with the hours to bill.
     - Ticket Overview: tickets opened against resolved, the typical first reply and time to resolve, sources, priorities, categories, top clients and contacts, and a weekday by hour chart of when tickets come in.
     - Tickets by Client: volume and its change, urgent tickets, time logged, reply and resolution times, SLA and satisfaction for each client.
@@ -207,6 +212,15 @@ If you are coming from 26.08 or earlier, the database update still has to be run
   - Quarterly recurring invoices, alongside monthly and yearly. They count as a third in monthly recurring revenue on the dashboard, the client pages, the client portal and the reports.
   - Period words: `{month}`, `{quarter}`, `{year}` and `{period}` in a recurring invoice's scope, notes or lines are filled in with the period each invoice covers, such as "Managed services November 2026", "Q4 2026" or "Nov 1 - Nov 30, 2026".
   - Invoice Now names the run it bills, whether it will be emailed and when the next one is, before you confirm. Pressing it twice, or in two tabs, bills that run only once.
+  - **Unbilled Time**, under Billing and in each client's menu, with a count of what is waiting:
+    - Every client with billable tickets that are done and not invoiced, with their tickets, the time logged, the hours to bill, their rate, what it comes to and how long the oldest has waited. Tick clients and make all their invoices at once - a new draft each, or onto each one's newest draft.
+    - One client's tickets, each with its hours to bill filled in and ready to change before it goes on. Tick the ones to bill and make an invoice or add them to one of the client's drafts, with a line for each ticket or one for all of them. The total follows as you change the hours, rate or tax.
+    - Not billable writes off ticked tickets so they leave the list. Each one's history says so.
+    - Two agents billing the same tickets at once can't both bill them.
+  - Billing Time in Admin > Settings > Invoice: round a ticket's time to 6, 12, 15 or 30 minutes or the hour, to the nearest step or always up, with a minimum a ticket bills, and the name of the invoice line. It starts as before: the nearest 15 minutes, no minimum.
+  - The ticket's Invoice window is redone. It shows the time logged by each agent and the hours that bills, with the client's rate (or the default rate) filled in, and it can add to one of the client's drafts. An open ticket can still be billed from here, with a warning that later time won't be.
+  - Add Tickets on an invoice bills their time: tick the tickets, change their hours, and they go on as lines at the rate.
+  - The client overview's Not yet invoiced shows what the unbilled time comes to and opens Unbilled Time. The dashboard and the Unbilled Work report link to it too.
 - **Tickets**
   - The ticket list has views for Open, Mine, Unassigned, Needs reply, Waiting, Overdue, Scheduled, Closed and All.
     - Each row shows whose move it is (yours or the client's) along with SLA and due badges, and status, priority and agent change right in the row.
@@ -381,6 +395,8 @@ If you are coming from 26.08 or earlier, the database update still has to be run
 - Billing: the client's view of a quote offered Accept on a viewed quote that had run out, and the invoice and quote views put the browser's HTML into the history.
 - Billing: copying an invoice logged its old number with the prefix twice.
 - Recurring invoices: if cron missed a night, that recurring invoice stopped billing until someone moved its date. The missed run is now billed the next night, up to 7 days late.
+- Invoicing a ticket: on an invoice that already had lines, its line went in near the top instead of at the end. A ticket already on an invoice could be billed again from a second window, and a ticket with 100 hours or more logged had no hours filled in.
+- Invoicing a ticket for a client with no hourly rate filled in nothing. It now takes the default hourly rate, as the Unbilled Work report already did.
 - Recurring invoices: the email went to contacts that had been archived, and could reach the same address twice.
 - Client Portal: the recurring card on the home page didn't show for a client with only yearly recurring invoices, and counted archived ones.
 - Copy buttons in many places, such as pages that already had a window open, showed Copied! but copied nothing. Copy guest URL on invoices and quotes jumped the page to the top, and copying an empty field wiped your clipboard.
@@ -413,7 +429,7 @@ If you are coming from 26.08 or earlier, the database update still has to be run
 
 ### Developer Updates
 
-- Database 2.8.0 to 2.9.1, one file per step under `admin/database_updates/`, with `db.sql` matching 2.9.1:
+- Database 2.8.0 to 2.9.2, one file per step under `admin/database_updates/`, with `db.sql` matching 2.9.2:
   - 2.8.0: `racks.rack_units_descending`, `rack_power_capacity` and `rack_photo_rear`. On `rack_units`: `unit_face`, `unit_full_depth`, `unit_type`, `unit_power_watts`, `unit_notes` and a `unit_asset_id` key. Unlinked items move from asset id 0 to NULL.
   - 2.8.1: `location_documents` and `location_files`.
   - 2.8.2: `vendor_tags` (tag type 6), and `vendor_contact_phone_country_code`, `vendor_contact_phone` and `vendor_contact_email`.
@@ -438,6 +454,7 @@ If you are coming from 26.08 or earlier, the database update still has to be run
     - `item_note` widened to 1000, `item_view_limit` made `NOT NULL DEFAULT 0` (NULL was unlimited), existing `item_key` values replaced by their SHA-256, and `item_name` filled from the shared record
     - `settings.config_share_max_hours` (720) and `config_share_require_protection` (0)
   - 2.9.1: `recurring_invoice_items.item_seat_source`, `item_seat_filter` (JSON) and `item_seat_minimum`, and `recurring_invoices.recurring_invoice_anchor_day`, backfilled from the day of each next date.
+  - 2.9.2: `settings.config_time_increment` (15), `config_time_rounding` ('nearest'), `config_time_minimum` (0) and `config_time_item_name` ('Support [Hourly]').
 - New shared function files, loaded by `functions.php`: `functions/asset.php`, `asset_interface.php`, `certificate.php`, `client_overview.php`, `contact.php`, `credential.php`, `dashboard.php`, `links.php`, `location.php`, `notifications.php`, `project.php`, `rack.php`, `search.php`, `service.php`, `software.php`, `tags.php`, `ticket.php`, `ticket_fields.php`, `user.php` and `vendor.php`. They hold the queries and rules, so the pages, the API and cron share one definition.
 - Removed post models: `agent/post/{asset_interface,certificate,credential,domain,event,location,network_ip,network,recurring_ticket,vendor}_model.php`, `admin/post/user_model.php` and `api/v1/certificates/certificate_model.php`. Their handlers call the shared functions above. Interface handlers moved to `agent/post/asset_interface.php`.
 - New scripts: `js/itflow_select.js`, `quick_pick.js`, `tag_picker.js`, `global_search.js`, `notifications.js`, `dashboard.js`, `client_overview.js`, `client_switcher.js`, `credentials.js` and `autosubmit.js`, and `agent/js/calendar.js`, `calendar_event_modal.js`, `files.js`, `interface_form.js`, `network_form.js`, `project_modal.js` and `ticket_schedule_modal.js`.
@@ -536,6 +553,9 @@ If you are coming from 26.08 or earlier, the database update still has to be run
   - Schedules: `recurringInvoiceFrequencies()` (month, quarter, year), `recurringInvoiceMonths()`, `recurringInvoicePeriodWord()`, `recurringInvoiceMonthly()` and `recurringInvoiceMonthlySql()` (use it in SQL sums), `recurringInvoiceAfter()`, `recurringInvoicePeriod()` and `recurringInvoiceTokens()`. `validateRecurringFrequency()` accepts `quarter`. The edit handler keeps `recurring_invoice_anchor_day` unless the next date changes, and the add and edit handlers run their dates through `validateDate()`.
   - Seats: `recurringSeatSources()`, `recurringSeatFilter()`, `recurringSeatCount()` (null when a license is gone or isn't the client's), `recurringSeatDescribe()`, `recurringSeatOptions()`, `recurringSeatLines()` and `recurringInvoiceRefresh()`, which syncs the seat quantities and takes each line's tax at its current rate. `billing_item_save` takes `seat_source` (empty for typed), `seat_tag`, `seat_types[]`, `seat_software_id`, `seat_count` (`used` or `total`) and `seat_minimum` on recurring lines. A form without `seat_source` leaves the seat settings alone.
   - New handlers: `recurring_invoice_sync` (GET, `agent/post/billing.php`) and `recurring_seat_count` in `agent/ajax.php`, which returns `{count, quantity, label}` or `{error}` and needs Sales and access to the client. `itflowBillingSeatForm()` in `js/billing_items.js` drives the Edit Line seat fields.
+  - Billing time (`functions/billing.php`): `billingTimeRules()` reads the settings once a request (falling back to the old rules before 2.9.2 is applied, so they are not in `load_global_settings.php`), `billingTimeIncrements()`, `billingTimeRulesText()`, `billingTimeHours()`, `billingTimeRate()`, `billingTimeDescription()`. `billingUnbilledSql()` is the one definition of unbilled (billable, status Resolved or Closed, not archived, `ticket_invoice_id = 0`); `billingUnbilledTickets()`, `billingUnbilledByClient()` and `billingUnbilledCount()` read it, scoped to the agent's clients. The dashboard, client overview, sidebars and the Unbilled Work report use them.
+  - `billingTimeInvoice($client_id, $hours, $opts, &$error)` is the one path that bills time - Unbilled Time, `add_invoice_from_ticket`, `add_ticket_to_invoice`. It validates first, makes the draft with `billingInvoiceCreate()` when needed, claims the tickets with a conditional `UPDATE` (deleting a new draft that ends up with none), adds the lines through `billingItemSave()`, and logs ticket history, invoice history and the audit log. `billingTimeWriteOff()` sets `ticket_billable = 0`. `invoiceUnbilledTickets()` is replaced by `billingUnbilledTickets()`, and `roundToNearest15Min()` is no longer used.
+  - New page `agent/unbilled_time.php` with `js/unbilled_time.js`, and handlers `unbilled_invoice`, `unbilled_invoice_clients` and `unbilled_write_off` in `agent/post/billing.php`. `add_ticket_to_invoice` takes `ticket_ids[]`, `hours[id]`, `bill_time`, `item_name`, `price`, `tax_id` and `lines` (`each` or `one`). `add_invoice_from_ticket` keeps its field names. `remove_ticket_from_invoice` writes to the ticket's history.
   - Removed: `add_invoice_item`, `edit_invoice_item`, `delete_invoice_item`, `add_quote_item`, `edit_quote_item`, `delete_quote_item`, `add_recurring_invoice_item`, `edit_recurring_invoice_item`, `delete_recurring_invoice_item` and `link_invoice_to_ticket` (it wrote a column that does not exist), `update_invoice_items_order`, `update_quote_items_order` and `update_recurring_invoice_items_order` in `agent/ajax.php`, `agent/modals/invoice/invoice_item_edit.php`, `agent/modals/quote/quote_item_edit.php`, `agent/modals/recurring_invoice/recurring_invoice_item_edit.php`, `guest/guest_quote_upload_file_modal.php` and `js/product_autocomplete.js`.
 - Sidebar brand: `agent/css/sidebar_brand_fix.css` and `agent/js/sidebar_brand_fix.js` from 26.10 are replaced by CSS in `css/itflow_custom.css`. `includes/load_company_settings.php` now sets `$session_company_logo`.
 - `alertMessageHtml()` no longer double-encodes, and save messages built from `escapeSql()` values use `stripslashes()` at the flash.

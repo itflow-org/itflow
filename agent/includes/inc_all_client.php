@@ -165,6 +165,9 @@ if (isset($_GET['client_id'])) {
         $recurring_monthly = floatval($row['recurring_monthly']);
         $num_recurring_invoices = intval($row['num_recurring_invoices']);
 
+        // Billable tickets done and not invoiced yet, for Unbilled Time
+        $num_unbilled_tickets = intval(mysqli_fetch_row(mysqli_query($mysqli, "SELECT COUNT(*) FROM tickets WHERE " . billingUnbilledSql() . " AND ticket_client_id = $client_id"))[0]);
+
         // Get Credit Balance
         $row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT COALESCE(SUM(credit_amount), 0) AS credit_balance
             FROM credits WHERE credit_client_id = $client_id"));
