@@ -771,61 +771,34 @@ if ($stripe_provider) {
     }
 }
 
-// Recurring Expenses
-// Loop through all recurring expenses that match today's date and is active
-$sql_recurring_expenses = mysqli_query($mysqli, "SELECT recurring_expense_account_id, recurring_expense_amount, recurring_expense_category_id,
-    recurring_expense_client_id, recurring_expense_currency_code, recurring_expense_day,
-    recurring_expense_description, recurring_expense_frequency, recurring_expense_id,
-    recurring_expense_month, recurring_expense_payment_method, recurring_expense_reference,
-    recurring_expense_vendor_id FROM recurring_expenses WHERE recurring_expense_next_date = CURDATE() AND recurring_expense_status = 1");
-
+/*
+ * Recurring expenses - each running one due today, or missed by up to
+ * RECURRING_EXPENSE_GRACE_DAYS (nights the cron didn't run), is recorded as
+ * an expense dated the day it was due, and moves on a period
+ * (recurringExpenseRecord() in functions/expenses.php - the same code Record
+ * Now runs). One with an end date stops after its last run. One that falls
+ * further behind than that is left for someone to look at, and they are told
+ * once, the day it does.
+ */
+$sql_recurring_expenses = mysqli_query($mysqli, "SELECT recurring_expense_id, recurring_expense_next_date FROM recurring_expenses
+    WHERE " . recurringExpenseRunningSql() . "
+    AND recurring_expense_next_date <= CURDATE() AND recurring_expense_next_date >= CURDATE() - INTERVAL " . RECURRING_EXPENSE_GRACE_DAYS . " DAY
+    ORDER BY recurring_expense_next_date ASC, recurring_expense_id ASC");
 while ($row = mysqli_fetch_assoc($sql_recurring_expenses)) {
-    $recurring_expense_id = intval($row['recurring_expense_id']);
-    $recurring_expense_frequency = intval($row['recurring_expense_frequency']);
-    $recurring_expense_month = intval($row['recurring_expense_month']);
-    $recurring_expense_day = intval($row['recurring_expense_day']);
-    $recurring_expense_description = escapeSql($row['recurring_expense_description']);
-    $recurring_expense_amount = floatval($row['recurring_expense_amount']);
-    $recurring_expense_payment_method = escapeSql($row['recurring_expense_payment_method']);
-    $recurring_expense_reference = escapeSql($row['recurring_expense_reference']);
-    $recurring_expense_currency_code = escapeSql($row['recurring_expense_currency_code']);
-    $recurring_expense_vendor_id = intval($row['recurring_expense_vendor_id']);
-    $recurring_expense_category_id = intval($row['recurring_expense_category_id']);
-    $recurring_expense_account_id = intval($row['recurring_expense_account_id']);
-    $recurring_expense_client_id = intval($row['recurring_expense_client_id']);
-
-    // Calculate next billing date based on frequency
-    if ($recurring_expense_frequency == 1) { // Monthly
-        $next_date_query = "DATE_ADD(CURDATE(), INTERVAL 1 MONTH)";
-    } elseif ($recurring_expense_frequency == 2) { // Yearly
-        $next_date_query = "DATE(CONCAT(YEAR(CURDATE()) + 1, '-', $recurring_expense_month, '-', $recurring_expense_day))";
-    } else {
-        // Handle unexpected frequency values. For now, just use current date.
-        $next_date_query = "CURDATE()";
+    $expense_id = recurringExpenseRecord(intval($row['recurring_expense_id']), 0, $row['recurring_expense_next_date']);
+    if ($expense_id) {
+        $expense = expenseRow($expense_id, false);
+        appNotify("Expense Created", escapeSql("Recorded " . expenseLabel($expense) . " from the recurring expense"), "/agent/expenses.php?open=$expense_id", intval($expense['expense_client_id']), $expense_id);
     }
-
-    mysqli_query($mysqli,"INSERT INTO expenses SET expense_date = CURDATE(), expense_amount = $recurring_expense_amount, expense_currency_code = '$recurring_expense_currency_code', expense_account_id = $recurring_expense_account_id, expense_vendor_id = $recurring_expense_vendor_id, expense_client_id = $recurring_expense_client_id, expense_category_id = $recurring_expense_category_id, expense_description = '$recurring_expense_description', expense_reference = '$recurring_expense_reference'");
-
-    $expense_id = mysqli_insert_id($mysqli);
-
-    appNotify("Expense Created", "Expense $recurring_expense_description created from recurring expenses", "/agent/expenses.php", $recurring_expense_client_id);
-
-    // Update recurring dates using calculated next billing date
-
-    mysqli_query($mysqli, "UPDATE recurring_expenses SET recurring_expense_last_sent = CURDATE(), recurring_expense_next_date = $next_date_query WHERE recurring_expense_id = $recurring_expense_id");
-
-
-} //End Recurring expenses loop
-
-// Flag any active recurring "next run" dates that are in the past
-$sql_invalid_recurring_expenses = mysqli_query($mysqli, "SELECT recurring_expense_description FROM recurring_expenses WHERE recurring_expense_next_date < CURDATE() AND recurring_expense_status = 1");
-while ($row = mysqli_fetch_assoc($sql_invalid_recurring_expenses)) {
-    $recurring_expense_description = escapeSql($row['recurring_expense_description']);
-    appNotify("Expense", "Recurring expense $recurring_expense_description next run date is in the past!", "/agent/recurring_expenses.php");
 }
 
-// Logging
-//logApp("Cron", "info", "Cron created expenses from recurring expenses");
+$sql_recurring_expenses = mysqli_query($mysqli, "SELECT recurring_expense_id FROM recurring_expenses
+    WHERE " . recurringExpenseRunningSql() . " AND recurring_expense_next_date = CURDATE() - INTERVAL " . (RECURRING_EXPENSE_GRACE_DAYS + 1) . " DAY");
+while ($row = mysqli_fetch_assoc($sql_recurring_expenses)) {
+    $recurring = recurringExpenseRow(intval($row['recurring_expense_id']), false);
+    appNotify("Expense", escapeSql("The recurring expense " . recurringExpenseLabel($recurring) . " is " . (RECURRING_EXPENSE_GRACE_DAYS + 1) . " days behind and won't be recorded by itself - record the missed runs or move it on"),
+        "/agent/recurring_expenses.php?status=late", intval($recurring['recurring_expense_client_id']));
+}
 
 // TELEMETRY
 

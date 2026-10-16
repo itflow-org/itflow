@@ -6,9 +6,9 @@ This file documents all notable changes made to ITFlow.
 
 ### Upgrading to 26.11
 
-Update from Maintenance > Update — Queue Update hands the job to cron, which updates the files and applies this release's database changes (2.7.9 to 2.9.9) in the same pass. Nothing else is required.
+Update from Maintenance > Update — Queue Update hands the job to cron, which updates the files and applies this release's database changes (2.7.9 to 3.0.0) in the same pass. Nothing else is required.
 
-This is a big release, with twenty database steps in one go, so take a backup before you update.
+This is a big release, with twenty-one database steps in one go, so take a backup before you update.
 
 The update also clears out data that deletes in older versions left behind, all of it pointing at something that no longer exists:
 
@@ -22,6 +22,8 @@ It also gives every existing network a type (LAN, WAN, Guest and so on) guessed 
 Payment reminders keep the schedule they had: 1 and 30 days late, then every 30 days until the invoice is paid. If reminders were on, they stay on, and every client is included. The schedule can now be changed in Admin > Settings > Invoice (see Breaking Changes, Billing emails). Monthly statements start switched off.
 
 Expenses already entered take who entered them from the audit log, where it has a record of it. Expense receipts are no longer opened straight from the uploads folder - see Breaking Changes, Expenses.
+
+Recurring expenses keep their next date and from then on run on that day of the month - monthly ones stay monthly and yearly ones yearly. Look over their next dates once after the update (see Breaking Changes, Expenses). The expenses they recorded before are linked to them, matched on the vendor, category, client and description.
 
 If you are coming from 26.08 or earlier, the database update still has to be run from the command line one time, exactly as described under Upgrading to 26.09 below.
 
@@ -81,6 +83,9 @@ If you are coming from 26.08 or earlier, the database update still has to be run
   - A new expense takes the currency of the account it is paid from. It used to take the company's currency whatever the account.
   - The description is optional now.
   - Bulk Set Category, Set Account and Set Client are one window each from the same Bulk menu, with Set Payment Method added. Bulk Delete is one button that asks once.
+  - Recurring expenses run on the day of the month of their next date, the way recurring invoices do. The nightly run used to move a monthly one a month on from the day it happened to run, and a new one started in the month picked in the form even when it was monthly. Check the next dates on the Recurring Expenses page after the update.
+  - A recurring expense the nightly run missed by up to 7 nights is recorded the next night, dated the day it was due. One further behind waits for you to Record Now or Move On. The notification every night for each recurring expense with a date in the past is replaced by one notification, on the day it falls too far behind.
+  - Deleting a recurring expense needs full Financial access, the same as deleting an expense. It used to need write access.
 - Notifications now follow access too. An agent only sees notifications for clients and areas they can open, so someone without sales access no longer sees invoice and quote notifications.
 - Drop-downs: Tom Select is gone, replaced by ITFlow's own picker. It works the way you are used to: type to search, tick several in a multi-select, and type a new value in fields that allow it, such as ticket watchers. See Developer Updates if you have custom pages that used Tom Select.
 - Several small windows are gone because the change is now made where the value is shown:
@@ -331,6 +336,19 @@ If you are coming from 26.08 or earlier, the database update still has to be run
   - Export takes the same filters as the list, adding client, payment method and the pills, with Paid By, Receipt and Entered By columns.
   - Search finds expenses by what they were for, their reference or their amount, and opens the quick look.
   - The vendor page's Expenses tab, Transactions and a product's stock history open the expense's quick look. Client Profitability links each client's direct costs to their expenses.
+  - **Recurring expenses** run on a real schedule:
+    - monthly, quarterly or yearly, on the day of the month they started on - the 31st runs on the last day of a shorter month
+    - with an optional end date for a lease or financing, after which they stop by themselves
+  - The New and Edit windows say the schedule in words as you set it, such as "Every quarter on the 31st, starting Dec 31, 2026, until Dec 31, 2028", and fill in from the vendor's last expense like New Expense does.
+  - The list shows what they come to a month (quarterly as a third, yearly as a twelfth), what is recorded over the next 30 days, how many are running, and how many need a look. Pills for Active, Next 7 days, Late, Paused, Ended and All, and filters for vendor, category and client.
+  - Each row shows the amount and how often, what it comes to a month, the next date with how long until it or how late it is, when it ends, and when it was last recorded.
+  - A quick look shows the schedule with the next few dates, the account and payment method, the client, what has been recorded this year, and the expenses it recorded.
+  - Record Now records the next run straight away - dated today when early, or the day it was due when late - and moves the schedule on. Pressing it twice records it once.
+  - A recurring expense that fell behind can record each missed run with Record Now, or skip them with Move On. Pause and Resume stop and start it.
+  - The expenses it records carry its payment method and reference, and are linked to it. They show a ↻ in the expenses list and their quick look names it. Expenses Recorded lists them, and the export takes that filter too.
+  - The nightly run tells the team about each expense it records, opening it.
+  - The dashboard's recurring expenses, its cash flow forecast and the Expenses, Recurring Revenue and Spend by Vendor reports count quarterly ones and stop at end dates. The vendor page's Recurring tab opens the quick look.
+  - The demo data's standing costs are recurring expenses on their own days, with the insurance quarterly, linked to the history they recorded.
 - **Tickets**
   - The ticket list has views for Open, Mine, Unassigned, Needs reply, Waiting, Overdue, Scheduled, Closed and All.
     - Each row shows whose move it is (yours or the client's) along with SLA and due badges, and status, priority and agent change right in the row.
@@ -511,6 +529,8 @@ If you are coming from 26.08 or earlier, the database update still has to be run
 - Expenses: Bulk Delete's Yes, Delete! button did nothing. Bulk Set Client could change expenses of clients the agent is not allowed to see.
 - Expenses: the New Expense window opened for agents who could not save one. Deleting an expense with no receipt, or replacing a receipt when there was none, wrote a PHP warning.
 - Expenses: there was no way to set how an expense was paid, so the default payment method in Admin > Settings > Defaults went unused. A photo receipt downloaded with .pdf on its name.
+- Recurring expenses: editing one, even just its amount, moved its next date to the day and month in the form. The expenses they made left out the payment method, and a recurring expense could not be paused.
+- Recurring expenses: the list's date filter went by when each was set up, not when it runs.
 - Products: Restore in the archived list's bulk actions did nothing. Deleting a product left its stock records behind.
 - Products: Add Stock could record zero units, or link an expense that no longer existed.
 - Products: deleting an invoice did not put its stock back. Copying an invoice or making one from a quote lost the link to the product, so the copy took no stock and the product did not count it as sold.
@@ -584,6 +604,7 @@ If you are coming from 26.08 or earlier, the database update still has to be run
   - 2.9.7: `product_prices` - a product's price and cost history: `price_old`, `price_new`, `price_cost_old`, `price_cost_new`, `price_source` (`edit`, `import` or `receive`), `price_user_id` and `price_product_id`, keyed.
   - 2.9.8: `settings.config_invoice_reminder_days` ('1,30' - days from the due date, negative before it), `config_invoice_reminder_repeat` (30), `config_statement_monthly` (0), `config_statement_day` (1) and `config_billing_email_attach_pdf` (1), and `clients.client_reminders` (1).
   - 2.9.9: `expenses.expense_created_by` (0 for cron and payment providers), backfilled from the audit log's Expense Create entries, and `expense_refund_of_id`.
+  - 3.0.0 (after 2.9.9, the way 2.0.0 followed 1.9.9): `recurring_expenses.recurring_expense_frequency` becomes `varchar(10)` (`month`, `quarter` or `year`, from 1 and 2), with `recurring_expense_anchor_day` (backfilled from the next date) and `recurring_expense_end_date`. `recurring_expense_day` and `recurring_expense_month` are dropped. `expenses.expense_recurring_expense_id`, backfilled by vendor, category, client and description from the day each recurring expense was set up.
 - New shared function files, loaded by `functions.php`: `functions/asset.php`, `asset_interface.php`, `certificate.php`, `client_overview.php`, `contact.php`, `credential.php`, `dashboard.php`, `links.php`, `location.php`, `notifications.php`, `project.php`, `rack.php`, `search.php`, `service.php`, `software.php`, `tags.php`, `ticket.php`, `ticket_fields.php`, `user.php` and `vendor.php`. They hold the queries and rules, so the pages, the API and cron share one definition.
 - Removed post models: `agent/post/{asset_interface,certificate,credential,domain,event,location,network_ip,network,recurring_ticket,vendor}_model.php`, `admin/post/user_model.php` and `api/v1/certificates/certificate_model.php`. Their handlers call the shared functions above. Interface handlers moved to `agent/post/asset_interface.php`.
 - New scripts: `js/itflow_select.js`, `quick_pick.js`, `tag_picker.js`, `global_search.js`, `notifications.js`, `dashboard.js`, `client_overview.js`, `client_switcher.js`, `credentials.js` and `autosubmit.js`, and `agent/js/calendar.js`, `calendar_event_modal.js`, `files.js`, `interface_form.js`, `network_form.js`, `project_modal.js` and `ticket_schedule_modal.js`.
@@ -731,6 +752,18 @@ If you are coming from 26.08 or earlier, the database update still has to be run
   - Handlers: `add_expense` (with `refund_of`) and `edit_expense` (with `receipt_remove`) post `vendor`, `amount`, `date`, `category`, `account`, `payment_method`, `client_id`, `reference`, `description` and `file`. New are `expense_receipt_save` (POST `expense_id`, `file`) and `bulk_edit_expenses` (POST `field`, `value`, `expense_ids[]`). `export_expenses` takes `client`, `method` and `show`, and the export adds `expense_payment_method`, `expense_receipt_display` and `user_name` columns.
   - `agent/expenses.php` takes `?client=`, `?method=`, `?show=` and `?open=` (opens a quick look, as search does). `globalSearchGroups()` has an `expenses` group under `module_financial`. CSS: `.itflow-category-dot` and `.itflow-expense-receipt-empty`.
   - Removed: `agent/post/expense_model.php`, `agent/modals/expense/expense_bulk_edit_category.php`, `expense_bulk_edit_account.php` and `expense_bulk_edit_client.php`, and the `bulk_edit_expense_category`, `bulk_edit_expense_account` and `bulk_edit_expense_client` handlers.
+  - Recurring expenses, in the same file:
+    - They use the recurring invoice schedule helpers: `recurringInvoiceStep()`, `recurringInvoiceFrequencies()`, `recurringInvoiceMonths()` and `recurringInvoiceMonthlySql()`. `expenseRecurringMonthlySql()` now wraps the last.
+    - `RECURRING_EXPENSE_GRACE_DAYS` (7), `recurringExpenseRunningSql()` (status 1, not archived, with a vendor) and `recurringExpenseMonthlyTotal()`. The dashboard and the Expenses, Recurring Revenue and Spend by Vendor reports use them.
+    - `recurringExpenseRow($id, $scoped)` adds `made_count` and `made_year`. Also `recurringExpenseState()` (active, paused or ended - ended is status 0 with the next date past the end date), `recurringExpenseEnded()`, `recurringExpenseAfter()`, `recurringExpenseUpcoming()`, `recurringExpenseRunsUntil()`, `recurringExpenseCatchUp()`, `recurringExpenseScheduleText()`, `recurringExpenseOrdinal()`, `recurringExpenseNextPill()`, `recurringExpenseShows()`, `recurringExpenseFiltersSql()`, `recurringExpenseMade()` and `recurringExpenseLabel()`.
+    - `recurringExpenseSave($in, $id, &$error)` is the one path that writes one. The anchor day follows the next date when that changes, and an end date before the next date ends it.
+    - `recurringExpenseRecord($id, $by_user_id, $run, $by)` is the one path that records a run, used by cron and Record Now. It claims the run with a conditional `UPDATE` on the next date and refuses when `$run` is no longer the next date. It dates the expense `min(run, today)`, carries the method and reference, sets `expense_recurring_expense_id` and `expense_created_by`, and sets status 0 after the last run before the end date.
+    - `recurringExpenseDelete()` unlinks the expenses it recorded.
+    - Handlers: `create_recurring_expense` and `edit_recurring_expense` post `vendor`, `amount`, `frequency`, `next_date`, `end_date`, `category`, `account`, `payment_method`, `client_id`, `reference` and `description`. GET handlers: `recurring_expense_set_status` (with `status`), `recurring_expense_record` (with `run`), `recurring_expense_catch_up` and `delete_recurring_expense`, which now needs Financial at 3.
+    - New windows: the quick look `agent/modals/recurring_expense/recurring_expense.php?id=` and `recurring_expense_form.php`, the fields of `recurring_expense_add.php` and `recurring_expense_edit.php`. `agent/recurring_expenses.php` takes `?status=` (active, soon, late, paused, ended, all), `vendor`, `category`, `client` and `?open=`. `agent/expenses.php` and its export take `?recurring_expense_id=`.
+    - Cron: the recurring expense block in `cron/nightly_tasks.php` records active ones due from `RECURRING_EXPENSE_GRACE_DAYS` ago up to today, passing each next date as `$run`. It sends an `Expense Created` notification per expense, linking `expenses.php?open=`, and an `Expense` notification the day one falls one day past the grace. The nightly notification for every past next date is gone.
+    - `dashboardExpectedExpenses()` walks each one's runs with `recurringExpenseRunsUntil()`.
+    - Seeds: `demoBuildCompanyFinancials()` gives its recurring expenses `recurring_expense_anchor_day` and a next date one period after the last of their history, and links that history.
 - The billing helpers (`billingTimeInvoice()`, `quoteConvert()`, `recurringInvoiceGenerate()` and the rest) take the agent's name as plain text. Their handlers now pass `stripslashes($session_name)`, so a name with an apostrophe no longer shows a backslash in history and the audit log.
 - Sidebar brand: `agent/css/sidebar_brand_fix.css` and `agent/js/sidebar_brand_fix.js` from 26.10 are replaced by CSS in `css/itflow_custom.css`. `includes/load_company_settings.php` now sets `$session_company_logo`.
 - `alertMessageHtml()` no longer double-encodes, and save messages built from `escapeSql()` values use `stripslashes()` at the flash.

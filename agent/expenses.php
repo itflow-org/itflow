@@ -33,6 +33,8 @@ $category_filter = intval($_GET['category'] ?? 0);
 $account_filter = intval($_GET['account'] ?? 0);
 $client_filter = intval($_GET['client'] ?? 0);
 $method_filter = trim((string) ($_GET['method'] ?? ''));
+$recurring_filter = intval($_GET['recurring_expense_id'] ?? 0);
+$recurring_filter_row = $recurring_filter ? recurringExpenseRow($recurring_filter) : null;
 $shows = expenseShows();
 $show = isset($shows[$_GET['show'] ?? '']) ? (string) ($_GET['show'] ?? '') : '';
 
@@ -91,7 +93,7 @@ $stat_money = function ($amount) use ($session_company_currency) {
 
 // More filters open when one of them is set
 $more_filters = $account_filter || $method_filter !== '';
-$any_filter = $q || $vendor_filter || $category_filter || $account_filter || $client_filter || $method_filter !== '' || $show !== '' || $dtf !== '1970-01-01';
+$any_filter = $q || $vendor_filter || $category_filter || $account_filter || $client_filter || $method_filter !== '' || $recurring_filter || $show !== '' || $dtf !== '1970-01-01';
 
 // This month against the same days of last month
 $month_change = $stats['last_to_date'] > 0 ? round(($stats['month'] - $stats['last_to_date']) / $stats['last_to_date'] * 100) : null;
@@ -148,7 +150,7 @@ $month_change = $stats['last_to_date'] > 0 ? round(($stats['month'] - $stats['la
                 <button type="button" class="btn btn-primary dropdown-toggle <?= $can_edit ? 'dropdown-toggle-split' : '' ?>" data-bs-toggle="dropdown"><?= $can_edit ? '' : '<i class="fas fa-ellipsis-h"></i>' ?></button>
                 <div class="dropdown-menu dropdown-menu-end">
                     <a class="dropdown-item ajax-modal" href="#"
-                        data-modal-url="<?= buildExportModalUrl('modals/expense/expense_export.php', ['account', 'vendor', 'category', 'client', 'method', 'show', 'q'], ['dtf' => $dtf, 'dtt' => $dtt]) ?>">
+                        data-modal-url="<?= buildExportModalUrl('modals/expense/expense_export.php', ['account', 'vendor', 'category', 'client', 'method', 'recurring_expense_id', 'show', 'q'], ['dtf' => $dtf, 'dtt' => $dtt]) ?>">
                         <i class="fa fa-fw fa-download text-secondary me-2"></i>Export
                     </a>
                     <a class="dropdown-item" href="recurring_expenses.php"><i class="fa fa-fw fa-redo-alt text-secondary me-2"></i>Recurring Expenses</a>
@@ -161,6 +163,9 @@ $month_change = $stats['last_to_date'] > 0 ? round(($stats['month'] - $stats['la
     <div class="card-header py-3">
         <form autocomplete="off">
             <input type="hidden" name="show" value="<?= escapeHtml($show) ?>">
+            <?php if ($recurring_filter) { ?>
+                <input type="hidden" name="recurring_expense_id" value="<?= $recurring_filter ?>">
+            <?php } ?>
             <div class="row g-2 align-items-center">
                 <div class="col-lg-3 col-md-6">
                     <div class="input-group">
@@ -275,6 +280,12 @@ $month_change = $stats['last_to_date'] > 0 ? round(($stats['month'] - $stats['la
                 </a>
             <?php } ?>
         </nav>
+        <?php if ($recurring_filter) { ?>
+            <div class="small text-body-secondary mt-2">
+                <i class="fas fa-filter me-1"></i>Recorded by <?= $recurring_filter_row ? '<a href="#" class="ajax-modal" data-modal-size="lg" data-modal-url="modals/recurring_expense/recurring_expense.php?id=' . $recurring_filter . '">' . escapeHtml(recurringExpenseLabel($recurring_filter_row)) . '</a>' : 'a recurring expense' ?>
+                <a class="ms-2" href="<?= escapeHtml($filter_url(['recurring_expense_id' => ''])) ?>">Clear</a>
+            </div>
+        <?php } ?>
     </div>
 
     <div class="table-responsive">
@@ -316,6 +327,9 @@ $month_change = $stats['last_to_date'] > 0 ? round(($stats['month'] - $stats['la
                         <a class="fw-semibold ajax-modal" href="#" <?= $row_open ?>><?= escapeHtml($row['expense_date']) ?></a>
                         <?php if ($row['expense_receipt']) { ?>
                             <a class="text-success ms-1" href="expense_receipt.php?expense_id=<?= $expense_id ?>&amp;action=view" target="_blank" title="Open the receipt"><i class="fas fa-paperclip"></i></a>
+                        <?php } ?>
+                        <?php if (intval($row['expense_recurring_expense_id'])) { ?>
+                            <a class="text-body-secondary small ms-1 ajax-modal" href="#" data-modal-size="lg" data-modal-url="modals/recurring_expense/recurring_expense.php?id=<?= intval($row['expense_recurring_expense_id']) ?>" title="Recorded by a recurring expense"><i class="fas fa-redo-alt"></i></a>
                         <?php } ?>
                     </td>
                     <td class="itflow-expense-vendor">

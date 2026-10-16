@@ -1355,6 +1355,7 @@ CREATE TABLE `expenses` (
   `expense_category_id` int(11) NOT NULL DEFAULT 0,
   `expense_account_id` int(11) DEFAULT NULL,
   `expense_refund_of_id` int(11) DEFAULT NULL,
+  `expense_recurring_expense_id` int(11) DEFAULT NULL,
   PRIMARY KEY (`expense_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -2075,11 +2076,11 @@ DROP TABLE IF EXISTS `recurring_expenses`;
 /*!40101 SET character_set_client = utf8mb4 */;
 CREATE TABLE `recurring_expenses` (
   `recurring_expense_id` int(11) NOT NULL AUTO_INCREMENT,
-  `recurring_expense_frequency` tinyint(1) NOT NULL,
-  `recurring_expense_day` tinyint(4) DEFAULT NULL,
-  `recurring_expense_month` tinyint(4) DEFAULT NULL,
+  `recurring_expense_frequency` varchar(10) NOT NULL DEFAULT 'month',
+  `recurring_expense_anchor_day` tinyint(2) NOT NULL DEFAULT 0,
   `recurring_expense_last_sent` date DEFAULT NULL,
   `recurring_expense_next_date` date NOT NULL,
+  `recurring_expense_end_date` date DEFAULT NULL,
   `recurring_expense_status` tinyint(1) NOT NULL DEFAULT 1,
   `recurring_expense_description` mediumtext DEFAULT NULL,
   `recurring_expense_amount` decimal(15,2) NOT NULL,

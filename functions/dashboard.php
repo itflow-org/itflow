@@ -672,8 +672,7 @@ function dashboardMoneyCards($access, $period) {
     }
 
     if ($access['financial']) {
-        $recurring_expenses = dashboardSum("SELECT SUM(recurring_expense_amount) FROM recurring_expenses WHERE recurring_expense_status = 1 AND recurring_expense_archived_at IS NULL AND recurring_expense_frequency = 1")
-            + dashboardSum("SELECT SUM(recurring_expense_amount) FROM recurring_expenses WHERE recurring_expense_status = 1 AND recurring_expense_archived_at IS NULL AND recurring_expense_frequency = 2") / 12;
+        $recurring_expenses = recurringExpenseMonthlyTotal();
         $cards[] = ['label' => 'Recurring expenses', 'value' => $recurring_expenses, 'change' => null, 'note' => 'Per month',
             'url' => '/agent/recurring_expenses.php'];
     }
@@ -815,18 +814,17 @@ function dashboardExpectedExpenses($from, $to, $months) {
 
     $values = array_fill_keys($months, 0.0);
 
-    $sql = mysqli_query($mysqli, "SELECT recurring_expense_next_date, recurring_expense_frequency, recurring_expense_amount
-        FROM recurring_expenses
-        WHERE recurring_expense_status = 1 AND recurring_expense_archived_at IS NULL AND recurring_expense_vendor_id > 0
-        AND recurring_expense_next_date <= '$to'");
+    // Each run on its schedule (functions/expenses.php) - monthly, quarterly or
+    // yearly on its own day, none after its end date. A missed run not yet
+    // recorded still goes out, so it counts in the first month shown.
+    $sql = mysqli_query($mysqli, "SELECT recurring_expenses.* FROM recurring_expenses
+        WHERE " . recurringExpenseRunningSql() . " AND recurring_expense_next_date <= '$to'");
     while ($row = mysqli_fetch_assoc($sql)) {
-        $step = intval($row['recurring_expense_frequency']) === 2 ? 12 : 1;
-        $date = max($row['recurring_expense_next_date'], $from);
-        for ($guard = 0; $date <= $to && $guard < 120; $guard++) {
-            if (isset($values[substr($date, 0, 7)])) {
-                $values[substr($date, 0, 7)] += floatval($row['recurring_expense_amount']);
+        foreach (recurringExpenseRunsUntil($row, $to) as $date) {
+            $key = substr(max($date, $from), 0, 7);
+            if (isset($values[$key])) {
+                $values[$key] += floatval($row['recurring_expense_amount']);
             }
-            $date = dashboardShiftMonths($date, $step);
         }
     }
 

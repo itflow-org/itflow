@@ -3380,31 +3380,39 @@ function demoBuildCompanyFinancials($mysqli, $context, &$counts) {
         }
     }
 
-    // The standing costs, as the recurring expenses they actually are
+    // The standing costs, as the recurring expenses they actually are - each
+    // picks up from the last of its history above, which it is linked to
     foreach ([
-        ['Office rent', 1850.00, 'Rent and Utilities', 1, 1, 'Monongahela Property Group'],
-        ['Colocation, power and transit', 495.00, 'Infrastructure', 1, 3, 'Three Rivers Colocation'],
-        ['Microsoft and Google partner licensing', 2450.00, 'Licensing - Cost of Goods', 1, 6, 'Cascade Cloud Licensing'],
-        ['Business insurance', 1450.00, 'Insurance', 2, 12, 'Keystone Commercial Insurance'],
+        ['Office rent', 1850.00, 'Rent and Utilities', 'month', 1, 'Monongahela Property Group'],
+        ['Colocation, power and transit', 495.00, 'Infrastructure', 'month', 3, 'Three Rivers Colocation'],
+        ['Microsoft and Google partner licensing', 2450.00, 'Licensing - Cost of Goods', 'month', 6, 'Cascade Cloud Licensing'],
+        ['Business insurance', 1450.00, 'Insurance', 'quarter', 12, 'Keystone Commercial Insurance'],
     ] as $recurring) {
-        starterInsert($mysqli, 'recurring_expenses', [
+        $vendor_id = intval($vendors[$recurring[5]] ?? 0);
+        $description = mysqli_real_escape_string($mysqli, $recurring[0]);
+        $last = mysqli_fetch_row(mysqli_query($mysqli, "SELECT MAX(expense_date) FROM expenses WHERE expense_vendor_id = $vendor_id AND expense_description = '$description'"))[0]
+            ?: demoMonthDate(1, $recurring[4]);
+        $next = recurringInvoiceStep($last, $recurring[3], $recurring[4]);
+        $recurring_id = starterInsert($mysqli, 'recurring_expenses', [
             'recurring_expense_frequency' => $recurring[3],
-            'recurring_expense_day' => $recurring[4],
-            'recurring_expense_month' => 1,
-            'recurring_expense_next_date' => date('Y-m-d', strtotime('+1 month')),
-            'recurring_expense_last_sent' => demoMonthDate(0, $recurring[4]),
+            'recurring_expense_anchor_day' => $recurring[4],
+            'recurring_expense_next_date' => $next,
+            'recurring_expense_last_sent' => $last,
             'recurring_expense_status' => 1,
             'recurring_expense_description' => $recurring[0],
             'recurring_expense_amount' => number_format($recurring[1], 2, '.', ''),
             'recurring_expense_payment_method' => 'ACH',
             'recurring_expense_reference' => 'STANDING-' . demoSerial('recurring' . $recurring[0], 6),
             'recurring_expense_currency_code' => $currency,
-            'recurring_expense_vendor_id' => $vendors[$recurring[5]] ?? 0,
+            'recurring_expense_vendor_id' => $vendor_id,
             'recurring_expense_client_id' => 0,
             'recurring_expense_category_id' => demoCategoryId($mysqli, $recurring[2], 'Expense'),
             'recurring_expense_account_id' => $operating_id,
             'recurring_expense_created_at' => demoMonthDateTime(24, $recurring[4], 9, 0),
         ]);
+        if ($recurring_id) {
+            mysqli_query($mysqli, "UPDATE expenses SET expense_recurring_expense_id = " . intval($recurring_id) . " WHERE expense_vendor_id = $vendor_id AND expense_description = '$description'");
+        }
         $counts['company']++;
     }
 

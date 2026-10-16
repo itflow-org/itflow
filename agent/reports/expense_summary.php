@@ -38,8 +38,7 @@ foreach ($categories as $cat => $category) {
 }
 
 // What is already committed every month
-$recurring = dashboardSum("SELECT SUM(recurring_expense_amount) FROM recurring_expenses WHERE recurring_expense_status = 1 AND recurring_expense_archived_at IS NULL AND recurring_expense_vendor_id > 0 AND recurring_expense_frequency = 1")
-    + dashboardSum("SELECT SUM(recurring_expense_amount) FROM recurring_expenses WHERE recurring_expense_status = 1 AND recurring_expense_archived_at IS NULL AND recurring_expense_vendor_id > 0 AND recurring_expense_frequency = 2") / 12;
+$recurring = recurringExpenseMonthlyTotal();
 
 $prev_full = reportGridTotals(reportExpensesByCategory(($year - 1) . '-01-01', ($year - 1) . '-12-31'))['months'];
 

@@ -12,6 +12,8 @@ $vendor_filter = intval($_GET['vendor'] ?? 0);
 $category_filter = intval($_GET['category'] ?? 0);
 $client_filter = intval($_GET['client'] ?? 0);
 $method_filter = (string) ($_GET['method'] ?? '');
+$recurring_filter = intval($_GET['recurring_expense_id'] ?? 0);
+$recurring_filter_row = $recurring_filter ? recurringExpenseRow($recurring_filter) : null;
 $shows = expenseShows();
 $show_filter = isset($shows[$_GET['show'] ?? '']) ? (string) ($_GET['show'] ?? '') : '';
 
@@ -36,6 +38,11 @@ ob_start();
     <div class="modal-body">
 
         <?php exportTabsFiltersOpen(); ?>
+
+        <?php if ($recurring_filter_row) { ?>
+            <input type="hidden" name="recurring_expense_id" value="<?= $recurring_filter ?>">
+            <div class="small text-body-secondary mb-3"><i class="fas fa-redo-alt me-1"></i>Only what <?= escapeHtml(recurringExpenseLabel($recurring_filter_row)) ?> recorded</div>
+        <?php } ?>
 
         <div class="mb-3">
             <label class="form-label">Search</label>

@@ -135,6 +135,14 @@ ob_start();
                 <i class="fas fa-fw fa-clock"></i>
                 <span><span title="<?= escapeHtml($row['expense_created_at']) ?>"><?= timeAgo($row['expense_created_at']) ?></span><?php if ($row['created_by_name']) { ?> <span class="text-body-secondary">by <?= escapeHtml($row['created_by_name']) ?></span><?php } ?></span>
             </div>
+            <?php if ($row['expense_recurring_expense_id']) { ?>
+                <div class="itflow-glance-item" title="Recorded by">
+                    <i class="fas fa-fw fa-redo-alt"></i>
+                    <span>Recorded by <?= $row['recurring_expense_frequency'] !== null
+                        ? '<a href="#" class="ajax-modal" data-modal-size="lg" data-modal-url="modals/recurring_expense/recurring_expense.php?id=' . intval($row['expense_recurring_expense_id']) . '">the ' . escapeHtml(strtolower(recurringInvoiceFrequencies()[$row['recurring_expense_frequency']] ?? 'monthly') . ' recurring expense') . '</a>'
+                        : 'a recurring expense since deleted' ?></span>
+                </div>
+            <?php } ?>
             <?php if ($row['expense_refund_of_id']) { ?>
                 <div class="itflow-glance-item" title="Refund of">
                     <i class="fas fa-fw fa-undo-alt"></i>

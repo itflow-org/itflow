@@ -1,218 +1,39 @@
 <?php
 
+/*
+ * New Recurring Expense - who it is paid to, how much, how often and from
+ * when (and until when, for a lease or financing), what for, from which
+ * account and how. ?vendor_id= starts it with one of our vendors (from the
+ * vendor's page), ?client_id= with a client.
+ */
+
 require_once '../../../includes/modal_header.php';
 
-$client_id = intval($_GET['client_id'] ?? 0);
-// Opened from one of our vendors' pages - that vendor
-$prefill_vendor_id = intval($_GET['vendor_id'] ?? 0);
+enforceUserPermission('module_financial', 2);
+
+$form_row = null;
+$form_vendor_id = intval($_GET['vendor_id'] ?? 0);
+$form_client_id = intval($_GET['client_id'] ?? 0);
+if ($form_client_id) {
+    $client_id = $form_client_id;
+    enforceClientAccess();
+}
 
 ob_start();
 
 ?>
 <div class="modal-header bg-dark">
-    <h5 class="modal-title"><i class="fa fa-fw fa-clock me-2"></i>Create Recurring Expense</h5>
+    <h5 class="modal-title"><i class="fas fa-fw fa-redo-alt me-2"></i>New Recurring Expense</h5>
     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
 </div>
 <form action="post.php" method="post" autocomplete="off">
     <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
     <div class="modal-body">
-
-        <div class="row g-2">
-
-            <div class="mb-3 col-md">
-                <label>Frequency <strong class="text-danger">*</strong></label>
-                <div class="input-group">
-                        <span class="input-group-text"><i class="fa fa-fw fa-sync-alt"></i></span>
-                    <select class="form-select select2" name="frequency" required>
-                        <option value="1">Monthly</option>
-                        <option value="2">Annually</option>
-                    </select>
-                </div>
-            </div>
-
-            <div class="mb-3 col-md">
-                <label>Month <strong class="text-danger">*</strong></label>
-                <div class="input-group">
-                        <span class="input-group-text"><i class="fa fa-fw fa-calendar"></i></span>
-                    <select class="form-select select2" name="month" required>
-                        <option value="">- Select a Month -</option>
-                        <option value="1">01 - January</option>
-                        <option value="2">02 - February</option>
-                        <option value="3">03 - March</option>
-                        <option value="4">04 - April</option>
-                        <option value="5">05 - May</option>
-                        <option value="6">06 - June</option>
-                        <option value="7">07 - July</option>
-                        <option value="8">08 - August</option>
-                        <option value="9">09 - September</option>
-                        <option value="10">10 - October</option>
-                        <option value="11">11 - November</option>
-                        <option value="12">12 - December</option>
-                    </select>
-                </div>
-            </div>
-
-            <div class="mb-3 col-md">
-                <label>Day <strong class="text-danger">*</strong></label>
-                <div class="input-group">
-                        <span class="input-group-text"><i class="fa fa-fw fa-calendar"></i></span>
-                    <input type="text" class="form-control" inputmode="numeric" pattern="(1[0-9]|2[0-8]|[1-9])" name="day" placeholder="Enter a day (1-28)" required>
-                </div>
-            </div>
-
-        </div>
-
-        <div class="row g-2">
-            <div class="mb-3 col-md">
-                <label>Amount <strong class="text-danger">*</strong></label>
-                <div class="input-group">
-                        <span class="input-group-text"><i class="fa fa-fw fa-dollar-sign"></i></span>
-                    <input type="text" class="form-control" inputmode="decimal" pattern="-?[0-9]*\.?[0-9]{0,2}" name="amount" placeholder="0.00" required>
-                </div>
-            </div>
-        </div>
-
-        <div class="row g-2">
-
-            <div class="mb-3 col-md">
-                <label>Account <strong class="text-danger">*</strong></label>
-                <div class="input-group">
-                        <span class="input-group-text"><i class="fa fa-fw fa-piggy-bank"></i></span>
-                    <select class="form-select select2" name="account" required>
-                        <option value="">- Account -</option>
-                        <?php
-
-                        $sql = mysqli_query($mysqli, "SELECT account_id, account_name, opening_balance FROM accounts WHERE account_archived_at IS NULL ORDER BY account_name ASC");
-                        while ($row = mysqli_fetch_assoc($sql)) {
-                            $account_id = intval($row['account_id']);
-                            $account_name = escapeHtml($row['account_name']);
-                            $opening_balance = floatval($row['opening_balance']);
-
-                            $sql_payments = mysqli_query($mysqli, "SELECT SUM(payment_amount) AS total_payments FROM payments WHERE payment_account_id = $account_id");
-                            $row = mysqli_fetch_assoc($sql_payments);
-                            $total_payments = floatval($row['total_payments']);
-
-                            $sql_revenues = mysqli_query($mysqli, "SELECT SUM(revenue_amount) AS total_revenues FROM revenues WHERE revenue_account_id = $account_id");
-                            $row = mysqli_fetch_assoc($sql_revenues);
-                            $total_revenues = floatval($row['total_revenues']);
-
-                            $sql_expenses = mysqli_query($mysqli, "SELECT SUM(expense_amount) AS total_expenses FROM expenses WHERE expense_account_id = $account_id");
-                            $row = mysqli_fetch_assoc($sql_expenses);
-                            $total_expenses = floatval($row['total_expenses']);
-
-                            $balance = $opening_balance + $total_payments + $total_revenues - $total_expenses;
-
-                            ?>
-                            <option <?php if ($config_default_expense_account == $account_id) { echo "selected"; } ?> value="<?= $account_id ?>"><div class="float-start"><?= $account_name ?></div><div class="float-end"> [$<?= number_format($balance, 2) ?>]</div></option>
-
-                            <?php
-                        }
-                        ?>
-                    </select>
-                </div>
-            </div>
-
-            <div class="mb-3 col-md">
-                <label>Vendor <strong class="text-danger">*</strong></label>
-                <div class="input-group">
-                        <span class="input-group-text"><i class="fa fa-fw fa-building"></i></span>
-                    <select class="form-select select2" name="vendor" required>
-                        <option value="">- Vendor -</option>
-                        <?php
-
-                        $sql = mysqli_query($mysqli, "SELECT vendor_id, vendor_name, vendor_description FROM vendors WHERE vendor_client_id = 0 AND vendor_archived_at IS NULL ORDER BY vendor_favorite DESC, vendor_name ASC");
-                        while ($row = mysqli_fetch_assoc($sql)) {
-                            $vendor_id = intval($row['vendor_id']);
-                            $vendor_name = escapeHtml($row['vendor_name']);
-                            ?>
-                            <option value="<?= $vendor_id ?>" <?= $vendor_id === $prefill_vendor_id ? 'selected' : '' ?><?= selectOptionVendor($row['vendor_name'], $row['vendor_description']) ?>><?= $vendor_name ?></option>
-
-                            <?php
-                        }
-                        ?>
-                    </select>
-                        <a class="btn btn-secondary" title="Go to Vendors" href="vendors.php" target="_blank"><i class="fas fa-fw fa-plus"></i></a>
-                </div>
-            </div>
-        </div>
-
-        <div class="mb-3">
-            <label>Description <strong class="text-danger">*</strong></label>
-            <textarea class="form-control" rows="6" name="description" placeholder="Enter a description" required></textarea>
-        </div>
-
-        <div class="mb-3">
-            <label>Reference</label>
-            <div class="input-group">
-                    <span class="input-group-text"><i class="fa fa-fw fa-file-alt"></i></span>
-                <input type="text" class="form-control" name="reference" placeholder="Enter a reference" maxlength="200">
-            </div>
-        </div>
-
-        <div class="row g-2">
-
-            <div class="mb-3 col-md">
-                <label>Category <strong class="text-danger">*</strong></label>
-                <div class="input-group">
-                        <span class="input-group-text"><i class="fa fa-fw fa-list"></i></span>
-                    <select class="form-select select2" name="category" required>
-                        <option value="">- Category -</option>
-                        <?php
-
-                        $sql = mysqli_query($mysqli, "SELECT category_id, category_name, category_color, category_icon FROM categories WHERE category_type = 'Expense' AND category_archived_at IS NULL ORDER BY category_name ASC");
-                        while ($row = mysqli_fetch_assoc($sql)) {
-                            $category_id = intval($row['category_id']);
-                            $category_name = escapeHtml($row['category_name']);
-                            ?>
-                            <option value="<?= $category_id ?>"<?= selectOptionColor($row['category_color'] ?? '', $row['category_icon'] ?? '') ?>><?= $category_name ?></option>
-
-                            <?php
-                        }
-                        ?>
-                    </select>
-                        <button class="btn btn-secondary ajax-modal" title="New category" type="button"
-                            data-modal-url="../admin/modals/category/category_add.php?category=Expense">
-                            <i class="fas fa-plus"></i>
-                        </button>
-                </div>
-
-
-            </div>
-
-            <?php if ($client_id) { ?>
-                <input type="hidden" name="client_id" value="<?= $client_id ?>">
-            <?php } else { ?>
-
-                <div class="mb-3 col-md">
-                    <label>Client</label>
-                    <div class="input-group">
-                            <span class="input-group-text"><i class="fa fa-fw fa-user"></i></span>
-                        <select class="form-select select2" name="client_id" required>
-                            <option value="0">- Client (Optional) -</option>
-                            <?php
-
-                            $sql = mysqli_query($mysqli, "SELECT client_id, client_name, client_abbreviation FROM clients WHERE client_archived_at IS NULL " . clientScopeSql('clients.client_id') . " ORDER BY client_name ASC");
-                            while ($row = mysqli_fetch_assoc($sql)) {
-                                $client_id_select = intval($row['client_id']);
-                                $client_name = escapeHtml($row['client_name']);
-                                ?>
-                                <option value="<?= $client_id_select ?>"<?= selectOptionClient($row['client_id'], $row['client_name'], $row['client_abbreviation'] ?? '') ?>><?= $client_name ?></option>
-
-                                <?php
-                            }
-                            ?>
-                        </select>
-                    </div>
-                </div>
-
-            <?php } ?>
-
-        </div>
-
+        <?php require __DIR__ . '/recurring_expense_form.php'; ?>
     </div>
     <div class="modal-footer">
-        <button type="submit" name="create_recurring_expense" class="btn btn-primary text-bold"><i class="fa fa-fw fa-check me-2"></i>Create</button>
-        <button type="button" class="btn btn-light" data-bs-dismiss="modal"><i class="fa fa-times me-2"></i>Cancel</button>
+        <button type="submit" name="create_recurring_expense" class="btn btn-primary text-bold"><i class="fas fa-check me-2"></i>Set Up</button>
+        <button type="button" class="btn btn-light" data-bs-dismiss="modal"><i class="fas fa-times me-2"></i>Cancel</button>
     </div>
 </form>
 

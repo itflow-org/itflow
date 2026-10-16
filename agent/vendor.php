@@ -139,8 +139,8 @@ if (!$vendor || (isset($_GET['client_id']) && $vendor_client_id !== intval($clie
         while ($row = mysqli_fetch_assoc($sql)) {
             $expenses[] = $row;
         }
-        $sql = mysqli_query($mysqli, "SELECT recurring_expense_id, recurring_expense_frequency, recurring_expense_next_date, recurring_expense_status, recurring_expense_amount,
-                recurring_expense_currency_code, recurring_expense_description, category_name
+        $sql = mysqli_query($mysqli, "SELECT recurring_expense_id, recurring_expense_frequency, recurring_expense_anchor_day, recurring_expense_next_date, recurring_expense_end_date,
+                recurring_expense_status, recurring_expense_amount, recurring_expense_currency_code, recurring_expense_description, category_name
             FROM recurring_expenses
             LEFT JOIN categories ON category_id = recurring_expense_category_id
             WHERE recurring_expense_vendor_id = $vendor_id AND recurring_expense_archived_at IS NULL
@@ -727,10 +727,10 @@ if (!$vendor || (isset($_GET['client_id']) && $vendor_client_id !== intval($clie
                                     <thead class="text-nowrap table-light"><tr><th>Next</th><th>Every</th><th>What for</th><th class="text-end">Amount</th></tr></thead>
                                     <tbody>
                                     <?php foreach ($recurring as $recurring_expense) {
-                                        $active = intval($recurring_expense['recurring_expense_status']) === 1; ?>
+                                        $active = recurringExpenseState($recurring_expense) === 'active'; ?>
                                         <tr class="<?= $active ? '' : 'text-body-secondary' ?>">
-                                            <td class="text-nowrap"><a class="ajax-modal" href="#" data-modal-size="lg" data-modal-url="modals/recurring_expense/recurring_expense_edit.php?id=<?= intval($recurring_expense['recurring_expense_id']) ?>"><?= escapeHtml($recurring_expense['recurring_expense_next_date']) ?></a><?php if (!$active) { ?> <span class="badge rounded-pill text-bg-secondary fw-normal">Paused</span><?php } ?></td>
-                                            <td class="text-nowrap"><?= intval($recurring_expense['recurring_expense_frequency']) === 1 ? 'Month' : 'Year' ?></td>
+                                            <td class="text-nowrap"><a class="ajax-modal" href="#" data-modal-size="lg" data-modal-url="modals/recurring_expense/recurring_expense.php?id=<?= intval($recurring_expense['recurring_expense_id']) ?>"><?= escapeHtml($recurring_expense['recurring_expense_next_date']) ?></a><?php if (!$active) { ?> <?= recurringExpenseNextPill($recurring_expense) ?><?php } ?></td>
+                                            <td class="text-nowrap"><?= ['month' => 'Month', 'quarter' => 'Quarter', 'year' => 'Year'][$recurring_expense['recurring_expense_frequency']] ?? 'Month' ?></td>
                                             <td class="w-100">
                                                 <div><?= escapeHtml(truncate((string) $recurring_expense['recurring_expense_description'], 90)) ?: '<span class="text-body-secondary">-</span>' ?></div>
                                                 <div class="small text-body-secondary"><?= escapeHtml($recurring_expense['category_name']) ?></div>

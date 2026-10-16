@@ -64,9 +64,9 @@ while ($row = mysqli_fetch_assoc($sql)) {
 
 // What each is owed every month from now on
 $sql = mysqli_query($mysqli, "SELECT recurring_expense_vendor_id AS vendor_id,
-        SUM(CASE WHEN recurring_expense_frequency = 2 THEN recurring_expense_amount / 12 ELSE recurring_expense_amount END) AS v
+        SUM(" . expenseRecurringMonthlySql() . ") AS v
     FROM recurring_expenses
-    WHERE recurring_expense_status = 1 AND recurring_expense_archived_at IS NULL AND recurring_expense_vendor_id > 0
+    WHERE " . recurringExpenseRunningSql() . "
     GROUP BY recurring_expense_vendor_id");
 while ($row = mysqli_fetch_assoc($sql)) {
     if (isset($vendors[intval($row['vendor_id'])])) {
