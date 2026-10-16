@@ -77,7 +77,7 @@ $payment_provider_threshold = floatval($row['payment_provider_threshold']);
                     <td><?= $recurring_invoice_scope_display ?></td>
                     <td><?= numfmt_format_currency($currency_format, $recurring_invoice_amount, $session_company_currency) ?></td>
                     <td><?= $recurring_invoice_next_date ?></td>
-                    <td><?= ucwords($recurring_invoice_frequency) ?>ly</td>
+                    <td><?= escapeHtml(recurringInvoiceFrequencies()[$row['recurring_invoice_frequency']] ?? ucfirst($recurring_invoice_frequency)) ?></td>
                     <?php if ($payment_provider_id) { ?>
                     <td>
                         <?php $sql = mysqli_query($mysqli, "SELECT saved_payment_description, saved_payment_id FROM client_saved_payment_methods WHERE saved_payment_client_id = $session_client_id");

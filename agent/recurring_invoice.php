@@ -1,15 +1,17 @@
 <?php
 
 /*
- * Recurring Invoice - an agreement billed every month or year.
+ * Recurring Invoice - an agreement billed every month, quarter or year.
  *
  * The header says whether it is running and when it next bills - and,
- * when its next date has passed, that it won't bill again until the date
- * moves on (with the button that moves it). The template is on the left as
+ * when a run was missed, whether the nightly run still bills it or it is
+ * too far behind and needs Invoice Now or moving on. The template is on the left as
  * the invoices it makes will look, its lines edited in place. On the
- * right: the schedule (what it brings in a month, the next few dates,
- * whether invoices go out by themselves), the card it charges, the
- * invoices it has made and whether they were paid, and its history.
+ * right: the schedule (what it brings in a month, the period the next
+ * invoice covers and the dates after, whether invoices go out by
+ * themselves), its per-user and per-device lines against what the client
+ * has now, the card it charges, the invoices it has made and whether they
+ * were paid, and its history.
  */
 
 // If client_id is in URI then show client Side Bar and client header
@@ -52,6 +54,13 @@ $generated = recurringInvoiceGenerated($recurring_invoice_id, 8);
 $generated_count = intval(mysqli_fetch_row(mysqli_query($mysqli, "SELECT COUNT(*) FROM invoices WHERE invoice_recurring_invoice_id = $recurring_invoice_id"))[0]);
 $upcoming = $active ? recurringInvoiceUpcoming($recurring, 4) : [];
 $late = $active && $recurring['recurring_invoice_next_date'] < date('Y-m-d');
+$late_days = $late ? intval(round((strtotime(date('Y-m-d')) - strtotime($recurring['recurring_invoice_next_date'])) / 86400)) : 0;
+$period_word = recurringInvoicePeriodWord($frequency);
+$next_period = recurringInvoicePeriod($recurring, $recurring['recurring_invoice_next_date']);
+$after_next = recurringInvoiceAfter($recurring, $recurring['recurring_invoice_next_date']);
+$seat_lines = recurringSeatLines($recurring_invoice_id, $client_id);
+$seat_drift = count(array_filter($seat_lines, function ($line) { return $line['seat_drift']; }));
+$seat_sources = recurringSeatSources();
 $auto_send = intval($recurring['recurring_invoice_auto_send']) === 1;
 $email_notify = intval($recurring['recurring_invoice_email_notify']) === 1;
 
@@ -115,9 +124,9 @@ $paper = [
 
         <div class="d-flex flex-wrap gap-2">
             <?php if ($can_edit) { ?>
-                <a class="btn btn-primary confirm-link" href="post.php?force_recurring=<?= $recurring_invoice_id ?>&csrf_token=<?= $csrf ?>"
+                <a class="btn btn-primary confirm-link" href="post.php?force_recurring=<?= $recurring_invoice_id ?>&run=<?= escapeHtml(urlencode($recurring['recurring_invoice_next_date'])) ?>&csrf_token=<?= $csrf ?>"
                     data-confirm-title="Make an invoice from <?= escapeHtml($number) ?> now?"
-                    data-confirm-text="<?= $auto_send ? 'An invoice is made, dated today, and sent - the next one moves on a period from today.' : 'A draft invoice is made, dated today, for you to check and send. The schedule does not change.' ?>"
+                    data-confirm-text="The invoice for the run due <?= escapeHtml($recurring['recurring_invoice_next_date']) ?> (<?= escapeHtml($next_period['{period}']) ?>) is made now, dated today<?= $auto_send && $email_notify && !empty($config_recurring_auto_send_invoice) && !empty($config_smtp_provider) ? ', and emailed' : ', as a draft to check' ?>. The next one moves to <?= escapeHtml($after_next) ?>."
                     data-confirm-button="Invoice Now">
                     <i class="fas fa-bolt me-2"></i>Invoice Now
                 </a>
@@ -168,7 +177,11 @@ $paper = [
 <?php if ($late) { ?>
     <div class="alert alert-danger d-flex flex-wrap align-items-center gap-2 d-print-none">
         <i class="fas fa-exclamation-triangle"></i>
-        <span class="me-auto">Its next date, <?= escapeHtml($recurring['recurring_invoice_next_date']) ?>, has passed - it only bills on its next date, so nothing more will be made until that moves on.</span>
+        <?php if ($late_days <= RECURRING_INVOICE_GRACE_DAYS) { ?>
+            <span class="me-auto">Its run on <?= escapeHtml($recurring['recurring_invoice_next_date']) ?> was missed - the next nightly run bills it. Invoice Now bills it straight away.</span>
+        <?php } else { ?>
+            <span class="me-auto">Its next date, <?= escapeHtml($recurring['recurring_invoice_next_date']) ?>, is <?= $late_days ?> days gone - too far behind to bill by itself. Use Invoice Now for each run it missed, or move it on without billing them.</span>
+        <?php } ?>
         <?php if ($can_edit) { ?>
             <a class="btn btn-sm btn-danger confirm-link" href="post.php?recurring_invoice_catch_up=<?= $recurring_invoice_id ?>&csrf_token=<?= $csrf ?>"
                 data-confirm-title="Skip the missed runs?" data-confirm-text="The next date moves on to <?= escapeHtml(recurringInvoiceCatchUp($recurring)) ?>. Nothing is billed for the runs it missed - use Invoice Now for those." data-confirm-button="Move on">
@@ -194,10 +207,10 @@ $paper = [
             <div class="card-body">
                 <div class="d-flex justify-content-between align-items-end mb-3">
                     <div>
-                        <div class="itflow-billing-stat-label">Each <?= $frequency === 'year' ? 'year' : 'month' ?></div>
+                        <div class="itflow-billing-stat-label">Each <?= $period_word ?></div>
                         <div class="itflow-billing-stat-value"><?= $money($totals['total']) ?></div>
                     </div>
-                    <?php if ($frequency === 'year') { ?>
+                    <?php if ($frequency !== 'month') { ?>
                         <div class="text-end small text-body-secondary"><?= $money(recurringInvoiceMonthly($totals['total'], $frequency)) ?> a month</div>
                     <?php } ?>
                 </div>
@@ -206,6 +219,7 @@ $paper = [
                     <dd>
                         <?php if ($active) { ?>
                             <?= escapeHtml($recurring['recurring_invoice_next_date']) ?>
+                            <div class="small text-body-secondary">For <?= escapeHtml($next_period['{period}']) ?></div>
                             <?php if (count($upcoming) > 1 && !$late) { ?>
                                 <div class="small text-body-secondary">then <?= escapeHtml(implode(', ', array_slice($upcoming, 1))) ?></div>
                             <?php } ?>
@@ -220,6 +234,8 @@ $paper = [
                             Made as a draft for you to check and send
                         <?php } elseif (empty($config_recurring_auto_send_invoice)) { ?>
                             Made as a draft<div class="small text-body-secondary">Sending recurring invoices is off in the billing settings</div>
+                        <?php } elseif ($email_notify && empty($config_smtp_provider)) { ?>
+                            Made as a draft<div class="small text-body-secondary">Outgoing mail isn't set up</div>
                         <?php } elseif ($email_notify) { ?>
                             Emailed to the primary and billing contacts as it is made
                         <?php } else { ?>
@@ -230,6 +246,41 @@ $paper = [
                 </dl>
             </div>
         </div>
+
+        <?php if ($seat_lines) { ?>
+            <!-- Per user, per device: what it bills and what the client has now -->
+            <div class="card mb-3">
+                <div class="card-header d-flex align-items-center">
+                    <h3 class="card-title mb-0 me-auto"><i class="fas fa-fw fa-users text-secondary me-2"></i>Seats</h3>
+                    <?php if ($can_edit && $seat_drift) { ?>
+                        <a class="btn btn-sm btn-outline-warning" href="post.php?recurring_invoice_sync=<?= $recurring_invoice_id ?>&csrf_token=<?= $csrf ?>"><i class="fas fa-sync-alt me-1"></i>Update now</a>
+                    <?php } ?>
+                </div>
+                <div class="list-group list-group-flush">
+                    <?php foreach ($seat_lines as $seat) {
+                        $source = $seat_sources[$seat['item_seat_source']] ?? ['icon' => 'fa-users', 'unit' => 'seat']; ?>
+                        <div class="list-group-item d-flex align-items-center gap-2">
+                            <span class="itflow-asset-icon itflow-asset-icon-sm itflow-billing-tile itflow-billing-tile-recurring" aria-hidden="true"><i class="fas fa-fw <?= $source['icon'] ?>"></i></span>
+                            <div class="flex-grow-1 min-w-0">
+                                <div class="text-truncate"><?= escapeHtml($seat['item_name']) ?></div>
+                                <div class="small text-body-secondary text-truncate"><?= escapeHtml($seat['seat_label']) ?></div>
+                            </div>
+                            <div class="text-end text-nowrap">
+                                <div class="fw-semibold"><?= billingQuantity($seat['item_quantity']) ?></div>
+                                <?php if ($seat['seat_count'] === null) { ?>
+                                    <div class="small text-danger-emphasis">License gone</div>
+                                <?php } elseif ($seat['seat_drift']) { ?>
+                                    <div class="small text-warning-emphasis">now <?= billingQuantity($seat['seat_quantity']) ?></div>
+                                <?php } else { ?>
+                                    <div class="small text-body-secondary">up to date</div>
+                                <?php } ?>
+                            </div>
+                        </div>
+                    <?php } ?>
+                </div>
+                <div class="card-footer small text-body-secondary">Counted again each time an invoice is made<?= $seat_drift ? ' - the next one bills the new counts' : '' ?>.</div>
+            </div>
+        <?php } ?>
 
         <div class="card mb-3">
             <div class="card-header">

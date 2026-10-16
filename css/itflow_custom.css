@@ -6013,6 +6013,13 @@ a.itflow-report-stat:focus-visible {
 .itflow-paper-add-price {
     flex: 0 0 7rem;
 }
+.itflow-paper-add-seat {
+    flex: 0 0 7.5rem;
+}
+/* A recurring invoice's add row has one more box - the item takes the top row, the numbers the one under it */
+.itflow-paper-add-grid-seats .itflow-paper-add-item {
+    flex-basis: 100%;
+}
 .itflow-paper-add-tax {
     flex: 0 1 9rem;
 }

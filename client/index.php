@@ -22,19 +22,10 @@ $amount_paid = floatval($row['amount_paid']);
 
 $balance = $invoice_amounts - $amount_paid;
 
-//Get Monthly Recurring Total
-$sql_recurring_monthly_total = mysqli_query($mysqli, "SELECT SUM(recurring_invoice_amount) AS recurring_monthly_total FROM recurring_invoices WHERE recurring_invoice_status = 1 AND recurring_invoice_frequency = 'month' AND recurring_invoice_client_id = $session_client_id");
-$row = mysqli_fetch_assoc($sql_recurring_monthly_total);
-
-$recurring_monthly_total = floatval($row['recurring_monthly_total']);
-
-//Get Yearly Recurring Total
-$sql_recurring_yearly_total = mysqli_query($mysqli, "SELECT SUM(recurring_invoice_amount) AS recurring_yearly_total FROM recurring_invoices WHERE recurring_invoice_status = 1 AND recurring_invoice_frequency = 'year' AND recurring_invoice_client_id = $session_client_id");
-$row = mysqli_fetch_assoc($sql_recurring_yearly_total);
-
-$recurring_yearly_total = floatval($row['recurring_yearly_total']) / 12;
-
-$recurring_monthly = $recurring_monthly_total + $recurring_yearly_total;
+// What their recurring invoices come to a month - quarterly ones a third, yearly ones a twelfth
+$row = mysqli_fetch_row(mysqli_query($mysqli, "SELECT COALESCE(SUM(" . recurringInvoiceMonthlySql() . "), 0) FROM recurring_invoices
+    WHERE recurring_invoice_status = 1 AND recurring_invoice_archived_at IS NULL AND recurring_invoice_client_id = $session_client_id"));
+$recurring_monthly = floatval($row[0]);
 
 // Technical Card Queries
 // 8 - 45 Day Warning
@@ -192,14 +183,14 @@ if (contactCan('accounting')) { ?>
     </div>
     <?php } ?>
 
-    <?php if ($recurring_monthly_total > 0) { ?>
+    <?php if ($recurring_monthly > 0) { ?>
     <div class="col-sm-3">
         <a href="recurring_invoices.php" class="card text-dark">
             <div class="card-header">
                 <h3 class="card-title">Recurring Monthly</h3>
             </div>
             <div class="card-body">
-                <div class="h4"><b><?= numfmt_format_currency($currency_format, $recurring_monthly_total, $session_company_currency) ?></b></div>
+                <div class="h4"><b><?= numfmt_format_currency($currency_format, $recurring_monthly, $session_company_currency) ?></b></div>
             </div>
         </a>
     </div>

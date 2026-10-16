@@ -640,8 +640,7 @@ function dashboardMoneyCards($access, $period) {
         $invoice_scope = clientScopeSql('invoice_client_id');
         $recurring_scope = clientScopeSql('recurring_invoice_client_id');
         $receivables = dashboardSum("SELECT SUM(balance) FROM (" . dashboardOpenInvoicesSql($invoice_scope) . ") AS open_invoices WHERE balance > 0");
-        $mrr = dashboardSum("SELECT SUM(recurring_invoice_amount) FROM recurring_invoices WHERE recurring_invoice_status = 1 AND recurring_invoice_archived_at IS NULL AND recurring_invoice_frequency = 'month' $recurring_scope")
-            + dashboardSum("SELECT SUM(recurring_invoice_amount) FROM recurring_invoices WHERE recurring_invoice_status = 1 AND recurring_invoice_archived_at IS NULL AND recurring_invoice_frequency = 'year' $recurring_scope") / 12;
+        $mrr = dashboardSum("SELECT SUM(" . recurringInvoiceMonthlySql() . ") FROM recurring_invoices WHERE recurring_invoice_status = 1 AND recurring_invoice_archived_at IS NULL $recurring_scope");
 
         $cards[] = ['label' => 'Receivables', 'value' => $receivables, 'change' => null, 'note' => 'Owed to you now',
             'url' => '/agent/invoices.php?status=Unpaid'];
@@ -773,7 +772,7 @@ function dashboardExpectedIncome($from, $to, $months) {
         FROM recurring_invoices
         WHERE recurring_invoice_status = 1 AND recurring_invoice_archived_at IS NULL AND recurring_invoice_next_date <= '$to'");
     while ($row = mysqli_fetch_assoc($sql)) {
-        $step = $row['recurring_invoice_frequency'] === 'year' ? 12 : 1;
+        $step = recurringInvoiceMonths($row['recurring_invoice_frequency']);
         // A bill date already passed is one the nightly job has yet to run - it goes out today
         $bill = max($row['recurring_invoice_next_date'], $from);
         for ($guard = 0; $bill <= $to && $guard < 120; $guard++) {

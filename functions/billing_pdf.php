@@ -144,7 +144,7 @@ function billingPdfRender($type, array $row, $variant = 'document') {
     } elseif ($type === 'quote') {
         $amount_html = $label('Quote total') . '<br><span style="font-size:17pt; font-weight:bold;">' . $money($totals['total']) . '</span>';
     } else {
-        $amount_html = $label($row['recurring_invoice_frequency'] === 'year' ? 'Each year' : 'Each month') . '<br><span style="font-size:17pt; font-weight:bold;">' . $money($totals['total']) . '</span>';
+        $amount_html = $label('Each ' . recurringInvoicePeriodWord($row['recurring_invoice_frequency'])) . '<br><span style="font-size:17pt; font-weight:bold;">' . $money($totals['total']) . '</span>';
     }
     $html = '<table cellpadding="0" cellspacing="0" width="100%"><tr>
         <td width="60%">' . $label($to_label) . '<br><span style="font-size:10pt; font-weight:bold;">' . $e($bill_to['client_name'] ?? $row['client_name']) . '</span><br><span style="font-size:7.5pt; color:' . $grey . '; line-height:1.4;">' . nl2br($e(implode("\n", $to_lines))) . '</span></td>

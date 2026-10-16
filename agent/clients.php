@@ -237,12 +237,12 @@ if ($clients) {
             $client_money[intval($row['id'])]['overdue'] = floatval($row['v']);
         }
 
-        // Monthly recurring - yearly ones count as a twelfth
+        // Monthly recurring - quarterly ones count as a third, yearly as a twelfth
         $sql_money = mysqli_query($mysqli, "SELECT recurring_invoice_client_id AS id,
-                SUM(CASE WHEN recurring_invoice_frequency = 'year' THEN recurring_invoice_amount / 12 ELSE recurring_invoice_amount END) AS v
+                SUM(" . recurringInvoiceMonthlySql() . ") AS v
             FROM recurring_invoices
             WHERE recurring_invoice_client_id IN ($page_ids) AND recurring_invoice_status = 1
-            AND recurring_invoice_frequency IN ('month', 'year')
+            AND recurring_invoice_frequency IN ('month', 'quarter', 'year')
             GROUP BY recurring_invoice_client_id");
         while ($row = mysqli_fetch_assoc($sql_money)) {
             $client_money[intval($row['id'])]['recurring'] = floatval($row['v']);

@@ -76,7 +76,12 @@ $form_scope_placeholder = [
             <span class="input-group-text"><i class="fa fa-fw fa-comment"></i></span>
             <input type="text" class="form-control" name="scope" maxlength="255" placeholder="<?= escapeHtml($form_scope_placeholder) ?>" value="<?= escapeHtml($form_value('scope')) ?>" <?= $form_edit ? '' : 'autofocus' ?>>
         </div>
-        <div class="form-text">What it is for, in a few words - shown on it and in lists.</div>
+        <div class="form-text">
+            What it is for, in a few words - shown on it and in lists.
+            <?php if ($form_type === 'recurring') { ?>
+                Put <code>{month}</code>, <code>{quarter}</code>, <code>{year}</code> or <code>{period}</code> in it - here, in the notes or on a line - and each invoice says the period it covers: "Managed services - {month}" reads "Managed services - November 2026".
+            <?php } ?>
+        </div>
     </div>
 
     <div class="col-12">

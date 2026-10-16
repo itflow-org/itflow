@@ -832,7 +832,7 @@ function clientExportRows($dataset, $client_id, $options) {
         case 'recurring_invoices':
             foreach ($fetch("SELECT * FROM recurring_invoices WHERE recurring_invoice_client_id = $client_id" . $live('recurring_invoice_archived_at') . " ORDER BY recurring_invoice_number") as $row) {
                 $rows[] = ['number' => $row['recurring_invoice_prefix'] . $row['recurring_invoice_number'], 'scope' => $row['recurring_invoice_scope'],
-                    'frequency' => ucfirst((string) $row['recurring_invoice_frequency']), 'active' => clientExportYes($row['recurring_invoice_status']),
+                    'frequency' => recurringInvoiceFrequencies()[$row['recurring_invoice_frequency']] ?? ucfirst((string) $row['recurring_invoice_frequency']), 'active' => clientExportYes($row['recurring_invoice_status']),
                     'next_date' => clientExportDate($row['recurring_invoice_next_date']), 'last_sent' => clientExportDate($row['recurring_invoice_last_sent']),
                     'amount' => round(floatval($row['recurring_invoice_amount']), 2), 'currency' => $row['recurring_invoice_currency_code'],
                     'auto_send' => clientExportYes($row['recurring_invoice_auto_send']), 'category' => $name('category', $row['recurring_invoice_category_id']),

@@ -42,7 +42,7 @@ while ($row = mysqli_fetch_assoc($sql)) {
     }
 }
 $sql = mysqli_query($mysqli, "SELECT recurring_invoice_client_id AS client_id,
-        SUM(CASE WHEN recurring_invoice_frequency = 'year' THEN recurring_invoice_amount / 12 ELSE recurring_invoice_amount END) AS v
+        SUM(" . recurringInvoiceMonthlySql() . ") AS v
     FROM recurring_invoices WHERE recurring_invoice_status = 1 AND recurring_invoice_archived_at IS NULL GROUP BY recurring_invoice_client_id");
 while ($row = mysqli_fetch_assoc($sql)) {
     if (isset($clients[intval($row['client_id'])])) {

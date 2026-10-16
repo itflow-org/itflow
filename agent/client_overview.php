@@ -569,7 +569,7 @@ $money_format = function ($amount) use ($currency_format, $client_currency_code,
                                     <a href="recurring_invoice.php?client_id=<?= $client_id ?>&recurring_invoice_id=<?= intval($recurring['recurring_invoice_id']) ?>" class="list-group-item list-group-item-action d-flex align-items-center gap-3 py-2">
                                         <span class="flex-grow-1 overflow-hidden">
                                             <span class="d-block text-truncate"><?= escapeHtml($recurring['recurring_invoice_scope'] ?: $recurring['recurring_invoice_prefix'] . $recurring['recurring_invoice_number']) ?></span>
-                                            <span class="d-block small text-body-secondary"><?= $recurring['recurring_invoice_frequency'] === 'year' ? 'Yearly' : 'Monthly' ?>, next <?= escapeHtml(date('M j', strtotime($recurring['recurring_invoice_next_date']))) ?></span>
+                                            <span class="d-block small text-body-secondary"><?= recurringInvoiceFrequencies()[$recurring['recurring_invoice_frequency']] ?? 'Monthly' ?>, next <?= escapeHtml(date('M j', strtotime($recurring['recurring_invoice_next_date']))) ?></span>
                                         </span>
                                         <span class="fw-semibold text-nowrap"><?= $money_format($recurring['recurring_invoice_amount']) ?></span>
                                     </a>

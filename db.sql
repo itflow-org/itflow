@@ -2065,6 +2065,9 @@ CREATE TABLE `recurring_invoice_items` (
   `item_archived_at` datetime DEFAULT NULL,
   `item_tax_id` int(11) NOT NULL DEFAULT 0,
   `item_product_id` int(11) NOT NULL DEFAULT 0,
+  `item_seat_source` varchar(20) DEFAULT NULL,
+  `item_seat_filter` varchar(1000) DEFAULT NULL,
+  `item_seat_minimum` decimal(15,2) NOT NULL DEFAULT 0.00,
   `item_recurring_invoice_id` int(11) NOT NULL,
   PRIMARY KEY (`item_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
@@ -2085,6 +2088,7 @@ CREATE TABLE `recurring_invoices` (
   `recurring_invoice_frequency` varchar(200) NOT NULL,
   `recurring_invoice_last_sent` date DEFAULT NULL,
   `recurring_invoice_next_date` date NOT NULL,
+  `recurring_invoice_anchor_day` tinyint(2) NOT NULL DEFAULT 0,
   `recurring_invoice_status` int(1) NOT NULL,
   `recurring_invoice_discount_amount` decimal(15,2) NOT NULL DEFAULT 0.00,
   `recurring_invoice_amount` decimal(15,2) NOT NULL DEFAULT 0.00,

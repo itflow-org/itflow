@@ -5,7 +5,7 @@
  * see.
  *
  * Along the top, the recurring revenue: what the running ones bring in a
- * month (yearly ones counted as a twelfth), what bills over the next 30
+ * month (quarterly ones counted as a third, yearly as a twelfth), what bills over the next 30
  * days, how many are running, and how many need looking at - running, but
  * with a next date that has passed, so they won't bill until it moves on.
  * Pills: Active (the default - ?status=active), Next 7 days, Late, Paused
@@ -59,7 +59,7 @@ if (!isset($sortable_columns[$sort])) {
     $sort = 'recurring_invoice_next_date';
 }
 
-$monthly_sql = "CASE WHEN recurring_invoice_frequency = 'year' THEN recurring_invoice_amount / 12 ELSE recurring_invoice_amount END";
+$monthly_sql = recurringInvoiceMonthlySql();
 $scope_query = clientScopeSql('recurring_invoice_client_id');
 $search_query = "AND (CONCAT(recurring_invoice_prefix, recurring_invoice_number) LIKE '%$q%' OR recurring_invoice_frequency LIKE '%$q%' OR recurring_invoice_scope LIKE '%$q%' OR client_name LIKE '%$q%' OR category_name LIKE '%$q%')";
 $filters = "AND recurring_invoice_archived_at IS NULL $scope_query $client_query $search_query";
@@ -231,6 +231,11 @@ $stat_money = function ($amount) use ($session_company_currency) {
                     <td class="ps-3 itflow-billing-number">
                         <a class="fw-semibold" href="<?= $row_url ?>"><?= escapeHtml($row_number) ?></a>
                         <?php if (intval($row['recurring_payment_id'])) { ?><i class="fas fa-wallet text-success small ms-1" title="Autopay - charged to a card on file"></i><?php } ?>
+                        <?php $row_seats = recurringSeatLines($recurring_invoice_id, $row_client_id);
+                        if ($row_seats) {
+                            $row_drift = count(array_filter($row_seats, function ($line) { return $line['seat_drift']; })); ?>
+                            <i class="fas fa-users small ms-1 <?= $row_drift ? 'text-warning' : 'text-primary' ?>" title="<?= $row_drift ? 'Seats changed - the next invoice bills the new counts' : 'Bills per user or per device - counted for each invoice' ?>"></i>
+                        <?php } ?>
                         <div class="small text-body-secondary text-truncate" style="max-width: 24rem;"><?= escapeHtml(implode(' · ', array_filter([$row['recurring_invoice_scope'], $row['category_name']]))) ?: '&nbsp;' ?></div>
                     </td>
                     <?php if (!$client_url) { ?>

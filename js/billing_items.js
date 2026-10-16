@@ -169,6 +169,22 @@ function itflowBillingItems(options) {
             productInput: addForm ? addForm.querySelector('[data-line-product]') : null
         });
 
+        // Per user / per device: the quantity is the count, not typed
+        var addSeat = addRow.querySelector('[data-add-seat]');
+        var addQty = addRow.querySelector('[data-line-qty]');
+        if (addSeat && addQty) {
+            addSeat.addEventListener('change', function () {
+                var option = addSeat.options[addSeat.selectedIndex];
+                var counted = addSeat.value !== '';
+                if (counted) {
+                    addQty.value = option.getAttribute('data-count') || '0';
+                }
+                addQty.readOnly = counted;
+                addQty.classList.toggle('bg-body-tertiary', counted);
+                addQty.dispatchEvent(new Event('input', { bubbles: true }));
+            });
+        }
+
         // Enter in the name, quantity or price adds the line
         addRow.querySelectorAll('input').forEach(function (input) {
             input.addEventListener('keydown', function (e) {
@@ -230,4 +246,89 @@ function itflowBillingItems(options) {
             }
         });
     }
+}
+
+/*
+ * The seat part of a recurring invoice's line form: pick where the quantity
+ * comes from - users, devices, a license's seats - and narrow it. The count
+ * comes from ajax.php (recurring_seat_count) as it changes, fills in the
+ * quantity, and the quantity can't be typed while it is counted.
+ */
+function itflowBillingSeatForm(form, recurringInvoiceId) {
+    var source = form.querySelector('[data-seat-source]');
+    var qty = form.querySelector('[data-line-qty]');
+    var preview = form.querySelector('[data-seat-preview]');
+    if (!source || !qty) {
+        return;
+    }
+    var timer = null;
+
+    function sections() {
+        form.querySelectorAll('[data-seat-for]').forEach(function (section) {
+            var on = section.getAttribute('data-seat-for') === source.value || (section.getAttribute('data-seat-for') === 'any' && source.value !== '');
+            section.hidden = !on;
+            // Hidden sections send nothing - the contacts' and devices' tag pickers share a name
+            section.querySelectorAll('input, select').forEach(function (input) {
+                input.disabled = !on;
+            });
+        });
+        qty.readOnly = source.value !== '';
+        qty.classList.toggle('bg-body-tertiary', source.value !== '');
+    }
+
+    function count() {
+        if (source.value === '') {
+            return;
+        }
+        var params = new URLSearchParams();
+        params.append('recurring_seat_count', '1');
+        params.append('recurring_invoice_id', recurringInvoiceId);
+        params.append('source', source.value);
+        form.querySelectorAll('[data-seat-for] input:not([disabled]), [data-seat-for] select:not([disabled])').forEach(function (input) {
+            if ((input.type === 'checkbox' && !input.checked) || !input.name) {
+                return;
+            }
+            params.append(input.name, input.value);
+        });
+        if (preview) {
+            preview.textContent = 'Counting...';
+        }
+        fetch('ajax.php?' + params.toString(), { credentials: 'same-origin' })
+            .then(function (res) { return res.json(); })
+            .then(function (data) {
+                if (data.error) {
+                    preview.textContent = data.error;
+                    return;
+                }
+                qty.value = data.quantity;
+                qty.dispatchEvent(new Event('input', { bubbles: true }));
+                if (preview) {
+                    preview.innerHTML = '';
+                    var strong = document.createElement('strong');
+                    strong.textContent = data.count;
+                    preview.append('Counts ', strong, ' now - ' + data.label);
+                    if (Number(data.quantity) !== Number(data.count)) {
+                        preview.append(' - billed at the minimum, ' + data.quantity);
+                    }
+                }
+            })
+            .catch(function () {
+                if (preview) {
+                    preview.textContent = "Couldn't count them just now - it is counted again when saved.";
+                }
+            });
+    }
+
+    function changed() {
+        sections();
+        clearTimeout(timer);
+        timer = setTimeout(count, 150);
+    }
+
+    source.addEventListener('change', changed);
+    form.querySelectorAll('[data-seat-input]').forEach(function (input) {
+        input.addEventListener(input.tagName === 'INPUT' && input.type === 'text' ? 'input' : 'change', changed);
+    });
+    sections();
+    count();
 }

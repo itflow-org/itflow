@@ -1497,6 +1497,46 @@ if (isset($_POST['billing_items_order'])) {
     exit;
 }
 
+/*
+ * How many a seat line on a recurring invoice would count now - for the Edit
+ * Line window as its choices change. source, tag, types[], software_id,
+ * count (used or total) and minimum, as the form posts them.
+ */
+if (isset($_GET['recurring_seat_count'])) {
+
+    enforceUserPermission('module_sales', 2);
+
+    header('Content-Type: application/json');
+
+    $recurring = billingRow('recurring', intval($_GET['recurring_invoice_id'] ?? 0));
+    if (!$recurring || !hasClientAccess(intval($recurring['client_id']))) {
+        http_response_code(403);
+        echo json_encode(['error' => "That recurring invoice can't be opened."]);
+        exit;
+    }
+
+    $source = (string) ($_GET['source'] ?? '');
+    if (!isset(recurringSeatSources()[$source])) {
+        echo json_encode(['error' => 'Pick what to count.']);
+        exit;
+    }
+    $filter = recurringSeatFilter($source, ['tag' => $_GET['seat_tag'] ?? 0, 'types' => (array) ($_GET['seat_types'] ?? []),
+        'software_id' => $_GET['seat_software_id'] ?? 0, 'count' => $_GET['seat_count'] ?? 'used']);
+    $count = recurringSeatCount(intval($recurring['client_id']), $source, $filter);
+    if ($count === null) {
+        echo json_encode(['error' => "Pick one of the client's licenses."]);
+        exit;
+    }
+    $minimum = billingNumberInput($_GET['seat_minimum'] ?? '0');
+    if ($minimum === null || $minimum < 0) {
+        echo json_encode(['error' => 'The minimum has to be a number, zero or more.']);
+        exit;
+    }
+
+    echo json_encode(['count' => $count, 'quantity' => billingQuantity(max($count, $minimum)), 'label' => recurringSeatDescribe($source, $filter)]);
+    exit;
+}
+
 if (isset($_GET['client_duplicate_check'])) {
     enforceUserPermission('module_client', 2);
 

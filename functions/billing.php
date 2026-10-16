@@ -113,8 +113,9 @@ function billingItems($type, $id) {
     if (!$t || !$id) {
         return $items;
     }
+    $seat_columns = $type === 'recurring' ? ', item_seat_source, item_seat_filter, item_seat_minimum' : '';
     $sql = mysqli_query($mysqli, "SELECT item_id, item_name, item_description, item_quantity, item_price, item_subtotal, item_tax, item_total,
-            item_order, item_tax_id, item_product_id, item_created_at, tax_name, tax_percent
+            item_order, item_tax_id, item_product_id, item_created_at, tax_name, tax_percent $seat_columns
         FROM {$t['items']}
         LEFT JOIN taxes ON tax_id = item_tax_id
         WHERE {$t['item_fk']} = $id
@@ -218,6 +219,32 @@ function billingItemSave($type, $doc_id, array $in, $item_id = 0, &$error = '') 
         $error = 'That name is too long - keep it under 200 characters, and put the rest in the description.';
         return null;
     }
+    // A recurring line can count its quantity from the client - see recurringSeatSources()
+    $seat_set = '';
+    if ($type === 'recurring' && array_key_exists('seat_source', $in)) {
+        $seat_source = (string) $in['seat_source'];
+        if (isset(recurringSeatSources()[$seat_source])) {
+            $seat_filter = recurringSeatFilter($seat_source, [
+                'tag' => $in['seat_tag'] ?? 0, 'types' => (array) ($in['seat_types'] ?? []),
+                'software_id' => $in['seat_software_id'] ?? 0, 'count' => $in['seat_count'] ?? 'used',
+            ]);
+            $seat_minimum = billingNumberInput($in['seat_minimum'] ?? '0');
+            if ($seat_minimum === null || $seat_minimum < 0) {
+                $error = 'The minimum has to be a number, zero or more.';
+                return null;
+            }
+            $seat_count = recurringSeatCount(getFieldById('recurring_invoices', $doc_id, 'recurring_invoice_client_id'), $seat_source, $seat_filter);
+            if ($seat_count === null) {
+                $error = $seat_source === 'license' ? "Pick one of the client's licenses to count." : "Those can't be counted.";
+                return null;
+            }
+            $quantity = max(floatval($seat_count), $seat_minimum);
+            $seat_set = ", item_seat_source = '$seat_source', item_seat_filter = '" . escapeSql(json_encode($seat_filter)) . "', item_seat_minimum = $seat_minimum";
+        } else {
+            $seat_set = ", item_seat_source = NULL, item_seat_filter = NULL, item_seat_minimum = 0";
+        }
+    }
+
     if ($quantity === null || $price === null) {
         $error = 'The quantity and price have to be numbers.';
         return null;
@@ -267,7 +294,7 @@ function billingItemSave($type, $doc_id, array $in, $item_id = 0, &$error = '') 
     }
 
     $set = "item_name = '" . escapeSql($name) . "', item_description = '" . escapeSql($description) . "',
-        item_quantity = $quantity, item_price = $price, item_subtotal = $subtotal, item_tax = $tax_amount, item_total = $total, item_tax_id = $tax_id";
+        item_quantity = $quantity, item_price = $price, item_subtotal = $subtotal, item_tax = $tax_amount, item_total = $total, item_tax_id = $tax_id$seat_set";
     if ($item_id) {
         mysqli_query($mysqli, "UPDATE {$t['items']} SET $set WHERE item_id = $item_id");
     } else {
@@ -611,14 +638,35 @@ function quoteExpiryPill($row) {
 
 /* ------------------------------------------------------- Recurring invoices */
 
-/** How often a recurring invoice runs => label. */
+/** How long a missed run is still billed by the nightly run - a night or a few the cron didn't run. */
+const RECURRING_INVOICE_GRACE_DAYS = 7;
+
+/** How often a recurring invoice runs => label. Each is also a MySQL interval unit. */
 function recurringInvoiceFrequencies() {
-    return ['month' => 'Monthly', 'year' => 'Yearly'];
+    return ['month' => 'Monthly', 'quarter' => 'Quarterly', 'year' => 'Yearly'];
+}
+
+/** How many months a run covers. */
+function recurringInvoiceMonths($frequency) {
+    return ['quarter' => 3, 'year' => 12][(string) $frequency] ?? 1;
+}
+
+/** "month", "quarter" or "year" - for "each month", "a quarter". */
+function recurringInvoicePeriodWord($frequency) {
+    return ['quarter' => 'quarter', 'year' => 'year'][(string) $frequency] ?? 'month';
 }
 
 /** What a recurring invoice brings in a month. */
 function recurringInvoiceMonthly($amount, $frequency) {
-    return $frequency === 'year' ? floatval($amount) / 12 : floatval($amount);
+    return floatval($amount) / recurringInvoiceMonths($frequency);
+}
+
+/**
+ * The same in SQL, for sums - a quarterly one counts a third, a yearly one a
+ * twelfth. Takes the amount and frequency column names.
+ */
+function recurringInvoiceMonthlySql($amount = 'recurring_invoice_amount', $frequency = 'recurring_invoice_frequency') {
+    return "(CASE $frequency WHEN 'year' THEN $amount / 12 WHEN 'quarter' THEN $amount / 3 ELSE $amount END)";
 }
 
 /** "In 5 days", "Today", "3 days late" - for an active recurring invoice's next run. */
@@ -628,7 +676,8 @@ function recurringInvoiceNextPill($row) {
     }
     $days = intval(round((strtotime((string) $row['recurring_invoice_next_date']) - strtotime(date('Y-m-d'))) / 86400));
     if ($days < 0) {
-        return '<span class="badge rounded-pill text-bg-danger fw-normal" title="The next run date is in the past - it will not run until it is moved forward"><i class="fas fa-exclamation-triangle me-1"></i>' . (-$days) . ' ' . (-$days === 1 ? 'day' : 'days') . ' late</span>';
+        $title = -$days <= RECURRING_INVOICE_GRACE_DAYS ? 'Missed - the next nightly run bills it' : "Too far behind to bill by itself - use Invoice Now, or move it on";
+        return '<span class="badge rounded-pill text-bg-danger fw-normal" title="' . $title . '"><i class="fas fa-exclamation-triangle me-1"></i>' . (-$days) . ' ' . (-$days === 1 ? 'day' : 'days') . ' late</span>';
     }
     if ($days === 0) {
         return '<span class="badge rounded-pill text-bg-info fw-normal">Today</span>';
@@ -637,15 +686,22 @@ function recurringInvoiceNextPill($row) {
 }
 
 /**
- * A run date one period on - the way MySQL's DATE_ADD (and so the nightly
- * run) does it: the 31st of January plus a month is the 28th of February.
+ * A run date one period on. It keeps to the day of the month the schedule
+ * bills on ($anchor_day, recurring_invoice_anchor_day) - or the date's own
+ * day when there isn't one - and falls back to a shorter month's last day:
+ * the 31st runs on the 28th of February and the 31st of March.
  */
-function recurringInvoiceStep($date, $frequency) {
+function recurringInvoiceStep($date, $frequency, $anchor_day = 0) {
     $d = new DateTime((string) $date);
-    $day = intval($d->format('j'));
-    $d->modify('first day of this month')->modify($frequency === 'year' ? '+12 months' : '+1 month');
+    $day = intval($anchor_day) > 0 ? intval($anchor_day) : intval($d->format('j'));
+    $d->modify('first day of this month')->modify('+' . recurringInvoiceMonths($frequency) . ' months');
     $d->setDate(intval($d->format('Y')), intval($d->format('n')), min($day, intval($d->format('t'))));
     return $d->format('Y-m-d');
+}
+
+/** A recurring invoice's next run date after $date. */
+function recurringInvoiceAfter($row, $date) {
+    return recurringInvoiceStep($date, $row['recurring_invoice_frequency'], intval($row['recurring_invoice_anchor_day'] ?? 0));
 }
 
 /** The next few dates a recurring invoice will run on. */
@@ -654,7 +710,7 @@ function recurringInvoiceUpcoming($row, $count = 3) {
     $date = (string) $row['recurring_invoice_next_date'];
     for ($i = 0; $i < $count && $date; $i++) {
         $dates[] = $date;
-        $date = recurringInvoiceStep($date, $row['recurring_invoice_frequency']);
+        $date = recurringInvoiceAfter($row, $date);
     }
     return $dates;
 }
@@ -664,9 +720,372 @@ function recurringInvoiceCatchUp($row) {
     $date = (string) $row['recurring_invoice_next_date'];
     $today = date('Y-m-d');
     for ($guard = 0; $date < $today && $guard < 1200; $guard++) {
-        $date = recurringInvoiceStep($date, $row['recurring_invoice_frequency']);
+        $date = recurringInvoiceAfter($row, $date);
     }
     return $date;
+}
+
+/**
+ * The period a run bills for - from its date to the day before the next one -
+ * and the words for it that can go in a recurring invoice's scope, notes and
+ * lines: {month} "November 2026", {quarter} "Q4 2026", {year} "2026" and
+ * {period} "Nov 1 - Nov 30, 2026".
+ */
+function recurringInvoicePeriod($row, $date) {
+    $start = new DateTime((string) $date);
+    $end = new DateTime(recurringInvoiceAfter($row, $date));
+    $end->modify('-1 day');
+    if ($end < $start) {
+        $end = clone $start;
+    }
+    $same_year = $start->format('Y') === $end->format('Y');
+    return [
+        'start' => $start->format('Y-m-d'),
+        'end' => $end->format('Y-m-d'),
+        '{month}' => $start->format('F Y'),
+        '{quarter}' => 'Q' . intval(ceil(intval($start->format('n')) / 3)) . ' ' . $start->format('Y'),
+        '{year}' => $start->format('Y'),
+        '{period}' => $start->format($same_year ? 'M j' : 'M j, Y') . ' - ' . $end->format('M j, Y'),
+    ];
+}
+
+/** Put a period's words into text - the tokens it doesn't use are left as typed. */
+function recurringInvoiceTokens($text, array $period) {
+    return strtr((string) $text, array_intersect_key($period, array_flip(['{month}', '{quarter}', '{year}', '{period}'])));
+}
+
+/* ---------------------------------------------------------- Seat-based lines */
+
+/*
+ * A line on a recurring invoice can take its quantity from the client: their
+ * contacts (users), their devices, or a license's seats - counted again each
+ * time an invoice is made, and never less than the line's minimum.
+ * item_seat_source says which, item_seat_filter (JSON) narrows it: a tag, the
+ * device types, or the license and whether to count the seats it has or the
+ * ones in use.
+ */
+
+/** The places a line's quantity can come from. */
+function recurringSeatSources() {
+    return [
+        'contacts' => ['label' => 'Users', 'unit' => 'user', 'icon' => 'fa-user'],
+        'assets' => ['label' => 'Devices', 'unit' => 'device', 'icon' => 'fa-desktop'],
+        'license' => ['label' => 'License seats', 'unit' => 'seat', 'icon' => 'fa-cube'],
+    ];
+}
+
+/** Device statuses that are not billed - gone, or out of use. */
+function recurringSeatAssetSkipStatuses() {
+    return ['Lost', 'Stolen', 'Retired'];
+}
+
+/** A line's seat filter, cleaned - from the stored JSON or a form's array. */
+function recurringSeatFilter($source, $filter) {
+    if (!is_array($filter)) {
+        $filter = json_decode((string) $filter, true);
+        $filter = is_array($filter) ? $filter : [];
+    }
+    $clean = [];
+    if (in_array($source, ['contacts', 'assets'], true) && intval($filter['tag'] ?? 0)) {
+        $clean['tag'] = intval($filter['tag']);
+    }
+    if ($source === 'assets' && !empty($filter['types']) && is_array($filter['types'])) {
+        $types = array_values(array_unique(array_filter(array_map(function ($type) {
+            return mb_substr(trim((string) $type), 0, 100);
+        }, $filter['types']), 'strlen')));
+        if ($types) {
+            $clean['types'] = $types;
+        }
+    }
+    if ($source === 'license') {
+        $clean['software_id'] = intval($filter['software_id'] ?? 0);
+        $clean['count'] = ($filter['count'] ?? '') === 'total' ? 'total' : 'used';
+    }
+    return $clean;
+}
+
+/**
+ * How many a client has right now, for a seat source and filter - or null
+ * when it can't be counted (the license is gone, or isn't the client's).
+ */
+function recurringSeatCount($client_id, $source, array $filter) {
+    global $mysqli;
+    $client_id = intval($client_id);
+    $tag = intval($filter['tag'] ?? 0);
+    if ($source === 'contacts') {
+        $tag_sql = $tag ? "AND contact_id IN (SELECT contact_id FROM contact_tags WHERE tag_id = $tag)" : '';
+        return intval(mysqli_fetch_row(mysqli_query($mysqli, "SELECT COUNT(*) FROM contacts WHERE contact_client_id = $client_id AND contact_archived_at IS NULL $tag_sql"))[0]);
+    }
+    if ($source === 'assets') {
+        $skip = "'" . implode("', '", array_map('escapeSql', recurringSeatAssetSkipStatuses())) . "'";
+        $types_sql = !empty($filter['types']) ? "AND asset_type IN ('" . implode("', '", array_map('escapeSql', $filter['types'])) . "')" : '';
+        $tag_sql = $tag ? "AND asset_id IN (SELECT asset_tag_asset_id FROM asset_tags WHERE asset_tag_tag_id = $tag)" : '';
+        return intval(mysqli_fetch_row(mysqli_query($mysqli, "SELECT COUNT(*) FROM assets WHERE asset_client_id = $client_id AND asset_archived_at IS NULL
+            AND (asset_status IS NULL OR asset_status NOT IN ($skip)) $types_sql $tag_sql"))[0]);
+    }
+    if ($source === 'license') {
+        $software_id = intval($filter['software_id'] ?? 0);
+        $row = mysqli_fetch_row(mysqli_query($mysqli, "SELECT software_seats, " . softwareSeatsUsedSql('software.software_id') . " FROM software
+            WHERE software_id = $software_id AND software_client_id = $client_id AND software_archived_at IS NULL"));
+        if (!$row) {
+            return null;
+        }
+        return ($filter['count'] ?? 'used') === 'total' ? intval($row[0]) : intval($row[1]);
+    }
+    return null;
+}
+
+/** What a seat line counts, in words - "Users tagged VIP", "Desktops and laptops", "Seats on Microsoft 365 in use". */
+function recurringSeatDescribe($source, array $filter) {
+    global $mysqli;
+    $tag = intval($filter['tag'] ?? 0);
+    $tag_name = $tag ? (string) getFieldById('tags', $tag, 'tag_name') : '';
+    if ($source === 'contacts') {
+        return $tag_name !== '' ? "Contacts tagged $tag_name" : 'All contacts';
+    }
+    if ($source === 'assets') {
+        $types = $filter['types'] ?? [];
+        $what = $types ? (count($types) > 1 ? implode(', ', array_slice($types, 0, -1)) . ' and ' . end($types) : $types[0]) : 'All devices';
+        return $what . ($tag_name !== '' ? " tagged $tag_name" : '') . ' in use';
+    }
+    if ($source === 'license') {
+        $name = (string) getFieldById('software', intval($filter['software_id'] ?? 0), 'software_name');
+        return ($name !== '' ? $name : 'A license that no longer exists') . (($filter['count'] ?? 'used') === 'total' ? ' - seats bought' : ' - seats in use');
+    }
+    return '';
+}
+
+/**
+ * What a client has to count, for choosing a seat line's source: how many
+ * contacts and devices, the tags on them, their device types and their
+ * licenses - each with how many.
+ */
+function recurringSeatOptions($client_id) {
+    global $mysqli;
+    $client_id = intval($client_id);
+    $skip = "'" . implode("', '", array_map('escapeSql', recurringSeatAssetSkipStatuses())) . "'";
+    $assets_in_use = "asset_client_id = $client_id AND asset_archived_at IS NULL AND (asset_status IS NULL OR asset_status NOT IN ($skip))";
+    $options = [
+        'contacts' => recurringSeatCount($client_id, 'contacts', []),
+        'assets' => recurringSeatCount($client_id, 'assets', []),
+        'contact_tags' => [], 'asset_types' => [], 'asset_tags' => [], 'licenses' => [],
+    ];
+    $sql = mysqli_query($mysqli, "SELECT tag_id, tag_name, COUNT(*) AS n FROM tags JOIN contact_tags USING (tag_id) JOIN contacts USING (contact_id)
+        WHERE contact_client_id = $client_id AND contact_archived_at IS NULL AND tag_archived_at IS NULL GROUP BY tag_id ORDER BY tag_name");
+    while ($row = mysqli_fetch_assoc($sql)) {
+        $options['contact_tags'][intval($row['tag_id'])] = $row;
+    }
+    $sql = mysqli_query($mysqli, "SELECT asset_type, COUNT(*) AS n FROM assets WHERE $assets_in_use AND asset_type <> '' GROUP BY asset_type ORDER BY asset_type");
+    while ($row = mysqli_fetch_assoc($sql)) {
+        $options['asset_types'][$row['asset_type']] = intval($row['n']);
+    }
+    $sql = mysqli_query($mysqli, "SELECT tag_id, tag_name, COUNT(*) AS n FROM tags JOIN asset_tags ON asset_tag_tag_id = tag_id JOIN assets ON asset_id = asset_tag_asset_id
+        WHERE $assets_in_use AND tag_archived_at IS NULL GROUP BY tag_id ORDER BY tag_name");
+    while ($row = mysqli_fetch_assoc($sql)) {
+        $options['asset_tags'][intval($row['tag_id'])] = $row;
+    }
+    $sql = mysqli_query($mysqli, "SELECT software_id, software_name, software_seats, " . softwareSeatsUsedSql('software.software_id') . " AS used FROM software
+        WHERE software_client_id = $client_id AND software_archived_at IS NULL ORDER BY software_name");
+    while ($row = mysqli_fetch_assoc($sql)) {
+        $options['licenses'][intval($row['software_id'])] = $row;
+    }
+    return $options;
+}
+
+/**
+ * The seat lines on a recurring invoice, each with what it counts now and
+ * the quantity that makes (never under its minimum): line row + seat_count,
+ * seat_quantity, seat_label and seat_drift (true when the line is off).
+ */
+function recurringSeatLines($recurring_invoice_id, $client_id = null) {
+    global $mysqli;
+    $recurring_invoice_id = intval($recurring_invoice_id);
+    if ($client_id === null) {
+        $client_id = intval(getFieldById('recurring_invoices', $recurring_invoice_id, 'recurring_invoice_client_id'));
+    }
+    $lines = [];
+    $sql = mysqli_query($mysqli, "SELECT item_id, item_name, item_quantity, item_seat_source, item_seat_filter, item_seat_minimum FROM recurring_invoice_items
+        WHERE item_recurring_invoice_id = $recurring_invoice_id AND item_seat_source IS NOT NULL AND item_seat_source <> '' ORDER BY item_order, item_id");
+    while ($row = mysqli_fetch_assoc($sql)) {
+        $filter = recurringSeatFilter($row['item_seat_source'], $row['item_seat_filter']);
+        $count = recurringSeatCount($client_id, $row['item_seat_source'], $filter);
+        $row['seat_filter'] = $filter;
+        $row['seat_count'] = $count;
+        $row['seat_quantity'] = $count === null ? null : max(floatval($count), floatval($row['item_seat_minimum']));
+        $row['seat_label'] = recurringSeatDescribe($row['item_seat_source'], $filter);
+        $row['seat_drift'] = $count !== null && round($row['seat_quantity'] - floatval($row['item_quantity']), 2) != 0;
+        $lines[intval($row['item_id'])] = $row;
+    }
+    return $lines;
+}
+
+/**
+ * Bring a recurring invoice's lines up to date: each seat line's quantity
+ * from what the client has now, and each line's tax from the tax's rate now.
+ * Seat changes go in its history. What changed, in words.
+ */
+function recurringInvoiceRefresh($recurring_invoice_id, $by = 'Cron') {
+    global $mysqli;
+    $recurring_invoice_id = intval($recurring_invoice_id);
+    $client_id = intval(getFieldById('recurring_invoices', $recurring_invoice_id, 'recurring_invoice_client_id'));
+    $seats = recurringSeatLines($recurring_invoice_id, $client_id);
+    $changes = [];
+
+    $sql = mysqli_query($mysqli, "SELECT item_id, item_name, item_quantity, item_price, item_subtotal, item_tax, item_total, item_tax_id, tax_percent
+        FROM recurring_invoice_items LEFT JOIN taxes ON tax_id = item_tax_id WHERE item_recurring_invoice_id = $recurring_invoice_id");
+    while ($item = mysqli_fetch_assoc($sql)) {
+        $item_id = intval($item['item_id']);
+        $quantity = floatval($item['item_quantity']);
+        if (isset($seats[$item_id]) && $seats[$item_id]['seat_drift']) {
+            $new_quantity = floatval($seats[$item_id]['seat_quantity']);
+            $changes[] = "{$item['item_name']}: " . billingQuantity($quantity) . ' to ' . billingQuantity($new_quantity) . ' (' . $seats[$item_id]['seat_label'] . ')';
+            $quantity = $new_quantity;
+        }
+        [$subtotal, $tax, $total] = billingLineAmounts($quantity, $item['item_price'], intval($item['item_tax_id']) ? floatval($item['tax_percent']) : 0);
+        if ($quantity != floatval($item['item_quantity']) || $subtotal != floatval($item['item_subtotal']) || $tax != floatval($item['item_tax']) || $total != floatval($item['item_total'])) {
+            mysqli_query($mysqli, "UPDATE recurring_invoice_items SET item_quantity = $quantity, item_subtotal = $subtotal, item_tax = $tax, item_total = $total WHERE item_id = $item_id");
+        }
+    }
+
+    billingRecalc('recurring', $recurring_invoice_id);
+    foreach ($changes as $change) {
+        billingLog('recurring', $recurring_invoice_id, 'Seats', "$change - by $by");
+    }
+    return $changes;
+}
+
+/* -------------------------------------------- Making invoices from recurring */
+
+/**
+ * Make the invoice for a recurring invoice's next run - the nightly run and
+ * Invoice Now both come here.
+ *
+ * Seat lines are counted again and taxes taken at today's rates first. The
+ * invoice is dated the run's date ($early: today, for Invoice Now), due on
+ * the client's terms, with the period put into its scope, notes and lines.
+ * The schedule moves one period on from the run it billed - so billing early
+ * takes the place of that run, and a missed run billed now is not billed
+ * again. The run is claimed first, so two requests can't bill it twice.
+ *
+ * $run is the run date the caller means to bill - what the nightly run
+ * picked, or what the page showed when Invoice Now was pressed. When the
+ * schedule has moved on since (another request billed it), nothing is made,
+ * rather than billing the run after. Without $early a run still to come is
+ * never billed.
+ *
+ * When the recurring invoice sends by itself and recurring invoices are
+ * emailed (Admin > Settings > Invoice), it goes to the client's primary and
+ * billing contacts and is marked sent; otherwise it is left as a draft.
+ * The new invoice's id, or 0.
+ */
+function recurringInvoiceGenerate($recurring_invoice_id, $by = 'Cron', $early = false, $run = null) {
+    global $mysqli, $config_base_url;
+
+    $recurring_invoice_id = intval($recurring_invoice_id);
+    $row = billingRow('recurring', $recurring_invoice_id, false);
+    if (!$row) {
+        return 0;
+    }
+    $due = (string) $row['recurring_invoice_next_date'];
+    if (($run !== null && (string) $run !== $due) || (!$early && $due > date('Y-m-d'))) {
+        return 0;
+    }
+    $next = recurringInvoiceAfter($row, $due);
+    $date = $early ? date('Y-m-d') : $due;
+
+    // Claim the run
+    mysqli_query($mysqli, "UPDATE recurring_invoices SET recurring_invoice_next_date = '$next', recurring_invoice_last_sent = '$date'
+        WHERE recurring_invoice_id = $recurring_invoice_id AND recurring_invoice_next_date = '" . escapeSql($due) . "'");
+    if (mysqli_affected_rows($mysqli) !== 1) {
+        return 0;
+    }
+
+    $seat_changes = recurringInvoiceRefresh($recurring_invoice_id, $by);
+    $row = billingRow('recurring', $recurring_invoice_id, false);
+    $period = recurringInvoicePeriod($row, $due);
+
+    $settings = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT config_invoice_prefix, config_recurring_auto_send_invoice,
+        config_invoice_from_email, config_invoice_from_name, config_smtp_provider FROM settings WHERE company_id = 1")) ?: [];
+    $terms = intval($row['client_net_terms']); // 0 is "On Receipt"
+    $client_id = intval($row['client_id']);
+    $prefix = escapeSql($settings['config_invoice_prefix'] ?? '');
+    $number = billingNextNumber('invoice');
+    $url_key = randomString(32);
+    $scope = escapeSql(recurringInvoiceTokens($row['recurring_invoice_scope'], $period));
+    $note = escapeSql(recurringInvoiceTokens($row['recurring_invoice_note'], $period));
+    $discount = floatval($row['recurring_invoice_discount_amount']);
+    $currency = escapeSql($row['recurring_invoice_currency_code']);
+    $category_id = intval($row['recurring_invoice_category_id']);
+
+    mysqli_query($mysqli, "INSERT INTO invoices SET invoice_prefix = '$prefix', invoice_number = $number, invoice_scope = '$scope', invoice_date = '$date',
+        invoice_due = DATE_ADD('$date', INTERVAL $terms DAY), invoice_discount_amount = $discount, invoice_amount = 0, invoice_currency_code = '$currency',
+        invoice_note = '$note', invoice_category_id = $category_id, invoice_status = 'Draft', invoice_url_key = '$url_key',
+        invoice_recurring_invoice_id = $recurring_invoice_id, invoice_client_id = $client_id");
+    $invoice_id = mysqli_insert_id($mysqli);
+    if (!$invoice_id) {
+        return 0;
+    }
+
+    foreach (billingItems('recurring', $recurring_invoice_id) as $item) {
+        $name = escapeSql(recurringInvoiceTokens($item['item_name'], $period));
+        $description = escapeSql(recurringInvoiceTokens($item['item_description'], $period));
+        mysqli_query($mysqli, "INSERT INTO invoice_items SET item_name = '$name', item_description = '$description', item_quantity = " . floatval($item['item_quantity']) . ",
+            item_price = " . floatval($item['item_price']) . ", item_subtotal = " . floatval($item['item_subtotal']) . ", item_tax = " . floatval($item['item_tax']) . ",
+            item_total = " . floatval($item['item_total']) . ", item_order = " . intval($item['item_order']) . ", item_tax_id = " . intval($item['item_tax_id']) . ", item_invoice_id = $invoice_id");
+    }
+    billingRecalc('invoice', $invoice_id);
+
+    $invoice = billingRow('invoice', $invoice_id, false);
+    $invoice_number = billingNumber('invoice', $invoice);
+    $recurring_number = billingNumber('recurring', $row);
+    billingLog('invoice', $invoice_id, 'Draft', "Made from $recurring_number by $by, for {$period['{period}']}" . ($seat_changes ? ' - seats updated' : ''));
+    billingLog('recurring', $recurring_invoice_id, 'Invoiced', "$invoice_number made by $by, for {$period['{period}']} - next on $next");
+
+    // Send it, when it sends itself
+    $sent_to = [];
+    if (intval($row['recurring_invoice_auto_send']) === 1 && intval($row['recurring_invoice_email_notify']) === 1
+        && intval($settings['config_recurring_auto_send_invoice'] ?? 0) === 1 && !empty($settings['config_smtp_provider'])) {
+        $company = billingCompany();
+        $money = billingMoney($invoice['invoice_amount'], $invoice['invoice_currency_code']);
+        $link = 'https://' . $config_base_url . '/guest/guest_view_invoice.php?invoice_id=' . $invoice_id . '&url_key=' . $url_key;
+        $subject = "Invoice $invoice_number";
+        $contacts = mysqli_query($mysqli, "SELECT contact_name, contact_email FROM contacts WHERE contact_client_id = $client_id AND contact_archived_at IS NULL
+            AND (contact_primary = 1 OR contact_billing = 1) AND contact_email IS NOT NULL AND contact_email <> '' ORDER BY contact_primary DESC, contact_name ASC");
+        $data = [];
+        while ($contact = mysqli_fetch_assoc($contacts)) {
+            if (!filter_var($contact['contact_email'], FILTER_VALIDATE_EMAIL) || isset($sent_to[strtolower($contact['contact_email'])])) {
+                continue;
+            }
+            $sent_to[strtolower($contact['contact_email'])] = $contact['contact_email'];
+            $body = 'Hello ' . htmlspecialchars($contact['contact_name']) . ',<br><br>An invoice regarding "' . htmlspecialchars($invoice['invoice_scope']) . '" has been generated. Please view the details below.'
+                . "<br><br>Invoice: $invoice_number<br>Issue Date: {$invoice['invoice_date']}<br>Total: " . htmlspecialchars($money) . "<br>Due Date: {$invoice['invoice_due']}"
+                . '<br><br><br>To view your invoice, please click <a href="' . htmlspecialchars($link) . '">here</a>.<br><br><br>--<br>' . htmlspecialchars($company['company_name'] ?? '') . ' - Billing<br>'
+                . htmlspecialchars($settings['config_invoice_from_email'] ?? '') . '<br>' . htmlspecialchars($company['phone_display'] ?? '');
+            $data[] = [
+                'from' => escapeSql($settings['config_invoice_from_email'] ?? ''),
+                'from_name' => escapeSql($settings['config_invoice_from_name'] ?? ''),
+                'recipient' => escapeSql($contact['contact_email']),
+                'recipient_name' => escapeSql($contact['contact_name']),
+                'subject' => escapeSql($subject),
+                'body' => mysqli_real_escape_string($mysqli, $body),
+            ];
+        }
+        if ($data && addToMailQueue($data) === true) {
+            mysqli_query($mysqli, "UPDATE invoices SET invoice_status = 'Sent' WHERE invoice_id = $invoice_id");
+            billingLog('invoice', $invoice_id, 'Sent', 'Emailed to ' . implode(', ', $sent_to));
+        } else {
+            $sent_to = [];
+            billingLog('invoice', $invoice_id, 'Draft', $data ? 'Could not be queued to email - left as a draft' : 'Nobody to email it to - no primary or billing contact with an email address');
+        }
+    }
+
+    $client_name = escapeSql($row['client_name']);
+    appNotify($sent_to ? 'Recurring Sent' : 'Recurring Generated', escapeSql("$invoice_number for {$row['client_name']} made from $recurring_number" . ($sent_to ? ' and emailed' : ' - a draft to check and send')),
+        "/agent/invoice.php?invoice_id=$invoice_id", $client_id);
+    logAudit('Invoice', 'Create', escapeSql("$by made invoice $invoice_number from recurring invoice $recurring_number for {$period['{period}']}"), $client_id, $invoice_id);
+    triggerCustomAction('invoice_create', $invoice_id);
+
+    return $invoice_id;
 }
 
 /** The invoices a recurring invoice has made, newest first, with what has been paid on each. */

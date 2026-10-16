@@ -63,6 +63,10 @@ if ($paper_type === 'invoice') {
         'Next invoice' => $paper_row['recurring_invoice_next_date']];
 }
 
+// A recurring invoice's seat lines - what each counts now, and whether the line is off
+$paper_seats = $paper_type === 'recurring' ? recurringSeatLines($paper_id, intval($paper_row['client_id'])) : [];
+$paper_seat_sources = recurringSeatSources();
+
 $paper_post = function ($params) use ($paper_type, $paper_id, $paper) {
     return 'post.php?' . http_build_query(array_merge($params, ['type' => $paper_type, 'doc_id' => $paper_id, 'csrf_token' => $paper['csrf'] ?? '']));
 };
@@ -124,7 +128,7 @@ $paper_bill_lines = array_filter([
                 <div class="itflow-paper-label">Quote total</div>
                 <div class="itflow-paper-amount"><?= $paper_money($paper_totals['total']) ?></div>
             <?php } else { ?>
-                <div class="itflow-paper-label">Each <?= $paper_row['recurring_invoice_frequency'] === 'year' ? 'year' : 'month' ?></div>
+                <div class="itflow-paper-label">Each <?= recurringInvoicePeriodWord($paper_row['recurring_invoice_frequency']) ?></div>
                 <div class="itflow-paper-amount"><?= $paper_money($paper_totals['total']) ?></div>
             <?php } ?>
         </div>
@@ -172,6 +176,20 @@ $paper_bill_lines = array_filter([
                         <?php if (trim((string) $item['item_description']) !== '') { ?>
                             <div class="small text-body-secondary"><?= nl2br(escapeHtml($item['item_description'])) ?></div>
                         <?php } ?>
+                        <?php if (isset($paper_seats[$item_id])) {
+                            $seat = $paper_seats[$item_id];
+                            $seat_source = $paper_seat_sources[$seat['item_seat_source']] ?? ['unit' => 'seat', 'icon' => 'fa-users']; ?>
+                            <div class="small mt-1 d-print-none">
+                                <span class="badge rounded-pill bg-primary-subtle text-primary-emphasis fw-normal text-wrap text-start" title="The quantity is counted again for each invoice">
+                                    <i class="fas <?= $seat_source['icon'] ?> me-1"></i>Per <?= $seat_source['unit'] ?> &middot; <?= escapeHtml($seat['seat_label']) ?><?= floatval($seat['item_seat_minimum']) > 0 ? ' &middot; at least ' . billingQuantity($seat['item_seat_minimum']) : '' ?>
+                                </span>
+                                <?php if ($seat['seat_count'] === null) { ?>
+                                    <span class="badge rounded-pill text-bg-danger fw-normal">The license is gone - it stays at <?= billingQuantity($item['item_quantity']) ?></span>
+                                <?php } elseif ($seat['seat_drift']) { ?>
+                                    <span class="badge rounded-pill text-bg-warning fw-normal" title="The next invoice bills the new count">Now <?= billingQuantity($seat['seat_quantity']) ?></span>
+                                <?php } ?>
+                            </div>
+                        <?php } ?>
                     </td>
                     <td class="text-end text-nowrap"><?= billingQuantity($item['item_quantity']) ?></td>
                     <td class="text-end text-nowrap"><?= $paper_money($item['item_price']) ?></td>
@@ -211,7 +229,7 @@ $paper_bill_lines = array_filter([
                 <tfoot class="d-print-none">
                 <tr class="itflow-paper-add" id="add-line">
                     <td colspan="7">
-                        <div class="itflow-paper-add-grid" data-billing-add>
+                        <div class="itflow-paper-add-grid<?= $paper_type === 'recurring' ? ' itflow-paper-add-grid-seats' : '' ?>" data-billing-add>
                             <div class="itflow-paper-add-item">
                                 <input type="text" class="form-control form-control-sm mb-1" name="name" form="billingAddLine" placeholder="<?= $paper_items ? 'Add a line - type a product, or anything' : 'First line - type a product, or anything' ?>" maxlength="200" required data-line-name aria-label="Item">
                                 <textarea class="form-control form-control-sm" name="description" form="billingAddLine" rows="1" placeholder="Description (optional)" data-line-description aria-label="Description"></textarea>
@@ -220,6 +238,16 @@ $paper_bill_lines = array_filter([
                                 <label class="form-label small text-body-secondary mb-0">Qty</label>
                                 <input type="text" class="form-control form-control-sm text-end" name="qty" form="billingAddLine" inputmode="decimal" placeholder="1" value="1" data-line-qty>
                             </div>
+                            <?php if ($paper_type === 'recurring') { ?>
+                                <div class="itflow-paper-add-seat">
+                                    <label class="form-label small text-body-secondary mb-0">Counted</label>
+                                    <select class="form-select form-select-sm" name="seat_source" form="billingAddLine" data-add-seat title="Bill per user or per device - counted again for each invoice">
+                                        <option value="">As typed</option>
+                                        <option value="contacts" data-count="<?= intval(recurringSeatCount($paper_row['client_id'], 'contacts', [])) ?>">Per user</option>
+                                        <option value="assets" data-count="<?= intval(recurringSeatCount($paper_row['client_id'], 'assets', [])) ?>">Per device</option>
+                                    </select>
+                                </div>
+                            <?php } ?>
                             <div class="itflow-paper-add-price">
                                 <label class="form-label small text-body-secondary mb-0">Price</label>
                                 <input type="text" class="form-control form-control-sm text-end" name="price" form="billingAddLine" inputmode="decimal" placeholder="0.00" data-line-price>

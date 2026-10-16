@@ -490,14 +490,14 @@ function validateDate($date) {
 }
 
 /*
- * Validates a recurring invoice frequency against the only two values the UI
- * offers. This value is spliced into SQL *unquoted* (INTERVAL 1 <frequency>),
- * where escaping does nothing - a whitelist is the only safe handling. Apply it
- * at every write path AND at the read side before use, so a row planted before
- * this fix can't fire.
+ * Validates a recurring invoice frequency against the values the UI offers -
+ * month, quarter and year, each also a MySQL interval unit. A whitelist is the
+ * only safe handling for a value that could be spliced into SQL unquoted
+ * (INTERVAL 1 <frequency>). Apply it at every write path AND at the read side
+ * before use, so a row planted before this fix can't fire.
  */
 function validateRecurringFrequency($frequency) {
-    if (in_array($frequency, ['month', 'year'], true)) {
+    if (in_array($frequency, ['month', 'quarter', 'year'], true)) {
         return $frequency;
     }
     return 'month'; // Fallback

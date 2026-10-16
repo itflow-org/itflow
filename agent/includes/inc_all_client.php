@@ -154,18 +154,15 @@ if (isset($_GET['client_id'])) {
 
         $num_income = $num_payments + intval($row['num']);
 
-        // Recurring invoices - the monthly and yearly totals and the count.
-        // The two totals key off recurring_invoice_status, the count off
+        // Recurring invoices - what the running ones bring in a month, and the
+        // count. The total keys off recurring_invoice_status, the count off
         // recurring_invoice_archived_at, so neither test can sit in the WHERE.
         $row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT
-            COALESCE(SUM(CASE WHEN recurring_invoice_status = 1 AND recurring_invoice_frequency = 'month' THEN recurring_invoice_amount END), 0) AS recurring_monthly_total,
-            COALESCE(SUM(CASE WHEN recurring_invoice_status = 1 AND recurring_invoice_frequency = 'year' THEN recurring_invoice_amount END), 0) AS recurring_yearly_total,
+            COALESCE(SUM(CASE WHEN recurring_invoice_status = 1 THEN " . recurringInvoiceMonthlySql() . " END), 0) AS recurring_monthly,
             COALESCE(SUM(recurring_invoice_archived_at IS NULL), 0) AS num_recurring_invoices
             FROM recurring_invoices WHERE recurring_invoice_client_id = $client_id"));
 
-        $recurring_monthly_total = floatval($row['recurring_monthly_total']);
-        $recurring_yearly_total = floatval($row['recurring_yearly_total']) / 12;
-        $recurring_monthly = $recurring_monthly_total + $recurring_yearly_total;
+        $recurring_monthly = floatval($row['recurring_monthly']);
         $num_recurring_invoices = intval($row['num_recurring_invoices']);
 
         // Get Credit Balance

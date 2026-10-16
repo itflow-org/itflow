@@ -170,3 +170,35 @@ if (isset($_GET['recurring_invoice_catch_up'])) {
     redirect();
 
 }
+
+/*
+ * Count a recurring invoice's seat lines again now, and take its taxes at
+ * today's rates - what the nightly run does before it makes an invoice.
+ */
+if (isset($_GET['recurring_invoice_sync'])) {
+
+    validateCSRFToken();
+
+    enforceUserPermission('module_sales', 2);
+
+    $recurring_invoice_id = intval($_GET['recurring_invoice_sync']);
+    $row = billingRow('recurring', $recurring_invoice_id);
+    if (!$row) {
+        flashAlert('That recurring invoice no longer exists.', 'error');
+        redirect();
+    }
+    $client_id = intval($row['client_id']);
+    enforceClientAccess();
+
+    $changes = recurringInvoiceRefresh($recurring_invoice_id, $session_name);
+    $number = billingNumber('recurring', $row);
+    if ($changes) {
+        logAudit('Recurring Invoice', 'Edit', escapeSql("$session_name updated the seats on recurring invoice $number: " . implode('; ', $changes)), $client_id, $recurring_invoice_id);
+        flashAlert('<strong>' . escapeHtml($number) . '</strong> seats updated - ' . escapeHtml(implode('; ', $changes)));
+    } else {
+        flashAlert('<strong>' . escapeHtml($number) . '</strong> already bills what the client has.');
+    }
+
+    redirect();
+
+}

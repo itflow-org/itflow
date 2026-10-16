@@ -6,9 +6,9 @@ This file documents all notable changes made to ITFlow.
 
 ### Upgrading to 26.11
 
-Update from Maintenance > Update — Queue Update hands the job to cron, which updates the files and applies this release's database changes (2.7.9 to 2.9.0) in the same pass. Nothing else is required.
+Update from Maintenance > Update — Queue Update hands the job to cron, which updates the files and applies this release's database changes (2.7.9 to 2.9.1) in the same pass. Nothing else is required.
 
-This is a big release, with eleven database steps in one go, so take a backup before you update.
+This is a big release, with twelve database steps in one go, so take a backup before you update.
 
 The update also clears out data that deletes in older versions left behind, all of it pointing at something that no longer exists:
 
@@ -44,6 +44,12 @@ If you are coming from 26.08 or earlier, the database update still has to be run
   - Invoice and quote PDFs have a new layout, and print on Letter paper in the United States and Canada and A4 elsewhere. They were always A4.
   - The recurring invoices list no longer has a date filter. It filtered by the date each one was created.
   - Links to the invoices list with `?status=Draft`, `Unpaid` or `Overdue` still work, and `Paid` and `Cancelled` are new.
+- Recurring invoices:
+  - The nightly run also bills a run it missed by up to 7 days, for nights the cron didn't run. It used to bill only on the day itself. A recurring invoice further behind than that is still left for you to look at.
+  - Invoice Now bills the next run early, and the schedule moves one period on from that run, so the invoice takes its place. It used to restart the schedule from today: pressing it on the 16th for a run due on the 1st moved every later invoice to the 16th.
+  - Every invoice made from a recurring invoice takes its taxes at today's rates, and the recurring invoice's lines are updated to match. The nightly run used to copy the amounts saved when each line was added, while Invoice Now used today's rates.
+  - A schedule on the 29th, 30th or 31st keeps that day. After a shorter month it goes back to the 31st, where it used to stay on the 28th from then on.
+  - The email goes to the client's primary and billing contacts that are not archived, once per address. When outgoing mail is not set up, nothing is queued and the invoice stays a draft. It used to be marked Sent anyway.
 - Notifications now follow access too. An agent only sees notifications for clients and areas they can open, so someone without sales access no longer sees invoice and quote notifications.
 - Drop-downs: Tom Select is gone, replaced by ITFlow's own picker. It works the way you are used to: type to search, tick several in a multi-select, and type a new value in fields that allow it, such as ticket watchers. See Developer Updates if you have custom pages that used Tom Select.
 - Several small windows are gone because the change is now made where the value is shown:
@@ -177,11 +183,11 @@ If you are coming from 26.08 or earlier, the database update still has to be run
   - Lists:
     - Invoices: what you are owed, what of that is overdue, what is sitting in drafts and what came in over the last 30 days, each opening the invoices behind it. Filter by Draft, Unpaid, Overdue, Paid or Cancelled, by category, client and date. Each row shows what is still owed and how long until it is due, or how many days late it is.
     - Quotes: what is out waiting for an answer, what has been accepted and not invoiced yet, what you won over the last 90 days and your win rate. Filter by Draft, Awaiting answer, Expired, Accepted, Invoiced or Declined. Each row shows how long a quote has left.
-    - Recurring invoices: your monthly recurring revenue (yearly ones count as a twelfth), what bills in the next 30 days, how many are running, and any that need a look. Filter by Active, Next 7 days, Late, Paused or All. Each row shows the amount, what it brings in a month, when it next bills, and whether it is on autopay.
+    - Recurring invoices: your monthly recurring revenue (quarterly ones count as a third, yearly ones as a twelfth), what bills in the next 30 days, how many are running, and any that need a look. Filter by Active, Next 7 days, Late, Paused or All. Each row shows the amount, what it brings in a month, when it next bills, whether it is on autopay, and whether it bills per user or per device.
   - Pages: the invoice, quote or recurring invoice is shown the way the client sees it, with the next thing to do at the top:
     - Invoice: Send (or Mark Sent) a draft, Add Payment on one that is owed, with Charge Saved Card when the client has a card on file. On the side: what has been paid and what is left with a progress bar, the payments (edit, refund through Stripe or delete them there), the tickets billed on it, and its history as a timeline.
     - Quote: Send, then Accepted or Declined when the client answers by phone or email, then Make Invoice. A quote that ran out without an answer says so, with an Extend button. On the side: the files the client sent back, and its history.
-    - Recurring invoice: Invoice Now, Pause and Resume. On the side: the schedule with the next few dates and whether invoices go out by themselves, autopay, the invoices it has made and whether they were paid, and its history. When its next date has passed it won't bill until that moves on, so the page says so and offers to move it on to the next date without billing the missed ones.
+    - Recurring invoice: Invoice Now, Pause and Resume. On the side: the schedule with the next few dates, the period the next invoice covers and whether invoices go out by themselves, autopay, the invoices it has made and whether they were paid, and its history. A run missed in the last 7 days is billed by the next nightly run. One further behind says so, and offers Invoice Now for each missed run or moving on to the next date without billing them.
   - Lines are edited on the page:
     - Type a product's name or code to fill in its description, price and tax. What the line comes to shows as you type, and Enter adds it. The page comes back ready for the next line.
     - Drag a line to move it. Edit or remove it from its menu. An invoice's lines are locked once it is paid, cancelled or non-billable, and a quote's once it is answered.
@@ -193,6 +199,14 @@ If you are coming from 26.08 or earlier, the database update still has to be run
   - The client's view of an invoice: what is owed and by when, with Pay Now, the PDF, the payments made, and everything else they owe with a link to each.
   - The client's view of a quote: Accept and Decline, with how long it is good for. Once accepted, they can send back a signed copy or a purchase order.
   - A new recurring invoice can be set to leave a draft to check, and take a discount, from the start.
+  - Per user, per device and per license billing on recurring invoices:
+    - A line can take its quantity from the client. That can be their contacts (all, or those with a tag), their devices (the types you tick, or those with a tag) or a license's seats (in use or bought). Lost, stolen and retired devices are left out.
+    - The count is taken again each time an invoice is made, so a new hire or a new laptop is on the next invoice without anyone editing it. A line can have a minimum for contracts that set one.
+    - On the add-a-line row, Counted switches a line to Per user or Per device. Edit Line has every option, and shows the count as you choose.
+    - Each such line is marked on the page. A Seats card shows what each one bills against what the client has now, with Update now when they differ.
+  - Quarterly recurring invoices, alongside monthly and yearly. They count as a third in monthly recurring revenue on the dashboard, the client pages, the client portal and the reports.
+  - Period words: `{month}`, `{quarter}`, `{year}` and `{period}` in a recurring invoice's scope, notes or lines are filled in with the period each invoice covers, such as "Managed services November 2026", "Q4 2026" or "Nov 1 - Nov 30, 2026".
+  - Invoice Now names the run it bills, whether it will be emailed and when the next one is, before you confirm. Pressing it twice, or in two tabs, bills that run only once.
 - **Tickets**
   - The ticket list has views for Open, Mine, Unassigned, Needs reply, Waiting, Overdue, Scheduled, Closed and All.
     - Each row shows whose move it is (yours or the client's) along with SLA and due badges, and status, priority and agent change right in the row.
@@ -366,6 +380,9 @@ If you are coming from 26.08 or earlier, the database update still has to be run
 - Billing: an invoice made from a quote was due counting from today instead of the invoice date, and with no terms when the client had none set.
 - Billing: the client's view of a quote offered Accept on a viewed quote that had run out, and the invoice and quote views put the browser's HTML into the history.
 - Billing: copying an invoice logged its old number with the prefix twice.
+- Recurring invoices: if cron missed a night, that recurring invoice stopped billing until someone moved its date. The missed run is now billed the next night, up to 7 days late.
+- Recurring invoices: the email went to contacts that had been archived, and could reach the same address twice.
+- Client Portal: the recurring card on the home page didn't show for a client with only yearly recurring invoices, and counted archived ones.
 - Copy buttons in many places, such as pages that already had a window open, showed Copied! but copied nothing. Copy guest URL on invoices and quotes jumped the page to the top, and copying an empty field wiped your clipboard.
 - Tickets: an agent without sales access who edited a ticket turned billable off. Email reply was offered when no mail server was set up. The timer threw an error on resolved tickets, and the due date was not shown.
 - Assets: editing some asset types wiped the OS, firmware, purchase and warranty fields. The add form broke when there were no OS values, and bulk assigning a contact or location could change assets of another client.
@@ -396,7 +413,7 @@ If you are coming from 26.08 or earlier, the database update still has to be run
 
 ### Developer Updates
 
-- Database 2.8.0 to 2.9.0, one file per step under `admin/database_updates/`, with `db.sql` matching 2.9.0:
+- Database 2.8.0 to 2.9.1, one file per step under `admin/database_updates/`, with `db.sql` matching 2.9.1:
   - 2.8.0: `racks.rack_units_descending`, `rack_power_capacity` and `rack_photo_rear`. On `rack_units`: `unit_face`, `unit_full_depth`, `unit_type`, `unit_power_watts`, `unit_notes` and a `unit_asset_id` key. Unlinked items move from asset id 0 to NULL.
   - 2.8.1: `location_documents` and `location_files`.
   - 2.8.2: `vendor_tags` (tag type 6), and `vendor_contact_phone_country_code`, `vendor_contact_phone` and `vendor_contact_email`.
@@ -420,6 +437,7 @@ If you are coming from 26.08 or earlier, the database update still has to be run
     - on `shared_items`: `item_version`, `item_name`, `item_payload`, `item_vault_key`, `item_passphrase`, `item_verify_email`, `item_code`, `item_code_sent_at`, `item_failed_attempts`, `item_notify`, `item_last_viewed_at`, `item_created_by`, `item_received_at`, `item_ended_at`, `item_ended_by` and `item_end_reason`, with keys on the client, the type and record, and the expiry
     - `item_note` widened to 1000, `item_view_limit` made `NOT NULL DEFAULT 0` (NULL was unlimited), existing `item_key` values replaced by their SHA-256, and `item_name` filled from the shared record
     - `settings.config_share_max_hours` (720) and `config_share_require_protection` (0)
+  - 2.9.1: `recurring_invoice_items.item_seat_source`, `item_seat_filter` (JSON) and `item_seat_minimum`, and `recurring_invoices.recurring_invoice_anchor_day`, backfilled from the day of each next date.
 - New shared function files, loaded by `functions.php`: `functions/asset.php`, `asset_interface.php`, `certificate.php`, `client_overview.php`, `contact.php`, `credential.php`, `dashboard.php`, `links.php`, `location.php`, `notifications.php`, `project.php`, `rack.php`, `search.php`, `service.php`, `software.php`, `tags.php`, `ticket.php`, `ticket_fields.php`, `user.php` and `vendor.php`. They hold the queries and rules, so the pages, the API and cron share one definition.
 - Removed post models: `agent/post/{asset_interface,certificate,credential,domain,event,location,network_ip,network,recurring_ticket,vendor}_model.php`, `admin/post/user_model.php` and `api/v1/certificates/certificate_model.php`. Their handlers call the shared functions above. Interface handlers moved to `agent/post/asset_interface.php`.
 - New scripts: `js/itflow_select.js`, `quick_pick.js`, `tag_picker.js`, `global_search.js`, `notifications.js`, `dashboard.js`, `client_overview.js`, `client_switcher.js`, `credentials.js` and `autosubmit.js`, and `agent/js/calendar.js`, `calendar_event_modal.js`, `files.js`, `interface_form.js`, `network_form.js`, `project_modal.js` and `ticket_schedule_modal.js`.
@@ -505,7 +523,7 @@ If you are coming from 26.08 or earlier, the database update still has to be run
 - Billing:
   - `functions/billing.php` (loaded by `functions.php`) serves invoices, quotes and recurring invoices through one map, `billingTypes()`: each kind's table, column prefix, items table and key, history column, page, list and URL parameter. `billingRow()` reads one with its client and category (scoped to the agent's clients unless told otherwise), and `billingItems()`, `billingTotals()`, `billingNumber()`, `billingMoney()` and `billingHistory()` work on any of the three.
   - Lines: `billingItemSave()` adds or edits a line (amounts rounded by `billingLineAmounts()`, stock moved by the difference for invoice lines of `product_type` product), `billingItemDelete()` removes one, `billingItemsOrder()` reorders, and `billingRecalc()` sets the total from the lines less the discount and, for an invoice already paid against, runs `updateInvoiceStatusFromPayments()`. `billingCanEditItems()` is the lock. The edit handlers for all three kinds now use `billingRecalc()`.
-  - State and pills: `invoiceState()` (open, overdue, draft, paid, cancelled or non-billable, with balance and days), `invoiceDuePill()`, `invoiceStatusBadge()`, `invoiceCanPay()`, `quoteExpired()`, `quoteStatusBadge()`, `quoteExpiryPill()`, `getQuoteBadgeColor()`, `recurringInvoiceNextPill()`, `recurringInvoiceStep()` (a period on, month-end clamped the way MySQL's `DATE_ADD` is), `recurringInvoiceUpcoming()` and `recurringInvoiceCatchUp()`. `paymentAccounts()` returns every account with its balance in one query.
+  - State and pills: `invoiceState()` (open, overdue, draft, paid, cancelled or non-billable, with balance and days), `invoiceDuePill()`, `invoiceStatusBadge()`, `invoiceCanPay()`, `quoteExpired()`, `quoteStatusBadge()`, `quoteExpiryPill()`, `getQuoteBadgeColor()`, `recurringInvoiceNextPill()`, `recurringInvoiceStep()` (a period on, keeping the anchor day and falling back to a shorter month's last day), `recurringInvoiceUpcoming()` and `recurringInvoiceCatchUp()`. `paymentAccounts()` returns every account with its balance in one query.
   - `includes/billing_paper.php` draws the document for the agent pages and the guest pages from a `$paper` array, with the line controls when `edit` is set. The add-a-line inputs post through `form="billingAddLine"`.
   - `agent/post/billing.php` handles `billing_item_save` (POST `type`, `doc_id`, optional `item_id`, `name`, `description`, `qty`, `price`, `tax_id`, `product_id`), `billing_item_delete` (GET), `recurring_invoice_set_status` and `recurring_invoice_catch_up`. `billing_items_order` in `agent/ajax.php` takes `type`, `doc_id` and `items` (ids, comma separated) and checks client access.
   - `js/billing_items.js`: `itflowBillingItems()` on the pages and `itflowBillingLineForm()` for any line form (the Edit Line window).
@@ -513,6 +531,11 @@ If you are coming from 26.08 or earlier, the database update still has to be run
   - PDFs: `billingPdf($type, $row, $variant)` returns the file name and data, and `billingPdfSend()` sends it. The drawing is in `functions/billing_pdf.php` (the `BillingPdf` TCPDF class and `billingPdfRender()`), loaded only when a PDF is made. `export_invoice_pdf`, `export_invoice_packing_slip`, `export_quote_pdf` and the guest downloads use it. The guest downloads compare the URL key with `hash_equals()` and return 404 when it is wrong.
   - Guest pages: `billingGuestViewed()` marks a sent document viewed, logs the view in plain text and notifies. `billingClientOpenInvoices()` is the client's statement.
   - CSS: the `.itflow-paper-*` and `.itflow-billing-*` classes in `css/itflow_custom.css`, with print rules that print only the document.
+  - Making invoices from recurring: `recurringInvoiceGenerate($id, $by, $early, $run)` is the one path, used by `cron/nightly_tasks.php` and `force_recurring`. It refuses when `$run` (the run date the caller means) is no longer the next date, or, without `$early`, when that date is still to come. It claims the run with a conditional `UPDATE` on the next date, then refreshes the lines, applies the period words, copies the lines (without `item_product_id`), logs history on both documents and emails when set to. It returns the new invoice id, or 0.
+  - Cron bills active, unarchived recurring invoices due from `RECURRING_INVOICE_GRACE_DAYS` (7) ago up to today, passing each one's next date as `$run`. `force_recurring` takes `run` from the page's link, and a link without it bills the current next date.
+  - Schedules: `recurringInvoiceFrequencies()` (month, quarter, year), `recurringInvoiceMonths()`, `recurringInvoicePeriodWord()`, `recurringInvoiceMonthly()` and `recurringInvoiceMonthlySql()` (use it in SQL sums), `recurringInvoiceAfter()`, `recurringInvoicePeriod()` and `recurringInvoiceTokens()`. `validateRecurringFrequency()` accepts `quarter`. The edit handler keeps `recurring_invoice_anchor_day` unless the next date changes, and the add and edit handlers run their dates through `validateDate()`.
+  - Seats: `recurringSeatSources()`, `recurringSeatFilter()`, `recurringSeatCount()` (null when a license is gone or isn't the client's), `recurringSeatDescribe()`, `recurringSeatOptions()`, `recurringSeatLines()` and `recurringInvoiceRefresh()`, which syncs the seat quantities and takes each line's tax at its current rate. `billing_item_save` takes `seat_source` (empty for typed), `seat_tag`, `seat_types[]`, `seat_software_id`, `seat_count` (`used` or `total`) and `seat_minimum` on recurring lines. A form without `seat_source` leaves the seat settings alone.
+  - New handlers: `recurring_invoice_sync` (GET, `agent/post/billing.php`) and `recurring_seat_count` in `agent/ajax.php`, which returns `{count, quantity, label}` or `{error}` and needs Sales and access to the client. `itflowBillingSeatForm()` in `js/billing_items.js` drives the Edit Line seat fields.
   - Removed: `add_invoice_item`, `edit_invoice_item`, `delete_invoice_item`, `add_quote_item`, `edit_quote_item`, `delete_quote_item`, `add_recurring_invoice_item`, `edit_recurring_invoice_item`, `delete_recurring_invoice_item` and `link_invoice_to_ticket` (it wrote a column that does not exist), `update_invoice_items_order`, `update_quote_items_order` and `update_recurring_invoice_items_order` in `agent/ajax.php`, `agent/modals/invoice/invoice_item_edit.php`, `agent/modals/quote/quote_item_edit.php`, `agent/modals/recurring_invoice/recurring_invoice_item_edit.php`, `guest/guest_quote_upload_file_modal.php` and `js/product_autocomplete.js`.
 - Sidebar brand: `agent/css/sidebar_brand_fix.css` and `agent/js/sidebar_brand_fix.js` from 26.10 are replaced by CSS in `css/itflow_custom.css`. `includes/load_company_settings.php` now sets `$session_company_logo`.
 - `alertMessageHtml()` no longer double-encodes, and save messages built from `escapeSql()` values use `stripslashes()` at the flash.

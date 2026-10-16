@@ -6,7 +6,9 @@
  * ?type=invoice|quote|recurring&doc_id=&item_id=
  *
  * A line from a product keeps its link to the product; on an invoice,
- * changing the quantity of a stocked product moves the stock with it.
+ * changing the quantity of a stocked product moves the stock with it. On a
+ * recurring invoice, the quantity can come from the client instead - their
+ * users, devices or a license's seats, counted again for each invoice.
  */
 
 require_once '../../../includes/modal_header.php';
@@ -76,9 +78,105 @@ ob_start();
                 <label class="form-label">Description</label>
                 <div class="input-group">
                     <span class="input-group-text align-items-start pt-2"><i class="fa fa-fw fa-align-left"></i></span>
-                    <textarea class="form-control" name="description" rows="3" placeholder="What it is, the period it covers, serial numbers - shown under the item" data-line-description><?= escapeHtml($item['item_description']) ?></textarea>
+                    <textarea class="form-control" name="description" rows="3" placeholder="<?= $type === 'recurring' ? 'What it covers - {month}, {quarter}, {year} or {period} become the period each invoice covers' : 'What it is, the period it covers, serial numbers - shown under the item' ?>" data-line-description><?= escapeHtml($item['item_description']) ?></textarea>
                 </div>
             </div>
+            <?php if ($type === 'recurring') {
+                $seat_options = recurringSeatOptions($client_id);
+                $seat_source = (string) ($item['item_seat_source'] ?? '');
+                $seat_filter = recurringSeatFilter($seat_source, $item['item_seat_filter'] ?? '');
+                $seat_minimum = floatval($item['item_seat_minimum'] ?? 0); ?>
+                <!-- Where the quantity comes from - counted again for each invoice -->
+                <div class="col-12">
+                    <label class="form-label">Quantity from</label>
+                    <div class="input-group">
+                        <span class="input-group-text"><i class="fa fa-fw fa-users"></i></span>
+                        <select class="form-select" name="seat_source" data-seat-source>
+                            <option value="">Typed in - the same every time</option>
+                            <option value="contacts" <?= $seat_source === 'contacts' ? 'selected' : '' ?>>Users - the client's contacts (<?= intval($seat_options['contacts']) ?> now)</option>
+                            <option value="assets" <?= $seat_source === 'assets' ? 'selected' : '' ?>>Devices - the client's devices in use (<?= intval($seat_options['assets']) ?> now)</option>
+                            <option value="license" <?= $seat_source === 'license' ? 'selected' : '' ?> <?= $seat_options['licenses'] || $seat_source === 'license' ? '' : 'disabled' ?>>License seats - one of the client's licenses<?= $seat_options['licenses'] ? '' : ' (they have none)' ?></option>
+                        </select>
+                    </div>
+                    <div class="form-text">Counted again each time an invoice is made, so a per-user or per-device line bills what the client has that month. Devices that are lost, stolen or retired aren't counted.</div>
+                </div>
+                <div class="col-12" data-seat-for="contacts" hidden>
+                    <label class="form-label">Which contacts</label>
+                    <div class="input-group">
+                        <span class="input-group-text"><i class="fa fa-fw fa-tag"></i></span>
+                        <select class="form-select" name="seat_tag" data-seat-input>
+                            <option value="0">All of them</option>
+                            <?php foreach ($seat_options['contact_tags'] as $tag_id => $tag) { ?>
+                                <option value="<?= $tag_id ?>" <?= $seat_source === 'contacts' && intval($seat_filter['tag'] ?? 0) === $tag_id ? 'selected' : '' ?>>Tagged <?= escapeHtml($tag['tag_name']) ?> (<?= intval($tag['n']) ?>)</option>
+                            <?php } ?>
+                        </select>
+                    </div>
+                    <div class="form-text">Tag the contacts you bill for - "Licensed user", "Staff" - to leave out the rest.</div>
+                </div>
+                <div class="col-12" data-seat-for="assets" hidden>
+                    <label class="form-label">Which devices</label>
+                    <div class="d-flex flex-wrap gap-2 mb-2">
+                        <?php foreach ($seat_options['asset_types'] as $asset_type => $asset_count) {
+                            $type_id = 'seatType' . substr(md5($asset_type), 0, 8); ?>
+                            <input type="checkbox" class="btn-check" name="seat_types[]" value="<?= escapeHtml($asset_type) ?>" id="<?= $type_id ?>" autocomplete="off" data-seat-input
+                                <?= $seat_source === 'assets' && in_array($asset_type, $seat_filter['types'] ?? [], true) ? 'checked' : '' ?>>
+                            <label class="btn btn-sm btn-outline-secondary" for="<?= $type_id ?>"><i class="fas fa-fw fa-<?= getAssetIcon($asset_type) ?> me-1"></i><?= escapeHtml($asset_type) ?> <span class="badge rounded-pill bg-secondary-subtle text-secondary-emphasis ms-1"><?= $asset_count ?></span></label>
+                        <?php } ?>
+                        <?php if (!$seat_options['asset_types']) { ?>
+                            <span class="small text-body-secondary">The client has no devices yet.</span>
+                        <?php } ?>
+                    </div>
+                    <div class="input-group">
+                        <span class="input-group-text"><i class="fa fa-fw fa-tag"></i></span>
+                        <select class="form-select" name="seat_tag" data-seat-input>
+                            <option value="0">Any tag</option>
+                            <?php foreach ($seat_options['asset_tags'] as $tag_id => $tag) { ?>
+                                <option value="<?= $tag_id ?>" <?= $seat_source === 'assets' && intval($seat_filter['tag'] ?? 0) === $tag_id ? 'selected' : '' ?>>Tagged <?= escapeHtml($tag['tag_name']) ?> (<?= intval($tag['n']) ?>)</option>
+                            <?php } ?>
+                        </select>
+                    </div>
+                    <div class="form-text">No types ticked counts every device - tick Desktop and Laptop for a per-workstation line, Server and Virtual Machine for per-server.</div>
+                </div>
+                <div class="col-12" data-seat-for="license" hidden>
+                    <div class="row g-3">
+                        <div class="col-sm-8">
+                            <label class="form-label">License</label>
+                            <div class="input-group">
+                                <span class="input-group-text"><i class="fa fa-fw fa-cube"></i></span>
+                                <select class="form-select" name="seat_software_id" data-seat-input>
+                                    <?php if ($seat_source === 'license' && !isset($seat_options['licenses'][intval($seat_filter['software_id'] ?? 0)])) { ?>
+                                        <option value="0" selected disabled>The license it counted is gone - pick another</option>
+                                    <?php } ?>
+                                    <?php foreach ($seat_options['licenses'] as $software_id => $license) { ?>
+                                        <option value="<?= $software_id ?>" <?= intval($seat_filter['software_id'] ?? 0) === $software_id ? 'selected' : '' ?>><?= escapeHtml($license['software_name']) ?> (<?= intval($license['used']) ?> in use<?= intval($license['software_seats']) ? ' of ' . intval($license['software_seats']) : '' ?>)</option>
+                                    <?php } ?>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-sm-4">
+                            <label class="form-label">Count</label>
+                            <div class="input-group">
+                                <span class="input-group-text"><i class="fa fa-fw fa-calculator"></i></span>
+                                <select class="form-select" name="seat_count" data-seat-input>
+                                    <option value="used">Seats in use</option>
+                                    <option value="total" <?= ($seat_filter['count'] ?? '') === 'total' ? 'selected' : '' ?>>Seats bought</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-sm-4" data-seat-for="any" hidden>
+                    <label class="form-label">At least</label>
+                    <div class="input-group">
+                        <span class="input-group-text"><i class="fa fa-fw fa-arrow-down"></i></span>
+                        <input type="text" class="form-control text-end" name="seat_minimum" inputmode="decimal" value="<?= $seat_minimum ? billingQuantity($seat_minimum) : '' ?>" placeholder="0" data-seat-input>
+                    </div>
+                    <div class="form-text">A contract's minimum.</div>
+                </div>
+                <div class="col-sm-8 d-flex align-items-center" data-seat-for="any" hidden>
+                    <div class="small" data-seat-preview></div>
+                </div>
+            <?php } ?>
             <div class="col-sm-4">
                 <label class="form-label">Quantity <strong class="text-danger">*</strong></label>
                 <div class="input-group">
@@ -127,6 +225,9 @@ ob_start();
     form.setAttribute('data-wired', '1');
     if (typeof itflowBillingLineForm === 'function') {
         itflowBillingLineForm(form, { currency: <?= json_encode($currency) ?>, locale: <?= json_encode(str_replace('_', '-', (string) $session_company_locale)) ?> });
+    }
+    if (typeof itflowBillingSeatForm === 'function') {
+        itflowBillingSeatForm(form, <?= intval($doc_id) ?>);
     }
 })();
 </script>
