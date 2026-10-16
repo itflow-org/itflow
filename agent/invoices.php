@@ -47,6 +47,11 @@ $recurring_filter = intval($_GET['recurring_invoice_id'] ?? 0);
 $recurring_query = $recurring_filter ? "AND invoice_recurring_invoice_id = $recurring_filter" : '';
 $recurring_filter_row = $recurring_filter ? billingRow('recurring', $recurring_filter) : null;
 
+// Hardware sold on them that isn't on the client's assets yet (functions/products.php)
+$hardware_filter = !empty($_GET['hardware']);
+$hardware_query = $hardware_filter ? "AND " . productHardwareInvoiceSql() . " AND invoices.invoice_id IN (SELECT invoice_items.item_invoice_id FROM invoice_items
+    JOIN products ON products.product_id = invoice_items.item_product_id WHERE " . productHardwareShortSql() . ")" : '';
+
 // Category Filter
 $category_filter = intval($_GET['category'] ?? 0);
 $category_query = $category_filter ? "AND invoice_category_id = $category_filter" : '';
@@ -74,7 +79,7 @@ $paid_join = "LEFT JOIN (SELECT payment_invoice_id, SUM(payment_amount) AS paid 
 $scope_query = clientScopeSql('invoice_client_id');
 $search_query = "AND (CONCAT(invoice_prefix, invoice_number) LIKE '%$q%' OR invoice_scope LIKE '%$q%' OR client_name LIKE '%$q%' OR invoice_status LIKE '%$q%' OR invoice_amount LIKE '%$q%' OR category_name LIKE '%$q%')";
 $date_query = "AND DATE(invoice_date) BETWEEN '$dtf' AND '$dtt'";
-$filters = "$scope_query $client_query $recurring_query $category_query $date_query $search_query";
+$filters = "$scope_query $client_query $recurring_query $hardware_query $category_query $date_query $search_query";
 
 $sql = mysqli_query($mysqli, "SELECT SQL_CALC_FOUND_ROWS invoices.*, client_name, category_name, category_color,
         recurring_invoice_prefix, recurring_invoice_number,
@@ -214,6 +219,9 @@ $stat_money = function ($amount) use ($session_company_currency) {
             <?php if ($recurring_filter) { ?>
                 <input type="hidden" name="recurring_invoice_id" value="<?= $recurring_filter ?>">
             <?php } ?>
+            <?php if ($hardware_filter) { ?>
+                <input type="hidden" name="hardware" value="1">
+            <?php } ?>
             <div class="row g-2 align-items-center">
                 <div class="<?= $client_url ? 'col-lg-4' : 'col-lg-3' ?> col-md-6">
                     <div class="input-group">
@@ -286,6 +294,12 @@ $stat_money = function ($amount) use ($session_company_currency) {
             <div class="small text-body-secondary mt-2">
                 <i class="fas fa-filter me-1"></i>Made by <?= $recurring_filter_row ? '<a href="recurring_invoice.php?recurring_invoice_id=' . $recurring_filter . '">' . escapeHtml(billingNumber('recurring', $recurring_filter_row)) . '</a>' : 'a recurring invoice' ?>
                 <a class="ms-2" href="<?= escapeHtml($filter_url(['recurring_invoice_id' => ''])) ?>">Clear</a>
+            </div>
+        <?php } ?>
+        <?php if ($hardware_filter) { ?>
+            <div class="small text-body-secondary mt-2">
+                <i class="fas fa-filter me-1"></i>Hardware sold on them isn't on the client's assets yet - open one and use Add to Assets
+                <a class="ms-2" href="<?= escapeHtml($filter_url(['hardware' => ''])) ?>">Clear</a>
             </div>
         <?php } ?>
     </div>
@@ -426,7 +440,7 @@ $stat_money = function ($amount) use ($session_company_currency) {
     <?php if (!$num_rows[0]) { ?>
         <div class="itflow-asset-empty">
             <i class="fas fa-file-invoice-dollar fa-2x mb-2 opacity-50"></i>
-            <div><?= $q || $status || $category_filter || $recurring_filter || $dtf !== '1970-01-01' ? 'No invoices match.' : 'No invoices yet.' ?></div>
+            <div><?= $q || $status || $category_filter || $recurring_filter || $hardware_filter || $dtf !== '1970-01-01' ? 'No invoices match.' : 'No invoices yet.' ?></div>
         </div>
     <?php } ?>
     <?php require_once "../includes/filter_footer.php"; ?>

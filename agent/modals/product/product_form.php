@@ -8,8 +8,9 @@
  *   $form_type     service | product - what a new one starts as
  *
  * Posts what productSave() reads: type, name, category, tax, price, cost,
- * frequency, seat_source, code, vendor, vendor_part, track_stock, location,
- * description and notes.
+ * frequency, seat_source, code, vendor, vendor_part, track_stock,
+ * reorder_level, reorder_qty, location, asset_type, make, model,
+ * warranty_months, description and notes.
  *
  * Should not be accessed directly.
  */
@@ -35,6 +36,8 @@ $form_reorder_qty = $form_edit && floatval($form_product['product_reorder_qty'])
 $form_price = $form_edit ? number_format(floatval($form_product['product_price']), 2, '.', '') : '';
 $form_cost = $form_edit && floatval($form_product['product_cost']) > 0 ? number_format(floatval($form_product['product_cost']), 2, '.', '') : '';
 $form_currency = $form_edit ? (string) $form_product['product_currency_code'] : (string) $session_company_currency;
+$form_asset_type = $form_value('product_asset_type');
+$form_warranty = $form_edit && intval($form_product['product_warranty_months']) > 0 ? intval($form_product['product_warranty_months']) : '';
 
 $form_categories = [];
 $sql = mysqli_query($mysqli, "SELECT category_id, category_name, category_color, category_icon FROM categories
@@ -215,6 +218,49 @@ if ($form_vendor_id && !isset($form_vendors[$form_vendor_id]) && $form_value('ve
         </div>
     </div>
 
+    <!-- Hardware - becomes a client asset when it is sold -->
+    <div class="col-sm-6" data-product-only>
+        <label class="form-label">Client asset</label>
+        <div class="input-group">
+            <span class="input-group-text"><i class="fas fa-fw fa-laptop"></i></span>
+            <select class="form-select select2" name="asset_type" data-product-asset-type>
+                <option value="">- Not an asset -</option>
+                <?php foreach (productAssetTypes() as $asset_type_option => $asset_type_icon) { ?>
+                    <option value="<?= escapeHtml($asset_type_option) ?>" <?= $form_asset_type === $asset_type_option ? 'selected' : '' ?><?= selectOptionData(['icon' => "fas $asset_type_icon"]) ?>><?= escapeHtml($asset_type_option) ?></option>
+                <?php } ?>
+                <?php if ($form_asset_type !== '' && !isset(productAssetTypes()[$form_asset_type])) { ?>
+                    <option value="<?= escapeHtml($form_asset_type) ?>" selected><?= escapeHtml($form_asset_type) ?></option>
+                <?php } ?>
+            </select>
+        </div>
+    </div>
+    <div class="col-sm-6" data-product-only data-product-asset>
+        <label class="form-label">Warranty</label>
+        <div class="input-group">
+            <span class="input-group-text"><i class="fas fa-fw fa-shield-alt"></i></span>
+            <input type="text" class="form-control text-end" name="warranty_months" inputmode="numeric" maxlength="3" value="<?= $form_warranty ?>" placeholder="None">
+            <span class="input-group-text">months</span>
+        </div>
+    </div>
+    <div class="col-sm-6" data-product-only data-product-asset>
+        <label class="form-label">Make</label>
+        <div class="input-group">
+            <span class="input-group-text"><i class="fas fa-fw fa-industry"></i></span>
+            <input type="text" class="form-control" name="make" maxlength="200" value="<?= escapeHtml($form_value('product_make')) ?>" placeholder="Who makes it - Dell, Ubiquiti, Synology">
+        </div>
+    </div>
+    <div class="col-sm-6" data-product-only data-product-asset>
+        <label class="form-label">Model</label>
+        <div class="input-group">
+            <span class="input-group-text"><i class="fas fa-fw fa-cube"></i></span>
+            <input type="text" class="form-control" name="model" maxlength="200" value="<?= escapeHtml($form_value('product_model')) ?>" placeholder="OptiPlex 7020, U6-Pro, RS1221+">
+        </div>
+    </div>
+    <div class="col-12 mt-1" data-product-only>
+        <div class="form-text" data-product-asset-on>When it is sold, the invoice offers to add each one to the client's assets with its serial number, this make and model, and the warranty counted from the invoice date.</div>
+        <div class="form-text" data-product-asset-off>Pick an asset type for hardware the client keeps - a laptop, a switch, a firewall - and selling it offers to add it to their assets.</div>
+    </div>
+
     <div class="col-12">
         <label class="form-label">Description <span class="text-body-secondary fw-normal small">on invoices and quotes</span></label>
         <div class="input-group">
@@ -246,6 +292,7 @@ if ($form_vendor_id && !isset($form_vendors[$form_vendor_id]) && $form_value('ve
     var frequency = form.querySelector('[data-product-frequency]');
     var counted = form.querySelector('[data-product-counted]');
     var track = form.querySelector('[data-product-track]');
+    var assetType = form.querySelector('[data-product-asset-type]');
 
     function number(value) {
         var text = String(value || '').replace(/[\s,$€£]/g, '');
@@ -269,6 +316,11 @@ if ($form_vendor_id && !isset($form_vendors[$form_vendor_id]) && $form_value('ve
             });
             form.querySelector('[data-product-track-on]').hidden = !track.checked;
             form.querySelector('[data-product-track-off]').hidden = track.checked;
+            form.querySelectorAll('[data-product-asset]').forEach(function (el) {
+                el.hidden = assetType.value === '';
+            });
+            form.querySelector('[data-product-asset-on]').hidden = assetType.value === '';
+            form.querySelector('[data-product-asset-off]').hidden = assetType.value !== '';
         }
         counted.hidden = frequency.value === '';
 

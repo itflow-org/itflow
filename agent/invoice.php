@@ -8,6 +8,7 @@
  * take a payment on one that is owed. The invoice itself is on the left,
  * as the client sees it, with its lines edited in place while it is open.
  * On the right: what has been paid and what is left, the payments, the
+ * hardware sold on it and whether it is on the client's assets yet, the
  * tickets billed on it and its history.
  */
 
@@ -59,6 +60,12 @@ $mail_ready = !empty($config_smtp_provider) && billingEmailableContacts('invoice
 $saved_card = $can_take_payment && in_array($status, ['Sent', 'Viewed'], true) && invoiceHasSavedCard($client_id);
 $unbilled_tickets = $can_edit && $can_edit_lines && $config_module_enable_ticketing ? count(billingUnbilledTickets($client_id)) : 0;
 $guest_url = billingGuestUrl('invoice', $invoice);
+// Hardware sold on it, and how much of it is on the client's assets (functions/products.php)
+$can_see_assets = lookupUserPermission('module_support') >= 1;
+$hardware = $can_see_assets ? productInvoiceHardware($invoice_id) : [];
+$hardware_units = array_sum(array_column($hardware, 'units'));
+$hardware_to_add = $status === 'Cancelled' ? 0 : array_sum(array_column($hardware, 'to_add'));
+$can_add_assets = $hardware_to_add > 0 && lookupUserPermission('module_support') >= 2;
 $csrf = $_SESSION['csrf_token'];
 
 // Made by a recurring invoice?
@@ -330,6 +337,60 @@ $paper = [
                 <div class="card-body small text-body-secondary">No payments yet.</div>
             <?php } ?>
         </div>
+
+        <?php if ($hardware) { ?>
+            <div class="card mb-3">
+                <div class="card-header d-flex align-items-center">
+                    <h3 class="card-title mb-0 me-auto"><i class="fas fa-fw fa-laptop text-secondary me-2"></i>Hardware <span class="badge rounded-pill bg-secondary-subtle text-secondary-emphasis fw-normal ms-1"><?= $hardware_units ?></span></h3>
+                    <?php if ($can_add_assets) { ?>
+                        <button type="button" class="btn btn-sm btn-outline-primary ajax-modal" data-modal-size="xl" data-modal-url="modals/invoice/invoice_assets.php?invoice_id=<?= $invoice_id ?>">
+                            <i class="fas fa-plus me-1"></i>Add to Assets <span class="badge rounded-pill text-bg-primary ms-1" title="Not on their assets yet"><?= $hardware_to_add ?></span>
+                        </button>
+                    <?php } ?>
+                </div>
+                <div class="list-group list-group-flush">
+                    <?php foreach ($hardware as $line) {
+                        $line_done = count($line['assets']); ?>
+                        <div class="list-group-item">
+                            <div class="d-flex align-items-center gap-2">
+                                <?= productAssetIcon($line['product_asset_type'], 'sm') ?>
+                                <div class="flex-grow-1 min-w-0">
+                                    <div class="fw-semibold text-truncate"><?= escapeHtml($line['item_name']) ?></div>
+                                    <div class="small text-body-secondary"><?= escapeHtml($line['product_asset_type']) ?> &middot; <?= escapeHtml(billingQuantity($line['item_quantity'])) ?> sold</div>
+                                </div>
+                                <?php if ($line['units'] && $line_done >= $line['units']) { ?>
+                                    <span class="badge rounded-pill bg-success-subtle text-success-emphasis fw-normal text-nowrap"><i class="fas fa-check me-1"></i>On assets</span>
+                                <?php } elseif ($status !== 'Cancelled' && $line['units']) { ?>
+                                    <span class="badge rounded-pill bg-warning-subtle text-warning-emphasis fw-normal text-nowrap" title="On the client's assets"><?= $line_done ?> of <?= $line['units'] ?></span>
+                                <?php } ?>
+                            </div>
+                            <?php if ($line['assets']) { ?>
+                                <ul class="list-unstyled small mb-0 mt-1 itflow-hw-assets">
+                                    <?php foreach ($line['assets'] as $line_asset) {
+                                        $line_asset_name = escapeHtml($line_asset['asset_name']); ?>
+                                        <li class="text-truncate">
+                                            <?php if (hasClientAccess($line_asset['asset_client_id'])) { ?>
+                                                <a href="asset.php?client_id=<?= intval($line_asset['asset_client_id']) ?>&asset_id=<?= intval($line_asset['asset_id']) ?>"><?= $line_asset_name ?></a>
+                                            <?php } else { ?>
+                                                <?= $line_asset_name ?>
+                                            <?php } ?>
+                                            <?php if ($line_asset['asset_serial']) { ?><span class="font-monospace text-body-secondary ms-1"><?= escapeHtml($line_asset['asset_serial']) ?></span><?php } ?>
+                                            <?php if ($line_asset['asset_archived_at']) { ?><span class="badge rounded-pill text-bg-secondary fw-normal ms-1">Archived</span><?php } ?>
+                                            <?php if (intval($line_asset['asset_client_id']) !== $client_id) { ?><span class="text-body-secondary ms-1">(moved to another client)</span><?php } ?>
+                                        </li>
+                                    <?php } ?>
+                                </ul>
+                            <?php } ?>
+                        </div>
+                    <?php } ?>
+                </div>
+                <?php if ($status === 'Cancelled') { ?>
+                    <div class="card-footer small text-body-secondary">Cancelled - nothing on it was sold.</div>
+                <?php } elseif ($hardware_to_add && !$can_add_assets) { ?>
+                    <div class="card-footer small text-body-secondary"><?= $hardware_to_add ?> not on <?= escapeHtml($invoice['client_name']) ?>'s assets yet.</div>
+                <?php } ?>
+            </div>
+        <?php } ?>
 
         <?php if ($tickets || $unbilled_tickets) { ?>
             <div class="card mb-3">

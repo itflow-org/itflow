@@ -6,9 +6,9 @@ This file documents all notable changes made to ITFlow.
 
 ### Upgrading to 26.11
 
-Update from Maintenance > Update — Queue Update hands the job to cron, which updates the files and applies this release's database changes (2.7.9 to 2.9.5) in the same pass. Nothing else is required.
+Update from Maintenance > Update — Queue Update hands the job to cron, which updates the files and applies this release's database changes (2.7.9 to 2.9.6) in the same pass. Nothing else is required.
 
-This is a big release, with sixteen database steps in one go, so take a backup before you update.
+This is a big release, with seventeen database steps in one go, so take a backup before you update.
 
 The update also clears out data that deletes in older versions left behind, all of it pointing at something that no longer exists:
 
@@ -17,7 +17,7 @@ The update also clears out data that deletes in older versions left behind, all 
 - the tasks, approvals and history of deleted tickets, the projects of deleted clients, and tickets still pointing at a deleted project
 - project template entries whose ticket template is gone, and the same service link saved twice
 
-It also gives every existing network a type (LAN, WAN, Guest and so on) guessed from its name or description, which you can change afterwards, and fills in the issue date, names covered and fingerprint of every certificate already on file. Invoices made from a quote before the update are linked to that quote, so each one shows where it came from. Products that ever had stock added keep tracking their stock, and the rest are set to ordered as needed (see Breaking Changes, Products). Their past stock changes are sorted into received, sold and returned from their notes, and linked to the invoice they name.
+It also gives every existing network a type (LAN, WAN, Guest and so on) guessed from its name or description, which you can change afterwards, and fills in the issue date, names covered and fingerprint of every certificate already on file. Invoices made from a quote before the update are linked to that quote, so each one shows where it came from. Products that ever had stock added keep tracking their stock, and the rest are set to ordered as needed (see Breaking Changes, Products). Their past stock changes are sorted into received, sold and returned from their notes, and linked to the invoice they name. No product becomes a client asset when it is sold until you give it an asset type (see New Features, Products).
 
 If you are coming from 26.08 or earlier, the database update still has to be run from the command line one time, exactly as described under Upgrading to 26.09 below.
 
@@ -124,7 +124,7 @@ If you are coming from 26.08 or earlier, the database update still has to be run
 - **Dashboard** (rebuilt)
   - Needs attention along the top:
     - tickets past their SLA, unassigned tickets and overdue projects
-    - overdue and draft invoices, resolved tickets not invoiced yet, and stock to reorder
+    - overdue and draft invoices, resolved tickets not invoiced yet, stock to reorder, and hardware sold in the last 90 days that isn't on the client's assets yet
     - domains, certificates, licenses and warranties expiring in the next 30 days
     - services needing attention and service reviews due
 
@@ -263,8 +263,17 @@ If you are coming from 26.08 or earlier, the database update still has to be run
     - One Stock window to Receive (at a unit cost, which can become the product's cost, linked to an expense from the last year, the vendor's first), Count (type what is on the shelf and the difference is recorded) or Write off (damaged, lost or stolen, used by us, or sent back to the vendor). It shows what will be on the shelf as you type.
     - Reorder at and Order on each product. Products at or under their level show on the To reorder tab, with a badge on the list, on Products in the menu and in Needs attention on the dashboard. A Low Stock notification goes out when stock drops to the level or runs out, saying how many to order and from whom.
     - Count Stock lists every tracked product, or one location's, with what ITFlow has and a box for what you counted. The difference shows as you type, Enter moves to the next box, and blank ones are left alone. Print it as a count sheet to take to the shelf.
-  - Import takes every field, including Reorder At and Order. Categories, taxes and vendors are matched by name. A new price list can update products by their code, and a file with only Code and Price will do. Download the template for the layout.
-  - Export adds cost, margin, how it is billed, vendor, part number, stock and its value, and the reorder level, and can export just what is to reorder.
+  - Hardware becomes client assets:
+    - Give a product the asset it becomes - a laptop, a switch, an access point and so on - with its make, model and warranty in months.
+    - An invoice with hardware on it has a Hardware card: each line, how many of it are on the client's assets, and which ones with their serial numbers.
+    - Add to Assets has a row for each one still to add, named from the model, for its serial number and who has it. Enter after a serial, or a barcode scan, moves to the next one. The make, model and warranty (counted from the invoice date) come from the product and can be changed, and the status and location are set for all of them. A row can be linked to an asset the client already has instead, or taken out and left for later.
+    - Each asset made this way is bought on the invoice date with the invoice number as its order reference, and its page links to the invoice and the product.
+    - The product's page shows the asset it becomes and how many are in use, with an Assets tab listing each one with its client, serial number, warranty and invoice.
+    - Products has a Hardware tab, and each row says the asset it becomes.
+    - The packing slip lists the serial numbers under each line.
+    - The starter catalog's hardware comes with its asset type and warranty, and so does the demo data's.
+  - Import takes every field, including Reorder At, Order, Asset Type, Make, Model and Warranty. Categories, taxes and vendors are matched by name. A new price list can update products by their code, and a file with only Code and Price will do. Download the template for the layout.
+  - Export adds cost, margin, how it is billed, vendor, part number, stock and its value, the reorder level, and the asset it becomes with its make, model and warranty. It can export just what is to reorder, or just hardware.
   - Invoices, quotes and recurring invoices show agents their margin on lines from products with a cost, at today's cost. A quote shows it up front and each month.
   - Our vendors' pages have a Products tab listing what we buy from them.
   - Search finds products by part number and opens their page.
@@ -511,6 +520,7 @@ If you are coming from 26.08 or earlier, the database update still has to be run
   - 2.9.3: `quote_items.item_frequency` (NULL for one time, or `month`, `quarter` or `year`), `quotes.quote_monthly_amount`, `invoices.invoice_quote_id` and `recurring_invoices.recurring_invoice_quote_id`. Invoices are linked to their quote from the "Invoice created from quote QUO-n" history the old Make Invoice wrote, matched on the client too.
   - 2.9.4: `products.product_cost`, `product_vendor_id`, `product_vendor_part`, `product_notes`, `product_frequency` (NULL once, or `month`, `quarter`, `year`), `product_seat_source` (NULL, `contacts` or `assets`) and `product_track_stock`, set for products with any `product_stock` rows. Keys on `item_product_id` in `invoice_items`, `quote_items` and `recurring_invoice_items`, and on `product_stock.stock_product_id`.
   - 2.9.5: `product_stock.stock_qty` becomes `decimal(15,2)`, with `stock_type` (`received`, `sold`, `returned`, `adjusted` or `written_off`, default `adjusted`), `stock_unit_cost`, `stock_invoice_id` (keyed) and `stock_user_id`. Existing rows take their invoice from a note ending "Invoice n" and their type from the sign and the note. `products.product_reorder_level` and `product_reorder_qty`.
+  - 2.9.6: `products.product_asset_type` (one of the asset types, NULL for none), `product_make`, `product_model` and `product_warranty_months`. `assets.asset_product_id`, `asset_invoice_id` and `asset_invoice_item_id`, keyed on the product and the invoice.
 - New shared function files, loaded by `functions.php`: `functions/asset.php`, `asset_interface.php`, `certificate.php`, `client_overview.php`, `contact.php`, `credential.php`, `dashboard.php`, `links.php`, `location.php`, `notifications.php`, `project.php`, `rack.php`, `search.php`, `service.php`, `software.php`, `tags.php`, `ticket.php`, `ticket_fields.php`, `user.php` and `vendor.php`. They hold the queries and rules, so the pages, the API and cron share one definition.
 - Removed post models: `agent/post/{asset_interface,certificate,credential,domain,event,location,network_ip,network,recurring_ticket,vendor}_model.php`, `admin/post/user_model.php` and `api/v1/certificates/certificate_model.php`. Their handlers call the shared functions above. Interface handlers moved to `agent/post/asset_interface.php`.
 - New scripts: `js/itflow_select.js`, `quick_pick.js`, `tag_picker.js`, `global_search.js`, `notifications.js`, `dashboard.js`, `client_overview.js`, `client_switcher.js`, `credentials.js` and `autosubmit.js`, and `agent/js/calendar.js`, `calendar_event_modal.js`, `files.js`, `interface_form.js`, `network_form.js`, `project_modal.js` and `ticket_schedule_modal.js`.
@@ -631,6 +641,9 @@ If you are coming from 26.08 or earlier, the database update still has to be run
   - Handlers: `product_stock_save` (POST `product_id`, `mode` and `note`, with `qty`, `unit_cost`, `update_cost` and `expense` to receive, `counted` to count, or `qty` and `reason` to write off) from `agent/modals/product/product_stock.php?id=&mode=`, and `product_stock_count` (POST `counted[product_id]` and `note`) from the new page `agent/products_count.php`. Removed: `agent/modals/product/product_stock_add.php` and `add_product_stock`.
   - `productSave()` and `productCopy()` take `reorder_level` and `reorder_qty`, with import aliases and export columns for them and the stock value. The products list and export take `type=reorder`.
   - `$num_products_reorder` in `agent/includes/get_side_nav_counts.php`, `Stock to reorder` in `dashboardAttention()`, and `inventory` in `reportCatalog()` (Sales & Billing, `module_sales`, accounting) for `agent/reports/inventory.php`.
+  - Sold hardware, in `functions/products.php`: `productAssetTypes()` (the `$asset_types_array` list), `productAssetType()`, `productAssetIcon()`, `productHardwareSql()`, `productHardwareUnits()` (a line's quantity rounded up, none for a credit), `productWarrantyUntil()`, `productHardwareInvoiceSql()` (not drafts or cancelled, not made by a recurring invoice), `productHardwareShortSql()`, `productHardwarePending($days)`, `productInvoiceHardware($invoice_id)`, `productAssets($product_id)` and `productAssetCandidates()`. `productSaleAssets($invoice_id, $lines, $units, $shared, &$error)` checks every row first, then adds or links them in one transaction, each new one with its primary interface, and each with a history line and an audit log entry.
+  - Handler `invoice_assets_save` (POST `invoice_id`, `status`, `location`, `lines[item_id][make|model|warranty]` and `units[item_id][n][name|serial|contact|existing]`; needs Sales, and Support at edit) from `agent/modals/invoice/invoice_assets.php?invoice_id=`. `billingItemDelete()` clears `asset_invoice_item_id` on the line's assets and `delete_invoice` clears both invoice links - the assets stay.
+  - `productSave()` and `productCopy()` take `asset_type`, `make`, `model` and `warranty_months`, with import aliases and export columns for them. The products list and export take `type=hardware`, and `invoices.php` takes `hardware=1`. `dashboardAttention()` adds Hardware not on assets for agents with Support access, `billingPdfRender()` reads the serials for the packing slip, and the asset page joins the invoice and the product. Seeds: columns 12 to 15 on `demoDataProducts()` and an eighth and ninth on `starterContentProducts()`. CSS: `.itflow-hw-*`.
 - The billing helpers (`billingTimeInvoice()`, `quoteConvert()`, `recurringInvoiceGenerate()` and the rest) take the agent's name as plain text. Their handlers now pass `stripslashes($session_name)`, so a name with an apostrophe no longer shows a backslash in history and the audit log.
 - Sidebar brand: `agent/css/sidebar_brand_fix.css` and `agent/js/sidebar_brand_fix.js` from 26.10 are replaced by CSS in `css/itflow_custom.css`. `includes/load_company_settings.php` now sets `$session_company_logo`.
 - `alertMessageHtml()` no longer double-encodes, and save messages built from `escapeSql()` values use `stripslashes()` at the flash.

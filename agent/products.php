@@ -29,6 +29,7 @@ $views = [
     'all' => ['label' => 'All', 'icon' => 'fa-th-list', 'sql' => ''],
     'service' => ['label' => 'Services', 'icon' => 'fa-wrench', 'sql' => "AND product_type = 'service'"],
     'product' => ['label' => 'Products', 'icon' => 'fa-box-open', 'sql' => "AND product_type = 'product'"],
+    'hardware' => ['label' => 'Hardware', 'icon' => 'fa-laptop', 'sql' => "AND " . productHardwareSql(), 'title' => 'Becomes a client asset when it is sold'],
     'recurring' => ['label' => 'Recurring', 'icon' => 'fa-redo-alt', 'sql' => "AND product_frequency IS NOT NULL", 'title' => 'Billed each month, quarter or year by default'],
     'stocked' => ['label' => 'Stocked', 'icon' => 'fa-warehouse', 'sql' => "AND product_track_stock = 1", 'title' => 'Stock tracked'],
     'reorder' => ['label' => 'Reorder', 'icon' => 'fa-shopping-basket', 'sql' => "AND " . productReorderSql(), 'title' => 'Stock at or under its reorder level, or out'],
@@ -79,7 +80,7 @@ while ($row = mysqli_fetch_assoc($sql)) {
 $counts = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT COUNT(*) AS `all`,
         COALESCE(SUM(product_type = 'service'), 0) AS service, COALESCE(SUM(product_type = 'product'), 0) AS product,
         COALESCE(SUM(product_frequency IS NOT NULL), 0) AS recurring, COALESCE(SUM(product_track_stock = 1), 0) AS stocked,
-        COALESCE(SUM(" . productReorderSql() . "), 0) AS reorder
+        COALESCE(SUM(" . productReorderSql() . "), 0) AS reorder, COALESCE(SUM(" . productHardwareSql() . "), 0) AS hardware
     $from $where"));
 
 // The catalog at work - recurring, sold, on the shelf
@@ -117,7 +118,7 @@ $filter_url = function ($changes) {
 $money = function ($amount, $currency = null) use ($session_company_currency) {
     return escapeHtml(billingMoney($amount, $currency ?: $session_company_currency));
 };
-$add_type = in_array($view, ['product', 'stocked', 'reorder'], true) ? 'product' : 'service';
+$add_type = in_array($view, ['product', 'hardware', 'stocked', 'reorder'], true) ? 'product' : 'service';
 
 ?>
 
@@ -331,7 +332,8 @@ $add_type = in_array($view, ['product', 'stocked', 'reorder'], true) ? 'product'
                     $row_margin = productMargin($row['product_price'], $row['product_cost']);
                     $row_currency = (string) $row['product_currency_code'];
                     $row_url = "product.php?product_id=$product_id";
-                    $row_meta = array_filter([$row['product_code'] ? '<span class="font-monospace">' . escapeHtml($row['product_code']) . '</span>' : '', escapeHtml((string) $row['category_name'])]);
+                    $row_meta = array_filter([$row['product_code'] ? '<span class="font-monospace">' . escapeHtml($row['product_code']) . '</span>' : '', escapeHtml((string) $row['category_name']),
+                        $row_type === 'product' && $row['product_asset_type'] ? '<span title="Becomes a client asset when it is sold"><i class="fas fa-fw ' . escapeHtml(productAssetTypes()[$row['product_asset_type']] ?? 'fa-tag') . ' me-1"></i>' . escapeHtml($row['product_asset_type']) . '</span>' : '']);
                     ?>
                     <tr>
                         <?php if ($can_edit) { ?>

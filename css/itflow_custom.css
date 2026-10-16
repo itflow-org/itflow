@@ -6178,6 +6178,23 @@ a.itflow-report-stat:focus-visible {
     background-color: var(--bs-primary-bg-subtle);
     border-color: var(--bs-primary-border-subtle);
 }
+
+/* Sold hardware - Add to Assets, a block per invoice line with a row per unit */
+.itflow-hw-line {
+    padding: .75rem;
+    border: 1px solid var(--bs-border-color-translucent);
+    border-radius: var(--bs-border-radius-lg);
+    background-color: var(--bs-tertiary-bg);
+}
+.itflow-hw-unit + .itflow-hw-unit {
+    margin-top: .375rem;
+}
+.itflow-hw-linking .input-group:has([data-hw-new]) {
+    opacity: .45;
+}
+.itflow-hw-assets {
+    padding-left: 2.25rem;
+}
 .itflow-money {
     font-variant-numeric: tabular-nums;
     white-space: nowrap;

@@ -305,6 +305,9 @@ if (isset($_GET['delete_invoice'])) {
     //unlink tickets from invoice
     mysqli_query($mysqli,"UPDATE tickets SET ticket_invoice_id = 0 WHERE ticket_invoice_id = $invoice_id");
 
+    // Assets made from its hardware stay on the client's assets, unlinked
+    mysqli_query($mysqli, "UPDATE assets SET asset_invoice_id = 0, asset_invoice_item_id = 0 WHERE asset_invoice_id = $invoice_id");
+
     logAudit("Invoice", "Delete", "$session_name deleted invoice $invoice_prefix$invoice_number", $client_id);
 
     flashAlert("Invoice <strong>$invoice_prefix$invoice_number</strong> deleted", 'error');
@@ -892,6 +895,46 @@ if (isset($_GET['remove_ticket_from_invoice'])) {
     flashAlert("Ticket <strong>" . escapeHtml($ticket_number) . "</strong> taken off the invoice - it is unbilled again");
 
     redirect("invoice.php?invoice_id=$invoice_id");
+
+}
+
+if (isset($_POST['invoice_assets_save'])) {
+
+    validateCSRFToken();
+
+    enforceUserPermission('module_sales');
+    enforceUserPermission('module_support', 2);
+
+    $invoice = billingRow('invoice', intval($_POST['invoice_id'] ?? 0));
+    if (!$invoice) {
+        flashAlert('That invoice no longer exists.', 'error');
+        redirect('invoices.php');
+    }
+    $invoice_id = intval($invoice['invoice_id']);
+    $client_id = intval($invoice['client_id']);
+
+    enforceClientAccess();
+
+    // functions/products.php - checks every row before it adds or links any
+    $done = productSaleAssets($invoice_id, (array) ($_POST['lines'] ?? []), (array) ($_POST['units'] ?? []), [
+        'status' => (string) ($_POST['status'] ?? ''),
+        'location' => intval($_POST['location'] ?? 0),
+    ], $error);
+    if ($done === null) {
+        flashAlert(escapeHtml($error), 'error');
+        redirect();
+    }
+
+    $parts = [];
+    if ($done['added']) {
+        $parts[] = "<strong>{$done['added']}</strong> added";
+    }
+    if ($done['linked']) {
+        $parts[] = "<strong>{$done['linked']}</strong> linked";
+    }
+    flashAlert(escapeHtml(billingNumber('invoice', $invoice)) . " hardware on " . escapeHtml($invoice['client_name']) . "'s assets - " . implode(', ', $parts));
+
+    redirect();
 
 }
 

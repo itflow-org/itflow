@@ -331,8 +331,13 @@ CREATE TABLE `assets` (
   `asset_location_id` int(11) NOT NULL DEFAULT 0,
   `asset_contact_id` int(11) NOT NULL DEFAULT 0,
   `asset_client_id` int(11) NOT NULL DEFAULT 0,
+  `asset_product_id` int(11) NOT NULL DEFAULT 0,
+  `asset_invoice_id` int(11) NOT NULL DEFAULT 0,
+  `asset_invoice_item_id` int(11) NOT NULL DEFAULT 0,
   PRIMARY KEY (`asset_id`),
-  KEY `asset_client_id` (`asset_client_id`,`asset_archived_at`)
+  KEY `asset_client_id` (`asset_client_id`,`asset_archived_at`),
+  KEY `asset_product_id` (`asset_product_id`),
+  KEY `asset_invoice_id` (`asset_invoice_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -1800,6 +1805,10 @@ CREATE TABLE `products` (
   `product_track_stock` tinyint(1) NOT NULL DEFAULT 0,
   `product_reorder_level` decimal(15,2) NOT NULL DEFAULT 0.00,
   `product_reorder_qty` decimal(15,2) NOT NULL DEFAULT 0.00,
+  `product_asset_type` varchar(200) DEFAULT NULL,
+  `product_make` varchar(200) DEFAULT NULL,
+  `product_model` varchar(200) DEFAULT NULL,
+  `product_warranty_months` int(11) NOT NULL DEFAULT 0,
   `product_created_at` datetime NOT NULL DEFAULT current_timestamp(),
   `product_updated_at` datetime DEFAULT NULL ON UPDATE current_timestamp(),
   `product_archived_at` datetime DEFAULT NULL,

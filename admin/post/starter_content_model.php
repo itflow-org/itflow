@@ -424,7 +424,8 @@ function starterLoadProducts($mysqli, $dry_run = false) {
             'product_description' => $product[5],
             'product_currency_code' => $session_company_currency ?? '',
             'product_tax_id' => 0,
-        ] + ($frequency !== '' ? ['product_frequency' => $frequency] : []) + ($seat !== '' ? ['product_seat_source' => $seat] : []));
+        ] + ($frequency !== '' ? ['product_frequency' => $frequency] : []) + ($seat !== '' ? ['product_seat_source' => $seat] : [])
+          + (!empty($product[7]) ? ['product_asset_type' => $product[7], 'product_warranty_months' => intval($product[8] ?? 0)] : []));
     }
 
     return $added;
@@ -1146,7 +1147,8 @@ function starterContentDocumentTemplates() {
 // ------------------------------
 // starterContentProducts
 // name, type, code, price, income category, description, billed (a frequency,
-// or frequency:contacts per user / frequency:assets per device, empty once).
+// or frequency:contacts per user / frequency:assets per device, empty once),
+// and for hardware the client asset it becomes and its warranty in months.
 // Hardware and resold SKUs come in at zero - they are quoted per deal or move
 // with the vendor price list.
 // ------------------------------
@@ -1224,25 +1226,25 @@ function starterContentProducts() {
         ['Equipment Disposal', 'service', 'PRJ-DISP', '25.00', 'Projects', 'Per device. Secure data destruction and certified recycling.', ''],
 
         // Hardware - quoted per deal, seeded at zero
-        ['Desktop', 'product', 'HW-DSK', '0.00', 'Hardware Sales', 'Business class desktop. Priced per quote.', ''],
-        ['Laptop', 'product', 'HW-LAP', '0.00', 'Hardware Sales', 'Business class laptop. Priced per quote.', ''],
+        ['Desktop', 'product', 'HW-DSK', '0.00', 'Hardware Sales', 'Business class desktop. Priced per quote.', '', 'Desktop', 36],
+        ['Laptop', 'product', 'HW-LAP', '0.00', 'Hardware Sales', 'Business class laptop. Priced per quote.', '', 'Laptop', 36],
         ['Docking Station', 'product', 'HW-DOCK', '0.00', 'Hardware Sales', 'Priced per quote.', ''],
-        ['Monitor', 'product', 'HW-MON', '0.00', 'Hardware Sales', 'Priced per quote.', ''],
-        ['Server', 'product', 'HW-SRV', '0.00', 'Hardware Sales', 'Rack or tower server. Priced per quote.', ''],
-        ['Network Attached Storage', 'product', 'HW-NAS', '0.00', 'Hardware Sales', 'Priced per quote.', ''],
-        ['Firewall Appliance', 'product', 'HW-FW', '0.00', 'Hardware Sales', 'Priced per quote, excludes subscription.', ''],
-        ['Switch - 24 Port', 'product', 'HW-SW24', '0.00', 'Hardware Sales', 'Priced per quote.', ''],
-        ['Switch - 48 Port', 'product', 'HW-SW48', '0.00', 'Hardware Sales', 'Priced per quote.', ''],
-        ['Wireless Access Point', 'product', 'HW-AP', '0.00', 'Hardware Sales', 'Priced per quote.', ''],
-        ['Uninterruptible Power Supply', 'product', 'HW-UPS', '0.00', 'Hardware Sales', 'Priced per quote.', ''],
+        ['Monitor', 'product', 'HW-MON', '0.00', 'Hardware Sales', 'Priced per quote.', '', 'Display', 36],
+        ['Server', 'product', 'HW-SRV', '0.00', 'Hardware Sales', 'Rack or tower server. Priced per quote.', '', 'Server', 36],
+        ['Network Attached Storage', 'product', 'HW-NAS', '0.00', 'Hardware Sales', 'Priced per quote.', '', 'Server', 36],
+        ['Firewall Appliance', 'product', 'HW-FW', '0.00', 'Hardware Sales', 'Priced per quote, excludes subscription.', '', 'Firewall/Router', 12],
+        ['Switch - 24 Port', 'product', 'HW-SW24', '0.00', 'Hardware Sales', 'Priced per quote.', '', 'Switch', 12],
+        ['Switch - 48 Port', 'product', 'HW-SW48', '0.00', 'Hardware Sales', 'Priced per quote.', '', 'Switch', 12],
+        ['Wireless Access Point', 'product', 'HW-AP', '0.00', 'Hardware Sales', 'Priced per quote.', '', 'Access Point', 12],
+        ['Uninterruptible Power Supply', 'product', 'HW-UPS', '0.00', 'Hardware Sales', 'Priced per quote.', '', 'Other', 24],
         ['Solid State Drive', 'product', 'HW-SSD', '0.00', 'Hardware Sales', 'Priced per quote.', ''],
         ['Memory Upgrade', 'product', 'HW-RAM', '0.00', 'Hardware Sales', 'Priced per quote.', ''],
         ['Keyboard and Mouse', 'product', 'HW-KBM', '0.00', 'Hardware Sales', 'Priced per quote.', ''],
         ['Headset', 'product', 'HW-HS', '0.00', 'Hardware Sales', 'Priced per quote.', ''],
         ['Webcam', 'product', 'HW-CAM', '0.00', 'Hardware Sales', 'Priced per quote.', ''],
-        ['Printer', 'product', 'HW-PRT', '0.00', 'Hardware Sales', 'Priced per quote.', ''],
+        ['Printer', 'product', 'HW-PRT', '0.00', 'Hardware Sales', 'Priced per quote.', '', 'Printer', 12],
         ['Toner Cartridge', 'product', 'HW-TON', '0.00', 'Hardware Sales', 'Priced per quote.', ''],
-        ['VoIP Handset', 'product', 'HW-PHONE', '0.00', 'Hardware Sales', 'Priced per quote.', ''],
+        ['VoIP Handset', 'product', 'HW-PHONE', '0.00', 'Hardware Sales', 'Priced per quote.', '', 'Phone', 12],
         ['Patch Cable', 'product', 'HW-CBL', '0.00', 'Hardware Sales', 'Priced per quote.', ''],
         ['Rack Cabinet', 'product', 'HW-RACK', '0.00', 'Hardware Sales', 'Priced per quote.', ''],
         ['Power Distribution Unit', 'product', 'HW-PDU', '0.00', 'Hardware Sales', 'Priced per quote.', ''],

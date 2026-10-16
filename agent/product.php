@@ -6,11 +6,13 @@
  * What it sells for and costs us, so its margin; how it is billed by default;
  * who we buy it from and their part number; for a product, its stock - on the
  * shelf, where, what that is worth and when to reorder - or that it is
- * ordered as needed. Internal notes save as you click away.
+ * ordered as needed, and for hardware the client asset it becomes. Internal
+ * notes save as you click away.
  *
  * Then in tabs with counts: its stock moves with what was on the shelf after
  * each, the recurring invoices it is on (what that brings in a month), open
- * quotes, the invoices it was sold on, and its history. Figures are for the clients the agent can see.
+ * quotes, the invoices it was sold on, the client assets made from it, and
+ * its history. Figures are for the clients the agent can see.
  */
 
 require_once "includes/inc_all.php";
@@ -46,6 +48,13 @@ if (!$product) {
     $can_delete = lookupUserPermission('module_sales') >= 3 && !empty($config_destructive_deletes_enable);
     $csrf = $_SESSION['csrf_token'];
 
+    // Hardware - the client asset it becomes when sold, and the ones it became
+    $asset_type = $type === 'product' ? (string) $product['product_asset_type'] : '';
+    $warranty_months = intval($product['product_warranty_months']);
+    $can_see_assets = lookupUserPermission('module_support') >= 1;
+    $assets = $can_see_assets ? productAssets($product_id, 200) : [];
+    $asset_clients = count(array_unique(array_column($assets, 'client_id')));
+
     $usage = productUsage($product_id);
     $moves = $type === 'product' ? productStockMoves($product_id, 200) : [];
     $history = productHistory($product_id, 100);
@@ -60,6 +69,17 @@ if (!$product) {
     ];
     if (!$product['product_frequency']) {
         $tabs = ['invoices' => $tabs['invoices'], 'quotes' => $tabs['quotes'], 'recurring' => $tabs['recurring'], 'history' => $tabs['history']];
+    }
+    // The client assets made from it, after the invoices it was sold on
+    if ($can_see_assets && ($asset_type !== '' || $assets)) {
+        $with_assets = [];
+        foreach ($tabs as $tab_key => $tab) {
+            $with_assets[$tab_key] = $tab;
+            if ($tab_key === 'invoices') {
+                $with_assets['assets'] = ['label' => 'Assets', 'icon' => 'fa-laptop', 'count' => count($assets)];
+            }
+        }
+        $tabs = $with_assets;
     }
     // Its stock moves - first for a product that tracks stock
     if ($tracked || $moves) {
@@ -291,6 +311,33 @@ if (!$product) {
                 </div>
             <?php } ?>
 
+            <?php if ($type === 'product') { ?>
+                <div class="card mb-3">
+                    <div class="card-header">
+                        <h3 class="card-title mb-0"><i class="fas fa-fw fa-laptop text-secondary me-2"></i>Client asset</h3>
+                    </div>
+                    <?php if ($asset_type !== '') { ?>
+                        <div class="card-body">
+                            <dl class="itflow-asset-dl mb-0">
+                                <dt>Becomes</dt><dd><i class="fas fa-fw <?= escapeHtml(productAssetTypes()[$asset_type] ?? 'fa-tag') ?> text-secondary me-1"></i><?= escapeHtml($asset_type) ?></dd>
+                                <dt>Make</dt><dd><?= $product['product_make'] ? escapeHtml($product['product_make']) : '<span class="text-body-secondary">Not set</span>' ?></dd>
+                                <dt>Model</dt><dd><?= $product['product_model'] ? escapeHtml($product['product_model']) : '<span class="text-body-secondary">Not set</span>' ?></dd>
+                                <dt>Warranty</dt><dd><?= $warranty_months ? $warranty_months . ' month' . ($warranty_months === 1 ? '' : 's') . ' <span class="small text-body-secondary">from the invoice date</span>' : '<span class="text-body-secondary">Not set</span>' ?></dd>
+                                <?php if ($can_see_assets) { ?>
+                                    <dt>In use</dt>
+                                    <dd><a href="#product-pane-assets" data-product-tab-link="assets"><?= count($assets) ?> asset<?= count($assets) === 1 ? '' : 's' ?></a><?= $asset_clients ? " <span class=\"text-body-secondary\">at $asset_clients client" . ($asset_clients === 1 ? '' : 's') . '</span>' : '' ?></dd>
+                                <?php } ?>
+                            </dl>
+                        </div>
+                    <?php } else { ?>
+                        <div class="card-body small text-body-secondary">
+                            Sold as goods - it doesn't go on the client's assets.
+                            <?php if ($can_edit) { ?>Pick an asset type in Edit for hardware the client keeps, and selling it offers to add it to their assets.<?php } ?>
+                        </div>
+                    <?php } ?>
+                </div>
+            <?php } ?>
+
             <div class="card mb-3">
                 <div class="card-header">
                     <h3 class="card-title mb-0"><i class="fas fa-fw fa-align-left text-secondary me-2"></i>On invoices and quotes</h3>
@@ -421,6 +468,60 @@ if (!$product) {
                             <div class="itflow-asset-empty"><i class="fas fa-file-invoice-dollar fa-2x mb-2 opacity-50"></i><div>Not sold on an invoice yet.</div></div>
                         <?php } ?>
                     </div>
+
+                    <?php if (isset($tabs['assets'])) { ?>
+                    <!-- The client assets made from it - where it is installed -->
+                    <div class="tab-pane fade" id="product-pane-assets" role="tabpanel">
+                        <?php if ($assets) { ?>
+                            <div class="table-responsive">
+                                <table class="table table-hover align-middle mb-0">
+                                    <thead class="text-nowrap small">
+                                    <tr><th>Asset</th><th>Client</th><th class="d-none d-md-table-cell">Serial</th><th>Warranty</th><th class="d-none d-sm-table-cell">Sold on</th></tr>
+                                    </thead>
+                                    <tbody>
+                                    <?php foreach ($assets as $row) {
+                                        $row_warranty = assetWarranty($row['asset_warranty_expire']); ?>
+                                        <tr>
+                                            <td>
+                                                <div class="d-flex align-items-center gap-2">
+                                                    <?= productAssetIcon($row['asset_type'], 'sm') ?>
+                                                    <div class="min-w-0">
+                                                        <a class="fw-semibold" href="asset.php?client_id=<?= intval($row['client_id']) ?>&asset_id=<?= intval($row['asset_id']) ?>"><?= escapeHtml($row['asset_name']) ?></a>
+                                                        <?php if ($row['asset_archived_at']) { ?><span class="badge rounded-pill text-bg-secondary fw-normal ms-1">Archived</span><?php } ?>
+                                                        <div><?= assetStatusPill($row['asset_status']) ?></div>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <td><a class="text-reset" href="assets.php?client_id=<?= intval($row['client_id']) ?>"><?= escapeHtml($row['client_name']) ?></a></td>
+                                            <td class="d-none d-md-table-cell font-monospace small"><?= $row['asset_serial'] ? escapeHtml($row['asset_serial']) : '<span class="text-body-secondary">-</span>' ?></td>
+                                            <td class="text-nowrap">
+                                                <?php if ($row_warranty) { ?>
+                                                    <span class="badge rounded-pill bg-<?= $row_warranty['tone'] ?>-subtle text-<?= $row_warranty['tone'] ?>-emphasis border border-<?= $row_warranty['tone'] ?>-subtle fw-normal" title="<?= escapeHtml($row_warranty['text']) ?>"><?= escapeHtml($row_warranty['short']) ?></span>
+                                                <?php } else { ?>
+                                                    <span class="text-body-secondary small">Not recorded</span>
+                                                <?php } ?>
+                                            </td>
+                                            <td class="d-none d-sm-table-cell text-nowrap small">
+                                                <?php if ($row['invoice_id'] !== null) { ?>
+                                                    <a href="invoice.php?invoice_id=<?= intval($row['invoice_id']) ?>"><?= escapeHtml($row['invoice_prefix'] . $row['invoice_number']) ?></a>
+                                                    <div class="text-body-secondary"><?= escapeHtml($row['invoice_date']) ?></div>
+                                                <?php } else { ?>
+                                                    <span class="text-body-secondary"><?= $row['asset_purchase_date'] ? escapeHtml($row['asset_purchase_date']) : '-' ?></span>
+                                                <?php } ?>
+                                            </td>
+                                        </tr>
+                                    <?php } ?>
+                                    </tbody>
+                                </table>
+                            </div>
+                            <?php if (count($assets) >= 200) { ?>
+                                <div class="small text-body-secondary px-3 py-2 border-top">The latest 200.</div>
+                            <?php } ?>
+                        <?php } else { ?>
+                            <div class="itflow-asset-empty"><i class="fas fa-laptop fa-2x mb-2 opacity-50"></i><div>Not on any client's assets yet. When it is sold, the invoice offers to add it.</div></div>
+                        <?php } ?>
+                    </div>
+                    <?php } ?>
 
                     <?php if (isset($tabs['stock'])) { ?>
                     <!-- Every stock move, newest first, with what was on the shelf after it -->

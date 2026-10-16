@@ -369,6 +369,10 @@ function getExportColumns($export_type) {
             'product_reorder_display' => ['label' => 'Reorder At', 'default' => false],
             'product_order_display' => ['label' => 'Order', 'default' => false],
             'product_location'      => ['label' => 'Location', 'default' => false],
+            'product_asset_type'    => ['label' => 'Asset Type', 'default' => false],
+            'product_make'          => ['label' => 'Make', 'default' => false],
+            'product_model'         => ['label' => 'Model', 'default' => false],
+            'product_warranty_display' => ['label' => 'Warranty', 'default' => false],
             'product_notes'         => ['label' => 'Notes', 'weight' => 3, 'default' => false],
         ],
 

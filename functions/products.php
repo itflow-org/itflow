@@ -10,7 +10,8 @@
  * device. Picking it on a quote fills in Billed, on a recurring invoice
  * Counted. A product can track its stock: tracked ones move stock as they
  * are invoiced and can't be sold past what is on the shelf, the rest are
- * ordered as needed.
+ * ordered as needed. Hardware can become a client asset when it is sold -
+ * the invoice offers to add each unit to the client's assets.
  */
 
 /** Product types => label, plural and icon. */
@@ -109,7 +110,8 @@ function productVendors() {
  *   seat_source ('' as typed, contacts, assets - only when billed recurring),
  *   code, vendor (one of our vendors), vendor_part, track_stock (products
  *   only), reorder_level and reorder_qty (when to buy more, how many),
- *   location, description, notes.
+ *   asset_type (products only - one of the asset types, '' for none), make,
+ *   model, warranty_months, location, description, notes.
  * Returns the product id, or 0 with $error.
  */
 function productSave(array $in, $product_id = 0, &$error = '') {
@@ -224,7 +226,36 @@ function productSave(array $in, $product_id = 0, &$error = '') {
         $set[] = "$column = " . round(floatval($raw), 2);
     }
 
-    foreach (['code' => ['product_code', 200], 'vendor_part' => ['product_vendor_part', 200], 'location' => ['product_location', 250]] as $key => [$column, $length]) {
+    // Hardware that becomes a client asset when sold - products only
+    if ($has('asset_type') || $has('type')) {
+        $asset_type = $has('asset_type') ? trim((string) ($in['asset_type'] ?? '')) : (string) ($old['product_asset_type'] ?? '');
+        if (in_array(strtolower($asset_type), ['', 'none', 'no', '-'], true)) {
+            $asset_type = '';
+        } else {
+            $asset_type = productAssetType($asset_type);
+            if ($asset_type === '') {
+                $error = "\"" . trim((string) ($in['asset_type'] ?? '')) . "\" isn't an asset type - use one of " . implode(', ', array_keys(productAssetTypes())) . '.';
+                return 0;
+            }
+        }
+        if ($type !== 'product') {
+            $asset_type = '';
+        }
+        $set[] = 'product_asset_type = ' . ($asset_type === '' ? 'NULL' : "'" . escapeSql($asset_type) . "'");
+    }
+    if ($has('warranty_months')) {
+        $raw = trim((string) ($in['warranty_months'] ?? ''));
+        if ($raw === '') {
+            $raw = '0';
+        }
+        if (!ctype_digit($raw) || intval($raw) > 600) {
+            $error = 'Warranty is a number of months, up to 600.';
+            return 0;
+        }
+        $set[] = 'product_warranty_months = ' . intval($raw);
+    }
+
+    foreach (['code' => ['product_code', 200], 'vendor_part' => ['product_vendor_part', 200], 'location' => ['product_location', 250], 'make' => ['product_make', 200], 'model' => ['product_model', 200]] as $key => [$column, $length]) {
         if ($has($key)) {
             $value = trim((string) ($in[$key] ?? ''));
             $set[] = "$column = " . ($value === '' ? 'NULL' : "'" . escapeSql(mb_substr($value, 0, $length)) . "'");
@@ -263,6 +294,7 @@ function productCopy($product_id) {
         'frequency' => $product['product_frequency'], 'seat_source' => $product['product_seat_source'], 'code' => '',
         'vendor' => $product['product_vendor_id'], 'vendor_part' => $product['product_vendor_part'], 'track_stock' => $product['product_track_stock'],
         'reorder_level' => $product['product_reorder_level'], 'reorder_qty' => $product['product_reorder_qty'],
+        'asset_type' => $product['product_asset_type'], 'make' => $product['product_make'], 'model' => $product['product_model'], 'warranty_months' => $product['product_warranty_months'],
         'location' => $product['product_location'], 'description' => $product['product_description'], 'notes' => $product['product_notes'],
     ], 0, $error);
 }
@@ -533,6 +565,306 @@ function productStockMoves($product_id, $limit = 25) {
 function productStockQty($qty) {
     $qty = floatval($qty);
     return ($qty > 0 ? '+' : '') . billingQuantity($qty);
+}
+
+/*
+ * Sold hardware becomes client assets. A product with an asset type is
+ * hardware: when it is sold on an invoice, each unit can go on the client's
+ * assets - as a new asset, or one already on file linked to the sale - with
+ * its serial and who has it, the make and model, bought on the invoice date
+ * and under warranty for the product's months from it. The asset keeps the
+ * product, the invoice and the line, so each line knows how many of its
+ * units are recorded.
+ */
+
+/** Asset types => icon class (fa-laptop) - the list in load_global_settings.php. */
+function productAssetTypes() {
+    global $asset_types_array;
+    return is_array($asset_types_array ?? null) ? $asset_types_array : [];
+}
+
+/** An asset type as the list spells it, matched without case - '' when it isn't one. */
+function productAssetType($value) {
+    $value = trim((string) $value);
+    foreach (array_keys(productAssetTypes()) as $asset_type) {
+        if (strcasecmp($asset_type, $value) === 0) {
+            return $asset_type;
+        }
+    }
+    return '';
+}
+
+/** An asset type's round icon, as on the assets list - $size '' or sm. */
+function productAssetIcon($asset_type, $size = '') {
+    return '<span class="itflow-asset-icon' . ($size ? " itflow-asset-icon-$size" : '') . ' itflow-asset-tone-' . assetTypeTone($asset_type) . '" aria-hidden="true">'
+        . '<i class="fas fa-fw fa-' . escapeHtml(getAssetIcon($asset_type)) . '"></i></span>';
+}
+
+/** Hardware, in SQL - with products in the FROM. */
+function productHardwareSql() {
+    return "products.product_type = 'product' AND products.product_asset_type IS NOT NULL AND products.product_asset_type <> ''";
+}
+
+/** How many units a line stands for - its quantity rounded up, none for a credit. */
+function productHardwareUnits($qty) {
+    $qty = round(floatval($qty), 2);
+    return $qty > 0 ? (int) ceil($qty) : 0;
+}
+
+/** When a warranty of $months from $date (Y-m-d) runs out - the 31st becomes the month's last day. Null for none. */
+function productWarrantyUntil($date, $months) {
+    $months = intval($months);
+    if ($months <= 0 || !preg_match('/^(\d{4})-(\d{2})-(\d{2})/', (string) $date, $m)) {
+        return null;
+    }
+    $month = intval($m[2]) - 1 + $months;
+    $year = intval($m[1]) + intdiv($month, 12);
+    $month = $month % 12 + 1;
+    $day = min(intval($m[3]), intval(date('t', mktime(0, 0, 0, $month, 1, $year))));
+    return sprintf('%04d-%02d-%02d', $year, $month, $day);
+}
+
+/**
+ * The invoices whose hardware counts as sold and waiting to be recorded, in
+ * SQL with invoices in the FROM: not drafts or cancelled, and not made by a
+ * recurring invoice (hardware billed each month is rented, not sold).
+ */
+function productHardwareInvoiceSql() {
+    return "invoices.invoice_status NOT IN ('Draft', 'Cancelled') AND invoices.invoice_recurring_invoice_id = 0";
+}
+
+/** Lines with units still to add to assets - a condition on invoice_items joined to products. */
+function productHardwareShortSql() {
+    return productHardwareSql() . " AND invoice_items.item_quantity > 0
+        AND CEIL(ROUND(invoice_items.item_quantity, 2)) > (SELECT COUNT(*) FROM assets
+            WHERE assets.asset_invoice_id = invoice_items.item_invoice_id AND assets.asset_invoice_item_id = invoice_items.item_id)";
+}
+
+/**
+ * Hardware sold in the last $days days, up to today, that isn't on the
+ * client's assets yet: ['units', 'invoices']. Scoped to the agent's clients.
+ */
+function productHardwarePending($days = 90) {
+    global $mysqli;
+    $days = max(1, intval($days));
+    $row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT COALESCE(SUM(units - made), 0) AS units, COUNT(DISTINCT invoice_id) AS invoices FROM (
+            SELECT invoice_id, CEIL(ROUND(item_quantity, 2)) AS units,
+                (SELECT COUNT(*) FROM assets WHERE asset_invoice_id = invoice_id AND asset_invoice_item_id = item_id) AS made
+            FROM invoice_items
+            JOIN invoices ON invoice_id = item_invoice_id
+            JOIN products ON product_id = item_product_id
+            WHERE " . productHardwareSql() . " AND item_quantity > 0 AND " . productHardwareInvoiceSql() . "
+                AND invoice_date BETWEEN CURDATE() - INTERVAL $days DAY AND CURDATE() " . clientScopeSql('invoice_client_id') . "
+        ) AS hardware WHERE units > made"));
+    return ['units' => intval($row['units'] ?? 0), 'invoices' => intval($row['invoices'] ?? 0)];
+}
+
+/**
+ * An invoice's hardware lines and the assets made from each - for its
+ * Hardware card and the Add to Assets window. Each line: item_id, item_name,
+ * item_description, item_quantity, units, product_id, product_name,
+ * product_asset_type, product_make, product_model, product_warranty_months,
+ * assets (asset_id, asset_name, asset_serial, asset_type, asset_status,
+ * asset_client_id, asset_archived_at) and to_add.
+ */
+function productInvoiceHardware($invoice_id) {
+    global $mysqli;
+    $invoice_id = intval($invoice_id);
+    $lines = [];
+    $sql = mysqli_query($mysqli, "SELECT item_id, item_name, item_description, item_quantity, product_id, product_name,
+            product_asset_type, product_make, product_model, product_warranty_months
+        FROM invoice_items
+        JOIN products ON product_id = item_product_id
+        WHERE item_invoice_id = $invoice_id AND " . productHardwareSql() . "
+        ORDER BY item_order ASC, item_id ASC");
+    while ($row = mysqli_fetch_assoc($sql)) {
+        $row['units'] = productHardwareUnits($row['item_quantity']);
+        $row['assets'] = [];
+        $lines[intval($row['item_id'])] = $row;
+    }
+    if ($lines) {
+        $sql = mysqli_query($mysqli, "SELECT asset_id, asset_name, asset_serial, asset_type, asset_status, asset_client_id, asset_archived_at, asset_invoice_item_id
+            FROM assets
+            WHERE asset_invoice_id = $invoice_id AND asset_invoice_item_id IN (" . implode(', ', array_keys($lines)) . ")
+            ORDER BY asset_name ASC, asset_id ASC");
+        while ($row = mysqli_fetch_assoc($sql)) {
+            $lines[intval($row['asset_invoice_item_id'])]['assets'][] = $row;
+        }
+    }
+    foreach ($lines as &$line) {
+        $line['to_add'] = max(0, $line['units'] - count($line['assets']));
+    }
+    unset($line);
+    return array_values($lines);
+}
+
+/** Assets made from a product, newest first - its installed base. Scoped to the agent's clients. */
+function productAssets($product_id, $limit = 200) {
+    global $mysqli;
+    $product_id = intval($product_id);
+    $limit = max(1, intval($limit));
+    $assets = [];
+    $sql = mysqli_query($mysqli, "SELECT asset_id, asset_name, asset_serial, asset_type, asset_status, asset_warranty_expire, asset_purchase_date, asset_archived_at,
+            client_id, client_name, invoice_id, invoice_prefix, invoice_number, invoice_date
+        FROM assets
+        JOIN clients ON client_id = asset_client_id
+        LEFT JOIN invoices ON invoice_id = asset_invoice_id AND asset_invoice_id > 0
+        WHERE asset_product_id = $product_id " . clientScopeSql('asset_client_id') . "
+        ORDER BY asset_archived_at IS NOT NULL, asset_purchase_date DESC, asset_id DESC
+        LIMIT $limit");
+    while ($row = mysqli_fetch_assoc($sql)) {
+        $assets[] = $row;
+    }
+    return $assets;
+}
+
+/** The client's assets that could be the hardware sold - not archived, not from a sale already. Same type first. */
+function productAssetCandidates($client_id, $asset_type = '') {
+    global $mysqli;
+    $client_id = intval($client_id);
+    $asset_type = escapeSql($asset_type);
+    $assets = [];
+    $sql = mysqli_query($mysqli, "SELECT asset_id, asset_name, asset_type, asset_serial, asset_make, asset_model
+        FROM assets
+        WHERE asset_client_id = $client_id AND asset_archived_at IS NULL AND asset_invoice_item_id = 0
+        ORDER BY asset_type = '$asset_type' DESC, asset_type ASC, asset_name ASC
+        LIMIT 300");
+    while ($row = mysqli_fetch_assoc($sql)) {
+        $assets[] = $row;
+    }
+    return $assets;
+}
+
+/**
+ * Put an invoice's hardware on the client's assets. Raw input:
+ *   $lines   item_id => ['make', 'model', 'warranty' (Y-m-d, '' for none)]
+ *   $units   item_id => list of ['name', 'serial', 'contact', 'existing']
+ *            - existing is one of the client's assets to link instead of adding one
+ *   $shared  ['status', 'location'] for every one added
+ * Only hardware lines still short are used, and no more units than each is
+ * short. Returns ['added' => n, 'linked' => n], or null with $error.
+ */
+function productSaleAssets($invoice_id, array $lines, array $units, array $shared, &$error = '') {
+    global $mysqli, $session_name;
+    $error = '';
+    $invoice = billingRow('invoice', $invoice_id);
+    if (!$invoice) {
+        $error = 'That invoice no longer exists.';
+        return null;
+    }
+    $invoice_id = intval($invoice['invoice_id']);
+    $client_id = intval($invoice['client_id']);
+    $number = billingNumber('invoice', $invoice);
+    if ($invoice['invoice_status'] === 'Cancelled') {
+        $error = "$number is cancelled - nothing on it was sold.";
+        return null;
+    }
+    $date = substr((string) $invoice['invoice_date'], 0, 10);
+
+    $status = trim((string) ($shared['status'] ?? ''));
+    if ($status !== '' && !mysqli_num_rows(mysqli_query($mysqli, "SELECT 1 FROM categories WHERE category_type = 'asset_status' AND category_name = '" . escapeSql($status) . "'"))) {
+        $status = '';
+    }
+    $location_id = assetClientOwnedId('location', $shared['location'] ?? 0, $client_id);
+
+    // Check it all before anything is written
+    $plan = [];
+    $picked = [];
+    foreach (productInvoiceHardware($invoice_id) as $line) {
+        $item_id = intval($line['item_id']);
+        $rows = array_values(array_filter((array) ($units[$item_id] ?? []), 'is_array'));
+        if (!$rows || !$line['to_add']) {
+            continue;
+        }
+        $rows = array_slice($rows, 0, $line['to_add']);
+        $line_in = (array) ($lines[$item_id] ?? []);
+        $make = trim((string) ($line_in['make'] ?? $line['product_make']));
+        $model = trim((string) ($line_in['model'] ?? $line['product_model']));
+        $warranty = trim((string) ($line_in['warranty'] ?? ''));
+        if ($warranty !== '' && (!preg_match('/^\d{4}-\d{2}-\d{2}$/', $warranty) || !strtotime($warranty))) {
+            $error = "The warranty date for {$line['item_name']} isn't a date.";
+            return null;
+        }
+        foreach ($rows as $n => $row) {
+            $existing = intval($row['existing'] ?? 0);
+            if ($existing) {
+                $asset = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT asset_id, asset_name, asset_invoice_item_id FROM assets WHERE asset_id = $existing AND asset_client_id = $client_id"));
+                if (!$asset || intval($asset['asset_invoice_item_id']) || isset($picked[$existing])) {
+                    $error = isset($picked[$existing]) ? "{$asset['asset_name']} is picked twice." : "An asset picked for {$line['item_name']} isn't one of {$invoice['client_name']}'s, or came from another sale.";
+                    return null;
+                }
+                $picked[$existing] = true;
+                $plan[] = ['line' => $line, 'existing' => $existing, 'name' => $asset['asset_name'], 'make' => $make, 'model' => $model, 'warranty' => $warranty];
+                continue;
+            }
+            $name = trim((string) ($row['name'] ?? ''));
+            if ($name === '') {
+                $error = "Each new asset needs a name - " . ($n + 1) . " of {$line['item_name']} has none.";
+                return null;
+            }
+            $plan[] = ['line' => $line, 'existing' => 0, 'name' => mb_substr($name, 0, 200), 'serial' => mb_substr(trim((string) ($row['serial'] ?? '')), 0, 200),
+                'contact' => assetClientOwnedId('contact', $row['contact'] ?? 0, $client_id), 'make' => $make, 'model' => $model, 'warranty' => $warranty];
+        }
+    }
+    if (!$plan) {
+        $error = "Nothing to add - every unit of hardware on $number is on {$invoice['client_name']}'s assets.";
+        return null;
+    }
+
+    $by = stripslashes((string) $session_name);
+    $ref = escapeSql(mb_substr($number, 0, 200));
+    $number_sql = escapeSql($number);
+    $done = ['added' => 0, 'linked' => 0];
+    mysqli_begin_transaction($mysqli);
+    try {
+        foreach ($plan as $unit) {
+            $line = $unit['line'];
+            $item_id = intval($line['item_id']);
+            $product_id = intval($line['product_id']);
+            $name = escapeSql($unit['name']);
+            $make = escapeSql(mb_substr($unit['make'], 0, 200));
+            $model = $unit['model'] === '' ? 'NULL' : "'" . escapeSql(mb_substr($unit['model'], 0, 200)) . "'";
+            $warranty = $unit['warranty'] === '' ? 'NULL' : "'" . escapeSql($unit['warranty']) . "'";
+            $status_sql = escapeSql($status);
+
+            if ($unit['existing']) {
+                $asset_id = $unit['existing'];
+                mysqli_query($mysqli, "UPDATE assets SET asset_product_id = $product_id, asset_invoice_id = $invoice_id, asset_invoice_item_id = $item_id,
+                        asset_purchase_date = COALESCE(asset_purchase_date, '$date'),
+                        asset_warranty_expire = COALESCE(asset_warranty_expire, $warranty),
+                        asset_purchase_reference = IF(COALESCE(asset_purchase_reference, '') = '', '$ref', asset_purchase_reference),
+                        asset_make = IF(asset_make = '', '$make', asset_make),
+                        asset_model = IF(COALESCE(asset_model, '') = '', $model, asset_model)
+                    WHERE asset_id = $asset_id");
+                $history = escapeSql(mb_substr("$by linked {$unit['name']} to $number, where it was sold", 0, 255));
+                mysqli_query($mysqli, "INSERT INTO asset_history SET asset_history_status = COALESCE((SELECT asset_status FROM assets WHERE asset_id = $asset_id), ''), asset_history_description = '$history', asset_history_asset_id = $asset_id");
+                logAudit("Asset", "Edit", "$session_name linked asset $name to invoice $number_sql", $client_id, $asset_id);
+                $done['linked']++;
+                continue;
+            }
+
+            $type = escapeSql($line['product_asset_type']);
+            $serial = $unit['serial'] === '' ? 'NULL' : "'" . escapeSql($unit['serial']) . "'";
+            $description = trim((string) $line['item_description']);
+            $description = $description === '' ? 'NULL' : "'" . escapeSql(mb_substr($description, 0, 255)) . "'";
+            $contact_id = intval($unit['contact']);
+            mysqli_query($mysqli, "INSERT INTO assets SET asset_type = '$type', asset_name = '$name', asset_description = $description, asset_make = '$make', asset_model = $model,
+                asset_serial = $serial, asset_status = '$status_sql', asset_purchase_reference = '$ref', asset_purchase_date = '$date', asset_warranty_expire = $warranty,
+                asset_location_id = $location_id, asset_contact_id = $contact_id, asset_client_id = $client_id,
+                asset_product_id = $product_id, asset_invoice_id = $invoice_id, asset_invoice_item_id = $item_id");
+            $asset_id = intval(mysqli_insert_id($mysqli));
+            mysqli_query($mysqli, "INSERT INTO asset_interfaces SET interface_name = '01', interface_primary = 1, interface_asset_id = $asset_id");
+            $history = escapeSql(mb_substr("$by created {$unit['name']} from $number", 0, 255));
+            mysqli_query($mysqli, "INSERT INTO asset_history SET asset_history_status = '$status_sql', asset_history_description = '$history', asset_history_asset_id = $asset_id");
+            logAudit("Asset", "Create", "$session_name created asset $name from invoice $number_sql", $client_id, $asset_id);
+            $done['added']++;
+        }
+        mysqli_commit($mysqli);
+    } catch (Throwable $e) {
+        mysqli_rollback($mysqli);
+        throw $e;
+    }
+    return $done;
 }
 
 /**

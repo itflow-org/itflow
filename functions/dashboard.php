@@ -269,6 +269,16 @@ function dashboardAttention($access) {
             'label' => 'Stock to reorder', 'icon' => 'shopping-basket', 'tone' => 'warning', 'detail' => 'At or under the reorder level',
             'url' => '/agent/products.php?type=reorder',
         ];
+        // Hardware sold in the last 90 days that isn't on the client's assets yet
+        if ($access['support']) {
+            $hardware = productHardwarePending(90);
+            $items[] = [
+                'count' => $hardware['units'],
+                'label' => 'Hardware not on assets', 'icon' => 'laptop', 'tone' => 'info',
+                'detail' => $hardware['units'] ? 'Sold on ' . $hardware['invoices'] . ' invoice' . ($hardware['invoices'] === 1 ? '' : 's') . ' in 90 days' : null,
+                'url' => '/agent/invoices.php?hardware=1&dtf=' . date('Y-m-d', strtotime('-90 days')) . '&dtt=' . date('Y-m-d'),
+            ];
+        }
         if ($access['tickets']) {
             $items[] = [
                 'count' => dashboardCount("SELECT COUNT(ticket_id) FROM tickets WHERE " . billingUnbilledSql() . " $ticket_scope"),

@@ -12,7 +12,8 @@ defined('FROM_POST_HANDLER') || die("Direct file access is not allowed");
 /** The product fields from a posted form, raw. */
 function productFormInput() {
     $in = [];
-    foreach (['name', 'type', 'category', 'price', 'cost', 'tax', 'frequency', 'seat_source', 'code', 'vendor', 'vendor_part', 'reorder_level', 'reorder_qty', 'location', 'description', 'notes'] as $key) {
+    foreach (['name', 'type', 'category', 'price', 'cost', 'tax', 'frequency', 'seat_source', 'code', 'vendor', 'vendor_part', 'reorder_level', 'reorder_qty', 'location',
+        'asset_type', 'make', 'model', 'warranty_months', 'description', 'notes'] as $key) {
         if (array_key_exists($key, $_POST)) {
             $in[$key] = (string) $_POST[$key];
         }
@@ -317,6 +318,7 @@ if (isExportRequest('export_products')) {
         'recurring' => ["AND product_frequency IS NOT NULL", 'Billed each month, quarter or year'],
         'stocked' => ["AND product_track_stock = 1", 'Stock tracked'],
         'reorder' => ["AND " . productReorderSql(), 'To reorder'],
+        'hardware' => ["AND " . productHardwareSql(), 'Become client assets'],
     ];
     $type_query = '';
     if (isset($type_queries[$type_filter])) {
@@ -383,6 +385,7 @@ if (isExportRequest('export_products')) {
             $row['product_reorder_display'] = intval($row['product_track_stock']) && floatval($row['product_reorder_level']) > 0 ? billingQuantity($row['product_reorder_level']) : '';
             $row['product_order_display'] = intval($row['product_track_stock']) && floatval($row['product_reorder_qty']) > 0 ? billingQuantity($row['product_reorder_qty']) : '';
             $row['product_stock_value'] = intval($row['product_track_stock']) && floatval($row['product_stock']) > 0 ? round(floatval($row['product_stock']) * floatval($row['product_cost']), 2) : '';
+            $row['product_warranty_display'] = intval($row['product_warranty_months']) > 0 ? intval($row['product_warranty_months']) : '';
             addExportRow($export, $row);
         }
 
@@ -592,6 +595,10 @@ if (isset($_POST["import_products_csv"])) {
         'reorder_level' => ['reorder at', 'reorder level', 'reorder point', 'minimum stock'],
         'reorder_qty' => ['order', 'order qty', 'reorder qty', 'reorder quantity'],
         'location' => ['location'],
+        'asset_type' => ['asset type', 'asset', 'client asset'],
+        'make' => ['make', 'manufacturer', 'brand'],
+        'model' => ['model'],
+        'warranty_months' => ['warranty', 'warranty months', 'warranty (months)'],
         'notes' => ['notes', 'internal notes'],
     ];
     $columns = [];
@@ -708,9 +715,9 @@ if (isset($_POST["import_products_csv"])) {
 if (isset($_GET['download_products_csv_template'])) {
 
     $f = fopen('php://memory', 'w');
-    fputcsv($f, ['Name', 'Type', 'Code', 'Category', 'Description', 'Price', 'Cost', 'Tax', 'Billed', 'Counted', 'Vendor', 'Part Number', 'Track Stock', 'Reorder At', 'Order', 'Location', 'Notes'], ',', '"', '\\');
-    fputcsv($f, ['Managed Workstation', 'Service', 'MS-WKS', 'Managed Services', 'Per workstation, per month. Monitoring, patching and support.', '65.00', '18.00', '', 'Monthly', 'Per device', '', '', '', '', '', '', ''], ',', '"', '\\');
-    fputcsv($f, ['24 Port PoE Switch', 'Product', 'HW-SW24', 'Hardware Sales', '24 port managed PoE switch.', '785.00', '520.00', '', 'One time', '', '', 'USW-PRO-24-POE', 'Yes', '2', '5', 'Shelf B2', 'Order from the distributor, 2 day lead time'], ',', '"', '\\');
+    fputcsv($f, ['Name', 'Type', 'Code', 'Category', 'Description', 'Price', 'Cost', 'Tax', 'Billed', 'Counted', 'Vendor', 'Part Number', 'Track Stock', 'Reorder At', 'Order', 'Location', 'Asset Type', 'Make', 'Model', 'Warranty', 'Notes'], ',', '"', '\\');
+    fputcsv($f, ['Managed Workstation', 'Service', 'MS-WKS', 'Managed Services', 'Per workstation, per month. Monitoring, patching and support.', '65.00', '18.00', '', 'Monthly', 'Per device', '', '', '', '', '', '', '', '', '', '', ''], ',', '"', '\\');
+    fputcsv($f, ['24 Port PoE Switch', 'Product', 'HW-SW24', 'Hardware Sales', '24 port managed PoE switch.', '785.00', '520.00', '', 'One time', '', '', 'USW-PRO-24-POE', 'Yes', '2', '5', 'Shelf B2', 'Switch', 'Ubiquiti', 'USW-Pro-24-PoE', '12', 'Order from the distributor, 2 day lead time'], ',', '"', '\\');
     fseek($f, 0);
 
     header('Content-Type: text/csv');

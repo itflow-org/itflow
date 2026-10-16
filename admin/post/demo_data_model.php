@@ -160,18 +160,19 @@ function demoDataProducts() {
         // Corporate licensing and hardware, resold
         ['Google Workspace Business Standard', 'service', 'LIC-GWBS', '14.00', 'Managed Services', 'Per user, per month. Licence resold and managed.', 'month:contacts', '11.20', 'Cascade Cloud Licensing', 'GWS-BSTD-FLEX', 0],
         ['Synology Active Backup Licence', 'product', 'LIC-SYNAB', '0.00', 'Hardware Sales', 'Included with Synology hardware. Listed so it appears on the quote.', '', '0.00', 'Synology Direct', '', 0],
-        ['Netgate 6100 MAX Firewall', 'product', 'HW-NG6100', '1245.00', 'Hardware Sales', 'pfSense Plus appliance with three years of support included.', '', '935.00', 'Netgate', '6100-MAX', 0],
-        ['Ubiquiti U6-Pro Access Point', 'product', 'HW-U6PRO', '245.00', 'Hardware Sales', 'Wi-Fi 6 ceiling mounted access point, PoE powered.', '', '179.00', 'Ubiquiti Store', 'U6-Pro', 1],
-        ['Ubiquiti USW-Pro-24-PoE Switch', 'product', 'HW-USW24', '785.00', 'Hardware Sales', '24 port managed PoE switch with SFP+ uplinks.', '', '599.00', 'Ubiquiti Store', 'USW-Pro-24-PoE', 0],
-        ['Synology RS1221+ with Drives', 'product', 'HW-RS1221', '2850.00', 'Hardware Sales', 'Rack NAS populated with NAS rated drives, running Active Backup for Business.', '', '2140.00', 'Synology Direct', 'RS1221+', 0],
-        ['Rack Mount UPS 1500VA', 'product', 'HW-UPS15', '685.00', 'Hardware Sales', 'Rack mount UPS with network management card and graceful shutdown.', '', '498.00', 'Ridgeline Technology Distribution', 'SMT1500RM2UNC', 1],
+        ['Netgate 6100 MAX Firewall', 'product', 'HW-NG6100', '1245.00', 'Hardware Sales', 'pfSense Plus appliance with three years of support included.', '', '935.00', 'Netgate', '6100-MAX', 0, 'Firewall/Router', 'Netgate', '6100 MAX', 36],
+        ['Ubiquiti U6-Pro Access Point', 'product', 'HW-U6PRO', '245.00', 'Hardware Sales', 'Wi-Fi 6 ceiling mounted access point, PoE powered.', '', '179.00', 'Ubiquiti Store', 'U6-Pro', 1, 'Access Point', 'Ubiquiti', 'U6-Pro', 12],
+        ['Ubiquiti USW-Pro-24-PoE Switch', 'product', 'HW-USW24', '785.00', 'Hardware Sales', '24 port managed PoE switch with SFP+ uplinks.', '', '599.00', 'Ubiquiti Store', 'USW-Pro-24-PoE', 0, 'Switch', 'Ubiquiti', 'USW-Pro-24-PoE', 12],
+        ['Synology RS1221+ with Drives', 'product', 'HW-RS1221', '2850.00', 'Hardware Sales', 'Rack NAS populated with NAS rated drives, running Active Backup for Business.', '', '2140.00', 'Synology Direct', 'RS1221+', 0, 'Server', 'Synology', 'RS1221+', 36],
+        ['Rack Mount UPS 1500VA', 'product', 'HW-UPS15', '685.00', 'Hardware Sales', 'Rack mount UPS with network management card and graceful shutdown.', '', '498.00', 'Ridgeline Technology Distribution', 'SMT1500RM2UNC', 1, 'Other', 'APC', 'Smart-UPS SMT1500RM2UNC', 36],
     ];
 }
 
 // ------------------------------
 // demoProductExtras
-// How a demo product is billed, what it costs, who it comes from and whether
-// its stock is tracked - the columns past the description.
+// How a demo product is billed, what it costs, who it comes from, whether
+// its stock is tracked and, for hardware, the client asset it becomes - the
+// columns past the description.
 // ------------------------------
 function demoProductExtras($product, $vendors) {
     [$frequency, $seat] = array_pad(explode(':', (string) ($product[6] ?? '')), 2, '');
@@ -190,6 +191,12 @@ function demoProductExtras($product, $vendors) {
     }
     if (!empty($product[9])) {
         $extras['product_vendor_part'] = $product[9];
+    }
+    if (!empty($product[11])) {
+        $extras['product_asset_type'] = $product[11];
+        $extras['product_make'] = $product[12] ?? '';
+        $extras['product_model'] = $product[13] ?? '';
+        $extras['product_warranty_months'] = intval($product[14] ?? 0);
     }
     return $extras;
 }

@@ -332,6 +332,10 @@ function billingItemDelete($type, $doc_id, $item_id) {
             'invoice_id' => $doc_id, 'item_id' => $item_id, 'note' => billingNumber('invoice', billingRow('invoice', $doc_id, false)) . ' - line taken off',
         ]);
     }
+    // Assets made from the line stay, still bought on the invoice
+    if ($type === 'invoice') {
+        mysqli_query($mysqli, "UPDATE assets SET asset_invoice_item_id = 0 WHERE asset_invoice_id = $doc_id AND asset_invoice_item_id = $item_id");
+    }
     billingRecalc($type, $doc_id);
     return $item;
 }

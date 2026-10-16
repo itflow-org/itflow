@@ -43,7 +43,7 @@ class BillingPdf extends TCPDF {
  * ($variant 'packing') - and return ['name' => file name, 'data' => the PDF].
  */
 function billingPdfRender($type, array $row, $variant = 'document') {
-    global $config_invoice_footer, $config_quote_footer, $config_invoice_show_tax_id;
+    global $mysqli, $config_invoice_footer, $config_quote_footer, $config_invoice_show_tax_id;
 
     $t = billingType($type);
     $c = $t['col'];
@@ -207,11 +207,20 @@ function billingPdfRender($type, array $row, $variant = 'document') {
     $th = 'font-size:6.5pt; color:' . $grey . '; font-weight:bold; border-bottom:0.6px solid #adb5bd;';
     $td = 'border-bottom:0.3px solid ' . $line . ';';
     if ($packing) {
+        // The serials of hardware already on the client's assets, under its line
+        $serials = [];
+        $sql = mysqli_query($mysqli, "SELECT asset_invoice_item_id, asset_serial FROM assets
+            WHERE asset_invoice_id = $id AND asset_invoice_item_id > 0 AND COALESCE(asset_serial, '') <> '' ORDER BY asset_name ASC, asset_id ASC");
+        while ($serial = mysqli_fetch_assoc($sql)) {
+            $serials[intval($serial['asset_invoice_item_id'])][] = $serial['asset_serial'];
+        }
         $html = '<table cellpadding="4" cellspacing="0" width="100%"><thead><tr>
             <td width="74%" style="' . $th . '">ITEM</td><td width="13%" align="right" style="' . $th . '">QTY</td><td width="13%" align="center" style="' . $th . '">PACKED</td></tr></thead>';
         foreach ($items as $item) {
+            $item_serials = $serials[intval($item['item_id'])] ?? [];
             $html .= '<tr nobr="true"><td width="74%" style="' . $td . '"><b>' . $e($item['item_name']) . '</b>'
-                . (trim((string) $item['item_description']) !== '' ? '<br><span style="font-size:7.5pt; color:' . $grey . ';">' . nl2br($e($item['item_description'])) . '</span>' : '') . '</td>
+                . (trim((string) $item['item_description']) !== '' ? '<br><span style="font-size:7.5pt; color:' . $grey . ';">' . nl2br($e($item['item_description'])) . '</span>' : '')
+                . ($item_serials ? '<br><span style="font-size:7.5pt;">' . (count($item_serials) === 1 ? 'Serial' : 'Serials') . ': <font face="courier">' . $e(implode(', ', $item_serials)) . '</font></span>' : '') . '</td>
                 <td width="13%" align="right" style="' . $td . '">' . $e(billingQuantity($item['item_quantity'])) . '</td>
                 <td width="13%" align="center" style="' . $td . '"><span style="font-size:11pt;">☐</span></td></tr>';
         }
