@@ -108,6 +108,8 @@ $stock_stat = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT COALESCE(SUM(GREA
     WHERE product_track_stock = 1 AND product_archived_at IS NULL"));
 $tracked_count = intval(mysqli_fetch_row(mysqli_query($mysqli, "SELECT COUNT(*) FROM products WHERE product_track_stock = 1 AND product_archived_at IS NULL"))[0]);
 $reorder_count = productReorderCount();
+// Lines on recurring invoices, drafts and quotes still at an old price
+$reprice = productRepriceCount();
 $catalog_count = intval(mysqli_fetch_row(mysqli_query($mysqli, "SELECT COUNT(*) FROM products"))[0]);
 
 $filter_url = function ($changes) {
@@ -178,6 +180,18 @@ $add_type = in_array($view, ['product', 'hardware', 'stocked', 'reorder'], true)
     </div>
 </div>
 
+<?php if ($reprice['lines'] && $can_edit) { ?>
+    <!-- Lines still at an old price, after a price change -->
+    <div class="alert alert-warning d-flex flex-wrap align-items-center gap-2 mb-3">
+        <i class="fas fa-tags"></i>
+        <div class="flex-grow-1">
+            <strong><?= intval($reprice['lines']) ?> line<?= $reprice['lines'] == 1 ? ' is' : 's are' ?> at an old price</strong>
+            on recurring invoices, drafts or quotes, from <?= intval($reprice['products']) ?> product<?= $reprice['products'] == 1 ? '' : 's' ?><?= $reprice['monthly'] != 0 ? ' - worth ' . $money(abs($reprice['monthly'])) . ($reprice['monthly'] > 0 ? ' more' : ' less') . ' a month' : '' ?>.
+        </div>
+        <a class="btn btn-sm btn-warning" href="products_reprice.php"><i class="fas fa-tags me-1"></i>Update Prices</a>
+    </div>
+<?php } ?>
+
 <div class="card">
     <div class="card-header bg-dark py-2">
         <h3 class="card-title mt-2"><i class="fas fa-fw fa-box-open me-2"></i>Products and Services</h3>
@@ -202,6 +216,9 @@ $add_type = in_array($view, ['product', 'hardware', 'stocked', 'reorder'], true)
                                 <i class="fas fa-fw fa-clipboard-check text-secondary me-2"></i>Count Stock
                             </a>
                         <?php } ?>
+                        <a class="dropdown-item" href="products_reprice.php">
+                            <i class="fas fa-fw fa-tags text-secondary me-2"></i>Update Prices<?php if ($reprice['lines']) { ?><span class="badge rounded-pill text-bg-warning ms-2" title="Lines at an old price"><?= intval($reprice['lines']) ?></span><?php } ?>
+                        </a>
                         <div class="dropdown-divider"></div>
                         <a class="dropdown-item ajax-modal" href="#" data-modal-url="modals/product/product_import.php">
                             <i class="fas fa-fw fa-upload text-secondary me-2"></i>Import

@@ -269,6 +269,14 @@ function dashboardAttention($access) {
             'label' => 'Stock to reorder', 'icon' => 'shopping-basket', 'tone' => 'warning', 'detail' => 'At or under the reorder level',
             'url' => '/agent/products.php?type=reorder',
         ];
+        // Lines on recurring invoices, drafts and quotes still at an old catalog price
+        $reprice = productRepriceCount();
+        $items[] = [
+            'count' => intval($reprice['lines']),
+            'label' => 'Lines at an old price', 'icon' => 'tags', 'tone' => 'warning',
+            'detail' => $reprice['monthly'] > 0 ? '+' . dashboardMoney($reprice['monthly']) . ' a month on recurring' : ($reprice['lines'] ? 'On recurring invoices, drafts and quotes' : null),
+            'url' => '/agent/products_reprice.php',
+        ];
         // Hardware sold in the last 90 days that isn't on the client's assets yet
         if ($access['support']) {
             $hardware = productHardwarePending(90);

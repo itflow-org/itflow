@@ -1757,6 +1757,28 @@ CREATE TABLE `payments` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
+-- Table structure for table `product_prices`
+--
+
+DROP TABLE IF EXISTS `product_prices`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8mb4 */;
+CREATE TABLE `product_prices` (
+  `price_id` int(11) NOT NULL AUTO_INCREMENT,
+  `price_old` decimal(15,2) NOT NULL,
+  `price_new` decimal(15,2) NOT NULL,
+  `price_cost_old` decimal(15,2) NOT NULL DEFAULT 0.00,
+  `price_cost_new` decimal(15,2) NOT NULL DEFAULT 0.00,
+  `price_source` varchar(20) NOT NULL DEFAULT 'edit',
+  `price_created_at` datetime NOT NULL DEFAULT current_timestamp(),
+  `price_user_id` int(11) NOT NULL DEFAULT 0,
+  `price_product_id` int(11) NOT NULL,
+  PRIMARY KEY (`price_id`),
+  KEY `price_product_id` (`price_product_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
 -- Table structure for table `product_stock`
 --
 

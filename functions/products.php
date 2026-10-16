@@ -112,9 +112,11 @@ function productVendors() {
  *   only), reorder_level and reorder_qty (when to buy more, how many),
  *   asset_type (products only - one of the asset types, '' for none), make,
  *   model, warranty_months, location, description, notes.
+ * A change to an existing product's price or cost goes in its price history,
+ * from $source - edit, import or receive.
  * Returns the product id, or 0 with $error.
  */
-function productSave(array $in, $product_id = 0, &$error = '') {
+function productSave(array $in, $product_id = 0, &$error = '', $source = 'edit') {
     global $mysqli, $session_company_currency;
     $error = '';
     $product_id = intval($product_id);
@@ -273,11 +275,48 @@ function productSave(array $in, $product_id = 0, &$error = '') {
     }
     if ($product_id) {
         mysqli_query($mysqli, "UPDATE products SET " . implode(', ', $set) . " WHERE product_id = $product_id");
+        productPriceRecord($product_id, $old, $source);
         return $product_id;
     }
     $currency = escapeSql($session_company_currency ?? '');
     mysqli_query($mysqli, "INSERT INTO products SET " . implode(', ', $set) . ", product_currency_code = '$currency'");
     return intval(mysqli_insert_id($mysqli));
+}
+
+/** Where a price change came from => label. */
+function productPriceSources() {
+    return ['edit' => 'Edited', 'import' => 'Imported', 'receive' => 'Stock received'];
+}
+
+/** Put a change to a product's price or cost in its history - $old is the product before. */
+function productPriceRecord($product_id, array $old, $source = 'edit') {
+    global $mysqli, $session_user_id;
+    $product_id = intval($product_id);
+    $now = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT product_price, product_cost FROM products WHERE product_id = $product_id"));
+    if (!$now || (round(floatval($now['product_price']), 2) == round(floatval($old['product_price']), 2) && round(floatval($now['product_cost']), 2) == round(floatval($old['product_cost']), 2))) {
+        return;
+    }
+    $source = isset(productPriceSources()[$source]) ? $source : 'edit';
+    mysqli_query($mysqli, "INSERT INTO product_prices SET price_product_id = $product_id,
+        price_old = " . round(floatval($old['product_price']), 2) . ", price_new = " . round(floatval($now['product_price']), 2) . ",
+        price_cost_old = " . round(floatval($old['product_cost']), 2) . ", price_cost_new = " . round(floatval($now['product_cost']), 2) . ",
+        price_source = '$source', price_user_id = " . intval($session_user_id ?? 0));
+}
+
+/** A product's price changes, newest first, with who made them. */
+function productPrices($product_id, $limit = 100) {
+    global $mysqli;
+    $product_id = intval($product_id);
+    $limit = max(1, intval($limit));
+    $rows = [];
+    $sql = mysqli_query($mysqli, "SELECT product_prices.*, user_name FROM product_prices
+        LEFT JOIN users ON user_id = price_user_id
+        WHERE price_product_id = $product_id
+        ORDER BY price_created_at DESC, price_id DESC LIMIT $limit");
+    while ($row = mysqli_fetch_assoc($sql)) {
+        $rows[] = $row;
+    }
+    return $rows;
 }
 
 /** Copy a product - its new id. "Name (copy)", with no stock. */
@@ -299,11 +338,12 @@ function productCopy($product_id) {
     ], 0, $error);
 }
 
-/** Delete a product and its stock. Lines it is on keep their text and amounts. */
+/** Delete a product, its stock and its price history. Lines it is on keep their text and amounts. */
 function productDelete($product_id) {
     global $mysqli;
     $product_id = intval($product_id);
     mysqli_query($mysqli, "DELETE FROM product_stock WHERE stock_product_id = $product_id");
+    mysqli_query($mysqli, "DELETE FROM product_prices WHERE price_product_id = $product_id");
     mysqli_query($mysqli, "DELETE FROM products WHERE product_id = $product_id");
 }
 
@@ -864,6 +904,197 @@ function productSaleAssets($invoice_id, array $lines, array $units, array $share
         mysqli_rollback($mysqli);
         throw $e;
     }
+    return $done;
+}
+
+/*
+ * Price changes reach the documents. When a product's price changes, its
+ * lines on recurring invoices, draft invoices and draft quotes keep the price
+ * they had. Those still at one of the product's old prices are listed to
+ * update. A price the product never had looks agreed with the client, so
+ * those lines are listed apart and left alone unless picked.
+ */
+
+/** The documents whose lines can follow a price change => label and icon. */
+function productRepriceKinds() {
+    return [
+        'recurring' => ['label' => 'Recurring invoices', 'one' => 'Recurring invoice', 'icon' => 'fa-redo-alt'],
+        'invoice' => ['label' => 'Draft invoices', 'one' => 'Draft invoice', 'icon' => 'fa-file-invoice-dollar'],
+        'quote' => ['label' => 'Draft quotes', 'one' => 'Draft quote', 'icon' => 'fa-comment-dollar'],
+    ];
+}
+
+/**
+ * Every line from a product that can still change price, in SQL to alias:
+ * kind, item_id, doc_id, number, status, client_id, item_name, item_price,
+ * item_quantity, item_product_id, frequency and currency. Recurring invoices
+ * not archived, draft invoices and draft quotes.
+ */
+function productRepriceUnionSql() {
+    return "SELECT 'recurring' AS kind, item_id, recurring_invoice_id AS doc_id, CONCAT(recurring_invoice_prefix, recurring_invoice_number) AS number,
+                IF(recurring_invoice_status = 1, 'Active', 'Paused') AS status, recurring_invoice_client_id AS client_id, item_name, item_price, item_quantity,
+                item_product_id, recurring_invoice_frequency AS frequency, recurring_invoice_currency_code AS currency
+            FROM recurring_invoice_items JOIN recurring_invoices ON recurring_invoice_id = item_recurring_invoice_id
+            WHERE recurring_invoice_archived_at IS NULL AND item_product_id > 0
+        UNION ALL
+        SELECT 'invoice', item_id, invoice_id, CONCAT(invoice_prefix, invoice_number), invoice_status, invoice_client_id, item_name, item_price, item_quantity,
+                item_product_id, NULL, invoice_currency_code
+            FROM invoice_items JOIN invoices ON invoice_id = item_invoice_id
+            WHERE invoice_status = 'Draft' AND invoice_archived_at IS NULL AND item_product_id > 0
+        UNION ALL
+        SELECT 'quote', item_id, quote_id, CONCAT(quote_prefix, quote_number), quote_status, quote_client_id, item_name, item_price, item_quantity,
+                item_product_id, item_frequency, quote_currency_code
+            FROM quote_items JOIN quotes ON quote_id = item_quote_id
+            WHERE quote_status = 'Draft' AND quote_archived_at IS NULL AND item_product_id > 0";
+}
+
+/** A line (the union aliased l) at one of its product's old prices, in SQL - with products joined. */
+function productRepriceOldSql() {
+    return "EXISTS (SELECT 1 FROM product_prices WHERE price_product_id = l.item_product_id AND price_old = l.item_price)";
+}
+
+/** The filters the Update Prices page takes, as SQL on the union aliased l. */
+function productRepriceFilterSql(array $filters) {
+    $sql = '';
+    if (!empty($filters['product_id'])) {
+        $sql .= ' AND l.item_product_id = ' . intval($filters['product_id']);
+    }
+    if (!empty($filters['client_id'])) {
+        $sql .= ' AND l.client_id = ' . intval($filters['client_id']);
+    }
+    if (!empty($filters['kind']) && isset(productRepriceKinds()[$filters['kind']])) {
+        $sql .= " AND l.kind = '{$filters['kind']}'";
+        if (!empty($filters['doc_id'])) {
+            $sql .= ' AND l.doc_id = ' . intval($filters['doc_id']);
+        }
+    }
+    return $sql;
+}
+
+/**
+ * How many lines are at an old price: ['lines', 'recurring', 'invoice',
+ * 'quote', 'products', 'monthly' - what updating the recurring ones would
+ * add a month at today's prices]. Same filters as productRepriceLines().
+ * Scoped to the agent's clients, archived products left out.
+ */
+function productRepriceCount(array $filters = []) {
+    global $mysqli;
+    $row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT COUNT(*) AS `lines`, COALESCE(SUM(l.kind = 'recurring'), 0) AS recurring,
+            COALESCE(SUM(l.kind = 'invoice'), 0) AS invoice, COALESCE(SUM(l.kind = 'quote'), 0) AS quote, COUNT(DISTINCT l.item_product_id) AS products,
+            COALESCE(SUM(IF(l.kind = 'recurring', " . recurringInvoiceMonthlySql('(products.product_price - l.item_price) * l.item_quantity', 'l.frequency') . ", 0)), 0) AS monthly
+        FROM (" . productRepriceUnionSql() . ") AS l
+        JOIN products ON products.product_id = l.item_product_id
+        WHERE products.product_archived_at IS NULL AND l.item_price <> products.product_price AND " . productRepriceOldSql()
+            . productRepriceFilterSql($filters) . clientScopeSql('l.client_id')));
+    return array_map('floatval', $row ?: []) + ['lines' => 0, 'recurring' => 0, 'invoice' => 0, 'quote' => 0, 'products' => 0, 'monthly' => 0];
+}
+
+/** A product's last change of price - price_old, price_new, price_created_at - or null. */
+function productPriceLastChange($product_id) {
+    global $mysqli;
+    $product_id = intval($product_id);
+    return mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT price_old, price_new, price_created_at FROM product_prices
+        WHERE price_product_id = $product_id AND price_old <> price_new ORDER BY price_created_at DESC, price_id DESC LIMIT 1")) ?: null;
+}
+
+/**
+ * The lines whose price isn't their product's, for the Update Prices page,
+ * by product: product_id => [product_id, product_name, product_type,
+ * product_price, product_currency_code, 'last' => productPriceLastChange(),
+ * 'lines' => [...]]. Each line is a productRepriceUnionSql() row with
+ * client_name, old (at one of the product's old prices) and suggested - the
+ * product's price, or for a price of its own the last change applied to it.
+ * Filters: product_id, client_id, kind and doc_id; up to 1000 lines.
+ */
+function productRepriceLines(array $filters = []) {
+    global $mysqli;
+    $groups = [];
+    $sql = mysqli_query($mysqli, "SELECT l.*, client_name, products.product_id, product_name, product_type, product_price, product_currency_code, " . productRepriceOldSql() . " AS old
+        FROM (" . productRepriceUnionSql() . ") AS l
+        JOIN products ON products.product_id = l.item_product_id
+        JOIN clients ON clients.client_id = l.client_id
+        WHERE products.product_archived_at IS NULL AND l.item_price <> products.product_price" . productRepriceFilterSql($filters) . clientScopeSql('l.client_id') . "
+        ORDER BY product_name ASC, products.product_id ASC, FIELD(l.kind, 'recurring', 'invoice', 'quote'), client_name ASC, l.doc_id ASC, l.item_id ASC
+        LIMIT 1000");
+    while ($row = mysqli_fetch_assoc($sql)) {
+        $product_id = intval($row['product_id']);
+        if (!isset($groups[$product_id])) {
+            $groups[$product_id] = [
+                'product_id' => $product_id, 'product_name' => $row['product_name'], 'product_type' => $row['product_type'], 'product_price' => $row['product_price'],
+                'product_currency_code' => $row['product_currency_code'], 'last' => productPriceLastChange($product_id), 'lines' => [],
+            ];
+        }
+        $last = $groups[$product_id]['last'];
+        $row['old'] = intval($row['old']) === 1;
+        $row['suggested'] = !$row['old'] && $last && floatval($last['price_old']) > 0
+            ? round(floatval($row['item_price']) * floatval($last['price_new']) / floatval($last['price_old']), 2)
+            : round(floatval($row['product_price']), 2);
+        $groups[$product_id]['lines'][] = $row;
+    }
+    return $groups;
+}
+
+/**
+ * Change the price of lines the Update Prices page lists. $changes: "kind:item_id"
+ * => the new price, raw. Every price is checked first. Each document's total
+ * follows, and its history says what changed. Returns ['lines' => n,
+ * 'documents' => n, 'monthly' => the change a month on recurring invoices],
+ * or null with $error.
+ */
+function productRepriceApply(array $changes, &$error = '') {
+    global $mysqli, $session_name;
+    $error = '';
+    $plan = [];
+    foreach ($changes as $key => $raw) {
+        if (!preg_match('/^(recurring|invoice|quote):(\d+)$/', (string) $key, $m)) {
+            continue;
+        }
+        [$kind, $item_id] = [$m[1], intval($m[2])];
+        $line = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT l.* FROM (" . productRepriceUnionSql() . ") AS l
+            JOIN products ON products.product_id = l.item_product_id
+            WHERE l.kind = '$kind' AND l.item_id = $item_id AND products.product_archived_at IS NULL" . clientScopeSql('l.client_id')));
+        if (!$line) {
+            $error = 'A line picked is no longer on a recurring invoice, draft or draft quote you can change - nothing was updated.';
+            return null;
+        }
+        $price = billingNumberInput($raw);
+        if ($price === null || $price < 0 || $price >= 1e11) {
+            $error = "The new price for {$line['item_name']} on {$line['number']} has to be a number, zero or more - nothing was updated.";
+            return null;
+        }
+        if (round($price, 2) != round(floatval($line['item_price']), 2)) {
+            $plan[] = [$line, $price];
+        }
+    }
+    if (!$plan) {
+        $error = 'Nothing to update - pick the lines to change, with a new price.';
+        return null;
+    }
+
+    $by = stripslashes((string) $session_name);
+    $done = ['lines' => 0, 'documents' => 0, 'monthly' => 0.0];
+    $documents = [];
+    mysqli_begin_transaction($mysqli);
+    try {
+        foreach ($plan as [$line, $price]) {
+            $kind = $line['kind'];
+            billingItemSetPrice($kind, $line['doc_id'], $line['item_id'], $price);
+            $from = billingMoney($line['item_price'], $line['currency']);
+            $to = billingMoney($price, $line['currency']);
+            billingLog($kind, $line['doc_id'], $kind === 'recurring' ? 'Price' : $line['status'], "{$line['item_name']} from $from to $to by $by - a catalog price change");
+            if ($kind === 'recurring') {
+                $done['monthly'] += recurringInvoiceMonthly(($price - floatval($line['item_price'])) * floatval($line['item_quantity']), $line['frequency']);
+            }
+            $documents["$kind:{$line['doc_id']}"] = true;
+            $done['lines']++;
+        }
+        mysqli_commit($mysqli);
+    } catch (Throwable $e) {
+        mysqli_rollback($mysqli);
+        throw $e;
+    }
+    $done['documents'] = count($documents);
+    $done['monthly'] = round($done['monthly'], 2);
     return $done;
 }
 

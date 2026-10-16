@@ -234,6 +234,10 @@ $paper = [
                     <?php $margin_html = billingMarginHtml('recurring', $items, $currency, $period_word); if ($margin_html) { ?>
                         <dt>Margin</dt><dd><?= $margin_html ?></dd>
                     <?php } ?>
+                    <?php $reprice_doc = $can_edit && empty($recurring['recurring_invoice_archived_at']) ? productRepriceCount(['kind' => 'recurring', 'doc_id' => $recurring_invoice_id]) : null; if ($reprice_doc && $reprice_doc['lines']) { ?>
+                        <dt>Prices</dt>
+                        <dd><a class="text-warning-emphasis" href="products_reprice.php?kind=recurring&amp;doc_id=<?= $recurring_invoice_id ?>"><i class="fas fa-tags me-1"></i><?= intval($reprice_doc['lines']) ?> line<?= $reprice_doc['lines'] == 1 ? '' : 's' ?> at an old price</a></dd>
+                    <?php } ?>
                     <dt>Sending</dt>
                     <dd>
                         <?php if (!$auto_send) { ?>

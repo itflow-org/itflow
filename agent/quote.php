@@ -261,6 +261,10 @@ $paper = [
                     <?php $margin_html = billingMarginHtml('quote', $items, $currency); if ($margin_html) { ?>
                         <dt>Margin</dt><dd><?= $margin_html ?></dd>
                     <?php } ?>
+                    <?php $reprice_doc = $can_edit && $status === 'Draft' ? productRepriceCount(['kind' => 'quote', 'doc_id' => $quote_id]) : null; if ($reprice_doc && $reprice_doc['lines']) { ?>
+                        <dt>Prices</dt>
+                        <dd><a class="text-warning-emphasis" href="products_reprice.php?kind=quote&amp;doc_id=<?= $quote_id ?>"><i class="fas fa-tags me-1"></i><?= intval($reprice_doc['lines']) ?> line<?= $reprice_doc['lines'] == 1 ? '' : 's' ?> at an old price</a></dd>
+                    <?php } ?>
                     <?php if ($status === 'Draft') { ?>
                         <dt>Client</dt><dd class="text-body-secondary">Not sent yet - the client can't see it</dd>
                     <?php } elseif ($awaiting) { ?>

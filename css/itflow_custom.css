@@ -6195,6 +6195,20 @@ a.itflow-report-stat:focus-visible {
 .itflow-hw-assets {
     padding-left: 2.25rem;
 }
+
+/* Update Prices - lines not picked are muted, the footer stays in reach */
+.itflow-reprice-off td:not(.checkbox-column) {
+    opacity: .55;
+}
+.itflow-reprice-table .input-group {
+    min-width: 8.5rem;
+}
+.itflow-reprice-footer {
+    position: sticky;
+    bottom: 0;
+    z-index: 2;
+    background-color: var(--bs-body-bg);
+}
 .itflow-money {
     font-variant-numeric: tabular-nums;
     white-space: nowrap;

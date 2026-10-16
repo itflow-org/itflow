@@ -315,6 +315,28 @@ function billingItemSave($type, $doc_id, array $in, $item_id = 0, &$error = '') 
     return $item_id;
 }
 
+/** Change a line's price - its amounts at its tax rate, then the document's total. False when the line isn't on it. */
+function billingItemSetPrice($type, $doc_id, $item_id, $price) {
+    global $mysqli;
+    $t = billingType($type);
+    $doc_id = intval($doc_id);
+    $item_id = intval($item_id);
+    $item = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT item_quantity, item_subtotal, item_tax, item_tax_id, tax_percent FROM {$t['items']}
+        LEFT JOIN taxes ON tax_id = item_tax_id
+        WHERE item_id = $item_id AND {$t['item_fk']} = $doc_id"));
+    if (!$item) {
+        return false;
+    }
+    // Its tax's rate - or, when that tax is gone, the rate it was charged at
+    $percent = $item['tax_percent'] !== null ? floatval($item['tax_percent'])
+        : (intval($item['item_tax_id']) && floatval($item['item_subtotal']) != 0 ? floatval($item['item_tax']) / floatval($item['item_subtotal']) * 100 : 0);
+    $price = round(floatval($price), 2);
+    [$subtotal, $tax, $total] = billingLineAmounts($item['item_quantity'], $price, $percent);
+    mysqli_query($mysqli, "UPDATE {$t['items']} SET item_price = $price, item_subtotal = $subtotal, item_tax = $tax, item_total = $total WHERE item_id = $item_id");
+    billingRecalc($type, $doc_id);
+    return true;
+}
+
 /** Take a line off a document - a tracked product goes back on the shelf. The line, or null. */
 function billingItemDelete($type, $doc_id, $item_id) {
     global $mysqli;

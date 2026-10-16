@@ -1038,6 +1038,7 @@ function demoDataRemove($mysqli) {
         }
         if (!$in_use) {
             mysqli_query($mysqli, "DELETE FROM product_stock WHERE stock_product_id = $product_id");
+            mysqli_query($mysqli, "DELETE FROM product_prices WHERE price_product_id = $product_id");
             mysqli_query($mysqli, "DELETE FROM products WHERE product_id = $product_id");
         }
     }

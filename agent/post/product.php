@@ -55,6 +55,7 @@ if (isset($_POST['edit_product'])) {
     enforceUserPermission('module_sales', 2);
 
     $product_id = intval($_POST['product_id'] ?? 0);
+    $price_before = getFieldById('products', $product_id, 'product_price');
 
     if (!productSave(productFormInput(), $product_id, $error)) {
         flashAlert(escapeHtml($error), 'error');
@@ -65,7 +66,17 @@ if (isset($_POST['edit_product'])) {
 
     logAudit("Product", "Edit", "$session_name edited product $name", 0, $product_id);
 
-    flashAlert("<strong>" . escapeHtml($product['product_name']) . "</strong> saved");
+    // A new price - say how many lines are still at the old one
+    $price_note = '';
+    if ($price_before !== null && round(floatval($price_before), 2) != round(floatval($product['product_price']), 2)) {
+        $behind = productRepriceCount(['product_id' => $product_id]);
+        $price_note = " - its price is now " . escapeHtml(billingMoney($product['product_price'], $product['product_currency_code']));
+        if ($behind['lines']) {
+            $price_note .= ", and <strong>" . intval($behind['lines']) . "</strong> line" . ($behind['lines'] == 1 ? ' is' : 's are') . " on recurring invoices, drafts or quotes at an old price. Update them from its page.";
+        }
+    }
+
+    flashAlert("<strong>" . escapeHtml($product['product_name']) . "</strong> saved$price_note");
 
     redirect();
 
@@ -453,7 +464,8 @@ if (isset($_POST['product_stock_save'])) {
         productStockMove($product_id, $qty, 'received', ['unit_cost' => $unit_cost === '' ? null : $unit_cost, 'expense_id' => $expense, 'note' => $note]);
         $cost_note = '';
         if ($unit_cost !== '' && !empty($_POST['update_cost']) && round(floatval($unit_cost), 2) != round(floatval($product['product_cost']), 2)) {
-            productSave(['cost' => $unit_cost], $product_id);
+            $cost_error = '';
+            productSave(['cost' => $unit_cost], $product_id, $cost_error, 'receive');
             $cost_note = ', and its cost is now ' . billingMoney($unit_cost, $product['product_currency_code']);
             logAudit("Product", "Edit", "$session_name changed the cost of product $product_name to " . escapeSql(billingMoney($unit_cost, $product['product_currency_code'])) . " from a delivery", 0, $product_id);
         }
@@ -692,7 +704,7 @@ if (isset($_POST["import_products_csv"])) {
         }
 
         $error = '';
-        if (productSave($in, $existing_id, $error)) {
+        if (productSave($in, $existing_id, $error, 'import')) {
             $existing_id ? $updated++ : $added++;
         } else {
             $skipped[] = "row $line - " . rtrim($error, '.');
@@ -706,7 +718,46 @@ if (isset($_POST["import_products_csv"])) {
     if ($skipped) {
         $message .= ", <strong>" . count($skipped) . "</strong> skipped: " . escapeHtml(implode('; ', array_slice($skipped, 0, 5))) . (count($skipped) > 5 ? '...' : '');
     }
+    // A new price list - say how many lines are at an old price now
+    if ($updated) {
+        $behind = productRepriceCount();
+        if ($behind['lines']) {
+            $message .= ". <strong>" . intval($behind['lines']) . "</strong> line" . ($behind['lines'] == 1 ? ' is' : 's are') . " on recurring invoices, drafts or quotes at an old price - Update Prices is in the Products menu";
+        }
+    }
     flashAlert($message, $skipped && !$added && !$updated ? 'error' : 'success');
+
+    redirect();
+
+}
+
+if (isset($_POST['products_reprice_save'])) {
+
+    validateCSRFToken();
+
+    enforceUserPermission('module_sales', 2);
+
+    // Only the lines picked, at the price typed for each
+    $changes = [];
+    foreach ((array) ($_POST['pick'] ?? []) as $key) {
+        $key = (string) $key;
+        $changes[$key] = (string) ($_POST['price'][$key] ?? '');
+    }
+
+    // functions/products.php - every price is checked before any line changes
+    $done = productRepriceApply($changes, $error);
+    if ($done === null) {
+        flashAlert(escapeHtml($error), 'error');
+        redirect();
+    }
+
+    logAudit("Product", "Edit", "$session_name updated the price of {$done['lines']} line(s) on {$done['documents']} recurring invoice(s), draft(s) and quote(s) from the catalog");
+
+    $message = "<strong>{$done['lines']}</strong> price" . ($done['lines'] === 1 ? '' : 's') . " updated on <strong>{$done['documents']}</strong> document" . ($done['documents'] === 1 ? '' : 's');
+    if ($done['monthly'] != 0) {
+        $message .= " - recurring invoices bring in " . escapeHtml(billingMoney(abs($done['monthly']), $session_company_currency)) . ($done['monthly'] > 0 ? ' more' : ' less') . " a month";
+    }
+    flashAlert($message);
 
     redirect();
 

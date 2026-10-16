@@ -11,8 +11,10 @@
  *
  * Then in tabs with counts: its stock moves with what was on the shelf after
  * each, the recurring invoices it is on (what that brings in a month), open
- * quotes, the invoices it was sold on, the client assets made from it, and
- * its history. Figures are for the clients the agent can see.
+ * quotes, the invoices it was sold on, the client assets made from it, its
+ * price changes and its history. Figures are for the clients the agent can
+ * see. When lines on recurring invoices, drafts or quotes are still at one of
+ * its old prices, it says so, with Update Prices.
  */
 
 require_once "includes/inc_all.php";
@@ -55,6 +57,11 @@ if (!$product) {
     $assets = $can_see_assets ? productAssets($product_id, 200) : [];
     $asset_clients = count(array_unique(array_column($assets, 'client_id')));
 
+    // Its price over time, and the lines still at an old price
+    $prices = productPrices($product_id, 100);
+    $last_change = productPriceLastChange($product_id);
+    $behind = productRepriceCount(['product_id' => $product_id]);
+
     $usage = productUsage($product_id);
     $moves = $type === 'product' ? productStockMoves($product_id, 200) : [];
     $history = productHistory($product_id, 100);
@@ -65,10 +72,11 @@ if (!$product) {
         'recurring' => ['label' => 'Recurring', 'icon' => 'fa-redo-alt', 'count' => count($usage['recurring'])],
         'invoices' => ['label' => 'Invoices', 'icon' => 'fa-file-invoice-dollar', 'count' => count($usage['invoices'])],
         'quotes' => ['label' => 'Open quotes', 'icon' => 'fa-comment-dollar', 'count' => count($usage['quotes'])],
+        'prices' => ['label' => 'Prices', 'icon' => 'fa-tags', 'count' => count($prices)],
         'history' => ['label' => 'History', 'icon' => 'fa-history', 'count' => count($history)],
     ];
     if (!$product['product_frequency']) {
-        $tabs = ['invoices' => $tabs['invoices'], 'quotes' => $tabs['quotes'], 'recurring' => $tabs['recurring'], 'history' => $tabs['history']];
+        $tabs = ['invoices' => $tabs['invoices'], 'quotes' => $tabs['quotes'], 'recurring' => $tabs['recurring'], 'prices' => $tabs['prices'], 'history' => $tabs['history']];
     }
     // The client assets made from it, after the invoices it was sold on
     if ($can_see_assets && ($asset_type !== '' || $assets)) {
@@ -218,6 +226,22 @@ if (!$product) {
         </div>
     </div>
 
+    <?php if ($behind['lines'] && $can_edit) { ?>
+        <!-- Lines still at an old price -->
+        <div class="alert alert-warning d-flex flex-wrap align-items-center gap-2 mb-3">
+            <i class="fas fa-tags"></i>
+            <div class="flex-grow-1">
+                <strong><?= intval($behind['lines']) ?> line<?= $behind['lines'] == 1 ? ' is' : 's are' ?> at an old price</strong> -
+                <?= escapeHtml(implode(', ', array_filter([
+                    $behind['recurring'] ? intval($behind['recurring']) . ' on recurring invoices' : '',
+                    $behind['invoice'] ? intval($behind['invoice']) . ' on draft invoices' : '',
+                    $behind['quote'] ? intval($behind['quote']) . ' on draft quotes' : '',
+                ]))) ?><?= $behind['monthly'] != 0 ? ', worth ' . escapeHtml(($behind['monthly'] > 0 ? '+' : '-') . billingMoney(abs($behind['monthly']), $currency)) . ' a month' : '' ?>.
+            </div>
+            <a class="btn btn-sm btn-warning" href="products_reprice.php?product_id=<?= $product_id ?>"><i class="fas fa-tags me-1"></i>Update Prices</a>
+        </div>
+    <?php } ?>
+
     <div class="row g-3">
 
         <!-- The details -->
@@ -232,6 +256,10 @@ if (!$product) {
                         <dt>Price</dt><dd class="fw-semibold"><?= $money($product['product_price']) ?><?= escapeHtml($period) ?></dd>
                         <dt>Cost</dt><dd><?= floatval($product['product_cost']) > 0 ? $money($product['product_cost']) : '<span class="text-body-secondary">Not set</span>' ?></dd>
                         <dt>Margin</dt><dd><?= $margin ? $money($margin['amount']) . ' ' . productMarginPill($margin) : '<span class="text-body-secondary">-</span>' ?></dd>
+                        <?php if ($last_change) { ?>
+                            <dt>Changed</dt>
+                            <dd><a href="#product-pane-prices" data-product-tab-link="prices"><?= escapeHtml(date('M j, Y', strtotime($last_change['price_created_at']))) ?></a> <span class="small text-body-secondary">from <?= $money($last_change['price_old']) ?></span></dd>
+                        <?php } ?>
                         <dt>Tax</dt><dd><?= $product['tax_name'] ? escapeHtml($product['tax_name'] . ' ' . floatval($product['tax_percent']) . '%') : '<span class="text-body-secondary">None</span>' ?></dd>
                         <dt>Billed</dt>
                         <dd>
@@ -568,6 +596,52 @@ if (!$product) {
                         <?php } ?>
                     </div>
                     <?php } ?>
+
+                    <!-- Its price and cost over time -->
+                    <div class="tab-pane fade" id="product-pane-prices" role="tabpanel">
+                        <?php if ($prices) {
+                            $price_sources = productPriceSources(); ?>
+                            <div class="table-responsive">
+                                <table class="table table-hover align-middle mb-0">
+                                    <thead class="text-nowrap small">
+                                    <tr><th>When</th><th class="text-end">Price</th><th class="text-end">Change</th><th class="text-end d-none d-md-table-cell">Cost</th><th class="d-none d-sm-table-cell">How</th><th class="d-none d-lg-table-cell">By</th></tr>
+                                    </thead>
+                                    <tbody>
+                                    <?php foreach ($prices as $price_row) {
+                                        $price_old = floatval($price_row['price_old']);
+                                        $price_new = floatval($price_row['price_new']);
+                                        $price_moved = round($price_new - $price_old, 2);
+                                        $cost_moved = round(floatval($price_row['price_cost_new']) - floatval($price_row['price_cost_old']), 2); ?>
+                                        <tr>
+                                            <td class="text-nowrap small" title="<?= escapeHtml($price_row['price_created_at']) ?>"><?= escapeHtml(date('M j, Y', strtotime($price_row['price_created_at']))) ?></td>
+                                            <td class="text-end text-nowrap">
+                                                <?php if ($price_moved != 0) { ?>
+                                                    <span class="text-body-secondary small"><?= $money($price_old) ?> &rarr;</span> <span class="fw-semibold"><?= $money($price_new) ?></span>
+                                                <?php } else { ?>
+                                                    <span class="text-body-secondary"><?= $money($price_new) ?></span>
+                                                <?php } ?>
+                                            </td>
+                                            <td class="text-end text-nowrap small <?= $price_moved > 0 ? 'text-success-emphasis' : ($price_moved < 0 ? 'text-danger-emphasis' : 'text-body-secondary') ?>">
+                                                <?= $price_moved == 0 ? '-' : ($price_moved > 0 ? '+' : '') . ($price_old > 0 ? round($price_moved / $price_old * 100, 1) . '%' : $money($price_moved)) ?>
+                                            </td>
+                                            <td class="text-end text-nowrap small d-none d-md-table-cell">
+                                                <?php if ($cost_moved != 0) { ?>
+                                                    <span class="text-body-secondary"><?= $money($price_row['price_cost_old']) ?> &rarr;</span> <?= $money($price_row['price_cost_new']) ?>
+                                                <?php } else { ?>
+                                                    <span class="text-body-secondary"><?= floatval($price_row['price_cost_new']) > 0 ? $money($price_row['price_cost_new']) : '-' ?></span>
+                                                <?php } ?>
+                                            </td>
+                                            <td class="small d-none d-sm-table-cell"><?= escapeHtml($price_sources[$price_row['price_source']] ?? $price_row['price_source']) ?></td>
+                                            <td class="small text-nowrap d-none d-lg-table-cell"><?= $price_row['user_name'] !== null ? escapeHtml($price_row['user_name']) : '<span class="text-body-secondary">-</span>' ?></td>
+                                        </tr>
+                                    <?php } ?>
+                                    </tbody>
+                                </table>
+                            </div>
+                        <?php } else { ?>
+                            <div class="itflow-asset-empty"><i class="fas fa-tags fa-2x mb-2 opacity-50"></i><div>Its price and cost haven't changed since this was kept.</div></div>
+                        <?php } ?>
+                    </div>
 
                     <!-- History -->
                     <div class="tab-pane fade" id="product-pane-history" role="tabpanel">
