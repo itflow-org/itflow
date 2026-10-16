@@ -2,6 +2,365 @@
 
 This file documents all notable changes made to ITFlow.
 
+## [26.11]
+
+### Upgrading to 26.11
+
+Update from Maintenance > Update — Queue Update hands the job to cron, which updates the files and applies this release's database changes (2.7.9 to 2.8.9) in the same pass. Nothing else is required.
+
+This is a big release, with ten database steps in one go, so take a backup before you update.
+
+The update also clears out data that deletes in older versions left behind, all of it pointing at something that no longer exists:
+
+- rack items still linked to a deleted asset (the item stays in the rack, the dead link is dropped)
+- assets, licenses, tickets, domains, services and certificates still pointing at a deleted vendor or domain, and certificates linked to another client's domain
+- the tasks, approvals and history of deleted tickets, the projects of deleted clients, and tickets still pointing at a deleted project
+- project template entries whose ticket template is gone, and the same service link saved twice
+
+It also gives every existing network a type (LAN, WAN, Guest and so on) guessed from its name or description, which you can change afterwards, and fills in the issue date, names covered and fingerprint of every certificate already on file.
+
+If you are coming from 26.08 or earlier, the database update still has to be run from the command line one time, exactly as described under Upgrading to 26.09 below.
+
+### Breaking Changes and Notes
+
+- Client restrictions: if you limit agents to certain clients, that limit is now applied in places it used to slip through. This covers editing, archiving or deleting the client itself, the client list's bulk actions, credits, expenses, trips, recurring expenses, revenues, task approvals, the dashboard lists and the per-client reports. A restricted agent will lose access there. Company-wide report totals are unchanged.
+- Dashboard: the Financial and Technical switches at the top of the dashboard are gone. Each part of the new dashboard shows to anyone whose role can open that part of ITFlow. If you used the switches to keep figures off someone's screen, take that module out of their role instead.
+- Notifications now follow access too. An agent only sees notifications for clients and areas they can open, so someone without sales access no longer sees invoice and quote notifications.
+- Drop-downs: Tom Select is gone, replaced by ITFlow's own picker. It works the way you are used to: type to search, tick several in a multi-select, and type a new value in fields that allow it, such as ticket watchers. See Developer Updates if you have custom pages that used Tom Select.
+- Several small windows are gone because the change is now made where the value is shown:
+  - ticket assignee, priority and billable
+  - Assign Tags on assets, clients, contacts, credentials and locations
+  - Link Closed Ticket on projects
+
+  Click the value and pick a new one, or use the + at the end of a record's tags. Each change saves straight away.
+- Tickets: a closed ticket can no longer be changed, either from the ticket's windows or through the API. Merging is only offered between tickets of the same client.
+- Invoicing a ticket: the invoice line now reads `Ticket TCK-123 - Subject - 10/14/2026`. It used to be a block of text with the agent, dates, contact, asset and time spent. You can still edit it before adding the line.
+- Calendars: only admins can add, edit or delete calendars now. Agents can still add and edit events.
+- Licenses: archiving a license keeps its seats (the devices and users on it), so restoring it brings everything back. In 26.10, archiving took the seats off.
+- Vendors: deleting a vendor that has expenses, recurring expenses or payment provider fees archives it instead, so your books keep it. Deleting any vendor now also clears it from the assets, licenses, tickets and domains that named it.
+- Locations: a client's primary location cannot be archived or deleted. Make another location primary first. Bulk archive skips primary locations.
+- Users: passwords must be at least 8 characters, and an email address can only belong to one account, agent or client portal. Existing accounts keep working. The rules apply when an account is added or changed.
+- Users: Incident Response now resets agent passwords only, where it used to reset client portal logins too. It also forgets every agent's remembered browsers, so MFA is asked for again. The new passwords are shown once on a plain page, ready to read out or copy.
+- Your account: changing your email or password, or turning MFA off, now asks for your current password. Your old address gets a notice when the email changes, and you get an email when your password changes or MFA is turned off.
+- Agent user limit, for hosting providers: an optional `$config_agent_user_limit` in config.php caps the number of active agent users. It is not set by default, so nothing changes unless you add it. Disabled and archived agents do not count toward it.
+- API:
+  - Tickets: a closed ticket cannot be updated. Creating a ticket for a client that does not exist is refused. A contact, asset or vendor belonging to another client is left off rather than saved, and the assignee has to be an active agent.
+  - Tickets: the vendor's ticket number is now text, so case numbers with letters keep them. Send it as `ticket_vendor_ticket_number`; the old `ticket_vendor_ticket_id` still works. Resolving a ticket that is already resolved does nothing.
+  - Certificates: creating one follows the same rules as the New Certificate window. A name or a host is enough. The domain has to be one of the client's, and the host is checked as it is saved.
+  - Domains: an update no longer wipes the expiry date and DNS records when the lookup comes back empty. A domain name the client already has is refused.
+  - Deleting an asset, contact, client or location through the API now also cleans up whatever pointed at it, the same as deleting it in ITFlow.
+  - New endpoint to read services, under the Support permission. Vendors take the account manager's phone and email.
+
+### New Features & Updates
+
+- **Everywhere**
+  - Search: press Ctrl+K (Cmd+K on a Mac) or click the search box in the top bar. Results show as you type, grouped by type: clients, tickets, contacts, assets, credentials, documents, files, licenses, domains, certificates, networks, IP addresses and more.
+    - A ticket, invoice or quote number comes up first, so Enter opens it straight away. Phone numbers, IP addresses and MAC addresses all match.
+    - Use the arrow keys and Enter, or Ctrl+Enter to open in a new tab. With nothing typed, it lists the clients you opened last.
+    - Search everything opens the full results page, which also searches ticket conversations and the text of documents.
+  - Notifications: the bell opens a panel with Unread and All tabs, grouped by day. Clicking one opens what it is about and marks it read. Each one can be marked read or unread, and Mark all as read clears the lot. The count updates every minute. The full Notifications page has search, type and date filters.
+  - Quick looks: most records now have a quick look, a window with the essentials that opens from the lists and from anywhere else the record is mentioned, without leaving the page you are on. Each one has a button to open the full page.
+  - Record pages: licenses, locations, vendors, racks and services have their own page now. Assets, contacts, documents, projects and networks have rebuilt pages. All of them share one layout:
+    - actions along the top
+    - the key details in cards
+    - related records in tabs with counts, and most pages remember the last tab you used
+  - Change it where you see it: ticket status, priority, assignee and billable, a project's manager, a recurring ticket's agent, an asset's status, location and contact, and a contact's location. Click the value, pick a new one, and it saves.
+  - Tags look the same on every list and record page. The + at the end adds or removes tags as you tick them, on one record or on everything you have selected. Admins can make a new tag right there.
+  - Copy buttons show up when you point at a value, such as an IP, MAC, serial, email, phone, username or password, so lists are less cluttered.
+  - Linking: one Link window handles every kind of link: files, documents, assets, contacts, licenses, vendors, credentials, services, domains and certificates. It has a tab for each type, lets you pick several at once, and only offers the client's own records that are not linked yet.
+  - Drop-downs show pictures, initials, colors and icons where they help: client, agent and contact avatars, tag and category colors, priority dots and asset types. On a phone the list comes up from the bottom of the screen.
+  - Forms have an icon in front of every field, the same across the app. Long forms are split into tabs, and most of them take you to a required field you left empty on another tab when you save.
+  - Buttons that only show an icon say what they do when you point at them.
+  - Links that delete or disable something ask first.
+  - Leaving a page with a half-written reply or note asks first, including after a window has been opened and closed on that page.
+  - The side navigation shows your company logo (Admin > Settings > Company Details) or the company's initials, with the company name wrapping onto two lines.
+  - The editor's outline follows your theme color when you click into it, like every other field.
+- **Dashboard** (rebuilt)
+  - Needs attention along the top:
+    - tickets past their SLA, unassigned tickets and overdue projects
+    - overdue and draft invoices, and resolved tickets not invoiced yet
+    - domains, certificates, licenses and warranties expiring in the next 30 days
+    - services needing attention and service reviews due
+
+    Each one opens a list of exactly those.
+  - Your day: your open tickets, your schedule for the week, your time this week, open tickets per agent (admins), and tickets opened against resolved.
+  - Finance: pick a period (this month, last 30 days, this quarter, year to date, or any year). It shows:
+    - income, expenses and profit compared with the period before
+    - receivables, and recurring revenue and expenses per month
+    - a cash flow chart that looks ahead using unpaid invoices, recurring invoices and recurring expenses
+    - receivables aging, top clients, account balances, the latest income and expenses, and trips
+- **Clients**
+  - The clients list has compact rows, filter chips you can remove one at a time, open ticket and balance columns, and tags under the industry with a + to add one. Clicking anywhere in the client's cell opens it.
+  - The client side menu shows the client's initials and name under an All clients link. Click it to switch to another client and stay on the same page.
+  - The header on every client page shows the initials, industry, tags, primary location, open tickets and balance due, with a panel that opens for more.
+  - The client overview is redesigned in two parts:
+    - Technical: needs attention (such as licenses over seats, passwords due for a change, certificate problems and services needing attention), open tickets, quick notes that save when you click away, key contacts, favorites, the next 14 days, projects, services, renewals, assets, active share links and recent activity.
+    - Financial: unpaid invoices, recurring invoices, and invoiced against paid.
+- **Tickets**
+  - The ticket list has views for Open, Mine, Unassigned, Needs reply, Waiting, Overdue, Scheduled, Closed and All.
+    - Each row shows whose move it is (yours or the client's) along with SLA and due badges, and status, priority and agent change right in the row.
+    - The SLA column can be sorted, the filters fold away, and the list has a proper phone layout.
+  - The board view is redesigned and works in dark mode. Dragging a ticket to resolved or back follows the same rules as the ticket page.
+  - The ticket page has a Details panel where you click a property to change it, with billing moved into the menu. New cards show:
+    - Site: the location's address, phone, hours, access notes and directions
+    - Vendor: their case number, support line, hours, SLA, account number and PIN, with copy buttons
+    - Also open: the client's other open tickets
+  - Replying: pick Internal note, Public note or Email reply. Nothing is picked for you, and a line says exactly who will see it. An internal note is for your team only. A public note shows in the portal but sends no email. An email reply goes to the contact and any watchers.
+  - New Ticket can start from an asset or contact, and shows when they already have open tickets.
+  - Recurring tickets can be paused and resumed or raised now. Their schedules are written out in plain words with a preview of the next run, and bulk actions are available.
+  - The ticket lists on asset, contact, location, vendor and project pages look and work like the main list.
+  - Client portal: a ticket waiting on the client says Waiting on your reply.
+- **Projects**
+  - The projects list has views for Active, Mine, Overdue, Due soon, Stalled, Over budget, Ready to close, Completed, Archived and All.
+    - Each row shows ticket and task progress bars, time logged against the budget with unbilled hours, and due badges, and the manager can be changed in place.
+    - Bulk actions can set the manager or due date, complete, reopen, archive, restore and delete. Export is to CSV or PDF.
+  - The project page shows warnings when something needs a look, and stat cards for tickets, tasks, time and due date. Tickets, Tasks and Activity are on tabs, alongside the scope, the details and the team with their hours.
+  - Projects now have a start date, budget hours and a client contact.
+    - A template can assign its tickets to the manager. You can also add a template's tickets to an existing project.
+    - Template ticket subjects can use [Client], [Project], [Month], [Quarter] and [Year].
+  - You can add tickets by picking them or by number, and completed projects can be reopened.
+  - Project templates in Admin keep their ticket templates in order, and can be duplicated, archived and restored.
+  - Projects show on the ticket page, the client overview, the dashboard, the calendar and in search.
+- **Assets**
+  - The asset list has:
+    - type icons, colored status pills and OS icons
+    - Web, SSH and RDP connect buttons, warranty warnings and rack position
+    - type tabs with counts, including a Printers tab, tag search and more sortable columns
+  - The asset page has a header with the photo, status, tags and connect buttons, then Network, Hardware, Where & who and Quick notes cards. Related records sit on tabs.
+  - Add, Edit and Copy share one form in tabs (Details, Assignment, Network, Purchase, Login or History, Notes), with a DHCP switch and photo removal.
+  - Network interfaces have their own form:
+    - the IP address is checked against the network, with next free IP and VLANs
+    - one port can be connected to another, and any interface can be made primary
+    - switches, firewalls and access points get a port map, and a whole run of ports can be added at once
+    - interfaces can be imported and exported with their VLANs and connections, and edited in bulk
+- **Racks**
+  - The rack page shows the front and rear of the rack to scale. Click an empty U to add something there.
+  - Items can be:
+    - mounted front or rear, at full or half depth
+    - non-asset items: patch panel, cable management, shelf, PDU, UPS, KVM or blanking panel
+    - edited and moved
+  - Space and power used are shown, along with the largest free gap. Racks can have front and rear photos, number U1 from the top or the bottom, and have a print view.
+  - A Not racked yet list shows what still needs a place. Racks also appear under All Client Docs, and an asset's page shows where it is racked.
+- **Contacts**
+  - The contacts list has role tabs with counts, avatars, role pills, and copy on phone, mobile and email. Location changes in place, and there are chips for linked assets, credentials, licenses and tickets, plus a tag filter.
+  - The contact page has the same layout as the asset page, with reach details, notes and tabs for everything linked to them.
+  - Add and Edit share one form in tabs (Details, Roles, Access, Notes), with role switches, a password generator, a duplicate email check and photo removal.
+  - A contact's avatar now shows everywhere they appear, in the same color throughout. Ticket contact pickers show their title and role under the name.
+- **Files and documents**
+  - Files has:
+    - a folder tree with counts, and All, Documents and Uploads tabs
+    - color-coded file type tiles, with shared and portal markers
+    - search across every folder that shows where each result lives
+    - a grid view with real previews (image thumbnails, the first page of a PDF, text excerpts), and a previewer you move through with the arrow keys
+  - Drag files onto the list to upload them into that folder. Move, archive, restore and delete files and documents together in bulk.
+  - The document page has Edit, Share, PDF, Print, Rename, Move, Link, client portal visibility, Archive and Delete. Its History card lets you view, restore or delete versions, and restoring keeps the current content as a version.
+  - Files have a quick look with a preview, the folder, who uploaded it, sharing and links.
+  - The upload window has a drop box, a file list and size checks, and it tells you about any file it skipped.
+  - Documents and files can now be linked to locations and vendors.
+  - Quote and ticket attachments show their file type. The client portal documents list shows the folder, summary and last updated date.
+- **Licenses**
+  - The license list has Renewing soon, Expired, Over seats and No seats assigned tabs. Each row has a seat bar (red when over) and a color-coded renewal date, and you can Renew, Archive, Restore and Delete in bulk.
+  - The license page has the key, order reference, vendor account and support details, all copyable. Seats, Keys, Credentials, Documents, Files and History are on tabs.
+  - Individual keys can be pasted one per line and handed out to devices and users. A key goes back to the pool when its device or user comes off the license.
+  - The Renew window, for one license or many, moves the renewal date by a term or to a set date, previews each new date, and records the new order reference.
+  - Renewal Ticket opens New Ticket already filled in. The New form has the template picker built in.
+  - Asset and contact pages list their licenses with the key to install. The client overview flags licenses over seats, and search finds licenses by name, vendor, order reference or key.
+- **Locations**
+  - The location page has:
+    - Directions and Call buttons
+    - New ticket, contact, asset, network, rack, document, upload or trip, already set to that location
+    - Move here, to move contacts, assets, networks and racks to it in one go
+    - Getting there, Ask for and Access notes that save when you click away, and tabs for everything at the location
+  - The locations list puts the primary location first, with a photo or map pin, directions, phone and hours, the on-site contact and counts of what is there.
+  - The form has tabs, and a client's first location becomes primary by itself.
+  - The export adds the primary flag, on-site contact, counts and access notes.
+- **Vendors**
+  - The vendor page is built around calling them:
+    - Call support dials the extension, alongside Email, the support site and a star
+    - a New menu for a case with them, a license, an asset, a portal login, a document, an upload, or an expense for your own vendors
+    - Support and Account cards, with the PIN hidden until you show or copy it, and the account manager's direct line and email
+    - Also used by, listing your other clients with the same vendor
+    - tabs for Cases, Licenses, Assets, Domains, Services, Logins, Documents, Files and History
+    - spend this year, last year and in total for your own vendors
+  - The vendors list puts starred vendors first and shows the support line, hours, SLA, account number and PIN. An Ours / Clients' switch is included, and All Client Docs has a view across every client.
+  - Starting a vendor from a template fills in every field. Add to Clients rolls a template out to many clients at once, and Admin > Vendor Templates shows how many clients use each one.
+  - Vendors can be tagged.
+- **Credentials**
+  - The list has:
+    - username copy and password show and copy, and a live 2FA code fetched when you ask for it
+    - where each one opens and what it is for, plus password age and when it was last used
+    - filters for Starred, With 2FA, No 2FA, Not changed in 90 days and Shared
+  - The form has a password generator (passphrase or random) and a strength meter. The 2FA secret takes spaces or an otpauth:// link, and shows the current code so you can check it.
+  - Change password dates and logs the change. Share works from anywhere: pick a contact or an email address and a time from 1 hour to 1 month. The link stops working after one view by default.
+  - The client overview lists passwords due for a change, and the rotation report lets you pick the time span.
+- **Domains**
+  - The domain list has:
+    - expiry pills (red when expired, amber when close, blue when close but set to auto-renew)
+    - the registrar and hosts, and SPF, DMARC and DKIM pills
+    - filters for Starred, Expiring in 45 days, Expired, No auto-renew and Email gaps
+  - The domain quick look explains the email checks in plain words. It also has A, NS and MX records to copy, the registrar and host logins, and the raw WHOIS.
+  - You can add several domains at once from a pasted list. A pasted web address is tidied down to the domain, and the name is checked as you type.
+  - Bulk actions can look up now, set the registrar or host, tag and star.
+  - The background check now looks at up to 50 domains a run, soonest to expire first. Expiry alerts mention auto-renew.
+  - The client portal shows days to expiry and auto-renew.
+- **Certificates**
+  - Check now connects to the host and records what it serves: the issuer, the dates, the names covered and the fingerprint. The result is OK, name mismatch, untrusted, expired or unreachable.
+  - The form has a Check button to see what the host serves before you save. For a host ITFlow cannot reach, paste the certificate or enter the issuer and expiry by hand.
+  - The list has All, Starred, Expiring soon, Expired, Problems and Not checked views, and can check in bulk.
+  - Certificates valid for 100 days or less, such as Let's Encrypt, renew themselves. They only count as expiring soon inside 20 days, and skip the 45-day alert.
+  - Certificates are checked daily, with a notification when a good one goes bad. The client overview has a Certificate problems box.
+- **Services**
+  - The services list has Needs attention, Review due, High importance, No review set, Starred and Archived views. It shows what each service depends on, and has bulk actions.
+  - The service page covers what it is, backup and recovery, who to call, and notes. Tabs list the assets it runs on, logins, domains and certificates, documents, tickets and history.
+  - Services can have a review schedule. The Review window has a checklist, and reviews due show on the dashboard and calendar, and in the nightly notifications.
+  - A service needs attention when a domain or certificate it uses is expiring, a certificate check fails, a device it runs on is out of warranty or out of action, or something linked to it has been archived.
+  - Report a problem opens a ticket linked to the service, and tickets can be linked to services from either side.
+  - Services can be archived instead of deleted.
+- **Calendar**
+  - The calendar only loads the dates on screen. Each calendar can be shown or hidden, along with scheduled tickets, project dates, service reviews, recurring tickets, renewals and invoices due.
+  - You can filter to one agent, open a quick look by clicking an item, and drag tickets and events to reschedule them. A To schedule panel lets you drag open tickets onto the calendar.
+  - Events can:
+    - repeat every few days, weeks, months or years, with an end date and single dates skipped
+    - have a client site, a location or a meeting link
+    - invite agents, contacts and guest emails, with invitations, updates and cancellations sent as real calendar invites
+    - be downloaded as a calendar file, or have the invitation sent again
+  - Every agent has a personal subscription link for their phone or mail app, with setup help for Google, Outlook, Apple, Nextcloud and Thunderbird.
+    - It can show their own schedule or the whole team's, with a busy-only option.
+    - It follows their role and client access, and stops working when the account is disabled.
+  - Repeating events keep their time across daylight saving changes in subscriptions and invites.
+  - The ticket schedule window shows the assigned agent's day.
+- **Networks**
+  - The networks list has type tiles and filters, usage bars, and the subnet, gateway, DNS and DHCP at a glance. Search finds the network an IP address belongs to.
+  - The network page has an address plan:
+    - documented addresses and device interfaces merged into one list
+    - free ranges with a Use button, plus the DHCP range, gateway and next free IP
+    - flags for conflicts, addresses in the DHCP pool, MAC mismatches, held-back addresses and addresses outside the subnet
+    - a notice when the network overlaps another one, and WAN provider details
+  - The form guesses the type from the name and shows live subnet details, with gateway and DHCP suggestions and an overlap check.
+  - Documented addresses can be fixed, a DHCP reservation with its MAC, held back or floating. Up to 256 can be added as a range, and import and export include the type and MAC.
+- **Users and your account**
+  - Admin > Users has:
+    - Users, Admins, No MFA, Disabled and Archived views, with a role filter
+    - status and MFA pills, remembered browsers and a client access summary
+    - the last sign-in with its device and IP, and a count of agent seats
+  - Bulk actions can change role, require MFA, forget remembered browsers, activate and disable.
+  - New and Edit User share one form in tabs: Details, Sign in and Client access. It has generated passwords, a picture preview, and Only or Never rules per client with search and Set all.
+  - Archiving a user hands their open tickets to another agent. Restoring asks for a new password. The export has a role filter and MFA, last sign-in and client access columns.
+  - Your account is split into Profile, Security, Preferences and Activity.
+    - The MFA QR code is drawn on the page itself.
+    - You can see your remembered browsers and forget one or all of them.
+    - You can set how many rows a list shows per page.
+- **Trips**: the driver shows as an agent pill, like ticket assignees.
+
+### Bug Fixes
+
+- Client Portal: setting up automatic payment on a recurring invoice now only works on that client's own invoice and saved card, and needs a contact with billing access. On the agent side, the saved card has to belong to the invoice's client.
+- Search: the full results page no longer puts passwords into the page. Showing or copying a password from there is logged, the same as everywhere else.
+- Credentials: saving a credential after your vault session had timed out wiped its password. That no longer happens.
+- Credentials: saved 2FA secrets with spaces or lowercase letters produced no code. Imports carried values from one row into the next and accepted any file type. Share links stayed open after their credential was deleted.
+- Credentials: a credential entered on the asset form with only a username was not saved.
+- Copy buttons in many places, such as pages that already had a window open, showed Copied! but copied nothing. Copy guest URL on invoices and quotes jumped the page to the top, and copying an empty field wiped your clipboard.
+- Tickets: an agent without sales access who edited a ticket turned billable off. Email reply was offered when no mail server was set up. The timer threw an error on resolved tickets, and the due date was not shown.
+- Assets: editing some asset types wiped the OS, firmware, purchase and warranty fields. The add form broke when there were no OS values, and bulk assigning a contact or location could change assets of another client.
+- Assets: the quick look's notes could save over the wrong asset's notes, and its Credentials tab showed without permission.
+- Racks: every rack save wiped the model. Non-admins could not archive a rack, and positions outside the rack were accepted. Deleting or transferring an asset, or deleting a client, left rack items and racks behind.
+- Contacts: saving a contact with the client portal turned off cleared their portal sign-in method. Replacing a photo tried to delete a folder. The contacts list scrolled sideways on phones, and archived assets and credentials showed on the contact page.
+- Files and documents: deleting a folder orphaned its files, documents and subfolders. They now move up a level. The upload size check was skipped, and skipped uploads were not reported.
+- Files and documents: searching with quotes did not match. PDF export needed edit access, and deleting a file or document left its links behind.
+- Licenses: editing a Subscription or Open Source license cleared its type. Adding a device or user twice caused an error, and license deletes ignored the destructive deletes setting.
+- Vendors: deleting a vendor from a template unlinked every other vendor from that template. Vendor websites without http:// did not open. New vendor templates lost the phone country code, and pushing a template update with nothing ticked caused an error.
+- Domains: lookups, edits, the background check and API updates wiped the expiry date and records when a lookup came back empty. Edits also dropped a past expiry date, and every edit waited on slow lookups.
+- Domains: expiry alerts were sent for archived domains, and bulk archive needed delete rights. A new client's website was not added as a domain when its expiry could not be found, and the WHOIS summary was cut short.
+- Certificates: deleting one logged a blank name, and certificates without an issuer organization did not read correctly.
+- Projects and services: deleting a project now keeps its tickets, and deleting a client deletes its projects. Archived services are left out of counts and lookups.
+- Records of one client can no longer be linked to another client's records: locations, contacts, vendors, assets, networks, domains, certificates, credentials, documents, files and projects.
+- Users: Your account > Activity showed other agents' sign-ins. A password with a space at the start or end was saved inconsistently, so the agent either could not sign in or could sign in but not open credentials. Passwords are now saved exactly as typed.
+- Users: disabling a user left a blank name in the audit log.
+- Notifications that linked to a page did not open correctly from Admin pages.
+- Messages showed a backslash before apostrophes and quotes in names, or showed `&amp;` instead of `&`.
+- The empty password strength meter showed on the credential form, and page numbers ran off the screen on phones.
+- Guest invoice payment pages broke instead of showing their error message.
+- Recurring tickets: if cron missed a night, that recurring ticket stopped raising tickets until someone fixed its next run date. The missed ticket is now raised on the next run and the schedule carries on.
+- Networks: Export from All Clients with no client picked did not work.
+- The add category button on the products filter did nothing.
+- Messages, hints and window titles were reworded where they were unclear, and bulk windows say "1 asset" or "3 assets" correctly.
+
+### Developer Updates
+
+- Database 2.8.0 to 2.8.9, one file per step under `admin/database_updates/`, with `db.sql` matching 2.8.9:
+  - 2.8.0: `racks.rack_units_descending`, `rack_power_capacity` and `rack_photo_rear`. On `rack_units`: `unit_face`, `unit_full_depth`, `unit_type`, `unit_power_watts`, `unit_notes` and a `unit_asset_id` key. Unlinked items move from asset id 0 to NULL.
+  - 2.8.1: `location_documents` and `location_files`.
+  - 2.8.2: `vendor_tags` (tag type 6), and `vendor_contact_phone_country_code`, `vendor_contact_phone` and `vendor_contact_email`.
+  - 2.8.3: `domain_tags` (tag type 7), and `domain_auto_renew`, `domain_dmarc`, `domain_dkim` and `domain_refreshed_at`.
+  - 2.8.4: `certificate_issued_at`, `certificate_names`, `certificate_fingerprint`, `certificate_check_status` and `certificate_checked_at`, backfilled from the stored PEM.
+  - 2.8.5: `recurring_ticket_paused_at`, and orphaned ticket task, approval, history and SLA rows removed.
+  - 2.8.6: `project_start`, `project_budget_hours`, `project_contact_id` and a `ticket_project_id` index.
+  - 2.8.7:
+    - `service_archived_at`, `service_reviewed_at` and `service_review_interval`, plus a `service_review_due` index
+    - the category and backup columns widened
+    - the service link tables deduplicated and keyed on the pair, `service_domains` foreign keys, and a new `service_tickets`
+  - 2.8.8:
+    - on events: `event_repeat_interval`, `event_repeat_until`, `event_repeat_skip`, `event_sequence` and `event_created_by`
+    - on attendees: `attendee_user_id` and `attendee_invited_at`
+    - `user_calendar_feeds`, and `email_queue.email_cal_str` changed to `text`
+  - 2.8.9:
+    - `network_type` and `network_vendor_id`, with types backfilled from the name and the CIDR prefix moved into the address
+    - `ip_type` and `ip_mac`, and `interface_vlans`
+    - `interface_network_id` and `network_location_id` indexes
+- New shared function files, loaded by `functions.php`: `functions/asset.php`, `asset_interface.php`, `certificate.php`, `client_overview.php`, `contact.php`, `credential.php`, `dashboard.php`, `links.php`, `location.php`, `notifications.php`, `project.php`, `rack.php`, `search.php`, `service.php`, `software.php`, `tags.php`, `ticket.php`, `ticket_fields.php`, `user.php` and `vendor.php`. They hold the queries and rules, so the pages, the API and cron share one definition.
+- Removed post models: `agent/post/{asset_interface,certificate,credential,domain,event,location,network_ip,network,recurring_ticket,vendor}_model.php`, `admin/post/user_model.php` and `api/v1/certificates/certificate_model.php`. Their handlers call the shared functions above. Interface handlers moved to `agent/post/asset_interface.php`.
+- New scripts: `js/itflow_select.js`, `quick_pick.js`, `tag_picker.js`, `global_search.js`, `notifications.js`, `dashboard.js`, `client_overview.js`, `client_switcher.js`, `credentials.js` and `autosubmit.js`, and `agent/js/calendar.js`, `calendar_event_modal.js`, `files.js`, `interface_form.js`, `network_form.js`, `project_modal.js` and `ticket_schedule_modal.js`.
+- New pages: `agent/license.php`, `location.php`, `rack.php`, `service.php` and `vendor.php`. The credentials, domains, certificates and tickets lists accept `?open=ID` to open a record's quick look on load.
+- Select picker: `js/itflow_select.js` is behind every `<select class="select2">`, and is loaded first in `includes/footer.php`.
+  - The native `<select>` is the only state. Setting `.value`, `option.selected`, replacing `innerHTML` or calling `form.reset()` redraws the picker by itself, and `change` fires as usual.
+  - Options take:
+    - `data-image`, `data-initials`, `data-tone`, `data-shape`, `data-soft`, `data-color`, `data-icon`, `data-description` and `data-keywords`
+    - written by `selectOptionClient()`, `selectOptionUser()`, `selectOptionContact()`, `selectOptionColor()`, `selectOptionPriority()` and `selectOptionAsset()` in `functions/format.php`
+  - The `<select>` itself takes `data-placeholder`, `data-tags="true"`, `data-search` and `data-avatar="initials"`. From script, use `select.itflowSelect.open()`, `.close()`, `.clear()` and `.setValue(v)`, and `itflowSelectAll(root)`.
+  - `js/tom_select.js` and `libs/tom-select/` are removed. Custom code that called `new TomSelect` or `.tomselect` needs updating.
+- Tags: `tagPills()` in `functions/tags.php` renders the pills and the `[data-tag-picker]` button, and `js/tag_picker.js` saves through `agent/ajax.php`. The `*_bulk_assign_tags.php` modals are removed.
+- Quick pickers: `quickPick()` in `functions/ticket_fields.php` and `js/quick_pick.js`. Changes go through `agent/ajax.php` using the same field functions the modals used, so history, audit, SLA and notifications are unchanged. `ticket_assign.php`, `ticket_billable.php` and `ticket_priority.php` modals are removed.
+- Links: `functions/links.php` is a relation registry, with:
+  - `linkAdd`, `linkRemove`, `linkRemoveAll`, `linkedRecords`, `linkCandidates` and `linkGroupsHtml`
+  - `agent/post/link.php` with `link_items` and `unlink_item`, plus the legacy link and unlink names
+  - one `modals/link/link.php`, with same-client checks on every relation
+- Search: `functions/search.php` drives both the palette (`agent/ajax.php?global_search`, `js/global_search.js`) and `agent/global_search.php`, gated by permission and `clientScopeSql()`.
+- Notifications: `functions/notifications.php` with `notificationTypeModules()` maps notification types to modules. `js/notifications.js` drives the panel, and `modals/notifications.php` is removed.
+- Client scope: `enforceClientAccess()` now runs for every selected client in the client bulk handlers and on the existing record's client in the expense, recurring expense, revenue, trip, task approval and credit handlers. `clientScopeSql()` is applied in the dashboard and per-client reports.
+- Confirmations: links with `confirm-link` ask through `js/confirm_modal.js`, which treats `btn-danger` and `btn-outline-danger` as destructive. One `beforeunload` guard covers every TinyMCE editor on the page, replacing the per-editor `window.onbeforeunload`.
+- `js/autosubmit.js` (`data-autosubmit`) replaces inline `onchange` submits in the client portal, which let the Content-Security-Policy go back on for `client/recurring_invoices.php`.
+- Copy: `js/app.js` handles `.clipboardjs` itself on click, using `navigator.clipboard` with a textarea fallback inside the trigger's modal. It still reads `data-clipboard-text`, and an empty value is refused. ClipboardJS is no longer loaded on agent pages and is now only used by `agent/user/mfa_enforcement.php`. `.itflow-copy` buttons show on hover, and `.itflow-copy-always` keeps them visible.
+- Calendar:
+  - Ticket scheduling moved into `functions/ticket.php` and is shared with the calendar.
+  - Feeds and invites write TZID and VTIMEZONE, with INTERVAL, UNTIL and EXDATE.
+  - The mail queue sends invitations and cancellations as a `text/calendar` part, and other calendar files as `invite.ics`.
+  - Ticket visit files are built without zapcal, so `libs/zapcal` is no longer used by anything.
+- Certificates: `certificateCheckAndSave()` runs the host check for the form, the API and the refresher. The refresher runs daily in a time-boxed batch, writes history and notifies when an OK certificate turns bad. Domains: `domainLookup()` and `domainApplyLookup()`, and the refresher takes 50 a run.
+- Recurring tickets: cron skips paused ones and raises a missed run once.
+- Agent user limit: `getAgentUserLimit()`, `getActiveAgentUserCount()`, `agentUserLimitReached()` and `agentUserLimitMessage()` in `functions/app.php`. These are checked when adding, activating or restoring an agent.
+- Users:
+  - `userSetPassword()` writes the hash and the vault key from the same untrimmed password.
+  - `userCheckIdentity()` validates the email format and checks it is unique across agent and client portal accounts.
+  - Signatures go through `documentHtmlPurify()`.
+  - `disable_mfa` is now a POST (`disable_your_mfa`) that needs the current password.
+  - `admin/modals/user/user_invite.php` is removed.
+  - Saving preferences no longer touches `users.user_extension_key`. The form had no extension field, so every save cleared it, and nothing else reads the key.
+- Dashboard: `user_settings.user_config_dashboard_financial_enable` and `user_config_dashboard_technical_enable` are no longer read. The columns are left in place.
+- Sidebar brand: `agent/css/sidebar_brand_fix.css` and `agent/js/sidebar_brand_fix.js` from 26.10 are replaced by CSS in `css/itflow_custom.css`. `includes/load_company_settings.php` now sets `$session_company_logo`.
+- `alertMessageHtml()` no longer double-encodes, and save messages built from `escapeSql()` values use `stripslashes()` at the flash.
+- CSS: `[hidden] { display: none !important; }` at the top of `css/itflow_custom.css`, so the `hidden` attribute wins over `d-flex` and the other display utilities. `.pagination` wraps.
+- Removed unused helpers and files:
+  - `credentialLink()`, `projectLink()`, `linkCounts()`, `assetContactAvatar()` and `clientOverviewPersonInitials()`
+  - `agent/modals/asset/asset_documents.php`, `document_bulk_move.php`, `document_add_file_relation.php` and `project_link_closed_ticket.php`
+  - `agent/js/file_delete_modal.js`, `certificate_fetch_ssl.js`, `credential_show_password_via_id.js` and `credential_show_otp_via_id.js`
+- `title` attributes were added to about 300 icon-only buttons, and `aria-label` to the show-password buttons and the portal's mobile menu button.
+- API: `api/v1/services/read.php` is new, with `services` mapped to `module_support` in `enforce_api_rbac.php`. Ticket create and update use `ticketClientOwnedId()` and `ticketAgentId()`, and certificate create uses `certificateFormSet()`.
+
+### Library Updates
+
+- Removed Tom Select, replaced by ITFlow's own `js/itflow_select.js`.
+- ClipboardJS is no longer loaded on agent pages (still shipped for the MFA enforcement page).
+
 ## [26.10]
 
 ### Upgrading to 26.10
