@@ -4,7 +4,8 @@
  * New Recurring Expense - who it is paid to, how much, how often and from
  * when (and until when, for a lease or financing), what for, from which
  * account and how. ?vendor_id= starts it with one of our vendors (from the
- * vendor's page), ?client_id= with a client.
+ * vendor's page), ?client_id= with a client, ?recurring_invoice_id= with
+ * a client and covered by that recurring invoice (from its Costs card).
  */
 
 require_once '../../../includes/modal_header.php';
@@ -14,6 +15,11 @@ enforceUserPermission('module_financial', 2);
 $form_row = null;
 $form_vendor_id = intval($_GET['vendor_id'] ?? 0);
 $form_client_id = intval($_GET['client_id'] ?? 0);
+$form_recurring_invoice_id = intval($_GET['recurring_invoice_id'] ?? 0);
+if ($form_recurring_invoice_id) {
+    // From a recurring invoice's Costs card: for its client, covered by it
+    $form_client_id = intval(getFieldById('recurring_invoices', $form_recurring_invoice_id, 'recurring_invoice_client_id'));
+}
 if ($form_client_id) {
     $client_id = $form_client_id;
     enforceClientAccess();

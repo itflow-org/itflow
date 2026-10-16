@@ -27,6 +27,7 @@ enforceUserPermission('module_financial');
 
 $can_edit = lookupUserPermission('module_financial') >= 2;
 $can_delete = lookupUserPermission('module_financial') >= 3;
+$can_sales = lookupUserPermission('module_sales') >= 1;
 
 $vendor_filter = intval($_GET['vendor'] ?? 0);
 $category_filter = intval($_GET['category'] ?? 0);
@@ -51,8 +52,10 @@ $where = expenseFiltersSql($filter_src);
 $show_query = $shows[$show]['where'] ? "AND {$shows[$show]['where']}" : '';
 $joins = expenseJoinsSql();
 
-$sql = mysqli_query($mysqli, "SELECT SQL_CALC_FOUND_ROWS expenses.*, vendor_name, vendor_archived_at, category_name, category_color, account_name, client_name, user_name
+$sql = mysqli_query($mysqli, "SELECT SQL_CALC_FOUND_ROWS expenses.*, vendor_name, vendor_archived_at, category_name, category_color, account_name, client_name, user_name,
+        invoice_prefix, invoice_number
     FROM expenses $joins
+    LEFT JOIN invoices ON invoice_id = expense_invoice_id
     WHERE $where $show_query
     ORDER BY {$sortable_columns[$sort]} $order, expense_id DESC LIMIT $record_from, $record_to");
 
@@ -228,6 +231,7 @@ $month_change = $stats['last_to_date'] > 0 ? round(($stats['month'] - $stats['la
                                     <a class="dropdown-item ajax-modal" href="#" data-modal-url="modals/expense/expense_bulk_edit.php?field=account" data-bulk="true"><i class="fas fa-fw fa-piggy-bank text-secondary me-2"></i>Set Account</a>
                                     <a class="dropdown-item ajax-modal" href="#" data-modal-url="modals/expense/expense_bulk_edit.php?field=method" data-bulk="true"><i class="fas fa-fw fa-credit-card text-secondary me-2"></i>Set Payment Method</a>
                                     <a class="dropdown-item ajax-modal" href="#" data-modal-url="modals/expense/expense_bulk_edit.php?field=client" data-bulk="true"><i class="fas fa-fw fa-user text-secondary me-2"></i>Set Client</a>
+                                    <a class="dropdown-item ajax-modal" href="#" data-modal-url="modals/expense/expense_bulk_edit.php?field=billable" data-bulk="true"><i class="fas fa-fw fa-file-invoice-dollar text-secondary me-2"></i>Set Billable</a>
                                     <?php if ($can_delete) { ?>
                                         <div class="dropdown-divider"></div>
                                         <a class="dropdown-item text-danger text-bold ajax-modal" href="#" data-modal-url="modals/expense/expense_bulk_delete.php" data-bulk="true"><i class="fas fa-fw fa-trash me-2"></i>Delete</a>
@@ -342,6 +346,12 @@ $month_change = $stats['last_to_date'] > 0 ? round(($stats['month'] - $stats['la
                     <td>
                         <?php if (intval($row['expense_client_id'])) { ?>
                             <div class="text-truncate" style="max-width: 10rem;"><a class="text-reset" href="<?= escapeHtml($filter_url(['client' => intval($row['expense_client_id'])])) ?>" title="<?= escapeHtml((string) $row['client_name']) ?> - their expenses"><?= escapeHtml($row['client_name']) ?></a></div>
+                            <?php if ($row['expense_invoice_id']) {
+                                $row_invoice = $row['invoice_number'] !== null ? $row['invoice_prefix'] . $row['invoice_number'] : 'an invoice'; ?>
+                                <div class="small"><?php if ($can_sales && $row['invoice_number'] !== null) { ?><a class="text-success-emphasis" href="invoice.php?invoice_id=<?= intval($row['expense_invoice_id']) ?>" title="Billed on to them"><i class="fas fa-check-circle me-1"></i>Billed <?= escapeHtml($row_invoice) ?></a><?php } else { ?><span class="text-success-emphasis"><i class="fas fa-check-circle me-1"></i>Billed <?= escapeHtml($row_invoice) ?></span><?php } ?></div>
+                            <?php } elseif (intval($row['expense_billable']) && $row_amount > 0) { ?>
+                                <div class="small"><?php if ($can_sales) { ?><a class="text-warning-emphasis" href="unbilled_time.php?client_id=<?= intval($row['expense_client_id']) ?>" title="Billable at <?= escapeHtml(rtrim(rtrim(number_format(floatval($row['expense_markup']), 2, '.', ''), '0'), '.')) ?>% markup - bill it from Unbilled Time"><i class="fas fa-file-invoice-dollar me-1"></i>To bill</a><?php } else { ?><span class="text-warning-emphasis"><i class="fas fa-file-invoice-dollar me-1"></i>To bill</span><?php } ?></div>
+                            <?php } ?>
                         <?php } else { ?>
                             <span class="text-body-secondary">-</span>
                         <?php } ?>

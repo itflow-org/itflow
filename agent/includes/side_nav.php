@@ -150,14 +150,14 @@
                             </p>
                         </a>
                     </li>
-                    <?php if ($config_module_enable_ticketing == 1) { ?>
+                    <?php if ($config_module_enable_ticketing == 1 || lookupUserPermission('module_financial') >= 1) { ?>
                         <li class="nav-item">
                             <a href="/agent/unbilled_time.php" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "unbilled_time.php") { echo "active"; } ?>">
                                 <i class="nav-icon fas fa-user-clock"></i>
                                 <p>
                                     Unbilled Time
-                                    <?php if ($num_unbilled_tickets) { ?>
-                                        <span class="right badge text-light" data-bs-toggle="tooltip" title="Billable tickets done, not invoiced"><?= $num_unbilled_tickets ?></span>
+                                    <?php if ($num_unbilled_tickets || $num_unbilled_expenses) { ?>
+                                        <span class="right badge text-light" data-bs-toggle="tooltip" title="<?= $num_unbilled_expenses ? "$num_unbilled_tickets billable ticket" . ($num_unbilled_tickets == 1 ? '' : 's') . " done and $num_unbilled_expenses expense" . ($num_unbilled_expenses == 1 ? '' : 's') . ' to bill, not invoiced' : 'Billable tickets done, not invoiced' ?>"><?= $num_unbilled_tickets + $num_unbilled_expenses ?></span>
                                     <?php } ?>
                                 </p>
                             </a>

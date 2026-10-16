@@ -127,7 +127,9 @@ if (isset($_GET['delete_expense'])) {
 
 /*
  * Set one thing on the ticked expenses: field = category, account, client
- * (0 takes the client off) or method ('' clears it), to value.
+ * (0 takes the client off), method ('' clears it) or billable (yes, with
+ * markup, or no), to value. Expenses already billed on an invoice keep
+ * their client and stay billed.
  */
 if (isset($_POST['bulk_edit_expenses'])) {
 
@@ -163,6 +165,21 @@ if (isset($_POST['bulk_edit_expenses'])) {
             $set = "expense_client_id = " . intval($value);
             $label = "the client to $client_name";
         }
+        if (!intval($value)) {
+            $set .= ", expense_billable = 0";
+        }
+    } elseif ($field === 'billable') {
+        $markup = billingNumberInput($_POST['markup'] ?? '');
+        if ($value === 'no') {
+            $set = "expense_billable = 0";
+            $label = "them not to bill on";
+        } elseif ($value === 'yes' && $markup !== null && $markup >= 0 && $markup <= 1000) {
+            $set = "expense_billable = 1, expense_markup = $markup";
+            $label = "them to bill on at " . rtrim(rtrim(number_format($markup, 2, '.', ''), '0'), '.') . "% markup";
+        } elseif ($value === 'yes') {
+            flashAlert('The markup is a percent, from 0 to 1000', 'error');
+            redirect();
+        }
     } elseif ($field === 'method') {
         if ($value === '') {
             $set = "expense_payment_method = NULL";
@@ -178,9 +195,16 @@ if (isset($_POST['bulk_edit_expenses'])) {
     }
 
     $count = 0;
+    $skipped = 0;
     foreach ($expense_ids as $expense_id) {
         $row = expenseRow($expense_id);
         if (!$row || $row['transfer_id'] || !intval($row['expense_vendor_id'])) {
+            continue;
+        }
+        // Billed ones keep their client and stay billed; only a client's expenses can be billed on
+        if (($row['expense_invoice_id'] && in_array($field, ['client', 'billable'], true))
+            || ($field === 'billable' && $value === 'yes' && (!intval($row['expense_client_id']) || floatval($row['expense_amount']) <= 0))) {
+            $skipped++;
             continue;
         }
         mysqli_query($mysqli, "UPDATE expenses SET $set WHERE expense_id = $expense_id");
@@ -190,7 +214,39 @@ if (isset($_POST['bulk_edit_expenses'])) {
 
     logAudit("Expense", "Bulk Edit", "$session_name set " . escapeSql($label) . " on $count expense" . ($count === 1 ? '' : 's'));
 
-    flashAlert("Set " . escapeHtml($label) . " on <strong>$count</strong> expense" . ($count === 1 ? '' : 's'));
+    flashAlert("Set " . escapeHtml($label) . " on <strong>$count</strong> expense" . ($count === 1 ? '' : 's')
+        . ($skipped ? " - $skipped left as " . ($skipped === 1 ? 'it was' : 'they were') . ($field === 'billable' && $value === 'yes' ? ' (on an invoice already, or not for a client)' : ' (on an invoice already)') : ''),
+        $count ? 'success' : 'warning');
+
+    redirect();
+
+}
+
+/*
+ * Take a billed expense off its invoice - the line comes off and it waits
+ * to be billed again. Not once the invoice is paid or cancelled.
+ */
+if (isset($_GET['expense_unbill'])) {
+
+    validateCSRFToken();
+
+    enforceUserPermission('module_financial', 2);
+    enforceUserPermission('module_sales', 2);
+
+    $expense_id = intval($_GET['expense_unbill']);
+    $row = expenseRow($expense_id);
+    $number = $row ? expenseUnbill($expense_id, $error) : '';
+    if (!$row || $number === '') {
+        flashAlert($row ? $error : 'That expense no longer exists', 'error');
+        redirect();
+    }
+
+    logAudit("Expense", "Unbill", "$session_name took the expense " . escapeSql(expenseLabel($row)) . " off invoice " . escapeSql($number), intval($row['expense_client_id']), $expense_id);
+    if ($row['invoice_status'] !== null) {
+        billingLog('invoice', intval($row['expense_invoice_id']), $row['invoice_status'], 'Expense taken off by ' . stripslashes($session_name) . ' - ' . expenseLabel($row));
+    }
+
+    flashAlert("Expense <strong>" . escapeHtml(expenseLabel($row)) . "</strong> taken off " . escapeHtml($number) . " - it is to bill again");
 
     redirect();
 
@@ -232,8 +288,9 @@ if (isExportRequest('export_expenses')) {
     // The same filters as the expenses list (functions/expenses.php)
     $where = expenseFiltersSql($_POST, $filter_summary);
 
-    $sql = mysqli_query($mysqli, "SELECT expenses.*, vendor_name, category_name, account_name, client_name, user_name
+    $sql = mysqli_query($mysqli, "SELECT expenses.*, vendor_name, category_name, account_name, client_name, user_name, invoice_prefix, invoice_number
         FROM expenses " . expenseJoinsSql() . "
+        LEFT JOIN invoices ON invoice_id = expense_invoice_id
         WHERE $where
         ORDER BY expense_date ASC, expense_id ASC");
 
@@ -247,6 +304,9 @@ if (isExportRequest('export_expenses')) {
 
         while ($row = mysqli_fetch_assoc($sql)) {
             $row['expense_receipt_display'] = $row['expense_receipt'] ? 'Yes' : 'No';
+            $markup = rtrim(rtrim(number_format(floatval($row['expense_markup']), 2, '.', ''), '0'), '.') . '%';
+            $row['expense_billing_display'] = $row['expense_invoice_id'] ? "Billed, $markup markup" : (intval($row['expense_billable']) ? "To bill, $markup markup" : '');
+            $row['expense_billed_on'] = $row['expense_invoice_id'] && $row['invoice_number'] !== null ? $row['invoice_prefix'] . $row['invoice_number'] : '';
             addExportRow($export, $row);
         }
 

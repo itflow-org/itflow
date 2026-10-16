@@ -46,8 +46,9 @@ $where = recurringExpenseFiltersSql($_GET);
 $monthly_sql = expenseRecurringMonthlySql();
 
 $sql = mysqli_query($mysqli, "SELECT SQL_CALC_FOUND_ROWS recurring_expenses.*, vendor_name, vendor_archived_at, category_name, category_color, account_name, client_name,
-        $monthly_sql AS monthly
+        $monthly_sql AS monthly, recurring_invoice_prefix, recurring_invoice_number
     FROM recurring_expenses $joins
+    LEFT JOIN recurring_invoices ON recurring_invoice_id = recurring_expense_recurring_invoice_id
     WHERE $where $status_query
     ORDER BY {$sortable_columns[$sort]} $order, recurring_expense_id ASC LIMIT $record_from, $record_to");
 
@@ -244,6 +245,11 @@ $any_filter = $q || $vendor_filter || $category_filter || $client_filter;
                     <td>
                         <?php if (intval($row['recurring_expense_client_id'])) { ?>
                             <div class="text-truncate" style="max-width: 10rem;"><a class="text-reset" href="<?= escapeHtml($filter_url(['client' => intval($row['recurring_expense_client_id'])])) ?>"><?= escapeHtml($row['client_name']) ?></a></div>
+                            <?php if ($row['recurring_invoice_number'] !== null) { ?>
+                                <div class="small text-success-emphasis text-truncate" style="max-width: 10rem;" title="Covered by their recurring invoice"><i class="fas fa-shield-alt me-1"></i>Covered by <?= escapeHtml($row['recurring_invoice_prefix'] . $row['recurring_invoice_number']) ?></div>
+                            <?php } elseif (intval($row['recurring_expense_billable'])) { ?>
+                                <div class="small text-warning-emphasis" title="Each one it records is billed on to them at <?= escapeHtml(rtrim(rtrim(number_format(floatval($row['recurring_expense_markup']), 2, '.', ''), '0'), '.')) ?>% markup"><i class="fas fa-file-invoice-dollar me-1"></i>Billed on</div>
+                            <?php } ?>
                         <?php } else { ?>
                             <span class="text-body-secondary">-</span>
                         <?php } ?>

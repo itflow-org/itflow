@@ -3208,6 +3208,9 @@ function demoBuildBilling($mysqli, $profile, $index, $client_id, $vendor_id, $mo
             'expense_client_id' => $client_id,
             'expense_category_id' => demoCategoryId($mysqli, $expense[2], 'Expense'),
             'expense_account_id' => $bank_account_id,
+            // The latest ones are still to bill on to the client, with a markup
+            'expense_billable' => $month <= 2 ? 1 : 0,
+            'expense_markup' => $month <= 2 ? '15.00' : '0.00',
             'expense_created_at' => demoMonthDateTime($month, 14, 16, 45),
         ]);
         $counts['billing']++;

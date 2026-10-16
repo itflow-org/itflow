@@ -344,14 +344,14 @@
                             </a>
                         </li>
 
-                        <?php if ($config_module_enable_ticketing == 1) { ?>
+                        <?php if ($config_module_enable_ticketing == 1 || lookupUserPermission('module_financial') >= 1) { ?>
                             <li class="nav-item">
                                 <a href="/agent/unbilled_time.php?client_id=<?= $client_id ?>" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "unbilled_time.php") { echo "active"; } ?>">
                                     <i class="nav-icon fas fa-user-clock"></i>
                                     <p>
                                         Unbilled Time
-                                        <?php if ($num_unbilled_tickets) { ?>
-                                            <span class="right badge text-light"><?= $num_unbilled_tickets ?></span>
+                                        <?php if ($num_unbilled_tickets || !empty($num_unbilled_expenses)) { ?>
+                                            <span class="right badge text-light"><?= $num_unbilled_tickets + intval($num_unbilled_expenses ?? 0) ?></span>
                                         <?php } ?>
                                     </p>
                                 </a>

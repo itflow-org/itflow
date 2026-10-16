@@ -9,7 +9,8 @@
  * as the client sees it, with its lines edited in place while it is open.
  * On the right: what has been paid and what is left, the payments, the
  * hardware sold on it and whether it is on the client's assets yet, the
- * tickets billed on it and its history.
+ * tickets and expenses billed on it (the expenses with what they cost us and
+ * the margin) and its history.
  */
 
 // If client_id is in URI then show client Side Bar and client header
@@ -59,6 +60,12 @@ $can_edit_lines = billingCanEditItems('invoice', $invoice);
 $mail_ready = !empty($config_smtp_provider) && billingEmailableContacts('invoice', $client_id) > 0;
 $saved_card = $can_take_payment && in_array($status, ['Sent', 'Viewed'], true) && invoiceHasSavedCard($client_id);
 $unbilled_tickets = $can_edit && $can_edit_lines && $config_module_enable_ticketing ? count(billingUnbilledTickets($client_id)) : 0;
+// Expenses billed on it, against what they cost us (functions/expenses.php)
+$can_see_expenses = lookupUserPermission('module_financial') >= 1;
+$can_bill_expenses = $can_edit && $can_edit_lines && lookupUserPermission('module_financial') >= 2;
+$can_unbill_expenses = $can_edit && lookupUserPermission('module_financial') >= 2 && expenseCanUnbill($status);
+$billed_expenses = $can_see_expenses ? expenseOnInvoice($invoice_id) : [];
+$unbilled_expenses = $can_bill_expenses ? count(expenseUnbilled($client_id)) : 0;
 $guest_url = billingGuestUrl('invoice', $invoice);
 // Hardware sold on it, and how much of it is on the client's assets (functions/products.php)
 $can_see_assets = lookupUserPermission('module_support') >= 1;
@@ -246,7 +253,7 @@ $paper = [
                     <?php } ?>
                     <?php if ($can_delete) { ?>
                         <a class="dropdown-item text-danger text-bold confirm-link" href="post.php?delete_invoice=<?= $invoice_id ?>&csrf_token=<?= $csrf ?>"
-                            data-confirm-text="<?= escapeHtml($number) ?> goes for good, with its lines, payments and history. Its tickets become unbilled again.">
+                            data-confirm-text="<?= escapeHtml($number) ?> goes for good, with its lines, payments and history. Its tickets become unbilled again, and its expenses are to bill again.">
                             <i class="fas fa-fw fa-trash me-2"></i>Delete
                         </a>
                     <?php } ?>
@@ -455,6 +462,53 @@ $paper = [
                     </div>
                 <?php } else { ?>
                     <div class="card-body small text-body-secondary"><?= $unbilled_tickets ?> unbilled ticket<?= $unbilled_tickets === 1 ? '' : 's' ?> for <?= escapeHtml($invoice['client_name']) ?> could go on this invoice.</div>
+                <?php } ?>
+            </div>
+        <?php } ?>
+
+        <?php if ($billed_expenses || $unbilled_expenses) {
+            $expenses_cost = array_sum(array_column($billed_expenses, 'cost'));
+            $expenses_billed = array_sum(array_map(function ($e) { return floatval($e['billed']); }, $billed_expenses)); ?>
+            <div class="card mb-3">
+                <div class="card-header d-flex align-items-center">
+                    <h3 class="card-title mb-0 me-auto"><i class="fas fa-fw fa-shopping-cart text-secondary me-2"></i>Expenses <span class="badge rounded-pill bg-secondary-subtle text-secondary-emphasis fw-normal ms-1"><?= count($billed_expenses) ?></span></h3>
+                    <?php if ($unbilled_expenses) { ?>
+                        <button type="button" class="btn btn-sm btn-outline-primary ajax-modal" data-modal-size="lg" data-modal-url="modals/invoice/invoice_add_expenses.php?invoice_id=<?= $invoice_id ?>">
+                            <i class="fas fa-plus me-1"></i>Add <span class="badge rounded-pill text-bg-primary ms-1" title="To bill"><?= $unbilled_expenses ?></span>
+                        </button>
+                    <?php } ?>
+                </div>
+                <?php if ($billed_expenses) { ?>
+                    <div class="list-group list-group-flush">
+                        <?php foreach ($billed_expenses as $expense) {
+                            $expense_id = intval($expense['expense_id']);
+                            [$line_name] = expenseBillLine($expense); ?>
+                            <div class="list-group-item">
+                                <div class="d-flex align-items-start gap-2">
+                                    <div class="flex-grow-1 min-w-0">
+                                        <a class="text-truncate d-block" href="expenses.php?open=<?= $expense_id ?>" title="<?= escapeHtml($line_name) ?>"><?= escapeHtml($line_name) ?></a>
+                                        <div class="small text-body-secondary text-truncate"><?= escapeHtml(implode(' · ', array_filter([$expense['vendor_name'], $expense['expense_date']]))) ?></div>
+                                    </div>
+                                    <?php if ($can_unbill_expenses) { ?>
+                                        <a class="btn btn-sm btn-link text-body-secondary confirm-link p-0" title="Take off the invoice" href="post.php?expense_unbill=<?= $expense_id ?>&csrf_token=<?= $csrf ?>"
+                                            data-confirm-text="<?= $status === 'Cancelled' ? 'The invoice is cancelled, so its line stays on it' : 'Its line comes off the invoice' ?> and the expense waits to be billed again.">
+                                            <i class="fas fa-fw fa-unlink"></i>
+                                        </a>
+                                    <?php } ?>
+                                </div>
+                                <div class="d-flex justify-content-between gap-2 small mt-1">
+                                    <span class="itflow-money text-nowrap"><span class="text-body-secondary">Cost <?= $money($expense['cost']) ?> &rarr;</span> <?= $expense['billed'] !== null ? $money($expense['billed']) : '<span class="text-body-secondary">line gone</span>' ?></span>
+                                    <?php if ($expense['billed'] !== null) { ?><span class="text-nowrap <?= $expense['billed'] < $expense['cost'] ? 'text-danger-emphasis' : 'text-body-secondary' ?>"><?= escapeHtml(expenseMarginText($expense['billed'], $expense['cost'])) ?></span><?php } ?>
+                                </div>
+                            </div>
+                        <?php } ?>
+                    </div>
+                    <div class="card-footer small d-flex justify-content-between gap-2">
+                        <span class="text-body-secondary">Cost <?= $money($expenses_cost) ?> &middot; billed <?= $money($expenses_billed) ?></span>
+                        <span class="fw-semibold <?= $expenses_billed < $expenses_cost ? 'text-danger-emphasis' : '' ?>"><?= escapeHtml(expenseMarginText($expenses_billed, $expenses_cost) ?: 'No charge') ?></span>
+                    </div>
+                <?php } else { ?>
+                    <div class="card-body small text-body-secondary"><?= $unbilled_expenses ?> expense<?= $unbilled_expenses === 1 ? '' : 's' ?> to bill to <?= escapeHtml($invoice['client_name']) ?> could go on this invoice.</div>
                 <?php } ?>
             </div>
         <?php } ?>

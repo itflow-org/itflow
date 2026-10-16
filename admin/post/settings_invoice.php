@@ -27,6 +27,13 @@ if (isset($_POST['edit_invoice_settings'])) {
     $config_time_item_name = trim((string) ($_POST['config_time_item_name'] ?? ''));
     $config_time_item_name = escapeSql(mb_substr($config_time_item_name !== '' ? $config_time_item_name : 'Support [Hourly]', 0, 200));
 
+    // Billable expenses - the markup they start with, a percent
+    $config_expense_markup = billingNumberInput(str_replace('%', '', (string) ($_POST['config_expense_markup'] ?? '0')));
+    if ($config_expense_markup === null || $config_expense_markup < 0 || $config_expense_markup > 1000) {
+        flashAlert('The default markup is a percent, from 0 to 1000', 'error');
+        redirect();
+    }
+
     // Reminders and statements - see billingReminderRules(). Days before the due date
     // are stored negative, the due date itself as 0, days late positive.
     $config_send_invoice_reminders = intval(!empty($_POST['config_send_invoice_reminders']));
@@ -45,7 +52,7 @@ if (isset($_POST['edit_invoice_settings'])) {
         config_invoice_reminder_repeat = $config_invoice_reminder_repeat, config_statement_monthly = $config_statement_monthly, config_statement_day = $config_statement_day,
         config_billing_email_attach_pdf = $config_billing_email_attach_pdf WHERE company_id = 1");
 
-    mysqli_query($mysqli,"UPDATE settings SET config_time_increment = $config_time_increment, config_time_rounding = '$config_time_rounding', config_time_minimum = $config_time_minimum, config_time_item_name = '$config_time_item_name' WHERE company_id = 1");
+    mysqli_query($mysqli,"UPDATE settings SET config_time_increment = $config_time_increment, config_time_rounding = '$config_time_rounding', config_time_minimum = $config_time_minimum, config_time_item_name = '$config_time_item_name', config_expense_markup = $config_expense_markup WHERE company_id = 1");
 
     mysqli_query($mysqli,"UPDATE settings SET config_invoice_prefix = '$config_invoice_prefix', config_invoice_next_number = $config_invoice_next_number, config_invoice_footer = '$config_invoice_footer', config_invoice_show_tax_id = $config_invoice_show_tax_id, config_invoice_late_fee_enable = $config_invoice_late_fee_enable, config_invoice_late_fee_percent = $config_invoice_late_fee_percent, config_invoice_paid_notification_email = '$config_invoice_paid_notification_email', config_recurring_invoice_prefix = '$config_recurring_invoice_prefix', config_recurring_invoice_next_number = $config_recurring_invoice_next_number WHERE company_id = 1");
 

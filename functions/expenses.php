@@ -38,6 +38,7 @@ function expenseRow($expense_id, $scoped = true) {
             category_name, category_color, category_icon, category_archived_at, account_name, account_archived_at, account_currency_code,
             client_name, client_abbreviation, user_name AS created_by_name, transfer_id,
             recurring_expense_frequency, recurring_expense_amount, recurring_expense_currency_code,
+            invoice_prefix, invoice_number, invoice_status, item_subtotal AS billed_subtotal,
             refunded.expense_date AS refund_of_date, refunded.expense_amount AS refund_of_amount, refunded.expense_description AS refund_of_description,
             (SELECT COALESCE(SUM(-r.expense_amount), 0) FROM expenses AS r WHERE r.expense_refund_of_id = expenses.expense_id) AS refunded_amount,
             (SELECT COUNT(*) FROM expenses AS r WHERE r.expense_refund_of_id = expenses.expense_id) AS refund_count
@@ -50,6 +51,8 @@ function expenseRow($expense_id, $scoped = true) {
         LEFT JOIN transfers ON transfer_expense_id = expenses.expense_id
         LEFT JOIN expenses AS refunded ON refunded.expense_id = expenses.expense_refund_of_id
         LEFT JOIN recurring_expenses ON recurring_expense_id = expenses.expense_recurring_expense_id
+        LEFT JOIN invoices ON invoice_id = expenses.expense_invoice_id
+        LEFT JOIN invoice_items ON item_id = expenses.expense_invoice_item_id
         WHERE expenses.expense_id = $expense_id $scope
         LIMIT 1"));
     return $row ?: null;
@@ -70,6 +73,8 @@ function expenseShows() {
         '' => ['label' => 'All', 'where' => ''],
         'client' => ['label' => 'For a client', 'icon' => 'fa-user', 'where' => 'expense_client_id > 0', 'title' => 'Filed against a client - their direct costs'],
         'no_receipt' => ['label' => 'No receipt', 'icon' => 'fa-paperclip', 'where' => "COALESCE(expense_receipt, '') = '' AND expense_amount > 0", 'title' => 'No receipt attached yet'],
+        'to_bill' => ['label' => 'To bill', 'icon' => 'fa-file-invoice-dollar', 'where' => expenseUnbilledSql(), 'title' => 'Billable to a client, and on no invoice yet'],
+        'billed' => ['label' => 'Billed', 'icon' => 'fa-check-circle', 'where' => 'expense_invoice_id IS NOT NULL', 'title' => 'Billed on to a client on an invoice'],
         'refunds' => ['label' => 'Refunds', 'icon' => 'fa-undo-alt', 'where' => 'expense_amount < 0', 'title' => 'Money that came back - refunds and credits'],
     ];
 }
@@ -314,9 +319,26 @@ function expenseSave(array $in, $expense_id = 0, &$error = '') {
     $reference = mb_substr(trim((string) ($in['reference'] ?? '')), 0, 200);
     $description = trim((string) ($in['description'] ?? ''));
 
+    // Billed on to the client - only an expense for a client, not a refund. One
+    // already on an invoice stays billed, to that client, until it comes off it.
+    $billed = $existing && !empty($existing['expense_invoice_id']);
+    if ($billed && $client_id !== intval($existing['expense_client_id'])) {
+        $error = 'It is billed on an invoice for ' . $existing['client_name'] . ' - take it off that invoice before moving it to another client';
+        return 0;
+    }
+    $billable = $billed ? 1 : intval(!empty($in['billable']) && $client_id > 0 && $amount > 0);
+    $markup_text = str_replace(['%', ' '], '', trim((string) ($in['markup'] ?? '')));
+    $markup = $markup_text === '' ? ($existing ? floatval($existing['expense_markup']) : expenseMarkupDefault()) : floatval($markup_text);
+    if ($billable && ($markup_text !== '' && !is_numeric($markup_text) || $markup < 0 || $markup > 1000)) {
+        $error = 'The markup is a percent, from 0 to 1000';
+        return 0;
+    }
+    $markup = round(max(0, min(1000, $markup)), 2);
+
     $set = "expense_date = '$date', expense_amount = $amount, expense_vendor_id = $vendor, expense_category_id = $category,
         expense_account_id = $account, expense_client_id = $client_id, expense_payment_method = " . ($method === '' ? 'NULL' : "'" . escapeSql($method) . "'") . ",
-        expense_reference = '" . escapeSql($reference) . "', expense_description = '" . escapeSql($description) . "'";
+        expense_reference = '" . escapeSql($reference) . "', expense_description = '" . escapeSql($description) . "',
+        expense_billable = $billable, expense_markup = $markup";
 
     if ($existing) {
         mysqli_query($mysqli, "UPDATE expenses SET $set WHERE expense_id = $expense_id");
@@ -498,7 +520,8 @@ function recurringExpenseRow($recurring_expense_id, $scoped = true) {
     $scope = $scoped ? clientScopeSql('recurring_expense_client_id') : '';
     $row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT recurring_expenses.*, vendor_name, vendor_description, vendor_archived_at,
             category_name, category_color, category_icon, category_archived_at, account_name, account_archived_at, account_currency_code,
-            client_name, client_abbreviation,
+            client_name, client_abbreviation, recurring_invoice_prefix, recurring_invoice_number, recurring_invoice_amount, recurring_invoice_frequency,
+            recurring_invoice_status, recurring_invoice_archived_at,
             (SELECT COUNT(*) FROM expenses WHERE expense_recurring_expense_id = $id) AS made_count,
             (SELECT COALESCE(SUM(expense_amount), 0) FROM expenses WHERE expense_recurring_expense_id = $id AND YEAR(expense_date) = YEAR(CURDATE())) AS made_year
         FROM recurring_expenses
@@ -506,6 +529,7 @@ function recurringExpenseRow($recurring_expense_id, $scoped = true) {
         LEFT JOIN categories ON category_id = recurring_expense_category_id
         LEFT JOIN accounts ON account_id = recurring_expense_account_id
         LEFT JOIN clients ON client_id = recurring_expense_client_id
+        LEFT JOIN recurring_invoices ON recurring_invoice_id = recurring_expense_recurring_invoice_id
         WHERE recurring_expense_id = $id $scope
         LIMIT 1"));
     return $row ?: null;
@@ -712,6 +736,25 @@ function recurringExpenseSave(array $in, $recurring_expense_id = 0, &$error = ''
     $reference = mb_substr(trim((string) ($in['reference'] ?? '')), 0, 255);
     $description = trim((string) ($in['description'] ?? ''));
 
+    // For a client: billed on as each one is recorded, or covered by one of their recurring invoices
+    $billing = $client_id ? (string) ($in['billing'] ?? '') : '';
+    $billable = $billing === 'bill' ? 1 : 0;
+    $markup_text = str_replace(['%', ' '], '', trim((string) ($in['markup'] ?? '')));
+    $markup = $markup_text === '' ? ($existing ? floatval($existing['recurring_expense_markup']) : expenseMarkupDefault()) : floatval($markup_text);
+    if ($billable && ($markup_text !== '' && !is_numeric($markup_text) || $markup < 0 || $markup > 1000)) {
+        $error = 'The markup is a percent, from 0 to 1000';
+        return 0;
+    }
+    $markup = round(max(0, min(1000, $markup)), 2);
+    $covered_by = 0;
+    if ($billing === 'covered') {
+        $covered_by = intval($in['recurring_invoice_id'] ?? 0);
+        if (!isset(recurringExpenseCoverOptions($client_id, $existing ? intval($existing['recurring_expense_recurring_invoice_id']) : 0)[$covered_by])) {
+            $error = "Pick the client's recurring invoice that covers it";
+            return 0;
+        }
+    }
+
     // The day it runs on follows the next date when that is set or moved
     $anchor = (!$existing || $next !== (string) $existing['recurring_expense_next_date']) ? intval(substr($next, 8, 2)) : intval($existing['recurring_expense_anchor_day']);
     $ended = $end !== '' && $next > $end;
@@ -729,7 +772,8 @@ function recurringExpenseSave(array $in, $recurring_expense_id = 0, &$error = ''
         recurring_expense_next_date = '$next', recurring_expense_end_date = " . ($end === '' ? 'NULL' : "'$end'") . ", recurring_expense_status = $status,
         recurring_expense_category_id = $category, recurring_expense_account_id = $account, recurring_expense_client_id = $client_id,
         recurring_expense_payment_method = " . ($method === '' ? 'NULL' : "'" . escapeSql($method) . "'") . ",
-        recurring_expense_reference = '" . escapeSql($reference) . "', recurring_expense_description = '" . escapeSql($description) . "'";
+        recurring_expense_reference = '" . escapeSql($reference) . "', recurring_expense_description = '" . escapeSql($description) . "',
+        recurring_expense_billable = $billable, recurring_expense_markup = $markup, recurring_expense_recurring_invoice_id = " . ($covered_by ?: 'NULL');
 
     if ($existing) {
         mysqli_query($mysqli, "UPDATE recurring_expenses SET $set WHERE recurring_expense_id = $id");
@@ -780,7 +824,8 @@ function recurringExpenseRecord($recurring_expense_id, $by_user_id = 0, $run = n
         expense_client_id = " . intval($row['recurring_expense_client_id']) . ", expense_category_id = " . intval($row['recurring_expense_category_id']) . ",
         expense_account_id = " . intval($row['recurring_expense_account_id']) . ", expense_payment_method = " . ($method === '' ? 'NULL' : "'" . escapeSql($method) . "'") . ",
         expense_reference = '" . escapeSql($row['recurring_expense_reference']) . "', expense_description = '" . escapeSql($row['recurring_expense_description']) . "',
-        expense_created_by = " . intval($by_user_id) . ", expense_recurring_expense_id = $id");
+        expense_created_by = " . intval($by_user_id) . ", expense_recurring_expense_id = $id,
+        expense_billable = " . (intval($row['recurring_expense_billable']) && intval($row['recurring_expense_client_id']) ? 1 : 0) . ", expense_markup = " . floatval($row['recurring_expense_markup']));
     $expense_id = mysqli_insert_id($mysqli);
 
     $label = recurringExpenseLabel($row);
@@ -829,4 +874,463 @@ function recurringExpenseLabel(array $row) {
     return trim(($row['vendor_name'] ?? 'Recurring expense') . ' ' . billingMoney($row['recurring_expense_amount'], $row['recurring_expense_currency_code']) . ' '
         . strtolower(recurringInvoiceFrequencies()[$row['recurring_expense_frequency']] ?? 'monthly')
         . ($description !== '' ? ' - ' . mb_strimwidth($description, 0, 60, '...') : ''));
+}
+
+/* ------------------------------------------------- Billing expenses on */
+
+/*
+ * An expense for a client can be billed on to them: billable, with a markup
+ * on its cost (what it came to, less anything refunded). Until it is on an
+ * invoice it waits in Unbilled Time and the invoice's Expenses card; once
+ * billed it points at the invoice and line (expense_invoice_id,
+ * expense_invoice_item_id). Taking the line off - or deleting the invoice -
+ * makes it to bill again. A client's recurring expense can be billed on as
+ * each one is recorded, or be covered by one of their recurring invoices,
+ * which then shows its cost against what it bills.
+ */
+
+/** The markup a billable expense starts with, as a percent - Admin > Settings > Invoice. */
+function expenseMarkupDefault() {
+    global $mysqli;
+    static $markup = null;
+    if ($markup !== null) {
+        return $markup;
+    }
+    try {
+        $markup = floatval(mysqli_fetch_row(mysqli_query($mysqli, "SELECT config_expense_markup FROM settings WHERE company_id = 1"))[0] ?? 0);
+    } catch (mysqli_sql_exception $e) {
+        $markup = 0.0;
+    }
+    return $markup;
+}
+
+/** What a cost bills at with its markup, to the cent. */
+function expenseBillPrice($cost, $markup) {
+    return round(floatval($cost) * (1 + floatval($markup) / 100), 2);
+}
+
+/** The SQL that makes an expense to bill: billable, for a client, with a vendor and an amount, on no invoice yet. */
+function expenseUnbilledSql() {
+    return "expense_billable = 1 AND expense_invoice_id IS NULL AND expense_client_id > 0 AND expense_vendor_id > 0 AND expense_amount > 0 AND expense_archived_at IS NULL";
+}
+
+/**
+ * Expenses to bill - one client's ($client_id) or every client the agent
+ * can open (0), optionally only $ids - oldest first. Each with its vendor,
+ * category and client, its cost (less refunds), the price its markup makes
+ * of that, and the days since it was paid. Fully refunded ones are left out.
+ */
+function expenseUnbilled($client_id = 0, array $ids = []) {
+    global $mysqli;
+    $client_id = intval($client_id);
+    $ids = array_filter(array_map('intval', $ids));
+    $where = expenseUnbilledSql() . ($client_id ? " AND expense_client_id = $client_id" : '') . ($ids ? ' AND expense_id IN (' . implode(',', $ids) . ')' : '')
+        . ' ' . clientScopeSql('expense_client_id');
+    $rows = [];
+    $sql = mysqli_query($mysqli, "SELECT expenses.*, vendor_name, category_name, client_name, client_abbreviation,
+            (SELECT COALESCE(SUM(-r.expense_amount), 0) FROM expenses AS r WHERE r.expense_refund_of_id = expenses.expense_id) AS refunded,
+            DATEDIFF(CURDATE(), expense_date) AS waiting
+        FROM expenses
+        JOIN clients ON client_id = expense_client_id
+        LEFT JOIN vendors ON vendor_id = expense_vendor_id
+        LEFT JOIN categories ON category_id = expense_category_id
+        WHERE $where
+        ORDER BY client_name ASC, expense_date ASC, expense_id ASC");
+    while ($row = mysqli_fetch_assoc($sql)) {
+        $row['cost'] = round(floatval($row['expense_amount']) - floatval($row['refunded']), 2);
+        if ($row['cost'] <= 0) {
+            continue;
+        }
+        $row['price'] = expenseBillPrice($row['cost'], $row['expense_markup']);
+        $row['waiting'] = max(0, intval($row['waiting']));
+        $rows[intval($row['expense_id'])] = $row;
+    }
+    return $rows;
+}
+
+/** The same, by client - each with its expenses, their cost and price, and how long the oldest has waited. */
+function expenseUnbilledByClient($client_id = 0) {
+    $clients = [];
+    foreach (expenseUnbilled($client_id) as $id => $expense) {
+        $cid = intval($expense['expense_client_id']);
+        if (!isset($clients[$cid])) {
+            $clients[$cid] = ['client_id' => $cid, 'client_name' => $expense['client_name'], 'client_abbreviation' => $expense['client_abbreviation'],
+                'expenses' => [], 'cost' => 0.0, 'value' => 0.0, 'oldest' => 0];
+        }
+        $clients[$cid]['expenses'][$id] = $expense;
+        $clients[$cid]['cost'] += $expense['cost'];
+        $clients[$cid]['value'] += $expense['price'];
+        $clients[$cid]['oldest'] = max($clients[$cid]['oldest'], $expense['waiting']);
+    }
+    return $clients;
+}
+
+/** How many expenses are waiting to be billed, and what they come to - every client the agent can open, or one - for the menu, the dashboard and the client's overview. */
+function expenseUnbilledCount($client_id = 0) {
+    global $mysqli;
+    $client_id = intval($client_id);
+    $row = mysqli_fetch_row(mysqli_query($mysqli, "SELECT COUNT(*), COALESCE(SUM(ROUND((expense_amount - refunded) * (1 + expense_markup / 100), 2)), 0)
+        FROM (SELECT expense_amount, expense_markup,
+                (SELECT COALESCE(SUM(-r.expense_amount), 0) FROM expenses AS r WHERE r.expense_refund_of_id = expenses.expense_id) AS refunded
+            FROM expenses
+            WHERE " . expenseUnbilledSql() . ($client_id ? " AND expense_client_id = $client_id" : '') . ' ' . clientScopeSql('expense_client_id') . ") AS waiting
+        WHERE expense_amount - refunded > 0"));
+    return ['count' => intval($row[0]), 'value' => round(floatval($row[1]), 2)];
+}
+
+/** The invoice line an expense goes on as - [name, description]. Raw. */
+function expenseBillLine(array $expense) {
+    $lines = preg_split('/\R/', trim((string) $expense['expense_description']));
+    $name = trim((string) array_shift($lines));
+    if ($name === '') {
+        $name = trim((string) ($expense['category_name'] ?? '')) ?: 'Expense';
+    }
+    $description = implode(' - ', array_filter([
+        $expense['vendor_name'] ?? '',
+        date('m/d/Y', strtotime((string) $expense['expense_date'])),
+        trim((string) $expense['expense_reference']) !== '' ? '#' . trim((string) $expense['expense_reference']) : '',
+    ]));
+    $rest = trim(implode("\n", $lines));
+    return [mb_substr($name, 0, 200), $rest !== '' ? "$rest\n$description" : $description];
+}
+
+/**
+ * Bill expenses on an invoice, a line each. $prices is expense id => price
+ * (null: the cost with its markup). Only the client's expenses still to
+ * bill are taken, and each is claimed first, so two agents can't bill one
+ * twice. $opts:
+ *   invoice_id   one of the client's invoices whose lines can change, or 0 for a new draft
+ *   date, category_id, scope   for a new draft
+ *   tax_id       the tax on the lines
+ *   by           who, for the history and audit log
+ * Returns [invoice_id, number, new, expenses (count), amount, cost, lines], or null with $error.
+ */
+function expenseBillInvoice($client_id, array $prices, array $opts, &$error = '') {
+    global $mysqli;
+    $error = '';
+    $client_id = intval($client_id);
+    $by = (string) ($opts['by'] ?? 'ITFlow');
+    $expenses = $prices ? expenseUnbilled($client_id, array_keys($prices)) : [];
+    if (!$client_id || !$expenses) {
+        $error = 'Nothing to bill - those expenses are already on an invoice, or no longer billable.';
+        return null;
+    }
+
+    $bill = [];
+    foreach ($expenses as $id => $expense) {
+        $value = $prices[$id] ?? null;
+        $price = ($value === null || trim((string) $value) === '') ? $expense['price'] : billingNumberInput($value);
+        if ($price === null || $price < 0 || $price >= 1e9) {
+            $error = 'The price for ' . ($expense['vendor_name'] ?: 'an expense') . ' on ' . $expense['expense_date'] . ' has to be a number, zero or more.';
+            return null;
+        }
+        $bill[$id] = round($price, 2);
+    }
+    $tax_id = intval($opts['tax_id'] ?? 0);
+    if ($tax_id && !mysqli_num_rows(mysqli_query($mysqli, "SELECT tax_id FROM taxes WHERE tax_id = $tax_id"))) {
+        $error = 'That tax no longer exists.';
+        return null;
+    }
+
+    $invoice_id = intval($opts['invoice_id'] ?? 0);
+    $new = false;
+    if ($invoice_id) {
+        $invoice = billingRow('invoice', $invoice_id);
+        if (!$invoice || intval($invoice['client_id']) !== $client_id || !billingCanEditItems('invoice', $invoice)) {
+            $error = "That invoice isn't one of the client's you can still add to.";
+            return null;
+        }
+    } else {
+        $invoice_id = billingInvoiceCreate($client_id, $opts['date'] ?? '', $opts['category_id'] ?? 0, $opts['scope'] ?? '', $by);
+        if (!$invoice_id) {
+            $error = "The invoice couldn't be made.";
+            return null;
+        }
+        $new = true;
+    }
+    $number = billingNumber('invoice', billingRow('invoice', $invoice_id, false));
+
+    // Claim them - only those still to bill go on
+    $in = implode(',', array_keys($bill));
+    mysqli_query($mysqli, "UPDATE expenses SET expense_invoice_id = $invoice_id WHERE expense_id IN ($in) AND expense_client_id = $client_id AND " . expenseUnbilledSql());
+    $claimed = [];
+    $sql = mysqli_query($mysqli, "SELECT expense_id FROM expenses WHERE expense_invoice_id = $invoice_id AND expense_id IN ($in) AND expense_invoice_item_id IS NULL");
+    while ($row = mysqli_fetch_row($sql)) {
+        $claimed[intval($row[0])] = true;
+    }
+    if (!$claimed) {
+        if ($new) {
+            mysqli_query($mysqli, "DELETE FROM history WHERE history_invoice_id = $invoice_id");
+            mysqli_query($mysqli, "DELETE FROM invoices WHERE invoice_id = $invoice_id");
+        }
+        $error = 'Nothing to bill - someone else billed those expenses just now.';
+        return null;
+    }
+
+    $lines = 0;
+    $amount = 0.0;
+    $cost = 0.0;
+    foreach ($bill as $id => $price) {
+        if (!isset($claimed[$id])) {
+            continue;
+        }
+        $expense = $expenses[$id];
+        [$name, $description] = expenseBillLine($expense);
+        $item_id = billingItemSave('invoice', $invoice_id, ['name' => $name, 'description' => $description, 'qty' => 1, 'price' => $price, 'tax_id' => $tax_id], 0, $line_error);
+        if (!$item_id) {
+            mysqli_query($mysqli, "UPDATE expenses SET expense_invoice_id = NULL WHERE expense_id = $id AND expense_invoice_id = $invoice_id");
+            continue;
+        }
+        mysqli_query($mysqli, "UPDATE expenses SET expense_invoice_item_id = " . intval($item_id) . " WHERE expense_id = $id");
+        $lines++;
+        $amount += $price;
+        $cost += $expense['cost'];
+        logAudit('Expense', 'Bill', escapeSql("$by billed " . expenseLabel($expense) . " on invoice $number at " . billingMoney($price, $expense['expense_currency_code'])), $client_id, $id);
+    }
+    billingRecalc('invoice', $invoice_id);
+
+    $invoice = billingRow('invoice', $invoice_id, false);
+    $currency = (string) $invoice['invoice_currency_code'];
+    $what = $lines === 1 ? '1 expense' : "$lines expenses";
+    billingLog('invoice', $invoice_id, $invoice['invoice_status'], ucfirst($what) . " billed by $by - " . billingMoney($amount, $currency) . ' on ' . billingMoney($cost, $currency) . ' of cost');
+    logAudit('Invoice', $new ? 'Create' : 'Edit', escapeSql("$by billed $what on invoice $number - " . billingMoney($amount, $currency)), $client_id, $invoice_id);
+    if ($new) {
+        triggerCustomAction('invoice_create', $invoice_id);
+    }
+
+    return ['invoice_id' => $invoice_id, 'number' => $number, 'new' => $new, 'expenses' => $lines, 'amount' => round($amount, 2), 'cost' => round($cost, 2), 'lines' => $lines];
+}
+
+/**
+ * Can an expense come off an invoice in this status: while its lines can
+ * change, or once it is cancelled - not once it is paid or non-billable.
+ */
+function expenseCanUnbill($invoice_status) {
+    return $invoice_status !== null && lookupUserPermission('module_sales') >= 2 && !in_array($invoice_status, ['Paid', 'Non-Billable'], true);
+}
+
+/**
+ * Take an expense off the invoice it was billed on - its line comes off,
+ * and it is to bill again. On a cancelled invoice the line stays, as the
+ * invoice was, and only the link goes. Refused once the invoice is paid or
+ * non-billable. The invoice number it came off, or '' with $error.
+ */
+function expenseUnbill($expense_id, &$error = '') {
+    global $mysqli;
+    $error = '';
+    $row = expenseRow($expense_id);
+    if (!$row || !$row['expense_invoice_id']) {
+        $error = "That expense isn't on an invoice";
+        return '';
+    }
+    $invoice = billingRow('invoice', intval($row['expense_invoice_id']), false);
+    $id = intval($row['expense_id']);
+    if (!$invoice) {
+        mysqli_query($mysqli, "UPDATE expenses SET expense_invoice_id = NULL, expense_invoice_item_id = NULL WHERE expense_id = $id");
+        return 'an invoice since deleted';
+    }
+    $number = billingNumber('invoice', $invoice);
+    if (!expenseCanUnbill($invoice['invoice_status'])) {
+        $error = "$number is " . strtolower($invoice['invoice_status']) . " - its lines can't change any more";
+        return '';
+    }
+    if ($row['expense_invoice_item_id'] && $invoice['invoice_status'] !== 'Cancelled') {
+        billingItemDelete('invoice', intval($invoice['invoice_id']), intval($row['expense_invoice_item_id']));
+    }
+    mysqli_query($mysqli, "UPDATE expenses SET expense_invoice_id = NULL, expense_invoice_item_id = NULL WHERE expense_id = $id");
+    return $number;
+}
+
+/** The expenses billed on an invoice - each with its cost (less refunds) and what its line bills before tax. */
+function expenseOnInvoice($invoice_id) {
+    global $mysqli;
+    $invoice_id = intval($invoice_id);
+    $rows = [];
+    $sql = mysqli_query($mysqli, "SELECT expenses.*, vendor_name, category_name, item_subtotal,
+            (SELECT COALESCE(SUM(-r.expense_amount), 0) FROM expenses AS r WHERE r.expense_refund_of_id = expenses.expense_id) AS refunded
+        FROM expenses
+        LEFT JOIN vendors ON vendor_id = expense_vendor_id
+        LEFT JOIN categories ON category_id = expense_category_id
+        LEFT JOIN invoice_items ON item_id = expense_invoice_item_id
+        WHERE expense_invoice_id = $invoice_id
+        ORDER BY expense_date ASC, expense_id ASC");
+    while ($row = mysqli_fetch_assoc($sql)) {
+        $row['cost'] = round(floatval($row['expense_amount']) - floatval($row['refunded']), 2);
+        $row['billed'] = $row['item_subtotal'] !== null ? floatval($row['item_subtotal']) : null;
+        $rows[] = $row;
+    }
+    return $rows;
+}
+
+/** "18% margin" - what is left of a price after its cost, as a share of the price. */
+function expenseMarginText($price, $cost) {
+    $price = floatval($price);
+    if ($price <= 0) {
+        return '';
+    }
+    return round(($price - floatval($cost)) / $price * 100) . '% margin';
+}
+
+/** A client's recurring invoices a recurring expense can be covered by - id => row. */
+function recurringExpenseCoverOptions($client_id, $keep_id = 0) {
+    global $mysqli;
+    $client_id = intval($client_id);
+    $keep_id = intval($keep_id);
+    $rows = [];
+    if (!$client_id) {
+        return $rows;
+    }
+    $sql = mysqli_query($mysqli, "SELECT recurring_invoice_id, recurring_invoice_prefix, recurring_invoice_number, recurring_invoice_scope, recurring_invoice_amount,
+            recurring_invoice_frequency, recurring_invoice_currency_code, recurring_invoice_status
+        FROM recurring_invoices
+        WHERE recurring_invoice_client_id = $client_id AND (recurring_invoice_archived_at IS NULL OR recurring_invoice_id = $keep_id)
+        ORDER BY recurring_invoice_status DESC, recurring_invoice_number ASC");
+    while ($row = mysqli_fetch_assoc($sql)) {
+        $rows[intval($row['recurring_invoice_id'])] = $row;
+    }
+    return $rows;
+}
+
+/** The recurring expenses a recurring invoice covers - each with what it costs a month, and whether it is running (not paused or ended). */
+function recurringExpensesCovering($recurring_invoice_id) {
+    global $mysqli;
+    $id = intval($recurring_invoice_id);
+    $rows = [];
+    $sql = mysqli_query($mysqli, "SELECT recurring_expenses.*, vendor_name, category_name, category_color, " . expenseRecurringMonthlySql() . " AS monthly
+        FROM recurring_expenses
+        LEFT JOIN vendors ON vendor_id = recurring_expense_vendor_id
+        LEFT JOIN categories ON category_id = recurring_expense_category_id
+        WHERE recurring_expense_recurring_invoice_id = $id AND recurring_expense_archived_at IS NULL
+        ORDER BY recurring_expense_status DESC, vendor_name ASC");
+    while ($row = mysqli_fetch_assoc($sql)) {
+        $row['monthly'] = floatval($row['monthly']);
+        $row['running'] = recurringExpenseState($row) === 'active';
+        $rows[] = $row;
+    }
+    return $rows;
+}
+
+/**
+ * A recurring invoice against the recurring expenses it covers, a month:
+ * revenue (what it bills a month before tax), cost (the running ones), the
+ * margin left and as a percent of revenue, and the rows.
+ */
+function recurringInvoiceCosts($recurring_invoice_id) {
+    global $mysqli;
+    $id = intval($recurring_invoice_id);
+    $invoice = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT recurring_invoice_amount, recurring_invoice_frequency,
+            (SELECT COALESCE(SUM(item_tax), 0) FROM recurring_invoice_items WHERE item_recurring_invoice_id = $id) AS tax
+        FROM recurring_invoices WHERE recurring_invoice_id = $id"));
+    $rows = recurringExpensesCovering($id);
+    $revenue = $invoice ? round(recurringInvoiceMonthly(floatval($invoice['recurring_invoice_amount']) - floatval($invoice['tax']), $invoice['recurring_invoice_frequency']), 2) : 0.0;
+    $cost = 0.0;
+    foreach ($rows as $row) {
+        if ($row['running']) {
+            $cost += $row['monthly'];
+        }
+    }
+    $cost = round($cost, 2);
+    return ['rows' => $rows, 'revenue' => $revenue, 'cost' => $cost, 'margin' => round($revenue - $cost, 2),
+        'percent' => $revenue > 0 ? round(($revenue - $cost) / $revenue * 100) : null];
+}
+
+/* ------------------------------------------------- Unbilled Time, with expenses */
+
+/**
+ * Unbilled Time's clients (billingUnbilledByClient()) with their expenses to
+ * bill as well: each gets expenses, expense_cost and expense_value, a client
+ * with only expenses waiting is added (no tickets, with their rate and
+ * drafts), and the oldest counts the expenses too. Sorted by what it all
+ * comes to. One client's ($client_id) or every client the agent can open.
+ */
+function expenseUnbilledMerge(array $clients, $client_id = 0) {
+    global $mysqli;
+    foreach ($clients as $id => $c) {
+        $clients[$id] += ['expenses' => [], 'expense_cost' => 0.0, 'expense_value' => 0.0];
+    }
+    $added = [];
+    foreach (expenseUnbilledByClient($client_id) as $id => $e) {
+        if (!isset($clients[$id])) {
+            $client_rate = getFieldById('clients', $id, 'client_rate');
+            $clients[$id] = ['client_id' => $id, 'client_name' => $e['client_name'], 'client_abbreviation' => $e['client_abbreviation'],
+                'rate' => billingTimeRate($client_rate), 'default_rate' => floatval($client_rate) <= 0, 'tickets' => [], 'seconds' => 0, 'hours' => 0.0,
+                'value' => 0.0, 'oldest' => 0, 'no_time' => 0, 'drafts' => []];
+            $added[] = intval($id);
+        }
+        $clients[$id]['expenses'] = $e['expenses'];
+        $clients[$id]['expense_cost'] = round($e['cost'], 2);
+        $clients[$id]['expense_value'] = round($e['value'], 2);
+        $clients[$id]['oldest'] = max($clients[$id]['oldest'], $e['oldest']);
+    }
+    if ($added) {
+        $sql = mysqli_query($mysqli, "SELECT invoice_id, invoice_prefix, invoice_number, invoice_scope, invoice_date, invoice_amount, invoice_client_id FROM invoices
+            WHERE invoice_status = 'Draft' AND invoice_archived_at IS NULL AND invoice_client_id IN (" . implode(',', $added) . ")
+            ORDER BY invoice_date DESC, invoice_id DESC");
+        while ($row = mysqli_fetch_assoc($sql)) {
+            $clients[intval($row['invoice_client_id'])]['drafts'][intval($row['invoice_id'])] = $row;
+        }
+    }
+    uasort($clients, function ($a, $b) {
+        return ($b['value'] + $b['expense_value']) <=> ($a['value'] + $a['expense_value'])
+            ?: (count($b['tickets']) + count($b['expenses'])) <=> (count($a['tickets']) + count($a['expenses']));
+    });
+    return $clients;
+}
+
+/**
+ * Bill a client's tickets ($hours: ticket id => hours, null for what the
+ * time comes to) and expenses ($prices: expense id => price, null for the
+ * cost with its markup) on one invoice - the time first, then the expenses
+ * on the same invoice. Either can be empty. $opts as billingTimeInvoice()
+ * takes them (the tax goes on the expense lines too). Returns
+ * [invoice_id, number, new, time (billingTimeInvoice's result or null),
+ * expenses (expenseBillInvoice's or null), error (what didn't go on)], or
+ * null with $error when nothing went on.
+ */
+function expenseBillWithTime($client_id, array $hours, array $prices, array $opts, &$error = '') {
+    $error = '';
+    if (!$hours && !$prices) {
+        $error = 'Nothing to bill - tick the tickets or expenses to bill.';
+        return null;
+    }
+    $time = null;
+    $time_error = '';
+    if ($hours) {
+        $time = billingTimeInvoice($client_id, $hours, $opts, $time_error);
+        if (!$time && !$prices) {
+            $error = $time_error;
+            return null;
+        }
+    }
+    $expenses = null;
+    $expense_error = '';
+    if ($prices) {
+        $expense_opts = $opts;
+        if ($time) {
+            $expense_opts['invoice_id'] = $time['invoice_id'];
+        }
+        $expenses = expenseBillInvoice($client_id, $prices, $expense_opts, $expense_error);
+    }
+    if (!$time && !$expenses) {
+        $error = trim($time_error . ' ' . $expense_error);
+        return null;
+    }
+    $first = $time ?: $expenses;
+    return ['invoice_id' => $first['invoice_id'], 'number' => $first['number'], 'new' => !empty($first['new']), 'time' => $time, 'expenses' => $expenses,
+        'error' => trim(($hours && !$time ? $time_error : '') . ' ' . ($prices && !$expenses ? $expense_error : ''))];
+}
+
+/** The client's ticked expenses to bill aren't billable after all - their labels. */
+function expenseWriteOff($client_id, array $expense_ids, $by) {
+    global $mysqli;
+    $expenses = $expense_ids ? expenseUnbilled($client_id, $expense_ids) : [];
+    $done = [];
+    foreach ($expenses as $expense_id => $expense) {
+        mysqli_query($mysqli, "UPDATE expenses SET expense_billable = 0 WHERE expense_id = $expense_id AND expense_invoice_id IS NULL AND expense_billable = 1");
+        if (mysqli_affected_rows($mysqli) === 1) {
+            logAudit('Expense', 'Edit', escapeSql("$by marked the expense " . expenseLabel($expense) . ' not billable'), intval($client_id), $expense_id);
+            $done[] = expenseLabel($expense);
+        }
+    }
+    return $done;
 }

@@ -2,10 +2,12 @@
  * Unbilled Time (agent/unbilled_time.php).
  *
  * One client: tick the tickets to bill and change their hours - each row's
- * amount, and the total at the rate and tax picked, follow as you type.
+ * amount, and the total at the rate and tax picked, follow as you type. The
+ * same for its expenses and their prices, each with its margin on its cost.
  * Every client: tick the clients to bill - the total is what their tickets
- * come to now. Either way the button says what it will make, and the new
- * invoice's date, category and scope only show when there is a new one.
+ * and expenses come to now. Either way the button says what it will make,
+ * and the new invoice's date, category and scope only show when there is a
+ * new one.
  *
  * Needs js/billing_items.js (itflowBillingMoney, itflowBillingNumber).
  *
@@ -19,7 +21,9 @@ function itflowUnbilledTime(options) {
     }
     var mode = form.getAttribute('data-unbilled');
     var rows = Array.prototype.slice.call(form.querySelectorAll('[data-unbilled-row]'));
+    var expenseRows = Array.prototype.slice.call(form.querySelectorAll('[data-unbilled-expense-row]'));
     var all = form.querySelector('[data-unbilled-all]');
+    var expenseAll = form.querySelector('[data-unbilled-expense-all]');
     var rate = form.querySelector('[data-unbilled-rate]');
     var tax = form.querySelector('[data-unbilled-tax]');
     var target = form.querySelector('[data-unbilled-target]');
@@ -44,6 +48,7 @@ function itflowUnbilledTime(options) {
     function update() {
         var picked = 0;
         var tickets = 0;
+        var expenses = 0;
         var hours = 0;
         var amount = 0;
         var perHour = rate ? number(rate.value) : 0;
@@ -74,18 +79,57 @@ function itflowUnbilledTime(options) {
             } else if (on) {
                 picked++;
                 tickets += Number(row.getAttribute('data-tickets') || 0);
+                expenses += Number(row.getAttribute('data-expenses') || 0);
                 hours += Number(row.getAttribute('data-hours') || 0);
                 amount += Number(row.getAttribute('data-value') || 0);
             }
         });
 
+        // A client's expenses - each at its price, with the margin on its cost
+        var expensePicked = 0;
+        expenseRows.forEach(function (row) {
+            var pick = row.querySelector('[data-unbilled-expense-pick]');
+            var on = !pick || pick.checked;
+            var input = row.querySelector('[data-unbilled-expense-price]');
+            var price = input ? number(input.value) : 0;
+            var cost = Number(row.getAttribute('data-cost') || 0);
+            var margin = row.querySelector('[data-unbilled-expense-margin]');
+            row.classList.toggle('itflow-unbilled-off', !on);
+            if (input) {
+                input.classList.toggle('is-invalid', input.value.trim() !== '' && (isNaN(itflowBillingNumber(input.value)) || price < 0));
+                if (margin) {
+                    margin.textContent = price > 0 ? Math.round((price - cost) / price * 100) + '% margin' : 'No charge';
+                    margin.classList.toggle('text-danger-emphasis', price < cost);
+                }
+            }
+            if (on && pick) {
+                expensePicked++;
+                expenses++;
+                amount += Math.round(price * 100) / 100;
+            }
+        });
+        if (expenseAll) {
+            expenseAll.checked = expensePicked > 0 && expensePicked === expenseRows.length;
+            expenseAll.indeterminate = expensePicked > 0 && expensePicked < expenseRows.length;
+        }
+
         var taxed = amount + Math.round(amount * percent) / 100;
         hours = Math.round(hours * 100) / 100;
         if (summary) {
-            summary.textContent = (mode === 'client' ? '' : plural(picked, 'client') + ' · ') + plural(tickets, 'ticket') + ' · ' + hours + ' h' + (percent ? ' · with tax' : '');
+            var parts = mode === 'client' ? [] : [plural(picked, 'client')];
+            if (tickets || !expenses) {
+                parts.push(plural(tickets, 'ticket'), hours + ' h');
+            }
+            if (expenses) {
+                parts.push(plural(expenses, 'expense'));
+            }
+            summary.textContent = parts.join(' · ') + (percent ? ' · with tax' : '');
         }
         if (total) {
             total.textContent = money(taxed);
+        }
+        if (mode === 'client') {
+            picked += expensePicked;
         }
         if (submit) {
             submit.disabled = picked === 0;
@@ -98,8 +142,9 @@ function itflowUnbilledTime(options) {
             }
         }
         if (all) {
-            all.checked = picked > 0 && picked === rows.length;
-            all.indeterminate = picked > 0 && picked < rows.length;
+            var rowsPicked = picked - (mode === 'client' ? expensePicked : 0);
+            all.checked = rowsPicked > 0 && rowsPicked === rows.length;
+            all.indeterminate = rowsPicked > 0 && rowsPicked < rows.length;
         }
         // Not billable needs something ticked too
         form.querySelectorAll('button[name="unbilled_write_off"]').forEach(function (button) {
@@ -130,38 +175,49 @@ function itflowUnbilledTime(options) {
             update();
         });
     }
+    if (expenseAll) {
+        expenseAll.addEventListener('change', function () {
+            expenseRows.forEach(function (row) {
+                var pick = row.querySelector('[data-unbilled-expense-pick]');
+                if (pick) {
+                    pick.checked = expenseAll.checked;
+                }
+            });
+            update();
+        });
+    }
     form.addEventListener('input', function (e) {
-        if (e.target.matches('[data-unbilled-hours], [data-unbilled-rate]')) {
+        if (e.target.matches('[data-unbilled-hours], [data-unbilled-rate], [data-unbilled-expense-price]')) {
             update();
         }
     });
     form.addEventListener('change', function (e) {
-        if (e.target.matches('[data-unbilled-pick], [data-unbilled-tax]')) {
+        if (e.target.matches('[data-unbilled-pick], [data-unbilled-expense-pick], [data-unbilled-tax]')) {
             update();
         } else if (e.target === target) {
             targetChanged();
         }
     });
-    // Clicking a ticket's row (not its link or hours) ticks it
-    rows.forEach(function (row) {
+    // Clicking a ticket's or expense's row (not its link or box) ticks it
+    rows.concat(expenseRows).forEach(function (row) {
         row.addEventListener('click', function (e) {
             if (e.target.closest('a, input, button, select, label')) {
                 return;
             }
-            var pick = row.querySelector('[data-unbilled-pick]');
+            var pick = row.querySelector('[data-unbilled-pick], [data-unbilled-expense-pick]');
             if (pick) {
                 pick.checked = !pick.checked;
                 update();
             }
         });
     });
-    // Enter in an hours box moves to the next one rather than billing
+    // Enter in an hours or price box moves to the next one rather than billing
     form.addEventListener('keydown', function (e) {
-        if (e.key !== 'Enter' || !e.target.matches('[data-unbilled-hours]')) {
+        if (e.key !== 'Enter' || !e.target.matches('[data-unbilled-hours], [data-unbilled-expense-price]')) {
             return;
         }
         e.preventDefault();
-        var inputs = Array.prototype.slice.call(form.querySelectorAll('[data-unbilled-hours]'));
+        var inputs = Array.prototype.slice.call(form.querySelectorAll('[data-unbilled-hours], [data-unbilled-expense-price]'));
         var next = inputs[inputs.indexOf(e.target) + 1];
         if (next) {
             next.focus();

@@ -167,6 +167,8 @@ if (isset($_GET['client_id'])) {
 
         // Billable tickets done and not invoiced yet, for Unbilled Time
         $num_unbilled_tickets = intval(mysqli_fetch_row(mysqli_query($mysqli, "SELECT COUNT(*) FROM tickets WHERE " . billingUnbilledSql() . " AND ticket_client_id = $client_id"))[0]);
+        // ...and their expenses to bill on, for those who can see expenses
+        $num_unbilled_expenses = lookupUserPermission('module_financial') >= 1 ? expenseUnbilledCount($client_id)['count'] : 0;
 
         // Get Credit Balance
         $row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT COALESCE(SUM(credit_amount), 0) AS credit_balance

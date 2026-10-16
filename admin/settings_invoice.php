@@ -264,6 +264,22 @@ require_once "includes/inc_all_admin.php";
 
                 <hr>
 
+                <h4 id="billable-expenses">Billable Expenses</h4>
+                <p class="text-secondary small">An expense for a client can be billed on to them - it waits in Unbilled Time and goes on their invoice at what it cost, less any refund, plus a markup. A recurring expense can be billed on each time it records one.</p>
+
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label>Default markup</label>
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="fa fa-fw fa-percent"></i></span>
+                            <input type="text" class="form-control" name="config_expense_markup" inputmode="decimal" value="<?= rtrim(rtrim(number_format(expenseMarkupDefault(), 2, '.', ''), '0'), '.') ?>" placeholder="0">
+                        </div>
+                        <small class="text-secondary">What a billable expense starts with - 0 bills it at cost. Each expense can have its own.</small>
+                    </div>
+                </div>
+
+                <hr>
+
                 <button type="submit" name="edit_invoice_settings" class="btn btn-primary text-bold"><i class="fas fa-check me-2"></i>Save</button>
 
             </form>

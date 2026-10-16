@@ -504,11 +504,14 @@ $money_format = function ($amount) use ($currency_format, $client_currency_code,
                         <span class="itflow-dash-money-value"><?= $money_format($money['recurring']) ?><span class="fs-6 fw-normal text-body-secondary">/mo</span></span>
                         <span class="small text-body-tertiary"><?= $num_recurring_invoices ?> recurring invoice<?= $num_recurring_invoices === 1 ? '' : 's' ?></span>
                     </a>
-                    <?php if ($access['tickets']) { ?>
+                    <?php if ($access['tickets'] || $money['unbilled_expenses']) {
+                        $unbilled_total = $money['unbilled_value'] + $money['unbilled_expense_value']; ?>
                         <a href="unbilled_time.php?client_id=<?= $client_id ?>" class="itflow-dash-rail-item">
                             <span class="small text-body-secondary">Not yet invoiced</span>
-                            <span class="itflow-dash-money-value <?= $money['unbilled_value'] > 0 ? 'text-info-emphasis' : '' ?>"><?= $money_format($money['unbilled_value']) ?></span>
-                            <span class="small text-body-tertiary"><?= $money['unbilled_tickets'] ?> ticket<?= $money['unbilled_tickets'] === 1 ? '' : 's' ?><?= $money['unbilled_seconds'] ? ', ' . dashboardDuration($money['unbilled_seconds']) . ' logged' : '' ?></span>
+                            <span class="itflow-dash-money-value <?= $unbilled_total > 0 ? 'text-info-emphasis' : '' ?>"><?= $money_format($unbilled_total) ?></span>
+                            <span class="small text-body-tertiary">
+                                <?php if ($access['tickets']) { ?><?= $money['unbilled_tickets'] ?> ticket<?= $money['unbilled_tickets'] === 1 ? '' : 's' ?><?= $money['unbilled_seconds'] && !$money['unbilled_expenses'] ? ', ' . dashboardDuration($money['unbilled_seconds']) . ' logged' : '' ?><?php } ?><?= $access['tickets'] && $money['unbilled_expenses'] ? ', ' : '' ?><?= $money['unbilled_expenses'] ? $money['unbilled_expenses'] . ' expense' . ($money['unbilled_expenses'] === 1 ? '' : 's') : '' ?>
+                            </span>
                         </a>
                     <?php } ?>
                     <div class="itflow-dash-rail-item">

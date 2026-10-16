@@ -3,7 +3,9 @@
 /*
  * A recurring expense's quick look - what it costs and how often, the
  * schedule with the next few dates and when it ends, the account, how it is
- * paid, the client, and the expenses it has recorded. Record Now, Move On
+ * paid, the client and billing it on to them (each time, with a markup, or
+ * covered by one of their recurring invoices, with the margin left), and
+ * the expenses it has recorded. Record Now, Move On
  * (when it has fallen behind), Pause or Resume, Edit and Delete. Opened from
  * the recurring expenses list, the vendor page and an expense it recorded.
  */
@@ -30,6 +32,10 @@ $next = (string) $row['recurring_expense_next_date'];
 $behind = $state === 'active' && $next < date('Y-m-d');
 $upcoming = recurringExpenseUpcoming($row, 4);
 $made = recurringExpenseMade($id, 8);
+$can_sales = lookupUserPermission('module_sales') >= 1;
+$covered_by = intval($row['recurring_expense_recurring_invoice_id']);
+$cover = $covered_by && $row['recurring_invoice_number'] !== null ? recurringInvoiceCosts($covered_by) : null;
+$markup = floatval($row['recurring_expense_markup']);
 $post_url = function ($action, $extra = '') use ($id) {
     return "post.php?$action=$id$extra&amp;csrf_token=" . $_SESSION['csrf_token'];
 };
@@ -114,6 +120,22 @@ ob_start();
                     <span class="text-body-secondary">Not for a client</span>
                 <?php } ?>
             </div>
+            <?php if ($client_id) { ?>
+                <div class="itflow-glance-item" title="Billing it on">
+                    <i class="fas fa-fw fa-file-invoice-dollar"></i>
+                    <?php if ($cover) {
+                        $cover_number = $row['recurring_invoice_prefix'] . $row['recurring_invoice_number']; ?>
+                        <span>Covered by <?= $can_sales ? '<a href="recurring_invoice.php?recurring_invoice_id=' . $covered_by . '">' . escapeHtml($cover_number) . '</a>' : escapeHtml($cover_number) ?>
+                            <span class="text-body-secondary">&middot; <?= escapeHtml(billingMoney($cover['revenue'], $currency)) ?> a month before tax<?= $cover['percent'] !== null ? ', ' . $cover['percent'] . '% margin after ' . (count(array_filter(array_column($cover['rows'], 'running'))) === 1 ? 'this cost' : 'its costs') : '' ?></span></span>
+                    <?php } elseif ($covered_by) { ?>
+                        <span class="text-body-secondary">Covered by a recurring invoice since deleted</span>
+                    <?php } elseif (intval($row['recurring_expense_billable'])) { ?>
+                        <span>Billed on each time at <?= escapeHtml(billingMoney(expenseBillPrice($amount, $markup), $currency)) ?> <span class="text-body-secondary">&middot; <?= escapeHtml(rtrim(rtrim(number_format($markup, 2, '.', ''), '0'), '.')) ?>% markup</span></span>
+                    <?php } else { ?>
+                        <span class="text-body-secondary">Our cost - not billed on</span>
+                    <?php } ?>
+                </div>
+            <?php } ?>
             <div class="itflow-glance-item" title="This year">
                 <i class="fas fa-fw fa-coins"></i>
                 <span><?= escapeHtml(billingMoney($row['made_year'], $currency)) ?> recorded this year <span class="text-body-secondary">&middot; <?= escapeHtml(billingMoney($amount * 12 / recurringInvoiceMonths($row['recurring_expense_frequency']), $currency)) ?> a year at this amount</span></span>

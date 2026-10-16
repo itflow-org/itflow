@@ -10,8 +10,9 @@
  * right: the schedule (what it brings in a month, the period the next
  * invoice covers and the dates after, whether invoices go out by
  * themselves), its per-user and per-device lines against what the client
- * has now, the card it charges, the invoices it has made and whether they
- * were paid, and its history.
+ * has now, what it costs us (the recurring expenses it covers, and the
+ * margin left), the card it charges, the invoices it has made and whether
+ * they were paid, and its history.
  */
 
 // If client_id is in URI then show client Side Bar and client header
@@ -67,6 +68,11 @@ $email_notify = intval($recurring['recurring_invoice_email_notify']) === 1;
 $can_edit = lookupUserPermission('module_sales') >= 2;
 $can_delete = lookupUserPermission('module_sales') >= 3;
 $csrf = $_SESSION['csrf_token'];
+
+// What it costs us - the recurring expenses it covers (functions/expenses.php)
+$can_see_costs = lookupUserPermission('module_financial') >= 1;
+$can_add_costs = lookupUserPermission('module_financial') >= 2;
+$costs = $can_see_costs ? recurringInvoiceCosts($recurring_invoice_id) : null;
 
 // Cards on file the client could be charged on
 $saved_methods = [];
@@ -289,6 +295,47 @@ $paper = [
                     <?php } ?>
                 </div>
                 <div class="card-footer small text-body-secondary">Counted again each time an invoice is made<?= $seat_drift ? ' - the next one bills the new counts' : '' ?>.</div>
+            </div>
+        <?php } ?>
+
+        <?php if ($costs) { ?>
+            <!-- What it costs us: the recurring expenses it covers, and the margin left -->
+            <div class="card mb-3">
+                <div class="card-header d-flex align-items-center">
+                    <h3 class="card-title mb-0 me-auto"><i class="fas fa-fw fa-shopping-cart text-secondary me-2"></i>Costs <span class="badge rounded-pill bg-secondary-subtle text-secondary-emphasis fw-normal ms-1"><?= count($costs['rows']) ?></span></h3>
+                    <?php if ($can_add_costs) { ?>
+                        <button type="button" class="btn btn-sm btn-outline-primary ajax-modal" data-modal-size="lg" data-modal-url="modals/recurring_expense/recurring_expense_add.php?recurring_invoice_id=<?= $recurring_invoice_id ?>" title="A recurring expense this covers">
+                            <i class="fas fa-plus me-1"></i>Add
+                        </button>
+                    <?php } ?>
+                </div>
+                <?php if ($costs['rows']) { ?>
+                    <div class="list-group list-group-flush">
+                        <?php foreach ($costs['rows'] as $cost) { ?>
+                            <div class="list-group-item d-flex align-items-center gap-2">
+                                <?= vendorTile($cost['vendor_name'] ?: 'Recurring', 'sm') ?>
+                                <div class="flex-grow-1 min-w-0">
+                                    <a class="text-truncate d-block ajax-modal" href="#" data-modal-size="lg" data-modal-url="modals/recurring_expense/recurring_expense.php?id=<?= intval($cost['recurring_expense_id']) ?>"><?= escapeHtml($cost['vendor_name'] ?: 'No vendor') ?></a>
+                                    <div class="small text-body-secondary text-truncate"><?= escapeHtml(implode(' · ', array_filter([$cost['recurring_expense_description'], $cost['category_name']]))) ?: '&nbsp;' ?></div>
+                                </div>
+                                <div class="text-end text-nowrap small">
+                                    <div class="itflow-money <?= $cost['running'] ? '' : 'text-body-secondary text-decoration-line-through' ?>"><?= $money($cost['monthly']) ?></div>
+                                    <div class="text-body-secondary"><?= $cost['running'] ? 'a month' : ucfirst(recurringExpenseState($cost)) ?></div>
+                                </div>
+                            </div>
+                        <?php } ?>
+                    </div>
+                    <div class="card-footer small">
+                        <div class="d-flex justify-content-between gap-2">
+                            <span class="text-body-secondary">Bills <?= $money($costs['revenue']) ?> a month before tax &middot; costs <?= $money($costs['cost']) ?></span>
+                            <span class="fw-semibold text-nowrap <?= $costs['margin'] < 0 ? 'text-danger-emphasis' : 'text-success-emphasis' ?>"><?= $money($costs['margin']) ?><?= $costs['percent'] !== null ? ' &middot; ' . $costs['percent'] . '%' : '' ?></span>
+                        </div>
+                    </div>
+                <?php } else { ?>
+                    <div class="card-body small text-body-secondary">
+                        No costs against it yet. Add the recurring expenses it pays for - the licenses, hosting or backup it resells - to see the margin it leaves each month.
+                    </div>
+                <?php } ?>
             </div>
         <?php } ?>
 

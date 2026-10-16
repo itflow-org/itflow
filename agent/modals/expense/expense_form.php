@@ -68,6 +68,11 @@ while ($row = mysqli_fetch_assoc($sql)) {
 }
 $form_receipt = $form_edit ? $form_value('expense_receipt') : '';
 
+// Billed on to the client - not for a refund. One already on an invoice stays billed to that client.
+$form_billed = $form_edit && !empty($form_row['expense_invoice_id']);
+$form_billable = $form_row && !$form_refund ? intval($form_row['expense_billable']) === 1 : false;
+$form_markup = $form_row && !$form_refund ? floatval($form_row['expense_markup']) : expenseMarkupDefault();
+
 ?>
 <div class="row g-3" id="<?= $form_id ?>" data-expense-form="<?= $form_mode ?>">
 
@@ -179,12 +184,15 @@ $form_receipt = $form_edit ? $form_value('expense_receipt') : '';
         <label class="form-label">Client</label>
         <div class="input-group">
             <span class="input-group-text"><i class="fa fa-fw fa-user"></i></span>
-            <select class="form-select select2" name="client_id">
+            <select class="form-select select2" name="client_id" data-expense-client <?= $form_billed ? 'disabled' : '' ?>>
                 <option value="0">- Not for a client -</option>
                 <?php foreach ($form_clients as $client) { ?>
                     <option value="<?= intval($client['client_id']) ?>" <?= $form_client === intval($client['client_id']) ? 'selected' : '' ?><?= selectOptionClient($client['client_id'], $client['client_name'], $client['client_abbreviation'] ?? '') ?>><?= escapeHtml($client['client_name']) ?></option>
                 <?php } ?>
             </select>
+            <?php if ($form_billed) { ?>
+                <input type="hidden" name="client_id" value="<?= $form_client ?>">
+            <?php } ?>
         </div>
         <div class="form-text">A direct cost of theirs - it counts against them in Client Profitability.</div>
     </div>
@@ -196,6 +204,33 @@ $form_receipt = $form_edit ? $form_value('expense_receipt') : '';
             <input type="text" class="form-control" name="reference" maxlength="200" placeholder="Their invoice or order number" value="<?= escapeHtml($form_reference) ?>">
         </div>
     </div>
+
+    <?php if (!$form_refund) { ?>
+        <div class="col-12" data-expense-billing <?= $form_client ? '' : 'hidden' ?>>
+            <div class="d-flex flex-wrap align-items-center gap-3 p-2 px-3 rounded border bg-body-tertiary">
+                <?php if ($form_billed) { ?>
+                    <i class="fas fa-check-circle text-success"></i>
+                    <div class="flex-grow-1 small">
+                        Billed on <a href="invoice.php?invoice_id=<?= intval($form_row['expense_invoice_id']) ?>"><?= escapeHtml($form_row['invoice_prefix'] . $form_row['invoice_number']) ?></a><?= $form_row['billed_subtotal'] !== null ? ' at ' . escapeHtml(billingMoney($form_row['billed_subtotal'], $form_row['expense_currency_code'])) : '' ?>.
+                        <span class="text-body-secondary">Changing the amount here doesn't change the invoice - take it off the invoice to bill it again.</span>
+                    </div>
+                    <input type="hidden" name="billable" value="1">
+                    <input type="hidden" name="markup" value="<?= number_format($form_markup, 2, '.', '') ?>">
+                <?php } else { ?>
+                    <div class="form-check form-switch mb-0">
+                        <input class="form-check-input" type="checkbox" role="switch" name="billable" value="1" id="<?= $form_id ?>Billable" <?= $form_billable ? 'checked' : '' ?> data-expense-billable>
+                        <label class="form-check-label" for="<?= $form_id ?>Billable">Bill it on to them</label>
+                    </div>
+                    <div class="input-group input-group-sm" style="max-width: 11rem;" data-expense-billable-only>
+                        <span class="input-group-text"><i class="fa fa-fw fa-percent"></i></span>
+                        <input type="text" class="form-control text-end" name="markup" inputmode="decimal" value="<?= rtrim(rtrim(number_format($form_markup, 2, '.', ''), '0'), '.') ?>" aria-label="Markup" data-expense-markup>
+                        <span class="input-group-text">markup</span>
+                    </div>
+                    <div class="small text-body-secondary" data-expense-billable-only>Bills <strong data-expense-bills></strong> - it waits in Unbilled Time and on their invoices until it goes on one.</div>
+                <?php } ?>
+            </div>
+        </div>
+    <?php } ?>
 
     <div class="col-12">
         <label class="form-label">Description</label>
@@ -225,6 +260,52 @@ $form_receipt = $form_edit ? $form_value('expense_receipt') : '';
     </div>
 
 </div>
+
+<?php if (!$form_refund) { ?>
+<script>
+(function () {
+    // Billing shows once there is a client; what it bills follows the amount and markup
+    var root = document.getElementById(<?= json_encode($form_id) ?>);
+    if (!root || root.dataset.billingWired) {
+        return;
+    }
+    root.dataset.billingWired = '1';
+    var client = root.querySelector('[data-expense-client]');
+    var block = root.querySelector('[data-expense-billing]');
+    var billable = root.querySelector('[data-expense-billable]');
+    var markup = root.querySelector('[data-expense-markup]');
+    var bills = root.querySelector('[data-expense-bills]');
+    var amount = root.querySelector('input[name="amount"]');
+    function number(value) {
+        var n = Number(String(value || '').replace(/[\s,$%]/g, ''));
+        return isNaN(n) ? 0 : n;
+    }
+    function update() {
+        block.hidden = !client.value || client.value === '0' || number(amount.value) < 0;
+        if (!billable) {
+            return;
+        }
+        root.querySelectorAll('[data-expense-billable-only]').forEach(function (el) {
+            el.classList.toggle('d-none', !billable.checked);
+        });
+        var price = Math.round(number(amount.value) * (1 + number(markup.value) / 100) * 100) / 100;
+        try {
+            bills.textContent = new Intl.NumberFormat(<?= json_encode(str_replace('_', '-', (string) $session_company_locale)) ?>, { style: 'currency', currency: <?= json_encode($form_currency) ?> }).format(price);
+        } catch (e) {
+            bills.textContent = price.toFixed(2);
+        }
+    }
+    client.addEventListener('change', update);
+    [billable, markup, amount].forEach(function (el) {
+        if (el) {
+            el.addEventListener('input', update);
+            el.addEventListener('change', update);
+        }
+    });
+    update();
+})();
+</script>
+<?php } ?>
 
 <?php if (in_array($form_mode, ['new', 'copy'], true)) { ?>
 <script>

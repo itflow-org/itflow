@@ -84,6 +84,15 @@ function clientOverviewAttention($client_id, $access, $renewals) {
                 'url' => "/agent/unbilled_time.php?client_id=$client_id",
             ];
         }
+        if ($access['financial']) {
+            $to_bill = expenseUnbilledCount($client_id);
+            $items[] = [
+                'count' => $to_bill['count'],
+                'label' => 'Expenses to bill', 'icon' => 'shopping-cart', 'tone' => 'info',
+                'detail' => $to_bill['count'] ? dashboardMoney($to_bill['value']) . ' to bill on' : null,
+                'url' => "/agent/unbilled_time.php?client_id=$client_id",
+            ];
+        }
     }
 
     if ($access['docs']) {
@@ -514,7 +523,9 @@ function clientOverviewActivity($client_id, $limit = 6) {
  * the clients list and the old client header. Paid this year is cash in
  * (invoice payments plus client revenues), compared with the same days last
  * year. Unbilled is what Unbilled Time has for the client - billable tickets
- * done and on no invoice, the time logged on them and what it comes to.
+ * done and on no invoice, the time logged on them and what it comes to - and,
+ * for agents who can see expenses, the expenses to bill on to them and what
+ * they come to with their markup.
  */
 function clientOverviewMoney($client_id, $balance, $recurring_monthly) {
     $year_start = date('Y-01-01');
@@ -536,6 +547,7 @@ function clientOverviewMoney($client_id, $balance, $recurring_monthly) {
         - dashboardSum("SELECT SUM(payment_amount) FROM payments JOIN invoices ON payment_invoice_id = invoice_id WHERE $overdue_where");
 
     $unbilled = billingUnbilledByClient($client_id)[intval($client_id)] ?? null;
+    $to_bill = lookupUserPermission('module_financial') >= 1 ? expenseUnbilledCount($client_id) : ['count' => 0, 'value' => 0.0];
 
     return [
         'balance' => $balance,
@@ -546,6 +558,8 @@ function clientOverviewMoney($client_id, $balance, $recurring_monthly) {
         'unbilled_tickets' => $unbilled ? count($unbilled['tickets']) : 0,
         'unbilled_seconds' => $unbilled ? intval($unbilled['seconds']) : 0,
         'unbilled_value' => $unbilled ? floatval($unbilled['value']) : 0.0,
+        'unbilled_expenses' => $to_bill['count'],
+        'unbilled_expense_value' => $to_bill['value'],
     ];
 }
 

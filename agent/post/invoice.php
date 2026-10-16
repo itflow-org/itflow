@@ -308,6 +308,9 @@ if (isset($_GET['delete_invoice'])) {
     // Assets made from its hardware stay on the client's assets, unlinked
     mysqli_query($mysqli, "UPDATE assets SET asset_invoice_id = 0, asset_invoice_item_id = 0 WHERE asset_invoice_id = $invoice_id");
 
+    // Expenses billed on it are to bill again
+    mysqli_query($mysqli, "UPDATE expenses SET expense_invoice_id = NULL, expense_invoice_item_id = NULL WHERE expense_invoice_id = $invoice_id");
+
     logAudit("Invoice", "Delete", "$session_name deleted invoice $invoice_prefix$invoice_number", $client_id);
 
     flashAlert("Invoice <strong>$invoice_prefix$invoice_number</strong> deleted", 'error');
@@ -621,6 +624,49 @@ if (isset($_POST['add_ticket_to_invoice'])) {
         : "$what added to the invoice, without lines");
 
     redirect("invoice.php?invoice_id=$invoice_id" . ($bill_time && $result['lines'] ? '#items' : ''));
+
+}
+
+/*
+ * Bill the client's ticked expenses on this invoice, a line each, at the
+ * price given for each (expense_price[id]; blank is its cost with its
+ * markup), with the tax picked.
+ */
+if (isset($_POST['invoice_add_expenses'])) {
+
+    validateCSRFToken();
+
+    enforceUserPermission('module_sales', 2);
+    enforceUserPermission('module_financial', 2);
+
+    $invoice_id = intval($_POST['invoice_id'] ?? 0);
+    $invoice = billingRow('invoice', $invoice_id);
+    if (!$invoice) {
+        flashAlert('That invoice no longer exists.', 'error');
+        redirect();
+    }
+    $client_id = intval($invoice['client_id']);
+
+    enforceClientAccess();
+
+    $prices = [];
+    foreach (array_unique(array_filter(array_map('intval', (array) ($_POST['expense_ids'] ?? [])))) as $expense_id) {
+        $prices[$expense_id] = $_POST['expense_price'][$expense_id] ?? null;
+    }
+    $result = expenseBillInvoice($client_id, $prices, [
+        'invoice_id' => $invoice_id,
+        'tax_id' => intval($_POST['tax_id'] ?? 0),
+        'by' => stripslashes($session_name),
+    ], $error);
+    if (!$result) {
+        flashAlert(escapeHtml($error), 'error');
+        redirect("invoice.php?invoice_id=$invoice_id");
+    }
+
+    flashAlert(($result['expenses'] === 1 ? '<strong>1 expense</strong>' : "<strong>{$result['expenses']} expenses</strong>") . ' billed - '
+        . escapeHtml(billingMoney($result['amount'], $invoice['invoice_currency_code'])) . ' on ' . escapeHtml(billingMoney($result['cost'], $invoice['invoice_currency_code'])) . ' of cost');
+
+    redirect("invoice.php?invoice_id=$invoice_id#items");
 
 }
 

@@ -4,8 +4,9 @@
  * An expense's quick look - the receipt (shown right in the window when it
  * is a photo or a PDF, or attached here when there isn't one), who it was
  * paid to and for what, the account and how it was paid, the client, who
- * entered it, the refund it is or the refunds against it, and the stock
- * deliveries it paid for. Opened from the expenses list, the vendor's page,
+ * entered it, the refund it is or the refunds against it, billing it on to
+ * the client (the invoice it is on, with the margin, or what it will bill
+ * at), and the stock deliveries it paid for. Opened from the expenses list, the vendor's page,
  * Transactions and search (expenses.php?open=).
  */
 
@@ -29,6 +30,14 @@ $currency = (string) $row['expense_currency_code'];
 $receipt_kind = $row['expense_receipt'] && expenseReceiptPath($row['expense_receipt']) !== '' ? expenseReceiptKind($row['expense_receipt']) : '';
 $receipt_missing = $row['expense_receipt'] && $receipt_kind === '' && expenseReceiptPath($row['expense_receipt']) === '';
 $receipt_url = "expense_receipt.php?expense_id=$expense_id";
+
+// Billing it on to the client
+$can_sales = lookupUserPermission('module_sales');
+$billed_on = intval($row['expense_invoice_id']);
+$cost = round($amount - floatval($row['refunded_amount']), 2);
+$billable = !$billed_on && intval($row['expense_billable']) && $client_id && $amount > 0 && !$is_transfer;
+$bill_price = expenseBillPrice($cost, $row['expense_markup']);
+$can_unbill = $billed_on && $can_edit && expenseCanUnbill($row['invoice_status']);
 
 // Refunds against it, and the stock it paid for
 $refunds = [];
@@ -143,6 +152,37 @@ ob_start();
                         : 'a recurring expense since deleted' ?></span>
                 </div>
             <?php } ?>
+            <?php if ($billed_on) { ?>
+                <div class="itflow-glance-item" title="Billed">
+                    <i class="fas fa-fw fa-file-invoice-dollar"></i>
+                    <span>
+                        <?php if ($row['invoice_status'] === null) { ?>
+                            Billed on an invoice since deleted
+                        <?php } else { ?>
+                            Billed on <?= $can_sales ? '<a href="invoice.php?invoice_id=' . $billed_on . '">' . escapeHtml($row['invoice_prefix'] . $row['invoice_number']) . '</a>' : escapeHtml($row['invoice_prefix'] . $row['invoice_number']) ?><?= $row['invoice_status'] === 'Cancelled' ? ' <span class="text-danger-emphasis">(cancelled)</span>' : '' ?>
+                            <?php if ($row['billed_subtotal'] !== null) { ?>
+                                at <?= escapeHtml(billingMoney($row['billed_subtotal'], $currency)) ?>
+                                <span class="text-body-secondary">&middot; <?= escapeHtml(expenseMarginText($row['billed_subtotal'], $cost)) ?></span>
+                            <?php } ?>
+                        <?php } ?>
+                    </span>
+                </div>
+            <?php } elseif ($billable) { ?>
+                <div class="itflow-glance-item" title="To bill">
+                    <i class="fas fa-fw fa-file-invoice-dollar"></i>
+                    <span>
+                        <?php if ($cost <= 0) { ?>
+                            Billable, but refunded in full
+                        <?php } else { ?>
+                            <span class="text-warning-emphasis fw-semibold">To bill</span> at <?= escapeHtml(billingMoney($bill_price, $currency)) ?>
+                            <span class="text-body-secondary">&middot; <?= escapeHtml(rtrim(rtrim(number_format(floatval($row['expense_markup']), 2, '.', ''), '0'), '.')) ?>% markup</span>
+                            <?php if ($can_sales) { ?>
+                                <span class="text-body-secondary">&middot;</span> <a href="unbilled_time.php?client_id=<?= $client_id ?>">Unbilled Time</a>
+                            <?php } ?>
+                        <?php } ?>
+                    </span>
+                </div>
+            <?php } ?>
             <?php if ($row['expense_refund_of_id']) { ?>
                 <div class="itflow-glance-item" title="Refund of">
                     <i class="fas fa-fw fa-undo-alt"></i>
@@ -197,9 +237,13 @@ ob_start();
             <?php } ?>
         </div>
     <?php } ?>
+    <?php if ($can_unbill) { ?>
+        <a class="btn btn-outline-secondary confirm-link" href="post.php?expense_unbill=<?= $expense_id ?>&amp;csrf_token=<?= $_SESSION['csrf_token'] ?>"
+            data-confirm-text="<?= $row['invoice_status'] === 'Cancelled' ? escapeHtml($row['invoice_prefix'] . $row['invoice_number']) . ' is cancelled, so its line stays on it' : 'Its line comes off ' . escapeHtml($row['invoice_prefix'] . $row['invoice_number']) ?> and it waits to be billed again."><i class="fas fa-unlink"></i><span class="d-none d-sm-inline ms-2">Take off Invoice</span></a>
+    <?php } ?>
     <?php if ($can_delete && !$is_transfer) { ?>
         <a class="btn btn-outline-danger confirm-link" href="post.php?delete_expense=<?= $expense_id ?>&amp;csrf_token=<?= $_SESSION['csrf_token'] ?>"
-            data-confirm-text="<?= escapeHtml(expenseLabel($row)) ?> goes for good<?= $row['expense_receipt'] ? ', with its receipt' : '' ?>."><i class="fas fa-trash"></i><span class="d-none d-sm-inline ms-2">Delete</span></a>
+            data-confirm-text="<?= escapeHtml(expenseLabel($row)) ?> goes for good<?= $row['expense_receipt'] ? ', with its receipt' : '' ?>.<?= $billed_on && $row['invoice_status'] !== null ? ' Its line stays on ' . escapeHtml($row['invoice_prefix'] . $row['invoice_number']) . '.' : '' ?>"><i class="fas fa-trash"></i><span class="d-none d-sm-inline ms-2">Delete</span></a>
     <?php } ?>
     <button type="button" class="btn btn-light" data-bs-dismiss="modal"><i class="fa fa-times me-2"></i>Close</button>
 </div>

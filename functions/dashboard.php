@@ -294,6 +294,16 @@ function dashboardAttention($access) {
                 'url' => '/agent/unbilled_time.php',
             ];
         }
+        // What we paid for clients to bill on to them, on no invoice yet
+        if ($access['financial']) {
+            $to_bill = expenseUnbilledCount();
+            $items[] = [
+                'count' => $to_bill['count'],
+                'label' => 'Expenses to bill', 'icon' => 'shopping-cart', 'tone' => 'info',
+                'detail' => $to_bill['count'] ? dashboardMoney($to_bill['value']) . ' to bill on' : null,
+                'url' => '/agent/expenses.php?show=to_bill',
+            ];
+        }
     }
 
     if ($access['support']) {

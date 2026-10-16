@@ -54,6 +54,22 @@ while ($row = mysqli_fetch_assoc($sql)) {
     $form_clients[] = $row;
 }
 
+// Billed on to the client each time, or covered by one of their recurring invoices
+$form_covered_by = $form_edit ? intval($form_row['recurring_expense_recurring_invoice_id']) : intval($form_recurring_invoice_id ?? 0);
+$form_billing = $form_covered_by ? 'covered' : ($form_edit && intval($form_row['recurring_expense_billable']) ? 'bill' : '');
+$form_markup = $form_edit ? floatval($form_row['recurring_expense_markup']) : expenseMarkupDefault();
+$form_covers = [];
+$sql = mysqli_query($mysqli, "SELECT recurring_invoice_id, recurring_invoice_prefix, recurring_invoice_number, recurring_invoice_scope, recurring_invoice_amount,
+        recurring_invoice_frequency, recurring_invoice_currency_code, recurring_invoice_client_id
+    FROM recurring_invoices
+    WHERE (recurring_invoice_archived_at IS NULL OR recurring_invoice_id = $form_covered_by) " . clientScopeSql('recurring_invoice_client_id') . "
+    ORDER BY recurring_invoice_status DESC, recurring_invoice_number ASC");
+while ($row = mysqli_fetch_assoc($sql)) {
+    $form_covers[intval($row['recurring_invoice_client_id'])][] = [intval($row['recurring_invoice_id']),
+        billingNumber('recurring', $row) . (trim((string) $row['recurring_invoice_scope']) !== '' ? ' - ' . $row['recurring_invoice_scope'] : '')
+        . ' (' . billingMoney(recurringInvoiceMonthly($row['recurring_invoice_amount'], $row['recurring_invoice_frequency']), $row['recurring_invoice_currency_code']) . ' a month)'];
+}
+
 ?>
 <div class="row g-3" id="<?= $form_id ?>" data-recurring-expense-form>
 
@@ -134,12 +150,43 @@ while ($row = mysqli_fetch_assoc($sql)) {
         <label class="form-label">Client</label>
         <div class="input-group">
             <span class="input-group-text"><i class="fa fa-fw fa-user"></i></span>
-            <select class="form-select select2" name="client_id">
+            <select class="form-select select2" name="client_id" data-recurring-client>
                 <option value="0">- Not for a client -</option>
                 <?php foreach ($form_clients as $client) { ?>
                     <option value="<?= intval($client['client_id']) ?>" <?= $form_client === intval($client['client_id']) ? 'selected' : '' ?><?= selectOptionClient($client['client_id'], $client['client_name'], $client['client_abbreviation'] ?? '') ?>><?= escapeHtml($client['client_name']) ?></option>
                 <?php } ?>
             </select>
+        </div>
+    </div>
+
+    <div class="col-12" data-recurring-billing <?= $form_client ? '' : 'hidden' ?>>
+        <div class="row g-2 align-items-start p-2 rounded border bg-body-tertiary mx-0">
+            <div class="col-md-5">
+                <label class="form-label small mb-1">For them</label>
+                <div class="input-group">
+                    <span class="input-group-text"><i class="fa fa-fw fa-file-invoice-dollar"></i></span>
+                    <select class="form-select" name="billing" data-recurring-billing-mode>
+                        <option value="" <?= $form_billing === '' ? 'selected' : '' ?>>Our cost - not billed on</option>
+                        <option value="bill" <?= $form_billing === 'bill' ? 'selected' : '' ?>>Billed on to them each time</option>
+                        <option value="covered" <?= $form_billing === 'covered' ? 'selected' : '' ?>>Covered by their recurring invoice</option>
+                    </select>
+                </div>
+            </div>
+            <div class="col-md-3" data-recurring-billing-for="bill">
+                <label class="form-label small mb-1">Markup</label>
+                <div class="input-group">
+                    <span class="input-group-text"><i class="fa fa-fw fa-percent"></i></span>
+                    <input type="text" class="form-control text-end" name="markup" inputmode="decimal" value="<?= rtrim(rtrim(number_format($form_markup, 2, '.', ''), '0'), '.') ?>" aria-label="Markup">
+                </div>
+            </div>
+            <div class="col-md-7" data-recurring-billing-for="covered">
+                <label class="form-label small mb-1">Recurring invoice</label>
+                <div class="input-group">
+                    <span class="input-group-text"><i class="fa fa-fw fa-redo-alt"></i></span>
+                    <select class="form-select" name="recurring_invoice_id" data-recurring-cover data-selected="<?= $form_covered_by ?>"></select>
+                </div>
+            </div>
+            <div class="col-12 small text-body-secondary" data-recurring-billing-note></div>
         </div>
     </div>
 
@@ -230,6 +277,43 @@ while ($row = mysqli_fetch_assoc($sql)) {
         el.addEventListener('input', update);
     });
     update();
+
+    // For a client: billed on each time, or covered by one of their recurring invoices
+    var covers = <?= json_encode((object) $form_covers) ?>;
+    var client = root.querySelector('[data-recurring-client]');
+    var billingBox = root.querySelector('[data-recurring-billing]');
+    var mode = root.querySelector('[data-recurring-billing-mode]');
+    var cover = root.querySelector('[data-recurring-cover]');
+    var billingNote = root.querySelector('[data-recurring-billing-note]');
+    function billing() {
+        var options = covers[client.value] || [];
+        billingBox.hidden = !client.value || client.value === '0';
+        var selected = cover.value || cover.getAttribute('data-selected');
+        cover.innerHTML = '';
+        options.forEach(function (o) {
+            var option = document.createElement('option');
+            option.value = o[0];
+            option.textContent = o[1];
+            option.selected = String(o[0]) === String(selected);
+            cover.appendChild(option);
+        });
+        mode.querySelector('option[value="covered"]').disabled = !options.length;
+        if (mode.value === 'covered' && !options.length) {
+            mode.value = '';
+        }
+        root.querySelectorAll('[data-recurring-billing-for]').forEach(function (el) {
+            el.hidden = el.getAttribute('data-recurring-billing-for') !== mode.value;
+            el.querySelectorAll('input, select').forEach(function (input) {
+                input.disabled = el.hidden;
+            });
+        });
+        billingNote.textContent = mode.value === 'bill' ? 'Each one it records waits in Unbilled Time to go on their next invoice, with the markup.'
+            : mode.value === 'covered' ? 'Not billed on by itself - the recurring invoice shows it as a cost against what it bills, with the margin.'
+            : (options.length ? 'Filed against them as a cost. It can also be shown against one of their recurring invoices.' : 'Filed against them as a cost - they have no recurring invoice to cover it.');
+    }
+    client.addEventListener('change', billing);
+    mode.addEventListener('change', billing);
+    billing();
 
     <?php if (!$form_edit) { ?>
     // Picking a vendor fills in what the last expense with them used, unless changed by hand

@@ -1356,7 +1356,12 @@ CREATE TABLE `expenses` (
   `expense_account_id` int(11) DEFAULT NULL,
   `expense_refund_of_id` int(11) DEFAULT NULL,
   `expense_recurring_expense_id` int(11) DEFAULT NULL,
-  PRIMARY KEY (`expense_id`)
+  `expense_billable` tinyint(1) NOT NULL DEFAULT 0,
+  `expense_markup` decimal(7,2) NOT NULL DEFAULT 0.00,
+  `expense_invoice_id` int(11) DEFAULT NULL,
+  `expense_invoice_item_id` int(11) DEFAULT NULL,
+  PRIMARY KEY (`expense_id`),
+  KEY `expense_invoice_id` (`expense_invoice_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -2094,6 +2099,9 @@ CREATE TABLE `recurring_expenses` (
   `recurring_expense_client_id` int(11) NOT NULL DEFAULT 0,
   `recurring_expense_category_id` int(11) NOT NULL,
   `recurring_expense_account_id` int(11) NOT NULL,
+  `recurring_expense_billable` tinyint(1) NOT NULL DEFAULT 0,
+  `recurring_expense_markup` decimal(7,2) NOT NULL DEFAULT 0.00,
+  `recurring_expense_recurring_invoice_id` int(11) DEFAULT NULL,
   PRIMARY KEY (`recurring_expense_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -2513,6 +2521,7 @@ CREATE TABLE `settings` (
   `config_time_rounding` varchar(10) NOT NULL DEFAULT 'nearest',
   `config_time_minimum` int(11) NOT NULL DEFAULT 0,
   `config_time_item_name` varchar(200) NOT NULL DEFAULT 'Support [Hourly]',
+  `config_expense_markup` decimal(7,2) NOT NULL DEFAULT 0.00,
   `config_project_prefix` varchar(200) NOT NULL DEFAULT 'PRJ-',
   `config_project_next_number` int(11) NOT NULL DEFAULT 1,
   `config_invoice_prefix` varchar(200) DEFAULT NULL,

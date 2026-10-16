@@ -6327,3 +6327,21 @@ a.itflow-billing-stat:hover {
     color: var(--bs-secondary-color);
     text-align: center;
 }
+/* Unbilled Time - an expense's price box, and its row ticks like a ticket's */
+.itflow-unbilled-table tbody tr[data-unbilled-expense-row] {
+    cursor: pointer;
+}
+.itflow-unbilled-price {
+    width: 7.5rem;
+}
+.itflow-unbilled-price .form-control {
+    min-width: 5.5rem;
+}
+@media (max-width: 575.98px) {
+    .itflow-unbilled-price {
+        width: 6rem;
+    }
+    .itflow-unbilled-price .form-control {
+        min-width: 4.5rem;
+    }
+}

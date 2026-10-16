@@ -1,8 +1,10 @@
 <?php
 
 /*
- * Set one thing on the ticked expenses - ?field= category, account, client
- * or method. Posts bulk_edit_expenses with field, value and expense_ids[].
+ * Set one thing on the ticked expenses - ?field= category, account, client,
+ * method or billable (bill them on to their clients, with a markup, or
+ * not). Posts bulk_edit_expenses with field, value (and markup) and
+ * expense_ids[].
  */
 
 require_once '../../../includes/modal_header.php';
@@ -18,6 +20,7 @@ $fields = [
     'account' => ['label' => 'Account', 'icon' => 'fa-piggy-bank'],
     'client' => ['label' => 'Client', 'icon' => 'fa-user'],
     'method' => ['label' => 'Payment Method', 'icon' => 'fa-credit-card'],
+    'billable' => ['label' => 'Billable', 'icon' => 'fa-file-invoice-dollar'],
 ];
 if (!isset($fields[$field])) {
     echo json_encode(['error' => 'Pick what to set from the Bulk Action menu.']);
@@ -69,6 +72,11 @@ ob_start();
                         <option value="<?= intval($row['client_id']) ?>"<?= selectOptionClient($row['client_id'], $row['client_name'], $row['client_abbreviation'] ?? '') ?>><?= escapeHtml($row['client_name']) ?></option>
                     <?php } ?>
                 </select>
+            <?php } elseif ($field === 'billable') { ?>
+                <select class="form-select" name="value" data-bulk-billable>
+                    <option value="yes">Bill them on to their clients</option>
+                    <option value="no">Our cost - not billed on</option>
+                </select>
             <?php } else { ?>
                 <select class="form-select select2" name="value">
                     <option value="">- None -</option>
@@ -78,6 +86,29 @@ ob_start();
                 </select>
             <?php } ?>
         </div>
+        <?php if ($field === 'billable') { ?>
+            <div class="mt-3" data-bulk-markup>
+                <label class="form-label">Markup</label>
+                <div class="input-group">
+                    <span class="input-group-text"><i class="fa fa-fw fa-percent"></i></span>
+                    <input type="text" class="form-control" name="markup" inputmode="decimal" value="<?= rtrim(rtrim(number_format(expenseMarkupDefault(), 2, '.', ''), '0'), '.') ?>" aria-label="Markup">
+                </div>
+            </div>
+            <div class="form-text">Only those for a client are billed on, and not ones already on an invoice - those stay as they are.</div>
+            <script>
+                (function () {
+                    var value = document.querySelector('.modal.show [data-bulk-billable], [data-bulk-billable]');
+                    var markup = value && value.closest('form').querySelector('[data-bulk-markup]');
+                    if (!value || !markup || value.dataset.wired) {
+                        return;
+                    }
+                    value.dataset.wired = '1';
+                    value.addEventListener('change', function () {
+                        markup.hidden = value.value !== 'yes';
+                    });
+                })();
+            </script>
+        <?php } ?>
     </div>
     <div class="modal-footer">
         <button type="submit" name="bulk_edit_expenses" class="btn btn-primary text-bold"><i class="fas fa-check me-2"></i>Set on <?= $count ?></button>
