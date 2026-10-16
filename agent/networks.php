@@ -160,7 +160,7 @@ $csrf = $_SESSION['csrf_token'];
                 <button type="button" class="btn btn-primary dropdown-toggle <?= $can_edit ? 'dropdown-toggle-split' : '' ?>" data-bs-toggle="dropdown"><?= $can_edit ? '' : '<i class="fas fa-ellipsis-h"></i>' ?></button>
                 <div class="dropdown-menu dropdown-menu-end">
                     <?php if ($num_rows[0] > 0) { ?>
-                        <a class="dropdown-item text-dark ajax-modal" href="#" data-modal-url="<?= buildExportModalUrl('modals/network/network_export.php', ['client_id', 'client', 'location', 'type', 'q']) ?>&archived=<?= $show === 'archived' ? 1 : 0 ?>">
+                        <a class="dropdown-item text-dark ajax-modal" href="#" data-modal-url="<?= buildExportModalUrl('modals/network/network_export.php', ['client_id', 'client', 'location', 'type', 'q'], ['archived' => $show === 'archived' ? 1 : null]) ?>">
                             <i class="fa fa-fw fa-download me-2"></i>Export
                         </a>
                     <?php } ?>

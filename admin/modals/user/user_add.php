@@ -1,6 +1,18 @@
 <?php
 
+/*
+ * New User - an agent who signs in to ITFlow. ?role= starts it on that role
+ * (the role the users list is filtered to).
+ */
+
 require_once '../../includes/modal_header.php';
+
+$is_new = true;
+$role_id = intval($_GET['role'] ?? 0);
+$form = [
+    'user_role_id' => isset(userRoles()[$role_id]) ? $role_id : 0,
+    'user_config_force_mfa' => 0,
+];
 
 ob_start();
 
@@ -11,170 +23,18 @@ ob_start();
 </div>
 <form action="post.php" method="post" enctype="multipart/form-data" autocomplete="off">
     <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
+
     <div class="modal-body">
-
-        <ul class="nav nav-pills nav-justified mb-3">
-            <li class="nav-item">
-                <a class="nav-link active" data-bs-toggle="pill" href="#pills-user-details">Details</a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" data-bs-toggle="pill" href="#pills-user-access">Restrict Access</a>
-            </li>
-        </ul>
-
-        <hr>
-
-        <div class="tab-content">
-
-            <div class="tab-pane fade show active" id="pills-user-details">
-
-                <div class="mb-3">
-                    <label>Name <strong class="text-danger">*</strong></label>
-                    <div class="input-group">
-                            <span class="input-group-text"><i class="fa fa-fw fa-user"></i></span>
-                        <input type="text" class="form-control" name="name" placeholder="Full Name" maxlength="200" required autofocus>
-                    </div>
-                </div>
-
-                <div class="mb-3">
-                    <label>Email <strong class="text-danger">*</strong></label>
-                    <div class="input-group">
-                            <span class="input-group-text"><i class="fa fa-fw fa-envelope"></i></span>
-                        <input type="email" class="form-control" name="email" placeholder="Email Address" maxlength="200" required>
-                    </div>
-                </div>
-
-                <div class="mb-3">
-                    <label>Password <strong class="text-danger">*</strong></label>
-                    <div class="input-group">
-                            <span class="input-group-text"><i class="fa fa-fw fa-lock"></i></span>
-                        <input type="password" class="form-control" data-toggle="password" name="password" id="password" placeholder="Enter a Password" autocomplete="new-password" minlength="8" required>
-                            <span class="input-group-text"><i class="fa fa-fw fa-eye"></i></span>
-                            <span class="btn btn-default"><i class="fa fa-fw fa-question" onclick="generatePassword()"></i></span>
-                    </div>
-                </div>
-
-                <div class="mb-3">
-                    <label>Role <strong class="text-danger">*</strong></label>
-                    <div class="input-group">
-                            <span class="input-group-text"><i class="fa fa-fw fa-user-shield"></i></span>
-                        <select class="form-select select2" name="role" required>
-                            <option value="">- Role -</option>
-                            <?php
-                                $sql_user_roles = mysqli_query($mysqli, "SELECT role_id, role_name FROM user_roles WHERE role_archived_at IS NULL");
-                                while ($row = mysqli_fetch_assoc($sql_user_roles)) {
-                                    $role_id = intval($row['role_id']);
-                                    $role_name = escapeHtml($row['role_name']);
-
-                                ?>
-                                <option value="<?= $role_id ?>"><?= $role_name ?></option>
-                            <?php } ?>
-                        </select>
-                    </div>
-                </div>
-
-                <div class="mb-3">
-                    <label>Avatar</label>
-                    <input type="file" class="form-control" accept="image/*" name="file">
-                </div>
-
-                <div class="mb-3" <?php if(empty($config_smtp_host)) { echo "hidden"; } ?>>
-                    <div class="form-check">
-                        <input class="form-check-input" type="checkbox" id="sendEmailCheckBox" name="send_email" value="" checked>
-                        <label for="sendEmailCheckBox" class="form-check-label">
-                            Send user e-mail with login details?
-                        </label>
-                    </div>
-                </div>
-
-                <div class="mb-3">
-                    <div class="form-check">
-                        <input class="form-check-input" type="checkbox" id="forceMFACheckBox" name="force_mfa" value=1>
-                        <label for="forceMFACheckBox" class="form-check-label">
-                            Force MFA
-                        </label>
-                    </div>
-                </div>
-
-            </div>
-
-            <div class="tab-pane fade" id="pills-user-access">
-
-                <div class="alert alert-info">
-                    <strong>Allow</strong> restricts the user to the selected clients (no Allow = full access). <strong>Deny</strong> blocks a client regardless of Allow. Admin users are unaffected.
-                </div>
-
-                <div class="mb-2">
-                    <small class="text-muted me-2">Set all:</small>
-                    <button type="button" class="btn btn-sm btn-outline-secondary" onclick="document.querySelectorAll('#accessTable .perm-none').forEach(r => r.checked = true);">No Rule</button>
-                    <button type="button" class="btn btn-sm btn-outline-success" onclick="document.querySelectorAll('#accessTable .perm-allow').forEach(r => r.checked = true);">Allow</button>
-                    <button type="button" class="btn btn-sm btn-outline-danger" onclick="document.querySelectorAll('#accessTable .perm-deny').forEach(r => r.checked = true);">Deny</button>
-                </div>
-
-                <div class="table-responsive">
-                    <table class="table table-sm table-hover mb-0" id="accessTable">
-                        <thead>
-                            <tr>
-                                <th>Client</th>
-                                <th class="text-center" style="width: 90px;">No Rule</th>
-                                <th class="text-center text-success" style="width: 90px;">Allow</th>
-                                <th class="text-center text-danger" style="width: 90px;">Deny</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-
-                        <?php
-                        $sql_client_select = mysqli_query($mysqli, "SELECT client_id, client_name FROM clients WHERE client_archived_at IS NULL ORDER BY client_name ASC");
-                        while ($row = mysqli_fetch_assoc($sql_client_select)) {
-                            $client_id = intval($row['client_id']);
-                            $client_name = escapeHtml($row['client_name']);
-                        ?>
-
-                            <tr>
-                                <td class="align-middle"><?= $client_name ?></td>
-                                <td class="text-center align-middle">
-                                    <input type="radio" class="form-check-input perm-none" name="client_permission[<?= $client_id ?>]" value="" checked>
-                                </td>
-                                <td class="text-center align-middle">
-                                    <input type="radio" class="form-check-input perm-allow" name="client_permission[<?= $client_id ?>]" value="allow">
-                                </td>
-                                <td class="text-center align-middle">
-                                    <input type="radio" class="form-check-input perm-deny" name="client_permission[<?= $client_id ?>]" value="deny">
-                                </td>
-                            </tr>
-
-                        <?php } ?>
-
-                        </tbody>
-                    </table>
-                </div>
-
-            </div>
-
-        </div>
-
+        <?php if (agentUserLimitReached()) { ?>
+            <div class="alert alert-danger small"><?= agentUserLimitMessage() ?></div>
+        <?php } ?>
+        <?php require 'user_form.php'; ?>
     </div>
     <div class="modal-footer">
         <button type="submit" name="add_user" class="btn btn-primary text-bold"><i class="fas fa-check me-2"></i>Create</button>
         <button type="button" class="btn btn-light" data-bs-dismiss="modal"><i class="fas fa-times me-2"></i>Cancel</button>
     </div>
 </form>
-
-<script>
-
-function generatePassword() {
-    itflowGet(
-        "/agent/ajax.php", {
-            get_readable_pass: 'true'
-        },
-        function(data) {
-            const password = JSON.parse(data);
-            document.getElementById("password").value = password;
-        }
-    );
-}
-
-</script>
 
 <?php
 require_once "../../../includes/modal_footer.php";

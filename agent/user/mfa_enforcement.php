@@ -12,13 +12,9 @@ $company_logo = escapeHtml($row['company_logo']);
 
 // Only generate the token once and store it in session:
 if (empty($_SESSION['mfa_token'])) {
-    $token = generateTotpSecret();
-    $_SESSION['mfa_token'] = $token;
+    $_SESSION['mfa_token'] = generateTotpSecret();
 }
-$token = $_SESSION['mfa_token'];
-
-// Generate QR Code
-$data = "otpauth://totp/ITFlow:$session_email?secret=$token";
+$mfa_secret = $_SESSION['mfa_token'];
 
 ?>
 
@@ -65,26 +61,17 @@ $data = "otpauth://totp/ITFlow:$session_email?secret=$token";
         <div class="card">
             <div class="card-body login-card-body text-center">
 
-                <p class="login-box-msg">Multi-Factor Authentication Enforced</p>
+                <p class="login-box-msg fw-semibold mb-1">Set up multi-factor authentication</p>
+                <p class="small text-body-secondary">Your administrator requires it - once it's set up, signing in takes your password and a code from your phone.</p>
 
                 <form action="post.php" method="post" autocomplete="off">
                     <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
 
-                    <img src='../../libs/barcode/barcode.php?f=png&s=qr&d=<?= $data ?>' data-bs-toggle="tooltip" title="Scan QR code into your MFA App">
+                    <?php require __DIR__ . '/includes/mfa_setup.php'; ?>
 
-                    <p class="itflow-copy-always">
-                        <small data-bs-toggle="tooltip" title="Can't Scan? Copy and paste this code into your app"><?= $token ?></small>
-                        <button type='button' class='itflow-copy clipboardjs' title='Copy secret' data-clipboard-text='<?= $token ?>'><i class='far fa-copy'></i></button>
-                    </p>
-
-                    <div class="input-group mb-3">
-                        <input type="text" class="form-control" inputmode="numeric" pattern="[0-9]*" minlength="6" maxlength="6" name="verify_code" placeholder="Enter 6 digit code to verify MFA" required>
-                            <div class="input-group-text">
-                                <span class="fas fa-lock"></span>
-                            </div>
-                    </div>
-
-                    <button type="submit" name="enable_mfa" class="btn btn-primary w-100 mb-3"><i class="fa fa-check me-2"></i>Enable MFA</button>
+                    <div class="mb-3"></div>
+                    <button type="submit" name="enable_mfa" class="btn btn-primary w-100 mb-2"><i class="fa fa-check me-2"></i>Turn on MFA</button>
+                    <a class="small text-body-secondary" href="post.php?logout">Sign out</a>
                 </form>
 
             </div>

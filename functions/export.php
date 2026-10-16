@@ -409,6 +409,9 @@ function getExportColumns($export_type) {
             'user_email'         => ['label' => 'Email', 'weight' => 2],
             'role_name'          => ['label' => 'Role'],
             'user_status_display' => ['label' => 'Status'],
+            'user_mfa_display'   => ['label' => 'MFA'],
+            'user_last_login'    => ['label' => 'Last Sign In'],
+            'user_client_access' => ['label' => 'Client Access', 'weight' => 2, 'default' => false],
             'user_created_at'    => ['label' => 'Creation Date'],
         ],
 

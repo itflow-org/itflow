@@ -11,46 +11,48 @@
     <!-- Sidebar -->
     <div class="sidebar-wrapper">
 
+        <!-- Who is signed in -->
+        <div class="d-flex align-items-center gap-2 px-3 pt-3 pb-1 text-white-50 small min-w-0">
+            <?= userAvatar($session_user_id, stripslashes($session_name), $session_avatar, 'md') ?>
+            <div class="min-w-0">
+                <div class="text-white text-truncate"><?= stripslashes(escapeHtml($session_name)) ?></div>
+                <div class="text-truncate"><?= escapeHtml($session_email) ?></div>
+            </div>
+        </div>
+
         <!-- Sidebar Menu -->
         <nav>
-
             <ul class="nav nav-pills sidebar-menu flex-column mt-2" data-lte-toggle="treeview" role="menu" data-accordion="false">
-
-                <li class="nav-item">
-                    <a href="/agent/user/user_details.php" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "user_details.php") { echo "active"; } ?>">
-                        <i class="nav-icon fas fa-user"></i>
-                        <p>Details</p>
-                    </a>
-                </li>
-
-               <li class="nav-item mt-2">
-                    <a href="/agent/user/user_security.php" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "user_security.php") { echo "active"; } ?>">
-                        <i class="nav-icon fas fa-shield-alt"></i>
-                        <p>Security</p>
-                    </a>
-                </li>
-
-                <li class="nav-item mt-2">
-                    <a href="/agent/user/user_preferences.php" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "user_preferences.php") { echo "active"; } ?>">
-                        <i class="nav-icon fas fa-cogs"></i>
-                        <p>Preferences</p>
-                    </a>
-                </li>
-
-                <li class="nav-item mt-2">
-                    <a href="/agent/user/user_activity.php" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "user_activity.php") { echo "active"; } ?>">
-                        <i class="nav-icon fas fa-clock"></i>
-                        <p>Activity</p>
-                    </a>
-                </li>
-
+                <?php
+                $account_pages = [
+                    'user_details.php' => ['fa-id-badge', 'Profile'],
+                    'user_security.php' => ['fa-shield-alt', 'Security'],
+                    'user_preferences.php' => ['fa-sliders-h', 'Preferences'],
+                    'user_activity.php' => ['fa-history', 'Activity'],
+                ];
+                foreach ($account_pages as $page => [$icon, $label]) { ?>
+                    <li class="nav-item">
+                        <a href="/agent/user/<?= $page ?>" class="nav-link <?= basename($_SERVER["PHP_SELF"]) === $page ? 'active' : '' ?>">
+                            <i class="nav-icon fas <?= $icon ?>"></i>
+                            <p><?= $label ?></p>
+                        </a>
+                    </li>
+                <?php } ?>
+                <?php if ($session_is_admin) { ?>
+                    <li class="nav-header">ADMINISTRATION</li>
+                    <li class="nav-item">
+                        <a href="/admin/users.php" class="nav-link">
+                            <i class="nav-icon fas fa-users"></i>
+                            <p>Users</p>
+                        </a>
+                    </li>
+                <?php } ?>
             </ul>
         </nav>
         <!-- /.sidebar-menu -->
 
         <div class="mb-3"></div>
-        
+
     </div>
     <!-- /.sidebar -->
 </aside>
-

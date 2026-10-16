@@ -19,6 +19,7 @@ require_once __DIR__ . '/functions/files.php';
 require_once __DIR__ . '/functions/domain.php';
 require_once __DIR__ . '/functions/certificate.php';
 require_once __DIR__ . '/functions/network.php';
+require_once __DIR__ . '/functions/user.php';
 require_once __DIR__ . '/functions/asset_interface.php';
 require_once __DIR__ . '/functions/rack.php';
 require_once __DIR__ . '/functions/asset.php';

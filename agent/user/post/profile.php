@@ -1,94 +1,68 @@
 <?php
 
 /*
- * ITFlow - GET/POST request handler for user profiles (tech/agent)
+ * ITFlow - GET/POST request handler for an agent's own account
+ *
+ * Their details, picture and signature; their password and MFA; their
+ * preferences. Changing what signs them in - the email, the password - and
+ * turning MFA off take their current password, so a session left open is not
+ * enough to take the account over; the old address is told when the email
+ * changes, and they are emailed when the password changes or MFA goes off.
  */
 
 defined('FROM_POST_HANDLER') || die("Direct file access is not allowed");
+
+/** Is this the signed in agent's current password? */
+function userCurrentPasswordOk($password) {
+    global $mysqli, $session_user_id;
+    $row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT user_password FROM users WHERE user_id = " . intval($session_user_id)));
+    return $row && password_verify((string) $password, $row['user_password']);
+}
 
 if (isset($_POST['edit_your_user_details'])) {
 
     validateCSRFToken();
 
-    $name = escapeSql($_POST['name']);
-    $email = escapeSql($_POST['email']);
-    $signature = mysqli_escape_string($mysqli,$_POST['signature']);
+    $me = userRow($session_user_id);
 
-    $existing_file_name = escapeSql(getFieldById('users', $session_user_id, 'user_avatar'));
-
-    $logout = false;
-    $extended_log_description = '';
-
-    // Email notification when password or email is changed
-    $user_old_email_sql = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT user_email FROM users WHERE user_id = $session_user_id"));
-    $user_old_email = escapeSql($user_old_email_sql['user_email']);
-
-    // Sanitize Config Vars from get_settings.php and Session Vars from check_login.php
-    $config_mail_from_name = escapeSql($config_mail_from_name);
-    $config_mail_from_email = escapeSql($config_mail_from_email);
-    $config_app_name = escapeSql($config_app_name);
-
-    if (!empty($config_smtp_host) && ($user_old_email !== $email)) {
-
-        $details = "Your email address was changed. New email: $email.";
-
-        $subject = "$config_app_name account update confirmation for $name";
-        $body = "Hi $name, <br><br>Your $config_app_name account has been updated, details below: <br><br> <b>$details</b> <br><br> If you did not perform this change, contact your $config_app_name administrator immediately. <br><br>Thanks, <br>ITFlow<br>$session_company_name";
-
-        $data = [
-            [
-                'from' => $config_mail_from_email,
-                'from_name' => $config_mail_from_name,
-                'recipient' => $user_old_email,
-                'recipient_name' => $name,
-                'subject' => $subject,
-                'body' => $body
-            ]
-        ];
-        $mail = addToMailQueue($data);
-    }
-
-    // Photo
-    if (isset($_FILES['avatar']['tmp_name'])) {
-        if ($new_file_name = checkFileUpload($_FILES['avatar'], array('jpg', 'jpeg', 'gif', 'png', 'webp'))) {
-
-            $file_tmp_path = $_FILES['avatar']['tmp_name'];
-
-            // directory in which the uploaded file will be moved
-            $upload_file_dir = "../../uploads/users/$session_user_id/";
-            $dest_path = $upload_file_dir . $new_file_name;
-
-            if (!file_exists("$upload_file_dir")) {
-                mkdir("$upload_file_dir");
-            }
-
-            move_uploaded_file($file_tmp_path, $dest_path);
-
-            // Delete old file
-            unlink("../../uploads/users/$session_user_id/$existing_file_name");
-
-            // Set Avatar
-            mysqli_query($mysqli,"UPDATE users SET user_avatar = '$new_file_name' WHERE user_id = $session_user_id");
-
-            // Extended Logging
-            $extended_log_description .= ", avatar updated";
-
-        }
-    }
-
-    mysqli_query($mysqli,"UPDATE users SET user_name = '$name', user_email = '$email' WHERE user_id = $session_user_id");
-
-    mysqli_query($mysqli,"UPDATE user_settings SET user_config_signature = '$signature' WHERE user_id = $session_user_id");
-
-    logAudit("User Account", "Edit", "$session_name edited their account $extended_log_description");
-
-    flashAlert("User details updated");
-
-    if ($logout) {
-        redirect('post.php?logout');
-    } else {
+    $error = '';
+    $identity = userCheckIdentity($_POST, $session_user_id, $error);
+    if (!$identity) {
+        flashAlert($error, 'error');
         redirect();
     }
+    [$name, $email] = $identity;
+
+    $email_changed = strcasecmp($email, $me['user_email']) !== 0;
+    if ($email_changed && !userCurrentPasswordOk($_POST['current_password'] ?? '')) {
+        flashAlert('Your email signs you in - enter your current password to change it.', 'error');
+        redirect();
+    }
+
+    // The signature goes on emailed replies - kept to HTML that is safe to send
+    $signature = mysqli_real_escape_string($mysqli, documentHtmlPurify((string) ($_POST['signature'] ?? '')));
+
+    mysqli_query($mysqli, "UPDATE users SET user_name = '" . escapeSql($name) . "', user_email = '" . escapeSql($email) . "' WHERE user_id = $session_user_id");
+    mysqli_query($mysqli, "INSERT INTO user_settings SET user_id = $session_user_id, user_config_signature = '$signature' ON DUPLICATE KEY UPDATE user_config_signature = '$signature'");
+
+    $changes = [];
+    if ($email_changed) {
+        userNotifyChange($name, $me['user_email'], 'its email address is now ' . $email);
+        $changes[] = 'email changed';
+    }
+    $avatar_error = '';
+    if (!empty($_POST['remove_avatar'])) {
+        userRemoveAvatar($session_user_id);
+        $changes[] = 'picture removed';
+    } elseif (!empty($_FILES['avatar']['tmp_name']) && userSaveAvatar($session_user_id, $_FILES['avatar'], $avatar_error)) {
+        $changes[] = 'picture updated';
+    }
+
+    logAudit("User Account", "Edit", "$session_name edited their account" . ($changes ? ' - ' . escapeSql(implode(', ', $changes)) : ''));
+
+    flashAlert("Your details are saved" . ($avatar_error ? " - $avatar_error" : ''), $avatar_error ? 'warning' : 'success');
+
+    redirect();
 
 }
 
@@ -96,15 +70,11 @@ if (isset($_GET['clear_your_user_avatar'])) {
 
     validateCSRFToken();
 
-    $user_avatar = escapeSql(getFieldById('users', $session_user_id, 'user_avatar'));
-
-    unlink("../../uploads/users/$session_user_id/$user_avatar");
-
-    mysqli_query($mysqli,"UPDATE users SET user_avatar = NULL WHERE user_id = $session_user_id");
+    userRemoveAvatar($session_user_id);
 
     logAudit("User Account", "Edit", "$session_name cleared their avatar");
 
-    flashAlert("Avatar cleared", 'error');
+    flashAlert("Picture removed");
 
     redirect();
 
@@ -114,49 +84,28 @@ if (isset($_POST['edit_your_user_password'])) {
 
     validateCSRFToken();
 
-    $new_password = trim($_POST['new_password']);
+    $new_password = (string) ($_POST['new_password'] ?? '');
 
-    if (empty($new_password)) {
+    if (!userCurrentPasswordOk($_POST['current_password'] ?? '')) {
+        flashAlert('That is not your current password - nothing was changed.', 'error');
+        redirect('user_security.php');
+    }
+    if ($problem = userPasswordProblem($new_password)) {
+        flashAlert($problem, 'error');
+        redirect('user_security.php');
+    }
+    if ($new_password !== (string) ($_POST['confirm_password'] ?? '')) {
+        flashAlert('The new password and its confirmation are not the same.', 'error');
         redirect('user_security.php');
     }
 
-    // Email notification when password or email is changed
-    $user_sql = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT user_name, user_email FROM users WHERE user_id = $session_user_id"));
-    $name = escapeSql($user_sql['user_name']);
-    $user_email = escapeSql($user_sql['user_email']);
-
-    // Sanitize Config Vars from get_settings.php and Session Vars from check_login.php
-    $config_mail_from_name = escapeSql($config_mail_from_name);
-    $config_mail_from_email = escapeSql($config_mail_from_email);
-    $config_app_name = escapeSql($config_app_name);
-
-    if (!empty($config_smtp_host)){
-
-        $details = "Your password was changed.";
-
-        $subject = "$config_app_name account update confirmation for $name";
-        $body = "Hi $name, <br><br>Your $config_app_name account has been updated, details below: <br><br> <b>$details</b> <br><br> If you did not perform this change, contact your $config_app_name administrator immediately. <br><br>Thanks, <br>$config_app_name";
-
-        $data = [
-            [
-                'from' => $config_mail_from_email,
-                'from_name' => $config_mail_from_name,
-                'recipient' => $user_email,
-                'recipient_name' => $name,
-                'subject' => $subject,
-                'body' => $body
-            ]
-        ];
-        $mail = addToMailQueue($data);
-    }
-
-    $new_password = password_hash($new_password, PASSWORD_DEFAULT);
-    $user_specific_encryption_ciphertext = encryptUserSpecificKey($_POST['new_password']);
-    mysqli_query($mysqli,"UPDATE users SET user_password = '$new_password', user_specific_encryption_ciphertext = '$user_specific_encryption_ciphertext' WHERE user_id = $session_user_id");
+    $me = userRow($session_user_id);
+    userSetPassword($session_user_id, $new_password);
+    userNotifyChange($me['user_name'], $me['user_email'], 'its password was changed');
 
     logAudit("User Account", "Edit", "$session_name changed their password");
 
-    flashAlert("Your password was updated");
+    flashAlert("Your password was changed - sign in with the new one");
 
     redirect('post.php?logout');
 }
@@ -165,34 +114,19 @@ if (isset($_POST['edit_your_user_preferences'])) {
 
     validateCSRFToken();
 
-    $calendar_first_day = intval($_POST['calendar_first_day']);
-    $dark_mode = intval($_POST['dark_mode'] ?? 0);
-
-    // Calendar
-    if (isset($calendar_first_day)) {
-        mysqli_query($mysqli, "UPDATE user_settings SET user_config_calendar_first_day = $calendar_first_day, user_config_theme_dark = $dark_mode WHERE user_id = $session_user_id");
+    $calendar_first_day = intval($_POST['calendar_first_day'] ?? 0) === 1 ? 1 : 0;
+    $dark_mode = intval($_POST['dark_mode'] ?? 0) === 1 ? 1 : 0;
+    $per_page = intval($_POST['records_per_page'] ?? 10);
+    if (!in_array($per_page, [5, 10, 20, 50, 100, 500], true)) {
+        $per_page = 10;
     }
 
-    // Enable extension access, only if it isn't already setup (user doesn't have cookie)
-    if (isset($_POST['extension']) && $_POST['extension'] == 'Yes') {
-        if (!isset($_COOKIE['user_extension_key'])) {
-            $extension_key = randomString(32);
-            mysqli_query($mysqli, "UPDATE users SET user_extension_key = '$extension_key' WHERE user_id = $session_user_id");
+    mysqli_query($mysqli, "INSERT INTO user_settings SET user_id = $session_user_id, user_config_calendar_first_day = $calendar_first_day, user_config_theme_dark = $dark_mode, user_config_records_per_page = $per_page
+        ON DUPLICATE KEY UPDATE user_config_calendar_first_day = $calendar_first_day, user_config_theme_dark = $dark_mode, user_config_records_per_page = $per_page");
 
-            $extended_log_description .= "enabled browser extension access";
-            $logout = true;
-        }
-    }
+    logAudit("User Account", "Edit", "$session_name updated their preferences");
 
-    // Disable extension access
-    if (!isset($_POST['extension'])) {
-        mysqli_query($mysqli, "UPDATE users SET user_extension_key = '' WHERE user_id = $session_user_id");
-        $extended_log_description .= "disabled browser extension access";
-    }
-
-    logAudit("User Account", "Edit", "$session_name $extended_log_description");
-
-    flashAlert("User preferences updated");
+    flashAlert("Your preferences are saved");
 
     redirect();
 
@@ -205,55 +139,42 @@ if (isset($_POST['enable_mfa'])) {
     require_once "../../libs/totp/totp.php";
 
     // Grab the code from the user
-    $verify_code = trim($_POST['verify_code']);
-    // Ensure it's numeric
-    if (!ctype_digit($verify_code)) {
+    $verify_code = preg_replace('/\s+/', '', (string) ($_POST['verify_code'] ?? ''));
+    if (!preg_match('/^[0-9]{6}$/', $verify_code)) {
         $verify_code = '';
     }
 
     // Grab the secret from the session
     $token = $_SESSION['mfa_token'] ?? '';
+    $from_enforcement = isset($_SERVER['HTTP_REFERER']) && basename(parse_url($_SERVER['HTTP_REFERER'], PHP_URL_PATH)) === 'mfa_enforcement.php';
 
-    // Verify
-    if (TokenAuth6238::verify($token, $verify_code, 1)) {
+    if ($token !== '' && $verify_code !== '' && TokenAuth6238::verify($token, $verify_code, 1)) {
 
-        // SUCCESS
-        mysqli_query($mysqli,"UPDATE users SET user_token = '$token' WHERE user_id = $session_user_id");
+        mysqli_query($mysqli, "UPDATE users SET user_token = '" . escapeSql($token) . "' WHERE user_id = $session_user_id");
 
         // Delete any existing MFA tokens - these browsers should be re-validated
         mysqli_query($mysqli, "DELETE FROM remember_tokens WHERE remember_token_user_id = $session_user_id");
 
         logAudit("User Account", "Edit", "$session_name enabled MFA on their account");
 
-        flashAlert("Multi-Factor authentication enabled");
+        flashAlert("Multi-factor authentication is on - you will be asked for a code when you sign in");
 
         // Clear the mfa_token from the session to avoid re-use.
         unset($_SESSION['mfa_token']);
 
-        // Check if the previous page is mfa_enforcement.php
-        if (isset($_SERVER['HTTP_REFERER'])) {
-            $previousPage = basename(parse_url($_SERVER['HTTP_REFERER'], PHP_URL_PATH));
-            if ($previousPage === 'mfa_enforcement.php') {
-                // Redirect back to mfa_enforcement.php
-                redirect("../$config_start_page");
-
-            }
+        if ($from_enforcement) {
+            redirect("../$config_start_page");
         }
 
     } else {
-        // FAILURE
-        flashAlert("Verification code invalid, please try again.", 'error');
 
-        // Set a flag to automatically open the MFA modal again
+        flashAlert("That code did not match - check the time on your phone, and try the newest code.", 'error');
+
+        // Open the set up again, with the same secret
         $_SESSION['show_mfa_modal'] = true;
 
-        // Check if the previous page is mfa_enforcement.php
-        if (isset($_SERVER['HTTP_REFERER'])) {
-            $previousPage = basename(parse_url($_SERVER['HTTP_REFERER'], PHP_URL_PATH));
-            if ($previousPage === 'mfa_enforcement.php') {
-                // Redirect back to mfa_enforcement.php
-                redirect();
-            }
+        if ($from_enforcement) {
+            redirect();
         }
     }
 
@@ -261,48 +182,28 @@ if (isset($_POST['enable_mfa'])) {
 
 }
 
-if (isset($_GET['disable_mfa'])){
-
-    if ($session_user_config_force_mfa) {
-        flashAlert("Multi-Factor authentication cannot be disabled for your account", 'error');
-        redirect();
-    }
+if (isset($_POST['disable_your_mfa'])) {
 
     validateCSRFToken();
 
-    mysqli_query($mysqli,"UPDATE users SET user_token = '' WHERE user_id = $session_user_id");
-
-    // Delete any existing MFA tokens - these browsers should be re-validated
-    mysqli_query($mysqli, "DELETE FROM remember_tokens WHERE remember_token_user_id = $session_user_id");
-
-    // Sanitize Config Vars from get_settings.php and Session Vars from check_login.php
-    $config_mail_from_name = escapeSql($config_mail_from_name);
-    $config_mail_from_email = escapeSql($config_mail_from_email);
-    $config_app_name = escapeSql($config_app_name);
-
-    // Email notification
-    if (!empty($config_smtp_host)) {
-        $subject = "$config_app_name account update confirmation for $session_name";
-        $body = "Hi $session_name, <br><br>Your $config_app_name account has been updated, details below: <br><br> <b>2FA was disabled.</b> <br><br> If you did not perform this change, contact your $config_app_name administrator immediately. <br><br>Thanks, <br>ITFlow<br>$session_company_name";
-
-        $data = [
-            [
-                'from' => $config_mail_from_email,
-                'from_name' => $config_mail_from_name,
-                'recipient' => $session_email,
-                'recipient_name' => $session_name,
-                'subject' => $subject,
-                'body' => $body
-            ]
-            ];
-        $mail = addToMailQueue($data);
+    if ($session_user_config_force_mfa) {
+        flashAlert("Your administrator requires multi-factor authentication on your account - it cannot be turned off.", 'error');
+        redirect("user_security.php");
     }
+    if (!userCurrentPasswordOk($_POST['current_password'] ?? '')) {
+        flashAlert('That is not your current password - MFA is still on.', 'error');
+        redirect("user_security.php");
+    }
+
+    $me = userRow($session_user_id);
+    userResetMfa($session_user_id);
+    userNotifyChange($me['user_name'], $me['user_email'], 'multi-factor authentication was turned off');
 
     logAudit("User Account", "Edit", "$session_name disabled MFA on their account");
 
-    flashAlert("Multi-Factor authentication disabled", 'error');
+    flashAlert("Multi-factor authentication is off", 'error');
 
-    redirect();
+    redirect("user_security.php");
 
 }
 
@@ -310,13 +211,28 @@ if (isset($_POST['revoke_your_2fa_remember_tokens'])) {
 
     validateCSRFToken();
 
-    // Delete tokens
     mysqli_query($mysqli, "DELETE FROM remember_tokens WHERE remember_token_user_id = $session_user_id");
 
     logAudit("User Account", "Edit", "$session_name revoked all their remember-me tokens");
 
-    flashAlert("Remember me tokens revoked", 'error');
+    flashAlert("Every remembered browser is forgotten - each asks for your code at the next sign in");
 
-    redirect();
+    redirect("user_security.php");
+
+}
+
+if (isset($_POST['revoke_your_remember_token'])) {
+
+    validateCSRFToken();
+
+    $token_id = intval($_POST['revoke_your_remember_token']);
+    mysqli_query($mysqli, "DELETE FROM remember_tokens WHERE remember_token_id = $token_id AND remember_token_user_id = $session_user_id");
+
+    if (mysqli_affected_rows($mysqli)) {
+        logAudit("User Account", "Edit", "$session_name revoked a remember-me token");
+        flashAlert("That browser is forgotten - it asks for your code at the next sign in");
+    }
+
+    redirect("user_security.php");
 
 }

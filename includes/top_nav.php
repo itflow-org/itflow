@@ -73,26 +73,16 @@
 
         <li class="nav-item dropdown user-menu">
             <a href="#" class="nav-link" data-bs-toggle="dropdown">
-                <?php if (empty($session_avatar)) { ?>
-                <i class="fas fa-user-circle me-1"></i>
-                <?php }else{ ?>
-                <img src="<?= "/uploads/users/$session_user_id/$session_avatar" ?>"
-                    class="user-image rounded-circle">
-                <?php } ?>
+                <span class="me-md-2" data-bs-theme="light"><?= userAvatar($session_user_id, stripslashes($session_name), $session_avatar, 'sm') ?></span>
                 <span class="d-none d-md-inline dropdown-toggle"><?= stripslashes(escapeHtml($session_name)) ?></span>
             </a>
             <ul class="dropdown-menu dropdown-menu-lg dropdown-menu-end">
                 <!-- User image -->
-                <li class="user-header bg-dark">
-                    <?php if (empty($session_avatar)) { ?>
-                    <i class="fas fa-user-circle fa-6x"></i>
-                    <?php }else{ ?>
-
-                    <img src="<?= "/uploads/users/$session_user_id/$session_avatar" ?>" class="rounded-circle">
-                    <?php } ?>
+                <li class="user-header bg-dark itflow-user-header">
+                    <span class="d-inline-block" data-bs-theme="light"><?= userAvatar($session_user_id, stripslashes($session_name), $session_avatar, 'xl') ?></span>
                     <p>
                         <?= stripslashes(escapeHtml($session_name)) ?>
-                        <small><?= escapeHtml($session_user_role_display) ?></small>
+                        <small><?= escapeHtml($session_email) ?> · <?= escapeHtml(stripslashes($session_user_role_display)) ?></small>
                     </p>
                 </li>
                 <!-- Menu Footer-->
