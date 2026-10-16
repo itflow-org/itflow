@@ -10,7 +10,7 @@ ob_start();
 
 ?>
 <div class="modal-header bg-dark">
-    <h5 class="modal-title"><i class="fa fa-fw fa-link me-2"></i>Set Referral for <strong><?= $count ?></strong> Clients</h5>
+    <h5 class="modal-title"><i class="fa fa-fw fa-link me-2"></i>Set Referral for <strong><?= $count ?></strong> client<?= $count === 1 ? '' : 's' ?></h5>
     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
 </div>
 

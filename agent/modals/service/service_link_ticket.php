@@ -35,14 +35,17 @@ ob_start();
     <div class="modal-body">
         <?php if ($candidates) { ?>
             <label class="form-label">Which tickets?</label>
-            <select class="form-select select2" name="ticket_ids[]" multiple required data-placeholder="Search by number or subject">
-                <?php foreach ($candidates as $row) {
-                    $is_open = ticketIsOpen($row); ?>
-                    <option value="<?= intval($row['ticket_id']) ?>" data-icon="fas fa-<?= $is_open ? 'life-ring' : 'check-circle' ?>"
-                        data-description="<?= escapeHtml($row['ticket_prefix'] . $row['ticket_number'] . ' · ' . ($is_open ? 'Open' : 'Closed') . ' · ' . date('M j, Y', strtotime($row['ticket_created_at']))) ?>"
-                        data-keywords="<?= escapeHtml($row['ticket_prefix'] . $row['ticket_number']) ?>"><?= escapeHtml($row['ticket_subject']) ?></option>
-                <?php } ?>
-            </select>
+            <div class="input-group">
+                <span class="input-group-text"><i class="fas fa-fw fa-life-ring"></i></span>
+                <select class="form-select select2" name="ticket_ids[]" multiple required data-placeholder="Search by number or subject">
+                    <?php foreach ($candidates as $row) {
+                        $is_open = ticketIsOpen($row); ?>
+                        <option value="<?= intval($row['ticket_id']) ?>" data-icon="fas fa-<?= $is_open ? 'life-ring' : 'check-circle' ?>"
+                            data-description="<?= escapeHtml($row['ticket_prefix'] . $row['ticket_number'] . ' · ' . ($is_open ? 'Open' : 'Closed') . ' · ' . date('M j, Y', strtotime($row['ticket_created_at']))) ?>"
+                            data-keywords="<?= escapeHtml($row['ticket_prefix'] . $row['ticket_number']) ?>"><?= escapeHtml($row['ticket_subject']) ?></option>
+                    <?php } ?>
+                </select>
+            </div>
             <div class="form-text">Tickets on its assets show on the service already - this is for the rest.</div>
         <?php } else { ?>
             <div class="itflow-asset-empty py-4">

@@ -280,19 +280,6 @@ function selectOptionCredential($row, $description = '') {
 }
 
 /**
- * A credential wherever a page mentions one: its tile and its name, opening
- * its quick look. 'class' goes on the link; 'archived' strikes it through.
- */
-function credentialLink($row, $options = []) {
-    $credential_id = intval($row['credential_id'] ?? $row['id'] ?? 0);
-    $name = escapeHtml($row['credential_name'] ?? $row['name'] ?? '');
-    $archived = !empty($options['archived']);
-    $class = trim('text-truncate ' . ($options['class'] ?? '') . ($archived ? ' text-decoration-line-through text-body-secondary' : ''));
-    return '<span class="itflow-contact-ref">' . credentialTile($row, 'sm')
-        . "<a class=\"ajax-modal $class\" href=\"#\" data-modal-url=\"modals/credential/credential.php?id=$credential_id\">$name</a></span>";
-}
-
-/**
  * Credentials to list somewhere - an asset's, a contact's, a vendor's or a
  * license's - each with its client, contact and asset like credentialRow(),
  * starred first then by name, keyed by id. $where is SQL the caller built

@@ -13,7 +13,7 @@ ob_start();
 ?>
 
 <div class="modal-header bg-dark">
-    <h5 class="modal-title"><i class="fa fa-fw fa-layer-group me-2"></i>Set Category for <strong><?= $count ?></strong> Tickets</h5>
+    <h5 class="modal-title"><i class="fa fa-fw fa-layer-group me-2"></i>Set Category for <strong><?= $count ?></strong> ticket<?= $count === 1 ? '' : 's' ?></h5>
     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
 </div>
 

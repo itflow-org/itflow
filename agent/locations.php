@@ -17,7 +17,7 @@ if (isset($_GET['client_id'])) {
     require_once "includes/inc_all_client.php";
     $client_query = "AND location_client_id = $client_id";
     $client_url = "client_id=$client_id&";
-    // Overide Filter Header Archived
+    // Override Filter Header Archived
     if (isset($_GET['archived']) && $_GET['archived'] == 1) {
         $archived = 1;
         $archive_query = "location_archived_at IS NOT NULL";
@@ -29,7 +29,7 @@ if (isset($_GET['client_id'])) {
     require_once "includes/inc_client_overview_all.php";
     $client_query = '';
     $client_url = '';
-    // Overide Filter Header Archived
+    // Override Filter Header Archived
     if (isset($_GET['archived']) && $_GET['archived'] == 1) {
         $archived = 1;
         $archive_query = "(client_archived_at IS NOT NULL OR location_archived_at IS NOT NULL)";
@@ -208,7 +208,7 @@ $locations_counts = locationCounts(array_keys($locations));
                                     </button>
                                     <?php if ($can_delete) { ?>
                                         <button class="dropdown-item text-danger text-bold confirm-link" type="submit" form="bulkActions" name="bulk_delete_locations"
-                                            data-confirm-text="The locations go for good. Their people, assets, networks, racks and tickets stay, at no location.">
+                                            data-confirm-text="The locations go for good. Their people, assets, networks, racks and tickets stay, with no location.">
                                             <i class="fas fa-fw fa-trash me-2"></i>Delete
                                         </button>
                                     <?php } ?>
@@ -390,7 +390,7 @@ $locations_counts = locationCounts(array_keys($locations));
                                                 </a>
                                                 <?php if ($can_delete) { ?>
                                                     <a class="dropdown-item text-danger text-bold confirm-link" href="post.php?delete_location=<?= $location_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>"
-                                                        data-confirm-text="<?= $location_name ?> goes for good. Its people, assets, networks, racks and tickets stay, at no location.">
+                                                        data-confirm-text="<?= $location_name ?> goes for good. Its people, assets, networks, racks and tickets stay, with no location.">
                                                         <i class="fas fa-fw fa-trash me-2"></i>Delete
                                                     </a>
                                                 <?php } ?>

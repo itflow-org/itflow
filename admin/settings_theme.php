@@ -33,7 +33,7 @@ $theme_colors_array = array(
         <form action="post.php" method="post" autocomplete="off">
             <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
 
-            <p class="text-muted">Sets the colour of the top bar, links, buttons and highlights.</p>
+            <p class="text-muted">Sets the color of the top bar, links, buttons and highlights.</p>
 
             <div class="row row-cols-3 row-cols-sm-4 row-cols-lg-6 g-3">
 

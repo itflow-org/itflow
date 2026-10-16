@@ -12,7 +12,7 @@ ob_start();
 
 ?>
 <div class="modal-header bg-dark">
-    <h5 class="modal-title"><i class="fas fa-fw fa-check me-2"></i>Resolve <strong><?= $count ?></strong> Tickets</h5>
+    <h5 class="modal-title"><i class="fas fa-fw fa-check me-2"></i>Resolve <strong><?= $count ?></strong> ticket<?= $count === 1 ? '' : 's' ?></h5>
     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
 </div>
 
@@ -29,15 +29,18 @@ ob_start();
         <div class="col-3">
             <div class="mb-3">
                 <label>Time worked</label>
-                <input class="form-control timepicker" id="time_worked" name="time" type="text" placeholder="HH:MM:SS" pattern="([01]?[0-9]|2[0-3]):([0-5]?[0-9]):([0-5]?[0-9])" value="00:01:00" required/>
+                <div class="input-group">
+                    <span class="input-group-text"><i class="fas fa-fw fa-stopwatch"></i></span>
+                    <input class="form-control timepicker" id="time_worked" name="time" type="text" placeholder="HH:MM:SS" pattern="([01]?[0-9]|2[0-3]):([0-5]?[0-9]):([0-5]?[0-9])" value="00:01:00" required/>
+                </div>
             </div>
         </div>
 
         <div class="mb-3">
             <div class="form-check">
                 <input type="checkbox" class="form-check-input" id="bulkPrivateCheckbox" name="bulk_private_note" value="1">
-                <label class="form-check-label" for="bulkPrivateCheckbox">Mark as Internal</label>
-                <small class="form-text text-muted">If checked this note will only be visible to agents. The contact / watcher will not be informed this ticket was resolved.</small>
+                <label class="form-check-label" for="bulkPrivateCheckbox">Mark as internal</label>
+                <small class="form-text text-muted">Only agents see it, and the contact and watchers are not told the ticket was resolved.</small>
             </div>
         </div>
 

@@ -29,10 +29,13 @@ ob_start();
     <div class="modal-body">
         <div class="mb-3">
             <label class="form-label">Name <strong class="text-danger">*</strong></label>
-            <input type="text" class="form-control" name="name" placeholder="Onsite visits, Maintenance windows, Time off..." maxlength="200" required autofocus>
+            <div class="input-group">
+                <span class="input-group-text"><i class="fas fa-fw fa-calendar"></i></span>
+                <input type="text" class="form-control" name="name" placeholder="Onsite visits, Maintenance windows, Time off..." maxlength="200" required autofocus>
+            </div>
         </div>
         <div class="mb-0">
-            <label class="form-label">Colour</label>
+            <label class="form-label">Color</label>
             <input type="color" class="form-control form-control-color" name="color" value="<?= $suggested ?>">
         </div>
     </div>

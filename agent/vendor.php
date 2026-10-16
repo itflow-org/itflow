@@ -303,7 +303,7 @@ if (!$vendor || (isset($_GET['client_id']) && $vendor_client_id !== intval($clie
                                 </a>
                                 <?php if ($can_delete) { ?>
                                     <a class="dropdown-item text-danger text-bold confirm-link" href="post.php?delete_vendor=<?= $vendor_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>"
-                                        data-confirm-text="<?= $vendor_name ?> goes for good. Its cases, licenses, assets and domains stay, from no vendor.">
+                                        data-confirm-text="<?= $vendor_name ?> goes for good. Its cases, licenses, assets and domains stay, with no vendor.">
                                         <i class="fas fa-fw fa-trash me-2"></i>Delete
                                     </a>
                                 <?php } ?>

@@ -19,7 +19,7 @@ if (isset($_GET['client_id'])) {
     require_once "includes/inc_all_client.php";
     $client_query = "AND contact_client_id = $client_id";
     $client_url = "client_id=$client_id&";
-    // Overide Filter Header Archived
+    // Override Filter Header Archived
     if (isset($_GET['archived']) && $_GET['archived'] == 1) {
         $archived = 1;
         $archive_query = "contact_archived_at IS NOT NULL";
@@ -31,7 +31,7 @@ if (isset($_GET['client_id'])) {
     require_once "includes/inc_client_overview_all.php";
     $client_query = '';
     $client_url = '';
-    // Overide Filter Header Archived
+    // Override Filter Header Archived
     if (isset($_GET['archived']) && $_GET['archived'] == 1) {
         $archived = 1;
         $archive_query = "(client_archived_at IS NOT NULL OR contact_archived_at IS NOT NULL)";

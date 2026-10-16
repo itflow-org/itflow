@@ -106,7 +106,7 @@ $value = function ($key) use ($form) {
             <label class="form-label">Description</label>
             <div class="input-group">
                 <span class="input-group-text"><i class="fas fa-fw fa-align-left"></i></span>
-                <input type="text" class="form-control" name="description" placeholder="Workstations and printers, internet only, 500/500 fibre" value="<?= $value('network_description') ?>">
+                <input type="text" class="form-control" name="description" placeholder="Workstations and printers, internet only, 500/500 fiber" value="<?= $value('network_description') ?>">
             </div>
         </div>
 

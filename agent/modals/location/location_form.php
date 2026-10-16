@@ -214,7 +214,10 @@ $form_id = 'locationForm' . ($location_form_mode === 'edit' ? $location_id : 'Ne
         </div>
         <div class="col-md-4">
             <label class="form-label">Extension</label>
-            <input type="text" class="form-control" name="extension" value="<?= $location_extension ?>" placeholder="ext." maxlength="10" inputmode="numeric">
+            <div class="input-group">
+                <span class="input-group-text"><i class="fas fa-fw fa-hashtag"></i></span>
+                <input type="text" class="form-control" name="extension" value="<?= $location_extension ?>" placeholder="ext." maxlength="10" inputmode="numeric">
+            </div>
         </div>
         <div class="col-md-8">
             <label class="form-label">Fax</label>

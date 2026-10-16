@@ -6,7 +6,7 @@
  * Their details, picture and signature; their password and MFA; their
  * preferences. Changing what signs them in - the email, the password - and
  * turning MFA off take their current password, so a session left open is not
- * enough to take the account over; the old address is told when the email
+ * enough to take the account over; the old address gets a notice when the email
  * changes, and they are emailed when the password changes or MFA goes off.
  */
 

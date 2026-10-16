@@ -73,6 +73,7 @@ ob_start();
         <div data-share-done hidden>
             <p class="mb-2"><i class="fas fa-check-circle text-success me-2"></i>The link is made, and copied.</p>
             <div class="input-group">
+                <span class="input-group-text"><i class="fas fa-fw fa-link"></i></span>
                 <input type="text" class="form-control" readonly data-share-link onclick="this.select();">
                 <button class="btn btn-outline-secondary" type="button" data-share-copy title="Copy link"><i class="far fa-fw fa-copy"></i></button>
             </div>

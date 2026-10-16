@@ -87,7 +87,7 @@ $value = function ($key) use ($form) {
                 <input type="email" class="form-control" name="email" placeholder="They sign in with this" maxlength="200" value="<?= $value('user_email') ?>" required>
             </div>
             <?php if (!$is_new) { ?>
-                <div class="form-text">Changed, they sign in with the new one - the old address is told.</div>
+                <div class="form-text">If you change it, they sign in with the new address - the old one gets a notice.</div>
             <?php } ?>
         </div>
         <div class="col-12">
@@ -153,7 +153,7 @@ $value = function ($key) use ($form) {
                 <div class="form-check form-switch">
                     <input class="form-check-input" type="checkbox" role="switch" name="force_mfa" value="1" id="<?= $form_id ?>ForceMfa" <?= intval($form['user_config_force_mfa'] ?? 0) ? 'checked' : '' ?>>
                     <label class="form-check-label" for="<?= $form_id ?>ForceMfa">Require it</label>
-                    <div class="form-text mt-0">Without it set up, they set it up at their next sign in - and they cannot turn it off.</div>
+                    <div class="form-text mt-0">If they haven't set it up yet, they're asked to at their next sign in - and they can't turn it off.</div>
                 </div>
                 <?php if ($form_has_mfa) { ?>
                     <div class="form-check mt-2">

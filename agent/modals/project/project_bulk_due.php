@@ -27,7 +27,10 @@ ob_start();
 
     <div class="modal-body">
         <label class="form-label">Due</label>
-        <input type="date" class="form-control" name="due_date">
+        <div class="input-group">
+            <span class="input-group-text"><i class="fas fa-fw fa-flag-checkered"></i></span>
+            <input type="date" class="form-control" name="due_date">
+        </div>
         <div class="form-text">Leave it empty to clear the due date. Open projects only, and not one that starts after it.</div>
     </div>
 

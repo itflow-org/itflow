@@ -122,16 +122,6 @@ function projectUrl($project_id, $client_id = 0) {
     return 'project.php?' . ($client_id ? "client_id=$client_id&" : '') . 'project_id=' . intval($project_id);
 }
 
-/** A project wherever a page mentions one: its name opening it, its reference beside it. */
-function projectLink($row, $options = []) {
-    $url = escapeHtml(projectUrl($row['project_id'], $row['project_client_id'] ?? 0));
-    $html = '<a class="' . (projectIsOpen($row) ? 'text-body' : 'text-body-secondary') . '" href="' . $url . '"><i class="fas fa-fw fa-project-diagram text-secondary me-1"></i>' . escapeHtml($row['project_name']) . '</a>';
-    if ($options['reference'] ?? true) {
-        $html .= ' <span class="font-monospace small text-body-secondary">' . escapeHtml(projectReference($row)) . '</span>';
-    }
-    return $html;
-}
-
 /** Where it stands: archived, completed, upcoming (starts after today) or active. */
 function projectState($row) {
     if (!empty($row['project_archived_at'])) {

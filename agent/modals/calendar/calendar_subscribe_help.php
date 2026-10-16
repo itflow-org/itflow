@@ -17,7 +17,7 @@ $help_apps = [
     ]],
     'outlook' => ['Outlook', 'fab fa-microsoft', [
         'In Outlook on the web or the new Outlook, open the calendar and choose <strong>Add calendar</strong> &rarr; <strong>Subscribe from web</strong>.',
-        'Paste the link, give it a name and a colour, and <strong>Import</strong>. Classic Outlook: <em>Account settings</em> &rarr; <em>Internet Calendars</em> &rarr; <em>New</em>.',
+        'Paste the link, give it a name and a color, and <strong>Import</strong>. Classic Outlook: <em>Account settings</em> &rarr; <em>Internet Calendars</em> &rarr; <em>New</em>.',
         '<span class="text-body-secondary">Outlook refreshes subscribed calendars on its own schedule, usually every few hours.</span>',
     ]],
     'apple' => ['iPhone & Mac', 'fab fa-apple', [

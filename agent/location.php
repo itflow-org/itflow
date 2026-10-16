@@ -260,7 +260,7 @@ if (!$location || ($client_url && intval($location['location_client_id']) !== in
                                     </a>
                                     <?php if ($can_delete) { ?>
                                         <a class="dropdown-item text-danger text-bold confirm-link" href="post.php?delete_location=<?= $location_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>"
-                                            data-confirm-text="<?= $location_name ?> goes for good. Its people, assets, networks, racks and tickets stay, at no location.">
+                                            data-confirm-text="<?= $location_name ?> goes for good. Its people, assets, networks, racks and tickets stay, with no location.">
                                             <i class="fas fa-fw fa-trash me-2"></i>Delete
                                         </a>
                                     <?php } ?>

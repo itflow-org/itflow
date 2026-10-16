@@ -100,7 +100,7 @@ if (isset($_POST['add_asset'])) {
 
     logAudit("Asset", "Create", "$session_name created asset $name", $client_id, $asset_id);
 
-    flashAlert("Asset <strong>$name</strong> created$alert_extended");
+    flashAlert("Asset <strong>" . stripslashes($name) . "</strong> created$alert_extended");
 
     redirect();
 
@@ -180,7 +180,7 @@ if (isset($_POST['edit_asset'])) {
 
     logAudit("Asset", "Edit", "$session_name edited asset $name", $client_id, $asset_id);
 
-    flashAlert("Asset <strong>$name</strong> edited");
+    flashAlert("Asset <strong>" . stripslashes($name) . "</strong> saved");
 
     redirect();
 
@@ -209,7 +209,7 @@ if (isset($_GET['archive_asset'])) {
 
     logAudit("Asset", "Archive", "$session_name archived asset $asset_name", $client_id, $asset_id);
 
-    flashAlert("Asset <strong>$asset_name</strong> archived", 'error');
+    flashAlert("Asset <strong>" . stripslashes($asset_name) . "</strong> archived", 'error');
 
     redirect();
 
@@ -238,7 +238,7 @@ if (isset($_GET['restore_asset'])) {
 
     logAudit("Asset", "Restore", "$session_name restored asset $asset_name", $client_id, $asset_id);
 
-    flashAlert("Asset <strong>$asset_name</strong> Restored");
+    flashAlert("Asset <strong>" . stripslashes($asset_name) . "</strong> restored");
 
     redirect();
 
@@ -270,7 +270,7 @@ if (isset($_GET['delete_asset'])) {
 
     logAudit("Asset", "Delete", "$session_name deleted asset $asset_name", $client_id);
 
-    flashAlert("Asset <strong>$asset_name</strong> deleted");
+    flashAlert("Asset <strong>" . stripslashes($asset_name) . "</strong> deleted", 'error');
 
     redirect();
 
@@ -385,7 +385,7 @@ if (isset($_GET['delete_asset_note'])) {
 
     logAudit("Asset", "Edit", "$session_name deleted $asset_note_type note for $asset_name", $client_id, $asset_id);
 
-    flashAlert("Note <strong>$asset_note_type</strong> deleted.", 'error');
+    flashAlert("Note <strong>$asset_note_type</strong> deleted", 'error');
 
     redirect();
 
@@ -439,7 +439,7 @@ if (isset($_POST['bulk_assign_asset_location'])) {
 
         logAudit("Asset", "Bulk Edit", "$session_name assigned $asset_count assets to location $location_name", $location_client_id);
 
-        flashAlert("You assigned <strong>$asset_count</strong> assets to location <strong>$location_name</strong>");
+        flashAlert("<strong>$asset_count</strong> asset" . ($asset_count === 1 ? '' : 's') . " assigned to location <strong>" . stripslashes($location_name) . "</strong>");
     }
 
     redirect();
@@ -479,7 +479,7 @@ if (isset($_POST['bulk_assign_asset_physical_location'])) {
 
         logAudit("Asset", "Bulk Edit", "$session_name set $asset_count assets to physical location $physical_location", $client_id);
 
-        flashAlert("You moved <strong>$asset_count</strong> assets to location <strong>$physical_location</strong>");
+        flashAlert("Physical location of <strong>$asset_count</strong> asset" . ($asset_count === 1 ? '' : 's') . " set to <strong>" . stripslashes($physical_location) . "</strong>");
     }
 
     redirect();
@@ -571,7 +571,7 @@ if (isset($_POST['bulk_transfer_client_asset'])) {
 
         logAudit("Asset", "Bulk Transfer", "$session_name transferred $asset_count assets to $new_client_name", $new_client_id);
 
-        flashAlert("Transferred <strong>$asset_count</strong> assets to <strong>$new_client_name</strong>.");
+        flashAlert("Transferred <strong>$asset_count</strong> asset" . ($asset_count === 1 ? '' : 's') . " to <strong>" . stripslashes($new_client_name) . "</strong>");
     }
 
     redirect();
@@ -622,7 +622,7 @@ if (isset($_POST['bulk_assign_asset_contact'])) {
 
         logAudit("Asset", "Bulk Edit", "$session_name assigned $asset_count assets to contact $contact_name", $client_id);
 
-        flashAlert("You assigned <strong>$asset_count</strong> assets to contact <strong>$contact_name</strong>");
+        flashAlert("<strong>$asset_count</strong> asset" . ($asset_count === 1 ? '' : 's') . " assigned to <strong>" . stripslashes($contact_name) . "</strong>");
     }
 
     redirect();
@@ -663,7 +663,7 @@ if (isset($_POST['bulk_edit_asset_status'])) {
 
         logAudit("Asset", "Bulk Edit", "$session_name set status to $status on $asset_count assets", $client_id);
 
-        flashAlert("You set the status <strong>$status</strong> on <strong>$asset_count</strong> assets.");
+        flashAlert("Status set to <strong>" . stripslashes($status) . "</strong> on <strong>$asset_count</strong> asset" . ($asset_count === 1 ? '' : 's'));
     }
 
     redirect();
@@ -821,7 +821,7 @@ if (isset($_POST['bulk_restore_assets'])) {
 
         logAudit("Asset", "Bulk Restore", "$session_name restored $count assets");
 
-        flashAlert("Restored $count asset(s)");
+        flashAlert("Restored <strong>$count</strong> asset(s)");
 
     }
 
@@ -908,7 +908,7 @@ if (isset($_POST['link_asset_to_credential'])) {
 
     logAudit("Credential", "Link", "$session_name linked credential $credential_name to asset $asset_name", $client_id, $credential_id);
 
-    flashAlert("Asset <strong>$asset_name</strong> linked with credential <strong>$credential_name</strong>");
+    flashAlert("Asset <strong>" . stripslashes($asset_name) . "</strong> linked with credential <strong>" . stripslashes($credential_name) . "</strong>");
 
     redirect();
 
@@ -940,7 +940,7 @@ if (isset($_GET['unlink_credential_from_asset'])) {
 
     logAudit("Credential", "Unlink", "$session_name unlinked asset $asset_name from credential $credential_name", $client_id, $credential_id);
 
-    flashAlert("Credential <strong>$credential_name</strong> unlinked from Asset <strong>$asset_name</strong>");
+    flashAlert("Credential <strong>" . stripslashes($credential_name) . "</strong> unlinked from asset <strong>" . stripslashes($asset_name) . "</strong>", 'error');
 
     redirect();
 

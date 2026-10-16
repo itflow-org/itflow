@@ -58,15 +58,21 @@ ob_start();
         <div class="row g-3 mb-3">
             <div class="col-md-6">
                 <label class="form-label">Review it</label>
-                <select class="form-select select2" name="review_interval">
-                    <?php foreach (SERVICE_REVIEW_INTERVALS as $months => $label) { ?>
-                        <option value="<?= $months ?>" <?= $interval === $months ? 'selected' : '' ?>><?= $label ?></option>
-                    <?php } ?>
-                </select>
+                <div class="input-group">
+                    <span class="input-group-text"><i class="fas fa-fw fa-redo"></i></span>
+                    <select class="form-select select2" name="review_interval">
+                        <?php foreach (SERVICE_REVIEW_INTERVALS as $months => $label) { ?>
+                            <option value="<?= $months ?>" <?= $interval === $months ? 'selected' : '' ?>><?= $label ?></option>
+                        <?php } ?>
+                    </select>
+                </div>
             </div>
             <div class="col-md-6">
                 <label class="form-label">Next review</label>
-                <input type="date" class="form-control" name="review_due" value="<?= $interval ? escapeHtml($next) : '' ?>">
+                <div class="input-group">
+                    <span class="input-group-text"><i class="fas fa-fw fa-calendar-check"></i></span>
+                    <input type="date" class="form-control" name="review_due" value="<?= $interval ? escapeHtml($next) : '' ?>">
+                </div>
             </div>
         </div>
 

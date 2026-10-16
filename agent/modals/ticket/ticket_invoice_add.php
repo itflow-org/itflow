@@ -252,7 +252,7 @@ ob_start();
                         <input type="text" class="form-control" inputmode="decimal" pattern="-?[0-9]*\.?[0-9]{0,2}" name="qty" value="<?= roundToNearest15Min($ticket_total_reply_time) ?>" required>
                     </div>
                     <small class="form-text text-muted">
-                        Based off Ticket time spent <strong><?= $ticket_total_reply_time ?></strong> in 15 Min Increments rounded up.
+                        From the <strong><?= $ticket_total_reply_time ?></strong> worked on the ticket, rounded up to the next 15 minutes.
                     </small>
                 </div>
 
@@ -267,7 +267,7 @@ ob_start();
                         <input type="text" class="form-control" inputmode="decimal" pattern="-?[0-9]*\.?[0-9]{0,2}" name="price" value="<?= number_format($client_rate, 2, '.', '') ?>" required>
                     </div>
                     <small class="form-text text-muted">
-                        Based off Hourly Client rate of <strong><?= numfmt_format_currency($currency_format, $client_rate, $session_company_currency); ?></strong>
+                        The client's hourly rate is <strong><?= numfmt_format_currency($currency_format, $client_rate, $session_company_currency); ?></strong>
                     </small>
                 </div>
 

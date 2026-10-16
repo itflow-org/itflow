@@ -36,10 +36,13 @@ ob_start();
     <div class="modal-body">
         <div class="mb-3">
             <label class="form-label">Name <strong class="text-danger">*</strong></label>
-            <input type="text" class="form-control" name="name" maxlength="200" value="<?= escapeHtml($calendar['calendar_name']) ?>" required>
+            <div class="input-group">
+                <span class="input-group-text"><i class="fas fa-fw fa-calendar"></i></span>
+                <input type="text" class="form-control" name="name" maxlength="200" value="<?= escapeHtml($calendar['calendar_name']) ?>" required>
+            </div>
         </div>
         <div class="mb-0">
-            <label class="form-label">Colour</label>
+            <label class="form-label">Color</label>
             <input type="color" class="form-control form-control-color" name="color" value="<?= escapeHtml($color) ?>">
         </div>
     </div>

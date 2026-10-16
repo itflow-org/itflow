@@ -29,15 +29,21 @@ $form_can_email = calendarCanEmail();
 <div class="row g-3 mb-3">
     <div class="col-md-8">
         <label class="form-label">Title <strong class="text-danger">*</strong></label>
-        <input type="text" class="form-control" name="title" maxlength="200" value="<?= escapeHtml($form['event_title'] ?? '') ?>" placeholder="Onsite visit, Maintenance window, Quarterly review..." required autofocus>
+        <div class="input-group">
+            <span class="input-group-text"><i class="fas fa-fw fa-tag"></i></span>
+            <input type="text" class="form-control" name="title" maxlength="200" value="<?= escapeHtml($form['event_title'] ?? '') ?>" placeholder="Onsite visit, Maintenance window, Quarterly review..." required autofocus>
+        </div>
     </div>
     <div class="col-md-4">
         <label class="form-label">Calendar <strong class="text-danger">*</strong></label>
-        <select class="form-select select2" name="calendar" required>
-            <?php foreach ($form_calendars as $calendar_id => $calendar) { ?>
-                <option value="<?= $calendar_id ?>"<?= selectOptionColor(calendarColor($calendar['calendar_color'])) ?> <?= $calendar_id === $form_calendar_id ? 'selected' : '' ?>><?= escapeHtml($calendar['calendar_name']) ?></option>
-            <?php } ?>
-        </select>
+        <div class="input-group">
+            <span class="input-group-text"><i class="fas fa-fw fa-calendar"></i></span>
+            <select class="form-select select2" name="calendar" required>
+                <?php foreach ($form_calendars as $calendar_id => $calendar) { ?>
+                    <option value="<?= $calendar_id ?>"<?= selectOptionColor(calendarColor($calendar['calendar_color'])) ?> <?= $calendar_id === $form_calendar_id ? 'selected' : '' ?>><?= escapeHtml($calendar['calendar_name']) ?></option>
+                <?php } ?>
+            </select>
+        </div>
     </div>
 </div>
 
@@ -52,41 +58,60 @@ $form_can_email = calendarCanEmail();
     <div class="row g-2">
         <div class="col-6 col-md-3">
             <label class="form-label small text-body-secondary mb-1" for="event_form_start_date">Starts</label>
-            <input type="date" class="form-control event-start-date" id="event_form_start_date" name="start_date" value="<?= date('Y-m-d', $form_start_ts) ?>" required>
+            <div class="input-group">
+                <span class="input-group-text"><i class="fas fa-fw fa-calendar-day"></i></span>
+                <input type="date" class="form-control event-start-date" id="event_form_start_date" name="start_date" value="<?= date('Y-m-d', $form_start_ts) ?>" required>
+            </div>
         </div>
         <div class="col-6 col-md-3<?= $form_all_day ? ' d-none' : '' ?> event_form_time_fields">
             <label class="form-label small text-body-secondary mb-1" for="event_form_start_time">at</label>
-            <input type="time" class="form-control event-start-time" id="event_form_start_time" name="start_time" value="<?= date('H:i', $form_start_ts) ?>"<?= $form_all_day ? '' : ' required' ?>>
+            <div class="input-group">
+                <span class="input-group-text"><i class="fas fa-fw fa-clock"></i></span>
+                <input type="time" class="form-control event-start-time" id="event_form_start_time" name="start_time" value="<?= date('H:i', $form_start_ts) ?>"<?= $form_all_day ? '' : ' required' ?>>
+            </div>
         </div>
         <div class="col-6 col-md-3">
             <label class="form-label small text-body-secondary mb-1" for="event_form_end_date">Ends</label>
-            <input type="date" class="form-control" id="event_form_end_date" name="end_date" value="<?= date('Y-m-d', $form_end_ts) ?>" required>
+            <div class="input-group">
+                <span class="input-group-text"><i class="fas fa-fw fa-calendar-day"></i></span>
+                <input type="date" class="form-control" id="event_form_end_date" name="end_date" value="<?= date('Y-m-d', $form_end_ts) ?>" required>
+            </div>
         </div>
         <div class="col-6 col-md-3<?= $form_all_day ? ' d-none' : '' ?> event_form_time_fields">
             <label class="form-label small text-body-secondary mb-1" for="event_form_end_time">at</label>
-            <input type="time" class="form-control" id="event_form_end_time" name="end_time" value="<?= date('H:i', $form_end_ts) ?>"<?= $form_all_day ? '' : ' required' ?>>
+            <div class="input-group">
+                <span class="input-group-text"><i class="fas fa-fw fa-clock"></i></span>
+                <input type="time" class="form-control" id="event_form_end_time" name="end_time" value="<?= date('H:i', $form_end_ts) ?>"<?= $form_all_day ? '' : ' required' ?>>
+            </div>
         </div>
     </div>
     <div class="row g-2 align-items-end mt-1">
         <div class="col-md-4">
             <label class="form-label small text-body-secondary mb-1" for="eventRepeat">Repeats</label>
-            <select class="form-select" name="repeat" id="eventRepeat">
-                <option value="" <?= $form_repeat === '' ? 'selected' : '' ?>>Does not repeat</option>
-                <?php foreach (['Day' => 'Daily', 'Week' => 'Weekly', 'Month' => 'Monthly', 'Year' => 'Yearly'] as $value => $label) { ?>
-                    <option value="<?= $value ?>" data-one="<?= CALENDAR_REPEATS[$value][1] ?>" data-many="<?= CALENDAR_REPEATS[$value][2] ?>" <?= $form_repeat === $value ? 'selected' : '' ?>><?= $label ?></option>
-                <?php } ?>
-            </select>
+            <div class="input-group">
+                <span class="input-group-text"><i class="fas fa-fw fa-redo"></i></span>
+                <select class="form-select" name="repeat" id="eventRepeat">
+                    <option value="" <?= $form_repeat === '' ? 'selected' : '' ?>>Does not repeat</option>
+                    <?php foreach (['Day' => 'Daily', 'Week' => 'Weekly', 'Month' => 'Monthly', 'Year' => 'Yearly'] as $value => $label) { ?>
+                        <option value="<?= $value ?>" data-one="<?= CALENDAR_REPEATS[$value][1] ?>" data-many="<?= CALENDAR_REPEATS[$value][2] ?>" <?= $form_repeat === $value ? 'selected' : '' ?>><?= $label ?></option>
+                    <?php } ?>
+                </select>
+            </div>
         </div>
         <div class="col-6 col-md-4" id="eventRepeatEvery" <?= $form_repeat ? '' : 'hidden' ?>>
             <label class="form-label small text-body-secondary mb-1" for="eventRepeatInterval">Every</label>
             <div class="input-group">
+                <span class="input-group-text"><i class="fas fa-fw fa-sync-alt"></i></span>
                 <input type="number" class="form-control" name="repeat_interval" id="eventRepeatInterval" min="1" max="99" value="<?= $form_interval ?>">
                 <span class="input-group-text" id="eventRepeatUnit"><?= $form_repeat ? CALENDAR_REPEATS[$form_repeat][$form_interval === 1 ? 1 : 2] : 'weeks' ?></span>
             </div>
         </div>
         <div class="col-6 col-md-4" id="eventRepeatUntilField" <?= $form_repeat ? '' : 'hidden' ?>>
             <label class="form-label small text-body-secondary mb-1" for="eventRepeatUntil">Until <span class="fw-normal">(optional)</span></label>
-            <input type="date" class="form-control" name="repeat_until" id="eventRepeatUntil" value="<?= escapeHtml($form['event_repeat_until'] ?? '') ?>">
+            <div class="input-group">
+                <span class="input-group-text"><i class="fas fa-fw fa-hourglass-end"></i></span>
+                <input type="date" class="form-control" name="repeat_until" id="eventRepeatUntil" value="<?= escapeHtml($form['event_repeat_until'] ?? '') ?>">
+            </div>
         </div>
     </div>
     <?php if (calendarSkippedDates($form)) { ?>
@@ -102,32 +127,41 @@ $form_can_email = calendarCanEmail();
     <?php } else { ?>
         <div class="col-md-6">
             <label class="form-label">Client</label>
-            <select class="form-select select2" name="client_id" id="eventClientSelect">
-                <option value="0">- Internal, no client -</option>
-                <?php
-                $sql = mysqli_query($mysqli, "SELECT client_id, client_name, client_abbreviation FROM clients WHERE (client_archived_at IS NULL OR client_id = $form_client_id) " . clientScopeSql('clients.client_id') . " ORDER BY client_name ASC");
-                while ($row = mysqli_fetch_assoc($sql)) { ?>
-                    <option value="<?= intval($row['client_id']) ?>"<?= selectOptionClient($row['client_id'], $row['client_name'], $row['client_abbreviation'] ?? '') ?> <?= intval($row['client_id']) === $form_client_id ? 'selected' : '' ?>><?= escapeHtml($row['client_name']) ?></option>
-                <?php } ?>
-            </select>
+            <div class="input-group">
+                <span class="input-group-text"><i class="fas fa-fw fa-user"></i></span>
+                <select class="form-select select2" name="client_id" id="eventClientSelect">
+                    <option value="0">- Internal, no client -</option>
+                    <?php
+                    $sql = mysqli_query($mysqli, "SELECT client_id, client_name, client_abbreviation FROM clients WHERE (client_archived_at IS NULL OR client_id = $form_client_id) " . clientScopeSql('clients.client_id') . " ORDER BY client_name ASC");
+                    while ($row = mysqli_fetch_assoc($sql)) { ?>
+                        <option value="<?= intval($row['client_id']) ?>"<?= selectOptionClient($row['client_id'], $row['client_name'], $row['client_abbreviation'] ?? '') ?> <?= intval($row['client_id']) === $form_client_id ? 'selected' : '' ?>><?= escapeHtml($row['client_name']) ?></option>
+                    <?php } ?>
+                </select>
+            </div>
         </div>
     <?php } ?>
     <div class="<?= $form_locked_client ? 'col-md-6' : 'col-md-6' ?>" id="eventSiteField" <?= $form_client_id ? '' : 'hidden' ?>>
         <label class="form-label">Site</label>
-        <select class="form-select select2" name="location_id" id="eventSiteSelect" data-selected="<?= intval($form['event_location_id'] ?? 0) ?>">
-            <option value="0">- No site -</option>
-            <?php
-            if ($form_client_id) {
-                $sql = mysqli_query($mysqli, "SELECT location_id, location_name, location_address, location_city FROM locations WHERE location_client_id = $form_client_id AND (location_archived_at IS NULL OR location_id = " . intval($form['event_location_id'] ?? 0) . ") ORDER BY location_primary DESC, location_name");
-                while ($row = mysqli_fetch_assoc($sql)) { ?>
-                    <option value="<?= intval($row['location_id']) ?>" data-icon="fas fa-map-marker-alt" data-description="<?= escapeHtml(implode(', ', array_filter([$row['location_address'], $row['location_city']]))) ?>" <?= intval($row['location_id']) === intval($form['event_location_id'] ?? 0) ? 'selected' : '' ?>><?= escapeHtml($row['location_name']) ?></option>
-                <?php }
-            } ?>
-        </select>
+        <div class="input-group">
+            <span class="input-group-text"><i class="fas fa-fw fa-building"></i></span>
+            <select class="form-select select2" name="location_id" id="eventSiteSelect" data-selected="<?= intval($form['event_location_id'] ?? 0) ?>">
+                <option value="0">- No site -</option>
+                <?php
+                if ($form_client_id) {
+                    $sql = mysqli_query($mysqli, "SELECT location_id, location_name, location_address, location_city FROM locations WHERE location_client_id = $form_client_id AND (location_archived_at IS NULL OR location_id = " . intval($form['event_location_id'] ?? 0) . ") ORDER BY location_primary DESC, location_name");
+                    while ($row = mysqli_fetch_assoc($sql)) { ?>
+                        <option value="<?= intval($row['location_id']) ?>" data-icon="fas fa-map-marker-alt" data-description="<?= escapeHtml(implode(', ', array_filter([$row['location_address'], $row['location_city']]))) ?>" <?= intval($row['location_id']) === intval($form['event_location_id'] ?? 0) ? 'selected' : '' ?>><?= escapeHtml($row['location_name']) ?></option>
+                    <?php }
+                } ?>
+            </select>
+        </div>
     </div>
     <div class="col-12">
         <label class="form-label">Location <span class="text-body-secondary small fw-normal">- a room, an address, or a Teams / Zoom link</span></label>
-        <input type="text" class="form-control" name="location" maxlength="500" value="<?= escapeHtml($form['event_location'] ?? '') ?>" placeholder="Server room, 2nd floor - or https://teams.microsoft.com/...">
+        <div class="input-group">
+            <span class="input-group-text"><i class="fas fa-fw fa-map-marker-alt"></i></span>
+            <input type="text" class="form-control" name="location" maxlength="500" value="<?= escapeHtml($form['event_location'] ?? '') ?>" placeholder="Server room, 2nd floor - or https://teams.microsoft.com/...">
+        </div>
     </div>
 </div>
 
@@ -135,29 +169,38 @@ $form_can_email = calendarCanEmail();
     <label class="form-label d-block">Who <span class="text-body-secondary small fw-normal">- agents, the client's contacts, and anyone else by email</span></label>
     <div class="row g-2">
         <div class="col-md-6">
-            <select class="form-select select2" name="agents[]" multiple data-placeholder="Agents">
-                <?php
-                $sql = mysqli_query($mysqli, "SELECT user_id, user_name, user_avatar FROM users WHERE user_type = 1 AND user_archived_at IS NULL AND (user_status = 1 OR user_id IN (0" . implode('', array_map(function ($id) {
-                    return ',' . intval($id);
-                }, $form_attendees['agents'])) . ")) ORDER BY user_name");
-                while ($row = mysqli_fetch_assoc($sql)) { ?>
-                    <option value="<?= intval($row['user_id']) ?>"<?= selectOptionUser($row['user_id'], $row['user_name'], $row['user_avatar']) ?> <?= in_array(intval($row['user_id']), $form_attendees['agents'], true) ? 'selected' : '' ?>><?= escapeHtml($row['user_name']) ?></option>
-                <?php } ?>
-            </select>
+            <div class="input-group">
+                <span class="input-group-text"><i class="fas fa-fw fa-user-tie"></i></span>
+                <select class="form-select select2" name="agents[]" multiple data-placeholder="Agents">
+                    <?php
+                    $sql = mysqli_query($mysqli, "SELECT user_id, user_name, user_avatar FROM users WHERE user_type = 1 AND user_archived_at IS NULL AND (user_status = 1 OR user_id IN (0" . implode('', array_map(function ($id) {
+                        return ',' . intval($id);
+                    }, $form_attendees['agents'])) . ")) ORDER BY user_name");
+                    while ($row = mysqli_fetch_assoc($sql)) { ?>
+                        <option value="<?= intval($row['user_id']) ?>"<?= selectOptionUser($row['user_id'], $row['user_name'], $row['user_avatar']) ?> <?= in_array(intval($row['user_id']), $form_attendees['agents'], true) ? 'selected' : '' ?>><?= escapeHtml($row['user_name']) ?></option>
+                    <?php } ?>
+                </select>
+            </div>
         </div>
         <div class="col-md-6" id="eventContactsField" <?= $form_client_id ? '' : 'hidden' ?>>
-            <select class="form-select select2" name="contacts[]" id="eventContactsSelect" multiple data-placeholder="Contacts">
-                <?php
-                if ($form_client_id) {
-                    $sql = mysqli_query($mysqli, "SELECT contact_id, contact_name, contact_title, contact_email, contact_photo FROM contacts WHERE contact_client_id = $form_client_id AND contact_archived_at IS NULL ORDER BY contact_primary DESC, contact_technical DESC, contact_name");
-                    while ($row = mysqli_fetch_assoc($sql)) { ?>
-                        <option value="<?= intval($row['contact_id']) ?>"<?= selectOptionContact($form_client_id, $row['contact_name'], $row['contact_photo'], $row['contact_email'] ?: 'No email', $row['contact_id']) ?> <?= in_array(intval($row['contact_id']), $form_attendees['contacts'], true) ? 'selected' : '' ?>><?= escapeHtml($row['contact_name']) ?></option>
-                    <?php }
-                } ?>
-            </select>
+            <div class="input-group">
+                <span class="input-group-text"><i class="fas fa-fw fa-address-book"></i></span>
+                <select class="form-select select2" name="contacts[]" id="eventContactsSelect" multiple data-placeholder="Contacts">
+                    <?php
+                    if ($form_client_id) {
+                        $sql = mysqli_query($mysqli, "SELECT contact_id, contact_name, contact_title, contact_email, contact_photo FROM contacts WHERE contact_client_id = $form_client_id AND contact_archived_at IS NULL ORDER BY contact_primary DESC, contact_technical DESC, contact_name");
+                        while ($row = mysqli_fetch_assoc($sql)) { ?>
+                            <option value="<?= intval($row['contact_id']) ?>"<?= selectOptionContact($form_client_id, $row['contact_name'], $row['contact_photo'], $row['contact_email'] ?: 'No email', $row['contact_id']) ?> <?= in_array(intval($row['contact_id']), $form_attendees['contacts'], true) ? 'selected' : '' ?>><?= escapeHtml($row['contact_name']) ?></option>
+                        <?php }
+                    } ?>
+                </select>
+            </div>
         </div>
         <div class="col-12">
-            <input type="text" class="form-control" name="emails" value="<?= escapeHtml(implode(', ', $form_attendees['emails'])) ?>" placeholder="Others by email - vendor@example.com, ...">
+            <div class="input-group">
+                <span class="input-group-text"><i class="fas fa-fw fa-envelope"></i></span>
+                <input type="text" class="form-control" name="emails" value="<?= escapeHtml(implode(', ', $form_attendees['emails'])) ?>" placeholder="Others by email - vendor@example.com, ...">
+            </div>
         </div>
     </div>
 </div>

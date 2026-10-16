@@ -190,15 +190,6 @@ function linkCandidates($from, $id, $to, $client_id) {
     return $rows;
 }
 
-/** How many $to records each type has linked to this $from record - for tab and section counts. */
-function linkCounts($from, $id) {
-    $counts = [];
-    foreach (linkTypesFor($from) as $to) {
-        $counts[$to] = count(linkedRecords($from, $id, $to));
-    }
-    return $counts;
-}
-
 /** The audit log entry a link change is filed under - the service, document, file or license side of it. */
 function linkLogSide($from, $id, $to, $other_id) {
     foreach (['service', 'document', 'file', 'software'] as $side) {

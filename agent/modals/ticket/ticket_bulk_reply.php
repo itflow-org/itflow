@@ -13,7 +13,7 @@ ob_start();
 ?>
 
 <div class="modal-header bg-dark">
-    <h5 class="modal-title"><i class="fas fa-fw fa-paper-plane me-2"></i>Update & Reply <strong><?= $count ?></strong> Tickets</h5>
+    <h5 class="modal-title"><i class="fas fa-fw fa-paper-plane me-2"></i>Update & Reply <strong><?= $count ?></strong> ticket<?= $count === 1 ? '' : 's' ?></h5>
     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
 </div>
 
@@ -48,7 +48,10 @@ ob_start();
         <div class="col-3">
             <div class="mb-3">
                 <label>Time worked</label>
-                <input class="form-control timepicker" id="time_worked" name="time" type="text" placeholder="HH:MM:SS" pattern="([01]?[0-9]|2[0-3]):([0-5]?[0-9]):([0-5]?[0-9])" value="00:01:00" required/>
+                <div class="input-group">
+                    <span class="input-group-text"><i class="fas fa-fw fa-stopwatch"></i></span>
+                    <input class="form-control timepicker" id="time_worked" name="time" type="text" placeholder="HH:MM:SS" pattern="([01]?[0-9]|2[0-3]):([0-5]?[0-9]):([0-5]?[0-9])" value="00:01:00" required/>
+                </div>
             </div>
         </div>
 
@@ -56,7 +59,7 @@ ob_start();
             <div class="form-check">
                 <input type="checkbox" class="form-check-input" id="bulkPrivateReplyCheckbox" name="bulk_private_reply" value="1">
                 <label class="form-check-label" for="bulkPrivateReplyCheckbox">Mark as internal</label>
-                <small class="form-text text-muted">If checked this note will only be visible to agents.</small>
+                <small class="form-text text-muted">Only agents see it.</small>
             </div>
         </div>
 

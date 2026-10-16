@@ -30,7 +30,7 @@ ob_start();
             <span class="input-group-text"><i class="fa fa-fw fa-layer-group"></i></span>
             <input type="text" class="form-control" name="bulk_vlans" maxlength="200" placeholder="20, or Trunk 1, 10-20" autofocus>
         </div>
-        <div class="form-text">Left empty, their VLANs are cleared.</div>
+        <div class="form-text">Leave it empty to clear their VLANs.</div>
     </div>
 
     <div class="modal-footer">

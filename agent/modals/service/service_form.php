@@ -34,14 +34,17 @@ $importance_styles = [
 <?php if ($is_new && !$form_client_id) { ?>
     <div class="mb-3">
         <label class="form-label">Client <strong class="text-danger">*</strong></label>
-        <select class="form-select select2" name="client_id" required>
-            <option value="">- Pick a client -</option>
-            <?php
-            $sql = mysqli_query($mysqli, "SELECT client_id, client_name, client_abbreviation FROM clients WHERE client_archived_at IS NULL " . clientScopeSql('clients.client_id') . " ORDER BY client_name ASC");
-            while ($row = mysqli_fetch_assoc($sql)) { ?>
-                <option value="<?= intval($row['client_id']) ?>"<?= selectOptionClient($row['client_id'], $row['client_name'], $row['client_abbreviation'] ?? '') ?>><?= escapeHtml($row['client_name']) ?></option>
-            <?php } ?>
-        </select>
+        <div class="input-group">
+            <span class="input-group-text"><i class="fas fa-fw fa-user"></i></span>
+            <select class="form-select select2" name="client_id" required>
+                <option value="">- Pick a client -</option>
+                <?php
+                $sql = mysqli_query($mysqli, "SELECT client_id, client_name, client_abbreviation FROM clients WHERE client_archived_at IS NULL " . clientScopeSql('clients.client_id') . " ORDER BY client_name ASC");
+                while ($row = mysqli_fetch_assoc($sql)) { ?>
+                    <option value="<?= intval($row['client_id']) ?>"<?= selectOptionClient($row['client_id'], $row['client_name'], $row['client_abbreviation'] ?? '') ?>><?= escapeHtml($row['client_name']) ?></option>
+                <?php } ?>
+            </select>
+        </div>
     </div>
 <?php } elseif ($is_new) { ?>
     <input type="hidden" name="client_id" value="<?= $form_client_id ?>">
@@ -50,11 +53,17 @@ $importance_styles = [
 <div class="row g-3 mb-3">
     <div class="col-md-7">
         <label class="form-label">Name <strong class="text-danger">*</strong></label>
-        <input type="text" class="form-control" name="name" placeholder="Email, Backup, Practice management, Phones..." maxlength="200" value="<?= escapeHtml($form['service_name'] ?? '') ?>" required autofocus>
+        <div class="input-group">
+            <span class="input-group-text"><i class="fas fa-fw fa-concierge-bell"></i></span>
+            <input type="text" class="form-control" name="name" placeholder="Email, Backup, Practice management, Phones..." maxlength="200" value="<?= escapeHtml($form['service_name'] ?? '') ?>" required autofocus>
+        </div>
     </div>
     <div class="col-md-5">
         <label class="form-label">Category</label>
-        <input type="text" class="form-control" name="category" list="serviceCategorySuggestions" placeholder="Email, Backup, Network..." maxlength="50" value="<?= escapeHtml($form['service_category'] ?? '') ?>">
+        <div class="input-group">
+            <span class="input-group-text"><i class="fas fa-fw fa-folder"></i></span>
+            <input type="text" class="form-control" name="category" list="serviceCategorySuggestions" placeholder="Email, Backup, Network..." maxlength="50" value="<?= escapeHtml($form['service_category'] ?? '') ?>">
+        </div>
         <datalist id="serviceCategorySuggestions">
             <?php foreach ($category_suggestions as $suggestion) { ?>
                 <option value="<?= escapeHtml($suggestion) ?>"></option>
@@ -65,7 +74,10 @@ $importance_styles = [
 
 <div class="mb-3">
     <label class="form-label">Description</label>
-    <input type="text" class="form-control" name="description" placeholder="Microsoft 365 mail for all staff, Veeam to the NAS and offsite..." maxlength="200" value="<?= escapeHtml($form['service_description'] ?? '') ?>">
+    <div class="input-group">
+        <span class="input-group-text"><i class="fas fa-fw fa-align-left"></i></span>
+        <input type="text" class="form-control" name="description" placeholder="Microsoft 365 mail for all staff, Veeam to the NAS and offsite..." maxlength="200" value="<?= escapeHtml($form['service_description'] ?? '') ?>">
+    </div>
 </div>
 
 <div class="mb-3">
@@ -94,20 +106,26 @@ $importance_styles = [
 <div class="row g-3 <?= $is_new && $form_client_id ? 'mb-3' : 'mb-0' ?>">
     <div class="col-md-6">
         <label class="form-label">Review it</label>
-        <select class="form-select select2" name="review_interval" id="serviceReviewInterval">
-            <?php foreach (SERVICE_REVIEW_INTERVALS as $months => $label) { ?>
-                <option value="<?= $months ?>" <?= $form_interval === $months ? 'selected' : '' ?> data-icon="far <?= $months ? 'fa-calendar-check' : 'fa-calendar' ?>"><?= $label ?></option>
-            <?php } ?>
-        </select>
+        <div class="input-group">
+            <span class="input-group-text"><i class="fas fa-fw fa-redo"></i></span>
+            <select class="form-select select2" name="review_interval" id="serviceReviewInterval">
+                <?php foreach (SERVICE_REVIEW_INTERVALS as $months => $label) { ?>
+                    <option value="<?= $months ?>" <?= $form_interval === $months ? 'selected' : '' ?> data-icon="far <?= $months ? 'fa-calendar-check' : 'fa-calendar' ?>"><?= $label ?></option>
+                <?php } ?>
+            </select>
+        </div>
         <div class="form-text">Check it still matches what is out there - a QBR is a good time.</div>
     </div>
     <div class="col-md-6">
         <label class="form-label">Next review</label>
-        <input type="date" class="form-control" name="review_due" id="serviceReviewDue" value="<?= escapeHtml($form['service_review_due'] ?? '') ?>">
+        <div class="input-group">
+            <span class="input-group-text"><i class="fas fa-fw fa-calendar-check"></i></span>
+            <input type="date" class="form-control" name="review_due" id="serviceReviewDue" value="<?= escapeHtml($form['service_review_due'] ?? '') ?>">
+        </div>
         <?php if (!empty($form['service_reviewed_at'])) { ?>
             <div class="form-text">Last reviewed <?= escapeHtml(date('M j, Y', strtotime($form['service_reviewed_at']))) ?>.</div>
         <?php } else { ?>
-            <div class="form-text">Left empty, it follows the schedule.</div>
+            <div class="form-text">Leave it empty to follow the schedule.</div>
         <?php } ?>
     </div>
 </div>
@@ -133,12 +151,15 @@ $importance_styles = [
                 <?php foreach ($pickers as $type => $candidates) {
                     $entity = LINK_ENTITIES[$type]; ?>
                     <div class="col-md-6">
-                        <label class="form-label small mb-1"><i class="fas fa-fw <?= $entity['icon'] ?> text-secondary me-1"></i><?= $type === 'credential' ? 'Logins' : ($type === 'contact' ? 'People' : $entity['plural']) ?></label>
-                        <select class="form-select select2" name="<?= $entity['table'] ?>[]" multiple data-placeholder="<?= escapeHtml($picker_hints[$type]) ?>">
-                            <?php foreach ($candidates as $candidate) { ?>
-                                <option value="<?= intval($candidate['id']) ?>"<?= linkOptionData($type, $candidate, $form_client_id) ?>><?= escapeHtml($candidate['name']) ?></option>
-                            <?php } ?>
-                        </select>
+                        <label class="form-label"><?= $type === 'credential' ? 'Logins' : ($type === 'contact' ? 'People' : $entity['plural']) ?></label>
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="fas fa-fw <?= $entity['icon'] ?>"></i></span>
+                            <select class="form-select select2" name="<?= $entity['table'] ?>[]" multiple data-placeholder="<?= escapeHtml($picker_hints[$type]) ?>">
+                                <?php foreach ($candidates as $candidate) { ?>
+                                    <option value="<?= intval($candidate['id']) ?>"<?= linkOptionData($type, $candidate, $form_client_id) ?>><?= escapeHtml($candidate['name']) ?></option>
+                                <?php } ?>
+                            </select>
+                        </div>
                     </div>
                 <?php } ?>
             </div>

@@ -12,7 +12,7 @@ ob_start();
 ?>
 
 <div class="modal-header bg-dark">
-    <h5 class="modal-title"><i class="fas fa-fw fa-life-ring me-2"></i>New Tickets for <strong><?= $count ?></strong> Client(s)</h5>
+    <h5 class="modal-title"><i class="fas fa-fw fa-life-ring me-2"></i>New Tickets for <strong><?= $count ?></strong> client<?= $count === 1 ? '' : 's' ?></h5>
     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
 </div>
 
@@ -24,7 +24,10 @@ ob_start();
 
         <div class="mb-3">
             <label>Subject <strong class="text-danger">*</strong></label>
-            <input type="text" class="form-control" name="bulk_subject" placeholder="Enter a subject" maxlength="200" required>
+            <div class="input-group">
+                <span class="input-group-text"><i class="fas fa-fw fa-tag"></i></span>
+                <input type="text" class="form-control" name="bulk_subject" placeholder="Enter a subject" maxlength="200" required>
+            </div>
         </div>
 
         <div class="mb-3">

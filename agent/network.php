@@ -173,7 +173,7 @@ if (!$network || ($client_url && intval($network['network_client_id']) !== intva
                                 </a>
                                 <?php if ($can_delete) { ?>
                                     <a class="dropdown-item text-danger text-bold confirm-link" href="post.php?delete_network=<?= $network_id ?>&csrf_token=<?= $csrf ?>"
-                                        data-confirm-text="<?= $network_name ?> and the addresses documented on it go for good. The devices on it are left on no network.">
+                                        data-confirm-text="<?= $network_name ?> and the addresses documented on it go for good. The devices on it are left with no network.">
                                         <i class="fas fa-fw fa-trash me-2"></i>Delete
                                     </a>
                                 <?php } ?>

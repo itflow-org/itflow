@@ -56,7 +56,10 @@ ob_start();
             <label class="btn btn-outline-secondary btn-sm" for="renewTermDate"><i class="fas fa-calendar-alt me-1"></i>A date</label>
         </div>
         <div class="mb-3" data-renew-date-box hidden>
-            <input type="date" class="form-control" name="renew_date" max="2999-12-31" data-renew-date>
+            <div class="input-group">
+                <span class="input-group-text"><i class="fas fa-fw fa-calendar-alt"></i></span>
+                <input type="date" class="form-control" name="renew_date" max="2999-12-31" data-renew-date>
+            </div>
         </div>
         <div class="form-text mb-3">Each date moves on from its current renewal date, or from today if it has already passed.</div>
 

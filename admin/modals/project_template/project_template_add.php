@@ -15,7 +15,10 @@ ob_start();
     <div class="modal-body">
         <div class="mb-3">
             <label class="form-label">Name <strong class="text-danger">*</strong></label>
-            <input type="text" class="form-control" name="name" placeholder="Client onboarding, server refresh, office move..." maxlength="200" required autofocus>
+            <div class="input-group">
+                <span class="input-group-text"><i class="fas fa-fw fa-cubes"></i></span>
+                <input type="text" class="form-control" name="name" placeholder="Client onboarding, server refresh, office move..." maxlength="200" required autofocus>
+            </div>
         </div>
 
         <div class="mb-0">

@@ -107,7 +107,7 @@ if (isset($_POST['add_client'])) {
 
     logAudit("Client", "Create", "$session_name created client $name$extended_log_description", $client_id, $client_id);
 
-    flashAlert("Client <strong>$name</strong> created");
+    flashAlert("Client <strong>" . stripslashes($name) . "</strong> created");
 
     redirect();
 
@@ -183,7 +183,7 @@ if (isset($_POST['edit_client'])) {
 
     logAudit("Client", "Edit", "$session_name edited client $name", $client_id, $client_id);
 
-    flashAlert("Client <strong>$name</strong> updated");
+    flashAlert("Client <strong>" . stripslashes($name) . "</strong> updated");
 
     redirect();
 
@@ -215,7 +215,7 @@ if (isset($_GET['archive_client'])) {
 
     logAudit("Client", "Archive", "$session_name archived client $client_name", $client_id, $client_id);
 
-    flashAlert("Client <strong>$client_name</strong> archived", 'error');
+    flashAlert("Client <strong>" . stripslashes($client_name) . "</strong> archived", 'error');
 
     redirect();
 
@@ -238,7 +238,7 @@ if (isset($_GET['restore_client'])) {
 
     logAudit("Client", "Restored", "$session_name restored client $client_name", $client_id);
 
-    flashAlert("Client <strong>$client_name</strong> restored");
+    flashAlert("Client <strong>" . stripslashes($client_name) . "</strong> restored");
 
     redirect();
 
@@ -351,7 +351,7 @@ if (isset($_GET['delete_client'])) {
 
     logAudit("Client", "Deleted", "$session_name deleted Client $client_name and all associated data");
 
-    flashAlert("Client <strong>$client_name</strong> deleted along with all associated data", 'error');
+    flashAlert("Client <strong>" . stripslashes($client_name) . "</strong> deleted, with everything that was theirs", 'error');
 
     redirect('clients.php');
 
@@ -870,9 +870,9 @@ if (isset($_POST['bulk_edit_client_industry'])) {
 
         }
 
-        logAudit("Client", "Bulk Edit", "$session_name set the department $industry for $count client(s)", $client_id);
+        logAudit("Client", "Bulk Edit", "$session_name set the industry $industry for $count client(s)", $client_id);
 
-        flashAlert("Set the Industry to <strong>$industry</strong> for <strong>$count</strong> clients");
+        flashAlert("Industry set to <strong>" . stripslashes($industry) . "</strong> on <strong>$count</strong> client" . ($count === 1 ? '' : 's'));
     }
 
     redirect();
@@ -911,7 +911,7 @@ if (isset($_POST['bulk_edit_client_referral'])) {
 
         logAudit("Client", "Bulk Edit", "$session_name set the referral $referral for $count client(s)", $client_id);
 
-        flashAlert("Set the Referral to <strong>$referral</strong> for <strong>$count</strong> clients");
+        flashAlert("Referral set to <strong>" . stripslashes($referral) . "</strong> on <strong>$count</strong> client" . ($count === 1 ? '' : 's'));
     }
 
     redirect();

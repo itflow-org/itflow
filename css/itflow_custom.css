@@ -1,3 +1,11 @@
+/* The hidden attribute always hides. Bootstrap's display utilities (.d-flex,
+   .d-block...) are !important too and load later, so an element carrying both
+   was shown - a strength meter on an empty password, a note meant for one
+   role. This sheet loads after Bootstrap, so here [hidden] wins. */
+[hidden] {
+    display: none !important;
+}
+
 /*
    For screens below 576px (xs):
    - Make the button full-width, display:block
@@ -5427,4 +5435,11 @@ img.itflow-contact-avatar {
 }
 .itflow-theme-swatch.is-dark {
     background: linear-gradient(90deg, #343a40 0 30%, #212529 30%);
+}
+
+/* Pagination (includes/filter_footer.php) - on a phone a long run of page
+   numbers wraps instead of pushing the page wider than the screen */
+.pagination {
+    flex-wrap: wrap;
+    row-gap: .25rem;
 }

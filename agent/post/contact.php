@@ -79,7 +79,7 @@ if (isset($_POST['add_contact'])) {
 
     triggerCustomAction('contact_create', $contact_id);
 
-    flashAlert("Contact <strong>$name</strong> created");
+    flashAlert("Contact <strong>" . stripslashes($name) . "</strong> created");
 
     redirect();
 
@@ -242,7 +242,7 @@ if (isset($_POST['edit_contact'])) {
 
     triggerCustomAction('contact_update', $contact_id);
 
-    flashAlert("Contact <strong>$name</strong> updated");
+    flashAlert("Contact <strong>" . stripslashes($name) . "</strong> updated");
 
     redirect();
 
@@ -357,7 +357,7 @@ if (isset($_GET['delete_contact_note'])) {
 
     logAudit("Contact", "Edit", "$session_name deleted $contact_note_type note for $contact_name", $client_id, $contact_id);
 
-    flashAlert("Note <strong>$contact_note_type</strong> deleted.", 'error');
+    flashAlert("Note <strong>$contact_note_type</strong> deleted", 'error');
 
     redirect();
 
@@ -405,7 +405,7 @@ if (isset($_POST['bulk_assign_contact_location'])) {
 
         logAudit("Contact", "Bulk Edit", "$session_name assigned $contact_count contacts to location $location_name", $client_id);
 
-        flashAlert("<b>$contact_count</b> contacts assigned to location <b>$location_name</b>");
+        flashAlert("<strong>$contact_count</strong> contact" . ($contact_count === 1 ? '' : 's') . " assigned to location <strong>" . stripslashes($location_name) . "</strong>");
     }
 
     redirect();
@@ -445,7 +445,7 @@ if (isset($_POST['bulk_edit_contact_phone'])) {
 
         logAudit("Contact", "Bulk Edit", "$session_name set the Phone Number $phone for $contact_count contacts", $client_id);
 
-        flashAlert("Phone Number set to <b>" . formatPhoneNumber($phone) . "</b> on $contact_count</b> contacts");
+        flashAlert("Phone number set to <strong>" . formatPhoneNumber($phone) . "</strong> on <strong>$contact_count</strong> contact" . ($contact_count === 1 ? '' : 's'));
     }
 
     redirect();
@@ -485,7 +485,7 @@ if (isset($_POST['bulk_edit_contact_department'])) {
 
         logAudit("Contact", "Bulk Edit", "$session_name set the department $department for $contact_count contacts", $client_id);
 
-        flashAlert("You set the Department to <strong>$department</strong> for <strong>$contact_count</strong> contacts");
+        flashAlert("Department set to <strong>" . stripslashes($department) . "</strong> on <strong>$contact_count</strong> contact" . ($contact_count === 1 ? '' : 's'));
     }
 
     redirect();
@@ -529,7 +529,7 @@ if (isset($_POST['bulk_edit_contact_role'])) {
 
         logAudit("Contact", "Bulk Edit", "$session_name edited the contact role for $contact_count contacts", $client_id);
 
-        flashAlert("You updated contact roles for <b>$contact_count</b> contacts");
+        flashAlert("Roles updated on <strong>$contact_count</strong> contact" . ($contact_count === 1 ? '' : 's'));
     }
 
     redirect();
@@ -721,7 +721,7 @@ if (isset($_POST['bulk_delete_contacts'])) {
 
         logAudit("Contact", "Bulk Delete", "$session_name deleted $count contacts", $client_id);
 
-        flashAlert("You deleted <strong>$count</strong> contact(s)");
+        flashAlert("Deleted <strong>$count</strong> contact(s)", 'error');
 
     }
 
@@ -829,7 +829,7 @@ if (isset($_GET['anonymize_contact'])) {
 
     logAudit("Contact", "Archive", "$session_name archived and anonymized contact", $client_id, $contact_id);
 
-    flashAlert("Contact $contact_name anonymized & archived", 'error');
+    flashAlert("Contact <strong>" . stripslashes($contact_name) . "</strong> anonymized and archived", 'error');
 
     redirect();
 
@@ -861,7 +861,7 @@ if (isset($_GET['archive_contact'])) {
 
     logAudit("Contact", "Archive", "$session_name archived contact $contact_name", $client_id, $contact_id);
 
-    flashAlert("Contact <strong>$contact_name</strong> has been archived", 'error');
+    flashAlert("Contact <strong>" . stripslashes($contact_name) . "</strong> archived", 'error');
 
     redirect();
 
@@ -893,7 +893,7 @@ if (isset($_GET['restore_contact'])) {
 
     logAudit("Contact", "Restore", "$session_name restored contact $contact_name", $client_id, $contact_id);
 
-    flashAlert("Contact <strong>$contact_name</strong> Restored");
+    flashAlert("Contact <strong>" . stripslashes($contact_name) . "</strong> restored");
 
     redirect();
 
@@ -928,7 +928,7 @@ if (isset($_GET['delete_contact'])) {
 
     logAudit("Contact", "Delete", "$session_name deleted contact $contact_name", $client_id);
 
-    flashAlert("Contact <strong>$contact_name</strong> has been deleted.", 'error');
+    flashAlert("Contact <strong>" . stripslashes($contact_name) . "</strong> deleted", 'error');
 
     redirect();
 
@@ -958,7 +958,7 @@ if (isset($_POST['link_contact_to_asset'])) {
 
     logAudit("Asset", "Link", "$session_name linked asset $asset_name to contact $contact_name", $client_id, $asset_id);
 
-    flashAlert("Contact <strong>$contact_name</strong> linked with asset <strong>$asset_name</strong>");
+    flashAlert("Contact <strong>" . stripslashes($contact_name) . "</strong> linked with asset <strong>" . stripslashes($asset_name) . "</strong>");
 
     redirect();
 
@@ -988,7 +988,7 @@ if (isset($_GET['unlink_asset_from_contact'])) {
 
     logAudit("Asset", "Unlink", "$session_name unlinked contact $contact_name from asset $asset_name", $client_id, $asset_id);
 
-    flashAlert("Asset <strong>$asset_name</strong> unlinked from Contact <strong>$contact_name</strong>", 'error');
+    flashAlert("Asset <strong>" . stripslashes($asset_name) . "</strong> unlinked from contact <strong>" . stripslashes($contact_name) . "</strong>", 'error');
 
     redirect();
 
@@ -1032,7 +1032,7 @@ if (isset($_POST['link_contact_to_credential'])) {
 
     logAudit("Credential", "Link", "$session_name linked credential $credential_name to contact $contact_name", $client_id, $credential_id);
 
-    flashAlert("Contact <strong>$contact_name</strong> linked with credential <strong>$credential_name</strong>");
+    flashAlert("Contact <strong>" . stripslashes($contact_name) . "</strong> linked with credential <strong>" . stripslashes($credential_name) . "</strong>");
 
     redirect();
 
@@ -1064,7 +1064,7 @@ if (isset($_GET['unlink_credential_from_contact'])) {
 
     logAudit("Credential", "Unlink", "$session_name unlinked contact $contact_name from credential $credential_name", $client_id, $credential_id);
 
-    flashAlert("Credential <strong>$credential_name</strong> unlinked from Contact <strong>$contact_name</strong>");
+    flashAlert("Credential <strong>" . stripslashes($credential_name) . "</strong> unlinked from contact <strong>" . stripslashes($contact_name) . "</strong>", 'error');
 
     redirect();
 

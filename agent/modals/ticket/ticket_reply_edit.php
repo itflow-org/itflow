@@ -60,7 +60,10 @@ ob_start();
             <div class="col-6 col-md-3">
                 <div class="mb-3">
                     <label>Time worked</label>
-                    <input class="form-control" name="time" type="text" placeholder="HH:MM:SS" pattern="([01]?[0-9]|2[0-3]):([0-5]?[0-9]):([0-5]?[0-9])" value="<?= $ticket_reply_time_worked_formatted ?>" required>
+                    <div class="input-group">
+                        <span class="input-group-text"><i class="fas fa-fw fa-stopwatch"></i></span>
+                        <input class="form-control" name="time" type="text" placeholder="HH:MM:SS" pattern="([01]?[0-9]|2[0-3]):([0-5]?[0-9]):([0-5]?[0-9])" value="<?= $ticket_reply_time_worked_formatted ?>" required>
+                    </div>
                 </div>
             </div>
         <?php } ?>

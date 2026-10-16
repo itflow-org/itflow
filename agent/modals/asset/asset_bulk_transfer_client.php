@@ -17,7 +17,7 @@ ob_start();
 ?>
 
 <div class="modal-header bg-dark">
-    <h5 class="modal-title"><i class="fa fa-fw fa-exchange-alt me-2"></i>Transfer <strong><?= $count ?></strong> Asset(s) to Client</h5>
+    <h5 class="modal-title"><i class="fa fa-fw fa-exchange-alt me-2"></i>Transfer <strong><?= $count ?></strong> asset<?= $count === 1 ? '' : 's' ?> to Client</h5>
     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
 </div>
 

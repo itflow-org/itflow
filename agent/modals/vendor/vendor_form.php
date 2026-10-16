@@ -168,7 +168,10 @@ $form_id = 'vendorForm' . ($vendor_form_mode === 'edit' ? $vendor_id : 'New');
         </div>
         <div class="col-md-4">
             <label class="form-label">Extension / option</label>
-            <input type="text" class="form-control" name="extension" value="<?= $vendor_extension ?>" placeholder="ext." maxlength="200" inputmode="numeric">
+            <div class="input-group">
+                <span class="input-group-text"><i class="fas fa-fw fa-hashtag"></i></span>
+                <input type="text" class="form-control" name="extension" value="<?= $vendor_extension ?>" placeholder="ext." maxlength="200" inputmode="numeric">
+            </div>
         </div>
         <div class="col-md-6">
             <label class="form-label">Support hours</label>
@@ -220,7 +223,7 @@ $form_id = 'vendorForm' . ($vendor_form_mode === 'edit' ? $vendor_id : 'New');
             </div>
         </div>
         <div class="col-12">
-            <div class="form-text mt-0">What support asks for before they will talk - shown beside the support line, the PIN as dots until it is asked for.</div>
+            <div class="form-text mt-0">What support asks for to check it's you - shown beside the support line, with the PIN hidden until you click it.</div>
         </div>
         <div class="col-12">
             <label class="form-label">Account manager</label>

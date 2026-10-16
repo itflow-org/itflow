@@ -31,7 +31,7 @@ if (isset($_POST['add_vendor_template'])) {
 
     logAudit("Vendor Template", "Create", "$session_name created vendor template $name", 0, $vendor_template_id);
 
-    flashAlert("Vendor template <strong>$name</strong> created");
+    flashAlert("Vendor template <strong>" . stripslashes($name) . "</strong> created");
 
     redirect();
 
@@ -140,7 +140,7 @@ if (isset($_POST['edit_vendor_template'])) {
 
     logAudit("Vendor Template", "Edit", "$session_name edited vendor template $name", 0, $vendor_template_id);
 
-    flashAlert("Vendor template <strong>$name</strong> edited");
+    flashAlert("Vendor template <strong>" . stripslashes($name) . "</strong> saved");
 
     redirect();
 
@@ -161,7 +161,7 @@ if (isset($_GET['delete_vendor_template'])) {
 
     logAudit("Vendor Template", "Delete", "$session_name deleted vendor template $vendor_template_name");
 
-    flashAlert("Vendor Template <strong>$vendor_template_name</strong> deleted", 'error');
+    flashAlert("Vendor template <strong>" . stripslashes($vendor_template_name) . "</strong> deleted", 'error');
 
     redirect();
 

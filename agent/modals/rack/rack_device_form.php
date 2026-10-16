@@ -59,14 +59,17 @@ $item_types = rackItemTypes();
 
 <div class="mb-3" data-rack-kind="asset">
     <label class="form-label">Asset <strong class="text-danger">*</strong></label>
-    <select class="form-select select2" name="asset" id="rackItemAsset">
-        <option value="">- Select an asset -</option>
-        <?php foreach ($asset_options as $asset_option) {
-            $asset_option_id = intval($asset_option['asset_id']);
-            ?>
-            <option value="<?= $asset_option_id ?>" data-asset-type="<?= escapeHtml($asset_option['asset_type']) ?>" <?php if ($asset_option_id === $unit_asset_id) { echo "selected"; } ?><?= selectOptionAsset($asset_option['asset_type'], trim($asset_option['asset_make'] . ' ' . $asset_option['asset_model'])) ?>><?= escapeHtml($asset_option['asset_name']) ?></option>
-        <?php } ?>
-    </select>
+    <div class="input-group">
+        <span class="input-group-text"><i class="fas fa-fw fa-desktop"></i></span>
+        <select class="form-select select2" name="asset" id="rackItemAsset">
+            <option value="">- Select an asset -</option>
+            <?php foreach ($asset_options as $asset_option) {
+                $asset_option_id = intval($asset_option['asset_id']);
+                ?>
+                <option value="<?= $asset_option_id ?>" data-asset-type="<?= escapeHtml($asset_option['asset_type']) ?>" <?php if ($asset_option_id === $unit_asset_id) { echo "selected"; } ?><?= selectOptionAsset($asset_option['asset_type'], trim($asset_option['asset_make'] . ' ' . $asset_option['asset_model'])) ?>><?= escapeHtml($asset_option['asset_name']) ?></option>
+            <?php } ?>
+        </select>
+    </div>
     <?php if (empty($asset_options)) { ?>
         <div class="form-text">Every asset this client has is already racked.</div>
     <?php } ?>
@@ -74,11 +77,14 @@ $item_types = rackItemTypes();
 
 <div class="mb-3" data-rack-kind="other">
     <label class="form-label">What is it</label>
-    <select class="form-select select2" name="type" id="rackItemType">
-        <?php foreach ($item_types as $item_type => $item_type_style) { ?>
-            <option value="<?= escapeHtml($item_type) ?>" <?php if ($unit_type === $item_type) { echo "selected"; } ?><?= selectOptionData(['icon' => 'fas ' . $item_type_style['icon']]) ?>><?= escapeHtml($item_type) ?></option>
-        <?php } ?>
-    </select>
+    <div class="input-group">
+        <span class="input-group-text"><i class="fas fa-fw fa-shapes"></i></span>
+        <select class="form-select select2" name="type" id="rackItemType">
+            <?php foreach ($item_types as $item_type => $item_type_style) { ?>
+                <option value="<?= escapeHtml($item_type) ?>" <?php if ($unit_type === $item_type) { echo "selected"; } ?><?= selectOptionData(['icon' => 'fas ' . $item_type_style['icon']]) ?>><?= escapeHtml($item_type) ?></option>
+            <?php } ?>
+        </select>
+    </div>
 </div>
 
 <div class="mb-3">
@@ -86,7 +92,10 @@ $item_types = rackItemTypes();
         <span data-rack-kind="asset">Label <span class="text-secondary fw-normal">(optional, shown under the asset name)</span></span>
         <span data-rack-kind="other">Name <strong class="text-danger">*</strong></span>
     </label>
-    <input type="text" class="form-control" name="name" id="rackItemName" maxlength="200" value="<?= $unit_device ?>" placeholder="24-port Cat6 patch panel">
+    <div class="input-group">
+        <span class="input-group-text"><i class="fas fa-fw fa-tag"></i></span>
+        <input type="text" class="form-control" name="name" id="rackItemName" maxlength="200" value="<?= $unit_device ?>" placeholder="24-port Cat6 patch panel">
+    </div>
 </div>
 
 <div class="row g-3 mb-1">
@@ -100,6 +109,7 @@ $item_types = rackItemTypes();
     <div class="col-sm-4">
         <label class="form-label" for="rackItemHeight">Height <strong class="text-danger">*</strong></label>
         <div class="input-group">
+            <span class="input-group-text"><i class="fas fa-fw fa-arrows-alt-v"></i></span>
             <input type="number" class="form-control" name="unit_height" id="rackItemHeight" min="1" max="<?= $rack_units ?>" value="<?= $unit_height ?>" required>
             <span class="input-group-text">U</span>
         </div>
@@ -133,7 +143,10 @@ $item_types = rackItemTypes();
     </div>
     <div class="col-sm-7">
         <label class="form-label">Notes</label>
-        <input type="text" class="form-control" name="notes" maxlength="255" placeholder="Rails in the box, PSU A on PDU-A port 3" value="<?= $unit_notes ?>">
+        <div class="input-group">
+            <span class="input-group-text"><i class="fas fa-fw fa-sticky-note"></i></span>
+            <input type="text" class="form-control" name="notes" maxlength="255" placeholder="Rails in the box, PSU A on PDU-A port 3" value="<?= $unit_notes ?>">
+        </div>
     </div>
 </div>
 

@@ -112,7 +112,7 @@ $has_pem = trim(html_entity_decode($certificate_public_key, ENT_QUOTES, 'UTF-8')
                         <?php } ?>
                     </select>
                 </div>
-                <div class="form-text">The client's domain it is for - left to itself, the one the host is under.</div>
+                <div class="form-text">The client's domain it is for. Left blank, it is the domain the host is under.</div>
             <?php } else { ?>
                 <div class="form-text mt-0">Matched to the client's domain the host is under when it's saved.</div>
             <?php } ?>

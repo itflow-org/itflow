@@ -48,17 +48,21 @@ if ($rack_type !== '' && !isset($rack_type_options[$rack_type])) {
 
             <div class="col-md-5">
                 <label class="form-label">Type <strong class="text-danger">*</strong></label>
-                <select class="form-select select2" name="type" required>
-                    <option value="">- Type -</option>
-                    <?php foreach ($rack_type_options as $rack_type_option => $rack_type_option_data) { ?>
-                        <option <?php if ($rack_type === $rack_type_option) { echo "selected"; } ?><?= $rack_type_option_data ?>><?= $rack_type_option ?></option>
-                    <?php } ?>
-                </select>
+                <div class="input-group">
+                    <span class="input-group-text"><i class="fas fa-fw fa-server"></i></span>
+                    <select class="form-select select2" name="type" required>
+                        <option value="">- Type -</option>
+                        <?php foreach ($rack_type_options as $rack_type_option => $rack_type_option_data) { ?>
+                            <option <?php if ($rack_type === $rack_type_option) { echo "selected"; } ?><?= $rack_type_option_data ?>><?= $rack_type_option ?></option>
+                        <?php } ?>
+                    </select>
+                </div>
             </div>
 
             <div class="col-md-4">
                 <label class="form-label">Height <strong class="text-danger">*</strong></label>
                 <div class="input-group">
+                    <span class="input-group-text"><i class="fas fa-fw fa-arrows-alt-v"></i></span>
                     <input type="number" class="form-control" name="units" placeholder="42" min="<?= max(1, $rack_highest_used_unit) ?>" max="70" value="<?= $rack_units ?: '' ?>" required>
                     <span class="input-group-text">U</span>
                 </div>
@@ -69,10 +73,13 @@ if ($rack_type !== '' && !isset($rack_type_options[$rack_type])) {
 
             <div class="col-md-8">
                 <label class="form-label">Unit numbering</label>
-                <select class="form-select" name="units_descending">
-                    <option value="0" <?php if (!$rack_units_descending) { echo "selected"; } ?>>U1 at the bottom (standard)</option>
-                    <option value="1" <?php if ($rack_units_descending) { echo "selected"; } ?>>U1 at the top</option>
-                </select>
+                <div class="input-group">
+                    <span class="input-group-text"><i class="fas fa-fw fa-sort-numeric-down"></i></span>
+                    <select class="form-select" name="units_descending">
+                        <option value="0" <?php if (!$rack_units_descending) { echo "selected"; } ?>>U1 at the bottom (standard)</option>
+                        <option value="1" <?php if ($rack_units_descending) { echo "selected"; } ?>>U1 at the top</option>
+                    </select>
+                </div>
             </div>
 
             <div class="col-md-7">
@@ -93,17 +100,20 @@ if ($rack_type !== '' && !isset($rack_type_options[$rack_type])) {
 
             <div class="col-md-6">
                 <label class="form-label">Location</label>
-                <select class="form-select select2" name="location">
-                    <option value="">- Location -</option>
-                    <?php
-                    $sql = mysqli_query($mysqli, "SELECT location_id, location_name FROM locations WHERE location_archived_at IS NULL AND location_client_id = $client_id ORDER BY location_name ASC");
-                    while ($row = mysqli_fetch_assoc($sql)) {
-                        $location_id_select = intval($row['location_id']);
-                        $location_name_select = escapeHtml($row['location_name']);
-                        ?>
-                        <option value="<?= $location_id_select ?>" <?php if ($rack_location_id === $location_id_select) { echo "selected"; } ?>><?= $location_name_select ?></option>
-                    <?php } ?>
-                </select>
+                <div class="input-group">
+                    <span class="input-group-text"><i class="fas fa-fw fa-map-marker-alt"></i></span>
+                    <select class="form-select select2" name="location">
+                        <option value="">- Location -</option>
+                        <?php
+                        $sql = mysqli_query($mysqli, "SELECT location_id, location_name FROM locations WHERE location_archived_at IS NULL AND location_client_id = $client_id ORDER BY location_name ASC");
+                        while ($row = mysqli_fetch_assoc($sql)) {
+                            $location_id_select = intval($row['location_id']);
+                            $location_name_select = escapeHtml($row['location_name']);
+                            ?>
+                            <option value="<?= $location_id_select ?>" <?php if ($rack_location_id === $location_id_select) { echo "selected"; } ?>><?= $location_name_select ?></option>
+                        <?php } ?>
+                    </select>
+                </div>
             </div>
 
             <div class="col-md-6">

@@ -240,7 +240,7 @@ $csrf = $_SESSION['csrf_token'];
                                         </button>
                                         <?php if ($can_delete) { ?>
                                             <button class="dropdown-item text-danger text-bold confirm-link" type="submit" form="bulkActions" name="bulk_delete_networks"
-                                                data-confirm-text="The networks and the addresses documented on them go for good. The devices on them are left on no network.">
+                                                data-confirm-text="The networks and the addresses documented on them go for good. The devices on them are left with no network.">
                                                 <i class="fas fa-fw fa-trash me-2"></i>Delete
                                             </button>
                                         <?php } ?>
@@ -405,7 +405,7 @@ $csrf = $_SESSION['csrf_token'];
                                             </a>
                                             <?php if ($can_delete) { ?>
                                                 <a class="dropdown-item text-danger text-bold confirm-link" href="post.php?delete_network=<?= $network_id ?>&csrf_token=<?= $csrf ?>"
-                                                    data-confirm-text="<?= $name ?> and the addresses documented on it go for good. The devices on it are left on no network.">
+                                                    data-confirm-text="<?= $name ?> and the addresses documented on it go for good. The devices on it are left with no network.">
                                                     <i class="fas fa-fw fa-trash me-2"></i>Delete
                                                 </a>
                                             <?php } ?>

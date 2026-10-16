@@ -36,7 +36,7 @@ if (isset($_GET['client_id'])) {
     $client_url = '';
 }
 
-// Overide Filter Header Archived
+// Override Filter Header Archived
 $archived = isset($_GET['archived']) && $_GET['archived'] == 1 ? 1 : 0;
 if ($view === 'clients') {
     $archive_query = $archived ? "(client_archived_at IS NOT NULL OR vendor_archived_at IS NOT NULL)" : "(client_archived_at IS NULL AND vendor_archived_at IS NULL)";
@@ -238,7 +238,7 @@ $add_url = "modals/vendor/vendor_add.php?" . ($view === 'client' ? "client_id=$c
                                     </button>
                                     <?php if ($can_delete) { ?>
                                         <button class="dropdown-item text-danger text-bold confirm-link" type="submit" form="bulkActions" name="bulk_delete_vendors"
-                                            data-confirm-text="The vendors go for good. Their cases, licenses, assets and domains stay, from no vendor. Vendors with expenses are kept.">
+                                            data-confirm-text="The vendors go for good. Their cases, licenses, assets and domains stay, with no vendor. Vendors with expenses are kept.">
                                             <i class="fas fa-fw fa-trash me-2"></i>Delete
                                         </button>
                                     <?php } ?>
@@ -423,7 +423,7 @@ $add_url = "modals/vendor/vendor_add.php?" . ($view === 'client' ? "client_id=$c
                                             </a>
                                             <?php if ($can_delete) { ?>
                                                 <a class="dropdown-item text-danger text-bold confirm-link" href="post.php?delete_vendor=<?= $vendor_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>"
-                                                    data-confirm-text="<?= $vendor_name ?> goes for good. Its cases, licenses, assets and domains stay, from no vendor.">
+                                                    data-confirm-text="<?= $vendor_name ?> goes for good. Its cases, licenses, assets and domains stay, with no vendor.">
                                                     <i class="fas fa-fw fa-trash me-2"></i>Delete
                                                 </a>
                                             <?php } ?>

@@ -36,16 +36,22 @@ ob_start();
     <div class="modal-body">
         <div class="mb-3">
             <label class="form-label">Importance</label>
-            <select class="form-select select2" name="importance">
-                <option value="">- No change -</option>
-                <?php foreach (SERVICE_IMPORTANCE as $importance) { ?>
-                    <option value="<?= $importance ?>"><?= $importance ?></option>
-                <?php } ?>
-            </select>
+            <div class="input-group">
+                <span class="input-group-text"><i class="fas fa-fw fa-thermometer-half"></i></span>
+                <select class="form-select select2" name="importance">
+                    <option value="">- No change -</option>
+                    <?php foreach (SERVICE_IMPORTANCE as $importance) { ?>
+                        <option value="<?= $importance ?>"><?= $importance ?></option>
+                    <?php } ?>
+                </select>
+            </div>
         </div>
         <div class="mb-3">
             <label class="form-label">Category</label>
-            <input type="text" class="form-control" name="category" list="serviceBulkCategories" maxlength="50" placeholder="- No change -">
+            <div class="input-group">
+                <span class="input-group-text"><i class="fas fa-fw fa-folder"></i></span>
+                <input type="text" class="form-control" name="category" list="serviceBulkCategories" maxlength="50" placeholder="- No change -">
+            </div>
             <datalist id="serviceBulkCategories">
                 <?php foreach ($categories as $category) { ?>
                     <option value="<?= escapeHtml($category) ?>"></option>
@@ -54,12 +60,15 @@ ob_start();
         </div>
         <div class="mb-0">
             <label class="form-label">Review</label>
-            <select class="form-select select2" name="review_interval">
-                <option value="">- No change -</option>
-                <?php foreach (SERVICE_REVIEW_INTERVALS as $months => $label) { ?>
-                    <option value="<?= $months ?>"><?= $label ?></option>
-                <?php } ?>
-            </select>
+            <div class="input-group">
+                <span class="input-group-text"><i class="fas fa-fw fa-redo"></i></span>
+                <select class="form-select select2" name="review_interval">
+                    <option value="">- No change -</option>
+                    <?php foreach (SERVICE_REVIEW_INTERVALS as $months => $label) { ?>
+                        <option value="<?= $months ?>"><?= $label ?></option>
+                    <?php } ?>
+                </select>
+            </div>
             <div class="form-text">A schedule sets each one's next review that long after its last one - or from today if that has passed.</div>
         </div>
     </div>

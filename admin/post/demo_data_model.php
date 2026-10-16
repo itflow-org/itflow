@@ -4520,7 +4520,7 @@ function demoDataSpecs() {
             'recurring_ticket' => 'Monthly maintenance visit - Verity Insurance',
             'project' => null,
             'vendors' => [
-                ['Allegheny Business Fiber', 'Office internet and failover', '412-555-0158', 'alleghenyfiber.example', '4 hour response', 'Primary fibre with a 4G backup that has never been tested under load.'],
+                ['Allegheny Business Fiber', 'Office internet and failover', '412-555-0158', 'alleghenyfiber.example', '4 hour response', 'Primary fiber with a 4G backup that has never been tested under load.'],
                 ['Carrier Gateway Systems', 'Insurance carrier portal aggregator', '412-555-0159', 'carriergateway.example', '8x5 support', 'Browser fussy. Keep one machine on the known good version.'],
             ],
             'fleet' => ['Firewall/Router' => 1, 'Switch' => 2, 'Access Point' => 3, 'Server' => 2, 'Desktop' => 15, 'Laptop' => 5, 'Printer' => 3, 'Phone' => 14],

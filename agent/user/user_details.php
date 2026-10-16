@@ -3,7 +3,7 @@
 /*
  * Your account > Profile - your picture, name, email and the signature that
  * goes on your ticket replies. Your email signs you in, so changing it takes
- * your current password, and the old address is told.
+ * your current password, and the old address gets a notice.
  */
 
 require_once "includes/inc_all_user.php";
@@ -63,7 +63,7 @@ $has_avatar = trim((string) $me['user_avatar']) !== '';
                                     <input type="password" class="form-control" data-toggle="password" name="current_password" placeholder="To change the email you sign in with" autocomplete="current-password">
                                     <span class="input-group-text"><i class="fa fa-fw fa-eye"></i></span>
                                 </div>
-                                <div class="form-text">You'll sign in with the new email from now on - your old address is told it changed.</div>
+                                <div class="form-text">You'll sign in with the new email from now on - your old address gets a notice that it changed.</div>
                             </div>
                         </div>
                         <div class="col-md-6">

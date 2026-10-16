@@ -621,7 +621,7 @@ if (isset($_POST['bulk_assign_ticket'])) {
 
     $assign_to = ticketAgentId($_POST['assign_to'] ?? 0);
     if (intval($_POST['assign_to'] ?? 0) && !$assign_to) {
-        flashAlert('Invalid agent!', 'error');
+        flashAlert('Pick an active agent.', 'error');
         redirect();
     }
     $agent_name = $assign_to ? (string) getFieldById('users', $assign_to, 'user_name') : 'No One';
@@ -1095,7 +1095,7 @@ if (isset($_POST['add_ticket_reply'])) {
 
         triggerCustomAction($ticket_reply_type === 'Internal' ? 'ticket_reply_agent_internal' : 'reply_reply_agent_public', $ticket_id);
 
-        flashAlert("Ticket <strong>" . escapeHtml(ticketReference($row)) . "</strong> has been updated with your reply and was <strong>$ticket_reply_type</strong>");
+        flashAlert(($ticket_reply_type === 'Internal' ? 'Internal note added to' : 'Reply added to') . " ticket <strong>" . escapeHtml(ticketReference($row)) . "</strong>");
 
     } else {
         // A file uploaded without any accompanying text has no reply to hang off,
@@ -1136,7 +1136,7 @@ if (isset($_GET['delete_ticket_attachment'])) {
     $attachment_id = intval($_GET['delete_ticket_attachment']);
     $attachment = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT ticket_attachment_name, ticket_attachment_reference_name, ticket_attachment_ticket_id FROM ticket_attachments WHERE ticket_attachment_id = $attachment_id LIMIT 1"));
     if (!$attachment) {
-        flashAlert("Attachment not found", 'error');
+        flashAlert('That attachment no longer exists.', 'error');
         redirect();
     }
 
@@ -1246,7 +1246,7 @@ if (isset($_POST['merge_ticket'])) {
     $parent = ticketMergeTarget($_POST['merge_into_ticket_id'] ?? 0);
 
     if (intval($row['ticket_id']) === intval($parent['ticket_id'])) {
-        flashAlert("Cannot merge into the same ticket.", 'error');
+        flashAlert("A ticket can't be merged into itself.", 'error');
         redirect();
     }
     if (!empty($row['ticket_closed_at'])) {
@@ -1359,7 +1359,7 @@ if (isset($_GET['resolve_ticket'])) {
         ticketMailResolved($ticket_id);
     }
 
-    flashAlert("Ticket resolved");
+    flashAlert("Ticket <strong>" . escapeHtml(ticketReference($row)) . "</strong> resolved");
 
     redirect();
 
@@ -1402,7 +1402,7 @@ if (isset($_GET['close_ticket'])) {
             "Hello $contact_name,<br><br>Your ticket regarding \"$subject\" has been closed. <br><br> We hope the request/issue was resolved to your satisfaction, please provide your feedback <a href=\'https://$base_url/guest/guest_view_ticket.php?ticket_id=$ticket_id&url_key=$url_key\'>here</a>. <br>If you need further assistance, please raise a new ticket using the below details. Please do not reply to this email. <br><br>Ticket: $reference<br>Subject: $subject<br>Portal: https://$base_url/client/ticket.php?id=$ticket_id<br><br>--<br>$company_name - Support<br>$from_email<br>$company_phone");
     }
 
-    flashAlert("Ticket Closed, this cannot not be reopened but you may start another one");
+    flashAlert("Ticket <strong>" . escapeHtml(ticketReference($row)) . "</strong> closed - for more work on it, start a new ticket");
 
     redirect();
 
@@ -1423,7 +1423,7 @@ if (isset($_GET['reopen_ticket'])) {
 
     ticketReopen($row);
 
-    flashAlert("Ticket re-opened");
+    flashAlert("Ticket <strong>" . escapeHtml(ticketReference($row)) . "</strong> reopened");
 
     redirect();
 

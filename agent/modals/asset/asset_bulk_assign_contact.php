@@ -16,7 +16,7 @@ ob_start();
 ?>
 
 <div class="modal-header bg-dark">
-    <h5 class="modal-title"><i class="fa fa-fw fa-user-check me-2"></i>Assign Contact to <strong><?= $count ?></strong> Assets</h5>
+    <h5 class="modal-title"><i class="fa fa-fw fa-user-check me-2"></i>Assign Contact to <strong><?= $count ?></strong> asset<?= $count === 1 ? '' : 's' ?></h5>
     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
 </div>
 

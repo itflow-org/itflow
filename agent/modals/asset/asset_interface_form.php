@@ -181,7 +181,7 @@ $form_type = (string) ($form['interface_type'] ?? '');
 </div>
 
 <div class="tab-pane fade" id="<?= $form_id ?>Notes">
-    <textarea class="form-control" name="notes" rows="8" placeholder="Patch panel port, cable colour, what is on the other end"><?= escapeHtml($form['interface_notes'] ?? '') ?></textarea>
+    <textarea class="form-control" name="notes" rows="8" placeholder="Patch panel port, cable color, what is on the other end"><?= escapeHtml($form['interface_notes'] ?? '') ?></textarea>
 </div>
 
 </div>

@@ -42,46 +42,61 @@ ob_start();
 
         <div class="mb-3">
             <label class="form-label">Which</label>
-            <select class="form-select select2" name="show">
-                <?php foreach ($views as $key => $view) { ?>
-                    <option value="<?= escapeHtml($key) ?>" <?= $show_filter === $key ? 'selected' : '' ?>><?= escapeHtml($view['label']) ?></option>
-                <?php } ?>
-            </select>
+            <div class="input-group">
+                <span class="input-group-text"><i class="fas fa-fw fa-eye"></i></span>
+                <select class="form-select select2" name="show">
+                    <?php foreach ($views as $key => $view) { ?>
+                        <option value="<?= escapeHtml($key) ?>" <?= $show_filter === $key ? 'selected' : '' ?>><?= escapeHtml($view['label']) ?></option>
+                    <?php } ?>
+                </select>
+            </div>
         </div>
 
         <div class="row g-3 mb-3">
             <div class="col-md-6">
                 <label class="form-label">Importance</label>
-                <select class="form-select select2" name="importance">
-                    <option value="">- Any importance -</option>
-                    <?php foreach (SERVICE_IMPORTANCE as $importance) { ?>
-                        <option value="<?= $importance ?>" <?= $importance_filter === $importance ? 'selected' : '' ?>><?= $importance ?></option>
-                    <?php } ?>
-                </select>
+                <div class="input-group">
+                    <span class="input-group-text"><i class="fas fa-fw fa-thermometer-half"></i></span>
+                    <select class="form-select select2" name="importance">
+                        <option value="">- Any importance -</option>
+                        <?php foreach (SERVICE_IMPORTANCE as $importance) { ?>
+                            <option value="<?= $importance ?>" <?= $importance_filter === $importance ? 'selected' : '' ?>><?= $importance ?></option>
+                        <?php } ?>
+                    </select>
+                </div>
             </div>
             <div class="col-md-6">
                 <label class="form-label">Category</label>
-                <input type="text" class="form-control" name="category" value="<?= escapeHtml($category_filter) ?>" placeholder="Any category">
+                <div class="input-group">
+                    <span class="input-group-text"><i class="fas fa-fw fa-folder"></i></span>
+                    <input type="text" class="form-control" name="category" value="<?= escapeHtml($category_filter) ?>" placeholder="Any category">
+                </div>
             </div>
         </div>
 
         <div class="mb-3">
             <label class="form-label">Search</label>
-            <input type="text" class="form-control" name="q" value="<?= stripslashes(escapeHtml($q_filter)) ?>" placeholder="Name, description, category, client">
+            <div class="input-group">
+                <span class="input-group-text"><i class="fas fa-fw fa-search"></i></span>
+                <input type="text" class="form-control" name="q" value="<?= stripslashes(escapeHtml($q_filter)) ?>" placeholder="Name, description, category, client">
+            </div>
         </div>
 
         <?php if (!$client_id) { ?>
             <div class="mb-3">
                 <label class="form-label">Client</label>
-                <select class="form-select select2" name="client">
-                    <option value="">- All Clients -</option>
-                    <?php
-                    $sql = mysqli_query($mysqli, "SELECT client_id, client_name, client_abbreviation FROM clients
-                        WHERE client_archived_at IS NULL AND EXISTS (SELECT 1 FROM services WHERE service_client_id = client_id) " . clientScopeSql('clients.client_id') . " ORDER BY client_name ASC");
-                    while ($row = mysqli_fetch_assoc($sql)) { ?>
-                        <option value="<?= intval($row['client_id']) ?>" <?= $client_filter === (string) intval($row['client_id']) ? 'selected' : '' ?><?= selectOptionClient($row['client_id'], $row['client_name'], $row['client_abbreviation'] ?? '') ?>><?= escapeHtml($row['client_name']) ?></option>
-                    <?php } ?>
-                </select>
+                <div class="input-group">
+                    <span class="input-group-text"><i class="fas fa-fw fa-user"></i></span>
+                    <select class="form-select select2" name="client">
+                        <option value="">- All Clients -</option>
+                        <?php
+                        $sql = mysqli_query($mysqli, "SELECT client_id, client_name, client_abbreviation FROM clients
+                            WHERE client_archived_at IS NULL AND EXISTS (SELECT 1 FROM services WHERE service_client_id = client_id) " . clientScopeSql('clients.client_id') . " ORDER BY client_name ASC");
+                        while ($row = mysqli_fetch_assoc($sql)) { ?>
+                            <option value="<?= intval($row['client_id']) ?>" <?= $client_filter === (string) intval($row['client_id']) ? 'selected' : '' ?><?= selectOptionClient($row['client_id'], $row['client_name'], $row['client_abbreviation'] ?? '') ?>><?= escapeHtml($row['client_name']) ?></option>
+                        <?php } ?>
+                    </select>
+                </div>
             </div>
         <?php } ?>
 
