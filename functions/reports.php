@@ -968,6 +968,8 @@ function reportCsv($name, array $columns, array $rows, array $totals = null) {
     if ($totals) {
         $values = [];
         foreach ($columns as $key => $column) {
+            // A total is its value as given - a column's csv function reads a row's fields, which the totals don't have
+            unset($column['csv']);
             $values[] = escapeCsvFormula(array_key_exists($key, $totals) ? reportCsvValue($column, $totals, $key) : '');
         }
         fputcsv($out, $values, ',', '"', '\\');

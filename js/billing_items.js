@@ -217,9 +217,19 @@ function itflowBillingItems(options) {
     // Drag to reorder
     var body = paper.querySelector('[data-billing-items] tbody');
     if (body && typeof Sortable !== 'undefined' && paper.querySelector('.drag-handle')) {
+        // A quote's lines sit under a heading for how often each is billed - a line moves within its own
+        var grouped = !!body.querySelector('tr.itflow-paper-group');
         new Sortable(body, {
             handle: '.drag-handle',
+            draggable: 'tr[data-item-id]',
             animation: 150,
+            onMove: function (evt) {
+                if (!grouped) {
+                    return true;
+                }
+                var before = evt.willInsertAfter ? evt.related : evt.related.previousElementSibling;
+                return !!before && before.getAttribute('data-group') === evt.dragged.getAttribute('data-group');
+            },
             onEnd: function (evt) {
                 if (evt.oldIndex === evt.newIndex) {
                     return;

@@ -67,6 +67,11 @@ if ($paper_type === 'invoice') {
 $paper_seats = $paper_type === 'recurring' ? recurringSeatLines($paper_id, intval($paper_row['client_id'])) : [];
 $paper_seat_sources = recurringSeatSources();
 
+// A quote with lines billed each month, quarter or year shows them apart from
+// what is billed once - the lines under a heading each, and a total each
+$paper_groups = $paper_type === 'quote' && !empty($paper_totals['recurring']) ? $paper_totals['groups'] : null;
+$paper_line_groups = $paper_groups ?: ['' => ['frequency' => '', 'label' => '', 'items' => $paper_items]];
+
 $paper_post = function ($params) use ($paper_type, $paper_id, $paper) {
     return 'post.php?' . http_build_query(array_merge($params, ['type' => $paper_type, 'doc_id' => $paper_id, 'csrf_token' => $paper['csrf'] ?? '']));
 };
@@ -124,7 +129,17 @@ $paper_bill_lines = array_filter([
                 <?php if (!in_array($paper_status, ['Paid', 'Cancelled', 'Non-Billable', 'Draft'], true) && ($paper['balance'] ?? 0) > 0) { ?>
                     <div class="small text-body-secondary">by <?= escapeHtml($paper_row['invoice_due']) ?></div>
                 <?php } ?>
-            <?php } elseif ($paper_type === 'quote') { ?>
+            <?php } elseif ($paper_type === 'quote' && $paper_groups) {
+                $paper_first = true;
+                foreach ($paper_groups as $paper_frequency => $paper_group) {
+                    if ($paper_frequency === '' && !$paper_group['items'] && $paper_group['discount'] == 0) {
+                        continue;
+                    } ?>
+                    <div class="itflow-paper-label <?= $paper_first ? '' : 'mt-2' ?>"><?= $paper_frequency === '' ? 'Up front' : escapeHtml($paper_group['label']) ?></div>
+                    <div class="<?= $paper_first ? 'itflow-paper-amount' : 'fs-5 fw-semibold' ?>"><?= $paper_money($paper_group['total']) ?></div>
+                <?php $paper_first = false;
+                }
+            } elseif ($paper_type === 'quote') { ?>
                 <div class="itflow-paper-label">Quote total</div>
                 <div class="itflow-paper-amount"><?= $paper_money($paper_totals['total']) ?></div>
             <?php } else { ?>
@@ -162,65 +177,72 @@ $paper_bill_lines = array_filter([
             </tr>
             </thead>
             <tbody>
-            <?php foreach ($paper_items as $item) {
-                $item_id = intval($item['item_id']);
-                $item_tax_label = floatval($item['item_tax']) != 0 || intval($item['item_tax_id'])
-                    ? trim(($item['tax_name'] ?? '') . ' ' . ($item['tax_percent'] !== null ? billingQuantity($item['tax_percent']) . '%' : ''))
-                    : ''; ?>
-                <tr id="line-<?= $item_id ?>" data-item-id="<?= $item_id ?>">
-                    <?php if ($paper_edit) { ?>
-                        <td class="itflow-paper-handle d-print-none"><span class="drag-handle" title="Drag to reorder"><i class="fas fa-grip-vertical"></i></span></td>
-                    <?php } ?>
-                    <td class="itflow-paper-item">
-                        <div class="fw-semibold"><?= escapeHtml($item['item_name']) ?></div>
-                        <?php if (trim((string) $item['item_description']) !== '') { ?>
-                            <div class="small text-body-secondary"><?= nl2br(escapeHtml($item['item_description'])) ?></div>
+            <?php foreach ($paper_line_groups as $paper_frequency => $paper_line_group) {
+                if ($paper_groups) { ?>
+                    <tr class="itflow-paper-group" data-group="<?= $paper_frequency ?>">
+                        <td colspan="7"><span class="itflow-paper-label"><?= escapeHtml($paper_line_group['label']) ?></span></td>
+                    </tr>
+                <?php }
+                foreach ($paper_line_group['items'] as $item) {
+                    $item_id = intval($item['item_id']);
+                    $item_tax_label = floatval($item['item_tax']) != 0 || intval($item['item_tax_id'])
+                        ? trim(($item['tax_name'] ?? '') . ' ' . ($item['tax_percent'] !== null ? billingQuantity($item['tax_percent']) . '%' : ''))
+                        : ''; ?>
+                    <tr id="line-<?= $item_id ?>" data-item-id="<?= $item_id ?>" data-group="<?= $paper_frequency ?>">
+                        <?php if ($paper_edit) { ?>
+                            <td class="itflow-paper-handle d-print-none"><span class="drag-handle" title="Drag to reorder"><i class="fas fa-grip-vertical"></i></span></td>
                         <?php } ?>
-                        <?php if (isset($paper_seats[$item_id])) {
-                            $seat = $paper_seats[$item_id];
-                            $seat_source = $paper_seat_sources[$seat['item_seat_source']] ?? ['unit' => 'seat', 'icon' => 'fa-users']; ?>
-                            <div class="small mt-1 d-print-none">
-                                <span class="badge rounded-pill bg-primary-subtle text-primary-emphasis fw-normal text-wrap text-start" title="The quantity is counted again for each invoice">
-                                    <i class="fas <?= $seat_source['icon'] ?> me-1"></i>Per <?= $seat_source['unit'] ?> &middot; <?= escapeHtml($seat['seat_label']) ?><?= floatval($seat['item_seat_minimum']) > 0 ? ' &middot; at least ' . billingQuantity($seat['item_seat_minimum']) : '' ?>
-                                </span>
-                                <?php if ($seat['seat_count'] === null) { ?>
-                                    <span class="badge rounded-pill text-bg-danger fw-normal">The license is gone - it stays at <?= billingQuantity($item['item_quantity']) ?></span>
-                                <?php } elseif ($seat['seat_drift']) { ?>
-                                    <span class="badge rounded-pill text-bg-warning fw-normal" title="The next invoice bills the new count">Now <?= billingQuantity($seat['seat_quantity']) ?></span>
-                                <?php } ?>
-                            </div>
-                        <?php } ?>
-                    </td>
-                    <td class="text-end text-nowrap"><?= billingQuantity($item['item_quantity']) ?></td>
-                    <td class="text-end text-nowrap"><?= $paper_money($item['item_price']) ?></td>
-                    <td class="text-end text-nowrap">
-                        <?php if ($item_tax_label !== '') { ?>
-                            <?= $paper_money($item['item_tax']) ?>
-                            <div class="small text-body-secondary"><?= escapeHtml($item_tax_label) ?></div>
-                        <?php } else { ?>
-                            <span class="text-body-secondary">-</span>
-                        <?php } ?>
-                    </td>
-                    <td class="text-end text-nowrap fw-semibold"><?= $paper_money($item['item_total']) ?></td>
-                    <?php if ($paper_edit) { ?>
-                        <td class="text-end d-print-none itflow-paper-actions">
-                            <div class="dropdown dropstart">
-                                <button class="btn btn-sm btn-link text-body-secondary" title="Line actions" type="button" data-bs-toggle="dropdown"><i class="fas fa-fw fa-ellipsis-v"></i></button>
-                                <div class="dropdown-menu">
-                                    <a class="dropdown-item ajax-modal" href="#" data-modal-url="modals/billing/billing_item.php?type=<?= $paper_type ?>&doc_id=<?= $paper_id ?>&item_id=<?= $item_id ?>">
-                                        <i class="fas fa-fw fa-edit text-secondary me-2"></i>Edit
-                                    </a>
-                                    <div class="dropdown-divider"></div>
-                                    <a class="dropdown-item text-danger confirm-link" href="<?= escapeHtml($paper_post(['billing_item_delete' => $item_id])) ?>"
-                                        data-confirm-text="<?= escapeHtml($item['item_name']) ?> comes off <?= escapeHtml(billingNumber($paper_type, $paper_row)) ?><?= $paper_type === 'invoice' && intval($item['item_product_id']) ? ' - anything taken from stock goes back' : '' ?>.">
-                                        <i class="fas fa-fw fa-trash me-2"></i>Remove
-                                    </a>
+                        <td class="itflow-paper-item">
+                            <div class="fw-semibold"><?= escapeHtml($item['item_name']) ?></div>
+                            <?php if (trim((string) $item['item_description']) !== '') { ?>
+                                <div class="small text-body-secondary"><?= nl2br(escapeHtml($item['item_description'])) ?></div>
+                            <?php } ?>
+                            <?php if (isset($paper_seats[$item_id])) {
+                                $seat = $paper_seats[$item_id];
+                                $seat_source = $paper_seat_sources[$seat['item_seat_source']] ?? ['unit' => 'seat', 'icon' => 'fa-users']; ?>
+                                <div class="small mt-1 d-print-none">
+                                    <span class="badge rounded-pill bg-primary-subtle text-primary-emphasis fw-normal text-wrap text-start" title="The quantity is counted again for each invoice">
+                                        <i class="fas <?= $seat_source['icon'] ?> me-1"></i>Per <?= $seat_source['unit'] ?> &middot; <?= escapeHtml($seat['seat_label']) ?><?= floatval($seat['item_seat_minimum']) > 0 ? ' &middot; at least ' . billingQuantity($seat['item_seat_minimum']) : '' ?>
+                                    </span>
+                                    <?php if ($seat['seat_count'] === null) { ?>
+                                        <span class="badge rounded-pill text-bg-danger fw-normal">The license is gone - it stays at <?= billingQuantity($item['item_quantity']) ?></span>
+                                    <?php } elseif ($seat['seat_drift']) { ?>
+                                        <span class="badge rounded-pill text-bg-warning fw-normal" title="The next invoice bills the new count">Now <?= billingQuantity($seat['seat_quantity']) ?></span>
+                                    <?php } ?>
                                 </div>
-                            </div>
+                            <?php } ?>
                         </td>
-                    <?php } ?>
-                </tr>
-            <?php } ?>
+                        <td class="text-end text-nowrap"><?= billingQuantity($item['item_quantity']) ?></td>
+                        <td class="text-end text-nowrap"><?= $paper_money($item['item_price']) ?></td>
+                        <td class="text-end text-nowrap">
+                            <?php if ($item_tax_label !== '') { ?>
+                                <?= $paper_money($item['item_tax']) ?>
+                                <div class="small text-body-secondary"><?= escapeHtml($item_tax_label) ?></div>
+                            <?php } else { ?>
+                                <span class="text-body-secondary">-</span>
+                            <?php } ?>
+                        </td>
+                        <td class="text-end text-nowrap fw-semibold"><?= $paper_money($item['item_total']) ?></td>
+                        <?php if ($paper_edit) { ?>
+                            <td class="text-end d-print-none itflow-paper-actions">
+                                <div class="dropdown dropstart">
+                                    <button class="btn btn-sm btn-link text-body-secondary" title="Line actions" type="button" data-bs-toggle="dropdown"><i class="fas fa-fw fa-ellipsis-v"></i></button>
+                                    <div class="dropdown-menu">
+                                        <a class="dropdown-item ajax-modal" href="#" data-modal-url="modals/billing/billing_item.php?type=<?= $paper_type ?>&doc_id=<?= $paper_id ?>&item_id=<?= $item_id ?>">
+                                            <i class="fas fa-fw fa-edit text-secondary me-2"></i>Edit
+                                        </a>
+                                        <div class="dropdown-divider"></div>
+                                        <a class="dropdown-item text-danger confirm-link" href="<?= escapeHtml($paper_post(['billing_item_delete' => $item_id])) ?>"
+                                            data-confirm-text="<?= escapeHtml($item['item_name']) ?> comes off <?= escapeHtml(billingNumber($paper_type, $paper_row)) ?><?= $paper_type === 'invoice' && intval($item['item_product_id']) ? ' - anything taken from stock goes back' : '' ?>.">
+                                            <i class="fas fa-fw fa-trash me-2"></i>Remove
+                                        </a>
+                                    </div>
+                                </div>
+                            </td>
+                        <?php } ?>
+                    </tr>
+                <?php }
+            } ?>
             <?php if (!$paper_items && !$paper_edit) { ?>
                 <tr><td colspan="5" class="text-center text-body-secondary py-4">Nothing on it yet.</td></tr>
             <?php } ?>
@@ -229,7 +251,7 @@ $paper_bill_lines = array_filter([
                 <tfoot class="d-print-none">
                 <tr class="itflow-paper-add" id="add-line">
                     <td colspan="7">
-                        <div class="itflow-paper-add-grid<?= $paper_type === 'recurring' ? ' itflow-paper-add-grid-seats' : '' ?>" data-billing-add>
+                        <div class="itflow-paper-add-grid<?= in_array($paper_type, ['recurring', 'quote'], true) ? ' itflow-paper-add-grid-seats' : '' ?>" data-billing-add>
                             <div class="itflow-paper-add-item">
                                 <input type="text" class="form-control form-control-sm mb-1" name="name" form="billingAddLine" placeholder="<?= $paper_items ? 'Add a line - type a product, or anything' : 'First line - type a product, or anything' ?>" maxlength="200" required data-line-name aria-label="Item">
                                 <textarea class="form-control form-control-sm" name="description" form="billingAddLine" rows="1" placeholder="Description (optional)" data-line-description aria-label="Description"></textarea>
@@ -245,6 +267,15 @@ $paper_bill_lines = array_filter([
                                         <option value="">As typed</option>
                                         <option value="contacts" data-count="<?= intval(recurringSeatCount($paper_row['client_id'], 'contacts', [])) ?>">Per user</option>
                                         <option value="assets" data-count="<?= intval(recurringSeatCount($paper_row['client_id'], 'assets', [])) ?>">Per device</option>
+                                    </select>
+                                </div>
+                            <?php } elseif ($paper_type === 'quote') { ?>
+                                <div class="itflow-paper-add-seat">
+                                    <label class="form-label small text-body-secondary mb-0">Billed</label>
+                                    <select class="form-select form-select-sm" name="frequency" form="billingAddLine" title="Billed once, or each month, quarter or year - those go on a recurring invoice when the quote is invoiced">
+                                        <?php foreach (quoteFrequencies() as $frequency_value => $frequency_label) { ?>
+                                            <option value="<?= $frequency_value ?>"><?= $frequency_label ?></option>
+                                        <?php } ?>
                                     </select>
                                 </div>
                             <?php } ?>
@@ -288,6 +319,24 @@ $paper_bill_lines = array_filter([
                 <div class="small"><?= nl2br(escapeHtml($paper_row["{$paper_c}_note"])) ?></div>
             <?php } ?>
         </div>
+        <?php if ($paper_groups) { ?>
+            <table class="itflow-paper-totals">
+                <?php foreach ($paper_groups as $paper_frequency => $paper_group) {
+                    if ($paper_frequency === '' && !$paper_group['items'] && $paper_group['discount'] == 0) {
+                        continue;
+                    } ?>
+                    <tr class="itflow-paper-totals-head"><th colspan="2"><?= escapeHtml($paper_group['label']) ?></th></tr>
+                    <tr><th>Subtotal</th><td><?= $paper_money($paper_group['subtotal']) ?></td></tr>
+                    <?php if ($paper_group['discount'] != 0) { ?>
+                        <tr><th>Discount</th><td>-<?= $paper_money($paper_group['discount']) ?></td></tr>
+                    <?php } ?>
+                    <?php foreach ($paper_group['taxes'] as $tax_label => $tax_amount) { ?>
+                        <tr><th><?= escapeHtml($tax_label) ?></th><td><?= $paper_money($tax_amount) ?></td></tr>
+                    <?php } ?>
+                    <tr class="itflow-paper-total"><th><?= $paper_frequency === '' ? 'Total up front' : 'Total ' . strtolower(escapeHtml($paper_group['label'])) ?></th><td><?= $paper_money($paper_group['total']) ?></td></tr>
+                <?php } ?>
+            </table>
+        <?php } else { ?>
         <table class="itflow-paper-totals">
             <tr><th>Subtotal</th><td><?= $paper_money($paper_totals['subtotal']) ?></td></tr>
             <?php if ($paper_totals['discount'] != 0) { ?>
@@ -305,6 +354,7 @@ $paper_bill_lines = array_filter([
                 <tr class="itflow-paper-total"><th>Balance due</th><td><?= $paper_money($paper['balance']) ?></td></tr>
             <?php } ?>
         </table>
+        <?php } ?>
     </div>
 
     <?php if (trim((string) $paper_footer) !== '') { ?>

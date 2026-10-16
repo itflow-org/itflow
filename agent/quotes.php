@@ -7,7 +7,9 @@
  * been accepted and not invoiced yet, and what was won over the last 90
  * days with the share of answers that were a yes. The pills filter by where
  * a quote stands - Expired picks out the ones that ran out unanswered. Each
- * row has how long a quote has left while it waits.
+ * row has how long a quote has left while it waits. A quote's recurring
+ * lines count apart, as so much a month (quote_monthly_amount), under what
+ * it bills up front.
  */
 
 // Default Column Sortby/Order Filter
@@ -89,6 +91,9 @@ foreach (array_keys($statuses) as $i => $key) {
 // The pipeline along the top - everything in this scope
 $pipeline = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT
         COALESCE(SUM(CASE WHEN {$statuses['Awaiting']['where']} THEN quote_amount END), 0) AS awaiting,
+        COALESCE(SUM(CASE WHEN {$statuses['Awaiting']['where']} THEN quote_monthly_amount END), 0) AS awaiting_monthly,
+        COALESCE(SUM(CASE WHEN quote_status = 'Accepted' THEN quote_monthly_amount END), 0) AS accepted_monthly,
+        COALESCE(SUM(CASE WHEN quote_status IN ('Accepted', 'Invoiced') AND quote_date >= CURDATE() - INTERVAL 90 DAY THEN quote_monthly_amount END), 0) AS won_monthly,
         COALESCE(SUM(CASE WHEN {$statuses['Awaiting']['where']} THEN 1 END), 0) AS awaiting_count,
         COALESCE(SUM(CASE WHEN quote_status = 'Accepted' THEN quote_amount END), 0) AS accepted,
         COALESCE(SUM(CASE WHEN quote_status = 'Accepted' THEN 1 END), 0) AS accepted_count,
@@ -107,6 +112,10 @@ $filter_url = function ($changes) {
 $stat_money = function ($amount) use ($session_company_currency) {
     return escapeHtml(billingMoney($amount, $session_company_currency));
 };
+// "+ $2,400.00/mo" under a figure, when there is recurring in it
+$stat_monthly = function ($amount) use ($stat_money) {
+    return floatval($amount) != 0 ? '<span class="fs-6 fw-normal text-body-secondary ms-1">+ ' . $stat_money($amount) . '/mo</span>' : '';
+};
 
 ?>
 
@@ -115,21 +124,21 @@ $stat_money = function ($amount) use ($session_company_currency) {
     <div class="col-sm-6 col-xl-3">
         <a class="itflow-billing-stat <?= $status === 'Awaiting' ? 'active' : '' ?>" href="<?= escapeHtml($filter_url(['status' => 'Awaiting'])) ?>">
             <div class="itflow-billing-stat-label"><i class="fas fa-hourglass-half me-1"></i>Awaiting answer</div>
-            <div class="itflow-billing-stat-value"><?= $stat_money($pipeline['awaiting']) ?></div>
+            <div class="itflow-billing-stat-value"><?= $stat_money($pipeline['awaiting']) ?><?= $stat_monthly($pipeline['awaiting_monthly']) ?></div>
             <div class="itflow-billing-stat-note"><?= intval($pipeline['awaiting_count']) ?> out with clients</div>
         </a>
     </div>
     <div class="col-sm-6 col-xl-3">
         <a class="itflow-billing-stat <?= $status === 'Accepted' ? 'active' : '' ?>" href="<?= escapeHtml($filter_url(['status' => 'Accepted'])) ?>">
             <div class="itflow-billing-stat-label"><i class="fas fa-thumbs-up me-1"></i>Accepted, to invoice</div>
-            <div class="itflow-billing-stat-value <?= $pipeline['accepted'] > 0 ? 'text-primary-emphasis' : '' ?>"><?= $stat_money($pipeline['accepted']) ?></div>
+            <div class="itflow-billing-stat-value <?= $pipeline['accepted'] > 0 || $pipeline['accepted_monthly'] > 0 ? 'text-primary-emphasis' : '' ?>"><?= $stat_money($pipeline['accepted']) ?><?= $stat_monthly($pipeline['accepted_monthly']) ?></div>
             <div class="itflow-billing-stat-note"><?= intval($pipeline['accepted_count']) ?> ready to bill</div>
         </a>
     </div>
     <div class="col-sm-6 col-xl-3">
         <div class="itflow-billing-stat">
             <div class="itflow-billing-stat-label"><i class="fas fa-trophy me-1"></i>Won, 90 days</div>
-            <div class="itflow-billing-stat-value text-success-emphasis"><?= $stat_money($pipeline['won']) ?></div>
+            <div class="itflow-billing-stat-value text-success-emphasis"><?= $stat_money($pipeline['won']) ?><?= $stat_monthly($pipeline['won_monthly']) ?></div>
             <div class="itflow-billing-stat-note"><?= intval($pipeline['won_count']) ?> quote<?= intval($pipeline['won_count']) === 1 ? '' : 's' ?> accepted</div>
         </div>
     </div>
@@ -244,7 +253,12 @@ $stat_money = function ($amount) use ($session_company_currency) {
                         <?= escapeHtml($row['quote_expire']) ?>
                         <?php $expiry_pill = quoteExpiryPill($row); if ($expiry_pill) { ?><div><?= $expiry_pill ?></div><?php } ?>
                     </td>
-                    <td class="text-end itflow-money fw-semibold"><?= escapeHtml(billingMoney($row['quote_amount'], $row['quote_currency_code'])) ?></td>
+                    <td class="text-end itflow-money">
+                        <div class="fw-semibold"><?= escapeHtml(billingMoney($row['quote_amount'], $row['quote_currency_code'])) ?></div>
+                        <?php if (floatval($row['quote_monthly_amount']) != 0) { ?>
+                            <div class="small text-body-secondary text-nowrap" title="Its recurring lines, as so much a month">+ <?= escapeHtml(billingMoney($row['quote_monthly_amount'], $row['quote_currency_code'])) ?>/mo</div>
+                        <?php } ?>
+                    </td>
                     <td class="text-nowrap"><?= quoteStatusBadge($row) ?></td>
                     <td class="text-end">
                         <div class="dropdown dropstart">

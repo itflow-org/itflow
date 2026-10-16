@@ -81,6 +81,21 @@ ob_start();
                     <textarea class="form-control" name="description" rows="3" placeholder="<?= $type === 'recurring' ? 'What it covers - {month}, {quarter}, {year} or {period} become the period each invoice covers' : 'What it is, the period it covers, serial numbers - shown under the item' ?>" data-line-description><?= escapeHtml($item['item_description']) ?></textarea>
                 </div>
             </div>
+            <?php if ($type === 'quote') {
+                $line_frequency = quoteFrequency($item['item_frequency'] ?? ''); ?>
+                <div class="col-12">
+                    <label class="form-label">Billed</label>
+                    <div class="input-group">
+                        <span class="input-group-text"><i class="fa fa-fw fa-redo-alt"></i></span>
+                        <select class="form-select" name="frequency">
+                            <?php foreach (quoteFrequencies() as $frequency_value => $frequency_label) { ?>
+                                <option value="<?= $frequency_value ?>" <?= $line_frequency === $frequency_value ? 'selected' : '' ?>><?= $frequency_label ?></option>
+                            <?php } ?>
+                        </select>
+                    </div>
+                    <div class="form-text">A line billed each month, quarter or year goes on a recurring invoice when the quote is invoiced, and the quote shows it apart from what is billed once.</div>
+                </div>
+            <?php } ?>
             <?php if ($type === 'recurring') {
                 $seat_options = recurringSeatOptions($client_id);
                 $seat_source = (string) ($item['item_seat_source'] ?? '');

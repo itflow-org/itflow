@@ -2,7 +2,8 @@
 
 /*
  * A quote as the client opens it from its link - the quote on the left, as
- * it prints; on the right what it comes to, how long it is good for, and
+ * it prints; on the right what it comes to (up front, and each month,
+ * quarter or year for its recurring lines), how long it is good for, and
  * Accept and Decline while it waits for an answer. Once accepted, the
  * client can send back a signed copy or a purchase order. Opening it marks
  * a sent quote viewed and tells the agents.
@@ -54,8 +55,22 @@ $paper = [
 
         <div class="card mb-3">
             <div class="card-body">
-                <div class="itflow-billing-stat-label">Quote total</div>
-                <div class="itflow-billing-stat-value mb-3"><?= escapeHtml(billingMoney($totals['total'], $currency)) ?></div>
+                <?php if ($totals['recurring']) { ?>
+                    <div class="d-flex flex-wrap gap-4 mb-3">
+                        <?php foreach ($totals['groups'] as $frequency => $group) {
+                            if ($frequency === '' && !$group['items'] && $group['discount'] == 0) {
+                                continue;
+                            } ?>
+                            <div>
+                                <div class="itflow-billing-stat-label"><?= $frequency === '' ? 'Up front' : escapeHtml($group['label']) ?></div>
+                                <div class="itflow-billing-stat-value"><?= escapeHtml(billingMoney($group['total'], $currency)) ?></div>
+                            </div>
+                        <?php } ?>
+                    </div>
+                <?php } else { ?>
+                    <div class="itflow-billing-stat-label">Quote total</div>
+                    <div class="itflow-billing-stat-value mb-3"><?= escapeHtml(billingMoney($totals['total'], $currency)) ?></div>
+                <?php } ?>
 
                 <?php if ($awaiting) { ?>
                     <p class="small text-body-secondary mb-3">
@@ -64,7 +79,7 @@ $paper = [
                     </p>
                     <div class="d-grid gap-2 mb-3">
                         <a class="btn btn-success btn-lg confirm-link" href="guest_post.php?accept_quote=<?= $quote_id ?>&url_key=<?= $query_key ?>"
-                            data-confirm-title="Accept <?= escapeHtml($number) ?>?" data-confirm-text="We'll be told straight away and be in touch to get started." data-confirm-button="Accept">
+                            data-confirm-title="Accept <?= escapeHtml($number) ?>?" data-confirm-text="<?= $totals['recurring'] ? 'That is ' . escapeHtml(quoteAmountText($totals['groups'], $currency)) . '. ' : '' ?>We'll be told straight away and be in touch to get started." data-confirm-button="Accept">
                             <i class="fas fa-thumbs-up me-2"></i>Accept
                         </a>
                         <a class="btn btn-outline-danger confirm-link" href="guest_post.php?decline_quote=<?= $quote_id ?>&url_key=<?= $query_key ?>"

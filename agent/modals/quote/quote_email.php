@@ -86,7 +86,7 @@ ob_start();
                     <div class="small text-body-secondary">An email with a link to view it, accept or decline it, and download it as a PDF.</div>
                 </div>
                 <div class="text-end">
-                    <div class="fw-semibold itflow-money"><?= escapeHtml(billingMoney($doc['quote_amount'], $doc['quote_currency_code'])) ?></div>
+                    <div class="fw-semibold itflow-money"><?= escapeHtml(quoteAmountText(quoteGroups($doc), $doc['quote_currency_code'])) ?></div>
                     <div class="small text-body-secondary">valid until <?= escapeHtml($doc['quote_expire']) ?></div>
                 </div>
             </div>

@@ -101,7 +101,7 @@ if (isset($_POST['add_quote_copy'])) {
     mysqli_query($mysqli,"INSERT INTO history SET history_status = 'Draft', history_description = 'Quote copied!', history_quote_id = $new_quote_id");
 
     $sql_items = mysqli_query($mysqli,"SELECT item_description, item_id, item_name, item_order, item_price, item_quantity, item_subtotal,
-        item_tax, item_tax_id, item_total FROM quote_items WHERE item_quote_id = $quote_id");
+        item_tax, item_tax_id, item_total, item_frequency FROM quote_items WHERE item_quote_id = $quote_id");
     while($row = mysqli_fetch_assoc($sql_items)) {
         $item_id = intval($row['item_id']);
         $item_name = escapeSql($row['item_name']);
@@ -113,9 +113,12 @@ if (isset($_POST['add_quote_copy'])) {
         $item_total = floatval($row['item_total']);
         $item_order = intval($row['item_order']);
         $tax_id = intval($row['item_tax_id']);
+        $item_frequency = quoteFrequency($row['item_frequency']);
+        $item_frequency = $item_frequency === '' ? 'NULL' : "'$item_frequency'";
 
-        mysqli_query($mysqli,"INSERT INTO quote_items SET item_name = '$item_name', item_description = '$item_description', item_quantity = $item_quantity, item_price = $item_price, item_subtotal = $item_subtotal, item_tax = $item_tax, item_total = $item_total, item_order = $item_order, item_tax_id = $tax_id, item_quote_id = $new_quote_id");
+        mysqli_query($mysqli,"INSERT INTO quote_items SET item_name = '$item_name', item_description = '$item_description', item_quantity = $item_quantity, item_price = $item_price, item_subtotal = $item_subtotal, item_tax = $item_tax, item_total = $item_total, item_order = $item_order, item_tax_id = $tax_id, item_frequency = $item_frequency, item_quote_id = $new_quote_id");
     }
+    billingRecalc('quote', $new_quote_id);
 
     logAudit("Quote", "Create", "$session_name created quote $config_quote_prefix$quote_number from quote $original_quote_prefix$original_quote_number", $client_id, $new_quote_id);
 
@@ -127,98 +130,52 @@ if (isset($_POST['add_quote_copy'])) {
 
 }
 
+/*
+ * Make Invoice / Start Billing - an accepted quote's one-time lines on a
+ * draft invoice, and its monthly, quarterly and yearly lines on recurring
+ * invoices (new, or added to the client's). quoteConvert() does it.
+ */
 if (isset($_POST['add_quote_to_invoice'])) {
 
     validateCSRFToken();
 
     enforceUserPermission('module_sales', 2);
 
-    $quote_id = intval($_POST['quote_id']);
-    $date = escapeSql($_POST['date']);
-
-    $sql = mysqli_query($mysqli,"SELECT client_net_terms, quote_amount, quote_category_id, quote_client_id, quote_currency_code,
-        quote_discount_amount, quote_note, quote_number, quote_prefix, quote_scope FROM clients, quotes WHERE client_id = quote_client_id AND quote_id = $quote_id");
-    $row = mysqli_fetch_assoc($sql);
-    $client_net_terms = intval($row['client_net_terms']) ?: intval($config_default_net_terms);
-    $quote_prefix = escapeSql($row['quote_prefix']);
-    $quote_number = escapeSql($row['quote_number']);
-    $quote_discount_amount = floatval($row['quote_discount_amount']);
-    $quote_amount = floatval($row['quote_amount']);
-    $quote_currency_code = escapeSql($row['quote_currency_code']);
-    $quote_scope = escapeSql($row['quote_scope']);
-    $quote_note = escapeSql($row['quote_note']);
-
-    $client_id = intval($row['quote_client_id']);
-    $category_id = intval($row['quote_category_id']);
+    $quote = billingRow('quote', intval($_POST['quote_id'] ?? 0));
+    if (!$quote) {
+        flashAlert('That quote no longer exists.', 'error');
+        redirect();
+    }
+    $client_id = intval($quote['client_id']);
 
     enforceClientAccess();
 
-    $config_invoice_prefix = escapeSql($config_invoice_prefix);
-
-    // Atomically increment and get the new invoice number
-    mysqli_query($mysqli, "
-        UPDATE settings
-        SET
-            config_invoice_next_number = LAST_INSERT_ID(config_invoice_next_number),
-            config_invoice_next_number = config_invoice_next_number + 1
-        WHERE company_id = 1
-    ");
-
-    $invoice_number = mysqli_insert_id($mysqli);
-
-    //Generate a unique URL key for clients to access
-    $url_key = randomString(32);
-
-    mysqli_query($mysqli,"INSERT INTO invoices SET invoice_prefix = '$config_invoice_prefix', invoice_number = $invoice_number, invoice_scope = '$quote_scope', invoice_date = '$date', invoice_due = DATE_ADD('$date', INTERVAL $client_net_terms day), invoice_category_id = $category_id, invoice_status = 'Draft', invoice_discount_amount = $quote_discount_amount, invoice_amount = $quote_amount, invoice_currency_code = '$quote_currency_code', invoice_note = '$quote_note', invoice_url_key = '$url_key', invoice_client_id = $client_id");
-
-    $new_invoice_id = mysqli_insert_id($mysqli);
-
-    mysqli_query($mysqli,"INSERT INTO history SET history_status = 'Draft', history_description = 'Invoice created from quote $quote_prefix$quote_number', history_invoice_id = $new_invoice_id");
-
-    $sql_items = mysqli_query($mysqli,"SELECT item_description, item_id, item_name, item_order, item_price, item_quantity, item_subtotal,
-        item_tax, item_tax_id, item_total FROM quote_items WHERE item_quote_id = $quote_id");
-    while($row = mysqli_fetch_assoc($sql_items)) {
-        $item_id = intval($row['item_id']);
-        $item_name = escapeSql($row['item_name']);
-        $item_description = escapeSql($row['item_description']);
-        $item_quantity = floatval($row['item_quantity']);
-        $item_price = floatval($row['item_price']);
-        $item_subtotal = floatval($row['item_subtotal']);
-        $item_tax = floatval($row['item_tax']);
-        $item_total = floatval($row['item_total']);
-        $item_order = intval($row['item_order']);
-        $tax_id = intval($row['item_tax_id']);
-
-        mysqli_query($mysqli,"INSERT INTO invoice_items SET item_name = '$item_name', item_description = '$item_description', item_quantity = $item_quantity, item_price = $item_price, item_subtotal = $item_subtotal, item_tax = $item_tax, item_total = $item_total, item_order = $item_order, item_tax_id = $tax_id, item_invoice_id = $new_invoice_id");
+    $recurring = [];
+    foreach ((array) ($_POST['recurring'] ?? []) as $frequency => $choice) {
+        $choice = (array) $choice;
+        $recurring[(string) $frequency] = [
+            'to' => intval($choice['to'] ?? 0),
+            'start' => (string) ($choice['start'] ?? ''),
+            'auto_send' => intval($choice['auto_send'] ?? 1),
+        ];
+    }
+    $result = quoteConvert($quote['quote_id'], [
+        'date' => (string) ($_POST['date'] ?? ''),
+        'first_period' => !empty($_POST['first_period']),
+        'recurring' => $recurring,
+        'by' => $session_name,
+    ], $error);
+    if (!$result) {
+        flashAlert(escapeHtml($error), 'error');
+        redirect();
     }
 
-    mysqli_query($mysqli,"UPDATE quotes SET quote_status = 'Invoiced' WHERE quote_id = $quote_id");
+    flashAlert('<strong>' . escapeHtml(billingNumber('quote', $quote)) . '</strong> invoiced as ' . escapeHtml(implode(', ', $result['numbers'])));
 
-    mysqli_query($mysqli,"INSERT INTO history SET history_status = 'Invoiced', history_description = 'Quote invoiced as $config_invoice_prefix$invoice_number', history_quote_id = $quote_id");
-
-    logAudit("Invoice", "Create", "$session_name created invoice $config_invoice_prefix$invoice_number from quote $config_quote_prefix$quote_number", $client_id, $new_invoice_id);
-
-    // Check & update any quote-ticket association
-    $ticket_id = 0;
-    $sql_ticket = "SELECT ticket_id, ticket_prefix, ticket_number
-        FROM tickets
-        WHERE ticket_quote_id = $quote_id
-        LIMIT 1";
-    $result_ticket = mysqli_query($mysqli, $sql_ticket);
-
-    if ($result_ticket && $row = mysqli_fetch_assoc($result_ticket)) {
-        $ticket_id = intval($row['ticket_id']);
-        $ticket_prefix = escapeSql($row['ticket_prefix']);
-        $ticket_number = intval($row['ticket_number']);
-
-        mysqli_query($mysqli, "UPDATE tickets SET ticket_invoice_id = $new_invoice_id WHERE ticket_id = $ticket_id AND ticket_invoice_id = '0'"); // Only if ticket doesn't already have an invoice
+    if ($result['invoice_id']) {
+        redirect("invoice.php?invoice_id={$result['invoice_id']}");
     }
-
-    triggerCustomAction('invoice_create', $new_invoice_id);
-
-    flashAlert("Invoice created from quote <strong>$quote_prefix$quote_number</strong>");
-
-    redirect("invoice.php?invoice_id=$new_invoice_id");
+    redirect('recurring_invoice.php?recurring_invoice_id=' . array_key_first($result['recurring']));
 
 }
 
@@ -279,12 +236,13 @@ if (isset($_GET['delete_quote'])) {
         mysqli_query($mysqli,"DELETE FROM quote_items WHERE item_id = $item_id");
     }
 
-    //Delete History Associated with the Quote
-    $sql = mysqli_query($mysqli,"SELECT history_id FROM history WHERE history_quote_id = $quote_id");
-    while($row = mysqli_fetch_assoc($sql)) {;
-        $history_id = intval($row['history_id']);
-        mysqli_query($mysqli,"DELETE FROM history WHERE history_id = $history_id");
-    }
+    //Delete History Associated with the Quote - a recurring invoice's entry for the lines it added stays theirs
+    mysqli_query($mysqli,"DELETE FROM history WHERE history_quote_id = $quote_id AND history_recurring_invoice_id = 0");
+    mysqli_query($mysqli,"UPDATE history SET history_quote_id = 0 WHERE history_quote_id = $quote_id");
+
+    // What was made from it no longer points at it
+    mysqli_query($mysqli,"UPDATE invoices SET invoice_quote_id = 0 WHERE invoice_quote_id = $quote_id");
+    mysqli_query($mysqli,"UPDATE recurring_invoices SET recurring_invoice_quote_id = 0 WHERE recurring_invoice_quote_id = $quote_id");
 
     logAudit("Quote", "Delete", "$session_name deleted quote $quote_prefix$quote_number", $client_id);
 
@@ -432,6 +390,11 @@ if (isset($_POST['email_quote'])) {
 
     enforceClientAccess();
 
+    // What it comes to - up front, and each month, quarter or year
+    $quote_groups = quoteGroups(billingRow('quote', $quote_id, false));
+    $quote_groups_recurring = quoteHasRecurring($quote_groups);
+    $quote_cost_text = quoteAmountText($quote_groups, $row['quote_currency_code'] ?? $quote_currency_code);
+
     // Two ways in. Quick Send skips the modal and resolves the default
     // recipients server-side; the modal posts an explicit contacts[] list.
     // Scoping either lookup to this quote's client is what makes a tampered
@@ -508,7 +471,7 @@ if (isset($_POST['email_quote'])) {
         $contact_name = escapeSql($recipient['contact_name']);
         $contact_email = escapeSql($recipient['contact_email']);
 
-        $body = "Hello $contact_name,<br><br>Thank you for your inquiry, we are pleased to provide you with the following estimate.<br><br><br>$quote_scope<br>Total Cost: " . numfmt_format_currency($currency_format, $quote_amount, $quote_currency_code) . "<br><br><br>View and accept your estimate online <a href=\'https://$config_base_url/guest/guest_view_quote.php?quote_id=$quote_id&url_key=$quote_url_key\'>here</a><br><br><br>--<br>$company_name - Sales<br>$config_quote_from_email<br>$company_phone";
+        $body = "Hello $contact_name,<br><br>Thank you for your inquiry, we are pleased to provide you with the following estimate.<br><br><br>$quote_scope<br>" . ($quote_groups_recurring ? 'Cost: ' : 'Total Cost: ') . escapeSql(htmlspecialchars($quote_cost_text)) . "<br><br><br>View and accept your estimate online <a href=\'https://$config_base_url/guest/guest_view_quote.php?quote_id=$quote_id&url_key=$quote_url_key\'>here</a><br><br><br>--<br>$company_name - Sales<br>$config_quote_from_email<br>$company_phone";
 
         $data[] = [
             'from' => $config_quote_from_email,
@@ -613,7 +576,7 @@ if (isExportRequest('export_quotes')) {
 
     $sql = mysqli_query(
         $mysqli,
-        "SELECT client_name, quote_amount, quote_date, quote_number, quote_prefix, quote_scope,
+        "SELECT client_name, quote_amount, quote_monthly_amount, quote_date, quote_number, quote_prefix, quote_scope,
         quote_status FROM quotes
         LEFT JOIN clients ON quote_client_id = client_id
         LEFT JOIN categories ON quote_category_id = category_id

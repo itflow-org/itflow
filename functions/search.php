@@ -510,7 +510,7 @@ function globalSearchGroups($terms, $deep) {
     $quote_number_match = $quote_number !== null ? "OR quote_number = $quote_number" : '';
     $groups[] = [
         'key' => 'quotes', 'label' => 'Quotes', 'icon' => 'comment-dollar', 'module' => 'module_sales', 'enabled' => $accounting,
-        'select' => 'quote_id, quote_prefix, quote_number, quote_scope, quote_status, quote_amount,
+        'select' => 'quote_id, quote_prefix, quote_number, quote_scope, quote_status, quote_amount, quote_monthly_amount,
             quote_currency_code, quote_client_id, client_name',
         'from' => 'quotes LEFT JOIN clients ON quote_client_id = client_id',
         'where' => "quote_archived_at IS NULL
@@ -524,7 +524,8 @@ function globalSearchGroups($terms, $deep) {
             return [
                 'ref' => $row['quote_prefix'] . $row['quote_number'],
                 'title' => $row['quote_scope'] ?: 'Quote',
-                'subtitle' => globalSearchMoney($row['quote_amount'], $row['quote_currency_code']),
+                'subtitle' => globalSearchMoney($row['quote_amount'], $row['quote_currency_code'])
+                    . (floatval($row['quote_monthly_amount']) != 0 ? ' + ' . globalSearchMoney($row['quote_monthly_amount'], $row['quote_currency_code']) . '/mo' : ''),
                 'context' => $row['client_name'],
                 'badge' => ['text' => $row['quote_status'], 'variant' => $quote_badge_variants[$row['quote_status']] ?? 'secondary'],
                 'url' => globalSearchClientUrl('quote.php', $row['quote_client_id'], ['quote_id' => intval($row['quote_id'])]),

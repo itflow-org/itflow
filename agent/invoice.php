@@ -65,6 +65,10 @@ $csrf = $_SESSION['csrf_token'];
 $recurring = intval($invoice['invoice_recurring_invoice_id'])
     ? mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT recurring_invoice_id, recurring_invoice_prefix, recurring_invoice_number FROM recurring_invoices WHERE recurring_invoice_id = " . intval($invoice['invoice_recurring_invoice_id'])))
     : null;
+// Made from a quote?
+$from_quote = intval($invoice['invoice_quote_id'] ?? 0)
+    ? mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT quote_id, quote_prefix, quote_number FROM quotes WHERE quote_id = " . intval($invoice['invoice_quote_id'])))
+    : null;
 
 $progress = $state['paid'] > 0 && $totals['total'] > 0 ? min(100, round($state['paid'] / $totals['total'] * 100)) : 0;
 
@@ -111,6 +115,9 @@ $paper = [
                 <?php if ($invoice['category_name']) { ?><span><i class="fas fa-fw fa-tag me-1"></i><?= escapeHtml($invoice['category_name']) ?></span><?php } ?>
                 <?php if ($recurring) { ?>
                     <span><i class="fas fa-fw fa-redo-alt me-1"></i>From <a class="text-reset" href="recurring_invoice.php?recurring_invoice_id=<?= intval($recurring['recurring_invoice_id']) ?>"><?= escapeHtml($recurring['recurring_invoice_prefix'] . $recurring['recurring_invoice_number']) ?></a></span>
+                <?php } ?>
+                <?php if ($from_quote) { ?>
+                    <span><i class="fas fa-fw fa-comment-dollar me-1"></i>From <a class="text-reset" href="quote.php?quote_id=<?= intval($from_quote['quote_id']) ?>"><?= escapeHtml($from_quote['quote_prefix'] . $from_quote['quote_number']) ?></a></span>
                 <?php } ?>
                 <span title="<?= escapeHtml($invoice['invoice_created_at']) ?>"><i class="far fa-fw fa-clock me-1"></i>Created <?= escapeHtml(timeAgo($invoice['invoice_created_at'])) ?></span>
             </div>

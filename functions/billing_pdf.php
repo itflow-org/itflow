@@ -63,6 +63,11 @@ function billingPdfRender($type, array $row, $variant = 'document') {
     };
 
     $status = $type === 'recurring' ? '' : (string) $row["{$c}_status"];
+    // A quote with lines billed each month, quarter or year shows them apart from what is billed once
+    $groups = $type === 'quote' && !empty($totals['recurring']) ? $totals['groups'] : null;
+    $shown_groups = $groups ? array_filter($groups, function ($group) {
+        return $group['frequency'] !== '' || $group['items'] || $group['discount'] != 0;
+    }) : null;
     $paid = $type === 'invoice' ? invoicePaid($id) : 0;
     $state = $type === 'invoice' ? invoiceState($row, $paid) : null;
 
@@ -141,6 +146,11 @@ function billingPdfRender($type, array $row, $variant = 'document') {
         $done = in_array($status, ['Paid', 'Cancelled', 'Non-Billable'], true);
         $amount_html = $label($done ? 'Balance' : 'Amount due') . '<br><span style="font-size:17pt; font-weight:bold;">' . $money($state['balance']) . '</span>'
             . (!$done && $status !== 'Draft' && $state['balance'] > 0 ? '<br><span style="font-size:7.5pt; color:' . $grey . ';">by ' . $e($row['invoice_due']) . '</span>' : '');
+    } elseif ($type === 'quote' && $shown_groups) {
+        $amount_html = '';
+        foreach (array_values($shown_groups) as $i => $group) {
+            $amount_html .= ($i ? '<br>' : '') . $label($group['frequency'] === '' ? 'Up front' : $group['label']) . '<br><span style="font-size:' . ($i ? '12' : '17') . 'pt; font-weight:bold;">' . $money($group['total']) . '</span>';
+        }
     } elseif ($type === 'quote') {
         $amount_html = $label('Quote total') . '<br><span style="font-size:17pt; font-weight:bold;">' . $money($totals['total']) . '</span>';
     } else {
@@ -211,16 +221,22 @@ function billingPdfRender($type, array $row, $variant = 'document') {
             <td width="49%" style="' . $th . '">ITEM</td><td width="9%" align="right" style="' . $th . '">QTY</td>
             <td width="14%" align="right" style="' . $th . '">PRICE</td><td width="13%" align="right" style="' . $th . '">TAX</td>
             <td width="15%" align="right" style="' . $th . '">AMOUNT</td></tr></thead>';
-        foreach ($items as $item) {
-            $tax_label = floatval($item['item_tax']) != 0 || intval($item['item_tax_id'])
-                ? '<br><span style="font-size:6.5pt; color:' . $grey . ';">' . $e(trim(($item['tax_name'] ?? '') . ' ' . ($item['tax_percent'] !== null ? billingQuantity($item['tax_percent']) . '%' : ''))) . '</span>'
-                : '';
-            $html .= '<tr nobr="true"><td width="49%" style="' . $td . '"><b>' . $e($item['item_name']) . '</b>'
-                . (trim((string) $item['item_description']) !== '' ? '<br><span style="font-size:7.5pt; color:' . $grey . ';">' . nl2br($e($item['item_description'])) . '</span>' : '') . '</td>
-                <td width="9%" align="right" style="' . $td . '">' . $e(billingQuantity($item['item_quantity'])) . '</td>
-                <td width="14%" align="right" style="' . $td . '">' . $money($item['item_price']) . '</td>
-                <td width="13%" align="right" style="' . $td . '">' . ($tax_label !== '' ? $money($item['item_tax']) . $tax_label : '<span style="color:' . $grey . ';">-</span>') . '</td>
-                <td width="15%" align="right" style="' . $td . '"><b>' . $money($item['item_total']) . '</b></td></tr>';
+        $line_groups = $groups ?: ['' => ['frequency' => '', 'label' => '', 'items' => $items]];
+        foreach ($line_groups as $line_group) {
+            if ($groups) {
+                $html .= '<tr nobr="true"><td colspan="5" style="border-bottom:0.3px solid ' . $line . ';"><br>' . $label($line_group['label']) . '</td></tr>';
+            }
+            foreach ($line_group['items'] as $item) {
+                $tax_label = floatval($item['item_tax']) != 0 || intval($item['item_tax_id'])
+                    ? '<br><span style="font-size:6.5pt; color:' . $grey . ';">' . $e(trim(($item['tax_name'] ?? '') . ' ' . ($item['tax_percent'] !== null ? billingQuantity($item['tax_percent']) . '%' : ''))) . '</span>'
+                    : '';
+                $html .= '<tr nobr="true"><td width="49%" style="' . $td . '"><b>' . $e($item['item_name']) . '</b>'
+                    . (trim((string) $item['item_description']) !== '' ? '<br><span style="font-size:7.5pt; color:' . $grey . ';">' . nl2br($e($item['item_description'])) . '</span>' : '') . '</td>
+                    <td width="9%" align="right" style="' . $td . '">' . $e(billingQuantity($item['item_quantity'])) . '</td>
+                    <td width="14%" align="right" style="' . $td . '">' . $money($item['item_price']) . '</td>
+                    <td width="13%" align="right" style="' . $td . '">' . ($tax_label !== '' ? $money($item['item_tax']) . $tax_label : '<span style="color:' . $grey . ';">-</span>') . '</td>
+                    <td width="15%" align="right" style="' . $td . '"><b>' . $money($item['item_total']) . '</b></td></tr>';
+            }
         }
         if (!$items) {
             $html .= '<tr><td colspan="5" align="center" style="color:' . $grey . ';">Nothing on it yet.</td></tr>';
@@ -241,16 +257,39 @@ function billingPdfRender($type, array $row, $variant = 'document') {
     } else {
         // Notes, and what it all comes to
         $rows = '<tr><td style="color:' . $grey . ';">Subtotal</td><td align="right">' . $money($totals['subtotal']) . '</td></tr>';
-        if ($totals['discount'] != 0) {
-            $rows .= '<tr><td style="color:' . $grey . ';">Discount</td><td align="right">-' . $money($totals['discount']) . '</td></tr>';
+        if ($shown_groups) {
+            // A block for each - what is billed once, and each month, quarter or year
+            // (widths set on each row - "Total each quarter" needs more than half)
+            $rows = '';
+            $w = ' width="60%"';
+            $wr = ' width="40%"';
+            foreach (array_values($shown_groups) as $i => $group) {
+                if ($i) {
+                    $rows .= '<tr><td colspan="2" style="font-size:6pt;">&nbsp;</td></tr>';
+                }
+                $rows .= '<tr><td colspan="2">' . $label($group['label']) . '</td></tr>';
+                $rows .= '<tr><td' . $w . ' style="color:' . $grey . ';">Subtotal</td><td' . $wr . ' align="right">' . $money($group['subtotal']) . '</td></tr>';
+                if ($group['discount'] != 0) {
+                    $rows .= '<tr><td' . $w . ' style="color:' . $grey . ';">Discount</td><td' . $wr . ' align="right">-' . $money($group['discount']) . '</td></tr>';
+                }
+                foreach ($group['taxes'] as $tax_label => $tax_amount) {
+                    $rows .= '<tr><td' . $w . ' style="color:' . $grey . ';">' . $e($tax_label) . '</td><td' . $wr . ' align="right">' . $money($tax_amount) . '</td></tr>';
+                }
+                $rows .= '<tr><td' . $w . ' style="border-top:0.6px solid #adb5bd; font-size:10pt;"><b>' . ($group['frequency'] === '' ? 'Total up front' : 'Total ' . $e(strtolower($group['label']))) . '</b></td><td' . $wr . ' align="right" style="border-top:0.6px solid #adb5bd; font-size:10pt;"><b>' . $money($group['total']) . '</b></td></tr>';
+            }
         }
-        foreach ($totals['taxes'] as $tax_label => $tax_amount) {
-            $rows .= '<tr><td style="color:' . $grey . ';">' . $e($tax_label) . '</td><td align="right">' . $money($tax_amount) . '</td></tr>';
+        if (!$shown_groups) {
+            if ($totals['discount'] != 0) {
+                $rows .= '<tr><td style="color:' . $grey . ';">Discount</td><td align="right">-' . $money($totals['discount']) . '</td></tr>';
+            }
+            foreach ($totals['taxes'] as $tax_label => $tax_amount) {
+                $rows .= '<tr><td style="color:' . $grey . ';">' . $e($tax_label) . '</td><td align="right">' . $money($tax_amount) . '</td></tr>';
+            }
+            if ($totals['credit'] > 0) {
+                $rows .= '<tr><td style="color:' . $grey . ';">Credit</td><td align="right">-' . $money($totals['credit']) . '</td></tr>';
+            }
+            $rows .= '<tr><td style="border-top:0.6px solid #adb5bd; font-size:10pt;"><b>Total</b></td><td align="right" style="border-top:0.6px solid #adb5bd; font-size:10pt;"><b>' . $money($totals['total']) . '</b></td></tr>';
         }
-        if ($totals['credit'] > 0) {
-            $rows .= '<tr><td style="color:' . $grey . ';">Credit</td><td align="right">-' . $money($totals['credit']) . '</td></tr>';
-        }
-        $rows .= '<tr><td style="border-top:0.6px solid #adb5bd; font-size:10pt;"><b>Total</b></td><td align="right" style="border-top:0.6px solid #adb5bd; font-size:10pt;"><b>' . $money($totals['total']) . '</b></td></tr>';
         if ($type === 'invoice' && $state['paid'] > 0) {
             $rows .= '<tr><td style="color:#198754;">Paid</td><td align="right" style="color:#198754;">-' . $money($state['paid']) . '</td></tr>';
             $rows .= '<tr><td style="border-top:0.6px solid #adb5bd; font-size:10pt;"><b>Balance due</b></td><td align="right" style="border-top:0.6px solid #adb5bd; font-size:10pt;"><b>' . $money($state['balance']) . '</b></td></tr>';

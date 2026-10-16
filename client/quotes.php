@@ -10,7 +10,7 @@ require_once "includes/inc_all.php";
 
 enforceContactCan('accounting');
 
-$quotes_sql = mysqli_query($mysqli, "SELECT quote_amount, quote_date, quote_id, quote_number, quote_prefix, quote_scope, quote_status,
+$quotes_sql = mysqli_query($mysqli, "SELECT quote_amount, quote_monthly_amount, quote_date, quote_id, quote_number, quote_prefix, quote_scope, quote_status,
     quote_url_key FROM quotes WHERE quote_client_id = $session_client_id AND quote_status != 'Draft' ORDER BY quote_date DESC");
 ?>
 
@@ -70,7 +70,12 @@ $quotes_sql = mysqli_query($mysqli, "SELECT quote_amount, quote_date, quote_id, 
                 <tr>
                     <td><a target="_blank" href="//<?= $config_base_url ?>/guest/guest_view_quote.php?quote_id=<?= "$quote_id&url_key=$quote_url_key" ?>"> <?= "$quote_prefix$quote_number" ?></a></td>
                     <td><?= $quote_scope_display ?></td>
-                    <td><?= numfmt_format_currency($currency_format, $quote_amount, $session_company_currency) ?></td>
+                    <td>
+                        <?= numfmt_format_currency($currency_format, $quote_amount, $session_company_currency) ?>
+                        <?php if (floatval($row['quote_monthly_amount']) != 0) { ?>
+                            <div class="small text-body-secondary">+ <?= numfmt_format_currency($currency_format, floatval($row['quote_monthly_amount']), $session_company_currency) ?> a month</div>
+                        <?php } ?>
+                    </td>
                     <td><?= $quote_date ?></td>
                     <td>
                         <span class="p-2 badge text-bg-<?= $quote_badge_color ?>">

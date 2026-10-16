@@ -335,6 +335,7 @@ function getExportColumns($export_type) {
             'quote_number_display' => ['label' => 'Quote Number'],
             'quote_scope'          => ['label' => 'Scope', 'weight' => 3],
             'quote_amount'         => ['label' => 'Amount', 'format' => 'money'],
+            'quote_monthly_amount' => ['label' => 'Monthly', 'format' => 'money'],
             'quote_date'           => ['label' => 'Date'],
             'quote_status'         => ['label' => 'Status'],
             'client_name'          => ['label' => 'Client', 'weight' => 2, 'default' => false],

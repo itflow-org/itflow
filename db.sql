@@ -1471,6 +1471,7 @@ CREATE TABLE `invoices` (
   `invoice_archived_at` datetime DEFAULT NULL,
   `invoice_category_id` int(11) NOT NULL,
   `invoice_recurring_invoice_id` int(11) NOT NULL DEFAULT 0,
+  `invoice_quote_id` int(11) NOT NULL DEFAULT 0,
   `invoice_client_id` int(11) NOT NULL,
   PRIMARY KEY (`invoice_id`),
   KEY `invoice_client_id` (`invoice_client_id`)
@@ -1888,6 +1889,7 @@ CREATE TABLE `quote_items` (
   `item_tax` decimal(15,2) NOT NULL DEFAULT 0.00,
   `item_total` decimal(15,2) NOT NULL DEFAULT 0.00,
   `item_order` int(11) NOT NULL DEFAULT 0,
+  `item_frequency` varchar(10) DEFAULT NULL,
   `item_created_at` datetime NOT NULL DEFAULT current_timestamp(),
   `item_updated_at` datetime DEFAULT NULL ON UPDATE current_timestamp(),
   `item_archived_at` datetime DEFAULT NULL,
@@ -1916,6 +1918,7 @@ CREATE TABLE `quotes` (
   `quote_date` date NOT NULL,
   `quote_expire` date DEFAULT NULL,
   `quote_amount` decimal(15,2) NOT NULL DEFAULT 0.00,
+  `quote_monthly_amount` decimal(15,2) NOT NULL DEFAULT 0.00,
   `quote_currency_code` varchar(200) NOT NULL,
   `quote_note` text DEFAULT NULL,
   `quote_url_key` varchar(200) DEFAULT NULL,
@@ -2100,6 +2103,7 @@ CREATE TABLE `recurring_invoices` (
   `recurring_invoice_updated_at` datetime DEFAULT NULL ON UPDATE current_timestamp(),
   `recurring_invoice_archived_at` datetime DEFAULT NULL,
   `recurring_invoice_category_id` int(11) NOT NULL,
+  `recurring_invoice_quote_id` int(11) NOT NULL DEFAULT 0,
   `recurring_invoice_client_id` int(11) NOT NULL,
   PRIMARY KEY (`recurring_invoice_id`),
   KEY `recurring_invoice_client_id` (`recurring_invoice_client_id`)

@@ -6,7 +6,8 @@
  * with the win rate by number and by value. Below that, every quote still
  * waiting for an answer today - soonest to expire first - and how each
  * client's quotes went. Drafts have not gone out, so they count nowhere but
- * their own figure; archived quotes are left out.
+ * their own figure; archived quotes are left out. A quote's value is what it
+ * bills up front and a year of its recurring lines (12 x quote_monthly_amount).
  */
 
 require_once "includes/inc_report.php";
@@ -15,12 +16,13 @@ reportEnforce('quote_pipeline');
 $period = reportPeriod('last_12');
 $client_id = reportClientId();
 $client_sql = reportClientSql('quote_client_id', $client_id);
+$value_sql = '(quote_amount + 12 * quote_monthly_amount)';
 $outcome_sql = "CASE WHEN quote_status IN ('Accepted', 'Invoiced') THEN 'won' WHEN quote_status = 'Declined' THEN 'lost'
     WHEN quote_status IN ('Sent', 'Viewed') THEN 'open' ELSE 'draft' END";
 
 // In the period, by outcome
 $by = ['won' => ['n' => 0, 'v' => 0.0], 'lost' => ['n' => 0, 'v' => 0.0], 'open' => ['n' => 0, 'v' => 0.0], 'draft' => ['n' => 0, 'v' => 0.0]];
-$sql = mysqli_query($mysqli, "SELECT $outcome_sql AS outcome, COUNT(quote_id) AS n, SUM(quote_amount) AS v FROM quotes
+$sql = mysqli_query($mysqli, "SELECT $outcome_sql AS outcome, COUNT(quote_id) AS n, SUM($value_sql) AS v FROM quotes
     WHERE quote_archived_at IS NULL AND " . reportRangeSql('quote_date', $period) . " $client_sql GROUP BY outcome");
 while ($row = mysqli_fetch_assoc($sql)) {
     $by[$row['outcome']] = ['n' => intval($row['n']), 'v' => floatval($row['v'])];
@@ -30,11 +32,11 @@ $quoted_v = $by['won']['v'] + $by['lost']['v'] + $by['open']['v'];
 $win_rate = reportShare($by['won']['n'], $by['won']['n'] + $by['lost']['n']);
 $win_rate_value = reportShare($by['won']['v'], $by['won']['v'] + $by['lost']['v']);
 
-$prev_won = dashboardSum("SELECT SUM(quote_amount) FROM quotes WHERE quote_archived_at IS NULL AND quote_status IN ('Accepted', 'Invoiced') AND " . reportRangeSql('quote_date', $period, true) . " $client_sql");
+$prev_won = dashboardSum("SELECT SUM($value_sql) FROM quotes WHERE quote_archived_at IS NULL AND quote_status IN ('Accepted', 'Invoiced') AND " . reportRangeSql('quote_date', $period, true) . " $client_sql");
 
 // Open right now, whenever quoted
 $open = [];
-$sql = mysqli_query($mysqli, "SELECT quote_id, quote_prefix, quote_number, quote_scope, quote_status, quote_date, quote_expire, quote_amount,
+$sql = mysqli_query($mysqli, "SELECT quote_id, quote_prefix, quote_number, quote_scope, quote_status, quote_date, quote_expire, quote_amount, quote_monthly_amount, $value_sql AS value,
         quote_client_id, client_name, client_abbreviation, DATEDIFF(quote_expire, CURDATE()) AS days_left, DATEDIFF(CURDATE(), quote_date) AS age
     FROM quotes JOIN clients ON quote_client_id = client_id
     WHERE quote_archived_at IS NULL AND quote_status IN ('Sent', 'Viewed') $client_sql
@@ -45,10 +47,11 @@ while ($row = mysqli_fetch_assoc($sql)) {
 $open_live = array_filter($open, function ($q) { return $q['quote_expire'] === null || intval($q['days_left']) >= 0; });
 $open_expired = array_filter($open, function ($q) { return $q['quote_expire'] !== null && intval($q['days_left']) < 0; });
 $expiring = array_filter($open_live, function ($q) { return $q['quote_expire'] !== null && intval($q['days_left']) <= 14; });
+$open_monthly = (bool) array_filter($open, function ($q) { return floatval($q['quote_monthly_amount']) != 0; });
 
 // By client, in the period
 $clients = [];
-$sql = mysqli_query($mysqli, "SELECT quote_client_id AS client_id, client_name, client_abbreviation, $outcome_sql AS outcome, COUNT(quote_id) AS n, SUM(quote_amount) AS v
+$sql = mysqli_query($mysqli, "SELECT quote_client_id AS client_id, client_name, client_abbreviation, $outcome_sql AS outcome, COUNT(quote_id) AS n, SUM($value_sql) AS v
     FROM quotes JOIN clients ON quote_client_id = client_id
     WHERE quote_archived_at IS NULL AND quote_status <> 'Draft' AND " . reportRangeSql('quote_date', $period) . " $client_sql
     GROUP BY quote_client_id, client_name, client_abbreviation, outcome");
@@ -105,7 +108,17 @@ $open_columns = [
     'age' => ['label' => 'Waiting', 'type' => 'count', 'csv_label' => 'Days waiting', 'html' => function ($row) {
         return intval($row['age']) . ' day' . (intval($row['age']) === 1 ? '' : 's');
     }],
-    'quote_amount' => ['label' => 'Amount', 'type' => 'money', 'class' => 'fw-semibold'],
+    // Up front and monthly are in the CSV; on screen, one column - what it comes to in its first year, broken down under it
+    'quote_amount' => ['label' => 'Up front', 'type' => 'money', 'screen' => false],
+    'quote_monthly_amount' => ['label' => 'Monthly', 'type' => 'money', 'screen' => false],
+    'value' => ['label' => $open_monthly ? 'First year' : 'Amount', 'csv_label' => 'First year', 'type' => 'money', 'class' => 'fw-semibold',
+        'title' => $open_monthly ? 'Up front, and a year of its recurring lines' : '', 'html' => function ($row) {
+            $html = escapeHtml(reportMoney($row['value']));
+            if (floatval($row['quote_monthly_amount']) != 0) {
+                $html .= '<div class="small fw-normal text-body-secondary">' . escapeHtml(reportMoney($row['quote_amount'])) . ' + ' . escapeHtml(reportMoney($row['quote_monthly_amount'])) . '/mo</div>';
+            }
+            return $html;
+        }],
 ];
 $client_columns = [
     'client' => ['label' => 'Client', 'html' => function ($row) {
@@ -125,13 +138,14 @@ if (reportExporting('clients')) {
     reportCsv('Quotes by Client ' . $period['start'] . ' to ' . $period['end'], $client_columns, $clients);
 }
 if (reportExporting()) {
-    reportCsv('Open Quotes', $open_columns, $open, ['quote' => 'Total', 'quote_amount' => array_sum(array_column($open, 'quote_amount'))]);
+    reportCsv('Open Quotes', $open_columns, $open, ['quote' => 'Total', 'quote_amount' => array_sum(array_column($open, 'quote_amount')),
+        'quote_monthly_amount' => array_sum(array_column($open, 'quote_monthly_amount')), 'value' => array_sum(array_column($open, 'value'))]);
 }
 
 $buckets = reportBuckets($period);
 $series = [];
 foreach (['won' => ['Won', 'success'], 'lost' => ['Lost', 'danger'], 'open' => ['Still open', 'info']] as $key => [$label, $tone]) {
-    $series[] = ['label' => $label, 'tone' => $tone, 'stack' => 'q', 'data' => reportSeries("SELECT " . reportBucketSql('quote_date', $buckets['unit']) . " AS b, SUM(quote_amount) AS v
+    $series[] = ['label' => $label, 'tone' => $tone, 'stack' => 'q', 'data' => reportSeries("SELECT " . reportBucketSql('quote_date', $buckets['unit']) . " AS b, SUM($value_sql) AS v
         FROM quotes WHERE quote_archived_at IS NULL AND $outcome_sql = '$key' AND " . reportRangeSql('quote_date', $period) . " $client_sql GROUP BY b", $buckets['keys'])];
 }
 
@@ -152,7 +166,7 @@ require_once "includes/inc_report_layout.php";
         ['label' => 'Quoted', 'value' => reportMoney($quoted_v), 'sub' => reportCount($quoted_n) . ' <span class="text-body-tertiary">quote' . ($quoted_n === 1 ? '' : 's') . ' sent' . ($by['draft']['n'] ? ', ' . $by['draft']['n'] . ' still drafts' : '') . '</span>'],
         ['label' => 'Won', 'value' => reportMoney($by['won']['v']), 'tone' => $by['won']['v'] > 0 ? 'success' : '', 'sub' => reportChangeHtml($by['won']['v'], $prev_won, 'up', $period['compare'])],
         ['label' => 'Win rate', 'value' => reportPercent($win_rate), 'sub' => $win_rate_value !== null ? escapeHtml(reportPercent($win_rate_value)) . ' <span class="text-body-tertiary">by value, of quotes decided</span>' : '<span class="text-body-tertiary">No quote decided yet</span>'],
-        ['label' => 'Open now', 'value' => reportMoney(array_sum(array_column($open_live, 'quote_amount'))), 'url' => '/agent/quotes.php',
+        ['label' => 'Open now', 'value' => reportMoney(array_sum(array_column($open_live, 'value'))), 'url' => '/agent/quotes.php',
             'sub' => count($expiring) ? '<span class="text-warning-emphasis fw-semibold">' . count($expiring) . ' expire within 14 days</span>' : reportCount(count($open_live)) . ' <span class="text-body-tertiary">waiting for an answer</span>'],
     ]) ?>
 
@@ -166,7 +180,7 @@ require_once "includes/inc_report_layout.php";
         <?= reportTable($open_columns, $open, [
             'empty' => reportEmpty('No quote is waiting for an answer.'),
             'limit' => 300, 'export_table' => 'open',
-            'totals' => ['quote' => 'Total', 'quote_amount' => array_sum(array_column($open, 'quote_amount'))],
+            'totals' => ['quote' => 'Total', 'value' => array_sum(array_column($open, 'value'))],
         ]) ?>
     </div>
 

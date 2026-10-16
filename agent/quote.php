@@ -8,8 +8,9 @@
  * to do: send a draft, record the client's answer, turn an accepted quote
  * into an invoice. The quote itself is on the left as the client sees it,
  * its lines edited in place until it is answered. On the right: what it
- * comes to, the ticket it was raised from, files the client sent back with
- * their answer, and its history.
+ * comes to - what is billed once and what each month, quarter or year, its
+ * recurring lines kept apart - the ticket it was raised from, what it was
+ * invoiced as, files the client sent back with their answer, and its history.
  */
 
 // If client_id is in URI then show client Side Bar and client header
@@ -45,6 +46,7 @@ $money = function ($amount) use ($currency) {
 
 $items = billingItems('quote', $quote_id);
 $totals = billingTotals('quote', $quote, $items);
+$made = in_array($status, ['Invoiced', 'Accepted'], true) ? quoteMadeFrom($quote_id) : [];
 $history = billingHistory('quote', $quote_id);
 $expired = quoteExpired($quote);
 $awaiting = in_array($status, ['Sent', 'Viewed'], true);
@@ -150,7 +152,7 @@ $paper = [
             <?php if ($can_edit && $status === 'Accepted') { ?>
                 <div class="btn-group">
                     <button type="button" class="btn btn-primary ajax-modal" data-modal-url="modals/quote/quote_to_invoice.php?quote_id=<?= $quote_id ?>">
-                        <i class="fas fa-file-invoice-dollar me-2"></i>Make Invoice
+                        <i class="fas fa-file-invoice-dollar me-2"></i><?= $totals['recurring'] ? 'Start Billing' : 'Make Invoice' ?>
                     </button>
                     <button type="button" class="btn btn-primary dropdown-toggle dropdown-toggle-split" data-bs-toggle="dropdown" aria-label="More"></button>
                     <div class="dropdown-menu dropdown-menu-end">
@@ -232,8 +234,22 @@ $paper = [
                 <h3 class="card-title mb-0"><i class="fas fa-fw fa-comment-dollar text-secondary me-2"></i>Quote</h3>
             </div>
             <div class="card-body">
-                <div class="itflow-billing-stat-label">Total</div>
-                <div class="itflow-billing-stat-value mb-3"><?= $money($totals['total']) ?></div>
+                <?php if ($totals['recurring']) { ?>
+                    <div class="d-flex flex-wrap gap-4 mb-3">
+                        <?php foreach ($totals['groups'] as $frequency => $group) {
+                            if ($frequency === '' && !$group['items'] && $group['discount'] == 0) {
+                                continue;
+                            } ?>
+                            <div>
+                                <div class="itflow-billing-stat-label"><?= $frequency === '' ? 'Up front' : escapeHtml($group['label']) ?></div>
+                                <div class="itflow-billing-stat-value"><?= $money($group['total']) ?></div>
+                            </div>
+                        <?php } ?>
+                    </div>
+                <?php } else { ?>
+                    <div class="itflow-billing-stat-label">Total</div>
+                    <div class="itflow-billing-stat-value mb-3"><?= $money($totals['total']) ?></div>
+                <?php } ?>
                 <dl class="itflow-asset-dl mb-0">
                     <dt>Status</dt><dd><?= quoteStatusBadge($quote) ?></dd>
                     <dt>Dated</dt><dd><?= escapeHtml($quote['quote_date']) ?></dd>
@@ -250,6 +266,29 @@ $paper = [
                 </dl>
             </div>
         </div>
+
+        <?php if ($made) { ?>
+            <!-- What it was invoiced as -->
+            <div class="card mb-3">
+                <div class="card-header">
+                    <h3 class="card-title mb-0"><i class="fas fa-fw fa-file-invoice-dollar text-secondary me-2"></i>Invoiced as</h3>
+                </div>
+                <div class="list-group list-group-flush">
+                    <?php foreach ($made as $made_doc) {
+                        $made_type = $made_doc['type'];
+                        $made_url = $made_type === 'invoice' ? 'invoice.php?invoice_id=' . intval($made_doc['id']) : 'recurring_invoice.php?recurring_invoice_id=' . intval($made_doc['id']); ?>
+                        <a class="list-group-item list-group-item-action d-flex align-items-center gap-2" href="<?= $made_url ?>">
+                            <?= billingTile($made_type, 'sm') ?>
+                            <div class="flex-grow-1 min-w-0">
+                                <div class="fw-semibold"><?= escapeHtml($made_doc['prefix'] . $made_doc['number']) ?></div>
+                                <div class="small text-body-secondary"><?= $made_type === 'invoice' ? 'Invoice' : 'Recurring, ' . strtolower(recurringInvoiceFrequencies()[$made_doc['frequency']] ?? 'monthly') . ($made_doc['added'] ? ', lines added' : '') ?> &middot; <?= escapeHtml($made_doc['status']) ?></div>
+                            </div>
+                            <div class="text-end text-nowrap fw-semibold"><?= escapeHtml(billingMoney($made_doc['amount'], $made_doc['currency'])) ?></div>
+                        </a>
+                    <?php } ?>
+                </div>
+            </div>
+        <?php } ?>
 
         <?php if ($files) { ?>
             <div class="card mb-3">

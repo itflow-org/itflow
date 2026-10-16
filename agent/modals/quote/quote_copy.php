@@ -37,7 +37,7 @@ ob_start();
     <input type="hidden" name="quote_id" value="<?= intval($doc['quote_id']) ?>">
 
     <div class="modal-body">
-        <p class="text-body-secondary small">A new draft with the same <?= $lines ?> line<?= $lines === 1 ? '' : 's' ?>, scope, discount and notes - <?= escapeHtml(billingMoney($doc['quote_amount'], $doc['quote_currency_code'])) ?>. Quote the same work for another client by picking them here.</p>
+        <p class="text-body-secondary small">A new draft with the same <?= $lines ?> line<?= $lines === 1 ? '' : 's' ?>, scope, discount and notes - <?= escapeHtml(quoteAmountText(quoteGroups($doc), $doc['quote_currency_code'])) ?>. Quote the same work for another client by picking them here.</p>
         <div class="row g-3">
             <div class="col-12">
                 <label class="form-label">For <strong class="text-danger">*</strong></label>

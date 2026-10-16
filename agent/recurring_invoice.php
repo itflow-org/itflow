@@ -118,6 +118,9 @@ $paper = [
                 <?php if (trim((string) $recurring['recurring_invoice_scope']) !== '') { ?><span><i class="fas fa-fw fa-comment me-1"></i><?= escapeHtml($recurring['recurring_invoice_scope']) ?></span><?php } ?>
                 <?php if ($recurring['category_name']) { ?><span><i class="fas fa-fw fa-tag me-1"></i><?= escapeHtml($recurring['category_name']) ?></span><?php } ?>
                 <span><i class="fas fa-fw fa-sync-alt me-1"></i><?= escapeHtml($frequency_label) ?></span>
+                <?php if (intval($recurring['recurring_invoice_quote_id'] ?? 0) && ($from_quote = billingRow('quote', intval($recurring['recurring_invoice_quote_id'])))) { ?>
+                    <span><i class="fas fa-fw fa-comment-dollar me-1"></i>From <a class="text-reset" href="quote.php?quote_id=<?= intval($from_quote['quote_id']) ?>"><?= escapeHtml(billingNumber('quote', $from_quote)) ?></a></span>
+                <?php } ?>
                 <?php if ($autopay_id && isset($saved_methods[$autopay_id])) { ?><span><i class="fas fa-fw fa-wallet me-1"></i>Autopay</span><?php } ?>
             </div>
         </div>

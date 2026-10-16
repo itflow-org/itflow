@@ -113,7 +113,7 @@ function billingItems($type, $id) {
     if (!$t || !$id) {
         return $items;
     }
-    $seat_columns = $type === 'recurring' ? ', item_seat_source, item_seat_filter, item_seat_minimum' : '';
+    $seat_columns = $type === 'recurring' ? ', item_seat_source, item_seat_filter, item_seat_minimum' : ($type === 'quote' ? ', item_frequency' : '');
     $sql = mysqli_query($mysqli, "SELECT item_id, item_name, item_description, item_quantity, item_price, item_subtotal, item_tax, item_total,
             item_order, item_tax_id, item_product_id, item_created_at, tax_name, tax_percent $seat_columns
         FROM {$t['items']}
@@ -245,6 +245,12 @@ function billingItemSave($type, $doc_id, array $in, $item_id = 0, &$error = '') 
         }
     }
 
+    // A quote line is billed once, or each month, quarter or year
+    if ($type === 'quote' && array_key_exists('frequency', $in)) {
+        $frequency = quoteFrequency($in['frequency']);
+        $seat_set = ", item_frequency = " . ($frequency === '' ? 'NULL' : "'$frequency'");
+    }
+
     if ($quantity === null || $price === null) {
         $error = 'The quantity and price have to be numbers.';
         return null;
@@ -347,8 +353,15 @@ function billingRecalc($type, $doc_id) {
     $t = billingType($type);
     $doc_id = intval($doc_id);
     $c = $t['col'];
-    $lines = floatval(mysqli_fetch_row(mysqli_query($mysqli, "SELECT COALESCE(SUM(item_total), 0) FROM {$t['items']} WHERE {$t['item_fk']} = $doc_id"))[0]);
     $discount = floatval(mysqli_fetch_row(mysqli_query($mysqli, "SELECT {$c}_discount_amount FROM {$t['table']} WHERE {$c}_id = $doc_id"))[0] ?? 0);
+    if ($type === 'quote') {
+        // What is billed once, and what the recurring lines come to a month
+        $groups = quoteLineGroups(billingItems('quote', $doc_id), $discount);
+        $amount = isset($groups['']) ? $groups['']['total'] : 0.0;
+        mysqli_query($mysqli, "UPDATE quotes SET quote_amount = $amount, quote_monthly_amount = " . quoteMonthly($groups) . " WHERE quote_id = $doc_id");
+        return $amount;
+    }
+    $lines = floatval(mysqli_fetch_row(mysqli_query($mysqli, "SELECT COALESCE(SUM(item_total), 0) FROM {$t['items']} WHERE {$t['item_fk']} = $doc_id"))[0]);
     $amount = round($lines - $discount, 2);
     mysqli_query($mysqli, "UPDATE {$t['table']} SET {$c}_amount = $amount WHERE {$c}_id = $doc_id");
     if ($type === 'invoice') {
@@ -374,7 +387,7 @@ function billingTotals($type, $row, array $items) {
             $taxes[$label] = ($taxes[$label] ?? 0) + floatval($item['item_tax']);
         }
     }
-    return [
+    $totals = [
         'subtotal' => round($subtotal, 2),
         'discount' => floatval($row["{$c}_discount_amount"] ?? 0),
         'credit' => floatval($row["{$c}_credit_amount"] ?? 0),
@@ -382,6 +395,13 @@ function billingTotals($type, $row, array $items) {
         'taxes' => $taxes,
         'total' => floatval($row["{$c}_amount"] ?? 0),
     ];
+    if ($type === 'quote') {
+        // One-time and recurring apart - total is what is billed once
+        $totals['groups'] = quoteLineGroups($items, $totals['discount']);
+        $totals['recurring'] = quoteHasRecurring($totals['groups']);
+        $totals['monthly'] = floatval($row['quote_monthly_amount'] ?? 0);
+    }
+    return $totals;
 }
 
 /** The next number for a new invoice, quote or recurring invoice - taken atomically. */
@@ -398,7 +418,9 @@ function billingHistory($type, $id) {
     $t = billingType($type);
     $id = intval($id);
     $rows = [];
-    $sql = mysqli_query($mysqli, "SELECT history_status, history_description, history_created_at FROM history WHERE {$t['history_fk']} = $id ORDER BY history_id DESC LIMIT 200");
+    // A recurring invoice's entry for the lines a quote added carries the quote's id too - it is the recurring invoice's
+    $own = $type === 'quote' ? ' AND history_recurring_invoice_id = 0' : '';
+    $sql = mysqli_query($mysqli, "SELECT history_status, history_description, history_created_at FROM history WHERE {$t['history_fk']} = $id$own ORDER BY history_id DESC LIMIT 200");
     while ($row = mysqli_fetch_assoc($sql)) {
         $rows[] = $row;
     }
@@ -981,6 +1003,314 @@ function quoteExpiryPill($row) {
     }
     $class = $days <= 7 ? 'bg-warning-subtle text-warning-emphasis' : 'bg-secondary-subtle text-secondary-emphasis';
     return '<span class="badge rounded-pill ' . $class . ' fw-normal">Expires in ' . $days . ' ' . ($days === 1 ? 'day' : 'days') . '</span>';
+}
+
+/*
+ * A quote line is billed once, or each month, quarter or year
+ * (item_frequency). The one-time lines go on an invoice when the quote is
+ * invoiced, the others on a recurring invoice for each - quoteConvert().
+ * quote_amount is what is billed once; quote_monthly_amount what the
+ * recurring lines come to a month, for the lists and reports.
+ */
+
+/** How often a quote line is billed => label. '' is once. */
+function quoteFrequencies() {
+    return ['' => 'One time', 'month' => 'Monthly', 'quarter' => 'Quarterly', 'year' => 'Yearly'];
+}
+
+/** A line's frequency, cleaned - '' for once. */
+function quoteFrequency($value) {
+    $value = (string) $value;
+    return in_array($value, ['month', 'quarter', 'year'], true) ? $value : '';
+}
+
+/**
+ * A quote's lines by how often they are billed - one-time first, then each
+ * month, quarter and year - each with its lines, subtotal, taxes, discount
+ * and total. The discount comes off the one-time part; on a quote with
+ * nothing one-time, off its first recurring part (and onto that recurring
+ * invoice). Always has at least the one-time group.
+ */
+function quoteLineGroups(array $items, $discount = 0) {
+    $labels = ['' => 'One-time', 'month' => 'Each month', 'quarter' => 'Each quarter', 'year' => 'Each year'];
+    $blank = function ($frequency) use ($labels) {
+        return ['frequency' => $frequency, 'label' => $labels[$frequency], 'items' => [], 'subtotal' => 0.0, 'tax' => 0.0, 'taxes' => [], 'discount' => 0.0, 'total' => 0.0];
+    };
+    $groups = [];
+    foreach ($items as $item) {
+        $frequency = quoteFrequency($item['item_frequency'] ?? '');
+        $groups[$frequency] = $groups[$frequency] ?? $blank($frequency);
+        $groups[$frequency]['items'][] = $item;
+        $groups[$frequency]['subtotal'] += floatval($item['item_subtotal']);
+        $groups[$frequency]['tax'] += floatval($item['item_tax']);
+        $groups[$frequency]['total'] += floatval($item['item_total']);
+        if (floatval($item['item_tax']) != 0) {
+            $label = trim(($item['tax_name'] ?? 'Tax') . ' ' . billingQuantity($item['tax_percent'] ?? 0) . '%');
+            $groups[$frequency]['taxes'][$label] = ($groups[$frequency]['taxes'][$label] ?? 0) + floatval($item['item_tax']);
+        }
+    }
+    $ordered = [];
+    foreach (array_keys($labels) as $frequency) {
+        if (isset($groups[$frequency])) {
+            $ordered[$frequency] = $groups[$frequency];
+        }
+    }
+    if (!$ordered) {
+        $ordered[''] = $blank('');
+    }
+    $on = isset($ordered['']) ? '' : array_key_first($ordered);
+    $ordered[$on]['discount'] = floatval($discount);
+    foreach ($ordered as $frequency => $group) {
+        $ordered[$frequency]['subtotal'] = round($group['subtotal'], 2);
+        $ordered[$frequency]['tax'] = round($group['tax'], 2);
+        $ordered[$frequency]['total'] = round($group['total'] - $group['discount'], 2);
+    }
+    return $ordered;
+}
+
+/** Whether a quote has recurring lines - from quoteLineGroups(). */
+function quoteHasRecurring(array $groups) {
+    return (bool) array_diff_key($groups, ['' => true]);
+}
+
+/** What the recurring groups come to a month - a quarterly one a third, a yearly one a twelfth. */
+function quoteMonthly(array $groups) {
+    $monthly = 0.0;
+    foreach ($groups as $frequency => $group) {
+        if ($frequency !== '') {
+            $monthly += recurringInvoiceMonthly($group['total'], $frequency);
+        }
+    }
+    return round($monthly, 2);
+}
+
+/**
+ * What a quote comes to, in words - "$1,500.00", "$1,500.00 up front and
+ * $2,400.00 a month", "$2,400.00 a month".
+ */
+function quoteAmountText(array $groups, $currency) {
+    $parts = [];
+    foreach ($groups as $frequency => $group) {
+        if ($frequency === '') {
+            if ($group['items'] || count($groups) === 1) {
+                $parts[] = billingMoney($group['total'], $currency) . (count($groups) > 1 ? ' up front' : '');
+            }
+        } else {
+            $parts[] = billingMoney($group['total'], $currency) . ' a ' . recurringInvoicePeriodWord($frequency);
+        }
+    }
+    return count($parts) > 1 ? implode(', ', array_slice($parts, 0, -1)) . ' and ' . end($parts) : (string) reset($parts);
+}
+
+/** A quote's groups, from the database - for the pages that only have its row. */
+function quoteGroups(array $quote) {
+    return quoteLineGroups(billingItems('quote', intval($quote['quote_id'])), $quote['quote_discount_amount'] ?? 0);
+}
+
+/**
+ * Put lines on a document after the ones already there - their stored
+ * amounts as they are. $suffix goes on the end of each description.
+ */
+function billingCopyLines(array $items, $to_type, $to_id, $suffix = '') {
+    global $mysqli;
+    $t = billingType($to_type);
+    $to_id = intval($to_id);
+    $order = intval(mysqli_fetch_row(mysqli_query($mysqli, "SELECT COALESCE(MAX(item_order), 0) FROM {$t['items']} WHERE {$t['item_fk']} = $to_id"))[0]);
+    foreach ($items as $item) {
+        $order++;
+        $name = escapeSql($item['item_name']);
+        $description = escapeSql(trim(trim((string) $item['item_description']) . ($suffix !== '' ? "\n$suffix" : '')));
+        mysqli_query($mysqli, "INSERT INTO {$t['items']} SET item_name = '$name', item_description = '$description', item_quantity = " . floatval($item['item_quantity']) . ",
+            item_price = " . floatval($item['item_price']) . ", item_subtotal = " . floatval($item['item_subtotal']) . ", item_tax = " . floatval($item['item_tax']) . ",
+            item_total = " . floatval($item['item_total']) . ", item_order = $order, item_tax_id = " . intval($item['item_tax_id']) . ", {$t['item_fk']} = $to_id");
+    }
+}
+
+/** The day recurring billing starts by default - the first of next month. */
+function quoteRecurringStart() {
+    return date('Y-m-01', strtotime('first day of next month'));
+}
+
+/**
+ * Invoice an accepted quote. Its one-time lines go on a new draft invoice;
+ * its lines billed each month, quarter or year go on a recurring invoice for
+ * each - a new one, or added to one of the client's of that frequency. $opts:
+ *   date          the invoice's date
+ *   first_period  put the recurring lines on the invoice too - the first period billed now
+ *   recurring     frequency => [to (0 for new, or a recurring invoice id), start (its first
+ *                 invoice date, new ones), auto_send (1 emails them, 0 leaves drafts)]
+ *   by            who, for the history
+ * The quote is claimed on the way (Accepted to Invoiced), so it is invoiced
+ * once. Returns [invoice_id (0 when nothing one-time), recurring (id =>
+ * number), numbers] or null with $error.
+ */
+function quoteConvert($quote_id, array $opts, &$error = '') {
+    global $mysqli, $config_invoice_prefix, $config_recurring_invoice_prefix;
+    $error = '';
+    $quote = billingRow('quote', $quote_id);
+    if (!$quote) {
+        $error = 'That quote no longer exists.';
+        return null;
+    }
+    $quote_id = intval($quote['quote_id']);
+    $client_id = intval($quote['client_id']);
+    $number = billingNumber('quote', $quote);
+    if ($quote['quote_status'] !== 'Accepted') {
+        $error = $quote['quote_status'] === 'Invoiced' ? "$number is already invoiced." : "$number has to be accepted before it is invoiced.";
+        return null;
+    }
+    $by = (string) ($opts['by'] ?? 'ITFlow');
+    $groups = quoteLineGroups(billingItems('quote', $quote_id), $quote['quote_discount_amount']);
+    $valid_date = function ($date) {
+        $date = (string) $date;
+        return ($parsed = DateTime::createFromFormat('!Y-m-d', $date)) && $parsed->format('Y-m-d') === $date ? $date : '';
+    };
+    $date = $valid_date($opts['date'] ?? '') ?: date('Y-m-d');
+    $first_period = !empty($opts['first_period']);
+    if (!$groups['']['items'] && !quoteHasRecurring($groups) && floatval($groups['']['discount'] ?? 0) == 0) {
+        $error = "$number has nothing on it to invoice.";
+        return null;
+    }
+
+    // Check every recurring part's choice before anything is made
+    $plans = [];
+    foreach ($groups as $frequency => $group) {
+        if ($frequency === '') {
+            continue;
+        }
+        $choice = (array) ($opts['recurring'][$frequency] ?? []);
+        $to = intval($choice['to'] ?? 0);
+        if ($to) {
+            $existing = billingRow('recurring', $to);
+            if (!$existing || intval($existing['client_id']) !== $client_id || $existing['recurring_invoice_frequency'] !== $frequency || $existing['recurring_invoice_archived_at']) {
+                $error = 'That recurring invoice is not one of ' . $quote['client_name'] . "'s billed " . strtolower(recurringInvoiceFrequencies()[$frequency]) . '.';
+                return null;
+            }
+            $plans[$frequency] = ['to' => $to, 'row' => $existing];
+        } else {
+            $start = $valid_date($choice['start'] ?? '') ?: quoteRecurringStart();
+            $plans[$frequency] = ['to' => 0, 'start' => $start, 'auto_send' => intval($choice['auto_send'] ?? 1) ? 1 : 0];
+        }
+    }
+
+    mysqli_begin_transaction($mysqli);
+    try {
+        // Claim it
+        mysqli_query($mysqli, "UPDATE quotes SET quote_status = 'Invoiced' WHERE quote_id = $quote_id AND quote_status = 'Accepted'");
+        if (mysqli_affected_rows($mysqli) !== 1) {
+            mysqli_rollback($mysqli);
+            $error = "$number was invoiced just now.";
+            return null;
+        }
+        $currency = escapeSql($quote['quote_currency_code']);
+        $category_id = intval($quote['quote_category_id']);
+        $scope = escapeSql($quote['quote_scope']);
+        $note = escapeSql($quote['quote_note']);
+        $numbers = [];
+
+        // The invoice - what is billed once, and the first period when asked
+        $invoice_id = 0;
+        $one_time = $groups['']['items'] ?? [];
+        $invoice_discount = isset($groups['']) ? floatval($groups['']['discount']) : 0.0;
+        if ($one_time || ($first_period && quoteHasRecurring($groups)) || $invoice_discount != 0) {
+            $terms = intval($quote['client_net_terms']);
+            $invoice_number = billingNextNumber('invoice');
+            $prefix = escapeSql($config_invoice_prefix);
+            $url_key = randomString(32);
+            mysqli_query($mysqli, "INSERT INTO invoices SET invoice_prefix = '$prefix', invoice_number = $invoice_number, invoice_scope = '$scope', invoice_date = '$date',
+                invoice_due = DATE_ADD('$date', INTERVAL $terms DAY), invoice_discount_amount = $invoice_discount, invoice_amount = 0, invoice_currency_code = '$currency',
+                invoice_note = '$note', invoice_category_id = $category_id, invoice_status = 'Draft', invoice_url_key = '$url_key', invoice_quote_id = $quote_id, invoice_client_id = $client_id");
+            $invoice_id = intval(mysqli_insert_id($mysqli));
+            billingCopyLines($one_time, 'invoice', $invoice_id);
+            if ($first_period) {
+                foreach ($groups as $frequency => $group) {
+                    if ($frequency !== '') {
+                        billingCopyLines($group['items'], 'invoice', $invoice_id, 'First ' . recurringInvoicePeriodWord($frequency));
+                    }
+                }
+            }
+            billingRecalc('invoice', $invoice_id);
+            $invoice_ref = billingNumber('invoice', billingRow('invoice', $invoice_id, false));
+            $numbers[] = $invoice_ref;
+            billingLog('invoice', $invoice_id, 'Draft', "Made from quote $number by $by");
+            logAudit('Invoice', 'Create', escapeSql("$by made invoice $invoice_ref from quote $number"), $client_id, $invoice_id);
+
+            // The ticket the quote was raised from is billed with it
+            mysqli_query($mysqli, "UPDATE tickets SET ticket_invoice_id = $invoice_id WHERE ticket_quote_id = $quote_id AND ticket_invoice_id = 0");
+        }
+
+        // The recurring invoices
+        $recurring = [];
+        foreach ($plans as $frequency => $plan) {
+            $group = $groups[$frequency];
+            if ($plan['to']) {
+                $recurring_id = $plan['to'];
+                billingCopyLines($group['items'], 'recurring', $recurring_id);
+                if ($group['discount'] != 0) {
+                    mysqli_query($mysqli, "UPDATE recurring_invoices SET recurring_invoice_discount_amount = recurring_invoice_discount_amount + " . floatval($group['discount']) . " WHERE recurring_invoice_id = $recurring_id");
+                }
+                billingRecalc('recurring', $recurring_id);
+                $ref = billingNumber('recurring', $plan['row']);
+                // On the recurring invoice's history, and carrying the quote's id too - that is
+                // how the quote finds a recurring invoice it wasn't made into (quoteMadeFrom)
+                logHistory(escapeSql(intval($plan['row']['recurring_invoice_status']) ? 'Active' : 'Paused'), escapeSql(count($group['items']) . ' line' . (count($group['items']) === 1 ? '' : 's') . " from quote $number added by $by"), 0, $quote_id, $recurring_id);
+                logAudit('Recurring Invoice', 'Edit', escapeSql("$by added the lines of quote $number to recurring invoice $ref"), $client_id, $recurring_id);
+            } else {
+                $recurring_number = billingNextNumber('recurring');
+                $prefix = escapeSql($config_recurring_invoice_prefix);
+                $start = $plan['start'];
+                $discount = floatval($group['discount']);
+                mysqli_query($mysqli, "INSERT INTO recurring_invoices SET recurring_invoice_prefix = '$prefix', recurring_invoice_number = $recurring_number, recurring_invoice_scope = '$scope',
+                    recurring_invoice_frequency = '$frequency', recurring_invoice_next_date = '$start', recurring_invoice_anchor_day = DAY('$start'), recurring_invoice_status = 1,
+                    recurring_invoice_discount_amount = $discount, recurring_invoice_amount = 0, recurring_invoice_currency_code = '$currency', recurring_invoice_note = '$note',
+                    recurring_invoice_auto_send = {$plan['auto_send']}, recurring_invoice_email_notify = 1, recurring_invoice_category_id = $category_id,
+                    recurring_invoice_quote_id = $quote_id, recurring_invoice_client_id = $client_id");
+                $recurring_id = intval(mysqli_insert_id($mysqli));
+                billingCopyLines($group['items'], 'recurring', $recurring_id);
+                billingRecalc('recurring', $recurring_id);
+                $ref = billingNumber('recurring', billingRow('recurring', $recurring_id, false));
+                billingLog('recurring', $recurring_id, 'Active', "Made from quote $number by $by - first invoice on $start");
+                logAudit('Recurring Invoice', 'Create', escapeSql("$by made recurring invoice $ref from quote $number"), $client_id, $recurring_id);
+            }
+            $recurring[$recurring_id] = $ref;
+            $numbers[] = $ref;
+        }
+
+        billingLog('quote', $quote_id, 'Invoiced', 'Invoiced as ' . implode(', ', $numbers) . " by $by");
+        logAudit('Quote', 'Edit', escapeSql("$by invoiced quote $number as " . implode(', ', $numbers)), $client_id, $quote_id);
+        mysqli_commit($mysqli);
+    } catch (Throwable $e) {
+        mysqli_rollback($mysqli);
+        logApp('Quote', 'error', "Invoicing quote $number failed: " . $e->getMessage());
+        $error = "$number couldn't be invoiced - nothing was changed.";
+        return null;
+    }
+
+    if ($invoice_id) {
+        triggerCustomAction('invoice_create', $invoice_id);
+    }
+    return ['invoice_id' => $invoice_id, 'recurring' => $recurring, 'numbers' => $numbers];
+}
+
+/**
+ * What a quote became - the invoices and recurring invoices made from it, and
+ * the recurring invoices its lines were added to ('added' 1).
+ */
+function quoteMadeFrom($quote_id) {
+    global $mysqli;
+    $quote_id = intval($quote_id);
+    $made = [];
+    $sql = mysqli_query($mysqli, "SELECT 'invoice' AS type, invoice_id AS id, invoice_prefix AS prefix, invoice_number AS number, invoice_amount AS amount, invoice_status AS status, invoice_currency_code AS currency, '' AS frequency, 0 AS added
+        FROM invoices WHERE invoice_quote_id = $quote_id
+        UNION ALL
+        SELECT 'recurring', recurring_invoice_id, recurring_invoice_prefix, recurring_invoice_number, recurring_invoice_amount, IF(recurring_invoice_status = 1, 'Active', 'Paused'), recurring_invoice_currency_code, recurring_invoice_frequency,
+            IF(recurring_invoice_quote_id = $quote_id, 0, 1)
+        FROM recurring_invoices WHERE recurring_invoice_quote_id = $quote_id
+            OR recurring_invoice_id IN (SELECT history_recurring_invoice_id FROM history WHERE history_quote_id = $quote_id AND history_recurring_invoice_id > 0)");
+    while ($row = mysqli_fetch_assoc($sql)) {
+        $made[] = $row;
+    }
+    return $made;
 }
 
 /* ------------------------------------------------------- Recurring invoices */

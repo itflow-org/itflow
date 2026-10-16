@@ -382,11 +382,12 @@ function clientExportDatasets() {
             'invoice' => 'Invoice', 'date' => 'Date', 'amount' => 'Amount', 'currency' => 'Currency', 'method' => 'Method', 'reference' => 'Reference',
         ]],
         'quotes' => ['section' => 'billing', 'label' => 'Quotes', 'columns' => [
-            'number' => 'Quote', 'scope' => 'Scope', 'status' => 'Status', 'date' => 'Date', 'expires' => 'Expires', 'amount' => 'Amount', 'discount' => 'Discount',
+            'number' => 'Quote', 'scope' => 'Scope', 'status' => 'Status', 'date' => 'Date', 'expires' => 'Expires', 'amount' => 'Amount', 'monthly' => 'Monthly', 'discount' => 'Discount',
             'currency' => 'Currency', 'category' => 'Category', 'note' => 'Note', 'archived' => 'Archived',
         ]],
         'quote_items' => ['section' => 'billing', 'label' => 'Quote items', 'columns' => [
             'quote' => 'Quote', 'item' => 'Item', 'description' => 'Description', 'quantity' => 'Quantity', 'price' => 'Price', 'subtotal' => 'Subtotal', 'tax' => 'Tax', 'total' => 'Total',
+            'billed' => 'Billed',
         ]],
         'recurring_invoices' => ['section' => 'billing', 'label' => 'Recurring invoices', 'columns' => [
             'number' => 'Recurring invoice', 'scope' => 'Scope', 'frequency' => 'Every', 'active' => 'Active', 'next_date' => 'Next date', 'last_sent' => 'Last sent',
@@ -808,7 +809,7 @@ function clientExportRows($dataset, $client_id, $options) {
                 WHERE {$prefix}_client_id = $client_id" . $live("{$prefix}_archived_at") . " AND i.item_archived_at IS NULL ORDER BY {$prefix}_number DESC, i.item_order, i.item_id") as $row) {
                 $rows[] = [$parent => $row['parent_ref'], 'item' => $row['item_name'], 'description' => $row['item_description'], 'quantity' => floatval($row['item_quantity']),
                     'price' => round(floatval($row['item_price']), 2), 'subtotal' => round(floatval($row['item_subtotal']), 2), 'tax' => round(floatval($row['item_tax']), 2),
-                    'total' => round(floatval($row['item_total']), 2)];
+                    'total' => round(floatval($row['item_total']), 2), 'billed' => quoteFrequencies()[quoteFrequency($row['item_frequency'] ?? '')]];
             }
             break;
 
@@ -823,7 +824,7 @@ function clientExportRows($dataset, $client_id, $options) {
         case 'quotes':
             foreach ($fetch("SELECT * FROM quotes WHERE quote_client_id = $client_id" . $live('quote_archived_at') . " ORDER BY quote_number DESC") as $row) {
                 $rows[] = ['number' => $row['quote_prefix'] . $row['quote_number'], 'scope' => $row['quote_scope'], 'status' => $row['quote_status'],
-                    'date' => clientExportDate($row['quote_date']), 'expires' => clientExportDate($row['quote_expire']), 'amount' => round(floatval($row['quote_amount']), 2),
+                    'date' => clientExportDate($row['quote_date']), 'expires' => clientExportDate($row['quote_expire']), 'amount' => round(floatval($row['quote_amount']), 2), 'monthly' => round(floatval($row['quote_monthly_amount'] ?? 0), 2),
                     'discount' => round(floatval($row['quote_discount_amount']), 2), 'currency' => $row['quote_currency_code'], 'category' => $name('category', $row['quote_category_id']),
                     'note' => clientExportText($row['quote_note']), 'archived' => clientExportDate($row['quote_archived_at'])];
             }
