@@ -2,7 +2,8 @@
 /*
  * Client Portal
  * Home - what needs this contact: tickets waiting on their reply or for them
- * to confirm, approvals, invoices past due; their open tickets, the balance,
+ * to confirm, approvals, invoices past due, quotes waiting for an answer;
+ * their open tickets, the balance,
  * renewals coming up and the devices they use.
  *
  * SCOPING: everything here is keyed to $session_client_id from the session,
@@ -77,7 +78,7 @@ if ($can_billing) {
             $overdue += $left;
             $overdue_count++;
             $needs_you[] = [
-                'href' => 'unpaid_invoices.php',
+                'href' => 'invoice.php?id=' . intval($invoice['invoice_id']),
                 'icon' => 'fa-file-invoice-dollar',
                 'tone' => 'is-danger',
                 'title' => 'Invoice ' . $invoice['invoice_prefix'] . $invoice['invoice_number'] . ' is past due',
@@ -87,7 +88,21 @@ if ($can_billing) {
             $next_due = $invoice['invoice_due'];
         }
     }
+
+    // Quotes waiting for their answer
+    $sql = mysqli_query($mysqli, "SELECT quote_id, quote_prefix, quote_number, quote_scope, quote_amount, quote_currency_code, quote_expire FROM quotes
+        WHERE quote_client_id = $session_client_id AND " . portalQuoteWaitingSql() . " ORDER BY quote_expire ASC LIMIT 4");
+    while ($row = mysqli_fetch_assoc($sql)) {
+        $needs_you[] = [
+            'href' => 'quote.php?id=' . intval($row['quote_id']),
+            'icon' => 'fa-comment-dollar',
+            'tone' => '',
+            'title' => 'Quote ' . $row['quote_prefix'] . $row['quote_number'] . ' is waiting for your answer',
+            'line' => trim($row['quote_scope'] . ' · ' . billingMoney($row['quote_amount'], $row['quote_currency_code']), ' ·') . ' · good until ' . date('M j', strtotime($row['quote_expire'])),
+        ];
+    }
 }
+$pay_href = $can_billing && billingStripeProvider() ? 'unpaid_invoices.php' : 'invoices.php';
 
 // Open tickets, newest first
 $recent = mysqli_query($mysqli, "SELECT " . portalTicketColumnsSql() . ", contact_name FROM tickets
@@ -138,7 +153,7 @@ $first_name = strtok(trim((string) $contact['contact_name']), ' ') ?: '';
     </div>
     <div class="d-flex flex-wrap gap-2">
         <?php if ($can_billing && $balance > 0) { ?>
-            <a class="btn btn-outline-primary" href="unpaid_invoices.php"><i class="fas fa-credit-card me-2"></i>Pay invoices</a>
+            <a class="btn btn-outline-primary" href="<?= $pay_href ?>"><i class="fas fa-<?= $pay_href === 'unpaid_invoices.php' ? 'credit-card' : 'file-invoice-dollar' ?> me-2"></i><?= $pay_href === 'unpaid_invoices.php' ? 'Pay invoices' : 'Invoices' ?></a>
         <?php } ?>
     </div>
 </div>
@@ -164,7 +179,7 @@ $first_name = strtok(trim((string) $contact['contact_name']), ' ') ?: '';
     </div>
     <?php if ($can_billing) { ?>
         <div class="col-6 col-lg-3">
-            <a class="itflow-portal-stat<?= $overdue > 0 ? ' itflow-portal-stat-danger' : '' ?>" href="<?= $balance > 0 ? 'unpaid_invoices.php' : 'invoices.php' ?>">
+            <a class="itflow-portal-stat<?= $overdue > 0 ? ' itflow-portal-stat-danger' : '' ?>" href="<?= $balance > 0 ? $pay_href : 'invoices.php' ?>">
                 <span class="itflow-portal-stat-icon"><i class="fas fa-file-invoice-dollar"></i></span>
                 <span class="min-w-0">
                     <span class="itflow-portal-stat-value d-block"><?= numfmt_format_currency($currency_format, $balance, $client_currency) ?></span>

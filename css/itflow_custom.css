@@ -7240,6 +7240,244 @@ a.itflow-portal-todo:hover {
     max-height: 600px;
 }
 
+/* Billing: amounts down the side of a list, a document's state, and the big
+   figure on an invoice, quote or receipt */
+.itflow-portal-amount {
+    color: var(--bs-emphasis-color);
+    font-weight: 600;
+}
+.itflow-portal-amount small {
+    color: var(--bs-secondary-color);
+    font-size: .75rem;
+}
+.itflow-portal-state-late { background-color: var(--bs-danger-bg-subtle); color: var(--bs-danger-text-emphasis); }
+.itflow-portal-big-amount {
+    color: var(--bs-emphasis-color);
+    font-size: 1.75rem;
+    font-weight: 600;
+    line-height: 1.2;
+    margin: .15rem 0 .5rem;
+}
+.itflow-portal-outcome {
+    display: flex;
+    align-items: center;
+    gap: .85rem;
+}
+.itflow-portal-outcome-icon {
+    display: inline-flex;
+    flex: 0 0 auto;
+    align-items: center;
+    justify-content: center;
+    width: 2.5rem;
+    height: 2.5rem;
+    border-radius: 50%;
+    background-color: var(--bs-secondary-bg);
+    color: var(--bs-secondary-color);
+}
+.itflow-portal-outcome-icon.is-success {
+    background-color: var(--bs-success-bg-subtle);
+    color: var(--bs-success-text-emphasis);
+}
+.itflow-portal-outcome-icon.is-warning {
+    background-color: var(--bs-warning-bg-subtle);
+    color: var(--bs-warning-text-emphasis);
+}
+.itflow-portal-note {
+    display: flex;
+    gap: .6rem;
+    padding: .65rem .8rem;
+    border-radius: var(--bs-border-radius);
+    background-color: var(--bs-tertiary-bg);
+    font-size: .85rem;
+}
+.itflow-portal-note i {
+    margin-top: .15rem;
+    color: var(--bs-secondary-color);
+}
+
+/* Pay invoices: a row to tick, the ways to pay, and the total with its button */
+.itflow-portal-payrow {
+    cursor: pointer;
+    margin: 0;
+}
+.itflow-portal-payrow > .form-check-input {
+    flex: 0 0 auto;
+    width: 1.2rem;
+    height: 1.2rem;
+    margin: 0;
+}
+@media (max-width: 575.98px) {
+    .itflow-portal-payrow {
+        display: grid;
+        grid-template-columns: auto minmax(0, 1fr);
+        align-items: start;
+        column-gap: .75rem;
+    }
+    .itflow-portal-payrow > .form-check-input {
+        margin-top: .2rem;
+    }
+    .itflow-portal-payrow > .itflow-portal-ticket-side {
+        grid-column: 2;
+    }
+}
+.itflow-portal-list > li.is-selected {
+    background-color: rgba(var(--bs-primary-rgb), .05);
+}
+.itflow-portal-list > li.is-selected .itflow-portal-payrow:hover {
+    background-color: transparent;
+}
+@media (min-width: 992px) {
+    .itflow-portal-paybox {
+        position: sticky;
+        top: calc(var(--itflow-portal-header-height) + 1rem);
+    }
+}
+.itflow-portal-methods {
+    display: grid;
+    gap: .5rem;
+}
+.itflow-portal-method {
+    display: flex;
+    align-items: center;
+    gap: .75rem;
+    margin: 0;
+    padding: .65rem .8rem;
+    border: 1px solid var(--bs-border-color);
+    border-radius: var(--bs-border-radius);
+    cursor: pointer;
+}
+.itflow-portal-method .form-check-input {
+    flex: 0 0 auto;
+    margin: 0;
+}
+.itflow-portal-method:has(input:checked) {
+    border-color: var(--bs-primary);
+    box-shadow: inset 0 0 0 1px var(--bs-primary);
+}
+.itflow-portal-method.is-disabled {
+    cursor: not-allowed;
+    opacity: .6;
+}
+.itflow-portal-paybar {
+    padding: 1rem 1.1rem;
+    border-top: 1px solid var(--bs-border-color-translucent);
+    background-color: var(--bs-tertiary-bg);
+}
+.itflow-portal-paybar .itflow-portal-big-amount {
+    margin: 0;
+}
+.itflow-portal-stripe-element {
+    min-height: 3rem;
+}
+
+/* A saved card's brand, in a grey tile */
+.itflow-portal-card-brand {
+    display: inline-flex;
+    flex: 0 0 auto;
+    align-items: center;
+    justify-content: center;
+    width: 2.75rem;
+    height: 2rem;
+    border-radius: var(--bs-border-radius);
+    background-color: var(--bs-secondary-bg);
+    color: var(--bs-secondary-color);
+    font-size: 1.25rem;
+}
+
+/* Statement: how late, in five tiles */
+.itflow-portal-aging {
+    display: grid;
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    gap: .5rem;
+    height: 100%;
+}
+.itflow-portal-aging > div {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: .15rem;
+    padding: .6rem .7rem;
+    border: 1px solid var(--bs-border-color-translucent);
+    border-radius: var(--bs-border-radius-lg);
+    background-color: var(--bs-body-bg);
+    min-width: 0;
+}
+.itflow-portal-aging span {
+    color: var(--bs-secondary-color);
+    font-size: .72rem;
+    white-space: nowrap;
+}
+.itflow-portal-aging strong {
+    overflow: hidden;
+    color: var(--bs-emphasis-color);
+    font-size: .9rem;
+    text-overflow: ellipsis;
+}
+.itflow-portal-aging .is-late strong {
+    color: var(--bs-danger-text-emphasis);
+}
+@media (max-width: 575.98px) {
+    .itflow-portal-aging {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+.itflow-portal-table > thead th {
+    color: var(--bs-secondary-color);
+    font-size: .75rem;
+    font-weight: 600;
+    letter-spacing: .04em;
+    text-transform: uppercase;
+}
+.itflow-portal-panel .table > :not(caption) > * > * {
+    padding-left: 1.1rem;
+    padding-right: 1.1rem;
+}
+
+/* A receipt */
+.itflow-portal-receipt {
+    max-width: 46rem;
+}
+.itflow-portal-receipt-head {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 1.25rem 1.1rem;
+    border-bottom: 1px solid var(--bs-border-color-translucent);
+}
+.itflow-portal-receipt-head .itflow-portal-big-amount {
+    margin: 0;
+}
+.itflow-portal-receipt-foot {
+    padding: .9rem 1.1rem;
+    border-top: 1px solid var(--bs-border-color-translucent);
+    color: var(--bs-secondary-color);
+    font-size: .8rem;
+}
+
+/* Printing an invoice, quote or receipt: the document and nothing round it */
+@media print {
+    .itflow-portal-header,
+    .itflow-portal-tabbar,
+    .itflow-portal-footer,
+    .itflow-portal-main > .alert {
+        display: none !important;
+    }
+    .itflow-portal {
+        padding-bottom: 0 !important;
+        background: #fff !important;
+    }
+    .itflow-portal-main {
+        max-width: none;
+        padding: 0;
+    }
+    .itflow-portal-receipt {
+        max-width: none;
+        border: 0;
+    }
+}
+
 /* The pages not rebuilt yet: their black table heads and borders, softened to
    sit in the light shell */
 .itflow-portal-main .table-dark {

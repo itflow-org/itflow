@@ -2,7 +2,8 @@
 /*
  * Client Portal
  * New ticket - what's wrong, how much it is getting in the way, which device,
- * and any screenshots or files, with what happens next alongside.
+ * and any screenshots or files, with what happens next alongside. ?subject=
+ * fills the subject in - the Ask us links on invoices and quotes.
  *
  * No Content-Security-Policy here: the editor needs inline styles.
  */
@@ -51,7 +52,7 @@ $company = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT company_phone, compa
                 <label class="form-label" for="ticketSubject">Subject <strong class="text-danger">*</strong></label>
                 <div class="input-group">
                     <span class="input-group-text"><i class="fa fa-fw fa-tag"></i></span>
-                    <input type="text" class="form-control" id="ticketSubject" name="subject" placeholder="In a few words - &quot;Outlook keeps asking for my password&quot;" maxlength="500" required autofocus>
+                    <input type="text" class="form-control" id="ticketSubject" name="subject" placeholder="In a few words - &quot;Outlook keeps asking for my password&quot;" maxlength="500" required autofocus value="<?= escapeHtml(mb_substr(trim((string) ($_GET['subject'] ?? '')), 0, 500)) ?>">
                 </div>
             </div>
 

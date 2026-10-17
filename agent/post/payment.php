@@ -587,11 +587,13 @@ if (isset($_GET['refund_payment_stripe'])) {
     }
 
     // Get Stripe Payment Intent ID
-    $sql = mysqli_query($mysqli,"SELECT payment_reference FROM payments WHERE payment_id = $payment_id LIMIT 1");
+    $sql = mysqli_query($mysqli,"SELECT payment_amount, payment_reference FROM payments WHERE payment_id = $payment_id LIMIT 1");
     $row = mysqli_fetch_assoc($sql);
     if (preg_match('/(?<payment_intent>pi_[A-Za-z0-9]+)/', $row['payment_reference'], $matches)) {
         $stripe_payment_intent_id = $matches['payment_intent'];
     }
+    // Only this payment's part - one card payment from the client portal can pay several invoices
+    $refund_cents = (int) round(floatval($row['payment_amount']) * 100);
     
     // Get invoice details
     $sql = mysqli_query($mysqli,"SELECT client_id, client_name, contact_email, contact_extension, contact_mobile,
@@ -631,8 +633,9 @@ if (isset($_GET['refund_payment_stripe'])) {
 
         // Refund
         $refund = $stripe->refunds->create([
-                'payment_intent' => $stripe_payment_intent_id
-        ]);        
+            'payment_intent' => $stripe_payment_intent_id,
+            'amount' => $refund_cents,
+        ]);
     } catch (Exception $e) {
         $error = $e->getMessage();
         error_log("Stripe refund error - encountered exception during refund for invoice ID $invoice_id / $invoice_prefix$invoice_number: $error");

@@ -709,7 +709,9 @@ while ($row = mysqli_fetch_assoc($sql_recurring_payments)) {
  * A payment can complete before Stripe attaches the balance transaction,
  * in which case the fee expense is skipped at payment time. Find recent
  * Stripe payments with no matching fee expense and record the actual fee
- * now that the balance transaction exists.
+ * now that the balance transaction exists. One card payment over several
+ * invoices (the client portal's Pay invoices) is a payment row per invoice
+ * with the same reference - it has one fee, so it is taken once.
  */
 $stripe_provider = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT * FROM payment_providers WHERE payment_provider_name = 'Stripe' LIMIT 1"));
 
@@ -723,7 +725,9 @@ if ($stripe_provider) {
     if ($provider_private_key && $expense_vendor_id > 0 && $expense_category_id > 0) {
 
         $sql_missing_fee = mysqli_query($mysqli, "
-            SELECT payment_reference, payment_date, payment_amount, invoice_prefix, invoice_number, invoice_client_id
+            SELECT payment_reference, MIN(payment_date) AS payment_date, SUM(payment_amount) AS payment_amount,
+                GROUP_CONCAT(CONCAT(invoice_prefix, invoice_number) ORDER BY invoice_number SEPARATOR ', ') AS invoice_numbers,
+                MIN(invoice_client_id) AS invoice_client_id
             FROM payments
             LEFT JOIN invoices ON payment_invoice_id = invoice_id
             WHERE payment_reference LIKE 'Stripe - pi\_%'
@@ -731,6 +735,7 @@ if ($stripe_provider) {
             AND NOT EXISTS (
                 SELECT 1 FROM expenses WHERE LOCATE(payments.payment_reference, expenses.expense_reference) = 1
             )
+            GROUP BY payment_reference
             LIMIT 50
         ");
 
@@ -744,8 +749,7 @@ if ($stripe_provider) {
                 $payment_reference = escapeSql($missing['payment_reference']);
                 $payment_date = escapeSql($missing['payment_date']);
                 $payment_amount = floatval($missing['payment_amount']);
-                $invoice_prefix = escapeSql($missing['invoice_prefix']);
-                $invoice_number = intval($missing['invoice_number']);
+                $invoice_numbers = escapeSql($missing['invoice_numbers']);
                 $client_id = intval($missing['invoice_client_id']);
 
                 $pi_id = str_replace('Stripe - ', '', $missing['payment_reference']);
@@ -762,7 +766,7 @@ if ($stripe_provider) {
                 if ($balance_transaction && !is_string($balance_transaction)) {
                     $gateway_fee = round($balance_transaction->fee / 100, 2);
                     $gateway_fee_currency = escapeSql(strtoupper($balance_transaction->currency));
-                    mysqli_query($mysqli, "INSERT INTO expenses SET expense_date = '$payment_date', expense_amount = $gateway_fee, expense_currency_code = '$gateway_fee_currency', expense_account_id = $expense_account_id, expense_vendor_id = $expense_vendor_id, expense_client_id = $client_id, expense_category_id = $expense_category_id, expense_description = 'Stripe fee for Invoice $invoice_prefix$invoice_number payment of $payment_amount', expense_reference = '$payment_reference'");
+                    mysqli_query($mysqli, "INSERT INTO expenses SET expense_date = '$payment_date', expense_amount = $gateway_fee, expense_currency_code = '$gateway_fee_currency', expense_account_id = $expense_account_id, expense_vendor_id = $expense_vendor_id, expense_client_id = $client_id, expense_category_id = $expense_category_id, expense_description = 'Stripe fee for Invoice $invoice_numbers payment of $payment_amount', expense_reference = '$payment_reference'");
                     logApp("Stripe", "info", "Fee reconciliation - recorded Stripe fee of $gateway_fee for $pi_id");
                 }
                 // Still-missing balance transactions get picked up on the next run

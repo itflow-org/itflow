@@ -8,7 +8,11 @@
  *  - Attachment drop zones: drop files on [data-portal-drop] and they go into
  *    its file input, listed by name and size
  *  - A form marked data-portal-once can't be sent twice
+ *  - Print buttons ([data-portal-print]) - an onclick would be blocked
+ *  - Pay invoices: the total and the Pay button follow the invoices ticked
  *  - Tables a page left unwrapped scroll sideways on a phone instead of the page
+ *
+ * Taking a card through Stripe is js/portal_stripe.js, on those pages only.
  */
 (function () {
     'use strict';
@@ -184,6 +188,87 @@
                 setTimeout(function () { button.disabled = true; }, 0);
             });
         });
+    });
+
+    // ---------- Print ----------
+    document.addEventListener('click', function (e) {
+        if (e.target.closest('[data-portal-print]')) {
+            e.preventDefault();
+            window.print();
+        }
+    });
+
+    // ---------- Paying invoices ----------
+    // The ticks on Pay invoices: the total, how many, and the button's words
+    // follow them, and a total over the card limit is stopped here as well as
+    // on the server
+    document.querySelectorAll('form[data-portal-pay]').forEach(function (form) {
+        var boxes = Array.prototype.slice.call(form.querySelectorAll('input[data-pay-cents]'));
+        var all = form.querySelector('[data-pay-all]');
+        var button = form.querySelector('[data-pay-button]');
+        var limit = parseInt(form.getAttribute('data-pay-limit') || '0', 10);
+        var max = parseInt(form.getAttribute('data-pay-max') || '0', 10);
+        var money;
+        try {
+            money = new Intl.NumberFormat(form.getAttribute('data-pay-locale') || undefined, {style: 'currency', currency: form.getAttribute('data-pay-currency') || 'USD'});
+        } catch (err) {
+            money = new Intl.NumberFormat(undefined, {style: 'currency', currency: 'USD'});
+        }
+
+        function text(selector, value) {
+            var el = form.querySelector(selector);
+            if (el) {
+                el.textContent = value;
+            }
+        }
+
+        function update() {
+            var cents = 0;
+            var count = 0;
+            boxes.forEach(function (box) {
+                if (box.checked) {
+                    cents += parseInt(box.getAttribute('data-pay-cents'), 10) || 0;
+                    count++;
+                }
+                var row = box.closest('li');
+                if (row) {
+                    row.classList.toggle('is-selected', box.checked);
+                }
+            });
+            var amount = money.format(cents / 100);
+            var method = form.querySelector('input[name=method]:checked');
+            var over = limit > 0 && cents >= limit;
+            var tooMany = max > 0 && count > max;
+            text('[data-pay-total]', amount);
+            text('[data-pay-count]', count + (count === 1 ? ' invoice' : ' invoices'));
+            text('[data-pay-label]', !count ? 'Tick an invoice to pay' : (tooMany ? 'Pay up to ' + max + ' invoices at a time'
+                : (method && method.value === 'new' ? 'Continue to pay ' : 'Pay ') + amount));
+            var note = form.querySelector('[data-pay-limit-note]');
+            if (note) {
+                note.hidden = !over;
+            }
+            button.disabled = !count || over || tooMany;
+            if (all) {
+                all.checked = count === boxes.length;
+                all.indeterminate = count > 0 && count < boxes.length;
+            }
+        }
+
+        if (all) {
+            all.addEventListener('change', function () {
+                boxes.forEach(function (box) {
+                    box.checked = all.checked;
+                });
+                update();
+            });
+        }
+        boxes.forEach(function (box) {
+            box.addEventListener('change', update);
+        });
+        form.querySelectorAll('input[name=method]').forEach(function (radio) {
+            radio.addEventListener('change', update);
+        });
+        update();
     });
 
     // ---------- Tables ----------

@@ -1371,6 +1371,137 @@ function quoteMadeFrom($quote_id) {
     return $made;
 }
 
+/**
+ * A client's answer to a quote, from its guest link or the client portal:
+ * accepted only while it waits for one (Sent or Viewed) and has not run
+ * out, declined only while it waits - the first answer through wins. Then
+ * it goes in the quote's history, the agents are told, the quote_accept or
+ * quote_decline custom action runs and the quote notification address
+ * hears. $by, for the portal: name (who answered), note (what they said).
+ * ['ok' => bool, 'error' => why not, for the client].
+ */
+function billingQuoteAnswer($quote_id, $accept, array $by = []) {
+    global $mysqli;
+    $quote_id = intval($quote_id);
+    $quote = billingRow('quote', $quote_id, false);
+    if (!$quote) {
+        return ['ok' => false, 'error' => 'This quote is no longer awaiting a response'];
+    }
+    if ($accept) {
+        mysqli_query($mysqli, "UPDATE quotes SET quote_status = 'Accepted' WHERE quote_id = $quote_id AND quote_status IN ('Sent', 'Viewed') AND quote_expire >= CURDATE()");
+    } else {
+        mysqli_query($mysqli, "UPDATE quotes SET quote_status = 'Declined' WHERE quote_id = $quote_id AND quote_status IN ('Sent', 'Viewed')");
+    }
+    if (mysqli_affected_rows($mysqli) !== 1) {
+        $expired = $accept ? mysqli_fetch_row(mysqli_query($mysqli, "SELECT quote_expire FROM quotes WHERE quote_id = $quote_id AND quote_status IN ('Sent', 'Viewed') AND quote_expire < CURDATE()")) : null;
+        return ['ok' => false, 'error' => $expired ? "This quote ran out on " . escapeHtml($expired[0]) . " - ask for an updated one" : "This quote is no longer awaiting a response"];
+    }
+
+    $word = $accept ? 'Accepted' : 'Declined';
+    $number = billingNumber('quote', $quote);
+    $name = trim((string) ($by['name'] ?? ''));
+    $note = trim((string) ($by['note'] ?? ''));
+    billingLog('quote', $quote_id, $word, $name !== '' ? "$word by $name in the client portal" . ($note !== '' ? "\nNote: $note" : '') : "$word by the client");
+    appNotify("Quote $word", escapeSql("Quote $number has been " . strtolower($word) . " by {$quote['client_name']}" . ($name !== '' ? " ($name, in the client portal)" : '')),
+        "/agent/quote.php?quote_id=$quote_id", intval($quote['client_id']));
+    triggerCustomAction($accept ? 'quote_accept' : 'quote_decline', $quote_id);
+    if ($name !== '') {
+        logAudit("Quote", $accept ? "Accept" : "Decline", escapeSql("$name " . strtolower($word) . " quote $number in the client portal"), intval($quote['client_id']), $quote_id);
+    }
+
+    // Our team hears - functions/billing_email.php
+    $settings = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT config_smtp_host, config_quote_notification_email FROM settings WHERE company_id = 1")) ?: [];
+    if (!empty($settings['config_smtp_host']) && !empty($settings['config_quote_notification_email'])) {
+        billingQuoteAnsweredNotify($quote_id, $accept, $name, $note);
+    }
+
+    return ['ok' => true, 'error' => ''];
+}
+
+/**
+ * PDFs a client sends back with an accepted quote - a signed copy, a purchase
+ * order - from its guest link or the client portal. $files: the upload's
+ * $_FILES entry (file[]). Each goes in the client's Client Uploads folder and
+ * on the quote, and the agents hear. $by: name, for the portal.
+ * ['added' => file names, 'failed' => how many could not be taken].
+ */
+function billingQuoteAddFiles($quote_id, array $files, array $by = []) {
+    global $mysqli;
+    $quote = billingRow('quote', $quote_id, false);
+    $result = ['added' => [], 'failed' => 0];
+    if (!$quote || !isset($files['name']) || !is_array($files['name'])) {
+        return $result;
+    }
+    $quote_id = intval($quote['quote_id']);
+    $client_id = intval($quote['client_id']);
+    $number = billingNumber('quote', $quote);
+    $number_sql = escapeSql($number);
+    $name = trim((string) ($by['name'] ?? ''));
+
+    $upload_file_dir = dirname(__DIR__) . "/uploads/clients/$client_id/";
+    mkdirMissing($upload_file_dir);
+
+    for ($i = 0; $i < count($files['name']); $i++) {
+        $single_file = [
+            'name' => $files['name'][$i],
+            'type' => $files['type'][$i],
+            'tmp_name' => $files['tmp_name'][$i],
+            'error' => $files['error'][$i],
+            'size' => $files['size'][$i],
+        ];
+        $file_reference_name = checkFileUpload($single_file, ['pdf']);
+        if (!$file_reference_name) {
+            $result['failed']++;
+            continue;
+        }
+
+        $file_name = escapeSql($single_file['name']);
+        $extarr = explode('.', $single_file['name']);
+        $file_extension = escapeSql(strtolower(end($extarr)));
+        $file_mime_type = escapeSql($single_file['type']);
+        $file_size = intval($single_file['size']);
+
+        // Get/Create a top-level folder called Client Uploads
+        $folder = mysqli_fetch_row(mysqli_query($mysqli, "SELECT folder_id FROM folders WHERE folder_name = 'Client Uploads' AND parent_folder = 0 AND folder_client_id = $client_id LIMIT 1"));
+        if ($folder) {
+            $folder_id = intval($folder[0]);
+        } else {
+            mysqli_query($mysqli, "INSERT INTO folders SET folder_name = 'Client Uploads', parent_folder = 0, folder_location = 1, folder_client_id = $client_id");
+            $folder_id = intval(mysqli_insert_id($mysqli));
+            logAudit("Folder", "Create", "Automatically created folder Client Uploads", $client_id, $folder_id);
+        }
+
+        if (!move_uploaded_file($single_file['tmp_name'], $upload_file_dir . $file_reference_name)) {
+            $result['failed']++;
+            continue;
+        }
+
+        mysqli_query($mysqli, "INSERT INTO files SET file_reference_name = '" . escapeSql($file_reference_name) . "', file_name = '$file_name', file_description = 'Uploaded via $number_sql', file_ext = '$file_extension', file_mime_type = '$file_mime_type', file_size = $file_size, file_folder_id = $folder_id, file_client_id = $client_id");
+        $file_id = intval(mysqli_insert_id($mysqli));
+        mysqli_query($mysqli, "INSERT INTO quote_files SET quote_id = $quote_id, file_id = $file_id");
+
+        appNotify("Quote File", "$file_name was uploaded to quote $number_sql", "/agent/quote.php?quote_id=$quote_id", $client_id);
+        billingLog('quote', $quote_id, 'Upload', $name !== '' ? "$name uploaded file {$single_file['name']} in the client portal" : "Client uploaded file {$single_file['name']}");
+        logAudit("File", "Upload", ($name !== '' ? escapeSql($name) : 'Guest') . " uploaded file $file_name to quote $number_sql" . ($name !== '' ? ' in the client portal' : ''), $client_id);
+        $result['added'][] = (string) $single_file['name'];
+    }
+    return $result;
+}
+
+/** The files sent back with a quote - name and when, newest first. */
+function billingQuoteFiles($quote_id) {
+    global $mysqli;
+    $quote_id = intval($quote_id);
+    $rows = [];
+    $sql = mysqli_query($mysqli, "SELECT files.file_id, file_name, file_size, file_created_at FROM quote_files
+        JOIN files ON files.file_id = quote_files.file_id
+        WHERE quote_files.quote_id = $quote_id AND file_archived_at IS NULL ORDER BY file_created_at DESC, files.file_id DESC");
+    while ($row = mysqli_fetch_assoc($sql)) {
+        $rows[] = $row;
+    }
+    return $rows;
+}
+
 /* ------------------------------------------------------- Recurring invoices */
 
 /** How long a missed run is still billed by the nightly run - a night or a few the cron didn't run. */
@@ -1916,32 +2047,42 @@ function billingPdfSend(array $pdf, $download = false) {
 /* ------------------------------------------------------------- Guest pages */
 
 /**
- * A client has opened an invoice or quote from its link: a sent one becomes
- * viewed, the view goes in its history (where from, in plain text), and the
- * agents hear about it while it still matters - an invoice not yet paid, a
- * quote not yet answered.
+ * A client has opened an invoice or quote - from its link, or in the client
+ * portal ($who, the contact): a sent one becomes viewed, the view goes in
+ * its history (where from, in plain text), and the agents hear about it
+ * while it still matters - an invoice not yet paid, a quote not yet
+ * answered.
  */
-function billingGuestViewed($type, array $row) {
+function billingGuestViewed($type, array $row, $who = '') {
     global $mysqli;
     $t = billingType($type);
     $c = $t['col'];
     $id = intval($row["{$c}_id"]);
     $status = (string) $row["{$c}_status"];
     $number = billingNumber($type, $row);
+    $who = trim((string) $who);
 
     if ($status === 'Sent') {
         mysqli_query($mysqli, "UPDATE {$t['table']} SET {$c}_status = 'Viewed' WHERE {$c}_id = $id AND {$c}_status = 'Sent'");
     }
 
-    $agent = (string) ($_SERVER['HTTP_USER_AGENT'] ?? '');
-    $where = implode(' - ', array_filter([getIP(), trim(strip_tags(getOS($agent))), trim(strip_tags(getWebBrowser($agent)))], function ($part) {
-        return $part !== '' && $part !== '-';
-    }));
-    billingLog($type, $id, $status === 'Sent' ? 'Viewed' : $status, 'Viewed by the client' . ($where !== '' ? " - $where" : ''));
+    if ($who !== '') {
+        $where = '';
+        $description = "Viewed in the client portal by $who";
+        $by = " ($who, in the client portal)";
+    } else {
+        $agent = (string) ($_SERVER['HTTP_USER_AGENT'] ?? '');
+        $where = implode(' - ', array_filter([getIP(), trim(strip_tags(getOS($agent))), trim(strip_tags(getWebBrowser($agent)))], function ($part) {
+            return $part !== '' && $part !== '-';
+        }));
+        $description = 'Viewed by the client' . ($where !== '' ? " - $where" : '');
+        $by = $where !== '' ? " - $where" : '';
+    }
+    billingLog($type, $id, $status === 'Sent' ? 'Viewed' : $status, $description);
 
     $matters = $type === 'invoice' ? !in_array($status, ['Paid', 'Cancelled', 'Non-Billable'], true) : in_array($status, ['Draft', 'Sent', 'Viewed'], true);
     if ($matters) {
-        appNotify($t['label'] . ' Viewed', escapeSql("$number has been viewed by {$row['client_name']}" . ($where !== '' ? " - $where" : '')), "/agent/{$t['page']}?{$t['param']}=$id", intval($row['client_id']));
+        appNotify($t['label'] . ' Viewed', escapeSql("$number has been viewed by {$row['client_name']}$by"), "/agent/{$t['page']}?{$t['param']}=$id", intval($row['client_id']));
     }
 }
 

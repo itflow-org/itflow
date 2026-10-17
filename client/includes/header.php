@@ -15,11 +15,21 @@ header("X-Frame-Options: DENY"); // Legacy
 
 // A page that turned the policy on keeps it, with data: images allowed - the
 // arrows on drop-downs, ticks in checkboxes and the close crosses are data:
-// SVGs in Bootstrap's CSS, which default-src 'self' alone blocked
-foreach (headers_list() as $portal_header) {
-    if (stripos($portal_header, 'Content-Security-Policy:') === 0) {
-        header("Content-Security-Policy: default-src 'self'; img-src 'self' data:");
-        break;
+// SVGs in Bootstrap's CSS, which default-src 'self' alone blocked. A page
+// that takes a card sets $portal_stripe first: the same policy, with
+// Stripe's script, frames and API let in - Stripe's own list, from
+// docs.stripe.com/security/guide (Stripe.js, Checkout and Link)
+if (!empty($portal_stripe)) {
+    header("Content-Security-Policy: default-src 'self'; img-src 'self' data: https://*.stripe.com https://*.link.com; "
+        . "script-src 'self' https://js.stripe.com https://*.js.stripe.com https://checkout.stripe.com; "
+        . "frame-src https://js.stripe.com https://*.js.stripe.com https://hooks.stripe.com https://checkout.stripe.com https://link.com https://*.link.com; "
+        . "connect-src 'self' https://api.stripe.com https://checkout.stripe.com https://link.com https://*.link.com");
+} else {
+    foreach (headers_list() as $portal_header) {
+        if (stripos($portal_header, 'Content-Security-Policy:') === 0) {
+            header("Content-Security-Policy: default-src 'self'; img-src 'self' data:");
+            break;
+        }
     }
 }
 

@@ -46,5 +46,11 @@
 <script src="/js/keepalive.js"></script>
 <script src="/js/portal.js"></script>
 
+<?php if (!empty($portal_stripe)) { ?>
+    <!-- Taking a card - Stripe's own script, then the portal's use of it -->
+    <script src="https://js.stripe.com/v3/"></script>
+    <script src="/js/portal_stripe.js"></script>
+<?php } ?>
+
 </body>
 </html>

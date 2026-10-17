@@ -171,14 +171,20 @@ function portalNav() {
     ];
 
     if (contactCan('accounting') && $config_module_enable_accounting == 1) {
+        $cards = billingStripeProvider() !== null;
         $children = [
-            ['label' => 'Invoices', 'icon' => 'fa-file-invoice-dollar', 'href' => '/client/invoices.php', 'pages' => ['invoices.php']],
-            ['label' => 'Pay invoices', 'icon' => 'fa-hand-holding-usd', 'href' => '/client/unpaid_invoices.php', 'pages' => ['unpaid_invoices.php']],
-            ['label' => 'Quotes', 'icon' => 'fa-comment-dollar', 'href' => '/client/quotes.php', 'pages' => ['quotes.php']],
-            ['label' => 'Recurring invoices', 'icon' => 'fa-redo-alt', 'href' => '/client/recurring_invoices.php', 'pages' => ['recurring_invoices.php']],
-            ['label' => 'Statement', 'icon' => 'fa-file-alt', 'href' => '/client/statement.php', 'pages' => ['statement.php']],
-            ['label' => 'Saved cards', 'icon' => 'fa-credit-card', 'href' => '/client/saved_payment_methods.php', 'pages' => ['saved_payment_methods.php']],
+            ['label' => 'Invoices', 'icon' => 'fa-file-invoice-dollar', 'href' => '/client/invoices.php', 'pages' => ['invoices.php', 'invoice.php']],
         ];
+        if ($cards) {
+            $children[] = ['label' => 'Pay invoices', 'icon' => 'fa-hand-holding-usd', 'href' => '/client/unpaid_invoices.php', 'pages' => ['unpaid_invoices.php', 'pay.php']];
+        }
+        $children[] = ['label' => 'Quotes', 'icon' => 'fa-comment-dollar', 'href' => '/client/quotes.php', 'pages' => ['quotes.php', 'quote.php']];
+        $children[] = ['label' => 'Recurring invoices', 'icon' => 'fa-redo-alt', 'href' => '/client/recurring_invoices.php', 'pages' => ['recurring_invoices.php', 'recurring_invoice.php']];
+        $children[] = ['label' => 'Payments', 'icon' => 'fa-receipt', 'href' => '/client/payments.php', 'pages' => ['payments.php', 'receipt.php']];
+        $children[] = ['label' => 'Statement', 'icon' => 'fa-file-alt', 'href' => '/client/statement.php', 'pages' => ['statement.php']];
+        if ($cards) {
+            $children[] = ['label' => 'Cards & autopay', 'icon' => 'fa-credit-card', 'href' => '/client/saved_payment_methods.php', 'pages' => ['saved_payment_methods.php']];
+        }
         $nav['billing'] = ['label' => 'Billing', 'icon' => 'fa-file-invoice-dollar', 'children' => $children, 'pages' => array_merge(...array_column($children, 'pages'))];
     }
 
@@ -310,3 +316,93 @@ function portalTicketEventText($html) {
     return preg_match('/^Ticket (resolved|reopened|closed) by .{1,200}\.$/', $text) ? $text : '';
 }
 
+/*
+ * ---------- billing ----------
+ *
+ * Invoices, quotes, recurring invoices, payments and the statement, for
+ * primary and billing contacts. Every query is keyed to the session's client;
+ * paying by card is functions/billing_pay.php.
+ */
+
+/** Billing pages and handlers: a primary or billing contact, with the accounting module on - anyone else is sent away. */
+function portalBillingGate() {
+    global $config_module_enable_accounting;
+    enforceContactCan('accounting');
+    if ($config_module_enable_accounting != 1) {
+        redirect('/client/index.php');
+    }
+}
+
+/** A badge from a state - label, icon and class (portalInvoiceState(), portalQuoteState()). */
+function portalStateBadge(array $state) {
+    return '<span class="itflow-portal-state ' . $state['class'] . '"><i class="fas fa-fw ' . $state['icon'] . '"></i>' . escapeHtml($state['label']) . '</span>';
+}
+
+/**
+ * Where an invoice stands for the client: invoiceState() (state, balance,
+ * paid, days) with a label, icon and class - paid, cancelled, overdue, or
+ * when it is due.
+ */
+function portalInvoiceState(array $row, $paid) {
+    $state = invoiceState($row, $paid);
+    $days = $state['days'];
+    switch ($state['state']) {
+        case 'paid':
+            return $state + ['label' => 'Paid', 'icon' => 'fa-check', 'class' => 'itflow-portal-state-resolved'];
+        case 'cancelled':
+            return $state + ['label' => 'Cancelled', 'icon' => 'fa-ban', 'class' => 'itflow-portal-state-closed'];
+        case 'nonbillable':
+            return $state + ['label' => 'No charge', 'icon' => 'fa-minus-circle', 'class' => 'itflow-portal-state-closed'];
+        case 'draft':
+            return $state + ['label' => 'Draft', 'icon' => 'fa-pencil-alt', 'class' => 'itflow-portal-state-closed'];
+        case 'overdue':
+            return $state + ['label' => -$days . ' ' . (-$days === 1 ? 'day' : 'days') . ' overdue', 'icon' => 'fa-exclamation-circle', 'class' => 'itflow-portal-state-late'];
+    }
+    if ($days === 0) {
+        return $state + ['label' => 'Due today', 'icon' => 'fa-clock', 'class' => 'itflow-portal-state-you'];
+    }
+    if ($days <= 7) {
+        return $state + ['label' => "Due in $days " . ($days === 1 ? 'day' : 'days'), 'icon' => 'fa-clock', 'class' => 'itflow-portal-state-you'];
+    }
+    return $state + ['label' => 'Due ' . date('M j', strtotime((string) $row['invoice_due'])), 'icon' => 'fa-clock', 'class' => 'itflow-portal-state-new'];
+}
+
+/** Where a quote stands for the client - waiting for their answer, run out, accepted or declined - with a label, icon and class. */
+function portalQuoteState(array $row) {
+    $status = (string) $row['quote_status'];
+    if (in_array($status, ['Accepted', 'Invoiced'], true)) {
+        return ['key' => 'accepted', 'label' => 'Accepted', 'icon' => 'fa-thumbs-up', 'class' => 'itflow-portal-state-resolved'];
+    }
+    if ($status === 'Declined') {
+        return ['key' => 'declined', 'label' => 'Declined', 'icon' => 'fa-thumbs-down', 'class' => 'itflow-portal-state-closed'];
+    }
+    if (quoteExpired($row)) {
+        return ['key' => 'expired', 'label' => 'Expired', 'icon' => 'fa-hourglass-end', 'class' => 'itflow-portal-state-hold'];
+    }
+    return ['key' => 'waiting', 'label' => 'Waiting for you', 'icon' => 'fa-reply', 'class' => 'itflow-portal-state-you'];
+}
+
+/** SQL: quotes waiting for the client's answer - sent or viewed, and not run out. */
+function portalQuoteWaitingSql() {
+    return "quote_status IN ('Sent', 'Viewed') AND quote_expire >= CURDATE()";
+}
+
+/**
+ * The contact opened an invoice or quote in the portal - marked viewed, in
+ * its history and told to the agents (billingGuestViewed()), once each time
+ * they sign in rather than on every look.
+ */
+function portalBillingViewed($type, array $row) {
+    global $contact;
+    $key = $type . ':' . intval($row[billingType($type)['col'] . '_id']);
+    if (!empty($_SESSION['portal_viewed'][$key])) {
+        return;
+    }
+    $_SESSION['portal_viewed'][$key] = 1;
+    billingGuestViewed($type, $row, (string) ($contact['contact_name'] ?? ''));
+}
+
+/** The ask-us link for a document - a new ticket with its subject filled in. */
+function portalAskUrl($subject) {
+    return 'ticket_add.php?' . http_build_query(['subject' => $subject]);
+}

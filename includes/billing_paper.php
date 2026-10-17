@@ -16,6 +16,7 @@
  *   notes_edit the notes save in place (agent pages)
  *   taxes      billingTaxes(), for the add-a-line row
  *   logo_url   the company logo, relative to the page
+ *   client     shown to the client (the client portal) - no agent-only notes
  *   csrf       the agent's token, for the edit controls
  *
  * Everything in it is escaped here.
@@ -205,7 +206,7 @@ $paper_bill_lines = array_filter([
                                         <i class="fas <?= $seat_source['icon'] ?> me-1"></i>Per <?= $seat_source['unit'] ?> &middot; <?= escapeHtml($seat['seat_label']) ?><?= floatval($seat['item_seat_minimum']) > 0 ? ' &middot; at least ' . billingQuantity($seat['item_seat_minimum']) : '' ?>
                                     </span>
                                     <?php if ($seat['seat_count'] === null) { ?>
-                                        <span class="badge rounded-pill text-bg-danger fw-normal">The license is gone - it stays at <?= billingQuantity($item['item_quantity']) ?></span>
+                                        <?php if (empty($paper['client'])) { ?><span class="badge rounded-pill text-bg-danger fw-normal">The license is gone - it stays at <?= billingQuantity($item['item_quantity']) ?></span><?php } ?>
                                     <?php } elseif ($seat['seat_drift']) { ?>
                                         <span class="badge rounded-pill text-bg-warning fw-normal" title="The next invoice bills the new count">Now <?= billingQuantity($seat['seat_quantity']) ?></span>
                                     <?php } ?>

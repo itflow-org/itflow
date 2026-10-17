@@ -593,9 +593,10 @@ function billingNotifyEmail($to, $subject, array $email, $from = 'invoice') {
 
 /**
  * Tell our team a client answered a quote online - to the quote notification
- * address in the quote settings. $accepted or declined.
+ * address in the quote settings. $accepted or declined; $by, who answered
+ * in the client portal, and the note they left with it.
  */
-function billingQuoteAnsweredNotify($quote_id, $accepted) {
+function billingQuoteAnsweredNotify($quote_id, $accepted, $by = '', $note = '') {
     global $mysqli, $config_base_url;
     $quote = billingRow('quote', $quote_id, false);
     $to = (string) (mysqli_fetch_row(mysqli_query($mysqli, "SELECT config_quote_notification_email FROM settings WHERE company_id = 1"))[0] ?? '');
@@ -604,10 +605,17 @@ function billingQuoteAnsweredNotify($quote_id, $accepted) {
     }
     $number = billingNumber('quote', $quote);
     $word = $accepted ? 'accepted' : 'declined';
+    $by = trim((string) $by);
+    $summary = ['Client' => $quote['client_name'], 'Quote' => $number, 'Total' => billingMoney($quote['quote_amount'], $quote['quote_currency_code'])];
+    if ($by !== '') {
+        $summary = ['Client' => $quote['client_name'], ucfirst($word) . ' by' => $by] + $summary;
+    }
     return billingNotifyEmail($to, 'Quote ' . ucfirst($word) . " - {$quote['client_name']} - Quote $number", [
         'kind' => 'Quote ' . $word, 'tone' => $accepted ? 'success' : 'danger', 'title' => "{$quote['client_name']} $word $number",
-        'intro' => ["{$quote['client_name']} $word quote $number online" . (trim((string) $quote['quote_scope']) !== '' ? " - \"{$quote['quote_scope']}\"" : '') . '.'],
-        'summary' => ['Client' => $quote['client_name'], 'Quote' => $number, 'Total' => billingMoney($quote['quote_amount'], $quote['quote_currency_code'])],
+        'intro' => ["{$quote['client_name']} $word quote $number " . ($by !== '' ? 'in the client portal' : 'online') . (trim((string) $quote['quote_scope']) !== '' ? " - \"{$quote['quote_scope']}\"" : '') . '.'
+            . (trim((string) $note) !== '' ? ' They left a note:' : '')],
+        'note' => trim((string) $note),
+        'summary' => $summary,
         'button' => ['label' => 'Open in ITFlow', 'url' => "https://$config_base_url/agent/quote.php?quote_id=" . intval($quote['quote_id'])],
     ], 'quote');
 }
@@ -635,6 +643,60 @@ function billingPaymentNotify(array $invoice, $amount, $how) {
 }
 
 /**
+ * Tell the paid notification address about one payment over several
+ * invoices - the online payments the client portal takes.
+ */
+function billingPaymentNotifyMany(array $applied, $how) {
+    global $config_base_url;
+    $to = billingEmailFrom('notify')['email'];
+    if ($to === '' || !$applied) {
+        return;
+    }
+    $first = $applied[0]['invoice'];
+    $currency = (string) $first['invoice_currency_code'];
+    $total = array_sum(array_column($applied, 'amount'));
+    $rows = [];
+    foreach ($applied as $entry) {
+        $balance = invoiceState($entry['invoice'], invoicePaid($entry['invoice']['invoice_id']))['balance'];
+        $rows[] = [['text' => billingNumber('invoice', $entry['invoice']), 'url' => "https://$config_base_url/agent/invoice.php?invoice_id=" . intval($entry['invoice']['invoice_id'])],
+            billingMoney($entry['amount'], $currency), $balance > 0 ? billingMoney($balance, $currency) : 'Paid'];
+    }
+    billingNotifyEmail($to, "Payment received - {$first['client_name']} - " . count($applied) . ' invoices', [
+        'kind' => 'Payment received', 'tone' => 'success', 'title' => "{$first['client_name']} paid " . count($applied) . ' invoices',
+        'intro' => ["$how payment of " . billingMoney($total, $currency) . " for {$first['client_name']}, over these invoices."],
+        'summary' => ['Client' => $first['client_name'], 'Invoices' => (string) count($applied), 'Amount paid' => billingMoney($total, $currency)],
+        'strong' => 'Amount paid',
+        'lines' => ['head' => ['Invoice', 'Applied', 'Balance'], 'align' => ['left', 'right', 'right'], 'rows' => $rows],
+    ]);
+}
+
+/**
+ * Send the receipt for a payment on one invoice or several - $applied as
+ * billingPaymentEmail() takes it - to the client's primary and billing
+ * contacts, and log it on each invoice. $notify also tells the paid
+ * notification address. The addresses it went to.
+ */
+function billingPaymentReceiptSend(array $applied, array $payment, $notify = false) {
+    if (!$applied) {
+        return [];
+    }
+    $first = $applied[0]['invoice'];
+    [$subject, $email] = billingPaymentEmail($applied, $payment + ['currency' => $first['invoice_currency_code']]);
+    $sent = billingEmailQueue(billingEmailRecipients($first['client_id']), $subject, $email);
+    if ($sent) {
+        foreach ($applied as $entry) {
+            billingLog('invoice', $entry['invoice']['invoice_id'], 'Sent', 'Payment receipt emailed to ' . implode(', ', $sent));
+        }
+    }
+    if ($notify && count($applied) === 1) {
+        billingPaymentNotify($first, $applied[0]['amount'], $payment['how'] ?? 'Online');
+    } elseif ($notify) {
+        billingPaymentNotifyMany($applied, $payment['how'] ?? 'Online');
+    }
+    return $sent;
+}
+
+/**
  * Send a payment received email for a payment on one invoice - to its
  * client's primary and billing contacts - and log it on the invoice.
  * $notify also tells the paid notification address. The addresses it went to.
@@ -644,15 +706,7 @@ function billingPaymentSend($invoice_id, $amount, array $payment, $notify = fals
     if (!$invoice) {
         return [];
     }
-    [$subject, $email] = billingPaymentEmail([['invoice' => $invoice, 'amount' => $amount]], $payment + ['currency' => $invoice['invoice_currency_code']]);
-    $sent = billingEmailQueue(billingEmailRecipients($invoice['client_id']), $subject, $email);
-    if ($sent) {
-        billingLog('invoice', $invoice['invoice_id'], 'Sent', 'Payment receipt emailed to ' . implode(', ', $sent));
-    }
-    if ($notify) {
-        billingPaymentNotify($invoice, $amount, $payment['how'] ?? 'Online');
-    }
-    return $sent;
+    return billingPaymentReceiptSend([['invoice' => $invoice, 'amount' => $amount]], $payment, $notify);
 }
 
 /* ------------------------------------------------------------ Statements */

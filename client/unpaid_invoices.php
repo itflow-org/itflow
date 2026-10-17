@@ -1,211 +1,160 @@
 <?php
 /*
  * Client Portal
- * Invoices for PTC
+ * Pay invoices - everything still owed, ticked to pay, paid together in one
+ * card payment: with a saved card there and then, or a new card on the
+ * checkout page (pay.php). ?select=ID,ID ticks just those - the Pay button
+ * on an invoice. The total and the button follow the ticks (js/portal.js).
+ *
+ * SCOPING: billingClientOpenInvoices() keys the list to $session_client_id,
+ * and post.php (portal_pay) checks the choice again before any charge.
  */
-
-$bulk_payment_enabled = 0; // Not Yet Enabled
 
 header("Content-Security-Policy: default-src 'self'");
 
 require_once "includes/inc_all.php";
 
+portalBillingGate();
 
-enforceContactCan('accounting');
+$provider = billingStripeProvider();
+$open = billingClientOpenInvoices($session_client_id);
+$cards = $provider ? billingSavedCards($session_client_id) : [];
+$usable = array_values(array_filter($cards, function ($card) {
+    return !$card['card']['expired'];
+}));
 
-$invoices_sql = mysqli_query($mysqli, "SELECT invoice_amount, invoice_date, invoice_due, invoice_id, invoice_number, invoice_prefix,
-    invoice_scope, invoice_status, invoice_url_key FROM invoices WHERE invoice_client_id = $session_client_id AND (invoice_status = 'Viewed' OR invoice_status = 'Sent' OR invoice_status = 'Partial') ORDER BY invoice_date DESC");
-
-
-// Payment Provider Active Query
-$sql_payment_provider = mysqli_query($mysqli, "SELECT payment_provider_active, payment_provider_id, payment_provider_threshold FROM payment_providers WHERE payment_provider_active = 1 LIMIT 1;");
-$row = mysqli_fetch_assoc($sql_payment_provider) ?: ['payment_provider_active' => 0, 'payment_provider_id' => 0, 'payment_provider_threshold' => 0]; // none set up - nothing to pay with
-$payment_provider_id = intval($row['payment_provider_id']);
-$payment_provider_active = intval($row['payment_provider_active']);
-$payment_provider_threshold = floatval($row['payment_provider_threshold']);
-
-// Saved Payment Methods
-$sql_saved_payment_methods = mysqli_query($mysqli, "
-    SELECT payment_provider_name, saved_payment_description, saved_payment_id FROM client_saved_payment_methods
-    LEFT JOIN payment_providers
-        ON client_saved_payment_methods.saved_payment_provider_id = payment_providers.payment_provider_id
-    WHERE saved_payment_client_id = $session_client_id
-    AND payment_provider_active = 1;
-");
-
-// Get Balance
-// Billing Card Queries
- //Add up all the payments for the invoice and get the total amount paid to the invoice
-$sql_invoice_amounts = mysqli_query($mysqli, "SELECT SUM(invoice_amount) AS invoice_amounts FROM invoices WHERE invoice_client_id = $session_client_id AND invoice_status != 'Draft' AND invoice_status != 'Cancelled' AND invoice_status != 'Non-Billable'");
-$row = mysqli_fetch_assoc($sql_invoice_amounts);
-
-$invoice_amounts = floatval($row['invoice_amounts']);
-
-$sql_amount_paid = mysqli_query($mysqli, "SELECT SUM(payment_amount) AS amount_paid FROM payments, invoices WHERE payment_invoice_id = invoice_id AND invoice_client_id = $session_client_id");
-$row = mysqli_fetch_assoc($sql_amount_paid);
-
-$amount_paid = floatval($row['amount_paid']);
-
-$balance = $invoice_amounts - $amount_paid;
-
+// What is ticked to start with - all of it, or what the link asked for
+$select = isset($_GET['select']) ? array_filter(array_map('intval', explode(',', (string) $_GET['select']))) : null;
+$ticked = [];
+$total_cents = 0;
+$currency = '';
+foreach ($open as $i => $row) {
+    $cents = (int) round((floatval($row['invoice_amount']) - floatval($row['paid'])) * 100);
+    $open[$i]['cents'] = $cents;
+    $currency = $currency ?: strtoupper((string) $row['invoice_currency_code']);
+    // One payment can carry so many invoices - the oldest are ticked first
+    if ($select === null ? count($ticked) < BILLING_PAY_MAX_INVOICES : in_array(intval($row['invoice_id']), $select, true)) {
+        $ticked[intval($row['invoice_id'])] = true;
+        $total_cents += $cents;
+    }
+}
+$limit_cents = $provider ? (int) round(floatval($provider['payment_provider_threshold']) * 100) : 0;
+$locale = str_replace('_', '-', (string) ($session_company_locale ?: 'en_US'));
+$pay_token = bin2hex(random_bytes(16));
 ?>
 
-<div class="row">
-    <div class="col-5">
-        <h3>Unpaid Invoices</h3>
-    </div>
-    <div class="col-5">
-        <?php if ($payment_provider_active && $bulk_payment_enabled) { // Currently not implmented fully ?>
-        <button type="button" class="btn btn-outline-success dropdown-toggle float-end" data-bs-toggle="dropdown"><i class="fa fa-fw fa-credit-card me-2"></i>Pay Balance <strong>(<?= numfmt_format_currency($currency_format, $balance, $session_company_currency) ?>)</strong></button>
-        <div class="dropdown-menu">
-            <a class="dropdown-item" href="//<?= $config_base_url ?>/guest/guest_pay_invoice_stripe.php?invoice_id=<?= "$invoice_id&url_key=$invoice_url_key" ?>">Enter Card Manually</a>
-            <?php
-            if (mysqli_num_rows($sql_saved_payment_methods) > 0) { ?>
-                <h6 class="dropdown-header text-start">Pay with a Saved Card</h6>
-            <?php
-            while ($row = mysqli_fetch_assoc($sql_saved_payment_methods)) {
-                $saved_payment_id = intval($row['saved_payment_id']);
-                $saved_payment_description = escapeHtml($row['saved_payment_description']);
-                $payment_provider_name = escapeHtml($row['payment_provider_name']);
-                ?>
-
-                <a class="dropdown-item confirm-link" href="post.php?add_payment_by_provider=<?= $saved_payment_provider_id ?>&invoice_id=<?= $invoice_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>"><?= "$payment_provider_name | $saved_payment_description" ?></a>
-            <?php }
-            } ?>
-        </div>
-        <?php } // End Payment Provider Active Check ?>
+<div class="itflow-portal-page-head">
+    <div>
+        <h1>Pay invoices</h1>
+        <p>Tick what to pay - it goes through as one card payment.</p>
     </div>
 </div>
-<div class="row">
 
-    <div class="col-md-10">
+<?php if (!$provider) { ?>
 
-        <?php if (mysqli_num_rows($invoices_sql) == 0) { ?>
-            <?= portalEmptyState('There is nothing unpaid on this account.', 'fa-check', 'success') ?>
-        <?php } else { ?>
-        <table class="table table-bordered border border-dark">
-            <thead class="table-dark">
-            <tr>
-                <th>#</th>
-                <th>Scope</th>
-                <th>Amount</th>
-                <th>Date</th>
-                <th>Due</th>
-                <th></th>
-            </tr>
-            </thead>
-            <tbody>
+    <section class="itflow-portal-panel">
+        <?= emptyStateHtml(['title' => 'Card payments are not set up', 'text' => 'To pay, use the payment details on each invoice.', 'icon' => 'fa-credit-card', 'filtered' => false,
+            'actions' => [['label' => 'Invoices to pay', 'href' => 'invoices.php?tab=open', 'icon' => 'fa-file-invoice-dollar']]]) ?>
+    </section>
 
-            <?php
-            while ($row = mysqli_fetch_assoc($invoices_sql)) {
-                $invoice_id = intval($row['invoice_id']);
-                $invoice_prefix = escapeHtml($row['invoice_prefix']);
-                $invoice_number = intval($row['invoice_number']);
-                $invoice_scope = escapeHtml($row['invoice_scope']);
-                $invoice_status = escapeHtml($row['invoice_status']);
-                $invoice_date = escapeHtml($row['invoice_date']);
-                $invoice_due = escapeHtml($row['invoice_due']);
-                $invoice_amount = floatval($row['invoice_amount']);
-                $invoice_url_key = escapeHtml($row['invoice_url_key']);
+<?php } elseif (!$open) { ?>
 
-                if (empty($invoice_scope)) {
-                    $invoice_scope_display = "-";
-                } else {
-                    $invoice_scope_display = $invoice_scope;
-                }
+    <section class="itflow-portal-panel">
+        <?= emptyStateHtml(['title' => 'Nothing to pay', 'text' => 'You are all paid up - thank you.', 'icon' => 'fa-check', 'filtered' => false,
+            'actions' => [['label' => 'Your payments', 'href' => 'payments.php', 'icon' => 'fa-receipt']]]) ?>
+    </section>
 
-                $now = time();
-                if (($invoice_status == "Sent" || $invoice_status == "Partial" || $invoice_status == "Viewed") && strtotime($invoice_due) + 86400 < $now) {
-                    $overdue_color = "text-danger fw-bold";
-                } else {
-                    $overdue_color = "";
-                }
+<?php } else { ?>
 
-                if ($invoice_status == "Sent") {
-                    $invoice_badge_color = "warning";
-                } elseif ($invoice_status == "Viewed") {
-                    $invoice_badge_color = "info";
-                } elseif ($invoice_status == "Partial") {
-                    $invoice_badge_color = "primary";
-                } elseif ($invoice_status == "Paid") {
-                    $invoice_badge_color = "success";
-                } elseif ($invoice_status == "Cancelled") {
-                    $invoice_badge_color = "danger";
-                } else{
-                    $invoice_badge_color = "secondary";
-                }
-                ?>
+    <form action="post.php" method="post" data-portal-pay data-portal-once
+        data-pay-currency="<?= escapeHtml($currency) ?>" data-pay-locale="<?= escapeHtml($locale) ?>" data-pay-limit="<?= $limit_cents ?>" data-pay-max="<?= BILLING_PAY_MAX_INVOICES ?>">
+        <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
+        <input type="hidden" name="pay_token" value="<?= $pay_token ?>">
 
-                <tr>
-                    <td><a target="_blank" href="//<?= $config_base_url ?>/guest/guest_view_invoice.php?invoice_id=<?= "$invoice_id&url_key=$invoice_url_key" ?>"> <?= "$invoice_prefix$invoice_number" ?></a></td>
-                    <td><?= $invoice_scope_display ?></td>
-                    <td><?= numfmt_format_currency($currency_format, $invoice_amount, $session_company_currency) ?></td>
-                    <td><?= $invoice_date ?></td>
-                    <td class="<?= $overdue_color ?>"><?= $invoice_due ?></td>
-                    <td>
-                        <?php
-                        if ($invoice_status !== "Paid" &&
-                            $invoice_status  !== "Cancelled" &&
-                            $invoice_status !== "Draft" &&
-                            $payment_provider_id &&
-                            (
-                                $payment_provider_threshold == 0 ||
-                                $payment_provider_threshold > $invoice_amount
-                            )
-                        ){ ?>
-                        <button type="button" class="btn btn-sm btn-outline-success dropdown-toggle" data-bs-toggle="dropdown"><i class="fa fa-fw fa-credit-card me-2"></i>Pay</button>
-                        <div class="dropdown-menu">
-                            <a class="dropdown-item" href="//<?= $config_base_url ?>/guest/guest_pay_invoice_stripe.php?invoice_id=<?= "$invoice_id&url_key=$invoice_url_key" ?>">Enter Card Manually</a>
-
-                            <?php
-                            // Saved Payment Methods
-                            $sql_saved_payment_methods = mysqli_query($mysqli, "
-                                SELECT payment_provider_name, saved_payment_description, saved_payment_id FROM client_saved_payment_methods
-                                LEFT JOIN payment_providers
-                                    ON client_saved_payment_methods.saved_payment_provider_id = payment_providers.payment_provider_id
-                                WHERE saved_payment_client_id = $session_client_id
-                                AND payment_provider_active = 1;
-                            ");
-                            if (mysqli_num_rows($sql_saved_payment_methods) > 0) { ?>
-                                <h6 class="dropdown-header text-start">Pay with a Saved Card</h6>
-                            <?php
-                            while ($row = mysqli_fetch_assoc($sql_saved_payment_methods)) {
-                                $saved_payment_id = intval($row['saved_payment_id']);
-                                $saved_payment_description = escapeHtml($row['saved_payment_description']);
-                                $payment_icon = "fas fa-credit-card"; // default icon
-                                if (strpos($saved_payment_description, "visa") !== false) {
-                                    $payment_icon = "fab fa-cc-visa";
-                                } elseif (strpos($saved_payment_description, "mastercard") !== false) {
-                                    $payment_icon = "fab fa-cc-mastercard";
-                                } elseif (strpos($saved_payment_description, "american express") !== false || strpos($saved_payment_description, "amex") !== false) {
-                                    $payment_icon = "fab fa-cc-amex";
-                                } elseif (strpos($saved_payment_description, "discover") !== false) {
-                                    $payment_icon = "fab fa-cc-discover";
-                                }
-                                $payment_provider_name = escapeHtml($row['payment_provider_name']);
-                                ?>
-
-                                <a class="dropdown-item confirm-link"
-                                    href="post.php?add_payment_by_provider=<?= $saved_payment_id ?>&invoice_id=<?= $invoice_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>">
-                                    <i class="<?= $payment_icon ?> text-secondary me-2"></i><?= $saved_payment_description ?>
-                                </a>
-                            <?php }
-                            } ?>
+        <div class="row g-4">
+            <div class="col-lg-8">
+                <section class="itflow-portal-panel">
+                    <div class="itflow-portal-panel-head">
+                        <h2><i class="fas fa-file-invoice-dollar"></i>Still to pay</h2>
+                        <div class="form-check mb-0 small">
+                            <input class="form-check-input" type="checkbox" id="payAll" data-pay-all<?= count($ticked) === count($open) ? ' checked' : '' ?>>
+                            <label class="form-check-label" for="payAll">All</label>
                         </div>
-                    <?php } ?>
-                    </td>
+                    </div>
+                    <ul class="itflow-portal-list">
+                        <?php foreach ($open as $row) {
+                            $id = intval($row['invoice_id']);
+                            $state = portalInvoiceState($row, $row['paid']); ?>
+                            <li>
+                                <label class="itflow-portal-ticket itflow-portal-payrow" for="payInvoice<?= $id ?>">
+                                    <input class="form-check-input" type="checkbox" id="payInvoice<?= $id ?>" name="invoice_ids[]" value="<?= $id ?>" data-pay-cents="<?= intval($row['cents']) ?>"<?= isset($ticked[$id]) ? ' checked' : '' ?>>
+                                    <span class="itflow-portal-ticket-main">
+                                        <span class="itflow-portal-ticket-subject d-block"><?= escapeHtml($row['invoice_prefix'] . $row['invoice_number']) ?><?php if (trim((string) $row['invoice_scope']) !== '') { ?><span class="fw-normal text-body-secondary"> · <?= escapeHtml($row['invoice_scope']) ?></span><?php } ?></span>
+                                        <span class="itflow-portal-ticket-meta">
+                                            <span>Due <?= escapeHtml(date('M j, Y', strtotime($row['invoice_due']))) ?></span>
+                                            <?php if ($state['paid'] > 0) { ?><span><?= escapeHtml(billingMoney($state['paid'], $row['invoice_currency_code'])) ?> of <?= escapeHtml(billingMoney($row['invoice_amount'], $row['invoice_currency_code'])) ?> paid</span><?php } ?>
+                                            <a href="invoice.php?id=<?= $id ?>">View</a>
+                                        </span>
+                                    </span>
+                                    <span class="itflow-portal-ticket-side">
+                                        <span class="itflow-portal-amount itflow-money"><?= escapeHtml(billingMoney($state['balance'], $row['invoice_currency_code'])) ?></span>
+                                        <?= portalStateBadge($state) ?>
+                                    </span>
+                                </label>
+                            </li>
+                        <?php } ?>
+                    </ul>
+                </section>
+            </div>
 
-                </tr>
-            <?php } ?>
+            <div class="col-lg-4">
+                <section class="itflow-portal-panel itflow-portal-paybox">
+                    <div class="itflow-portal-panel-head">
+                        <h2><i class="fas fa-credit-card"></i>Pay with</h2>
+                        <a href="saved_payment_methods.php">Your cards</a>
+                    </div>
+                    <div class="itflow-portal-panel-body">
+                        <div class="itflow-portal-methods">
+                            <?php foreach ($cards as $i => $card) {
+                                $expired = $card['card']['expired']; ?>
+                                <label class="itflow-portal-method<?= $expired ? ' is-disabled' : '' ?>">
+                                    <input class="form-check-input" type="radio" name="method" value="<?= intval($card['saved_payment_id']) ?>"<?= $expired ? ' disabled' : '' ?><?= $usable && intval($usable[0]['saved_payment_id']) === intval($card['saved_payment_id']) ? ' checked' : '' ?>>
+                                    <i class="<?= escapeHtml($card['card']['icon']) ?> fa-fw fa-lg"></i>
+                                    <span class="min-w-0">
+                                        <span class="d-block text-truncate"><?= escapeHtml($card['card']['label']) ?></span>
+                                        <small class="<?= $expired ? 'text-danger-emphasis' : 'text-body-secondary' ?>"><?= $card['card']['exp'] !== '' ? ($expired ? 'Expired ' : 'Expires ') . escapeHtml($card['card']['exp']) : 'Saved card' ?></small>
+                                    </span>
+                                </label>
+                            <?php } ?>
+                            <label class="itflow-portal-method">
+                                <input class="form-check-input" type="radio" name="method" value="new"<?= $usable ? '' : ' checked' ?>>
+                                <i class="fas fa-plus-circle fa-fw fa-lg text-body-secondary"></i>
+                                <span>
+                                    <span class="d-block">A new card</span>
+                                    <small class="text-body-secondary">Enter the card on the next page</small>
+                                </span>
+                            </label>
+                        </div>
+                    </div>
+                    <div class="itflow-portal-paybar">
+                        <div class="d-flex justify-content-between align-items-baseline mb-2">
+                            <span class="text-body-secondary" data-pay-count><?= count($ticked) ?> <?= count($ticked) === 1 ? 'invoice' : 'invoices' ?></span>
+                            <span class="itflow-portal-big-amount itflow-money" data-pay-total><?= escapeHtml(billingMoney($total_cents / 100, $currency)) ?></span>
+                        </div>
+                        <div class="alert alert-warning small py-2" data-pay-limit-note<?= $limit_cents > 0 && $total_cents >= $limit_cents ? '' : ' hidden' ?>>
+                            Card payments are limited to under <?= escapeHtml(billingMoney($limit_cents / 100, $currency)) ?> at a time - untick some invoices, or pay another way.
+                        </div>
+                        <button type="submit" class="btn btn-success btn-lg w-100" name="portal_pay" data-pay-button<?= !$ticked ? ' disabled' : '' ?>>
+                            <i class="fas fa-lock me-2"></i><span data-pay-label><?= $usable ? 'Pay ' : 'Continue to pay ' ?><?= escapeHtml(billingMoney($total_cents / 100, $currency)) ?></span>
+                        </button>
+                        <p class="small text-body-secondary text-center mt-2 mb-0">Paid securely through Stripe - your card details never reach us.</p>
+                    </div>
+                </section>
+            </div>
+        </div>
+    </form>
 
-            </tbody>
-        </table>
-        <?php } ?>
-
-    </div>
-
-</div>
-
+<?php } ?>
 
 <?php
 require_once "includes/footer.php";

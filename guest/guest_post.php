@@ -12,128 +12,29 @@ require_once "../includes/inc_set_timezone.php"; // Must be included after sessi
 $session_ip = escapeSql(getIP());
 $session_user_agent = escapeSql($_SERVER['HTTP_USER_AGENT']);
 
-if (isset($_GET['accept_quote'], $_GET['url_key'])) {
+if (isset($_GET['accept_quote'], $_GET['url_key']) || isset($_GET['decline_quote'], $_GET['url_key'])) {
 
-    $quote_id = intval($_GET['accept_quote']);
+    // The answer and what follows it - functions/billing.php, shared with the client portal
+    $accept = isset($_GET['accept_quote']);
+    $quote_id = intval($accept ? $_GET['accept_quote'] : $_GET['decline_quote']);
     $url_key = escapeSql($_GET['url_key']);
 
-    // Select only the necessary fields
-    $sql = mysqli_query($mysqli, "SELECT quote_prefix, quote_number, client_name, client_id FROM quotes LEFT JOIN clients ON quote_client_id = client_id WHERE quote_id = $quote_id AND quote_url_key = '$url_key'");
+    $sql = mysqli_query($mysqli, "SELECT quote_id FROM quotes WHERE quote_id = $quote_id AND quote_url_key = '$url_key'");
 
     if (mysqli_num_rows($sql) == 1) {
-        $row = mysqli_fetch_assoc($sql);
-        $quote_prefix = escapeSql($row['quote_prefix']);
-        $quote_number = intval($row['quote_number']);
-        $client_name = escapeSql($row['client_name']);
-        $client_id = intval($row['client_id']);
 
-        // Claim the response - only a quote still awaiting one can be accepted,
-        // and only the first request through wins
-        // ...and not once it has run out - a price that has expired is asked for again
-        mysqli_query($mysqli, "UPDATE quotes SET quote_status = 'Accepted' WHERE quote_id = $quote_id AND quote_status IN ('Sent', 'Viewed') AND quote_expire >= CURDATE()");
+        $answer = billingQuoteAnswer($quote_id, $accept);
 
-        if (mysqli_affected_rows($mysqli) !== 1) {
-            $expired = mysqli_fetch_row(mysqli_query($mysqli, "SELECT quote_expire FROM quotes WHERE quote_id = $quote_id AND quote_status IN ('Sent', 'Viewed') AND quote_expire < CURDATE()"));
-            flashAlert($expired ? "This quote ran out on " . escapeHtml($expired[0]) . " - ask for an updated one" : "This quote is no longer awaiting a response", 'error');
+        if (!$answer['ok']) {
+            flashAlert($answer['error'], 'error');
             redirect();
         }
 
-        mysqli_query($mysqli, "INSERT INTO history SET history_status = 'Accepted', history_description = 'Accepted by the client', history_quote_id = $quote_id");
-
-        // Notification
-        appNotify("Quote Accepted", "Quote $quote_prefix$quote_number has been accepted by $client_name", "/agent/quote.php?quote_id=$quote_id", $client_id);
-        triggerCustomAction('quote_accept', $quote_id);
-
-        // Internal email notification
-
-        $sql_company = mysqli_query($mysqli, "SELECT company_name FROM companies WHERE company_id = 1");
-        $row = mysqli_fetch_assoc($sql_company);
-        $company_name = escapeSql($row['company_name']);
-
-        $sql_settings = mysqli_query($mysqli, "SELECT config_quote_from_email, config_quote_from_name, config_quote_notification_email,
-            config_smtp_encryption, config_smtp_host, config_smtp_password, config_smtp_port,
-            config_smtp_username FROM settings WHERE company_id = 1");
-        $row = mysqli_fetch_assoc($sql_settings);
-        $config_smtp_host = $row['config_smtp_host'];
-        $config_smtp_port = intval($row['config_smtp_port']);
-        $config_smtp_encryption = $row['config_smtp_encryption'];
-        $config_smtp_username = $row['config_smtp_username'];
-        $config_smtp_password = $row['config_smtp_password'];
-        $config_quote_from_name = escapeSql($row['config_quote_from_name']);
-        $config_quote_from_email = escapeSql($row['config_quote_from_email']);
-        $config_quote_notification_email = escapeSql($row['config_quote_notification_email']);
-        $config_base_url = escapeSql($config_base_url);
-
-        // Our team hears - functions/billing_email.php
-        if (!empty($config_smtp_host) && !empty($config_quote_notification_email)) {
-            billingQuoteAnsweredNotify($quote_id, true);
+        if ($accept) {
+            flashAlert("Quote Accepted");
+        } else {
+            flashAlert("Quote Declined", 'danger');
         }
-
-        flashAlert("Quote Accepted");
-
-        redirect();
-
-    } else {
-        echo "Invalid!!";
-    }
-
-}
-
-if (isset($_GET['decline_quote'], $_GET['url_key'])) {
-
-    $quote_id = intval($_GET['decline_quote']);
-    $url_key = escapeSql($_GET['url_key']);
-
-    // Select only the necessary fields
-    $sql = mysqli_query($mysqli, "SELECT quote_prefix, quote_number, client_name, client_id FROM quotes LEFT JOIN clients ON quote_client_id = client_id WHERE quote_id = $quote_id AND quote_url_key = '$url_key'");
-
-    if (mysqli_num_rows($sql) == 1) {
-        $row = mysqli_fetch_assoc($sql);
-        $quote_prefix = escapeSql($row['quote_prefix']);
-        $quote_number = intval($row['quote_number']);
-        $client_name = escapeSql($row['client_name']);
-        $client_id = intval($row['client_id']);
-
-        // Claim the response - only a quote still awaiting one can be declined,
-        // and only the first request through wins
-        mysqli_query($mysqli, "UPDATE quotes SET quote_status = 'Declined' WHERE quote_id = $quote_id AND quote_status IN ('Sent', 'Viewed')");
-
-        if (mysqli_affected_rows($mysqli) !== 1) {
-            flashAlert("This quote is no longer awaiting a response", 'error');
-            redirect();
-        }
-
-        mysqli_query($mysqli, "INSERT INTO history SET history_status = 'Declined', history_description = 'Declined by the client', history_quote_id = $quote_id");
-
-        // Notification
-        appNotify("Quote Declined", "Quote $quote_prefix$quote_number has been declined by $client_name", "/agent/quote.php?quote_id=$quote_id", $client_id);
-        triggerCustomAction('quote_decline', $quote_id);
-
-        // Internal email notification
-
-        $sql_company = mysqli_query($mysqli, "SELECT company_name FROM companies WHERE company_id = 1");
-        $row = mysqli_fetch_assoc($sql_company);
-        $company_name = escapeSql($row['company_name']);
-
-        $sql_settings = mysqli_query($mysqli, "SELECT config_quote_from_email, config_quote_from_name, config_quote_notification_email,
-            config_smtp_encryption, config_smtp_host, config_smtp_password, config_smtp_port,
-            config_smtp_username FROM settings WHERE company_id = 1");
-        $row = mysqli_fetch_assoc($sql_settings);
-        $config_smtp_host = $row['config_smtp_host'];
-        $config_smtp_port = intval($row['config_smtp_port']);
-        $config_smtp_encryption = $row['config_smtp_encryption'];
-        $config_smtp_username = $row['config_smtp_username'];
-        $config_smtp_password = $row['config_smtp_password'];
-        $config_quote_from_name = escapeSql($row['config_quote_from_name']);
-        $config_quote_from_email = escapeSql($row['config_quote_from_email']);
-        $config_quote_notification_email = escapeSql($row['config_quote_notification_email']);
-        $config_base_url = escapeSql($config_base_url);
-
-        // Our team hears - functions/billing_email.php
-        if (!empty($config_smtp_host) && !empty($config_quote_notification_email)) {
-            billingQuoteAnsweredNotify($quote_id, false);
-        }
-        flashAlert("Quote Declined", 'danger');
 
         redirect();
 
@@ -299,84 +200,19 @@ if (isset($_POST['guest_quote_upload_file'])) {
     $url_key = escapeSql($_POST['url_key']);
 
     // Select only the necessary fields
-    $sql = mysqli_query($mysqli, "SELECT quote_prefix, quote_number, client_id FROM quotes LEFT JOIN clients ON quote_client_id = client_id WHERE quote_id = $quote_id AND quote_url_key = '$url_key'");
+    $sql = mysqli_query($mysqli, "SELECT quote_id FROM quotes WHERE quote_id = $quote_id AND quote_url_key = '$url_key'");
 
     if (mysqli_num_rows($sql) == 1) {
-        $row = mysqli_fetch_assoc($sql);
-        $quote_prefix = escapeSql($row['quote_prefix']);
-        $quote_number = intval($row['quote_number']);
-        $client_id = intval($row['client_id']);
 
-        // Define & create directories, as required
-        $upload_file_dir = "../uploads/clients/$client_id/";
-        mkdirMissing($upload_file_dir);
-
-        // Store attached any file
-        if (!empty($_FILES)) {
-
-            for ($i = 0; $i < count($_FILES['file']['name']); $i++) {
-                // Extract file details for this iteration
-                $single_file = [
-                    'name' => $_FILES['file']['name'][$i],
-                    'type' => $_FILES['file']['type'][$i],
-                    'tmp_name' => $_FILES['file']['tmp_name'][$i],
-                    'error' => $_FILES['file']['error'][$i],
-                    'size' => $_FILES['file']['size'][$i]
-                ];
-
-                if ($file_reference_name = checkFileUpload($single_file, array('pdf'))) {
-
-                    $file_tmp_path = $_FILES['file']['tmp_name'][$i];
-
-                    $file_name = escapeSql($_FILES['file']['name'][$i]);
-                    $extarr = explode('.', $_FILES['file']['name'][$i]);
-                    $file_extension = escapeSql(strtolower(end($extarr)));
-
-                    // Extract the file mime type and size
-                    $file_mime_type = escapeSql($single_file['type']);
-                    $file_size = intval($single_file['size']);
-
-                    // Define destination file path
-                    $dest_path = $upload_file_dir . $file_reference_name;
-
-                    // Get/Create a top-level folder called Client Uploads
-                    $folder_sql = mysqli_query($mysqli, "SELECT folder_id FROM folders WHERE folder_name = 'Client Uploads' AND parent_folder = 0 AND folder_client_id = $client_id LIMIT 1");
-                    if (mysqli_num_rows($folder_sql) == 1) {
-                        // Get
-                        $row = mysqli_fetch_assoc($folder_sql);
-                        $folder_id = $row['folder_id'];
-                    } else {
-                        // Create
-                        mysqli_query($mysqli,"INSERT INTO folders SET folder_name = 'Client Uploads', parent_folder = 0, folder_location = 1, folder_client_id = $client_id");
-                        $folder_id = mysqli_insert_id($mysqli);
-                        logAudit("Folder", "Create", "Automatically created folder Client Uploads", $client_id, $folder_id);
-                    }
-
-                    // Do move/upload
-                    move_uploaded_file($file_tmp_path, $dest_path);
-
-                    // Create reference in files
-                    mysqli_query($mysqli,"INSERT INTO files SET file_reference_name = '$file_reference_name', file_name = '$file_name', file_description = 'Uploaded via $quote_prefix$quote_number', file_ext = '$file_extension', file_mime_type = '$file_mime_type', file_size = $file_size, file_folder_id = $folder_id, file_client_id = $client_id");
-                    $file_id = mysqli_insert_id($mysqli);
-
-                    // Associate file with quote
-                    mysqli_query($mysqli, "INSERT INTO quote_files SET quote_id = $quote_id, file_id = $file_id");
-
-                    // Logging & feedback
-                    flashAlert('File uploaded!');
-
-                    appNotify("Quote File", "$file_name was uploaded to quote $quote_prefix$quote_number", "/agent/quote.php?quote_id=$quote_id", $client_id);
-
-                    mysqli_query($mysqli, "INSERT INTO history SET history_status = 'Upload', history_description = 'Client uploaded file $file_name', history_quote_id = $quote_id");
-
-                    logAudit("File", "Upload", "Guest uploaded file $file_name to quote $quote_prefix$quote_number", $client_id);
-
-                } else {
-                    flashAlert('Something went wrong uploading the file - please let the support team know.', 'error');
-
-                    logApp("Guest", "error", "Error uploading file to invoice");
-                }
-
+        // Each PDF to the client's Client Uploads and onto the quote - functions/billing.php, shared with the client portal
+        if (!empty($_FILES['file'])) {
+            $upload = billingQuoteAddFiles($quote_id, $_FILES['file']);
+            foreach ($upload['added'] as $added) {
+                flashAlert('File uploaded!');
+            }
+            if ($upload['failed']) {
+                flashAlert('Something went wrong uploading the file - please let the support team know.', 'error');
+                logApp("Guest", "error", "Error uploading file to invoice");
             }
         }
 

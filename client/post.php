@@ -481,164 +481,26 @@ if (isset($_GET['export_statement_pdf'])) {
 
     validateCSRFToken();
 
-    enforceContactCan('accounting');
+    portalBillingGate();
 
     /*
      * SCOPING: the client is taken from the session, never from the request.
      * There is no client_id parameter on this handler by design - a contact
      * cannot ask for another company's statement because there is nothing to
-     * ask with. enforceContactCan('accounting') above limits it to primary and
-     * billing contacts, matching client/statement.php and client/invoices.php.
+     * ask with.
+     *
+     * The same statement the agents email (functions/billing_email.php): the
+     * open invoices, or with paid=1 everything from the last twelve months.
      */
-    $client_id = $session_client_id;
+    $with_paid = !empty($_GET['paid']);
+    $statement = billingStatement($session_client_id, $with_paid ? date('Y-m-d', strtotime('-12 months')) : '', '', $with_paid);
 
-    $sql = mysqli_query($mysqli, "SELECT client_currency_code, client_name FROM clients WHERE client_id = $client_id LIMIT 1");
-    $row = mysqli_fetch_assoc($sql);
-    $client_name = escapeHtml($row['client_name']);
-
-    // Match client/statement.php, the guest invoice view and the emailed
-    // statement - all four render in the client's own currency
-    $statement_currency_code = escapeHtml($row['client_currency_code']);
-    if (empty($statement_currency_code)) {
-        $statement_currency_code = $session_company_currency;
-    }
-
-    $sql = mysqli_query($mysqli, "SELECT company_address, company_city, company_country, company_logo, company_name,
-        company_phone, company_phone_country_code, company_state, company_website, company_zip
-        FROM companies WHERE company_id = 1");
-    $row = mysqli_fetch_assoc($sql);
-
-    $company_name = escapeHtml($row['company_name']);
-    $company_country = escapeHtml($row['company_country']);
-    $company_address = escapeHtml($row['company_address']);
-    $company_city = escapeHtml($row['company_city']);
-    $company_state = escapeHtml($row['company_state']);
-    $company_zip = escapeHtml($row['company_zip']);
-    $company_phone = escapeHtml(formatPhoneNumber($row['company_phone'], $row['company_phone_country_code']));
-    $company_website = escapeHtml($row['company_website']);
-    $company_logo = escapeHtml($row['company_logo']);
-
-    // Same statement query as client/statement.php - payments summed in a
-    // derived table so a twice-paid invoice is not counted twice, and the
-    // balance test drops anything fully paid
-    $statement_sql = mysqli_query(
-        $mysqli,
-        "SELECT invoice_amount, invoice_date, invoice_due, invoice_id, invoice_number, invoice_prefix,
-            invoice_scope, IFNULL(amount_paid, 0) AS amount_paid
-        FROM invoices
-        LEFT JOIN (
-            SELECT payment_invoice_id, SUM(payment_amount) AS amount_paid FROM payments
-            WHERE payment_archived_at IS NULL
-            GROUP BY payment_invoice_id
-        ) AS invoice_payments ON payment_invoice_id = invoice_id
-        WHERE invoice_client_id = $client_id
-        AND invoice_status NOT IN ('Draft', 'Cancelled', 'Non-Billable')
-        AND invoice_amount - IFNULL(invoice_payments.amount_paid, 0) > 0
-        ORDER BY invoice_date ASC, invoice_number ASC"
-    );
-
-    if (mysqli_num_rows($statement_sql) == 0) {
-        flashAlert("There is nothing outstanding to put on a statement", 'error');
+    if (!$statement['invoices']) {
+        flashAlert("There is nothing to put on a statement", 'error');
         redirect("statement.php");
     }
 
-    require_once("../libs/TCPDF/tcpdf.php");
-
-    // Start TCPDF
-    $pdf = new TCPDF('P', 'mm', 'A4', true, 'UTF-8', false);
-    $pdf->SetMargins(10, 10, 10);
-    $pdf->setPrintHeader(false);
-    $pdf->setPrintFooter(false);
-    $pdf->AddPage();
-    $pdf->SetFont('helvetica', '', 10);
-
-    // Logo + title
-    $html = '<table width="100%" cellspacing="0" cellpadding="3">
-    <tr>
-        <td width="40%">';
-    if (!empty($company_logo) && file_exists("../uploads/settings/$company_logo")) {
-        $html .= '<img src="/uploads/settings/' . $company_logo . '" width="120">';
-    }
-    $html .= '</td>
-        <td width="60%" align="right">
-            <span style="font-size:18pt; font-weight:bold;">Account Statement</span><br>
-            <span style="font-size:11pt;">As of ' . date("Y-m-d") . '</span>
-        </td>
-    </tr>
-    </table><br>';
-
-    $html .= '<table width="100%" cellspacing="0" cellpadding="2">
-    <tr>
-        <td width="50%" style="font-size:14pt; font-weight:bold;">' . $company_name . '</td>
-        <td width="50%" align="right" style="font-size:14pt; font-weight:bold;">' . $client_name . '</td>
-    </tr>
-    <tr>
-        <td style="font-size:10pt; line-height:1.4;">' . nl2br(formatAddress($company_address, $company_city, $company_state, $company_zip, $company_country) . "\n$company_phone\n$company_website") . '</td>
-        <td></td>
-    </tr>
-    </table><br>';
-
-    // Statement lines
-    $html .= '<table border="0" cellpadding="4" cellspacing="0" width="100%">
-    <tr style="background-color:#343a40; color:#ffffff; font-weight:bold;">
-        <td width="14%">Invoice</td>
-        <td width="30%">Scope</td>
-        <td width="13%">Date</td>
-        <td width="13%">Due</td>
-        <td width="10%" align="right">Amount</td>
-        <td width="10%" align="right">Paid</td>
-        <td width="10%" align="right">Balance</td>
-    </tr>';
-
-    $statement_total = 0;
-    $statement_row_shade = false;
-
-    while ($row = mysqli_fetch_assoc($statement_sql)) {
-        $invoice_prefix = escapeHtml($row['invoice_prefix']);
-        $invoice_number = intval($row['invoice_number']);
-        $invoice_scope = escapeHtml($row['invoice_scope']);
-        $invoice_date = escapeHtml($row['invoice_date']);
-        $invoice_due = escapeHtml($row['invoice_due']);
-        $invoice_amount = floatval($row['invoice_amount']);
-        $amount_paid = floatval($row['amount_paid']);
-        $invoice_balance = $invoice_amount - $amount_paid;
-
-        $statement_total = $statement_total + $invoice_balance;
-
-        // Same one-day grace as client/statement.php and client/invoices.php
-        if (strtotime($invoice_due) + 86400 < time()) {
-            $due_style = ' style="color:#dc3545;"';
-        } else {
-            $due_style = '';
-        }
-
-        $row_background = $statement_row_shade ? ' bgcolor="#f2f2f2"' : '';
-        $statement_row_shade = !$statement_row_shade;
-
-        $html .= '<tr' . $row_background . '>
-        <td style="font-size:9pt;">' . $invoice_prefix . $invoice_number . '</td>
-        <td style="font-size:9pt;">' . $invoice_scope . '</td>
-        <td style="font-size:9pt;">' . $invoice_date . '</td>
-        <td style="font-size:9pt;"' . $due_style . '>' . $invoice_due . '</td>
-        <td style="font-size:9pt;" align="right">' . numfmt_format_currency($currency_format, $invoice_amount, $statement_currency_code) . '</td>
-        <td style="font-size:9pt;" align="right">' . numfmt_format_currency($currency_format, $amount_paid, $statement_currency_code) . '</td>
-        <td style="font-size:9pt;" align="right">' . numfmt_format_currency($currency_format, $invoice_balance, $statement_currency_code) . '</td>
-        </tr>';
-    }
-
-    $html .= '<tr>
-        <td colspan="6" align="right" style="font-weight:bold;">Total Balance Due</td>
-        <td align="right" style="font-weight:bold;">' . numfmt_format_currency($currency_format, $statement_total, $statement_currency_code) . '</td>
-    </tr>
-    </table>';
-
-    $pdf->writeHTML($html, true, false, true, false, '');
-
-    $filename = toAlphanumeric($client_name) . "-Account_Statement-" . date("Y-m-d");
-
-    $pdf->Output("$filename.pdf", 'D');
-
-    exit();
+    billingPdfSend(billingStatementPdf($statement), true);
 
 }
 
@@ -781,199 +643,182 @@ if (isset($_POST['edit_contact'])) {
 
 }
 
-if (isset($_GET['add_payment_by_provider'])) {
+if (isset($_POST['portal_quote_answer'])) {
 
     validateCSRFToken();
 
-    $invoice_id = intval($_GET['invoice_id']);
-    $saved_payment_id = intval($_GET['add_payment_by_provider']);
+    portalBillingGate();
 
-    // Get invoice details
-    $sql = mysqli_query($mysqli,"SELECT client_id, client_name, contact_email, contact_extension, contact_mobile,
-        contact_mobile_country_code, contact_name, contact_phone, contact_phone_country_code,
-        invoice_amount, invoice_currency_code, invoice_number, invoice_prefix, invoice_status,
-        invoice_url_key FROM invoices
-            LEFT JOIN clients ON invoice_client_id = client_id
-            LEFT JOIN contacts ON client_id = contact_client_id AND contact_primary = 1
-            WHERE invoice_id = $invoice_id AND client_id = $session_client_id"
-    );
-    $row = mysqli_fetch_assoc($sql);
-    $invoice_number = intval($row['invoice_number']);
-    $invoice_status = escapeSql($row['invoice_status']);
-    $invoice_amount = floatval($row['invoice_amount']);
-    $invoice_prefix = escapeSql($row['invoice_prefix']);
-    $invoice_number = intval($row['invoice_number']);
-    $invoice_url_key = escapeSql($row['invoice_url_key']);
-    $invoice_currency_code = escapeSql($row['invoice_currency_code']);
-    $client_id = intval($row['client_id']);
-    $client_name = escapeSql($row['client_name']);
-    $contact_name = escapeSql($row['contact_name']);
-    $contact_email = escapeSql($row['contact_email']);
-    $contact_phone = escapeSql(formatPhoneNumber($row['contact_phone'], $row['contact_phone_country_code']));
-    $contact_extension = preg_replace("/[^0-9]/", '',$row['contact_extension']);
-    $contact_mobile = escapeSql(formatPhoneNumber($row['contact_mobile'], $row['contact_mobile_country_code']));
+    // Accept or decline a quote, signed with a name and with a note for us - billingQuoteAnswer() in functions/billing.php,
+    // which the quote's guest link uses too
+    $quote_id = intval($_POST['quote_id'] ?? 0);
+    $accept = ($_POST['answer'] ?? '') === 'accept';
+    $name = trim(mb_substr((string) ($_POST['name'] ?? ''), 0, 200));
+    $note = trim(mb_substr((string) ($_POST['note'] ?? ''), 0, 2000));
 
-    // Get ITFlow company details
-    $sql = mysqli_query($mysqli,"SELECT company_address, company_city, company_country, company_email, company_name, company_phone,
-        company_phone_country_code, company_state, company_website, company_zip FROM companies WHERE company_id = 1");
-    $row = mysqli_fetch_assoc($sql);
-    $company_name = escapeSql($row['company_name']);
-    $company_country = escapeSql($row['company_country']);
-    $company_address = escapeSql($row['company_address']);
-    $company_city = escapeSql($row['company_city']);
-    $company_state = escapeSql($row['company_state']);
-    $company_zip = escapeSql($row['company_zip']);
-    $company_phone = escapeSql(formatPhoneNumber($row['company_phone'], $row['company_phone_country_code']));
-    $company_email = escapeSql($row['company_email']);
-    $company_website = escapeSql($row['company_website']);
-
-    // Sanitize Config vars from get_settings.php
-    $config_invoice_from_name = escapeSql($config_invoice_from_name);
-    $config_invoice_from_email = escapeSql($config_invoice_from_email);
-
-    // Get Client Payment Details
-    $sql = mysqli_query($mysqli, "SELECT payment_provider_account, payment_provider_client, payment_provider_private_key,
-        payment_provider_public_key, saved_payment_client_id, saved_payment_description,
-        saved_payment_provider_method FROM client_saved_payment_methods LEFT JOIN payment_providers ON saved_payment_provider_id = payment_provider_id LEFT JOIN client_payment_provider ON saved_payment_client_id = client_id WHERE saved_payment_id = $saved_payment_id AND saved_payment_client_id = $session_client_id LIMIT 1");
-    $row = mysqli_fetch_assoc($sql);
-
-    $public_key = escapeSql($row['payment_provider_public_key']);
-    $private_key = escapeSql($row['payment_provider_private_key']);
-    $account_id = intval($row['payment_provider_account']);
-    $payment_provider_client = escapeSql($row['payment_provider_client']);
-    $saved_payment_method = escapeSql($row['saved_payment_provider_method']);
-    $saved_payment_description = escapeSql($row['saved_payment_description']);
-    $payment_client_id = intval($row['saved_payment_client_id']);
-
-    // Sanity checks
-    // Check to make invoice belongs to logged in client
-    if ($client_id !== $session_client_id) {
-        flashAlert("Invoice does not belong to you!", 'danger');
-        redirect();
-    } elseif ($payment_client_id !== $session_client_id) {
-        flashAlert("Saved Payment method does not belong to you!", 'danger');
-        redirect();
-    } elseif (!$payment_provider_client || !$saved_payment_method) {
-        flashAlert("Stripe not enabled or no client card saved", 'error');
-        redirect();
-    } elseif ($invoice_status !== 'Sent' && $invoice_status !== 'Viewed') {
-        flashAlert("Invalid invoice state (draft/partial/paid/not billable)", 'error');
-        redirect();
-    } elseif ($invoice_amount == 0) {
-        flashAlert("Invalid invoice amount", 'error');
-        redirect();
+    $quote = billingRow('quote', $quote_id, false);
+    if (!$quote || intval($quote['client_id']) !== $session_client_id || $quote['quote_status'] === 'Draft') {
+        flashAlert("That quote isn't here", 'error');
+        redirect('quotes.php');
+    }
+    if ($name === '' || ($accept && empty($_POST['authorised']))) {
+        flashAlert($name === '' ? 'Put your name to your answer' : 'Tick to confirm you can accept the quote', 'error');
+        redirect("quote.php?id=$quote_id");
     }
 
-    // Initialize Stripe
-    require_once __DIR__ . '/../includes/stripe_init.php';
-    $stripe = new \Stripe\StripeClient($private_key);
-
-    $balance_to_pay = round($invoice_amount, 2);
-    $pi_description = "ITFlow: $client_name payment of $invoice_currency_code $balance_to_pay for $invoice_prefix$invoice_number";
-
-    // Create a payment intent
-    try {
-        $payment_intent = $stripe->paymentIntents->create([
-            'amount' => intval(round($balance_to_pay * 100)), // Times by 100 as Stripe expects values in cents
-            'currency' => $invoice_currency_code,
-            'customer' => $payment_provider_client,
-            'payment_method' => $saved_payment_method,
-            'off_session' => true,
-            'confirm' => true,
-            'description' => $pi_description,
-            'metadata' => [
-                'itflow_client_id' => $client_id,
-                'itflow_client_name' => $client_name,
-                'itflow_invoice_number' => $invoice_prefix . $invoice_number,
-                'itflow_invoice_id' => $invoice_id,
-            ]
-        ]);
-
-        // Get details from PI
-        $pi_id = escapeSql($payment_intent->id);
-        $pi_date = date('Y-m-d', $payment_intent->created);
-        $pi_amount_paid = floatval(($payment_intent->amount_received / 100));
-        $pi_currency = strtoupper(escapeSql($payment_intent->currency));
-        $pi_livemode = $payment_intent->livemode;
-
-    } catch (Exception $e) {
-        $error = $e->getMessage();
-        error_log("Stripe payment error - encountered exception during payment intent for invoice ID $invoice_id / $invoice_prefix$invoice_number: $error");
-        logApp("Stripe", "error", "Exception during PI for invoice ID $invoice_id: $error");
+    $answer = billingQuoteAnswer($quote_id, $accept, ['name' => $name, 'note' => $note]);
+    if (!$answer['ok']) {
+        flashAlert($answer['error'], 'error');
+        redirect("quote.php?id=$quote_id");
     }
 
-    if ($payment_intent->status == "succeeded" && intval($balance_to_pay) == intval($pi_amount_paid)) {
+    $number = escapeHtml(billingNumber('quote', $quote));
+    flashAlert($accept ? "Thank you - quote <strong>$number</strong> is accepted and our team has been told" : "Quote <strong>$number</strong> declined - thank you for letting us know");
 
-        // Update Invoice Status
-        mysqli_query($mysqli, "UPDATE invoices SET invoice_status = 'Paid' WHERE invoice_id = $invoice_id");
+    redirect("quote.php?id=$quote_id");
 
-        // Add Payment to History
-        mysqli_query($mysqli, "INSERT INTO payments SET payment_date = '$pi_date', payment_amount = $pi_amount_paid, payment_currency_code = '$pi_currency', payment_account_id = $account_id, payment_method = 'Stripe', payment_reference = 'Stripe - $pi_id', payment_invoice_id = $invoice_id");
-        mysqli_query($mysqli, "INSERT INTO history SET history_status = 'Paid', history_description = 'Online Payment added (agent)', history_invoice_id = $invoice_id");
+}
 
-        // Email receipt
-        if (!empty($config_smtp_host)) {
-            $subject = "Payment Received - Invoice $invoice_prefix$invoice_number";
-            $body = "Hello $contact_name,<br><br>We have received online payment for the amount of " . numfmt_format_currency($currency_format, $invoice_amount, $invoice_currency_code) . " for invoice <a href=\'https://$config_base_url/guest/guest_view_invoice.php?invoice_id=$invoice_id&url_key=$invoice_url_key\'>$invoice_prefix$invoice_number</a>. Please keep this email as a receipt for your records.<br><br>Amount Paid: " . numfmt_format_currency($currency_format, $invoice_amount, $invoice_currency_code) . "<br><br>Thank you for your business!<br><br><br>--<br>$company_name - Billing Department<br>$config_invoice_from_email<br>$company_phone";
+if (isset($_POST['portal_quote_file'])) {
 
-            // Queue Mail
-            $data = [
-                [
-                    'from' => $config_invoice_from_email,
-                    'from_name' => $config_invoice_from_name,
-                    'recipient' => $contact_email,
-                    'recipient_name' => $contact_name,
-                    'subject' => $subject,
-                    'body' => $body,
-                ]
-            ];
+    validateCSRFToken();
 
-            // Email the internal notification address too
-            if (!empty($config_invoice_paid_notification_email)) {
-                $subject = "Payment Received - $client_name - Invoice $invoice_prefix$invoice_number";
-                $body = "Hello, <br><br>This is a notification that an invoice has been paid in ITFlow. Below is a copy of the receipt sent to the client:-<br><br>--------<br><br>Hello $contact_name,<br><br>We have received online payment for the amount of " . numfmt_format_currency($currency_format, $invoice_amount, $invoice_currency_code) . " for invoice <a href=\'https://$config_base_url/guest/guest_view_invoice.php?invoice_id=$invoice_id&url_key=$invoice_url_key\'>$invoice_prefix$invoice_number</a>. Please keep this email as a receipt for your records.<br><br>Amount Paid: " . numfmt_format_currency($currency_format, $invoice_amount, $invoice_currency_code) . "<br><br>Thank you for your business!<br><br><br>--<br>$company_name - Billing Department<br>$config_invoice_from_email<br>$company_phone";
+    portalBillingGate();
 
-                $data[] = [
-                    'from' => $config_invoice_from_email,
-                    'from_name' => $config_invoice_from_name,
-                    'recipient' => $config_invoice_paid_notification_email,
-                    'recipient_name' => $contact_name,
-                    'subject' => $subject,
-                    'body' => $body,
-                ];
-            }
+    // A signed copy or purchase order for an accepted quote - billingQuoteAddFiles() in functions/billing.php
+    $quote_id = intval($_POST['quote_id'] ?? 0);
+    $quote = billingRow('quote', $quote_id, false);
+    if (!$quote || intval($quote['client_id']) !== $session_client_id || $quote['quote_status'] !== 'Accepted') {
+        flashAlert("Files can only be sent with an accepted quote", 'error');
+        redirect($quote ? "quote.php?id=$quote_id" : 'quotes.php');
+    }
 
-            $mail = addToMailQueue($data);
-
-            // Email Logging
-            $email_id = mysqli_insert_id($mysqli);
-            mysqli_query($mysqli,"INSERT INTO history SET history_status = 'Sent', history_description = 'Payment Receipt sent to mail queue ID: $email_id!', history_invoice_id = $invoice_id");
-            logAudit("Invoice", "Payment", "Payment receipt for invoice $invoice_prefix$invoice_number queued to $contact_email Email ID: $email_id", $client_id, $invoice_id);
-        }
-
-        // Log info
-        $extended_log_desc = '';
-        if (!$pi_livemode) {
-            $extended_log_desc = '(DEV MODE)';
-        }
-
-        // Notify/log
-        appNotify("Invoice Paid", "Invoice $invoice_prefix$invoice_number automatically paid", "/agent/invoice.php?invoice_id=$invoice_id", $client_id);
-        logAudit("Invoice", "Payment", "$session_contact_name initiated Stripe payment amount of " . numfmt_format_currency($currency_format, $invoice_amount, $invoice_currency_code) . " added to invoice $invoice_prefix$invoice_number - $pi_id $extended_log_desc", $client_id, $invoice_id);
-        triggerCustomAction('invoice_pay', $invoice_id);
-
-        flashAlert("The amount " . numfmt_format_currency($currency_format, $invoice_amount, $invoice_currency_code) . " paid Invoice $invoice_prefix$invoice_number");
-
-        redirect();
-
+    $upload = billingQuoteAddFiles($quote_id, $_FILES['file'] ?? [], ['name' => (string) ($contact['contact_name'] ?? '')]);
+    if ($upload['added'] && !$upload['failed']) {
+        flashAlert('Sent - thank you. ' . escapeHtml(implode(', ', $upload['added'])) . ' is with us now');
+    } elseif ($upload['added']) {
+        flashAlert('Sent ' . escapeHtml(implode(', ', $upload['added'])) . ' - but ' . $upload['failed'] . ' could not be taken. Only PDFs can be sent', 'error');
     } else {
-        mysqli_query($mysqli, "INSERT INTO history SET history_status = 'Payment failed', history_description = 'Stripe pay failed due to payment error', history_invoice_id = $invoice_id");
-
-        logAudit("Invoice", "Payment", "Failed online payment amount of invoice $invoice_prefix$invoice_number due to Stripe payment error", $client_id, $invoice_id);
-        flashAlert("Payment failed", 'error');
-
-        redirect();
+        flashAlert('That file could not be taken - only PDFs can be sent', 'error');
     }
+
+    redirect("quote.php?id=$quote_id");
+
+}
+
+if (isset($_POST['portal_pay'])) {
+
+    validateCSRFToken();
+
+    portalBillingGate();
+
+    /*
+     * Pay one or more invoices by card - functions/billing_pay.php. The choice
+     * is checked again here: the invoices must be this client's and still
+     * owed, in one currency and under the card limit. A saved card is charged
+     * there and then; a new card goes on to the checkout page (pay.php).
+     */
+    $invoice_ids = array_map('intval', (array) ($_POST['invoice_ids'] ?? []));
+    $method = (string) ($_POST['method'] ?? 'new');
+    $back = 'unpaid_invoices.php' . ($invoice_ids ? '?' . http_build_query(['select' => implode(',', $invoice_ids)]) : '');
+
+    if (!billingStripeProvider()) {
+        flashAlert('Card payments are not set up', 'error');
+        redirect('invoices.php');
+    }
+
+    $selection = billingPaySelection($session_client_id, $invoice_ids, $error);
+    if (!$selection) {
+        flashAlert(escapeHtml($error), 'error');
+        redirect($back);
+    }
+
+    if ($method === 'new') {
+        $_SESSION['portal_checkout'] = ['ids' => array_keys($selection['cents']), 'pi' => $_SESSION['portal_checkout']['pi'] ?? ''];
+        redirect('pay.php');
+    }
+
+    // A saved card, charged now - the form's token keeps a double click to one charge
+    $token = (string) ($_POST['pay_token'] ?? '');
+    if (!preg_match('/^[a-f0-9]{32}$/', $token)) {
+        flashAlert('That page was out of date - check the invoices and try again', 'error');
+        redirect($back);
+    }
+    $contact_name = (string) ($contact['contact_name'] ?? '');
+    $charge = billingStripeChargeSaved($selection, $session_client_id, intval($method), $token, ['name' => $contact_name]);
+    if (!$charge['ok']) {
+        flashAlert(escapeHtml($charge['error']), 'error');
+        redirect($back);
+    }
+
+    $booked = billingStripeBook($charge['pi'], $session_client_id, ['name' => $contact_name, 'how' => 'Saved card', 'via' => 'in the client portal']);
+    if (!$booked['ok']) {
+        $pi_id = escapeSql((string) $charge['pi']->id);
+        logApp("Stripe", "error", "Saved card payment $pi_id for client $session_client_id went through but could not be booked: " . $booked['error']);
+        appNotify("Invoice Payment", "A card payment of " . escapeSql(billingMoney($selection['total'], $selection['currency'])) . " from $session_client_name went through in the client portal but could not be recorded - $pi_id", "/agent/invoices.php?client_id=$session_client_id", $session_client_id);
+        flashAlert('Your card was charged, but we could not record the payment here - we have been told and will put it right', 'error');
+        redirect('invoices.php');
+    }
+
+    flashAlert('Thank you - your payment of <strong>' . escapeHtml(billingMoney($selection['total'], $selection['currency'])) . '</strong> went through');
+    redirect('receipt.php?id=' . $booked['payment_id']);
+
+}
+
+if (isset($_GET['portal_pay_return'])) {
+
+    portalBillingGate();
+
+    /*
+     * Back from Stripe after paying on the checkout page (pay.php) - with the
+     * payment's id and client secret. The secret must match the payment, and
+     * the payment must be this client's: then it is booked, once
+     * (billingStripeBook() in functions/billing_pay.php).
+     */
+    $pi_id = (string) ($_GET['payment_intent'] ?? '');
+    $secret = (string) ($_GET['payment_intent_client_secret'] ?? '');
+    $stripe = billingStripeClient();
+    if (!$stripe || !preg_match('/^pi_[A-Za-z0-9_]+$/', $pi_id)) {
+        flashAlert('That payment could not be found', 'error');
+        redirect('invoices.php');
+    }
+
+    try {
+        $pi = $stripe->paymentIntents->retrieve($pi_id);
+    } catch (Throwable $e) {
+        logApp("Stripe", "error", "Could not retrieve $pi_id on return to the client portal: " . $e->getMessage());
+        flashAlert('We could not check that payment just now - if your card was charged, it will show here shortly', 'error');
+        redirect('invoices.php');
+    }
+
+    if (!hash_equals((string) $pi->client_secret, $secret) || intval($pi->metadata['itflow_client_id'] ?? 0) !== $session_client_id) {
+        flashAlert('That payment could not be found', 'error');
+        redirect('invoices.php');
+    }
+
+    if ($pi->status === 'processing') {
+        flashAlert('Your payment is processing - the invoices show as paid once it clears');
+        redirect('invoices.php');
+    }
+    if ($pi->status !== 'succeeded') {
+        flashAlert('That payment did not go through - nothing was charged. Try again, or use another card', 'error');
+        redirect('pay.php');
+    }
+
+    $booked = billingStripeBook($pi, $session_client_id, ['name' => (string) ($contact['contact_name'] ?? ''), 'how' => 'Online card', 'via' => 'in the client portal']);
+    if (!$booked['ok']) {
+        $pi_id_sql = escapeSql($pi_id);
+        logApp("Stripe", "error", "Card payment $pi_id for client $session_client_id went through but could not be booked: " . $booked['error']);
+        appNotify("Invoice Payment", "A card payment from $session_client_name went through in the client portal but could not be recorded - $pi_id_sql", "/agent/invoices.php?client_id=$session_client_id", $session_client_id);
+        flashAlert('Your card was charged, but we could not record the payment here - we have been told and will put it right', 'error');
+        redirect('invoices.php');
+    }
+
+    unset($_SESSION['portal_checkout']);
+    if (!$booked['already']) {
+        flashAlert('Thank you - your payment of <strong>' . escapeHtml(billingMoney(intval($pi->amount_received) / 100, strtoupper((string) $pi->currency))) . '</strong> went through');
+    }
+    redirect('receipt.php?id=' . $booked['payment_id']);
 
 }
 
@@ -1043,7 +888,9 @@ if (isset($_POST['create_stripe_customer'])) {
 
             logAudit("Stripe", "Create", "$session_contact_name created Stripe customer for $session_client_name as $stripe_customer_id and authorized future automatic payments", $session_client_id, $session_client_id);
 
-            flashAlert("Stripe customer created. Thank you for your consent.");
+            flashAlert("Thank you - now add your card.");
+
+            redirect('saved_payment_methods.php?add=1');
 
         } catch (Exception $e) {
             $error = $e->getMessage();
@@ -1057,7 +904,8 @@ if (isset($_POST['create_stripe_customer'])) {
         }
 
     } else {
-        flashAlert("Stripe customer already exists for your account.", 'danger');
+        // Already set up - on to adding the card
+        redirect('saved_payment_methods.php?add=1');
     }
 
     redirect('saved_payment_methods.php');
