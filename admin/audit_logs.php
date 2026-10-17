@@ -280,6 +280,13 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                 </tbody>
             </table>
         </div>
+        <?php
+        $empty_state = [
+            'thing' => 'audit logs',
+            'icon' => 'fa-history',
+            'text' => 'Who changed what, and when, shows here.',
+        ];
+        ?>
         <?php require_once "../includes/filter_footer.php";
  ?>
     </div>

@@ -160,6 +160,14 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
         </form>
 
     </div>
+    <?php
+    $empty_state = [
+        'thing' => 'API keys',
+        'icon' => 'fa-key',
+        'text' => 'A key lets another system read and write ITFlow through its API.',
+        'actions' => [['label' => 'New API Key', 'modal' => 'modals/api/api_key_add.php']],
+    ];
+    ?>
     <?php require_once "../includes/filter_footer.php"; ?>
 </div>
 

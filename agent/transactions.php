@@ -432,13 +432,19 @@ if ($transfer_cards) {
             <?php } ?>
         </table>
     </div>
-    <?php if (!$num_rows[0]) { ?>
-        <div class="itflow-asset-empty">
-            <i class="fas fa-<?= $show === 'transfers' ? 'exchange-alt' : 'list-alt' ?> fa-2x mb-2 opacity-50"></i>
-            <div><?= $any_filter ? 'Nothing matches.' : ($account ? 'Nothing on ' . escapeHtml($account['account_name']) . ' yet.' : 'Nothing recorded yet.') ?></div>
-        </div>
-    <?php } ?>
-    <?php require_once "../includes/filter_footer.php"; ?>
+    <?php
+    $empty_state = [
+        'thing' => 'transactions',
+        'icon' => $show === 'transfers' ? 'fa-exchange-alt' : 'fa-list-alt',
+        'filtered' => $q || $category_filter || $client_filter || $more_filters || $reconciliation_filter || $dtf !== '1970-01-01',
+        'views' => ['show', 'account'],
+        'view' => emptyStatePill($shows, $show, '', ['uncleared']),
+        'title' => $account ? 'Nothing on ' . escapeHtml($account['account_name']) . ' yet' : 'No transactions yet',
+        'text' => 'Payments, other income, expenses and transfers show here as they are recorded.',
+        'actions' => $can_edit ? [['label' => $is_card ? 'Pay the Card' : 'New Transfer', 'modal' => 'modals/transfer/transfer_add.php' . ($account ? ($is_card ? '?to=' : '?from=') . $account_filter : ''), 'size' => 'lg', 'icon' => $is_card ? 'fa-credit-card' : 'fa-exchange-alt']] : [],
+    ];
+    require_once "../includes/filter_footer.php";
+    ?>
 </div>
 
 <?php require_once "../includes/footer.php";

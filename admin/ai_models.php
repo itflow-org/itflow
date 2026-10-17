@@ -120,6 +120,14 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
             </tbody>
         </table>
     </div>
+    <?php
+    $empty_state = [
+        'thing' => 'AI models',
+        'icon' => 'fa-robot',
+        'text' => 'The models ITFlow uses for ticket summaries and rewording - add a provider first.',
+        'actions' => [['label' => 'Add Model', 'modal' => 'modals/ai/ai_model_add.php']],
+    ];
+    ?>
     <?php require_once "../includes/filter_footer.php"; ?>
 </div>
 

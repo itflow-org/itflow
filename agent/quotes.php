@@ -309,13 +309,18 @@ $stat_monthly = function ($amount) use ($stat_money) {
             </tbody>
         </table>
     </div>
-    <?php if (!$num_rows[0]) { ?>
-        <div class="itflow-asset-empty">
-            <i class="fas fa-comment-dollar fa-2x mb-2 opacity-50"></i>
-            <div><?= $q || $status || $dtf !== '1970-01-01' ? 'No quotes match.' : 'No quotes yet.' ?></div>
-        </div>
-    <?php } ?>
-    <?php require_once "../includes/filter_footer.php"; ?>
+    <?php
+    $empty_state = [
+        'thing' => 'quotes',
+        'icon' => 'fa-comment-dollar',
+        'filtered' => $q || $dtf !== '1970-01-01',
+        'views' => ['status'],
+        'view' => emptyStatePill($statuses, $status, '', ['Expired']),
+        'text' => 'Price up work for a client, and turn it into an invoice once they accept.',
+        'actions' => $can_edit ? [['label' => 'New Quote', 'modal' => "modals/quote/quote_add.php?$client_url"]] : [],
+    ];
+    require_once "../includes/filter_footer.php";
+    ?>
 </div>
 
 <?php if ($can_edit && $mail_ready) { ?>

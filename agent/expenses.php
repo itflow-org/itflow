@@ -449,13 +449,21 @@ $month_change = $stats['last_to_date'] > 0 ? round(($stats['month'] - $stats['la
             <?php } ?>
         </table>
     </div>
-    <?php if (!$num_rows[0]) { ?>
-        <div class="itflow-asset-empty">
-            <i class="fas fa-shopping-cart fa-2x mb-2 opacity-50"></i>
-            <div><?= $any_filter ? 'No expenses match.' : 'No expenses yet.' ?></div>
-        </div>
-    <?php } ?>
-    <?php require_once "../includes/filter_footer.php"; ?>
+    <?php
+    $empty_state = [
+        'thing' => 'expenses',
+        'icon' => 'fa-shopping-cart',
+        'filtered' => $q || $vendor_filter || $category_filter || $account_filter || $client_filter || $method_filter !== '' || $recurring_filter || $paid_by_filter || $dtf !== '1970-01-01',
+        'views' => ['show'],
+        'view' => emptyStatePill($shows, $show, '', ['no_receipt', 'to_bill', 'to_reimburse']),
+        'text' => 'What the business spends - enter them as they come, or bring in a bank or card statement.',
+        'actions' => $can_edit ? [
+            ['label' => 'New Expense', 'modal' => 'modals/expense/expense_add.php' . ($vendor_filter ? "?vendor_id=$vendor_filter" : ''), 'size' => 'lg'],
+            ['label' => 'Import Statement', 'href' => 'expense_import.php', 'icon' => 'fa-file-import'],
+        ] : [],
+    ];
+    require_once "../includes/filter_footer.php";
+    ?>
 </div>
 
 <?php if (!empty($_GET['open'])) { ?>

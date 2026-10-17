@@ -178,22 +178,14 @@ foreach ($racks as $rack_id => $row) {
 
         <?php if (!$racks) { ?>
 
-            <div class="text-center text-body-secondary py-5">
-                <i class="fas fa-server fa-3x mb-3 opacity-25"></i>
-                <?php if ($q || $location_filter || $client_filter) { ?>
-                    <div class="fs-5">No racks match that</div>
-                <?php } elseif ($archived) { ?>
-                    <div class="fs-5">No archived racks</div>
-                <?php } else { ?>
-                    <div class="fs-5 mb-1">No racks yet</div>
-                    <div class="mb-3">Document the comms closet: what's racked where, front and rear, and how much room and power is left.</div>
-                    <?php if ($client_url && $can_edit) { ?>
-                        <button type="button" class="btn btn-primary ajax-modal" data-modal-size="lg" data-modal-url="modals/rack/rack_add.php?client_id=<?= $client_id ?>">
-                            <i class="fas fa-plus me-2"></i>New Rack
-                        </button>
-                    <?php } ?>
-                <?php } ?>
-            </div>
+            <?= emptyStateHtml([
+                'thing' => 'racks',
+                'icon' => 'fa-server',
+                'filtered' => $q || $location_filter || $client_filter,
+                'archived' => $archived,
+                'text' => "Document the comms closet: what's racked where, front and rear, and how much room and power is left.",
+                'actions' => $client_url && $can_edit ? [['label' => 'New Rack', 'modal' => "modals/rack/rack_add.php?client_id=$client_id", 'size' => 'lg']] : [],
+            ]) ?>
 
         <?php } else { ?>
 

@@ -210,6 +210,14 @@ $archive_toggle_url = '?' . http_build_query($archive_toggle_query);
             </div>
         </div>
     </div>
+    <?php
+    $empty_state = [
+        'thing' => strtolower($category_label) . ' categories',
+        'icon' => 'fa-list-ul',
+        'views' => ['category'],
+        'actions' => [['label' => "New $category_label Category", 'modal' => 'modals/category/category_add.php?category=' . urlencode($category)]],
+    ];
+    ?>
     <?php require_once "../includes/filter_footer.php"; ?>
 </div>
 

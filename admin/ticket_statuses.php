@@ -129,6 +129,13 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
             </tbody>
         </table>
     </div>
+    <?php
+    $empty_state = [
+        'thing' => 'ticket statuses',
+        'icon' => 'fa-info-circle',
+        'actions' => [['label' => 'New Ticket Status', 'modal' => 'modals/ticket_status/ticket_status_add.php']],
+    ];
+    ?>
     <?php require_once "../includes/filter_footer.php"; ?>
 </div>
 

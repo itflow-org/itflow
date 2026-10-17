@@ -553,6 +553,19 @@ $search_noun = $role_filter ? strtolower($contact_role_tabs[$role_filter]['label
             </table>
         </div>
     </form>
+    <?php
+    $empty_state = [
+        'thing' => 'contacts',
+        'icon' => 'fa-address-book',
+        'views' => ['role'],
+        'view' => emptyStatePill($contact_role_tabs, $role_filter),
+        'text' => 'The people at the client - who to call, and who gets the invoices.',
+        'actions' => $can_edit ? array_merge(
+            [['label' => 'New Contact', 'modal' => "modals/contact/contact_add.php?$client_url", 'size' => 'lg']],
+            $client_url ? [['label' => 'Import', 'modal' => "modals/contact/contact_import.php?$client_url", 'icon' => 'fa-upload']] : []
+        ) : [],
+    ];
+    ?>
     <?php require_once "../includes/filter_footer.php"; ?>
 </div>
 

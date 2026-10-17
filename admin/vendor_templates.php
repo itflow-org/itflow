@@ -179,6 +179,14 @@ while ($use_row = mysqli_fetch_row($sql_template_use)) {
             </tbody>
         </table>
     </div>
+    <?php
+    $empty_state = [
+        'thing' => 'vendor templates',
+        'icon' => 'fa-building',
+        'text' => 'A vendor set up once - its support numbers and site - to add to any client.',
+        'actions' => [['label' => 'New Vendor Template', 'modal' => 'modals/vendor_template/vendor_template_add.php']],
+    ];
+    ?>
     <?php require_once "../includes/filter_footer.php"; ?>
 </div>
 

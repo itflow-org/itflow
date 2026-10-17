@@ -474,6 +474,19 @@ $add_type = in_array($view, ['product', 'hardware', 'stocked', 'reorder'], true)
             </table>
         </div>
     </form>
+    <?php
+    $empty_state = [
+        'thing' => 'products and services',
+        'icon' => 'fa-box-open',
+        'views' => ['type'],
+        'view' => emptyStatePill($views, $view, 'all', ['reorder']),
+        'text' => 'What you sell - your services and the products you resell - with their prices, ready to add to an invoice.',
+        'actions' => $can_edit ? [
+            ['label' => 'New Service', 'modal' => 'modals/product/product_add.php?type=service', 'size' => 'lg', 'icon' => 'fa-wrench'],
+            ['label' => 'New Product', 'modal' => 'modals/product/product_add.php?type=product', 'size' => 'lg', 'icon' => 'fa-box-open'],
+        ] : [],
+    ];
+    ?>
     <?php require_once "../includes/filter_footer.php"; ?>
 </div>
 

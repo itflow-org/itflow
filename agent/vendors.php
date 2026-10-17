@@ -444,13 +444,18 @@ $add_url = "modals/vendor/vendor_add.php?" . ($view === 'client' ? "client_id=$c
             </table>
         </div>
     </form>
-    <?php if (!$num_rows[0]) { ?>
-        <div class="itflow-asset-empty">
-            <i class="fas fa-building fa-2x mb-2 opacity-50"></i>
-            <div><?= $q || $tag_query ? 'No vendors match.' : ($view === 'ours' ? 'None of our own vendors yet - the suppliers expenses are booked against.' : 'No vendors yet - their ISP, phone provider and software makers.') ?></div>
-        </div>
-    <?php } ?>
-    <?php require_once "../includes/filter_footer.php"; ?>
+    <?php
+    $empty_state = [
+        'thing' => 'vendors',
+        'icon' => 'fa-building',
+        'filtered' => $q || $tag_query,
+        'views' => ['view'],
+        'title' => $view === 'ours' ? 'None of our own vendors yet' : 'No vendors yet',
+        'text' => $view === 'ours' ? 'The suppliers expenses are booked against.' : 'Their ISP, phone provider and software makers.',
+        'actions' => $can_edit ? [['label' => 'New Vendor', 'modal' => $add_url, 'size' => 'lg']] : [],
+    ];
+    require_once "../includes/filter_footer.php";
+    ?>
 </div>
 
 <script src="../js/bulk_actions.js"></script>

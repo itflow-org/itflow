@@ -363,18 +363,22 @@ $filter_url = function ($changes) {
             </table>
         </div>
     </form>
-    <?php if (!$num_rows[0]) { ?>
-        <div class="itflow-asset-empty">
-            <i class="fas fa-share-alt fa-2x mb-2 opacity-50"></i>
-            <?php if ($q || $type_query || $show !== '') { ?>
-                <div>No shared links match.</div>
-            <?php } else { ?>
-                <div>No open links<?= $client_url ? ' for this client' : '' ?>.</div>
-                <div class="small mt-1">Share a credential, document or file from its menu<?= $client_url && ($can_note || $can_request) ? ', or send a secure note or ask for a login from the button above' : '' ?>.</div>
-            <?php } ?>
-        </div>
-    <?php } ?>
-    <?php require_once "../includes/filter_footer.php"; ?>
+    <?php
+    $empty_state = [
+        'thing' => 'shared links',
+        'icon' => 'fa-share-alt',
+        'filtered' => $q || $type_query,
+        'views' => ['show'],
+        'view' => emptyStatePill($shows, $show),
+        'title' => 'No open links' . ($client_url ? ' for this client' : ''),
+        'text' => 'Share a credential, document or file from its menu' . ($can_note || $can_request ? ', or send a secure note or ask for a login here' : '') . '.',
+        'actions' => array_merge(
+            $can_note ? [['label' => 'Secure Note', 'modal' => 'modals/share/share_add.php?type=Note&client_id=' . intval($client_id), 'icon' => 'fa-user-secret']] : [],
+            $can_request ? [['label' => 'Ask the client for a login', 'modal' => 'modals/share/share_add.php?type=Request&client_id=' . intval($client_id), 'icon' => 'fa-inbox']] : []
+        ),
+    ];
+    require_once "../includes/filter_footer.php";
+    ?>
 </div>
 
 <?php if (!empty($_GET['share'])) { ?>

@@ -294,13 +294,18 @@ $stat_money = function ($amount) use ($session_company_currency) {
             </tbody>
         </table>
     </div>
-    <?php if (!$num_rows[0]) { ?>
-        <div class="itflow-asset-empty">
-            <i class="fas fa-redo-alt fa-2x mb-2 opacity-50"></i>
-            <div><?= $q || $status !== 'active' ? 'No recurring invoices match.' : 'No recurring invoices running.' ?></div>
-        </div>
-    <?php } ?>
-    <?php require_once "../includes/filter_footer.php"; ?>
+    <?php
+    $empty_state = [
+        'thing' => 'recurring invoices',
+        'icon' => 'fa-redo-alt',
+        'filtered' => (bool) $q,
+        'views' => ['status'],
+        'view' => emptyStatePill($statuses, $status, 'active', ['late']),
+        'text' => 'Monthly agreements and subscriptions - each bills itself when it comes round.',
+        'actions' => $can_edit ? [['label' => 'New Recurring Invoice', 'modal' => "modals/recurring_invoice/recurring_invoice_add.php?$client_url"]] : [],
+    ];
+    require_once "../includes/filter_footer.php";
+    ?>
 </div>
 
 <?php require_once "../includes/footer.php";

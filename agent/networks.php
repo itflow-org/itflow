@@ -425,21 +425,23 @@ $csrf = $_SESSION['csrf_token'];
             </table>
         </div>
     </form>
-    <?php if (!$networks) { ?>
-        <div class="itflow-asset-empty">
-            <i class="fas fa-network-wired fa-2x mb-2 opacity-50"></i>
-            <div>
-                <?php if ($q_ip !== false) { ?>
-                    No network has <?= escapeHtml($q_ip) ?> in it<?= $show || $type_filter ? ' in this view' : '' ?>.
-                <?php } elseif ($q !== '' || $show || $type_filter || $client_filter || $location_filter) { ?>
-                    No networks match.
-                <?php } else { ?>
-                    No networks yet - start with the office LAN, the guest wireless and the internet connection.
-                <?php } ?>
-            </div>
-        </div>
-    <?php } ?>
-    <?php require_once "../includes/filter_footer.php"; ?>
+    <?php
+    $empty_state = [
+        'thing' => 'networks',
+        'icon' => 'fa-network-wired',
+        'filtered' => $q !== '' || $type_filter || $client_filter || $location_filter,
+        'archived' => $show === 'archived',
+        'views' => ['show'],
+        'view' => emptyStatePill($shows, $show),
+        'match_title' => $q_ip !== false ? 'No network has ' . escapeHtml($q_ip) . ' in it' : null,
+        'text' => 'Start with the office LAN, the guest wireless and the internet connection.',
+        'actions' => $can_edit ? array_merge(
+            [['label' => 'New Network', 'modal' => "modals/network/network_add.php?{$client_url}location_id=$location_filter&type=$type_filter", 'size' => 'lg']],
+            $client_url ? [['label' => 'Import', 'modal' => "modals/network/network_import.php?$client_url", 'icon' => 'fa-upload']] : []
+        ) : [],
+    ];
+    require_once "../includes/filter_footer.php";
+    ?>
 </div>
 
 <script src="../js/bulk_actions.js"></script>

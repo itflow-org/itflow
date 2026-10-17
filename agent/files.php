@@ -463,26 +463,25 @@ $preview = []; // the grid's previewer payload
             <?php if (!$items) { ?>
 
                 <!-- Nothing here -->
-                <div class="itflow-asset-empty py-5">
-                    <?php if ($search !== '') { ?>
-                        <i class="fas fa-search fa-3x mb-3"></i>
-                        <div class="fw-semibold">Nothing matches "<?= escapeHtml($search) ?>"<?= $search_everywhere ? '' : ' in ' . $folder_name ?>.</div>
-                        <a class="btn btn-sm btn-outline-secondary mt-3" href="<?= escapeHtml(filesUrl(['q' => ''])) ?>"><i class="fas fa-times me-2"></i>Clear search</a>
-                    <?php } elseif ($archived) { ?>
-                        <i class="fas fa-archive fa-3x mb-3"></i>
-                        <div class="fw-semibold">Nothing archived <?= $folder_id ? 'in ' . $folder_name : 'here' ?>.</div>
-                    <?php } else { ?>
-                        <i class="fas fa-folder-open fa-3x mb-3"></i>
-                        <div class="fw-semibold"><?= $folder_id ? $folder_name . ' is empty.' : 'No files or documents yet.' ?></div>
-                        <?php if ($can_edit) { ?>
-                            <div class="small mt-1">Drop files here to upload them, or</div>
-                            <div class="d-flex justify-content-center gap-2 mt-3">
-                                <button type="button" class="btn btn-sm btn-primary ajax-modal" data-modal-url="<?= $upload_url ?>"><i class="fas fa-cloud-upload-alt me-2"></i>Upload files</button>
-                                <button type="button" class="btn btn-sm btn-outline-primary ajax-modal" data-modal-size="xl" data-modal-url="modals/document/document_add.php?client_id=<?= $client_id ?>&folder_id=<?= $folder_id ?>"><i class="fas fa-file-alt me-2"></i>New document</button>
-                            </div>
-                        <?php } ?>
-                    <?php } ?>
-                </div>
+                <?= emptyStateHtml([
+                    'thing' => 'files or documents',
+                    'icon' => 'fa-folder-open',
+                    'filtered' => $search !== '',
+                    'clear_url' => filesUrl(['q' => '']),
+                    'match_title' => $search !== '' ? 'Nothing matches "' . escapeHtml($search) . '"' . ($search_everywhere ? '' : ' in ' . $folder_name) : null,
+                    'archived' => $archived,
+                    'archived_title' => 'Nothing archived ' . ($folder_id ? 'in ' . $folder_name : 'here'),
+                    'title' => $folder_id ? $folder_name . ' is empty' : 'No files or documents yet',
+                    'text' => $can_edit ? 'Drop files here to upload them, or start a document.' : '',
+                    'view' => $type_filter && !$folder_id ? [
+                        'title' => $type_filter === 'document' ? 'No documents yet' : 'No uploads yet',
+                        'text' => $can_edit ? ($type_filter === 'document' ? 'Write one here - a procedure, a how-to, notes on the site.' : 'Drop files here to upload them.') : '',
+                    ] : null,
+                    'actions' => $can_edit ? [
+                        ['label' => 'Upload files', 'modal' => $upload_url, 'icon' => 'fa-cloud-upload-alt'],
+                        ['label' => 'New document', 'modal' => "modals/document/document_add.php?client_id=$client_id&folder_id=$folder_id", 'size' => 'xl', 'icon' => 'fa-file-alt'],
+                    ] : [],
+                ]) ?>
 
             <?php } else { ?>
 

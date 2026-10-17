@@ -422,16 +422,18 @@ $add_url = 'modals/trip/trip_add.php' . ($client_page ? "?client_id=$client_id" 
             <?php } ?>
         </table>
     </div>
-    <?php if (!$num_rows[0]) { ?>
-        <div class="itflow-asset-empty">
-            <i class="fas fa-route fa-2x mb-2 opacity-50"></i>
-            <div><?= $any_filter ? 'No trips match.' : 'No trips yet.' ?></div>
-            <?php if (!$any_filter) { ?>
-                <div class="small mt-1">Log the drive out to a client from their ticket - Log a trip, in its menu - or with New Trip here.</div>
-            <?php } ?>
-        </div>
-    <?php } ?>
-    <?php require_once "../includes/filter_footer.php"; ?>
+    <?php
+    $empty_state = [
+        'thing' => 'trips',
+        'icon' => 'fa-route',
+        'filtered' => $q || $driver_filter || ($client_filter && !$client_page) || $location_filter || $ticket_filter || $expense_filter || $invoice_filter || $dtf !== '1970-01-01',
+        'views' => ['show'],
+        'view' => emptyStatePill($shows, $show, '', ['to_pay', 'to_bill']),
+        'text' => 'Log the drive out to a client from their ticket - Log a trip, in its menu - or with New Trip here.',
+        'actions' => [['label' => 'New Trip', 'modal' => $add_url, 'size' => 'lg']],
+    ];
+    require_once "../includes/filter_footer.php";
+    ?>
 </div>
 
 <?php if (!empty($_GET['open'])) { ?>

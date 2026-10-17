@@ -556,3 +556,130 @@ function secondsToTime($inputSeconds) {
 
     return implode(', ', $timeParts);
 }
+
+/*
+ * The empty state of a list - one look on every list page. A page sets
+ * $empty_state and includes/inc_empty_state.php (from filter_footer.php)
+ * draws it when the list has nothing; a page with a layout of its own calls
+ * emptyStateHtml() where it wants it. Three kinds:
+ *
+ *   - nothing there yet: the list's icon, "No vendors yet", a line on what
+ *     goes there, and the page's own New buttons
+ *   - a search or filters left nothing: "No vendors match" and Clear filters
+ *   - a view that is empty for a good reason (nothing overdue, all caught
+ *     up): its own title, with a tick
+ *
+ * Archived, with nothing in it, says so and offers nothing to add.
+ */
+
+/**
+ * Whether a search or filter is on the request: any GET value but paging,
+ * sorting, the client, Archived and the page's views ($views - the GET keys
+ * that pick a view, such as a pill, rather than filter it).
+ */
+function emptyStateFiltered(array $views = []) {
+    $ignored = array_merge(['page', 'sort', 'order', 'canned_date', 'show_column', 'client_id', 'archived'], $views);
+    foreach ($_GET as $key => $value) {
+        if (in_array($key, $ignored, true)) {
+            continue;
+        }
+        if (is_array($value) ? count(array_filter($value, function ($v) { return is_scalar($v) && trim((string) $v) !== ''; })) : trim((string) $value) !== '') {
+            return true;
+        }
+    }
+    return false;
+}
+
+/** This page with its search and filters gone - the client, Archived and the page's views ($views) kept. */
+function emptyStateClearUrl(array $views = []) {
+    $keep = [];
+    foreach (array_merge(['client_id', 'archived'], $views) as $key) {
+        if (isset($_GET[$key]) && is_scalar($_GET[$key]) && trim((string) $_GET[$key]) !== '') {
+            $keep[$key] = (string) $_GET[$key];
+        }
+    }
+    return strtok($_SERVER['REQUEST_URI'] ?? '', '?') . ($keep ? '?' . http_build_query($keep) : '');
+}
+
+/**
+ * The empty state of the pill picked ($key, from a page's $pills - label,
+ * icon, title, alarm): "Nothing in Overdue" with the pill's own line under
+ * it - with a tick for a pill that flags trouble (alarm, or one of $good),
+ * as nothing there is good news. Null for the page's usual pill
+ * ($default), All and Archived, which have their own.
+ */
+function emptyStatePill(array $pills, $key, $default = '', array $good = []) {
+    $key = (string) $key;
+    if ($key === (string) $default || $key === 'all' || $key === 'archived' || !isset($pills[$key])) {
+        return null;
+    }
+    $pill = $pills[$key];
+    $view = ['title' => 'Nothing in ' . escapeHtml($pill['label'] ?? $key), 'text' => escapeHtml($pill['title'] ?? '')];
+    if (!empty($pill['alarm']) || in_array($key, array_map('strval', $good), true)) {
+        return $view + ['icon' => 'fa-check'];
+    }
+    return $view + ['icon' => $pill['icon'] ?? 'fa-filter'];
+}
+
+/**
+ * A list's empty state. $o:
+ *   thing   - what the list holds, plural ('vendors')
+ *   icon    - the list's icon ('fa-building', or full classes 'fab fa-...')
+ *   title   - HTML; "No {thing} yet" when left out
+ *   text    - HTML; a line on what goes there
+ *   actions - when nothing is there and nothing filters it: buttons, the first
+ *             the main one - each [label, modal (an ajax-modal URL) or href,
+ *             size (the modal's), icon]
+ *   archived - the Archived view: "No archived {thing}", nothing to add
+ *   view    - the pill picked, when it has a title of its own
+ *             (emptyStatePill()): title, text, icon and actions over the
+ *             ones above - a tick for good news
+ *   filtered - a search or filters left nothing; emptyStateFiltered($views)
+ *             when left out
+ *   views   - GET keys that pick a view rather than filter - not counted as
+ *             filters, and kept by Clear filters
+ *   match_title, match_text - HTML, for when filters left nothing
+ *   clear_url - where Clear filters goes, for a page that builds its own
+ */
+function emptyStateHtml(array $o) {
+    $thing = (string) ($o['thing'] ?? 'records');
+    $views = (array) ($o['views'] ?? []);
+    $filtered = array_key_exists('filtered', $o) ? (bool) $o['filtered'] : emptyStateFiltered($views);
+    $buttons = '';
+    if (!$filtered && empty($o['archived']) && !empty($o['view'])) {
+        $o = (array) $o['view'] + ['text' => ''] + $o;
+    }
+
+    if ($filtered) {
+        $icon = 'fas fa-filter';
+        $title = $o['match_title'] ?? 'No ' . escapeHtml($thing) . ' match';
+        $text = $o['match_text'] ?? 'Try a different search, or clear the filters to see everything.';
+        $buttons = '<a class="btn btn-outline-secondary" href="' . escapeHtml($o['clear_url'] ?? emptyStateClearUrl($views)) . '"><i class="fas fa-times me-2"></i>Clear filters</a>';
+    } elseif (!empty($o['archived'])) {
+        $icon = 'fas fa-archive';
+        $title = $o['archived_title'] ?? 'No archived ' . escapeHtml($thing);
+        $text = '';
+    } else {
+        $icon = (string) ($o['icon'] ?? 'fa-inbox');
+        $icon = strpos($icon, ' ') === false ? "fas $icon" : $icon;
+        $title = $o['title'] ?? 'No ' . escapeHtml($thing) . ' yet';
+        $text = (string) ($o['text'] ?? '');
+        foreach (array_values((array) ($o['actions'] ?? [])) as $i => $action) {
+            $class = 'btn ' . ($i ? 'btn-outline-primary' : 'btn-primary');
+            $inner = '<i class="fas ' . escapeHtml($action['icon'] ?? 'fa-plus') . ' me-2"></i>' . escapeHtml($action['label']);
+            if (isset($action['modal'])) {
+                $buttons .= '<button type="button" class="' . $class . ' ajax-modal" data-modal-url="' . escapeHtml($action['modal']) . '"'
+                    . (!empty($action['size']) ? ' data-modal-size="' . escapeHtml($action['size']) . '"' : '') . '>' . $inner . '</button>';
+            } else {
+                $buttons .= '<a class="' . $class . '" href="' . escapeHtml($action['href'] ?? '#') . '">' . $inner . '</a>';
+            }
+        }
+    }
+
+    return '<div class="itflow-empty-state">'
+        . '<div class="itflow-empty-state-icon"><i class="' . escapeHtml($icon) . ' fa-fw" aria-hidden="true"></i></div>'
+        . '<div class="itflow-empty-state-title">' . $title . '</div>'
+        . ($text !== '' ? '<div class="itflow-empty-state-text">' . $text . '</div>' : '')
+        . ($buttons !== '' ? '<div class="itflow-empty-state-actions">' . $buttons . '</div>' : '')
+        . '</div>';
+}

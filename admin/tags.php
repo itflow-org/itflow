@@ -158,6 +158,14 @@ while ($row = mysqli_fetch_assoc($sql_tag_type_counts)) {
                 </div>
             </div>
         </div>
+        <?php
+        $empty_state = [
+            'thing' => strtolower($tag_type_display) . ' tags',
+            'icon' => 'fa-tags',
+            'views' => ['type'],
+            'actions' => [['label' => "New $tag_type_display Tag", 'modal' => "modals/tag/tag_add.php?type=$type_filter"]],
+        ];
+        ?>
         <?php require_once "../includes/filter_footer.php"; ?>
     </div>
 

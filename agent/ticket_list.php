@@ -299,22 +299,15 @@ $sort_link = function ($column, $label, $class = '') use ($url_query_strings_sor
         </table>
     </div>
 </form>
-<?php if (!$tickets) { ?>
-    <div class="itflow-asset-empty">
-        <i class="fas fa-life-ring fa-2x mb-2 opacity-50"></i>
-        <div>
-            <?php if ($q !== '' || $active_filters || $assigned_filter !== '' || $client_filter) { ?>
-                No tickets match.
-            <?php } elseif ($show === 'reply') { ?>
-                Nothing waiting on a reply from us.
-            <?php } elseif ($show === 'overdue') { ?>
-                Nothing overdue.
-            <?php } elseif ($show === 'open' || $show === 'mine') { ?>
-                No open tickets<?= $show === 'mine' ? ' for you' : '' ?>.
-            <?php } else { ?>
-                No tickets here.
-            <?php } ?>
-        </div>
-    </div>
-<?php } ?>
-<?php require_once "../includes/filter_footer.php"; ?>
+<?php
+$empty_state = [
+    'thing' => 'tickets',
+    'icon' => 'fa-life-ring',
+    'filtered' => $q !== '' || $active_filters || $assigned_filter !== '' || $client_filter,
+    'views' => ['show', 'view'],
+    'view' => $show === 'open' ? ['title' => 'No open tickets', 'text' => 'Nothing is waiting to be worked on.', 'icon' => 'fa-check'] : emptyStatePill($shows, $show),
+    'text' => 'Tickets come in by email and from the client portal, or add one here.',
+    'actions' => $can_edit ? [['label' => 'New Ticket', 'modal' => "modals/ticket/ticket_add.php?$client_url", 'size' => 'lg']] : [],
+];
+require_once "../includes/filter_footer.php";
+?>

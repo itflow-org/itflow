@@ -442,13 +442,18 @@ $stat_money = function ($amount) use ($session_company_currency) {
             </table>
         </div>
     </form>
-    <?php if (!$num_rows[0]) { ?>
-        <div class="itflow-asset-empty">
-            <i class="fas fa-file-invoice-dollar fa-2x mb-2 opacity-50"></i>
-            <div><?= $q || $status || $category_filter || $recurring_filter || $hardware_filter || $dtf !== '1970-01-01' ? 'No invoices match.' : 'No invoices yet.' ?></div>
-        </div>
-    <?php } ?>
-    <?php require_once "../includes/filter_footer.php"; ?>
+    <?php
+    $empty_state = [
+        'thing' => 'invoices',
+        'icon' => 'fa-file-invoice-dollar',
+        'filtered' => $q || $category_filter || $recurring_filter || $hardware_filter || $dtf !== '1970-01-01',
+        'views' => ['status'],
+        'view' => emptyStatePill($statuses, $status, '', ['Unpaid', 'Overdue']),
+        'text' => 'Bill a client by hand, or from an accepted quote or their unbilled time.',
+        'actions' => $can_edit ? [['label' => 'New Invoice', 'modal' => "modals/invoice/invoice_add.php?$client_url"]] : [],
+    ];
+    require_once "../includes/filter_footer.php";
+    ?>
 </div>
 
 <?php if ($can_edit && $mail_ready) { ?>

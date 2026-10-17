@@ -408,13 +408,19 @@ $link_icons = ['asset' => ['fa-desktop', 'asset', 'assets'], 'credential' => ['f
             </table>
         </div>
     </form>
-    <?php if (!$services) { ?>
-        <div class="itflow-asset-empty">
-            <i class="fas fa-stream fa-2x mb-2 opacity-50"></i>
-            <div><?= $q !== '' || $show || $importance_filter || $category_filter !== '' || $client_filter ? 'No services match.' : 'No services yet - start with what the client cannot work without: email, backup, their line of business app.' ?></div>
-        </div>
-    <?php } ?>
-    <?php require_once "../includes/filter_footer.php"; ?>
+    <?php
+    $empty_state = [
+        'thing' => 'services',
+        'icon' => 'fa-stream',
+        'filtered' => $q !== '' || $importance_filter || $category_filter !== '' || $client_filter,
+        'archived' => $show === 'archived',
+        'views' => ['show'],
+        'view' => emptyStatePill($shows, $show, '', ['unreviewed']),
+        'text' => 'Start with what the client cannot work without: email, backup, their line of business app.',
+        'actions' => $can_edit ? [['label' => 'New Service', 'modal' => "modals/service/service_add.php?$client_url", 'size' => 'lg']] : [],
+    ];
+    require_once "../includes/filter_footer.php";
+    ?>
 </div>
 
 <script src="../js/bulk_actions.js"></script>

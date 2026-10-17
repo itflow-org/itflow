@@ -162,6 +162,13 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                 </tbody>
             </table>
         </div>
+        <?php
+        $empty_state = [
+            'thing' => 'app logs',
+            'icon' => 'fa-history',
+            'text' => 'What ITFlow itself does - cron runs, mail, errors - shows here.',
+        ];
+        ?>
         <?php require_once "../includes/filter_footer.php";
  ?>
     </div>

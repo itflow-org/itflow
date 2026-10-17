@@ -730,6 +730,18 @@ $search_noun = $type_filter ? $asset_type_tabs[$type_filter]['label'] : 'assets'
             </table>
         </div>
     </form>
+    <?php
+    $empty_state = [
+        'thing' => $type_filter ? strtolower($asset_type_tabs[$type_filter]['label']) : 'assets',
+        'icon' => $type_filter ? $asset_type_tabs[$type_filter]['icon'] : 'fa-desktop',
+        'views' => ['type'],
+        'text' => $type_filter ? '' : 'Their computers, servers, network gear and phones - what each is, where it is and who uses it.',
+        'actions' => $can_edit ? array_merge(
+            [['label' => 'New ' . ($type_filter ? rtrim($asset_type_tabs[$type_filter]['label'], 's') : 'Asset'), 'modal' => "modals/asset/asset_add.php?$client_url&type=$type_filter", 'size' => 'lg']],
+            $client_url ? [['label' => 'Import', 'modal' => "modals/asset/asset_import.php?$client_url", 'icon' => 'fa-upload']] : []
+        ) : [],
+    ];
+    ?>
     <?php require_once "../includes/filter_footer.php"; ?>
 </div>
 

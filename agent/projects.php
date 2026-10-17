@@ -474,13 +474,19 @@ $hidden_filter_count = $date_filter_active ? 1 : 0;
             </table>
         </div>
     </form>
-    <?php if (!$projects) { ?>
-        <div class="itflow-asset-empty">
-            <i class="fas fa-project-diagram fa-2x mb-2 opacity-50"></i>
-            <div><?= $q !== '' || $show || $manager_filter !== '' || $client_filter !== '' || $date_filter_active ? 'No projects match.' : 'No projects yet - onboarding a new client or a server refresh is a good first one.' ?></div>
-        </div>
-    <?php } ?>
-    <?php require_once "../includes/filter_footer.php"; ?>
+    <?php
+    $empty_state = [
+        'thing' => 'projects',
+        'icon' => 'fa-project-diagram',
+        'filtered' => $q !== '' || $manager_filter !== '' || $client_filter !== '' || $date_filter_active,
+        'archived' => $show === 'archived',
+        'views' => ['show'],
+        'view' => emptyStatePill($shows, $show),
+        'text' => 'Onboarding a new client or a server refresh is a good first one.',
+        'actions' => $can_edit ? [['label' => 'New Project', 'modal' => "modals/project/project_add.php?$client_url", 'size' => 'lg']] : [],
+    ];
+    require_once "../includes/filter_footer.php";
+    ?>
 </div>
 
 <script src="../js/bulk_actions.js"></script>

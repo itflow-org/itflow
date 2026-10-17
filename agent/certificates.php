@@ -444,13 +444,18 @@ $export_extra = [
             </table>
         </div>
     </form>
-    <?php if (!$num_rows[0]) { ?>
-        <div class="itflow-asset-empty">
-            <i class="fas fa-lock fa-2x mb-2 opacity-50"></i>
-            <div><?= $q || $issuer_query || $show || $expire_query ? 'No certificates match.' : 'No certificates yet.' ?></div>
-        </div>
-    <?php } ?>
-    <?php require_once "../includes/filter_footer.php"; ?>
+    <?php
+    $empty_state = [
+        'thing' => 'certificates',
+        'icon' => 'fa-lock',
+        'filtered' => $q || $issuer_query || $expire_query,
+        'views' => ['show'],
+        'view' => emptyStatePill($shows, $show, '', ['soon', 'expired', 'problems', 'unchecked']),
+        'text' => 'The certificates on their websites and services, and when each expires.',
+        'actions' => $can_edit ? [['label' => 'New Certificate', 'modal' => "modals/certificate/certificate_add.php?$client_url", 'size' => 'lg']] : [],
+    ];
+    require_once "../includes/filter_footer.php";
+    ?>
 </div>
 
 <?php if (!empty($_GET['open'])) { ?>

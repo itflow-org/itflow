@@ -143,6 +143,14 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
             </tbody>
         </table>
     </div>
+    <?php
+    $empty_state = [
+        'thing' => 'payment providers',
+        'icon' => 'fa-credit-card',
+        'text' => 'Take card payments online when clients pay an invoice.',
+        'actions' => [['label' => 'Add Provider', 'modal' => 'modals/payment_provider/payment_provider_add.php']],
+    ];
+    ?>
     <?php require_once "../includes/filter_footer.php"; ?>
 </div>
 

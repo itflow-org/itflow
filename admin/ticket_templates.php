@@ -112,6 +112,14 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
             </tbody>
         </table>
     </div>
+    <?php
+    $empty_state = [
+        'thing' => 'ticket templates',
+        'icon' => 'fa-life-ring',
+        'text' => 'The details and tasks to start a ticket with.',
+        'actions' => [['label' => 'New Ticket Template', 'modal' => 'modals/ticket_template/ticket_template_add.php', 'size' => 'lg']],
+    ];
+    ?>
     <?php require_once "../includes/filter_footer.php";
  ?>
 </div>

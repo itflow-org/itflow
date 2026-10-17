@@ -515,13 +515,17 @@ while ($license_type_row = mysqli_fetch_row($sql_license_types)) {
             </table>
         </div>
     </form>
-    <?php if (!$num_rows[0]) { ?>
-        <div class="itflow-asset-empty">
-            <i class="fas fa-cube fa-2x mb-2 opacity-50"></i>
-            <div><?= $tab_counts[''] ? 'No licenses match.' : 'No licenses yet.' ?></div>
-        </div>
-    <?php } ?>
-    <?php require_once "../includes/filter_footer.php"; ?>
+    <?php
+    $empty_state = [
+        'thing' => 'licenses',
+        'icon' => 'fa-cube',
+        'views' => ['status'],
+        'view' => emptyStatePill($status_filters, $status, '', ['renewing', 'expired', 'over', 'unused']),
+        'text' => 'Their software and subscriptions - the seats bought, who and what uses them, and when each renews.',
+        'actions' => $can_edit ? [['label' => 'New License', 'modal' => "modals/software/software_add.php?$client_url", 'size' => 'lg']] : [],
+    ];
+    require_once "../includes/filter_footer.php";
+    ?>
 </div>
 
 <script src="../js/bulk_actions.js"></script>

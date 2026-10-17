@@ -129,6 +129,14 @@
         </table>
         <br>
     </div>
+    <?php
+    $empty_state = [
+        'thing' => 'document templates',
+        'icon' => 'fa-file-alt',
+        'text' => 'Start a client document from one.',
+        'actions' => [['label' => 'New Template', 'modal' => 'modals/document_template/document_template_add.php', 'size' => 'xl']],
+    ];
+    ?>
     <?php require_once "../includes/filter_footer.php"; ?>
 </div>
 

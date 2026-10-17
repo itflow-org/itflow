@@ -359,25 +359,17 @@ $csrf = $_SESSION['csrf_token'];
             </table>
         </div>
     </form>
-    <?php if (!$users) { ?>
-        <div class="itflow-asset-empty">
-            <i class="fas fa-users fa-2x mb-2 opacity-50"></i>
-            <div>
-                <?php if ($q !== '' || $role_filter) { ?>
-                    No users match.
-                <?php } elseif ($show === 'nomfa') { ?>
-                    Everyone active signs in with MFA.
-                <?php } elseif ($show === 'archived') { ?>
-                    No archived users.
-                <?php } elseif ($show === 'disabled') { ?>
-                    Nobody is disabled.
-                <?php } else { ?>
-                    No users here.
-                <?php } ?>
-            </div>
-        </div>
-    <?php } ?>
-    <?php require_once "../includes/filter_footer.php"; ?>
+    <?php
+    $empty_state = [
+        'thing' => 'users',
+        'icon' => 'fa-users',
+        'filtered' => $q !== '' || $role_filter,
+        'archived' => $show === 'archived',
+        'views' => ['show'],
+        'view' => $show === 'nomfa' ? ['title' => 'Everyone active signs in with MFA', 'icon' => 'fa-check'] : emptyStatePill($shows, $show),
+    ];
+    require_once "../includes/filter_footer.php";
+    ?>
 </div>
 
 <script src="../js/bulk_actions.js"></script>

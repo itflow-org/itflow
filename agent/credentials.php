@@ -467,13 +467,21 @@ $filter_url = function ($changes) use ($client_url) {
             </table>
         </div>
     </form>
-    <?php if (!$num_rows[0]) { ?>
-        <div class="itflow-asset-empty">
-            <i class="fas fa-key fa-2x mb-2 opacity-50"></i>
-            <div><?= $q || $tag_query || $show ? 'No credentials match.' : 'No credentials yet.' ?></div>
-        </div>
-    <?php } ?>
-    <?php require_once "../includes/filter_footer.php"; ?>
+    <?php
+    $empty_state = [
+        'thing' => 'credentials',
+        'icon' => 'fa-key',
+        'filtered' => $q || $tag_query,
+        'views' => ['show'],
+        'view' => emptyStatePill($shows, $show, '', ['nootp', 'due']),
+        'text' => 'The logins for their systems, encrypted in the vault.',
+        'actions' => $can_edit ? array_merge(
+            [['label' => 'New Credential', 'modal' => "modals/credential/credential_add.php?$client_url", 'size' => 'lg']],
+            $client_url ? [['label' => 'Import', 'modal' => "modals/credential/credential_import.php?$client_url", 'icon' => 'fa-upload']] : []
+        ) : [],
+    ];
+    require_once "../includes/filter_footer.php";
+    ?>
 </div>
 
 <?php if (!empty($_GET['open'])) { ?>

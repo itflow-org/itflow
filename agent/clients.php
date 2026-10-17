@@ -636,6 +636,18 @@ $total_leads = intval($row['leads']);
         </div>
     </form>
 
+    <?php
+    $empty_state = [
+        'thing' => $leads_filter ? 'leads' : 'clients',
+        'icon' => 'fa-user-friends',
+        'views' => ['leads'],
+        'text' => $leads_filter ? 'Prospects you are talking to, kept apart from your clients.' : 'Add the companies you look after, or import them all at once.',
+        'actions' => $can_edit ? array_merge(
+            [['label' => $leads_filter ? 'New Lead' : 'New Client', 'modal' => 'modals/client/client_add.php' . ($leads_filter ? '?lead=1' : '')]],
+            $leads_filter ? [] : [['label' => 'Import', 'modal' => 'modals/client/client_import.php', 'icon' => 'fa-upload']]
+        ) : [],
+    ];
+    ?>
     <?php require_once "../includes/filter_footer.php"; ?>
 </div>
 

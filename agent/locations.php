@@ -412,13 +412,19 @@ $locations_counts = locationCounts(array_keys($locations));
             </table>
         </div>
     </form>
-    <?php if (!$num_rows[0]) { ?>
-        <div class="itflow-asset-empty">
-            <i class="fas fa-map-marker-alt fa-2x mb-2 opacity-50"></i>
-            <div><?= $q || $tag_query ? 'No locations match.' : 'No locations yet.' ?></div>
-        </div>
-    <?php } ?>
-    <?php require_once "../includes/filter_footer.php"; ?>
+    <?php
+    $empty_state = [
+        'thing' => 'locations',
+        'icon' => 'fa-map-marker-alt',
+        'filtered' => $q || $tag_query,
+        'text' => 'Their offices and sites, with the address and phone of each.',
+        'actions' => $can_edit ? array_merge(
+            [['label' => 'New Location', 'modal' => "modals/location/location_add.php?$client_url", 'size' => 'lg']],
+            $client_url ? [['label' => 'Import', 'modal' => "modals/location/location_import.php?$client_url", 'icon' => 'fa-upload']] : []
+        ) : [],
+    ];
+    require_once "../includes/filter_footer.php";
+    ?>
 </div>
 
 <script src="../js/bulk_actions.js"></script>

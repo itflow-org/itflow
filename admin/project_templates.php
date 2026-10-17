@@ -137,13 +137,18 @@ $sort_link = function ($column, $label) use ($url_query_strings_sort, $sort, $di
             </tbody>
         </table>
     </div>
-    <?php if ($num_rows[0] == 0) { ?>
-        <div class="itflow-asset-empty">
-            <i class="fas fa-cubes fa-2x mb-2 opacity-50"></i>
-            <div><?= $q !== '' ? 'No project templates match.' : ($show_archived ? 'No archived project templates.' : 'No project templates yet - a client onboarding plan is a good first one: one ticket template per step, each with its checklist of tasks.') ?></div>
-        </div>
-    <?php } ?>
-    <?php require_once "../includes/filter_footer.php"; ?>
+    <?php
+    $empty_state = [
+        'thing' => 'project templates',
+        'icon' => 'fa-cubes',
+        'filtered' => $q !== '',
+        'archived' => $show_archived,
+        'views' => ['show'],
+        'text' => 'A client onboarding plan is a good first one: one ticket template per step, each with its checklist of tasks.',
+        'actions' => [['label' => 'New Project Template', 'modal' => 'modals/project_template/project_template_add.php']],
+    ];
+    require_once "../includes/filter_footer.php";
+    ?>
 </div>
 
 <?php

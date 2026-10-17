@@ -406,16 +406,22 @@ $invoices_url = 'invoices.php?' . ($client_page ? "client_id=$client_id&" : '') 
             <?php } ?>
         </table>
     </div>
-    <?php if (!$num_rows[0]) { ?>
-        <div class="itflow-asset-empty">
-            <i class="fas fa-hand-holding-usd fa-2x mb-2 opacity-50"></i>
-            <div><?= $any_filter ? 'Nothing matches.' : 'Nothing has come in yet.' ?></div>
-            <?php if (!$any_filter) { ?>
-                <div class="small mt-1">A payment is added on its invoice. Money in that isn't for an invoice is New Income here<?= $can_edit ? ', and a bank statement\'s deposits come in with <a href="income_import.php">Import Deposits</a>' : '' ?>.</div>
-            <?php } ?>
-        </div>
-    <?php } ?>
-    <?php require_once "../includes/filter_footer.php"; ?>
+    <?php
+    $empty_state = [
+        'thing' => 'income',
+        'icon' => 'fa-hand-holding-usd',
+        'filtered' => $q || ($client_filter && !$client_page) || $category_filter || $account_filter || $method_filter !== '' || $dtf !== '1970-01-01',
+        'views' => ['show'],
+        'view' => emptyStatePill($shows, $show, '', ['uncategorised']),
+        'match_title' => 'No income matches',
+        'text' => "A payment is added on its invoice. Money in that isn't for an invoice is New Income here.",
+        'actions' => $can_edit ? [
+            ['label' => 'New Income', 'modal' => $add_url, 'size' => 'lg'],
+            ['label' => 'Import Deposits', 'href' => 'income_import.php', 'icon' => 'fa-file-import'],
+        ] : [],
+    ];
+    require_once "../includes/filter_footer.php";
+    ?>
 </div>
 
 <?php if (preg_match('/^(payment|revenue)-(\d+)$/i', (string) ($_GET['open'] ?? ''), $open)) { ?>

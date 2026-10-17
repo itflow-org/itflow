@@ -147,6 +147,13 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
         </table>
 
     </div>
+    <?php
+    $empty_state = [
+        'thing' => 'saved payment methods',
+        'icon' => 'fa-credit-card',
+        'text' => 'The cards clients save when they pay online show here.',
+    ];
+    ?>
     <?php require_once "../includes/filter_footer.php"; ?>
 </div>
 

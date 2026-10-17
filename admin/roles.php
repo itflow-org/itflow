@@ -139,6 +139,13 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                 </tbody>
             </table>
         </div>
+        <?php
+        $empty_state = [
+            'thing' => 'roles',
+            'icon' => 'fa-user-shield',
+            'actions' => [['label' => 'New Role', 'modal' => 'modals/role/role_add.php', 'icon' => 'fa-user-plus']],
+        ];
+        ?>
         <?php require_once "../includes/filter_footer.php";
             ?>
     </div>

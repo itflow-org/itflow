@@ -314,13 +314,18 @@ $any_filter = $q || $vendor_filter || $category_filter || $client_filter;
             </tbody>
         </table>
     </div>
-    <?php if (!$num_rows[0]) { ?>
-        <div class="itflow-asset-empty">
-            <i class="fas fa-redo-alt fa-2x mb-2 opacity-50"></i>
-            <div><?= $any_filter || $status !== 'active' ? 'No recurring expenses match.' : 'No recurring expenses running - rent, colocation, licensing and insurance go here.' ?></div>
-        </div>
-    <?php } ?>
-    <?php require_once "../includes/filter_footer.php"; ?>
+    <?php
+    $empty_state = [
+        'thing' => 'recurring expenses',
+        'icon' => 'fa-redo-alt',
+        'filtered' => $any_filter,
+        'views' => ['status'],
+        'view' => emptyStatePill($statuses, $status, 'active', ['late']),
+        'text' => 'Rent, colocation, licensing and insurance - recorded for you each time they come round.',
+        'actions' => $can_edit ? [['label' => 'New Recurring Expense', 'modal' => 'modals/recurring_expense/recurring_expense_add.php' . ($vendor_filter ? "?vendor_id=$vendor_filter" : ''), 'size' => 'lg']] : [],
+    ];
+    require_once "../includes/filter_footer.php";
+    ?>
 </div>
 
 <?php if (!empty($_GET['open'])) { ?>

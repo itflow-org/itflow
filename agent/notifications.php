@@ -127,23 +127,18 @@ $empty_state_skip = true;
 
     <?php if ($num_rows[0] == 0) { ?>
 
-        <div class="itflow-notify-empty py-5">
-            <?php if ($notifications_filtered) { ?>
-                <i class="fas fa-filter fa-3x mb-3 d-block" aria-hidden="true"></i>
-                <h5>No notifications match the current filters</h5>
-                <a href="<?= escapeHtml('notifications.php' . ($view === 'all' ? '?view=all' : '')) ?>" class="btn btn-sm btn-outline-secondary mt-2">
-                    <i class="fas fa-times me-2"></i>Clear filters
-                </a>
-            <?php } elseif ($view === 'unread') { ?>
-                <i class="fas fa-check-circle fa-3x mb-3 d-block text-success" aria-hidden="true"></i>
-                <h5>You're all caught up</h5>
-                <p class="mb-2">Nothing new since you last looked.</p>
-                <a href="notifications.php?view=all" class="btn btn-sm btn-outline-secondary">See all notifications</a>
-            <?php } else { ?>
-                <i class="fas fa-bell-slash fa-3x mb-3 d-block" aria-hidden="true"></i>
-                <h5>No notifications yet</h5>
-            <?php } ?>
-        </div>
+        <?= emptyStateHtml([
+            'thing' => 'notifications',
+            'icon' => 'fa-bell-slash',
+            'filtered' => $notifications_filtered,
+            'clear_url' => 'notifications.php' . ($view === 'all' ? '?view=all' : ''),
+            'view' => $view === 'unread' ? [
+                'title' => "You're all caught up",
+                'text' => 'Nothing new since you last looked.',
+                'icon' => 'fa-check',
+                'actions' => [['label' => 'See all notifications', 'href' => 'notifications.php?view=all', 'icon' => 'fa-bell']],
+            ] : null,
+        ]) ?>
 
     <?php } else { ?>
 

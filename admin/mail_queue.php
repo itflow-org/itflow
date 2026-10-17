@@ -182,6 +182,14 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
             </div>
         </form>
 
+        <?php
+        $empty_state = [
+            'thing' => 'emails',
+            'icon' => 'fa-inbox',
+            'title' => 'Nothing in the mail queue',
+            'text' => 'The email ITFlow sends waits here until it goes.',
+        ];
+        ?>
         <?php require_once "../includes/filter_footer.php"; ?>
     </div>
 

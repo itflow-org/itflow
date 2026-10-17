@@ -126,6 +126,14 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
             </tbody>
         </table>
     </div>
+    <?php
+    $empty_state = [
+        'thing' => 'canned responses',
+        'icon' => 'fa-comment-dots',
+        'text' => 'Replies agents drop into a ticket in one click.',
+        'actions' => [['label' => 'New Canned Response', 'modal' => 'modals/canned_response/canned_response_add.php', 'size' => 'lg']],
+    ];
+    ?>
     <?php require_once "../includes/filter_footer.php";
  ?>
 </div>

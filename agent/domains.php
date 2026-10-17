@@ -434,13 +434,18 @@ $bulk_vendor_options = $can_edit ? domainVendorChoices($client_url ? $client_id 
             </table>
         </div>
     </form>
-    <?php if (!$num_rows[0]) { ?>
-        <div class="itflow-asset-empty">
-            <i class="fas fa-globe fa-2x mb-2 opacity-50"></i>
-            <div><?= $q || $tag_query || $show || $vendor_query || $expire_query ? 'No domains match.' : 'No domains yet.' ?></div>
-        </div>
-    <?php } ?>
-    <?php require_once "../includes/filter_footer.php"; ?>
+    <?php
+    $empty_state = [
+        'thing' => 'domains',
+        'icon' => 'fa-globe',
+        'filtered' => $q || $tag_query || $vendor_query || $expire_query,
+        'views' => ['show'],
+        'view' => emptyStatePill($shows, $show, '', ['soon', 'expired', 'noauto', 'mail']),
+        'text' => 'Their domain names, where each is registered and when it expires.',
+        'actions' => $can_edit ? [['label' => 'New Domain', 'modal' => "modals/domain/domain_add.php?$client_url", 'size' => 'lg']] : [],
+    ];
+    require_once "../includes/filter_footer.php";
+    ?>
 </div>
 
 <?php if ($can_edit && !$archived) { ?>

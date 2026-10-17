@@ -3738,6 +3738,43 @@ tr:hover .itflow-copy,
     text-align: center;
     color: var(--bs-secondary-color);
 }
+/* Empty state - a list with nothing in it, or nothing its filters let
+   through (emptyStateHtml()): the list's icon in a round tile, a title, a
+   line on what goes there and its buttons */
+.itflow-empty-state {
+    padding: 3rem 1rem;
+    text-align: center;
+}
+.itflow-empty-state-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 4rem;
+    height: 4rem;
+    margin-bottom: 1rem;
+    border-radius: 50%;
+    font-size: 1.5rem;
+    background: var(--bs-secondary-bg);
+    color: var(--bs-secondary-color);
+}
+.itflow-empty-state-title {
+    font-size: 1.05rem;
+    font-weight: 600;
+    color: var(--bs-emphasis-color);
+}
+.itflow-empty-state-text {
+    max-width: 34rem;
+    margin: .25rem auto 0;
+    font-size: .875rem;
+    color: var(--bs-secondary-color);
+}
+.itflow-empty-state-actions {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: .5rem;
+    margin-top: 1.25rem;
+}
 .itflow-asset-dl .font-monospace {
     font-size: .82rem;
 }

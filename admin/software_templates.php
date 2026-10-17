@@ -121,6 +121,13 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
             </tbody>
         </table>
     </div>
+    <?php
+    $empty_state = [
+        'thing' => 'license templates',
+        'icon' => 'fa-cube',
+        'actions' => [['label' => 'New License Template', 'modal' => 'modals/software_template/software_template_add.php']],
+    ];
+    ?>
     <?php require_once "../includes/filter_footer.php";
  ?>
 </div>

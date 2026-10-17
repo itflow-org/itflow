@@ -104,6 +104,14 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
             </tbody>
         </table>
     </div>
+    <?php
+    $empty_state = [
+        'thing' => 'payment methods',
+        'icon' => 'fa-credit-card',
+        'text' => 'How clients pay you - check, ACH, cash, card.',
+        'actions' => [['label' => 'Add Payment Method', 'modal' => 'modals/payment_method/payment_method_add.php']],
+    ];
+    ?>
     <?php require_once "../includes/filter_footer.php"; ?>
 </div>
 

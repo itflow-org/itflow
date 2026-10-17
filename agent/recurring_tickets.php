@@ -405,13 +405,18 @@ $sort_link = function ($column, $label) use ($url_query_strings_sort, $sort, $di
             </table>
         </div>
     </form>
-    <?php if (!$recurring_tickets) { ?>
-        <div class="itflow-asset-empty">
-            <i class="fas fa-redo-alt fa-2x mb-2 opacity-50"></i>
-            <div><?= $q !== '' || $show || $category_filter || $agent_filter || $client || $billable_filter !== null ? 'No recurring tickets match.' : 'No recurring tickets yet - a monthly maintenance visit or a quarterly backup test is a good first one.' ?></div>
-        </div>
-    <?php } ?>
-    <?php require_once '../includes/filter_footer.php'; ?>
+    <?php
+    $empty_state = [
+        'thing' => 'recurring tickets',
+        'icon' => 'fa-redo-alt',
+        'filtered' => $q !== '' || $category_filter || $agent_filter || $client || $billable_filter !== null,
+        'views' => ['show'],
+        'view' => emptyStatePill($shows, $show, '', ['missed', 'unassigned']),
+        'text' => 'A monthly maintenance visit or a quarterly backup test is a good first one.',
+        'actions' => $can_edit ? [['label' => 'New Recurring Ticket', 'modal' => "modals/recurring_ticket/recurring_ticket_add.php?$client_url", 'size' => 'lg']] : [],
+    ];
+    require_once '../includes/filter_footer.php';
+    ?>
 </div>
 
 <script src="../js/bulk_actions.js"></script>
