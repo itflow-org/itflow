@@ -98,6 +98,12 @@ $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
                                         data-modal-url="modals/account/account_edit.php?id=<?= $account_id ?>">
                                         <i class="fas fa-fw fa-edit me-2"></i>Edit
                                     </a>
+                                    <a class="dropdown-item" href="transactions.php?account=<?= $account_id ?>">
+                                        <i class="fas fa-fw fa-exchange-alt me-2"></i>Transactions
+                                    </a>
+                                    <a class="dropdown-item" href="income.php?account=<?= $account_id ?>">
+                                        <i class="fas fa-fw fa-hand-holding-usd me-2"></i>Income into it
+                                    </a>
                                     <?php if ($balance == 0 && $account_id != $config_stripe_account) { //Cannot Archive an Account until it reaches 0 Balance and cant be selected as an online account ?>
                                         <div class="dropdown-divider"></div>
                                         <a class="dropdown-item text-danger" href="post.php?archive_account=<?= $account_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>">

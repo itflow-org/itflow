@@ -23,7 +23,8 @@
  *     require_once "../../includes/footer.php";
  *
  * Money is counted the way the dashboard counts it: income is what came in -
- * invoice payments, and revenues with a category; spending is expenses with a
+ * invoice payments, and other income that isn't a transfer, categorised or
+ * not (functions/income.php); spending is expenses with a
  * vendor, as an expense with no vendor is the out side of a transfer between
  * accounts. Anything tied to a client goes through clientScopeSql(), so an
  * agent restricted to some clients only ever sees those clients' rows; the
@@ -1469,7 +1470,7 @@ function reportCategoryChartSeries(array $categories, array $grid, $months_shown
  * the year and its share, a totals row, and each amount opening the list it
  * came from ($list: income.php or expenses.php).
  */
-function reportCategoryYearTable(array $categories, array $grid, $year, $list, $total_label) {
+function reportCategoryYearTable(array $categories, array $grid, $year, $list, $total_label, $uncategorised = '') {
     $columns = reportYearColumns('month');
     $totals = reportGridTotals($grid);
     $html = '<div class="table-responsive"><table class="table table-sm table-hover align-middle mb-0 itflow-report-table itflow-report-grid" data-report-sort>'
@@ -1487,10 +1488,10 @@ function reportCategoryYearTable(array $categories, array $grid, $year, $list, $
             . (!empty($category['category_archived_at']) ? ' <span class="badge bg-secondary-subtle text-secondary-emphasis fw-normal">Archived</span>' : '') . '</td>';
         foreach ($columns as $i => [$label, $first, $last]) {
             [$dtf, $dtt] = reportColumnDates($year, $first, $last);
-            $url = $cat ? "/agent/$list?category=$cat&canned_date=custom&dtf=$dtf&dtt=$dtt" : '';
+            $url = $cat || $uncategorised !== '' ? "/agent/$list?" . ($cat ? "category=$cat" : $uncategorised) . "&canned_date=custom&dtf=$dtf&dtt=$dtt" : '';
             $html .= '<td class="text-end" data-value="' . round($row['months'][$i], 2) . '">' . reportGridAmount($row['months'][$i], $url) . '</td>';
         }
-        $url = $cat ? "/agent/$list?category=$cat&canned_date=custom&dtf=$year-01-01&dtt=$year-12-31" : '';
+        $url = $cat || $uncategorised !== '' ? "/agent/$list?" . ($cat ? "category=$cat" : $uncategorised) . "&canned_date=custom&dtf=$year-01-01&dtt=$year-12-31" : '';
         $share = reportShare($row['total'], $totals['total'], 1);
         $html .= '<td class="text-end fw-semibold" data-value="' . round($row['total'], 2) . '">' . reportGridAmount($row['total'], $url) . '</td>'
             . '<td class="text-end text-body-secondary" data-value="' . ($share ?? 0) . '">' . reportPercent($share) . '</td></tr>';

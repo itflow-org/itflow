@@ -636,3 +636,34 @@ if (isset($_GET['refund_payment_stripe'])) {
     redirect();
 
 }
+
+/* Email a payment's receipt to the client's billing contacts again - from its quick look. */
+if (isset($_GET['payment_send_receipt'])) {
+
+    validateCSRFToken();
+
+    enforceUserPermission('module_sales', 2);
+    enforceUserPermission('module_financial');
+
+    $row = incomePaymentRow(intval($_GET['payment_send_receipt']));
+    if (!$row || $row['invoice_number'] === null) {
+        flashAlert('That payment no longer exists, or is not one you can see', 'error');
+        redirect();
+    }
+    $receipt_to = billingPaymentSend($row['invoice_id'], floatval($row['payment_amount']), [
+        'date' => $row['payment_date'],
+        'method' => (string) $row['payment_method'],
+        'reference' => (string) $row['payment_reference'],
+    ]);
+    if (!$receipt_to) {
+        flashAlert(escapeHtml($row['client_name']) . ' has no billing contact with an email to send the receipt to', 'error');
+        redirect();
+    }
+
+    logAudit("Invoice", "Payment", "Payment receipt for invoice " . escapeSql($row['invoice_prefix'] . $row['invoice_number']) . " queued to " . escapeSql(implode(', ', $receipt_to)), intval($row['invoice_client_id']), intval($row['invoice_id']));
+
+    flashAlert("Receipt for <strong>" . escapeHtml(incomePaymentLabel($row)) . "</strong> queued to " . escapeHtml(implode(', ', $receipt_to)));
+
+    redirect();
+
+}

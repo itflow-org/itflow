@@ -1789,7 +1789,8 @@ CREATE TABLE `payments` (
   `payment_account_id` int(11) NOT NULL,
   `payment_invoice_id` int(11) NOT NULL DEFAULT 0,
   PRIMARY KEY (`payment_id`),
-  KEY `payment_invoice_id` (`payment_invoice_id`)
+  KEY `payment_invoice_id` (`payment_invoice_id`),
+  KEY `payment_date` (`payment_date`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -2345,15 +2346,17 @@ CREATE TABLE `revenues` (
   `revenue_currency_code` varchar(200) NOT NULL,
   `revenue_payment_method` varchar(200) DEFAULT NULL,
   `revenue_reference` varchar(200) DEFAULT NULL,
-  `revenue_description` varchar(200) DEFAULT NULL,
+  `revenue_description` text DEFAULT NULL,
   `revenue_created_at` datetime NOT NULL DEFAULT current_timestamp(),
   `revenue_updated_at` datetime DEFAULT NULL ON UPDATE current_timestamp(),
   `revenue_archived_at` datetime DEFAULT NULL,
   `revenue_category_id` int(11) NOT NULL DEFAULT 0,
   `revenue_account_id` int(11) NOT NULL,
   `revenue_client_id` int(11) NOT NULL DEFAULT 0,
+  `revenue_created_by` int(11) NOT NULL DEFAULT 0,
   PRIMARY KEY (`revenue_id`),
-  KEY `revenue_client_id` (`revenue_client_id`,`revenue_archived_at`)
+  KEY `revenue_client_id` (`revenue_client_id`,`revenue_archived_at`),
+  KEY `revenue_date` (`revenue_date`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 

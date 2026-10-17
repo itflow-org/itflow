@@ -6,9 +6,9 @@ This file documents all notable changes made to ITFlow.
 
 ### Upgrading to 26.11
 
-Update from Maintenance > Update — Queue Update hands the job to cron, which updates the files and applies this release's database changes (2.7.9 to 3.0.4) in the same pass. Nothing else is required.
+Update from Maintenance > Update — Queue Update hands the job to cron, which updates the files and applies this release's database changes (2.7.9 to 3.0.5) in the same pass. Nothing else is required.
 
-This is a big release, with twenty-five database steps in one go, so take a backup before you update.
+This is a big release, with twenty-six database steps in one go, so take a backup before you update.
 
 The update also clears out data that deletes in older versions left behind, all of it pointing at something that no longer exists:
 
@@ -26,6 +26,8 @@ Expenses already entered take who entered them from the audit log, where it has 
 Recurring expenses keep their next date and from then on run on that day of the month - monthly ones stay monthly and yearly ones yearly. Look over their next dates once after the update (see Breaking Changes, Expenses). The expenses they recorded before are linked to them, matched on the vendor, category, client and description. No expense or recurring expense becomes billable to a client by itself - they stay your cost until you mark them (see New Features, Expenses).
 
 Trips already logged keep the miles they were entered with (see Breaking Changes, Trips). Each takes who logged it from the audit log, or its driver where the log has no record. A trip for a client whose destination is one of that client's locations, by name or by address, is linked to that location. Trips already logged count as driven in a company vehicle and not billable, so nothing is paid back or billed for them until you say so (see New Features, Trips). No mileage rate or trip charge is set, and mileage goes under an expense category called Mileage, or Travel, when there is one.
+
+Other income already entered (money in that isn't for an invoice, which used to be called revenue) takes who entered it from the audit log, where it has a record of it. Income with no category now counts in the dashboard and reports, so their totals can go up by that much (see Breaking Changes, Income).
 
 If you are coming from 26.08 or earlier, the database update still has to be run from the command line one time, exactly as described under Upgrading to 26.09 below.
 
@@ -94,6 +96,13 @@ If you are coming from 26.08 or earlier, the database update still has to be run
   - Every agent can open Trips when accounting is on, and log their own driving. An agent without Financial access sees only the trips they drove or logged, and can change or delete only those. Logging a trip for someone else, or changing theirs, needs write access to Financial, and deleting theirs needs full access. Before, any agent who opened the page saw every trip of their clients and could change any of them.
   - A trip's miles are the whole trip. The form asks for the miles one way and doubles them for a round trip. The old form saved the number as typed, whether Round Trip was ticked or not, so an older round trip entered as the miles one way still counts once. Edit those to correct them.
   - The database column `trips.trip_end_odmeter` is now `trip_end_odometer`. Anything of your own that reads it, such as a custom report, needs the new name.
+- Income:
+  - Money in that isn't for an invoice is now called other income (it was revenue). Adding and changing it needs write access to Financial, and deleting it full access. It used to need Sales. Payments keep the invoice's rules, full access to Sales and Financial.
+  - Other income counts whether it has a category or not, on the Income list, the dashboard, the client overview and every report, as No category when it has none. The dashboard and reports used to leave it out until it had a category, so their income can go up after the update by what had none. Money coming in from a transfer between your own accounts is still not income.
+  - New other income takes the currency of the account it goes into. It used to take the company's currency whatever the account.
+  - The Income list's Bulk menu has Set Category, Set Account, Set Payment Method and the new Set Client, a window each, and Delete. A payment's category is its invoice's, so Set Category on a payment sets its invoice's category, as before. A payment's client is its invoice's, so Set Client leaves payments alone, and payments are deleted from their invoice, not here.
+  - The export's Type column says Invoice payment or Other income (it was Payment or Revenue), and Source is now What for, with new Invoice and Paid Online columns.
+  - In Transactions, a payment's date opens its quick look instead of the invoice. The quick look has Open Invoice.
 - Notifications now follow access too. An agent only sees notifications for clients and areas they can open, so someone without sales access no longer sees invoice and quote notifications.
 - Drop-downs: Tom Select is gone, replaced by ITFlow's own picker. It works the way you are used to: type to search, tick several in a multi-select, and type a new value in fields that allow it, such as ticket watchers. See Developer Updates if you have custom pages that used Tom Select.
 - Several small windows are gone because the change is now made where the value is shown:
@@ -575,6 +584,24 @@ If you are coming from 26.08 or earlier, the database update still has to be run
     - Once billed, a trip keeps its distance, client and billable, and can't be deleted.
   - The dashboard shows Trips to bill and Mileage to pay back, the client overview Trips to bill, and the Unbilled Time count in the menu counts trips.
   - The demo data logs a trip to the site for each onsite ticket fixed in the last six months. The last six weeks of driving are in the agent's own vehicle, and a billable ticket's trip in the last month is billable when trips have a charge or rate.
+- **Income** (rebuilt)
+  - Income is counted the same way everywhere - the Income list, the dashboard, the client overview, Income Summary, Profit & Loss, Income by Client and Client Profitability: invoice payments, and other income (money in that isn't for an invoice) whether it has a category or not. Money moved between your own accounts is left out.
+  - Along the top of the list: what came in this month against the same days of last month, the year so far with its monthly average, what the running recurring invoices bill a month, and what is still owed on invoices with how much of it is late. Each one opens what is behind it.
+  - Pills cut the list to invoice payments, other income, what was paid online and what has no category, each with a count. Filter by client, category and date, and under More filters by the account it went into and how it was paid. Search finds what it was for, an invoice number, a reference such as a check number, an amount, the client, category or account. The total of everything the filters leave sits under the list.
+  - Each row shows the invoice and what it was for (or what the other income was), how it was paid and its reference, the category with its colour, the client, the account, and the amount with a mark when it was paid online.
+  - Clicking a payment opens its quick look:
+    - the invoice it paid, its status and due date, what it came to, what has been paid on it in all and what is still owed
+    - the other payments on the same invoice, each opening its own
+    - the client, the invoice's category, the account, how it was paid and the reference
+    - for a payment made online, the payment provider's fee and what came in after it, when the fee is in the expenses
+    - Open Invoice, Email Receipt (to the client's billing contacts again), Edit and Delete
+  - Clicking other income opens its quick look: what it was with the rest of the description as notes, the client, category, account, how it was paid, the reference, who entered it and when, and what has come in from that client this year. Edit, Copy and Delete.
+  - New Income, Edit and Copy are one form with an icon on every field. Pick the client it came from - a rebate passed on to a client, a deposit held for them - and it counts for them in Income by Client and Client Profitability. The amount shows the account's currency, and can be negative for money that went back out. Every field is checked when it is saved: a real date, an amount, an account and an income category. Copy dates the copy today and leaves off the reference.
+  - A client's Income page has the same cards and pills for that client, with New Income starting with them.
+  - Bulk actions set the category, account, payment method or client on the ticked rows, or delete the other income among them. Each window says what it will leave alone.
+  - Export takes the same filters as the list, including the pills, with Invoice and Paid Online columns.
+  - Income Summary and Profit & Loss list No category as a line, opening those on the list, and their Invoice payments and Other income figures open those pills. Accounts link to Transactions and the income into each account. Search finds other income by what it was, its reference or its amount, and payments by their reference, opening the quick look.
+  - The demo data adds the money an MSP takes in besides invoices: a distributor's partner rebate each quarter, interest on the savings account and the odd referral fee.
 
 ### Bug Fixes
 
@@ -630,6 +657,8 @@ If you are coming from 26.08 or earlier, the database update still has to be run
 - Users: Your account > Activity showed other agents' sign-ins. A password with a space at the start or end was saved inconsistently, so the agent either could not sign in or could sign in but not open credentials. Passwords are now saved exactly as typed.
 - Users: disabling a user left a blank name in the audit log.
 - Income on the dashboard and in the reports counted money moved between your own accounts as income when the transfer had been given a category.
+- Income: the Invoice payments and Other revenue figures on the Income Summary report opened the whole Income list, as the list didn't understand their links. Sorting the Income list by a column it doesn't have gave a database error.
+- Income: the revenue form saved whatever was typed, such as no account, no category or an amount of nothing. A revenue's client couldn't be set, so it never counted for the client.
 - Client Portal: a ticket rating could be saved as any value. Only Good and Bad, the two buttons the portal shows, are accepted now. The demo data rated tickets Great and Ok, which the portal never offers, and now uses Good and Bad.
 - Notifications that linked to a page did not open correctly from Admin pages.
 - Messages showed a backslash before apostrophes and quotes in names, or showed `&amp;` instead of `&`.
@@ -642,7 +671,7 @@ If you are coming from 26.08 or earlier, the database update still has to be run
 
 ### Developer Updates
 
-- Database 2.8.0 to 3.0.4, one file per step under `admin/database_updates/`, with `db.sql` matching 3.0.4:
+- Database 2.8.0 to 3.0.5, one file per step under `admin/database_updates/`, with `db.sql` matching 3.0.5:
   - 2.8.0: `racks.rack_units_descending`, `rack_power_capacity` and `rack_photo_rear`. On `rack_units`: `unit_face`, `unit_full_depth`, `unit_type`, `unit_power_watts`, `unit_notes` and a `unit_asset_id` key. Unlinked items move from asset id 0 to NULL.
   - 2.8.1: `location_documents` and `location_files`.
   - 2.8.2: `vendor_tags` (tag type 6), and `vendor_contact_phone_country_code`, `vendor_contact_phone` and `vendor_contact_email`.
@@ -680,6 +709,7 @@ If you are coming from 26.08 or earlier, the database update still has to be run
   - 3.0.2: `expenses.expense_import_key` (keyed), `expense_paid_by` (0) and `expense_reimbursement_id` (keyed). `expense_import_rules` (`import_rule_match` unique, `import_rule_vendor_id`, `import_rule_category_id`, `import_rule_client_id`, `import_rule_billable`, `import_rule_used_count`). `reimbursements` (`reimbursement_user_id`, `reimbursement_date`, `reimbursement_amount`, `reimbursement_currency_code`, `reimbursement_account_id`, `reimbursement_payment_method`, `reimbursement_reference`, `reimbursement_expense_id`, `reimbursement_created_by`). `accounts.account_import_map`.
   - 3.0.3: `trips.trip_end_odmeter` renamed `trip_end_odometer`, and `trip_miles` from `float(15,1)` to `decimal(10,1)` (0.0). New `trip_location_id`, `trip_ticket_id` and `trip_created_by` (0), keyed with `trip_user_id` (`trip_user_id`, `trip_date`). `trip_created_by` is backfilled from the audit log's Trip Create entries, else the driver, and `trip_location_id` where the destination matches one of the client's locations by name or by `formatAddress()` of its address, case and spacing aside.
   - 3.0.4: `trips.trip_own_vehicle` (0), `trip_expense_id` (0, keyed), `trip_billable` (0), `trip_invoice_id` (0, keyed) and `trip_invoice_item_id` (0). `settings.config_mileage_unit` ('mi' or 'km'), `config_mileage_rate` (`decimal(10,4)`, 0), `config_mileage_category_id` (set to an Expense category named Mileage, else Travel), `config_mileage_vendor_id`, `config_trip_charge` (`decimal(15,2)`), `config_trip_bill_rate` (`decimal(10,4)`), `config_trip_included` (`decimal(10,1)`) and `config_trip_item_name` ('Travel').
+  - 3.0.5: `revenues.revenue_description` becomes `text`, with `revenue_created_by` (0, backfilled from the audit log's Revenue Create entries) and a `revenue_date` key. `payments` gets a `payment_date` key.
 - New shared function files, loaded by `functions.php`: `functions/asset.php`, `asset_interface.php`, `certificate.php`, `client_overview.php`, `contact.php`, `credential.php`, `dashboard.php`, `links.php`, `location.php`, `notifications.php`, `project.php`, `rack.php`, `search.php`, `service.php`, `software.php`, `tags.php`, `ticket.php`, `ticket_fields.php`, `user.php` and `vendor.php`. They hold the queries and rules, so the pages, the API and cron share one definition.
 - Removed post models: `agent/post/{asset_interface,certificate,credential,domain,event,location,network_ip,network,recurring_ticket,vendor}_model.php`, `admin/post/user_model.php` and `api/v1/certificates/certificate_model.php`. Their handlers call the shared functions above. Interface handlers moved to `agent/post/asset_interface.php`.
 - New scripts: `js/itflow_select.js`, `quick_pick.js`, `tag_picker.js`, `global_search.js`, `notifications.js`, `dashboard.js`, `client_overview.js`, `client_switcher.js`, `credentials.js` and `autosubmit.js`, and `agent/js/calendar.js`, `calendar_event_modal.js`, `files.js`, `interface_form.js`, `network_form.js`, `project_modal.js` and `ticket_schedule_modal.js`.
@@ -732,7 +762,7 @@ If you are coming from 26.08 or earlier, the database update still has to be run
   - `agent/reports/includes/inc_all_reports.php` is kept for custom report pages and now loads the two new includes.
   - Tax Collected works out every tax for the period in one query (`taxCollected()` in the page), with the same figures as `getMonthlyTax()`.
   - Budgets: `agent/post/budget.php` handles `save_budget` and `copy_budget`, needing Financial at level 2 and a CSRF token. A blank or zero amount removes that month's budget rather than storing 0.
-  - `dashboardRevenueSql()` in `functions/dashboard.php` is the one rule for which revenues count as income, used by the dashboard and the reports. It leaves out the incoming side of transfers.
+  - `dashboardRevenueSql()` in `functions/dashboard.php` is the one rule for which revenues count as income, used by the dashboard and the reports. It leaves out the incoming side of transfers. It now returns `incomeRevenueSql('revenues.revenue_id')` (see Income below), so uncategorised revenues count.
   - CSS: the `.itflow-report-*` classes in `css/itflow_custom.css`, with print rules that keep side-by-side cards together.
   - Client portal: `add_ticket_feedback` stores only `Good` or `Bad`. Demo data rates some closed tickets and leaves a few older Windows machines on Windows 10, so the satisfaction and lifecycle reports have something to show.
   - The client actions menu links to the Client Review for that client, and the credentials list's rotation report link keeps the client.
@@ -884,6 +914,21 @@ If you are coming from 26.08 or earlier, the database update still has to be run
     - Settings: the Trips and Mileage section of `admin/settings_invoice.php` (`#mileage`), saved by `edit_invoice_settings`.
     - `get_side_nav_counts.php` and `inc_all_client.php` set `$num_unbilled_trips` for the Unbilled Time badge. `dashboardAttention()` adds Trips to bill and Mileage to pay back, and `clientOverviewAttention()` Trips to bill. `dashboardTrips()` returns `unit` for the chart, and the Mileage report's `rate` defaults to the mileage rate.
     - Seeds: `demoBuildClient()` and `demoBuildCompanyFinancials()` set `trip_own_vehicle` for the last 45 days, and `trip_billable` for a billable ticket's trip in the last 30 when `tripBillingOn()`.
+- Income, in the new `functions/income.php` (loaded by `functions.php` after `trips.php`):
+  - `incomeRevenueSql($column)` is the one rule for which revenues are income - those that aren't the in side of a transfer (`NOT EXISTS` on `transfers.transfer_revenue_id`), categorised or not. `dashboardRevenueSql()` returns it, and `clientOverviewMoney()`, `clientOverviewMonthly()` and `dashboardTopClients()` use that in place of `revenue_category_id > 0`.
+  - Access: `incomeCanEdit()` (Financial at 2), `incomeCanDelete()` (Financial at 3) and `incomeCanEditPayments()` (Sales and Financial at 3, as `edit_payment` and `delete_payment`).
+  - `incomeUnionSql()` is every payment and non-transfer revenue as one row set, in the agent's client scope (`clientScopeSql('COALESCE(invoice_client_id, 0)')` for payments), with `income_type` (`payment` or `revenue`), `income_id`, `income_date`, `income_created_at`, `income_invoice_id`, `invoice_prefix`, `invoice_number`, `invoice_status`, `income_description` (the invoice's scope for a payment), `income_category_id`, `category_name`, `category_color`, `income_client_id`, `client_name`, `income_amount`, `income_currency_code`, `income_method`, `income_reference`, `income_account_id`, `account_name`, `account_archived_at` and `income_online` (`incomeOnlineSql()`: a reference of `Stripe - pi_...`). Select from it as a derived table `AS income`.
+  - The list and export share `incomeFiltersSql($src, &$summary, $with_show = true)` (q, client, category, account, method, show or type, dtf and dtt; q also matches an amount) and `incomeShows()`, the pills (`payments`, `other`, `online`, `uncategorised`). `incomeShowFrom($src)` maps the older `?type=payment` and `revenue`, either case. Also `incomeTotal($from, $to, $client_id)`, `incomeStats($client_id)` (`month`, `last_to_date`, `change`, `year`, `year_average`, `recurring`, `recurring_count`, `owed`, `owed_count`, `overdue`, `overdue_count`) and `incomeCategories($keep_id)`, which leaves out Account Transfer.
+  - Other income: `incomeRevenueRow($id, $scoped = true)` (with `client_name`, `category_name`, `account_name`, `account_currency_code` and `created_by_name`; null for a transfer's leg), `incomeRevenueLabel($row)`, `incomeRevenueSave($in, $id, &$error)` - the one path that writes it, taking `date`, `amount`, `account`, `category`, `client_id`, `payment_method`, `reference` and `description`, checking each, taking the account's currency and setting `revenue_created_by` on insert - and `incomeRevenueDelete($id, &$error)`.
+  - Payments: `incomePaymentRow($id)` (the invoice's number, status, amount, dates, scope, client and category, `invoice_paid`, `others` - the other payments on the invoice - and `fee`, an expense whose reference starts with an online payment's reference) and `incomePaymentLabel($row)`.
+  - `incomeBulkIds($refs)` turns the list's `payment-12` and `revenue-7` (either case, so the old `Payment-12` too) into `['payment' => ids, 'revenue' => ids]`.
+  - `agent/income.php` is rebuilt on these, taking `?client=` (or the client pages' `?client_id=`), `?category=`, `?account=`, `?method=`, `?show=`, `?type=`, the date filter, `?open=payment-12` or `revenue-7`, and sorting on a whitelist only.
+  - Handlers: `agent/post/revenue.php` - `add_revenue` (New and Copy) and `edit_revenue` (with `revenue_id`) through `incomeRevenueSave()` at Financial 2, GET `delete_revenue` through `incomeRevenueDelete()` at Financial 3, logged with the client. `agent/post/income.php` - `bulk_edit_income` (`field` = category, account, method or client, `value`, `income_ids[]`; Financial at 2, payments only with `incomeCanEditPayments()`), `bulk_delete_income` (Financial at 3, other income only) and `export_income` through `incomeFiltersSql()`, with `income_invoice` and `income_online` added to the `income` export columns. `agent/post/payment.php` adds GET `payment_send_receipt` (Sales at 2), resending the receipt through `billingPaymentSend()`.
+  - New windows: `agent/modals/payment/payment.php?id=` and `agent/modals/revenue/revenue.php?id=` (quick looks), `revenue_form.php` (the fields of `revenue_add.php`, which takes `?client_id=`, `revenue_edit.php` and the new `revenue_copy.php`), `agent/modals/income/income_bulk_edit.php?field=` and `income_bulk_delete.php`, with the menu in `agent/includes/income_bulk_menu.php`. `income_export.php` posts `show`, `client`, `dtf` and `dtt` in place of `type`, `date_from` and `date_to`.
+  - `globalSearchGroups()` has an Income group over `incomeUnionSql()`. `reportCategoryYearTable()` takes a sixth argument, the query that opens the No category row (`show=uncategorised` on the Income Summary). `agent/transactions.php` opens `payment.php` and `revenue.php`, and `agent/accounts.php` links each account's Transactions and Income.
+  - Seeds: `demoBuildClient()` sets `revenue_created_by`, and `demoBuildCompanyFinancials()` adds the company's rebates, interest and referral fees (references `RBT-`, `INT-` and `REF-`, removed with the demo data).
+  - CSS: `.itflow-income-from`.
+  - Removed: `agent/post/income_model.php`, and `agent/modals/income/income_bulk_edit_account.php`, `income_bulk_edit_category.php` and `income_bulk_edit_method.php` (`bulk_edit_income_account`, `bulk_edit_income_category` and `bulk_edit_income_method` are replaced by `bulk_edit_income`).
 - The billing helpers (`billingTimeInvoice()`, `quoteConvert()`, `recurringInvoiceGenerate()` and the rest) take the agent's name as plain text. Their handlers now pass `stripslashes($session_name)`, so a name with an apostrophe no longer shows a backslash in history and the audit log.
 - Sidebar brand: `agent/css/sidebar_brand_fix.css` and `agent/js/sidebar_brand_fix.js` from 26.10 are replaced by CSS in `css/itflow_custom.css`. `includes/load_company_settings.php` now sets `$session_company_logo`.
 - `alertMessageHtml()` no longer double-encodes, and save messages built from `escapeSql()` values use `stripslashes()` at the flash.

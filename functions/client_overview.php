@@ -544,7 +544,7 @@ function clientOverviewMoney($client_id, $balance, $recurring_monthly) {
         return dashboardSum("SELECT SUM(payment_amount) FROM payments JOIN invoices ON payment_invoice_id = invoice_id
                 WHERE invoice_client_id = $client_id AND payment_date BETWEEN '$from' AND '$to'")
             + dashboardSum("SELECT SUM(revenue_amount) FROM revenues WHERE revenue_client_id = $client_id
-                AND revenue_category_id > 0 AND revenue_date BETWEEN '$from' AND '$to'");
+                AND " . dashboardRevenueSql() . " AND revenue_date BETWEEN '$from' AND '$to'");
     };
     $paid_ytd = $paid($year_start, $today);
     $paid_last_ytd = $paid($last_year_start, $last_year_today);
@@ -625,7 +625,7 @@ function clientOverviewMonthly($client_id) {
             JOIN invoices ON payment_invoice_id = invoice_id
             WHERE invoice_client_id = $client_id AND payment_date BETWEEN '$from' AND '$to' GROUP BY m", $months),
         dashboardMonthly("SELECT DATE_FORMAT(revenue_date, '%Y-%m') AS m, SUM(revenue_amount) AS v FROM revenues
-            WHERE revenue_client_id = $client_id AND revenue_category_id > 0 AND revenue_date BETWEEN '$from' AND '$to' GROUP BY m", $months)
+            WHERE revenue_client_id = $client_id AND " . dashboardRevenueSql() . " AND revenue_date BETWEEN '$from' AND '$to' GROUP BY m", $months)
     );
 
     return [

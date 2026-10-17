@@ -504,7 +504,9 @@ if ($account_filter) {
                     } elseif ($transaction_type == 'Reimbursement') {
                         $transaction_modal_url = "modals/expense/expense_reimbursement.php?id=$transaction_id";
                     } elseif ($transaction_type == 'Revenue') {
-                        $transaction_modal_url = "modals/revenue/revenue_edit.php?id=$transaction_id";
+                        $transaction_modal_url = "modals/revenue/revenue.php?id=$transaction_id";
+                    } elseif ($transaction_type == 'Payment') {
+                        $transaction_modal_url = "modals/payment/payment.php?id=$transaction_id";
                     } else {
                         $transaction_modal_url = "";
                     }
@@ -513,17 +515,11 @@ if ($account_filter) {
 
                     <tr>
                         <td class="ps-3">
-                            <?php if ($transaction_type == 'Payment') { ?>
-                                <a class="text-bold" href="invoice.php?invoice_id=<?= $transaction_invoice_id ?>">
-                                    <?= $transaction_date ?>
-                                </a>
-                            <?php } else { ?>
-                                <a class="text-bold ajax-modal" href="#"
-                                    data-modal-size="lg"
-                                    data-modal-url="<?= $transaction_modal_url ?>">
-                                    <?= $transaction_date ?>
-                                </a>
-                            <?php } ?>
+                            <a class="text-bold ajax-modal" href="#"
+                                data-modal-size="lg"
+                                data-modal-url="<?= $transaction_modal_url ?>">
+                                <?= $transaction_date ?>
+                            </a>
                         </td>
                         <td><span class="badge text-bg-<?= $transaction_badge_color ?>"><?= $transaction_type ?></span></td>
                         <td>

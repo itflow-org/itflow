@@ -5,8 +5,8 @@
  * quarter, with the net profit and margin under it and last year beside it.
  *
  * Cash basis, as the dashboard: income is invoice payments (filed under the
- * invoice's category) and revenues with a category; spending is vendor
- * expenses. Transfers between accounts are neither. In the current year it
+ * invoice's category) and other income, categorised or not (No category);
+ * spending is vendor expenses. Transfers between accounts are neither. In the current year it
  * runs to today and is compared with the same stretch of last year.
  */
 
@@ -124,9 +124,9 @@ $render = function ($line, $class = '') use ($columns, $year) {
         . escapeHtml($line['name']) . (!empty($line['archived']) ? ' <span class="badge bg-secondary-subtle text-secondary-emphasis fw-normal">Archived</span>' : '') . '</td>';
     foreach ($columns as $i => [$label, $first, $last]) {
         $url = '';
-        if ($list && $cat) {
+        if ($list && ($cat || $kind === 'income')) {
             [$dtf, $dtt] = reportColumnDates($year, $first, $last);
-            $url = "/agent/$list?category=$cat&canned_date=custom&dtf=$dtf&dtt=$dtt";
+            $url = "/agent/$list?" . ($cat ? "category=$cat" : 'show=uncategorised') . "&canned_date=custom&dtf=$dtf&dtt=$dtt";
         }
         $amount = $line['cells'][$i];
         $html .= '<td class="text-end' . ($kind === 'profit' && $amount < 0 ? ' text-danger' : '') . '">' . reportGridAmount($amount, $url) . '</td>';

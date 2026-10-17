@@ -56,3 +56,4 @@ require_once __DIR__ . '/functions/billing_email.php';
 require_once __DIR__ . '/functions/expenses.php';
 require_once __DIR__ . '/functions/expense_import.php';
 require_once __DIR__ . '/functions/trips.php';
+require_once __DIR__ . '/functions/income.php';

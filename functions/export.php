@@ -396,7 +396,8 @@ function getExportColumns($export_type) {
         'income' => [
             'income_date'          => ['label' => 'Date'],
             'income_type'          => ['label' => 'Type'],
-            'income_source'        => ['label' => 'Source', 'weight' => 3],
+            'income_invoice'       => ['label' => 'Invoice'],
+            'income_source'        => ['label' => 'What for', 'weight' => 3],
             'income_category'      => ['label' => 'Category'],
             'income_client'        => ['label' => 'Client', 'weight' => 2],
             'income_amount'        => ['label' => 'Amount', 'format' => 'money'],
@@ -404,6 +405,7 @@ function getExportColumns($export_type) {
             'income_method'        => ['label' => 'Payment Method'],
             'income_reference'     => ['label' => 'Reference'],
             'income_account'       => ['label' => 'Account'],
+            'income_online'        => ['label' => 'Paid Online'],
         ],
 
         'transactions' => [

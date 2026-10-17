@@ -6368,3 +6368,9 @@ a.itflow-billing-stat:hover {
     max-width: 0;
     min-width: 14rem;
 }
+/* Income - what it was takes the room left and cuts short, rather than push the amount off the side (agent/income.php) */
+.itflow-income-from {
+    width: 100%;
+    max-width: 0;
+    min-width: 14rem;
+}

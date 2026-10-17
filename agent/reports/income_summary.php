@@ -2,10 +2,12 @@
 
 /*
  * Income - a year of money received, by income category and month. Invoice
- * payments are filed under the category of the invoice they paid; revenues
- * entered on their own count when they have a category and are not one side
- * of a transfer between accounts - the same income the dashboard and the
- * Profit & Loss count. Compared with last year to the same date.
+ * payments are filed under the category of the invoice they paid; other
+ * income (money in that isn't for an invoice) under its own, and under No
+ * category without one. The money coming in from a transfer between our
+ * accounts isn't income. The same income the Income list, the dashboard and
+ * the Profit & Loss count (functions/income.php). Compared with last year to
+ * the same date.
  */
 
 require_once "includes/inc_report.php";
@@ -31,7 +33,7 @@ if (reportExporting()) {
     reportCategoryYearCsv($categories, $grid, $year, "Income $year", 'Total income');
 }
 
-// Where it came from: invoices paid, or revenue entered on its own
+// Where it came from: invoices paid, or other income
 $from_invoices = dashboardSum("SELECT SUM(payment_amount) FROM payments WHERE " . reportRangeSql('payment_date', ['start' => $from, 'end' => $to]));
 $from_other = $totals['total'] - $from_invoices;
 
@@ -62,9 +64,9 @@ require_once "includes/inc_report_layout.php";
         ['label' => 'Income', 'value' => reportMoney($totals['total']), 'sub' => reportChangeHtml($totals['total'], $prev_total, 'up', $compare),
             'url' => "/agent/income.php?canned_date=custom&dtf=$from&dtt=$to"],
         ['label' => 'Invoice payments', 'value' => reportMoney($from_invoices), 'sub' => escapeHtml(reportPercent(reportShare($from_invoices, $totals['total']))) . ' <span class="text-body-tertiary">of income</span>',
-            'url' => "/agent/income.php?type=payment&canned_date=custom&dtf=$from&dtt=$to"],
-        ['label' => 'Other revenue', 'value' => reportMoney($from_other), 'sub' => escapeHtml(reportPercent(reportShare($from_other, $totals['total']))) . ' <span class="text-body-tertiary">of income</span>',
-            'url' => "/agent/income.php?type=revenue&canned_date=custom&dtf=$from&dtt=$to"],
+            'url' => "/agent/income.php?show=payments&canned_date=custom&dtf=$from&dtt=$to"],
+        ['label' => 'Other income', 'value' => reportMoney($from_other), 'sub' => escapeHtml(reportPercent(reportShare($from_other, $totals['total']))) . ' <span class="text-body-tertiary">of income</span>',
+            'url' => "/agent/income.php?show=other&canned_date=custom&dtf=$from&dtt=$to"],
         ['label' => 'Monthly average', 'value' => reportMoney($average), 'sub' => $best_month ? 'Best month <span class="text-body">' . date('F', mktime(0, 0, 0, $best_month, 1)) . '</span>' : ''],
     ]) ?>
 
@@ -84,10 +86,10 @@ require_once "includes/inc_report_layout.php";
         </div>
     </div>
 
-    <?= reportSectionOpen('By category', 'Click an amount to see the payments and revenue behind it', 'itflow-report-long') ?>
-        <?= reportCategoryYearTable($categories, $grid, $year, 'income.php', 'Total income') ?>
+    <?= reportSectionOpen('By category', 'Click an amount to see the payments and other income behind it', 'itflow-report-long') ?>
+        <?= reportCategoryYearTable($categories, $grid, $year, 'income.php', 'Total income', 'show=uncategorised') ?>
         <div class="card-footer small text-body-secondary">
-            Payments are filed under the category of the invoice they paid. Revenue counts when it has a category; transfers between your own accounts are left out.
+            Payments are filed under the category of the invoice they paid, other income under its own - No category when it has none. Transfers between your own accounts are left out.
         </div>
     </div>
 

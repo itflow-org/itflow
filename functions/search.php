@@ -558,6 +558,31 @@ function globalSearchGroups($terms, $deep) {
         },
     ];
 
+    // Income - other income by what it was or its reference, a payment by its reference (check or
+    // transaction number), either by the amount. The union is already in the agent's client scope.
+    $income_amount_match = $expense_amount > 0 ? "OR ABS(income.income_amount) = $expense_amount" : '';
+    $groups[] = [
+        'key' => 'income', 'label' => 'Income', 'icon' => 'hand-holding-usd', 'module' => 'module_financial', 'enabled' => $accounting,
+        'select' => 'income.*',
+        'from' => '(' . incomeUnionSql() . ') AS income',
+        'where' => "((income.income_type = 'revenue' AND income.income_description LIKE '%$like%') OR income.income_reference LIKE '%$like%' $income_amount_match)",
+        'scope' => null,
+        'order' => ($expense_amount > 0 ? "(ABS(income.income_amount) = $expense_amount) DESC, " : '') . 'income.income_date DESC, income.income_id DESC',
+        'list_url' => '/agent/income.php?' . http_build_query(['q' => $q]),
+        'item' => function ($row) {
+            $payment = $row['income_type'] === 'payment';
+            $what = trim(strtok((string) $row['income_description'], "\n"));
+            return [
+                'title' => $payment ? 'Payment on ' . ($row['invoice_number'] !== null ? $row['invoice_prefix'] . $row['invoice_number'] : 'an invoice since deleted')
+                    : ($what !== '' ? mb_strimwidth($what, 0, 80, '...') : ($row['category_name'] ?: 'Other income')),
+                'subtitle' => globalSearchMoney($row['income_amount'], $row['income_currency_code']) . ' · ' . $row['income_date']
+                    . ($row['income_reference'] ? ' · #' . $row['income_reference'] : ''),
+                'context' => implode(' · ', array_filter([$row['client_name'], $payment ? '' : (string) $row['category_name']])),
+                'url' => '/agent/income.php?open=' . $row['income_type'] . '-' . intval($row['income_id']),
+            ];
+        },
+    ];
+
     $vendor_phone_match = $phone ? "OR REGEXP_REPLACE(vendor_phone, '[^0-9]', '') LIKE '%$phone%'" : '';
     $groups[] = [
         'key' => 'vendors', 'label' => 'Vendors', 'icon' => 'building', 'module' => 'module_client',

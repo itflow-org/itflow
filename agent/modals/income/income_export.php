@@ -1,68 +1,40 @@
 <?php
 
+/*
+ * Export the income - pre-filled from the Income list's filters, and
+ * editable: the export runs whatever this form posts.
+ */
+
 require_once '../../../includes/modal_header.php';
 
-// Pre-fill from the income page's current filters
+enforceUserPermission('module_financial');
 
-// Client - carried through from the client-scoped Income page
 $client_id = intval($_GET['client_id'] ?? 0);
-
-// Type Filter
-$income_types_array = ['Payment', 'Revenue'];
-if (isset($_GET['type']) && !empty($_GET['type']) && in_array($_GET['type'], $income_types_array)) {
-    $type_filter = $_GET['type'];
-} else {
-    $type_filter = '';
+if ($client_id) {
+    enforceClientAccess();
 }
 
-// Category Filter
-if (isset($_GET['category']) && !empty($_GET['category'])) {
-    $category_filter = intval($_GET['category']);
-} else {
-    $category_filter = '';
-}
+$q_filter = $_GET['q'] ?? '';
+$client_filter = intval($_GET['client'] ?? 0);
+$category_filter = intval($_GET['category'] ?? 0);
+$account_filter = intval($_GET['account'] ?? 0);
+$method_filter = (string) ($_GET['method'] ?? '');
+$shows = incomeShows();
+$show_filter = incomeShowFrom($_GET);
 
-// Account Filter
-if (isset($_GET['account']) && !empty($_GET['account'])) {
-    $account_filter = intval($_GET['account']);
-} else {
-    $account_filter = '';
-}
-
-// Payment Method Filter
-if (isset($_GET['method']) && !empty($_GET['method'])) {
-    $method_filter = escapeHtml($_GET['method']);
-} else {
-    $method_filter = '';
-}
-
-// Search Filter
-if (isset($_GET['q']) && !empty($_GET['q'])) {
-    $q_filter = $_GET['q'];
-} else {
-    $q_filter = '';
-}
-
-// Date Filter - ignore the all-time defaults so the date fields stay clean
-if (isset($_GET['dtf']) && !empty($_GET['dtf']) && $_GET['dtf'] !== '1970-01-01') {
-    $date_from_filter = escapeHtml($_GET['dtf']);
-} else {
-    $date_from_filter = '';
-}
-if (isset($_GET['dtt']) && !empty($_GET['dtt']) && $_GET['dtt'] !== '2099-12-31') {
-    $date_to_filter = escapeHtml($_GET['dtt']);
-} else {
-    $date_to_filter = '';
-}
+// The all-time sentinels from filter_header.php leave the dates blank
+$date_from_filter = (!empty($_GET['dtf']) && $_GET['dtf'] !== '1970-01-01') ? escapeHtml($_GET['dtf']) : '';
+$date_to_filter = (!empty($_GET['dtt']) && $_GET['dtt'] !== '2099-12-31') ? escapeHtml($_GET['dtt']) : '';
 
 ob_start();
 
 ?>
 
 <div class="modal-header bg-dark">
-    <h5 class="modal-title"><i class="fa fa-fw fa-download me-2"></i>Export Income</h5>
+    <h5 class="modal-title"><i class="fas fa-fw fa-download me-2"></i>Export Income</h5>
     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
 </div>
+
 <?php exportTabsNav(); ?>
 
 <form action="post.php" method="post" autocomplete="off">
@@ -74,118 +46,98 @@ ob_start();
         <?php exportTabsFiltersOpen(); ?>
 
         <div class="mb-3">
-            <label>Search</label>
+            <label class="form-label">Search</label>
             <div class="input-group">
-                    <span class="input-group-text"><i class="fa fa-fw fa-search"></i></span>
-                <input type="text" class="form-control" name="q" value="<?= stripslashes(escapeHtml($q_filter)) ?>" placeholder="Source, category, client, account, method, reference or amount">
+                <span class="input-group-text"><i class="fa fa-fw fa-search"></i></span>
+                <input type="text" class="form-control" name="q" value="<?= stripslashes(escapeHtml($q_filter)) ?>" placeholder="What for, invoice number, reference, amount, client, category, account">
             </div>
         </div>
 
-        <div class="mb-3">
-            <label>Type</label>
-            <div class="input-group">
-                    <span class="input-group-text"><i class="fa fa-fw fa-hand-holding-usd"></i></span>
-                <select class="form-select select2" name="type">
-                    <option value="">- All Types -</option>
-
-                    <?php foreach ($income_types_array as $income_type_option) { ?>
-                        <option <?php if ($type_filter == $income_type_option) { echo "selected"; } ?> value="<?= $income_type_option ?>"><?= $income_type_option ?></option>
-                    <?php } ?>
-
-                </select>
+        <div class="row g-3 mb-3">
+            <div class="col-md-6">
+                <label class="form-label">Showing</label>
+                <div class="input-group">
+                    <span class="input-group-text"><i class="fa fa-fw fa-filter"></i></span>
+                    <select class="form-select select2" name="show">
+                        <?php foreach ($shows as $key => $s) { ?>
+                            <option <?= $show_filter === $key ? 'selected' : '' ?> value="<?= escapeHtml($key) ?>"><?= escapeHtml($key === '' ? 'All income' : $s['label']) ?></option>
+                        <?php } ?>
+                    </select>
+                </div>
             </div>
-        </div>
-
-        <div class="mb-3">
-            <label>Category</label>
-            <div class="input-group">
+            <?php if (!$client_id) { ?>
+                <div class="col-md-6">
+                    <label class="form-label">Client</label>
+                    <div class="input-group">
+                        <span class="input-group-text"><i class="fa fa-fw fa-building"></i></span>
+                        <select class="form-select select2" name="client">
+                            <option value="">- Any client -</option>
+                            <?php
+                            $sql = mysqli_query($mysqli, "SELECT client_id, client_name, client_abbreviation FROM clients
+                                WHERE (EXISTS (SELECT 1 FROM invoices JOIN payments ON payment_invoice_id = invoice_id WHERE invoice_client_id = client_id)
+                                    OR EXISTS (SELECT 1 FROM revenues WHERE revenue_client_id = client_id)) " . clientScopeSql('clients.client_id') . " ORDER BY client_name ASC");
+                            while ($row = mysqli_fetch_assoc($sql)) {
+                                $option_id = intval($row['client_id']); ?>
+                                <option <?= $client_filter === $option_id ? 'selected' : '' ?> value="<?= $option_id ?>"<?= selectOptionClient($row['client_id'], $row['client_name'], $row['client_abbreviation'] ?? '') ?>><?= escapeHtml($row['client_name']) ?></option>
+                            <?php } ?>
+                        </select>
+                    </div>
+                </div>
+            <?php } ?>
+            <div class="col-md-6">
+                <label class="form-label">Category</label>
+                <div class="input-group">
                     <span class="input-group-text"><i class="fa fa-fw fa-tag"></i></span>
-                <select class="form-select select2" name="category">
-                    <option value="">- All Categories -</option>
-
-                    <?php
-                    $sql_categories_filter = mysqli_query($mysqli, "SELECT category_id, category_name, category_color, category_icon FROM categories
-                        WHERE category_type = 'Income'
-                        AND (EXISTS (SELECT 1 FROM revenues WHERE revenue_category_id = category_id)
-                            OR EXISTS (SELECT 1 FROM payments JOIN invoices ON payment_invoice_id = invoice_id WHERE invoice_category_id = category_id))
-                        ORDER BY category_name ASC");
-                    while ($row = mysqli_fetch_assoc($sql_categories_filter)) {
-                        $filter_category_id = intval($row['category_id']);
-                        $filter_category_name = escapeHtml($row['category_name']);
-                    ?>
-                        <option <?php if ($category_filter == $filter_category_id) { echo "selected"; } ?> value="<?= $filter_category_id ?>"<?= selectOptionColor($row['category_color'] ?? '', $row['category_icon'] ?? '') ?>><?= $filter_category_name ?></option>
-                    <?php
-                    }
-                    ?>
-
-                </select>
+                    <select class="form-select select2" name="category">
+                        <option value="">- Any category -</option>
+                        <?php foreach (incomeCategories($category_filter) as $option_id => $category) { ?>
+                            <option <?= $category_filter === $option_id ? 'selected' : '' ?> value="<?= $option_id ?>"<?= selectOptionColor($category['category_color'] ?? '', $category['category_icon'] ?? '') ?>><?= escapeHtml($category['category_name']) ?></option>
+                        <?php } ?>
+                    </select>
+                </div>
             </div>
-        </div>
-
-        <div class="mb-3">
-            <label>Account</label>
-            <div class="input-group">
+            <div class="col-md-6">
+                <label class="form-label">Paid into</label>
+                <div class="input-group">
                     <span class="input-group-text"><i class="fa fa-fw fa-piggy-bank"></i></span>
-                <select class="form-select select2" name="account">
-                    <option value="">- All Accounts -</option>
-
-                    <?php
-                    $sql_accounts_filter = mysqli_query($mysqli, "SELECT account_id, account_name FROM accounts
-                        WHERE EXISTS (SELECT 1 FROM payments WHERE payment_account_id = account_id)
-                        OR EXISTS (SELECT 1 FROM revenues WHERE revenue_account_id = account_id)
-                        ORDER BY account_name ASC");
-                    while ($row = mysqli_fetch_assoc($sql_accounts_filter)) {
-                        $filter_account_id = intval($row['account_id']);
-                        $filter_account_name = escapeHtml($row['account_name']);
-                    ?>
-                        <option <?php if ($account_filter == $filter_account_id) { echo "selected"; } ?> value="<?= $filter_account_id ?>"><?= $filter_account_name ?></option>
-                    <?php
-                    }
-                    ?>
-
-                </select>
+                    <select class="form-select select2" name="account">
+                        <option value="">- Any account -</option>
+                        <?php foreach (paymentAccounts($account_filter) as $option_id => $account) { ?>
+                            <option <?= $account_filter === $option_id ? 'selected' : '' ?> value="<?= $option_id ?>"><?= escapeHtml($account['account_name']) ?></option>
+                        <?php } ?>
+                    </select>
+                </div>
             </div>
-        </div>
-
-        <div class="mb-3">
-            <label>Payment Method</label>
-            <div class="input-group">
+            <div class="col-md-6">
+                <label class="form-label">Paid by</label>
+                <div class="input-group">
                     <span class="input-group-text"><i class="fa fa-fw fa-credit-card"></i></span>
-                <select class="form-select select2" name="method">
-                    <option value="">- All Payment Methods -</option>
-
-                    <?php
-                    $sql_payment_methods_filter = mysqli_query($mysqli, "SELECT DISTINCT payment_method AS method FROM payments WHERE payment_method != ''
-                        UNION SELECT DISTINCT revenue_payment_method FROM revenues WHERE revenue_payment_method != ''
-                        ORDER BY method ASC");
-                    while ($row = mysqli_fetch_assoc($sql_payment_methods_filter)) {
-                        $filter_method = escapeHtml($row['method']);
-                    ?>
-                        <option <?php if ($method_filter == $filter_method) { echo "selected"; } ?> value="<?= $filter_method ?>"><?= $filter_method ?></option>
-                    <?php
-                    }
-                    ?>
-
-                </select>
+                    <select class="form-select select2" name="method">
+                        <option value="">- Any payment method -</option>
+                        <?php
+                        $sql = mysqli_query($mysqli, "SELECT DISTINCT payment_method AS method FROM payments WHERE COALESCE(payment_method, '') <> ''
+                            UNION SELECT DISTINCT revenue_payment_method FROM revenues WHERE COALESCE(revenue_payment_method, '') <> '' ORDER BY method ASC");
+                        while ($row = mysqli_fetch_row($sql)) { ?>
+                            <option <?= $method_filter === $row[0] ? 'selected' : '' ?> value="<?= escapeHtml($row[0]) ?>"><?= escapeHtml($row[0]) ?></option>
+                        <?php } ?>
+                    </select>
+                </div>
             </div>
-        </div>
-
-        <div class="mb-3">
-            <label>Date From</label>
-            <div class="input-group">
+            <div class="col-md-6">
+                <label class="form-label">Dated from</label>
+                <div class="input-group">
                     <span class="input-group-text"><i class="fa fa-fw fa-calendar"></i></span>
-                <input type="date" class="form-control" name="date_from" value="<?= $date_from_filter ?>" max="2999-12-31">
+                    <input type="date" class="form-control" name="dtf" value="<?= $date_from_filter ?>" max="2999-12-31">
+                </div>
             </div>
-        </div>
-
-        <div class="mb-3">
-            <label>Date To</label>
-            <div class="input-group">
+            <div class="col-md-6">
+                <label class="form-label">Dated to</label>
+                <div class="input-group">
                     <span class="input-group-text"><i class="fa fa-fw fa-calendar"></i></span>
-                <input type="date" class="form-control" name="date_to" value="<?= $date_to_filter ?>" max="2999-12-31">
+                    <input type="date" class="form-control" name="dtt" value="<?= $date_to_filter ?>" max="2999-12-31">
+                </div>
             </div>
         </div>
-
 
         <?php exportTabsColumns('income'); ?>
 

@@ -642,17 +642,16 @@ function dashboardMoney($amount) {
 }
 
 /**
- * SQL: a revenue that is income - it has a category, and it is not the in
- * side of a transfer between accounts. The transfer handler leaves both
- * halves without a category; one that has been given one since (the demo data
- * files them as "Account Transfer") is still only money moving between
- * accounts. The out side is never spending: it has no vendor.
+ * SQL: a revenue that is income - any that is not the in side of a transfer
+ * between accounts, categorised or not, as the Income list counts it
+ * (incomeRevenueSql()). The out side of a transfer is never spending: it has
+ * no vendor.
  */
 function dashboardRevenueSql() {
-    return "revenue_category_id > 0 AND revenue_id NOT IN (SELECT transfer_revenue_id FROM transfers)";
+    return incomeRevenueSql('revenues.revenue_id');
 }
 
-/** Cash basis, as the Income reports: invoice payments plus categorised revenues. */
+/** Cash basis, as the Income list and reports: invoice payments plus other income. */
 function dashboardIncome($start, $end) {
     return dashboardSum("SELECT SUM(payment_amount) FROM payments WHERE payment_date BETWEEN '$start' AND '$end'")
         + dashboardSum("SELECT SUM(revenue_amount) FROM revenues WHERE " . dashboardRevenueSql() . " AND revenue_date BETWEEN '$start' AND '$end'");
@@ -932,7 +931,7 @@ function dashboardTopClients($period, $limit = 8) {
                 WHERE payment_date BETWEEN '$start' AND '$end' " . clientScopeSql('invoice_client_id') . "
             UNION ALL
             SELECT revenue_client_id, revenue_amount FROM revenues
-                WHERE revenue_category_id > 0 AND revenue_client_id > 0 AND revenue_date BETWEEN '$start' AND '$end' " . clientScopeSql('revenue_client_id') . "
+                WHERE " . dashboardRevenueSql() . " AND revenue_client_id > 0 AND revenue_date BETWEEN '$start' AND '$end' " . clientScopeSql('revenue_client_id') . "
         ) AS income
         JOIN clients USING (client_id)
         GROUP BY client_id, client_name

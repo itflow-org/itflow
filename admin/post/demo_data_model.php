@@ -980,6 +980,11 @@ function demoDataRemove($mysqli) {
             mysqli_query($mysqli, "DELETE FROM transfers WHERE transfer_id = $transfer_id");
         }
 
+        // The company's other income - rebates, interest and referral fees on our accounts
+        mysqli_query($mysqli, "DELETE FROM revenues WHERE revenue_client_id = 0 AND revenue_account_id IN ($owned_ids)
+            AND (revenue_reference LIKE 'RBT-%' OR revenue_reference LIKE 'INT-%' OR revenue_reference LIKE 'REF-%')
+            AND NOT EXISTS (SELECT 1 FROM transfers WHERE transfer_revenue_id = revenue_id)");
+
     }
 
     // The transfer categories are ours - the Categories pack has no equivalent.
@@ -3267,6 +3272,7 @@ function demoBuildBilling($mysqli, $profile, $index, $client_id, $vendor_id, $mo
             'revenue_category_id' => $support_category_id,
             'revenue_account_id' => $bank_account_id,
             'revenue_client_id' => $client_id,
+            'revenue_created_by' => intval($context['user_id']),
             'revenue_created_at' => demoMonthDateTime($month, 22, 10, 15),
         ]);
         $counts['billing']++;
@@ -3519,6 +3525,41 @@ function demoBuildCompanyFinancials($mysqli, $context, &$counts) {
             demoTransfer($mysqli, $operating_id, $cash_id, 250.00, $currency, 'Cash', 'Cash float topped up for parts runs and parking', $month, 19, $counts);
         }
 
+    }
+
+    // Money in that never went through an invoice - the distributor's partner
+    // rebate each quarter, interest on the savings, and the odd referral fee.
+    // The RBT-, INT- and REF- references are how removal finds them again.
+    $other_income = [];
+    for ($month = 24; $month >= 0; $month--) {
+        if ($month % 3 === 1) {
+            $other_income[] = [$month, 12, 380.00 + (($month % 5) * 45), 'Rebates', 'ACH', 'RBT-', "Distributor partner rebate for last quarter's licensing", $operating_id];
+        }
+        if ($savings_id) {
+            $other_income[] = [$month, 28, 18.40 + ((24 - $month) * 0.65), 'Interest', 'ACH', 'INT-', 'Interest on the tax reserve', $savings_id];
+        }
+        if ($month === 9 || $month === 2) {
+            $other_income[] = [$month, 17, 250.00, 'Referral Fees', 'Check', 'REF-', "Referral fee - passed a website rebuild to a design partner", $operating_id];
+        }
+    }
+    foreach ($other_income as [$month, $day, $amount, $category, $method, $prefix, $description, $account_id]) {
+        if (demoIsFuture(demoMonthDate($month, $day))) {
+            continue;
+        }
+        starterInsert($mysqli, 'revenues', [
+            'revenue_date' => demoMonthDate($month, $day),
+            'revenue_amount' => number_format($amount, 2, '.', ''),
+            'revenue_currency_code' => $currency,
+            'revenue_payment_method' => $method,
+            'revenue_reference' => $prefix . demoSerial($category . $month . $day, 8),
+            'revenue_description' => $description,
+            'revenue_category_id' => demoCategoryId($mysqli, $category, 'Income'),
+            'revenue_account_id' => $account_id,
+            'revenue_client_id' => 0,
+            'revenue_created_by' => intval($context['user_id']),
+            'revenue_created_at' => demoMonthDateTime($month, $day, 11, 5),
+        ]);
+        $counts['company']++;
     }
 
 }

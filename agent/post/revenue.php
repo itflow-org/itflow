@@ -1,32 +1,45 @@
 <?php
 
 /*
- * ITFlow - GET/POST request handler for revenue
+ * ITFlow - other income: money in that isn't for an invoice (revenues).
+ * New and Copy post add_revenue, Edit posts edit_revenue - both through
+ * incomeRevenueSave(), which checks every field. Write access to Financial
+ * adds and changes it; full access deletes it.
  */
 
 defined('FROM_POST_HANDLER') || die("Direct file access is not allowed");
+
+/** The form's fields as incomeRevenueSave() takes them. */
+function revenuePostInput() {
+    return [
+        'date' => (string) ($_POST['date'] ?? ''),
+        'amount' => (string) ($_POST['amount'] ?? ''),
+        'account' => intval($_POST['account'] ?? 0),
+        'category' => intval($_POST['category'] ?? 0),
+        'client_id' => intval($_POST['client_id'] ?? 0),
+        'payment_method' => (string) ($_POST['payment_method'] ?? ''),
+        'reference' => (string) ($_POST['reference'] ?? ''),
+        'description' => (string) ($_POST['description'] ?? ''),
+    ];
+}
 
 if (isset($_POST['add_revenue'])) {
 
     validateCSRFToken();
 
-    enforceUserPermission('module_sales', 2);
+    enforceUserPermission('module_financial', 2);
 
-    $date = escapeSql($_POST['date']);
-    $amount = floatval($_POST['amount']);
-    $account = intval($_POST['account']);
-    $category = intval($_POST['category']);
-    $payment_method = escapeSql($_POST['payment_method']);
-    $description = escapeSql($_POST['description']);
-    $reference = escapeSql($_POST['reference']);
+    $revenue_id = incomeRevenueSave(revenuePostInput(), 0, $error);
+    if (!$revenue_id) {
+        flashAlert(escapeHtml($error), 'error');
+        redirect();
+    }
+    $row = incomeRevenueRow($revenue_id);
+    $label = incomeRevenueLabel($row);
 
-    mysqli_query($mysqli,"INSERT INTO revenues SET revenue_date = '$date', revenue_amount = $amount, revenue_currency_code = '$session_company_currency', revenue_payment_method = '$payment_method', revenue_reference = '$reference', revenue_description = '$description', revenue_category_id = $category, revenue_account_id = $account");
+    logAudit("Revenue", "Create", "$session_name added other income " . escapeSql($label), intval($row['revenue_client_id']), $revenue_id);
 
-    $revenue_id = mysqli_insert_id($mysqli);
-
-    logAudit("Revenue", "Create", "$session_name added revenue $description", 0, $revenue_id);
-
-    flashAlert("Revenue added");
+    flashAlert("Income <strong>" . escapeHtml($label) . "</strong> added");
 
     redirect();
 
@@ -36,28 +49,23 @@ if (isset($_POST['edit_revenue'])) {
 
     validateCSRFToken();
 
-    enforceUserPermission('module_sales', 2);
+    enforceUserPermission('module_financial', 2);
 
-    $revenue_id = intval($_POST['revenue_id']);
+    $revenue_id = intval($_POST['revenue_id'] ?? 0);
+    $before = incomeRevenueRow($revenue_id);
+    if (!incomeRevenueSave(revenuePostInput(), $revenue_id, $error)) {
+        flashAlert(escapeHtml($error), 'error');
+        redirect();
+    }
+    $row = incomeRevenueRow($revenue_id);
+    $label = incomeRevenueLabel($row);
 
-    $client_id = intval(getFieldById('revenues', $revenue_id, 'revenue_client_id'));
-    if ($client_id) {
-        enforceClientAccess();
+    logAudit("Revenue", "Edit", "$session_name edited other income " . escapeSql($label), intval($row['revenue_client_id']), $revenue_id);
+    if ($before && intval($before['revenue_client_id']) && intval($before['revenue_client_id']) !== intval($row['revenue_client_id'])) {
+        logAudit("Revenue", "Edit", "$session_name moved other income " . escapeSql($label) . " to " . escapeSql($row['client_name'] ?: 'no client'), intval($before['revenue_client_id']), $revenue_id);
     }
 
-    $date = escapeSql($_POST['date']);
-    $amount = floatval($_POST['amount']);
-    $account = intval($_POST['account']);
-    $category = intval($_POST['category']);
-    $payment_method = escapeSql($_POST['payment_method']);
-    $description = escapeSql($_POST['description']);
-    $reference = escapeSql($_POST['reference']);
-
-    mysqli_query($mysqli,"UPDATE revenues SET revenue_date = '$date', revenue_amount = $amount, revenue_payment_method = '$payment_method', revenue_reference = '$reference', revenue_description = '$description', revenue_category_id = $category, revenue_account_id = $account WHERE revenue_id = $revenue_id");
-
-    logAudit("Revenue", "Edit", "$session_name edited revenue $description", 0, $revenue_id);
-
-    flashAlert("Revenue edited");
+    flashAlert("Income <strong>" . escapeHtml($label) . "</strong> saved");
 
     redirect();
 
@@ -67,23 +75,18 @@ if (isset($_GET['delete_revenue'])) {
 
     validateCSRFToken();
 
-    enforceUserPermission('module_sales', 3);
+    enforceUserPermission('module_financial', 3);
 
-    $revenue_id = intval($_GET['delete_revenue']);
-
-    $client_id = intval(getFieldById('revenues', $revenue_id, 'revenue_client_id'));
-    if ($client_id) {
-        enforceClientAccess();
+    $row = incomeRevenueDelete(intval($_GET['delete_revenue']), $error);
+    if (!$row) {
+        flashAlert(escapeHtml($error), 'error');
+        redirect();
     }
+    $label = incomeRevenueLabel($row);
 
-    // Get Revenue Details
-    $revenue_description = escapeSql(getFieldById('revenues', $revenue_id, 'revenue_description'));
+    logAudit("Revenue", "Delete", "$session_name deleted other income " . escapeSql($label), intval($row['revenue_client_id']));
 
-    mysqli_query($mysqli,"DELETE FROM revenues WHERE revenue_id = $revenue_id");
-
-    logAudit("Revenue", "Delete", "$session_name deleted revenue $revenue_description");
-
-    flashAlert("Revenue removed", 'error');
+    flashAlert("Income <strong>" . escapeHtml($label) . "</strong> deleted", 'error');
 
     redirect();
 
