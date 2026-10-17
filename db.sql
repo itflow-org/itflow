@@ -901,6 +901,8 @@ CREATE TABLE `contacts` (
   `contact_important` tinyint(1) NOT NULL DEFAULT 0,
   `contact_billing` tinyint(1) DEFAULT 0,
   `contact_technical` tinyint(1) DEFAULT 0,
+  `contact_ticket_emails` varchar(10) NOT NULL DEFAULT 'all',
+  `contact_company_ticket_emails` varchar(10) NOT NULL DEFAULT 'none',
   `contact_created_at` datetime NOT NULL DEFAULT current_timestamp(),
   `contact_updated_at` datetime DEFAULT NULL ON UPDATE current_timestamp(),
   `contact_archived_at` datetime DEFAULT NULL,
@@ -1850,6 +1852,30 @@ CREATE TABLE `payments` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
+-- Table structure for table `portal_announcements`
+--
+
+DROP TABLE IF EXISTS `portal_announcements`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8mb4 */;
+CREATE TABLE `portal_announcements` (
+  `announcement_id` int(11) NOT NULL AUTO_INCREMENT,
+  `announcement_title` varchar(200) NOT NULL,
+  `announcement_body` text DEFAULT NULL,
+  `announcement_tone` varchar(20) NOT NULL DEFAULT 'info',
+  `announcement_client_id` int(11) NOT NULL DEFAULT 0,
+  `announcement_starts_at` datetime DEFAULT NULL,
+  `announcement_ends_at` datetime DEFAULT NULL,
+  `announcement_created_by` int(11) NOT NULL DEFAULT 0,
+  `announcement_created_at` datetime NOT NULL DEFAULT current_timestamp(),
+  `announcement_updated_at` datetime DEFAULT NULL ON UPDATE current_timestamp(),
+  `announcement_archived_at` datetime DEFAULT NULL,
+  PRIMARY KEY (`announcement_id`),
+  KEY `announcement_client_id` (`announcement_client_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
 -- Table structure for table `product_prices`
 --
 
@@ -2691,6 +2717,7 @@ CREATE TABLE `settings` (
   `config_module_enable_itdoc` tinyint(1) NOT NULL DEFAULT 1,
   `config_module_enable_accounting` tinyint(1) NOT NULL DEFAULT 1,
   `config_client_portal_enable` tinyint(1) NOT NULL DEFAULT 1,
+  `config_client_portal_require_mfa` tinyint(1) NOT NULL DEFAULT 0,
   `config_login_message` text DEFAULT NULL,
   `config_login_key_required` tinyint(1) NOT NULL DEFAULT 0,
   `config_login_key_secret` varchar(255) DEFAULT NULL,

@@ -7517,6 +7517,64 @@ a.itflow-portal-todo:hover {
         display: none;
     }
 }
+/* Announcements on the portal's home page (Admin > Client Portal) - a
+   coloured edge and icon for the tone, the text in the body colour */
+.itflow-portal-announcement {
+    display: flex;
+    gap: .85rem;
+    padding: .9rem 1rem;
+    border: 1px solid var(--bs-border-color);
+    border-left: .3rem solid var(--bs-info);
+    border-radius: var(--bs-border-radius-lg);
+    background-color: var(--bs-body-bg);
+}
+.itflow-portal-announcement.is-warning { border-left-color: var(--bs-warning); }
+.itflow-portal-announcement.is-danger { border-left-color: var(--bs-danger); }
+.itflow-portal-announcement-icon {
+    flex: 0 0 auto;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 2.25rem;
+    height: 2.25rem;
+    border-radius: 50%;
+    background-color: var(--bs-info-bg-subtle);
+    color: var(--bs-info-text-emphasis);
+}
+.itflow-portal-announcement.is-warning .itflow-portal-announcement-icon {
+    background-color: var(--bs-warning-bg-subtle);
+    color: var(--bs-warning-text-emphasis);
+}
+.itflow-portal-announcement.is-danger .itflow-portal-announcement-icon {
+    background-color: var(--bs-danger-bg-subtle);
+    color: var(--bs-danger-text-emphasis);
+}
+.itflow-portal-announcement-title {
+    font-size: 1rem;
+    font-weight: 600;
+    margin: .3rem 0 .2rem;
+}
+.itflow-portal-announcement-body {
+    overflow-wrap: anywhere;
+}
+/* View as contact: the strip over the portal saying whose view it is */
+.itflow-portal-viewas {
+    padding: .45rem 0;
+    background-color: var(--bs-warning-bg-subtle);
+    color: var(--bs-warning-text-emphasis);
+    border-bottom: 1px solid var(--bs-warning-border-subtle);
+    font-size: .9rem;
+}
+/* Admin > Client Portal: an announcement's tone as a small coloured dot */
+.itflow-announcement-dot {
+    display: inline-block;
+    width: .6rem;
+    height: .6rem;
+    border-radius: 50%;
+    background-color: var(--bs-info);
+}
+.itflow-announcement-dot.is-warning { background-color: var(--bs-warning); }
+.itflow-announcement-dot.is-danger { background-color: var(--bs-danger); }
 
 /* Printing an invoice, quote or receipt: the document and nothing round it */
 @media print {

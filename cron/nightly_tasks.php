@@ -156,9 +156,11 @@ mysqli_query($mysqli, "TRUNCATE TABLE ticket_views");
 // after SHARE_KEEP_DAYS - until then they stay listed, with who opened them
 sharePrune();
 
-// Invalidate any password reset links
-mysqli_query($mysqli, "UPDATE users SET user_password_reset_token = NULL WHERE user_archived_at IS NULL");
-mysqli_query($mysqli, "UPDATE users SET user_password_reset_token = NULL"); // TODO: Make this 'expired' tokens only when we actually use expiry
+// Forget the portal password links that have run out - an invite works for a
+// week, Forgot password for an hour (functions/portal.php), and one with no
+// expiry is from before links had one
+mysqli_query($mysqli, "UPDATE users SET user_password_reset_token = NULL, user_password_reset_token_expire = NULL
+    WHERE user_password_reset_token IS NOT NULL AND (user_password_reset_token_expire IS NULL OR user_password_reset_token_expire < NOW())");
 
 // Clean-up old dismissed notifications
 mysqli_query($mysqli, "DELETE FROM notifications WHERE notification_dismissed_at < CURDATE() - INTERVAL 90 DAY");

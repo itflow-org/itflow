@@ -158,6 +158,21 @@ $first_name = strtok(trim((string) $contact['contact_name']), ' ') ?: '';
     </div>
 </div>
 
+<?php foreach (portalAnnouncementsFor($session_client_id) as $announcement) {
+    $tone_key = isset(PORTAL_ANNOUNCEMENT_TONES[$announcement['announcement_tone']]) ? $announcement['announcement_tone'] : 'info';
+    $tone = PORTAL_ANNOUNCEMENT_TONES[$tone_key]; ?>
+    <section class="itflow-portal-announcement is-<?= $tone_key ?> mb-3" aria-label="<?= escapeHtml($tone['label']) ?>">
+        <span class="itflow-portal-announcement-icon" aria-hidden="true"><i class="fas <?= $tone['icon'] ?>"></i></span>
+        <div class="min-w-0">
+            <h2 class="itflow-portal-announcement-title"><?= escapeHtml($announcement['announcement_title']) ?></h2>
+            <?php if (trim((string) $announcement['announcement_body']) !== '') { ?>
+                <div class="itflow-portal-announcement-body"><?= portalAnnouncementBodyHtml($announcement['announcement_body']) ?></div>
+            <?php } ?>
+            <div class="small text-body-secondary mt-1"><?= escapeHtml($tone['label']) ?> · <?= escapeHtml(date('M j, Y', strtotime($announcement['announcement_starts_at'] ?: $announcement['announcement_created_at']))) ?></div>
+        </div>
+    </section>
+<?php } ?>
+
 <div class="row g-3 mb-4">
     <div class="col-6 col-lg-3">
         <a class="itflow-portal-stat" href="tickets.php">

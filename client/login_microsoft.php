@@ -156,6 +156,7 @@ if (isset($_GET['code']) || isset($_GET['error'])) {
                 $_SESSION['contact_id'] = $contact_id;
                 $_SESSION['csrf_token'] = randomString(32);
                 $_SESSION['login_method'] = "azure";
+                unset($_SESSION['portal_view_as']); // an agent's View as contact in this browser ends here
 
                 // Logging
                 logAudit("Client Login", "Success", "Client contact $upn successfully logged in via Entra", $client_id, $user_id);

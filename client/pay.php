@@ -17,6 +17,12 @@ require_once "includes/inc_all.php";
 
 portalBillingGate();
 
+// Paying starts a card payment with Stripe - never while an agent views as the contact
+if (portalViewingAs()) {
+    flashAlert("Paying isn't open while you view the portal as someone - nothing can be changed", 'error');
+    redirect('unpaid_invoices.php');
+}
+
 $checkout = $_SESSION['portal_checkout'] ?? null;
 $error = '';
 $selection = null;

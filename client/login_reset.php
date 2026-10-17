@@ -1,291 +1,219 @@
 <?php
 /*
  * Client Portal
- * Password reset page
+ * Setting a password from a link - Forgot password, and the invite a primary
+ * contact or an agent sends - and asking for a Forgot password link.
+ *
+ * A link is ?email=&token=&client=. Only the token's SHA-256 is kept, and it
+ * runs out: an hour for Forgot password, a week for an invite
+ * (functions/portal.php). Using it spends it. Asking for a link always says
+ * the same thing, whether or not the address has an account, and sends at
+ * most one per account every PORTAL_RESET_REQUEST_GAP_MINUTES.
  */
 
-header("Content-Security-Policy: default-src 'self'");
+header("Content-Security-Policy: default-src 'self'; img-src 'self' data:");
+header("X-Frame-Options: DENY");
 
 require_once '../config.php';
 require_once '../functions.php';
 require_once '../includes/load_global_settings.php';
 
-
-if (empty($config_smtp_host)) {
+if (intval($config_client_portal_enable) !== 1) {
     header("Location: /login.php");
     exit();
 }
 
-// Check to see if client portal is enabled
-if($config_client_portal_enable == 0) {
-    echo "Client Portal is Disabled";
-    exit();
-}
-
 require_once __DIR__ . "/../includes/session_init.php";
-
-// Set Timezone after session
 require_once "../includes/inc_set_timezone.php";
 
 $ip = escapeSql(getIP());
-$user_agent = escapeSql($_SERVER['HTTP_USER_AGENT']);
+$user_agent = escapeSql($_SERVER['HTTP_USER_AGENT'] ?? '');
+$can_email = !empty($config_smtp_provider) && filter_var($config_mail_from_email, FILTER_VALIDATE_EMAIL);
 
-// Get Company Info
-$company_sql = mysqli_query($mysqli, "SELECT company_name, company_phone FROM companies WHERE company_id = 1");
-$company_results = mysqli_fetch_assoc($company_sql);
-$company_name = escapeSql($company_results['company_name']);
-$company_phone = escapeSql(formatPhoneNumber($company_results['company_phone']));
-$company_name_display = $company_results['company_name'];
+$company = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT company_name, company_logo FROM companies WHERE company_id = 1"));
+$company_name = (string) ($company['company_name'] ?? '');
 
-// Get settings from load_global_settings.php and sanitize them
-$config_ticket_from_name = escapeSql($config_ticket_from_name);
-$config_ticket_from_email = escapeSql($config_ticket_from_email);
-$config_mail_from_name = escapeSql($config_mail_from_name);
-$config_mail_from_email = escapeSql($config_mail_from_email);
-$config_base_url = escapeSql($config_base_url);
+$message = '';
+$message_type = 'danger';
+$link_user = null;
+$link = ['email' => '', 'token' => '', 'client' => 0];
 
-DEFINE("WORDING_ERROR", "Something went wrong! Your link may have expired. Please request a new password reset e-mail.");
+/** A row in the log for a password link - $user_id 0 when the address has no account. */
+$reset_log = function ($action, $description, $user_id, $client_id) use ($mysqli, $ip, $user_agent) {
+    mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'Client Login', log_action = '" . escapeSql($action) . "', log_description = '" . escapeSql($description) . "',
+        log_ip = '$ip', log_user_agent = '$user_agent', log_client_id = " . intval($client_id) . ", log_user_id = " . intval($user_id));
+};
 
-if ($_SERVER['REQUEST_METHOD'] == "POST") {
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['password_reset_email_request']) && $can_email) {
 
-    /*
-     * Send password reset email
-     */
-    if (isset($_POST['password_reset_email_request'])) {
+    $email = trim((string) ($_POST['email'] ?? ''));
 
-        $email = escapeSql($_POST['email']);
+    // From one address, ten asks in ten minutes is plenty - after that, nothing is sent
+    $asked = intval(mysqli_fetch_row(mysqli_query($mysqli, "SELECT COUNT(*) FROM logs WHERE log_type = 'Client Login' AND log_action = 'Reset Requested'
+        AND log_ip = '$ip' AND log_created_at > NOW() - INTERVAL 10 MINUTE"))[0]);
 
-        $sql = mysqli_query($mysqli, "SELECT contact_id, contact_name, user_email, contact_client_id, user_id FROM users LEFT JOIN contacts ON user_id = contact_user_id WHERE user_email = '$email' AND user_auth_method = 'local' AND user_type = 2 AND user_status = 1 AND user_archived_at IS NULL LIMIT 1");
-        $row = mysqli_fetch_assoc($sql);
+    $row = null;
+    if ($asked < 10 && filter_var($email, FILTER_VALIDATE_EMAIL)) {
+        $email_sql = escapeSql($email);
+        $row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT user_id, user_email, contact_name, contact_client_id FROM users
+            JOIN contacts ON contact_user_id = user_id
+            JOIN clients ON client_id = contact_client_id
+            WHERE user_email = '$email_sql' AND user_type = 2 AND user_auth_method = 'local' AND user_status = 1 AND user_archived_at IS NULL
+              AND contact_archived_at IS NULL AND client_archived_at IS NULL
+            LIMIT 1"));
+    }
+    $reset_log('Reset Requested', 'Asked for a portal password link for ' . mb_substr($email, 0, 200), intval($row['user_id'] ?? 0), intval($row['contact_client_id'] ?? 0));
 
-        if ($row['user_email'] == $email) {
-            $id = intval($row['contact_id']);
-            $user_id = intval($row['user_id']);
-            $name = escapeSql($row['contact_name']);
-            $client = intval($row['contact_client_id']);
-
-            $token = randomString(32);
-            $url = "https://$config_base_url/client/login_reset.php?email=$email&token=$token&client=$client";
-            mysqli_query($mysqli, "UPDATE users SET user_password_reset_token = '$token' WHERE user_id = $user_id LIMIT 1");
-            mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'Contact', log_action = 'Modify', log_description = 'Sent a portal password reset e-mail for $email.', log_ip = '$ip', log_user_agent = '$user_agent', log_client_id = $client");
-
-            // Send reset email
-            $subject = "Password reset for $company_name Client Portal";
-            $body = "Hello $name,<br><br>Someone (probably you) has requested a new password for your account on $company_name\'s Client Portal. <br><br><b>Please <a href=\'$url\'>click here</a> to reset your password.</b> <br><br>Alternatively, copy and paste this URL into your browser:<br> $url<br><br><i>If you didn\'t request this change, you can safely ignore this email.</i><br><br>--<br>$company_name - Support<br>$config_ticket_from_email<br>$company_phone";
-
-            $data = [
-                [
-                    'from' => $config_mail_from_email,
-                    'from_name' => $config_mail_from_name,
-                    'recipient' => $email,
-                    'recipient_name' => $name,
-                    'subject' => $subject,
-                    'body' => $body
-                ]
-            ];
-            $mail = addToMailQueue($data);
-
-            // Error handling
-            if ($mail !== true) {
-                mysqli_query($mysqli, "INSERT INTO notifications SET notification_type = 'Mail', notification = 'Failed to send email to $email'");
-                mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'Mail', log_action = 'Error', log_description = 'Failed to send email to $email regarding $subject. $mail'");
-            }
-            //End Mail IF
+    if ($row) {
+        $user_id = intval($row['user_id']);
+        $recent = intval(mysqli_fetch_row(mysqli_query($mysqli, "SELECT COUNT(*) FROM logs WHERE log_type = 'Client Login' AND log_action = 'Reset Sent'
+            AND log_user_id = $user_id AND log_created_at > NOW() - INTERVAL " . PORTAL_RESET_REQUEST_GAP_MINUTES . " MINUTE"))[0]);
+        if (!$recent) {
+            $url = portalPasswordLink($user_id, PORTAL_RESET_LINK_MINUTES);
+            $html = billingEmailHtml([
+                'kind' => 'Client portal', 'tone' => 'primary', 'name' => (string) $row['contact_name'],
+                'title' => "Reset your $company_name client portal password",
+                'intro' => ["Someone - probably you - asked to reset the password for your $company_name client portal account.", 'Choose a new one with the button below.'],
+                'summary' => ['Account' => (string) $row['user_email']],
+                'button' => ['label' => 'Set a new password', 'url' => $url],
+                'after' => ['The link works once, for the next ' . PORTAL_RESET_LINK_MINUTES . ' minutes. If you did not ask for it, ignore this email - your password stays as it is.'],
+            ]);
+            addToMailQueue([[
+                'from' => mysqli_real_escape_string($mysqli, (string) $config_mail_from_email),
+                'from_name' => mysqli_real_escape_string($mysqli, (string) $config_mail_from_name),
+                'recipient' => mysqli_real_escape_string($mysqli, (string) $row['user_email']),
+                'recipient_name' => mysqli_real_escape_string($mysqli, (string) $row['contact_name']),
+                'subject' => mysqli_real_escape_string($mysqli, "Reset your $company_name client portal password"),
+                'body' => mysqli_real_escape_string($mysqli, $html),
+            ]]);
+            $reset_log('Reset Sent', 'Emailed a portal password link to ' . $row['user_email'], $user_id, intval($row['contact_client_id']));
         }
-
-        $_SESSION['login_message'] = "If your account exists, a reset link is on it's way! Please allow a few minutes for it to reach you.";
-
-    /*
-     * Link is being used - Perform password reset
-     */
-    } elseif (isset($_POST['password_reset_set_password'])) {
-
-        if (!isset($_POST['new_password']) || !isset($_POST['email']) || !isset($_POST['token']) || !isset($_POST['client'])) {
-            $_SESSION['login_message'] = WORDING_ERROR;
-        }
-
-        $token = escapeSql($_POST['token']);
-        $email = escapeSql($_POST['email']);
-        $client = intval($_POST['client']);
-
-        // Query user
-        $sql = mysqli_query($mysqli, "SELECT contact_id, contact_name, user_id, user_password_reset_token FROM users LEFT JOIN contacts ON user_id = contact_user_id WHERE user_email = '$email' AND user_password_reset_token = '$token' AND contact_client_id = $client AND user_auth_method = 'local' AND user_type = 2 AND user_status = 1 AND user_archived_at IS NULL LIMIT 1");
-        $user_row = mysqli_fetch_assoc($sql);
-        $contact_id = intval($user_row['contact_id']);
-        $user_id = intval($user_row['user_id']);
-        $name = escapeSql($user_row['contact_name']);
-
-        // Ensure the token is correct
-        if (sha1($user_row['user_password_reset_token']) == sha1($token)) {
-
-            // Set password, invalidate token, logging
-            $password = password_hash($_POST['new_password'], PASSWORD_DEFAULT);
-            mysqli_query($mysqli, "UPDATE users SET user_password = '$password', user_password_reset_token = NULL WHERE user_id = $user_id LIMIT 1");
-            mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'Contact User', log_action = 'Modify', log_description = 'Reset portal password for $email.', log_ip = '$ip', log_user_agent = '$user_agent', log_client_id = $client, log_user_id = $user_id");
-
-            // Send confirmation email
-            $subject = "Password reset confirmation for $company_name Client Portal";
-            $body = "Hello $name,<br><br>Your password for your account on $company_name\'s Client Portal was successfully reset. You should be all set! <br><br><b>If you didn\'t reset your password, please get in touch ASAP.</b><br><br>--<br>$company_name - Support<br>$config_ticket_from_email<br>$company_phone";
-
-
-            $data = [
-                [
-                    'from' => $config_mail_from_email,
-                    'from_name' => $config_mail_from_name,
-                    'recipient' => $email,
-                    'recipient_name' => $name,
-                    'subject' => $subject,
-                    'body' => $body
-                ]
-            ];
-
-            $mail = addToMailQueue($data);
-
-            // Error handling
-            if ($mail !== true) {
-                mysqli_query($mysqli, "INSERT INTO notifications SET notification_type = 'Mail', notification = 'Failed to send email to $email'");
-                mysqli_query($mysqli, "INSERT INTO logs SET log_type = 'Mail', log_action = 'Error', log_description = 'Failed to send email to $email regarding $subject. $mail'");
-            }
-
-            // Redirect to login page
-            $_SESSION['login_message'] = "Password reset successfully!";
-            header("Location: /login.php");
-            exit();
-
-        } else {
-            $_SESSION['login_message'] = WORDING_ERROR;
-        }
-
     }
 
+    $message = "If there is a client portal account for that address, a link to reset its password is on its way. It works for " . PORTAL_RESET_LINK_MINUTES . " minutes.";
+    $message_type = 'success';
+
+} elseif ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['password_reset_set_password'])) {
+
+    $link = ['email' => (string) ($_POST['email'] ?? ''), 'token' => (string) ($_POST['token'] ?? ''), 'client' => intval($_POST['client'] ?? 0)];
+    $link_user = portalPasswordLinkUser($link['email'], $link['token'], $link['client']);
+    $password = (string) ($_POST['new_password'] ?? '');
+
+    if (!$link_user) {
+        $message = 'That link has run out or has been used already. Ask for a new one below.';
+    } elseif (($problem = userPasswordProblem($password)) !== '') {
+        $message = $problem;
+    } elseif ($password !== (string) ($_POST['confirm_password'] ?? '')) {
+        $message = 'The two passwords are not the same - type it again in both.';
+    } else {
+        $user_id = intval($link_user['user_id']);
+        $hash = escapeSql(password_hash($password, PASSWORD_DEFAULT));
+        mysqli_query($mysqli, "UPDATE users SET user_password = '$hash' WHERE user_id = $user_id AND user_type = 2");
+        portalPasswordLinkClear($user_id);
+        $reset_log('Password Reset', 'Set a new portal password from an emailed link', $user_id, $link['client']);
+        portalAccountEmail($link_user['user_email'], $link_user['contact_name'], "Your $company_name client portal password was changed",
+            ["The password for your $company_name client portal account (" . $link_user['user_email'] . ") was just set from an emailed link.", 'If that was you, there is nothing more to do.']);
+        $_SESSION['login_message'] = 'Your password is set - sign in with it below.';
+        $_SESSION['login_message_type'] = 'success';
+        header("Location: /login.php");
+        exit();
+    }
+
+} elseif (isset($_GET['token'])) {
+
+    $link = ['email' => (string) ($_GET['email'] ?? ''), 'token' => (string) $_GET['token'], 'client' => intval($_GET['client'] ?? 0)];
+    $link_user = portalPasswordLinkUser($link['email'], $link['token'], $link['client']);
+    if (!$link_user) {
+        $message = 'That link has run out or has been used already.' . ($can_email ? ' Ask for a new one below.' : ' Ask us for a new one.');
+    }
 }
 
 ?>
-
 <!DOCTYPE html>
 <html lang="en" data-bs-theme="light" data-lte-color-mode="off">
 <head>
     <meta charset="utf-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <title><?= escapeHtml($company_name_display) ?> | Password Reset</title>
-
-    <!-- Tell the browser to be responsive to screen width -->
+    <title><?= escapeHtml($company_name) ?> | <?= $link_user ? 'Set your password' : 'Reset your password' ?></title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="robots" content="noindex">
-
-    <!-- Font Awesome -->
-    <link rel="stylesheet" href="../libs/fontawesome-free/css/all.min.css">
-
-    <!--
-    Favicon
-    If Fav Icon exists else use the default one
-    -->
-    <?php if(file_exists('../uploads/favicon.ico')) { ?>
-        <link rel="icon" type="image/x-icon" href="../uploads/favicon.ico">
+    <link rel="stylesheet" href="/libs/fontawesome-free/css/all.min.css">
+    <?php if (file_exists(__DIR__ . '/../uploads/favicon.ico')) { ?>
+        <link rel="icon" type="image/x-icon" href="/uploads/favicon.ico">
     <?php } ?>
-
-    <!-- Theme style -->
-    <link rel="stylesheet" href="../libs/adminlte/css/adminlte.min.css">
-    <link rel="stylesheet" href="../css/itflow_custom.css">
-
+    <link rel="stylesheet" href="/libs/adminlte/css/adminlte.min.css">
+    <link rel="stylesheet" href="/css/itflow_custom.css">
 </head>
-
 <body class="hold-transition login-page">
+
 <div class="login-box">
-    <div class="login-logo"><b><?= escapeHtml($company_name_display) ?></b> <br>Password Reset</h2></div>
+    <div class="login-logo">
+        <?php if (!empty($company['company_logo'])) { ?>
+            <img alt="<?= escapeHtml($company_name) ?> logo" height="110" width="380" class="img-fluid" src="/uploads/settings/<?= escapeHtml($company['company_logo']) ?>">
+        <?php } else { ?>
+            <span class="fw-semibold"><?= escapeHtml($company_name) ?></span>
+        <?php } ?>
+    </div>
+
     <div class="card">
         <div class="card-body login-card-body">
 
-            <form method="post">
+            <?php if ($link_user) { ?>
 
-                <?php
-                /*
-                 * Password reset form
-                 */
-                if (isset($_GET['token']) && isset($_GET['email']) && isset($_GET['client'])) {
+                <h1 class="h5 mb-1">Set your password</h1>
+                <p class="text-body-secondary small mb-3">For <?= escapeHtml($link_user['user_email']) ?> - at least <?= USER_PASSWORD_MIN ?> characters.</p>
 
-                    $token = escapeSql($_GET['token']);
-                    $email = escapeSql($_GET['email']);
-                    $client = intval($_GET['client']);
+                <?php if ($message !== '') { ?>
+                    <div class="alert alert-<?= $message_type ?> small"><?= escapeHtml($message) ?></div>
+                <?php } ?>
 
-                    $sql = mysqli_query($mysqli, "SELECT user_password_reset_token FROM users LEFT JOIN contacts ON user_id = contact_user_id WHERE user_email = '$email' AND user_password_reset_token = '$token' AND contact_client_id = $client LIMIT 1");
-                    $user_row = mysqli_fetch_assoc($sql);
-
-                    // Sanity check
-                    if (sha1($user_row['user_password_reset_token']) == sha1($token)) { ?>
-
-                        <div class="input-group mb-3">
-                            <input type="password" class="form-control" placeholder="New Password" name="new_password" required minlength="8">
-                                <div class="input-group-text">
-                                    <span class="fas fa-lock"></span>
-                                </div>
-                        </div>
-
-                        <input type="hidden" name="token" value="<?= $token ?>">
-                        <input type="hidden" name="email" value="<?= $email ?>">
-                        <input type="hidden" name="client" value="<?= $client ?>">
-
-                        <button type="submit" class="btn btn-success w-100 mb-3" name="password_reset_set_password">Reset password</button>
-
-
-                    <?php } else {
-
-                        $_SESSION['login_message'] = WORDING_ERROR;
-
-                    }
-
-
-                    /*
-                     * Else: Just show the form to request a reset token email
-                     */
-                } else { ?>
+                <form method="post" autocomplete="off">
+                    <input type="hidden" name="email" value="<?= escapeHtml($link['email']) ?>">
+                    <input type="hidden" name="token" value="<?= escapeHtml($link['token']) ?>">
+                    <input type="hidden" name="client" value="<?= intval($link['client']) ?>">
+                    <input type="text" class="d-none" name="username" value="<?= escapeHtml($link_user['user_email']) ?>" autocomplete="username" aria-hidden="true" tabindex="-1">
 
                     <div class="input-group mb-3">
-                        <input type="email" class="form-control" placeholder="Registered Client Email" name="email" required autofocus>
-                            <div class="input-group-text">
-                                <span class="fas fa-envelope"></span>
-                            </div>
+                        <span class="input-group-text"><i class="fas fa-fw fa-lock"></i></span>
+                        <input type="password" class="form-control" placeholder="New password" name="new_password" minlength="<?= USER_PASSWORD_MIN ?>" autocomplete="new-password" aria-label="New password" required autofocus>
+                    </div>
+                    <div class="input-group mb-3">
+                        <span class="input-group-text"><i class="fas fa-fw fa-check-double"></i></span>
+                        <input type="password" class="form-control" placeholder="The same again" name="confirm_password" minlength="<?= USER_PASSWORD_MIN ?>" autocomplete="new-password" aria-label="New password again" required>
                     </div>
 
-                    <button type="submit" class="btn btn-success w-100 mb-3" name="password_reset_email_request">Reset my password</button>
+                    <button type="submit" class="btn btn-primary w-100 mb-3" name="password_reset_set_password">Set password</button>
+                </form>
 
-                <?php }
-                ?>
+            <?php } else { ?>
 
-            </form>
+                <h1 class="h5 mb-1">Reset your password</h1>
+                <p class="text-body-secondary small mb-3">For the client portal. Enter the email address you sign in with and we will email you a link.</p>
 
-            <p class="login-box-msg text-danger">
-                <?php
-                // Show feedback from session
-                if (!empty($_SESSION['login_message'])) {
-                    echo escapeHtml($_SESSION['login_message']);
-                    unset($_SESSION['login_message']);
-                }
-                ?>
-            </p>
+                <?php if ($message !== '') { ?>
+                    <div class="alert alert-<?= $message_type ?> small"><?= escapeHtml($message) ?></div>
+                <?php } ?>
 
-            <a href="/login.php">Back to login</a>
+                <?php if ($can_email) { ?>
+                    <form method="post" autocomplete="off">
+                        <div class="input-group mb-3">
+                            <span class="input-group-text"><i class="fas fa-fw fa-envelope"></i></span>
+                            <input type="email" class="form-control" placeholder="Email address" name="email" maxlength="200" autocomplete="email" aria-label="Email address" required<?= $message_type === 'success' ? '' : ' autofocus' ?>>
+                        </div>
+                        <button type="submit" class="btn btn-primary w-100 mb-3" name="password_reset_email_request">Email me a link</button>
+                    </form>
+                <?php } else { ?>
+                    <div class="alert alert-secondary small">Email is not set up here, so a link can't be sent - ask us to reset it for you.</div>
+                <?php } ?>
 
+            <?php } ?>
+
+            <a href="/login.php"><i class="fas fa-arrow-left me-1"></i>Back to sign in</a>
 
         </div>
-        <!-- /.login-card-body -->
-
     </div>
-    <!-- /.div.card -->
-
 </div>
-<!-- /.login-box -->
 
-<!-- jQuery -->
-
-<!-- Bootstrap 4 -->
-<script src="../libs/bootstrap/js/bootstrap.bundle.min.js"></script>
-
-<!-- AdminLTE App -->
-<script src="../libs/adminlte/js/adminlte.min.js"></script>
-
-<!-- Prevents resubmit on refresh or back -->
-<script src="../js/login_prevent_resubmit.js"></script>
+<script src="/js/login_prevent_resubmit.js"></script>
 
 </body>
 </html>

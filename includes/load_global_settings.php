@@ -1,7 +1,7 @@
 <?php
 
 // Query Settings
-$sql_settings = mysqli_query($mysqli, "SELECT config_azure_client_id, config_azure_client_secret, config_client_portal_enable,
+$sql_settings = mysqli_query($mysqli, "SELECT config_azure_client_id, config_azure_client_secret, config_client_portal_enable, config_client_portal_require_mfa,
     config_current_database_version, config_default_calendar, config_default_expense_account,
     config_default_expense_payment_method, config_default_hourly_rate,
     config_default_net_terms, config_default_payment_account, config_default_payment_method,
@@ -136,6 +136,7 @@ $config_module_enable_itdoc = intval($row['config_module_enable_itdoc']);
 $config_module_enable_ticketing = intval($row['config_module_enable_ticketing']);
 $config_module_enable_accounting = intval($row['config_module_enable_accounting']);
 $config_client_portal_enable = intval($row['config_client_portal_enable']);
+$config_client_portal_require_mfa = intval($row['config_client_portal_require_mfa']);
 
 // The client record that represents this MSP's own company, or 0 for none
 $config_internal_client_id = intval($row['config_internal_client_id']);

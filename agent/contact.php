@@ -31,7 +31,7 @@ $sql = mysqli_query($mysqli, "SELECT client_id, client_name, contact_archived_at
     contact_department, contact_email, contact_extension, contact_id, contact_important, contact_location_id, contact_mobile,
     contact_mobile_country_code, contact_name, contact_notes, contact_phone, contact_phone_country_code, contact_photo, contact_pin,
     contact_primary, contact_technical, contact_title, contact_updated_at, contact_user_id,
-    location_archived_at, location_city, location_name, location_state, user_auth_method
+    contact_ticket_emails, contact_company_ticket_emails, location_archived_at, location_city, location_name, location_state, user_auth_method, user_token
     FROM contacts
     LEFT JOIN clients ON client_id = contact_client_id
     LEFT JOIN locations ON location_id = contact_location_id
@@ -67,6 +67,10 @@ $contact_phone_copy = escapeHtml(formatPhoneNumber($row['contact_phone'], $row['
 $contact_mobile_copy = escapeHtml(formatPhoneNumber($row['contact_mobile'], $row['contact_mobile_country_code']));
 $contact_dial = $row['contact_phone'] ? 'phone' : ($row['contact_mobile'] ? 'mobile' : '');
 $contact_portal = contactPortalAccess($row['contact_user_id'], $row['user_auth_method']);
+$contact_portal_mfa = $contact_portal === 'Password' && trim((string) $row['user_token']) !== '';
+$contact_portal_last = $contact_portal ? portalContactLastSignIn($row['contact_user_id']) : null;
+// View as contact - read access to clients and support is checked again when it starts (functions/portal.php)
+$can_view_as = $config_client_portal_enable && !$row['contact_archived_at'] && lookupUserPermission('module_support') >= 1;
 $contact_role_line = implode(' &middot; ', array_filter([$contact_title, $contact_department]));
 
 $can_edit = lookupUserPermission('module_client') >= 2;
@@ -392,7 +396,31 @@ if (!$can_support) {
                         <dd><span class="font-monospace"><?= $contact_pin ?></span> <span class="small text-body-secondary">to verify them on a call</span></dd>
                     <?php } ?>
                     <dt>Portal</dt>
-                    <dd><?= $contact_portal ? "Can log in &middot; <span class='text-body-secondary'>$contact_portal</span>" : '<span class="text-body-secondary">No access</span>' ?></dd>
+                    <dd>
+                        <?= $contact_portal ? "Can log in &middot; <span class='text-body-secondary'>$contact_portal" . ($contact_portal_mfa ? ' and a code' : '') . "</span>" : '<span class="text-body-secondary">No access</span>' ?>
+                        <?php if ($contact_portal) { ?>
+                            <div class="small text-body-secondary"><?= $contact_portal_last ? 'Last signed in <span title="' . escapeHtml($contact_portal_last) . '">' . timeAgo($contact_portal_last) . '</span>' : 'Has not signed in yet' ?></div>
+                        <?php } ?>
+                        <?php if ($can_view_as || ($contact_portal_mfa && $can_edit)) { ?>
+                            <div class="d-flex flex-wrap gap-2 mt-1 small d-print-none">
+                                <?php if ($can_view_as) { ?>
+                                    <a href="post.php?portal_view_as=<?= $contact_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>" target="_blank" rel="noopener" title="Open the client portal as <?= $contact_name ?> sees it - read only, in a new tab"><i class="fas fa-eye me-1"></i>View portal as them</a>
+                                <?php } ?>
+                                <?php if ($contact_portal_mfa && $can_edit) { ?>
+                                    <a class="text-danger confirm-link" href="post.php?reset_contact_portal_mfa=<?= $contact_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>" data-confirm-text="<?= $contact_name ?> will sign in with their password alone until they set it up again. For a lost phone." title="For a lost phone - they can set it up again from Your account"><i class="fas fa-mobile-alt me-1"></i>Turn off two-step sign-in</a>
+                                <?php } ?>
+                            </div>
+                        <?php } ?>
+                    </dd>
+                    <?php if ($contact_portal || $contact_row['contact_ticket_emails'] !== 'all' || $contact_row['contact_company_ticket_emails'] !== 'none') { ?>
+                        <dt>Ticket emails</dt>
+                        <dd>
+                            <?= escapeHtml(PORTAL_TICKET_EMAILS[$contact_row['contact_ticket_emails']]['label'] ?? 'Every email') ?>
+                            <?php if (($contact_primary || intval($contact_row['contact_technical'])) && $contact_row['contact_company_ticket_emails'] !== 'none') { ?>
+                                <div class="small text-body-secondary">And about the company's tickets: <?= escapeHtml(strtolower(PORTAL_COMPANY_TICKET_EMAILS[$contact_row['contact_company_ticket_emails']]['label'] ?? '')) ?></div>
+                            <?php } ?>
+                        </dd>
+                    <?php } ?>
                     <dt>Added</dt>
                     <dd title="<?= $contact_created_at ?>"><?= timeAgo($contact_created_at) ?></dd>
                 </dl>

@@ -10,6 +10,26 @@ require_once '../functions.php';
 require_once 'includes/check_login.php';
 require_once 'functions.php';
 
+/*
+ * View as contact is read only: leaving it (Exit, or Sign out) is the only
+ * thing done here, besides downloading the statement - everything else is
+ * turned away before any handler runs.
+ */
+if (!empty($_SESSION['portal_view_as']) && (isset($_GET['exit_view_as']) || isset($_GET['logout']))) {
+    $back = $portal_view_as ? "/agent/contact.php?client_id=" . intval($portal_view_as['client_id']) . "&contact_id=" . intval($portal_view_as['contact_id']) : '/agent/';
+    unset($_SESSION['portal_view_as']);
+    redirect($back);
+}
+if (portalViewingAs() && !isset($_GET['export_statement_pdf'])) {
+    flashAlert("You're viewing the portal as " . escapeHtml($portal_view_as['contact_name']) . " - nothing can be changed", 'error');
+    redirect();
+}
+
+// Two-step sign-in required and not set up yet: setting it up, or signing out
+if ($portal_mfa_setup_needed && !isset($_POST['portal_mfa_enable']) && !isset($_GET['logout'])) {
+    redirect('profile.php?mfa=setup');
+}
+
 if (isset($_POST['add_ticket'])) {
 
     validateCSRFToken();
@@ -95,6 +115,9 @@ if (isset($_POST['add_ticket'])) {
         ];
         addToMailQueue($data);
         }
+
+    // The primary and technical contacts who asked to hear about new tickets at their company
+    ticketMailColleaguesNew($ticket_id);
 
     // Custom action/notif handler
     triggerCustomAction('ticket_create', $ticket_id);
@@ -516,28 +539,137 @@ if (isset($_GET['logout'])) {
 
 }
 
-if (isset($_POST['edit_profile'])) {
+if (isset($_POST['portal_password_change'])) {
 
     validateCSRFToken();
 
-    $new_password = $_POST['new_password'];
-
-    // Without this a hijacked session could set a new password without knowing
-    // the old one, locking the real contact out of their own portal.
-    if (!empty($new_password) && !portalReauthenticate($_POST['current_password'] ?? '')) {
-        flashAlert("That password was not right - your password has not been changed", 'error');
+    // Your account > Signing in. A password account only, and the current
+    // password first - a hijacked session can't lock the contact out
+    if ($session_auth_method !== 'local') {
         redirect('profile.php');
     }
-
-    if (!empty($new_password)) {
-        $password_hash = password_hash($new_password, PASSWORD_DEFAULT);
-        mysqli_query($mysqli, "UPDATE users SET user_password = '$password_hash' WHERE user_id = $session_user_id");
-
-        // Logging
-        logAudit("Contact", "Edit", "Client contact $session_contact_name edited their profile/password in the client portal", $session_client_id, $session_contact_id);
+    $new_password = (string) ($_POST['new_password'] ?? '');
+    if (!portalReauthenticate($_POST['current_password'] ?? '')) {
+        flashAlert("That is not your current password - your password has not been changed", 'error');
+        redirect('profile.php#security');
+    }
+    if (($problem = userPasswordProblem($new_password)) !== '') {
+        flashAlert(escapeHtml($problem) . ' Your password has not been changed.', 'error');
+        redirect('profile.php#security');
+    }
+    if ($new_password !== (string) ($_POST['confirm_password'] ?? '')) {
+        flashAlert('The two new passwords are not the same - your password has not been changed', 'error');
+        redirect('profile.php#security');
     }
 
-    redirect('index.php');
+    $hash = escapeSql(password_hash($new_password, PASSWORD_DEFAULT));
+    mysqli_query($mysqli, "UPDATE users SET user_password = '$hash' WHERE user_id = $session_user_id AND user_type = 2");
+    portalPasswordLinkClear($session_user_id);
+
+    logAudit("Contact", "Edit", "Client contact $session_contact_name changed their password in the client portal", $session_client_id, $session_contact_id);
+    portalAccountEmail(stripslashes($session_contact_email), stripslashes($session_contact_name), "Your $session_company_name client portal password was changed",
+        ["The password for your $session_company_name client portal account was just changed from Your account.", 'If that was you, there is nothing more to do.']);
+
+    flashAlert("Your password is changed");
+    redirect('profile.php');
+
+}
+
+if (isset($_POST['portal_mfa_enable'])) {
+
+    validateCSRFToken();
+
+    // Two-step sign-in on: the code from the app has to match the secret shown
+    // (profile.php?mfa=setup keeps it in the session until then)
+    require_once '../libs/totp/totp.php';
+
+    $secret = (string) ($_SESSION['portal_mfa_secret'] ?? '');
+    $code = preg_replace('/\s+/', '', (string) ($_POST['verify_code'] ?? ''));
+    if ($session_auth_method !== 'local' || $secret === '') {
+        redirect('profile.php');
+    }
+    if (!preg_match('/^[0-9]{6}$/', $code) || !TokenAuth6238::verify($secret, $code, 1)) {
+        flashAlert("That code did not match - check the time on your phone is right, and enter the newest code", 'error');
+        redirect('profile.php?mfa=setup#security');
+    }
+
+    mysqli_query($mysqli, "UPDATE users SET user_token = '" . escapeSql($secret) . "' WHERE user_id = $session_user_id AND user_type = 2");
+    mysqli_query($mysqli, "DELETE FROM remember_tokens WHERE remember_token_user_id = $session_user_id");
+    unset($_SESSION['portal_mfa_secret']);
+
+    logAudit("Contact", "Edit", "Client contact $session_contact_name turned on two-step sign-in in the client portal", $session_client_id, $session_contact_id);
+    portalAccountEmail(stripslashes($session_contact_email), stripslashes($session_contact_name), 'Two-step sign-in is on for your client portal account',
+        ['Signing in to the ' . $session_company_name . ' client portal now asks for a code from your authenticator app, as well as your password.', 'Lost your phone? Ask us and we will reset it.']);
+
+    flashAlert("Two-step sign-in is on - signing in will ask for a code from your app");
+    redirect('profile.php');
+
+}
+
+if (isset($_POST['portal_mfa_disable'])) {
+
+    validateCSRFToken();
+
+    if ($session_auth_method !== 'local' || !$session_mfa_on) {
+        redirect('profile.php');
+    }
+    if (intval($config_client_portal_require_mfa) === 1) {
+        flashAlert(escapeHtml($session_company_name) . " asks everyone to use two-step sign-in, so it stays on", 'error');
+        redirect('profile.php#security');
+    }
+    if (!portalReauthenticate($_POST['current_password'] ?? '')) {
+        flashAlert("That is not your current password - two-step sign-in is still on", 'error');
+        redirect('profile.php#security');
+    }
+
+    portalMfaReset($session_user_id);
+
+    logAudit("Contact", "Edit", "Client contact $session_contact_name turned off two-step sign-in in the client portal", $session_client_id, $session_contact_id);
+    portalAccountEmail(stripslashes($session_contact_email), stripslashes($session_contact_name), 'Two-step sign-in is off for your client portal account',
+        ['Signing in to the ' . $session_company_name . ' client portal now asks for your password alone.', 'You can turn two-step sign-in back on from Your account.']);
+
+    flashAlert("Two-step sign-in is off");
+    redirect('profile.php');
+
+}
+
+if (isset($_POST['portal_forget_browsers'])) {
+
+    validateCSRFToken();
+
+    // Every browser ticked to skip the code asks for it again - this one too
+    mysqli_query($mysqli, "DELETE FROM remember_tokens WHERE remember_token_user_id = $session_user_id");
+    setcookie('rememberme', '', time() - 3600, '/', '', true, true);
+
+    logAudit("Contact", "Edit", "Client contact $session_contact_name made their remembered browsers ask for a code again", $session_client_id, $session_contact_id);
+
+    flashAlert("Done - every browser asks for a code next time");
+    redirect('profile.php#security');
+
+}
+
+if (isset($_POST['portal_email_prefs'])) {
+
+    validateCSRFToken();
+
+    // Your account > Emails from us. Other tickets at the company only for
+    // those who see them - primary and technical contacts
+    $ticket_emails = (string) ($_POST['ticket_emails'] ?? 'all');
+    $company_emails = (string) ($_POST['company_ticket_emails'] ?? 'none');
+    if (!isset(PORTAL_TICKET_EMAILS[$ticket_emails])) {
+        $ticket_emails = 'all';
+    }
+    if (!isset(PORTAL_COMPANY_TICKET_EMAILS[$company_emails]) || !($session_contact_primary || $session_contact_is_technical_contact)) {
+        $company_emails = 'none';
+    }
+
+    mysqli_query($mysqli, "UPDATE contacts SET contact_ticket_emails = '$ticket_emails', contact_company_ticket_emails = '$company_emails'
+        WHERE contact_id = $session_contact_id AND contact_client_id = $session_client_id");
+
+    logAudit("Contact", "Edit", "Client contact $session_contact_name changed the ticket emails they get in the client portal", $session_client_id, $session_contact_id);
+
+    flashAlert("Saved - those are the emails you will get");
+    redirect('profile.php#emails');
 
 }
 

@@ -33,7 +33,7 @@ function ticketMailCreated($ticket_id, $subject_prefix, $attachments = [], $to_w
     $ticket_id = intval($ticket_id);
     $sla_notice = escapeSql(getTicketSlaEmailNotice($ticket_id, $company_phone));
     $body = "<i style=\'color: #808080\'>##- Please type your reply above this line -##</i><br><br>Hello $contact_name,<br><br>A ticket regarding \"$subject\" has been created for you.<br><br>--------------------------------<br>$details--------------------------------<br><br>Ticket: $reference<br>Subject: $subject<br>Status: $status<br>Portal: <a href=\'https://$base_url/guest/guest_view_ticket.php?ticket_id=$ticket_id&url_key=$url_key\'>View ticket</a>$sla_notice<br><br>--<br>$company_name - Support<br>$from_email<br>$company_phone";
-    return ticketMailContactAndWatchers($ticket_id, "$subject_prefix [$reference] - $subject", $body, $attachments, true, 'YOU HAVE BEEN ADDED AS A COLLABORATOR FOR THIS TICKET', $to_watchers);
+    return ticketMailContactAndWatchers($ticket_id, "$subject_prefix [$reference] - $subject", $body, $attachments, true, 'YOU HAVE BEEN ADDED AS A COLLABORATOR FOR THIS TICKET', $to_watchers, 'created');
 }
 
 /** Tell an agent about a ticket - an app notification linking to it. Not themselves, not nobody. */
@@ -177,6 +177,7 @@ if (isset($_POST['add_ticket'])) {
     // E-mail the client and the watchers
     if (intval($config_ticket_client_general_notifications) === 1) {
         ticketMailCreated($ticket_id, 'Ticket Created', $emailable_attachments['send']);
+        ticketMailColleaguesNew($ticket_id);
     }
 
     // Custom action/notif handler
@@ -1403,7 +1404,8 @@ if (isset($_GET['close_ticket'])) {
         $base_url = escapeSql($config_base_url);
         $from_email = escapeSql($config_ticket_from_email);
         ticketMailContactAndWatchers($ticket_id, "Ticket closed - [$reference] - $subject | (do not reply)",
-            "Hello $contact_name,<br><br>Your ticket regarding \"$subject\" has been closed. <br><br> We hope the request/issue was resolved to your satisfaction, please provide your feedback <a href=\'https://$base_url/guest/guest_view_ticket.php?ticket_id=$ticket_id&url_key=$url_key\'>here</a>. <br>If you need further assistance, please raise a new ticket using the below details. Please do not reply to this email. <br><br>Ticket: $reference<br>Subject: $subject<br>Portal: https://$base_url/client/ticket.php?id=$ticket_id<br><br>--<br>$company_name - Support<br>$from_email<br>$company_phone");
+            "Hello $contact_name,<br><br>Your ticket regarding \"$subject\" has been closed. <br><br> We hope the request/issue was resolved to your satisfaction, please provide your feedback <a href=\'https://$base_url/guest/guest_view_ticket.php?ticket_id=$ticket_id&url_key=$url_key\'>here</a>. <br>If you need further assistance, please raise a new ticket using the below details. Please do not reply to this email. <br><br>Ticket: $reference<br>Subject: $subject<br>Portal: https://$base_url/client/ticket.php?id=$ticket_id<br><br>--<br>$company_name - Support<br>$from_email<br>$company_phone",
+            [], true, 'YOU ARE A COLLABORATOR ON THIS TICKET', true, 'closed');
     }
 
     flashAlert("Ticket <strong>" . escapeHtml(ticketReference($row)) . "</strong> closed - for more work on it, start a new ticket");

@@ -300,9 +300,15 @@ function ticketMailCompany() {
  * address is valid) and to every watcher, who get $watcher_note under it.
  * $subject and $body are already SQL-escaped, as addToMailQueue() takes
  * them. Nothing is queued without a mail provider. How many were queued.
- * $to_watchers false is the contact alone.
+ * $to_watchers false is the contact alone - and leaves out the colleagues.
+ *
+ * $kind is what the email is: 'created', 'closed', or 'update' (a reply,
+ * a fix, anything else). A contact who asked for replies only gets no
+ * 'created' or 'closed' email (ticketContactWantsEmail()), and the client's
+ * primary and technical contacts who asked for every update on their
+ * company's tickets get the rest, as a watcher does (ticketColleagueRecipients()).
  */
-function ticketMailContactAndWatchers($ticket_id, $subject, $body, $attachments = [], $to_contact = true, $watcher_note = 'YOU ARE A COLLABORATOR ON THIS TICKET', $to_watchers = true) {
+function ticketMailContactAndWatchers($ticket_id, $subject, $body, $attachments = [], $to_contact = true, $watcher_note = 'YOU ARE A COLLABORATOR ON THIS TICKET', $to_watchers = true, $kind = 'update') {
     global $mysqli, $config_smtp_provider, $config_ticket_from_email, $config_ticket_from_name;
     if (empty($config_smtp_provider)) {
         return 0;
@@ -313,8 +319,8 @@ function ticketMailContactAndWatchers($ticket_id, $subject, $body, $attachments 
     $data = [];
     $sent_to = [];
     if ($to_contact) {
-        $contact = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT contact_name, contact_email FROM tickets JOIN contacts ON contact_id = ticket_contact_id WHERE ticket_id = $ticket_id"));
-        if ($contact && filter_var($contact['contact_email'], FILTER_VALIDATE_EMAIL)) {
+        $contact = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT contact_name, contact_email, contact_ticket_emails FROM tickets JOIN contacts ON contact_id = ticket_contact_id WHERE ticket_id = $ticket_id"));
+        if ($contact && filter_var($contact['contact_email'], FILTER_VALIDATE_EMAIL) && ticketContactWantsEmail($contact['contact_ticket_emails'], $kind)) {
             $data[] = ['from' => $from_email, 'from_name' => $from_name, 'recipient' => escapeSql($contact['contact_email']), 'recipient_name' => escapeSql($contact['contact_name']),
                 'subject' => $subject, 'body' => $body, 'attachments' => $attachments];
             $sent_to[strtolower($contact['contact_email'])] = true;
@@ -330,6 +336,100 @@ function ticketMailContactAndWatchers($ticket_id, $subject, $body, $attachments 
         $sent_to[$email] = true;
         $data[] = ['from' => $from_email, 'from_name' => $from_name, 'recipient' => escapeSql($email), 'recipient_name' => escapeSql($email),
             'subject' => $subject, 'body' => $watcher_body, 'attachments' => $attachments];
+    }
+    // A new ticket reaches them by ticketMailColleaguesNew(), in an email of its own
+    if ($to_watchers && $kind !== 'created') {
+        foreach (ticketColleagueRecipients($ticket_id, $kind) as $email => $colleague) {
+            if (isset($sent_to[strtolower($email)])) {
+                continue;
+            }
+            $sent_to[strtolower($email)] = true;
+            $note = escapeSql("You get this because you asked for every update on " . $colleague['client_name'] . "'s tickets - change that under Your account in the client portal.");
+            $data[] = ['from' => $from_email, 'from_name' => $from_name, 'recipient' => escapeSql($email), 'recipient_name' => escapeSql($colleague['name']),
+                'subject' => $subject, 'body' => $body . "<br><br>----------------------------------------<br>$note", 'attachments' => $attachments];
+        }
+    }
+    if ($data) {
+        addToMailQueue($data);
+    }
+    return count($data);
+}
+
+/** Whether a ticket's contact gets an email of this $kind - no 'created' or 'closed' email for one who asked for replies only. */
+function ticketContactWantsEmail($preference, $kind) {
+    return !((string) $preference === 'replies' && in_array($kind, ['created', 'closed'], true));
+}
+
+/**
+ * The client's other primary and technical contacts who asked to hear about
+ * their company's tickets (Your account in the portal) - for a 'created'
+ * email those who chose new tickets or everything, otherwise those who chose
+ * everything. Never the ticket's own contact, nor an archived one.
+ * [email => ['name', 'client_name', 'portal' => bool]].
+ */
+function ticketColleagueRecipients($ticket_id, $kind) {
+    global $mysqli;
+    $ticket = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT ticket_client_id, ticket_contact_id, client_name FROM tickets
+        JOIN clients ON client_id = ticket_client_id WHERE ticket_id = " . intval($ticket_id) . " LIMIT 1"));
+    if (!$ticket) {
+        return [];
+    }
+    $wanted = $kind === 'created' ? "'new', 'all'" : "'all'";
+    $recipients = [];
+    $sql = mysqli_query($mysqli, "SELECT contact_name, contact_email, user_id FROM contacts
+        LEFT JOIN users ON user_id = contact_user_id AND user_type = 2 AND user_status = 1 AND user_archived_at IS NULL AND user_auth_method IN ('local', 'azure')
+        WHERE contact_client_id = " . intval($ticket['ticket_client_id']) . " AND contact_id <> " . intval($ticket['ticket_contact_id']) . "
+          AND contact_archived_at IS NULL AND (contact_primary = 1 OR contact_technical = 1)
+          AND contact_company_ticket_emails IN ($wanted)");
+    while ($row = mysqli_fetch_assoc($sql)) {
+        $email = trim((string) $row['contact_email']);
+        if (filter_var($email, FILTER_VALIDATE_EMAIL)) {
+            $recipients[$email] = ['name' => (string) $row['contact_name'], 'client_name' => (string) $ticket['client_name'], 'portal' => !empty($row['user_id'])];
+        }
+    }
+    return $recipients;
+}
+
+/**
+ * Tell the colleagues who asked (ticketColleagueRecipients()) that a ticket
+ * was raised at their company - who raised it, what about and how urgent,
+ * with a link to it: in the portal for those who can sign in, else the
+ * ticket's guest link. Raised in the portal, by email or by an agent; client
+ * notifications have to be on (Admin > Ticket). How many were queued.
+ */
+function ticketMailColleaguesNew($ticket_id) {
+    global $mysqli, $config_smtp_provider, $config_ticket_client_general_notifications, $config_ticket_from_email, $config_ticket_from_name, $config_base_url;
+    if (empty($config_smtp_provider) || intval($config_ticket_client_general_notifications) !== 1) {
+        return 0;
+    }
+    $ticket = ticketRow($ticket_id);
+    if (!$ticket || !intval($ticket['ticket_client_id'])) {
+        return 0;
+    }
+    $ticket_id = intval($ticket['ticket_id']);
+    $reference = ticketReference($ticket);
+    $raised_by = trim((string) $ticket['contact_name']) !== '' ? (string) $ticket['contact_name'] : 'We';
+    $data = [];
+    foreach (ticketColleagueRecipients($ticket_id, 'created') as $email => $colleague) {
+        $url = $colleague['portal']
+            ? "https://$config_base_url/client/ticket.php?id=$ticket_id"
+            : "https://$config_base_url/guest/guest_view_ticket.php?ticket_id=$ticket_id&url_key=" . rawurlencode((string) $ticket['ticket_url_key']);
+        $html = billingEmailHtml([
+            'kind' => 'Support', 'tone' => 'primary', 'name' => $colleague['name'],
+            'title' => "New ticket at " . $colleague['client_name'],
+            'intro' => ["$raised_by raised a ticket at " . $colleague['client_name'] . '.'],
+            'summary' => ['Ticket' => $reference, 'Subject' => (string) $ticket['ticket_subject'], 'Priority' => (string) $ticket['ticket_priority'], 'Raised by' => $raised_by === 'We' ? 'Us' : $raised_by],
+            'button' => ['label' => $colleague['portal'] ? 'View it in the portal' : 'View the ticket', 'url' => $url],
+            'footnote' => "You get this because you asked to hear about new tickets at " . $colleague['client_name'] . ($colleague['portal'] ? ' - change that under Your account in the client portal.' : '.'),
+        ]);
+        $data[] = [
+            'from' => mysqli_real_escape_string($mysqli, (string) $config_ticket_from_email),
+            'from_name' => mysqli_real_escape_string($mysqli, (string) $config_ticket_from_name),
+            'recipient' => mysqli_real_escape_string($mysqli, $email),
+            'recipient_name' => mysqli_real_escape_string($mysqli, $colleague['name']),
+            'subject' => mysqli_real_escape_string($mysqli, "New ticket - [$reference] - " . $ticket['ticket_subject']),
+            'body' => mysqli_real_escape_string($mysqli, $html),
+        ];
     }
     if ($data) {
         addToMailQueue($data);
@@ -934,7 +1034,7 @@ function recurringTicketRaise($recurring_ticket_id, $by = 'Cron') {
     triggerCustomAction('ticket_create', $ticket_id);
 
     // Who to tell
-    $ticket = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT client_name, contact_name, contact_email FROM tickets
+    $ticket = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT client_name, contact_name, contact_email, contact_ticket_emails FROM tickets
         LEFT JOIN clients ON ticket_client_id = client_id
         LEFT JOIN contacts ON ticket_contact_id = contact_id
         WHERE ticket_id = $ticket_id"));
@@ -949,7 +1049,8 @@ function recurringTicketRaise($recurring_ticket_id, $by = 'Cron') {
     $base_url = escapeSql($config_base_url);
     $data = [];
 
-    if (!empty($config_smtp_provider) && intval($config_ticket_client_general_notifications) === 1 && filter_var($contact_email, FILTER_VALIDATE_EMAIL)) {
+    if (!empty($config_smtp_provider) && intval($config_ticket_client_general_notifications) === 1 && filter_var($contact_email, FILTER_VALIDATE_EMAIL)
+        && ticketContactWantsEmail($ticket['contact_ticket_emails'] ?? 'all', 'created')) {
         $sla_notice = escapeSql(getTicketSlaEmailNotice($ticket_id, $company_phone));
         $status_name = escapeSql(getTicketStatusName($ticket_status));
         $data[] = [

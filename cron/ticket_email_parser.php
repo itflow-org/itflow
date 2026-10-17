@@ -159,7 +159,9 @@ function addTicket($contact_id, $contact_name, $contact_email, $client_id, $date
 
     // External email
     $data = [];
-    if ($config_ticket_client_general_notifications == 1 && !preg_match($bad_pattern, $contact_email)) {
+    // Unless the contact asked for replies only (Your account in the client portal)
+    $contact_wants = !$contact_id || ticketContactWantsEmail(getFieldById('contacts', intval($contact_id), 'contact_ticket_emails'), 'created');
+    if ($config_ticket_client_general_notifications == 1 && !preg_match($bad_pattern, $contact_email) && $contact_wants) {
         $subject_email = "Ticket created - [$config_ticket_prefix$ticket_number] - $subject";
         // SLA response commitment for this client + priority, empty when no SLA applies
         $sla_notice = getTicketSlaEmailNotice($id, $company_phone);
@@ -199,6 +201,10 @@ function addTicket($contact_id, $contact_name, $contact_email, $client_id, $date
     }
 
     addToMailQueue($data);
+
+    // The client's primary and technical contacts who asked to hear about new tickets
+    ticketMailColleaguesNew($id);
+
     triggerCustomAction('ticket_create', $id);
 
     return true;

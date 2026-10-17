@@ -161,7 +161,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && (isset($_POST['login']) || isset($_
               </div>";
         } else {
             $email = escapeSql($sess['email'] ?? '');
-            $role_choice = 'agent';
+            // A client portal user's code, or an agent's
+            $role_choice = ($sess['type'] ?? 'agent') === 'client' ? 'client' : 'agent';
         }
     }
 
@@ -218,7 +219,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && (isset($_POST['login']) || isset($_
 
         if ($is_mfa_step) {
             $sess = $_SESSION['pending_mfa_login'] ?? null;
-            $allowed_agent_id = isset($sess['agent_user_id']) ? intval($sess['agent_user_id']) : null;
+            // Only the account whose password was checked - the other kind is left out altogether (-1 matches no one)
+            if (($sess['type'] ?? 'agent') === 'client') {
+                $allowed_client_id = intval($sess['client_user_id'] ?? 0);
+                $allowed_agent_id = -1;
+            } else {
+                $allowed_agent_id = isset($sess['agent_user_id']) ? intval($sess['agent_user_id']) : null;
+                $allowed_client_id = -1;
+            }
         }
 
         while ($r = mysqli_fetch_assoc($sql)) {
@@ -235,7 +243,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && (isset($_POST['login']) || isset($_
                 if ($ut === 1 && $allowed_agent_id !== null && intval($r['user_id']) !== $allowed_agent_id) {
                     continue;
                 }
-                if ($ut === 2 && $allowed_client_id !== null && intval($r['user_id']) !== $allowed_client_id) {
+                // A client's users.user_id can come back NULL from the user_settings join (they have
+                // no row there) - contact_user_id is theirs
+                if ($ut === 2 && $allowed_client_id !== null && (intval($r['contact_user_id'] ?? 0) ?: intval($r['user_id'] ?? 0)) !== $allowed_client_id) {
                     continue;
                 }
             }
@@ -292,7 +302,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && (isset($_POST['login']) || isset($_
                         $_SESSION['pending_dual_login'] = [
                             'email'            => $email,
                             'agent_user_id'    => intval($agentRow['user_id']),
-                            'client_user_id'   => intval($clientRow['user_id']),
+                            'client_user_id'   => intval($clientRow['contact_user_id'] ?? 0) ?: intval($clientRow['user_id'] ?? 0),
                             'agent_master_key' => $agent_master_key, // may be null
                             'token'            => $pending_token,
                             'created'          => time()
@@ -625,7 +635,85 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && (isset($_POST['login']) || isset($_
                         $contact_id       = intval($selectedRow['contact_id'] ?? 0);
                         $user_auth_method = escapeSql($selectedRow['user_auth_method'] ?? '');
 
-                        if ($client_id && $contact_id && $user_auth_method === 'local') {
+                        // Two-step sign-in, when the contact turned it on (functions/portal.php):
+                        // a remembered browser, or a code from their app. Wrong codes are
+                        // counted per account, as an agent's are.
+                        $client_mfa_secret = trim((string) ($selectedRow['user_token'] ?? ''));
+                        $client_mfa_done = $client_mfa_secret === '';
+                        $client_mfa_how = '';
+                        $client_mfa_locked = false;
+                        $client_code = preg_replace('/\s+/', '', (string) ($_POST['current_code'] ?? ''));
+                        if (!preg_match('/^[0-9]{6}$/', $client_code)) {
+                            $client_code = '';
+                        }
+                        if ($client_id && $contact_id && $user_auth_method === 'local' && !$client_mfa_done) {
+                            if (isset($_COOKIE['rememberme'])) {
+                                $remember_tokens = mysqli_query($mysqli, "SELECT remember_token_token FROM remember_tokens
+                                    WHERE remember_token_user_id = $user_id AND remember_token_created_at > (NOW() - INTERVAL $config_login_remember_me_expire DAY)");
+                                while ($remember_row = mysqli_fetch_assoc($remember_tokens)) {
+                                    if (hash_equals($remember_row['remember_token_token'], (string) $_COOKIE['rememberme'])) {
+                                        $client_mfa_done = true;
+                                        $client_mfa_how = ' with a remembered browser';
+                                        break;
+                                    }
+                                }
+                            }
+                            if (!$client_mfa_done && $client_code !== '') {
+                                $mfa_lock = mysqli_fetch_row(mysqli_query($mysqli, "SELECT GET_LOCK('itflow_login_mfa_$user_id', 10)"));
+                                if (empty($mfa_lock[0])) {
+                                    error_log("ITFlow: timed out waiting on the MFA rate limit lock for user $user_id, proceeding unserialized");
+                                }
+                                $client_mfa_locked = intval(mysqli_fetch_row(mysqli_query($mysqli, "SELECT COUNT(log_id) FROM logs
+                                    WHERE log_user_id = $user_id AND log_type = 'Client Login' AND log_action = 'MFA Failed'
+                                      AND log_created_at > (NOW() - INTERVAL 10 MINUTE)"))[0]) >= 5;
+                                if (!$client_mfa_locked && TokenAuth6238::verify($client_mfa_secret, $client_code, 1)) {
+                                    $client_mfa_done = true;
+                                    $client_mfa_how = ' with two-step sign-in';
+                                }
+                            }
+                        }
+
+                        if ($client_id && $contact_id && $user_auth_method === 'local' && !$client_mfa_done) {
+
+                            // Ask for the code - keeping only who it is for, never the password
+                            $pending_mfa_token = bin2hex(random_bytes(32));
+                            $_SESSION['pending_mfa_login'] = [
+                                'type'           => 'client',
+                                'email'          => $user_email,
+                                'client_user_id' => $user_id,
+                                'token'          => $pending_mfa_token,
+                                'created'        => ($is_mfa_step && !empty($pending_mfa['created'])) ? intval($pending_mfa['created']) : time(),
+                            ];
+                            unset($_SESSION['pending_dual_login']);
+
+                            $token_field = "
+                                <p class='small text-body-secondary mb-2'>Enter the 6-digit code from your authenticator app.</p>
+                                <div class='input-group mb-3'>
+                                    <span class='input-group-text'><span class='fas fa-fw fa-mobile-alt'></span></span>
+                                    <input type='text' inputmode='numeric' pattern='[0-9]{6}' maxlength='6' minlength='6'
+                                           class='form-control' placeholder='6-digit code' aria-label='6-digit code'
+                                           name='current_code' autocomplete='one-time-code' required autofocus>
+                                </div>";
+
+                            if ($client_mfa_locked) {
+                                // As for agents: no log row while locked, so the window can run out
+                                header("HTTP/1.1 429 Too Many Requests");
+                                $response = "<div class='alert alert-danger'>Too many wrong codes. Wait 10 minutes and sign in again.</div>";
+                            } elseif ($client_code !== '' || isset($_POST['current_code'])) {
+                                $session_user_id = $user_id;
+                                logAudit("Client Login", "MFA Failed", "Client contact $user_email entered a wrong two-step sign-in code", $client_id, $user_id);
+                                $response = "<div class='alert alert-danger'>That code is not right - try the newest one in your app.</div>";
+                            }
+
+                        } elseif ($client_id && $contact_id && $user_auth_method === 'local') {
+
+                            // Remember this browser for two-step sign-in, when asked
+                            if ($client_mfa_secret !== '' && isset($_POST['remember_me']) && $is_mfa_step) {
+                                $newRememberToken = bin2hex(random_bytes(64));
+                                setcookie('rememberme', $newRememberToken, time() + 86400 * $config_login_remember_me_expire, "/", null, true, true);
+                                mysqli_query($mysqli, "INSERT INTO remember_tokens SET remember_token_user_id = $user_id, remember_token_token = '$newRememberToken'");
+                                $client_mfa_how .= ', remembering this browser';
+                            }
 
                             // New session ID for the authenticated session (CWE-384)
                             session_regenerate_id(true);
@@ -643,11 +731,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && (isset($_POST['login']) || isset($_
 
                             // Option B: set session_user_id BEFORE logAudit()
                             $session_user_id = $user_id;
-                            logAudit("Client Login", "Success", "Client contact $user_email successfully logged in locally", $client_id, $user_id);
+                            logAudit("Client Login", "Success", "Client contact $user_email successfully logged in locally$client_mfa_how", $client_id, $user_id);
 
-                            // Clear any pending sessions (avoid stale dual-role/MFA state)
+                            // Clear any pending sessions (avoid stale dual-role/MFA state), and an agent's View as contact
                             unset($_SESSION['pending_dual_login']);
                             unset($_SESSION['pending_mfa_login']);
+                            unset($_SESSION['portal_view_as']);
 
                             header("Location: client/index.php");
                             exit();
@@ -719,8 +808,8 @@ $show_login_form = (!$show_role_choice && !$show_mfa_form);
             <?php } ?>
 
             <?php if (!empty($_SESSION['login_message'])) { ?>
-                <div class="alert alert-danger"><?= escapeHtml($_SESSION['login_message']) ?></div>
-                <?php unset($_SESSION['login_message']); ?>
+                <div class="alert alert-<?= ($_SESSION['login_message_type'] ?? '') === 'success' ? 'success' : 'danger' ?>"><?= escapeHtml($_SESSION['login_message']) ?></div>
+                <?php unset($_SESSION['login_message'], $_SESSION['login_message_type']); ?>
             <?php } ?>
 
             <?php if (isset($response)) { ?>
@@ -778,7 +867,7 @@ $show_login_form = (!$show_role_choice && !$show_mfa_form);
                     <div class="mb-3 mb-3">
                         <div class="form-check">
                             <input type="checkbox" class="form-check-input" id="remember_me" name="remember_me">
-                            <label class="form-check-label" for="remember_me">Remember Me</label>
+                            <label class="form-check-label" for="remember_me">Remember this browser for <?= $config_login_remember_me_expire ?> day<?= $config_login_remember_me_expire === 1 ? '' : 's' ?></label>
                         </div>
                     </div>
 

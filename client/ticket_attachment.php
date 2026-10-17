@@ -97,8 +97,10 @@ if ((isset($_SERVER['HTTP_IF_NONE_MATCH']) && trim($_SERVER['HTTP_IF_NONE_MATCH'
     exit;
 }
 
-// Audit log
-logAudit("Ticket", "Download", "Client contact $session_contact_name viewed ticket attachment $attachment_name_escaped via portal", $session_client_id);
+// Audit log - not for an agent viewing as the contact
+if (!portalViewingAs()) {
+    logAudit("Ticket", "Download", "Client contact $session_contact_name viewed ticket attachment $attachment_name_escaped via portal", $session_client_id);
+}
 
 // Send the file
 header("Content-Type: $attachment_mime_type");

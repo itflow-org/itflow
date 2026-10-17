@@ -107,6 +107,17 @@ $portal_contact_name = (string) ($contact['contact_name'] ?? '');
 <body class="itflow-portal d-flex flex-column min-vh-100 bg-body-tertiary theme-<?= escapeHtml($config_theme) ?>" data-lte-primary="<?= escapeHtml($config_theme) ?>"
       data-itflow-phone-country="<?= escapeHtml($country_iso2_array[$session_company_country] ?? '') ?>">
 
+<?php if ($portal_view_as) { ?>
+    <?php /* View as contact - an agent looking at the portal as this contact, read only */ ?>
+    <div class="itflow-portal-viewas d-print-none" role="status">
+        <div class="container d-flex flex-wrap align-items-center gap-2">
+            <i class="fas fa-eye"></i>
+            <span class="me-auto">You're viewing the portal as <strong><?= escapeHtml($portal_view_as['contact_name']) ?></strong> - read only<?= empty($portal_view_as['billing']) ? '. Billing is hidden, as your role doesn\'t see it' : '' ?></span>
+            <a class="btn btn-sm btn-light" href="/client/post.php?exit_view_as"><i class="fas fa-times me-1"></i>Exit</a>
+        </div>
+    </div>
+<?php } ?>
+
 <header class="itflow-portal-header">
     <div class="container d-flex align-items-center gap-3">
 
@@ -164,7 +175,11 @@ $portal_contact_name = (string) ($contact['contact_name'] ?? '');
                         <i class="fas fa-fw <?= $portal_dark ? 'fa-sun' : 'fa-moon' ?> me-2"></i><?= $portal_dark ? 'Light mode' : 'Dark mode' ?>
                     </button>
                     <div class="dropdown-divider"></div>
-                    <a class="dropdown-item" href="/client/post.php?logout"><i class="fas fa-fw fa-sign-out-alt me-2"></i>Sign out</a>
+                    <?php if ($portal_view_as) { ?>
+                        <a class="dropdown-item" href="/client/post.php?exit_view_as"><i class="fas fa-fw fa-times me-2"></i>Exit view</a>
+                    <?php } else { ?>
+                        <a class="dropdown-item" href="/client/post.php?logout"><i class="fas fa-fw fa-sign-out-alt me-2"></i>Sign out</a>
+                    <?php } ?>
                 </div>
             </div>
         </div>
@@ -207,7 +222,11 @@ $portal_contact_name = (string) ($contact['contact_name'] ?? '');
         <a class="itflow-portal-menu-link<?= $portal_page === 'profile.php' ? ' active' : '' ?>" href="/client/profile.php"><i class="fas fa-fw fa-user"></i>Your account</a>
         <a class="itflow-portal-menu-link<?= $portal_page === 'activity.php' ? ' active' : '' ?>" href="/client/activity.php"><i class="fas fa-fw fa-list"></i>Activity</a>
         <button type="button" class="itflow-portal-menu-link" data-portal-theme-toggle><i class="fas fa-fw <?= $portal_dark ? 'fa-sun' : 'fa-moon' ?>"></i><?= $portal_dark ? 'Light mode' : 'Dark mode' ?></button>
-        <a class="itflow-portal-menu-link" href="/client/post.php?logout"><i class="fas fa-fw fa-sign-out-alt"></i>Sign out</a>
+        <?php if ($portal_view_as) { ?>
+            <a class="itflow-portal-menu-link" href="/client/post.php?exit_view_as"><i class="fas fa-fw fa-times"></i>Exit view</a>
+        <?php } else { ?>
+            <a class="itflow-portal-menu-link" href="/client/post.php?logout"><i class="fas fa-fw fa-sign-out-alt"></i>Sign out</a>
+        <?php } ?>
     </div>
 </div>
 

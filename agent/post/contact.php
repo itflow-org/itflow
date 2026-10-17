@@ -835,6 +835,63 @@ if (isset($_GET['anonymize_contact'])) {
 
 }
 
+if (isset($_GET['portal_view_as'])) {
+
+    /*
+     * View as contact - the client portal as this contact sees it, read only,
+     * in this browser (functions/portal.php). Needs read access to clients and
+     * support and access to the client; billing shows when the agent's role
+     * also reads sales and financial. Logged, and the portal says so on every
+     * page until they leave it.
+     */
+    validateCSRFToken();
+
+    $contact_id = intval($_GET['portal_view_as']);
+    $access = portalViewAsAccess($session_user_id, $contact_id);
+    if (!$access) {
+        flashAlert("You can't view the portal as that contact - it needs the client portal on, read access to clients and support, and the client", 'error');
+        redirect();
+    }
+
+    // A portal sign-in left over in this browser would take the place of the view
+    unset($_SESSION['client_logged_in'], $_SESSION['client_id'], $_SESSION['contact_id']);
+    $_SESSION['portal_view_as'] = ['contact_id' => $contact_id, 'started' => time()];
+
+    logAudit("Contact", "View As", "$session_name viewed the client portal as " . escapeSql($access['contact_name']), $access['client_id'], $contact_id);
+
+    redirect('/client/index.php');
+
+}
+
+if (isset($_GET['reset_contact_portal_mfa'])) {
+
+    // Turn off a contact's two-step sign-in for the client portal - a lost phone
+    validateCSRFToken();
+
+    enforceUserPermission('module_client', 2);
+
+    $contact_id = intval($_GET['reset_contact_portal_mfa']);
+    $row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT contact_name, contact_email, contact_client_id, contact_user_id FROM contacts WHERE contact_id = $contact_id"));
+    $client_id = intval($row['contact_client_id'] ?? 0);
+
+    enforceClientAccess();
+
+    if (!$row || !intval($row['contact_user_id'])) {
+        flashAlert("That contact has no client portal account", 'error');
+        redirect();
+    }
+
+    portalMfaReset(intval($row['contact_user_id']));
+    logAudit("Contact", "Edit", "$session_name turned off two-step sign-in for " . escapeSql($row['contact_name']) . " in the client portal", $client_id, $contact_id);
+    portalAccountEmail($row['contact_email'], $row['contact_name'], 'Two-step sign-in was turned off for your client portal account',
+        ['We turned off two-step sign-in for your client portal account, so it asks only for your password now.', 'You can turn it back on from Your account in the portal.']);
+
+    flashAlert("Two-step sign-in is off for <strong>" . escapeHtml($row['contact_name']) . "</strong> - they sign in with their password alone until they set it up again");
+
+    redirect();
+
+}
+
 if (isset($_GET['archive_contact'])) {
 
     validateCSRFToken();

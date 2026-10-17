@@ -215,7 +215,7 @@
                 </li>
 
                 <!-- SETTINGS Section -->
-                <li class="nav-item mt-2 <?= (in_array(basename($_SERVER['PHP_SELF']), ['settings_company.php', 'settings_localization.php', 'settings_theme.php', 'settings_security.php', 'settings_mail.php', 'settings_notification.php', 'settings_default.php', 'settings_invoice.php', 'settings_quote.php', 'settings_online_payment.php', 'settings_online_payment_clients.php', 'settings_project.php', 'settings_ticket.php', 'settings_ai.php', 'identity_providers.php', 'settings_telemetry.php', 'settings_module.php']) ? 'menu-open' : '') ?>">
+                <li class="nav-item mt-2 <?= (in_array(basename($_SERVER['PHP_SELF']), ['settings_company.php', 'settings_localization.php', 'settings_theme.php', 'settings_security.php', 'settings_mail.php', 'settings_notification.php', 'settings_default.php', 'settings_invoice.php', 'settings_quote.php', 'settings_online_payment.php', 'settings_online_payment_clients.php', 'settings_project.php', 'settings_ticket.php', 'settings_ai.php', 'identity_providers.php', 'settings_telemetry.php', 'settings_module.php', 'settings_client_portal.php']) ? 'menu-open' : '') ?>">
                     <a href="#" class="nav-link">
                         <p>
                             SETTINGS
@@ -295,6 +295,12 @@
                         <?php } ?>
                         <!-- Currently the only integration is the client portal SSO -->
                         <?php if ($config_client_portal_enable) { ?>
+                            <li class="nav-item">
+                                <a href="/admin/settings_client_portal.php" class="nav-link <?= (basename($_SERVER['PHP_SELF']) == 'settings_client_portal.php' ? 'active' : '') ?>">
+                                    <i class="nav-icon fas fa-user-shield"></i>
+                                    <p>Client Portal</p>
+                                </a>
+                            </li>
                             <li class="nav-item">
                                 <a href="/admin/identity_providers.php" class="nav-link <?= (basename($_SERVER['PHP_SELF']) == 'identity_providers.php' ? 'active' : '') ?>">
                                     <i class="nav-icon fas fa-fingerprint"></i>

@@ -46,7 +46,12 @@ function verifyContactTicketAccess($requested_ticket_id, $expected_ticket_state)
  * Capabilities are named by area so the rule for one can change without touching callers.
  */
 function contactCan($capability) {
-    global $session_contact_primary, $session_contact_is_billing_contact, $session_contact_is_technical_contact;
+    global $session_contact_primary, $session_contact_is_billing_contact, $session_contact_is_technical_contact, $portal_view_as;
+
+    // An agent viewing as the contact sees billing only when their own role may (portalViewAsAccess())
+    if ($portal_view_as && $capability === 'accounting' && empty($portal_view_as['billing'])) {
+        return false;
+    }
 
     // Primary contacts can do everything in the portal
     if ($session_contact_primary == 1) {
@@ -80,6 +85,12 @@ function enforceContactCan($capability) {
     }
 }
 
+/** Whether an agent is looking at the portal as this contact (View as contact) - nothing is changed or recorded then. */
+function portalViewingAs() {
+    global $portal_view_as;
+    return !empty($portal_view_as);
+}
+
 /*
  * Confirms the person at the keyboard is the account holder, before a change
  * that would let someone who hijacked a session take the account over or
@@ -90,9 +101,9 @@ function enforceContactCan($capability) {
  * work. Gating them on a password they do not have would just lock them out.
  */
 function portalReauthenticate($current_password) {
-    global $mysqli, $session_user_id;
+    global $mysqli, $session_user_id, $session_auth_method;
 
-    if (($_SESSION['login_method'] ?? 'local') !== 'local') {
+    if ($session_auth_method !== 'local') {
         return true;
     }
 
@@ -400,6 +411,9 @@ function portalQuoteWaitingSql() {
  * they sign in rather than on every look.
  */
 function portalBillingViewed($type, array $row) {
+    if (portalViewingAs()) {
+        return;
+    }
     global $contact;
     $key = $type . ':' . intval($row[billingType($type)['col'] . '_id']);
     if (!empty($_SESSION['portal_viewed'][$key])) {
@@ -511,17 +525,6 @@ function portalContactAccess(array $row) {
     return ['key' => $method, 'label' => $method === 'azure' ? 'Signs in with Microsoft' : 'Signs in with a password', 'icon' => 'fa-check', 'class' => 'itflow-portal-state-resolved'];
 }
 
-/** When a portal user last signed in, from the audit log - null when they never have (or the log has been cleared since). */
-function portalContactLastSignIn($user_id) {
-    global $mysqli;
-    $user_id = intval($user_id);
-    if (!$user_id) {
-        return null;
-    }
-    $row = mysqli_fetch_row(mysqli_query($mysqli, "SELECT MAX(log_created_at) FROM logs WHERE log_user_id = $user_id AND log_type = 'Client Login' AND log_action = 'Success'"));
-    return $row[0] ?? null;
-}
-
 /** The ways a portal user can sign in here - a password, and Microsoft when it is set up. method => label. */
 function portalSignInMethods() {
     global $config_azure_client_id;
@@ -570,16 +573,15 @@ function portalContactInvite($contact_id, $method, $by) {
         mysqli_query($mysqli, "UPDATE contacts SET contact_user_id = $user_id WHERE contact_id = $contact_id AND contact_client_id = $client_id");
     }
 
-    // The email - a link to set their password, which is the reset page's own link
+    // The email - a link to set their password, which is the reset page's own
+    // link, good for PORTAL_INVITE_LINK_DAYS (functions/portal.php)
     $company = billingCompany();
     $company_name = (string) ($company['company_name'] ?? '');
     if ($method === 'local') {
-        $token = randomString(32);
-        mysqli_query($mysqli, "UPDATE users SET user_password_reset_token = '" . escapeSql($token) . "' WHERE user_id = $user_id");
-        $button = ['label' => 'Set your password', 'url' => "https://$config_base_url/client/login_reset.php?" . http_build_query(['email' => $email, 'token' => $token, 'client' => $client_id])];
+        $button = ['label' => 'Set your password', 'url' => portalPasswordLink($user_id, PORTAL_INVITE_LINK_DAYS * 1440)];
         $how = 'Set a password with the button below, then sign in with this email address.';
     } else {
-        mysqli_query($mysqli, "UPDATE users SET user_password_reset_token = NULL WHERE user_id = $user_id");
+        portalPasswordLinkClear($user_id);
         $button = ['label' => 'Sign in', 'url' => "https://$config_base_url/login.php"];
         $how = 'Sign in with your Microsoft 365 account - choose Login with Microsoft on the sign-in page.';
     }
@@ -591,7 +593,7 @@ function portalContactInvite($contact_id, $method, $by) {
             'intro' => [trim($by) . " has given you access to the $company_name client portal for {$contact['client_name']} - where you can raise and follow support tickets.", $how],
             'summary' => ['Sign in as' => $email],
             'button' => $button,
-            'after' => [$method === 'local' ? "The link works once. If it has been used, choose Forgot password on the sign-in page." : "Questions? Reply to this email."],
+            'after' => [$method === 'local' ? "The link works once, for " . PORTAL_INVITE_LINK_DAYS . " days. After that, choose Forgot password on the sign-in page." : "Questions? Reply to this email."],
             'footnote' => "You received this because " . trim($by) . " added you to the $company_name client portal.",
         ]);
         addToMailQueue([[
@@ -614,7 +616,7 @@ function portalContactAccessOff($contact_id) {
     $client_id = intval($session_client_id);
     $user_id = intval(mysqli_fetch_row(mysqli_query($mysqli, "SELECT contact_user_id FROM contacts WHERE contact_id = $contact_id AND contact_client_id = $client_id"))[0] ?? 0);
     if ($user_id) {
-        mysqli_query($mysqli, "UPDATE users SET user_auth_method = '', user_password_reset_token = NULL WHERE user_id = $user_id AND user_type = 2");
+        mysqli_query($mysqli, "UPDATE users SET user_auth_method = '', user_password_reset_token = NULL, user_password_reset_token_expire = NULL WHERE user_id = $user_id AND user_type = 2");
     }
     return $user_id > 0;
 }
