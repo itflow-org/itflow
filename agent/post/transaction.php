@@ -1,7 +1,9 @@
 <?php
 
 /*
- * ITFlow - Transactions POST request handler
+ * ITFlow - exporting transactions: one account's ledger with its balance
+ * after each line, or every account's, through the same filters as the
+ * ledger (functions/accounts.php).
  */
 
 if (!defined('FROM_POST_HANDLER')) {
@@ -17,199 +19,53 @@ if (isExportRequest('export_transactions')) {
 
     $format = resolveExportFormat($_POST['export_transactions']);
 
-    // Human-readable filter list for the PDF header
-    $filter_summary = [];
-
-    $date_from = escapeSql($_POST['date_from']);
-    $date_to = escapeSql($_POST['date_to']);
-    $account = intval($_POST['account']);
-    $category = intval($_POST['category']);
-
-    // Type Filter
-    $transaction_types_array = ['Revenue', 'Payment', 'Expense', 'Transfer In', 'Transfer Out', 'Reimbursement'];
-    if (!empty($_POST['type']) && in_array($_POST['type'], $transaction_types_array)) {
-        $type_query = "AND (transaction_type = '" . escapeSql($_POST['type']) . "')";
-        $filter_summary['Type'] = $_POST['type'];
-    } else {
-        // Default - any
-        $type_query = '';
+    $account_id = intval($_POST['account'] ?? 0);
+    $account = $account_id ? accountRow($account_id) : null;
+    if (!$account) {
+        $account_id = 0;
     }
-
-    // Category Filter
-    if ($category) {
-        $category_query = "AND (transaction_category_id = $category)";
-        $category_row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT category_name FROM categories WHERE category_id = $category"));
-        $filter_summary['Category'] = $category_row['category_name'] ?? '';
-    } else {
-        // Default - any
-        $category_query = '';
-    }
-
-    // Client Filter
-    $client = intval($_POST['client']);
-    if ($client) {
-        $client_query = "AND (transaction_client_id = $client)";
-        $client_row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT client_name FROM clients WHERE client_id = $client"));
-        $filter_summary['Client'] = $client_row['client_name'] ?? '';
-    } else {
-        // Default - any
-        $client_query = '';
-    }
-
-    // Payment Method Filter
-    if (!empty($_POST['payment_method'])) {
-        $payment_method_query = "AND (transaction_payment_method = '" . escapeSql($_POST['payment_method']) . "')";
-        $filter_summary['Payment Method'] = $_POST['payment_method'];
-    } else {
-        // Default - any
-        $payment_method_query = '';
-    }
-
-    // Amount Range Filter - matched on absolute value so direction doesn't matter
-    if (isset($_POST['amount_min']) && $_POST['amount_min'] != '') {
-        $amount_min_query = 'AND (ABS(transaction_amount) >= ' . floatval($_POST['amount_min']) . ')';
-        $filter_summary['Amount from'] = floatval($_POST['amount_min']);
-    } else {
-        // Default - any
-        $amount_min_query = '';
-    }
-    if (isset($_POST['amount_max']) && $_POST['amount_max'] != '') {
-        $amount_max_query = 'AND (ABS(transaction_amount) <= ' . floatval($_POST['amount_max']) . ')';
-        $filter_summary['Amount to'] = floatval($_POST['amount_max']);
-    } else {
-        // Default - any
-        $amount_max_query = '';
-    }
-
-    // Search Filter - mirrors the transactions page search box
-    $q = escapeSql($_POST['q']);
-    if (!empty($q)) {
-        $filter_summary['Search'] = $_POST['q'];
-        $search_query = "AND (transaction_description LIKE '%$q%' OR transaction_category LIKE '%$q%' OR transaction_reference LIKE '%$q%' OR transaction_other_account LIKE '%$q%' OR transaction_amount LIKE '%$q%')";
-    } else {
-        // Default - any
-        $search_query = '';
-    }
-
-    // Date Filter
-    if (!empty($date_from) && !empty($date_to)) {
-        $date_query = "AND DATE(transaction_date) BETWEEN '$date_from' AND '$date_to'";
-        $filter_summary['Date'] = "$date_from to $date_to";
-    } else {
-        $date_query = '';
-    }
-
-    // Account is required - export is a per-account ledger
+    $where = accountLedgerFiltersSql($_POST, $filter_summary, true, !$account);
     if ($account) {
+        $filter_summary = ['Account' => $account['account_name']] + $filter_summary;
+    }
+    $kinds = accountLedgerKinds();
 
-        // Account details for the running balance and file name
-        $row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT account_name, opening_balance FROM accounts WHERE account_id = $account LIMIT 1"));
-        $account_name = $row['account_name'];
-        $account_opening_balance = floatval($row['opening_balance']);
+    $sql = mysqli_query($mysqli, "SELECT ledger.* FROM (" . accountLedgerSql($account_id) . ") AS ledger WHERE $where
+        ORDER BY ledger.txn_date ASC, ledger.txn_created_at ASC, ledger.txn_order ASC, ledger.txn_id ASC");
 
-        // Same ledger as transactions.php - full unfiltered ledger for the balance, filters applied outside
-        $sql = mysqli_query(
-            $mysqli,
-            "SELECT * FROM (
-                SELECT *,
-                    $account_opening_balance + SUM(transaction_amount) OVER (ORDER BY transaction_date ASC, transaction_created_at ASC, transaction_type ASC, transaction_id ASC) AS transaction_balance
-                FROM (
-                    SELECT
-                        CASE WHEN transfer_id IS NOT NULL THEN 'Transfer In' ELSE 'Revenue' END AS transaction_type,
-                        revenue_id AS transaction_id,
-                        revenue_date AS transaction_date,
-                        revenue_created_at AS transaction_created_at,
-                        CASE WHEN transfer_id IS NOT NULL THEN transfer_notes ELSE revenue_description END AS transaction_description,
-                        from_account.account_name AS transaction_other_account,
-                        revenue_reference AS transaction_reference,
-                        revenue_client_id AS transaction_client_id,
-                        CASE WHEN transfer_id IS NOT NULL THEN transfer_method ELSE revenue_payment_method END AS transaction_payment_method,
-                        revenue_category_id AS transaction_category_id,
-                        category_name AS transaction_category,
-                        revenue_amount AS transaction_amount
-                    FROM revenues
-                    LEFT JOIN categories ON revenue_category_id = category_id
-                    LEFT JOIN transfers ON transfer_revenue_id = revenue_id
-                    LEFT JOIN expenses AS transfer_expense ON transfer_expense_id = transfer_expense.expense_id
-                    LEFT JOIN accounts AS from_account ON transfer_expense.expense_account_id = from_account.account_id
-                    WHERE revenue_account_id = $account
-                    AND revenue_archived_at IS NULL
+    $num_rows = mysqli_num_rows($sql);
+    if ($num_rows > 0) {
 
-                    UNION ALL
+        guardExportPdfRowCount($format, $num_rows);
 
-                    SELECT
-                        CASE WHEN transfer_id IS NOT NULL THEN 'Transfer Out' WHEN reimbursement_id IS NOT NULL THEN 'Reimbursement' ELSE 'Expense' END,
-                        expense_id,
-                        expense_date,
-                        expense_created_at,
-                        CASE WHEN transfer_id IS NOT NULL THEN transfer_notes ELSE expense_description END,
-                        CASE WHEN reimbursement_id IS NOT NULL THEN payee.user_name ELSE to_account.account_name END,
-                        expense_reference,
-                        expense_client_id,
-                        CASE WHEN transfer_id IS NOT NULL THEN transfer_method ELSE expense_payment_method END,
-                        expense_category_id,
-                        category_name,
-                        -expense_amount
-                    FROM expenses
-                    LEFT JOIN categories ON expense_category_id = category_id
-                    LEFT JOIN transfers ON transfer_expense_id = expense_id
-                    LEFT JOIN revenues AS transfer_revenue ON transfer_revenue_id = transfer_revenue.revenue_id
-                    LEFT JOIN accounts AS to_account ON transfer_revenue.revenue_account_id = to_account.account_id
-                    LEFT JOIN reimbursements ON reimbursement_expense_id = expense_id
-                    LEFT JOIN users AS payee ON payee.user_id = reimbursement_user_id
-                    WHERE expense_account_id = $account
-                    AND expense_archived_at IS NULL
+        $name = $account ? $account['account_name'] : 'All accounts';
+        $export = beginExport('transactions', $format, "$session_company_name-$name-Transactions", "$name - Transactions", summarizeExportFilters($filter_summary));
 
-                    UNION ALL
-
-                    SELECT
-                        'Payment',
-                        payment_id,
-                        payment_date,
-                        payment_created_at,
-                        CONCAT('Payment for Invoice ', invoice_prefix, invoice_number),
-                        NULL,
-                        payment_reference,
-                        invoice_client_id,
-                        payment_method,
-                        0,
-                        'Invoice Payment',
-                        payment_amount
-                    FROM payments
-                    LEFT JOIN invoices ON payment_invoice_id = invoice_id
-                    WHERE payment_account_id = $account
-                    AND payment_archived_at IS NULL
-                ) AS ledger
-            ) AS transactions
-            WHERE 1 = 1
-            $date_query
-            $type_query
-            $category_query
-            $client_query
-            $payment_method_query
-            $amount_min_query
-            $amount_max_query
-            $search_query
-            ORDER BY transaction_date ASC, transaction_created_at ASC, transaction_type ASC, transaction_id ASC"
-        );
-
-        $num_rows = mysqli_num_rows($sql);
-        if ($num_rows > 0) {
-
-            guardExportPdfRowCount($format, $num_rows);
-
-            $export = beginExport('transactions', $format, "$session_company_name-$account_name-Transactions", "$account_name - Transactions", summarizeExportFilters($filter_summary));
-
-            while ($row = mysqli_fetch_assoc($sql)) {
-                addExportRow($export, $row);
-            }
-
-            finishExport($export);
+        while ($row = mysqli_fetch_assoc($sql)) {
+            $amount = floatval($row['txn_amount']);
+            $transfer = in_array($row['txn_kind'], ['transfer_in', 'transfer_out'], true);
+            addExportRow($export, [
+                'transaction_date' => $row['txn_date'],
+                'transaction_account' => $row['account_name'],
+                'transaction_type' => $kinds[$row['txn_kind']]['label'],
+                'transaction_what' => $row['txn_kind'] === 'payment' && $row['txn_what'] !== '' ? 'Payment on ' . $row['txn_what'] : $row['txn_what'],
+                'transaction_description' => trim((string) $row['txn_description']),
+                'transaction_other_account' => $transfer ? (string) $row['other_account_name'] : '',
+                'transaction_reference' => (string) $row['txn_reference'],
+                'transaction_category' => $transfer ? '' : (string) $row['category_name'],
+                'transaction_client' => (string) $row['client_name'],
+                'transaction_payment_method' => (string) $row['txn_method'],
+                'transaction_in' => $amount > 0 ? $amount : '',
+                'transaction_out' => $amount < 0 ? -$amount : '',
+                'transaction_amount' => $amount,
+                'transaction_balance' => $account ? floatval($row['txn_balance']) : '',
+            ]);
         }
 
-        logAudit("Transaction", "Export", "$session_name exported $num_rows transaction(s) to a " . strtoupper($format) . " file");
-
+        finishExport($export);
     }
+
+    logAudit("Transaction", "Export", "$session_name exported $num_rows transaction(s) to a " . strtoupper($format) . " file");
 
     exit;
 

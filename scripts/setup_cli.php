@@ -288,7 +288,7 @@ seedDefaultData($mysqli);
 // Finalizing
 mysqli_query($mysqli,"UPDATE companies SET company_locale = '$locale', company_currency = '$currency_code' WHERE company_id = 1");
 mysqli_query($mysqli,"UPDATE settings SET config_timezone = '$timezone' WHERE company_id = 1");
-mysqli_query($mysqli,"INSERT INTO accounts SET account_name = 'Cash', account_currency_code = '$currency_code'");
+mysqli_query($mysqli,"INSERT INTO accounts SET account_name = 'Cash', account_type = 4, account_currency_code = '$currency_code'");
 
 // Telemetry (optional if interactive)
 if (!$non_interactive) {

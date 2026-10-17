@@ -1025,25 +1025,9 @@ function dashboardBreakdowns($period) {
     ];
 }
 
-/** Balance of every open account: opening balance, plus money in, minus money out. */
+/** Every open account with its balance - accountsList(), the one balance rule. */
 function dashboardAccountBalances() {
-    global $mysqli;
-
-    $sql = mysqli_query($mysqli, "
-        SELECT account_id, account_name, opening_balance
-            + COALESCE((SELECT SUM(payment_amount) FROM payments WHERE payment_account_id = account_id), 0)
-            + COALESCE((SELECT SUM(revenue_amount) FROM revenues WHERE revenue_account_id = account_id), 0)
-            - COALESCE((SELECT SUM(expense_amount) FROM expenses WHERE expense_account_id = account_id), 0) AS balance
-        FROM accounts
-        WHERE account_archived_at IS NULL
-        ORDER BY account_name
-    ");
-
-    $accounts = [];
-    while ($row = mysqli_fetch_assoc($sql)) {
-        $accounts[] = $row;
-    }
-    return $accounts;
+    return array_values(accountsList(false));
 }
 
 function dashboardLatestIncome($limit = 5) {

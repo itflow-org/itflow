@@ -1,553 +1,435 @@
 <?php
 
+/*
+ * Transactions - an account's ledger: every payment, other income, expense,
+ * transfer and reimbursement on it in date order, with the balance after
+ * each (functions/accounts.php). Or every account's, with the account on
+ * each line. Transfers is a pill here - across every account each transfer
+ * shows once, from the account it left.
+ *
+ * Along the top: what the account holds now (or what the accounts hold), and
+ * the money in, out and the difference over the dates picked. Pills cut it
+ * to money in, money out and transfers; filters by date, category, client,
+ * and under More filters by kind, how it was paid and the amount. A line
+ * opens its quick look.
+ *
+ * Takes ?account=, ?show= (in, out, transfers), ?kind= (or the older ?type=
+ * Revenue, Payment, Expense, Transfer In, Transfer Out, Reimbursement),
+ * ?category=, ?client=, ?method= (or ?payment_method=), ?amount_min=,
+ * ?amount_max=, ?q= and the date filter.
+ */
+
 // Default Column Sortby/Order Filter
-$sort = "transaction_date";
+$sort = "txn_date";
 $order = "DESC";
 
 require_once "includes/inc_all.php";
 
-// Perms
 enforceUserPermission('module_financial');
 
-// Account Filter
-if (isset($_GET['account']) & !empty($_GET['account'])) {
-    $account_filter = intval($_GET['account']);
-} else {
-    // Default - none selected
-    $account_filter = '';
+$can_edit = lookupUserPermission('module_financial') >= 2;
+$open_accounts = accountsList(false);
+$account_filter = intval($_GET['account'] ?? 0);
+$account = $account_filter ? accountRow($account_filter) : null;
+$missing_account = $account_filter && !$account;
+if (!$account) {
+    $account_filter = 0;
+}
+$all = !$account;
+$types = accountTypes();
+$kinds = accountLedgerKinds();
+$shows = accountLedgerShows($all);
+$show = (string) ($_GET['show'] ?? '');
+$show = isset($shows[$show]) ? $show : '';
+$kind_filter = (string) ($_GET['kind'] ?? '');
+if ($kind_filter === '' && isset(accountLedgerTypeNames()[(string) ($_GET['type'] ?? '')])) {
+    $kind_filter = accountLedgerTypeNames()[(string) $_GET['type']];
+}
+$category_filter = intval($_GET['category'] ?? 0);
+$client_filter = intval($_GET['client'] ?? 0);
+$method_filter = (string) ($_GET['method'] ?? ($_GET['payment_method'] ?? ''));
+$amount_min = (string) ($_GET['amount_min'] ?? '');
+$amount_max = (string) ($_GET['amount_max'] ?? '');
+$more_filters = ($kind_filter !== '' && isset($kinds[$kind_filter])) || $method_filter !== '' || $amount_min !== '' || $amount_max !== '';
+
+// Only these sort - filter_header.php hands through any lowercase word
+$sortable_columns = ['txn_date' => null, 'txn_amount' => 'ledger.txn_amount', 'category_name' => 'ledger.category_name', 'client_name' => 'ledger.client_name',
+    'txn_what' => 'ledger.txn_what', 'account_name' => 'ledger.account_name'];
+if (!array_key_exists($sort, $sortable_columns)) {
+    $sort = 'txn_date';
+}
+$order_sql = $sort === 'txn_date'
+    ? "ledger.txn_date $order, ledger.txn_created_at $order, ledger.txn_order $order, ledger.txn_id $order"
+    : "{$sortable_columns[$sort]} $order, ledger.txn_date DESC, ledger.txn_id DESC";
+$balance_visible = !$all && $sort === 'txn_date';
+
+$filter_src = array_merge($_GET, ['dtf' => $dtf, 'dtt' => $dtt, 'kind' => $kind_filter, 'show' => $show]);
+$where = accountLedgerFiltersSql($filter_src, $summary, false, $all);
+$show_query = $show !== '' ? 'AND ' . $shows[$show]['where'] : '';
+$ledger = accountLedgerSql($account_filter);
+
+$sql = mysqli_query($mysqli, "SELECT SQL_CALC_FOUND_ROWS ledger.* FROM ($ledger) AS ledger WHERE $where $show_query ORDER BY $order_sql LIMIT $record_from, $record_to");
+$num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
+$rows = [];
+while ($row = mysqli_fetch_assoc($sql)) {
+    $rows[] = $row;
 }
 
-// Type Filter
-$transaction_types_array = ['Revenue', 'Payment', 'Expense', 'Transfer In', 'Transfer Out', 'Reimbursement'];
-if (isset($_GET['type']) & !empty($_GET['type']) && in_array($_GET['type'], $transaction_types_array)) {
-    $type_query = "AND (transaction_type = '" . escapeSql($_GET['type']) . "')";
-    $type_filter = escapeSql($_GET['type']);
-} else {
-    // Default - any
-    $type_query = '';
-    $type_filter = '';
+// The pills, and the money in and out of what is listed
+$count_sql = [];
+foreach ($shows as $key => $s) {
+    $count_sql[] = $key === '' ? 'COUNT(*)' : "COALESCE(SUM({$s['where']}), 0)";
 }
-
-// Category Filter
-if (isset($_GET['category']) & !empty($_GET['category'])) {
-    $category_query = 'AND (transaction_category_id = ' . intval($_GET['category']) . ')';
-    $category_filter = intval($_GET['category']);
-} else {
-    // Default - any
-    $category_query = '';
-    $category_filter = '';
+$row = mysqli_fetch_row(mysqli_query($mysqli, "SELECT " . implode(', ', $count_sql) . ",
+        COALESCE(SUM(CASE WHEN 1 $show_query AND ledger.txn_amount > 0 THEN ledger.txn_amount END), 0),
+        COALESCE(SUM(CASE WHEN 1 $show_query AND ledger.txn_amount < 0 THEN -ledger.txn_amount END), 0)
+    FROM ($ledger) AS ledger WHERE $where"));
+$counts = [];
+foreach (array_keys($shows) as $i => $key) {
+    $counts[$key] = intval($row[$i]);
 }
-
-// Client Filter
-if (isset($_GET['client']) & !empty($_GET['client'])) {
-    $client_query = 'AND (transaction_client_id = ' . intval($_GET['client']) . ')';
-    $client_filter = intval($_GET['client']);
-} else {
-    // Default - any
-    $client_query = '';
-    $client_filter = '';
+$total_in = round(floatval($row[count($shows)]), 2);
+$total_out = round(floatval($row[count($shows) + 1]), 2);
+$currency = $account ? (string) $account['account_currency_code'] : (string) $session_company_currency;
+$money = function ($amount, $code = null) use ($currency) {
+    return escapeHtml(billingMoney($amount, $code ?? $currency));
+};
+$filter_url = function ($changes) {
+    $params = array_merge($_GET, $changes);
+    unset($params['page'], $params['type'], $params['payment_method']);
+    return '?' . http_build_query(array_filter($params, function ($v) { return $v !== '' && $v !== null && $v !== 0; }));
+};
+$any_filter = $q || $category_filter || $client_filter || $more_filters || $show !== '' || $dtf !== '1970-01-01';
+$dated = $dtf !== '1970-01-01' || $dtt !== '2099-12-31';
+$cash = 0.0;
+$cash_accounts = 0;
+foreach ($open_accounts as $open) {
+    if ($open['type'] !== 3) {
+        $cash += $open['balance'];
+        $cash_accounts++;
+    }
 }
+$is_card = $account && $account['type'] === 3;
 
-// Payment Method Filter
-if (isset($_GET['payment_method']) & !empty($_GET['payment_method'])) {
-    $payment_method_query = "AND (transaction_payment_method = '" . escapeSql($_GET['payment_method']) . "')";
-    $payment_method_filter = escapeSql($_GET['payment_method']);
-} else {
-    // Default - any
-    $payment_method_query = '';
-    $payment_method_filter = '';
-}
-
-// Amount Range Filter - matched on absolute value so direction doesn't matter (type filter handles direction)
-if (isset($_GET['amount_min']) && $_GET['amount_min'] != '') {
-    $amount_min_query = 'AND (ABS(transaction_amount) >= ' . floatval($_GET['amount_min']) . ')';
-    $amount_min_filter = floatval($_GET['amount_min']);
-} else {
-    // Default - any
-    $amount_min_query = '';
-    $amount_min_filter = '';
-}
-if (isset($_GET['amount_max']) && $_GET['amount_max'] != '') {
-    $amount_max_query = 'AND (ABS(transaction_amount) <= ' . floatval($_GET['amount_max']) . ')';
-    $amount_max_filter = floatval($_GET['amount_max']);
-} else {
-    // Default - any
-    $amount_max_query = '';
-    $amount_max_filter = '';
-}
-
-// Balance only makes sense in chronological order - hide the column under any other sort
-if ($sort == 'transaction_date') {
-    $balance_visible = true;
-} else {
-    $balance_visible = false;
-}
-
-if ($account_filter) {
-
-    // Account details - opening balance feeds the running balance, currency feeds the summary
-    $row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT account_currency_code, opening_balance FROM accounts WHERE account_id = $account_filter LIMIT 1"));
-    $account_currency_code = escapeHtml($row['account_currency_code']);
-    $account_opening_balance = floatval($row['opening_balance']);
-
-    // Transfers are stored as a linked expense (from account) + revenue (to account) pair,
-    //  so we detect them via the transfers link table and relabel the row accordingly
-    // The running balance is calculated over the account's full ledger BEFORE any filters,
-    //  so the balance per transaction stays accurate no matter what is filtered out
-
-    $ledger_query =
-        "SELECT *,
-            $account_opening_balance + SUM(transaction_amount) OVER (ORDER BY transaction_date ASC, transaction_created_at ASC, transaction_type ASC, transaction_id ASC) AS transaction_balance
-        FROM (
-            SELECT
-                CASE WHEN transfer_id IS NOT NULL THEN 'Transfer In' ELSE 'Revenue' END AS transaction_type,
-                revenue_id AS transaction_id,
-                transfer_id AS transaction_transfer_id,
-                0 AS transaction_invoice_id,
-                revenue_date AS transaction_date,
-                revenue_created_at AS transaction_created_at,
-                CASE WHEN transfer_id IS NOT NULL THEN transfer_notes ELSE revenue_description END AS transaction_description,
-                from_account.account_name AS transaction_other_account,
-                revenue_reference AS transaction_reference,
-                revenue_client_id AS transaction_client_id,
-                CASE WHEN transfer_id IS NOT NULL THEN transfer_method ELSE revenue_payment_method END AS transaction_payment_method,
-                revenue_category_id AS transaction_category_id,
-                category_name AS transaction_category,
-                revenue_amount AS transaction_amount,
-                revenue_currency_code AS transaction_currency_code
-            FROM revenues
-            LEFT JOIN categories ON revenue_category_id = category_id
-            LEFT JOIN transfers ON transfer_revenue_id = revenue_id
-            LEFT JOIN expenses AS transfer_expense ON transfer_expense_id = transfer_expense.expense_id
-            LEFT JOIN accounts AS from_account ON transfer_expense.expense_account_id = from_account.account_id
-            WHERE revenue_account_id = $account_filter
-            AND revenue_archived_at IS NULL
-
-            UNION ALL
-
-            SELECT
-                CASE WHEN transfer_id IS NOT NULL THEN 'Transfer Out' WHEN reimbursement_id IS NOT NULL THEN 'Reimbursement' ELSE 'Expense' END,
-                CASE WHEN reimbursement_id IS NOT NULL THEN reimbursement_id ELSE expense_id END,
-                transfer_id,
-                0,
-                expense_date,
-                expense_created_at,
-                CASE WHEN transfer_id IS NOT NULL THEN transfer_notes ELSE expense_description END,
-                CASE WHEN reimbursement_id IS NOT NULL THEN payee.user_name ELSE to_account.account_name END,
-                expense_reference,
-                expense_client_id,
-                CASE WHEN transfer_id IS NOT NULL THEN transfer_method ELSE expense_payment_method END,
-                expense_category_id,
-                category_name,
-                -expense_amount,
-                expense_currency_code
-            FROM expenses
-            LEFT JOIN categories ON expense_category_id = category_id
-            LEFT JOIN transfers ON transfer_expense_id = expense_id
-            LEFT JOIN revenues AS transfer_revenue ON transfer_revenue_id = transfer_revenue.revenue_id
-            LEFT JOIN accounts AS to_account ON transfer_revenue.revenue_account_id = to_account.account_id
-            LEFT JOIN reimbursements ON reimbursement_expense_id = expense_id
-            LEFT JOIN users AS payee ON payee.user_id = reimbursement_user_id
-            WHERE expense_account_id = $account_filter
-            AND expense_archived_at IS NULL
-
-            UNION ALL
-
-            SELECT
-                'Payment',
-                payment_id,
-                NULL,
-                payment_invoice_id,
-                payment_date,
-                payment_created_at,
-                CONCAT('Payment for Invoice ', invoice_prefix, invoice_number),
-                NULL,
-                payment_reference,
-                invoice_client_id,
-                payment_method,
-                0,
-                'Invoice Payment',
-                payment_amount,
-                payment_currency_code
-            FROM payments
-            LEFT JOIN invoices ON payment_invoice_id = invoice_id
-            WHERE payment_account_id = $account_filter
-            AND payment_archived_at IS NULL
-        ) AS ledger";
-
-    $transaction_filter_query =
-        "WHERE DATE(transaction_date) BETWEEN '$dtf' AND '$dtt'
-        AND (transaction_description LIKE '%$q%' OR transaction_category LIKE '%$q%' OR transaction_reference LIKE '%$q%' OR transaction_other_account LIKE '%$q%' OR transaction_amount LIKE '%$q%')
-        $type_query
-        $category_query
-        $client_query
-        $payment_method_query
-        $amount_min_query
-        $amount_max_query";
-
-    $sql = mysqli_query(
-        $mysqli,
-        "SELECT SQL_CALC_FOUND_ROWS * FROM (
-            $ledger_query
-        ) AS transactions
-        $transaction_filter_query
-        ORDER BY $sort $order LIMIT $record_from, $record_to"
-    );
-
-    $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
-
-    // Summary - money in / money out / net for the current filtered view, plus current account balance
-    $sql_summary = mysqli_query(
-        $mysqli,
-        "SELECT
-            SUM(CASE WHEN transaction_amount > 0 THEN transaction_amount ELSE 0 END) AS total_in,
-            SUM(CASE WHEN transaction_amount < 0 THEN transaction_amount ELSE 0 END) AS total_out,
-            SUM(transaction_amount) AS total_net
-        FROM (
-            $ledger_query
-        ) AS transactions
-        $transaction_filter_query"
-    );
-    $row = mysqli_fetch_assoc($sql_summary);
-    $summary_total_in = floatval($row['total_in']);
-    $summary_total_out = floatval($row['total_out']);
-    $summary_total_net = floatval($row['total_net']);
-
-} else {
-    $num_rows = [0];
+// Every account's transfers: what was moved, what paid off cards and what payment processors paid out
+$transfer_cards = $all && $show === 'transfers';
+if ($transfer_cards) {
+    $row = mysqli_fetch_row(mysqli_query($mysqli, "SELECT COUNT(*), COALESCE(SUM(-ledger.txn_amount), 0),
+            COALESCE(SUM(CASE WHEN ledger.other_account_type = 3 THEN -ledger.txn_amount END), 0), COALESCE(SUM(CASE WHEN ledger.other_account_type = 3 THEN 1 END), 0),
+            COALESCE(SUM(CASE WHEN ledger.account_type = 5 THEN -ledger.txn_amount END), 0), COALESCE(SUM(CASE WHEN ledger.account_type = 5 THEN 1 END), 0)
+        FROM ($ledger) AS ledger
+        WHERE $where $show_query"));
+    $moved = ['count' => intval($row[0]), 'total' => round(floatval($row[1]), 2), 'cards' => round(floatval($row[2]), 2), 'card_count' => intval($row[3]),
+        'payouts' => round(floatval($row[4]), 2), 'payout_count' => intval($row[5])];
 }
 
 ?>
 
-    <div class="card">
-        <div class="card-header bg-dark py-2">
-            <h3 class="card-title mt-2"><i class="fas fa-fw fa-list-alt me-2"></i>Transactions</h3>
-            <?php if ($account_filter) { ?>
-            <div class="card-tools">
-                <button type="button" class="btn btn-primary ajax-modal" data-modal-url="modals/transaction/transaction_export.php?account=<?= $account_filter ?>&type=<?= urlencode($type_filter) ?>&category=<?= $category_filter ?>&client=<?= $client_filter ?>&payment_method=<?= urlencode($payment_method_filter) ?>&amount_min=<?= $amount_min_filter ?>&amount_max=<?= $amount_max_filter ?>&dtf=<?= $dtf ?>&dtt=<?= $dtt ?>&q=<?= urlencode($q ?? '') ?>"><i class="fa fa-download me-2"></i>Export</button>
+<?php if ($missing_account) { ?>
+    <div class="alert alert-warning"><i class="fas fa-exclamation-triangle me-2"></i>That account no longer exists - here is every account's.</div>
+<?php } ?>
+
+<!-- The account, and the money over the dates picked -->
+<div class="row g-3 mb-3">
+    <div class="col-sm-6 col-xl-3">
+        <?php if ($account) { ?>
+            <div class="itflow-billing-stat">
+                <div class="itflow-billing-stat-label"><i class="fas <?= $types[$account['type']]['icon'] ?> me-1"></i><?= $is_card && $account['balance'] < 0 ? 'Owed now' : 'Holds now' ?></div>
+                <div class="itflow-billing-stat-value <?= $is_card && $account['balance'] < 0 ? 'text-warning-emphasis' : ($account['balance'] < 0 ? 'text-danger-emphasis' : '') ?>">
+                    <?= $money($is_card && $account['balance'] < 0 ? -$account['balance'] : $account['balance']) ?>
+                </div>
+                <div class="itflow-billing-stat-note"><?= escapeHtml($types[$account['type']]['label']) ?> &middot; <?= escapeHtml($account['account_currency_code']) ?><?= $account['account_archived_at'] ? ' &middot; archived' : '' ?><?= floatval($account['opening_balance']) != 0 ? ' &middot; opened with ' . $money($account['opening_balance']) : '' ?></div>
             </div>
-            <?php } ?>
-        </div>
-
-        <div class="card-header py-3">
-            <form autocomplete="off">
-                <div class="row g-2 align-items-end">
-                    <div class="col-sm-3">
-                        <div>
-                            <label class="form-label">Search</label>
-                            <div class="input-group">
-                                <input type="search" class="form-control" name="q" value="<?php if (isset($q)) { echo stripslashes(escapeHtml($q)); } ?>" placeholder="Search Transactions">
-                                    <button class="btn btn-primary" title="Search"><i class="fa fa-search"></i></button>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-sm-3">
-                        <div>
-                            <label class="form-label">Account</label>
-                            <select class="form-select select2" name="account" onchange="this.form.submit()">
-                                <option value="">- Select an Account -</option>
-
-                                <?php
-                                $sql_accounts_filter = mysqli_query(
-                                    $mysqli,
-                                    "SELECT account_id, account_name, account_currency_code,
-                                        opening_balance
-                                        + COALESCE((SELECT SUM(revenue_amount) FROM revenues WHERE revenue_account_id = account_id AND revenue_archived_at IS NULL), 0)
-                                        + COALESCE((SELECT SUM(payment_amount) FROM payments WHERE payment_account_id = account_id AND payment_archived_at IS NULL), 0)
-                                        - COALESCE((SELECT SUM(expense_amount) FROM expenses WHERE expense_account_id = account_id AND expense_archived_at IS NULL), 0)
-                                        AS account_balance
-                                    FROM accounts WHERE account_archived_at IS NULL ORDER BY account_name ASC"
-                                );
-                                while ($row = mysqli_fetch_assoc($sql_accounts_filter)) {
-                                    $account_id = intval($row['account_id']);
-                                    $account_name = escapeHtml($row['account_name']);
-                                    $account_balance_display = numfmt_format_currency($currency_format, floatval($row['account_balance']), $row['account_currency_code']);
-                                ?>
-                                    <option <?php if ($account_filter == $account_id) { echo "selected"; } ?> value="<?= $account_id ?>"><?= "$account_name ($account_balance_display)" ?></option>
-                                <?php
-                                }
-                                ?>
-
-                            </select>
-                        </div>
-                    </div>
-                    <div class="col-sm-3">
-                        <div>
-                            <label class="form-label">Type</label>
-                            <select class="form-select select2" name="type" onchange="this.form.submit()">
-                                <option value="">- All Types -</option>
-
-                                <?php foreach ($transaction_types_array as $transaction_type_option) { ?>
-                                    <option <?php if ($type_filter == $transaction_type_option) { echo "selected"; } ?> value="<?= $transaction_type_option ?>"><?= $transaction_type_option ?></option>
-                                <?php } ?>
-
-                            </select>
-                        </div>
-                    </div>
-                    <div class="col-sm-3">
-                        <div>
-                            <label class="form-label">Category</label>
-                            <select class="form-select select2" name="category" onchange="this.form.submit()">
-                                <option value="">- All Categories -</option>
-
-                                <?php
-                                $sql_categories_filter = mysqli_query($mysqli, "SELECT category_id, category_name, category_color, category_icon FROM categories WHERE category_type IN ('Income', 'Expense') AND (EXISTS (SELECT 1 FROM revenues WHERE revenue_category_id = category_id) OR EXISTS (SELECT 1 FROM expenses WHERE expense_category_id = category_id)) ORDER BY category_name ASC");
-                                while ($row = mysqli_fetch_assoc($sql_categories_filter)) {
-                                    $category_id = intval($row['category_id']);
-                                    $category_name = escapeHtml($row['category_name']);
-                                ?>
-                                    <option <?php if ($category_filter == $category_id) { echo "selected"; } ?> value="<?= $category_id ?>"<?= selectOptionColor($row['category_color'] ?? '', $row['category_icon'] ?? '') ?>><?= $category_name ?></option>
-                                <?php
-                                }
-                                ?>
-
-                            </select>
-                        </div>
-                    </div>
-                </div>
-                <div class="row g-3">
-                    <div class="col-sm-3">
-                        <div>
-                            <label class="form-label">Client</label>
-                            <select class="form-select select2" name="client" onchange="this.form.submit()">
-                                <option value="">- All Clients -</option>
-
-                                <?php
-                                $sql_clients_filter = mysqli_query($mysqli, "SELECT client_id, client_name, client_abbreviation FROM clients WHERE client_archived_at IS NULL AND (EXISTS (SELECT 1 FROM revenues WHERE revenue_client_id = client_id) OR EXISTS (SELECT 1 FROM expenses WHERE expense_client_id = client_id) OR EXISTS (SELECT 1 FROM invoices WHERE invoice_client_id = client_id)) ORDER BY client_name ASC");
-                                while ($row = mysqli_fetch_assoc($sql_clients_filter)) {
-                                    $client_id = intval($row['client_id']);
-                                    $client_name = escapeHtml($row['client_name']);
-                                ?>
-                                    <option <?php if ($client_filter == $client_id) { echo "selected"; } ?> value="<?= $client_id ?>"<?= selectOptionClient($row['client_id'], $row['client_name'], $row['client_abbreviation'] ?? '') ?>><?= $client_name ?></option>
-                                <?php
-                                }
-                                ?>
-
-                            </select>
-                        </div>
-                    </div>
-                    <div class="col-sm-3">
-                        <div>
-                            <label class="form-label">Payment Method</label>
-                            <select class="form-select select2" name="payment_method" onchange="this.form.submit()">
-                                <option value="">- All Methods -</option>
-
-                                <?php
-                                $sql_payment_methods_filter = mysqli_query($mysqli, "SELECT payment_method_name FROM payment_methods ORDER BY payment_method_name ASC");
-                                while ($row = mysqli_fetch_assoc($sql_payment_methods_filter)) {
-                                    $payment_method_name = escapeHtml($row['payment_method_name']);
-                                ?>
-                                    <option <?php if ($payment_method_filter == $payment_method_name) { echo "selected"; } ?> value="<?= $payment_method_name ?>"><?= $payment_method_name ?></option>
-                                <?php
-                                }
-                                ?>
-
-                            </select>
-                        </div>
-                    </div>
-                    <div class="col-sm-3">
-                        <div>
-                            <label class="form-label">Amount Range</label>
-                            <div class="input-group">
-                                <input type="number" step="0.01" min="0" class="form-control" name="amount_min" value="<?= $amount_min_filter ?>" placeholder="Min" onchange="this.form.submit()">
-                                <input type="number" step="0.01" min="0" class="form-control" name="amount_max" value="<?= $amount_max_filter ?>" placeholder="Max" onchange="this.form.submit()">
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-sm-3">
-                        <div>
-                            <label class="form-label">Date Range</label>
-                            <input type="text" id="dateFilter" class="form-control" autocomplete="off">
-                            <input type="hidden" name="canned_date" id="canned_date" value="<?= escapeHtml($_GET['canned_date']) ?? '' ?>">
-                            <input type="hidden" name="dtf" id="dtf" value="<?= escapeHtml($dtf ?? '') ?>">
-                            <input type="hidden" name="dtt" id="dtt" value="<?= escapeHtml($dtt ?? '') ?>">
-                        </div>
-                    </div>
-                </div>
-            </form>
-        </div>
-
-        <?php if ($account_filter) { ?>
-
-        <div class="row">
-            <div class="col-lg-4 col-md-6 col-sm-12">
-                <!-- small box -->
-                <div class="small-box bg-success">
-                    <div class="inner">
-                        <h3><?= numfmt_format_currency($currency_format, $summary_total_in, $account_currency_code) ?></h3>
-                        <p>Money In</p>
-                    </div>
-                    <div class="icon">
-                        <i class="fa fa-hand-holding-usd"></i>
-                    </div>
-                </div>
+        <?php } else { ?>
+            <a class="itflow-billing-stat" href="accounts.php">
+                <div class="itflow-billing-stat-label"><i class="fas fa-university me-1"></i>In the accounts</div>
+                <div class="itflow-billing-stat-value"><?= $money($cash) ?></div>
+                <div class="itflow-billing-stat-note">Across <?= $cash_accounts ?> account<?= $cash_accounts === 1 ? '' : 's' ?><?= $cash_accounts < count($open_accounts) ? ', cards aside' : '' ?></div>
+            </a>
+        <?php } ?>
+    </div>
+    <?php if ($transfer_cards) { ?>
+        <div class="col-sm-6 col-xl-3">
+            <div class="itflow-billing-stat">
+                <div class="itflow-billing-stat-label"><i class="fas fa-exchange-alt me-1"></i>Moved</div>
+                <div class="itflow-billing-stat-value"><?= $money($moved['total']) ?></div>
+                <div class="itflow-billing-stat-note"><?= $moved['count'] ?> transfer<?= $moved['count'] === 1 ? '' : 's' ?><?= $dated ? ', ' . escapeHtml(formatExportDateRange($dtf, $dtt)) : ' in all' ?></div>
             </div>
-            <!-- ./col -->
-
-            <div class="col-lg-4 col-md-6 col-sm-12">
-                <!-- small box -->
-                <div class="small-box bg-danger">
-                    <div class="inner">
-                        <h3><?= numfmt_format_currency($currency_format, $summary_total_out, $account_currency_code) ?></h3>
-                        <p>Money Out</p>
-                    </div>
-                    <div class="icon">
-                        <i class="fa fa-shopping-cart"></i>
-                    </div>
-                </div>
-            </div>
-            <!-- ./col -->
-
-            <div class="col-lg-4 col-md-6 col-sm-12">
-                <!-- small box -->
-                <div class="small-box <?php if ($summary_total_net < 0) { echo "bg-danger"; } else { echo "bg-primary"; } ?>">
-                    <div class="inner">
-                        <h3><?= numfmt_format_currency($currency_format, $summary_total_net, $account_currency_code) ?></h3>
-                        <p>Net</p>
-                    </div>
-                    <div class="icon">
-                        <i class="fa fa-balance-scale"></i>
-                    </div>
-                </div>
-            </div>
-            <!-- ./col -->
         </div>
-
-        <div class="table-responsive">
-            <table class="table table-striped table-borderless table-hover mb-0">
-                <thead class="text-dark <?php if ($num_rows[0] == 0) { echo "d-none"; } ?>">
-                <tr>
-                    <th class="ps-3">
-                        <a class="text-dark" href="?<?= $url_query_strings_sort ?>&sort=transaction_date&order=<?= $disp ?>">
-                            Date <?php if ($sort == 'transaction_date') { echo $order_icon; } ?>
-                        </a>
-                    </th>
-                    <th>
-                        <a class="text-dark" href="?<?= $url_query_strings_sort ?>&sort=transaction_type&order=<?= $disp ?>">
-                            Type <?php if ($sort == 'transaction_type') { echo $order_icon; } ?>
-                        </a>
-                    </th>
-                    <th>
-                        <a class="text-dark" href="?<?= $url_query_strings_sort ?>&sort=transaction_category&order=<?= $disp ?>">
-                            Category <?php if ($sort == 'transaction_category') { echo $order_icon; } ?>
-                        </a>
-                        /
-                        <a class="text-secondary" href="?<?= $url_query_strings_sort ?>&sort=transaction_description&order=<?= $disp ?>">
-                            Description <?php if ($sort == 'transaction_description') { echo $order_icon; } ?>
-                        </a>
-                    </th>
-                    <th class="text-end">
-                        <a class="text-dark" href="?<?= $url_query_strings_sort ?>&sort=transaction_amount&order=<?= $disp ?>">
-                            Amount <?php if ($sort == 'transaction_amount') { echo $order_icon; } ?>
-                        </a>
-                    </th>
-                    <?php if ($balance_visible) { ?>
-                    <th class="text-end">Balance</th>
-                    <?php } ?>
-                </tr>
-                </thead>
-                <tbody>
-                <?php
-
-                while ($row = mysqli_fetch_assoc($sql)) {
-                    $transaction_id = intval($row['transaction_id']);
-                    $transaction_transfer_id = intval($row['transaction_transfer_id']);
-                    $transaction_invoice_id = intval($row['transaction_invoice_id']);
-                    $transaction_type = escapeHtml($row['transaction_type']);
-                    $transaction_date = escapeHtml($row['transaction_date']);
-                    $transaction_description = escapeHtml($row['transaction_description']);
-                    $transaction_category = escapeHtml($row['transaction_category']);
-                    $transaction_other_account = escapeHtml($row['transaction_other_account']);
-                    $transaction_amount = floatval($row['transaction_amount']);
-                    $transaction_balance = floatval($row['transaction_balance']);
-                    $transaction_currency_code = escapeHtml($row['transaction_currency_code']);
-
-                    // Category cell display - transfers show the other account instead of a category
-                    if ($transaction_type == 'Transfer In') {
-                        $transaction_category_display = "<i class='fas fa-fw fa-arrow-left text-secondary me-1'></i>From $transaction_other_account";
-                    } elseif ($transaction_type == 'Transfer Out') {
-                        $transaction_category_display = "<i class='fas fa-fw fa-arrow-right text-secondary me-1'></i>To $transaction_other_account";
-                    } elseif ($transaction_type == 'Reimbursement') {
-                        $transaction_category_display = "<i class='fas fa-fw fa-hand-holding-usd text-secondary me-1'></i>To $transaction_other_account";
-                    } else {
-                        $transaction_category_display = $transaction_category;
-                    }
-
-                    // Badge color based on type
-                    if ($transaction_type == 'Revenue' || $transaction_type == 'Payment') {
-                        $transaction_badge_color = "success";
-                    } elseif ($transaction_type == 'Expense') {
-                        $transaction_badge_color = "danger";
-                    } else {
-                        $transaction_badge_color = "secondary";
-                    }
-
-                    // Amount text color
-                    if ($transaction_amount < 0) {
-                        $transaction_amount_color = "text-danger";
-                    } else {
-                        $transaction_amount_color = "text-success";
-                    }
-
-                    // Balance text color
-                    if ($transaction_balance < 0) {
-                        $transaction_balance_color = "text-danger";
-                    } else {
-                        $transaction_balance_color = "";
-                    }
-
-                    // Route the date link to the right edit modal based on type
-                    if ($transaction_type == 'Transfer In' || $transaction_type == 'Transfer Out') {
-                        $transaction_modal_url = "modals/transfer/transfer_edit.php?id=$transaction_transfer_id";
-                    } elseif ($transaction_type == 'Expense') {
-                        $transaction_modal_url = "modals/expense/expense.php?id=$transaction_id";
-                    } elseif ($transaction_type == 'Reimbursement') {
-                        $transaction_modal_url = "modals/expense/expense_reimbursement.php?id=$transaction_id";
-                    } elseif ($transaction_type == 'Revenue') {
-                        $transaction_modal_url = "modals/revenue/revenue.php?id=$transaction_id";
-                    } elseif ($transaction_type == 'Payment') {
-                        $transaction_modal_url = "modals/payment/payment.php?id=$transaction_id";
-                    } else {
-                        $transaction_modal_url = "";
-                    }
-
-                    ?>
-
-                    <tr>
-                        <td class="ps-3">
-                            <a class="text-bold ajax-modal" href="#"
-                                data-modal-size="lg"
-                                data-modal-url="<?= $transaction_modal_url ?>">
-                                <?= $transaction_date ?>
-                            </a>
-                        </td>
-                        <td><span class="badge text-bg-<?= $transaction_badge_color ?>"><?= $transaction_type ?></span></td>
-                        <td>
-                            <?= $transaction_category_display ?>
-                            <div class="text-secondary"><small><?= truncate($transaction_description, 60) ?></small></div>
-                        </td>
-                        <td class="text-end font-monospace <?= $transaction_amount_color ?>"><?= numfmt_format_currency($currency_format, $transaction_amount, $transaction_currency_code) ?></td>
-                        <?php if ($balance_visible) { ?>
-                        <td class="text-end font-monospace <?= $transaction_balance_color ?>"><?= numfmt_format_currency($currency_format, $transaction_balance, $transaction_currency_code) ?></td>
-                        <?php } ?>
-                    </tr>
-
-                    <?php
-                }
-                ?>
-
-                </tbody>
-            </table>
+        <div class="col-sm-6 col-xl-3">
+            <div class="itflow-billing-stat">
+                <div class="itflow-billing-stat-label"><i class="fas fa-credit-card me-1"></i>Paid onto cards</div>
+                <div class="itflow-billing-stat-value"><?= $money($moved['cards']) ?></div>
+                <div class="itflow-billing-stat-note"><?= $moved['card_count'] ? $moved['card_count'] . ' card payment' . ($moved['card_count'] === 1 ? '' : 's') : 'No card payments' ?></div>
+            </div>
         </div>
-        <?php require_once "../includes/filter_footer.php"; ?>
+        <div class="col-sm-6 col-xl-3">
+            <div class="itflow-billing-stat">
+                <div class="itflow-billing-stat-label"><i class="fas fa-globe me-1"></i>Paid out by processors</div>
+                <div class="itflow-billing-stat-value"><?= $money($moved['payouts']) ?></div>
+                <div class="itflow-billing-stat-note"><?= $moved['payout_count'] ? $moved['payout_count'] . ' payout' . ($moved['payout_count'] === 1 ? '' : 's') . ' of card payments' : 'No payouts' ?></div>
+            </div>
+        </div>
+    <?php } else { ?>
+    <div class="col-sm-6 col-xl-3">
+        <a class="itflow-billing-stat <?= $show === 'in' ? 'active' : '' ?>" href="<?= escapeHtml($filter_url(['show' => 'in'])) ?>">
+            <div class="itflow-billing-stat-label"><i class="fas fa-arrow-down me-1"></i>Money in</div>
+            <div class="itflow-billing-stat-value text-success-emphasis"><?= $money($total_in) ?></div>
+            <div class="itflow-billing-stat-note"><?= $dated ? escapeHtml(formatExportDateRange($dtf, $dtt)) : ($all ? 'All time' : 'Since it opened') ?><?= $all ? ' - transfers counted both ways' : '' ?></div>
+        </a>
+    </div>
+    <div class="col-sm-6 col-xl-3">
+        <a class="itflow-billing-stat <?= $show === 'out' ? 'active' : '' ?>" href="<?= escapeHtml($filter_url(['show' => 'out'])) ?>">
+            <div class="itflow-billing-stat-label"><i class="fas fa-arrow-up me-1"></i>Money out</div>
+            <div class="itflow-billing-stat-value"><?= $money($total_out) ?></div>
+            <div class="itflow-billing-stat-note"><?= $dated ? escapeHtml(formatExportDateRange($dtf, $dtt)) : ($all ? 'All time' : 'Since it opened') ?></div>
+        </a>
+    </div>
+    <div class="col-sm-6 col-xl-3">
+        <div class="itflow-billing-stat">
+            <div class="itflow-billing-stat-label"><i class="fas fa-balance-scale me-1"></i>Difference</div>
+            <div class="itflow-billing-stat-value <?= $total_in - $total_out < 0 ? 'text-danger-emphasis' : '' ?>"><?= $money($total_in - $total_out) ?></div>
+            <div class="itflow-billing-stat-note"><?= $account && $dated && $dtt !== '2099-12-31' ? 'Held ' . $money(accountBalance($account_filter, $dtt)) . ' at the end of ' . escapeHtml($dtt) : 'Money in less money out of what is listed' ?></div>
+        </div>
+    </div>
+    <?php } ?>
+</div>
 
+<div class="card">
+    <div class="card-header bg-dark py-2">
+        <h3 class="card-title mt-2 text-truncate">
+            <?php if ($account) { ?>
+                <i class="fas fa-fw <?= $types[$account['type']]['icon'] ?> me-2"></i><?= escapeHtml($account['account_name']) ?>
             <?php } else { ?>
-
-            <p class="text-secondary mb-0">Select an account above to view its transactions.</p>
-
+                <i class="fas fa-fw fa-list-alt me-2"></i><?= $show === 'transfers' ? 'Transfers' : 'Transactions' ?>
             <?php } ?>
-
+        </h3>
+        <div class="card-tools">
+            <div class="btn-group">
+                <?php if ($can_edit) { ?>
+                    <button type="button" class="btn btn-primary ajax-modal" data-modal-size="lg" data-modal-url="modals/transfer/transfer_add.php<?= $account ? ($is_card ? '?to=' : '?from=') . $account_filter : '' ?>">
+                        <i class="fas fa-<?= $is_card ? 'credit-card' : 'exchange-alt' ?> me-2"></i><?= $is_card ? 'Pay the Card' : 'New Transfer' ?>
+                    </button>
+                <?php } ?>
+                <button type="button" class="btn <?= $can_edit ? 'btn-primary dropdown-toggle-split' : 'btn-light' ?> dropdown-toggle" data-bs-toggle="dropdown" aria-label="More"><?= $can_edit ? '' : '<i class="fas fa-ellipsis-h"></i>' ?></button>
+                <div class="dropdown-menu dropdown-menu-end">
+                    <a class="dropdown-item ajax-modal" href="#"
+                        data-modal-url="<?= buildExportModalUrl('modals/transaction/transaction_export.php', ['account', 'show', 'kind', 'type', 'category', 'client', 'method', 'payment_method', 'amount_min', 'amount_max', 'q'], ['dtf' => $dtf, 'dtt' => $dtt]) ?>">
+                        <i class="fa fa-fw fa-download text-secondary me-2"></i>Export
+                    </a>
+                    <?php if ($account && $can_edit) { ?>
+                        <a class="dropdown-item ajax-modal" href="#" data-modal-size="lg" data-modal-url="modals/account/account_edit.php?id=<?= $account_filter ?>"><i class="fa fa-fw fa-edit text-secondary me-2"></i>Edit Account</a>
+                    <?php } ?>
+                    <?php if ($can_edit) { ?>
+                        <div class="dropdown-divider"></div>
+                        <a class="dropdown-item" href="expense_import.php"><i class="fa fa-fw fa-file-import text-secondary me-2"></i>Import Statement - expenses</a>
+                        <a class="dropdown-item" href="income_import.php"><i class="fa fa-fw fa-file-import text-secondary me-2"></i>Import Deposits - income</a>
+                    <?php } ?>
+                    <div class="dropdown-divider"></div>
+                    <a class="dropdown-item" href="accounts.php"><i class="fa fa-fw fa-piggy-bank text-secondary me-2"></i>Accounts</a>
+                </div>
+            </div>
+        </div>
     </div>
 
-<?php
-require_once "../includes/footer.php";
+    <div class="card-header py-3">
+        <form autocomplete="off">
+            <input type="hidden" name="show" value="<?= escapeHtml($show) ?>">
+            <div class="row g-2 align-items-center">
+                <div class="col-lg-3 col-md-6">
+                    <div class="input-group">
+                        <span class="input-group-text"><i class="fa fa-fw fa-piggy-bank"></i></span>
+                        <select class="form-select select2" name="account" onchange="this.form.submit()" aria-label="Account">
+                            <option value="">- Every account -</option>
+                            <?php foreach ($open_accounts + ($account && $account['account_archived_at'] ? [$account_filter => $account] : []) as $id => $option) { ?>
+                                <option value="<?= $id ?>" <?= $account_filter === $id ? 'selected' : '' ?> data-icon="fas <?= $types[$option['type']]['icon'] ?>" data-description="<?= escapeHtml(accountBalanceText($option)) ?>"><?= escapeHtml($option['account_name']) ?></option>
+                            <?php } ?>
+                        </select>
+                    </div>
+                </div>
+                <div class="col-lg-3 col-md-6">
+                    <div class="input-group">
+                        <input type="search" class="form-control" name="q" value="<?php if (isset($q)) { echo stripslashes(escapeHtml($q)); } ?>" placeholder="Search transactions" title="Who or what, description, reference, amount, category, client, account">
+                        <button class="btn btn-outline-secondary <?= $more_filters ? 'active' : '' ?>" title="More filters" type="button" data-bs-toggle="collapse" data-bs-target="#ledgerMoreFilters"><i class="fas fa-filter"></i></button>
+                        <button class="btn btn-dark" title="Search"><i class="fa fa-search"></i></button>
+                    </div>
+                </div>
+                <div class="col-lg-2 col-md-4">
+                    <input type="text" id="dateFilter" class="form-control" autocomplete="off" title="Date" aria-label="Date">
+                    <input type="hidden" name="canned_date" id="canned_date" value="<?= escapeHtml($_GET['canned_date'] ?? '') ?>">
+                    <input type="hidden" name="dtf" id="dtf" value="<?= escapeHtml($dtf ?? '') ?>">
+                    <input type="hidden" name="dtt" id="dtt" value="<?= escapeHtml($dtt ?? '') ?>">
+                </div>
+                <div class="col-lg-2 col-md-4">
+                    <select class="form-select select2" name="category" onchange="this.form.submit()" aria-label="Category">
+                        <option value="">- Any category -</option>
+                        <?php
+                        $sql_filter = mysqli_query($mysqli, "SELECT category_id, category_name, category_type, category_color, category_icon FROM categories
+                            WHERE category_type IN ('Income', 'Expense') AND category_name <> 'Account Transfer' AND (category_archived_at IS NULL OR category_id = $category_filter)
+                            ORDER BY category_type DESC, category_name ASC");
+                        while ($row = mysqli_fetch_assoc($sql_filter)) {
+                            $option_id = intval($row['category_id']); ?>
+                            <option <?= $category_filter === $option_id ? 'selected' : '' ?> value="<?= $option_id ?>"<?= selectOptionColor($row['category_color'] ?? '', $row['category_icon'] ?? '') ?>><?= escapeHtml($row['category_name']) ?> (<?= $row['category_type'] === 'Income' ? 'in' : 'out' ?>)</option>
+                        <?php } ?>
+                    </select>
+                </div>
+                <div class="col-lg-2 col-md-4">
+                    <select class="form-select select2" name="client" onchange="this.form.submit()" aria-label="Client">
+                        <option value="">- Any client -</option>
+                        <?php
+                        $sql_filter = mysqli_query($mysqli, "SELECT client_id, client_name, client_abbreviation FROM clients
+                            WHERE (client_archived_at IS NULL OR client_id = $client_filter) " . clientScopeSql('clients.client_id') . " ORDER BY client_name ASC");
+                        while ($row = mysqli_fetch_assoc($sql_filter)) {
+                            $option_id = intval($row['client_id']); ?>
+                            <option <?= $client_filter === $option_id ? 'selected' : '' ?> value="<?= $option_id ?>"<?= selectOptionClient($row['client_id'], $row['client_name'], $row['client_abbreviation'] ?? '') ?>><?= escapeHtml($row['client_name']) ?></option>
+                        <?php } ?>
+                    </select>
+                </div>
+            </div>
+            <div class="collapse <?= $more_filters ? 'show' : '' ?>" id="ledgerMoreFilters">
+                <div class="row g-2 mt-0">
+                    <div class="col-lg-3 col-md-6">
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="fa fa-fw fa-shapes"></i></span>
+                            <select class="form-select select2" name="kind" onchange="this.form.submit()" aria-label="Kind">
+                                <option value="">- Any kind -</option>
+                                <?php foreach ($kinds as $key => $info) { ?>
+                                    <option value="<?= $key ?>" <?= $kind_filter === $key ? 'selected' : '' ?> data-icon="fas <?= $info['icon'] ?>"><?= escapeHtml($info['label']) ?></option>
+                                <?php } ?>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-lg-3 col-md-6">
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="fa fa-fw fa-credit-card"></i></span>
+                            <select class="form-select select2" name="method" onchange="this.form.submit()" aria-label="Paid by">
+                                <option value="">- Any payment method -</option>
+                                <?php foreach (paymentMethods() as $method) { ?>
+                                    <option <?= $method_filter === $method ? 'selected' : '' ?> value="<?= escapeHtml($method) ?>"><?= escapeHtml($method) ?></option>
+                                <?php } ?>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-lg-3 col-md-6">
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="fa fa-fw fa-dollar-sign"></i></span>
+                            <input type="number" step="0.01" min="0" class="form-control" name="amount_min" value="<?= escapeHtml($amount_min) ?>" placeholder="At least" aria-label="At least" onchange="this.form.submit()">
+                            <input type="number" step="0.01" min="0" class="form-control" name="amount_max" value="<?= escapeHtml($amount_max) ?>" placeholder="At most" aria-label="At most" onchange="this.form.submit()">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </form>
+        <!-- Cut the list - counted over what the filters above leave -->
+        <nav class="nav nav-pills itflow-asset-tabs mt-2 flex-nowrap overflow-auto">
+            <?php foreach ($shows as $key => $s) { ?>
+                <a class="nav-link text-nowrap <?= $show === $key ? 'active' : '' ?>" href="<?= escapeHtml($filter_url(['show' => $key])) ?>">
+                    <?php if (!empty($s['icon'])) { ?><i class="fas fa-fw <?= $s['icon'] ?> me-1"></i><?php } ?><?= $s['label'] ?>
+                    <span class="badge rounded-pill ms-1"><?= $counts[$key] ?></span>
+                </a>
+            <?php } ?>
+        </nav>
+    </div>
+
+    <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0 itflow-billing-table">
+            <thead class="<?= $num_rows[0] ? '' : 'd-none' ?> text-nowrap table-light">
+            <tr>
+                <th><a class="text-reset text-decoration-none" href="?<?= $url_query_strings_sort ?>&sort=txn_date&order=<?= $disp ?>">Date <?php if ($sort == 'txn_date') { echo $order_icon; } ?></a></th>
+                <?php if ($all) { ?>
+                    <th><a class="text-reset text-decoration-none" href="?<?= $url_query_strings_sort ?>&sort=account_name&order=<?= $disp ?>">Account <?php if ($sort == 'account_name') { echo $order_icon; } ?></a></th>
+                <?php } ?>
+                <th><a class="text-reset text-decoration-none" href="?<?= $url_query_strings_sort ?>&sort=txn_what&order=<?= $disp ?>">Who or what <?php if ($sort == 'txn_what') { echo $order_icon; } ?></a></th>
+                <th><a class="text-reset text-decoration-none" href="?<?= $url_query_strings_sort ?>&sort=category_name&order=<?= $disp ?>">Category <?php if ($sort == 'category_name') { echo $order_icon; } ?></a></th>
+                <th><a class="text-reset text-decoration-none" href="?<?= $url_query_strings_sort ?>&sort=client_name&order=<?= $disp ?>">Client <?php if ($sort == 'client_name') { echo $order_icon; } ?></a></th>
+                <th class="text-end"><a class="text-reset text-decoration-none" href="?<?= $url_query_strings_sort ?>&sort=txn_amount&order=<?= $disp ?>">In <?php if ($sort == 'txn_amount') { echo $order_icon; } ?></a></th>
+                <th class="text-end">Out</th>
+                <?php if ($balance_visible) { ?>
+                    <th class="text-end" title="What it held after the line">Balance</th>
+                <?php } ?>
+            </tr>
+            </thead>
+            <tbody>
+            <?php foreach ($rows as $row) {
+                $kind = $row['txn_kind'];
+                $info = $kinds[$kind];
+                $amount = floatval($row['txn_amount']);
+                $row_currency = (string) ($row['txn_currency'] ?: $row['account_currency_code']);
+                $transfer = in_array($kind, ['transfer_in', 'transfer_out'], true);
+                $what = trim((string) $row['txn_what']);
+                $description = trim(strtok((string) $row['txn_description'], "\n"));
+                if ($transfer) {
+                    $what = $kind === 'transfer_in' ? 'From ' . ($row['other_account_name'] ?: 'an account since deleted') : (accountType(['account_type' => $row['other_account_type'], 'account_name' => $row['other_account_name']]) === 3 ? 'Paid ' : 'To ') . ($row['other_account_name'] ?: 'an account since deleted');
+                } elseif ($kind === 'payment') {
+                    $what = $what !== '' ? 'Payment on ' . $what : 'A payment';
+                } elseif ($kind === 'reimbursement') {
+                    $what = 'Paid back ' . ($what ?: 'an agent');
+                } elseif ($what === '') {
+                    $what = $description !== '' ? $description : $info['label'];
+                    $description = '';
+                }
+                $meta = array_filter([(string) $row['txn_method'], $row['txn_reference'] ? '#' . $row['txn_reference'] : '']);
+                ?>
+                <tr>
+                    <td class="text-nowrap"><a class="fw-semibold ajax-modal" href="#" data-modal-size="lg" data-modal-url="<?= escapeHtml(accountLedgerModal($row)) ?>"><?= escapeHtml($row['txn_date']) ?></a></td>
+                    <?php if ($all) { ?>
+                        <td class="text-nowrap small">
+                            <a class="text-reset" href="<?= escapeHtml($filter_url(['account' => intval($row['txn_account_id'])])) ?>" title="Its transactions"><i class="fas fa-fw <?= $types[accountType($row)]['icon'] ?> text-body-secondary me-1"></i><?= escapeHtml($row['account_name']) ?></a>
+                        </td>
+                    <?php } ?>
+                    <td class="itflow-ledger-what">
+                        <div class="text-truncate"><i class="fas fa-fw <?= $info['icon'] ?> text-body-secondary me-1" title="<?= escapeHtml($info['label']) ?>"></i><?= escapeHtml($what) ?><?php if ($description !== '' && $description !== $what) { ?><span class="text-body-secondary"> - <?= escapeHtml($description) ?></span><?php } ?></div>
+                        <div class="small text-body-secondary text-truncate">
+                            <?= escapeHtml($info['label']) ?><?= $meta ? ' &middot; ' . escapeHtml(implode(' · ', $meta)) : '' ?>
+                            <?php if (intval($row['txn_imported'])) { ?><span class="ms-1" title="Brought in from a bank or card statement"><i class="fas fa-file-import"></i></span><?php } ?>
+                        </div>
+                    </td>
+                    <td>
+                        <?php if ($transfer) { ?>
+                            <span class="small text-body-secondary" title="Money moved between your accounts - not income or spending">Transfer</span>
+                        <?php } elseif (intval($row['txn_category_id']) && $row['category_name'] !== null) { ?>
+                            <div class="text-truncate" style="max-width: 11rem;" title="<?= escapeHtml($row['category_name']) ?>"><?= expenseCategoryDot($row['category_color']) ?><?= escapeHtml($row['category_name']) ?></div>
+                        <?php } else { ?>
+                            <span class="text-body-secondary">-</span>
+                        <?php } ?>
+                    </td>
+                    <td>
+                        <?php if (intval($row['txn_client_id']) && $row['client_name'] !== null) { ?>
+                            <div class="text-truncate" style="max-width: 11rem;"><a class="text-reset" href="<?= escapeHtml($filter_url(['client' => intval($row['txn_client_id'])])) ?>"><?= escapeHtml($row['client_name']) ?></a></div>
+                        <?php } else { ?>
+                            <span class="text-body-secondary">-</span>
+                        <?php } ?>
+                    </td>
+                    <td class="text-end text-nowrap itflow-money text-success-emphasis fw-semibold"><?= $amount > 0 ? $money($amount, $row_currency) : '' ?></td>
+                    <td class="text-end text-nowrap itflow-money fw-semibold"><?= $amount < 0 ? $money(-$amount, $row_currency) : '' ?></td>
+                    <?php if ($balance_visible) {
+                        $balance = floatval($row['txn_balance']); ?>
+                        <td class="text-end text-nowrap itflow-money <?= $balance < 0 ? ($is_card ? 'text-warning-emphasis' : 'text-danger-emphasis') : 'text-body-secondary' ?>"><?= $money($balance, $row_currency) ?></td>
+                    <?php } ?>
+                </tr>
+            <?php } ?>
+            </tbody>
+            <?php if ($num_rows[0]) { ?>
+                <tfoot>
+                <tr class="table-light">
+                    <td colspan="<?= 4 + ($all ? 1 : 0) ?>" class="text-body-secondary small">
+                        <?= intval($num_rows[0]) ?> line<?= intval($num_rows[0]) === 1 ? '' : 's' ?><?= $num_rows[0] > count($rows) ? ' - the totals are for all of them, not just this page' : '' ?>
+                    </td>
+                    <td class="text-end fw-semibold text-nowrap itflow-money text-success-emphasis"><?= $money($total_in) ?></td>
+                    <td class="text-end fw-semibold text-nowrap itflow-money"><?= $money($total_out) ?></td>
+                    <?php if ($balance_visible) { ?><td></td><?php } ?>
+                </tr>
+                </tfoot>
+            <?php } ?>
+        </table>
+    </div>
+    <?php if (!$num_rows[0]) { ?>
+        <div class="itflow-asset-empty">
+            <i class="fas fa-<?= $show === 'transfers' ? 'exchange-alt' : 'list-alt' ?> fa-2x mb-2 opacity-50"></i>
+            <div><?= $any_filter ? 'Nothing matches.' : ($account ? 'Nothing on ' . escapeHtml($account['account_name']) . ' yet.' : 'Nothing recorded yet.') ?></div>
+        </div>
+    <?php } ?>
+    <?php require_once "../includes/filter_footer.php"; ?>
+</div>
+
+<?php require_once "../includes/footer.php";

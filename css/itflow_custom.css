@@ -6390,3 +6390,10 @@ a.itflow-billing-stat:hover {
 .itflow-import-invoices.is-invalid {
     border-color: var(--bs-form-invalid-border-color);
 }
+/* Accounts and their ledger - the account's name, and who or what each line is, take the room left and cut short (agent/accounts.php, agent/transactions.php) */
+.itflow-account-name,
+.itflow-ledger-what {
+    width: 100%;
+    max-width: 0;
+    min-width: 14rem;
+}

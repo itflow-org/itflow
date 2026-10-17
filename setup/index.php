@@ -457,7 +457,7 @@ if (isset($_POST['add_localization_settings'])) {
     mysqli_query($mysqli,"UPDATE settings SET config_timezone = '$timezone' WHERE company_id = 1");
 
     // Create Default Cash Account
-    mysqli_query($mysqli,"INSERT INTO accounts SET account_name = 'Cash', account_currency_code = '$currency_code'");
+    mysqli_query($mysqli,"INSERT INTO accounts SET account_name = 'Cash', account_type = 4, account_currency_code = '$currency_code'");
 
 
     $_SESSION['alert_message'] = "Localization Info saved";

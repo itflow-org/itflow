@@ -86,7 +86,7 @@ ob_start();
         <div class="alert alert-info small mb-3"><i class="fas fa-hand-holding-usd me-2"></i>This is money paid back to <?= escapeHtml($row['reimbursed_to_name'] ?: 'an agent') ?> for what they paid personally -
             <a href="#" class="ajax-modal" data-modal-size="lg" data-modal-url="modals/expense/expense_reimbursement.php?id=<?= intval($row['reimbursement_out_id']) ?>">open the reimbursement</a> to see or undo it.</div>
     <?php } elseif ($is_transfer) { ?>
-        <div class="alert alert-info small mb-3"><i class="fas fa-exchange-alt me-2"></i>This is the out side of a transfer between accounts - it is changed or deleted from <a href="transfers.php">Transfers</a>.</div>
+        <div class="alert alert-info small mb-3"><i class="fas fa-exchange-alt me-2"></i>This is the out side of a transfer between accounts - <a href="#" class="ajax-modal" data-modal-size="lg" data-modal-url="modals/transfer/transfer.php?id=<?= intval($row['transfer_id']) ?>">open the transfer</a> to change or delete it.</div>
     <?php } ?>
 
     <!-- The receipt -->

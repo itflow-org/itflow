@@ -237,13 +237,13 @@
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a href="/agent/transactions.php" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "transactions.php") { echo "active"; } ?>">
+                            <a href="/agent/transactions.php" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "transactions.php" && ($_GET['show'] ?? '') !== 'transfers') { echo "active"; } ?>">
                                 <i class="nav-icon fas fa-list-alt"></i>
                                 <p>Transactions</p>
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a href="/agent/transfers.php" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "transfers.php") { echo "active"; } ?>">
+                            <a href="/agent/transactions.php?show=transfers" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "transactions.php" && ($_GET['show'] ?? '') === 'transfers') { echo "active"; } ?>">
                                 <i class="nav-icon fas fa-exchange-alt"></i>
                                 <p>Transfers</p>
                             </a>

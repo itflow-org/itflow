@@ -404,8 +404,8 @@ $tone_text = ['danger' => 'text-danger-emphasis', 'warning' => 'text-warning-emp
                         <ul class="list-group list-group-flush">
                             <?php foreach ($accounts as $account) { ?>
                                 <li class="list-group-item d-flex justify-content-between gap-3">
-                                    <span class="text-truncate"><?= escapeHtml($account['account_name']) ?></span>
-                                    <span class="text-nowrap <?= floatval($account['balance']) < 0 ? 'text-danger' : '' ?>"><?= escapeHtml(dashboardMoney($account['balance'])) ?></span>
+                                    <a class="text-truncate text-reset" href="/agent/transactions.php?account=<?= intval($account['account_id']) ?>"><?= escapeHtml($account['account_name']) ?></a>
+                                    <span class="text-nowrap <?= floatval($account['balance']) < 0 ? ($account['type'] === 3 ? 'text-warning-emphasis' : 'text-danger') : '' ?>"><?= escapeHtml($account['type'] === 3 && floatval($account['balance']) < 0 ? accountBalanceText($account) : dashboardMoney($account['balance'])) ?></span>
                                 </li>
                             <?php } ?>
                         </ul>

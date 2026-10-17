@@ -31,6 +31,7 @@ function demoDataAccounts() {
         ['Operating Checking', 'Day to day business banking - client payments in, bills out', 18500.00],
         ['Business Savings', 'Tax and reserve holding', 42000.00],
         ['Merchant Settlement', 'Card and online payments waiting to be paid out', 0.00],
+        ['Business Visa', 'Company card for subscriptions, supplies and meals', 0.00],
     ];
 }
 
@@ -549,6 +550,7 @@ function demoEnsureAccounts($mysqli, $currency) {
             'account_description' => $account[1],
             'opening_balance' => number_format($account[2], 2, '.', ''),
             'account_currency_code' => $currency,
+            'account_type' => accountTypeGuess($account[0]),
             'account_created_at' => demoMonthDateTime(24, 1, 9, 0),
         ]);
     }
@@ -3244,7 +3246,7 @@ function demoBuildBilling($mysqli, $profile, $index, $client_id, $vendor_id, $mo
             'expense_currency_code' => $currency,
             'expense_date' => demoMonthDate($month, 14),
             'expense_reference' => 'INV-' . demoSerial($profile['abbreviation'] . $expense[0] . $month, 8),
-            'expense_payment_method' => 'Credit Card',
+            'expense_payment_method' => 'ACH',
             'expense_vendor_id' => $context['org_vendors'][$expense[3]] ?? 0,
             'expense_client_id' => $client_id,
             'expense_category_id' => demoCategoryId($mysqli, $expense[2], 'Expense'),
@@ -3348,6 +3350,12 @@ function demoBuildCompanyFinancials($mysqli, $context, &$counts) {
         ['Conference and travel', 1450.00, 'Travel', 12, 18, 'Alcott and Reyes CPA'],
     ];
 
+    // The smaller, recurring costs go on the company card, paid off from the
+    // bank early the next month - so the card shows what is owed on it
+    $card_id = $context['accounts']['Business Visa'] ?? 0;
+    $card_categories = ['Software', 'Cloud and Hosting', 'Office Supplies', 'Meals', 'Shipping and Postage', 'Dues and Subscriptions', 'Telecom and Internet'];
+    $card_spent = [];
+
     // Which purchases put hardware on the shelf, and what they bring in
     $stock_lines = [
         'UniFi shelf stock for the workshop' => ['Ubiquiti U6-Pro Access Point', 4],
@@ -3363,6 +3371,10 @@ function demoBuildCompanyFinancials($mysqli, $context, &$counts) {
 
             // Payroll and rent creep up over two years rather than sitting flat
             $drift = 1 + ((24 - $month) * 0.004);
+            $on_card = $card_id && in_array($cost[2], $card_categories, true);
+            if ($on_card) {
+                $card_spent[$month] = ($card_spent[$month] ?? 0) + round($cost[1] * $drift, 2);
+            }
 
             $expense_id = starterInsert($mysqli, 'expenses', [
                 'expense_description' => $cost[0],
@@ -3370,11 +3382,12 @@ function demoBuildCompanyFinancials($mysqli, $context, &$counts) {
                 'expense_currency_code' => $currency,
                 'expense_date' => demoMonthDate($month, $cost[4]),
                 'expense_reference' => 'BILL-' . demoSerial('company' . $cost[0] . $month, 8),
-                'expense_payment_method' => $cost[0] === 'Payroll' ? 'ACH' : 'Credit Card',
+                // Payroll and the bills from the bank go by ACH, the card's own costs by card
+                'expense_payment_method' => $cost[0] !== 'Payroll' && ($on_card || !$card_id) ? 'Credit Card' : 'ACH',
                 'expense_vendor_id' => $vendors[$cost[5]] ?? 0,
                 'expense_client_id' => 0,
                 'expense_category_id' => demoCategoryId($mysqli, $cost[2], 'Expense'),
-                'expense_account_id' => $operating_id,
+                'expense_account_id' => $on_card ? $card_id : $operating_id,
                 'expense_created_at' => demoMonthDateTime($month, $cost[4], 17, 0),
             ]);
             $counts['company']++;
@@ -3505,6 +3518,13 @@ function demoBuildCompanyFinancials($mysqli, $context, &$counts) {
                 ]);
                 $counts['company']++;
             }
+        }
+    }
+
+    // The card's statement paid in full from the bank on the 2nd of the next month
+    foreach ($card_spent as $month => $spent) {
+        if ($month > 0 && $spent > 0) {
+            demoTransfer($mysqli, $operating_id, $card_id, $spent, $currency, 'Bank Transfer', 'Business Visa statement paid in full', $month - 1, 2, $counts);
         }
     }
 

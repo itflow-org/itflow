@@ -820,7 +820,7 @@ function globalSearchPages($raw_query) {
         ['Trips', '/agent/trips.php', $accounting],
         ['Accounts', '/agent/accounts.php', $financial && $accounting],
         ['Transactions', '/agent/transactions.php', $financial && $accounting],
-        ['Transfers', '/agent/transfers.php', $financial && $accounting],
+        ['Transfers', '/agent/transactions.php?show=transfers', $financial && $accounting],
         ['Reports', '/agent/reports/', lookupUserPermission('module_reporting') >= 1],
         ['Administration', '/admin/', (bool) $session_is_admin],
         ['My Account', '/agent/user/user_details.php', true],

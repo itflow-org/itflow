@@ -1,180 +1,32 @@
 <?php
 
+/* New Transfer - money moved between our accounts. ?from= and ?to= start it with those accounts. */
+
 require_once '../../../includes/modal_header.php';
+
+enforceUserPermission('module_financial', 2);
+
+$form_row = null;
+$form_from = intval($_GET['from'] ?? 0);
+$form_to = intval($_GET['to'] ?? 0);
 
 ob_start();
 
 ?>
 <div class="modal-header bg-dark">
-    <h5 class="modal-title"><i class="fas fa-fw fa-exchange-alt me-2"></i>Transfering Funds</h5>
+    <h5 class="modal-title"><i class="fas fa-fw fa-exchange-alt me-2"></i>New Transfer</h5>
     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
 </div>
 <form action="post.php" method="post" autocomplete="off">
     <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
-
     <div class="modal-body">
-
-        <div class="row g-2">
-
-            <div class="mb-3 col">
-                <label>Date <strong class="text-danger">*</strong></label>
-                <div class="input-group">
-                        <span class="input-group-text"><i class="fa fa-fw fa-calendar"></i></span>
-                    <input type="date" class="form-control" name="date" max="2999-12-31" value="<?= date("Y-m-d") ?>" required>
-                </div>
-            </div>
-
-            <div class="mb-3 col">
-                <label>Amount <strong class="text-danger">*</strong></label>
-                <div class="input-group">
-                        <span class="input-group-text"><i class="fa fa-fw fa-dollar-sign"></i></span>
-                    <input type="text" class="form-control" inputmode="decimal" pattern="[0-9]*\.?[0-9]{0,2}" name="amount" placeholder="0.00" required>
-                </div>
-            </div>
-
-        </div>
-
-        <div class="mb-3">
-            <label>Transfer <strong class="text-danger">*</strong></label>
-            <div class="input-group">
-                    <span class="input-group-text"><i class="fa fa-fw fa-piggy-bank"></i></span>
-                <select class="form-select select2" name="account_from" required>
-                    <option value="">- Account From -</option>
-                    <?php
-
-                    $sql = mysqli_query($mysqli, "SELECT account_id, account_name, opening_balance FROM accounts WHERE account_archived_at IS NULL ORDER BY account_name ASC");
-                    while ($row = mysqli_fetch_assoc($sql)) {
-                        $account_id = intval($row['account_id']);
-                        $account_name = escapeHtml($row['account_name']);
-                        $opening_balance = floatval($row['opening_balance']);
-
-                        $sql_payments = mysqli_query($mysqli, "SELECT SUM(payment_amount) AS total_payments FROM payments WHERE payment_account_id = $account_id");
-                        $row = mysqli_fetch_assoc($sql_payments);
-                        $total_payments = floatval($row['total_payments']);
-
-                        $sql_revenues = mysqli_query($mysqli, "SELECT SUM(revenue_amount) AS total_revenues FROM revenues WHERE revenue_account_id = $account_id");
-                        $row = mysqli_fetch_assoc($sql_revenues);
-                        $total_revenues = floatval($row['total_revenues']);
-
-                        $sql_expenses = mysqli_query($mysqli, "SELECT SUM(expense_amount) AS total_expenses FROM expenses WHERE expense_account_id = $account_id");
-                        $row = mysqli_fetch_assoc($sql_expenses);
-                        $total_expenses = floatval($row['total_expenses']);
-
-                        $balance = $opening_balance + $total_payments + $total_revenues - $total_expenses;
-
-                        ?>
-                        <option <?php if ($config_default_transfer_from_account == $account_id) { echo "selected"; } ?> value="<?= $account_id ?>"><?= $account_name ?> [$<?= number_format($balance, 2) ?>]</option>
-
-                    <?php } ?>
-
-                </select>
-            </div>
-        </div>
-
-        <div class="mb-3">
-            <div class="input-group">
-                    <span class="input-group-text"><i class="fa fa-fw fa-arrow-right"></i></span>
-                <select class="form-select select2" name="account_to" required>
-                    <option value="">- Account To -</option>
-                    <?php
-
-                    $sql = mysqli_query($mysqli, "SELECT account_id, account_name, opening_balance FROM accounts WHERE account_archived_at IS NULL ORDER BY account_name ASC");
-                    while ($row = mysqli_fetch_assoc($sql)) {
-                        $account_id = intval($row['account_id']);
-                        $account_name = escapeHtml($row['account_name']);
-                        $opening_balance = floatval($row['opening_balance']);
-
-                        $sql_payments = mysqli_query($mysqli, "SELECT SUM(payment_amount) AS total_payments FROM payments WHERE payment_account_id = $account_id");
-                        $row = mysqli_fetch_assoc($sql_payments);
-                        $total_payments = floatval($row['total_payments']);
-
-                        $sql_revenues = mysqli_query($mysqli, "SELECT SUM(revenue_amount) AS total_revenues FROM revenues WHERE revenue_account_id = $account_id");
-                        $row = mysqli_fetch_assoc($sql_revenues);
-                        $total_revenues = floatval($row['total_revenues']);
-
-                        $sql_expenses = mysqli_query($mysqli, "SELECT SUM(expense_amount) AS total_expenses FROM expenses WHERE expense_account_id = $account_id");
-                        $row = mysqli_fetch_assoc($sql_expenses);
-                        $total_expenses = floatval($row['total_expenses']);
-
-                        $balance = $opening_balance + $total_payments + $total_revenues - $total_expenses;
-
-                        ?>
-                        <option <?php if ($config_default_transfer_to_account == $account_id) { echo "selected"; } ?> value="<?= $account_id ?>"><?= $account_name ?> [$<?= number_format($balance, 2) ?>]</option>
-
-                    <?php } ?>
-                </select>
-            </div>
-        </div>
-
-        <div class="mb-3">
-            <textarea class="form-control" rows="5" name="notes" id="transferNotes" placeholder="Enter some notes"></textarea>
-        </div>
-
-        <div class="mb-3">
-            <div class="input-group">
-                <select class="form-select" id="paymentSelect">
-                    <option value="">Select a Payment to Add to Notes</option>
-                    <?php
-
-                    $sql = mysqli_query($mysqli, "SELECT client_name, payment_method, payment_reference, payment_amount FROM payments
-                        LEFT JOIN invoices ON payment_invoice_id = invoice_id
-                        LEFT JOIN clients ON invoice_client_id = client_id
-                        ORDER BY payment_id DESC LIMIT 25
-                    ");
-                    while ($row = mysqli_fetch_assoc($sql)) {
-                        $client_name = escapeHtml($row['client_name']);
-                        $payment_method = escapeHtml($row['payment_method']);
-                        $payment_reference = escapeHtml($row['payment_reference']);
-                        $payment_amount = floatval($row['payment_amount']);
-
-                        ?>
-                        <option><?= "$client_name - $payment_method $payment_reference - " . numfmt_format_currency($currency_format, $payment_amount, $session_company_currency) ?></option>
-
-                    <?php } ?>
-
-                </select>
-                    <button type="button" class="btn btn-secondary" title="Add to notes" onclick="addOptionToTextbox()"><i class="fas fa-fw fa-plus"></i></button>
-            </div>
-        </div>
-
-        <div class="mb-3">
-            <label>Transfer Method</label>
-            <div class="input-group">
-                    <span class="input-group-text"><i class="fa fa-fw fa-money-check-alt"></i></span>
-                <select class="form-select select2" name="transfer_method">
-                    <option value="">- Method of Transfer -</option>
-                    <?php
-
-                    $sql = mysqli_query($mysqli, "SELECT payment_method_name FROM payment_methods ORDER BY payment_method_name ASC");
-                    while ($row = mysqli_fetch_assoc($sql)) {
-                        $payment_method_name = escapeHtml($row['payment_method_name']);
-                    ?>
-                        <option><?= $payment_method_name ?></option>
-
-                    <?php
-                    }
-                    ?>
-                </select>
-            </div>
-        </div>
-
+        <?php require __DIR__ . '/transfer_form.php'; ?>
     </div>
-
     <div class="modal-footer">
         <button type="submit" name="add_transfer" class="btn btn-primary text-bold"><i class="fas fa-check me-2"></i>Transfer</button>
-        <button type="button" class="btn btn-light" data-bs-dismiss="modal"><i class="fa fa-times me-2"></i>Cancel</button>
+        <button type="button" class="btn btn-light" data-bs-dismiss="modal"><i class="fas fa-times me-2"></i>Cancel</button>
     </div>
 </form>
-
-<script>
-    function addOptionToTextbox() {
-      var selectElement = document.getElementById("paymentSelect");
-      var selectedOption = selectElement.options[selectElement.selectedIndex];
-
-      var textboxElement = document.getElementById("transferNotes");
-      textboxElement.value += selectedOption.value + "\n";
-    }
-</script>
 
 <?php
 require_once '../../../includes/modal_footer.php';

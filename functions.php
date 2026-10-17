@@ -58,3 +58,4 @@ require_once __DIR__ . '/functions/expense_import.php';
 require_once __DIR__ . '/functions/trips.php';
 require_once __DIR__ . '/functions/income.php';
 require_once __DIR__ . '/functions/income_import.php';
+require_once __DIR__ . '/functions/accounts.php';

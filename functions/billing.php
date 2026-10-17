@@ -1860,25 +1860,12 @@ function billingNotFound($type, $client_url = '') {
 /* ---------------------------------------------------------------- Payments */
 
 /**
- * The accounts a payment can go to, with each one's balance - one query.
- * $keep_id keeps an archived account in the list (the one a payment is in).
+ * The accounts a payment can go to, with each one's balance (accountsList(),
+ * the one balance rule). $keep_id keeps an archived account in the list (the
+ * one a payment is in).
  */
 function paymentAccounts($keep_id = 0) {
-    global $mysqli;
-    $keep_id = intval($keep_id);
-    $accounts = [];
-    $sql = mysqli_query($mysqli, "SELECT account_id, account_name, account_currency_code, account_archived_at,
-            opening_balance + COALESCE(payments_in.total, 0) + COALESCE(revenues_in.total, 0) - COALESCE(expenses_out.total, 0) AS balance
-        FROM accounts
-        LEFT JOIN (SELECT payment_account_id, SUM(payment_amount) AS total FROM payments GROUP BY payment_account_id) AS payments_in ON payments_in.payment_account_id = account_id
-        LEFT JOIN (SELECT revenue_account_id, SUM(revenue_amount) AS total FROM revenues GROUP BY revenue_account_id) AS revenues_in ON revenues_in.revenue_account_id = account_id
-        LEFT JOIN (SELECT expense_account_id, SUM(expense_amount) AS total FROM expenses GROUP BY expense_account_id) AS expenses_out ON expenses_out.expense_account_id = account_id
-        WHERE account_archived_at IS NULL OR account_id = $keep_id
-        ORDER BY account_name ASC");
-    while ($row = mysqli_fetch_assoc($sql)) {
-        $accounts[intval($row['account_id'])] = $row;
-    }
-    return $accounts;
+    return accountsList(false, $keep_id);
 }
 
 /** The ways a payment can be made - Cash, Check, ACH and whatever else is set up. */

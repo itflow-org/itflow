@@ -410,13 +410,18 @@ function getExportColumns($export_type) {
 
         'transactions' => [
             'transaction_date'           => ['label' => 'Date'],
+            'transaction_account'        => ['label' => 'Account'],
             'transaction_type'           => ['label' => 'Type'],
+            'transaction_what'           => ['label' => 'Who or What', 'weight' => 2],
             'transaction_description'    => ['label' => 'Description', 'weight' => 3],
             'transaction_other_account'  => ['label' => 'Transfer Account'],
             'transaction_reference'      => ['label' => 'Reference'],
             'transaction_category'       => ['label' => 'Category'],
+            'transaction_client'         => ['label' => 'Client', 'weight' => 2],
             'transaction_payment_method' => ['label' => 'Payment Method'],
-            'transaction_amount'         => ['label' => 'Amount', 'format' => 'money'],
+            'transaction_in'             => ['label' => 'In', 'format' => 'money'],
+            'transaction_out'            => ['label' => 'Out', 'format' => 'money'],
+            'transaction_amount'         => ['label' => 'Amount', 'format' => 'money', 'default' => false],
             'transaction_balance'        => ['label' => 'Balance', 'format' => 'money'],
         ],
 
