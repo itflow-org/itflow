@@ -101,6 +101,13 @@ ob_start();
                 $seat_options = recurringSeatOptions($client_id);
                 $seat_source = (string) ($item['item_seat_source'] ?? '');
                 $seat_filter = recurringSeatFilter($seat_source, $item['item_seat_filter'] ?? '');
+                // The line's own tag stays offered once archived, or on nothing the client has now, so saving doesn't drop it
+                $seat_tag = intval($seat_filter['tag'] ?? 0);
+                $seat_tag_key = ['contacts' => 'contact_tags', 'assets' => 'asset_tags'][$seat_source] ?? '';
+                if ($seat_tag && $seat_tag_key && !isset($seat_options[$seat_tag_key][$seat_tag]) && ($seat_tag_row = tagRow($seat_tag))) {
+                    $seat_options[$seat_tag_key][$seat_tag] = ['tag_id' => $seat_tag, 'tag_name' => $seat_tag_row['tag_name'] . ($seat_tag_row['tag_archived_at'] ? ' (archived)' : ''),
+                        'n' => intval(recurringSeatCount($client_id, $seat_source, ['tag' => $seat_tag]))];
+                }
                 $seat_minimum = floatval($item['item_seat_minimum'] ?? 0); ?>
                 <!-- Where the quantity comes from - counted again for each invoice -->
                 <div class="col-12">

@@ -289,7 +289,7 @@ $search_noun = $role_filter ? strtolower($contact_role_tabs[$role_filter]['label
                         $sql_tags_filter = mysqli_query($mysqli, "
                             SELECT tag_id, tag_name, tag_color, tag_icon
                             FROM tags
-                            WHERE tag_type = 3
+                            WHERE tag_type = 3 AND (tag_archived_at IS NULL OR tag_id IN ($tag_filter))
                             AND (
                                 EXISTS (SELECT 1 FROM contact_tags JOIN contacts ON contacts.contact_id = contact_tags.contact_id
                                     WHERE contact_tags.tag_id = tags.tag_id " . clientScopeSql('contact_client_id') . " $client_query)

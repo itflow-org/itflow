@@ -3067,6 +3067,7 @@ DROP TABLE IF EXISTS `tags`;
 CREATE TABLE `tags` (
   `tag_id` int(11) NOT NULL AUTO_INCREMENT,
   `tag_name` varchar(200) NOT NULL,
+  `tag_description` varchar(255) DEFAULT NULL,
   `tag_type` int(11) NOT NULL,
   `tag_color` varchar(200) DEFAULT NULL,
   `tag_icon` varchar(200) DEFAULT NULL,

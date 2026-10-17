@@ -159,22 +159,9 @@ ob_start();
                     <label>Tags</label>
                     <div class="input-group">
                             <span class="input-group-text"><i class="fa fa-fw fa-tags"></i></span>
-                        <select class="form-select select2" name="tags[]" data-placeholder="Add some tags" multiple>
-                            <?php
-
-                            $sql_tags_select = mysqli_query($mysqli, "SELECT tag_id, tag_name, tag_color, tag_icon FROM tags WHERE tag_type = 1 ORDER BY tag_name ASC");
-                            while ($row = mysqli_fetch_assoc($sql_tags_select)) {
-                                $tag_id_select = intval($row['tag_id']);
-                                $tag_name_select = escapeHtml($row['tag_name']);
-                                ?>
-                                <option value="<?= $tag_id_select ?>" <?php if (in_array($tag_id_select, $client_tag_id_array)) { echo "selected"; } ?><?= selectOptionColor($row['tag_color'] ?? '', $row['tag_icon'] ?? '') ?>><?= $tag_name_select ?></option>
-                            <?php } ?>
-
+                        <select class="form-select select2" name="tags[]" data-placeholder="Add some tags" multiple<?= !empty($session_is_admin) ? ' data-tags="true"' : '' ?>>
+                            <?= tagOptionsHtml('client', $client_tag_id_array) ?>
                         </select>
-                            <button class="btn btn-secondary ajax-modal" title="New tag" type="button"
-                                data-modal-url="../admin/modals/tag/tag_add.php?type=1">
-                                <i class="fas fa-fw fa-plus"></i>
-                            </button>
                     </div>
                 </div>
 

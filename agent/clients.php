@@ -198,7 +198,7 @@ $client_tickets = [];
 if ($clients) {
     $page_ids = implode(',', array_keys($clients));
 
-    $sql_tags = mysqli_query($mysqli, "SELECT client_tags.client_id, tags.tag_id, tag_name, tag_color, tag_icon
+    $sql_tags = mysqli_query($mysqli, "SELECT client_tags.client_id, tags.tag_id, tag_name, tag_description, tag_color, tag_icon
         FROM client_tags JOIN tags ON tags.tag_id = client_tags.tag_id
         WHERE client_tags.client_id IN ($page_ids)
         ORDER BY tag_name");
@@ -375,7 +375,7 @@ $total_leads = intval($row['leads']);
                                 SELECT tags.tag_id, tags.tag_name, MAX(tags.tag_color) AS tag_color, MAX(tags.tag_icon) AS tag_icon
                                 FROM tags
                                 LEFT JOIN client_tags ON client_tags.tag_id = tags.tag_id
-                                WHERE tag_type = 1
+                                WHERE tag_type = 1 AND (tags.tag_archived_at IS NULL OR tags.tag_id IN ($tag_filter))
                                 GROUP BY tags.tag_id, tags.tag_name
                                 HAVING COUNT(client_tags.client_id) > 0 OR tags.tag_id IN ($tag_filter)
                                 ORDER BY tags.tag_name

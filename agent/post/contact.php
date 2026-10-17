@@ -42,13 +42,8 @@ if (isset($_POST['add_contact'])) {
 
     $contact_id = mysqli_insert_id($mysqli);
 
-    // Add Tags
-    if (isset($_POST['tags'])) {
-        foreach($_POST['tags'] as $tag) {
-            $tag = intval($tag);
-            mysqli_query($mysqli, "INSERT INTO contact_tags SET contact_id = $contact_id, tag_id = $tag");
-        }
-    }
+    // Tags - contact tags only, and an admin can type a new one in (functions/tags.php)
+    tagSetForRecord('contact', $contact_id, (array) ($_POST['tags'] ?? []));
 
     //Update Primary contact in clients if primary contact is checked
     if ($contact_primary == 1) {
@@ -174,17 +169,8 @@ if (isset($_POST['edit_contact'])) {
         mysqli_query($mysqli,"UPDATE contacts SET contact_photo = NULL WHERE contact_id = $contact_id");
     }
 
-    // Tags
-    // Delete existing tags
-    mysqli_query($mysqli, "DELETE FROM contact_tags WHERE contact_id = $contact_id");
-
-    // Add new tags
-    if (isset($_POST['tags'])) {
-        foreach($_POST['tags'] as $tag) {
-            $tag = intval($tag);
-            mysqli_query($mysqli, "INSERT INTO contact_tags SET contact_id = $contact_id, tag_id = $tag");
-        }
-    }
+    // Tags - contact tags only, and an admin can type a new one in (functions/tags.php)
+    tagSetForRecord('contact', $contact_id, (array) ($_POST['tags'] ?? []));
 
     // Update Primary contact in clients if primary contact is checked
     if ($contact_primary == 1) {

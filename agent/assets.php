@@ -320,7 +320,7 @@ $search_noun = $type_filter ? $asset_type_tabs[$type_filter]['label'] : 'assets'
                         $sql_tags_filter = mysqli_query($mysqli, "
                             SELECT tag_id, tag_name, tag_color, tag_icon
                             FROM tags
-                            WHERE tag_type = 5
+                            WHERE tag_type = 5 AND (tag_archived_at IS NULL OR tag_id IN ($tag_filter))
                             AND (
                                 EXISTS (SELECT 1 FROM asset_tags JOIN assets ON asset_id = asset_tag_asset_id
                                     WHERE asset_tag_tag_id = tag_id " . clientScopeSql('asset_client_id') . " $client_query)

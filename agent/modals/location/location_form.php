@@ -32,8 +32,6 @@ if ($client_id) {
     }
 }
 
-$sql_tags_select = mysqli_query($mysqli, "SELECT tag_id, tag_name, tag_color, tag_icon FROM tags WHERE tag_type = 2 ORDER BY tag_name ASC");
-
 $form_id = 'locationForm' . ($location_form_mode === 'edit' ? $location_id : 'New');
 
 ?>
@@ -103,15 +101,9 @@ $form_id = 'locationForm' . ($location_form_mode === 'edit' ? $location_id : 'Ne
             <input type="hidden" name="tags_form" value="1">
             <div class="input-group">
                 <span class="input-group-text"><i class="fa fa-fw fa-tags"></i></span>
-                <select class="form-select select2" name="tags[]" data-placeholder="Add some tags" multiple>
-                    <?php while ($row = mysqli_fetch_assoc($sql_tags_select)) {
-                        $tag_id_select = intval($row['tag_id']); ?>
-                        <option value="<?= $tag_id_select ?>" <?= in_array($tag_id_select, $location_tag_ids, true) ? 'selected' : '' ?><?= selectOptionColor($row['tag_color'] ?? '', $row['tag_icon'] ?? '') ?>><?= escapeHtml($row['tag_name']) ?></option>
-                    <?php } ?>
+                <select class="form-select select2" name="tags[]" data-placeholder="Add some tags" multiple<?= !empty($session_is_admin) ? ' data-tags="true"' : '' ?>>
+                    <?= tagOptionsHtml('location', $location_tag_ids) ?>
                 </select>
-                <button class="btn btn-secondary ajax-modal" title="New tag" type="button" data-modal-url="../admin/modals/tag/tag_add.php?type=2">
-                    <i class="fas fa-plus"></i>
-                </button>
             </div>
         </div>
         <div class="col-12">

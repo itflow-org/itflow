@@ -2,90 +2,25 @@
 
 require_once '../../includes/modal_header.php';
 
-$type_display = '';
+$tag = null;
+$type = tagEntityByType(intval($_GET['type'] ?? 0)) ? intval($_GET['type']) : 1;
 
-if (isset($_GET['type'])) {
-    $type = intval($_GET['type']);
-
-    if ($type === 1) {
-        $type_display = "Client";
-    } elseif($type === 2) {
-        $type_display = "Location";
-    } elseif ($type === 3) {
-        $type_display = "Contact";
-    } elseif ($type === 4) {
-        $type_display = "Credential";
-    } elseif ($type === 5) {
-        $type_display = "Asset";
-    } elseif ($type === 6) {
-        $type_display = "Vendor";
-    } elseif ($type === 7) {
-        $type_display = "Domain";
-    }
-}
 ob_start();
 
 ?>
 
 <div class="modal-header bg-dark">
-    <h5 class="modal-title"><i class="fas fa-fw fa-tag me-2"></i>New <strong><?= $type_display ?></strong> Tag</h5>
+    <h5 class="modal-title"><i class="fas fa-fw fa-tag me-2"></i>New Tag</h5>
     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
 </div>
 <form action="post.php" method="post" autocomplete="off">
     <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
-    <input type="hidden" name="type" value="<?= $type ?>">
 
     <div class="modal-body">
-        <div class="mb-3">
-            <label>Name <strong class="text-danger">*</strong></label>
-            <div class="input-group">
-                    <span class="input-group-text"><i class="fa fa-fw fa-tag"></i></span>
-                <input type="text" class="form-control" name="name" placeholder="Tag name" maxlength="200" required autofocus>
-            </div>
-        </div>
-
-        <?php if (isset($_GET['type'])) { ?>
-
-        <input type="hidden" name="type" value="<?= $type ?>">
-
-        <?php } else { ?>
-
-        <div class="mb-3">
-            <label>Type <strong class="text-danger">*</strong></label>
-            <div class="input-group">
-                    <span class="input-group-text"><i class="fa fa-fw fa-th"></i></span>
-                <select class="form-select select2" name="type" required>
-                    <option value="">- Type -</option>
-                    <option value="1">Client Tag</option>
-                    <option value="2">Location Tag</option>
-                    <option value="3">Contact Tag</option>
-                    <option value="4">Credential Tag</option>
-                    <option value="5">Asset Tag</option>
-                </select>
-            </div>
-        </div>
-
-        <?php } ?>
-
-        <div class="mb-3">
-            <label>Color <strong class="text-danger">*</strong></label>
-            <div class="input-group">
-                    <span class="input-group-text"><i class="fa fa-fw fa-paint-brush"></i></span>
-                <input type="color" class="form-control form-control-color" name="color" required>
-            </div>
-        </div>
-
-        <div class="mb-3">
-            <label>Icon</label>
-            <div class="input-group">
-                    <span class="input-group-text"><i class="fa fa-fw fa-image"></i></span>
-                <input type="text" class="form-control" name="icon" placeholder="Icon ex handshake" maxlength="200">
-            </div>
-        </div>
-
+        <?php require __DIR__ . '/tag_form.php'; ?>
     </div>
     <div class="modal-footer">
-        <button type="submit" name="add_tag" class="btn btn-primary text-bold"><i class="fas fa-check me-2"></i>Create Tag</button>
+        <button type="submit" name="add_tag" class="btn btn-primary text-bold"><i class="fas fa-check me-2"></i>Create</button>
         <button type="button" class="btn btn-light" data-bs-dismiss="modal"><i class="fas fa-times me-2"></i>Cancel</button>
     </div>
 </form>

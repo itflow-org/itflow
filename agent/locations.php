@@ -172,7 +172,7 @@ $locations_counts = locationCounts(array_keys($locations));
                         // Tags in use on locations in this scope, plus any already picked
                         $sql_tags_filter = mysqli_query($mysqli, "
                             SELECT tag_id, tag_name, tag_color, tag_icon FROM tags
-                            WHERE tag_type = 2
+                            WHERE tag_type = 2 AND (tag_archived_at IS NULL OR tag_id IN ($tag_filter))
                             AND (
                                 EXISTS (SELECT 1 FROM location_tags JOIN locations ON locations.location_id = location_tags.location_id
                                     WHERE location_tags.tag_id = tags.tag_id " . clientScopeSql('location_client_id') . " $client_query)

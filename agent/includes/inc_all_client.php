@@ -81,7 +81,7 @@ if (isset($_GET['client_id'])) {
 
         // Client Tags - raw rows, drawn by tagPills() (functions/tags.php)
         $client_tags = [];
-        $sql_client_tags = mysqli_query($mysqli, "SELECT tags.tag_id, tag_name, tag_color, tag_icon FROM client_tags JOIN tags ON client_tags.tag_id = tags.tag_id WHERE client_id = $client_id ORDER BY tag_name ASC");
+        $sql_client_tags = mysqli_query($mysqli, "SELECT tags.tag_id, tag_name, tag_description, tag_color, tag_icon FROM client_tags JOIN tags ON client_tags.tag_id = tags.tag_id WHERE client_id = $client_id ORDER BY tag_name ASC");
         while ($row = mysqli_fetch_assoc($sql_client_tags)) {
             $client_tags[] = $row;
         }

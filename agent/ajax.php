@@ -115,8 +115,9 @@ if (isset($_GET['tag_picker'])) {
         'tags' => []
     ];
 
+    // An archived tag is only offered to take it off the records that still have it
     $sql = mysqli_query($mysqli,
-        "SELECT tag_id, tag_name, tag_color, tag_icon,
+        "SELECT tag_id, tag_name, tag_description, tag_color, tag_icon, tag_archived_at,
             (SELECT COUNT(*) FROM {$config['link_table']}
                 WHERE {$config['link_tag']} = tags.tag_id AND {$config['link_record']} IN ($ids)) AS chosen
         FROM tags
@@ -124,11 +125,15 @@ if (isset($_GET['tag_picker'])) {
         ORDER BY tag_name ASC"
     );
     while ($row = mysqli_fetch_assoc($sql)) {
+        if ($row['tag_archived_at'] && !intval($row['chosen'])) {
+            continue;
+        }
         $response['tags'][] = [
             'id' => intval($row['tag_id']),
             'name' => $row['tag_name'],
-            'color' => preg_match('/^(#[0-9a-f]{3,8}|[a-z]{3,24})$/i', trim((string) $row['tag_color'])) ? trim($row['tag_color']) : '',
-            'icon' => preg_replace('/[^a-z0-9-]/', '', strtolower((string) $row['tag_icon'])) ?: 'tag',
+            'description' => trim((string) $row['tag_description']) . ($row['tag_archived_at'] ? (trim((string) $row['tag_description']) !== '' ? ' - ' : '') . 'Archived' : ''),
+            'color' => tagColor($row['tag_color']),
+            'icon' => tagIcon($row['tag_icon']),
             'chosen' => intval($row['chosen'])
         ];
     }
@@ -169,15 +174,17 @@ if (isset($_POST['tag_picker_set']) || isset($_POST['tag_picker_create'])) {
         }
         $name_sql = escapeSql($name);
 
-        // Typing the name of a tag that already exists just picks it
-        $row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT tag_id FROM tags WHERE tag_type = $type AND tag_name = '$name_sql' LIMIT 1"));
+        // Typing the name of a tag that already exists just picks it - an archived one comes back
+        $row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT tag_id, tag_archived_at FROM tags WHERE tag_type = $type AND LOWER(tag_name) = LOWER('$name_sql') LIMIT 1"));
         if ($row) {
             $tag_id = intval($row['tag_id']);
+            if ($row['tag_archived_at']) {
+                tagRestore($tag_id);
+                logAudit("Tag", "Restore", "$session_name restored {$config['label']} tag $name_sql", 0, $tag_id);
+            }
         } else {
-            $color = tagNextColor($type);
-            mysqli_query($mysqli, "INSERT INTO tags SET tag_name = '$name_sql', tag_type = $type, tag_color = '$color', tag_icon = 'tag'");
-            $tag_id = mysqli_insert_id($mysqli);
-            logAudit("Tag", "Create", "$session_name created tag $name_sql", 0, $tag_id);
+            $tag_id = tagCreate(['name' => $name, 'description' => '', 'type' => $type, 'color' => tagNextColor($type), 'icon' => 'tag']);
+            logAudit("Tag", "Create", "$session_name created {$config['label']} tag $name_sql", 0, $tag_id);
         }
         $on = true;
 
@@ -187,10 +194,16 @@ if (isset($_POST['tag_picker_set']) || isset($_POST['tag_picker_create'])) {
     }
 
     // The tag has to be one of this kind of record's tags
-    $tag = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT tag_name FROM tags WHERE tag_id = $tag_id AND tag_type = $type"));
+    $tag = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT tag_name, tag_archived_at FROM tags WHERE tag_id = $tag_id AND tag_type = $type"));
     if (!$tag) {
         http_response_code(404);
         echo json_encode(['error' => 'That tag no longer exists.']);
+        exit();
+    }
+    // An archived tag can come off records, not go on more
+    if ($on && $tag['tag_archived_at']) {
+        http_response_code(409);
+        echo json_encode(['error' => 'That tag is archived.']);
         exit();
     }
     $tag_name = escapeSql($tag['tag_name']);

@@ -6,9 +6,9 @@ This file documents all notable changes made to ITFlow.
 
 ### Upgrading to 26.11
 
-Update from Maintenance > Update — Queue Update hands the job to cron, which updates the files and applies this release's database changes (2.7.9 to 3.1.2) in the same pass. Nothing else is required.
+Update from Maintenance > Update — Queue Update hands the job to cron, which updates the files and applies this release's database changes (2.7.9 to 3.1.3) in the same pass. Nothing else is required.
 
-This is a big release, with thirty-three database steps in one go, so take a backup before you update.
+This is a big release, with thirty-four database steps in one go, so take a backup before you update.
 
 The update also clears out data that deletes in older versions left behind, all of it pointing at something that no longer exists:
 
@@ -32,6 +32,8 @@ Other income already entered (money in that isn't for an invoice, which used to 
 Every account is given a kind - checking, savings, credit card, cash or payment processor - guessed from its name: Visa, Amex or card is a credit card, savings or reserve is savings, cash or petty cash is cash, and Stripe, PayPal, Square or merchant is a payment processor. An account given a liability type back when accounts had types (2023) is a credit card, so what is on it reads as owed. Anything else is checking. Change any that came out wrong with Edit on the Accounts page. An account's balance now leaves out archived payments, income and expenses everywhere, so the Accounts page can show less or more than before (see Bug Fixes). No account is reconciled after the update. The first statement you reconcile on each can start from the bank's balance on the day it starts, bringing everything before it forward as reconciled, or from the account's opening balance (see New Features, Accounts and transactions). Transfers already made out of a cash account count as having taken everything in it up to then to the bank, so the first deposit you make after the update only offers the checks and cash taken in since the last one.
 
 Taxes keep their names and rates, now kept to four decimal places. No client has a rate of its own or is tax exempt, and there is no default rate, so new lines start untaxed as before until you pick one in Admin > Taxes. Billed time, trips and expenses stay untaxed until you switch them on there. Discounts now come off before tax on invoices and quotes that are still open, the next time they are edited (see Breaking Changes, Taxes). No expense has tax recorded on it until you add it, so Tax Collected shows no tax paid on purchases for the months before.
+
+Tags keep their names, colors, icons and records. A color saved as a word, such as dark or primary, becomes the color it stands for, a short one such as #abc is written out in full, and a tag with no color, or one that isn't a color, turns grey, so its pills can be read (see Bug Fixes). An icon saved with `fas fa-` in front keeps just its name. A tag archived in an older version now counts as archived (see Breaking Changes, Tags).
 
 If you are coming from 26.08 or earlier, the database update still has to be run from the command line one time, exactly as described under Upgrading to 26.09 below.
 
@@ -128,6 +130,12 @@ If you are coming from 26.08 or earlier, the database update still has to be run
   - Tax Rates in the Admin menu is now Taxes.
   - A line on a rate made of parts is taxed part by part, each to the cent, so its tax can be a cent off the whole rate times the line.
   - Tax Collected now shows tax by part, so a rate made of a state's and a county's part shows two rows, and a part named the same on two rates shows one. Its sales are net of discounts, where they used to be the lines before any discount, and archived payments no longer count. It still counts as payments come in unless you switch it to Invoiced.
+- Tags:
+  - Archiving a tag now does something: it stays on the records that have it, but isn't offered in record forms, the tag picker or the list and export filters, unless a record or filter already has it. A tag archived in an older version is archived now too - restore it from the Archived tab in Admin > Tags.
+  - The + beside the Tags field in record forms is gone. Admins type the new tag's name into the field instead, and it is made when the record is saved. Other agents pick from the tags there are, as before - the + never worked for them.
+  - A tag's name is now unique within its kind, in any case: a second client tag called VIP can't be made, though an asset tag can be. Tags already named alike keep their names. Typing a name that exists into a record form picks that tag.
+  - A tag that a recurring invoice line counts users or devices by can't be deleted. Archive it, or merge it into another tag, which moves the line along with it.
+  - Pills now have dark text on light colors such as yellow and light blue, where every pill had white text.
 - Notifications now follow access too. An agent only sees notifications for clients and areas they can open, so someone without sales access no longer sees invoice and quote notifications.
 - Drop-downs: Tom Select is gone, replaced by ITFlow's own picker. It works the way you are used to: type to search, tick several in a multi-select, and type a new value in fields that allow it, such as ticket watchers. See Developer Updates if you have custom pages that used Tom Select.
 - Several small windows are gone because the change is now made where the value is shown:
@@ -744,6 +752,18 @@ If you are coming from 26.08 or earlier, the database update still has to be run
   - Exports: invoices can add Subtotal, Discount, Tax and Tax by Part; quotes and recurring invoices Tax; expenses Before Tax, Tax and Tax Rate; and clients Tax Rate, Tax Exempt, Exemption Certificate and Exemption Expires. They are off until ticked.
   - API: clients take `client_default_tax_id`, `client_tax_exempt`, `client_tax_exempt_number` and `client_tax_exempt_expires`, and a new invoice line takes `tax_id` `default` for the client's usual rate. A new endpoint reads the taxes with their parts. Invoices and quotes add their subtotal, tax, tax by part and registration numbers, invoice lines name their rate, and expenses include their tax.
   - Demo data: both taxes have a registration number, Allegheny County Sales Tax is made of the state's 6% - named PA Sales Tax, so Tax Collected adds the two up together - and the county's 1%, each client has its rate, the church and the charter school are tax exempt, one with a certificate that has run out, and what the company buys for its own use pays sales tax.
+- **Tags** (rebuilt)
+  - Admin > Tags lists each kind's tags - clients, locations, contacts, credentials, assets, vendors and domains, down the side with how many each has. Each tag shows as it looks on a record, with its description, how many records have it (and how many of those are archived), opening that list filtered by it, and the recurring invoice lines that count users or devices by it.
+  - Search by name or description, sort by name or by most used, and Current and Archived tabs.
+  - Each tag has Edit, Merge into..., a link to its records, Archive or Restore, and Delete, which asks first and says how many records lose the tag. Tick several for Merge into one, Archive or Restore, and Delete.
+  - The tag window shows the tag as it will look while you change it:
+    - its name, and what it is for, which can be changed while nothing has the tag yet
+    - a description, shown when you point at the tag and in the tag picker, which searches it too
+    - a color from the swatches, or any other from the color picker or typed as a hex value - the text on the pill is dark or white, whichever reads
+    - an icon from the grid, which you can search, or any Font Awesome icon by its name
+  - Merge moves every record with the merged tags onto the one you keep, once each, and the recurring invoice lines that count by them count by it. The others are deleted.
+  - Record forms: an admin types a new tag's name into the Tags field and picks Add or presses Enter, and the tag is made, with the next color along, when the record is saved - nothing reloads and nothing typed is lost. Typing the name of an archived tag brings it back.
+  - A recurring invoice line counting by a tag keeps it in its window once the tag is archived, or when the client no longer has anything with it, so saving the line doesn't drop it.
 
 ### Bug Fixes
 
@@ -828,6 +848,10 @@ If you are coming from 26.08 or earlier, the database update still has to be run
 - Recurring tickets: if cron missed a night, that recurring ticket stopped raising tickets until someone fixed its next run date. The missed ticket is now raised on the next run and the schedule carries on.
 - Networks: Export from All Clients with no client picked did not work.
 - The add category button on the products filter did nothing.
+- Tags: saving a client, contact or asset with the same tag picked twice stopped with an error, and those forms took any tag sent with them, another kind's included. Every record form now keeps only its own kind's tags, each once.
+- Tags: the + beside the Tags field in record forms opened Admin's New Tag window, which reloaded the page and lost what had been typed into the form, and showed an error to anyone who wasn't an admin.
+- Tags: a tag saved with no color, or a color word such as dark, showed white text on no color at all.
+- Tags: the Archived button on Admin > Tags showed the same tags as without it, as nothing could be archived.
 - Messages, hints and window titles were reworded where they were unclear, and bulk windows say "1 asset" or "3 assets" correctly.
 
 ### Developer Updates
@@ -1188,6 +1212,16 @@ If you are coming from 26.08 or earlier, the database update still has to be run
   - Exports: `invoice_subtotal`, `invoice_discount_amount`, `invoice_tax` and `invoice_tax_parts`, `quote_tax` (up front, from `quoteLineGroups()`), `recurring_invoice_tax`, `expense_before_tax`, `expense_tax_amount` and `expense_tax_rate`, and `client_tax_rate`, `client_tax_exempt_display`, `client_tax_exempt_number` and `client_tax_exempt_expires`, all `default => false`. The quote and recurring invoice exports select their ids for it.
   - API: `api/v1/taxes/read.php` (`tax_id`, `archived`; each rate with `tax_components` and `tax_default`), mapped to `module_sales`. `billingApiTaxFields($type, $row)` adds `invoice_subtotal`, `invoice_tax`, `invoice_taxes` (`name`, `amount`) and `invoice_tax_registrations` to `api/v1/invoices/read.php`, and the `quote_` ones to `api/v1/quotes/read.php`. `api/v1/invoice_items/read.php` adds `tax_name` and `tax_percent`.
   - Seeds: `demoDataTaxes()` names Allegheny County's state part PA Sales Tax, and the company's own-use purchases (office supplies, tools, equipment, the van) carry PA Sales Tax.
+- Tags (database 3.1.3):
+  - New `tags.tag_description` (`varchar(255)`, NULL). The migration writes every `tag_color` as `#rrggbb` (short hex grows, an eight-digit one loses its alpha, Bootstrap's color words become their hex, anything else `#6c757d`) and every `tag_icon` as the bare Font Awesome name (`fas fa-` and anything but `a-z0-9-` taken off, NULL when empty).
+  - `functions/tags.php`: `tagEntity()` adds `title`, `plural` and `icon`, and `tagsForRecords()` adds `tag_description` and `tag_archived_at`. New: `TAG_COLORS` and `TAG_ICONS` (what the tag window offers), `tagColor()` (`#rrggbb`, grey otherwise), `tagTextColor()` (`#212529` or `#fff` by luminance), `tagIcon()` (the bare name, `tag` when none), `tagPill($tag)`, `tagKinds()` (type => entity), `tagKindPhrase($type)`, `tagEntityByType($type)` (adds `entity`), `tagRow()`, `tagUsageCounts()`, `tagUsageBreakdown()` (`all`, `archived`), `tagUsage()`, `tagSeatLineItems($tag_ids)`, `tagSeatLineCounts()`, `tagSeatLines()`, `tagFromInput($in, $existing)` (returns `[$fields, $error]`: `name`, `description`, `type`, `color`, `icon`), `tagCreate()`, `tagUpdate()`, `tagArchive()`, `tagRestore()`, `tagDelete($tag_id, &$error)` (refused while a seat line counts by it), `tagMerge($from_ids, $into_id)` (same kind only; records moved, seat filters repointed, returns how many records), `tagOptionsFor($entity, $keep_ids)`, `tagOptionsHtml($entity, $selected)` and `tagSetForRecord($entity, $record_id, $values)`.
+  - `tagSetForRecord()` is the one save for a record form's `tags[]`: numeric values are tag ids, anything else (from an admin) a typed name, matched case-insensitively or made with `tagNextColor()`. Only that kind's tags are kept, each once, and an archived tag only on a record that already had it. `agent/post/client.php`, `contact.php` and `asset.php` call it, and `locationSetTags()`, `credentialSetTags()`, `vendorSetTags()` and `domainSetTags()` now wrap it.
+  - The record forms' Tags fields are `<?= tagOptionsHtml($entity, $selected) ?>` with `data-tags="true"` for admins, and their links to `admin/modals/tag/tag_add.php` are gone. The list pages' tag filters and the seven export windows leave out archived tags that aren't chosen.
+  - `tagPills()` and `tagPill()` set `--itflow-tag-text` beside `--itflow-tag-color`, and a pill's title leads with the description. `agent/ajax.php`: `tag_picker` returns each tag's `description` (with "Archived"), `tag_picker_set` refuses putting an archived tag on (409), and `tag_picker_create` matches case-insensitively and restores an archived match. `js/tag_picker.js` shows and searches the description.
+  - Admin: `admin/tags.php` is rebuilt (`type`, `q`, `sort=use`, `archived`), with `admin/modals/tag/tag_form.php` shared by `tag_add.php` (`type`) and `tag_edit.php` (`id`), the new `tag_merge.php` (`tag_ids[]`), and `js/tag_form.js`. `admin/post/tag.php`: `add_tag` and `edit_tag` (`tag_id`, `name`, `type`, `description`, `color`, `icon`), GET `archive_tag`, `restore_tag` and `delete_tag`, POST `merge_tags` (`tag_ids[]`, `into_tag_id`), and `bulk_archive_tags`, `bulk_restore_tags` and `bulk_delete_tags` (`tag_ids[]`). Audit entries are Tag Create, Edit, Archive, Restore, Delete and Merge, naming the kind.
+  - Removed: `agent/post/tag.php` and `agent/post/tag_model.php` (an older copy of `add_tag` for the window opened from agent pages), and `admin/post/tag_model.php`.
+  - `agent/modals/billing/billing_item.php` adds a seat line's own tag to its choices when `recurringSeatOptions()` leaves it out.
+  - CSS: `.itflow-tag` takes its text color from `--itflow-tag-text`; new `.itflow-tag-swatch`, `.itflow-tag-icons`, `.itflow-tag-icon` and `.itflow-tag-icon-custom`.
 - Empty states: every list page sets `$empty_state` before including `includes/filter_footer.php`, and `includes/inc_empty_state.php` draws it with `emptyStateHtml()` (`functions/format.php`) when the list has nothing - `thing`, `icon`, `title`, `text`, `actions` (`label`, `modal` or `href`, `size`, `icon`; the first is the main one), `archived`, `view`, `filtered`, `views`, `match_title`, `match_text` and `clear_url`. `emptyStateFiltered($views)` reads the GET string for a search or filter, leaving out paging, sorting, `client_id`, `archived` and the page's views, and `emptyStateClearUrl($views)` is the page without them. `emptyStatePill($pills, $key, $default, $good)` builds a pill's own state from the page's pill array (`label`, `icon`, `title`, `alarm`), with a tick for `alarm` pills and the keys in `$good`. Files, notifications and racks call `emptyStateHtml()` in their own layout; files and notifications set `$empty_state_skip`. A page that sets nothing still gets one, worded from `$page_title`. The pages' own empty blocks (`.itflow-asset-empty` under a list) are gone. CSS: `.itflow-empty-state` with `-icon` (a grey round tile), `-title`, `-text` and `-actions`.
 - Removed unused helpers and files:
   - `credentialLink()`, `projectLink()`, `linkCounts()`, `assetContactAvatar()`, `clientOverviewPersonInitials()`, and `getMonthlyTax()` and `getQuarterlyTax()`, which looked a tax up by name

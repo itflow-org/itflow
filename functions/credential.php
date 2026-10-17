@@ -200,17 +200,9 @@ function credentialFormSet($post, $client_id, &$error = '') {
     return implode(', ', $set);
 }
 
-/** Replace a credential's tags with these - credential tags (type 4) only. */
+/** Replace a credential's tags with these - credential tags only, and an admin can type a new one in (tagSetForRecord()). */
 function credentialSetTags($credential_id, $tag_ids) {
-    global $mysqli;
-    $credential_id = intval($credential_id);
-    mysqli_query($mysqli, "DELETE FROM credential_tags WHERE credential_id = $credential_id");
-    $tag_ids = array_values(array_unique(array_filter(array_map('intval', (array) $tag_ids))));
-    if (!$tag_ids) {
-        return;
-    }
-    mysqli_query($mysqli, "INSERT IGNORE INTO credential_tags (credential_id, tag_id)
-        SELECT $credential_id, tag_id FROM tags WHERE tag_type = 4 AND tag_id IN (" . implode(',', $tag_ids) . ")");
+    tagSetForRecord('credential', $credential_id, (array) $tag_ids);
 }
 
 /** The username as stored, decrypted - '' when there is none or the vault is closed. */

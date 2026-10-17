@@ -223,17 +223,9 @@ function vendorFormSet($post) {
     return implode(', ', $set);
 }
 
-/** Replace a vendor's tags with these - vendor tags (type 6) only. */
+/** Replace a vendor's tags with these - vendor tags only, and an admin can type a new one in (tagSetForRecord()). */
 function vendorSetTags($vendor_id, $tag_ids) {
-    global $mysqli;
-    $vendor_id = intval($vendor_id);
-    mysqli_query($mysqli, "DELETE FROM vendor_tags WHERE vendor_id = $vendor_id");
-    $tag_ids = array_values(array_unique(array_filter(array_map('intval', (array) $tag_ids))));
-    if (!$tag_ids) {
-        return;
-    }
-    mysqli_query($mysqli, "INSERT IGNORE INTO vendor_tags (vendor_id, tag_id)
-        SELECT $vendor_id, tag_id FROM tags WHERE tag_type = 6 AND tag_id IN (" . implode(',', $tag_ids) . ")");
+    tagSetForRecord('vendor', $vendor_id, (array) $tag_ids);
 }
 
 /** A template's fields as they go on a vendor - for New from template. Raw, or null. */

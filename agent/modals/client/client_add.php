@@ -8,8 +8,6 @@ $leads_filter = intval($_GET['lead'] ?? 0);
 // Selects
 $referral_sql = mysqli_query($mysqli, "SELECT category_name FROM categories WHERE category_type = 'Referral' AND category_archived_at IS NULL ORDER BY category_name ASC");
 
-$sql_tags_select = mysqli_query($mysqli, "SELECT tag_id, tag_name FROM tags WHERE tag_type = 1 ORDER BY tag_name ASC");
-
 $net_terms_array = array (
     '0'=>'On Receipt',
     '7'=>'7 Days',
@@ -121,21 +119,9 @@ ob_start();
                     <label>Tags</label>
                     <div class="input-group">
                             <span class="input-group-text"><i class="fa fa-fw fa-tags"></i></span>
-                        <select class="form-select select2" name="tags[]" data-placeholder="- Select Tags -"multiple>
-                            <?php
-
-                            while ($row = mysqli_fetch_assoc($sql_tags_select)) {
-                                $tag_id_select = intval($row['tag_id']);
-                                $tag_name_select = escapeHtml($row['tag_name']);
-                                ?>
-                                <option value="<?= $tag_id_select ?>"><?= $tag_name_select ?></option>
-                            <?php } ?>
-
+                        <select class="form-select select2" name="tags[]" data-placeholder="Add some tags" multiple<?= !empty($session_is_admin) ? ' data-tags="true"' : '' ?>>
+                            <?= tagOptionsHtml('client', []) ?>
                         </select>
-                            <button class="btn btn-secondary ajax-modal" title="New tag" type="button"
-                                data-modal-url="../admin/modals/tag/tag_add.php?type=1">
-                                <i class="fas fa-fw fa-plus"></i>
-                            </button>
                     </div>
                 </div>
 

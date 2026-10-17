@@ -613,17 +613,9 @@ function domainFormSet($post, $client_id, $domain_id = 0, &$error = '') {
     return ['set' => implode(', ', $set), 'name' => $name, 'expire' => $expire];
 }
 
-/** Replace a domain's tags with these - domain tags (type 7) only. */
+/** Replace a domain's tags with these - domain tags only, and an admin can type a new one in (tagSetForRecord()). */
 function domainSetTags($domain_id, $tag_ids) {
-    global $mysqli;
-    $domain_id = intval($domain_id);
-    mysqli_query($mysqli, "DELETE FROM domain_tags WHERE domain_id = $domain_id");
-    $tag_ids = array_values(array_unique(array_filter(array_map('intval', (array) $tag_ids))));
-    if (!$tag_ids) {
-        return;
-    }
-    mysqli_query($mysqli, "INSERT IGNORE INTO domain_tags (domain_id, tag_id)
-        SELECT $domain_id, tag_id FROM tags WHERE tag_type = 7 AND tag_id IN (" . implode(',', $tag_ids) . ")");
+    tagSetForRecord('domain', $domain_id, (array) $tag_ids);
 }
 
 /**

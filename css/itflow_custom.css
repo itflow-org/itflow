@@ -2921,14 +2921,15 @@ a.itflow-dash-rail-item:focus-visible {
     font-size: .75rem;
     font-weight: normal;
     line-height: 1.4;
-    color: #fff;
+    /* Dark or white text, whichever reads on the tag's colour (tagTextColor()) */
+    color: var(--itflow-tag-text, #fff);
     background-color: var(--itflow-tag-color, var(--bs-secondary));
     text-decoration: none;
     white-space: nowrap;
 }
 .itflow-tag:hover,
 .itflow-tag:focus-visible {
-    color: #fff;
+    color: var(--itflow-tag-text, #fff);
     filter: brightness(1.1);
 }
 .itflow-tag-add {
@@ -2968,6 +2969,58 @@ a.itflow-dash-rail-item:focus-visible {
 .itflow-select-option.is-mixed .itflow-select-checkbox {
     border-color: var(--itflow-accent, var(--bs-primary));
     color: var(--itflow-accent, var(--bs-primary));
+}
+/* The tag window (admin/modals/tag/tag_form.php, js/tag_form.js) - round
+   colour swatches ticked when chosen, and a grid of icons to pick from */
+.itflow-tag-swatch {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 1.75rem;
+    height: 1.75rem;
+    padding: 0;
+    border: 2px solid var(--bs-body-bg);
+    border-radius: 50%;
+    box-shadow: 0 0 0 1px var(--bs-border-color);
+    font-size: .75rem;
+    color: var(--itflow-tag-text, #fff);
+    background-color: var(--itflow-tag-color);
+}
+.itflow-tag-swatch i {
+    visibility: hidden;
+}
+.itflow-tag-swatch.active i {
+    visibility: visible;
+}
+.itflow-tag-swatch.active,
+.itflow-tag-swatch:focus-visible {
+    outline: 0;
+    box-shadow: 0 0 0 2px var(--itflow-accent, var(--bs-primary));
+}
+.itflow-tag-icons {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(2.25rem, 1fr));
+    gap: .125rem;
+    max-height: 10.5rem;
+    overflow-y: auto;
+}
+.itflow-tag-icon {
+    --bs-btn-padding-x: 0;
+    color: var(--bs-secondary-color);
+}
+.itflow-tag-icon:hover {
+    color: var(--bs-body-color);
+    background-color: var(--bs-tertiary-bg);
+}
+.itflow-tag-icon.active,
+.itflow-tag-icon-custom.active {
+    color: #fff;
+    background-color: var(--itflow-accent, var(--bs-primary));
+    border-color: transparent;
+}
+.itflow-tag-icon-custom,
+.itflow-tag-icons [data-tag-icon-none] {
+    grid-column: 1 / -1;
 }
 .itflow-clients-street {
     max-width: 16rem;

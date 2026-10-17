@@ -287,7 +287,8 @@
 
         data.tags.forEach(function (tag) {
             var name = fold(tag.name);
-            if (terms.length && !terms.every(function (t) { return name.indexOf(t) !== -1; })) {
+            var haystack = name + ' ' + fold(tag.description);
+            if (terms.length && !terms.every(function (t) { return haystack.indexOf(t) !== -1; })) {
                 return;
             }
             if (name === fold(self.query.trim())) {
@@ -314,8 +315,9 @@
 
             var text = make('span', 'itflow-select-text');
             text.appendChild(make('span', 'itflow-select-label', tag.name));
-            if (some) {
-                text.appendChild(make('span', 'itflow-select-description', tag.chosen + ' of ' + data.records));
+            var about = [tag.description || '', some ? tag.chosen + ' of ' + data.records : ''].filter(Boolean).join(' · ');
+            if (about) {
+                text.appendChild(make('span', 'itflow-select-description', about));
             }
             node.appendChild(text);
             list.appendChild(node);

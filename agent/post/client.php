@@ -72,13 +72,8 @@ if (isset($_POST['add_client'])) {
         $extended_log_description .= ", primary contact $contact added";
     }
 
-    // Add tags
-    if (isset($_POST['tags'])) {
-        foreach ($_POST['tags'] as $tag) {
-            $tag = intval($tag);
-            mysqli_query($mysqli, "INSERT INTO client_tags SET client_id = $client_id, tag_id = $tag");
-        }
-    }
+    // Tags - client tags only, and an admin can type a new one in (functions/tags.php)
+    tagSetForRecord('client', $client_id, (array) ($_POST['tags'] ?? []));
 
     // Create domain and SSL certificate - the website's domain, tidied, looked up
     // like any other; one whose lookup finds nothing is still added, without records
@@ -144,15 +139,8 @@ if (isset($_POST['edit_client'])) {
         logAudit("Category", "Create", "$session_name created referral category $referral");
     }
 
-    // Tags - delete existing and re-insert
-    mysqli_query($mysqli, "DELETE FROM client_tags WHERE client_id = $client_id");
-
-    if (isset($_POST['tags'])) {
-        foreach ($_POST['tags'] as $tag) {
-            $tag = intval($tag);
-            mysqli_query($mysqli, "INSERT INTO client_tags SET client_id = $client_id, tag_id = $tag");
-        }
-    }
+    // Tags - client tags only, and an admin can type a new one in (functions/tags.php)
+    tagSetForRecord('client', $client_id, (array) ($_POST['tags'] ?? []));
 
     // Ticket SLA assignments (fields only rendered when active SLAs exist)
     if (isset($_POST['client_sla_low'])) {

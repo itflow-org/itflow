@@ -179,7 +179,7 @@ $bulk_vendor_options = $can_edit ? domainVendorChoices($client_url ? $client_id 
                         // Tags in use on domains in this scope, plus any already picked
                         $sql_tags_filter = mysqli_query($mysqli, "
                             SELECT tag_id, tag_name, tag_color, tag_icon FROM tags
-                            WHERE tag_type = 7
+                            WHERE tag_type = 7 AND (tag_archived_at IS NULL OR tag_id IN ($tag_filter))
                             AND (
                                 EXISTS (SELECT 1 FROM domain_tags JOIN domains ON domains.domain_id = domain_tags.domain_id
                                     WHERE domain_tags.tag_id = tags.tag_id " . clientScopeSql('domain_client_id') . " $client_query)

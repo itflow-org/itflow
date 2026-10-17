@@ -28,8 +28,6 @@ if ($client_id) {
     }
 }
 
-$sql_tags_select = mysqli_query($mysqli, "SELECT tag_id, tag_name, tag_color, tag_icon FROM tags WHERE tag_type = 7 ORDER BY tag_name ASC");
-
 $form_id = 'domainForm' . ($domain_form_mode === 'edit' ? $domain_id : 'New');
 
 ?>
@@ -169,17 +167,9 @@ $form_id = 'domainForm' . ($domain_form_mode === 'edit' ? $domain_id : 'New');
     <input type="hidden" name="tags_form" value="1">
     <div class="input-group">
         <span class="input-group-text"><i class="fa fa-fw fa-tags"></i></span>
-        <select class="form-select select2" name="tags[]" data-placeholder="Primary, Parked, Client-owned, Managed DNS" multiple>
-            <?php while ($row = mysqli_fetch_assoc($sql_tags_select)) {
-                $tag_id_select = intval($row['tag_id']); ?>
-                <option value="<?= $tag_id_select ?>" <?= in_array($tag_id_select, $domain_tag_ids, true) ? 'selected' : '' ?><?= selectOptionColor($row['tag_color'] ?? '', $row['tag_icon'] ?? '') ?>><?= escapeHtml($row['tag_name']) ?></option>
-            <?php } ?>
+        <select class="form-select select2" name="tags[]" data-placeholder="Primary, Parked, Client-owned, Managed DNS" multiple<?= !empty($session_is_admin) ? ' data-tags="true"' : '' ?>>
+            <?= tagOptionsHtml('domain', $domain_tag_ids) ?>
         </select>
-        <?php if (!empty($session_is_admin)) { ?>
-            <button class="btn btn-secondary ajax-modal" title="New tag" type="button" data-modal-url="../admin/modals/tag/tag_add.php?type=7">
-                <i class="fas fa-plus"></i>
-            </button>
-        <?php } ?>
     </div>
     <?php if ($domain_form_mode === 'edit') { ?>
         <p class="text-body-secondary small text-end mt-3 mb-0">Domain ID <span class="font-monospace"><?= $domain_id ?></span></p>

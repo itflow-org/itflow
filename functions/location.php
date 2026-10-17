@@ -155,17 +155,9 @@ function locationFormSet($post, $client_id) {
     return implode(', ', $set);
 }
 
-/** Replace a location's tags with these - location tags (type 2) only. */
+/** Replace a location's tags with these - location tags only, and an admin can type a new one in (tagSetForRecord()). */
 function locationSetTags($location_id, $tag_ids) {
-    global $mysqli;
-    $location_id = intval($location_id);
-    mysqli_query($mysqli, "DELETE FROM location_tags WHERE location_id = $location_id");
-    $tag_ids = array_values(array_unique(array_filter(array_map('intval', (array) $tag_ids))));
-    if (!$tag_ids) {
-        return;
-    }
-    mysqli_query($mysqli, "INSERT IGNORE INTO location_tags (location_id, tag_id)
-        SELECT $location_id, tag_id FROM tags WHERE tag_type = 2 AND tag_id IN (" . implode(',', $tag_ids) . ")");
+    tagSetForRecord('location', $location_id, (array) $tag_ids);
 }
 
 /** Make this the client's one primary location - what the client header and overview show. */
