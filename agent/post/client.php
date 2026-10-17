@@ -257,6 +257,13 @@ if (isset($_GET['delete_client'])) {
     // Get Client Name
     $client_name = escapeSql(getFieldById('clients', $client_id, 'client_name'));
 
+    // Their payments and other income go with them - not once any has cleared on a reconciled statement
+    $lock = reconcileClientLock($client_id);
+    if ($lock) {
+        flashAlert(escapeHtml('Money from ' . stripslashes($client_name) . " cleared on the {$lock['account_name']} statement to " . date('M j, Y', strtotime($lock['reconciliation_statement_date'])) . ' - keep the client archived instead, or undo that reconciliation to delete them'), 'error');
+        redirect();
+    }
+
     // Delete Associations
     // Delete Client Data
     mysqli_query($mysqli, "DELETE FROM certificates WHERE certificate_client_id = $client_id");

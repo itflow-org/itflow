@@ -8,8 +8,9 @@
  * on the cards, and what came in and went out this month against the same
  * days of last month, money moved between the accounts left out. Each
  * account shows its kind, what it holds (owed, for a card), this month in
- * and out, its latest line and what it is set as by default; clicking it
- * opens its ledger. Archived ones are on their own pill, to restore.
+ * and out, its latest line, where it is reconciled to and what it is set as
+ * by default; clicking it opens its ledger. Archived ones are on their own
+ * pill, to restore.
  */
 
 require_once "includes/inc_all.php";
@@ -194,6 +195,11 @@ $month_url = 'canned_date=custom&dtf=' . $stats['month_start'] . '&dtt=' . date(
                         <?php } else { ?>
                             <span class="text-body-secondary">Nothing yet</span>
                         <?php } ?>
+                        <?php if ($account['reconciling_id']) { ?>
+                            <a class="d-block text-warning-emphasis" href="reconcile.php?account=<?= $account_id ?>" title="A statement is being reconciled - carry on"><i class="fas fa-tasks me-1"></i>Reconciling</a>
+                        <?php } elseif ($account['reconciled_to']) { ?>
+                            <a class="d-block text-success-emphasis" href="reconcile.php?account=<?= $account_id ?>" title="Reconciled to its statement of <?= escapeHtml($account['reconciled_to']) ?>"><i class="fas fa-check-circle me-1"></i>To <?= escapeHtml(date('M j', strtotime($account['reconciled_to']))) ?></a>
+                        <?php } ?>
                     </td>
                     <td class="text-end">
                         <div class="dropdown dropstart">
@@ -202,6 +208,7 @@ $month_url = 'canned_date=custom&dtf=' . $stats['month_start'] . '&dtt=' . date(
                                 <a class="dropdown-item" href="transactions.php?account=<?= $account_id ?>"><i class="fas fa-fw fa-list-alt text-secondary me-2"></i>Transactions</a>
                                 <a class="dropdown-item" href="income.php?account=<?= $account_id ?>"><i class="fas fa-fw fa-hand-holding-usd text-secondary me-2"></i>Income into it</a>
                                 <a class="dropdown-item" href="expenses.php?account=<?= $account_id ?>"><i class="fas fa-fw fa-shopping-cart text-secondary me-2"></i>Expenses from it</a>
+                                <a class="dropdown-item" href="reconcile.php?account=<?= $account_id ?>"><i class="fas fa-fw fa-tasks text-secondary me-2"></i><?= $account['reconciling_id'] ? 'Carry on reconciling' : 'Reconcile' ?></a>
                                 <?php if ($can_edit && !$account['account_archived_at']) { ?>
                                     <div class="dropdown-divider"></div>
                                     <a class="dropdown-item ajax-modal" href="#" data-modal-size="lg" data-modal-url="modals/account/account_edit.php?id=<?= $account_id ?>"><i class="fas fa-fw fa-edit text-secondary me-2"></i>Edit</a>

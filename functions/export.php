@@ -423,6 +423,7 @@ function getExportColumns($export_type) {
             'transaction_out'            => ['label' => 'Out', 'format' => 'money'],
             'transaction_amount'         => ['label' => 'Amount', 'format' => 'money', 'default' => false],
             'transaction_balance'        => ['label' => 'Balance', 'format' => 'money'],
+            'transaction_cleared'        => ['label' => 'Cleared', 'default' => false],
         ],
 
         'trips' => [

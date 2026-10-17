@@ -711,6 +711,7 @@ function demoDataLoad($mysqli) {
     // missing clients does not double anything up.
     demoBuildInternalDiary($mysqli, $context, $counts);
     demoBuildCompanyFinancials($mysqli, $context, $counts);
+    demoReconcileAccounts($mysqli, $context);
 
     if (!$context['vault_open'] && $counts['clients']) {
         $counts['skipped_credentials'] = 1;
@@ -1076,6 +1077,21 @@ function demoDataRemove($mysqli) {
         $purpose = escapeSql($errand[0]);
         $destination = escapeSql($errand[1]);
         mysqli_query($mysqli, "DELETE FROM trips WHERE trip_client_id = 0 AND trip_source = 'Office' AND trip_purpose = '$purpose' AND trip_destination = '$destination'");
+    }
+
+    // The statements reconciled on our accounts go with the demo - their lines
+    // are mostly gone, and any left are free to change again
+    foreach (demoDataAccounts() as $account) {
+        $row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT account_id FROM accounts WHERE account_name = '" . escapeSql($account[0]) . "' AND account_description = '" . escapeSql($account[1]) . "' LIMIT 1"));
+        $account_id = intval($row['account_id'] ?? 0);
+        if (!$account_id) {
+            continue;
+        }
+        foreach (['payments' => 'payment', 'revenues' => 'revenue', 'expenses' => 'expense'] as $table => $prefix) {
+            mysqli_query($mysqli, "UPDATE $table SET {$prefix}_reconciliation_id = NULL
+                WHERE {$prefix}_reconciliation_id IN (SELECT reconciliation_id FROM account_reconciliations WHERE reconciliation_account_id = $account_id)");
+        }
+        mysqli_query($mysqli, "DELETE FROM account_reconciliations WHERE reconciliation_account_id = $account_id");
     }
 
     // Accounts, SLAs and tax rates are shared company config, so each one only
@@ -3582,6 +3598,47 @@ function demoBuildCompanyFinancials($mysqli, $context, &$counts) {
         $counts['company']++;
     }
 
+}
+
+// ------------------------------
+// demoReconcileAccounts
+// Operating Checking and the Business Visa are reconciled to each month's
+// statement through last month (functions/reconcile.php), so Reconcile and the
+// ledger's cleared marks have history to show and this month is left to do.
+// Only an account with no reconciliations yet - a second run adds nothing.
+// ------------------------------
+function demoReconcileAccounts($mysqli, $context) {
+    foreach (['Operating Checking', 'Business Visa'] as $name) {
+        $account_id = intval($context['accounts'][$name] ?? 0);
+        if (!$account_id || mysqli_fetch_row(mysqli_query($mysqli, "SELECT 1 FROM account_reconciliations WHERE reconciliation_account_id = $account_id LIMIT 1"))) {
+            continue;
+        }
+        $balance = floatval(mysqli_fetch_row(mysqli_query($mysqli, "SELECT opening_balance FROM accounts WHERE account_id = $account_id"))[0] ?? 0);
+        for ($month = 24; $month >= 1; $month--) {
+            $statement = date('Y-m-t', strtotime(demoMonthDate($month, 1)));
+            $ending = round($balance + floatval(mysqli_fetch_row(mysqli_query($mysqli, "SELECT
+                COALESCE((SELECT SUM(payment_amount) FROM payments WHERE payment_account_id = $account_id AND payment_reconciliation_id IS NULL AND payment_date <= '$statement'), 0)
+                + COALESCE((SELECT SUM(revenue_amount) FROM revenues WHERE revenue_account_id = $account_id AND revenue_reconciliation_id IS NULL AND revenue_date <= '$statement'), 0)
+                - COALESCE((SELECT SUM(expense_amount) FROM expenses WHERE expense_account_id = $account_id AND expense_reconciliation_id IS NULL AND expense_date <= '$statement'), 0)"))[0]), 2);
+            $finished = min(time(), strtotime($statement . ' +4 days 10:15'));
+            $reconciliation_id = starterInsert($mysqli, 'account_reconciliations', [
+                'reconciliation_account_id' => $account_id,
+                'reconciliation_statement_date' => $statement,
+                'reconciliation_starting_balance' => number_format($balance, 2, '.', ''),
+                'reconciliation_ending_balance' => number_format($ending, 2, '.', ''),
+                'reconciliation_notes' => 'Statement for ' . date('F Y', strtotime($statement)),
+                'reconciliation_created_by' => intval($context['user_id']),
+                'reconciliation_created_at' => date('Y-m-d H:i:s', $finished - 1800),
+                'reconciliation_finished_by' => intval($context['user_id']),
+                'reconciliation_finished_at' => date('Y-m-d H:i:s', $finished),
+            ]);
+            foreach (['payments' => 'payment', 'revenues' => 'revenue', 'expenses' => 'expense'] as $table => $prefix) {
+                mysqli_query($mysqli, "UPDATE $table SET {$prefix}_reconciliation_id = $reconciliation_id, {$prefix}_updated_at = {$prefix}_updated_at
+                    WHERE {$prefix}_account_id = $account_id AND {$prefix}_reconciliation_id IS NULL AND {$prefix}_date <= '$statement'");
+            }
+            $balance = $ending;
+        }
+    }
 }
 
 // ------------------------------

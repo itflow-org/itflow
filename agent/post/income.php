@@ -63,11 +63,16 @@ if (isset($_POST['bulk_edit_income'])) {
     }
     $label_sql = escapeSql($label);
 
-    // Other income
+    // Other income - one cleared on a reconciled statement keeps its account
     $count = 0;
+    $cleared = 0;
     foreach ($ids['revenue'] as $revenue_id) {
         $row = incomeRevenueRow($revenue_id);
         if (!$row) {
+            continue;
+        }
+        if ($field === 'account' && !reconcileCheckChange('revenue', $revenue_id, null, null, $value, $cleared_error)) {
+            $cleared++;
             continue;
         }
         mysqli_query($mysqli, "UPDATE revenues SET $revenue_set WHERE revenue_id = $revenue_id");
@@ -102,6 +107,10 @@ if (isset($_POST['bulk_edit_income'])) {
             if (!$row) {
                 continue;
             }
+            if ($field === 'account' && !reconcileCheckChange('payment', $payment_id, null, null, $value, $cleared_error)) {
+                $cleared++;
+                continue;
+            }
             mysqli_query($mysqli, "UPDATE payments SET $payment_set WHERE payment_id = $payment_id");
             logAudit("Payment", "Edit", "$session_name set $label_sql on the payment " . escapeSql(incomePaymentLabel($row)), intval($row['invoice_client_id']), $payment_id);
             $count++;
@@ -117,7 +126,10 @@ if (isset($_POST['bulk_edit_income'])) {
         $notes[] = "$kept payment" . ($kept === 1 ? '' : 's') . ' left as ' . ($kept === 1 ? 'it was' : 'they were')
             . ($field === 'client' ? " - a payment's client is its invoice's" : ($can_payments ? ' - not on an invoice' : ' - changing a payment takes full access to Sales and Financial'));
     }
-    flashAlert("Set " . escapeHtml($label) . " on <strong>$count</strong>" . ($notes ? ' - ' . escapeHtml(implode('; ', $notes)) : ''), $kept ? 'warning' : 'success');
+    if ($cleared) {
+        $notes[] = "$cleared left on " . ($cleared === 1 ? 'its account - it' : 'their accounts - they') . ' cleared on a reconciled statement';
+    }
+    flashAlert("Set " . escapeHtml($label) . " on <strong>$count</strong>" . ($notes ? ' - ' . escapeHtml(implode('; ', $notes)) : ''), $kept || $cleared ? 'warning' : 'success');
 
     redirect();
 
@@ -131,9 +143,11 @@ if (isset($_POST['bulk_delete_income'])) {
 
     $ids = incomeBulkIds($_POST['income_ids'] ?? []);
     $count = 0;
+    $cleared = 0;
     foreach ($ids['revenue'] as $revenue_id) {
         $row = incomeRevenueDelete($revenue_id, $delete_error);
         if (!$row) {
+            $cleared += reconcileLock('revenue', $revenue_id) ? 1 : 0;
             continue;
         }
         logAudit("Revenue", "Delete", "$session_name deleted other income " . escapeSql(incomeRevenueLabel($row)), intval($row['revenue_client_id']));
@@ -142,7 +156,8 @@ if (isset($_POST['bulk_delete_income'])) {
     logAudit("Income", "Bulk Delete", "$session_name deleted $count other income record" . ($count === 1 ? '' : 's'));
 
     $kept = count($ids['payment']);
-    flashAlert("<strong>$count</strong> other income deleted" . ($kept ? " - $kept payment" . ($kept === 1 ? ' was' : 's were') . ' kept; a payment is deleted from its invoice' : ''), 'error');
+    flashAlert("<strong>$count</strong> other income deleted" . ($kept ? " - $kept payment" . ($kept === 1 ? ' was' : 's were') . ' kept; a payment is deleted from its invoice' : '')
+        . ($cleared ? " - $cleared kept, cleared on a reconciled statement" : ''), 'error');
 
     redirect();
 

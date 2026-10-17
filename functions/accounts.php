@@ -96,7 +96,8 @@ function accountsList($archived = false, $keep_id = 0) {
             opening_balance + COALESCE(p.total, 0) + COALESCE(r.total, 0) - COALESCE(e.total, 0) AS balance,
             COALESCE(p.month, 0) + COALESCE(r.month, 0) AS month_in, COALESCE(e.month, 0) AS month_out,
             GREATEST(COALESCE(p.last, '1000-01-01'), COALESCE(r.last, '1000-01-01'), COALESCE(e.last, '1000-01-01')) AS last_date,
-            COALESCE(p.n, 0) + COALESCE(r.n, 0) + COALESCE(e.n, 0) AS line_count
+            COALESCE(p.n, 0) + COALESCE(r.n, 0) + COALESCE(e.n, 0) AS line_count,
+            rc.reconciled_to, rc.reconciling_id
         FROM accounts
         LEFT JOIN (SELECT payment_account_id AS id, SUM(payment_amount) AS total, SUM(CASE WHEN payment_date >= '$month' THEN payment_amount ELSE 0 END) AS month,
             MAX(payment_date) AS last, COUNT(*) AS n FROM payments WHERE payment_archived_at IS NULL GROUP BY payment_account_id) AS p ON p.id = account_id
@@ -104,6 +105,8 @@ function accountsList($archived = false, $keep_id = 0) {
             MAX(revenue_date) AS last, COUNT(*) AS n FROM revenues WHERE revenue_archived_at IS NULL GROUP BY revenue_account_id) AS r ON r.id = account_id
         LEFT JOIN (SELECT expense_account_id AS id, SUM(expense_amount) AS total, SUM(CASE WHEN expense_date >= '$month' THEN expense_amount ELSE 0 END) AS month,
             MAX(expense_date) AS last, COUNT(*) AS n FROM expenses WHERE expense_archived_at IS NULL GROUP BY expense_account_id) AS e ON e.id = account_id
+        LEFT JOIN (SELECT reconciliation_account_id AS id, MAX(CASE WHEN reconciliation_finished_at IS NOT NULL THEN reconciliation_statement_date END) AS reconciled_to,
+            MAX(CASE WHEN reconciliation_finished_at IS NULL THEN reconciliation_id END) AS reconciling_id FROM account_reconciliations GROUP BY reconciliation_account_id) AS rc ON rc.id = account_id
         WHERE ($where OR account_id = $keep_id)
         ORDER BY account_name ASC");
     $defaults = accountDefaults();
@@ -116,6 +119,7 @@ function accountsList($archived = false, $keep_id = 0) {
         $row['month_out'] = round(floatval($row['month_out']), 2);
         $row['last_date'] = $row['last_date'] === '1000-01-01' ? null : $row['last_date'];
         $row['line_count'] = intval($row['line_count']);
+        $row['reconciling_id'] = intval($row['reconciling_id']);
         $row['defaults'] = $defaults[$id] ?? [];
         $accounts[$id] = $row;
     }
@@ -206,7 +210,8 @@ function accountInUse($account_id) {
         OR EXISTS (SELECT 1 FROM expenses WHERE expense_account_id = $id)
         OR EXISTS (SELECT 1 FROM recurring_expenses WHERE recurring_expense_account_id = $id)
         OR EXISTS (SELECT 1 FROM payment_providers WHERE payment_provider_account = $id)
-        OR EXISTS (SELECT 1 FROM reimbursements WHERE reimbursement_account_id = $id)"));
+        OR EXISTS (SELECT 1 FROM reimbursements WHERE reimbursement_account_id = $id)
+        OR EXISTS (SELECT 1 FROM account_reconciliations WHERE reconciliation_account_id = $id)"));
     return intval($row[0]) === 1;
 }
 
@@ -242,6 +247,11 @@ function accountSave(array $in, $account_id = 0, &$error = '') {
     $opening = billingNumberInput($in['opening_balance'] ?? '0');
     if ($opening === null || abs($opening) >= 1e12) {
         $error = 'Enter the opening balance - 0.00 for none';
+        return 0;
+    }
+    // Reconciled statements start from it - it stays as it was once one is finished
+    if ($existing && round($opening, 2) != round(floatval($existing['opening_balance']), 2) && reconcileAccountReconciled($account_id)) {
+        $error = 'The opening balance is where its first reconciled statement starts - undo its reconciliations to change it';
         return 0;
     }
     $currency = strtoupper(trim((string) ($in['currency'] ?? '')));
@@ -340,7 +350,10 @@ function accountLedgerKinds() {
  * (who or what - the invoice, the vendor, the agent paid back, the other
  * account), txn_description, txn_category_id, category_name, category_color,
  * txn_client_id, client_name, txn_other_account_id, other_account_name,
- * other_account_type (a transfer's other account's kind),
+ * other_account_type (a transfer's other account's kind), txn_line (the row
+ * behind it - payment-12, revenue-5 or expense-9), txn_reconciliation_id (the
+ * reconciliation it is ticked on, finished or not), txn_cleared_id and
+ * txn_cleared_date (the finished one it cleared on, and its statement date),
  * txn_method, txn_reference, txn_invoice_id, txn_currency, txn_imported and
  * txn_balance - the account's balance after the line, in date order. Select
  * from it as a derived table.
@@ -356,7 +369,8 @@ function accountLedgerSql($account_id = 0) {
             CONCAT(COALESCE(invoice_prefix, ''), COALESCE(invoice_number, '')) AS txn_what, invoice_scope AS txn_description,
             COALESCE(invoice_category_id, 0) AS txn_category_id, COALESCE(invoice_client_id, 0) AS txn_client_id, 0 AS txn_other_account_id, '' AS txn_other_name,
             payment_method AS txn_method, payment_reference AS txn_reference, payment_invoice_id AS txn_invoice_id, payment_currency_code AS txn_currency,
-            IF(payment_import_key IS NULL, 0, 1) AS txn_imported, 1 AS txn_order
+            IF(payment_import_key IS NULL, 0, 1) AS txn_imported, 1 AS txn_order,
+            CONCAT('payment-', payment_id) AS txn_line, payment_reconciliation_id AS txn_reconciliation_id
         FROM payments LEFT JOIN invoices ON invoice_id = payment_invoice_id
         WHERE payment_archived_at IS NULL AND " . $on('payment_account_id') . "
         UNION ALL
@@ -365,7 +379,8 @@ function accountLedgerSql($account_id = 0) {
             IF(transfer_id IS NULL, '', from_account.account_name), IF(transfer_id IS NULL, revenue_description, transfer_notes),
             revenue_category_id, revenue_client_id, COALESCE(from_expense.expense_account_id, 0), COALESCE(from_account.account_name, ''),
             IF(transfer_id IS NULL, revenue_payment_method, transfer_method), revenue_reference, 0, revenue_currency_code,
-            IF(revenue_import_key IS NULL, 0, 1), IF(transfer_id IS NULL, 2, 3)
+            IF(revenue_import_key IS NULL, 0, 1), IF(transfer_id IS NULL, 2, 3),
+            CONCAT('revenue-', revenue_id), revenue_reconciliation_id
         FROM revenues
         LEFT JOIN transfers ON transfer_revenue_id = revenue_id
         LEFT JOIN expenses AS from_expense ON from_expense.expense_id = transfer_expense_id
@@ -379,7 +394,8 @@ function accountLedgerSql($account_id = 0) {
             IF(transfer_id IS NULL, expenses.expense_description, transfer_notes),
             expenses.expense_category_id, expenses.expense_client_id, COALESCE(to_revenue.revenue_account_id, 0), COALESCE(to_account.account_name, payee.user_name, ''),
             IF(transfer_id IS NULL, expenses.expense_payment_method, transfer_method), expenses.expense_reference, 0, expenses.expense_currency_code,
-            IF(expenses.expense_import_key IS NULL, 0, 1), CASE WHEN transfer_id IS NOT NULL THEN 4 WHEN reimbursement_id IS NOT NULL THEN 6 ELSE 5 END
+            IF(expenses.expense_import_key IS NULL, 0, 1), CASE WHEN transfer_id IS NOT NULL THEN 4 WHEN reimbursement_id IS NOT NULL THEN 6 ELSE 5 END,
+            CONCAT('expense-', expenses.expense_id), expenses.expense_reconciliation_id
         FROM expenses
         LEFT JOIN vendors ON vendor_id = expenses.expense_vendor_id
         LEFT JOIN transfers ON transfer_expense_id = expenses.expense_id
@@ -390,13 +406,39 @@ function accountLedgerSql($account_id = 0) {
         WHERE expenses.expense_archived_at IS NULL AND " . $on('expenses.expense_account_id');
     return "SELECT ledger_lines.*, accounts.account_name, accounts.account_type, accounts.account_currency_code, category_name, category_color, client_name,
             ledger_lines.txn_other_name AS other_account_name, other_account.account_type AS other_account_type,
+            cleared.reconciliation_id AS txn_cleared_id, cleared.reconciliation_statement_date AS txn_cleared_date,
             accounts.opening_balance + SUM(ledger_lines.txn_amount) OVER (PARTITION BY ledger_lines.txn_account_id ORDER BY ledger_lines.txn_date ASC, ledger_lines.txn_created_at ASC,
                 ledger_lines.txn_order ASC, ledger_lines.txn_id ASC) AS txn_balance
         FROM ($rows) AS ledger_lines
         JOIN accounts ON accounts.account_id = ledger_lines.txn_account_id
         LEFT JOIN accounts AS other_account ON ledger_lines.txn_kind IN ('transfer_in', 'transfer_out') AND other_account.account_id = ledger_lines.txn_other_account_id
+        LEFT JOIN account_reconciliations AS cleared ON cleared.reconciliation_id = ledger_lines.txn_reconciliation_id AND cleared.reconciliation_finished_at IS NOT NULL
         LEFT JOIN categories ON category_id = ledger_lines.txn_category_id
         LEFT JOIN clients ON client_id = ledger_lines.txn_client_id";
+}
+
+/**
+ * A ledger line's who or what, and the rest of its description - "Payment
+ * on INV-12", "From Business Savings", "Paid Business Visa" (into a card),
+ * "Paid back Tess", the vendor, or what the other income was.
+ */
+function accountLedgerWhat(array $row) {
+    $kind = $row['txn_kind'];
+    $what = trim((string) $row['txn_what']);
+    $description = trim((string) strtok((string) $row['txn_description'], "\n"));
+    if ($kind === 'transfer_in') {
+        $what = 'From ' . ($row['other_account_name'] ?: 'an account since deleted');
+    } elseif ($kind === 'transfer_out') {
+        $what = (accountType(['account_type' => $row['other_account_type'], 'account_name' => $row['other_account_name']]) === 3 ? 'Paid ' : 'To ') . ($row['other_account_name'] ?: 'an account since deleted');
+    } elseif ($kind === 'payment') {
+        $what = $what !== '' ? 'Payment on ' . $what : 'A payment';
+    } elseif ($kind === 'reimbursement') {
+        $what = 'Paid back ' . ($what ?: 'an agent');
+    } elseif ($what === '') {
+        $what = $description !== '' ? $description : (accountLedgerKinds()[$kind]['label'] ?? '');
+        $description = '';
+    }
+    return [$what, $description !== $what ? $description : ''];
 }
 
 /**
@@ -409,6 +451,7 @@ function accountLedgerShows($all_accounts = false) {
         'in' => ['label' => 'Money in', 'icon' => 'fa-arrow-down', 'where' => 'ledger.txn_amount > 0'],
         'out' => ['label' => 'Money out', 'icon' => 'fa-arrow-up', 'where' => 'ledger.txn_amount < 0'],
         'transfers' => ['label' => 'Transfers', 'icon' => 'fa-exchange-alt', 'where' => $all_accounts ? "ledger.txn_kind = 'transfer_out'" : "ledger.txn_kind IN ('transfer_in', 'transfer_out')"],
+        'uncleared' => ['label' => 'Uncleared', 'icon' => 'fa-hourglass-half', 'where' => 'ledger.txn_cleared_id IS NULL'],
     ];
 }
 
@@ -463,6 +506,12 @@ function accountLedgerFiltersSql(array $src, &$summary = [], $with_show = true, 
             $sql .= " AND ABS(ledger.txn_amount) $op " . round(abs(floatval($value)), 2);
             $summary[$key === 'amount_min' ? 'At least' : 'At most'] = billingMoney(abs(floatval($value)));
         }
+    }
+    $reconciliation_id = intval($src['reconciliation'] ?? 0);
+    if ($reconciliation_id) {
+        $sql .= " AND ledger.txn_cleared_id = $reconciliation_id";
+        $statement = getFieldById('account_reconciliations', $reconciliation_id, 'reconciliation_statement_date');
+        $summary['Cleared on'] = $statement ? 'the statement to ' . date('M j, Y', strtotime($statement)) : 'a statement since undone';
     }
     $show = (string) ($src['show'] ?? '');
     $shows = accountLedgerShows($all_accounts);
@@ -594,6 +643,15 @@ function transferSave(array $in, $transfer_id = 0, &$error = '') {
     $notes_sql = "'" . escapeSql($notes) . "'";
 
     if ($existing) {
+        // Either side cleared on a reconciled statement - the date, amount and that side's account stay
+        $legs = [['expense', $existing['transfer_expense_id'], $from], ['revenue', $existing['transfer_revenue_id'], $to]];
+        foreach ([false, true] as $release) {
+            foreach ($legs as [$kind, $leg_id, $leg_account]) {
+                if (!reconcileCheckChange($kind, $leg_id, $date, $amount, $leg_account, $error, $release)) {
+                    return 0;
+                }
+            }
+        }
         mysqli_query($mysqli, "UPDATE expenses SET expense_date = '$date', expense_amount = $amount_sql, expense_account_id = $from, expense_currency_code = '$currency'
             WHERE expense_id = " . intval($existing['transfer_expense_id']));
         mysqli_query($mysqli, "UPDATE revenues SET revenue_date = '$date', revenue_amount = $amount_sql, revenue_account_id = $to, revenue_currency_code = '$currency'
@@ -618,6 +676,9 @@ function transferDelete($transfer_id, &$error = '') {
     $row = transferRow($transfer_id);
     if (!$row) {
         $error = 'That transfer no longer exists';
+        return null;
+    }
+    if (!reconcileCheckDelete('expense', $row['transfer_expense_id'], $error) || !reconcileCheckDelete('revenue', $row['transfer_revenue_id'], $error)) {
         return null;
     }
     mysqli_query($mysqli, "DELETE FROM expenses WHERE expense_id = " . intval($row['transfer_expense_id']));

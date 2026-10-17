@@ -18,6 +18,8 @@ if (!$row) {
 }
 
 $transfer_id = intval($row['transfer_id']);
+$cleared_out = reconcileLock('expense', $row['transfer_expense_id']);
+$cleared_in = reconcileLock('revenue', $row['transfer_revenue_id']);
 $what = transferWhat($row);
 $from = accountRow($row['transfer_from_id']);
 $to = accountRow($row['transfer_to_id']);
@@ -70,6 +72,8 @@ ob_start();
                 <i class="fas fa-fw fa-clock"></i>
                 <span><span title="<?= escapeHtml($row['transfer_created_at']) ?>"><?= timeAgo($row['transfer_created_at']) ?></span><?php if ($row['created_by_name']) { ?> <span class="text-body-secondary">by <?= escapeHtml($row['created_by_name']) ?></span><?php } ?><?php if (!empty($row['revenue_import_key'])) { ?> <span class="text-body-secondary">from a bank statement</span><?php } ?></span>
             </div>
+            <?= reconcileGlanceHtml($cleared_out) ?>
+            <?= reconcileGlanceHtml($cleared_in) ?>
         </div>
     </div>
 
@@ -87,8 +91,12 @@ ob_start();
         <button type="button" class="btn btn-primary text-bold ajax-modal" data-modal-size="lg" data-modal-url="modals/transfer/transfer_edit.php?id=<?= $transfer_id ?>"><i class="fas fa-edit me-2"></i>Edit</button>
     <?php } ?>
     <?php if (lookupUserPermission('module_financial') >= 3) { ?>
-        <a class="btn btn-outline-danger confirm-link" href="post.php?delete_transfer=<?= $transfer_id ?>&amp;csrf_token=<?= $_SESSION['csrf_token'] ?>"
-            data-confirm-text="<?= escapeHtml(transferLabel($row)) ?> - both sides go, and the balances go back to before it."><i class="fas fa-trash"></i><span class="d-none d-sm-inline ms-2">Delete</span></a>
+        <?php if ($cleared_out || $cleared_in) { ?>
+            <?= reconcileLockedButtonHtml($cleared_out ?: $cleared_in) ?>
+        <?php } else { ?>
+            <a class="btn btn-outline-danger confirm-link" href="post.php?delete_transfer=<?= $transfer_id ?>&amp;csrf_token=<?= $_SESSION['csrf_token'] ?>"
+                data-confirm-text="<?= escapeHtml(transferLabel($row)) ?> - both sides go, and the balances go back to before it."><i class="fas fa-trash"></i><span class="d-none d-sm-inline ms-2">Delete</span></a>
+        <?php } ?>
     <?php } ?>
     <button type="button" class="btn btn-light" data-bs-dismiss="modal"><i class="fa fa-times me-2"></i>Close</button>
 </div>

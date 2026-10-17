@@ -6,9 +6,9 @@ This file documents all notable changes made to ITFlow.
 
 ### Upgrading to 26.11
 
-Update from Maintenance > Update — Queue Update hands the job to cron, which updates the files and applies this release's database changes (2.7.9 to 3.0.7) in the same pass. Nothing else is required.
+Update from Maintenance > Update — Queue Update hands the job to cron, which updates the files and applies this release's database changes (2.7.9 to 3.0.8) in the same pass. Nothing else is required.
 
-This is a big release, with twenty-eight database steps in one go, so take a backup before you update.
+This is a big release, with twenty-nine database steps in one go, so take a backup before you update.
 
 The update also clears out data that deletes in older versions left behind, all of it pointing at something that no longer exists:
 
@@ -29,7 +29,7 @@ Trips already logged keep the miles they were entered with (see Breaking Changes
 
 Other income already entered (money in that isn't for an invoice, which used to be called revenue) takes who entered it from the audit log, where it has a record of it. Income with no category now counts in the dashboard and reports, so their totals can go up by that much (see Breaking Changes, Income).
 
-Every account is given a kind - checking, savings, credit card, cash or payment processor - guessed from its name: Visa, Amex or card is a credit card, savings or reserve is savings, cash or petty cash is cash, and Stripe, PayPal, Square or merchant is a payment processor. An account given a liability type back when accounts had types (2023) is a credit card, so what is on it reads as owed. Anything else is checking. Change any that came out wrong with Edit on the Accounts page. An account's balance now leaves out archived payments, income and expenses everywhere, so the Accounts page can show less or more than before (see Bug Fixes).
+Every account is given a kind - checking, savings, credit card, cash or payment processor - guessed from its name: Visa, Amex or card is a credit card, savings or reserve is savings, cash or petty cash is cash, and Stripe, PayPal, Square or merchant is a payment processor. An account given a liability type back when accounts had types (2023) is a credit card, so what is on it reads as owed. Anything else is checking. Change any that came out wrong with Edit on the Accounts page. An account's balance now leaves out archived payments, income and expenses everywhere, so the Accounts page can show less or more than before (see Bug Fixes). No account is reconciled after the update - the first statement you reconcile on each starts from its opening balance (see New Features, Accounts and transactions).
 
 If you are coming from 26.08 or earlier, the database update still has to be run from the command line one time, exactly as described under Upgrading to 26.09 below.
 
@@ -112,6 +112,12 @@ If you are coming from 26.08 or earlier, the database update still has to be run
   - An account can only be archived once it holds nothing and no payment provider pays into it, and only an account that was never used can be deleted. The Accounts page used to hide Archive otherwise, but the link itself archived any account, and Delete removed an account with its history still pointing at it. Archive one you no longer use instead.
   - The Transactions export's Type column says Invoice payment, Other income, Transfer in, Expense, Transfer out or Reimbursement (it was Payment, Revenue, Transfer In, Expense, Transfer Out or Reimbursement). Money in and out are now separate In and Out columns, with Account, Who or What and Client added. The signed Amount column is still there, but off unless ticked.
   - Links to `transactions.php?type=Payment` and the other old type names still work.
+  - Once a payment, other income, expense, transfer or reimbursement has cleared on a reconciled statement, its amount, date and account stay as they are and it can't be deleted, until that reconciliation is undone. Its category, client, description, method and reference can still change. This also stops:
+    - deleting the invoice a cleared payment is on (cancel the invoice instead), or refunding a cleared Stripe payment from ITFlow, which deleted the payment
+    - deleting a client with cleared payments or other income, from ITFlow or through the API (keep the client archived instead)
+    - Bulk Set Account and Bulk Delete on the Income and Expenses lists, which leave cleared ones as they are and say how many
+    - undoing a reimbursement whose money out has cleared
+  - An account's opening balance can't be changed once a statement on it is reconciled, as the first statement starts from it.
 - Notifications now follow access too. An agent only sees notifications for clients and areas they can open, so someone without sales access no longer sees invoice and quote notifications.
 - Drop-downs: Tom Select is gone, replaced by ITFlow's own picker. It works the way you are used to: type to search, tick several in a multi-select, and type a new value in fields that allow it, such as ticket watchers. See Developer Updates if you have custom pages that used Tom Select.
 - Several small windows are gone because the change is now made where the value is shown:
@@ -644,6 +650,18 @@ If you are coming from 26.08 or earlier, the database update still has to be run
   - The dashboard's accounts open their ledgers, and a card shows what is owed on it.
   - Adding and changing accounts and transfers needs write access to Financial, and deleting full access, as before. Restoring an archived account needs write access.
   - The demo data adds a Business Visa for software, hosting, supplies, meals and the other small costs, paid off from Operating Checking each month.
+  - **Reconcile**, from an account's menu on the Accounts page or Transactions, checks the account against its bank or card statement:
+    - Enter the statement's ending date and balance (for a card, what the statement says is owed), with notes such as the statement's number. It starts from where the last statement ended, or the opening balance the first time.
+    - Every line on the account up to the statement's date that hasn't cleared yet is listed, oldest first. Tick each one the statement shows. Lines brought in with Import Statement or Import Deposits start ticked.
+    - The cards show where it started, the statement, what is ticked (cleared) and the difference, and the bar at the bottom keeps the difference and Finish in view down a long statement. Finish opens once the difference is nothing.
+    - Pills for Money in, Money out, Not ticked and Ticked, a search by who, reference or amount, and Tick all shown and Untick all shown for what they leave.
+    - Ticks are saved as they are made, so a statement can be left and finished later. Change the statement's date or balance from its menu, or Discard it.
+    - Add what the statement has and ITFlow doesn't - a bank fee, interest - with New Expense, New Income or New Transfer from its menu, starting on the account.
+    - With nothing in progress, Reconcile shows where the account is reconciled to, how much hasn't cleared yet, and the statements reconciled before - each with its ending balance, the lines it cleared, what came in and went out, and who reconciled it when. The latest can be undone, which puts it back in progress with what was ticked.
+  - On Transactions, a line cleared on a statement has a tick by its date, opening the lines that statement cleared. The Uncleared pill lists what no statement has cleared yet, and the export has a Cleared column with the statement's date. The Accounts page shows where each account is reconciled to, or that one is being reconciled.
+  - A cleared line's quick look says which statement it cleared on, and its Edit window keeps its amount, date and account as they are (see Breaking Changes, Accounts, transactions and transfers).
+  - Reconciling needs write access to Financial, and undoing a reconciled statement full access. Agents with read access can look at the statements.
+  - The demo data reconciles Operating Checking and the Business Visa to each month's statement through last month.
 
 ### Bug Fixes
 
@@ -717,7 +735,7 @@ If you are coming from 26.08 or earlier, the database update still has to be run
 
 ### Developer Updates
 
-- Database 2.8.0 to 3.0.7, one file per step under `admin/database_updates/`, with `db.sql` matching 3.0.7:
+- Database 2.8.0 to 3.0.8, one file per step under `admin/database_updates/`, with `db.sql` matching 3.0.8:
   - 2.8.0: `racks.rack_units_descending`, `rack_power_capacity` and `rack_photo_rear`. On `rack_units`: `unit_face`, `unit_full_depth`, `unit_type`, `unit_power_watts`, `unit_notes` and a `unit_asset_id` key. Unlinked items move from asset id 0 to NULL.
   - 2.8.1: `location_documents` and `location_files`.
   - 2.8.2: `vendor_tags` (tag type 6), and `vendor_contact_phone_country_code`, `vendor_contact_phone` and `vendor_contact_email`.
@@ -758,6 +776,7 @@ If you are coming from 26.08 or earlier, the database update still has to be run
   - 3.0.5: `revenues.revenue_description` becomes `text`, with `revenue_created_by` (0, backfilled from the audit log's Revenue Create entries) and a `revenue_date` key. `payments` gets a `payment_date` key.
   - 3.0.6: `payments.payment_import_key` and `revenues.revenue_import_key` (keyed), and `income_import_rules` (`import_rule_match` unique, `import_rule_action` - payment, income or transfer - `import_rule_client_id`, `import_rule_category_id`, `import_rule_account_id`, `import_rule_used_count`).
   - 3.0.7: no schema change. `accounts.account_type` is set from the name for every account without a kind from 1 to 6 (1 checking, 2 savings, 3 credit card, 4 cash, 5 payment processor, 6 other), the same way as `accountTypeGuess()`, with the 2023 liability types (20 to 29) as 3. Setup and `scripts/setup_cli.php` create the Cash account as type 4.
+  - 3.0.8: `account_reconciliations` (`reconciliation_account_id` and `reconciliation_statement_date` keyed together, `reconciliation_starting_balance`, `reconciliation_ending_balance`, `reconciliation_notes`, `reconciliation_created_by`, `reconciliation_created_at`, `reconciliation_finished_by`, `reconciliation_finished_at` - NULL while in progress), and `payments.payment_reconciliation_id`, `revenues.revenue_reconciliation_id` and `expenses.expense_reconciliation_id` (keyed).
 - New shared function files, loaded by `functions.php`: `functions/asset.php`, `asset_interface.php`, `certificate.php`, `client_overview.php`, `contact.php`, `credential.php`, `dashboard.php`, `links.php`, `location.php`, `notifications.php`, `project.php`, `rack.php`, `search.php`, `service.php`, `software.php`, `tags.php`, `ticket.php`, `ticket_fields.php`, `user.php` and `vendor.php`. They hold the queries and rules, so the pages, the API and cron share one definition.
 - Removed post models: `agent/post/{asset_interface,certificate,credential,domain,event,location,network_ip,network,recurring_ticket,vendor}_model.php`, `admin/post/user_model.php` and `api/v1/certificates/certificate_model.php`. Their handlers call the shared functions above. Interface handlers moved to `agent/post/asset_interface.php`.
 - New scripts: `js/itflow_select.js`, `quick_pick.js`, `tag_picker.js`, `global_search.js`, `notifications.js`, `dashboard.js`, `client_overview.js`, `client_switcher.js`, `credentials.js` and `autosubmit.js`, and `agent/js/calendar.js`, `calendar_event_modal.js`, `files.js`, `interface_form.js`, `network_form.js`, `project_modal.js` and `ticket_schedule_modal.js`.
@@ -996,6 +1015,15 @@ If you are coming from 26.08 or earlier, the database update still has to be run
   - Seeds: `demoDataAccounts()` adds Business Visa, and accounts take `accountTypeGuess()`. `demoBuildCompanyFinancials()` puts the card's categories on it and pays it off from Operating Checking each month with `demoTransfer()`. Company costs paid from the bank are ACH.
   - CSS: `.itflow-account-name` and `.itflow-ledger-what`.
   - Removed: `agent/post/transfer_model.php`.
+- Reconcile, in the new `functions/reconcile.php` (loaded after `accounts.php`):
+  - `reconcileKinds()` (the payments, revenues and expenses columns), `reconcileLineRef('payment-12')`, `reconcileRow($id)` (with `account`, `finished` and `card`), `reconcileOpen($account_id)`, `reconcileLast($account_id)`, `reconcileStartingBalance($account_id)`, `reconcileTotals($row)` (`starting`, `ending`, `in`, `in_count`, `out`, `out_count`, `count`, `cleared`, `difference`), `reconcileLines($row, &$later)` and `reconcileHistory($account_id)`.
+  - `reconcileStart($account_id, $in, &$error)` (`statement_date`, `ending_balance` - owed, for a card - and `notes`; after the last finished one, not after today; pre-ticks lines with an import key), `reconcileUpdate()`, `reconcileTick($id, $keys, $tick, &$error)`, `reconcileFinish()` (only at a difference of 0.00, storing the starting balance), `reconcileDiscard()` and `reconcileUndo()` (the latest finished one on its account, with none in progress). Ticking sets `*_updated_at` to itself, so it doesn't count as a change to the line.
+  - Locks: `reconcileLock($kind, $id)` is the finished reconciliation a line cleared on. `reconcileCheckChange($kind, $id, $date, $amount, $account_id, &$error, $release = true)` refuses a change to a cleared line's date, amount or account, and takes a line ticked on one in progress off it when it moves account. `reconcileCheckDelete()`, `reconcileInvoiceLock($invoice_id)`, `reconcileClientLock($client_id)` and `reconcileAccountReconciled($account_id)`. They are called from `expenseSave()`, `expenseDelete()`, `incomeRevenueSave()`, `incomeRevenueDelete()`, `transferSave()` (both sides checked before either changes), `transferDelete()`, `reimbursementDelete($id, &$error)` (which now gives the error), `accountSave()` (the opening balance), and the `edit_payment`, `delete_payment`, `refund_payment_stripe`, `delete_invoice`, `delete_client`, `bulk_edit_income`, `bulk_delete_income`, `bulk_edit_expenses` and `bulk_delete_expenses` handlers and `api/v1/clients/delete.php`. `reconcileGlanceHtml()`, `reconcileFormNoteHtml()` and `reconcileLockedButtonHtml()` show it in the quick looks and Edit windows.
+  - `accountLedgerSql()` adds `txn_line` (payment-12, revenue-5, expense-9), `txn_reconciliation_id`, `txn_cleared_id` and `txn_cleared_date`. `accountLedgerShows()` adds `uncleared`, and `accountLedgerFiltersSql()` takes `reconciliation` (one statement's lines). `accountLedgerWhat($row)` is a line's who or what, shared by Transactions and Reconcile. `accountsList()` rows add `reconciled_to` and `reconciling_id`, and `accountInUse()` counts reconciliations.
+  - New page `agent/reconcile.php?account=` and `js/reconcile.js` (`itflowReconcile()`). Handlers in the new `agent/post/reconcile.php`: `reconcile_start` (`account_id`), `reconcile_update` and `reconcile_finish` (`reconciliation_id`) at Financial 2, GET `reconcile_discard` at 2 and `reconcile_undo` at 3. Ticking is POST `reconcile_tick` to `agent/ajax.php` (`reconciliation_id`, `lines[]`, `tick`), answering with the totals.
+  - `agent/transactions.php` takes `?reconciliation=` and `?show=uncleared`, and the `transactions` export adds `transaction_cleared` (off by default). `agent/modals/expense/expense_add.php` and `agent/modals/revenue/revenue_add.php` take `?account_id=`.
+  - Seeds: `demoReconcileAccounts()` reconciles Operating Checking and the Business Visa monthly, and `demoDataRemove()` removes the reconciliations on the demo's accounts.
+  - CSS: `.itflow-reconcile-table`, `.itflow-reconcile-ticked`, `.itflow-reconcile-balanced` and `.itflow-reconcile-bar`, which sticks to the bottom of the window - `.app-main` is `overflow: visible` on that page so it can.
 - The billing helpers (`billingTimeInvoice()`, `quoteConvert()`, `recurringInvoiceGenerate()` and the rest) take the agent's name as plain text. Their handlers now pass `stripslashes($session_name)`, so a name with an apostrophe no longer shows a backslash in history and the audit log.
 - Sidebar brand: `agent/css/sidebar_brand_fix.css` and `agent/js/sidebar_brand_fix.js` from 26.10 are replaced by CSS in `css/itflow_custom.css`. `includes/load_company_settings.php` now sets `$session_company_logo`.
 - `alertMessageHtml()` no longer double-encodes, and save messages built from `escapeSql()` values use `stripslashes()` at the flash.

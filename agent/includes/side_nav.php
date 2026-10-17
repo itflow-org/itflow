@@ -231,7 +231,7 @@
                     </li>
                     <?php if (lookupUserPermission("module_financial") >= 1) { ?>
                         <li class="nav-item">
-                            <a href="/agent/accounts.php" class="nav-link <?php if (basename($_SERVER["PHP_SELF"]) == "accounts.php") { echo "active"; } ?>">
+                            <a href="/agent/accounts.php" class="nav-link <?php if (in_array(basename($_SERVER["PHP_SELF"]), ["accounts.php", "reconcile.php"], true)) { echo "active"; } ?>">
                                 <i class="nav-icon fas fa-piggy-bank"></i>
                                 <p>Accounts</p>
                             </a>

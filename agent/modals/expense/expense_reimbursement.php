@@ -17,6 +17,7 @@ if (!$row) {
 }
 
 $reimbursement_id = intval($row['reimbursement_id']);
+$cleared = reconcileLock('expense', $row['reimbursement_expense_id']);
 $currency = (string) $row['reimbursement_currency_code'];
 $expenses = reimbursementExpenses($reimbursement_id);
 $can_undo = lookupUserPermission('module_financial') >= 3;
@@ -56,6 +57,7 @@ ob_start();
                 <i class="fas fa-fw fa-clock"></i>
                 <span><span title="<?= escapeHtml($row['reimbursement_created_at']) ?>"><?= timeAgo($row['reimbursement_created_at']) ?></span><?php if ($row['created_by_name']) { ?> <span class="text-body-secondary">by <?= escapeHtml($row['created_by_name']) ?></span><?php } ?></span>
             </div>
+            <?= reconcileGlanceHtml($cleared) ?>
         </div>
     </div>
 
@@ -78,7 +80,9 @@ ob_start();
 </div>
 
 <div class="modal-footer">
-    <?php if ($can_undo) { ?>
+    <?php if ($can_undo && $cleared) { ?>
+        <span class="me-auto"><?= reconcileLockedButtonHtml($cleared, 'Undo', 'fa-undo-alt', 'undo it') ?></span>
+    <?php } elseif ($can_undo) { ?>
         <a class="btn btn-outline-danger confirm-link me-auto" href="post.php?expense_reimbursement_delete=<?= $reimbursement_id ?>&amp;csrf_token=<?= $_SESSION['csrf_token'] ?>"
             data-confirm-text="The <?= escapeHtml(billingMoney($row['reimbursement_amount'], $currency)) ?> comes back off <?= escapeHtml($row['account_name'] ?: 'the account') ?>, and its expenses are to reimburse again."><i class="fas fa-undo-alt me-2"></i>Undo</a>
     <?php } ?>

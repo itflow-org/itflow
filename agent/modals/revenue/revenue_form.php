@@ -25,7 +25,7 @@ $form_value = function ($column, $default = '') use ($form_row) {
 
 $form_date = $form_edit ? $form_value('revenue_date') : date('Y-m-d');
 $form_amount = $form_row ? floatval($form_row['revenue_amount']) : null;
-$form_account = $form_row ? intval($form_row['revenue_account_id']) : intval($config_default_payment_account);
+$form_account = $form_row ? intval($form_row['revenue_account_id']) : (intval($form_account_id ?? 0) ?: intval($config_default_payment_account));
 $form_category = intval($form_value('revenue_category_id', '0'));
 $form_client = $form_row ? intval($form_row['revenue_client_id']) : intval($form_client_id ?? 0);
 $form_method = $form_row ? $form_value('revenue_payment_method') : (string) ($config_default_payment_method ?? '');
@@ -33,6 +33,8 @@ $form_reference = $form_edit ? $form_value('revenue_reference') : '';
 $form_description = $form_value('revenue_description');
 
 $form_accounts = paymentAccounts($form_edit ? $form_account : 0);
+// Cleared on a reconciled statement - its amount, date and account stay
+$form_lock = $form_edit ? reconcileLock('revenue', $form_row['revenue_id']) : null;
 if (!isset($form_accounts[$form_account])) {
     $form_account = 0;
 }
@@ -55,6 +57,7 @@ $form_currency = $form_account ? ($form_accounts[$form_account]['account_currenc
 
 ?>
 <div class="row g-3" id="<?= $form_id ?>">
+    <?= reconcileFormNoteHtml($form_lock) ?>
 
     <div class="col-md-7">
         <label class="form-label">Category <strong class="text-danger">*</strong></label>
@@ -77,7 +80,7 @@ $form_currency = $form_account ? ($form_accounts[$form_account]['account_currenc
         <div class="input-group">
             <span class="input-group-text"><i class="fa fa-fw fa-dollar-sign"></i></span>
             <input type="text" class="form-control text-end fw-semibold" inputmode="decimal" pattern="-?[0-9,]*\.?[0-9]{0,2}" name="amount" placeholder="0.00" required
-                value="<?= $form_amount === null ? '' : number_format($form_amount, 2, '.', '') ?>" <?= $form_mode === 'new' ? 'autofocus' : '' ?>>
+                value="<?= $form_amount === null ? '' : number_format($form_amount, 2, '.', '') ?>" <?= $form_mode === 'new' ? 'autofocus' : '' ?> <?= $form_lock ? 'readonly' : '' ?>>
             <span class="input-group-text" data-revenue-currency><?= escapeHtml($form_currency) ?></span>
         </div>
         <?php if ($form_edit && $form_amount < 0) { ?>
@@ -89,13 +92,16 @@ $form_currency = $form_account ? ($form_accounts[$form_account]['account_currenc
         <label class="form-label">Paid into <strong class="text-danger">*</strong></label>
         <div class="input-group">
             <span class="input-group-text"><i class="fa fa-fw fa-piggy-bank"></i></span>
-            <select class="form-select select2" name="account" required data-revenue-account>
+            <select class="form-select select2" name="account" required data-revenue-account <?= $form_lock ? 'disabled' : '' ?>>
                 <option value="">- Which account -</option>
                 <?php foreach ($form_accounts as $account_id => $account) { ?>
                     <option value="<?= $account_id ?>" <?= $form_account === $account_id ? 'selected' : '' ?> data-icon="fas fa-piggy-bank" data-currency="<?= escapeHtml($account['account_currency_code'] ?: $session_company_currency) ?>"
                         data-description="<?= escapeHtml(billingMoney($account['balance'], $account['account_currency_code'])) ?><?= $account['account_archived_at'] ? ' - archived' : '' ?>"><?= escapeHtml($account['account_name']) ?></option>
                 <?php } ?>
             </select>
+            <?php if ($form_lock) { ?>
+                <input type="hidden" name="account" value="<?= $form_account ?>">
+            <?php } ?>
         </div>
     </div>
 
@@ -103,7 +109,7 @@ $form_currency = $form_account ? ($form_accounts[$form_account]['account_currenc
         <label class="form-label">Date <strong class="text-danger">*</strong></label>
         <div class="input-group">
             <span class="input-group-text"><i class="fa fa-fw fa-calendar"></i></span>
-            <input type="date" class="form-control" name="date" max="2999-12-31" value="<?= escapeHtml($form_date) ?>" required>
+            <input type="date" class="form-control" name="date" max="2999-12-31" value="<?= escapeHtml($form_date) ?>" required <?= $form_lock ? 'readonly' : '' ?>>
         </div>
     </div>
 

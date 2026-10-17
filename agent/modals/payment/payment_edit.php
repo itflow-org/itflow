@@ -31,6 +31,7 @@ $pay = [
     'method' => $payment['payment_method'],
     'reference' => $payment['payment_reference'],
     'email' => '',
+    'lock' => reconcileLock('payment', $payment_id),
 ];
 
 ob_start();

@@ -18,6 +18,7 @@ if (!$row) {
 }
 
 $revenue_id = intval($row['revenue_id']);
+$cleared = reconcileLock('revenue', $revenue_id);
 $client_id = intval($row['revenue_client_id']);
 $amount = floatval($row['revenue_amount']);
 $currency = (string) $row['revenue_currency_code'];
@@ -77,6 +78,7 @@ ob_start();
                 <i class="fas fa-fw fa-clock"></i>
                 <span><span title="<?= escapeHtml($row['revenue_created_at']) ?>"><?= timeAgo($row['revenue_created_at']) ?></span><?php if ($row['created_by_name']) { ?> <span class="text-body-secondary">by <?= escapeHtml($row['created_by_name']) ?></span><?php } ?><?php if (!empty($row['revenue_import_key'])) { ?> <span class="text-body-secondary">from a bank statement</span><?php } ?></span>
             </div>
+            <?= reconcileGlanceHtml($cleared) ?>
         </div>
         <div class="col-sm-6">
             <div class="itflow-glance-item" title="Paid into">
@@ -118,7 +120,9 @@ ob_start();
         <button type="button" class="btn btn-primary text-bold ajax-modal" data-modal-size="lg" data-modal-url="modals/revenue/revenue_edit.php?id=<?= $revenue_id ?>"><i class="fas fa-edit me-2"></i>Edit</button>
         <button type="button" class="btn btn-outline-secondary ajax-modal" data-modal-size="lg" data-modal-url="modals/revenue/revenue_copy.php?id=<?= $revenue_id ?>"><i class="fas fa-copy me-2"></i>Copy</button>
     <?php } ?>
-    <?php if ($can_delete) { ?>
+    <?php if ($can_delete && $cleared) { ?>
+        <?= reconcileLockedButtonHtml($cleared) ?>
+    <?php } elseif ($can_delete) { ?>
         <a class="btn btn-outline-danger confirm-link" href="post.php?delete_revenue=<?= $revenue_id ?>&amp;csrf_token=<?= $_SESSION['csrf_token'] ?>"
             data-confirm-text="<?= escapeHtml(incomeRevenueLabel($row)) ?> goes for good."><i class="fas fa-trash"></i><span class="d-none d-sm-inline ms-2">Delete</span></a>
     <?php } ?>

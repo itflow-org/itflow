@@ -13,10 +13,14 @@
  * and under More filters by kind, how it was paid and the amount. A line
  * opens its quick look.
  *
- * Takes ?account=, ?show= (in, out, transfers), ?kind= (or the older ?type=
- * Revenue, Payment, Expense, Transfer In, Transfer Out, Reimbursement),
- * ?category=, ?client=, ?method= (or ?payment_method=), ?amount_min=,
- * ?amount_max=, ?q= and the date filter.
+ * A line cleared on a reconciled statement (agent/reconcile.php) has a tick
+ * by its date; the Uncleared pill is everything not cleared yet.
+ *
+ * Takes ?account=, ?show= (in, out, transfers, uncleared), ?kind= (or the
+ * older ?type= Revenue, Payment, Expense, Transfer In, Transfer Out,
+ * Reimbursement), ?category=, ?client=, ?method= (or ?payment_method=),
+ * ?amount_min=, ?amount_max=, ?reconciliation= (the lines one statement
+ * cleared), ?q= and the date filter.
  */
 
 // Default Column Sortby/Order Filter
@@ -51,6 +55,8 @@ $method_filter = (string) ($_GET['method'] ?? ($_GET['payment_method'] ?? ''));
 $amount_min = (string) ($_GET['amount_min'] ?? '');
 $amount_max = (string) ($_GET['amount_max'] ?? '');
 $more_filters = ($kind_filter !== '' && isset($kinds[$kind_filter])) || $method_filter !== '' || $amount_min !== '' || $amount_max !== '';
+$reconciliation_filter = intval($_GET['reconciliation'] ?? 0);
+$reconciliation = $reconciliation_filter ? reconcileRow($reconciliation_filter) : null;
 
 // Only these sort - filter_header.php hands through any lowercase word
 $sortable_columns = ['txn_date' => null, 'txn_amount' => 'ledger.txn_amount', 'category_name' => 'ledger.category_name', 'client_name' => 'ledger.client_name',
@@ -99,7 +105,7 @@ $filter_url = function ($changes) {
     unset($params['page'], $params['type'], $params['payment_method']);
     return '?' . http_build_query(array_filter($params, function ($v) { return $v !== '' && $v !== null && $v !== 0; }));
 };
-$any_filter = $q || $category_filter || $client_filter || $more_filters || $show !== '' || $dtf !== '1970-01-01';
+$any_filter = $q || $category_filter || $client_filter || $more_filters || $reconciliation_filter || $show !== '' || $dtf !== '1970-01-01';
 $dated = $dtf !== '1970-01-01' || $dtt !== '2099-12-31';
 $cash = 0.0;
 $cash_accounts = 0;
@@ -138,7 +144,8 @@ if ($transfer_cards) {
                 <div class="itflow-billing-stat-value <?= $is_card && $account['balance'] < 0 ? 'text-warning-emphasis' : ($account['balance'] < 0 ? 'text-danger-emphasis' : '') ?>">
                     <?= $money($is_card && $account['balance'] < 0 ? -$account['balance'] : $account['balance']) ?>
                 </div>
-                <div class="itflow-billing-stat-note"><?= escapeHtml($types[$account['type']]['label']) ?> &middot; <?= escapeHtml($account['account_currency_code']) ?><?= $account['account_archived_at'] ? ' &middot; archived' : '' ?><?= floatval($account['opening_balance']) != 0 ? ' &middot; opened with ' . $money($account['opening_balance']) : '' ?></div>
+                <div class="itflow-billing-stat-note"><?= escapeHtml($types[$account['type']]['label']) ?> &middot; <?= escapeHtml($account['account_currency_code']) ?><?= $account['account_archived_at'] ? ' &middot; archived' : '' ?><?= floatval($account['opening_balance']) != 0 ? ' &middot; opened with ' . $money($account['opening_balance']) : '' ?>
+                    &middot; <a href="reconcile.php?account=<?= $account_filter ?>"><?= $account['reconciling_id'] ? 'being reconciled' : ($account['reconciled_to'] ? 'reconciled to ' . escapeHtml(date('M j, Y', strtotime($account['reconciled_to']))) : 'never reconciled') ?></a></div>
             </div>
         <?php } else { ?>
             <a class="itflow-billing-stat" href="accounts.php">
@@ -214,9 +221,12 @@ if ($transfer_cards) {
                 <button type="button" class="btn <?= $can_edit ? 'btn-primary dropdown-toggle-split' : 'btn-light' ?> dropdown-toggle" data-bs-toggle="dropdown" aria-label="More"><?= $can_edit ? '' : '<i class="fas fa-ellipsis-h"></i>' ?></button>
                 <div class="dropdown-menu dropdown-menu-end">
                     <a class="dropdown-item ajax-modal" href="#"
-                        data-modal-url="<?= buildExportModalUrl('modals/transaction/transaction_export.php', ['account', 'show', 'kind', 'type', 'category', 'client', 'method', 'payment_method', 'amount_min', 'amount_max', 'q'], ['dtf' => $dtf, 'dtt' => $dtt]) ?>">
+                        data-modal-url="<?= buildExportModalUrl('modals/transaction/transaction_export.php', ['account', 'show', 'kind', 'type', 'category', 'client', 'method', 'payment_method', 'amount_min', 'amount_max', 'reconciliation', 'q'], ['dtf' => $dtf, 'dtt' => $dtt]) ?>">
                         <i class="fa fa-fw fa-download text-secondary me-2"></i>Export
                     </a>
+                    <?php if ($account) { ?>
+                        <a class="dropdown-item" href="reconcile.php?account=<?= $account_filter ?>"><i class="fa fa-fw fa-tasks text-secondary me-2"></i><?= $account['reconciling_id'] ? 'Carry on reconciling' : 'Reconcile' ?></a>
+                    <?php } ?>
                     <?php if ($account && $can_edit) { ?>
                         <a class="dropdown-item ajax-modal" href="#" data-modal-size="lg" data-modal-url="modals/account/account_edit.php?id=<?= $account_filter ?>"><i class="fa fa-fw fa-edit text-secondary me-2"></i>Edit Account</a>
                     <?php } ?>
@@ -235,6 +245,9 @@ if ($transfer_cards) {
     <div class="card-header py-3">
         <form autocomplete="off">
             <input type="hidden" name="show" value="<?= escapeHtml($show) ?>">
+            <?php if ($reconciliation_filter) { ?>
+                <input type="hidden" name="reconciliation" value="<?= $reconciliation_filter ?>">
+            <?php } ?>
             <div class="row g-2 align-items-center">
                 <div class="col-lg-3 col-md-6">
                     <div class="input-group">
@@ -320,6 +333,13 @@ if ($transfer_cards) {
                 </div>
             </div>
         </form>
+        <?php if ($reconciliation_filter) { ?>
+            <div class="alert alert-success py-2 mt-2 mb-0 small d-flex flex-wrap gap-2 align-items-center">
+                <i class="fas fa-check-circle"></i>
+                <span>The lines cleared on <?= $reconciliation ? 'the ' . escapeHtml($reconciliation['account']['account_name']) . ' statement to ' . escapeHtml(date('M j, Y', strtotime($reconciliation['reconciliation_statement_date']))) . ($reconciliation['finished'] ? '' : ' - still being reconciled, so none yet') : 'a statement since undone - none' ?></span>
+                <a class="ms-auto" href="<?= escapeHtml($filter_url(['reconciliation' => ''])) ?>">Show every line</a>
+            </div>
+        <?php } ?>
         <!-- Cut the list - counted over what the filters above leave -->
         <nav class="nav nav-pills itflow-asset-tabs mt-2 flex-nowrap overflow-auto">
             <?php foreach ($shows as $key => $s) { ?>
@@ -356,29 +376,18 @@ if ($transfer_cards) {
                 $amount = floatval($row['txn_amount']);
                 $row_currency = (string) ($row['txn_currency'] ?: $row['account_currency_code']);
                 $transfer = in_array($kind, ['transfer_in', 'transfer_out'], true);
-                $what = trim((string) $row['txn_what']);
-                $description = trim(strtok((string) $row['txn_description'], "\n"));
-                if ($transfer) {
-                    $what = $kind === 'transfer_in' ? 'From ' . ($row['other_account_name'] ?: 'an account since deleted') : (accountType(['account_type' => $row['other_account_type'], 'account_name' => $row['other_account_name']]) === 3 ? 'Paid ' : 'To ') . ($row['other_account_name'] ?: 'an account since deleted');
-                } elseif ($kind === 'payment') {
-                    $what = $what !== '' ? 'Payment on ' . $what : 'A payment';
-                } elseif ($kind === 'reimbursement') {
-                    $what = 'Paid back ' . ($what ?: 'an agent');
-                } elseif ($what === '') {
-                    $what = $description !== '' ? $description : $info['label'];
-                    $description = '';
-                }
+                [$what, $description] = accountLedgerWhat($row);
                 $meta = array_filter([(string) $row['txn_method'], $row['txn_reference'] ? '#' . $row['txn_reference'] : '']);
                 ?>
                 <tr>
-                    <td class="text-nowrap"><a class="fw-semibold ajax-modal" href="#" data-modal-size="lg" data-modal-url="<?= escapeHtml(accountLedgerModal($row)) ?>"><?= escapeHtml($row['txn_date']) ?></a></td>
+                    <td class="text-nowrap"><a class="fw-semibold ajax-modal" href="#" data-modal-size="lg" data-modal-url="<?= escapeHtml(accountLedgerModal($row)) ?>"><?= escapeHtml($row['txn_date']) ?></a><?php if ($row['txn_cleared_id']) { ?><a class="ms-1 text-success-emphasis small" href="<?= escapeHtml($filter_url(['reconciliation' => intval($row['txn_cleared_id']), 'account' => intval($row['txn_account_id'])])) ?>" title="Cleared on the statement to <?= escapeHtml(date('M j, Y', strtotime($row['txn_cleared_date']))) ?>"><i class="fas fa-check-circle"></i></a><?php } ?></td>
                     <?php if ($all) { ?>
                         <td class="text-nowrap small">
                             <a class="text-reset" href="<?= escapeHtml($filter_url(['account' => intval($row['txn_account_id'])])) ?>" title="Its transactions"><i class="fas fa-fw <?= $types[accountType($row)]['icon'] ?> text-body-secondary me-1"></i><?= escapeHtml($row['account_name']) ?></a>
                         </td>
                     <?php } ?>
                     <td class="itflow-ledger-what">
-                        <div class="text-truncate"><i class="fas fa-fw <?= $info['icon'] ?> text-body-secondary me-1" title="<?= escapeHtml($info['label']) ?>"></i><?= escapeHtml($what) ?><?php if ($description !== '' && $description !== $what) { ?><span class="text-body-secondary"> - <?= escapeHtml($description) ?></span><?php } ?></div>
+                        <div class="text-truncate"><i class="fas fa-fw <?= $info['icon'] ?> text-body-secondary me-1" title="<?= escapeHtml($info['label']) ?>"></i><?= escapeHtml($what) ?><?php if ($description !== '') { ?><span class="text-body-secondary"> - <?= escapeHtml($description) ?></span><?php } ?></div>
                         <div class="small text-body-secondary text-truncate">
                             <?= escapeHtml($info['label']) ?><?= $meta ? ' &middot; ' . escapeHtml(implode(' · ', $meta)) : '' ?>
                             <?php if (intval($row['txn_imported'])) { ?><span class="ms-1" title="Brought in from a bank or card statement"><i class="fas fa-file-import"></i></span><?php } ?>

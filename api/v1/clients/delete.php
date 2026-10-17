@@ -11,6 +11,12 @@ if (!empty($client_id)) {
     $row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT client_name FROM clients WHERE client_id = $client_id AND client_archived_at IS NOT NULL LIMIT 1"));
     $client_name = $row['client_name'];
 
+    // Their payments and other income go with them - not once any has cleared on a reconciled statement
+    if (!empty($client_name) && reconcileClientLock($client_id)) {
+        echo json_encode(['success' => 'False', 'message' => 'Money from this client cleared on a reconciled bank statement - keep the client archived, or undo that reconciliation in ITFlow first.']);
+        exit();
+    }
+
     if (!empty($client_name)) {
         // Delete Associations
         mysqli_query($mysqli, "DELETE FROM certificates WHERE certificate_client_id = $client_id");

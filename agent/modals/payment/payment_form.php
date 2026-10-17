@@ -9,6 +9,7 @@
  *   currency   the currency
  *   date, account_id, method, reference   to start with (editing)
  *   email      the primary contact's email, for the receipt ('' to leave out)
+ *   lock       the statement it cleared on (reconcileLock()) - its amount, date and account stay
  *   full_text  what to say when the amount pays everything owed
  *   id         a unique id for the form's parts
  *
@@ -24,15 +25,17 @@ $pay_methods = paymentMethods();
 $pay_account_id = intval($pay['account_id'] ?? $config_default_payment_account);
 $pay_method = (string) ($pay['method'] ?? $config_default_payment_method);
 $pay_owed = $pay['owed'] ?? null;
+$pay_lock = $pay['lock'] ?? null;
 
 ?>
 <div class="row g-3" id="<?= $pay['id'] ?>" data-pay-form data-owed="<?= $pay_owed === null ? '' : number_format($pay_owed, 2, '.', '') ?>">
+    <?= reconcileFormNoteHtml($pay_lock) ?>
     <div class="col-sm-6">
         <label class="form-label">Amount <strong class="text-danger">*</strong></label>
         <div class="input-group">
             <span class="input-group-text"><i class="fa fa-fw fa-dollar-sign"></i></span>
             <input type="text" class="form-control text-end fw-semibold" inputmode="decimal" pattern="[0-9]*\.?[0-9]{0,2}" name="amount"
-                value="<?= number_format(floatval($pay['amount']), 2, '.', '') ?>" placeholder="0.00" required data-pay-amount>
+                value="<?= number_format(floatval($pay['amount']), 2, '.', '') ?>" placeholder="0.00" required data-pay-amount <?= $pay_lock ? 'readonly' : '' ?>>
             <span class="input-group-text"><?= escapeHtml($pay['currency']) ?></span>
         </div>
         <?php if ($pay_owed !== null) { ?>
@@ -45,7 +48,7 @@ $pay_owed = $pay['owed'] ?? null;
         <label class="form-label">Date <strong class="text-danger">*</strong></label>
         <div class="input-group">
             <span class="input-group-text"><i class="fa fa-fw fa-calendar"></i></span>
-            <input type="date" class="form-control" name="date" max="2999-12-31" value="<?= escapeHtml($pay['date'] ?? date('Y-m-d')) ?>" required>
+            <input type="date" class="form-control" name="date" max="2999-12-31" value="<?= escapeHtml($pay['date'] ?? date('Y-m-d')) ?>" required <?= $pay_lock ? 'readonly' : '' ?>>
         </div>
     </div>
     <div class="col-sm-6">
@@ -71,13 +74,16 @@ $pay_owed = $pay['owed'] ?? null;
         <label class="form-label">Into account <strong class="text-danger">*</strong></label>
         <div class="input-group">
             <span class="input-group-text"><i class="fa fa-fw fa-piggy-bank"></i></span>
-            <select class="form-select select2" name="account" required>
+            <select class="form-select select2" name="account" required <?= $pay_lock ? 'disabled' : '' ?>>
                 <option value="">- Select an account -</option>
                 <?php foreach ($pay_accounts as $account_id => $account) { ?>
                     <option value="<?= $account_id ?>" <?= $pay_account_id === $account_id ? 'selected' : '' ?> data-icon="fas fa-piggy-bank"
                         data-description="<?= escapeHtml(billingMoney($account['balance'], $account['account_currency_code'])) ?><?= $account['account_archived_at'] ? ' - archived' : '' ?>"><?= escapeHtml($account['account_name']) ?></option>
                 <?php } ?>
             </select>
+            <?php if ($pay_lock) { ?>
+                <input type="hidden" name="account" value="<?= $pay_account_id ?>">
+            <?php } ?>
         </div>
     </div>
     <?php if (!empty($pay['email']) && !empty($config_smtp_provider)) { ?>

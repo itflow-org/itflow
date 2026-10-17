@@ -41,6 +41,10 @@ if ($form_method !== '' && !in_array($form_method, $form_methods, true)) {
     $form_methods[] = $form_method;
 }
 $form_types = accountTypes();
+// Either side cleared on a reconciled statement - the date, amount and that side's account stay
+$form_lock_out = $form_row ? reconcileLock('expense', $form_row['transfer_expense_id']) : null;
+$form_lock_in = $form_row ? reconcileLock('revenue', $form_row['transfer_revenue_id']) : null;
+$form_lock = $form_lock_out ?: $form_lock_in;
 $form_currency = isset($form_accounts[$form_from]) ? ($form_accounts[$form_from]['account_currency_code'] ?: $session_company_currency) : $session_company_currency;
 $form_account_options = function ($selected) use ($form_accounts, $form_types) {
     $html = '';
@@ -54,28 +58,35 @@ $form_account_options = function ($selected) use ($form_accounts, $form_types) {
 
 ?>
 <div class="row g-3" id="<?= $form_id ?>">
+    <?= reconcileFormNoteHtml($form_lock) ?>
 
     <div class="col-md-6">
         <label class="form-label">From <strong class="text-danger">*</strong></label>
         <div class="input-group">
             <span class="input-group-text"><i class="fa fa-fw fa-sign-out-alt"></i></span>
-            <select class="form-select select2" name="account_from" required data-transfer-from>
+            <select class="form-select select2" name="account_from" required data-transfer-from <?= $form_lock_out ? 'disabled' : '' ?>>
                 <option value="">- Out of which account -</option>
                 <?= $form_account_options($form_from) ?>
             </select>
+            <?php if ($form_lock_out) { ?>
+                <input type="hidden" name="account_from" value="<?= $form_from ?>">
+            <?php } ?>
         </div>
     </div>
 
     <div class="col-md-6">
         <label class="form-label d-flex align-items-center">To <strong class="text-danger ms-1">*</strong>
-            <button type="button" class="btn btn-link btn-sm p-0 ms-auto text-decoration-none" data-transfer-swap title="Turn it round"><i class="fas fa-exchange-alt me-1"></i>Swap</button>
+            <button type="button" class="btn btn-link btn-sm p-0 ms-auto text-decoration-none" data-transfer-swap title="Turn it round" <?= $form_lock ? 'hidden' : '' ?>><i class="fas fa-exchange-alt me-1"></i>Swap</button>
         </label>
         <div class="input-group">
             <span class="input-group-text"><i class="fa fa-fw fa-sign-in-alt"></i></span>
-            <select class="form-select select2" name="account_to" required data-transfer-to>
+            <select class="form-select select2" name="account_to" required data-transfer-to <?= $form_lock_in ? 'disabled' : '' ?>>
                 <option value="">- Into which account -</option>
                 <?= $form_account_options($form_to) ?>
             </select>
+            <?php if ($form_lock_in) { ?>
+                <input type="hidden" name="account_to" value="<?= $form_to ?>">
+            <?php } ?>
         </div>
         <div class="form-text" data-transfer-card hidden>Paying off the card - what is owed on it goes down.</div>
     </div>
@@ -85,7 +96,7 @@ $form_account_options = function ($selected) use ($form_accounts, $form_types) {
         <div class="input-group">
             <span class="input-group-text"><i class="fa fa-fw fa-dollar-sign"></i></span>
             <input type="text" class="form-control text-end fw-semibold" inputmode="decimal" pattern="[0-9,]*\.?[0-9]{0,2}" name="amount" placeholder="0.00" required
-                value="<?= $form_row ? number_format(floatval($form_row['transfer_amount']), 2, '.', '') : '' ?>" <?= $form_row ? '' : 'autofocus' ?>>
+                value="<?= $form_row ? number_format(floatval($form_row['transfer_amount']), 2, '.', '') : '' ?>" <?= $form_row ? '' : 'autofocus' ?> <?= $form_lock ? 'readonly' : '' ?>>
             <span class="input-group-text" data-transfer-currency><?= escapeHtml($form_currency) ?></span>
         </div>
     </div>
@@ -94,7 +105,7 @@ $form_account_options = function ($selected) use ($form_accounts, $form_types) {
         <label class="form-label">Date <strong class="text-danger">*</strong></label>
         <div class="input-group">
             <span class="input-group-text"><i class="fa fa-fw fa-calendar"></i></span>
-            <input type="date" class="form-control" name="date" max="2999-12-31" value="<?= escapeHtml($form_row ? $form_row['transfer_date'] : date('Y-m-d')) ?>" required>
+            <input type="date" class="form-control" name="date" max="2999-12-31" value="<?= escapeHtml($form_row ? $form_row['transfer_date'] : date('Y-m-d')) ?>" required <?= $form_lock ? 'readonly' : '' ?>>
         </div>
     </div>
 

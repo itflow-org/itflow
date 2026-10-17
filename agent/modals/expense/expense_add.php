@@ -3,7 +3,8 @@
 /*
  * New Expense - who it was paid to, how much, what for, from which account
  * and how, for a client or not, with the receipt. ?vendor_id= starts it with
- * one of our vendors (from the vendor's page), ?client_id= with a client.
+ * one of our vendors (from the vendor's page), ?client_id= with a client,
+ * ?account_id= from an account (from Reconcile).
  */
 
 require_once '../../../includes/modal_header.php';
@@ -14,6 +15,7 @@ $form_mode = 'new';
 $form_row = null;
 $form_vendor_id = intval($_GET['vendor_id'] ?? 0);
 $form_client_id = intval($_GET['client_id'] ?? 0);
+$form_account_id = intval($_GET['account_id'] ?? 0);
 if ($form_client_id) {
     $client_id = $form_client_id;
     enforceClientAccess();

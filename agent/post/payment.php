@@ -101,6 +101,12 @@ if (isset($_POST['edit_payment'])) {
 
     enforceClientAccess();
 
+    // Cleared on a reconciled statement - its date, amount and account stay
+    if (!reconcileCheckChange('payment', $payment_id, $date, $amount, $account, $error)) {
+        flashAlert(escapeHtml($error), 'error');
+        redirect();
+    }
+
     mysqli_query($mysqli,"UPDATE payments SET payment_date = '$date', payment_amount = $amount, payment_account_id = $account, payment_method = '$payment_method', payment_reference = '$reference' WHERE payment_id = $payment_id");
 
     // A changed amount can leave the invoice paid, part paid or owing again
@@ -528,6 +534,11 @@ if (isset($_GET['delete_payment'])) {
 
     enforceClientAccess();
 
+    if (!reconcileCheckDelete('payment', $payment_id, $error)) {
+        flashAlert(escapeHtml($error), 'error');
+        redirect();
+    }
+
     mysqli_query($mysqli,"DELETE FROM payments WHERE payment_id = $payment_id");
 
     // Recalculate from what is left rather than from the pre-delete total
@@ -566,6 +577,12 @@ if (isset($_GET['refund_payment_stripe'])) {
     $client_id = intval($row['invoice_client_id']);
 
     enforceClientAccess();
+
+    // Refunding deletes the payment - not one cleared on a reconciled statement
+    if (!reconcileCheckDelete('payment', $payment_id, $error)) {
+        flashAlert(escapeHtml($error), 'error');
+        redirect();
+    }
 
     // Get Stripe Payment Intent ID
     $sql = mysqli_query($mysqli,"SELECT payment_reference FROM payments WHERE payment_id = $payment_id LIMIT 1");

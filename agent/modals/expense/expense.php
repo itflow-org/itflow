@@ -22,6 +22,7 @@ if (!$row) {
 }
 
 $expense_id = intval($row['expense_id']);
+$cleared = reconcileLock('expense', $expense_id);
 $client_id = intval($row['expense_client_id']);
 $can_edit = lookupUserPermission('module_financial') >= 2;
 $can_delete = lookupUserPermission('module_financial') >= 3;
@@ -173,6 +174,7 @@ ob_start();
                 <i class="fas fa-fw fa-clock"></i>
                 <span><span title="<?= escapeHtml($row['expense_created_at']) ?>"><?= timeAgo($row['expense_created_at']) ?></span><?php if ($row['created_by_name']) { ?> <span class="text-body-secondary">by <?= escapeHtml($row['created_by_name']) ?></span><?php } ?></span>
             </div>
+            <?= reconcileGlanceHtml($cleared) ?>
             <?php if ($row['expense_recurring_expense_id']) { ?>
                 <div class="itflow-glance-item" title="Recorded by">
                     <i class="fas fa-fw fa-redo-alt"></i>
@@ -273,7 +275,9 @@ ob_start();
         <a class="btn btn-outline-secondary confirm-link" href="post.php?expense_unbill=<?= $expense_id ?>&amp;csrf_token=<?= $_SESSION['csrf_token'] ?>"
             data-confirm-text="<?= $row['invoice_status'] === 'Cancelled' ? escapeHtml($row['invoice_prefix'] . $row['invoice_number']) . ' is cancelled, so its line stays on it' : 'Its line comes off ' . escapeHtml($row['invoice_prefix'] . $row['invoice_number']) ?> and it waits to be billed again."><i class="fas fa-unlink"></i><span class="d-none d-sm-inline ms-2">Take off Invoice</span></a>
     <?php } ?>
-    <?php if ($can_delete && !$is_transfer) { ?>
+    <?php if ($can_delete && !$is_transfer && $cleared) { ?>
+        <?= reconcileLockedButtonHtml($cleared) ?>
+    <?php } elseif ($can_delete && !$is_transfer) { ?>
         <a class="btn btn-outline-danger confirm-link" href="post.php?delete_expense=<?= $expense_id ?>&amp;csrf_token=<?= $_SESSION['csrf_token'] ?>"
             data-confirm-text="<?= escapeHtml(expenseLabel($row)) ?> goes for good<?= $row['expense_receipt'] ? ', with its receipt' : '' ?>.<?= $billed_on && $row['invoice_status'] !== null ? ' Its line stays on ' . escapeHtml($row['invoice_prefix'] . $row['invoice_number']) . '.' : '' ?><?= $mileage_trips ? ' Its ' . ($mileage_trips === 1 ? 'trip is' : $mileage_trips . ' trips are') . ' to pay back for again.' : '' ?>"><i class="fas fa-trash"></i><span class="d-none d-sm-inline ms-2">Delete</span></a>
     <?php } ?>

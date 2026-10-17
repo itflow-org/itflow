@@ -6397,3 +6397,31 @@ a.itflow-billing-stat:hover {
     max-width: 0;
     min-width: 14rem;
 }
+/* Reconcile - agent/reconcile.php. A line ticked as cleared on the statement
+   takes the success tint; the Difference card turns green once it balances. */
+.itflow-reconcile-table > tbody > tr.itflow-reconcile-ticked > * {
+    --bs-table-bg-type: rgba(var(--bs-success-rgb), .07);
+}
+/* AdminLTE's .app-main is overflow: auto, which makes it the bar's scroll box,
+   but the page scrolls the window - so on this page it lets the bar stick */
+.app-main:has(.itflow-reconcile-bar),
+.layout-fixed .app-main:has(.itflow-reconcile-bar) {
+    overflow: visible;
+}
+.itflow-reconcile-bar {
+    position: sticky;
+    bottom: 0;
+    z-index: 3;
+    background-color: var(--bs-body-bg);
+    box-shadow: 0 -.25rem .75rem rgba(0, 0, 0, .06);
+}
+.itflow-billing-stat.itflow-reconcile-balanced {
+    border-color: var(--bs-success-border-subtle);
+    background-color: var(--bs-success-bg-subtle);
+}
+.itflow-reconcile-table .form-check-input {
+    width: 1.15rem;
+    height: 1.15rem;
+    margin-top: 0;
+    cursor: pointer;
+}

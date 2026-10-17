@@ -276,6 +276,13 @@ if (isset($_GET['delete_invoice'])) {
 
     enforceClientAccess();
 
+    // Its payments go with it - not once one has cleared on a reconciled statement
+    $lock = reconcileInvoiceLock($invoice_id);
+    if ($lock) {
+        flashAlert(escapeHtml("A payment on $invoice_prefix$invoice_number cleared on the {$lock['account_name']} statement to " . date('M j, Y', strtotime($lock['reconciliation_statement_date'])) . ' - cancel the invoice instead, or undo that reconciliation to delete it'), 'error');
+        redirect();
+    }
+
     // What it took off the shelf goes back before its lines go
     productStockReturnInvoice($invoice_id, stripslashes("$invoice_prefix$invoice_number deleted"));
 

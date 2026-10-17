@@ -374,6 +374,10 @@ function expenseSave(array $in, $expense_id = 0, &$error = '') {
         expense_billable = $billable, expense_markup = $markup";
 
     if ($existing) {
+        // Cleared on a reconciled statement - its date, amount and account stay
+        if (!reconcileCheckChange('expense', $expense_id, $date, $amount, $account, $error)) {
+            return 0;
+        }
         mysqli_query($mysqli, "UPDATE expenses SET $set WHERE expense_id = $expense_id");
         return $expense_id;
     }
@@ -405,6 +409,9 @@ function expenseDelete($expense_id, &$error = '') {
         return null;
     }
     $expense_id = intval($row['expense_id']);
+    if (!reconcileCheckDelete('expense', $expense_id, $error)) {
+        return null;
+    }
     expenseReceiptDeleteFile($row['expense_receipt']);
     mysqli_query($mysqli, "UPDATE product_stock SET stock_expense_id = NULL WHERE stock_expense_id = $expense_id");
     mysqli_query($mysqli, "UPDATE expenses SET expense_refund_of_id = NULL WHERE expense_refund_of_id = $expense_id");
@@ -1551,11 +1558,20 @@ function reimbursementExpenses($reimbursement_id) {
     return $rows;
 }
 
-/** Undo a reimbursement - the money out of the account goes, and its expenses are to reimburse again. The row it undid, or null. */
-function reimbursementDelete($reimbursement_id) {
+/**
+ * Undo a reimbursement - the money out of the account goes, and its
+ * expenses are to reimburse again. Not once that money out has cleared on a
+ * reconciled statement. The row it undid, or null with $error.
+ */
+function reimbursementDelete($reimbursement_id, &$error = '') {
     global $mysqli;
+    $error = '';
     $row = reimbursementRow($reimbursement_id);
     if (!$row) {
+        $error = 'That reimbursement no longer exists';
+        return null;
+    }
+    if (!reconcileCheckDelete('expense', $row['reimbursement_expense_id'], $error)) {
         return null;
     }
     $id = intval($row['reimbursement_id']);

@@ -2323,3 +2323,32 @@ if (isset($_GET['calendar_day'])) {
     echo json_encode(['items' => $day]);
     exit;
 }
+
+/*
+ * Reconcile (agent/reconcile.php, js/reconcile.js): tick or untick lines on
+ * a statement being reconciled - POST reconciliation_id, lines[] (payment-12,
+ * revenue-5, expense-9) and tick (1 or 0). Answers with where it stands now
+ * (reconcileTotals()).
+ */
+if (isset($_POST['reconcile_tick'])) {
+
+    validateCSRFToken();
+
+    header('Content-Type: application/json');
+
+    if (lookupUserPermission('module_financial') < 2) {
+        http_response_code(403);
+        echo json_encode(['error' => 'Reconciling takes write access to Financial.']);
+        exit;
+    }
+    $reconciliation_id = intval($_POST['reconciliation_id'] ?? 0);
+    $lines = array_slice(array_values(array_filter(array_map('strval', (array) ($_POST['lines'] ?? [])))), 0, 5000);
+    $changed = reconcileTick($reconciliation_id, $lines, !empty($_POST['tick']), $error);
+    if ($changed === null) {
+        echo json_encode(['error' => $error]);
+        exit;
+    }
+    $row = reconcileRow($reconciliation_id);
+    echo json_encode(['changed' => $changed, 'totals' => reconcileTotals($row)]);
+    exit;
+}

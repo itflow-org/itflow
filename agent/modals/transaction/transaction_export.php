@@ -22,6 +22,8 @@ $method_filter = (string) ($_GET['method'] ?? ($_GET['payment_method'] ?? ''));
 $amount_min = (string) ($_GET['amount_min'] ?? '');
 $amount_max = (string) ($_GET['amount_max'] ?? '');
 $q_filter = (string) ($_GET['q'] ?? '');
+$reconciliation_filter = intval($_GET['reconciliation'] ?? 0);
+$reconciliation_date = $reconciliation_filter ? getFieldById('account_reconciliations', $reconciliation_filter, 'reconciliation_statement_date') : null;
 $date_from_filter = (!empty($_GET['dtf']) && $_GET['dtf'] !== '1970-01-01') ? escapeHtml($_GET['dtf']) : '';
 $date_to_filter = (!empty($_GET['dtt']) && $_GET['dtt'] !== '2099-12-31') ? escapeHtml($_GET['dtt']) : '';
 $types = accountTypes();
@@ -39,10 +41,17 @@ ob_start();
 
 <form action="post.php" method="post" autocomplete="off">
     <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
+    <?php if ($reconciliation_filter) { ?>
+        <input type="hidden" name="reconciliation" value="<?= $reconciliation_filter ?>">
+    <?php } ?>
 
     <div class="modal-body">
 
         <?php exportTabsFiltersOpen(); ?>
+
+        <?php if ($reconciliation_filter) { ?>
+            <div class="alert alert-success py-2 small"><i class="fas fa-check-circle me-2"></i>Only the lines cleared on the statement to <?= $reconciliation_date ? escapeHtml(date('M j, Y', strtotime($reconciliation_date))) : 'that was undone' ?></div>
+        <?php } ?>
 
         <div class="row g-3 mb-3">
             <div class="col-md-6">

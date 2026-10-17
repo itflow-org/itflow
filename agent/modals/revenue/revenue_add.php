@@ -3,7 +3,8 @@
 /*
  * New Income - money in that isn't for an invoice: a deposit, a rebate,
  * interest, a referral fee. ?client_id= starts it with a client (from their
- * Income page). A payment against an invoice is added on the invoice.
+ * Income page), ?account_id= going into an account (from Reconcile). A
+ * payment against an invoice is added on the invoice.
  */
 
 require_once '../../../includes/modal_header.php';
@@ -13,6 +14,7 @@ enforceUserPermission('module_financial', 2);
 $form_row = null;
 $form_mode = 'new';
 $form_client_id = intval($_GET['client_id'] ?? 0);
+$form_account_id = intval($_GET['account_id'] ?? 0);
 if ($form_client_id) {
     $client_id = $form_client_id;
     enforceClientAccess();

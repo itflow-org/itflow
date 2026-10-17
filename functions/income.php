@@ -302,6 +302,10 @@ function incomeRevenueSave(array $in, $revenue_id = 0, &$error = '') {
         revenue_category_id = $category_id, revenue_client_id = $client_id, revenue_payment_method = " . ($method === '' ? 'NULL' : "'" . escapeSql($method) . "'") . ",
         revenue_reference = '" . escapeSql($reference) . "', revenue_description = " . ($description === '' ? 'NULL' : "'" . escapeSql($description) . "'");
     if ($existing) {
+        // Cleared on a reconciled statement - its date, amount and account stay
+        if (!reconcileCheckChange('revenue', $revenue_id, $date, $amount, $account_id, $error)) {
+            return 0;
+        }
         mysqli_query($mysqli, "UPDATE revenues SET $set WHERE revenue_id = $revenue_id");
         return $revenue_id;
     }
@@ -316,6 +320,9 @@ function incomeRevenueDelete($revenue_id, &$error = '') {
     $row = incomeRevenueRow($revenue_id);
     if (!$row) {
         $error = 'That income no longer exists, or is not one you can see';
+        return null;
+    }
+    if (!reconcileCheckDelete('revenue', $row['revenue_id'], $error)) {
         return null;
     }
     mysqli_query($mysqli, "DELETE FROM revenues WHERE revenue_id = " . intval($row['revenue_id']));

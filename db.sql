@@ -17,6 +17,29 @@
 /*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */;
 
 --
+-- Table structure for table `account_reconciliations`
+--
+
+DROP TABLE IF EXISTS `account_reconciliations`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8mb4 */;
+CREATE TABLE `account_reconciliations` (
+  `reconciliation_id` int(11) NOT NULL AUTO_INCREMENT,
+  `reconciliation_account_id` int(11) NOT NULL,
+  `reconciliation_statement_date` date NOT NULL,
+  `reconciliation_starting_balance` decimal(15,2) NOT NULL DEFAULT 0.00,
+  `reconciliation_ending_balance` decimal(15,2) NOT NULL DEFAULT 0.00,
+  `reconciliation_notes` varchar(250) DEFAULT NULL,
+  `reconciliation_created_by` int(11) NOT NULL DEFAULT 0,
+  `reconciliation_created_at` datetime NOT NULL DEFAULT current_timestamp(),
+  `reconciliation_finished_by` int(11) NOT NULL DEFAULT 0,
+  `reconciliation_finished_at` datetime DEFAULT NULL,
+  PRIMARY KEY (`reconciliation_id`),
+  KEY `reconciliation_account_id` (`reconciliation_account_id`,`reconciliation_statement_date`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
 -- Table structure for table `accounts`
 --
 
@@ -1386,10 +1409,12 @@ CREATE TABLE `expenses` (
   `expense_import_key` varchar(64) DEFAULT NULL,
   `expense_paid_by` int(11) NOT NULL DEFAULT 0,
   `expense_reimbursement_id` int(11) DEFAULT NULL,
+  `expense_reconciliation_id` int(11) DEFAULT NULL,
   PRIMARY KEY (`expense_id`),
   KEY `expense_invoice_id` (`expense_invoice_id`),
   KEY `expense_import_key` (`expense_import_key`),
-  KEY `expense_reimbursement_id` (`expense_reimbursement_id`)
+  KEY `expense_reimbursement_id` (`expense_reimbursement_id`),
+  KEY `expense_reconciliation_id` (`expense_reconciliation_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -1811,10 +1836,12 @@ CREATE TABLE `payments` (
   `payment_account_id` int(11) NOT NULL,
   `payment_invoice_id` int(11) NOT NULL DEFAULT 0,
   `payment_import_key` varchar(64) DEFAULT NULL,
+  `payment_reconciliation_id` int(11) DEFAULT NULL,
   PRIMARY KEY (`payment_id`),
   KEY `payment_invoice_id` (`payment_invoice_id`),
   KEY `payment_date` (`payment_date`),
-  KEY `payment_import_key` (`payment_import_key`)
+  KEY `payment_import_key` (`payment_import_key`),
+  KEY `payment_reconciliation_id` (`payment_reconciliation_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -2379,10 +2406,12 @@ CREATE TABLE `revenues` (
   `revenue_client_id` int(11) NOT NULL DEFAULT 0,
   `revenue_created_by` int(11) NOT NULL DEFAULT 0,
   `revenue_import_key` varchar(64) DEFAULT NULL,
+  `revenue_reconciliation_id` int(11) DEFAULT NULL,
   PRIMARY KEY (`revenue_id`),
   KEY `revenue_client_id` (`revenue_client_id`,`revenue_archived_at`),
   KEY `revenue_date` (`revenue_date`),
-  KEY `revenue_import_key` (`revenue_import_key`)
+  KEY `revenue_import_key` (`revenue_import_key`),
+  KEY `revenue_reconciliation_id` (`revenue_reconciliation_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 

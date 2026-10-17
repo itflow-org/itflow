@@ -31,11 +31,11 @@ $form_value = function ($column, $default = '') use ($form_row) {
 $form_defaults = expenseVendorDefaults();
 $form_vendor = $form_row ? intval($form_row['expense_vendor_id']) : intval($form_vendor_id ?? 0);
 $form_category = intval($form_value('expense_category_id', '0'));
-$form_account = $form_row ? intval($form_row['expense_account_id']) : intval($config_default_expense_account);
+$form_account = $form_row ? intval($form_row['expense_account_id']) : (intval($form_account_id ?? 0) ?: intval($config_default_expense_account));
 $form_method = $form_row ? $form_value('expense_payment_method') : (string) $config_default_expense_payment_method;
 if (!$form_row && $form_vendor && isset($form_defaults[$form_vendor])) {
     $form_category = $form_defaults[$form_vendor]['category'];
-    $form_account = $form_defaults[$form_vendor]['account'] ?: $form_account;
+    $form_account = intval($form_account_id ?? 0) ?: ($form_defaults[$form_vendor]['account'] ?: $form_account);
     $form_method = $form_defaults[$form_vendor]['method'] !== '' ? $form_defaults[$form_vendor]['method'] : $form_method;
 }
 $form_client = $form_row ? intval($form_row['expense_client_id']) : intval($form_client_id ?? 0);
@@ -57,6 +57,8 @@ $form_currency = $form_row ? $form_value('expense_currency_code') : (string) $se
 $form_vendors = expenseVendors($form_edit ? $form_vendor : 0);
 $form_categories = expenseCategories($form_edit ? $form_category : 0);
 $form_accounts = paymentAccounts($form_edit ? $form_account : 0);
+// Cleared on a reconciled statement - its amount, date and account stay
+$form_lock = $form_edit ? reconcileLock('expense', $form_row['expense_id']) : null;
 $form_methods = paymentMethods();
 if ($form_method !== '' && !in_array($form_method, $form_methods, true)) {
     $form_methods[] = $form_method;
@@ -84,6 +86,7 @@ $form_markup = $form_row && !$form_refund ? floatval($form_row['expense_markup']
 
 ?>
 <div class="row g-3" id="<?= $form_id ?>" data-expense-form="<?= $form_mode ?>">
+    <?= reconcileFormNoteHtml($form_lock) ?>
 
     <?php if ($form_refund) { ?>
         <input type="hidden" name="refund_of" value="<?= intval($form_row['expense_id']) ?>">
@@ -128,7 +131,7 @@ $form_markup = $form_row && !$form_refund ? floatval($form_row['expense_markup']
         <div class="input-group">
             <span class="input-group-text"><i class="fa fa-fw fa-dollar-sign"></i></span>
             <input type="text" class="form-control text-end fw-semibold" inputmode="decimal" pattern="-?[0-9,]*\.?[0-9]{0,2}" name="amount" placeholder="0.00" required
-                value="<?= $form_amount === null ? '' : number_format($form_amount, 2, '.', '') ?>" <?= $form_mode === 'new' ? 'autofocus' : '' ?>>
+                value="<?= $form_amount === null ? '' : number_format($form_amount, 2, '.', '') ?>" <?= $form_mode === 'new' ? 'autofocus' : '' ?> <?= $form_lock ? 'readonly' : '' ?>>
             <span class="input-group-text"><?= escapeHtml($form_currency) ?></span>
         </div>
         <?php if ($form_refund) { ?>
@@ -158,7 +161,7 @@ $form_markup = $form_row && !$form_refund ? floatval($form_row['expense_markup']
         <label class="form-label">Date <strong class="text-danger">*</strong></label>
         <div class="input-group">
             <span class="input-group-text"><i class="fa fa-fw fa-calendar"></i></span>
-            <input type="date" class="form-control" name="date" max="2999-12-31" value="<?= escapeHtml($form_date) ?>" required>
+            <input type="date" class="form-control" name="date" max="2999-12-31" value="<?= escapeHtml($form_date) ?>" required <?= $form_lock ? 'readonly' : '' ?>>
         </div>
     </div>
 
@@ -166,7 +169,7 @@ $form_markup = $form_row && !$form_refund ? floatval($form_row['expense_markup']
         <label class="form-label">Paid from <strong class="text-danger">*</strong></label>
         <div class="input-group">
             <span class="input-group-text"><i class="fa fa-fw fa-piggy-bank"></i></span>
-            <select class="form-select select2" name="account" required data-expense-account <?= $form_reimbursed ? 'disabled' : '' ?>>
+            <select class="form-select select2" name="account" required data-expense-account <?= $form_reimbursed || $form_lock ? 'disabled' : '' ?>>
                 <option value="">- Which account -</option>
                 <?php foreach ($form_accounts as $account_id => $account) { ?>
                     <option value="<?= $account_id ?>" <?= !$form_paid_by && $form_account === $account_id ? 'selected' : '' ?> data-icon="fas fa-piggy-bank"
@@ -178,6 +181,8 @@ $form_markup = $form_row && !$form_refund ? floatval($form_row['expense_markup']
             </select>
             <?php if ($form_reimbursed) { ?>
                 <input type="hidden" name="account" value="personal">
+            <?php } elseif ($form_lock) { ?>
+                <input type="hidden" name="account" value="<?= $form_account ?>">
             <?php } ?>
         </div>
     </div>

@@ -20,6 +20,8 @@ $form_id = 'accountForm' . ($form_row ? intval($form_row['account_id']) : 'New')
 $form_type = $form_row ? accountType($form_row) : intval($form_type ?? 1);
 $form_currency = $form_row ? (string) $form_row['account_currency_code'] : (string) $session_company_currency;
 $form_locked = $form_row && accountInUse($form_row['account_id']);
+// Its reconciled statements start from the opening balance - it stays once one is finished
+$form_reconciled = $form_row && reconcileAccountReconciled($form_row['account_id']);
 $form_types = accountTypes();
 
 ?>
@@ -69,9 +71,9 @@ $form_types = accountTypes();
         <div class="input-group">
             <span class="input-group-text"><i class="fa fa-fw fa-dollar-sign"></i></span>
             <input type="text" class="form-control text-end" inputmode="decimal" pattern="-?[0-9,]*\.?[0-9]{0,2}" name="opening_balance" placeholder="0.00" required
-                value="<?= $form_row ? number_format(floatval($form_row['opening_balance']), 2, '.', '') : '0.00' ?>">
+                value="<?= $form_row ? number_format(floatval($form_row['opening_balance']), 2, '.', '') : '0.00' ?>" <?= $form_reconciled ? 'readonly' : '' ?>>
         </div>
-        <div class="form-text" data-account-opening-note><?= $form_row && $form_row['line_count'] ? 'What it held before the first line here - changing it moves every balance after.' : 'What it holds before anything is recorded here.' ?><span data-account-card-note <?= $form_type === 3 ? '' : 'hidden' ?>> A card owing money starts below zero.</span></div>
+        <div class="form-text" data-account-opening-note><?= $form_reconciled ? 'Its first reconciled statement starts from it, so it stays - undo its reconciliations to change it.' : ($form_row && $form_row['line_count'] ? 'What it held before the first line here - changing it moves every balance after.' : 'What it holds before anything is recorded here.') ?><span data-account-card-note <?= $form_type === 3 ? '' : 'hidden' ?>> A card owing money starts below zero.</span></div>
     </div>
 
     <div class="col-12">

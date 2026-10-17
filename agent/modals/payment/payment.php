@@ -21,6 +21,7 @@ if (!$row) {
 }
 
 $payment_id = intval($row['payment_id']);
+$cleared = reconcileLock('payment', $payment_id);
 $client_id = intval($row['invoice_client_id']);
 $amount = floatval($row['payment_amount']);
 $currency = (string) ($row['payment_currency_code'] ?: $row['invoice_currency_code']);
@@ -125,6 +126,7 @@ ob_start();
                 <i class="fas fa-fw fa-clock"></i>
                 <span><span title="<?= escapeHtml($row['payment_created_at']) ?>"><?= timeAgo($row['payment_created_at']) ?></span><?php if (!empty($row['payment_import_key'])) { ?> <span class="text-body-secondary">from a bank statement</span><?php } ?></span>
             </div>
+            <?= reconcileGlanceHtml($cleared) ?>
         </div>
         <div class="col-sm-6">
             <div class="itflow-glance-item" title="Paid into">
@@ -169,8 +171,12 @@ ob_start();
     <?php } ?>
     <?php if ($can_edit) { ?>
         <button type="button" class="btn btn-outline-secondary ajax-modal" data-modal-url="modals/payment/payment_edit.php?id=<?= $payment_id ?>"><i class="fas fa-edit"></i><span class="d-none d-sm-inline ms-2">Edit</span></button>
-        <a class="btn btn-outline-danger confirm-link" href="post.php?delete_payment=<?= $payment_id ?>&amp;csrf_token=<?= $_SESSION['csrf_token'] ?>"
-            data-confirm-text="The payment of <?= $money($amount) ?> comes off <?= escapeHtml($row['invoice_prefix'] . $row['invoice_number']) ?>, which is owed again."><i class="fas fa-trash"></i><span class="d-none d-sm-inline ms-2">Delete</span></a>
+        <?php if ($cleared) { ?>
+            <?= reconcileLockedButtonHtml($cleared) ?>
+        <?php } else { ?>
+            <a class="btn btn-outline-danger confirm-link" href="post.php?delete_payment=<?= $payment_id ?>&amp;csrf_token=<?= $_SESSION['csrf_token'] ?>"
+                data-confirm-text="The payment of <?= $money($amount) ?> comes off <?= escapeHtml($row['invoice_prefix'] . $row['invoice_number']) ?>, which is owed again."><i class="fas fa-trash"></i><span class="d-none d-sm-inline ms-2">Delete</span></a>
+        <?php } ?>
     <?php } ?>
     <button type="button" class="btn btn-light" data-bs-dismiss="modal"><i class="fa fa-times me-2"></i>Close</button>
 </div>

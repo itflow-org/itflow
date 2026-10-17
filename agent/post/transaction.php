@@ -59,6 +59,7 @@ if (isExportRequest('export_transactions')) {
                 'transaction_out' => $amount < 0 ? -$amount : '',
                 'transaction_amount' => $amount,
                 'transaction_balance' => $account ? floatval($row['txn_balance']) : '',
+                'transaction_cleared' => (string) ($row['txn_cleared_date'] ?? ''),
             ]);
         }
 

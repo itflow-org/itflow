@@ -196,9 +196,15 @@ if (isset($_POST['bulk_edit_expenses'])) {
 
     $count = 0;
     $skipped = 0;
+    $cleared = 0;
     foreach ($expense_ids as $expense_id) {
         $row = expenseRow($expense_id);
         if (!$row || $row['transfer_id'] || !intval($row['expense_vendor_id'])) {
+            continue;
+        }
+        // Cleared on a reconciled statement - it stays on its account
+        if ($field === 'account' && !reconcileCheckChange('expense', $expense_id, null, null, intval($value), $cleared_error)) {
+            $cleared++;
             continue;
         }
         // Billed ones keep their client and stay billed; only a client's expenses can be billed on
@@ -216,8 +222,9 @@ if (isset($_POST['bulk_edit_expenses'])) {
     logAudit("Expense", "Bulk Edit", "$session_name set " . escapeSql($label) . " on $count expense" . ($count === 1 ? '' : 's'));
 
     flashAlert("Set " . escapeHtml($label) . " on <strong>$count</strong> expense" . ($count === 1 ? '' : 's')
-        . ($skipped ? " - $skipped left as " . ($skipped === 1 ? 'it was' : 'they were') . ($field === 'billable' && $value === 'yes' ? ' (on an invoice already, or not for a client)' : ($field === 'account' ? ' (paid back to an agent already)' : ' (on an invoice already)')) : ''),
-        $count ? 'success' : 'warning');
+        . ($skipped ? " - $skipped left as " . ($skipped === 1 ? 'it was' : 'they were') . ($field === 'billable' && $value === 'yes' ? ' (on an invoice already, or not for a client)' : ($field === 'account' ? ' (paid back to an agent already)' : ' (on an invoice already)')) : '')
+        . ($cleared ? " - $cleared left on " . ($cleared === 1 ? 'its account (it' : 'their accounts (they') . ' cleared on a reconciled statement)' : ''),
+        $count && !$cleared ? 'success' : 'warning');
 
     redirect();
 
@@ -260,9 +267,11 @@ if (isset($_POST['bulk_delete_expenses'])) {
     enforceUserPermission('module_financial', 3);
 
     $count = 0;
+    $cleared = 0;
     foreach (array_unique(array_filter(array_map('intval', (array) ($_POST['expense_ids'] ?? [])))) as $expense_id) {
-        $row = expenseDelete($expense_id);
+        $row = expenseDelete($expense_id, $delete_error);
         if (!$row) {
+            $cleared += reconcileLock('expense', $expense_id) ? 1 : 0;
             continue;
         }
         logAudit("Expense", "Delete", "$session_name deleted the expense " . escapeSql(expenseLabel($row)), intval($row['expense_client_id']));
@@ -271,7 +280,7 @@ if (isset($_POST['bulk_delete_expenses'])) {
 
     logAudit("Expense", "Bulk Delete", "$session_name deleted $count expense" . ($count === 1 ? '' : 's'));
 
-    flashAlert("Deleted <strong>$count</strong> expense" . ($count === 1 ? '' : 's'), 'error');
+    flashAlert("Deleted <strong>$count</strong> expense" . ($count === 1 ? '' : 's') . ($cleared ? " - $cleared kept, cleared on a reconciled statement" : ''), 'error');
 
     redirect();
 
@@ -314,9 +323,9 @@ if (isset($_GET['expense_reimbursement_delete'])) {
 
     enforceUserPermission('module_financial', 3);
 
-    $row = reimbursementDelete(intval($_GET['expense_reimbursement_delete']));
+    $row = reimbursementDelete(intval($_GET['expense_reimbursement_delete']), $error);
     if (!$row) {
-        flashAlert('That reimbursement no longer exists', 'error');
+        flashAlert(escapeHtml($error), 'error');
         redirect();
     }
 
