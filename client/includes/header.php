@@ -13,6 +13,12 @@
 
 header("X-Frame-Options: DENY"); // Legacy
 
+// Hold the page until it is done, so a page that turns a contact away after
+// including this (enforceContactCan(), portalBillingGate(), portalItGate())
+// can still send them on with a real redirect - not the script fallback the
+// portal's policy blocks, which left the bare header on screen
+ob_start();
+
 // A page that turned the policy on keeps it, with data: images allowed - the
 // arrows on drop-downs, ticks in checkboxes and the close crosses are data:
 // SVGs in Bootstrap's CSS, which default-src 'self' alone blocked. A page
@@ -27,7 +33,10 @@ if (!empty($portal_stripe)) {
 } else {
     foreach (headers_list() as $portal_header) {
         if (stripos($portal_header, 'Content-Security-Policy:') === 0) {
-            header("Content-Security-Policy: default-src 'self'; img-src 'self' data:");
+            // A page showing HTML written elsewhere (a document) sets
+            // $portal_csp_inline_styles: its tables and colours are inline
+            // styles, already through HTMLPurifier's CSS filter
+            header("Content-Security-Policy: default-src 'self'; img-src 'self' data:" . (!empty($portal_csp_inline_styles) ? "; style-src 'self' 'unsafe-inline'" : ''));
             break;
         }
     }

@@ -1,200 +1,119 @@
 <?php
 /*
  * Client Portal
- * Docs for PTC / technical contacts
+ * A document - what it says, as written (its tables and colours too), and
+ * the files that came with it: a PDF or picture shown on the page, any file
+ * to open or download. Printable.
+ *
+ * SCOPING: primary and technical contacts (portalItGate()); the document must
+ * be the session's client's, visible to the client and not archived, and its
+ * files go through file.php, which checks the same.
  */
 
-header("Content-Security-Policy: default-src 'self'; img-src 'self' data:");
+header("Content-Security-Policy: default-src 'self'");
+$portal_csp_inline_styles = true; // a document's own tables and colours - see includes/header.php
 
 require_once "includes/inc_all.php";
 
-enforceContactCan('itdoc');
+portalItGate();
 
-//Initialize the HTML Purifier to prevent XSS
-require_once "../libs/htmlpurifier/HTMLPurifier.standalone.php";
+$document_id = intval($_GET['id'] ?? 0);
+$document = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT document_id, document_name, document_description, document_content, document_created_at, document_updated_at, folder_name
+    FROM documents
+    LEFT JOIN folders ON folder_id = document_folder_id AND folder_client_id = $session_client_id
+    WHERE document_id = $document_id AND document_client_id = $session_client_id AND document_client_visible = 1 AND document_archived_at IS NULL
+    LIMIT 1"));
 
-$purifier_config = HTMLPurifier_Config::createDefault();
-$purifier_config->set('Cache.DefinitionImpl', null); // Disable cache by setting a non-existent directory or an invalid one
-$purifier_config->set('URI.AllowedSchemes', ['data' => true, 'src' => true, 'http' => true, 'https' => true]);
-$purifier = new HTMLPurifier($purifier_config);
-
-// Check for a document ID
-if (!isset($_GET['id']) && !intval($_GET['id'])) {
-    header("Location: documents.php");
-    exit();
-}
-
-$document_id = intval($_GET['id']);
-$sql_document = mysqli_query($mysqli,
-        "SELECT document_id, document_name, document_content, document_description
-        FROM documents
-        WHERE document_id = $document_id AND document_client_visible = 1 AND document_client_id = $session_client_id AND document_archived_at IS NULL
-        LIMIT 1"
-);
-
-$row = mysqli_fetch_assoc($sql_document);
-
-if ($row) {
-    $document_id = intval($row['document_id']);
-    $document_name = escapeHtml($row['document_name']);
-    $document_content = $purifier->purify($row['document_content']);
-    $document_description = escapeHtml($row['document_description']);
-} else {
-    header("Location: post.php?logout");
-    exit();
-}
-
-// Check for associated files
-$sql_files = mysqli_query($mysqli,
-    "SELECT f.file_id, f.file_name, f.file_reference_name, f.file_ext, f.file_size, f.file_mime_type
-     FROM files f
-     INNER JOIN document_files df ON f.file_id = df.file_id
-     WHERE df.document_id = $document_id AND f.file_client_id = $session_client_id
-     ORDER BY f.file_name ASC"
-);
-
-?>
-
-<ol class="breadcrumb d-print-none">
-    <li class="breadcrumb-item">
-        <a href="index.php">Home</a>
-    </li>
-    <li class="breadcrumb-item">
-        <a href="documents.php">Documents</a>
-    </li>
-    <li class="breadcrumb-item active">
-        Document
-    </li>
-</ol>
-
-<?php
-// Check if this document has attached files and handle accordingly
-if (mysqli_num_rows($sql_files) > 0) {
-    $file_row = mysqli_fetch_assoc($sql_files);
-    $file_id = intval($file_row['file_id']);
-    $file_name = escapeHtml($file_row['file_name']);
-    $file_ext = strtolower($file_row['file_ext']);
-    $file_size = intval($file_row['file_size']);
-    $file_mime_type = escapeHtml($file_row['file_mime_type']);
-    $file_size_formatted = formatBytes($file_size);
-
-    $file_view_url = "file.php?file_id=$file_id&action=view";
-    $file_download_url = "file.php?file_id=$file_id";
-
-    // For PDF files, display them inline
-    if ($file_ext == 'pdf') {
-        ?>
-        <div class="card">
-            <div class="card-header">
-                <div class="row align-items-center">
-                    <div class="col">
-                        <h3 class="mb-0"><i class="fas fa-file-pdf text-danger me-2"></i><?= $document_name ?></h3>
-                        <?php if (!empty($document_description)) { ?>
-                            <small class="text-muted"><?= $document_description ?></small>
-                        <?php } ?>
-                    </div>
-                    <div class="col-auto">
-                        <a href="<?= $file_view_url ?>" target="_blank" class="btn btn-primary">
-                            <i class="fas fa-external-link-alt me-2"></i>Open in New Tab
-                        </a>
-                        <a href="<?= $file_download_url ?>" class="btn btn-secondary">
-                            <i class="fas fa-download me-2"></i>Download
-                        </a>
-                    </div>
-                </div>
-            </div>
-            <div class="card-body p-0">
-                <embed src="<?= $file_view_url ?>" type="application/pdf" width="100%" height="800px" />
-            </div>
-        </div>
-        <?php
-    }
-    // For images, display them inline
-    elseif (in_array($file_ext, ['jpg', 'jpeg', 'png', 'gif', 'webp'])) {
-        ?>
-        <div class="card">
-            <div class="card-header">
-                <div class="row align-items-center">
-                    <div class="col">
-                        <h3 class="mb-0"><i class="fas fa-image text-primary me-2"></i><?= $document_name ?></h3>
-                        <?php if (!empty($document_description)) { ?>
-                            <small class="text-muted"><?= $document_description ?></small>
-                        <?php } ?>
-                    </div>
-                    <div class="col-auto">
-                        <a href="<?= $file_view_url ?>" target="_blank" class="btn btn-primary">
-                            <i class="fas fa-external-link-alt me-2"></i>View Full Size
-                        </a>
-                        <a href="<?= $file_download_url ?>" class="btn btn-secondary">
-                            <i class="fas fa-download me-2"></i>Download
-                        </a>
-                    </div>
-                </div>
-            </div>
-            <div class="card-body text-center">
-                <img src="<?= $file_view_url ?>" alt="<?= $file_name ?>" class="img-fluid itflow-portal-preview-image">
-            </div>
-        </div>
-        <?php
-    }
-    // For other file types, show download option with preview of content
-    else {
-        $file_icon = getFileIcon($file_ext);
-        ?>
-        <div class="card">
-            <div class="card-header">
-                <div class="row align-items-center">
-                    <div class="col">
-                        <h3 class="mb-0"><i class="fas fa-<?= $file_icon ?> me-2"></i><?= $document_name ?></h3>
-                        <?php if (!empty($document_description)) { ?>
-                            <small class="text-muted"><?= $document_description ?></small>
-                        <?php } ?>
-                    </div>
-                    <div class="col-auto">
-                        <a href="<?= $file_download_url ?>" class="btn btn-primary">
-                            <i class="fas fa-external-link-alt me-2"></i>Open File
-                        </a>
-                        <a href="<?= $file_download_url ?>" class="btn btn-secondary">
-                            <i class="fas fa-download me-2"></i>Download
-                        </a>
-                    </div>
-                </div>
-            </div>
-            <div class="card-body">
-                <div class="row align-items-center">
-                    <div class="col-auto">
-                        <i class="fas fa-<?= $file_icon ?> fa-3x text-secondary"></i>
-                    </div>
-                    <div class="col">
-                        <h5><?= $file_name ?></h5>
-                        <p class="text-muted mb-2">
-                            <strong>Type:</strong> <?= strtoupper($file_ext) ?> File<br>
-                            <strong>Size:</strong> <?= $file_size_formatted ?>
-                        </p>
-                        <?php if (!empty($document_content) && $document_content != "<p>Uploaded file: <strong>$file_name</strong></p><p>$document_description</p>") { ?>
-                            <div class="mt-3">
-                                <?= $document_content ?>
-                            </div>
-                        <?php } ?>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <?php
-    }
-
-} else {
-    // Regular text-based document (no files attached)
-    ?>
-    <div class="card">
-        <div class="card-body prettyContent">
-            <h3><?= $document_name ?></h3>
-            <?= $document_content ?>
-        </div>
-    </div>
+if (!$document) { ?>
+    <a class="itflow-portal-back" href="documents.php"><i class="fas fa-chevron-left"></i>Documents</a>
+    <section class="itflow-portal-panel">
+        <?= emptyStateHtml(['title' => "That document isn't here", 'text' => 'It may have been moved or is no longer shared with you.', 'icon' => 'fa-folder-open', 'filtered' => false,
+            'actions' => [['label' => 'All documents', 'href' => 'documents.php', 'icon' => 'fa-arrow-left']]]) ?>
+    </section>
     <?php
+    require_once "includes/footer.php";
+    exit;
+}
+
+$files = [];
+$sql = mysqli_query($mysqli, "SELECT files.file_id, file_name, file_ext, file_size FROM files
+    JOIN document_files ON document_files.file_id = files.file_id
+    WHERE document_files.document_id = $document_id AND file_client_id = $session_client_id AND file_archived_at IS NULL
+    ORDER BY file_name ASC");
+while ($row = mysqli_fetch_assoc($sql)) {
+    $files[] = $row;
+}
+
+// An uploaded file's document only says "Uploaded file: name" - the file itself is the content
+$content = documentHtmlPurify($document['document_content']);
+$stub = $files && strpos(trim(strip_tags((string) $document['document_content'])), 'Uploaded file:') === 0;
+$updated = $document['document_updated_at'] ?: $document['document_created_at'];
+$preview = null;
+foreach ($files as $file) {
+    $ext = strtolower((string) $file['file_ext']);
+    if ($ext === 'pdf' || in_array($ext, ['jpg', 'jpeg', 'png', 'gif', 'webp'], true)) {
+        $preview = $file + ['kind' => $ext === 'pdf' ? 'pdf' : 'image'];
+        break;
+    }
 }
 ?>
+
+<a class="itflow-portal-back d-print-none" href="documents.php"><i class="fas fa-chevron-left"></i>Documents</a>
+
+<div class="itflow-portal-page-head">
+    <div class="min-w-0">
+        <h1><?= escapeHtml($document['document_name']) ?></h1>
+        <p>
+            <?= trim((string) $document['document_description']) !== '' ? escapeHtml($document['document_description']) . ' · ' : '' ?>
+            <?php if (!empty($document['folder_name'])) { ?><i class="fas fa-folder me-1"></i><?= escapeHtml($document['folder_name']) ?> · <?php } ?>
+            Updated <?= escapeHtml(date('M j, Y', strtotime($updated))) ?>
+        </p>
+    </div>
+    <div class="d-flex flex-wrap gap-2 d-print-none">
+        <button type="button" class="btn btn-outline-secondary" data-portal-print><i class="fas fa-print me-2"></i>Print</button>
+        <a class="btn btn-outline-secondary" href="<?= escapeHtml(portalAskUrl('Question about ' . $document['document_name'])) ?>"><i class="fas fa-question-circle me-2"></i>Ask us about it</a>
+    </div>
+</div>
+
+<?php if ($files) { ?>
+    <section class="itflow-portal-panel mb-4 d-print-none">
+        <ul class="itflow-portal-list">
+            <?php foreach ($files as $file) { ?>
+                <li class="itflow-portal-ticket">
+                    <?= portalTile('fa-' . getFileIcon($file['file_ext'])) ?>
+                    <span class="itflow-portal-ticket-main">
+                        <span class="itflow-portal-ticket-subject d-block"><?= escapeHtml($file['file_name']) ?></span>
+                        <span class="itflow-portal-ticket-meta"><span><?= escapeHtml(strtoupper((string) $file['file_ext'])) ?> file</span><span><?= escapeHtml(formatBytes(intval($file['file_size']))) ?></span></span>
+                    </span>
+                    <span class="d-flex gap-2">
+                        <a class="btn btn-sm btn-outline-secondary" href="file.php?file_id=<?= intval($file['file_id']) ?>&amp;action=view" target="_blank" rel="noopener"><i class="fas fa-external-link-alt me-1"></i>Open</a>
+                        <a class="btn btn-sm btn-outline-primary" href="file.php?file_id=<?= intval($file['file_id']) ?>"><i class="fas fa-download me-1"></i>Download</a>
+                    </span>
+                </li>
+            <?php } ?>
+        </ul>
+    </section>
+<?php } ?>
+
+<?php if ($preview && $preview['kind'] === 'pdf') { ?>
+    <section class="itflow-portal-panel mb-4 d-print-none">
+        <embed class="itflow-portal-pdf" src="file.php?file_id=<?= intval($preview['file_id']) ?>&amp;action=view" type="application/pdf">
+    </section>
+<?php } elseif ($preview) { ?>
+    <section class="itflow-portal-panel itflow-portal-panel-body mb-4 text-center">
+        <img class="img-fluid itflow-portal-preview-image" src="file.php?file_id=<?= intval($preview['file_id']) ?>&amp;action=view" alt="<?= escapeHtml($preview['file_name']) ?>">
+    </section>
+<?php } ?>
+
+<?php if (!$stub && trim(strip_tags($content, '<img><table>')) !== '') { ?>
+    <article class="itflow-portal-panel itflow-portal-panel-body itflow-portal-document prettyContent">
+        <?= $content ?>
+    </article>
+<?php } elseif (!$files) { ?>
+    <section class="itflow-portal-panel">
+        <?= emptyStateHtml(['title' => 'This document is empty', 'text' => '', 'icon' => 'fa-file-alt', 'filtered' => false]) ?>
+    </section>
+<?php } ?>
 
 <?php
 require_once "includes/footer.php";

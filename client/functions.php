@@ -58,8 +58,11 @@ function contactCan($capability) {
             return (bool) $session_contact_is_billing_contact;
 
         case 'itdoc':        // assets, certificates, domains, documents, files
-        case 'contacts':     // view / manage contacts
+        case 'contacts':     // see the company's contacts
             return (bool) $session_contact_is_technical_contact;
+
+        case 'contacts_manage': // add and change contacts and their portal access - the primary contact's alone
+            return false;
 
         default:             // unknown capability -> deny (fail closed)
             return false;
@@ -67,11 +70,13 @@ function contactCan($capability) {
 }
 
 /*
- * Enforce a capability at the top of a page or handler - bounce the contact out if they lack it.
+ * Enforce a capability at the top of a page or handler - a contact without it
+ * is sent home with a note, rather than signed out for following a link.
  */
 function enforceContactCan($capability) {
     if (!contactCan($capability)) {
-        redirect("post.php?logout");
+        flashAlert("That part of the portal isn't open to you", 'error');
+        redirect("/client/index.php");
     }
 }
 
@@ -190,12 +195,14 @@ function portalNav() {
 
     if ($config_module_enable_itdoc && contactCan('itdoc')) {
         $children = [
-            ['label' => 'Assets', 'icon' => 'fa-desktop', 'href' => '/client/assets.php', 'pages' => ['assets.php']],
-            ['label' => 'Documents', 'icon' => 'fa-folder-open', 'href' => '/client/documents.php', 'pages' => ['documents.php', 'document.php', 'file.php']],
-            ['label' => 'Domains', 'icon' => 'fa-globe', 'href' => '/client/domains.php', 'pages' => ['domains.php']],
-            ['label' => 'Certificates', 'icon' => 'fa-lock', 'href' => '/client/certificates.php', 'pages' => ['certificates.php']],
-            ['label' => 'Contacts', 'icon' => 'fa-address-book', 'href' => '/client/contacts.php', 'pages' => ['contacts.php', 'contact_add.php', 'contact_edit.php']],
+            ['label' => 'Devices', 'icon' => 'fa-desktop', 'href' => '/client/assets.php', 'pages' => ['assets.php', 'asset.php']],
+            ['label' => 'Licenses', 'icon' => 'fa-cube', 'href' => '/client/licenses.php', 'pages' => ['licenses.php']],
+            ['label' => 'Domains & certificates', 'icon' => 'fa-globe', 'href' => '/client/domains.php', 'pages' => ['domains.php', 'certificates.php']],
+            ['label' => 'Documents', 'icon' => 'fa-folder-open', 'href' => '/client/documents.php', 'pages' => ['documents.php', 'document.php', 'document_add.php', 'file.php']],
         ];
+        if (contactCan('contacts')) {
+            $children[] = ['label' => 'Contacts', 'icon' => 'fa-address-book', 'href' => '/client/contacts.php', 'pages' => ['contacts.php', 'contact.php', 'contact_add.php', 'contact_edit.php']];
+        }
         $nav['it'] = ['label' => 'Your IT', 'icon' => 'fa-laptop', 'children' => $children, 'pages' => array_merge(...array_column($children, 'pages'))];
     }
 
@@ -405,4 +412,209 @@ function portalBillingViewed($type, array $row) {
 /** The ask-us link for a document - a new ticket with its subject filled in. */
 function portalAskUrl($subject) {
     return 'ticket_add.php?' . http_build_query(['subject' => $subject]);
+}
+
+/*
+ * ---------- Your IT ----------
+ *
+ * Devices, licenses, domains and certificates, documents and contacts, for
+ * primary and technical contacts - and any contact's own devices. Every query
+ * is keyed to the session's client.
+ */
+
+/** Your IT pages: a primary or technical contact, with the IT documentation module on - anyone else is sent away. */
+function portalItGate() {
+    global $config_module_enable_itdoc;
+    enforceContactCan('itdoc');
+    if (!$config_module_enable_itdoc) {
+        redirect('/client/index.php');
+    }
+}
+
+/** SQL: the devices this contact may open - all of their company's for a primary or technical contact, else the ones they use. */
+function portalAssetScopeSql() {
+    global $session_client_id, $session_contact_id, $config_module_enable_itdoc;
+    $sql = "asset_client_id = " . intval($session_client_id) . " AND asset_archived_at IS NULL";
+    if (!($config_module_enable_itdoc && contactCan('itdoc'))) {
+        $sql .= " AND asset_contact_id = " . intval($session_contact_id);
+    }
+    return $sql;
+}
+
+/** The tabs on Devices - each kind with its label, icon and SQL on asset_type; Other is whatever the rest don't take. */
+function portalAssetGroups() {
+    $kinds = [
+        'computers' => ['Computers', 'fa-desktop', ['Desktop', 'Laptop']],
+        'servers' => ['Servers', 'fa-server', ['Server', 'Virtual Machine']],
+        'network' => ['Network', 'fa-network-wired', ['Switch', 'Firewall/Router', 'Access Point']],
+        'phones' => ['Phones & tablets', 'fa-mobile-alt', ['Phone', 'Mobile Phone', 'Tablet']],
+    ];
+    $groups = ['all' => ['label' => 'All', 'icon' => 'fa-list', 'where' => '1 = 1']];
+    $taken = [];
+    foreach ($kinds as $key => [$label, $icon, $types]) {
+        $in = "'" . implode("', '", array_map('escapeSql', $types)) . "'";
+        $groups[$key] = ['label' => $label, 'icon' => $icon, 'where' => "asset_type IN ($in)"];
+        $taken[] = $in;
+    }
+    $groups['other'] = ['label' => 'Other', 'icon' => 'fa-print', 'where' => "asset_type NOT IN (" . implode(', ', $taken) . ")"];
+    return $groups;
+}
+
+/** A grey square tile with an icon - devices, licenses, domains and documents in the portal's lists. */
+function portalTile($icon, $size = '') {
+    return '<span class="itflow-portal-tile' . ($size !== '' ? " itflow-portal-tile-$size" : '') . '" aria-hidden="true"><i class="' . escapeHtml(strpos($icon, ' ') === false ? "fas fa-fw $icon" : $icon) . '"></i></span>';
+}
+
+/** A renewal, warranty or expiry from softwareRenewal() and its kin, as a portal state - for portalStateBadge(). Null without a date. */
+function portalRenewalState($renewal, $active_label = '') {
+    if (!$renewal) {
+        return null;
+    }
+    if ($renewal['state'] === 'expired') {
+        return ['label' => 'Expired', 'icon' => 'fa-calendar-times', 'class' => 'itflow-portal-state-late'];
+    }
+    if ($renewal['state'] === 'soon') {
+        return ['label' => $renewal['text'], 'icon' => 'fa-hourglass-half', 'class' => 'itflow-portal-state-you'];
+    }
+    return ['label' => $active_label !== '' ? $active_label : $renewal['text'], 'icon' => 'fa-calendar-check', 'class' => 'itflow-portal-state-resolved'];
+}
+
+/** A contact's roles in words - Primary contact, Billing, Technical - or [] for none. */
+function portalContactRoles(array $row) {
+    if (intval($row['contact_primary'] ?? 0)) {
+        return ['Primary contact'];
+    }
+    $roles = [];
+    if (intval($row['contact_billing'] ?? 0)) {
+        $roles[] = 'Billing';
+    }
+    if (intval($row['contact_technical'] ?? 0)) {
+        $roles[] = 'Technical';
+    }
+    return $roles;
+}
+
+/**
+ * Whether a contact can sign in to the portal, and how: key none (never set
+ * up), off (turned off), local (a password) or azure (Microsoft) - with a
+ * label, icon and class for portalStateBadge(). From a row with user_id,
+ * user_auth_method, user_status and user_archived_at (LEFT JOIN users).
+ */
+function portalContactAccess(array $row) {
+    if (empty($row['user_id'])) {
+        return ['key' => 'none', 'label' => 'No portal access', 'icon' => 'fa-minus-circle', 'class' => 'itflow-portal-state-closed'];
+    }
+    $method = (string) ($row['user_auth_method'] ?? '');
+    if (!in_array($method, ['local', 'azure'], true) || intval($row['user_status'] ?? 0) !== 1 || !empty($row['user_archived_at'])) {
+        return ['key' => 'off', 'label' => 'Portal access off', 'icon' => 'fa-ban', 'class' => 'itflow-portal-state-closed'];
+    }
+    return ['key' => $method, 'label' => $method === 'azure' ? 'Signs in with Microsoft' : 'Signs in with a password', 'icon' => 'fa-check', 'class' => 'itflow-portal-state-resolved'];
+}
+
+/** When a portal user last signed in, from the audit log - null when they never have (or the log has been cleared since). */
+function portalContactLastSignIn($user_id) {
+    global $mysqli;
+    $user_id = intval($user_id);
+    if (!$user_id) {
+        return null;
+    }
+    $row = mysqli_fetch_row(mysqli_query($mysqli, "SELECT MAX(log_created_at) FROM logs WHERE log_user_id = $user_id AND log_type = 'Client Login' AND log_action = 'Success'"));
+    return $row[0] ?? null;
+}
+
+/** The ways a portal user can sign in here - a password, and Microsoft when it is set up. method => label. */
+function portalSignInMethods() {
+    global $config_azure_client_id;
+    $methods = ['local' => 'With a password'];
+    if (!empty($config_azure_client_id)) {
+        $methods['azure'] = 'With their Microsoft 365 account';
+    }
+    return $methods;
+}
+
+/**
+ * Give a contact of this client portal access and email them how to sign in -
+ * a link to set their password, or for Microsoft a link to the sign-in page.
+ * Makes their portal user when they have none, turns it back on when it was
+ * off, and sends the invite again when it is on. $by is the primary contact
+ * doing it. ['ok' => bool, 'error' => why not, 'emailed' => bool].
+ */
+function portalContactInvite($contact_id, $method, $by) {
+    global $mysqli, $session_client_id, $config_base_url, $config_smtp_provider, $config_mail_from_email, $config_mail_from_name;
+    $contact_id = intval($contact_id);
+    $client_id = intval($session_client_id);
+    $contact = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT contact_id, contact_name, contact_email, contact_user_id, client_name, user_id, user_auth_method
+        FROM contacts JOIN clients ON client_id = contact_client_id LEFT JOIN users ON user_id = contact_user_id
+        WHERE contact_id = $contact_id AND contact_client_id = $client_id AND contact_archived_at IS NULL LIMIT 1"));
+    if (!$contact) {
+        return ['ok' => false, 'error' => "That person isn't here", 'emailed' => false];
+    }
+    if (!isset(portalSignInMethods()[$method])) {
+        $method = 'local';
+    }
+    $name = (string) $contact['contact_name'];
+    $email = trim((string) $contact['contact_email']);
+    if (userCheckIdentity(['name' => $name, 'email' => $email], intval($contact['user_id']), $error) === null) {
+        return ['ok' => false, 'error' => strip_tags($error), 'emailed' => false];
+    }
+    $name_sql = escapeSql($name);
+    $email_sql = escapeSql($email);
+    $method_sql = escapeSql($method);
+    $user_id = intval($contact['user_id']);
+    if ($user_id) {
+        mysqli_query($mysqli, "UPDATE users SET user_name = '$name_sql', user_email = '$email_sql', user_auth_method = '$method_sql', user_status = 1, user_archived_at = NULL WHERE user_id = $user_id AND user_type = 2");
+    } else {
+        $hash = escapeSql(password_hash(randomString(), PASSWORD_DEFAULT));
+        mysqli_query($mysqli, "INSERT INTO users SET user_name = '$name_sql', user_email = '$email_sql', user_password = '$hash', user_auth_method = '$method_sql', user_type = 2");
+        $user_id = intval(mysqli_insert_id($mysqli));
+        mysqli_query($mysqli, "UPDATE contacts SET contact_user_id = $user_id WHERE contact_id = $contact_id AND contact_client_id = $client_id");
+    }
+
+    // The email - a link to set their password, which is the reset page's own link
+    $company = billingCompany();
+    $company_name = (string) ($company['company_name'] ?? '');
+    if ($method === 'local') {
+        $token = randomString(32);
+        mysqli_query($mysqli, "UPDATE users SET user_password_reset_token = '" . escapeSql($token) . "' WHERE user_id = $user_id");
+        $button = ['label' => 'Set your password', 'url' => "https://$config_base_url/client/login_reset.php?" . http_build_query(['email' => $email, 'token' => $token, 'client' => $client_id])];
+        $how = 'Set a password with the button below, then sign in with this email address.';
+    } else {
+        mysqli_query($mysqli, "UPDATE users SET user_password_reset_token = NULL WHERE user_id = $user_id");
+        $button = ['label' => 'Sign in', 'url' => "https://$config_base_url/login.php"];
+        $how = 'Sign in with your Microsoft 365 account - choose Login with Microsoft on the sign-in page.';
+    }
+    $emailed = false;
+    if (!empty($config_smtp_provider) && filter_var($config_mail_from_email, FILTER_VALIDATE_EMAIL)) {
+        $html = billingEmailHtml([
+            'kind' => 'Client portal', 'tone' => 'primary', 'name' => $name,
+            'title' => "Your $company_name client portal",
+            'intro' => [trim($by) . " has given you access to the $company_name client portal for {$contact['client_name']} - where you can raise and follow support tickets.", $how],
+            'summary' => ['Sign in as' => $email],
+            'button' => $button,
+            'after' => [$method === 'local' ? "The link works once. If it has been used, choose Forgot password on the sign-in page." : "Questions? Reply to this email."],
+            'footnote' => "You received this because " . trim($by) . " added you to the $company_name client portal.",
+        ]);
+        addToMailQueue([[
+            'from' => escapeSql($config_mail_from_email),
+            'from_name' => escapeSql($config_mail_from_name),
+            'recipient' => $email_sql,
+            'recipient_name' => $name_sql,
+            'subject' => escapeSql("Your $company_name client portal"),
+            'body' => mysqli_real_escape_string($mysqli, $html), // escapeSql() would strip the HTML
+        ]]);
+        $emailed = true;
+    }
+    return ['ok' => true, 'error' => '', 'emailed' => $emailed];
+}
+
+/** Turn a contact's portal access off - they are signed out on their next click (check_login.php) and their reset link stops working. */
+function portalContactAccessOff($contact_id) {
+    global $mysqli, $session_client_id;
+    $contact_id = intval($contact_id);
+    $client_id = intval($session_client_id);
+    $user_id = intval(mysqli_fetch_row(mysqli_query($mysqli, "SELECT contact_user_id FROM contacts WHERE contact_id = $contact_id AND contact_client_id = $client_id"))[0] ?? 0);
+    if ($user_id) {
+        mysqli_query($mysqli, "UPDATE users SET user_auth_method = '', user_password_reset_token = NULL WHERE user_id = $user_id AND user_type = 2");
+    }
+    return $user_id > 0;
 }

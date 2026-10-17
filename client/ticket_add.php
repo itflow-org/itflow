@@ -3,7 +3,8 @@
  * Client Portal
  * New ticket - what's wrong, how much it is getting in the way, which device,
  * and any screenshots or files, with what happens next alongside. ?subject=
- * fills the subject in - the Ask us links on invoices and quotes.
+ * fills the subject in - the Ask us links on invoices and quotes - and ?asset=
+ * picks the device, from Report a problem on a device's page.
  *
  * No Content-Security-Policy here: the editor needs inline styles.
  */
@@ -96,7 +97,7 @@ $company = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT company_phone, compa
                         <select class="form-select select2" name="asset">
                             <option value="0">None, or not sure</option>
                             <?php foreach ($assets as $asset) { ?>
-                                <option value="<?= intval($asset['asset_id']) ?>" data-icon="fas fa-<?= getAssetIcon($asset['asset_type']) ?>"
+                                <option value="<?= intval($asset['asset_id']) ?>"<?= intval($asset['asset_id']) === intval($_GET['asset'] ?? 0) ? ' selected' : '' ?> data-icon="fas fa-<?= getAssetIcon($asset['asset_type']) ?>"
                                     data-description="<?= escapeHtml($asset['asset_type'] . (intval($asset['asset_contact_id']) === $session_contact_id ? ' - yours' : '')) ?>"><?= escapeHtml($asset['asset_name']) ?></option>
                             <?php } ?>
                         </select>

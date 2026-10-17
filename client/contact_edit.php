@@ -1,118 +1,12 @@
 <?php
 /*
  * Client Portal
- * Contact management for PTC / technical contacts
+ * A contact is changed on its own page now - old links land there.
  */
 
-header("Content-Security-Policy: default-src 'self'");
+require_once '../config.php';
+require_once '../includes/load_global_settings.php';
+require_once '../functions.php';
+require_once 'includes/check_login.php';
 
-require_once "includes/inc_all.php";
-
-enforceContactCan('contacts');
-
-// Check for a contact ID
-if (!isset($_GET['id']) && !intval($_GET['id'])) {
-    header("Location: contacts.php");
-    exit();
-}
-
-$contact_id = intval($_GET['id']);
-
-$sql_contact = mysqli_query(
-    $mysqli, "SELECT contact_id, contact_name, contact_email, contact_primary, contact_technical, contact_billing, user_auth_method
-    FROM contacts
-    LEFT JOIN users ON user_id = contact_user_id
-    WHERE contact_id = $contact_id AND contact_client_id = $session_client_id AND contacts.contact_archived_at IS NULL LIMIT 1"
-);
-
-$row = mysqli_fetch_assoc($sql_contact);
-
-if ($row) {
-    $contact_id = intval($row['contact_id']);
-    $contact_name = escapeHtml($row['contact_name']);
-    $contact_email = escapeHtml($row['contact_email']);
-    $contact_primary = intval($row['contact_primary']);
-    $contact_technical = intval($row['contact_technical']);
-    $contact_billing = intval($row['contact_billing']);
-    $contact_auth_method = escapeHtml($row['user_auth_method']);
-} else {
-    header("Location: post.php?logout");
-    exit();
-}
-
-?>
-
-    <ol class="breadcrumb d-print-none">
-        <li class="breadcrumb-item">
-            <a href="index.php">Home</a>
-        </li>
-        <li class="breadcrumb-item">
-            <a href="contacts.php">Contacts</a>
-        </li>
-        <li class="breadcrumb-item active">Edit Contact</li>
-    </ol>
-
-    <div class="col-md-6">
-        <form action="post.php" method="post">
-            <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
-            <input type="hidden" name="contact_id" value="<?= $contact_id ?>">
-
-            <div class="mb-3">
-                <label>Name <strong class="text-danger">*</strong></label>
-                <div class="input-group">
-                        <span class="input-group-text"><i class="fa fa-fw fa-user"></i></span>
-                    <input type="text" class="form-control" name="contact_name" value="<?= escapeHtml($contact_name) ?>" required maxlength="200">
-                </div>
-            </div>
-
-            <div class="mb-3">
-                <label>Email <strong class="text-danger">*</strong></label>
-                <div class="input-group">
-                        <span class="input-group-text"><i class="fa fa-fw fa-envelope"></i></span>
-                    <input type="email" class="form-control" name="contact_email" value="<?= escapeHtml($contact_email) ?>" required maxlength="200">
-                </div>
-            </div>
-
-            <label>Roles:</label>
-            <div class="row g-2">
-                <div class="col-md-4">
-                    <div class="mb-3">
-                        <div class="form-check">
-                            <input type="checkbox" class="form-check-input" id="contactBillingCheckbox" name="contact_billing" value="1" <?php if ($contact_billing == 1) { echo "checked"; } ?>>
-                            <label class="form-check-label" for="contactBillingCheckbox">Billing</label>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-md-4">
-                    <div class="mb-3">
-                        <div class="form-check">
-                            <input type="checkbox" class="form-check-input" id="contactTechnicalCheckbox" name="contact_technical" value="1" <?php if ($contact_technical == 1) { echo "checked"; } ?>>
-                            <label class="form-check-label" for="contactTechnicalCheckbox">Technical</label>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="mb-3">
-                <label>Portal authentication</label>
-                <div class="input-group">
-                        <span class="input-group-text"><i class="fa fa-fw fa-user-circle"></i></span>
-                    <select class="form-select select2 authMethod" name="contact_auth_method">
-                        <option value="">- No portal access -</option>
-                        <option value="local" <?php if ($contact_auth_method == "local") { echo "selected"; } ?>>Local (Email and password)</option>
-                        <?php if (!empty($config_azure_client_id)) { ?>
-                            <option value="azure" <?php if ($contact_auth_method == "azure") { echo "selected"; } ?>>Azure (Microsoft 365)</option>
-                        <?php } ?>
-                    </select>
-                </div>
-            </div>
-
-            <?php if ($contact_primary || $contact_id == $_SESSION['contact_id']) { echo "<i>Cannot edit this contact</i>"; } else { ?>
-                <button class="btn btn-primary" name="edit_contact">Save</button>
-            <?php } ?>
-        </form>
-    </div>
-
-
-<?php
-require_once "includes/footer.php";
+redirect('contact.php?id=' . intval($_GET['id'] ?? 0));

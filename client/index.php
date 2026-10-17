@@ -116,15 +116,15 @@ $renewals = [];
 if ($can_it) {
     $window = "BETWEEN CURDATE() - INTERVAL 30 DAY AND CURDATE() + INTERVAL 45 DAY";
     $sources = [
-        ['domains.php', 'fa-globe', 'Domain', "SELECT domain_name, domain_expire FROM domains WHERE domain_client_id = $session_client_id AND domain_archived_at IS NULL AND domain_expire $window"],
-        ['certificates.php', 'fa-lock', 'Certificate', "SELECT certificate_name, certificate_expire FROM certificates WHERE certificate_client_id = $session_client_id AND certificate_archived_at IS NULL AND certificate_expire $window"],
-        ['', 'fa-cube', 'License', "SELECT software_name, software_expire FROM software WHERE software_client_id = $session_client_id AND software_archived_at IS NULL AND software_expire $window"],
-        ['assets.php', 'fa-shield-alt', 'Warranty', "SELECT asset_name, asset_warranty_expire FROM assets WHERE asset_client_id = $session_client_id AND asset_archived_at IS NULL AND asset_warranty_expire $window"],
+        ['domains.php', 'fa-globe', 'Domain', "SELECT domain_name, domain_expire, 0 FROM domains WHERE domain_client_id = $session_client_id AND domain_archived_at IS NULL AND domain_expire $window"],
+        ['domains.php?tab=certificates', 'fa-lock', 'Certificate', "SELECT certificate_name, certificate_expire, 0 FROM certificates WHERE certificate_client_id = $session_client_id AND certificate_archived_at IS NULL AND certificate_expire $window"],
+        ['licenses.php', 'fa-cube', 'License', "SELECT software_name, software_expire, 0 FROM software WHERE software_client_id = $session_client_id AND software_archived_at IS NULL AND software_expire $window"],
+        ['asset.php?id=', 'fa-shield-alt', 'Warranty', "SELECT asset_name, asset_warranty_expire, asset_id FROM assets WHERE asset_client_id = $session_client_id AND asset_archived_at IS NULL AND asset_warranty_expire $window"],
     ];
     foreach ($sources as [$href, $icon, $kind, $query]) {
         $sql = mysqli_query($mysqli, $query);
         while ($row = mysqli_fetch_row($sql)) {
-            $renewals[] = ['href' => $href, 'icon' => $icon, 'kind' => $kind, 'name' => $row[0], 'date' => $row[1]];
+            $renewals[] = ['href' => $href . (intval($row[2]) ? intval($row[2]) : ''), 'icon' => $icon, 'kind' => $kind, 'name' => $row[0], 'date' => $row[1]];
         }
     }
     usort($renewals, function ($a, $b) { return strcmp($a['date'], $b['date']); });
@@ -275,27 +275,27 @@ $first_name = strtok(trim((string) $contact['contact_name']), ' ') ?: '';
             <section class="itflow-portal-panel mb-4">
                 <div class="itflow-portal-panel-head">
                     <h2><i class="fas fa-desktop"></i>Your devices</h2>
-                    <?php if ($can_it) { ?><a href="assets.php">All assets</a><?php } ?>
+                    <?php if ($can_it) { ?><a href="assets.php">All devices</a><?php } ?>
                 </div>
                 <ul class="itflow-portal-list">
                     <?php foreach ($devices as $device) {
                         $warranty = assetWarranty($device['asset_warranty_expire']);
                         $what = trim($device['asset_make'] . ' ' . $device['asset_model']) ?: $device['asset_type'];
-                        $link = escapeUrl($device['asset_uri_client']); ?>
-                        <li class="itflow-portal-todo">
-                            <span class="itflow-portal-todo-icon is-info"><i class="fas fa-<?= getAssetIcon($device['asset_type']) ?>"></i></span>
-                            <span class="itflow-portal-todo-main">
-                                <div><?= escapeHtml($device['asset_name']) ?></div>
-                                <div>
-                                    <?= escapeHtml($what) ?>
-                                    <?php if ($warranty && $warranty['tone'] !== 'success') { ?>
-                                        · <span class="text-<?= $warranty['tone'] ?>-emphasis">Warranty <?= escapeHtml(strtolower($warranty['short'])) ?></span>
-                                    <?php } ?>
-                                </div>
-                            </span>
-                            <?php if ($link) { ?>
-                                <a href="<?= $link ?>" target="_blank" rel="noopener noreferrer" class="text-body-secondary" title="Open"><i class="fas fa-external-link-alt"></i></a>
-                            <?php } ?>
+                        ?>
+                        <li>
+                            <a class="itflow-portal-todo" href="asset.php?id=<?= intval($device['asset_id']) ?>">
+                                <span class="itflow-portal-todo-icon is-info"><i class="fas fa-<?= getAssetIcon($device['asset_type']) ?>"></i></span>
+                                <span class="itflow-portal-todo-main">
+                                    <div><?= escapeHtml($device['asset_name']) ?></div>
+                                    <div>
+                                        <?= escapeHtml($what) ?>
+                                        <?php if ($warranty && $warranty['tone'] !== 'success') { ?>
+                                            · <span class="text-<?= $warranty['tone'] ?>-emphasis">Warranty <?= escapeHtml(strtolower($warranty['short'])) ?></span>
+                                        <?php } ?>
+                                    </div>
+                                </span>
+                                <i class="fas fa-chevron-right text-body-secondary small"></i>
+                            </a>
                         </li>
                     <?php } ?>
                 </ul>
@@ -313,12 +313,15 @@ $first_name = strtok(trim((string) $contact['contact_name']), ' ') ?: '';
                     <ul class="itflow-portal-list">
                         <?php foreach (array_slice($renewals, 0, 8) as $item) {
                             $lapsed = $item['date'] < date('Y-m-d'); ?>
-                            <li class="itflow-portal-todo">
-                                <span class="itflow-portal-todo-icon<?= $lapsed ? ' is-danger' : '' ?>"><i class="fas <?= $item['icon'] ?>"></i></span>
-                                <span class="itflow-portal-todo-main">
-                                    <div><?= escapeHtml($item['name']) ?></div>
-                                    <div><?= escapeHtml($item['kind']) ?> · <?= $lapsed ? 'expired' : 'renews' ?> <?= escapeHtml(date('M j, Y', strtotime($item['date']))) ?> (<?= timeAgo($item['date']) ?>)</div>
-                                </span>
+                            <li>
+                                <a class="itflow-portal-todo" href="<?= escapeHtml($item['href']) ?>">
+                                    <span class="itflow-portal-todo-icon<?= $lapsed ? ' is-danger' : '' ?>"><i class="fas <?= $item['icon'] ?>"></i></span>
+                                    <span class="itflow-portal-todo-main">
+                                        <div><?= escapeHtml($item['name']) ?></div>
+                                        <div><?= escapeHtml($item['kind']) ?> · <?= $lapsed ? 'expired' : 'renews' ?> <?= escapeHtml(date('M j, Y', strtotime($item['date']))) ?> (<?= timeAgo($item['date']) ?>)</div>
+                                    </span>
+                                    <i class="fas fa-chevron-right text-body-secondary small"></i>
+                                </a>
                             </li>
                         <?php } ?>
                     </ul>

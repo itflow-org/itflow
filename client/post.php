@@ -541,105 +541,157 @@ if (isset($_POST['edit_profile'])) {
 
 }
 
-if (isset($_POST['add_contact'])) {
+if (isset($_POST['portal_contact_save'])) {
 
     validateCSRFToken();
 
-    enforceContactCan('contacts');
+    /*
+     * Add a person, or change one - the primary contact only, and never their
+     * own record (Your account is for that) or another primary contact's. A
+     * contact with a portal login has it follow their name and email, and the
+     * email must not sign in to any other account.
+     */
+    enforceContactCan('contacts_manage');
 
-    $contact_name = escapeSql($_POST['contact_name']);
-    $contact_email = escapeSql($_POST['contact_email']);
-    $contact_technical = intval($_POST['contact_technical'] ?? 0);
-    $contact_billing = intval($_POST['contact_billing'] ?? 0);
-    $contact_auth_method = escapeSql($_POST['contact_auth_method']);
+    $contact_id = intval($_POST['contact_id'] ?? 0);
+    $existing = null;
+    if ($contact_id) {
+        $existing = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT contact_id, contact_primary, contact_user_id, user_id FROM contacts
+            LEFT JOIN users ON user_id = contact_user_id
+            WHERE contact_id = $contact_id AND contact_client_id = $session_client_id AND contact_archived_at IS NULL LIMIT 1"));
+        if (!$existing || intval($existing['contact_primary']) || $contact_id === $session_contact_id) {
+            flashAlert("That contact can't be changed here", 'error');
+            redirect('contacts.php');
+        }
+    }
+    $back = $contact_id ? "contact.php?id=$contact_id" : 'contact.php?new=1';
 
-    // Check the email isn't already in use
-    $sql = mysqli_query($mysqli, "SELECT user_id FROM users WHERE user_email = '$contact_email'");
-    if ($sql && mysqli_num_rows($sql) > 0) {
-        flashAlert("Cannot add contact as that email address is already in use", 'danger');
-        redirect('contact_add.php');
+    $digits = function ($field, $length = 200) {
+        return substr(preg_replace('/[^0-9]/', '', (string) ($_POST[$field] ?? '')), 0, $length);
+    };
+    $in = [
+        'contact_id' => $contact_id,
+        'contact_name' => trim(mb_substr((string) ($_POST['contact_name'] ?? ''), 0, 200)),
+        'contact_title' => trim(mb_substr((string) ($_POST['contact_title'] ?? ''), 0, 200)),
+        'contact_email' => trim(mb_substr((string) ($_POST['contact_email'] ?? ''), 0, 200)),
+        'contact_department' => trim(mb_substr((string) ($_POST['contact_department'] ?? ''), 0, 200)),
+        'contact_phone' => $digits('contact_phone'),
+        'contact_phone_country_code' => $digits('contact_phone_country_code', 10),
+        'contact_extension' => $digits('contact_extension', 20),
+        'contact_mobile' => $digits('contact_mobile'),
+        'contact_mobile_country_code' => $digits('contact_mobile_country_code', 10),
+        'contact_billing' => !empty($_POST['contact_billing']) ? 1 : 0,
+        'contact_technical' => !empty($_POST['contact_technical']) ? 1 : 0,
+        'invite' => !$contact_id && !empty($_POST['invite']) ? 1 : 0,
+        'method' => (string) ($_POST['method'] ?? 'local'),
+    ];
+    // A country code or extension on its own is not a number
+    if ($in['contact_phone'] === '') {
+        $in['contact_phone_country_code'] = $in['contact_extension'] = '';
+    }
+    if ($in['contact_mobile'] === '') {
+        $in['contact_mobile_country_code'] = '';
     }
 
-    // Create user account with rand password for the contact
-    $contact_user_id = 0;
-    if ($contact_name && $contact_email && $contact_auth_method) {
-
-        $password_hash = password_hash(randomString(), PASSWORD_DEFAULT);
-
-        mysqli_query($mysqli, "INSERT INTO users SET user_name = '$contact_name', user_email = '$contact_email', user_password = '$password_hash', user_auth_method = '$contact_auth_method', user_type = 2");
-
-        $contact_user_id = mysqli_insert_id($mysqli);
-
+    $error = '';
+    if ($in['contact_name'] === '') {
+        $error = 'A contact needs a name';
+    } elseif (!filter_var($in['contact_email'], FILTER_VALIDATE_EMAIL)) {
+        $error = ($in['contact_email'] === '' ? 'Nothing' : escapeHtml($in['contact_email'])) . ' is not an email address';
+    } elseif (($in['invite'] || intval($existing['user_id'] ?? 0)) && userCheckIdentity(['name' => $in['contact_name'], 'email' => $in['contact_email']], intval($existing['user_id'] ?? 0), $identity_error) === null) {
+        $error = rtrim($identity_error, '.');
+    }
+    if ($error !== '') {
+        $_SESSION['portal_contact_form'] = $in;
+        flashAlert($error, 'error');
+        redirect($back);
     }
 
-    // Create contact record
-    mysqli_query($mysqli, "INSERT INTO contacts SET contact_name = '$contact_name', contact_email = '$contact_email', contact_billing = $contact_billing, contact_technical = $contact_technical, contact_client_id = $session_client_id, contact_user_id = $contact_user_id");
+    $set = [];
+    foreach (['contact_name', 'contact_title', 'contact_email', 'contact_department', 'contact_phone', 'contact_phone_country_code', 'contact_extension', 'contact_mobile', 'contact_mobile_country_code'] as $field) {
+        $set[] = "$field = '" . escapeSql($in[$field]) . "'";
+    }
+    $set[] = "contact_billing = {$in['contact_billing']}";
+    $set[] = "contact_technical = {$in['contact_technical']}";
+    $set = implode(', ', $set);
+    $name_sql = escapeSql($in['contact_name']);
 
-    $contact_id = mysqli_insert_id($mysqli);
+    if ($contact_id) {
+        mysqli_query($mysqli, "UPDATE contacts SET $set WHERE contact_id = $contact_id AND contact_client_id = $session_client_id AND contact_archived_at IS NULL AND contact_primary = 0");
+        if (intval($existing['user_id'])) {
+            mysqli_query($mysqli, "UPDATE users SET user_name = '$name_sql', user_email = '" . escapeSql($in['contact_email']) . "' WHERE user_id = " . intval($existing['user_id']) . " AND user_type = 2");
+        }
+        logAudit("Contact", "Edit", "Client contact $session_contact_name changed contact $name_sql in the client portal", $session_client_id, $contact_id);
+        triggerCustomAction('contact_update', $contact_id);
+        flashAlert("Saved <strong>" . escapeHtml($in['contact_name']) . "</strong>");
+        redirect("contact.php?id=$contact_id");
+    }
 
-    // Logging
-    logAudit("Contact", "Create", "Client contact $session_contact_name created contact $contact_name in the client portal", $session_client_id, $contact_id);
-
+    mysqli_query($mysqli, "INSERT INTO contacts SET $set, contact_client_id = $session_client_id, contact_user_id = 0");
+    $contact_id = intval(mysqli_insert_id($mysqli));
+    logAudit("Contact", "Create", "Client contact $session_contact_name added contact $name_sql in the client portal", $session_client_id, $contact_id);
+    appNotify("Contact", "$session_contact_name added $name_sql as a contact for $session_client_name in the client portal", "/agent/contact.php?client_id=$session_client_id&contact_id=$contact_id", $session_client_id, $contact_id);
     triggerCustomAction('contact_create', $contact_id);
 
-    flashAlert("Contact $contact_name created");
-
-    redirect('contacts.php');
+    $message = "Added <strong>" . escapeHtml($in['contact_name']) . "</strong>";
+    if ($in['invite']) {
+        $invite = portalContactInvite($contact_id, $in['method'], (string) ($contact['contact_name'] ?? ''));
+        if (!$invite['ok']) {
+            $message .= ' - but their portal access could not be set up: ' . escapeHtml($invite['error']);
+        } else {
+            logAudit("Contact", "Edit", "Client contact $session_contact_name gave $name_sql portal access in the client portal", $session_client_id, $contact_id);
+            $message .= $invite['emailed'] ? ' and emailed them an invite to the portal' : ' and gave them portal access - email is not set up here, so ask us to send them how to sign in';
+        }
+    }
+    flashAlert($message);
+    redirect("contact.php?id=$contact_id");
 
 }
 
-if (isset($_POST['edit_contact'])) {
+if (isset($_POST['portal_contact_access']) || isset($_POST['portal_contact_left'])) {
 
     validateCSRFToken();
 
-    enforceContactCan('contacts');
+    // A contact's portal access - give it with an invite, send that again, or turn it off;
+    // and someone who has left: access off, then a ticket for the rest. The primary contact only.
+    enforceContactCan('contacts_manage');
 
-    $contact_id = intval($_POST['contact_id']);
-    // A contact cannot edit their own record - that would let them change their own roles
-    if ($contact_id === $session_contact_id) {
-        flashAlert("You cannot edit your own contact record", 'danger');
+    $contact_id = intval($_POST['contact_id'] ?? 0);
+    $target = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT contact_id, contact_name, contact_email, contact_primary FROM contacts
+        WHERE contact_id = $contact_id AND contact_client_id = $session_client_id AND contact_archived_at IS NULL LIMIT 1"));
+    if (!$target || intval($target['contact_primary']) || $contact_id === $session_contact_id) {
+        flashAlert("That contact's access can't be changed here", 'error');
         redirect('contacts.php');
     }
-    $contact_name = escapeSql($_POST['contact_name']);
-    $contact_email = escapeSql($_POST['contact_email']);
-    $contact_technical = intval($_POST['contact_technical'] ?? 0);
-    $contact_billing = intval($_POST['contact_billing'] ?? 0);
-    $contact_auth_method = escapeSql($_POST['contact_auth_method']);
+    $name = (string) $target['contact_name'];
+    $name_sql = escapeSql($name);
+    $agent_link = "/agent/contact.php?client_id=$session_client_id&contact_id=$contact_id";
 
-    // Get the existing contact_user_id - we look it up ourselves so the user can't just overwrite random users
-    $sql = mysqli_query($mysqli,"SELECT contact_user_id FROM contacts WHERE contact_id = $contact_id AND contact_client_id = $session_client_id");
-    $row = mysqli_fetch_assoc($sql);
-    $contact_user_id = intval($row['contact_user_id']);
-
-    // Check the email isn't already in use
-    $sql = mysqli_query($mysqli, "SELECT user_id FROM users WHERE user_email = '$contact_email' AND user_id != $contact_user_id");
-    if ($sql && mysqli_num_rows($sql) > 0) {
-        flashAlert("Cannot update contact as that email address is already in use", 'danger');
-        redirect('contact_edit.php?id=' . $contact_id);
+    if (isset($_POST['portal_contact_left'])) {
+        portalContactAccessOff($contact_id);
+        logAudit("Contact", "Edit", "Client contact $session_contact_name said $name_sql has left and turned off their portal access", $session_client_id, $contact_id);
+        appNotify("Contact", "$session_contact_name says $name_sql has left $session_client_name - their portal access is off", $agent_link, $session_client_id, $contact_id);
+        flashAlert(escapeHtml($name) . "'s portal access is off. Tell us below what else to close down - their email, accounts and devices - and their last day.");
+        redirect('ticket_add.php?' . http_build_query(['subject' => "Offboarding: $name has left"]));
     }
 
-    // Update Existing User
-    if ($contact_user_id > 0) {
-        mysqli_query($mysqli, "UPDATE users SET user_name = '$contact_name', user_email = '$contact_email', user_auth_method = '$contact_auth_method' WHERE user_id = $contact_user_id");
-
-    // Else, create New User
-    } elseif ($contact_user_id == 0 && $contact_name && $contact_email && $contact_auth_method) {
-        $password_hash = password_hash(randomString(), PASSWORD_DEFAULT);
-        mysqli_query($mysqli, "INSERT INTO users SET user_name = '$contact_name', user_email = '$contact_email', user_password = '$password_hash', user_auth_method = '$contact_auth_method', user_type = 2");
-
-        $contact_user_id = mysqli_insert_id($mysqli);
+    if ($_POST['portal_contact_access'] === 'off') {
+        portalContactAccessOff($contact_id);
+        logAudit("Contact", "Edit", "Client contact $session_contact_name turned off portal access for $name_sql", $session_client_id, $contact_id);
+        appNotify("Contact", "$session_contact_name turned off client portal access for $name_sql", $agent_link, $session_client_id, $contact_id);
+        flashAlert(escapeHtml($name) . "'s portal access is off");
+        redirect("contact.php?id=$contact_id");
     }
 
-    // Update contact
-    mysqli_query($mysqli, "UPDATE contacts SET contact_name = '$contact_name', contact_email = '$contact_email', contact_billing = $contact_billing, contact_technical = $contact_technical, contact_user_id = $contact_user_id WHERE contact_id = $contact_id AND contact_client_id = $session_client_id AND contact_archived_at IS NULL AND contact_primary = 0 AND contact_id != $session_contact_id");
-
-    logAudit("Contact", "Edit", "Client contact $session_contact_name edited contact $contact_name in the client portal", $session_client_id, $contact_id);
-
-    flashAlert("Contact $contact_name updated");
-
-    triggerCustomAction('contact_update', $contact_id);
-
-    redirect('contacts.php');
+    $invite = portalContactInvite($contact_id, (string) ($_POST['method'] ?? 'local'), (string) ($contact['contact_name'] ?? ''));
+    if (!$invite['ok']) {
+        flashAlert(escapeHtml($invite['error']), 'error');
+        redirect("contact.php?id=$contact_id");
+    }
+    logAudit("Contact", "Edit", "Client contact $session_contact_name gave $name_sql portal access and sent an invite", $session_client_id, $contact_id);
+    appNotify("Contact", "$session_contact_name gave $name_sql client portal access", $agent_link, $session_client_id, $contact_id);
+    flashAlert($invite['emailed'] ? "Invite emailed to <strong>" . escapeHtml($target['contact_email']) . "</strong>" : escapeHtml($name) . " can sign in now - email is not set up here, so ask us to send them how");
+    redirect("contact.php?id=$contact_id");
 
 }
 
@@ -1301,14 +1353,22 @@ if (isset($_POST['client_add_document'])) {
 
     validateCSRFToken();
 
-    // Permission check - only primary or technical contacts can create documents
-    enforceContactCan('itdoc');
+    // Primary and technical contacts, with IT documentation on
+    portalItGate();
 
-    $document_name = escapeSql($_POST['document_name']);
-    $document_description = escapeSql($_POST['document_description']);
-    $document_content_raw = escapeSql($document_name . " " . strip_tags($_POST['document_content']));
+    $raw_content = (string) ($_POST['document_content'] ?? '');
+    $name = trim(mb_substr((string) ($_POST['document_name'] ?? ''), 0, 200));
+    $description = trim(mb_substr((string) ($_POST['document_description'] ?? ''), 0, 255));
+    if ($name === '' || portalHtmlIsEmpty($raw_content)) {
+        flashAlert('Give the document a name and write something in it', 'error');
+        redirect('document_add.php');
+    }
 
-    // Create document
+    $document_name = escapeSql($name);
+    $document_description = escapeSql($description);
+    $document_content_raw = escapeSql(documentContentRaw($name, $raw_content));
+
+    // Shared with the client, and the portal user as its author - the agent pages show the author from users
     mysqli_query($mysqli, "INSERT INTO documents SET
         document_name = '$document_name',
         document_description = '$document_description',
@@ -1316,28 +1376,20 @@ if (isset($_POST['client_add_document'])) {
         document_content_raw = '$document_content_raw',
         document_client_visible = 1,
         document_client_id = $session_client_id,
-        document_created_by = $session_contact_id");
+        document_created_by = $session_user_id");
 
     $document_id = mysqli_insert_id($mysqli);
 
-    $processed_content = mysqli_escape_string(
-        $mysqli,
-        saveBase64Images(
-            $_POST['document_content'],
-            $_SERVER['DOCUMENT_ROOT'] . "/uploads/documents/",
-            "uploads/documents/",
-            $document_id
-        )
-    );
+    // Pasted pictures are saved as files rather than kept in the HTML
+    $processed_content = mysqli_escape_string($mysqli, saveBase64Images($raw_content, $_SERVER['DOCUMENT_ROOT'] . "/uploads/documents/", "uploads/documents/", $document_id));
+    mysqli_query($mysqli, "UPDATE documents SET document_content = '$processed_content' WHERE document_id = $document_id");
 
-    // Document update content
-    mysqli_query($mysqli,"UPDATE documents SET document_content = '$processed_content' WHERE document_id = $document_id");
+    logAudit("Document", "Create", "Client contact $session_contact_name created document $document_name in the client portal", $session_client_id, $document_id);
+    appNotify("Document", "$session_contact_name added the document $document_name in the client portal", "/agent/document.php?document_id=$document_id", $session_client_id, $document_id);
 
-    logAudit("Document", "Create", "Client contact $session_contact_name created document $document_name", $session_client_id, $document_id);
+    flashAlert("Document <strong>" . escapeHtml($name) . "</strong> saved");
 
-    flashAlert("Document <strong>$document_name</strong> created successfully");
-
-    redirect('documents.php');
+    redirect("document.php?id=$document_id");
 
 }
 
@@ -1345,85 +1397,70 @@ if (isset($_POST['client_upload_document'])) {
 
     validateCSRFToken();
 
-    // Permission check - only primary or technical contacts can upload documents
-    enforceContactCan('itdoc');
+    // Primary and technical contacts, with IT documentation on
+    portalItGate();
 
-    $document_name = escapeSql($_POST['document_name']);
-    $document_description = escapeSql($_POST['document_description']);
-    $client_dir = "../uploads/clients/$session_client_id";
+    $name = trim(mb_substr((string) ($_POST['document_name'] ?? ''), 0, 200));
+    $description = trim(mb_substr((string) ($_POST['document_description'] ?? ''), 0, 255));
+    if ($name === '' || empty($_FILES['document_file']) || intval($_FILES['document_file']['error']) !== 0) {
+        flashAlert('Give the document a name and choose a file', 'error');
+        redirect('document_add.php?upload=1');
+    }
 
-    // Create client directory if it doesn't exist
+    $file_reference_name = checkFileUpload($_FILES['document_file'], ['pdf', 'doc', 'docx', 'txt', 'md', 'odt', 'rtf']);
+    if (!$file_reference_name) {
+        flashAlert('That file could not be taken - upload a PDF, Word, OpenDocument, RTF or text file', 'error');
+        redirect('document_add.php?upload=1');
+    }
+
+    $client_dir = $_SERVER['DOCUMENT_ROOT'] . "/uploads/clients/$session_client_id";
     if (!is_dir($client_dir)) {
         mkdir($client_dir, 0755, true);
     }
-
-    // Allowed file extensions for documents
-    $allowedExtensions = ['pdf', 'doc', 'docx', 'txt', 'md', 'odt', 'rtf'];
-
-    // Check if file was uploaded
-    if (isset($_FILES['document_file']) && $_FILES['document_file']['error'] == 0) {
-
-        // Validate and get a safe file reference name
-        if ($file_reference_name = checkFileUpload($_FILES['document_file'], $allowedExtensions)) {
-
-            $file_tmp_path = $_FILES['document_file']['tmp_name'];
-            $file_name = escapeSql($_FILES['document_file']['name']);
-            $extParts = explode('.', $file_name);
-            $file_extension = strtolower(end($extParts));
-            $file_mime_type = escapeSql($_FILES['document_file']['type']);
-            $file_size = intval($_FILES['document_file']['size']);
-
-            // Define destination path and move the uploaded file
-            $dest_path = $client_dir . "/" . $file_reference_name;
-
-            if (move_uploaded_file($file_tmp_path, $dest_path)) {
-
-                // Create document entry
-                $document_content = "<p>Uploaded file: <strong>$file_name</strong></p><p>$document_description</p>";
-                $document_content_raw = "$document_name $file_name $document_description";
-
-                mysqli_query($mysqli, "INSERT INTO documents SET
-                    document_name = '$document_name',
-                    document_description = '$document_description',
-                    document_content = '$document_content',
-                    document_content_raw = '$document_content_raw',
-                    document_client_visible = 1,
-                    document_client_id = $session_client_id,
-                    document_created_by = $session_contact_id");
-
-                $document_id = mysqli_insert_id($mysqli);
-
-                // Create file entry
-                mysqli_query($mysqli, "INSERT INTO files SET
-                    file_reference_name = '$file_reference_name',
-                    file_name = '$file_name',
-                    file_description = 'Attached to document: $document_name',
-                    file_ext = '$file_extension',
-                    file_mime_type = '$file_mime_type',
-                    file_size = $file_size,
-                    file_created_by = $session_contact_id,
-                    file_client_id = $session_client_id");
-
-                $file_id = mysqli_insert_id($mysqli);
-
-                // Link file to document
-                mysqli_query($mysqli, "INSERT INTO document_files SET document_id = $document_id, file_id = $file_id");
-
-                logAudit("Document", "Upload", "Client contact $session_contact_name uploaded document $document_name with file $file_name", $session_client_id, $document_id);
-
-                flashAlert("Document <strong>$document_name</strong> uploaded successfully");
-
-            } else {
-                flashAlert('Error uploading file. Please try again.', 'error');
-            }
-
-        } else {
-            flashAlert('Invalid file type. Please upload PDF, Word documents, or text files only.', 'error');
-        }
-
-    } else {
-        flashAlert('Please select a file to upload.', 'error');
+    if (!move_uploaded_file($_FILES['document_file']['tmp_name'], "$client_dir/$file_reference_name")) {
+        flashAlert('Something went wrong uploading the file - please try again', 'error');
+        redirect('document_add.php?upload=1');
     }
 
-    redirect('documents.php');
+    $original = (string) $_FILES['document_file']['name'];
+    $ext_parts = explode('.', $original);
+    $file_name = escapeSql($original);
+    $file_extension = escapeSql(strtolower(end($ext_parts)));
+    $file_mime_type = escapeSql($_FILES['document_file']['type']);
+    $file_size = intval($_FILES['document_file']['size']);
+    $document_name = escapeSql($name);
+    $document_description = escapeSql($description);
+    // What the document says is the file - its name and description, escaped for the page
+    $document_content = mysqli_real_escape_string($mysqli, '<p>Uploaded file: <strong>' . escapeHtml($original) . '</strong></p>' . ($description !== '' ? '<p>' . escapeHtml($description) . '</p>' : ''));
+    $document_content_raw = escapeSql("$name $original $description");
+
+    mysqli_query($mysqli, "INSERT INTO documents SET
+        document_name = '$document_name',
+        document_description = '$document_description',
+        document_content = '$document_content',
+        document_content_raw = '$document_content_raw',
+        document_client_visible = 1,
+        document_client_id = $session_client_id,
+        document_created_by = $session_user_id");
+    $document_id = mysqli_insert_id($mysqli);
+
+    mysqli_query($mysqli, "INSERT INTO files SET
+        file_reference_name = '" . escapeSql($file_reference_name) . "',
+        file_name = '$file_name',
+        file_description = 'Attached to document: $document_name',
+        file_ext = '$file_extension',
+        file_mime_type = '$file_mime_type',
+        file_size = $file_size,
+        file_created_by = $session_user_id,
+        file_client_id = $session_client_id");
+    $file_id = mysqli_insert_id($mysqli);
+
+    mysqli_query($mysqli, "INSERT INTO document_files SET document_id = $document_id, file_id = $file_id");
+
+    logAudit("Document", "Upload", "Client contact $session_contact_name uploaded document $document_name with file $file_name in the client portal", $session_client_id, $document_id);
+    appNotify("Document", "$session_contact_name uploaded the document $document_name in the client portal", "/agent/document.php?document_id=$document_id", $session_client_id, $document_id);
+
+    flashAlert("Document <strong>" . escapeHtml($name) . "</strong> uploaded");
+
+    redirect("document.php?id=$document_id");
 }

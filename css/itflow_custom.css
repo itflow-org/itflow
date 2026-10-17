@@ -7456,6 +7456,68 @@ a.itflow-portal-todo:hover {
     font-size: .8rem;
 }
 
+/* Your IT: a grey tile for each device, license, domain or document, the
+   roles on a contact, and a document as written */
+.itflow-portal-tile {
+    display: inline-flex;
+    flex: 0 0 auto;
+    align-items: center;
+    justify-content: center;
+    width: 2.5rem;
+    height: 2.5rem;
+    border-radius: var(--bs-border-radius-lg);
+    background-color: var(--bs-secondary-bg);
+    color: var(--bs-secondary-color);
+    font-size: 1rem;
+}
+.itflow-portal-tile-sm {
+    width: 2rem;
+    height: 2rem;
+    font-size: .85rem;
+}
+.itflow-portal-tile-lg {
+    width: 3.25rem;
+    height: 3.25rem;
+    font-size: 1.35rem;
+}
+.itflow-portal-roles {
+    display: inline-flex;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    gap: .25rem;
+}
+.itflow-portal-roles > span {
+    padding: .1rem .5rem;
+    border: 1px solid var(--bs-border-color);
+    border-radius: 2rem;
+    color: var(--bs-secondary-color);
+    font-size: .72rem;
+    font-weight: 600;
+    white-space: nowrap;
+}
+.itflow-portal-pdf {
+    display: block;
+    width: 100%;
+    height: 75vh;
+    border: 0;
+}
+.itflow-portal-document {
+    overflow-x: auto;
+    overflow-wrap: anywhere;
+}
+.itflow-portal-document img {
+    max-width: 100%;
+    height: auto;
+}
+.itflow-portal-document > :last-child {
+    margin-bottom: 0;
+}
+@media (max-width: 575.98px) {
+    .itflow-portal-ticket > .itflow-portal-tile {
+        display: none;
+    }
+}
+
 /* Printing an invoice, quote or receipt: the document and nothing round it */
 @media print {
     .itflow-portal-header,

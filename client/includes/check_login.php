@@ -25,9 +25,17 @@ $session_contact_id = intval($_SESSION['contact_id']);
 $session_user_id = intval($_SESSION['user_id']);
 
 // Load user session vars
-$sql = mysqli_query($mysqli, "SELECT user_archived_at, user_avatar, user_status, user_type FROM users WHERE users.user_id = $session_user_id");
+$sql = mysqli_query($mysqli, "SELECT user_archived_at, user_auth_method, user_avatar, user_status, user_type FROM users WHERE users.user_id = $session_user_id");
 
 $row = mysqli_fetch_assoc($sql);
+
+// Portal access turned off (no sign-in method) - by an agent or the client's
+// primary contact - ends a session that is already open, too
+if (!$row || !in_array($row['user_auth_method'], ['local', 'azure'], true)) {
+    session_unset();
+    session_destroy();
+    redirect("/login.php");
+}
 
 $session_avatar = $row['user_avatar'];
 $session_user_type = intval($row['user_type']);
