@@ -19,6 +19,7 @@ function transferPostInput() {
         'to' => intval($_POST['account_to'] ?? 0),
         'method' => (string) ($_POST['transfer_method'] ?? ''),
         'notes' => (string) ($_POST['notes'] ?? ''),
+        'deposit' => array_map('strval', (array) ($_POST['deposit'] ?? [])),
     ];
 }
 

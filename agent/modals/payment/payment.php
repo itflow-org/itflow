@@ -22,6 +22,7 @@ if (!$row) {
 
 $payment_id = intval($row['payment_id']);
 $cleared = reconcileLock('payment', $payment_id);
+$deposited = transferDepositedIn('payment', $payment_id);
 $client_id = intval($row['invoice_client_id']);
 $amount = floatval($row['payment_amount']);
 $currency = (string) ($row['payment_currency_code'] ?: $row['invoice_currency_code']);
@@ -126,6 +127,7 @@ ob_start();
                 <i class="fas fa-fw fa-clock"></i>
                 <span><span title="<?= escapeHtml($row['payment_created_at']) ?>"><?= timeAgo($row['payment_created_at']) ?></span><?php if (!empty($row['payment_import_key'])) { ?> <span class="text-body-secondary">from a bank statement</span><?php } ?></span>
             </div>
+            <?= transferDepositedGlanceHtml($deposited) ?>
             <?= reconcileGlanceHtml($cleared) ?>
         </div>
         <div class="col-sm-6">

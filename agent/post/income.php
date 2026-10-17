@@ -75,6 +75,9 @@ if (isset($_POST['bulk_edit_income'])) {
             $cleared++;
             continue;
         }
+        if ($field === 'account') {
+            transferDepositRelease('revenue', $revenue_id, $value);
+        }
         mysqli_query($mysqli, "UPDATE revenues SET $revenue_set WHERE revenue_id = $revenue_id");
         logAudit("Revenue", "Edit", "$session_name set $label_sql on other income " . escapeSql(incomeRevenueLabel($row)), intval($row['revenue_client_id']), $revenue_id);
         $count++;
@@ -110,6 +113,9 @@ if (isset($_POST['bulk_edit_income'])) {
             if ($field === 'account' && !reconcileCheckChange('payment', $payment_id, null, null, $value, $cleared_error)) {
                 $cleared++;
                 continue;
+            }
+            if ($field === 'account') {
+                transferDepositRelease('payment', $payment_id, $value);
             }
             mysqli_query($mysqli, "UPDATE payments SET $payment_set WHERE payment_id = $payment_id");
             logAudit("Payment", "Edit", "$session_name set $label_sql on the payment " . escapeSql(incomePaymentLabel($row)), intval($row['invoice_client_id']), $payment_id);

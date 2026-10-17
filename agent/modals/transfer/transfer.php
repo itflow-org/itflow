@@ -20,6 +20,7 @@ if (!$row) {
 $transfer_id = intval($row['transfer_id']);
 $cleared_out = reconcileLock('expense', $row['transfer_expense_id']);
 $cleared_in = reconcileLock('revenue', $row['transfer_revenue_id']);
+$deposit = transferDepositItems($transfer_id);
 $what = transferWhat($row);
 $from = accountRow($row['transfer_from_id']);
 $to = accountRow($row['transfer_to_id']);
@@ -76,6 +77,25 @@ ob_start();
             <?= reconcileGlanceHtml($cleared_in) ?>
         </div>
     </div>
+
+    <?php if ($deposit) {
+        $deposit_total = array_sum(array_map(function ($item) { return round(floatval($item['amount']), 2); }, $deposit)); ?>
+        <div class="mt-3">
+            <div class="small fw-semibold text-uppercase text-body-secondary mb-1">In this deposit</div>
+            <?php foreach ($deposit as $item) { ?>
+                <div class="d-flex justify-content-between gap-2 small py-1 border-bottom">
+                    <a class="text-truncate ajax-modal" href="#" data-modal-size="lg" data-modal-url="modals/<?= $item['kind'] === 'payment' ? 'payment/payment' : 'revenue/revenue' ?>.php?id=<?= intval($item['id']) ?>">
+                        <span class="text-body-secondary me-1"><?= escapeHtml($item['date']) ?></span><?= escapeHtml($item['what']) ?><?= $item['client_name'] !== null ? ' - ' . escapeHtml($item['client_name']) : '' ?>
+                        <?php if (trim((string) $item['method']) !== '') { ?><span class="text-body-secondary"> - <?= escapeHtml($item['method']) ?><?= trim((string) $item['reference']) !== '' ? ' #' . escapeHtml($item['reference']) : '' ?></span><?php } ?>
+                    </a>
+                    <span class="itflow-money text-nowrap"><?= escapeHtml(billingMoney($item['amount'], $row['transfer_currency_code'])) ?></span>
+                </div>
+            <?php } ?>
+            <?php if (abs($deposit_total - floatval($row['transfer_amount'])) >= 0.005) { ?>
+                <div class="small text-warning-emphasis mt-2"><i class="fas fa-exclamation-triangle me-1"></i>They come to <?= escapeHtml(billingMoney($deposit_total, $row['transfer_currency_code'])) ?> - the deposit is <?= escapeHtml(billingMoney($row['transfer_amount'], $row['transfer_currency_code'])) ?>.</div>
+            <?php } ?>
+        </div>
+    <?php } ?>
 
     <?php if (trim((string) $row['transfer_notes']) !== '') { ?>
         <div class="mt-3">

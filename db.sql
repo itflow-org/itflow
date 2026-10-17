@@ -30,6 +30,8 @@ CREATE TABLE `account_reconciliations` (
   `reconciliation_starting_balance` decimal(15,2) NOT NULL DEFAULT 0.00,
   `reconciliation_ending_balance` decimal(15,2) NOT NULL DEFAULT 0.00,
   `reconciliation_notes` varchar(250) DEFAULT NULL,
+  `reconciliation_opening` tinyint(1) NOT NULL DEFAULT 0,
+  `reconciliation_adjustment` decimal(15,2) NOT NULL DEFAULT 0.00,
   `reconciliation_created_by` int(11) NOT NULL DEFAULT 0,
   `reconciliation_created_at` datetime NOT NULL DEFAULT current_timestamp(),
   `reconciliation_finished_by` int(11) NOT NULL DEFAULT 0,
@@ -1837,11 +1839,13 @@ CREATE TABLE `payments` (
   `payment_invoice_id` int(11) NOT NULL DEFAULT 0,
   `payment_import_key` varchar(64) DEFAULT NULL,
   `payment_reconciliation_id` int(11) DEFAULT NULL,
+  `payment_deposit_transfer_id` int(11) DEFAULT NULL,
   PRIMARY KEY (`payment_id`),
   KEY `payment_invoice_id` (`payment_invoice_id`),
   KEY `payment_date` (`payment_date`),
   KEY `payment_import_key` (`payment_import_key`),
-  KEY `payment_reconciliation_id` (`payment_reconciliation_id`)
+  KEY `payment_reconciliation_id` (`payment_reconciliation_id`),
+  KEY `payment_deposit_transfer_id` (`payment_deposit_transfer_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -2407,11 +2411,13 @@ CREATE TABLE `revenues` (
   `revenue_created_by` int(11) NOT NULL DEFAULT 0,
   `revenue_import_key` varchar(64) DEFAULT NULL,
   `revenue_reconciliation_id` int(11) DEFAULT NULL,
+  `revenue_deposit_transfer_id` int(11) DEFAULT NULL,
   PRIMARY KEY (`revenue_id`),
   KEY `revenue_client_id` (`revenue_client_id`,`revenue_archived_at`),
   KEY `revenue_date` (`revenue_date`),
   KEY `revenue_import_key` (`revenue_import_key`),
-  KEY `revenue_reconciliation_id` (`revenue_reconciliation_id`)
+  KEY `revenue_reconciliation_id` (`revenue_reconciliation_id`),
+  KEY `revenue_deposit_transfer_id` (`revenue_deposit_transfer_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 

@@ -6397,6 +6397,12 @@ a.itflow-billing-stat:hover {
     max-width: 0;
     min-width: 14rem;
 }
+/* A deposit out of a cash account - what is waiting in it, to tick (agent/modals/transfer/transfer_form.php) */
+.itflow-deposit-list {
+    max-height: 16rem;
+    overflow-y: auto;
+}
+
 /* Reconcile - agent/reconcile.php. A line ticked as cleared on the statement
    takes the success tint; the Difference card turns green once it balances. */
 .itflow-reconcile-table > tbody > tr.itflow-reconcile-ticked > * {

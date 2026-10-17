@@ -19,6 +19,7 @@ if (!$row) {
 
 $revenue_id = intval($row['revenue_id']);
 $cleared = reconcileLock('revenue', $revenue_id);
+$deposited = transferDepositedIn('revenue', $revenue_id);
 $client_id = intval($row['revenue_client_id']);
 $amount = floatval($row['revenue_amount']);
 $currency = (string) $row['revenue_currency_code'];
@@ -78,6 +79,7 @@ ob_start();
                 <i class="fas fa-fw fa-clock"></i>
                 <span><span title="<?= escapeHtml($row['revenue_created_at']) ?>"><?= timeAgo($row['revenue_created_at']) ?></span><?php if ($row['created_by_name']) { ?> <span class="text-body-secondary">by <?= escapeHtml($row['created_by_name']) ?></span><?php } ?><?php if (!empty($row['revenue_import_key'])) { ?> <span class="text-body-secondary">from a bank statement</span><?php } ?></span>
             </div>
+            <?= transferDepositedGlanceHtml($deposited) ?>
             <?= reconcileGlanceHtml($cleared) ?>
         </div>
         <div class="col-sm-6">

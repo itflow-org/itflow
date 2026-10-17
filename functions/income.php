@@ -306,6 +306,7 @@ function incomeRevenueSave(array $in, $revenue_id = 0, &$error = '') {
         if (!reconcileCheckChange('revenue', $revenue_id, $date, $amount, $account_id, $error)) {
             return 0;
         }
+        transferDepositRelease('revenue', $revenue_id, $account_id);
         mysqli_query($mysqli, "UPDATE revenues SET $set WHERE revenue_id = $revenue_id");
         return $revenue_id;
     }

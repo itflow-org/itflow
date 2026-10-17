@@ -11,6 +11,9 @@
  * With nothing in progress: where the account is reconciled to, the form to
  * start the next statement, and the statements reconciled before - each
  * opening the lines it cleared on Transactions, the latest one with Undo.
+ * An account's first statement can start from the bank's balance the day it
+ * starts, bringing everything before it forward as reconciled; where ITFlow
+ * was off the bank that day, the opening balance can be corrected to match.
  *
  * Takes ?account= - or the account being reconciled, the default account
  * payments go into, or the first.
@@ -60,6 +63,10 @@ $open = $account ? reconcileOpen($account_id) : null;
 $last = $account ? reconcileLast($account_id) : null;
 $history = $account && !$open ? reconcileHistory($account_id) : [];
 $starting = $account ? reconcileStartingBalance($account_id) : 0.0;
+// Brought forward from the bank's balance - and how far ITFlow was from it that day
+$opening = $account ? reconcileOpening($account_id) : null;
+$opening_totals = $opening ? reconcileTotals($opening) : null;
+$opening_gap = $opening ? round($opening_totals['difference'], 2) : 0.0;
 
 // The next statement most likely ends at the end of last month
 $suggest = date('Y-m-t', strtotime('first day of last month'));
@@ -74,9 +81,67 @@ if ($open) {
     $uncleared = $account ? mysqli_fetch_row(mysqli_query($mysqli, "SELECT COUNT(*), COALESCE(SUM(ledger.txn_amount), 0) FROM (" . accountLedgerSql($account_id) . ") AS ledger WHERE ledger.txn_cleared_id IS NULL")) : [0, 0];
 }
 
-$statement_form = function ($row) use ($account, $is_card, $suggest, $last, $starting, $money, $statement_money) {
+$statement_form = function ($row) use ($mysqli, $account, $is_card, $suggest, $last, $starting, $money, $statement_money) {
     $date = $row ? $row['reconciliation_statement_date'] : $suggest;
     $ending = $row ? floatval($row['reconciliation_ending_balance']) * ($is_card ? -1 : 1) : null;
+    $first = !$row && !$last;
+    if ($first) {
+        // An account with history before the statement most likely starts from the bank's balance
+        $start = date('Y-m-01', strtotime($date));
+        $account_id = intval($account['account_id']);
+        $earlier = mysqli_fetch_row(mysqli_query($mysqli, "SELECT EXISTS (SELECT 1 FROM payments WHERE payment_account_id = $account_id AND payment_date < '$start')
+            OR EXISTS (SELECT 1 FROM revenues WHERE revenue_account_id = $account_id AND revenue_date < '$start')
+            OR EXISTS (SELECT 1 FROM expenses WHERE expense_account_id = $account_id AND expense_date < '$start')"))[0];
+        $from_statement = intval($earlier) === 1;
+        ?>
+        <div class="mb-3" data-reconcile-start>
+            <div class="form-label">Its first statement starts from</div>
+            <div class="form-check">
+                <input class="form-check-input" type="radio" name="start_from" value="statement" id="reconcileStartStatement" <?= $from_statement ? 'checked' : '' ?>>
+                <label class="form-check-label" for="reconcileStartStatement">The bank's balance the day the statement starts <span class="text-body-secondary">- everything on <?= escapeHtml($account['account_name']) ?> before that day counts as reconciled</span></label>
+            </div>
+            <div class="form-check">
+                <input class="form-check-input" type="radio" name="start_from" value="opening" id="reconcileStartOpening" <?= $from_statement ? '' : 'checked' ?>>
+                <label class="form-check-label" for="reconcileStartOpening">The account's opening balance, <?= $statement_money($account['opening_balance']) ?> <span class="text-body-secondary">- tick everything since it opened</span></label>
+            </div>
+        </div>
+        <div class="row g-3 mb-3" data-reconcile-start-fields <?= $from_statement ? '' : 'hidden' ?>>
+            <div class="col-md-4">
+                <label class="form-label">Statement starts <strong class="text-danger">*</strong></label>
+                <div class="input-group">
+                    <span class="input-group-text"><i class="fa fa-fw fa-calendar"></i></span>
+                    <input type="date" class="form-control" name="start_date" max="<?= date('Y-m-d') ?>" value="<?= escapeHtml($start) ?>" required <?= $from_statement ? '' : 'disabled' ?>>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <label class="form-label"><?= $is_card ? 'Owed when it starts' : 'Starting balance' ?> <strong class="text-danger">*</strong></label>
+                <div class="input-group">
+                    <span class="input-group-text"><i class="fa fa-fw fa-dollar-sign"></i></span>
+                    <input type="text" class="form-control text-end fw-semibold" inputmode="decimal" pattern="-?[0-9,]*\.?[0-9]{0,2}" name="start_balance" placeholder="0.00" required <?= $from_statement ? '' : 'disabled' ?>>
+                    <span class="input-group-text"><?= escapeHtml($account['account_currency_code']) ?></span>
+                </div>
+                <div class="form-text"><?= $is_card ? 'The previous balance the statement says you owed' : 'The beginning balance on the statement' ?></div>
+            </div>
+        </div>
+        <script>
+        (function () {
+            var start = document.querySelector('[data-reconcile-start]');
+            var fields = document.querySelector('[data-reconcile-start-fields]');
+            if (!start || !fields || start.dataset.wired) {
+                return;
+            }
+            start.dataset.wired = '1';
+            start.addEventListener('change', function () {
+                var fromStatement = start.querySelector('input[value="statement"]').checked;
+                fields.hidden = !fromStatement;
+                fields.querySelectorAll('input').forEach(function (input) {
+                    input.disabled = !fromStatement;
+                });
+            });
+        })();
+        </script>
+        <?php
+    }
     ?>
     <div class="row g-3">
         <div class="col-md-4">
@@ -104,9 +169,32 @@ $statement_form = function ($row) use ($account, $is_card, $suggest, $last, $sta
             </div>
         </div>
     </div>
-    <div class="form-text mt-2">
-        <i class="fas fa-info-circle me-1"></i>It starts from <?= $statement_money($starting) ?> -
-        <?= $last ? 'where the statement to ' . escapeHtml(date('M j, Y', strtotime($last['reconciliation_statement_date']))) . ' ended' : "the account's opening balance, as this is its first statement" ?>.
+    <?php if (!$first) { ?>
+        <div class="form-text mt-2">
+            <i class="fas fa-info-circle me-1"></i>It starts from <?= $statement_money($starting) ?> -
+            <?= $last && $last['opening'] ? "the bank's balance when " . escapeHtml(date('M j, Y', strtotime($last['reconciliation_statement_date'] . ' +1 day'))) . ' started'
+                : ($last ? 'where the statement to ' . escapeHtml(date('M j, Y', strtotime($last['reconciliation_statement_date']))) . ' ended' : "the account's opening balance") ?>.
+        </div>
+    <?php } ?>
+    <?php
+};
+
+// Where ITFlow was off the bank on the day it was brought forward - correct the opening balance, or leave it
+$gap_notice = function () use ($opening, $opening_totals, $opening_gap, $account, $can_edit, $statement_money, $money) {
+    if (!$opening || abs($opening_gap) < 0.005 || abs(floatval($opening['reconciliation_adjustment'])) >= 0.005) {
+        return;
+    }
+    $day = date('M j, Y', strtotime($opening['reconciliation_statement_date']));
+    ?>
+    <div class="alert alert-warning d-flex flex-wrap gap-2 align-items-center">
+        <i class="fas fa-exclamation-triangle"></i>
+        <span class="me-auto">On <?= escapeHtml($day) ?> ITFlow had <?= escapeHtml($account['account_name']) ?> at <?= $statement_money($opening_totals['cleared']) ?> and the bank at <?= $statement_money($opening_totals['ending']) ?>
+            - <?= $money(abs($opening_gap)) ?> apart. Correct the opening balance by that so ITFlow matches the bank from then on, or leave it - the statements reconcile from the bank's balance either way.</span>
+        <?php if ($can_edit) { ?>
+            <a class="btn btn-sm btn-warning confirm-link" href="post.php?reconcile_correct_opening=<?= intval($opening['reconciliation_id']) ?>&amp;csrf_token=<?= $_SESSION['csrf_token'] ?>"
+                data-confirm-title="Correct the opening balance?" data-confirm-text="<?= escapeHtml($account['account_name']) ?>'s opening balance moves by <?= $money($opening_gap) ?>, to <?= $money(floatval($account['opening_balance']) + $opening_gap) ?>, and every balance after it with it. Undoing the brought forward reconciliation puts it back."
+                data-confirm-button="Correct it"><i class="fas fa-wrench me-1"></i>Correct the opening balance</a>
+        <?php } ?>
     </div>
     <?php
 };
@@ -131,13 +219,16 @@ $statement_form = function ($row) use ($account, $is_card, $suggest, $last, $sta
 
 <?php if ($open) { ?>
 
+<?php $gap_notice(); ?>
+
 <!-- Where the statement being reconciled stands - updated as lines are ticked -->
 <div class="row g-3 mb-3" id="reconcileTotals">
     <div class="col-sm-6 col-xl-3">
         <div class="itflow-billing-stat">
             <div class="itflow-billing-stat-label"><i class="fas fa-flag me-1"></i>Starting from</div>
             <div class="itflow-billing-stat-value"><?= $statement_money($totals['starting']) ?></div>
-            <div class="itflow-billing-stat-note"><?= $last ? 'Reconciled to ' . escapeHtml(date('M j, Y', strtotime($last['reconciliation_statement_date']))) : 'The opening balance' ?></div>
+            <div class="itflow-billing-stat-note"><?= $last && $last['opening'] ? "The bank's, when " . escapeHtml(date('M j, Y', strtotime($last['reconciliation_statement_date'] . ' +1 day'))) . ' started'
+                : ($last ? 'Reconciled to ' . escapeHtml(date('M j, Y', strtotime($last['reconciliation_statement_date']))) : 'The opening balance') ?></div>
         </div>
     </div>
     <div class="col-sm-6 col-xl-3">
@@ -315,6 +406,8 @@ $statement_form = function ($row) use ($account, $is_card, $suggest, $last, $sta
 
 <?php } else { ?>
 
+<?php $gap_notice(); ?>
+
 <!-- Where the account is reconciled to -->
 <div class="row g-3 mb-3">
     <div class="col-sm-6 col-xl-4">
@@ -328,7 +421,8 @@ $statement_form = function ($row) use ($account, $is_card, $suggest, $last, $sta
         <div class="itflow-billing-stat">
             <div class="itflow-billing-stat-label"><i class="fas fa-check-double me-1"></i>Reconciled to</div>
             <div class="itflow-billing-stat-value"><?= $last ? escapeHtml(date('M j, Y', strtotime($last['reconciliation_statement_date']))) : 'Never' ?></div>
-            <div class="itflow-billing-stat-note"><?= $last ? 'Ending at ' . $statement_money($last['reconciliation_ending_balance']) : 'Its first statement starts from the opening balance' ?></div>
+            <div class="itflow-billing-stat-note"><?= $last && $last['opening'] ? "Brought forward at the bank's " . $statement_money($last['reconciliation_ending_balance'])
+                : ($last ? 'Ending at ' . $statement_money($last['reconciliation_ending_balance']) : 'Its first statement starts from the bank\'s balance or the opening balance') ?></div>
         </div>
     </div>
     <div class="col-sm-6 col-xl-4">
@@ -390,9 +484,17 @@ $statement_form = function ($row) use ($account, $is_card, $suggest, $last, $sta
                 $t = $row['totals']; ?>
                 <tr>
                     <td class="text-nowrap fw-semibold"><?= escapeHtml(date('M j, Y', strtotime($row['reconciliation_statement_date']))) ?>
-                        <?php if ($row['reconciliation_notes'] !== null && $row['reconciliation_notes'] !== '') { ?><div class="small text-body-secondary fw-normal text-truncate" style="max-width: 16rem;"><?= escapeHtml($row['reconciliation_notes']) ?></div><?php } ?>
+                        <?php if ($row['opening']) { ?>
+                            <div class="small text-body-secondary fw-normal"><i class="fas fa-angle-double-right me-1"></i>Brought forward - everything before <?= escapeHtml(date('M j, Y', strtotime($row['reconciliation_statement_date'] . ' +1 day'))) ?></div>
+                        <?php } elseif ($row['reconciliation_notes'] !== null && $row['reconciliation_notes'] !== '') { ?><div class="small text-body-secondary fw-normal text-truncate" style="max-width: 16rem;"><?= escapeHtml($row['reconciliation_notes']) ?></div><?php } ?>
                     </td>
-                    <td class="text-end text-nowrap itflow-money fw-semibold"><?= $statement_money($row['reconciliation_ending_balance']) ?></td>
+                    <td class="text-end text-nowrap itflow-money fw-semibold"><?= $statement_money($row['reconciliation_ending_balance']) ?>
+                        <?php if ($row['opening'] && abs(floatval($row['reconciliation_adjustment'])) >= 0.005) { ?>
+                            <div class="small text-body-secondary fw-normal">opening balance corrected by <?= $money($row['reconciliation_adjustment']) ?></div>
+                        <?php } elseif ($row['opening'] && abs($t['difference']) >= 0.005) { ?>
+                            <div class="small text-warning-emphasis fw-normal"><?= $money(abs($t['difference'])) ?> off ITFlow's <?= $statement_money($t['cleared']) ?></div>
+                        <?php } ?>
+                    </td>
                     <td class="text-nowrap"><a href="transactions.php?account=<?= $account_id ?>&amp;reconciliation=<?= intval($row['reconciliation_id']) ?>" title="The lines it cleared"><?= $t['count'] ?> line<?= $t['count'] === 1 ? '' : 's' ?></a>
                         <div class="small text-body-secondary">from <?= $statement_money($t['starting']) ?></div>
                     </td>
@@ -405,8 +507,9 @@ $statement_form = function ($row) use ($account, $is_card, $suggest, $last, $sta
                     <td class="text-end">
                         <?php if ($i === 0 && $can_undo) { ?>
                             <a class="btn btn-sm btn-outline-danger confirm-link" href="post.php?reconcile_undo=<?= intval($row['reconciliation_id']) ?>&amp;csrf_token=<?= $_SESSION['csrf_token'] ?>"
-                                data-confirm-title="Undo this reconciliation?" data-confirm-text="It goes back to being reconciled, with what was ticked - its lines can change again until it is finished." data-confirm-button="Undo"
-                                title="Back to being reconciled"><i class="fas fa-undo me-1"></i>Undo</a>
+                                data-confirm-title="Undo this reconciliation?" data-confirm-button="Undo"
+                                data-confirm-text="<?= $row['opening'] ? 'Nothing before ' . escapeHtml(date('M j, Y', strtotime($row['reconciliation_statement_date'] . ' +1 day'))) . ' counts as reconciled any more' . (abs(floatval($row['reconciliation_adjustment'])) >= 0.005 ? ', and the opening balance goes back' : '') . ' - the next statement can start again from either balance.' : 'It goes back to being reconciled, with what was ticked - its lines can change again until it is finished.' ?>"
+                                title="<?= $row['opening'] ? 'Take the brought forward away' : 'Back to being reconciled' ?>"><i class="fas fa-undo me-1"></i>Undo</a>
                         <?php } ?>
                     </td>
                 </tr>

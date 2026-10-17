@@ -106,6 +106,8 @@ if (isset($_POST['edit_payment'])) {
         flashAlert(escapeHtml($error), 'error');
         redirect();
     }
+    // Moved to another account - out of the deposit it was in
+    transferDepositRelease('payment', $payment_id, $account);
 
     mysqli_query($mysqli,"UPDATE payments SET payment_date = '$date', payment_amount = $amount, payment_account_id = $account, payment_method = '$payment_method', payment_reference = '$reference' WHERE payment_id = $payment_id");
 

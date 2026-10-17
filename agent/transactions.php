@@ -336,7 +336,7 @@ if ($transfer_cards) {
         <?php if ($reconciliation_filter) { ?>
             <div class="alert alert-success py-2 mt-2 mb-0 small d-flex flex-wrap gap-2 align-items-center">
                 <i class="fas fa-check-circle"></i>
-                <span>The lines cleared on <?= $reconciliation ? 'the ' . escapeHtml($reconciliation['account']['account_name']) . ' statement to ' . escapeHtml(date('M j, Y', strtotime($reconciliation['reconciliation_statement_date']))) . ($reconciliation['finished'] ? '' : ' - still being reconciled, so none yet') : 'a statement since undone - none' ?></span>
+                <span><?php if ($reconciliation && $reconciliation['opening']) { ?>The lines on <?= escapeHtml($reconciliation['account']['account_name']) ?> brought forward as reconciled - everything before <?= escapeHtml(date('M j, Y', strtotime($reconciliation['reconciliation_statement_date'] . ' +1 day'))) ?><?php } else { ?>The lines cleared on <?= $reconciliation ? 'the ' . escapeHtml($reconciliation['account']['account_name']) . ' statement to ' . escapeHtml(date('M j, Y', strtotime($reconciliation['reconciliation_statement_date']))) . ($reconciliation['finished'] ? '' : ' - still being reconciled, so none yet') : 'a statement since undone - none' ?><?php } ?></span>
                 <a class="ms-auto" href="<?= escapeHtml($filter_url(['reconciliation' => ''])) ?>">Show every line</a>
             </div>
         <?php } ?>
@@ -380,7 +380,7 @@ if ($transfer_cards) {
                 $meta = array_filter([(string) $row['txn_method'], $row['txn_reference'] ? '#' . $row['txn_reference'] : '']);
                 ?>
                 <tr>
-                    <td class="text-nowrap"><a class="fw-semibold ajax-modal" href="#" data-modal-size="lg" data-modal-url="<?= escapeHtml(accountLedgerModal($row)) ?>"><?= escapeHtml($row['txn_date']) ?></a><?php if ($row['txn_cleared_id']) { ?><a class="ms-1 text-success-emphasis small" href="<?= escapeHtml($filter_url(['reconciliation' => intval($row['txn_cleared_id']), 'account' => intval($row['txn_account_id'])])) ?>" title="Cleared on the statement to <?= escapeHtml(date('M j, Y', strtotime($row['txn_cleared_date']))) ?>"><i class="fas fa-check-circle"></i></a><?php } ?></td>
+                    <td class="text-nowrap"><a class="fw-semibold ajax-modal" href="#" data-modal-size="lg" data-modal-url="<?= escapeHtml(accountLedgerModal($row)) ?>"><?= escapeHtml($row['txn_date']) ?></a><?php if ($row['txn_cleared_id']) { ?><a class="ms-1 text-success-emphasis small" href="<?= escapeHtml($filter_url(['reconciliation' => intval($row['txn_cleared_id']), 'account' => intval($row['txn_account_id'])])) ?>" title="<?= intval($row['txn_cleared_opening']) ? 'Brought forward as reconciled to ' : 'Cleared on the statement to ' ?><?= escapeHtml(date('M j, Y', strtotime($row['txn_cleared_date']))) ?>"><i class="fas fa-check-circle"></i></a><?php } ?></td>
                     <?php if ($all) { ?>
                         <td class="text-nowrap small">
                             <a class="text-reset" href="<?= escapeHtml($filter_url(['account' => intval($row['txn_account_id'])])) ?>" title="Its transactions"><i class="fas fa-fw <?= $types[accountType($row)]['icon'] ?> text-body-secondary me-1"></i><?= escapeHtml($row['account_name']) ?></a>

@@ -354,6 +354,7 @@ function accountLedgerKinds() {
  * behind it - payment-12, revenue-5 or expense-9), txn_reconciliation_id (the
  * reconciliation it is ticked on, finished or not), txn_cleared_id and
  * txn_cleared_date (the finished one it cleared on, and its statement date),
+ * txn_cleared_opening (1 when that is an account brought forward),
  * txn_method, txn_reference, txn_invoice_id, txn_currency, txn_imported and
  * txn_balance - the account's balance after the line, in date order. Select
  * from it as a derived table.
@@ -406,7 +407,7 @@ function accountLedgerSql($account_id = 0) {
         WHERE expenses.expense_archived_at IS NULL AND " . $on('expenses.expense_account_id');
     return "SELECT ledger_lines.*, accounts.account_name, accounts.account_type, accounts.account_currency_code, category_name, category_color, client_name,
             ledger_lines.txn_other_name AS other_account_name, other_account.account_type AS other_account_type,
-            cleared.reconciliation_id AS txn_cleared_id, cleared.reconciliation_statement_date AS txn_cleared_date,
+            cleared.reconciliation_id AS txn_cleared_id, cleared.reconciliation_statement_date AS txn_cleared_date, cleared.reconciliation_opening AS txn_cleared_opening,
             accounts.opening_balance + SUM(ledger_lines.txn_amount) OVER (PARTITION BY ledger_lines.txn_account_id ORDER BY ledger_lines.txn_date ASC, ledger_lines.txn_created_at ASC,
                 ledger_lines.txn_order ASC, ledger_lines.txn_id ASC) AS txn_balance
         FROM ($rows) AS ledger_lines
@@ -511,7 +512,8 @@ function accountLedgerFiltersSql(array $src, &$summary = [], $with_show = true, 
     if ($reconciliation_id) {
         $sql .= " AND ledger.txn_cleared_id = $reconciliation_id";
         $statement = getFieldById('account_reconciliations', $reconciliation_id, 'reconciliation_statement_date');
-        $summary['Cleared on'] = $statement ? 'the statement to ' . date('M j, Y', strtotime($statement)) : 'a statement since undone';
+        $brought = intval(getFieldById('account_reconciliations', $reconciliation_id, 'reconciliation_opening')) === 1;
+        $summary['Cleared on'] = $statement ? ($brought ? 'brought forward to ' : 'the statement to ') . date('M j, Y', strtotime($statement)) : 'a statement since undone';
     }
     $show = (string) ($src['show'] ?? '');
     $shows = accountLedgerShows($all_accounts);
@@ -657,6 +659,11 @@ function transferSave(array $in, $transfer_id = 0, &$error = '') {
         mysqli_query($mysqli, "UPDATE revenues SET revenue_date = '$date', revenue_amount = $amount_sql, revenue_account_id = $to, revenue_currency_code = '$currency'
             WHERE revenue_id = " . intval($existing['transfer_revenue_id']));
         mysqli_query($mysqli, "UPDATE transfers SET transfer_method = $method_sql, transfer_notes = $notes_sql WHERE transfer_id = $transfer_id");
+        // A deposit moved to come out of another account no longer carries what was waiting in the first
+        if ($from !== intval($existing['transfer_from_id'])) {
+            mysqli_query($mysqli, "UPDATE payments SET payment_deposit_transfer_id = NULL, payment_updated_at = payment_updated_at WHERE payment_deposit_transfer_id = $transfer_id");
+            mysqli_query($mysqli, "UPDATE revenues SET revenue_deposit_transfer_id = NULL, revenue_updated_at = revenue_updated_at WHERE revenue_deposit_transfer_id = $transfer_id");
+        }
         return $transfer_id;
     }
     mysqli_query($mysqli, "INSERT INTO expenses SET expense_date = '$date', expense_amount = $amount_sql, expense_currency_code = '$currency', expense_vendor_id = 0,
@@ -666,7 +673,9 @@ function transferSave(array $in, $transfer_id = 0, &$error = '') {
         revenue_account_id = $to, revenue_created_by = " . intval($session_user_id));
     $revenue_id = mysqli_insert_id($mysqli);
     mysqli_query($mysqli, "INSERT INTO transfers SET transfer_expense_id = $expense_id, transfer_revenue_id = $revenue_id, transfer_method = $method_sql, transfer_notes = $notes_sql");
-    return mysqli_insert_id($mysqli);
+    $transfer_id = mysqli_insert_id($mysqli);
+    transferDepositLink($transfer_id, $from, (array) ($in['deposit'] ?? []));
+    return $transfer_id;
 }
 
 /** Delete a transfer - both sides of it. The row it deleted, or null with $error. */
@@ -684,5 +693,147 @@ function transferDelete($transfer_id, &$error = '') {
     mysqli_query($mysqli, "DELETE FROM expenses WHERE expense_id = " . intval($row['transfer_expense_id']));
     mysqli_query($mysqli, "DELETE FROM revenues WHERE revenue_id = " . intval($row['transfer_revenue_id']));
     mysqli_query($mysqli, "DELETE FROM transfers WHERE transfer_id = " . intval($row['transfer_id']));
+    // What was in the deposit waits to be deposited again
+    mysqli_query($mysqli, "UPDATE payments SET payment_deposit_transfer_id = NULL, payment_updated_at = payment_updated_at WHERE payment_deposit_transfer_id = " . intval($row['transfer_id']));
+    mysqli_query($mysqli, "UPDATE revenues SET revenue_deposit_transfer_id = NULL, revenue_updated_at = revenue_updated_at WHERE revenue_deposit_transfer_id = " . intval($row['transfer_id']));
+    return $row;
+}
+
+/*
+ * Deposits - checks and cash taken in to a cash account, then moved to the
+ * bank with a transfer. The payments and other income in a deposit carry its
+ * transfer (payment_deposit_transfer_id, revenue_deposit_transfer_id), so
+ * the next one offers only what is still waiting.
+ */
+
+/**
+ * The payments and other income waiting in an account to be deposited,
+ * oldest first: not in a deposit yet, and not before the latest transfer out
+ * of it that had nothing picked - every transfer out before deposits were
+ * picked moved everything up to it. Each with kind, id, key (payment-12),
+ * date, amount, what, client_name, method and reference.
+ */
+function transferDepositCandidates($account_id, $limit = 200) {
+    global $mysqli;
+    $account_id = intval($account_id);
+    $cutoff = mysqli_fetch_row(mysqli_query($mysqli, "SELECT expenses.expense_date, expenses.expense_created_at FROM transfers
+        JOIN expenses ON expenses.expense_id = transfer_expense_id
+        WHERE expenses.expense_account_id = $account_id
+        AND NOT EXISTS (SELECT 1 FROM payments WHERE payment_deposit_transfer_id = transfer_id)
+        AND NOT EXISTS (SELECT 1 FROM revenues WHERE revenue_deposit_transfer_id = transfer_id)
+        ORDER BY expenses.expense_date DESC, expenses.expense_created_at DESC LIMIT 1"));
+    $after = function ($date, $created) use ($cutoff) {
+        return $cutoff ? " AND ($date > '" . escapeSql($cutoff[0]) . "' OR ($date = '" . escapeSql($cutoff[0]) . "' AND $created > '" . escapeSql($cutoff[1]) . "'))" : '';
+    };
+    $sql = mysqli_query($mysqli, "SELECT * FROM (
+            SELECT 'payment' AS kind, payment_id AS id, payment_date AS date, payment_created_at AS created_at, payment_amount AS amount,
+                CONCAT(COALESCE(invoice_prefix, ''), COALESCE(invoice_number, '')) AS what, client_name, payment_method AS method, payment_reference AS reference
+            FROM payments
+            LEFT JOIN invoices ON invoice_id = payment_invoice_id
+            LEFT JOIN clients ON client_id = invoice_client_id
+            WHERE payment_account_id = $account_id AND payment_deposit_transfer_id IS NULL AND payment_archived_at IS NULL" . $after('payment_date', 'payment_created_at') . "
+            UNION ALL
+            SELECT 'revenue', revenue_id, revenue_date, revenue_created_at, revenue_amount, revenue_description, client_name, revenue_payment_method, revenue_reference
+            FROM revenues
+            LEFT JOIN clients ON client_id = revenue_client_id
+            WHERE revenue_account_id = $account_id AND revenue_deposit_transfer_id IS NULL AND revenue_archived_at IS NULL
+            AND NOT EXISTS (SELECT 1 FROM transfers WHERE transfer_revenue_id = revenue_id)" . $after('revenue_date', 'revenue_created_at') . "
+        ) AS waiting ORDER BY date ASC, created_at ASC, id ASC LIMIT " . intval($limit));
+    $rows = [];
+    while ($row = mysqli_fetch_assoc($sql)) {
+        $row['id'] = intval($row['id']);
+        $row['key'] = $row['kind'] . '-' . $row['id'];
+        $row['amount'] = round(floatval($row['amount']), 2);
+        $what = trim((string) strtok((string) $row['what'], "\n"));
+        $row['what'] = $row['kind'] === 'payment' ? ($what !== '' ? "Payment on $what" : 'A payment') : ($what !== '' ? $what : 'Other income');
+        $rows[] = $row;
+    }
+    return $rows;
+}
+
+/** Put the picked payments and other income ('payment-12', 'revenue-5') waiting in the account it left in a new deposit's transfer. Returns how many. */
+function transferDepositLink($transfer_id, $from_account_id, array $keys) {
+    global $mysqli;
+    $transfer_id = intval($transfer_id);
+    $from = intval($from_account_id);
+    $count = 0;
+    foreach (array_unique(array_map('strval', $keys)) as $key) {
+        if (!preg_match('/^(payment|revenue)-(\d+)$/', $key, $m)) {
+            continue;
+        }
+        $id = intval($m[2]);
+        if ($m[1] === 'payment') {
+            mysqli_query($mysqli, "UPDATE payments SET payment_deposit_transfer_id = $transfer_id, payment_updated_at = payment_updated_at
+                WHERE payment_id = $id AND payment_account_id = $from AND payment_deposit_transfer_id IS NULL AND payment_archived_at IS NULL");
+        } else {
+            mysqli_query($mysqli, "UPDATE revenues SET revenue_deposit_transfer_id = $transfer_id, revenue_updated_at = revenue_updated_at
+                WHERE revenue_id = $id AND revenue_account_id = $from AND revenue_deposit_transfer_id IS NULL AND revenue_archived_at IS NULL
+                AND NOT EXISTS (SELECT 1 FROM transfers WHERE transfer_revenue_id = revenue_id)");
+        }
+        $count += mysqli_affected_rows($mysqli);
+    }
+    return $count;
+}
+
+/** Before a payment or other income moves to another account: it comes out of the deposit it was in, which took it from the old one. */
+function transferDepositRelease($kind, $id, $account_id) {
+    global $mysqli;
+    $id = intval($id);
+    $account_id = intval($account_id);
+    if ($kind === 'payment') {
+        mysqli_query($mysqli, "UPDATE payments SET payment_deposit_transfer_id = NULL, payment_updated_at = payment_updated_at
+            WHERE payment_id = $id AND payment_account_id <> $account_id AND payment_deposit_transfer_id IS NOT NULL");
+    } elseif ($kind === 'revenue') {
+        mysqli_query($mysqli, "UPDATE revenues SET revenue_deposit_transfer_id = NULL, revenue_updated_at = revenue_updated_at
+            WHERE revenue_id = $id AND revenue_account_id <> $account_id AND revenue_deposit_transfer_id IS NOT NULL");
+    }
+}
+
+/** What a deposit's transfer carried, oldest first - each with kind, id, date, amount, what and client_name. */
+function transferDepositItems($transfer_id) {
+    global $mysqli;
+    $id = intval($transfer_id);
+    $sql = mysqli_query($mysqli, "SELECT * FROM (
+            SELECT 'payment' AS kind, payment_id AS id, payment_date AS date, payment_amount AS amount, CONCAT(COALESCE(invoice_prefix, ''), COALESCE(invoice_number, '')) AS what,
+                client_name, payment_method AS method, payment_reference AS reference
+            FROM payments LEFT JOIN invoices ON invoice_id = payment_invoice_id LEFT JOIN clients ON client_id = invoice_client_id
+            WHERE payment_deposit_transfer_id = $id
+            UNION ALL
+            SELECT 'revenue', revenue_id, revenue_date, revenue_amount, revenue_description, client_name, revenue_payment_method, revenue_reference
+            FROM revenues LEFT JOIN clients ON client_id = revenue_client_id
+            WHERE revenue_deposit_transfer_id = $id
+        ) AS deposit ORDER BY date ASC, id ASC");
+    $rows = [];
+    while ($row = mysqli_fetch_assoc($sql)) {
+        $what = trim((string) strtok((string) $row['what'], "\n"));
+        $row['what'] = $row['kind'] === 'payment' ? ($what !== '' ? "Payment on $what" : 'A payment') : ($what !== '' ? $what : 'Other income');
+        $rows[] = $row;
+    }
+    return $rows;
+}
+
+/** A quick look's line for one deposited - where to and when, opening the deposit. '' for null. */
+function transferDepositedGlanceHtml($deposit) {
+    if (!$deposit) {
+        return '';
+    }
+    $others = intval($deposit['count']) - 1;
+    return '<div class="itflow-glance-item" title="Deposited"><i class="fas fa-fw fa-piggy-bank"></i><span><a href="#" class="ajax-modal" data-modal-size="lg" data-modal-url="modals/transfer/transfer.php?id='
+        . intval($deposit['transfer_id']) . '">Deposited to ' . escapeHtml($deposit['to_account_name'] ?: 'an account since deleted') . ' on ' . escapeHtml(date('M j, Y', strtotime($deposit['transfer_date']))) . '</a>'
+        . ($others > 0 ? ' <span class="text-body-secondary">with ' . $others . ' other' . ($others === 1 ? '' : 's') . '</span>' : '') . '</span></div>';
+}
+
+/** The deposit a payment or other income went to the bank in - transfer_id, transfer_date, to_account_name and count (in it all) - or null. */
+function transferDepositedIn($kind, $id) {
+    global $mysqli;
+    $column = $kind === 'payment' ? 'payment_deposit_transfer_id' : 'revenue_deposit_transfer_id';
+    $table = $kind === 'payment' ? 'payments' : 'revenues';
+    $key = $kind === 'payment' ? 'payment_id' : 'revenue_id';
+    $transfer_id = intval(mysqli_fetch_row(mysqli_query($mysqli, "SELECT $column FROM $table WHERE $key = " . intval($id)))[0] ?? 0);
+    $row = $transfer_id ? transferRow($transfer_id) : null;
+    if (!$row) {
+        return null;
+    }
+    $row['count'] = count(transferDepositItems($transfer_id));
     return $row;
 }

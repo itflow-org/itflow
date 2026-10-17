@@ -45,6 +45,20 @@ $form_types = accountTypes();
 $form_lock_out = $form_row ? reconcileLock('expense', $form_row['transfer_expense_id']) : null;
 $form_lock_in = $form_row ? reconcileLock('revenue', $form_row['transfer_revenue_id']) : null;
 $form_lock = $form_lock_out ?: $form_lock_in;
+// A new transfer out of a cash account can carry the checks and cash waiting in it to the bank
+$form_deposits = [];
+if (!$form_row) {
+    foreach ($form_accounts as $id => $account) {
+        if ($account['type'] !== 4 || $account['account_archived_at']) {
+            continue;
+        }
+        foreach (transferDepositCandidates($id) as $item) {
+            $form_deposits[$id][] = ['key' => $item['key'], 'date' => $item['date'], 'what' => $item['what'], 'client' => (string) $item['client_name'],
+                'method' => trim((string) $item['method'] . ((string) $item['reference'] !== '' ? ' #' . $item['reference'] : '')),
+                'amount' => number_format($item['amount'], 2, '.', ''), 'money' => billingMoney($item['amount'], $account['account_currency_code'])];
+        }
+    }
+}
 $form_currency = isset($form_accounts[$form_from]) ? ($form_accounts[$form_from]['account_currency_code'] ?: $session_company_currency) : $session_company_currency;
 $form_account_options = function ($selected) use ($form_accounts, $form_types) {
     $html = '';
@@ -90,6 +104,14 @@ $form_account_options = function ($selected) use ($form_accounts, $form_types) {
         </div>
         <div class="form-text" data-transfer-card hidden>Paying off the card - what is owed on it goes down.</div>
     </div>
+
+    <?php if ($form_deposits) { ?>
+        <div class="col-12" data-transfer-deposit data-deposits="<?= escapeHtml(json_encode($form_deposits)) ?>" hidden>
+            <label class="form-label">In this deposit</label>
+            <div class="list-group itflow-deposit-list" data-transfer-deposit-list></div>
+            <div class="form-text">Tick the checks and cash going to the bank - the amount and notes fill in, and they won't be offered again.</div>
+        </div>
+    <?php } ?>
 
     <div class="col-md-6">
         <label class="form-label">Amount <strong class="text-danger">*</strong></label>
@@ -164,5 +186,73 @@ $form_account_options = function ($selected) use ($form_accounts, $form_types) {
     from.addEventListener('change', update);
     to.addEventListener('change', update);
     update();
+
+    // A deposit out of a cash account: tick what goes to the bank, and the amount and notes follow
+    var deposit = root.querySelector('[data-transfer-deposit]');
+    if (!deposit) {
+        return;
+    }
+    var waiting = JSON.parse(deposit.dataset.deposits || '{}');
+    var list = deposit.querySelector('[data-transfer-deposit-list]');
+    var amount = root.querySelector('input[name="amount"]');
+    var notes = root.querySelector('textarea[name="notes"]');
+    var filledAmount = '';
+    var filledNotes = '';
+    function line(item) {
+        return [item.what, item.client, item.method, item.money].filter(function (part) { return part; }).join(' - ');
+    }
+    function fill() {
+        var ticked = [];
+        list.querySelectorAll('input:checked').forEach(function (box) {
+            ticked.push(box.item);
+        });
+        var cents = ticked.reduce(function (sum, item) { return sum + Math.round(parseFloat(item.amount) * 100); }, 0);
+        var total = ticked.length ? (cents / 100).toFixed(2) : '';
+        if (amount.value === '' || amount.value === filledAmount) {
+            amount.value = total;
+            filledAmount = total;
+        }
+        var text = ticked.length ? 'Deposit of ' + ticked.length + (ticked.length === 1 ? ' item' : ' items') + ':\n' + ticked.map(line).join('\n') : '';
+        if (notes.value === '' || notes.value === filledNotes) {
+            notes.value = text;
+            filledNotes = text;
+        }
+    }
+    function show() {
+        var items = waiting[from.value] || [];
+        list.textContent = '';
+        items.forEach(function (item) {
+            var row = document.createElement('label');
+            row.className = 'list-group-item d-flex align-items-center gap-2';
+            var box = document.createElement('input');
+            box.type = 'checkbox';
+            box.className = 'form-check-input mt-0';
+            box.name = 'deposit[]';
+            box.value = item.key;
+            box.item = item;
+            var date = document.createElement('span');
+            date.className = 'text-body-secondary small text-nowrap';
+            date.textContent = item.date;
+            var what = document.createElement('span');
+            what.className = 'text-truncate';
+            what.textContent = [item.what, item.client].filter(function (part) { return part; }).join(' - ');
+            if (item.method) {
+                var method = document.createElement('span');
+                method.className = 'text-body-secondary small ms-1';
+                method.textContent = item.method;
+                what.appendChild(method);
+            }
+            var money = document.createElement('span');
+            money.className = 'ms-auto fw-semibold itflow-money text-nowrap';
+            money.textContent = item.money;
+            row.append(box, date, what, money);
+            list.appendChild(row);
+        });
+        deposit.hidden = items.length === 0;
+        fill();
+    }
+    list.addEventListener('change', fill);
+    from.addEventListener('change', show);
+    show();
 })();
 </script>

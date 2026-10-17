@@ -18,6 +18,16 @@
  * goes back to in progress with its ticks, to be fixed and finished again
  * or discarded. An account has one in progress at a time.
  *
+ * An account's first statement can start from the bank's balance on the day
+ * it starts rather than the opening balance - the way in for an account with
+ * years of history that won't all match the bank. Everything before that day
+ * is brought forward as reconciled, in a reconciliation of its own
+ * (reconciliation_opening) ending at the bank's balance. Where ITFlow had the
+ * account at something else that day, the opening balance can be corrected
+ * by the difference (reconciliation_adjustment), so the two match from then
+ * on. Undoing it - the latest, with nothing in progress - takes it away and
+ * puts the opening balance back.
+ *
  * Reconciling needs write access to Financial; undoing a finished one, full
  * access.
  */
@@ -62,6 +72,7 @@ function reconcileRow($reconciliation_id) {
         return null;
     }
     $row['finished'] = $row['reconciliation_finished_at'] !== null;
+    $row['opening'] = intval($row['reconciliation_opening']) === 1;
     $row['card'] = $row['account']['type'] === 3;
     return $row;
 }
@@ -232,8 +243,11 @@ function reconcileStatementInput(array $account, array $in, &$error = '') {
 
 /**
  * Start reconciling an account against a statement. Lines brought in from a
- * bank statement up to its date start ticked. Returns the new id, or 0 with
- * $error.
+ * bank statement up to its date start ticked. On an account never reconciled,
+ * $in start_from 'statement' starts it from the bank's balance (start_balance
+ * - owed, for a card) on the day it starts (start_date): everything before
+ * that is brought forward as reconciled first (reconcileBringForward()).
+ * Returns the new id, or 0 with $error.
  */
 function reconcileStart($account_id, array $in, &$error = '') {
     global $mysqli, $session_user_id;
@@ -253,12 +267,99 @@ function reconcileStart($account_id, array $in, &$error = '') {
     }
     [$date, $ending, $notes] = $statement;
     $account_id = intval($account['account_id']);
+
+    // The first statement, from the bank's balance the day it starts
+    $from = '1000-01-01';
+    if (($in['start_from'] ?? '') === 'statement' && !reconcileLast($account_id)) {
+        $start = reconcileDateInput($in['start_date'] ?? '');
+        if ($start === '' || $start > $date) {
+            $error = "Enter the day the statement starts - on or before the day it ends";
+            return 0;
+        }
+        $balance = reconcileEndingInput($in['start_balance'] ?? '', $account['type'] === 3);
+        if ($balance === null || trim((string) ($in['start_balance'] ?? '')) === '') {
+            $error = $account['type'] === 3 ? 'Enter what the statement says was owed when it started' : 'Enter the balance the statement starts from';
+            return 0;
+        }
+        $from = date('Y-m-d', strtotime("$start -1 day"));
+        reconcileBringForward($account, $from, $balance);
+    }
+
     mysqli_query($mysqli, "INSERT INTO account_reconciliations SET reconciliation_account_id = $account_id, reconciliation_statement_date = '$date',
         reconciliation_starting_balance = " . number_format(reconcileStartingBalance($account_id), 2, '.', '') . ", reconciliation_ending_balance = " . number_format($ending, 2, '.', '') . ",
         reconciliation_notes = " . ($notes === '' ? 'NULL' : "'" . escapeSql($notes) . "'") . ", reconciliation_created_by = " . intval($session_user_id));
     $id = mysqli_insert_id($mysqli);
-    reconcileTickImported(reconcileRow($id), '1000-01-01', $date);
+    reconcileTickImported(reconcileRow($id), $from, $date);
     return $id;
+}
+
+/**
+ * Bring an account forward as reconciled to a day ($to): a finished
+ * reconciliation, marked as the opening one, ending at the bank's balance
+ * that day, with every line on the account up to it cleared on it. Its
+ * starting balance is the opening balance, so its difference is how far
+ * ITFlow's balance that day is from the bank's (reconcileCorrectOpening()).
+ * Returns its id.
+ */
+function reconcileBringForward(array $account, $to, $balance) {
+    global $mysqli, $session_user_id;
+    $account_id = intval($account['account_id']);
+    $to = escapeSql($to);
+    mysqli_query($mysqli, "INSERT INTO account_reconciliations SET reconciliation_account_id = $account_id, reconciliation_statement_date = '$to',
+        reconciliation_starting_balance = " . number_format(floatval($account['opening_balance']), 2, '.', '') . ", reconciliation_ending_balance = " . number_format($balance, 2, '.', '') . ",
+        reconciliation_opening = 1, reconciliation_created_by = " . intval($session_user_id) . ", reconciliation_finished_by = " . intval($session_user_id) . ", reconciliation_finished_at = NOW()");
+    $id = mysqli_insert_id($mysqli);
+    foreach (reconcileKinds() as $k) {
+        mysqli_query($mysqli, "UPDATE {$k['table']} SET {$k['rec']} = $id, {$k['updated']} = {$k['updated']}
+            WHERE {$k['account']} = $account_id AND {$k['rec']} IS NULL AND {$k['archived']} IS NULL AND {$k['date']} <= '$to'");
+    }
+    return $id;
+}
+
+/** The brought forward reconciliation on an account (reconcileRow()), or null. */
+function reconcileOpening($account_id) {
+    global $mysqli;
+    $row = mysqli_fetch_row(mysqli_query($mysqli, "SELECT reconciliation_id FROM account_reconciliations
+        WHERE reconciliation_account_id = " . intval($account_id) . " AND reconciliation_opening = 1 LIMIT 1"));
+    return $row ? reconcileRow($row[0]) : null;
+}
+
+/**
+ * How far ITFlow's balance was from the bank's on the day an account was
+ * brought forward to - the bank's less ITFlow's - or 0.00.
+ */
+function reconcileOpeningGap(array $opening) {
+    return round(reconcileTotals($opening)['difference'], 2);
+}
+
+/**
+ * Correct an account's opening balance by the gap where it was brought
+ * forward, so ITFlow's balance matches the bank's from that day on. Once
+ * only; undoing the brought forward reconciliation puts it back. Returns the
+ * amount it moved by, or null with $error.
+ */
+function reconcileCorrectOpening($reconciliation_id, &$error = '') {
+    global $mysqli;
+    $error = '';
+    $row = reconcileRow($reconciliation_id);
+    if (!$row || !$row['opening']) {
+        $error = 'That reconciliation no longer exists';
+        return null;
+    }
+    if (abs(floatval($row['reconciliation_adjustment'])) >= 0.005) {
+        $error = 'The opening balance was corrected already';
+        return null;
+    }
+    $gap = reconcileOpeningGap($row);
+    if (abs($gap) < 0.005) {
+        $error = 'ITFlow matches the bank there already';
+        return null;
+    }
+    $gap_sql = number_format($gap, 2, '.', '');
+    mysqli_query($mysqli, "UPDATE accounts SET opening_balance = opening_balance + $gap_sql WHERE account_id = " . intval($row['reconciliation_account_id']));
+    mysqli_query($mysqli, "UPDATE account_reconciliations SET reconciliation_starting_balance = reconciliation_starting_balance + $gap_sql, reconciliation_adjustment = $gap_sql
+        WHERE reconciliation_id = " . intval($row['reconciliation_id']));
+    return $gap;
 }
 
 /**
@@ -368,7 +469,8 @@ function reconcileDiscard($reconciliation_id, &$error = '') {
 /**
  * Undo a finished reconciliation - only the latest on its account, and not
  * while another is in progress there. It goes back to in progress with what
- * was ticked, its lines free to change. Returns its row, or null with $error.
+ * was ticked, its lines free to change - or, brought forward, it goes and
+ * the opening balance goes back. Returns its row, or null with $error.
  */
 function reconcileUndo($reconciliation_id, &$error = '') {
     global $mysqli;
@@ -387,14 +489,25 @@ function reconcileUndo($reconciliation_id, &$error = '') {
         $error = 'Another statement is being reconciled on ' . $row['account']['account_name'] . ' - discard it first';
         return null;
     }
-    mysqli_query($mysqli, "UPDATE account_reconciliations SET reconciliation_finished_at = NULL, reconciliation_finished_by = 0 WHERE reconciliation_id = " . intval($row['reconciliation_id']));
+    $id = intval($row['reconciliation_id']);
+    // Brought forward: it goes, its lines with it, and the opening balance goes back
+    if ($row['opening']) {
+        foreach (reconcileKinds() as $k) {
+            mysqli_query($mysqli, "UPDATE {$k['table']} SET {$k['rec']} = NULL, {$k['updated']} = {$k['updated']} WHERE {$k['rec']} = $id");
+        }
+        mysqli_query($mysqli, "UPDATE accounts SET opening_balance = opening_balance - " . number_format(floatval($row['reconciliation_adjustment']), 2, '.', '') . "
+            WHERE account_id = " . intval($row['reconciliation_account_id']));
+        mysqli_query($mysqli, "DELETE FROM account_reconciliations WHERE reconciliation_id = $id");
+        return $row;
+    }
+    mysqli_query($mysqli, "UPDATE account_reconciliations SET reconciliation_finished_at = NULL, reconciliation_finished_by = 0 WHERE reconciliation_id = $id");
     return $row;
 }
 
 /**
  * The finished reconciliation a line is cleared on (reconciliation_id,
- * reconciliation_account_id, reconciliation_statement_date, account_name),
- * or null when it isn't.
+ * reconciliation_account_id, reconciliation_statement_date,
+ * reconciliation_opening, account_name), or null when it isn't.
  */
 function reconcileLock($kind, $id) {
     global $mysqli;
@@ -403,7 +516,7 @@ function reconcileLock($kind, $id) {
         return null;
     }
     $k = $kinds[$kind];
-    return mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT reconciliation_id, reconciliation_account_id, reconciliation_statement_date, account_name
+    return mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT reconciliation_id, reconciliation_account_id, reconciliation_statement_date, reconciliation_opening, account_name
         FROM {$k['table']}
         JOIN account_reconciliations ON reconciliation_id = {$k['rec']} AND reconciliation_finished_at IS NOT NULL
         JOIN accounts ON account_id = reconciliation_account_id
@@ -412,8 +525,11 @@ function reconcileLock($kind, $id) {
 
 /** What to say about a cleared line - "It cleared on the Operating Checking statement to Sep 30, 2026 - undo that reconciliation to ..." */
 function reconcileLockText(array $lock, $to = 'change its amount, date or account') {
-    return 'It cleared on the ' . $lock['account_name'] . ' statement to ' . date('M j, Y', strtotime($lock['reconciliation_statement_date']))
-        . " - undo that reconciliation to $to";
+    $day = date('M j, Y', strtotime($lock['reconciliation_statement_date']));
+    if (!empty($lock['reconciliation_opening'])) {
+        return "It is before $day, when {$lock['account_name']} was brought forward as reconciled - undo that to $to";
+    }
+    return 'It cleared on the ' . $lock['account_name'] . " statement to $day - undo that reconciliation to $to";
 }
 
 /** A quick look's line for a cleared one - the statement it cleared on, opening the lines it cleared. '' for null. */
@@ -421,9 +537,11 @@ function reconcileGlanceHtml($lock) {
     if (!$lock) {
         return '';
     }
-    return '<div class="itflow-glance-item" title="Reconciled"><i class="fas fa-fw fa-check-circle text-success-emphasis"></i><span>Cleared on the '
-        . escapeHtml($lock['account_name']) . ' statement to <a href="transactions.php?account=' . intval($lock['reconciliation_account_id'])
-        . '&amp;reconciliation=' . intval($lock['reconciliation_id']) . '">' . escapeHtml(date('M j, Y', strtotime($lock['reconciliation_statement_date']))) . '</a></span></div>';
+    $link = '<a href="transactions.php?account=' . intval($lock['reconciliation_account_id']) . '&amp;reconciliation=' . intval($lock['reconciliation_id']) . '">'
+        . escapeHtml(date('M j, Y', strtotime($lock['reconciliation_statement_date']))) . '</a>';
+    return '<div class="itflow-glance-item" title="Reconciled"><i class="fas fa-fw fa-check-circle text-success-emphasis"></i><span>'
+        . (!empty($lock['reconciliation_opening']) ? 'Brought forward as reconciled on ' . escapeHtml($lock['account_name']) . ' to ' . $link
+            : 'Cleared on the ' . escapeHtml($lock['account_name']) . ' statement to ' . $link) . '</span></div>';
 }
 
 /** An edit form's note for a cleared one - its amount, date and account are locked. '' for null. */
