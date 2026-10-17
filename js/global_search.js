@@ -151,6 +151,37 @@
         return node;
     }
 
+    // A tag as a pill - colours and icon checked, the name as text only
+    function tagNode(spec, className) {
+        if (!spec || !spec.name) {
+            return null;
+        }
+        const node = el('span', className);
+        if (/^#[0-9a-f]{6}$/i.test(spec.color || '')) {
+            node.style.setProperty('--itflow-tag-color', spec.color);
+        }
+        if (/^#[0-9a-f]{3,6}$/i.test(spec.text || '')) {
+            node.style.setProperty('--itflow-tag-text', spec.text);
+        }
+        node.appendChild(icon(spec.icon));
+        return node;
+    }
+
+    function tagPills(specs) {
+        if (!Array.isArray(specs) || !specs.length) {
+            return null;
+        }
+        const wrap = el('span', 'itflow-search-item-tags');
+        specs.forEach(function (spec) {
+            const pill = tagNode(spec, 'itflow-tag');
+            if (pill) {
+                pill.appendChild(document.createTextNode(spec.name));
+                wrap.appendChild(pill);
+            }
+        });
+        return wrap;
+    }
+
     function badge(spec) {
         if (!spec || !spec.text) {
             return null;
@@ -177,12 +208,19 @@
 
         const body = el('span', 'itflow-search-item-body');
         const title = el('span', 'itflow-search-item-title');
+        // Found by a tag - the tags that matched, kept in view after a long name
+        const pills = tagPills(parts.tags);
+        const text = pills ? el('span', 'itflow-search-item-text') : title;
         if (parts.ref) {
             const ref = el('span', 'itflow-search-ref');
             ref.append(highlighted(parts.ref, query));
-            title.append(ref);
+            text.append(ref);
         }
-        title.append(highlighted(parts.title, query));
+        text.append(highlighted(parts.title, query));
+        if (pills) {
+            title.classList.add('has-tags');
+            title.append(text, pills);
+        }
         body.append(title);
 
         if (parts.subtitle) {
@@ -191,7 +229,7 @@
             body.append(sub);
         }
 
-        link.append(avatar(parts.avatar) || tile(parts.tile) || icon(iconName, 'itflow-search-item-icon'), body);
+        link.append(avatar(parts.avatar) || tile(parts.tile) || tagNode(parts.tag, 'itflow-search-tag-icon') || icon(iconName, 'itflow-search-item-icon'), body);
 
         const status = badge(parts.badge);
         if (status || parts.context) {

@@ -2193,6 +2193,36 @@ html {
     flex-direction: column;
     min-width: 0;
 }
+/* Global search - a tag's own colour and icon in place of the group icon
+   (the Tags group), and the tags a record was found by after its name */
+.itflow-search-tag-icon {
+    display: inline-flex;
+    flex: 0 0 auto;
+    align-items: center;
+    justify-content: center;
+    width: 1.5rem;
+    height: 1.5rem;
+    border-radius: 50%;
+    font-size: .7rem;
+    color: var(--itflow-tag-text, #fff);
+    background-color: var(--itflow-tag-color, var(--bs-secondary));
+}
+.itflow-search-item-title.has-tags {
+    display: flex;
+    align-items: center;
+    gap: .375rem;
+}
+.itflow-search-item-text {
+    min-width: 0;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}
+.itflow-search-item-tags {
+    display: inline-flex;
+    flex: 0 0 auto;
+    gap: .25rem;
+}
 .itflow-search-item-title,
 .itflow-search-item-sub,
 .itflow-search-item-context {

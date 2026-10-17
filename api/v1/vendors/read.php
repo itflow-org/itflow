@@ -15,5 +15,6 @@ if (isset($_GET['vendor_id'])) {
 }
 
 // Output
+$api_tag_entity = 'vendor'; // each one's tags
 require_once "../read_output.php";
 

@@ -50,8 +50,13 @@ $importance_query = $importance_filter ? "AND service_importance = '$importance_
 $category_filter = trim((string) ($_GET['category'] ?? ''));
 $category_query = $category_filter !== '' ? "AND service_category = '" . escapeSql($category_filter) . "'" : '';
 
-$filters = "(service_name LIKE '%$q%' OR service_description LIKE '%$q%' OR service_category LIKE '%$q%' OR service_notes LIKE '%$q%' OR client_name LIKE '%$q%')
-    " . clientScopeSql('service_client_id') . " $client_query $importance_query $category_query";
+// Tags - a service with any of them
+$tag_filter_ids = tagFilterIds();
+$tag_query = tagFilterSql('service', $tag_filter_ids, 'services.service_id');
+
+$filters = "(service_name LIKE '%$q%' OR service_description LIKE '%$q%' OR service_category LIKE '%$q%' OR service_notes LIKE '%$q%' OR client_name LIKE '%$q%'
+        " . tagSearchSql('service', $q, 'services.service_id') . ")
+    " . clientScopeSql('service_client_id') . " $client_query $importance_query $category_query $tag_query";
 
 $joins = "LEFT JOIN clients ON client_id = service_client_id";
 
@@ -85,6 +90,7 @@ while ($row = mysqli_fetch_assoc($sql)) {
     $services[intval($row['service_id'])] = $row;
 }
 $counts = serviceCounts(array_keys($services));
+$services_tags = tagsForRecords('service', array_keys($services));
 $issues = serviceIssues(array_keys($services));
 
 // How many of each, for the pills
@@ -135,7 +141,7 @@ $link_icons = ['asset' => ['fa-desktop', 'asset', 'assets'], 'credential' => ['f
                 <?php } ?>
                 <button type="button" class="btn btn-primary dropdown-toggle <?= $can_edit ? 'dropdown-toggle-split' : '' ?>" data-bs-toggle="dropdown"><?= $can_edit ? '' : '<i class="fas fa-ellipsis-h"></i>' ?></button>
                 <div class="dropdown-menu dropdown-menu-end">
-                    <a class="dropdown-item text-dark ajax-modal" href="#" data-modal-url="<?= buildExportModalUrl('modals/service/service_export.php', ['client_id', 'client', 'show', 'importance', 'category', 'q']) ?>">
+                    <a class="dropdown-item text-dark ajax-modal" href="#" data-modal-url="<?= buildExportModalUrl('modals/service/service_export.php', ['client_id', 'client', 'show', 'importance', 'category', 'tags', 'q']) ?>">
                         <i class="fa fa-fw fa-download me-2"></i>Export
                     </a>
                 </div>
@@ -152,7 +158,7 @@ $link_icons = ['asset' => ['fa-desktop', 'asset', 'assets'], 'credential' => ['f
             <div class="row g-2 align-items-center">
                 <div class="<?= $client_url ? 'col-lg-4' : 'col-lg-3' ?> col-md-6">
                     <div class="input-group">
-                        <input type="search" class="form-control" name="q" value="<?php if (isset($q)) { echo stripslashes(escapeHtml($q)); } ?>" placeholder="Search services..." title="Name, description, category, notes, client">
+                        <input type="search" class="form-control" name="q" value="<?php if (isset($q)) { echo stripslashes(escapeHtml($q)); } ?>" placeholder="Search services..." title="Name, description, category, notes, client, tags">
                         <button class="btn btn-dark" title="Search"><i class="fa fa-search"></i></button>
                     </div>
                 </div>
@@ -172,6 +178,11 @@ $link_icons = ['asset' => ['fa-desktop', 'asset', 'assets'], 'credential' => ['f
                         <?php } ?>
                     </select>
                 </div>
+                <div class="col-lg-2 col-md-6">
+                    <select onchange="this.form.submit()" class="form-select select2" name="tags[]" data-placeholder="- Tags -" multiple>
+                        <?= tagFilterOptionsHtml('service', $tag_filter_ids, '1 ' . clientScopeSql('service_client_id') . ($client_url ? " AND service_client_id = $client_id" : '')) ?>
+                    </select>
+                </div>
                 <?php if (!$client_url) { ?>
                     <div class="col-lg-2 col-md-6">
                         <select class="form-select select2" name="client" onchange="this.form.submit()">
@@ -187,7 +198,7 @@ $link_icons = ['asset' => ['fa-desktop', 'asset', 'assets'], 'credential' => ['f
                         </select>
                     </div>
                 <?php } ?>
-                <div class="<?= $client_url ? 'col-lg-4' : 'col-lg-3' ?> col-md-6">
+                <div class="col-12 col-lg-auto ms-auto">
                     <div class="d-flex justify-content-end gap-2">
                         <?php if ($can_edit) { ?>
                             <div class="dropdown" id="bulkActionButton" hidden>
@@ -202,6 +213,11 @@ $link_icons = ['asset' => ['fa-desktop', 'asset', 'assets'], 'credential' => ['f
                                         data-confirm-text="Each one is marked reviewed today, and its next review set from its schedule.">
                                         <i class="fas fa-fw fa-clipboard-check me-2"></i>Mark reviewed
                                     </button>
+                                    <?php if ($show !== 'archived') { ?>
+                                        <a class="dropdown-item" href="#" data-tag-picker data-tag-entity="service" data-tag-bulk data-csrf="<?= $_SESSION['csrf_token'] ?>">
+                                            <i class="fas fa-fw fa-tags me-2"></i>Tags
+                                        </a>
+                                    <?php } ?>
                                     <button class="dropdown-item" type="submit" form="bulkActions" name="bulk_favorite_services">
                                         <i class="fas fa-fw fa-star text-warning me-2"></i>Star
                                     </button>
@@ -283,6 +299,7 @@ $link_icons = ['asset' => ['fa-desktop', 'asset', 'assets'], 'credential' => ['f
                     $quick_url = "modals/service/service.php?id=$service_id";
                     $name = escapeHtml($row['service_name']);
                     $detail = implode(' · ', array_filter([$row['service_category'], $row['service_description']]));
+                    $service_tags = $services_tags[$service_id] ?? [];
                     $chips = '';
                     foreach ($link_icons as $type => [$icon, $one, $many]) {
                         if ($c[$type]) {
@@ -309,6 +326,9 @@ $link_icons = ['asset' => ['fa-desktop', 'asset', 'assets'], 'credential' => ['f
                                     <?php if ($is_archived) { ?><span class="badge rounded-pill text-bg-secondary fw-normal ms-1">Archived</span><?php } ?>
                                     <?php if ($detail !== '') { ?>
                                         <div class="small text-body-secondary text-truncate itflow-service-desc" title="<?= escapeHtml($detail) ?>"><?= escapeHtml($detail) ?></div>
+                                    <?php } ?>
+                                    <?php if ($service_tags || ($can_edit && !$is_archived)) { ?>
+                                        <div class="mt-1"><?= tagPills('service', $service_id, $service_tags, "services.php?$client_url", $can_edit && !$is_archived) ?></div>
                                     <?php } ?>
                                     <!-- Narrower screens drop the Depends on column - the chips come along -->
                                     <?php if ($chips) { ?><div class="d-none d-md-flex d-xxl-none flex-wrap gap-1 mt-1"><?= $chips ?></div><?php } ?>

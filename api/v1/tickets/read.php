@@ -21,5 +21,6 @@ if (isset($_GET['ticket_id'])) {
 }
 
 // Output
+$api_tag_entity = 'ticket'; // each one's tags
 require_once "../read_output.php";
 

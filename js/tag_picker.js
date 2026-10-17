@@ -15,7 +15,8 @@
  * Markup comes from tagPills() in functions/tags.php:
  *   <button data-tag-picker data-tag-entity="contact" data-tag-ids="12" data-csrf="...">
  * or for bulk, data-tag-bulk instead of data-tag-ids (the ticked .bulk-select
- * boxes on the page are the records).
+ * boxes on the page are the records - or only those named in data-tag-bulk,
+ * such as "document_ids[]" on a list that mixes documents and uploads).
  *
  * Styled with the select picker's panel classes (css: "Select picker"), so
  * the two look and behave alike.
@@ -54,8 +55,10 @@
         return input ? input.value : '';
     }
 
-    function bulkIds() {
-        return Array.prototype.map.call(document.querySelectorAll('input.bulk-select:checked'), function (box) {
+    function bulkIds(name) {
+        return Array.prototype.filter.call(document.querySelectorAll('input.bulk-select:checked'), function (box) {
+            return !name || box.name === name;
+        }).map(function (box) {
             return box.value;
         });
     }
@@ -96,7 +99,7 @@
         this.button = button;
         this.entity = button.dataset.tagEntity;
         this.bulk = button.hasAttribute('data-tag-bulk');
-        this.ids = this.bulk ? bulkIds() : String(button.dataset.tagIds || '').split(',').filter(Boolean);
+        this.ids = this.bulk ? bulkIds(button.dataset.tagBulk || '') : String(button.dataset.tagIds || '').split(',').filter(Boolean);
         this.csrf = csrfFor(button);
         // Bulk opens from a menu item that closes - hang the panel off the Action button
         this.anchor = this.bulk ? (document.querySelector('#bulkActionButton > button') || button) : button;

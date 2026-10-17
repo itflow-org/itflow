@@ -1193,6 +1193,23 @@ CREATE TABLE `document_files` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
+-- Table structure for table `document_tags`
+--
+
+DROP TABLE IF EXISTS `document_tags`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8mb4 */;
+CREATE TABLE `document_tags` (
+  `document_id` int(11) NOT NULL,
+  `tag_id` int(11) NOT NULL,
+  PRIMARY KEY (`document_id`,`tag_id`),
+  KEY `tag_id` (`tag_id`),
+  CONSTRAINT `document_tags_ibfk_1` FOREIGN KEY (`document_id`) REFERENCES `documents` (`document_id`) ON DELETE CASCADE,
+  CONSTRAINT `document_tags_ibfk_2` FOREIGN KEY (`tag_id`) REFERENCES `tags` (`tag_id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
 -- Table structure for table `document_templates`
 --
 
@@ -1725,6 +1742,23 @@ CREATE TABLE `network_ips` (
   PRIMARY KEY (`ip_id`),
   UNIQUE KEY `ip_network_address` (`ip_network_id`,`ip_address`),
   CONSTRAINT `network_ips_ibfk_1` FOREIGN KEY (`ip_network_id`) REFERENCES `networks` (`network_id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `network_tags`
+--
+
+DROP TABLE IF EXISTS `network_tags`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8mb4 */;
+CREATE TABLE `network_tags` (
+  `network_id` int(11) NOT NULL,
+  `tag_id` int(11) NOT NULL,
+  PRIMARY KEY (`network_id`,`tag_id`),
+  KEY `tag_id` (`tag_id`),
+  CONSTRAINT `network_tags_ibfk_1` FOREIGN KEY (`network_id`) REFERENCES `networks` (`network_id`) ON DELETE CASCADE,
+  CONSTRAINT `network_tags_ibfk_2` FOREIGN KEY (`tag_id`) REFERENCES `tags` (`tag_id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -2564,6 +2598,23 @@ CREATE TABLE `service_domains` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
+-- Table structure for table `service_tags`
+--
+
+DROP TABLE IF EXISTS `service_tags`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8mb4 */;
+CREATE TABLE `service_tags` (
+  `service_id` int(11) NOT NULL,
+  `tag_id` int(11) NOT NULL,
+  PRIMARY KEY (`service_id`,`tag_id`),
+  KEY `tag_id` (`tag_id`),
+  CONSTRAINT `service_tags_ibfk_1` FOREIGN KEY (`service_id`) REFERENCES `services` (`service_id`) ON DELETE CASCADE,
+  CONSTRAINT `service_tags_ibfk_2` FOREIGN KEY (`tag_id`) REFERENCES `tags` (`tag_id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
 -- Table structure for table `service_tickets`
 --
 
@@ -3036,6 +3087,23 @@ CREATE TABLE `software_keys` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
+-- Table structure for table `software_tags`
+--
+
+DROP TABLE IF EXISTS `software_tags`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8mb4 */;
+CREATE TABLE `software_tags` (
+  `software_id` int(11) NOT NULL,
+  `tag_id` int(11) NOT NULL,
+  PRIMARY KEY (`software_id`,`tag_id`),
+  KEY `tag_id` (`tag_id`),
+  CONSTRAINT `software_tags_ibfk_1` FOREIGN KEY (`software_id`) REFERENCES `software` (`software_id`) ON DELETE CASCADE,
+  CONSTRAINT `software_tags_ibfk_2` FOREIGN KEY (`tag_id`) REFERENCES `tags` (`tag_id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
 -- Table structure for table `software_templates`
 --
 
@@ -3274,6 +3342,23 @@ CREATE TABLE `ticket_statuses` (
   `ticket_status_pauses_sla` tinyint(1) NOT NULL DEFAULT 0,
   `ticket_status_order` int(11) NOT NULL DEFAULT 0,
   PRIMARY KEY (`ticket_status_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `ticket_tags`
+--
+
+DROP TABLE IF EXISTS `ticket_tags`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8mb4 */;
+CREATE TABLE `ticket_tags` (
+  `ticket_id` int(11) NOT NULL,
+  `tag_id` int(11) NOT NULL,
+  PRIMARY KEY (`ticket_id`,`tag_id`),
+  KEY `tag_id` (`tag_id`),
+  CONSTRAINT `ticket_tags_ibfk_1` FOREIGN KEY (`ticket_id`) REFERENCES `tickets` (`ticket_id`) ON DELETE CASCADE,
+  CONSTRAINT `ticket_tags_ibfk_2` FOREIGN KEY (`tag_id`) REFERENCES `tags` (`tag_id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 

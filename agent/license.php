@@ -58,6 +58,7 @@ if (!$license || ($client_url && intval($license['software_client_id']) !== intv
     $renewal = softwareRenewal($license['software_expire']);
 
     $can_edit = lookupUserPermission('module_support') >= 2 && !$software_archived_at;
+    $license_tags_display = tagPills('license', $software_id, tagsForRecord('license', $software_id), "software.php?client_id=$client_id&", $can_edit);
     $can_restore = lookupUserPermission('module_support') >= 2;
     $can_delete = lookupUserPermission('module_support') >= 3 && !empty($config_destructive_deletes_enable);
     $can_credentials = lookupUserPermission('module_credential') >= 1;
@@ -139,6 +140,9 @@ if (!$license || ($client_url && intval($license['software_client_id']) !== intv
                     <?php if ($vendor_name) { ?><span><i class="fas fa-fw fa-building me-1"></i><?= $vendor_name ?></span><?php } ?>
                     <?php if ($software_description) { ?><span><?= $software_description ?></span><?php } ?>
                 </div>
+                <?php if ($license_tags_display) { ?>
+                    <div class="mt-2"><?= $license_tags_display ?></div>
+                <?php } ?>
             </div>
 
             <div class="d-flex flex-wrap gap-2 d-print-none">

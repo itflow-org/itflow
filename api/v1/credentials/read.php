@@ -43,6 +43,7 @@ if ($sql && mysqli_num_rows($sql) > 0) {
         $row['credential_password'] = apiDecryptCredentialEntry($row['credential_password'], $api_key_decrypt_hash, $api_key_decrypt_password);
         $return_arr['data'][] = $row;
     }
+    $return_arr['data'] = tagApiAttach($return_arr['data'], 'credential');
 
     echo json_encode($return_arr);
     exit();

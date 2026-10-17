@@ -26,5 +26,6 @@ if (isset($_GET['contact_id'])) {
 }
 
 // Output
+$api_tag_entity = 'contact'; // each one's tags
 require_once "../read_output.php";
 

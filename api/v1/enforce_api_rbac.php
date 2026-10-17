@@ -149,6 +149,9 @@ $resource_module = [
     'taxes'         => 'module_sales',
     'expenses'      => 'module_financial',
     'credentials'   => 'module_credential',
+    // Each kind of tag is its record's module - api/v1/tags/ checks the kind
+    // asked about (tagApiKind()), so there is no one module to check here
+    'tags'          => '',
 ];
 
 // Operation -> required permission level (read = 1, create/update = 2, delete = 3).
@@ -167,7 +170,7 @@ if (!isset($resource_module[$resource])) {
 }
 
 $required_level = $operation_level[$operation_file] ?? 2;
-if (lookupUserPermission($resource_module[$resource]) < $required_level) {
+if ($resource_module[$resource] !== '' && lookupUserPermission($resource_module[$resource]) < $required_level) {
     apiDeny("The user linked to this API key does not have permission for this action.");
 }
 

@@ -104,6 +104,8 @@ if (isset($_POST['add_document'])) {
         logAudit("Service", "Link", "$session_name linked new document $name to service " . escapeSql($service['name']), $client_id, $service_id);
     }
 
+    tagSetForRecord('document', $document_id, (array) ($_POST['tags'] ?? []));
+
     logAudit("Document", "Create", "$session_name created document $name", $client_id, $document_id);
 
     flashAlert("Document <strong>" . trim($_POST['name']) . "</strong> created");
@@ -207,6 +209,11 @@ if (isset($_POST['edit_document'])) {
         document_updated_by = $session_user_id
         $visible_sql
         WHERE document_id = $document_id");
+
+    // Only a form that showed the tags changes them
+    if (isset($_POST['tags_form'])) {
+        tagSetForRecord('document', $document_id, (array) ($_POST['tags'] ?? []));
+    }
 
     logAudit("Document", "Edit", "$session_name edited document $name, previous version kept", $client_id, $document_id);
 

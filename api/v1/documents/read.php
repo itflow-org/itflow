@@ -16,5 +16,6 @@ if (isset($_GET['document_id'])) {
 }
 
 // Output
+$api_tag_entity = 'document'; // each one's tags
 require_once "../read_output.php";
 

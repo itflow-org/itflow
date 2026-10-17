@@ -31,5 +31,6 @@ if (isset($_GET['software_id'])) {
 }
 
 // Output
+$api_tag_entity = 'license'; // each one's tags
 require_once "../read_output.php";
 

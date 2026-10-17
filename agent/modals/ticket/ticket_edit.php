@@ -178,6 +178,10 @@ ob_start();
                     </div>
                 </div>
 
+                <div class="mb-3">
+                    <?= tagFormFieldHtml('ticket', tagIdsForRecord('ticket', $ticket_id), 'Onboarding, Hardware, Escalated') ?>
+                </div>
+
                 <?php if ($config_module_enable_accounting && lookupUserPermission("module_sales") >= 2) { ?>
                     <div class="form-check form-switch">
                         <input type="checkbox" class="form-check-input" name="billable" <?= $ticket_billable ? 'checked' : '' ?> value="1" id="billableSwitch<?= $ticket_id ?>">

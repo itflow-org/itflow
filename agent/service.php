@@ -48,6 +48,7 @@ if (!$service || ($client_url && intval($service['service_client_id']) !== intva
     $can_delete = serviceCan(3) && !empty($config_destructive_deletes_enable);
     $can_credentials = lookupUserPermission('module_credential') >= 1;
     $can_link_credentials = $can_edit && linkCanEdit('service', 'credential');
+    $service_tags_display = tagPills('service', $service_id, tagsForRecord('service', $service_id), "services.php?client_id=$client_id&", $can_edit);
 
     // Override Tab Title // No Sanitizing needed as this var will only be used in the tab title
     $page_title = $service['service_name'];
@@ -178,6 +179,9 @@ if (!$service || ($client_url && intval($service['service_client_id']) !== intva
                     <?php if ($service['service_category']) { ?><span><i class="fas fa-fw <?= serviceStyle($service['service_category'])['icon'] ?> me-1"></i><?= escapeHtml($service['service_category']) ?></span><?php } ?>
                     <?php if ($service['service_description']) { ?><span><?= escapeHtml($service['service_description']) ?></span><?php } ?>
                 </div>
+                <?php if ($service_tags_display) { ?>
+                    <div class="mt-2"><?= $service_tags_display ?></div>
+                <?php } ?>
             </div>
 
             <div class="d-flex flex-wrap gap-2 d-print-none">

@@ -59,6 +59,7 @@ while ($row = mysqli_fetch_assoc($sql)) {
     $tickets[intval($row['ticket_id'])] = $row;
 }
 $last_replies = ticketLastReplies(array_keys($tickets));
+$tickets_tags = tagsForRecords('ticket', array_keys($tickets));
 $task_counts = ticketTaskCounts(array_keys($tickets));
 
 // A Due column only when there is something to put in it
@@ -166,6 +167,10 @@ $sort_link = function ($column, $label, $class = '') use ($url_query_strings_sor
                                     <?php } ?>
                                     <?= ticketTasksHtml($task_counts[$ticket_id] ?? null) ?>
                                 </div>
+                                <?php if (!empty($tickets_tags[$ticket_id])) { ?>
+                                    <!-- Tags - the + to change them while it is open; tag an untagged one from its page or Bulk Action -->
+                                    <div class="mt-1"><?= tagPills('ticket', $ticket_id, $tickets_tags[$ticket_id], "tickets.php?$client_url", $can_edit && !$is_closed) ?></div>
+                                <?php } ?>
                                 <!-- On a phone the other columns are off to the side - the essentials come along -->
                                 <div class="d-md-none d-flex flex-wrap align-items-center gap-1 mt-1 small">
                                     <?= ticketStatusHtml($row['ticket_status_name'], $row['ticket_status_color'], 'detail') ?>

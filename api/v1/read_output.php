@@ -15,6 +15,11 @@ if ($sql && mysqli_num_rows($sql) > 0) {
         $return_arr['data'][] = $row;
     }
 
+    // Each record's tags, when the endpoint names the kind it reads ($api_tag_entity, as in tagEntity())
+    if (!empty($api_tag_entity)) {
+        $return_arr['data'] = tagApiAttach($return_arr['data'], $api_tag_entity);
+    }
+
     echo json_encode($return_arr);
     exit();
 }

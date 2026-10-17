@@ -36,6 +36,7 @@ $sla_filter = $_GET['sla'] ?? '';
 
 // Billing Filter
 $billing_filter = $_GET['billing'] ?? '';
+$tag_filter = tagFilterIds();
 
 // Date Filter - the all-time sentinels from filter_header.php leave the fields blank
 $date_from_filter = (!empty($_GET['dtf']) && $_GET['dtf'] !== '1970-01-01') ? escapeHtml($_GET['dtf']) : '';
@@ -191,6 +192,8 @@ ob_start();
                 </select>
             </div>
         </div>
+
+        <?= tagExportFieldHtml('ticket', $tag_filter) ?>
 
         <div class="mb-3">
             <label>Opened From</label>

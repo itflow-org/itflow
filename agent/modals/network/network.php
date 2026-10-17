@@ -18,6 +18,7 @@ $addresses = networkAddresses([$network_id]);
 $plan = networkAddressPlan($network, $addresses);
 $usage = networkUsage([$network_id => $network], $addresses)[$network_id];
 $can_edit = networkCan(2) && empty($network['network_archived_at']);
+$network_tags_display = tagPills('network', $network_id, tagsForRecord('network', $network_id), 'networks.php?client_id=' . intval($network['network_client_id']) . '&', $can_edit);
 $dns = array_filter([$network['network_primary_dns'], $network['network_secondary_dns']]);
 $flagged = array_values(array_filter($plan['rows'], function ($row) {
     return $row['kind'] === 'address' && $row['flags'];
@@ -93,6 +94,10 @@ ob_start();
         <?php if ($network['network_description']) { ?>
             <dt>About</dt>
             <dd><?= escapeHtml($network['network_description']) ?></dd>
+        <?php } ?>
+        <?php if ($network_tags_display) { ?>
+            <dt>Tags</dt>
+            <dd><?= $network_tags_display ?></dd>
         <?php } ?>
     </dl>
 

@@ -27,6 +27,7 @@ $archived_filter = (isset($_GET['archived']) && $_GET['archived'] == 1) ? 1 : 0;
 $status_filters = softwareStatusFilters();
 $status_filter = isset($status_filters[$_GET['status'] ?? '']) ? $_GET['status'] : '';
 $license_type_filter = (string) ($_GET['license_type'] ?? '');
+$tag_filter = tagFilterIds();
 
 ob_start();
 
@@ -116,6 +117,8 @@ ob_start();
                 </select>
             </div>
         </div>
+
+        <?= tagExportFieldHtml('license', $tag_filter) ?>
 
         <div class="mb-3">
             <label>Archived</label>

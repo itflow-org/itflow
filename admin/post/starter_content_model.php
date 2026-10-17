@@ -30,7 +30,7 @@ function starterContentPacks() {
         'tags' => [
             'label' => 'Tags',
             'icon' => 'fa-tags',
-            'description' => 'Client, location, contact, credential, asset, vendor and domain tags.',
+            'description' => 'Tags for clients, locations, contacts, credentials, assets, vendors, domains, licenses, services, networks, documents and tickets.',
         ],
         'ticket_templates' => [
             'label' => 'Ticket Templates',
@@ -575,7 +575,8 @@ function starterContentCategories() {
 
 // ------------------------------
 // starterContentTags
-// tag_type 1 Client, 2 Location, 3 Contact, 4 Credential, 5 Asset.
+// tag_type 1 Client, 2 Location, 3 Contact, 4 Credential, 5 Asset, 6 Vendor, 7 Domain,
+// 8 License, 9 Service, 10 Network, 11 Document, 12 Ticket - tagKinds() in functions/tags.php.
 // tag_icon is stored without the fa- prefix, the views add it.
 // ------------------------------
 function starterContentTags() {
@@ -686,6 +687,41 @@ function starterContentTags() {
         [7, 'Parked', '#adb5bd', 'parking'],
         [7, 'Marketing', '#fd7e14', 'bullhorn'],
         [7, 'Do Not Renew', '#dc3545', 'ban'],
+
+        // License
+        [8, 'We Resell', '#007bff', 'handshake'],
+        [8, 'Client-paid', '#6f42c1', 'user-tie'],
+        [8, 'Annual True-up', '#fd7e14', 'sync-alt'],
+        [8, 'Core Stack', '#001f3f', 'layer-group'],
+        [8, 'Do Not Renew', '#dc3545', 'ban'],
+
+        // Service
+        [9, 'Managed', '#28a745', 'handshake'],
+        [9, 'Client-managed', '#6f42c1', 'user-tie'],
+        [9, 'Cloud', '#0dcaf0', 'cloud'],
+        [9, 'On-premises', '#343a40', 'server'],
+        [9, 'Business Hours Only', '#ffc107', 'clock'],
+
+        // Network
+        [10, 'Managed', '#28a745', 'handshake'],
+        [10, 'Segmented', '#6610f2', 'network-wired'],
+        [10, 'PCI', '#dc3545', 'credit-card'],
+        [10, 'IoT', '#20c997', 'microchip'],
+
+        // Document
+        [11, 'Procedure', '#007bff', 'list-ol'],
+        [11, 'Runbook', '#001f3f', 'book'],
+        [11, 'Policy', '#6f42c1', 'gavel'],
+        [11, 'Client-facing', '#20c997', 'eye'],
+        [11, 'Needs Review', '#fd7e14', 'exclamation-circle'],
+
+        // Ticket
+        [12, 'Onboarding', '#007bff', 'user-plus'],
+        [12, 'Offboarding', '#dc3545', 'user-minus'],
+        [12, 'Escalated', '#d81b60', 'fire'],
+        [12, 'Warranty Claim', '#28a745', 'certificate'],
+        [12, 'Waiting on Vendor', '#ffc107', 'hourglass-half'],
+        [12, 'Security', '#343a40', 'shield-alt'],
     ];
 
     return $tags;

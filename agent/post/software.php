@@ -66,6 +66,7 @@ if (isset($_POST['add_software'])) {
 
     $changes = softwareSyncSeats($software_id, $client_id, $_POST['assets'] ?? [], $_POST['contacts'] ?? []);
     $keys_added = softwareAddKeys($software_id, $_POST['keys'] ?? '');
+    tagSetForRecord('license', $software_id, (array) ($_POST['tags'] ?? []));
 
     $name = trim($_POST['name']);
     logAudit("Software", "Create", "$session_name created license " . escapeSql($name . softwareSeatChangeText($changes)), $client_id, $software_id);
@@ -137,6 +138,10 @@ if (isset($_POST['edit_software'])) {
     $changes = ['added' => [], 'removed' => []];
     if (isset($_POST['seats_form'])) {
         $changes = softwareSyncSeats($software_id, $client_id, $_POST['assets'] ?? [], $_POST['contacts'] ?? []);
+    }
+    // ...and the tags
+    if (isset($_POST['tags_form'])) {
+        tagSetForRecord('license', $software_id, (array) ($_POST['tags'] ?? []));
     }
 
     $name = trim($_POST['name']);
@@ -507,6 +512,9 @@ if (isExportRequest('export_software')) {
         $filter_summary['License Type'] = $_POST['license_type'];
     }
 
+    // Tags - a license with any of them
+    $tag_query = tagExportFilterSql('license', $_POST['tags'] ?? [], $filter_summary, 'software.software_id');
+
     // Search Filter
     $q = escapeSql($_POST['q'] ?? '');
     if (!empty($q)) {
@@ -525,15 +533,18 @@ if (isExportRequest('export_software')) {
             JOIN assets ON assets.asset_id = sa.asset_id AND asset_archived_at IS NULL WHERE sa.software_id = software.software_id) AS assigned_to_assets,
         (SELECT GROUP_CONCAT(contact_name ORDER BY contact_name SEPARATOR ', ') FROM software_contacts AS sc
             JOIN contacts ON contacts.contact_id = sc.contact_id AND contact_archived_at IS NULL WHERE sc.software_id = software.software_id) AS assigned_to_contacts,
-        (SELECT GROUP_CONCAT(sk.software_key ORDER BY sk.software_key_id SEPARATOR ', ') FROM software_keys AS sk WHERE sk.software_key_software_id = software.software_id) AS software_keys_list
+        (SELECT GROUP_CONCAT(sk.software_key ORDER BY sk.software_key_id SEPARATOR ', ') FROM software_keys AS sk WHERE sk.software_key_software_id = software.software_id) AS software_keys_list,
+        " . tagNamesSql('license', 'software.software_id') . " AS software_tags
         FROM software
         LEFT JOIN clients ON client_id = software_client_id
         LEFT JOIN vendors ON vendor_id = software_vendor_id
         WHERE (software_name LIKE '%$q%' OR software_type LIKE '%$q%' OR software_key LIKE '%$q%' OR client_name LIKE '%$q%' OR vendor_name LIKE '%$q%'
-            OR software.software_id IN (SELECT software_key_software_id FROM software_keys WHERE software_key LIKE '%$q%'))
+            OR software.software_id IN (SELECT software_key_software_id FROM software_keys WHERE software_key LIKE '%$q%')
+            " . tagSearchSql('license', $q, 'software.software_id') . ")
         AND $archive_query
         " . clientScopeSql('software_client_id') . "
         $client_query
+        $tag_query
         $expire_query
         $status_query
         $license_type_query
@@ -552,6 +563,7 @@ if (isExportRequest('export_software')) {
             $row['assigned_to_assets'] = (string) $row['assigned_to_assets'];
             $row['assigned_to_contacts'] = (string) $row['assigned_to_contacts'];
             $row['software_keys_list'] = (string) $row['software_keys_list'];
+            $row['software_tags'] = (string) $row['software_tags'];
             addExportRow($export, $row);
         }
 

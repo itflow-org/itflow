@@ -36,6 +36,8 @@ if (isset($_POST['add_service'])) {
 
     logAudit("Service", "Create", "$session_name created service $service_name", $client_id, $service_id);
 
+    tagSetForRecord('service', $service_id, (array) ($_POST['tags'] ?? []));
+
     // What it depends on, from the form's pickers - the client's own, unarchived records only (linkAdd checks)
     $linked = 0;
     foreach (SERVICE_LINK_TYPES as $type) {
@@ -66,6 +68,11 @@ if (isset($_POST['edit_service'])) {
     }
 
     mysqli_query($mysqli, "UPDATE services SET $set WHERE service_id = $service_id");
+
+    // Only a form that showed the tags changes them
+    if (isset($_POST['tags_form'])) {
+        tagSetForRecord('service', $service_id, (array) ($_POST['tags'] ?? []));
+    }
 
     $service_name = escapeSql(trim($_POST['name']));
     logAudit("Service", "Edit", "$session_name edited service $service_name", $client_id, $service_id);
@@ -448,14 +455,17 @@ if (isExportRequest('export_services')) {
         $filter_summary['Category'] = $category;
     }
 
+    $where[] = tagExportFilterSql('service', $_POST['tags'] ?? [], $filter_summary, 'services.service_id');
+
     $q = escapeSql($_POST['q'] ?? '');
     if ($q !== '') {
         $filter_summary['Search'] = $_POST['q'];
     }
 
-    $sql = mysqli_query($mysqli, "SELECT services.*, client_name FROM services
+    $sql = mysqli_query($mysqli, "SELECT services.*, client_name, " . tagNamesSql('service', 'services.service_id') . " AS service_tags FROM services
         LEFT JOIN clients ON client_id = service_client_id
-        WHERE (service_name LIKE '%$q%' OR service_description LIKE '%$q%' OR service_category LIKE '%$q%' OR client_name LIKE '%$q%')
+        WHERE (service_name LIKE '%$q%' OR service_description LIKE '%$q%' OR service_category LIKE '%$q%' OR client_name LIKE '%$q%'
+            " . tagSearchSql('service', $q, 'services.service_id') . ")
         " . implode(' ', $where) . "
         ORDER BY client_name ASC, FIELD(service_importance, 'High', 'Medium', 'Low'), service_name ASC");
 
@@ -501,6 +511,7 @@ if (isExportRequest('export_services')) {
             $row['service_review_every'] = intval($row['service_review_interval']) ? (SERVICE_REVIEW_INTERVALS[intval($row['service_review_interval'])] ?? '') : '';
             $row['open_tickets'] = $counts[$service_id]['open_tickets'];
             $row['service_state'] = $row['service_archived_at'] ? 'Archived' : 'Active';
+            $row['service_tags'] = (string) $row['service_tags'];
             addExportRow($export, $row);
         }
 

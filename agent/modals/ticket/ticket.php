@@ -51,6 +51,7 @@ $url = escapeHtml(ticketUrl($ticket_id, $client_id));
 $is_open = ticketIsOpen($ticket);
 $is_closed = !empty($ticket['ticket_closed_at']);
 $can_edit = ticketCan(2) && !$is_closed;
+$ticket_tags_display = tagPills('ticket', $ticket_id, tagsForRecord('ticket', $ticket_id), $client_id ? "tickets.php?client_id=$client_id&" : 'tickets.php?', $can_edit);
 $mine = intval($ticket['ticket_assigned_to']) === intval($session_user_id);
 $move = ticketWhoseMove($ticket);
 $sla = ticketSlaState($ticket);
@@ -112,6 +113,10 @@ ob_start();
 </div>
 
 <div class="modal-body itflow-ticket-glance">
+
+    <?php if ($ticket_tags_display) { ?>
+        <div class="mb-3"><?= $ticket_tags_display ?></div>
+    <?php } ?>
 
     <?php if ($move_text || $sla['key'] !== 'none' || $due) { ?>
         <div class="d-flex flex-wrap align-items-center gap-2 mb-3">

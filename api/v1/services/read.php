@@ -27,4 +27,5 @@ if (isset($_GET['service_id'])) {
 }
 
 // Output
+$api_tag_entity = 'service'; // each one's tags
 require_once "../read_output.php";

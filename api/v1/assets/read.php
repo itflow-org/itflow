@@ -46,4 +46,5 @@ if (isset($_GET['asset_id'])) {
 }
 
 // Output
+$api_tag_entity = 'asset'; // each one's tags
 require_once "../read_output.php";

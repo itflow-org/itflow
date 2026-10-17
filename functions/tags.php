@@ -1,7 +1,8 @@
 <?php
 
 /*
- * Tags on clients, locations, contacts, credentials, assets, vendors and domains.
+ * Tags on clients, locations, contacts, credentials, assets, vendors, domains,
+ * licenses, services, networks, documents and tickets.
  *
  * Every list and detail page draws a record's tags with tagPills(): coloured
  * pills that open the list filtered to that tag, then a "+" pill that opens
@@ -12,10 +13,13 @@
  *
  * Admin > Tags (admin/tags.php) makes, changes, merges, archives and deletes
  * them. An archived tag stays on the records that have it, but isn't offered
- * for new tagging or in the list filters.
+ * for new tagging or in the list filters. The lists filter and search by tag
+ * with tagFilterIds(), tagFilterSql(), tagFilterOptionsHtml() and
+ * tagSearchSql(); global search finds records by their tags, and the API
+ * reads and sets them (api/v1/tags/).
  */
 
-/* What differs between the seven kinds of tagged record. */
+/* What differs between the kinds of tagged record. */
 function tagEntity($entity) {
     $entities = [
         'client' => [
@@ -68,12 +72,49 @@ function tagEntity($entity) {
             'table' => 'domains', 'id' => 'domain_id', 'client' => 'domain_client_id', 'name' => 'domain_name',
             'log' => 'Domain', 'list' => 'domains.php'
         ],
+        // The software table holds licenses
+        'license' => [
+            'title' => 'License', 'plural' => 'licenses', 'icon' => 'fa-cube',
+            'type' => 8, 'label' => 'license', 'module' => 'module_support',
+            'link_table' => 'software_tags', 'link_record' => 'software_id', 'link_tag' => 'tag_id',
+            'table' => 'software', 'id' => 'software_id', 'client' => 'software_client_id', 'name' => 'software_name',
+            'log' => 'Software', 'list' => 'software.php'
+        ],
+        'service' => [
+            'title' => 'Service', 'plural' => 'services', 'icon' => 'fa-stream',
+            'type' => 9, 'label' => 'service', 'module' => 'module_support',
+            'link_table' => 'service_tags', 'link_record' => 'service_id', 'link_tag' => 'tag_id',
+            'table' => 'services', 'id' => 'service_id', 'client' => 'service_client_id', 'name' => 'service_name',
+            'log' => 'Service', 'list' => 'services.php'
+        ],
+        'network' => [
+            'title' => 'Network', 'plural' => 'networks', 'icon' => 'fa-network-wired',
+            'type' => 10, 'label' => 'network', 'module' => 'module_support',
+            'link_table' => 'network_tags', 'link_record' => 'network_id', 'link_tag' => 'tag_id',
+            'table' => 'networks', 'id' => 'network_id', 'client' => 'network_client_id', 'name' => 'network_name',
+            'log' => 'Network', 'list' => 'networks.php'
+        ],
+        // Documents are listed one client at a time, in Files - across clients, search finds them by tag
+        'document' => [
+            'title' => 'Document', 'plural' => 'documents', 'icon' => 'fa-file-alt',
+            'type' => 11, 'label' => 'document', 'module' => 'module_support',
+            'link_table' => 'document_tags', 'link_record' => 'document_id', 'link_tag' => 'tag_id',
+            'table' => 'documents', 'id' => 'document_id', 'client' => 'document_client_id', 'name' => 'document_name',
+            'log' => 'Document', 'list' => 'files.php', 'client_list' => true
+        ],
+        'ticket' => [
+            'title' => 'Ticket', 'plural' => 'tickets', 'icon' => 'fa-life-ring',
+            'type' => 12, 'label' => 'ticket', 'module' => 'module_support',
+            'link_table' => 'ticket_tags', 'link_record' => 'ticket_id', 'link_tag' => 'tag_id',
+            'table' => 'tickets', 'id' => 'ticket_id', 'client' => 'ticket_client_id', 'name' => "CONCAT(ticket_prefix, ticket_number, ' ', ticket_subject)",
+            'log' => 'Ticket', 'list' => 'tickets.php'
+        ],
     ];
 
     return $entities[$entity] ?? null;
 }
 
-/* Tag rows (tag_id, tag_name, tag_description, tag_color, tag_icon, tag_archived_at) for each record, in one query. */
+/* Tag rows (tag_id, tag_name, tag_description, tag_type, tag_color, tag_icon, tag_archived_at) for each record, in one query. */
 function tagsForRecords($entity, array $record_ids) {
     global $mysqli;
 
@@ -85,7 +126,7 @@ function tagsForRecords($entity, array $record_ids) {
     }
 
     $sql = mysqli_query($mysqli,
-        "SELECT {$config['link_record']} AS record_id, tags.tag_id, tag_name, tag_description, tag_color, tag_icon, tag_archived_at
+        "SELECT {$config['link_record']} AS record_id, tags.tag_id, tag_name, tag_description, tag_type, tag_color, tag_icon, tag_archived_at
         FROM {$config['link_table']}
         JOIN tags ON tags.tag_id = {$config['link_table']}.{$config['link_tag']}
         WHERE {$config['link_record']} IN (" . implode(',', $record_ids) . ")
@@ -154,6 +195,196 @@ function tagFilterBase($entity, $filter) {
         return $config['list'] . '?';
     }
     return $filter;
+}
+
+/*
+ * Where Admin > Tags and global search send someone to see the records with a
+ * tag - the kind's list filtered by it, or for documents, which are only
+ * listed one client at a time, the search for its name.
+ */
+function tagListUrl($entity, array $tag) {
+    $config = tagEntity($entity);
+    if (!empty($config['client_list'])) {
+        return '/agent/global_search.php?' . http_build_query(['query' => $tag['tag_name']]);
+    }
+    return '/agent/' . $config['list'] . '?tags[]=' . intval($tag['tag_id']);
+}
+
+/* The tags a list was asked to filter by (?tags[]=) - ids. */
+function tagFilterIds() {
+    return array_values(array_unique(array_filter(array_map('intval', (array) ($_GET['tags'] ?? [])))));
+}
+
+/*
+ * "AND <record> IN (the records with any of these tags)" for a list's WHERE,
+ * or '' with none. $column is the record's id as the list's query names it.
+ */
+function tagFilterSql($entity, array $tag_ids, $column = null) {
+    $config = tagEntity($entity);
+    $tag_ids = array_values(array_filter(array_map('intval', $tag_ids)));
+    if (!$config || !$tag_ids) {
+        return '';
+    }
+    $column = $column ?: "{$config['table']}.{$config['id']}";
+    return "AND $column IN (SELECT {$config['link_record']} FROM {$config['link_table']} WHERE {$config['link_tag']} IN (" . implode(',', $tag_ids) . "))";
+}
+
+/*
+ * "OR <record> IN (the records with a tag whose name has this in it)" for a
+ * list's search - $like is already escaped for SQL.
+ */
+function tagSearchSql($entity, $like, $column = null) {
+    $config = tagEntity($entity);
+    if (!$config || (string) $like === '') {
+        return '';
+    }
+    $column = $column ?: "{$config['table']}.{$config['id']}";
+    return "OR $column IN (SELECT {$config['link_record']} FROM {$config['link_table']}
+        JOIN tags ON tags.tag_id = {$config['link_table']}.{$config['link_tag']} WHERE tags.tag_name LIKE '%$like%')";
+}
+
+/*
+ * A record form's Tags field - its tags, the kind's others to pick, and for
+ * an admin, typing a new one in. The tags_form marker tells the save the
+ * field was there, so a form without it leaves the tags alone.
+ */
+function tagFormFieldHtml($entity, array $selected, $placeholder = '', $label = 'Tags') {
+    global $session_is_admin;
+    return '<label class="form-label">' . $label . '</label><input type="hidden" name="tags_form" value="1">'
+        . '<div class="input-group"><span class="input-group-text"><i class="fa fa-fw fa-tags"></i></span>'
+        . '<select class="form-select select2" name="tags[]" data-placeholder="' . escapeHtml($placeholder) . '" multiple' . (!empty($session_is_admin) ? ' data-tags="true"' : '') . '>'
+        . tagOptionsHtml($entity, $selected) . '</select></div>';
+}
+
+/* What a save did to a record's tags, in words - "added tags VIP, Managed and removed tag Old" - or ''. Raw. */
+function tagChangeText(array $before, array $after) {
+    global $mysqli;
+    $added = array_values(array_diff($after, $before));
+    $removed = array_values(array_diff($before, $after));
+    $ids = array_merge($added, $removed);
+    if (!$ids) {
+        return '';
+    }
+    $names = [];
+    $sql = mysqli_query($mysqli, "SELECT tag_id, tag_name FROM tags WHERE tag_id IN (" . implode(',', array_map('intval', $ids)) . ")");
+    while ($row = mysqli_fetch_row($sql)) {
+        $names[intval($row[0])] = $row[1];
+    }
+    $say = function ($verb, $tag_ids) use ($names) {
+        $list = array_map(function ($id) use ($names) {
+            return $names[$id] ?? "#$id";
+        }, $tag_ids);
+        return $verb . ' ' . (count($list) === 1 ? 'tag' : 'tags') . ' ' . implode(', ', $list);
+    };
+    return implode(' and ', array_filter([$added ? $say('added', $added) : '', $removed ? $say('removed', $removed) : '']));
+}
+
+/* The tag ids of one record - for a form opening on them. */
+function tagIdsForRecord($entity, $record_id) {
+    return array_map('intval', array_column(tagsForRecord($entity, $record_id), 'tag_id'));
+}
+
+/* An export window's Tags field - any of them, the tags offered as in a record form. */
+function tagExportFieldHtml($entity, array $selected) {
+    return '<div class="mb-3"><label>Tags</label><div class="input-group">'
+        . '<span class="input-group-text"><i class="fa fa-fw fa-tags"></i></span>'
+        . '<select class="form-select select2" name="tags[]" data-placeholder="- Any -" multiple>' . tagOptionsHtml($entity, $selected) . '</select>'
+        . '</div></div>';
+}
+
+/* The ids of a record's tags whose names have $like in them (escaped for SQL), as SQL on the record's row - "4,9" or NULL. For global search. */
+function tagMatchSql($entity, $like, $column = null) {
+    $config = tagEntity($entity);
+    $column = $column ?: "{$config['table']}.{$config['id']}";
+    return "(SELECT GROUP_CONCAT(tags.tag_id ORDER BY tags.tag_name) FROM {$config['link_table']}
+        JOIN tags ON tags.tag_id = {$config['link_table']}.{$config['link_tag']} WHERE {$config['link_table']}.{$config['link_record']} = $column AND tags.tag_name LIKE '%$like%')";
+}
+
+/* A tag as the API returns it (api/v1/tags/, and the tags on each record a read returns). */
+function tagApiRow(array $row) {
+    return [
+        'tag_id' => intval($row['tag_id']),
+        'tag_name' => $row['tag_name'],
+        'tag_description' => $row['tag_description'] ?? null,
+        'tag_kind' => tagKinds()[intval($row['tag_type'] ?? 0)] ?? null,
+        'tag_type' => intval($row['tag_type'] ?? 0),
+        'tag_color' => tagColor($row['tag_color'] ?? ''),
+        'tag_icon' => tagIcon($row['tag_icon'] ?? ''),
+        'tag_archived_at' => $row['tag_archived_at'] ?? null,
+    ];
+}
+
+/* API read rows with each record's tags added as "tags" - tagApiRow()s. */
+function tagApiAttach(array $rows, $entity) {
+    $config = tagEntity($entity);
+    if (!$config || !$rows) {
+        return $rows;
+    }
+    $tags = tagsForRecords($entity, array_column($rows, $config['id']));
+    foreach ($rows as &$row) {
+        $row['tags'] = array_map('tagApiRow', $tags[intval($row[$config['id']] ?? 0)] ?? []);
+    }
+    unset($row);
+    return $rows;
+}
+
+/* A tag as global search hands it to the page - name, colour, text colour and icon, raw. */
+function tagSearchSpec(array $tag) {
+    $color = tagColor($tag['tag_color'] ?? '');
+    return ['name' => $tag['tag_name'], 'color' => $color, 'text' => tagTextColor($color), 'icon' => tagIcon($tag['tag_icon'] ?? '')];
+}
+
+/* An export's Tags column - "Managed, VIP" - as SQL on the record's row. */
+function tagNamesSql($entity, $column = null) {
+    $config = tagEntity($entity);
+    $column = $column ?: "{$config['table']}.{$config['id']}";
+    return "(SELECT GROUP_CONCAT(tags.tag_name ORDER BY tags.tag_name SEPARATOR ', ') FROM {$config['link_table']}
+        JOIN tags ON tags.tag_id = {$config['link_table']}.{$config['link_tag']} WHERE {$config['link_table']}.{$config['link_record']} = $column)";
+}
+
+/* An export's Tags filter, from its form's tags[] - tagFilterSql(), with the tags named in the export's filter summary. */
+function tagExportFilterSql($entity, $values, array &$summary, $column = null) {
+    global $mysqli;
+    $config = tagEntity($entity);
+    $ids = array_values(array_unique(array_filter(array_map('intval', (array) $values))));
+    if (!$config || !$ids) {
+        return '';
+    }
+    $names = [];
+    $sql = mysqli_query($mysqli, "SELECT tag_name FROM tags WHERE tag_type = {$config['type']} AND tag_id IN (" . implode(',', $ids) . ") ORDER BY tag_name");
+    while ($row = mysqli_fetch_row($sql)) {
+        $names[] = $row[0];
+    }
+    $summary['Tags'] = implode(', ', $names);
+    return tagFilterSql($entity, $ids, $column);
+}
+
+/*
+ * A list's Tags filter - this kind's tags that are on a record the list can
+ * show, not archived, plus the ones already chosen. $records_where picks the
+ * records, in the terms of the record's own table and its client's
+ * ("software_client_id = 5", "client_archived_at IS NULL").
+ */
+function tagFilterOptionsHtml($entity, array $selected, $records_where = '1') {
+    global $mysqli;
+    $config = tagEntity($entity);
+    if (!$config) {
+        return '';
+    }
+    $selected = array_values(array_filter(array_map('intval', $selected)));
+    $chosen_sql = $selected ? 'OR tag_id IN (' . implode(',', $selected) . ')' : '';
+    // The record's client is there too, for a list that leaves out archived clients
+    $client_join = $config['table'] === 'clients' ? '' : "LEFT JOIN clients ON clients.client_id = {$config['table']}.{$config['client']}";
+    $sql = mysqli_query($mysqli, "SELECT tag_id, tag_name, tag_description, tag_color, tag_icon, tag_archived_at FROM tags
+        WHERE tag_type = {$config['type']} AND ((tag_archived_at IS NULL AND EXISTS (
+            SELECT 1 FROM {$config['link_table']} JOIN {$config['table']} ON {$config['table']}.{$config['id']} = {$config['link_table']}.{$config['link_record']} $client_join
+            WHERE {$config['link_table']}.{$config['link_tag']} = tags.tag_id AND ($records_where))) $chosen_sql)
+        ORDER BY tag_name ASC");
+    $html = '';
+    while ($row = mysqli_fetch_assoc($sql)) {
+        $html .= tagOptionHtml($row, $selected);
+    }
+    return $html;
 }
 
 /*
@@ -257,7 +488,8 @@ function tagPill(array $tag) {
 
 /* The seven kinds by tag type - type => the entity's key in tagEntity(). */
 function tagKinds() {
-    return [1 => 'client', 2 => 'location', 3 => 'contact', 4 => 'credential', 5 => 'asset', 6 => 'vendor', 7 => 'domain'];
+    return [1 => 'client', 2 => 'location', 3 => 'contact', 4 => 'credential', 5 => 'asset', 6 => 'vendor', 7 => 'domain',
+        8 => 'license', 9 => 'service', 10 => 'network', 11 => 'document', 12 => 'ticket'];
 }
 
 /* "an asset tag", "a client tag" - for messages. */
@@ -493,14 +725,19 @@ function tagOptionsHtml($entity, array $selected = []) {
     $selected = array_map('intval', $selected);
     $html = '';
     foreach (tagOptionsFor($entity, $selected) as $row) {
-        $id = intval($row['tag_id']);
-        $about = trim((string) $row['tag_description']);
-        $html .= '<option value="' . $id . '"' . (in_array($id, $selected, true) ? ' selected' : '')
-            . selectOptionColor(tagColor($row['tag_color']), tagIcon($row['tag_icon']))
-            . ($about !== '' ? ' data-description="' . escapeHtml($about) . '"' : '') . '>'
-            . escapeHtml($row['tag_name']) . ($row['tag_archived_at'] ? ' (archived)' : '') . '</option>';
+        $html .= tagOptionHtml($row, $selected);
     }
     return $html;
+}
+
+/* One tag as an <option> for a Tags field or filter - its colour, icon and description, and (archived). */
+function tagOptionHtml(array $row, array $selected = []) {
+    $id = intval($row['tag_id']);
+    $about = trim((string) ($row['tag_description'] ?? ''));
+    return '<option value="' . $id . '"' . (in_array($id, $selected, true) ? ' selected' : '')
+        . selectOptionColor(tagColor($row['tag_color']), tagIcon($row['tag_icon']))
+        . ($about !== '' ? ' data-description="' . escapeHtml($about) . '"' : '') . '>'
+        . escapeHtml($row['tag_name']) . (!empty($row['tag_archived_at']) ? ' (archived)' : '') . '</option>';
 }
 
 /*

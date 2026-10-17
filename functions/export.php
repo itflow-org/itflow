@@ -174,6 +174,7 @@ function getExportColumns($export_type) {
             'location_name'         => ['label' => 'Site', 'default' => false],
             'vendor_name'           => ['label' => 'Provider', 'default' => false],
             'network_notes'         => ['label' => 'Notes', 'weight' => 3, 'default' => false],
+            'network_tags'          => ['label' => 'Tags', 'weight' => 2, 'default' => false],
             'client_name'           => ['label' => 'Client', 'weight' => 2, 'default' => false],
         ],
 
@@ -243,7 +244,7 @@ function getExportColumns($export_type) {
             'client_name'            => ['label' => 'Client', 'default' => false],
         ],
 
-        // seats_used, assigned_to_assets / assigned_to_contacts and software_keys_list are built by the handler's query
+        // seats_used, assigned_to_assets / assigned_to_contacts, software_keys_list and software_tags are built by the handler's query
         'software' => [
             'software_name'         => ['label' => 'Name', 'weight' => 2],
             'software_version'      => ['label' => 'Version'],
@@ -261,6 +262,7 @@ function getExportColumns($export_type) {
             'software_purchase'     => ['label' => 'Purchased'],
             'software_expire'       => ['label' => 'Expires'],
             'client_name'           => ['label' => 'Client', 'default' => false],
+            'software_tags'         => ['label' => 'Tags', 'weight' => 2, 'default' => false],
             'software_notes'        => ['label' => 'Notes', 'weight' => 3],
         ],
 
@@ -278,6 +280,7 @@ function getExportColumns($export_type) {
             'ticket_assigned_to'    => ['label' => 'Assigned To', 'default' => false],
             'ticket_category_name'  => ['label' => 'Category', 'default' => false],
             'ticket_billable'       => ['label' => 'Billable', 'default' => false],
+            'ticket_tags'           => ['label' => 'Tags', 'weight' => 2, 'default' => false],
         ],
 
         // Projects - the handler adds the state, progress and hours (projectStats())
@@ -319,6 +322,7 @@ function getExportColumns($export_type) {
             'service_review_every' => ['label' => 'Review Every', 'default' => false],
             'open_tickets'        => ['label' => 'Open Tickets', 'format' => 'number', 'default' => false],
             'service_state'       => ['label' => 'State', 'default' => false],
+            'service_tags'        => ['label' => 'Tags', 'weight' => 2, 'default' => false],
         ],
 
         // invoice_number_display is prefix . number, built by the handler

@@ -65,12 +65,17 @@ if ($q_ip !== false) {
     $contains_query = $ids ? ' OR network_id IN (' . implode(',', $ids) . ')' : '';
 }
 
+// Tags - a network with any of them
+$tag_filter_ids = tagFilterIds();
+$tag_query = tagFilterSql('network', $tag_filter_ids, 'networks.network_id');
+
 $filters = "(network_name LIKE '%$q%' OR network_description LIKE '%$q%' OR network_type LIKE '%$q%' OR network_vlan LIKE '%$q%' OR network LIKE '%$q%'
         OR network_gateway LIKE '%$q%' OR network_primary_dns LIKE '%$q%' OR network_secondary_dns LIKE '%$q%' OR network_dhcp_range LIKE '%$q%'
         OR location_name LIKE '%$q%' OR vendor_name LIKE '%$q%' OR client_name LIKE '%$q%'
         OR EXISTS (SELECT 1 FROM network_ips WHERE ip_network_id = network_id AND (ip_address LIKE '%$q%' OR ip_hostname LIKE '%$q%' OR ip_mac LIKE '%$q%'))
+        " . tagSearchSql('network', $q, 'networks.network_id') . "
         $contains_query)
-    " . clientScopeSql('network_client_id') . " $client_query $location_query";
+    " . clientScopeSql('network_client_id') . " $client_query $location_query $tag_query";
 
 $joins = "LEFT JOIN clients ON client_id = network_client_id
     LEFT JOIN locations ON location_id = network_location_id AND network_location_id > 0
@@ -111,6 +116,7 @@ while ($row = mysqli_fetch_assoc($sql)) {
     $networks[intval($row['network_id'])] = $row;
 }
 $addresses = networkAddresses(array_keys($networks));
+$networks_tags = tagsForRecords('network', array_keys($networks));
 $usage = networkUsage($networks, $addresses);
 $problems = [];
 foreach ($networks as $network_id => $row) {
@@ -160,7 +166,7 @@ $csrf = $_SESSION['csrf_token'];
                 <button type="button" class="btn btn-primary dropdown-toggle <?= $can_edit ? 'dropdown-toggle-split' : '' ?>" data-bs-toggle="dropdown"><?= $can_edit ? '' : '<i class="fas fa-ellipsis-h"></i>' ?></button>
                 <div class="dropdown-menu dropdown-menu-end">
                     <?php if ($num_rows[0] > 0) { ?>
-                        <a class="dropdown-item text-dark ajax-modal" href="#" data-modal-url="<?= buildExportModalUrl('modals/network/network_export.php', ['client_id', 'client', 'location', 'type', 'q'], ['archived' => $show === 'archived' ? 1 : null]) ?>">
+                        <a class="dropdown-item text-dark ajax-modal" href="#" data-modal-url="<?= buildExportModalUrl('modals/network/network_export.php', ['client_id', 'client', 'location', 'type', 'tags', 'q'], ['archived' => $show === 'archived' ? 1 : null]) ?>">
                             <i class="fa fa-fw fa-download me-2"></i>Export
                         </a>
                     <?php } ?>
@@ -216,7 +222,12 @@ $csrf = $_SESSION['csrf_token'];
                         </select>
                     </div>
                 <?php } ?>
-                <div class="col-lg-5 col-md-12">
+                <div class="col-lg-3 col-md-6">
+                    <select onchange="this.form.submit()" class="form-select select2" name="tags[]" data-placeholder="- Tags -" multiple>
+                        <?= tagFilterOptionsHtml('network', $tag_filter_ids, '1 ' . clientScopeSql('network_client_id') . ($client_url ? " AND network_client_id = $client_id" : '')) ?>
+                    </select>
+                </div>
+                <div class="col-lg-2 col-md-12">
                     <div class="d-flex justify-content-end gap-2">
                         <?php if ($can_edit) { ?>
                             <div class="dropdown" id="bulkActionButton" hidden>
@@ -227,6 +238,11 @@ $csrf = $_SESSION['csrf_token'];
                                     <a class="dropdown-item ajax-modal" href="#" data-modal-url="modals/network/network_bulk_edit.php?<?= $client_url ?>" data-bulk="true">
                                         <i class="fas fa-fw fa-edit me-2"></i>Type and site
                                     </a>
+                                    <?php if ($show !== 'archived') { ?>
+                                        <a class="dropdown-item" href="#" data-tag-picker data-tag-entity="network" data-tag-bulk data-csrf="<?= $_SESSION['csrf_token'] ?>">
+                                            <i class="fas fa-fw fa-tags me-2"></i>Tags
+                                        </a>
+                                    <?php } ?>
                                     <button class="dropdown-item" type="submit" form="bulkActions" name="bulk_favorite_networks">
                                         <i class="fas fa-fw fa-star text-warning me-2"></i>Star
                                     </button>
@@ -341,6 +357,9 @@ $csrf = $_SESSION['csrf_token'];
                                     </div>
                                     <!-- On a phone the other columns are off to the side - the subnet comes along -->
                                     <div class="d-md-none small font-monospace mt-1"><?= escapeHtml($row['network']) ?><?= $row['network_gateway'] ? ' · gw ' . escapeHtml($row['network_gateway']) : '' ?></div>
+                                    <?php if (!empty($networks_tags[$network_id]) || ($can_edit && !$is_archived)) { ?>
+                                        <div class="mt-1"><?= tagPills('network', $network_id, $networks_tags[$network_id] ?? [], "networks.php?$client_url", $can_edit && !$is_archived) ?></div>
+                                    <?php } ?>
                                 </div>
                             </div>
                         </td>

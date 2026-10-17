@@ -15,6 +15,7 @@ $service_id = intval($service['service_id']);
 $service_archived = !empty($service['service_archived_at']);
 $can_edit = serviceCan(2) && !$service_archived;
 $can_credentials = lookupUserPermission('module_credential') >= 1;
+$service_tags_display = tagPills('service', $service_id, tagsForRecord('service', $service_id), 'services.php?client_id=' . intval($service['service_client_id']) . '&', $can_edit);
 
 $counts = serviceCounts([$service_id])[$service_id];
 $issues = serviceIssues([$service_id])[$service_id];
@@ -71,6 +72,9 @@ ob_start();
 
     <?php if ($service['service_description']) { ?>
         <p class="mb-3"><?= escapeHtml($service['service_description']) ?></p>
+    <?php } ?>
+    <?php if ($service_tags_display) { ?>
+        <div class="mb-3"><?= $service_tags_display ?></div>
     <?php } ?>
 
     <?php if ($issues) { ?>

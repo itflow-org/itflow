@@ -9,6 +9,9 @@
  * details, what they are linked to); documents open their page. Files can be
  * dropped straight onto the list to upload them into the folder on show.
  *
+ * Documents can be tagged; filtering by a tag shows the documents with it -
+ * from every folder at the top level, like a search.
+ *
  * Open to anyone with access to the client (contracts and the like live here),
  * changes need support write access, like the handlers behind them.
  */
@@ -49,6 +52,11 @@ $order = ($_GET['order'] ?? '') === 'DESC' ? 'DESC' : 'ASC';
 $search = trim((string) ($_GET['q'] ?? ''));
 $search_everywhere = $search !== '' && $folder_id === 0;
 
+// Tags - documents with any of them, and no uploads, which have none. At the
+// top level that is in every folder, like a search
+$tag_filter_ids = tagFilterIds();
+$look_everywhere = $search_everywhere || ($tag_filter_ids && $folder_id === 0);
+
 /** This page's URL with some parameters changed - the rest (folder, type, view, search, archived) ride along. */
 function filesUrl($changes = []) {
     $params = array_merge($_GET, $changes);
@@ -74,11 +82,13 @@ foreach ([['files', 'file'], ['documents', 'document']] as [$table, $prefix]) {
 
 // ---- What is on show: files and documents, merged and sorted here ----
 $search_sql = escapeSql($search);
-$file_where = "file_client_id = $client_id AND file_$archive_query" . ($search_everywhere ? '' : " AND file_folder_id = $folder_id");
-$document_where = "document_client_id = $client_id AND document_$archive_query" . ($search_everywhere ? '' : " AND document_folder_id = $folder_id");
+$file_where = "file_client_id = $client_id AND file_$archive_query" . ($look_everywhere ? '' : " AND file_folder_id = $folder_id") . ($tag_filter_ids ? ' AND 0' : '');
+$document_where = "document_client_id = $client_id AND document_$archive_query" . ($look_everywhere ? '' : " AND document_folder_id = $folder_id")
+    . ' ' . tagFilterSql('document', $tag_filter_ids, 'documents.document_id');
 if ($search !== '') {
     $file_where .= " AND (file_name LIKE '%$search_sql%' OR file_ext LIKE '%$search_sql%' OR file_description LIKE '%$search_sql%')";
-    $document_where .= " AND (MATCH(document_content_raw) AGAINST ('$search_sql') OR document_name LIKE '%$search_sql%' OR document_description LIKE '%$search_sql%')";
+    $document_where .= " AND (MATCH(document_content_raw) AGAINST ('$search_sql') OR document_name LIKE '%$search_sql%' OR document_description LIKE '%$search_sql%'
+        " . tagSearchSql('document', $search_sql, 'documents.document_id') . ")";
 }
 
 $items = [];
@@ -171,6 +181,7 @@ foreach (['file' => 'File', 'document' => 'Document'] as $kind => $share_type) {
         $shared[$kind][intval($row['item_related_id'])] = $row;
     }
 }
+$documents_tags = tagsForRecords('document', $page_ids['document']);
 $link_counts = [];
 foreach (['file', 'document'] as $kind) {
     if (!$page_ids[$kind]) {
@@ -294,7 +305,7 @@ function filesFolderTree($parent_id, $depth = 0) {
 
 $empty_state_skip = true;
 $upload_url = "modals/file/file_upload.php?client_id=$client_id&folder_id=$folder_id";
-$search_label = $search_everywhere || $folder_id === 0 ? 'all folders' : $folder_name;
+$search_label = $look_everywhere || $folder_id === 0 ? 'all folders' : $folder_name;
 $preview = []; // the grid's previewer payload
 
 ?>
@@ -355,6 +366,11 @@ $preview = []; // the grid's previewer payload
                         <button class="btn btn-dark" title="Search"><i class="fa fa-search"></i></button>
                     </div>
                 </div>
+                <div class="col-lg-3 col-md-6">
+                    <select onchange="this.form.submit()" class="form-select select2" name="tags[]" data-placeholder="- Document tags -" multiple>
+                        <?= tagFilterOptionsHtml('document', $tag_filter_ids, "document_client_id = $client_id AND document_$archive_query") ?>
+                    </select>
+                </div>
                 <div class="col-md-auto ms-md-auto d-flex flex-wrap gap-2">
                     <div class="btn-group" role="group" aria-label="View">
                         <a href="<?= escapeHtml(filesUrl(['view' => 0])) ?>" class="btn <?= $view === 0 ? 'btn-dark' : 'btn-outline-dark' ?>" title="List"><i class="fas fa-list-ul"></i></a>
@@ -373,6 +389,9 @@ $preview = []; // the grid's previewer payload
                                     <a class="dropdown-item ajax-modal" href="#" data-bulk="true"
                                         data-modal-url="modals/file/file_bulk_move.php?client_id=<?= $client_id ?>&current_folder_id=<?= $folder_id ?>">
                                         <i class="fas fa-fw fa-folder-open me-2"></i>Move
+                                    </a>
+                                    <a class="dropdown-item" href="#" data-tag-picker data-tag-entity="document" data-tag-bulk="document_ids[]" data-csrf="<?= $_SESSION['csrf_token'] ?>" title="The documents ticked - uploads don't take tags">
+                                        <i class="fas fa-fw fa-tags me-2"></i>Tags
                                     </a>
                                     <div class="dropdown-divider"></div>
                                     <button class="dropdown-item text-danger confirm-link" type="submit" form="bulkActions" name="bulk_archive_files">
@@ -466,9 +485,9 @@ $preview = []; // the grid's previewer payload
                 <?= emptyStateHtml([
                     'thing' => 'files or documents',
                     'icon' => 'fa-folder-open',
-                    'filtered' => $search !== '',
-                    'clear_url' => filesUrl(['q' => '']),
-                    'match_title' => $search !== '' ? 'Nothing matches "' . escapeHtml($search) . '"' . ($search_everywhere ? '' : ' in ' . $folder_name) : null,
+                    'filtered' => $search !== '' || $tag_filter_ids,
+                    'clear_url' => filesUrl(['q' => '', 'tags' => null]),
+                    'match_title' => $search !== '' ? 'Nothing matches "' . escapeHtml($search) . '"' . ($look_everywhere ? '' : ' in ' . $folder_name) : ($tag_filter_ids ? 'No documents with ' . (count($tag_filter_ids) === 1 ? 'that tag' : 'those tags') . ($look_everywhere ? '' : ' in ' . $folder_name) : null),
                     'archived' => $archived,
                     'archived_title' => 'Nothing archived ' . ($folder_id ? 'in ' . $folder_name : 'here'),
                     'title' => $folder_id ? $folder_name . ' is empty' : 'No files or documents yet',
@@ -559,6 +578,9 @@ $preview = []; // the grid's previewer payload
                                                     <a class="fw-semibold small d-block text-truncate text-body ajax-modal" href="#" data-modal-size="lg" data-modal-url="modals/file/file.php?id=<?= $id ?>" title="<?= $name ?>"><?= $name ?></a>
                                                 <?php } ?>
                                                 <div class="small text-body-secondary text-truncate"><?= escapeHtml($meta) ?> &middot; <?= timeAgo($item['updated']) ?></div>
+                                                <?php if ($item['kind'] === 'document' && !empty($documents_tags[$id])) { ?>
+                                                    <div class="mt-1"><?= tagPills('document', $id, $documents_tags[$id], "files.php?client_id=$client_id&", false) ?></div>
+                                                <?php } ?>
                                             </div>
                                             <div class="dropdown">
                                                 <button type="button" class="btn btn-sm btn-link text-body-secondary px-1" data-bs-toggle="dropdown" title="More actions"><i class="fas fa-ellipsis-v"></i></button>
@@ -631,6 +653,9 @@ $preview = []; // the grid's previewer payload
                                                         <div class="small text-body-secondary text-truncate itflow-files-desc"><?= escapeHtml($item['description']) ?></div>
                                                     <?php } ?>
                                                     <?= filesFolderNote($item) ?>
+                                                    <?php if ($item['kind'] === 'document' && (!empty($documents_tags[$id]) || ($can_edit && !$item['archived']))) { ?>
+                                                        <div class="mt-1 itflow-above-stretch"><?= tagPills('document', $id, $documents_tags[$id] ?? [], "files.php?client_id=$client_id&", $can_edit && !$item['archived']) ?></div>
+                                                    <?php } ?>
                                                 </div>
                                             </div>
                                         </td>

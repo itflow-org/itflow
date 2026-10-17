@@ -165,7 +165,7 @@ $csrf = $_SESSION['csrf_token'];
                             $used_archived = $tag['used']['archived'];
                             $lines = $tag['lines'];
                             $edit_url = "modals/tag/tag_edit.php?id=$tag_id";
-                            $list_url = '/agent/' . $kind['list'] . '?tags[]=' . $tag_id;
+                            $list_url = tagListUrl(tagKinds()[$type], $tag);
                             $used_html = $used
                                 ? '<a href="' . escapeHtml($list_url) . '" title="Show the ' . $kind['plural'] . ' tagged ' . $name . '">' . $records_text($used) . '</a>'
                                     . ($used_archived ? ' <span class="text-secondary">(' . number_format($used_archived) . ' archived)</span>' : '')

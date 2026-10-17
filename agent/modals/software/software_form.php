@@ -7,7 +7,7 @@
  * the seats, before including this. Posts what softwareFormSet()
  * (functions/software.php) reads.
  *
- * Tabs: Details, License (type, seats, key, dates), Seats (the client's
+ * Tabs: Details (with its tags), License (type, seats, key, dates), Seats (the client's
  * devices and users, with a running count against the seats bought) and
  * Notes. A new license can start from a template, which fills in the details,
  * and take a batch of individual keys, one per line.
@@ -192,6 +192,9 @@ $form_id = 'softwareForm' . ($software_form_mode === 'edit' ? $software_id : 'Ne
                 <span class="input-group-text"><i class="fa fa-fw fa-align-left"></i></span>
                 <input type="text" class="form-control" name="description" placeholder="Email, Office apps and Intune for the whole office" value="<?= $software_description ?>">
             </div>
+        </div>
+        <div class="col-12">
+            <?= tagFormFieldHtml('license', $software_form_mode === 'edit' ? tagIdsForRecord('license', $software_id) : [], 'Core stack, Client-paid, Annual true-up') ?>
         </div>
     </div>
 

@@ -45,6 +45,7 @@ foreach ($columns as $column) {
 }
 $last_replies = ticketLastReplies($board_ids);
 $task_counts = ticketTaskCounts($board_ids);
+$tickets_tags = tagsForRecords('ticket', $board_ids);
 
 ?>
 
@@ -143,6 +144,10 @@ $task_counts = ticketTaskCounts($board_ids);
                                 <?php } ?>
                                 <?= ticketTasksHtml($task_counts[$ticket_id] ?? null) ?>
                             </div>
+                        <?php } ?>
+
+                        <?php if (!empty($tickets_tags[$ticket_id])) { ?>
+                            <div class="mt-1"><?= tagPills('ticket', $ticket_id, $tickets_tags[$ticket_id], "tickets.php?{$client_url}view=kanban&", false) ?></div>
                         <?php } ?>
 
                         <div class="d-flex align-items-center justify-content-between gap-2 mt-2">

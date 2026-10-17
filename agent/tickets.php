@@ -149,6 +149,18 @@ if ($project_filter) {
     $active_filters[] = ['label' => 'Project', 'value' => escapeHtml(getFieldById('projects', $project_filter, 'project_name')), 'drop' => ['project' => null]];
 }
 
+// Tags - a ticket with any of them
+$tag_filter_ids = tagFilterIds();
+if ($tag_filter_ids) {
+    $filter_sql[] = tagFilterSql('ticket', $tag_filter_ids, 'tickets.ticket_id');
+    $tag_filter_names = [];
+    $sql_tag_names = mysqli_query($mysqli, "SELECT tag_name FROM tags WHERE tag_type = 12 AND tag_id IN (" . implode(',', $tag_filter_ids) . ") ORDER BY tag_name");
+    while ($row = mysqli_fetch_row($sql_tag_names)) {
+        $tag_filter_names[] = escapeHtml($row[0]);
+    }
+    $active_filters[] = ['label' => 'Tags', 'value' => implode(', ', $tag_filter_names), 'drop' => ['tags' => null]];
+}
+
 // SLA state - the dashboard's "SLA breached" links here
 $sla_filters = [
     'breached' => ['SLA breached', 'ticket_sla_id > 0 AND (ticket_response_sla_alert_stage = 2 OR ticket_resolution_sla_alert_stage = 2 OR ticket_response_sla_met = 0 OR ticket_resolution_sla_met = 0)'],
@@ -187,7 +199,8 @@ if ($date_filter_active) {
 if ($q !== '') {
     $filter_sql[] = "AND (CONCAT(ticket_prefix, ticket_number) LIKE '%$q%' OR ticket_subject LIKE '%$q%' OR client_name LIKE '%$q%'
         OR contact_name LIKE '%$q%' OR contact_email LIKE '%$q%' OR ticket_status_name LIKE '%$q%' OR ticket_priority LIKE '%$q%'
-        OR user_name LIKE '%$q%' OR asset_name LIKE '%$q%' OR vendor_name LIKE '%$q%' OR ticket_vendor_ticket_number LIKE '%$q%' OR category_name LIKE '%$q%')";
+        OR user_name LIKE '%$q%' OR asset_name LIKE '%$q%' OR vendor_name LIKE '%$q%' OR ticket_vendor_ticket_number LIKE '%$q%' OR category_name LIKE '%$q%'
+        " . tagSearchSql('ticket', $q, 'tickets.ticket_id') . ")";
 }
 
 $filters = clientScopeSql('ticket_client_id') . " $client_query " . implode(' ', $filter_sql);
@@ -290,7 +303,7 @@ $export_extra = [
                         <i class="fa fa-fw fa-redo-alt me-2"></i>Recurring tickets
                     </a>
                     <a class="dropdown-item text-dark ajax-modal" href="#"
-                        data-modal-url="<?= buildExportModalUrl('modals/ticket/ticket_export.php', ['client_id', 'client', 'status', 'billing', 'category', 'priority', 'assigned', 'sla', 'project', 'q'], $export_extra) ?>">
+                        data-modal-url="<?= buildExportModalUrl('modals/ticket/ticket_export.php', ['client_id', 'client', 'status', 'billing', 'category', 'priority', 'assigned', 'sla', 'project', 'tags', 'q'], $export_extra) ?>">
                         <i class="fa fa-fw fa-download me-2"></i>Export
                     </a>
                 </div>
@@ -366,6 +379,9 @@ $export_extra = [
                                     </a>
                                     <a class="dropdown-item ajax-modal" href="#" data-modal-url="modals/ticket/ticket_bulk_edit_category.php" data-bulk="true">
                                         <i class="fas fa-fw fa-tag me-2"></i>Set category
+                                    </a>
+                                    <a class="dropdown-item" href="#" data-tag-picker data-tag-entity="ticket" data-tag-bulk data-csrf="<?= $_SESSION['csrf_token'] ?>">
+                                        <i class="fas fa-fw fa-tags me-2"></i>Tags
                                     </a>
                                     <a class="dropdown-item ajax-modal" href="#" data-modal-url="modals/ticket/ticket_bulk_add_project.php" data-bulk="true">
                                         <i class="fas fa-fw fa-project-diagram me-2"></i>Add to a project
@@ -451,6 +467,12 @@ $export_extra = [
                             <?php } ?>
                         </select>
                     </div>
+                    <div class="col-lg-3 col-md-6">
+                        <label class="form-label small text-body-secondary mb-1">Tags</label>
+                        <select onchange="this.form.submit()" class="form-select select2" name="tags[]" data-placeholder="Any tag" multiple>
+                            <?= tagFilterOptionsHtml('ticket', $tag_filter_ids, '1 ' . clientScopeSql('ticket_client_id') . ($client_url ? " AND ticket_client_id = $client_id" : '')) ?>
+                        </select>
+                    </div>
                     <?php if ($sla_in_use) { ?>
                         <div class="col-lg-3 col-md-6">
                             <label class="form-label small text-body-secondary mb-1">SLA</label>
@@ -505,7 +527,7 @@ $export_extra = [
                         <a href="<?= escapeHtml($filter_url($filter['drop'])) ?>" class="text-danger ms-1" title="Remove this filter"><i class="fas fa-times"></i></a>
                     </span>
                 <?php } ?>
-                <a href="<?= escapeHtml($filter_url(['status' => null, 'priority' => null, 'category' => null, 'project' => null, 'sla' => null, 'billing' => null, 'canned_date' => null, 'dtf' => null, 'dtt' => null])) ?>" class="small text-danger ms-1">Clear</a>
+                <a href="<?= escapeHtml($filter_url(['status' => null, 'priority' => null, 'category' => null, 'project' => null, 'tags' => null, 'sla' => null, 'billing' => null, 'canned_date' => null, 'dtf' => null, 'dtt' => null])) ?>" class="small text-danger ms-1">Clear</a>
             </div>
         <?php } ?>
     </div>

@@ -235,6 +235,10 @@ ob_start();
                     </div>
                 </div>
 
+                <div class="mb-3">
+                    <?= tagFormFieldHtml('ticket', [], 'Onboarding, Hardware, Escalated') ?>
+                </div>
+
                 <?php if ($config_module_enable_accounting) { ?>
                 <div class="mb-3">
                     <div class="form-check form-switch">

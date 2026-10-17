@@ -1518,6 +1518,7 @@ function demoBuildClient($mysqli, $profile, $index, $context, &$counts) {
         ], ['document_content', 'document_content_raw']);
         $document_ids[] = $document_id;
         $counts['documentation']++;
+        demoAttachTags($mysqli, 'document_tags', 'document_id', 'tag_id', $document_id, 11, $document_index === 0 ? ['Runbook'] : ($document[3] ? ['Client-facing'] : ['Procedure']));
 
         // The runbook has been revised at least once since it was written
         if ($document_index === 0 && $written_months_ago > 2) {
@@ -1558,6 +1559,7 @@ function demoBuildClient($mysqli, $profile, $index, $context, &$counts) {
             'service_accessed_at' => demoDateTime($index % 12, 16, 20),
         ]);
         $counts['documentation']++;
+        demoAttachTags($mysqli, 'service_tags', 'service_id', 'tag_id', $service_id, 9, in_array($service[2], ['Email', 'Web'], true) ? ['Managed', 'Cloud'] : ['Managed']);
 
         // Link it to the assets whose type it runs on
         foreach ($assets as $asset) {
@@ -1604,6 +1606,7 @@ function demoBuildClient($mysqli, $profile, $index, $context, &$counts) {
 
         $software_id = starterInsert($mysqli, 'software', $software_fields);
         $counts['documentation']++;
+        demoAttachTags($mysqli, 'software_tags', 'software_id', 'tag_id', $software_id, 8, $software[4] === 'Subscription' ? ['We Resell', 'Core Stack'] : []);
 
         // Open source software has no key to hold
         if ($software[4] !== 'Open Source') {
@@ -2388,6 +2391,22 @@ function demoBuildProjects($mysqli, $profile, $index, $client_id, $months, &$cou
 // One place that writes a ticket and its trail, so every ticket in the demo
 // gets the same history, SLA treatment and reply handling.
 // ------------------------------
+/* A demo ticket's tags, from what it is about - the Tags starter pack's ticket tags. */
+function demoTicketTags($subject) {
+    $map = [
+        'New starter' => 'Onboarding', 'leaving' => 'Offboarding', 'Ransomware' => 'Security', 'Suspicious' => 'Security',
+        'Multi factor' => 'Security', 'Drive failed' => 'Warranty Claim', 'screen cracked' => 'Warranty Claim', 'will not power on' => 'Warranty Claim',
+        'internet dropping' => 'Waiting on Vendor',
+    ];
+    $tags = [];
+    foreach ($map as $words => $tag) {
+        if (stripos((string) $subject, $words) !== false) {
+            $tags[] = $tag;
+        }
+    }
+    return array_values(array_unique($tags));
+}
+
 function demoSeedTicket($mysqli, $fields, $trail, $context, &$counts) {
 
     global $config_ticket_prefix;
@@ -2415,6 +2434,7 @@ function demoSeedTicket($mysqli, $fields, $trail, $context, &$counts) {
 
     $ticket_id = starterInsert($mysqli, 'tickets', $fields, ['ticket_details']);
     $counts['tickets']++;
+    demoAttachTags($mysqli, 'ticket_tags', 'ticket_id', 'tag_id', $ticket_id, 12, demoTicketTags($fields['ticket_subject']));
 
     if (!empty($fields['ticket_asset_id'])) {
         mysqli_query($mysqli, "INSERT INTO ticket_assets SET ticket_id = $ticket_id, asset_id = {$fields['ticket_asset_id']}");

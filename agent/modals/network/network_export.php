@@ -25,6 +25,7 @@ $type_filter = isset(NETWORK_TYPES[$_GET['type'] ?? '']) ? $_GET['type'] : '';
 
 // Archived Filter
 $archived_filter = (isset($_GET['archived']) && $_GET['archived'] == 1) ? 1 : 0;
+$tag_filter = tagFilterIds();
 
 ob_start();
 
@@ -109,6 +110,8 @@ ob_start();
                 </select>
             </div>
         </div>
+
+        <?= tagExportFieldHtml('network', $tag_filter) ?>
 
         <div class="mb-3">
             <label>Archived</label>

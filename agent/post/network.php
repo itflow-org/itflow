@@ -54,6 +54,8 @@ if (isset($_POST['add_network'])) {
 
     logAudit("Network", "Create", "$session_name created network " . escapeSql(trim($_POST['name'])), $client_id, $network_id);
 
+    tagSetForRecord('network', $network_id, (array) ($_POST['tags'] ?? []));
+
     networkSavedMessage('created', $network_id, $note);
 
     redirect(networkUrl($network_id, $client_id));
@@ -78,6 +80,11 @@ if (isset($_POST['edit_network'])) {
     }
 
     mysqli_query($mysqli, "UPDATE networks SET $set WHERE network_id = $network_id");
+
+    // Only a form that showed the tags changes them
+    if (isset($_POST['tags_form'])) {
+        tagSetForRecord('network', $network_id, (array) ($_POST['tags'] ?? []));
+    }
 
     logAudit("Network", "Edit", "$session_name edited network " . escapeSql(trim($_POST['name'])), $client_id, $network_id);
 
@@ -340,6 +347,8 @@ if (isExportRequest('export_networks')) {
         $filter_summary['Type'] = $_POST['type'];
     }
 
+    $tag_query = tagExportFilterSql('network', $_POST['tags'] ?? [], $filter_summary, 'networks.network_id');
+
     $q = escapeSql($_POST['q'] ?? '');
     if ($q !== '') {
         $filter_summary['Search'] = $_POST['q'];
@@ -347,15 +356,17 @@ if (isExportRequest('export_networks')) {
 
     $sql = mysqli_query(
         $mysqli,
-        "SELECT networks.*, client_name, location_name, vendor_name FROM networks
+        "SELECT networks.*, client_name, location_name, vendor_name, " . tagNamesSql('network', 'networks.network_id') . " AS network_tags FROM networks
         LEFT JOIN clients ON client_id = network_client_id
         LEFT JOIN locations ON location_id = network_location_id AND network_location_id > 0
         LEFT JOIN vendors ON vendor_id = network_vendor_id AND network_vendor_id > 0
         WHERE $archive_query
-        AND (network_name LIKE '%$q%' OR network_description LIKE '%$q%' OR network_type LIKE '%$q%' OR network_vlan LIKE '%$q%' OR network LIKE '%$q%' OR network_gateway LIKE '%$q%' OR network_primary_dns LIKE '%$q%' OR network_secondary_dns LIKE '%$q%' OR client_name LIKE '%$q%' OR location_name LIKE '%$q%' OR vendor_name LIKE '%$q%')
+        AND (network_name LIKE '%$q%' OR network_description LIKE '%$q%' OR network_type LIKE '%$q%' OR network_vlan LIKE '%$q%' OR network LIKE '%$q%' OR network_gateway LIKE '%$q%' OR network_primary_dns LIKE '%$q%' OR network_secondary_dns LIKE '%$q%' OR client_name LIKE '%$q%' OR location_name LIKE '%$q%' OR vendor_name LIKE '%$q%'
+            " . tagSearchSql('network', $q, 'networks.network_id') . ")
         " . clientScopeSql('network_client_id') . "
         $location_query
         $type_query
+        $tag_query
         $client_query
         ORDER BY client_name ASC, network_name ASC"
     );
@@ -369,6 +380,7 @@ if (isExportRequest('export_networks')) {
         $export = beginExport('networks', $format, $file_name_prepend . 'Networks', 'Networks', summarizeExportFilters($filter_summary));
 
         while ($row = mysqli_fetch_assoc($sql)) {
+            $row['network_tags'] = (string) $row['network_tags'];
             addExportRow($export, $row);
         }
 

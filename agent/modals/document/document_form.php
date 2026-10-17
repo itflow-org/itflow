@@ -7,7 +7,8 @@
  *
  * Expects $document_form_mode ('add' or 'edit'), $client_id, and the
  * escaped $document_name, $document_description, $document_content,
- * $document_folder_id, $document_client_visible.
+ * $document_folder_id, $document_client_visible - and $document_id when
+ * editing, for its tags.
  */
 ?>
 
@@ -38,6 +39,10 @@
             </div>
         </div>
     <?php } ?>
+
+    <div class="col-md-6">
+        <?= tagFormFieldHtml('document', $document_form_mode === 'edit' ? tagIdsForRecord('document', $document_id) : [], 'Procedure, Onboarding, Needs review') ?>
+    </div>
 
     <?php if (!empty($config_client_portal_enable)) { ?>
         <div class="col-md-6 d-flex align-items-end">

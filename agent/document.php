@@ -53,6 +53,7 @@ while ($version = mysqli_fetch_assoc($sql_versions)) {
 }
 
 $csrf = $_SESSION['csrf_token'];
+$document_tags_display = tagPills('document', $document_id, tagsForRecord('document', $document_id), "files.php?client_id=$client_id&", $can_edit && !$document_archived);
 
 // Tab title - used raw, the header escapes it
 $page_title = $row['document_name'];
@@ -80,6 +81,9 @@ $page_title = $row['document_name'];
             </h1>
             <?php if ($document_description) { ?>
                 <div class="text-body-secondary"><?= $document_description ?></div>
+            <?php } ?>
+            <?php if ($document_tags_display) { ?>
+                <div class="mt-1"><?= $document_tags_display ?></div>
             <?php } ?>
             <div class="small text-body-secondary mt-1">
                 <span title="<?= escapeHtml($document_updated_at) ?>">Updated <?= timeAgo($document_updated_at) ?></span><?= $document_updated_by ? " by $document_updated_by" : '' ?>

@@ -7,7 +7,7 @@
  * (functions/network.php) reads.
  *
  * Tabs: Details (name, type, site, the provider of an internet connection,
- * VLAN), Addressing (subnet, gateway, DHCP range, DNS) and Notes. The subnet
+ * VLAN, tags), Addressing (subnet, gateway, DHCP range, DNS) and Notes. The subnet
  * is read as it is typed - its size and mask, a gateway and DHCP range to
  * suggest, and the client's networks it overlaps (agent/js/network_form.js).
  */
@@ -155,6 +155,9 @@ $value = function ($key) use ($form) {
                 <div class="form-text">The ISP - its phone, account number and hours show on the network.</div>
             </div>
         <?php } ?>
+        <div class="col-12">
+            <?= tagFormFieldHtml('network', $is_new ? [] : tagIdsForRecord('network', $form['network_id']), 'Managed, Segmented, PCI') ?>
+        </div>
     </div>
 </div>
 

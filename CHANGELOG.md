@@ -6,9 +6,9 @@ This file documents all notable changes made to ITFlow.
 
 ### Upgrading to 26.11
 
-Update from Maintenance > Update — Queue Update hands the job to cron, which updates the files and applies this release's database changes (2.7.9 to 3.1.3) in the same pass. Nothing else is required.
+Update from Maintenance > Update — Queue Update hands the job to cron, which updates the files and applies this release's database changes (2.7.9 to 3.1.4) in the same pass. Nothing else is required.
 
-This is a big release, with thirty-four database steps in one go, so take a backup before you update.
+This is a big release, with thirty-five database steps in one go, so take a backup before you update.
 
 The update also clears out data that deletes in older versions left behind, all of it pointing at something that no longer exists:
 
@@ -33,7 +33,7 @@ Every account is given a kind - checking, savings, credit card, cash or payment 
 
 Taxes keep their names and rates, now kept to four decimal places. No client has a rate of its own or is tax exempt, and there is no default rate, so new lines start untaxed as before until you pick one in Admin > Taxes. Billed time, trips and expenses stay untaxed until you switch them on there. Discounts now come off before tax on invoices and quotes that are still open, the next time they are edited (see Breaking Changes, Taxes). No expense has tax recorded on it until you add it, so Tax Collected shows no tax paid on purchases for the months before.
 
-Tags keep their names, colors, icons and records. A color saved as a word, such as dark or primary, becomes the color it stands for, a short one such as #abc is written out in full, and a tag with no color, or one that isn't a color, turns grey, so its pills can be read (see Bug Fixes). An icon saved with `fas fa-` in front keeps just its name. A tag archived in an older version now counts as archived (see Breaking Changes, Tags).
+Tags keep their names, colors, icons and records. A color saved as a word, such as dark or primary, becomes the color it stands for, a short one such as #abc is written out in full, and a tag with no color, or one that isn't a color, turns grey, so its pills can be read (see Bug Fixes). An icon saved with `fas fa-` in front keeps just its name. A tag archived in an older version now counts as archived (see Breaking Changes, Tags). Licenses, services, networks, documents and tickets can now be tagged too, and start with no tags - the Tags pack in Maintenance > Starter Content adds a few for each.
 
 If you are coming from 26.08 or earlier, the database update still has to be run from the command line one time, exactly as described under Upgrading to 26.09 below.
 
@@ -136,6 +136,7 @@ If you are coming from 26.08 or earlier, the database update still has to be run
   - A tag's name is now unique within its kind, in any case: a second client tag called VIP can't be made, though an asset tag can be. Tags already named alike keep their names. Typing a name that exists into a record form picks that tag.
   - A tag that a recurring invoice line counts users or devices by can't be deleted. Archive it, or merge it into another tag, which moves the line along with it.
   - Pills now have dark text on light colors such as yellow and light blue, where every pill had white text.
+  - The search box at the top, and the license, service, network, ticket and Files searches, also match tag names, so a search can bring back records whose own details don't have the words in them. In the search box and on its full results page, the tag that matched shows next to each.
 - Notifications now follow access too. An agent only sees notifications for clients and areas they can open, so someone without sales access no longer sees invoice and quote notifications.
 - Drop-downs: Tom Select is gone, replaced by ITFlow's own picker. It works the way you are used to: type to search, tick several in a multi-select, and type a new value in fields that allow it, such as ticket watchers. See Developer Updates if you have custom pages that used Tom Select.
 - Several small windows are gone because the change is now made where the value is shown:
@@ -753,7 +754,7 @@ If you are coming from 26.08 or earlier, the database update still has to be run
   - API: clients take `client_default_tax_id`, `client_tax_exempt`, `client_tax_exempt_number` and `client_tax_exempt_expires`, and a new invoice line takes `tax_id` `default` for the client's usual rate. A new endpoint reads the taxes with their parts. Invoices and quotes add their subtotal, tax, tax by part and registration numbers, invoice lines name their rate, and expenses include their tax.
   - Demo data: both taxes have a registration number, Allegheny County Sales Tax is made of the state's 6% - named PA Sales Tax, so Tax Collected adds the two up together - and the county's 1%, each client has its rate, the church and the charter school are tax exempt, one with a certificate that has run out, and what the company buys for its own use pays sales tax.
 - **Tags** (rebuilt)
-  - Admin > Tags lists each kind's tags - clients, locations, contacts, credentials, assets, vendors and domains, down the side with how many each has. Each tag shows as it looks on a record, with its description, how many records have it (and how many of those are archived), opening that list filtered by it, and the recurring invoice lines that count users or devices by it.
+  - Admin > Tags lists each kind's tags - clients, locations, contacts, credentials, assets, vendors, domains, licenses, services, networks, documents and tickets, down the side with how many each has. Each tag shows as it looks on a record, with its description, how many records have it (and how many of those are archived), opening that list filtered by it, and the recurring invoice lines that count users or devices by it.
   - Search by name or description, sort by name or by most used, and Current and Archived tabs.
   - Each tag has Edit, Merge into..., a link to its records, Archive or Restore, and Delete, which asks first and says how many records lose the tag. Tick several for Merge into one, Archive or Restore, and Delete.
   - The tag window shows the tag as it will look while you change it:
@@ -764,6 +765,15 @@ If you are coming from 26.08 or earlier, the database update still has to be run
   - Merge moves every record with the merged tags onto the one you keep, once each, and the recurring invoice lines that count by them count by it. The others are deleted.
   - Record forms: an admin types a new tag's name into the Tags field and picks Add or presses Enter, and the tag is made, with the next color along, when the record is saved - nothing reloads and nothing typed is lost. Typing the name of an archived tag brings it back.
   - A recurring invoice line counting by a tag keeps it in its window once the tag is archived, or when the client no longer has anything with it, so saving the line doesn't drop it.
+  - Licenses, services, networks, documents and tickets take tags, like the other seven kinds:
+    - their lists show each one's tags with the + to change them (tickets show the + once a ticket has a tag), filter by tag and find tags by name in the search, and Bulk Action has Tags
+    - their pages and quick looks show the tags, with the + to change them, and their New and Edit windows have a Tags field
+    - their exports filter by tag and can add a Tags column
+  - Files: documents take tags. Filtering by a tag shows the documents with it - from every folder at the top level, like a search - and no uploads. Bulk Action > Tags tags the documents ticked and leaves uploads alone.
+  - Tickets: Tags is in the More filters, shown as a chip like the others, and the board's cards show their tags. Changing a ticket's tags is written in its history. Merging a ticket into another moves its tags over too, apart from archived ones.
+  - Search finds records by their tags: searching VIP finds the clients, assets or tickets tagged VIP, with the tag next to each. A Tags group lists the tags that match, each in its color, opening its list filtered by it - or for a document tag, the search for it, as documents are listed one client at a time.
+  - API: read the tags, one record's tags or the records with a tag, set a record's tags or add and take some off, and make a tag (admin keys only). Every record read now includes its tags.
+  - Starter Content: the Tags pack has tags for licenses, services, networks, documents and tickets - We Resell, Managed, PCI, Runbook, Escalated and so on. Demo data tags its licenses, services, documents and tickets with them.
 
 ### Bug Fixes
 
@@ -1222,6 +1232,15 @@ If you are coming from 26.08 or earlier, the database update still has to be run
   - Removed: `agent/post/tag.php` and `agent/post/tag_model.php` (an older copy of `add_tag` for the window opened from agent pages), and `admin/post/tag_model.php`.
   - `agent/modals/billing/billing_item.php` adds a seat line's own tag to its choices when `recurringSeatOptions()` leaves it out.
   - CSS: `.itflow-tag` takes its text color from `--itflow-tag-text`; new `.itflow-tag-swatch`, `.itflow-tag-icons`, `.itflow-tag-icon` and `.itflow-tag-icon-custom`.
+- Tags on more records (database 3.1.4):
+  - New link tables `software_tags`, `service_tags`, `network_tags`, `document_tags` and `ticket_tags` - the record's id and `tag_id`, keyed together and on `tag_id`, gone with the record or the tag. Tag types 8 (license - the `software` table), 9 (service), 10 (network), 11 (document) and 12 (ticket) in `tagKinds()` and `tagEntity()`; a document's `client_list` says its list (`files.php`) is one client's.
+  - `functions/tags.php`: `tagListUrl($entity, $tag)` (the list filtered by it, or `global_search.php?query=` for documents), `tagFilterIds()` (`?tags[]=`), `tagFilterSql($entity, $ids, $column)`, `tagSearchSql($entity, $like, $column)`, `tagFilterOptionsHtml($entity, $selected, $records_where)` (the tags on records the list can show, its client joined, plus those chosen), `tagOptionHtml($row, $selected)`, `tagFormFieldHtml($entity, $selected, $placeholder)` (with the `tags_form` marker), `tagIdsForRecord()`, `tagChangeText($before, $after)`, `tagExportFieldHtml()`, `tagNamesSql()` and `tagExportFilterSql($entity, $values, &$summary, $column)`, `tagMatchSql()` and `tagSearchSpec()` for search, and `tagApiRow()` and `tagApiAttach($rows, $entity)` for the API. `tagsForRecords()` adds `tag_type`.
+  - Licenses, services, networks, documents and tickets: the lists read `tags[]`; the forms post `tags[]` and `tags_form`; `add_software`, `add_service`, `add_network`, `add_document` and `add_ticket` save them with `tagSetForRecord()`, and the edits do when `tags_form` is posted. `edit_ticket` writes the change to the ticket's history, as does the picker (`agent/ajax.php` `tag_picker_set`) for a ticket. `ticketMergeInto()` copies the merged ticket's tags that aren't archived.
+  - Exports: `tags[]` filters, and `software_tags`, `service_tags`, `network_tags` and `ticket_tags` columns, off until ticked.
+  - `js/tag_picker.js`: `data-tag-bulk="document_ids[]"` takes only the ticked boxes of that name.
+  - Global search: a group's `tags` (`[entity, id column]`) also matches its records' tag names and hands back each item's matching `tags` (`name`, `color`, `text`, `icon`); the new `tags` group (`module` null - it checks each kind's module in its own query) gives each item its `tag`. CSS: `.itflow-search-tag-icon`, `.itflow-search-item-text` and `.itflow-search-item-tags`.
+  - API: `api/v1/tags/read.php` (`kind` - a kind's name, `software` or its type - `record_id`, `tag_id` with `tag_record_ids`, `tag_name`, `archived`, `limit`, `offset`), `update.php` (`kind`, `record_id`, `tags` as an array or comma-separated ids or names, `mode` `set`, `add` or `remove`, and `client_id` for a key limited to certain clients) and `create.php` (admin keys; `kind`, `name`, `description`, `color`, `icon`). `enforce_api_rbac.php` maps `tags` to `''`, so `tagApiKind()` checks the module of the kind asked for. `read_output.php` adds `tags` to each row when the endpoint sets `$api_tag_entity`, as the twelve kinds' reads now do; `credentials/read.php` adds them itself.
+  - Seeds: `starterContentTags()` has types 8 to 12, and demo data tags its documents, services, licenses and tickets (`demoTicketTags()`).
 - Empty states: every list page sets `$empty_state` before including `includes/filter_footer.php`, and `includes/inc_empty_state.php` draws it with `emptyStateHtml()` (`functions/format.php`) when the list has nothing - `thing`, `icon`, `title`, `text`, `actions` (`label`, `modal` or `href`, `size`, `icon`; the first is the main one), `archived`, `view`, `filtered`, `views`, `match_title`, `match_text` and `clear_url`. `emptyStateFiltered($views)` reads the GET string for a search or filter, leaving out paging, sorting, `client_id`, `archived` and the page's views, and `emptyStateClearUrl($views)` is the page without them. `emptyStatePill($pills, $key, $default, $good)` builds a pill's own state from the page's pill array (`label`, `icon`, `title`, `alarm`), with a tick for `alarm` pills and the keys in `$good`. Files, notifications and racks call `emptyStateHtml()` in their own layout; files and notifications set `$empty_state_skip`. A page that sets nothing still gets one, worded from `$page_title`. The pages' own empty blocks (`.itflow-asset-empty` under a list) are gone. CSS: `.itflow-empty-state` with `-icon` (a grey round tile), `-title`, `-text` and `-actions`.
 - Removed unused helpers and files:
   - `credentialLink()`, `projectLink()`, `linkCounts()`, `assetContactAvatar()`, `clientOverviewPersonInitials()`, and `getMonthlyTax()` and `getQuarterlyTax()`, which looked a tax up by name

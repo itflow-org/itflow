@@ -37,6 +37,7 @@ $renewal = softwareRenewal($license['software_expire']);
 
 $can_edit = lookupUserPermission('module_support') >= 2 && !$software_archived;
 $can_credentials = lookupUserPermission('module_credential') >= 1;
+$license_tags_display = tagPills('license', $software_id, tagsForRecord('license', $software_id), "software.php?client_id=$client_id&", $can_edit);
 
 $holders = softwareSeatHolders($software_id);
 $keys = softwareKeys($software_id);
@@ -89,6 +90,9 @@ ob_start();
 
     <?php if ($software_description) { ?>
         <div class="text-body-secondary mb-3"><?= $software_description ?></div>
+    <?php } ?>
+    <?php if ($license_tags_display) { ?>
+        <div class="mb-3"><?= $license_tags_display ?></div>
     <?php } ?>
 
     <!-- At a glance - the icons say what each line is -->

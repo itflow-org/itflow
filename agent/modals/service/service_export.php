@@ -19,6 +19,7 @@ $show_filter = (string) ($_GET['show'] ?? '');
 $client_filter = (string) ($_GET['client'] ?? '');
 $importance_filter = (string) ($_GET['importance'] ?? '');
 $category_filter = (string) ($_GET['category'] ?? '');
+$tag_filter = tagFilterIds();
 $views = serviceViews();
 
 ob_start();
@@ -73,6 +74,8 @@ ob_start();
                 </div>
             </div>
         </div>
+
+        <?= tagExportFieldHtml('service', $tag_filter) ?>
 
         <div class="mb-3">
             <label class="form-label">Search</label>

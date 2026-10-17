@@ -81,6 +81,10 @@ $importance_styles = [
 </div>
 
 <div class="mb-3">
+    <?= tagFormFieldHtml('service', $is_new ? [] : tagIdsForRecord('service', $form['service_id']), 'Managed, Client-run, Business hours only') ?>
+</div>
+
+<div class="mb-3">
     <label class="form-label d-block">Importance <span class="text-body-secondary small fw-normal">- how bad is it when it is down?</span></label>
     <div class="btn-group w-100 itflow-service-importance" role="group">
         <?php foreach ($importance_styles as $importance => [$tone, $icon, $hint]) { ?>

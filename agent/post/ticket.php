@@ -48,7 +48,7 @@ function ticketNotifyAgent($user_id, $row, $text) {
     mysqli_query($mysqli, "INSERT INTO notifications SET notification_type = 'Ticket', notification = '" . escapeSql($text) . "', notification_action = '$action', notification_client_id = $client_id, notification_user_id = $user_id");
 }
 
-/** Close a merged ticket into another one - notes on both, replies moved when asked. */
+/** Close a merged ticket into another one - notes on both, its tags onto the other, replies moved when asked. */
 function ticketMergeInto($child, $parent, $comment, $move_replies = false) {
     global $mysqli, $session_name, $session_user_id;
     $ticket_id = intval($child['ticket_id']);
@@ -74,6 +74,11 @@ function ticketMergeInto($child, $parent, $comment, $move_replies = false) {
 
     mysqli_query($mysqli, "INSERT INTO ticket_replies SET ticket_reply = 'Ticket $child_reference was merged into this ticket with comment: $comment.<br><br><b>$child_subject</b><br>$child_details', ticket_reply_time_worked = '00:00:00', ticket_reply_type = 'Internal', ticket_reply_by = $session_user_id, ticket_reply_ticket_id = $parent_id");
     mysqli_query($mysqli, "UPDATE tickets SET ticket_updated_at = NOW() WHERE ticket_id = $parent_id");
+
+    // Its tags go with it - not archived ones, which aren't put on more tickets
+    mysqli_query($mysqli, "INSERT IGNORE INTO ticket_tags (ticket_id, tag_id)
+        SELECT $parent_id, ticket_tags.tag_id FROM ticket_tags JOIN tags ON tags.tag_id = ticket_tags.tag_id
+        WHERE ticket_tags.ticket_id = $ticket_id AND tags.tag_archived_at IS NULL");
 
     logTicketHistory($ticket_id, "$session_name merged this ticket into $parent_reference and closed it");
     logTicketHistory($parent_id, "$session_name merged $child_reference into this ticket");
@@ -164,6 +169,7 @@ if (isset($_POST['add_ticket'])) {
 
     ticketAddWatchers($ticket_id, ticketWatcherEmails($_POST['watchers'] ?? []));
     ticketSetOtherAssets($ticket_id, $other_asset_ids);
+    tagSetForRecord('ticket', $ticket_id, (array) ($_POST['tags'] ?? []));
 
     // Raised about a service - from the service page's "Report a problem"
     foreach (array_unique(array_map('intval', (array) ($_POST['service_ids'] ?? []))) as $service_id) {
@@ -276,6 +282,16 @@ if (isset($_POST['edit_ticket'])) {
     // An empty multi-select posts nothing, so the other assets go with the asset field
     if ($asset_posted) {
         ticketSetOtherAssets($ticket_id, ticketClientOwnedAssetIds($_POST['additional_assets'] ?? [], $client_id, $asset_id));
+    }
+
+    // ...and the tags with their marker
+    if (isset($_POST['tags_form'])) {
+        $tags_before = tagIdsForRecord('ticket', $ticket_id);
+        $tags_after = tagSetForRecord('ticket', $ticket_id, (array) ($_POST['tags'] ?? []));
+        $tags_text = tagChangeText($tags_before, $tags_after);
+        if ($tags_text !== '') {
+            logTicketHistory($ticket_id, escapeSql(stripslashes((string) $session_name) . " $tags_text"));
+        }
     }
 
     // The trail for what changed - the same entries the dedicated pickers write
@@ -1680,12 +1696,15 @@ if (isExportRequest('export_tickets')) {
         $filter_summary['Search'] = $_POST['q'];
     }
 
+    // Tags - a ticket with any of them
+    $ticket_tag_query = tagExportFilterSql('ticket', $_POST['tags'] ?? [], $filter_summary, 'tickets.ticket_id');
+
     // Get records from database - same shape as the tickets page list query
     $sql = mysqli_query(
         $mysqli,
         "SELECT category_name, client_name, contact_name, ticket_billable, ticket_closed_at,
         ticket_created_at, ticket_number, ticket_prefix, ticket_priority, ticket_resolved_at,
-        ticket_status_name, ticket_subject, user_name FROM tickets
+        ticket_status_name, ticket_subject, user_name, " . tagNamesSql('ticket', 'tickets.ticket_id') . " AS ticket_tags FROM tickets
         LEFT JOIN clients ON ticket_client_id = client_id
         LEFT JOIN contacts ON ticket_contact_id = contact_id
         LEFT JOIN users ON ticket_assigned_to = user_id
@@ -1698,7 +1717,9 @@ if (isExportRequest('export_tickets')) {
         $ticket_assigned_query
         $category_query
         AND DATE(ticket_created_at) BETWEEN '$dtf' AND '$dtt'
-        AND (CONCAT(ticket_prefix,ticket_number) LIKE '%$q%' OR client_name LIKE '%$q%' OR ticket_subject LIKE '%$q%' OR ticket_status_name LIKE '%$q%' OR ticket_priority LIKE '%$q%' OR user_name LIKE '%$q%' OR contact_name LIKE '%$q%' OR asset_name LIKE '%$q%' OR vendor_name LIKE '%$q%')
+        AND (CONCAT(ticket_prefix,ticket_number) LIKE '%$q%' OR client_name LIKE '%$q%' OR ticket_subject LIKE '%$q%' OR ticket_status_name LIKE '%$q%' OR ticket_priority LIKE '%$q%' OR user_name LIKE '%$q%' OR contact_name LIKE '%$q%' OR asset_name LIKE '%$q%' OR vendor_name LIKE '%$q%'
+            " . tagSearchSql('ticket', $q, 'tickets.ticket_id') . ")
+        $ticket_tag_query
         $ticket_sla_query
         $ticket_billable_snippet
         $ticket_project_snippet
@@ -1721,6 +1742,7 @@ if (isExportRequest('export_tickets')) {
             $row['ticket_category_name'] = $row['category_name'];
             $row['ticket_assigned_to'] = $row['user_name'];
             $row['ticket_billable'] = $row['ticket_billable'] ? 'Yes' : 'No';
+            $row['ticket_tags'] = (string) $row['ticket_tags'];
             addExportRow($export, $row);
         }
 

@@ -166,6 +166,10 @@ function searchResultBadge($badge) {
                                 <?php if (!empty($item['tile']) && preg_match('/^[a-z]+$/', $item['tile']['tone']) && preg_match('/^[a-z0-9-]+$/', $item['tile']['icon'])) { ?>
                                     <span class="itflow-file-icon itflow-file-icon-sm itflow-file-tone-<?= $item['tile']['tone'] ?>" title="<?= escapeHtml($item['tile']['label']) ?>" aria-hidden="true"><i class="fas fa-fw fa-<?= $item['tile']['icon'] ?>"></i></span>
                                 <?php } ?>
+                                <?php if (!empty($item['tag'])) { ?>
+                                    <!-- A tag - its own colour and icon -->
+                                    <span class="itflow-search-tag-icon" style="--itflow-tag-color: <?= tagColor($item['tag']['color']) ?>; --itflow-tag-text: <?= tagTextColor($item['tag']['color']) ?>" aria-hidden="true"><i class="fas fa-fw fa-<?= tagIcon($item['tag']['icon']) ?>"></i></span>
+                                <?php } ?>
                                 <?php if (!empty($item['avatar'])) {
                                     // A contact - their avatar, as everywhere else they appear
                                     $avatar = $item['avatar'];
@@ -182,6 +186,10 @@ function searchResultBadge($badge) {
                                         <?php } ?>
                                         <?= searchResultHighlight($item['title'], $search_query) ?>
                                     </a>
+                                    <?php foreach ($item['tags'] ?? [] as $tag) { ?>
+                                        <!-- Found by this tag -->
+                                        <span class="itflow-tag ms-1" style="--itflow-tag-color: <?= tagColor($tag['color']) ?>; --itflow-tag-text: <?= tagTextColor($tag['color']) ?>"><i class="fas fa-fw fa-<?= tagIcon($tag['icon']) ?>" aria-hidden="true"></i><?= escapeHtml($tag['name']) ?></span>
+                                    <?php } ?>
                                     <?php if (!empty($item['subtitle'])) { ?>
                                         <div class="small text-secondary text-truncate"><?= searchResultHighlight($item['subtitle'], $search_query) ?></div>
                                     <?php } ?>

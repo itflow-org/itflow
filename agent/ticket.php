@@ -466,6 +466,8 @@ if (isset($_GET['ticket_id'])) {
         // Values in the Details panel are links only when they can actually be changed
         $can_change_fields = $can_edit_ticket && !$ticket_is_closed;
 
+        $ticket_tags_display = tagPills('ticket', $ticket_id, tagsForRecord('ticket', $ticket_id), $client_id ? "tickets.php?client_id=$client_id&" : 'tickets.php?', $can_change_fields);
+
         ?>
 
         <link rel="stylesheet" href="css/ticket.css">
@@ -516,6 +518,9 @@ if (isset($_GET['ticket_id'])) {
                                 <?php } ?>
                                 <span class="text-info ms-1" id="ticket_collision_viewing"></span>
                             </div>
+                            <?php if ($ticket_tags_display) { ?>
+                                <div class="mt-2 d-print-none"><?= $ticket_tags_display ?></div>
+                            <?php } ?>
 
                         </div>
 

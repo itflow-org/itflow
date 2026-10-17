@@ -215,10 +215,16 @@ if (isset($_POST['tag_picker_set']) || isset($_POST['tag_picker_create'])) {
         if ($on && !$has) {
             mysqli_query($mysqli, "INSERT INTO $link SET $link_record = $record_id, $link_tag = $tag_id");
             logAudit($config['log'], "Edit", "$session_name added tag $tag_name to $record_name", $record['client_id'], $record_id);
+            if ($entity === 'ticket') {
+                logTicketHistory($record_id, "$session_name added tag $tag_name");
+            }
             $changed++;
         } elseif (!$on && $has) {
             mysqli_query($mysqli, "DELETE FROM $link WHERE $link_record = $record_id AND $link_tag = $tag_id");
             logAudit($config['log'], "Edit", "$session_name removed tag $tag_name from $record_name", $record['client_id'], $record_id);
+            if ($entity === 'ticket') {
+                logTicketHistory($record_id, "$session_name removed tag $tag_name");
+            }
             $changed++;
         }
     }

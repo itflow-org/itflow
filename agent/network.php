@@ -42,6 +42,7 @@ if (!$network || ($client_url && intval($network['network_client_id']) !== intva
     $is_archived = !empty($network['network_archived_at']);
     $is_favorite = intval($network['network_favorite']) === 1;
     $can_edit = networkCan(2) && !$is_archived;
+    $network_tags_display = tagPills('network', $network_id, tagsForRecord('network', $network_id), "networks.php?client_id=$client_id&", $can_edit);
     $can_restore = networkCan(2);
     $can_delete = networkCan(3) && !empty($config_destructive_deletes_enable);
     $csrf = $_SESSION['csrf_token'];
@@ -115,6 +116,9 @@ if (!$network || ($client_url && intval($network['network_client_id']) !== intva
                     <?php } ?>
                     <?php if ($network['network_description']) { ?><span><?= escapeHtml($network['network_description']) ?></span><?php } ?>
                 </div>
+                <?php if ($network_tags_display) { ?>
+                    <div class="mt-2"><?= $network_tags_display ?></div>
+                <?php } ?>
             </div>
 
             <div class="d-flex flex-wrap gap-2 d-print-none">
