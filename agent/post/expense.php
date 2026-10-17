@@ -368,6 +368,8 @@ if (isExportRequest('export_expenses')) {
 
         while ($row = mysqli_fetch_assoc($sql)) {
             $row['expense_receipt_display'] = $row['expense_receipt'] ? 'Yes' : 'No';
+            $row['expense_tax_rate'] = intval($row['expense_tax_id']) ? taxLabel(taxRow($row['expense_tax_id'])) : (floatval($row['expense_tax_amount']) != 0 ? 'Other' : '');
+            $row['expense_before_tax'] = round(floatval($row['expense_amount']) - floatval($row['expense_tax_amount']), 2);
             $markup = rtrim(rtrim(number_format(floatval($row['expense_markup']), 2, '.', ''), '0'), '.') . '%';
             $row['expense_billing_display'] = $row['expense_invoice_id'] ? "Billed, $markup markup" : (intval($row['expense_billable']) ? "To bill, $markup markup" : '');
             $row['expense_billed_on'] = $row['expense_invoice_id'] && $row['invoice_number'] !== null ? $row['invoice_prefix'] . $row['invoice_number'] : '';

@@ -76,6 +76,9 @@ ob_start();
         </div>
         <div class="text-end">
             <div class="fs-4 fw-semibold itflow-money <?= $amount < 0 ? 'text-success' : 'text-white' ?>"><?= escapeHtml(billingMoney($amount, $currency)) ?></div>
+            <?php if (floatval($row['expense_tax_amount']) != 0) { ?>
+                <div class="small text-body-secondary">incl. <?= escapeHtml(billingMoney(abs(floatval($row['expense_tax_amount'])), $currency)) ?> tax</div>
+            <?php } ?>
         </div>
     </div>
     <button type="button" class="btn-close btn-close-white ms-3" data-bs-dismiss="modal" aria-label="Close"></button>
@@ -130,6 +133,12 @@ ob_start();
                 <i class="fas fa-fw fa-list"></i>
                 <span><?= expenseCategoryDot($row['category_color']) ?><?= escapeHtml($row['category_name'] ?: 'No category') ?></span>
             </div>
+            <?php if (floatval($row['expense_tax_amount']) != 0) { ?>
+                <div class="itflow-glance-item" title="Tax included">
+                    <i class="fas fa-fw fa-percent"></i>
+                    <span><?= escapeHtml(billingMoney(abs(floatval($row['expense_tax_amount'])), $currency)) ?> tax<?= $row['tax_name'] !== null ? ' at ' . escapeHtml(taxLabel($row)) : '' ?>, on <?= escapeHtml(billingMoney(abs($amount) - abs(floatval($row['expense_tax_amount'])), $currency)) ?></span>
+                </div>
+            <?php } ?>
             <?php if ($mileage_trips) { ?>
                 <div class="itflow-glance-item" title="Mileage">
                     <i class="fas fa-fw fa-car-side"></i>

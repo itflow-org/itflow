@@ -36,7 +36,7 @@ function expenseRow($expense_id, $scoped = true) {
     $scope = $scoped ? clientScopeSql('expenses.expense_client_id') : '';
     $row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT expenses.*, vendor_name, vendor_description, vendor_archived_at,
             category_name, category_color, category_icon, category_archived_at, accounts.account_name, accounts.account_archived_at, accounts.account_currency_code,
-            client_name, client_abbreviation, creator.user_name AS created_by_name, transfer_id,
+            client_name, client_abbreviation, creator.user_name AS created_by_name, transfer_id, taxes.tax_name, taxes.tax_percent,
             recurring_expense_frequency, recurring_expense_amount, recurring_expense_currency_code,
             invoice_prefix, invoice_number, invoice_status, item_subtotal AS billed_subtotal,
             refunded.expense_date AS refund_of_date, refunded.expense_amount AS refund_of_amount, refunded.expense_description AS refund_of_description,
@@ -49,6 +49,7 @@ function expenseRow($expense_id, $scoped = true) {
         LEFT JOIN categories ON category_id = expenses.expense_category_id
         LEFT JOIN accounts ON accounts.account_id = expenses.expense_account_id
         LEFT JOIN clients ON client_id = expenses.expense_client_id
+        LEFT JOIN taxes ON taxes.tax_id = expenses.expense_tax_id
         LEFT JOIN users AS creator ON creator.user_id = expenses.expense_created_by
         LEFT JOIN users AS payer ON payer.user_id = expenses.expense_paid_by
         LEFT JOIN transfers ON transfer_expense_id = expenses.expense_id
@@ -203,13 +204,14 @@ function expenseCategoryDot($color) {
 }
 
 /**
- * The last expense with each vendor - its category, account and payment
- * method, by vendor id. New Expense fills these in when a vendor is picked.
+ * The last expense with each vendor - its category, account, payment
+ * method and tax, by vendor id. New Expense fills these in when a vendor is
+ * picked.
  */
 function expenseVendorDefaults() {
     global $mysqli;
     $defaults = [];
-    $sql = mysqli_query($mysqli, "SELECT e.expense_vendor_id, e.expense_category_id, e.expense_account_id, e.expense_payment_method
+    $sql = mysqli_query($mysqli, "SELECT e.expense_vendor_id, e.expense_category_id, e.expense_account_id, e.expense_payment_method, e.expense_tax_id
         FROM expenses AS e
         JOIN (SELECT expense_vendor_id, MAX(expense_id) AS last_id FROM expenses WHERE expense_vendor_id > 0 AND expense_amount > 0 GROUP BY expense_vendor_id) AS last
             ON last.last_id = e.expense_id");
@@ -218,6 +220,7 @@ function expenseVendorDefaults() {
             'category' => intval($row['expense_category_id']),
             'account' => intval($row['expense_account_id']),
             'method' => (string) $row['expense_payment_method'],
+            'tax' => intval($row['expense_tax_id']),
         ];
     }
     return $defaults;
@@ -260,6 +263,46 @@ function expenseCategories($keep_id = 0) {
  * category or account is only kept when it is already the expense's.
  * Returns the expense id, or 0 with $error.
  */
+/**
+ * The tax included in what an expense cost, from a form - [rate id, amount],
+ * or null with $error. tax_id is one of the taxes (0 for none, or a tax with
+ * no rate of ours); tax_amount is worked out from the rate when left empty.
+ * The tax takes the amount's sign, so money back gives its tax back too.
+ * Without either field, $keep stands - unless the amount changed and the tax
+ * came from the rate, when it is worked out again.
+ */
+function expenseTaxFromInput(array $in, $amount, array $keep = [0, 0.0], &$error = '') {
+    $amount = round(floatval($amount), 2);
+    if (!array_key_exists('tax_id', $in) && !array_key_exists('tax_amount', $in)) {
+        [$tax_id, $tax_amount] = $keep;
+        $tax_id = intval($tax_id);
+        $tax_amount = round(floatval($tax_amount), 2);
+        if ($tax_id && taxRow($tax_id) && abs($tax_amount) >= abs($amount)) {
+            $tax_amount = taxIncluded(abs($amount), $tax_id) * ($amount < 0 ? -1 : 1);
+        }
+        return [$tax_id, $tax_amount];
+    }
+    $tax_id = intval($in['tax_id'] ?? 0);
+    if ($tax_id && !taxRow($tax_id)) {
+        $error = 'Pick one of your taxes';
+        return null;
+    }
+    $text = str_replace([',', ' ', '$'], '', trim((string) ($in['tax_amount'] ?? '')));
+    if ($text === '') {
+        $tax_amount = $tax_id ? taxIncluded(abs($amount), $tax_id) : 0.0;
+    } elseif (!is_numeric($text)) {
+        $error = 'The tax is an amount, such as 12.50';
+        return null;
+    } else {
+        $tax_amount = round(abs(floatval($text)), 2);
+    }
+    if ($tax_amount >= abs($amount)) {
+        $error = 'The tax is part of what it cost, so less than the amount';
+        return null;
+    }
+    return [$tax_id, $amount < 0 ? -$tax_amount : $tax_amount];
+}
+
 function expenseSave(array $in, $expense_id = 0, &$error = '') {
     global $mysqli, $session_company_currency, $session_user_id;
     $error = '';
@@ -352,6 +395,14 @@ function expenseSave(array $in, $expense_id = 0, &$error = '') {
     $reference = mb_substr(trim((string) ($in['reference'] ?? '')), 0, 200);
     $description = trim((string) ($in['description'] ?? ''));
 
+    // The tax included in it - money back starts on the rate of what it refunds
+    $tax_keep = $existing ? [$existing['expense_tax_id'], $existing['expense_tax_amount']] : ($refund_of ? [$original['expense_tax_id'], -taxIncluded(abs($amount), $original['expense_tax_id'])] : [0, 0.0]);
+    $tax = expenseTaxFromInput($in, $amount, $tax_keep, $error);
+    if ($tax === null) {
+        return 0;
+    }
+    [$tax_id, $tax_amount] = $tax;
+
     // Billed on to the client - only an expense for a client, not a refund. One
     // already on an invoice stays billed, to that client, until it comes off it.
     $billed = $existing && !empty($existing['expense_invoice_id']);
@@ -368,7 +419,7 @@ function expenseSave(array $in, $expense_id = 0, &$error = '') {
     }
     $markup = round(max(0, min(1000, $markup)), 2);
 
-    $set = "expense_date = '$date', expense_amount = $amount, expense_vendor_id = $vendor, expense_category_id = $category,
+    $set = "expense_date = '$date', expense_amount = $amount, expense_tax_id = $tax_id, expense_tax_amount = $tax_amount, expense_vendor_id = $vendor, expense_category_id = $category,
         expense_account_id = $account, expense_paid_by = $paid_by, expense_client_id = $client_id, expense_payment_method = " . ($method === '' ? 'NULL' : "'" . escapeSql($method) . "'") . ",
         expense_reference = '" . escapeSql($reference) . "', expense_description = '" . escapeSql($description) . "',
         expense_billable = $billable, expense_markup = $markup";
@@ -567,7 +618,7 @@ function recurringExpenseRow($recurring_expense_id, $scoped = true) {
     $row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT recurring_expenses.*, vendor_name, vendor_description, vendor_archived_at,
             category_name, category_color, category_icon, category_archived_at, account_name, account_archived_at, account_currency_code,
             client_name, client_abbreviation, recurring_invoice_prefix, recurring_invoice_number, recurring_invoice_amount, recurring_invoice_frequency,
-            recurring_invoice_status, recurring_invoice_archived_at,
+            recurring_invoice_status, recurring_invoice_archived_at, tax_name, tax_percent,
             (SELECT COUNT(*) FROM expenses WHERE expense_recurring_expense_id = $id) AS made_count,
             (SELECT COALESCE(SUM(expense_amount), 0) FROM expenses WHERE expense_recurring_expense_id = $id AND YEAR(expense_date) = YEAR(CURDATE())) AS made_year
         FROM recurring_expenses
@@ -576,6 +627,7 @@ function recurringExpenseRow($recurring_expense_id, $scoped = true) {
         LEFT JOIN accounts ON account_id = recurring_expense_account_id
         LEFT JOIN clients ON client_id = recurring_expense_client_id
         LEFT JOIN recurring_invoices ON recurring_invoice_id = recurring_expense_recurring_invoice_id
+        LEFT JOIN taxes ON tax_id = recurring_expense_tax_id
         WHERE recurring_expense_id = $id $scope
         LIMIT 1"));
     return $row ?: null;
@@ -781,6 +833,11 @@ function recurringExpenseSave(array $in, $recurring_expense_id = 0, &$error = ''
     }
     $reference = mb_substr(trim((string) ($in['reference'] ?? '')), 0, 255);
     $description = trim((string) ($in['description'] ?? ''));
+    $tax = expenseTaxFromInput($in, $amount, $existing ? [$existing['recurring_expense_tax_id'], $existing['recurring_expense_tax_amount']] : [0, 0.0], $error);
+    if ($tax === null) {
+        return 0;
+    }
+    [$tax_id, $tax_amount] = $tax;
 
     // For a client: billed on as each one is recorded, or covered by one of their recurring invoices
     $billing = $client_id ? (string) ($in['billing'] ?? '') : '';
@@ -814,7 +871,7 @@ function recurringExpenseSave(array $in, $recurring_expense_id = 0, &$error = ''
         $status = intval($existing['recurring_expense_status']);
     }
 
-    $set = "recurring_expense_vendor_id = $vendor, recurring_expense_amount = $amount, recurring_expense_frequency = '$frequency', recurring_expense_anchor_day = $anchor,
+    $set = "recurring_expense_vendor_id = $vendor, recurring_expense_amount = $amount, recurring_expense_tax_id = $tax_id, recurring_expense_tax_amount = $tax_amount, recurring_expense_frequency = '$frequency', recurring_expense_anchor_day = $anchor,
         recurring_expense_next_date = '$next', recurring_expense_end_date = " . ($end === '' ? 'NULL' : "'$end'") . ", recurring_expense_status = $status,
         recurring_expense_category_id = $category, recurring_expense_account_id = $account, recurring_expense_client_id = $client_id,
         recurring_expense_payment_method = " . ($method === '' ? 'NULL' : "'" . escapeSql($method) . "'") . ",
@@ -866,6 +923,7 @@ function recurringExpenseRecord($recurring_expense_id, $by_user_id = 0, $run = n
 
     $method = (string) $row['recurring_expense_payment_method'];
     mysqli_query($mysqli, "INSERT INTO expenses SET expense_date = '$date', expense_amount = " . floatval($row['recurring_expense_amount']) . ",
+        expense_tax_id = " . intval($row['recurring_expense_tax_id']) . ", expense_tax_amount = " . floatval($row['recurring_expense_tax_amount']) . ",
         expense_currency_code = '" . escapeSql($row['recurring_expense_currency_code']) . "', expense_vendor_id = " . intval($row['recurring_expense_vendor_id']) . ",
         expense_client_id = " . intval($row['recurring_expense_client_id']) . ", expense_category_id = " . intval($row['recurring_expense_category_id']) . ",
         expense_account_id = " . intval($row['recurring_expense_account_id']) . ", expense_payment_method = " . ($method === '' ? 'NULL' : "'" . escapeSql($method) . "'") . ",

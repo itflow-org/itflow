@@ -406,6 +406,7 @@ $month_change = $stats['last_to_date'] > 0 ? round(($stats['month'] - $stats['la
                     <td class="text-end itflow-money text-nowrap">
                         <span class="fw-semibold <?= $row_amount < 0 ? 'text-success-emphasis' : '' ?>"><?= escapeHtml(billingMoney($row_amount, $row_currency)) ?></span>
                         <?php if ($row_amount < 0) { ?><div class="small text-body-secondary">Refund</div><?php } ?>
+                        <?php if (floatval($row['expense_tax_amount']) != 0) { ?><div class="small text-body-secondary">incl. <?= escapeHtml(billingMoney(abs(floatval($row['expense_tax_amount'])), $row_currency)) ?> tax</div><?php } ?>
                     </td>
                     <td class="text-end">
                         <div class="dropdown dropstart">

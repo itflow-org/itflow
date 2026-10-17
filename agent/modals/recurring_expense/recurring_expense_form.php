@@ -8,8 +8,9 @@
  *   $form_vendor_id  the vendor a new one starts with (0 to pick)
  *   $form_client_id  the client a new one starts with (0 for none)
  *
- * Posts vendor, amount, frequency, next_date, end_date, category, account,
- * payment_method, client_id, reference and description. The schedule reads
+ * Posts vendor, amount, tax_id and tax_amount (expense_tax_fields.php),
+ * frequency, next_date, end_date, category, account, payment_method,
+ * client_id, reference and description. The schedule reads
  * back in words as it is set; picking a vendor on a new one fills in what
  * the last expense with them used, unless that was changed by hand.
  *
@@ -97,6 +98,15 @@ while ($row = mysqli_fetch_assoc($sql)) {
             <span class="input-group-text"><?= escapeHtml($form_currency) ?></span>
         </div>
     </div>
+
+    <?php
+    $tax_form_id = $form_id;
+    $tax_selected = $form_edit ? intval($form_row['recurring_expense_tax_id']) : 0;
+    $tax_amount = $form_edit ? floatval($form_row['recurring_expense_tax_amount']) : null;
+    $tax_currency = $form_currency;
+    $tax_lock = false;
+    require __DIR__ . '/../expense/expense_tax_fields.php';
+    ?>
 
     <div class="col-md-4">
         <label class="form-label">How often <strong class="text-danger">*</strong></label>
@@ -323,7 +333,8 @@ while ($row = mysqli_fetch_assoc($sql)) {
     var fields = {
         category: root.querySelector('[data-expense-category]'),
         account: root.querySelector('[data-expense-account]'),
-        method: root.querySelector('[data-expense-method]')
+        method: root.querySelector('[data-expense-method]'),
+        tax: root.querySelector('[data-expense-tax-rate]')
     };
     var touched = {};
     var filling = false;

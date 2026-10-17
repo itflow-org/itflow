@@ -6,9 +6,9 @@ This file documents all notable changes made to ITFlow.
 
 ### Upgrading to 26.11
 
-Update from Maintenance > Update — Queue Update hands the job to cron, which updates the files and applies this release's database changes (2.7.9 to 3.1.1) in the same pass. Nothing else is required.
+Update from Maintenance > Update — Queue Update hands the job to cron, which updates the files and applies this release's database changes (2.7.9 to 3.1.2) in the same pass. Nothing else is required.
 
-This is a big release, with thirty-two database steps in one go, so take a backup before you update.
+This is a big release, with thirty-three database steps in one go, so take a backup before you update.
 
 The update also clears out data that deletes in older versions left behind, all of it pointing at something that no longer exists:
 
@@ -31,7 +31,7 @@ Other income already entered (money in that isn't for an invoice, which used to 
 
 Every account is given a kind - checking, savings, credit card, cash or payment processor - guessed from its name: Visa, Amex or card is a credit card, savings or reserve is savings, cash or petty cash is cash, and Stripe, PayPal, Square or merchant is a payment processor. An account given a liability type back when accounts had types (2023) is a credit card, so what is on it reads as owed. Anything else is checking. Change any that came out wrong with Edit on the Accounts page. An account's balance now leaves out archived payments, income and expenses everywhere, so the Accounts page can show less or more than before (see Bug Fixes). No account is reconciled after the update. The first statement you reconcile on each can start from the bank's balance on the day it starts, bringing everything before it forward as reconciled, or from the account's opening balance (see New Features, Accounts and transactions). Transfers already made out of a cash account count as having taken everything in it up to then to the bank, so the first deposit you make after the update only offers the checks and cash taken in since the last one.
 
-Taxes keep their names and rates, now kept to four decimal places. No client has a rate of its own or is tax exempt, and there is no default rate, so new lines start untaxed as before until you pick one in Admin > Taxes. Billed time, trips and expenses stay untaxed until you switch them on there. Discounts now come off before tax on invoices and quotes that are still open, the next time they are edited (see Breaking Changes, Taxes).
+Taxes keep their names and rates, now kept to four decimal places. No client has a rate of its own or is tax exempt, and there is no default rate, so new lines start untaxed as before until you pick one in Admin > Taxes. Billed time, trips and expenses stay untaxed until you switch them on there. Discounts now come off before tax on invoices and quotes that are still open, the next time they are edited (see Breaking Changes, Taxes). No expense has tax recorded on it until you add it, so Tax Collected shows no tax paid on purchases for the months before.
 
 If you are coming from 26.08 or earlier, the database update still has to be run from the command line one time, exactly as described under Upgrading to 26.09 below.
 
@@ -127,6 +127,7 @@ If you are coming from 26.08 or earlier, the database update still has to be run
   - A rate can only be deleted when nothing has ever used it - archive it otherwise. Archiving asks where to move the products, clients, recurring invoices, drafts and default that use it. Left where they are, recurring invoices and drafts keep charging it, and new lines for its products and clients take the next rate along.
   - Tax Rates in the Admin menu is now Taxes.
   - A line on a rate made of parts is taxed part by part, each to the cent, so its tax can be a cent off the whole rate times the line.
+  - Tax Collected now shows tax by part, so a rate made of a state's and a county's part shows two rows, and a part named the same on two rates shows one. Its sales are net of discounts, where they used to be the lines before any discount, and archived payments no longer count. It still counts as payments come in unless you switch it to Invoiced.
 - Notifications now follow access too. An agent only sees notifications for clients and areas they can open, so someone without sales access no longer sees invoice and quote notifications.
 - Drop-downs: Tom Select is gone, replaced by ITFlow's own picker. It works the way you are used to: type to search, tick several in a multi-select, and type a new value in fields that allow it, such as ticket watchers. See Developer Updates if you have custom pages that used Tom Select.
 - Several small windows are gone because the change is now made where the value is shown:
@@ -231,7 +232,7 @@ If you are coming from 26.08 or earlier, the database update still has to be run
     - Spend by Vendor and Income by Client: the period against the one before, with a switch for those paid 600 or more for 1099s. Spend by Vendor adds each vendor's main category and recurring spend. Income by Client adds recurring revenue and the share of your top five clients.
     - Receivables Aging: what each client owes, split into not due yet, 1 to 30, 31 to 60, 61 to 90 and over 90 days late, and the overdue invoices, longest overdue first.
     - Recurring Revenue: monthly and yearly recurring revenue by client and category, and every recurring invoice with its next date. With Financial access, what is left after recurring expenses.
-    - Tax Collected: tax and the sales it was charged on, per tax, by quarter or by month.
+    - Tax Collected: tax by part of each rate, as invoiced or as paid, with taxable, exempt and non-taxable sales, the tax paid on purchases and what is left, by quarter or by month (see Taxes).
     - Unbilled Work: billable tickets that are done but not invoiced, with the hours to bill (rounded the way Billing Time in Admin > Settings > Invoice says, as Unbilled Time does) and what they are worth at the client's rate.
     - Time Detail by Client: per client, each ticket and the time on every reply, with the hours to bill.
     - Ticket Overview: tickets opened against resolved, the typical first reply and time to resolve, sources, priorities, categories, top clients and contacts, and a weekday by hour chart of when tickets come in.
@@ -731,8 +732,18 @@ If you are coming from 26.08 or earlier, the database update still has to be run
   - Each client can have its own rate, on the Billing tab of its Edit window, for where it is. New lines start on the client's rate, then the product's, then the default, whether typed in, picked from the catalog, or made from tickets, Unbilled Time, trips and expenses. A product set to no tax stays untaxed. Unbilled Time bills each line at its client's usual rate unless you pick one, and the ticket's Invoice and Quote windows, Add Tickets, Add Expenses and Add Trips start on it.
   - Tax exempt clients, with the certificate number and when it expires, on the Billing tab. Their new lines start untaxed, and their pages say Tax exempt, or that the certificate has run out. An open invoice, quote or recurring invoice that still has taxed lines for them says so, with Take the tax off. An invoice or quote with no tax on it says Tax exempt with the certificate number under the client's name.
   - The client overview's Terms shows the client's rate, or that it is tax exempt.
-  - API: clients take `client_default_tax_id`, `client_tax_exempt`, `client_tax_exempt_number` and `client_tax_exempt_expires`, and a new invoice line takes `tax_id` `default` for the client's usual rate.
-  - Demo data: both taxes have a registration number, Allegheny County Sales Tax is made of Pennsylvania's 6% and the county's 1%, each client has its rate, and the church and the charter school are tax exempt, one with a certificate that has run out.
+  - Tax Collected (Reports) is rebuilt for filing:
+    - Invoiced counts each invoice once it is sent, in the month of its date. Paid counts each payment with its share of its invoice's tax and sales, so a part-paid invoice counts only the part paid.
+    - Tax shows by part of each rate, with its registration number, so a state's and a county's tax show apart. Name a part the same on two rates and they add up together.
+    - Sales, before tax and net of discounts, split into taxable, exempt (no tax, for a client marked tax exempt) and non-taxable (no tax, for anyone else).
+    - The tax paid on purchases, by part, and the net tax - what was collected less what was paid - for GST, HST and VAT returns.
+    - Exempt sales by client, with each certificate and when it expires, expired ones flagged.
+    - By quarter or month, with a chart of each month's tax. Export the table, or the exempt sales by client, as CSV.
+  - Expenses record the tax included in them: pick the rate and the tax is worked out from the amount as you type, or type over it with what the receipt says. A tax with no rate of yours can be typed in on its own. Money back gives its tax back. The list and the quick look show the tax, and picking a vendor fills in the tax of the last expense with them along with the rest.
+  - Recurring expenses take a tax too, and put it on each expense they record.
+  - Exports: invoices can add Subtotal, Discount, Tax and Tax by Part; quotes and recurring invoices Tax; expenses Before Tax, Tax and Tax Rate; and clients Tax Rate, Tax Exempt, Exemption Certificate and Exemption Expires. They are off until ticked.
+  - API: clients take `client_default_tax_id`, `client_tax_exempt`, `client_tax_exempt_number` and `client_tax_exempt_expires`, and a new invoice line takes `tax_id` `default` for the client's usual rate. A new endpoint reads the taxes with their parts. Invoices and quotes add their subtotal, tax, tax by part and registration numbers, invoice lines name their rate, and expenses include their tax.
+  - Demo data: both taxes have a registration number, Allegheny County Sales Tax is made of the state's 6% - named PA Sales Tax, so Tax Collected adds the two up together - and the county's 1%, each client has its rate, the church and the charter school are tax exempt, one with a certificate that has run out, and what the company buys for its own use pays sales tax.
 
 ### Bug Fixes
 
@@ -914,7 +925,7 @@ If you are coming from 26.08 or earlier, the database update still has to be run
   - `reportTable()` columns take `label`, `type` (money, count, hours, duration, decimal, percent, date), `html`, `csv`, `csv_label`, `screen => false` (export only), `sort` and `title`. A row of `['_heading' => ...]` draws a heading row. Times export as decimal hours and the heading says so.
   - Charts are drawn by `js/reports.js` from the JSON in `canvas[data-report-chart]`, with Chart.js. It also sorts `table[data-report-sort]`, submits `[data-report-autosubmit]` filters and runs the budget editor.
   - `agent/reports/includes/inc_all_reports.php` is kept for custom report pages and now loads the two new includes.
-  - Tax Collected works out every tax for the period in one query (`taxCollected()` in the page), with the same figures as `getMonthlyTax()`.
+  - Tax Collected is worked out by `taxReportSales()` and `taxReportPurchases()` in `functions/tax.php` (see Taxes, database 3.1.2).
   - Budgets: `agent/post/budget.php` handles `save_budget` and `copy_budget`, needing Financial at level 2 and a CSRF token. A blank or zero amount removes that month's budget rather than storing 0.
   - `dashboardRevenueSql()` in `functions/dashboard.php` is the one rule for which revenues count as income, used by the dashboard and the reports. It leaves out the incoming side of transfers. It now returns `incomeRevenueSql('revenues.revenue_id')` (see Income below), so uncategorised revenues count.
   - CSS: the `.itflow-report-*` classes in `css/itflow_custom.css`, with print rules that keep side-by-side cards together.
@@ -1169,9 +1180,17 @@ If you are coming from 26.08 or earlier, the database update still has to be run
   - `api/v1/invoice_items/create.php` takes `tax_id` `default` (a product's line by `taxDefaultFor()` with `product`) and works the invoice out again with `billingRecalc()`.
   - Seeds: `demoDataTaxes()` rows add a description, registration number and parts, demo clients get `client_default_tax_id`, and a profile's `tax_exempt` (number, expiry) makes it exempt. `demoDataRemove()` counts clients using a rate and removes its parts.
   - CSS: `.itflow-paper-tax-label`, so a line's rate wraps under its tax.
+- Tax reporting and tax on expenses (database 3.1.2):
+  - New `expenses.expense_tax_id` and `expense_tax_amount` (`decimal(15,2)`, part of `expense_amount`, negative on money back), and `recurring_expenses.recurring_expense_tax_id` and `recurring_expense_tax_amount`, copied to each expense by `recurringExpenseRecord()`.
+  - `functions/tax.php`: `taxIncluded($gross, $tax)`, `taxSplit($amount, $row, $base, $no_rate_label)` (a tax amount shared over a rate's parts - `parts`, `registrations` and `numbers`, the registration number by part label), `TAX_REPORT_BASES`, `taxReportMonths()`, `taxReportInvoice($items, $discount, $exempt)`, `taxReportSales($from, $to, $basis)` (`invoiced` or `paid`; `parts`, `numbers`, `sales`, `taxable`, `nontaxable`, `exempt`, `exempt_clients`, `invoices`) and `taxReportPurchases($from, $to)` (`parts`, `purchases`, `expenses`). `billingTaxParts()` uses `taxSplit()`.
+  - `functions/expenses.php`: `expenseTaxFromInput($in, $amount, $keep, &$error)` reads `tax_id` and `tax_amount` for `expenseSave()` and `recurringExpenseSave()`; a refund starts from the rate of what it refunds. `expenseRow()` and `recurringExpenseRow()` add `tax_name` and `tax_percent`, and `expenseVendorDefaults()` adds `tax`. The fields are `agent/modals/expense/expense_tax_fields.php`, on `expense_form.php` and `recurring_expense_form.php`.
+  - `agent/reports/tax_summary.php` takes `basis` (`invoiced`, `paid`), `view` and `year`, and `export=csv` with `table` `tax` (Section, Figure, Registration, the periods and the year) or `exempt`.
+  - Exports: `invoice_subtotal`, `invoice_discount_amount`, `invoice_tax` and `invoice_tax_parts`, `quote_tax` (up front, from `quoteLineGroups()`), `recurring_invoice_tax`, `expense_before_tax`, `expense_tax_amount` and `expense_tax_rate`, and `client_tax_rate`, `client_tax_exempt_display`, `client_tax_exempt_number` and `client_tax_exempt_expires`, all `default => false`. The quote and recurring invoice exports select their ids for it.
+  - API: `api/v1/taxes/read.php` (`tax_id`, `archived`; each rate with `tax_components` and `tax_default`), mapped to `module_sales`. `billingApiTaxFields($type, $row)` adds `invoice_subtotal`, `invoice_tax`, `invoice_taxes` (`name`, `amount`) and `invoice_tax_registrations` to `api/v1/invoices/read.php`, and the `quote_` ones to `api/v1/quotes/read.php`. `api/v1/invoice_items/read.php` adds `tax_name` and `tax_percent`.
+  - Seeds: `demoDataTaxes()` names Allegheny County's state part PA Sales Tax, and the company's own-use purchases (office supplies, tools, equipment, the van) carry PA Sales Tax.
 - Empty states: every list page sets `$empty_state` before including `includes/filter_footer.php`, and `includes/inc_empty_state.php` draws it with `emptyStateHtml()` (`functions/format.php`) when the list has nothing - `thing`, `icon`, `title`, `text`, `actions` (`label`, `modal` or `href`, `size`, `icon`; the first is the main one), `archived`, `view`, `filtered`, `views`, `match_title`, `match_text` and `clear_url`. `emptyStateFiltered($views)` reads the GET string for a search or filter, leaving out paging, sorting, `client_id`, `archived` and the page's views, and `emptyStateClearUrl($views)` is the page without them. `emptyStatePill($pills, $key, $default, $good)` builds a pill's own state from the page's pill array (`label`, `icon`, `title`, `alarm`), with a tick for `alarm` pills and the keys in `$good`. Files, notifications and racks call `emptyStateHtml()` in their own layout; files and notifications set `$empty_state_skip`. A page that sets nothing still gets one, worded from `$page_title`. The pages' own empty blocks (`.itflow-asset-empty` under a list) are gone. CSS: `.itflow-empty-state` with `-icon` (a grey round tile), `-title`, `-text` and `-actions`.
 - Removed unused helpers and files:
-  - `credentialLink()`, `projectLink()`, `linkCounts()`, `assetContactAvatar()` and `clientOverviewPersonInitials()`
+  - `credentialLink()`, `projectLink()`, `linkCounts()`, `assetContactAvatar()`, `clientOverviewPersonInitials()`, and `getMonthlyTax()` and `getQuarterlyTax()`, which looked a tax up by name
   - `agent/modals/asset/asset_documents.php`, `document_bulk_move.php`, `document_add_file_relation.php` and `project_link_closed_ticket.php`
   - `agent/js/file_delete_modal.js`, `certificate_fetch_ssl.js`, `credential_show_password_via_id.js` and `credential_show_otp_via_id.js`
 - `title` attributes were added to about 300 icon-only buttons, and `aria-label` to the show-password buttons and the portal's mobile menu button.

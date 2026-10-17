@@ -643,47 +643,6 @@ function checkForUpdates() {
 
 }
 
-function getMonthlyTax($tax_name, $month, $year, $mysqli) {
-    // Cash basis - tax is booked to the month the money arrived, in proportion to
-    // how much of the invoice that payment covered. Driving off payments (rather
-    // than invoice_items) counts each payment exactly once, and pre-aggregating
-    // the line items stops a multi-payment invoice multiplying its own tax.
-    $sql = "SELECT SUM(invoice_tax.tax_total * (payments.payment_amount / invoices.invoice_amount)) AS monthly_tax
-            FROM payments
-            INNER JOIN invoices ON invoices.invoice_id = payments.payment_invoice_id
-            INNER JOIN (SELECT item_invoice_id, SUM(item_tax) AS tax_total
-                        FROM invoice_items
-                        WHERE item_tax_id = (SELECT tax_id FROM taxes WHERE tax_name = '$tax_name')
-                        GROUP BY item_invoice_id) AS invoice_tax
-                ON invoice_tax.item_invoice_id = invoices.invoice_id
-            WHERE YEAR(payments.payment_date) = $year AND MONTH(payments.payment_date) = $month
-            AND invoices.invoice_amount > 0";
-    $result = mysqli_query($mysqli, $sql);
-    $row = mysqli_fetch_assoc($result);
-    return $row['monthly_tax'] ?? 0;
-}
-
-function getQuarterlyTax($tax_name, $quarter, $year, $mysqli) {
-    // Calculate start and end months for the quarter
-    $start_month = ($quarter - 1) * 3 + 1;
-    $end_month = $start_month + 2;
-
-    // SQL to calculate quarterly tax - see getMonthlyTax for why it is shaped this way
-    $sql = "SELECT SUM(invoice_tax.tax_total * (payments.payment_amount / invoices.invoice_amount)) AS quarterly_tax
-            FROM payments
-            INNER JOIN invoices ON invoices.invoice_id = payments.payment_invoice_id
-            INNER JOIN (SELECT item_invoice_id, SUM(item_tax) AS tax_total
-                        FROM invoice_items
-                        WHERE item_tax_id = (SELECT tax_id FROM taxes WHERE tax_name = '$tax_name')
-                        GROUP BY item_invoice_id) AS invoice_tax
-                ON invoice_tax.item_invoice_id = invoices.invoice_id
-            WHERE YEAR(payments.payment_date) = $year AND MONTH(payments.payment_date) BETWEEN $start_month AND $end_month
-            AND invoices.invoice_amount > 0";
-    $result = mysqli_query($mysqli, $sql);
-    $row = mysqli_fetch_assoc($result);
-    return $row['quarterly_tax'] ?? 0;
-}
-
 function addToMailQueue($data) {
 
     global $mysqli;

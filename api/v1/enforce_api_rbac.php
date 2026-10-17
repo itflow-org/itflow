@@ -146,6 +146,7 @@ $resource_module = [
     'invoice_items' => 'module_sales',
     'quotes'        => 'module_sales',
     'products'      => 'module_sales',
+    'taxes'         => 'module_sales',
     'expenses'      => 'module_financial',
     'credentials'   => 'module_credential',
 ];

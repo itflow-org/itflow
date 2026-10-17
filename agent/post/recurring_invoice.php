@@ -360,7 +360,7 @@ if (isExportRequest('export_recurring_invoices')) {
 
     $sql = mysqli_query(
         $mysqli,
-        "SELECT client_name, recurring_invoice_amount, recurring_invoice_created_at,
+        "SELECT client_name, recurring_invoice_id, recurring_invoice_amount, recurring_invoice_created_at,
         recurring_invoice_frequency, recurring_invoice_number, recurring_invoice_prefix,
         recurring_invoice_scope FROM recurring_invoices
         LEFT JOIN clients ON recurring_invoice_client_id = client_id
@@ -384,6 +384,9 @@ if (isExportRequest('export_recurring_invoices')) {
         while ($row = mysqli_fetch_assoc($sql)) {
             $row['recurring_invoice_number_display'] = $row['recurring_invoice_prefix'] . $row['recurring_invoice_number'];
             $row['recurring_invoice_frequency_display'] = recurringInvoiceFrequencies()[$row['recurring_invoice_frequency']] ?? ucfirst((string) $row['recurring_invoice_frequency']);
+            if (isset($export['columns']['recurring_invoice_tax'])) {
+                $row['recurring_invoice_tax'] = round(array_sum(array_column(billingItems('recurring', $row['recurring_invoice_id']), 'item_tax')), 2);
+            }
             addExportRow($export, $row);
         }
 

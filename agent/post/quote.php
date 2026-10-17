@@ -489,7 +489,7 @@ if (isExportRequest('export_quotes')) {
 
     $sql = mysqli_query(
         $mysqli,
-        "SELECT client_name, quote_amount, quote_monthly_amount, quote_date, quote_number, quote_prefix, quote_scope,
+        "SELECT client_name, quote_id, quote_amount, quote_discount_amount, quote_monthly_amount, quote_date, quote_number, quote_prefix, quote_scope,
         quote_status FROM quotes
         LEFT JOIN clients ON quote_client_id = client_id
         LEFT JOIN categories ON quote_category_id = category_id
@@ -510,6 +510,11 @@ if (isExportRequest('export_quotes')) {
 
         while ($row = mysqli_fetch_assoc($sql)) {
             $row['quote_number_display'] = $row['quote_prefix'] . $row['quote_number'];
+            if (isset($export['columns']['quote_tax'])) {
+                // The tax on what it bills up front, beside its amount
+                $quote_groups = quoteLineGroups(billingItems('quote', $row['quote_id']), floatval($row['quote_discount_amount']));
+                $row['quote_tax'] = round(floatval($quote_groups['']['tax'] ?? 0), 2);
+            }
             addExportRow($export, $row);
         }
 

@@ -71,7 +71,7 @@ function reportCatalog() {
                 ],
                 'tax_summary' => [
                     'title' => 'Tax Collected', 'icon' => 'fa-percent', 'module' => 'module_financial', 'feature' => ['accounting'],
-                    'description' => 'Tax collected on paid invoices, and the sales it was collected on, by month or quarter.',
+                    'description' => 'Tax on sales by part of each rate, invoiced or paid, with taxable, exempt and non-taxable sales and the tax paid on purchases, by month or quarter.',
                 ],
                 'mileage' => [
                     'title' => 'Mileage', 'icon' => 'fa-route', 'module' => 'module_financial', 'feature' => ['accounting'],

@@ -561,6 +561,18 @@ if (isExportRequest('export_invoices')) {
         while ($row = mysqli_fetch_assoc($sql)) {
             $row['invoice_number_display'] = $row['invoice_prefix'] . $row['invoice_number'];
 
+            // Subtotal, tax and tax by part are opt-in too
+            if (isset($export['columns']['invoice_subtotal']) || isset($export['columns']['invoice_tax']) || isset($export['columns']['invoice_tax_parts'])) {
+                $invoice_items = billingItems('invoice', $row['invoice_id']);
+                $row['invoice_subtotal'] = round(array_sum(array_column($invoice_items, 'item_subtotal')), 2);
+                $row['invoice_tax'] = round(array_sum(array_column($invoice_items, 'item_tax')), 2);
+                $tax_parts = [];
+                foreach (billingTaxParts($invoice_items)['parts'] as $label => $amount) {
+                    $tax_parts[] = "$label: " . number_format($amount, 2, '.', '');
+                }
+                $row['invoice_tax_parts'] = implode('; ', $tax_parts);
+            }
+
             // Paid / balance are opt-in columns - only pay for the lookup if asked
             if (isset($export['columns']['amount_paid']) || isset($export['columns']['invoice_balance'])) {
                 $invoice_id = intval($row['invoice_id']);

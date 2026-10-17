@@ -93,7 +93,8 @@ function demoDataSlas() {
 function demoDataTaxes() {
     return [
         ['PA Sales Tax', 6.0, 'Pennsylvania state sales tax', '75520193', []],
-        ['Allegheny County Sales Tax', 7.0, 'Pennsylvania 6% plus the Allegheny County local 1%', '75520193', [['Pennsylvania', 6.0], ['Allegheny County', 1.0]]],
+        // The state's part is named as the state's own rate, so Tax Collected adds the two up in one row
+        ['Allegheny County Sales Tax', 7.0, 'Pennsylvania 6% plus the Allegheny County local 1%', '75520193', [['PA Sales Tax', 6.0], ['Allegheny County', 1.0]]],
     ];
 }
 
@@ -3396,6 +3397,10 @@ function demoBuildCompanyFinancials($mysqli, $context, &$counts) {
     $card_categories = ['Software', 'Cloud and Hosting', 'Office Supplies', 'Meals', 'Shipping and Postage', 'Dues and Subscriptions', 'Telecom and Internet'];
     $card_spent = [];
 
+    // What we buy for our own use pays sales tax; stock to resell doesn't
+    $taxed_categories = ['Office Supplies', 'Tools and Test Equipment', 'Equipment', 'Vehicle and Fuel'];
+    $purchase_tax_id = intval($context['taxes']['PA Sales Tax']['id'] ?? 0);
+
     // Which purchases put hardware on the shelf, and what they bring in
     $stock_lines = [
         'UniFi shelf stock for the workshop' => ['Ubiquiti U6-Pro Access Point', 4],
@@ -3416,9 +3421,12 @@ function demoBuildCompanyFinancials($mysqli, $context, &$counts) {
                 $card_spent[$month] = ($card_spent[$month] ?? 0) + round($cost[1] * $drift, 2);
             }
 
+            $taxed = $purchase_tax_id && in_array($cost[2], $taxed_categories, true);
             $expense_id = starterInsert($mysqli, 'expenses', [
                 'expense_description' => $cost[0],
                 'expense_amount' => number_format($cost[1] * $drift, 2, '.', ''),
+                'expense_tax_id' => $taxed ? $purchase_tax_id : 0,
+                'expense_tax_amount' => number_format($taxed ? taxIncluded(round($cost[1] * $drift, 2), $purchase_tax_id) : 0, 2, '.', ''),
                 'expense_currency_code' => $currency,
                 'expense_date' => demoMonthDate($month, $cost[4]),
                 'expense_reference' => 'BILL-' . demoSerial('company' . $cost[0] . $month, 8),

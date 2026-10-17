@@ -56,6 +56,9 @@ ob_start();
         </div>
         <div class="text-end">
             <div class="fs-4 fw-semibold itflow-money text-white"><?= escapeHtml(billingMoney($amount, $currency)) ?></div>
+            <?php if (floatval($row['recurring_expense_tax_amount']) != 0) { ?>
+                <div class="small text-body-secondary" title="<?= $row['tax_name'] !== null ? escapeHtml(taxLabel($row)) : 'Tax included' ?>">incl. <?= escapeHtml(billingMoney(floatval($row['recurring_expense_tax_amount']), $currency)) ?> tax</div>
+            <?php } ?>
             <div class="small text-body-secondary"><?= escapeHtml(strtolower(recurringInvoiceFrequencies()[$row['recurring_expense_frequency']] ?? 'monthly')) ?></div>
         </div>
     </div>

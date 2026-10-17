@@ -485,6 +485,11 @@ if (isExportRequest('export_clients')) {
         $export = beginExport('clients', $format, "$session_company_name-$export_label", $export_label, summarizeExportFilters($filter_summary));
 
         while ($row = mysqli_fetch_assoc($sql)) {
+            $tax_client = taxClient($row['client_id']);
+            $row['client_tax_rate'] = intval($tax_client['default_id']) ? taxLabel(taxRow($tax_client['default_id'])) : '';
+            $row['client_tax_exempt_display'] = $tax_client['exempt'] ? 'Yes' : '';
+            $row['client_tax_exempt_number'] = $tax_client['exempt'] ? $tax_client['number'] : '';
+            $row['client_tax_exempt_expires'] = $tax_client['exempt'] ? $tax_client['expires'] : '';
             addExportRow($export, $row);
         }
 

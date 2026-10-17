@@ -210,7 +210,8 @@ $used_text = function (array $u) {
         <div class="card">
             <div class="card-body small text-secondary">
                 <p class="mb-2"><i class="fas fa-fw fa-history me-1"></i><strong>Changing a rate.</strong> Once a rate is on an invoice or quote, saving a new percent or parts makes a new rate with the same name. What was already billed keeps the old rate; products, clients, the default and recurring invoices move to the new one.</p>
-                <p class="mb-0"><i class="fas fa-fw fa-user-shield me-1"></i><strong>Exempt clients.</strong> Mark a client tax exempt, with its certificate, on the client's Billing tab. Its new lines get no tax, and its invoices say why.</p>
+                <p class="mb-2"><i class="fas fa-fw fa-user-shield me-1"></i><strong>Exempt clients.</strong> Mark a client tax exempt, with its certificate, on the client's Billing tab. Its new lines get no tax, and its invoices say why.</p>
+                <p class="mb-0"><i class="fas fa-fw fa-percent me-1"></i><strong>Filing.</strong> The <a href="/agent/reports/tax_summary.php">Tax Collected</a> report adds up each part by month or quarter, invoiced or paid, with exempt sales and the tax paid on expenses.</p>
             </div>
         </div>
     </div>

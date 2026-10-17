@@ -139,6 +139,48 @@ function taxAmounts($base, $tax) {
     return ['tax' => $total, 'parts' => $parts];
 }
 
+/**
+ * The tax included in an amount at a rate - what of $gross is tax, to the
+ * cent, the rest being what the tax was on. $tax: a rate's id, or its taxRow().
+ */
+function taxIncluded($gross, $tax) {
+    $row = is_array($tax) ? $tax : taxRow($tax);
+    $gross = round(floatval($gross), 2);
+    if (!$row || floatval($row['tax_percent']) == 0) {
+        return 0.0;
+    }
+    return round($gross - round($gross / (1 + floatval($row['tax_percent']) / 100), 2), 2);
+}
+
+/**
+ * A tax amount shared over its rate's parts, as they come to on $base -
+ * ['parts' => label => amount, adding up to $amount, 'registrations' => what
+ * each number is for => number, 'numbers' => label => its number]. With
+ * no rate ($row null), it is all one part, $no_rate_label.
+ */
+function taxSplit($amount, $row, $base, $no_rate_label = 'Tax') {
+    $amount = round(floatval($amount), 2);
+    if (!$row) {
+        return ['parts' => [$no_rate_label => $amount], 'registrations' => [], 'numbers' => []];
+    }
+    $split = taxAmounts($base, $row)['parts'];
+    $whole = array_sum(array_column($split, 'amount'));
+    $left = $amount;
+    $parts = [];
+    $registrations = [];
+    $numbers = [];
+    foreach ($split as $i => $part) {
+        $share = $i === count($split) - 1 || $whole == 0 ? $left : round($amount * $part['amount'] / $whole, 2);
+        $left = round($left - $share, 2);
+        $parts[$part['label']] = round(($parts[$part['label']] ?? 0) + $share, 2);
+        if ($part['registration'] !== '') {
+            $registrations[$part['registration_for']] = $part['registration'];
+            $numbers[$part['label']] = $part['registration'];
+        }
+    }
+    return ['parts' => $parts, 'registrations' => $registrations, 'numbers' => $numbers];
+}
+
 /** The rate a rate was changed to, following each change to the one in use now - or 0 when it was archived without one. */
 function taxCurrent($tax_id) {
     $seen = [];
@@ -664,4 +706,160 @@ function taxOptionsHtml(array $taxes, $selected = 0, $usual_label = '', $usual_p
 /** taxOptionsHtml() with the rates to offer now - or, with $since, those in use since then too. */
 function taxSelectOptions($selected = 0, $since = null) {
     return taxOptionsHtml(billingTaxes($since), $selected);
+}
+
+/*
+ * ---------- the Tax Collected report ----------
+ */
+
+/** The bases the tax on sales can be counted on - when invoiced, or when paid. */
+const TAX_REPORT_BASES = ['invoiced' => 'Invoiced', 'paid' => 'Paid'];
+
+/** Twelve months of nothing, for adding to. */
+function taxReportMonths() {
+    return array_fill(1, 12, 0.0);
+}
+
+/**
+ * What one invoice comes to for tax: each line net of its share of the
+ * discount, sorted into taxable, non-taxable (no tax for a client who isn't
+ * exempt) and exempt (no tax for a client who is exempt now), and its tax by
+ * part. $items: the invoice's lines with item_subtotal, item_tax, item_tax_id,
+ * tax_name and tax_percent.
+ */
+function taxReportInvoice(array $items, $discount, $exempt) {
+    $out = ['sales' => 0.0, 'taxable' => 0.0, 'nontaxable' => 0.0, 'exempt' => 0.0, 'parts' => [], 'numbers' => []];
+    $shares = billingDiscountShares($items, $discount);
+    foreach ($items as $item) {
+        $net = floatval($item['item_subtotal']) - ($shares[intval($item['item_id'])] ?? 0);
+        $tax = round(floatval($item['item_tax']), 2);
+        $out['sales'] += $net;
+        if ($tax != 0) {
+            $out['taxable'] += $net;
+            $label = trim(($item['tax_name'] ?? 'Tax') . ($item['tax_percent'] !== null ? ' ' . taxPercentText($item['tax_percent']) . '%' : ''));
+            $split = taxSplit($tax, taxRow($item['item_tax_id']), floatval($item['item_subtotal']), $label);
+            foreach ($split['parts'] as $part => $amount) {
+                $out['parts'][$part] = ($out['parts'][$part] ?? 0) + $amount;
+            }
+            $out['numbers'] += $split['numbers'];
+        } elseif ($exempt) {
+            $out['exempt'] += $net;
+        } else {
+            $out['nontaxable'] += $net;
+        }
+    }
+    return $out;
+}
+
+/**
+ * Tax on sales from $from to $to (Y-m-d, within one year), by month. On the
+ * invoiced basis each invoice sent counts in the month of its date; on the
+ * paid basis each payment carries its share of its invoice - a part-paid
+ * invoice counts only the part that came in. Drafts, cancelled and
+ * non-billable invoices count only for payments made on them.
+ *
+ * ['parts' => label => ['months', 'total'], 'numbers' => label => the
+ * registration it is charged under, 'sales' / 'taxable' / 'nontaxable' / 'exempt' =>
+ * months, 'exempt_clients' => client id => ['name', 'number', 'expires',
+ * 'expired', 'amount'], 'invoices' => how many].
+ */
+function taxReportSales($from, $to, $basis = 'paid') {
+    global $mysqli;
+    $from = escapeSql($from);
+    $to = escapeSql($to);
+    if ($basis === 'invoiced') {
+        $sql = mysqli_query($mysqli, "SELECT invoice_id, invoice_discount_amount, invoice_client_id, MONTH(invoice_date) AS m, 1 AS w
+            FROM invoices WHERE invoice_status IN ('Sent', 'Viewed', 'Partial', 'Paid') AND invoice_date >= '$from' AND invoice_date <= '$to'");
+    } else {
+        $sql = mysqli_query($mysqli, "SELECT invoice_id, invoice_discount_amount, invoice_client_id, MONTH(payment_date) AS m, payment_amount / invoice_amount AS w
+            FROM payments JOIN invoices ON invoice_id = payment_invoice_id
+            WHERE payment_archived_at IS NULL AND invoice_amount > 0 AND payment_date >= '$from' AND payment_date <= '$to'");
+    }
+    $rows = [];
+    while ($row = mysqli_fetch_assoc($sql)) {
+        $rows[] = $row;
+    }
+
+    // Every invoice's lines in a few queries, not one each
+    $items = [];
+    $ids = array_values(array_unique(array_map(function ($row) {
+        return intval($row['invoice_id']);
+    }, $rows)));
+    foreach (array_chunk($ids, 500) as $chunk) {
+        $sql = mysqli_query($mysqli, "SELECT item_id, item_invoice_id, item_subtotal, item_tax, item_tax_id, tax_name, tax_percent
+            FROM invoice_items LEFT JOIN taxes ON tax_id = item_tax_id WHERE item_invoice_id IN (" . implode(',', $chunk) . ")");
+        while ($item = mysqli_fetch_assoc($sql)) {
+            $items[intval($item['item_invoice_id'])][] = $item;
+        }
+    }
+
+    // Clients exempt now, with their certificates
+    $exempt_clients = [];
+    $sql = mysqli_query($mysqli, "SELECT client_id, client_name, client_tax_exempt_number, client_tax_exempt_expires FROM clients WHERE client_tax_exempt = 1");
+    while ($row = mysqli_fetch_assoc($sql)) {
+        $expires = (string) $row['client_tax_exempt_expires'];
+        $exempt_clients[intval($row['client_id'])] = ['name' => $row['client_name'], 'number' => (string) $row['client_tax_exempt_number'], 'expires' => $expires,
+            'expired' => $expires !== '' && $expires < date('Y-m-d'), 'amount' => 0.0];
+    }
+
+    $out = ['parts' => [], 'numbers' => [], 'sales' => taxReportMonths(), 'taxable' => taxReportMonths(), 'nontaxable' => taxReportMonths(),
+        'exempt' => taxReportMonths(), 'exempt_clients' => [], 'invoices' => count($ids)];
+    $done = [];
+    foreach ($rows as $row) {
+        $invoice_id = intval($row['invoice_id']);
+        $client_id = intval($row['invoice_client_id']);
+        $m = intval($row['m']);
+        $w = floatval($row['w']);
+        if (!isset($done[$invoice_id])) {
+            $done[$invoice_id] = taxReportInvoice($items[$invoice_id] ?? [], $row['invoice_discount_amount'], isset($exempt_clients[$client_id]));
+        }
+        $invoice = $done[$invoice_id];
+        foreach (['sales', 'taxable', 'nontaxable', 'exempt'] as $key) {
+            $out[$key][$m] += $invoice[$key] * $w;
+        }
+        foreach ($invoice['parts'] as $part => $amount) {
+            $out['parts'][$part] = $out['parts'][$part] ?? ['months' => taxReportMonths(), 'total' => 0.0];
+            $out['parts'][$part]['months'][$m] += $amount * $w;
+            $out['parts'][$part]['total'] += $amount * $w;
+        }
+        $out['numbers'] += $invoice['numbers'];
+        if ($invoice['exempt'] != 0) {
+            $out['exempt_clients'][$client_id] = $out['exempt_clients'][$client_id] ?? $exempt_clients[$client_id];
+            $out['exempt_clients'][$client_id]['amount'] += $invoice['exempt'] * $w;
+        }
+    }
+    ksort($out['parts'], SORT_NATURAL | SORT_FLAG_CASE);
+    uasort($out['exempt_clients'], function ($a, $b) {
+        return $b['amount'] <=> $a['amount'];
+    });
+    return $out;
+}
+
+/**
+ * Tax paid on purchases from $from to $to, by month - the tax included in
+ * expenses, by part of its rate ('Other tax' for an amount with no rate of
+ * ours). ['parts' => label => ['months', 'total'], 'purchases' => months -
+ * what those expenses came to before tax, 'expenses' => how many].
+ */
+function taxReportPurchases($from, $to) {
+    global $mysqli;
+    $from = escapeSql($from);
+    $to = escapeSql($to);
+    $out = ['parts' => [], 'purchases' => taxReportMonths(), 'expenses' => 0];
+    $sql = mysqli_query($mysqli, "SELECT MONTH(expense_date) AS m, expense_amount, expense_tax_amount, expense_tax_id FROM expenses
+        WHERE expense_tax_amount != 0 AND expense_archived_at IS NULL AND expense_date >= '$from' AND expense_date <= '$to'");
+    while ($row = mysqli_fetch_assoc($sql)) {
+        $m = intval($row['m']);
+        $tax = floatval($row['expense_tax_amount']);
+        $net = floatval($row['expense_amount']) - $tax;
+        $out['purchases'][$m] += $net;
+        $out['expenses']++;
+        foreach (taxSplit($tax, taxRow($row['expense_tax_id']), $net, 'Other tax')['parts'] as $part => $amount) {
+            $out['parts'][$part] = $out['parts'][$part] ?? ['months' => taxReportMonths(), 'total' => 0.0];
+            $out['parts'][$part]['months'][$m] += $amount;
+            $out['parts'][$part]['total'] += $amount;
+        }
+    }
+    ksort($out['parts'], SORT_NATURAL | SORT_FLAG_CASE);
+    return $out;
 }

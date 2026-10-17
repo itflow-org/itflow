@@ -9,11 +9,12 @@
  *   $form_vendor_id  the vendor a new one starts with (0 to pick)
  *   $form_client_id  the client a new one starts with (0 for none)
  *
- * Posts date, amount, vendor, category, account ('personal' with paid_by
- * when an agent paid it themselves), payment_method, client_id, reference,
- * description, billable and markup, the receipt as `file`, and refund_of
- * (refund) or receipt_remove (edit). Picking a vendor on a new expense fills in the
- * category, account and payment method of the last expense with them,
+ * Posts date, amount, tax_id and tax_amount (expense_tax_fields.php),
+ * vendor, category, account ('personal' with paid_by when an agent paid it
+ * themselves), payment_method, client_id, reference, description, billable
+ * and markup, the receipt as `file`, and refund_of (refund) or
+ * receipt_remove (edit). Picking a vendor on a new expense fills in the
+ * category, account, payment method and tax of the last expense with them,
  * unless those were changed by hand.
  *
  * Should not be accessed directly.
@@ -164,6 +165,15 @@ $form_markup = $form_row && !$form_refund ? floatval($form_row['expense_markup']
             <input type="date" class="form-control" name="date" max="2999-12-31" value="<?= escapeHtml($form_date) ?>" required <?= $form_lock ? 'readonly' : '' ?>>
         </div>
     </div>
+
+    <?php
+    $tax_form_id = $form_id;
+    $tax_selected = $form_row ? intval($form_row['expense_tax_id']) : 0;
+    $tax_amount = $form_edit ? floatval($form_row['expense_tax_amount']) : null;
+    $tax_currency = $form_currency;
+    $tax_lock = (bool) $form_lock;
+    require __DIR__ . '/expense_tax_fields.php';
+    ?>
 
     <div class="col-md-7">
         <label class="form-label">Paid from <strong class="text-danger">*</strong></label>
@@ -389,7 +399,8 @@ $form_markup = $form_row && !$form_refund ? floatval($form_row['expense_markup']
     var fields = {
         category: root.querySelector('[data-expense-category]'),
         account: root.querySelector('[data-expense-account]'),
-        method: root.querySelector('[data-expense-method]')
+        method: root.querySelector('[data-expense-method]'),
+        tax: root.querySelector('[data-expense-tax-rate]')
     };
     var touched = {};
     var filling = false;

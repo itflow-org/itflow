@@ -288,23 +288,13 @@ function billingTaxParts(array $items) {
         if ($tax == 0) {
             continue;
         }
-        $row = taxRow($item['item_tax_id'] ?? 0);
-        if (!$row) {
-            $label = trim(($item['tax_name'] ?? 'Tax') . (isset($item['tax_percent']) && $item['tax_percent'] !== null ? ' ' . taxPercentText($item['tax_percent']) . '%' : ''));
-            $parts[$label] = round(($parts[$label] ?? 0) + $tax, 2);
-            continue;
+        // A rate no longer on file shows by the name and percent the line still has
+        $label = trim(($item['tax_name'] ?? 'Tax') . (isset($item['tax_percent']) && $item['tax_percent'] !== null ? ' ' . taxPercentText($item['tax_percent']) . '%' : ''));
+        $split = taxSplit($tax, taxRow($item['item_tax_id'] ?? 0), floatval($item['item_subtotal']), $label);
+        foreach ($split['parts'] as $part => $amount) {
+            $parts[$part] = round(($parts[$part] ?? 0) + $amount, 2);
         }
-        $split = taxAmounts(floatval($item['item_subtotal']), $row)['parts'];
-        $whole = array_sum(array_column($split, 'amount'));
-        $left = $tax;
-        foreach ($split as $i => $part) {
-            if ($part['registration'] !== '') {
-                $registrations[$part['registration_for']] = $part['registration'];
-            }
-            $amount = $i === count($split) - 1 || $whole == 0 ? $left : round($tax * $part['amount'] / $whole, 2);
-            $left = round($left - $amount, 2);
-            $parts[$part['label']] = round(($parts[$part['label']] ?? 0) + $amount, 2);
-        }
+        $registrations += $split['registrations'];
     }
     return ['parts' => $parts, 'registrations' => $registrations];
 }
@@ -567,6 +557,35 @@ function billingRemoveTax($type, $doc_id) {
     $lines = mysqli_affected_rows($mysqli);
     billingRecalc($type, $doc_id);
     return $lines;
+}
+
+/**
+ * A document's tax for the API - its subtotal, tax, the tax by part
+ * ([{name, amount}]) and the registration numbers it is charged under, keyed
+ * with the document's column prefix (invoice_subtotal, quote_tax...). A
+ * quote's are for what it bills up front.
+ */
+function billingApiTaxFields($type, array $row) {
+    $c = billingType($type)['col'];
+    $items = billingItems($type, $row["{$c}_id"]);
+    $totals = billingTotals($type, $row, $items);
+    $subtotal = $totals['subtotal'];
+    $tax = $totals['tax'];
+    $parts = $totals['taxes'];
+    if ($type === 'quote' && !empty($totals['recurring'])) {
+        $once = $totals['groups'][''] ?? ['subtotal' => 0.0, 'tax' => 0.0, 'taxes' => []];
+        [$subtotal, $tax, $parts] = [$once['subtotal'], $once['tax'], $once['taxes']];
+    }
+    $out = [];
+    foreach ($parts as $name => $amount) {
+        $out[] = ['name' => $name, 'amount' => round($amount, 2)];
+    }
+    return [
+        "{$c}_subtotal" => round($subtotal, 2),
+        "{$c}_tax" => round($tax, 2),
+        "{$c}_taxes" => $out,
+        "{$c}_tax_registrations" => billingTaxRegistrationLines($totals),
+    ];
 }
 
 /** Subtotal, discount, tax and total for showing - from the lines, and the stored total. */
