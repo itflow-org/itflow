@@ -60,6 +60,9 @@ $money_format = function ($amount) use ($currency_format, $client_currency_code,
                         <?= $client_name ?>
                         <?php if ($client_is_lead) { ?><span class="badge rounded-pill text-bg-info align-middle fs-6 fw-normal ms-1">Lead</span><?php } ?>
                         <?php if ($client_archived_at) { ?><span class="badge rounded-pill text-bg-secondary align-middle fs-6 fw-normal ms-1">Archived</span><?php } ?>
+                        <?php if (!empty($config_module_enable_accounting) && ($ov_tax = taxClient($client_id))['exempt']) { ?>
+                            <span class="badge rounded-pill align-middle fs-6 fw-normal ms-1 <?= $ov_tax['expired'] ? 'bg-warning-subtle text-warning-emphasis' : 'bg-success-subtle text-success-emphasis' ?>" title="<?= escapeHtml(taxExemptText($ov_tax)) ?>"><?= $ov_tax['expired'] ? 'Tax exempt - certificate expired' : 'Tax exempt' ?></span>
+                        <?php } ?>
                     </h1>
                     <div class="d-flex flex-wrap align-items-center gap-1">
                         <?php if ($client_type) { ?>
@@ -518,6 +521,13 @@ $money_format = function ($amount) use ($currency_format, $client_currency_code,
                         <span class="small text-body-secondary">Terms</span>
                         <span class="itflow-dash-money-value"><?= $money_format($client_rate) ?><span class="fs-6 fw-normal text-body-secondary">/hr</span></span>
                         <span class="small text-body-tertiary"><?= $client_net_terms ? "Net $client_net_terms" : 'Due on receipt' ?><?= $client_tax_id_number ? ", tax ID $client_tax_id_number" : '' ?></span>
+                        <?php
+                        $overview_tax = taxClient($client_id);
+                        $overview_rate = taxRow(taxDefaultFor($client_id));
+                        ?>
+                        <span class="small <?= $overview_tax['exempt'] && $overview_tax['expired'] ? 'text-warning-emphasis' : 'text-body-tertiary' ?>"<?= $overview_tax['exempt'] ? ' title="' . escapeHtml(taxExemptText($overview_tax)) . '"' : '' ?>>
+                            <?= $overview_tax['exempt'] ? ($overview_tax['expired'] ? 'Tax exempt - certificate expired' : 'Tax exempt') : ($overview_rate ? 'Tax: ' . escapeHtml(taxLabel($overview_rate)) : 'No tax rate') ?>
+                        </span>
                     </div>
                 </div>
             </div>

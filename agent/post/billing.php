@@ -160,6 +160,28 @@ if (isset($_GET['billing_item_delete'])) {
 
 }
 
+/* Take the tax off every line - an exempt client's document (taxDocWarning()) */
+if (isset($_GET['billing_remove_tax'])) {
+
+    validateCSRFToken();
+
+    enforceUserPermission('module_sales', 2);
+
+    $type = (string) ($_GET['type'] ?? '');
+    $doc_id = intval($_GET['billing_remove_tax']);
+    $row = billingPostDocument($type, $doc_id);
+    $number = billingNumber($type, $row);
+
+    $lines = billingRemoveTax($type, $doc_id);
+
+    logAudit(billingAuditType($type), 'Edit', escapeSql("$session_name took the tax off $lines line" . ($lines === 1 ? '' : 's') . " on $number - the client is tax exempt"), $client_id, $doc_id);
+
+    flashAlert("Tax taken off $lines line" . ($lines === 1 ? '' : 's') . " on <strong>" . escapeHtml($number) . "</strong>");
+
+    billingPostBack($type, $doc_id);
+
+}
+
 /*
  * Pause or resume a recurring invoice. Resuming one whose next date has
  * passed says so - it only runs on its next date, so that has to move first.

@@ -1501,14 +1501,11 @@ if (isset($_POST['add_quote_from_ticket'])) {
     $price = floatval($_POST['price'] ?? 0);
     $tax_id = intval($_POST['tax_id'] ?? 0);
 
-    // Totals
-    $subtotal = $price * $qty;
-    $tax_amount = 0;
-    if ($tax_id > 0) {
-        $tax_percent = floatval(getFieldById('taxes', $tax_id, 'tax_percent'));
-        $tax_amount = $subtotal * $tax_percent / 100;
+    // Totals - at the rate's parts, each to the cent
+    if ($tax_id && !taxRow($tax_id)) {
+        $tax_id = 0;
     }
-    $total = floatval($subtotal + $tax_amount);
+    [$subtotal, $tax_amount, $total] = billingLineTax($qty, $price, $tax_id);
 
     // Atomically increment and get the new quote number
     mysqli_query($mysqli, "UPDATE settings SET config_quote_next_number = LAST_INSERT_ID(config_quote_next_number), config_quote_next_number = config_quote_next_number + 1 WHERE company_id = 1");
@@ -1521,6 +1518,7 @@ if (isset($_POST['add_quote_from_ticket'])) {
     $quote_id = mysqli_insert_id($mysqli);
 
     mysqli_query($mysqli, "INSERT INTO quote_items SET item_name = '$item_name', item_description = '$item_description', item_quantity = $qty, item_price = $price, item_subtotal = $subtotal, item_tax = $tax_amount, item_total = $total, item_order = 1, item_tax_id = $tax_id, item_quote_id = $quote_id");
+    billingRecalc('quote', $quote_id);
 
     // Add internal note to ticket, and link to quote in database
     mysqli_query($mysqli, "INSERT INTO ticket_replies SET ticket_reply = 'Created quote <a href=\"quote.php?quote_id=$quote_id\">$config_quote_prefix$quote_number</a> for this ticket.', ticket_reply_type = 'Internal', ticket_reply_time_worked = '00:00:00', ticket_reply_by = $session_user_id, ticket_reply_ticket_id = $ticket_id");

@@ -88,7 +88,7 @@ if (reportExporting()) {
     $rows = [];
     foreach ($lines as $line) {
         foreach (['tax' => 'Tax collected', 'sales' => 'Taxable sales'] as $key => $what) {
-            $row = ['name' => $line['name'] . ' (' . rtrim(rtrim(number_format($line['percent'], 3), '0'), '.') . '%)', 'what' => $what, 'total' => $line[$key . '_total']];
+            $row = ['name' => $line['name'] . ' (' . taxPercentText($line['percent']) . '%)', 'what' => $what, 'total' => $line[$key . '_total']];
             foreach ($columns as $i => $column) {
                 $row["c$i"] = $line[$key][$i];
             }
@@ -101,7 +101,7 @@ if (reportExporting()) {
 require_once "includes/inc_report_layout.php";
 
 $percent_text = function ($percent) {
-    return rtrim(rtrim(number_format($percent, 3), '0'), '.') . '%';
+    return taxPercentText($percent) . '%';
 };
 $span = count($columns) + 2;
 

@@ -87,12 +87,13 @@ function demoDataSlas() {
 // ------------------------------
 // demoDataTaxes
 // Sales tax on goods lines. Labor is not taxed in this fictional jurisdiction,
-// which is why only hardware lines carry a rate.
+// which is why only hardware lines carry a rate. Name, whole percent,
+// description, registration number, and the parts it is made of.
 // ------------------------------
 function demoDataTaxes() {
     return [
-        ['PA Sales Tax', 6.0],
-        ['Allegheny County Sales Tax', 7.0],
+        ['PA Sales Tax', 6.0, 'Pennsylvania state sales tax', '75520193', []],
+        ['Allegheny County Sales Tax', 7.0, 'Pennsylvania 6% plus the Allegheny County local 1%', '75520193', [['Pennsylvania', 6.0], ['Allegheny County', 1.0]]],
     ];
 }
 
@@ -636,8 +637,18 @@ function demoEnsureTaxes($mysqli) {
         $tax_id = starterInsert($mysqli, 'taxes', [
             'tax_name' => $tax[0],
             'tax_percent' => $tax[1],
+            'tax_description' => $tax[2],
+            'tax_registration_number' => $tax[3],
             'tax_created_at' => demoMonthDateTime(24, 3, 9, 0),
         ]);
+        foreach ($tax[4] as $order => $part) {
+            starterInsert($mysqli, 'tax_components', [
+                'component_tax_id' => $tax_id,
+                'component_name' => $part[0],
+                'component_percent' => $part[1],
+                'component_order' => $order + 1,
+            ]);
+        }
         $taxes[$tax[0]] = ['id' => $tax_id, 'percent' => $tax[1]];
     }
 
@@ -1147,8 +1158,14 @@ function demoDataRemove($mysqli) {
             $row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT COUNT(*) AS total FROM $table WHERE $column = $tax_id"));
             $in_use = $in_use + intval($row['total'] ?? 0);
         }
+        foreach (['clients' => 'client_default_tax_id'] as $table => $column) {
+            $row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT COUNT(*) AS total FROM $table WHERE $column = $tax_id"));
+            $in_use = $in_use + intval($row['total'] ?? 0);
+        }
         if (!$in_use) {
+            mysqli_query($mysqli, "DELETE FROM tax_components WHERE component_tax_id = $tax_id");
             mysqli_query($mysqli, "DELETE FROM taxes WHERE tax_id = $tax_id");
+            mysqli_query($mysqli, "UPDATE settings SET config_tax_default_id = 0 WHERE config_tax_default_id = $tax_id");
         }
     }
 
@@ -1167,7 +1184,7 @@ function demoBuildClient($mysqli, $profile, $index, $context, &$counts) {
     $user_id = $context['user_id'];
     $months = demoClientMonths($profile);
 
-    $client_id = starterInsert($mysqli, 'clients', [
+    $client_id = starterInsert($mysqli, 'clients', array_merge([
         'client_name' => $profile['name'],
         'client_type' => $profile['type'],
         'client_website' => 'https://www.' . $profile['domain'],
@@ -1177,6 +1194,8 @@ function demoBuildClient($mysqli, $profile, $index, $context, &$counts) {
         'client_net_terms' => $profile['net_terms'],
         'client_abbreviation' => $profile['abbreviation'],
         'client_tax_id_number' => '82-' . demoSerial($profile['abbreviation'] . 'ein', 7),
+        // The rate where it is
+        'client_default_tax_id' => intval($context['taxes'][$profile['tax']]['id'] ?? 0),
         'client_lead' => $profile['lead'],
         'client_favorite' => $profile['favorite'],
         'client_notes' => $profile['notes'],
@@ -1184,7 +1203,12 @@ function demoBuildClient($mysqli, $profile, $index, $context, &$counts) {
         // first - a client record cannot postdate its own opening invoice
         'client_created_at' => demoMonthDateTime($months, 1, 9, 14),
         'client_accessed_at' => demoDateTime($index % 5, 11, 20),
-    ]);
+    ], !empty($profile['tax_exempt']) ? [
+        // Or exempt on a certificate - a church, a school
+        'client_tax_exempt' => 1,
+        'client_tax_exempt_number' => $profile['tax_exempt'][0],
+        'client_tax_exempt_expires' => date('Y-m-d', strtotime($profile['tax_exempt'][1])),
+    ] : []));
 
     demoAttachTags($mysqli, 'client_tags', 'client_id', 'tag_id', $client_id, 1, $profile['tags']);
 
@@ -4696,7 +4720,7 @@ function demoDataSpecs() {
             'second_site' => null,
             'age_days' => 760, 'seats' => 8, 'servers' => 1, 'build' => 1, 'billing' => 'managed',
             'balance' => 'clear', 'hosting' => [['Web Hosting - Standard', 1, 25.00, 'Church website and service times, hosted with nightly backup', 0], ['Email Hosting - Per Mailbox', 8, 4.50, 'Staff and volunteer mailboxes with filtering', 0]],
-            'lead' => 0, 'favorite' => 0, 'tax' => 'PA Sales Tax',
+            'lead' => 0, 'favorite' => 0, 'tax' => '', 'tax_exempt' => ['75-0012847', '+2 years'],
             'mail_platform' => 'Google Workspace', 'cert_issuer' => "Let's Encrypt",
             'tags' => ['Managed', 'Non Profit', 'Block Hours'],
             'notes' => 'Non profit rate. Mostly volunteers on the machines, so the build is locked down and simple.',
@@ -4806,7 +4830,7 @@ function demoDataSpecs() {
             'second_site' => null,
             'age_days' => 1320, 'seats' => 38, 'servers' => 3, 'build' => 1, 'billing' => 'managed',
             'balance' => 'clear', 'hosting' => [['Nextcloud Hosting - Instance', 1, 95.00, 'Staff and coursework file sharing', 0], ['Web Hosting - Standard', 1, 25.00, 'School website and newsletter archive', 0]],
-            'lead' => 0, 'favorite' => 0, 'tax' => 'Allegheny County Sales Tax',
+            'lead' => 0, 'favorite' => 0, 'tax' => '', 'tax_exempt' => ['75-0031906', '-20 days'],
             'mail_platform' => 'Google Workspace', 'cert_issuer' => "Let's Encrypt",
             'tags' => ['Co-Managed', 'Managed', 'Non Profit', 'Seasonal', 'Compliance'],
             'notes' => 'Runs on open source deliberately - budget goes on staff, not licences. Quiet in July, chaotic in late August.',
@@ -5211,6 +5235,7 @@ function demoExpandProfile($spec) {
         'lead' => $spec['lead'],
         'favorite' => $spec['favorite'],
         'tax' => $spec['tax'],
+        'tax_exempt' => $spec['tax_exempt'] ?? null,
         'notes' => $spec['notes'],
         'account_note' => $spec['account_note'],
         'review_note' => $spec['review_note'],

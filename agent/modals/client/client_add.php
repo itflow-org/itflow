@@ -313,6 +313,12 @@ ob_start();
                         </div>
                     </div>
 
+                    <?php
+                    $client_tax = [];
+                    $client_tax_key = 'New';
+                    require __DIR__ . '/client_tax_fields.php';
+                    ?>
+
                     <div class="mb-3">
                         <input type="hidden" name="reminders_field" value="1">
                         <div class="form-check form-switch">

@@ -391,7 +391,7 @@ if (isExportRequest('export_products')) {
             $row['product_type_label'] = productTypes()[$row['product_type']]['label'] ?? $row['product_type'];
             $row['product_billed'] = productBilledText($row['product_frequency'], $row['product_seat_source']);
             $row['product_margin'] = $margin ? $margin['percent'] . '%' : '';
-            $row['product_tax'] = $row['tax_name'] ? $row['tax_name'] . ' ' . floatval($row['tax_percent']) . '%' : '';
+            $row['product_tax'] = $row['tax_name'] ? taxLabel($row) : '';
             $row['product_stock_display'] = intval($row['product_track_stock']) ? billingQuantity($row['product_stock']) : '';
             $row['product_reorder_display'] = intval($row['product_track_stock']) && floatval($row['product_reorder_level']) > 0 ? billingQuantity($row['product_reorder_level']) : '';
             $row['product_order_display'] = intval($row['product_track_stock']) && floatval($row['product_reorder_qty']) > 0 ? billingQuantity($row['product_reorder_qty']) : '';

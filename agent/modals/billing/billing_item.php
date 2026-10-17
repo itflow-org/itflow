@@ -213,10 +213,7 @@ ob_start();
                 <div class="input-group">
                     <span class="input-group-text"><i class="fa fa-fw fa-percent"></i></span>
                     <select class="form-select" name="tax_id" data-line-tax>
-                        <option value="0" data-percent="0">No tax</option>
-                        <?php foreach ($taxes as $tax_id => $tax) { ?>
-                            <option value="<?= intval($tax_id) ?>" data-percent="<?= floatval($tax['tax_percent']) ?>" <?= intval($item['item_tax_id']) === intval($tax_id) ? 'selected' : '' ?>><?= escapeHtml($tax['tax_name'] . ' ' . billingQuantity($tax['tax_percent']) . '%') ?></option>
-                        <?php } ?>
+                        <?= taxOptionsHtml($taxes, $item['item_tax_id']) ?>
                     </select>
                 </div>
             </div>

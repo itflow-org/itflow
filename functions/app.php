@@ -880,7 +880,7 @@ function getSentMethods() {
  *
  * Returns a JSON string ready to emit into the page.
  */
-function getProductsForAutocomplete($mysqli): string
+function getProductsForAutocomplete($mysqli, $client_id = 0): string
 {
     $products = [];
 
@@ -906,6 +906,13 @@ function getProductsForAutocomplete($mysqli): string
     ");
 
     while ($row = mysqli_fetch_assoc($sql)) {
+        // For a client, the rate a line of it gets them - none when they are
+        // tax exempt, their own rate in place of the product's (functions/tax.php)
+        if ($client_id) {
+            $row['tax'] = taxDefaultFor($client_id, 'product', intval($row['tax']));
+            $tax_row = taxRow($row['tax']);
+            $row['tax_percent'] = $tax_row ? $tax_row['tax_percent'] : null;
+        }
         $products[] = $row;
     }
 

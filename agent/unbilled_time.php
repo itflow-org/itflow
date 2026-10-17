@@ -542,10 +542,7 @@ $hours_text = function ($hours) {
                                 <div class="input-group">
                                     <span class="input-group-text"><i class="fa fa-fw fa-percent"></i></span>
                                     <select class="form-select" name="tax_id" data-unbilled-tax>
-                                        <option value="0" data-percent="0">No tax</option>
-                                        <?php foreach ($taxes as $tax_id => $tax) { ?>
-                                            <option value="<?= intval($tax_id) ?>" data-percent="<?= floatval($tax['tax_percent']) ?>"><?= escapeHtml($tax['tax_name'] . ' ' . billingQuantity($tax['tax_percent']) . '%') ?></option>
-                                        <?php } ?>
+                                        <?= taxOptionsHtml($taxes, TAX_USUAL, $client_view ? "Each line's usual rate" : "Each client's usual rates", $client_view ? floatval(taxRow(taxDefaultFor($client_id, 'time'))['tax_percent'] ?? 0) : 0) ?>
                                     </select>
                                 </div>
                             </div>

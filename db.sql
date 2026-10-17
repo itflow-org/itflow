@@ -728,6 +728,10 @@ CREATE TABLE `clients` (
   `client_net_terms` int(10) NOT NULL,
   `client_reminders` tinyint(1) NOT NULL DEFAULT 1,
   `client_tax_id_number` varchar(255) DEFAULT NULL,
+  `client_default_tax_id` int(11) NOT NULL DEFAULT 0,
+  `client_tax_exempt` tinyint(1) NOT NULL DEFAULT 0,
+  `client_tax_exempt_number` varchar(200) DEFAULT NULL,
+  `client_tax_exempt_expires` date DEFAULT NULL,
   `client_abbreviation` varchar(10) DEFAULT NULL,
   `client_notes` text DEFAULT NULL,
   `client_favorite` tinyint(1) NOT NULL DEFAULT 0,
@@ -2684,6 +2688,11 @@ CREATE TABLE `settings` (
   `config_invoice_late_fee_percent` decimal(5,2) NOT NULL DEFAULT 0.00,
   `config_invoice_paid_notification_email` varchar(200) DEFAULT NULL,
   `config_invoice_show_tax_id` tinyint(1) NOT NULL DEFAULT 0,
+  `config_tax_default_id` int(11) NOT NULL DEFAULT 0,
+  `config_tax_time` tinyint(1) NOT NULL DEFAULT 0,
+  `config_tax_trips` tinyint(1) NOT NULL DEFAULT 0,
+  `config_tax_expenses` tinyint(1) NOT NULL DEFAULT 0,
+  `config_tax_discount_before` tinyint(1) NOT NULL DEFAULT 1,
   `config_recurring_invoice_prefix` varchar(200) DEFAULT NULL,
   `config_recurring_invoice_next_number` int(11) NOT NULL DEFAULT 1,
   `config_quote_prefix` varchar(200) DEFAULT NULL,
@@ -3129,6 +3138,26 @@ CREATE TABLE `tasks` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
+-- Table structure for table `tax_components`
+--
+
+DROP TABLE IF EXISTS `tax_components`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8mb4 */;
+CREATE TABLE `tax_components` (
+  `component_id` int(11) NOT NULL AUTO_INCREMENT,
+  `component_tax_id` int(11) NOT NULL,
+  `component_name` varchar(200) NOT NULL,
+  `component_percent` decimal(9,4) NOT NULL DEFAULT 0.0000,
+  `component_compound` tinyint(1) NOT NULL DEFAULT 0,
+  `component_registration_number` varchar(100) DEFAULT NULL,
+  `component_order` int(11) NOT NULL DEFAULT 0,
+  PRIMARY KEY (`component_id`),
+  KEY `component_tax_id` (`component_tax_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
 -- Table structure for table `taxes`
 --
 
@@ -3138,7 +3167,10 @@ DROP TABLE IF EXISTS `taxes`;
 CREATE TABLE `taxes` (
   `tax_id` int(11) NOT NULL AUTO_INCREMENT,
   `tax_name` varchar(200) NOT NULL,
-  `tax_percent` float NOT NULL,
+  `tax_percent` decimal(9,4) NOT NULL DEFAULT 0.0000,
+  `tax_description` varchar(255) DEFAULT NULL,
+  `tax_registration_number` varchar(100) DEFAULT NULL,
+  `tax_replaced_by` int(11) NOT NULL DEFAULT 0,
   `tax_created_at` datetime NOT NULL DEFAULT current_timestamp(),
   `tax_updated_at` datetime DEFAULT NULL ON UPDATE current_timestamp(),
   `tax_archived_at` datetime DEFAULT NULL,

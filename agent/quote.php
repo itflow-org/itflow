@@ -220,6 +220,8 @@ $paper = [
     </div>
 <?php } ?>
 
+<?= taxDocWarning('quote', $quote_id, $client_id, $items, billingLinesOpen('quote', $status), $can_edit) ?>
+
 <div class="row g-3">
 
     <!-- The quote, as the client sees it -->
@@ -344,7 +346,7 @@ $paper = [
 <script>
 document.addEventListener('DOMContentLoaded', function () {
     itflowBillingItems({
-        products: <?= $can_edit_lines ? getProductsForAutocomplete($mysqli) : '[]' ?>,
+        products: <?= $can_edit_lines ? getProductsForAutocomplete($mysqli, intval($quote['client_id'])) : '[]' ?>,
         csrf: <?= json_encode($csrf) ?>,
         currency: <?= json_encode($currency) ?>,
         locale: <?= json_encode(str_replace('_', '-', (string) $session_company_locale)) ?>

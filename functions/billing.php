@@ -154,11 +154,159 @@ function billingCategories($since = null) {
     return $categories;
 }
 
-/** A line's subtotal, tax and total, each to the cent. */
+/** A line's subtotal, tax and total, each to the cent, at a single percent. */
 function billingLineAmounts($quantity, $price, $tax_percent) {
     $subtotal = round(floatval($quantity) * floatval($price), 2);
     $tax = round($subtotal * floatval($tax_percent) / 100, 2);
     return [$subtotal, $tax, round($subtotal + $tax, 2)];
+}
+
+/** A line's subtotal, tax and total at a rate (functions/tax.php) - each of its parts to the cent, on $base when a discount came off first. */
+function billingLineTax($quantity, $price, $tax_id, $base = null) {
+    $subtotal = round(floatval($quantity) * floatval($price), 2);
+    $tax = intval($tax_id) ? taxAmounts($base === null ? $subtotal : $base, $tax_id)['tax'] : 0.0;
+    return [$subtotal, $tax, round($subtotal + $tax, 2)];
+}
+
+/** Whether a document's lines may still change - so its tax is worked out again. Not a paid, cancelled or non-billable invoice, nor an answered or invoiced quote. */
+function billingLinesOpen($type, $status) {
+    if ($type === 'invoice') {
+        return !in_array((string) $status, ['Paid', 'Cancelled', 'Non-Billable'], true);
+    }
+    if ($type === 'quote') {
+        return !in_array((string) $status, ['Accepted', 'Declined', 'Invoiced'], true);
+    }
+    return true;
+}
+
+/**
+ * A discount shared out over lines in proportion to what each comes to -
+ * item id => its share, to the cent, adding up to the discount (never more
+ * than the lines come to). Lines that come to nothing or less take none.
+ */
+function billingDiscountShares(array $items, $discount) {
+    $discount = round(floatval($discount), 2);
+    $positive = array_filter($items, function ($item) {
+        return floatval($item['item_subtotal']) > 0;
+    });
+    $pool = array_sum(array_map(function ($item) {
+        return floatval($item['item_subtotal']);
+    }, $positive));
+    if ($discount == 0 || $pool <= 0) {
+        return [];
+    }
+    $sign = $discount < 0 ? -1 : 1;
+    $cents = intval(round(min(abs($discount), $pool) * 100));
+    $shares = [];
+    $remainders = [];
+    $given = 0;
+    foreach ($positive as $item) {
+        $exact = $cents * floatval($item['item_subtotal']) / $pool;
+        $whole = intval(floor($exact));
+        $shares[intval($item['item_id'])] = $whole;
+        $remainders[intval($item['item_id'])] = $exact - $whole;
+        $given += $whole;
+    }
+    arsort($remainders);
+    foreach (array_keys($remainders) as $item_id) {
+        if ($given >= $cents) {
+            break;
+        }
+        $shares[$item_id]++;
+        $given++;
+    }
+    return array_map(function ($share) use ($sign) {
+        return $sign * $share / 100;
+    }, $shares);
+}
+
+/**
+ * Work out each line's tax again - on what the line comes to, less its share
+ * of the discount when discounts come off before tax (Admin > Taxes). A quote's
+ * discount is on its one-time lines, or the first recurring group when it has
+ * none. A line whose rate no longer exists keeps the tax it has.
+ */
+function billingRecalcTaxes($type, $doc_id, $discount) {
+    global $mysqli;
+    $t = billingType($type);
+    $doc_id = intval($doc_id);
+    $frequency_column = $type === 'quote' ? ', item_frequency' : '';
+    $items = [];
+    $sql = mysqli_query($mysqli, "SELECT item_id, item_quantity, item_price, item_subtotal, item_tax, item_total, item_tax_id $frequency_column
+        FROM {$t['items']} WHERE {$t['item_fk']} = $doc_id");
+    while ($row = mysqli_fetch_assoc($sql)) {
+        $items[] = $row;
+    }
+    $shares = [];
+    if (taxSettings()['discount_before'] && floatval($discount) != 0) {
+        $pool = $items;
+        if ($type === 'quote') {
+            $order = ['', 'month', 'quarter', 'year'];
+            $present = array_unique(array_map(function ($item) {
+                return quoteFrequency($item['item_frequency'] ?? '');
+            }, $items));
+            $on = '';
+            foreach ($order as $frequency) {
+                if (in_array($frequency, $present, true)) {
+                    $on = $frequency;
+                    break;
+                }
+            }
+            $pool = array_filter($items, function ($item) use ($on) {
+                return quoteFrequency($item['item_frequency'] ?? '') === $on;
+            });
+        }
+        $shares = billingDiscountShares($pool, $discount);
+    }
+    foreach ($items as $item) {
+        $tax_id = intval($item['item_tax_id']);
+        if ($tax_id && !taxRow($tax_id)) {
+            continue;
+        }
+        $subtotal = floatval($item['item_subtotal']);
+        $base = round($subtotal - ($shares[intval($item['item_id'])] ?? 0), 2);
+        $tax = $tax_id ? taxAmounts($base, $tax_id)['tax'] : 0.0;
+        $total = round($subtotal + $tax, 2);
+        if ($tax != floatval($item['item_tax']) || $total != floatval($item['item_total'])) {
+            mysqli_query($mysqli, "UPDATE {$t['items']} SET item_tax = $tax, item_total = $total WHERE item_id = " . intval($item['item_id']));
+        }
+    }
+}
+
+/**
+ * A document's tax by part, for its totals - label => amount, adding up to
+ * the tax on its lines. A line's tax is shared over its rate's parts as they
+ * come to on the line, so a rate made of parts shows each (State 6%, County
+ * 1%), and parts of the same name and percent on different rates are one.
+ * Also the registration numbers it is charged under, by the rate or part each is for.
+ */
+function billingTaxParts(array $items) {
+    $parts = [];
+    $registrations = [];
+    foreach ($items as $item) {
+        $tax = round(floatval($item['item_tax']), 2);
+        if ($tax == 0) {
+            continue;
+        }
+        $row = taxRow($item['item_tax_id'] ?? 0);
+        if (!$row) {
+            $label = trim(($item['tax_name'] ?? 'Tax') . (isset($item['tax_percent']) && $item['tax_percent'] !== null ? ' ' . taxPercentText($item['tax_percent']) . '%' : ''));
+            $parts[$label] = round(($parts[$label] ?? 0) + $tax, 2);
+            continue;
+        }
+        $split = taxAmounts(floatval($item['item_subtotal']), $row)['parts'];
+        $whole = array_sum(array_column($split, 'amount'));
+        $left = $tax;
+        foreach ($split as $i => $part) {
+            if ($part['registration'] !== '') {
+                $registrations[$part['registration_for']] = $part['registration'];
+            }
+            $amount = $i === count($split) - 1 || $whole == 0 ? $left : round($tax * $part['amount'] / $whole, 2);
+            $left = round($left - $amount, 2);
+            $parts[$part['label']] = round(($parts[$part['label']] ?? 0) + $amount, 2);
+        }
+    }
+    return ['parts' => $parts, 'registrations' => $registrations];
 }
 
 /** A number from a form - "1,250.50", "$99", "-15" - or null when it is not one. */
@@ -260,16 +408,12 @@ function billingItemSave($type, $doc_id, array $in, $item_id = 0, &$error = '') 
         return null;
     }
 
-    $tax_percent = 0;
-    if ($tax_id) {
-        $tax = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT tax_percent FROM taxes WHERE tax_id = $tax_id"));
-        if (!$tax) {
-            $error = 'That tax no longer exists.';
-            return null;
-        }
-        $tax_percent = floatval($tax['tax_percent']);
+    if ($tax_id && !taxRow($tax_id)) {
+        $error = 'That tax no longer exists.';
+        return null;
     }
-    [$subtotal, $tax_amount, $total] = billingLineAmounts($quantity, $price, $tax_percent);
+    // Its tax on the whole line for now - billingRecalc() takes any discount off first
+    [$subtotal, $tax_amount, $total] = billingLineTax($quantity, $price, $tax_id);
 
     $old = null;
     if ($item_id) {
@@ -321,17 +465,19 @@ function billingItemSetPrice($type, $doc_id, $item_id, $price) {
     $t = billingType($type);
     $doc_id = intval($doc_id);
     $item_id = intval($item_id);
-    $item = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT item_quantity, item_subtotal, item_tax, item_tax_id, tax_percent FROM {$t['items']}
-        LEFT JOIN taxes ON tax_id = item_tax_id
+    $item = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT item_quantity, item_subtotal, item_tax, item_tax_id FROM {$t['items']}
         WHERE item_id = $item_id AND {$t['item_fk']} = $doc_id"));
     if (!$item) {
         return false;
     }
-    // Its tax's rate - or, when that tax is gone, the rate it was charged at
-    $percent = $item['tax_percent'] !== null ? floatval($item['tax_percent'])
-        : (intval($item['item_tax_id']) && floatval($item['item_subtotal']) != 0 ? floatval($item['item_tax']) / floatval($item['item_subtotal']) * 100 : 0);
     $price = round(floatval($price), 2);
-    [$subtotal, $tax, $total] = billingLineAmounts($item['item_quantity'], $price, $percent);
+    if (!intval($item['item_tax_id']) || taxRow($item['item_tax_id'])) {
+        [$subtotal, $tax, $total] = billingLineTax($item['item_quantity'], $price, $item['item_tax_id']);
+    } else {
+        // Its rate is gone - the rate it was charged at
+        $percent = floatval($item['item_subtotal']) != 0 ? floatval($item['item_tax']) / floatval($item['item_subtotal']) * 100 : 0;
+        [$subtotal, $tax, $total] = billingLineAmounts($item['item_quantity'], $price, $percent);
+    }
     mysqli_query($mysqli, "UPDATE {$t['items']} SET item_price = $price, item_subtotal = $subtotal, item_tax = $tax, item_total = $total WHERE item_id = $item_id");
     billingRecalc($type, $doc_id);
     return true;
@@ -384,7 +530,14 @@ function billingRecalc($type, $doc_id) {
     $t = billingType($type);
     $doc_id = intval($doc_id);
     $c = $t['col'];
-    $discount = floatval(mysqli_fetch_row(mysqli_query($mysqli, "SELECT {$c}_discount_amount FROM {$t['table']} WHERE {$c}_id = $doc_id"))[0] ?? 0);
+    $status_column = $type === 'recurring' ? "''" : "{$c}_status";
+    $doc = mysqli_fetch_row(mysqli_query($mysqli, "SELECT {$c}_discount_amount, $status_column FROM {$t['table']} WHERE {$c}_id = $doc_id"));
+    $discount = floatval($doc[0] ?? 0);
+    // Each line's tax again, while its lines may change - on its share of the
+    // discount taken off first, when discounts come off before tax
+    if ($doc && billingLinesOpen($type, $doc[1])) {
+        billingRecalcTaxes($type, $doc_id, $discount);
+    }
     if ($type === 'quote') {
         // What is billed once, and what the recurring lines come to a month
         $groups = quoteLineGroups(billingItems('quote', $doc_id), $discount);
@@ -404,26 +557,35 @@ function billingRecalc($type, $doc_id) {
     return $amount;
 }
 
+/** Take the tax off every line of a document - a tax exempt client's - and work it out again. How many lines were taxed. */
+function billingRemoveTax($type, $doc_id) {
+    global $mysqli;
+    $t = billingType($type);
+    $doc_id = intval($doc_id);
+    mysqli_query($mysqli, "UPDATE {$t['items']} SET item_tax_id = 0, item_tax = 0, item_total = item_subtotal
+        WHERE {$t['item_fk']} = $doc_id AND (item_tax_id != 0 OR item_tax != 0)");
+    $lines = mysqli_affected_rows($mysqli);
+    billingRecalc($type, $doc_id);
+    return $lines;
+}
+
 /** Subtotal, discount, tax and total for showing - from the lines, and the stored total. */
 function billingTotals($type, $row, array $items) {
     $c = billingType($type)['col'];
     $subtotal = 0;
     $tax = 0;
-    $taxes = [];
     foreach ($items as $item) {
         $subtotal += floatval($item['item_subtotal']);
         $tax += floatval($item['item_tax']);
-        if (floatval($item['item_tax']) != 0) {
-            $label = trim(($item['tax_name'] ?? 'Tax') . ' ' . billingQuantity($item['tax_percent'] ?? 0) . '%');
-            $taxes[$label] = ($taxes[$label] ?? 0) + floatval($item['item_tax']);
-        }
     }
+    $tax_parts = billingTaxParts($items);
     $totals = [
         'subtotal' => round($subtotal, 2),
         'discount' => floatval($row["{$c}_discount_amount"] ?? 0),
         'credit' => floatval($row["{$c}_credit_amount"] ?? 0),
         'tax' => round($tax, 2),
-        'taxes' => $taxes,
+        'taxes' => $tax_parts['parts'],
+        'tax_registrations' => $tax_parts['registrations'],
         'total' => floatval($row["{$c}_amount"] ?? 0),
     ];
     if ($type === 'quote') {
@@ -496,7 +658,21 @@ function billingBillTo($client_id) {
     $row['contact_name'] = $contact['contact_name'] ?? '';
     $row['contact_email'] = $contact['contact_email'] ?? '';
     $row['contact_phone'] = !empty($contact['contact_phone']) ? formatPhoneNumber($contact['contact_phone'], $contact['contact_phone_country_code']) . (!empty($contact['contact_extension']) ? ' x' . $contact['contact_extension'] : '') : '';
+    // "Tax exempt - certificate 12-345", printed under the client when nothing on the document is taxed
+    $row['tax_exempt_text'] = taxExemptText(taxClient($client_id), false);
     return $row;
+}
+
+/** The registration numbers a document's tax is charged under - "GST No. 123456789 RT0001" - for under the company's details. */
+function billingTaxRegistrationLines(array $totals) {
+    $lines = [];
+    foreach ($totals['tax_registrations'] ?? [] as $name => $number) {
+        // One number used by two rates is shown once
+        if (!isset($lines[$number])) {
+            $lines[$number] = "$name No. $number";
+        }
+    }
+    return array_values($lines);
 }
 
 /** The guest link for an invoice or a quote. */
@@ -830,7 +1006,7 @@ function billingInvoiceCreate($client_id, $date, $category_id, $scope, $by) {
  * can't bill one twice. $opts:
  *   invoice_id   one of the client's invoices whose lines can change, or 0 for a new draft
  *   date, category_id, scope   for a new draft
- *   tax_id, item_name, price (null: the client's rate), description (one ticket only)
+ *   tax_id (TAX_USUAL: the client's usual rate for time), item_name, price (null: the client's rate), description (one ticket only)
  *   combine      one line for all of them instead of one each
  *   lines        false to put the tickets on without adding lines (billed by hand)
  *   include_open take tickets that aren't done yet too
@@ -867,8 +1043,8 @@ function billingTimeInvoice($client_id, array $hours, array $opts, &$error = '')
         $error = 'The rate has to be a number.';
         return null;
     }
-    $tax_id = intval($opts['tax_id'] ?? 0);
-    if ($tax_id && !mysqli_num_rows(mysqli_query($mysqli, "SELECT tax_id FROM taxes WHERE tax_id = $tax_id"))) {
+    $tax_id = taxChoice($opts['tax_id'] ?? 0, $client_id, 'time');
+    if ($tax_id && !taxRow($tax_id)) {
         $error = 'That tax no longer exists.';
         return null;
     }
@@ -1075,10 +1251,9 @@ function quoteLineGroups(array $items, $discount = 0) {
         $groups[$frequency]['subtotal'] += floatval($item['item_subtotal']);
         $groups[$frequency]['tax'] += floatval($item['item_tax']);
         $groups[$frequency]['total'] += floatval($item['item_total']);
-        if (floatval($item['item_tax']) != 0) {
-            $label = trim(($item['tax_name'] ?? 'Tax') . ' ' . billingQuantity($item['tax_percent'] ?? 0) . '%');
-            $groups[$frequency]['taxes'][$label] = ($groups[$frequency]['taxes'][$label] ?? 0) + floatval($item['item_tax']);
-        }
+    }
+    foreach ($groups as $frequency => $group) {
+        $groups[$frequency]['taxes'] = billingTaxParts($group['items'])['parts'];
     }
     $ordered = [];
     foreach (array_keys($labels) as $frequency) {
@@ -1797,8 +1972,7 @@ function recurringInvoiceRefresh($recurring_invoice_id, $by = 'Cron') {
     $seats = recurringSeatLines($recurring_invoice_id, $client_id);
     $changes = [];
 
-    $sql = mysqli_query($mysqli, "SELECT item_id, item_name, item_quantity, item_price, item_subtotal, item_tax, item_total, item_tax_id, tax_percent
-        FROM recurring_invoice_items LEFT JOIN taxes ON tax_id = item_tax_id WHERE item_recurring_invoice_id = $recurring_invoice_id");
+    $sql = mysqli_query($mysqli, "SELECT item_id, item_name, item_quantity, item_price, item_subtotal FROM recurring_invoice_items WHERE item_recurring_invoice_id = $recurring_invoice_id");
     while ($item = mysqli_fetch_assoc($sql)) {
         $item_id = intval($item['item_id']);
         $quantity = floatval($item['item_quantity']);
@@ -1807,12 +1981,13 @@ function recurringInvoiceRefresh($recurring_invoice_id, $by = 'Cron') {
             $changes[] = "{$item['item_name']}: " . billingQuantity($quantity) . ' to ' . billingQuantity($new_quantity) . ' (' . $seats[$item_id]['seat_label'] . ')';
             $quantity = $new_quantity;
         }
-        [$subtotal, $tax, $total] = billingLineAmounts($quantity, $item['item_price'], intval($item['item_tax_id']) ? floatval($item['tax_percent']) : 0);
-        if ($quantity != floatval($item['item_quantity']) || $subtotal != floatval($item['item_subtotal']) || $tax != floatval($item['item_tax']) || $total != floatval($item['item_total'])) {
-            mysqli_query($mysqli, "UPDATE recurring_invoice_items SET item_quantity = $quantity, item_subtotal = $subtotal, item_tax = $tax, item_total = $total WHERE item_id = $item_id");
+        $subtotal = round($quantity * floatval($item['item_price']), 2);
+        if ($quantity != floatval($item['item_quantity']) || $subtotal != floatval($item['item_subtotal'])) {
+            mysqli_query($mysqli, "UPDATE recurring_invoice_items SET item_quantity = $quantity, item_subtotal = $subtotal WHERE item_id = $item_id");
         }
     }
 
+    // Each line's tax at its rate now, after any discount (billingRecalcTaxes())
     billingRecalc('recurring', $recurring_invoice_id);
     foreach ($changes as $change) {
         billingLog('recurring', $recurring_invoice_id, 'Seats', "$change - by $by");

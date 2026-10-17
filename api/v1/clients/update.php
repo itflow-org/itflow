@@ -31,7 +31,8 @@ if (!empty($client_id)) {
             client_abbreviation = '$abbreviation',
             client_tax_id_number = '$tax_id_number',
             client_lead = $lead,
-            client_notes = '$notes'
+            client_notes = '$notes',
+            $tax_set_sql
         WHERE client_id = $client_id
         LIMIT 1
     ");

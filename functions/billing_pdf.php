@@ -109,12 +109,12 @@ function billingPdfRender($type, array $row, $variant = 'document') {
     };
 
     // Who it is from, and what it is
-    $from_lines = array_filter([
+    $from_lines = array_merge(array_filter([
         formatAddress($company['company_address'] ?? '', $company['company_city'] ?? '', $company['company_state'] ?? '', $company['company_zip'] ?? '', $company['company_country'] ?? '', "\n"),
         implode('  ·  ', array_filter([$company['company_email'] ?? '', $company['phone_display'] ?? ''])),
         $company['company_website'] ?? '',
         !empty($config_invoice_show_tax_id) && !empty($company['company_tax_id']) ? 'Tax ID: ' . $company['company_tax_id'] : '',
-    ]);
+    ]), $packing ? [] : billingTaxRegistrationLines($totals));
     $logo = !empty($company['logo_path']) ? '<img src="' . $e($company['logo_path']) . '" height="42"><br>' : '';
     if ($packing) {
         $dates = ['Invoice' => $number, 'Date' => $row['invoice_date']];
@@ -151,6 +151,7 @@ function billingPdfRender($type, array $row, $variant = 'document') {
         $bill_to['contact_name'] ?? '',
         implode('  ·  ', array_filter([$bill_to['contact_email'] ?? '', $bill_to['contact_phone'] ?? ''])),
         !empty($bill_to['client_tax_id_number']) ? 'Tax ID: ' . $bill_to['client_tax_id_number'] : '',
+        !$packing && !empty($bill_to['tax_exempt_text']) && $totals['tax'] == 0 ? $bill_to['tax_exempt_text'] : '',
     ]);
     $to_label = $packing ? 'Ship to' : ($type === 'quote' ? 'Prepared for' : 'Bill to');
     if ($packing) {
@@ -250,7 +251,7 @@ function billingPdfRender($type, array $row, $variant = 'document') {
             }
             foreach ($line_group['items'] as $item) {
                 $tax_label = floatval($item['item_tax']) != 0 || intval($item['item_tax_id'])
-                    ? '<br><span style="font-size:6.5pt; color:' . $grey . ';">' . $e(trim(($item['tax_name'] ?? '') . ' ' . ($item['tax_percent'] !== null ? billingQuantity($item['tax_percent']) . '%' : ''))) . '</span>'
+                    ? '<br><span style="font-size:6.5pt; color:' . $grey . ';">' . $e(trim(($item['tax_name'] ?? '') . ' ' . ($item['tax_percent'] !== null ? taxPercentText($item['tax_percent']) . '%' : ''))) . '</span>'
                     : '';
                 $html .= '<tr nobr="true"><td width="49%" style="' . $td . '"><b>' . $e($item['item_name']) . '</b>'
                     . (trim((string) $item['item_description']) !== '' ? '<br><span style="font-size:7.5pt; color:' . $grey . ';">' . nl2br($e($item['item_description'])) . '</span>' : '') . '</td>

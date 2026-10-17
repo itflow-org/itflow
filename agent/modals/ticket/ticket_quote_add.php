@@ -199,19 +199,9 @@ ob_start();
             <div class="mb-3">
                 <label>Tax <strong class="text-danger">*</strong></label>
                 <div class="input-group">
-                        <span class="input-group-text"><i class="fa fa-fw fa-piggy-bank"></i></span>
-
+                    <span class="input-group-text"><i class="fa fa-fw fa-piggy-bank"></i></span>
                     <select class="form-select select2" name="tax_id" required>
-                        <option value="0">None</option>
-                        <?php
-                        $taxes_sql = mysqli_query($mysqli, "SELECT tax_id, tax_name, tax_percent FROM taxes WHERE tax_archived_at IS NULL ORDER BY tax_name ASC");
-                        while ($row = mysqli_fetch_assoc($taxes_sql)) {
-                            $tax_id_select = intval($row['tax_id']);
-                            $tax_name = escapeHtml($row['tax_name']);
-                            $tax_percent = floatval($row['tax_percent']);
-                            ?>
-                            <option value="<?= $tax_id_select ?>"><?= "$tax_name $tax_percent%" ?></option>
-                        <?php } ?>
+                        <?= taxSelectOptions(taxDefaultFor($client_id, 'time')) ?>
                     </select>
                 </div>
             </div>

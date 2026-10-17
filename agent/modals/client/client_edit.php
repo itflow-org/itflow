@@ -10,9 +10,11 @@ enforceClientAccess();
 
 $sql = mysqli_query($mysqli, "SELECT client_abbreviation, client_archived_at, client_created_at, client_lead, client_name,
     client_net_terms, client_notes, client_rate, client_reminders, client_referral, client_tax_id_number,
+    client_default_tax_id, client_tax_exempt, client_tax_exempt_number, client_tax_exempt_expires,
     client_type, client_website FROM clients WHERE client_id = $client_id LIMIT 1");
 
 $row = mysqli_fetch_assoc($sql);
+$client_tax_row = $row;
 $client_name = escapeHtml($row['client_name']);
 $client_is_lead = intval($row['client_lead']);
 $client_type = escapeHtml($row['client_type']);
@@ -217,6 +219,12 @@ ob_start();
                                    placeholder="Tax ID Number" value="<?= $client_tax_id_number ?>">
                         </div>
                     </div>
+
+                    <?php
+                    $client_tax = $client_tax_row;
+                    $client_tax_key = $client_id;
+                    require __DIR__ . '/client_tax_fields.php';
+                    ?>
 
                     <div class="mb-3">
                         <input type="hidden" name="reminders_field" value="1">

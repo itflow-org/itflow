@@ -5997,6 +5997,13 @@ a.itflow-report-stat:focus-visible {
     min-width: 12rem;
     width: 55%;
 }
+/* A line's rate under its tax wraps, so a long name ("Quebec GST + QST
+   14.975%") doesn't widen the column past the paper */
+.itflow-paper-tax-label {
+    white-space: normal;
+    min-width: 6.5rem;
+    line-height: 1.25;
+}
 .itflow-paper-handle {
     width: 1.5rem;
     padding-left: 0 !important;

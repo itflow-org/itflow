@@ -200,6 +200,8 @@ $paper = [
     </div>
 <?php } ?>
 
+<?= taxDocWarning('recurring', $recurring_invoice_id, $client_id, $items, true, $can_edit) ?>
+
 <div class="row g-3">
 
     <!-- The invoice it makes -->
@@ -407,7 +409,7 @@ $paper = [
 <script>
 document.addEventListener('DOMContentLoaded', function () {
     itflowBillingItems({
-        products: <?= $can_edit ? getProductsForAutocomplete($mysqli) : '[]' ?>,
+        products: <?= $can_edit ? getProductsForAutocomplete($mysqli, intval($recurring['client_id'])) : '[]' ?>,
         csrf: <?= json_encode($csrf) ?>,
         currency: <?= json_encode($currency) ?>,
         locale: <?= json_encode(str_replace('_', '-', (string) $session_company_locale)) ?>

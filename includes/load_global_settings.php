@@ -12,6 +12,7 @@ $sql_settings = mysqli_query($mysqli, "SELECT config_azure_client_id, config_azu
     config_invoice_from_email, config_invoice_from_name, config_invoice_late_fee_enable,
     config_invoice_late_fee_percent, config_invoice_next_number,
     config_invoice_paid_notification_email, config_invoice_prefix, config_invoice_show_tax_id,
+    config_tax_default_id, config_tax_time, config_tax_trips, config_tax_expenses, config_tax_discount_before,
     config_internal_client_id,
     config_log_retention, config_login_key_required, config_login_key_secret,
     config_login_message, config_login_remember_me_expire, config_mail_from_email,
@@ -90,6 +91,11 @@ $config_invoice_late_fee_enable = intval($row['config_invoice_late_fee_enable'])
 $config_invoice_late_fee_percent = floatval($row['config_invoice_late_fee_percent']);
 $config_invoice_paid_notification_email = $row['config_invoice_paid_notification_email'];
 $config_invoice_show_tax_id = intval($row['config_invoice_show_tax_id']);
+$config_tax_default_id = intval($row['config_tax_default_id']);
+$config_tax_time = intval($row['config_tax_time']);
+$config_tax_trips = intval($row['config_tax_trips']);
+$config_tax_expenses = intval($row['config_tax_expenses']);
+$config_tax_discount_before = intval($row['config_tax_discount_before']);
 
 // Recurring Invoices
 $config_recurring_invoice_prefix = $row['config_recurring_invoice_prefix'];

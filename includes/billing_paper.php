@@ -76,17 +76,19 @@ $paper_line_groups = $paper_groups ?: ['' => ['frequency' => '', 'label' => '', 
 $paper_post = function ($params) use ($paper_type, $paper_id, $paper) {
     return 'post.php?' . http_build_query(array_merge($params, ['type' => $paper_type, 'doc_id' => $paper_id, 'csrf_token' => $paper['csrf'] ?? '']));
 };
-$paper_company_lines = array_filter([
+$paper_company_lines = array_merge(array_filter([
     formatAddress($paper_company['company_address'] ?? '', $paper_company['company_city'] ?? '', $paper_company['company_state'] ?? '', $paper_company['company_zip'] ?? '', $paper_company['company_country'] ?? '', "\n"),
     implode(' · ', array_filter([$paper_company['company_email'] ?? '', $paper_company['phone_display'] ?? ''])),
     $paper_company['company_website'] ?? '',
     !empty($GLOBALS['config_invoice_show_tax_id']) && !empty($paper_company['company_tax_id']) ? 'Tax ID: ' . $paper_company['company_tax_id'] : '',
-]);
+]), billingTaxRegistrationLines($paper_totals));
 $paper_bill_lines = array_filter([
     formatAddress($paper_bill_to['location_address'] ?? '', $paper_bill_to['location_city'] ?? '', $paper_bill_to['location_state'] ?? '', $paper_bill_to['location_zip'] ?? '', $paper_bill_to['location_country'] ?? '', "\n"),
     $paper_bill_to['contact_name'] ?? '',
     implode(' · ', array_filter([$paper_bill_to['contact_email'] ?? '', $paper_bill_to['contact_phone'] ?? ''])),
     !empty($paper_bill_to['client_tax_id_number']) ? 'Tax ID: ' . $paper_bill_to['client_tax_id_number'] : '',
+    // Exempt - said only when nothing here is taxed, so an older taxed invoice doesn't contradict itself
+    !empty($paper_bill_to['tax_exempt_text']) && $paper_totals['tax'] == 0 ? $paper_bill_to['tax_exempt_text'] : '',
 ]);
 
 ?>
@@ -187,7 +189,7 @@ $paper_bill_lines = array_filter([
                 foreach ($paper_line_group['items'] as $item) {
                     $item_id = intval($item['item_id']);
                     $item_tax_label = floatval($item['item_tax']) != 0 || intval($item['item_tax_id'])
-                        ? trim(($item['tax_name'] ?? '') . ' ' . ($item['tax_percent'] !== null ? billingQuantity($item['tax_percent']) . '%' : ''))
+                        ? trim(($item['tax_name'] ?? '') . ' ' . ($item['tax_percent'] !== null ? taxPercentText($item['tax_percent']) . '%' : ''))
                         : ''; ?>
                     <tr id="line-<?= $item_id ?>" data-item-id="<?= $item_id ?>" data-group="<?= $paper_frequency ?>">
                         <?php if ($paper_edit) { ?>
@@ -218,7 +220,7 @@ $paper_bill_lines = array_filter([
                         <td class="text-end text-nowrap">
                             <?php if ($item_tax_label !== '') { ?>
                                 <?= $paper_money($item['item_tax']) ?>
-                                <div class="small text-body-secondary"><?= escapeHtml($item_tax_label) ?></div>
+                                <div class="small text-body-secondary itflow-paper-tax-label"><?= escapeHtml($item_tax_label) ?></div>
                             <?php } else { ?>
                                 <span class="text-body-secondary">-</span>
                             <?php } ?>
@@ -287,10 +289,7 @@ $paper_bill_lines = array_filter([
                             <div class="itflow-paper-add-tax">
                                 <label class="form-label small text-body-secondary mb-0">Tax</label>
                                 <select class="form-select form-select-sm" name="tax_id" form="billingAddLine" data-line-tax>
-                                    <option value="0" data-percent="0">No tax</option>
-                                    <?php foreach ($paper['taxes'] ?? [] as $tax_id => $tax) { ?>
-                                        <option value="<?= intval($tax_id) ?>" data-percent="<?= floatval($tax['tax_percent']) ?>"><?= escapeHtml($tax['tax_name'] . ' ' . billingQuantity($tax['tax_percent']) . '%') ?></option>
-                                    <?php } ?>
+                                    <?= taxOptionsHtml($paper['taxes'] ?? [], taxDefaultFor($paper_row['client_id'] ?? 0)) ?>
                                 </select>
                             </div>
                             <div class="itflow-paper-add-go">

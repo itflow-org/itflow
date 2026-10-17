@@ -1072,8 +1072,8 @@ function expenseBillInvoice($client_id, array $prices, array $opts, &$error = ''
         }
         $bill[$id] = round($price, 2);
     }
-    $tax_id = intval($opts['tax_id'] ?? 0);
-    if ($tax_id && !mysqli_num_rows(mysqli_query($mysqli, "SELECT tax_id FROM taxes WHERE tax_id = $tax_id"))) {
+    $tax_id = taxChoice($opts['tax_id'] ?? 0, $client_id, 'expense');
+    if ($tax_id && !taxRow($tax_id)) {
         $error = 'That tax no longer exists.';
         return null;
     }

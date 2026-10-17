@@ -82,7 +82,7 @@ function productRow($product_id) {
     if (!$product_id) {
         return null;
     }
-    return mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT products.*, category_name, category_color, category_icon, tax_name, tax_percent, vendor_name,
+    return mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT products.*, category_name, category_color, category_icon, tax_name, tax_percent, tax_archived_at, vendor_name,
             " . productStockSql() . " AS product_stock
         FROM products
         LEFT JOIN categories ON category_id = product_category_id

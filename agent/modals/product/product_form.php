@@ -45,11 +45,7 @@ $sql = mysqli_query($mysqli, "SELECT category_id, category_name, category_color,
 while ($row = mysqli_fetch_assoc($sql)) {
     $form_categories[] = $row;
 }
-$form_taxes = [];
-$sql = mysqli_query($mysqli, "SELECT tax_id, tax_name, tax_percent FROM taxes WHERE tax_archived_at IS NULL OR tax_id = $form_tax_id ORDER BY tax_name ASC");
-while ($row = mysqli_fetch_assoc($sql)) {
-    $form_taxes[] = $row;
-}
+$form_taxes = billingTaxes();
 $form_vendors = productVendors();
 if ($form_vendor_id && !isset($form_vendors[$form_vendor_id]) && $form_value('vendor_name') !== '') {
     $form_vendors[$form_vendor_id] = $form_value('vendor_name') . ' (archived)';
@@ -102,12 +98,10 @@ if ($form_vendor_id && !isset($form_vendors[$form_vendor_id]) && $form_value('ve
         <div class="input-group">
             <span class="input-group-text"><i class="fas fa-fw fa-balance-scale"></i></span>
             <select class="form-select" name="tax">
-                <option value="0">No tax</option>
-                <?php foreach ($form_taxes as $tax) { ?>
-                    <option value="<?= intval($tax['tax_id']) ?>" <?= $form_tax_id === intval($tax['tax_id']) ? 'selected' : '' ?>><?= escapeHtml($tax['tax_name'] . ' ' . floatval($tax['tax_percent']) . '%') ?></option>
-                <?php } ?>
+                <?= taxOptionsHtml($form_taxes, $form_tax_id) ?>
             </select>
         </div>
+        <small class="text-secondary">Taxed, its lines take the client's own rate when it has one</small>
     </div>
 
     <!-- What it sells for, what it costs us -->

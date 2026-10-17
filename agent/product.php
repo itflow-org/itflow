@@ -260,7 +260,7 @@ if (!$product) {
                             <dt>Changed</dt>
                             <dd><a href="#product-pane-prices" data-product-tab-link="prices"><?= escapeHtml(date('M j, Y', strtotime($last_change['price_created_at']))) ?></a> <span class="small text-body-secondary">from <?= $money($last_change['price_old']) ?></span></dd>
                         <?php } ?>
-                        <dt>Tax</dt><dd><?= $product['tax_name'] ? escapeHtml($product['tax_name'] . ' ' . floatval($product['tax_percent']) . '%') : '<span class="text-body-secondary">None</span>' ?></dd>
+                        <dt>Tax</dt><dd><?= $product['tax_name'] ? escapeHtml(taxLabel($product)) . (!empty($product['tax_archived_at']) ? ' <span class="badge rounded-pill text-bg-secondary fw-normal">Archived</span>' : '') : '<span class="text-body-secondary">None</span>' ?></dd>
                         <dt>Billed</dt>
                         <dd>
                             <?= escapeHtml($billed) ?>
