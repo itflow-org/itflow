@@ -4,7 +4,8 @@
  * Unbilled Time - billable tickets that are done (resolved or closed) and on
  * no invoice yet: the time to bill. And, for agents who can see expenses,
  * what we paid for clients to bill on to them (billable expenses on no
- * invoice yet), at cost with its markup.
+ * invoice yet), at cost with its markup, and the trips out to them to bill
+ * (billable trips on no invoice yet), at the trip charge and rate.
  *
  * Every client: one row each with what is waiting - tickets, hours, what it
  * comes to at their rate, the expenses, how long the oldest has waited.
@@ -18,8 +19,9 @@
  * drafts - or mark them not billable.
  *
  * functions/billing.php (Billing time) counts and bills the time,
- * functions/expenses.php (Billing expenses on) the expenses; the handlers
- * are in agent/post/billing.php.
+ * functions/expenses.php (Billing expenses on) the expenses and
+ * functions/trips.php (Mileage money) the trips; the handlers are in
+ * agent/post/billing.php.
  */
 
 if (isset($_GET['client_id'])) {
@@ -40,14 +42,14 @@ $ready = intval($config_module_enable_accounting) === 1 && ($with_time || $with_
 $can_bill_expenses = $can_edit && lookupUserPermission('module_financial') >= 2;
 $rules = billingTimeRules();
 $clients = $ready && $with_time ? billingUnbilledByClient($client_view ? $client_id : 0) : [];
-$clients = $ready && $with_expenses ? expenseUnbilledMerge($clients, $client_view ? $client_id : 0) : $clients;
+$clients = $ready && $with_expenses ? tripUnbilledMerge(expenseUnbilledMerge($clients, $client_view ? $client_id : 0), $client_view ? $client_id : 0) : $clients;
 $currency = (string) $session_company_currency;
 $money = function ($amount) use ($currency) {
     return escapeHtml(billingMoney($amount, $currency));
 };
 
 $total = ['tickets' => 0, 'seconds' => 0, 'hours' => 0.0, 'value' => 0.0, 'oldest' => 0, 'no_time' => 0, 'no_rate' => 0,
-    'expenses' => 0, 'expense_value' => 0.0, 'expense_cost' => 0.0];
+    'expenses' => 0, 'expense_value' => 0.0, 'expense_cost' => 0.0, 'trips' => 0, 'trip_value' => 0.0];
 foreach ($clients as $c) {
     $total['tickets'] += count($c['tickets']);
     $total['seconds'] += $c['seconds'];
@@ -59,7 +61,22 @@ foreach ($clients as $c) {
     $total['expenses'] += count($c['expenses'] ?? []);
     $total['expense_value'] += $c['expense_value'] ?? 0;
     $total['expense_cost'] += $c['expense_cost'] ?? 0;
+    $total['trips'] += count($c['trips'] ?? []);
+    $total['trip_value'] += $c['trip_value'] ?? 0;
 }
+// Expenses and trips together, where they share a column
+$total['extras'] = $total['expenses'] + $total['trips'];
+$total['extra_value'] = $total['expense_value'] + $total['trip_value'];
+$extras_text = function ($expenses, $trips) {
+    $parts = [];
+    if ($expenses) {
+        $parts[] = $expenses . ' expense' . ($expenses === 1 ? '' : 's');
+    }
+    if ($trips) {
+        $parts[] = $trips . ' trip' . ($trips === 1 ? '' : 's');
+    }
+    return implode(', ', $parts);
+};
 $this_client = $client_view ? ($clients[$client_id] ?? null) : null;
 $show_time = $with_time && (!$client_view || ($this_client && $this_client['tickets']));
 $markup_text = function ($markup) {
@@ -86,10 +103,10 @@ $hours_text = function ($hours) {
     <div class="col-sm-6 col-xl-3">
         <div class="itflow-billing-stat">
             <div class="itflow-billing-stat-label"><i class="fas fa-file-invoice-dollar me-1"></i>To bill</div>
-            <div class="itflow-billing-stat-value <?= $total['value'] + $total['expense_value'] > 0 ? 'text-info-emphasis' : '' ?>"><?= $money($total['value'] + $total['expense_value']) ?></div>
+            <div class="itflow-billing-stat-value <?= $total['value'] + $total['extra_value'] > 0 ? 'text-info-emphasis' : '' ?>"><?= $money($total['value'] + $total['extra_value']) ?></div>
             <div class="itflow-billing-stat-note">
-                <?php if ($total['expenses']) { ?>
-                    <?= $money($total['value']) ?> of time &middot; <?= $money($total['expense_value']) ?> of expenses
+                <?php if ($total['extras']) { ?>
+                    <?= $money($total['value']) ?> of time<?= $total['expenses'] ? ' &middot; ' . $money($total['expense_value']) . ' of expenses' : '' ?><?= $total['trips'] ? ' &middot; ' . $money($total['trip_value']) . ' of travel' : '' ?>
                 <?php } else { ?>
                     <?= $client_view ? 'At ' . ($this_client && $this_client['rate'] > 0 ? $money($this_client['rate']) . ' an hour' . ($this_client['default_rate'] ? ', the default rate' : '') : 'no rate set') : 'At each client\'s hourly rate' ?>
                 <?php } ?>
@@ -105,10 +122,10 @@ $hours_text = function ($hours) {
     </div>
     <div class="col-sm-6 col-xl-3">
         <div class="itflow-billing-stat">
-            <div class="itflow-billing-stat-label"><i class="fas fa-life-ring me-1"></i>Tickets<?= $total['expenses'] ? ' &amp; expenses' : '' ?></div>
-            <div class="itflow-billing-stat-value"><?= $total['tickets'] ?><?= $total['expenses'] ? ' <span class="text-body-secondary fw-normal">+</span> ' . $total['expenses'] : '' ?></div>
+            <div class="itflow-billing-stat-label"><i class="fas fa-life-ring me-1"></i>Tickets<?= $total['extras'] ? ' &amp; ' . ($total['expenses'] && $total['trips'] ? 'more' : ($total['expenses'] ? 'expenses' : 'trips')) : '' ?></div>
+            <div class="itflow-billing-stat-value"><?= $total['tickets'] ?><?= $total['extras'] ? ' <span class="text-body-secondary fw-normal">+</span> ' . $total['extras'] : '' ?></div>
             <div class="itflow-billing-stat-note">
-                <?= $client_view ? ($total['expenses'] ? $total['tickets'] . ' ticket' . ($total['tickets'] === 1 ? '' : 's') . ', ' . $total['expenses'] . ' expense' . ($total['expenses'] === 1 ? '' : 's') : 'Resolved or closed, not invoiced') : count($clients) . ' client' . (count($clients) === 1 ? '' : 's') ?>
+                <?= $client_view ? ($total['extras'] ? $total['tickets'] . ' ticket' . ($total['tickets'] === 1 ? '' : 's') . ', ' . $extras_text($total['expenses'], $total['trips']) : 'Resolved or closed, not invoiced') : count($clients) . ' client' . (count($clients) === 1 ? '' : 's') ?>
                 <?= $total['no_time'] ? ' &middot; <span class="text-warning-emphasis">' . $total['no_time'] . ' with no time logged</span>' : '' ?>
             </div>
         </div>
@@ -116,8 +133,8 @@ $hours_text = function ($hours) {
     <div class="col-sm-6 col-xl-3">
         <div class="itflow-billing-stat">
             <div class="itflow-billing-stat-label"><i class="fas fa-hourglass-half me-1"></i>Waiting longest</div>
-            <div class="itflow-billing-stat-value <?= $total['oldest'] > 30 ? 'text-danger-emphasis' : '' ?>"><?= $total['tickets'] || $total['expenses'] ? $total['oldest'] . ' day' . ($total['oldest'] === 1 ? '' : 's') : '-' ?></div>
-            <div class="itflow-billing-stat-note"><?= $total['expenses'] ? 'Since the ticket was done or the expense paid' : 'Since the ticket was done' ?></div>
+            <div class="itflow-billing-stat-value <?= $total['oldest'] > 30 ? 'text-danger-emphasis' : '' ?>"><?= $total['tickets'] || $total['extras'] ? $total['oldest'] . ' day' . ($total['oldest'] === 1 ? '' : 's') : '-' ?></div>
+            <div class="itflow-billing-stat-note"><?= $total['extras'] ? 'Since the ticket was done' . ($total['expenses'] ? ', the expense paid' : '') . ($total['trips'] ? ', the trip driven' : '') : 'Since the ticket was done' ?></div>
         </div>
     </div>
 </div>
@@ -136,8 +153,8 @@ $hours_text = function ($hours) {
         </div>
         <div class="itflow-asset-empty py-5">
             <i class="fas fa-check-circle fa-2x mb-2 opacity-50"></i>
-            <div>Nothing waiting to be billed<?= $client_view ? ' for ' . escapeHtml($client_name) : '' ?> - billable tickets that are done<?= $with_expenses ? ', and billable expenses,' : '' ?> are all on an invoice.</div>
-            <div class="small mt-1">A ticket shows here once it is billable and resolved or closed<?= $with_expenses ? ', an expense once it is marked billable to its client' : '' ?>.</div>
+            <div>Nothing waiting to be billed<?= $client_view ? ' for ' . escapeHtml($client_name) : '' ?> - billable tickets that are done<?= $with_expenses ? ', and billable expenses and trips,' : '' ?> are all on an invoice.</div>
+            <div class="small mt-1">A ticket shows here once it is billable and resolved or closed<?= $with_expenses ? ', an expense or a trip once it is marked billable to its client' : '' ?>.</div>
         </div>
     </div>
 <?php } else { ?>
@@ -217,6 +234,73 @@ $hours_text = function ($hours) {
                 </div>
             <?php } ?>
 
+            <?php if ($client_view && !empty($this_client['trips'])) { ?>
+                <!-- The driving out to them, to bill -->
+                <div class="card mb-3">
+                    <div class="card-header d-flex align-items-center">
+                        <h3 class="card-title mb-0 me-auto"><i class="fas fa-fw fa-route text-secondary me-2"></i>Travel to bill <span class="badge rounded-pill bg-secondary-subtle text-secondary-emphasis fw-normal ms-1"><?= count($this_client['trips']) ?></span></h3>
+                        <a class="btn btn-sm btn-outline-secondary" href="trips.php?client_id=<?= $client_id ?>&amp;show=to_bill" title="In the trips list"><i class="fas fa-route me-1"></i>Trips</a>
+                    </div>
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle mb-0 itflow-billing-table itflow-unbilled-table">
+                            <thead class="text-nowrap table-light">
+                            <tr>
+                                <?php if ($can_bill_expenses) { ?>
+                                    <th class="checkbox-column border-end">
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" checked data-unbilled-trip-all title="Tick or untick them all" aria-label="All trips">
+                                        </div>
+                                    </th>
+                                <?php } ?>
+                                <th>Trip</th>
+                                <th class="d-none d-md-table-cell">Driven</th>
+                                <th class="text-end"><?= ucfirst(tripUnit()) ?></th>
+                                <th class="text-end">Bill</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <?php foreach ($this_client['trips'] as $trip_id => $trip) { ?>
+                                <tr data-unbilled-trip-row>
+                                    <?php if ($can_bill_expenses) { ?>
+                                        <td class="checkbox-column border-end">
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="checkbox" name="trip_ids[]" value="<?= $trip_id ?>" checked data-unbilled-trip-pick aria-label="Bill <?= escapeHtml(tripLabel($trip)) ?>">
+                                            </div>
+                                        </td>
+                                    <?php } ?>
+                                    <td class="min-w-0 itflow-trip-route">
+                                        <a href="#" class="ajax-modal d-block text-truncate" data-modal-size="lg" data-modal-url="modals/trip/trip.php?id=<?= $trip_id ?>"><?= escapeHtml($trip['trip_purpose']) ?></a>
+                                        <div class="small text-body-secondary text-truncate">
+                                            <?php if (intval($trip['trip_ticket_id']) && $trip['ticket_number'] !== null) { ?><span class="font-monospace me-1"><?= escapeHtml(ticketReference($trip)) ?></span><?php } ?>
+                                            <?= escapeHtml($trip['location_name'] ?? $trip['trip_destination']) ?> &middot; <?= escapeHtml($trip['driver_name'] ?? '') ?>
+                                        </div>
+                                    </td>
+                                    <td class="text-nowrap d-none d-md-table-cell">
+                                        <div class="small"><?= escapeHtml($trip['trip_date']) ?></div>
+                                        <?= $waiting_pill($trip['waiting']) ?>
+                                    </td>
+                                    <td class="text-end text-nowrap">
+                                        <?= number_format(floatval($trip['trip_miles']), 1) ?>
+                                        <?php if (intval($trip['round_trip'])) { ?><i class="fas fa-sync-alt text-body-tertiary small ms-1" title="Round trip"></i><?php } ?>
+                                    </td>
+                                    <td class="text-end itflow-unbilled-price">
+                                        <?php if ($can_bill_expenses) { ?>
+                                            <input type="text" class="form-control form-control-sm text-end" name="trip_price[<?= $trip_id ?>]" value="<?= number_format($trip['price'], 2, '.', '') ?>" inputmode="decimal" aria-label="Price to bill" data-unbilled-trip-price>
+                                        <?php } else { ?>
+                                            <?= $money($trip['price']) ?>
+                                        <?php } ?>
+                                    </td>
+                                </tr>
+                            <?php } ?>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="card-footer small text-body-secondary">
+                        <?= tripBillingOn() ? 'At ' . escapeHtml(tripBillRuleText()) : 'Trips have no charge or rate set, so they bill nothing' ?><?= $session_is_admin ? ' - <a href="/admin/settings_invoice.php#mileage">the trip rates</a>' : '' ?>. Change a price before billing; each goes on as a line of its own.
+                    </div>
+                </div>
+            <?php } ?>
+
             <div class="card">
                 <div class="card-header bg-dark py-2 d-flex align-items-center">
                     <h3 class="card-title mt-2 me-auto"><i class="fas fa-fw fa-user-clock me-2"></i>Unbilled Time<?= $client_view ? '' : ' by client' ?></h3>
@@ -256,7 +340,7 @@ $hours_text = function ($hours) {
                                     <th class="text-end d-none d-lg-table-cell">Rate</th>
                                 <?php } ?>
                                 <?php if ($with_expenses) { ?>
-                                    <th class="text-end <?= $with_time ? 'd-none d-md-table-cell' : '' ?>">Expenses</th>
+                                    <th class="text-end <?= $with_time ? 'd-none d-md-table-cell' : '' ?>"><?= $total['trips'] ? ($total['expenses'] ? 'Expenses &amp; travel' : 'Travel') : 'Expenses' ?></th>
                                 <?php } ?>
                                 <th class="text-end">Amount</th>
                                 <th class="d-none d-md-table-cell">Oldest</th>
@@ -302,7 +386,7 @@ $hours_text = function ($hours) {
                         } else {
                             foreach ($clients as $id => $c) {
                                 $draft = $c['drafts'] ? reset($c['drafts']) : null; ?>
-                                <tr data-unbilled-row data-value="<?= round($c['value'] + ($c['expense_value'] ?? 0), 2) ?>" data-hours="<?= round($c['hours'], 2) ?>" data-tickets="<?= count($c['tickets']) ?>" data-expenses="<?= count($c['expenses'] ?? []) ?>">
+                                <tr data-unbilled-row data-value="<?= round($c['value'] + ($c['expense_value'] ?? 0) + ($c['trip_value'] ?? 0), 2) ?>" data-hours="<?= round($c['hours'], 2) ?>" data-tickets="<?= count($c['tickets']) ?>" data-expenses="<?= count($c['expenses'] ?? []) ?>" data-trips="<?= count($c['trips'] ?? []) ?>">
                                     <?php if ($can_edit) { ?>
                                         <td class="checkbox-column border-end">
                                             <div class="form-check">
@@ -339,15 +423,15 @@ $hours_text = function ($hours) {
                                     <?php } ?>
                                     <?php if ($with_expenses) { ?>
                                         <td class="text-end text-nowrap <?= $with_time ? 'd-none d-md-table-cell' : '' ?>">
-                                            <?php if ($c['expenses']) { ?>
-                                                <?= $money($c['expense_value']) ?>
-                                                <div class="small text-body-secondary"><?= count($c['expenses']) ?> expense<?= count($c['expenses']) === 1 ? '' : 's' ?></div>
+                                            <?php if ($c['expenses'] || !empty($c['trips'])) { ?>
+                                                <?= $money($c['expense_value'] + ($c['trip_value'] ?? 0)) ?>
+                                                <div class="small text-body-secondary"><?= $extras_text(count($c['expenses']), count($c['trips'] ?? [])) ?></div>
                                             <?php } else { ?>
                                                 <span class="text-body-secondary">-</span>
                                             <?php } ?>
                                         </td>
                                     <?php } ?>
-                                    <td class="text-end text-nowrap fw-semibold"><?= $money($c['value'] + ($c['expense_value'] ?? 0)) ?></td>
+                                    <td class="text-end text-nowrap fw-semibold"><?= $money($c['value'] + ($c['expense_value'] ?? 0) + ($c['trip_value'] ?? 0)) ?></td>
                                     <td class="text-nowrap d-none d-md-table-cell"><?= $waiting_pill($c['oldest']) ?></td>
                                     <td class="text-end d-none d-sm-table-cell">
                                         <a class="btn btn-sm btn-outline-secondary text-nowrap" href="unbilled_time.php?client_id=<?= $id ?>">Review</a>
@@ -361,7 +445,7 @@ $hours_text = function ($hours) {
                 <?php if ($with_time) { ?>
                     <div class="card-footer small text-body-secondary">
                         Time is rounded <?= escapeHtml(billingTimeRulesText($rules)) ?>, per ticket<?= $session_is_admin ? ' - <a href="/admin/settings_invoice.php#billing-time">change how</a>' : '' ?>.
-                        <?= $client_view ? 'Change the hours before billing - a ticket left at 0 goes on the invoice with no charge.' : 'Review a client to change the hours on its tickets' . ($with_expenses ? ' and the prices of its expenses' : '') . ' first.' ?>
+                        <?= $client_view ? 'Change the hours before billing - a ticket left at 0 goes on the invoice with no charge.' : 'Review a client to change the hours on its tickets' . ($with_expenses ? ' and the prices of its expenses and trips' : '') . ' first.' ?>
                     </div>
                 <?php } ?>
                 <?php } ?>
@@ -475,8 +559,8 @@ $hours_text = function ($hours) {
                                         <option value="one">One line for all of them</option>
                                     </select>
                                 </div>
-                                <?php if ($total['expenses']) { ?>
-                                    <div class="form-text">Expenses go on with a line each, at their price<?= $client_view ? '' : ' - cost with its markup' ?>.</div>
+                                <?php if ($total['extras']) { ?>
+                                    <div class="form-text"><?= ucfirst($total['expenses'] && $total['trips'] ? 'expenses and trips' : ($total['expenses'] ? 'expenses' : 'trips')) ?> go on with a line each, at their price<?= $client_view ? '' : ($total['expenses'] ? ' - an expense at cost with its markup' : '') ?>.</div>
                                 <?php } ?>
                             </div>
                             <?php } ?>
@@ -493,7 +577,7 @@ $hours_text = function ($hours) {
                             </button>
                             <?php if ($client_view) { ?>
                                 <button type="submit" name="unbilled_write_off" value="1" class="btn btn-outline-danger confirm-link" formnovalidate
-                                    data-confirm-title="Mark them not billable?" data-confirm-text="The ticked tickets<?= $total['expenses'] ? ' and expenses' : '' ?> stop being billable and leave this list. <?= $total['tickets'] ? "Their time stays logged on them, and each one's history says it." : 'They stay in the expenses as our cost.' ?>" data-confirm-button="Not billable">
+                                    data-confirm-title="Mark them not billable?" data-confirm-text="The ticked tickets<?= $total['extras'] ? ', ' . ($total['expenses'] && $total['trips'] ? 'expenses and trips' : ($total['expenses'] ? 'expenses' : 'trips')) : '' ?> stop being billable and leave this list. <?= $total['tickets'] ? "Their time stays logged on them, and each one's history says it." : 'They stay as our cost.' ?>" data-confirm-button="Not billable">
                                     <i class="fas fa-ban me-2"></i>Not billable
                                 </button>
                             <?php } ?>

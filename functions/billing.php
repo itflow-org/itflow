@@ -354,10 +354,11 @@ function billingItemDelete($type, $doc_id, $item_id) {
             'invoice_id' => $doc_id, 'item_id' => $item_id, 'note' => billingNumber('invoice', billingRow('invoice', $doc_id, false)) . ' - line taken off',
         ]);
     }
-    // Assets made from the line stay, still bought on the invoice; an expense billed on it is to bill again
+    // Assets made from the line stay, still bought on the invoice; an expense or trip billed on it is to bill again
     if ($type === 'invoice') {
         mysqli_query($mysqli, "UPDATE assets SET asset_invoice_item_id = 0 WHERE asset_invoice_id = $doc_id AND asset_invoice_item_id = $item_id");
         mysqli_query($mysqli, "UPDATE expenses SET expense_invoice_id = NULL, expense_invoice_item_id = NULL WHERE expense_invoice_id = $doc_id AND expense_invoice_item_id = $item_id");
+        mysqli_query($mysqli, "UPDATE trips SET trip_invoice_id = 0, trip_invoice_item_id = 0 WHERE trip_invoice_id = $doc_id AND trip_invoice_item_id = $item_id");
     }
     billingRecalc($type, $doc_id);
     return $item;

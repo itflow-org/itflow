@@ -30,6 +30,8 @@ $num_unbilled_tickets = $config_module_enable_accounting == 1 && $config_module_
 
 // Expenses to bill on to clients - billable, on no invoice (Unbilled Time too)
 $num_unbilled_expenses = $config_module_enable_accounting == 1 && lookupUserPermission('module_sales') >= 1 && lookupUserPermission('module_financial') >= 1 ? expenseUnbilledCount()['count'] : 0;
+// ...and trips to bill
+$num_unbilled_trips = $config_module_enable_accounting == 1 && lookupUserPermission('module_sales') >= 1 && lookupUserPermission('module_financial') >= 1 ? tripUnbilledCount()['count'] : 0;
 
 // Products whose stock is at or under the reorder level, or out
 $num_products_reorder = $config_module_enable_accounting == 1 && lookupUserPermission('module_sales') >= 1 ? productReorderCount() : 0;

@@ -280,6 +280,85 @@ require_once "includes/inc_all_admin.php";
 
                 <hr>
 
+                <?php $trip_rules = tripRules(); ?>
+                <h4 id="mileage">Trips and Mileage</h4>
+                <p class="text-secondary small">An agent driving their own vehicle is paid back for the distance: Pay Mileage on the Trips page makes their trips a mileage expense they paid personally, to pay back with Reimburse. A trip for a client can be billed to them from Unbilled Time, beside their tickets and expenses.</p>
+
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label>Distance in</label>
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="fa fa-fw fa-ruler"></i></span>
+                            <select class="form-select" name="config_mileage_unit">
+                                <option value="mi" <?= $trip_rules['unit'] === 'mi' ? 'selected' : '' ?>>Miles</option>
+                                <option value="km" <?= $trip_rules['unit'] === 'km' ? 'selected' : '' ?>>Kilometers</option>
+                            </select>
+                        </div>
+                        <small class="text-secondary">For every trip, the rates below and the reports. Distances already logged aren't converted.</small>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label>Paid back a <?= tripUnitOne() ?></label>
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="fa fa-fw fa-hand-holding-usd"></i></span>
+                            <input type="text" class="form-control" name="config_mileage_rate" inputmode="decimal" value="<?= $trip_rules['rate'] > 0 ? rtrim(rtrim(number_format($trip_rules['rate'], 4, '.', ''), '0'), '.') : '' ?>" placeholder="0.70">
+                        </div>
+                        <small class="text-secondary">For driving their own vehicle - your reimbursement rate, such as the IRS standard mileage rate. Empty turns paying back off.</small>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label>Mileage goes under</label>
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="fa fa-fw fa-list"></i></span>
+                            <select class="form-select" name="config_mileage_category_id">
+                                <option value="0">- Mileage, or Travel -</option>
+                                <?php foreach (expenseCategories($trip_rules['category_id']) as $category_id => $category) { ?>
+                                    <option value="<?= intval($category_id) ?>" <?= intval($category_id) === $trip_rules['category_id'] ? 'selected' : '' ?>><?= escapeHtml($category['category_name']) ?></option>
+                                <?php } ?>
+                            </select>
+                        </div>
+                        <small class="text-secondary">The expense category of the mileage paid back. The expenses are to the vendor Mileage, made the first time.</small>
+                    </div>
+                </div>
+
+                <h5 class="mt-2">Billing trips</h5>
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label>Trip charge</label>
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="fa fa-fw fa-dollar-sign"></i></span>
+                            <input type="text" class="form-control" name="config_trip_charge" inputmode="decimal" value="<?= $trip_rules['charge'] > 0 ? number_format($trip_rules['charge'], 2, '.', '') : '' ?>" placeholder="0.00">
+                        </div>
+                        <small class="text-secondary">What each billable trip bills to start with.</small>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label>Billed a <?= tripUnitOne() ?></label>
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="fa fa-fw fa-road"></i></span>
+                            <input type="text" class="form-control" name="config_trip_bill_rate" inputmode="decimal" value="<?= $trip_rules['bill_rate'] > 0 ? rtrim(rtrim(number_format($trip_rules['bill_rate'], 4, '.', ''), '0'), '.') : '' ?>" placeholder="0.00">
+                        </div>
+                        <small class="text-secondary">For the whole trip, there and back.</small>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label>The charge covers the first</label>
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="fa fa-fw fa-route"></i></span>
+                            <input type="text" class="form-control" name="config_trip_included" inputmode="decimal" value="<?= $trip_rules['included'] > 0 ? rtrim(rtrim(number_format($trip_rules['included'], 1, '.', ''), '0'), '.') : '' ?>" placeholder="0">
+                            <span class="input-group-text"><?= tripUnit(true) ?></span>
+                        </div>
+                        <small class="text-secondary">The rate bills only the distance beyond it. Empty bills all of it.</small>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label>Invoice line</label>
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="fa fa-fw fa-cube"></i></span>
+                            <input type="text" class="form-control" name="config_trip_item_name" maxlength="200" value="<?= escapeHtml($trip_rules['item_name']) ?>" placeholder="Travel" required>
+                        </div>
+                        <small class="text-secondary">What a trip is called on the invoice. What it was for, the route, date and distance go in its description.</small>
+                    </div>
+                </div>
+                <p class="text-secondary small mb-3"><?= tripBillingOn() ? 'A trip bills ' . escapeHtml(tripBillRuleText()) . '.' : 'With no charge and no rate, trips aren\'t billed.' ?> The price can be changed in Unbilled Time before it goes on.</p>
+
+                <hr>
+
                 <button type="submit" name="edit_invoice_settings" class="btn btn-primary text-bold"><i class="fas fa-check me-2"></i>Save</button>
 
             </form>

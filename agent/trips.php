@@ -4,18 +4,22 @@
  * Trips - the driving the business does, for clients and for itself.
  *
  * Along the top: the miles this month against the same days of last month,
- * the year so far, your own this month, and how much of the year's driving
- * was for clients. Pills cut the list to yours, for a client, for a ticket
- * or our own errands; filters by driver, client and date. A row opens the
+ * the year so far, your own this month, and what is owed for driving own
+ * vehicles (or, with no mileage rate, how much of the year's driving was
+ * for clients). Pills cut the list to yours, for a client, for a ticket, our
+ * own errands, to pay back and to bill; filters by driver, client and date.
+ * To pay back lists who is owed what, with Pay Mileage. A row opens the
  * trip's quick look - where it went, the client's site and ticket, the
- * route on a map - with Return Trip to log the way back.
+ * route on a map, what it was paid back and billed - with Return Trip to
+ * log the way back.
  *
  * Agents with Financial access see every trip; anyone else sees the trips
  * they drove or logged, and logs their own.
  *
  * Takes ?driver=, ?client= (or the client pages' ?client_id=), ?location_id=,
- * ?ticket_id=, ?show= (mine, client, ticket, own), the date filter and
- * ?open= to open a trip.
+ * ?ticket_id=, ?expense_id= (a mileage expense's trips), ?invoice_id= (an
+ * invoice's), ?show= (mine, client, ticket, own, to_pay, to_bill), the date
+ * filter and ?open= to open a trip.
  */
 
 // Default Column Sortby/Order Filter
@@ -39,6 +43,8 @@ $driver_filter = intval($_GET['driver'] ?? 0);
 $client_filter = $client_page ? intval($client_id) : intval($_GET['client'] ?? 0);
 $location_filter = intval($_GET['location_id'] ?? 0);
 $ticket_filter = intval($_GET['ticket_id'] ?? 0);
+$expense_filter = intval($_GET['expense_id'] ?? 0);
+$invoice_filter = intval($_GET['invoice_id'] ?? 0);
 $shows = tripShows();
 $show = (string) ($_GET['show'] ?? '');
 $show = isset($shows[$show]) ? $show : '';
@@ -56,8 +62,9 @@ $show_query = $shows[$show]['where'] ? "AND {$shows[$show]['where']}" : '';
 $joins = tripJoinsSql();
 
 $sql = mysqli_query($mysqli, "SELECT SQL_CALC_FOUND_ROWS trips.*, client_name, driver.user_name AS driver_name, driver.user_avatar AS driver_avatar,
-        location_name, ticket_prefix, ticket_number, ticket_subject, ticket_resolved_at, ticket_closed_at
+        location_name, ticket_prefix, ticket_number, ticket_subject, ticket_resolved_at, ticket_closed_at, invoice_prefix, invoice_number, invoice_status
     FROM trips $joins
+    LEFT JOIN invoices ON trips.trip_invoice_id > 0 AND invoice_id = trips.trip_invoice_id
     WHERE $where $show_query
     ORDER BY {$sortable_columns[$sort]} $order, trips.trip_id DESC LIMIT $record_from, $record_to");
 $num_rows = mysqli_fetch_row(mysqli_query($mysqli, "SELECT FOUND_ROWS()"));
@@ -80,6 +87,15 @@ foreach (array_keys($shows) as $i => $key) {
 $listed_miles = floatval($row[count($shows)]);
 
 $stats = tripStats();
+
+// The money - who is owed for their own vehicle (above the list on To pay back), and the rates
+$rules = tripRules();
+$pay_back = tripPayBackOn();
+$owed_total = $pay_back ? tripToClaimCount() : null;
+$owed = $show === 'to_pay' ? tripsToClaim($driver_filter) : [];
+$stat_money = function ($amount) {
+    return escapeHtml(billingMoney($amount));
+};
 $filter_url = function ($changes) use ($client_page, $client_id) {
     $params = array_merge($_GET, $changes);
     unset($params['page']);
@@ -91,7 +107,7 @@ $filter_url = function ($changes) use ($client_page, $client_id) {
 $date_url = function ($from, $to, $changes = []) use ($filter_url) {
     return $filter_url(array_merge(['canned_date' => 'custom', 'dtf' => $from, 'dtt' => $to], $changes));
 };
-$any_filter = $q || $driver_filter || ($client_filter && !$client_page) || $location_filter || $ticket_filter || $show !== '' || $dtf !== '1970-01-01';
+$any_filter = $q || $driver_filter || ($client_filter && !$client_page) || $location_filter || $ticket_filter || $expense_filter || $invoice_filter || $show !== '' || $dtf !== '1970-01-01';
 $add_url = 'modals/trip/trip_add.php' . ($client_page ? "?client_id=$client_id" : '');
 
 ?>
@@ -125,11 +141,25 @@ $add_url = 'modals/trip/trip_add.php' . ($client_page ? "?client_id=$client_id" 
         </a>
     </div>
     <div class="col-sm-6 col-xl-3">
-        <a class="itflow-billing-stat <?= $show === 'client' && $dtf === $stats['year_start'] ? 'active' : '' ?>" href="<?= escapeHtml($date_url($stats['year_start'], date('Y-12-31'), ['show' => 'client'])) ?>">
-            <div class="itflow-billing-stat-label"><i class="fas fa-building me-1"></i>For clients this year</div>
-            <div class="itflow-billing-stat-value"><?= escapeHtml(tripMilesText($stats['year_client_miles'])) ?></div>
-            <div class="itflow-billing-stat-note"><?= $stats['year_miles'] > 0 ? round($stats['year_client_miles'] / $stats['year_miles'] * 100) . '% of the driving' : 'No driving yet this year' ?></div>
-        </a>
+        <?php if ($pay_back) { ?>
+            <a class="itflow-billing-stat <?= $show === 'to_pay' ? 'active' : '' ?>" href="<?= escapeHtml($filter_url(['show' => 'to_pay', 'canned_date' => '', 'dtf' => '', 'dtt' => ''])) ?>">
+                <div class="itflow-billing-stat-label"><i class="fas fa-hand-holding-usd me-1"></i><?= $sees_all ? 'To pay back' : 'Owed to you' ?></div>
+                <div class="itflow-billing-stat-value <?= $owed_total['count'] ? 'text-warning-emphasis' : '' ?>"><?= $stat_money($owed_total['value']) ?></div>
+                <div class="itflow-billing-stat-note">
+                    <?php if ($owed_total['count']) { ?>
+                        <?= escapeHtml(tripMilesText($owed_total['miles'])) ?> in their own vehicle<?= $sees_all ? ' &middot; ' . $owed_total['agents'] . ' agent' . ($owed_total['agents'] === 1 ? '' : 's') : '' ?>
+                    <?php } else { ?>
+                        Nothing waiting &middot; <?= escapeHtml(tripRateText($rules['rate'])) ?>
+                    <?php } ?>
+                </div>
+            </a>
+        <?php } else { ?>
+            <a class="itflow-billing-stat <?= $show === 'client' && $dtf === $stats['year_start'] ? 'active' : '' ?>" href="<?= escapeHtml($date_url($stats['year_start'], date('Y-12-31'), ['show' => 'client'])) ?>">
+                <div class="itflow-billing-stat-label"><i class="fas fa-building me-1"></i>For clients this year</div>
+                <div class="itflow-billing-stat-value"><?= escapeHtml(tripMilesText($stats['year_client_miles'])) ?></div>
+                <div class="itflow-billing-stat-note"><?= $stats['year_miles'] > 0 ? round($stats['year_client_miles'] / $stats['year_miles'] * 100) . '% of the driving' : 'No driving yet this year' ?></div>
+            </a>
+        <?php } ?>
     </div>
 </div>
 
@@ -145,8 +175,15 @@ $add_url = 'modals/trip/trip_add.php' . ($client_page ? "?client_id=$client_id" 
                         data-modal-url="<?= buildExportModalUrl('modals/trip/trip_export.php', ['client_id', 'client', 'driver', 'location_id', 'ticket_id', 'show', 'q'], ['dtf' => $dtf, 'dtt' => $dtt]) ?>">
                         <i class="fa fa-fw fa-download text-secondary me-2"></i>Export
                     </a>
+                    <?php if ($pay_back && $can_manage) { ?>
+                        <a class="dropdown-item" href="<?= escapeHtml($filter_url(['show' => 'to_pay'])) ?>"><i class="fa fa-fw fa-hand-holding-usd text-secondary me-2"></i>Pay Mileage</a>
+                    <?php } ?>
                     <?php if (lookupUserPermission('module_reporting') >= 1 && lookupUserPermission('module_financial') >= 1) { ?>
                         <a class="dropdown-item" href="reports/mileage.php"><i class="fa fa-fw fa-chart-bar text-secondary me-2"></i>Mileage Report</a>
+                    <?php } ?>
+                    <?php if ($session_is_admin) { ?>
+                        <div class="dropdown-divider"></div>
+                        <a class="dropdown-item" href="/admin/settings_invoice.php#mileage"><i class="fa fa-fw fa-cog text-secondary me-2"></i>Mileage Rates</a>
                     <?php } ?>
                 </div>
             </div>
@@ -159,7 +196,7 @@ $add_url = 'modals/trip/trip_add.php' . ($client_page ? "?client_id=$client_id" 
             <?php if ($client_page) { ?>
                 <input type="hidden" name="client_id" value="<?= $client_id ?>">
             <?php } ?>
-            <?php foreach (['location_id' => $location_filter, 'ticket_id' => $ticket_filter] as $key => $value) {
+            <?php foreach (['location_id' => $location_filter, 'ticket_id' => $ticket_filter, 'expense_id' => $expense_filter, 'invoice_id' => $invoice_filter] as $key => $value) {
                 if ($value) { ?>
                     <input type="hidden" name="<?= $key ?>" value="<?= $value ?>">
                 <?php }
@@ -220,20 +257,47 @@ $add_url = 'modals/trip/trip_add.php' . ($client_page ? "?client_id=$client_id" 
         </form>
         <!-- Cut the list - counted over what the filters above leave -->
         <nav class="nav nav-pills itflow-asset-tabs mt-2 flex-nowrap overflow-auto">
-            <?php foreach ($shows as $key => $s) { ?>
+            <?php foreach ($shows as $key => $s) {
+                $alarm = $key === 'to_pay' && $counts[$key]; ?>
                 <a class="nav-link text-nowrap <?= $show === $key ? 'active' : '' ?>" href="<?= escapeHtml($filter_url(['show' => $key])) ?>"<?= !empty($s['title']) ? ' title="' . escapeHtml($s['title']) . '"' : '' ?>>
                     <?php if (!empty($s['icon'])) { ?><i class="fas fa-fw <?= $s['icon'] ?> me-1"></i><?php } ?><?= $s['label'] ?>
-                    <span class="badge rounded-pill ms-1"><?= $counts[$key] ?></span>
+                    <span class="badge rounded-pill ms-1 <?= $alarm ? 'text-bg-warning' : '' ?>"><?= $counts[$key] ?></span>
                 </a>
             <?php } ?>
         </nav>
-        <?php if ($location_filter || $ticket_filter) { ?>
+        <?php if ($location_filter || $ticket_filter || $expense_filter || $invoice_filter) {
+            if ($location_filter) {
+                $filter_text = 'To the site ' . escapeHtml((string) getFieldById('locations', $location_filter, 'location_name'));
+            } elseif ($ticket_filter) {
+                $filter_text = 'For the ticket ' . escapeHtml((string) getFieldById('tickets', $ticket_filter, 'ticket_subject'));
+            } elseif ($expense_filter) {
+                $filter_text = 'Paid back for on the <a href="#" class="ajax-modal" data-modal-size="lg" data-modal-url="modals/expense/expense.php?id=' . $expense_filter . '">mileage expense</a>';
+            } else {
+                $invoice_row = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT invoice_prefix, invoice_number FROM invoices WHERE invoice_id = $invoice_filter"));
+                $filter_text = 'Billed on <a href="invoice.php?invoice_id=' . $invoice_filter . '">' . escapeHtml($invoice_row ? $invoice_row['invoice_prefix'] . $invoice_row['invoice_number'] : 'an invoice since deleted') . '</a>';
+            } ?>
             <div class="small text-body-secondary mt-2">
-                <i class="fas fa-filter me-1"></i><?= $location_filter ? 'To the site ' . escapeHtml((string) getFieldById('locations', $location_filter, 'location_name')) : 'For the ticket ' . escapeHtml((string) getFieldById('tickets', $ticket_filter, 'ticket_subject')) ?>
-                <a class="ms-2" href="<?= escapeHtml($filter_url(['location_id' => '', 'ticket_id' => ''])) ?>">Clear</a>
+                <i class="fas fa-filter me-1"></i><?= $filter_text ?>
+                <a class="ms-2" href="<?= escapeHtml($filter_url(['location_id' => '', 'ticket_id' => '', 'expense_id' => '', 'invoice_id' => ''])) ?>">Clear</a>
             </div>
         <?php } ?>
     </div>
+
+    <?php if ($owed) { ?>
+        <!-- Who is owed for driving their own vehicle, to pay -->
+        <div class="list-group list-group-flush border-bottom">
+            <?php foreach ($owed as $owed_id => $owed_driver) { ?>
+                <div class="list-group-item d-flex flex-wrap align-items-center gap-2 bg-warning-subtle">
+                    <i class="fas fa-car-side text-warning-emphasis"></i>
+                    <span class="flex-grow-1"><strong><?= escapeHtml($owed_driver['user_name']) ?></strong> is owed <strong class="itflow-money"><?= $stat_money($owed_driver['value']) ?></strong>
+                        <span class="text-body-secondary">for <?= $owed_driver['count'] ?> trip<?= $owed_driver['count'] === 1 ? '' : 's' ?>, <?= escapeHtml(tripMilesText($owed_driver['miles'])) ?> at <?= escapeHtml(tripRateText($rules['rate'])) ?><?= $owed_driver['oldest'] > 1 ? ', the oldest ' . $owed_driver['oldest'] . ' days ago' : '' ?></span></span>
+                    <?php if ($can_manage) { ?>
+                        <button type="button" class="btn btn-sm btn-success ajax-modal" data-modal-size="lg" data-modal-url="modals/trip/trip_claim.php?user_id=<?= $owed_id ?>"><i class="fas fa-hand-holding-usd me-1"></i>Pay Mileage</button>
+                    <?php } ?>
+                </div>
+            <?php } ?>
+        </div>
+    <?php } ?>
 
     <div class="table-responsive">
         <table class="table table-hover align-middle mb-0 itflow-billing-table">
@@ -300,6 +364,22 @@ $add_url = 'modals/trip/trip_add.php' . ($client_page ? "?client_id=$client_id" 
                     <td class="text-end text-nowrap">
                         <span class="fw-semibold"><?= number_format(floatval($row['trip_miles']), 1) ?></span>
                         <?php if (intval($row['round_trip'])) { ?><i class="fas fa-sync-alt text-body-tertiary small ms-1" title="Round trip - <?= escapeHtml(tripMilesText(tripOneWay($row))) ?> each way"></i><?php } ?>
+                        <?php
+                        // The money, as marks - their own vehicle and paid back, billable and billed
+                        $marks = [];
+                        if (intval($row['trip_own_vehicle'])) {
+                            $marks[] = intval($row['trip_expense_id'])
+                                ? '<i class="fas fa-car-side text-success-emphasis" title="Their own vehicle - paid back for"></i>'
+                                : '<i class="fas fa-car-side text-warning-emphasis" title="Their own vehicle - to pay back' . ($pay_back ? ' ' . escapeHtml(billingMoney(round(floatval($row['trip_miles']) * $rules['rate'], 2))) : '') . '"></i>';
+                        }
+                        if ($row['invoice_number'] !== null) {
+                            $marks[] = '<a href="invoice.php?invoice_id=' . intval($row['trip_invoice_id']) . '" class="text-success-emphasis" title="Billed on ' . escapeHtml($row['invoice_prefix'] . $row['invoice_number']) . '"><i class="fas fa-file-invoice-dollar"></i></a>';
+                        } elseif (intval($row['trip_billable']) && intval($row['trip_client_id'])) {
+                            $marks[] = '<i class="fas fa-file-invoice-dollar text-info-emphasis" title="To bill ' . escapeHtml(billingMoney(tripBillPrice($row))) . '"></i>';
+                        }
+                        if ($marks) { ?>
+                            <div class="small d-flex justify-content-end gap-2 mt-1"><?= implode('', $marks) ?></div>
+                        <?php } ?>
                     </td>
                     <td class="text-end">
                         <div class="dropdown dropstart">
@@ -313,7 +393,10 @@ $add_url = 'modals/trip/trip_add.php' . ($client_page ? "?client_id=$client_id" 
                                 <?php } ?>
                                 <a class="dropdown-item ajax-modal" href="#" data-modal-size="lg" data-modal-url="modals/trip/trip_copy.php?id=<?= $trip_id ?>"><i class="fas fa-fw fa-copy text-secondary me-2"></i>Copy</a>
                                 <a class="dropdown-item ajax-modal" href="#" data-modal-size="lg" data-modal-url="modals/trip/trip_copy.php?id=<?= $trip_id ?>&amp;return=1"><i class="fas fa-fw fa-undo-alt text-secondary me-2"></i>Return Trip</a>
-                                <?php if (tripCanDelete($row)) { ?>
+                                <?php if ($pay_back && $can_manage && intval($row['trip_own_vehicle']) && !intval($row['trip_expense_id'])) { ?>
+                                    <a class="dropdown-item ajax-modal" href="#" data-modal-size="lg" data-modal-url="modals/trip/trip_claim.php?trip_ids[]=<?= $trip_id ?>"><i class="fas fa-fw fa-hand-holding-usd text-secondary me-2"></i>Pay Mileage</a>
+                                <?php } ?>
+                                <?php if (tripCanDelete($row) && !intval($row['trip_expense_id']) && $row['invoice_number'] === null) { ?>
                                     <div class="dropdown-divider"></div>
                                     <a class="dropdown-item text-danger text-bold confirm-link" href="post.php?delete_trip=<?= $trip_id ?>&csrf_token=<?= $_SESSION['csrf_token'] ?>"
                                         data-confirm-text="<?= escapeHtml(tripLabel($row)) ?> goes for good.">

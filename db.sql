@@ -2575,6 +2575,14 @@ CREATE TABLE `settings` (
   `config_time_minimum` int(11) NOT NULL DEFAULT 0,
   `config_time_item_name` varchar(200) NOT NULL DEFAULT 'Support [Hourly]',
   `config_expense_markup` decimal(7,2) NOT NULL DEFAULT 0.00,
+  `config_mileage_unit` varchar(2) NOT NULL DEFAULT 'mi',
+  `config_mileage_rate` decimal(10,4) NOT NULL DEFAULT 0.0000,
+  `config_mileage_category_id` int(11) NOT NULL DEFAULT 0,
+  `config_mileage_vendor_id` int(11) NOT NULL DEFAULT 0,
+  `config_trip_charge` decimal(15,2) NOT NULL DEFAULT 0.00,
+  `config_trip_bill_rate` decimal(10,4) NOT NULL DEFAULT 0.0000,
+  `config_trip_included` decimal(10,1) NOT NULL DEFAULT 0.0,
+  `config_trip_item_name` varchar(200) NOT NULL DEFAULT 'Travel',
   `config_project_prefix` varchar(200) NOT NULL DEFAULT 'PRJ-',
   `config_project_next_number` int(11) NOT NULL DEFAULT 1,
   `config_invoice_prefix` varchar(200) DEFAULT NULL,
@@ -3290,6 +3298,11 @@ CREATE TABLE `trips` (
   `trip_end_odometer` int(11) DEFAULT NULL,
   `trip_miles` decimal(10,1) NOT NULL DEFAULT 0.0,
   `round_trip` int(1) NOT NULL,
+  `trip_own_vehicle` tinyint(1) NOT NULL DEFAULT 0,
+  `trip_expense_id` int(11) NOT NULL DEFAULT 0,
+  `trip_billable` tinyint(1) NOT NULL DEFAULT 0,
+  `trip_invoice_id` int(11) NOT NULL DEFAULT 0,
+  `trip_invoice_item_id` int(11) NOT NULL DEFAULT 0,
   `trip_created_at` datetime NOT NULL DEFAULT current_timestamp(),
   `trip_updated_at` datetime DEFAULT NULL ON UPDATE current_timestamp(),
   `trip_archived_at` datetime DEFAULT NULL,
@@ -3302,7 +3315,9 @@ CREATE TABLE `trips` (
   KEY `trip_client_id` (`trip_client_id`,`trip_archived_at`),
   KEY `trip_user_id` (`trip_user_id`,`trip_date`),
   KEY `trip_ticket_id` (`trip_ticket_id`),
-  KEY `trip_location_id` (`trip_location_id`)
+  KEY `trip_location_id` (`trip_location_id`),
+  KEY `trip_expense_id` (`trip_expense_id`),
+  KEY `trip_invoice_id` (`trip_invoice_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 

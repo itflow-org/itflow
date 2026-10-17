@@ -1,9 +1,10 @@
 <?php
 
 /*
- * Mileage - the trips logged in the period: miles by agent and by client,
- * every trip listed, and what it comes to at a rate per mile you enter (your
- * reimbursement or tax-deduction rate - nothing is assumed). Miles count as
+ * Mileage - the trips logged in the period: the distance by agent and by
+ * client, every trip listed, and what it comes to at a rate - the mileage
+ * rate in Admin > Settings > Invoice to start with, or one you enter (your
+ * tax-deduction rate, say). In miles or kilometres, as set there. Miles count as
  * entered on each trip (the whole trip - both ways for a round trip), the
  * same as the Trips list and the dashboard. A trip's date opens it on the
  * Trips list; its ticket and site show under the purpose.
@@ -15,7 +16,10 @@ reportEnforce('mileage');
 $period = reportPeriod('this_year');
 $client_id = reportClientId();
 $agent_id = reportAgentId();
-$rate = round(max(0, floatval(str_replace(',', '.', (string) ($_GET['rate'] ?? '')))), 4);
+// The rate starts at the mileage rate in Admin > Settings > Invoice
+$rate = isset($_GET['rate']) ? round(max(0, floatval(str_replace(',', '.', (string) $_GET['rate']))), 4) : tripRules()['rate'];
+$unit = ucfirst(tripUnit());
+$unit_one = tripUnitOne();
 
 $where = "trip_archived_at IS NULL AND " . reportRangeSql('trip_date', $period)
     . reportClientSql('trip_client_id', $client_id)
@@ -66,7 +70,7 @@ unset($row);
 usort($by_agent, function ($a, $b) { return $b['miles'] <=> $a['miles']; });
 usort($by_client, function ($a, $b) { return $b['miles'] <=> $a['miles']; });
 
-$value_column = ['label' => 'At ' . ($rate ? reportMoney($rate) . ' a mile' : 'your rate'), 'type' => 'money', 'csv_label' => 'Amount'];
+$value_column = ['label' => 'At ' . ($rate ? tripRateText($rate) : 'your rate'), 'type' => 'money', 'csv_label' => 'Amount'];
 
 $trip_columns = [
     'trip_date' => ['label' => 'Date', 'type' => 'date', 'class' => 'text-nowrap', 'html' => function ($row) {
@@ -100,7 +104,7 @@ $trip_columns = [
     }, 'html' => function ($row) {
         return intval($row['round_trip']) ? '<i class="fas fa-sync-alt text-body-secondary" title="Round trip"></i>' : '';
     }, 'class' => 'text-center'],
-    'miles' => ['label' => 'Miles', 'type' => 'decimal', 'decimals' => 1],
+    'miles' => ['label' => $unit, 'type' => 'decimal', 'decimals' => 1],
 ];
 if ($rate) {
     $trip_columns['value'] = $value_column;
@@ -120,14 +124,14 @@ $agent_columns = [
         return reportAgentCell($row['user_id'], $row['agent'], $row['avatar'], 'No one');
     }],
     'trips' => ['label' => 'Trips', 'type' => 'count'],
-    'miles' => ['label' => 'Miles', 'type' => 'decimal', 'decimals' => 1],
+    'miles' => ['label' => $unit, 'type' => 'decimal', 'decimals' => 1],
 ];
 $client_columns = [
     'client' => ['label' => 'Client', 'html' => function ($row) {
         return $row['client_id'] ? reportClientCell($row['client_id'], $row['client'], $row['abbr']) : '<span class="text-body-secondary fst-italic">No client (our own)</span>';
     }],
     'trips' => ['label' => 'Trips', 'type' => 'count'],
-    'miles' => ['label' => 'Miles', 'type' => 'decimal', 'decimals' => 1],
+    'miles' => ['label' => $unit, 'type' => 'decimal', 'decimals' => 1],
 ];
 if ($rate) {
     $agent_columns['value'] = $value_column;
@@ -153,7 +157,7 @@ require_once "includes/inc_report_layout.php";
 
 $rate_control = '<div class="col-sm-6 col-lg-2"><div class="input-group">'
     . '<span class="input-group-text"><i class="fas fa-fw fa-dollar-sign"></i></span>'
-    . '<input type="text" inputmode="decimal" class="form-control" name="rate" value="' . ($rate ? escapeHtml(rtrim(rtrim(number_format($rate, 4, '.', ''), '0'), '.')) : '') . '" placeholder="Rate per mile" aria-label="Rate per mile" data-report-autosubmit title="Your reimbursement rate per mile - press Enter">'
+    . '<input type="text" inputmode="decimal" class="form-control" name="rate" value="' . ($rate ? escapeHtml(rtrim(rtrim(number_format($rate, 4, '.', ''), '0'), '.')) : '') . '" placeholder="Rate a ' . $unit_one . '" aria-label="Rate a ' . $unit_one . '" data-report-autosubmit title="Your reimbursement rate a ' . $unit_one . ' - press Enter">'
     . '</div></div>';
 
 ?>
@@ -170,22 +174,22 @@ $rate_control = '<div class="col-sm-6 col-lg-2"><div class="input-group">'
     ]); ?>
 
     <?= reportStats([
-        ['label' => 'Miles', 'value' => number_format($miles, 1), 'sub' => reportChangeHtml($miles, $prev_miles, 'up', $period['compare'])],
+        ['label' => $unit, 'value' => number_format($miles, 1), 'sub' => reportChangeHtml($miles, $prev_miles, 'up', $period['compare'])],
         ['label' => 'Trips', 'value' => reportCount(count($trips)), 'sub' => count($trips) ? reportCount(count(array_filter(array_column($trips, 'round_trip')))) . ' <span class="text-body-tertiary">round trips</span>' : ''],
-        ['label' => 'Average trip', 'value' => count($trips) ? number_format($miles / count($trips), 1) . ' mi' : '-', 'sub' => '<span class="text-body-tertiary">Miles a trip</span>'],
-        ['label' => $rate ? 'At ' . reportMoney($rate) . ' a mile' : 'Reimbursement', 'value' => $rate ? reportMoney($miles * $rate) : '-',
-            'sub' => $rate ? '<span class="text-body-tertiary">Miles × your rate</span>' : '<span class="text-body-tertiary">Enter a rate per mile above</span>'],
+        ['label' => 'Average trip', 'value' => count($trips) ? number_format($miles / count($trips), 1) . ' ' . tripUnit(true) : '-', 'sub' => '<span class="text-body-tertiary">' . $unit . ' a trip</span>'],
+        ['label' => $rate ? 'At ' . tripRateText($rate) : 'Reimbursement', 'value' => $rate ? reportMoney($miles * $rate) : '-',
+            'sub' => $rate ? '<span class="text-body-tertiary">' . $unit . ' × your rate</span>' : '<span class="text-body-tertiary">Enter a rate a ' . $unit_one . ' above</span>'],
     ]) ?>
 
-    <?= reportSectionOpen('Miles driven', escapeHtml($period['range'])) ?>
+    <?= reportSectionOpen($unit . ' driven', escapeHtml($period['range'])) ?>
         <div class="card-body">
             <?= reportChart([
                 'type' => 'bar',
                 'labels' => $buckets['labels'],
-                'series' => [['label' => 'Miles', 'data' => $miles_series, 'tone' => 'accent']],
+                'series' => [['label' => $unit, 'data' => $miles_series, 'tone' => 'accent']],
                 'format' => 'decimal',
                 'legend' => false,
-            ], 'sm', 'Miles driven over the period') ?>
+            ], 'sm', $unit . ' driven over the period') ?>
         </div>
     </div>
 
@@ -205,7 +209,7 @@ $rate_control = '<div class="col-sm-6 col-lg-2"><div class="input-group">'
     <?= reportSectionOpen('Every trip', reportCount(count($trips)) . ' trip' . (count($trips) === 1 ? '' : 's'), 'itflow-report-long') ?>
         <?= reportTable($trip_columns, $trips, ['empty' => 'No trips in this period.', 'limit' => 250, 'export_table' => 'trips', 'totals' => ['trip_date' => 'Total', 'miles' => $miles, 'value' => $totals['value']]]) ?>
         <div class="card-footer small text-body-secondary">
-            Miles count as entered on each trip. Archived trips are left out. <a href="/agent/trips.php">Log a trip</a>
+            <?= $unit ?> count as entered on each trip - the whole trip, both ways for a round trip. Archived trips are left out. The rate starts at the mileage rate<?= $session_is_admin ? ' in <a href="/admin/settings_invoice.php#mileage">Settings</a>' : '' ?>, and paying agents back is Pay Mileage on <a href="/agent/trips.php?show=to_pay">Trips</a>.
         </div>
     </div>
 

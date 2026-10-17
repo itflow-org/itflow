@@ -31,7 +31,7 @@ ob_start();
             <i class="fas fa-exclamation-triangle fa-2x text-danger"></i>
             <div>
                 <div class="fw-semibold"><?= $count === 1 ? 'This trip goes' : "These $count trips go" ?> for good.</div>
-                <div class="text-body-secondary small mt-1">Their miles come out of the Mileage report and off their tickets and sites. This can't be undone.</div>
+                <div class="text-body-secondary small mt-1">They come out of the Mileage report and off their tickets and sites. This can't be undone.</div>
             </div>
         </div>
     </div>

@@ -596,10 +596,10 @@ $tone_text = ['danger' => 'text-danger-emphasis', 'warning' => 'text-warning-emp
                 <div class="card h-100 mb-0">
                     <div class="card-header d-flex align-items-center">
                         <h3 class="card-title mb-0 me-auto">Trips</h3>
-                        <span class="small text-body-secondary"><?= number_format($chart_data['trips']['period_total'], 1) ?> mi <?= escapeHtml(strtolower($period['label'])) ?></span>
+                        <span class="small text-body-secondary"><?= number_format($chart_data['trips']['period_total'], 1) ?> <?= tripUnit(true) ?> <?= escapeHtml(strtolower($period['label'])) ?></span>
                     </div>
                     <div class="card-body">
-                        <div class="itflow-dash-chart"><canvas id="dashTrips" aria-label="Miles per month"></canvas></div>
+                        <div class="itflow-dash-chart"><canvas id="dashTrips" aria-label="<?= ucfirst(tripUnit()) ?> per month"></canvas></div>
                     </div>
                 </div>
             </div>

@@ -1,9 +1,11 @@
 <?php
 
 /*
- * Set the driver or client of the ticked trips - ?field= driver or client.
- * A new client takes the site and ticket off a trip that was another
- * client's. Posts bulk_edit_trips with field, value and trip_ids[].
+ * Set the driver, client, vehicle or billable of the ticked trips - ?field=
+ * driver, client, vehicle or billable. A new client takes the site and
+ * ticket off a trip that was another client's. A trip paid back for keeps
+ * its driver and vehicle, one billed its client and billable. Posts
+ * bulk_edit_trips with field, value and trip_ids[].
  */
 
 require_once '../../../includes/modal_header.php';
@@ -17,6 +19,8 @@ $field = (string) ($_GET['field'] ?? '');
 $fields = [
     'driver' => ['label' => 'Driver', 'icon' => 'fa-user'],
     'client' => ['label' => 'Client', 'icon' => 'fa-building'],
+    'vehicle' => ['label' => 'Vehicle', 'icon' => 'fa-car-side'],
+    'billable' => ['label' => 'Billable', 'icon' => 'fa-file-invoice-dollar'],
 ];
 if (!isset($fields[$field])) {
     echo json_encode(['error' => 'Pick what to set from the Bulk Action menu.']);
@@ -52,6 +56,16 @@ ob_start();
                         <option value="<?= $user_id ?>"<?= selectOptionUser($user_id, $driver['user_name'], $driver['user_avatar'] ?? '') ?>><?= escapeHtml($driver['user_name']) ?></option>
                     <?php } ?>
                 </select>
+            <?php } elseif ($field === 'vehicle') { ?>
+                <select class="form-select" name="value">
+                    <option value="1">Their own vehicle - paid back for the distance</option>
+                    <option value="0">A company vehicle</option>
+                </select>
+            <?php } elseif ($field === 'billable') { ?>
+                <select class="form-select" name="value">
+                    <option value="1">Bill the client for them</option>
+                    <option value="0">Not billed - our cost</option>
+                </select>
             <?php } else { ?>
                 <select class="form-select select2" name="value">
                     <option value="0">- Our own - not for a client -</option>
@@ -64,7 +78,11 @@ ob_start();
             <?php } ?>
         </div>
         <?php if ($field === 'client') { ?>
-            <div class="form-text">A trip that was another client's loses its site and ticket - they were that client's.</div>
+            <div class="form-text">A trip that was another client's loses its site and ticket - they were that client's. Trips billed already keep their client.</div>
+        <?php } elseif ($field === 'billable') { ?>
+            <div class="form-text">Only trips for a client are billed. Trips billed already stay as they are.</div>
+        <?php } elseif ($field !== 'client') { ?>
+            <div class="form-text">Trips paid back for already stay as they are.</div>
         <?php } ?>
     </div>
     <div class="modal-footer">

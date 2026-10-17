@@ -66,6 +66,10 @@ $can_bill_expenses = $can_edit && $can_edit_lines && lookupUserPermission('modul
 $can_unbill_expenses = $can_edit && lookupUserPermission('module_financial') >= 2 && expenseCanUnbill($status);
 $billed_expenses = $can_see_expenses ? expenseOnInvoice($invoice_id) : [];
 $unbilled_expenses = $can_bill_expenses ? count(expenseUnbilled($client_id)) : 0;
+// Trips billed on it (functions/trips.php) - the driving out to the client
+$billed_trips = $can_see_expenses ? tripsOnInvoice($invoice_id) : [];
+$unbilled_trips = $can_bill_expenses ? count(tripUnbilled($client_id)) : 0;
+$can_unbill_trips = $can_edit && tripCanUnbill($status);
 $guest_url = billingGuestUrl('invoice', $invoice);
 // Hardware sold on it, and how much of it is on the client's assets (functions/products.php)
 $can_see_assets = lookupUserPermission('module_support') >= 1;
@@ -253,7 +257,7 @@ $paper = [
                     <?php } ?>
                     <?php if ($can_delete) { ?>
                         <a class="dropdown-item text-danger text-bold confirm-link" href="post.php?delete_invoice=<?= $invoice_id ?>&csrf_token=<?= $csrf ?>"
-                            data-confirm-text="<?= escapeHtml($number) ?> goes for good, with its lines, payments and history. Its tickets become unbilled again, and its expenses are to bill again.">
+                            data-confirm-text="<?= escapeHtml($number) ?> goes for good, with its lines, payments and history. Its tickets become unbilled again, and its expenses and trips are to bill again.">
                             <i class="fas fa-fw fa-trash me-2"></i>Delete
                         </a>
                     <?php } ?>
@@ -509,6 +513,49 @@ $paper = [
                     </div>
                 <?php } else { ?>
                     <div class="card-body small text-body-secondary"><?= $unbilled_expenses ?> expense<?= $unbilled_expenses === 1 ? '' : 's' ?> to bill to <?= escapeHtml($invoice['client_name']) ?> could go on this invoice.</div>
+                <?php } ?>
+            </div>
+        <?php } ?>
+
+        <?php if ($billed_trips || $unbilled_trips) {
+            $trips_billed = array_sum(array_map(function ($t) { return floatval($t['billed']); }, $billed_trips));
+            $trips_miles = array_sum(array_map(function ($t) { return floatval($t['trip_miles']); }, $billed_trips)); ?>
+            <div class="card mb-3">
+                <div class="card-header d-flex align-items-center">
+                    <h3 class="card-title mb-0 me-auto"><i class="fas fa-fw fa-route text-secondary me-2"></i>Travel <span class="badge rounded-pill bg-secondary-subtle text-secondary-emphasis fw-normal ms-1"><?= count($billed_trips) ?></span></h3>
+                    <?php if ($unbilled_trips) { ?>
+                        <button type="button" class="btn btn-sm btn-outline-primary ajax-modal" data-modal-size="lg" data-modal-url="modals/invoice/invoice_add_trips.php?invoice_id=<?= $invoice_id ?>">
+                            <i class="fas fa-plus me-1"></i>Add <span class="badge rounded-pill text-bg-primary ms-1" title="To bill"><?= $unbilled_trips ?></span>
+                        </button>
+                    <?php } ?>
+                </div>
+                <?php if ($billed_trips) { ?>
+                    <div class="list-group list-group-flush">
+                        <?php foreach ($billed_trips as $trip) {
+                            $trip_id = intval($trip['trip_id']); ?>
+                            <div class="list-group-item">
+                                <div class="d-flex align-items-start gap-2">
+                                    <div class="flex-grow-1 min-w-0">
+                                        <a class="text-truncate d-block ajax-modal" href="#" data-modal-size="lg" data-modal-url="modals/trip/trip.php?id=<?= $trip_id ?>" title="<?= escapeHtml($trip['trip_purpose']) ?>"><?= escapeHtml($trip['trip_purpose']) ?></a>
+                                        <div class="small text-body-secondary text-truncate"><?= escapeHtml(implode(' · ', array_filter([$trip['trip_date'], $trip['driver_name'], tripMilesText($trip['trip_miles'])]))) ?></div>
+                                    </div>
+                                    <?php if ($can_unbill_trips) { ?>
+                                        <a class="btn btn-sm btn-link text-body-secondary confirm-link p-0" title="Take off the invoice" href="post.php?trip_unbill=<?= $trip_id ?>&csrf_token=<?= $csrf ?>"
+                                            data-confirm-text="<?= $status === 'Cancelled' ? 'The invoice is cancelled, so its line stays on it' : 'Its line comes off the invoice' ?> and the trip waits to be billed again.">
+                                            <i class="fas fa-fw fa-unlink"></i>
+                                        </a>
+                                    <?php } ?>
+                                </div>
+                                <div class="small mt-1 text-end itflow-money"><?= $trip['billed'] !== null ? $money($trip['billed']) : '<span class="text-body-secondary">line gone</span>' ?></div>
+                            </div>
+                        <?php } ?>
+                    </div>
+                    <div class="card-footer small d-flex justify-content-between gap-2">
+                        <span class="text-body-secondary"><?= escapeHtml(tripMilesText($trips_miles)) ?> driven</span>
+                        <span class="fw-semibold"><?= $money($trips_billed) ?></span>
+                    </div>
+                <?php } else { ?>
+                    <div class="card-body small text-body-secondary"><?= $unbilled_trips ?> trip<?= $unbilled_trips === 1 ? '' : 's' ?> to bill to <?= escapeHtml($invoice['client_name']) ?> could go on this invoice.</div>
                 <?php } ?>
             </div>
         <?php } ?>

@@ -6,9 +6,9 @@ This file documents all notable changes made to ITFlow.
 
 ### Upgrading to 26.11
 
-Update from Maintenance > Update — Queue Update hands the job to cron, which updates the files and applies this release's database changes (2.7.9 to 3.0.3) in the same pass. Nothing else is required.
+Update from Maintenance > Update — Queue Update hands the job to cron, which updates the files and applies this release's database changes (2.7.9 to 3.0.4) in the same pass. Nothing else is required.
 
-This is a big release, with twenty-four database steps in one go, so take a backup before you update.
+This is a big release, with twenty-five database steps in one go, so take a backup before you update.
 
 The update also clears out data that deletes in older versions left behind, all of it pointing at something that no longer exists:
 
@@ -25,7 +25,7 @@ Expenses already entered take who entered them from the audit log, where it has 
 
 Recurring expenses keep their next date and from then on run on that day of the month - monthly ones stay monthly and yearly ones yearly. Look over their next dates once after the update (see Breaking Changes, Expenses). The expenses they recorded before are linked to them, matched on the vendor, category, client and description. No expense or recurring expense becomes billable to a client by itself - they stay your cost until you mark them (see New Features, Expenses).
 
-Trips already logged keep the miles they were entered with (see Breaking Changes, Trips). Each takes who logged it from the audit log, or its driver where the log has no record. A trip for a client whose destination is one of that client's locations, by name or by address, is linked to that location.
+Trips already logged keep the miles they were entered with (see Breaking Changes, Trips). Each takes who logged it from the audit log, or its driver where the log has no record. A trip for a client whose destination is one of that client's locations, by name or by address, is linked to that location. Trips already logged count as driven in a company vehicle and not billable, so nothing is paid back or billed for them until you say so (see New Features, Trips). No mileage rate or trip charge is set, and mileage goes under an expense category called Mileage, or Travel, when there is one.
 
 If you are coming from 26.08 or earlier, the database update still has to be run from the command line one time, exactly as described under Upgrading to 26.09 below.
 
@@ -536,14 +536,15 @@ If you are coming from 26.08 or earlier, the database update still has to be run
     - You can see your remembered browsers and forget one or all of them.
     - You can set how many rows a list shows per page.
 - **Trips** (rebuilt)
-  - Along the top of the list: the miles this month against the same days of last month, the year so far, your own this month, and how much of the year's driving was for clients.
-  - Pills cut the list to your own trips, trips for a client, trips for a ticket and our own errands, each with a count. Filter by driver, client and date. Search finds what it was for, where from and to, the client, site, driver and ticket number. The total of everything the filters leave sits under the list.
-  - Each row shows the route with the ticket and what it was for, the client and their site, the driver as an agent pill, and the miles with a mark for a round trip.
+  - Along the top of the list: the miles this month against the same days of last month, the year so far, your own this month, and what is owed for driving their own vehicles (with no mileage rate set, how much of the year's driving was for clients).
+  - Pills cut the list to your own trips, trips for a client, trips for a ticket, our own errands, to pay back and to bill, each with a count. Filter by driver, client and date. Search finds what it was for, where from and to, the client, site, driver and ticket number. The total of everything the filters leave sits under the list.
+  - Each row shows the route with the ticket and what it was for, the client and their site, the driver as an agent pill, and the miles with marks for a round trip, their own vehicle (paid back or not) and billing (billed or not).
   - Clicking a trip opens its quick look:
     - the route, with Directions in Google Maps from where it started, and the miles each way for a round trip
     - the driver, the client, their site and the ticket, each linked
     - the odometer readings, and who logged it and when
     - how many trips have gone to that site, opening them
+    - what it pays back or was paid, and what it bills or was billed on, with Pay Mileage and Take off Invoice
   - From the quick look or a row's menu: Edit, Copy (dated today), Return Trip and Delete. Return Trip is the way back, from there to where it started, one way and on the same day.
   - New Trip, Edit, Copy and Return Trip are one form with an icon on every field:
     - Pick the client to choose from their sites and their tickets (open ones, and those done in the last 60 days). A site fills in its address as where to. A ticket fills in what the trip was for, and its site.
@@ -553,11 +554,27 @@ If you are coming from 26.08 or earlier, the database update still has to be run
     - Odometer readings are optional. With both, the trip is what the odometer says.
   - Tickets: Log a trip in the ticket's menu starts with its client, site and subject. An onsite ticket, or one with trips, has a Trips card listing them with the miles driven for it.
   - Locations: the location page has a Trips tab with the trips out to it and Log Trip.
-  - The Mileage report shows each trip's ticket and site under its purpose, a trip's date opens it, and the CSV has Site and Ticket columns.
-  - Bulk actions set the driver or the client of the ticked trips, or delete them. Changing the client takes off the old client's site and ticket.
-  - Export takes the same filters as the list, with Driver, Round Trip, One Way, Site, Ticket and the odometer readings as columns.
+  - The Mileage report shows each trip's ticket and site under its purpose, a trip's date opens it, and the CSV has Site and Ticket columns. Its rate starts at the mileage rate below, and it is in miles or kilometers as set.
+  - Bulk actions set the driver, the client, the vehicle or billable on the ticked trips, pay one driver's mileage, or delete them. Changing the client takes off the old client's site and ticket.
+  - Export takes the same filters as the list, with Driver, Round Trip, One Way, Site, Ticket, the odometer readings, Vehicle, Paid Back and Billing as columns.
   - Trips follow their ticket. Merging a ticket with its replies moves its trips to the ticket it goes into, and moving it to another client takes its trips along. Deleting a ticket or a location keeps the trips, without the link.
-  - The demo data logs a trip to the site for each onsite ticket fixed in the last six months.
+  - Admin > Settings > Invoice has Trips and Mileage:
+    - miles or kilometers, for every trip, rate and report
+    - what an agent is paid back for each mile in their own vehicle, such as the IRS standard rate, and the expense category it goes under
+    - what a trip bills a client: a trip charge, a rate a mile, and how far the charge covers before the rate starts
+    - the name of the invoice line
+  - Paying agents back for their own vehicle:
+    - The form has In their own vehicle, starting as the driver's last trip was, and shows what the trip pays back.
+    - The list's To pay back pill and card show what is owed (Owed to you, for an agent without Financial access), with each agent and what they are owed above the list.
+    - Pay Mileage pays one agent for the trips they tick, at the usual rate or another for trips from before it changed. Each client's trips become a mileage expense the agent paid personally, under the mileage category and to the vendor Mileage (made the first time), so each client's costs include the driving. Pay it back now pays them from an account there and then; otherwise the expenses wait in To reimburse with anything else they paid for.
+    - Once paid for, a trip keeps its distance, driver and vehicle, and can't be deleted. Deleting the mileage expense makes its trips to pay back again. The expense's quick look lists the trips it pays for.
+  - Billing trips to clients:
+    - The form has Bill the client for it, starting as the ticket is billable, and shows what the trip bills.
+    - The list's To bill pill shows the trips waiting. Unbilled Time has Travel to bill beside the expenses, each at its price to change, going on the client's invoice with their tickets and expenses, a line each. Billing every client at once takes their trips too, and Not billable takes a trip off the list.
+    - The invoice has a Travel card with the trips on it, Add for the client's trips waiting, and Take off Invoice. Deleting the line or the invoice makes a trip to bill again.
+    - Once billed, a trip keeps its distance, client and billable, and can't be deleted.
+  - The dashboard shows Trips to bill and Mileage to pay back, the client overview Trips to bill, and the Unbilled Time count in the menu counts trips.
+  - The demo data logs a trip to the site for each onsite ticket fixed in the last six months. The last six weeks of driving are in the agent's own vehicle, and a billable ticket's trip in the last month is billable when trips have a charge or rate.
 
 ### Bug Fixes
 
@@ -625,7 +642,7 @@ If you are coming from 26.08 or earlier, the database update still has to be run
 
 ### Developer Updates
 
-- Database 2.8.0 to 3.0.3, one file per step under `admin/database_updates/`, with `db.sql` matching 3.0.3:
+- Database 2.8.0 to 3.0.4, one file per step under `admin/database_updates/`, with `db.sql` matching 3.0.4:
   - 2.8.0: `racks.rack_units_descending`, `rack_power_capacity` and `rack_photo_rear`. On `rack_units`: `unit_face`, `unit_full_depth`, `unit_type`, `unit_power_watts`, `unit_notes` and a `unit_asset_id` key. Unlinked items move from asset id 0 to NULL.
   - 2.8.1: `location_documents` and `location_files`.
   - 2.8.2: `vendor_tags` (tag type 6), and `vendor_contact_phone_country_code`, `vendor_contact_phone` and `vendor_contact_email`.
@@ -662,6 +679,7 @@ If you are coming from 26.08 or earlier, the database update still has to be run
   - 3.0.1: `expenses.expense_billable` (0), `expense_markup` (`decimal(7,2)`, 0.00), `expense_invoice_id` (keyed) and `expense_invoice_item_id`. `recurring_expenses.recurring_expense_billable` (0), `recurring_expense_markup` and `recurring_expense_recurring_invoice_id`. `settings.config_expense_markup` (0.00).
   - 3.0.2: `expenses.expense_import_key` (keyed), `expense_paid_by` (0) and `expense_reimbursement_id` (keyed). `expense_import_rules` (`import_rule_match` unique, `import_rule_vendor_id`, `import_rule_category_id`, `import_rule_client_id`, `import_rule_billable`, `import_rule_used_count`). `reimbursements` (`reimbursement_user_id`, `reimbursement_date`, `reimbursement_amount`, `reimbursement_currency_code`, `reimbursement_account_id`, `reimbursement_payment_method`, `reimbursement_reference`, `reimbursement_expense_id`, `reimbursement_created_by`). `accounts.account_import_map`.
   - 3.0.3: `trips.trip_end_odmeter` renamed `trip_end_odometer`, and `trip_miles` from `float(15,1)` to `decimal(10,1)` (0.0). New `trip_location_id`, `trip_ticket_id` and `trip_created_by` (0), keyed with `trip_user_id` (`trip_user_id`, `trip_date`). `trip_created_by` is backfilled from the audit log's Trip Create entries, else the driver, and `trip_location_id` where the destination matches one of the client's locations by name or by `formatAddress()` of its address, case and spacing aside.
+  - 3.0.4: `trips.trip_own_vehicle` (0), `trip_expense_id` (0, keyed), `trip_billable` (0), `trip_invoice_id` (0, keyed) and `trip_invoice_item_id` (0). `settings.config_mileage_unit` ('mi' or 'km'), `config_mileage_rate` (`decimal(10,4)`, 0), `config_mileage_category_id` (set to an Expense category named Mileage, else Travel), `config_mileage_vendor_id`, `config_trip_charge` (`decimal(15,2)`), `config_trip_bill_rate` (`decimal(10,4)`), `config_trip_included` (`decimal(10,1)`) and `config_trip_item_name` ('Travel').
 - New shared function files, loaded by `functions.php`: `functions/asset.php`, `asset_interface.php`, `certificate.php`, `client_overview.php`, `contact.php`, `credential.php`, `dashboard.php`, `links.php`, `location.php`, `notifications.php`, `project.php`, `rack.php`, `search.php`, `service.php`, `software.php`, `tags.php`, `ticket.php`, `ticket_fields.php`, `user.php` and `vendor.php`. They hold the queries and rules, so the pages, the API and cron share one definition.
 - Removed post models: `agent/post/{asset_interface,certificate,credential,domain,event,location,network_ip,network,recurring_ticket,vendor}_model.php`, `admin/post/user_model.php` and `api/v1/certificates/certificate_model.php`. Their handlers call the shared functions above. Interface handlers moved to `agent/post/asset_interface.php`.
 - New scripts: `js/itflow_select.js`, `quick_pick.js`, `tag_picker.js`, `global_search.js`, `notifications.js`, `dashboard.js`, `client_overview.js`, `client_switcher.js`, `credentials.js` and `autosubmit.js`, and `agent/js/calendar.js`, `calendar_event_modal.js`, `files.js`, `interface_form.js`, `network_form.js`, `project_modal.js` and `ticket_schedule_modal.js`.
@@ -855,6 +873,17 @@ If you are coming from 26.08 or earlier, the database update still has to be run
   - Seeds: `demoBuildClient()` gives the quarterly visits the primary location's address and id, and adds a trip for each onsite ticket resolved in the last six months. Every seeded trip has `trip_created_by`.
   - CSS: `.itflow-trip-route`.
   - Removed: `agent/post/trip_model.php`.
+  - Mileage money, in the same file:
+    - `tripRules()` reads the settings (`unit`, `rate`, `category_id`, `vendor_id`, `charge`, `bill_rate`, `included`, `item_name`). `tripUnit()` and `tripUnitOne()` follow the unit, and `tripMilesText()` with them. Also `tripPayBackOn()`, `tripBillingOn()`, `tripRateInput()` (up to four decimals), `tripRateMoney()`, `tripRateText()`, `tripDistanceText()`, `tripBillPrice($row)` (the charge plus the rate on the distance beyond `included`) and `tripBillRuleText()`.
+    - Paying back: `tripClaimSql()`, `tripsToClaim($user_id, $ids)` (by driver, scoped), `tripToClaimCount()` and `tripClaim($user_id, $trip_ids, $opts, &$error)`. It makes one expense per client with `expense_paid_by` the driver, `expense_account_id` 0, the vendor from `tripMileageVendor()` and the category from `tripMileageCategory()` (both made and stored in the settings when missing; `tripMileageCategoryShown()` reads without making), and claims the trips into `trip_expense_id` with a conditional `UPDATE` before the amount is set. `expenseDelete()` clears `trip_expense_id`.
+    - Billing: `tripUnbilledSql()`, `tripUnbilled($client_id, $ids)`, `tripUnbilledCount()`, `tripUnbilledMerge($clients, $client_id)` (after `expenseUnbilledMerge()`, adding `trips`, `trip_value` and `trip_miles`), `tripBillLine()`, `tripBillInvoice($client_id, $prices, $opts, &$error)` (as `expenseBillInvoice()`), `tripCanUnbill()`, `tripUnbill()`, `tripsOnInvoice()` and `tripWriteOff()`. `expenseBillWithTime()` takes `$trip_prices` as a sixth argument and returns `trips`. `billingItemDelete()` and `delete_invoice` clear `trip_invoice_id` and `trip_invoice_item_id`.
+    - `tripSave()` takes `own_vehicle` and `billable`, keeping the distance, driver and vehicle of a trip on a mileage expense and the distance, client and billable of a billed one. `tripDelete()` refuses either. `tripRow()` adds `claim_expense_id`, `claim_date`, `claim_amount`, `reimbursement_date`, `invoice_prefix`, `invoice_number`, `invoice_status`, `billed_subtotal` and `ticket_billable`. `tripClientTickets()` adds each ticket's billable, and `tripDriverVehicles()` gives each driver's vehicle on their latest trip.
+    - `tripShows()` adds `to_pay` and `to_bill` when paying back or billing is on, `tripFiltersSql()` takes `expense_id` and `invoice_id`, and `tripsFor()` and `tripTotalsFor()` take `trip_expense_id` and `trip_invoice_id`.
+    - Handlers in `agent/post/trip.php`: `trip_claim` (POST `user_id`, `trip_ids[]`, `rate`, `date`, and `pay_now` with `account`, `payment_method` and `reference`; Financial at 2), GET `trip_unbill` (Financial and Sales at 2) and POST `invoice_add_trips` (`invoice_id`, `trip_ids[]`, `trip_price[id]`, `tax_id`). `bulk_edit_trips` takes `field=vehicle` and `field=billable`, and leaves trips paid for or billed alone. `unbilled_invoice`, `unbilled_invoice_clients` and `unbilled_write_off` in `agent/post/billing.php` take `trip_ids[]` and `trip_price[id]` (`unbilledPostTripPrices()`, Financial at 2). The export adds `vehicle_display`, `paid_back_display` and `billing_display`, and its distance column is labelled in the unit.
+    - New windows `agent/modals/trip/trip_claim.php` (`?user_id=` or `?trip_ids[]=`, one driver's) and `agent/modals/invoice/invoice_add_trips.php?invoice_id=`. `agent/unbilled_time.php` has the Travel to bill card, with `data-unbilled-trip-row`, `-pick`, `-price` and `-all` in `js/unbilled_time.js`. `agent/invoice.php` has the Travel card.
+    - Settings: the Trips and Mileage section of `admin/settings_invoice.php` (`#mileage`), saved by `edit_invoice_settings`.
+    - `get_side_nav_counts.php` and `inc_all_client.php` set `$num_unbilled_trips` for the Unbilled Time badge. `dashboardAttention()` adds Trips to bill and Mileage to pay back, and `clientOverviewAttention()` Trips to bill. `dashboardTrips()` returns `unit` for the chart, and the Mileage report's `rate` defaults to the mileage rate.
+    - Seeds: `demoBuildClient()` and `demoBuildCompanyFinancials()` set `trip_own_vehicle` for the last 45 days, and `trip_billable` for a billable ticket's trip in the last 30 when `tripBillingOn()`.
 - The billing helpers (`billingTimeInvoice()`, `quoteConvert()`, `recurringInvoiceGenerate()` and the rest) take the agent's name as plain text. Their handlers now pass `stripslashes($session_name)`, so a name with an apostrophe no longer shows a backslash in history and the audit log.
 - Sidebar brand: `agent/css/sidebar_brand_fix.css` and `agent/js/sidebar_brand_fix.js` from 26.10 are replaced by CSS in `css/itflow_custom.css`. `includes/load_company_settings.php` now sets `$session_company_logo`.
 - `alertMessageHtml()` no longer double-encodes, and save messages built from `escapeSql()` values use `stripslashes()` at the flash.

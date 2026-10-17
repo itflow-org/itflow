@@ -156,8 +156,16 @@
                                 <i class="nav-icon fas fa-user-clock"></i>
                                 <p>
                                     Unbilled Time
-                                    <?php if ($num_unbilled_tickets || $num_unbilled_expenses) { ?>
-                                        <span class="right badge text-light" data-bs-toggle="tooltip" title="<?= $num_unbilled_expenses ? "$num_unbilled_tickets billable ticket" . ($num_unbilled_tickets == 1 ? '' : 's') . " done and $num_unbilled_expenses expense" . ($num_unbilled_expenses == 1 ? '' : 's') . ' to bill, not invoiced' : 'Billable tickets done, not invoiced' ?>"><?= $num_unbilled_tickets + $num_unbilled_expenses ?></span>
+                                    <?php if ($num_unbilled_tickets || $num_unbilled_expenses || $num_unbilled_trips) {
+                                        // "4 billable tickets done, 2 expenses and 1 trip to bill, not invoiced"
+                                        $unbilled_parts = array_values(array_filter([
+                                            "$num_unbilled_tickets billable ticket" . ($num_unbilled_tickets == 1 ? '' : 's') . ' done',
+                                            $num_unbilled_expenses ? "$num_unbilled_expenses expense" . ($num_unbilled_expenses == 1 ? '' : 's') : '',
+                                            $num_unbilled_trips ? "$num_unbilled_trips trip" . ($num_unbilled_trips == 1 ? '' : 's') : '',
+                                        ]));
+                                        $unbilled_last = count($unbilled_parts) > 1 ? array_pop($unbilled_parts) : '';
+                                        $unbilled_title = $unbilled_last === '' ? 'Billable tickets done, not invoiced' : implode(', ', $unbilled_parts) . " and $unbilled_last to bill, not invoiced"; ?>
+                                        <span class="right badge text-light" data-bs-toggle="tooltip" title="<?= escapeHtml($unbilled_title) ?>"><?= $num_unbilled_tickets + $num_unbilled_expenses + $num_unbilled_trips ?></span>
                                     <?php } ?>
                                 </p>
                             </a>

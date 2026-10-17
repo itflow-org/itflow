@@ -11,11 +11,15 @@
  *   $form_ticket_id    the ticket a new one is for (0 for none)
  *
  * Posts date, driver, client_id, ticket_id, location_id, source,
- * destination, miles (one way), round_trip, odometer_start, odometer_end
- * and purpose. Picking a client offers their sites and tickets; a site
- * fills in where to, a ticket the purpose and its site; a route driven
- * before fills in the miles; the total follows the miles and round trip,
- * and the odometer readings make the miles when both are there.
+ * destination, miles (one way), round_trip, odometer_start, odometer_end,
+ * purpose, own_vehicle and billable. Picking a client offers their sites
+ * and tickets; a site fills in where to, a ticket the purpose and its site;
+ * a route driven before fills in the miles; the total follows the miles and
+ * round trip, and the odometer readings make the miles when both are there.
+ * Own vehicle starts as the driver's last trip was, and shows what it is
+ * paid back; billable starts as the ticket is (or on, with trips billing)
+ * and shows what it bills. Once paid back for or billed, what that was on
+ * is locked.
  *
  * Should not be accessed directly.
  */
@@ -39,6 +43,20 @@ $form_purpose = $form_row ? (string) $form_row['trip_purpose'] : (string) ($form
 $form_odo_start = $form_row && $form_edit ? $form_row['trip_start_odometer'] : null;
 $form_odo_end = $form_row && $form_edit ? $form_row['trip_end_odometer'] : null;
 
+// Mileage money - paid back for their own vehicle, billed to the client
+$form_rules = tripRules();
+$form_pay_back = tripPayBackOn();
+$form_billing = tripBillingOn();
+$form_vehicles = tripDriverVehicles();
+$form_own = $form_row ? intval($form_row['trip_own_vehicle']) === 1 : (isset($form_vehicles[$form_driver]) ? $form_vehicles[$form_driver] === 1 : $form_pay_back);
+$form_billable = $form_row ? intval($form_row['trip_billable']) === 1 : null;
+if ($form_return && $form_rules['charge'] > 0) {
+    $form_billable = false; // the way back is the same visit - one trip charge
+}
+$form_claimed = $form_edit && $form_row['claim_expense_id'] !== null;
+$form_billed = $form_edit && $form_row['invoice_number'] !== null;
+$form_locked = $form_claimed || $form_billed;
+
 // The way back: from where it went to where it started, one way
 if ($form_return) {
     [$form_source, $form_destination] = [$form_destination, $form_source];
@@ -47,7 +65,7 @@ if ($form_return) {
     $form_purpose = mb_substr('Back from ' . $form_row['trip_destination'] . ($form_purpose !== '' ? " - $form_purpose" : ''), 0, 200);
 }
 
-$form_can_manage = tripCanManage();
+$form_can_manage = tripCanManage() && !$form_claimed;
 $form_drivers = tripDrivers($form_row ? $form_row['trip_user_id'] : 0);
 if (!$form_can_manage) {
     $form_drivers = array_intersect_key($form_drivers, array_flip(array_filter([intval($session_user_id), $form_edit ? intval($form_row['trip_user_id']) : 0])));
@@ -67,6 +85,15 @@ $unit = tripUnit();
 ?>
 <div class="row g-3" id="<?= $form_id ?>" data-trip-form="<?= $form_mode ?>">
 
+    <?php if ($form_locked) { ?>
+        <div class="col-12">
+            <div class="alert alert-secondary small mb-0">
+                <i class="fas fa-lock me-2"></i><?php if ($form_claimed) { ?>Paid back for on a <a href="#" class="ajax-modal" data-modal-size="lg" data-modal-url="modals/expense/expense.php?id=<?= intval($form_row['claim_expense_id']) ?>">mileage expense</a> - the distance, driver and vehicle stay as they were paid<?= $form_billed ? '.' : '. Delete that expense to change them.' ?><?php } ?>
+                <?php if ($form_billed) { ?><?= $form_claimed ? ' ' : '' ?>Billed on <a href="invoice.php?invoice_id=<?= intval($form_row['trip_invoice_id']) ?>"><?= escapeHtml($form_row['invoice_prefix'] . $form_row['invoice_number']) ?></a> - the distance and client stay as they were billed. Take it off the invoice to change them.<?php } ?>
+            </div>
+        </div>
+    <?php } ?>
+
     <?php if ($form_return) { ?>
         <div class="col-12">
             <div class="alert alert-info small mb-0"><i class="fas fa-undo-alt me-2"></i>The way back from <?= escapeHtml($form_row['trip_destination']) ?> - a trip of its own, one way.</div>
@@ -85,13 +112,13 @@ $unit = tripUnit();
         <label class="form-label">Driver <strong class="text-danger">*</strong></label>
         <div class="input-group">
             <span class="input-group-text"><i class="fa fa-fw fa-user"></i></span>
-            <select class="form-select select2" name="driver" required>
+            <select class="form-select select2" name="driver" required data-trip-driver <?= $form_claimed ? 'disabled' : '' ?>>
                 <?php foreach ($form_drivers as $driver_id => $driver) { ?>
                     <option value="<?= $driver_id ?>" <?= $driver_id === $form_driver ? 'selected' : '' ?><?= selectOptionUser($driver_id, $driver['user_name'], $driver['user_avatar'] ?? '') ?>><?= escapeHtml($driver['user_name']) ?><?= $driver_id === intval($session_user_id) ? ' (me)' : '' ?></option>
                 <?php } ?>
             </select>
         </div>
-        <?php if (!$form_can_manage) { ?>
+        <?php if (!tripCanManage()) { ?>
             <div class="form-text">You log your own trips.</div>
         <?php } ?>
     </div>
@@ -100,7 +127,7 @@ $unit = tripUnit();
         <label class="form-label">Client</label>
         <div class="input-group">
             <span class="input-group-text"><i class="fa fa-fw fa-building"></i></span>
-            <select class="form-select select2" name="client_id" data-trip-client>
+            <select class="form-select select2" name="client_id" data-trip-client <?= $form_billed ? 'disabled' : '' ?>>
                 <option value="0">- Our own - not for a client -</option>
                 <?php foreach ($form_clients as $client) { ?>
                     <option value="<?= intval($client['client_id']) ?>" <?= $form_client === intval($client['client_id']) ? 'selected' : '' ?><?= selectOptionClient($client['client_id'], $client['client_name'], $client['client_abbreviation'] ?? '') ?>><?= escapeHtml($client['client_name']) ?></option>
@@ -154,19 +181,37 @@ $unit = tripUnit();
         <label class="form-label"><?= ucfirst($unit) ?> one way <strong class="text-danger">*</strong></label>
         <div class="input-group">
             <span class="input-group-text"><i class="fa fa-fw fa-road"></i></span>
-            <input type="text" class="form-control text-end" name="miles" inputmode="decimal" placeholder="0.0" value="<?= $form_miles === null ? '' : number_format($form_miles, 1, '.', '') ?>" required data-trip-miles <?= $form_mode === 'new' && !$form_location ? 'autofocus' : '' ?>>
+            <input type="text" class="form-control text-end" name="miles" inputmode="decimal" placeholder="0.0" value="<?= $form_miles === null ? '' : number_format($form_miles, 1, '.', '') ?>" required data-trip-miles <?= $form_mode === 'new' && !$form_location ? 'autofocus' : '' ?> <?= $form_locked ? 'disabled' : '' ?>>
             <span class="input-group-text"><?= tripUnit(true) ?></span>
         </div>
         <div class="form-text" data-trip-known hidden><i class="fas fa-history me-1"></i>As the last time you drove it</div>
     </div>
     <div class="col-md-4 d-flex align-items-md-end">
         <div class="form-check form-switch mb-md-2">
-            <input class="form-check-input" type="checkbox" role="switch" name="round_trip" value="1" id="<?= $form_id ?>Round" <?= $form_round ? 'checked' : '' ?> data-trip-round>
+            <input class="form-check-input" type="checkbox" role="switch" name="round_trip" value="1" id="<?= $form_id ?>Round" <?= $form_round ? 'checked' : '' ?> data-trip-round <?= $form_locked ? 'disabled' : '' ?>>
             <label class="form-check-label" for="<?= $form_id ?>Round">Round trip - there and back</label>
         </div>
     </div>
     <div class="col-md-4 d-flex align-items-md-end">
         <div class="mb-md-2"><span class="text-body-secondary">The trip is</span> <strong class="fs-5" data-trip-total></strong></div>
+    </div>
+
+    <?php if ($form_pay_back || $form_own) { ?>
+        <div class="col-md-6">
+            <div class="form-check form-switch mb-0">
+                <input class="form-check-input" type="checkbox" role="switch" name="own_vehicle" value="1" id="<?= $form_id ?>Own" <?= $form_own ? 'checked' : '' ?> data-trip-own <?= $form_claimed ? 'disabled' : '' ?>>
+                <label class="form-check-label" for="<?= $form_id ?>Own"><i class="fas fa-car-side text-body-secondary me-1"></i>In their own vehicle</label>
+            </div>
+            <div class="form-text" data-trip-own-note></div>
+        </div>
+    <?php } ?>
+    <div class="col-md-6" data-trip-bill-box hidden>
+        <div class="form-check form-switch mb-0">
+            <input class="form-check-input" type="checkbox" role="switch" name="billable" value="1" id="<?= $form_id ?>Bill" <?= $form_billable ? 'checked' : '' ?> data-trip-billable <?= $form_billed ? 'disabled' : '' ?>
+                data-auto="<?= $form_billable === null ? '1' : '' ?>">
+            <label class="form-check-label" for="<?= $form_id ?>Bill"><i class="fas fa-file-invoice-dollar text-body-secondary me-1"></i>Bill the client for it</label>
+        </div>
+        <div class="form-text" data-trip-bill-note></div>
     </div>
 
     <div class="col-12">
@@ -177,14 +222,14 @@ $unit = tripUnit();
                     <label class="form-label">At the start</label>
                     <div class="input-group">
                         <span class="input-group-text"><i class="fa fa-fw fa-tachometer-alt"></i></span>
-                        <input type="text" class="form-control text-end" name="odometer_start" inputmode="numeric" value="<?= $form_odo_start === null ? '' : intval($form_odo_start) ?>" data-trip-odo-start>
+                        <input type="text" class="form-control text-end" name="odometer_start" inputmode="numeric" value="<?= $form_odo_start === null ? '' : intval($form_odo_start) ?>" data-trip-odo-start <?= $form_locked ? 'disabled' : '' ?>>
                     </div>
                 </div>
                 <div class="col-md-6">
                     <label class="form-label">At the end</label>
                     <div class="input-group">
                         <span class="input-group-text"><i class="fa fa-fw fa-flag-checkered"></i></span>
-                        <input type="text" class="form-control text-end" name="odometer_end" inputmode="numeric" value="<?= $form_odo_end === null ? '' : intval($form_odo_end) ?>" data-trip-odo-end>
+                        <input type="text" class="form-control text-end" name="odometer_end" inputmode="numeric" value="<?= $form_odo_end === null ? '' : intval($form_odo_end) ?>" data-trip-odo-end <?= $form_locked ? 'disabled' : '' ?>>
                     </div>
                 </div>
                 <div class="col-12 form-text mt-1">With both, the trip is what the odometer says.</div>
@@ -213,6 +258,20 @@ $unit = tripUnit();
     var tickets = <?= json_encode((object) $form_tickets) ?>;
     var routes = <?= json_encode((object) $form_routes) ?>;
     var unit = <?= json_encode(tripUnit(true)) ?>;
+    var money = <?= json_encode([
+        'rate' => $form_rules['rate'], 'charge' => $form_rules['charge'], 'billRate' => $form_rules['bill_rate'], 'included' => $form_rules['included'],
+        'billing' => $form_billing, 'rule' => tripBillRuleText(), 'rateText' => $form_rules['rate'] > 0 ? tripRateText($form_rules['rate']) : '',
+        'currency' => (string) ($session_company_currency ?? 'USD'), 'locale' => str_replace('_', '-', (string) ($session_company_locale ?? 'en_US')),
+        'vehicles' => (object) $form_vehicles, 'claimed' => $form_claimed, 'billed' => $form_billed,
+    ]) ?>;
+    var driver = root.querySelector('[data-trip-driver]');
+    var own = root.querySelector('[data-trip-own]');
+    var ownNote = root.querySelector('[data-trip-own-note]');
+    var billBox = root.querySelector('[data-trip-bill-box]');
+    var billable = root.querySelector('[data-trip-billable]');
+    var billNote = root.querySelector('[data-trip-bill-note]');
+    var autoBill = billable.getAttribute('data-auto') === '1';
+    var autoOwn = <?= $form_row ? 'false' : 'true' ?>;
     var client = root.querySelector('[data-trip-client]');
     var ticket = root.querySelector('[data-trip-ticket]');
     var site = root.querySelector('[data-trip-site]');
@@ -231,6 +290,23 @@ $unit = tripUnit();
     function number(value) {
         var n = Number(String(value || '').replace(/[\s,]/g, ''));
         return isNaN(n) ? null : n;
+    }
+
+    function cash(amount) {
+        try {
+            return new Intl.NumberFormat(money.locale, { style: 'currency', currency: money.currency }).format(amount);
+        } catch (e) {
+            return amount.toFixed(2);
+        }
+    }
+
+    // Billable: as the ticket is, else on when trips bill - until it is switched by hand
+    function billDefault() {
+        if (!autoBill || money.billed) {
+            return;
+        }
+        var found = (tickets[client.value] || []).filter(function (t) { return String(t[0]) === ticket.value; })[0];
+        billable.checked = found ? found[4] === 1 : money.billing;
     }
 
     function fill(select, list, selected, none) {
@@ -257,6 +333,10 @@ $unit = tripUnit();
         fill(ticket, ticketList, first ? ticket.getAttribute('data-selected') : '0', '- No ticket -');
         root.querySelector('[data-trip-site-box]').hidden = !siteList.length;
         root.querySelector('[data-trip-ticket-box]').hidden = !ticketList.length;
+        billBox.hidden = client.value === '0' || (!money.billing && !billable.checked);
+        if (!first) {
+            billDefault();
+        }
         if (!first && autoTo !== '' && to.value === autoTo) {
             to.value = '';
             autoTo = '';
@@ -275,6 +355,8 @@ $unit = tripUnit();
 
     // A ticket fills in the purpose, and its site when none is picked
     function ticketChanged() {
+        billDefault();
+        update();
         var found = (tickets[client.value] || []).filter(function (t) { return String(t[0]) === ticket.value; })[0];
         if (!found) {
             return;
@@ -313,7 +395,17 @@ $unit = tripUnit();
         }
         miles.readOnly = odo !== null;
         var m = number(miles.value);
-        total.textContent = m === null ? '-' : (Math.round((odo !== null ? odo : m * (round.checked ? 2 : 1)) * 10) / 10).toFixed(1) + ' ' + unit;
+        var whole = m === null ? null : Math.round((odo !== null ? odo : m * (round.checked ? 2 : 1)) * 10) / 10;
+        total.textContent = whole === null ? '-' : whole.toFixed(1) + ' ' + unit;
+
+        // What it is paid back, and what it bills
+        if (own && ownNote) {
+            ownNote.textContent = money.claimed ? 'Paid back for' : (own.checked && money.rate > 0 ? 'Paid back ' + (whole !== null ? cash(Math.round(whole * money.rate * 100) / 100) + ' - ' : '') + 'at ' + money.rateText : (own.checked ? 'Not paid back - there is no mileage rate' : 'A company vehicle - not paid back'));
+        }
+        if (billNote) {
+            var price = Math.round((money.charge + money.billRate * Math.max(0, (whole || 0) - money.included)) * 100) / 100;
+            billNote.textContent = money.billed ? 'Billed' : (billable.checked ? (money.billing ? 'Bills ' + cash(price) + ' - at ' + money.rule : 'Bills nothing until trips have a charge or rate') : 'Not billed - our cost');
+        }
     }
 
     client.addEventListener('change', function () { clientChanged(false); });
@@ -331,8 +423,31 @@ $unit = tripUnit();
         el.addEventListener('input', update);
         el.addEventListener('change', update);
     });
+    if (own) {
+        own.addEventListener('change', function () {
+            autoOwn = false;
+            update();
+        });
+    }
+    billable.addEventListener('change', function () {
+        autoBill = false;
+        update();
+    });
+    // Their own vehicle, or not, as the driver's last trip was
+    if (driver && own) {
+        driver.addEventListener('change', function () {
+            if (autoOwn && Object.prototype.hasOwnProperty.call(money.vehicles, driver.value)) {
+                own.checked = money.vehicles[driver.value] === 1;
+                update();
+            }
+        });
+    }
 
     clientChanged(true);
+    if (billable.getAttribute('data-auto') === '1') {
+        billDefault();
+        billBox.hidden = client.value === '0' || (!money.billing && !billable.checked);
+    }
     if (site.value !== '0' && to.value === '') {
         siteChanged();
     }

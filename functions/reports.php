@@ -74,7 +74,7 @@ function reportCatalog() {
                 ],
                 'mileage' => [
                     'title' => 'Mileage', 'icon' => 'fa-route', 'module' => 'module_financial', 'feature' => ['accounting'],
-                    'description' => 'Miles driven by agent and client, with a reimbursement estimate at your rate.',
+                    'description' => 'Distance driven by agent and client, with what it comes to at your mileage rate.',
                 ],
             ],
         ],

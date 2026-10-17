@@ -34,6 +34,8 @@ $currency = (string) $row['expense_currency_code'];
 $receipt_kind = $row['expense_receipt'] && expenseReceiptPath($row['expense_receipt']) !== '' ? expenseReceiptKind($row['expense_receipt']) : '';
 $receipt_missing = $row['expense_receipt'] && $receipt_kind === '' && expenseReceiptPath($row['expense_receipt']) === '';
 $receipt_url = "expense_receipt.php?expense_id=$expense_id";
+// Mileage - the trips in their own vehicle this pays for (functions/trips.php)
+[$mileage_trips, $mileage_miles] = tripTotalsFor('trip_expense_id', $expense_id);
 
 // Billing it on to the client
 $can_sales = lookupUserPermission('module_sales');
@@ -127,6 +129,12 @@ ob_start();
                 <i class="fas fa-fw fa-list"></i>
                 <span><?= expenseCategoryDot($row['category_color']) ?><?= escapeHtml($row['category_name'] ?: 'No category') ?></span>
             </div>
+            <?php if ($mileage_trips) { ?>
+                <div class="itflow-glance-item" title="Mileage">
+                    <i class="fas fa-fw fa-car-side"></i>
+                    <a class="text-truncate" href="trips.php?expense_id=<?= $expense_id ?>">Mileage for <?= $mileage_trips ?> trip<?= $mileage_trips === 1 ? '' : 's' ?>, <?= escapeHtml(tripMilesText($mileage_miles)) ?></a>
+                </div>
+            <?php } ?>
             <?php if ($paid_by) { ?>
                 <div class="itflow-glance-item" title="Paid personally">
                     <i class="fas fa-fw fa-hand-holding-usd"></i>
@@ -267,7 +275,7 @@ ob_start();
     <?php } ?>
     <?php if ($can_delete && !$is_transfer) { ?>
         <a class="btn btn-outline-danger confirm-link" href="post.php?delete_expense=<?= $expense_id ?>&amp;csrf_token=<?= $_SESSION['csrf_token'] ?>"
-            data-confirm-text="<?= escapeHtml(expenseLabel($row)) ?> goes for good<?= $row['expense_receipt'] ? ', with its receipt' : '' ?>.<?= $billed_on && $row['invoice_status'] !== null ? ' Its line stays on ' . escapeHtml($row['invoice_prefix'] . $row['invoice_number']) . '.' : '' ?>"><i class="fas fa-trash"></i><span class="d-none d-sm-inline ms-2">Delete</span></a>
+            data-confirm-text="<?= escapeHtml(expenseLabel($row)) ?> goes for good<?= $row['expense_receipt'] ? ', with its receipt' : '' ?>.<?= $billed_on && $row['invoice_status'] !== null ? ' Its line stays on ' . escapeHtml($row['invoice_prefix'] . $row['invoice_number']) . '.' : '' ?><?= $mileage_trips ? ' Its ' . ($mileage_trips === 1 ? 'trip is' : $mileage_trips . ' trips are') . ' to pay back for again.' : '' ?>"><i class="fas fa-trash"></i><span class="d-none d-sm-inline ms-2">Delete</span></a>
     <?php } ?>
     <button type="button" class="btn btn-light" data-bs-dismiss="modal"><i class="fa fa-times me-2"></i>Close</button>
 </div>

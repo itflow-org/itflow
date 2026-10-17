@@ -4,8 +4,10 @@
  * A trip's quick look - where from and where to with a directions link, the
  * miles (each way for a round trip), the client and their site, the ticket
  * it was for, what it was for, who drove and who logged it, and the
- * odometer readings. Edit, Copy, Return Trip and Delete. Opened from the
- * trips list, a ticket, a site and the Mileage report.
+ * odometer readings. The money: driven in their own vehicle and paid back
+ * for (or to be, with Pay Mileage), billed to the client (or to be, with
+ * Take off for one billed). Edit, Copy, Return Trip and Delete. Opened from
+ * the trips list, a ticket, a site, an invoice and the Mileage report.
  */
 
 require_once '../../../includes/modal_header.php';
@@ -21,7 +23,14 @@ $client_id = intval($row['trip_client_id']);
 $miles = floatval($row['trip_miles']);
 $round = intval($row['round_trip']) === 1;
 $can_edit = tripCanEdit($row);
-$can_delete = tripCanDelete($row);
+$can_delete = tripCanDelete($row) && $row['claim_expense_id'] === null && $row['invoice_number'] === null;
+$rules = tripRules();
+$own = intval($row['trip_own_vehicle']) === 1;
+$claimed = $row['claim_expense_id'] !== null;
+$billed = $row['invoice_number'] !== null;
+$billable = intval($row['trip_billable']) === 1;
+$can_claim = $own && !$claimed && $miles > 0 && $rules['rate'] > 0 && tripCanManage();
+$can_unbill = $billed && tripCanUnbill($row['invoice_status']);
 
 ob_start();
 
@@ -118,6 +127,38 @@ ob_start();
         </div>
     </div>
 
+    <!-- The money - paid back for their own vehicle, billed to the client -->
+    <div class="row g-2 mt-1">
+        <div class="col-sm-6">
+            <div class="itflow-glance-item" title="Vehicle">
+                <i class="fas fa-fw fa-car-side"></i>
+                <?php if (!$own) { ?>
+                    <span class="text-body-secondary">A company vehicle</span>
+                <?php } elseif ($claimed) { ?>
+                    <span>Their own - <a href="#" class="ajax-modal" data-modal-size="lg" data-modal-url="modals/expense/expense.php?id=<?= intval($row['claim_expense_id']) ?>">paid on mileage</a><?= $row['reimbursement_date'] !== null ? ', paid back ' . escapeHtml(date('M j', strtotime($row['reimbursement_date']))) : ', to pay back' ?></span>
+                <?php } elseif ($rules['rate'] > 0) { ?>
+                    <span>Their own - <strong><?= escapeHtml(billingMoney(round($miles * $rules['rate'], 2))) ?></strong> to pay back <span class="text-body-secondary">at <?= escapeHtml(tripRateText($rules['rate'])) ?></span></span>
+                <?php } else { ?>
+                    <span>Their own <span class="text-body-secondary">- no mileage rate set</span></span>
+                <?php } ?>
+            </div>
+        </div>
+        <?php if ($client_id) { ?>
+            <div class="col-sm-6">
+                <div class="itflow-glance-item" title="Billing">
+                    <i class="fas fa-fw fa-file-invoice-dollar"></i>
+                    <?php if ($billed) { ?>
+                        <span>Billed on <a href="invoice.php?invoice_id=<?= intval($row['trip_invoice_id']) ?>"><?= escapeHtml($row['invoice_prefix'] . $row['invoice_number']) ?></a><?= $row['billed_subtotal'] !== null ? ' at ' . escapeHtml(billingMoney($row['billed_subtotal'])) : '' ?></span>
+                    <?php } elseif ($billable) { ?>
+                        <span><strong><?= escapeHtml(billingMoney(tripBillPrice($row))) ?></strong> to bill<?= tripCanManage() && lookupUserPermission('module_sales') >= 1 ? ' - <a href="unbilled_time.php?client_id=' . $client_id . '">Unbilled Time</a>' : '' ?></span>
+                    <?php } else { ?>
+                        <span class="text-body-secondary">Not billed - our cost</span>
+                    <?php } ?>
+                </div>
+            </div>
+        <?php } ?>
+    </div>
+
     <div class="mt-3">
         <div class="small fw-semibold text-uppercase text-body-secondary mb-1">What for</div>
         <div class="text-break" style="white-space: pre-line;"><?= escapeHtml($row['trip_purpose']) ?></div>
@@ -128,6 +169,13 @@ ob_start();
 <div class="modal-footer">
     <?php if ($can_edit) { ?>
         <button type="button" class="btn btn-primary text-bold ajax-modal" data-modal-size="lg" data-modal-url="modals/trip/trip_edit.php?id=<?= $trip_id ?>"><i class="fas fa-edit me-2"></i>Edit</button>
+    <?php } ?>
+    <?php if ($can_claim) { ?>
+        <button type="button" class="btn btn-outline-success ajax-modal" data-modal-size="lg" data-modal-url="modals/trip/trip_claim.php?trip_ids[]=<?= $trip_id ?>"><i class="fas fa-hand-holding-usd"></i><span class="d-none d-sm-inline ms-2">Pay Mileage</span></button>
+    <?php } ?>
+    <?php if ($can_unbill) { ?>
+        <a class="btn btn-outline-secondary confirm-link" href="post.php?trip_unbill=<?= $trip_id ?>&amp;csrf_token=<?= $_SESSION['csrf_token'] ?>"
+            data-confirm-text="<?= $row['invoice_status'] === 'Cancelled' ? 'The invoice is cancelled, so its line stays on it' : 'Its line comes off ' . escapeHtml($row['invoice_prefix'] . $row['invoice_number']) ?> and the trip waits to be billed again."><i class="fas fa-unlink"></i><span class="d-none d-sm-inline ms-2">Take off Invoice</span></a>
     <?php } ?>
     <div class="btn-group">
         <button type="button" class="btn btn-outline-secondary ajax-modal" data-modal-size="lg" data-modal-url="modals/trip/trip_copy.php?id=<?= $trip_id ?>&amp;return=1"><i class="fas fa-undo-alt me-2"></i>Return Trip</button>

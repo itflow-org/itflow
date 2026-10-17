@@ -92,6 +92,13 @@ function clientOverviewAttention($client_id, $access, $renewals) {
                 'detail' => $to_bill['count'] ? dashboardMoney($to_bill['value']) . ' to bill on' : null,
                 'url' => "/agent/unbilled_time.php?client_id=$client_id",
             ];
+            $trips_to_bill = tripUnbilledCount($client_id);
+            $items[] = [
+                'count' => $trips_to_bill['count'],
+                'label' => 'Trips to bill', 'icon' => 'route', 'tone' => 'info',
+                'detail' => $trips_to_bill['count'] ? dashboardMoney($trips_to_bill['value']) . ' of travel' : null,
+                'url' => "/agent/unbilled_time.php?client_id=$client_id",
+            ];
         }
     }
 

@@ -408,6 +408,8 @@ function expenseDelete($expense_id, &$error = '') {
     expenseReceiptDeleteFile($row['expense_receipt']);
     mysqli_query($mysqli, "UPDATE product_stock SET stock_expense_id = NULL WHERE stock_expense_id = $expense_id");
     mysqli_query($mysqli, "UPDATE expenses SET expense_refund_of_id = NULL WHERE expense_refund_of_id = $expense_id");
+    // A mileage expense's trips are to pay back for again
+    mysqli_query($mysqli, "UPDATE trips SET trip_expense_id = 0 WHERE trip_expense_id = $expense_id");
     mysqli_query($mysqli, "DELETE FROM expenses WHERE expense_id = $expense_id");
     return $row;
 }
@@ -1316,25 +1318,27 @@ function expenseUnbilledMerge(array $clients, $client_id = 0) {
 
 /**
  * Bill a client's tickets ($hours: ticket id => hours, null for what the
- * time comes to) and expenses ($prices: expense id => price, null for the
- * cost with its markup) on one invoice - the time first, then the expenses
- * on the same invoice. Either can be empty. $opts as billingTimeInvoice()
- * takes them (the tax goes on the expense lines too). Returns
- * [invoice_id, number, new, time (billingTimeInvoice's result or null),
- * expenses (expenseBillInvoice's or null), error (what didn't go on)], or
- * null with $error when nothing went on.
+ * time comes to), expenses ($prices: expense id => price, null for the
+ * cost with its markup) and trips ($trip_prices: trip id => price, null for
+ * what tripBillPrice() makes it) on one invoice - the time first, then the
+ * expenses and trips on the same invoice. Any can be empty. $opts as
+ * billingTimeInvoice() takes them (the tax goes on the expense and trip
+ * lines too). Returns [invoice_id, number, new, time (billingTimeInvoice's
+ * result or null), expenses (expenseBillInvoice's or null), trips
+ * (tripBillInvoice's or null), error (what didn't go on)], or null with
+ * $error when nothing went on.
  */
-function expenseBillWithTime($client_id, array $hours, array $prices, array $opts, &$error = '') {
+function expenseBillWithTime($client_id, array $hours, array $prices, array $opts, &$error = '', array $trip_prices = []) {
     $error = '';
-    if (!$hours && !$prices) {
-        $error = 'Nothing to bill - tick the tickets or expenses to bill.';
+    if (!$hours && !$prices && !$trip_prices) {
+        $error = 'Nothing to bill - tick the tickets, expenses or trips to bill.';
         return null;
     }
     $time = null;
     $time_error = '';
     if ($hours) {
         $time = billingTimeInvoice($client_id, $hours, $opts, $time_error);
-        if (!$time && !$prices) {
+        if (!$time && !$prices && !$trip_prices) {
             $error = $time_error;
             return null;
         }
@@ -1348,13 +1352,22 @@ function expenseBillWithTime($client_id, array $hours, array $prices, array $opt
         }
         $expenses = expenseBillInvoice($client_id, $prices, $expense_opts, $expense_error);
     }
-    if (!$time && !$expenses) {
-        $error = trim($time_error . ' ' . $expense_error);
+    $trips = null;
+    $trip_error = '';
+    if ($trip_prices) {
+        $trip_opts = $opts;
+        if ($time || $expenses) {
+            $trip_opts['invoice_id'] = ($time ?: $expenses)['invoice_id'];
+        }
+        $trips = tripBillInvoice($client_id, $trip_prices, $trip_opts, $trip_error);
+    }
+    if (!$time && !$expenses && !$trips) {
+        $error = trim($time_error . ' ' . $expense_error . ' ' . $trip_error);
         return null;
     }
-    $first = $time ?: $expenses;
-    return ['invoice_id' => $first['invoice_id'], 'number' => $first['number'], 'new' => !empty($first['new']), 'time' => $time, 'expenses' => $expenses,
-        'error' => trim(($hours && !$time ? $time_error : '') . ' ' . ($prices && !$expenses ? $expense_error : ''))];
+    $first = $time ?: ($expenses ?: $trips);
+    return ['invoice_id' => $first['invoice_id'], 'number' => $first['number'], 'new' => !empty($first['new']), 'time' => $time, 'expenses' => $expenses, 'trips' => $trips,
+        'error' => trim(($hours && !$time ? $time_error : '') . ' ' . ($prices && !$expenses ? $expense_error : '') . ' ' . ($trip_prices && !$trips ? $trip_error : ''))];
 }
 
 /** The client's ticked expenses to bill aren't billable after all - their labels. */

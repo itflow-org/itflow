@@ -259,14 +259,14 @@
         donut('dashExpensesByVendor', data.breakdowns.expenses_by_vendor);
     }
 
-    /* Miles per month */
+    /* The distance driven each month - miles or kilometres */
     if (data.trips) {
         draw('dashTrips', {
             type: 'line',
             data: {
                 labels: data.trips.labels,
                 datasets: [{
-                    label: 'Miles', data: data.trips.miles, borderColor: colors.accent, backgroundColor: alpha(colors.accent, 0.12),
+                    label: data.trips.unit || 'Miles', data: data.trips.miles, borderColor: colors.accent, backgroundColor: alpha(colors.accent, 0.12),
                     fill: true, cubicInterpolationMode: 'monotone', pointRadius: 2, borderWidth: 2
                 }]
             },

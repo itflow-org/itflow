@@ -56,7 +56,7 @@ function unbilledResultText(array $result) {
     return $text;
 }
 
-/** What billing tickets and expenses together did, for the flash - the time's text, then the expenses'. */
+/** What billing tickets, expenses and trips together did, for the flash - the time's text, then the expenses', then the trips'. */
 function unbilledBothText(array $result, $currency) {
     $parts = [];
     if ($result['time']) {
@@ -66,6 +66,11 @@ function unbilledBothText(array $result, $currency) {
         $e = $result['expenses'];
         $parts[] = ($result['time'] ? '' : '<strong>' . escapeHtml($e['number']) . '</strong>: ') . '<strong>' . $e['expenses'] . ' expense' . ($e['expenses'] === 1 ? '' : 's') . '</strong> billed - '
             . escapeHtml(billingMoney($e['amount'], $currency)) . ' on ' . escapeHtml(billingMoney($e['cost'], $currency)) . ' of cost';
+    }
+    if (!empty($result['trips'])) {
+        $t = $result['trips'];
+        $parts[] = ($result['time'] || $result['expenses'] ? '' : '<strong>' . escapeHtml($t['number']) . '</strong>: ') . '<strong>' . $t['trips'] . ' trip' . ($t['trips'] === 1 ? '' : 's') . '</strong> billed - '
+            . escapeHtml(billingMoney($t['amount'], $currency)) . ' for ' . escapeHtml(tripDistanceText($t['miles']));
     }
     $text = implode('. ', $parts);
     if ($result['error'] !== '') {
@@ -79,6 +84,18 @@ function unbilledPostPrices() {
     $prices = [];
     foreach (array_unique(array_filter(array_map('intval', (array) ($_POST['expense_ids'] ?? [])))) as $expense_id) {
         $prices[$expense_id] = $_POST['expense_price'][$expense_id] ?? null;
+    }
+    if ($prices) {
+        enforceUserPermission('module_financial', 2);
+    }
+    return $prices;
+}
+
+/** The ticked trips and their prices from Unbilled Time - trip id => price; empty unless the agent can bill them. */
+function unbilledPostTripPrices() {
+    $prices = [];
+    foreach (array_unique(array_filter(array_map('intval', (array) ($_POST['trip_ids'] ?? [])))) as $trip_id) {
+        $prices[$trip_id] = $_POST['trip_price'][$trip_id] ?? null;
     }
     if ($prices) {
         enforceUserPermission('module_financial', 2);
@@ -247,8 +264,8 @@ if (isset($_GET['recurring_invoice_sync'])) {
 
 /*
  * Unbilled Time, one client: bill the ticked tickets at the hours typed, and
- * the ticked expenses at the prices typed, on a new draft or one of the
- * client's drafts.
+ * the ticked expenses and trips at the prices typed, on a new draft or one
+ * of the client's drafts.
  */
 if (isset($_POST['unbilled_invoice'])) {
 
@@ -264,6 +281,7 @@ if (isset($_POST['unbilled_invoice'])) {
         $hours[$ticket_id] = $_POST['hours'][$ticket_id] ?? null;
     }
     $prices = unbilledPostPrices();
+    $trip_prices = unbilledPostTripPrices();
     $result = expenseBillWithTime($client_id, $hours, $prices, [
         'invoice_id' => intval($_POST['invoice_id'] ?? 0),
         'date' => (string) ($_POST['date'] ?? ''),
@@ -274,7 +292,7 @@ if (isset($_POST['unbilled_invoice'])) {
         'tax_id' => intval($_POST['tax_id'] ?? 0),
         'combine' => ($_POST['lines'] ?? '') === 'one',
         'by' => stripslashes($session_name),
-    ], $error);
+    ], $error, $trip_prices);
     if (!$result) {
         flashAlert(escapeHtml($error), 'error');
         redirect();
@@ -287,9 +305,10 @@ if (isset($_POST['unbilled_invoice'])) {
 
 /*
  * Unbilled Time, every client: bill each ticked client's unbilled tickets at
- * the hours their time comes to, and their expenses to bill at cost with
- * the markup - on a new draft each, or each one's newest draft when it has
- * one. Expenses only for agents who can bill them.
+ * the hours their time comes to, their expenses to bill at cost with the
+ * markup and their trips to bill at the trip charge and rate - on a new
+ * draft each, or each one's newest draft when it has one. Expenses and
+ * trips only for agents who can bill them.
  */
 if (isset($_POST['unbilled_invoice_clients'])) {
 
@@ -300,7 +319,7 @@ if (isset($_POST['unbilled_invoice_clients'])) {
     $use_draft = ($_POST['target'] ?? '') === 'draft';
     $with_expenses = lookupUserPermission('module_financial') >= 2;
     $by_client = intval($config_module_enable_ticketing) === 1 ? billingUnbilledByClient() : [];
-    $by_client = $with_expenses ? expenseUnbilledMerge($by_client) : $by_client;
+    $by_client = $with_expenses ? tripUnbilledMerge(expenseUnbilledMerge($by_client)) : $by_client;
     $made = [];
     $failed = [];
     foreach (array_unique(array_map('intval', (array) ($_POST['client_ids'] ?? []))) as $bill_client_id) {
@@ -317,7 +336,7 @@ if (isset($_POST['unbilled_invoice_clients'])) {
             'tax_id' => intval($_POST['tax_id'] ?? 0),
             'combine' => ($_POST['lines'] ?? '') === 'one',
             'by' => stripslashes($session_name),
-        ], $error);
+        ], $error, array_fill_keys(array_keys($c['trips'] ?? []), null));
         if ($result) {
             $made[] = $result;
             if ($result['error'] !== '') {
@@ -336,6 +355,7 @@ if (isset($_POST['unbilled_invoice_clients'])) {
     $tickets = array_sum(array_map(function ($r) { return $r['time'] ? count($r['time']['tickets']) : 0; }, $made));
     $hours = array_sum(array_map(function ($r) { return $r['time'] ? $r['time']['hours'] : 0; }, $made));
     $expenses = array_sum(array_map(function ($r) { return $r['expenses'] ? $r['expenses']['expenses'] : 0; }, $made));
+    $trips = array_sum(array_map(function ($r) { return !empty($r['trips']) ? $r['trips']['trips'] : 0; }, $made));
     $numbers = array_column($made, 'number');
     $what = [];
     if ($tickets) {
@@ -344,6 +364,9 @@ if (isset($_POST['unbilled_invoice_clients'])) {
     if ($expenses) {
         $what[] = $expenses . ' expense' . ($expenses === 1 ? '' : 's');
     }
+    if ($trips) {
+        $what[] = $trips . ' trip' . ($trips === 1 ? '' : 's');
+    }
     flashAlert('<strong>' . count($made) . ' invoice' . (count($made) === 1 ? '' : 's') . '</strong> ' . (array_filter(array_column($made, 'new')) ? 'made or added to' : 'added to') . ' - '
         . implode(' and ', $what) . ': ' . escapeHtml(implode(', ', array_slice($numbers, 0, 12)) . (count($numbers) > 12 ? ' and more' : ''))
         . ($failed ? '. Not billed: ' . escapeHtml(implode(' ', $failed)) : ''), $failed ? 'warning' : 'success');
@@ -351,7 +374,7 @@ if (isset($_POST['unbilled_invoice_clients'])) {
 
 }
 
-/* Unbilled Time: the ticked tickets and expenses aren't billable after all - written off. */
+/* Unbilled Time: the ticked tickets, expenses and trips aren't billable after all - written off. */
 if (isset($_POST['unbilled_write_off'])) {
 
     validateCSRFToken();
@@ -364,8 +387,10 @@ if (isset($_POST['unbilled_write_off'])) {
     $done = billingTimeWriteOff($client_id, array_filter(array_map('intval', (array) ($_POST['ticket_ids'] ?? []))), stripslashes($session_name));
     $expense_ids = array_keys(unbilledPostPrices());
     $done_expenses = $expense_ids ? expenseWriteOff($client_id, $expense_ids, stripslashes($session_name)) : [];
-    if (!$done && !$done_expenses) {
-        flashAlert('Nothing changed - tick the tickets or expenses that are not billable.', 'error');
+    $trip_ids = array_keys(unbilledPostTripPrices());
+    $done_trips = $trip_ids ? tripWriteOff($client_id, $trip_ids, stripslashes($session_name)) : [];
+    if (!$done && !$done_expenses && !$done_trips) {
+        flashAlert('Nothing changed - tick the tickets, expenses or trips that are not billable.', 'error');
         redirect();
     }
     if ($done) {
@@ -379,7 +404,10 @@ if (isset($_POST['unbilled_write_off'])) {
     if ($done_expenses) {
         $what[] = count($done_expenses) === 1 ? 'the expense <strong>' . escapeHtml($done_expenses[0]) . '</strong>' : '<strong>' . count($done_expenses) . ' expenses</strong>';
     }
-    flashAlert(ucfirst(implode(' and ', $what)) . (count($done) + count($done_expenses) === 1 ? ' is' : ' are') . ' not billable now');
+    if ($done_trips) {
+        $what[] = count($done_trips) === 1 ? 'the trip <strong>' . escapeHtml($done_trips[0]) . '</strong>' : '<strong>' . count($done_trips) . ' trips</strong>';
+    }
+    flashAlert(ucfirst(implode(' and ', $what)) . (count($done) + count($done_expenses) + count($done_trips) === 1 ? ' is' : ' are') . ' not billable now');
     redirect();
 
 }

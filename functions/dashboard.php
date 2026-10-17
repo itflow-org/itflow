@@ -311,6 +311,23 @@ function dashboardAttention($access) {
                 'detail' => $owed['count'] ? dashboardMoney($owed['total']) . ' owed to ' . ($owed['agents'] === 1 ? '1 agent' : $owed['agents'] . ' agents') : null,
                 'url' => '/agent/expenses.php?show=to_reimburse',
             ];
+            // Trips to bill to clients, and the driving in their own vehicles not paid for yet
+            $trips_to_bill = tripUnbilledCount();
+            $items[] = [
+                'count' => $trips_to_bill['count'],
+                'label' => 'Trips to bill', 'icon' => 'route', 'tone' => 'info',
+                'detail' => $trips_to_bill['count'] ? dashboardMoney($trips_to_bill['value']) . ' of travel' : null,
+                'url' => '/agent/unbilled_time.php',
+            ];
+            if (tripPayBackOn()) {
+                $mileage = tripToClaimCount();
+                $items[] = [
+                    'count' => $mileage['count'],
+                    'label' => 'Mileage to pay back', 'icon' => 'car-side', 'tone' => 'warning',
+                    'detail' => $mileage['count'] ? dashboardMoney($mileage['value']) . ' owed to ' . ($mileage['agents'] === 1 ? '1 agent' : $mileage['agents'] . ' agents') : null,
+                    'url' => '/agent/trips.php?show=to_pay',
+                ];
+            }
         }
     }
 
@@ -931,7 +948,7 @@ function dashboardTopClients($period, $limit = 8) {
     return ['clients' => $clients, 'income' => dashboardIncome($start, $end)];
 }
 
-/** Miles per month over the chart's 12 months, and the total for the period. */
+/** The distance driven each month over the chart's 12 months (miles or kilometres - unit), and the total for the period. */
 function dashboardTrips($period) {
     $months = dashboardChartMonths($period);
     $from = $months[0] . '-01';
@@ -944,6 +961,7 @@ function dashboardTrips($period) {
         'miles' => dashboardMonthly("SELECT DATE_FORMAT(trip_date, '%Y-%m') AS m, SUM(trip_miles) AS v FROM trips
             WHERE trip_archived_at IS NULL AND trip_date BETWEEN '$from' AND '$to' GROUP BY m", $months),
         'period_total' => dashboardSum("SELECT SUM(trip_miles) FROM trips WHERE trip_archived_at IS NULL AND trip_date BETWEEN '{$period['start']}' AND '{$period['end']}'"),
+        'unit' => ucfirst(tripUnit()),
     ];
 }
 

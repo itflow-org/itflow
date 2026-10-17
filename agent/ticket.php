@@ -1273,7 +1273,7 @@ if (isset($_GET['ticket_id'])) {
                             </div>
                         <?php } else { ?>
                             <div class="card-body p-3 small text-body-secondary">
-                                An onsite ticket - drove out for it? <a href="#" class="ajax-modal" data-modal-size="lg" data-modal-url="modals/trip/trip_add.php?ticket_id=<?= $ticket_id ?>">Log the trip</a> to keep the miles with the ticket.
+                                An onsite ticket - drove out for it? <a href="#" class="ajax-modal" data-modal-size="lg" data-modal-url="modals/trip/trip_add.php?ticket_id=<?= $ticket_id ?>">Log the trip</a> to keep the driving with the ticket.
                             </div>
                         <?php } ?>
                     </div>

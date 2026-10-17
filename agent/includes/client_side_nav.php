@@ -350,8 +350,8 @@
                                     <i class="nav-icon fas fa-user-clock"></i>
                                     <p>
                                         Unbilled Time
-                                        <?php if ($num_unbilled_tickets || !empty($num_unbilled_expenses)) { ?>
-                                            <span class="right badge text-light"><?= $num_unbilled_tickets + intval($num_unbilled_expenses ?? 0) ?></span>
+                                        <?php if ($num_unbilled_tickets || !empty($num_unbilled_expenses) || !empty($num_unbilled_trips)) { ?>
+                                            <span class="right badge text-light"><?= $num_unbilled_tickets + intval($num_unbilled_expenses ?? 0) + intval($num_unbilled_trips ?? 0) ?></span>
                                         <?php } ?>
                                     </p>
                                 </a>

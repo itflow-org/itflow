@@ -34,6 +34,30 @@ if (isset($_POST['edit_invoice_settings'])) {
         redirect();
     }
 
+    // Trips and mileage - see tripRules()
+    $config_mileage_unit = ($_POST['config_mileage_unit'] ?? '') === 'km' ? 'km' : 'mi';
+    $config_mileage_rate = tripRateInput($_POST['config_mileage_rate'] ?? '');
+    $config_trip_bill_rate = tripRateInput($_POST['config_trip_bill_rate'] ?? '');
+    $config_trip_charge = billingNumberInput($_POST['config_trip_charge'] ?? '');
+    $config_trip_included = billingNumberInput($_POST['config_trip_included'] ?? '');
+    if ($config_mileage_rate === null || $config_trip_bill_rate === null) {
+        flashAlert('The mileage rates are amounts, such as 0.70', 'error');
+        redirect();
+    }
+    if ($config_trip_charge === null || $config_trip_charge < 0 || $config_trip_charge >= 1000000 || $config_trip_included === null || $config_trip_included < 0 || $config_trip_included >= 100000) {
+        flashAlert('The trip charge is an amount, and the distance it covers a number', 'error');
+        redirect();
+    }
+    $config_mileage_category_id = intval($_POST['config_mileage_category_id'] ?? 0);
+    if ($config_mileage_category_id && !mysqli_num_rows(mysqli_query($mysqli, "SELECT category_id FROM categories WHERE category_id = $config_mileage_category_id AND category_type = 'Expense'"))) {
+        $config_mileage_category_id = 0;
+    }
+    $config_trip_item_name = trim((string) ($_POST['config_trip_item_name'] ?? ''));
+    $config_trip_item_name = escapeSql(mb_substr($config_trip_item_name !== '' ? $config_trip_item_name : 'Travel', 0, 200));
+    mysqli_query($mysqli, "UPDATE settings SET config_mileage_unit = '$config_mileage_unit', config_mileage_rate = $config_mileage_rate, config_mileage_category_id = $config_mileage_category_id,
+        config_trip_charge = $config_trip_charge, config_trip_bill_rate = $config_trip_bill_rate, config_trip_included = " . round($config_trip_included, 1) . ",
+        config_trip_item_name = '$config_trip_item_name' WHERE company_id = 1");
+
     // Reminders and statements - see billingReminderRules(). Days before the due date
     // are stored negative, the due date itself as 0, days late positive.
     $config_send_invoice_reminders = intval(!empty($_POST['config_send_invoice_reminders']));
