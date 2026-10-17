@@ -305,18 +305,36 @@ function expenseImportGuess(array $header, array $rows) {
         }
     }
 
-    // Charges are what most lines are
+    // Charges are what most lines are - unless the words say which way round
+    // money in is ("DEPOSIT", "ACH CREDIT", "TRANSFER FROM", "INTEREST" against
+    // "PURCHASE", "WITHDRAWAL", "ACH DEBIT"), as on a deposits-only export
     $map['sign'] = 'positive';
     if ($map['amount'] !== null) {
         $negative = 0;
         $positive = 0;
+        $votes = ['positive' => 0, 'negative' => 0];
+        $in_words = '/\b(deposit|deposits|ach credit|direct dep|transfer from|interest|refund|payment received|thank you|incoming)\b/i';
+        $out_words = '/\b(purchase|pos|debit card|ach debit|withdrawal|atm|fee|payment to|bill pay|transfer to|check paid|autopay)\b/i';
         foreach ($sample as $cells) {
             $amount = expenseImportAmount($cells[$map['amount']] ?? '');
             if ($amount !== null && $amount != 0) {
                 $amount < 0 ? $negative++ : $positive++;
+                $text = $map['description'] !== null ? (string) ($cells[$map['description']] ?? '') : '';
+                $in = preg_match($in_words, $text);
+                $out = preg_match($out_words, $text);
+                if ($in && !$out) {
+                    $votes[$amount < 0 ? 'positive' : 'negative']++;
+                } elseif ($out && !$in) {
+                    $votes[$amount < 0 ? 'negative' : 'positive']++;
+                }
             }
         }
         $map['sign'] = $negative > $positive ? 'negative' : 'positive';
+        foreach (['positive' => 'negative', 'negative' => 'positive'] as $sign => $other) {
+            if ($votes[$sign] >= 2 && $votes[$sign] >= 3 * $votes[$other]) {
+                $map['sign'] = $sign;
+            }
+        }
     }
     return $map;
 }

@@ -123,7 +123,7 @@ ob_start();
             </div>
             <div class="itflow-glance-item" title="Entered">
                 <i class="fas fa-fw fa-clock"></i>
-                <span title="<?= escapeHtml($row['payment_created_at']) ?>"><?= timeAgo($row['payment_created_at']) ?></span>
+                <span><span title="<?= escapeHtml($row['payment_created_at']) ?>"><?= timeAgo($row['payment_created_at']) ?></span><?php if (!empty($row['payment_import_key'])) { ?> <span class="text-body-secondary">from a bank statement</span><?php } ?></span>
             </div>
         </div>
         <div class="col-sm-6">

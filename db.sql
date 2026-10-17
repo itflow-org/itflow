@@ -1460,6 +1460,28 @@ CREATE TABLE `history` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
+-- Table structure for table `income_import_rules`
+--
+
+DROP TABLE IF EXISTS `income_import_rules`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8mb4 */;
+CREATE TABLE `income_import_rules` (
+  `import_rule_id` int(11) NOT NULL AUTO_INCREMENT,
+  `import_rule_match` varchar(200) NOT NULL,
+  `import_rule_action` varchar(10) NOT NULL DEFAULT 'income',
+  `import_rule_client_id` int(11) NOT NULL DEFAULT 0,
+  `import_rule_category_id` int(11) NOT NULL DEFAULT 0,
+  `import_rule_account_id` int(11) NOT NULL DEFAULT 0,
+  `import_rule_used_count` int(11) NOT NULL DEFAULT 0,
+  `import_rule_created_at` datetime NOT NULL DEFAULT current_timestamp(),
+  `import_rule_updated_at` datetime DEFAULT NULL ON UPDATE current_timestamp(),
+  PRIMARY KEY (`import_rule_id`),
+  UNIQUE KEY `import_rule_match` (`import_rule_match`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
 -- Table structure for table `invoice_items`
 --
 
@@ -1788,9 +1810,11 @@ CREATE TABLE `payments` (
   `payment_archived_at` datetime DEFAULT NULL,
   `payment_account_id` int(11) NOT NULL,
   `payment_invoice_id` int(11) NOT NULL DEFAULT 0,
+  `payment_import_key` varchar(64) DEFAULT NULL,
   PRIMARY KEY (`payment_id`),
   KEY `payment_invoice_id` (`payment_invoice_id`),
-  KEY `payment_date` (`payment_date`)
+  KEY `payment_date` (`payment_date`),
+  KEY `payment_import_key` (`payment_import_key`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -2354,9 +2378,11 @@ CREATE TABLE `revenues` (
   `revenue_account_id` int(11) NOT NULL,
   `revenue_client_id` int(11) NOT NULL DEFAULT 0,
   `revenue_created_by` int(11) NOT NULL DEFAULT 0,
+  `revenue_import_key` varchar(64) DEFAULT NULL,
   PRIMARY KEY (`revenue_id`),
   KEY `revenue_client_id` (`revenue_client_id`,`revenue_archived_at`),
-  KEY `revenue_date` (`revenue_date`)
+  KEY `revenue_date` (`revenue_date`),
+  KEY `revenue_import_key` (`revenue_import_key`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
