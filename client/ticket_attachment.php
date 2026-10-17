@@ -26,8 +26,13 @@ if (isset($_GET['action']) && $_GET['action'] == "view") {
     $disposition = "inline";
 }
 
-// Look up the attachment
-$sql = mysqli_query($mysqli, "SELECT * FROM ticket_attachments WHERE ticket_attachment_id = $attachment_id LIMIT 1");
+// Look up the attachment - one on the ticket itself, or on a reply the client
+// can read: never one on an internal note, or on a reply that was archived
+$sql = mysqli_query($mysqli, "SELECT ticket_attachments.* FROM ticket_attachments
+    LEFT JOIN ticket_replies ON ticket_reply_id = ticket_attachment_reply_id
+    WHERE ticket_attachment_id = $attachment_id
+    AND (ticket_attachment_reply_id IS NULL OR (ticket_reply_type != 'Internal' AND ticket_reply_archived_at IS NULL))
+    LIMIT 1");
 
 if (mysqli_num_rows($sql) !== 1) {
     http_response_code(404);

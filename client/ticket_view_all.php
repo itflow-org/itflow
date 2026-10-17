@@ -1,87 +1,11 @@
 <?php
 /*
  * Client Portal
- * Primary contact view: all tickets
+ * The company's tickets now live on tickets.php, under Everyone - an old link
+ * here lands there, on the tab its status picked.
  */
 
-require_once 'includes/inc_all.php';
+$tab = ['Open' => '', 'Closed' => 'closed'][$_GET['status'] ?? 'Open'] ?? 'all';
 
-
-if ($session_contact_primary == 0 && !$session_contact_is_technical_contact) {
-    header("Location: post.php?logout");
-    exit();
-}
-
-// Ticket status from GET
-if (!isset($_GET['status']) || ($_GET['status']) == 'Open') {
-    // Default to showing open
-    $status = 'Open';
-    $ticket_status_snippet = "ticket_closed_at IS NULL";
-} elseif (isset($_GET['status']) && ($_GET['status']) == 'Closed') {
-    $status = 'Closed';
-    $ticket_status_snippet = "ticket_closed_at IS NOT NULL";
-} else {
-    $status = '%';
-    $ticket_status_snippet = "ticket_status LIKE '%'";
-}
-
-$all_tickets = mysqli_query($mysqli, "SELECT tickets.ticket_id, ticket_prefix, ticket_number, ticket_subject, ticket_status_name, contact_name, ticket_created_at, ticket_updated_at,
-        ticket_resolved_at, ticket_closed_at, " . ticketLastSpokeSql() . " AS ticket_last_spoke
-    FROM tickets LEFT JOIN contacts ON ticket_contact_id = contact_id LEFT JOIN ticket_statuses ON ticket_status = ticket_status_id
-    WHERE $ticket_status_snippet AND ticket_client_id = $session_client_id ORDER BY ticket_id DESC");
-?>
-
-    <h2>All tickets</h2>
-    <div class="col-md-2">
-        <div class="mb-3">
-            <form method="get">
-                <label>Ticket Status</label>
-                <select class="form-select" name="status" data-autosubmit>
-                    <option value="%" <?php if ($status == "%") {echo "selected";}?> >Any</option>
-                    <option value="Open" <?php if ($status == "Open") {echo "selected";}?> >Open</option>
-                    <option value="Closed" <?php if ($status == "Closed") {echo "selected";}?> >Closed</option>
-                </select>
-            </form>
-        </div>
-    </div>
-    <?php if (mysqli_num_rows($all_tickets) == 0) { ?>
-        <?= portalEmptyState('There are no tickets for this account.') ?>
-    <?php } else { ?>
-    <table class="table">
-        <thead>
-        <tr>
-            <th scope="col">#</th>
-            <th scope="col">Subject</th>
-            <th scope="col">Contact</th>
-            <th scope="col">Status</th>
-            <th scope="col">Updated</th>
-        </tr>
-        </thead>
-        <tbody>
-
-        <?php
-        while ($row = mysqli_fetch_assoc($all_tickets)) {
-            $ticket_id = intval($row['ticket_id']);
-            $ticket_prefix = escapeHtml($row['ticket_prefix']);
-            $ticket_number = intval($row['ticket_number']);
-            $ticket_subject = escapeHtml($row['ticket_subject']);
-            $ticket_status = escapeHtml($row['ticket_status_name']);
-            $ticket_contact_name = escapeHtml($row['contact_name']);
-
-            echo "<tr>";
-            echo "<td> <a href='ticket.php?id=$ticket_id'> $ticket_prefix$ticket_number</a></td>";
-            echo "<td> <a href='ticket.php?id=$ticket_id'> $ticket_subject</a></td>";
-            echo "<td>$ticket_contact_name</td>";
-            $ticket_updated = $row['ticket_updated_at'] ?: $row['ticket_created_at'];
-            echo "<td>" . ticketPortalStatusHtml($row) . "</td>";
-            echo "<td class='text-nowrap' title='" . escapeHtml($ticket_updated) . "'>" . timeAgo($ticket_updated) . "</td>";
-            echo "</tr>";
-        }
-        ?>
-        </tbody>
-    </table>
-    <?php } ?>
-    </div>
-
-<?php
-require_once 'includes/footer.php';
+header('Location: tickets.php' . ($tab !== '' ? '?tab=' . $tab : ''));
+exit;

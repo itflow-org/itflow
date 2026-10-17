@@ -736,23 +736,6 @@ function ticketActivityHtml($reply, $row) {
         . ($who !== '' ? '<div class="small text-body-secondary text-truncate itflow-ticket-who">' . escapeHtml($who) . '</div>' : '');
 }
 
-/**
- * For the client portal: the ticket's status as a badge, and under it
- * "Waiting on your reply" when we wrote last on an open ticket. Classes only -
- * the portal's content security policy turns inline styles off, so the
- * status colours the agents see aren't used here.
- */
-function ticketPortalStatusHtml($row) {
-    $closed = !empty($row['ticket_closed_at']);
-    $resolved = !$closed && !empty($row['ticket_resolved_at']);
-    $class = $closed ? 'text-bg-secondary' : ($resolved ? 'text-bg-success' : 'text-bg-primary');
-    $html = '<span class="badge rounded-pill ' . $class . '">' . escapeHtml($row['ticket_status_name'] ?? '') . '</span>';
-    if (!$closed && !$resolved && ($row['ticket_last_spoke'] ?? null) === 'Public') {
-        $html .= '<div class="small text-warning-emphasis mt-1"><i class="fas fa-reply me-1"></i>Waiting on your reply</div>';
-    }
-    return $html;
-}
-
 /** Where it came in from, as an icon - '' for one an agent raised. */
 function ticketSourceIcon($source) {
     $icons = ['Email' => ['fa-envelope', 'Came in by email'], 'Portal' => ['fa-globe', 'Raised in the client portal'],

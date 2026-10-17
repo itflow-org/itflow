@@ -6468,3 +6468,786 @@ a.itflow-billing-stat:hover {
     margin-top: 0;
     cursor: pointer;
 }
+
+/* ==========================================================================
+   Client portal (client/) - the shell from client/includes/header.php and
+   the pages built on it. The portal sets a CSP of default-src 'self', so
+   nothing here may lean on inline styles: every look is a class.
+   ========================================================================== */
+.itflow-portal {
+    --itflow-portal-header-height: 4rem;
+    --itflow-portal-tabbar-height: 3.75rem;
+}
+.itflow-portal-header {
+    position: sticky;
+    top: 0;
+    z-index: 1030;
+    display: flex;
+    align-items: center;
+    min-height: var(--itflow-portal-header-height);
+    background-color: var(--bs-body-bg);
+    border-bottom: 1px solid var(--bs-border-color-translucent);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, .04);
+}
+.itflow-portal-brand {
+    display: inline-flex;
+    flex: 0 1 auto;
+    align-items: center;
+    gap: .6rem;
+    min-width: 0;
+    color: var(--bs-emphasis-color);
+    font-weight: 600;
+    text-decoration: none;
+}
+.itflow-portal-brand:hover {
+    color: var(--bs-emphasis-color);
+}
+.itflow-portal-brand img {
+    display: block;
+    height: 2.25rem;
+    max-width: 11rem;
+    object-fit: contain;
+}
+.itflow-portal-brand .itflow-brand-mark-initials {
+    width: 2.25rem;
+    height: 2.25rem;
+    font-size: .75rem;
+}
+.itflow-portal-brand-name {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+.itflow-portal-nav {
+    align-items: center;
+    gap: .15rem;
+}
+.itflow-portal-nav-link {
+    display: inline-flex;
+    align-items: center;
+    gap: .45rem;
+    padding: .45rem .75rem;
+    border-radius: var(--bs-border-radius);
+    color: var(--bs-secondary-color);
+    font-weight: 500;
+    text-decoration: none;
+    white-space: nowrap;
+}
+.itflow-portal-nav-link:hover,
+.itflow-portal-nav-link.show {
+    background-color: var(--bs-tertiary-bg);
+    color: var(--bs-emphasis-color);
+}
+.itflow-portal-nav-link.active {
+    background-color: color-mix(in srgb, var(--itflow-accent, #007bff) 12%, transparent);
+    color: var(--itflow-accent, #007bff);
+}
+.itflow-portal .dropdown-item.active,
+.itflow-portal .dropdown-item:active {
+    background-color: color-mix(in srgb, var(--itflow-accent, #007bff) 12%, transparent);
+    color: var(--itflow-accent, #007bff);
+}
+.itflow-portal .dropdown-item i {
+    color: var(--bs-secondary-color);
+}
+.itflow-portal .dropdown-item.active i {
+    color: inherit;
+}
+.itflow-portal-account {
+    display: inline-flex;
+    align-items: center;
+    gap: .5rem;
+    max-width: 16rem;
+    padding: .25rem .5rem .25rem .25rem;
+    border: 0;
+    border-radius: 2rem;
+    background: transparent;
+    color: var(--bs-body-color);
+}
+.itflow-portal-account:hover,
+.itflow-portal-account[aria-expanded="true"] {
+    background-color: var(--bs-tertiary-bg);
+}
+
+/* Avatars - a photo, or initials on a soft tone picked from the name */
+.itflow-portal-avatar {
+    display: inline-flex;
+    flex: 0 0 auto;
+    align-items: center;
+    justify-content: center;
+    width: 2rem;
+    height: 2rem;
+    border-radius: 50%;
+    object-fit: cover;
+    font-size: .75rem;
+    font-weight: 600;
+    line-height: 1;
+}
+.itflow-portal-avatar-sm { width: 1.75rem; height: 1.75rem; font-size: .65rem; }
+.itflow-portal-avatar-lg { width: 2.5rem; height: 2.5rem; font-size: .85rem; }
+.itflow-portal-avatar-xl { width: 3.25rem; height: 3.25rem; font-size: 1.05rem; }
+.itflow-portal-avatar-tone-1 { background-color: var(--bs-primary-bg-subtle); color: var(--bs-primary-text-emphasis); }
+.itflow-portal-avatar-tone-2 { background-color: var(--bs-success-bg-subtle); color: var(--bs-success-text-emphasis); }
+.itflow-portal-avatar-tone-3 { background-color: var(--bs-warning-bg-subtle); color: var(--bs-warning-text-emphasis); }
+.itflow-portal-avatar-tone-4 { background-color: var(--bs-danger-bg-subtle); color: var(--bs-danger-text-emphasis); }
+.itflow-portal-avatar-tone-5 { background-color: var(--bs-info-bg-subtle); color: var(--bs-info-text-emphasis); }
+.itflow-portal-avatar-tone-6 { background-color: var(--bs-secondary-bg); color: var(--bs-secondary-color); }
+
+.itflow-portal-main {
+    flex: 1 0 auto;
+    padding-top: 1.5rem;
+    padding-bottom: 2rem;
+}
+.itflow-portal-footer {
+    padding: .9rem 0;
+    border-top: 1px solid var(--bs-border-color-translucent);
+    background-color: var(--bs-body-bg);
+    color: var(--bs-secondary-color);
+    font-size: .8rem;
+}
+
+/* Phone: the tab bar along the bottom, and the menu that slides in */
+.itflow-portal-tabbar {
+    position: fixed;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    z-index: 1030;
+    display: flex;
+    height: calc(var(--itflow-portal-tabbar-height) + env(safe-area-inset-bottom, 0px));
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+    border-top: 1px solid var(--bs-border-color-translucent);
+    background-color: var(--bs-body-bg);
+    box-shadow: 0 -1px 4px rgba(0, 0, 0, .05);
+}
+.itflow-portal-tabbar a {
+    display: flex;
+    flex: 1 1 0;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: .2rem;
+    min-width: 0;
+    color: var(--bs-secondary-color);
+    font-size: .7rem;
+    text-decoration: none;
+}
+.itflow-portal-tabbar a i {
+    font-size: 1.1rem;
+}
+.itflow-portal-tabbar a.active {
+    color: var(--itflow-accent, #007bff);
+    font-weight: 600;
+}
+.itflow-portal-tabbar a.itflow-portal-tabbar-new i {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 2.1rem;
+    height: 2.1rem;
+    border-radius: 50%;
+    background-color: var(--bs-primary);
+    color: #fff;
+    font-size: .95rem;
+}
+@media (max-width: 991.98px) {
+    .itflow-portal {
+        padding-bottom: calc(var(--itflow-portal-tabbar-height) + env(safe-area-inset-bottom, 0px));
+    }
+    .itflow-portal-main {
+        padding-top: 1rem;
+    }
+}
+.itflow-portal-menu {
+    --bs-offcanvas-width: min(20rem, 85vw);
+}
+.itflow-portal-menu-heading {
+    margin: 1rem 0 .35rem;
+    color: var(--bs-secondary-color);
+    font-size: .72rem;
+    font-weight: 600;
+    letter-spacing: .04em;
+    text-transform: uppercase;
+}
+.itflow-portal-menu-heading:first-child {
+    margin-top: 0;
+}
+.itflow-portal-menu-link {
+    display: flex;
+    align-items: center;
+    gap: .65rem;
+    width: 100%;
+    padding: .55rem .6rem;
+    border: 0;
+    border-radius: var(--bs-border-radius);
+    background: transparent;
+    color: var(--bs-body-color);
+    text-align: start;
+    text-decoration: none;
+}
+.itflow-portal-menu-link i {
+    color: var(--bs-secondary-color);
+}
+.itflow-portal-menu-link:hover {
+    background-color: var(--bs-tertiary-bg);
+    color: var(--bs-emphasis-color);
+}
+.itflow-portal-menu-link.active {
+    background-color: color-mix(in srgb, var(--itflow-accent, #007bff) 12%, transparent);
+    color: var(--itflow-accent, #007bff);
+    font-weight: 600;
+}
+.itflow-portal-menu-link.active i {
+    color: inherit;
+}
+
+/* A page's title row: the title with a line under it, and its buttons */
+.itflow-portal-page-head {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: .75rem 1rem;
+    margin-bottom: 1.25rem;
+}
+.itflow-portal-page-head h1 {
+    margin: 0;
+    font-size: 1.5rem;
+    font-weight: 600;
+}
+.itflow-portal-page-head p {
+    margin: .2rem 0 0;
+    color: var(--bs-secondary-color);
+}
+.itflow-portal-back {
+    display: inline-flex;
+    align-items: center;
+    gap: .4rem;
+    margin-bottom: .5rem;
+    color: var(--bs-secondary-color);
+    font-size: .875rem;
+    text-decoration: none;
+}
+.itflow-portal-back:hover {
+    color: var(--bs-emphasis-color);
+}
+
+/* A plain panel - the portal's cards */
+.itflow-portal-panel {
+    overflow: hidden;
+    border: 1px solid var(--bs-border-color-translucent);
+    border-radius: var(--bs-border-radius-lg);
+    background-color: var(--bs-body-bg);
+}
+.itflow-portal-panel-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: .75rem;
+    padding: .85rem 1.1rem;
+    border-bottom: 1px solid var(--bs-border-color-translucent);
+}
+.itflow-portal-panel-head h2 {
+    margin: 0;
+    font-size: 1rem;
+    font-weight: 600;
+}
+.itflow-portal-panel-head h2 i {
+    margin-right: .45rem;
+    color: var(--bs-secondary-color);
+}
+.itflow-portal-panel-head a {
+    font-size: .85rem;
+    text-decoration: none;
+}
+.itflow-portal-panel-body {
+    padding: 1rem 1.1rem;
+}
+.itflow-portal-panel .itflow-empty-state {
+    padding: 2rem 1rem;
+}
+
+/* Where a ticket stands, for the client */
+.itflow-portal-state {
+    display: inline-flex;
+    align-items: center;
+    gap: .3rem;
+    padding: .2rem .6rem;
+    border-radius: 2rem;
+    font-size: .75rem;
+    font-weight: 600;
+    line-height: 1.4;
+    white-space: nowrap;
+}
+.itflow-portal-state i {
+    width: auto;
+    font-size: .7rem;
+}
+.itflow-portal-state-new { background-color: var(--bs-info-bg-subtle); color: var(--bs-info-text-emphasis); }
+.itflow-portal-state-progress { background-color: var(--bs-primary-bg-subtle); color: var(--bs-primary-text-emphasis); }
+.itflow-portal-state-you { background-color: var(--bs-warning-bg-subtle); color: var(--bs-warning-text-emphasis); }
+.itflow-portal-state-hold { background-color: var(--bs-secondary-bg); color: var(--bs-secondary-color); }
+.itflow-portal-state-resolved { background-color: var(--bs-success-bg-subtle); color: var(--bs-success-text-emphasis); }
+.itflow-portal-state-closed { background-color: var(--bs-tertiary-bg); color: var(--bs-secondary-color); }
+
+/* Tabs along the top of a list, underlined, each with its count */
+.itflow-portal-tabs {
+    display: flex;
+    gap: .25rem;
+    margin-bottom: 1rem;
+    border-bottom: 1px solid var(--bs-border-color-translucent);
+    overflow-x: auto;
+    scrollbar-width: none;
+}
+.itflow-portal-tabs a {
+    display: inline-flex;
+    flex: 0 0 auto;
+    align-items: center;
+    gap: .45rem;
+    padding: .6rem .8rem;
+    border-bottom: 2px solid transparent;
+    margin-bottom: -1px;
+    color: var(--bs-secondary-color);
+    font-weight: 500;
+    text-decoration: none;
+    white-space: nowrap;
+}
+.itflow-portal-tabs a:hover {
+    color: var(--bs-emphasis-color);
+}
+.itflow-portal-tabs a.active {
+    border-bottom-color: var(--itflow-accent, #007bff);
+    color: var(--bs-emphasis-color);
+    font-weight: 600;
+}
+.itflow-portal-tabs .badge {
+    background-color: var(--bs-tertiary-bg);
+    color: var(--bs-secondary-color);
+    font-weight: 600;
+}
+.itflow-portal-tabs a.itflow-portal-tab-alert .badge {
+    background-color: var(--bs-warning-bg-subtle);
+    color: var(--bs-warning-text-emphasis);
+}
+
+/* A list of tickets */
+.itflow-portal-list {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+.itflow-portal-list > li + li {
+    border-top: 1px solid var(--bs-border-color-translucent);
+}
+.itflow-portal-ticket {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: .85rem 1.1rem;
+    color: inherit;
+    text-decoration: none;
+}
+a.itflow-portal-ticket:hover {
+    background-color: var(--bs-tertiary-bg);
+    color: inherit;
+}
+.itflow-portal-ticket-main {
+    flex: 1 1 auto;
+    min-width: 0;
+}
+.itflow-portal-ticket-subject {
+    overflow: hidden;
+    color: var(--bs-emphasis-color);
+    font-weight: 600;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+.itflow-portal-ticket-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: .15rem .9rem;
+    margin-top: .15rem;
+    color: var(--bs-secondary-color);
+    font-size: .8rem;
+}
+.itflow-portal-ticket-side {
+    display: flex;
+    flex: 0 0 auto;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: .3rem;
+    text-align: end;
+}
+.itflow-portal-ticket-side small {
+    color: var(--bs-secondary-color);
+}
+@media (max-width: 575.98px) {
+    .itflow-portal-ticket {
+        flex-wrap: wrap;
+        gap: .5rem;
+        padding: .8rem .9rem;
+    }
+    .itflow-portal-ticket-side {
+        flex-direction: row;
+        align-items: center;
+        gap: .6rem;
+    }
+}
+
+/* Paging under a list */
+.itflow-portal-pager {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: .75rem;
+    padding: .75rem 1.1rem;
+    border-top: 1px solid var(--bs-border-color-translucent);
+    color: var(--bs-secondary-color);
+    font-size: .85rem;
+}
+
+/* A ticket's progress: received, in progress, resolved, closed */
+.itflow-portal-steps {
+    display: flex;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    counter-reset: step;
+}
+.itflow-portal-steps li {
+    position: relative;
+    flex: 1 1 0;
+    padding-top: 1.6rem;
+    color: var(--bs-secondary-color);
+    font-size: .78rem;
+    text-align: center;
+}
+.itflow-portal-steps li::before {
+    content: "";
+    position: absolute;
+    top: .35rem;
+    left: 50%;
+    z-index: 1;
+    width: .8rem;
+    height: .8rem;
+    margin-left: -.4rem;
+    border: 2px solid var(--bs-border-color);
+    border-radius: 50%;
+    background-color: var(--bs-body-bg);
+}
+.itflow-portal-steps li + li::after {
+    content: "";
+    position: absolute;
+    top: .7rem;
+    right: 50%;
+    left: -50%;
+    height: 2px;
+    background-color: var(--bs-border-color);
+}
+.itflow-portal-steps li.done::before,
+.itflow-portal-steps li.current::before {
+    border-color: var(--itflow-accent, #007bff);
+    background-color: var(--itflow-accent, #007bff);
+}
+.itflow-portal-steps li.done + li::after,
+.itflow-portal-steps li.done + li.current::after {
+    background-color: var(--itflow-accent, #007bff);
+}
+.itflow-portal-steps li.current {
+    color: var(--bs-emphasis-color);
+    font-weight: 600;
+}
+.itflow-portal-steps li.current::before {
+    box-shadow: 0 0 0 4px color-mix(in srgb, var(--itflow-accent, #007bff) 22%, transparent);
+}
+
+/* The conversation on a ticket - oldest first, the client's own on the right */
+.itflow-portal-thread {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+.itflow-portal-msg {
+    display: flex;
+    align-items: flex-start;
+    gap: .75rem;
+    max-width: 100%;
+}
+.itflow-portal-msg-mine {
+    flex-direction: row-reverse;
+}
+.itflow-portal-msg-body {
+    min-width: 0;
+    max-width: min(46rem, calc(100% - 3rem));
+}
+.itflow-portal-msg-head {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: .2rem .6rem;
+    margin-bottom: .3rem;
+    font-size: .8rem;
+}
+.itflow-portal-msg-mine .itflow-portal-msg-head {
+    justify-content: flex-end;
+}
+.itflow-portal-msg-head strong {
+    color: var(--bs-emphasis-color);
+}
+.itflow-portal-msg-head span {
+    color: var(--bs-secondary-color);
+}
+.itflow-portal-msg-bubble {
+    padding: .75rem 1rem;
+    border: 1px solid var(--bs-border-color-translucent);
+    border-radius: var(--bs-border-radius-lg);
+    border-top-left-radius: .25rem;
+    background-color: var(--bs-body-bg);
+    overflow-wrap: anywhere;
+}
+.itflow-portal-msg-mine .itflow-portal-msg-bubble {
+    border-color: color-mix(in srgb, var(--itflow-accent, #007bff) 25%, transparent);
+    border-top-left-radius: var(--bs-border-radius-lg);
+    border-top-right-radius: .25rem;
+    background-color: color-mix(in srgb, var(--itflow-accent, #007bff) 7%, var(--bs-body-bg));
+}
+.itflow-portal-msg-bubble > :last-child {
+    margin-bottom: 0;
+}
+.itflow-portal-msg-bubble img {
+    max-width: 100%;
+    height: auto;
+}
+.itflow-portal-event {
+    display: flex;
+    align-items: center;
+    gap: .75rem;
+    color: var(--bs-secondary-color);
+    font-size: .8rem;
+}
+.itflow-portal-event::before,
+.itflow-portal-event::after {
+    content: "";
+    flex: 1 1 auto;
+    height: 1px;
+    background-color: var(--bs-border-color-translucent);
+}
+
+/* Attachments - on a message, and the drop zone on a form */
+.itflow-portal-files {
+    display: flex;
+    flex-wrap: wrap;
+    gap: .4rem;
+    margin-top: .6rem;
+}
+.itflow-portal-file-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: .4rem;
+    max-width: 100%;
+    padding: .3rem .65rem;
+    border: 1px solid var(--bs-border-color-translucent);
+    border-radius: 2rem;
+    background-color: var(--bs-tertiary-bg);
+    color: var(--bs-body-color);
+    font-size: .8rem;
+    text-decoration: none;
+}
+a.itflow-portal-file-chip:hover {
+    border-color: var(--bs-primary-border-subtle);
+    color: var(--bs-emphasis-color);
+}
+.itflow-portal-file-chip i {
+    color: var(--bs-secondary-color);
+}
+.itflow-portal-drop {
+    position: relative;
+    padding: .9rem 1rem;
+    border: 1px dashed var(--bs-border-color);
+    border-radius: var(--bs-border-radius-lg);
+    color: var(--bs-secondary-color);
+    font-size: .875rem;
+    transition: border-color .12s ease-in-out, background-color .12s ease-in-out;
+}
+.itflow-portal-drop.is-dragging {
+    border-color: var(--itflow-accent, #007bff);
+    background-color: color-mix(in srgb, var(--itflow-accent, #007bff) 6%, transparent);
+}
+.itflow-portal-drop input[type=file] {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    opacity: 0;
+    pointer-events: none;
+}
+.itflow-portal-drop label {
+    color: var(--itflow-accent, #007bff);
+    font-weight: 600;
+    cursor: pointer;
+}
+.itflow-portal-drop input[type=file]:focus-visible + label {
+    outline: 2px solid var(--itflow-accent, #007bff);
+    outline-offset: 2px;
+}
+.itflow-portal-drop .itflow-portal-files {
+    margin-top: .6rem;
+}
+.tox-tinymce.is-invalid {
+    border-color: var(--bs-form-invalid-border-color) !important;
+}
+
+/* Details down the side of a ticket */
+.itflow-portal-facts {
+    margin: 0;
+}
+.itflow-portal-facts > div {
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: .55rem 0;
+}
+.itflow-portal-facts > div + div {
+    border-top: 1px solid var(--bs-border-color-translucent);
+}
+.itflow-portal-facts dt {
+    color: var(--bs-secondary-color);
+    font-weight: 400;
+}
+.itflow-portal-facts dd {
+    margin: 0;
+    min-width: 0;
+    text-align: end;
+    overflow-wrap: anywhere;
+}
+
+/* Home: the figures along the top and the "needs you" list */
+.itflow-portal-stat {
+    display: flex;
+    align-items: center;
+    gap: .9rem;
+    height: 100%;
+    padding: 1rem 1.1rem;
+    border: 1px solid var(--bs-border-color-translucent);
+    border-radius: var(--bs-border-radius-lg);
+    background-color: var(--bs-body-bg);
+    color: inherit;
+    text-decoration: none;
+}
+a.itflow-portal-stat:hover {
+    border-color: var(--bs-primary-border-subtle);
+    box-shadow: 0 1px 4px rgba(0, 0, 0, .06);
+    color: inherit;
+}
+.itflow-portal-stat-icon {
+    display: inline-flex;
+    flex: 0 0 auto;
+    align-items: center;
+    justify-content: center;
+    width: 2.6rem;
+    height: 2.6rem;
+    border-radius: 50%;
+    background-color: var(--bs-secondary-bg);
+    color: var(--bs-secondary-color);
+    font-size: 1.05rem;
+}
+.itflow-portal-stat-value {
+    color: var(--bs-emphasis-color);
+    font-size: 1.35rem;
+    font-weight: 600;
+    line-height: 1.2;
+}
+.itflow-portal-stat-label {
+    color: var(--bs-secondary-color);
+    font-size: .8rem;
+}
+.itflow-portal-stat > span:last-child {
+    min-width: 0;
+    overflow-wrap: anywhere;
+}
+@media (max-width: 575.98px) {
+    .itflow-portal-stat {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: .5rem;
+        padding: .85rem;
+    }
+    .itflow-portal-stat-icon {
+        width: 2.1rem;
+        height: 2.1rem;
+        font-size: .9rem;
+    }
+    .itflow-portal-stat-value {
+        font-size: 1.15rem;
+    }
+}
+.itflow-portal-stat-alert .itflow-portal-stat-icon {
+    background-color: var(--bs-warning-bg-subtle);
+    color: var(--bs-warning-text-emphasis);
+}
+.itflow-portal-stat-danger .itflow-portal-stat-icon {
+    background-color: var(--bs-danger-bg-subtle);
+    color: var(--bs-danger-text-emphasis);
+}
+.itflow-portal-todo {
+    display: flex;
+    align-items: center;
+    gap: .85rem;
+    padding: .75rem 1.1rem;
+    color: inherit;
+    text-decoration: none;
+}
+a.itflow-portal-todo:hover {
+    background-color: var(--bs-tertiary-bg);
+    color: inherit;
+}
+.itflow-portal-todo-icon {
+    display: inline-flex;
+    flex: 0 0 auto;
+    align-items: center;
+    justify-content: center;
+    width: 2rem;
+    height: 2rem;
+    border-radius: 50%;
+    background-color: var(--bs-warning-bg-subtle);
+    color: var(--bs-warning-text-emphasis);
+    font-size: .8rem;
+}
+.itflow-portal-todo-icon.is-danger {
+    background-color: var(--bs-danger-bg-subtle);
+    color: var(--bs-danger-text-emphasis);
+}
+.itflow-portal-todo-icon.is-info {
+    background-color: var(--bs-info-bg-subtle);
+    color: var(--bs-info-text-emphasis);
+}
+.itflow-portal-todo-main {
+    flex: 1 1 auto;
+    min-width: 0;
+}
+.itflow-portal-todo-main div:first-child {
+    overflow: hidden;
+    color: var(--bs-emphasis-color);
+    font-weight: 600;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+.itflow-portal-todo-main div + div {
+    color: var(--bs-secondary-color);
+    font-size: .8rem;
+}
+
+.itflow-portal-preview-image {
+    max-height: 600px;
+}
+
+/* The pages not rebuilt yet: their black table heads and borders, softened to
+   sit in the light shell */
+.itflow-portal-main .table-dark {
+    --bs-table-color: var(--bs-emphasis-color);
+    --bs-table-bg: var(--bs-tertiary-bg);
+    --bs-table-border-color: var(--bs-border-color);
+}
+.itflow-portal-main .table.border-dark,
+.itflow-portal-main .table .border-dark {
+    border-color: var(--bs-border-color) !important;
+}

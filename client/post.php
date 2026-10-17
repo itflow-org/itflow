@@ -14,10 +14,30 @@ if (isset($_POST['add_ticket'])) {
 
     validateCSRFToken();
 
-    $subject = escapeSql($_POST['subject']);
-    $details = mysqli_real_escape_string($mysqli, ($_POST['details']));
-    $category = intval($_POST['category']);
-    $asset = intval($_POST['asset']);
+    // A subject and something in the details - the editor checks this too, but
+    // a page that never loaded it would send them blank
+    $raw_details = (string) ($_POST['details'] ?? '');
+    if (trim((string) ($_POST['subject'] ?? '')) === '' || portalHtmlIsEmpty($raw_details)) {
+        flashAlert("Give the ticket a subject and tell us what is happening", 'error');
+        redirect('ticket_add.php');
+    }
+
+    $subject = escapeSql(mb_substr(trim($_POST['subject']), 0, 500));
+    $details = mysqli_real_escape_string($mysqli, $raw_details);
+    $category = intval($_POST['category'] ?? 0);
+    $asset = intval($_POST['asset'] ?? 0);
+
+    // Only a ticket category that is in use
+    if ($category && !mysqli_num_rows(mysqli_query($mysqli, "SELECT 1 FROM categories WHERE category_id = $category AND category_type = 'Ticket' AND category_archived_at IS NULL"))) {
+        $category = 0;
+    }
+
+    // Only one of their company's devices - their own, or any of the company's
+    // for a primary or technical contact, as the form offers
+    if ($asset && !mysqli_num_rows(mysqli_query($mysqli, "SELECT 1 FROM assets WHERE asset_id = $asset AND asset_client_id = $session_client_id AND asset_archived_at IS NULL"
+        . (portalSeesAllTickets() ? '' : " AND asset_contact_id = $session_contact_id")))) {
+        $asset = 0;
+    }
 
     // Get settings from load_global_settings.php
     $config_ticket_prefix = escapeSql($config_ticket_prefix);
@@ -50,6 +70,9 @@ if (isset($_POST['add_ticket'])) {
     mysqli_query($mysqli, "INSERT INTO tickets SET ticket_prefix = '$config_ticket_prefix', ticket_number = $ticket_number, ticket_source = 'Portal', ticket_category = $category, ticket_subject = '$subject', ticket_details = '$details', ticket_priority = '$priority', ticket_status = 1, ticket_billable = $config_ticket_default_billable, ticket_created_by = $session_user_id, ticket_contact_id = $session_contact_id, ticket_asset_id = $asset, ticket_url_key = '$url_key', ticket_client_id = $session_client_id");
     $ticket_id = mysqli_insert_id($mysqli);
     applyTicketSla($ticket_id);
+
+    // Screenshots and files sent with it belong to the ticket itself
+    saveTicketAttachments($ticket_id, null, 'file');
 
     // Notify agent DL of the new ticket, if populated with a valid email
     if ($config_ticket_new_ticket_notification_email) {
@@ -87,11 +110,13 @@ if (isset($_POST['add_ticket_comment'])) {
     validateCSRFToken();
 
     $ticket_id = intval($_POST['ticket_id']);
-    $comment = mysqli_real_escape_string($mysqli, $_POST['comment']);
+    $raw_comment = (string) ($_POST['comment'] ?? '');
+    $comment = mysqli_real_escape_string($mysqli, $raw_comment);
 
-    // After stripping bad HTML, check the comment isn't just empty
-    if (empty($comment)) {
-        flashAlert("You must enter a comment", 'danger');
+    // Nothing but empty paragraphs from the editor is no reply - a picture on
+    // its own is
+    if (portalHtmlIsEmpty($raw_comment)) {
+        flashAlert("Write a reply first", 'error');
         redirect();
     }
 

@@ -1,280 +1,334 @@
 <?php
 /*
  * Client Portal
- * Landing / Home page for the client portal
+ * Home - what needs this contact: tickets waiting on their reply or for them
+ * to confirm, approvals, invoices past due; their open tickets, the balance,
+ * renewals coming up and the devices they use.
+ *
+ * SCOPING: everything here is keyed to $session_client_id from the session,
+ * tickets through portalTicketScopeSql() (their own, or the whole company's
+ * for primary and technical contacts), and the money and IT sections are only
+ * read for a contact who may see them.
  */
 
 header("Content-Security-Policy: default-src 'self'");
 
 require_once "includes/inc_all.php";
 
-// Billing Card Queries
- //Add up all the payments for the invoice and get the total amount paid to the invoice
-$sql_invoice_amounts = mysqli_query($mysqli, "SELECT SUM(invoice_amount) AS invoice_amounts FROM invoices WHERE invoice_client_id = $session_client_id AND invoice_status != 'Draft' AND invoice_status != 'Cancelled' AND invoice_status != 'Non-Billable'");
-$row = mysqli_fetch_assoc($sql_invoice_amounts);
+$scope_sql = portalTicketScopeSql();
+$sees_all = portalSeesAllTickets();
+$can_billing = contactCan('accounting') && $config_module_enable_accounting == 1;
+$can_it = $config_module_enable_itdoc && contactCan('itdoc');
+$ticket_from = "FROM tickets LEFT JOIN ticket_statuses ON ticket_status = ticket_status_id WHERE $scope_sql AND tickets.ticket_archived_at IS NULL";
 
-$invoice_amounts = floatval($row['invoice_amounts']);
+// Tickets - counted, and the ones that need the contact
+$tabs = portalTicketTabs();
+$counts = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT
+    COALESCE(SUM({$tabs['open']['where']}), 0) AS open_count,
+    COALESCE(SUM({$tabs['resolved']['where']}), 0) AS resolved_count
+    $ticket_from"));
+$open_count = intval($counts['open_count']);
+$resolved_count = intval($counts['resolved_count']);
+$you_count = intval(mysqli_fetch_row(mysqli_query($mysqli, "SELECT COUNT(*) $ticket_from AND {$tabs['you']['where']}"))[0]);
 
-$sql_amount_paid = mysqli_query($mysqli, "SELECT SUM(payment_amount) AS amount_paid FROM payments, invoices WHERE payment_invoice_id = invoice_id AND invoice_client_id = $session_client_id");
-$row = mysqli_fetch_assoc($sql_amount_paid);
+$needs_you = [];
+$sql = mysqli_query($mysqli, "SELECT " . portalTicketColumnsSql() . " $ticket_from AND ({$tabs['you']['where']} OR {$tabs['resolved']['where']})
+    ORDER BY COALESCE(tickets.ticket_updated_at, tickets.ticket_created_at) DESC LIMIT 6");
+while ($row = mysqli_fetch_assoc($sql)) {
+    $resolved = !empty($row['ticket_resolved_at']);
+    $needs_you[] = [
+        'href' => 'ticket.php?id=' . intval($row['ticket_id']),
+        'icon' => $resolved ? 'fa-check' : 'fa-reply',
+        'tone' => $resolved ? 'is-info' : '',
+        'title' => $row['ticket_subject'],
+        'line' => ($resolved ? 'Resolved - is it fixed? Close it, or reopen it' : 'We replied - waiting on you') . ' · ' . $row['ticket_prefix'] . $row['ticket_number'],
+    ];
+}
 
-$amount_paid = floatval($row['amount_paid']);
+// Tasks on their tickets waiting for the client's approval
+$sql = mysqli_query($mysqli, "SELECT tickets.ticket_id, ticket_prefix, ticket_number, task_name FROM task_approvals
+    JOIN tasks ON task_id = approval_task_id
+    JOIN tickets ON tickets.ticket_id = task_ticket_id
+    LEFT JOIN ticket_statuses ON ticket_status = ticket_status_id
+    WHERE $scope_sql AND approval_scope = 'client' AND approval_status = 'pending' AND task_completed_at IS NULL AND tickets.ticket_closed_at IS NULL
+    ORDER BY approval_id DESC LIMIT 4");
+while ($row = mysqli_fetch_assoc($sql)) {
+    $needs_you[] = [
+        'href' => 'ticket.php?id=' . intval($row['ticket_id']),
+        'icon' => 'fa-clipboard-check',
+        'tone' => '',
+        'title' => 'Approve: ' . $row['task_name'],
+        'line' => 'Waiting for your approval · ' . $row['ticket_prefix'] . $row['ticket_number'],
+    ];
+}
 
-$balance = $invoice_amounts - $amount_paid;
+// Money - what is owed, and what is past due
+$balance = 0.0;
+$overdue = 0.0;
+$overdue_count = 0;
+$next_due = null;
+$client_currency = $session_company_currency;
+if ($can_billing) {
+    $client_currency = mysqli_fetch_row(mysqli_query($mysqli, "SELECT client_currency_code FROM clients WHERE client_id = $session_client_id"))[0] ?: $session_company_currency;
+    foreach (billingClientOpenInvoices($session_client_id) as $invoice) {
+        $left = round(floatval($invoice['invoice_amount']) - floatval($invoice['paid']), 2);
+        $balance += $left;
+        if ($invoice['invoice_due'] < date('Y-m-d')) {
+            $overdue += $left;
+            $overdue_count++;
+            $needs_you[] = [
+                'href' => 'unpaid_invoices.php',
+                'icon' => 'fa-file-invoice-dollar',
+                'tone' => 'is-danger',
+                'title' => 'Invoice ' . $invoice['invoice_prefix'] . $invoice['invoice_number'] . ' is past due',
+                'line' => numfmt_format_currency($currency_format, $left, $client_currency) . ' left - due ' . date('M j, Y', strtotime($invoice['invoice_due'])),
+            ];
+        } elseif ($next_due === null || $invoice['invoice_due'] < $next_due) {
+            $next_due = $invoice['invoice_due'];
+        }
+    }
+}
 
-// What their recurring invoices come to a month - quarterly ones a third, yearly ones a twelfth
-$row = mysqli_fetch_row(mysqli_query($mysqli, "SELECT COALESCE(SUM(" . recurringInvoiceMonthlySql() . "), 0) FROM recurring_invoices
-    WHERE recurring_invoice_status = 1 AND recurring_invoice_archived_at IS NULL AND recurring_invoice_client_id = $session_client_id"));
-$recurring_monthly = floatval($row[0]);
+// Open tickets, newest first
+$recent = mysqli_query($mysqli, "SELECT " . portalTicketColumnsSql() . ", contact_name FROM tickets
+    LEFT JOIN ticket_statuses ON ticket_status = ticket_status_id
+    LEFT JOIN contacts ON contact_id = tickets.ticket_contact_id
+    WHERE $scope_sql AND tickets.ticket_archived_at IS NULL AND {$tabs['open']['where']}
+    ORDER BY COALESCE(tickets.ticket_updated_at, tickets.ticket_created_at) DESC LIMIT 5");
 
-// Technical Card Queries
-// 8 - 45 Day Warning
+// Renewals coming up in the next 45 days, and anything that lapsed in the last 30
+$renewals = [];
+if ($can_it) {
+    $window = "BETWEEN CURDATE() - INTERVAL 30 DAY AND CURDATE() + INTERVAL 45 DAY";
+    $sources = [
+        ['domains.php', 'fa-globe', 'Domain', "SELECT domain_name, domain_expire FROM domains WHERE domain_client_id = $session_client_id AND domain_archived_at IS NULL AND domain_expire $window"],
+        ['certificates.php', 'fa-lock', 'Certificate', "SELECT certificate_name, certificate_expire FROM certificates WHERE certificate_client_id = $session_client_id AND certificate_archived_at IS NULL AND certificate_expire $window"],
+        ['', 'fa-cube', 'License', "SELECT software_name, software_expire FROM software WHERE software_client_id = $session_client_id AND software_archived_at IS NULL AND software_expire $window"],
+        ['assets.php', 'fa-shield-alt', 'Warranty', "SELECT asset_name, asset_warranty_expire FROM assets WHERE asset_client_id = $session_client_id AND asset_archived_at IS NULL AND asset_warranty_expire $window"],
+    ];
+    foreach ($sources as [$href, $icon, $kind, $query]) {
+        $sql = mysqli_query($mysqli, $query);
+        while ($row = mysqli_fetch_row($sql)) {
+            $renewals[] = ['href' => $href, 'icon' => $icon, 'kind' => $kind, 'name' => $row[0], 'date' => $row[1]];
+        }
+    }
+    usort($renewals, function ($a, $b) { return strcmp($a['date'], $b['date']); });
+}
 
-// Get Domains Expiring
-$sql_domains_expiring = mysqli_query(
-    $mysqli,
-    "SELECT domain_expire, domain_id, domain_name FROM domains
-    WHERE domain_client_id = $session_client_id
-        AND domain_expire IS NOT NULL
-        AND domain_archived_at IS NULL
-        AND domain_expire > CURRENT_DATE
-        AND domain_expire < CURRENT_DATE + INTERVAL 45 DAY
-    ORDER BY domain_expire ASC"
-);
+// The devices this contact uses
+$devices = [];
+$sql = mysqli_query($mysqli, "SELECT asset_id, asset_name, asset_type, asset_make, asset_model, asset_warranty_expire, asset_uri_client FROM assets
+    WHERE asset_contact_id = $session_contact_id AND asset_client_id = $session_client_id AND asset_archived_at IS NULL ORDER BY asset_name ASC LIMIT 6");
+while ($row = mysqli_fetch_assoc($sql)) {
+    $devices[] = $row;
+}
 
-// Get Certificates Expiring
-$sql_certificates_expiring = mysqli_query(
-    $mysqli,
-    "SELECT * FROM certificates
-    WHERE certificate_client_id = $session_client_id
-        AND certificate_expire IS NOT NULL
-        AND certificate_archived_at IS NULL
-        AND certificate_expire > CURRENT_DATE
-        AND certificate_expire < CURRENT_DATE + INTERVAL 45 DAY
-    ORDER BY certificate_expire ASC"
-);
+// How to reach us
+$company = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT company_phone, company_phone_country_code, company_email, company_website FROM companies WHERE company_id = 1"));
 
-// Get Licenses Expiring
-$sql_licenses_expiring = mysqli_query(
-    $mysqli,
-    "SELECT * FROM software
-    WHERE software_client_id = $session_client_id
-        AND software_expire IS NOT NULL
-        AND software_archived_at IS NULL
-        AND software_expire > CURRENT_DATE
-        AND software_expire < CURRENT_DATE + INTERVAL 45 DAY
-    ORDER BY software_expire ASC"
-);
-
-// Get Asset Warranties Expiring
-$sql_asset_warranties_expiring = mysqli_query(
-    $mysqli,
-    "SELECT * FROM assets
-    WHERE asset_client_id = $session_client_id
-        AND asset_warranty_expire IS NOT NULL
-        AND asset_archived_at IS NULL
-        AND asset_warranty_expire > CURRENT_DATE
-        AND asset_warranty_expire < CURRENT_DATE + INTERVAL 45 DAY
-    ORDER BY asset_warranty_expire ASC"
-);
-
-// Get Assets Retiring 7 Year
-$sql_asset_retire = mysqli_query(
-    $mysqli,
-    "SELECT * FROM assets
-    WHERE asset_client_id = $session_client_id
-        AND asset_install_date IS NOT NULL
-        AND asset_archived_at IS NULL
-        AND asset_install_date + INTERVAL 7 YEAR > CURRENT_DATE
-        AND asset_install_date + INTERVAL 7 YEAR <= CURRENT_DATE + INTERVAL 45 DAY
-    ORDER BY asset_install_date ASC"
-);
-
-/*
- * EXPIRED ITEMS
- */
-
-// Get Domains Expired
-$sql_domains_expired = mysqli_query(
-    $mysqli,
-    "SELECT * FROM domains
-    WHERE domain_client_id = $session_client_id
-        AND domain_expire IS NOT NULL
-        AND domain_archived_at IS NULL
-        AND domain_expire < CURRENT_DATE
-    ORDER BY domain_expire ASC"
-);
-
-// Get Certificates Expired
-$sql_certificates_expired = mysqli_query(
-    $mysqli,
-    "SELECT * FROM certificates
-    WHERE certificate_client_id = $session_client_id
-        AND certificate_expire IS NOT NULL
-        AND certificate_archived_at IS NULL
-        AND certificate_expire < CURRENT_DATE
-    ORDER BY certificate_expire ASC"
-);
-
-// Get Licenses Expired
-$sql_licenses_expired = mysqli_query(
-    $mysqli,
-    "SELECT * FROM software
-    WHERE software_client_id = $session_client_id
-        AND software_expire IS NOT NULL
-        AND software_archived_at IS NULL
-        AND software_expire < CURRENT_DATE
-    ORDER BY software_expire ASC"
-);
-
-// Get Asset Warranties Expired
-$sql_asset_warranties_expired = mysqli_query(
-    $mysqli,
-    "SELECT * FROM assets
-    WHERE asset_client_id = $session_client_id
-        AND asset_warranty_expire IS NOT NULL
-        AND asset_archived_at IS NULL
-        AND asset_warranty_expire < CURRENT_DATE
-    ORDER BY asset_warranty_expire ASC"
-);
-
-// Get Retired Assets
-$sql_asset_retired = mysqli_query(
-    $mysqli,
-    "SELECT * FROM assets
-    WHERE asset_client_id = $session_client_id
-        AND asset_install_date IS NOT NULL
-        AND asset_archived_at IS NULL
-        AND asset_install_date + INTERVAL 7 YEAR < CURRENT_DATE  -- Assets retired (installed more than 7 years ago)
-    ORDER BY asset_install_date ASC"
-);
-
-// Assigned Assets
-$sql_assigned_assets = mysqli_query(
-    $mysqli,
-    "SELECT asset_name, asset_type, asset_uri_client FROM assets
-    WHERE asset_contact_id = $session_contact_id
-        AND asset_archived_at IS NULL
-    ORDER BY asset_name ASC"
-);
-
-?>
-<div class="row">
-    <div class="col-md-2">
-        <a href="ticket_add.php" class="btn btn-primary w-100 mb-3">New ticket</a>
-    </div>
-</div>
-<?php
-// Billing Cards
-if (contactCan('accounting')) { ?>
-
-<div class="row">
-
-    <?php if ($balance > 0) { ?>
-    <div class="col-sm-3">
-        <a href="unpaid_invoices.php" class="card">
-            <div class="card-header">
-                <h3 class="card-title text-bold text-dark">Account Balance</h3>
-            </div>
-            <div class="card-body">
-                <div class="h4 text-danger"><b><?= numfmt_format_currency($currency_format, $balance, $session_company_currency) ?></b></div>
-            </div>
-        </a>
-    </div>
-    <?php } ?>
-
-    <?php if ($recurring_monthly > 0) { ?>
-    <div class="col-sm-3">
-        <a href="recurring_invoices.php" class="card text-dark">
-            <div class="card-header">
-                <h3 class="card-title">Recurring Monthly</h3>
-            </div>
-            <div class="card-body">
-                <div class="h4"><b><?= numfmt_format_currency($currency_format, $recurring_monthly, $session_company_currency) ?></b></div>
-            </div>
-        </a>
-    </div>
-    <?php } ?>
-
-</div>
-
-<?php } //End Billing Cards ?>
-
-<?php
-// Technical Cards
-if (contactCan('itdoc')) {
+$hour = intval(date('G'));
+$greeting = $hour < 12 ? 'Good morning' : ($hour < 18 ? 'Good afternoon' : 'Good evening');
+$first_name = strtok(trim((string) $contact['contact_name']), ' ') ?: '';
 ?>
 
-<div class="row">
+<div class="itflow-portal-page-head">
+    <div>
+        <h1><?= escapeHtml(rtrim("$greeting, $first_name", ', ')) ?></h1>
+        <p><?= escapeHtml($session_client_name) ?></p>
+    </div>
+    <div class="d-flex flex-wrap gap-2">
+        <?php if ($can_billing && $balance > 0) { ?>
+            <a class="btn btn-outline-primary" href="unpaid_invoices.php"><i class="fas fa-credit-card me-2"></i>Pay invoices</a>
+        <?php } ?>
+    </div>
+</div>
 
-    <?php if (mysqli_num_rows($sql_domains_expiring) > 0) { ?>
-    <div class="col-sm-3">
-        <a href="domains.php">
-            <div  class="card text-dark">
-                <div class="card-header">
-                    <h3 class="card-title text-bold"><i class="fas fa-fw fa-globe me-2"></i>Domains Expiring</h3>
+<div class="row g-3 mb-4">
+    <div class="col-6 col-lg-3">
+        <a class="itflow-portal-stat" href="tickets.php">
+            <span class="itflow-portal-stat-icon"><i class="fas fa-life-ring"></i></span>
+            <span>
+                <span class="itflow-portal-stat-value d-block"><?= $open_count ?></span>
+                <span class="itflow-portal-stat-label"><?= $open_count === 1 ? 'Open ticket' : 'Open tickets' ?><?= $sees_all ? '' : ' of yours' ?></span>
+            </span>
+        </a>
+    </div>
+    <div class="col-6 col-lg-3">
+        <a class="itflow-portal-stat<?= $you_count ? ' itflow-portal-stat-alert' : '' ?>" href="tickets.php?tab=you">
+            <span class="itflow-portal-stat-icon"><i class="fas fa-reply"></i></span>
+            <span>
+                <span class="itflow-portal-stat-value d-block"><?= $you_count ?></span>
+                <span class="itflow-portal-stat-label">Waiting on you</span>
+            </span>
+        </a>
+    </div>
+    <?php if ($can_billing) { ?>
+        <div class="col-6 col-lg-3">
+            <a class="itflow-portal-stat<?= $overdue > 0 ? ' itflow-portal-stat-danger' : '' ?>" href="<?= $balance > 0 ? 'unpaid_invoices.php' : 'invoices.php' ?>">
+                <span class="itflow-portal-stat-icon"><i class="fas fa-file-invoice-dollar"></i></span>
+                <span class="min-w-0">
+                    <span class="itflow-portal-stat-value d-block"><?= numfmt_format_currency($currency_format, $balance, $client_currency) ?></span>
+                    <span class="itflow-portal-stat-label">
+                        <?php if ($overdue > 0) { ?>
+                            <?= numfmt_format_currency($currency_format, $overdue, $client_currency) ?> past due
+                        <?php } elseif ($balance > 0 && $next_due) { ?>
+                            Due <?= date('M j', strtotime($next_due)) ?>
+                        <?php } else { ?>
+                            Nothing owed
+                        <?php } ?>
+                    </span>
+                </span>
+            </a>
+        </div>
+    <?php } ?>
+    <?php if ($can_it) { ?>
+        <div class="col-6 col-lg-3">
+            <a class="itflow-portal-stat" href="#renewals">
+                <span class="itflow-portal-stat-icon"><i class="fas fa-calendar-alt"></i></span>
+                <span>
+                    <span class="itflow-portal-stat-value d-block"><?= count($renewals) ?></span>
+                    <span class="itflow-portal-stat-label"><?= count($renewals) === 1 ? 'Renewal' : 'Renewals' ?> coming up</span>
+                </span>
+            </a>
+        </div>
+    <?php } ?>
+</div>
+
+<div class="row g-4">
+    <div class="col-lg-8">
+
+        <section class="itflow-portal-panel mb-4">
+            <div class="itflow-portal-panel-head">
+                <h2><i class="fas fa-bell"></i>Needs you</h2>
+            </div>
+            <?php if (!$needs_you) { ?>
+                <?= emptyStateHtml(['title' => "You're all caught up", 'text' => 'Nothing is waiting on you right now.', 'icon' => 'fa-check', 'filtered' => false]) ?>
+            <?php } else { ?>
+                <ul class="itflow-portal-list">
+                    <?php foreach (array_slice($needs_you, 0, 8) as $item) { ?>
+                        <li>
+                            <a class="itflow-portal-todo" href="<?= escapeHtml($item['href']) ?>">
+                                <span class="itflow-portal-todo-icon <?= $item['tone'] ?>"><i class="fas <?= $item['icon'] ?>"></i></span>
+                                <span class="itflow-portal-todo-main">
+                                    <div><?= escapeHtml($item['title']) ?></div>
+                                    <div><?= escapeHtml($item['line']) ?></div>
+                                </span>
+                                <i class="fas fa-chevron-right text-body-secondary small"></i>
+                            </a>
+                        </li>
+                    <?php } ?>
+                </ul>
+            <?php } ?>
+        </section>
+
+        <section class="itflow-portal-panel">
+            <div class="itflow-portal-panel-head">
+                <h2><i class="fas fa-life-ring"></i><?= $sees_all ? 'Open tickets' : 'Your open tickets' ?></h2>
+                <a href="tickets.php">All tickets</a>
+            </div>
+            <?php if (!mysqli_num_rows($recent)) { ?>
+                <?= emptyStateHtml(['title' => 'No open tickets', 'text' => 'Something not working? Raise a ticket and we will pick it up.', 'icon' => 'fa-life-ring', 'filtered' => false,
+                    'actions' => [['label' => 'New ticket', 'href' => 'ticket_add.php']]]) ?>
+            <?php } else { ?>
+                <ul class="itflow-portal-list">
+                    <?php while ($row = mysqli_fetch_assoc($recent)) {
+                        $updated = $row['ticket_updated_at'] ?: $row['ticket_created_at']; ?>
+                        <li>
+                            <a class="itflow-portal-ticket" href="ticket.php?id=<?= intval($row['ticket_id']) ?>">
+                                <span class="itflow-portal-ticket-main">
+                                    <span class="itflow-portal-ticket-subject d-block"><?= escapeHtml($row['ticket_subject']) ?></span>
+                                    <span class="itflow-portal-ticket-meta">
+                                        <span><?= escapeHtml($row['ticket_prefix'] . $row['ticket_number']) ?></span>
+                                        <?php if ($sees_all && !empty($row['contact_name'])) { ?><span><i class="fas fa-user me-1"></i><?= escapeHtml($row['contact_name']) ?></span><?php } ?>
+                                    </span>
+                                </span>
+                                <span class="itflow-portal-ticket-side">
+                                    <?= portalTicketStateHtml($row) ?>
+                                    <small title="<?= escapeHtml($updated) ?>"><?= timeAgo($updated) ?></small>
+                                </span>
+                            </a>
+                        </li>
+                    <?php } ?>
+                </ul>
+            <?php } ?>
+        </section>
+
+    </div>
+    <div class="col-lg-4">
+
+        <?php if ($devices) { ?>
+            <section class="itflow-portal-panel mb-4">
+                <div class="itflow-portal-panel-head">
+                    <h2><i class="fas fa-desktop"></i>Your devices</h2>
+                    <?php if ($can_it) { ?><a href="assets.php">All assets</a><?php } ?>
                 </div>
-                <div class="card-body">
-                    <?php
+                <ul class="itflow-portal-list">
+                    <?php foreach ($devices as $device) {
+                        $warranty = assetWarranty($device['asset_warranty_expire']);
+                        $what = trim($device['asset_make'] . ' ' . $device['asset_model']) ?: $device['asset_type'];
+                        $link = escapeUrl($device['asset_uri_client']); ?>
+                        <li class="itflow-portal-todo">
+                            <span class="itflow-portal-todo-icon is-info"><i class="fas fa-<?= getAssetIcon($device['asset_type']) ?>"></i></span>
+                            <span class="itflow-portal-todo-main">
+                                <div><?= escapeHtml($device['asset_name']) ?></div>
+                                <div>
+                                    <?= escapeHtml($what) ?>
+                                    <?php if ($warranty && $warranty['tone'] !== 'success') { ?>
+                                        · <span class="text-<?= $warranty['tone'] ?>-emphasis">Warranty <?= escapeHtml(strtolower($warranty['short'])) ?></span>
+                                    <?php } ?>
+                                </div>
+                            </span>
+                            <?php if ($link) { ?>
+                                <a href="<?= $link ?>" target="_blank" rel="noopener noreferrer" class="text-body-secondary" title="Open"><i class="fas fa-external-link-alt"></i></a>
+                            <?php } ?>
+                        </li>
+                    <?php } ?>
+                </ul>
+            </section>
+        <?php } ?>
 
-                    while ($row = mysqli_fetch_assoc($sql_domains_expiring)) {
-                        $domain_id = intval($row['domain_id']);
-                        $domain_name = escapeHtml($row['domain_name']);
-                        $domain_expire = escapeHtml($row['domain_expire']);
-                        $domain_expire_human = timeAgo($row['domain_expire']);
-
-                        ?>
-                        <p>
-                            <strong><?= $domain_name ?></strong>
-                            <br>
-                            <small class="text-secondary"><?= $domain_expire ?> (<?= $domain_expire_human ?>)</small>
-                        </p>
-                        <?php
-                    }
-                    ?>
+        <?php if ($can_it) { ?>
+            <section class="itflow-portal-panel mb-4" id="renewals">
+                <div class="itflow-portal-panel-head">
+                    <h2><i class="fas fa-calendar-alt"></i>Coming up</h2>
                 </div>
-            </div>
-        </a>
+                <?php if (!$renewals) { ?>
+                    <?= emptyStateHtml(['title' => 'Nothing renewing soon', 'text' => 'Domains, certificates, licenses and warranties due in the next 45 days show here.', 'icon' => 'fa-check', 'filtered' => false]) ?>
+                <?php } else { ?>
+                    <ul class="itflow-portal-list">
+                        <?php foreach (array_slice($renewals, 0, 8) as $item) {
+                            $lapsed = $item['date'] < date('Y-m-d'); ?>
+                            <li class="itflow-portal-todo">
+                                <span class="itflow-portal-todo-icon<?= $lapsed ? ' is-danger' : '' ?>"><i class="fas <?= $item['icon'] ?>"></i></span>
+                                <span class="itflow-portal-todo-main">
+                                    <div><?= escapeHtml($item['name']) ?></div>
+                                    <div><?= escapeHtml($item['kind']) ?> · <?= $lapsed ? 'expired' : 'renews' ?> <?= escapeHtml(date('M j, Y', strtotime($item['date']))) ?> (<?= timeAgo($item['date']) ?>)</div>
+                                </span>
+                            </li>
+                        <?php } ?>
+                    </ul>
+                <?php } ?>
+            </section>
+        <?php } ?>
+
+        <?php if (!empty($company['company_phone']) || !empty($company['company_email'])) { ?>
+            <section class="itflow-portal-panel">
+                <div class="itflow-portal-panel-head">
+                    <h2><i class="fas fa-headset"></i>Need us fast?</h2>
+                </div>
+                <div class="itflow-portal-panel-body">
+                    <p class="text-body-secondary small mb-2">For anything urgent, call us - and raise a ticket so it is on record.</p>
+                    <?php if (!empty($company['company_phone'])) { ?>
+                        <div class="mb-1"><i class="fas fa-fw fa-phone me-2 text-body-secondary"></i><a href="tel:<?= escapeHtml(preg_replace('/[^0-9+]/', '', ($company['company_phone_country_code'] ? '+' . $company['company_phone_country_code'] : '') . $company['company_phone'])) ?>"><?= escapeHtml(formatPhoneNumber($company['company_phone'], $company['company_phone_country_code'])) ?></a></div>
+                    <?php } ?>
+                    <?php if (!empty($company['company_email'])) { ?>
+                        <div><i class="fas fa-fw fa-envelope me-2 text-body-secondary"></i><a href="mailto:<?= escapeHtml($company['company_email']) ?>"><?= escapeHtml($company['company_email']) ?></a></div>
+                    <?php } ?>
+                </div>
+            </section>
+        <?php } ?>
+
     </div>
-    <?php } ?>
-
-</div>
-
-<?php } ?>
-
-<?php
-// Everone Cards
-?>
-<div class="row">
-    <?php if (mysqli_num_rows($sql_assigned_assets) > 0) { ?>
-    <div class="col-sm-3">
-        <a href="assets.php" class="card text-dark">
-            <div class="card-header">
-                <h3 class="card-title"><i class="fas fa-fw fa-desktop me-2"></i>Your Assigned Assets</h3>
-            </div>
-            <div class="card-body">
-                <table>
-                <?php
-
-                while ($row = mysqli_fetch_assoc($sql_assigned_assets)) {
-                    $asset_name = escapeHtml($row['asset_name']);
-                    $asset_type = escapeHtml($row['asset_type']);
-                    $asset_uri_client = escapeUrl($row['asset_uri_client']);
-
-
-                    ?>
-                    <tr>
-                        <td><i class=" text-secondary me-2"></i><?php if ($asset_uri_client) { ?><a href="<?= $asset_uri_client ?>" target="_blank"><i class='fas fa-external-link-alt me-2'></i></a><?php } ?><?= $asset_name ?></td>
-                        <td class="text-secondary">(<?= $asset_type ?>)</td>
-                    </tr>
-                    <?php
-                }
-                ?>
-                </table>
-            </div>
-        </a>
-    </div>
-    <?php } ?>
 </div>
 
 <?php require_once "includes/footer.php"; ?>

@@ -128,6 +128,7 @@ If you are coming from 26.08 or earlier, the database update still has to be run
 
   Click the value and pick a new one, or use the + at the end of a record's tags. Each change saves straight away.
 - Tickets: a closed ticket can no longer be changed, either from the ticket's windows or through the API. Merging is only offered between tickets of the same client.
+- Client portal: primary and technical contacts' Tickets page now opens on everyone's tickets at their company, with Mine to see only their own. The separate All tickets page is gone, and links to it land on Tickets. A ticket shows the client where it stands - Received, In progress, Waiting on you, On hold, Resolved or Closed - rather than your ticket statuses.
 - Invoicing a ticket:
   - The invoice line now reads `Ticket TCK-123 - Subject - 10/14/2026`. It used to be a block of text with the agent, dates, contact, asset and time spent. You can still edit it before adding the line.
   - Billing a ticket goes in the ticket's history ("Billed on invoice INV-45"). It used to add an internal note to the conversation.
@@ -421,7 +422,7 @@ If you are coming from 26.08 or earlier, the database update still has to be run
   - New Ticket can start from an asset or contact, and shows when they already have open tickets.
   - Recurring tickets can be paused and resumed or raised now. Their schedules are written out in plain words with a preview of the next run, and bulk actions are available.
   - The ticket lists on asset, contact, location, vendor and project pages look and work like the main list.
-  - Client portal: a ticket waiting on the client says Waiting on your reply.
+  - Client portal: a ticket waiting on the client says Waiting on you (see Client portal).
 - **Projects**
   - The projects list has views for Active, Mine, Overdue, Due soon, Stalled, Over budget, Ready to close, Completed, Archived and All.
     - Each row shows ticket and task progress bars, time logged against the budget with unbilled hours, and due badges, and the manager can be changed in place.
@@ -672,6 +673,14 @@ If you are coming from 26.08 or earlier, the database update still has to be run
   - A cleared line's quick look says which statement it cleared on, and its Edit window keeps its amount, date and account as they are (see Breaking Changes, Accounts, transactions and transfers).
   - Reconciling needs write access to Financial, and undoing a reconciled statement full access. Agents with read access can look at the statements.
   - The demo data reconciles Operating Checking and the Business Visa to each month's statement through last month.
+- **Client portal** (rebuilt: the look, home and tickets)
+  - A new look: a light top bar with your logo, or your company's initials on your theme colour, and the sections the contact can open - Home, Tickets, Billing for billing contacts, Your IT for technical contacts, and your custom links - with New ticket and their account menu. On a phone the sections sit in a bar along the bottom and a menu that slides in. Contacts can switch to dark mode from their account menu, and it stays that way. The welcome banner along the top of every page is gone.
+  - Home shows what needs the contact first: tickets waiting on their reply or resolved for them to confirm, tasks waiting for their approval and invoices past due. Then their open tickets, what is owed with Pay invoices, the domains, certificates, licenses and warranties renewing in the next 45 days or lapsed in the last 30, the devices they use with any warranty that has run out or is about to, and your phone and email when they are set.
+  - Tickets has tabs for Open, Waiting on you, Resolved, Closed and All, each with its count, a search by subject or number, and 20 to a page. Primary and technical contacts see their whole company's, with who raised each, and Mine for their own.
+  - A ticket shows how far it has got - received, in progress, resolved, closed - and the conversation oldest first, with the contact's own messages on the right and the files that came with each. Tasks waiting for their approval have Approve. Alongside are the priority, category, who raised it, who is working on it, the device and how many tasks are done.
+  - Replies take files dropped onto the form or chosen, listed before they are sent. It's fixed marks a ticket resolved once its tasks are done, a resolved ticket asks them to close it or reopen it, and a closed one asks how you did.
+  - New Ticket asks how much it is getting in the way, what it is about and which device - their own, or any of their company's for primary and technical contacts - and takes screenshots and files. Alongside it is what happens next, and your phone number for anything urgent when it is set.
+  - The billing, Your IT and account pages are in the new look and work as before. They are rebuilt in the stages to come.
 
 ### Bug Fixes
 
@@ -733,6 +742,12 @@ If you are coming from 26.08 or earlier, the database update still has to be run
 - Accounts: New Account saved whatever was typed, such as no name, the name of another account or a balance of words. Edit could only change the name and notes.
 - Transfers: a transfer could be saved from an account to itself, for nothing, or with no date. Editing one took which expense and income to change from the form, so a changed form could rewrite any expense or income. Neither side recorded who entered it.
 - Transactions: opening it for an account that no longer exists wrote PHP warnings. It now says so and shows every account's.
+- Client Portal: a file attached to an internal note could be downloaded from the client portal by a contact who could see the ticket, by its number. Only the ticket's own files and those on replies the client can read download now.
+- Client Portal: files on a closed ticket could not be downloaded from the portal.
+- Client Portal: a new ticket could be linked to another client's device, or to a category that isn't a ticket category, by changing the form. Those are ignored now, and a plain contact can only pick a device they use.
+- Client Portal: a reply of nothing but empty lines was accepted, and a new ticket could be raised with no details.
+- Client Portal: Pay invoices and Recurring invoices wrote PHP warnings onto the page when no payment provider was set up.
+- Client Portal: on most pages the browser blocked the arrows on drop-downs, the close crosses and the editor setup, as the portal's security policy didn't allow them.
 - Client Portal: a ticket rating could be saved as any value. Only Good and Bad, the two buttons the portal shows, are accepted now. The demo data rated tickets Great and Ok, which the portal never offers, and now uses Good and Bad.
 - Notifications that linked to a page did not open correctly from Admin pages.
 - Messages showed a backslash before apostrophes and quotes in names, or showed `&amp;` instead of `&`.
@@ -1045,6 +1060,12 @@ If you are coming from 26.08 or earlier, the database update still has to be run
 - Sidebar brand: `agent/css/sidebar_brand_fix.css` and `agent/js/sidebar_brand_fix.js` from 26.10 are replaced by CSS in `css/itflow_custom.css`. `includes/load_company_settings.php` now sets `$session_company_logo`.
 - `alertMessageHtml()` no longer double-encodes, and save messages built from `escapeSql()` values use `stripslashes()` at the flash.
 - CSS: `[hidden] { display: none !important; }` at the top of `css/itflow_custom.css`, so the `hidden` attribute wins over `d-flex` and the other display utilities. `.pagination` wraps.
+- Client portal shell: `client/includes/header.php` and `footer.php` are rewritten - the top bar, the phone tab bar and the `#portalMenu` offcanvas all draw from `portalNav()`. A page that sets the Content-Security-Policy keeps it, and the header widens it to `default-src 'self'; img-src 'self' data:`. Dark mode is the `itflow_portal_theme` cookie (`dark` or `light`), read by the header for the first paint.
+  - The new `js/portal.js`, loaded on every portal page: the dark mode switch (`[data-portal-theme-toggle]`), TinyMCE on `textarea.tinymce` (moved out of the inline script in the footer that the policy blocked; `data-required` checks the editor on submit), attachment drop zones (`[data-portal-drop]` with a file input and `[data-portal-files]`), `form[data-portal-once]`, and `.table-responsive` round any table a page left bare.
+  - `client/functions.php` adds `portalNav()`, `portalAvatarHtml($name, $photo_url, $size)`, `portalSeesAllTickets()`, `portalTicketScopeSql($mine_only)`, `portalTicketState($row)` and `portalTicketStateHtml($row)`, `portalTicketTabs()`, `portalTicketColumnsSql()`, `portalTicketEventText($html)` and `portalHtmlIsEmpty($html)`. `portalEmptyState()` draws `emptyStateHtml()`, and `verifyContactTicketAccess()` takes `Any`.
+  - `client/tickets.php` takes `tab` (`open`, `you`, `resolved`, `closed`, `all`), `scope` (`mine`), `q` and `page`. `client/ticket_view_all.php` redirects there. `add_ticket` takes `file[]` and checks the subject, details, category and asset. `client/ticket_attachment.php` refuses a file on an internal or archived reply.
+  - Removed: `ticketPortalStatusHtml()` from `functions/ticket.php`, replaced by `portalTicketStateHtml()`.
+  - CSS: the `.itflow-portal-*` classes, from `-header`, `-nav`, `-tabbar` and `-menu` to `-panel`, `-state-*`, `-tabs`, `-ticket`, `-steps`, `-msg`, `-event`, `-drop`, `-file-chip`, `-facts`, `-stat` and `-todo`. The black table heads on the pages not rebuilt yet are softened to sit in the light shell.
 - Empty states: every list page sets `$empty_state` before including `includes/filter_footer.php`, and `includes/inc_empty_state.php` draws it with `emptyStateHtml()` (`functions/format.php`) when the list has nothing - `thing`, `icon`, `title`, `text`, `actions` (`label`, `modal` or `href`, `size`, `icon`; the first is the main one), `archived`, `view`, `filtered`, `views`, `match_title`, `match_text` and `clear_url`. `emptyStateFiltered($views)` reads the GET string for a search or filter, leaving out paging, sorting, `client_id`, `archived` and the page's views, and `emptyStateClearUrl($views)` is the page without them. `emptyStatePill($pills, $key, $default, $good)` builds a pill's own state from the page's pill array (`label`, `icon`, `title`, `alarm`), with a tick for `alarm` pills and the keys in `$good`. Files, notifications and racks call `emptyStateHtml()` in their own layout; files and notifications set `$empty_state_skip`. A page that sets nothing still gets one, worded from `$page_title`. The pages' own empty blocks (`.itflow-asset-empty` under a list) are gone. CSS: `.itflow-empty-state` with `-icon` (a grey round tile), `-title`, `-text` and `-actions`.
 - Removed unused helpers and files:
   - `credentialLink()`, `projectLink()`, `linkCounts()`, `assetContactAvatar()` and `clientOverviewPersonInitials()`

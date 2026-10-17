@@ -56,7 +56,7 @@ $sql_activity = mysqli_query(
 
         <?php } else { ?>
 
-            <table class="table table-striped table-bordered border border-dark dataTables" style="width:100%">
+            <table class="table table-striped table-bordered border border-dark dataTables w-100">
                 <thead class="table-dark">
                 <tr>
                     <?php /* Ordering off on this column deliberately. The cell reads
