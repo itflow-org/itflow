@@ -161,13 +161,13 @@ $net_terms_array = array (
                     <select class="form-select select2" name="payment_method">
                         <option value="">- None -</option>
                         <?php
-
-                        $sql = mysqli_query($mysqli, "SELECT category_name, category_color, category_icon FROM categories WHERE category_type = 'Payment Method' ORDER BY category_name ASC");
-                        while ($row = mysqli_fetch_assoc($sql)) {
-                            $payment_method = escapeHtml($row['category_name']); ?>
-                            <option <?php if ($config_default_payment_method == $payment_method) {
-                                        echo "selected";
-                                    } ?><?= selectOptionColor($row['category_color'] ?? '', $row['category_icon'] ?? '') ?>><?= $payment_method ?></option>
+                        // Admin > Payment Methods - and the saved one, should it no longer be among them
+                        $default_methods = paymentMethods();
+                        if ((string) $config_default_payment_method !== '' && !in_array((string) $config_default_payment_method, $default_methods, true)) {
+                            $default_methods[] = (string) $config_default_payment_method;
+                        }
+                        foreach ($default_methods as $payment_method) { ?>
+                            <option <?= (string) $config_default_payment_method === $payment_method ? 'selected' : '' ?> value="<?= escapeHtml($payment_method) ?>"><?= escapeHtml($payment_method) ?></option>
                         <?php } ?>
 
                     </select>
@@ -181,13 +181,13 @@ $net_terms_array = array (
                     <select class="form-select select2" name="expense_payment_method">
                         <option value="">- None -</option>
                         <?php
-
-                        $sql = mysqli_query($mysqli, "SELECT category_name, category_color, category_icon FROM categories WHERE category_type = 'Payment Method' ORDER BY category_name ASC");
-                        while ($row = mysqli_fetch_assoc($sql)) {
-                            $payment_method = escapeHtml($row['category_name']); ?>
-                            <option <?php if ($config_default_expense_payment_method == $payment_method) {
-                                        echo "selected";
-                                    } ?><?= selectOptionColor($row['category_color'] ?? '', $row['category_icon'] ?? '') ?>><?= $payment_method ?></option>
+                        // Admin > Payment Methods - and the saved one, should it no longer be among them
+                        $default_methods = paymentMethods();
+                        if ((string) $config_default_expense_payment_method !== '' && !in_array((string) $config_default_expense_payment_method, $default_methods, true)) {
+                            $default_methods[] = (string) $config_default_expense_payment_method;
+                        }
+                        foreach ($default_methods as $payment_method) { ?>
+                            <option <?= (string) $config_default_expense_payment_method === $payment_method ? 'selected' : '' ?> value="<?= escapeHtml($payment_method) ?>"><?= escapeHtml($payment_method) ?></option>
                         <?php } ?>
 
                     </select>

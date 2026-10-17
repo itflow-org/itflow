@@ -410,11 +410,14 @@ function selectOptionContact($client_id, $contact_name, $contact_photo = '', $co
 
 /** A tag, category or status - its colour, and its icon if it has one. */
 function selectOptionColor($color, $icon = '') {
-    // A hex value, or a CSS colour name - categories store names like "lightblue"
+    // A hex value, or a CSS colour name
     $color = preg_match('/^(#[0-9a-f]{3,8}|[a-z]{3,24})$/i', trim((string) $color)) ? trim($color) : '';
+    // "star", "fa-star" (as categories keep them) or "fas fa-star"
     $icon = trim(preg_replace('/[^a-z0-9 -]/', '', strtolower((string) $icon)));
     if ($icon !== '' && strpos($icon, 'fa-') === false) {
         $icon = "fas fa-$icon";
+    } elseif ($icon !== '' && !preg_match('/(^| )fa[srbl]?( |$)/', $icon)) {
+        $icon = "fas $icon";
     }
     return selectOptionData(['color' => $color, 'icon' => $icon]);
 }

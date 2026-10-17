@@ -3052,6 +3052,64 @@ a.itflow-dash-rail-item:focus-visible {
 .itflow-tag-icons [data-tag-icon-none] {
     grid-column: 1 / -1;
 }
+/* The category window (admin/modals/category/category_form.php,
+   js/category_form.js) - the tag window's swatches and icons, each with a
+   "none" choice - and a category as it looks on records (categoryChip()):
+   its icon, or a dot, in its colour, then its name */
+.itflow-category-swatch-none {
+    color: var(--bs-secondary-color);
+    background-color: var(--bs-body-bg);
+}
+.itflow-category-swatch-none i {
+    visibility: visible;
+}
+.itflow-category-swatch-none.active {
+    color: var(--itflow-accent, var(--bs-primary));
+}
+.itflow-tag-icons [data-category-icon-none] {
+    grid-column: 1 / -1;
+}
+.itflow-category {
+    display: inline-flex;
+    align-items: center;
+    gap: .35rem;
+    max-width: 100%;
+    color: var(--bs-body-color);
+}
+.itflow-category-mark {
+    flex: none;
+    color: var(--bs-secondary-color);
+}
+.itflow-category .itflow-category-dot {
+    margin-right: 0;
+}
+.itflow-category-name {
+    min-width: 0;
+    overflow-wrap: anywhere;
+}
+a:hover .itflow-category-name,
+a:focus-visible .itflow-category-name {
+    text-decoration: underline;
+}
+.itflow-category-badge {
+    font-size: .8125rem;
+}
+/* Admin > Categories - a long kind's name shortened rather than pushing its
+   count out, and dragging the kinds that keep an order into it */
+@media (min-width: 768px) {
+    .itflow-category-kinds .nav-link {
+        min-width: 0;
+    }
+}
+.itflow-category-grip {
+    display: inline-block;
+    padding: .25rem .125rem;
+    cursor: grab;
+    touch-action: none;
+}
+[data-category-sortable] .sortable-ghost > * {
+    background-color: var(--bs-tertiary-bg) !important;
+}
 .itflow-clients-street {
     max-width: 16rem;
 }

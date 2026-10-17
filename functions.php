@@ -44,6 +44,7 @@ require_once __DIR__ . '/functions/dashboard.php';
 require_once __DIR__ . '/functions/reports.php';
 require_once __DIR__ . '/functions/client_overview.php';
 require_once __DIR__ . '/functions/tags.php';
+require_once __DIR__ . '/functions/categories.php';
 require_once __DIR__ . '/functions/ticket_fields.php';
 require_once __DIR__ . '/functions/ticket.php';
 require_once __DIR__ . '/functions/project.php';
