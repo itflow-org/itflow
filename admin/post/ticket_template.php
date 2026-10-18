@@ -214,6 +214,7 @@ if (isset($_POST['save_ticket_template_fill_in'])) {
         redirect();
     }
     $required = intval($_POST['required'] ?? 0) ? 1 : 0;
+    $client = intval($_POST['client'] ?? 1) ? 1 : 0;
     $help = trim(mb_substr(preg_replace('/\s+/', ' ', strip_tags((string) ($_POST['help'] ?? ''))), 0, 255));
 
     // One name, one fill-in - adding one already in the text but not set up yet sets that one up
@@ -235,7 +236,7 @@ if (isset($_POST['save_ticket_template_fill_in'])) {
         ticketTemplateRenameFillIn($ticket_template_id, $original, $name);
     }
     $set = "fill_in_name = '" . escapeSql($name) . "', fill_in_type = '$type', fill_in_options = " . ($options ? "'" . escapeSql(implode("\n", $options)) . "'" : 'NULL') . ",
-        fill_in_required = $required, fill_in_help = " . ($help !== '' ? "'" . escapeSql($help) . "'" : 'NULL');
+        fill_in_required = $required, fill_in_client = $client, fill_in_help = " . ($help !== '' ? "'" . escapeSql($help) . "'" : 'NULL');
     if ($existing) {
         mysqli_query($mysqli, "UPDATE ticket_template_fill_ins SET $set WHERE fill_in_id = " . intval($existing[0]));
     } else {

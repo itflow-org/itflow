@@ -692,7 +692,7 @@ if (isset($_GET['ticket_id'])) {
                                 <?php foreach ($ticket_fill_ins as $answer) {
                                     $answer_text = ticketFillInText($answer); ?>
                                     <div>
-                                        <div class="small text-secondary"><?= escapeHtml($answer['name']) ?></div>
+                                        <div class="small text-secondary"><?= escapeHtml($answer['name']) ?><?php if (!$answer['client']) { ?><i class="fas fa-user-lock ms-1" title="Agents only - not shown to the client"></i><?php } ?></div>
                                         <?php if ($answer_text !== '') { ?>
                                             <div class="text-break"><?= escapeHtml($answer_text) ?></div>
                                         <?php } else { ?>

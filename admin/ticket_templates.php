@@ -105,6 +105,9 @@ $csrf = $_SESSION['csrf_token'];
                 if ($fill_in_count) {
                     $defaults .= ($defaults !== '' ? ' ' : '') . '<span class="badge rounded-pill text-bg-light border fw-normal"><i class="fas fa-fw fa-pen-square text-secondary me-1"></i>Asks for ' . $fill_in_count . ' thing' . ($fill_in_count === 1 ? '' : 's') . '</span>';
                 }
+                if (intval($row['ticket_template_portal'])) {
+                    $defaults .= ($defaults !== '' ? ' ' : '') . '<span class="badge rounded-pill text-bg-light border fw-normal" title="Offered in the client portal as ' . escapeHtml(ticketTemplatePortalTitle($row)) . '"><i class="fas fa-fw fa-door-open text-secondary me-1"></i>In the portal</span>';
+                }
                 $tags_html = $tags ? '<span class="d-inline-flex flex-wrap gap-1">' . implode('', array_map('tagPill', $tags)) . '</span>' : '';
                 $set_up = trim($defaults . ($defaults !== '' && $tags_html !== '' ? ' ' : '') . $tags_html);
                 $linked = [];

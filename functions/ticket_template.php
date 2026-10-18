@@ -25,6 +25,12 @@
  *
  * A ticket keeps which template it came from (tickets.ticket_template_id), so
  * a template shows how often it is used and its recent tickets.
+ *
+ * A template can be offered in the client portal as a request form - "Onboard
+ * a new employee" - to everyone with portal access or the primary and
+ * technical contacts only, at every client or the ones picked. Its fill-ins
+ * the client is asked are the form; the ticket is raised with everything the
+ * template sets up (ticketTemplatePortalRaise(), client/ticket_add.php).
  */
 
 /** The placeholders filled in from the ticket - what each becomes. */
@@ -33,7 +39,7 @@ const TICKET_PLACEHOLDERS = [
     'Contact' => "the contact's name",
     'Asset' => "the asset's name",
     'Site' => "the site's name",
-    'Agent' => 'the agent it is assigned to, or who raised it',
+    'Agent' => 'the agent it is assigned to, or the agent who raised it',
     'Project' => "the project's name",
     'Ticket' => 'its number - TCK-123',
     'Date' => "today's date",
@@ -148,6 +154,10 @@ function ticketTemplateFields(array $post, &$error = '') {
     }
     $priority = (string) ($post['priority'] ?? '');
     $billable = (string) ($post['billable'] ?? '');
+    if (intval($post['portal'] ?? 0) && ($post['portal_all_clients'] ?? '1') === '0' && !array_filter(array_map('intval', (array) ($post['portal_clients'] ?? [])))) {
+        $error = 'Pick the clients that see it in the portal, or offer it at every client.';
+        return null;
+    }
     $amount = max(0, intval($post['due_amount'] ?? 0));
     $hours = ($post['due_unit'] ?? 'days') === 'hours' ? $amount : $amount * 24;
     return [
@@ -161,6 +171,14 @@ function ticketTemplateFields(array $post, &$error = '') {
         'assigned_to' => ticketAgentId($post['assigned_to'] ?? 0),
         'due_hours' => min($hours, 24 * 366),
         'tags' => (array) ($post['tags'] ?? []),
+        // The client portal - its request form
+        'portal' => intval($post['portal'] ?? 0) ? 1 : 0,
+        'portal_title' => trim(mb_substr(preg_replace('/\s+/', ' ', strip_tags((string) ($post['portal_title'] ?? ''))), 0, 200)),
+        'portal_description' => trim(mb_substr(preg_replace('/\s+/', ' ', strip_tags((string) ($post['portal_description'] ?? ''))), 0, 500)),
+        'portal_icon' => isset(TICKET_TEMPLATE_PORTAL_ICONS[$post['portal_icon'] ?? '']) ? $post['portal_icon'] : '',
+        'portal_who' => isset(TICKET_TEMPLATE_PORTAL_WHO[$post['portal_who'] ?? '']) ? $post['portal_who'] : 'everyone',
+        'portal_all_clients' => ($post['portal_all_clients'] ?? '1') === '0' ? 0 : 1,
+        'portal_clients' => array_values(array_unique(array_filter(array_map('intval', (array) ($post['portal_clients'] ?? []))))),
     ];
 }
 
@@ -172,7 +190,11 @@ function ticketTemplateSave($ticket_template_id, array $f) {
         ticket_template_subject = '" . escapeSql($f['subject']) . "', ticket_template_details = '" . mysqli_real_escape_string($mysqli, $f['details']) . "',
         ticket_template_category_id = " . intval($f['category_id']) . ", ticket_template_priority = " . ($f['priority'] === null ? 'NULL' : "'" . escapeSql($f['priority']) . "'") . ",
         ticket_template_billable = " . ($f['billable'] === null ? 'NULL' : intval($f['billable'])) . ", ticket_template_assigned_to = " . intval($f['assigned_to']) . ",
-        ticket_template_due_hours = " . intval($f['due_hours']);
+        ticket_template_due_hours = " . intval($f['due_hours']) . ", ticket_template_portal = " . intval($f['portal'] ?? 0) . ",
+        ticket_template_portal_title = " . (($f['portal_title'] ?? '') !== '' ? "'" . escapeSql($f['portal_title']) . "'" : 'NULL') . ",
+        ticket_template_portal_description = " . (($f['portal_description'] ?? '') !== '' ? "'" . escapeSql($f['portal_description']) . "'" : 'NULL') . ",
+        ticket_template_portal_icon = " . (($f['portal_icon'] ?? '') !== '' ? "'" . escapeSql($f['portal_icon']) . "'" : 'NULL') . ",
+        ticket_template_portal_who = '" . escapeSql($f['portal_who'] ?? 'everyone') . "', ticket_template_portal_all_clients = " . intval($f['portal_all_clients'] ?? 1);
     if ($ticket_template_id) {
         mysqli_query($mysqli, "UPDATE ticket_templates SET $set WHERE ticket_template_id = $ticket_template_id");
     } else {
@@ -180,7 +202,33 @@ function ticketTemplateSave($ticket_template_id, array $f) {
         $ticket_template_id = intval(mysqli_insert_id($mysqli));
     }
     ticketTemplateSetTags($ticket_template_id, $f['tags']);
+    if (isset($f['portal_clients'])) {
+        ticketTemplateSetPortalClients($ticket_template_id, $f['portal_clients']);
+    }
     return $ticket_template_id;
+}
+
+/** The clients a template's portal form is for, when it isn't for them all - ids. */
+function ticketTemplatePortalClientIds($ticket_template_id) {
+    global $mysqli;
+    $ids = [];
+    $sql = mysqli_query($mysqli, "SELECT client_id FROM ticket_template_portal_clients WHERE ticket_template_id = " . intval($ticket_template_id) . " ORDER BY client_id");
+    while ($row = mysqli_fetch_row($sql)) {
+        $ids[] = intval($row[0]);
+    }
+    return $ids;
+}
+
+/** Set the clients a template's portal form is for - the ones that exist. */
+function ticketTemplateSetPortalClients($ticket_template_id, array $client_ids) {
+    global $mysqli;
+    $ticket_template_id = intval($ticket_template_id);
+    mysqli_query($mysqli, "DELETE FROM ticket_template_portal_clients WHERE ticket_template_id = $ticket_template_id");
+    $client_ids = array_values(array_filter(array_map('intval', $client_ids)));
+    if ($client_ids) {
+        mysqli_query($mysqli, "INSERT IGNORE INTO ticket_template_portal_clients (ticket_template_id, client_id)
+            SELECT $ticket_template_id, client_id FROM clients WHERE client_id IN (" . implode(',', $client_ids) . ")");
+    }
 }
 
 /* Set a template's tags from a Tags field - ticket tags, as tagSetForRecord() takes them. The ids it has now. */
@@ -223,8 +271,16 @@ function ticketTemplateCopy($ticket_template_id) {
             task_template_when_fill_in = " . ($task['when'] ? "'" . escapeSql($task['when']['fill_in']) . "'" : 'NULL') . ",
             task_template_when_value = " . ($task['when'] ? "'" . escapeSql($task['when']['value']) . "'" : 'NULL'));
     }
-    mysqli_query($mysqli, "INSERT INTO ticket_template_fill_ins (fill_in_ticket_template_id, fill_in_name, fill_in_type, fill_in_options, fill_in_required, fill_in_help, fill_in_order)
-        SELECT $new_id, fill_in_name, fill_in_type, fill_in_options, fill_in_required, fill_in_help, fill_in_order FROM ticket_template_fill_ins WHERE fill_in_ticket_template_id = " . intval($ticket_template_id));
+    mysqli_query($mysqli, "INSERT INTO ticket_template_fill_ins (fill_in_ticket_template_id, fill_in_name, fill_in_type, fill_in_options, fill_in_required, fill_in_client, fill_in_help, fill_in_order)
+        SELECT $new_id, fill_in_name, fill_in_type, fill_in_options, fill_in_required, fill_in_client, fill_in_help, fill_in_order FROM ticket_template_fill_ins WHERE fill_in_ticket_template_id = " . intval($ticket_template_id));
+    // Offered in the portal as it was - but not twice under the same title, so the copy starts off it
+    mysqli_query($mysqli, "UPDATE ticket_templates t JOIN ticket_templates o ON o.ticket_template_id = " . intval($ticket_template_id) . "
+        SET t.ticket_template_portal_title = o.ticket_template_portal_title, t.ticket_template_portal_description = o.ticket_template_portal_description,
+            t.ticket_template_portal_icon = o.ticket_template_portal_icon, t.ticket_template_portal_who = o.ticket_template_portal_who,
+            t.ticket_template_portal_all_clients = o.ticket_template_portal_all_clients, t.ticket_template_portal = 0
+        WHERE t.ticket_template_id = $new_id");
+    mysqli_query($mysqli, "INSERT IGNORE INTO ticket_template_portal_clients (ticket_template_id, client_id)
+        SELECT $new_id, client_id FROM ticket_template_portal_clients WHERE ticket_template_id = " . intval($ticket_template_id));
     return $new_id;
 }
 
@@ -333,7 +389,8 @@ function ticketFillInOptions($text) {
 
 /*
  * The fill-ins set up on templates - [template id => [['id', 'name', 'type',
- * 'options' => [..], 'required' => bool, 'help'], ...]], in their order.
+ * 'options' => [..], 'required' => bool, 'client' => bool (asked on the
+ * portal form and shown on the client's ticket), 'help'], ...]], in their order.
  */
 function ticketTemplateFillInRowsFor(array $ticket_template_ids) {
     global $mysqli;
@@ -350,6 +407,7 @@ function ticketTemplateFillInRowsFor(array $ticket_template_ids) {
             'type' => isset(TICKET_FILL_IN_TYPES[$row['fill_in_type']]) ? $row['fill_in_type'] : 'text',
             'options' => ticketFillInOptions($row['fill_in_options']),
             'required' => (bool) intval($row['fill_in_required']),
+            'client' => (bool) intval($row['fill_in_client']),
             'help' => (string) $row['fill_in_help'],
         ];
     }
@@ -360,7 +418,7 @@ function ticketTemplateFillInRowsFor(array $ticket_template_ids) {
  * Everything a template asks for, in order - the ones set up (their rows),
  * then the other bracketed words in its subject, details and tasks, as plain
  * optional text. Each ['id' (0 when not set up), 'name', 'type', 'options',
- * 'required', 'help', 'in_text' => whether it is in the text].
+ * 'required', 'client', 'help', 'in_text' => whether it is in the text].
  */
 function ticketTemplateFillIns(array $template, array $tasks, array $rows) {
     $known = array_map('strtolower', array_keys(TICKET_PLACEHOLDERS));
@@ -376,7 +434,7 @@ function ticketTemplateFillIns(array $template, array $tasks, array $rows) {
         $fill_ins[$key] = $row + ['in_text' => isset($in_text[$key])];
     }
     foreach ($in_text as $key => $name) {
-        $fill_ins[$key] = $fill_ins[$key] ?? ['id' => 0, 'name' => $name, 'type' => 'text', 'options' => [], 'required' => false, 'help' => '', 'in_text' => true];
+        $fill_ins[$key] = $fill_ins[$key] ?? ['id' => 0, 'name' => $name, 'type' => 'text', 'options' => [], 'required' => false, 'client' => true, 'help' => '', 'in_text' => true];
     }
     return array_values($fill_ins);
 }
@@ -439,7 +497,7 @@ function ticketFillInAnswers(array $fill_ins, $posted, &$error = '', $required =
             $error = 'Fill in ' . escapeHtml($fill_in['name']) . ' - it is needed for this template.';
             return null;
         }
-        $answers[] = ['name' => $fill_in['name'], 'type' => $fill_in['type'], 'options' => $fill_in['options'], 'required' => !empty($fill_in['required']), 'value' => $value];
+        $answers[] = ['name' => $fill_in['name'], 'type' => $fill_in['type'], 'options' => $fill_in['options'], 'required' => !empty($fill_in['required']), 'client' => $fill_in['client'] ?? true, 'value' => $value];
     }
     return $answers;
 }
@@ -468,7 +526,7 @@ function ticketFillInsStored($kind, $id) {
     $sql = mysqli_query($mysqli, "SELECT * FROM {$store['table']} WHERE {$store['owner']} = " . intval($id) . " ORDER BY {$p}order ASC, {$p}id ASC");
     while ($row = mysqli_fetch_assoc($sql)) {
         $answers[] = ['id' => intval($row[$p . 'id']), 'name' => (string) $row[$p . 'name'], 'type' => isset(TICKET_FILL_IN_TYPES[$row[$p . 'type']]) ? $row[$p . 'type'] : 'text',
-            'options' => ticketFillInOptions($row[$p . 'options']), 'required' => (bool) intval($row[$p . 'required']), 'value' => (string) $row[$p . 'value']];
+            'options' => ticketFillInOptions($row[$p . 'options']), 'required' => (bool) intval($row[$p . 'required']), 'client' => (bool) intval($row[$p . 'client']), 'value' => (string) $row[$p . 'value']];
     }
     return $answers;
 }
@@ -482,7 +540,7 @@ function ticketFillInsStore($kind, $id, array $answers) {
     mysqli_query($mysqli, "DELETE FROM {$store['table']} WHERE {$store['owner']} = $id");
     foreach (array_values($answers) as $order => $answer) {
         mysqli_query($mysqli, "INSERT INTO {$store['table']} SET {$store['owner']} = $id, {$p}name = '" . escapeSql($answer['name']) . "', {$p}type = '" . escapeSql($answer['type']) . "',
-            {$p}options = " . ($answer['options'] ? "'" . escapeSql(implode("\n", $answer['options'])) . "'" : 'NULL') . ", {$p}required = " . (empty($answer['required']) ? 0 : 1) . ",
+            {$p}options = " . ($answer['options'] ? "'" . escapeSql(implode("\n", $answer['options'])) . "'" : 'NULL') . ", {$p}required = " . (empty($answer['required']) ? 0 : 1) . ", {$p}client = " . (($answer['client'] ?? true) ? 1 : 0) . ",
             {$p}value = " . ((string) $answer['value'] !== '' ? "'" . escapeSql($answer['value']) . "'" : 'NULL') . ", {$p}order = " . ($order + 1));
     }
 }
@@ -676,7 +734,7 @@ function ticketPlaceholderValues($ticket_id) {
         LEFT JOIN locations ON location_id = ticket_location_id AND ticket_location_id > 0
         LEFT JOIN projects ON project_id = ticket_project_id AND ticket_project_id > 0
         LEFT JOIN users assignee ON assignee.user_id = ticket_assigned_to AND ticket_assigned_to > 0
-        LEFT JOIN users creator ON creator.user_id = ticket_created_by AND ticket_created_by > 0
+        LEFT JOIN users creator ON creator.user_id = ticket_created_by AND ticket_created_by > 0 AND creator.user_type = 1
         WHERE ticket_id = $ticket_id"));
     if (!$row) {
         return [];
@@ -772,9 +830,10 @@ function ticketPlaceholdersFill($ticket_id) {
  * $defaults also gives it the template's tags and due time when it has none -
  * for the paths that have no fields of their own for those (the New Tickets
  * windows, project templates). $tasks copies the template's tasks too, the
- * ones for those answers. The template, or null.
+ * ones for those answers. $history: what its history says, raw, in place of
+ * "<agent> raised the ticket from template <name>". The template, or null.
  */
-function ticketTemplateFinish($ticket_id, $ticket_template_id, $defaults = false, $tasks = false, $answers = null) {
+function ticketTemplateFinish($ticket_id, $ticket_template_id, $defaults = false, $tasks = false, $answers = null, $history = null) {
     global $mysqli, $session_name;
     $ticket_id = intval($ticket_id);
     $template = ticketTemplateRow($ticket_template_id);
@@ -803,6 +862,163 @@ function ticketTemplateFinish($ticket_id, $ticket_template_id, $defaults = false
         }
     }
     ticketPlaceholdersFill($ticket_id);
-    logTicketHistory($ticket_id, escapeSql(stripslashes((string) ($session_name ?? 'ITFlow')) . ' raised the ticket from template ' . $template['ticket_template_name']));
+    logTicketHistory($ticket_id, escapeSql($history ?? stripslashes((string) ($session_name ?? 'ITFlow')) . ' raised the ticket from template ' . $template['ticket_template_name']));
     return $template;
+}
+
+/* ---------------------------------------------------------------- client portal */
+
+/** The icons a request form can have in the portal - fa- name => what it suits. */
+const TICKET_TEMPLATE_PORTAL_ICONS = [
+    'clipboard-list' => 'A request', 'user-plus' => 'Someone new', 'user-minus' => 'Someone leaving', 'user-edit' => 'A change for someone',
+    'key' => 'Access or a password', 'laptop' => 'A laptop', 'desktop' => 'A computer', 'mobile-alt' => 'A mobile phone', 'phone' => 'A desk phone',
+    'print' => 'A printer', 'envelope' => 'Email', 'wifi' => 'Wi-Fi or the network', 'shield-alt' => 'Security', 'folder-open' => 'Files and shares',
+    'cube' => 'Software', 'shopping-cart' => 'Something to buy', 'video' => 'Meetings', 'building' => 'An office', 'truck' => 'A move',
+    'calendar-alt' => 'Something to plan', 'cloud' => 'Cloud', 'server' => 'A server', 'tools' => 'A repair', 'question-circle' => 'A question',
+];
+
+/** Who may use a request form in the portal. */
+const TICKET_TEMPLATE_PORTAL_WHO = [
+    'everyone' => 'Everyone with portal access',
+    'managers' => 'Primary and technical contacts only',
+];
+
+/** What a template is called in the portal - its portal title, or its name. Raw. */
+function ticketTemplatePortalTitle(array $row) {
+    $title = trim((string) ($row['ticket_template_portal_title'] ?? ''));
+    return $title !== '' ? $title : (string) $row['ticket_template_name'];
+}
+
+/** A request form's icon - fa-user-plus; fa-clipboard-list when it has none. */
+function ticketTemplatePortalIcon(array $row) {
+    $icon = (string) ($row['ticket_template_portal_icon'] ?? '');
+    return 'fa-' . (isset(TICKET_TEMPLATE_PORTAL_ICONS[$icon]) ? $icon : 'clipboard-list');
+}
+
+/*
+ * The request forms a contact may use - templates offered in the portal and
+ * not archived, for every client or theirs among the ones picked, and for
+ * everyone or, when $manager (a primary or technical contact), for them
+ * too. Rows, by title.
+ */
+function ticketTemplatePortalForms($client_id, $manager) {
+    global $mysqli;
+    $client_id = intval($client_id);
+    $forms = [];
+    $sql = mysqli_query($mysqli, "SELECT * FROM ticket_templates
+        WHERE ticket_template_portal = 1 AND ticket_template_archived_at IS NULL
+        AND (ticket_template_portal_all_clients = 1 OR EXISTS (SELECT 1 FROM ticket_template_portal_clients p WHERE p.ticket_template_id = ticket_templates.ticket_template_id AND p.client_id = $client_id))
+        " . ($manager ? '' : "AND ticket_template_portal_who = 'everyone'"));
+    while ($row = mysqli_fetch_assoc($sql)) {
+        $forms[] = $row;
+    }
+    usort($forms, function ($a, $b) {
+        return strcasecmp(ticketTemplatePortalTitle($a), ticketTemplatePortalTitle($b));
+    });
+    return $forms;
+}
+
+/** One request form a contact may use (ticketTemplatePortalForms()), or null. */
+function ticketTemplatePortalForm($ticket_template_id, $client_id, $manager) {
+    foreach (ticketTemplatePortalForms($client_id, $manager) as $row) {
+        if (intval($row['ticket_template_id']) === intval($ticket_template_id)) {
+            return $row;
+        }
+    }
+    return null;
+}
+
+/** Whether a template's subject, details or tasks have [Asset] in them - its form then asks which device. */
+function ticketTemplateMentionsAsset(array $row, array $tasks) {
+    return (bool) preg_match('/\[asset\]/i', strip_tags($row['ticket_template_subject'] . ' ' . $row['ticket_template_details'] . ' ' . implode(' ', array_column($tasks, 'name'))));
+}
+
+/*
+ * The answers to a request form, checked: the fill-ins the client is asked
+ * (required ones must be answered), and the agents' ones left unanswered -
+ * every one, in its order. Null with $error saying what is wrong.
+ */
+function ticketTemplatePortalAnswers(array $fill_ins, $posted, &$error = '') {
+    $asked = array_values(array_filter($fill_ins, function ($fill_in) {
+        return !empty($fill_in['client']);
+    }));
+    $given = ticketFillInAnswers($asked, $posted, $error);
+    if ($given === null) {
+        return null;
+    }
+    $by_name = [];
+    foreach ($given as $answer) {
+        $by_name[strtolower($answer['name'])] = $answer;
+    }
+    $answers = [];
+    foreach ($fill_ins as $fill_in) {
+        $answers[] = $by_name[strtolower($fill_in['name'])]
+            ?? ['name' => $fill_in['name'], 'type' => $fill_in['type'], 'options' => $fill_in['options'], 'required' => !empty($fill_in['required']), 'client' => false, 'value' => ''];
+    }
+    return $answers;
+}
+
+/*
+ * Raise a ticket from a request form in the client portal, for the contact
+ * signed in: set up as the template says (category, priority, billing, agent,
+ * due time, tags, the tasks for these answers), with the answers kept and
+ * filled in, and anything else the client wrote ($notes, plain text) first
+ * in its details. The agent it goes to hears about it. The new ticket's id, or 0.
+ */
+function ticketTemplatePortalRaise(array $template, $client_id, $contact_id, $user_id, $contact_name, array $answers, $notes = '', $asset_id = 0) {
+    global $mysqli, $config_ticket_prefix, $config_ticket_default_billable;
+    $client_id = intval($client_id);
+    $contact_id = intval($contact_id);
+    $ticket_template_id = intval($template['ticket_template_id']);
+
+    $subject = trim((string) $template['ticket_template_subject']) !== '' ? (string) $template['ticket_template_subject'] : ticketTemplatePortalTitle($template);
+    $details = (string) $template['ticket_template_details'];
+    $notes = trim((string) $notes);
+    if ($notes !== '') {
+        $details = '<p><strong>' . escapeHtml($contact_name) . ' added:</strong><br>' . nl2br(escapeHtml($notes)) . '</p>' . $details;
+    }
+    $priority = escapeSql(ticketPriority($template['ticket_template_priority'] ?? ''));
+    $category_id = ticketCategoryId($template['ticket_template_category_id']);
+    $billable = $template['ticket_template_billable'] !== null ? intval($template['ticket_template_billable']) : (intval($config_ticket_default_billable) === 1 ? 1 : 0);
+    $assigned_to = ticketAgentId($template['ticket_template_assigned_to']);
+    $status = $assigned_to ? TICKET_STATUS_OPEN : TICKET_STATUS_NEW;
+    $asset_id = intval($asset_id);
+    $prefix = escapeSql($config_ticket_prefix);
+    $url_key = randomString(32);
+
+    mysqli_query($mysqli, "UPDATE settings SET config_ticket_next_number = LAST_INSERT_ID(config_ticket_next_number), config_ticket_next_number = config_ticket_next_number + 1 WHERE company_id = 1");
+    $ticket_number = mysqli_insert_id($mysqli);
+    mysqli_query($mysqli, "INSERT INTO tickets SET ticket_prefix = '$prefix', ticket_number = $ticket_number, ticket_source = 'Portal', ticket_category = $category_id,
+        ticket_subject = '" . escapeSql(mb_substr($subject, 0, 500)) . "', ticket_details = '" . mysqli_real_escape_string($mysqli, $details) . "', ticket_priority = '$priority',
+        ticket_status = $status, ticket_billable = $billable, ticket_created_by = " . intval($user_id) . ", ticket_assigned_to = $assigned_to, ticket_contact_id = $contact_id,
+        ticket_asset_id = $asset_id, ticket_url_key = '$url_key', ticket_client_id = $client_id");
+    $ticket_id = intval(mysqli_insert_id($mysqli));
+    if (!$ticket_id) {
+        return 0;
+    }
+    applyTicketSla($ticket_id);
+    ticketTemplateFinish($ticket_id, $ticket_template_id, true, true, $answers, "$contact_name asked for " . ticketTemplatePortalTitle($template) . " in the client portal (template " . $template['ticket_template_name'] . ")");
+
+    // The agent it goes to hears about it
+    if ($assigned_to) {
+        $row = ticketRow($ticket_id);
+        mysqli_query($mysqli, "INSERT INTO notifications SET notification_type = 'Ticket', notification = '" . escapeSql("Ticket " . ticketReference($row) . " - " . $row['ticket_subject'] . " has been assigned to you from the client portal") . "',
+            notification_action = '" . escapeSql('/agent/' . ticketUrl($ticket_id, $client_id)) . "', notification_client_id = $client_id, notification_user_id = $assigned_to");
+        ticketMailAssigned($assigned_to, [$ticket_id], $contact_name);
+    }
+    return $ticket_id;
+}
+
+/** Tickets raised from a template's request form in the portal - [template id => how many]. */
+function ticketTemplatePortalRequests(array $ticket_template_ids) {
+    global $mysqli;
+    $ids = array_values(array_filter(array_map('intval', $ticket_template_ids)));
+    $counts = [];
+    if ($ids) {
+        $sql = mysqli_query($mysqli, "SELECT ticket_template_id, COUNT(*) FROM tickets WHERE ticket_source = 'Portal' AND ticket_archived_at IS NULL AND ticket_template_id IN (" . implode(',', $ids) . ") GROUP BY ticket_template_id");
+        while ($row = mysqli_fetch_row($sql)) {
+            $counts[intval($row[0])] = intval($row[1]);
+        }
+    }
+    return $counts;
 }

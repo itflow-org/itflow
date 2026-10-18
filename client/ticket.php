@@ -288,6 +288,25 @@ $agent_name = (string) ($ticket['user_name'] ?? '');
                 <?php } ?>
             </dl>
         </section>
+
+        <?php
+        // What the request asked, and the answers - the ones the client is asked, not the agents' own
+        $request_answers = array_values(array_filter(ticketFillInsStored('ticket', $ticket_id), function ($answer) {
+            return $answer['client'];
+        }));
+        if ($request_answers) { ?>
+            <section class="itflow-portal-panel mt-4">
+                <div class="itflow-portal-panel-head">
+                    <h2><i class="fas fa-clipboard-list"></i>Request details</h2>
+                </div>
+                <dl class="itflow-portal-facts itflow-portal-panel-body py-1">
+                    <?php foreach ($request_answers as $answer) {
+                        $answer_text = ticketFillInText($answer); ?>
+                        <div><dt><?= escapeHtml($answer['name']) ?></dt><dd><?= $answer_text !== '' ? escapeHtml($answer_text) : '<span class="text-body-secondary">Not given</span>' ?></dd></div>
+                    <?php } ?>
+                </dl>
+            </section>
+        <?php } ?>
     </div>
 </div>
 

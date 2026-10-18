@@ -109,6 +109,53 @@ if (isset($_POST['add_ticket'])) {
 
 }
 
+if (isset($_POST['add_ticket_from_form'])) {
+
+    // A request form - a ticket template offered in the portal (client/ticket_add.php?form=)
+    validateCSRFToken();
+
+    $sees_all = portalSeesAllTickets();
+    $template = ticketTemplatePortalForm(intval($_POST['form'] ?? 0), $session_client_id, $sees_all);
+    if (!$template) {
+        flashAlert("That request form isn't available any more - tell us what you need here", 'error');
+        redirect('ticket_add.php');
+    }
+    $template_id = intval($template['ticket_template_id']);
+    $form_url = "ticket_add.php?form=$template_id";
+
+    // What it asks the client, answered as it needs
+    $answers = ticketTemplatePortalAnswers(ticketTemplateFillInsFor($template_id), $_POST['fill_ins'] ?? [], $fill_in_error);
+    if ($answers === null) {
+        flashAlert($fill_in_error, 'error');
+        redirect($form_url);
+    }
+
+    // Only one of their company's devices, as on a ticket - and only when the form asks
+    $asset = intval($_POST['asset'] ?? 0);
+    if ($asset && (!ticketTemplateMentionsAsset($template, ticketTemplateTasks($template_id)) || !mysqli_num_rows(mysqli_query($mysqli, "SELECT 1 FROM assets
+        WHERE asset_id = $asset AND asset_client_id = $session_client_id AND asset_archived_at IS NULL" . ($sees_all ? '' : " AND asset_contact_id = $session_contact_id"))))) {
+        $asset = 0;
+    }
+    $notes = mb_substr(trim((string) ($_POST['notes'] ?? '')), 0, 5000);
+
+    $ticket_id = ticketTemplatePortalRaise($template, $session_client_id, $session_contact_id, $session_user_id, (string) $contact['contact_name'], $answers, $notes, $asset);
+
+    // Files sent with it belong to the ticket itself
+    saveTicketAttachments($ticket_id, null, 'file');
+
+    // The new-ticket address (Admin > Ticket), and the colleagues who asked to hear about new tickets
+    ticketMailNewTicketAddress($ticket_id, 'portal');
+    ticketMailColleaguesNew($ticket_id);
+
+    triggerCustomAction('ticket_create', $ticket_id);
+
+    $row = ticketRow($ticket_id);
+    logAudit("Ticket", "Create", "$session_contact_name asked for " . escapeSql(ticketTemplatePortalTitle($template)) . " - ticket " . escapeSql(ticketReference($row)) . " from the client portal", $session_client_id, $ticket_id);
+
+    redirect("ticket.php?id=$ticket_id");
+
+}
+
 if (isset($_POST['add_ticket_comment'])) {
 
     validateCSRFToken();

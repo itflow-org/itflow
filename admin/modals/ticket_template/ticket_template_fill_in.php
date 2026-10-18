@@ -3,8 +3,9 @@
 /*
  * One of a ticket template's fill-ins - what is asked for when a ticket is
  * raised from it: its name (as it goes in square brackets), what kind of
- * answer it takes, its choices for a list, whether it must be answered, and
- * a line of help. ?ticket_template_id= and, to change one, &name= - one in
+ * answer it takes, its choices for a list, whether it must be answered,
+ * whether the client is asked it (on the portal's request form, and sees the
+ * answer on their ticket) and a line of help. ?ticket_template_id= and, to change one, &name= - one in
  * the text that isn't set up yet included. Saved by
  * save_ticket_template_fill_in (admin/post/ticket_template.php).
  */
@@ -82,10 +83,17 @@ if (!$template || ($name !== '' && !$fill_in)) { ?>
             </div>
         </div>
 
-        <div class="form-check form-switch">
+        <div class="form-check form-switch mb-3">
             <input class="form-check-input" type="checkbox" role="switch" name="required" value="1" id="fillInRequired" <?= !empty($fill_in['required']) ? 'checked' : '' ?>>
             <label class="form-check-label" for="fillInRequired">Must be answered to raise a ticket from it</label>
             <div class="form-text">Not for tickets a project template raises - those are answered on the ticket.</div>
+        </div>
+
+        <div class="form-check form-switch">
+            <input type="hidden" name="client" value="0">
+            <input class="form-check-input" type="checkbox" role="switch" name="client" value="1" id="fillInClient" <?= ($fill_in['client'] ?? true) ? 'checked' : '' ?>>
+            <label class="form-check-label" for="fillInClient">Ask the client</label>
+            <div class="form-text">On the client portal's request form, and they see the answer on their ticket. Off, it is for agents to answer.</div>
         </div>
 
     </div>

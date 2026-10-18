@@ -81,6 +81,21 @@ $mark = function ($html) use ($known) {
     }, $html);
 };
 $fill_in_url = "modals/ticket_template/ticket_template_fill_in.php?ticket_template_id=$ticket_template_id";
+
+// Its request form in the client portal - who sees it, and what it has raised
+$portal = intval($template['ticket_template_portal']) === 1;
+$portal_clients = [];
+if ($portal && !intval($template['ticket_template_portal_all_clients'])) {
+    $sql = mysqli_query($mysqli, "SELECT clients.client_id, client_name FROM ticket_template_portal_clients JOIN clients ON clients.client_id = ticket_template_portal_clients.client_id
+        WHERE ticket_template_id = $ticket_template_id ORDER BY client_name");
+    while ($row = mysqli_fetch_assoc($sql)) {
+        $portal_clients[] = $row;
+    }
+}
+$portal_requests = ticketTemplatePortalRequests([$ticket_template_id])[$ticket_template_id] ?? 0;
+$asks_client = count(array_filter($fill_ins, function ($fill_in) {
+    return $fill_in['client'];
+}));
 $details = trim((string) $template['ticket_template_details']) !== '' ? $mark(documentHtmlPurify($template['ticket_template_details'])) : '';
 
 $edit_url = "modals/ticket_template/ticket_template_edit.php?id=$ticket_template_id";
@@ -172,6 +187,7 @@ $edit_url = "modals/ticket_template/ticket_template_edit.php?id=$ticket_template
                                         <span class="fw-semibold me-1"><?= escapeHtml($fill_in['name']) ?></span>
                                         <span class="badge rounded-pill text-bg-light border fw-normal"><i class="fas fa-fw <?= $kind['icon'] ?> me-1 text-secondary"></i><?= $kind['label'] ?></span>
                                         <?php if ($fill_in['required']) { ?><span class="badge rounded-pill text-bg-light border fw-normal"><i class="fas fa-fw fa-asterisk me-1 text-danger"></i>Required</span><?php } ?>
+                                        <?php if (!$fill_in['client']) { ?><span class="badge rounded-pill text-bg-light border fw-normal" title="Not asked on the portal's request form, and not shown to the client"><i class="fas fa-fw fa-user-lock me-1 text-secondary"></i>Agents only</span><?php } ?>
                                         <?php if (!$fill_in['in_text']) { ?><span class="badge rounded-pill text-bg-warning fw-normal" title="Not in the subject, details or tasks - asked for, and kept on the ticket, but put in nowhere">Not in the text</span><?php } ?>
                                     </div>
                                     <?php if ($about) { ?><div class="small text-secondary text-truncate"><?= implode(' - ', $about) ?></div><?php } ?>
@@ -297,6 +313,45 @@ $edit_url = "modals/ticket_template/ticket_template_edit.php?id=$ticket_template
                         <dd class="col-7 mb-2"><?= $value ?></dd>
                     <?php } ?>
                 </dl>
+            </div>
+        </div>
+
+        <div class="card mb-3">
+            <div class="card-header d-flex align-items-center">
+                <h3 class="card-title mb-0"><i class="fas fa-fw fa-door-open me-2"></i>Client portal</h3>
+                <button type="button" class="btn btn-sm btn-link ms-auto ajax-modal" data-modal-size="lg" data-modal-url="<?= $edit_url ?>"><i class="fas fa-edit me-1"></i>Edit</button>
+            </div>
+            <div class="card-body">
+                <?php if ($portal) { ?>
+                    <div class="d-flex align-items-center gap-2 mb-3">
+                        <span class="itflow-asset-icon itflow-asset-tone-other" aria-hidden="true"><i class="fas fa-fw <?= ticketTemplatePortalIcon($template) ?>"></i></span>
+                        <div class="min-w-0">
+                            <div class="fw-semibold"><?= escapeHtml(ticketTemplatePortalTitle($template)) ?></div>
+                            <?php if (trim((string) $template['ticket_template_portal_description']) !== '') { ?><div class="small text-secondary"><?= escapeHtml($template['ticket_template_portal_description']) ?></div><?php } ?>
+                        </div>
+                    </div>
+                    <dl class="row mb-0 small">
+                        <dt class="col-5 fw-normal text-secondary">Who</dt>
+                        <dd class="col-7 mb-2"><?= TICKET_TEMPLATE_PORTAL_WHO[$template['ticket_template_portal_who']] ?? TICKET_TEMPLATE_PORTAL_WHO['everyone'] ?></dd>
+                        <dt class="col-5 fw-normal text-secondary">At</dt>
+                        <dd class="col-7 mb-2">
+                            <?php if (intval($template['ticket_template_portal_all_clients'])) { ?>
+                                Every client
+                            <?php } else { ?>
+                                <?= implode(', ', array_map(function ($row) {
+                                    return '<a href="/agent/client_overview.php?client_id=' . intval($row['client_id']) . '">' . escapeHtml($row['client_name']) . '</a>';
+                                }, $portal_clients)) ?: '<span class="text-danger">No client</span>' ?>
+                            <?php } ?>
+                        </dd>
+                        <dt class="col-5 fw-normal text-secondary">Asks</dt>
+                        <dd class="col-7 mb-2"><?= $asks_client ? $asks_client . ' of its fill-ins' : 'Nothing - the client just sends it' ?></dd>
+                        <dt class="col-5 fw-normal text-secondary">Requests</dt>
+                        <dd class="col-7 mb-0"><?= $portal_requests ? $portal_requests . ' from the portal' : 'None yet' ?></dd>
+                    </dl>
+                    <?php if ($archived) { ?><div class="small text-warning-emphasis mt-2"><i class="fas fa-fw fa-archive me-1"></i>Archived - not offered until it is restored</div><?php } ?>
+                <?php } else { ?>
+                    <div class="small text-secondary">Not offered there. Offer it as a request form and clients answer what it asks - the ticket is raised set up as it says, with its tasks.</div>
+                <?php } ?>
             </div>
         </div>
 

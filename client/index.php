@@ -3,7 +3,7 @@
  * Client Portal
  * Home - what needs this contact: tickets waiting on their reply or for them
  * to confirm, approvals, invoices past due, quotes waiting for an answer;
- * their open tickets, the balance,
+ * their open tickets, the balance, the request forms they can use,
  * renewals coming up and the devices they use.
  *
  * SCOPING: everything here is keyed to $session_client_id from the session,
@@ -137,6 +137,9 @@ $sql = mysqli_query($mysqli, "SELECT asset_id, asset_name, asset_type, asset_mak
 while ($row = mysqli_fetch_assoc($sql)) {
     $devices[] = $row;
 }
+
+// The request forms they can use - ticket templates offered in the portal
+$request_forms = ticketTemplatePortalForms($session_client_id, $sees_all);
 
 // How to reach us
 $company = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT company_phone, company_phone_country_code, company_email, company_website FROM companies WHERE company_id = 1"));
@@ -285,6 +288,29 @@ $first_name = strtok(trim((string) $contact['contact_name']), ' ') ?: '';
 
     </div>
     <div class="col-lg-4">
+
+        <?php if ($request_forms) { ?>
+            <section class="itflow-portal-panel mb-4">
+                <div class="itflow-portal-panel-head">
+                    <h2><i class="fas fa-clipboard-list"></i>Ask for something</h2>
+                    <?php if (count($request_forms) > 5) { ?><a href="ticket_add.php">All <?= count($request_forms) ?></a><?php } ?>
+                </div>
+                <ul class="itflow-portal-list">
+                    <?php foreach (array_slice($request_forms, 0, 5) as $row) { ?>
+                        <li>
+                            <a class="itflow-portal-todo" href="ticket_add.php?form=<?= intval($row['ticket_template_id']) ?>">
+                                <span class="itflow-portal-tile itflow-portal-tile-sm"><i class="fas fa-fw <?= ticketTemplatePortalIcon($row) ?>"></i></span>
+                                <span class="itflow-portal-todo-main">
+                                    <div><?= escapeHtml(ticketTemplatePortalTitle($row)) ?></div>
+                                    <?php if (trim((string) $row['ticket_template_portal_description']) !== '') { ?><div><?= escapeHtml($row['ticket_template_portal_description']) ?></div><?php } ?>
+                                </span>
+                                <i class="fas fa-chevron-right text-body-secondary small"></i>
+                            </a>
+                        </li>
+                    <?php } ?>
+                </ul>
+            </section>
+        <?php } ?>
 
         <?php if ($devices) { ?>
             <section class="itflow-portal-panel mb-4">

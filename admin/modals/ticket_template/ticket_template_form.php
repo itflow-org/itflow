@@ -5,9 +5,10 @@
  * for a new one) and $template_tag_ids before including this. Posts what
  * ticketTemplateFields() reads (functions/ticket_template.php).
  *
- * Two tabs: Ticket (its name, what it is for, the subject and details it
- * starts with) and Sets up (category, priority, billing, agent, due time and
- * tags - each left alone unless set).
+ * Three tabs: Ticket (its name, what it is for, the subject and details it
+ * starts with), Sets up (category, priority, billing, agent, due time and
+ * tags - each left alone unless set) and Client portal (offered there as a
+ * request form: what clients see it as, who may use it and at which clients).
  *
  * Should not be accessed directly.
  */
@@ -24,6 +25,10 @@ $assigned_to = intval($t['ticket_template_assigned_to'] ?? 0);
 $placeholder_help = implode(', ', array_map(function ($name) {
     return "[$name]";
 }, array_keys(TICKET_PLACEHOLDERS)));
+$portal_icon = (string) ($t['ticket_template_portal_icon'] ?? '');
+$portal_who = (string) ($t['ticket_template_portal_who'] ?? 'everyone');
+$portal_all_clients = intval($t['ticket_template_portal_all_clients'] ?? 1) === 1;
+$portal_client_ids = !empty($t['ticket_template_id']) ? ticketTemplatePortalClientIds($t['ticket_template_id']) : [];
 
 ?>
 
@@ -33,6 +38,9 @@ $placeholder_help = implode(', ', array_map(function ($name) {
     </li>
     <li class="nav-item">
         <a class="nav-link" data-bs-toggle="pill" href="#ticketTemplateFormSetUp"><i class="fas fa-fw fa-sliders-h me-2 d-none d-sm-inline"></i>Sets up</a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link" data-bs-toggle="pill" href="#ticketTemplateFormPortal"><i class="fas fa-fw fa-door-open me-2 d-none d-sm-inline"></i>Client portal</a>
     </li>
 </ul>
 
@@ -161,4 +169,87 @@ $placeholder_help = implode(', ', array_map(function ($name) {
     </div>
 </div>
 
+<div class="tab-pane fade" id="ticketTemplateFormPortal">
+    <div class="form-check form-switch mb-1">
+        <input class="form-check-input" type="checkbox" role="switch" name="portal" value="1" id="ticketTemplatePortal" <?= intval($t['ticket_template_portal'] ?? 0) ? 'checked' : '' ?>>
+        <label class="form-check-label" for="ticketTemplatePortal">Offer it in the client portal as a request form</label>
+    </div>
+    <p class="small text-secondary">Clients pick it on New ticket and answer its fill-ins - the ones set to ask the client. The ticket is raised set up as this template says, with its tasks for those answers. With <span class="font-monospace">[Asset]</span> in it, the form also asks which device.</p>
+    <div class="row g-3">
+        <div class="col-md-6">
+            <label class="form-label">What clients see it as</label>
+            <div class="input-group">
+                <span class="input-group-text"><i class="fa fa-fw fa-heading"></i></span>
+                <input type="text" class="form-control" name="portal_title" maxlength="200" placeholder="<?= escapeHtml(($t['ticket_template_name'] ?? '') !== '' ? $t['ticket_template_name'] : 'Onboard a new employee') ?>" value="<?= escapeHtml($t['ticket_template_portal_title'] ?? '') ?>">
+            </div>
+            <div class="form-text">Its name, unless this says otherwise.</div>
+        </div>
+        <div class="col-md-6">
+            <label class="form-label">Icon</label>
+            <div class="input-group">
+                <span class="input-group-text"><i class="fa fa-fw fa-icons"></i></span>
+                <select class="form-select select2" name="portal_icon">
+                    <?php foreach (TICKET_TEMPLATE_PORTAL_ICONS as $icon => $suits) { ?>
+                        <option value="<?= $icon ?>" data-icon="fas fa-<?= $icon ?>" <?= $portal_icon === $icon ? 'selected' : '' ?>><?= escapeHtml($suits) ?></option>
+                    <?php } ?>
+                </select>
+            </div>
+        </div>
+        <div class="col-12">
+            <label class="form-label">What it is for, for the client</label>
+            <div class="input-group">
+                <span class="input-group-text"><i class="fa fa-fw fa-info-circle"></i></span>
+                <input type="text" class="form-control" name="portal_description" maxlength="500" placeholder="Tell us about someone joining and we will have them ready for their first day" value="<?= escapeHtml($t['ticket_template_portal_description'] ?? '') ?>">
+            </div>
+        </div>
+        <div class="col-md-6">
+            <label class="form-label">Who can use it</label>
+            <div class="input-group">
+                <span class="input-group-text"><i class="fa fa-fw fa-user-shield"></i></span>
+                <select class="form-select select2" name="portal_who">
+                    <?php foreach (TICKET_TEMPLATE_PORTAL_WHO as $who => $label) { ?>
+                        <option value="<?= $who ?>" <?= $portal_who === $who ? 'selected' : '' ?>><?= $label ?></option>
+                    <?php } ?>
+                </select>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <label class="form-label">At which clients</label>
+            <div class="input-group">
+                <span class="input-group-text"><i class="fa fa-fw fa-building"></i></span>
+                <select class="form-select select2" name="portal_all_clients" id="ticketTemplatePortalAll">
+                    <option value="1" <?= $portal_all_clients ? 'selected' : '' ?>>Every client</option>
+                    <option value="0" <?= $portal_all_clients ? '' : 'selected' ?>>Only the clients picked</option>
+                </select>
+            </div>
+        </div>
+        <div class="col-12" id="ticketTemplatePortalClients" <?= $portal_all_clients ? 'hidden' : '' ?>>
+            <label class="form-label">The clients</label>
+            <div class="input-group">
+                <span class="input-group-text"><i class="fa fa-fw fa-users"></i></span>
+                <select class="form-select select2" name="portal_clients[]" multiple data-placeholder="Pick the clients that see it">
+                    <?php
+                    $sql_portal_clients = mysqli_query($mysqli, "SELECT client_id, client_name, client_abbreviation FROM clients WHERE (client_archived_at IS NULL AND client_lead = 0) OR client_id IN (" . ($portal_client_ids ? implode(',', $portal_client_ids) : '0') . ") ORDER BY client_name ASC");
+                    while ($row = mysqli_fetch_assoc($sql_portal_clients)) { ?>
+                        <option value="<?= intval($row['client_id']) ?>" <?= in_array(intval($row['client_id']), $portal_client_ids, true) ? 'selected' : '' ?><?= selectOptionClient($row['client_id'], $row['client_name'], $row['client_abbreviation']) ?>><?= escapeHtml($row['client_name']) ?></option>
+                    <?php } ?>
+                </select>
+            </div>
+        </div>
+    </div>
 </div>
+
+</div>
+
+<script>
+    (function () {
+        // The clients to pick are for "Only the clients picked"
+        var all = document.getElementById('ticketTemplatePortalAll');
+        var clients = document.getElementById('ticketTemplatePortalClients');
+        if (all && clients) {
+            all.addEventListener('change', function () {
+                clients.hidden = all.value !== '0';
+            });
+        }
+    })();
+</script>

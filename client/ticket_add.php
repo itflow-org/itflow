@@ -6,6 +6,12 @@
  * fills the subject in - the Ask us links on invoices and quotes - and ?asset=
  * picks the device, from Report a problem on a device's page.
  *
+ * With request forms offered to this contact (ticket templates offered in the
+ * portal - ticketTemplatePortalForms()) it starts with a choice: report a
+ * problem (?form=problem, the form above) or one of the forms (?form=ID):
+ * what it asks the client - its fill-ins - and anything else they want to
+ * add. add_ticket_from_form in post.php raises it as the template says.
+ *
  * No Content-Security-Policy here: the editor needs inline styles.
  */
 
@@ -22,6 +28,13 @@ while ($row = mysqli_fetch_assoc($sql)) {
     $assets[] = $row;
 }
 
+// The request forms they may use, and which one - if any - is open
+$forms = ticketTemplatePortalForms($session_client_id, $sees_all);
+$form_key = (string) ($_GET['form'] ?? '');
+$form = $form_key !== '' && $form_key !== 'problem' ? ticketTemplatePortalForm(intval($form_key), $session_client_id, $sees_all) : null;
+$choosing = $forms && $form_key === '' && !isset($_GET['subject']) && !isset($_GET['asset']);
+$back = $forms && !$choosing ? ['ticket_add.php', 'New ticket'] : ['tickets.php', 'Tickets'];
+
 $categories = mysqli_query($mysqli, "SELECT category_id, category_name, category_color, category_icon FROM categories
     WHERE category_type = 'Ticket' AND category_archived_at IS NULL ORDER BY category_name ASC");
 
@@ -35,7 +48,131 @@ $priorities = [
 $company = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT company_phone, company_phone_country_code FROM companies WHERE company_id = 1"));
 ?>
 
-<a class="itflow-portal-back" href="tickets.php"><i class="fas fa-chevron-left"></i>Tickets</a>
+<a class="itflow-portal-back" href="<?= $back[0] ?>"><i class="fas fa-chevron-left"></i><?= $back[1] ?></a>
+
+<?php if ($form_key !== '' && $form_key !== 'problem' && !$form) { ?>
+
+    <?= emptyStateHtml(['title' => "That form isn't here", 'text' => 'It may have been taken down, or it is not one for you. Tell us what you need instead.', 'icon' => 'fa-clipboard-list', 'filtered' => false,
+        'actions' => [['label' => 'New ticket', 'href' => 'ticket_add.php', 'icon' => 'fa-plus']]]) ?>
+
+<?php } elseif ($choosing) { ?>
+
+    <div class="itflow-portal-page-head">
+        <div>
+            <h1>New ticket</h1>
+            <p>What do you need?</p>
+        </div>
+    </div>
+
+    <div class="row g-4">
+        <div class="col-lg-8">
+            <div class="itflow-portal-requests mb-4">
+                <a class="itflow-portal-request" href="ticket_add.php?form=problem">
+                    <span class="itflow-portal-tile"><i class="fas fa-fw fa-life-ring"></i></span>
+                    <span class="min-w-0">
+                        <span class="itflow-portal-request-title">Report a problem</span>
+                        <span class="itflow-portal-request-text">Something not working? Tell us what is wrong and we will get on it.</span>
+                    </span>
+                </a>
+            </div>
+            <h2 class="h6 text-body-secondary mb-2">Or ask for something</h2>
+            <div class="itflow-portal-requests">
+                <?php foreach ($forms as $row) { ?>
+                    <a class="itflow-portal-request" href="ticket_add.php?form=<?= intval($row['ticket_template_id']) ?>">
+                        <span class="itflow-portal-tile"><i class="fas fa-fw <?= ticketTemplatePortalIcon($row) ?>"></i></span>
+                        <span class="min-w-0">
+                            <span class="itflow-portal-request-title"><?= escapeHtml(ticketTemplatePortalTitle($row)) ?></span>
+                            <?php if (trim((string) $row['ticket_template_portal_description']) !== '') { ?>
+                                <span class="itflow-portal-request-text"><?= escapeHtml($row['ticket_template_portal_description']) ?></span>
+                            <?php } ?>
+                        </span>
+                    </a>
+                <?php } ?>
+            </div>
+        </div>
+        <div class="col-lg-4">
+            <?php require __DIR__ . '/includes/ticket_next_steps.php'; ?>
+        </div>
+    </div>
+
+<?php } elseif ($form) {
+    $form_id = intval($form['ticket_template_id']);
+    $form_tasks = ticketTemplateTasks($form_id);
+    $asked = array_values(array_filter(ticketTemplateFillIns($form, $form_tasks, ticketTemplateFillInRowsFor([$form_id])[$form_id]), function ($fill_in) {
+        return $fill_in['client'];
+    }));
+    $asks_device = $assets && ticketTemplateMentionsAsset($form, $form_tasks);
+    ?>
+
+    <div class="itflow-portal-page-head">
+        <div class="d-flex align-items-center gap-3 min-w-0">
+            <span class="itflow-portal-tile itflow-portal-tile-lg"><i class="fas fa-fw <?= ticketTemplatePortalIcon($form) ?>"></i></span>
+            <div class="min-w-0">
+                <h1><?= escapeHtml(ticketTemplatePortalTitle($form)) ?></h1>
+                <?php if (trim((string) $form['ticket_template_portal_description']) !== '') { ?>
+                    <p><?= escapeHtml($form['ticket_template_portal_description']) ?></p>
+                <?php } ?>
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-4">
+        <div class="col-lg-8">
+            <form class="itflow-portal-panel itflow-portal-panel-body" action="post.php" method="post" enctype="multipart/form-data" data-portal-once>
+                <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
+                <input type="hidden" name="form" value="<?= $form_id ?>">
+
+                <?php if ($asked) { ?>
+                    <div class="row g-3 mb-3">
+                        <?php foreach ($asked as $fill_in) { ?>
+                            <div class="col-md-6"><?= ticketFillInFieldHtml($fill_in, '') ?></div>
+                        <?php } ?>
+                    </div>
+                <?php } ?>
+
+                <?php if ($asks_device) { ?>
+                    <div class="mb-3">
+                        <label class="form-label">Which device?</label>
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="fa fa-fw fa-desktop"></i></span>
+                            <select class="form-select select2" name="asset">
+                                <option value="0">None, or not sure</option>
+                                <?php foreach ($assets as $asset) { ?>
+                                    <option value="<?= intval($asset['asset_id']) ?>" data-icon="fas fa-<?= getAssetIcon($asset['asset_type']) ?>"
+                                        data-description="<?= escapeHtml($asset['asset_type'] . (intval($asset['asset_contact_id']) === $session_contact_id ? ' - yours' : '')) ?>"><?= escapeHtml($asset['asset_name']) ?></option>
+                                <?php } ?>
+                            </select>
+                        </div>
+                    </div>
+                <?php } ?>
+
+                <div class="mb-3">
+                    <label class="form-label" for="requestNotes">Anything else we should know?</label>
+                    <div class="input-group">
+                        <span class="input-group-text"><i class="fa fa-fw fa-comment"></i></span>
+                        <textarea class="form-control" id="requestNotes" name="notes" rows="4" maxlength="5000" placeholder="Optional"></textarea>
+                    </div>
+                </div>
+
+                <div class="mb-4">
+                    <label class="form-label">Files</label>
+                    <div class="itflow-portal-drop" data-portal-drop>
+                        <input type="file" name="file[]" multiple id="ticketFiles" accept=".jpg, .jpeg, .gif, .png, .webp, .pdf, .txt, .md, .doc, .docx, .odt, .csv, .xls, .xlsx, .ods, .pptx, .odp, .zip, .tar, .gz, .xml, .msg, .json, .wav, .mp3, .ogg, .mov, .mp4, .av1, .ovpn">
+                        <i class="fas fa-paperclip me-2"></i>Drop files here, or <label for="ticketFiles">choose files</label>
+                        <div class="itflow-portal-files" data-portal-files hidden></div>
+                    </div>
+                </div>
+
+                <button type="submit" class="btn btn-primary" name="add_ticket_from_form"><i class="fas fa-paper-plane me-2"></i>Send request</button>
+            </form>
+        </div>
+
+        <div class="col-lg-4">
+            <?php require __DIR__ . '/includes/ticket_next_steps.php'; ?>
+        </div>
+    </div>
+
+<?php } else { ?>
 
 <div class="itflow-portal-page-head">
     <div>
@@ -119,26 +256,11 @@ $company = mysqli_fetch_assoc(mysqli_query($mysqli, "SELECT company_phone, compa
     </div>
 
     <div class="col-lg-4">
-        <section class="itflow-portal-panel">
-            <div class="itflow-portal-panel-head">
-                <h2><i class="fas fa-route"></i>What happens next</h2>
-            </div>
-            <div class="itflow-portal-panel-body">
-                <ol class="ps-3 mb-0 small">
-                    <li class="mb-2">We get your ticket straight away and pick it up.</li>
-                    <li class="mb-2">You hear from us by email, and every reply shows on the ticket here.</li>
-                    <li class="mb-2">Answer us by replying to the email or on the ticket - whichever is easier.</li>
-                    <li>When it is fixed we mark it resolved, and you close it - or reopen it if it is not.</li>
-                </ol>
-                <?php if (!empty($company['company_phone'])) { ?>
-                    <hr>
-                    <p class="small mb-1"><strong>Stopping everyone?</strong> Call us as well:</p>
-                    <a href="tel:<?= escapeHtml(preg_replace('/[^0-9+]/', '', ($company['company_phone_country_code'] ? '+' . $company['company_phone_country_code'] : '') . $company['company_phone'])) ?>"><i class="fas fa-phone me-2"></i><?= escapeHtml(formatPhoneNumber($company['company_phone'], $company['company_phone_country_code'])) ?></a>
-                <?php } ?>
-            </div>
-        </section>
+        <?php require __DIR__ . '/includes/ticket_next_steps.php'; ?>
     </div>
 </div>
+
+<?php } ?>
 
 <?php
 require_once 'includes/footer.php';
