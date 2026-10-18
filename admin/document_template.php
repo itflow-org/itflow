@@ -98,6 +98,7 @@ $required_url = "modals/document_template/document_template_required.php?id=$doc
                 <button class="btn btn-outline-secondary" title="More actions" type="button" data-bs-toggle="dropdown"><i class="fas fa-fw fa-ellipsis-h"></i></button>
                 <div class="dropdown-menu dropdown-menu-end">
                     <a class="dropdown-item" href="post.php?copy_document_template=<?= $document_template_id ?>&csrf_token=<?= $csrf ?>"><i class="fas fa-fw fa-copy me-2"></i>Copy</a>
+                    <a class="dropdown-item" href="post.php?export_document_template=<?= $document_template_id ?>&csrf_token=<?= $csrf ?>" title="A file to import into another ITFlow"><i class="fas fa-fw fa-file-download me-2"></i>Export</a>
                     <a class="dropdown-item" href="#" onclick="window.print(); return false;"><i class="fas fa-fw fa-print me-2"></i>Print</a>
                     <?php if ($archived) { ?>
                         <a class="dropdown-item" href="post.php?restore_document_template=<?= $document_template_id ?>&csrf_token=<?= $csrf ?>"><i class="fas fa-fw fa-redo me-2"></i>Restore</a>

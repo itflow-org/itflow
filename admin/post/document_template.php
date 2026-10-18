@@ -4,8 +4,9 @@
  * Document templates (Admin > Document Templates) - making, changing,
  * copying, archiving and deleting them, with their images, setting up what
  * they ask for when a document is made (their fill-ins), who should have a
- * document from one and how often those are reviewed, and making documents
- * from one for several clients at once. The work is in
+ * document from one and how often those are reviewed, making documents from
+ * one for several clients at once, and exporting and importing them
+ * (functions/document_template_transfer.php). The work is in
  * functions/document_template.php; a document is made from one by
  * add_document_from_template (agent/post/document.php).
  */
@@ -288,5 +289,66 @@ if (isset($_POST['make_documents_from_template'])) {
         . ($skipped ? " - skipped " . ($skipped === 1 ? escapeHtml(reset($result['skipped'])) . ", which already has one" : "$skipped clients that already have one") : ''), $made ? 'success' : 'warning');
 
     redirect("document_template.php?document_template_id=$document_template_id");
+
+}
+
+if (isset($_POST['export_document_templates']) || isset($_GET['export_document_template'])) {
+
+    // A file of templates to import into another ITFlow - every current one, the ones picked, or one
+    validateCSRFToken();
+
+    if (isset($_GET['export_document_template'])) {
+        $row = documentTemplateForRequest($_GET['export_document_template']);
+        $export = documentTemplatesExport([intval($row['document_template_id'])]);
+    } else {
+        $export = documentTemplatesExport((array) ($_POST['document_template_ids'] ?? []), !empty($_POST['archived']));
+    }
+    if (!$export['templates']) {
+        flashAlert('There are no document templates to export.', 'error');
+        redirect();
+    }
+
+    $count = count($export['templates']);
+    logAudit("Document Template", "Export", "$session_name exported $count document template" . ($count === 1 ? ' ' . escapeSql($export['templates'][0]['name']) : 's'));
+
+    header('Content-Type: application/json; charset=utf-8');
+    header('Content-Disposition: attachment; filename="' . documentTemplatesExportFileName($export) . '"');
+    header('Cache-Control: no-store');
+    echo json_encode($export, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
+    exit;
+
+}
+
+if (isset($_POST['import_document_templates'])) {
+
+    // Templates from a file exported by ITFlow
+    validateCSRFToken();
+
+    $file = $_FILES['file'] ?? null;
+    if ($file && in_array($file['error'], [UPLOAD_ERR_INI_SIZE, UPLOAD_ERR_FORM_SIZE], true)) {
+        flashAlert('That file is bigger than this server takes in an upload - export a few at a time.', 'error');
+        redirect('document_templates.php');
+    }
+    if (!$file || $file['error'] !== UPLOAD_ERR_OK || !is_uploaded_file($file['tmp_name'])) {
+        flashAlert('Pick the file to import.', 'error');
+        redirect('document_templates.php');
+    }
+    if ($file['size'] > 100 * 1024 * 1024) {
+        flashAlert('That file is too big to be document templates.', 'error');
+        redirect('document_templates.php');
+    }
+    $templates = documentTemplatesImportRead(file_get_contents($file['tmp_name']), $import_error);
+    if ($templates === null) {
+        flashAlert(escapeHtml($import_error), 'error');
+        redirect('document_templates.php');
+    }
+    $existing = in_array($_POST['existing'] ?? '', ['skip', 'copy', 'replace'], true) ? $_POST['existing'] : 'skip';
+    $counts = documentTemplatesImport($templates, $existing);
+
+    logAudit("Document Template", "Import", "$session_name imported document templates from " . escapeSql(mb_substr((string) $file['name'], 0, 100)) . " - {$counts['added']} added, {$counts['replaced']} replaced, {$counts['skipped']} skipped");
+
+    flashAlert(documentTemplatesImportSummary($counts), $counts['images'] ? 'warning' : ($counts['added'] || $counts['replaced'] ? 'success' : 'info'));
+
+    redirect('document_templates.php');
 
 }

@@ -176,6 +176,10 @@ function reportCatalog() {
                     'title' => 'Documentation Coverage', 'icon' => 'fa-tasks', 'module' => 'module_support', 'feature' => ['itdoc'],
                     'description' => 'What is documented for each client, and what is missing.',
                 ],
+                'document_templates' => [
+                    'title' => 'Document Templates', 'icon' => 'fa-file-alt', 'module' => 'module_support', 'feature' => ['itdoc'],
+                    'description' => 'How often each document template is used, how many of the clients that should have a document from one do, and the documents due a review - by template and by client.',
+                ],
                 'credential_rotation' => [
                     'title' => 'Credential Rotation', 'icon' => 'fa-key', 'module' => 'module_credential', 'feature' => ['itdoc'],
                     'description' => 'Passwords that have not changed in a while, oldest first.',

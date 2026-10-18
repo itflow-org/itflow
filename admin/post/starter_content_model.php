@@ -64,7 +64,11 @@ function starterContentPacks() {
         'document_templates' => [
             'label' => 'Document Templates',
             'icon' => 'fa-file-alt',
-            'description' => 'Runbooks, build sheets, checklists and plans as fill-in-the-blank skeletons.',
+            'description' => "Runbooks, build sheets, plans and checklists - filled in from the client as each document is made, with its networks, servers, licenses and contacts as tables, asking for the rest, and the ones that go stale reviewed on a schedule. Who should have each is yours to set on its page.",
+            'update' => [
+                'button' => 'update_starter_document_templates',
+                'confirm' => 'Bring the %d starter document templates you have up to date? Their summary, what they say, their fill-ins and how often their documents are reviewed are replaced with this version - changes you made to them are lost. The documents made from them, and who should have one, stay as they are.',
+            ],
         ],
         'products' => [
             'label' => 'Products & Services',
@@ -398,30 +402,30 @@ function starterLoadVendorTemplates($mysqli, $dry_run = false) {
 
 // ------------------------------
 // starterLoadDocumentTemplates
+// Through the document template import. One whose name a template here
+// already has, archived or not, is left alone.
 // ------------------------------
 function starterLoadDocumentTemplates($mysqli, $dry_run = false) {
-    global $session_user_id;
-
-    $existing = starterExistingNames($mysqli, 'document_templates', 'document_template_name');
-    $added = 0;
-
-    foreach (starterContentDocumentTemplates() as $document_template) {
-        if (isset($existing[mb_strtolower($document_template[0])])) {
-            continue;
-        }
-        $added++;
-        if ($dry_run) {
-            continue;
-        }
-        starterInsert($mysqli, 'document_templates', [
-            'document_template_name' => $document_template[0],
-            'document_template_description' => $document_template[1],
-            'document_template_content' => $document_template[2],
-            'document_template_created_by' => intval($session_user_id ?? 0),
-        ], ['document_template_content']);
+    $templates = documentTemplatesImportRead(['format' => DOCUMENT_TEMPLATE_FILE_FORMAT, 'version' => DOCUMENT_TEMPLATE_FILE_VERSION, 'templates' => starterContentDocumentTemplates()]);
+    if ($dry_run) {
+        $existing = starterExistingNames($mysqli, 'document_templates', 'document_template_name');
+        return count(array_filter($templates, function ($template) use ($existing) {
+            return !isset($existing[mb_strtolower($template['name'])]);
+        }));
     }
+    return documentTemplatesImport($templates, 'skip')['added'];
+}
 
-    return $added;
+// ------------------------------
+// starterUpdateDocumentTemplates
+// The starter document templates already here, brought up to this library's
+// version - their summary, what they say, fill-ins and review period
+// replaced. The documents made from them, and who should have one, stay.
+// Returns the import's counts (documentTemplatesImport()).
+// ------------------------------
+function starterUpdateDocumentTemplates() {
+    $templates = documentTemplatesImportRead(['format' => DOCUMENT_TEMPLATE_FILE_FORMAT, 'version' => DOCUMENT_TEMPLATE_FILE_VERSION, 'templates' => starterContentDocumentTemplates()]);
+    return documentTemplatesImport($templates, 'replace', true);
 }
 
 // ------------------------------
@@ -1447,75 +1451,299 @@ function starterContentVendorTemplates() {
 
 // ------------------------------
 // starterContentDocumentTemplates
-// name, description, content. Square bracket placeholders are filled in when
-// the document is created from the template.
+// In the document templates file format (functions/document_template_transfer.php):
+// name, description, content, fill_ins and review_months. [Client], [Site],
+// [Contact], [Agent], [Date] and the rest are filled in from the client as a
+// document is made; [Networks], [Servers], [Licenses] and the other tables of
+// records put in the client's records as they are then; any other [word] is
+// a fill-in, asked for as the document is made. Who should have each is left
+// to the MSP, on the template's page.
 // ------------------------------
 function starterContentDocumentTemplates() {
 
-    $document_templates = [
+    // A table with its headings and one empty row to fill in
+    $table = function (array $headings, array $rows = []) {
+        $html = '<table style="width:100%" border="1"><tbody><tr>';
+        foreach ($headings as $heading) {
+            $html .= "<th>$heading</th>";
+        }
+        $html .= '</tr>';
+        foreach ($rows ?: [array_fill(0, count($headings), '')] as $row) {
+            $html .= '<tr>';
+            foreach ($row as $cell) {
+                $html .= "<td>$cell</td>";
+            }
+            $html .= '</tr>';
+        }
+        return $html . '</tbody></table>';
+    };
+    $list = function (array $items) {
+        return '<ul><li>' . implode('</li><li>', $items) . '</li></ul>';
+    };
+    $steps = function (array $items) {
+        return '<ol><li>' . implode('</li><li>', $items) . '</li></ol>';
+    };
+    $fill_in = function ($name, $type = 'text', $options = [], $required = false, $help = '') {
+        return ['name' => $name, 'type' => $type, 'options' => $options, 'required' => $required, 'help' => $help];
+    };
+
+    return [
         [
-            'Network Overview',
-            'Topology, addressing, VLANs and internet circuits for a site',
-            '<h3>Network Overview</h3><p><strong>Site:</strong> [Site]<br><strong>Last reviewed:</strong> [Date]</p><h4>Internet Circuits</h4><table style="width:100%" border="1"><tbody><tr><th>Provider</th><th>Type</th><th>Speed</th><th>Public IP</th><th>Account</th><th>Support</th></tr><tr><td></td><td></td><td></td><td></td><td></td><td></td></tr></tbody></table><h4>Addressing and VLANs</h4><table style="width:100%" border="1"><tbody><tr><th>VLAN</th><th>Name</th><th>Subnet</th><th>Gateway</th><th>DHCP Scope</th></tr><tr><td></td><td></td><td></td><td></td><td></td></tr></tbody></table><h4>Core Equipment</h4><ul><li>Firewall:</li><li>Core switch:</li><li>Access switches:</li><li>Wireless controller and access points:</li></ul><h4>DNS and DHCP</h4><ul><li>Internal DNS servers:</li><li>External forwarders:</li><li>DHCP server and reservations:</li></ul><h4>Remote Access</h4><ul><li>VPN type and endpoint:</li><li>Who has access:</li></ul><h4>Notes</h4><p></p>',
+            'name' => 'Network Overview',
+            'description' => 'Sites, internet circuits, networks, equipment and domains for a client',
+            'review_months' => 12,
+            'fill_ins' => [
+                $fill_in('Internet Provider'),
+                $fill_in('Circuit Type', 'list', ['Fiber', 'Cable', 'DSL', 'Fixed wireless', 'Cellular']),
+                $fill_in('Circuit Speed', 'text', [], false, 'Down and up - 500/500 Mbps'),
+                $fill_in('Public IP', 'text', [], false, 'Static address or block, if there is one'),
+                $fill_in('Firewall Model'),
+            ],
+            'content' => '<h3>[Client] - Network Overview</h3>'
+                . '<p><strong>Prepared by:</strong> [Agent]<br><strong>Prepared:</strong> [Date]</p>'
+                . '<h4>Sites</h4><p>[Locations]</p>'
+                . '<h4>Internet Circuits</h4>' . $table(['Site', 'Provider', 'Type', 'Speed', 'Public IP', 'Account', 'Support'], [['[Site]', '[Internet Provider]', '[Circuit Type]', '[Circuit Speed]', '[Public IP]', '', '']])
+                . '<h4>Networks and VLANs</h4><p>[Networks]</p>'
+                . '<h4>Network Equipment</h4><p>[Network Equipment]</p>'
+                . '<h4>Firewall</h4>' . $list(['Model: [Firewall Model]', 'Management access:', 'Remote access VPN:', 'Where its configuration backup is kept:'])
+                . '<h4>Wireless</h4>' . $table(['SSID', 'Network', 'Security', 'Purpose'])
+                . '<h4>Domains and DNS</h4><p>[Domains]</p>'
+                . '<h4>Notes</h4><p></p>',
         ],
         [
-            'Server Build Sheet',
-            'As-built record for a physical or virtual server',
-            '<h3>Server Build Sheet</h3><p><strong>Hostname:</strong> [Hostname]<br><strong>Role:</strong> [Role]<br><strong>Built:</strong> [Date]<br><strong>Built by:</strong> [Technician]</p><h4>Hardware or Virtual Specification</h4><table style="width:100%" border="1"><tbody><tr><th>CPU</th><th>Memory</th><th>Storage</th><th>Host or Chassis</th><th>Serial or Service Tag</th></tr><tr><td></td><td></td><td></td><td></td><td></td></tr></tbody></table><h4>Operating System</h4><ul><li>Version and edition:</li><li>Licensing:</li><li>Patch level at handover:</li></ul><h4>Network</h4><ul><li>Addressing:</li><li>Out of band management:</li></ul><h4>Roles and Applications</h4><ul><li></li></ul><h4>Backup</h4><ul><li>Job name and schedule:</li><li>Retention:</li><li>First successful backup:</li></ul><h4>Monitoring</h4><ul><li>Agents installed:</li><li>Alerts configured:</li></ul><h4>Dependencies and Restart Order</h4><p></p>',
+            'name' => 'Server Build Sheet',
+            'description' => 'As-built record for a physical, virtual or cloud server',
+            'review_months' => 12,
+            'fill_ins' => [
+                $fill_in('Hostname', 'text', [], true),
+                $fill_in('Server Role', 'text', [], true, 'Domain controller, file server, line of business application...'),
+                $fill_in('Platform', 'list', ['Virtual machine', 'Physical server', 'Cloud instance']),
+                $fill_in('Operating System'),
+                $fill_in('Build Date', 'date'),
+            ],
+            'content' => '<h3>Server Build Sheet - [Hostname]</h3>'
+                . '<p><strong>Client:</strong> [Client]<br><strong>Role:</strong> [Server Role]<br><strong>Platform:</strong> [Platform]<br><strong>Built:</strong> [Build Date]<br><strong>Built by:</strong> [Agent]</p>'
+                . '<h4>Specification</h4>' . $table(['CPU', 'Memory', 'Storage', 'Host or chassis', 'Serial or service tag'])
+                . '<h4>Operating System</h4>' . $list(['Version and edition: [Operating System]', 'License:', 'Patching:'])
+                . '<h4>Network</h4>' . $table(['Interface', 'IP address', 'Network', 'Gateway', 'DNS'])
+                . '<h4>Storage</h4>' . $table(['Volume', 'Size', 'Purpose', 'RAID or datastore'])
+                . '<h4>Roles, Features and Applications</h4><ul><li></li></ul>'
+                . '<h4>Backup</h4>' . $list(['Product:', 'Schedule:', 'Last restore test:'])
+                . '<h4>The Other Servers at [Client]</h4><p>[Servers]</p>'
+                . '<h4>Build Notes</h4><p></p>',
         ],
         [
-            'Backup and Recovery Runbook',
-            'What is protected, how often, and how to restore it',
-            '<h3>Backup and Recovery Runbook</h3><p><strong>Client:</strong> [Client]<br><strong>Last restore test:</strong> [Date]</p><h4>Agreed Objectives</h4><ul><li>Recovery point objective:</li><li>Recovery time objective:</li></ul><h4>Protected Systems</h4><table style="width:100%" border="1"><tbody><tr><th>System</th><th>Job</th><th>Schedule</th><th>Retention</th><th>Target</th><th>Offsite Copy</th></tr><tr><td></td><td></td><td></td><td></td><td></td><td></td></tr></tbody></table><h4>Not Protected</h4><p>Record anything deliberately excluded and who accepted the risk.</p><h4>Restore Procedure - File Level</h4><ol><li></li></ol><h4>Restore Procedure - Full System</h4><ol><li></li></ol><h4>Restore Test History</h4><table style="width:100%" border="1"><tbody><tr><th>Date</th><th>Scope</th><th>Recovery Time Achieved</th><th>Result</th><th>Tested By</th></tr><tr><td></td><td></td><td></td><td></td><td></td></tr></tbody></table>',
+            'name' => 'Backup and Recovery Runbook',
+            'description' => 'What is protected, how often, and how to restore it',
+            'review_months' => 6,
+            'fill_ins' => [
+                $fill_in('Backup Product'),
+                $fill_in('Recovery Point Objective', 'list', ['15 minutes', '1 hour', '4 hours', '24 hours'], false, 'The most data the client has agreed it can lose'),
+                $fill_in('Recovery Time Objective', 'list', ['1 hour', '4 hours', '1 business day', '3 business days'], false, 'How long the client has agreed it can be without a system'),
+                $fill_in('Last Restore Test', 'date'),
+            ],
+            'content' => '<h3>Backup and Recovery Runbook - [Client]</h3>'
+                . '<p><strong>Backup product:</strong> [Backup Product]<br><strong>Last restore test:</strong> [Last Restore Test]<br><strong>Prepared by:</strong> [Agent], [Date]</p>'
+                . '<h4>Agreed Objectives</h4>' . $list(['Recovery point objective: [Recovery Point Objective]', 'Recovery time objective: [Recovery Time Objective]'])
+                . '<h4>Servers</h4><p>[Servers]</p>'
+                . '<h4>Protected Systems</h4>' . $table(['System', 'Job', 'Schedule', 'Retention', 'Target', 'Offsite copy'])
+                . '<h4>Restore Procedure</h4>' . $steps(['Agree the scope of the loss and the restore point with [Contact].', 'Restore to a separate location first when the original may still be compromised.', '', 'Check the restored data with the user who reported it before closing the ticket.'])
+                . '<h4>Restore Test Log</h4>' . $table(['Date', 'System', 'Restored to', 'Time taken', 'Result', 'By'])
+                . '<h4>Monitoring</h4>' . $list(['Failures are reported to:', 'Checked daily by:']),
         ],
         [
-            'Disaster Recovery Plan',
-            'What happens when a site or critical system is lost',
-            '<h3>Disaster Recovery Plan</h3><p><strong>Client:</strong> [Client]<br><strong>Approved by:</strong> [Contact]<br><strong>Last reviewed:</strong> [Date]</p><h4>Scope and Assumptions</h4><p></p><h4>Critical Systems in Priority Order</h4><table style="width:100%" border="1"><tbody><tr><th>Priority</th><th>System</th><th>Business Function</th><th>Recovery Target</th></tr><tr><td>1</td><td></td><td></td><td></td></tr></tbody></table><h4>Declaration and Authority</h4><ul><li>Who can declare a disaster:</li><li>How the team is mobilised:</li></ul><h4>Communication Plan</h4><table style="width:100%" border="1"><tbody><tr><th>Audience</th><th>Owner</th><th>Method</th></tr><tr><td></td><td></td><td></td></tr></tbody></table><h4>Recovery Procedures</h4><ol><li></li></ol><h4>Alternate Working Arrangements</h4><p></p><h4>Return to Normal Operations</h4><p></p>',
+            'name' => 'Disaster Recovery Plan',
+            'description' => 'What happens when a site or a critical system is lost',
+            'review_months' => 12,
+            'fill_ins' => [
+                $fill_in('Alternate Site', 'text', [], false, 'Where people work if the office is lost'),
+            ],
+            'content' => '<h3>Disaster Recovery Plan - [Client]</h3>'
+                . '<p><strong>Approved by:</strong> [Contact]<br><strong>Prepared by:</strong> [Agent]<br><strong>Last reviewed:</strong> [Date]</p>'
+                . '<h4>Scope and Assumptions</h4><p></p>'
+                . '<h4>Sites</h4><p>[Locations]</p>'
+                . '<h4>Services</h4><p>[Services]</p>'
+                . '<h4>Recovery Targets in Priority Order</h4>' . $table(['Priority', 'System', 'Business function', 'Recovery target', 'Depends on'], [['1', '', '', '', ''], ['2', '', '', '', ''], ['3', '', '', '', '']])
+                . '<h4>Alternate Working Arrangements</h4>' . $list(['Alternate site: [Alternate Site]', 'Remote working:', 'Phones:'])
+                . '<h4>Invoking the Plan</h4>' . $steps(['Who can declare a disaster:', 'How staff are told:', 'Where the response team meets:'])
+                . '<h4>Who to Call</h4><p>[Contacts]</p>'
+                . '<h4>Vendors</h4><p>[Vendors]</p>'
+                . '<h4>Test History</h4>' . $table(['Date', 'Scenario', 'Result', 'Actions']),
         ],
         [
-            'Site and Access Details',
-            'Physical access, keyholders and on-site logistics',
-            '<h3>Site and Access Details</h3><p><strong>Site:</strong> [Site]<br><strong>Address:</strong> [Address]</p><h4>Access</h4><ul><li>Building access method:</li><li>Server room access method:</li><li>Notice required before attending:</li><li>Escort required:</li></ul><h4>Key Contacts</h4><table style="width:100%" border="1"><tbody><tr><th>Name</th><th>Role</th><th>Phone</th><th>Hours</th></tr><tr><td></td><td></td><td></td><td></td></tr></tbody></table><h4>Hours and Restrictions</h4><ul><li>Normal site hours:</li><li>Agreed maintenance window:</li><li>Restricted periods:</li></ul><h4>Logistics</h4><ul><li>Parking and loading:</li><li>Delivery instructions:</li><li>Health and safety requirements:</li></ul><p><em>Do not record alarm codes, door codes or key safe combinations here - store those in the credential vault.</em></p>',
+            'name' => 'Site and Access Details',
+            'description' => 'Getting into a site - access, keyholders, parking and where the equipment is',
+            'review_months' => 12,
+            'fill_ins' => [
+                $fill_in('Access Method', 'list', ['Key', 'Fob or card', 'Door code', 'Reception sign-in']),
+                $fill_in('Escort Required', 'yesno'),
+                $fill_in('Parking'),
+            ],
+            'content' => '<h3>Site and Access Details - [Site]</h3>'
+                . '<p><strong>Client:</strong> [Client]<br><strong>Address:</strong> [Address]<br><strong>Phone:</strong> [Site Phone]<br><strong>Site contact:</strong> [Contact], [Contact Phone]</p>'
+                . '<h4>Access</h4>' . $list(['Building: [Access Method]', 'Server room or comms cupboard:', 'Alarm:', 'Notice needed before a visit:', 'Escort required: [Escort Required]'])
+                . '<h4>Hours</h4><p></p>'
+                . '<h4>Parking and Arrival</h4><p>[Parking]</p>'
+                . '<h4>Where the Equipment Is</h4>' . $table(['Equipment', 'Where in the building', 'Notes'])
+                . '<h4>Health and Safety</h4>' . $list(['Sign-in:', 'Hazards:']),
         ],
         [
-            'Microsoft 365 Tenant Details',
-            'Tenant identifiers, licensing position and security baseline',
-            '<h3>Microsoft 365 Tenant Details</h3><p><strong>Client:</strong> [Client]<br><strong>Tenant domain:</strong> [Tenant]<br><strong>Tenant ID:</strong> [Tenant ID]</p><h4>Domains</h4><table style="width:100%" border="1"><tbody><tr><th>Domain</th><th>Registrar</th><th>Verified</th><th>Primary</th></tr><tr><td></td><td></td><td></td><td></td></tr></tbody></table><h4>Licensing</h4><table style="width:100%" border="1"><tbody><tr><th>SKU</th><th>Assigned</th><th>Purchased</th><th>Renewal</th></tr><tr><td></td><td></td><td></td><td></td></tr></tbody></table><h4>Administrative Access</h4><ul><li>Delegated access model:</li><li>Break glass account location:</li><li>Global administrators:</li></ul><h4>Security Baseline</h4><ul><li>Multi-factor authentication enforced:</li><li>Conditional access policies:</li><li>Legacy authentication blocked:</li><li>Audit logging enabled:</li></ul><h4>Mail Flow</h4><ul><li>Inbound and outbound connectors:</li><li>SPF, DKIM and DMARC status:</li><li>Filtering platform:</li></ul><h4>Tenant Backup</h4><ul><li>Product and retention:</li></ul>',
+            'name' => 'Microsoft 365 Tenant Details',
+            'description' => 'Tenant identifiers, domains, licensing and the security baseline',
+            'review_months' => 12,
+            'fill_ins' => [
+                $fill_in('Tenant Domain', 'text', [], true, 'The onmicrosoft.com domain'),
+                $fill_in('Tenant ID'),
+                $fill_in('Licensing Partner', 'text', [], false, 'Who the licenses are bought through'),
+            ],
+            'content' => '<h3>Microsoft 365 Tenant - [Client]</h3>'
+                . '<p><strong>Tenant domain:</strong> [Tenant Domain]<br><strong>Tenant ID:</strong> [Tenant ID]<br><strong>Licensed through:</strong> [Licensing Partner]</p>'
+                . '<p>Admin logins are kept in ITFlow as credentials, not here.</p>'
+                . '<h4>Domains</h4><p>[Domains]</p>'
+                . '<h4>Licenses</h4><p>[Licenses]</p>'
+                . '<h4>Security Baseline</h4>' . $table(['Control', 'State', 'Notes'], [['MFA for every user', '', ''], ['Conditional access', '', ''], ['Legacy authentication blocked', '', ''], ['Admin accounts separate from daily ones', '', ''], ['Audit logging', '', ''], ['External sharing', '', '']])
+                . '<h4>Mail</h4>' . $list(['MX:', 'SPF:', 'DKIM:', 'DMARC:', 'Filtering:'])
+                . '<h4>Backup</h4>' . $list(['Product:', 'Covers mail, OneDrive, SharePoint and Teams:']),
         ],
         [
-            'Line of Business Application Profile',
-            'Everything needed to support a client business critical application',
-            '<h3>Line of Business Application Profile</h3><p><strong>Application:</strong> [Application]<br><strong>Business owner:</strong> [Contact]<br><strong>Criticality:</strong> [Critical / High / Normal]</p><h4>Vendor and Support</h4><ul><li>Vendor:</li><li>Support portal:</li><li>Support hours and contract level:</li><li>Account or customer number:</li></ul><h4>Architecture</h4><ul><li>Hosting model:</li><li>Servers and services involved:</li><li>Database platform and location:</li><li>Integrations and dependencies:</li></ul><h4>Access</h4><ul><li>How users connect:</li><li>Licensing model and count:</li><li>Who administers it:</li></ul><h4>Maintenance</h4><ul><li>Update process and cadence:</li><li>Known constraints - patching, reboots, versions:</li><li>Backup approach:</li></ul><h4>Common Issues</h4><p></p>',
+            'name' => 'Line of Business Application Profile',
+            'description' => 'Everything needed to support a business critical application',
+            'review_months' => 12,
+            'fill_ins' => [
+                $fill_in('Application', 'text', [], true),
+                $fill_in('Criticality', 'list', ['Critical', 'High', 'Normal']),
+                $fill_in('Application Vendor'),
+                $fill_in('Hosting', 'list', ['On premises', 'Vendor hosted', 'Cloud']),
+            ],
+            'content' => '<h3>[Application] - Application Profile</h3>'
+                . '<p><strong>Client:</strong> [Client]<br><strong>Business owner:</strong> [Contact]<br><strong>Criticality:</strong> [Criticality]</p>'
+                . '<h4>Vendor and Support</h4>' . $list(['Vendor: [Application Vendor]', 'Support portal:', 'Support hours and contract level:', 'Account or customer number:'])
+                . '<h4>How It Runs</h4>' . $list(['Hosting: [Hosting]', 'Servers:', 'Database:', 'Installed on:'])
+                . '<h4>Licensing</h4>' . $list(['License type and count:', 'Renewal date:'])
+                . '<h4>Updates</h4>' . $list(['Who applies updates:', 'Notice the vendor needs:'])
+                . '<h4>Backup and Recovery</h4><p></p>'
+                . '<h4>Common Issues</h4>' . $table(['Symptom', 'Fix']),
         ],
         [
-            'New Hire Onboarding Checklist',
-            'Client facing form for requesting a new user setup',
-            '<h3>New Hire Onboarding Request</h3><p>Return this form at least five working days before the start date.</p><h4>Employee</h4><ul><li>Full name:</li><li>Preferred display name:</li><li>Job title:</li><li>Department:</li><li>Manager:</li><li>Start date:</li><li>Working hours and location:</li></ul><h4>Access</h4><ul><li>Mirror access from:</li><li>Shared mailboxes required:</li><li>Distribution groups:</li><li>Applications required:</li></ul><h4>Equipment</h4><ul><li>Laptop or desktop:</li><li>Monitors and peripherals:</li><li>Mobile phone required:</li><li>Desk phone or extension:</li></ul><h4>Authorization</h4><ul><li>Requested by:</li><li>Approved by:</li><li>Date:</li></ul>',
+            'name' => 'New Hire Onboarding Checklist',
+            'description' => 'A new user set up - who they are, what they need, and done',
+            'review_months' => 0,
+            'fill_ins' => [
+                $fill_in('Employee Name', 'text', [], true),
+                $fill_in('Start Date', 'date', [], true),
+                $fill_in('Job Title'),
+                $fill_in('Manager'),
+                $fill_in('Mirror Access From', 'text', [], false, 'Someone whose access they should match'),
+                $fill_in('Device', 'list', ['New laptop', 'New desktop', 'An existing device', 'Their own device']),
+            ],
+            'content' => '<h3>New Hire Onboarding - [Employee Name]</h3>'
+                . '<p><strong>Client:</strong> [Client]<br><strong>Start date:</strong> [Start Date]<br><strong>Requested by:</strong> [Contact]</p>'
+                . '<h4>Employee</h4>' . $list(['Job title: [Job Title]', 'Department:', 'Manager: [Manager]', 'Working hours and location:'])
+                . '<h4>Access</h4>' . $list(['Mirror access from: [Mirror Access From]', 'Shared mailboxes:', 'Distribution lists:', 'Applications:', 'Building access:'])
+                . '<h4>Equipment</h4>' . $list(['Device: [Device]', 'Phone extension:', 'Peripherals:'])
+                . '<h4>Done</h4>' . $list(['Account made', 'License assigned', 'MFA set up', 'Device built and handed over', 'Added to ITFlow as a contact']),
         ],
         [
-            'Employee Offboarding Checklist',
-            'Client facing form authorizing a user removal',
-            '<h3>Employee Offboarding Request</h3><p>This form is the written authorization to disable access. It must come from an authorized contact.</p><h4>Employee</h4><ul><li>Full name:</li><li>Last working day:</li><li>Effective time for access removal:</li></ul><h4>Mailbox and Data</h4><ul><li>Forward mail to:</li><li>Who takes ownership of files:</li><li>Retention period required:</li><li>Auto reply wording:</li></ul><h4>Equipment</h4><ul><li>Equipment to be returned:</li><li>Collected by:</li><li>Return date:</li></ul><h4>Authorization</h4><ul><li>Requested by:</li><li>Approved by:</li><li>Date:</li></ul>',
+            'name' => 'Employee Offboarding Checklist',
+            'description' => 'A user removed - the written authorization, and what was done',
+            'review_months' => 0,
+            'fill_ins' => [
+                $fill_in('Employee Name', 'text', [], true),
+                $fill_in('Last Working Day', 'date', [], true),
+                $fill_in('Access Removed', 'list', ['At the end of the last working day', 'Immediately', 'On another date - in the notes']),
+                $fill_in('Forward Mail To'),
+                $fill_in('Keep Mailbox', 'yesno', [], false, 'Kept as a shared mailbox'),
+            ],
+            'content' => '<h3>Employee Offboarding - [Employee Name]</h3>'
+                . '<p><strong>Client:</strong> [Client]<br><strong>Last working day:</strong> [Last Working Day]<br><strong>Authorized by:</strong> [Contact]</p>'
+                . '<p>This is the written authorization to remove their access.</p>'
+                . '<h4>When</h4>' . $list(['Access removed: [Access Removed]'])
+                . '<h4>Mail and Files</h4>' . $list(['Forward mail to: [Forward Mail To]', 'Kept as a shared mailbox: [Keep Mailbox]', 'Who takes over their files:', 'How long it is all kept:'])
+                . '<h4>Equipment to Get Back</h4>' . $table(['Item', 'Asset tag or serial', 'Back on'])
+                . '<h4>Done</h4>' . $list(['Sign-in blocked and sessions ended', 'Password reset', 'MFA methods removed', 'Taken out of groups and shared mailboxes', 'License removed', 'Device back and wiped', 'Shared passwords they knew changed', 'Contact archived in ITFlow'])
+                . '<h4>Notes</h4><p></p>',
         ],
         [
-            'Change Record',
-            'Record of a planned change, its impact and how to roll it back',
-            '<h3>Change Record</h3><p><strong>Change:</strong> [Summary]<br><strong>Requested by:</strong> [Contact]<br><strong>Scheduled:</strong> [Date and Window]<br><strong>Risk:</strong> [Low / Medium / High]</p><h4>Reason for Change</h4><p></p><h4>Systems Affected</h4><ul><li></li></ul><h4>Expected Impact</h4><ul><li>User impact:</li><li>Expected downtime:</li><li>Who has been notified:</li></ul><h4>Implementation Steps</h4><ol><li></li></ol><h4>Verification</h4><ol><li></li></ol><h4>Rollback Plan</h4><ol><li></li></ol><h4>Outcome</h4><ul><li>Completed by:</li><li>Result:</li><li>Documentation updated:</li></ul>',
+            'name' => 'Change Record',
+            'description' => 'A planned change, its impact and how to roll it back',
+            'review_months' => 0,
+            'fill_ins' => [
+                $fill_in('Change Summary', 'text', [], true),
+                $fill_in('Scheduled For', 'date'),
+                $fill_in('Risk', 'list', ['Low', 'Medium', 'High']),
+            ],
+            'content' => '<h3>Change Record - [Change Summary]</h3>'
+                . '<p><strong>Client:</strong> [Client]<br><strong>Requested by:</strong> [Contact]<br><strong>Scheduled:</strong> [Scheduled For]<br><strong>Risk:</strong> [Risk]<br><strong>Engineer:</strong> [Agent]</p>'
+                . '<h4>Why</h4><p></p>'
+                . '<h4>Systems Affected</h4><ul><li></li></ul>'
+                . '<h4>Impact</h4>' . $list(['On users:', 'Downtime expected:', 'Who has been told:'])
+                . '<h4>Plan</h4><ol><li></li></ol>'
+                . '<h4>Testing</h4><p></p>'
+                . '<h4>Rollback</h4><ol><li></li></ol>'
+                . '<h4>Outcome</h4>' . $list(['Done:', 'Problems:']),
         ],
         [
-            'Incident Response Plan',
-            'Agreed process and contacts for a security incident',
-            '<h3>Incident Response Plan</h3><p><strong>Client:</strong> [Client]<br><strong>Last reviewed:</strong> [Date]</p><h4>Contacts</h4><table style="width:100%" border="1"><tbody><tr><th>Role</th><th>Name</th><th>Contact</th><th>Out of Hours</th></tr><tr><td>Client decision maker</td><td></td><td></td><td></td></tr><tr><td>Technical lead</td><td></td><td></td><td></td></tr><tr><td>Cyber insurer</td><td></td><td></td><td></td></tr><tr><td>Legal counsel</td><td></td><td></td><td></td></tr></tbody></table><h4>Insurance and Notification Requirements</h4><ul><li>Policy number and insurer:</li><li>Notification deadline:</li><li>Approved responders required:</li><li>Regulatory reporting obligations:</li></ul><h4>Severity Definitions</h4><p></p><h4>Response Stages</h4><ol><li>Detect and declare</li><li>Contain and isolate</li><li>Preserve evidence</li><li>Notify</li><li>Eradicate</li><li>Recover and verify</li><li>Review</li></ol><h4>Evidence Handling</h4><p></p>',
+            'name' => 'Incident Response Plan',
+            'description' => 'The agreed process and who to call in a security incident',
+            'review_months' => 12,
+            'fill_ins' => [
+                $fill_in('Cyber Insurer'),
+                $fill_in('Policy Number'),
+            ],
+            'content' => '<h3>Incident Response Plan - [Client]</h3>'
+                . '<p><strong>Approved by:</strong> [Contact]<br><strong>Last reviewed:</strong> [Date]</p>'
+                . '<h4>Who to Call</h4>' . $table(['Role', 'Name', 'Contact', 'Out of hours'], [['Client decision maker', '[Contact]', '[Contact Phone]', ''], ['Technical lead', '[Agent]', '', ''], ['Cyber insurer', '[Cyber Insurer]', '', ''], ['Legal counsel', '', '', ''], ['Law enforcement', '', '', '']])
+                . '<h4>Cyber Insurance</h4>' . $list(['Insurer: [Cyber Insurer]', 'Policy number: [Policy Number]', 'Claims line:', 'Has to be called before:'])
+                . '<h4>Severity</h4>' . $table(['Level', 'Meaning', 'Response'], [['1', 'Business stopped, or data taken', 'Everyone, now'], ['2', 'A system or account compromised', 'Same day'], ['3', 'Suspicious, contained', 'Next business day']])
+                . '<h4>First Steps</h4>' . $steps(['Contain - isolate what is affected, without wiping it.', 'Keep the evidence - logs, emails, screenshots.', 'Call the insurer before anyone else is brought in.', 'Change the credentials that may be known.', 'Record every step, with the time.'])
+                . '<h4>Who Has to Be Told</h4><p></p>'
+                . '<h4>The Client\'s Contacts</h4><p>[Contacts]</p>'
+                . '<h4>Afterwards</h4>' . $list(['What we learned:', 'Changes to this plan:']),
         ],
         [
-            'Quarterly Business Review Notes',
-            'Standing agenda and record of a client review meeting',
-            '<h3>Quarterly Business Review</h3><p><strong>Client:</strong> [Client]<br><strong>Period:</strong> [Quarter]<br><strong>Attendees:</strong> [Attendees]<br><strong>Date:</strong> [Date]</p><h4>Service Performance</h4><ul><li>Tickets raised and closed:</li><li>Response and resolution against target:</li><li>Recurring themes:</li></ul><h4>Availability and Incidents</h4><p></p><h4>Security Posture</h4><ul><li>Open risks:</li><li>Risks closed this period:</li><li>Training completion:</li></ul><h4>Backup and Recovery</h4><ul><li>Restore test result:</li><li>Coverage gaps:</li></ul><h4>Asset and License Position</h4><ul><li>End of life exposure:</li><li>Warranty expiry in the next 12 months:</li><li>License changes:</li></ul><h4>Roadmap and Budget</h4><table style="width:100%" border="1"><tbody><tr><th>Item</th><th>Driver</th><th>Indicative Cost</th><th>Target Quarter</th></tr><tr><td></td><td></td><td></td><td></td></tr></tbody></table><h4>Agreed Actions</h4><table style="width:100%" border="1"><tbody><tr><th>Action</th><th>Owner</th><th>Due</th></tr><tr><td></td><td></td><td></td></tr></tbody></table>',
+            'name' => 'Quarterly Business Review Notes',
+            'description' => 'Standing agenda and record of a client review meeting',
+            'review_months' => 0,
+            'fill_ins' => [
+                $fill_in('Attendees'),
+            ],
+            'content' => '<h3>Quarterly Business Review - [Client]</h3>'
+                . '<p><strong>Period:</strong> [Quarter]<br><strong>Date:</strong> [Date]<br><strong>Attendees:</strong> [Attendees]</p>'
+                . '<h4>Service</h4>' . $list(['Tickets raised and resolved:', 'Response and resolution against target:', 'What keeps coming up:'])
+                . '<h4>Availability and Incidents</h4><p></p>'
+                . '<h4>Security</h4>' . $list(['MFA:', 'Patching:', 'Backups and the last restore test:', 'Training:'])
+                . '<h4>Licenses</h4><p>[Licenses]</p>'
+                . '<h4>Hardware Due for Replacement</h4><p></p>'
+                . '<h4>Recommendations</h4>' . $table(['Recommendation', 'Priority', 'Budget', 'Decision'])
+                . '<h4>Actions</h4>' . $table(['Action', 'Who', 'By']),
+        ],
+        [
+            'name' => 'Asset Inventory',
+            'description' => "The client's servers, workstations, network equipment, printers and licenses on a page",
+            'review_months' => 6,
+            'fill_ins' => [],
+            'content' => '<h3>Asset Inventory - [Client]</h3>'
+                . '<p><strong>As of:</strong> [Date]<br><strong>Prepared by:</strong> [Agent]</p>'
+                . '<h4>Servers</h4><p>[Servers]</p>'
+                . '<h4>Workstations</h4><p>[Workstations]</p>'
+                . '<h4>Network Equipment</h4><p>[Network Equipment]</p>'
+                . '<h4>Printers</h4><p>[Printers]</p>'
+                . '<h4>Licenses</h4><p>[Licenses]</p>'
+                . '<h4>Not in ITFlow Yet</h4><ul><li></li></ul>',
+        ],
+        [
+            'name' => 'Vendors and Escalation',
+            'description' => 'Who to call about what, in what order',
+            'review_months' => 12,
+            'fill_ins' => [],
+            'content' => '<h3>Vendors and Escalation - [Client]</h3>'
+                . '<p><strong>Last reviewed:</strong> [Date]</p>'
+                . '<h4>Escalation Order</h4>' . $table(['Problem', 'Call first', 'Then', 'Out of hours'], [['Internet down', '', '', ''], ['Phones down', '', '', ''], ['Line of business application', '', '', ''], ['Building or power', '', '', '']])
+                . '<h4>Vendors</h4><p>[Vendors]</p>'
+                . '<h4>Services</h4><p>[Services]</p>'
+                . '<h4>The Client\'s Contacts</h4><p>[Contacts]</p>',
         ],
     ];
-
-    return $document_templates;
 
 }
 

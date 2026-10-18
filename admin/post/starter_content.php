@@ -86,6 +86,26 @@ if (isset($_POST['update_starter_canned_responses'])) {
 
 }
 
+if (isset($_POST['update_starter_document_templates'])) {
+
+    // The starter document templates already here, brought up to this version
+    validateCSRFToken();
+
+    require_once 'starter_content_model.php';
+
+    $counts = starterUpdateDocumentTemplates();
+
+    if ($counts['replaced']) {
+        logAudit("Starter Content", "Edit", "$session_name brought {$counts['replaced']} starter document templates up to date");
+        flashAlert("Brought <strong>{$counts['replaced']}</strong> starter document templates up to date");
+    } else {
+        flashAlert("None of the starter document templates are here to update - add them instead", 'info');
+    }
+
+    redirect();
+
+}
+
 if (isset($_POST['load_demo_data'])) {
 
     validateCSRFToken();

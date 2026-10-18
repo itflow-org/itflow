@@ -9,8 +9,10 @@
  * made from it stay - or deleted. One that every client, or the clients with
  * a tag, should have shows how many of them do, and one whose documents are
  * reviewed shows how many are due; the Required tab lists those it is
- * required of. The work is in functions/document_template.php; the handlers
- * are admin/post/document_template.php.
+ * required of. They can be exported to a file and imported from one, and
+ * the report shows how they are used. The work is in
+ * functions/document_template.php; the handlers are
+ * admin/post/document_template.php.
  */
 
 // Default Column Sortby Filter
@@ -95,7 +97,25 @@ $csrf = $_SESSION['csrf_token'];
     <div class="card-header bg-dark py-2">
         <h3 class="card-title mt-2"><i class="fas fa-fw fa-file-alt me-2"></i>Document Templates</h3>
         <div class="card-tools">
-            <button type="button" class="btn btn-primary ajax-modal" data-modal-size="xl" data-modal-url="<?= $add_url ?>"><i class="fas fa-plus me-2"></i>New Document Template</button>
+            <div class="btn-group">
+                <button type="button" class="btn btn-primary ajax-modal" data-modal-size="xl" data-modal-url="<?= $add_url ?>"><i class="fas fa-plus"></i><span class="d-none d-lg-inline ms-2">New Document Template</span></button>
+                <button type="button" class="btn btn-primary dropdown-toggle dropdown-toggle-split" data-bs-toggle="dropdown" aria-label="More"></button>
+                <div class="dropdown-menu dropdown-menu-end">
+                    <a class="dropdown-item ajax-modal" href="#" data-modal-url="modals/document_template/document_template_import.php">
+                        <i class="fas fa-fw fa-file-upload text-secondary me-2"></i>Import
+                    </a>
+                    <a class="dropdown-item ajax-modal" href="#" data-modal-url="modals/document_template/document_template_export.php">
+                        <i class="fas fa-fw fa-file-download text-secondary me-2"></i>Export
+                    </a>
+                    <div class="dropdown-divider"></div>
+                    <a class="dropdown-item" href="/agent/reports/document_templates.php">
+                        <i class="fas fa-fw fa-chart-bar text-secondary me-2"></i>How they are used
+                    </a>
+                    <a class="dropdown-item" href="starter_content.php">
+                        <i class="fas fa-fw fa-seedling text-secondary me-2"></i>Starter document templates
+                    </a>
+                </div>
+            </div>
         </div>
     </div>
     <div class="card-header py-3">
